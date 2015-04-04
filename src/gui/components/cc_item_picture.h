@@ -86,7 +86,15 @@ class CComponentsPicture : public CComponentsItem
 		void SetTransparent(int t){ image_transparent = t; }
 
 	public:
-		///constructor for image objects, use this for scaled images, scaling dimensions are defined with parameters w (width) and h (height), only values >0 causes scale of image
+		/*!
+		Constructor for image objects: use this for scaled images.
+		Dimensions are defined with parameters w (width) and h (height).
+		Note: only dimension values >0 causes scaling of image!
+		Note: See also class CComponentsPictureScalable(). That does the same like this, but uses internal value 0 for parameters w (width) and h (height).
+		If scaling is not required, you should use overloaded version that comes without dimension parameters.
+		If no dimensions are defined (in constructor or e.g. with setWidth() or setHeight(),
+		width and height are defined by image itself and are retrievable e.g. with getWidth() or getHeight().
+		*/
 		CComponentsPicture( 	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& image_name,
 					CComponentsForm *parent = NULL,
@@ -96,7 +104,13 @@ class CComponentsPicture : public CComponentsItem
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
 					int transparent = CFrameBuffer::TM_NONE);
 
-		///constructor for image objects, use this for non scaled images, dimensions are defined by image size
+		/*!
+		Constructor for image objects, use this for non scaled images. This is similar with known method paintIcon() from framebuffer class.
+		Dimensions are defined by image itself.
+		Note: you can use the dimension setters setWidth() or setHeight() too, but this has only effects for item body, not for image!
+		If scaling is required, you should use overloaded version above, that comes with dimension parameters or use
+		class CComponentsPictureScalable().
+		*/
 		CComponentsPicture( 	const int &x_pos, const int &y_pos,
 					const std::string& image_name,
 					CComponentsForm *parent = NULL,
@@ -136,6 +150,24 @@ class CComponentsPicture : public CComponentsItem
 		virtual void hide(bool no_restore = false);
 };
 
+class 	CComponentsPictureScalable : public CComponentsPicture
+{
+	public:
+		/*!
+		Constructor for image objects: use this for scaled images.
+		Does the same like class CComponentsPicture() with assigned value 0 for parameters w (width) and h (height).
+		*/
+		CComponentsPictureScalable( 	const int &x_pos, const int &y_pos,
+						const std::string& image_name,
+						CComponentsForm *parent = NULL,
+						bool has_shadow = CC_SHADOW_OFF,
+						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+						fb_pixel_t color_background = 0,
+						fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+						int transparent = CFrameBuffer::TM_NONE)
+						: CComponentsPicture(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent){};
+};
+
 class CComponentsChannelLogo : public CComponentsPicture
 {
 	private:
@@ -153,6 +185,12 @@ class CComponentsChannelLogo : public CComponentsPicture
 		void init(const uint64_t& channelId, const std::string& channelName, bool allow_scale);
 
 	public:
+		/*!
+		Constructor for channel image objects: use this for scaled channel logos.
+		Does the same like class CComponentsPicture() with parameters w (width) and h (height), see above!
+		Requires parameter channel_name or channelId instead image filename
+		NOTE: channel name string is prefered!
+		*/
 		CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& channelName = "",
 					const uint64_t& channelId =0,
@@ -162,7 +200,13 @@ class CComponentsChannelLogo : public CComponentsPicture
 					fb_pixel_t color_background = 0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
 					int transparent = CFrameBuffer::TM_BLACK);
-		
+
+		/*!
+		Constructor for channel image objects: use this for non scaled channel logos.
+		Does the same like class CComponentsPicture() without parameters w (width) and h (height), see above!
+		Requires parameter channel_name or channelId instead image filename
+		NOTE: channel name string is prefered!
+		*/
 		CComponentsChannelLogo( const int &x_pos, const int &y_pos,
 					const std::string& channelName = "",
 					const uint64_t& channelId =0,
@@ -184,6 +228,27 @@ class CComponentsChannelLogo : public CComponentsPicture
 		///returns true, if any logo is available, also if an alternate logo was setted
 		bool hasLogo(){return has_logo;};
 		
+};
+
+class 	CComponentsChannelLogoScalable : public CComponentsChannelLogo
+{
+	public:
+		/*!
+		Constructor for channel image objects: use this for scaled channel logos.
+		Does the same like class CComponentsPictureScalable(), see above!
+		Requires parameter channel_name or channelId instead image filename.
+		NOTE: channel name string is prefered!
+		*/
+		CComponentsChannelLogoScalable( const int &x_pos, const int &y_pos,
+						const std::string& channelName = "",
+						const uint64_t& channelId =0,
+						CComponentsForm *parent = NULL,
+						bool has_shadow = CC_SHADOW_OFF,
+						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+						fb_pixel_t color_background = 0,
+						fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+						int transparent = CFrameBuffer::TM_BLACK)
+						: CComponentsChannelLogo(x_pos, y_pos, 0, 0, channelName, channelId, parent, has_shadow, color_frame, color_background, color_shadow, transparent){};
 };
 
 #endif
