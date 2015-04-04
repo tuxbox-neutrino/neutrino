@@ -2164,12 +2164,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 	dprintf(DEBUG_NORMAL, "initialized everything\n");
 
-	g_PluginList->startPlugin("startup.cfg");
-	if (!g_PluginList->getScriptOutput().empty()) {
-		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
-	}
-	g_RCInput->clearRCMsg();
-
 	InfoClock = CInfoClock::getInstance();
 	if(g_settings.mode_clock)
 		g_settings.mode_clock = InfoClock->StartClock();
@@ -2180,6 +2174,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	//cCA::GetInstance()->Ready(true);
 
 	CLuaServer *luaServer = CLuaServer::getInstance();
+
+	g_PluginList->startPlugin("startup");
+	if (!g_PluginList->getScriptOutput().empty()) {
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
+	}
+	g_RCInput->clearRCMsg();
 
 	m_idletime	= time(NULL);
 	m_screensaver	= false;
