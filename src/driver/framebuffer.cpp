@@ -1075,7 +1075,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
 
-		if(data) {
+		if(data) { //TODO: intercepting of possible full icon cache, that could cause strange behavior while painting of uncached icons
 			int dsize = width*height*sizeof(fb_pixel_t);
 			//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
 			if(cache_size+dsize < ICON_CACHE_SIZE) {
