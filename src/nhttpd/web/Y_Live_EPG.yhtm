@@ -106,7 +106,7 @@ function _show_epg()
 	<table id="epglist" class="y_invisible_table" cellpadding="4" cellspacing="0" width="100%">
 	<thead align="left">
 	<tr>
-		<th colspan="2"><img id="logo" src="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL=}/{=logoid=}.png" style="visibility:hidden; max-width: 50px;"/>&nbsp;</th>
+		<th colspan="2"><img id="logo" src="{=func:get_logo_name {=channel=}=}" style="visibility:hidden; max-width: 50px;"/></th>
 		<th>{=L:date=}</th><th>{=L:from=}</th><th>{=L:to=}</th><th>{=L:program=}</th>
 	</tr>
 	</thead>

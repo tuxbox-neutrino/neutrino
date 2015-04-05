@@ -548,6 +548,7 @@ void Cyhttpd::ReadConfig(void) {
 	ConfigList["WebsiteMain.hosted_directory"] = Config->getString(
 			"WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT);
 
+	ConfigList["Tuxbox.DisplayLogos"] = Config->getString("Tuxbox.DisplayLogos", "true");
 	// Check location of logos
 	if (Config->getString("Tuxbox.LogosURL", "").empty()) {
 		if (access(ConfigList["WebsiteMain.override_directory"] + "/logos", R_OK) == 0) {

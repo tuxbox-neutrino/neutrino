@@ -36,6 +36,7 @@ private:
 	std::string func_get_actual_bouquet_number(CyhookHandler *hh, std::string para);
 	std::string func_get_channels_as_dropdown(CyhookHandler *hh, std::string para);
 	std::string func_get_actual_channel_id(CyhookHandler *hh, std::string para);
+	std::string func_get_logo_name(CyhookHandler *hh, std::string para);
 	std::string func_get_bouquets_with_epg(CyhookHandler *hh, std::string para);
 	std::string func_get_mode(CyhookHandler *hh, std::string para);
 	std::string func_get_video_pids(CyhookHandler *hh, std::string para);

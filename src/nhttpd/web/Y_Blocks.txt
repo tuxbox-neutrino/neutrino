@@ -59,6 +59,7 @@ start-block~nhttpd_save_settings
 {=ini-set:/var/tuxbox/config/nhttpd.conf;mod_sendfile.mime_types;{=mod_sendfile_mime_types=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;mod_sendfile.sendAll;{=mod_sendfile_sendAll=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;Language.selected;{=language=}~cache=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;Tuxbox.DisplayLogos;{=Tuxbox_DisplayLogos=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL;{=Tuxbox_LogosURL=}~save=}
 {=func:do_reload_httpd_config=}
 end-block~nhttpd_save_settings
