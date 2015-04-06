@@ -497,7 +497,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 
 			yresult += string_printf("<tr><td class=\"%cepg\">",classname);
 			yresult += string_printf("%s&nbsp;%s&nbsp;"
-					"<span style=\"font-size: 8pt; white-space: nowrap\">(%ld {=L:von=} %d {=L:min=}, %d%%)</span>"
+					"<span style=\"font-size: 8pt; white-space: nowrap\">(%ld {=L:from=} %d {=L:unit.short.minute=}, %d%%)</span>"
 					, timestr.c_str()
 					, event->description.c_str()
 					, (time(NULL) - event->startTime)/60
