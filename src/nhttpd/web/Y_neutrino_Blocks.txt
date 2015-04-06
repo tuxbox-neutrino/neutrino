@@ -208,9 +208,9 @@ start-block~neutrino_record_save_settings
 {=ini-set:/var/tuxbox/config/neutrino.conf;auto_delete;{=auto_delete=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;temp_timeshift;{=temp_timeshift=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;recording_audio_pids_default;{=recording_audio_pids_default=}~save=}
-{=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_START;{=EXTRA_TIME_START=}=}
-{=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_END;{=EXTRA_TIME_END=}=}
-{=ini-set:/var/tuxbox/config/timerd.conf;ZAPTO_EXTRA_TIME_START;{=ZAPTO_EXTRA_TIME_START=}=}
+{=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_START;{=EXTRA_TIME_START=}~open=}
+{=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_END;{=EXTRA_TIME_END=}~cache=}
+{=ini-set:/var/tuxbox/config/timerd.conf;ZAPTO_EXTRA_TIME_START;{=ZAPTO_EXTRA_TIME_START=}~save=}
 end-block~neutrino_record_save_settings
 
 
