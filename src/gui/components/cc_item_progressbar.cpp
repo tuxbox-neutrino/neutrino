@@ -32,7 +32,6 @@
 #include <neutrino.h>
 
 #include "cc_item_progressbar.h"
-#include "cc_item_shapes.h"
 #define ITEMW 4
 #define POINT 2
 
