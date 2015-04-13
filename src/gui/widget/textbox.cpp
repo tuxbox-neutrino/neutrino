@@ -579,8 +579,10 @@ void CTextBox::refreshText(void)
 	if (!m_nPaintBackground && m_SaveScreen) {
 		if (m_bgpixbuf == NULL){
 			//TRACE("[CTextBox] %s save bg %d\r\n", __FUNCTION__, __LINE__);
-			m_bgpixbuf= new fb_pixel_t[dx * dy];
-			frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
+			if ((dx * dy) >0){
+				m_bgpixbuf= new fb_pixel_t[dx * dy];
+				frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
+			}
 		}
 	}
 
