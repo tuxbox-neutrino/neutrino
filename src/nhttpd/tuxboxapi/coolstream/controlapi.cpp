@@ -1335,23 +1335,31 @@ inline static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& 
 	return a.startTime < b.startTime;
 }
 extern const char * GetGenre(const unsigned char contentClassification); // UTF-8
+
 void CControlAPI::EpgSearchXMLCGI(CyhookHandler *hh) 
 {
-	EpgSearchCGI(hh, true);//xml_forat = true
-}
-void CControlAPI::EpgSearchTXTCGI(CyhookHandler *hh) 
-{
-	EpgSearchCGI(hh, false);//xml_forat = false
+	EpgSearchCGI(hh, true); //xml_format = true
 }
 
-void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat ) 
+void CControlAPI::EpgSearchTXTCGI(CyhookHandler *hh) 
+{
+	EpgSearchCGI(hh, false); //xml_format = false
+}
+
+void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_format )
 {
 	t_channel_id channel_id;
-	CChannelEventList	evtlist;
-	bool param_empty = hh->ParamList.empty();
-	const int m_search_epg_item = 5;
-	if(!param_empty){
-		if(xml_forat){
+	CChannelEventList evtlist;
+
+	if (!hh->ParamList.empty()) {
+		bool search_epginfo = true;
+		if (hh->ParamList["epginfo"] == "false")
+			search_epginfo = false;
+
+		const int m_search_epg_item = search_epginfo ? 5 /*SEARCH_EPG_ALL*/ : 1 /*SEARCH_EPG_TITLE*/;
+		std::string m_search_keyword = hh->ParamList["1"];
+
+		if(xml_format){
 		  	hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
 			hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			hh->WriteLn("<neutrino commandversion=\"1\">");
@@ -1359,8 +1367,6 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 		else{
 			hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8"); // default
 		}
-
-		std::string m_search_keyword =hh->ParamList["1"];
     
 		std::vector<t_channel_id> v;
 		int channel_nr =  CNeutrinoApp::getInstance ()->channelList->getSize();//unique channelList TV or Radio
@@ -1404,12 +1410,14 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 				if( (eventIterator->startTime+eventIterator->duration) < u_azeit)
 						continue;
 					struct tm *tmStartZeit = localtime(&eventIterator->startTime);
-					if(xml_forat){
+					if(xml_format){
 					hh->printf("\t<epgsearch>");
 					hh->printf("\t\t<channelname>%s</channelname>\n",ZapitTools::UTF8_to_UTF8XML(NeutrinoAPI->GetServiceName(eventIterator->channelID).c_str()).c_str());;
 					hh->printf("\t\t<epgtitle>%s</epgtitle>\n",ZapitTools::UTF8_to_UTF8XML(epg.title.c_str()).c_str());
-					hh->printf("\t\t<info1>%s</info1>\n",ZapitTools::UTF8_to_UTF8XML(epg.info1.c_str()).c_str());
-					hh->printf("\t\t<info2>%s</info2>\n",ZapitTools::UTF8_to_UTF8XML(epg.info2.c_str()).c_str());
+					if (search_epginfo) {
+						hh->printf("\t\t<info1>%s</info1>\n",ZapitTools::UTF8_to_UTF8XML(epg.info1.c_str()).c_str());
+						hh->printf("\t\t<info2>%s</info2>\n",ZapitTools::UTF8_to_UTF8XML(epg.info2.c_str()).c_str());
+					}
 					if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
 						hh->printf("\t\t<fsk>%u</fsk>\n", longepg.fsk);
 #ifdef FULL_CONTENT_CLASSIFICATION
@@ -1448,10 +1456,12 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 					hh->WriteLn(datetimer_str);
 					hh->WriteLn(NeutrinoAPI->GetServiceName(eventIterator->channelID));
 					hh->WriteLn(epg.title);
-					if(!epg.info1.empty())
-						hh->WriteLn(epg.info1);
-					if(!epg.info2.empty())
-						hh->WriteLn(epg.info2);
+					if (search_epginfo) {
+						if(!epg.info1.empty())
+							hh->WriteLn(epg.info1);
+						if(!epg.info2.empty())
+							hh->WriteLn(epg.info2);
+					}
 					if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
 						hh->printf("fsk:%u\n", longepg.fsk);
 #ifdef FULL_CONTENT_CLASSIFICATION
@@ -1473,7 +1483,7 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 				}
 			}
 		}
-		if(xml_forat)
+		if(xml_format)
 			hh->printf("</neutrino>");
 	}else
 		hh->SendError();

@@ -42,7 +42,7 @@ private:
 	void epgDetailList(CyhookHandler *hh);
 	void EpgSearchXMLCGI(CyhookHandler *hh);
 	void EpgSearchTXTCGI(CyhookHandler *hh);
-	void EpgSearchCGI(CyhookHandler *hh, bool xml_forat = false);
+	void EpgSearchCGI(CyhookHandler *hh, bool xml_format = false);
 	// subs
 	friend class CNeutrinoWebserver; // for timer /fb/ compatibility
 	void doModifyTimer(CyhookHandler *hh);
