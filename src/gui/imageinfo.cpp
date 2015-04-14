@@ -341,6 +341,13 @@ string CImageInfo::getLicenseText()
 	CComponentsText txt;
 	string res = txt.getTextFromFile(file);
 
+	//assign default text, if language file is not available
+	if(res.empty()){
+		file = LICENSEDIR;
+		file += "english.license";
+		res = txt.getTextFromFile(file);
+	}
+
 	return res;
 }
 
