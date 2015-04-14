@@ -469,7 +469,10 @@ void CChannelList::calcSize()
 		width = full_width;
 
 	// calculate height (the infobox below mainbox is handled outside height)
-	info_height = 2*fheight + fdescrheight + 10;
+	if (g_settings.channellist_show_infobox)
+		info_height = 2*fheight + fdescrheight + 10;
+	else
+		info_height = 0;
 	height = pig_on_win ?  frameBuffer->getScreenHeight(): frameBuffer->getScreenHeightRel();
 	height = height - info_height;
 
@@ -1500,6 +1503,9 @@ bool CChannelList::quickZap(int key, bool /* cycle */)
 
 void CChannelList::paintDetails(int index)
 {
+	if (!g_settings.channellist_show_infobox)
+		return;
+
 	CChannelEvent *p_event = NULL;
 
 	//colored_events init
@@ -1616,13 +1622,6 @@ void CChannelList::paintDetails(int index)
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- from_len, y+ height+ 5+ 2*fheight+ fdescrheight, from_len, cFrom, colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 		}
 	}
-	if ((g_settings.channellist_additional) && (p_event != NULL))
-	{
-		if (displayList)
-			paint_events(index);
-		else
-			showdescription(selected);
-	}
 }
 
 void CChannelList::clearItem2DetailsLine()
@@ -1632,6 +1631,9 @@ void CChannelList::clearItem2DetailsLine()
 
 void CChannelList::paintItem2DetailsLine (int pos)
 {
+	if (!g_settings.channellist_show_infobox)
+		return;
+
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight + pos*fheight + (fheight/2)-2;
 	int ypos2 = y + height + (info_height/2)-2;
@@ -1647,6 +1649,17 @@ void CChannelList::paintItem2DetailsLine (int pos)
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1, ypos2, fheight/2+1, info_height-RADIUS_LARGE*2);
 		dline->paint(false);
+	}
+}
+
+void CChannelList::paintAdditionals(int index)
+{
+	if (g_settings.channellist_additional)
+	{
+		if (displayList)
+			paint_events(index);
+		else
+			showdescription(selected);
 	}
 }
 
@@ -1823,6 +1836,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		paintItem2DetailsLine (pos);
 		paintDetails(curr);
+		paintAdditionals(curr);
 		c_rad_small = RADIUS_LARGE;
 		paintbuttons = true;
 	}
