@@ -339,14 +339,13 @@ string CImageInfo::getLicenseText()
 	file += g_settings.language;
 	file += ".license";
 
-	CComponentsText txt;
-	string res = txt.getTextFromFile(file);
+	string res = CComponentsText::getTextFromFile(file);
 
 	//assign default text, if language file is not available
 	if(res.empty()){
 		file = LICENSEDIR;
 		file += "english.license";
-		res = txt.getTextFromFile(file);
+		res = CComponentsText::getTextFromFile(file);
 	}
 
 	return res;
