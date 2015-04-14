@@ -146,7 +146,7 @@ class CComponentsText : public CComponentsItem, public CBox
 		///set text directly from a textfile, path as string is required
 		virtual bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///get text directly from a textfile, path as string is required
-		virtual std::string getTextFromFile(const std::string& path_to_textfile);
+		static std::string getTextFromFile(const std::string& path_to_textfile);
 		///returns current text content of text/label object as std::string
 		virtual std::string getText(){return ct_text;};
 
