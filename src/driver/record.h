@@ -34,11 +34,9 @@
 
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
-#include <driver/vfd.h>
 #endif
 #if HAVE_TRIPLEDRAGON
 #include <record_td.h>
-#include <driver/lcdd.h>
 #endif
 
 #include <OpenThreads/Mutex>

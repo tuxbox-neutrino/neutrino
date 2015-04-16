@@ -44,6 +44,7 @@
 #include <gui/videosettings.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
+#include <driver/display.h>
 #include <driver/abstime.h>
 #include <driver/record.h>
 #include <eitd/edvbstring.h>

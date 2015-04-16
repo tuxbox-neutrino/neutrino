@@ -65,6 +65,7 @@
 
 #include <daemonc/remotecontrol.h>
 #include <driver/record.h>
+#include <driver/display.h>
 #include <driver/volume.h>
 #include <driver/radiotext.h>
 

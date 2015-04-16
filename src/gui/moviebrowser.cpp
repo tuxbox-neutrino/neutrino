@@ -64,6 +64,7 @@
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
 #include <driver/record.h>
+#include <driver/display.h>
 #include <system/helpers.h>
 #include <system/ytcache.h>
 #include <zapit/debug.h>

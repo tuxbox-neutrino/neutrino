@@ -48,6 +48,7 @@
 #include <driver/audiofile.h>
 #include <driver/audiometadata.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 
 #include <gui/audiomute.h>
 #include <gui/color.h>

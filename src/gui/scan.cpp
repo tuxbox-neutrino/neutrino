@@ -38,6 +38,7 @@
 #include <driver/screen_max.h>
 #include <driver/record.h>
 #include <driver/volume.h>
+#include <driver/display.h>
 
 #include <gui/color.h>
 

@@ -45,6 +45,7 @@
 #include <driver/abstime.h>
 #include <driver/record.h>
 #include <driver/fade.h>
+#include <driver/display.h>
 #include <driver/radiotext.h>
 
 #include <gui/color.h>
