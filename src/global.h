@@ -75,8 +75,8 @@ class CEpgData;
 NEUTRINO_CPP  CEpgData		*g_EpgData;
 class CInfoViewer;
 NEUTRINO_CPP  CInfoViewer	*g_InfoViewer;
-class CNeutrinoEventList;
-NEUTRINO_CPP  CNeutrinoEventList		*g_EventList;
+class CEventList;
+NEUTRINO_CPP  CEventList	*g_EventList;
 
 class CLocaleManager;
 NEUTRINO_CPP CLocaleManager	*g_Locale;

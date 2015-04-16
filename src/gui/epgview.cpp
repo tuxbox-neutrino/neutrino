@@ -912,7 +912,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					time_t tmp_sZeit  = epgData.epg_times.startzeit;
 					uint64_t  tmp_eID = epgData.eventID;
 
-					CNeutrinoEventList *ee = new CNeutrinoEventList;
+					CEventList *ee = new CEventList;
 					res = ee->exec(channel_id, g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT),"","",followlist); // UTF-8
 					delete ee;
 					if (res == menu_return::RETURN_EXIT_ALL)

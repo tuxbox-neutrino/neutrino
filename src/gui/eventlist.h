@@ -44,7 +44,7 @@
 #include <string>
 
 
-class CNeutrinoEventList
+class CEventList
 {
 	// Eventfinder start
 	public:
@@ -124,8 +124,8 @@ class CNeutrinoEventList
 	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
 	
 	public:
-		CNeutrinoEventList();
-		~CNeutrinoEventList();
+		CEventList();
+		~CEventList();
 		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = "", const CChannelEventList &followlist = CChannelEventList ()); // UTF-8
 };
 

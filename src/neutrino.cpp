@@ -2008,7 +2008,7 @@ TIMER_START();
 	g_RemoteControl = new CRemoteControl;
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
-	g_EventList = new CNeutrinoEventList;
+	g_EventList = new CEventList;
 
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
