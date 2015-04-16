@@ -1636,18 +1636,18 @@ void CChannelList::clearItem2DetailsLine()
 
 void CChannelList::paintItem2DetailsLine (int pos)
 {
+	if (dline){
+		dline->kill(); //kill details line
+		delete dline;
+		dline = NULL;
+	}
+
 	if (!g_settings.channellist_show_infobox)
 		return;
 
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight + pos*fheight + (fheight/2)-2;
 	int ypos2 = y + height + (info_height/2)-2;
-
-	if (dline){
-		dline->kill(); //kill details line
-		delete dline;
-		dline = NULL;
-	}
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) {
