@@ -79,6 +79,7 @@
 #include "gui/vfd_setup.h"
 #include "gui/videosettings.h"
 #include "driver/record.h"
+#include "driver/display.h"
 
 
 extern CPlugins       * g_PluginList;

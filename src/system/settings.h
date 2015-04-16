@@ -32,6 +32,7 @@
 #ifndef __settings__
 #define __settings__
 
+#include "config.h"
 #include <system/localize.h>
 #include <configfile.h>
 #include <zapit/client/zapitclient.h>
