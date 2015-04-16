@@ -35,6 +35,7 @@
 #include <neutrino.h>
 
 #include <system/settings.h>
+#include <driver/display.h>
 #include <driver/screen_max.h>
 
 #include <gui/components/cc.h>

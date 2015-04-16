@@ -43,6 +43,7 @@
 
 #include <gui/widget/icons.h>
 
+#include <driver/display.h>
 #include <driver/screen_max.h>
 
 #include <system/debug.h>

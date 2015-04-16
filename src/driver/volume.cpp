@@ -34,6 +34,7 @@
 #include <audio_cs.h>
 #include <system/settings.h>
 #include <daemonc/remotecontrol.h>
+#include <driver/display.h>
 #include <driver/volume.h>
 #include <gui/audiomute.h>
 #include <gui/mediaplayer.h>

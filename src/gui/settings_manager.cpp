@@ -40,6 +40,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
 
+#include <driver/display.h>
 #include <driver/screen_max.h>
 #include <system/helpers.h>
 

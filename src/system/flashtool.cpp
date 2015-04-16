@@ -42,6 +42,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <driver/display.h>
 
 CFlashTool::CFlashTool()
 {

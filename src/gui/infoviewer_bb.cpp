@@ -53,6 +53,7 @@
 #include <system/helpers.h>
 #include <system/hddstat.h>
 #include <daemonc/remotecontrol.h>
+#include <driver/radiotext.h>
 #include <driver/volume.h>
 
 #include <zapit/femanager.h>

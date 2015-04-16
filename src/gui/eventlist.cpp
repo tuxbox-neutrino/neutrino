@@ -32,7 +32,7 @@
 #include <neutrino.h>
 #include <gui/eventlist.h>
 #include <gui/epgplus.h>
-
+#include <gui/epgview.h>
 #include <gui/timerlist.h>
 #include <gui/user_menue.h>
 
@@ -47,6 +47,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
 
+#include <driver/display.h>
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 

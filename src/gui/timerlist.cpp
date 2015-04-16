@@ -50,7 +50,7 @@
 
 #include <gui/channellist.h>
 #include <gui/color.h>
-
+#include <gui/epgview.h>
 #include <gui/eventlist.h>
 #include <gui/filebrowser.h>
 #include <gui/infoviewer.h>

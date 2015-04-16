@@ -18,7 +18,7 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA
 */
 
-
+#include <cstring>
 #include <system/httptool.h>
 
 #include <curl/curl.h>
@@ -29,7 +29,6 @@
 #endif
 
 #include <global.h>
-
 
 CHTTPTool::CHTTPTool()
 {

@@ -47,6 +47,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
