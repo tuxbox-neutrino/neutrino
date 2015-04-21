@@ -78,6 +78,7 @@ private:
 	void ShutdownCGI(CyhookHandler *hh);
 	void VolumeCGI(CyhookHandler *hh);
 	void ChannellistCGI(CyhookHandler *hh);
+	void LogolistCGI(CyhookHandler *hh);
 	void GetBouquetCGI(CyhookHandler *hh);
 	void GetBouquetsCGI(CyhookHandler *hh);
 	void EpgCGI(CyhookHandler *hh);

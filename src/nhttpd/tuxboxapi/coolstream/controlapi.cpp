@@ -39,6 +39,8 @@
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
 #include <rcsim.h>
+#include <driver/pictureviewer/pictureviewer.h>
+extern CPictureViewer *g_PicViewer;
 
 // yhttpd
 #include <yhttpd.h>
@@ -155,6 +157,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"getservicesxml", 	&CControlAPI::GetServicesxmlCGI,""},
 	{"getbouquetsxml", 	&CControlAPI::GetBouquetsxmlCGI,""},
 	{"channellist", 	&CControlAPI::ChannellistCGI,	"text/plain"},
+	{"logolist",	 	&CControlAPI::LogolistCGI,	"text/plain"},
 	{"getbouquet", 		&CControlAPI::GetBouquetCGI,	"+xml"},
 	{"getbouquets", 	&CControlAPI::GetBouquetsCGI,	"+xml"},
 	{"getmode", 		&CControlAPI::GetModeCGI,		"text/plain"},
@@ -830,6 +833,40 @@ void CControlAPI::ChannellistCGI(CyhookHandler *hh)
 	SendChannelList(hh);
 }
 
+void CControlAPI::LogolistCGI(CyhookHandler *hh)
+{
+	std::string result = "";
+	int mode = NeutrinoAPI->Zapit->getMode();
+	CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
+	for (; !(cit.EndOfChannels()); cit++)
+	{
+		std::vector<t_channel_id> v;
+		CZapitChannel * channel = *cit;
+		size_t pos = std::find(v.begin(), v.end(), channel->getChannelID()) - v.begin();
+		if (pos < v.size())
+			continue;
+		v.push_back(channel->getChannelID());
+		result += string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS";%s;"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"", channel->getChannelID(), channel->getName().c_str(), (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
+
+		if (hh->ParamList["1"].compare("files") == 0)
+		{
+			std::string logoFile = "";
+			std::string logoLink = "";
+			char link[PATH_MAX + 1] = {0};
+			if (g_PicViewer->GetLogoName(channel->getChannelID(), NeutrinoAPI->GetServiceName(channel->getChannelID()), logoFile, NULL, NULL))
+			{
+				result += string_printf(";%s", logoFile.c_str());
+				realpath(logoFile.c_str(), link);
+				logoLink = string(link);
+				if (strcmp(logoFile.c_str(), logoLink.c_str()) != 0)
+					result += string_printf(";%s", logoLink.c_str());
+			}
+		}
+
+		result += "\n";
+	}
+	hh->WriteLn(result);
+}
 //-----------------------------------------------------------------------------
 // get actual and next event data for given channel
 //-----------------------------------------------------------------------------
