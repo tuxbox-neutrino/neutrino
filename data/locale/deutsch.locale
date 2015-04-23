@@ -2193,7 +2193,7 @@ timerlist.repeatcount Wiederholungen
 timerlist.repeatcount.help1 Anzahl der Timerausführungen
 timerlist.repeatcount.help2 0 für unbegrenzte Anzahl
 timerlist.save Timer speichern
-timerlist.standby SB Modus
+timerlist.standby Aktion
 timerlist.standby.off Aufwachen aus Standby
 timerlist.standby.on In Standby gehen
 timerlist.stoptime Stoppzeit

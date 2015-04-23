@@ -2193,7 +2193,7 @@ timerlist.repeatcount repeats
 timerlist.repeatcount.help1 amount of timer repeats
 timerlist.repeatcount.help2 0 for unlimited repeats
 timerlist.save Save timer
-timerlist.standby SB mode
+timerlist.standby Action
 timerlist.standby.off Leave standby
 timerlist.standby.on Enter standby
 timerlist.stoptime Stop time
