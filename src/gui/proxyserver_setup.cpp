@@ -50,7 +50,7 @@ CProxySetup::CProxySetup(const neutrino_locale_t title, const char * const IconN
 	menue_title = title;
 	menue_icon = IconName;
 
-	width = w_max (40, 10);
+	width = 40;
 }
 
 CProxySetup::~CProxySetup()

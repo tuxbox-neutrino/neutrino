@@ -41,7 +41,7 @@
 
 CZapitSetup::CZapitSetup()
 {
-	width = w_max (40, 10); //%
+	width = 40;
 }
 
 CZapitSetup::~CZapitSetup()
@@ -109,7 +109,7 @@ int CZapitSetup::showMenu()
 //select menu
 CSelectChannelWidget::CSelectChannelWidget()
 {
-	width = w_max (40, 10); //%
+	width = 40;
 }
 
 CSelectChannelWidget::~CSelectChannelWidget()

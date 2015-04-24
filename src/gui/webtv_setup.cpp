@@ -35,7 +35,7 @@
 
 CWebTVSetup::CWebTVSetup()
 {
-	width = w_max (55, 10);
+	width = 55;
 	selected = -1;
 	item_offset = 0;
 	changed = false;

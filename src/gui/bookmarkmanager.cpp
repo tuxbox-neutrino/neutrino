@@ -225,7 +225,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 	visible = false;
 	selected = 0;
 	// Max
-	width = w_max( 90, 10 );
+	width = 90;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();

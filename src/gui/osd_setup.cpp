@@ -84,7 +84,7 @@ COsdSetup::COsdSetup(bool wizard_mode)
 
 	is_wizard = wizard_mode;
 
-	width = w_max (40, 10); //%
+	width = 40;
 	show_menu_hints = 0;
 	show_tuner_icon = 0;
 }
@@ -500,7 +500,7 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mf);
 
 	//fonts
-	CMenuWidget osd_menu_fonts(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, w_max(50, 10), MN_WIDGET_ID_OSDSETUP_FONT);
+	CMenuWidget osd_menu_fonts(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, 50, MN_WIDGET_ID_OSDSETUP_FONT);
 	showOsdFontSizeSetup(&osd_menu_fonts);
 	mf = new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, &osd_menu_fonts, NULL, CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_FONTS);

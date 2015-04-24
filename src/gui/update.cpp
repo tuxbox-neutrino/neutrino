@@ -100,7 +100,7 @@ int pinghost  (const std::string &hostname, std::string *ip = NULL);
 CFlashUpdate::CFlashUpdate()
 	:CProgressWindow()
 {
-	width = w_max (40, 10); 
+	width = 40;
 	setTitle(LOCALE_FLASHUPDATE_HEAD);
 	sysfs = CMTDInfo::getInstance()->findMTDsystem();
 	if (sysfs.empty())
@@ -196,7 +196,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	std::string md5;
 	std::vector<std::string> updates_lists, urls, names, versions, descriptions, md5s;
 	char fileTypes[128];
-	int selected = -1, listWidth = w_max (80, 10);
+	int selected = -1, listWidth = 80;
 	int curVer, newVer, newfound = 0;
 
 	CConfigFile _configfile('\t');
@@ -598,7 +598,7 @@ CFlashExpert::CFlashExpert()
 	:CProgressWindow()
 {
 	selectedMTD = -1;
-	width = w_max (40, 10);
+	width = 40;
 #ifdef BOXMODEL_APOLLO
 	forceOtherFilename = false;
 	otherFilename = "";
@@ -976,7 +976,7 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 #ifdef BOXMODEL_APOLLO
 CFlashExpertSetup::CFlashExpertSetup()
 {
-	width = w_max (40, 10);
+	width = 40;
 }
 
 void CFlashExpertSetup::readMTDPart(int mtd, const std::string &fileName)

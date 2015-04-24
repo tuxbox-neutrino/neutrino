@@ -72,7 +72,7 @@ const struct button_label TestButtons[/*TestButtonsCount*/] =
 
 CTestMenu::CTestMenu()
 {
-	width = w_max (50, 10);
+	width = 50;
 	circle = NULL;
 	sq = NULL;
 	pic = chnl_pic = NULL;

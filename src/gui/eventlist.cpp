@@ -1239,7 +1239,7 @@ CEventFinderMenu::CEventFinderMenu(	int* 			event,
 	m_search_list       = search_list;
 	m_search_channel_id = search_channel_id;
 	m_search_bouquet_id = search_bouquet_id;
-	width = w_max (40, 10);
+	width = 40;
 	selected = -1;
 }
 

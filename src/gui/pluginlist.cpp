@@ -67,7 +67,7 @@ CPluginList::CPluginList(const neutrino_locale_t Title, const uint32_t listtype)
 {
 	title = Title;
 	pluginlisttype = listtype;
-	width = w_max (40, 10);
+	width = 40;
 	selected = -1;
 	number = -1;
 }

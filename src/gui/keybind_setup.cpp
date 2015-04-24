@@ -75,7 +75,7 @@ CKeybindSetup::CKeybindSetup()
 {
 	changeNotify(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, NULL);
 
-	width = w_max (40, 10);
+	width = 40;
 }
 
 CKeybindSetup::~CKeybindSetup()

@@ -67,7 +67,7 @@ CNetworkSetup::CNetworkSetup(bool wizard_mode)
 
 	is_wizard = wizard_mode;
 
-	width = w_max (40, 10);
+	width = 40;
 
 	//readNetworkSettings();
 }

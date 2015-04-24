@@ -316,7 +316,7 @@ const CMenuOptionChooser::keyval SATSETUP_FRONTEND_MODE[SATSETUP_FRONTEND_MODE_C
 
 CScanSetup::CScanSetup(bool wizard_mode)
 {
-	width = w_max (40, 10);
+	width = 40;
 	is_wizard = wizard_mode;
 
 	satOnOff	= NULL;
@@ -1938,7 +1938,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 	static int old_selected = 0;
 	static t_satellite_position old_position = 0;
 
-	int width = w_max (40, 10);
+	int width = 40;
 
 	if (parent)
 		parent->hide();

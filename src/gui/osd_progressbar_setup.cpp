@@ -66,7 +66,7 @@ const CMenuOptionChooser::keyval PROGRESSBAR_TIMESCALE_INVERT_OPTIONS[PROGRESSBA
 
 CProgressbarSetup::CProgressbarSetup()
 {
-	width = w_max (40, 10); //%
+	width = 40;
 }
 
 CProgressbarSetup::~CProgressbarSetup()

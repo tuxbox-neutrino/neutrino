@@ -118,7 +118,7 @@ bool CNetworkService::changeNotify(const neutrino_locale_t /*OptionName*/, void 
 
 CNetworkServiceSetup::CNetworkServiceSetup()
 {
-	width = w_max (40, 10);
+	width = 40;
 	selected = -1;
 }
 

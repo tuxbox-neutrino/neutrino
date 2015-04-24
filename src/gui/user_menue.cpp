@@ -139,7 +139,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		return true;
 	}
 
-	width = w_max (40, 10);
+	width = 40;
 
 	CMenuItem* menu_item = NULL;
 	CMenuItem* last_menu_item = NULL;

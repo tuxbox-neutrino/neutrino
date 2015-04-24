@@ -102,7 +102,7 @@ static int my_filter(const struct dirent * dent)
 
 CHDDMenuHandler::CHDDMenuHandler()
 {
-	width = w_max (58, 10);
+	width = 58;
 	show_menu = false;
 	in_menu = false;
 	lock_refresh = false;

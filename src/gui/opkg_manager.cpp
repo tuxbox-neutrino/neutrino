@@ -82,7 +82,7 @@ static const std::string pkg_types[OM_MAX] =
 
 COPKGManager::COPKGManager()
 {
-	width = w_max (80, 10); //%
+	width = 80;
 	pkg_map.clear();
 	list_installed_done = false;
 	list_upgradeable_done = false;

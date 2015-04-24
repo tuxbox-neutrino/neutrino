@@ -74,7 +74,7 @@ CVideoSettings::CVideoSettings(bool wizard_mode)
 	SyncControlerForwarder = NULL;
 	VcrVideoOutSignalOptionChooser = NULL;
 
-	width = w_max (35, 20);
+	width = 35;
 	selected = -1;
 
 	prev_video_mode = g_settings.video_Mode;

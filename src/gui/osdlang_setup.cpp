@@ -59,7 +59,7 @@ COsdLangSetup::COsdLangSetup(bool wizard_mode)
 {
 	is_wizard = wizard_mode;
 
-	width = w_max (45, 10);
+	width = 45;
 	tzNotifier = NULL;
 }
 

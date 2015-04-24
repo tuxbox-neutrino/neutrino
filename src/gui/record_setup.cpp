@@ -59,7 +59,7 @@
 
 CRecordSetup::CRecordSetup()
 {
-	width = w_max (50, 10); //%
+	width = 50;
 }
 
 CRecordSetup::~CRecordSetup()

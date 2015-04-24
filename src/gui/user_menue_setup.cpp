@@ -119,7 +119,7 @@ CUserMenuSetup::CUserMenuSetup(neutrino_locale_t menue_title, int menue_button)
 	local = menue_title;
 	button = menue_button;
 	max_char = 24;
-	width = w_max (40, 10);
+	width = 40;
 	if (menue_button < (int) g_settings.usermenu.size())
 		pref_name = g_settings.usermenu[button]->title; //set current button name as prefered name
 	forwarder = NULL;

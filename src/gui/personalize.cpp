@@ -324,7 +324,7 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 //the PIN code feature, as well as determine whether or not the EPG menu/Features menu is accessible.
 int CPersonalizeGui::ShowPersonalizationMenu()
 {
-	width = w_max (40, 10);
+	width = 40;
 
 	CMenuWidget* pMenu = new CMenuWidget(g_settings.easymenu ? LOCALE_PARENTALLOCK_MENU : LOCALE_PERSONALIZE_HEAD, NEUTRINO_ICON_PERSONALIZE, width, MN_WIDGET_ID_PERSONALIZE);
 	pMenu->addIntroItems(NONEXISTANT_LOCALE, LOCALE_PERSONALIZE_ACCESS);
