@@ -452,7 +452,8 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 
         xmlDocPtr parser = parseXmlFile("/etc/timezone.xml");
         if (parser != NULL) {
-                xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
+                xmlNodePtr search = xmlDocGetRootElement(parser);
+		search = xmlChildrenNode(search);
                 while (search) {
                         if (!strcmp(xmlGetName(search), "zone")) {
 				const char *nptr = xmlGetAttribute(search, "name");
@@ -468,7 +469,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 					break;
 				}
                         }
-                        search = search->xmlNextNode;
+                        search = xmlNextNode(search);
                 }
                 xmlFreeDoc(parser);
         }

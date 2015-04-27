@@ -207,7 +207,7 @@ bool readEPGFilter(void)
 			epg_filter_is_whitelist = true;
 		if (xmlGetNumericAttribute(filter, "except_current_next", 10) == 1)
 			epg_filter_except_current_next = true;
-		filter = filter->xmlChildrenNode;
+		filter = xmlChildrenNode(filter);
 
 		while (filter) {
 
@@ -219,7 +219,7 @@ bool readEPGFilter(void)
 			else
 				addEPGFilter(onid, tsid, sid);
 
-			filter = filter->xmlNextNode;
+			filter = xmlNextNode(filter);
 		}
 	}
 	xmlFreeDoc(filter_parser);
@@ -239,7 +239,7 @@ void readDVBTimeFilter(void)
 		dprintf("Reading DVBTimeFilters\n");
 
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
-		filter = filter->xmlChildrenNode;
+		filter = xmlChildrenNode(filter);
 
 		while (filter) {
 
@@ -248,7 +248,7 @@ void readDVBTimeFilter(void)
 			sid  = xmlGetNumericAttribute(filter, "serviceID", 16);
 			addNoDVBTimelist(onid, tsid, sid);
 
-			filter = filter->xmlNextNode;
+			filter = xmlNextNode(filter);
 		}
 		xmlFreeDoc(filter_parser);
 	}
@@ -268,7 +268,7 @@ void deleteOldfileEvents(const char *epgdir)
 	if (filter_parser != NULL)
 	{
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
-		filter = filter->xmlChildrenNode;
+		filter = xmlChildrenNode(filter);
 
 		while (filter) {
 			const char * name = xmlGetAttribute(filter, "name");
@@ -278,7 +278,7 @@ void deleteOldfileEvents(const char *epgdir)
 				file +="/";
 				file +=filename;
 				unlink(file.c_str());
-				filter = filter->xmlNextNode;
+				filter = xmlNextNode(filter);
 			}
 		}
 		xmlFreeDoc(filter_parser);
@@ -290,9 +290,9 @@ void *insertEventsfromFile(void * data)
 	set_threadname(__func__);
 	reader_ready=false;
 	xmlDocPtr event_parser = NULL;
-	xmlNodePtr eventfile = NULL;
-	xmlNodePtr service = NULL;
-	xmlNodePtr event = NULL;
+	xmlNodePtr eventfile;
+	xmlNodePtr service;
+	xmlNodePtr event;
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
@@ -313,7 +313,8 @@ void *insertEventsfromFile(void * data)
 	printdate_ms(stdout);
 	printf("[sectionsd] Reading Information from file %s:\n", indexname.c_str());
 
-	eventfile = xmlDocGetRootElement(index_parser)->xmlChildrenNode;
+	eventfile = xmlDocGetRootElement(index_parser);
+	eventfile = xmlChildrenNode(eventfile);
 
 	while (eventfile) {
 		const char * name = xmlGetAttribute(eventfile, "name");
@@ -323,17 +324,18 @@ void *insertEventsfromFile(void * data)
 		epgname = epg_dir + filename;
 		if (!(event_parser = parseXmlFile(epgname.c_str()))) {
 			dprintf("unable to open %s for reading\n", epgname.c_str());
-			eventfile = eventfile->xmlNextNode;
+			eventfile = xmlNextNode(eventfile);
 			continue;
 		}
-		service = xmlDocGetRootElement(event_parser)->xmlChildrenNode;
+		service = xmlDocGetRootElement(event_parser);
+		service = xmlChildrenNode(service);
 
 		while (service) {
 			onid = xmlGetNumericAttribute(service, "original_network_id", 16);
 			tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
 			sid = xmlGetNumericAttribute(service, "service_id", 16);
 
-			event = service->xmlChildrenNode;
+			event = xmlChildrenNode(service);
 
 			while (event) {
 				SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
@@ -345,66 +347,66 @@ void *insertEventsfromFile(void * data)
 
 				xmlNodePtr node;
 
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "name"))) {
 					const char *s = xmlGetAttribute(node, "string");
 					if (s)
 						e.setName(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
 
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "text"))) {
 					const char *s = xmlGetAttribute(node, "string");
 					if (s)
 						e.setText(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "item"))) {
 #ifdef USE_ITEM_DESCRIPTION
 					const char *s = xmlGetAttribute(node, "string");
 					if (s)
 						e.item = s;
 #endif
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
 
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "item_description"))) {
 #ifdef USE_ITEM_DESCRIPTION
 					const char *s = xmlGetAttribute(node, "string");
 					if (s)
 						e.itemDescription = s;
 #endif
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "extended_text"))) {
 					const char *l = xmlGetAttribute(node, "lang");
 					const char *s = xmlGetAttribute(node, "string");
 					if (l && s)
 						e.appendExtendedText(ZapitTools::UTF8_to_Latin1(l), s);
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
 
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "time"))) {
 					e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
 								xmlGetNumericAttribute(node, "duration", 10)));
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
 
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "content"))) {
 					const char cl = xmlGetNumericAttribute(node, "class", 16);
 					contentClassification += cl;
 					const char cl2 = xmlGetNumericAttribute(node, "user", 16);
 					userClassification += cl2;
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
 
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "component"))) {
 					SIcomponent c;
 					c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
@@ -415,10 +417,10 @@ void *insertEventsfromFile(void * data)
 						c.setComponent(s);
 					//e.components.insert(c);
 					e.components.push_back(c);
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
 
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "parental_rating"))) {
 					const char *s = xmlGetAttribute(node, "country");
 					if (s)
@@ -428,10 +430,10 @@ void *insertEventsfromFile(void * data)
 #endif
 						e.ratings.push_back(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
 								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
 
-				node = event->xmlChildrenNode;
+				node = xmlChildrenNode(event);
 				while ((node = xmlGetNextOccurence(node, "linkage"))) {
 					SIlinkage l;
 					l.linkageType = xmlGetNumericAttribute(node, "type", 16);
@@ -442,7 +444,7 @@ void *insertEventsfromFile(void * data)
 					if (s)
 						l.name = s;
 					e.linkage_descs.insert(e.linkage_descs.end(), l);
-					node = node->xmlNextNode;
+					node = xmlNextNode(node);
 				}
 
 				if (!contentClassification.empty()) {
@@ -459,14 +461,14 @@ void *insertEventsfromFile(void * data)
 				addEvent(e, 0);
 				ev_count++;
 
-				event = event->xmlNextNode;
+				event = xmlNextNode(event);
 			}
 
-			service = service->xmlNextNode;
+			service = xmlNextNode(service);
 		}
 		xmlFreeDoc(event_parser);
 
-		eventfile = eventfile->xmlNextNode;
+		eventfile = xmlNextNode(eventfile);
 	}
 
 	xmlFreeDoc(index_parser);

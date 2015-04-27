@@ -36,6 +36,10 @@ SUBDIRS += lcddisplay
 AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
+if USE_PUGIXML
+PUGIXML_LIBS = -lpugixml
+endif
+
 if USE_TREMOR
 VORBISLIBS = @VORBISIDEC_LIBS@
 else
@@ -115,6 +119,7 @@ neutrino_LDADD = \
 	@AVCODEC_LIBS@ \
 	$(ADEC_LIBS) \
 	@SIGC_LIBS@ \
+	$(PUGIXML_LIBS) \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \

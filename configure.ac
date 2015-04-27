@@ -135,6 +135,17 @@ if test "$enable_giflib" = "yes"; then
 	AC_DEFINE(ENABLE_GIFLIB,1,[use giflib instead of libungif])
 fi
 
+### USE_PUGIXML
+AC_ARG_ENABLE(pugixml,
+       AS_HELP_STRING(--enable-pugixml,use pugixml instead of xmltree),
+       ,[enable_pugixml=no])
+
+AM_CONDITIONAL(USE_PUGIXML,test "$enable_pugixml" = "yes")
+if test "$enable_pugixml" = "yes"; then
+       AC_DEFINE(USE_PUGIXML,1,[use pugixml instead of xmltree])
+fi
+
+
 # FLAC - Free Lossless Audio Codec
 AC_ARG_ENABLE(flac,
 	AS_HELP_STRING(--enable-flac,include FLAC support),

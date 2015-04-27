@@ -382,7 +382,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 		return;
 
 	xmlNodePtr root = xmlDocGetRootElement(parser);
-	xmlNodePtr search = root->xmlChildrenNode;
+	xmlNodePtr search = xmlChildrenNode(root);
 	xmlNodePtr channel_node;
 
 	if (search) {
@@ -409,7 +409,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
 			newBouquet->bFav = (strcmp(name, "favorites") == 0);
 			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
-			channel_node = search->xmlChildrenNode;
+			channel_node = xmlChildrenNode(search);
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
 				std::string name2;
 				name = xmlGetAttribute(channel_node, "n");
@@ -464,7 +464,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					CServiceManager::getInstance()->SetServicesChanged(false);
 				}
 
-				channel_node = channel_node->xmlNextNode;
+				channel_node = xmlNextNode(channel_node);
 				if(!bUser) {
 					/* set satellite position for provider bouquets.
 					   reset position to 0, if position not match - means mixed bouquet */
@@ -476,7 +476,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			}
 			if(!bUser)
 				newBouquet->sortBouquet();
-			search = search->xmlNextNode;
+			search = xmlNextNode(search);
 		}
 		INFO("total: %d bouquets", (int)Bouquets.size());
 	}

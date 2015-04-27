@@ -68,17 +68,46 @@ long xmlGetSignedNumericAttribute(const xmlNodePtr node, const char *name, const
 xmlNodePtr xmlGetNextOccurence(xmlNodePtr cur, const char * s)
 {
 	while ((cur != NULL) && (strcmp(xmlGetName(cur), s) != 0))
-		cur = cur->xmlNextNode;
+		cur = xmlNextNode(cur);
 	return cur;
 }
+#if USE_PUGIXML
+std::string to_utf8(unsigned int cp)
+{
+	std::string result;
+	int count;
+	if (cp < 0x0080)
+		count = 1;
+	else if (cp < 0x0800)
+		count = 2;
+	else if (cp < 0x10000)
+		count = 3;
+	else if (cp <= 0x10FFFF)
+		count = 4;
+	else
+		return result;
 
+	result.resize(count);
+	for (int i = count-1; i > 0; --i)
+	{
+		result[i] = (char) (0x80 | (cp & 0x3F));
+		cp >>= 6;
+	}
+	for (int i = 0; i < count; ++i)
+		cp |= (1 << (7-i));
 
+	result[0] = (char) cp;
+    return result;
+}
+#endif
 std::string Unicode_Character_to_UTF8(const int character)
 {
 #ifdef USE_LIBXML
 	xmlChar buf[5];
 	int length = xmlCopyChar(4, buf, character);
 	return std::string((char*)buf, length);
+#elif  (defined( USE_PUGIXML ) )
+	return to_utf8(character);
 #else  /* USE_LIBXML */
 	char buf[XML_UTF8_ENCODE_MAX];
 	int length = XmlUtf8Encode(character, buf);
@@ -124,7 +153,7 @@ std::string convert_UTF8_To_UTF8_XML(const char* s)
 }
 
 #ifdef USE_LIBXML
-xmlDocPtr parseXml(const char * data)
+xmlDocPtr parseXml(const char * data,char *)
 {
 	xmlDocPtr doc;
 	xmlNodePtr cur;
@@ -150,7 +179,7 @@ xmlDocPtr parseXml(const char * data)
 	}
 }
 
-xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = true */)
+xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = true */,char *)
 {
 	xmlDocPtr doc;
 	xmlNodePtr cur;
@@ -175,6 +204,46 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 			return doc;
 	}
 }
+
+#elif  (defined( USE_PUGIXML ) )
+xmlDocPtr parseXml(const char * data,const char* /*encoding*/)
+{
+	pugi::xml_document* tree_parser = new pugi::xml_document();
+
+	if (!tree_parser->load_string(data))
+	{
+		delete tree_parser;
+		return NULL;
+	}
+
+	if (!tree_parser->root())
+	{
+		printf("Error: No Root Node\n");
+		delete tree_parser;
+		return NULL;
+	}
+	return tree_parser;
+}
+
+xmlDocPtr parseXmlFile(const char * filename, bool,const char* /*encoding*/)
+{
+	pugi::xml_document* tree_parser = new pugi::xml_document();
+
+	if (!tree_parser->load_file(filename))
+	{
+		delete tree_parser;
+		return NULL;
+	}
+
+	if (!tree_parser->root())
+	{
+		printf("Error: No Root Node\n");
+		delete tree_parser;
+		return NULL;
+	}
+	return tree_parser;
+}
+
 #else /* USE_LIBXML */
 xmlDocPtr parseXml(const char * data,const char *encoding)
 {

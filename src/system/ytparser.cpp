@@ -290,7 +290,8 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 	prev.clear();
 	total.clear();
 	start.clear();
-	xmlNodePtr entry = xmlDocGetRootElement(answer_parser)->xmlChildrenNode;
+	xmlNodePtr entry = xmlDocGetRootElement(answer_parser);
+	entry = xmlChildrenNode(entry);
 	while (entry) {
 		std::string name = getXmlName(entry);
 #ifdef DEBUG_PARSER
@@ -314,10 +315,10 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 			}
 		}
 		else if (name != "entry") {
-			entry = entry->xmlNextNode;
+			entry = xmlNextNode(entry);
 			continue;
 		}
-		xmlNodePtr node = entry->xmlChildrenNode;
+		xmlNodePtr node = xmlChildrenNode(entry);
 		cYTVideoInfo vinfo;
 		std::string thumbnail;
 		while (node) {
@@ -335,7 +336,7 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 				vinfo.published = getXmlData(node).substr(0, 10);
 			}
 			else if (name == "author") {
-				xmlNodePtr author = node->xmlChildrenNode;
+				xmlNodePtr author = xmlChildrenNode(node);
 				while(author) {
 					name = getXmlName(author);
 					if (name == "name") {
@@ -344,11 +345,11 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 #endif
 						vinfo.author = getXmlData(author);
 					}
-					author = author->xmlNextNode;
+					author = xmlNextNode(author);
 				}
 			}
 			else if (name == "media:group") {
-				xmlNodePtr media = node->xmlChildrenNode;
+				xmlNodePtr media = xmlChildrenNode(node);
 				while (media) {
 					name = getXmlName(media);
 					if (name == "media:description") {
@@ -388,10 +389,10 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 					else if (name == "media:title") {
 					}
 #endif
-					media = media->xmlNextNode;
+					media = xmlNextNode(media);
 				}
 			}
-			node = node->xmlNextNode;
+			node = xmlNextNode(node);
 		}
 		if (!vinfo.id.empty()) {
 			/* save first one, if wanted not found */
@@ -400,7 +401,7 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 			vinfo.ret = false;
 			videos.push_back(vinfo);
 		}
-		entry = entry->xmlNextNode;
+		entry = xmlNextNode(entry);
 	}
 	xmlFreeDoc(answer_parser);
 

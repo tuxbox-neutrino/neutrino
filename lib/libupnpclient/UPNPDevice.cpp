@@ -177,7 +177,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 	if (strcmp(xmlGetName(root),"root"))
 		throw std::runtime_error(std::string("XML: no root"));
 
-	for (node = root->xmlChildrenNode; node; node=node->xmlNextNode)
+	for (node = xmlChildrenNode(root); node; node=xmlNextNode(node))
 	{
 		if (!strcmp(xmlGetName(node),"URLBase"))
 		{
@@ -188,19 +188,19 @@ CUPnPDevice::CUPnPDevice(std::string url)
 
 	}
 
-	node = root->xmlChildrenNode;
+	node = xmlChildrenNode(root);
 	if (!node)
 		throw std::runtime_error(std::string("XML: no root child"));
 
 	while (strcmp(xmlGetName(node),"device"))
 	{
-		node = node->xmlNextNode;
+		node = xmlNextNode(node);
 		if (!node)
 			throw std::runtime_error(std::string("XML: no device"));
 	}
 	device = node;
 
-	for (node=device->xmlChildrenNode; node; node=node->xmlNextNode)
+	for (node=xmlChildrenNode(device); node; node=xmlNextNode(node))
 	{
 		if (!strcmp(xmlGetName(node),"deviceType"))
 			devicetype = std::string(xmlGetData(node)?xmlGetData(node):"");
@@ -237,7 +237,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 
 		if (!strcmp(xmlGetName(node),"iconList"))
 		{
-			for (icon=node->xmlChildrenNode; icon; icon=icon->xmlNextNode)
+			for (icon=xmlChildrenNode(node); icon; icon=xmlNextNode(icon))
 			{
 				bool foundm = false;
 				bool foundw = false;
@@ -247,7 +247,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 
 				if (strcmp(xmlGetName(icon),"icon"))
 					throw std::runtime_error(std::string("XML: no icon"));
-				for (snode=icon->xmlChildrenNode; snode; snode=snode->xmlNextNode)
+				for (snode=xmlChildrenNode(icon); snode; snode=xmlNextNode(snode))
 				{
 					if (!strcmp(xmlGetName(snode),"mimetype"))
 					{
@@ -292,7 +292,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 		if (!strcmp(xmlGetName(node),"serviceList"))
 		{
 			servicefound = true;
-			for (service=node->xmlChildrenNode; service; service=service->xmlNextNode)
+			for (service=xmlChildrenNode(node); service; service=xmlNextNode(service))
 			{
 				bool foundc = false;
 				bool founde = false;
@@ -300,7 +300,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 
 				if (strcmp(xmlGetName(service),"service"))
 					throw std::runtime_error(std::string("XML: no service"));
-				for (snode=service->xmlChildrenNode; snode; snode=snode->xmlNextNode)
+				for (snode=xmlChildrenNode(service); snode; snode=xmlNextNode(snode))
 				{
 					if (!strcmp(xmlGetName(snode),"serviceType"))
 					{

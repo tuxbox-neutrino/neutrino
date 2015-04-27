@@ -112,7 +112,7 @@ std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UP
 	if (envelope != "Envelope")
 		throw std::runtime_error(std::string("XML: no envelope"));
 
-	node = root->xmlChildrenNode;
+	node = xmlChildrenNode(root);
 	if (!node)
 		throw std::runtime_error(std::string("XML: no envelope child"));
 
@@ -124,7 +124,7 @@ std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UP
 	if (soapbody != "Body")
 		throw std::runtime_error(std::string("XML: no soap body"));
 
-	node = node->xmlChildrenNode;
+	node = xmlChildrenNode(node);
 	if (!node)
 		throw std::runtime_error(std::string("XML: no soap body child"));
 
@@ -138,13 +138,13 @@ std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UP
 		std::string faultstring, upnpcode, upnpdesc, errstr;
 		if (soapresponse != "Fault")
 			throw std::runtime_error(std::string("XML: http error without soap fault: ")+rcode);
-		for (node=node->xmlChildrenNode; node; node=node->xmlNextNode)
+		for (node=xmlChildrenNode(node); node; node=xmlNextNode(node))
 		{
 			if (!strcmp(xmlGetName(node),"detail"))
 			{
-				snode=node->xmlChildrenNode;
+				snode=xmlChildrenNode(node);
 				if (snode)
-					for (snode=snode->xmlChildrenNode; snode; snode=snode->xmlNextNode)
+					for (snode=xmlChildrenNode(snode); snode; snode=xmlNextNode(snode))
 					{
 						errstr=xmlGetName(snode);
 						pos = errstr.find(":");
@@ -168,7 +168,7 @@ std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UP
 	if (soapresponse != action + "Response")
 		throw std::runtime_error(std::string("XML: no soap response"));
 
-	for (node=node->xmlChildrenNode; node; node=node->xmlNextNode)
+	for (node=xmlChildrenNode(node); node; node=xmlNextNode(node))
 		results.push_back(UPnPAttribute(xmlGetName(node), xmlGetData(node)));
 
 	xmlFreeDoc(parser);

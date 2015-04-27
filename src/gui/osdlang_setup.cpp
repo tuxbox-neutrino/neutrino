@@ -139,7 +139,8 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 	{
 		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, &g_settings.timezone, true, tzNotifier, CRCInput::RC_green, NULL, true);
 		tzSelect->setHint("", LOCALE_MENU_HINT_TIMEZONE);
-		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
+		xmlNodePtr search = xmlDocGetRootElement(parser);
+		search = xmlChildrenNode(search);
 		bool found = false;
 
 		while (search)
@@ -163,7 +164,7 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 					}
 				}
 			}
-			search = search->xmlNextNode;
+			search = xmlNextNode(search);
 		}
 
 		if (!found)

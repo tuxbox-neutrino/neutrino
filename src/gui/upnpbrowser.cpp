@@ -250,7 +250,7 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 	}
 	entries = new std::vector<UPnPEntry>;
 
-	for (node=root->xmlChildrenNode; node; node=node->xmlNextNode)
+	for (node=xmlChildrenNode(root); node; node=xmlNextNode(node))
 	{
 		bool isdir;
 		std::string title, artist = "", album = "", albumArtURI = "", id, children;
@@ -260,7 +260,7 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 		{
 			std::vector<UPnPResource> resources;
 			isdir=true;
-			for (snode=node->xmlChildrenNode; snode; snode=snode->xmlNextNode)
+			for (snode=xmlChildrenNode(node); snode; snode=xmlNextNode(snode))
 			{
 				type=xmlGetName(snode);
 				p = strchr(type,':');
@@ -294,7 +294,7 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 			std::string protocol, prot, network, mime, additional;
 			CFile::FileType ftype = CFile::FILE_UNKNOWN;
 			isdir=false;
-			for (snode=node->xmlChildrenNode; snode; snode=snode->xmlNextNode)
+			for (snode=xmlChildrenNode(node); snode; snode=xmlNextNode(snode))
 			{
 				std::string duration, url, size;
 				unsigned int i;
