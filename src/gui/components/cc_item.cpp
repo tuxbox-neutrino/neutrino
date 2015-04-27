@@ -168,10 +168,6 @@ void CComponentsItem::kill(const fb_pixel_t& bg_color, bool ignore_parent)
 void CComponentsItem::syncSysColors()
 {
 	col_body 	= COL_MENUCONTENT_PLUS_0;
-	if (cc_body_gradientBuf){
-		free(cc_body_gradientBuf);
-		cc_body_gradientBuf = NULL;
-	}
 	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
 	col_frame 	= COL_MENUCONTENT_PLUS_6;
 }
