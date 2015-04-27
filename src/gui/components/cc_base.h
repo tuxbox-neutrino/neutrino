@@ -72,6 +72,7 @@ class CComponents : public CComponentsSignals, public COSDFader
 		void *cc_tag;
 		///property: color of body
 		fb_pixel_t col_body;
+		fb_pixel_t old_gradient_color;
 		///property: color of shadow
 		fb_pixel_t col_shadow;
 		///property: color of frame
@@ -81,8 +82,6 @@ class CComponents : public CComponentsSignals, public COSDFader
 
 		///property: contains data for gradiant handling
 		gradientData_t cc_gradientData;
-		///gradiant pixel buffer
-		fb_pixel_t *cc_body_gradientBuf;
 		///property: true component can paint gradient, see also enableColBodyGradient()
 		bool col_body_gradient;
 		///property: background gradient mode

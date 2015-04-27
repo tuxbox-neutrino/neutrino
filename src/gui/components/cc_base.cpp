@@ -65,8 +65,9 @@ CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
-	cc_body_gradientBuf	= NULL;
 	col_body_gradient	= false;
+	cc_gradientData.gradientBuf = NULL;
+	cc_gradientData.boxBuf = NULL;
 }
 
 CComponents::~CComponents()
@@ -74,8 +75,10 @@ CComponents::~CComponents()
 	hide();
 	clearSavedScreen();
 	clearFbData();
-	if (cc_body_gradientBuf)
-		free(cc_body_gradientBuf);
+	if (cc_gradientData.gradientBuf)
+		free(cc_gradientData.gradientBuf);
+	if (cc_gradientData.boxBuf)
+		cs_free_uncached(cc_gradientData.boxBuf);
 }
 
 void CComponents::clearSavedScreen()
@@ -293,11 +296,13 @@ void CComponents::clearFbData()
 		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
 
+#if 0
 		if (v_fbdata[i].data && (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX)) {
 			gradientData_t *gradientData = static_cast<gradientData_t*> (v_fbdata[i].data);
 			if (gradientData->boxBuf)
 				cs_free_uncached(gradientData->boxBuf);
 		}
+#endif
 	}
 	v_fbdata.clear();
 }
