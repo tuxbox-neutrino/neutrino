@@ -1302,6 +1302,9 @@ void CMenuWidget::paintHint(int pos)
 	
 	if (pos < 0 && !hint_painted)
 		return;
+
+	info_box->enableGradient(g_settings.gradiant != 0); //TODO: manage via themes
+	info_box->setColorBody(COL_MENUCONTENT_PLUS_0);
 	
 	if (hint_painted) {
 		/* clear detailsline line */
