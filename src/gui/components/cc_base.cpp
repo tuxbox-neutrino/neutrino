@@ -198,7 +198,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 						//calculate current shadow width depends of current corner_rad
 						sw_cur = max(2*v_fbdata[i].r, sw);
 					}
-					if (cc_allow_paint){
+					if (cc_allow_paint && is_painted){
 						// shadow right
 						frameBuffer->paintBoxRel(x_sh, v_fbdata[i].y, sw_cur, v_fbdata[i].dy-sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_TOP_RIGHT);
 						// shadow bottom
