@@ -109,6 +109,10 @@ void CComponentsInfoBox::paintPicture()
 
 	pic->setColorBody(col_body);
 
+	//set gradient behavior of pic object
+	if (col_body_gradient)
+		pic->doPaintBg(false);
+
 	//fit icon into frame
 	pic->setYPos(y+(height/2-pic->getHeight()/2));
 

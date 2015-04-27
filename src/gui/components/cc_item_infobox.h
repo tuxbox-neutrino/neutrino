@@ -83,7 +83,8 @@ class CComponentsInfoBox : public CComponentsText
 		void setPicture(const std::string& picture_name);
 		///set property: path or name of displayed image, parameter as const char*
 		void setPicture(const char* picture_name);
-
+		///set property: gradient behavior
+		void enableGradient(bool enable) { col_body_gradient = enable; }
 		///paint item
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
