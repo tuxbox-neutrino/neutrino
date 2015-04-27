@@ -66,7 +66,7 @@ std::string Unicode_Character_to_UTF8(const int character);
 
 std::string convert_UTF8_To_UTF8_XML(const char *s);
 
-xmlDocPtr parseXml(const char *data);
-xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence = true);
+xmlDocPtr parseXml(const char *data,const char *encoding = NULL);
+xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence = true,const char *encoding = NULL);
 
 #endif /* __xmlinterface_h__ */

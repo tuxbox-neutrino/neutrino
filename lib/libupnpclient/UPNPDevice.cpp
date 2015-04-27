@@ -18,12 +18,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  ***********************************************************************************/
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string.h>
-#include <xmltree.h>
+#include <xmlinterface.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -133,7 +136,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 	std::string result, head, body, charset, urlbase;
 	std::string curl, eurl, name, mimetype, iurl, rcode;
 	std::string::size_type pos;
-	XMLTreeNode *root, *device, *service, *node, *snode, *icon;
+	xmlNodePtr root, device, service, node, snode, icon;
 	int width = 0;
 	int height = 0;
 	int depth = 0;
@@ -165,76 +168,76 @@ CUPnPDevice::CUPnPDevice(std::string url)
 
 	if (rcode != "200")
 		throw std::runtime_error(std::string("description url returned ") + rcode);
-	XMLTreeParser parser(charset.c_str());
-	parser.Parse(body.c_str(), body.size(), 1);
-	root = parser.RootNode();
+
+	xmlDocPtr parser = parseXml(body.c_str(),charset.c_str());
+	root = xmlDocGetRootElement(parser);
 	if (!root)
 		throw std::runtime_error(std::string("XML: no root node"));
 
-	if (strcmp(root->GetType(),"root"))
+	if (strcmp(xmlGetName(root),"root"))
 		throw std::runtime_error(std::string("XML: no root"));
 
-	for (node = root->GetChild(); node; node=node->GetNext())
+	for (node = root->xmlChildrenNode; node; node=node->xmlNextNode)
 	{
-		if (!strcmp(node->GetType(),"URLBase"))
+		if (!strcmp(xmlGetName(node),"URLBase"))
 		{
-			urlbase = std::string(node->GetData());
+			urlbase = std::string(xmlGetData(node));
 			if ((!urlbase.empty() ) && (urlbase[urlbase.length()-1] == '/'))
 				urlbase.erase(urlbase.length()-1);
 		}
 
 	}
 
-	node = root->GetChild();
+	node = root->xmlChildrenNode;
 	if (!node)
 		throw std::runtime_error(std::string("XML: no root child"));
 
-	while (strcmp(node->GetType(),"device"))
+	while (strcmp(xmlGetName(node),"device"))
 	{
-		node = node->GetNext();
+		node = node->xmlNextNode;
 		if (!node)
 			throw std::runtime_error(std::string("XML: no device"));
 	}
 	device = node;
 
-	for (node=device->GetChild(); node; node=node->GetNext())
+	for (node=device->xmlChildrenNode; node; node=node->xmlNextNode)
 	{
-		if (!strcmp(node->GetType(),"deviceType"))
-			devicetype = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"deviceType"))
+			devicetype = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"friendlyName"))
-			friendlyname = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"friendlyName"))
+			friendlyname = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"manufacturer"))
-			manufacturer = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"manufacturer"))
+			manufacturer = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"manufacturerURL"))
-			manufacturerurl = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"manufacturerURL"))
+			manufacturerurl = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"modelDescription"))
-			modeldescription = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"modelDescription"))
+			modeldescription = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"modelName"))
-			modelname = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"modelName"))
+			modelname = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"modelNumber"))
-			modelnumber = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"modelNumber"))
+			modelnumber = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"modelURL"))
-			modelurl = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"modelURL"))
+			modelurl = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"serialNumber"))
-			serialnumber = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"serialNumber"))
+			serialnumber = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"UDN"))
-			udn = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"UDN"))
+			udn = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"UPC"))
-			upc = std::string(node->GetData()?node->GetData():"");
+		if (!strcmp(xmlGetName(node),"UPC"))
+			upc = std::string(xmlGetData(node)?xmlGetData(node):"");
 
-		if (!strcmp(node->GetType(),"iconList"))
+		if (!strcmp(xmlGetName(node),"iconList"))
 		{
-			for (icon=node->GetChild(); icon; icon=icon->GetNext())
+			for (icon=node->xmlChildrenNode; icon; icon=icon->xmlNextNode)
 			{
 				bool foundm = false;
 				bool foundw = false;
@@ -242,33 +245,33 @@ CUPnPDevice::CUPnPDevice(std::string url)
 				bool foundd = false;
 				bool foundu = false;
 
-				if (strcmp(icon->GetType(),"icon"))
+				if (strcmp(xmlGetName(icon),"icon"))
 					throw std::runtime_error(std::string("XML: no icon"));
-				for (snode=icon->GetChild(); snode; snode=snode->GetNext())
+				for (snode=icon->xmlChildrenNode; snode; snode=snode->xmlNextNode)
 				{
-					if (!strcmp(snode->GetType(),"mimetype"))
+					if (!strcmp(xmlGetName(snode),"mimetype"))
 					{
-						mimetype=std::string(snode->GetData()?snode->GetData():"");
+						mimetype=std::string(xmlGetData(snode)?xmlGetData(snode):"");
 						foundm = true;
 					}
-					if (!strcmp(snode->GetType(),"width"))
+					if (!strcmp(xmlGetName(snode),"width"))
 					{
-						width=snode->GetData()?atoi(snode->GetData()):0;
+						width=xmlGetData(snode)?atoi(xmlGetData(snode)):0;
 						foundw = true;
 					}
-					if (!strcmp(snode->GetType(),"height"))
+					if (!strcmp(xmlGetName(snode),"height"))
 					{
-						height=snode->GetData()?atoi(snode->GetData()):0;
+						height=xmlGetData(snode)?atoi(xmlGetData(snode)):0;
 						foundh = true;
 					}
-					if (!strcmp(snode->GetType(),"depth"))
+					if (!strcmp(xmlGetName(snode),"depth"))
 					{
-						depth=snode->GetData()?atoi(snode->GetData()):0;
+						depth=xmlGetData(snode)?atoi(xmlGetData(snode)):0;
 						foundd = true;
 					}
-					if (!strcmp(snode->GetType(),"url"))
+					if (!strcmp(xmlGetName(snode),"url"))
 					{
-						url=std::string(snode->GetData()?snode->GetData():"");
+						url=std::string(xmlGetData(snode)?xmlGetData(snode):"");
 						foundu = true;
 					}
 				}
@@ -286,28 +289,27 @@ CUPnPDevice::CUPnPDevice(std::string url)
 				icons.push_back(e);
 			}
 		}
-		if (!strcmp(node->GetType(),"serviceList"))
+		if (!strcmp(xmlGetName(node),"serviceList"))
 		{
 			servicefound = true;
-			for (service=node->GetChild(); service; service=service->GetNext())
+			for (service=node->xmlChildrenNode; service; service=service->xmlNextNode)
 			{
 				bool foundc = false;
 				bool founde = false;
 				bool foundn = false;
 
-				if (strcmp(service->GetType(),"service"))
+				if (strcmp(xmlGetName(service),"service"))
 					throw std::runtime_error(std::string("XML: no service"));
-				for (snode=service->GetChild(); snode; snode=snode->GetNext())
+				for (snode=service->xmlChildrenNode; snode; snode=snode->xmlNextNode)
 				{
-					if (!strcmp(snode->GetType(),"serviceType"))
+					if (!strcmp(xmlGetName(snode),"serviceType"))
 					{
-						name=std::string(snode->GetData()?snode->GetData():"");
+						name=std::string(xmlGetData(snode)?xmlGetData(snode):"");
 						foundn = true;
 					}
-					if (!strcmp(snode->GetType(),"eventSubURL"))
+					if (!strcmp(xmlGetName(snode),"eventSubURL"))
 					{
-						char *p;
-						p = snode->GetData();
+						const char *p = xmlGetData(snode);
 						if (!p)
 							eurl=urlbase + "/";
 						else if (p[0]=='/')
@@ -316,10 +318,9 @@ CUPnPDevice::CUPnPDevice(std::string url)
 							eurl=urlbase + "/" + std::string(p);
 						founde = true;
 					}
-					if (!strcmp(snode->GetType(),"controlURL"))
+					if (!strcmp(xmlGetName(snode),"controlURL"))
 					{
-						char *p;
-						p = snode->GetData();
+						const char *p = xmlGetData(snode);
 						if (!p)
 							curl=urlbase + "/";
 						else if (p[0]=='/')
@@ -348,6 +349,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 	}
 	if (!servicefound)
 		throw std::runtime_error(std::string("XML: no service list"));
+	xmlFreeDoc(parser);
 }
 
 CUPnPDevice::~CUPnPDevice()

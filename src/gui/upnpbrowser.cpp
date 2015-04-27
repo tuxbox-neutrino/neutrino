@@ -39,9 +39,8 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <xmltree.h>
+#include <xmlinterface.h>
 #include <upnpclient.h>
-
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/audioplay.h>
@@ -240,49 +239,47 @@ bool CUpnpBrowserGui::getResults(std::string id, unsigned int start, unsigned in
 
 std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 {
-	XMLTreeParser *parser;
-	XMLTreeNode   *root, *node, *snode;
+	xmlNodePtr   root, node, snode;
 	std::vector<UPnPEntry> *entries;
 
-	parser = new XMLTreeParser("UTF-8");
-	parser->Parse(result.c_str(), result.size(), 1);
-	root=parser->RootNode();
+	xmlDocPtr parser = parseXml(result.c_str(),"UTF-8");
+	root = xmlDocGetRootElement(parser);
 	if (!root) {
-		delete parser;
+		xmlFreeDoc(parser);
 		return NULL;
 	}
 	entries = new std::vector<UPnPEntry>;
 
-	for (node=root->GetChild(); node; node=node->GetNext())
+	for (node=root->xmlChildrenNode; node; node=node->xmlNextNode)
 	{
 		bool isdir;
 		std::string title, artist = "", album = "", albumArtURI = "", id, children;
 		const char *type, *p;
 
-		if (!strcmp(node->GetType(), "container"))
+		if (!strcmp(xmlGetName(node), "container"))
 		{
 			std::vector<UPnPResource> resources;
 			isdir=true;
-			for (snode=node->GetChild(); snode; snode=snode->GetNext())
+			for (snode=node->xmlChildrenNode; snode; snode=snode->xmlNextNode)
 			{
-				type=snode->GetType();
+				type=xmlGetName(snode);
 				p = strchr(type,':');
 				if (p)
 					type=p+1;
 				if (!strcmp(type,"title"))
 				{
-					p=snode->GetData();
+					p=xmlGetData(snode);
 					if (!p)
 						p = "";
 					title=std::string(p);
 				}
 			}
-			p = node->GetAttributeValue("id");
+			p = xmlGetAttribute(node, "id");
 			if (!p)
 				p = "";
 			id=std::string(p);
 
-			p = node->GetAttributeValue("childCount");
+			p = xmlGetAttribute(node, "childCount");
 			if (!p)
 				p = "";
 			children=std::string(p);
@@ -290,65 +287,65 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 			UPnPEntry entry={id, isdir, title, artist, album, albumArtURI, children, "", "", resources, -1, CFile::FILE_DIR};
 			entries->push_back(entry);
 		}
-		if (!strcmp(node->GetType(), "item"))
+		if (!strcmp(xmlGetName(node), "item"))
 		{
 			std::vector<UPnPResource> resources;
 			int preferred = -1;
 			std::string protocol, prot, network, mime, additional;
 			CFile::FileType ftype = CFile::FILE_UNKNOWN;
 			isdir=false;
-			for (snode=node->GetChild(); snode; snode=snode->GetNext())
+			for (snode=node->xmlChildrenNode; snode; snode=snode->xmlNextNode)
 			{
 				std::string duration, url, size;
 				unsigned int i;
-				type=snode->GetType();
+				type=xmlGetName(snode);
 				p = strchr(type,':');
 				if (p)
 					type=p+1;
 
 				if (!strcmp(type,"title"))
 				{
-					p=snode->GetData();
+					p=xmlGetData(snode);
 					if (!p)
 						p = "";
 					title=std::string(p);
 				}
 				else if (!strcmp(type,"artist"))
 				{
-					p=snode->GetData();
+					p=xmlGetData(snode);
 					if (!p)
 						p = "";
 					artist=std::string(p);
 				}
 				else if (!strcmp(type,"album"))
 				{
-					p=snode->GetData();
+					p=xmlGetData(snode);
 					if (!p)
 						p = "";
 					album=std::string(p);
 				}
 				else if (!strcmp(type,"albumArtURI"))
 				{
-					p=snode->GetData();
+					p=xmlGetData(snode);
 					if (!p)
 						p = "";
 					albumArtURI=std::string(p);
 				}
 				else if (!strcmp(type,"res"))
 				{
-					p = snode->GetData();
+					p = xmlGetData(snode);
 					if (!p)
 						p = "";
 					url=std::string(p);
-					p = snode->GetAttributeValue("size");
+					p = xmlGetAttribute(snode, "size");
 					if (!p)
 						p = "0";
 					size=std::string(p);
-					p = snode->GetAttributeValue("duration");
+					p = xmlGetAttribute(snode, "duration");
 					if (!p)
 						p = "";
 					duration=std::string(p);
-					p = snode->GetAttributeValue("protocolInfo");
+					p = xmlGetAttribute(snode, "protocolInfo");
 					if (!p)
 						p = "";
 					protocol=std::string(p);
@@ -419,12 +416,12 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 					}
 				}
 			}
-			p = node->GetAttributeValue("id");
+			p = xmlGetAttribute(node, "id");
 			if (!p)
 				p = "";
 			id=std::string(p);
 
-			p = node->GetAttributeValue("childCount");
+			p = xmlGetAttribute(node, "childCount");
 			if (!p)
 				p = "";
 			children=std::string(p);
@@ -433,7 +430,7 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 			entries->push_back(entry);
 		}
 	}
-	delete parser;
+	xmlFreeDoc(parser);
 	return entries;
 }
 

@@ -176,11 +176,11 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 	}
 }
 #else /* USE_LIBXML */
-xmlDocPtr parseXml(const char * data)
+xmlDocPtr parseXml(const char * data,const char *encoding)
 {
 	XMLTreeParser* tree_parser;
 
-	tree_parser = new XMLTreeParser(NULL);
+	tree_parser = new XMLTreeParser(encoding);
 
 	if (!tree_parser->Parse(data, strlen(data), true))
 	{
@@ -201,7 +201,7 @@ xmlDocPtr parseXml(const char * data)
 	return tree_parser;
 }
 
-xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = true */)
+xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = true */,const char *encoding)
 {
 	char buffer[2048];
 	XMLTreeParser* tree_parser;
@@ -218,7 +218,7 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 		return NULL;
 	}
 
-	tree_parser = new XMLTreeParser(NULL);
+	tree_parser = new XMLTreeParser(encoding);
 
 	do
 	{
