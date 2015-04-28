@@ -47,7 +47,6 @@ CUPnPService::CUPnPService(CUPnPDevice* dev, std::string curl, std::string eurl,
 CUPnPService::~CUPnPService()
 {
 }
-       #include <stdio.h>
 
 std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UPnPAttribute> attribs)
 {
