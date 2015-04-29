@@ -299,6 +299,7 @@ colormenusetup.menuhead Header
 colorstatusbar.text Infobar
 colorthememenu.head Select theme
 colorthememenu.head2 Load themes
+colorthememenu.menu_hints Hint box
 colorthememenu.name Theme name
 colorthememenu.neutrino_theme Neutrino Theme
 colorthememenu.question Use selected theme?

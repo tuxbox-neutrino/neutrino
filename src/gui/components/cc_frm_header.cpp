@@ -98,7 +98,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	col_body 	= COL_MENUHEAD_PLUS_0;
-	col_body_gradient	= g_settings.gradiant;
+	col_body_gradient	= g_settings.theme.menu_Head_gradient;
 	cc_body_gradient_direction = CFrameBuffer::gradientVertical;
 	cch_text	= caption;
 	cch_icon_name	= icon_name;

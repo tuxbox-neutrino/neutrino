@@ -46,3 +46,5 @@ menu_Head_alpha=4
 menu_Head_blue=0
 menu_Head_green=0
 menu_Head_red=0
+menu_Hint_gradient=0
+menu_Head_gradient=0

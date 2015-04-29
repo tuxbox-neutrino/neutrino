@@ -603,11 +603,6 @@ int COsdSetup::showOsdSetup()
 	mfWindowSize->setHint("", LOCALE_MENU_HINT_WINDOW_SIZE);
 	osd_menu->addItem(mfWindowSize);
 
-	// color gradient
-	mc = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT, &g_settings.gradiant, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, this );
-	mc->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
-	osd_menu->addItem(mc);
-
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
 	// scrambled
@@ -653,6 +648,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(mf);
 
 	SNeutrinoTheme &t = g_settings.theme;
+	sigc::slot0<void> slot_repaint = sigc::mem_fun(menu_colors, &CMenuWidget::paint); //we want to repaint after changed Option
 
 	CColorChooser* chHeadcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.menu_Head_red, &t.menu_Head_green, &t.menu_Head_blue,
 			&t.menu_Head_alpha, colorSetupNotifier);
@@ -683,6 +679,13 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	mf->setHint("", LOCALE_MENU_HINT_HEAD_TEXTCOLOR);
 	menu_colors->addItem(mf);
 
+	// head color gradient
+	CMenuOptionChooser *oj;
+	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT, &g_settings.theme.menu_Head_gradient, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
+	oj->OnAfterChangeOption.connect(slot_repaint);
+	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
+	menu_colors->addItem(oj);
+
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUCONTENT));
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentcolor );
 	mf->setHint("", LOCALE_MENU_HINT_CONTENT_BACK);
@@ -709,6 +712,13 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentSelectedTextcolor );
 	mf->setHint("", LOCALE_MENU_HINT_SELECTED_TEXT);
 	menu_colors->addItem(mf);
+
+	// hintbox color gradient
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORTHEMEMENU_MENU_HINTS));
+	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT, &t.menu_Hint_gradient, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oj->OnAfterChangeOption.connect(slot_repaint);
+	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
+	menu_colors->addItem(oj);
 
 	CColorChooser* chInfobarcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.infobar_red,
 			&t.infobar_green, &t.infobar_blue, &t.infobar_alpha, colorSetupNotifier);
@@ -1137,7 +1147,7 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLOR_GRADIENT)) {
 		osd_menu->paint();
-		return false;
+		return true;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_PRESET)) {
 		int preset = * (int *) data;

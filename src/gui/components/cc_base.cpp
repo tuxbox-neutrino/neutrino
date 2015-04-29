@@ -328,5 +328,5 @@ void CComponents::setFrameThickness(const int& thickness, const int& thickness_s
 
 void CComponents::enableColBodyGradient(bool do_paint_gradient)
 {
-	col_body_gradient = g_settings.gradiant ? do_paint_gradient : false;
+	col_body_gradient = do_paint_gradient;
 }

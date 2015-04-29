@@ -2049,7 +2049,7 @@ void CChannelList::paint()
 
 void CChannelList::paintHead()
 {
-	static int gradient = g_settings.gradiant;
+	static int gradient = g_settings.theme.menu_Head_gradient;
 
 	CComponentsHeader header(x, y, full_width, theight, name /*no header icon*/);
 	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
@@ -2059,8 +2059,8 @@ void CChannelList::paintHead()
 
 	header.paint(CC_SAVE_SCREEN_NO);
 
-	if (gradient != g_settings.gradiant && headerClock != NULL) {
-		gradient = g_settings.gradiant;
+	if (gradient != g_settings.theme.menu_Head_gradient && headerClock != NULL) {
+		gradient = g_settings.theme.menu_Head_gradient;
 		headerClock->clearSavedScreen();
 		delete headerClock;
 		headerClock = NULL;

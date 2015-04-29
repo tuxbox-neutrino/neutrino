@@ -107,7 +107,7 @@ void CColorChooser::setColor()
 	int w_col = mheight*4;
 	int h_col = mheight*4-10;
 
-	if ((g_settings.gradiant) && ((chooser_gradient == gradient_head_body) || (chooser_gradient == gradient_head_text))) {
+	if ((g_settings.theme.menu_Head_gradient) && ((chooser_gradient == gradient_head_body) || (chooser_gradient == gradient_head_text))) {
 		CComponentsHeader header(x_col, y_col+((h_col-hheight)/2), w_col, hheight, "Head");
 		if (chooser_gradient == gradient_head_body)
 			header.setColorBody(col);
@@ -270,7 +270,7 @@ void CColorChooser::paint()
 	for (int i = 0; i < 4; i++)
 		paintSlider(x + 10, y + hheight + mheight * i, value[i], colorchooser_names[i], iconnames[i], (i == 0));
 
-	if ((!g_settings.gradiant) || ((chooser_gradient != gradient_head_body) && (chooser_gradient != gradient_head_text))) {
+	if ((!g_settings.theme.menu_Head_gradient) || ((chooser_gradient != gradient_head_body) && (chooser_gradient != gradient_head_text))) {
 		//color preview
 		frameBuffer->paintBoxRel(x+offset+160,y+hheight+5,    mheight*4,   mheight*4-10, COL_MENUHEAD_PLUS_0);
 		frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, 254);

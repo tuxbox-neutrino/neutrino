@@ -355,7 +355,7 @@ struct CMenuOptionChooserCompareItem: public std::binary_function <const CMenuOp
 	};
 };
 
-class CMenuOptionChooser : public CAbstractMenuOptionChooser
+class CMenuOptionChooser : public CAbstractMenuOptionChooser, public sigc::trackable
 {
 	public:
 		struct keyval
@@ -430,7 +430,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 		int getWidth(void);
 		void setOptions(const struct keyval * const Options, const unsigned Number_Of_Options);
 		void setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options);
-
+		sigc::signal<void> OnAfterChangeOption;
 		int paint(bool selected);
 
 		int exec(CMenuTarget* parent);
