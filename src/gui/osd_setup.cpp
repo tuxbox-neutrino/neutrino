@@ -1145,10 +1145,6 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		g_InfoViewer->changePB();
 		return false;
 	}
-	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLOR_GRADIENT)) {
-		osd_menu->paint();
-		return true;
-	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_PRESET)) {
 		int preset = * (int *) data;
 		printf("preset %d (setting %d)\n", preset, g_settings.screen_preset);
