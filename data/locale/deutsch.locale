@@ -300,6 +300,7 @@ colormenusetup.menuhead Titelleiste
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
 colorthememenu.head2 Themes laden
+colorthememenu.menu_hints Hinweisfenster
 colorthememenu.name Themename
 colorthememenu.neutrino_theme Neutrino Theme
 colorthememenu.question Aktuelles Theme beibehalten?
@@ -587,9 +588,9 @@ flashupdate.fileis0bytes die Dateigröße ist 0 Byte
 flashupdate.fileselector Datei-Auswahl
 flashupdate.flashreadyreboot Das Image wurde erfolgreich geflasht.\nIhre Box wird jetzt neu gestartet.
 flashupdate.getinfofile lade Versioninfo
-flashupdate.getinfofileerror kann Info nicht laden
+flashupdate.getinfofileerror Kann Aktualisierungs-Info nicht laden!
 flashupdate.getupdatefile lade Update
-flashupdate.getupdatefileerror kann Update nicht laden
+flashupdate.getupdatefileerror Kann Aktualisierung nicht laden!
 flashupdate.globalprogress Gesamtstatus:
 flashupdate.head Aktualisierung
 flashupdate.md5check Imageprüfung
@@ -599,7 +600,7 @@ flashupdate.menu_apply_settings Settingsübernahme erlauben
 flashupdate.mkfs_create_image Image erstellen
 flashupdate.mkfs_preparing_files Dateien und Verzeichnisse vorbereiten
 flashupdate.mkfs_using_sumtool Benutze Sumtool
-flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
+flashupdate.msgbox Es wurde folgende neue Datei gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen und installieren?
 flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
 flashupdate.mtdselector Partitions-Auswahl
 flashupdate.namemode1 Dateiname Settingsfile

@@ -415,18 +415,18 @@ printf("[update] mode is %d\n", softupdate_mode);
 
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
-		CFile * CFileSelected = NULL;
+		CFile * file_selected = NULL;
 		if (!(UpdatesBrowser.exec(g_settings.update_dir.c_str()))) {
 			menu_ret = UpdatesBrowser.getMenuRet();
 			return false;
 		}
 
-		CFileSelected = UpdatesBrowser.getSelectedFile();
+		file_selected = UpdatesBrowser.getSelectedFile();
 
-		if (CFileSelected == NULL)
+		if (file_selected == NULL)
 			return false;
 
-		filename = CFileSelected->Name;
+		filename = file_selected->Name;
 
 		FILE* fd = fopen(filename.c_str(), "r");
 		if(fd)

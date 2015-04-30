@@ -163,8 +163,9 @@ int CThemes::Show()
 	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
 
-	if (mkdirhier(THEMEDIR_VAR) && errno != EEXIST) {
+	if (CFileHelpers::createDir(THEMEDIR_VAR) && errno != EEXIST) {
 		printf("[neutrino theme] error creating %s\n", THEMEDIR_VAR);
+
 	}
 	if (access(THEMEDIR_VAR, F_OK) == 0 ) {
 		themes.addItem(GenericMenuSeparatorLine);
@@ -244,6 +245,7 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "menu_Head_Text_red", t.menu_Head_Text_red );
 	configfile.setInt32( "menu_Head_Text_green", t.menu_Head_Text_green );
 	configfile.setInt32( "menu_Head_Text_blue", t.menu_Head_Text_blue );
+	configfile.setInt32( "menu_Head_gradient" , t.menu_Head_gradient);
 	configfile.setInt32( "menu_Content_alpha", t.menu_Content_alpha );
 	configfile.setInt32( "menu_Content_red", t.menu_Content_red );
 	configfile.setInt32( "menu_Content_green", t.menu_Content_green );
@@ -268,6 +270,7 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "menu_Content_inactive_Text_red", t.menu_Content_inactive_Text_red );
 	configfile.setInt32( "menu_Content_inactive_Text_green", t.menu_Content_inactive_Text_green );
 	configfile.setInt32( "menu_Content_inactive_Text_blue", t.menu_Content_inactive_Text_blue );
+	configfile.setInt32( "menu_Hint_gradient" , t.menu_Hint_gradient);
 	configfile.setInt32( "infobar_alpha", t.infobar_alpha );
 	configfile.setInt32( "infobar_red", t.infobar_red );
 	configfile.setInt32( "infobar_green", t.infobar_green );
@@ -297,6 +300,7 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.menu_Head_Text_red = configfile.getInt32( "menu_Head_Text_red", 0x5f );
 	t.menu_Head_Text_green = configfile.getInt32( "menu_Head_Text_green", 0x46 );
 	t.menu_Head_Text_blue = configfile.getInt32( "menu_Head_Text_blue", 0x00 );
+	t.menu_Head_gradient = configfile.getInt32( "menu_Head_gradient", 1);
 	t.menu_Content_alpha = configfile.getInt32( "menu_Content_alpha", 0x14 );
 	t.menu_Content_red = configfile.getInt32( "menu_Content_red", 0x00 );
 	t.menu_Content_green = configfile.getInt32( "menu_Content_green", 0x0f );
@@ -321,6 +325,7 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.menu_Content_inactive_Text_red = configfile.getInt32( "menu_Content_inactive_Text_red", 55 );
 	t.menu_Content_inactive_Text_green = configfile.getInt32( "menu_Content_inactive_Text_green", 70 );
 	t.menu_Content_inactive_Text_blue = configfile.getInt32( "menu_Content_inactive_Text_blue", 85 );
+	t.menu_Hint_gradient = configfile.getInt32( "menu_Hint_gradient", 0);
 	t.infobar_alpha = configfile.getInt32( "infobar_alpha", 0x14 );
 	t.infobar_red = configfile.getInt32( "infobar_red", 0x00 );
 	t.infobar_green = configfile.getInt32( "infobar_green", 0x0e );
@@ -343,7 +348,7 @@ void CThemes::move_userDir()
 {
 	if (access(USERDIR, F_OK) == 0)
 	{
-		if (mkdirhier(THEMEDIR_VAR) && errno != EEXIST)
+		if (CFileHelpers::createDir(THEMEDIR_VAR) && errno != EEXIST)
 		{
 			printf("[neutrino theme] error creating %s\n", THEMEDIR_VAR);
 			return;

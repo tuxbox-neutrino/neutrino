@@ -33,6 +33,7 @@
 #include "cc_base.h"
 #include <driver/screen_max.h>
 #include <system/debug.h>
+#include <cs_api.h>
 using namespace std;
 
 // 	 y
@@ -98,8 +99,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		ix = cc_xr;
 		iy = cc_yr;
 	}
-	
-	cc_gradientData.boxBuf = NULL;
+
 	cc_gradientData.mode = CFrameBuffer::pbrg_noFree;
 	void* gradientData = (cc_gradientData.gradientBuf == NULL) ? NULL : &cc_gradientData;
 	comp_fbdata_t fbdata[] =
@@ -194,16 +194,30 @@ bool CComponentsItem::isAdded()
 	return false;
 }
 
+inline void CComponentsItem::setXPos(const int& xpos)
+{
+	x = xpos;
+	if (cc_parent)
+		setRealXPos(cc_parent->getRealXPos() + x);
+}
+
+inline void CComponentsItem::setYPos(const int& ypos)
+{
+	y = ypos;
+	if (cc_parent)
+		setRealYPos(cc_parent->getRealYPos() + y);
+}
+
 void CComponentsItem::setXPosP(const uint8_t& xpos_percent)
 {
 	int x_tmp  = cc_parent ? xpos_percent*cc_parent->getWidth() : xpos_percent*frameBuffer->getScreenWidth();
-	x = x_tmp/100;
+	setXPos(x_tmp/100);
 }
 
 void CComponentsItem::setYPosP(const uint8_t& ypos_percent)
 {
 	int y_tmp  = cc_parent ? ypos_percent*cc_parent->getHeight() : ypos_percent*frameBuffer->getScreenHeight();
-	x = y_tmp/100;
+	setYPos(y_tmp/100);
 }
 
 void CComponentsItem::setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent)
@@ -243,12 +257,21 @@ void CComponentsItem::setFocus(bool focus)
 
 void CComponentsItem::initBodyGradient()
 {
-	if (cc_body_gradientBuf == NULL) {
+	if (col_body_gradient && cc_gradientData.gradientBuf && old_gradient_color != col_body) {
+		free(cc_gradientData.gradientBuf);
+		cc_gradientData.gradientBuf = NULL;
+		if (cc_gradientData.boxBuf) {
+			cs_free_uncached(cc_gradientData.boxBuf);
+			cc_gradientData.boxBuf = NULL;
+		}
+	}
+	if (cc_gradientData.gradientBuf == NULL) {
 		CColorGradient ccGradient;
 		int gsize = cc_body_gradient_direction == CFrameBuffer::gradientVertical ? height : width;
-		cc_body_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity, cc_body_gradient_intensity_v_min, cc_body_gradient_intensity_v_max, cc_body_gradient_saturation);
+		cc_gradientData.gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity, cc_body_gradient_intensity_v_min, cc_body_gradient_intensity_v_max, cc_body_gradient_saturation);
+		old_gradient_color = col_body;
 	}
-	cc_gradientData.gradientBuf = cc_body_gradientBuf;
+
 	cc_gradientData.direction = cc_body_gradient_direction;
 	cc_gradientData.mode = CFrameBuffer::pbrg_noOption;
 }

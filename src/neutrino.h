@@ -39,7 +39,7 @@
 #include "gui/personalize.h"
 #include "gui/user_menue.h"
 #include <timerdclient/timerdtypes.h>
-
+#include <sigc++/signal.h>
 #include <string>
 
 #define ANNOUNCETIME (1 * 60)
@@ -57,7 +57,7 @@ class CFrameBuffer;
 class CConfigFile;
 class CScanSettings;
 
-class CNeutrinoApp : public CMenuTarget, CChangeObserver
+class CNeutrinoApp : public CMenuTarget, CChangeObserver, sigc::trackable
 {
 public:
 	enum
@@ -105,7 +105,8 @@ private:
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
-	bool				channellist_visible;
+	bool				channelList_allowed;
+	bool				channelList_painted;
 	int				first_mode_found;
 
 	void SDT_ReloadChannels();
@@ -219,8 +220,9 @@ public:
 	void saveEpg(bool cvfd_mode);
 	void stopDaemonsForFlash();
 	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
+	void allowChannelList(bool allow){channelList_allowed = allow;}
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
-	bool getChannellistIsVisible() { return channellist_visible; }
+	bool getChannellistIsVisible() { return channelList_painted; }
 	void zapTo(t_channel_id channel_id);
 	bool wakeupFromStandby(void);
 	void standbyToStandby(void);
@@ -228,6 +230,8 @@ public:
 	void stopPlayBack(bool lock = false);
 	bool adjustToChannelID(const t_channel_id channel_id);
 	void screensaver(bool);
+	//signal/event handler before restart of neutrino gui
+	sigc::signal<bool> OnBeforeRestart;
 };
 #endif
 

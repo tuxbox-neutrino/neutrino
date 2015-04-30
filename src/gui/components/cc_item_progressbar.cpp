@@ -379,9 +379,9 @@ void CProgressBarCache::applyGradient(fb_pixel_t *b)
 			if (v != last_old) {
 				last_old = v;
 				double s = sin((y + .5) * M_PI / pb_height) * .8 + .2;
-				float fr = ((last_old >> 16) & 0xff) * s + 0.5;
-				float fg = ((last_old >>  8) & 0xff) * s + 0.5;
-				float fb = ((last_old      ) & 0xff) * s + 0.5;
+				float fr = float(((last_old >> 16) & 0xff) * s + 0.5);
+				float fg = float(((last_old >>  8) & 0xff) * s + 0.5);
+				float fb = float(((last_old      ) & 0xff) * s + 0.5);
 				last_new = (last_old & 0xFF000000)
 					| ((unsigned int)fr << 16)
 					| ((unsigned int)fg <<  8)
@@ -422,11 +422,14 @@ void CProgressBar::paintProgress(bool do_save_bg)
 
 	//progress
 	bool pb_invert = (pb_type == PB_REDRIGHT) || ((pb_type == PB_TIMESCALE) && g_settings.progressbar_timescale_invert);
-	if (pb_active_width != pb_last_width) {
-		CProgressBarCache *pbc = CProgressBarCache::lookup(pb_height, pb_max_width, pb_active_col, pb_passive_col, *pb_design, pb_invert, *pb_gradient, pb_red, pb_yellow, pb_green);
-		if (pbc)
-			pbc->paint(pb_x, pb_y, pb_active_width, pb_passive_width);
-		is_painted = true;
+
+	if (cc_allow_paint){
+		if (pb_active_width != pb_last_width) {
+			CProgressBarCache *pbc = CProgressBarCache::lookup(pb_height, pb_max_width, pb_active_col, pb_passive_col, *pb_design, pb_invert, *pb_gradient, pb_red, pb_yellow, pb_green);
+			if (pbc)
+				pbc->paint(pb_x, pb_y, pb_active_width, pb_passive_width);
+			is_painted = true;
+		}
 	}
 
 	if (is_painted)

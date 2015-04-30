@@ -63,6 +63,7 @@ void CProgressWindow::Init()
 
 	//create local_bar object
 	local_bar = new CProgressBar();
+	local_bar->allowPaint(false);
 	local_bar->setDimensionsAll(x_item, y_item, w_item, h_pbar);
 	local_bar->setColorBody(col_body);
 	local_bar->setActiveColor(COL_MENUCONTENT_PLUS_7);
@@ -73,6 +74,7 @@ void CProgressWindow::Init()
 
 	//create global_bar object
 	global_bar = new CProgressBar();
+	global_bar->allowPaint(false);
 	global_bar->setDimensionsAll(x_item, y_item, w_item, h_pbar);
 	global_bar->setColorBody(col_body);
 	global_bar->setActiveColor(COL_MENUCONTENT_PLUS_7);
@@ -81,7 +83,8 @@ void CProgressWindow::Init()
 	addWindowItem(global_bar);
 	y_item += 2*h_pbar;
 
-	height = y_item + ccw_head->getHeight();
+	h_height = ccw_head->getHeight();
+	height = y_item + h_height;
 
 	setCenterPos();
 }
@@ -95,12 +98,38 @@ void CProgressWindow::setTitle(const neutrino_locale_t title)
 #endif // VFD_UPDATE
 }
 
+//if header is disabled we need new position for body items
+void CProgressWindow::fitItems()
+{
+	if (ccw_show_header)
+		return;
+
+	for(size_t i=0; i<ccw_body->size() ;i++){
+		int y_item = ccw_body->getCCItem(i)->getYPos() + h_height - 10;
+		ccw_body->getCCItem(i)->setYPos(y_item);
+	}
+}
+
+void CProgressWindow::showStatus(const unsigned int prog)
+{
+	if (global_progress == prog)
+		return;
+
+	if (!global_bar->isPainted()){
+		int g_height = global_bar->getHeight();
+		global_bar->setYPos(local_bar->getYPos() + g_height/2);
+		global_bar->setHeight(g_height + g_height/2);
+	}
+
+	showGlobalStatus(prog);
+}
 
 void CProgressWindow::showGlobalStatus(const unsigned int prog)
 {
 	if (global_progress == prog)
 		return;
 
+	global_bar->allowPaint(true);
 	global_progress = prog;
 	global_bar->setValues(prog, 100);
 	global_bar->paint(false);
@@ -115,6 +144,7 @@ void CProgressWindow::showLocalStatus(const unsigned int prog)
 	if (local_progress == prog)
 		return;
 
+	local_bar->allowPaint(true);
 	local_progress = prog;
 	local_bar->setValues(prog, 100);
 	local_bar->paint(false);
@@ -160,4 +190,10 @@ int CProgressWindow::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	paint();
 
 	return menu_return::RETURN_REPAINT;
+}
+
+void CProgressWindow::paint(bool do_save_bg)
+{
+	fitItems();
+	CComponentsWindow::paint(do_save_bg);
 }

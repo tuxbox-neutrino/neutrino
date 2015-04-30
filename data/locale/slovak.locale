@@ -300,6 +300,7 @@ colormenusetup.menuhead Hlavička
 colorstatusbar.text Text stavového riadku
 colorthememenu.head Výber vzhľadu
 colorthememenu.head2 Nahraj vzhľad
+colorthememenu.menu_hints Tip Box
 colorthememenu.name Názov vzhľadu
 colorthememenu.neutrino_theme Neutrino
 colorthememenu.question Použiť vybraný vzhľad?

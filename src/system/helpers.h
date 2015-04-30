@@ -44,15 +44,15 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
 
 int safe_mkdir(const char * path);
 inline int safe_mkdir(std::string path) { return safe_mkdir(path.c_str()); }
-int mkdirhier(const char *pathname, mode_t mode = 0755);
-inline int mkdirhier(std::string path, mode_t mode = 0755) { return mkdirhier(path.c_str(), mode); }
+//int mkdirhier(const char *pathname, mode_t mode = 0755);
+//inline int mkdirhier(std::string path, mode_t mode = 0755) { return mkdirhier(path.c_str(), mode); }
 off_t file_size(const char *filename);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char * dir, bool allow_tmp = false);
 bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
-void mySleep(int sec);
+int mySleep(int sec);
 
 std::string find_executable(const char *name);
 /* basically what "foo=`command`" does in the shell */
@@ -88,8 +88,11 @@ class CFileHelpers
 
 		bool copyFile(const char *Src, const char *Dst, mode_t mode);
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
-		bool createDir(const char *Dir, mode_t mode);
-		bool removeDir(const char *Dir);
+		static int createDir(std::string& Dir, mode_t mode = 755);
+		static int createDir(const char *Dir, mode_t mode = 755){std::string dir = std::string(Dir);return createDir(dir, mode);}
+		static bool removeDir(const char *Dir);
+		static uint64_t getDirSize(const char *dir);
+		static uint64_t getDirSize(const std::string& dir){return getDirSize(dir.c_str());};
 };
 
 std::string to_string(int);

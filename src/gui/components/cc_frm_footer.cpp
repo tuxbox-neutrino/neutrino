@@ -77,11 +77,12 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	col_body_gradient	= false;
+	btn_auto_frame_col	= false;
 
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;
 
-	btn_contour	= false;
+	btn_contour	= false /*g_settings.theme.Button_gradient*/; //TODO: not implemented at the moment
 	ccf_btn_font	= NULL;
 	chain		= NULL;
 
@@ -146,14 +147,19 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);
 
-		if (btn_name == NEUTRINO_ICON_BUTTON_RED)
-			btn->setColorFrame(COL_DARK_RED);
-		if (btn_name == NEUTRINO_ICON_BUTTON_GREEN)
-			btn->setColorFrame(COL_DARK_GREEN);
-		if (btn_name == NEUTRINO_ICON_BUTTON_YELLOW)
-			btn->setColorFrame(COL_OLIVE);
-		if (btn_name == NEUTRINO_ICON_BUTTON_BLUE)
-			btn->setColorFrame(COL_DARK_BLUE);
+		//set button frames to icon color, predefined for available color buttons
+		if (btn_auto_frame_col){
+			fb_pixel_t f_col = btn->getColorFrame();
+			if (btn_name == NEUTRINO_ICON_BUTTON_RED)
+				f_col = COL_DARK_RED;
+			if (btn_name == NEUTRINO_ICON_BUTTON_GREEN)
+				f_col = COL_DARK_GREEN;
+			if (btn_name == NEUTRINO_ICON_BUTTON_YELLOW)
+				f_col = COL_OLIVE;
+			if (btn_name == NEUTRINO_ICON_BUTTON_BLUE)
+				f_col = COL_DARK_BLUE;
+			btn->setColorFrame(f_col);
+		}
 
 		chain->addCCItem(btn);
 
@@ -215,7 +221,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabels(const vector<button_label_l>v_content, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabels(const vector<button_label_l> &v_content, const int& chain_width, const int& label_width)
 {
 	size_t label_count = v_content.size();
 	button_label_l buttons[label_count];
@@ -231,7 +237,7 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_l>v_content, c
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabels(const vector<button_label_s>v_content, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabels(const vector<button_label_s> &v_content, const int& chain_width, const int& label_width)
 {
 	size_t label_count = v_content.size();
 	button_label_s buttons[label_count];

@@ -41,7 +41,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/buttons.h>
+
 
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
@@ -59,7 +59,7 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, CZap
 	info_height =  0;
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
-	footerHeight= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
+	footerHeight= footer.getHeight();
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_GREEN, &icol_w, &icol_h);
 	iheight = std::max(fheight, icol_h+2);
@@ -251,7 +251,8 @@ void CBEChannelSelectWidget::paintFoot()
 			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
 		break;
 	}
-	::paintButtons(x, y + (height-footerHeight), width, numbuttons, Button, width, footerHeight);
+
+	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, Button, width/numbuttons-20);
 }
 
 std::string CBEChannelSelectWidget::getInfoText(int index)
@@ -280,7 +281,7 @@ void CBEChannelSelectWidget::paintDetails(int index)
 	std::string str = getInfoText(index);
 	
 	//info box
-	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]);
+	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 	ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
 	ibox->paint(false);
 }

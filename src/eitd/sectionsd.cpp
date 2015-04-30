@@ -37,7 +37,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/time.h>
-
+#include <time.h>
 #include <connection/basicsocket.h>
 #include <connection/basicserver.h>
 
@@ -100,7 +100,7 @@ static bool messaging_zap_detected = false;
 //NTP-Config
 #define CONF_FILE CONFIGDIR "/neutrino.conf"
 
-std::string ntp_system_cmd_prefix = "/sbin/ntpdate ";
+std::string ntp_system_cmd_prefix = find_executable("ntpdate") + " ";
 
 std::string ntp_system_cmd;
 std::string ntpserver;
@@ -1370,12 +1370,12 @@ void CTimeThread::waitForTimeset(void)
 void CTimeThread::setSystemTime(time_t tim)
 {
 	struct timeval tv;
-
+	struct tm t;
 	time_t now = time(NULL);
-	struct tm *tmTime = localtime(&now);
+	struct tm *tmTime = localtime_r(&now, &t);
 
 	gettimeofday(&tv, NULL);
-	timediff = (int64_t)tim * (int64_t)1000000 - (tv.tv_usec + tv.tv_sec * (int64_t)1000000);
+	timediff = int64_t(tim * 1000000 - (tv.tv_usec + tv.tv_sec * 1000000));
 
 	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
 			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
@@ -1392,8 +1392,8 @@ void CTimeThread::setSystemTime(time_t tim)
 		return;
 	if (timeset && abs(tim - tv.tv_sec) < 120) { /* abs() is int */
 		struct timeval oldd;
-		tv.tv_sec = timediff / 1000000LL;
-		tv.tv_usec = timediff % 1000000LL;
+		tv.tv_sec = time_t(timediff / 1000000LL);
+		tv.tv_usec = suseconds_t(timediff % 1000000LL);
 		if (adjtime(&tv, &oldd))
 			xprintf("adjtime(%d, %d) failed: %m\n", (int)tv.tv_sec, (int)tv.tv_usec);
 		else {
@@ -2147,8 +2147,16 @@ bool CEitManager::Start()
 	max_events = config.epg_max_events;
 	epg_save_frequently = config.epg_save_frequently;
 
-	if (find_executable("ntpdate").empty())
-		ntp_system_cmd_prefix = "ntpd -n -q -p ";
+	if (find_executable("ntpdate").empty()){
+		ntp_system_cmd_prefix = find_executable("ntpd");
+		if (!ntp_system_cmd_prefix.empty()){
+			ntp_system_cmd_prefix += " -n -q -p ";
+		}
+		else{
+			printf("[sectionsd] NTP Error: time sync not possible, ntpdate/ntpd not found\n");
+			ntpenable = false;
+		}
+	}
 
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);

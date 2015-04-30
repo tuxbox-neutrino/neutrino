@@ -41,7 +41,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/components/cc.h>
-#include <gui/widget/buttons.h>
+
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
@@ -67,7 +67,7 @@ CBEBouquetWidget::CBEBouquetWidget()
 	state = beDefault;
 	Bouquets = NULL;
 	iheight = 0;
-	ButtonHeight = 0;
+	ButtonHeight = footer.getHeight();
 	fheight = 0;
 	theight = 0;
 }
@@ -138,7 +138,7 @@ void CBEBouquetWidget::paint()
 
 void CBEBouquetWidget::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, "" /*no header icon*/, CComponentsHeaderLocalized::CC_BTN_MENU);
+	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, "" /*no header icon*/, CComponentsHeaderLocalized::CC_BTN_EXIT);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -154,12 +154,14 @@ const struct button_label CBEBouquetWidgetButtons[6] =
 
 void CBEBouquetWidget::paintFoot()
 {
-	::paintButtons(x, y+height, width, 6, CBEBouquetWidgetButtons, width, ButtonHeight);
+	size_t numbuttons = sizeof(CBEBouquetWidgetButtons)/sizeof(CBEBouquetWidgetButtons[0]);
+	footer.paintButtons(x, y+height, width, ButtonHeight, numbuttons, CBEBouquetWidgetButtons, width/numbuttons-20);
 }
 
 void CBEBouquetWidget::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height+ButtonHeight);
+	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
+	footer.kill();
 }
 
 void CBEBouquetWidget::updateSelection(unsigned int newpos)
@@ -194,7 +196,6 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	if (parent)
 		parent->hide();
 
-	ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8;
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 

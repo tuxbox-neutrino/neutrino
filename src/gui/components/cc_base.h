@@ -72,6 +72,7 @@ class CComponents : public CComponentsSignals, public COSDFader
 		void *cc_tag;
 		///property: color of body
 		fb_pixel_t col_body;
+		fb_pixel_t old_gradient_color;
 		///property: color of shadow
 		fb_pixel_t col_shadow;
 		///property: color of frame
@@ -81,8 +82,6 @@ class CComponents : public CComponentsSignals, public COSDFader
 
 		///property: contains data for gradiant handling
 		gradientData_t cc_gradientData;
-		///gradiant pixel buffer
-		fb_pixel_t *cc_body_gradientBuf;
 		///property: true component can paint gradient, see also enableColBodyGradient()
 		bool col_body_gradient;
 		///property: background gradient mode
@@ -251,7 +250,7 @@ class CComponents : public CComponentsSignals, public COSDFader
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
-		virtual void allowPaint(bool allow){cc_allow_paint = allow; is_painted = cc_allow_paint ? false : true;};
+		void allowPaint(bool allow){cc_allow_paint = allow; is_painted = cc_allow_paint ? false : true;};
 		///returns visibility mode
 		virtual bool paintAllowed(){return cc_allow_paint;};
 
@@ -346,6 +345,10 @@ class CComponentsItem : public CComponents
 		///returns current number of page location of current item, see: cc_page_number
 		virtual u_int8_t getPageNumber(){return cc_page_number;};
 
+		///set screen x-position, parameter as int
+		virtual void setXPos(const int& xpos);
+		///set screen y-position, parameter as int
+		virtual void setYPos(const int& ypos);
 		///set screen x-position, parameter as uint8_t, percent x value related to current width of parent form or screen
 		virtual void setXPosP(const uint8_t& xpos_percent);
 		///set screen y-position, parameter as uint8_t, percent y value related to current height of parent form or screen

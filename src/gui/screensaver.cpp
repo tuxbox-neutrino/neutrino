@@ -36,7 +36,7 @@
 #include <ctype.h>
 #include "audiomute.h"
 #include "screensaver.h"
-
+#include <system/debug.h>
 #include <gui/infoclock.h>
 extern CInfoClock *InfoClock;
 
@@ -87,9 +87,9 @@ void CScreenSaver::Start()
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
 
 	if (g_settings.video_Format == 3)
-		m_viewer->SetAspectRatio(16.0/9);
+		m_viewer->SetAspectRatio(float(16.0/9));
 	else
-		m_viewer->SetAspectRatio(4.0/3);
+		m_viewer->SetAspectRatio(float(4.0/3));
 
 	m_viewer->Cleanup();
 
@@ -167,7 +167,7 @@ bool CScreenSaver::ReadDir()
 
 	/* open dir */
 	if((dir=opendir(dir_name)) == NULL) {
-		fprintf(stderr,"[CScreenSaver] Error opendir ...\n");
+		fprintf(stderr,"[CScreenSaver] %s - %d : error open dir...\n",  __func__, __LINE__);
 		return ret;
 	}
 
@@ -207,12 +207,12 @@ bool CScreenSaver::ReadDir()
 
 	/* close pointer */
 	if(closedir(dir) == -1)
-		printf("[CScreenSaver] Error no closed %s\n", dir_name);
+		dprintf(DEBUG_NORMAL, "[CScreenSaver]  %s - %d : Error no closed %s\n",  __func__, __LINE__,  dir_name);
 
 	if(!v_bg_files.empty())
 		ret = true;
 	else
-		printf("[CScreenSaver] no picture found\n");
+		dprintf(DEBUG_NORMAL, "[CScreenSaver]  %s - %d : no picture found\n",  __func__, __LINE__);
 
 	return ret;
 }
@@ -230,7 +230,7 @@ void CScreenSaver::PaintPicture()
 		return;
 	}
 
-	printf("[CScreenSaver] PaintPicture: %s\n", v_bg_files.at(index).c_str());
+	dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
 	m_viewer->ShowImage(v_bg_files.at(index).c_str(), false /*unscaled*/);
 
 	index++;

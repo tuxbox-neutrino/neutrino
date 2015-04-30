@@ -121,7 +121,7 @@ public:
 	int eitScheduleFlag(void)	{ return (int)flags.EIT_schedule_flag; }
 	int eitPresentFollowingFlag(void) { return (int)flags.EIT_present_following_flag; }
 #endif
-	int runningStatus(void)		{ return (int)flags.running_status; }
+	int runningStatus(void)	const	{ return (int)flags.running_status; }
 #if 0 
 // unused
 	int freeCAmode(void)		{ return (int)flags.free_CA_mode; }

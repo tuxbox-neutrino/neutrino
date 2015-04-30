@@ -111,8 +111,15 @@ class CComponentsSignals : public sigc::trackable
 		///signal on leave CComponentsForm::ScrollPage()
 		sigc::signal<void> OnAfterScrollPage;
 
+		///signal on before paint()
 		sigc::signal<void> OnBeforePaint;
+		///signal on after paint()
 		sigc::signal<void> OnAfterPaint;
+
+		///signal on before execute hide()
+		sigc::signal<void> OnBeforeHide;
+		///signal on after execute hide()
+		sigc::signal<void> OnAfterHide;
 
 		///signal on CComponentsForm::setSelectedItem() is completed
 		sigc::signal<void> OnSelect;

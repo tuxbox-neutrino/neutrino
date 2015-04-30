@@ -44,7 +44,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include "bouqueteditor_chanselect.h"
-#include <gui/widget/buttons.h>
+#include <gui/components/cc.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
@@ -73,7 +73,7 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
-	footerHeight= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
+	footerHeight= footer.getHeight();
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icol_w, &icol_h);
 	iheight = std::max(fheight, icol_h+2);
@@ -179,7 +179,7 @@ void CBEChannelWidget::paint()
 
 void CBEChannelWidget::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, caption);
+	CComponentsHeader header(x, y, width, theight, caption, "" /*no header icon*/, CComponentsHeader::CC_BTN_EXIT);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -196,7 +196,8 @@ const struct button_label CBEChannelWidgetButtons[6] =
 
 void CBEChannelWidget::paintFoot()
 {
-	::paintButtons(x, y + (height-footerHeight), width, 6, CBEChannelWidgetButtons, width, footerHeight);
+	size_t numbuttons = sizeof(CBEChannelWidgetButtons)/sizeof(CBEChannelWidgetButtons[0]);
+	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, CBEChannelWidgetButtons, width/numbuttons-20);
 }
 
 std::string CBEChannelWidget::getInfoText(int index)
@@ -225,7 +226,7 @@ void CBEChannelWidget::paintDetails(int index)
 	std::string str = getInfoText(index);
 	
 	//info box
-	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]);
+	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 	ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
 	ibox->paint(CC_SAVE_SCREEN_NO);
 }
@@ -249,19 +250,13 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 		dline->setYPos(ypos1a);
 		
 		//infobox
-		if (ibox == NULL)
+		if (ibox == NULL){
 			ibox = new CComponentsInfoBox();
-
-		if (ibox->isPainted())
-			ibox->hide(CC_SAVE_SCREEN_NO);
-		
-		ibox->setDimensionsAll(x, ypos2, width, info_height);
-		ibox->setFrameThickness(2);
-#if 0			
-		ibox->paint(false,true);
-#endif
-		ibox->setCorner(RADIUS_LARGE);
-		ibox->setShadowOnOff(CC_SHADOW_OFF);
+			ibox->setDimensionsAll(x, ypos2, width, info_height);
+			ibox->setFrameThickness(2);
+			ibox->setCorner(RADIUS_LARGE);
+			ibox->setShadowOnOff(CC_SHADOW_OFF);
+		}
 	}
 }
 

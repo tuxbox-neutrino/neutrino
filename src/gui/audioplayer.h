@@ -81,7 +81,7 @@ class RandomNumber
 
 	int operator()(int n)
 	{
-		return ((int64_t)n * rand() / RAND_MAX);
+		return (n * rand() / RAND_MAX);
 	}
 };
 

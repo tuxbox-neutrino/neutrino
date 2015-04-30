@@ -49,7 +49,7 @@ class CBEChannelWidget : public CMenuTarget
 		CFrameBuffer	*frameBuffer;
 		CComponentsDetailLine *dline;
 		CComponentsInfoBox *ibox;
-		
+		CComponentsFooter footer;
 		enum state_
 		{
 			beDefault,

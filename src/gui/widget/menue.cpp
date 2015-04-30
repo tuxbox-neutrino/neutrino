@@ -38,7 +38,7 @@
 #include <gui/pluginlist.h>
 #include <gui/widget/stringinput.h>
 
-#include <neutrino_menue.h>
+
 #include <driver/fade.h>
 #include <driver/display.h>
 #include <system/helpers.h>
@@ -1302,6 +1302,9 @@ void CMenuWidget::paintHint(int pos)
 	
 	if (pos < 0 && !hint_painted)
 		return;
+
+	info_box->enableGradient(g_settings.theme.menu_Hint_gradient  != 0);
+	info_box->setColorBody(COL_MENUCONTENT_PLUS_0);
 	
 	if (hint_painted) {
 		/* clear detailsline line */
@@ -1357,7 +1360,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
 		info_box->setFrameThickness(2);
 		info_box->removeLineBreaks(str);
-		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
 		info_box->setCorner(RADIUS_LARGE);
 		info_box->syncSysColors();
 		info_box->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
@@ -1823,6 +1826,7 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 		}
 	}
 	paint(true);
+	OnAfterChangeOption();
 	if(observ && !luaAction.empty()) {
 		if (optionValname)
 			wantsRepaint = observ->changeNotify(luaState, luaAction, luaId, optionValname);

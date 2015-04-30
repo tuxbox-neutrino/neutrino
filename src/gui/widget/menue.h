@@ -46,6 +46,7 @@
 #include <gui/components/cc.h>
 #include <string>
 #include <vector>
+#include <neutrino_menue.h>
 extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
@@ -354,7 +355,7 @@ struct CMenuOptionChooserCompareItem: public std::binary_function <const CMenuOp
 	};
 };
 
-class CMenuOptionChooser : public CAbstractMenuOptionChooser
+class CMenuOptionChooser : public CAbstractMenuOptionChooser, public sigc::trackable
 {
 	public:
 		struct keyval
@@ -429,7 +430,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 		int getWidth(void);
 		void setOptions(const struct keyval * const Options, const unsigned Number_Of_Options);
 		void setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options);
-
+		sigc::signal<void> OnAfterChangeOption;
 		int paint(bool selected);
 
 		int exec(CMenuTarget* parent);
@@ -569,7 +570,7 @@ class CMenuWidget : public CMenuTarget
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual const char *getName();
 		virtual void integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut=CRCInput::RC_nokey);
-		void setSelected(const int &Preselected){ preselected = Preselected; };
+		void setSelected(const int &Preselected){ selected = Preselected; };
 		int getSelected()const { return selected; };
 		void move(int xoff, int yoff);
 		int getSelectedLine(void)const {return exit_pressed ? -1 : selected;};

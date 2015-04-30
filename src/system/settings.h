@@ -60,6 +60,8 @@ struct SNeutrinoTheme
 	unsigned char menu_Head_Text_green;
 	unsigned char menu_Head_Text_blue;
 
+	int menu_Head_gradient;
+
 	unsigned char menu_Content_alpha;
 	unsigned char menu_Content_red;
 	unsigned char menu_Content_green;
@@ -89,6 +91,8 @@ struct SNeutrinoTheme
 	unsigned char menu_Content_inactive_Text_red;
 	unsigned char menu_Content_inactive_Text_green;
 	unsigned char menu_Content_inactive_Text_blue;
+
+	int menu_Hint_gradient;
 
 	unsigned char infobar_alpha;
 	unsigned char infobar_red;
@@ -366,7 +370,6 @@ struct SNeutrinoSettings
 	int colored_events_channellist;
 	int colored_events_infobar;
 	int contrast_fonts;
-	int gradiant;
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8

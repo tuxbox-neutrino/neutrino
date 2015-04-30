@@ -101,21 +101,22 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	height	 	= h;
 	shadow		= has_shadow;
 	shadow_w	= SHADOW_OFFSET;
-	col_frame 	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
 
-	col_body_gradient = g_settings.gradiant;
-	setColBodyGradient(CColorGradient::gradientDark2Light2Dark, CFrameBuffer::gradientVertical, CColorGradient::light);
+	col_body_gradient = false/*g_settings.gradiant*/; //gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
+	setColBodyGradient(CColorGradient::gradientLight2Dark, CFrameBuffer::gradientVertical, CColorGradient::light);
+	col_frame 	= color_frame;
+	col_body	= col_body_gradient? COL_DARK_GRAY : color_body;
+	col_shadow	= color_shadow;
 
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
 	fr_thickness 	= 3;
 	append_x_offset = 6;
 	append_y_offset = 0;
-	corner_rad	= RADIUS_MID;
+	corner_rad	= 0;
 	
-	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
+	cc_btn_capt_col		= col_body_gradient ? COL_BUTTON_TEXT_ENABLED : COL_INFOBAR_SHADOW_TEXT;
+	cc_btn_capt_disable_col = col_body_gradient ? COL_BUTTON_TEXT_DISABLED : COL_MENUCONTENTINACTIVE_TEXT;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;
 	cc_btn_dy_font  = CNeutrinoFonts::getInstance();
@@ -144,18 +145,25 @@ void CComponentsButton::initIcon()
 	if (cc_btn_icon_obj == NULL){
 		int w_icon = 0;
 		int h_icon = 0;
-		frameBuffer->getIconSize(cc_btn_icon.c_str(), &w_icon, &h_icon);
+		int y_icon = 0;
 
-		h_icon = min(height-2*fr_thickness, h_icon);
-// 		if (h_icon != h_max){
-// 			int ratio = h_icon/h_max;
-// 			cc_btn_icon = frameBuffer->getIconBasePath() + cc_btn_icon;
-// 			cc_btn_icon += ".png";
-// 			w_icon = w_icon*ratio;
-// 		}
-		
-		int y_icon = height/2 - h_icon/2;
-		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, w_icon, h_icon, cc_btn_icon, this);
+		string::size_type pos = cc_btn_icon.find("/", 0);
+		if (pos == string::npos)
+			cc_btn_icon = frameBuffer->getIconBasePath() + cc_btn_icon + ".png";
+
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
+		h_icon = cc_btn_icon_obj->getHeight();
+
+		if (h_icon > (height-2*fr_thickness)){
+			cc_btn_icon_obj->setHeight(height*80/100);
+			uint8_t h_ratio = uint8_t(height*100/h_icon);
+			w_icon = h_ratio*cc_btn_icon_obj->getWidth()/100;
+			cc_btn_icon_obj->setWidth(w_icon);
+		}
+
+		y_icon = height/2 - cc_btn_icon_obj->getHeight()/2;
+
+		cc_btn_icon_obj->setYPos(y_icon);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
 }
@@ -184,7 +192,7 @@ void CComponentsButton::initCaption()
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
 		int w_cap = width - fr_thickness - append_x_offset - x_cap - fr_thickness;
-		int h_cap = height - 2*fr_thickness;
+		int h_cap = height*80/100/* - 2*fr_thickness*/;
 
 		/*NOTE:
 			paint of centered text in y direction without y_offset
@@ -192,7 +200,7 @@ void CComponentsButton::initCaption()
 			but text render isn't wrong here, because capitalized chars or long chars like e. 'q', 'y' are considered!
 			Therefore we here need other icons or a hack, that considers some different height values.
 		*/
-		int y_cap = height/2 - h_cap/2 - fr_thickness;
+		int y_cap = height/2 - h_cap/2 + fr_thickness/2;
 
 		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
 
@@ -204,7 +212,7 @@ void CComponentsButton::initCaption()
 		cc_btn_capt_obj->forceTextPaint(); //here required;
 
 		//set color
-		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT);
+		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? cc_btn_capt_col : cc_btn_capt_disable_col);
 
 		//corner of text item
 		cc_btn_capt_obj->setCorner(corner_rad-fr_thickness, corner_type);

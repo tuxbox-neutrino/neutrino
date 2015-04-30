@@ -38,19 +38,21 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <stdarg.h>
+#include <algorithm>
 #include <mntent.h>
 #include <linux/hdreg.h>
 #include <linux/fs.h>
-
+#include "debug.h"
 #include <system/helpers.h>
 #include <gui/update_ext.h>
+using namespace std;
 
-void mySleep(int sec) {
+int mySleep(int sec) {
 	struct timeval timeout;
 
 	timeout.tv_sec = sec;
 	timeout.tv_usec = 0;
-	select(0,0,0,0, &timeout);
+	return select(0,0,0,0, &timeout);
 }
 
 off_t file_size(const char *filename)
@@ -215,7 +217,7 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	}
 	return(fp);
 }
-
+#if 0
 int mkdirhier(const char *pathname, mode_t mode)
 {
 	int res = -1;
@@ -236,7 +238,7 @@ int mkdirhier(const char *pathname, mode_t mode)
 		res = 0;
 	return res;
 }
-
+# endif
 
 int safe_mkdir(const char * path)
 {
@@ -338,7 +340,7 @@ std::string find_executable(const char *name)
 	if (tmpPath)
 		path = strdupa(tmpPath);
 	else
-		path = strdupa("/bin:/usr/bin:/sbin:/usr/sbin");
+		path = strdupa("/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin");
 	if (name[0] == '/') { /* full path given */
 		if (!access(name, X_OK) && !stat(name, &s) && S_ISREG(s.st_mode))
 			return std::string(name);
@@ -421,8 +423,9 @@ std::string getNowTimeStr(const char* format)
 {
 	char tmpStr[256];
 	struct timeval tv;
+	struct tm t;
 	gettimeofday(&tv, NULL);        
-	strftime(tmpStr, sizeof(tmpStr), format, localtime(&tv.tv_sec));
+	strftime(tmpStr, sizeof(tmpStr), format, localtime_r(&tv.tv_sec, &t));
 	return (std::string)tmpStr;
 }
 
@@ -671,32 +674,25 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 	return true;
 }
 
-bool CFileHelpers::createDir(const char *Dir, mode_t mode)
+int CFileHelpers::createDir(string& Dir, mode_t mode)
 {
-	char dirPath[PATH_MAX];
-	DIR *dir;
-	if ((dir = opendir(Dir)) != NULL) {
-		closedir(dir);
-		errno = EEXIST;
-		return false;
-	}
-
-	int ret = -1;
-	while (ret == -1) {
-		strcpy(dirPath, Dir);
-		ret = mkdir(dirPath, mode);
-		if ((errno == ENOENT) && (ret == -1)) {
-			char * pos = strrchr(dirPath,'/');
-			if (pos != NULL) {
-				pos[0] = '\0';
-				createDir(dirPath, mode);
-			}
+	struct stat st;
+	int res = 0;
+	for(string::iterator iter = Dir.begin() ; iter != Dir.end();) {
+		string::iterator newIter = find(iter, Dir.end(), '/' );
+		string newPath = string( Dir.begin(), newIter );
+		if( !newPath.empty() && stat(newPath.c_str(), &st) != 0) {
+			res = mkdir( newPath.c_str(), mode);
+			if (errno == EEXIST)
+				res = 0;
+			if(res != 0)
+				dprintf(DEBUG_NORMAL, "[CFileHelpers %s] creating directory %s: %s\n", __func__, newPath.c_str(), strerror(errno));
 		}
-		else
-			return !ret || (errno == EEXIST);
+		iter = newIter;
+		if(newIter != Dir.end())
+			++ iter;
 	}
-	errno = 0;
-	return true;
+	return res;
 }
 
 bool CFileHelpers::removeDir(const char *Dir)
@@ -724,6 +720,41 @@ bool CFileHelpers::removeDir(const char *Dir)
 
 	errno = 0;
 	return true;
+}
+
+u_int64_t CFileHelpers::getDirSize(const char *dirname)
+{
+	DIR *dir;
+	char fullDirName[500];
+	struct dirent *dirPnt;
+	struct stat cur_file;
+	uint64_t total_size = 0;
+
+	//open current dir
+	sprintf(fullDirName, "%s/", dirname);
+	if((dir = opendir(fullDirName)) == NULL) {
+		fprintf(stderr, "Couldn't open %s\n", fullDirName);
+		return 0;
+	}
+
+	//go through the directory
+	while( (dirPnt = readdir(dir)) != NULL ) {
+		if(strcmp((*dirPnt).d_name, "..") == 0 || strcmp((*dirPnt).d_name, ".") == 0)
+			continue;
+
+		//create current filepath
+		sprintf(fullDirName, "%s/%s", dirname, (*dirPnt).d_name);
+		if(stat(fullDirName, &cur_file) == -1)
+			continue;
+
+		if(cur_file.st_mode & S_IFREG) //file...
+			total_size += cur_file.st_size;
+		else if(cur_file.st_mode & S_IFDIR) //dir...
+			total_size += getDirSize(fullDirName);
+	}
+	closedir(dir);
+
+	return total_size;
 }
 
 static int hdd_open_dev(const char * fname)

@@ -1260,12 +1260,20 @@ void CMovieBrowser::refreshMovieInfo(void)
 		CChannelLogo = NULL;
 	}
 	if (old_EpgId != m_movieSelectionHandler->epgEpgId >>16) {
-		CChannelLogo = new CComponentsChannelLogo(0, 0, logo_w_max, m_cBoxFrameTitleRel.iHeight,
-				m_movieSelectionHandler->epgChannel, m_movieSelectionHandler->epgEpgId >>16);
+		CChannelLogo = new CComponentsChannelLogo(0, 0, m_movieSelectionHandler->epgChannel, m_movieSelectionHandler->epgEpgId >>16);
 		old_EpgId = m_movieSelectionHandler->epgEpgId >>16;
 	}
 
 	if (CChannelLogo && CChannelLogo->hasLogo()) {
+		//scale image if required, TODO: move into an own handler, eg. header, so channel logo should be paint in header object
+		int h_logo = CChannelLogo->getHeight();
+		if (h_logo > m_cBoxFrameTitleRel.iHeight){
+			uint8_t ratio = m_cBoxFrameTitleRel.iHeight*100/h_logo;
+			CChannelLogo->setHeight(m_cBoxFrameTitleRel.iHeight);
+			int w_logo = ratio*CChannelLogo->getWidth()/100;
+			CChannelLogo->setWidth(min(w_logo, logo_w_max));
+		}
+		
 		lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-CChannelLogo->getWidth()-10;
 		ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-CChannelLogo->getHeight())/2;
 		CChannelLogo->setXPos(lx - pb_hdd_offset);

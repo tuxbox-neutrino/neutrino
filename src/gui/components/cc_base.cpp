@@ -65,8 +65,9 @@ CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
-	cc_body_gradientBuf	= NULL;
 	col_body_gradient	= false;
+	cc_gradientData.gradientBuf = NULL;
+	cc_gradientData.boxBuf = NULL;
 }
 
 CComponents::~CComponents()
@@ -74,8 +75,10 @@ CComponents::~CComponents()
 	hide();
 	clearSavedScreen();
 	clearFbData();
-	if (cc_body_gradientBuf)
-		free(cc_body_gradientBuf);
+	if (cc_gradientData.gradientBuf)
+		free(cc_gradientData.gradientBuf);
+	if (cc_gradientData.boxBuf)
+		cs_free_uncached(cc_gradientData.boxBuf);
 }
 
 void CComponents::clearSavedScreen()
@@ -195,7 +198,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 						//calculate current shadow width depends of current corner_rad
 						sw_cur = max(2*v_fbdata[i].r, sw);
 					}
-					if (cc_allow_paint){
+					if (cc_allow_paint && !is_painted){
 						// shadow right
 						frameBuffer->paintBoxRel(x_sh, v_fbdata[i].y, sw_cur, v_fbdata[i].dy-sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_TOP_RIGHT);
 						// shadow bottom
@@ -293,11 +296,13 @@ void CComponents::clearFbData()
 		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
 
+#if 0
 		if (v_fbdata[i].data && (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX)) {
 			gradientData_t *gradientData = static_cast<gradientData_t*> (v_fbdata[i].data);
 			if (gradientData->boxBuf)
 				cs_free_uncached(gradientData->boxBuf);
 		}
+#endif
 	}
 	v_fbdata.clear();
 }
@@ -323,5 +328,5 @@ void CComponents::setFrameThickness(const int& thickness, const int& thickness_s
 
 void CComponents::enableColBodyGradient(bool do_paint_gradient)
 {
-	col_body_gradient = g_settings.gradiant ? do_paint_gradient : false;
+	col_body_gradient = do_paint_gradient;
 }

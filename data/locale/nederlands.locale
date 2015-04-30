@@ -294,6 +294,7 @@ colormenusetup.menuhead Menu kop
 colorstatusbar.text Infobalk 
 colorthememenu.head Selecteer thema
 colorthememenu.head2 Thema's laden
+colorthememenu.menu_hints Hint box
 colorthememenu.name Naam thema
 colorthememenu.neutrino_theme Neutrino Thema
 colorthememenu.question Geselecteerde thema gebruiken?
