@@ -208,25 +208,11 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 #elif  (defined( USE_PUGIXML ) )
 
 #include <fstream>
-pugi::xml_encoding setEncoding(const char* encoding)
-{
-	if (encoding) {
-		if (strcasecmp(encoding,"ISO-8859-1")) {
-			return pugi::encoding_latin1;
-		}
-		if (strcasecmp(encoding, "UTF-8")) {
-			return pugi::encoding_utf8;
-		}
-		if (strcasecmp(encoding, "UTF-16"))
-			return pugi::encoding_utf16;
-	}
-	return pugi::encoding_auto;
-}
 
-xmlDocPtr parseXml(const char * data,const char* encoding)
+xmlDocPtr parseXml(const char * data,const char* /*encoding*/)
 {
 	pugi::xml_document* tree_parser = new pugi::xml_document();
-	if (!tree_parser->load_string(data, setEncoding(encoding)))
+	if (!tree_parser->load_string(data))
 	{
 		delete tree_parser;
 		return NULL;
@@ -257,8 +243,6 @@ xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 			}
 			in.close();
 		}
-	}else{
-		enc = setEncoding(encoding);
 	}
 
 	pugi::xml_document* tree_parser = new pugi::xml_document();
