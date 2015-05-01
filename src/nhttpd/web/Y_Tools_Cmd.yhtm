@@ -79,9 +79,7 @@ function doUpload()
 
 <script language="JavaScript" type="text/javascript" >
 //<![CDATA[
-	var agt=navigator.userAgent.toLowerCase();
-	var is_ie = ((agt.indexOf("msie") != -1) && (agt.indexOf("opera") == -1));
-	if(is_ie)
+	if(isIE)
 		document.f.appendx.checked = true;
 	window.document.f.cmd.focus();
 //]]>

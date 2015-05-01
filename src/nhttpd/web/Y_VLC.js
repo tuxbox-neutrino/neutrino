@@ -29,14 +29,14 @@ CyVLC.prototype = {
 		this.c_masterid = masterid;
 		this.c_width = width;
 		this.c_height = height;
-		if(!is_ie) {
+		if(!isIE) {
 			this.version_string = this._get_version();
 			this._generate_sub_versions();
 			this._determine_plugin_generation();
 		}
 		this.insert_control();
 		this.vlc = id(_id);
-		if(is_ie) {
+		if(isIE) {
 			this.version_string = this._get_version();
 			this._generate_sub_versions();
 			this._determine_plugin_generation();
@@ -44,7 +44,7 @@ CyVLC.prototype = {
 		this.set_resolution(this.c_width, this.c_height);
 	},
 	_get_version : function() {
-		if(is_ie)
+		if(isIE)
 		{
 			var vstr = this.vlc.VersionInfo;
 			var words = vstr.split(" ");
@@ -81,7 +81,7 @@ CyVLC.prototype = {
 		if(ve.length >4 && ve[4] !== "")	this.version_level4 = ve[4];
 	},
 	_determine_plugin_generation : function() {
-		if(is_ie)
+		if(isIE)
 			this.plugin = "ie1";
 		else
 			if(this.version_level1 <= 0 && this.version_level2 <= 8 && this.version_level3 <= 5)
@@ -222,7 +222,7 @@ CyVLC.prototype = {
 	insert_control : function()
 	{
 		var vlc_control_html = "";
-		if(is_ie) {
+		if(isIE) {
 			vlc_control_html =
 				"<object classid=\"clsid:E23FE9C6-778E-49D4-B537-38FCDE4887D8\" " +
 /*				"<object classid=\"clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921\" " +*/
