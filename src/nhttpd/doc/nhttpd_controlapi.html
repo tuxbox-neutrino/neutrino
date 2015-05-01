@@ -36,7 +36,7 @@
 		<td><a href="http://box_ip/control/standby">http://box_ip/control/standby</a></td>
 	</tr>
 	<tr>
-		<td>7. <a href="#volume">Lautstaerke-Steuerung</a></td>
+		<td>7. <a href="#volume">Lautstärke-Steuerung</a></td>
 		<td><a href="http://box_ip/control/volume">http://box_ip/control/volume</a></td>
 	</tr>
 	<tr>
@@ -222,7 +222,7 @@
 		http://box_ip/control/screenshot</a></td>
 	</tr>
 	<tr>
-		<td>48. <a href="#signal">Signalst&auml;rke anzeigen</a></td>
+		<td>48. <a href="#signal">Signalstärke anzeigen</a></td>
 		<td><a href="http://box_ip/control/signal">
 		http://box_ip/control/signal</a></td>
 	</tr>
@@ -252,7 +252,7 @@
 		http://box_ip/control/build_live_url</a></td>
 	</tr>
 	<tr>
-		<td>54. <a href="#logolist"></a>Listet Senderlogos</td>
+		<td>54. <a href="#logolist">Senderlogos auflisten</a></td>
 		<td><a href="http://box_ip/control/logolist">
 		http://box_ip/control/logolist</a></td>
 	</tr>
@@ -269,15 +269,15 @@
 <div class="URL">Handler: http://box_ip/control/channellist</div>
 <br>
 <b>Parameter:</b> keine<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es wird die gesamte Kanalliste von Neutrino zurueckgegeben.<br>
-Jede Zeile wird von einem Enter (\n) von der Naechsten getrennt.<br>
-Eine Zeile enthaelt ein Programm.<br>
+Es wird die gesamte Kanalliste von Neutrino zurückgegeben.<br>
+Jede Zeile wird von einem Enter (\n) von der Nächsten getrennt.<br>
+Eine Zeile enthält ein Programm.<br>
 <br>
-<b>Rueckgabe-Format:</b> channel_id Programmname<br>
+<b>Rückgabe-Format:</b> channel_id Programmname<br>
 <br>
-Die channel_id dient als Handle fuer andere Operationen wie Zappen oder EPG.<br>
+Die channel_id dient als Handle für andere Operationen wie Zappen oder EPG.<br>
 Die channel_id ist eine 64 bit Hexadezimalzahl.<br>
 <div class="example">
 Beispiel:<br>
@@ -296,14 +296,14 @@ Beispiel:<br>
 <div class="URL">Handler: http://box_ip/control/epg</div>
 <br>
 <b>Parameter:</b> keine<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es werden alle verfuegbaren EPG's aller Programme, zur aktuellen Zeit<br>
-zurueckgegeben. Jede Zeile wird von einem Enter (\n) von der<br>
-Naechsten getrennt. Eine Zeile enthaelt die Information ueber die<br>
+Es werden alle verfügbaren EPG's aller Programme, zur aktuellen Zeit<br>
+zurückgegeben. Jede Zeile wird von einem Enter (\n) von der<br>
+nächsten getrennt. Eine Zeile enthält die Informationen über die<br>
 aktuell laufende Sendung.<br>
 <br>
-<b>Rueckgabe-Format:</b> channel_id EVENTID Titel der Sendung<br>
+<b>Rückgabe-Format:</b> channel_id EVENTID Titel der Sendung<br>
 <br>
 Die EVENTID dient als Handle um genauere Informationen abzufragen.<br>
 <div class="example">
@@ -311,18 +311,18 @@ Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/epg<br>
 8716804 571264467523 Wasserloch Nr. 3<br>
-8716304 571231699926 Ein Kaefig voller Helden<br>
+8716304 571231699926 Ein Käfig voller Helden<br>
 8716311 571232198133 Cop Rock<br>
 </div>
 <b>Parameter:</b> channel_id (64 bit, hexadezimal)<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Als Rueckgabe wird die Eventliste des durch die channel_id<br>
-identifizierten Senders gesendet, d.h. eine Liste, welche Filme auf<br>
+Als Rückgabe wird die Eventliste des durch die channel_id<br>
+identifizierten Senders gesendet, d. h. eine Liste, welche Filme auf<br>
 diesem Sender kommen. Jede Zeile wird von einem Enter (\n) von der<br>
-Naechsten getrennt.<br>
+nächsten getrennt.<br>
 <br>
-<b>Rueckgabe-Format:</b> EVENTID Startzeit Dauer Titel der Sendung<br>
+<b>Rückgabe-Format:</b> EVENTID Startzeit Dauer Titel der Sendung<br>
 <br>
 Die EVENTID dient als Handle um genauere EPG-Informationen abzufragen.<br>
 <div class="example">
@@ -330,19 +330,19 @@ Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/epg?8716304<br>
 571231699925 1021322700 1500 Shooting Stars<br>
-571231699926 1021324200 1500 Ein Kaefig voller Helden<br>
+571231699926 1021324200 1500 Ein Käfig voller Helden<br>
 571231699927 1021325700 1500 The Hitchhiker<br>
 571231699928 1021327200 1500 The Hitchhiker<br>
 </div>
 <b>Parameter:</b> id=channel_id<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Als Rueckgabe wird die Eventliste des durch die channel_id<br>
-identifizierten Senders gesendet, das heisst eine Liste, was fuer<br>
+Als Rückgabe wird die Eventliste des durch die channel_id<br>
+identifizierten Senders gesendet, das heißt eine Liste, was für<br>
 Filme auf einem Sender kommen. Jeder Datensatz wird von einem<br>
-EnterEnter (\n\n) vom Naechsten getrennt.<br>
+EnterEnter (\n\n) vom nächsten getrennt.<br>
 <br>
-<b>Rueckgabe-Format:</b> <br>
+<b>Rückgabe-Format:</b> <br>
 EVENTID Startzeit DURATION<br>
 TITLE<br>
 INFO1<br>
@@ -357,7 +357,7 @@ Beispiel:<br>
 Daten der Woche<br>
 Moderation: Andrea Müller<br>
 Themen: Kandidatenkür: Maas wird Spitzenkandidat<br>
-Aufsteiger: Auszeichnung für Scheer Dikussion: Längere<br>
+Aufsteiger: Auszeichnung für Scheer Diskussion: Längere<br>
 Arbeitszeiten; dazu ein Interview mit Christian Scholz,<br>
 Wirtschaftswissenschaftler Ladenschluss: Öffnungszeiten am<br>
 Sonntag <br>
@@ -375,8 +375,8 @@ Urteil<br>
 <br>
 Es wird die ausführliche Beschreibung eines Films<br>
 zurückgegeben. Diese besteht aus einem Titel, einer allgemeinen<br>
-Info und der Beschreibung. Titel Info und Beschreibung derwen mit<br>
-einem Enter (\n) vonneinander getrennt. Es muss beachtet werden, dass<br>
+Info und der Beschreibung. Titel, Info und Beschreibung werden mit<br>
+einem Enter (\n) voneinander getrennt. Es muss beachtet werden, dass<br>
 in der Beschreibung weitere Enter vorkommen können.<br>
 <br>
 <b>Rückgabe-Format:</b><br>
@@ -392,14 +392,14 @@ Operation 'Tiger' <br>
 blablabla <br>
 </div>
 <b>Parameter: ext</b><br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es werden alle verfuegbaren EPG's aller Programme, zur aktuellen Zeit<br>
-zurueckgegeben. Jede Zeile wird von einem Enter (\n) von der<br>
-Naechsten getrennt. Eine Zeile enthaelt die Information ueber die<br>
+Es werden alle verfügbaren EPG's aller Programme, zur aktuellen Zeit<br>
+zurückgegeben. Jede Zeile wird von einem Enter (\n) von der<br>
+nächsten getrennt. Eine Zeile enthält die Information über die<br>
 aktuell laufende Sendung.<br>
 <br>
-<b>Rueckgabe-Format:</b> channel_id Startzeit Dauer EVENTID Titel der Sendung<br>
+<b>Rückgabe-Format:</b> channel_id Startzeit Dauer EVENTID Titel der Sendung<br>
 <br>
 Die EVENTID dient als Handle um genauere Informationen abzufragen.<br>
 <div class="example">
@@ -408,18 +408,22 @@ Beispiel:<br>
 &gt;&gt;&gt;http://box_ip/control/epg?ext<br>
 8716330 1025382300 6900 571233417784 Rocky 2<br>
 </div>
-<b>Parameter:</b> xml=true&amp;channelid=&lt;channel_id&gt;|channelname=&lt;channel 
-name&gt;[&amp;details=true][&amp;max=&lt;max items&gt;][&amp;stoptime=&lt;long:stop time&gt;]<br>
+<br>
+<b>Parameter:</b> xml=true&amp;channelid=&lt;channel_id&gt;|channelname=&lt;channel_name&gt;
+[&amp;details=true][&amp;max=&lt;max items&gt;][&amp;stoptime=&lt;long:stop time&gt;]<br>
 <b>Rückgabe:</b><br>
-Liefert zum angegebenen channel (angegeben durch channel_id oder channel_name) 
+Liefert zum angegebenen Sender (angegeben durch channel_id oder channel_name) 
 das EPG als XML-Liste zurück.<br>
-channel_name=Ein oder mehrere durch Komma getrente Sendernamen.<br>
+channel_name=Ein oder mehrere durch Komma getrennte Sendernamen.<br>
 Wird details=true angegeben, dann werden zusätzlich info1 and info2 mit 
 ausgegeben.<br>
-Zur Begrenzung der Menge der Listeneinträge kann max für die Anzahl der Elemente 
+Zur Begrenzung der Listeneinträge dient max für die Anzahl der Elemente, 
 oder <br>
-stoptime für die Uhrzeit bis zu der Angaben gemacht werden sollen, begrenzt 
-werden.<br>
+stoptime für die Uhrzeit (Unix Zeit), bis zu der Angaben gemacht werden sollen.<br>
+<br>
+<b>ACHTUNG: </b>Die Angabe von mehreren Sendern hat keinen Effekt.
+Nur Ergebnisse des ersten Senders werden angezeigt!<br>
+<br>
 <div class="example">
 Beispiel:<br>
 &gt;&gt;&gt;http://192.168.0.15/control/epg?xml=true&amp;channelid=44d00016dca&amp;details=true&amp;max=2<br>
@@ -467,11 +471,11 @@ Nötigsten.]]&gt;&lt;/info2&gt;<br>
 <div class="URL">Handler: http://box_ip/control/epgsearch</div>
 <br>
 <b>Parameter:</b> keine<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es werden alle verfuegbaren EPG-Daten aller Programme zurueckgegeben.<br>
+Es werden alle verfügbaren EPG-Daten aller Programme zurückgegeben.<br>
 <br>
-<b>Rueckgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung Beschreibung<br>
+<b>Rückgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung Beschreibung<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -501,14 +505,14 @@ fsk:0<br>
 Soap/Melodram/Folklore<br>
 </div>
 <b>Parameter:</b> Suchbegriff;epginfo=false<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es werden alle Sendungen im EPG zurueckgegeben, die den Suchbegriff<br>
+Es werden alle Sendungen im EPG zurückgegeben, die den Suchbegriff<br>
 im Titel oder Beschreibungstext beinhalten.<br>
 Die Treffer lassen sich unter Angabe von epginfo=false auf Treffer im Titel beschränken.<br>
 Hier werden die Sendungsinhalte (info1 und info2) nicht mitgeliefert.<br>
 <br>
-<b>Rueckgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung<br>
+<b>Rückgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung<br>
 <br>
 <div class="example">
 Beispiel:<br>
@@ -533,9 +537,9 @@ Nachrichten<br>
 <div class="URL">Handler: http://box_ip/control/epgsearchxml</div>
 <br>
 <b>Parameter:</b> keine<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es werden alle verfuegbaren EPG-Daten aller Programme in einer XML zurueckgegeben. <br>
+Es werden alle verfügbaren EPG-Daten aller Programme in einer XML zurückgegeben. <br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -549,14 +553,14 @@ attraktive und günstige Angebote rund um das Thema Mobilfunk.&lt;/info1&gt;<br>
 ...<br>
 </div>
 <b>Parameter:</b> Suchbegriff;epginfo=false<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es werden alle Sendungen im EPG zurueckgegeben, die den Suchbegriff<br>
+Es werden alle Sendungen im EPG zurückgegeben, die den Suchbegriff<br>
 im Titel oder Beschreibungstext beinhalten.<br>
 Die Treffer lassen sich unter Angabe von epginfo=false auf Treffer im Titel beschränken.<br>
 Hier werden die Sendungsinhalte (info1 und info2) nicht mitgeliefert.<br>
 <br>
-<b>Rueckgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung<br>
+<b>Rückgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung<br>
 <br>
 <div class="example">
 Beispiel:<br>
@@ -609,7 +613,7 @@ ok<br>
 <b>Parameter: off</b><br>
 <b>Rückgabe:</b><br>
 <br>
-Schaltet den Standby Mode aus<br>
+Schaltet den Standby Mode aus.<br>
 <br>
 <b>Rückgabe-Format:</b> ok /error<br>
 <div class="example">
@@ -622,7 +626,7 @@ ok<br>
 <b>Parameter: </b><br>
 <b>Rückgabe: </b><br>
 <br>
-Zeigt den Standby status an<br>
+Zeigt den Standby Status an.<br>
 <br>
 <b>Rückgabe-Format:</b> on / off<br>
 <div class="example">
@@ -716,10 +720,10 @@ Beispiel:<br>
 <div class="URL">Handler: http://box_ip/control/zapto</div>
 <br>
 <b>Parameter:</b> keine<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
 Es wird die channel_id (hex-value, 64 bit, kein 0x-prefix) des aktuell<br>
-laufenden Senders zurueckgegeben.<br>
+laufenden Senders zurückgegeben.<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -802,8 +806,8 @@ Beispiel:<br>
 <br>
 <b>Parameter:</b> stopplayback<br>
 <b>Rückgabe:</b><br>
-Stoppt die Decodierung um Graben zu können. Zusätzlich wird der<br>
-Sectionsd gestoppt. Rückgabewert sollte ok für Erfolg sein.<br>
+Stoppt die Dekodierung, um Graben zu können. Zusätzlich wird der<br>
+sectionsd gestoppt. Rückgabewert sollte ok für Erfolg sein.<br>
 <br>
 <b>Rückgabe-Format:</b> ok / error<br>
 <div class="example">
@@ -815,7 +819,7 @@ ok<br>
 <br>
 <b>Parameter:</b> startplayback<br>
 <b>Rückgabe:</b><br>
-Startet die Decodierung nach dem Graben wieder, Sectionsd wird auch<br>
+Startet die Decodierung nach dem Graben wieder, sectionsd wird auch<br>
 wieder gestartet. Rückgabewert sollte ok für Erfolg sein.<br>
 <br>
 <b>Rückgabe-Format:</b> ok<br>
@@ -840,7 +844,7 @@ Beispiel:<br>
 <br>
 <b>Parameter:</b> stopsectionsd<br>
 <b>Rückgabe:</b><br>
-Stoppt den Sectionsd zum Grabben. Rückgabewert sollte ok für Erfolg sein.<br>
+Stoppt den sectionsd zum Grabben. Rückgabewert sollte ok für Erfolg sein.<br>
 <br>
 <b>Rückgabe-Format:</b> ok<br>
 <div class="example">
@@ -852,7 +856,7 @@ ok<br>
 <br>
 <b>Parameter:</b> startsectionsd<br>
 <b>Rückgabe:</b><br>
-Startet Sectionsd nach dem Graben wieder. Rückgabewert sollte ok<br>
+Startet sectionsd nach dem Grabben wieder. Rückgabewert sollte ok<br>
 für Erfolg sein.<br>
 <br>
 <b>Rückgabe-Format:</b> ok<br>
@@ -865,7 +869,7 @@ ok<br>
 <br>
 <b>Parameter:</b> statussectionsd<br>
 <b>Rückgabe:</b><br>
-gibt den status des sectionsd zurück. (Scanning, bzw, kein scanning)<br>
+gibt den Status des sectionsd zurück (scanning / kein scanning).<br>
 <br>
 <b>Rückgabe-Format:</b> '1': sectionsd scanning an, '0': sectionsd scanning aus<br>
 <div class="example">
@@ -875,13 +879,13 @@ Beispiel:<br>
 1<br>
 </div>
 <br>
-<b>Parameter:</b> channel_id (64 bit, hexidecimal value)<br>
-<b>Rueckgabe:</b><br>
+<b>Parameter:</b> channel_id (64 bit, hexadezimal)<br>
+<b>Rückgabe:</b><br>
 <br>
 Zappt auf den angegebenen Kanal.<br>
-Als Rueckgabe ist im Erfolgsfall ok zu erwarten.<br>
+Als Rückgabe ist im Erfolgsfall ok zu erwarten.<br>
 <br>
-<b>Rueckgabe-Format:</b> ok / error<br>
+<b>Rückgabe-Format:</b> ok / error<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -890,13 +894,13 @@ ok <br>
 </div>
 
 <b>Parameter:</b> channel_name oder channel_names (Ein oder mehrere durch Komma 
-getrente Sendernamen; URI encoded)<br>
-<b>Rueckgabe:</b><br>
+getrennte Sendernamen; URI encoded)<br>
+<b>Rückgabe:</b><br>
 <br>
 Zappt auf den angegebenen Kanal.<br>
-Als Rueckgabe ist im Erfolgsfall ok zu erwarten.<br>
+Als Rückgabe ist im Erfolgsfall ok zu erwarten.<br>
 <br>
-<b>Rueckgabe-Format:</b> ok / error<br>
+<b>Rückgabe-Format:</b> ok / error<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -913,7 +917,7 @@ ok <br>
 <b>Parameter:</b> status<br>
 <b>Rückgabe:</b><br>
 <br>
-Es wird der aktuelle record mode status zurückgegeben on / off<br>
+Es wird der aktuelle record mode Status zurückgegeben on / off<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -949,9 +953,9 @@ ok<br>
 <b>Parameter:</b> record<br>
 <b>Rückgabe:</b><br>
 <br>
-Schaltet in den record mode. Dies beinhaltet auch das stoppen, bzw,<br>
-das starten des sectionsd scanning, das starten des playbacks(immer)<br>
-und stoppen des playbacks (nur bei stopplayback=true).<br>
+Schaltet in den record mode. Dies beinhaltet auch das Stoppen bzw. <br>
+das Starten des sectionsd scanning, das Starten des Playback (immer)<br>
+und das Stoppen des Playback (nur bei stopplayback=true).<br>
 <br>
 <b>Rückgabe-Format:</b> ok / error<br>
 <div class="example">
@@ -1039,9 +1043,9 @@ Beispiel:<br>
 <b>Parameter:</b> streaminfo<br>
 <b>Rückgabe:</b><br>
 <br>
-Es werden Streaminfos zurückgegeben. Die Werte sind durch Enter (\n) getrennt<br>
+Es werden Streaminfos zurückgegeben. Die Werte sind durch Enter (\n) getrennt.<br>
 <br>
-<b>Rückgabe-Format:</b> X_res Y_res Bitrate VideoFormat Framerate AudioFormat<br>
+<b>Rückgabe-Format:</b> X_res Y_res Bitrate Videoformat Framerate Audioformat<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1105,15 +1109,15 @@ Beispiel:<br>
 <div class="URL">Handler: http://box_ip/control/getonidsid</div>
 <br>
 <b>Parameter:</b> <br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es wird die TSIDONIDSID des aktuellen Kanals zurueckgegeben.<br>
+Es wird die TSIDONIDSID des aktuellen Kanals zurückgegeben.<br>
 <br>
 Diese Funktion sollte NICHT mehr verwendet werden und ist durch<br>
 folgenden Aufruf ersetzt:<br>
 http://box_ip/control/zapto<br>
 <br>
-<b>Rueckgabe-Format:</b> TSIDONIDSID<br>
+<b>Rückgabe-Format:</b> TSIDONIDSID<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1127,10 +1131,10 @@ Beispiel:<br>
 <div class="URL">Handler: http://box_ip/control/currenttpchannels</div>
 <br>
 <b>Parameter:</b> <br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
 Es wird die channel_id (hex-value, 64 bit, kein 0x-prefix) gefolgt vom<br>
-Sendernamen aller Sender auf dem aktuellen Transponder zurueckgegeben.<br>
+Sendernamen aller Sender auf dem aktuellen Transponder zurückgegeben.<br>
 <br>
 <div class="example">
 Beispiel:<br>
@@ -1147,7 +1151,7 @@ b544000800850087 Sky Cinema+24 HD<br>
 <div class="URL">Handler: http://box_ip/control/get_logo</div>
 <br>
 <b>Parameter:</b> channel_id<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
 Es wird der komplette Pfad des Logos ausgegeben.<br>
 <br>
@@ -1210,7 +1214,7 @@ Beispiel:<br>
 <b>Parameter:</b> <br>
 <b>Rückgabe:</b><br>
 <br>
-Es werden alle Bouquets zurückgeliefert<br>
+Es werden alle Bouquets zurückgegeben.<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1226,13 +1230,12 @@ Beispiel:<br>
 <div class="title1"><a name="getbouquet"></a><b>20. Bouquet abfragen</b></div>
 <div class="URL">Handler: http://box_ip/control/getbouquet</div>
 <br>
-<b>Parameter:</b> bouquet=Bouquet Nr. und mode=TV | RADIO oder actual und und 
+<b>Parameter:</b> bouquet=Bouquet Nr. und mode=TV | RADIO oder actual und 
 mode=TV | RADIO optional: xml=true<br>
-<b>Rueckgabe:</b><br>
+<b>Rückgabe:</b><br>
 <br>
-Es werden alle Sender des Bouquets zurueckgeliefert. Wird actual mit<br>
-angegeben, dann wird das Bouquet genommen, welches den aktuellen<br>
-Sender als erstes enthält. <br>
+Es werden alle Sender des Bouquets zurückgegeben. Bei Angabe des Parameters actual, wird das erste<br>
+Bouquet ausgegeben, das den aktuellen Sender enthält.<br>
 Nummer_des_Kanals channel_id Name_des_Senders<br>
 <div class="example">
 Beispiel:<br>
@@ -1275,8 +1278,8 @@ Beispiel:<br>
 <br>
 Zeichensatz: UTF-8, Leerzeichen müssen als %20 gesendet werden<br>
 <br>
-öffnet ein Popup (popup) oder Message (nmsg) Window, in dem<br>
-der Textteil des Parameter angezeigt wird. Ein Popup Fenster schließt<br>
+Öffnet ein Popup (popup) oder Message (nmsg) Window, in dem<br>
+der Textteil des Parameters angezeigt wird. Ein Popup Fenster schließt<br>
 sich nach einiger Zeit von selbst, während ein Message Window<br>
 vom Benutzer geschlossen werden muss. <br>
 Der Parameter "timeout" bestimmt, nach welcher Zeit das Fenster automatisch schließt.<br>
@@ -1284,18 +1287,18 @@ Der Parameter "timeout" bestimmt, nach welcher Zeit das Fenster automatisch schl
 Beispiele:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/message?popup=Hallo%20World<br>
-öffnet ein Popup-Fenster auf dem Fernseher, in dem &quot;Hallo World&quot; steht<br>
+öffnet ein Popup-Fenster auf dem Fernseher, in dem &quot;Hallo World&quot; steht.<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/message?popup=Hallo%20World&timeout=30<br>
 öffnet ein Popup-Fenster auf dem Fernseher, in dem &quot;Hallo World&quot; steht und sich nach 30 Sekunden schließt.<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/message?nmsg=Hallo%20Welt<br>
-öffnet ein Message-Fenster auf dem Fernseher, in dem &quot;Hallo Welt&quot; steht<br>
+öffnet ein Message-Fenster auf dem Fernseher, in dem &quot;Hallo Welt&quot; steht.<br>
 </div>
-KDE Konqueror Benutzer koennen folgendes Verfahren benutzen:<br>
+KDE Konqueror Benutzer können folgendes Verfahren benutzen:<br>
 ------------------------------------------------------------<br>
 Mit Hilfe von &quot;Settings -&gt; Web Shortcuts -&gt; Add&quot; einen neuen Search<br>
-Provider hinzufuegen. z.B.:<br>
+Provider hinzufügen. z.B.:<br>
 - Search Provider Name: DBox Popup<br>
 - Search URI: http://box_ip/control/message?popup=\{@}<br>
 - URI shortcut: dbox<br>
@@ -1318,13 +1321,13 @@ http://www.google.com/search?q=%C3%A4%20%C3%B6%20%C3%BC%20%C3%84%20%C3%96%20%C3%
 <b>Parameter:</b> [format=id]<br>
 <b>Rückgabe:</b><br>
 <br>
-Zeigt die Liste aller Timer<br>
+Zeigt die Liste aller Timer.<br>
 <br>
 <b>Rückgabe-Format:</b> <br>
 eventID eventType eventRepeat repcount announceTime alarmTime stopTime data<br>
 <br>
-<i>eventID</i> ist der timer-Platz.<br>
-<i>eventType</i> ist die Art des timers, die kann sein:<br>
+<i>eventID</i> ist der Timer-Platz.<br>
+<i>eventType</i> ist die Art des Timers, die kann sein:<br>
 <br>
 1 = SHUTDOWN<br>
 2 = NEXTPROGRAM<br>
@@ -1335,10 +1338,8 @@ eventID eventType eventRepeat repcount announceTime alarmTime stopTime data<br>
 7 = SLEEPTIMER<br>
 8 = EXEC_PLUGIN<br>
 <br>
-siehe dazu auch:<br>
-<a href="http://cvs.tuxbox.org/cgi-bin/viewcvs.cgi/*checkout*/tuxbox/apps/tuxbox/neutrino/daemons/timerd/doku.html?rev=1.3&content-type=text/plain">http://cvs.tuxbox.org/cgi-bin/viewcvs.cgi/*checkout*/tuxbox/apps/tuxbox/neutrino/daemons/timerd/doku.html?rev=1.3&amp;content-type=text/plain</a><br>
 <br>
-<i>eventRepeat</i> ist die Angabe der timerwiderholung, die kann sein:<br>
+<i>eventRepeat</i> ist die Angabe der Timerwiederholung. Die kann sein:<br>
 <br>
 0 = ONCE (Einmal)<br>
 1 = DAILY (Täglich)<br>
@@ -1348,10 +1349,10 @@ siehe dazu auch:<br>
 5 = MONTHLY (Monatlich)<br>
 6 = BYEVENTDESCRIPTION (noch nicht implementiert)<br>
 <br>
-Es gibt auch noch eine Möglichkeit WEEKDAYS also auch wochentage<br>
-festzulegen wo die aufname statfinden soll. dies wird über einen<br>
+Es gibt auch die Möglichkeit WEEKDAYS (Wochentage)<br>
+festzulegen, an denen die Aufnahme statfinden soll. Dies wird über einen<br>
 Bitschlüssel angegeben der Bit 9-15 für die Wochentage<br>
-ansieht. das heist:<br>
+ansieht. Das heißt:<br>
 <br>
 0000000100000000 = 256 = Montag<br>
 0000001000000000 = 512 = Dinstag<br>
@@ -1361,7 +1362,7 @@ ansieht. das heist:<br>
 0010000000000000 = 8192 = Samstag<br>
 0100000000000000 = 16384 = Sontag<br>
 <br>
-Dem zuvolge ist Montag+Mittwoch+Samstag <br>
+Dem zufolge ist Montag+Mittwoch+Samstag <br>
 <br>
 0000000100000000 = 256<br>
 0000010000000000 = 1024<br>
@@ -1369,33 +1370,33 @@ Dem zuvolge ist Montag+Mittwoch+Samstag <br>
 ---------------- ----<br>
 0010010100000000 = 9472<br>
 <br>
-<i>repcount</i> bestimmt die Anzahl der Timeraufrufe, nach der der Timer<br>
+<i>repcount</i> bestimmt die Anzahl der Timeraufrufe, nach der ein Timer<br>
 automatisch gelöscht wird. 0 bedeutet, dass es keine<br>
 Beschränkung gibt. Bei eventRepeat=ONCE hat diese Einstellung<br>
 keine Auswirkungen.<br>
 <br>
-<i>announceTime</i> ist die Zeit an der die Warnung for den timer auf den<br>
-Bildschirm erscheint. siehe auch Kapittel 16: popup. alarmTime ist<br>
-die Zeit des Timer-Starts stopTime ist die Stopzeit für den Timer<br>
+<i>announceTime</i> ist die Zeit, zu der ein Timer-Hinweis auf dem<br>
+Bildschirm erscheint. Siehe auch Kapitel 16: popup. alarmTime ist<br>
+die Zeit des Timer-Starts stopTime ist die Stoppzeit für den Timer<br>
 data ist der Name des Senders.<br>
 <br>
-<i>data</i> enthält weitere Angaben zum Timer. Bei RECORD z.B. den Sendernamen.<br>
-wurde format=id angegeben, so wird statt des Sendernames die channel-id 
+<i>data</i> enthält weitere Angaben zum Timer. Bei RECORD z. B. den Sendernamen.<br>
+Wurde format=id angegeben, so wird statt des Sendernamens die channel-id 
 ausgegeben.<div class="example">
 Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/timer<br>
 1 1 1 4 1034309516 1034309576 1034284376 555089<br>
 <br>
-d.h. event 1, SHUTDOWN, DAILY, nach 4 Timerausführungen wird der<br>
-Timer gelöscht, announcezeit, alarm/startzeit, stopzeit,<br>
-kanal/daten die zeiten sind time_t (Unix Zeitstempel)<br>
+d. h. event 1, SHUTDOWN, DAILY, nach 4 Timerausführungen wird der<br>
+Timer gelöscht, Hinweiszeit, Alarm/Startzeit, Stoppzeit,<br>
+Kanal/Daten. Die Zeiten sind time_t (Unix Zeitstempel)<br>
 </div>
 <b>Parameter:</b> get=pre | post<br>
 <b>Rückgabe:</b> <br>
 <br>
 Gibt die voreingestellte Vor- bzw. Nachlaufzeit für RecordingSafty in Sekunden 
-aus.<p><b>Rueckgabe-Format:</b> Sekunden</p>
+aus.<p><b>Rückgabe-Format:</b> Sekunden</p>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1412,7 +1413,7 @@ rep: Default ist 0<br>
 repcount: Default ist 0<br>
 <br>
 <i>action</i> kann entweder new oder modify sein. Bei modify mus noch ein<br>
-Parameter id angegeben werden um festzulegen welcher Timer modifizirt<br>
+Parameter id angegeben werden um festzulegen welcher Timer modifiziert<br>
 wird.<br>
 <br>
 Zeitangabe:<br>
@@ -1430,15 +1431,15 @@ a/smi = Minute<br>
 meint: ad für Alarm Day und sd für Stop Day usw.<br>
 <br>
 Variante 3)<br>
-Formatierte Angabe (nur für action=new, Format muß genau eingehalten werden):<br>
+Formatierte Angabe (nur für action=new, Format muss genau eingehalten werden):<br>
 alDate = Datum Start, Format TT.MM.JJJJ<br>
 alTime = Uhrzeit Start, Format HH.MM<br>
 stDate = Datum Ende, Format TT.MM.JJJJ (optional)<br>
 stTime = Uhrzeit Ende, Format HH.MM<br>
 <br>
 <i>channel_id</i> ist die Kennung des Senders (als Hexadezimalzahl ohne '0x'-Prefix).<br>
-alternativ kann der Sendername direkt angegeben werden:<br>
-<i>channel_name</i> = Sendername (Ein oder mehrere durch Komma getrente Sendernamen;<br>
+Alternativ kann der Sendername direkt angegeben werden:<br>
+<i>channel_name</i> = Sendername (Ein oder mehrere durch Komma getrennte Sendernamen;<br>
 muss URI codiert sein, also Leerzeichen mit &quot;%20&quot; ersetzen)<br>
 <br>
 <i>msg</i> ist die Message die bei REMIND gesendet wird<br>
@@ -1450,10 +1451,9 @@ berücksichtigt<br>
 <i>rec_dir</i> kann einen Aufnahmepfad enthalten (er muss URI-codiert sein).<br>
 <br>
 <i>update</i>=1 bei action=new löscht einen ggf. vorhandenen Timer mit<br>
-gleicher Startzeit vor dem Hinzufügen. siehe dazu auch:<br>
-http://cvs.berlios.de/cgi-bin/viewcvs.cgi/tuxbox/apps/tuxbox/neutrino/daemons/nhttpd/webapi.cpp?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup<br>
+gleicher Startzeit vor dem Hinzufügen.<br>
 <br>
-<b>Rueckgabe-Format:</b> ok / error<br>
+<b>Rückgabe-Format:</b> ok / error<br>
 </p>
 <div class="example">
 Beispiel:<br>
@@ -1490,44 +1490,32 @@ Display geladen<br>
 Hintergrund)<br>
 <br>
 raw=x,y,xs,ys,d1,..,dn : überträgt die Daten d1 bis dn an die<br>
-Position (x,y) im Display mit xs Spalten<br>
-und ys Zeilen. Die Daten werden dezimal<br>
-übertragen. Jeder Wert repräsentiert<br>
-dabei 8 Punkte innerhalb einer Zeile. Das<br>
-höchstwertige Bit entspricht dem Pixel<br>
-ganz links. Sollen in einer Zeile 9 Pixel<br>
-geschrieben werden, sind dafür zwei<br>
-Datenwerte nötig, auch wenn die<br>
-restlichen 7 Bit des zweiten Wertes nicht<br>
-verwendet werden. Die Werte werden<br>
-zeilenweise hintereinandergeschrieben. Für ein<br>
-Rechteck von 8 Zeilen zu 9 Pixeln sind also<br>
-16 Werte erforderlich, beginnend mit dem<br>
-Wert für die 8 Pixel ganz links oben,<br>
-gefolgt von dem Wert für das letzte<br>
-Pixel der obersten Zeile (mit einem <br>
-Wert von 128 wenn es gesetzt werden soll),<br>
-dann der Wert für die ersten 8 Pixel der<br>
-zweiten Zeile usw.<br>
+Position (x,y) im Display mit xs Spalten und ys Zeilen. Die Daten werden dezimal<br>
+übertragen. Jeder Wert repräsentiert dabei 8 Punkte innerhalb einer Zeile. Das<br>
+höchstwertige Bit entspricht dem Pixel ganz links. Sollen in einer Zeile 9 Pixel<br>
+geschrieben werden, sind dafür zwei Datenwerte nötig, auch wenn die<br>
+restlichen 7 Bit des zweiten Wertes nicht verwendet werden. Die Werte werden<br>
+zeilenweise hintereinander geschrieben. Für ein Rechteck von 8 Zeilen zu 9 Pixeln sind<br>
+also 16 Werte erforderlich, beginnend mit dem Wert für die 8 Pixel ganz links oben,<br>
+gefolgt von dem Wert für das letzte Pixel der obersten Zeile (mit einem <br>
+Wert von 128 wenn es gesetzt werden soll). Dann folgt der Wert für die ersten 8 Pixel<br>
+der zweiten Zeile usw.<br>
 <br>
 line=x1,y1,x2,y2,col : zeichnet eine Linie von (x1,y1) nach (x2,y2)<br>
 mit der Farbe col col=0 -&gt; aus, col=1 -&gt;<br>
 leuchtend, col=2 -&gt; invertierend<br>
 <br>
 rect=x1,y1,x2,y2,col1,col2: zeichnet ein Rechteck mit der linken<br>
-oberen Ecke (x1,y1) und der rechten<br>
-unteren Ecke (x2,y2), der Rahmenfarbe<br>
-col1 welches mit der Farbe col2<br>
+oberen Ecke (x1,y1) und der rechten unteren Ecke (x2,y2),<br>
+der Rahmenfarbe col1 welches mit der Farbe col2<br>
 ausgefüllt wird (Farben siehe &quot;line&quot;) <br>
 <br>
-update=1 : an dieser Stelle wird das Display upgedatet. Somit kann<br>
-man zunächst einige Ausgaben machen und dann erst<br>
-alles zusammen updaten. Somit wird ein Flackern des<br>
-Displays verhindert. Sequenzen ohne diesen Parameter<br>
-haben auf die Anzeige also zunächst erst mal keine<br>
-Auswirkung.<br>
+update=1 : An dieser Stelle wird das Display upgedatet.<br>
+Somit kann man zunächst einige Ausgaben machen und dann erst<br>
+alles zusammen updaten. Dies verhindert ein Flackern des Displays.<br>
+Sequenzen ohne diesen Parameter haben auf die Anzeige also zunächst keine Auswirkung.<br>
 <br>
-Die folgenden Parameter betreffen nur die Textausgabe<br>
+Die folgenden Parameter betreffen nur die Textausgabe:<br>
 <br>
 text= : Auszugebender Text in UTF-8 Format (Leerzeichen = %20,<br>
 Zeilenumbruch = %0A usw.)<br>
@@ -1545,18 +1533,16 @@ n=0 -&gt; micron.ttf, n=1 -&gt; micron_bold.ttf, n=2 -&gt; pakenham.ttf<br>
 <br>
 Hinweise: <br>
 ----------------------------------<br>
-Innerhalb eines Aufrufes können mehrere Kommandos gleichzeitig<br>
-angegeben werden. Allerdings müssen sie von unterschiedlichem Typ<br>
-sein. Bei z.B. zwei rect-Parametern innerhalb eines Aufrufes wird der<br>
-zweite Parameter ignoriert. Abgearbeitet werden die Kommandos in der<br>
-Reihenfolge: lock, clear, png, raw, line, rect, xpos, ypos, size,<br>
-color, font, text, update. Der Parameter lock ist erforderlich, da<br>
-ohne Sperrung das Displays für Neutrino die über den nhttpd<br>
-gemachten Ausgaben auf dem Display spätestens nach einer Sekunde<br>
-durch das zyklische Update von Neutrino wieder überschrieben werden<br>
-würden. Daher ist bei der ersten Ausgabe lock=1 zu setzen. Wird das<br>
-Display nicht mehr benötigt, muß lock=0 gesetzt werden, damit<br>
-Neutrino wieder Zugriff auf das LCD erhält.<br>
+Innerhalb eines Aufrufes können mehrere Kommandos gleichzeitig angegeben werden.<br>
+Allerdings müssen sie von unterschiedlichem Typ sein.<br>
+Bei z. B. zwei rect-Parametern innerhalb eines Aufrufes wird der zweite Parameter<br>
+ignoriert. Abgearbeitet werden die Kommandos in der Reihenfolge:<br>
+lock, clear, png, raw, line, rect, xpos, ypos, size, color, font, text, update.<br>
+Der Parameter lock ist erforderlich, da ohne Sperrung das Displays für Neutrino, <br>
+die über den nhttpd gemachten Ausgaben auf dem Display, spätestens nach einer Sekunde<br>
+durch das zyklische Update von Neutrino wieder überschrieben werden würden.<br>
+Daher ist bei der ersten Ausgabe lock=1 zu setzen. Wird das Display nicht mehr benötigt,<br>
+muss lock=0 gesetzt werden, damit Neutrino wieder Zugriff auf das LCD erhält.<br>
 <div class="example">
 Beispiel: <br>
 ----------------------------------<br>
@@ -1627,7 +1613,7 @@ http://box_ip/control/system?setAViAExtIec=off<br>
 ok<br>
 </div>
 <b>Parameter:</b> getAViAExtPlayBack<br>
-<b>Rückgabe:</b> Gibt zurück, in welchem Dekoder-Modus der Avia laeuft<br>
+<b>Rückgabe:</b> Gibt zurück, in welchem Dekoder-Modus der Avia läuft<br>
 <br>
 0 = PES<br>
 1 = SPTS<br>
@@ -1819,20 +1805,19 @@ Schaltet Scartmode ein oder aus.<br>
 <b>Parameter:</b> &lt;keyname&gt;, repeat=&lt;n&gt; (default 1), delay=&lt;delaytime&gt; (default 250)<br>
 <b>Rückgabe:</b> ok<br>
 <br>
-Die Taste mit dem Name &lt;keyname&gt; wird emuliert. Als &lt;keyname&gt; wird<br>
-alle existierende Tasten, auch Tastaturtasten. Es wird &lt;n&gt;<br>
-Tastendrucken geschickt, mit einem Verzögerung von &lt;delaytime&gt;<br>
-dazwischen. In Detail: Erstmals wird ein KEY_PRESSED Event geschickt,<br>
-danach, &lt;n&gt; - 1 KEY_AUTOREPEAT Events mit Delay &lt;delaytime&gt;<br>
-millisekunden dazwischen, danach ein KEY_RELEASED Event.<br>
+Die Taste mit dem Namen &lt;keyname&gt; wird emuliert. &lt;keyname&gt; sind<br>
+alle existierende Tasten, auch Tastaturtasten. Es werden &lt;n&gt;<br>
+Tastendrücke geschickt, mit einer Pause von &lt;delaytime&gt;<br>
+dazwischen. Im Detail: Erstmals wird ein KEY_PRESSED Event geschickt,<br>
+danach, &lt;n&gt; - 1 KEY_AUTOREPEAT Events mit &lt;delaytime&gt;<br>
+Millisekunden Verzögerung, danach ein KEY_RELEASED Event.<br>
 <br>
 <b>Parameter:</b> &lt;keyname&gt;, duration=&lt;time&gt;, delay=&lt;delaytime&gt; (default 250)<br>
 <b>Rückgabe:</b> ok<br>
 <br>
-Äquivalent zu der erste Form, mit repeat =<br>
-&lt;time&gt;*1000/&lt;delaytime&gt;. Dies entspricht in wesentlichen die Taste<br>
-&lt;keyname&gt; für &lt;delaytime&gt; sekunden zu senden. Dies ist die Semantik<br>
-von den Argumenten des Programms rcsim. <br>
+Äquivalent zur ersten Form, mit repeat = &lt;time&gt;*1000/&lt;delaytime&gt;.<br>
+Das bedeutet, die Taste &lt;keyname&gt; für &lt;delaytime&gt; Sekunden zu senden.<br>
+Dies ist die Semantik der Argumenten des Programms rcsim. <br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1854,7 +1839,7 @@ ok<br>
 Ändert für &quot;selected&quot; Bouquet das Sichtbarkeitsattribut (hide/show) oder 
 Zugriffsattribut<br>
 (lock/unlock). Die Funktion läuft im ZapIt-Bouqueteditor.
-<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<p>/control/savebouquet schreibt die Daten dauerhaft in das Bouquet-File.</p>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1870,7 +1855,7 @@ ok<br>
 <br>
 <b>Parameter:</b> <br>
 <b>Rückgabe:</b> ok<br>
-/control/savebouquet schreibt die Daten permanent in das Bouquet-File.<div class="example">
+/control/savebouquet schreibt die Daten dauerhaft in das Bouquet-File.<div class="example">
 Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/savebouquet<br>
@@ -1885,10 +1870,10 @@ ok<br>
 <b>Parameter:</b> selected=&lt;id&gt;&amp;action=up|down<br>
 <b>Rückgabe:</b> ok / error<br>
 <br>
-Verschiebt &quot;selected&quot;-Bouquet um eine Zeile nach oben oder unten in der 
-Bouquet-Liste. <br>
+Verschiebt das &quot;selected&quot;-Bouquet um eine Zeile nach oben oder unten in der 
+Bouquet-Liste.<br>
 Die Funktion läuft im ZapIt-Bouqueteditor.
-<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<p>/control/savebouquet schreibt die Daten dauerhaft in das Bouquet-File.</p>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1907,7 +1892,7 @@ ok<br>
 Löscht &quot;selected&quot;-Bouquet aus der 
 Bouquet-Liste. <br>
 Die Funktion läuft im ZapIt-Bouqueteditor.
-<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<p>/control/savebouquet schreibt die Daten dauerhaft in das Bouquet-File.</p>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1926,7 +1911,7 @@ ok<br>
 <br>
 Fügt ein neues Bouquet mit <i>bouquetname</i> hinzu. <br>
 Die Funktion läuft im ZapIt-Bouqueteditor.
-<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<p>/control/savebouquet schreibt die Daten dauerhaft in das Bouquet-File.</p>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1944,7 +1929,7 @@ ok<br>
 <br>
 Benennt &quot;selected&quot;-Bouquet in <i>new name</i> um. <br>
 Die Funktion läuft im ZapIt-Bouqueteditor.
-<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<p>/control/savebouquet schreibt die Daten dauerhaft in das Bouquet-File.</p>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1964,7 +1949,7 @@ ok<br>
 Fügt die unter bchannels angegebenen Channels dem &quot;selected&quot;-Bouquet 
 zu. <br>
 Die Funktion läuft im ZapIt-Bouqueteditor.
-<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<p>/control/savebouquet schreibt die Daten dauerhaft in das Bouquet-File.</p>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1982,7 +1967,7 @@ ok<br>
 <b>Rückgabe:</b><br>
 <br>
 Es wird der Text ok bei Erfolg oder error im Fehlerfall<br>
-zurückgegeben. Die Settings werden erneut geladen und Änderungen übernommen..<br>
+zurückgegeben. Die Settings werden erneut geladen und Änderungen übernommen.<br>
 <br>
 <b>Rückgabe-Format:</b> ok / error<br>
 <div class="example">
@@ -2022,16 +2007,16 @@ ok<br>
 
 
 <!-- ----------------------------------------------------------- -->
-<div class="title1"><a name="signal"></a><b>48. Signalst&auml;rke zeigen</b></div>
+<div class="title1"><a name="signal"></a><b>48. Signalstärke zeigen</b></div>
 <div class="URL">Handler: http://box_ip/control/signal</div>
 <br>
 <b>Parameter:</b> keine oder sig, snr, ber<br><br>
-<b>R&uuml;ckgabe</b>:<br>
+<b>Rückgabe</b>:<br>
 SIG: 100<br>
 SNR:  90<br>
 BER:  0<br>
 <br>
-Signalst&auml;rke SIG in %, SNR in % und BER wird ausgegeben.
+Signalstärke SIG in %, SNR in % und BER wird ausgegeben.
 Wird ein spezieller Wert als Parameter angegeben, wird keine Beschreibung ausgegeben.
 <br>
 <div class="example">
@@ -2187,19 +2172,20 @@ http://box_ip:31339/id=bae8000600850083<br>
 &nbsp;</div>
 
 <!-- ----------------------------------------------------------- -->
-<div class="title1"><a name="logolist"></a><b>54. Listet Senderlogos</b></div>
+<div class="title1"><a name="logolist"></a><b>54. Senderlogos auflisten</b></div>
 <div class="URL">Handler: http://box_ip/control/logolist</div>
 <br>
-<b>Parameter:</b> keine oder files
+<b>Parameter:</b> files
 <br><br>
-<b>R&uuml;ckgabe:</b> ChannelID;Channelname;Logoname ohne Erweiterung[;benutztes Logo[;Ziel des Symlinks]]
+<b>Rückgabe:</b> ChannelID;Channelname;Logoname ohne Erweiterung[;benutztes Logo[;Ziel des Symlinks]]
 <br><br>
-Liste aller Kan&auml;le incl. Logonamen<br>
-Wird der Parameter <i>files</i> angegeben, wird - sofern vorhanden - der Dateiname des benutzen<br>
-Senderlogos angehangen.<br>
-Ist diese Datei ein symbolischer Link, wird noch zus&auml;tzlich das Ziel diesen Links angehangen.
+Liste aller Kanäle incl. Logonamen<br>
+Bei Angabe des Parameters <i>files</i>, wird - sofern vorhanden - der Dateiname des benutzen<br>
+Senderlogos angehängt.<br>
+Ist diese Datei ein symbolischer Link, wird noch zusätzlich das Ziel diesen Links angehängt.
 <br>
 <div class="example">
+<br>
 Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/logolist?files<br>
