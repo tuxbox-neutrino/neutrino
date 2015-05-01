@@ -1,6 +1,6 @@
-/*	VLC abstraction by yjogol@online.de
-	$Date$
-	$Revision$
+/*	VLC abstraction by yjogol
+	$Date: $
+	$Revision: $
 */
 /*ie1=ActiveC, moz1=Mozilla<0.8.5.1, moz2>= 0.8.5.1*/
 var CyVLC = function(_id, masterid, width, height) {
@@ -50,49 +50,41 @@ CyVLC.prototype = {
 			var words = vstr.split(" ");
 			return words[0];
 		}
-		else
-			if (navigator.plugins && (navigator.plugins.length > 0)) {
-				var name = "VLC";
-				for(var i=0;i<navigator.plugins.length;++i) 
-					if (navigator.plugins[i].name.indexOf(name) != -1) 
-						var plug = navigator.plugins[navigator.plugins[i].name];
-
-				if(typeof plug != 'undefined') {
-					var Suche = /(PLUGIN)/gi;
-					var Ergebnis = Suche.test(plug.description);
-					if (Ergebnis == true){
-						var ex = /^.*[pP]lugin [\"]*([^ \"]*)[\"]*.*$/;
-						var ve = ex.exec(plug.description);
-					}else{
-						var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
-						var ve = ex.exec(plug.description);
+		else if (navigator.plugins && (navigator.plugins.length > 0)) {
+				var numPlugins = navigator.plugins.length;
+				for(var i = 0; i < numPlugins; i++) {
+					var plugin = navigator.plugins[i];
+					var numTypes = plugin.length;
+					for (var j = 0; j < numTypes; j++)
+					{
+						var mimetype = plugin[j];
+						if (mimetype) {
+							if (mimetype.type.indexOf("application/x-vlc-plugin") != -1) {
+								return plugin.version;
+							}
+						}
 					}
 				}
-				var Suche = /([0-9])/g;
-				var Ergebnis = Suche.test(ve);
-				if (Ergebnis == true)
-						return ve[1];
-					else
-					return "0.0.0";
-			}
-			else
 				return "0.0.0";
+		}
+		else
+			return "0.0.0";
 	},
 	_generate_sub_versions : function() {
-		if(this.version_string == "")
-			return
+		if(this.version_string === "")
+			return;
 		var ex = /([^\.]*)[\.]*([^\.]*)[\.]*([^\.-]*)[\.-]*([^\.]*).*$/;
 		var ve = ex.exec(this.version_string);
 		if(ve.length >1)	this.version_level1 = ve[1];
 		if(ve.length >2)	this.version_level2 = ve[2];
-		if(ve.length >3 && ve[3] != "")	this.version_level3 = ve[3];
-		if(ve.length >4 && ve[4] != "")	this.version_level4 = ve[4];
+		if(ve.length >3 && ve[3] !== "")	this.version_level3 = ve[3];
+		if(ve.length >4 && ve[4] !== "")	this.version_level4 = ve[4];
 	},
 	_determine_plugin_generation : function() {
 		if(is_ie)
 			this.plugin = "ie1";
 		else
-			if(this.version_level1 <= "0" && this.version_level2 <= "8" && this.version_level3 <= "5")
+			if(this.version_level1 <= 0 && this.version_level2 <= 8 && this.version_level3 <= 5)
 				this.plugin = "moz1";
 			else
 				this.plugin = "moz2";
