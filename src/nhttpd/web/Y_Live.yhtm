@@ -156,7 +156,7 @@ function view_transcode_mode(){
 	LiveTyp = "{=typ=}";
 	ClientAddr = "{=func:get_request_data clientaddr=}";
 	insert_message_control("{=L:live.build_vlc=}");
-	isDeinterlace = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;true=}" == "true");
+	isDeinterlace = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;false=}" == "true");
 	cachetime = {=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;0=};
 	Lgetting_channels="{=L:live.getting_channels=}";
 	Lgetting_bouquets="{=L:live.getting_bouquets=}";
