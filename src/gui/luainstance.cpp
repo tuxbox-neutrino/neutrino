@@ -1792,7 +1792,7 @@ int CLuaInstance::CWindowNew(lua_State *L)
 			}
 			if (!btnBlue.empty()){
 				button_label_s btnSblue;
-				btnSblue.button 	= NEUTRINO_ICON_BUTTON_YELLOW;
+				btnSblue.button 	= NEUTRINO_ICON_BUTTON_BLUE;
 				btnSblue.text 		= btnBlue;
 				buttons.push_back(btnSblue);
 			}
