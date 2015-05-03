@@ -52,6 +52,7 @@ CyVLC.prototype = {
 		}
 		else if (navigator.plugins && (navigator.plugins.length > 0)) {
 				var numPlugins = navigator.plugins.length;
+				var plug_version = "0.0.0";
 				for(var i = 0; i < numPlugins; i++) {
 					var plugin = navigator.plugins[i];
 					var numTypes = plugin.length;
@@ -60,12 +61,32 @@ CyVLC.prototype = {
 						var mimetype = plugin[j];
 						if (mimetype) {
 							if (mimetype.type.indexOf("application/x-vlc-plugin") != -1) {
-								return plugin.version;
+								if(plugin.version != 0){
+									plug_version = plugin.version;
+									break;
+								}
+								else
+								{
+									var Suche = /(PLUGIN)/gi;
+									var Ergebnis = Suche.test(plugin.description);
+									if (Ergebnis == true){
+										var ex = /^.*[pP]lugin [\"]*([^ \"]*)[\"]*.*$/;
+										var ve = ex.exec(plugin.description);
+									}else{
+										var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
+										var ve = ex.exec(plugin.description);
+									}
+									var Suche = /([0-9])/g;
+									var Ergebnis = Suche.test(ve);
+									if (Ergebnis == true)
+										plug_version = ve[1];
+									break;
+								}
 							}
 						}
 					}
 				}
-				return "0.0.0";
+				return plug_version;
 		}
 		else
 			return "0.0.0";
