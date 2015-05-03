@@ -581,7 +581,7 @@ case "$1" in
 	fbshot)					shift 1; do_fbshot $* ;;
 	fbshot_clear)			do_fbshot_clear ;;
 	screenshot_clear)		do_screenshot_clear ;;
-	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt" ;;
+	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt;hb=refs/heads/cst-next" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)				shift 1; $* ;;
 	automount_list)			shift 1; do_automount_list $* ;;
