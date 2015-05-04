@@ -275,6 +275,8 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "infobar_red", t.infobar_red );
 	configfile.setInt32( "infobar_green", t.infobar_green );
 	configfile.setInt32( "infobar_blue", t.infobar_blue );
+	configfile.setInt32( "infobar_gradient_top", t.infobar_gradient_top );
+	configfile.setInt32( "infobar_gradient_bottom", t.infobar_gradient_bottom );
 	configfile.setInt32( "infobar_Text_alpha", t.infobar_Text_alpha );
 	configfile.setInt32( "infobar_Text_red", t.infobar_Text_red );
 	configfile.setInt32( "infobar_Text_green", t.infobar_Text_green );
@@ -330,6 +332,8 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.infobar_red = configfile.getInt32( "infobar_red", 0x00 );
 	t.infobar_green = configfile.getInt32( "infobar_green", 0x0e );
 	t.infobar_blue = configfile.getInt32( "infobar_blue", 0x23 );
+	t.infobar_gradient_top = configfile.getInt32( "infobar_gradient_top", 0 );
+	t.infobar_gradient_bottom = configfile.getInt32( "infobar_gradient_bottom", 0 );
 	t.infobar_Text_alpha = configfile.getInt32( "infobar_Text_alpha", 0x00 );
 	t.infobar_Text_red = configfile.getInt32( "infobar_Text_red", 0x64 );
 	t.infobar_Text_green = configfile.getInt32( "infobar_Text_green", 0x64 );

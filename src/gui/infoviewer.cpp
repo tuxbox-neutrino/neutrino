@@ -246,9 +246,24 @@ void CInfoViewer::changePB()
 
 void CInfoViewer::initClock()
 {
+
+	static int gradient_top = g_settings.theme.infobar_gradient_top;
+
+	if (gradient_top != g_settings.theme.infobar_gradient_top && clock != NULL) {
+		gradient_top = g_settings.theme.infobar_gradient_top;
+		clock->clearSavedScreen();
+		delete clock;
+		clock = NULL;
+	}
+
 	if (clock == NULL){
 		clock = new CComponentsFrmClock();
-		clock->doPaintBg(true);
+		clock->setClockBlink("%H.%M");
+		clock->setClockIntervall(1);
+		clock->doPaintBg(!gradient_top);
+		clock->enableTboxSaveScreen(gradient_top);
+		if (time_width)
+			clock->setWidth(time_width);
 	}
 
 	clock->setColorBody(COL_INFOBAR_PLUS_0);
@@ -385,10 +400,12 @@ void CInfoViewer::paintBackground(int col_NumBox)
 			      BoxEndX - c_shadow_width, BoxEndInfoY + SHADOW_OFFSET,
 			      COL_INFOBAR_SHADOW_PLUS_0, c_rad_large, CORNER_BOTTOM_LEFT);
 
-	// background for channel name, epg data
-	frameBuffer->paintBox(ChanInfoX, ChanNameY, BoxEndX, BoxEndY,
-			      COL_INFOBAR_PLUS_0, c_rad_large,
-			      CORNER_TOP_RIGHT | (showButtonBar ? 0 : CORNER_BOTTOM));
+	// background for channel name/logo and clock
+	paintHead();
+
+	// background for epg data
+	frameBuffer->paintBox(ChanInfoX, ChanNameY + time_height, BoxEndX, BoxEndY,
+			      COL_INFOBAR_PLUS_0, c_rad_large, (showButtonBar ? CORNER_NONE : CORNER_BOTTOM));
 
 	// number box
 	frameBuffer->paintBoxRel(BoxStartX + SHADOW_OFFSET, BoxStartY + SHADOW_OFFSET,
@@ -397,6 +414,19 @@ void CInfoViewer::paintBackground(int col_NumBox)
 	frameBuffer->paintBoxRel(BoxStartX, BoxStartY,
 				 ChanWidth, ChanHeight,
 				 col_NumBox, c_rad_mid);
+}
+
+void CInfoViewer::paintHead()
+{
+	CComponentsShapeSquare header(ChanInfoX, ChanNameY, BoxEndX-ChanInfoX, time_height);
+
+	header.setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
+	header.enableColBodyGradient(g_settings.theme.infobar_gradient_top);
+	header.set2ndColor(COL_INFOBAR_PLUS_0);
+	header.setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+	clock->setColorBody(header.getColorBody());
+
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
@@ -480,7 +510,6 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
 	showButtonBar = true;
-
 
 	fileplay = true;
 	reset_allScala();
