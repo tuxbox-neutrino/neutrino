@@ -51,3 +51,5 @@ menu_Head_green=10
 menu_Head_red=40
 menu_Hint_gradient=0
 menu_Head_gradient=0
+infobar_gradient_top=0
+infobar_gradient_bottom=0
