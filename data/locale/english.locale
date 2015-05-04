@@ -1005,7 +1005,7 @@ menu.hint_infobar_casys On: display all with colored active, mini: single\nlocke
 menu.hint_infobar_dd Show DD icon
 menu.hint_infobar_filesys Show flash and HDD used space levels
 menu.hint_infobar_fonts Change infobar font sizes
-menu.hint_infobar_logo Logo / signal options
+menu.hint_infobar_logo Logo, channelnumber and signal display; Options in [brackets] will be displayed in small infobox
 menu.hint_infobar_logo_dir Select directory to search for channels logo
 menu.hint_infobar_on_epg Show infobar on current EPG event change
 menu.hint_infobar_radiotext Show radiotext window
@@ -1424,23 +1424,23 @@ miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Display
 miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet
-miscsettings.infobar_disp_0 without Logo
-miscsettings.infobar_disp_1 Logo in number box
-miscsettings.infobar_disp_2 Logo+channel number
-miscsettings.infobar_disp_3 Logo+channel name+signal
-miscsettings.infobar_disp_4 Logo+channel name/number
-miscsettings.infobar_disp_5 Logo+signal
-miscsettings.infobar_disp_6 Logo+channel number+signal
-miscsettings.infobar_disp_log Logo
+miscsettings.infobar_disp Logo display
+miscsettings.infobar_disp_0 Channelname [Channelnumber]
+miscsettings.infobar_disp_1 Channelnumber, Channelname [Logo]
+miscsettings.infobar_disp_2 Logo [Channelnumber]
+miscsettings.infobar_disp_3 Logo, Channelname [Signal]
+miscsettings.infobar_disp_4 Logo, Channelname [Channelnumber]
+miscsettings.infobar_disp_5 Logo [Signal]
+miscsettings.infobar_disp_6 Channelnumber, Logo [Signal]
 miscsettings.infobar_gradient_bottom Gradient bottom
 miscsettings.infobar_gradient_top Gradient top
-miscsettings.infobar_logo_hdd_dir Logo dir
+miscsettings.infobar_logo_hdd_dir Logo directory
 miscsettings.infobar_sat_display Satellite display on infobar
 miscsettings.infobar_show show Info on EPG change
 miscsettings.infobar_show_dd_available show DD availability
 miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
-miscsettings.infobar_show_sysfs_hdd Fill level (sysFS & hdd)
+miscsettings.infobar_show_sysfs_hdd Fill level (SysFS and HDD)
 miscsettings.infobar_show_tuner Display active tuner
 miscsettings.infoclock Clock
 miscsettings.progressbar Progressbar

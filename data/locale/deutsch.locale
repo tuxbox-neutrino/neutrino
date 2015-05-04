@@ -718,7 +718,7 @@ hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
 hdd_slow Langsam
-hdd_statfs Füllstands-Abfrage
+hdd_statfs Füllstandsabfrage
 hdd_statfs_always immer
 hdd_statfs_recording nur während Aufnahme
 hdd_umount Aushängen
@@ -1005,7 +1005,7 @@ menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol o
 menu.hint_infobar_dd Zeigt ein Dolby Digital Icon bei Verfügbarkeit
 menu.hint_infobar_filesys Zeigen den vom Flash- und einer HDD verwendeten Speicherplatz
 menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
-menu.hint_infobar_logo Logo- und Signal-Optionen
+menu.hint_infobar_logo Logo-, Kanalnummer- und Signal-Anzeige; Optionen in [Klammern] erscheinen in der kleinen Infobox
 menu.hint_infobar_logo_dir Wählen Sie das Verzeichnis für die Senderlogos
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
 menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
@@ -1424,23 +1424,23 @@ miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Anzeige
 miscsettings.infobar_casystem_mini Mini
 miscsettings.infobar_casystem_mode Diskret
-miscsettings.infobar_disp_0 Kein Logo
-miscsettings.infobar_disp_1 Logo in der Nummernbox
-miscsettings.infobar_disp_2 Logo/Kanalnummer
-miscsettings.infobar_disp_3 Logo+Kanalname/Signalbalken
-miscsettings.infobar_disp_4 Logo+Kanalname/Kanalnummer
-miscsettings.infobar_disp_5 Logo/Signalbalken
-miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
-miscsettings.infobar_disp_log Logo
+miscsettings.infobar_disp Logo-Anzeige
+miscsettings.infobar_disp_0 Kanalname [Kanalnummer]
+miscsettings.infobar_disp_1 Kanalnummer, Kanalname [Logo]
+miscsettings.infobar_disp_2 Logo [Kanalnummer]
+miscsettings.infobar_disp_3 Logo, Kanalname [Signalbalken]
+miscsettings.infobar_disp_4 Logo, Kanalname [Kanalnummer]
+miscsettings.infobar_disp_5 Logo [Signalbalken]
+miscsettings.infobar_disp_6 Kanalnummer, Logo [Signalbalken]
 miscsettings.infobar_gradient_bottom Farbverlauf unten
 miscsettings.infobar_gradient_top Farbverlauf oben
-miscsettings.infobar_logo_hdd_dir Logo-Verz.
+miscsettings.infobar_logo_hdd_dir Logo-Verzeichnis
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
 miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
-miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
+miscsettings.infobar_show_sysfs_hdd Füllstandsanzeige (SysFS und HDD)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.infoclock Uhr
 miscsettings.progressbar Fortschrittsbalken
