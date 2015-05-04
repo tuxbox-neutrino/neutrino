@@ -66,6 +66,8 @@ CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
 	col_body_gradient	= false;
+	cc_body_gradient_c2c	= true;
+	cc_body_gradient_2nd_col= COL_MENUCONTENT_PLUS_0;
 	cc_gradientData.gradientBuf = NULL;
 	cc_gradientData.boxBuf = NULL;
 }

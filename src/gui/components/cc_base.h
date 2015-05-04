@@ -96,6 +96,10 @@ class CComponents : public CComponentsSignals, public COSDFader
 		uint8_t cc_body_gradient_saturation;
 		///property: background gradient direction
 		int cc_body_gradient_direction;
+		///property: background gradient mode
+		bool cc_body_gradient_c2c;
+		///property: background gradient 2nd color
+		fb_pixel_t cc_body_gradient_2nd_col;
 
 		///property: true=component has shadow
 		bool shadow;
@@ -209,6 +213,8 @@ class CComponents : public CComponentsSignals, public COSDFader
 						  cc_body_gradient_intensity_v_min=v_min;
 						  cc_body_gradient_intensity_v_max=v_max;
 						  cc_body_gradient_saturation=s; };
+
+		virtual void set2ndColor(fb_pixel_t col_2nd){ cc_body_gradient_c2c = true; cc_body_gradient_2nd_col = col_2nd;};
 
 		///get frame color
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};

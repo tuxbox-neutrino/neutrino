@@ -268,7 +268,10 @@ void CComponentsItem::initBodyGradient()
 	if (cc_gradientData.gradientBuf == NULL) {
 		CColorGradient ccGradient;
 		int gsize = cc_body_gradient_direction == CFrameBuffer::gradientVertical ? height : width;
-		cc_gradientData.gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity, cc_body_gradient_intensity_v_min, cc_body_gradient_intensity_v_max, cc_body_gradient_saturation);
+		if (cc_body_gradient_c2c)
+			cc_gradientData.gradientBuf = ccGradient.gradientColorToColor(col_body, cc_body_gradient_2nd_col, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity);
+		else
+			cc_gradientData.gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity, cc_body_gradient_intensity_v_min, cc_body_gradient_intensity_v_max, cc_body_gradient_saturation);
 		old_gradient_color = col_body;
 	}
 
