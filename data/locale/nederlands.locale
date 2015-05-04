@@ -911,7 +911,6 @@ menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC stand-by
 menu.hint_cec_view_on CEC view ingeschakeld
 menu.hint_channellist_additional Extra informatie weergeven in hoofdvenster
-menu.hint_channellist_colored Gebruik andere kleur voor huidige of volgende programma
 menu.hint_channellist_epg_align EPG evenement uitlijnen
 menu.hint_channellist_extended Programma voortgang balk weergeven
 menu.hint_channellist_fonts Verander lettertype grote kanalenlijst
@@ -929,6 +928,8 @@ menu.hint_clock_seconds Toon tijdsformaat met secondes
 menu.hint_clock_size Stel grootte van de info klok in
 menu.hint_clock_textcolor Configureer digit kleuren
 menu.hint_color_gradient Schakel kleur verloop van menu items aan/uit
+menu.hint_colored_events Gebruik andere kleur voor huidige of volgende programma
+menu.hint_colored_events_textcolor Wijzig programma kleur voor gekleurde programma opties in kanalenlijst en infobalk.
 menu.hint_colors Configureer GUI-kleuren
 menu.hint_content_back Wijzig venster achtergrond kleur
 menu.hint_content_textcolor Wijzig venster tekst kleur
@@ -946,7 +947,6 @@ menu.hint_epg_save Cached EPG informatie opslaan op opslagmedium \nen laad de in
 menu.hint_epg_save_standby EPG opslaan in soft standby modus.
 menu.hint_epg_scan Selecteer te scannen EPG-bouquetten, tijdens zap,\nalle of geselecteerde favorieten
 menu.hint_epg_scan_mode Achtergrond EPG-scan door vrije tuner inschakelen
-menu.hint_event_textcolor Wijzig programma kleur voor gekleurde \nprogramma opties in kanalenlijst en infobalk.
 menu.hint_eventlist_additional Toon additionale infos\nin mainbox
 menu.hint_eventlist_fonts Wijzig lettertype grote in programma lijst
 menu.hint_eventlist_setup Configureer eventlijst GUI opties
@@ -982,7 +982,6 @@ menu.hint_inet_radio Internet radio
 menu.hint_info Informatie over firmware, ontvanger CPU,\nopslag en stream informatie
 menu.hint_infobar_back Wijzig achtergrond kleur van de infobalk
 menu.hint_infobar_casys Aan:  display all with colored active, mini: single\nlocked icon, descreet: all active ca-sys
-menu.hint_infobar_colored_event Gebruik andere kleur voor huidige programma en komende programma
 menu.hint_infobar_dd Dolbydigital icoon weergeven
 menu.hint_infobar_filesys Gebruikte schijfruimte van Flashgeheugen en HDD weergeven
 menu.hint_infobar_fonts Wijzig lettertype grote van de infobalk
@@ -1354,11 +1353,13 @@ messagebox.no Nee
 messagebox.ok Ok
 messagebox.yes Ja
 miscsettings.channellist Kanalenlijst
-miscsettings.channellist_colored_events Gekleurde programma's
 miscsettings.channellist_epgtext_align Uitlijning programma tekst
+miscsettings.colored_events Gekleurde programma's
 miscsettings.colored_events_0 Geen
 miscsettings.colored_events_1 Huidige
 miscsettings.colored_events_2 Straks
+miscsettings.colored_events_channellist In Kanalenlijst
+miscsettings.colored_events_infobar In Informatiebalk
 miscsettings.energy Energie
 miscsettings.epg_cache EPG-Cache (Dagen)
 miscsettings.epg_cache_hint1 Hoe ver in de toekomst wordt EPG informatie bewaard.
@@ -1390,7 +1391,6 @@ miscsettings.infobar Infobalk
 miscsettings.infobar_casystem_display CA-System weergeven
 miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet
-miscsettings.infobar_colored_events Gekleurde programma's
 miscsettings.infobar_disp_0 Zonder Logo
 miscsettings.infobar_disp_1 Logo in nummerbox
 miscsettings.infobar_disp_2 Logo + kanaalnummer

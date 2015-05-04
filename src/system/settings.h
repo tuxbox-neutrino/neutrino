@@ -112,6 +112,9 @@ struct SNeutrinoTheme
 	unsigned char colored_events_green;
 	unsigned char colored_events_blue;
 
+	int colored_events_channellist;
+	int colored_events_infobar;
+
 	unsigned char clock_Digit_alpha;
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
@@ -370,11 +373,7 @@ struct SNeutrinoSettings
 
 	SNeutrinoTheme theme;
 
-	int colored_events_channellist;
-	int colored_events_infobar;
 	int contrast_fonts;
-	int infobar_gradient_top;
-	int infobar_gradient_bottom;
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8

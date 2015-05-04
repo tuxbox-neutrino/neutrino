@@ -1514,12 +1514,8 @@ void CChannelList::paintDetails(int index)
 	CChannelEvent *p_event = NULL;
 
 	//colored_events init
-	bool colored_event_C = false;
-	bool colored_event_N = false;
-	if (g_settings.colored_events_channellist == 1)
-		colored_event_C = true;
-	if (g_settings.colored_events_channellist == 2)
-		colored_event_N = true;
+	bool colored_event_C = (g_settings.theme.colored_events_channellist == 1);
+	bool colored_event_N = (g_settings.theme.colored_events_channellist == 2);
 
 	frameBuffer->paintBoxRel(x+1, y + height + 1, full_width-2, info_height - 2, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
 	frameBuffer->paintBoxFrame(x, y + height, full_width, info_height, 2, COL_MENUCONTENT_PLUS_6, RADIUS_LARGE);
@@ -2285,7 +2281,7 @@ void CChannelList::paint_events(int index)
 			if (e->eventID)
 			{
 				bool first = (i == 1);
-				if ((first && g_settings.colored_events_channellist == 1 /* current */) || (!first && g_settings.colored_events_channellist == 2 /* next */))
+				if ((first && g_settings.theme.colored_events_channellist == 1 /* current */) || (!first && g_settings.theme.colored_events_channellist == 2 /* next */))
 					color = COL_COLORED_EVENTS_TEXT;
 				struct tm *tmStartZeit = localtime(&e->startTime);
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );

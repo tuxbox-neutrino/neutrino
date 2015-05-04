@@ -926,7 +926,6 @@ menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
 menu.hint_channellist_additional Show additional informations\nin main box
-menu.hint_channellist_colored Use different color for current or next event
 menu.hint_channellist_epg_align EPG event align
 menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
@@ -946,6 +945,8 @@ menu.hint_clock_seconds Show time format with seconds
 menu.hint_clock_size Set the size of the info clock
 menu.hint_clock_textcolor Configure digit colors
 menu.hint_color_gradient Switches color gradients for various menu items on/off
+menu.hint_colored_events Use different color for current or next event
+menu.hint_colored_events_textcolor Change color for colored events in channellist and infobar
 menu.hint_colors Configure GUI colors
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
@@ -966,7 +967,6 @@ menu.hint_epg_save_mode Cache EPG only for channels present in favorite bouquets
 menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
-menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_eventlist_additional Show additional informations\nin main box
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_eventlist_setup Configure event list GUI options
@@ -1002,7 +1002,6 @@ menu.hint_inet_radio Internet radio
 menu.hint_info Information about image, box cpu and storage,\nstream information
 menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-sys
-menu.hint_infobar_colored_event Use different color for current or next event
 menu.hint_infobar_dd Show DD icon
 menu.hint_infobar_filesys Show flash and HDD used space levels
 menu.hint_infobar_fonts Change infobar font sizes
@@ -1384,11 +1383,13 @@ messagebox.no No
 messagebox.ok Ok
 messagebox.yes Yes
 miscsettings.channellist Channellist
-miscsettings.channellist_colored_events Program colored
 miscsettings.channellist_epgtext_align Programtext Align
+miscsettings.colored_events Program colored
 miscsettings.colored_events_0 none
 miscsettings.colored_events_1 current
 miscsettings.colored_events_2 next
+miscsettings.colored_events_channellist In channellist
+miscsettings.colored_events_infobar In infobar
 miscsettings.energy Energy
 miscsettings.epg_cache EPG-Cache (Days)
 miscsettings.epg_cache_hint1 How long will EPG-Data in the future cached?
@@ -1423,7 +1424,6 @@ miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Display
 miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet
-miscsettings.infobar_colored_events Program colored
 miscsettings.infobar_disp_0 without Logo
 miscsettings.infobar_disp_1 Logo in number box
 miscsettings.infobar_disp_2 Logo+channel number

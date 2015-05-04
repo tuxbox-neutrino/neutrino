@@ -1647,12 +1647,8 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	static int oldCurrTimeX = currTimeX; // remember the last pos. of remaining time, in case we change from 20/100min to 21/99min
 
 	//colored_events init
-	bool colored_event_C = false;
-	bool colored_event_N = false;
-	if (g_settings.colored_events_infobar == 1)
-		colored_event_C = true;
-	if (g_settings.colored_events_infobar == 2)
-		colored_event_N = true;
+	bool colored_event_C = (g_settings.theme.colored_events_infobar == 1);
+	bool colored_event_N = (g_settings.theme.colored_events_infobar == 2);
 
 	if (current != NULL && update_current)
 	{

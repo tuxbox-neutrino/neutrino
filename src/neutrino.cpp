@@ -552,9 +552,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++)//settings.h, settings.cpp
 		g_settings.personalize[i] = configfile.getInt32( personalize_settings[i].personalize_settings_name, personalize_settings[i].personalize_default_val );
 
-	g_settings.colored_events_channellist = configfile.getInt32( "colored_events_channellist" , 0 );
-	g_settings.colored_events_infobar = configfile.getInt32( "colored_events_infobar" , 2 ); // next
-
 	g_settings.contrast_fonts = configfile.getInt32("contrast_fonts", 0);
 
 	//network
@@ -1076,9 +1073,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("personalize_pincode", g_settings.personalize_pincode);
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++) //settings.h, settings.cpp
 		configfile.setInt32(personalize_settings[i].personalize_settings_name, g_settings.personalize[i]);
-
-	configfile.setInt32( "colored_events_channellist", g_settings.colored_events_channellist );
-	configfile.setInt32( "colored_events_infobar", g_settings.colored_events_infobar );
 
 	configfile.setInt32( "contrast_fonts", g_settings.contrast_fonts );
 	//network

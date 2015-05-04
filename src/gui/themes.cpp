@@ -285,6 +285,9 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "colored_events_red", t.colored_events_red );
 	configfile.setInt32( "colored_events_green", t.colored_events_green );
 	configfile.setInt32( "colored_events_blue", t.colored_events_blue );
+	configfile.getInt32( "colored_events_channellist", t.colored_events_channellist );
+	configfile.getInt32( "colored_events_infobar", t.colored_events_infobar );
+
 	configfile.setInt32( "clock_Digit_alpha", t.clock_Digit_alpha );
 	configfile.setInt32( "clock_Digit_red", t.clock_Digit_red );
 	configfile.setInt32( "clock_Digit_green", t.clock_Digit_green );
@@ -342,6 +345,8 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.colored_events_red = configfile.getInt32( "colored_events_red", 95 );
 	t.colored_events_green = configfile.getInt32( "colored_events_green", 70 );
 	t.colored_events_blue = configfile.getInt32( "colored_events_blue", 0 );
+	t.colored_events_channellist = configfile.getInt32( "colored_events_channellist", 0 );
+	t.colored_events_infobar = configfile.getInt32( "colored_events_infobar", 2 );
 	t.clock_Digit_alpha = configfile.getInt32( "clock_Digit_alpha", t.menu_Content_Text_alpha );
 	t.clock_Digit_red = configfile.getInt32( "clock_Digit_red", t.menu_Content_Text_red );
 	t.clock_Digit_green = configfile.getInt32( "clock_Digit_green", t.menu_Content_Text_green );

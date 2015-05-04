@@ -926,7 +926,6 @@ menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
 menu.hint_channellist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
-menu.hint_channellist_colored Definiert, ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
 menu.hint_channellist_epg_align Legen Sie fest, wie der Text für das EPG in der Liste rechts vom Programmnamen ausgerichtet wird
 menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen ein Balken eingeblendet, der den Sendungsfortschritt anzeigt
 menu.hint_channellist_fonts Ändern Sie die Schriftgrößen in der Kanalliste
@@ -946,6 +945,8 @@ menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
 menu.hint_clock_size Stellen Sie die Größe der Uhr ein
 menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
 menu.hint_color_gradient Schaltet Farbverläufe für verschiedene Menüelemente ein/aus
+menu.hint_colored_events Definiert, ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
+menu.hint_colored_events_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -966,7 +967,6 @@ menu.hint_epg_save_mode Speichert die EPG-Daten nur für Sender, die in die Favo
 menu.hint_epg_save_standby Speichert die EPG-Daten auch, wenn in den Standby-Modus geschalten wird
 menu.hint_epg_scan Zu scannende Bouquets wählen. Aktuelles Bouquet beim Umschalten, markierte Bouquets oder alle Favoriten
 menu.hint_epg_scan_mode Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
-menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
 menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
@@ -1002,7 +1002,6 @@ menu.hint_inet_radio Internetradio
 menu.hint_info Informationen über das Image, CPU, Arbeitsspeicher und Stream und mehr
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gespeert, Diskret: alle Aktiven CA-Systeme
-menu.hint_infobar_colored_event Verwenden Sie unterschiedliche Farben für die aktuelle oder nächste Sendung in der Infobar
 menu.hint_infobar_dd Zeigt ein Dolby Digital Icon bei Verfügbarkeit
 menu.hint_infobar_filesys Zeigen den vom Flash- und einer HDD verwendeten Speicherplatz
 menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
@@ -1384,11 +1383,13 @@ messagebox.no Nein
 messagebox.ok OK
 messagebox.yes Ja
 miscsettings.channellist Kanalliste
-miscsettings.channellist_colored_events Sendung farbig
 miscsettings.channellist_epgtext_align Event-Text ausrichten
+miscsettings.colored_events Sendung hervorheben
 miscsettings.colored_events_0 keine
 miscsettings.colored_events_1 aktuelle
 miscsettings.colored_events_2 nächste
+miscsettings.colored_events_channellist In der Kanalliste
+miscsettings.colored_events_infobar In der Infobar
 miscsettings.energy Energieverbrauch
 miscsettings.epg_cache EPG-Cache (Tage)
 miscsettings.epg_cache_hint1 EPG-Daten im Voraus zwischenspeichern?
@@ -1423,7 +1424,6 @@ miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Anzeige
 miscsettings.infobar_casystem_mini Mini
 miscsettings.infobar_casystem_mode Diskret
-miscsettings.infobar_colored_events Sendung farbig
 miscsettings.infobar_disp_0 Kein Logo
 miscsettings.infobar_disp_1 Logo in der Nummernbox
 miscsettings.infobar_disp_2 Logo/Kanalnummer
