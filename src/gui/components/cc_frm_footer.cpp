@@ -76,7 +76,9 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	col_body_gradient	= false;
+	col_body_gradient		= false; /*g_settings.theme.Foot_gradient*/; //TODO: not implemented at the moment
+	cc_body_gradient_direction	= CFrameBuffer::gradientVertical;
+	cc_body_gradient_mode		= CColorGradient::gradientDark2Light;
 	btn_auto_frame_col	= false;
 
 	corner_rad	= RADIUS_LARGE;

@@ -138,6 +138,14 @@ class CComponentsFooter : public CComponentsHeader
 					Font* font = NULL,
 					bool do_save_bg = CC_SAVE_SCREEN_NO
 				);
+
+		enum
+		{
+			CC_FOOTER_SIZE_LARGE 	= 0,
+			CC_FOOTER_SIZE_SMALL 	= 1
+		};
+		///set size of footer, possible values are CC_FOOTER_SIZE_LARGE, CC_FOOTER_SIZE_SMALL
+		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();};
 };
 
 #endif
