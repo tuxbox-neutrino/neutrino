@@ -172,11 +172,11 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 
 inline void CStartUpWizard::showBackgroundLogo()
 {
-	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/start.jpg");
+	CFrameBuffer::getInstance()->showFrame("start.jpg");
 }
 
 inline void CStartUpWizard::killBackgroundLogo()
 {
-	videoDecoder->StopPicture();
+	CFrameBuffer::getInstance()->stopFrame();
 }
 

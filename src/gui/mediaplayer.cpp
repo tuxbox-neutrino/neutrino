@@ -111,10 +111,10 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		InfoClock->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if( mode == NeutrinoMessages::mode_radio )
-			videoDecoder->StopPicture();
+			CFrameBuffer::getInstance()->stopFrame();
 		int res = CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
 		if( mode == NeutrinoMessages::mode_radio )
-			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+			CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
 		audiomute->enableMuteIcon(true);
 		InfoClock->enableInfoClock(true);
 		return res;

@@ -682,13 +682,13 @@ int CLuaInstance::setBlank(lua_State *L)
 int CLuaInstance::ShowPicture(lua_State *L)
 {
 	const char *fname = luaL_checkstring(L, 2);
-	videoDecoder->ShowPicture(fname);
+	CFrameBuffer::getInstance()->showFrame(fname);
 	return 0;
 }
 
 int CLuaInstance::StopPicture(lua_State */*L*/)
 {
-	videoDecoder->StopPicture();
+	CFrameBuffer::getInstance()->stopFrame();
 	return 0;
 }
 

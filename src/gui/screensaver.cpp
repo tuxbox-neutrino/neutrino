@@ -93,7 +93,7 @@ void CScreenSaver::Start()
 
 	m_viewer->Cleanup();
 
-	videoDecoder->StopPicture();
+	m_frameBuffer->stopFrame();
 
 	if(!thrScreenSaver)
 	{
