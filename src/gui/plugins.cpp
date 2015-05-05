@@ -158,6 +158,7 @@ void CPlugins::loadPlugins()
 	number_of_plugins = 0;
 	plugin_list.clear();
 	sindex = 100;
+	scanDir(GAMESDIR);
 	scanDir(g_settings.plugin_hdd_dir.c_str());
 	scanDir(PLUGINDIR_USB);
 	scanDir(PLUGINDIR_VAR);
