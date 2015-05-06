@@ -147,7 +147,7 @@ TUXBOX_APPS_DIRECTORY_ONE(ucodedir,UCODEDIR,localstatedir,/var,/tuxbox/ucodes,
 	[--with-ucodedir=PATH    ],[where to find the ucodes])
 
 TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share, /tuxbox/neutrino/themes,
-	[--with-themesdir=PATH     ],[where to find the themes (don't change)])
+	[--with-themesdir=PATH     ],[where to find the themes])
 
 TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share, /tuxbox/neutrino/icons,
 	[--with-iconsdir=PATH     ],[where to find the icons (don't change)])

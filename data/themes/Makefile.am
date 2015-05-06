@@ -1,4 +1,4 @@
-installdir = $(DATADIR)/neutrino/themes
+installdir = $(THEMESDIR)
 
 install_DATA = \
 	Classic.theme \
