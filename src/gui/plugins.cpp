@@ -74,9 +74,6 @@ extern cVideo * videoDecoder;
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
-#define PLUGINDIR_VAR "/var/tuxbox/plugins"
-#define PLUGINDIR_MNT "/mnt/plugins"
-
 CPlugins::CPlugins()
 {
 	frameBuffer = NULL;

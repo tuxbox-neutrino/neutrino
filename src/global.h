@@ -48,6 +48,8 @@
 
 #define LOCALEDIR_VAR	"/var/tuxbox/locale"
 #define THEMESDIR_VAR	"/var/tuxbox/themes"
+#define PLUGINDIR_VAR	"/var/tuxbox/plugins"
+#define PLUGINDIR_MNT	"/mnt/plugins"
 
 NEUTRINO_CPP  SNeutrinoSettings	g_settings;
 NEUTRINO_CPP  SglobalInfo	g_info;

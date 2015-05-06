@@ -115,7 +115,7 @@ private:
 
 
 protected:
-	static const unsigned int PLUGIN_DIR_COUNT = 7;
+	static const unsigned int PLUGIN_DIR_COUNT = 9;
 	static std::string PLUGIN_DIRS[PLUGIN_DIR_COUNT];
 	CNeutrinoAPI	*NeutrinoAPI;
 
