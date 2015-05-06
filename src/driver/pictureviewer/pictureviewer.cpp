@@ -513,9 +513,6 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-#define LOGODIR	    ICONSDIR     "/logo"
-#define LOGODIR_VAR ICONSDIR_VAR "/logo"
-
 bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
 	std::string fileType[] = { ".png", ".jpg" , ".gif" };
