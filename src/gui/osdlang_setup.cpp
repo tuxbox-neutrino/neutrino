@@ -184,7 +184,7 @@ void COsdLangSetup::showLanguageSetup(CMenuWidget *osdl_setup)
 {
 	struct dirent **namelist;
 	int n;
-	const char *pfad[] = {DATADIR "/neutrino/locale", "/var/tuxbox/locale"};
+	const char *pfad[] = { LOCALEDIR, LOCALEDIR_VAR };
 
 	osdl_setup->addIntroItems();
 

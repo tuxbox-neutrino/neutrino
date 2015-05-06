@@ -8,7 +8,7 @@ any empty lines.
 
 Destination of .locale files:
 -----------------------------
-directory: /var/tuxbox/config/locale or /share/tuxbox/neutrino/locale
+directory: /var/tuxbox/locale or /share/tuxbox/neutrino/locale
 
 Master file:
 ------------

@@ -1,4 +1,4 @@
-installdir = $(DATADIR)/neutrino/locale
+installdir = $(LOCALEDIR)
 
 locale = \
 	nederlands.locale \
