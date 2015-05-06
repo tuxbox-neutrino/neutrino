@@ -1,4 +1,4 @@
-installdir = $(DATADIR)/neutrino/icons
+installdir = $(ICONSDIR)
 
 locale = \
 	locale/deutsch.png \

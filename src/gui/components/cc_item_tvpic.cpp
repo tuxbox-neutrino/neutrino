@@ -51,8 +51,8 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);
 	screen_h = frameBuffer->getScreenHeight(true);
-	pic_name = DATADIR;
-	pic_name += "/neutrino/icons/start.jpg";
+	pic_name = ICONSDIR;
+	pic_name += "/start.jpg";
 
 	//CComponents
 	x 		= x_pos;

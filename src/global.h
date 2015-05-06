@@ -46,6 +46,7 @@
 #define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
 
+#define ICONSDIR_VAR	"/var/tuxbox/icons/"
 #define LOCALEDIR_VAR	"/var/tuxbox/locale"
 #define THEMESDIR_VAR	"/var/tuxbox/themes"
 #define PLUGINDIR_VAR	"/var/tuxbox/plugins"

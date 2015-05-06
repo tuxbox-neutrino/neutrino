@@ -219,7 +219,7 @@ CNeutrinoApp::CNeutrinoApp()
 	standby_pressed_at.tv_sec = 0;
 
 	frameBuffer = CFrameBuffer::getInstance();
-	frameBuffer->setIconBasePath(DATADIR "/neutrino/icons/");
+	frameBuffer->setIconBasePath(ICONSDIR);
 	SetupFrameBuffer();
 
 	mode 			= mode_unknown;
@@ -505,7 +505,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//screen saver
 	g_settings.screensaver_delay = configfile.getInt32("screensaver_delay", 1);
-	g_settings.screensaver_dir = configfile.getString("screensaver_dir", DATADIR "/neutrino/icons/");
+	g_settings.screensaver_dir = configfile.getString("screensaver_dir", ICONSDIR);
 	g_settings.screensaver_timeout = configfile.getInt32("screensaver_timeout", 10);
 
 	//vcr

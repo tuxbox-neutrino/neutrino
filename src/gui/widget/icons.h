@@ -292,6 +292,4 @@
 
 #define NEUTRINO_ICON_BUTTON_LONGPRESS	"longpress"
 
-#define NEUTRINO_ICON_VARPATH		"/var/share/tuxbox/neutrino/icons/"  //alternatively path for user-defined icons 
-
 #endif /* __gui_widget_icons_h__ */

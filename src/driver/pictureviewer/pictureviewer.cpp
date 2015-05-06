@@ -513,8 +513,8 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-#define LOGO_FLASH_DIR DATADIR "/neutrino/icons/logo"
-#define LOGO_FLASH_DIR_VAR "/var/tuxbox/icons/logo"
+#define LOGODIR	    ICONSDIR     "/logo"
+#define LOGODIR_VAR ICONSDIR_VAR "/logo"
 
 bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
@@ -539,25 +539,25 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 		id_tmp_path += strChnId + fileType[i];
 		v_path.push_back(id_tmp_path);
 
-		if(g_settings.logo_hdd_dir != LOGO_FLASH_DIR_VAR){
-			//create filename with channel name (LOGO_FLASH_DIR_VAR)
-			id_tmp_path = LOGO_FLASH_DIR_VAR "/";
+		if(g_settings.logo_hdd_dir != LOGODIR_VAR){
+			//create filename with channel name (LOGODIR_VAR)
+			id_tmp_path = LOGODIR_VAR "/";
 			id_tmp_path += ChannelName + fileType[i];
 			v_path.push_back(id_tmp_path);
 
-			//create filename with id (LOGO_FLASH_DIR_VAR)
-			id_tmp_path = LOGO_FLASH_DIR_VAR "/";
+			//create filename with id (LOGODIR_VAR)
+			id_tmp_path = LOGODIR_VAR "/";
 			id_tmp_path += strChnId + fileType[i];
 			v_path.push_back(id_tmp_path);
 		}
-		if(g_settings.logo_hdd_dir != LOGO_FLASH_DIR){
-			//create filename with channel name (LOGO_FLASH_DIR)
-			id_tmp_path = LOGO_FLASH_DIR "/";
+		if(g_settings.logo_hdd_dir != LOGODIR){
+			//create filename with channel name (LOGODIR)
+			id_tmp_path = LOGODIR "/";
 			id_tmp_path += ChannelName + fileType[i];
 			v_path.push_back(id_tmp_path);
 
-			//create filename with id (LOGO_FLASH_DIR)
-			id_tmp_path = LOGO_FLASH_DIR "/";
+			//create filename with id (LOGODIR)
+			id_tmp_path = LOGODIR "/";
 			id_tmp_path += strChnId + fileType[i];
 			v_path.push_back(id_tmp_path);
 		}

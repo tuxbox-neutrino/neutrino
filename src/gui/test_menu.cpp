@@ -405,7 +405,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "picture"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 100, DATADIR "/neutrino/icons/mp3-5.jpg");
+			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/mp3-5.jpg");
 
 		if (!pic->isPainted() && !pic->isPicPainted())
 			pic->paint();
@@ -527,7 +527,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //		remove text item
 // 		header->removeCCItem(CComponentsHeader::CC_HEADER_ITEM_TEXT); //then remove text item
 //		create picture object with the last x position of text
-// 		CComponentsPicture *logo  = new CComponentsPicture(logo_x, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "/share/tuxbox/neutrino/icons/hint_tvmode.png");
+// 		CComponentsPicture *logo  = new CComponentsPicture(logo_x, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), ICONSDIR "/hint_tvmode.png");
 //		set the transparent background for picture item
 // 		logo->doPaintBg(false);
 //		insert the ne object

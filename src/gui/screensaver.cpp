@@ -188,7 +188,7 @@ bool CScreenSaver::ReadDir()
 			str += "/";
 			str += (*dirpointer).d_name;
 
-			if ((string) dir_name == DATADIR "/neutrino/icons")
+			if ((string) dir_name == ICONSDIR)
 			{
 				/*
 				  backward compatiblity:
