@@ -143,9 +143,6 @@ TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
 TUXBOX_APPS_DIRECTORY_ONE(luaplugindir,LUAPLUGINDIR,libdir,/lib,/tuxbox/luaplugins,
 	[--with-luaplugindir=PATH   ],[where to find Lua plugins])
 
-TUXBOX_APPS_DIRECTORY_ONE(ucodedir,UCODEDIR,localstatedir,/var,/tuxbox/ucodes,
-	[--with-ucodedir=PATH    ],[where to find the ucodes])
-
 TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share, /tuxbox/neutrino/themes,
 	[--with-themesdir=PATH     ],[where to find the themes])
 
@@ -171,7 +168,6 @@ AC_SUBST(LIBDIR)
 AC_SUBST(MNTDIR)
 AC_SUBST(PLUGINDIR)
 AC_SUBST(LUAPLUGINDIR)
-AC_SUBST(UCODEDIR)
 AC_SUBST(THEMESDIR)
 AC_SUBST(ICONSDIR)
 AC_SUBST(PRIVATE_HTTPDDIR)
