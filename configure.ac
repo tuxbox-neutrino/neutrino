@@ -266,7 +266,6 @@ src/nhttpd/web/scripts/Makefile
 src/nhttpd/web/languages/Makefile
 src/nhttpd/web/styles/Makefile
 src/nhttpd/tuxboxapi/Makefile
-src/nhttpd/tuxboxapi/coolstream/Makefile
 src/nhttpd/yhttpd_core/Makefile
 src/nhttpd/yhttpd_mods/Makefile
 src/nhttpd/nhttpd.conf
