@@ -149,7 +149,7 @@ void CComponentsButton::initIcon()
 
 		string::size_type pos = cc_btn_icon.find("/", 0);
 		if (pos == string::npos)
-			cc_btn_icon = frameBuffer->getIconBasePath() + cc_btn_icon + ".png";
+			cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
 
 		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
 		h_icon = cc_btn_icon_obj->getHeight();
