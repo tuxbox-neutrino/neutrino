@@ -676,6 +676,13 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
+	CMenuOptionChooser *oj;
+	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT_C2C, &g_settings.theme.gradient_c2c, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
+	oj->OnAfterChangeOption.connect(slot_repaint);
+	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT_C2C);
+	menu_colors->addItem(oj);
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chHeadcolor );
 	mf->setHint("", LOCALE_MENU_HINT_HEAD_BACK);
 	menu_colors->addItem(mf);
@@ -685,7 +692,6 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(mf);
 
 	// head color gradient
-	CMenuOptionChooser *oj;
 	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT, &g_settings.theme.menu_Head_gradient, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
 	oj->OnAfterChangeOption.connect(slot_repaint);
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
