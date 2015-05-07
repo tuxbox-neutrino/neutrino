@@ -119,6 +119,7 @@ struct SNeutrinoTheme
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
 	unsigned char clock_Digit_blue;
+	int gradient_c2c;
 };
 
 struct SNeutrinoSettings

@@ -290,6 +290,7 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "clock_Digit_red", t.clock_Digit_red );
 	configfile.setInt32( "clock_Digit_green", t.clock_Digit_green );
 	configfile.setInt32( "clock_Digit_blue", t.clock_Digit_blue );
+	configfile.setInt32( "gradient_c2c", t.gradient_c2c );
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -349,6 +350,7 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.clock_Digit_red = configfile.getInt32( "clock_Digit_red", t.menu_Content_Text_red );
 	t.clock_Digit_green = configfile.getInt32( "clock_Digit_green", t.menu_Content_Text_green );
 	t.clock_Digit_blue = configfile.getInt32( "clock_Digit_blue", t.menu_Content_Text_blue );
+	t.gradient_c2c = configfile.getInt32( "gradient_c2c", 0 );
 }
 
 void CThemes::move_userDir()
