@@ -257,7 +257,7 @@ void CComponentsItem::setFocus(bool focus)
 
 void CComponentsItem::initBodyGradient()
 {
-	if (col_body_gradient && cc_gradientData.gradientBuf && old_gradient_color != col_body) {
+	if (col_body_gradient && cc_gradientData.gradientBuf && (old_gradient_color != col_body || old_gradient_c2c != g_settings.theme.gradient_c2c)) {
 		free(cc_gradientData.gradientBuf);
 		cc_gradientData.gradientBuf = NULL;
 		if (cc_gradientData.boxBuf) {
@@ -268,11 +268,12 @@ void CComponentsItem::initBodyGradient()
 	if (cc_gradientData.gradientBuf == NULL) {
 		CColorGradient ccGradient;
 		int gsize = cc_body_gradient_direction == CFrameBuffer::gradientVertical ? height : width;
-		if (cc_body_gradient_c2c)
+		if (g_settings.theme.gradient_c2c)
 			cc_gradientData.gradientBuf = ccGradient.gradientColorToColor(col_body, cc_body_gradient_2nd_col, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity);
 		else
 			cc_gradientData.gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity, cc_body_gradient_intensity_v_min, cc_body_gradient_intensity_v_max, cc_body_gradient_saturation);
 		old_gradient_color = col_body;
+		old_gradient_c2c = g_settings.theme.gradient_c2c;
 	}
 
 	cc_gradientData.direction = cc_body_gradient_direction;

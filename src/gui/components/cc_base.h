@@ -73,6 +73,7 @@ class CComponents : public CComponentsSignals, public COSDFader
 		///property: color of body
 		fb_pixel_t col_body;
 		fb_pixel_t old_gradient_color;
+		int old_gradient_c2c;
 		///property: color of shadow
 		fb_pixel_t col_shadow;
 		///property: color of frame
