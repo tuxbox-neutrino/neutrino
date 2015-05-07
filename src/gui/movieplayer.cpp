@@ -28,6 +28,8 @@
 #endif
 
 #define __STDC_CONSTANT_MACROS
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 #include <global.h>
 #include <neutrino.h>
 
@@ -1783,9 +1785,10 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 	AVSubtitle * sub = (AVSubtitle *) data;
 
 	printf("************************* EVT_SUBT_MESSAGE: num_rects %d fmt %d *************************\n",  sub->num_rects, sub->format);
+#if 0
 	if (!sub->num_rects)
 		return;
-
+#endif
 	if (sub->format == 0) {
 		int xres = 0, yres = 0, framerate;
 		videoDecoder->getPictureInfo(xres, yres, framerate);
@@ -1817,7 +1820,13 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 			min_y = std::min(min_y, yoff);
 			max_y = std::max(max_y, yoff + nh);
 		}
-		end_time = sub->end_display_time + time_monotonic_ms();
+
+		//end_time = sub->end_display_time + time_monotonic_ms();
+		end_time = 10*1000;
+		if (sub->end_display_time != UINT32_MAX)
+			end_time = sub->end_display_time;
+		end_time += time_monotonic_ms();
+
 		avsubtitle_free(sub);
 		delete sub;
 		return;
@@ -1834,7 +1843,11 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 			int len = strlen(txt);
 			if (len > 10 && memcmp(txt, "Dialogue: ", 10) == 0) {
 				char* p = txt;
+#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(55, 69, 100)
 				int skip_commas = 4;
+#else
+				int skip_commas = 9;
+#endif
 				/* skip ass times */
 				for (int j = 0; j < skip_commas && *p != '\0'; p++)
 					if (*p == ',')
