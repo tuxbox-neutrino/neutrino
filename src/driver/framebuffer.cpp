@@ -1009,10 +1009,10 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	uint16_t	 width, height;
 	int	      lfd;
 
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_RDONLY);
 
 	if (lfd == -1) {
-		printf("paintIcon8: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
+		printf("paintIcon8: error while loading icon: %s/%s\n", iconBasePath.c_str(), filename.c_str());
 		return false;
 	}
 
@@ -1182,10 +1182,10 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 	struct rgbData rgbdata;
 	int	    lfd;
 
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_RDONLY);
 
 	if (lfd == -1) {
-		printf("error while loading palette: %s%s\n", iconBasePath.c_str(), filename.c_str());
+		printf("error while loading palette: %s/%s\n", iconBasePath.c_str(), filename.c_str());
 		return;
 	}
 
@@ -1488,11 +1488,11 @@ bool CFrameBuffer::loadPictureToMem(const std::string & filename, const uint16_t
 
 //printf("%s(%d, %d, memp)\n", __FUNCTION__, width, height);
 
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY );
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_RDONLY );
 
 	if (lfd == -1)
 	{
-		printf("error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
+		printf("error while loading icon: %s/%s\n", iconBasePath.c_str(), filename.c_str());
 		return false;
 	}
 
@@ -1544,11 +1544,11 @@ bool CFrameBuffer::savePictureFromMem(const std::string & filename, const fb_pix
 	header.height_hi = height >>    8;
 	header.transp    =	      0;
 
-	lfd = open((iconBasePath + filename).c_str(), O_WRONLY | O_CREAT, 0644);
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_WRONLY | O_CREAT, 0644);
 
 	if (lfd==-1)
 	{
-		printf("error while saving icon: %s%s", iconBasePath.c_str(), filename.c_str() );
+		printf("error while saving icon: %s/%s", iconBasePath.c_str(), filename.c_str() );
 		return false;
 	}
 
@@ -1613,7 +1613,7 @@ bool CFrameBuffer::loadBackgroundPic(const std::string & filename, bool show)
 		delete[] background;
 		background = NULL;
 	}
-	background = g_PicViewer->getImage(iconBasePath + filename, BACKGROUNDIMAGEWIDTH, 576);
+	background = g_PicViewer->getImage(iconBasePath + "/" + filename, BACKGROUNDIMAGEWIDTH, 576);
 
 	if (background == NULL) {
 		background=0;
