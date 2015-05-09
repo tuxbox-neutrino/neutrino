@@ -248,9 +248,11 @@ void CInfoViewer::initClock()
 {
 
 	static int gradient_top = g_settings.theme.infobar_gradient_top;
+	static int gradient_c2c = g_settings.theme.gradient_c2c;
 
-	if (gradient_top != g_settings.theme.infobar_gradient_top && clock != NULL) {
+	if ((gradient_top != g_settings.theme.infobar_gradient_top || gradient_c2c != g_settings.theme.gradient_c2c) && clock != NULL) {
 		gradient_top = g_settings.theme.infobar_gradient_top;
+		gradient_c2c = g_settings.theme.gradient_c2c;
 		clock->clearSavedScreen();
 		delete clock;
 		clock = NULL;
