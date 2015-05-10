@@ -158,6 +158,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	// channel & bouquet & epg & zapping handling
 	{"getservicesxml", 	&CControlAPI::GetServicesxmlCGI,""},
 	{"getbouquetsxml", 	&CControlAPI::GetBouquetsxmlCGI,""},
+	{"getubouquetsxml", 	&CControlAPI::GetUBouquetsxmlCGI,""},
 	{"channellist", 	&CControlAPI::ChannellistCGI,	"text/plain"},
 	{"logolist",	 	&CControlAPI::LogolistCGI,	"text/plain"},
 	{"getbouquet", 		&CControlAPI::GetBouquetCGI,	"+xml"},
@@ -566,6 +567,13 @@ void CControlAPI::GetServicesxmlCGI(CyhookHandler *hh)
 void CControlAPI::GetBouquetsxmlCGI(CyhookHandler *hh)
 {
 	hh->SendFile(CONFIGDIR "/zapit/bouquets.xml");
+}
+//-----------------------------------------------------------------------------
+
+// send ubouquets.xml
+void CControlAPI::GetUBouquetsxmlCGI(CyhookHandler *hh)
+{
+	hh->SendFile(CONFIGDIR "/zapit/ubouquets.xml");
 }
 
 //-----------------------------------------------------------------------------
