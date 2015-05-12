@@ -70,8 +70,10 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 		CMenuItem* item = m->getItem(selected);
 		CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
 		std::string dirname(f->getName());
-		if (fileBrowser.exec(dirname.substr(0, dirname.rfind('/')).c_str())) {
+		dirname = dirname.substr(0, dirname.rfind('/'));
+		if (fileBrowser.exec(dirname.c_str())) {
 			f->setName(fileBrowser.getSelectedFile()->Name);
+			g_settings.last_webtv_dir = dirname;
 			changed = true;
 		}
 		return res;
@@ -81,9 +83,10 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 		CFileFilter fileFilter;
 		fileFilter.addFilter("xml");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/") == true) {
+		if (fileBrowser.exec(g_settings.last_webtv_dir.c_str()) == true) {
 			std::string s = fileBrowser.getSelectedFile()->Name;
 			m->addItem(new CMenuForwarder(s, true, NULL, this, "c"));
+			g_settings.last_webtv_dir = s.substr(0, s.rfind('/')).c_str();
 			changed = true;
 		}
 		return res;
