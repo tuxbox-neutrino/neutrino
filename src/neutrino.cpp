@@ -1515,12 +1515,14 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				AllFavBouquetList->addBouquet(b);
 		}
 	}
+#if 0
 	if (!webtvList.empty()) {
 		/* provider */
 		CBouquet* webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
 		webtvBouquet->channelList->SetChannelList(&webtvList);
 		TVbouquetList->Bouquets.push_back(webtvBouquet);
 	}
+#endif
 	printf("[neutrino] got %d TV and %d RADIO bouquets\n", tvi, ri); fflush(stdout);
 	TIMER_STOP("[neutrino] took");
 

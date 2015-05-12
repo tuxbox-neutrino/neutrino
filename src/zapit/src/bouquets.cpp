@@ -493,6 +493,7 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 	}
 
 	parseBouquetsXml(UBOUQUETS_XML, true);
+	loadWebtv();
 	renumServices();
 	TIMER_STOP("[zapit] bouquet loading took");
 }
@@ -776,6 +777,69 @@ void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
 			tmplist.push_back(Bouquets[i]);
 	}
 	Bouquets = tmplist;
+}
+
+CZapitBouquet* CBouquetManager::addBouquetIfNotExist(const std::string &name)
+{
+	CZapitBouquet* bouquet = NULL;
+
+	int bouquetId = existsBouquet(name.c_str(), true);
+	if (bouquetId == -1)
+		bouquet = addBouquet(name, false);
+	else
+		bouquet = Bouquets[bouquetId];
+
+	return bouquet;
+}
+
+void CBouquetManager::loadWebtv()
+{
+	std::list<std::string> *webtv_xml = CZapit::getInstance()->GetWebTVXML();
+	if (!webtv_xml)
+		return;
+
+	for (std::list<std::string>::iterator it = webtv_xml->begin(); it != webtv_xml->end(); ++it) {
+		if (!access((*it).c_str(), R_OK)) {
+			INFO("Loading webtv from %s ...", (*it).c_str());
+			xmlDocPtr parser = parseXmlFile((*it).c_str());
+			if (parser == NULL)
+				continue;
+
+			xmlNodePtr l0 = xmlDocGetRootElement(parser);
+			xmlNodePtr l1 = xmlChildrenNode(l0);
+			if (l1) {
+				CZapitBouquet* pbouquet = NULL;
+				const char *prov = xmlGetAttribute(l0, "name");
+				if (!prov)
+					prov = "WebTV";
+				pbouquet = addBouquetIfNotExist(prov);
+
+				while ((xmlGetNextOccurence(l1, "webtv"))) {
+					const char *title = xmlGetAttribute(l1, "title");
+					const char *url = xmlGetAttribute(l1, "url");
+					const char *desc = xmlGetAttribute(l1, "description");
+					const char *genre = xmlGetAttribute(l1, "genre");
+
+					CZapitBouquet* gbouquet = pbouquet;
+					if (genre) {
+						std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
+						gbouquet = addBouquetIfNotExist(bname);
+					}
+					if (title && url) {
+						t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
+						CZapitChannel * channel = new CZapitChannel(title, chid, url, desc);
+						CServiceManager::getInstance()->AddChannel(channel);
+						channel->flags = CZapitChannel::UPDATED;
+						if (gbouquet)
+							gbouquet->addService(channel);
+					}
+
+					l1 = xmlNextNode(l1);
+				}
+			}
+			xmlFreeDoc(parser);
+		}
+	}
 }
 
 CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const bool TV)

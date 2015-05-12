@@ -119,6 +119,7 @@ class CBouquetManager
 		void renumServices();
 
 		CZapitBouquet* addBouquet(const std::string & name, bool ub = false, bool myfav = false, bool to_begin = false);
+		CZapitBouquet* addBouquetIfNotExist(const std::string & name);
 		void deleteBouquet(const unsigned int id);
 		void deleteBouquet(const CZapitBouquet* bouquet);
 		int  existsBouquet(char const * const name, bool ignore_user = false);
@@ -132,6 +133,7 @@ class CBouquetManager
 		void sortBouquets(void);
 		void setBouquetLock(const unsigned int id, bool state);
 		void setBouquetLock(CZapitBouquet* bouquet, bool state);
+		void loadWebtv();
 		//bouquet writeChannelsNames selection options
 		enum{
 			BWN_NEVER,
