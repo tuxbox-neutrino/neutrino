@@ -283,8 +283,8 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "colored_events_red", t.colored_events_red );
 	configfile.setInt32( "colored_events_green", t.colored_events_green );
 	configfile.setInt32( "colored_events_blue", t.colored_events_blue );
-	configfile.getInt32( "colored_events_channellist", t.colored_events_channellist );
-	configfile.getInt32( "colored_events_infobar", t.colored_events_infobar );
+	configfile.setInt32( "colored_events_channellist", t.colored_events_channellist );
+	configfile.setInt32( "colored_events_infobar", t.colored_events_infobar );
 
 	configfile.setInt32( "clock_Digit_alpha", t.clock_Digit_alpha );
 	configfile.setInt32( "clock_Digit_red", t.clock_Digit_red );
