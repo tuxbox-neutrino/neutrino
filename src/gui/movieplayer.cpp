@@ -449,7 +449,12 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 	currentspid = -1;
 	numsubs = 0;
 	autoshot_done = 0;
-	file_name = file->Name;
+	if (file->Url.empty())
+		file_name = file->Name;
+	else {
+		file_name = file->Url;
+		pretty_name = file->Name;
+		}
 	if (isMovieBrowser) {
 		if (filelist_it != filelist.end()) {
 			unsigned idx = filelist_it - filelist.begin();
@@ -545,9 +550,13 @@ bool CMoviePlayerGui::SelectFile()
 			}
 			if (file) {
 				is_file_player = true;
-				ret = prepareFile(file);
 				if (file->getType() == CFile::FILE_PLAYLIST)
 					parsePlaylist(file);
+				if (!filelist.empty()) {
+					filelist_it = filelist.begin();
+					file = &(*filelist_it);
+				}
+				ret = prepareFile(file);
 			}
 		}
 		menu_ret = filebrowser->getMenuRet();
