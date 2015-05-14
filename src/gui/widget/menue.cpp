@@ -1020,7 +1020,8 @@ void CMenuWidget::checkHints()
 	}
 	if (has_hints) {
 		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
-		GenericMenuNext->setHint(NEUTRINO_ICON_HINT_NEXT, LOCALE_MENU_HINT_NEXT);
+		bool brief = (from_wizard == SNeutrinoSettings::WIZARD_START);
+		GenericMenuNext->setHint(NEUTRINO_ICON_HINT_NEXT, brief ? LOCALE_MENU_HINT_NEXT_BRIEF : LOCALE_MENU_HINT_NEXT);
 	}
 }
 
