@@ -18,6 +18,7 @@
 #include <dirent.h>
 #include <signal.h>
 // tuxbox
+#include <global.h>
 #include <configfile.h>
 #include <system/helpers.h>
 // yhttpd
@@ -448,6 +449,28 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			}
 		} else if (ycmd_type == "func")
 			yresult = this->YWeb_cgi_func(hh, ycmd_name);
+		else if (ycmd_type == "define-get") {
+			     if (ycmd_name.compare("CONFIGDIR"))	yresult = CONFIGDIR;
+			else if (ycmd_name.compare("DATADIR"))		yresult = DATADIR;
+			else if (ycmd_name.compare("FONTDIR"))		yresult = FONTDIR;
+			else if (ycmd_name.compare("LIBDIR"))		yresult = LIBDIR;
+			else if (ycmd_name.compare("GAMESDIR"))		yresult = GAMESDIR;
+			else if (ycmd_name.compare("PLUGINDIR"))	yresult = PLUGINDIR;
+			else if (ycmd_name.compare("PLUGINDIR_VAR"))	yresult = PLUGINDIR_VAR;
+			else if (ycmd_name.compare("LUAPLUGINDIR"))	yresult = LUAPLUGINDIR;
+			else if (ycmd_name.compare("LOCALEDIR"))	yresult = LOCALEDIR;
+			else if (ycmd_name.compare("LOCALEDIR_VAR"))	yresult = LOCALEDIR_VAR;
+			else if (ycmd_name.compare("THEMESDIR"))	yresult = THEMESDIR;
+			else if (ycmd_name.compare("THEMESDIR_VAR"))	yresult = THEMESDIR_VAR;
+			else if (ycmd_name.compare("ICONSDIR"))		yresult = ICONSDIR;
+			else if (ycmd_name.compare("ICONSDIR_VAR"))	yresult = ICONSDIR_VAR;
+			else if (ycmd_name.compare("LOGODIR"))		yresult = LOGODIR;
+			else if (ycmd_name.compare("LOGODIR_VAR"))	yresult = LOGODIR_VAR;
+			else if (ycmd_name.compare("PRIVATE_HTTPDDIR"))	yresult = PRIVATE_HTTPDDIR;
+			else if (ycmd_name.compare("PUBLIC_HTTPDDIR"))	yresult = PUBLIC_HTTPDDIR;
+			else if (ycmd_name.compare("HOSTED_HTTPDDIR"))	yresult = HOSTED_HTTPDDIR;
+			else						yresult = "";
+		}
 		else if (ycmd_type == "ini-get") {
 			std::string filename, varname, tmp, ydefault, yaccess;
 			ySplitString(ycmd_name, "~", filename, yaccess);
