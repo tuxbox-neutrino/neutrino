@@ -463,8 +463,8 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 	}
 	if (file->getType() == CFile::FILE_ISO)
 		ret = mountIso(file);
-	else if (file->getType() == CFile::FILE_PLAYLIST)
-		parsePlaylist(file);
+	//else if (file->getType() == CFile::FILE_PLAYLIST)
+		//parsePlaylist(file);
 
 	if (ret)
 		makeFilename();
@@ -546,6 +546,8 @@ bool CMoviePlayerGui::SelectFile()
 			if (file) {
 				is_file_player = true;
 				ret = prepareFile(file);
+				if (file->getType() == CFile::FILE_PLAYLIST)
+					parsePlaylist(file);
 			}
 		}
 		menu_ret = filebrowser->getMenuRet();
@@ -898,21 +900,28 @@ void CMoviePlayerGui::PlayFileLoop(void)
 					callInfoViewer();
 			} else if (!filelist.empty()) {
 				EnableClockAndMute(false);
-				CFileBrowser playlist;
+				CFileBrowser *playlist = new CFileBrowser();
 				CFile *pfile = NULL;
 				pfile = &(*filelist_it);
-				if (playlist.playlist_manager(filelist, std::distance( filelist.begin(), filelist_it )))
+				int selected = std::distance( filelist.begin(), filelist_it );
+				filelist_it = filelist.end();
+				if (playlist->playlist_manager(filelist, selected))
 				{
 					playstate = CMoviePlayerGui::STOPPED;
 					CFile *sfile = NULL;
 					for (filelist_it = filelist.begin(); filelist_it != filelist.end(); ++filelist_it)
 					{
 						pfile = &(*filelist_it);
-						sfile = playlist.getSelectedFile();
+						sfile = playlist->getSelectedFile();
 						if ( (sfile->getFileName() == pfile->getFileName()) && (sfile->getPath() == pfile->getPath()))
 							break;
 					}
 				}
+				else {
+					if (!filelist.empty())
+						filelist_it = filelist.begin() + selected;
+				}
+				delete playlist;
 				EnableClockAndMute(true);
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
@@ -1978,6 +1987,8 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 	char cLine[1024];
 	char name[1024] = { 0 };
 	infile.open(file->Name.c_str(), std::ifstream::in);
+	filelist_it = filelist.erase(filelist_it);
+	CFile tmp_file;
 	while (infile.good())
 	{
 		infile.getline(cLine, sizeof(cLine));
@@ -1992,13 +2003,14 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 			if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) || (url = strstr(cLine, "mmsh://")) ) {
 				if (url != NULL) {
 					printf("name %s [%d] url: %s\n", name, dur, url);
-					file_name = url;
-					if (strlen(name))
-						pretty_name = name;
+					tmp_file.Name = name;
+					tmp_file.Url = url;
+					filelist.push_back(tmp_file);
 				}
 			}
 		}
 	}
+	filelist_it = filelist.begin();
 }
 
 bool CMoviePlayerGui::mountIso(CFile *file)
