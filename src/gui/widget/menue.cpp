@@ -493,7 +493,7 @@ CMenuWidget::CMenuWidget()
 	selected 	= -1;
 	iconOffset 	= 0;
 	offx = offy 	= 0;
-	from_wizard 	= false;
+	from_wizard 	= SNeutrinoSettings::WIZARD_OFF;
 	fade 		= true;
 	sb_width	= 0;
 	savescreen	= false;
@@ -562,7 +562,7 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 
 	current_page	= 0;
 	offx = offy 	= 0;
-	from_wizard 	= false;
+	from_wizard 	= SNeutrinoSettings::WIZARD_OFF;
 	fade 		= true;
 	savescreen	= false;
 	background	= NULL;

@@ -52,7 +52,7 @@
 extern CAudioSetupNotifier	* audioSetupNotifier;
 extern cAudio *audioDecoder;
 
-CAudioSetup::CAudioSetup(bool wizard_mode)
+CAudioSetup::CAudioSetup(int wizard_mode)
 {
 	is_wizard = wizard_mode;
 
@@ -253,13 +253,6 @@ int CAudioSetup::showAudioSetup()
 		CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
 
 	return res;
-}
-
-//sets menu mode to "wizard" or "default"
-void CAudioSetup::setWizardMode(bool mode)
-{
-	printf("[neutrino audio setup] %s set audio settings menu to mode %d...\n", __FUNCTION__, mode);
-	is_wizard = mode;
 }
 
 CTruVolumeNotifier::CTruVolumeNotifier(CMenuOptionChooser* o1, CMenuOptionChooser* o2, CMenuOptionNumberChooser *n1)

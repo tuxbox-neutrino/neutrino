@@ -67,7 +67,7 @@ extern CRemoteControl * g_RemoteControl;
 extern const char * locale_real_names[];
 extern std::string ttx_font_file;
 
-COsdSetup::COsdSetup(bool wizard_mode)
+COsdSetup::COsdSetup(int wizard_mode)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	colorSetupNotifier = new CColorSetupNotifier();

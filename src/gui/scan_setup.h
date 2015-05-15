@@ -89,7 +89,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		/* flag to skip manual params update while in menu */
 		bool in_menu;
 
-		bool is_wizard;
+		int is_wizard;
 		
 		int r_system;
 
@@ -124,20 +124,13 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 
 		void saveScanSetup();
 
-		CScanSetup(bool wizard_mode = SCAN_SETUP_MODE_WIZARD_NO);
+		CScanSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 	public:	
-		enum SCAN_SETUP_MODE
-		{
-			SCAN_SETUP_MODE_WIZARD_NO   = 0,
-			SCAN_SETUP_MODE_WIZARD   = 1
-		};
-
 		~CScanSetup();
 
 		static CScanSetup* getInstance();
 
-		bool getWizardMode() {return is_wizard;};
-		void setWizardMode(bool mode);
+		void setWizardMode(int mode) {is_wizard = mode;};
 		void updateManualSettings();
 
 		int exec(CMenuTarget* parent, const std::string & actionKey = "");

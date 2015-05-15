@@ -48,7 +48,7 @@
 
 
 
-CSettingsManager::CSettingsManager(bool wizard_mode)
+CSettingsManager::CSettingsManager(int wizard_mode)
 {
 	width = 40;
 	is_wizard = wizard_mode;

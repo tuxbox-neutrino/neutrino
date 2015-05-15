@@ -81,18 +81,15 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	if (parent)
 		parent->hide();
 
-	COsdLangSetup languageSettings(COsdLangSetup::OSDLANG_SETUP_MODE_WIZARD);
-
-#if 0
-	languageSettings.exec(NULL, "");
-#endif
         //language setup
+	COsdLangSetup languageSettings(SNeutrinoSettings::WIZARD_START);
 	CMenuWidget osdl_setup(LOCALE_LANGUAGESETUP_OSD, NEUTRINO_ICON_LANGUAGE, 45, MN_WIDGET_ID_LANGUAGESETUP_LOCALE);
 	osdl_setup.setWizardMode(true);
 	languageSettings.showLanguageSetup(&osdl_setup);
 	osdl_setup.exec(NULL, "");
 
-	CSettingsManager settingsManager(CSettingsManager::SETTINGSMANAGER_MODE_WIZARD);
+	//restore backup
+	CSettingsManager settingsManager(SNeutrinoSettings::WIZARD_START);
 	settingsManager.exec(NULL, "");
 
 	if(ShowMsg (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes)
@@ -103,7 +100,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		if (lang == "nederlands") {
 			advanced = 0;
 			CMenuWidget wtype(LOCALE_WIZARD_SETUP);
-			wtype.setWizardMode(true);
+			wtype.setWizardMode(SNeutrinoSettings::WIZARD_ON);
 			wtype.addIntroItems();
 			CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_WIZARD_SETUP_TYPE, &advanced, WIZARD_SETUP_TYPE, 2, true, NULL);
 			mc->setHint("", LOCALE_WIZARD_SETUP_TYPE_HINT);
@@ -113,20 +110,20 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 #endif
 		//open video settings in wizardmode
 		if(advanced && res != menu_return::RETURN_EXIT_ALL) {
-			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD);
+			g_videoSettings->setWizardMode(SNeutrinoSettings::WIZARD_ON);
 			res = g_videoSettings->exec(NULL, "");
-			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD_NO);
+			g_videoSettings->setWizardMode(SNeutrinoSettings::WIZARD_OFF);
 		}
 		if(!g_settings.easymenu && advanced && res != menu_return::RETURN_EXIT_ALL)
 		{
-			COsdSetup osdSettings(COsdSetup::OSD_SETUP_MODE_WIZARD);
+			COsdSetup osdSettings(SNeutrinoSettings::WIZARD_ON);
 			res = osdSettings.exec(NULL, "");
 		}
 		if(advanced && res != menu_return::RETURN_EXIT_ALL)
 		{
-			CNetworkSetup::getInstance()->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD);
+			CNetworkSetup::getInstance()->setWizardMode(SNeutrinoSettings::WIZARD_ON);
 			res = CNetworkSetup::getInstance()->exec(NULL, "");
-			CNetworkSetup::getInstance()->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD_NO);
+			CNetworkSetup::getInstance()->setWizardMode(SNeutrinoSettings::WIZARD_OFF);
 		}
 		bool init_settings = false;
 		if (CFEManager::getInstance()->haveSat())
@@ -144,7 +141,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		}
 		if(res != menu_return::RETURN_EXIT_ALL)
 		{
-			CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD);
+			CScanSetup::getInstance()->setWizardMode(SNeutrinoSettings::WIZARD_ON);
 			if (advanced) {
 				res = CScanSetup::getInstance()->exec(NULL, "setup_frontend");
 				if(res != menu_return::RETURN_EXIT_ALL)
@@ -154,19 +151,19 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 #ifdef ENABLE_FASTSCAN
 				if (CFEManager::getInstance()->haveSat()) {
 					CMenuWidget fastScanMenu(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS, 45, MN_WIDGET_ID_SCAN_FAST_SCAN);
-					fastScanMenu.setWizardMode(true);
+					fastScanMenu.setWizardMode(SNeutrinoSettings::WIZARD_ON);
 					CScanSetup::getInstance()->addScanMenuFastScan(&fastScanMenu);
 					res = fastScanMenu.exec(NULL, "");
 				}
 #endif
 				if (CFEManager::getInstance()->haveCable()) {
 					CMenuWidget cableScan(LOCALE_SATSETUP_CABLE, NEUTRINO_ICON_SETTINGS, 45, MN_WIDGET_ID_SCAN_CABLE_SCAN);
-					cableScan.setWizardMode(true);
+					cableScan.setWizardMode(SNeutrinoSettings::WIZARD_ON);
 					CScanSetup::getInstance()->addScanMenuCable(&cableScan);
 					res = cableScan.exec(NULL, "");
 				}
 			}
-			CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD_NO);
+			CScanSetup::getInstance()->setWizardMode(SNeutrinoSettings::WIZARD_OFF);
 		}
 	}
 

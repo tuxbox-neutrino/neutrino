@@ -45,8 +45,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
  		CNetworkConfig  *networkConfig;
 						
 		int width;
-		
-		bool is_wizard;
+		int is_wizard;
 
 		int network_dhcp;
 		int network_automatic_start;
@@ -117,19 +116,12 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 			NETWORK_NTP_ON  =  1
 		};
 		
-		enum NETWORK_SETUP_MODE
-		{
-			N_SETUP_MODE_WIZARD_NO   = 0,
-			N_SETUP_MODE_WIZARD   = 1
-		};
-
-		CNetworkSetup(bool wizard_mode = N_SETUP_MODE_WIZARD_NO);
+		CNetworkSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~CNetworkSetup();
 		
 		static CNetworkSetup* getInstance();
 		
-		bool getWizardMode() {return is_wizard;};
-		void setWizardMode(bool mode);
+		void setWizardMode(int mode) {is_wizard = mode;};
 		
 		int exec(CMenuTarget* parent, const std::string & actionKey);
  		virtual bool changeNotify(const neutrino_locale_t, void * Data);

@@ -65,7 +65,7 @@
 
 extern int pinghost (const std::string &hostname, std::string *ip = NULL);
 
-CNetworkSetup::CNetworkSetup(bool wizard_mode)
+CNetworkSetup::CNetworkSetup(int wizard_mode)
 {
 	networkConfig = CNetworkConfig::getInstance();
 
@@ -669,13 +669,6 @@ bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * /*Data*/
 		dhcpDisable.Activate(CNetworkConfig::getInstance()->inet_static);
 	}
 	return false;
-}
-
-//sets menu mode to "wizard" or "default"
-void CNetworkSetup::setWizardMode(bool mode)
-{
-	printf("[neutrino network setup] %s set network settings menu to mode %d...\n", __FUNCTION__, mode);
-	is_wizard = mode;
 }
 
 void CNetworkSetup::showCurrentNetworkSettings()

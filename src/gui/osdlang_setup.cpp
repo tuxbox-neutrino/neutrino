@@ -55,7 +55,7 @@
 
 
 
-COsdLangSetup::COsdLangSetup(bool wizard_mode)
+COsdLangSetup::COsdLangSetup(int wizard_mode)
 {
 	is_wizard = wizard_mode;
 

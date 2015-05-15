@@ -764,6 +764,12 @@ struct SNeutrinoSettings
 		INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS = 3	
 	}INFOBAR_PROGRESSBAR_ARRANGEMENT_TYPES;
 
+	enum WIZARD_MODES
+	{
+		WIZARD_OFF	= 0,
+		WIZARD_START	= 1,
+		WIZARD_ON	= 2
+	};
 };
 
 /* some default Values */

@@ -65,7 +65,7 @@ extern cVideo *pipDecoder;
 extern int prev_video_mode;
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
-CVideoSettings::CVideoSettings(bool wizard_mode)
+CVideoSettings::CVideoSettings(int wizard_mode)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 
@@ -615,11 +615,4 @@ void CVideoSettings::nextMode(void)
 	}
 	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName(), g_RemoteControl->getCurrentChannelNumber());
 	//ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
-}
-
-//sets menu mode to "wizard" or "default"
-void CVideoSettings::setWizardMode(bool mode)
-{
-	printf("[neutrino VideoSettings] %s set video settings menu to mode %d...\n", __FUNCTION__, mode);
-	is_wizard = mode;
 }

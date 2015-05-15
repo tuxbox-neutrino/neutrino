@@ -314,7 +314,7 @@ const CMenuOptionChooser::keyval SATSETUP_FRONTEND_MODE[SATSETUP_FRONTEND_MODE_C
 	{ CFrontend::FE_MODE_LINK_TWIN,   LOCALE_SATSETUP_FE_MODE_LINK_TWIN   },
 };
 
-CScanSetup::CScanSetup(bool wizard_mode)
+CScanSetup::CScanSetup(int wizard_mode)
 {
 	width = 40;
 	is_wizard = wizard_mode;
@@ -1760,13 +1760,6 @@ int CScanSetup::addListFlagsItems(CMenuWidget *listflags_menu, const int &shortc
 	listflags_menu->addItem(lcn);
 #endif
 	return shortCut;
-}
-
-//sets menu mode to "wizard" or "default"
-void CScanSetup::setWizardMode(bool mode)
-{
-	printf("[neutrino] CScanSetup %s set scan-setup to mode %d...\n", __FUNCTION__, mode);
-	is_wizard = mode;
 }
 
 //save current settings
