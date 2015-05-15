@@ -1143,6 +1143,7 @@ menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
 menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
+menu.hint_next Weiter zum nächsten Menü.\nDie Taste 'Menü' schließt alle Menüs
 menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
 menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
@@ -1373,7 +1374,7 @@ menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
-menu.next Weiter (Menü zum Beenden)
+menu.next Weiter
 messagebox.back Zurück
 messagebox.cancel Abbruch
 messagebox.discard Wollen Sie die Änderungen verwerfen?

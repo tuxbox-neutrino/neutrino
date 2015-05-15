@@ -1011,14 +1011,17 @@ void CMenuWidget::hide()
 void CMenuWidget::checkHints()
 {
 	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
+	GenericMenuNext->setHint("", NONEXISTANT_LOCALE);
 	for (unsigned int i= 0; i< items.size(); i++) {
 		if(items[i]->hintIcon || items[i]->hint != NONEXISTANT_LOCALE || !items[i]->hintText.empty()) {
 			has_hints = true;
 			break;
 		}
 	}
-	if (has_hints)
+	if (has_hints) {
 		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
+		GenericMenuNext->setHint(NEUTRINO_ICON_HINT_NEXT, LOCALE_MENU_HINT_NEXT);
+	}
 }
 
 void CMenuWidget::calcSize()

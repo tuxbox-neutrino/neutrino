@@ -107,6 +107,7 @@ install_DATA += \
 	hint_media.png \
 	hint_movie.png \
 	hint_network.png \
+	hint_next.png \
 	hint_osd.png \
 	hint_personalize.png \
 	hint_picview.png \
