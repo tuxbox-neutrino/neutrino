@@ -48,9 +48,10 @@
 
 
 
-CSettingsManager::CSettingsManager()
+CSettingsManager::CSettingsManager(bool wizard_mode)
 {
 	width = 40;
+	is_wizard = wizard_mode;
 }
 
 
@@ -136,8 +137,32 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
-	res = showMenu();
+	res = is_wizard ? showMenu_wizard() : showMenu();
 
+	return res;
+}
+
+//use a own small menu for start_wizard, because i don't want to fiddle around the easymenu code
+int CSettingsManager::showMenu_wizard()
+{
+	printf("[neutrino] CSettingsManager call %s...\n", __FUNCTION__);
+
+	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
+	mset->setWizardMode(is_wizard);
+	mset->addIntroItems(LOCALE_MAINSETTINGS_MANAGE);
+
+	CMenuForwarder * mf;
+
+	mf = new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig", CRCInput::RC_red);
+	mf->setHint(NEUTRINO_ICON_HINT_LOAD, LOCALE_MENU_HINT_LOAD);
+	mset->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_green);
+	mf->setHint(NEUTRINO_ICON_HINT_BACKUP, LOCALE_MENU_HINT_BACKUP);
+	mset->addItem(mf);
+
+	int res = mset->exec(NULL, "");
+	delete mset;
 	return res;
 }
 

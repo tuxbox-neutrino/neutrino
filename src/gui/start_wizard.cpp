@@ -46,6 +46,7 @@
 #include "osd_setup.h"
 #include "osdlang_setup.h"
 #include "scan_setup.h"
+#include "settings_manager.h"
 #include "videosettings.h"
 #include <zapit/zapit.h>
 #include <system/helpers.h>
@@ -90,6 +91,9 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	osdl_setup.setWizardMode(true);
 	languageSettings.showLanguageSetup(&osdl_setup);
 	osdl_setup.exec(NULL, "");
+
+	CSettingsManager settingsManager(CSettingsManager::SETTINGSMANAGER_MODE_WIZARD);
+	settingsManager.exec(NULL, "");
 
 	if(ShowMsg (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes)
 	{

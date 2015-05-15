@@ -39,11 +39,19 @@ class CSettingsManager : public CMenuTarget
 {
 	private:
 		int width;
-		
+		bool is_wizard;
+
 		int showMenu();
-		
+		int showMenu_wizard();
+
 	public:	
-		CSettingsManager();
+		enum SETTINGSMANAGER_MODE
+		{
+			SETTINGSMANAGER_MODE_WIZARD_NO	= 0,
+			SETTINGSMANAGER_MODE_WIZARD	= 1
+		};
+
+		CSettingsManager(bool wizard_mode = SETTINGSMANAGER_MODE_WIZARD_NO);
 		~CSettingsManager();
 		
 		int exec(CMenuTarget* parent, const std::string & actionKey = "");
