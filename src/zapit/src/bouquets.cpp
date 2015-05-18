@@ -272,7 +272,7 @@ void CBouquetManager::saveBouquets(void)
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
 			DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]->bUser);
-			if(!Bouquets[i]->bUser) {
+			if(!Bouquets[i]->bUser && !Bouquets[i]->bVirtual) {
 				writeBouquet(bouq_fd, i,false);
 			}
 		}
@@ -492,8 +492,8 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 		sortBouquets();
 	}
 
-	parseBouquetsXml(UBOUQUETS_XML, true);
 	loadWebtv();
+	parseBouquetsXml(UBOUQUETS_XML, true);
 	renumServices();
 	TIMER_STOP("[zapit] bouquet loading took");
 }
@@ -813,6 +813,7 @@ void CBouquetManager::loadWebtv()
 				if (!prov)
 					prov = "WebTV";
 				pbouquet = addBouquetIfNotExist(prov);
+				pbouquet->bVirtual = true;
 
 				while ((xmlGetNextOccurence(l1, "webtv"))) {
 					const char *title = xmlGetAttribute(l1, "title");
@@ -824,6 +825,7 @@ void CBouquetManager::loadWebtv()
 					if (genre) {
 						std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
 						gbouquet = addBouquetIfNotExist(bname);
+						gbouquet->bVirtual = true;
 					}
 					if (title && url) {
 						t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);

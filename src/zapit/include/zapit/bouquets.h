@@ -44,12 +44,23 @@ class CZapitBouquet
 	bool        bFav;
 	bool        bOther;
 	int         bScanEpg;
+	bool        bVirtual; // dont save
 	t_satellite_position satellitePosition;
 
 	ZapitChannelList radioChannels;
 	ZapitChannelList tvChannels;
 
-	inline CZapitBouquet(const std::string name) { Name = name; BqID=DEFAULT_BQ_ID; bHidden = DEFAULT_BQ_HIDDEN; bLocked = DEFAULT_BQ_LOCKED; bUser = false; bOther = DEFAULT_BQ_OTHER; bScanEpg = DEFAULT_BQ_SCANEPG; }
+	inline CZapitBouquet(const std::string name)
+	{
+		Name = name;
+		BqID=DEFAULT_BQ_ID;
+		bHidden = DEFAULT_BQ_HIDDEN;
+		bLocked = DEFAULT_BQ_LOCKED;
+		bUser = false;
+		bOther = DEFAULT_BQ_OTHER;
+		bScanEpg = DEFAULT_BQ_SCANEPG;
+		bVirtual = false;
+	}
 
 	void addService(CZapitChannel* newChannel);
 
