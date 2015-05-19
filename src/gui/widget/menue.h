@@ -517,6 +517,7 @@ class CMenuWidget : public CMenuTarget
 		int			full_width, full_height;
 		bool			savescreen;
 		bool			has_hints; // is any items has hints
+		bool			brief_hints;
 		bool			hint_painted; // is hint painted
 
 		int			fbutton_width;
@@ -557,7 +558,12 @@ class CMenuWidget : public CMenuTarget
 			BTN_TYPE_NEXT	= 3,
 			BTN_TYPE_NO	= -1
 		};
-		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK );
+		enum
+		{
+			BRIEF_HINT_NO	= 0,
+			BRIEF_HINT_YES	= 1
+		};
+		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO);
 		bool hasItem();
 		void resetWidget(bool delete_items = false);
 		void insertItem(const uint& item_id, CMenuItem* menuItem);

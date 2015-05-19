@@ -567,6 +567,7 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	savescreen	= false;
 	background	= NULL;
 	has_hints	= false;
+	brief_hints	= BRIEF_HINT_NO;
 	hint_painted	= false;
 	hint_height	= 0;
 	fbutton_count	= 0;
@@ -1010,6 +1011,8 @@ void CMenuWidget::hide()
 
 void CMenuWidget::checkHints()
 {
+	brief_hints = (brief_hints || (from_wizard == SNeutrinoSettings::WIZARD_START));
+
 	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
 	GenericMenuNext->setHint("", NONEXISTANT_LOCALE);
 	for (unsigned int i= 0; i< items.size(); i++) {
@@ -1019,9 +1022,8 @@ void CMenuWidget::checkHints()
 		}
 	}
 	if (has_hints) {
-		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
-		bool brief = (from_wizard == SNeutrinoSettings::WIZARD_START);
-		GenericMenuNext->setHint(NEUTRINO_ICON_HINT_NEXT, brief ? LOCALE_MENU_HINT_NEXT_BRIEF : LOCALE_MENU_HINT_NEXT);
+		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, brief_hints ? LOCALE_MENU_HINT_BACK_BRIEF : LOCALE_MENU_HINT_BACK);
+		GenericMenuNext->setHint(NEUTRINO_ICON_HINT_NEXT, brief_hints ? LOCALE_MENU_HINT_NEXT_BRIEF : LOCALE_MENU_HINT_NEXT);
 	}
 }
 
@@ -1244,8 +1246,10 @@ void CMenuWidget::paintItems()
 }
 
 /*adds the typical menu intro with optional subhead, separator, back or cancel button and separatorline to menu*/
-void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_t section_text, int buttontype)
+void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_t section_text, int buttontype, bool brief_hint)
 {
+	brief_hints = brief_hint;
+
 	if (subhead_text != NONEXISTANT_LOCALE)
 		addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, subhead_text));
 
