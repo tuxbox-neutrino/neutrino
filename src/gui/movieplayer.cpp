@@ -609,9 +609,31 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	set_threadname(__func__);
 	CMoviePlayerGui *mp = (CMoviePlayerGui *) arg;
 
-	bgmutex.lock();
-	cond.wait(&bgmutex);
-	bgmutex.unlock();
+	int eof = 0, pos = 0;
+	while(true) {
+		if (mp->playback->GetPosition(mp->position, mp->duration)) {
+#if 0
+			printf("CMoviePlayerGui::bgPlayThread: position %d duration %d (%d)\n", mp->position, mp->duration, mp->duration-mp->position);
+#endif
+			if (pos == mp->position)
+				eof++;
+			else
+				eof = 0;
+			if (eof > 2) {
+				printf("CMoviePlayerGui::bgPlayThread: playback stopped, try to rezap...\n");
+				t_channel_id * chid = new t_channel_id;
+				*chid = mp->movie_info.epgId;
+				g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE, (neutrino_msg_data_t) chid);
+				break;
+			}
+			pos = mp->position;
+		}
+		bgmutex.lock();
+		int res = cond.wait(&bgmutex, 1000);
+		bgmutex.unlock();
+		if (res == 0)
+			break;
+	}
 	printf("%s: play end...\n", __func__);
 	mp->PlayFileEnd();
 	pthread_exit(NULL);
@@ -660,7 +682,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 			fprintf(stderr, "ERROR: pthread_create(%s)\n", __func__);
 	} else
 		PlayFileEnd();
-	printf("%s: this %p started: res %d thread %p\n", __func__, this, res, CMoviePlayerGui::bgPlayThread);fflush(stdout);
+	printf("%s: this %p started: res %d thread %lx\n", __func__, this, res, bgThread);fflush(stdout);
 	return res;
 }
 
@@ -671,7 +693,7 @@ void CMoviePlayerGui::stopPlayBack(void)
 
 	repeat_mode = REPEAT_OFF;
 	if (bgThread) {
-		printf("%s: this %p join background thread %p\n", __func__, this, CMoviePlayerGui::bgPlayThread);fflush(stdout);
+		printf("%s: this %p join background thread %lx\n", __func__, this, bgThread);fflush(stdout);
 		cond.broadcast();
 		pthread_join(bgThread, NULL);
 		bgThread = 0;
