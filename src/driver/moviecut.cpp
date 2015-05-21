@@ -317,14 +317,6 @@ bool CMovieCut::cutMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 	time_t tt = time(0);
 	time_t tt1;
 
-	unsigned char * buf = new unsigned char[BUF_SIZE];
-	if (buf == 0) {
-		perror("new");
-		return false;
-	}
-
-	paintProgress(true);
-
 	off64_t size = minfo->file.Size;
 	off64_t secsize = getSecondSize(minfo);
 	off64_t newsize = size;
@@ -356,11 +348,18 @@ bool CMovieCut::cutMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 		printf("CMovieCut::%s: end bookmark %d at %" PRId64 "\n", __func__, bcount, books[bcount].pos);
 		bcount++;
 	}
-	printf("\n");
-	if (!bcount) {
-		delete [] buf;
+
+	if (!bcount)
+		return false;
+
+	unsigned char * buf = new unsigned char[BUF_SIZE];
+	if (buf == 0) {
+		perror("new");
 		return false;
 	}
+
+	paintProgress(true);
+
 	qsort(books, bcount, sizeof(struct mybook), compare_book);
 	for (int i = 0; i < bcount; i++) {
 		if (books[i].ok) {
@@ -528,6 +527,7 @@ bool CMovieCut::copyMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 			bcount++;
 		}
 	}
+
 	if (!bcount)
 		return false;
 
