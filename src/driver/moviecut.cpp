@@ -291,7 +291,7 @@ int CMovieCut::getInput()
 	int retval = 0;
 	g_RCInput->getMsg(&msg, &data, 1, false);
 	if (msg == CRCInput::RC_home) {
-		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, "Cancel movie cut/split ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIECUT_CANCEL, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
 			retval |= 4;
 	}
 	if (msg != CRCInput::RC_timeout)

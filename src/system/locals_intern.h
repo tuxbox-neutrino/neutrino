@@ -1708,6 +1708,7 @@ const char * locale_real_names[] =
 	"moviebrowser.yt_region",
 	"moviebrowser.yt_related",
 	"moviebrowser.yt_search",
+	"moviecut.cancel",
 	"movieplayer.bookmark",
 	"movieplayer.bookmarkname",
 	"movieplayer.bookmarkname_hint1",
