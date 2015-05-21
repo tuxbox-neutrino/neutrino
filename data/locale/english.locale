@@ -1567,11 +1567,15 @@ moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
 moviebrowser.hide_series Hide series
+moviebrowser.hint_copy_onefile 
+moviebrowser.hint_copy_several 
+moviebrowser.hint_cut 
 moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel
 moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel
 moviebrowser.hint_movieend Film end in 5 s\n '0' to cancel
 moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition
 moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition
+moviebrowser.hint_truncate 
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_file File
@@ -1603,6 +1607,10 @@ moviebrowser.info_videoformat Picture
 moviebrowser.last_play_max_items Number of lines last play
 moviebrowser.last_record_max_items Number of lines last record
 moviebrowser.load_default Load default settings
+moviebrowser.menu_copy_onefile Copy movie
+moviebrowser.menu_copy_several Copy and split movie
+moviebrowser.menu_cut Cut movie
+moviebrowser.menu_cut_head Copy, cut and truncate
 moviebrowser.menu_directories_head Paths
 moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
@@ -1616,6 +1624,7 @@ moviebrowser.menu_parental_lock_head Parental Lock
 moviebrowser.menu_parental_lock_rate_head Lock movies from
 moviebrowser.menu_save Save changes
 moviebrowser.menu_save_all Start update of movie info files
+moviebrowser.menu_truncate Truncate movie
 moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
 moviebrowser.remount_at_start Remount at start

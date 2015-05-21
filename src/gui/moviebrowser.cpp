@@ -497,6 +497,9 @@ void CMovieBrowser::init(void)
 	show_mode = MB_SHOW_RECORDS; //FIXME
 
 	CChannelLogo = NULL;
+
+	m_doRefresh = false;
+	m_doLoadMovies = false;
 }
 
 void CMovieBrowser::initGlobalSettings(void)
@@ -794,6 +797,15 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (m_movieSelectionHandler != NULL)
 			return showMovieInfoMenu(m_movieSelectionHandler);
 	}
+	else if (actionKey == "show_movie_cut_menu")
+	{
+		if (m_movieSelectionHandler != NULL)
+		{
+			if (parent)
+				parent->hide();
+			return showMovieCutMenu();
+		}
+	}
 	else if (actionKey == "save_movie_info")
 	{
 		m_movieInfo.saveMovieInfo(*m_movieSelectionHandler);
@@ -867,6 +879,84 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 		showYTMenu(true);
 		saveSettings(&m_settings);
+	}
+	else if (actionKey == "copy_onefile" || actionKey == "copy_several")
+	{
+		bool onefile = (actionKey == "copy_onefile");
+		if ((show_mode == MB_SHOW_RECORDS) && (ShowMsg(LOCALE_MESSAGEBOX_INFO, onefile ? LOCALE_MOVIEBROWSER_COPY : LOCALE_MOVIEBROWSER_COPIES, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes))
+		{
+			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_COPYING);
+			hintBox->paint();
+			sleep(1);
+			hintBox->hide();
+			delete hintBox;
+			framebuffer->paintBackground(); // clear screen
+			CMovieCut mc;
+			bool res = mc.copyMovie(m_movieSelectionHandler, &m_movieInfo, onefile);
+			//g_RCInput->clearRCMsg();
+			if (res == 0)
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_COPY_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+			else
+				m_doLoadMovies = true;
+			m_doRefresh = true;
+		}
+	}
+	else if (actionKey == "cut")
+	{
+#if 0
+		if ((m_movieSelectionHandler == playing_info) && (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
+			ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Impossible to cut playing movie.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+		else
+#endif
+		if ((show_mode == MB_SHOW_RECORDS) && (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUT, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes))
+		{
+			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUTTING);
+			hintBox->paint();
+			sleep(1);
+			hintBox->hide();
+			delete hintBox;
+			framebuffer->paintBackground(); // clear screen
+			CMovieCut mc;
+			bool res = mc.cutMovie(m_movieSelectionHandler, &m_movieInfo);
+			//g_RCInput->clearRCMsg();
+			if (!res)
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_CUT_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+			else
+				m_doLoadMovies = true;
+			m_doRefresh = true;
+		}
+	}
+	else if (actionKey == "truncate")
+	{
+		if ((show_mode == MB_SHOW_RECORDS) && m_movieSelectionHandler != NULL)
+		{
+			if ((m_movieSelectionHandler == playing_info) && (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED_PLAYING, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+			else if (m_movieSelectionHandler->bookmarks.end == 0)
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_BOOK_NO_END, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+			else
+			{
+				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATE, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+				{
+					CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATING);
+					hintBox->paint();
+					CMovieCut mc;
+					bool res = mc.truncateMovie(m_movieSelectionHandler);
+					hintBox->hide();
+					delete hintBox;
+					g_RCInput->clearRCMsg();
+					if (!res)
+						ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+					else
+					{
+						//printf("New movie info: size %lld len %d\n", res, m_movieSelectionHandler->bookmarks.end/60);
+						m_movieInfo.saveMovieInfo(*m_movieSelectionHandler);
+						m_doLoadMovies = true;
+					}
+					m_doRefresh = true;
+				}
+			}
+		}
 	}
 
 	return returnval;
@@ -1142,6 +1232,8 @@ void CMovieBrowser::refresh(void)
 
 	refreshFoot();
 	refreshLCD();
+
+	m_doRefresh = false;
 }
 
 std::string CMovieBrowser::getCurrentDir(void)
@@ -1761,81 +1853,50 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		if (show_mode == MB_SHOW_YT)
 			showYTMenu();
 		else
+		{
 			showMenu();
-
-	}
-	else if (msg == CRCInput::RC_text || msg == CRCInput::RC_radio) {
-		if ((show_mode == MB_SHOW_RECORDS) &&
-				(ShowMsg(LOCALE_MESSAGEBOX_INFO, msg == CRCInput::RC_radio ? LOCALE_MOVIEBROWSER_COPY : LOCALE_MOVIEBROWSER_COPIES, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)) {
-			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_COPYING);
-			hintBox->paint();
-			sleep(1);
-			hintBox->hide();
-			delete hintBox;
-			framebuffer->paintBackground(); // clear screen
-			CMovieCut mc;
-			bool res = mc.copyMovie(m_movieSelectionHandler, &m_movieInfo, msg == CRCInput::RC_radio);
-			//g_RCInput->clearRCMsg();
-			if (res == 0)
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_COPY_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-			else
+			if (m_doLoadMovies)
 				loadMovies();
-			refresh();
+			if (m_doRefresh)
+				refresh();
 		}
-	}
-	else if (msg == CRCInput::RC_audio) {
-#if 0
-		if ((m_movieSelectionHandler == playing_info) && (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
-			ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Impossible to cut playing movie.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-		else
-#endif
-		if ((show_mode == MB_SHOW_RECORDS) &&
-				(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUT, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)) {
-			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUTTING);
-			hintBox->paint();
-			sleep(1);
-			hintBox->hide();
-			delete hintBox;
-			framebuffer->paintBackground(); // clear screen
-			CMovieCut mc;
-			bool res = mc.cutMovie(m_movieSelectionHandler, &m_movieInfo);
-			//g_RCInput->clearRCMsg();
-			if (!res)
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_CUT_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-			else
-				loadMovies();
 
-			refresh();
-		}
 	}
-	else if (msg == CRCInput::RC_games) {
-		if ((show_mode == MB_SHOW_RECORDS) && m_movieSelectionHandler != NULL) {
-			if ((m_movieSelectionHandler == playing_info) && (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED_PLAYING, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-			else if (m_movieSelectionHandler->bookmarks.end == 0)
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_BOOK_NO_END, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-			else {
-				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATE, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
-					CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATING);
-					hintBox->paint();
-
-					CMovieCut mc;
-					bool res = mc.truncateMovie(m_movieSelectionHandler);
-					hintBox->hide();
-					delete hintBox;
-					g_RCInput->clearRCMsg();
-					if (!res)
-						ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-					else {
-						//printf("New movie info: size %lld len %d\n", res, m_movieSelectionHandler->bookmarks.end/60);
-						m_movieInfo.saveMovieInfo(*m_movieSelectionHandler);
-						loadMovies();
-					}
-					refresh();
-				}
-			}
-		}
-	} else if (msg == CRCInput::RC_favorites) {
+	// just here to stay backward compatible with these horrible key assignments
+	else if (msg == CRCInput::RC_radio)
+	{
+		exec(NULL, "copy_onefile");
+		if (m_doLoadMovies)
+			loadMovies();
+		if (m_doRefresh)
+			refresh();
+	}
+	else if (msg == CRCInput::RC_text)
+	{
+		exec(NULL, "copy_several");
+		if (m_doLoadMovies)
+			loadMovies();
+		if (m_doRefresh)
+			refresh();
+	}
+	else if (msg == CRCInput::RC_audio)
+	{
+		exec(NULL, "cut");
+		if (m_doLoadMovies)
+			loadMovies();
+		if (m_doRefresh)
+			refresh();
+	}
+	else if (msg == CRCInput::RC_games)
+	{
+		exec(NULL, "truncate");
+		if (m_doLoadMovies)
+			loadMovies();
+		if (m_doRefresh)
+			refresh();
+	}
+	else if (msg == CRCInput::RC_favorites)
+	{
 		if (m_movieSelectionHandler != NULL) {
 			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 				std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
@@ -2649,6 +2710,8 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 		refreshLastRecordList();
 		refreshFilterList();
 	}
+
+	m_doLoadMovies = false;
 }
 
 void CMovieBrowser::loadAllMovieInfo(void)
@@ -2783,6 +2846,39 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	return res;
 }
 
+int CMovieBrowser::showMovieCutMenu()
+{
+	CMenuWidget movieCutMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
+	movieCutMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_CUT_HEAD);
+	CMenuForwarder *mf;
+
+#if 0
+	mf = new CMenuForwarder(m_movieSelectionHandler->epgTitle, false);
+	mf->setHint(NEUTRINO_ICON_HINT_MOVIE, NONEXISTANT_LOCALE);
+	movieCutMenu.addItem(mf);
+	movieCutMenu.addItem(GenericMenuSeparator);
+#endif
+
+	mf = new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_COPY_ONEFILE, true, NULL, this, "copy_onefile", CRCInput::RC_red);
+	mf->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MOVIEBROWSER_HINT_COPY_ONEFILE);
+	movieCutMenu.addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_COPY_SEVERAL, true, NULL, this, "copy_several", CRCInput::RC_green);
+	mf->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MOVIEBROWSER_HINT_COPY_SEVERAL);
+	movieCutMenu.addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_CUT, true, NULL, this, "cut", CRCInput::RC_yellow);
+	mf->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MOVIEBROWSER_HINT_CUT);
+	movieCutMenu.addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_TRUNCATE, true, NULL, this, "truncate", CRCInput::RC_blue);
+	mf->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MOVIEBROWSER_HINT_TRUNCATE);
+	movieCutMenu.addItem(mf);
+
+	int res = movieCutMenu.exec(NULL,"");
+	return res;
+}
+
 bool CMovieBrowser::showMenu(bool calledExternally)
 {
 	/* first clear screen */
@@ -2892,6 +2988,8 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &dirMenu,    NULL,                                  CRCInput::RC_yellow));
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES,       true, NULL, this,        "reload_movie_info",                   CRCInput::RC_blue));
 		//mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_NFS_HEAD,       true, NULL, nfs,         NULL,                                  CRCInput::RC_setup));
+		mainMenu.addItem(GenericMenuSeparatorLine);
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_CUT_HEAD, (m_movieSelectionHandler != NULL), NULL, this, "show_movie_cut_menu", CRCInput::RC_1));
 		mainMenu.addItem(GenericMenuSeparatorLine);
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_HELP_HEAD,        true, NULL, movieHelp,   NULL,                                  CRCInput::RC_help));
 		//mainMenu.addItem(GenericMenuSeparator);

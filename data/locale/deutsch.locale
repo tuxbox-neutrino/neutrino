@@ -1565,11 +1565,15 @@ moviebrowser.head_filter Filme nach Kategorie filtern:
 moviebrowser.head_playlist Zuletzt gesehen:
 moviebrowser.head_recordlist Zuletzt aufgenommen:
 moviebrowser.hide_series Verstecke Serien
+moviebrowser.hint_copy_onefile 
+moviebrowser.hint_copy_several 
+moviebrowser.hint_cut 
 moviebrowser.hint_jumpbackward Rücksprung in 5 s\n '0' zum Weitersehen
 moviebrowser.hint_jumpforward Werbung überspringen in 5 s\n '0' zum Ansehen
 moviebrowser.hint_movieend Filmende in 5 s\n '0' zum Weitersehen
 moviebrowser.hint_newbook_backward Neue Wiederholung\n 'blue' für Endposition
 moviebrowser.hint_newbook_forward Neuer Werbesprung\n 'blue' für Endposition
+moviebrowser.hint_truncate 
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
 moviebrowser.info_file Datei
@@ -1601,6 +1605,10 @@ moviebrowser.info_videoformat Bildformat
 moviebrowser.last_play_max_items Zeilen 'zuletzt aufgenommen'
 moviebrowser.last_record_max_items Zeilen 'zuletzt gesehen'
 moviebrowser.load_default Lade Voreinstellung
+moviebrowser.menu_copy_onefile Film kopieren
+moviebrowser.menu_copy_several Film kopieren und teilen
+moviebrowser.menu_cut Film schneiden
+moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
 moviebrowser.menu_directories_head Verzeichnisse/Freier Speicher
 moviebrowser.menu_help_head Hilfe
 moviebrowser.menu_main_bookmarks Markierungen
@@ -1614,6 +1622,7 @@ moviebrowser.menu_parental_lock_head Jugendschutz
 moviebrowser.menu_parental_lock_rate_head Filme sperren ab
 moviebrowser.menu_save Veränderungen speichern
 moviebrowser.menu_save_all Starte Übernahme in allen sichtbaren Filminfos
+moviebrowser.menu_truncate Film kürzen
 moviebrowser.option_browser Anzeigeoptionen
 moviebrowser.reload_at_start Filminfos neu laden bei Start
 moviebrowser.remount_at_start Filmdepot verbinden bei Start

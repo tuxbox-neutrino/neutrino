@@ -308,6 +308,8 @@ class CMovieBrowser : public CMenuTarget
 		bool m_showMovieInfo;
 		bool m_showFilter;
 		bool newHeader;
+		bool m_doRefresh;
+		bool m_doLoadMovies;
 
 		MI_MOVIE_INFO* m_movieSelectionHandler;
 		int m_currentStartPos;
@@ -432,6 +434,7 @@ class CMovieBrowser : public CMenuTarget
 		///// Menu ////////////////////////////////////
 		bool showMenu(bool calledExternally = false);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
+		int showMovieCutMenu(); // P2
 		int  showStartPosSelectionMenu(void); // P2
 
 		///// settings ///////////////////////////////////
