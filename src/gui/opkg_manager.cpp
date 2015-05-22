@@ -270,10 +270,13 @@ void COPKGManager::updateMenu()
 
 	upgrade_forwarder->setActive(upgradesAvailable);
 
-	if (expert_mode)
+	if (expert_mode){
 		menu->setFooter(COPKGManagerFooterButtonsExpert, COPKGManagerFooterButtonCountExpert);
-	else
+	}
+	else{
+		menu->setSelected(2); //back-item
 		menu->setFooter(COPKGManagerFooterButtons, COPKGManagerFooterButtonCount);
+	}
 }
 
 bool COPKGManager::hasUpdates()
