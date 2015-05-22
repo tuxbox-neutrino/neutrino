@@ -57,6 +57,7 @@
 /* later this can be changed to just "opkg" */
 #define OPKG_CL "opkg-cl"
 #define OPKG_TMP_DIR "/tmp/.opkg"
+#define OPKG_TEST_DIR OPKG_TMP_DIR "/test"
 #define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
 
 
@@ -76,6 +77,7 @@ enum
 	OM_INSTALL,
 	OM_STATUS,
 	OM_CONFIGURE,
+	OM_DOWNLOAD,
 	OM_MAX
 };
 
@@ -90,7 +92,8 @@ static const string pkg_types[OM_MAX] =
 	OPKG_CL " info ",
 	OPKG_CL OPKG_CL_CONFIG_OPTIONS " install ",
 	OPKG_CL " status ",
-	OPKG_CL " configure "
+	OPKG_CL " configure ",
+	OPKG_CL " download "
 };
 
 COPKGManager::COPKGManager(): opkg_conf('\t')
@@ -98,7 +101,7 @@ COPKGManager::COPKGManager(): opkg_conf('\t')
 	width = 80;
 
 	//define default dest keys
-	string dest_defaults[] = {"/", OPKG_TMP_DIR, "/mnt"};
+	string dest_defaults[] = {"/", OPKG_TEST_DIR, OPKG_TMP_DIR, "/mnt"};
 	for(size_t i=0; i<sizeof(dest_defaults)/sizeof(dest_defaults[0]) ;i++)
 		config_dest.push_back(dest_defaults[i]);
 
@@ -218,34 +221,62 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 
 bool COPKGManager::checkSize(const string& pkg_name)
 {
-	//get package size
-	string s_pkgsize = getPkgInfo(pkg_name, "Size", false);
-	std::istringstream s(s_pkgsize);
-	u_int64_t pkg_size;
-	s >> pkg_size;
+	string pkg_file = pkg_name;
+	string plain_pkg = getBaseName(pkg_file);
 
-	string status = getPkgInfo(pkg_name, "Status");
-	dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  Status of %s: %s\n", __func__, __LINE__, pkg_name.c_str(), status.c_str());
-
-	//get available size
+	//get available root fs size
 	//TODO: Check writability!
 	struct statfs root_fs;
-	statfs("/",&root_fs);
+	statfs("/", &root_fs);
 	u_int64_t free_size = root_fs.f_bfree*root_fs.f_bsize;
-	//only for sure, it's more secure for users to abort installation if is available size too small
+
 	/*
-	 * FIXME: Package size is not really the same like required/recommended size, because of unknown compression factor of package, possible options like cache, different tmp-dir size,
-	 * size of required dependencies eg. are still not considered.
-	 * Experience values are nearly to factor 2.1 to 2.5 related to package size. That's generously but not 100% sure!
+	 * To calculate the required size for installation here we make a quasi-dry run,
+	 * it is a bit awkward, but relatively specific, other solutions are welcome.
+	 * We create a temporary test directory and fill it with downloaded or user uploaded package file.
+	 * Then we unpack the package and change into temporary testing directory.
+	 * The required size results from the size of generated folders and subfolders.
+	 * TODO: size of dependencies are not really considered
 	*/
-	float pkg_raw_size = float(pkg_size);
-	u_int64_t req_size = u_int64_t(pkg_raw_size*2.5);
+	CFileHelpers fh;
+
+	//create test pkg dir
+	string 	tmp_dest = OPKG_TEST_DIR;
+		tmp_dest += "/package";
+	fh.createDir(tmp_dest);
+
+	//change into test dir
+	chdir(OPKG_TEST_DIR);
+
+	//copy package into test dir
+	string  tmp_dest_file = OPKG_TEST_DIR;
+		tmp_dest_file += "/" + plain_pkg;
+	if(!access( pkg_file.c_str(), F_OK)) //use local package
+		fh.copyFile(pkg_file.c_str(), tmp_dest_file.c_str(), 0644);
+	else
+		execCmd(pkg_types[OM_DOWNLOAD] + plain_pkg); //download package
+
+	//unpack package into test dir
+	string ar = "ar -x " + plain_pkg;
+	execCmd(ar);
+
+	//untar package into test directory
+	string 	untar_tar_cmd = "tar -xf ";
+		untar_tar_cmd += OPKG_TEST_DIR;
+		untar_tar_cmd += "/data.tar.gz -C " + tmp_dest;
+	execCmd(untar_tar_cmd);
+
+	//get new current required minimal size from dry run test dir
+	u_int64_t req_size = fh.getDirSize(tmp_dest);
+
+	//clean up
+	fh.removeDir(OPKG_TEST_DIR);
+
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d] Package: %s [required size=%lld (free size: %lld)]\n", __func__, __LINE__, pkg_name.c_str(), req_size, free_size);
 	if (free_size < req_size){
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%lld package size=%lld (recommended: %lld)\n", __func__, __LINE__, free_size, pkg_size, req_size);
-		//exit with false if package not installed, allready installed packages will be be removed before install, therefore it should be enough disk space available
-// 		if (status.empty())
-			return false;
+		//exit if required size too much
+		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%lld (recommended: %lld)\n", __func__, __LINE__, free_size, req_size);
+		return false;
 	}
 	return true;
 }
@@ -475,8 +506,11 @@ int COPKGManager::showMenu()
 		if (!access( "/tmp/.force_restart", F_OK))
 			exit_action = "restart";
 		//reboot stb: forced
-		if (!access( "/tmp/.reboot", F_OK))
-			exit_action = "reboot";
+		if (!access( "/tmp/.reboot", F_OK)){
+			//ShowHint("", "Reboot ...", 300, 3); //TODO
+			g_RCInput->postMsg( NeutrinoMessages::REBOOT, 0);
+			res = menu_return::RETURN_EXIT_ALL;
+		}
 	}
 
 	delete menu;
@@ -740,7 +774,7 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + opts + pkg_name);
 		}else{
 			if (force_configure)
-				execCmd(pkg_types[OM_CONFIGURE] + pkg_name, false, false);
+				execCmd(pkg_types[OM_CONFIGURE] + getBlankPkgName(pkg_name), false, false);
 			installed = true;
 		}
 	}
