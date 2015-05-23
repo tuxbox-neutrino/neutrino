@@ -156,8 +156,9 @@ void CShellWindow::exec()
 
 					//callback for line handler
 					std::string s_output = std::string((output));
-					OnShellOutputLoop(s_output, res, &ok);
+					OnShellOutputLoop(&s_output, res, &ok);
 					dprintf(DEBUG_NORMAL,  "[CShellWindow] [%s - %d]  res=%d ok=%d\n", __func__, __LINE__, *res, ok);
+
 					if (lines.size() > lines_max)
 						lines.pop_front();
 					txt = "";

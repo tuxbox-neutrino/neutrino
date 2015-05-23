@@ -64,22 +64,22 @@ class CShellWindow : public sigc::trackable
 			//Tis function should handle the shell output!
 
 			//declare a slot with return value as 'void' and parameter as 'string', here by rev!
-			sigc::slot1<void, string&> sl;
+			sigc::slot1<void, string&> sl_shell_output;
 
 			//fill the slot with your member function in your class that do evaluate the output lines
-			sl = sigc::mem_fun(*this, &CYourClass::YourMemberFunction);
+			sl_shell_output = sigc::mem_fun(*this, &CYourClass::YourMemberFunction);
 
 			//create the CShellWindow object in verbose mode, important: parameter 'auto_exec' must be set to 'false', so it is possible to connect the slot before engages the exec() methode
 			CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res, false);
 
 			//connect slot
-			shell.OnShellOutputLoop.connect(sl);
+			shell.OnShellOutputLoop.connect(sl_shell_output);
 
 			//now exec...
 			shell.exec();
 		...other code...
 		*/
-		sigc::signal<void, std::string&, int*, bool*> OnShellOutputLoop;
+		sigc::signal<void, std::string*, int*, bool*> OnShellOutputLoop;
 
 		/*!
 		signal/event handler runs after task is finished.
@@ -92,20 +92,22 @@ class CShellWindow : public sigc::trackable
 			instead the default message.
 
 			//declare a slot with return value as 'void' and wihout any parameter
-			sigc::slot<void, int*> sl;
+			sigc::slot<void, int*> sl_result_err;
 
 			//fill the slot with your member function in your class with your action
-			sl = sigc::mem_fun(*this, &CYourClass::YourMemberFunction);
+			sl_result_err = sigc::mem_fun(*this, &CYourClass::YourMemberFunction);
 
 			//create the CShellWindow object in verbose mode, important: parameter 'auto_exec' must be set to 'false', so it is possible to connect the slot before engages the exec() methode
 			CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res, false);
 
 			//connect slot
-			shell1.OnResultError.connect(sl);
+			shell1.OnResultError.connect(sl_result_err);
 
 			//now exec...
 			shell.exec();
 		...other code...
+		
+		Use of OnResultOk is similar with OnResultError.
 		*/
 		sigc::signal<void, int*> OnResultError;
 		sigc::signal<void, int*> OnResultOk;

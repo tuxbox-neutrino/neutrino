@@ -54,6 +54,7 @@
 #include <fcntl.h>
 #include <alloca.h>
 #include <errno.h>
+#include <sys/wait.h>
 /* later this can be changed to just "opkg" */
 #define OPKG_CL "opkg-cl"
 #define OPKG_TMP_DIR "/tmp/.opkg"
@@ -98,6 +99,7 @@ static const string pkg_types[OM_MAX] =
 
 COPKGManager::COPKGManager(): opkg_conf('\t')
 {
+	OM_ERRORS();
 	width = 80;
 
 	//define default dest keys
@@ -669,11 +671,21 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 	has_err = false;
 	tmp_str.clear();
 	err_msg = "";
+	bool ok = true;
 	if (verbose) {
-		sigc::slot1<void, string&> sl;
-		sl = sigc::mem_fun(*this, &COPKGManager::handleShellOutput);
-		CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res, false);
-		shell.OnShellOutputLoop.connect(sl);
+		//create CShellWindow object
+		CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_EVENT : 0), &res, false);
+
+		//init slot for shell output handler with 3 args, no return value, and connect with loop handler inside of CShellWindow object
+		sigc::slot3<void, string*, int*, bool*> sl_shell;
+		sl_shell = sigc::mem_fun(*this, &COPKGManager::handleShellOutput);
+		shell.OnShellOutputLoop.connect(sl_shell);
+#if 0
+		//demo for custom error message inside shell window loop
+		sigc::slot1<void, int*> sl1;
+		sl1 = sigc::mem_fun(*this, &COPKGManager::showErr);
+		shell.OnResultError.connect(sl1);
+#endif
 		shell.exec();
 	} else {
 		cmd += " 2>&1";
@@ -684,83 +696,97 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 			return -1;
 		}
 		char buf[256];
-		while (fgets(buf, sizeof(buf), f))
-		{
+		do {
 			string line(buf);
 			trim(line);
+			handleShellOutput(&line, &res, &ok);
 			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  %s [error %d]\n", __func__, __LINE__, line.c_str(), has_err);
-			handleShellOutput(line);
-		}
+		} while (fgets(buf, sizeof(buf), f) && ok);
+			
 		fclose(f);
 	}
-	if (has_err){
-		return -1;
-	}
-
 	return res;
 }
 
-void COPKGManager::handleShellOutput(string& cur_line)
+void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 {
-	size_t pos2 = cur_line.find("Collected errors:");
+	//hold current res value
+	int _res = *res;
+
+	//use current line
+	string line = *cur_line;
+	dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  come into shell handler with res: %d\n", __func__, __LINE__, _res);
+
+	//detect any collected error
+	size_t pos2 = line.find("Collected errors:");
 	if (pos2 != string::npos)
 		has_err = true;
 
-	//check for collected errors and build a message for screen if errors available
+	//check for collected errors and set res value
 	if (has_err){
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  result: %s\n", __func__, __LINE__, cur_line.c_str());
+		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  result: %s\n", __func__, __LINE__, line.c_str());
 
-		//trivial errors:
 		/*duplicate option cache: option is defined in OPKG_CL_CONFIG_OPTIONS,
 		 * NOTE: if found first cache option in the opkg.conf file, this will be preferred and it's not really an error!
 		*/
-		if (cur_line.find("Duplicate option cache") != string::npos){
-			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: Duplicate option cache, please check opkg config file!\n", __func__, __LINE__);
+		if (line.find("Duplicate option cache") != string::npos){
+			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: %s\n", __func__, __LINE__,  line.c_str());
+			*ok = true;
 			has_err = false;
+			*res = OM_SUCCESS;
+			return;
 		}
 		/*resolve_conffiles: already existent configfiles are not installed, but renamed in the same directory,
 		 * NOTE: It's not fine but not really bad. Files should be installed separate or user can change manually
 		*/
-		if (cur_line.find("Existing conffile") != string::npos){
-			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: Existing conffile(s) not changed!\n", __func__, __LINE__);
+		if (line.find("Existing conffile") != string::npos){
+			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: %s\n", __func__, __LINE__, line.c_str());
+			*ok = true;
 			has_err = false;
+			*res = OM_SUCCESS;
+			return;
 		}
-
-		//find obvious errors
 		//download error:
-		if (cur_line.find("opkg_download:") != string::npos){
-			err_msg += "Network error! Please check your network connection!\n";
-			has_err = true;
-		}
-		//install errors:
-		if (cur_line.find("opkg_install_pkg") != string::npos){
-			err_msg += "Update not possible!\n";
-			has_err = true;
-		}
-		if (cur_line.find("opkg_install_cmd") != string::npos){
-			err_msg += "Cannot install package!\n";
-			has_err = true;
-		}
-		if (cur_line.find("No space left on device") != string::npos){
-			err_msg += "Not enough space available!\n";
-			has_err = true;
-		}
-		if (has_err)
+		if (line.find("opkg_download:") != string::npos){
+			*res = OM_DOWNLOAD_ERR;
+			*ok = false;
 			return;
+		}
+		//not enough space
+		if (line.find("No space left on device") != string::npos){
+			*res = OM_OUT_OF_SPACE_ERR;
+			*ok = false;
+			return;
+		}
+		//deps
+		if (line.find("satisfy_dependencies") != string::npos){
+			*res = OM_UNSATISFIED_DEPS_ERR;
+			*ok = false;
+			return;
+		}
+		//unknown error
+		if (*ok){
+			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  ERROR: unhandled error %s\n", __func__, __LINE__, line.c_str());
+			*res = OM_UNKNOWN_ERR;
+			*ok = false;
+			return;
+		}
 
-		//add unknown errors:
-		size_t pos1 = cur_line.find(" * ");
-		if (pos1 != string::npos){
-			string str = cur_line.substr(pos1, cur_line.length()-pos1);
-			err_msg += str.replace(pos1, 3,"") + "\n";
-			has_err = true;
+		if (!has_err){
+			*ok = true;
+			*res = OM_SUCCESS;
 		}
-		if (has_err)
-			return;
 	}
-	if (!has_err)
-		tmp_str += cur_line + "\n";
+
+	*res = _res;
 }
+
+void COPKGManager::showErr(int* res)
+{
+	string err = to_string(*res);
+	string errtest = err_list[1].id;
+	DisplayErrorMessage(errtest.c_str());
+}	
 
 void COPKGManager::showError(const char* local_msg, char* err_message, const string& command)
 {
@@ -782,7 +808,22 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 
 		int r = execCmd(pkg_types[OM_INSTALL] + opts + pkg_name, true, true);
 		if (r){
-			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + opts + pkg_name);
+			switch(r){
+				case OM_OUT_OF_SPACE_ERR:
+					DisplayErrorMessage("Not enough space available");
+					break;
+				case OM_DOWNLOAD_ERR:
+					DisplayErrorMessage("Can't download package. Check network!");
+					break;
+				case OM_UNSATISFIED_DEPS_ERR:{
+					int msgRet = ShowMsg("Installation", "Unsatisfied deps while installation! Try to repeat to force dependencies!", CMessageBox::mbrCancel, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 600, -1);
+					if (msgRet == CMessageBox::mbrYes)
+						return installPackage(pkg_name, "--force-depends");
+					break;
+				}
+				default:
+					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + opts + pkg_name);
+			}
 		}else{
 			if (force_configure)
 				execCmd(pkg_types[OM_CONFIGURE] + getBlankPkgName(pkg_name), false, false);
