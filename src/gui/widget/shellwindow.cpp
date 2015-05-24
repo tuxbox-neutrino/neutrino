@@ -92,6 +92,7 @@ void CShellWindow::exec()
 	list<std::string> lines;
 	CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenX(), w_shell, h_shell);
 	textBox = new CTextBox(cmd.c_str(), font, CTextBox::BOTTOM, &textBoxPosition);
+	textBox->enableSaveScreen(false);
 	struct pollfd fds;
 	fds.fd = fileno(f);
 	fds.events = POLLIN | POLLHUP | POLLERR;
