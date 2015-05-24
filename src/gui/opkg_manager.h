@@ -115,7 +115,7 @@ class COPKGManager : public CMenuTarget
 		* These kewords are to find in the control package inside of the opkg package file and the package list.
 		* 3rd parameter sets the sub command status or info. For more details, take a look to the opkg commands via command line.
 		*/
-		std::string getPkgInfo(const std::string& pkg_name, const std::string& pkg_key, bool current_status = false);
+		std::string getPkgInfo(const std::string& pkg_name, const std::string& pkg_key = std::string(), bool current_status = false);
 
 		//Does the same like getPkgInfo(), but only for status
 		std::string getPkgStatus(const std::string& pkg_name, const std::string& pkg_key){return getPkgInfo(pkg_name, pkg_key, true);}
