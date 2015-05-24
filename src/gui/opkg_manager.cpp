@@ -151,11 +151,14 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		return res;
 	}
 	if (actionKey == "rc_info") {
-		if (selected < 0 || selected >= (int) pkg_vec.size())
+		if (selected < 0 || selected >= (int) pkg_vec.size()){
+			DisplayInfoMessage("No information available! Please first select a package!");
 			return menu_return::RETURN_NONE;
-		if (parent)
-			parent->hide();
-		execCmd(pkg_types[OM_INFO] + pkg_vec[selected]->name, true, true);
+		}
+		//show package info...
+		bool is_installed = pkg_vec[selected]->installed;
+		string infostr = getPkgInfo(pkg_vec[selected]->name, "", is_installed /*status or info*/);
+		DisplayInfoMessage(infostr.c_str());
 		return res;
 	}
 	if (actionKey == "rc_yellow") {
@@ -637,9 +640,11 @@ string COPKGManager::getBlankPkgName(const string& line)
 
 string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key, bool current_status)
 {
-	tmp_str.clear();
 	execCmd(pkg_types[current_status ? OM_STATUS : OM_INFO] + pkg_name, false, true);
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  [data: %s]\n", __func__, __LINE__, tmp_str.c_str());
+
+	if (pkg_key.empty())
+		return tmp_str;
 
 	return getKeyInfo(tmp_str, pkg_key, ":");
 }
@@ -715,7 +720,11 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 
 	//use current line
 	string line = *cur_line;
-	dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  come into shell handler with res: %d\n", __func__, __LINE__, _res);
+
+	//tmp_str contains all output lines and is available in the object scope of this
+	tmp_str += line + '\n';
+
+	//dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  come into shell handler with res: %d, line = %s\n", __func__, __LINE__, _res, line.c_str());
 
 	//detect any collected error
 	size_t pos2 = line.find("Collected errors:");
