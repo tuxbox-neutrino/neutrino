@@ -64,7 +64,7 @@ void CShellWindow::exec()
 	std::string cmd;
 	if (!(mode & VERBOSE)){
 		cmd = "PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin ; export PATH ; " + command + " 2>/dev/null >&2";
-		int r = system(cmd.c_str());
+		int r = my_system(cmd.c_str());
 		if (res) {
 			if (r == -1)
 				*res = r;
