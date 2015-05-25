@@ -96,7 +96,6 @@ class COPKGManager : public CMenuTarget
 			err_list = errlist;
 		};
 		void showErr(int* res);
-		std::string err_msg;
 
 		int execCmd(const char* cmdstr, bool verbose = false, bool acknowledge = false);
 		int execCmd(std::string cmdstr, bool verbose = false, bool acknowledge = false) {

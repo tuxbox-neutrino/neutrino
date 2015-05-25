@@ -427,7 +427,7 @@ int COPKGManager::doUpdate()
 {
 	int r = execCmd(pkg_types[OM_UPDATE]);
 	if (r == -1) {
-		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE)) + "\n" + err_msg;
+		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
 		DisplayErrorMessage(msg.c_str());
 		return r;
 	}
@@ -675,7 +675,6 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 	int res = 0;
 	has_err = false;
 	tmp_str.clear();
-	err_msg = "";
 	bool ok = true;
 	if (verbose) {
 		//create CShellWindow object
