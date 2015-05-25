@@ -676,39 +676,22 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 	has_err = false;
 	tmp_str.clear();
 	bool ok = true;
-	if (verbose) {
-		//create CShellWindow object
-		CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_EVENT : 0), &res, false);
 
-		//init slot for shell output handler with 3 args, no return value, and connect with loop handler inside of CShellWindow object
-		sigc::slot3<void, string*, int*, bool*> sl_shell;
-		sl_shell = sigc::mem_fun(*this, &COPKGManager::handleShellOutput);
-		shell.OnShellOutputLoop.connect(sl_shell);
+	//create CShellWindow object
+	CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_EVENT : 0), &res, false);
+
+	//init slot for shell output handler with 3 args, no return value, and connect with loop handler inside of CShellWindow object
+	sigc::slot3<void, string*, int*, bool*> sl_shell;
+	sl_shell = sigc::mem_fun(*this, &COPKGManager::handleShellOutput);
+	shell.OnShellOutputLoop.connect(sl_shell);
 #if 0
-		//demo for custom error message inside shell window loop
-		sigc::slot1<void, int*> sl1;
-		sl1 = sigc::mem_fun(*this, &COPKGManager::showErr);
-		shell.OnResultError.connect(sl1);
+	//demo for custom error message inside shell window loop
+	sigc::slot1<void, int*> sl1;
+	sl1 = sigc::mem_fun(*this, &COPKGManager::showErr);
+	shell.OnResultError.connect(sl1);
 #endif
 		shell.exec();
-	} else {
-		cmd += " 2>&1";
-		pid_t pid = 0;
-		FILE *f = my_popen(pid, cmd.c_str(), "r");
-		if (!f) {
-			showError("OPKG-Error!", strerror(errno), cmd);
-			return -1;
-		}
-		char buf[256];
-		do {
-			string line(buf);
-			trim(line);
-			handleShellOutput(&line, &res, &ok);
-			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  %s [error %d]\n", __func__, __LINE__, line.c_str(), has_err);
-		} while (fgets(buf, sizeof(buf), f) && ok);
-			
-		fclose(f);
-	}
+
 	return res;
 }
 
