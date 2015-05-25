@@ -126,7 +126,7 @@ class COPKGManager : public CMenuTarget
 		void updateMenu();
 		void refreshMenu();
 		bool badpackage(std::string &s);
-		void showError(const char* local_msg, char* err_msg, const std::string& command);
+		void showError(const char* local_msg, char* err_msg = NULL, const std::string& additional_text = std::string());
 		int doUpdate();
 		void handleShellOutput(std::string* cur_line, int* res, bool* ok);
 

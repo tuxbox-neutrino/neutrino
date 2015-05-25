@@ -797,12 +797,13 @@ void COPKGManager::showErr(int* res)
 	DisplayErrorMessage(errtest.c_str());
 }	
 
-void COPKGManager::showError(const char* local_msg, char* err_message, const string& command)
+void COPKGManager::showError(const char* local_msg, char* err_message, const string& additional_text)
 {
 	string msg = local_msg ? string(local_msg) + "\n" : "";
-	msg += err_msg + "\n";
-	msg += string(err_message) + ":\n";
-	msg += command;
+	if (err_message)
+		msg += string(err_message) + ":\n";
+	if (!additional_text.empty())
+		msg += additional_text;
 	DisplayErrorMessage(msg.c_str());
 }
 
