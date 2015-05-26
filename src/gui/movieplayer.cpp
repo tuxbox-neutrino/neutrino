@@ -642,7 +642,10 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan)
 {
 	printf("%s: starting...\n", __func__);
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	static CZapProtection *zp = NULL;
+	if (zp)
+		return true;
+
 	if (g_settings.parentallock_prompt != PARENTALLOCK_PROMPT_NEVER) {
 		int age = -1;
 		const char *ages[] = { "18+", "16+", "12+", "6+", "0+", NULL };
@@ -654,11 +657,16 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 				if ((h == n) || !isdigit(*(h - 1)))
 					age = agen[i];
 		}
-		if (age > -1 && age >= g_settings.parentallock_lockage) {
-			//CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, (neutrino_msg_data_t) age);
-			g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, age, false);
+		if (age > -1 && age >= g_settings.parentallock_lockage && g_settings.parentallock_prompt != PARENTALLOCK_PROMPT_NEVER) {
+			zp = new CZapProtection(g_settings.parentallock_pincode, age);
+			bool unlocked = zp->check();
+			delete zp;
+			zp = NULL;
+			if (!unlocked)
+				return false;
 		}
 	}
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	Cleanup();
 	ClearFlags();
