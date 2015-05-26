@@ -557,7 +557,7 @@ void writeEventsToFile(const char *epgdir)
 			onid = (*e)->original_network_id;
 			tsid = (*e)->transport_stream_id;
 			sid = (*e)->service_id;
-			snprintf(eventname, 17, "%04x%04x%04x.xml", onid, tsid, sid);
+			snprintf(eventname, 17, "%04x%04x%04x.xml", tsid, onid, sid);
 			filename  = (std::string)epgdir + "/" + (std::string)eventname;
 			if (!(eventfile = fopen(filename.c_str(), "w"))) {
 				goto _done;
