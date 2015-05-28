@@ -32,6 +32,7 @@
 #define __OPKG_MANAGER__
 
 #include <gui/widget/menue.h>
+#include <gui/widget/shellwindow.h>
 #include <driver/framebuffer.h>
 #include <configfile.h>
 #include <string>
@@ -97,9 +98,9 @@ class COPKGManager : public CMenuTarget
 		};
 		void showErr(int* res);
 
-		int execCmd(const char* cmdstr, bool verbose = false, bool acknowledge = false);
-		int execCmd(std::string cmdstr, bool verbose = false, bool acknowledge = false) {
-			return execCmd(cmdstr.c_str(), verbose, acknowledge);
+		int execCmd(const char* cmdstr, int verbose_mode = 0);
+		int execCmd(std::string cmdstr, int verbose_mode = 0) {
+			return execCmd(cmdstr.c_str(), verbose_mode);
 		};
 		void getPkgData(const int pkg_content_id);
 		std::string getBlankPkgName(const std::string& line);

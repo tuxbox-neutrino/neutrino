@@ -45,11 +45,14 @@ class CShellWindow : public sigc::trackable
 		void showResult();
 
 	public:
+		//shell window modes for handled shell output. //NOTE: mode 0 use only system calls, with unhandled return values and no handled shell output
 		enum shellwindow_modes
 		{
-			VERBOSE 		= 1,
-			ACKNOWLEDGE 		= 2,
-			ACKNOWLEDGE_EVENT	= 4
+			/*SYSTEM		= 0, */
+			QUIET			= 1, // no window
+			VERBOSE 		= 2, // show window
+			ACKNOWLEDGE 		= 4, // show result button inside window after execution, no message box NOTE: only in VERBOSE mode
+			ACKNOWLEDGE_EVENT	= 8  // same like ACKNOWLEDGE but shows a default error message box or a slot handled action instead default error message box
 		};
 		CShellWindow(const std::string &Command, const int Mode = 0, int* Res = NULL, bool auto_exec = true);
 		~CShellWindow();

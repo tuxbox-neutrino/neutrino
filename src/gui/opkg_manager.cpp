@@ -41,7 +41,7 @@
 
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-#include <gui/widget/shellwindow.h>
+
 #include <gui/widget/progresswindow.h>
 #include <gui/widget/keyboard_input.h>
 #include <driver/screen_max.h>
@@ -145,7 +145,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		if (ShowMsg(LOCALE_OPKG_TITLE, loc, CMessageBox::mbrCancel, CMessageBox::mbYes | CMessageBox::mbCancel) != CMessageBox::mbrCancel) {
 			if (parent)
 				parent->hide();
-			execCmd(pkg_types[OM_REMOVE] + pkg_vec[selected]->name, true, true);
+			execCmd(pkg_types[OM_REMOVE] + pkg_vec[selected]->name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
 			refreshMenu();
 		}
 		return res;
@@ -192,7 +192,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 	if(actionKey == pkg_types[OM_UPGRADE]) {
 		if (parent)
 			parent->hide();
-		int r = execCmd(actionKey, true, true);
+		int r = execCmd(actionKey, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
 		if (r) {
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), strerror(errno), actionKey);
 		} else
@@ -425,9 +425,10 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 
 int COPKGManager::doUpdate()
 {
-	int r = execCmd(pkg_types[OM_UPDATE]);
-	if (r == -1) {
+	int r = execCmd(pkg_types[OM_UPDATE], CShellWindow::QUIET);
+	if (r) {
 		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
+		msg += '\n' + tmp_str;
 		DisplayErrorMessage(msg.c_str());
 		return r;
 	}
@@ -640,7 +641,7 @@ string COPKGManager::getBlankPkgName(const string& line)
 
 string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key, bool current_status)
 {
-	execCmd(pkg_types[current_status ? OM_STATUS : OM_INFO] + pkg_name, false, true);
+	execCmd(pkg_types[current_status ? OM_STATUS : OM_INFO] + pkg_name, CShellWindow::QUIET);
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  [data: %s]\n", __func__, __LINE__, tmp_str.c_str());
 
 	if (pkg_key.empty())
@@ -668,7 +669,7 @@ string COPKGManager::getKeyInfo(const string& input, const std::string& key, con
 	return "";
 }
 
-int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
+int COPKGManager::execCmd(const char *cmdstr, int verbose_mode)
 {
 	fprintf(stderr, "execCmd(%s)\n", cmdstr);
 	string cmd = string(cmdstr);
@@ -678,7 +679,7 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 	bool ok = true;
 
 	//create CShellWindow object
-	CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_EVENT : 0), &res, false);
+	CShellWindow shell(cmd, verbose_mode, &res, false);
 
 	//init slot for shell output handler with 3 args, no return value, and connect with loop handler inside of CShellWindow object
 	sigc::slot3<void, string*, int*, bool*> sl_shell;
@@ -798,7 +799,7 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 	else{
 		string opts = " " + options + " ";
 
-		int r = execCmd(pkg_types[OM_INSTALL] + opts + pkg_name, true, true);
+		int r = execCmd(pkg_types[OM_INSTALL] + opts + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
 		if (r){
 			switch(r){
 				case OM_OUT_OF_SPACE_ERR:
@@ -818,8 +819,8 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 			}
 		}else{
 			if (force_configure)
-				execCmd(pkg_types[OM_CONFIGURE] + getBlankPkgName(pkg_name), false, false);
-			installed = true;
+				execCmd(pkg_types[OM_CONFIGURE] + getBlankPkgName(pkg_name), 0);
+			installed = true; //TODO: catch real result
 		}
 	}
 
