@@ -2358,6 +2358,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 					CRecordManager::getInstance()->exec(NULL, "Record");
 			}
+			else if ((mode == mode_webtv) && msg == (neutrino_msg_t) g_settings.mpkey_subtitle) {
+				CMoviePlayerGui::getInstance().selectSubtitle();
+			}
 			/* after sensitive key bind, check user menu */
 			else if (usermenu.showUserMenu(msg)) {
 			}
@@ -2686,6 +2689,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				delete [] (unsigned char*) data;
 		}
 		return messages_return::handled;
+	}
+	if (mode == mode_webtv && msg == NeutrinoMessages::EVT_SUBT_MESSAGE) {
+		CMoviePlayerGui::getInstance().showSubtitle(data);
 	}
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
 		CZapit::getInstance()->GetAudioMode(g_settings.audio_AnalogMode);
@@ -4270,6 +4276,8 @@ void CNeutrinoApp::StopSubtitles()
 		tuxtx_pause_subtitle(true);
 		frameBuffer->paintBackground();
 	}
+	if (mode == mode_webtv)
+		CMoviePlayerGui::getInstance().clearSubtitle(true);
 }
 
 void CNeutrinoApp::StartSubtitles(bool show)
@@ -4279,6 +4287,8 @@ void CNeutrinoApp::StartSubtitles(bool show)
 		return;
 	dvbsub_start(0);
 	tuxtx_pause_subtitle(false);
+	if (mode == mode_webtv)
+		CMoviePlayerGui::getInstance().clearSubtitle(false);
 }
 
 void CNeutrinoApp::SelectSubtitles()
