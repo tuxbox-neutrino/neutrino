@@ -125,7 +125,6 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 					g_Sectionsd->setServiceStopped();
 				CMoviePlayerGui::getInstance().stopPlayBack();
 				g_Zapit->zapTo_serviceID_NOWAIT(current_channel_id );
-				//g_Sectionsd->setServiceChanged(current_channel_id, false);
 
 				zap_completion_timeout = time_monotonic_ms() + ZAP_GUARD_TIME;
 
@@ -173,7 +172,6 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				director_mode = 0;
 				needs_nvods = (msg == NeutrinoMessages:: EVT_ZAP_ISNVOD);
 
-				//g_Sectionsd->setServiceChanged( current_channel_id, true );
 				CNeutrinoApp::getInstance()->adjustToChannelID(current_channel_id);
 				if ( g_InfoViewer->is_visible )
 					g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR , 0 );
@@ -328,11 +326,11 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			{
 				getNVODs();
 				if (subChannels.empty())
-					g_Sectionsd->setServiceChanged( current_channel_id, true );
+					g_Sectionsd->setServiceChanged( current_channel_id, false);
 			}
 			else
 				// EVENT anfordern!
-				g_Sectionsd->setServiceChanged( current_channel_id, true );
+				g_Sectionsd->setServiceChanged( current_channel_id, false);
 
 		}
 	    return messages_return::handled;
@@ -351,13 +349,9 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 #endif
 	else if (msg == NeutrinoMessages::EVT_TUNE_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *)data;
-printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016" PRIx64 ")\n", chid);
+		printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016" PRIx64 ")\n", chid);
 		if(chid && !IS_WEBTV(chid))
-			g_Sectionsd->setServiceChanged( chid, true );
-#if 0
-		else
-			g_Sectionsd->setServiceChanged( current_channel_id, true );
-#endif
+			g_Sectionsd->setServiceChanged(chid, false);
  		return messages_return::handled;
 	}
 	//else if (msg == NeutrinoMessages::EVT_ZAP_FAILED || msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED)
@@ -628,8 +622,6 @@ const std::string & CRemoteControl::setSubChannel(const int numSub, const bool f
 
 	CMoviePlayerGui::getInstance().stopPlayBack();
 	g_Zapit->zapTo_subServiceID_NOWAIT( current_sub_channel_id );
-	// Houdini: to restart reading the private EPG when switching to a new option
-	//g_Sectionsd->setServiceChanged( current_sub_channel_id , true );
 
 	return subChannels[numSub].subservice_name;
 }
@@ -713,7 +705,6 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 
 		zap_completion_timeout = now + ZAP_GUARD_TIME;
-		//g_Sectionsd->setServiceChanged( channel_id, false );
 		//g_RCInput->killTimer( current_programm_timer );
 	}
 	current_channel_id = channel_id;
