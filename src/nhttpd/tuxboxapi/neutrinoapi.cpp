@@ -189,8 +189,7 @@ void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 	}
 
 	CMoviePlayerGui::getInstance().stopPlayBack();
-	if (Zapit->zapTo_serviceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
-		Sectionsd->setServiceChanged(channel_id, false);
+	Zapit->zapTo_serviceID(channel_id);
 }
 //-------------------------------------------------------------------------
 
@@ -203,8 +202,7 @@ void CNeutrinoAPI::ZapToSubService(const char * const target)
 		&channel_id);
 
 	CMoviePlayerGui::getInstance().stopPlayBack();
-	if (Zapit->zapTo_subServiceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
-		Sectionsd->setServiceChanged(channel_id, false);
+	Zapit->zapTo_subServiceID(channel_id);
 }
 //-------------------------------------------------------------------------
 t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_name)
