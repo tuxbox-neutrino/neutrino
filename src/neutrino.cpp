@@ -1745,7 +1745,7 @@ void CNeutrinoApp::InitZapper()
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(channelList->getSize() && live_channel_id  && !IS_WEBTV(live_channel_id))
-		g_Sectionsd->setServiceChanged(live_channel_id, true );
+		g_Sectionsd->setServiceChanged(live_channel_id, false);
 }
 
 void CNeutrinoApp::setupRecordingDevice(void)
@@ -3711,7 +3711,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		channelList->zapTo_ChannelID(live_channel_id, true); /* force re-zap */
 
 		g_Sectionsd->setPauseScanning(false);
-		//g_Sectionsd->setServiceChanged(live_channel_id, true );
 
 		InfoClock->enableInfoClock(true);
 
