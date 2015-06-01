@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <dirent.h>
 #include <string>
 #include <system/helpers.h>
 
@@ -441,6 +442,31 @@ bool readEventsFromFile(std::string &epgname, int &ev_count)
 	return true;
 }
 
+static int my_filter(const struct dirent *entry)
+{
+	int len = strlen(entry->d_name);
+	if (len > 3 && entry->d_name[len-3] == 'x' && entry->d_name[len-2] == 'm' && entry->d_name[len-1] == 'l')
+		return 1;
+	return 0;
+}
+
+bool readEventsFromDir(std::string &epgdir, int &ev_count)
+{
+	struct dirent **namelist;
+	int n = scandir(epgdir.c_str(), &namelist, my_filter, NULL);
+	printf("[sectionsd] Reading Information from directory %s, file count %d\n", epgdir.c_str(), n);
+	if (n <= 0)
+		return false;
+
+	for (int i = 0; i < n; i++) {
+		std::string epgname = epgdir + namelist[i]->d_name;
+		readEventsFromFile(epgname, ev_count);
+		free(namelist[i]);
+	}
+	free(namelist);
+	return true;
+}
+
 void *insertEventsfromFile(void * data)
 {
 	set_threadname(__func__);
@@ -450,16 +476,23 @@ void *insertEventsfromFile(void * data)
 	std::string epgname;
 	xmlNodePtr eventfile;
 	int ev_count = 0;
-	char * epg_dir = (char *) data;
-	indexname = std::string(epg_dir) + "index.xml";
-
-	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
-
-	if (index_parser == NULL) {
+	if (!data) {
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
+	std::string epg_dir = (char *) data;
+	indexname = epg_dir + "index.xml";
+
 	time_t now = time_monotonic_ms();
+	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
+
+	if (index_parser == NULL) {
+		readEventsFromDir(epg_dir, ev_count);
+		printf("[sectionsd] Reading Information finished after %ld milliseconds (%d events)\n",
+				time_monotonic_ms()-now, ev_count);
+		reader_ready = true;
+		pthread_exit(NULL);
+	}
 	printdate_ms(stdout);
 	printf("[sectionsd] Reading Information from file %s:\n", indexname.c_str());
 
