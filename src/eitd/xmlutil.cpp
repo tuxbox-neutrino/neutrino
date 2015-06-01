@@ -285,20 +285,170 @@ void deleteOldfileEvents(const char *epgdir)
 	}
 }
 
-void *insertEventsfromFile(void * data)
+bool readEventsFromFile(std::string &epgname, int &ev_count)
 {
-	set_threadname(__func__);
-	reader_ready=false;
 	xmlDocPtr event_parser = NULL;
-	xmlNodePtr eventfile;
 	xmlNodePtr service;
 	xmlNodePtr event;
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
+
+	if (!(event_parser = parseXmlFile(epgname.c_str()))) {
+		dprintf("unable to open %s for reading\n", epgname.c_str());
+		return false;
+	}
+	service = xmlDocGetRootElement(event_parser);
+	service = xmlChildrenNode(service);
+
+	while (service) {
+		onid = xmlGetNumericAttribute(service, "original_network_id", 16);
+		tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
+		sid = xmlGetNumericAttribute(service, "service_id", 16);
+
+		event = xmlChildrenNode(service);
+
+		while (event) {
+			SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
+			uint8_t tid = xmlGetNumericAttribute(event, "tid", 16);
+			std::string contentClassification, userClassification;
+			if(tid)
+				e.table_id = tid;
+			e.table_id |= 0x80; /* make sure on-air data has a lower table_id */
+
+			xmlNodePtr node;
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "name"))) {
+				const char *s = xmlGetAttribute(node, "string");
+				if (s)
+					e.setName(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "text"))) {
+				const char *s = xmlGetAttribute(node, "string");
+				if (s)
+					e.setText(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
+				node = xmlNextNode(node);
+			}
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "item"))) {
+#ifdef USE_ITEM_DESCRIPTION
+				const char *s = xmlGetAttribute(node, "string");
+				if (s)
+					e.item = s;
+#endif
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "item_description"))) {
+#ifdef USE_ITEM_DESCRIPTION
+				const char *s = xmlGetAttribute(node, "string");
+				if (s)
+					e.itemDescription = s;
+#endif
+				node = xmlNextNode(node);
+			}
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "extended_text"))) {
+				const char *l = xmlGetAttribute(node, "lang");
+				const char *s = xmlGetAttribute(node, "string");
+				if (l && s)
+					e.appendExtendedText(ZapitTools::UTF8_to_Latin1(l), s);
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "time"))) {
+				e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
+							xmlGetNumericAttribute(node, "duration", 10)));
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "content"))) {
+				const char cl = xmlGetNumericAttribute(node, "class", 16);
+				contentClassification += cl;
+				const char cl2 = xmlGetNumericAttribute(node, "user", 16);
+				userClassification += cl2;
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "component"))) {
+				SIcomponent c;
+				c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
+				c.componentType = xmlGetNumericAttribute(node, "type", 16);
+				c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
+				const char *s = xmlGetAttribute(node, "text");
+				if (s)
+					c.setComponent(s);
+				//e.components.insert(c);
+				e.components.push_back(c);
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "parental_rating"))) {
+				const char *s = xmlGetAttribute(node, "country");
+				if (s)
+#if 0
+					e.ratings.insert(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
+								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
+#endif
+				e.ratings.push_back(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
+							(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "linkage"))) {
+				SIlinkage l;
+				l.linkageType = xmlGetNumericAttribute(node, "type", 16);
+				l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
+				l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
+				l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
+				const char *s = xmlGetAttribute(node, "linkage_descriptor");
+				if (s)
+					l.name = s;
+				e.linkage_descs.insert(e.linkage_descs.end(), l);
+				node = xmlNextNode(node);
+			}
+
+			if (!contentClassification.empty()) {
+#ifdef FULL_CONTENT_CLASSIFICATION
+				ssize_t off = e.classifications.reserve(2 * contentClassification.size());
+				if (off > -1)
+					for (unsigned i = 0; i < contentClassification.size(); i++)
+						off = e.classifications.set(off, contentClassification.at(i), userClassification.at(i));
+#else
+				e.classifications.content = contentClassification.at(0);
+				e.classifications.user = userClassification.at(0);
+#endif
+			}
+			addEvent(e, 0);
+			ev_count++;
+
+			event = xmlNextNode(event);
+		}
+
+		service = xmlNextNode(service);
+	}
+	xmlFreeDoc(event_parser);
+	return true;
+}
+
+void *insertEventsfromFile(void * data)
+{
+	set_threadname(__func__);
+	reader_ready=false;
 	std::string indexname;
 	std::string filename;
 	std::string epgname;
+	xmlNodePtr eventfile;
 	int ev_count = 0;
 	char * epg_dir = (char *) data;
 	indexname = std::string(epg_dir) + "index.xml";
@@ -322,151 +472,7 @@ void *insertEventsfromFile(void * data)
 			filename=name;
 
 		epgname = epg_dir + filename;
-		if (!(event_parser = parseXmlFile(epgname.c_str()))) {
-			dprintf("unable to open %s for reading\n", epgname.c_str());
-			eventfile = xmlNextNode(eventfile);
-			continue;
-		}
-		service = xmlDocGetRootElement(event_parser);
-		service = xmlChildrenNode(service);
-
-		while (service) {
-			onid = xmlGetNumericAttribute(service, "original_network_id", 16);
-			tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
-			sid = xmlGetNumericAttribute(service, "service_id", 16);
-
-			event = xmlChildrenNode(service);
-
-			while (event) {
-				SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
-				uint8_t tid = xmlGetNumericAttribute(event, "tid", 16);
-				std::string contentClassification, userClassification;
-				if(tid)
-					e.table_id = tid;
-				e.table_id |= 0x80; /* make sure on-air data has a lower table_id */
-
-				xmlNodePtr node;
-
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "name"))) {
-					const char *s = xmlGetAttribute(node, "string");
-					if (s)
-						e.setName(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
-					node = xmlNextNode(node);
-				}
-
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "text"))) {
-					const char *s = xmlGetAttribute(node, "string");
-					if (s)
-						e.setText(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
-					node = xmlNextNode(node);
-				}
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "item"))) {
-#ifdef USE_ITEM_DESCRIPTION
-					const char *s = xmlGetAttribute(node, "string");
-					if (s)
-						e.item = s;
-#endif
-					node = xmlNextNode(node);
-				}
-
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "item_description"))) {
-#ifdef USE_ITEM_DESCRIPTION
-					const char *s = xmlGetAttribute(node, "string");
-					if (s)
-						e.itemDescription = s;
-#endif
-					node = xmlNextNode(node);
-				}
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "extended_text"))) {
-					const char *l = xmlGetAttribute(node, "lang");
-					const char *s = xmlGetAttribute(node, "string");
-					if (l && s)
-						e.appendExtendedText(ZapitTools::UTF8_to_Latin1(l), s);
-					node = xmlNextNode(node);
-				}
-
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "time"))) {
-					e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
-								xmlGetNumericAttribute(node, "duration", 10)));
-					node = xmlNextNode(node);
-				}
-
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "content"))) {
-					const char cl = xmlGetNumericAttribute(node, "class", 16);
-					contentClassification += cl;
-					const char cl2 = xmlGetNumericAttribute(node, "user", 16);
-					userClassification += cl2;
-					node = xmlNextNode(node);
-				}
-
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "component"))) {
-					SIcomponent c;
-					c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
-					c.componentType = xmlGetNumericAttribute(node, "type", 16);
-					c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
-					const char *s = xmlGetAttribute(node, "text");
-					if (s)
-						c.setComponent(s);
-					//e.components.insert(c);
-					e.components.push_back(c);
-					node = xmlNextNode(node);
-				}
-
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "parental_rating"))) {
-					const char *s = xmlGetAttribute(node, "country");
-					if (s)
-#if 0
-						e.ratings.insert(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
-								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
-#endif
-						e.ratings.push_back(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
-								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
-					node = xmlNextNode(node);
-				}
-
-				node = xmlChildrenNode(event);
-				while ((node = xmlGetNextOccurence(node, "linkage"))) {
-					SIlinkage l;
-					l.linkageType = xmlGetNumericAttribute(node, "type", 16);
-					l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
-					l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
-					l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
-					const char *s = xmlGetAttribute(node, "linkage_descriptor");
-					if (s)
-						l.name = s;
-					e.linkage_descs.insert(e.linkage_descs.end(), l);
-					node = xmlNextNode(node);
-				}
-
-				if (!contentClassification.empty()) {
-#ifdef FULL_CONTENT_CLASSIFICATION
-					ssize_t off = e.classifications.reserve(2 * contentClassification.size());
-					if (off > -1)
-						for (unsigned i = 0; i < contentClassification.size(); i++)
-							off = e.classifications.set(off, contentClassification.at(i), userClassification.at(i));
-#else
-					e.classifications.content = contentClassification.at(0);
-					e.classifications.user = userClassification.at(0);
-#endif
-				}
-				addEvent(e, 0);
-				ev_count++;
-
-				event = xmlNextNode(event);
-			}
-
-			service = xmlNextNode(service);
-		}
-		xmlFreeDoc(event_parser);
+		readEventsFromFile(epgname, ev_count);
 
 		eventfile = xmlNextNode(eventfile);
 	}
