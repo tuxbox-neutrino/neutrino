@@ -7,6 +7,7 @@ SUBDIRS = \
 	libmd5sum \
 	libnet \
 	xmltree \
+	jsoncpp \
 	libtuxtxt \
 	libiw \
 	libdvbsub \
