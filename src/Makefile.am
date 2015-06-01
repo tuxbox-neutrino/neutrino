@@ -104,6 +104,7 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/connection/libtuxbox-connection.a \
 	$(top_builddir)/lib/libeventserver/libtuxbox-eventserver.a \
 	$(top_builddir)/lib/xmltree/libtuxbox-xmltree.a \
+	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
 	$(top_builddir)/lib/libnet/libtuxbox-net.a \
 	$(top_builddir)/lib/libmd5sum/libtuxbox-md5sum.a \
 	$(top_builddir)/lib/libtuxtxt/libtuxtxt.a \

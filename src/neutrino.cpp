@@ -795,6 +795,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//Movie-Player
 	g_settings.movieplayer_repeat_on = configfile.getInt32("movieplayer_repeat_on", CMoviePlayerGui::REPEAT_OFF);
+	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
 	//Filebrowser
 	g_settings.filebrowser_showrights =  configfile.getInt32("filebrowser_showrights", 1);
@@ -1255,6 +1256,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//Movie-Player
 	configfile.setInt32( "movieplayer_repeat_on", g_settings.movieplayer_repeat_on );
+	configfile.setString( "youtube_dev_id", g_settings.youtube_dev_id );
 
 	//Filebrowser
 	configfile.setInt32("filebrowser_showrights", g_settings.filebrowser_showrights);
