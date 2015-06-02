@@ -1189,10 +1189,7 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 void CMoviePlayerGui::callInfoViewer()
 {
 	if (timeshift != TSHIFT_MODE_OFF) {
-		g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(),
-				CNeutrinoApp::getInstance()->channelList->getActiveChannelName(),
-				CNeutrinoApp::getInstance()->channelList->getActiveSatellitePosition(),
-				CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
+		g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannel());
 		return;
 	}
 

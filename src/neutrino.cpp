@@ -2140,16 +2140,7 @@ void CNeutrinoApp::numericZap(int msg)
 void CNeutrinoApp::showInfo()
 {
 	StopSubtitles();
-
-	char *pname = NULL;
-	if(g_settings.infobar_show_channeldesc){
-		CZapitChannel* channel = channelList->getActiveChannel();
-		if(channel->pname){
-			pname = channel->pname;
-		}
-	}
-
-	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID(), false, 0, pname);
+	g_InfoViewer->showTitle(channelList->getActiveChannel());
 	StartSubtitles();
 }
 
