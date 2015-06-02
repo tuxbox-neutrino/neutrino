@@ -569,6 +569,7 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.ytconcconn = 4;
 	m_settings.ytsearch_history_max = 0;
 	m_settings.ytsearch_history_size = 0;
+	m_settings.ytthumbnaildir = "/tmp/ytparser";
 }
 
 void CMovieBrowser::initFrames(void)
