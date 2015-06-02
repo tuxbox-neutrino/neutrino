@@ -180,7 +180,7 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		time_t atime = time(NULL);
 		unsigned int count;
 		for (count = from; count < to; count++) {
-			CEitManager::getInstance()->getEventsServiceKey((*chanlist)[count]->getChannelID(), events);
+			CEitManager::getInstance()->getEventsServiceKey((*chanlist)[count]->getEpgID(), events);
 			(*chanlist)[count]->nextEvent.startTime = (long)0x7fffffff;
 			for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
 				if ((long)e->startTime > atime &&
@@ -199,13 +199,13 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 			return;
 		}
 		for (uint32_t count = 0; count < chanlist_size; count++)
-			p_requested_channels[count] = (*chanlist)[count + from]->getChannelID();
+			p_requested_channels[count] = (*chanlist)[count + from]->getEpgID();
 
 		CEitManager::getInstance()->getChannelEvents(events, p_requested_channels, chanlist_size);
 		for (uint32_t count=0; count < chanlist_size; count++) {
 			(*chanlist)[count + from]->currentEvent = CChannelEvent();
 			for (CChannelEventList::iterator e = events.begin(); e != events.end(); ++e) {
-				if (((*chanlist)[count + from]->getChannelID()&0xFFFFFFFFFFFFULL) == e->get_channel_id()) {
+				if (((*chanlist)[count + from]->getEpgID()&0xFFFFFFFFFFFFULL) == e->get_channel_id()) {
 					(*chanlist)[count + from]->currentEvent = *e;
 					break;
 				}
@@ -911,7 +911,7 @@ int CChannelList::show()
 				p_event = &((*chanlist)[selected]->nextEvent);
 
 			if(p_event && p_event->eventID)
-				g_EpgData->show((*chanlist)[selected]->getChannelID(),p_event->eventID,&(p_event->startTime));
+				g_EpgData->show((*chanlist)[selected]->getChannelID(), p_event->eventID, &(p_event->startTime));
 			else
 				g_EpgData->show((*chanlist)[selected]->getChannelID());
 
@@ -1534,7 +1534,7 @@ void CChannelList::paintDetails(int index)
 	else
 		p_event = &(*chanlist)[index]->currentEvent;
 
-	if (!IS_WEBTV((*chanlist)[index]->getChannelID()) && !p_event->description.empty()) {
+	if (/* !IS_WEBTV((*chanlist)[index]->getChannelID()) && */ !p_event->description.empty()) {
 		char cNoch[50] = {0}; // UTF-8
 		char cSeit[50] = {0}; // UTF-8
 
@@ -1598,8 +1598,10 @@ void CChannelList::paintDetails(int index)
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- noch_len, y+ height+ 5+ fdescrheight+ fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 	}
-	if (IS_WEBTV((*chanlist)[index]->getChannelID())) {
+	else if (IS_WEBTV((*chanlist)[index]->getChannelID())) {
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight,                  full_width - 30, (*chanlist)[index]->getDesc(), colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true);
+	}
+	if (IS_WEBTV((*chanlist)[index]->getChannelID())) {
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight + fdescrheight, full_width - 30, (*chanlist)[index]->getUrl(), COL_MENUCONTENTDARK_TEXT, 0, true);
 	} else if(g_settings.channellist_foot == 0) {
 		transponder t;
@@ -2242,7 +2244,7 @@ void CChannelList::paintPig (int _x, int _y, int w, int h)
 void CChannelList::paint_events(int index)
 {
 	ffheight = g_Font[eventFont]->getHeight();
-	readEvents((*chanlist)[index]->getChannelID());
+	readEvents((*chanlist)[index]->getEpgID());
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
 	char startTime[10];
