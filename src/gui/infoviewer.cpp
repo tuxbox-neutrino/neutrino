@@ -157,7 +157,8 @@ void CInfoViewer::Init()
 	casysChange = g_settings.casystem_display;
 	channellogoChange = g_settings.infobar_show_channellogo;
 
-	channel_id = CZapit::getInstance()->GetCurrentChannelID();;
+	current_channel_id = CZapit::getInstance()->GetCurrentChannelID();;
+	current_epg_id = 0;
 	lcdUpdateTimer = 0;
 	rt_x = rt_y = rt_h = rt_w = 0;
 
@@ -433,7 +434,7 @@ void CInfoViewer::paintHead()
 
 void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 {
-	CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, info_CurrentNext);
+	CEitManager::getInstance()->getCurrentNextServiceKey(current_epg_id, info_CurrentNext);
 	if (!evtlist.empty()) {
 		if (new_chan) {
 			for ( eli=evtlist.begin(); eli!=evtlist.end(); ++eli ) {
@@ -529,8 +530,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	infoViewerBB->is_visible = true;
 
 	ChannelName = Channel;
-	t_channel_id old_channel_id = channel_id;
-	channel_id = Channel_Id;
+	t_channel_id old_channel_id = current_channel_id;
+	current_channel_id = Channel_Id;
 
 	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
@@ -547,7 +548,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	int ChannelLogoMode = 0;
 	if (g_settings.infobar_show_channellogo > 1)
-		ChannelLogoMode = showChannelLogo(channel_id, 0);
+		ChannelLogoMode = showChannelLogo(current_channel_id, 0);
 	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + time_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 ,ChannelName, COL_INFOBAR_TEXT);
 
@@ -620,7 +621,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	loop(show_dot);
 	aspectRatio = 0;
 	fileplay = 0;
-	channel_id = old_channel_id;
+	current_channel_id = old_channel_id;
 }
 
 void CInfoViewer::reset_allScala()
@@ -642,27 +643,22 @@ void CInfoViewer::check_channellogo_ca_SettingsChange()
 	}
 }
 
-void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap, int epgpos)
-{
-	if(channel) {
-
-		showTitle(channel->number, channel->getName(), channel->getSatellitePosition(),
-				channel->getChannelID(), calledFromNumZap, epgpos, channel->pname);
-	}
-}
-
 void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int epgpos)
 {
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(chid);
 
-	if(channel) {
-		showTitle(channel->number, channel->getName(), channel->getSatellitePosition(),
-				channel->getChannelID(), calledFromNumZap, epgpos, channel->pname);
-	}
+	if(channel)
+		showTitle(channel, calledFromNumZap, epgpos);
 }
 
-void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id, const bool calledFromNumZap, int epgpos, char *pname)
+void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap, int epgpos)
 {
+	std::string Channel = channel->getName();
+	t_satellite_position satellitePosition = channel->getSatellitePosition();
+	t_channel_id new_channel_id = channel->getChannelID();
+	int ChanNum = channel->number;
+	current_epg_id = channel->getEpgID();
+
 	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
 	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
 	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
@@ -698,8 +694,8 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		if (g_RemoteControl->current_channel_id != new_channel_id) {
 			col_NumBoxText = COL_MENUHEAD_TEXT;
 		}
-		if ((channel_id != new_channel_id) || (evtlist.empty())) {
-			CEitManager::getInstance()->getEventsServiceKey(new_channel_id, evtlist);
+		if ((current_channel_id != new_channel_id) || (evtlist.empty())) {
+			CEitManager::getInstance()->getEventsServiceKey(current_epg_id, evtlist);
 			if (!evtlist.empty())
 				sort(evtlist.begin(),evtlist.end(), sortByDateTime);
 			new_chan = true;
@@ -707,10 +703,10 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	}
 	if (! calledFromNumZap && !(g_RemoteControl->subChannels.empty()) && (g_RemoteControl->selected_subchannel > 0))
 	{
-		channel_id = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].getChannelID();
+		current_channel_id = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].getChannelID();
 		ChannelName = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].subservice_name;
 	} else {
-		channel_id = new_channel_id;
+		current_channel_id = new_channel_id;
 	}
 
 	/* showChannelLogo() changes this, so better reset it every time... */
@@ -737,13 +733,13 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		char strChanNum[10];
 		snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
 		const int channel_number_width =(g_settings.infobar_show_channellogo == 6) ? 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum) : 0;
-		ChannelLogoMode = showChannelLogo(channel_id,channel_number_width); // get logo mode, paint channel logo if adjusted
+		ChannelLogoMode = showChannelLogo(current_channel_id,channel_number_width); // get logo mode, paint channel logo if adjusted
 		logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
 		fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
 		int ChanNumYPos = BoxStartY + ChanHeight;
 		if (g_settings.infobar_sat_display) {
-			std::string name = (IS_WEBTV(channel_id))? "WebTV" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
+			std::string name = (IS_WEBTV(current_channel_id))? "WebTV" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 			int satNameWidth = g_SignalFont->getRenderWidth (name);
 			std::string satname_tmp = name;
 			if (satNameWidth > (ChanWidth - 4)) {
@@ -798,8 +794,8 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 				BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 - ChanNumWidth,
 				ChannelName, color /*COL_INFOBAR_TEXT*/);
 			//provider name
-			if(g_settings.infobar_show_channeldesc && pname){
-				std::string prov_name = pname;
+			if(g_settings.infobar_show_channeldesc && channel->pname){
+				std::string prov_name = channel->pname;
 				prov_name=prov_name.substr(prov_name.find_first_of("]")+1);
 
 				int chname_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (ChannelName);
@@ -821,8 +817,8 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 
 	if (fileplay) {
 		show_Data ();
+#if 0
 	} else if (IS_WEBTV(new_channel_id)) {
-		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(new_channel_id);
 		if (channel) {
 			const char *current = channel->getDesc().c_str();
 			const char *next = channel->getUrl().c_str();
@@ -832,8 +828,9 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 			}
 			display_Info(current, next, true, false, 0, NULL, NULL, NULL, NULL, true, true);
 		}
+#endif
 	} else {
-		show_current_next(new_chan,epgpos);
+		show_current_next(new_chan, epgpos);
 	}
 
 	showLcdPercentOver ();
@@ -1287,8 +1284,8 @@ void CInfoViewer::showRadiotext()
 int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
 	if ((msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) || (msg == NeutrinoMessages::EVT_NEXTPROGRAM)) {
-//printf("CInfoViewer::handleMsg: NeutrinoMessages::EVT_CURRENTNEXT_EPG data %llx current %llx\n", *(t_channel_id *) data, channel_id & 0xFFFFFFFFFFFFULL);
-		if ((*(t_channel_id *) data) == (channel_id & 0xFFFFFFFFFFFFULL)) {
+//printf("CInfoViewer::handleMsg: NeutrinoMessages::EVT_CURRENTNEXT_EPG data %llx current %llx\n", *(t_channel_id *) data, current_channel_id & 0xFFFFFFFFFFFFULL);
+		if ((*(t_channel_id *) data) == (current_channel_id & 0xFFFFFFFFFFFFULL)) {
 			getEPG (*(t_channel_id *) data, info_CurrentNext);
 			if (is_visible)
 				show_Data (true);
@@ -1296,7 +1293,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		}
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOTPIDS) {
-		if ((*(t_channel_id *) data) == channel_id) {
+		if ((*(t_channel_id *) data) == current_channel_id) {
 			if (is_visible && showButtonBar) {
 				infoViewerBB->showIcon_VTXT();
 				infoViewerBB->showIcon_SubT();
@@ -1308,7 +1305,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	} else if ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) ||
 			(msg == NeutrinoMessages::EVT_ZAP_ISNVOD)) {
-		channel_id = (*(t_channel_id *)data);
+		current_channel_id = (*(t_channel_id *)data);
 		killInfobarText();
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_ID) {
@@ -1335,7 +1332,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
  					int duration = CMoviePlayerGui::getInstance().GetDuration();
 					snprintf(runningRest, sizeof(runningRest), "%d / %d %s", (curr_pos + 30000) / 60000, (duration - curr_pos + 30000) / 60000, unit_short_minute);
 					display_Info(NULL, NULL, true, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
-				} else if (!IS_WEBTV(channel_id)) {
+				} else if (!IS_WEBTV(current_channel_id)) {
 					show_Data( true );
 				}
 			}
@@ -1349,7 +1346,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		recordModeActive = data;
 		if (is_visible) showRecordIcon(true);
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS) {
-		if ((*(t_channel_id *) data) == channel_id) {
+		if ((*(t_channel_id *) data) == current_channel_id) {
 			if (is_visible && showButtonBar)
 				infoViewerBB->showBBButtons(CInfoViewerBB::BUTTON_AUDIO);
 			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
@@ -1357,7 +1354,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		}
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES) {
-		if ((*(t_channel_id *) data) == channel_id) {
+		if ((*(t_channel_id *) data) == current_channel_id) {
 			if (is_visible && showButtonBar)
 				infoViewerBB->showBBButtons(CInfoViewerBB::BUTTON_SUBS);
 		}
@@ -1365,7 +1362,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_COMPLETE) {
 		//chanready = 1;
 		showSNR ();
-		//if ((*(t_channel_id *)data) == channel_id)
+		//if ((*(t_channel_id *)data) == current_channel_id)
 		{
 			if (is_visible && showButtonBar && (!g_RemoteControl->are_subchannels))
 				show_Data (true);
@@ -1384,7 +1381,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_ZAP_FAILED) {
 		//chanready = 1;
 		showSNR ();
-		if ((*(t_channel_id *) data) == channel_id) {
+		if ((*(t_channel_id *) data) == current_channel_id) {
 			// show failure..!
 			CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
 			printf ("zap failed!\n");
@@ -1442,8 +1439,7 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 		return info;
 	}
 
-
-	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id, info);
+	CEitManager::getInstance()->getCurrentNextServiceKey(current_epg_id, info);
 
 //printf("CInfoViewer::getEPG: old uniqueKey %llx new %llx\n", oldinfo.current_uniqueKey, info.current_uniqueKey);
 
@@ -1479,7 +1475,7 @@ void CInfoViewer::showSNR ()
 		return;
 	/* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
 	   TODO: decouple this  */
-	if (!fileplay && !IS_WEBTV(channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 )) {
+	if (!fileplay && !IS_WEBTV(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 )) {
 		int chanH = g_SignalFont->getHeight();
 		int freqStartY = BoxStartY + 2 * chanH - 3;
 		if ((newfreq && chanready) || SDT_freq_update) {
@@ -1694,7 +1690,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 
 	int is_nvod = false;
 
-	if ((g_RemoteControl->current_channel_id == channel_id) && (!g_RemoteControl->subChannels.empty()) && (!g_RemoteControl->are_subchannels)) {
+	if ((g_RemoteControl->current_channel_id == current_channel_id) && (!g_RemoteControl->subChannels.empty()) && (!g_RemoteControl->are_subchannels)) {
 		is_nvod = true;
 		info_CurrentNext.current_zeit.startzeit = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].startzeit;
 		info_CurrentNext.current_zeit.dauer = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].dauer;
@@ -1773,7 +1769,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 		/* clear old info in getEPG */
 		CSectionsdClient::CurrentNextInfo dummy;
 		getEPG(0, dummy);
-		sendNoEpg(channel_id);
+		sendNoEpg(current_channel_id);
 		return;
 	}
 
@@ -2082,7 +2078,7 @@ void CInfoViewer::showLcdPercentOver ()
 		time_t jetzt = time (NULL);
 #if 0
 		if (!(info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) || jetzt > (int) (info_CurrentNext.current_zeit.startzeit + info_CurrentNext.current_zeit.dauer)) {
-			info_CurrentNext = getEPG (channel_id);
+			info_CurrentNext = getEPG (current_channel_id);
 		}
 #endif
 		if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
