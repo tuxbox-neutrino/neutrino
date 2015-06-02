@@ -463,7 +463,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight();
 
-	GetEPGData(channel_id, id, &startzeit );
+	t_channel_id epg_id = channel_id;
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (channel)
+		epg_id = channel->getEpgID();
+
+	GetEPGData(epg_id, id, &startzeit );
 	if (doLoop)
 	{
 		if (!bigFonts && g_settings.bigFonts) {
@@ -472,7 +477,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		}
 		bigFonts = g_settings.bigFonts;
 		start();
-		CEitManager::getInstance()->getEventsServiceKey(channel_id, evtlist);
+		CEitManager::getInstance()->getEventsServiceKey(epg_id, evtlist);
 		// Houdini added for Private Premiere EPG start sorted by start date/time 2005-08-15
 		sort(evtlist.begin(),evtlist.end(),sortByDateTime);
 	}
@@ -489,7 +494,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	int logo_w = 0;
 	int logo_h = 0;
 	int logo_w_max = ox / 4;
-	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 	if(channel) {
 		if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, channel->getName(), lname, &logo_w, &logo_h)) {
 			if((logo_h > (toph-4)) || (logo_w > logo_w_max)) {
