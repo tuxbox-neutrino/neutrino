@@ -250,6 +250,11 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	neutrino_msg_data_t data;
 	bool in_search = false;
 	showfollow = false;
+	t_channel_id epg_id = channel_id;
+
+	CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (ch)
+		epg_id = ch->getEpgID();
 
 	full_width = frameBuffer->getScreenWidthRel();
 	x = getScreenStartX(full_width);
@@ -314,7 +319,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 		copy(followlist.begin(), followlist.end(), ii);
 		showfollow = true;
 	}else{
-		readEvents(channel_id);
+		readEvents(epg_id);
 	}
 	UpdateTimerList();
 
@@ -542,7 +547,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				in_search = false;
 				m_showChannel = false;
 				paintHead(channel_id, channelname);
-				readEvents(channel_id);
+				readEvents(epg_id);
 				paint(channel_id);
 				showFunctionBar(true, channel_id);
 			} else {
