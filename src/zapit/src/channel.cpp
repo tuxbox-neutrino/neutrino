@@ -37,6 +37,7 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	satellitePosition = p_satellite_position;
 	freq = p_freq;
 	channel_id = CREATE_CHANNEL_ID64;
+	epg_id = channel_id;
 	Init();
 //printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
@@ -51,11 +52,12 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_
 	serviceType = p_service_type;
 	satellitePosition = p_satellite_position;
 	freq = p_freq;
+	epg_id = channel_id;
 	Init();
 }
 
 // For WebTV ...
-CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc)
+CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid)
 {
 	if (!p_name || !p_url)
 		return;
@@ -70,6 +72,7 @@ CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, cons
 	serviceType = ST_DIGITAL_TELEVISION_SERVICE;
 	satellitePosition = 0;
 	freq = 0;
+	epg_id = epgid;
 	Init();
 }
 

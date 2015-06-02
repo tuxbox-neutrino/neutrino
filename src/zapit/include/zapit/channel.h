@@ -122,6 +122,7 @@ class CZapitChannel
 		std::string name;
 		/* TODO : Enable different unames in different bouquets ( generated bouquetID ? ) */
 		std::string uname;
+		t_channel_id epg_id;
 
 		/* WebTV */
 		std::string url;
@@ -205,7 +206,7 @@ class CZapitChannel
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
 		CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq);
-		CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc);
+		CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid = 0);
 		~CZapitChannel(void);
 
 		/* get methods - read only variables */
@@ -284,6 +285,7 @@ class CZapitChannel
 			return (((uint64_t)(sat+freq*4) << 48) | ((uint64_t) tsid << 32) | ((uint64_t)onid << 16) | (uint64_t)sid);
 		};
 		bool Locked() { return (bLocked || !!bLockCount); }
+		t_channel_id getEpgID(void) const { return epg_id; }
 };
 
 struct CmpChannelBySat: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
