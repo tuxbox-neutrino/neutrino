@@ -820,6 +820,10 @@ void CBouquetManager::loadWebtv()
 					const char *url = xmlGetAttribute(l1, "url");
 					const char *desc = xmlGetAttribute(l1, "description");
 					const char *genre = xmlGetAttribute(l1, "genre");
+					const char *epgid = xmlGetAttribute(l1, "epgid");
+					t_channel_id epg_id = 0;
+					if (epgid)
+						epg_id = strtoull(epgid, NULL, 16);
 
 					CZapitBouquet* gbouquet = pbouquet;
 					if (genre) {
@@ -829,7 +833,7 @@ void CBouquetManager::loadWebtv()
 					}
 					if (title && url) {
 						t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
-						CZapitChannel * channel = new CZapitChannel(title, chid, url, desc);
+						CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id);
 						CServiceManager::getInstance()->AddChannel(channel);
 						channel->flags = CZapitChannel::UPDATED;
 						if (gbouquet)
