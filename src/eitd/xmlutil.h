@@ -36,6 +36,7 @@
 
 void *insertEventsfromFile(void * data);
 bool readEventsFromFile(std::string &epgname, int &ev_count);
+bool readEventsFromDir(std::string &epgdir, int &ev_count);
 void writeEventsToFile(const char *epgdir);
 
 bool readEPGFilter(void);
