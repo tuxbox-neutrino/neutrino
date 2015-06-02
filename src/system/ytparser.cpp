@@ -463,7 +463,11 @@ bool cYTFeedParser::ParseFeed(std::string &url)
 bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::string vid, yt_feed_orderby_t orderby)
 {
 	std::string answer;
+#ifdef YOUTUBE_DEV_ID
+	std::string key = YOUTUBE_DEV_ID;
+#else
 	std::string key = g_settings.youtube_dev_id;
+#endif
 
 	std::string url = "https://www.googleapis.com/youtube/v3/search?";
 	bool append_res = true;
