@@ -2159,7 +2159,8 @@ bool CEitManager::Start()
 	if (find_executable("ntpdate").empty()){
 		ntp_system_cmd_prefix = find_executable("ntpd");
 		if (!ntp_system_cmd_prefix.empty()){
-			ntp_system_cmd = ntp_system_cmd_prefix + " -n -q -p " + ntpserver;
+			ntp_system_cmd_prefix += " -n -q -p ";
+			ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
 		}
 		else{
 			printf("[sectionsd] NTP Error: time sync not possible, ntpdate/ntpd not found\n");
