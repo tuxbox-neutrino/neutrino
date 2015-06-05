@@ -2159,7 +2159,7 @@ bool CEitManager::Start()
 	if (find_executable("ntpdate").empty()){
 		ntp_system_cmd_prefix = find_executable("ntpd");
 		if (!ntp_system_cmd_prefix.empty()){
-			ntp_system_cmd_prefix += " -n -q -p ";
+			ntp_system_cmd = ntp_system_cmd_prefix + " -n -q -p " + ntpserver;
 		}
 		else{
 			printf("[sectionsd] NTP Error: time sync not possible, ntpdate/ntpd not found\n");
@@ -2169,7 +2169,7 @@ bool CEitManager::Start()
 
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
-	printf("[sectionsd] NTP: %s, server %s, command %s\n", ntpenable ? "enabled" : "disabled", ntpserver.c_str(), ntp_system_cmd_prefix.c_str());
+	printf("[sectionsd] NTP: %s, command %s\n", ntpenable ? "enabled" : "disabled", ntp_system_cmd.c_str());
 
 	xml_epg_filter = readEPGFilter();
 
