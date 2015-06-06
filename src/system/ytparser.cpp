@@ -109,6 +109,11 @@ cYTFeedParser::cYTFeedParser()
 	max_results = 25;
 	concurrent_downloads = 2;
 	curl_handle = curl_easy_init();
+#ifdef YOUTUBE_DEV_ID
+	key = YOUTUBE_DEV_ID;
+#else
+	key = g_settings.youtube_dev_id;
+#endif
 }
 
 cYTFeedParser::~cYTFeedParser()
@@ -338,7 +343,7 @@ bool cYTFeedParser::parseFeedJSON(std::string &answer)
 		vinfo.thumbnail		= elements[i]["snippet"]["thumbnails"]["high"].get("url", thumbnail).asString();
 		vinfo.author		= elements[i]["snippet"].get("channelTitle", "unkown").asString();
 		vinfo.category		= "";
-		vinfo.duration		= 0;
+		parseFeedDetailsJSON(&vinfo);
 
 #ifdef DEBUG_PARSER
 		printf("prevPageToken: %s\n", prevPageToken.c_str());
@@ -366,6 +371,43 @@ bool cYTFeedParser::parseFeedJSON(std::string &answer)
 
 	parsed = !videos.empty();
 	return parsed;
+}
+
+bool cYTFeedParser::parseFeedDetailsJSON(cYTVideoInfo* vinfo)
+{
+	vinfo->duration = 0;
+	// See at https://developers.google.com/youtube/v3/docs/videos
+	std::string url	= "https://www.googleapis.com/youtube/v3/videos?id=" + vinfo->id + "&part=contentDetails&key=" + key;
+	std::string answer;
+	if (!getUrl(url, answer))
+		return false;
+
+	Json::Value root;
+	Json::Reader reader;
+	bool parsedSuccess = reader.parse(answer, root, false);
+	if (!parsedSuccess) {
+		printf("Failed to parse JSON\n");
+		printf("%s\n", reader.getFormattedErrorMessages().c_str());
+		return false;
+	}
+
+	Json::Value elements = root["items"];
+	std::string duration = elements[0]["contentDetails"].get("duration", "").asString();
+	if (duration.find("PT") != std::string::npos) {
+		int h=0, m=0, s=0;
+		if (duration.find("H") != std::string::npos) {
+			sscanf(duration.c_str(), "PT%dH%dM%dS", &h, &m, &s);
+		}
+		else if (duration.find("M") != std::string::npos) {
+			sscanf(duration.c_str(), "PT%dM%dS", &m, &s);
+		}
+		else if (duration.find("S") != std::string::npos) {
+			sscanf(duration.c_str(), "PT%dS", &s);
+		}
+//		printf(">>>>> duration: %s, h: %d, m: %d, s: %d\n", duration.c_str(), h, m, s);
+		vinfo->duration = h*3600 + m*60 + s;
+	}
+	return true;
 }
 
 bool cYTFeedParser::supportedFormat(int fmt)
@@ -463,12 +505,6 @@ bool cYTFeedParser::ParseFeed(std::string &url)
 bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::string vid, yt_feed_orderby_t orderby)
 {
 	std::string answer;
-#ifdef YOUTUBE_DEV_ID
-	std::string key = YOUTUBE_DEV_ID;
-#else
-	std::string key = g_settings.youtube_dev_id;
-#endif
-
 	std::string url = "https://www.googleapis.com/youtube/v3/search?";
 	bool append_res = true;
 	std::string trailer;
