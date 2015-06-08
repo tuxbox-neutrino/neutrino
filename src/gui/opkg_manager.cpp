@@ -55,8 +55,8 @@
 #include <alloca.h>
 #include <errno.h>
 #include <sys/wait.h>
-/* later this can be changed to just "opkg" */
-#define OPKG_CL "opkg-cl"
+
+#define OPKG_CL "opkg"
 #define OPKG_TMP_DIR "/tmp/.opkg"
 #define OPKG_TEST_DIR OPKG_TMP_DIR "/test"
 #define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
@@ -533,7 +533,7 @@ int COPKGManager::showMenu()
 
 bool COPKGManager::hasOpkgSupport()
 {
-	string deps[] = {"/bin/opkg-check-config", "/bin/update-alternatives", "/var/lib/opkg", "/share/opkg/intercept"};
+	string deps[] = {"/var/lib/opkg", /*"/bin/opkg-check-config", "/bin/update-alternatives", "/share/opkg/intercept"*/};
 
 	if (find_executable(OPKG_CL).empty()) {
 		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d]" OPKG_CL " executable not found\n", __func__, __LINE__);
