@@ -324,22 +324,32 @@ static std::string bad_pattern[] = {
 bool COPKGManager::badpackage(std::string &s)
 {
 	int i;
+	string st = "";
 	for (i = 0; !bad_pattern[i].empty(); i++)
 	{
-		std::string p = bad_pattern[i];
+		string p = bad_pattern[i];
 		size_t patlen = p.length() - 1;
+		bool res = false;
 		/* poor man's regex :-) only supported are "^" and "$" */
 		if (p.substr(patlen, 1) == "$") { /* match at end */
 			if (s.rfind(p.substr(0, patlen)) == (s.length() - patlen))
-				return true;
+				res = true;
 		} else if (p.substr(0, 1) == "^") { /* match at beginning */
 			if (s.find(p.substr(1)) == 0)
-				return true;
+				res = true;
 		} else { /* match everywhere */
 			if (s.find(p) != std::string::npos)
-				return true;
+				res = true;
 		}
+		if (res)
+			st += p + " ";
 	}
+
+	if (!st.empty()){
+		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d] found bad package => %s [filtered with %s]\n", __func__, __LINE__, s.c_str(), st.c_str());
+		return true;
+	}
+
 	return false;
 }
 
