@@ -819,7 +819,7 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 	else{
 		string opts = " " + options + " ";
 
-		int r = execCmd(pkg_types[OM_INSTALL] + opts + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
+		int r = execCmd(pkg_types[OM_INSTALL] + opts + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT | CShellWindow::ACKNOWLEDGE);
 		if (r){
 			switch(r){
 				case OM_OUT_OF_SPACE_ERR:
