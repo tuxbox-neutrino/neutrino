@@ -55,13 +55,14 @@
 #include <alloca.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include <fstream>
 
 #define OPKG_CL "opkg"
 #define OPKG_TMP_DIR "/tmp/.opkg"
 #define OPKG_TEST_DIR OPKG_TMP_DIR "/test"
 #define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
 
-
+#define OPKG_BAD_PATTERN_LIST_FILE "/var/tuxbox/config/bad_package_pattern.list"
 #define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf"
 
 using namespace std;
@@ -113,8 +114,8 @@ COPKGManager::COPKGManager(): opkg_conf('\t')
 	list_upgradeable_done = false;
 	expert_mode = false;
 	local_dir = &g_settings.update_dir_opkg;
+	v_bad_pattern = getBadPackagePatternList();
 	CFileHelpers::createDir(OPKG_TMP_DIR);
-
 }
 
 COPKGManager::~COPKGManager()
@@ -305,29 +306,38 @@ static const struct button_label COPKGManagerFooterButtonsExpert[COPKGManagerFoo
 	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_OPKG_BUTTON_UNINSTALL }
 };
 
-/* TODO: this should go into a config file... */
-static std::string bad_pattern[] = {
-	"-dev$",
-	"-doc$",
-	"-dbg$",
-	"-ptest$",
-	"-staticdev$",
-	"-locale-",
-	"-charmap-",
-	"-gconv-",
-	"-localedata-",
-	"^locale-base-",
-	"^perl-module-",
-	""
-};
+vector<string> COPKGManager::getBadPackagePatternList()
+{
+	vector<string> v_ret;
+
+	ifstream in (OPKG_BAD_PATTERN_LIST_FILE, ios::in);
+	if (!in){
+		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d] can't open %s, %s\n", __func__, __LINE__, OPKG_BAD_PATTERN_LIST_FILE, strerror(errno));
+		return v_ret;
+	}
+	string line;
+
+	while(getline(in, line)){
+		v_ret.push_back(line);
+	}
+	in.close();
+
+	return v_ret;
+}
 
 bool COPKGManager::badpackage(std::string &s)
 {
-	int i;
+	if(v_bad_pattern.empty())
+		return false;
+
+	size_t i;
 	string st = "";
-	for (i = 0; !bad_pattern[i].empty(); i++)
+	for (i = 0; i < v_bad_pattern.size(); i++)
 	{
-		string p = bad_pattern[i];
+		string p = v_bad_pattern[i];
+		if (p.empty())
+			continue;
+
 		size_t patlen = p.length() - 1;
 		bool res = false;
 		/* poor man's regex :-) only supported are "^" and "$" */

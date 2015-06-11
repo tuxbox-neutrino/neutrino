@@ -56,6 +56,9 @@ class COPKGManager : public CMenuTarget
 		std::string config_src[OPKG_MAX_FEEDS];
 		std::vector<std::string> config_dest;
 
+		//filter
+		std::vector<std::string> v_bad_pattern;
+
 		std::map<std::string,pkg> pkg_map;
 		std::vector<pkg*> pkg_vec;
 
@@ -107,7 +110,7 @@ class COPKGManager : public CMenuTarget
 		bool isInstalled(const std::string& pkg_name);
 		bool isUpgradable(const std::string& pkg_name);
 
-		/*
+		/*!
 		* Gets an info from opkg command info or status from a package via keywords as std::string
 		* 1st parameter is name of package as string eg. "gdb", without file extension or version data
 		* 2nd parameter needs a keyword like:
@@ -125,7 +128,25 @@ class COPKGManager : public CMenuTarget
 		void showMenuConfigFeed(CMenuWidget *feed_menu);
 		void updateMenu();
 		void refreshMenu();
+
+		//!Returns a vector with possible filter entries from OPKG_BAD_PATTERN_LIST_FILE 
+		static std::vector<std::string> getBadPackagePatternList();
+		/*!
+		* Returns true if found a ''bad'' package, Parameter: package name as std::string by rev
+		* To detect bad packages, it must be exist a matching pattern list file.
+		* Path is defined in OPKG_BAD_PATTERN_LIST_FILE.
+		* This provides the option to filter some unwanted entries in the package list menue.
+		* This makes sense eg. to hinder that the user could change important system packages.
+		* NOTE: a sample file you should find here as : "/var/tuxbox/config/bad_package_pattern.list.sample"
+		* If required, remove the ".sample" extension and change the entries for your requirements
+		* howto: a simple way to filter a package is to add the pure name, if you want
+		* to hide a package (even which name) then add this name to a line. Eg. if you want to hide
+		* package wget then add this and this package is not displayed at the gui.
+		* Also a few place holders should work, see the badpackage() function, but this
+		* can be inaccurately because it could filter innocent packages.
+		*/
 		bool badpackage(std::string &s);
+
 		void showError(const char* local_msg, char* err_msg = NULL, const std::string& additional_text = std::string());
 		int doUpdate();
 		void handleShellOutput(std::string* cur_line, int* res, bool* ok);
