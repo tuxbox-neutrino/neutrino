@@ -1004,6 +1004,7 @@ menu.hint_inet_radio Internet radio
 menu.hint_info Information about image, box cpu and storage,\nstream information
 menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-sys
+menu.hint_infobar_casys_dotmatrix on: CA-System with dot matrix in background
 menu.hint_infobar_casys_frame on: CA-System with frame
 menu.hint_infobar_dd Show DD icon
 menu.hint_infobar_filesys Show flash and HDD used space levels
@@ -1427,6 +1428,7 @@ miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Display
+miscsettings.infobar_casystem_dotmatrix CA-Display with dot matrix
 miscsettings.infobar_casystem_frame CA-Display with frame
 miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet

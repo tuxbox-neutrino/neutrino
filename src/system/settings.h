@@ -167,6 +167,7 @@ struct SNeutrinoSettings
 	int progressbar_timescale_yellow;
 	int progressbar_timescale_invert;
 	int casystem_display;
+	int casystem_dotmatrix;
 	int casystem_frame;
 	int scrambled_message;
 	int volume_pos;

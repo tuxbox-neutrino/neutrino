@@ -841,6 +841,9 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 	else
 		frameBuffer->paintBox(g_InfoViewer->ChanInfoX + (right*4), g_InfoViewer->BoxEndY, g_InfoViewer->BoxEndX - (left*4), g_InfoViewer->BoxEndY + bottom_bar_offset, COL_BLACK);
 
+	if (!g_settings.casystem_dotmatrix) //don't show dotmatrix
+		return;
+
 	if (left)
 		left -= 1;
 
