@@ -1002,6 +1002,7 @@ menu.hint_inet_radio Internetradio
 menu.hint_info Informationen über das Image, CPU, Arbeitsspeicher und Stream und mehr
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gespeert, Diskret: alle Aktiven CA-Systeme
+menu.hint_infobar_casys_frame ein: CA-Systemanzeige mit Rahmen
 menu.hint_infobar_dd Zeigt ein Dolby Digital Icon bei Verfügbarkeit
 menu.hint_infobar_filesys Zeigen den vom Flash- und einer HDD verwendeten Speicherplatz
 menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
@@ -1424,6 +1425,7 @@ miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Anzeige
+miscsettings.infobar_casystem_frame CA-Anzeige mit Rahmen
 miscsettings.infobar_casystem_mini Mini
 miscsettings.infobar_casystem_mode Diskret
 miscsettings.infobar_disp Logo-Anzeige
