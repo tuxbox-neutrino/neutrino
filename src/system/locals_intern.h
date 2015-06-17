@@ -1031,6 +1031,7 @@ const char * locale_real_names[] =
 	"menu.hint_info",
 	"menu.hint_infobar_back",
 	"menu.hint_infobar_casys",
+	"menu.hint_infobar_casys_color",
 	"menu.hint_infobar_casys_dotmatrix",
 	"menu.hint_infobar_casys_frame",
 	"menu.hint_infobar_dd",

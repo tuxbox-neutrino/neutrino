@@ -99,6 +99,11 @@ struct SNeutrinoTheme
 	unsigned char infobar_green;
 	unsigned char infobar_blue;
 
+	unsigned char infobar_casystem_alpha;
+	unsigned char infobar_casystem_red;
+	unsigned char infobar_casystem_green;
+	unsigned char infobar_casystem_blue;
+
 	unsigned char infobar_Text_alpha;
 	unsigned char infobar_Text_red;
 	unsigned char infobar_Text_green;

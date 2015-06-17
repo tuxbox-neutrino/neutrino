@@ -1002,6 +1002,7 @@ menu.hint_inet_radio Internetradio
 menu.hint_info Informationen über das Image, CPU, Arbeitsspeicher und Stream und mehr
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gespeert, Diskret: alle Aktiven CA-Systeme
+menu.hint_infobar_casys_color Ändern Sie die Hintergrundfarbe für die CA-Systemanzeige der Infobar
 menu.hint_infobar_casys_dotmatrix ein: CA-Systemanzeige mit Punktematrix im Hintergrund
 menu.hint_infobar_casys_frame ein: CA-Systemanzeige mit Rahmen
 menu.hint_infobar_dd Zeigt ein Dolby Digital Icon bei Verfügbarkeit

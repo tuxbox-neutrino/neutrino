@@ -736,6 +736,8 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 			&t.infobar_green, &t.infobar_blue, &t.infobar_alpha, colorSetupNotifier);
 	CColorChooser* chInfobarTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.infobar_Text_red,
 			&t.infobar_Text_green, &t.infobar_Text_blue, NULL, colorSetupNotifier);
+	CColorChooser* chInfobarCASystem = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.infobar_casystem_red,
+			&t.infobar_casystem_green, &t.infobar_casystem_blue, &t.infobar_casystem_alpha, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORSTATUSBAR_TEXT));
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chInfobarcolor );
@@ -744,6 +746,10 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chInfobarTextcolor );
 	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_TEXTCOLOR);
+	menu_colors->addItem(mf);
+
+	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY, g_settings.casystem_display < 2, NULL, chInfobarCASystem );
+	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_COLOR);
 	menu_colors->addItem(mf);
 
 	// infoviewer gradient top
