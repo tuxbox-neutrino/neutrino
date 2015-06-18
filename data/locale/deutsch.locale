@@ -1426,7 +1426,7 @@ miscsettings.epg_scan_standby Im Standby Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
-miscsettings.infobar_casystem_display CA-System Anzeige
+miscsettings.infobar_casystem_display CA-Systemanzeige
 miscsettings.infobar_casystem_dotmatrix CA-Anzeige mit Punktematrix
 miscsettings.infobar_casystem_frame CA-Anzeige mit Rahmen
 miscsettings.infobar_casystem_mini Mini

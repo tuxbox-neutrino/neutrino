@@ -57,6 +57,8 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		COnOffNotifier* screensaverNotifier;
 		COnOffNotifier* channellistNotifier;
 		COnOffNotifier* infobarHddNotifier;
+		CMenuOptionChooser * ca_dotmatrix;
+		CMenuOptionChooser * ca_frame;
 
 		int width;
 		int is_wizard;
