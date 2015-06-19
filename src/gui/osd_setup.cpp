@@ -95,14 +95,6 @@ COsdSetup::COsdSetup(int wizard_mode)
 
 COsdSetup::~COsdSetup()
 {
-	if (ca_dotmatrix) {
-		delete ca_dotmatrix;
-		ca_dotmatrix = NULL;
-	}
-	if (ca_frame) {
-		delete ca_frame;
-		ca_frame = NULL;
-	}
 	delete colorSetupNotifier;
 	delete fontsizenotifier;
 	delete win_demo;
