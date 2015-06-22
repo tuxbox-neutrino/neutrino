@@ -4765,7 +4765,8 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 					for (Pitch = 0; Pitch < sbit->pitch; Pitch++)
 					{
 						if (sbit_diacrit->pitch > Pitch && sbit_diacrit->height > Row)
-							sbitbuffer[Row*sbit->pitch+Pitch] |= sbit_diacrit->buffer[Row*sbit->pitch+Pitch];
+							if((sbit_diacrit->pitch*sbit_diacrit->height) > (Row*sbit->pitch+Pitch))
+								sbitbuffer[Row*sbit->pitch+Pitch] |= sbit_diacrit->buffer[Row*sbit->pitch+Pitch];
 					}
 				}
 			}
