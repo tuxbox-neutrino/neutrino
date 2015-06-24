@@ -52,6 +52,7 @@
 #include <driver/record.h>
 
 #include <zapit/femanager.h>
+#include <cs_api.h>
 
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
@@ -353,6 +354,11 @@ void CDBoxInfoWidget::paint()
 		title += ": ";
 		title + cpuinfo["machine"];
 	}
+	char ss[17];
+	sprintf(ss, "%016llx", cs_get_serial());
+	title += ", S/N ";
+	title += ss;
+	width = max(width, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(title, true));
 
 	CComponentsHeader header(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
 	header.paint(CC_SAVE_SCREEN_NO);
