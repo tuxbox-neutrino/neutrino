@@ -1918,9 +1918,11 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 
 void CMovieBrowser::markItem(CListFrame *list)
 {
-	m_movieSelectionHandler->marked = !m_movieSelectionHandler->marked;
-	list->setSelectedMarked(m_movieSelectionHandler->marked);
-	list->scrollLineDown(1);
+	if(m_movieSelectionHandler != NULL){
+		m_movieSelectionHandler->marked = !m_movieSelectionHandler->marked;
+		list->setSelectedMarked(m_movieSelectionHandler->marked);
+		list->scrollLineDown(1);
+	}
 }
 
 void CMovieBrowser::scrollBrowserItem(bool next, bool page)
