@@ -99,6 +99,9 @@ std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UP
 		throw std::runtime_error(std::string("protocol error"));
 
 	xmlDocPtr parser = parseXml(body.c_str(),charset.c_str());
+	if(!parser)
+		throw std::runtime_error(std::string("XML: parser error"));
+
 	root = xmlDocGetRootElement(parser);
 	if (!root)
 		throw std::runtime_error(std::string("XML: no root node"));

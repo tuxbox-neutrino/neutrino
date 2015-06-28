@@ -170,6 +170,9 @@ CUPnPDevice::CUPnPDevice(std::string url)
 		throw std::runtime_error(std::string("description url returned ") + rcode);
 
 	xmlDocPtr parser = parseXml(body.c_str(),charset.c_str());
+	if(!parser)
+		throw std::runtime_error(std::string("XML: parser error"));
+
 	root = xmlDocGetRootElement(parser);
 	if (!root)
 		throw std::runtime_error(std::string("XML: no root node"));
