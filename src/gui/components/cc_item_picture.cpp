@@ -130,6 +130,8 @@ void CComponentsPicture::initCCItem()
 		//if initialized dimension values = 0, set current object dimension values to real image size otherwise use defined size
 		g_PicViewer->getSize(pic_name.c_str(), (width == 0 ? &width : &w_pic), (height == 0 ? &height : &h_pic));
 		g_PicViewer->rescaleImageDimensions(&w_pic, &h_pic, width, height);
+		width = w_pic;
+		height = h_pic;
 	}
 }
 
