@@ -20,6 +20,8 @@ EPGPlus.scroll_mode Scroll Mode
 EPGPlus.stretch_mode Stretch Mode
 EPGPlus.swap_mode swap mode
 EPGPlus.view_mode view mode
+GENRE.ALL off
+GENRE.ARTS Arts
 GENRE.ARTS.0 arts / culture
 GENRE.ARTS.1 performing arts
 GENRE.ARTS.10 arts/culture magazines
@@ -32,12 +34,14 @@ GENRE.ARTS.6 film/cinema
 GENRE.ARTS.7 experimental film/video
 GENRE.ARTS.8 broadcasting/press
 GENRE.ARTS.9 new media
+GENRE.CHILDRENs_PROGRAMMES children
 GENRE.CHILDRENs_PROGRAMMES.0 children / juvenile program
 GENRE.CHILDRENs_PROGRAMMES.1 pre-school children's programmes
 GENRE.CHILDRENs_PROGRAMMES.2 entertainment programmes for 6 to 14
 GENRE.CHILDRENs_PROGRAMMES.3 entertainment programmes for 10 to 16
 GENRE.CHILDRENs_PROGRAMMES.4 informational/educational/school programmes
 GENRE.CHILDRENs_PROGRAMMES.5 cartoons/puppets
+GENRE.DOCUS_MAGAZINES documentation
 GENRE.DOCUS_MAGAZINES.0 documentation / magazine
 GENRE.DOCUS_MAGAZINES.1 nature/animals/environment
 GENRE.DOCUS_MAGAZINES.2 technology/natural sciences
@@ -46,6 +50,7 @@ GENRE.DOCUS_MAGAZINES.4 foreign countries/expeditions
 GENRE.DOCUS_MAGAZINES.5 social/spiritual sciences
 GENRE.DOCUS_MAGAZINES.6 further education
 GENRE.DOCUS_MAGAZINES.7 languages
+GENRE.MOVIE movie
 GENRE.MOVIE.0 movie/drama
 GENRE.MOVIE.1 detective/thriller
 GENRE.MOVIE.2 adventure/western/war
@@ -55,6 +60,7 @@ GENRE.MOVIE.5 soap/melodrama/folkloric
 GENRE.MOVIE.6 romance
 GENRE.MOVIE.7 serious/classical/religious/historical movie/drama
 GENRE.MOVIE.8 adult movie/drama
+GENRE.MUSIC_DANCE music
 GENRE.MUSIC_DANCE.0 music / ballet / dance
 GENRE.MUSIC_DANCE.1 rock/pop
 GENRE.MUSIC_DANCE.2 serious music/classical music
@@ -62,19 +68,23 @@ GENRE.MUSIC_DANCE.3 folk/traditional music
 GENRE.MUSIC_DANCE.4 jazz
 GENRE.MUSIC_DANCE.5 musical/opera
 GENRE.MUSIC_DANCE.6 ballet
+GENRE.NEWS news
 GENRE.NEWS.0 news
 GENRE.NEWS.1 news/weather report
 GENRE.NEWS.2 news magazine
 GENRE.NEWS.3 documentary
 GENRE.NEWS.4 discussion/interview/debate
+GENRE.SHOW Show
 GENRE.SHOW.0 Show / Gameshow
 GENRE.SHOW.1 game show/quiz/contest
 GENRE.SHOW.2 variety show
 GENRE.SHOW.3 talk show
+GENRE.SOCIAL_POLITICAL social
 GENRE.SOCIAL_POLITICAL.0 social & politic events / business
 GENRE.SOCIAL_POLITICAL.1 magazines/reports/documentary
 GENRE.SOCIAL_POLITICAL.2 economics/social advisory
 GENRE.SOCIAL_POLITICAL.3 remarkable people
+GENRE.SPORTS sports
 GENRE.SPORTS.0 sports
 GENRE.SPORTS.1 special events (Olympic Games,World Cup etc.)
 GENRE.SPORTS.10 equestrian
@@ -87,6 +97,7 @@ GENRE.SPORTS.6 athletics
 GENRE.SPORTS.7 motor sports
 GENRE.SPORTS.8 water sports
 GENRE.SPORTS.9 winter sports
+GENRE.TRAVEL_HOBBIES Leisure
 GENRE.TRAVEL_HOBBIES.0 travel & recreation
 GENRE.TRAVEL_HOBBIES.1 tourism/travel
 GENRE.TRAVEL_HOBBIES.2 handicraft
@@ -352,6 +363,7 @@ epgviewer.genre Genre
 epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
+eventfinder.genre Filter
 eventfinder.head Search in EPG
 eventfinder.history Search history
 eventfinder.keyword Keyword
