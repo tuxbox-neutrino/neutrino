@@ -152,12 +152,12 @@ void CComponentsButton::initIcon()
 			cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
 
 		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
-		h_icon = cc_btn_icon_obj->getHeight();
+		cc_btn_icon_obj->getSize(&w_icon, &h_icon);
 
 		if (h_icon > (height-2*fr_thickness)){
-			cc_btn_icon_obj->setHeight(height*80/100);
-			uint8_t h_ratio = uint8_t(height*100/h_icon);
-			w_icon = h_ratio*cc_btn_icon_obj->getWidth()/100;
+			cc_btn_icon_obj->setHeight(height-2*fr_thickness);
+			uint8_t h_ratio = uint8_t(h_icon/cc_btn_icon_obj->getHeight());
+			w_icon = w_icon/h_ratio;
 			cc_btn_icon_obj->setWidth(w_icon);
 		}
 
