@@ -362,7 +362,8 @@ epgviewer.genre Genre
 epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
-eventfinder.genre Filter
+eventfinder.fsk Altersfreigabe Filter
+eventfinder.genre Genre Filter
 eventfinder.head EPG-Suche
 eventfinder.history Frühere Suchen
 eventfinder.keyword Suche nach Textpassage
@@ -700,6 +701,14 @@ fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
 fontsize.subtitles Text Untertitel
+fsk.all aus
+fsk.from_7 ab 7
+fsk.from_12 ab 12
+fsk.from_16 ab 16
+fsk.from_18 ab 18
+fsk.to_7 bis 7
+fsk.to_12 bis 12
+fsk.to_16 bis 16
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.

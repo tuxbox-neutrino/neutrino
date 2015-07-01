@@ -70,6 +70,7 @@ class CEventList
 	std::string     m_search_autokeyword;
 	int             m_search_list;
 	int    		m_search_genre;
+	int    		m_search_fsk;
 	t_channel_id    m_search_channel_id;
 	t_bouquet_id    m_search_bouquet_id;
 	bool m_showChannel;
@@ -144,6 +145,7 @@ class CEventFinderMenu : public CMenuTarget, CChangeObserver
 		int*           	m_event;
 		int*   	        m_search_epg_item;
 		int*   		m_search_genre;
+		int*		m_search_fsk;
 		std::string*    m_search_keyword;
 		int*   	        m_search_list;
 		std::string     m_search_channelname;
@@ -159,7 +161,8 @@ class CEventFinderMenu : public CMenuTarget, CChangeObserver
 				  int*			search_list,
 				  t_channel_id* search_channel_id,
 				  t_bouquet_id* search_bouquet_id,
-				  int* 			search_genre
+				  int* 			search_genre,
+				  int*			search_fsk
 				);
                 int  exec( CMenuTarget* parent,  const std::string &actionkey);
 		bool changeNotify(const neutrino_locale_t OptionName, void *);
