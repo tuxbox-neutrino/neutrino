@@ -56,6 +56,8 @@ bool CPat::Parse()
 	/* current positon in buffer */
 	unsigned short i;
 
+	const short crc_len = 4;
+
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 
@@ -75,7 +77,7 @@ bool CPat::Parse()
 			return false;
 		}
 		/* loop over service id / program map table pid pairs */
-		for (i = 8; i < (((buffer[1] & 0x0F) << 8) | buffer[2]) + 3; i += 4) {
+		for (i = 8; i < (((buffer[1] & 0x0F) << 8) | buffer[2]) + 3 - crc_len; i += 4) {
 			/* store program map table pid */
 			int service_id	= ((buffer[i] << 8) | buffer[i+1]);
 			int pmt_pid	= (((buffer[i+2] & 0x1F) << 8) | buffer[i+3]);
