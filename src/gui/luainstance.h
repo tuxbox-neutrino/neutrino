@@ -260,12 +260,14 @@ private:
 	static int CWindowGetFooterHeight(lua_State *L);
 	static int CWindowGetHeaderHeight_dep(lua_State *L); // function 'header_height' is deprecated
 	static int CWindowGetFooterHeight_dep(lua_State *L); // function 'footer_height' is deprecated
+	static int CWindowSetCenterPos(lua_State *L);
 	static int CWindowDelete(lua_State *L);
 
 	static CLuaSignalBox *SignalBoxCheck(lua_State *L, int n);
 	static void SignalBoxRegister(lua_State *L);
 	static int SignalBoxNew(lua_State *L);
 	static int SignalBoxPaint(lua_State *L);
+	static int SignalBoxSetCenterPos(lua_State *L);
 	static int SignalBoxDelete(lua_State *L);
 
 	static CLuaComponentsText *ComponentsTextCheck(lua_State *L, int n);
@@ -275,6 +277,7 @@ private:
 	static int ComponentsTextHide(lua_State *L);
 	static int ComponentsTextSetText(lua_State *L);
 	static int ComponentsTextScroll(lua_State *L);
+	static int ComponentsTextSetCenterPos(lua_State *L);
 	static int ComponentsTextDelete(lua_State *L);
 
 	static CLuaPicture *CPictureCheck(lua_State *L, int n);
@@ -283,6 +286,7 @@ private:
 	static int CPicturePaint(lua_State *L);
 	static int CPictureHide(lua_State *L);
 	static int CPictureSetPicture(lua_State *L);
+	static int CPictureSetCenterPos(lua_State *L);
 	static int CPictureDelete(lua_State *L);
 
 	static CLuaConfigFile *LuaConfigFileCheck(lua_State *L, int n);
