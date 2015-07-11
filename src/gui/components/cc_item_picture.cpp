@@ -73,8 +73,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos;
-	width		= w;
-	height		= h;
+	width	= dx	= w;
+	height	= dy	= h;
 	pic_name 	= image_name;
 	shadow		= has_shadow;
 	shadow_w	= SHADOW_OFFSET;
@@ -86,6 +86,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	is_image_painted= false;
 	do_paint	= true;
 	image_transparent = transparent;
+	keep_dx_aspect 	= false;
+	keep_dy_aspect	= false;
 
 	initCCItem();
 	initParent(parent);
@@ -105,6 +107,21 @@ void CComponentsPicture::setPicture(const char* picture_name)
 	setPicture(s_tmp);
 }
 
+void CComponentsPicture::setWidth(const int& w, bool keep_aspect)
+{
+	CComponentsItem::setWidth(w),
+	do_scale = true;
+	keep_dy_aspect = keep_aspect;
+	initCCItem();
+}
+
+void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
+{
+	CComponentsItem::setHeight(h),
+	do_scale = true;
+	keep_dx_aspect = keep_aspect;
+	initCCItem();
+}
 
 void CComponentsPicture::initCCItem()
 {
@@ -119,19 +136,42 @@ void CComponentsPicture::initCCItem()
 		do_scale = false;
 
 	//initial internal size
-	int w_pic = width;
-	int h_pic = height;
-
 	if (!do_scale){
 		//use image/icon size as object dimension values
 		frameBuffer->getIconSize(pic_name.c_str(), &width, &height);
+		return;
 	}
-	else{
-		//if initialized dimension values = 0, set current object dimension values to real image size otherwise use defined size
-		g_PicViewer->getSize(pic_name.c_str(), (width == 0 ? &width : &w_pic), (height == 0 ? &height : &h_pic));
-		g_PicViewer->rescaleImageDimensions(&w_pic, &h_pic, width, height);
-		width = w_pic;
-		height = h_pic;
+	else{ //initialized scaled size
+		//first get real image dimensions
+		if  ((dx != width || dy != height) || (dx == 0 || dy == 0))
+			g_PicViewer->getSize(pic_name.c_str(), &dx, &dy);
+	}
+
+	//ensure filled inital values
+	if (width == 0)
+		width = dx;
+	if (height == 0)
+		height = dy;
+
+	//check dimensions, leave if dimensions are equal
+	if (width == dx && height == dy)
+		return;
+
+	//temporarily vars
+	int w_2scale = width;
+	int h_2scale = height;
+
+	//resize image and set current dimensions
+	g_PicViewer->rescaleImageDimensions(&width, &height, w_2scale, h_2scale);
+
+	//handle aspect ratio
+	if (keep_dx_aspect){
+		float h_ratio = float(height)*100/(float)dy;
+		width = int(h_ratio*(float)dx/100);
+	}
+	if (keep_dy_aspect){
+		float w_ratio = float(width)*100/(float)dx;
+		height = int(w_ratio*(float)dy/100);
 	}
 }
 
@@ -150,12 +190,8 @@ void CComponentsPicture::initPosition(int *x_position, int *y_position)
 void CComponentsPicture::getSize(int* width_image, int *height_image)
 {
 	initCCItem();
-	if (do_scale){
-		*width_image = width;
-		*height_image = height;
-	}else{
-		frameBuffer->getIconSize(pic_name.c_str(), width_image, height_image);
-	}
+	*width_image = width;
+	*height_image = height;
 }
 
 int CComponentsPicture::getWidth()
@@ -179,12 +215,13 @@ void CComponentsPicture::paintPicture()
 	int x_pic = x;
 	int y_pic = y;
 	initPosition(&x_pic, &y_pic);
+	initCCItem();
 
 	if (pic_name.empty())
 		return;
 
-	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
 	if (cc_allow_paint){
+		dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
 		frameBuffer->SetTransparent(image_transparent);
 		if (do_scale)
 			is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width, height);

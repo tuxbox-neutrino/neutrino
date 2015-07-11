@@ -49,6 +49,9 @@ class CComponentsPicture : public CComponentsItem
 		///possible image formats
 		std::vector<std::string> v_ext;
 
+		///current original image dimensions
+		int dx, dy;
+
 		///property: name of image (without extensionn) full path to image (with extension), icon names to find in /widget/icons.h, icons will paint never scaled
 		std::string pic_name;
  
@@ -63,6 +66,9 @@ class CComponentsPicture : public CComponentsItem
 
 		///set internel paint mode to allow/disallow scale an image, value is assigned with constructor, if defined dimensions w and h = 0, then image scale is enabled
 		bool do_scale;
+		///sets internal option for keeping aspect, see also setHeight(), setWidth(), default value = false
+		bool keep_dx_aspect;
+		bool keep_dy_aspect;
 
 		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const std::string& image_name,
@@ -132,10 +138,10 @@ class CComponentsPicture : public CComponentsItem
 		///return height of component
 		virtual int getHeight();
 
-		///set width of object and image, value >0 causes scale of image
-		virtual void setWidth(const int& w){CComponentsItem::setWidth(w), do_scale = true; initCCItem();}
-		///set height of object and image, value >0 causes scale of image
-		virtual void setHeight(const int& h){CComponentsItem::setHeight(h), do_scale = true; initCCItem();}
+		///set width of object and image, value >0 causes scale of image, parameter keep_aspect = true causes scaling of height with same aspect, default = false
+		virtual void setWidth(const int& w, bool keep_aspect = false);
+		///set height of object and image, value >0 causes scale of image, parameter keep_aspect = true causes scaling of width with same aspect, , default = false
+		virtual void setHeight(const int& h, bool keep_aspect = false);
 		///set width of object and image related to current screen size, see also CComponentsItem::setWidthP(), parameter as uint8_t
 		virtual void setWidthP(const uint8_t& w_percent){CComponentsItem::setWidthP(w_percent), do_scale = true; initCCItem();}
 		///set height of object and image related to current screen size, see also CComponentsItem::setHeightP(), parameter as uint8_t
