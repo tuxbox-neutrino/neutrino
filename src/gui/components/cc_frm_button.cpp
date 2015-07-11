@@ -143,23 +143,22 @@ void CComponentsButton::initIcon()
 
 	//initialize icon object
 	if (cc_btn_icon_obj == NULL){
-		int w_icon = 0;
-		int h_icon = 0;
 		int y_icon = 0;
 
 		string::size_type pos = cc_btn_icon.find("/", 0);
 		if (pos == string::npos)
 			cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
 
-		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
-		cc_btn_icon_obj->getSize(&w_icon, &h_icon);
+		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, y_icon, cc_btn_icon, this);
 
-		if (h_icon > (height-2*fr_thickness)){
-			cc_btn_icon_obj->setHeight(height-2*fr_thickness);
-			uint8_t h_ratio = uint8_t(h_icon/cc_btn_icon_obj->getHeight());
-			w_icon = w_icon/h_ratio;
-			cc_btn_icon_obj->setWidth(w_icon);
-		}
+		int h_icon = cc_btn_icon_obj->getHeight();
+
+		//get required icon height
+		int h_max = height-2*fr_thickness;
+
+		//get current icon dimensions
+		if (h_icon > h_max)
+			cc_btn_icon_obj->setHeight(h_max, true);
 
 		y_icon = height/2 - cc_btn_icon_obj->getHeight()/2;
 

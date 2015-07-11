@@ -47,7 +47,7 @@ class CComponentsButton : public CComponentsFrmChain
 {
 	protected:
 		///object: picture object
-		CComponentsPicture *cc_btn_icon_obj;
+		CComponentsPictureScalable *cc_btn_icon_obj;
 		///object: label object
 		CComponentsLabel *cc_btn_capt_obj;
 
