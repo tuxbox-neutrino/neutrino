@@ -148,6 +148,7 @@ class CTextBox
 		int  m_nBgRadiusType;
 		bool m_nPaintBackground;
 		bool m_SaveScreen;
+		bool m_utf8_encoded;
 
 		Font* m_pcFontText;
 		int m_nFontTextHeight;
@@ -192,6 +193,8 @@ class CTextBox
 		void 	setWindowMaxDimensions(const int width, const int height);
 		void 	setWindowMinDimensions(const int width, const int height);
 		void    setFontUseDigitHeight(bool set=true);
+		void	enableUTF8(bool enable = true){m_utf8_encoded = enable;}
+		void	disableUTF8(bool enable = false){enableUTF8(false);}
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
