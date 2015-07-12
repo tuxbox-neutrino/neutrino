@@ -63,6 +63,8 @@ class CComponentsText : public CComponentsItem, public CBox
 		///status: cached text string, mainly required to compare with current text
 		std::string ct_old_text;
 
+		bool ct_utf8_encoded;
+
 		///status: current text string is sent to CTextBox object
 		bool ct_text_sent;
 		///property: send to CTextBox object enableBackgroundPaint(true)
@@ -170,6 +172,9 @@ class CComponentsText : public CComponentsItem, public CBox
 			if (ct_textbox)
 				ct_textbox->enableSaveScreen(mode);
 		}
+		///enable/disable utf8 encoding
+		void enableUTF8(bool enable = true){ct_utf8_encoded = enable;}
+		void disableUTF8(bool enable = false){enableUTF8(enable);}
 };
 
 

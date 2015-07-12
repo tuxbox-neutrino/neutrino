@@ -104,6 +104,7 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
 	ct_force_text_paint = false;
+	ct_utf8_encoded = true;
 
 	initCCText();
 	initParent(parent);
@@ -148,6 +149,7 @@ void CComponentsText::initCCText()
 	ct_textbox->setWindowMaxDimensions(iWidth, iHeight);
 	ct_textbox->setWindowMinDimensions(iWidth, iHeight);
 	ct_textbox->enableSaveScreen(save_tbox_screen);
+	ct_textbox->enableUTF8(ct_utf8_encoded);
 
 	//observe behavior of parent form if available
 	bool force_text_paint = ct_force_text_paint;

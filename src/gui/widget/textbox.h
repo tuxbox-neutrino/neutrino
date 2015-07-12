@@ -194,7 +194,7 @@ class CTextBox
 		void 	setWindowMinDimensions(const int width, const int height);
 		void    setFontUseDigitHeight(bool set=true);
 		void	enableUTF8(bool enable = true){m_utf8_encoded = enable;}
-		void	disableUTF8(bool enable = false){enableUTF8(false);}
+		void	disableUTF8(bool enable = false){enableUTF8(enable);}
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
