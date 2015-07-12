@@ -2072,6 +2072,7 @@ void CLuaInstance::ComponentsTextRegister(lua_State *L)
 		{ "setText", CLuaInstance::ComponentsTextSetText },
 		{ "scroll", CLuaInstance::ComponentsTextScroll },
 		{ "setCenterPos", CLuaInstance::ComponentsTextSetCenterPos },
+		{ "enableUTF8", CLuaInstance::ComponentsTextEnableUTF8 },
 		{ "__gc", CLuaInstance::ComponentsTextDelete },
 		{ NULL, NULL }
 	};
@@ -2255,6 +2256,24 @@ int CLuaInstance::ComponentsTextSetCenterPos(lua_State *L)
 		along_mode=tmp_along_mode;
 
 	m->ct->setCenterPos(along_mode);
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextEnableUTF8(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
+	bool utf8_encoded = true;
+	if (!tableLookup(L, "utf8_encoded", utf8_encoded))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "utf8_encoded", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		utf8_encoded = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
+	m->ct->enableUTF8(utf8_encoded);
 	return 0;
 }
 

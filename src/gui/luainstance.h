@@ -278,6 +278,7 @@ private:
 	static int ComponentsTextSetText(lua_State *L);
 	static int ComponentsTextScroll(lua_State *L);
 	static int ComponentsTextSetCenterPos(lua_State *L);
+	static int ComponentsTextEnableUTF8(lua_State *L);
 	static int ComponentsTextDelete(lua_State *L);
 
 	static CLuaPicture *CPictureCheck(lua_State *L, int n);
