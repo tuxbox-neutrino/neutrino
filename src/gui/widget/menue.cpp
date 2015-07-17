@@ -1313,7 +1313,7 @@ void CMenuWidget::paintHint(int pos)
 
 	info_box->enableGradient(g_settings.theme.menu_Hint_gradient  != 0);
 	info_box->set2ndColor(COL_INFOBAR_SHADOW_PLUS_1); // COL_INFOBAR_SHADOW_PLUS_1 is default footer color
-	info_box->setColorBody(COL_MENUCONTENT_PLUS_0);
+
 	
 	if (hint_painted) {
 		/* clear detailsline line */
