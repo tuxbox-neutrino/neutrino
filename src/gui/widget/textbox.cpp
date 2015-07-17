@@ -643,7 +643,7 @@ void CTextBox::refreshText(void)
 			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], m_utf8_encoded))>>1) - text_Hborder_width;
 		}
 		else if ( m_nMode & RIGHT ){
-			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i]), m_utf8_encoded) - text_Hborder_width*2);
+			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], m_utf8_encoded)) - text_Hborder_width*2);
 			if ( m_nMode & SCROLL )
 				x_center -= SCROLL_FRAME_WIDTH;
 		}
