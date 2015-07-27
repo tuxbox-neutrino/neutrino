@@ -66,6 +66,7 @@ class CFile
 			FILE_OGG,
 			FILE_WAV,
 			FILE_FLAC,
+			FILE_FLV,
 			FILE_XML,
 			FILE_PLAYLIST,
 			STREAM_AUDIO,

@@ -28,6 +28,7 @@ if ENABLE_FFMPEGDEC
 ASOURCES = ffmpegdec.cpp
 else
 ASOURCES = cdrdec.cpp \
+	ffmpegdec.cpp \
 	crc.c \
 	flacdec.cpp \
 	mp3dec.cpp \

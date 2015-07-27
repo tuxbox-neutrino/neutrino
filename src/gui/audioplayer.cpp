@@ -201,6 +201,7 @@ void CAudioPlayerGui::Init(void)
 		audiofilefilter.addFilter("ogg");
 		audiofilefilter.addFilter("wav");
 		audiofilefilter.addFilter("flac");
+		audiofilefilter.addFilter("flv");
 #ifdef ENABLE_FFMPEGDEC
 		audiofilefilter.addFilter("aac");
 		audiofilefilter.addFilter("dts");
@@ -1253,6 +1254,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 					||  (files->getType() == CFile::FILE_AAC)
 #endif
 					||  (files->getType() == CFile::FILE_FLAC)
+					||  (files->getType() == CFile::FILE_FLV)
 			   )
 			{
 				CAudiofileExt audiofile(files->Name,
@@ -1344,6 +1346,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 											|| fileType == CFile::FILE_OGG
 											|| fileType == CFile::FILE_WAV
 											|| fileType == CFile::FILE_FLAC
+											|| fileType == CFile::FILE_FLV
 									   )
 									{
 										CAudiofileExt audioFile(filename,fileType);
