@@ -497,12 +497,15 @@ void *WebThread(void *args) {
 		log_level_printf(2,"FD SHOULD CLOSE sock:%d!!!\n",con->sock->get_socket());
 	else
 		ws->addSocketToMasterSet(con->sock->get_socket()); // add to master set
-#else
-	delete newConn->ySock;
 #endif
 	if (!con->keep_alive)
 		con->sock->isValid = false;
 	con->sock->handling = false; // socket can be handled by webserver main loop (select) again
+
+#ifndef Y_CONFIG_FEATURE_KEEP_ALIVE
+	delete newConn->ySock;
+	newConn->ySock = NULL;
+#endif
 
 	// (4) end thread
 	delete con;
