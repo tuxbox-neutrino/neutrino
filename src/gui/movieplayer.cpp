@@ -315,7 +315,7 @@ void CMoviePlayerGui::updateLcd()
 	std::string lcd;
 	std::string name;
 
-	if (isMovieBrowser && strlen(p_movie_info->epgTitle.c_str()) && strncmp(p_movie_info->epgTitle.c_str(), "not", 3))
+	if (isMovieBrowser && p_movie_info && !p_movie_info->epgTitle.empty() && p_movie_info->epgTitle.size() && strncmp(p_movie_info->epgTitle.c_str(), "not", 3))
 		name = p_movie_info->epgTitle;
 	else
 		name = pretty_name;
