@@ -127,6 +127,10 @@ AC_ARG_ENABLE(freesatepg,
 	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
 	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
 
+AC_ARG_ENABLE(viasatepg,
+	[  --enable-viasatepg                  enable ViaSat EPG code (experimental)],
+	[AC_DEFINE(ENABLE_VIASATEPG,1,[enable ViaSat EPG code])])
+
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
 	,[enable_giflib=no])
