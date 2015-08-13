@@ -1820,6 +1820,9 @@ void CChannelList::paintButtonBar(bool is_current)
 
 void CChannelList::paintItem(int pos, const bool firstpaint)
 {
+	if( (*chanlist).empty() ){
+		return;
+	}
 	int ypos = y+ theight + pos*fheight;
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
