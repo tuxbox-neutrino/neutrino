@@ -276,6 +276,11 @@
 		<transponder frequency="114000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="122000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="130000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="138000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="146000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="154000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="162000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="170000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="346000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="354000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="362000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -292,17 +297,14 @@
 		<transponder frequency="450000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="458000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="466000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="522000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="530000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="538000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="546000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="554000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="562000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="570000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="610000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
-		<transponder frequency="682000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="698000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="730000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="738000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="746000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="754000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="762000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
