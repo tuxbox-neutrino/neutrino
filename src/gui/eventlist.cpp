@@ -50,6 +50,7 @@
 #include <driver/display.h>
 #include <driver/screen_max.h>
 #include <driver/fade.h>
+#include <driver/record.h>
 
 #include <system/helpers.h>
 #include <zapit/client/zapittools.h>
@@ -784,9 +785,16 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		
 		// 2nd line
 		// set status icons
-		CTimerd::CTimerEventTypes etype = isScheduled(m_showChannel ? evtlist[curpos].channelID : channel_idI, &evtlist[curpos]);
-		const char * icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_RECORDING_EVENT_MARKER : 0;
-		
+		t_channel_id channel_tmp = m_showChannel ? evtlist[curpos].channelID : channel_idI;
+		CTimerd::CTimerEventTypes etype = isScheduled(channel_tmp, &evtlist[curpos]);
+		const char * icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : 0;
+		if(etype == CTimerd::TIMER_RECORD){
+			int rec_mode = CRecordManager::getInstance()->GetRecordMode(channel_tmp);
+			if (rec_mode == CRecordManager::RECMODE_TSHIFT)
+				icontype = NEUTRINO_ICON_AUTO_SHIFT;
+			else
+				icontype = NEUTRINO_ICON_REC;// NEUTRINO_ICON_RECORDING_EVENT_MARKER
+		}
 		int iw = 0, ih;
 		if(icontype != 0) {
 			frameBuffer->getIconSize(icontype, &iw, &ih);
