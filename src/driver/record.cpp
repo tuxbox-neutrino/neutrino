@@ -858,6 +858,17 @@ CRecordInstance * CRecordManager::FindTimeshift()
 	return NULL;
 }
 
+bool CRecordManager::CheckRecordingId_if_Timeshift(int recid)
+{
+	if(recid > 0){
+		CRecordInstance * inst = FindInstanceID(recid);
+		if(inst){
+			return inst->Timeshift();
+		}
+	}
+	return false;
+}
+
 MI_MOVIE_INFO * CRecordManager::GetMovieInfo(t_channel_id channel_id, bool timeshift)
 {
 	//FIXME copy MI_MOVIE_INFO ?

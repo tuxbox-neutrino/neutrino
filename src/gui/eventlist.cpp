@@ -705,10 +705,17 @@ CTimerd::CTimerEventTypes CEventList::isScheduled(t_channel_id channel_id, CChan
 		if(timer->channel_id == channel_id && (timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_RECORD)) {
 			if(timer->epgID == event->eventID) {
 				if(timer->epg_starttime == event->startTime) {
+					bool isTimeShiftTimer = false;
+					if( timer->eventType == CTimerd::TIMER_RECORD){
+						isTimeShiftTimer = CRecordManager::getInstance()->CheckRecordingId_if_Timeshift(timer->eventID);
+					}
 					if(tID)
 						*tID = timer->eventID;
+					if(isTimeShiftTimer)//skip TSHIFT RECORD
+						continue;
+
 					return timer->eventType;
-				}		
+				}
 			}
 		}
 	}
@@ -786,14 +793,14 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		// 2nd line
 		// set status icons
 		t_channel_id channel_tmp = m_showChannel ? evtlist[curpos].channelID : channel_idI;
-		CTimerd::CTimerEventTypes etype = isScheduled(channel_tmp, &evtlist[curpos]);
+		int timerID = -1;
+		CTimerd::CTimerEventTypes etype = isScheduled(channel_tmp, &evtlist[curpos],&timerID);
 		const char * icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : 0;
 		if(etype == CTimerd::TIMER_RECORD){
-			int rec_mode = CRecordManager::getInstance()->GetRecordMode(channel_tmp);
-			if (rec_mode == CRecordManager::RECMODE_TSHIFT)
+			icontype = NEUTRINO_ICON_REC;// NEUTRINO_ICON_RECORDING_EVENT_MARKER
+		}else{
+			if (timerID > 0 && CRecordManager::getInstance()->CheckRecordingId_if_Timeshift(timerID))
 				icontype = NEUTRINO_ICON_AUTO_SHIFT;
-			else
-				icontype = NEUTRINO_ICON_REC;// NEUTRINO_ICON_RECORDING_EVENT_MARKER
 		}
 		int iw = 0, ih;
 		if(icontype != 0) {
