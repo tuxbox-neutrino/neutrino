@@ -168,6 +168,8 @@ void CMoviePlayerGui::Init(void)
 	info_1 = "";
 	info_2 = "";
 	filelist_it = filelist.end();
+	keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL;
+	isLuaPlay = false;
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -276,6 +278,12 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	}
 	else if (actionKey == "http") {
 		isHTTP = true;
+		is_file_player = true;
+		PlayFile();
+	}
+	else if (actionKey == "http_lua") {
+		isHTTP = true;
+		isLuaPlay = true;
 		is_file_player = true;
 		PlayFile();
 	}
@@ -402,6 +410,7 @@ void CMoviePlayerGui::ClearFlags()
 	isMovieBrowser = false;
 	isBookmark = false;
 	isHTTP = false;
+	isLuaPlay = false;
 	isUPNP = false;
 	isWebTV = false;
 	isYT = false;
@@ -852,6 +861,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	bool update_lcd = true;
 	int eof = 0;
 	bool at_eof = !(playstate >= CMoviePlayerGui::PLAY);;
+	keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL;
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
 		if (update_lcd) {
@@ -906,6 +916,15 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			g_PluginList->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
+			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
+			ClearQueue();
+		} else if (isLuaPlay && (msg == (neutrino_msg_t) CRCInput::RC_right)) {
+			playstate = CMoviePlayerGui::STOPPED;
+			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT;
+			ClearQueue();
+		} else if (isLuaPlay && (msg == (neutrino_msg_t) CRCInput::RC_left)) {
+			playstate = CMoviePlayerGui::STOPPED;
+			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV;
 			ClearQueue();
 		} else if ((!filelist.empty() && msg == (neutrino_msg_t) CRCInput::RC_right)) {
 			if (filelist_it < (filelist.end() - 1)) {

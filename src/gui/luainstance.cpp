@@ -277,11 +277,19 @@ static void set_lua_variables(lua_State *L)
 		{ "EXIT_REPAINT", menu_return::RETURN_EXIT_REPAINT },
 		{ NULL, 0 }
 	};
-
 	table_key apiversion[] =
 	{
 		{ "MAJOR", LUA_API_VERSION_MAJOR },
 		{ "MINOR", LUA_API_VERSION_MINOR },
+		{ NULL, 0 }
+	};
+
+	table_key playstate[] =
+	{
+		{ "NORMAL", CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL },
+		{ "STOP",   CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP },
+		{ "NEXT",   CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT },
+		{ "PREV",   CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV },
 		{ NULL, 0 }
 	};
 
@@ -294,6 +302,7 @@ static void set_lua_variables(lua_State *L)
 		{ "CORNER",	corners },
 		{ "MENU_RETURN", menureturn },
 		{ "APIVERSION",  apiversion },
+		{ "PLAYSTATE",   playstate },
 		{ NULL, NULL }
 	};
 
@@ -727,8 +736,10 @@ int CLuaInstance::PlayFile(lua_State *L)
 	std::string si2(info2);
 	std::string sf(fname);
 	CMoviePlayerGui::getInstance().SetFile(st, sf, si1, si2);
-	CMoviePlayerGui::getInstance().exec(NULL, "http");
-	return 0;
+	CMoviePlayerGui::getInstance().exec(NULL, "http_lua");
+	int ret = CMoviePlayerGui::getInstance().getKeyPressed();
+	lua_pushinteger(L, ret);
+	return 1;
 }
 
 int CLuaInstance::strFind(lua_State *L)
