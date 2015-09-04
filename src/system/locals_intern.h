@@ -894,6 +894,8 @@ const char * locale_real_names[] =
 	"lua.function_deprecated1",
 	"lua.function_deprecated2",
 	"lua.function_deprecated3",
+	"lua.versionscheck1",
+	"lua.versionscheck2",
 	"mainmenu.audioplayer",
 	"mainmenu.channels",
 	"mainmenu.clearsectionsd",

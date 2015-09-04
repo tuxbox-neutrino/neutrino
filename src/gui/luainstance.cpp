@@ -278,6 +278,13 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+	table_key apiversion[] =
+	{
+		{ "MAJOR", LUA_API_VERSION_MAJOR },
+		{ "MINOR", LUA_API_VERSION_MINOR },
+		{ NULL, 0 }
+	};
+
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
 	{
@@ -286,6 +293,7 @@ static void set_lua_variables(lua_State *L)
 		{ "FONT",	fontlist },
 		{ "CORNER",	corners },
 		{ "MENU_RETURN", menureturn },
+		{ "APIVERSION",  apiversion },
 		{ NULL, NULL }
 	};
 
@@ -511,6 +519,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "PlayFile", CLuaInstance::PlayFile },
 	{ "strFind", CLuaInstance::strFind },
 	{ "strSub", CLuaInstance::strSub },
+	{ "checkVersion", CLuaInstance::checkVersion },
 	{ NULL, NULL }
 };
 
@@ -2608,6 +2617,33 @@ int CLuaInstance::LuaConfigFileDelete(lua_State *L)
 	if (!c) return 0;
 	delete c;
 	return 0;
+}
+
+// --------------------------------------------------------------------------------
+
+int CLuaInstance::checkVersion(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 2)\n", __func__, numargs);
+		lua_pushnil(L);
+		return 1;
+	}
+	int major=0, minor=0, ret=1;
+	major = luaL_checkint(L, 2);
+	minor = luaL_checkint(L, 3);
+	if ((major > LUA_API_VERSION_MAJOR) || ((major == LUA_API_VERSION_MAJOR) && (minor > LUA_API_VERSION_MINOR))) {
+		ret = 0;
+		char msg[1024];
+		snprintf(msg, sizeof(msg)-1, "%s (v%d.%d)\n%s v%d.%d",
+				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK1),
+				LUA_API_VERSION_MAJOR, LUA_API_VERSION_MINOR,
+				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK2),
+				major, minor);
+		ShowMsg(LOCALE_MESSAGEBOX_ERROR, msg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
+	}
+	lua_pushinteger(L, ret);
+	return 1;
 }
 
 // --------------------------------------------------------------------------------
