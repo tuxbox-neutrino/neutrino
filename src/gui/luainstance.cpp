@@ -1050,6 +1050,7 @@ void CLuaInstance::MenuRegister(lua_State *L)
 		{ "addItem", CLuaInstance::MenuAddItem },
 		{ "exec", CLuaInstance::MenuExec },
 		{ "hide", CLuaInstance::MenuHide },
+		{ "setActive", CLuaInstance::MenuSetActive },
 		{ "__gc", CLuaInstance::MenuDelete },
 		{ NULL, NULL }
 	};
@@ -1269,6 +1270,28 @@ int CLuaInstance::MenuAddKey(lua_State *L)
 		m->m->addKey(directkey, forwarder, action);
 		m->targets.push_back(forwarder);
 	}
+	return 0;
+}
+
+int CLuaInstance::MenuSetActive(lua_State *L)
+{
+	CLuaMenu *m = MenuCheck(L, 1);
+	if (!m)
+		return 0;
+	lua_assert(lua_istable(L, 2));
+
+	lua_Integer id;	tableLookup(L, "item", id);
+	bool activ;	tableLookup(L, "activ", activ);
+
+	CMenuItem* item = NULL;
+	for (itemmap_iterator_t it = m->itemmap.begin(); it != m->itemmap.end(); ++it) {
+		if (it->first == id) {
+			item = it->second;
+			break;
+		}
+	}
+	if (item)
+		item->setActive(activ);
 	return 0;
 }
 

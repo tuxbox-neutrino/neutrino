@@ -34,7 +34,7 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 1
+#define LUA_API_VERSION_MINOR 2
 
 /* this is stored as userdata in the lua_State */
 struct CLuaData
@@ -243,6 +243,7 @@ private:
 	static int MenuHide(lua_State *L);
 	static int MenuExec(lua_State *L);
 	static CLuaMenu *MenuCheck(lua_State *L, int n);
+	static int MenuSetActive(lua_State *L);
 
 	void HintboxRegister(lua_State *L);
 	static int HintboxNew(lua_State *L);
