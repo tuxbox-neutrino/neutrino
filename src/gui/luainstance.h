@@ -56,6 +56,10 @@ class CLuaMenuChangeObserver : public CChangeObserver
 		bool changeNotify(lua_State *, const std::string &, const std::string &, void *);
 };
 
+typedef std::pair<lua_Integer, CMenuItem*> itemmap_pair_t;
+typedef std::map<lua_Integer, CMenuItem*> itemmap_t;
+typedef itemmap_t::iterator itemmap_iterator_t;
+
 class CLuaMenu
 {
 	public:
@@ -64,6 +68,7 @@ class CLuaMenu
 		std::list<CLuaMenuItem> items;
 		std::list<CMenuTarget *> targets;
 		std::list<void *> tofree;
+		itemmap_t itemmap;
 		CLuaMenu();
 		~CLuaMenu();
 };

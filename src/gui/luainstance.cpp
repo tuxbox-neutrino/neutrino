@@ -1081,6 +1081,7 @@ CLuaMenu::CLuaMenu()
 
 CLuaMenu::~CLuaMenu()
 {
+	itemmap.clear();
 	delete m;
 	delete observ;
 }
@@ -1274,10 +1275,13 @@ int CLuaInstance::MenuAddKey(lua_State *L)
 int CLuaInstance::MenuAddItem(lua_State *L)
 {
 	CLuaMenu *m = MenuCheck(L, 1);
-	if (!m)
-		return 0;
+	if (!m) {
+		lua_pushnil(L);
+		return 1;
+	}
 	lua_assert(lua_istable(L, 2));
 
+	CMenuItem *mi = NULL;
 	CLuaMenuItem i;
 	m->items.push_back(i);
 	CLuaMenuItem *b = &m->items.back();
@@ -1339,8 +1343,6 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 		int range_from = 0, range_to = 99;
 		sscanf(tmp.c_str(), "%d,%d", &range_from, &range_to);
 
-		CMenuItem *mi = NULL;
-
 		if (type == "forwarder") {
 			b->str_val = value;
 			CLuaMenuForwarder *forwarder = new CLuaMenuForwarder(L, action, id);
@@ -1360,7 +1362,8 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 			lua_pop(L, 1);
 			if (options_count == 0) {
 				m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "ERROR! (options_count)", NONEXISTANT_LOCALE));
-				return 0;
+				lua_pushnil(L);
+				return 1;
 			}
 
 			CMenuOptionChooser::keyval_ext *kext = (CMenuOptionChooser::keyval_ext *)calloc(options_count, sizeof(CMenuOptionChooser::keyval_ext));
@@ -1432,7 +1435,16 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 			m->m->addItem(mi);
 		}
 	}
-	return 0;
+
+	if (mi) {
+		lua_Integer id = m->itemmap.size() + 1;
+		m->itemmap.insert(itemmap_pair_t(id, mi));
+		lua_pushinteger(L, id);
+	}
+	else
+		lua_pushnil(L);
+
+	return 1;
 }
 
 int CLuaInstance::MenuHide(lua_State *L)
