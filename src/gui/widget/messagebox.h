@@ -108,6 +108,10 @@ int ShowMsg(const std::string &Caption, const std::string & Text, const CMessage
 int ShowMsg(const std::string &Caption, const neutrino_locale_t Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
 
 void DisplayErrorMessage(const char * const ErrorMsg); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t Caption); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const std::string &Caption); // UTF-8
 void DisplayInfoMessage(const char * const InfoMsg); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t Caption); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const std::string &Caption); // UTF-8
 
 #endif
