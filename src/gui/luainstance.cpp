@@ -435,7 +435,7 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 	int status = luaL_loadfile(lua, fileName);
 	if (status) {
 		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, lua_tostring(lua, -1));
-		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
+		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
 		return;
@@ -466,7 +466,7 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 	if (status)
 	{
 		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
-		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
+		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
 	}
@@ -2686,7 +2686,7 @@ int CLuaInstance::checkVersion(lua_State *L)
 				LUA_API_VERSION_MAJOR, LUA_API_VERSION_MINOR,
 				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK2),
 				major, minor);
-		ShowMsg(LOCALE_MESSAGEBOX_ERROR, msg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
+		DisplayErrorMessage(msg, "Lua Script Error:");
 	}
 	lua_pushinteger(L, ret);
 	return 1;
