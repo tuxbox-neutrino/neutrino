@@ -2691,20 +2691,19 @@ int CLuaInstance::checkVersion(lua_State *L)
 		lua_pushnil(L);
 		return 1;
 	}
-	int major=0, minor=0, ret=1;
+	int major=0, minor=0;
 	major = luaL_checkint(L, 2);
 	minor = luaL_checkint(L, 3);
 	if ((major > LUA_API_VERSION_MAJOR) || ((major == LUA_API_VERSION_MAJOR) && (minor > LUA_API_VERSION_MINOR))) {
-		ret = 0;
 		char msg[1024];
 		snprintf(msg, sizeof(msg)-1, "%s (v%d.%d)\n%s v%d.%d",
 				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK1),
 				LUA_API_VERSION_MAJOR, LUA_API_VERSION_MINOR,
 				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK2),
 				major, minor);
-		DisplayErrorMessage(msg, "Lua Script Error:");
+		luaL_error(L, msg);
 	}
-	lua_pushinteger(L, ret);
+	lua_pushinteger(L, 1); /* for backward compatibility */
 	return 1;
 }
 
