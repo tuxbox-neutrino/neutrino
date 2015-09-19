@@ -1185,7 +1185,7 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 		lua_remove(L, -2);
 		lua_pushstring(L, luaId.c_str());
 		lua_pushstring(L, value->c_str());
-		int status = lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
+		int status = lua_pcall(L, 2 /* two arg */, 1 /* one result */, 0);
 		if (status) {
 			fprintf(stderr, "[CLuaMenuStringinput::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
 			luaL_error(L, " => %s", lua_tostring(L, -1));
@@ -1218,7 +1218,7 @@ int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*a
 		lua_remove(L, -2);
 		lua_pushstring(L, luaId.c_str());
 		lua_pushstring(L, value->c_str());
-		int status = lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
+		int status = lua_pcall(L, 2 /* two arg */, 1 /* one result */, 0);
 		if (status) {
 			fprintf(stderr, "[CLuaMenuKeyboardinput::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
 			luaL_error(L, " => %s", lua_tostring(L, -1));
