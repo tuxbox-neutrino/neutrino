@@ -584,6 +584,7 @@ flashupdate.copy_image Copy Image to main memory
 flashupdate.createimage Save image
 flashupdate.createimage_add_env Add 'env' to image
 flashupdate.createimage_add_kernel Add 'kernel' to image
+flashupdate.createimage_add_root1 Add 'root1' to image
 flashupdate.createimage_add_spare Add 'spare' to image
 flashupdate.createimage_add_u_boot Add 'u-boot' to image
 flashupdate.createimage_add_uldr Add 'uldr' to image
@@ -612,7 +613,7 @@ flashupdate.md5check checking image
 flashupdate.md5sumerror image has errors
 flashupdate.menu_apply_kernel Flashing kernel
 flashupdate.menu_apply_settings Allow apply settings
-flashupdate.mkfs_create_image Create image
+flashupdate.mkfs_create_image Create backup
 flashupdate.mkfs_preparing_files Preparing files and directories
 flashupdate.mkfs_using_sumtool Using sumtool
 flashupdate.msgbox Found the following new file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nDo you want to download and install this version now?

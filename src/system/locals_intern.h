@@ -611,6 +611,7 @@ const char * locale_real_names[] =
 	"flashupdate.createimage",
 	"flashupdate.createimage_add_env",
 	"flashupdate.createimage_add_kernel",
+	"flashupdate.createimage_add_root1",
 	"flashupdate.createimage_add_spare",
 	"flashupdate.createimage_add_u_boot",
 	"flashupdate.createimage_add_uldr",

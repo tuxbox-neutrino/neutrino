@@ -586,6 +586,7 @@ struct SNeutrinoSettings
 	int apply_kernel;
 
 	int flashupdate_createimage_add_var;
+	int flashupdate_createimage_add_root1;
 	int flashupdate_createimage_add_uldr;
 	int flashupdate_createimage_add_u_boot;
 	int flashupdate_createimage_add_env;

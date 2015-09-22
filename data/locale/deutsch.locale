@@ -583,6 +583,7 @@ flashupdate.copy_image Kopiere Image in den Arbeitsspeicher
 flashupdate.createimage Image speichern
 flashupdate.createimage_add_env 'env' hinzufügen
 flashupdate.createimage_add_kernel 'kernel' hinzufügen
+flashupdate.createimage_add_root1 Partition 'root1' sichern
 flashupdate.createimage_add_spare 'spare' hinzufügen
 flashupdate.createimage_add_u_boot 'u-boot' hinzufügen
 flashupdate.createimage_add_uldr 'uldr' hinzufügen
@@ -611,7 +612,7 @@ flashupdate.md5check Imageprüfung
 flashupdate.md5sumerror Das Image ist fehlerhaft
 flashupdate.menu_apply_kernel Kernel flashen
 flashupdate.menu_apply_settings Settingsübernahme erlauben
-flashupdate.mkfs_create_image Image erstellen
+flashupdate.mkfs_create_image Backup erstellen
 flashupdate.mkfs_preparing_files Dateien und Verzeichnisse vorbereiten
 flashupdate.mkfs_using_sumtool Benutze Sumtool
 flashupdate.msgbox Es wurde folgende neue Datei gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen und installieren?
