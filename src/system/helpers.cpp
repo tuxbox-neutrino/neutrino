@@ -898,3 +898,21 @@ std::string to_string(unsigned long long i)
 	return s.str();
 }
 
+std::string getJFFS2MountPoint(int mtdPos)
+{
+	FILE* fd = fopen("/proc/mounts", "r");
+	if (!fd) return "";
+	int iBlock;
+	char lineRead[1024], sMount[512], sFs[512];
+	memset(lineRead, '\0', sizeof(lineRead));
+	while (fgets(lineRead, sizeof(lineRead)-1, fd)) {
+		sscanf(lineRead, "/dev/mtdblock%d %512s %512s", &iBlock, sMount, sFs);
+		if ((iBlock == mtdPos) && (strstr(sMount, "/") != NULL) && (strstr(sFs, "jffs2") != NULL)) {
+			fclose(fd);
+			return sMount;
+		}
+		memset(lineRead, '\0', sizeof(lineRead));
+	}
+	fclose(fd);
+	return "";
+}

@@ -92,7 +92,6 @@ extern int allow_flash;
 #define MTD_OF_WHOLE_IMAGE             0
 #ifdef BOXMODEL_APOLLO
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd0"
-#define ROOT1_MOUNT                    "/ext"
 #else
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
 #endif
@@ -770,17 +769,20 @@ void CFlashExpert::readmtd(int preadmtd)
 		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + tankStr + ".img";
 
 #ifdef BOXMODEL_APOLLO
-	std::string title = " [" + CMTDInfo::getInstance()->getMTDName(preadmtd) + "]";
+	std::string title  = " (" + CMTDInfo::getInstance()->getMTDName(preadmtd) + ")";
+	std::string mountp = getJFFS2MountPoint(preadmtd);
 	if (preadmtd == 0) {
 		readmtdJFFS2(filename, title);
 		return;
 	}
 	if (preadmtd == 1) {
-		readmtdJFFS2(filename, title, "/var", false);
+		if (mountp != "")
+			readmtdJFFS2(filename, title, mountp.c_str(), false);
 		return;
 	}
 	if (preadmtd == 2) {
-		readmtdJFFS2(filename, title, ROOT1_MOUNT, false);
+		if (mountp != "")
+			readmtdJFFS2(filename, title, mountp.c_str(), false);
 		return;
 	}
 #endif
@@ -886,12 +888,15 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 			                          lx == mtdInfo->findMTDNumberFromName("uldr") ||
 			                          lx == mtdInfo->findMTDNumberFromName("env")))
 			enabled = false;
-		// build jffs2 image from root0
-		if ((actionkey == "readmtd") && (lx == mtdInfo->findMTDNumberFromName("root0"))) {
-			CMenuForwarder *mf = new CMenuDForwarder("root0", true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
-			mtdselector->addItem(mf);
-			continue;
+		if (actionkey == "readmtd") {
+			// Enabled when file system is mounted
+			if (lx == mtdInfo->findMTDNumberFromName("var"))
+				enabled = (getJFFS2MountPoint(lx) == "") ? false : true;
+			else if (lx == mtdInfo->findMTDNumberFromName("root1"))
+				enabled = (getJFFS2MountPoint(lx) == "") ? false : true;
 		}
+		if (lx == 3)
+			mtdselector->addItem(GenericMenuSeparatorLine);
 #else
 		// disable write uboot
 		if ((actionkey == "writemtd") && (lx == mtdInfo->findMTDNumberFromName("U-Boot")))
@@ -1089,10 +1094,18 @@ int CFlashExpertSetup::showMenu()
 
 	CMenuSeparator     *s1 = new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_FLASHUPDATE_CREATEIMAGE_OPTIONS);
 	CMenuForwarder     *m1 = new CMenuForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE, true, NULL, this, "readmtd0", CRCInput::convertDigitToKey(0));
-	CMenuOptionChooser *m8 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_VAR,   &g_settings.flashupdate_createimage_add_var,
+	bool isMountVar = (getJFFS2MountPoint(1) == "") ? false : true;
+	CMenuOptionChooser *m8=NULL;
+	if (isMountVar)
+		m8 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_VAR,   &g_settings.flashupdate_createimage_add_var,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
-	CMenuOptionChooser *m9 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ROOT1,   &g_settings.flashupdate_createimage_add_root1,
+
+	bool isMountRoot1 = (getJFFS2MountPoint(2) == "") ? false : true;
+	CMenuOptionChooser *m9=NULL;
+	if (isMountRoot1)
+		m9 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ROOT1,   &g_settings.flashupdate_createimage_add_root1,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+
 	CMenuOptionChooser *m2 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ULDR,   &g_settings.flashupdate_createimage_add_uldr,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 #ifndef UBOOT_BIN
@@ -1117,8 +1130,10 @@ g_settings.flashupdate_createimage_add_spare = 0;
 
 	rootfsSetup->addItem(m1); // create image
 	rootfsSetup->addItem(s1);
-	rootfsSetup->addItem(m8); // include var
-	rootfsSetup->addItem(m9); // include root1
+	if (isMountVar)
+		rootfsSetup->addItem(m8); // include var
+	if (isMountRoot1)
+		rootfsSetup->addItem(m9); // include root1
 	rootfsSetup->addItem(m2); // include uldr
 #ifdef UBOOT_BIN
 	rootfsSetup->addItem(m3); // include u-boot

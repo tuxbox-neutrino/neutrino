@@ -113,4 +113,7 @@ inline void cstrncpy(char *dest, const std::string &src, size_t n) { n--; strncp
 std::vector<std::string> split(const std::string &s, char delim);
 
 bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap);
+
+std::string getJFFS2MountPoint(int mtdPos);
+
 #endif
