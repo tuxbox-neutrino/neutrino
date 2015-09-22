@@ -99,6 +99,15 @@ void CProgressWindow::setTitle(const neutrino_locale_t title)
 #endif // VFD_UPDATE
 }
 
+void CProgressWindow::setTitle(const std::string & title)
+{
+	setWindowCaption(title);
+
+#ifdef VFD_UPDATE
+	CVFD::getInstance()->showProgressBar2(-1,NULL,-1,g_Locale->getText(ccw_caption)); // set global text in VFD
+#endif // VFD_UPDATE
+}
+
 //if header is disabled we need new position for body items
 void CProgressWindow::fitItems()
 {

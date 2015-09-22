@@ -587,6 +587,7 @@ flashupdate.createimage_add_kernel Add 'kernel' to image
 flashupdate.createimage_add_spare Add 'spare' to image
 flashupdate.createimage_add_u_boot Add 'u-boot' to image
 flashupdate.createimage_add_uldr Add 'uldr' to image
+flashupdate.createimage_add_var Add 'var' to image
 flashupdate.createimage_menu Save current software
 flashupdate.createimage_options Options
 flashupdate.createimage_other Create image for %s STB

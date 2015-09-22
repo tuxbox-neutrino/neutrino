@@ -700,38 +700,44 @@ bool CFlashExpert::readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_dev
 	return true;
 }
 
-void CFlashExpert::readmtdJFFS2(std::string &filename)
+void CFlashExpert::readmtdJFFS2(std::string &filename, std::string title/*=""*/, std::string path/*="/"*/, bool makeDevTable/*=true*/)
 {
 	if (!checkSize(-1, filename))
 		return;
 	CProgressWindow progress;
-	progress.setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
+	if (title == "")
+		progress.setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
+	else
+		progress.setTitle(g_Locale->getText(LOCALE_FLASHUPDATE_TITLEREADFLASH) + title);
 	progress.paint();
 
-	bool devtableFileIO = false;
-	CMkfsJFFS2::v_devtable_t v_devtable;
-	std::string devtableFile = (std::string)CONFIGDIR + "/devtable.txt";
-	if (file_exists(devtableFile.c_str())) {
-		if (readDevtableFile(devtableFile, v_devtable))
-			devtableFileIO = true;
-	}
-	if ((!devtableFileIO) || (v_devtable.empty())) {
-		v_devtable.push_back("/dev/console c 0600 0 0 5 1 0 0 0");
-		v_devtable.push_back("/dev/null c 0666 0 0 1 3 0 0 0");
-	}
-
-	std::string path = "/";
 	int eSize = CMTDInfo::getInstance()->getMTDEraseSize(CMTDInfo::getInstance()->findMTDsystem());
 	if (createimage_other == 1) {
 		if (eSize == 0x40000) eSize = 0x20000;
 		else if (eSize == 0x20000) eSize = 0x40000;
 	}
 	CMkfsJFFS2 mkfs;
-	mkfs.makeJffs2Image(path, filename, eSize, 0, 0, __LITTLE_ENDIAN, true, true, &progress, &v_devtable);
+	if (makeDevTable) {
+		CMkfsJFFS2::v_devtable_t v_devtable;
+		bool devtableFileIO = false;
+		std::string devtableFile = (std::string)CONFIGDIR + "/devtable.txt";
+		if (file_exists(devtableFile.c_str())) {
+			if (readDevtableFile(devtableFile, v_devtable))
+				devtableFileIO = true;
+		}
+		if (!devtableFileIO || v_devtable.empty()) {
+			v_devtable.push_back("/dev/console c 0600 0 0 5 1 0 0 0");
+			v_devtable.push_back("/dev/null c 0666 0 0 1 3 0 0 0");
+		}
+		mkfs.makeJffs2Image(path, filename, eSize, 0, 0, __LITTLE_ENDIAN, true, true, &progress, &v_devtable);
+	}
+	else
+		mkfs.makeJffs2Image(path, filename, eSize, 0, 0, __LITTLE_ENDIAN, true, true, &progress);
+
 	progress.hide();
 
 	char message[500];
-	sprintf(message, g_Locale->getText(LOCALE_FLASHUPDATE_SAVESUCCESS), filename.c_str());
+	snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_FLASHUPDATE_SAVESUCCESS), filename.c_str());
 	ShowHint(LOCALE_MESSAGEBOX_INFO, message);
 }
 #endif
@@ -763,8 +769,13 @@ void CFlashExpert::readmtd(int preadmtd)
 		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + tankStr + ".img";
 
 #ifdef BOXMODEL_APOLLO
+	std::string title = " [" + CMTDInfo::getInstance()->getMTDName(preadmtd) + "]";
 	if (preadmtd == 0) {
-		readmtdJFFS2(filename);
+		readmtdJFFS2(filename, title);
+		return;
+	}
+	if (preadmtd == 1) {
+		readmtdJFFS2(filename, title, "/var", false);
 		return;
 	}
 #endif
@@ -1034,6 +1045,9 @@ int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			cfe->forceOtherFilename = false;
 			cfe->otherFilename = "";
 
+			if (g_settings.flashupdate_createimage_add_var == 1)
+				cfe->readmtd(1);
+
 			cfe->readmtd(0);
 
 			if (g_settings.flashupdate_createimage_add_uldr == 1)
@@ -1067,6 +1081,8 @@ int CFlashExpertSetup::showMenu()
 
 	CMenuSeparator     *s1 = new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_FLASHUPDATE_CREATEIMAGE_OPTIONS);
 	CMenuForwarder     *m1 = new CMenuForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE, true, NULL, this, "readmtd0", CRCInput::convertDigitToKey(0));
+	CMenuOptionChooser *m8 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_VAR,   &g_settings.flashupdate_createimage_add_var,
+								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 	CMenuOptionChooser *m2 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ULDR,   &g_settings.flashupdate_createimage_add_uldr,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 #ifndef UBOOT_BIN
@@ -1091,6 +1107,7 @@ g_settings.flashupdate_createimage_add_spare = 0;
 
 	rootfsSetup->addItem(m1); // create image
 	rootfsSetup->addItem(s1);
+	rootfsSetup->addItem(m8); // include var
 	rootfsSetup->addItem(m2); // include uldr
 #ifdef UBOOT_BIN
 	rootfsSetup->addItem(m3); // include u-boot

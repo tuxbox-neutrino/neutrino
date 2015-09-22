@@ -55,6 +55,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		void showLocalStatus(const unsigned int prog);
 		void showStatusMessageUTF(const std::string & text); // UTF-8
 		void paint(bool do_save_bg = true);
+		void setTitle(const std::string & title);
 };
 
 
