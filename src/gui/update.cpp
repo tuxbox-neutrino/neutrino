@@ -1081,7 +1081,7 @@ int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 
 		cfe->createimage_other = 0;
-		return menu_return::RETURN_EXIT_ALL;
+		return menu_return::RETURN_REPAINT;
 	}
 	return showMenu();
 }
