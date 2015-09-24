@@ -502,7 +502,7 @@ bool CStreamManager::AddClient(int connfd)
 
 			int sendsize = 10*IN_SIZE;
 			unsigned int m = sizeof(sendsize);
-			setsockopt(listenfd, SOL_SOCKET, SO_SNDBUF, (void *)&sendsize, m);
+			setsockopt(connfd, SOL_SOCKET, SO_SNDBUF, (void *)&sendsize, m);
 			if (stream->Start())
 				streams.insert(streammap_pair_t(channel_id, stream));
 			else
