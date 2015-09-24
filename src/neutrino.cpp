@@ -416,6 +416,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
 	g_settings.ci_clock = configfile.getInt32("ci_clock", 9);
 	g_settings.ci_ignore_messages = configfile.getInt32("ci_ignore_messages", 0);
+	g_settings.ci_save_pincode = configfile.getInt32("ci_save_pincode", 0);
+	g_settings.ci_pincode = configfile.getString("ci_pincode", "");
 
 #ifndef CPU_FREQ
 	g_settings.cpufreq = 0;
@@ -967,6 +969,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
 	configfile.setInt32("ci_clock", g_settings.ci_clock);
 	configfile.setInt32("ci_ignore_messages", g_settings.ci_ignore_messages);
+	configfile.setInt32("ci_save_pincode", g_settings.ci_save_pincode);
+	configfile.setString("ci_pincode", g_settings.ci_pincode);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	configfile.setInt32( "make_webtv_list", g_settings.make_webtv_list);

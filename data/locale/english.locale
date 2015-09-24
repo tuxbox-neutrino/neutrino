@@ -278,6 +278,7 @@ ci.inserted CAM inserted in slot
 ci.removed CAM removed from slot
 ci.reset Reset
 ci.reset_standby Reset after standby
+ci.save_pincode Save pincode
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
 ci.waiting Waiting for CI answer

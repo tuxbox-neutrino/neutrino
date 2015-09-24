@@ -222,6 +222,8 @@ struct SNeutrinoSettings
 	int ci_standby_reset;
 	int ci_clock;
 	int ci_ignore_messages;
+	int ci_save_pincode;
+	std::string ci_pincode;
 	int radiotext_enable;
 	int easymenu;
 
