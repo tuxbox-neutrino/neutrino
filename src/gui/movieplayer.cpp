@@ -631,8 +631,8 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 				eof = 0;
 			if (eof > 5) {
 				printf("CMoviePlayerGui::bgPlayThread: playback stopped, try to rezap...\n");
-				t_channel_id * chid = new t_channel_id;
-				*chid = mp->movie_info.epgId;
+				unsigned char *chid = new unsigned char[sizeof(t_channel_id)];
+				*(t_channel_id*)chid = mp->movie_info.epgId;
 				g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE, (neutrino_msg_data_t) chid);
 				break;
 			}
