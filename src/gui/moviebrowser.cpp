@@ -1829,6 +1829,10 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			movielist.push_back(m_movieSelectionHandler);
 		}
 
+		MI_MOVIE_LIST dellist;
+		MI_MOVIE_LIST::iterator dellist_it;
+		dellist.clear();
+		bool skipAsk = false;
 		for (filelist_it = filelist.begin(); filelist_it != filelist.end(); ++filelist_it)
 		{
 			unsigned int idx = filelist_it - filelist.begin();
@@ -1837,7 +1841,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 
 			if ((!m_vMovieInfo.empty()) && (movieinfo != NULL)) {
 				bool onDelete = true;
-				bool skipAsk = false;
+				skipAsk = false;
 				CRecordInstance* inst = CRecordManager::getInstance()->getRecordInstance(movieinfo->file.Name);
 				if (inst != NULL) {
 					std::string delName = movieinfo->epgTitle;
@@ -1858,8 +1862,14 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					}
 				}
 				if (onDelete)
-					onDeleteFile(movieinfo, skipAsk);
+					dellist.push_back(*movieinfo);
 			}
+		}
+		if (!dellist.empty()) {
+			for (dellist_it = dellist.begin(); dellist_it != dellist.end(); ++dellist_it)
+				onDeleteFile((MI_MOVIE_INFO *)&(*dellist_it), skipAsk);
+			dellist.clear();
+			loadMovies();
 		}
 	}
 	else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
@@ -2167,6 +2177,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 		delete hintBox;
 		g_RCInput->clearRCMsg();
 
+#if 0
 		m_vMovieInfo.erase((std::vector<MI_MOVIE_INFO>::iterator)movieinfo);
 		TRACE("List size: %d\n", (int)m_vMovieInfo.size());
 
@@ -2176,6 +2187,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 		refreshLastRecordList();
 		refreshMovieInfo();
 		refresh();
+#endif
 	}
 }
 
