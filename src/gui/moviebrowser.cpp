@@ -2148,17 +2148,47 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 		return;
 	}
 #endif
+	size_t msgMax = 50;
 	std::string msg = g_Locale->getText(LOCALE_FILEBROWSER_DODELETE1);
-	msg += "\n ";
-	if (movieinfo->file.Name.length() > 40)
-	{
-		msg += movieinfo->file.Name.substr(0,40);
-		msg += "...";
+	msg += "\n  ";
+	if (movieinfo->epgTitle != "") {
+		if ((movieinfo->epgTitle.length() + movieinfo->epgInfo1.length()) <= msgMax) {
+			msg += movieinfo->epgTitle;
+			if (movieinfo->epgInfo1 != "") {
+				msg += " (";
+				msg += movieinfo->epgInfo1;
+				msg += ")";
+			}
+		}
+		else {
+			if (movieinfo->epgTitle.length() > msgMax) {
+				msg += movieinfo->epgTitle.substr(0, msgMax);
+				msg += "...";
+			}
+			else {
+				msg += movieinfo->epgTitle;
+				if (movieinfo->epgInfo1 != "") {
+					msg += "\n  (";
+					if (movieinfo->epgInfo1.length() > msgMax) {
+						msg = movieinfo->epgInfo1.substr(0, msgMax);
+						msg += "...";
+					}
+					else
+						msg += movieinfo->epgInfo1;
+				msg += ")";
+				}
+			}
+		}
 	}
-	else
-		msg += movieinfo->file.Name;
-
-	msg += "\n ";
+	else {
+		if (movieinfo->file.Name.length() > msgMax) {
+			msg += movieinfo->file.Name.substr(0, msgMax);
+			msg += "...";
+		}
+		else
+			msg += movieinfo->file.Name;
+	}
+	msg += "\n";
 	msg += g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
 	if ((skipAsk) || (ShowMsg(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes))
 	{
