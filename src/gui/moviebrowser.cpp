@@ -1832,6 +1832,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		MI_MOVIE_LIST dellist;
 		MI_MOVIE_LIST::iterator dellist_it;
 		dellist.clear();
+		unsigned int dellist_cnt = 0;
 		bool skipAsk = false;
 		for (filelist_it = filelist.begin(); filelist_it != filelist.end(); ++filelist_it)
 		{
@@ -1862,10 +1863,15 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					}
 				}
 				if (onDelete)
+				{
 					dellist.push_back(*movieinfo);
+					dellist_cnt++;
+				}
 			}
 		}
 		if (!dellist.empty()) {
+			if (dellist_cnt > 1)
+				skipAsk = (ShowMsg(LOCALE_FILEBROWSER_DELETE, LOCALE_MOVIEBROWSER_DELETE_ALL, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes);
 			for (dellist_it = dellist.begin(); dellist_it != dellist.end(); ++dellist_it)
 				onDeleteFile((MI_MOVIE_INFO *)&(*dellist_it), skipAsk);
 			dellist.clear();
