@@ -496,6 +496,10 @@ void CMovieBrowser::init(void)
 	g_PicViewer->getSupportedImageFormats(PicExts);
 	show_mode = MB_SHOW_RECORDS; //FIXME
 
+	filelist.clear();
+	filelist_it = filelist.end();
+	movielist.clear();
+
 	CChannelLogo = NULL;
 
 	m_doRefresh = false;
@@ -1815,30 +1819,47 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	}
 	else if (msg == CRCInput::RC_spkr)
 	{
-		if ((!m_vMovieInfo.empty()) && (m_movieSelectionHandler != NULL)) {
-			bool onDelete = true;
-			bool skipAsk = false;
-			CRecordInstance* inst = CRecordManager::getInstance()->getRecordInstance(m_movieSelectionHandler->file.Name);
-			if (inst != NULL) {
-				std::string delName = m_movieSelectionHandler->epgTitle;
-				if (delName.empty())
-					delName = m_movieSelectionHandler->file.getFileName();
-				char buf1[1024];
-				snprintf(buf1, sizeof(buf1), g_Locale->getText(LOCALE_MOVIEBROWSER_ASK_REC_TO_DELETE), delName.c_str());
-				if (ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
-						CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo)
-					onDelete = false;
-				else {
-					CTimerd::RecordingStopInfo recinfo;
-					recinfo.channel_id = inst->GetChannelId();
-					recinfo.eventID = inst->GetRecordingId();
-					CRecordManager::getInstance()->Stop(&recinfo);
-					g_Timerd->removeTimerEvent(recinfo.eventID);
-					skipAsk = true;
+		MI_MOVIE_INFO *movieinfo;
+		movieinfo = NULL;
+		filelist_it = filelist.end();
+		if (getSelectedFiles(filelist, movielist))
+			filelist_it = filelist.begin();
+		if (filelist.empty()) { //just add the m_movieSelectionHandler
+			filelist.push_back(m_movieSelectionHandler->file);
+			movielist.push_back(m_movieSelectionHandler);
+		}
+
+		for (filelist_it = filelist.begin(); filelist_it != filelist.end(); ++filelist_it)
+		{
+			unsigned int idx = filelist_it - filelist.begin();
+			movieinfo = movielist[idx];
+			TRACE("[mb]-> try to delete %d:%s\n", idx, movieinfo->file.Name.c_str());
+
+			if ((!m_vMovieInfo.empty()) && (movieinfo != NULL)) {
+				bool onDelete = true;
+				bool skipAsk = false;
+				CRecordInstance* inst = CRecordManager::getInstance()->getRecordInstance(movieinfo->file.Name);
+				if (inst != NULL) {
+					std::string delName = movieinfo->epgTitle;
+					if (delName.empty())
+						delName = movieinfo->file.getFileName();
+					char buf1[1024];
+					snprintf(buf1, sizeof(buf1), g_Locale->getText(LOCALE_MOVIEBROWSER_ASK_REC_TO_DELETE), delName.c_str());
+					if (ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
+							CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo)
+						onDelete = false;
+					else {
+						CTimerd::RecordingStopInfo recinfo;
+						recinfo.channel_id = inst->GetChannelId();
+						recinfo.eventID = inst->GetRecordingId();
+						CRecordManager::getInstance()->Stop(&recinfo);
+						g_Timerd->removeTimerEvent(recinfo.eventID);
+						skipAsk = true;
+					}
 				}
+				if (onDelete)
+					onDeleteFile(movieinfo, skipAsk);
 			}
-		 	if (onDelete)
-		 		onDeleteFile(*m_movieSelectionHandler, skipAsk);
 		}
 	}
 	else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
@@ -2106,11 +2127,11 @@ bool CMovieBrowser::onButtonPressMovieInfoList(neutrino_msg_t msg)
 	return (result);
 }
 
-void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skipAsk)
+void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 {
 	//TRACE("[onDeleteFile] ");
 #if 0
-	int test= movieSelectionHandler.file.Name.find(".ts", movieSelectionHandler.file.Name.length()-3);
+	int test= movieinfo->file.Name.find(".ts", movieinfo->file.Name.length()-3);
 	if (test == -1) {
 		// not a TS file, return!!!!!
 		TRACE("show_ts_info: not a TS file ");
@@ -2119,13 +2140,13 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 #endif
 	std::string msg = g_Locale->getText(LOCALE_FILEBROWSER_DODELETE1);
 	msg += "\n ";
-	if (movieSelectionHandler.file.Name.length() > 40)
+	if (movieinfo->file.Name.length() > 40)
 	{
-		msg += movieSelectionHandler.file.Name.substr(0,40);
+		msg += movieinfo->file.Name.substr(0,40);
 		msg += "...";
 	}
 	else
-		msg += movieSelectionHandler.file.Name;
+		msg += movieinfo->file.Name;
 
 	msg += "\n ";
 	msg += g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
@@ -2133,20 +2154,20 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 	{
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MOVIEBROWSER_DELETE_INFO));
 		hintBox->paint();
-		delFile(movieSelectionHandler.file);
+		delFile(movieinfo->file);
 
-		std::string fname = getScreenshotName(movieSelectionHandler.file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
+		std::string fname = getScreenshotName(movieinfo->file.Name, S_ISDIR(movieinfo->file.Mode));
 		if (!fname.empty())
 			unlink(fname.c_str());
 
-		CFile file_xml = movieSelectionHandler.file;
+		CFile file_xml = movieinfo->file;
 		if (m_movieInfo.convertTs2XmlName(file_xml.Name))
 			unlink(file_xml.Name.c_str());
 
 		delete hintBox;
 		g_RCInput->clearRCMsg();
 
-		m_vMovieInfo.erase((std::vector<MI_MOVIE_INFO>::iterator)&movieSelectionHandler);
+		m_vMovieInfo.erase((std::vector<MI_MOVIE_INFO>::iterator)movieinfo);
 		TRACE("List size: %d\n", (int)m_vMovieInfo.size());
 
 		updateSerienames();
