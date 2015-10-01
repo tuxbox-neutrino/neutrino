@@ -963,6 +963,18 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			}
 		}
 	}
+	else if (actionKey == "delete_movie")
+	{
+		if (m_movieSelectionHandler != NULL)
+		{
+			if (onDeleteFile(m_movieSelectionHandler, false /*don't skipAsk*/))
+			{
+				m_doLoadMovies = true;
+				m_doRefresh = true;
+				returnval = menu_return::RETURN_EXIT;
+			}
+		}
+	}
 
 	return returnval;
 }
@@ -3057,14 +3069,14 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	if (!calledExternally) {
 		CMenuWidget mainMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 		mainMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_MAIN_HEAD);
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD, (m_movieSelectionHandler != NULL), NULL, this,   "show_movie_info_menu",    CRCInput::RC_red));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD,     (m_movieSelectionHandler != NULL), NULL, this, "show_movie_info_menu", CRCInput::RC_red));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_CUT_HEAD, (m_movieSelectionHandler != NULL), NULL, this, "show_movie_cut_menu",  CRCInput::RC_green));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_FILEBROWSER_DELETE,         (m_movieSelectionHandler != NULL), NULL, this, "delete_movie",         CRCInput::RC_yellow));
 		mainMenu.addItem(GenericMenuSeparatorLine);
-		mainMenu.addItem(new CMenuForwarder(LOCALE_EPGPLUS_OPTIONS,                    true, NULL, &optionsMenu,NULL,                                  CRCInput::RC_green));
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &dirMenu,    NULL,                                  CRCInput::RC_yellow));
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES,       true, NULL, this,        "reload_movie_info",                   CRCInput::RC_blue));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_EPGPLUS_OPTIONS,                    true, NULL, &optionsMenu,NULL,                                  CRCInput::RC_1));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &dirMenu,    NULL,                                  CRCInput::RC_2));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES,       true, NULL, this,        "reload_movie_info",                   CRCInput::RC_3));
 		//mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_NFS_HEAD,       true, NULL, nfs,         NULL,                                  CRCInput::RC_setup));
-		mainMenu.addItem(GenericMenuSeparatorLine);
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_CUT_HEAD, (m_movieSelectionHandler != NULL), NULL, this, "show_movie_cut_menu", CRCInput::RC_1));
 		mainMenu.addItem(GenericMenuSeparatorLine);
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_HELP_HEAD,        true, NULL, movieHelp,   NULL,                                  CRCInput::RC_help));
 		//mainMenu.addItem(GenericMenuSeparator);
