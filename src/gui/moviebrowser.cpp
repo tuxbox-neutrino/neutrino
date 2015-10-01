@@ -2143,9 +2143,10 @@ bool CMovieBrowser::onButtonPressMovieInfoList(neutrino_msg_t msg)
 	return (result);
 }
 
-void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
+bool CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 {
 	//TRACE("[onDeleteFile] ");
+	bool result = false;
 #if 0
 	int test= movieinfo->file.Name.find(".ts", movieinfo->file.Name.length()-3);
 	if (test == -1) {
@@ -2224,7 +2225,9 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 		refreshMovieInfo();
 		refresh();
 #endif
+		result = true;
 	}
+	return (result);
 }
 
 void CMovieBrowser::onSetGUIWindow(MB_GUI gui)

@@ -425,7 +425,7 @@ class CMovieBrowser : public CMenuTarget
 		void onSetGUIWindow(MB_GUI gui);
 		void onSetGUIWindowNext(void);
 		void onSetGUIWindowPrev(void);
-		void onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk = false);  // P4
+		bool onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk = false);  // P4
 		bool onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& pv_handle_list, MB_INFO_ITEM sort_type, MB_DIRECTION direction);
 
 		///// parse Storage Directories /////////////
