@@ -2327,9 +2327,11 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				numericZap( msg );
 			}
 			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
+#if 0
 				if (mode == mode_webtv) {
 					CMoviePlayerGui::getInstance().Pause();
 				} else
+#endif
 					CRecordManager::getInstance()->StartTimeshift();
 			}
 			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder) {
@@ -2359,7 +2361,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				}
 			}
 #endif
-			else if( msg == (neutrino_msg_t) g_settings.key_record && (mode != mode_webtv)) {
+			else if( msg == (neutrino_msg_t) g_settings.key_record /* && (mode != mode_webtv) */) {
 				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 					CRecordManager::getInstance()->exec(NULL, "Record");
 			}
@@ -2425,7 +2427,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if( msg == CRCInput::RC_page_up || msg == CRCInput::RC_page_down) {
 				quickZap(msg == CRCInput::RC_page_up ? CRCInput::RC_right : CRCInput::RC_left);
 			}
-			else if(msg == CRCInput::RC_rewind && (mode != mode_webtv)) {
+			else if(msg == CRCInput::RC_rewind /* && (mode != mode_webtv) */) {
 				if(g_RemoteControl->is_video_started) {
 					t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 					if(CRecordManager::getInstance()->RecordingStatus(live_channel_id))
