@@ -123,7 +123,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isWebTV;
 	bool isYT;
 	bool showStartingHint;
-	CMovieBrowser* moviebrowser;
+	static CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
 	MI_MOVIE_INFO movie_info;
 	P_MI_MOVIE_LIST milist;
@@ -142,16 +142,17 @@ class CMoviePlayerGui : public CMenuTarget
 	bool autoshot_done;
 
 	/* playback from bookmark */
-	CBookmarkManager * bookmarkmanager;
+	static CBookmarkManager * bookmarkmanager;
 	bool isBookmark;
 
-	OpenThreads::Mutex mutex;
+	static OpenThreads::Mutex mutex;
 	static OpenThreads::Mutex bgmutex;
 	static OpenThreads::Condition cond;
-	pthread_t bgThread;
+	static pthread_t bgThread;
 
-	cPlayback *playback;
+	static cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
+	static CMoviePlayerGui* instance_bg;
 
 	void Init(void);
 	void PlayFile();
