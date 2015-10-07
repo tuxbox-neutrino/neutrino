@@ -40,6 +40,11 @@
 #endif
 
 #include <OpenThreads/Mutex>
+#include <OpenThreads/Thread>
+
+extern "C" {
+#include <libavformat/avformat.h>
+}
 
 #define REC_MAX_APIDS 10
 #define FILENAMEBUFFERSIZE 1024
@@ -64,7 +69,7 @@ enum record_error_msg_t
 
 class CRecordInstance
 {
-	private:
+	protected:
 		typedef struct {
 			uint32_t apid;
 			unsigned int index;//FIXME not used ?
@@ -96,22 +101,22 @@ class CRecordInstance
 		MI_MOVIE_INFO *	recMovieInfo;
 		cRecord *	record;
 
-		void GetPids(CZapitChannel * channel);
+		virtual void GetPids(CZapitChannel * channel);
+		virtual void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
+		record_error_msg_t Start(CZapitChannel * channel);
 		void ProcessAPIDnames();
 		void FilterPids(APIDList & apid_list);
-		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis);
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
-		record_error_msg_t Start(CZapitChannel * channel);
 		void WaitRecMsg(time_t StartTime, time_t WaitTime);
 		void MakeExtFileName(CZapitChannel * channel, std::string &FilenameTemplate);
 		void StringReplace(std::string &str, const std::string search, const std::string rstr);
 	public:
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
-		~CRecordInstance();
+		virtual ~CRecordInstance();
 
-		record_error_msg_t Record();
-		bool Stop(bool remove_event = true);
+		virtual record_error_msg_t Record();
+		virtual bool Stop(bool remove_event = true);
 		bool Update();
 
 		void SetRecordingId(int id) { recording_id = id; };
@@ -231,4 +236,31 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 #endif
 };
+
+class CStreamRec : public CRecordInstance, OpenThreads::Thread
+{
+	private:
+		AVFormatContext *ifcx;
+		AVFormatContext *ofcx;
+		bool stopped;
+		bool interrupt;
+		time_t time_started;
+		int  stream_index;
+
+		void GetPids(CZapitChannel * channel);
+		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
+		bool Start();
+
+		void Close();
+		bool Open(CZapitChannel * channel);
+		void run();
+		void WriteHeader(uint32_t duration);
+	public:
+		CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
+		~CStreamRec();
+		record_error_msg_t Record();
+		bool Stop(bool remove_event = true);
+		static int Interrupt(void * data);
+};
+
 #endif

@@ -54,6 +54,7 @@
 #include <driver/record.h>
 #include <driver/radiotext.h>
 #include <driver/streamts.h>
+#include <driver/abstime.h>
 #include <zapit/capmt.h>
 #include <zapit/channel.h>
 #include <zapit/getservices.h>
@@ -61,6 +62,7 @@
 #include <zapit/client/zapittools.h>
 #include <eitd/sectionsd.h>
 #include <timerdclient/timerdclient.h>
+#include <cs_api.h>
 
 /* TODO:
  * nextRecording / pending recordings - needs testing
@@ -567,7 +569,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		CEPGData epgdata;
 		bool epg_ok = CEitManager::getInstance()->getEPGid(epgid, epg_time, &epgdata);
 		if(!epg_ok){//if old epgid removed check currurrent epgid
-			epg_ok = CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgdata );
+			epg_ok = CEitManager::getInstance()->getActualEPGServiceKey(channel->getEpgID(), &epgdata );
 
 			if(epg_ok && !epgTitle.empty()){
 				std::string tmp_title = epgdata.title;
@@ -930,9 +932,13 @@ bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, boo
 	CTimerd::RecordingInfo	eventinfo;
 	CEPGData		epgData;
 
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (!channel)
+		return false;
+
 	eventinfo.eventID = 0;
 	eventinfo.channel_id = channel_id;
-	if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData )) {
+	if (CEitManager::getInstance()->getActualEPGServiceKey(channel->getEpgID(), &epgData )) {
 		eventinfo.epgID = epgData.eventID;
 		eventinfo.epg_starttime = epgData.epg_times.startzeit;
 		strncpy(eventinfo.epgTitle, epgData.title.c_str(), EPG_TITLE_MAXLEN-1);
@@ -960,7 +966,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
-	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF || IS_WEBTV(eventinfo->channel_id))
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF /* || IS_WEBTV(eventinfo->channel_id) */)
 		return false;
 
 #if 1 // FIXME test
@@ -970,17 +976,29 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 #endif
 	RunStartScript();
 
+	std::string newdir;
+	if(dir && strlen(dir))
+		newdir = std::string(dir);
+	else if(strlen(eventinfo->recordingDir))
+		newdir = std::string(eventinfo->recordingDir);
+	else
+		newdir = Directory;
+
 	mutex.lock();
-	if(recmap.size() < RECORD_MAX_COUNT) {
+	if (IS_WEBTV(eventinfo->channel_id)) {
+		inst = new CStreamRec(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid, StreamSubtitlePids);
+		error_msg = inst->Record();
+		if(error_msg == RECORD_OK) {
+			g_Zapit->setRecordMode(true);
+			recmap.insert(recmap_pair_t(inst->GetRecordingId(), inst));
+			if(timeshift)
+				autoshift = true;
+		} else {
+			delete inst;
+		}
+	} else if(recmap.size() < RECORD_MAX_COUNT) {
 		CFrontend * frontend = NULL;
 		if(CutBackNeutrino(eventinfo->channel_id, frontend)) {
-			std::string newdir;
-			if(dir && strlen(dir))
-				newdir = std::string(dir);
-			else if(strlen(eventinfo->recordingDir))
-				newdir = std::string(eventinfo->recordingDir);
-			else
-				newdir = Directory;
 
 			inst = new CRecordInstance(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid, StreamSubtitlePids);
 
@@ -1826,3 +1844,342 @@ bool CRecordManager::LinkTimeshift()
 	}
 }
 #endif
+
+CStreamRec::CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift, bool stream_vtxt_pid, bool stream_pmt_pid, bool stream_subtitle_pids)
+	: CRecordInstance(eventinfo, dir, timeshift, stream_vtxt_pid, stream_pmt_pid, stream_subtitle_pids)
+{
+	ifcx = NULL;
+	ofcx = NULL;
+	stopped = true;
+	interrupt = false;
+}
+
+CStreamRec::~CStreamRec()
+{
+	Stop();
+	Close();
+}
+
+void CStreamRec::Close()
+{
+	if (ifcx) {
+		avformat_close_input(&ifcx);
+	}
+	if (ofcx) {
+		if (ofcx->pb) {
+			avio_close(ofcx->pb);
+			ofcx->pb = NULL;
+		}
+		avformat_free_context(ofcx);
+	}
+
+	ifcx = NULL;
+	ofcx = NULL;
+}
+
+void CStreamRec::GetPids(CZapitChannel * channel)
+{
+	channel = channel;
+}
+
+void CStreamRec::FillMovieInfo(CZapitChannel * channel, APIDList & apid_list)
+{
+	CRecordInstance::FillMovieInfo(channel, apid_list);
+	recMovieInfo->VideoType = 0;
+
+	for (unsigned i = 0; i < ofcx->nb_streams; i++) {
+		AVStream *st = ofcx->streams[i];
+		AVCodecContext * codec = st->codec;
+		if (codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+			EPG_AUDIO_PIDS audio_pids;
+			AVDictionaryEntry *lang = av_dict_get(st->metadata, "language", NULL, 0);
+			AVDictionaryEntry *title = av_dict_get(st->metadata, "title", NULL, 0);
+
+			std::string desc;
+			if (lang)
+				desc += lang->value;
+
+			if (title) {
+				if (desc.length() != 0)
+					desc += " ";
+				desc += title->value;
+			}
+			switch(codec->codec_id) {
+				case CODEC_ID_AC3:
+					audio_pids.atype = 1;
+					break;
+				case CODEC_ID_AAC:
+					audio_pids.atype = 5;
+					break;
+				case CODEC_ID_EAC3:
+					audio_pids.atype = 7;
+					break;
+				case CODEC_ID_MP2:
+				default:
+					audio_pids.atype = 0;
+					break;
+			}
+
+			audio_pids.selected = 0;
+			audio_pids.epgAudioPidName = desc;
+			audio_pids.epgAudioPid = st->id;
+			recMovieInfo->audioPids.push_back(audio_pids);
+			printf("%s: [AUDIO] 0x%x [%s]\n", __FUNCTION__, audio_pids.epgAudioPid, desc.c_str());
+
+		} else if (codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+			recMovieInfo->epgVideoPid = st->id;
+			if (codec->codec_id == CODEC_ID_H264)
+				recMovieInfo->VideoType = 1;
+			printf("%s: [VIDEO] 0x%x \n", __FUNCTION__, recMovieInfo->epgVideoPid);
+		}
+	}
+}
+
+bool CStreamRec::Start()
+{
+	if (!stopped)
+		return false;
+	stopped = false;
+	int ret = start();
+	return (ret == 0);
+}
+
+bool CStreamRec::Stop(bool remove_event)
+{
+	if (stopped)
+		return false;
+
+	time_t end_time = time_monotonic();
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
+	if ((!(autoshift && g_settings.auto_timeshift)) && g_settings.recording_startstop_msg)
+		hintBox.paint();
+
+	printf("%s: Stopping...\n", __FUNCTION__);
+	interrupt = true;
+	stopped = true;
+	int ret = join();
+	interrupt = false;
+
+	if(recording_id && remove_event) {
+		g_Timerd->stopTimerEvent(recording_id);
+		recording_id = 0;
+	}
+
+	struct stat test;
+	std::string xmlfile = std::string(filename) + ".xml";
+	if(stat(xmlfile.c_str(), &test) == 0){
+		recMovieInfo->clear();
+		std::string tsfile = std::string(filename) + ".ts";
+		recMovieInfo->file.Name = tsfile;
+		cMovieInfo->loadMovieInfo(recMovieInfo);//restore user bookmark
+	}
+
+	recMovieInfo->length = (int) round((double) (end_time - time_started) / (double) 60);
+	printf("%s: len %d\n", __FUNCTION__, recMovieInfo->length);
+
+	SaveXml();
+	hintBox.hide();
+	return (ret == 0);
+}
+
+record_error_msg_t CStreamRec::Record()
+{
+	APIDList apid_list;
+
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDING_START));
+	if ((!(autoshift && g_settings.auto_timeshift)) && g_settings.recording_startstop_msg)
+		hintBox.paint();
+
+	printf("%s: channel %" PRIx64 " recording_id %d\n", __func__, channel_id, recording_id);
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if(channel == NULL) {
+		printf("%s: channel %" PRIx64 " not found!\n", __func__, channel_id);
+		hintBox.hide();
+		return RECORD_INVALID_CHANNEL;
+	}
+
+	record_error_msg_t ret = MakeFileName(channel);
+	if(ret != RECORD_OK) {
+		hintBox.hide();
+		return ret;
+	}
+
+	if (!Open(channel) || !Start()) {
+		Close();
+		hintBox.hide();
+		return RECORD_FAILURE;
+	}
+
+	FillMovieInfo(channel, apid_list);
+	SaveXml();
+	if(recording_id == 0) {
+		time_t now = time(NULL);
+		int record_end;
+		if (autoshift) {
+			record_end = now+g_settings.timeshift_hours*60*60;
+		} else {
+			record_end = now+g_settings.record_hours*60*60;
+			if (g_settings.recording_epg_for_end) {
+				int pre=0, post=0;
+				CEPGData epgData;
+				if (CEitManager::getInstance()->getActualEPGServiceKey(channel->getEpgID(), &epgData )) {
+					g_Timerd->getRecordingSafety(pre, post);
+					if (epgData.epg_times.startzeit > 0)
+						record_end = epgData.epg_times.startzeit + epgData.epg_times.dauer + post;
+				}
+			}
+		}
+		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, record_end, epgid, epg_time, apidmode);
+		printf("%s: channel %" PRIx64 " -> timer eventID %d\n", __func__, channel_id, recording_id);
+	}
+	hintBox.hide();
+
+	return RECORD_OK;
+}
+
+int CStreamRec::Interrupt(void * data)
+{
+	CStreamRec * sr = (CStreamRec*) data;
+	if (sr->interrupt)
+		return 1;
+	return 0;
+}
+
+bool CStreamRec::Open(CZapitChannel * channel)
+{
+	std::string url = channel->getUrl();
+
+	if (url.empty())
+		return false;
+
+	//av_log_set_level(AV_LOG_VERBOSE);
+	av_register_all();
+	avcodec_register_all();
+	avformat_network_init();
+	printf("%s: Open input [%s]....\n", __FUNCTION__, url.c_str());
+
+	AVDictionary *options = NULL;
+
+	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
+		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, url.c_str());
+		return false;
+	}
+
+	if (avformat_find_stream_info(ifcx, NULL) < 0) {
+		printf("%s: Cannot find stream info [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
+		return false;
+	}
+	if (!strstr(ifcx->iformat->name, "applehttp") && !strstr(ifcx->iformat->name, "mpegts")) {
+		printf("%s: not supported format [%s]!\n", __FUNCTION__, ifcx->iformat->name);
+		return false;
+	}
+
+	AVIOInterruptCB int_cb = { Interrupt, this };
+	ifcx->interrupt_callback = int_cb;
+
+	snprintf(ifcx->filename, sizeof(ifcx->filename), "%s", channel->getUrl().c_str());
+	av_dump_format(ifcx, 0, ifcx->filename, 0);
+
+	std::string tsfile = std::string(filename) + ".ts";
+	AVOutputFormat *ofmt = av_guess_format(NULL, tsfile.c_str(), NULL);
+	if (ofmt == NULL) {
+		printf("%s: av_guess_format for [%s] failed!\n", __FUNCTION__, tsfile.c_str());
+		return false;
+	}
+
+	ofcx = avformat_alloc_context();
+	ofcx->oformat = ofmt;
+
+	if (avio_open2(&ofcx->pb, tsfile.c_str(), AVIO_FLAG_WRITE, NULL, NULL) < 0) {
+		printf("%s: avio_open2 for [%s] failed!\n", __FUNCTION__, tsfile.c_str());
+		return false;
+	}
+
+	av_dict_copy(&ofcx->metadata, ifcx->metadata, 0);
+	snprintf(ofcx->filename, sizeof(ofcx->filename), "%s", tsfile.c_str());
+
+	stream_index = -1;
+	int stid = 0x200;
+	for (unsigned i = 0; i < ifcx->nb_streams; i++) {
+		AVCodecContext * iccx = ifcx->streams[i]->codec;
+
+		AVStream *ost = avformat_new_stream(ofcx, iccx->codec);
+		avcodec_copy_context(ost->codec, iccx);
+		av_dict_copy(&ost->metadata, ifcx->streams[i]->metadata, 0);
+		ost->time_base = iccx->time_base;
+		ost->id = stid++;
+		if (iccx->codec_type == AVMEDIA_TYPE_VIDEO) {
+			stream_index = i;
+		} else if (stream_index < 0)
+			stream_index = i;
+	}
+	av_log_set_level(AV_LOG_VERBOSE);
+	av_dump_format(ofcx, 0, ofcx->filename, 1);
+	av_log_set_level(AV_LOG_WARNING);
+
+	return true;
+}
+
+void CStreamRec::run()
+{
+	AVPacket pkt;
+
+	time_t now = 0;
+	time_t tstart = time_monotonic();
+	time_started = tstart;
+	start_time = time(0);
+	avformat_write_header(ofcx, NULL);
+
+	double total = 0;
+	while (!stopped) {
+		av_init_packet(&pkt);
+		if (av_read_frame(ifcx, &pkt) < 0)
+			break;
+		if (pkt.stream_index < 0)
+			continue;
+		av_write_frame(ofcx, &pkt);
+		av_free_packet(&pkt);
+
+		if (pkt.stream_index == stream_index) {
+			total += (double) 1000 * pkt.duration * av_q2d(ifcx->streams[stream_index]->time_base);
+			//printf("PKT: duration %d (%f) total %f (ifcx->duration %016llx\n", pkt.duration, duration, total, ifcx->duration);
+		}
+
+		if (now == 0)
+			WriteHeader(1000);
+		now = time_monotonic();
+		if (now - tstart > 1) {
+			tstart = now;
+			WriteHeader(total);
+		}
+	}
+
+	av_read_pause(ifcx);
+	av_write_trailer(ofcx);
+	WriteHeader(total);
+	printf("%s: Stopped.\n", __FUNCTION__);
+}
+
+typedef struct pvr_file_info
+{
+	uint32_t  uDuration;      /* Time duration in Ms */
+	uint32_t  uTSPacketSize;
+} PVR_FILE_INFO;
+
+void CStreamRec::WriteHeader(uint32_t duration)
+{
+	std::string tsfile = std::string(filename) + ".ts";
+	//printf("%s: [%s] duration %d\n", __FUNCTION__, tsfile.c_str(), duration);
+
+	int srcfd = open(tsfile.c_str(), O_WRONLY | O_LARGEFILE);
+	if (srcfd >= 0) {
+		if (lseek64(srcfd, 188-sizeof(PVR_FILE_INFO), SEEK_SET) >= 0) {
+			PVR_FILE_INFO pinfo;
+			pinfo.uDuration = duration;
+			pinfo.uTSPacketSize = 188;
+			write(srcfd, (uint8_t *)&pinfo, sizeof(PVR_FILE_INFO));
+		}
+		close(srcfd);
+	} else
+		perror(tsfile.c_str());
+}
