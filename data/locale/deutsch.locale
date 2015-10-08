@@ -278,6 +278,7 @@ ci.inserted CAM im Slot
 ci.removed CAM entfernt -> Slot
 ci.reset Reset
 ci.reset_standby Reset nach Standby
+ci.save_pincode Jugendschutz-PIN speichern
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
 ci.waiting Warte auf CAM-Antwort
