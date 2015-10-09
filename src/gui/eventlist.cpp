@@ -482,9 +482,10 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					else
 						recDir = "";
 				}
+				t_channel_id used_id = IS_WEBTV(channel_id) ? channel_id : evtlist[selected].channelID;
 				if (!recDir.empty()) //add/remove recording timer events and check/warn for conflicts
 				{
-					if (g_Timerd->addRecordTimerEvent(evtlist[selected].channelID ,
+					if (g_Timerd->addRecordTimerEvent(used_id,
 								evtlist[selected].startTime,
 								evtlist[selected].startTime + evtlist[selected].duration,
 								evtlist[selected].eventID, evtlist[selected].startTime,
@@ -493,7 +494,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					{
 						if(askUserOnTimerConflict(evtlist[selected].startTime - (ANNOUNCETIME + 120), evtlist[selected].startTime + evtlist[selected].duration)) //check for timer conflict
 						{
-							g_Timerd->addRecordTimerEvent(evtlist[selected].channelID ,
+							g_Timerd->addRecordTimerEvent(used_id,
 									evtlist[selected].startTime,
 									evtlist[selected].startTime + evtlist[selected].duration,
 									evtlist[selected].eventID, evtlist[selected].startTime,
@@ -513,8 +514,8 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				}
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);
-				paint(evtlist[selected].channelID );
-				showFunctionBar(true, evtlist[selected].channelID );
+				paint(used_id);
+				showFunctionBar(true, used_id);
 			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_channelList_addremind )//add/remove zapto timer event
@@ -530,7 +531,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				continue;
 			}
 			
-			g_Timerd->addZaptoTimerEvent(evtlist[selected].channelID ,
+			g_Timerd->addZaptoTimerEvent(IS_WEBTV(channel_id) ? channel_id : evtlist[selected].channelID,
 					evtlist[selected].startTime - (g_settings.zapto_pre_time * 60),
 					evtlist[selected].startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);
