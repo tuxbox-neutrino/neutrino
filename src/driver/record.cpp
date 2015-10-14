@@ -117,7 +117,7 @@ bool CRecordInstance::SaveXml()
 	int fd;
 	std::string xmlfile = std::string(filename) + ".xml";
 
-	if ((fd = open(xmlfile.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) >= 0) {
+	if ((fd = open(xmlfile.c_str(), O_CREAT | O_TRUNC | O_SYNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) >= 0) {
 		std::string extMessage;
 		cMovieInfo->encodeMovieInfoXml(&extMessage, recMovieInfo);
 		write(fd, extMessage.c_str(), extMessage.size() /*strlen(info)*/);
@@ -155,7 +155,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	std::string tsfile = std::string(filename) + ".ts";
 	printf("%s: file %s vpid %x apid %x\n", __FUNCTION__, tsfile.c_str(), allpids.PIDs.vpid, apids[0]);
 
-	int fd = open(tsfile.c_str(), O_CREAT | O_RDWR | O_LARGEFILE | O_TRUNC , S_IRWXO | S_IRWXG | S_IRWXU);
+	int fd = open(tsfile.c_str(), O_CREAT | O_TRUNC | O_SYNC | O_RDWR | O_LARGEFILE | O_CLOEXEC, S_IRWXO | S_IRWXG | S_IRWXU);
 	if(fd < 0) {
 		perror(tsfile.c_str());
 		hintBox.hide();
