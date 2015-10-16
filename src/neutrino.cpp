@@ -4283,7 +4283,7 @@ void CNeutrinoApp::StopSubtitles()
 		frameBuffer->paintBackground();
 	}
 	if (mode == mode_webtv)
-		CMoviePlayerGui::getInstance().clearSubtitle(true);
+		CMoviePlayerGui::getInstance(true).clearSubtitle(true);
 }
 
 void CNeutrinoApp::StartSubtitles(bool show)
@@ -4294,7 +4294,7 @@ void CNeutrinoApp::StartSubtitles(bool show)
 	dvbsub_start(0);
 	tuxtx_pause_subtitle(false);
 	if (mode == mode_webtv)
-		CMoviePlayerGui::getInstance().clearSubtitle(false);
+		CMoviePlayerGui::getInstance(true).clearSubtitle(false);
 }
 
 void CNeutrinoApp::SelectSubtitles()

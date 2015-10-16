@@ -96,7 +96,7 @@ int CAudioSelectMenuHandler::doMenu ()
 {
 	int mode = CNeutrinoApp::getInstance()->getMode();
 	if (mode == NeutrinoMessages::mode_webtv) {
-		CMoviePlayerGui::getInstance().selectAudioPid();
+		CMoviePlayerGui::getInstance(true).selectAudioPid();
 		return menu_return::RETURN_EXIT;
 	}
 	CMenuWidget AudioSelector(LOCALE_AUDIOSELECTMENUE_HEAD, NEUTRINO_ICON_AUDIO, width);
