@@ -85,7 +85,7 @@ cPlayback *CMoviePlayerGui::playback;
 CMovieBrowser* CMoviePlayerGui::moviebrowser;
 CBookmarkManager * CMoviePlayerGui::bookmarkmanager;
 
-CMoviePlayerGui& CMoviePlayerGui::getInstance()
+CMoviePlayerGui& CMoviePlayerGui::getInstance(bool background)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(bgmutex);
 	if (!instance_mp )
@@ -94,7 +94,7 @@ CMoviePlayerGui& CMoviePlayerGui::getInstance()
 		instance_bg = new CMoviePlayerGui();
 		printf("[neutrino CMoviePlayerGui] Instance created...\n");
 	}
-	return *instance_mp;
+	return background ? *instance_bg : *instance_mp;
 }
 
 CMoviePlayerGui::CMoviePlayerGui()
