@@ -629,11 +629,9 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 	}
 	else {
 		// directory
-		if (createDir(Dst, FileInfo.st_mode & 0x0FFF) == false) {
-			if (errno != EEXIST) {
-				closedir(Directory);
-				return false;
-			}
+		if (!createDir(Dst, FileInfo.st_mode & 0x0FFF)) {
+			closedir(Directory);
+			return false;
 		}
 	}
 
@@ -676,25 +674,34 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 	return true;
 }
 
-int CFileHelpers::createDir(string& Dir, mode_t mode)
+// returns:	 true - success.
+//		 false - errno is set
+bool CFileHelpers::createDir(string& Dir, mode_t mode)
 {
-	struct stat st;
 	int res = 0;
 	for(string::iterator iter = Dir.begin() ; iter != Dir.end();) {
 		string::iterator newIter = find(iter, Dir.end(), '/' );
 		string newPath = string( Dir.begin(), newIter );
-		if( !newPath.empty() && stat(newPath.c_str(), &st) != 0) {
+		if(!newPath.empty() && !file_exists(newPath.c_str())) {
 			res = mkdir( newPath.c_str(), mode);
-			if (errno == EEXIST)
-				res = 0;
-			if(res != 0)
-				dprintf(DEBUG_NORMAL, "[CFileHelpers %s] creating directory %s: %s\n", __func__, newPath.c_str(), strerror(errno));
+			if (res == -1) {
+				if (errno == EEXIST) {
+					res = 0;
+				} else {
+					// We can assume that if an error
+					// occured, following will fail too,
+					// so break here.
+					dprintf(DEBUG_NORMAL, "[CFileHelpers %s] creating directory %s: %s\n", __func__, newPath.c_str(), strerror(errno));
+					break;
+				}
+			}
 		}
 		iter = newIter;
 		if(newIter != Dir.end())
 			++ iter;
 	}
-	return res;
+
+	return (res == 0 ? true : false);
 }
 
 bool CFileHelpers::removeDir(const char *Dir)
