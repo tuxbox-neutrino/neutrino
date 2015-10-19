@@ -517,10 +517,11 @@ void CInfoViewerBB::showIcon_16_9()
 {
 	if (!is_visible)
 		return;
+
 	if ((g_InfoViewer->aspectRatio == 0) || ( g_RemoteControl->current_PIDs.PIDs.vpid == 0 ) || (g_InfoViewer->aspectRatio != videoDecoder->getAspectRatio())) {
-		if (g_InfoViewer->chanready && g_RemoteControl->current_PIDs.PIDs.vpid > 0 ) {
+		if (g_InfoViewer->chanready &&
+		   (g_RemoteControl->current_PIDs.PIDs.vpid > 0 || IS_WEBTV(g_InfoViewer->get_current_channel_id())))
 			g_InfoViewer->aspectRatio = videoDecoder->getAspectRatio();
-		}
 		else
 			g_InfoViewer->aspectRatio = 0;
 

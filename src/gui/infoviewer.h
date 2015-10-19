@@ -179,6 +179,7 @@ class CInfoViewer
 	bool    SDT_freq_update;
 	void	setUpdateTimer(uint64_t interval);
 	uint32_t getUpdateTimer(void) { return lcdUpdateTimer; }
+	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
 };
 #if 0
 class CInfoViewerHandler : public CMenuTarget
