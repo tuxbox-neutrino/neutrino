@@ -3954,11 +3954,12 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			if (parent)
 				parent->hide();
 
-			g_settings.easymenu = (g_settings.easymenu == 0) ? 1 : 0;
-			INFO("change easymenu to %d\n", g_settings.easymenu);
-			const char * text = g_settings.easymenu ? "Easy menu switched ON, restart box ?" : "Easy menu switched OFF, restart box ?";
-			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, text, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 0) == CMessageBox::mbrYes)
+			std::string text = "Easy menu switched " + string(g_settings.easymenu?"OFF":"ON") + string(", when restart box.\nRestart now?");
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, text, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 0) == CMessageBox::mbrYes) {
+				g_settings.easymenu = (g_settings.easymenu == 0) ? 1 : 0;
+				INFO("change easymenu to %d\n", g_settings.easymenu);
 				g_RCInput->postMsg(NeutrinoMessages::REBOOT, 0);
+			}
 		}
 	}
 
