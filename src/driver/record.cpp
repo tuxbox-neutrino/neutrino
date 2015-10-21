@@ -1905,16 +1905,16 @@ void CStreamRec::FillMovieInfo(CZapitChannel * channel, APIDList & apid_list)
 				desc += title->value;
 			}
 			switch(codec->codec_id) {
-				case CODEC_ID_AC3:
+				case AV_CODEC_ID_AC3:
 					audio_pids.atype = 1;
 					break;
-				case CODEC_ID_AAC:
+				case AV_CODEC_ID_AAC:
 					audio_pids.atype = 5;
 					break;
-				case CODEC_ID_EAC3:
+				case AV_CODEC_ID_EAC3:
 					audio_pids.atype = 7;
 					break;
-				case CODEC_ID_MP2:
+				case AV_CODEC_ID_MP2:
 				default:
 					audio_pids.atype = 0;
 					break;
@@ -1928,7 +1928,7 @@ void CStreamRec::FillMovieInfo(CZapitChannel * channel, APIDList & apid_list)
 
 		} else if (codec->codec_type == AVMEDIA_TYPE_VIDEO) {
 			recMovieInfo->epgVideoPid = st->id;
-			if (codec->codec_id == CODEC_ID_H264)
+			if (codec->codec_id == AV_CODEC_ID_H264)
 				recMovieInfo->VideoType = 1;
 			printf("%s: [VIDEO] 0x%x \n", __FUNCTION__, recMovieInfo->epgVideoPid);
 		}
