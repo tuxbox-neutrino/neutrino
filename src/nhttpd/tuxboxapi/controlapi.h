@@ -86,6 +86,7 @@ private:
 	void VersionCGI(CyhookHandler *hh);
 	void ReloadNeutrinoSetupCGI(CyhookHandler *hh);
 	void ReloadPluginsCGI(CyhookHandler *hh);
+	void ReloadChannelsCGI(CyhookHandler *hh);
 	void ScreenshotCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);
 	void StartPluginCGI(CyhookHandler *hh);

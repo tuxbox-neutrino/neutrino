@@ -182,6 +182,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"version", 		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup", 	&CControlAPI::ReloadNeutrinoSetupCGI,		""},
 	{"reloadplugins", 	&CControlAPI::ReloadPluginsCGI,		""},
+	{"reloadchannels", 	&CControlAPI::ReloadChannelsCGI,	""},
 	{"screenshot", 		&CControlAPI::ScreenshotCGI,		""},
 	// boxcontrol - devices
 	{"volume", 			&CControlAPI::VolumeCGI,		"text/plain"},
@@ -1654,6 +1655,14 @@ void CControlAPI::ReloadNeutrinoSetupCGI(CyhookHandler *hh)
 void CControlAPI::ReloadPluginsCGI(CyhookHandler *hh)
 {
 	g_PluginList->loadPlugins();
+	hh->SendOk();
+}
+
+void CControlAPI::ReloadChannelsCGI(CyhookHandler *hh)
+{
+	CServiceManager::getInstance()->SaveServices(true, true);
+	NeutrinoAPI->Zapit->reinitChannels();
+	CNeutrinoApp::getInstance()->SDTreloadChannels = false;
 	hh->SendOk();
 }
 
