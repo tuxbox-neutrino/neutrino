@@ -2366,7 +2366,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					CRecordManager::getInstance()->exec(NULL, "Record");
 			}
 			else if ((mode == mode_webtv) && msg == (neutrino_msg_t) g_settings.mpkey_subtitle) {
-				CMoviePlayerGui::getInstance().selectSubtitle();
+				CMoviePlayerGui::getInstance(true).selectSubtitle();
 			}
 			/* after sensitive key bind, check user menu */
 			else if (usermenu.showUserMenu(msg)) {
