@@ -35,6 +35,7 @@
 #include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <neutrino.h>
+#include <zapit/types.h>
 
 #include "luainstance.h"
 #include <video.h>
@@ -529,6 +530,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "strFind", CLuaInstance::strFind },
 	{ "strSub", CLuaInstance::strSub },
 	{ "checkVersion", CLuaInstance::checkVersion },
+	{ "createChannelIDfromUrl", CLuaInstance::createChannelIDfromUrl },
 	{ NULL, NULL }
 };
 
@@ -2704,6 +2706,31 @@ int CLuaInstance::checkVersion(lua_State *L)
 		luaL_error(L, msg);
 	}
 	lua_pushinteger(L, 1); /* for backward compatibility */
+	return 1;
+}
+
+// --------------------------------------------------------------------------------
+
+int CLuaInstance::createChannelIDfromUrl(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 2) {
+		printf("CLuaInstance::%s: no arguments\n", __func__);
+		lua_pushnil(L);
+		return 1;
+	}
+
+	const char *url = luaL_checkstring(L, 2);
+	if (strlen(url) < 1 ) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	t_channel_id id = CREATE_CHANNEL_ID(0, 0, 0, url);
+	char id_str[17];
+	snprintf(id_str, sizeof(id_str), "%llx", id);
+
+	lua_pushstring(L, id_str);
 	return 1;
 }
 

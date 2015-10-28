@@ -34,7 +34,7 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 5
+#define LUA_API_VERSION_MINOR 6
 
 /* this is stored as userdata in the lua_State */
 struct CLuaData
@@ -319,6 +319,7 @@ private:
 	static bool tableLookup(lua_State*, const char*, bool &value);
 
 	static int checkVersion(lua_State *L);
+	static int createChannelIDfromUrl(lua_State *L);
 };
 
 #endif /* _LUAINSTANCE_H */
