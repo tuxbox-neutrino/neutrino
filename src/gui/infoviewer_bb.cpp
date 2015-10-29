@@ -220,12 +220,17 @@ void CInfoViewerBB::getBBButtonInfo()
 		case CInfoViewerBB::BUTTON_EPG:
 			icon = NEUTRINO_ICON_BUTTON_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
-			text = CUserMenu::getUserMenuButtonName(0, active);
-			if (!text.empty())
-				break;
-			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_RED]->title;
-			if (text.empty())
-				text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
+			mode = CNeutrinoApp::getInstance()->getMode();
+			if (mode == NeutrinoMessages::mode_ts) {
+				text = g_Locale->getText(LOCALE_EPGMENU_STREAMINFO);
+			} else {
+				text = CUserMenu::getUserMenuButtonName(0, active);
+				if (!text.empty())
+					break;
+				text = g_settings.usermenu[SNeutrinoSettings::BUTTON_RED]->title;
+				if (text.empty())
+					text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
+			}
 			break;
 		case CInfoViewerBB::BUTTON_AUDIO:
 			icon = NEUTRINO_ICON_BUTTON_GREEN;
