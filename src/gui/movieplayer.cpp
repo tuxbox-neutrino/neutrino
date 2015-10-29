@@ -43,6 +43,7 @@
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
 #include <gui/videosettings.h>
+#include <gui/streaminfo2.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <driver/display.h>
@@ -769,6 +770,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 
 	position = 0, duration = 0;
 	speed = 1;
+	last_read = 0;
 
 	printf("%s: starting...\n", __func__);
 	stopPlayBack();
@@ -1127,6 +1129,14 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			}
 			if (restore)
 				FileTime.show(position);
+		} else if (msg == CRCInput::RC_red) {
+			bool restore = FileTime.IsVisible();
+			FileTime.kill();
+			CStreamInfo2 streaminfo;
+			streaminfo.exec(NULL, "");
+			if (restore)
+				FileTime.show(position);
+			update_lcd = true;
 		} else if (msg == NeutrinoMessages::SHOW_EPG) {
 			handleMovieBrowser(NeutrinoMessages::SHOW_EPG, position);
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
@@ -2179,4 +2189,18 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 	sc->Start();
 	if (autoshot)
 		autoshot_done = true;
+}
+
+size_t CMoviePlayerGui::GetReadCount()
+{
+        uint64_t this_read = 0;
+        this_read = playback->GetReadCount();
+        uint64_t res;
+        if (this_read < last_read)
+                res = 0;
+        else
+                res = this_read - last_read;
+        last_read = this_read;
+//printf("GetReadCount: %lld\n", res);
+        return (size_t) res;
 }

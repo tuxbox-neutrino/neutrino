@@ -115,6 +115,7 @@ class CMoviePlayerGui : public CMenuTarget
 	time_t end_time;
 	bool ext_subs;
 	bool lock_subs;
+	uint64_t last_read;
 
 	/* playback from MB */
 	bool isMovieBrowser;
@@ -218,6 +219,8 @@ class CMoviePlayerGui : public CMenuTarget
 	void showSubtitle(neutrino_msg_data_t data);
 	void clearSubtitle(bool lock = false);
 	int getKeyPressed() { return keyPressed; };
+	size_t GetReadCount();
+	std::string GetFile() { return pretty_name; }
 };
 
 #endif
