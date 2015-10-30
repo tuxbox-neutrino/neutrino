@@ -2728,7 +2728,7 @@ int CLuaInstance::createChannelIDfromUrl(lua_State *L)
 
 	t_channel_id id = CREATE_CHANNEL_ID(0, 0, 0, url);
 	char id_str[17];
-	snprintf(id_str, sizeof(id_str), "%llx", id);
+	snprintf(id_str, sizeof(id_str), "%" PRIx64, id);
 
 	lua_pushstring(L, id_str);
 	return 1;
