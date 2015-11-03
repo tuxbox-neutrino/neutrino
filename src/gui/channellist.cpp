@@ -315,7 +315,7 @@ int CChannelList::doChannelMenu(void)
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	bool empty = (*chanlist).empty();
-	bool allow_edit = (bouquet && bouquet->zapitBouquet && !bouquet->zapitBouquet->bOther);
+	bool allow_edit = (bouquet && bouquet->zapitBouquet && !bouquet->zapitBouquet->bOther && !bouquet->zapitBouquet->bVirtual);
 
 	int i = 0;
 	snprintf(cnt, sizeof(cnt), "%d", i);
@@ -988,13 +988,17 @@ bool CChannelList::showInfo(int number, int epgpos)
 
 int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data, bool pip)
 {
-	bool startvideo = true;
-
 	if (msg != NeutrinoMessages::EVT_PROGRAMLOCKSTATUS) // right now the only message handled here.
 		return messages_return::unhandled;
+	checkLockStatus(data, pip);
+	return messages_return::handled;
 
+}
+
+bool CChannelList::checkLockStatus(neutrino_msg_data_t data, bool pip)
+{
+	bool startvideo = true;
 	//printf("===> program-lock-status: %d zp: %d\n", data, zapProtection != NULL);
-
 	if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_NEVER)
 		goto out;
 
@@ -1079,9 +1083,9 @@ out:
 			}
 		} else
 			g_RemoteControl->startvideo();
+		return true;
 	}
-
-	return messages_return::handled;
+	return false;
 }
 
 bool CChannelList::adjustToChannelID(const t_channel_id channel_id)

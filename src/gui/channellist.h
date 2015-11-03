@@ -242,5 +242,6 @@ public:
 	};
 	unsigned Size() { return (*chanlist).size(); }
 	ZapitChannelList &getChannels() { return channels; };
+	bool checkLockStatus(neutrino_msg_data_t data, bool pip = false);
 };
 #endif
