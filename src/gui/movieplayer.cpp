@@ -695,8 +695,13 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 			zp = NULL;
 			if (!unlocked)
 				return false;
+		} else {
+			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(chan);
+			if (channel && channel->Locked() != g_settings.parentallock_defaultlocked && !CNeutrinoApp::getInstance()->channelList->checkLockStatus(0x100))
+				return false;
 		}
 	}
+
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	instance_bg->Cleanup();
