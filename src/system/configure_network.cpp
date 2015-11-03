@@ -291,10 +291,14 @@ void CNetworkConfig::saveWpaConfig()
 	out << "ctrl_interface=/var/run/wpa_supplicant\n";
 	out << "network={\n";
 	out << "	ssid=\"" + ssid + "\"\n";
-	out << "	psk=\"" + key + "\"\n";;
-	out << "	proto=WPA WPA2\n";
-	out << "	key_mgmt=WPA-PSK\n";
-	out << "	pairwise=CCMP TKIP\n";
-	out << "	group=CCMP TKIP\n";
+	if (!key.empty()) {
+		out << "	psk=\"" + key + "\"\n";;
+		out << "	proto=WPA WPA2\n";
+		out << "	key_mgmt=WPA-PSK\n";
+		out << "	pairwise=CCMP TKIP\n";
+		out << "	group=CCMP TKIP\n";
+	} else {
+		out << "	key_mgmt=NONE\n";
+	}
 	out << "}\n";
 }
