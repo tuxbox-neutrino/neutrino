@@ -128,6 +128,7 @@
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
 #include <zapit/scan.h>
+#include <zapit/capmt.h>
 #include <zapit/client/zapitclient.h>
 
 #include <linux/reboot.h>
@@ -418,6 +419,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.ci_ignore_messages = configfile.getInt32("ci_ignore_messages", 0);
 	g_settings.ci_save_pincode = configfile.getInt32("ci_save_pincode", 0);
 	g_settings.ci_pincode = configfile.getString("ci_pincode", "");
+	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
 
 #ifndef CPU_FREQ
 	g_settings.cpufreq = 0;
@@ -971,6 +973,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("ci_ignore_messages", g_settings.ci_ignore_messages);
 	configfile.setInt32("ci_save_pincode", g_settings.ci_save_pincode);
 	configfile.setString("ci_pincode", g_settings.ci_pincode);
+	configfile.setInt32("ci_tuner", g_settings.ci_tuner);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	configfile.setInt32( "make_webtv_list", g_settings.make_webtv_list);
@@ -1940,6 +1943,7 @@ TIMER_START();
 	ZapStart_arg.volume = g_settings.current_volume;
 	ZapStart_arg.webtv_xml = &g_settings.webtv_xml;
 
+	CCamManager::getInstance()->SetCITuner(g_settings.ci_tuner);
 	/* create decoders, read channels */
 	bool zapit_init = CZapit::getInstance()->Start(&ZapStart_arg);
 	//get zapit config for writeChannelsNames

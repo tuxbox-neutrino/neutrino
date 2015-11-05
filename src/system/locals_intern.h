@@ -308,6 +308,7 @@ const char * locale_real_names[] =
 	"ci.save_pincode",
 	"ci.settings",
 	"ci.timeout",
+	"ci.tuner",
 	"ci.waiting",
 	"clock_background",
 	"clock_seconds",

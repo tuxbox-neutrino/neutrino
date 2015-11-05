@@ -66,7 +66,7 @@ class CCam : public CBasicClient
 		bool sendMessage(const char * const data, const size_t length, bool update = false);
 		bool makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list = CAPMT_ONLY, const CaIdVector &caids = CaIdVector());
 		bool setCaPmt(bool update = false);
-		bool sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen);
+		bool sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type);
 		int  makeMask(int demux, bool add);
 		int  getCaMask(void) { return camask; }
 		void setCaMask(int mask) { camask = mask; }
@@ -89,6 +89,7 @@ class CCamManager
 	private:
 		cammap_t		channel_map;
 		OpenThreads::Mutex	mutex;
+		int			tunerno;
 		static CCamManager *	manager;
 		bool SetMode(t_channel_id id, enum runmode mode, bool enable, bool force_update = false);
 		void StopCam(t_channel_id id, CCam *cam);
@@ -99,6 +100,8 @@ class CCamManager
 		static CCamManager * getInstance(void);
 		bool Start(t_channel_id id, enum runmode mode, bool force_update = false) { return SetMode(id, mode, true, force_update); };
 		bool Stop(t_channel_id id, enum runmode mode) { return SetMode(id, mode, false); };
+		void SetCITuner(int tuner);
+		int  GetCITuner(void) { return tunerno; };
 
 };
 #endif /* __capmt_h__ */

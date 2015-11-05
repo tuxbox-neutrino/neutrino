@@ -281,6 +281,7 @@ ci.reset_standby Reset after standby
 ci.save_pincode Save pincode
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
+ci.tuner Use CI only with tuner:
 ci.waiting Waiting for CI answer
 clock_background Show background
 clock_seconds Show seconds
