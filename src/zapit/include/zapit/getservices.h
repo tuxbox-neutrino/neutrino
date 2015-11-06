@@ -178,5 +178,6 @@ class CServiceManager
 		transponder_list_t & GetTransponders() { return transponders; }
 		transponder_list_t & GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }
 		void KeepNumbers(bool enable) { keep_numbers = enable; };
+		void SetCIFilter(void);
 };
 #endif /* __getservices_h__ */

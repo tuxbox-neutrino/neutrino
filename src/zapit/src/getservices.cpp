@@ -28,6 +28,7 @@
 #include <zapit/getservices.h>
 #include <zapit/settings.h>
 #include <zapit/satconfig.h>
+#include <zapit/capmt.h>
 #include <xmlinterface.h>
 #include <math.h>
 #include <sys/time.h>
@@ -1390,4 +1391,16 @@ bool CServiceManager::IsChannelTVChannel(const t_channel_id channel_id)
 	if(channel)
 		ret = (channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
 	return ret;
+}
+
+void CServiceManager::SetCIFilter()
+{
+	bool enable = false;
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		if (it->second.bUseCI) {
+			enable = true;
+			break;
+		}
+	}
+	CCamManager::getInstance()->EnableChannelFilter(enable);
 }

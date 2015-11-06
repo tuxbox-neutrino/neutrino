@@ -44,7 +44,8 @@ class CZapitBouquet
 	bool        bFav;
 	bool        bOther;
 	int         bScanEpg;
-	bool        bVirtual; // dont save
+	bool        bWebtv; // dont save
+	int         bUseCI;
 	t_satellite_position satellitePosition;
 
 	ZapitChannelList radioChannels;
@@ -59,7 +60,8 @@ class CZapitBouquet
 		bUser = false;
 		bOther = DEFAULT_BQ_OTHER;
 		bScanEpg = DEFAULT_BQ_SCANEPG;
-		bVirtual = false;
+		bWebtv = false;
+		bUseCI = false;
 	}
 
 	void addService(CZapitChannel* newChannel);

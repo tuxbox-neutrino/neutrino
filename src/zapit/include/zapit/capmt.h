@@ -90,6 +90,7 @@ class CCamManager
 		cammap_t		channel_map;
 		OpenThreads::Mutex	mutex;
 		int			tunerno;
+		bool			filter_channels;
 		static CCamManager *	manager;
 		bool SetMode(t_channel_id id, enum runmode mode, bool enable, bool force_update = false);
 		void StopCam(t_channel_id id, CCam *cam);
@@ -102,6 +103,7 @@ class CCamManager
 		bool Stop(t_channel_id id, enum runmode mode) { return SetMode(id, mode, false); };
 		void SetCITuner(int tuner);
 		int  GetCITuner(void) { return tunerno; };
+		void EnableChannelFilter(bool enable) { filter_channels = enable; };
 
 };
 #endif /* __capmt_h__ */

@@ -171,6 +171,7 @@ CCamManager::CCamManager()
 {
 	channel_map.clear();
 	tunerno = -1;
+	filter_channels = false;
 }
 
 CCamManager::~CCamManager()
@@ -298,6 +299,8 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 		if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource()))
 			INFO("CI: configured tuner %d do not match %d, skip...\n", tunerno, cam->getSource());
+		else if (filter_channels && !channel->bUseCI)
+			INFO("CI: filter enabled, CI not used\n");
 		else
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
 		//list = CCam::CAPMT_MORE;

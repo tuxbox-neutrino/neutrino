@@ -230,6 +230,7 @@ void CBouquetManager::writeBouquetHeader(FILE * bouq_fd, uint32_t i, const char 
 	if (Bouquets[i]->bHidden!=DEFAULT_BQ_HIDDEN) fprintf(bouq_fd, " hidden=\"%d\"", Bouquets[i]->bHidden ? 1 : 0);
 	if (Bouquets[i]->bLocked!=DEFAULT_BQ_LOCKED) fprintf(bouq_fd, " locked=\"%d\"", Bouquets[i]->bLocked ? 1 : 0);
 	if (Bouquets[i]->bScanEpg!=DEFAULT_BQ_SCANEPG) fprintf(bouq_fd, " epg=\"%d\"", Bouquets[i]->bScanEpg ? 1 : 0);
+	if (Bouquets[i]->bUseCI) fprintf(bouq_fd, " ci=\"1\"");
 	fprintf(bouq_fd, ">\n");
 }
 
@@ -272,7 +273,7 @@ void CBouquetManager::saveBouquets(void)
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
 			DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]->bUser);
-			if(!Bouquets[i]->bUser && !Bouquets[i]->bVirtual) {
+			if(!Bouquets[i]->bUser && !Bouquets[i]->bWebtv) {
 				writeBouquet(bouq_fd, i,false);
 			}
 		}
@@ -405,10 +406,12 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			const char* hidden = xmlGetAttribute(search, "hidden");
 			const char* locked = xmlGetAttribute(search, "locked");
 			const char* scanepg = xmlGetAttribute(search, "epg");
+			const char* useci = xmlGetAttribute(search, "ci");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
 			newBouquet->bFav = (strcmp(name, "favorites") == 0);
 			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
+			newBouquet->bUseCI = useci ? (strcmp(useci, "1") == 0) : false;
 			channel_node = xmlChildrenNode(search);
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
 				std::string name2;
@@ -444,6 +447,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;
+					chan->bUseCI = newBouquet->bUseCI;
 
 					newBouquet->addService(chan);
 				} else if (bUser) {
@@ -495,6 +499,7 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 	loadWebtv();
 	parseBouquetsXml(UBOUQUETS_XML, true);
 	renumServices();
+	CServiceManager::getInstance()->SetCIFilter();
 	TIMER_STOP("[zapit] bouquet loading took");
 }
 
@@ -813,7 +818,7 @@ void CBouquetManager::loadWebtv()
 				if (!prov)
 					prov = "WebTV";
 				pbouquet = addBouquetIfNotExist(prov);
-				pbouquet->bVirtual = true;
+				pbouquet->bWebtv = true;
 
 				while ((xmlGetNextOccurence(l1, "webtv"))) {
 					const char *title = xmlGetAttribute(l1, "title");
@@ -829,7 +834,7 @@ void CBouquetManager::loadWebtv()
 					if (genre) {
 						std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
 						gbouquet = addBouquetIfNotExist(bname);
-						gbouquet->bVirtual = true;
+						gbouquet->bWebtv = true;
 					}
 					if (title && url) {
 						t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
