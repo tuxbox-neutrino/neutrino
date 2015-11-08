@@ -209,7 +209,7 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 				int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 				int new_selected = selected + step;
 				if (new_selected >= (int) getItemCount()) {
-					if ((getItemCount() - listmaxshow -1 < selected) && (selected != (getItemCount() - 1)) && (step != 1))
+					if (((getItemCount() - listmaxshow -1 < selected) && (step != 1)) || (selected != (getItemCount() - 1)))
 						new_selected = getItemCount() - 1;
 					else if (((getItemCount() / listmaxshow) + 1) * listmaxshow == getItemCount() + listmaxshow) // last page has full entries
 						new_selected = 0;
