@@ -748,7 +748,7 @@ int CChannelList::show()
 			int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 			int new_selected = selected + step;
 			if (new_selected >= (int) (*chanlist).size()) {
-				if (((*chanlist).size() - listmaxshow -1 < selected) && (selected != ((*chanlist).size() - 1)) && (step != 1))
+				if ((((*chanlist).size() - listmaxshow -1 < selected) && (step != 1)) || (selected != ((*chanlist).size() - 1)))
 					new_selected = (*chanlist).size() - 1;
 				else if ((((*chanlist).size() / listmaxshow) + 1) * listmaxshow == (*chanlist).size() + listmaxshow) // last page has full entries
 					new_selected = 0;

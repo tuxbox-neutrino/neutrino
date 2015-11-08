@@ -293,7 +293,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 				int new_selected = selected + step;
 				if (new_selected >= (int) Bouquets->size()) {
-					if ((Bouquets->size() - listmaxshow -1 < selected) && (selected != (Bouquets->size() - 1)) && (step != 1))
+					if (((Bouquets->size() - listmaxshow -1 < selected) && (step != 1)) || (selected != (Bouquets->size() - 1)))
 						new_selected = Bouquets->size() - 1;
 					else if (((Bouquets->size() / listmaxshow) + 1) * listmaxshow == Bouquets->size() + listmaxshow) // last page has full entries
 						new_selected = 0;
