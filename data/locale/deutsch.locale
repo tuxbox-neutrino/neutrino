@@ -281,6 +281,8 @@ ci.reset_standby Reset nach Standby
 ci.save_pincode Jugendschutz-PIN speichern
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
+ci.tuner Nutze CI nur mit Tuner:
+ci.use Erlaube CI
 ci.waiting Warte auf CAM-Antwort
 clock_background Hintergrund anzeigen
 clock_seconds Sekunden anzeigen
