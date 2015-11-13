@@ -297,12 +297,20 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		unsigned char * buffer = channel->getRawPmt(len);
 		cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_SMARTCARD);
 
-		if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource()))
+		if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
 			INFO("CI: configured tuner %d do not match %d, skip...\n", tunerno, cam->getSource());
-		else if (filter_channels && !channel->bUseCI)
-			INFO("CI: filter enabled, CI not used\n");
-		else
+		} else if (filter_channels && !channel->bUseCI) {
+			INFO("CI: filter enabled, CI not used, disabling TS\n");
+#ifdef BOXMODEL_APOLLO
+			cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
+#endif
+		} else {
+#ifdef BOXMODEL_APOLLO
+			if (tunerno >= 0)
+				cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
+#endif
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
+		}
 		//list = CCam::CAPMT_MORE;
 	}
 
