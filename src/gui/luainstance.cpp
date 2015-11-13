@@ -471,6 +471,7 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
 	}
+	g_Zapit->setStandby(false);
 }
 
 // Example: runScript(fileName, "Arg1", "Arg2", "Arg3", ..., NULL);
@@ -523,6 +524,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "setBlank", CLuaInstance::setBlank },
 	{ "ShowPicture", CLuaInstance::ShowPicture },
 	{ "StopPicture", CLuaInstance::StopPicture },
+	{ "zapitSetStandby", CLuaInstance::zapitSetStandby },
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
 	{ "runScript", CLuaInstance::runScriptExt },
@@ -709,6 +711,16 @@ int CLuaInstance::ShowPicture(lua_State *L)
 int CLuaInstance::StopPicture(lua_State */*L*/)
 {
 	CFrameBuffer::getInstance()->stopFrame();
+	return 0;
+}
+
+int CLuaInstance::zapitSetStandby(lua_State *L)
+{
+	bool standby = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		standby = _luaL_checkbool(L, 2);
+	g_Zapit->setStandby(standby);
 	return 0;
 }
 
