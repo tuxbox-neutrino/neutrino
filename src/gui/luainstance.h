@@ -34,7 +34,7 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 7
+#define LUA_API_VERSION_MINOR 8
 
 /* this is stored as userdata in the lua_State */
 struct CLuaData
@@ -321,6 +321,7 @@ private:
 
 	static int checkVersion(lua_State *L);
 	static int createChannelIDfromUrl(lua_State *L);
+	static int enableInfoClock(lua_State *L);
 };
 
 #endif /* _LUAINSTANCE_H */

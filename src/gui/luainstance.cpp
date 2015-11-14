@@ -33,6 +33,7 @@
 #include <gui/widget/keyboard_input.h>
 #include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
+#include <gui/infoclock.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <neutrino.h>
 #include <zapit/types.h>
@@ -533,6 +534,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "strSub", CLuaInstance::strSub },
 	{ "checkVersion", CLuaInstance::checkVersion },
 	{ "createChannelIDfromUrl", CLuaInstance::createChannelIDfromUrl },
+	{ "enableInfoClock", CLuaInstance::enableInfoClock },
 	{ NULL, NULL }
 };
 
@@ -2744,6 +2746,18 @@ int CLuaInstance::createChannelIDfromUrl(lua_State *L)
 
 	lua_pushstring(L, id_str);
 	return 1;
+}
+
+// --------------------------------------------------------------------------------
+
+int CLuaInstance::enableInfoClock(lua_State *L)
+{
+	bool enable = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		enable = _luaL_checkbool(L, 2);
+	CInfoClock::getInstance()->enableInfoClock(enable);
+	return 0;
 }
 
 // --------------------------------------------------------------------------------
