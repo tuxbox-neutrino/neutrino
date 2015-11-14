@@ -108,10 +108,10 @@ int CCAMMenuHandler::doMainMenu()
 
 	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
 	cammenu->addIntroItems();
-
+#ifdef BOXMODEL_APOLLO
 	int fecount = CFEManager::getInstance()->getFrontendCount();
 	char fename[fecount+1][255];
-
+#endif
 	if (!g_settings.easymenu) {
 		if(CiSlots) {
 			cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
