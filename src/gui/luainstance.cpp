@@ -262,12 +262,16 @@ static void set_lua_variables(lua_State *L)
 	};
 
 	/* screen offsets, exported as e.g. SCREEN['END_Y'] */
+	lua_Integer xRes = (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth(true);
+	lua_Integer yRes = (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight(true);
 	table_key screenopts[] =
 	{
 		{ "OFF_X", g_settings.screen_StartX },
 		{ "OFF_Y", g_settings.screen_StartY },
 		{ "END_X", g_settings.screen_EndX },
 		{ "END_Y", g_settings.screen_EndY },
+		{ "X_RES", xRes },
+		{ "Y_RES", yRes },
 		{ NULL, 0 }
 	};
 	table_key menureturn[] =
