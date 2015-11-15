@@ -218,13 +218,13 @@ AC_CHECK_HEADERS(linux/dvb/version.h,[
 #include <linux/dvb/version.h>
 version DVB_API_VERSION
 	]])])
-	DVB_API_VERSION=`(eval "$ac_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
+	DVB_API_VERSION=`(eval "$ac_cpp -traditional-cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
 
 	AC_LANG_CONFTEST([AC_LANG_SOURCE([[
 #include <linux/dvb/version.h>
 version DVB_API_VERSION_MINOR
 	]])])
-	DVB_API_VERSION_MINOR=`(eval "$ac_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
+	DVB_API_VERSION_MINOR=`(eval "$ac_cpp -traditional-cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
 	rm -f conftest*
 
 	AC_MSG_NOTICE([found dvb version $DVB_API_VERSION.$DVB_API_VERSION_MINOR])
