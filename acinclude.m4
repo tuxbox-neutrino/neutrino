@@ -211,12 +211,6 @@ if test "$DVBINCLUDES"; then
 	CXXFLAGS="-I$DVBINCLUDES $CXXFLAGS"
 fi
 
-AC_CHECK_HEADERS(ost/dmx.h,[
-	DVB_API_VERSION=1
-	AC_MSG_NOTICE([found dvb version 1])
-])
-
-if test -z "$DVB_API_VERSION"; then
 AC_CHECK_HEADERS(linux/dvb/version.h,[
 	AC_LANG_PREPROC_REQUIRE()
 	AC_REQUIRE([AC_PROG_EGREP])
@@ -235,7 +229,6 @@ version DVB_API_VERSION_MINOR
 
 	AC_MSG_NOTICE([found dvb version $DVB_API_VERSION.$DVB_API_VERSION_MINOR])
 ])
-fi
 
 if test "$DVB_API_VERSION"; then
 	AC_DEFINE(HAVE_DVB,1,[Define to 1 if you have the dvb includes])
