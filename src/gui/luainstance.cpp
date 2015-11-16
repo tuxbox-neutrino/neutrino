@@ -301,12 +301,12 @@ static void set_lua_variables(lua_State *L)
 
 	table_key ccomponents[] =
 	{
-		{ "SHADOW_OFF",		CC_SHADOW_OFF },
-		{ "SHADOW_ON",		CC_SHADOW_ON },
-		{ "SHADOW_RIGHT",	CC_SHADOW_RIGHT },
-		{ "SHADOW_BOTTOM",	CC_SHADOW_BOTTOM },
-		{ "SAVE_SCREEN_YES",	CC_SAVE_SCREEN_YES },
-		{ "SAVE_SCREEN_NO",	CC_SAVE_SCREEN_NO },
+		{ "SHADOW_OFF",		(lua_Integer)CC_SHADOW_OFF },
+		{ "SHADOW_ON",		(lua_Integer)CC_SHADOW_ON },
+/*		{ "SHADOW_RIGHT",	(lua_Integer)CC_SHADOW_RIGHT },*/
+/*		{ "SHADOW_BOTTOM",	(lua_Integer)CC_SHADOW_BOTTOM },*/
+		{ "SAVE_SCREEN_YES",	(lua_Integer)CC_SAVE_SCREEN_YES },
+		{ "SAVE_SCREEN_NO",	(lua_Integer)CC_SAVE_SCREEN_NO },
 		{ NULL, 0 }
 	};
 
