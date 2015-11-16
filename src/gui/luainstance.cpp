@@ -299,6 +299,17 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+	table_key ccomponents[] =
+	{
+		{ "SHADOW_OFF",		CC_SHADOW_OFF },
+		{ "SHADOW_ON",		CC_SHADOW_ON },
+		{ "SHADOW_RIGHT",	CC_SHADOW_RIGHT },
+		{ "SHADOW_BOTTOM",	CC_SHADOW_BOTTOM },
+		{ "SAVE_SCREEN_YES",	CC_SAVE_SCREEN_YES },
+		{ "SAVE_SCREEN_NO",	CC_SAVE_SCREEN_NO },
+		{ NULL, 0 }
+	};
+
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
 	{
@@ -309,6 +320,7 @@ static void set_lua_variables(lua_State *L)
 		{ "MENU_RETURN", menureturn },
 		{ "APIVERSION",  apiversion },
 		{ "PLAYSTATE",   playstate },
+		{ "CC",          ccomponents },
 		{ NULL, NULL }
 	};
 
