@@ -475,8 +475,8 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
+		g_Zapit->setStandby(false);
 	}
-	g_Zapit->setStandby(false);
 }
 
 // Example: runScript(fileName, "Arg1", "Arg2", "Arg3", ..., NULL);
