@@ -872,6 +872,7 @@ lua.boolparam_deprecated3 for a Boolean parameter is deprecated.\n              
 lua.function_deprecated1 Caution!
 lua.function_deprecated2 Function
 lua.function_deprecated3 is deprecated,\n                      please use
+lua.parameter_deprecated2 Parameter
 lua.versionscheck1 Your Lua API version is too old
 lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer

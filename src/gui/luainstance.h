@@ -212,6 +212,7 @@ private:
 	static bool _luaL_checkbool(lua_State *L, int numArg);
 	static void paramBoolDeprecated(lua_State *L, const char* val);
 	static void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc);
+	static void paramDeprecated(lua_State *L, const char* oldParam, const char* newParam);
 	static lua_Unsigned checkMagicMask(lua_Unsigned &col);
 
 	static int NewWindow(lua_State *L);
