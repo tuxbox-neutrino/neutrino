@@ -29,7 +29,7 @@
 #include <vector>
 #include <string>
 
-class CScreenSaver
+class CScreenSaver : public sigc::trackable
 {
 	private:
 		CFrameBuffer 	*m_frameBuffer;
@@ -40,7 +40,6 @@ class CScreenSaver
 		unsigned int 	index;
 
 		bool		status_mute;
-		bool		status_clock;
 
 		bool ReadDir();
 		void PaintPicture();
@@ -52,6 +51,8 @@ class CScreenSaver
 
 		void Start();
 		void Stop();
+		sigc::signal<void> OnBeforeStart;
+		sigc::signal<void> OnAfterStop;
 };
 
 #endif // __CSCREENSAVER_H__
