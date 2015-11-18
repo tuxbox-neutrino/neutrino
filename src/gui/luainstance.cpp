@@ -359,8 +359,8 @@ static void set_lua_variables(lua_State *L)
 	}
 }
 
-//#define DBG printf
-#define DBG(...)
+//#define DBG1 printf
+#define DBG1(...)
 
 #define lua_boxpointer(L, u) \
 	(*(void **)(lua_newuserdata(L, sizeof(void *))) = (u))
@@ -649,7 +649,7 @@ int CLuaInstance::NewWindow(lua_State *L)
 int CLuaInstance::PaintBox(lua_State *L)
 {
 	int count = lua_gettop(L);
-	DBG("CLuaInstance::%s %d\n", __func__, count);
+	DBG1("CLuaInstance::%s %d\n", __func__, count);
 	int x, y, w, h, radius = 0, corner = CORNER_ALL;
 	unsigned int c;
 
@@ -682,7 +682,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 
 int CLuaInstance::PaintIcon(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, h;
 	unsigned int o;
 	const char *fname;
@@ -703,7 +703,7 @@ extern CPictureViewer * g_PicViewer;
 
 int CLuaInstance::DisplayImage(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, w, h;
 	const char *fname;
 
@@ -844,7 +844,7 @@ int CLuaInstance::strSub(lua_State *L)
 
 int CLuaInstance::GetSize(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int w = 0, h = 0;
 	const char *fname;
 
@@ -861,7 +861,7 @@ int CLuaInstance::RenderString(lua_State *L)
 	unsigned int c;
 	const char *text;
 	int numargs = lua_gettop(L);
-	DBG("CLuaInstance::%s %d\n", __func__, numargs);
+	DBG1("CLuaInstance::%s %d\n", __func__, numargs);
 	c = COL_MENUCONTENT_TEXT;
 	boxh = 0;
 	center = 0;
@@ -901,7 +901,7 @@ int CLuaInstance::getRenderWidth(lua_State *L)
 {
 	int f;
 	const char *text;
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W)
@@ -930,7 +930,7 @@ int CLuaInstance::GetInput(lua_State *L)
 	/* TODO: I'm not sure if this works... */
 	if (msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC)
 	{
-		DBG("CLuaInstance::%s: msg 0x%08" PRIx32 " data 0x%08" PRIx32 "\n", __func__, msg, data);
+		DBG1("CLuaInstance::%s: msg 0x%08" PRIx32 " data 0x%08" PRIx32 "\n", __func__, msg, data);
 		CNeutrinoApp::getInstance()->handleMsg(msg, data);
 	}
 	/* signed int is debatable, but the "big" messages can't yet be handled
@@ -943,7 +943,7 @@ int CLuaInstance::GetInput(lua_State *L)
 int CLuaInstance::FontHeight(lua_State *L)
 {
 	int f;
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W)
@@ -957,7 +957,7 @@ int CLuaInstance::FontHeight(lua_State *L)
 
 int CLuaInstance::GCWindow(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaData *w = (CLuaData *)lua_unboxpointer(L, 1);
 	delete w->fbwin;
 	w->rcinput = NULL;
@@ -2071,7 +2071,7 @@ int CLuaInstance::CWindowSetCenterPos(lua_State *L)
 
 int CLuaInstance::CWindowDelete(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaCWindow *m = CWindowCheck(L, 1);
 	if (!m)
 		return 0;
@@ -2394,7 +2394,7 @@ int CLuaInstance::ComponentsTextEnableUTF8(lua_State *L)
 
 int CLuaInstance::ComponentsTextDelete(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
 	if (!m)
 		return 0;
@@ -2556,7 +2556,7 @@ int CLuaInstance::CPictureSetCenterPos(lua_State *L)
 
 int CLuaInstance::CPictureDelete(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaPicture *m = CPictureCheck(L, 1);
 	if (!m) return 0;
 
