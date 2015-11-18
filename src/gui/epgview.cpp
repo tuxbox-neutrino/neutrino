@@ -643,7 +643,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	int header_h = std::max(toph, logo_h);
 	header = new CComponentsHeader(sx, sy, ox, header_h);
 	if (pic_offx > 0) {
-		headerPic = new CComponentsPicture(sx+10, sy + (toph-logo_h)/2, logo_w, logo_h, lname);
+		headerPic = new CComponentsPicture(sx+10, sy + (header_h-logo_h)/2, logo_w, logo_h, lname);
 		headerPic->doPaintBg(false);
 	}
 	std::string textAll = (!text2.empty()) ? text1 + "\n" + text2 : text1;
