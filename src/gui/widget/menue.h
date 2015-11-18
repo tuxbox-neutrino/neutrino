@@ -308,7 +308,7 @@ class CAbstractMenuOptionChooser : public CMenuItem
 			optionValue = NULL;
 		}
 		~CAbstractMenuOptionChooser(){}
-		
+		sigc::signal<void> OnAfterChangeOption;
 };
 
 class CMenuOptionNumberChooser : public CAbstractMenuOptionChooser
@@ -444,7 +444,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 		int getWidth(void);
 		void setOptions(const struct keyval * const Options, const unsigned Number_Of_Options);
 		void setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options);
-		sigc::signal<void> OnAfterChangeOption;
+
 		int paint(bool selected);
 
 		int exec(CMenuTarget* parent);
@@ -497,7 +497,7 @@ class CMenuGlobal
 		static CMenuGlobal* getInstance();
 };
 
-class CMenuWidget : public CMenuTarget
+class CMenuWidget : public CMenuTarget, public CComponentsSignals
 {
 	private: 
 		mn_widget_id_t 		widget_index;
@@ -505,7 +505,7 @@ class CMenuWidget : public CMenuTarget
 		CComponentsDetailLine	*details_line;
 		CComponentsInfoBox	*info_box;
 		int			hint_height;
-		bool			show_details_line;
+		CComponentsHeader 	*header;
 	protected:
 		std::string		nameString;
 		neutrino_locale_t	name;
@@ -562,7 +562,7 @@ class CMenuWidget : public CMenuTarget
 		CMenuWidget(const std::string &Name, const std::string & Icon = "", const int mwidth = 30, const mn_widget_id_t &w_index = NO_WIDGET_ID);
 		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30, const mn_widget_id_t &w_index = NO_WIDGET_ID);
 		~CMenuWidget();
-		
+		void ResetModules();
 		virtual void addItem(CMenuItem* menuItem, const bool defaultselected = false);
 		
 		enum 
@@ -610,7 +610,7 @@ class CMenuWidget : public CMenuTarget
 		};
 		void addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string &action);
 		void setFooter(const struct button_label *_fbutton_label, const int _fbutton_count, bool repaint = false);
-		void suppressDetailsLine(bool suppress = true){show_details_line = suppress ? false : true;};
+
 		void setNextShortcut(int sc) { nextShortcut = sc; };
 		int getNextShortcut() { return nextShortcut; };
 };
