@@ -24,7 +24,7 @@
 
 #ifndef __neutrino_debug__
 #define __neutrino_debug__
-
+#include <zapit/debug.h>
 extern int debug;
 
 enum

@@ -31,6 +31,7 @@
 #endif
 
 #include "cc_base.h"
+#include "cc_item.h"
 
 //! Sub class of CComponentsItem. Shows a shape with given dimensions and color on screen.
 /*!
@@ -45,7 +46,7 @@ class CComponentsShapeCircle : public CComponentsItem
 	public:
 		CComponentsShapeCircle(	const int x_pos, const int y_pos, const int diam,
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///set property: diam
@@ -62,7 +63,7 @@ class CComponentsShapeSquare : public CComponentsItem
 	public:
 		CComponentsShapeSquare(	const int x_pos, const int y_pos, const int w, const int h,
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);

@@ -4,7 +4,7 @@
 
 	Info Clock Window
 	based up CComponentsFrmClock
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2015, Thilo Graf 'dbt'
 	Copyright (C) 2013, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -36,9 +36,9 @@
 
 
 
-CInfoClock::CInfoClock():CComponentsFrmClock( 0, 0, 0, 50, "%H:%M:%S", true, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
+CInfoClock::CInfoClock():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
 {
-	initVarInfoClock();
+	initCCLockItems();
 }
 
 CInfoClock* CInfoClock::getInstance()
@@ -49,68 +49,62 @@ CInfoClock* CInfoClock::getInstance()
 	return InfoClock;
 }
 
-void CInfoClock::initVarInfoClock()
+void CInfoClock::initCCLockItems()
 {
-	Init();
-}
-
-void CInfoClock::Init()
-{
-	static int oldSize = 0;
-	if (oldSize != g_settings.infoClockFontSize) {
-		oldSize = g_settings.infoClockFontSize;
-		setClockFontSize(g_settings.infoClockFontSize);
-	}
+	paint_bg = g_settings.infoClockBackground;
 
 	//use current theme colors
-	syncSysColors();
+	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
 
 	//set text color
-	if (g_settings.infoClockBackground)
-		setTextColor(COL_MENUCONTENT_TEXT);
-	else
-		setTextColor(COL_INFOCLOCK_TEXT);
-
-	paint_bg = true;
-	if (g_settings.infoClockBackground)
+	if (paint_bg){
+		cl_col_text = COL_MENUCONTENT_TEXT;
 		setColorBody(COL_MENUCONTENT_PLUS_0);
-	else
+	}else{
+		cl_col_text = COL_INFOCLOCK_TEXT;
 		setColorBody(COL_BACKGROUND_PLUS_0);
-
-	setShadowOnOff(g_settings.infoClockBackground);
+	}
 
 	if (g_settings.infoClockSeconds)
 		setClockFormat("%H:%M:%S");
-	else {
-		setClockFormat("%H:%M");
-		setClockBlink("%H %M");
-	}
+	else
+		setClockFormat("%H:%M", "%H %M");
 
-	int x_old = x, y_old = y, width_old = width, height_old = height;
-	CVolumeHelper::getInstance()->refresh(cl_font);
-	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
-	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height))
-		clear();
+	//set height, NOTE: height is strictly bound to settings
+	if (g_settings.infoClockFontSize != height){
+		height = g_settings.infoClockFontSize;
+		int dx = 0;
+		int dy = height;
+		setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
+	}
 
 	// set corner radius depending on clock height
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
 
-	initCCLockItems();
+	CComponentsFrmClock::initCCLockItems();
+	CVolumeHelper::getInstance()->refresh(cl_font);
+	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
 }
 
 void CInfoClock::ClearDisplay()
 {
-	kill();
-	Init();
+	bool run = isRun();
+	this->kill();
+	clearSavedScreen();
+	initCCLockItems();
+	//provokes full repaint for next activation, otherwise clock segments only repaints on changed content
+	clear();
+	if (run)
+		Start();
 }
 
-bool CInfoClock::StartClock()
+bool CInfoClock::StartInfoClock()
 {
-	Init();
+	initCCLockItems();
 	return Start();
 }
 
-bool CInfoClock::StopClock()
+bool CInfoClock::StopInfoClock()
 {
 	bool ret = Stop();
 	kill();
@@ -123,13 +117,22 @@ bool CInfoClock::enableInfoClock(bool enable)
 	bool ret = false;
 	if (g_settings.mode_clock) {
 		if (enable) {
-			if (!paintClock)
-				ret = StartClock();
+			if (isBlocked()) //blocked
+				ret = StartInfoClock();
 		}
 		else {
-			if (paintClock)
-				ret = StopClock();
+			if (!isBlocked()) //unblocked
+				ret = StopInfoClock();
 		}
 	}
 	return ret;
+}
+
+//switching clock on or off depends of current displayed or not
+void CInfoClock::switchClockOnOff()
+{
+	if(g_settings.mode_clock)
+		g_settings.mode_clock = false;
+	else
+		g_settings.mode_clock = true;
 }

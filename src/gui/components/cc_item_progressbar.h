@@ -50,7 +50,7 @@
 
 #include "config.h"
 #include "cc_base.h"
-
+#include "cc_item.h"
 #include <string>
 
 class CProgressBar : public CComponentsItem
@@ -91,14 +91,21 @@ class CProgressBar : public CComponentsItem
 		///parameters:
 		///x_pos, y_pos, w, h: position and dimension in pixel
 		///w, h: width / height of bar. Can later be set with paintProgressbar.
-		///r, g, b: percentage of the bar where red/green/yellow is used, only used for colored designs
+		///R, G, Y: percentage of the bar where red/green/yellow is used, only used for colored designs
 		///active_col, passive_col: sets colors for displayed values, activ_col means the the displayed progress
 		///color_frame, color_body, color_shadow: colores of progressbar for frame, body and shadow, Note: color of frame is ineffective on fr_thickness = 0
-		CProgressBar(	const int x_pos = 0, const int y_pos = 0,
-				const int w = -1, const int h = -1,
-				fb_pixel_t color_frame = 0, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
-				const fb_pixel_t active_col = COL_INFOBAR_PLUS_7, const fb_pixel_t passive_col = COL_INFOBAR_PLUS_3,
-				const int r = 40, const int g = 100, const int b =70,
+		CProgressBar(	const int x_pos = 0,
+				const int y_pos = 0,
+				const int w = -1,
+				const int h = -1,
+				fb_pixel_t color_frame = 0,
+				fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+				fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+				const fb_pixel_t active_col = COL_INFOBAR_PLUS_7,
+				const fb_pixel_t passive_col = COL_INFOBAR_PLUS_3,
+				const int R = 40,
+				const int G = 100,
+				const int Y = 70,
 				CComponentsForm *parent = NULL);
 
 

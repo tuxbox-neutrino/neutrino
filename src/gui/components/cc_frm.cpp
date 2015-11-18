@@ -39,7 +39,7 @@ using namespace std;
 //sub class CComponentsForm from CComponentsItem
 CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w, const int h,
 					CComponentsForm* parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
@@ -47,18 +47,11 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 {
 	cc_item_type 	= CC_ITEMTYPE_FRM;
 
-	x		= x_pos;
-	y 		= y_pos;
-	cc_xr 		= x;
-	cc_yr 		= y;
-	width 		= w;
-	height	 	= h;
+	Init(x_pos, y_pos, w, h, color_frame, color_body, color_shadow);
+	cc_xr 	= x;
+	cc_yr 	= y;
 
-	shadow		= has_shadow;
-	col_frame 	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
-
+	shadow 		= shadow_mode;
 	shadow_w	= SHADOW_OFFSET;
 	corner_rad	= RADIUS_LARGE;
 	corner_type 	= CORNER_ALL;
@@ -78,6 +71,15 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 	//connect page scroll slot
 	sigc::slot3<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> sl = sigc::mem_fun(*this, &CComponentsForm::execPageScroll);
 	this->OnExec.connect(sl);
+}
+
+void CComponentsForm::Init(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+				const fb_pixel_t& color_frame,
+				const fb_pixel_t& color_body,
+				const fb_pixel_t& color_shadow)
+{
+	setDimensionsAll(x_pos, y_pos, w, h);
+	setColorAll(color_frame, color_body, color_shadow);
 }
 
 CComponentsForm::~CComponentsForm()
@@ -292,7 +294,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 
 	if (v_cc_items.empty()){
 		addCCItem(cc_Item);
-		dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __func__);
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __func__);
 	}else{
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
 		cc_Item->setParent(this);
@@ -520,23 +522,23 @@ void CComponentsForm::paintCCItems()
 		cc_item->allowPaint(item_visible);
 	}
 }
-
-void CComponentsForm::hide(bool no_restore)
+#if 0
+void CComponentsForm::hide()
 {
 	// hack: ensure hiding of minitv during hide of forms and inherited classes,
 	// because the handling of minitv items are different to other item types
 	// and need an explizit call of hide()
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]->getItemType() == CC_ITEMTYPE_PIP){
-			v_cc_items[i]->hide();
+			v_cc_items[i]->kill();
 			break;
 		}
 	}
 
 	//hide body
-	hideCCItem(no_restore);
+	CComponents::hide();
 }
-
+#endif
 //erase or paint over rendered objects
 void CComponentsForm::killCCItems(const fb_pixel_t& bg_color, bool ignore_parent)
 {
@@ -648,4 +650,48 @@ void CComponentsForm::ScrollPage(int direction, bool do_paint)
 		cur_page = (uint8_t)target_page;
 
 	OnAfterScrollPage();
+}
+
+bool CComponentsForm::clearSavedScreen()
+{
+	if (CCDraw::clearSavedScreen()){
+		for(size_t i=0; i<v_cc_items.size(); i++)
+			v_cc_items[i]->clearSavedScreen();
+		return true;
+	}
+
+	return false;
+}
+
+bool CComponentsForm::clearPaintCache()
+{
+	if (CCDraw::clearPaintCache()){
+		for(size_t i=0; i<v_cc_items.size(); i++)
+			v_cc_items[i]->clearPaintCache();
+		return true;
+	}
+
+	return false;
+}
+
+//clean old gradient buffer
+bool CComponentsForm::clearFbGradientData()
+{
+	if (CCDraw::clearFbGradientData()){
+		for(size_t i=0; i<v_cc_items.size(); i++)
+			v_cc_items[i]->clearFbGradientData();
+		return true;
+	}
+
+	return false;
+}
+
+bool CComponentsForm::enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color, const int& direction)
+{
+	if (CCDraw::enableColBodyGradient(enable_mode, sec_color, direction)){
+		for (size_t i= 0; i< v_cc_items.size(); i++)
+			v_cc_items[i]->clearScreenBuffer();
+		return true;
+	}
+	return false;
 }

@@ -46,7 +46,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-
+#include <gui/infoclock.h>
 #include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
@@ -635,6 +635,7 @@ int CBouquetList::show(bool bShowChannelList)
 void CBouquetList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+10);
+	CInfoClock::getInstance()->enableInfoClock(!CInfoClock::getInstance()->isBlocked());
 }
 
 void CBouquetList::paintItem(int pos)
@@ -702,6 +703,8 @@ void CBouquetList::paintHead()
 
 void CBouquetList::paint()
 {
+	//ensure stop info clock before paint this window
+	CInfoClock::getInstance()->disableInfoClock();
 	liststart = (selected/listmaxshow)*listmaxshow;
 	int lastnum =  liststart + listmaxshow;
 	int bsize = Bouquets.empty() ? 1 : Bouquets.size();

@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2015, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -17,10 +17,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /// Basic CComponent class header.
@@ -33,6 +31,7 @@ Basic attributes and member functions for component sub classes
 
 #include "cc_types.h"
 #include "cc_base.h"
+#include "cc_extra.h"
 
 #include "cc_item_infobox.h"
 #include "cc_item_picture.h"
@@ -43,7 +42,6 @@ Basic attributes and member functions for component sub classes
 #include "cc_detailsline.h"
 
 #include "cc_frm_scrollbar.h"
-#include "cc_frm.h"
 #include "cc_frm_chain.h"
 #include "cc_frm_button.h"
 #include "cc_frm_clock.h"

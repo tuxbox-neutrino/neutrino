@@ -61,7 +61,7 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/movieplayer.h>
-
+#include <gui/infoclock.h>
 #include <system/settings.h>
 #include <gui/customcolor.h>
 
@@ -86,11 +86,11 @@ extern CBouquetList   * TVfavList;
 extern CBouquetList   * RADIOfavList;
 
 extern bool autoshift;
-
+static CComponentsPIP	*cc_minitv = NULL;
 extern CBouquetManager *g_bouquetManager;
-
-static CComponentsFrmClock *headerClock = NULL;
-static int headerClockWidth = 0;
+extern int old_b_id;
+static CComponentsChannelLogoScalable* CChannelLogo = NULL;
+static CComponentsHeader *header = NULL;
 extern bool timeset;
 
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist)
@@ -130,24 +130,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 
 CChannelList::~CChannelList()
 {
-	if(dline){
-		delete dline;
-		dline = NULL;
-	}
-	if (cc_minitv){
-		delete 	cc_minitv;
-		cc_minitv = NULL;
-	}
-	if (headerClock) {
-		headerClock->clearSavedScreen();
-		delete headerClock;
-		headerClock = NULL;
-	}
-
-	if (CChannelLogo) {
-		delete CChannelLogo;
-		CChannelLogo = NULL;
-	}
+	ResetModules();
 }
 
 void CChannelList::SetChannelList(ZapitChannelList* zlist)
@@ -312,6 +295,18 @@ int CChannelList::doChannelMenu(void)
 	CMenuWidget* menu = new CMenuWidget(LOCALE_CHANNELLIST_EDIT, NEUTRINO_ICON_SETTINGS);
 	menu->enableFade(false);
 	menu->enableSaveScreen(true);
+
+	//ensure stop info clock before paint context menu
+	CInfoClock::getInstance()->block();
+
+	//ensure stop header clock before paint context menu
+	if (g_settings.menu_pos == CMenuWidget::MENU_POS_TOP_RIGHT){
+		//using native callback to ensure stop header clock before paint this menu window
+		menu->OnBeforePaint.connect(sigc::mem_fun(header->getClockObject(), &CComponentsFrmClock::block));
+		//... and start header clock after hide menu window
+		menu->OnAfterHide.connect(sigc::mem_fun(header->getClockObject(), &CComponentsFrmClock::unblock));
+	}
+
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	bool empty = (*chanlist).empty();
@@ -420,7 +415,7 @@ int CChannelList::doChannelMenu(void)
 			{
 				previous_channellist_additional = g_settings.channellist_additional;
 				COsdSetup osd_setup;
-				osd_setup.showContextChanlistMenu();
+				osd_setup.showContextChanlistMenu(this);
 				//FIXME check font/options changed ?
 				hide();
 				calcSize();
@@ -601,7 +596,7 @@ int CChannelList::show()
 
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
-
+	CInfoClock::getInstance()->ClearDisplay();
 	paint();
 
 	int oldselected = selected;
@@ -947,8 +942,6 @@ int CChannelList::show()
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
 
-	if (headerClock)
-		headerClock->Stop();
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
 		return -1;
@@ -968,12 +961,17 @@ void CChannelList::hide()
 			delete cc_minitv;
 		cc_minitv = NULL;
 	}
-	if (headerClock) {
-		if (headerClock->Stop())
-			headerClock->hide();
+
+	header->kill();
+	if (CChannelLogo){
+		CChannelLogo->kill();
+		delete CChannelLogo;
+		CChannelLogo = NULL;
 	}
+
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
+	CInfoClock::getInstance()->enableInfoClock(!CInfoClock::getInstance()->isBlocked());
 }
 
 bool CChannelList::showInfo(int number, int epgpos)
@@ -1699,6 +1697,7 @@ void CChannelList::showChannelLogo() //TODO: move into an own handler, eg. heade
 			CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
 			CChannelLogo->paint();
 		} else {
+			CChannelLogo->hide();
 			delete CChannelLogo;
 			CChannelLogo = NULL;
 		}
@@ -2078,51 +2077,68 @@ void CChannelList::paint()
 
 void CChannelList::paintHead()
 {
-	static int gradient_head = g_settings.theme.menu_Head_gradient;
-	static int gradient_c2c  = g_settings.theme.gradient_c2c;
+	if (header == NULL)
+		header = new CComponentsHeader();
 
-	CComponentsHeader header(x, y, full_width, theight, name /*no header icon*/);
+	header->setDimensionsAll(x, y, full_width, theight);
+
 	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
-		header.setIcon(NEUTRINO_ICON_LOCK);
-	if (edit_state)
-		header.setCaption(std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name);
+		header->setIcon(NEUTRINO_ICON_LOCK);
 
-	header.paint(CC_SAVE_SCREEN_NO);
+	string header_txt 		= !edit_state ? name : string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
+	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);
+	header->setColorBody(COL_MENUHEAD_PLUS_0);
 
-	if ((gradient_head != g_settings.theme.menu_Head_gradient || gradient_c2c != g_settings.theme.gradient_c2c) && headerClock != NULL) {
-		gradient_head = g_settings.theme.menu_Head_gradient;
-		gradient_c2c  = g_settings.theme.gradient_c2c;
-		headerClock->clearSavedScreen();
-		delete headerClock;
-		headerClock = NULL;
+	header->setCaption(header_txt, CTextBox::NO_AUTO_LINEBREAK, header_txt_col);
+
+	if (header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0)){
+		if (CChannelLogo)
+			CChannelLogo->clearFbData();
 	}
 
 	if (timeset) {
-		if (headerClock == NULL) {
-			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M", true);
-			headerClock->setClockBlink("%H %M");
-			headerClock->setClockIntervall(1);
-			headerClock->doPaintBg(!gradient_head);
-			headerClock->enableTboxSaveScreen(gradient_head);
-			headerClock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-		}
-		headerClock->setClockFont(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
-		headerClock->setYPos(y);
-		headerClock->setHeight(theight);
-		headerClock->setTextColor(header.getTextObject()->getTextColor());
-		headerClock->setColorBody(header.getColorBody());
-		headerClock->refresh();
-		headerClockWidth = headerClock->getWidth();
-		headerClock->setXPos(x + full_width - headerClockWidth - 10);
-		headerClockWidth += 6;
+		if(!edit_state){
+			if (header->getContextBtnObject())
+				if (!header->getContextBtnObject()->empty())
+					header->removeContextButtons();
+			header->enableClock(true, "%H:%M", "%H %M", true);
+			logo_off = header->getClockObject()->getWidth() + 10;
 
-		headerClock->Start();
+			header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+		}else{
+			if (header->getClockObject()){
+				header->disableClock();
+				header->setContextButton(CComponentsHeader::CC_BTN_EXIT);
+			}
+		}
 	}
 	else
-		headerClockWidth = 0;
+		logo_off = 10;
 
-	logo_off = headerClockWidth + 10;
-	headerNew = true;
+	header->paint(CC_SAVE_SCREEN_NO);
+}
+
+CComponentsHeader* CChannelList::getHeaderObject()
+{
+	return header;
+}
+
+void CChannelList::ResetModules()
+{
+	delete header;
+	header = NULL;
+	if(dline){
+		delete dline;
+		dline = NULL;
+	}
+	if (cc_minitv){
+		delete 	cc_minitv;
+		cc_minitv = NULL;
+	}
+	if (CChannelLogo) {
+		delete CChannelLogo;
+		CChannelLogo = NULL;
+	}
 }
 
 void CChannelList::paintBody()

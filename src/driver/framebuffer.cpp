@@ -658,6 +658,7 @@ void CFrameBuffer::paletteSet(struct fb_cmap *map)
 		realcolor[i] = make16color(cmap.red[i], cmap.green[i], cmap.blue[i], cmap.transp[i],
 					   rl, ro, gl, go, bl, bo, tl, to);
 	}
+	OnAfterSetPallette();
 }
 
 void CFrameBuffer::paintHLineRelInternal2Buf(const int& x, const int& dx, const int& y, const int& box_dx, const fb_pixel_t& col, fb_pixel_t* buf)
@@ -673,7 +674,7 @@ fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const fb_p
 	if (!getActive())
 		return buf;
 	if (dx == 0 || dy == 0) {
-		dprintf(DEBUG_INFO, "[%s - %d]: radius %d, dx %d dy %d\n", __func__, __LINE__, radius, dx, dy);
+		dprintf(DEBUG_INFO, "[CFrameBuffer] [%s - %d]: radius %d, dx %d dy %d\n", __func__, __LINE__, radius, dx, dy);
 		return buf;
 	}
 
@@ -779,7 +780,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		return;
 
 	if (dx == 0 || dy == 0) {
-		printf("[%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx, y+dy);
+		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx, y+dy);
 		return;
 	}
 
@@ -826,11 +827,12 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 			}
 
 			if (dx-ofr-ofl < 1) {
-				if (dx-ofr-ofl == 0)
-					printf("[%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
-				else
-					printf("[%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n", 
-						__FUNCTION__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
+				if (dx-ofr-ofl == 0){
+					dprintf(DEBUG_INFO, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
+				}else{
+					dprintf(DEBUG_INFO, "[CFrameBuffer] [%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n",
+						__func__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
+				}
 				line++;
 				continue;
 			}
@@ -2095,7 +2097,7 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 //					waitForIdle();
 					fb_no_check = true;
 					if (prev)
-						CAudioMute::getInstance()->hide(true);
+						CAudioMute::getInstance()->hide();
 					else
 						CAudioMute::getInstance()->paint();
 					fb_no_check = false;
