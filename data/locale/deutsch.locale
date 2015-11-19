@@ -290,10 +290,23 @@ clock_size_height Höhe der Anzeige
 clock_switch_off Uhr ausblenden
 clock_switch_on Uhr einblenden
 color.gradient Farbverlauf
+color.gradient_a2b Farbe A zu B
+color.gradient_b2a Farbe B zu A
+color.gradient_d2l dunkel nach hell
+color.gradient_dld dunkel hell dunkel
+color.gradient_l2d hell nach dunkel
+color.gradient_ldl hell dunkel hell
+color.gradient_mode_direction Richtung
+color.gradient_mode_direction_hor horizontal
+color.gradient_mode_direction_ver vertikal
+color.gradient_separator_enable Farbverlauf für Trennlinie
 colorchooser.alpha alpha
 colorchooser.blue blau
 colorchooser.green grün
 colorchooser.red rot
+colorchooser.save Speichern
+colormenu.advanced_mode_off Standard-Optionen
+colormenu.advanced_mode_on Erweiterte Optionen
 colormenu.background Hintergrundfarbe
 colormenu.clock_textcolor Ziffernfarbe
 colormenu.contrast_fonts Schriftkontrast
@@ -976,6 +989,8 @@ menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
 menu.hint_clock_size Stellen Sie die Größe der Uhr ein
 menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
 menu.hint_color_gradient Schaltet Farbverläufe für verschiedene Menüelemente ein/aus
+menu.hint_color_gradient_direction Richtung des Farbverlaufs festlegen
+menu.hint_color_gradient_separator_enable Farbverlauf für Menü-Trennlinien aktivieren/deaktivieren
 menu.hint_colored_events Definiert, ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
 menu.hint_colored_events_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_colors Konfigurieren Sie die Menü-Farben
@@ -1470,6 +1485,7 @@ miscsettings.infobar_disp_3 Logo, Kanalname [Signalbalken]
 miscsettings.infobar_disp_4 Logo, Kanalname [Kanalnummer]
 miscsettings.infobar_disp_5 Logo [Signalbalken]
 miscsettings.infobar_disp_6 Kanalnummer, Logo [Signalbalken]
+miscsettings.infobar_gradient_body Farbverlauf EPG-Bereich
 miscsettings.infobar_gradient_bottom Farbverlauf unten
 miscsettings.infobar_gradient_top Farbverlauf oben
 miscsettings.infobar_logo_hdd_dir Logo-Verzeichnis

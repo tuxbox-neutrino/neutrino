@@ -270,10 +270,23 @@ clock_size_height Display hoogte
 clock_switch_off klok uit
 clock_switch_on klok aan
 color.gradient Kleur gradient
+color.gradient_a2b color A to B
+color.gradient_a2b color B to A
+color.gradient_d2l donker tot licht
+color.gradient_dld donker licht donker
+color.gradient_l2d licht tot donker
+color.gradient_ldl licht donker licht
+color.gradient_mode_direction Richting
+color.gradient_mode_direction_hor horizontaal
+color.gradient_mode_direction_ver vertikaal
+color.gradient_separator_enable Gradiënt voor separator
 colorchooser.alpha Alpha
 colorchooser.blue Blauw
 colorchooser.green Groen
 colorchooser.red Rood
+colorchooser.save Save
+colormenu.advanced_mode_off Toon standaard opties
+colormenu.advanced_mode_on Toon geavanceerde zoekopties
 colormenu.background Achtergrond
 colormenu.clock_textcolor Digit kleur
 colormenu.contrast_fonts Contrast lettertype
@@ -928,6 +941,8 @@ menu.hint_clock_seconds Toon tijdsformaat met secondes
 menu.hint_clock_size Stel grootte van de info klok in
 menu.hint_clock_textcolor Configureer digit kleuren
 menu.hint_color_gradient Schakel kleur verloop van menu items aan/uit
+menu.hint_color_gradient_direction Definieer de richting van kleurverloop.
+menu.hint_color_gradient_separator_enable Uitschakelen/inschakelen kleurverloop voor menu separator lijnen
 menu.hint_colored_events Gebruik andere kleur voor huidige of volgende programma
 menu.hint_colored_events_textcolor Wijzig programma kleur voor gekleurde programma opties in kanalenlijst en infobalk.
 menu.hint_colors Configureer GUI-kleuren
@@ -1399,6 +1414,9 @@ miscsettings.infobar_disp_3 Logo, Kanaalnaam [Signaal]
 miscsettings.infobar_disp_4 Logo, Kanaalnaam [Kanaalnummer]
 miscsettings.infobar_disp_5 Logo [Signaal]
 miscsettings.infobar_disp_6 Kanaalnummer, Logo [Signaal]
+miscsettings.infobar_gradient_body Gradient EPG-area
+miscsettings.infobar_gradient_bottom Gradient knoppenbalk beschikbaar
+miscsettings.infobar_gradient_top Gradient top
 miscsettings.infobar_logo_hdd_dir Logo directory
 miscsettings.infobar_sat_display Satelliet weergeven op de infobalk
 miscsettings.infobar_show show Info wanneer EPG verandert
