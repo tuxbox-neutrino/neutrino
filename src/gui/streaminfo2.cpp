@@ -463,7 +463,6 @@ void CStreamInfo2::paint (int /*mode*/)
 
 		// -- paint large signal graph
 		paint_signal_fe_box (x, y, width, height-100);
-
 	}
 }
 
@@ -983,12 +982,17 @@ int CStreamInfo2::ts_close ()
 
 void CStreamInfo2::showSNR ()
 {
-	if (signalbox == NULL){
-		signalbox = new CSignalBox(x + 10, yypos, 240, 50, frontend);
-		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
-		signalbox->setTextColor(COL_INFOBAR_TEXT);
-		signalbox->doPaintBg(true);
+	if (signalbox != NULL)
+	{
+		signalbox->kill();
+		delete signalbox;
+		signalbox = NULL;
 	}
+
+	signalbox = new CSignalBox(x + 10, yypos, 240, 50, frontend);
+	signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
+	signalbox->setTextColor(COL_INFOBAR_TEXT);
+	signalbox->doPaintBg(true);
 
 	signalbox->paint(false);
 }
