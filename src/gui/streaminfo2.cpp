@@ -441,6 +441,13 @@ void CStreamInfo2::paint (int /*mode*/)
 	int xpos = x + 10;
 
 	if (paint_mode == 0) {
+		if (signalbox != NULL)
+		{
+			signalbox->kill();
+			delete signalbox;
+			signalbox = NULL;
+		}
+
 		// -- tech Infos, PIG, small signal graph
 		head_string = g_Locale->getText (LOCALE_STREAMINFO_HEAD);
 		CVFD::getInstance ()->setMode (CVFD::MODE_MENU_UTF8, head_string);
@@ -982,17 +989,13 @@ int CStreamInfo2::ts_close ()
 
 void CStreamInfo2::showSNR ()
 {
-	if (signalbox != NULL)
+	if (signalbox == NULL)
 	{
-		signalbox->kill();
-		delete signalbox;
-		signalbox = NULL;
+		signalbox = new CSignalBox(x + 10, yypos, 240, 50, frontend);
+		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
+		signalbox->setTextColor(COL_INFOBAR_TEXT);
+		signalbox->doPaintBg(true);
 	}
-
-	signalbox = new CSignalBox(x + 10, yypos, 240, 50, frontend);
-	signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
-	signalbox->setTextColor(COL_INFOBAR_TEXT);
-	signalbox->doPaintBg(true);
 
 	signalbox->paint(false);
 }
