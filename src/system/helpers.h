@@ -22,10 +22,21 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <stdint.h>
+#include <string.h>
 #include <string>
 #include <sstream>
+#include <vector>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <map>
  
+#include <sys/stat.h>
+#include <sys/types.h>
+
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
@@ -33,15 +44,19 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
 
 int safe_mkdir(const char * path);
 inline int safe_mkdir(std::string path) { return safe_mkdir(path.c_str()); }
+//int mkdirhier(const char *pathname, mode_t mode = 0755);
+//inline int mkdirhier(std::string path, mode_t mode = 0755) { return mkdirhier(path.c_str(), mode); }
 off_t file_size(const char *filename);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char * dir, bool allow_tmp = false);
 bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
-void mySleep(int sec);
+int mySleep(int sec);
 
 std::string find_executable(const char *name);
+/* basically what "foo=`command`" does in the shell */
+std::string backtick(std::string command);
 
 bool hdd_get_standby(const char * fname);
 void hdd_flush(const char * fname);
@@ -52,7 +67,11 @@ std::string getFileName(std::string &file);
 std::string getFileExt(std::string &file);
 std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string strftime(const char *format, const struct tm *tm);
+std::string strftime(const char *format, time_t when, bool gm = false);
 time_t toEpoch(std::string &date);
+std::string& str_replace(const std::string &search, const std::string &replace, std::string &text);
+std::string& htmlEntityDecode(std::string& text);
 
 class CFileHelpers
 {
@@ -69,15 +88,32 @@ class CFileHelpers
 
 		bool copyFile(const char *Src, const char *Dst, mode_t mode);
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
-		bool createDir(const char *Dir, mode_t mode);
-		bool removeDir(const char *Dir);
+		static bool createDir(std::string& Dir, mode_t mode = 755);
+		static bool createDir(const char *Dir, mode_t mode = 755){std::string dir = std::string(Dir);return createDir(dir, mode);}
+		static bool removeDir(const char *Dir);
+		static uint64_t getDirSize(const char *dir);
+		static uint64_t getDirSize(const std::string& dir){return getDirSize(dir.c_str());};
 };
 
-template<class C> std::string to_string(C i)
-{
-	std::stringstream s;
-	s << i;
-	return s.str();
-}
+std::string to_string(int);
+std::string to_string(unsigned int);
+std::string to_string(long);
+std::string to_string(unsigned long);
+std::string to_string(long long);
+std::string to_string(unsigned long long);
+
+inline int atoi(std::string &s) { return atoi(s.c_str()); }
+inline int atoi(const std::string &s) { return atoi(s.c_str()); }
+inline int access(std::string &s, int mode) { return access(s.c_str(), mode); }
+inline int access(const std::string &s, int mode) { return access(s.c_str(), mode); }
+
+inline void cstrncpy(char *dest, const char * const src, size_t n) { n--; strncpy(dest, src, n); dest[n] = 0; }
+inline void cstrncpy(char *dest, const std::string &src, size_t n) { n--; strncpy(dest, src.c_str(), n); dest[n] = 0; }
+
+std::vector<std::string> split(const std::string &s, char delim);
+
+bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap);
+
+std::string getJFFS2MountPoint(int mtdPos);
 
 #endif

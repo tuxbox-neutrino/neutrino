@@ -50,6 +50,7 @@ class CMotorControl : public CMenuTarget
 		void Init(void);
 		CFrameBuffer	*frameBuffer;
 		CFrontend	*frontend;
+		bool		rotor_swap;
 		int x;
 		int y;
 		int width;
@@ -58,7 +59,7 @@ class CMotorControl : public CMenuTarget
 		int ypos;
 		int ypos_status;
 		int ypos_menue;
-
+		Font* m_font;
 		int8_t stepSize;
 		int32_t stepDelay;
 		int stepMode;

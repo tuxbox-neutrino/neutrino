@@ -1,26 +1,18 @@
-installdir = $(DATADIR)/neutrino/httpd/images
+installdir = $(PRIVATE_HTTPDDIR)/images
 
 install_DATA =	accept.png \
-		addfolder.gif \
 		alert.gif \
-		arrowdown.gif \
 		arrowdown.png \
 		arrowleft.png \
 		arrowright.png \
-		arrowup.gif \
 		arrowup.png \
-		audiobar.gif \
+		audiobar.png \
 		blank.gif \
-		check_green.gif \
-		chmod.gif \
-		comment.gif \
+		check_green.png \
 		comment.png \
 		cross.png \
-		delete.gif \
-		download.gif \
-		elist.gif \
+		elist.png \
 		epg.png \
-		excl_yellow.gif \
 		exlink.gif \
 		ext_add.png \
 		ext_delete.png \
@@ -39,43 +31,32 @@ install_DATA =	accept.png \
 		ftype_link.gif \
 		fullscreen.png \
 		help.gif \
-		help_white.gif \
-		hidden.gif \
 		hidden.png \
-		home-dir.gif \
-		hourglas.gif \
 		info.png \
 		inlink.gif \
-		live.gif \
-		livelock.png \
 		live.png \
-		live_popup.gif \
 		live_popup.png \
+		livelock.png \
 		liveunlock.png \
-		lock.gif \
 		lock.png \
 		modify.png \
-		new.gif \
 		new.png \
 		ok.gif \
 		pause.png \
 		play.png \
 		popup.png \
-		properties.gif \
 		properties.png \
 		radio.png \
 		rc_cst_v1.jpg \
-		rc_cst_v2.jpg \
-		rc_cst_v3.jpg \
-		rc_cst_v4.jpg \
-		rc_cst_v5.jpg \
-		rc_cst_v6.jpg \
-		rc_dbox_nokia_old.jpg \
-		rc_dbox_philips.jpg \
-		record.gif \
+		rc_cst_v2.png \
+		rc_cst_v3.png \
+		rc_cst_v4.png \
+		rc_cst_v5.png \
+		rc_cst_v6.png \
+		rc_dbox_nokia_old.png \
+		rc_dbox_philips.png \
 		record.png \
-		reload.gif \
-		remotescreen.gif \
+		reload.png \
 		remove.png \
 		rename.gif \
 		saveall.png \
@@ -89,23 +70,37 @@ install_DATA =	accept.png \
 		timer.gif \
 		time_up.png \
 		transcode.png \
-		tux.gif \
-		tux-yweb.gif \
+		tux-yweb.png \
 		udp_switch_off.png \
 		udp_switch_on.png \
-		unlock.gif \
 		unlock.png \
-		upload.gif \
-		visible.gif \
 		visible.png \
-		vlc.gif \
+		vlc.png \
 		volumedown.png \
 		volumemute.png \
 		volumeunmute.png \
 		volumeup.png \
 		wait.gif \
-		wget.gif \
-		x_red.gif \
-		yjogol.gif \
-		y.png \
+		wget.png \
+		x_red.png \
 		zap.png
+
+# file manager
+install_DATA +=	chmod.png \
+		copy.gif \
+		cut.png \
+		dir_up.png \
+		download.png \
+		film.png \
+		folder_add.png \
+		ftype_file.png \
+		ftype_folder.png \
+		ftype_link.png \
+		home.png \
+		package.png \
+		page_edit.png \
+		paste.gif \
+		picture.png \
+		text.png \
+		upload.png \
+		work.gif

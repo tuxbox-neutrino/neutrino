@@ -32,7 +32,7 @@ typedef enum {
 	// Output types
 	ANALOG_xD_SCART		= (1 << 8), // Output is SCART
 	ANALOG_xD_CINCH		= (1 << 9), // Output is Cinch
-	ANALOG_xD_BOTH		= (3 << 8), // Output cannot individually control scart, cinch outputs
+	ANALOG_xD_BOTH		= (3 << 8) // Output cannot individually control scart, cinch outputs
 					    // due to limited amount of DACs (ie TANK, Trinity)
 } analog_mode_t;
 
@@ -130,6 +130,8 @@ typedef enum {
 	VIDEO_STD_1080P25,
 	VIDEO_STD_1080P50,
 	VIDEO_STD_1080P60,
+	VIDEO_STD_1080P2397,
+	VIDEO_STD_1080P2997,
 	VIDEO_STD_AUTO,
 	VIDEO_STD_MAX = VIDEO_STD_AUTO
 } VIDEO_STD;

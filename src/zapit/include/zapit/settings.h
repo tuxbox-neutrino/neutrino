@@ -31,7 +31,7 @@
 #define CONFIGDIR       "/var/tuxbox/config"
 #endif
 
-#define CONFIGFILE      CONFIGDIR "/zapit/zapit.conf"
+#define ZAPITCONFIGFILE      CONFIGDIR "/zapit/zapit.conf"
 #define MOTORCONFIGFILE CONFIGDIR "/zapit/motor.conf"
 #define SATCONFIG CONFIGDIR "/zapit/sat.conf"
 #define SERVICES_XML    CONFIGDIR "/zapit/services.xml"
@@ -47,6 +47,8 @@
 
 #define CABLES_XML      CONFIGDIR "/cables.xml"
 #define SATELLITES_XML  CONFIGDIR "/satellites.xml" 
+#define TERRESTRIAL_XML CONFIGDIR "/terrestrial.xml"
+#define WEBTV_XML	CONFIGDIR "/webtv_usr.xml"
 
 #define AUDIO_DEVICE          "/dev/dvb/adapter0/audio0"
 #define DEMUX_DEVICE          "/dev/dvb/adapter0/demux0"

@@ -35,20 +35,23 @@ class CThemes : public CMenuTarget, CChangeObserver
 		CColorSetupNotifier *notifier;
 
 		int width;
-		int oldThemeValues[48];
+		SNeutrinoTheme oldTheme;
 
 		bool hasThemeChanged;
 
 		int Show();
-		void readFile(char* themename);
-		void saveFile(char* themename);
+		void readFile(const char *themename);
+		void saveFile(const char *themename);
 		void readThemes(CMenuWidget &);
 		void rememberOldTheme(bool remember);
+		void move_userDir();
 
 	public:
 		CThemes();
 		void setupDefaultColors();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		static void setTheme(CConfigFile &configfile);
+		static void getTheme(CConfigFile &configfile);
 };
 
 #endif

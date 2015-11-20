@@ -23,7 +23,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <string.h>
-#include <xmltree.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -136,7 +135,7 @@ std::vector<CUPnPDevice> CUPnPSocket::Discover(std::string service)
 			if (!strcasecmp(location.c_str(), "location:"))
 			{
 				line.erase(0, 9);
-				while ((line.length() > 0 )&& ((line[0] == ' ') || (line[0] == '\t')))
+				while ((!line.empty()) && ((line[0] == ' ') || (line[0] == '\t')))
 					line.erase(0, 1);
 				if (line.substr(0,7) == "http://")
 				{

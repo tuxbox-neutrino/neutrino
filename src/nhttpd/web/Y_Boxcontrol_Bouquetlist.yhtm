@@ -1,7 +1,7 @@
 {=include-block:Y_Blocks.txt;head_no_charset=}
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
 </head>
-<body>
+<body class="iframe">
 <table class="bouquetlist" width="100%">
 <tr class="blist"><td><a href="Y_Boxcontrol_Channellist.yhtm#akt" target="content">{=L:bc.channels=}</a></td></tr>
 <tr><td><hr/></td></tr>

@@ -29,8 +29,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <dirent.h>
 #include <string>
+#include <system/helpers.h>
 
 #include <xmltree/xmlinterface.h>
 #include <zapit/client/zapittools.h>
@@ -40,6 +41,7 @@
 #include "xmlutil.h"
 #include "eitd.h"
 #include "debug.h"
+#include <system/set_threadname.h>
 
 void addEvent(const SIevent &evt, const time_t zeit, bool cn = false);
 extern MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;
@@ -125,7 +127,7 @@ bool checkNoDVBTimelist(t_channel_id channel_id)
 	return false;
 }
 
-static void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
+void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
 {
 	if (!checkEPGFilter(onid, tsid, sid))
 	{
@@ -137,6 +139,18 @@ static void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid,
 		node->next = CurrentEPGFilter;
 		CurrentEPGFilter = node;
 	}
+}
+
+void clearEPGFilter()
+{
+	EPGFilter *filterptr = CurrentEPGFilter;
+	while (filterptr)
+	{
+		EPGFilter *filternext = filterptr->next;
+		delete filterptr;
+		filterptr = filternext;
+	}
+	CurrentEPGFilter = NULL;
 }
 
 static void addBlacklist(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
@@ -177,7 +191,7 @@ static void addNoDVBTimelist(t_original_network_id onid, t_transport_stream_id t
 	}
 }
 
-void readEPGFilter(void)
+bool readEPGFilter(void)
 {
 	xmlDocPtr filter_parser = parseXmlFile(epg_filter_dir.c_str());
 
@@ -194,7 +208,7 @@ void readEPGFilter(void)
 			epg_filter_is_whitelist = true;
 		if (xmlGetNumericAttribute(filter, "except_current_next", 10) == 1)
 			epg_filter_except_current_next = true;
-		filter = filter->xmlChildrenNode;
+		filter = xmlChildrenNode(filter);
 
 		while (filter) {
 
@@ -206,10 +220,11 @@ void readEPGFilter(void)
 			else
 				addEPGFilter(onid, tsid, sid);
 
-			filter = filter->xmlNextNode;
+			filter = xmlNextNode(filter);
 		}
 	}
 	xmlFreeDoc(filter_parser);
+	return (CurrentEPGFilter != NULL);
 }
 
 void readDVBTimeFilter(void)
@@ -225,7 +240,7 @@ void readDVBTimeFilter(void)
 		dprintf("Reading DVBTimeFilters\n");
 
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
-		filter = filter->xmlChildrenNode;
+		filter = xmlChildrenNode(filter);
 
 		while (filter) {
 
@@ -234,7 +249,7 @@ void readDVBTimeFilter(void)
 			sid  = xmlGetNumericAttribute(filter, "serviceID", 16);
 			addNoDVBTimelist(onid, tsid, sid);
 
-			filter = filter->xmlNextNode;
+			filter = xmlNextNode(filter);
 		}
 		xmlFreeDoc(filter_parser);
 	}
@@ -244,7 +259,7 @@ void readDVBTimeFilter(void)
 	}
 }
 
-void deleteOldfileEvents(char *epgdir)
+void deleteOldfileEvents(const char *epgdir)
 {
 	std::string indexname = std::string(epgdir) + "/index.xml";
 	xmlDocPtr filter_parser = parseXmlFile(indexname.c_str());
@@ -254,164 +269,250 @@ void deleteOldfileEvents(char *epgdir)
 	if (filter_parser != NULL)
 	{
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
-		filter = filter->xmlChildrenNode;
+		filter = xmlChildrenNode(filter);
 
 		while (filter) {
-			filename = xmlGetAttribute(filter, "name");
-			file = epgdir;
-			file +="/";
-			file +=filename;
-			unlink(file.c_str());
-			filter = filter->xmlNextNode;
+			const char * name = xmlGetAttribute(filter, "name");
+			if(name){
+				filename=name;
+				file = epgdir;
+				file +="/";
+				file +=filename;
+				unlink(file.c_str());
+				filter = xmlNextNode(filter);
+			}
 		}
 		xmlFreeDoc(filter_parser);
 	}
 }
 
-void *insertEventsfromFile(void * data)
+bool readEventsFromFile(std::string &epgname, int &ev_count)
 {
-	reader_ready=false;
 	xmlDocPtr event_parser = NULL;
-	xmlNodePtr eventfile = NULL;
-	xmlNodePtr service = NULL;
-	xmlNodePtr event = NULL;
-	xmlNodePtr node = NULL;
+	xmlNodePtr service;
+	xmlNodePtr event;
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
+
+	if (!(event_parser = parseXmlFile(epgname.c_str()))) {
+		dprintf("unable to open %s for reading\n", epgname.c_str());
+		return false;
+	}
+	service = xmlDocGetRootElement(event_parser);
+	service = xmlChildrenNode(service);
+
+	while (service) {
+		onid = xmlGetNumericAttribute(service, "original_network_id", 16);
+		tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
+		sid = xmlGetNumericAttribute(service, "service_id", 16);
+
+		event = xmlChildrenNode(service);
+
+		while (event) {
+			SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
+			uint8_t tid = xmlGetNumericAttribute(event, "tid", 16);
+			std::string contentClassification, userClassification;
+			if(tid)
+				e.table_id = tid;
+			e.table_id |= 0x80; /* make sure on-air data has a lower table_id */
+
+			xmlNodePtr node;
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "name"))) {
+				const char *s = xmlGetAttribute(node, "string");
+				if (s)
+					e.setName(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "text"))) {
+				const char *s = xmlGetAttribute(node, "string");
+				if (s)
+					e.setText(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
+				node = xmlNextNode(node);
+			}
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "item"))) {
+#ifdef USE_ITEM_DESCRIPTION
+				const char *s = xmlGetAttribute(node, "string");
+				if (s)
+					e.item = s;
+#endif
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "item_description"))) {
+#ifdef USE_ITEM_DESCRIPTION
+				const char *s = xmlGetAttribute(node, "string");
+				if (s)
+					e.itemDescription = s;
+#endif
+				node = xmlNextNode(node);
+			}
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "extended_text"))) {
+				const char *l = xmlGetAttribute(node, "lang");
+				const char *s = xmlGetAttribute(node, "string");
+				if (l && s)
+					e.appendExtendedText(ZapitTools::UTF8_to_Latin1(l), s);
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "time"))) {
+				e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
+							xmlGetNumericAttribute(node, "duration", 10)));
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "content"))) {
+				const char cl = xmlGetNumericAttribute(node, "class", 16);
+				contentClassification += cl;
+				const char cl2 = xmlGetNumericAttribute(node, "user", 16);
+				userClassification += cl2;
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "component"))) {
+				SIcomponent c;
+				c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
+				c.componentType = xmlGetNumericAttribute(node, "type", 16);
+				c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
+				const char *s = xmlGetAttribute(node, "text");
+				if (s)
+					c.setComponent(s);
+				//e.components.insert(c);
+				e.components.push_back(c);
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "parental_rating"))) {
+				const char *s = xmlGetAttribute(node, "country");
+				if (s)
+#if 0
+					e.ratings.insert(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
+								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
+#endif
+				e.ratings.push_back(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
+							(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
+				node = xmlNextNode(node);
+			}
+
+			node = xmlChildrenNode(event);
+			while ((node = xmlGetNextOccurence(node, "linkage"))) {
+				SIlinkage l;
+				l.linkageType = xmlGetNumericAttribute(node, "type", 16);
+				l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
+				l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
+				l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
+				const char *s = xmlGetAttribute(node, "linkage_descriptor");
+				if (s)
+					l.name = s;
+				e.linkage_descs.insert(e.linkage_descs.end(), l);
+				node = xmlNextNode(node);
+			}
+
+			if (!contentClassification.empty()) {
+#ifdef FULL_CONTENT_CLASSIFICATION
+				ssize_t off = e.classifications.reserve(2 * contentClassification.size());
+				if (off > -1)
+					for (unsigned i = 0; i < contentClassification.size(); i++)
+						off = e.classifications.set(off, contentClassification.at(i), userClassification.at(i));
+#else
+				e.classifications.content = contentClassification.at(0);
+				e.classifications.user = userClassification.at(0);
+#endif
+			}
+			addEvent(e, 0);
+			ev_count++;
+
+			event = xmlNextNode(event);
+		}
+
+		service = xmlNextNode(service);
+	}
+	xmlFreeDoc(event_parser);
+	return true;
+}
+
+static int my_filter(const struct dirent *entry)
+{
+	int len = strlen(entry->d_name);
+	if (len > 3 && entry->d_name[len-3] == 'x' && entry->d_name[len-2] == 'm' && entry->d_name[len-1] == 'l')
+		return 1;
+	return 0;
+}
+
+bool readEventsFromDir(std::string &epgdir, int &ev_count)
+{
+	struct dirent **namelist;
+	int n = scandir(epgdir.c_str(), &namelist, my_filter, NULL);
+	printf("[sectionsd] Reading Information from directory %s, file count %d\n", epgdir.c_str(), n);
+	if (n <= 0)
+		return false;
+
+	for (int i = 0; i < n; i++) {
+		std::string epgname = epgdir + namelist[i]->d_name;
+		readEventsFromFile(epgname, ev_count);
+		free(namelist[i]);
+	}
+	free(namelist);
+	return true;
+}
+
+void *insertEventsfromFile(void * data)
+{
+	set_threadname(__func__);
+	reader_ready=false;
 	std::string indexname;
 	std::string filename;
 	std::string epgname;
+	xmlNodePtr eventfile;
 	int ev_count = 0;
-	char * epg_dir = (char *) data;
-	indexname = std::string(epg_dir) + "index.xml";
-
-	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
-
-	if (index_parser == NULL) {
+	if (!data) {
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
+	std::string epg_dir = (char *) data;
+	indexname = epg_dir + "index.xml";
+
 	time_t now = time_monotonic_ms();
+	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
+
+	if (index_parser == NULL) {
+		readEventsFromDir(epg_dir, ev_count);
+		printf("[sectionsd] Reading Information finished after %ld milliseconds (%d events)\n",
+				time_monotonic_ms()-now, ev_count);
+		reader_ready = true;
+		pthread_exit(NULL);
+	}
 	printdate_ms(stdout);
 	printf("[sectionsd] Reading Information from file %s:\n", indexname.c_str());
 
-	eventfile = xmlDocGetRootElement(index_parser)->xmlChildrenNode;
+	eventfile = xmlDocGetRootElement(index_parser);
+	eventfile = xmlChildrenNode(eventfile);
 
 	while (eventfile) {
-		filename = xmlGetAttribute(eventfile, "name");
+		const char * name = xmlGetAttribute(eventfile, "name");
+		if(name)
+			filename=name;
+
 		epgname = epg_dir + filename;
-		if (!(event_parser = parseXmlFile(epgname.c_str()))) {
-			dprintf("unable to open %s for reading\n", epgname.c_str());
-			eventfile = eventfile->xmlNextNode;
-			continue;
-		}
-		service = xmlDocGetRootElement(event_parser)->xmlChildrenNode;
+		readEventsFromFile(epgname, ev_count);
 
-		while (service) {
-			onid = xmlGetNumericAttribute(service, "original_network_id", 16);
-			tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
-			sid = xmlGetNumericAttribute(service, "service_id", 16);
-
-			event = service->xmlChildrenNode;
-
-			while (event) {
-
-				SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
-				uint8_t tid = xmlGetNumericAttribute(event, "tid", 16);
-				if(tid)
-					e.table_id = tid;
-				e.table_id |= 0x80; /* make sure on-air data has a lower table_id */
-
-				node = event->xmlChildrenNode;
-
-				while (xmlGetNextOccurence(node, "name") != NULL) {
-					e.setName(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-							std::string(xmlGetAttribute(node, "string")));
-					node = node->xmlNextNode;
-				}
-				while (xmlGetNextOccurence(node, "text") != NULL) {
-					e.setText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-							std::string(xmlGetAttribute(node, "string")));
-					node = node->xmlNextNode;
-				}
-				while (xmlGetNextOccurence(node, "item") != NULL) {
-#ifdef USE_ITEM_DESCRIPTION
-					e.item = std::string(xmlGetAttribute(node, "string"));
-#endif
-					node = node->xmlNextNode;
-				}
-				while (xmlGetNextOccurence(node, "item_description") != NULL) {
-#ifdef USE_ITEM_DESCRIPTION
-					e.itemDescription = std::string(xmlGetAttribute(node, "string"));
-#endif
-					node = node->xmlNextNode;
-				}
-				while (xmlGetNextOccurence(node, "extended_text") != NULL) {
-					e.appendExtendedText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-							std::string(xmlGetAttribute(node, "string")));
-					node = node->xmlNextNode;
-				}
-				while (xmlGetNextOccurence(node, "time") != NULL) {
-					e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
-								xmlGetNumericAttribute(node, "duration", 10)));
-					node = node->xmlNextNode;
-				}
-
-				while (xmlGetNextOccurence(node, "content") != NULL) {
-					char cl = xmlGetNumericAttribute(node, "class", 16);
-					e.contentClassification += cl;
-					cl = xmlGetNumericAttribute(node, "user", 16);
-					e.userClassification += cl;
-					node = node->xmlNextNode;
-				}
-
-				while (xmlGetNextOccurence(node, "component") != NULL) {
-					SIcomponent c;
-					c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
-					c.componentType = xmlGetNumericAttribute(node, "type", 16);
-					c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
-					c.component = std::string(xmlGetAttribute(node, "text"));
-					//e.components.insert(c);
-					e.components.push_back(c);
-					node = node->xmlNextNode;
-				}
-				while (xmlGetNextOccurence(node, "parental_rating") != NULL) {
-#if 0
-					e.ratings.insert(SIparentalRating(std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "country"))),
-								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
-#endif
-					e.ratings.push_back(SIparentalRating(std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "country"))),
-								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
-					node = node->xmlNextNode;
-				}
-				while (xmlGetNextOccurence(node, "linkage") != NULL) {
-					SIlinkage l;
-					l.linkageType = xmlGetNumericAttribute(node, "type", 16);
-					l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
-					l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
-					l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
-					l.name = std::string(xmlGetAttribute(node, "linkage_descriptor"));
-					e.linkage_descs.insert(e.linkage_descs.end(), l);
-
-					node = node->xmlNextNode;
-				}
-				addEvent(e, 0);
-				ev_count++;
-
-				event = event->xmlNextNode;
-			}
-
-			service = service->xmlNextNode;
-		}
-		xmlFreeDoc(event_parser);
-
-		eventfile = eventfile->xmlNextNode;
+		eventfile = xmlNextNode(eventfile);
 	}
 
 	xmlFreeDoc(index_parser);
 	printdate_ms(stdout);
-	printf("[sectionsd] Reading Information finished after %ld miliseconds (%d events)\n",
+	printf("[sectionsd] Reading Information finished after %ld milliseconds (%d events)\n",
 			time_monotonic_ms()-now, ev_count);
 
 	reader_ready = true;
@@ -455,8 +556,12 @@ static void write_indexxml_footer(FILE *fd)
 	fprintf(fd, "</dvbepgfiles>\n");
 }
 
-void writeEventsToFile(char *epgdir)
+void writeEventsToFile(const char *epgdir)
 {
+	if(check_dir(epgdir)){
+		return;
+	}
+
 	FILE * indexfile = NULL;
 	FILE * eventfile = NULL;
 	std::string filename("");
@@ -491,7 +596,7 @@ void writeEventsToFile(char *epgdir)
 			onid = (*e)->original_network_id;
 			tsid = (*e)->transport_stream_id;
 			sid = (*e)->service_id;
-			snprintf(eventname, 17, "%04x%04x%04x.xml", onid, tsid, sid);
+			snprintf(eventname, 17, "%04x%04x%04x.xml", tsid, onid, sid);
 			filename  = (std::string)epgdir + "/" + (std::string)eventname;
 			if (!(eventfile = fopen(filename.c_str(), "w"))) {
 				goto _done;
@@ -508,11 +613,10 @@ _done:
 	write_indexxml_footer(indexfile);
 	fclose(indexfile);
 
-	printf("[sectionsd] Writing Information finished\n");
-
 	filename  = (std::string)epgdir + "/index.xml";
-
 	rename(tmpname.c_str(), filename.c_str());
 
+	sync();
+	printf("[sectionsd] Writing Information finished\n");
 	return ;
 }

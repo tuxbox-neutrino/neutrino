@@ -58,6 +58,7 @@ struct sectionsd
                 getIsScanningActive,            // commandGetIsScanningActive
                 getIsTimeSet,                   // commandGetIsTimeSet
                 serviceChanged,                 // commandserviceChanged
+                serviceStopped,                 // commandserviceChanged
                 CMD_registerEvents,             // commandRegisterEventClient
                 CMD_unregisterEvents,           // commandUnRegisterEventClient
                 freeMemory,                     // commandFreeMemory
@@ -100,6 +101,7 @@ struct sectionsd
 		int epg_extendedcache;
 //		std::string network_ntpserver;
 //		std::string epg_dir;
+		int epg_save_frequently;
 	};
 
 };

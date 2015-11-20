@@ -33,20 +33,13 @@
 #ifndef __neutrino__
 #define __neutrino__
 
-#include <configfile.h>
-
 #include <neutrinoMessages.h>
-#include "driver/framebuffer.h"
-#include "driver/neutrinofonts.h"
-#include "system/setting_helpers.h"
-#include "system/configure_network.h"
 #include "daemonc/remotecontrol.h"    /* st_rmsg      */
 #include "gui/channellist.h"          /* CChannelList */
 #include "gui/personalize.h"
-#include "gui/rc_lock.h"
 #include "gui/user_menue.h"
-#include "gui/timerlist.h"
-
+#include <timerdclient/timerdtypes.h>
+#include <sigc++/signal.h>
 #include <string>
 
 #define ANNOUNCETIME (1 * 60)
@@ -60,7 +53,11 @@
 extern const unsigned char genre_sub_classes[];            /* epgview.cpp */
 extern const neutrino_locale_t * genre_sub_classes_list[]; /* epgview.cpp */
 
-class CNeutrinoApp : public CMenuTarget, CChangeObserver
+class CFrameBuffer;
+class CConfigFile;
+class CScanSettings;
+
+class CNeutrinoApp : public CMenuTarget, CChangeObserver, sigc::trackable
 {
 public:
 	enum
@@ -83,6 +80,9 @@ private:
 	int                             network_dhcp;
 	int                             network_automatic_start;
 
+	int				m_idletime;
+	bool				m_screensaver;
+
 	int				mode;
 	int				lastMode;
 	bool				softupdate;
@@ -97,13 +97,17 @@ private:
 	bool 				skipSleepTimer;
 	bool                            lockStandbyCall;
 	bool 				pbBlinkChange;
-	bool				g_channel_list_changed;
+	bool				channels_changed;
+	bool				favorites_changed;
+	bool				bouquets_changed;
+	bool				channels_init;
 	bool                            timer_wakeup;
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
-	CMoviePluginChangeExec 		*MoviePluginChanger;
-	bool				channellist_visible;
+	bool				channelList_allowed;
+	bool				channelList_painted;
+	int				first_mode_found;
 
 	void SDT_ReloadChannels();
 	void setupNetwork( bool force= false );
@@ -131,6 +135,7 @@ private:
 	void SetupFrameBuffer();
 	void CmdParser(int argc, char **argv);
 	void Cleanup();
+	void CheckFastScan(bool standby = false, bool reload = true);
 	CNeutrinoApp();
 
 public:
@@ -145,6 +150,7 @@ public:
 		mode_pic = 6,
 		mode_ts = 7,
 		mode_off = 8,
+		mode_webtv = 9,
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};
@@ -197,7 +203,10 @@ public:
 		return lastChannelMode;
 	};
 	void SetChannelMode(int mode);
-	void MarkChannelListChanged(void) { g_channel_list_changed = true; };
+	void MarkChannelsChanged(void) { channels_changed = true; };
+	void MarkFavoritesChanged(void) { favorites_changed = true; };
+	void MarkBouquetsChanged(void) { bouquets_changed = true; };
+	void MarkChannelsInit(void) { channels_init = true; };
 	void quickZap(int msg);
 	void numericZap(int msg);
 	void StopSubtitles();
@@ -211,9 +220,18 @@ public:
 	void saveEpg(bool cvfd_mode);
 	void stopDaemonsForFlash();
 	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
+	void allowChannelList(bool allow){channelList_allowed = allow;}
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
-	bool getChannellistIsVisible() { return channellist_visible; }
+	bool getChannellistIsVisible() { return channelList_painted; }
 	void zapTo(t_channel_id channel_id);
+	bool wakeupFromStandby(void);
+	void standbyToStandby(void);
+	void lockPlayBack(bool blank = true);
+	void stopPlayBack(bool lock = false);
+	bool adjustToChannelID(const t_channel_id channel_id);
+	void screensaver(bool);
+	//signal/event handler before restart of neutrino gui
+	sigc::signal<bool> OnBeforeRestart;
 };
 #endif
 

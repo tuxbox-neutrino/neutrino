@@ -55,7 +55,7 @@ class Font
 	int fontwidth;
 	int maxdigitwidth;
 
-	inline void paintFontPixel(fb_pixel_t *td, uint8_t fg_trans, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, fb_pixel_t bg_col, int faktor, uint8_t index);
+	inline void paintFontPixel(fb_pixel_t *td, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, int faktor, uint8_t index);
 
  public:
 	enum fontmodifier
@@ -65,11 +65,17 @@ class Font
 		};
 	fontmodifier stylemodifier;
 
-	void RenderString(int x, int y, const int width, const char *        text, const fb_pixel_t color, const int boxheight = 0, const bool utf8_encoded = false, const bool useFullBg = false);
-	void RenderString(int x, int y, const int width, const std::string & text, const fb_pixel_t color, const int boxheight = 0, const bool utf8_encoded = false, const bool useFullBg = false);
+	enum renderflags
+		{
+			IS_UTF8 = 1,
+			FULLBG = 2
+		};
 
-	int getRenderWidth(const char *        text, const bool utf8_encoded = false);
-	int getRenderWidth(const std::string & text, const bool utf8_encoded = false);
+	void RenderString(int x, int y, const int width, const char *        text, const fb_pixel_t color, const int boxheight = 0, const unsigned int flags = IS_UTF8);
+	void RenderString(int x, int y, const int width, const std::string & text, const fb_pixel_t color, const int boxheight = 0, const unsigned int flags = IS_UTF8);
+
+	int getRenderWidth(const char *        text, const bool utf8_encoded = true);
+	int getRenderWidth(const std::string & text, const bool utf8_encoded = true);
 	int getHeight(void);
 	int getDigitHeight(void);
 	int getMaxDigitWidth(void);

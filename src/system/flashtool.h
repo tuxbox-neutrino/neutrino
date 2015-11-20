@@ -33,7 +33,7 @@
 #ifndef __flashtool__
 #define __flashtool__
 
-#include <gui/widget/progressstatus.h>
+#include <gui/widget/progresswindow.h>
 
 #include <string>
 #include <vector>
@@ -43,7 +43,7 @@ class CFlashTool
 {
 	private:
 	
-		CProgress_StatusViewer* statusViewer;
+		CProgressWindow* statusViewer;
 		std::string mtdDevice;
 		std::string ErrorMessage;
 
@@ -61,7 +61,7 @@ class CFlashTool
 		const std::string & getErrorMessage(void) const;
 
 		void setMTDDevice( const std::string & mtddevice );
-		void setStatusViewer( CProgress_StatusViewer* statusview );
+		void setStatusViewer( CProgressWindow* statusview );
 
 		bool program( const std::string & filename, int globalProgressEndErase=-1, int globalProgressEndFlash=-1 );
 		bool readFromMTD( const std::string & filename, int globalProgressEnd=-1 );
@@ -81,6 +81,7 @@ class CFlashVersionInfo
 	char time[6];
 	char releaseCycle[5];
 	int  version;
+	time_t datetime;
 	
  public:
 	char snapshot;
@@ -92,6 +93,7 @@ class CFlashVersionInfo
 	const char *getReleaseCycle(void) const;
 	const char *getType(void) const;
 	int   getVersion(void) const;
+	time_t getDateTime(void) const { return datetime; };
 };
 
 

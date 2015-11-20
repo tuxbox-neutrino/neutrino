@@ -24,14 +24,22 @@
 #include <unistd.h>
 
 #include <global.h>
+#include <system/debug.h>
+#include <system/helpers.h>
 #include <system/settings.h>
+#include <system/set_threadname.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/messagebox.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/filebrowser.h>
+#include <gui/movieplayer.h>
+#include <gui/infoclock.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <neutrino.h>
+#include <zapit/types.h>
 
 #include "luainstance.h"
+#include <video.h>
 
 /* the magic color that tells us we are using one of the palette colors */
 #define MAGIC_COLOR 0x42424200
@@ -42,9 +50,19 @@ struct table_key {
 	lua_Integer code;
 };
 
+struct table_key_u {
+	const char *name;
+	lua_Unsigned code;
+};
+
 struct lua_envexport {
 	const char *name;
 	table_key *t;
+};
+
+struct lua_envexport_u {
+	const char *name;
+	table_key_u *t;
 };
 
 static void set_lua_variables(lua_State *L)
@@ -145,7 +163,7 @@ static void set_lua_variables(lua_State *L)
 	};
 
 	/* list of colors, exported e.g. as COL['INFOBAR_SHADOW'] */
-	static table_key colorlist[] =
+	static table_key_u colorlist[] =
 	{
 		{ "COLORED_EVENTS_CHANNELLIST",	MAGIC_COLOR | (COL_COLORED_EVENTS_CHANNELLIST) },
 		{ "COLORED_EVENTS_INFOBAR",	MAGIC_COLOR | (COL_COLORED_EVENTS_INFOBAR) },
@@ -170,21 +188,35 @@ static void set_lua_variables(lua_State *L)
 		{ "LIGHT_BLUE",			MAGIC_COLOR | (COL_LIGHT_BLUE0) },
 		{ "WHITE",			MAGIC_COLOR | (COL_WHITE0) },
 		{ "BLACK",			MAGIC_COLOR | (COL_BLACK0) },
-		{ "COLORED_EVENTS_TEXT",	(lua_Integer) (COL_COLORED_EVENTS_TEXT) },
-		{ "INFOBAR_TEXT",		(lua_Integer) (COL_INFOBAR_TEXT) },
-		{ "INFOBAR_SHADOW_TEXT",	(lua_Integer) (COL_INFOBAR_SHADOW_TEXT) },
-		{ "MENUHEAD_TEXT",		(lua_Integer) (COL_MENUHEAD_TEXT) },
-		{ "MENUCONTENT_TEXT",		(lua_Integer) (COL_MENUCONTENT_TEXT) },
-		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_1) },
-		{ "MENUCONTENT_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_2) },
-		{ "MENUCONTENT_TEXT_PLUS_3",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_3) },
-		{ "MENUCONTENTDARK_TEXT",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT) },
-		{ "MENUCONTENTDARK_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT_PLUS_1) },
-		{ "MENUCONTENTDARK_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT_PLUS_2) },
-		{ "MENUCONTENTSELECTED_TEXT",		(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT) },
-		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
-		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
-		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Integer) (COL_MENUCONTENTINACTIVE_TEXT) },
+		{ "COLORED_EVENTS_TEXT",	(lua_Unsigned) (COL_COLORED_EVENTS_TEXT) },
+		{ "INFOBAR_TEXT",		(lua_Unsigned) (COL_INFOBAR_TEXT) },
+		{ "INFOBAR_SHADOW_TEXT",	(lua_Unsigned) (COL_INFOBAR_SHADOW_TEXT) },
+		{ "MENUHEAD_TEXT",		(lua_Unsigned) (COL_MENUHEAD_TEXT) },
+		{ "MENUCONTENT_TEXT",		(lua_Unsigned) (COL_MENUCONTENT_TEXT) },
+		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_1) },
+		{ "MENUCONTENT_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_2) },
+		{ "MENUCONTENT_TEXT_PLUS_3",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_3) },
+		{ "MENUCONTENTDARK_TEXT",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT) },
+		{ "MENUCONTENTDARK_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT_PLUS_1) },
+		{ "MENUCONTENTDARK_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT_PLUS_2) },
+		{ "MENUCONTENTSELECTED_TEXT",		(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT) },
+		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
+		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
+		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_TEXT) },
+		{ "MENUHEAD_PLUS_0",			(lua_Unsigned) (COL_MENUHEAD_PLUS_0) },
+		{ "MENUCONTENT_PLUS_0",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_0) },
+		{ "MENUCONTENT_PLUS_1",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_1) },
+		{ "MENUCONTENT_PLUS_2",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_2) },
+		{ "MENUCONTENT_PLUS_3",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_3) },
+		{ "MENUCONTENT_PLUS_4",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_4) },
+		{ "MENUCONTENT_PLUS_5",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_5) },
+		{ "MENUCONTENT_PLUS_6",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_6) },
+		{ "MENUCONTENT_PLUS_7",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_7) },
+		{ "MENUCONTENTDARK_PLUS_0",		(lua_Unsigned) (COL_MENUCONTENTDARK_PLUS_0) },
+		{ "MENUCONTENTDARK_PLUS_2",		(lua_Unsigned) (COL_MENUCONTENTDARK_PLUS_2) },
+		{ "MENUCONTENTSELECTED_PLUS_0",		(lua_Unsigned) (COL_MENUCONTENTSELECTED_PLUS_0) },
+		{ "MENUCONTENTSELECTED_PLUS_2",		(lua_Unsigned) (COL_MENUCONTENTSELECTED_PLUS_2) },
+		{ "MENUCONTENTINACTIVE_PLUS_0",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_PLUS_0) },
 		{ NULL, 0 }
 	};
 
@@ -202,8 +234,6 @@ static void set_lua_variables(lua_State *L)
 		{ "EVENTLIST_ITEMLARGE",SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE },
 		{ "EVENTLIST_ITEMSMALL",SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL },
 		{ "EVENTLIST_DATETIME",	SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME },
-		{ "GAMELIST_ITEMLARGE",	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMLARGE },
-		{ "GAMELIST_ITEMSMALL",	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL },
 		{ "CHANNELLIST",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST },
 		{ "CHANNELLIST_DESCR",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR },
 		{ "CHANNELLIST_NUMBER",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER },
@@ -232,12 +262,16 @@ static void set_lua_variables(lua_State *L)
 	};
 
 	/* screen offsets, exported as e.g. SCREEN['END_Y'] */
+	lua_Integer xRes = (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth(true);
+	lua_Integer yRes = (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight(true);
 	table_key screenopts[] =
 	{
 		{ "OFF_X", g_settings.screen_StartX },
 		{ "OFF_Y", g_settings.screen_StartY },
 		{ "END_X", g_settings.screen_EndX },
 		{ "END_Y", g_settings.screen_EndY },
+		{ "X_RES", xRes },
+		{ "Y_RES", yRes },
 		{ NULL, 0 }
 	};
 	table_key menureturn[] =
@@ -249,16 +283,44 @@ static void set_lua_variables(lua_State *L)
 		{ "EXIT_REPAINT", menu_return::RETURN_EXIT_REPAINT },
 		{ NULL, 0 }
 	};
+	table_key apiversion[] =
+	{
+		{ "MAJOR", LUA_API_VERSION_MAJOR },
+		{ "MINOR", LUA_API_VERSION_MINOR },
+		{ NULL, 0 }
+	};
+
+	table_key playstate[] =
+	{
+		{ "NORMAL", CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL },
+		{ "STOP",   CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP },
+		{ "NEXT",   CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT },
+		{ "PREV",   CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV },
+		{ NULL, 0 }
+	};
+
+	table_key ccomponents[] =
+	{
+		{ "SHADOW_OFF",		(lua_Integer)CC_SHADOW_OFF },
+		{ "SHADOW_ON",		(lua_Integer)CC_SHADOW_ON },
+/*		{ "SHADOW_RIGHT",	(lua_Integer)CC_SHADOW_RIGHT },*/
+/*		{ "SHADOW_BOTTOM",	(lua_Integer)CC_SHADOW_BOTTOM },*/
+		{ "SAVE_SCREEN_YES",	(lua_Integer)CC_SAVE_SCREEN_YES },
+		{ "SAVE_SCREEN_NO",	(lua_Integer)CC_SAVE_SCREEN_NO },
+		{ NULL, 0 }
+	};
 
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
 	{
 		{ "RC",		keyname },
-		{ "COL",	colorlist },
 		{ "SCREEN",	screenopts },
 		{ "FONT",	fontlist },
 		{ "CORNER",	corners },
 		{ "MENU_RETURN", menureturn },
+		{ "APIVERSION",  apiversion },
+		{ "PLAYSTATE",   playstate },
+		{ "CC",          ccomponents },
 		{ NULL, NULL }
 	};
 
@@ -275,10 +337,30 @@ static void set_lua_variables(lua_State *L)
 		lua_setglobal(L, e[i].name);
 		i++;
 	}
+
+	lua_envexport_u e_u[] =
+	{
+		{ "COL",	colorlist },
+		{ NULL, NULL }
+	};
+
+	i = 0;
+	while (e_u[i].name) {
+		int j = 0;
+		lua_newtable(L);
+		while (e_u[i].t[j].name) {
+			lua_pushstring(L, e_u[i].t[j].name);
+			lua_pushunsigned(L, e_u[i].t[j].code);
+			lua_settable(L, -3);
+			j++;
+		}
+		lua_setglobal(L, e_u[i].name);
+		i++;
+	}
 }
 
-//#define DBG printf
-#define DBG(...)
+//#define DBG1 printf
+#define DBG1(...)
 
 #define lua_boxpointer(L, u) \
 	(*(void **)(lua_newuserdata(L, sizeof(void *))) = (u))
@@ -306,6 +388,68 @@ CLuaInstance::~CLuaInstance()
 	}
 }
 
+/* Ported by Benny Chen, http://www.bennychen.cn/tag/lual_checkbool/ */
+bool CLuaInstance::_luaL_checkbool(lua_State *L, int numArg)
+{
+	bool b = false;
+	if (lua_isboolean(L, numArg))
+		b = lua_toboolean(L, numArg);
+	else {
+		lua_Debug ar;
+		lua_getstack(L, 0, &ar);
+		lua_getinfo(L, "n", &ar);
+		luaL_error(L, "bad argument #%d to '%s' (%s expected, got %s)\n", 
+				numArg-1, ar.name,
+				lua_typename(L, LUA_TBOOLEAN),
+				lua_typename(L, lua_type(L, numArg)));
+	}
+	return b;
+}
+
+void CLuaInstance::paramBoolDeprecated(lua_State *L, const char* val)
+{
+	lua_Debug ar;
+	lua_getstack(L, 1, &ar);
+	lua_getinfo(L, "Sl", &ar);
+	printf("[Lua Script] \33[1;31m%s\33[0m %s (\33[31m\"%s\"\33[0m)\n                      %s \33[32mtrue\33[0m.\n                      (%s:%d)\n",
+					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED1),
+					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED2), val,
+					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED3),
+					ar.short_src, ar.currentline);
+}
+
+void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc)
+{
+	lua_Debug ar;
+	lua_getstack(L, 1, &ar);
+	lua_getinfo(L, "Sl", &ar);
+	printf("[Lua Script] \33[1;31m%s\33[0m %s \33[33m%s\33[0m %s \33[1;33m%s\33[0m.\n                      (%s:%d)\n", 
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED1), 
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED2), oldFunc,
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED3), newFunc,
+					ar.short_src, ar.currentline);
+}
+
+void CLuaInstance::paramDeprecated(lua_State *L, const char* oldParam, const char* newParam)
+{
+	lua_Debug ar;
+	lua_getstack(L, 1, &ar);
+	lua_getinfo(L, "Sl", &ar);
+	printf("[Lua Script] \33[1;31m%s\33[0m %s \33[33m%s\33[0m %s \33[1;33m%s\33[0m.\n                      (%s:%d)\n",
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED1),
+					g_Locale->getText(LOCALE_LUA_PARAMETER_DEPRECATED2), oldParam,
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED3), newParam,
+					ar.short_src, ar.currentline);
+}
+
+lua_Unsigned CLuaInstance::checkMagicMask(lua_Unsigned &col)
+{
+	if ((col & MAGIC_MASK) == MAGIC_COLOR)
+		/* use the color constants */
+		col = CFrameBuffer::getInstance()->realcolor[col & 0x000000ff];
+	return col;
+}
+
 #define SET_VAR1(NAME) \
 	lua_pushinteger(lua, NAME); \
 	lua_setglobal(lua, #NAME);
@@ -314,23 +458,86 @@ CLuaInstance::~CLuaInstance()
 	lua_setglobal(lua, #NAME);
 
 /* Run the given script. */
-void CLuaInstance::runScript(const char *fileName)
+void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *argv, std::string *result_code, std::string *result_string, std::string *error_string)
 {
 	// luaL_dofile(lua, fileName);
 	/* run the script */
 	int status = luaL_loadfile(lua, fileName);
 	if (status) {
 		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, lua_tostring(lua, -1));
-		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
+		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
+		if (error_string)
+			*error_string = std::string(lua_tostring(lua, -1));
 		return;
 	}
+	int argvSize = 1;
+	int n = 0;
 	set_lua_variables(lua);
+	if (argv && (!argv->empty()))
+		argvSize += argv->size();
+	lua_createtable(lua, argvSize, 0);
+
+	// arg0 is scriptname
+	lua_pushstring(lua, fileName);
+	lua_rawseti(lua, -2, n++);
+
+	if (argv && (!argv->empty())) {
+		for(std::vector<std::string>::iterator it = argv->begin(); it != argv->end(); ++it) {
+			lua_pushstring(lua, it->c_str());
+			lua_rawseti(lua, -2, n++);
+		}
+	}
+	lua_setglobal(lua, "arg");
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
+	if (result_code)
+		*result_code = to_string(status);
+	if (result_string && lua_isstring(lua, -1))
+		*result_string = std::string(lua_tostring(lua, -1));
 	if (status)
 	{
 		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
-		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
+		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
+		if (error_string)
+			*error_string = std::string(lua_tostring(lua, -1));
+		g_Zapit->setStandby(false);
 	}
+}
+
+// Example: runScript(fileName, "Arg1", "Arg2", "Arg3", ..., NULL);
+//	Type of all parameters: const char*
+//	The last parameter to NULL is imperative.
+void CLuaInstance::runScript(const char *fileName, const char *arg0, ...)
+{
+	int i = 0;
+	std::vector<std::string> args;
+	args.push_back(arg0);
+	va_list list;
+	va_start(list, arg0);
+	const char* temp = va_arg(list, const char*);
+	while (temp != NULL) {
+		if (i >= 64) {
+			fprintf(stderr, "CLuaInstance::runScript: too many arguments!\n");
+			args.clear();
+			va_end(list);
+			return;
+		}
+		args.push_back(temp);
+		temp = va_arg(list, const char*);
+		i++;
+	}
+	va_end(list);
+	runScript(fileName, &args);
+	args.clear();
+}
+
+static void abortHook(lua_State *lua, lua_Debug *)
+{
+	luaL_error(lua, "aborted");
+}
+
+void CLuaInstance::abortScript()
+{
+	lua_sethook(lua, &abortHook, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
 const luaL_Reg CLuaInstance::methods[] =
@@ -340,10 +547,22 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "PaintIcon", CLuaInstance::PaintIcon },
 	{ "GetInput", CLuaInstance::GetInput },
 	{ "FontHeight", CLuaInstance::FontHeight },
+	{ "getRenderWidth", CLuaInstance::getRenderWidth },
 	{ "GetSize", CLuaInstance::GetSize },
 	{ "DisplayImage", CLuaInstance::DisplayImage },
+	{ "setBlank", CLuaInstance::setBlank },
+	{ "ShowPicture", CLuaInstance::ShowPicture },
+	{ "StopPicture", CLuaInstance::StopPicture },
+	{ "zapitSetStandby", CLuaInstance::zapitSetStandby },
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
+	{ "runScript", CLuaInstance::runScriptExt },
+	{ "PlayFile", CLuaInstance::PlayFile },
+	{ "strFind", CLuaInstance::strFind },
+	{ "strSub", CLuaInstance::strSub },
+	{ "checkVersion", CLuaInstance::checkVersion },
+	{ "createChannelIDfromUrl", CLuaInstance::createChannelIDfromUrl },
+	{ "enableInfoClock", CLuaInstance::enableInfoClock },
 	{ NULL, NULL }
 };
 
@@ -387,7 +606,10 @@ void CLuaInstance::registerFunctions()
 	HintboxRegister(lua);
 	MessageboxRegister(lua);
 	CWindowRegister(lua);
+	ComponentsTextRegister(lua);
 	SignalBoxRegister(lua);
+	CPictureRegister(lua);
+	LuaConfigFileRegister(lua);
 }
 
 CLuaData *CLuaInstance::CheckData(lua_State *L, int narg)
@@ -427,7 +649,7 @@ int CLuaInstance::NewWindow(lua_State *L)
 int CLuaInstance::PaintBox(lua_State *L)
 {
 	int count = lua_gettop(L);
-	DBG("CLuaInstance::%s %d\n", __func__, count);
+	DBG1("CLuaInstance::%s %d\n", __func__, count);
 	int x, y, w, h, radius = 0, corner = CORNER_ALL;
 	unsigned int c;
 
@@ -453,16 +675,14 @@ int CLuaInstance::PaintBox(lua_State *L)
 		w = W->fbwin->dx - x;
 	if (h < 0 || y + h > W->fbwin->dy)
 		h = W->fbwin->dy - y;
-	/* use the color constants */
-	if ((c & MAGIC_MASK) == MAGIC_COLOR)
-		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
+	checkMagicMask(c);
 	W->fbwin->paintBoxRel(x, y, w, h, c, radius, corner);
 	return 0;
 }
 
 int CLuaInstance::PaintIcon(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, h;
 	unsigned int o;
 	const char *fname;
@@ -483,7 +703,7 @@ extern CPictureViewer * g_PicViewer;
 
 int CLuaInstance::DisplayImage(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, w, h;
 	const char *fname;
 
@@ -499,9 +719,132 @@ int CLuaInstance::DisplayImage(lua_State *L)
 	return 0;
 }
 
+extern cVideo * videoDecoder;
+
+int CLuaInstance::setBlank(lua_State *L)
+{
+	bool enable = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		enable = _luaL_checkbool(L, 2);
+	videoDecoder->setBlank(enable);
+	return 0;
+}
+
+int CLuaInstance::ShowPicture(lua_State *L)
+{
+	const char *fname = luaL_checkstring(L, 2);
+	CFrameBuffer::getInstance()->showFrame(fname);
+	return 0;
+}
+
+int CLuaInstance::StopPicture(lua_State */*L*/)
+{
+	CFrameBuffer::getInstance()->stopFrame();
+	return 0;
+}
+
+int CLuaInstance::zapitSetStandby(lua_State *L)
+{
+	bool standby = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		standby = _luaL_checkbool(L, 2);
+	g_Zapit->setStandby(standby);
+	return 0;
+}
+
+int CLuaInstance::PlayFile(lua_State *L)
+{
+	printf("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	int numargs = lua_gettop(L);
+
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 3)\n", __func__, numargs);
+		return 0;
+	}
+	const char *title;
+	const char *info1 = "";
+	const char *info2 = "";
+	const char *fname;
+
+	title = luaL_checkstring(L, 2);
+	fname = luaL_checkstring(L, 3);
+	if (numargs > 3)
+		info1 = luaL_checkstring(L, 4);
+	if (numargs > 4)
+		info2 = luaL_checkstring(L, 5);
+	printf("CLuaInstance::%s: title %s file %s\n", __func__, title, fname);
+	std::string st(title);
+	std::string si1(info1);
+	std::string si2(info2);
+	std::string sf(fname);
+	CMoviePlayerGui::getInstance().SetFile(st, sf, si1, si2);
+	CMoviePlayerGui::getInstance().exec(NULL, "http_lua");
+	int ret = CMoviePlayerGui::getInstance().getKeyPressed();
+	lua_pushinteger(L, ret);
+	return 1;
+}
+
+int CLuaInstance::strFind(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 2 (or 3 or 4))\n", __func__, numargs);
+		lua_pushnil(L);
+		return 1;
+	}
+	const char *s1;
+	const char *s2;
+	int pos=0, n=0, ret=0;
+	s1 = luaL_checkstring(L, 2);
+	s2 = luaL_checkstring(L, 3);
+	if (numargs > 3)
+		pos = luaL_checkint(L, 4);
+	if (numargs > 4)
+		n = luaL_checkint(L, 5);
+
+	std::string str(s1);
+	if (numargs > 4)
+		ret = str.find(s2, pos, n);
+	else
+		ret = str.find(s2, pos);
+
+//	printf("####[%s:%d] str_len: %d, s2: %s, pos: %d, n: %d, ret: %d\n", __func__, __LINE__, str.length(), s2, pos, n, ret);
+	if (ret == (int)std::string::npos)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, ret);
+	return 1;
+}
+
+int CLuaInstance::strSub(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 2 (or 3))\n", __func__, numargs);
+		lua_pushstring(L, "");
+		return 1;
+	}
+	const char *s1;
+	int pos=0, len=std::string::npos;
+	std::string ret="";
+	s1 = luaL_checkstring(L, 2);
+	pos = luaL_checkint(L, 3);
+	if (numargs > 3)
+		len = luaL_checkint(L, 4);
+
+	std::string str(s1);
+	ret = str.substr(pos, len);
+
+//	printf("####[%s:%d] str_len: %d, pos: %d, len: %d, ret_len: %d\n", __func__, __LINE__, str.length(), pos, len, ret.length());
+	lua_pushstring(L, ret.c_str());
+	return 1;
+}
+
 int CLuaInstance::GetSize(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int w = 0, h = 0;
 	const char *fname;
 
@@ -518,7 +861,7 @@ int CLuaInstance::RenderString(lua_State *L)
 	unsigned int c;
 	const char *text;
 	int numargs = lua_gettop(L);
-	DBG("CLuaInstance::%s %d\n", __func__, numargs);
+	DBG1("CLuaInstance::%s %d\n", __func__, numargs);
 	c = COL_MENUCONTENT_TEXT;
 	boxh = 0;
 	center = 0;
@@ -542,16 +885,33 @@ int CLuaInstance::RenderString(lua_State *L)
 		center = luaL_checkint(L, 9);
 	if (f >= SNeutrinoSettings::FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
-	int rwidth = g_Font[f]->getRenderWidth(text, true);
+	int rwidth = g_Font[f]->getRenderWidth(text);
 	if (center) { /* center the text inside the box */
 		if (rwidth < w)
 			x += (w - rwidth) / 2;
 	}
-	if ((c & MAGIC_MASK) == MAGIC_COLOR)
-		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
+	checkMagicMask(c);
 	if (boxh > -1) /* if boxh < 0, don't paint string */
-		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
+		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh);
 	lua_pushinteger(L, rwidth); /* return renderwidth */
+	return 1;
+}
+
+int CLuaInstance::getRenderWidth(lua_State *L)
+{
+	int f;
+	const char *text;
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+
+	CLuaData *W = CheckData(L, 1);
+	if (!W)
+		return 0;
+	f = luaL_checkint(L, 2);	/* font number, use FONT['xxx'] for FONT_TYPE_xxx in the script */
+	text = luaL_checkstring(L, 3);	/* text */
+	if (f >= SNeutrinoSettings::FONT_TYPE_COUNT || f < 0)
+		f = SNeutrinoSettings::FONT_TYPE_MENU;
+
+	lua_pushinteger(L, (int)g_Font[f]->getRenderWidth(text));
 	return 1;
 }
 
@@ -570,7 +930,7 @@ int CLuaInstance::GetInput(lua_State *L)
 	/* TODO: I'm not sure if this works... */
 	if (msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC)
 	{
-		DBG("CLuaInstance::%s: msg 0x%08"PRIx32" data 0x%08"PRIx32"\n", __func__, msg, data);
+		DBG1("CLuaInstance::%s: msg 0x%08" PRIx32 " data 0x%08" PRIx32 "\n", __func__, msg, data);
 		CNeutrinoApp::getInstance()->handleMsg(msg, data);
 	}
 	/* signed int is debatable, but the "big" messages can't yet be handled
@@ -583,7 +943,7 @@ int CLuaInstance::GetInput(lua_State *L)
 int CLuaInstance::FontHeight(lua_State *L)
 {
 	int f;
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W)
@@ -597,7 +957,7 @@ int CLuaInstance::FontHeight(lua_State *L)
 
 int CLuaInstance::GCWindow(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaData *w = (CLuaData *)lua_unboxpointer(L, 1);
 	delete w->fbwin;
 	w->rcinput = NULL;
@@ -632,6 +992,27 @@ int CLuaInstance::GetLanguage(lua_State *L)
 	return 1;
 }
 
+int CLuaInstance::runScriptExt(lua_State *L)
+{
+	CLuaData *W = CheckData(L, 1);
+	if (!W) return 0;
+
+	int numargs = lua_gettop(L);
+	const char *script = luaL_checkstring(L, 2);
+	std::vector<std::string> args;
+	for (int i = 3; i <= numargs; i++) {
+		std::string arg = luaL_checkstring(L, i);
+		if (!arg.empty())
+			args.push_back(arg);
+	}
+
+	CLuaInstance *lua = new CLuaInstance();
+	lua->runScript(script, &args);
+	args.clear();
+	delete lua;
+	return 0;
+}
+
 bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &value)
 {
 	bool res = false;
@@ -644,14 +1025,50 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &valu
 	return res;
 }
 
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, int &value)
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer &value)
 {
 	bool res = false;
 	lua_pushstring(L, what);
 	lua_gettable(L, -2);
 	res = lua_isnumber(L, -1);
 	if (res)
-		value = (int) lua_tonumber(L, -1);
+		value = (lua_Integer) lua_tonumber(L, -1);
+	lua_pop(L, 1);
+	return res;
+}
+
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Unsigned &value)
+{
+	bool res = false;
+	lua_pushstring(L, what);
+	lua_gettable(L, -2);
+	res = lua_isnumber(L, -1);
+	if (res)
+		value = (lua_Unsigned) lua_tonumber(L, -1);
+	lua_pop(L, 1);
+	return res;
+}
+
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, void** value)
+{
+	bool res = false;
+	lua_pushstring(L, what);
+	lua_gettable(L, -2);
+	res = lua_isuserdata(L, -1);
+	if (res)
+		*value = lua_unboxpointer(L, -1);
+	lua_pop(L, 1);
+	return res;
+}
+
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, bool &value)
+{
+	bool res = false;
+	lua_pushstring(L, what);
+	lua_gettable(L, -2);
+	res = lua_isboolean(L, -1);
+	if (res)
+		value = lua_toboolean(L, -1);
 	lua_pop(L, 1);
 	return res;
 }
@@ -664,10 +1081,13 @@ bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAc
 	lua_remove(L, -2);
 	lua_pushstring(L, luaId.c_str());
 	lua_pushstring(L, optionValue);
-	lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
+	int status = lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
+	if (status) {
+		fprintf(stderr, "[CLuaMenuChangeObserver::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
+		luaL_error(L, " => %s", lua_tostring(L, -1));
+	}
 	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
-	lua_pop(L, 2);
-	return ((res == menu_return::RETURN_REPAINT) || (res == menu_return::RETURN_EXIT_REPAINT));
+	return (((int)res == menu_return::RETURN_REPAINT) || ((int)res == menu_return::RETURN_EXIT_REPAINT));
 }
 
 void CLuaInstance::MenuRegister(lua_State *L)
@@ -678,6 +1098,7 @@ void CLuaInstance::MenuRegister(lua_State *L)
 		{ "addItem", CLuaInstance::MenuAddItem },
 		{ "exec", CLuaInstance::MenuExec },
 		{ "hide", CLuaInstance::MenuHide },
+		{ "setActive", CLuaInstance::MenuSetActive },
 		{ "__gc", CLuaInstance::MenuDelete },
 		{ NULL, NULL }
 	};
@@ -709,6 +1130,7 @@ CLuaMenu::CLuaMenu()
 
 CLuaMenu::~CLuaMenu()
 {
+	itemmap.clear();
 	delete m;
 	delete observ;
 }
@@ -734,8 +1156,8 @@ int CLuaMenuForwarder::exec(CMenuTarget* /*parent*/, const std::string & /*actio
 		lua_pushstring(L, luaId.c_str());
 		int status = lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
 		if (status) {
-			fprintf(stderr, "[CLuaMenuForwarder::%s] error in script: %s\n", __func__, lua_tostring(L, -1));
-			ShowMsg2UTF("Lua script error:", lua_tostring(L, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
+			fprintf(stderr, "[CLuaMenuForwarder::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
+			luaL_error(L, " => %s", lua_tostring(L, -1));
 		}
 		if (lua_isnumber(L, -1))
 			res = (int) lua_tonumber(L, -1);
@@ -769,7 +1191,11 @@ int CLuaMenuFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*acti
 		lua_getfield(L, -1, luaAction.c_str());
 		lua_remove(L, -2);
 		lua_pushstring(L, value->c_str());
-		lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
+		int status = lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
+		if (status) {
+			fprintf(stderr, "[CLuaMenuFilebrowser::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
+			luaL_error(L, " => %s", lua_tostring(L, -1));
+		}
 		lua_pop(L, 1);
 	}
 	return menu_return::RETURN_REPAINT;
@@ -803,7 +1229,44 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 		lua_remove(L, -2);
 		lua_pushstring(L, luaId.c_str());
 		lua_pushstring(L, value->c_str());
-		lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
+		int status = lua_pcall(L, 2 /* two arg */, 1 /* one result */, 0);
+		if (status) {
+			fprintf(stderr, "[CLuaMenuStringinput::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
+			luaL_error(L, " => %s", lua_tostring(L, -1));
+		}
+		lua_pop(L, 2);
+	}
+	return menu_return::RETURN_REPAINT;
+}
+
+CLuaMenuKeyboardinput::CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2) : CLuaMenuForwarder(_L, _luaAction, _luaId)
+{
+	name = _name;
+	value = _value;
+	size = _size;
+	icon = _icon;
+	observ = _observ;
+	help = _help;
+	help2 = _help2;
+}
+
+int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
+{
+	CKeyboardInput *i;
+	i = new CKeyboardInput((char *)name, value, size, observ, icon, help, help2);
+	i->exec(NULL, "");
+	delete i;
+	if (!luaAction.empty()){
+		lua_pushglobaltable(L);
+		lua_getfield(L, -1, luaAction.c_str());
+		lua_remove(L, -2);
+		lua_pushstring(L, luaId.c_str());
+		lua_pushstring(L, value->c_str());
+		int status = lua_pcall(L, 2 /* two arg */, 1 /* one result */, 0);
+		if (status) {
+			fprintf(stderr, "[CLuaMenuKeyboardinput::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
+			luaL_error(L, " => %s", lua_tostring(L, -1));
+		}
 		lua_pop(L, 2);
 	}
 	return menu_return::RETURN_REPAINT;
@@ -817,7 +1280,7 @@ int CLuaInstance::MenuNew(lua_State *L)
 		std::string name, icon;
 		tableLookup(L, "name", name) || tableLookup(L, "title", name);
 		tableLookup(L, "icon", icon);
-		int mwidth;
+		lua_Integer mwidth;
 		if(tableLookup(L, "mwidth", mwidth))
 			m = new CMenuWidget(name.c_str(), icon.c_str(), mwidth);
 		else
@@ -861,8 +1324,8 @@ int CLuaInstance::MenuAddKey(lua_State *L)
 
 	std::string action;	tableLookup(L, "action", action);
 	std::string id;		tableLookup(L, "id", id);
-	int directkey = CRCInput::RC_nokey; tableLookup(L, "directkey", directkey);
-	if (action != "" && directkey != (int) CRCInput::RC_nokey) {
+	lua_Unsigned directkey = CRCInput::RC_nokey; tableLookup(L, "directkey", directkey);
+	if ((!action.empty()) && (directkey != CRCInput::RC_nokey)) {
 		CLuaMenuForwarder *forwarder = new CLuaMenuForwarder(L, action, id);
 		m->m->addKey(directkey, forwarder, action);
 		m->targets.push_back(forwarder);
@@ -870,19 +1333,43 @@ int CLuaInstance::MenuAddKey(lua_State *L)
 	return 0;
 }
 
-int CLuaInstance::MenuAddItem(lua_State *L)
+int CLuaInstance::MenuSetActive(lua_State *L)
 {
 	CLuaMenu *m = MenuCheck(L, 1);
 	if (!m)
 		return 0;
 	lua_assert(lua_istable(L, 2));
 
+	lua_Integer id;	tableLookup(L, "item", id);
+	bool activ;	tableLookup(L, "activ", activ);
+
+	CMenuItem* item = NULL;
+	for (itemmap_iterator_t it = m->itemmap.begin(); it != m->itemmap.end(); ++it) {
+		if (it->first == id) {
+			item = it->second;
+			break;
+		}
+	}
+	if (item)
+		item->setActive(activ);
+	return 0;
+}
+
+int CLuaInstance::MenuAddItem(lua_State *L)
+{
+	CLuaMenu *m = MenuCheck(L, 1);
+	if (!m) {
+		lua_pushnil(L);
+		return 1;
+	}
+	lua_assert(lua_istable(L, 2));
+
+	CMenuItem *mi = NULL;
 	CLuaMenuItem i;
 	m->items.push_back(i);
 	CLuaMenuItem *b = &m->items.back();
 
 	tableLookup(L, "name", b->name);
-	std::string icon;	tableLookup(L, "icon", icon);
 	std::string type;	tableLookup(L, "type", type);
 	if (type == "back") {
 		m->m->addItem(GenericMenuBack);
@@ -892,36 +1379,58 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 		m->m->addItem(GenericMenuCancel);
 	} else if (type == "separator") {
 		m->m->addItem(GenericMenuSeparator);
-	} else if (type == "separatorline") {
+	} else if ((type == "separatorline") || (type == "subhead")) {
 		if (!b->name.empty()) {
-			m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, b->name.c_str(), NONEXISTANT_LOCALE));
-		} else {
+			int flag = (type == "separatorline") ? CMenuSeparator::LINE : CMenuSeparator::SUB_HEAD;
+			m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | flag, b->name.c_str(), NONEXISTANT_LOCALE));
+		} else
 			m->m->addItem(GenericMenuSeparatorLine);
-		}
 	} else {
-		std::string right_icon;	tableLookup(L, "right_icon", right_icon);
+		std::string right_icon_str;	tableLookup(L, "right_icon", right_icon_str);
 		std::string action;	tableLookup(L, "action", action);
 		std::string value;	tableLookup(L, "value", value);
 		std::string hint;	tableLookup(L, "hint", hint);
-		std::string hint_icon;	tableLookup(L, "hint_icon", hint_icon);
+		std::string hint_icon_str;	tableLookup(L, "hint_icon", hint_icon_str);
+		std::string icon_str;	tableLookup(L, "icon", icon_str);
 		std::string id;		tableLookup(L, "id", id);
 		std::string tmp;
-		int directkey = CRCInput::RC_nokey; tableLookup(L, "directkey", directkey);
-		int pulldown = false; 	tableLookup(L, "pulldown", pulldown);
-		tmp = "true";
-		tableLookup(L, "enabled", tmp) || tableLookup(L, "active", tmp);
-		bool enabled = (tmp == "true" || tmp == "1" || tmp == "yes");
+                char *right_icon = NULL;
+                if (!right_icon_str.empty()) {
+                        right_icon = strdup(right_icon_str.c_str());
+                        m->tofree.push_back(right_icon);
+                }
+                char *hint_icon = NULL;
+                if (!hint_icon_str.empty()) {
+                        hint_icon = strdup(hint_icon_str.c_str());
+                        m->tofree.push_back(hint_icon);
+                }
+                char *icon = NULL;
+                if (!icon_str.empty()) {
+                        icon = strdup(icon_str.c_str());
+                        m->tofree.push_back(icon);
+                }
+
+		lua_Unsigned directkey = CRCInput::RC_nokey; tableLookup(L, "directkey", directkey);
+		lua_Integer pulldown = false; 	tableLookup(L, "pulldown", pulldown);
+
+		bool enabled = true;
+		if (!(tableLookup(L, "enabled", enabled) || tableLookup(L, "active", enabled)))
+		{
+			tmp = "true";
+			if (tableLookup(L, "enabled", tmp) || tableLookup(L, "active", tmp))
+				paramBoolDeprecated(L, tmp.c_str());
+			enabled = (tmp == "true" || tmp == "1" || tmp == "yes");
+		}
+
 		tableLookup(L, "range", tmp);
 		int range_from = 0, range_to = 99;
 		sscanf(tmp.c_str(), "%d,%d", &range_from, &range_to);
 
-		CMenuItem *mi = NULL;
-
 		if (type == "forwarder") {
 			b->str_val = value;
 			CLuaMenuForwarder *forwarder = new CLuaMenuForwarder(L, action, id);
-			mi = new CMenuForwarder(b->name, enabled, b->str_val, forwarder, NULL/*ActionKey*/, directkey, icon.c_str(), right_icon.c_str());
-			if (!hint.empty() || !hint_icon.empty())
+			mi = new CMenuForwarder(b->name, enabled, b->str_val, forwarder, NULL/*ActionKey*/, directkey, icon, right_icon);
+			if (!hint.empty() || hint_icon)
 				mi->setHint(hint_icon, hint);
 			m->targets.push_back(forwarder);
 		} else if (type == "chooser") {
@@ -936,7 +1445,8 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 			lua_pop(L, 1);
 			if (options_count == 0) {
 				m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "ERROR! (options_count)", NONEXISTANT_LOCALE));
-				return 0;
+				lua_pushnil(L);
+				return 1;
 			}
 
 			CMenuOptionChooser::keyval_ext *kext = (CMenuOptionChooser::keyval_ext *)calloc(options_count, sizeof(CMenuOptionChooser::keyval_ext));
@@ -959,26 +1469,34 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 					j++;
 				}
 			lua_pop(L, 1);
-			mi = new CMenuOptionChooser(b->name.c_str(), &b->int_val, kext, options_count, enabled, m->observ, directkey, icon.c_str(), pulldown);
+			mi = new CMenuOptionChooser(b->name.c_str(), &b->int_val, kext, options_count, enabled, m->observ, directkey, icon, pulldown);
 		} else if (type == "numeric") {
 			b->int_val = range_from;
 			sscanf(value.c_str(), "%d", &b->int_val);
 			mi = new CMenuOptionNumberChooser(b->name, &b->int_val, enabled, range_from, range_to, m->observ, 0, 0, NONEXISTANT_LOCALE, pulldown);
 		} else if (type == "string") {
 			b->str_val = value;
-			mi = new CMenuOptionStringChooser(b->name.c_str(), &b->str_val, enabled, m->observ, directkey, icon.c_str(), pulldown);
+			mi = new CMenuOptionStringChooser(b->name.c_str(), &b->str_val, enabled, m->observ, directkey, icon, pulldown);
 		} else if (type == "stringinput") {
 			b->str_val = value;
 			std::string valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789!\"§$%&/()=?-. ";
 			tableLookup(L, "valid_chars", valid_chars);
-			int sms = 0;	tableLookup(L, "sms", sms);
-			int size = 30;	tableLookup(L, "size", size);
-			CLuaMenuStringinput *stringinput = new CLuaMenuStringinput(L, action, id, b->name.c_str(), &b->str_val, size, valid_chars, m->observ, icon.c_str(), sms);
-			mi = new CMenuForwarder(b->name, enabled, b->str_val, stringinput, NULL/*ActionKey*/, directkey, icon.c_str(), right_icon.c_str());
+			lua_Integer sms = 0;	tableLookup(L, "sms", sms);
+			lua_Integer size = 30;	tableLookup(L, "size", size);
+			CLuaMenuStringinput *stringinput = new CLuaMenuStringinput(L, action, id, b->name.c_str(), &b->str_val, size, valid_chars, m->observ, icon, sms);
+			mi = new CMenuForwarder(b->name, enabled, b->str_val, stringinput, NULL/*ActionKey*/, directkey, icon, right_icon);
 			m->targets.push_back(stringinput);
+		} else if (type == "keyboardinput") {
+			b->str_val = value;
+			lua_Integer size = 0;	tableLookup(L, "size", size);
+			std::string help = "";	tableLookup(L, "help", help);
+			std::string help2 = "";	tableLookup(L, "help2", help2);
+			CLuaMenuKeyboardinput *keyboardinput = new CLuaMenuKeyboardinput(L, action, id, b->name.c_str(), &b->str_val, size, m->observ, icon, help, help2);
+			mi = new CMenuForwarder(b->name, enabled, b->str_val, keyboardinput, NULL/*ActionKey*/, directkey, icon, right_icon);
+			m->targets.push_back(keyboardinput);
 		} else if (type == "filebrowser") {
 			b->str_val = value;
-			int dirMode = 0; tableLookup(L, "dir_mode", dirMode);
+			lua_Integer dirMode = 0; tableLookup(L, "dir_mode", dirMode);
 			CLuaMenuFilebrowser *filebrowser = new CLuaMenuFilebrowser(L, action, id, &b->str_val, dirMode);
 			lua_pushstring(L, "filter");
 			lua_gettable(L, -2);
@@ -990,17 +1508,26 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 				}
 			lua_pop(L, 1);
 
-			mi = new CMenuForwarder(b->name, enabled, b->str_val, filebrowser, NULL/*ActionKey*/, directkey, icon.c_str(), right_icon.c_str());
+			mi = new CMenuForwarder(b->name, enabled, b->str_val, filebrowser, NULL/*ActionKey*/, directkey, icon, right_icon);
 			m->targets.push_back(filebrowser);
 		}
 		if (mi) {
 			mi->setLua(L, action, id);
-			if (!hint.empty() || !hint_icon.empty())
+			if (!hint.empty() || hint_icon)
 				mi->setHint(hint_icon, hint);
 			m->m->addItem(mi);
 		}
 	}
-	return 0;
+
+	if (mi) {
+		lua_Integer id = m->itemmap.size() + 1;
+		m->itemmap.insert(itemmap_pair_t(id, mi));
+		lua_pushinteger(L, id);
+	}
+	else
+		lua_pushnil(L);
+
+	return 1;
 }
 
 int CLuaInstance::MenuHide(lua_State *L)
@@ -1066,7 +1593,7 @@ int CLuaInstance::HintboxNew(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "text", text);
 	tableLookup(L, "icon", icon);
-	int width = 450;
+	lua_Integer width = 450;
 	tableLookup(L, "width", width);
 
 	CLuaHintbox **udata = (CLuaHintbox **) lua_newuserdata(L, sizeof(CLuaHintbox *));
@@ -1188,7 +1715,7 @@ int CLuaInstance::MessageboxExec(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "text", text);
 	tableLookup(L, "icon", icon);
-	int timeout = -1, width = 450, return_default_on_timeout = 0, show_buttons = 0, default_button = 0;
+	lua_Integer timeout = -1, width = 450, return_default_on_timeout = 0, show_buttons = 0, default_button = 0;
 	tableLookup(L, "timeout", timeout);
 	tableLookup(L, "width", width);
 	tableLookup(L, "return_default_on_timeout", return_default_on_timeout);
@@ -1271,12 +1798,17 @@ void CLuaInstance::CWindowRegister(lua_State *L)
 		{ "new", CLuaInstance::CWindowNew },
 		{ "paint", CLuaInstance::CWindowPaint },
 		{ "hide", CLuaInstance::CWindowHide },
+		{ "setCaption", CLuaInstance::CWindowSetCaption },
+		{ "setWindowColor", CLuaInstance::CWindowSetWindowColor },
+		{ "paintHeader", CLuaInstance::CWindowPaintHeader },
+		{ "headerHeight", CLuaInstance::CWindowGetHeaderHeight },
+		{ "footerHeight", CLuaInstance::CWindowGetFooterHeight },
+		{ "header_height", CLuaInstance::CWindowGetHeaderHeight_dep }, /* function 'header_height' is deprecated */
+		{ "footer_height", CLuaInstance::CWindowGetFooterHeight_dep }, /* function 'footer_height' is deprecated */
+		{ "setCenterPos", CLuaInstance::CWindowSetCenterPos },
 		{ "__gc", CLuaInstance::CWindowDelete },
 		{ NULL, NULL }
 	};
-#if 0
-		{ "exec", CLuaInstance::CWindowExec },
-#endif
 
 	luaL_newmetatable(L, "cwindow");
 	luaL_setfuncs(L, meth, 0);
@@ -1289,8 +1821,16 @@ int CLuaInstance::CWindowNew(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
 
-	std::string name, icon = std::string(NEUTRINO_ICON_INFO);
-	int x = 100, y = 100, dx = 450, dy = 250;
+	std::string name, icon   = std::string(NEUTRINO_ICON_INFO);
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
+	std::string tmp1         = "false";
+	std::string btnRed       = "";
+	std::string btnGreen     = "";
+	std::string btnYellow    = "";
+	std::string btnBlue      = "";
+	lua_Integer x = 100, y = 100, dx = 450, dy = 250;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
 	tableLookup(L, "dx", dx);
@@ -1298,9 +1838,85 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "icon", icon);
 
+	bool has_shadow = false;
+	if (!tableLookup(L, "has_shadow", has_shadow))
+	{
+		tmp1 = "false";
+		if (tableLookup(L, "has_shadow", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
+
+	tableLookup(L, "color_frame" , color_frame);
+	tableLookup(L, "color_body"  , color_body);
+	tableLookup(L, "color_shadow", color_shadow);
+	tableLookup(L, "btnRed", btnRed);
+	tableLookup(L, "btnGreen", btnGreen);
+	tableLookup(L, "btnYellow", btnYellow);
+	tableLookup(L, "btnBlue", btnBlue);
+
+	checkMagicMask(color_frame);
+	checkMagicMask(color_body);
+	checkMagicMask(color_shadow);
+
+	bool show_header = true;
+	if (!tableLookup(L, "show_header", show_header))
+	{
+		tmp1 = "true";
+		if (tableLookup(L, "show_header", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		show_header = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
+	bool show_footer = true;
+	if (!tableLookup(L, "show_footer", show_footer))
+	{
+		tmp1 = "true";
+		if (tableLookup(L, "show_footer", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		show_footer = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
+
 	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
 	*udata = new CLuaCWindow();
-	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str());
+	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), 0, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+
+	if (!show_header)
+		(*udata)->w->showHeader(false);
+	if (!show_footer)
+		(*udata)->w->showFooter(false);
+	else {
+		CComponentsFooter* footer = (*udata)->w->getFooterObject();
+		if (footer) {
+			vector<button_label_s> buttons;
+			if (!btnRed.empty()){
+				button_label_s btnSred;
+				btnSred.button 		= NEUTRINO_ICON_BUTTON_RED;
+				btnSred.text 		= btnRed;
+				buttons.push_back(btnSred);
+			}
+			if (!btnGreen.empty()){
+				button_label_s btnSgreen;
+				btnSgreen.button 	= NEUTRINO_ICON_BUTTON_GREEN;
+				btnSgreen.text		= btnGreen;
+				buttons.push_back(btnSgreen);
+			}
+			if (!btnYellow.empty()){
+				button_label_s btnSyellow;
+				btnSyellow.button 	= NEUTRINO_ICON_BUTTON_YELLOW;
+				btnSyellow.text 	= btnYellow;
+				buttons.push_back(btnSyellow);
+			}
+			if (!btnBlue.empty()){
+				button_label_s btnSblue;
+				btnSblue.button 	= NEUTRINO_ICON_BUTTON_BLUE;
+				btnSblue.text 		= btnBlue;
+				buttons.push_back(btnSblue);
+			}
+			if(!buttons.empty())
+				footer->setButtonLabels(buttons, dx-20, (dx-20) / (buttons.size()+1));
+		}
+	}
+
 	luaL_getmetatable(L, "cwindow");
 	lua_setmetatable(L, -2);
 	return 1;
@@ -1314,14 +1930,17 @@ CLuaCWindow *CLuaInstance::CWindowCheck(lua_State *L, int n)
 int CLuaInstance::CWindowPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	std::string tmp = "true";
-	tableLookup(L, "do_save_bg", tmp);
-	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
-
 	CLuaCWindow *m = CWindowCheck(L, 1);
-	if (!m)
-		return 0;
+	if (!m) return 0;
 
+	bool do_save_bg = true;
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "do_save_bg", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	m->w->paint(do_save_bg);
 	return 0;
 }
@@ -1329,25 +1948,134 @@ int CLuaInstance::CWindowPaint(lua_State *L)
 int CLuaInstance::CWindowHide(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	std::string tmp = "false";
-	tableLookup(L, "no_restore", tmp);
-	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
-
 	CLuaCWindow *m = CWindowCheck(L, 1);
-	if (!m)
-		return 0;
+	if (!m) return 0;
 
+	bool no_restore = false;
+	if (!tableLookup(L, "no_restore", no_restore))
+	{
+		std::string tmp = "false";
+		if (tableLookup(L, "no_restore", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	m->w->hide(no_restore);
 	return 0;
 }
 
-int CLuaInstance::CWindowDelete(lua_State *L)
+int CLuaInstance::CWindowSetCaption(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m) return 0;
+
+	std::string name = "";
+	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
+
+	m->w->setWindowCaption(name);
+	return 0;
+}
+
+int CLuaInstance::CWindowSetWindowColor(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m) return 0;
+
+	lua_Unsigned color;
+	if (tableLookup(L, "color_frame"  , color)) {
+		checkMagicMask(color);
+		m->w->setColorFrame(color);
+	}
+	if (tableLookup(L, "color_body"  , color)) {
+		checkMagicMask(color);
+		m->w->setColorBody(color);
+	}
+	if (tableLookup(L, "color_shadow"  , color)) {
+		checkMagicMask(color);
+		m->w->setColorShadow(color);
+	}
+
+	return 0;
+}
+
+int CLuaInstance::CWindowPaintHeader(lua_State *L)
+{
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m) return 0;
+
+	CComponentsHeader* header = m->w->getHeaderObject();
+	if (header)
+		m->w->showHeader();
+		header->paint();
+
+	return 0;
+}
+
+// function 'header_height' is deprecated
+int CLuaInstance::CWindowGetHeaderHeight_dep(lua_State *L)
+{
+	functionDeprecated(L, "header_height", "headerHeight");
+	return CWindowGetHeaderHeight(L);
+}
+
+// function 'footer_height' is deprecated
+int CLuaInstance::CWindowGetFooterHeight_dep(lua_State *L)
+{
+	functionDeprecated(L, "footer_height", "footerHeight");
+	return CWindowGetFooterHeight(L);
+}
+
+int CLuaInstance::CWindowGetHeaderHeight(lua_State *L)
 {
 	CLuaCWindow *m = CWindowCheck(L, 1);
 	if (!m)
 		return 0;
 
-	m->w->kill();
+	CComponentsHeader* header = m->w->getHeaderObject();
+	int hh = 0;
+	if (header)
+		hh = header->getHeight();
+	lua_pushinteger(L, hh);
+	return 1;
+}
+
+int CLuaInstance::CWindowGetFooterHeight(lua_State *L)
+{
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m)
+		return 0;
+
+	CComponentsFooter* footer = m->w->getFooterObject();
+	int fh = 0;
+	if (footer)
+		fh = footer->getHeight();
+	lua_pushinteger(L, fh);
+	return 1;
+}
+
+int CLuaInstance::CWindowSetCenterPos(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m) return 0;
+	lua_Integer  tmp_along_mode, along_mode = CC_ALONG_X | CC_ALONG_Y;
+	tableLookup(L, "along_mode", tmp_along_mode);
+
+	if(tmp_along_mode & CC_ALONG_X || tmp_along_mode & CC_ALONG_Y)
+		along_mode=tmp_along_mode;
+
+	m->w->setCenterPos(along_mode);
+	return 0;
+}
+
+int CLuaInstance::CWindowDelete(lua_State *L)
+{
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m)
+		return 0;
+
 	delete m;
 	return 0;
 }
@@ -1364,6 +2092,7 @@ void CLuaInstance::SignalBoxRegister(lua_State *L)
 	luaL_Reg meth[] = {
 		{ "new", CLuaInstance::SignalBoxNew },
 		{ "paint", CLuaInstance::SignalBoxPaint },
+		{ "setCenterPos", CLuaInstance::SignalBoxSetCenterPos },
 		{ "__gc", CLuaInstance::SignalBoxDelete },
 		{ NULL, NULL }
 	};
@@ -1380,17 +2109,21 @@ int CLuaInstance::SignalBoxNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	std::string name, icon = std::string(NEUTRINO_ICON_INFO);
-	int x = 110, y = 150, dx = 430, dy = 150;
-	int vertical = true;
+	lua_Integer x = 110, y = 150, dx = 430, dy = 150;
+	lua_Integer vertical = true;
+	CLuaCWindow* parent = NULL;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
 	tableLookup(L, "dx", dx);
 	tableLookup(L, "dy", dy);
 	tableLookup(L, "vertical", vertical);
+	tableLookup(L, "parent", (void**)&parent);
 
+	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 	CLuaSignalBox **udata = (CLuaSignalBox **) lua_newuserdata(L, sizeof(CLuaSignalBox *));
 	*udata = new CLuaSignalBox();
-	(*udata)->s = new CSignalBox(x, y, dx, dy, NULL, (vertical!=0)?true:false);
+	(*udata)->s = new CSignalBox(x, y, dx, dy, NULL, (vertical!=0)?true:false, pw);
+	(*udata)->parent = pw;
 	luaL_getmetatable(L, "signalbox");
 	lua_setmetatable(L, -2);
 	return 1;
@@ -1399,15 +2132,32 @@ int CLuaInstance::SignalBoxNew(lua_State *L)
 int CLuaInstance::SignalBoxPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	std::string tmp = "true";
-	tableLookup(L, "do_save_bg", tmp);
-	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
-
 	CLuaSignalBox *m = SignalBoxCheck(L, 1);
-	if (!m)
-		return 0;
+	if (!m) return 0;
 
+	bool do_save_bg = true;
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "do_save_bg", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	m->s->paint(do_save_bg);
+	return 0;
+}
+int CLuaInstance::SignalBoxSetCenterPos(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaSignalBox *m = SignalBoxCheck(L, 1);
+	if (!m) return 0;
+	lua_Integer  tmp_along_mode, along_mode = CC_ALONG_X | CC_ALONG_Y;
+	tableLookup(L, "along_mode", tmp_along_mode);
+
+	if(tmp_along_mode & CC_ALONG_X || tmp_along_mode & CC_ALONG_Y)
+		along_mode=tmp_along_mode;
+
+	m->s->setCenterPos(along_mode);
 	return 0;
 }
 
@@ -1417,8 +2167,624 @@ int CLuaInstance::SignalBoxDelete(lua_State *L)
 	if (!m)
 		return 0;
 
-	m->s->kill();
 	delete m;
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+
+CLuaComponentsText *CLuaInstance::ComponentsTextCheck(lua_State *L, int n)
+{
+	return *(CLuaComponentsText **) luaL_checkudata(L, n, "ctext");
+}
+
+void CLuaInstance::ComponentsTextRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new", CLuaInstance::ComponentsTextNew },
+		{ "paint", CLuaInstance::ComponentsTextPaint },
+		{ "hide", CLuaInstance::ComponentsTextHide },
+		{ "setText", CLuaInstance::ComponentsTextSetText },
+		{ "scroll", CLuaInstance::ComponentsTextScroll },
+		{ "setCenterPos", CLuaInstance::ComponentsTextSetCenterPos },
+		{ "enableUTF8", CLuaInstance::ComponentsTextEnableUTF8 },
+		{ "__gc", CLuaInstance::ComponentsTextDelete },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, "ctext");
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, "ctext");
+}
+
+int CLuaInstance::ComponentsTextNew(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+
+	CLuaCWindow* parent = NULL;
+	lua_Integer x=10, y=10, dx=100, dy=100;
+	std::string text         = "";
+	std::string tmpMode      = "";
+	lua_Integer mode         = CTextBox::AUTO_WIDTH;
+	lua_Integer font_text    = SNeutrinoSettings::FONT_TYPE_MENU;
+	lua_Unsigned color_text   = (lua_Unsigned)COL_MENUCONTENT_TEXT;
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
+
+	tableLookup(L, "parent"      , (void**)&parent);
+	tableLookup(L, "x"           , x);
+	tableLookup(L, "y"           , y);
+	tableLookup(L, "dx"          , dx);
+	tableLookup(L, "dy"          , dy);
+	tableLookup(L, "text"        , text);
+	tableLookup(L, "mode"        , tmpMode);
+	tableLookup(L, "font_text"   , font_text);
+	if (font_text >= SNeutrinoSettings::FONT_TYPE_COUNT || font_text < 0)
+		font_text = SNeutrinoSettings::FONT_TYPE_MENU;
+
+	bool has_shadow = false;
+	if (!tableLookup(L, "has_shadow", has_shadow))
+	{
+		std::string tmp1 = "false";
+		if (tableLookup(L, "has_shadow", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
+
+	tableLookup(L, "color_text"  , color_text);
+	tableLookup(L, "color_frame" , color_frame);
+	tableLookup(L, "color_body"  , color_body);
+	tableLookup(L, "color_shadow", color_shadow);
+
+	checkMagicMask(color_text);
+	checkMagicMask(color_frame);
+	checkMagicMask(color_body);
+	checkMagicMask(color_shadow);
+
+	if (!tmpMode.empty()) {
+		table_key txt_align[] = {
+			{ "ALIGN_AUTO_WIDTH",		CTextBox::AUTO_WIDTH },
+			{ "ALIGN_AUTO_HIGH",		CTextBox::AUTO_HIGH },
+			{ "ALIGN_SCROLL",		CTextBox::SCROLL },
+			{ "ALIGN_CENTER",		CTextBox::CENTER },
+			{ "ALIGN_RIGHT",		CTextBox::RIGHT },
+			{ "ALIGN_TOP",			CTextBox::TOP },
+			{ "ALIGN_BOTTOM",		CTextBox::BOTTOM },
+			{ "ALIGN_NO_AUTO_LINEBREAK",	CTextBox::NO_AUTO_LINEBREAK },
+			{ "DECODE_HTML",		0 },
+			{ NULL,				0 }
+		};
+		mode = 0;
+		for (int i = 0; txt_align[i].name; i++) {
+			if (tmpMode.find(txt_align[i].name) != std::string::npos)
+				mode |= txt_align[i].code;
+		}
+		if (tmpMode.find("DECODE_HTML") != std::string::npos)
+			htmlEntityDecode(text);
+	}
+
+	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
+
+	CLuaComponentsText **udata = (CLuaComponentsText **) lua_newuserdata(L, sizeof(CLuaComponentsText *));
+	*udata = new CLuaComponentsText();
+	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], pw, has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+	(*udata)->parent = pw;
+	(*udata)->mode = mode;
+	(*udata)->font_text = font_text;
+	luaL_getmetatable(L, "ctext");
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstance::ComponentsTextPaint(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
+	bool do_save_bg = true;
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "do_save_bg", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
+	m->ct->paint(do_save_bg);
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextHide(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
+	bool no_restore = false;
+	if (!tableLookup(L, "no_restore", no_restore))
+	{
+		std::string tmp = "false";
+		if (tableLookup(L, "no_restore", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
+	if (m->parent) {
+		m->ct->setText("", m->mode, g_Font[m->font_text]);
+		m->ct->paint();
+	} else
+		m->ct->hide(no_restore);
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextSetText(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
+	std::string text = "";
+	lua_Integer mode = m->mode;
+	lua_Integer font_text = m->font_text;
+	tableLookup(L, "text", text);
+	tableLookup(L, "mode", mode);
+	tableLookup(L, "font_text", font_text);
+
+	m->ct->setText(text, mode, g_Font[font_text]);
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextScroll(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
+	std::string tmp = "true";
+	tableLookup(L, "dir", tmp);
+	bool scrollDown = (tmp == "down" || tmp == "1");
+
+	//get the textbox instance from lua object and use CTexBbox scroll methods
+	CTextBox* ctb = m->ct->getCTextBoxObject();
+	if (ctb) {
+		ctb->enableBackgroundPaint(true);
+		if (scrollDown)
+			ctb->scrollPageDown(1);
+		else
+			ctb->scrollPageUp(1);
+		ctb->enableBackgroundPaint(false);
+	}
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextSetCenterPos(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+	lua_Integer  tmp_along_mode, along_mode = CC_ALONG_X | CC_ALONG_Y;
+	tableLookup(L, "along_mode", tmp_along_mode);
+
+	if(tmp_along_mode & CC_ALONG_X || tmp_along_mode & CC_ALONG_Y)
+		along_mode=tmp_along_mode;
+
+	m->ct->setCenterPos(along_mode);
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextEnableUTF8(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
+	bool utf8_encoded = true;
+	if (!tableLookup(L, "utf8_encoded", utf8_encoded))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "utf8_encoded", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		utf8_encoded = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
+	m->ct->enableUTF8(utf8_encoded);
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextDelete(lua_State *L)
+{
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m)
+		return 0;
+
+	delete m;
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+
+CLuaPicture *CLuaInstance::CPictureCheck(lua_State *L, int n)
+{
+	return *(CLuaPicture **) luaL_checkudata(L, n, "cpicture");
+}
+
+void CLuaInstance::CPictureRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new", CLuaInstance::CPictureNew },
+		{ "paint", CLuaInstance::CPicturePaint },
+		{ "hide", CLuaInstance::CPictureHide },
+		{ "setPicture", CLuaInstance::CPictureSetPicture },
+		{ "setCenterPos", CLuaInstance::CPictureSetCenterPos },
+		{ "__gc", CLuaInstance::CPictureDelete },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, "cpicture");
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, "cpicture");
+}
+
+int CLuaInstance::CPictureNew(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+
+	CLuaCWindow* parent = NULL;
+	lua_Integer x=10, y=10, dx=100, dy=100;
+	std::string image_name         = "";
+	lua_Integer alignment          = 0;
+	lua_Unsigned color_frame      = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_background = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow     = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
+
+	/*
+	transparency = CFrameBuffer::TM_BLACK (2): Transparency when black content ('pseudo' transparency)
+	transparency = CFrameBuffer::TM_NONE  (1): No 'pseudo' transparency
+	*/
+	lua_Integer transparency     = CFrameBuffer::TM_NONE;
+
+	tableLookup(L, "parent"           , (void**)&parent);
+	tableLookup(L, "x"                , x);
+	tableLookup(L, "y"                , y);
+	tableLookup(L, "dx"               , dx);
+	tableLookup(L, "dy"               , dy);
+	tableLookup(L, "image"            , image_name);
+
+	tableLookup(L, "alignment"        , alignment); //invalid argumet, for compatibility
+	if (alignment)
+		dprintf(DEBUG_NORMAL, "[CLuaInstance][%s - %d] invalid argument: 'alignment' has no effect!\n", __func__, __LINE__);
+
+	bool has_shadow = false;
+	if (!tableLookup(L, "has_shadow", has_shadow))
+	{
+		std::string tmp1 = "false";
+		if (tableLookup(L, "has_shadow", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
+	tableLookup(L, "color_frame"      , color_frame);
+	tableLookup(L, "color_background" , color_background);
+	tableLookup(L, "color_shadow"     , color_shadow);
+	tableLookup(L, "transparency"     , transparency);
+
+	checkMagicMask(color_frame);
+	checkMagicMask(color_background);
+	checkMagicMask(color_shadow);
+
+	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
+
+	CLuaPicture **udata = (CLuaPicture **) lua_newuserdata(L, sizeof(CLuaPicture *));
+	*udata = new CLuaPicture();
+	(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
+	(*udata)->parent = pw;
+	luaL_getmetatable(L, "cpicture");
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstance::CPicturePaint(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+
+	bool do_save_bg = true;
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "do_save_bg", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
+	m->cp->paint(do_save_bg);
+	return 0;
+}
+
+int CLuaInstance::CPictureHide(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+
+	bool no_restore = false;
+	if (!tableLookup(L, "no_restore", no_restore))
+	{
+		std::string tmp = "false";
+		if (tableLookup(L, "no_restore", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
+	if (m->parent) {
+		m->cp->setPicture("");
+		m->cp->paint();
+	} else
+		m->cp->hide(no_restore);
+	return 0;
+}
+
+int CLuaInstance::CPictureSetPicture(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+
+	std::string image_name = "";
+	tableLookup(L, "image", image_name);
+
+	m->cp->setPicture(image_name);
+	return 0;
+}
+
+int CLuaInstance::CPictureSetCenterPos(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+	lua_Integer  tmp_along_mode, along_mode = CC_ALONG_X | CC_ALONG_Y;
+	tableLookup(L, "along_mode", tmp_along_mode);
+
+	if(tmp_along_mode & CC_ALONG_X || tmp_along_mode & CC_ALONG_Y)
+		along_mode=tmp_along_mode;
+
+	m->cp->setCenterPos(along_mode);
+	return 0;
+}
+
+int CLuaInstance::CPictureDelete(lua_State *L)
+{
+	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+
+	delete m;
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+
+CLuaConfigFile *CLuaInstance::LuaConfigFileCheck(lua_State *L, int n)
+{
+	return *(CLuaConfigFile **) luaL_checkudata(L, n, "configfile");
+}
+
+void CLuaInstance::LuaConfigFileRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new", CLuaInstance::LuaConfigFileNew },
+		{ "loadConfig", CLuaInstance::LuaConfigFileLoadConfig },
+		{ "saveConfig", CLuaInstance::LuaConfigFileSaveConfig },
+		{ "clear", CLuaInstance::LuaConfigFileClear },
+		{ "getString", CLuaInstance::LuaConfigFileGetString },
+		{ "setString", CLuaInstance::LuaConfigFileSetString },
+		{ "getInt32", CLuaInstance::LuaConfigFileGetInt32 },
+		{ "setInt32", CLuaInstance::LuaConfigFileSetInt32 },
+		{ "getBool", CLuaInstance::LuaConfigFileGetBool },
+		{ "setBool", CLuaInstance::LuaConfigFileSetBool },
+		{ "__gc", CLuaInstance::LuaConfigFileDelete },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, "configfile");
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, "configfile");
+}
+
+int CLuaInstance::LuaConfigFileNew(lua_State *L)
+{
+	CLuaConfigFile **udata = (CLuaConfigFile **) lua_newuserdata(L, sizeof(CLuaConfigFile *));
+	*udata = new CLuaConfigFile();
+	(*udata)->c = new CConfigFile('\t');
+	luaL_getmetatable(L, "configfile");
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstance::LuaConfigFileLoadConfig(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+
+	const char *fname = luaL_checkstring(L, 2);
+	bool ret = c->c->loadConfig(fname);
+	lua_pushboolean(L, ret);
+	return 1;
+}
+
+int CLuaInstance::LuaConfigFileSaveConfig(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+
+	const char *fname = luaL_checkstring(L, 2);
+	bool ret = c->c->saveConfig(fname);
+	lua_pushboolean(L, ret);
+	return 1;
+}
+
+int CLuaInstance::LuaConfigFileClear(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+
+	c->c->clear();
+	return 0;
+}
+
+int CLuaInstance::LuaConfigFileGetString(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+	int numargs = lua_gettop(L);
+
+	std::string ret;
+	const char *key = luaL_checkstring(L, 2);
+	const char *defaultVal = "";
+	if (numargs > 2)
+		defaultVal = luaL_checkstring(L, 3);
+	ret = c->c->getString(key, defaultVal);
+	lua_pushstring(L, ret.c_str());
+	return 1;
+}
+
+int CLuaInstance::LuaConfigFileSetString(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+
+	const char *key = luaL_checkstring(L, 2);
+	const char *val = luaL_checkstring(L, 3);
+	c->c->setString(key, val);
+	return 0;
+}
+
+int CLuaInstance::LuaConfigFileGetInt32(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+	int numargs = lua_gettop(L);
+
+	int ret;
+	const char *key = luaL_checkstring(L, 2);
+	int defaultVal = 0;
+	if (numargs > 2)
+		defaultVal = luaL_checkint(L, 3);
+	ret = c->c->getInt32(key, defaultVal);
+	lua_pushinteger(L, ret);
+	return 1;
+}
+
+int CLuaInstance::LuaConfigFileSetInt32(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+
+	const char *key = luaL_checkstring(L, 2);
+	int val = luaL_checkint(L, 3);
+	c->c->setInt32(key, val);
+	return 0;
+}
+
+int CLuaInstance::LuaConfigFileGetBool(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+	int numargs = lua_gettop(L);
+
+	bool ret;
+	const char *key = luaL_checkstring(L, 2);
+	bool defaultVal = false;
+	if (numargs > 2)
+		defaultVal = _luaL_checkbool(L, 3);
+	ret = c->c->getBool(key, defaultVal);
+	lua_pushboolean(L, ret);
+	return 1;
+}
+
+int CLuaInstance::LuaConfigFileSetBool(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+
+	const char *key = luaL_checkstring(L, 2);
+	bool val = _luaL_checkbool(L, 3);
+	c->c->setBool(key, val);
+	return 0;
+}
+
+int CLuaInstance::LuaConfigFileDelete(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+	delete c;
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+
+int CLuaInstance::checkVersion(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 2)\n", __func__, numargs);
+		lua_pushnil(L);
+		return 1;
+	}
+	int major=0, minor=0;
+	major = luaL_checkint(L, 2);
+	minor = luaL_checkint(L, 3);
+	if ((major > LUA_API_VERSION_MAJOR) || ((major == LUA_API_VERSION_MAJOR) && (minor > LUA_API_VERSION_MINOR))) {
+		char msg[1024];
+		snprintf(msg, sizeof(msg)-1, "%s (v%d.%d)\n%s v%d.%d",
+				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK1),
+				LUA_API_VERSION_MAJOR, LUA_API_VERSION_MINOR,
+				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK2),
+				major, minor);
+		luaL_error(L, msg);
+	}
+	lua_pushinteger(L, 1); /* for backward compatibility */
+	return 1;
+}
+
+// --------------------------------------------------------------------------------
+
+int CLuaInstance::createChannelIDfromUrl(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 2) {
+		printf("CLuaInstance::%s: no arguments\n", __func__);
+		lua_pushnil(L);
+		return 1;
+	}
+
+	const char *url = luaL_checkstring(L, 2);
+	if (strlen(url) < 1 ) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	t_channel_id id = CREATE_CHANNEL_ID(0, 0, 0, url);
+	char id_str[17];
+	snprintf(id_str, sizeof(id_str), "%" PRIx64, id);
+
+	lua_pushstring(L, id_str);
+	return 1;
+}
+
+// --------------------------------------------------------------------------------
+
+int CLuaInstance::enableInfoClock(lua_State *L)
+{
+	bool enable = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		enable = _luaL_checkbool(L, 2);
+	CInfoClock::getInstance()->enableInfoClock(enable);
 	return 0;
 }
 

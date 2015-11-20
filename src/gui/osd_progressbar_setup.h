@@ -42,6 +42,7 @@ public:
 	CProgressbarSetup();
 	~CProgressbarSetup();
 	int exec(CMenuTarget* parent, const std::string &);
+	bool changeNotify(const neutrino_locale_t /* OptionName */, void * /* data */);
 };
 
 #endif

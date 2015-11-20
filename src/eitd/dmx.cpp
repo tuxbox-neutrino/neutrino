@@ -73,7 +73,6 @@ DMX::DMX()
 
 void DMX::init()
 {
-	fd = -1;
 	lastChanged = time_monotonic();
 	filter_index = 0;
 	real_pauseCounter = 0;
@@ -124,7 +123,6 @@ void DMX::closefd(void)
 		//dmx->Stop();
 		delete dmx;
 		dmx = NULL;
-		fd = -1;
 	}
 }
 
@@ -273,8 +271,14 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 
 	eit_extended_section_header *eit_extended_header;
 
+	bool use_viasat_epg_pid = false;
+#ifdef ENABLE_VIASATEPG
+	if (pID == 0x39)
+		use_viasat_epg_pid = true;
+#endif
+
 	/* filter == 0 && maks == 0 => EIT dummy filter to slow down EIT thread startup */
-	if (pID == 0x12 && filters[filter_index].filter == 0 && filters[filter_index].mask == 0)
+	if ((pID == 0x12 || use_viasat_epg_pid) && filters[filter_index].filter == 0 && filters[filter_index].mask == 0)
 	{
 		//dprintf("dmx: dummy filter, sleeping for %d ms\n", timeoutInMSeconds);
 		usleep(timeoutInMSeconds * 1000);
@@ -283,6 +287,11 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	}
 
 	lock();
+	if (!isOpen()) {
+		unlock();
+		timeouts = -3;
+		return -1;
+	}
 
 	int rc = dmx->Read(buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
 
@@ -389,7 +398,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	unsigned short current_tsid = 0;
 	uint8_t segment_last_section_number = last_section_number;
 
-	if (pID == 0x12) {
+	if (pID == 0x12 || use_viasat_epg_pid) {
 		eit_extended_header = (eit_extended_section_header *)(buf+8);
 		current_onid = 	eit_extended_header->original_network_id_hi * 256 +
 			eit_extended_header->original_network_id_lo;
@@ -401,7 +410,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	sections_id_t s_id = create_sections_id(table_id, eh_tbl_extension_id, current_onid, current_tsid, section_number);
 
 	bool complete = false;
-	if (pID == 0x12)
+	if (pID == 0x12 || use_viasat_epg_pid)
 		complete = check_complete(s_id, section_number, last_section_number, segment_last_section_number);
 
 	/* if we are not caching the already read sections (CN-thread), check EIT version and get out */
@@ -492,7 +501,6 @@ int DMX::immediate_start(void)
 		dmx = new cDemux(dmx_num);
 		dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
 	}
-	fd = 1;
 
 	/* setfilter() only if this is no dummy filter... */
 	if (filters[filter_index].filter && filters[filter_index].mask)
@@ -645,7 +653,12 @@ int DMX::change(const int new_filter_index, const t_channel_id new_current_servi
 	}
 
 	if (sections_debug) { // friendly debug output...
-		if(pID==0x12 && filters[0].filter != 0x4e) { // Only EIT
+		bool use_viasat_epg_pid = false;
+#ifdef ENABLE_VIASATEPG
+		if (pID == 0x39)
+			use_viasat_epg_pid = true;
+#endif
+		if((pID==0x12 || use_viasat_epg_pid) && filters[0].filter != 0x4e) { // Only EIT
 			printdate_ms(stderr);
 			fprintf(stderr, "changeDMX [EIT]-> %d (0x%x/0x%x) %s (%ld seconds)\n",
 				new_filter_index, filters[new_filter_index].filter,

@@ -52,7 +52,7 @@ typedef SIservice * SIservicePtr;
 #define TIME_EIT_SCHEDULED_PAUSE 60 * 60
 
 /* force EIT thread to change filter after, seconds */
-#define TIME_EIT_SKIPPING 180 // 90 <- Canal diditaal 19.2e -> ~100 seconds for 0x5x
+#define TIME_EIT_SKIPPING 240 // 90 <- Canal diditaal 19.2e -> ~100 seconds for 0x5x
 /* a little more time for freesat epg */
 #define TIME_FSEIT_SKIPPING 240
 /* Timeout in ms for reading from dmx in EIT threads. Dont make this too long
@@ -228,6 +228,7 @@ class CEitThread : public CEventsThread
 		void beforeSleep();
 	public:
 		CEitThread();
+		CEitThread(std::string tname, unsigned short pid = 0x12);
 };
 
 class CFreeSatThread : public CEventsThread
@@ -260,6 +261,7 @@ class CCNThread : public CEventsThread
 		void sendCNEvent();
 	public:
 		CCNThread();
+		void stopUpdate();
 		bool checkUpdate();
 };
 

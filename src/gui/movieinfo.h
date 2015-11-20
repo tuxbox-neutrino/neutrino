@@ -46,12 +46,15 @@
 #ifndef MOVIEINFO_H_
 #define MOVIEINFO_H_
 
+#define __USE_FILE_OFFSET64 1
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 #include "driver/file.h"
 
 /************************************************************************/
@@ -140,8 +143,10 @@ typedef struct
 /************************************************************************/
 /************************************************************************/
 
-typedef struct
+class MI_MOVIE_INFO
 {
+    public:
+	//MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 	CFile file;					// not stored in xml
 	std::string productionCountry;	// user defined Country (not from EPG yet, but might be possible)
 	std::string epgTitle;		// plain movie name, usually filled by EPG
@@ -151,15 +156,15 @@ typedef struct
 	std::string serieName;  	// user defines series name
 
 	time_t dateOfLastPlay; 		// last play date of movie in seconds since 1970
-	char dirItNr;  				// handle for quick directory path access only, this is not saved in xml, might be used by the owner of the movie info struct
+	int  dirItNr;  				// handle for quick directory path access only, this is not saved in xml, might be used by the owner of the movie info struct
 	int  genreMajor;            // see showEPG class for more info, usually filled by EPG
 	char genreMinor;			// genreMinor not used so far			
 	int  length;                // movie length in minutes, usually filled by EPG
 	int  quality;                 // user classification (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
 	int  productionDate;         // user defined Country (not from EPG yet, but might be possible)
 	int  parentalLockAge;        // used for age rating(0:never,6,12,16,18 years,99:always), usually filled by EPG (if available)
-	char format;				// currently not used
-	char audio;					// currently not used
+	//char format;				// currently not used
+	//char audio;					// currently not used
 	MI_MOVIE_BOOKMARKS bookmarks;	// bookmark collecton  for this movie
 	std::vector<EPG_AUDIO_PIDS> audioPids; // available AudioPids, usually filled by VCR. Note: Vectors are easy to is also using the heap (memory fragmentation), might be changed to array  [MI_MAX_AUDIO_PIDS]
 
@@ -169,40 +174,42 @@ typedef struct
 	int  epgVideoPid; 		// currently not used, we just do not want to loose this info if movie info is saved backed
 	int  VideoType;
 	int	 epgVTXPID;			// currently not used, we just do not want to loose this info if movie info is saved backed 
+	bool marked;
 	std::string tfile; // thumbnail/cover file name
 	std::string ytdate; // yt published
 	std::string ytid; // yt published
-} MI_MOVIE_INFO;
+	int ytitag; // youtube quality profile
 
+	enum miSource { UNKNOWN = 0, YT, NK };
+	miSource source;
+
+	void clear(void);
+	MI_MOVIE_INFO() { clear(); }
+};
+
+typedef std::vector<MI_MOVIE_INFO> MI_MOVIE_LIST;
+typedef std::vector<MI_MOVIE_INFO*> P_MI_MOVIE_LIST;
 
 class CMovieInfo
 {
 	public:	// Functions
 		CMovieInfo();
 		~CMovieInfo();
-		bool convertTs2XmlName(std::string* filename);  								// convert a ts file name in .xml file name
-		bool convertTs2XmlName(char* filename,int size);								// convert a ts file name in .xml file name
+		bool convertTs2XmlName(std::string& filename);  								// convert a ts file name in .xml file name
 		bool loadMovieInfo(MI_MOVIE_INFO* movie_info, CFile* file = NULL ); 	// load movie information for the given .xml filename. If there is no filename, the filename (ts) from movie_info is converted to xml and used instead
 		bool encodeMovieInfoXml(std::string* extMessage, MI_MOVIE_INFO * movie_info); 	// encode the movie_info structure to xml string
 		bool saveMovieInfo(MI_MOVIE_INFO& movie_info, CFile* file = NULL ); 	// encode the movie_info structure to xml and save it to the given .xml filename. If there is no filename, the filename (ts) from movie_info is converted to xml and used instead
 		void showMovieInfo(MI_MOVIE_INFO& movie_info);									// open a Hintbox and show the movie info
 		void printDebugMovieInfo(MI_MOVIE_INFO& movie_info);							// print movie info on debug channel (RS232)
-		void clearMovieInfo(MI_MOVIE_INFO* movie_info);									// Set movie info structure to initial values
 		bool addNewBookmark(MI_MOVIE_INFO* movie_info,MI_BOOKMARK &new_bookmark);		// add a new bookmark to the given movie info. If there is no space false is returned
-		void copy(MI_MOVIE_INFO* src, MI_MOVIE_INFO* dst);
 		
 	private:// Functions
-		bool parseXmlTree (char* text, MI_MOVIE_INFO* movie_info);			// this is the 'good' function, but it needs the xmllib which is not currently linked within neutrino. Might be to slow as well. If used, add bookmark parsing
-		bool parseXmlQuickFix(char* text, MI_MOVIE_INFO* movie_info);		// OK, this is very quick an dirty. It does not waist execution time nor flash (this is QUICK). But, do not play to much with the xml files (e.g. with MS Notepad) since small changes in the structure could cause the parser to fail (this it DIRTY). 
-		bool loadFile_std(CFile& file,char* buffer, int buffer_size);
-		bool loadFile_vlc(CFile& file,char* buffer, int buffer_size);
-		bool loadFile(CFile& file,char* buffer, int buffer_size);
-		bool saveFile_std(const CFile& file, const char* text, const int text_size);
-		bool saveFile_vlc(const CFile& file, const char* text, const int text_sizet);
-		bool saveFile(const CFile& file, const char* text, const int text_size);
-		//void CMovieInfo::strReplace(std::string& orig, const char* fstr, const std::string rstr);
+		bool parseXmlTree (std::string &text, MI_MOVIE_INFO* movie_info);			// this is the 'good' function, but it needs the xmllib which is not currently linked within neutrino. Might be to slow as well. If used, add bookmark parsing
+		bool parseXmlQuickFix(std::string &text, MI_MOVIE_INFO* movie_info);		// OK, this is very quick an dirty. It does not waste execution time or flash (this is QUICK). But, do not play to much with the xml files (e.g. with MS Notepad) since small changes in the structure could cause the parser to fail (this it DIRTY). 
+		bool loadFile(CFile& file, std::string &buffer);
+		bool saveFile(const CFile& file, std::string &buffer);
 	private:// variables
 };
 
 #endif /*MOVIEINFO_H_*/
-
+// vim:ts=4

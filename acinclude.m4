@@ -140,14 +140,17 @@ TUXBOX_APPS_DIRECTORY_ONE(libdir,LIBDIR,libdir,/lib,/tuxbox,
 TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
 	[--with-plugindir=PATH   ],[where to find the plugins])
 
-TUXBOX_APPS_DIRECTORY_ONE(ucodedir,UCODEDIR,localstatedir,/var,/tuxbox/ucodes,
-	[--with-ucodedir=PATH    ],[where to find the ucodes])
+TUXBOX_APPS_DIRECTORY_ONE(luaplugindir,LUAPLUGINDIR,libdir,/lib,/tuxbox/luaplugins,
+	[--with-luaplugindir=PATH   ],[where to find Lua plugins])
 
-TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share/tuxbox, /neutrino/themes,
-	[--with-themesdir=PATH     ],[where to find the themes (don't change)])
+TUXBOX_APPS_DIRECTORY_ONE(localedir,LOCALEDIR,datadir,/share, /tuxbox/neutrino/locale,
+	[--with-localedir=PATH     ],[where to find the locale])
 
-TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share/tuxbox, /neutrino/icons,
-	[--with-iconsdir=PATH     ],[where to find the icons (don't change)])
+TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share, /tuxbox/neutrino/themes,
+	[--with-themesdir=PATH     ],[where to find the themes])
+
+TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share, /tuxbox/neutrino/icons,
+	[--with-iconsdir=PATH     ],[where to find the icons])
 
 TUXBOX_APPS_DIRECTORY_ONE(private_httpddir,PRIVATE_HTTPDDIR,datadir,/share,/tuxbox/neutrino/httpd,
 	[--with-private_httpddir=PATH     ],[where to find the the private httpd files])
@@ -167,7 +170,8 @@ AC_SUBST(GAMESDIR)
 AC_SUBST(LIBDIR)
 AC_SUBST(MNTDIR)
 AC_SUBST(PLUGINDIR)
-AC_SUBST(UCODEDIR)
+AC_SUBST(LUAPLUGINDIR)
+AC_SUBST(LOCALEDIR)
 AC_SUBST(THEMESDIR)
 AC_SUBST(ICONSDIR)
 AC_SUBST(PRIVATE_HTTPDDIR)
@@ -202,7 +206,9 @@ AC_ARG_WITH(dvbincludes,
 	[DVBINCLUDES="$withval"],[DVBINCLUDES=""])
 
 if test "$DVBINCLUDES"; then
-	CPPFLAGS="$CPPFLAGS -I$DVBINCLUDES"
+	CPPFLAGS="-I$DVBINCLUDES $CPPFLAGS"
+	CFLAGS="-I$DVBINCLUDES $CFLAGS"
+	CXXFLAGS="-I$DVBINCLUDES $CXXFLAGS"
 fi
 
 AC_CHECK_HEADERS(ost/dmx.h,[
@@ -219,9 +225,15 @@ AC_CHECK_HEADERS(linux/dvb/version.h,[
 version DVB_API_VERSION
 	]])])
 	DVB_API_VERSION=`(eval "$ac_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
+
+	AC_LANG_CONFTEST([AC_LANG_SOURCE([[
+#include <linux/dvb/version.h>
+version DVB_API_VERSION_MINOR
+	]])])
+	DVB_API_VERSION_MINOR=`(eval "$ac_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
 	rm -f conftest*
 
-	AC_MSG_NOTICE([found dvb version $DVB_API_VERSION])
+	AC_MSG_NOTICE([found dvb version $DVB_API_VERSION.$DVB_API_VERSION_MINOR])
 ])
 fi
 
@@ -230,6 +242,12 @@ if test "$DVB_API_VERSION"; then
 	AC_DEFINE_UNQUOTED(HAVE_DVB_API_VERSION,$DVB_API_VERSION,[Define to the version of the dvb api])
 else
 	AC_MSG_ERROR([can't find dvb headers])
+fi
+
+if test "$DVB_API_VERSION_MINOR"; then
+	AC_DEFINE_UNQUOTED(HAVE_DVB_API_VERSION_MINOR,$DVB_API_VERSION_MINOR,[Define to the minor version of the dvb api])
+else
+	AC_DEFINE_UNQUOTED(HAVE_DVB_API_VERSION_MINOR,0,[Define to the minor version of the dvb api])
 fi
 ])
 

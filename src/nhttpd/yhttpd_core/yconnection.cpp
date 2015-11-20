@@ -100,6 +100,7 @@ void CWebserverConnection::HandleConnection() {
 #else
 		keep_alive = false;
 #endif
+
 		// Send a response
 		Response.SendResponse();
 

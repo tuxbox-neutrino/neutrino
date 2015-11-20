@@ -161,6 +161,14 @@ void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bo
 	close_connection();
 }
 
+void CSectionsdClient::setServiceStopped()
+{
+	send(sectionsd::serviceStopped);
+
+	readResponse();
+	close_connection();
+}
+
 void CSectionsdClient::freeMemory()
 {
 	send(sectionsd::freeMemory);
@@ -198,6 +206,7 @@ void CSectionsdClient::setConfig(const epg_config config)
 	msg->network_ntprefresh	= config.network_ntprefresh;
 	msg->network_ntpenable	= config.network_ntpenable;
 	msg->epg_extendedcache	= config.epg_extendedcache;
+	msg->epg_save_frequently= config.epg_save_frequently;
 //	config.network_ntpserver:
 	strcpy(&pData[sizeof(sectionsd::commandSetConfig)], config.network_ntpserver.c_str());
 //	config.epg_dir:

@@ -56,7 +56,7 @@
 #include <gui/widget/textbox.h>
 #include <driver/fb_window.h>
 
-#define LF_MAX_ROWS 6
+#define LF_MAX_ROWS 9
 typedef struct
 {
 	int rows;
@@ -64,6 +64,7 @@ typedef struct
 	std::vector<std::string> lineArray[LF_MAX_ROWS];
 	int rowWidth[LF_MAX_ROWS];
 	std::vector<std::string> Icon;
+	std::vector<bool> marked;
 }LF_LINES;
 
 class CListFrame  
@@ -139,6 +140,13 @@ class CListFrame
 		bool	setLines(LF_LINES* lines);
 		bool	setTitle(char* title);
 		bool    setSelectedLine(int selection);
+		void	setSelectedMarked(bool enable);
+		void	clearMarked()
+			{
+				if (m_pLines)
+					for (unsigned i = 0; i < m_pLines->marked.size(); i++)
+						m_pLines->marked[i] = false;
+			}
 		void	hide(void);
 		void	paint(void);
 

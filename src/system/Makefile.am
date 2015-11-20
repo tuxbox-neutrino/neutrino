@@ -16,6 +16,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/xmltree \
+	-I$(top_srcdir)/lib/jsoncpp/include \
+	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
@@ -36,12 +38,16 @@ libneutrino_system_a_SOURCES = \
 	debug.cpp \
 	flashtool.cpp \
 	fsmounter.cpp \
+	hddstat.cpp \
 	httptool.cpp \
 	lastchannel.cpp \
+	luaserver.cpp \
 	localize.cpp \
 	helpers.cpp \
-	ping.c \
+	ping.cpp \
 	settings.cpp \
+	stacktrace.cpp \
 	sysload.cpp \
+	ytcache.cpp \
 	ytparser.cpp \
 	setting_helpers.cpp

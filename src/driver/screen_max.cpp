@@ -61,15 +61,15 @@ int h_max (int h_size, int h_add)
 int getScreenStartX (int width)
 {
 	int w = width;
-	return (((g_settings.screen_EndX- g_settings.screen_StartX)-w) / 2) + g_settings.screen_StartX;
-
+	int r = (((g_settings.screen_EndX- g_settings.screen_StartX)-w) / 2) + g_settings.screen_StartX;
+	return r < 0 ? 0 : r;
 }
 
 int getScreenStartY (int height)
 {
 	int y = height;
-	return (((g_settings.screen_EndY- g_settings.screen_StartY)-y) / 2) + g_settings.screen_StartY;
-
+	int r = (((g_settings.screen_EndY- g_settings.screen_StartY)-y) / 2) + g_settings.screen_StartY;
+	return r < 0 ? 0 : r;
 }
 
 

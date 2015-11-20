@@ -121,7 +121,7 @@ public:
 	int eitScheduleFlag(void)	{ return (int)flags.EIT_schedule_flag; }
 	int eitPresentFollowingFlag(void) { return (int)flags.EIT_present_following_flag; }
 #endif
-	int runningStatus(void)		{ return (int)flags.running_status; }
+	int runningStatus(void)	const	{ return (int)flags.running_status; }
 #if 0 
 // unused
 	int freeCAmode(void)		{ return (int)flags.free_CA_mode; }
@@ -140,9 +140,9 @@ public:
 		printf("Service-ID: %hu\n", service_id);
 		printf("Service-Typ: %hhu\n", serviceTyp);
 #if 0 // unused
-		if(providerName.length())
+		if(!providerName.empty())
 			printf("Provider-Name: %s\n", providerName.c_str());
-		if(serviceName.length())
+		if(!serviceName.empty())
 			printf("Service-Name: %s\n", serviceName.c_str());
 #endif
 		for_each(nvods.begin(), nvods.end(), printSInvodReference());

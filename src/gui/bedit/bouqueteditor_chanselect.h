@@ -45,18 +45,22 @@ class CBEChannelSelectWidget : public CListBox
 {
 	private:
 
-		unsigned int	bouquet;
+		CZapitBouquet * bouquet;
+		short int channellist_sort_mode;
+		enum{SORT_ALPHA,SORT_FREQ,SORT_SAT,SORT_CH_NUMBER, SORT_END};
 		CZapitClient::channelsMode mode;
 		bool isChannelInBouquet( int index);
 		CComponentsDetailLine *dline;
 		CComponentsInfoBox *ibox;
-
+		CComponentsFooter footer;
 		uint	getItemCount();
 		void paintItem(uint32_t itemNr, int paintNr, bool selected);
 		void paintDetails(int index);
 		void initItem2DetailsLine (int pos, int ch_index);
 		void paintFoot();
 		void onOkKeyPressed();
+		void onRedKeyPressed();
+		void hide();
 
 		int	footerHeight;
 		int	info_height;
@@ -66,12 +70,10 @@ class CBEChannelSelectWidget : public CListBox
 		ZapitChannelList Channels;
 		ZapitChannelList * bouquetChannels;
 
-		CBEChannelSelectWidget(const std::string & Caption, unsigned int Bouquet, CZapitClient::channelsMode Mode);
+		CBEChannelSelectWidget(const std::string & Caption, CZapitBouquet* Bouquet, CZapitClient::channelsMode Mode);
 		~CBEChannelSelectWidget();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool hasChanged();
-
 };
 
 #endif
-

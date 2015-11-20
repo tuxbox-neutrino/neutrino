@@ -9,6 +9,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/xmltree \
+	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
@@ -34,6 +35,7 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_frm_header.cpp \
 	cc_frm_ext_text.cpp \
 	cc_frm_icons.cpp \
+	cc_frm_scrollbar.cpp \
 	cc_frm_signalbars.cpp \
 	cc_frm_slider.cpp \
 	cc_frm_window.cpp \
@@ -43,4 +45,5 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_item_progressbar.cpp \
 	cc_item_shapes.cpp \
 	cc_item_text.cpp \
-	cc_item_tvpic.cpp
+	cc_item_tvpic.cpp \
+	cc_timer.cpp

@@ -3,14 +3,14 @@
 #include <neutrino.h>
 #include "pictureviewer.h"
 #include "pv_config.h"
-
+#include <system/debug.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <curl/curl.h>
-
+#include <errno.h>
 #include <cs_api.h>
 
 #ifdef FBV_SUPPORT_GIF
@@ -55,6 +55,9 @@ void CPictureViewer::add_format (int (*picsize) (const char *, int *, int *, int
 
 void CPictureViewer::getSupportedImageFormats(std::vector<std::string>& exts)
 {
+#ifdef FBV_SUPPORT_JPEG
+	exts.push_back(".jpg");
+#endif
 #ifdef FBV_SUPPORT_PNG
 	exts.push_back(".png");
 #endif
@@ -62,7 +65,6 @@ void CPictureViewer::getSupportedImageFormats(std::vector<std::string>& exts)
 	exts.push_back(".gif");
 #endif
 #ifdef FBV_SUPPORT_JPEG
-	exts.push_back(".jpg");
 	exts.push_back(".jpeg");
 #endif
 #ifdef FBV_SUPPORT_BMP
@@ -102,6 +104,37 @@ CPictureViewer::CFormathandler * CPictureViewer::fh_getsize (const char *name, i
 	}
 	return (NULL);
 }
+std::string CPictureViewer::DownloadImage(std::string url)
+{
+	if (strstr(url.c_str(), "://")) {
+		std::string tmpname = "/tmp/pictureviewer" + url.substr(url.find_last_of("."));
+		FILE *tmpFile = fopen(tmpname.c_str(), "wb");
+		if (tmpFile) {
+			CURL *ch = curl_easy_init();
+			if(ch)
+			{
+				curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
+				curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
+				curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
+				curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
+				curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
+				curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
+				curl_easy_setopt(ch, CURLOPT_URL, url.c_str());
+				curl_easy_setopt(ch, CURLOPT_CONNECTTIMEOUT, 3);
+				curl_easy_setopt(ch, CURLOPT_TIMEOUT, 4);
+				CURLcode res = curl_easy_perform(ch);
+				if (res != CURLE_OK){
+					printf("[%s] curl_easy_perform() failed:%s\n",__func__, curl_easy_strerror(res));
+				}
+				curl_easy_cleanup(ch);
+			}
+			fclose(tmpFile);
+			url = true;
+		}
+		url = tmpname;
+	}
+	return url;
+}
 
 bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, bool unscaled)
 {
@@ -121,29 +154,9 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 	if (showBusySign)
 		showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
 
-	std::string name = _name;
 	bool url = false;
 
-	if (strstr(name.c_str(), "://")) {
-		std::string tmpname;
-		tmpname = "/tmp/pictureviewer" + name.substr(name.find_last_of("."));
-		FILE *tmpFile = fopen(tmpname.c_str(), "wb");
-		if (tmpFile) {
-			CURL *ch = curl_easy_init();
-			curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
-			curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
-			curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
-			curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
-			curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
-			curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
-			curl_easy_setopt(ch, CURLOPT_URL, name.c_str());
-			curl_easy_perform(ch);
-			curl_easy_cleanup(ch);
-			fclose(tmpFile);
-			url = true;
-		}
-		name = tmpname;
-	}
+	std::string name  = DownloadImage(_name);
 
 	CFormathandler *fh;
 	if (unscaled)
@@ -153,10 +166,11 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 	if (fh) {
 		if (m_NextPic_Buffer != NULL) {
 			free (m_NextPic_Buffer);
+			m_NextPic_Buffer = NULL;
 		}
 		m_NextPic_Buffer = (unsigned char *) malloc (x * y * 3);
 		if (m_NextPic_Buffer == NULL) {
-			printf ("DecodeImage: Error: malloc\n");
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc, %s\n", __func__, __LINE__, strerror(errno));
 			return false;
 		}
 		//      dbout("---Decoding Start(%d/%d)\n",x,y);
@@ -193,11 +207,11 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			else
 				m_NextPic_YPan = 0;
 		} else {
-			printf ("Unable to read file !\n");
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Unable to read file !, %s\n", __func__, __LINE__, strerror(errno));
 			free (m_NextPic_Buffer);
 			m_NextPic_Buffer = (unsigned char *) malloc (3);
 			if (m_NextPic_Buffer == NULL) {
-				printf ("DecodeImage: Error: malloc\n");
+				dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc, %s\n", __func__, __LINE__, strerror(errno));
 				return false;
 			}
 			memset (m_NextPic_Buffer, 0, 3);
@@ -209,13 +223,14 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			m_NextPic_YPan = 0;
 		}
 	} else {
-		printf ("Unable to read file or format not recognized!\n");
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Unable to read file or format not recognized!\n", __func__, __LINE__);
 		if (m_NextPic_Buffer != NULL) {
 			free (m_NextPic_Buffer);
+			m_NextPic_Buffer = NULL;
 		}
 		m_NextPic_Buffer = (unsigned char *) malloc (3);
 		if (m_NextPic_Buffer == NULL) {
-			printf ("DecodeImage: Error: malloc\n");
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc, %s\n", __func__, __LINE__, strerror(errno));
 			return false;
 		}
 		memset (m_NextPic_Buffer, 0, 3);
@@ -251,8 +266,8 @@ bool CPictureViewer::ShowImage (const std::string & filename, bool unscaled)
 		free (m_CurrentPic_Buffer);
 		m_CurrentPic_Buffer = NULL;
 	}
-	DecodeImage (filename, true, unscaled);
-	DisplayNextImage ();
+	if (DecodeImage (filename, true, unscaled))
+		DisplayNextImage ();
 	//  dbout("Show Image }\n");
 	return true;
 }
@@ -289,8 +304,8 @@ void CPictureViewer::Zoom (float factor)
 	int oldx = m_CurrentPic_X;
 	int oldy = m_CurrentPic_Y;
 	unsigned char *oldBuf = m_CurrentPic_Buffer;
-	m_CurrentPic_X = (int) (factor * m_CurrentPic_X);
-	m_CurrentPic_Y = (int) (factor * m_CurrentPic_Y);
+	m_CurrentPic_X = int(factor * (float)m_CurrentPic_X);
+	m_CurrentPic_Y = int(factor * (float)m_CurrentPic_Y);
 
 	m_CurrentPic_Buffer = Resize(m_CurrentPic_Buffer, oldx, oldy, m_CurrentPic_X, m_CurrentPic_Y, m_scaling);
 
@@ -364,7 +379,7 @@ CPictureViewer::CPictureViewer ()
 	fh_root = NULL;
 	m_scaling = COLOR;
 	//m_aspect = 4.0 / 3;
-	m_aspect = 16.0 / 9;
+	m_aspect = float(16.0 / 9.0);
 	m_CurrentPic_Name = "";
 	m_CurrentPic_Buffer = NULL;
 	m_CurrentPic_X = 0;
@@ -421,7 +436,7 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 
 	fb_buffer = (unsigned char *) CFrameBuffer::getInstance()->convertRGB2FB (rgb_buffer, 1, 1);
 	if (fb_buffer == NULL) {
-		printf ("showBusy: Error: malloc 1\n");
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc\n", __func__, __LINE__);
 		return;
 	}
 	if (m_busy_buffer != NULL) {
@@ -430,7 +445,7 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 	}
 	m_busy_buffer = (unsigned char *) malloc (width * width * cpp);
 	if (m_busy_buffer == NULL) {
-		printf ("showBusy: Error: malloc 2: \n");
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc\n", __func__, __LINE__);
 		return;
 	}
 	busy_buffer_wrk = m_busy_buffer;
@@ -498,8 +513,6 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-#define LOGO_FLASH_DIR DATADIR "/neutrino/icons/logo"
-
 bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
 	std::string fileType[] = { ".png", ".jpg" , ".gif" };
@@ -523,16 +536,28 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 		id_tmp_path += strChnId + fileType[i];
 		v_path.push_back(id_tmp_path);
 
-		//create filename with channel name (LOGO_FLASH_DIR)
-		id_tmp_path = LOGO_FLASH_DIR "/";
-		id_tmp_path += ChannelName + fileType[i];
-		v_path.push_back(id_tmp_path);
+		if(g_settings.logo_hdd_dir != LOGODIR_VAR){
+			//create filename with channel name (LOGODIR_VAR)
+			id_tmp_path = LOGODIR_VAR "/";
+			id_tmp_path += ChannelName + fileType[i];
+			v_path.push_back(id_tmp_path);
 
-		//create filename with id (LOGO_FLASH_DIR)
-		id_tmp_path = LOGO_FLASH_DIR "/";
-		id_tmp_path += strChnId + fileType[i];
-		v_path.push_back(id_tmp_path);
+			//create filename with id (LOGODIR_VAR)
+			id_tmp_path = LOGODIR_VAR "/";
+			id_tmp_path += strChnId + fileType[i];
+			v_path.push_back(id_tmp_path);
+		}
+		if(g_settings.logo_hdd_dir != LOGODIR){
+			//create filename with channel name (LOGODIR)
+			id_tmp_path = LOGODIR "/";
+			id_tmp_path += ChannelName + fileType[i];
+			v_path.push_back(id_tmp_path);
 
+			//create filename with id (LOGODIR)
+			id_tmp_path = LOGODIR "/";
+			id_tmp_path += strChnId + fileType[i];
+			v_path.push_back(id_tmp_path);
+		}
 		//check if file is available, name with real name is preferred, return true on success
 		for (size_t j = 0; j < v_path.size(); j++){
 			if (access(v_path[j].c_str(), R_OK) != -1){
@@ -581,10 +606,10 @@ void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int m
 	aspect = (float)(*width) / (float)(*height);
 	if (((float)(*width) / (float)max_width) > ((float)(*height) / (float)max_height)) {
 		*width = max_width;
-		*height = (int)(max_width / aspect);
+		*height = int((float)max_width / aspect);
 	}else{
 		*height = max_height;
-		*width = (int)(max_height * aspect);
+		*width = int((float)max_height * aspect);
 	}
 }
 
@@ -597,22 +622,27 @@ bool CPictureViewer::DisplayImage(const std::string & name, int posx, int posy, 
 	/* TODO: cache or check for same */
 	fb_pixel_t * data = getImage(name, width, height);
 
-	if (transp > CFrameBuffer::TM_EMPTY)
-		frameBuffer->SetTransparentDefault();
+	if (data){
+		if (transp > CFrameBuffer::TM_EMPTY)
+			frameBuffer->SetTransparentDefault();
 
-	if(data) {
-		frameBuffer->blit2FB(data, width, height, posx, posy);
-		cs_free_uncached(data);
-		return true;
+		if(data) {
+			frameBuffer->blit2FB(data, width, height, posx, posy);
+			cs_free_uncached(data);
+			return true;
+		}
 	}
 	return false;
 }
 
 fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, int *height, bool GetImage)
 {
+	if (access(name.c_str(), R_OK) == -1)
+		return NULL;
+
 	int x, y, load_ret, bpp = 0;
-	CFormathandler *fh;
-	unsigned char * buffer;
+	CFormathandler *fh = NULL;
+	unsigned char * buffer = NULL;
 	fb_pixel_t * ret = NULL;
 	std::string mode_str;
 
@@ -627,8 +657,8 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		buffer = (unsigned char *) malloc(x * y * 4);
 		if (buffer == NULL)
 		{
-		  	printf("%s: Error: malloc\n", mode_str.c_str());
-		  	return 0;
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode %s: Error: malloc\n", __func__, __LINE__, mode_str.c_str());
+			return NULL;
 		}
 #ifdef FBV_SUPPORT_PNG
 		if ((name.find(".png") == (name.length() - 4)) && (fh_png_id(name.c_str())))
@@ -636,13 +666,15 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		else
 #endif
 			load_ret = fh->get_pic(name.c_str (), &buffer, &x, &y);
+		dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] load_result: %d \n", __func__, __LINE__, load_ret);
+
 		if (load_ret == FH_ERROR_OK)
 		{
-//			printf("%s: decoded %s, %d x %d \n", mode_str.c_str(), name.c_str(), x, y);
+			dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] mode %s, decoded %s, (Pos: %d %d) ,bpp = %d \n", __func__, __LINE__, mode_str.c_str(), name.c_str(), x, y, bpp);
 			// resize only getImage
 			if ((GetImage) && (x != *width || y != *height))
 			{
-				printf("%s: resize  %s to %d x %d \n", mode_str.c_str(), name.c_str(), *width, *height);
+				dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] resize  %s to %d x %d \n", __func__, __LINE__, name.c_str(), *width, *height);
 				if (bpp == 4)
 					buffer = ResizeA(buffer, x, y, *width, *height);
 				else
@@ -653,14 +685,16 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 			if (bpp == 4)
 				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGBA2FB(buffer, x, y);
 			else
-				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.infobar_alpha));
+				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.theme.infobar_alpha));
 			*width = x;
 			*height = y;
-		}else
-	  		printf("%s: Error decoding file %s\n", mode_str.c_str(), name.c_str());
+		}else{
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode %s: Error decoding file %s\n", __func__, __LINE__, mode_str.c_str(), name.c_str());
+			return NULL;
+		}
 		free(buffer);
   	}else
-		printf("%s: Error open file %s\n", mode_str.c_str(), name.c_str());
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode: %s, file: %s Error: %s, buffer = %p (Pos: %d %d, Dim: %d x %d)\n", __func__, __LINE__, mode_str.c_str(), name.c_str(), strerror(errno), buffer, x, y, *width, *height);
 	return ret;
 }
 
@@ -683,7 +717,7 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 
 		if(cr == NULL)
 		{
-			printf("Resize Error: malloc\n");
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Resize Error: malloc\n", __func__, __LINE__);
 			return(orgin);
 		}
 	}else
@@ -739,7 +773,10 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 							r+=q[0]; g+=q[1]; b+=q[2]; a+=q[3];
 						}
 					}
-					p[0]=r/sq; p[1]=g/sq; p[2]=b/sq; p[3]=a/sq;
+					p[0]= uint8_t(r/sq);
+					p[1]= uint8_t(g/sq);
+					p[2]= uint8_t(b/sq);
+					p[3]= uint8_t(a/sq);
 				}
 			}
 		}else
@@ -758,7 +795,9 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 							r+=q[0]; g+=q[1]; b+=q[2];
 						}
 					}
-					p[0]=r/sq; p[1]=g/sq; p[2]=b/sq;
+					p[0]= uint8_t(r/sq);
+					p[1]= uint8_t(g/sq);
+					p[2]= uint8_t(b/sq);
 				}
 			}
 		}

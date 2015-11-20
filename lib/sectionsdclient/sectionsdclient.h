@@ -1,7 +1,7 @@
 #ifndef __sectionsdclient__
 #define __sectionsdclient__
 /*
-  Client-Interface für zapit  -   DBoxII-Project
+  Client-Interface for zapit  -   DBoxII-Project
 
   $Id: sectionsdclient.h,v 1.42 2007/01/12 22:57:57 houdini Exp $
 
@@ -162,6 +162,7 @@ class CSectionsdClient : private CBasicClient
 		int network_ntpenable;
 		int epg_extendedcache;
 		std::string network_ntpserver;
+		int epg_save_frequently;
 		std::string epg_dir;
 	} epg_config;
 
@@ -182,6 +183,7 @@ class CSectionsdClient : private CBasicClient
 	bool getIsTimeSet();
 	void setPauseScanning(const bool doPause);
 	void setServiceChanged(const t_channel_id channel_id, const bool requestEvent, int dnum = 0);
+	void setServiceStopped();
 
 	bool getIsScanningActive();
 
@@ -219,8 +221,13 @@ class CEPGData
 	std::vector<std::string>		items;
 	char                            fsk;
 	unsigned char                   table_id;
+#ifdef FULL_CONTENT_CLASSIFICATION
 	std::string                     contentClassification;
 	std::string                     userClassification;
+#else
+	unsigned char contentClassification;
+	unsigned char userClassification;
+#endif
 
 	CEPGData()
 		{

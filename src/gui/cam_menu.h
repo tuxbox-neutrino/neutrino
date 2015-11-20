@@ -37,10 +37,13 @@ class CCAMMenuHandler : public CMenuTarget, public CChangeObserver
 		CHintBox * hintBox;
 		cCA *ca;
 		uint64_t timeoutEnd;
-		//int slot;
+		uint32_t close_timer;
+		int menu_slot;
+		int menu_type;
+		bool in_menu;
 		int doMenu(int slot, CA_SLOT_TYPE slotType);
 		int doMainMenu();
-		int handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t data, bool from_menu = false);
+		int handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t data, int &msgret, bool from_menu = false);
 		void hideHintBox(void);
 		void showHintBox(const neutrino_locale_t Caption, const char * const Text, uint32_t timeout = 0);
 	public:

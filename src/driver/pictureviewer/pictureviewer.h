@@ -54,6 +54,7 @@ class CPictureViewer
 	bool ShowImage(const std::string & filename, bool unscaled=false);
 	bool DecodeImage(const std::string & name, bool showBusySign=false, bool unscaled=false);
 	bool DisplayNextImage();
+	std::string DownloadImage(std::string url);
 	void SetScaling(ScalingMode s){m_scaling=s;}
 	void SetAspectRatio(float aspect_ratio) {m_aspect=aspect_ratio;}
 	void showBusy(int sx, int sy, int width, char r, char g, char b);
@@ -65,7 +66,7 @@ class CPictureViewer
 	static double m_aspect_ratio_correction;
 	bool DisplayImage (const std::string & name, int posx, int posy, int width, int height, int transp=CFrameBuffer::TM_EMPTY);
 // 	bool DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height);
-	virtual bool GetLogoName(const uint64_t& channel_id, const std::string& ChanName, std::string & name, int *width = NULL, int *height = NULL);
+	bool GetLogoName(const uint64_t& channel_id, const std::string& ChanName, std::string & name, int *width = NULL, int *height = NULL);
 	fb_pixel_t * getImage (const std::string & name, int width, int height);
 	fb_pixel_t * getIcon (const std::string & name, int *width, int *height);
 	void getSize(const char *name, int* width, int *height);

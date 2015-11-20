@@ -29,25 +29,64 @@
 
 #include <vector>
 
-typedef struct button_label
+struct button_label
 {
 	const char *      button;
 	neutrino_locale_t locale;
-} button_label_struct;
+};
+
+struct button_label_ext
+{
+	const char *      button;
+	neutrino_locale_t locale;
+	const char *	  text;
+	int		  width;
+	bool		  maximize;
+};
+
+int paintButtons(	const button_label * const content,
+			const int &count, 
+			const int &x, 
+			const int &y, 
+			const int &footerheight,
+			const int &footerwidth, 
+			const int &maxwidth,
+			bool show = true,
+			int *wantedwidth = NULL,
+			int *wantedheight = NULL);
+
+int paintButtons(	const button_label_ext * const content,
+			const int &count, 
+			const int &x, 
+			const int &y, 
+			const int &footerheight,
+			const int &footerwidth, 
+			const int &maxwidth,
+			bool show = true,
+			int *wantedwidth = NULL,
+			int *wantedheight = NULL);
 
 int paintButtons(	const int &x, 
 			const int &y, 
 			const int &footerwidth, 
-			const uint &count, 
-			const struct button_label * const content,
+			const int &count, 
+			const button_label * const content,
 			const int &maxwidth,
-			const int &footerheight = 0,
-			std::string tmp = "", /* just to make sure compilation breaks */
-			bool vertical_paint = false,
-			const uint32_t fcolor = COL_INFOBAR_SHADOW_TEXT,
-			const char * alt_buttontext = NULL,
-			const uint &buttontext_id = 0,
-			bool show = true,
-			const std::vector<neutrino_locale_t>& all_buttontext_id = std::vector<neutrino_locale_t>());
+			const int &footerheight = 0);
+
+int paintButtons(       const int &x,
+                        const int &y,
+                        const int &footerwidth,
+                        const uint &count,
+                        const struct button_label * const content,
+                        const int &maxwidth,
+                        const int &footerheight = 0,
+                        std::string tmp = "", /* just to make sure compilation breaks */
+                        bool vertical_paint = false,
+                        const uint32_t fcolor = COL_INFOBAR_SHADOW_TEXT,
+                        const char * alt_buttontext = NULL,
+                        const uint &buttontext_id = 0,
+                        bool show = true,
+                        const std::vector<neutrino_locale_t>& all_buttontext_id = std::vector<neutrino_locale_t>());
 
 #endif /* __gui_widget_buttons_h__ */

@@ -90,7 +90,7 @@ function view_transcode_mode(){
 			<button id="epg" class="y_live_button" type="button" title="{=L:live.view_epg=}" onclick="view_epg()" disabled="disabled">
 				<img src="/images/epg.png"/></button>
 			<button id="epg_reload" class="y_live_button" type="button" title="{=L:live.reload=}" onclick="view_epg_reload()">
-				<img src="/images/reload.gif"/></button>
+				<img src="/images/reload.png"/></button>
 		</td></tr>
 		<tr id="subsRow" style="display:none">
 			<td>
@@ -150,13 +150,13 @@ function view_transcode_mode(){
 </div>
 <script type="text/javascript">
 //<![CDATA[
-	haveUDP = ("{=if-file-exists:/sbin/udpstreamts~true~{=if-file-exists:/var/bin/udpstreamts~true~false=}=}" == "true");
+	haveUDP = ("{=find-exec:udpstreamts=}" != "");
 	isUDP = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;udp;false=}" == "true");
 	Mode = "{=mode=}";
 	LiveTyp = "{=typ=}";
 	ClientAddr = "{=func:get_request_data clientaddr=}";
 	insert_message_control("{=L:live.build_vlc=}");
-	isDeinterlace = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;true=}" == "true");
+	isDeinterlace = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;false=}" == "true");
 	cachetime = {=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;0=};
 	Lgetting_channels="{=L:live.getting_channels=}";
 	Lgetting_bouquets="{=L:live.getting_bouquets=}";

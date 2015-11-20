@@ -29,6 +29,7 @@
 #include <string>
 #include <map>
 #include <zapit/types.h>
+#include <zapit/transponder.h>
 #include <zapit/frontend_types.h>
 
 /* diseqc types */
@@ -47,13 +48,6 @@ typedef enum {
 	DISEQC_2_2
 #endif
 } diseqc_t;
-
-/* dvb transmission types */
-typedef enum {
-	DVB_C,
-	DVB_S,
-	DVB_T
-} delivery_system_t;
 
 /* video display formats (cf. video_displayformat_t in driver/dvb/include/linux/dvb/video.h): */
 typedef enum {
@@ -89,7 +83,6 @@ typedef enum {
 typedef struct TP_parameter
 {
 	uint64_t TP_id;					/* diseqc<<24 | feparams->frequency>>8 */
-	uint8_t polarization;
 	uint8_t diseqc;
 	int scan_mode;
 	FrontendParameters feparams;

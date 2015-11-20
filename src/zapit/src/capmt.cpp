@@ -39,10 +39,16 @@
 CCam::CCam()
 {
 	camask = 0;
-	for(int i = 0; i < MAX_DMX_UNITS; i++)
+	demuxes = new int[MAX_DMX_UNITS];
+	for(unsigned i = 0; i < MAX_DMX_UNITS; i++)
 		demuxes[i] = 0;
 	source_demux = -1;
 	calen = 0;
+}
+
+CCam::~CCam()
+{
+	delete []demuxes;
 }
 
 unsigned char CCam::getVersion(void) const
@@ -136,10 +142,10 @@ bool CCam::setCaPmt(bool update)
 	return sendMessage((char *)cabuf, calen, update);
 }
 
-bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen)
+bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type)
 {
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
-			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawlen);
+			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawpmt ? rawlen : 0, (CA_SLOT_TYPE) type);
 }
 
 int CCam::makeMask(int demux, bool add)
@@ -151,7 +157,7 @@ int CCam::makeMask(int demux, bool add)
 	else if(demuxes[demux] > 0)
 		demuxes[demux]--;
 
-	for(int i = 0; i < MAX_DMX_UNITS; i++) {
+	for(unsigned i = 0; i < MAX_DMX_UNITS; i++) {
 		if(demuxes[i] > 0)
 			mask |= 1 << i;
 	}
@@ -164,6 +170,8 @@ CCamManager * CCamManager::manager = NULL;
 CCamManager::CCamManager()
 {
 	channel_map.clear();
+	tunerno = -1;
+	filter_channels = false;
 }
 
 CCamManager::~CCamManager()
@@ -181,8 +189,19 @@ CCamManager * CCamManager::getInstance(void)
 	return manager;
 }
 
+void CCamManager::StopCam(t_channel_id channel_id, CCam *cam)
+{
+	cam->sendMessage(NULL, 0, false);
+	cam->sendCaPmt(channel_id, NULL, 0, CA_SLOT_TYPE_ALL);
+	channel_map.erase(channel_id);
+	delete cam;
+}
+
 bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start, bool force_update)
 {
+	if (IS_WEBTV(channel_id))
+		return false;
+
 	CCam * cam;
 	int oldmask, newmask;
 	int demux = DEMUX_SOURCE_0;
@@ -190,12 +209,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 
-	if(channel == NULL) {
-		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
-		return false;
-	}
-	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
-	mutex.lock();
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	cammap_iterator_t it = channel_map.find(channel_id);
 	if(it != channel_map.end()) {
@@ -204,9 +218,14 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam = new CCam();
 		channel_map.insert(std::pair<t_channel_id, CCam*>(channel_id, cam));
 	} else {
-		mutex.unlock();
 		return false;
 	}
+	if(channel == NULL) {
+		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
+		StopCam(channel_id, cam);
+		return false;
+	}
+	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
 
 	/* FIXME until proper demux management */
 	switch(mode) {
@@ -219,12 +238,6 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 			break;
-#if 0
-		case STREAM:
-			source = DEMUX_SOURCE_0;
-			demux = STREAM_DEMUX;
-			break;
-#endif
 		case PIP:
 			source = channel->getRecordDemux();
 			demux = channel->getPipDemux();
@@ -242,14 +255,12 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
+
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);
 		cam->setSource(source);
-		if(newmask == 0) {
-			cam->sendMessage(NULL, 0, false);
-			cam->sendCaPmt(channel->getChannelID(), NULL, 0);
-		} else {
+		if(newmask != 0 && (!filter_channels || !channel->bUseCI)) {
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
 		}
@@ -259,9 +270,9 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		/* FIXME: back to live channel from playback dont parse pmt and call setCaPmt
 		 * (see CMD_SB_LOCK / UNLOCK PLAYBACK */
 		//channel->setRawPmt(NULL);//FIXME
-		channel_map.erase(channel_id);
-		delete cam;
+		StopCam(channel_id, cam);
 	}
+
 	CaIdVector caids;
 	cCA::GetInstance()->GetCAIDS(caids);
 	//uint8_t list = CCam::CAPMT_FIRST;
@@ -284,10 +295,33 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->makeCaPmt(channel, false, list, caids);
 		int len;
 		unsigned char * buffer = channel->getRawPmt(len);
-		cam->sendCaPmt(channel->getChannelID(), buffer, len);
+		cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_SMARTCARD);
+
+		if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
+			INFO("CI: configured tuner %d do not match %d, skip...\n", tunerno, cam->getSource());
+		} else if (filter_channels && !channel->bUseCI) {
+			INFO("CI: filter enabled, CI not used, disabling TS\n");
+#ifdef BOXMODEL_APOLLO
+			cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
+#endif
+		} else {
+#ifdef BOXMODEL_APOLLO
+			if (tunerno >= 0)
+				cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
+#endif
+			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
+		}
 		//list = CCam::CAPMT_MORE;
 	}
-	mutex.unlock();
 
 	return true;
+}
+
+void CCamManager::SetCITuner(int tuner)
+{
+	tunerno = tuner;
+#ifdef BOXMODEL_APOLLO
+	if (tunerno >= 0)
+		cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
+#endif
 }

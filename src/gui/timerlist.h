@@ -65,14 +65,15 @@ class CTimerList : public CMenuTarget
 		int timerNew_standby_on;
 		std::string timerNew_channel_name;
 		std::string m_weekdaysStr;
+		std::string timerNew_recordingDir;
 		std::string timerNew_message;
-		
+		std::string timerNew_pluginName;
+
 		int timer_apids_dflt;
 		int timer_apids_std;
 		int timer_apids_ac3;
 		int timer_apids_alt;
-
-		int skipEventID;
+		std::string timer_recordingDir;
 
 		void paintItem(int pos);
 		void paint();

@@ -28,11 +28,25 @@ typedef eit_scanmap_t::iterator eit_scanmap_iterator_t;
 
 class CEpgScan
 {
+	public:
+		enum {
+			SCAN_OFF,
+			SCAN_CURRENT,
+			SCAN_FAV,
+			SCAN_SEL
+		};
+		enum {
+			MODE_OFF = 0,
+			MODE_LIVE = 0x1,
+			MODE_STANDBY = 0x2,
+			MODE_ALWAYS = 0x3
+		};
 	private:
 		int current_bnum;
 		int current_mode;
 		int current_bmode;
 		bool allfav_done;
+		bool selected_done;
 		bool standby;
 		eit_scanmap_t scanmap;
 		t_channel_id next_chid;
@@ -43,8 +57,11 @@ class CEpgScan
 
 		void AddBouquet(CChannelList * clist);
 		bool AddFavorites();
+		bool AddSelected();
 		void AddTransponders();
 		void EnterStandby();
+		bool CheckMode();
+		void AddTimer();
 
 		CEpgScan();
 	public:
@@ -57,6 +74,7 @@ class CEpgScan
 		void Start(bool instandby = false);
 		void Stop();
 		bool Running();
+		void ConfigureEIT();
 };
 
 #endif

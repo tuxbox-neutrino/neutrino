@@ -35,7 +35,9 @@
 #endif
 
 #include <system/fsmounter.h>
+#include <system/helpers.h>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <limits>
 
@@ -201,6 +203,9 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 	}
 
 	printf("[CFSMounter] Mount(%d) %s:%s -> %s\n", (int) fstype, ip.c_str(), dir.c_str(), local_dir.c_str());
+
+	CFileHelpers fh;
+	fh.createDir(local_dir.c_str(), 0755);
 	
 	if (isMounted(local_dir))
 	{

@@ -277,12 +277,24 @@ bool CTimerManager::stopEvent(int peventID)
 }
 
 //------------------------------------------------------------
+int CTimerManager::lockEvents()
+{
+	return pthread_mutex_lock(&tm_eventsMutex);
+}
+
+//------------------------------------------------------------
+int CTimerManager::unlockEvents()
+{
+	return pthread_mutex_unlock(&tm_eventsMutex);
+}
+
+//------------------------------------------------------------
+
 bool CTimerManager::listEvents(CTimerEventMap &Events)
 {
 	if(!&Events)
 		return false;
 
-	pthread_mutex_lock(&tm_eventsMutex);
 
 	Events.clear();
 	for (CTimerEventMap::iterator pos = events.begin(); pos != events.end(); ++pos)
@@ -290,7 +302,6 @@ bool CTimerManager::listEvents(CTimerEventMap &Events)
 		pos->second->Refresh();
 		Events[pos->second->eventID] = pos->second;
 	}
-	pthread_mutex_unlock(&tm_eventsMutex);
 	return true;
 }
 //------------------------------------------------------------
@@ -339,13 +350,19 @@ int CTimerManager::modifyEvent(int peventID, time_t announceTime, time_t alarmTi
 				break;
 			case CTimerd::TIMER_RECORD:
 			{
-				(static_cast<CTimerEvent_Record*>(event))->recordingDir = data.recordingDir;
-				(static_cast<CTimerEvent_Record*>(event))->getEpgId();
+				CTimerEvent_Record *event_record = static_cast<CTimerEvent_Record*>(event);
+				event_record->recordingDir = data.recordingDir;
+				event_record->eventInfo.epgID = 0;
+				event_record->eventInfo.epg_starttime = 0;
+				event_record->getEpgId();
 				break;
 			}
 			case CTimerd::TIMER_ZAPTO:
 			{
-				(static_cast<CTimerEvent_Zapto*>(event))->getEpgId(); 
+				CTimerEvent_Zapto *event_zapto = static_cast<CTimerEvent_Zapto*>(event);
+				event_zapto->eventInfo.epgID = 0;
+				event_zapto->eventInfo.epg_starttime = 0;
+				event_zapto->getEpgId();
 				break;
 			}
 			default:
@@ -414,15 +431,14 @@ void CTimerManager::loadEventsFromConfig()
 {
 	CConfigFile config(',');
 
-	if(!config.loadConfig(CONFIGFILE))
+	if(!config.loadConfig(TIMERDCONFIGFILE))
 	{
 		/* set defaults if no configuration file exists */
-		dprintf("%s not found\n", CONFIGFILE);
+		dprintf("%s not found\n", TIMERDCONFIGFILE);
 	}
 	else
 	{
-		std::vector<int> savedIDs;
-		savedIDs = config.getInt32Vector ("IDS");
+		std::vector<int> savedIDs = config.getInt32Vector("IDS");
 		dprintf("%d timer(s) in config\n", (int)savedIDs.size());
 		for(unsigned int i=0; i < savedIDs.size(); i++)
 		{
@@ -624,13 +640,13 @@ void CTimerManager::loadRecordingSafety()
 {
 	CConfigFile config(',');
 
-	if(!config.loadConfig(CONFIGFILE))
+	if(!config.loadConfig(TIMERDCONFIGFILE))
 	{
 		/* set defaults if no configuration file exists */
-		dprintf("%s not found\n", CONFIGFILE);
+		dprintf("%s not found\n", TIMERDCONFIGFILE);
 		m_extraTimeStart = 300;
 		m_extraTimeEnd = 300;
-		config.saveConfig(CONFIGFILE);
+		config.saveConfig(TIMERDCONFIGFILE);
 	}
 	else
 	{
@@ -659,8 +675,8 @@ void CTimerManager::saveEventsToConfig()
 	dprintf("setting EXTRA_TIME_START to %d\n",m_extraTimeStart);
 	config.setInt32 ("EXTRA_TIME_END", m_extraTimeEnd);
 	dprintf("setting EXTRA_TIME_END to %d\n",m_extraTimeEnd);
-	dprintf("now saving config to %s...\n",CONFIGFILE);
-	config.saveConfig(CONFIGFILE);
+	dprintf("now saving config to %s...\n",TIMERDCONFIGFILE);
+	config.saveConfig(TIMERDCONFIGFILE);
 	dprintf("config saved!\n");
 	m_saveEvents=false;
 
@@ -1002,19 +1018,11 @@ void CTimerEvent::printEvent(void)
 void CTimerEvent::saveToConfig(CConfigFile *config)
 {
 	dprintf("CTimerEvent::saveToConfig\n");
-	std::vector<int> allIDs;
-	allIDs.clear();
-	if (!(config->getString("IDS").empty()))
-	{
-		// sonst bekommen wir den bloeden 0er
-		allIDs=config->getInt32Vector("IDS");
-	}
+	std::vector<int> allIDs = config->getInt32Vector("IDS");
 
 	allIDs.push_back(eventID);
-	dprintf("adding %d to IDS\n",eventID);
-	//SetInt-Vector haengt komischerweise nur an, deswegen erst loeschen
-	config->setString("IDS","");
-	config->setInt32Vector ("IDS",allIDs);
+	dprintf("adding %d to IDS\n", eventID);
+	config->setInt32Vector("IDS", allIDs);
 
 	std::stringstream ostr;
 	ostr << eventID;

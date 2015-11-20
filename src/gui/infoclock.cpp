@@ -36,7 +36,7 @@
 
 
 
-CInfoClock::CInfoClock():CComponentsFrmClock( 0, 0, 0, 50, "%H:%M:%S", true, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
+CInfoClock::CInfoClock():CComponentsFrmClock( 0, 0, 0, 50, "%H:%M:%S", true, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
 {
 	initVarInfoClock();
 }
@@ -71,7 +71,13 @@ void CInfoClock::Init()
 	else
 		setTextColor(COL_INFOCLOCK_TEXT);
 
-	paint_bg = g_settings.infoClockBackground;
+	paint_bg = true;
+	if (g_settings.infoClockBackground)
+		setColorBody(COL_MENUCONTENT_PLUS_0);
+	else
+		setColorBody(COL_BACKGROUND_PLUS_0);
+
+	setShadowOnOff(g_settings.infoClockBackground);
 
 	if (g_settings.infoClockSeconds)
 		setClockFormat("%H:%M:%S");

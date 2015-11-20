@@ -46,6 +46,7 @@
 #include <driver/screen_max.h>
 
 #include <xmlinterface.h>
+#include <system/helpers.h>
 #include <system/debug.h>
 
 #include <algorithm>
@@ -54,11 +55,11 @@
 
 
 
-COsdLangSetup::COsdLangSetup(bool wizard_mode)
+COsdLangSetup::COsdLangSetup(int wizard_mode)
 {
 	is_wizard = wizard_mode;
 
-	width = w_max (45, 10);
+	width = 45;
 	tzNotifier = NULL;
 }
 
@@ -67,11 +68,18 @@ COsdLangSetup::~COsdLangSetup()
 
 }
 
-int COsdLangSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int COsdLangSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init international setup\n");
 	if(parent != NULL)
 		parent->hide();
+
+	if (!actionKey.empty()) {
+		g_settings.language = actionKey;
+		g_PluginList->loadPlugins();
+		g_Locale->loadLocale(g_settings.language.c_str());
+		return menu_return::RETURN_EXIT;
+	}
 
 	int res = showLocalSetup();
 
@@ -92,7 +100,7 @@ int COsdLangSetup::showLocalSetup()
 	CMenuWidget osdl_setup(LOCALE_LANGUAGESETUP_OSD, NEUTRINO_ICON_LANGUAGE, width, MN_WIDGET_ID_LANGUAGESETUP_LOCALE);
 	showLanguageSetup(&osdl_setup);
 
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_LANGUAGESETUP_OSD, true, NULL, &osdl_setup, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_LANGUAGESETUP_OSD, true, g_settings.language, &osdl_setup, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_OSD_LANGUAGE);
 	localSettings->addItem(mf);
 
@@ -108,7 +116,7 @@ int COsdLangSetup::showLocalSetup()
 	//call menue for prefered audio languages
 	showPrefMenu(&prefMenu, langNotifier);
 
-	mf = new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, &prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, &prefMenu, NULL, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_LANG_PREF);
 	localSettings->addItem(mf);
 	//langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
@@ -129,22 +137,34 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 	CMenuOptionStringChooser* tzSelect = NULL;
 	if (parser != NULL)
 	{
-		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, &g_settings.timezone, true, tzNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, &g_settings.timezone, true, tzNotifier, CRCInput::RC_green, NULL, true);
 		tzSelect->setHint("", LOCALE_MENU_HINT_TIMEZONE);
-		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
+		xmlNodePtr search = xmlDocGetRootElement(parser);
+		search = xmlChildrenNode(search);
 		bool found = false;
 
 		while (search)
 		{
 			if (!strcmp(xmlGetName(search), "zone"))
 			{
-				std::string name = xmlGetAttribute(search, "name");
-//				std::string zone = xmlGetAttribute(search, "zone");
+				const char* zptr = xmlGetAttribute(search, "zone");
+				std::string zone;
+				if(zptr)
+					zone = zptr;
 				//printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-				tzSelect->addOption(name.c_str());
-				found = true;
+				if (access("/usr/share/zoneinfo/" + zone, R_OK))
+					printf("[neutrino] timezone file '%s' not installed\n", zone.c_str());
+				else
+				{
+					const char* ptr = xmlGetAttribute(search, "name");
+					if(ptr){
+						std::string name = ptr;
+						tzSelect->addOption(name);
+						found = true;
+					}
+				}
 			}
-			search = search->xmlNextNode;
+			search = xmlNextNode(search);
 		}
 
 		if (!found)
@@ -159,14 +179,12 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 	return tzSelect;
 }
 
-
 //shows locale setup for language selection
 void COsdLangSetup::showLanguageSetup(CMenuWidget *osdl_setup)
 {
 	struct dirent **namelist;
 	int n;
-	//		printf("scanning locale dir now....(perhaps)\n");
-	char *pfad[] = {(char *) DATADIR "/neutrino/locale",(char *) CONFIGDIR "/locale"};
+	const char *pfad[] = { LOCALEDIR, LOCALEDIR_VAR };
 
 	osdl_setup->addIntroItems();
 
@@ -186,8 +204,12 @@ void COsdLangSetup::showLanguageSetup(CMenuWidget *osdl_setup)
 				if (pos != NULL)
 				{
 					*pos = '\0';
-					CMenuOptionLanguageChooser* oj = new CMenuOptionLanguageChooser((char*)locale, this, locale);
-					osdl_setup->addItem( oj );
+					std::string loc(locale);
+					loc.at(0) = toupper(loc.at(0));
+
+					CMenuForwarder *mf = new CMenuForwarder(loc, true, NULL, this, locale);
+					mf->iconName = mf->getActionKey();
+					osdl_setup->addItem(mf, !strcmp(locale, g_settings.language.c_str()));
 				}
 				free(namelist[count]);
 			}

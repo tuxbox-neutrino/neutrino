@@ -7,9 +7,11 @@ SUBDIRS = \
 	libmd5sum \
 	libnet \
 	xmltree \
+	jsoncpp \
 	libtuxtxt \
 	libiw \
-	libdvbsub
+	libdvbsub \
+	luaclient
 
 if ENABLE_UPNP
 SUBDIRS += \

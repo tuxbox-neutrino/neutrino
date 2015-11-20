@@ -116,7 +116,7 @@ void CMessageBox::Init(const CMessageBox::result_ &Default, const uint32_t ShowB
 			ButtonDistance = (m_width - b_width * ButtonCount) / (ButtonCount + 1);
 
 	/* this is ugly: re-init (CHintBoxExt) to recalculate the number of lines and pages */
-	init(m_caption, m_captionString, m_width, m_iconfile == "" ? NULL : m_iconfile.c_str());
+	init(m_caption, m_captionString, m_width, m_iconfile.empty() ? NULL : m_iconfile.c_str());
 	m_height += m_bbheight;
 }
 
@@ -131,7 +131,7 @@ int CMessageBox::getButtonWidth()
 	neutrino_locale_t localeMsg[localeMsgCount] = {LOCALE_MESSAGEBOX_YES, LOCALE_MESSAGEBOX_NO, LOCALE_MESSAGEBOX_CANCEL, LOCALE_MESSAGEBOX_OK, LOCALE_MESSAGEBOX_BACK};
 	int MaxButtonTextWidth = 0;
 	for (int i = 0; i < localeMsgCount; i++)
-		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(localeMsg[i]), true), MaxButtonTextWidth);
+		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(localeMsg[i])), MaxButtonTextWidth);
 	return MaxButtonTextWidth + i_maxw + 36 + (RADIUS_LARGE / 2);
 }
 
@@ -179,7 +179,7 @@ void CMessageBox::paintButtons()
 		m_window->paintBoxRel(xpos, ypos, b_width, b_height, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);
 		m_window->paintIcon(Buttons[i].icon, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
-			               b_width - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color, 0, true);
+			               b_width - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color);
 		xpos += b_width + ButtonDistance;
 	}
 }
@@ -334,7 +334,27 @@ void DisplayErrorMessage(const char * const ErrorMsg)
 	ShowMsg(LOCALE_MESSAGEBOX_ERROR, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 }
 
-void DisplayInfoMessage(const char * const ErrorMsg)
+void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t Caption)
 {
-	ShowMsg(LOCALE_MESSAGEBOX_INFO, ErrorMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+	ShowMsg(Caption, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+}
+
+void DisplayErrorMessage(const char * const ErrorMsg, const std::string &Caption)
+{
+	ShowMsg(Caption, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+}
+
+void DisplayInfoMessage(const char * const InfoMsg)
+{
+	ShowMsg(LOCALE_MESSAGEBOX_INFO, InfoMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+}
+
+void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t Caption)
+{
+	ShowMsg(Caption, InfoMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+}
+
+void DisplayInfoMessage(const char * const InfoMsg, const std::string &Caption)
+{
+	ShowMsg(Caption, InfoMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 }

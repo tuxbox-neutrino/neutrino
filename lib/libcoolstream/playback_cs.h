@@ -69,6 +69,9 @@ public:
 	bool SelectSubtitles(int pid);
 	void GetChapters(std::vector<int> &positions, std::vector<std::string> &titles);
 	void RequestAbort();
+	void GetTitles(std::vector<int> &playlists, std::vector<std::string> &titles, int &current);
+	void SetTitle(int title);
+	uint64_t GetReadCount(void);
 };
 
 #endif // __PLAYBACK_CS_H_

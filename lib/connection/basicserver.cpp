@@ -106,7 +106,7 @@ bool CBasicServer::prepare(const char* socketname)
 		return false;
 	}
 
-#define N_connection_requests_queued 5
+#define N_connection_requests_queued 128
 
 	if (listen(sock_fd, N_connection_requests_queued) != 0)
 	{

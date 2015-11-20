@@ -68,12 +68,6 @@
 
 class CBox
 {
-	protected:
-		int *pX;
-		int *pY;
-		int *pWidth;
-		int *pHeight;
-
 	public:
 		/* Constructor */
 		inline CBox(){iX=0; iY=0; iWidth=0; iHeight=0;};
@@ -140,11 +134,12 @@ class CTextBox
 		int m_nMaxTextWidth;
 
 		int m_nMode;
+		int m_renderMode;
 
 		int m_nNrOfPages;
 		int m_nNrOfLines;
 		int m_nNrOfNewLine;
-		int m_nMaxLineWidth;
+
 		int m_nLinesPerPage;
 		int m_nCurrentLine;
 		int m_nCurrentPage;
@@ -152,6 +147,8 @@ class CTextBox
 		int  m_nBgRadius;
 		int  m_nBgRadiusType;
 		bool m_nPaintBackground;
+		bool m_SaveScreen;
+		bool m_utf8_encoded;
 
 		Font* m_pcFontText;
 		int m_nFontTextHeight;
@@ -183,27 +180,31 @@ class CTextBox
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);
 		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
+		void    enableSaveScreen(bool mode = true){m_SaveScreen = mode;};
 		bool	setText(const std::string* newText, int max_width = 0, bool force_repaint = true);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int Hborder, int Vborder);
 		void	setTextFont(Font* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
+		void	setTextRenderModeFullBG(bool mode){ m_renderMode = (mode) ? Font::FULLBG : 0; };
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
 		void 	setWindowMaxDimensions(const int width, const int height);
 		void 	setWindowMinDimensions(const int width, const int height);
 		void    setFontUseDigitHeight(bool set=true);
+		void	enableUTF8(bool enable = true){m_utf8_encoded = enable;}
+		void	disableUTF8(bool enable = false){enableUTF8(enable);}
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
-		inline	int	getMaxLineWidth(void)		{return(m_nMaxLineWidth);};
+		inline	int	getMaxLineWidth(void)		{return(m_nMaxTextWidth);};
 		inline  int     getLines(void)			{return(m_nNrOfLines);};
 		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
 		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
 		int  getFontTextHeight();
-		
+		inline int	getTextMode()			{return m_nMode;};
 		void paint (void);
 		void hide (void);
 };

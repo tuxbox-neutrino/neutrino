@@ -141,6 +141,9 @@ class CRCInput
 		uint32_t               timerid;
 		std::vector<timer> timers;
 
+		uint32_t	*repeatkeys;
+		uint64_t	longPressEnd;
+		bool		longPressAny;
 		int 		fd_pipe_high_priority[2];
 		int 		fd_pipe_low_priority[2];
 		int         	fd_gamerc;
@@ -151,15 +154,16 @@ class CRCInput
 
 		int		fd_max;
 		int		clickfd;
-		bool		firstKey;
 		__u16 rc_last_key;
 		void set_dsp();
 
-		void open();
+		void open(int dev = -1);
 		void close();
-		int translate(int code, int num);
+		int translate(int code);
 		void calculateMaxFd(void);
 		int checkTimers();
+		bool mayRepeat(uint32_t key, bool bAllowRepeatLR = false);
+		bool mayLongPress(uint32_t key, bool bAllowRepeatLR = false);
 #ifdef IOC_IR_SET_PRI_PROTOCOL
 		void set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address);
 #endif
@@ -279,6 +283,7 @@ class CRCInput
 
 		uint64_t repeat_block;
 		uint64_t repeat_block_generic;
+		bool		firstKey;
 		CRCInput();      //constructor - opens rc-device and starts needed threads
 		~CRCInput();     //destructor - closes rc-device
 
@@ -286,9 +291,11 @@ class CRCInput
 		static bool isNumeric(const neutrino_msg_t key);
 		static int getNumericValue(const neutrino_msg_t key);
 		static unsigned int convertDigitToKey(const unsigned int digit);
-		static int getUnicodeValue(const neutrino_msg_t key);
+		static const char *getUnicodeValue(const neutrino_msg_t key);
+		uint32_t *setAllowRepeat(uint32_t *);
 
 		static const char * getSpecialKeyName(const unsigned int key);
+		static const char *getKeyNameC(const unsigned int key);
 		static std::string getKeyName(const unsigned int key);
 
 		int addTimer(uint64_t Interval, bool oneshot= true, bool correct_time= true );
@@ -312,6 +319,8 @@ class CRCInput
 		void close_click();
 		void play_click();
 		void reset_dsp(int rate);
+
+		void setLongPressAny(bool b) { longPressAny = b; };
 };
 
 

@@ -1,4 +1,4 @@
-{=var-set:fbshot={=if-file-exists:/bin/fbshot~true~{=if-file-exists:/var/bin/fbshot~true~false=}=}=}
+{=var-set:fbshot={=find-exec:fbshot=}=}
 
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/Y_Baselib.js"></script>
@@ -43,7 +43,7 @@ function do_snapshot() {
 		filename = id("filename").value;
 	}
 
-	if ({=var-get:fbshot=} == true && enableVideo == 0)
+	if ("{=var-get:fbshot=}" != "" && enableVideo == 0)
 		dbox_exec_tools("fbshot fb /tmp/"+filename+".png");
 	else
 		loadSyncURL("/control/screenshot?name="+filename+"&osd="+enableOSD+"&video="+enableVideo);
@@ -110,7 +110,7 @@ function do_switchrc_txt(){
 		</div>
 		</div>
 
-		<table cellpadding="0">
+		<table cellpadding="0" class="screenshot">
 		<tr>
 			<td id="remote" {=if-empty:{=noremote=}~~style="display: none"=}>
 				{=include-block:Y_Blocks.txt;remote=}

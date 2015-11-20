@@ -58,13 +58,16 @@ class CBouquet
 		bool			bLocked;
 		CChannelList*	channelList;
 		CZapitBouquet * zapitBouquet;
+		t_satellite_position satellitePosition;
 
 		CBouquet(const int Unique_key, const char * const Name, const bool locked, bool vlist = false)
 		{
 			zapitBouquet = NULL;
 			unique_key = Unique_key;
 			bLocked = locked;
+			satellitePosition = INVALID_SAT_POSITION;
 			channelList = new CChannelList(Name, false, vlist);
+			channelList->bouquet = this;
 		}
 
 		~CBouquet()
@@ -95,6 +98,7 @@ class CBouquetList
 		int		y;
 
 		bool		favonly;
+		bool		save_bouquets;
 
 		void paintItem(int pos);
 		void paint();

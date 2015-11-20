@@ -62,7 +62,7 @@ class cYTVideoInfo
 		bool ret;
 
 		void Dump();
-		std::string GetUrl(int fmt = 0, bool mandatory = true);
+		std::string GetUrl(int *fmt = NULL, bool mandatory = true);
 		
 };
 
@@ -81,6 +81,8 @@ class cYTFeedParser
 		std::string prev; // prev results
 		std::string start; // start index
 		std::string total; // total results
+		std::string nextprevurl; // url for next/prev
+		std::string key; // youtube dev id
 
 		int feedmode;
 		int max_results;
@@ -106,7 +108,8 @@ class cYTFeedParser
 		static bool saveToFile(const char * name, std::string str);
 		bool getUrl(std::string &url, std::string &answer, CURL *_curl_handle = NULL);
 		bool DownloadUrl(std::string &url, std::string &file, CURL *_curl_handle = NULL);
-		bool parseFeedXml(std::string &answer);
+		bool parseFeedJSON(std::string &answer);
+		bool parseFeedDetailsJSON(cYTVideoInfo* vinfo);
 		bool decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo);
 		bool supportedFormat(int fmt);
 		bool ParseFeed(std::string &url);
@@ -138,7 +141,7 @@ class cYTFeedParser
 		bool GetVideoUrls();
 		bool DownloadThumbnails();
 		void Dump();
-		void Cleanup(bool delete_thumbnails = true);
+		void Cleanup(bool delete_thumbnails = false);
 
 		yt_video_list_t &GetVideoList() { return videos; }
 		bool Parsed() { return parsed; }
@@ -151,6 +154,7 @@ class cYTFeedParser
 		void SetRegion(std::string reg) { region = reg; }
 		void SetMaxResults(int count) { max_results = count; }
 		void SetConcurrentDownloads(int count) { concurrent_downloads = count; }
+		void SetThumbnailDir(std::string &_thumbnail_dir);
 };
 
 #endif

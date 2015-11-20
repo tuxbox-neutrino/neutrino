@@ -31,6 +31,10 @@
 #include <config.h>
 #endif
 
+#include <OpenThreads/ScopedLock>
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+
 #include "cc_base.h"
 #include "cc_frm.h"
 
@@ -45,6 +49,7 @@ class CComponentsFrmClock : public CComponentsForm
 	private:
 		
 // 		bool cl_force_segment_paint;
+		bool may_blit;
 	
 	protected:
 		///thread
@@ -57,7 +62,7 @@ class CComponentsFrmClock : public CComponentsForm
 		///raw time chars
 		char cl_timestr[20];
 
-		///allow to paint clock within thread and is not similar to cc_allow_paint
+		///handle paint clock within thread and is not similar to cc_allow_paint
 		bool paintClock;
 		//TODO: please add comments!
 		bool activeClock;
@@ -71,30 +76,32 @@ class CComponentsFrmClock : public CComponentsForm
 		///text color
 		int cl_col_text;
 		///time format
-		std::string cl_format_str;
+		const char *cl_format_str;
 		///time format for blink
-		std::string cl_blink_str;
-		///time string align, default allign is ver and hor centered
+		const char *cl_blink_str;
+		///time string align, default align is ver and hor centered
 		int cl_align;
 
-		///initialize all attributes and required objects
-		void initVarClock(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const char* format_str, bool activ, bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
-		
 		///initialize clock contents  
 		void initCCLockItems();
 		///initialize timestring, called in initCCLockItems()
 		virtual void initTimeString();
 		///initialize of general alignment of timestring segments within form area
 		void initSegmentAlign(int* segment_width, int* segment_height);
+		//return current time string format
+		const char *getTimeFormat(time_t when) { return (when & 1) ? cl_format_str : cl_blink_str; }
 
 		///return pointer of font object
 		inline Font** getClockFont();
 
 	public:
+		OpenThreads::Mutex mutex;
+
 		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1, const int& w = 200, const int& h = 48,
-					const char* format_str = "%H:%M", bool activ=false, bool has_shadow = CC_SHADOW_OFF,
+					const char* format_str = "%H:%M",
+					bool activ=false,
+					CComponentsForm *parent = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsFrmClock();
 
@@ -119,7 +126,7 @@ class CComponentsFrmClock : public CComponentsForm
 		///stop ticking clock thread, returns true on success, if false causes log output
 		virtual bool stopThread();
 
-		virtual bool Start();
+		virtual bool Start(bool do_save_bg = CC_SAVE_SCREEN_NO);
 		virtual bool Stop();
 
 		///returns true, if clock is running in thread
@@ -135,6 +142,9 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///set clock activ/inactiv
 		virtual void setClockActiv(bool activ = true);
+
+		///enable/disable automatic blitting
+		void setBlit(bool _may_blit = true) { may_blit = _may_blit; }
 };
 
 #endif

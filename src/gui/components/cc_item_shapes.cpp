@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -35,7 +35,10 @@
 using namespace std;
 
 //sub class CComponentsShapeSquare from CComponentsItem
-CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+CComponentsShapeSquare::CComponentsShapeSquare(	const int x_pos, const int y_pos, const int w, const int h,
+						CComponentsForm *parent,
+						bool has_shadow,
+						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponentsItem
 	cc_item_type 	= CC_ITEMTYPE_SHAPE_SQUARE;
@@ -49,6 +52,7 @@ CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos,
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
+	initParent(parent);
 }
 
 void CComponentsShapeSquare::paint(bool do_save_bg)
@@ -59,8 +63,10 @@ void CComponentsShapeSquare::paint(bool do_save_bg)
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsShapeCircle from CComponentsItem
-CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam,
+						CComponentsForm *parent,
+						bool has_shadow,
+						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
 	cc_item_type 	= CC_ITEMTYPE_SHAPE_CIRCLE;
@@ -80,6 +86,7 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 
 	//CComponentsItem
 	corner_rad	= d/2;
+	initParent(parent);
 }
 
 // 	 y

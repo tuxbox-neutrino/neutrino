@@ -1,4 +1,4 @@
-installdir = $(DATADIR)/neutrino/icons
+installdir = $(ICONSDIR)
 
 locale = \
 	locale/deutsch.png \
@@ -57,6 +57,7 @@ install_DATA += \
 	ca.png \
 	ca2.png \
 	ca2_gray.png \
+	checkmark.png \
 	colors.png \
 	conax_green.png \
 	conax_white.png \
@@ -74,6 +75,7 @@ install_DATA += \
 	dummy.png \
 	dummy_small.png \
 	error.png \
+	epg.png \
 	features.png \
 	file.png \
 	folder.png \
@@ -105,9 +107,11 @@ install_DATA += \
 	hint_media.png \
 	hint_movie.png \
 	hint_network.png \
+	hint_next.png \
 	hint_osd.png \
 	hint_personalize.png \
 	hint_picview.png \
+	hint_plugin.png \
 	hint_protection.png \
 	hint_radiomode.png \
 	hint_reboot.png \
@@ -134,6 +138,7 @@ install_DATA += \
 	icon_movieplayer.png \
 	icon_red.png \
 	icon_yellow.png \
+	icon_ytplay.png \
 	important.png \
 	info.png \
 	info_small.png \
@@ -157,6 +162,8 @@ install_DATA += \
 	mp_f-skip.png \
 	mp_pause.png \
 	mp_play.png \
+	mp_play_repeat_all.png \
+	mp_play_repeat_track.png \
 	mp3.jpg \
 	mp3.png \
 	mp3-0.jpg \
@@ -259,6 +266,7 @@ install_DATA += \
 	volumeslider2red.png \
 	vtxt.png \
 	vtxt_gray.png \
+	warning.png \
 	x_green.png \
 	x_white.png \
 	x_yellow.png \

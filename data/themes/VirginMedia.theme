@@ -38,3 +38,7 @@ menu_Content_inactive_Text_alpha=0
 menu_Content_inactive_Text_red=60
 menu_Content_inactive_Text_green=60
 menu_Content_inactive_Text_blue=60
+menu_Hint_gradient=0
+menu_Head_gradient=0
+infobar_gradient_top=0
+infobar_gradient_bottom=0

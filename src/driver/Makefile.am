@@ -12,6 +12,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
+	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
@@ -21,18 +22,19 @@ libneutrino_driver_a_SOURCES = \
 	audiofile.cpp \
 	audiometadata.cpp \
 	audioplay.cpp \
+	colorgradient.cpp \
 	fade.cpp \
 	fb_window.cpp \
 	file.cpp \
 	fontrenderer.cpp \
 	framebuffer.cpp \
 	genpsi.cpp \
+	moviecut.cpp \
 	neutrinofonts.cpp \
 	radiotext.cpp \
 	radiotools.cpp \
 	rcinput.cpp \
 	record.cpp \
-	ringbuffer.c \
 	scanepg.cpp \
 	screen_max.cpp \
 	screenshot.cpp \

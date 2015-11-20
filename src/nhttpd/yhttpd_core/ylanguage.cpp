@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <unistd.h>
 
+#include <system/helpers.h>
+
 // yhttpd
 #include <yconfig.h>
 #include <yhttpd.h>
@@ -74,10 +76,11 @@ void CLanguage::setLanguage(std::string _language){
 	ConfigLanguage->loadConfig(language_dir + "/" + _language);
 	DefaultLanguage->loadConfig(language_dir + "/" + HTTPD_DEFAULT_LANGUAGE);
 
-	const char * path[2] = { CONFIGDIR "/locale/", DATADIR "/neutrino/locale/"};
+	const char * path[2] = { LOCALEDIR_VAR, LOCALEDIR };
 	for (int i = 0; i < 2; i++)
 	{
 		std::string filename = path[i];
+		filename += "/";
 		filename += g_settings.language;
 		filename += ".locale";
 
@@ -87,7 +90,7 @@ void CLanguage::setLanguage(std::string _language){
 		}
 		else if (i == 1) {
 			// load neutrino default language (should not happen)
-			NeutrinoLanguage->loadConfig(DATADIR "/neutrino/locale/english.locale", ' ');
+			NeutrinoLanguage->loadConfig(LOCALEDIR "/english.locale", ' ');
 		}
 	}
 }
@@ -97,10 +100,12 @@ void CLanguage::setLanguage(std::string _language){
 //-----------------------------------------------------------------------------
 std::string CLanguage::getTranslation(std::string id){
 	std::string trans=ConfigLanguage->getString(id,"");
-	if(trans=="")
+	if(trans.empty())
 		trans=NeutrinoLanguage->getString(id,"");
-	if(trans=="")
+	if(trans.empty())
 		trans=DefaultLanguage->getString(id,"");
+	if (trans.empty())
+		trans = "# " + id + " #";
 	return trans;
 }
 //-----------------------------------------------------------------------------
@@ -109,9 +114,9 @@ std::string CLanguage::getTranslation(std::string id){
 std::string CLanguage::getLanguageDir(void){
 	std::string tmpfilename = "/"+Cyhttpd::ConfigList["Language.directory"],dir="";
 
-	if( access(std::string(Cyhttpd::ConfigList["WebsiteMain.override_directory"] + tmpfilename).c_str(),4) == 0)
+	if( access(Cyhttpd::ConfigList["WebsiteMain.override_directory"] + tmpfilename,R_OK) == 0)
 		dir = Cyhttpd::ConfigList["WebsiteMain.override_directory"] + tmpfilename;
-	else if(access(std::string(Cyhttpd::ConfigList["WebsiteMain.directory"] + tmpfilename).c_str(),4) == 0)
+	else if(access(Cyhttpd::ConfigList["WebsiteMain.directory"] + tmpfilename,R_OK) == 0)
 		dir = Cyhttpd::ConfigList["WebsiteMain.directory"] + tmpfilename;
 	return dir;
 }

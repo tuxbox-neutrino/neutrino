@@ -48,7 +48,7 @@ void CVolumeBar::initVarVolumeBar()
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 
 	vb_item_offset 	= 4;
-	height 		= 4*vb_item_offset; //default height
+	height 		= g_settings.volume_size; //default height
 
 	//assume volume value as pointer to global setting
 	vb_vol		= &g_settings.current_volume;
@@ -89,13 +89,13 @@ void CVolumeBar::initVolumeBarSize()
 	vb_pbw 		= 200;
 	vb_pbh 		= height-4*vb_item_offset;
 
-	//adapt x-pos
-	vb_icon_x 	= vb_item_offset;
-	vb_pbx 		= vb_icon_x + vb_icon_w + vb_item_offset;
-	vb_digit_x	= vb_pbx + vb_pbw + vb_item_offset;
-
 	//result for width
 	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset;
+
+	//adapt x-pos
+	vb_pbx 		= vb_item_offset + vb_icon_w + vb_item_offset;
+	vb_icon_x 	= vb_pbx/2 - vb_icon_w/2 + vb_item_offset;
+	vb_digit_x	= vb_pbx + vb_pbw + vb_item_offset;
 
 	// mute icon
 	cvh->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
@@ -173,9 +173,8 @@ void CVolumeBar::initVolumeBarItems()
 //init current icon object
 void CVolumeBar::initVolumeBarIcon()
 {
-	vb_icon = new CComponentsPicture(vb_icon_x, 0, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
+	vb_icon = new CComponentsPicture(vb_icon_x, CC_CENTERED, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
 
-	vb_icon->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 	vb_icon->setColorBody(col_body);
 	vb_icon->setCorner(cornerRad(), CORNER_LEFT);
 
@@ -188,8 +187,7 @@ void CVolumeBar::initVolumeBarScale()
 {
 	vb_pb = new CProgressBar();
 
-	vb_pb->setInvert();
-	vb_pb->setBlink();
+	vb_pb->setType(CProgressBar::PB_REDRIGHT);
 	vb_pb->setRgb(85, 75, 100);
 	vb_pb->setFrameThickness(2);
 	vb_pb->setProgress(vb_pbx, vb_pby, vb_pbw, vb_pbh, *vb_vol, 100);

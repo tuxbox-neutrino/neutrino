@@ -26,22 +26,43 @@ typedef tallchans::iterator tallchans_iterator;
 typedef vector<CZapitChannel*> ZapitChannelList;
 typedef ZapitChannelList::iterator zapit_list_it_t;
 
+#define DEFAULT_BQ_ID	0
+#define DEFAULT_BQ_HIDDEN    false
+#define DEFAULT_BQ_LOCKED    false
+#define DEFAULT_BQ_OTHER    false
+#define DEFAULT_BQ_SCANEPG    false
+
 class CZapitBouquet
 {
 	public:
 
 	std::string Name;
+	bq_id_t	 BqID;
 	bool        bHidden;
 	bool        bLocked;
 	bool        bUser;
 	bool        bFav;
 	bool        bOther;
+	int         bScanEpg;
+	bool        bWebtv; // dont save
+	int         bUseCI;
 	t_satellite_position satellitePosition;
 
 	ZapitChannelList radioChannels;
 	ZapitChannelList tvChannels;
 
-	inline CZapitBouquet(const std::string name) { Name = name; bHidden = false; bLocked = false; bUser = true; }
+	inline CZapitBouquet(const std::string name)
+	{
+		Name = name;
+		BqID=DEFAULT_BQ_ID;
+		bHidden = DEFAULT_BQ_HIDDEN;
+		bLocked = DEFAULT_BQ_LOCKED;
+		bUser = false;
+		bOther = DEFAULT_BQ_OTHER;
+		bScanEpg = DEFAULT_BQ_SCANEPG;
+		bWebtv = false;
+		bUseCI = false;
+	}
 
 	void addService(CZapitChannel* newChannel);
 
@@ -59,6 +80,7 @@ class CZapitBouquet
 	void sortBouquetByNumber(void);
 	bool getTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 	bool getRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+	bool getChannels(ZapitChannelList &list, bool tv, int flags = CZapitChannel::PRESENT);
 };
 
 typedef vector<CZapitBouquet *> BouquetList;
@@ -74,8 +96,8 @@ class CBouquetManager
 		void writeBouquetHeader          (FILE * bouq_fd, uint32_t i, const char * bouquetName);
 		void writeBouquetFooter          (FILE * bouq_fd);
 		void writeBouquetChannels        (FILE * bouq_fd, uint32_t i, bool bUser = false);
-		void writeChannels(FILE * bouq_fd, ZapitChannelList &list);
-		void writeBouquet(FILE * bouq_fd, uint32_t i);
+		void writeChannels(FILE * bouq_fd, ZapitChannelList &list, bool bUser);
+		void writeBouquet(FILE * bouq_fd, uint32_t i, bool bUser);
 
 	public:
 		CBouquetManager() { remainChannels = NULL; };
@@ -105,11 +127,12 @@ class CBouquetManager
 
 		void saveBouquets(void);
 		void saveUBouquets(void);
-		void saveBouquets(const CZapitClient::bouquetMode bouquetMode, const char * const providerName);
+		void saveBouquets(const CZapitClient::bouquetMode bouquetMode, const char * const providerName, t_satellite_position satellitePosition = INVALID_SAT_POSITION);
 		void loadBouquets(bool ignoreBouquetFile = false);
 		void renumServices();
 
-		CZapitBouquet* addBouquet(const std::string & name, bool ub = false, bool myfav = false);
+		CZapitBouquet* addBouquet(const std::string & name, bool ub = false, bool myfav = false, bool to_begin = false);
+		CZapitBouquet* addBouquetIfNotExist(const std::string & name);
 		void deleteBouquet(const unsigned int id);
 		void deleteBouquet(const CZapitBouquet* bouquet);
 		int  existsBouquet(char const * const name, bool ignore_user = false);
@@ -118,8 +141,19 @@ class CBouquetManager
 		bool existsChannelInBouquet(unsigned int bq_id, const t_channel_id channel_id);
 
 		void clearAll(bool user = true);
+		void deletePosition(t_satellite_position satellitePosition);
 
 		void sortBouquets(void);
+		void setBouquetLock(const unsigned int id, bool state);
+		void setBouquetLock(CZapitBouquet* bouquet, bool state);
+		void loadWebtv();
+		//bouquet writeChannelsNames selection options
+		enum{
+			BWN_NEVER,
+			BWN_UBOUQUETS,
+			BWN_BOUQUETS,
+			BWN_EVER
+		};
 };
 
 /*

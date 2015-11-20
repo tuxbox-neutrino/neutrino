@@ -45,10 +45,9 @@
 #include <system/debug.h>
 
 
-CUpdateSettings::CUpdateSettings(CMenuForwarder * update_item)
+CUpdateSettings::CUpdateSettings()
 {
-	width = w_max (40, 10);
-	updateItem = update_item;
+	width = 40;
 #ifdef USE_SMS_INPUT
 	input_url_file = new CStringInputSMS(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_url_file, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""$%&/()=?-. ");
 #endif
@@ -125,9 +124,9 @@ int CUpdateSettings::initMenu()
 	CMenuWidget w_upsettings(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE_SETTINGS);
 	w_upsettings.addIntroItems(LOCALE_FLASHUPDATE_SETTINGS);
 
-	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green);
 //	fw_url->setHint("", LOCALE_MENU_HINT_XXX);
-	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red);
 //	fw_update_dir->setHint("", LOCALE_MENU_HINT_XXX);
 	CMenuOptionChooser *name_backup = new CMenuOptionChooser(LOCALE_FLASHUPDATE_NAMEMODE2, &g_settings.softupdate_name_mode_backup, SOFTUPDATE_NAME_MODE2_OPTIONS, SOFTUPDATE_NAME_MODE2_OPTION_COUNT, true);
 //	name_backup->setHint("", LOCALE_MENU_HINT_XXX);
@@ -147,6 +146,9 @@ int CUpdateSettings::initMenu()
 	OnOffNotifier->addItem(apply_kernel);
 #endif
 
+	CMenuOptionChooser *autocheck = new CMenuOptionChooser(LOCALE_FLASHUPDATE_AUTOCHECK, &g_settings.softupdate_autocheck, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, OnOffNotifier);
+//	apply_settings->setHint("", LOCALE_MENU_HINT_XXX);
+
 	w_upsettings.addItem(fw_update_dir);
 	w_upsettings.addItem(fw_url);
 	w_upsettings.addItem(name_backup);
@@ -155,6 +157,7 @@ int CUpdateSettings::initMenu()
 	w_upsettings.addItem(apply_settings);
 	w_upsettings.addItem(name_apply);
 #endif
+	w_upsettings.addItem(autocheck);
 
 #if 0
 	w_upsettings.addItem(apply_kernel);

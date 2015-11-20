@@ -50,7 +50,7 @@ CSdt::CSdt(t_satellite_position spos, freq_id_t frq, bool curr, int dnum)
 	transport_stream_id = 0;
 	original_network_id = 0;
 	//FIXME sdt update ??
-	cable = (CServiceScan::getInstance()->GetFrontend()->getInfo()->type == FE_QAM);
+	cable = CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem() == DVB_C;
 }
 
 CSdt::~CSdt()
@@ -171,8 +171,10 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 					freq_id, satellitePosition, original_network_id, transport_stream_id);
 			ZapitChannelList satChannelList;
 			CServiceManager::getInstance()->GetAllTransponderChannels(satChannelList, tpid);
-			for (zapit_list_it_t oldI = satChannelList.begin(); oldI != satChannelList.end(); ++oldI)
+			for (zapit_list_it_t oldI = satChannelList.begin(); oldI != satChannelList.end(); ++oldI) {
+				(*oldI)->flags &= ~CZapitChannel::UPDATED;
 				(*oldI)->flags |= CZapitChannel::REMOVED;
+			}
 		}
 
 #ifdef DEBUG_SDT
@@ -235,8 +237,8 @@ uint8_t CSdt::FixServiceType(uint8_t type)
 {
 	if((type == 0x9A) || (type == 0x86) || (type==0xc3) ||
 			(type==0xc5) || (type==0xc6)  || (type == 0x11) ||
-			(type == 0x16) || (type == 0x19) || (type == 0x82) ||
-			(type == 0x87) || (type == 0xd3))
+			(type == 0x16) || (type == 0x19) || (type == 0x1f) ||
+			(type == 0x82) || (type == 0x87) || (type == 0xd3))
 		return 1;
 	return type;
 }
@@ -278,8 +280,8 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 
 		CZapitChannel * channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);
-		channel->deltype = cable ? FE_QAM : FE_QPSK;
 
+		channel->delsys = CServiceScan::getInstance()->GetFrontend()->getCurrentDeliverySystem();
 		CServiceManager::getInstance()->AddCurrentChannel(channel);
 
 		channel->scrambled = free_ca;
@@ -321,12 +323,17 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	if (channel) {
 		channel->setName(serviceName);
 		channel->setServiceType(real_type);
-		channel->flags = CZapitChannel::UPDATED;
+		channel->freq = freq_id;
+		if (CServiceScan::getInstance()->SatHaveChannels() && (channel->flags & CZapitChannel::NOT_FOUND))
+			channel->flags = CZapitChannel::NEW;
+		else
+			channel->flags = CZapitChannel::UPDATED;
 	} else {
 		channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);
 		CServiceManager::getInstance()->AddChannel(channel);
-		channel->deltype = cable ? FE_QAM : FE_QPSK;
+
+		channel->delsys = CServiceScan::getInstance()->GetFrontend()->getCurrentDeliverySystem();
 		channel->flags = CZapitChannel::UPDATED;
 		/* mark channel as new, if this satellite already have channels */
 		if (CServiceScan::getInstance()->SatHaveChannels())
@@ -412,7 +419,7 @@ bool CSdt::AddToBouquet(std::string &providerName, CZapitChannel *channel)
 			char pname[100];
 			if (!cable)
 				snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W',
-						abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
+						abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
 			else
 				snprintf(pname, 100, "%s", providerName.c_str());
 

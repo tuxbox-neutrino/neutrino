@@ -43,7 +43,7 @@ button[ytype]{
 button[ytype="save"]{background-image:url(/images/save.png);}
 button[ytype="saveall"]{background-image:url(/images/saveall.png);}
 button[ytype="cancel"]{background-image:url(/images/cross.png);}
-button[ytype="refresh"],button[ytype="reboot"]{background-image:url(/images/reload.gif);}
+button[ytype="refresh"],button[ytype="reboot"]{background-image:url(/images/reload.png);}
 button[ytype="record"]{background-image:url(/images/record.png);}
 button[ytype="zap"]{background-image:url(/images/zap.png);}
 button[ytype="timeup"]{background-image:url(/images/time_up.png);}
@@ -53,7 +53,7 @@ button[ytype="snapshot"]{background-image:url(/images/snapshot.png);}
 button[ytype="clearshot"]{background-image:url(/images/remove.png);}
 button[ytype="switchrc"]{background-image:url(/images/fb.png);}
 button[ytype="go"]{background-image:url(/images/accept.png);}
-button[ytype="download"]{background-image:url(/images/wget.gif);}
+button[ytype="download"]{background-image:url(/images/wget.png);}
 button[ytype="clear"]{background-image:url(/images/remove.png);}
 button[ytype="add"]{background-image:url(/images/new.png);}
 button[ytype="delete"]{background-image:url(/images/remove.png);}
@@ -306,6 +306,10 @@ tr {
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 }
+.work_box .work_box {
+	margin: 0;
+	padding: 0;
+}
 .work_box_head {
 	margin: 0;
 	padding: 0;
@@ -552,7 +556,7 @@ tr {
 .y_text_boxcontrol_table {
 	width:114px;
 	height: 23px;
-	background: url('/images/audiobar.gif') no-repeat 1px 1px;
+	background: url('/images/audiobar.png') no-repeat 1px 1px;
 	padding: 1px;
 	margin-top: 10px;
 	border: #FF8e42 solid 1px;
@@ -581,6 +585,12 @@ tr {
 	margin-top: 5px;
 	margin-bottom: -1px;
 }
+#audiobar_right,
+#sigbar_right,
+#snrbar_right {
+	background-color: #ffffff;
+}
+
 .y_epg_info {
 	border: 1px solid #CCCCCC;
 	background-color: white;
@@ -591,16 +601,42 @@ tr {
 .y_epg_info #info2 {
 	font-size:8pt;
 }
+.a, .b, .c {
+	vertical-align: top;
+}
+.bouquetitemlist .logo_cell {
+	background: #A1CCF2;
+	border-bottom: 1px solid white;
+	margin: 0;
+	padding: 0;
+}
+.bouquetitemlist .logo_cell a {
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+	min-width: 185px;
+	height: 60px;
+	padding: 0 5px;
+}
+.channel_logo {
+	background: #A1CCF2;
+	max-width: 175px;
+}
+.aepg, .bepg, .cepg {
+	white-space: nowrap;
+}
 .channel_logos
 {
-	max-width:  44px;
+	background: #A1CCF2;
+	vertical-align: middle;
+	max-width: 100px;
 	max-height: 40px;
 }
 #epg_plus {
 	border-top : #BBBBBB solid 1px;
 	border-left : #BBBBBB solid 1px;
 	border-right : #BBBBBB solid 1px;
-	margin: 0px;
+	margin: 1em 0;
 /*	width:auto;*/
 	overflow:auto;
 }
@@ -612,6 +648,7 @@ tr {
 	min-height: 40px;
 }
 .ep_bouquet_name {
+	background: #A1CCF2;
 	border-right : #BBBBBB solid 1px;
 	width : 100px;
 /*	height: 1.3em;*/
@@ -622,6 +659,12 @@ tr {
 	text-align: center;
 	min-height: 40px;
 }
+.ep_bouquet_name a {
+	display: table-cell;
+	vertical-align: middle;
+	min-width: 100px;
+	height: 40px;
+}
 .ep_bouquet_item {
 	border-right : #BBBBBB solid 1px;
 	overflow:hidden;
@@ -630,6 +673,12 @@ tr {
 	padding-right: 1px;
 	height: 100%;
 	font-size:8pt;
+}
+.ep_bouquet_item:hover {
+	background-color: #D3E7F8;
+}
+.ep_bouquet_item span:hover {
+	cursor: pointer;
 }
 .ep_bouquet_rec {
 	border-right : #BBBBBB solid 1px;
@@ -914,4 +963,62 @@ img#shot {
 }
 img#shot:hover {
 	cursor: pointer;
+}
+
+/* Filemgr */
+.diag {
+	border: 1px solid #bbbbbb;
+	border-collapse: collapse;
+	background-color: #eeeeee;
+	margin-left: 10px;
+	margin-top: 10px;
+}
+.toolbar td {
+	border: 1px solid #cccccc;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+}
+.toolbar img {
+	border:0;
+}
+.toolbar td:hover {
+	background-color: #dddddd;
+}
+.button {
+	border: 1px solid #cccccc;
+	width: 40px;
+	height: 20px;
+	text-align: center;
+}
+.button:hover {
+	background-color: #dddddd;
+}
+.mform {
+	empty-cells:show;
+}
+
+.filelist a {
+	text-decoration:underline;
+}
+.box {
+	border: 1px solid #cccccc;
+	empty-cells:show;
+}
+.epginfo2 {
+	font-size: 8pt;
+}
+.detail_title {
+	border: 1px solid #cccccc;
+	font-weight: bold;
+	background-color: #ffffff;
+}
+.detail_title_active {
+	border: 1px solid #cccccc;
+	font-weight: bold;
+	background-color: #eeeeee;
+}
+.detail_img {
+	max-width: 300px;
+	max-height:300px;
 }

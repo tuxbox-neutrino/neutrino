@@ -39,27 +39,34 @@
 
 #include <system/debug.h>
 
-#define PROGRESSBAR_INFOBAR_POSITION_COUNT 4
-const CMenuOptionChooser::keyval PROGRESSBAR_INFOBAR_POSITION_OPTIONS[PROGRESSBAR_INFOBAR_POSITION_COUNT]=
+/* these are more descriptive... */
+#define _LOCALE_PROGRESSBAR_COLOR_MATRIX        LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_0
+#define _LOCALE_PROGRESSBAR_COLOR_VERTICAL      LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_1
+#define _LOCALE_PROGRESSBAR_COLOR_HORIZONTAL    LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_2
+#define _LOCALE_PROGRESSBAR_COLOR_FULL          LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_3
+#define _LOCALE_PROGRESSBAR_COLOR_MONO          LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_4
+
+#define PROGRESSBAR_COLOR_OPTION_COUNT 6
+const CMenuOptionChooser::keyval PROGRESSBAR_COLOR_OPTIONS[PROGRESSBAR_COLOR_OPTION_COUNT] =
 {
-   { 0 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_0 },
-   { 1 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_1 },
-   { 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_2 },
-   { 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_3 }
+	{ CProgressBar::PB_OFF,         LOCALE_OPTIONS_OFF },
+	{ CProgressBar::PB_MONO,        _LOCALE_PROGRESSBAR_COLOR_MONO },
+	{ CProgressBar::PB_MATRIX,      _LOCALE_PROGRESSBAR_COLOR_MATRIX },
+	{ CProgressBar::PB_LINES_V,     _LOCALE_PROGRESSBAR_COLOR_VERTICAL },
+	{ CProgressBar::PB_LINES_H,     _LOCALE_PROGRESSBAR_COLOR_HORIZONTAL },
+	{ CProgressBar::PB_COLOR,       _LOCALE_PROGRESSBAR_COLOR_FULL },
 };
 
-#define PROGRESSBAR_DESIGN_COUNT 4
-const CMenuOptionChooser::keyval PROGRESSBAR_DESIGN_OPTIONS[PROGRESSBAR_DESIGN_COUNT]=
+#define PROGRESSBAR_TIMESCALE_INVERT_OPTION_COUNT 2
+const CMenuOptionChooser::keyval PROGRESSBAR_TIMESCALE_INVERT_OPTIONS[PROGRESSBAR_TIMESCALE_INVERT_OPTION_COUNT] =
 {
-   { 0 , LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_0 },
-   { 1 , LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_1 },
-   { 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_2 },
-   { 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_3 }
+	{ 0, LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_RED_GREEN },
+	{ 1, LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_GREEN_RED }
 };
 
 CProgressbarSetup::CProgressbarSetup()
 {
-	width = w_max (40, 10); //%
+	width = 40;
 }
 
 CProgressbarSetup::~CProgressbarSetup()
@@ -67,9 +74,22 @@ CProgressbarSetup::~CProgressbarSetup()
 
 }
 
-int CProgressbarSetup::exec(CMenuTarget* parent, const std::string &)
+bool CProgressbarSetup::changeNotify(const neutrino_locale_t /* OptionName */, void * /* data */)
+{
+	return true; // repaint
+}
+
+int CProgressbarSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	printf("[neutrino] init progressbar menu setup...\n");
+
+	if (actionKey == "reset") {
+		g_settings.progressbar_timescale_red = 0;
+		g_settings.progressbar_timescale_green = 100;
+		g_settings.progressbar_timescale_yellow = 70;
+		g_settings.progressbar_timescale_invert = false;
+		return menu_return::RETURN_REPAINT;
+	}
 
 	if (parent)
 		parent->hide();
@@ -79,40 +99,73 @@ int CProgressbarSetup::exec(CMenuTarget* parent, const std::string &)
 
 int CProgressbarSetup::showMenu()
 {
-	//menue init
-	CMenuWidget *progress = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_PROGRESSBAR);
+	CMenuWidget m(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_PROGRESSBAR);
 
-	//intros: back ande save
-	progress->addIntroItems(LOCALE_MISCSETTINGS_PROGRESSBAR);
+	m.addIntroItems(LOCALE_MISCSETTINGS_PROGRESSBAR /*, LOCALE_MISCSETTINGS_GENERAL*/);
 
-	COnOffNotifier* miscProgressNotifier = new COnOffNotifier(0);
+	// general progress bar design
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_LONG,
+			&g_settings.progressbar_design, PROGRESSBAR_COLOR_OPTIONS + 1, PROGRESSBAR_COLOR_OPTION_COUNT - 1, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
+	m.addItem(mc);
 
-	//color on/off
-	CMenuOptionChooser *color;
-	color = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscProgressNotifier);
-	color->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
+	// progress bar gradient
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_GRADIENT, &g_settings.progressbar_gradient, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_GRADIENT);
+	m.addItem(mc);
 
-	//design
-	CMenuOptionChooser *design;
-	design = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN, &g_settings.progressbar_design, PROGRESSBAR_DESIGN_OPTIONS, PROGRESSBAR_DESIGN_COUNT, g_settings.progressbar_color);
-	design->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_DESIGN);
+	// preview
+	CMenuProgressbar *mb = new CMenuProgressbar(LOCALE_MISCSETTINGS_PROGRESSBAR_PREVIEW);
+	mb->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_PREVIEW);
+	m.addItem(mb);
+	m.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE));
 
-	//infobar position
-	CMenuOptionChooser *infobar_position;
-	infobar_position = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION, &g_settings.infobar_progressbar, PROGRESSBAR_INFOBAR_POSITION_OPTIONS, PROGRESSBAR_INFOBAR_POSITION_COUNT, true);
-	infobar_position->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_INFOBAR_POSITION);
+	CMenuOptionNumberChooser *nc;
 
-	miscProgressNotifier->addItem(design);
+	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_RED, &g_settings.progressbar_timescale_red, true, 0, 100, this);
+	nc->setNumericInput(true);
+	nc->setNumberFormat("%d %%");
+	nc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_TIMESCALE_RED);
+	m.addItem(nc);
 
-	//paint items
-	progress->addItem(color);
-	progress->addItem(design);
-	progress->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_INFOBAR));
-	progress->addItem(infobar_position);
+	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_YELLOW, &g_settings.progressbar_timescale_yellow, true, 0, 100, this);
+	nc->setNumericInput(true);
+	nc->setNumberFormat("%d %%");
+	nc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_TIMESCALE_YELLOW);
+	m.addItem(nc);
 
-	int res = progress->exec (NULL, "");
-	delete miscProgressNotifier;
-	delete progress;
+	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_GREEN, &g_settings.progressbar_timescale_green, true, 0, 100, this);
+	nc->setNumericInput(true);
+	nc->setNumberFormat("%d %%");
+	nc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_TIMESCALE_GREEN);
+	m.addItem(nc);
 
-	return res;
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_INVERT, &g_settings.progressbar_timescale_invert, PROGRESSBAR_TIMESCALE_INVERT_OPTIONS, PROGRESSBAR_TIMESCALE_INVERT_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_TIMESCALE_INVERT);
+	m.addItem(mc);
+
+	mb = new CMenuProgressbar(LOCALE_MISCSETTINGS_PROGRESSBAR_PREVIEW);
+	mb->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_PREVIEW);
+	mb->getScale()->setType(CProgressBar::PB_TIMESCALE);
+	m.addItem(mb);
+
+	CMenuForwarder* mf = new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "reset", CRCInput::RC_red);
+	mf->setHint("", LOCALE_OPTIONS_HINT_DEFAULT);
+	m.addItem(mf);
+
+	// extended channel list (progressbars)
+	m.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_CHANNELS));
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_progressbar_design, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
+	m.addItem(mc);
+
+	mb = new CMenuProgressbar(LOCALE_MISCSETTINGS_PROGRESSBAR_PREVIEW);
+	mb->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_PREVIEW);
+	mb->getScale()->setType(CProgressBar::PB_TIMESCALE);
+	mb->getScale()->setDesign(g_settings.channellist_progressbar_design);
+	mb->getScale()->doPaintBg(false);
+	m.addItem(mb);
+
+	return m.exec(NULL, "");
 }

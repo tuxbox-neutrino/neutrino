@@ -21,7 +21,11 @@
  */
 
 #include <cstdio>
+#include <zapit/zapit.h>
 #include <zapit/channel.h>
+
+extern Zapit_config zapitCfg;
+
 
 CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq)
 {
@@ -33,6 +37,7 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	satellitePosition = p_satellite_position;
 	freq = p_freq;
 	channel_id = CREATE_CHANNEL_ID64;
+	epg_id = channel_id;
 	Init();
 //printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
@@ -47,13 +52,36 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_
 	serviceType = p_service_type;
 	satellitePosition = p_satellite_position;
 	freq = p_freq;
+	epg_id = channel_id;
+	Init();
+}
+
+// For WebTV ...
+CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid)
+{
+	if (!p_name || !p_url)
+		return;
+	name = std::string(p_name);
+	url = std::string(p_url);
+	if (p_desc)
+		desc = std::string(p_desc);
+	channel_id = p_channel_id;
+	service_id = 0;
+	transport_stream_id = 0;
+	original_network_id = 0;
+	serviceType = ST_DIGITAL_TELEVISION_SERVICE;
+	satellitePosition = 0;
+	freq = 0;
+	epg_id = epgid;
 	Init();
 }
 
 void CZapitChannel::Init()
 {
+	uname = DEFAULT_CH_UNAME;
 	//caPmt = NULL;
 	rawPmt = NULL;
+	pmtLen = 0;
 	type = 0;
 	number = 0;
 	scrambled = 0;
@@ -68,7 +96,10 @@ void CZapitChannel::Init()
 	pip_demux = 2;
 	polarization = 0;
 	flags = 0;
-	deltype = FE_QPSK;
+	delsys = DVB_S;
+	bLockCount = 0;
+	bLocked = DEFAULT_CH_LOCKED;
+	bUseCI = false;
 }
 
 CZapitChannel::~CZapitChannel(void)
@@ -167,7 +198,7 @@ bool CZapitChannel::isHD()
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
 			return true;
 		case ST_DIGITAL_TELEVISION_SERVICE: {
-				  char * temp = (char *) name.c_str();
+				  const char *temp = name.c_str();
 				  int len = name.size();
 				  if((len > 1) && temp[len-2] == 'H' && temp[len-1] == 'D') {
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
@@ -306,40 +337,50 @@ void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)
 {
 	if(action) {
 		fprintf(fd, "\t\t\t<S action=\"%s\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n", action,
-				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
 				getServiceType(), scrambled, number, flags);
 
 	} else if(getPidsFlag()) {
 		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n",
-				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
 				getVideoPid(), getPreAudioPid(),
 				getPcrPid(), getPmtPid(), getTeletextPid(),
 				getServiceType(true), type, scrambled, number, flags);
 	} else {
 		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n",
-				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
 				getServiceType(true), scrambled, number, flags);
 	}
 }
 
-void CZapitChannel::dumpBouquetXml(FILE * fd)
+void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 {
-	//bool write_names = bUser ? true : config.getBool("writeChannelsNames", true);
-	bool write_names = 1;
+	// TODO : gui->manage configuration: writeChannelsNames (if nessessary or wanted) in zapit.conf
+	// menu > installation > Servicesscan > under 'Bouquet' => "Write DVB-names in bouquets:" f.e. =>0=never 1=ubouquets 2=bouquets 3=both
+	int write_names =  zapitCfg.writeChannelsNames;
 
-	if(write_names) {
-		fprintf(fd, "\t\t<S i=\"%x\" n=\"%s\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"/>\n",
-				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-				getTransportStreamId(),
-				getOriginalNetworkId(),
-				getSatellitePosition(),
-				getFreqId());
-	} else {
-		fprintf(fd, "\t\t<S i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"/>\n",
-				getServiceId(),
-				getTransportStreamId(),
-				getOriginalNetworkId(),
-				getSatellitePosition(),
-				getFreqId());
+	fprintf(fd, "\t\t<S");
+
+	// references (mandatory)
+	if (url.empty())
+		fprintf(fd, " i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"",getServiceId(), getTransportStreamId(), getOriginalNetworkId(), getSatellitePosition(), getFreqId());
+	else
+		fprintf(fd, " u=\"%s\"",convert_UTF8_To_UTF8_XML(url.c_str()).c_str());
+
+	// service names
+	if (bUser || !url.empty()) {
+		if ((write_names & CBouquetManager::BWN_UBOUQUETS) == CBouquetManager::BWN_UBOUQUETS)
+			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
+	else {
+		if ((write_names & CBouquetManager::BWN_BOUQUETS) == CBouquetManager::BWN_BOUQUETS)
+			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
+	}
+
+	// usecase optional attributes
+	if (bUser && !uname.empty()) fprintf(fd, " un=\"%s\"", convert_UTF8_To_UTF8_XML(uname.c_str()).c_str());
+	// TODO : be sure to save bouquets.xml after "l"L is changed only in ubouquets.xml (set dirty_bit ?)
+	if (bLocked!=DEFAULT_CH_LOCKED) fprintf(fd," l=\"%d\"", bLocked ? 1 : 0);
+
+	fprintf(fd, "/>\n");
 }

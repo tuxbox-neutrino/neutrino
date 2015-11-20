@@ -33,19 +33,12 @@
 #ifndef __EPGPLUS_HPP__
 #define __EPGPLUS_HPP__
 
-#include <driver/framebuffer.h>
-#include <driver/fontrenderer.h>
-#include <system/settings.h>
-
-#include "color.h"
-#include "channellist.h"
-#include "infoviewer.h"
-#include "filebrowser.h"
-
 #include "widget/menue.h"
 
 #include <string>
 
+class CFrameBuffer;
+class Font;
 class CBouquetList;
 class ConfigFile;
 struct button_label;

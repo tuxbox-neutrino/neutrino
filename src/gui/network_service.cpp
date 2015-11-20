@@ -46,19 +46,20 @@ struct network_service
 	std::string cmd;
 	std::string options;
 	neutrino_locale_t hint;
-	std::string icon;
+	const char * icon;
 	int enabled;
 };
 
-#define SERVICE_COUNT 5
-static struct network_service services[SERVICE_COUNT] =
+static struct network_service services[] =
 {
-	{ "FTP", "vsftpd", "", LOCALE_MENU_HINT_NET_FTPD, "", 0 },
-	{ "Telnet", "telnetd", "-l/bin/login", LOCALE_MENU_HINT_NET_TELNET, "", 0 },
-	{ "DjMount", "djmount", "-o iocharset=utf8 /media/00upnp/", LOCALE_MENU_HINT_NET_DJMOUNT, "", 0 },
-	{ "uShare", "ushare", "-D -n `cat /etc/hostname`", LOCALE_MENU_HINT_NET_USHARE, "", 0 },
-	{ "xupnpd", "xupnpd", "", LOCALE_MENU_HINT_NET_XUPNPD, "", 0 },
+	{ "FTP", "vsftpd", "", LOCALE_MENU_HINT_NET_FTPD, NULL, 0 },
+	{ "Telnet", "telnetd", "-l/bin/login", LOCALE_MENU_HINT_NET_TELNET, NULL, 0 },
+	{ "DjMount", "djmount", "-o iocharset=UTF-8 /media/00upnp/", LOCALE_MENU_HINT_NET_DJMOUNT, "", 0 },
+	{ "uShare", "ushare", "-D -n `cat /etc/hostname`", LOCALE_MENU_HINT_NET_USHARE, NULL, 0 },
+	{ "xupnpd", "xupnpd", "", LOCALE_MENU_HINT_NET_XUPNPD, NULL, 0 },
+	{ "Dropbear", "dropbear", "-B", LOCALE_MENU_HINT_NET_DROPBEAR, NULL, 0 },
 };
+#define SERVICE_COUNT (sizeof(services)/sizeof(struct network_service))
 
 CNetworkService::CNetworkService(std::string cmd, std::string opts)
 {
@@ -67,7 +68,7 @@ CNetworkService::CNetworkService(std::string cmd, std::string opts)
 	enabled = false;
 
 	std::string file = TOUCH_BASE + cmd;
-	if (!access(file.c_str(), F_OK))
+	if (!access(file, F_OK))
 		enabled = true;
 }
 
@@ -117,7 +118,7 @@ bool CNetworkService::changeNotify(const neutrino_locale_t /*OptionName*/, void 
 
 CNetworkServiceSetup::CNetworkServiceSetup()
 {
-	width = w_max (40, 10);
+	width = 40;
 	selected = -1;
 }
 
@@ -139,8 +140,8 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 {
 	int shortcut = 1;
 
-	CMenuWidget* setup = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width);
-	setup->setSelected(selected);
+	CMenuWidget* setup = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_SERVICES);
+
 	setup->addIntroItems(LOCALE_NETWORKMENU_SERVICES);
 
 	CNetworkService * items[SERVICE_COUNT];
@@ -180,22 +181,20 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 		std::string execute2 = "/sbin/" + services[i].cmd;
 
 		active = false;
-		if ( !(access(execute1.c_str(), F_OK)) || !(access(execute2.c_str(), F_OK)) )
+		if ( !(access(execute1, F_OK)) || !(access(execute2, F_OK)) )
 			active = true;
 			
 		if ( (services[i].name == "Telnet") && useinetd)
 			active = false;
 		
-		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, active, items[i], CRCInput::convertDigitToKey(shortcut), "");
-		if (active)
-			shortcut++;
+		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, active, items[i], CRCInput::convertDigitToKey(shortcut++), "");
 
 		mc->setHint(services[i].icon, services[i].hint);
 		setup->addItem(mc);
 	}
 
 	int res = setup->exec (NULL, "");
-	selected = setup->getSelected();
+
 	delete setup;
 
 	for(unsigned i = 0; i < SERVICE_COUNT; i++)

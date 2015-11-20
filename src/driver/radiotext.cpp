@@ -82,10 +82,6 @@
 #include <neutrino.h>
 #include <gui/color.h>
 
-extern "C" {
-#include "ringbuffer.h"
-}
-
 #include "radiotext.h"
 #include "radiotools.h"
 

@@ -71,6 +71,7 @@
 
 #include <driver/abstime.h>
 #include <libdvbsub/dvbsub.h>
+#include <OpenThreads/ScopedLock>
 #include <libtuxtxt/teletext.h>
 #include <OpenThreads/ScopedLock>
 
@@ -82,7 +83,7 @@ CBouquetManager *g_bouquetManager = NULL;
 
 //int cam_ci = 2; //  CA_INIT_SC 0 or CA_INIT_CI 1 or CA_INIT_BOTH 2
 cCA *ca = NULL;
-extern cDemux * pmtDemux;
+extern cDemux *pmtDemux;
 extern cVideo *videoDecoder;
 extern cAudio *audioDecoder;
 extern cDemux *audioDemux;
@@ -169,9 +170,10 @@ void CZapit::SaveSettings(bool write)
 			configfile.setInt64("lastChannelRadio", lastChannelRadio);
 			configfile.setInt64("lastChannelTV", lastChannelTV);
 			configfile.setInt64("lastChannel", live_channel_id);
+			configfile.setInt64("lastOTAChannel", last_channel_id);
 		}
 
-		configfile.setBool("writeChannelsNames", config.writeChannelsNames);
+		configfile.setInt32("writeChannelsNames", config.writeChannelsNames);
 		configfile.setBool("makeRemainingChannelsBouquet", config.makeRemainingChannelsBouquet);
 		configfile.setInt32("feTimeout", config.feTimeout);
 
@@ -204,7 +206,7 @@ void CZapit::SaveSettings(bool write)
 		configfile.setInt32("motorRotationSpeed", config.motorRotationSpeed);
 #endif
 		if (configfile.getModifiedFlag())
-			configfile.saveConfig(CONFIGFILE);
+			configfile.saveConfig(ZAPITCONFIGFILE);
 	}
 }
 
@@ -251,6 +253,7 @@ void CZapit::SaveAudioMap()
 
 void CZapit::LoadVolumeMap()
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 	vol_map.clear();
 	FILE *volume_config_file = fopen(VOLUME_CONFIG_FILE, "r");
 	if (!volume_config_file) {
@@ -270,6 +273,7 @@ void CZapit::LoadVolumeMap()
 
 void CZapit::SaveVolumeMap()
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 	FILE *volume_config_file = fopen(VOLUME_CONFIG_FILE, "w");
 	if (!volume_config_file) {
 		perror(VOLUME_CONFIG_FILE);
@@ -282,14 +286,30 @@ void CZapit::SaveVolumeMap()
 	fclose(volume_config_file);
 }
 
+void CZapit::ClearVolumeMap()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
+	vol_map.clear();
+	unlink(VOLUME_CONFIG_FILE);
+	if (current_channel) {
+		CZapitAudioChannel *currentAudioChannel = current_channel->getAudioChannel();
+		if (currentAudioChannel && currentAudioChannel->audioChannelType == CZapitAudioChannel::AC3) {
+			SetVolumePercent(volume_percent_ac3);
+			return;
+		}
+	}
+	SetVolumePercent(volume_percent_pcm);
+}
+
 void CZapit::LoadSettings()
 {
-	if (!configfile.loadConfig(CONFIGFILE))
-		WARN("%s not found", CONFIGFILE);
+	if (!configfile.loadConfig(ZAPITCONFIGFILE))
+		WARN("%s not found", ZAPITCONFIGFILE);
 
 	live_channel_id				= configfile.getInt64("lastChannel", 0);
 	lastChannelRadio			= configfile.getInt64("lastChannelRadio", 0);
 	lastChannelTV				= configfile.getInt64("lastChannelTV", 0);
+	last_channel_id				= configfile.getInt64("lastOTAChannel", 0);
 
 #if 0 //unused
 	config.fastZap				= configfile.getBool("fastZap", 1);
@@ -297,6 +317,7 @@ void CZapit::LoadSettings()
 	voltageOff				= configfile.getBool("voltageOff", 0);
 #endif
 	config.saveLastChannel			= configfile.getBool("saveLastChannel", true);
+	config.writeChannelsNames		= configfile.getInt32("writeChannelsNames", CBouquetManager::BWN_EVER );
 	/* FIXME Channels renum should be done for all channels atm. TODO*/
 	//config.makeRemainingChannelsBouquet	= configfile.getBool("makeRemainingChannelsBouquet", 1);
 	config.makeRemainingChannelsBouquet	= 1;
@@ -485,6 +506,19 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
+	if (IS_WEBTV(newchannel->getChannelID()) && !newchannel->getUrl().empty()) {
+		if (!IS_WEBTV(live_channel_id))
+			CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
+
+		live_channel_id = newchannel->getChannelID();
+		lock_channel_id = live_channel_id;
+
+		current_channel = newchannel;
+		lastChannelTV = channel_id;
+		SendEvent(CZapitClient::EVT_WEBTV_ZAP_COMPLETE, &live_channel_id, sizeof(t_channel_id));
+		return true;
+	}
+
 #ifdef ENABLE_PIP
 	/* executed async if zap NOWAIT, race possible with record lock/allocate */
 	CFEManager::getInstance()->Lock();
@@ -528,6 +562,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	live_channel_id = current_channel->getChannelID();
 	lock_channel_id = live_channel_id;
+	last_channel_id = live_channel_id;
 	SaveSettings(false);
 
 	if(!TuneChannel(live_fe, newchannel, transponder_change)) {
@@ -543,7 +578,8 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 #endif
 
 #ifdef BOXMODEL_APOLLO
-	cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)live_fe->getNumber());
+	if (CCamManager::getInstance()->GetCITuner() < 0)
+		cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)live_fe->getNumber());
 #endif
 
 	if (current_channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {
@@ -645,6 +681,9 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 	if (pipDemux && (pipDemux->getUnit() != dnum)) {
 		pipDecoder->SetDemux(NULL);
 		delete pipDemux;
+		pipDemux = NULL;
+	}
+	if (!pipDemux) {
 		pipDemux = new cDemux(dnum);
 		pipDemux->Open(DMX_PIP_CHANNEL);
 		pipDecoder->SetDemux(pipDemux);
@@ -715,18 +754,20 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 	/* no need to lock fe in standby mode,
 	   epg scan should care to not call this if recording running */
 	if (!instandby) {
-		CFEManager::getInstance()->lockFrontend(live_fe);
+		if (!IS_WEBTV(live_channel_id))
+			CFEManager::getInstance()->lockFrontend(live_fe);
 #ifdef ENABLE_PIP
-		if (pip_fe && pip_fe != live_fe)
+		if (pip_fe /* && pip_fe != live_fe */)
 			CFEManager::getInstance()->lockFrontend(pip_fe);
 #endif
 	}
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
 
 	if (!instandby) {
-		CFEManager::getInstance()->unlockFrontend(live_fe);
+		if (!IS_WEBTV(live_channel_id))
+			CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
-		if (pip_fe && pip_fe != live_fe)
+		if (pip_fe /* && pip_fe != live_fe */)
 			CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
 	}
@@ -759,7 +800,7 @@ void CZapit::SetPidVolume(t_channel_id channel_id, int pid, int percent)
 
 	if (!pid && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
-
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 INFO("############################### channel %" PRIx64 " pid %x map size %d percent %d", channel_id, pid, (int)vol_map.size(), percent);
 	volume_map_range_t pids = vol_map.equal_range(channel_id);
 	for (volume_map_iterator_t it = pids.first; it != pids.second; ++it) {
@@ -782,6 +823,7 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 	if (!pid && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
 
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 	volume_map_range_t pids = vol_map.equal_range(channel_id);
 	for (volume_map_iterator_t it = pids.first; it != pids.second; ++it) {
 		if (it->second.first == pid) {
@@ -790,12 +832,12 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 		}
 	}
 	if (percent < 0) {
-		percent = ac3 ? VOLUME_PERCENT_AC3 : VOLUME_PERCENT_PCM;
+		percent = ac3 ? volume_percent_ac3 : volume_percent_pcm;
 		if ((channel_id == live_channel_id) && current_channel) {
 			for (int  i = 0; i < current_channel->getAudioChannelCount(); i++) {
 				if (pid == current_channel->getAudioPid(i)) {
 					percent = current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3 ?
-						VOLUME_PERCENT_AC3 : VOLUME_PERCENT_PCM;
+						volume_percent_ac3 : volume_percent_pcm;
 					break;
 				}
 			}
@@ -828,6 +870,12 @@ int CZapit::SetVolumePercent(int percent)
 		SetVolume(current_volume);
 	}
 	return ret;
+}
+
+void CZapit::SetVolumePercent(int default_ac3, int default_pcm)
+{
+	volume_percent_ac3 = default_ac3;
+	volume_percent_pcm = default_pcm;
 }
 
 void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioChannelType)
@@ -1006,6 +1054,40 @@ void CZapit::SendCmdReady(int connfd)
 	CBasicServer::send_data(connfd, &response, sizeof(response));
 }
 
+void CZapit::lockPlayBack(const bool sendpmt)
+{
+	/* hack. if standby true, dont blank video */
+	standby = true;
+	StopPlayBack(sendpmt);
+	standby = false;
+	playbackStopForced = true;
+	lock_channel_id = live_channel_id;
+}
+
+void CZapit::unlockPlayBack(const bool /*sendpmt*/)
+{
+	playbackStopForced = false;
+	if (lock_channel_id == live_channel_id) {
+		StartPlayBack(current_channel);
+		SendPMT();
+	} else {
+		live_fe->setTsidOnid(0);
+		if (!ZapIt(lock_channel_id))
+			SendEvent(CZapitClient::EVT_ZAP_FAILED, &lock_channel_id, sizeof(lock_channel_id));
+		lock_channel_id = 0;
+	}
+}
+
+void CZapit::Rezap(void)
+{
+	if (currentMode & RECORD_MODE)
+		return;
+	if(config.rezapTimeout > 0)
+		sleep(config.rezapTimeout);
+	if(current_channel)
+		ZapIt(current_channel->getChannelID());
+}
+
 bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 {
 	DBG("cmd %d (version %d) received\n", rmsg.cmd, rmsg.version);
@@ -1147,7 +1229,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		}
 		if(!msgCurrentServiceInfo.fec)
 			msgCurrentServiceInfo.fec = (fe_code_rate)3;
-		if (live_fe->getInfo()->type == FE_QPSK)
+		if (CFrontend::isSat(live_fe->getCurrentDeliverySystem()))
 			msgCurrentServiceInfo.polarisation = live_fe->getPolarization();
 		else
 			msgCurrentServiceInfo.polarisation = 2;
@@ -1157,21 +1239,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_DELIVERY_SYSTEM: {
 		CZapitMessages::responseDeliverySystem response;
-		switch (live_fe->getInfo()->type) {
-		case FE_QAM:
-			response.system = DVB_C;
-			break;
-		case FE_QPSK:
-			response.system = DVB_S;
-			break;
-		case FE_OFDM:
-			response.system = DVB_T;
-			break;
-		default:
-			WARN("Unknown type %d", live_fe->getInfo()->type);
-			return false;
-
-		}
+		response.system = live_fe->getCurrentDeliverySystem();
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
 	}
@@ -1296,37 +1364,38 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 #endif
 	case CZapitMessages::CMD_REZAP:
+#if 0
 		if (currentMode & RECORD_MODE)
 			break;
 		if(config.rezapTimeout > 0)
 			sleep(config.rezapTimeout);
 		if(current_channel)
 			ZapIt(current_channel->getChannelID());
+#endif
+		Rezap();
 		break;
         case CZapitMessages::CMD_TUNE_TP: {
 			CBasicServer::receive_data(connfd, &TP, sizeof(TP));
 			sig_delay = 0;
-			TP.feparams.dvb_feparams.inversion = INVERSION_AUTO;
+			TP.feparams.inversion = INVERSION_AUTO;
 			const char *name = scanProviders.empty() ? "unknown" : scanProviders.begin()->second.c_str();
 
-			switch (live_fe->getInfo()->type) {
-			case FE_QPSK:
-			case FE_OFDM: {
+			if (CFrontend::isSat(TP.feparams.delsys)) {
 				//FIXME check scanProviders.size() !
 				t_satellite_position satellitePosition = scanProviders.begin()->first;
-				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.dvb_feparams.frequency, TP.feparams.dvb_feparams.u.qpsk.symbol_rate, TP.feparams.dvb_feparams.u.qpsk.fec_inner, TP.polarization);
-				live_fe->setInput(satellitePosition, TP.feparams.dvb_feparams.frequency,  TP.polarization);
+				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner, TP.feparams.polarization);
+				live_fe->setInput(satellitePosition, TP.feparams.frequency,  TP.feparams.polarization);
 				live_fe->driveToSatellitePosition(satellitePosition);
-				break;
-			}
-			case FE_QAM:
-				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.dvb_feparams.frequency, TP.feparams.dvb_feparams.u.qam.symbol_rate, TP.feparams.dvb_feparams.u.qam.fec_inner);
-				break;
-			default:
-				WARN("Unknown type %d", live_fe->getInfo()->type);
+			} else if (CFrontend::isCable(TP.feparams.delsys)) {
+				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner);
+			} else if (CFrontend::isTerr(TP.feparams.delsys)) {
+				printf("[zapit] tune to terr %s freq %d bw %d fec %d\n", name, TP.feparams.frequency, TP.feparams.bandwidth, TP.feparams.modulation);
+			} else {
+				WARN("Unknown type %d", TP.feparams.delsys);
 				return false;
 			}
-			live_fe->tuneFrequency(&TP.feparams, TP.polarization, true);
+
+			live_fe->tuneFrequency(&TP.feparams, true);
 		}
 		break;
         case CZapitMessages::CMD_SCAN_TP: {
@@ -1544,8 +1613,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_BQ_SET_LOCKSTATE: {
 		CZapitMessages::commandBouquetState msgBouquetLockState;
 		CBasicServer::receive_data(connfd, &msgBouquetLockState, sizeof(msgBouquetLockState)); // bouquet & channel number are already starting at 0!
-		if (msgBouquetLockState.bouquet < g_bouquetManager->Bouquets.size())
-			g_bouquetManager->Bouquets[msgBouquetLockState.bouquet]->bLocked = msgBouquetLockState.state;
+		g_bouquetManager->setBouquetLock(msgBouquetLockState.bouquet, msgBouquetLockState.state);
 		break;
 	}
 
@@ -1617,15 +1685,19 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 #endif
 
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
+#if 0
 		/* hack. if standby true, dont blank video */
 		standby = true;
 		StopPlayBack(true);
 		standby = false;
 		playbackStopForced = true;
 		lock_channel_id = live_channel_id;
+#endif
+		lockPlayBack();
 		SendCmdReady(connfd);
 		break;
 	case CZapitMessages::CMD_SB_UNLOCK_PLAYBACK:
+#if 0
 		playbackStopForced = false;
 		if (lock_channel_id == live_channel_id) {
 			StartPlayBack(current_channel);
@@ -1636,7 +1708,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 				SendEvent(CZapitClient::EVT_ZAP_FAILED, &lock_channel_id, sizeof(lock_channel_id));
 			lock_channel_id = 0;
 		}
-
+#endif
+		unlockPlayBack();
 		SendCmdReady(connfd);
 		break;
 #if 0 
@@ -1760,7 +1833,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 					satellitePosition,
 					0
 					);
-			channel->deltype = live_fe->getType();
+
+			channel->delsys = live_fe->getCurrentDeliverySystem();
 			CServiceManager::getInstance()->AddNVODChannel(channel);
 		}
 
@@ -2022,82 +2096,76 @@ void CZapit::sendChannels(int connfd, const CZapitClient::channelsMode mode, con
 
 bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 {
-	bool have_pcr = false;
-	bool have_audio = false;
-	bool have_video = false;
-	bool have_teletext = false;
-
 	INFO("standby %d playing %d forced %d", standby, playing, playbackStopForced);
 	if(!thisChannel)
 		thisChannel = current_channel;
 
-	if ((playbackStopForced == true) || (!thisChannel) || playing)
+	if (playbackStopForced || !thisChannel || playing)
 		return false;
 
 	if(standby) {
 		CFEManager::getInstance()->Open();
 		return true;
 	}
+#if 0
+	if (IS_WEBTV(thisChannel->getChannelID())) {
+		INFO("WEBTV channel\n");
+		SendEvent(CZapitClient::EVT_WEBTV_ZAP_COMPLETE, &live_channel_id, sizeof(t_channel_id));
+		return true;
+	}
+#endif
+	unsigned short pcr_pid = thisChannel->getPcrPid();
+	unsigned short audio_pid = thisChannel->getAudioPid();
+	unsigned short video_pid = (currentMode & TV_MODE) ? thisChannel->getVideoPid() : 0;
+	unsigned short teletext_pid = thisChannel->getTeletextPid();
+	printf("[zapit] vpid %X apid %X pcr %X\n", video_pid, audio_pid, pcr_pid);
 
-	printf("[zapit] vpid %X apid %X pcr %X\n", thisChannel->getVideoPid(), thisChannel->getAudioPid(), thisChannel->getPcrPid());
-	if (thisChannel->getPcrPid() != 0)
-		have_pcr = true;
-	if (thisChannel->getAudioPid() != 0)
-		have_audio = true;
-	if ((thisChannel->getVideoPid() != 0) && (currentMode & TV_MODE))
-		have_video = true;
-	if (thisChannel->getTeletextPid() != 0)
-		have_teletext = true;
-
-	if ((!have_audio) && (!have_video) && (!have_teletext))
+	if (!audio_pid && !video_pid && !teletext_pid)
 		return false;
 #if 1
-	if(have_video && (thisChannel->getPcrPid() == 0x1FFF)) { //FIXME
-		thisChannel->setPcrPid(thisChannel->getVideoPid());
-		have_pcr = true;
+	if(video_pid && (pcr_pid == 0x1FFF)) { //FIXME
+		thisChannel->setPcrPid(video_pid);
+		pcr_pid = video_pid;
 	}
 #endif
 	/* set demux filters */
 	videoDecoder->SetStreamType((VIDEO_FORMAT)thisChannel->type);
 //	videoDecoder->SetSync(VIDEO_PLAY_MOTION);
 
-	if (have_pcr) {
-		pcrDemux->pesFilter(thisChannel->getPcrPid());
-	}
-	if (have_audio) {
-		audioDemux->pesFilter(thisChannel->getAudioPid());
-	}
-	if (have_video) {
-		videoDemux->pesFilter(thisChannel->getVideoPid());
-	}
+	if (pcr_pid)
+		pcrDemux->pesFilter(pcr_pid);
+	if (audio_pid)
+		audioDemux->pesFilter(audio_pid);
+	if (video_pid)
+		videoDemux->pesFilter(video_pid);
 //	audioDecoder->SetSyncMode(AVSYNC_ENABLED);
 
 #if 0 //FIXME hack ?
 	if(thisChannel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
 		audioDecoder->SetSyncMode(AVSYNC_AUDIO_IS_MASTER);
-		have_pcr = false;
+		pcr_pid = false;
 	}
 #endif
-	if (have_pcr) {
-		printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
+	if (pcr_pid) {
+		//printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
 		pcrDemux->Start();
 	}
 
 	/* select audio output and start audio */
-	if (have_audio) {
+	if (audio_pid) {
 		SetAudioStreamType(thisChannel->getAudioChannel()->audioChannelType);
 		audioDemux->Start();
 		audioDecoder->Start();
 	}
 
 	/* start video */
-	if (have_video) {
-		videoDecoder->Start(0, thisChannel->getPcrPid(), thisChannel->getVideoPid());
+	if (video_pid) {
+		videoDecoder->Start(0, pcr_pid, video_pid);
 		videoDemux->Start();
 	}
 #ifdef USE_VBI
-	if(have_teletext)
-		videoDecoder->StartVBI(thisChannel->getTeletextPid());
+	if(teletext_pid)
+		videoDecoder->StartVBI(teletext_pid);
 #endif
 	playing = true;
 
@@ -2106,10 +2174,16 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 
 bool CZapit::StopPlayBack(bool send_pmt)
 {
+	INFO("standby %d playing %d forced %d send_pmt %d", standby, playing, playbackStopForced, send_pmt);
 	if(send_pmt)
 		CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
 
-	INFO("standby %d playing %d forced %d", standby, playing, playbackStopForced);
+#if 0
+	if (current_channel && IS_WEBTV(current_channel->getChannelID())) {
+		playing = false;
+		return true;
+	}
+#endif
 
 	if (!playing)
 		return true;
@@ -2173,9 +2247,17 @@ void CZapit::leaveStandby(void)
 		CFEManager::getInstance()->Open();
 	}
 	standby = false;
-	if (current_channel)
+	if (current_channel) {
 		/* tune channel, with stopped playback to not bypass the parental PIN check */
 		ZapIt(live_channel_id, false, false);
+		if (IS_WEBTV(live_channel_id)) {
+			CZapitChannel* newchannel = CServiceManager::getInstance()->FindChannel(last_channel_id);
+			CFrontend * fe = newchannel ? CFEManager::getInstance()->allocateFE(newchannel) : NULL;
+			bool transponder_change;
+			if (fe)
+				TuneChannel(fe, newchannel, transponder_change, false);
+		}
+	}
 }
 
 unsigned CZapit::ZapTo(const unsigned int bouquet, const unsigned int pchannel)
@@ -2233,8 +2315,7 @@ unsigned CZapit::ZapTo(const unsigned int pchannel)
 	CBouquetManager::ChannelIterator cit = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).FindChannelNr(pchannel);
 	if (!(cit.EndOfChannels()))
 		return ZapTo((*cit)->getChannelID(), false);
-	else
-		return 0;
+	return 0;
 }
 
 bool CZapit::Start(Z_start_arg *ZapStart_arg)
@@ -2245,12 +2326,11 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	CFEManager::getInstance()->Init();
 	live_fe = CFEManager::getInstance()->getFE(0);
 
-	if (live_fe == NULL) /* no frontend found? */
-		return false;
-
 	/* load configuration or set defaults if no configuration file exists */
 	video_mode = ZapStart_arg->video_mode;
 	current_volume = ZapStart_arg->volume;
+
+	webtv_xml = ZapStart_arg->webtv_xml;
 
 	videoDemux = new cDemux();
 	videoDemux->Open(DMX_VIDEO_CHANNEL);
@@ -2264,8 +2344,6 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 #ifdef ENABLE_PIP
 	/* FIXME until proper demux management */
 	int dnum = 1;
-	if (CFEManager::getInstance()->getFrontendCount() < MAX_DMX_UNITS)
-		dnum = PIP_DEMUX;
 #endif
 #ifdef BOXMODEL_APOLLO
 	videoDecoder = cVideo::GetDecoder(0);
@@ -2299,13 +2377,16 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
-	/* set initial volume with 100% */
+	volume_percent_ac3 = 100;
+	volume_percent_pcm = 100;
 	SetVolumePercent(100);
 #ifdef USE_VBI
 	videoDecoder->OpenVBI(1);
 #endif
 	ca = cCA::GetInstance();
 
+	if (live_fe == NULL) /* no frontend found? */
+		return false;
 	//LoadSettings();
 	//LoadAudioMap();
 

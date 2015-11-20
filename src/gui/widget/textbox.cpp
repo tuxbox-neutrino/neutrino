@@ -56,7 +56,7 @@
 #endif
 
 #include <global.h>
-
+#include <system/debug.h>
 #include "textbox.h"
 #include <gui/widget/icons.h>
 
@@ -73,7 +73,7 @@
 CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 		   const CBox* position, CFBWindow::color_t textBackgroundColor)
 {
-	//TRACE("[CTextBox] new\r\n");
+	//TRACE("[CTextBox] new %d\n", __LINE__);
 	initVar();
 
 	if(text != NULL)
@@ -109,7 +109,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 
 CTextBox::CTextBox(const char * text)
 {
-	//TRACE("[CTextBox] new\r\n");
+	//TRACE("[CTextBox] new %d\r", __LINE__);
 	initVar();
 
 	if(text != NULL)
@@ -123,7 +123,7 @@ CTextBox::CTextBox(const char * text)
 
 CTextBox::CTextBox()
 {
-	//TRACE("[CTextBox] new\r\n");
+	//TRACE("[CTextBox] new %d\n", __LINE__);
 	initVar();
 
 	//Initialise the window frames first and than refresh text line array
@@ -134,7 +134,7 @@ CTextBox::~CTextBox()
 {
 	//TRACE("[CTextBox] del\r\n");
 	m_cLineArray.clear();
-	hide();
+	//hide();
 	delete[] m_bgpixbuf;
 }
 
@@ -146,7 +146,6 @@ void CTextBox::initVar(void)
 
 	m_showTextFrame = 0;
 	m_nNrOfNewLine = 0;
-	m_nMaxLineWidth = 0;
 
 	m_cText	= "";
 	m_nMode = m_old_nMode 	= SCROLL;
@@ -180,11 +179,14 @@ void CTextBox::initVar(void)
 	m_textColor		= COL_MENUCONTENT_TEXT;
 	m_old_textColor 	= 0;
 	m_nPaintBackground 	= true;
+	m_SaveScreen		= false;
 	m_nBgRadius		= m_old_nBgRadius = 0;
 	m_nBgRadiusType 	= m_old_nBgRadiusType = CORNER_ALL;
 
 	m_cLineArray.clear();
 
+	m_renderMode		= 0;
+	m_utf8_encoded		= true;
 // 	max_width 		= 0;
 }
 
@@ -395,7 +397,7 @@ void CTextBox::refreshTextLineArray(void)
 			aktWord = m_cText.substr(pos_prev, pos - pos_prev + 1);
 
 			//calculate length of current found word
-			aktWordWidth = m_pcFontText->getRenderWidth(aktWord, true);
+			aktWordWidth = m_pcFontText->getRenderWidth(aktWord, m_utf8_encoded);
 
 			//set next start pos
 			pos_prev = pos + 1;
@@ -551,28 +553,36 @@ void CTextBox::refreshText(void)
 
 	//bg variables
 	int ax = m_cFrameTextRel.iX+m_cFrame.iX;
-	int ay = /*m_cFrameTextRel.iY+*/m_cFrame.iY;
+	int ay = m_cFrameTextRel.iY+m_cFrame.iY;
 	int dx = m_cFrameTextRel.iWidth;
 	int dy = m_cFrameTextRel.iHeight;
 	
 	//find changes
 	bool has_changed = hasChanged(&ax, &ay, &dx, &dy);
-	
+
 	//destroy pixel buffer on changed property values
 	if (has_changed){
 		if (m_bgpixbuf){
-			//TRACE("[CTextBox] %s destroy ol pixel buffer, has changes%d\r\n", __FUNCTION__, __LINE__);
+			//TRACE("[CTextBox] %s destroy ol pixel buffer, has changes %d\r\n", __FUNCTION__, __LINE__);
 			delete[] m_bgpixbuf;
 			m_bgpixbuf = NULL;
 		}
 	}
 
+	//detect corrupt position values
+	if ((ax<=0) || (ay<=0)){
+		dprintf(DEBUG_NORMAL, "\033[33m[CTextBox] [%s - %d] ERROR! position out of range: ax = %d, ay = %d, dx = %d, dy = %d\033[0m\n", __func__, __LINE__, ax, ay, dx, dy);
+		return;
+	}
+
 	//save screen only if no paint of background required
-	if (!m_nPaintBackground){
+	if (!m_nPaintBackground && m_SaveScreen) {
 		if (m_bgpixbuf == NULL){
 			//TRACE("[CTextBox] %s save bg %d\r\n", __FUNCTION__, __LINE__);
-			m_bgpixbuf= new fb_pixel_t[dx * dy];
-			frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
+			if ((dx * dy) >0){
+				m_bgpixbuf= new fb_pixel_t[dx * dy];
+				frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
+			}
 		}
 	}
 
@@ -612,34 +622,37 @@ void CTextBox::refreshText(void)
 	int i;
 	int x_center = 0;
 
+	int lines = std::min(m_nLinesPerPage, m_nNrOfLines);
+
 	// set text y position
 	if (m_nMode & TOP)
 		// move to top of frame
 		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * m_nLinesPerPage) >> 1);
 	else if (m_nMode & BOTTOM)
 		// move to bottom of frame
-		y += m_cFrameTextRel.iHeight - (m_nNrOfLines > 1 ? (m_nNrOfLines-1)*m_nFontTextHeight : 0) - text_Vborder_width;
+		y += m_cFrameTextRel.iHeight - (lines > 1 ? (lines - 1)*m_nFontTextHeight : 0) - text_Vborder_width;
 		//m_nFontTextHeight + text_Vborder_width /*- ((m_cFrameTextRel.iHeight + m_nFontTextHeight*/ * m_nLinesPerPage/*) >> 1)*/;
 	else
 		// fit into mid of frame space
-		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * std::min(m_nLinesPerPage, m_nNrOfLines)) >> 1);
+		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * lines) >> 1);
 
 	for(i = m_nCurrentLine; i < m_nNrOfLines && i < m_nCurrentLine + m_nLinesPerPage; i++)
 	{
 		//calculate centered xpos
 		if( m_nMode & CENTER ){
-			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true))>>1) - text_Hborder_width;
+			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], m_utf8_encoded))>>1) - text_Hborder_width;
 		}
 		else if ( m_nMode & RIGHT ){
-			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true)) - text_Hborder_width*2);
+			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], m_utf8_encoded)) - text_Hborder_width*2);
 			if ( m_nMode & SCROLL )
 				x_center -= SCROLL_FRAME_WIDTH;
 		}
+		x_center = std::max(x_center, 0);
 
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
 		m_pcFontText->RenderString(m_cFrame.iX + m_cFrameTextRel.iX + text_Hborder_width + x_center,
 					y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
-					m_textColor, 0, true); // UTF-8
+					m_textColor, 0, m_renderMode | (m_utf8_encoded) ? Font::IS_UTF8 : 0);
 		m_old_cText = m_cText;
 		y += m_nFontTextHeight;
 	}

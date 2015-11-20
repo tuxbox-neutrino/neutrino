@@ -35,7 +35,7 @@
 #define __update__
 
 #include <gui/widget/menue.h>
-#include <gui/widget/progressstatus.h>
+
 #include <gui/widget/progresswindow.h>
 
 #include <driver/framebuffer.h>
@@ -53,8 +53,8 @@ class CFlashUpdate : public CProgressWindow
 	std::string sysfs;
 	char	fileType;
 	int 	width;
+	bool	notify;
 	
-	std::string installedVersion;
 	std::string newVersion;
 	int	menu_ret;
 	int softupdate_mode;
@@ -66,6 +66,8 @@ class CFlashUpdate : public CProgressWindow
  public:
 	CFlashUpdate();
 	int exec( CMenuTarget* parent, const std::string & actionKey );
+	bool checkOnlineVersion();
+	void enableNotify(bool enable) { notify = enable; }
 
 };
 
@@ -81,7 +83,7 @@ class CFlashExpert : public CProgressWindow
 		bool checkSize(int mtd, std::string &backupFile);
 #ifdef BOXMODEL_APOLLO
 		bool readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_devtable_t &v_devtable);
-		void readmtdJFFS2(std::string &filename);
+		void readmtdJFFS2(std::string &filename, std::string title="", std::string path="/", bool makeDevTable=true);
 #endif
 
 	public:

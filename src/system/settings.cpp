@@ -53,6 +53,7 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_settings"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_service"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_sleeptimer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_standby"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_reboot"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_shutdown"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_infomenu_main"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
@@ -116,24 +117,15 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 CScanSettings::CScanSettings(void)
 	: configfile('\t')
 {
-	delivery_system = DVB_S;
 	bouquetMode     = CZapitClient::BM_UPDATEBOUQUETS;
 	scanType = CServiceScan::SCAN_TVRADIO;
 	satName = "none";
 	cableName ="none";
 }
 
-bool CScanSettings::loadSettings(const char * const fileName, const delivery_system_t dsys)
+bool CScanSettings::loadSettings(const char * const fileName)
 {
 	bool ret = configfile.loadConfig(fileName);
-
-	if (configfile.getInt32("delivery_system", -1) != dsys)
-	{
-		// configfile is not for this delivery system
-		configfile.clear();
-		ret = false;
-	}
-	delivery_system = dsys;
 
 	bouquetMode = (CZapitClient::bouquetMode) configfile.getInt32("bouquetMode" , bouquetMode);
 	scanType = (CZapitClient::scanType) configfile.getInt32("scanType", scanType);
@@ -149,19 +141,38 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	satName     = configfile.getString("satName", satName);
 	sat_TP_fec  = configfile.getInt32("sat_TP_fec", 1);
 	sat_TP_pol  = configfile.getInt32("sat_TP_pol", 0);
-	sat_TP_freq = configfile.getString("sat_TP_freq", "10100000");
+	sat_TP_freq = configfile.getString("sat_TP_freq", "10700000");
 	sat_TP_rate = configfile.getString("sat_TP_rate", "27500000");
+	sat_TP_mod = configfile.getInt32("sat_TP_mod", QPSK);
+	sat_TP_delsys = configfile.getInt32("sat_TP_delsys", DVB_S);
+	sat_TP_pilot = configfile.getInt32("sat_TP_pilot", ZPILOT_AUTO_SW);
 
 	cableName     = configfile.getString("cableName", cableName);
-	cable_TP_mod  = configfile.getInt32("cable_TP_mod", 3);
+	cable_TP_mod  = configfile.getInt32("cable_TP_mod", QAM_64);
 	cable_TP_fec  = configfile.getInt32("cable_TP_fec", 1);
 	cable_TP_freq = configfile.getString("cable_TP_freq", "369000");
 	cable_TP_rate = configfile.getString("cable_TP_rate", "6875000");
+	cable_TP_delsys = configfile.getInt32("cable_TP_delsys", DVB_C);
+
+	terrestrialName			= configfile.getString("terrestrialName", terrestrialName);
+	terrestrial_TP_constel		= configfile.getInt32("terrestrial_TP_constel", QAM_AUTO);
+	terrestrial_TP_bw		= configfile.getInt32("terrestrial_TP_bw", BANDWIDTH_AUTO);
+	terrestrial_TP_coderate_HP	= configfile.getInt32("terrestrial_TP_coderate_HP", FEC_AUTO);
+	terrestrial_TP_coderate_LP	= configfile.getInt32("terrestrial_TP_coderate_LP", FEC_AUTO);
+	terrestrial_TP_freq		= configfile.getString("terrestrial_TP_freq", "369000");
+	terrestrial_TP_guard		= configfile.getInt32("terrestrial_TP_guard", GUARD_INTERVAL_AUTO);
+	terrestrial_TP_hierarchy	= configfile.getInt32("terrestrial_TP_hierarchy", HIERARCHY_AUTO);
+	terrestrial_TP_transmit_mode	= configfile.getInt32("terrestrial_TP_transmit_mode", TRANSMISSION_MODE_AUTO);
+	terrestrial_TP_delsys		= configfile.getInt32("terrestrial_TP_delsys", DVB_T);
+
 #if 1
 	if(sat_TP_fec == 4) sat_TP_fec = 5;
 #endif
+
 	fast_type = configfile.getInt32("fast_type", 2);
 	fast_op = configfile.getInt32("fast_op", 0);
+	fst_version = configfile.getInt32("fst_version", 0);
+	fst_update = configfile.getInt32("fst_update", 0);
 	cable_nid = configfile.getInt32("cable_nid", 0);
 
 	return ret;
@@ -169,7 +180,6 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 
 bool CScanSettings::saveSettings(const char * const fileName)
 {
-	configfile.setInt32("delivery_system", delivery_system);
 	configfile.setInt32("bouquetMode", bouquetMode);
 	configfile.setInt32("scanType", scanType);
 
@@ -182,6 +192,8 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("scan_logical_hd", scan_logical_hd);
 	configfile.setInt32("fast_type", fast_type);
 	configfile.setInt32("fast_op", fast_op);
+	configfile.setInt32("fst_version", fst_version);
+	configfile.setInt32("fst_update", fst_update);
 	configfile.setInt32("cable_nid", cable_nid);
 
 	configfile.setString("satName", satName);
@@ -189,12 +201,27 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("sat_TP_pol", sat_TP_pol);
 	configfile.setString("sat_TP_freq", sat_TP_freq);
 	configfile.setString("sat_TP_rate", sat_TP_rate);
+	configfile.setInt32("sat_TP_delsys", sat_TP_delsys);
+	configfile.setInt32("sat_TP_mod", sat_TP_mod);
+	configfile.setInt32("sat_TP_pilot", sat_TP_pilot);
 
 	configfile.setString("cableName", cableName);
 	configfile.setInt32("cable_TP_fec", cable_TP_fec);
 	configfile.setInt32("cable_TP_mod", cable_TP_mod);
 	configfile.setString("cable_TP_freq", cable_TP_freq);
 	configfile.setString("cable_TP_rate", cable_TP_rate);
+	configfile.setInt32("cable_TP_delsys", cable_TP_delsys);
+
+	configfile.setString("terrestrialName", terrestrialName);
+	configfile.setInt32("terrestrial_TP_constel", terrestrial_TP_constel);
+	configfile.setInt32("terrestrial_TP_bw", terrestrial_TP_bw);
+	configfile.setInt32("terrestrial_TP_coderate_HP", terrestrial_TP_coderate_HP);
+	configfile.setInt32("terrestrial_TP_coderate_LP", terrestrial_TP_coderate_LP);
+	configfile.setString("terrestrial_TP_freq", terrestrial_TP_freq);
+	configfile.setInt32("terrestrial_TP_hierarchy", terrestrial_TP_hierarchy);
+	configfile.setInt32("terrestrial_TP_guard", terrestrial_TP_guard);
+	configfile.setInt32("terrestrial_TP_transmit_mode", terrestrial_TP_transmit_mode);
+	configfile.setInt32("terrestrial_TP_delsys", terrestrial_TP_delsys);
 
 	if(configfile.getModifiedFlag())
 		configfile.saveConfig(fileName);

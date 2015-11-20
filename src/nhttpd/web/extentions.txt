@@ -1,2 +1,1 @@
-type:u,site:yjogol,desc:yjogol updates,url:http://www.yjogol.com/download/Y_extensions.txt
-
+type:u,site:CST-git,desc:yWeb extentions,url:http://git.coolstreamtech.de/?p=cst-public-gui-yweb.git;a=blob_plain;hb=refs/heads/master;f=Y_Extentions.txt

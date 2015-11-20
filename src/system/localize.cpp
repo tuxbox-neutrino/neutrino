@@ -34,6 +34,7 @@
 #include <config.h>
 #endif
 
+#include <global.h>
 #include <system/localize.h>
 #include <system/locals_intern.h>
 
@@ -108,7 +109,7 @@ CLocaleManager::~CLocaleManager()
 		::free(defaultDataMem);
 }
 
-const char * path[2] = { CONFIGDIR "/locale/", DATADIR "/neutrino/locale/"};
+const char * path[2] = { LOCALEDIR_VAR, LOCALEDIR };
 
 CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const locale, bool asdefault)
 {
@@ -130,6 +131,7 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 	for (unsigned int i = 0; i < 2; i++)
 	{
 		std::string filename = path[i];
+		filename += "/";
 		filename += locale;
 		filename += ".locale";
 		::stat(filename.c_str(), &st);

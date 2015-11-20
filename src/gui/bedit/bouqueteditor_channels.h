@@ -49,7 +49,7 @@ class CBEChannelWidget : public CMenuTarget
 		CFrameBuffer	*frameBuffer;
 		CComponentsDetailLine *dline;
 		CComponentsInfoBox *ibox;
-		
+		CComponentsFooter footer;
 		enum state_
 		{
 			beDefault,
@@ -94,12 +94,17 @@ class CBEChannelWidget : public CMenuTarget
 
 		void deleteChannel();
 		void addChannel();
+		void switchLockChannel();
+		void renameChannel();
 		void beginMoveChannel();
 		void finishMoveChannel();
 		void cancelMoveChannel();
+		void moveChannelToBouquet();
 		void internalMoveChannel( unsigned int fromPosition, unsigned int toPosition);
 
 		std::string getInfoText(int index);
+		std::string inputName(const char * const defaultName, const neutrino_locale_t caption);
+
 	public:
 		CBEChannelWidget( const std::string & Caption, unsigned int Bouquet);
 		~CBEChannelWidget();

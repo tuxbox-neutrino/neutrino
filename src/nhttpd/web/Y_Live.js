@@ -16,6 +16,7 @@ var Mode = "tv";
 var AudioChannel = 0;
 var isSubs=false;
 var g_intervall=null;
+var current_channel = 0;
 /*resize,init*/
 function do_onload(){
 	if(Mode != "tv" && Mode != "radio")
@@ -194,7 +195,11 @@ function do_play_state(_state, _options){
 	if(Mode == "tv" && isUDP)
 		mrl = "udp://@:31330";
 	else
-		mrl = loadSyncURL("/control/build_live_url");
+		if(current_channel)
+			mrl = "http://" + window.location.host + ":31339/id=" + current_channel;
+		else
+			mrl = loadSyncURL("/control/build_live_url");
+	  
 	V2.set_actual_mrl(mrl);
 	V2.play();
 	V2.next();
@@ -236,8 +241,10 @@ function change_channel(){
 	var dd = id('channels');
 	var channel = -1;
 	var sel = dd.selectedIndex;
-	if(sel != -1)
+	if(sel != -1){
 		channel = dd[sel].value;
+		current_channel = channel;
+	}
 	do_stop();
 	AudioChannel = 0;
 	window.setTimeout("change_channel_zapto(\""+channel+"\")",100);
@@ -246,14 +253,16 @@ function change_sub_channel(){
 	var dd = id('subs');
 	var channel = -1;
 	var sel = dd.selectedIndex;
-	if(sel != -1)
+	if(sel != -1){
 		channel = dd[sel].value;
+		current_channel = channel;
+	}
 	do_stop();
 	AudioChannel = 0;
 	window.setTimeout("change_channel_zapto(\""+channel+"\")",100);
 }
 function change_channel_zapto(channel){
-	dbox_zapto(channel);
+	//dbox_zapto(channel);
 	window.setTimeout("change_channel_play()",500);
 }
 function build_subchannels(){
@@ -320,7 +329,7 @@ function doChangeAudioPid(){
 	window.setTimeout("change_channel_play()",100);
 }
 function build_audio_pid_list(){
-	var audio_pids_url = "/y/cgi?execute=func:get_audio_pids_as_dropdown";
+	var audio_pids_url = "/y/cgi?execute=func:get_audio_pids_as_dropdown%20channel="+current_channel+":audio="+AudioChannel+":";
 	var audio_pid_list = loadSyncURL(audio_pids_url);
 	audio_pid_list = "<select size=\"1\" class=\"y_live_audio_pids\" id=\"audiopid\" onChange=\"doChangeAudioPid()\">"
 			+ audio_pid_list

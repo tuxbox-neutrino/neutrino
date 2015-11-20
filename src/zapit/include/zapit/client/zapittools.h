@@ -29,6 +29,7 @@
 namespace ZapitTools
 {
 	std::string UTF8_to_Latin1 (const char *);
+	std::string UTF8_to_Latin1 (const std::string &s);
 	std::string UTF8_to_UTF8XML(const char *);
 	std::string Latin1_to_UTF8 (const char *);
 	std::string Latin1_to_UTF8 (const std::string &s);

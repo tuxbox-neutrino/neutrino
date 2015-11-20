@@ -83,6 +83,7 @@ class CInfoViewerBB
 			int h;
 			std::string icon;
 			std::string text;
+			bool active;
 		} bbButtonInfoStruct;
 
 		typedef struct
@@ -108,12 +109,13 @@ class CInfoViewerBB
 
 		CProgressBar *hddscale, *sysscale;
 
+		void paintFoot(int w = 0);
 		void showBBIcons(const int modus, const std::string & icon);
 		void getBBIconInfo(void);
 		bool checkBBIcon(const char * const icon, int *w, int *h);
 		void showIcon_DD(void);
 
-		void paint_ca_icons(int, char*, int&);
+		void paint_ca_icons(int, const char*, int&);
 		void paintCA_bar(int,int);
 		void showOne_CAIcon();
 		void changePB(void);
@@ -124,13 +126,9 @@ class CInfoViewerBB
 		void showBarSys(int percent = 0);
 		void showBarHdd(int percent = 0);
 
-		int		hddpercent;
-		pthread_t	hddperT;
-		static void*	hddperThread(void *arg);
-		bool		hddperTflag;
+		CInfoViewerBB();
 
 	public:
-		CInfoViewerBB();
 		~CInfoViewerBB();
 		static CInfoViewerBB* getInstance();
 		void Init(void);

@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
+	Copyright (C) 2012-2014 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -29,62 +29,89 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_window.h"
-#include <driver/screen_max.h>
-
+#include <system/debug.h>
 using namespace std;
+
+/*
+	scheme of window object
+
+		+x,y----------------------------------------------------------------+
+		|+-----------------------------------------------------------------+|
+		||header (ccw_head)				 		   ||
+		|+---+-------------------------------------------------------+----+||
+		||left |body (ccw_body)					     |right||
+		||side |						     |side ||
+		||bar  |						     |bar  ||
+		||     |						     |	   ||
+		||     |						     |	   ||
+		||     |						     |	   ||
+		||     |						     |	   ||
+		||     |						     |	   ||
+		||     |						     |	   ||
+		||     |						     |	   ||
+		|+-----+-----------------------------------------------------+-----+|
+		||footer (ccw_footer)						   ||
+		|+-----------------------------------------------------------------+|
+		+-------------------------------------------------------------------+
+*/
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsWindow inherit from CComponentsForm
-CComponentsWindow::CComponentsWindow()
+CComponentsWindow::CComponentsWindow(CComponentsForm *parent)
 {
-	initVarWindow();
+	initVarWindow(0, 0, 800, 600, "", "", parent);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					neutrino_locale_t locale_caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
 	string s_caption = locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "";
-	initVarWindow(x_pos, y_pos, w, h, s_caption, iconname, has_shadow, color_frame, color_body, color_shadow);
+	initVarWindow(x_pos, y_pos, w, h, s_caption, iconname, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	initVarWindow(x_pos, y_pos, w, h, caption, iconname, has_shadow, color_frame, color_body, color_shadow);
+	initVarWindow(x_pos, y_pos, w, h, caption, iconname, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 CComponentsWindowMax::CComponentsWindowMax(	const string& caption,
 						const string& iconname,
+						CComponentsForm *parent,
 						bool has_shadow,
 						fb_pixel_t color_frame,
 						fb_pixel_t color_body,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0, caption,
-						iconname, has_shadow, color_frame, color_body, color_shadow){};
+						iconname, parent, has_shadow, color_frame, color_body, color_shadow){};
 
 CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 						const string& iconname,
+						CComponentsForm *parent,
 						bool has_shadow,
 						fb_pixel_t color_frame,
 						fb_pixel_t color_body,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0,
 						locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "",
-						iconname, has_shadow, color_frame, color_body, color_shadow){};
+						iconname, parent, has_shadow, color_frame, color_body, color_shadow){};
 
 void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
@@ -104,15 +131,17 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 
 	ccw_caption 	= caption;
 	ccw_icon_name	= iconname;
-#ifdef DEBUG_CC
-	printf("[CComponentsWindow]   [%s - %d] icon name = %s\n", __func__, __LINE__, ccw_icon_name.c_str());
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsWindow]   [%s - %d] icon name = %s\n", __func__, __LINE__, ccw_icon_name.c_str());
+
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 
 	ccw_head 	= NULL;
+	ccw_left_sidebar= NULL;
+	ccw_right_sidebar= NULL;	
 	ccw_body	= NULL;
 	ccw_footer	= NULL;
 
@@ -120,8 +149,14 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_show_footer = true;
 	ccw_show_header	= true;
 	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
+	ccw_show_l_sideber = false;
+	ccw_show_r_sideber = false;
+	ccw_w_sidebar	= 40;
+
+	page_scroll_mode = PG_SCROLL_M_OFF; //permanent disabled here, only in body used!
 
 	initCCWItems();
+	initParent(parent);
 }
 
 void CComponentsWindow::initWindowSize()
@@ -146,11 +181,6 @@ void CComponentsWindow::initWindowPos()
 		y = frameBuffer->getScreenY();
 }
 
-void CComponentsWindow::doCenter(){
-	x = cc_parent ? cc_parent->getWidth() - width/2 : getScreenStartX(width);
-	y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
-}
-
 void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
 {
 	ccw_caption = g_Locale->getText(locale_text);
@@ -168,7 +198,7 @@ void CComponentsWindow::initHeader()
 		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode);
-		ccw_head->setDefaultButtons(ccw_buttons);
+		ccw_head->setContextButton(ccw_buttons);
 		ccw_head->setCorner(corner_rad, CORNER_TOP);
 	}
 }
@@ -187,6 +217,46 @@ void CComponentsWindow::initFooter()
 	}
 }
 
+void CComponentsWindow::initLeftSideBar()
+{
+	if (ccw_left_sidebar== NULL)
+		ccw_left_sidebar = new CComponentsFrmChain();
+	//set side bar properties
+	if (ccw_left_sidebar){
+		ccw_left_sidebar->setCornerType(0);
+		int h_footer = 0;
+		int h_header = 0;
+		if (ccw_footer)
+			h_footer = ccw_footer->getHeight();
+		if (ccw_head)
+			h_header = ccw_head->getHeight();
+		int h_sbar = height - h_header - h_footer - 2*fr_thickness;
+		int w_sbar = ccw_w_sidebar;
+		ccw_left_sidebar->setDimensionsAll(0, CC_APPEND, w_sbar, h_sbar);
+		ccw_left_sidebar->doPaintBg(false);
+	}
+}
+
+void CComponentsWindow::initRightSideBar()
+{
+	if (ccw_right_sidebar== NULL)
+		ccw_right_sidebar = new CComponentsFrmChain();
+	//set side bar properties
+	if (ccw_right_sidebar){
+		ccw_right_sidebar->setCornerType(0);
+		int h_footer = 0;
+		int h_header = 0;
+		if (ccw_footer)
+			h_footer = ccw_footer->getHeight();
+		if (ccw_head)
+			h_header = ccw_head->getHeight();
+		int h_sbar = height - h_header - h_footer - 2*fr_thickness;
+		int w_sbar = ccw_w_sidebar;
+		ccw_right_sidebar->setDimensionsAll(width - w_sbar, CC_APPEND, w_sbar, h_sbar);
+		ccw_right_sidebar->doPaintBg(false);
+	}
+}
+
 void CComponentsWindow::initBody()
 {
 	if (ccw_body== NULL)
@@ -195,23 +265,31 @@ void CComponentsWindow::initBody()
 	//set body properties
 	if (ccw_body){
 		ccw_body->setCornerType(0);
-		int fh = 0;
-		int hh = 0;
+		int h_footer = 0;
+		int h_header = 0;
+		int w_l_sidebar = 0;
+		int w_r_sidebar = 0;
 		if (ccw_footer)
-			fh = ccw_footer->getHeight();
+			h_footer = ccw_footer->getHeight();
 		if (ccw_head)
-			hh = ccw_head->getHeight();
-		int h_body = height - hh - fh - 2*fr_thickness;
-		ccw_body->setDimensionsAll(0, CC_APPEND, width-2*fr_thickness, h_body);
+			h_header = ccw_head->getHeight();
+		if (ccw_left_sidebar)
+			w_l_sidebar = ccw_left_sidebar->getWidth();
+		if (ccw_right_sidebar)
+			w_r_sidebar = ccw_right_sidebar->getWidth();
+		int h_body = height - h_header - h_footer - 2*fr_thickness;
+		int x_body = w_l_sidebar;
+		int w_body = width-2*fr_thickness - w_l_sidebar - w_r_sidebar;
+		
+		ccw_body->setDimensionsAll(x_body, CC_APPEND, w_body, h_body);
 		ccw_body->doPaintBg(false);
 	}
 }
 
 void CComponentsWindow::initCCWItems()
 {
-#ifdef DEBUG_CC
-	printf("[CComponentsWindow]   [%s - %d] init items...\n", __func__, __LINE__);
-#endif
+	dprintf(DEBUG_DEBUG, "[CComponentsWindow]   [%s - %d] init items...\n", __func__, __LINE__);
+
 	//add/remove header if required
 	if (ccw_show_header){
 		initHeader();
@@ -231,7 +309,28 @@ void CComponentsWindow::initCCWItems()
 			ccw_footer = NULL;
 		}
 	}
+	
+	//add/remove left sidebar
+	if (ccw_show_l_sideber){
+		initLeftSideBar();
+	}else{
+		if (ccw_left_sidebar){
+			removeCCItem(ccw_left_sidebar);
+			ccw_left_sidebar = NULL;
+		}
+	}
 
+	//add/remove right sidebar
+	if (ccw_show_r_sideber){
+		initRightSideBar();
+	}else{
+		if (ccw_right_sidebar){
+			removeCCItem(ccw_right_sidebar);
+			ccw_right_sidebar = NULL;
+		}
+	}
+
+	//init window body core
 	initBody();
 
 	//add header, body and footer items only one time
@@ -245,12 +344,67 @@ void CComponentsWindow::initCCWItems()
 			addCCItem(ccw_footer);
 }
 
+void CComponentsWindow::enableSidebar(const int& sidbar_type)
+{
+	ccw_show_l_sideber = ccw_show_r_sideber = false;
+
+	if (sidbar_type & CC_WINDOW_LEFT_SIDEBAR)
+		ccw_show_l_sideber = true;
+	if (sidbar_type & CC_WINDOW_RIGHT_SIDEBAR)
+		ccw_show_r_sideber = true;
+
+	initCCWItems();
+}
+
 void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
 {
 	if (ccw_body)
 		ccw_body->addCCItem(cc_Item);
 }
 
+void CComponentsWindow::setCurrentPage(const u_int8_t& current_page)
+{
+	ccw_body->setCurrentPage(current_page);
+}
+
+u_int8_t CComponentsWindow::getCurrentPage()
+{
+	return ccw_body->getCurrentPage();
+}
+
+
+bool CComponentsWindow::isPageChanged()
+{
+	for(size_t i=0; i<ccw_body->size(); i++){
+		if (ccw_body->getCCItem(i)->getPageNumber() != getCurrentPage())
+			return true;
+	}
+	return false;
+}
+
+void CComponentsWindow::setScrollBarWidth(const int& scrollbar_width)
+{
+	ccw_body->setScrollBarWidth(scrollbar_width);
+}
+
+void CComponentsWindow::enablePageScroll(const int& mode)
+{
+	ccw_body->enablePageScroll(mode);
+}
+
+void CComponentsWindow::paintCurPage(bool do_save_bg)
+{
+	if (is_painted) //ensure that we have painted already the parent form before paint body 
+		ccw_body->paint(do_save_bg);
+	else
+		paint(do_save_bg);
+}
+
+void CComponentsWindow::paintPage(const u_int8_t& page_number, bool do_save_bg)
+{
+	CComponentsWindow::setCurrentPage(page_number);
+	CComponentsWindow::paintCurPage(do_save_bg);
+}
 
 void CComponentsWindow::paint(bool do_save_bg)
 {

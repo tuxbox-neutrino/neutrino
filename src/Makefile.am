@@ -20,6 +20,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/libupnpclient \
+	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@LIBCS_CFLAGS@
 
@@ -33,6 +34,10 @@ endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
 AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
+endif
+
+if USE_PUGIXML
+PUGIXML_LIBS = -lpugixml
 endif
 
 if USE_TREMOR
@@ -52,6 +57,7 @@ ADEC_LIBS = @SWRESAMPLE_LIBS@
 else
 ADEC_LIBS = @MAD_LIBS@ \
 	@ID3TAG_LIBS@ \
+	@SWRESAMPLE_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS)
 endif
@@ -76,7 +82,6 @@ neutrino_LDADD = \
 	gui/widget/libneutrino_gui_widget.a \
 	gui/widget/libneutrino_gui_widget2.a \
 	driver/pictureviewer/libneutrino_pictureviewer.a \
-	system/libneutrino_system.a \
 	$(MTDUTILSLIBS) \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
@@ -89,9 +94,10 @@ neutrino_LDADD = \
 	timerd/libtimerd.a \
 	zapit/src/libzapit.a \
 	nhttpd/libnhttpd.a \
-	nhttpd/tuxboxapi/coolstream/libnhttpd_tuxboxapi.a \
+	nhttpd/tuxboxapi/libnhttpd_tuxboxapi.a \
 	nhttpd/yhttpd_mods/libyhttpdmods.a \
 	nhttpd/yhttpd_core/libyhttpd.a \
+	system/libneutrino_system.a \
 	$(top_builddir)/lib/sectionsdclient/libsectionsdclient.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
 	$(top_builddir)/src/zapit/lib/libzapitclient.a \
@@ -99,6 +105,7 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/connection/libtuxbox-connection.a \
 	$(top_builddir)/lib/libeventserver/libtuxbox-eventserver.a \
 	$(top_builddir)/lib/xmltree/libtuxbox-xmltree.a \
+	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
 	$(top_builddir)/lib/libnet/libtuxbox-net.a \
 	$(top_builddir)/lib/libmd5sum/libtuxbox-md5sum.a \
 	$(top_builddir)/lib/libtuxtxt/libtuxtxt.a \
@@ -107,11 +114,14 @@ neutrino_LDADD = \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
+	@BLURAY_LIBS@ \
 	@LIBCS_LIBS@ \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@ \
 	$(ADEC_LIBS) \
+	@SIGC_LIBS@ \
+	$(PUGIXML_LIBS) \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \
@@ -142,12 +152,18 @@ neutrino_LDADD += -lnxp
 endif
 endif
 
+if BOXMODEL_APOLLO
+neutrino_LDADD += -liconv
+endif
+
 bin_PROGRAMS += drivertool
 drivertool_SOURCES = drivertool.c
 bin_PROGRAMS += dt
 dt_SOURCES = dt.c
 bin_PROGRAMS += rcsim
 rcsim_SOURCES = rcsim.c rcsim.h
+bin_PROGRAMS += mdev_helper
+mdev_helper_SOURCES = mdev_helper.cpp
 
 endif
 if BOXTYPE_TRIPLE

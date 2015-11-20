@@ -43,8 +43,8 @@
 const char * const file_extension_list[] =
 {
 	"aac",   "asf",  "avi",  "bmp",  "cdr",  "crw",
-	"dts",   "flac", "gif",  "imu",  "jpeg", "jpg",
-	"m2a",   "m3u",  "m4a",  "mkv",  "mp2",  "mp3",
+	"dts",   "flac", "flv",  "gif",  "imu",  "iso",  "jpeg", "jpg",
+	"m2a",   "m3u",  "m3u8", "m4a",  "mkv",  "mp2",  "mp3",
 	"mpa",   "ogg",  "pls",  "png",  "sh",
 	"txt",   "url",  "wav",  "xml"
 };
@@ -53,9 +53,9 @@ const char * const file_extension_list[] =
 const CFile::FileType file_type_list[] =
 {
 	CFile::FILE_AAC      , CFile::FILE_ASF      , CFile::FILE_AVI      , CFile::FILE_PICTURE  , CFile::FILE_CDR      , CFile::FILE_PICTURE  , 
-	CFile::FILE_WAV      , CFile::FILE_FLAC     , CFile::FILE_PICTURE  , CFile::STREAM_PICTURE, CFile::FILE_PICTURE  , CFile::FILE_PICTURE  , 
-	CFile::FILE_MP3      , CFile::FILE_PLAYLIST , CFile::FILE_AAC      , CFile::FILE_MKV      , CFile::FILE_MP3      , CFile::FILE_MP3      , 
-	CFile::FILE_MP3      , CFile::FILE_OGG      , CFile::FILE_PLAYLIST,  CFile::FILE_PICTURE  , CFile::FILE_TEXT     ,
+	CFile::FILE_WAV      , CFile::FILE_FLAC     , CFile::FILE_FLV      , CFile::FILE_PICTURE  , CFile::STREAM_PICTURE, CFile::FILE_ISO      , CFile::FILE_PICTURE  , CFile::FILE_PICTURE  ,
+	CFile::FILE_MP3      , CFile::FILE_PLAYLIST , CFile::FILE_PLAYLIST , CFile::FILE_AAC      , CFile::FILE_MKV      , CFile::FILE_MP3      , CFile::FILE_MP3      ,
+	CFile::FILE_MP3      , CFile::FILE_OGG      , CFile::FILE_PLAYLIST , CFile::FILE_PICTURE  , CFile::FILE_TEXT     ,
 	CFile::FILE_TEXT     , CFile::STREAM_AUDIO  , CFile::FILE_WAV      , CFile::FILE_XML
 };
 
@@ -70,6 +70,7 @@ int mycasecmp(const void * a, const void * b)
 CFile::CFile()
   : Size( 0 ), Mode( 0 ), Marked( false ), Time( 0 )
 {
+	Type = -1;
 }
 
 CFile::FileType CFile::getType(void) const
@@ -77,18 +78,20 @@ CFile::FileType CFile::getType(void) const
 	if(S_ISDIR(Mode))
 		return FILE_DIR;
 
-	std::string::size_type ext_pos = Name.rfind('.');
+	if (Type < 0) {
+		Type = (int) FILE_UNKNOWN;
+		std::string::size_type ext_pos = Name.rfind('.');
 
-	if (ext_pos != std::string::npos)
-	{
-		const char * key = &(Name.c_str()[ext_pos + 1]);
+		if (ext_pos != std::string::npos) {
+			const char * key = &(Name.c_str()[ext_pos + 1]);
 
-		void * result = ::bsearch(&key, file_extension_list, sizeof(file_extension_list) / sizeof(const char *), sizeof(const char *), mycasecmp);
-		
-		if (result != NULL)
-			return file_type_list[(const char * *)result - (const char * *)&file_extension_list];
+			void * result = ::bsearch(&key, file_extension_list, sizeof(file_extension_list) / sizeof(const char *), sizeof(const char *), mycasecmp);
+
+			if (result != NULL)
+				Type = (int) file_type_list[(const char * *)result - (const char * *)&file_extension_list];
+		}
 	}
-	return FILE_UNKNOWN;
+	return (CFile::FileType) Type;
 }
 
 //------------------------------------------------------------------------

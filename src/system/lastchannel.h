@@ -32,7 +32,6 @@ class CLastChannel
 	private:
 		struct _LastCh
 		{
-			int             channel;
 			t_channel_id channel_id;
 			long int   timestamp;
 			int channel_mode;
@@ -47,7 +46,7 @@ class CLastChannel
 	public:
 		CLastChannel  (void);
 		void clear   (void);
-		void store   (int channelnr, t_channel_id channel_id, bool forceStoreToLastChannels = false);
+		void store   (t_channel_id channel_id);
 		t_channel_id getlast (int n);
 		unsigned int size () const;
 		void clear_storedelay (void);

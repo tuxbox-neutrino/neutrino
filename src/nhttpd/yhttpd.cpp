@@ -12,6 +12,8 @@
 #include <syscall.h>
 #include <stdio.h>
 
+#include <system/set_threadname.h>
+#include <system/helpers.h>
 // yhttpd
 #include "yconfig.h"
 #include <ylogging.h>
@@ -105,9 +107,22 @@ void yhttpd_reload_config() {
 //-----------------------------------------------------------------------------
 // Main Entry
 //-----------------------------------------------------------------------------
+
+void thread_cleanup (void *p)
+{
+	Cyhttpd *y = (Cyhttpd *)p;
+	if (y) {
+		y->stop_webserver();
+		delete y;
+	}
+	y = NULL;
+}
+
 #ifndef Y_CONFIG_BUILD_AS_DAEMON
 void * nhttpd_main_thread(void *) {
+	set_threadname(__func__);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	aprintf("Webserver %s tid %ld\n", WEBSERVERNAME, syscall(__NR_gettid));
 	yhttpd = new Cyhttpd();
 	//CLogging::getInstance()->setDebug(true);
@@ -116,7 +131,11 @@ void * nhttpd_main_thread(void *) {
 		aprintf("Error initializing WebServer\n");
 		return (void *) EXIT_FAILURE;
 	}
+	/* we pthread_cancel this thread from the main thread, but still want to clean up */
+	pthread_cleanup_push(thread_cleanup, yhttpd);
+#ifndef Y_CONFIG_FEATURE_THREADING
 	yhttpd->flag_threading_off = true;
+#endif
 
 	yhttpd->hooks_attach();
 	yhttpd->ReadConfig();
@@ -127,7 +146,9 @@ void * nhttpd_main_thread(void *) {
 
 		yhttpd->run();
 	}
+	pthread_cleanup_pop(0);
 	delete yhttpd;
+	yhttpd = NULL;
 
 	aprintf("Main end\n");
 	return (void *) EXIT_SUCCESS;
@@ -235,6 +256,7 @@ Cyhttpd::Cyhttpd() {
 Cyhttpd::~Cyhttpd() {
 	if (webserver)
 		delete webserver;
+	CLanguage::deleteInstance();
 	webserver = NULL;
 }
 
@@ -253,7 +275,7 @@ bool Cyhttpd::Configure() {
 		std::string groupname= ConfigList["server.group_name"];
 
 		// get user data
-		if(username != "")
+		if(!username.empty())
 		{
 			if((pwd = getpwnam(username.c_str())) == NULL)
 			{
@@ -262,7 +284,7 @@ bool Cyhttpd::Configure() {
 			}
 		}
 		// get group data
-		if(groupname != "")
+		if(!groupname.empty())
 		{
 			if((grp = getgrnam(groupname.c_str())) == NULL)
 			{
@@ -291,7 +313,7 @@ bool Cyhttpd::Configure() {
 		}
 #endif
 #ifdef Y_CONFIG_FEATURE_HTTPD_USER
-		if(username != "" && pwd != NULL && grp != NULL)
+		if(!username.empty() && pwd != NULL && grp != NULL)
 		{
 			log_level_printf(2, "set user and groups\n");
 
@@ -299,7 +321,7 @@ bool Cyhttpd::Configure() {
 			setgid(grp->gr_gid);
 			setgroups(0, NULL);
 			// set user group
-			if(groupname != "")
+			if(!groupname.empty())
 			initgroups(username.c_str(), grp->gr_gid);
 			// set user
 			if(setuid(pwd->pw_uid) == -1)
@@ -316,6 +338,7 @@ bool Cyhttpd::Configure() {
 // Main Webserver call
 //-----------------------------------------------------------------------------
 void Cyhttpd::run() {
+	set_threadname(__func__);
 	if (webserver) {
 		if (flag_threading_off)
 			webserver->is_threading = false;
@@ -439,7 +462,7 @@ void Cyhttpd::ReadConfig(void) {
 	log_level_printf(3, "ReadConfig Start\n");
 	CConfigFile *Config = new CConfigFile(',');
 	bool have_config = false;
-	if (access(HTTPD_CONFIGFILE, 4) == 0)
+	if (access(HTTPD_CONFIGFILE, R_OK) == 0)
 		have_config = true;
 	Config->loadConfig(HTTPD_CONFIGFILE);
 	// convert old config files
@@ -458,7 +481,7 @@ void Cyhttpd::ReadConfig(void) {
 					HTTPD_STANDARD_PORT));
 			Config->setString("WebsiteMain.directory", OrgConfig.getString(
 					"PrivatDocRoot", PRIVATEDOCUMENTROOT));
-			if (OrgConfig.getString("PublicDocRoot", "") != "")
+			if (!OrgConfig.getString("PublicDocRoot", "").empty())
 				Config->setString("WebsiteMain.override_directory",
 						OrgConfig.getString("PublicDocRoot",
 								PRIVATEDOCUMENTROOT));
@@ -489,7 +512,7 @@ void Cyhttpd::ReadConfig(void) {
 			Config->setInt32("configfile.version", CONF_VERSION);
 			Config->setString("Language.selected", HTTPD_DEFAULT_LANGUAGE);
 			Config->setString("Language.directory", HTTPD_LANGUAGEDIR);
-			if (Config->getString("WebsiteMain.hosted_directory", "") == "")
+			if (Config->getString("WebsiteMain.hosted_directory", "").empty())
 				Config->setString("WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT);
 			Config->saveConfig(HTTPD_CONFIGFILE);
 		}
@@ -525,18 +548,19 @@ void Cyhttpd::ReadConfig(void) {
 	ConfigList["WebsiteMain.hosted_directory"] = Config->getString(
 			"WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT);
 
+	ConfigList["Tuxbox.DisplayLogos"] = Config->getString("Tuxbox.DisplayLogos", "true");
 	// Check location of logos
-	if (Config->getString("Tuxbox.LogosURL", "") == "") {
-		if (access(std::string(ConfigList["WebsiteMain.override_directory"] + "/logos").c_str(), 4) == 0) {
+	if (Config->getString("Tuxbox.LogosURL", "").empty()) {
+		if (access(ConfigList["WebsiteMain.override_directory"] + "/logos", R_OK) == 0) {
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.override_directory"] + "/logos");
 			have_config = false; //save config
 		}
-		else if (access(std::string(ConfigList["WebsiteMain.directory"] + "/logos").c_str(), 4) == 0){
+		else if (access(ConfigList["WebsiteMain.directory"] + "/logos", R_OK) == 0){
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.directory"] + "/logos");
 			have_config = false; //save config
 		}
 #ifdef Y_CONFIG_USE_HOSTEDWEB
-		else if (access(std::string(ConfigList["WebsiteMain.hosted_directory"] + "/logos").c_str(), 4) == 0){
+		else if (access(ConfigList["WebsiteMain.hosted_directory"] + "/logos", R_OK) == 0){
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.hosted_directory"] + "/logos");
 			have_config = false; //save config
 		}

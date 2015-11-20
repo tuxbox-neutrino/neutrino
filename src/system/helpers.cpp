@@ -4,7 +4,7 @@
 	License: GPL
 
 	(C) 2012-2013 the neutrino-hd developers
-	(C) 2012,2013 Stefan Seyfried
+	(C) 2012-2015 Stefan Seyfried
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,19 +38,21 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <stdarg.h>
+#include <algorithm>
 #include <mntent.h>
 #include <linux/hdreg.h>
 #include <linux/fs.h>
-
+#include "debug.h"
 #include <system/helpers.h>
 #include <gui/update_ext.h>
+using namespace std;
 
-void mySleep(int sec) {
+int mySleep(int sec) {
 	struct timeval timeout;
 
 	timeout.tv_sec = sec;
 	timeout.tv_usec = 0;
-	select(0,0,0,0, &timeout);
+	return select(0,0,0,0, &timeout);
 }
 
 off_t file_size(const char *filename)
@@ -82,7 +84,7 @@ void  wakeup_hdd(const char *hdd_dir)
 	if(!check_dir(hdd_dir) && hdd_get_standby(hdd_dir)){
 		std::string wakeup_file = hdd_dir;
 		wakeup_file += "/.wakeup";
-		int fd = open(wakeup_file.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC);
+		int fd = open(wakeup_file.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC, S_IWUSR);
 		if (fd >= 0) {
 			unsigned char buf[512];
 			memset(buf, 0xFF, sizeof(buf));
@@ -110,7 +112,7 @@ int my_system(const char * cmd)
 
 int my_system(int argc, const char *arg, ...)
 {
-	int i = 0, ret = 0, childExit = 0;
+	int i = 0, ret, childExit = 0;
 #define ARGV_MAX 64
 	/* static right now but could be made dynamic if necessary */
 	int argv_max = ARGV_MAX;
@@ -124,6 +126,7 @@ int my_system(int argc, const char *arg, ...)
 		if (i == argv_max)
 		{
 			fprintf(stderr, "my_system: too many arguments!\n");
+			va_end(args);
 			return -1;
 		}
 		argv[i] = va_arg(args, const char *);
@@ -140,6 +143,7 @@ int my_system(int argc, const char *arg, ...)
 			ret = -errno;
 			break;
 		case 0: /* child process */
+			ret = 0;
 			for(i = 3; i < maxfd; i++)
 				close(i);
 			if (setsid() == -1)
@@ -152,6 +156,7 @@ int my_system(int argc, const char *arg, ...)
 			}
 			_exit(ret); // terminate c h i l d proces s only
 		default: /* parent returns to calling process */
+			ret = 0;
 			waitpid(pid, &childExit, 0);
 			if (WEXITSTATUS(childExit) != 0)
 				ret = (signed char)WEXITSTATUS(childExit);
@@ -205,13 +210,35 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 		close(pfd[1]);
 		if ((fp = fdopen(pfd[0], type)) == NULL)
 			return(NULL);
-		} else {
-			close(pfd[0]);
+	} else {
+		close(pfd[0]);
 		if ((fp = fdopen(pfd[1], type)) == NULL)
 			return(NULL);
 	}
 	return(fp);
 }
+#if 0
+int mkdirhier(const char *pathname, mode_t mode)
+{
+	int res = -1;
+	if (!pathname || !*pathname)
+		return res;
+	char path[strlen(pathname) + 1];
+	strcpy(path, pathname);
+	char *p = path;
+	while ((p = strchr(p + 1, '/'))) {
+		*p = 0;
+		res = mkdir(path, mode);
+		if (res < 0 && errno != EEXIST)
+			break;
+		*p = '/';
+	}
+	res = mkdir(path, mode);
+	if (errno == EEXIST)
+		res = 0;
+	return res;
+}
+# endif
 
 int safe_mkdir(const char * path)
 {
@@ -254,6 +281,8 @@ int check_dir(const char * dir, bool allow_tmp)
 			default:
 				ret = 0;	// ok
 		}
+		if(ret == -1)
+			printf("Wrong Filessystem Type: 0x%x\n",s.f_type);
 	}
 	return ret;
 }
@@ -313,7 +342,7 @@ std::string find_executable(const char *name)
 	if (tmpPath)
 		path = strdupa(tmpPath);
 	else
-		path = strdupa("/bin:/usr/bin:/sbin:/usr/sbin");
+		path = strdupa("/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin");
 	if (name[0] == '/') { /* full path given */
 		if (!access(name, X_OK) && !stat(name, &s) && S_ISREG(s.st_mode))
 			return std::string(name);
@@ -334,6 +363,23 @@ std::string find_executable(const char *name)
 		p = n;
 	}
 	return "";
+}
+
+std::string backtick(std::string command)
+{
+	char *buf = NULL;
+	size_t n = 0;
+	pid_t pid;
+	FILE *p = my_popen(pid, command.c_str(), "r");
+	if (! p)
+		return "";
+	std::string out = "";
+	while (getline(&buf, &n, p) >= 0)
+		out.append(std::string(buf));
+	free(buf);
+	fclose(p);
+	waitpid(pid, NULL, 0);
+	return out;
 }
 
 std::string _getPathName(std::string &path, std::string sep)
@@ -379,8 +425,9 @@ std::string getNowTimeStr(const char* format)
 {
 	char tmpStr[256];
 	struct timeval tv;
+	struct tm t;
 	gettimeofday(&tv, NULL);        
-	strftime(tmpStr, sizeof(tmpStr), format, localtime(&tv.tv_sec));
+	strftime(tmpStr, sizeof(tmpStr), format, localtime_r(&tv.tv_sec, &t));
 	return (std::string)tmpStr;
 }
 
@@ -388,6 +435,20 @@ std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 {
 	std::string result = str.erase(str.find_last_not_of(trimChars) + 1);
 	return result.erase(0, result.find_first_not_of(trimChars));
+}
+
+std::string strftime(const char *format, const struct tm *tm)
+{
+	char buf[4096];
+	*buf = 0;
+	strftime(buf, sizeof(buf), format, tm);
+	return std::string(buf);
+}
+
+std::string strftime(const char *format, time_t when, bool gm)
+{
+	struct tm *t = gm ? gmtime(&when) : localtime(&when);
+	return strftime(format, t);
 }
 
 time_t toEpoch(std::string &date)
@@ -401,6 +462,50 @@ time_t toEpoch(std::string &date)
 	return 0;
 
 }
+
+std::string& str_replace(const std::string &search, const std::string &replace, std::string &text)
+{
+	if (search.empty() || text.empty())
+		return text;
+
+	size_t searchLen = search.length();
+	while (1) {
+		size_t pos = text.find(search);
+		if (pos == std::string::npos)
+			break;
+		text.replace(pos, searchLen, replace);
+	}
+	return text;
+}
+
+std::string& htmlEntityDecode(std::string& text)
+{
+	struct decode_table {
+		const char* code;
+		const char* htmlCode;
+	};
+	decode_table dt[] =
+	{
+		{" ",  "&nbsp;"},
+		{"&",  "&amp;"},
+		{"<",  "&lt;"},
+		{">",  "&gt;"},
+		{"\"", "&quot;"},
+		{"'",  "&apos;"},
+		{"€",  "&euro;"},
+		{"–",  "&#8211;"},
+		{"“",  "&#8220;"},
+		{"”",  "&#8221;"},
+		{"„",  "&#8222;"},
+		{"•",  "&#8226;"},
+		{"…",  "&#8230;"},
+		{NULL,  NULL}
+	};
+	for (int i = 0; dt[i].code != NULL; i++)
+		text = str_replace(dt[i].htmlCode, dt[i].code, text);
+
+	return text;
+}	
 
 CFileHelpers::CFileHelpers()
 {
@@ -429,7 +534,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	unlink(Dst);
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
-	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, 0666)) < 0) {
+	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, mode)) < 0) {
 		close(fd1);
 		return false;
 	}
@@ -494,7 +599,6 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		return false;
 	}
 
-	chmod(Dst, mode);
 	return true;
 }
 
@@ -525,11 +629,9 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 	}
 	else {
 		// directory
-		if (createDir(Dst, FileInfo.st_mode & 0x0FFF) == false) {
-			if (errno != EEXIST) {
-				closedir(Directory);
-				return false;
-			}
+		if (!createDir(Dst, FileInfo.st_mode & 0x0FFF)) {
+			closedir(Directory);
+			return false;
 		}
 	}
 
@@ -572,32 +674,34 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 	return true;
 }
 
-bool CFileHelpers::createDir(const char *Dir, mode_t mode)
+// returns:	 true - success.
+//		 false - errno is set
+bool CFileHelpers::createDir(string& Dir, mode_t mode)
 {
-	char dirPath[PATH_MAX];
-	DIR *dir;
-	if ((dir = opendir(Dir)) != NULL) {
-		closedir(dir);
-		errno = EEXIST;
-		return false;
-	}
-
-	int ret = -1;
-	while (ret == -1) {
-		strcpy(dirPath, Dir);
-		ret = mkdir(dirPath, mode);
-		if ((errno == ENOENT) && (ret == -1)) {
-			char * pos = strrchr(dirPath,'/');
-			if (pos != NULL) {
-				pos[0] = '\0';
-				createDir(dirPath, mode);
+	int res = 0;
+	for(string::iterator iter = Dir.begin() ; iter != Dir.end();) {
+		string::iterator newIter = find(iter, Dir.end(), '/' );
+		string newPath = string( Dir.begin(), newIter );
+		if(!newPath.empty() && !file_exists(newPath.c_str())) {
+			res = mkdir( newPath.c_str(), mode);
+			if (res == -1) {
+				if (errno == EEXIST) {
+					res = 0;
+				} else {
+					// We can assume that if an error
+					// occured, following will fail too,
+					// so break here.
+					dprintf(DEBUG_NORMAL, "[CFileHelpers %s] creating directory %s: %s\n", __func__, newPath.c_str(), strerror(errno));
+					break;
+				}
 			}
 		}
-		else
-			return !ret || (errno == EEXIST);
+		iter = newIter;
+		if(newIter != Dir.end())
+			++ iter;
 	}
-	errno = 0;
-	return true;
+
+	return (res == 0 ? true : false);
 }
 
 bool CFileHelpers::removeDir(const char *Dir)
@@ -625,6 +729,41 @@ bool CFileHelpers::removeDir(const char *Dir)
 
 	errno = 0;
 	return true;
+}
+
+u_int64_t CFileHelpers::getDirSize(const char *dirname)
+{
+	DIR *dir;
+	char fullDirName[500];
+	struct dirent *dirPnt;
+	struct stat cur_file;
+	uint64_t total_size = 0;
+
+	//open current dir
+	sprintf(fullDirName, "%s/", dirname);
+	if((dir = opendir(fullDirName)) == NULL) {
+		fprintf(stderr, "Couldn't open %s\n", fullDirName);
+		return 0;
+	}
+
+	//go through the directory
+	while( (dirPnt = readdir(dir)) != NULL ) {
+		if(strcmp((*dirPnt).d_name, "..") == 0 || strcmp((*dirPnt).d_name, ".") == 0)
+			continue;
+
+		//create current filepath
+		sprintf(fullDirName, "%s/%s", dirname, (*dirPnt).d_name);
+		if(stat(fullDirName, &cur_file) == -1)
+			continue;
+
+		if(cur_file.st_mode & S_IFREG) //file...
+			total_size += cur_file.st_size;
+		else if(cur_file.st_mode & S_IFDIR) //dir...
+			total_size += getDirSize(fullDirName);
+	}
+	closedir(dir);
+
+	return total_size;
 }
 
 static int hdd_open_dev(const char * fname)
@@ -695,4 +834,92 @@ void hdd_flush(const char * fname)
 			ioctl(fd, HDIO_DRIVE_CMD, NULL);
 		close(fd);
 	}
+}
+
+/* split string like PARAM1=value1 PARAM2=value2 into map */
+bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap)
+{
+	smap.clear();
+	std::string::size_type start = 0;
+	std::string::size_type end = 0;
+	while ((end = str.find(" ", start)) != std::string::npos) {
+		std::string param = str.substr(start, end - start);
+		std::string::size_type i = param.find("=");
+		if (i != std::string::npos) {
+			smap[param.substr(0,i).c_str()] = param.substr(i+1).c_str();
+		}
+		start = end + 1;
+	}
+	return !smap.empty();
+}
+
+std::vector<std::string> split(const std::string &s, char delim)
+{
+	std::vector<std::string> vec;
+	std::stringstream ss(s);
+	std::string item;
+	while (std::getline(ss, item, delim))
+		vec.push_back(item);
+	return vec;
+}
+
+std::string to_string(int i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(unsigned int i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(long i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(unsigned long i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(long long i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(unsigned long long i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string getJFFS2MountPoint(int mtdPos)
+{
+	FILE* fd = fopen("/proc/mounts", "r");
+	if (!fd) return "";
+	int iBlock;
+	char lineRead[1024], sMount[512], sFs[512];
+	memset(lineRead, '\0', sizeof(lineRead));
+	while (fgets(lineRead, sizeof(lineRead)-1, fd)) {
+		sscanf(lineRead, "/dev/mtdblock%d %511s %511s", &iBlock, sMount, sFs);
+		if ((iBlock == mtdPos) && (strstr(sMount, "/") != NULL) && (strstr(sFs, "jffs2") != NULL)) {
+			fclose(fd);
+			return sMount;
+		}
+		memset(lineRead, '\0', sizeof(lineRead));
+	}
+	fclose(fd);
+	return "";
 }

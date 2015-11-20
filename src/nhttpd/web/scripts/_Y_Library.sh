@@ -73,7 +73,9 @@ buildStreamingAudioRawURL()
 y_format_message_html()
 {
 	tmp="<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'></head>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Dist.css'>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_User.css'></head>"
 	tmp="$tmp <body><div class='work_box'><div class='work_box_head'><div class='work_box_head_h2'>Results</div></div><div class='work_box_body' style='overflow:auto'>"
 	tmp="$tmp <pre>\n$msg\n</pre></div></div></body></html>"
 	
@@ -83,7 +85,9 @@ y_format_message_html()
 y_format_message_html2()
 {
 	tmp="<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'></head>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Dist.css'>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_User.css'></head>"
 	tmp="$tmp <body><div class='work_box'><div class='work_box_head'><div class='work_box_head_h2'>Results</div></div><div class='work_box_body'>"
 	tmp="$tmp $msg</div></div></body></html>"
 	echo "$tmp"
@@ -91,7 +95,9 @@ y_format_message_html2()
 y_format_message_html_plain()
 {
 	tmp="<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'></head>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Dist.css'>"
+	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_User.css'></head>"
 	tmp="$tmp <body>$msg</body></html>"
 	echo "$tmp"
 }

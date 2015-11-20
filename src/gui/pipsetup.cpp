@@ -25,10 +25,22 @@ extern cVideo *pipDecoder;
 CPipSetup::CPipSetup()
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	x_coord = g_settings.pip_x;
-	y_coord = g_settings.pip_y;
-	width = g_settings.pip_width;
-	height = g_settings.pip_height;
+
+	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
+		gx = &g_settings.pip_radio_x;
+		gy = &g_settings.pip_radio_y;
+		gw = &g_settings.pip_radio_width;
+		gh = &g_settings.pip_radio_height;
+	} else {
+		gx = &g_settings.pip_x;
+		gy = &g_settings.pip_y;
+		gw = &g_settings.pip_width;
+		gh = &g_settings.pip_height;
+	}
+	x_coord = *gx;
+	y_coord = *gy;
+	width = *gw;
+	height = *gh;
 
 	maxw = frameBuffer->getScreenWidth(true);
 	maxh = frameBuffer->getScreenHeight(true);
@@ -53,8 +65,8 @@ void CPipSetup::move(int x, int y, bool abs)
 	}
 	x_coord = newx;
 	y_coord = newy;
-	g_settings.pip_x = x_coord;
-	g_settings.pip_y = y_coord;
+	*gx = x_coord;
+	*gy = y_coord;
 
 	printf("CPipSetup::move: x %d y %d\n", x_coord, y_coord);
 	pipDecoder->Pig(x_coord, y_coord, width, height, maxw, maxh);
@@ -85,8 +97,8 @@ void CPipSetup::resize(int w, int h, bool abs)
 		width = neww;
 		height = newh;
 	}
-	g_settings.pip_width = width;
-	g_settings.pip_height = height;
+	*gw = width;
+	*gh = height;
 
 	printf("CPipSetup::resize: w %d h %d \n", width, height);
 	pipDecoder->Pig(x_coord, y_coord, width, height, maxw, maxh);

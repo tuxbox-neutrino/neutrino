@@ -42,6 +42,11 @@ extern "C" {
 #include <libavutil/samplefmt.h>
 #include <libswresample/swresample.h>
 }
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
+#define av_frame_alloc	avcodec_alloc_frame
+#define av_frame_unref	avcodec_get_frame_defaults
+#define av_frame_free	avcodec_free_frame
+#endif
 #include <OpenThreads/ScopedLock>
 
 #include <driver/netfile.h>
@@ -247,16 +252,20 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 	AVFrame *frame = NULL;
 	AVPacket rpacket;
 	av_init_packet(&rpacket);
+	c->channel_layout = c->channel_layout ? c->channel_layout : AV_CH_LAYOUT_STEREO;
 
 	av_opt_set_int(swr, "in_channel_layout",	c->channel_layout,	0);
 	//av_opt_set_int(swr, "out_channel_layout",	c->channel_layout,	0);
 	av_opt_set_int(swr, "out_channel_layout",	AV_CH_LAYOUT_STEREO,	0);
 	av_opt_set_int(swr, "in_sample_rate",		c->sample_rate,		0);
 	av_opt_set_int(swr, "out_sample_rate",		c->sample_rate,		0);
-	av_opt_set_int(swr, "in_sample_fmt",		c->sample_fmt,		0);
-	av_opt_set_int(swr, "out_sample_fmt",		AV_SAMPLE_FMT_S16,	0);
+	av_opt_set_sample_fmt(swr, "in_sample_fmt",	c->sample_fmt,          0);
+	av_opt_set_sample_fmt(swr, "out_sample_fmt",   	AV_SAMPLE_FMT_S16,      0);
 
-	swr_init(swr);
+	if (( swr_init(swr)) < 0) {
+		Status=DATA_ERR;
+		return Status;
+	}
 
 	uint8_t *outbuf = NULL;
 	int outsamples = 0;
@@ -314,12 +323,12 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		while (packet.size > 0) {
 			int got_frame = 0;
 			if (!frame) {
-				if (!(frame = avcodec_alloc_frame())) {
+				if (!(frame = av_frame_alloc())) {
 					Status=DATA_ERR;
 					break;
 				}
 			} else
-				avcodec_get_frame_defaults(frame);
+				av_frame_unref(frame);
 
 			int len = avcodec_decode_audio4(c, frame, &got_frame, &packet);
 			if (len < 0) {
@@ -374,7 +383,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 	swr_free(&swr);
 	av_free(outbuf);
 	av_free_packet(&rpacket);
-	avcodec_free_frame(&frame);
+	av_frame_free(&frame);
 	avcodec_close(c);
 	//av_free(avcc);
 

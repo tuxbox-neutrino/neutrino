@@ -89,7 +89,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		/* flag to skip manual params update while in menu */
 		bool in_menu;
 
-		bool is_wizard;
+		int is_wizard;
 		
 		int r_system;
 
@@ -106,33 +106,31 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int showScanMenuSatFind();
 		void fillSatSelect(CMenuOptionStringChooser *select);
 		void fillCableSelect(CMenuOptionStringChooser *select);
+		void fillTerrSelect(CMenuOptionStringChooser *select);
 
 		neutrino_locale_t getModeLocale(int mode);
 		int showScanMenuFrontendSetup();
  		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
- 		void addScanMenuManualScan(CMenuWidget *manual_Scan);
+ 		void addScanMenuManualScan(CMenuWidget *manual_Scan, bool stest = false);
  		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);
  		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
 
 		int addScanOptionsItems(CMenuWidget *options_menu, const int &shortcut = 1);
 		int addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut = 1, bool manual = false);
+#ifdef ENABLE_FASTSCAN
+		int showFastscanDiseqcSetup();
+#endif
+		void setDiseqcOptions(int number);
 
 		void saveScanSetup();
 
-		CScanSetup(bool wizard_mode = SCAN_SETUP_MODE_WIZARD_NO);
+		CScanSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 	public:	
-		enum SCAN_SETUP_MODE
-		{
-			SCAN_SETUP_MODE_WIZARD_NO   = 0,
-			SCAN_SETUP_MODE_WIZARD   = 1
-		};
-
 		~CScanSetup();
 
 		static CScanSetup* getInstance();
 
-		bool getWizardMode() {return is_wizard;};
-		void setWizardMode(bool mode);
+		void setWizardMode(int mode) {is_wizard = mode;};
 		void updateManualSettings();
 
 		int exec(CMenuTarget* parent, const std::string & actionKey = "");

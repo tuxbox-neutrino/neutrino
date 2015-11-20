@@ -23,7 +23,7 @@ void correctTime(struct tm *zt);
 std::string itoa(unsigned int conv);
 std::string itoh(unsigned int conv);
 std::string decodeString(std::string encodedString);
-std::string encodeString(std::string decodedString);
+std::string encodeString(const std::string &decodedString);
 std::string string_tolower(std::string str);
 
 //-----------------------------------------------------------------------------

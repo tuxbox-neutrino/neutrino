@@ -1,0 +1,45 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function goUrl(_cmd){
+	$('out').update(dbox_exec_hdd(_cmd));
+}
+function dbox_exec_hdd(_cmd){
+	var __cmd = _cmd.replace(/ /g, "&");
+	return loadSyncURL("/control/exec?Y_Ext_hddtools&"+__cmd);
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">{=var-set:help_url=Help-Extensions-hddtools=}{=var-set:menu=HDD Tools [1.0.1]=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form action="">
+		<table  class="y_invisible_table" cellpadding="5">
+		<tr><td class="y_form_header">IDE Information</td></tr>
+		<tr><td>
+			<input type="button" value="Info Boot" title="show drive info from boot" onclick='goUrl("hdd_hdparm&amp;-i&amp;Info boot time");'/>
+			<input type="button" value="Info Drive" title="show drive info" onclick='goUrl("hdd_hdparm&amp;-I&amp;Info Drive");'/>
+			<input type="button" value="Identity" title="show hdd model name" onclick='goUrl("hdd_proc&amp;model&amp;Model");'/>
+			<input type="button" value="Settings" title="show ide settings" onclick='goUrl("hdd_proc&amp;settings&amp;IDE Settings");'/>
+			<input type="button" value="Driver" title="show ide settings" onclick='goUrl("hdd_proc&amp;driver&amp;IDE Driver");'/>
+			<input type="button" value="Settings" title="show ide settings" onclick='goUrl("hdd_proc&amp;cache&amp;IDE Cache");'/>
+			<input type="button" value="Geometrie" title="show ide settings" onclick='goUrl("hdd_proc&amp;geometry&amp;Disk Geometrie");'/>
+		</td></tr>
+		<tr><td class="y_form_header">Commands</td></tr>
+		<tr><td>
+			<input type="button" value="hdd sleep" title="put drive to sleep mode" onclick='goUrl("hdd_sleep");'/>
+		</td></tr>
+
+		</table>
+	</form>
+	</div>
+</div>
+<div id="out"></div>
+</body>
+
+</html>

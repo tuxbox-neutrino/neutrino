@@ -8,6 +8,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
+	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
@@ -32,12 +33,14 @@ libneutrino_gui_widget_a_SOURCES = \
 	hintbox.cpp \
 	hintboxext.cpp \
 	keychooser.cpp \
+	keyboard_input.cpp \
 	listbox.cpp \
 	listframe.cpp \
 	menue.cpp \
 	messagebox.cpp \
 	mountchooser.cpp \
 	msgbox.cpp \
+	shellwindow.cpp \
 	stringinput.cpp \
 	stringinput_ext.cpp \
 	textbox.cpp

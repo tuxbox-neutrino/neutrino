@@ -181,12 +181,12 @@ void CImageInfo::ShowWindow()
 {
 	CComponentsFooter *footer = NULL;
 	if (cc_win == NULL){
-		cc_win = new CComponentsWindowMax(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO, CC_SHADOW_ON);
+		cc_win = new CComponentsWindowMax(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO, 0, CC_SHADOW_ON);
 		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 		footer = cc_win->getFooterObject();
-		footer->setColorBody(COL_INFOBAR_SHADOW_PLUS_1);
-		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, footer->getHeight(), LOCALE_BUILDINFO_MENU, false , true, false, footer->getColorBody(), footer->getColorBody());
-		footer->addCCItem(btn_red);
+		int h_footer = footer->getHeight();
+		fb_pixel_t btn_col = /*g_settings.theme.Button_gradient ?  COL_BUTTON_BODY :*/ footer->getColorBody(); //TODO: Button_gradient option
+		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, h_footer-h_footer/4, LOCALE_BUILDINFO_MENU, footer, false , true, false, footer->getColorBody(), btn_col);
 	}
 
 	//prepare minitv
@@ -202,7 +202,7 @@ void CImageInfo::ShowWindow()
 	InitInfoText(getLicenseText());
 
 	//paint window
-	cc_win->paint();
+	cc_win->paint(CC_SAVE_SCREEN_NO);
 }
 
 //prepare minitv
@@ -339,8 +339,14 @@ string CImageInfo::getLicenseText()
 	file += g_settings.language;
 	file += ".license";
 
-	CComponentsText txt;
-	string res = txt.getTextFromFile(file);
+	string res = CComponentsText::getTextFromFile(file);
+
+	//assign default text, if language file is not available
+	if(res.empty()){
+		file = LICENSEDIR;
+		file += "english.license";
+		res = CComponentsText::getTextFromFile(file);
+	}
 
 	return res;
 }
@@ -369,6 +375,7 @@ void CImageInfo::InitInfoText(const std::string& text)
 		cc_lic = new CComponentsInfoBox(CC_CENTERED, CC_APPEND, w_body-2*item_offset, h_txt);
 	cc_lic->setSpaceOffset(1);
 	cc_lic->setText(text, CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+	cc_lic->doPaintTextBoxBg(true);
 
 	//add text to container
 	if (!cc_lic->isAdded())
@@ -382,12 +389,12 @@ void CImageInfo::ScrollLic(bool scrollDown)
 		//get the textbox instance from infobox object and use CTexBbox scroll methods
 		CTextBox* ctb = cc_lic->cctext->getCTextBoxObject();
 		if (ctb) {
-			ctb->enableBackgroundPaint(true);
+			//ctb->enableBackgroundPaint(true);
 			if (scrollDown)
 				ctb->scrollPageDown(1);
 			else
 				ctb->scrollPageUp(1);
-			ctb->enableBackgroundPaint(false);
+			//ctb->enableBackgroundPaint(false);
 		}
 	}
 }
@@ -396,7 +403,7 @@ void CImageInfo::hide()
 {
 	printf("[CImageInfo]   [%s - %d] hide...\n", __FUNCTION__, __LINE__);
 	if (cc_win){
-		cc_win->hide();
+		cc_win->kill();
 		Clean();
 	}
 }

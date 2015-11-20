@@ -27,6 +27,7 @@
 #include "ysocket.h"
 #include "yconnection.h"
 #include "yrequest.h"
+#include <system/set_threadname.h>
 
 //=============================================================================
 // Initialization of static variables
@@ -48,7 +49,7 @@ CWebserver::CWebserver() {
 	FD_ZERO(&read_fds);
 	fdmax = 0;
 	open_connections = 0;
-#ifdef Y_CONFIG_BUILD_AS_DAEMON
+#ifdef Y_CONFIG_FEATURE_THREADING
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 #endif
@@ -117,6 +118,7 @@ CWebserver::~CWebserver() {
 #define MAX_TIMEOUTS_TO_CLOSE 10
 #define MAX_TIMEOUTS_TO_TEST 100
 bool CWebserver::run(void) {
+	set_threadname(__func__);
 	if (!listenSocket.listen(port, HTTPD_MAX_CONNECTIONS)) {
 		if (port != 80) {
 			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d Abort.\n", port);
@@ -226,6 +228,8 @@ bool CWebserver::run(void) {
 		CySocket *newConnectionSock;
 		if (!(newConnectionSock = listenSocket.accept())) //Now: Blocking wait
 		{
+			pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+			pthread_testcancel();
 			dperror("Socket accept error. Continue.\n");
 			continue;
 		}
@@ -409,16 +413,20 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 
 	// create arguments
 	TWebserverConnectionArgs *newConn = new TWebserverConnectionArgs;
+	if (!newConn) {
+		dperror("CWebserver TWebserverConnectionArgs error!\n");
+		return false;
+	}
 	newConn->ySock = newSock;
 	newConn->ySock->handling = true;
 	newConn->WebserverBackref = this;
-#ifdef Y_CONFIG_BUILD_AS_DAEMON
+#ifdef Y_CONFIG_FEATURE_THREADING
 	newConn->is_treaded = is_threading;
 #else
 	newConn->is_treaded = false;
 #endif
 	int index = -1;
-#ifdef Y_CONFIG_BUILD_AS_DAEMON
+#ifdef Y_CONFIG_FEATURE_THREADING
 	if(is_threading)
 	{
 		pthread_mutex_lock( &mutex );
@@ -442,7 +450,7 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 
 		// start connection Thread
 		if(pthread_create(&Connection_Thread_List[index], &attr, WebThread, (void *)newConn) != 0)
-		dperror("Could not create Connection-Thread\n");
+			dperror("Could not create Connection-Thread\n");
 	}
 	else // non threaded
 #endif
@@ -453,24 +461,29 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 // Webserver-Thread for each connection
 //-------------------------------------------------------------------------
 void *WebThread(void *args) {
-	CWebserverConnection *con;
-	CWebserver *ws;
 	TWebserverConnectionArgs *newConn = (TWebserverConnectionArgs *) args;
-	ws = newConn->WebserverBackref;
+	if (!newConn) {
+		dperror("WebThread called without arguments!\n");
+		return NULL;
+	}
 
 	bool is_threaded = newConn->is_treaded;
 	if (is_threaded)
-		log_level_printf(1, "++ Thread 0x06%X gestartet\n",
-				(int) pthread_self());
-
-	if (!newConn) {
-		dperror("WebThread called without arguments!\n");
-		if (newConn->is_treaded)
-			pthread_exit( NULL);
-	}
+		log_level_printf(1, "++ Thread 0x06%X gestartet\n", (int) pthread_self());
 
 	// (1) create & init Connection
-	con = new CWebserverConnection(ws);
+	CWebserver *ws = newConn->WebserverBackref;
+	if (!ws) {
+		dperror("WebThread CWebserver error!\n");
+		return NULL;
+	}
+
+	CWebserverConnection *con = new CWebserverConnection(ws);
+	if (!con) {
+		dperror("WebThread CWebserverConnection error!\n");
+		return NULL;
+	}
+
 	con->Request.UrlData["clientaddr"] = newConn->ySock->get_client_ip(); // TODO:here?
 	con->sock = newConn->ySock; // give socket reference
 	newConn->ySock->handling = true; // dont handle this socket now be webserver main loop
@@ -481,15 +494,18 @@ void *WebThread(void *args) {
 	// (3) end connection handling
 #ifdef Y_CONFIG_FEATURE_KEEP_ALIVE
 	if(!con->keep_alive)
-	log_level_printf(2,"FD SHOULD CLOSE sock:%d!!!\n",con->sock->get_socket());
+		log_level_printf(2,"FD SHOULD CLOSE sock:%d!!!\n",con->sock->get_socket());
 	else
-	ws->addSocketToMasterSet(con->sock->get_socket()); // add to master set
-#else
-	delete newConn->ySock;
+		ws->addSocketToMasterSet(con->sock->get_socket()); // add to master set
 #endif
 	if (!con->keep_alive)
 		con->sock->isValid = false;
 	con->sock->handling = false; // socket can be handled by webserver main loop (select) again
+
+#ifndef Y_CONFIG_FEATURE_KEEP_ALIVE
+	delete newConn->ySock;
+	newConn->ySock = NULL;
+#endif
 
 	// (4) end thread
 	delete con;

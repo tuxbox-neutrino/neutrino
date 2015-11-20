@@ -7,48 +7,67 @@
 . ./_Y_Globals.sh
 . ./_Y_Library.sh
 # ===========================================================
-# Settings : Skins
+# Settings : Styles
 # ===========================================================
 # -----------------------------------------------------------
-# Skin List [Function inactive]
+# Style List
 # -----------------------------------------------------------
-skin_get()
+style_get()
 {
 	check_Y_Web_conf
-	active_skin=`config_get_value_direct $y_config_Y_Web 'skin'`
+	active_style=$(config_get_value_direct $y_config_Y_Web 'style')
+
+	y_path_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.directory')
+	y_path_override_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.override_directory')
+
+	style_list=""
+	style_list="$style_list $(find $y_path_override_directory/styles -name 'Y_Dist-*')"
+	style_list="$style_list $(find $y_path_directory/styles -name 'Y_Dist-*')"
+
+	f_list=""
 	html_option_list=""
-	skin_list=`find $y_path_httpd -name 'Y_Main-*'`
-	for f in $skin_list
+	for f in $style_list
 	do
-		skin=`echo "$f"|sed -e s/^.*Y_Main-//g|sed -e s/.css//g`
-		if [ "$skin" = "$active_skin" ]
-		then
-			selec="selected"
-		else
-			selec=""
+		echo $f_list | grep ${f##*/}
+		if [ $? == 0 ]; then
+			continue
 		fi
-		opt="<option $selec value='$skin'>$skin</option>"
+		f_list="$f_list ${f##*/}"
+
+		style=$(echo "$f" | sed -e s/^.*Y_Dist-//g | sed -e s/.css//g)
+		if [ "$style" = "$active_style" ]
+		then
+			sel="selected='selected'"
+		else
+			sel=""
+		fi
+		opt="<option value='$style' $sel>${style//_/ }</option>"
 		html_option_list="$html_option_list $opt"
 	done
 	echo "$html_option_list"
 }
 # -----------------------------------------------------------
-# Set Skin: override css   $1=Skin-Name [Function inactive]
+# Set Style: override Y_Main.css   $1=Style-Name
 # -----------------------------------------------------------
-skin_set()
+style_set()
 {
-	cd $y_path_httpd
-	cp Y_Main-$1.css Y_Main.css
-	if [ -e global-$1.css ]
-	then
-		cp global-$1.css global.css
-	else
-		cp global-Standard.css global.css
-	fi
-	config_set_value_direct $y_config_Y_Web 'skin' $1
+	# This function should be called one time after installing a new image
+	# to get sure, the right skin is installed too
 
-	msg="Skin changed - Now browsers Refresh/actualization explain"
-	y_format_message_html
+	style=${1:-$(config_get_value_direct $y_config_Y_Web 'style')}
+	test -n "$style" || return
+
+	y_path_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.directory')
+	y_path_override_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.override_directory')
+
+	cd $y_path_directory
+	if [ -e $y_path_override_directory/styles/Y_Dist-$style.css ]; then
+		cp $y_path_override_directory/styles/Y_Dist-$style.css Y_Dist.css
+	elif [ -e $y_path_directory/styles/Y_Dist-$style.css ]; then
+		cp $y_path_directory/styles/Y_Dist-$style.css Y_Dist.css
+	else
+		config_set_value_direct $y_config_Y_Web 'style'
+	fi
 }
 # -----------------------------------------------------------
 # Image Backup - build form
@@ -364,13 +383,21 @@ do_installer()
 			rm -f $y_install # clean up
 			if [ -s "$y_out_html" ] #html - output?
 			then
-				echo '<html><head><link rel="stylesheet" type="text/css" href="/Y_Main.css">'
-				echo "<meta http-equiv='refresh' content='0; $y_out_html'></head>"
+				echo '<html><head>'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_Main.css">'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_Dist.css">'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_User.css">'
+				echo "<meta http-equiv='refresh' content='0; $y_out_html'>"
+				echo '</head>'
 				echo "<body><a href='$y_out_html'>If automatic forwarding does not go.</a>"
 				echo '</body></html>'
 #				cat $y_out_html
 			else
-				echo '<html><head><link rel="stylesheet" type="text/css" href="/Y_Main.css"></head>'
+				echo '<html><head>'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_Main.css">'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_Dist.css">'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_User.css">'
+				echo '</head>'
 				echo '<body>'
 				echo "$o"
 				echo '</body></html>'
@@ -525,8 +552,8 @@ restart_neutrino()
 #debug
 # echo "call:$*" >> "/tmp/debug.txt"
 case "$1" in
-	skin_set)				skin_set $2 ;;
-	skin_get)				skin_get ;;
+	style_set)			style_set $2 ;;
+	style_get)			style_get ;;
 	image_upload)			image_upload ;;
 	image_backup)			image_backup_mtd $2; echo "/tmp/flash_mtd$2.img" ;;
 	image_flash)			shift 1; flash_mtd $* ;;
@@ -554,7 +581,7 @@ case "$1" in
 	fbshot)					shift 1; do_fbshot $* ;;
 	fbshot_clear)			do_fbshot_clear ;;
 	screenshot_clear)		do_screenshot_clear ;;
-	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt" ;;
+	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt;hb=refs/heads/cst-next" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)				shift 1; $* ;;
 	automount_list)			shift 1; do_automount_list $* ;;

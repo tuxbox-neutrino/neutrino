@@ -27,9 +27,15 @@
 
 extern int debug;
 
-#define DEBUG_NORMAL	0
-#define DEBUG_INFO	1
-#define DEBUG_DEBUG	2
+enum
+{
+	DEBUG_NORMAL	, // 0
+	DEBUG_INFO	, // 1
+	DEBUG_DEBUG	, // 2
+
+	DEBUG_MODES	  // 3 count of available modes
+};
+
 
 void setDebugLevel( int level );
 

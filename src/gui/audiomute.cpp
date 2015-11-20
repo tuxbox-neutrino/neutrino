@@ -30,11 +30,12 @@
 #endif
 #include <global.h>
 #include <neutrino.h>
+#include <driver/display.h>
 #include <gui/infoclock.h>
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>
 
-CAudioMute::CAudioMute():CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_MUTE)
+CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_BUTTON_MUTE)
 {
 	y_old			= -1;
 	paint_bg		= false;

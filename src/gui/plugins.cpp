@@ -57,27 +57,22 @@
 #include <system/helpers.h>
 
 #include <zapit/client/zapittools.h>
+#include "widget/shellwindow.h"
+#include "widget/messagebox.h"
+#include <poll.h>
+#include <fcntl.h>
+#include <vector>
+
+#include <video.h>
+extern cVideo * videoDecoder;
 
 #include "plugins.h"
-/* for alexW images with old drivers:
- * #define USE_VBI_INTERFACE 1
- */
-
-#ifdef USE_VBI_INTERFACE
-#define AVIA_VBI_START_VTXT	1
-#define AVIA_VBI_STOP_VTXT	2
-#endif
 
 #include <daemonc/remotecontrol.h>
-#if ENABLE_LUA
 #include <gui/luainstance.h>
-#endif
 
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
-
-#define PLUGINDIR_VAR "/var/tuxbox/plugins"
-#define PLUGINDIR_USB "/mnt/usb/tuxbox/plugins"
 
 CPlugins::CPlugins()
 {
@@ -107,14 +102,14 @@ void CPlugins::scanDir(const char *dir)
 
 	int number_of_files = scandir(dir, &namelist, 0, alphasort);
 
-	if(number_of_files < 0)
+	if (number_of_files < 0)
 		return;
 
 	for (int i = 0; i < number_of_files; i++)
 	{
-		std::string filename;
+		std::string filename(namelist[i]->d_name);
+		free(namelist[i]);
 
-		filename = namelist[i]->d_name;
 		int pos = filename.find(".cfg");
 		if (pos > -1)
 		{
@@ -124,17 +119,16 @@ void CPlugins::scanDir(const char *dir)
 			fname += '/';
 			new_plugin.cfgfile = fname.append(new_plugin.filename);
 			new_plugin.cfgfile.append(".cfg");
-			parseCfg(&new_plugin);
+			new_plugin.plugindir = dir;
 			bool plugin_ok = parseCfg(&new_plugin);
-			if (plugin_ok) {
+			if (plugin_ok)
+			{
 				new_plugin.pluginfile = fname;
 				if (new_plugin.type == CPlugins::P_TYPE_SCRIPT)
 					new_plugin.pluginfile.append(".sh");
-#if ENABLE_LUA
 				else if (new_plugin.type == CPlugins::P_TYPE_LUA)
 					new_plugin.pluginfile.append(".lua");
-#endif
-				else // CPlugins::P_TYPE_GAME or CPlugins::P_TYPE_TOOL
+				else
 					new_plugin.pluginfile.append(".so");
 				// We do not check if new_plugin.pluginfile exists since .cfg in
 				// PLUGINDIR_VAR can overwrite settings in read only dir
@@ -151,7 +145,6 @@ void CPlugins::scanDir(const char *dir)
 				}
 			}
 		}
-		free(namelist[i]);
 	}
 	free(namelist);
 }
@@ -162,8 +155,9 @@ void CPlugins::loadPlugins()
 	number_of_plugins = 0;
 	plugin_list.clear();
 	sindex = 100;
+	scanDir(GAMESDIR);
 	scanDir(g_settings.plugin_hdd_dir.c_str());
-	scanDir(PLUGINDIR_USB);
+	scanDir(PLUGINDIR_MNT);
 	scanDir(PLUGINDIR_VAR);
 	scanDir(PLUGINDIR);
 
@@ -175,10 +169,23 @@ CPlugins::~CPlugins()
 	plugin_list.clear();
 }
 
+bool CPlugins::overrideType(plugin *plugin_data, std::string &setting, p_type type)
+{
+	if (!setting.empty()) {
+		char s[setting.length() + 1];
+		cstrncpy(s, setting, setting.length() + 1);
+		char *t, *p = s;
+		while ((t = strsep(&p, ",")))
+			if (!strcmp(t, plugin_data->filename.c_str())) {
+				plugin_data->type = type;
+				return true;
+			}
+	}
+	return false;
+}
+
 bool CPlugins::parseCfg(plugin *plugin_data)
 {
-//	FILE *fd;
-
 	std::ifstream inFile;
 	std::string line[20];
 	int linecount = 0;
@@ -190,15 +197,26 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	{};
 
 	plugin_data->index = sindex++;
-	plugin_data->key = 0; //CRCInput::RC_nokey
+	plugin_data->key = CRCInput::RC_nokey;
+	plugin_data->name = "";
+	plugin_data->description = "";
+#if 0
 	plugin_data->fb = false;
 	plugin_data->rc = false;
 	plugin_data->lcd = false;
 	plugin_data->vtxtpid = false;
 	plugin_data->showpig = false;
 	plugin_data->needoffset = false;
+#endif
+	plugin_data->shellwindow = false;
 	plugin_data->hide = false;
 	plugin_data->type = CPlugins::P_TYPE_DISABLED;
+	plugin_data->integration = CPlugins::I_TYPE_DISABLED;
+	plugin_data->hinticon = NEUTRINO_ICON_HINT_PLUGIN;
+
+	std::string _hintIcon = plugin_data->plugindir + "/" + plugin_data->filename + "_hint.png";
+	if (access(_hintIcon.c_str(), F_OK) == 0)
+		plugin_data->hinticon = _hintIcon;
 
 	for (int i = 0; i < linecount; i++)
 	{
@@ -211,67 +229,106 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 
 		if (cmd == "index")
 		{
-			plugin_data->index = atoi(parm.c_str());
+			plugin_data->index = atoi(parm);
 		}
-		else if (cmd == "pluginversion")
+		else if (cmd == "key")
 		{
-			plugin_data->key = atoi(parm.c_str());
+			plugin_data->key = getPluginKey(parm);
 		}
-		else if (cmd == "name")
+		else if (cmd == "name." + g_settings.language)
 		{
 			plugin_data->name = parm;
 		}
-		else if (cmd == "desc")
+		else if (cmd == "name")
+		{
+			if (plugin_data->name.empty())
+				plugin_data->name = parm;
+		}
+		else if (cmd == "desc." + g_settings.language)
 		{
 			plugin_data->description = parm;
+		}
+		else if (cmd == "desc")
+		{
+			if (plugin_data->description.empty())
+				plugin_data->description = parm;
 		}
 		else if (cmd == "depend")
 		{
 			plugin_data->depend = parm;
 		}
+		else if (cmd == "hinticon")
+		{
+			plugin_data->hinticon = parm;
+		}
 		else if (cmd == "type")
 		{
-			plugin_data->type = getPluginType(atoi(parm.c_str()));
+			plugin_data->type = getPluginType(atoi(parm));
 		}
+		else if (cmd == "integration")
+		{
+			plugin_data->integration = getPluginIntegration(atoi(parm));
+		}
+#if 0
 		else if (cmd == "needfb")
 		{
-			plugin_data->fb = ((parm == "1")?true:false);
+			plugin_data->fb = atoi(parm);
 		}
 		else if (cmd == "needrc")
 		{
-			plugin_data->rc = ((parm == "1")?true:false);
+			plugin_data->rc = atoi(parm);
 		}
 		else if (cmd == "needlcd")
 		{
-			plugin_data->lcd = ((parm == "1")?true:false);
+			plugin_data->lcd = atoi(parm);
 		}
 		else if (cmd == "needvtxtpid")
 		{
-			plugin_data->vtxtpid = ((parm == "1")?true:false);
+			plugin_data->vtxtpid = atoi(parm);
 		}
 		else if (cmd == "pigon")
 		{
-			plugin_data->showpig = ((parm == "1")?true:false);
+			plugin_data->showpig = atoi(parm);
 		}
 		else if (cmd == "needoffsets")
 		{
-			plugin_data->needoffset = ((parm == "1")?true:false);
+			plugin_data->needoffset = atoi(parm);
+		}
+#endif
+		else if (cmd == "shellwindow")
+		{
+			plugin_data->shellwindow = atoi(parm);
 		}
 		else if (cmd == "hide")
 		{
-			plugin_data->hide = ((parm == "1")?true:false);
+			plugin_data->hide = atoi(parm);
 		}
 		else if (cmd == "needenigma")
 		{
-			reject = ((parm == "1")?true:false);
+			reject = atoi(parm);
 		}
 
 	}
 
 	inFile.close();
+
+	if (plugin_data->name.empty())
+		plugin_data->name = plugin_data->filename;
+
+	_hintIcon = plugin_data->plugindir + "/" + plugin_data->hinticon + ".png";
+	if (access(_hintIcon.c_str(), F_OK) == 0)
+		plugin_data->hinticon = _hintIcon;
+
+	overrideType(plugin_data, g_settings.plugins_disabled, P_TYPE_DISABLED) ||
+	overrideType(plugin_data, g_settings.plugins_game, P_TYPE_GAME) ||
+	overrideType(plugin_data, g_settings.plugins_tool, P_TYPE_TOOL) ||
+	overrideType(plugin_data, g_settings.plugins_script, P_TYPE_SCRIPT) ||
+	overrideType(plugin_data, g_settings.plugins_lua, P_TYPE_LUA);
+
 	return !reject;
 }
 
+#if 0
 PluginParam * CPlugins::makeParam(const char * const id, const char * const value, PluginParam * const next)
 {
 	PluginParam * startparam = new PluginParam;
@@ -291,14 +348,15 @@ PluginParam * CPlugins::makeParam(const char * const id, const int value, Plugin
 
 	return makeParam(id, aval, next);
 }
+#endif
 
-void CPlugins::start_plugin_by_name(const std::string & filename,int param)
+void CPlugins::startPlugin_by_name(const std::string & filename)
 {
 	for (int i = 0; i <  (int) plugin_list.size(); i++)
 	{
-		if (filename.compare(g_PluginList->getName(i))==0)
+		if (!filename.compare(g_PluginList->getFileName(i)))
 		{
-			startPlugin(i,param);
+			startPlugin(i);
 			return;
 		}
 	}
@@ -308,10 +366,31 @@ void CPlugins::startPlugin(const char * const name)
 {
 	int pluginnr = find_plugin(name);
 	if (pluginnr > -1)
-		startPlugin(pluginnr,0);
+		startPlugin(pluginnr);
 	else
 		printf("[CPlugins] could not find %s\n", name);
 
+}
+
+void CPlugins::popenScriptPlugin(const char * script)
+{
+	pid_t pid = 0;
+	FILE *f = my_popen(pid, script, "r");
+	if (f != NULL)
+	{
+		char *output=NULL;
+		size_t len = 0;
+		while ((getline(&output, &len, f)) != -1)
+			scriptOutput += output;
+		pclose(f);
+		int s;
+		while (waitpid(pid, &s, WNOHANG)>0);
+		kill(pid, SIGTERM);
+		if (output)
+			free(output);
+	}
+	else
+		printf("[CPlugins] can't execute %s\n",script);
 }
 
 void CPlugins::startScriptPlugin(int number)
@@ -324,31 +403,19 @@ void CPlugins::startScriptPlugin(int number)
 		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
-	pid_t pid = 0;
-	FILE *f = my_popen(pid,script,"r");
-	if (f != NULL)
-	{
-		char *output=NULL;
-		size_t len = 0;
-		while (( getline(&output, &len, f)) != -1)
 
-		{
-			scriptOutput += output;
-		}
-		pclose(f);
-		int s;
-		while (waitpid(pid,&s,WNOHANG)>0);
-		kill(pid,SIGTERM);
-		if(output)
-			free(output);
+	// workaround for manually messed up permissions
+	if (access(script, X_OK))
+		chmod(script, 0755);
+	if (plugin_list[number].shellwindow)
+	{
+		CShellWindow(script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE);
+		scriptOutput = "";
 	}
 	else
-	{
-		printf("[CPlugins] can't execute %s\n",script);
-	}
+		popenScriptPlugin(script);
 }
 
-#if ENABLE_LUA
 void CPlugins::startLuaPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
@@ -362,27 +429,46 @@ void CPlugins::startLuaPlugin(int number)
 	CLuaInstance *lua = new CLuaInstance();
 	lua->runScript(script);
 	delete lua;
-}
+#if HAVE_SPARK_HARDWARE
+	frameBuffer->ClearFB();
 #endif
+	videoDecoder->Pig(-1, -1, -1, -1);
+	frameBuffer->paintBackground();
+}
 
-void CPlugins::startPlugin(int number,int /*param*/)
+void CPlugins::startPlugin(int number)
 {
 	// always delete old output
 	delScriptOutput();
 	/* export neutrino settings to the environment */
 	char tmp[32];
+#if HAVE_SPARK_HARDWARE
+	sprintf(tmp, "%d", g_settings.screen_StartX_int);
+#else
 	sprintf(tmp, "%d", g_settings.screen_StartX);
+#endif
 	setenv("SCREEN_OFF_X", tmp, 1);
+#if HAVE_SPARK_HARDWARE
+	sprintf(tmp, "%d", g_settings.screen_StartY_int);
+#else
 	sprintf(tmp, "%d", g_settings.screen_StartY);
+#endif
 	setenv("SCREEN_OFF_Y", tmp, 1);
+#if HAVE_SPARK_HARDWARE
+	sprintf(tmp, "%d", g_settings.screen_EndX_int);
+#else
 	sprintf(tmp, "%d", g_settings.screen_EndX);
+#endif
 	setenv("SCREEN_END_X", tmp, 1);
+#if HAVE_SPARK_HARDWARE
+	sprintf(tmp, "%d", g_settings.screen_EndY_int);
+#else
 	sprintf(tmp, "%d", g_settings.screen_EndY);
+#endif
 	setenv("SCREEN_END_Y", tmp, 1);
 
-	//bool ispip = strncmp(plugin_list[number].pluginfile.c_str(), "pip", 3) ? false : true;
 	bool ispip  = strstr(plugin_list[number].pluginfile.c_str(), "pip") != 0;
-//printf("exec: %s pip: %d\n", plugin_list[number].pluginfile.c_str(), ispip);
+	//printf("exec: %s pip: %d\n", plugin_list[number].pluginfile.c_str(), ispip);
 	if (ispip && !g_RemoteControl->is_video_started)
 		return;
 	if (plugin_list[number].type == CPlugins::P_TYPE_SCRIPT)
@@ -390,13 +476,11 @@ void CPlugins::startPlugin(int number,int /*param*/)
 		startScriptPlugin(number);
 		return;
 	}
-#if ENABLE_LUA
 	if (plugin_list[number].type == CPlugins::P_TYPE_LUA)
 	{
 		startLuaPlugin(number);
 		return;
 	}
-#endif
 	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
@@ -404,226 +488,27 @@ void CPlugins::startPlugin(int number,int /*param*/)
 		return;
 	}
 
-#if 0
-	PluginExec execPlugin;
-	char depstring[129];
-	char			*argv[20];
-	void			*libhandle[20];
-	int			argc = 0, i = 0, lcd_fd=-1;
-	char			*p;
-	char			*np;
-	void			*handle;
-	char *        error;
-	int           vtpid      =  0;
-	PluginParam * startparam =  0;
-#endif
-	g_RCInput->clearRCMsg();
-#if 0
-	if (plugin_list[number].fb)
-	{
-		startparam = makeParam(P_ID_FBUFFER  , frameBuffer->getFileHandle()    , startparam);
-	}
-	if (plugin_list[number].rc)
-	{
-		startparam = makeParam(P_ID_RCINPUT  , g_RCInput->getFileHandle()      , startparam);
-		startparam = makeParam(P_ID_RCBLK_ANF, g_settings.repeat_genericblocker, startparam);
-		startparam = makeParam(P_ID_RCBLK_REP, g_settings.repeat_blocker       , startparam);
-	}
-	else
-	{
-		g_RCInput->stopInput();
-	}
-	if (plugin_list[number].lcd)
-	{
-		CLCD::getInstance()->pause();
-
-		lcd_fd = open("/dev/dbox/lcd0", O_RDWR);
-
-		startparam = makeParam(P_ID_LCD      , lcd_fd                          , startparam);
-	}
-	if (plugin_list[number].vtxtpid)
-	{
-		vtpid = g_RemoteControl->current_PIDs.PIDs.vtxtpid;
-#ifdef USE_VBI_INTERFACE
-		int fd = open("/dev/dbox/vbi0", O_RDWR);
-		if (fd > 0)
-		{
-			ioctl(fd, AVIA_VBI_STOP_VTXT, 0);
-			close(fd);
-		}
-#endif
-		if (param>0)
-			vtpid=param;
-		startparam = makeParam(P_ID_VTXTPID, vtpid, startparam);
-	}
-	if (plugin_list[number].needoffset)
-	{
-		startparam = makeParam(P_ID_VFORMAT  , g_settings.video_Format         , startparam);
-		startparam = makeParam(P_ID_OFF_X    , g_settings.screen_StartX        , startparam);
-		startparam = makeParam(P_ID_OFF_Y    , g_settings.screen_StartY        , startparam);
-		startparam = makeParam(P_ID_END_X    , g_settings.screen_EndX          , startparam);
-		startparam = makeParam(P_ID_END_Y    , g_settings.screen_EndY          , startparam);
-	}
-
-	PluginParam *par = startparam;
-	for ( ; par; par=par->next )
-	{
-		printf("[CPlugins] (id,val):(%s,%s)\n", par->id, par->val);
-	}
-	std::string pluginname = plugin_list[number].filename;
-
-	strcpy(depstring, plugin_list[number].depend.c_str());
-
-	argc=0;
-	if ( depstring[0] )
-	{
-		p=depstring;
-		while ( 1 )
-		{
-			argv[ argc ] = p;
-			argc++;
-			np = strchr(p,',');
-			if ( !np )
-				break;
-
-			*np=0;
-			p=np+1;
-			if ( argc == 20 )	// mehr nicht !
-				break;
-		}
-	}
-	for ( i=0; i<argc; i++ )
-	{
-		std::string libname = argv[i];
-		printf("[CPlugins] try load shared lib : %s\n",argv[i]);
-		libhandle[i] = dlopen ( *argv[i] == '/' ?
-					argv[i] : (PLUGINDIR "/"+libname).c_str(),
-					RTLD_NOW | RTLD_GLOBAL );
-		if ( !libhandle[i] )
-		{
-			fputs (dlerror(), stderr);
-			break;
-		}
-	}
-	if ( i == argc )		// alles geladen
-	{
-		//bool ispip = strncmp(plugin_list[number].pluginfile.c_str(), "pip", 3) ? true : false;
-		handle = dlopen ( plugin_list[number].pluginfile.c_str(), RTLD_NOW);
-		if (!handle)
-		{
-			fputs (dlerror(), stderr);
-		} else {
-			execPlugin = (PluginExec) dlsym(handle, "plugin_exec");
-			if ((error = dlerror()) != NULL)
-			{
-				fputs(error, stderr);
-				dlclose(handle);
-			} else {
-				printf("[CPlugins] try exec...\n");
-				if (ispip) {
-					g_Sectionsd->setPauseScanning (true);
-					g_Zapit->setEventMode(false);
-					if (g_Zapit->isPlayBackActive()) {
-						if (!CNeutrinoApp::getInstance()->recordingstatus)
-							g_Zapit->setRecordMode(true);
-					} else {
-						/* no playback, we playing file ? zap to channel */
-						t_channel_id current_channel = g_Zapit->getCurrentServiceID();
-						g_Zapit->zapTo_serviceID(current_channel);
-					}
-				}
-				g_RCInput->close_click();
-#ifndef FB_USE_PALETTE
-				if (plugin_list[number].fb) {
-					frameBuffer->setMode(720, 576, 8);
-					frameBuffer->paletteSet();
-				}
-#endif
-				execPlugin(startparam);
-				dlclose(handle);
-				printf("[CPlugins] exec done...\n");
-				g_RCInput->open_click();
-			}
-		}
-		//restore framebuffer...
-//#if 0
-//		g_RCInput->open_click();
-//#endif
-
-		//if (!plugin_list[number].rc)
-		g_RCInput->restartInput();
-		g_RCInput->clearRCMsg();
-
-		if (plugin_list[number].lcd)
-		{
-			if (lcd_fd != -1)
-				close(lcd_fd);
-			CLCD::getInstance()->resume();
-		}
-
-		if (plugin_list[number].fb)
-		{
-#ifdef FB_USE_PALETTE
-			frameBuffer->paletteSet();
-#else
-			frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
-#endif
-		}
-		frameBuffer->paintBackgroundBox(0,0,720,576);
-		if (ispip) {
-			if (!CNeutrinoApp::getInstance()->recordingstatus) {
-				g_Zapit->setRecordMode(false);
-			}
-			g_Zapit->setEventMode(true);
-			g_Sectionsd->setPauseScanning (false);
-		}
-
-#ifdef USE_VBI_INTERFACE
-		if (plugin_list[number].vtxtpid)
-		{
-			if (vtpid != 0)
-			{
-				// versuche, den gtx/enx_vbi wieder zu starten
-				int fd = open("/dev/dbox/vbi0", O_RDWR);
-				if (fd > 0)
-				{
-					ioctl(fd, AVIA_VBI_START_VTXT, vtpid);
-					close(fd);
-				}
-			}
-		}
-#endif
-	}
-
-	/* unload shared libs */
-	for ( i=0; i<argc; i++ )
-	{
-		if ( libhandle[i] )
-			dlclose(libhandle[i]);
-		else
-			break;
-	}
-
-	for (par = startparam ; par; )
-	{
-		/* we must not free par->id, since it is the original */
-		free(par->val);
-		PluginParam * tmp = par;
-		par = par->next;
-		delete tmp;
-	}
-	g_RCInput->clearRCMsg();
-#else
 	g_RCInput->clearRCMsg();
 	g_RCInput->stopInput();
+	/* stop automatic updates etc. */
+	frameBuffer->Lock();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
+
+	// workaround for manually messed up permissions
+	if (access(plugin_list[number].pluginfile, X_OK))
+		chmod(plugin_list[number].pluginfile.c_str(), 0755);
+
 	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
+	frameBuffer->Unlock();
+#if HAVE_SPARK_HARDWARE
+	frameBuffer->ClearFB();
+#endif
+	videoDecoder->Pig(-1, -1, -1, -1);
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();
 	g_RCInput->clearRCMsg();
-#endif
 }
 
 bool CPlugins::hasPlugin(CPlugins::p_type_t type)
@@ -663,13 +548,52 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 	case PLUGIN_TYPE_SCRIPT:
 		return P_TYPE_SCRIPT;
 		break;
-#if ENABLE_LUA
 	case PLUGIN_TYPE_LUA:
 		return P_TYPE_LUA;
-#endif
 	default:
 		return P_TYPE_DISABLED;
 	}
 }
 
+CPlugins::i_type_t CPlugins::getPluginIntegration(int integration)
+{
+	switch (integration)
+	{
+	case INTEGRATION_TYPE_DISABLED:
+		return I_TYPE_DISABLED;
+		break;
+	/*
+	case INTEGRATION_TYPE_MAIN:
+		return I_TYPE_MAIN;
+		break;
+	*/
+	case INTEGRATION_TYPE_MULTIMEDIA:
+		return I_TYPE_MULTIMEDIA;
+		break;
+	case INTEGRATION_TYPE_SETTING:
+		return I_TYPE_SETTING;
+		break;
+	case INTEGRATION_TYPE_SERVICE:
+		return I_TYPE_SERVICE;
+		break;
+	case INTEGRATION_TYPE_INFORMATION:
+		return I_TYPE_INFORMATION;
+		break;
+	default:
+		return I_TYPE_DISABLED;
+	}
+}
 
+neutrino_msg_t CPlugins::getPluginKey(std::string key)
+{
+	if (key == "red")
+		return CRCInput::RC_red;
+	else if (key == "green")
+		return CRCInput::RC_green;
+	else if (key == "yellow")
+		return CRCInput::RC_yellow;
+	else if (key == "blue")
+		return CRCInput::RC_blue;
+	else /* (key == "auto") */
+		return CRCInput::RC_nokey;
+}

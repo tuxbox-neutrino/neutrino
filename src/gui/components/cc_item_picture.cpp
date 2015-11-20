@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -32,6 +32,7 @@
 #include <neutrino.h>
 #include "cc_item_picture.h"
 #include <unistd.h>
+#include <system/debug.h>
 
 extern CPictureViewer * g_PicViewer;
 
@@ -41,44 +42,55 @@ using namespace std;
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsPicture from CComponentsItem
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos, const int &w, const int &h,
-					const std::string& image_name, const int &alignment, bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+					const std::string& image_name,
+					CComponentsForm *parent,
+					bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
-	init(x_pos, y_pos, w, h, image_name, alignment, has_shadow, color_frame, color_background, color_shadow);
+	init(x_pos, y_pos, w, h, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent, SCALE);
 }
 
-void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h, const string& image_name, const int &alignment, bool has_shadow,
-				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos,
+					const std::string& image_name,
+					CComponentsForm *parent,
+					bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
+{
+	init(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent, NO_SCALE);
+}
+
+
+void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
+				const string& image_name,
+				CComponentsForm *parent,
+				bool has_shadow,
+				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent,
+				bool allow_scale)
 {
 	//CComponents, CComponentsItem
 	cc_item_type 	= CC_ITEMTYPE_PICTURE;
 
 	//CComponents
-	x = pic_x	= x_pos;
-	y = pic_y	= y_pos;
-	height		= h;
-	width 		= w;
+	x 		= x_pos;
+	y 		= y_pos;
+	width	= dx	= w;
+	height	= dy	= h;
+	pic_name 	= image_name;
 	shadow		= has_shadow;
 	shadow_w	= SHADOW_OFFSET;
 	col_frame 	= color_frame;
 	col_body	= color_background;
 	col_shadow	= color_shadow;
+	do_scale	= allow_scale;
 
-	//CComponentsPicture
-	pic_paint_mode 	= CC_PIC_IMAGE_MODE_AUTO,
-	pic_name 	= image_name;
-	pic_align	= alignment;
-	pic_offset	= 1;
-	pic_paint	= true;
-	pic_paintBg	= false;
-	pic_painted	= false;
-	do_paint	= false;
-	pic_max_w	= 0;
-	pic_max_h	= 0;
-	if (pic_name.empty())
-		pic_width = pic_height = 0;
+	is_image_painted= false;
+	do_paint	= true;
+	image_transparent = transparent;
+	keep_dx_aspect 	= false;
+	keep_dy_aspect	= false;
 
 	initCCItem();
+	initParent(parent);
 }
 
 void CComponentsPicture::setPicture(const std::string& picture_name)
@@ -87,117 +99,142 @@ void CComponentsPicture::setPicture(const std::string& picture_name)
 	initCCItem();
 }
 
-
-void CComponentsPicture::setPictureAlign(const int alignment)
+void CComponentsPicture::setPicture(const char* picture_name)
 {
-	pic_align = alignment;
+	string s_tmp = "";
+	if (picture_name)
+		s_tmp = string(picture_name);
+	setPicture(s_tmp);
+}
+
+void CComponentsPicture::setWidth(const int& w, bool keep_aspect)
+{
+	CComponentsItem::setWidth(w),
+	do_scale = true;
+	keep_dy_aspect = keep_aspect;
 	initCCItem();
 }
 
+void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
+{
+	CComponentsItem::setHeight(h),
+	do_scale = true;
+	keep_dx_aspect = keep_aspect;
+	initCCItem();
+}
 
 void CComponentsPicture::initCCItem()
 {
-	pic_width = pic_height = 0;
-	pic_painted = false;
-	do_paint = false;
+	if (pic_name.empty()){
+		dprintf(DEBUG_INFO, "[CComponentsPicture] %s - %d : no image file assigned...\n",  __func__, __LINE__);
+		return;
+	}
 
-	if (pic_name == "")
+	//check for path or name, set icon or image with full path, has no path, then use as icon and disble scale mode
+	string::size_type pos = pic_name.find("/", 0);
+	if (pos == string::npos)
+		do_scale = false;
+
+	//initial internal size
+	if (!do_scale){
+		//use image/icon size as object dimension values
+		frameBuffer->getIconSize(pic_name.c_str(), &width, &height);
+		return;
+	}
+	else{ //initialized scaled size
+		//first get real image dimensions
+		if  ((dx != width || dy != height) || (dx == 0 || dy == 0))
+			g_PicViewer->getSize(pic_name.c_str(), &dx, &dy);
+	}
+
+	//ensure filled inital values
+	if (width == 0)
+		width = dx;
+	if (height == 0)
+		height = dy;
+
+	//check dimensions, leave if dimensions are equal
+	if (width == dx && height == dy)
 		return;
 
-	if (pic_max_w == 0)
-		pic_max_w = width-2*fr_thickness;
+	//temporarily vars
+	int w_2scale = width;
+	int h_2scale = height;
 
-	if (pic_max_h == 0)
-		pic_max_h = height-2*fr_thickness;
+	//resize image and set current dimensions
+	g_PicViewer->rescaleImageDimensions(&width, &height, w_2scale, h_2scale);
 
-	//set the image mode depends of name syntax, icon names contains no path,
-	//so we can detect the required image mode
-	if (pic_paint_mode == CC_PIC_IMAGE_MODE_AUTO){
-		if (!access(pic_name.c_str(), F_OK ))
-			pic_paint_mode = CC_PIC_IMAGE_MODE_ON;
-		else
-			pic_paint_mode = CC_PIC_IMAGE_MODE_OFF;
+	//handle aspect ratio
+	if (keep_dx_aspect){
+		float h_ratio = float(height)*100/(float)dy;
+		width = int(h_ratio*(float)dx/100);
 	}
-
-	if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF){
-		frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
-#if 0
-		pic_width = max(pic_width, pic_max_w);
-		pic_height = max(pic_height, pic_max_h);
-#endif
+	if (keep_dy_aspect){
+		float w_ratio = float(width)*100/(float)dx;
+		height = int(w_ratio*(float)dy/100);
 	}
-	
-	if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON) {
-		g_PicViewer->getSize(pic_name.c_str(), &pic_width, &pic_height);
-		if((pic_width > pic_max_w) || (pic_height > pic_max_h))
-			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, pic_max_w, pic_max_h);
-	}
-
-#ifdef DEBUG_CC
-	if (pic_width == 0 || pic_height == 0)
-		printf("[CComponentsPicture] %s file: %s, no icon dimensions found! width = %d, height = %d\n", __func__, pic_name.c_str(),  pic_width, pic_height);
-#endif
-
-	initPosition();
-
-	int sw = (shadow ? shadow_w :0);
-	width = max(max(pic_width, pic_max_w), width)  + sw ;
-	height = max(max(pic_height, pic_max_h), height)  + sw ;
-
-#ifdef DEBUG_CC
-	printf("[CComponentsPicture] %s initialized Image: ====>> %s\n\titem x = %d\n\tdx = %d (image dx = %d)\n\titem y = %d\n\titem dy = %d (image dy = %d)\n",
-	       __func__, pic_name.c_str(),  x, width, pic_width,  y, height, pic_height);
-#endif
 }
 
-void CComponentsPicture::initPosition()
+void CComponentsPicture::initPosition(int *x_position, int *y_position)
 {
-	//using of real x/y values to paint images if this picture object is bound in a parent form
-	int px = x, py = y;
-	if (cc_parent){
-		px = cc_xr;
-		py = cc_yr;
-	}
+	*x_position = x;
+	*y_position = y;
 
-	if (pic_height>0 && pic_width>0){
-		if (pic_align & CC_ALIGN_LEFT)
-			pic_x = px+fr_thickness;
-		if (pic_align & CC_ALIGN_RIGHT)
-			pic_x = px+width-pic_width-fr_thickness;
-		if (pic_align & CC_ALIGN_TOP)
-			pic_y = py+fr_thickness;
-		if (pic_align & CC_ALIGN_BOTTOM)
-			pic_y = py+height-pic_height-fr_thickness;
-		if (pic_align & CC_ALIGN_HOR_CENTER)
-			pic_x = px+width/2-pic_width/2;
-		if (pic_align & CC_ALIGN_VER_CENTER)
-			pic_y = py+height/2-pic_height/2;
-
-		do_paint = true;
+	if (cc_parent){ //using of real x/y values to paint images if this picture object is bound in a parent form
+		*x_position = cc_xr;
+		*y_position = cc_yr;
 	}
+}
+
+
+void CComponentsPicture::getSize(int* width_image, int *height_image)
+{
+	initCCItem();
+	*width_image = width;
+	*height_image = height;
+}
+
+int CComponentsPicture::getWidth()
+{
+	int w, h;
+	getSize(&w, &h);
+	return w;
+}
+
+int CComponentsPicture::getHeight()
+{
+	int w, h;
+	getSize(&w, &h);
+	return h;
 }
 
 void CComponentsPicture::paintPicture()
 {
-	pic_painted = false;
+	is_image_painted = false;
+	//initialize image position
+	int x_pic = x;
+	int y_pic = y;
+	initPosition(&x_pic, &y_pic);
+	initCCItem();
 
-	if (do_paint && cc_allow_paint){
-#ifdef DEBUG_CC
-	printf("	[CComponentsPicture] %s: paint image: %s (do_paint=%d) with mode %d\n", __func__, pic_name.c_str(), do_paint, pic_paint_mode);
-#endif
-		if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF)
-			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0 /*pic_max_h*/, pic_offset, pic_paint, pic_paintBg, col_body);
-		else if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON)
-			pic_painted = g_PicViewer->DisplayImage(pic_name, pic_x, pic_y, pic_width, pic_height);
+	if (pic_name.empty())
+		return;
+
+	if (cc_allow_paint){
+		dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
+		frameBuffer->SetTransparent(image_transparent);
+		if (do_scale)
+			is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width, height);
+		else
+			is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
+		frameBuffer->SetTransparentDefault();
 	}
-
-	if  (pic_painted)
-		do_paint = false;
 }
 
 void CComponentsPicture::paint(bool do_save_bg)
 {
-	initCCItem();
+	if (pic_name.empty())
+		return;
 	paintInit(do_save_bg);
 	paintPicture();
 }
@@ -205,60 +242,80 @@ void CComponentsPicture::paint(bool do_save_bg)
 void CComponentsPicture::hide(bool no_restore)
 {
 	hideCCItem(no_restore);
-	pic_painted = false;
+	is_image_painted = false;
 }
 
 
 CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
-						const uint64_t& channelId, const std::string& channelName,
-						const int &alignment, bool has_shadow,
-						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+						const std::string& channelName,
+						const uint64_t& channelId,
+						CComponentsForm *parent,
+						bool has_shadow,
+						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 						:CComponentsPicture(x_pos, y_pos, w, h,
-						"", alignment, has_shadow,
-						color_frame, color_background, color_shadow)
+						"", parent, has_shadow,
+						color_frame, color_background, color_shadow, transparent)
 {
-	channel_id = channelId;
-	channel_name = channelName;
-	initVarPictureChannellLogo();
+	init(channelId, channelName, SCALE);
 }
 
-void CComponentsChannelLogo::setPicture(const std::string& picture_name)
+CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos,
+						const std::string& channelName,
+						const uint64_t& channelId,
+						CComponentsForm *parent,
+						bool has_shadow,
+						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
+						:CComponentsPicture(x_pos, y_pos, 0, 0,
+						"", parent, has_shadow,
+						color_frame, color_background, color_shadow, transparent)
 {
-	pic_name = picture_name;
+	init(channelId, channelName, NO_SCALE);
+}
+
+void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& channelName, bool allow_scale)
+{
+	alt_pic_name = "";
+	setChannel(channelId, channelName);
+	do_scale = allow_scale;
+}
+void CComponentsChannelLogo::setAltLogo(const std::string& picture_name)
+{
+	alt_pic_name = picture_name;
 	channel_id = 0;
 	channel_name = "";
-	initVarPictureChannellLogo();
+	has_logo = !alt_pic_name.empty();
+	if (has_logo)
+		initCCItem();
+}
+
+void CComponentsChannelLogo::setAltLogo(const char* picture_name)
+{
+	string s_tmp = "";
+	if (picture_name)
+		s_tmp = string(picture_name);
+	this->setAltLogo(s_tmp);
 }
 
 void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::string& channelName)
 {
 	channel_id = channelId; 
 	channel_name = channelName;
-	initVarPictureChannellLogo();
-}
+	int dummy;
 
-void CComponentsChannelLogo::initVarPictureChannellLogo()
-{
-	string tmp_logo = pic_name;
-	has_logo = false;
+	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, pic_name, &dummy, &dummy);
 
-	if (!(channel_id == 0 && channel_name.empty() && pic_name.empty()))
-		has_logo = GetLogoName(channel_id, channel_name, pic_name, &pic_width, &pic_height);
+	if (!has_logo)//no logo was found, use altrenate icon or logo
+		pic_name = alt_pic_name;
 
-	if (!has_logo)
-		pic_name = tmp_logo;
-	
-#ifdef DEBUG_CC
-	printf("\t[CComponentsChannelLogo] %s: init image: %s (has_logo=%d, channel_id=%" PRIu64 ")\n", __func__, pic_name.c_str(), has_logo, channel_id);
-#endif
-	
+	//if logo or alternate image still not available, set has logo to false
+	has_logo = !pic_name.empty();
+
+	//refresh object
 	initCCItem();
-}
 
-void CComponentsChannelLogo::paint(bool do_save_bg)
-{
-	initVarPictureChannellLogo();
-	paintInit(do_save_bg);
-	paintPicture();
-	has_logo = false; //reset
+	//set has_logo to false if no dimensions were detected
+	if (width && height)
+		has_logo = true;
+
+	doPaintBg(false);
 }

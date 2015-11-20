@@ -35,13 +35,17 @@
 #include <zapit/types.h>
 
 void *insertEventsfromFile(void * data);
-void writeEventsToFile(char *epgdir);
+bool readEventsFromFile(std::string &epgname, int &ev_count);
+bool readEventsFromDir(std::string &epgdir, int &ev_count);
+void writeEventsToFile(const char *epgdir);
 
-void readEPGFilter(void);
+bool readEPGFilter(void);
 void readDVBTimeFilter(void);
 bool checkEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid);
 bool checkBlacklist(t_channel_id channel_id);
 bool checkNoDVBTimelist(t_channel_id channel_id);
+void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid);
+void clearEPGFilter();
 
 #endif /* __sectionsd__debug_h__ */
 

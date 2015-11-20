@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -29,8 +29,11 @@
 #include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
+#include <driver/rcinput.h>
 
-// #define DEBUG_CC
+
+class CComponentsForm;
+class CComponentsScrollBar;
 
 ///cc item types
 typedef enum
@@ -58,6 +61,7 @@ typedef enum
 	CC_ITEMTYPE_BUTTON_YELLOW,
 	CC_ITEMTYPE_BUTTON_BLUE,
 	CC_ITEMTYPE_SLIDER,
+	CC_ITEMTYPE_FRM_SCROLLBAR,
 
 	CC_ITEMTYPES
 }CC_ITEMTYPES_T;
@@ -99,6 +103,13 @@ typedef struct comp_screen_data_t
 	fb_pixel_t* pixbuf;
 } comp_screen_data_struct_t;
 
+//combination of rc messages with related icon
+typedef struct msg_list_t
+{
+	neutrino_msg_t 	msg;
+	const char* 	icon;
+} key_list_t;
+
 //align types
 enum
 {
@@ -108,6 +119,13 @@ enum
 	CC_ALIGN_BOTTOM 	= 8,
 	CC_ALIGN_HOR_CENTER	= 16,
 	CC_ALIGN_VER_CENTER	= 32
+};
+
+//item centering modes, see also CComponentsItem::setCenterPos()
+enum
+{
+	CC_ALONG_X 		= 1,
+	CC_ALONG_Y 		= 2
 };
 
 enum

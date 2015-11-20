@@ -9,7 +9,7 @@
 	Copyright (C) 2011 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
-	Copyright (C) 2011 CoolStream International Ltd
+	Copyright (C) 2011-2014 CoolStream International Ltd
 
 	License: GPL
 
@@ -65,8 +65,6 @@
 extern Zapit_config zapitCfg;
 extern char zapit_lat[20];
 extern char zapit_long[20];
-/* ugly */
-extern CHintBox *reloadhintBox;
 
 //static int all_usals = 1;
 //sat_iterator_t sit;
@@ -103,48 +101,160 @@ const CMenuOptionChooser::keyval SATSETUP_DISEQC_OPTIONS[SATSETUP_DISEQC_OPTION_
 //	{ SMATV_REMOTE_TUNING,	LOCALE_SATSETUP_SMATVREMOTE }
 };
 
-#define SATSETUP_SCANTP_FEC_COUNT 21
-#define CABLESETUP_SCANTP_FEC_COUNT 5
-const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[SATSETUP_SCANTP_FEC_COUNT] =
+#define SATSETUP_SCANTP_DELSYS_COUNT	5
+const CMenuOptionChooser::keyval SATSETUP_SCANTP_DELSYS[SATSETUP_SCANTP_DELSYS_COUNT] =
 {
-	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO },
-	{ FEC_S2_AUTO, LOCALE_EXTRA_FEC_AUTO_S2 },
-
-	{ FEC_1_2, LOCALE_EXTRA_FEC_1_2 },
-	{ FEC_2_3, LOCALE_EXTRA_FEC_2_3 },
-	{ FEC_3_4, LOCALE_EXTRA_FEC_3_4 },
-	{ FEC_5_6, LOCALE_EXTRA_FEC_5_6 },
-	{ FEC_7_8, LOCALE_EXTRA_FEC_7_8 },
-
-	{ FEC_S2_QPSK_1_2, LOCALE_EXTRA_FEC_S2_QPSK_1_2 },
-	{ FEC_S2_QPSK_2_3, LOCALE_EXTRA_FEC_S2_QPSK_2_3 },
-	{ FEC_S2_QPSK_3_4, LOCALE_EXTRA_FEC_S2_QPSK_3_4 },
-	{ FEC_S2_QPSK_5_6, LOCALE_EXTRA_FEC_S2_QPSK_5_6 },
-	//{ FEC_S2_QPSK_7_8, LOCALE_EXTRA_FEC_S2_QPSK_7_8 },
-	{ FEC_S2_QPSK_8_9, LOCALE_EXTRA_FEC_S2_QPSK_8_9 },
-	{ FEC_S2_QPSK_3_5, LOCALE_EXTRA_FEC_S2_QPSK_3_5 },
-	{ FEC_S2_QPSK_4_5, LOCALE_EXTRA_FEC_S2_QPSK_4_5 },
-	{ FEC_S2_QPSK_9_10, LOCALE_EXTRA_FEC_S2_QPSK_9_10 },
-
-	//{ FEC_S2_8PSK_1_2, LOCALE_EXTRA_FEC_S2_8PSK_1_2 },
-	{ FEC_S2_8PSK_2_3, LOCALE_EXTRA_FEC_S2_8PSK_2_3 },
-	{ FEC_S2_8PSK_3_4, LOCALE_EXTRA_FEC_S2_8PSK_3_4 },
-	{ FEC_S2_8PSK_3_5, LOCALE_EXTRA_FEC_S2_8PSK_3_5 },
-	{ FEC_S2_8PSK_5_6, LOCALE_EXTRA_FEC_S2_8PSK_5_6 },
-	//{ FEC_S2_8PSK_7_8, LOCALE_EXTRA_FEC_S2_8PSK_7_8 },
-	{ FEC_S2_8PSK_8_9, LOCALE_EXTRA_FEC_S2_8PSK_8_9 },
-	//{ FEC_S2_8PSK_4_5, LOCALE_EXTRA_FEC_S2_8PSK_4_5 },
-	{ FEC_S2_8PSK_9_10, LOCALE_EXTRA_FEC_S2_8PSK_9_10 }
+	{ DVB_S,		LOCALE_EXTRA_TP_DELSYS_DVBS },
+	{ DVB_S2,		LOCALE_EXTRA_TP_DELSYS_DVBS2 },
+	{ DSS,			LOCALE_EXTRA_TP_DELSYS_DSS },
+	{ ISDBS,		LOCALE_EXTRA_TP_DELSYS_ISDBS },
+	{ TURBO,		LOCALE_EXTRA_TP_DELSYS_TURBO }
 };
 
-#define SATSETUP_SCANTP_MOD_COUNT 5
+#define CABLESETUP_SCANTP_DELSYS_COUNT	2
+const CMenuOptionChooser::keyval CABLESETUP_SCANTP_DELSYS[CABLESETUP_SCANTP_DELSYS_COUNT] =
+{
+	{ DVB_C,		LOCALE_EXTRA_TP_DELSYS_DVBC  },
+	{ ISDBC,		LOCALE_EXTRA_TP_DELSYS_ISDBC }
+};
+
+#define TERRSETUP_SCANTP_DELSYS_COUNT	4
+const CMenuOptionChooser::keyval TERRSETUP_SCANTP_DELSYS[TERRSETUP_SCANTP_DELSYS_COUNT] =
+{
+	{ DVB_T,		LOCALE_EXTRA_TP_DELSYS_DVBT  },
+	{ DVB_T2,		LOCALE_EXTRA_TP_DELSYS_DVBT2 },
+	{ DTMB,			LOCALE_EXTRA_TP_DELSYS_DTMB  },
+	{ ISDBT,		LOCALE_EXTRA_TP_DELSYS_ISDBT }
+};
+
+#define SATSETUP_SCANTP_FEC_COUNT 10
+//#define CABLESETUP_SCANTP_FEC_COUNT 5
+const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[SATSETUP_SCANTP_FEC_COUNT] =
+{
+	// S
+	{ FEC_1_2, LOCALE_EXTRA_FEC_1_2   },
+	{ FEC_2_3, LOCALE_EXTRA_FEC_2_3   },
+	{ FEC_3_4, LOCALE_EXTRA_FEC_3_4   },
+	{ FEC_5_6, LOCALE_EXTRA_FEC_5_6   },
+	{ FEC_7_8, LOCALE_EXTRA_FEC_7_8   },
+	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO },
+	// S2
+	{ FEC_3_5, LOCALE_EXTRA_FEC_3_5   },
+	{ FEC_4_5, LOCALE_EXTRA_FEC_4_5   },
+	{ FEC_8_9, LOCALE_EXTRA_FEC_8_9   },
+	{ FEC_9_10, LOCALE_EXTRA_FEC_9_10 }
+};
+
+#if 0
+#define CABLESETUP_SCANTP_FEC_COUNT	6
+const CMenuOptionChooser::keyval CABLESETUP_SCANTP_FEC[CABLESETUP_SCANTP_FEC_COUNT] =
+{
+	{ FEC_1_2, LOCALE_EXTRA_FEC_1_2   },
+	{ FEC_2_3, LOCALE_EXTRA_FEC_2_3   },
+	{ FEC_3_4, LOCALE_EXTRA_FEC_3_4   },
+	{ FEC_5_6, LOCALE_EXTRA_FEC_5_6   },
+	{ FEC_7_8, LOCALE_EXTRA_FEC_7_8   },
+	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO },
+};
+#endif
+
+#define TERRSETUP_SCANTP_FEC_COUNT	9
+const CMenuOptionChooser::keyval TERRSETUP_SCANTP_FEC[TERRSETUP_SCANTP_FEC_COUNT] =
+{
+	// DVB-T
+	{ FEC_1_2,  LOCALE_EXTRA_FEC_1_2  },
+	{ FEC_2_3,  LOCALE_EXTRA_FEC_2_3  },
+	{ FEC_3_4,  LOCALE_EXTRA_FEC_3_4  },
+	{ FEC_5_6,  LOCALE_EXTRA_FEC_5_6  },
+	{ FEC_7_8,  LOCALE_EXTRA_FEC_7_8  },
+	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO },
+	// DTMB ie
+	{ FEC_2_5,  LOCALE_EXTRA_FEC_2_5  }, 
+	{ FEC_3_5,  LOCALE_EXTRA_FEC_3_5  }, 
+	{ FEC_4_5,  LOCALE_EXTRA_FEC_4_5  }, 
+
+};
+
+#define TERRSETUP_SCANTP_BW_COUNT	7
+const CMenuOptionChooser::keyval TERRSETUP_SCANTP_BW[TERRSETUP_SCANTP_BW_COUNT] =
+{
+	{ BANDWIDTH_8_MHZ,     LOCALE_EXTRA_TP_BANDWIDTH_8MHZ     },
+	{ BANDWIDTH_7_MHZ,     LOCALE_EXTRA_TP_BANDWIDTH_7MHZ     },
+	{ BANDWIDTH_6_MHZ,     LOCALE_EXTRA_TP_BANDWIDTH_6MHZ     },
+	{ BANDWIDTH_5_MHZ,     LOCALE_EXTRA_TP_BANDWIDTH_5MHZ     },
+	{ BANDWIDTH_10_MHZ,    LOCALE_EXTRA_TP_BANDWIDTH_10MHZ    },
+	{ BANDWIDTH_1_712_MHZ, LOCALE_EXTRA_TP_BANDWIDTH_1_712MHZ },
+	{ BANDWIDTH_AUTO,      LOCALE_EXTRA_TP_BANDWIDTH_AUTO     }
+};
+
+#define TERRSETUP_SCANTP_GI_COUNT	11
+const CMenuOptionChooser::keyval TERRSETUP_SCANTP_GI[TERRSETUP_SCANTP_GI_COUNT] =
+{
+	{ GUARD_INTERVAL_1_4,    LOCALE_EXTRA_TP_GI_1_4    },
+	{ GUARD_INTERVAL_1_8,    LOCALE_EXTRA_TP_GI_1_8    },
+	{ GUARD_INTERVAL_1_16,   LOCALE_EXTRA_TP_GI_1_16   },
+	{ GUARD_INTERVAL_1_32,   LOCALE_EXTRA_TP_GI_1_32   },
+	{ GUARD_INTERVAL_1_128,  LOCALE_EXTRA_TP_GI_1_128  },
+	{ GUARD_INTERVAL_19_128, LOCALE_EXTRA_TP_GI_19_128 },
+	{ GUARD_INTERVAL_19_256, LOCALE_EXTRA_TP_GI_19_256 },
+	{ GUARD_INTERVAL_PN420,  LOCALE_EXTRA_TP_GI_PN420  },
+	{ GUARD_INTERVAL_PN595,  LOCALE_EXTRA_TP_GI_PN595  },
+	{ GUARD_INTERVAL_PN945,  LOCALE_EXTRA_TP_GI_PN945  },
+	{ GUARD_INTERVAL_AUTO,   LOCALE_EXTRA_TP_GI_AUTO   }
+};
+
+#define TERRSETUP_SCANTP_HIERARCHY_COUNT	5
+const CMenuOptionChooser::keyval TERRSETUP_SCANTP_HIERARCHY[TERRSETUP_SCANTP_HIERARCHY_COUNT] =
+{
+	{ HIERARCHY_NONE, LOCALE_EXTRA_TP_HIERARCHY_NONE },
+	{ HIERARCHY_1,    LOCALE_EXTRA_TP_HIERARCHY_1    },
+	{ HIERARCHY_2,    LOCALE_EXTRA_TP_HIERARCHY_2    },
+	{ HIERARCHY_4,    LOCALE_EXTRA_TP_HIERARCHY_4    },
+	{ HIERARCHY_AUTO, LOCALE_EXTRA_TP_HIERARCHY_AUTO }
+};
+
+#define TERRSETUP_SCANTP_TRANSMIT_MODE_COUNT	9
+const CMenuOptionChooser::keyval TERRSETUP_SCANTP_TRANSMIT_MODE[TERRSETUP_SCANTP_TRANSMIT_MODE_COUNT] =
+{
+	{ TRANSMISSION_MODE_1K,    LOCALE_EXTRA_TP_TRANSMIT_MODE_1K    },
+	{ TRANSMISSION_MODE_2K,    LOCALE_EXTRA_TP_TRANSMIT_MODE_2K    },
+	{ TRANSMISSION_MODE_4K,    LOCALE_EXTRA_TP_TRANSMIT_MODE_4K    },
+	{ TRANSMISSION_MODE_8K,    LOCALE_EXTRA_TP_TRANSMIT_MODE_8K    },
+	{ TRANSMISSION_MODE_16K,   LOCALE_EXTRA_TP_TRANSMIT_MODE_16K   },
+	{ TRANSMISSION_MODE_32K,   LOCALE_EXTRA_TP_TRANSMIT_MODE_32K   },
+	{ TRANSMISSION_MODE_C1,    LOCALE_EXTRA_TP_TRANSMIT_MODE_C1    },
+	{ TRANSMISSION_MODE_C3780, LOCALE_EXTRA_TP_TRANSMIT_MODE_C3780 },
+	{ TRANSMISSION_MODE_AUTO,  LOCALE_EXTRA_TP_TRANSMIT_MODE_AUTO  }
+};
+
+#define SATSETUP_SCANTP_MOD_COUNT 3
 const CMenuOptionChooser::keyval SATSETUP_SCANTP_MOD[SATSETUP_SCANTP_MOD_COUNT] =
 {
-	{ 1, LOCALE_EXTRA_TP_MOD_16 },
-	{ 2, LOCALE_EXTRA_TP_MOD_32 },
-	{ 3, LOCALE_EXTRA_TP_MOD_64 },
-	{ 4, LOCALE_EXTRA_TP_MOD_128},
-	{ 5, LOCALE_EXTRA_TP_MOD_256}
+	{ QPSK,     LOCALE_EXTRA_TP_MOD_4    },
+	{ PSK_8,    LOCALE_EXTRA_TP_MOD_8    },
+	{ QAM_AUTO, LOCALE_EXTRA_TP_MOD_AUTO }
+};
+
+#define CABLESETUP_SCANTP_MOD_COUNT 6
+const CMenuOptionChooser::keyval CABLESETUP_SCANTP_MOD[CABLESETUP_SCANTP_MOD_COUNT] =
+{
+	{ QAM_16,   LOCALE_EXTRA_TP_MOD_16   },
+	{ QAM_32,   LOCALE_EXTRA_TP_MOD_32   },
+	{ QAM_64,   LOCALE_EXTRA_TP_MOD_64   },
+	{ QAM_128,  LOCALE_EXTRA_TP_MOD_128  },
+	{ QAM_256,  LOCALE_EXTRA_TP_MOD_256  },
+	{ QAM_AUTO, LOCALE_EXTRA_TP_MOD_AUTO }
+};
+
+#define TERRSETUP_SCANTP_MOD_COUNT 6
+const CMenuOptionChooser::keyval TERRSETUP_SCANTP_MOD[TERRSETUP_SCANTP_MOD_COUNT] =
+{
+	{ QPSK,     LOCALE_EXTRA_TP_MOD_4    },
+	{ QAM_16,   LOCALE_EXTRA_TP_MOD_16   },
+	{ QAM_32,   LOCALE_EXTRA_TP_MOD_32   },
+	{ QAM_64,   LOCALE_EXTRA_TP_MOD_64   },
+	{ QAM_4_NR, LOCALE_EXTRA_TP_MOD_4_NR },
+	{ QAM_AUTO, LOCALE_EXTRA_TP_MOD_AUTO }
 };
 
 #define SATSETUP_SCANTP_POL_COUNT 4
@@ -154,6 +264,15 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_POL[SATSETUP_SCANTP_POL_COUNT] 
 	{ 1, LOCALE_EXTRA_TP_POL_V },
 	{ 2, LOCALE_EXTRA_TP_POL_L },
 	{ 3, LOCALE_EXTRA_TP_POL_R }
+};
+
+#define SATSETUP_SCANTP_PILOT_COUNT 4
+const CMenuOptionChooser::keyval SATSETUP_SCANTP_PILOT[SATSETUP_SCANTP_PILOT_COUNT] =
+{
+	{ ZPILOT_ON,      LOCALE_OPTIONS_ON },
+	{ ZPILOT_OFF,     LOCALE_OPTIONS_OFF },
+	{ ZPILOT_AUTO,    LOCALE_EXTRA_TP_PILOT_AUTO },
+	{ ZPILOT_AUTO_SW, LOCALE_EXTRA_TP_PILOT_AUTO_SW }
 };
 
 #define OPTIONS_SOUTH0_NORTH1_OPTION_COUNT 2
@@ -195,9 +314,9 @@ const CMenuOptionChooser::keyval SATSETUP_FRONTEND_MODE[SATSETUP_FRONTEND_MODE_C
 	{ CFrontend::FE_MODE_LINK_TWIN,   LOCALE_SATSETUP_FE_MODE_LINK_TWIN   },
 };
 
-CScanSetup::CScanSetup(bool wizard_mode)
+CScanSetup::CScanSetup(int wizard_mode)
 {
-	width = w_max (40, 10);
+	width = 40;
 	is_wizard = wizard_mode;
 
 	satOnOff	= NULL;
@@ -252,14 +371,13 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "reloadchannels")
 	{
 		printf("[neutrino] CScanSetup::%s reloadchannels...\n", __FUNCTION__);
-		if (reloadhintBox)
-			reloadhintBox->paint();
+		CHintBox chb(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT));
+		chb.paint();
 		/* save if changed, to make sure NEW/REMOVED/... flags are updated */
 		CServiceManager::getInstance()->SaveServices(true, true);
 		/* Z->reinitChannels triggers EVT_SERVICESCHANGED and this triggers channelsInit() */
 		g_Zapit->reinitChannels();
-		if (reloadhintBox)
-			reloadhintBox->hide();
+		chb.hide();
 		CNeutrinoApp::getInstance ()->SDTreloadChannels = false;
 		if(file_exists(CURRENTSERVICES_XML)){
 			unlink(CURRENTSERVICES_XML);
@@ -298,19 +416,32 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		scansettings.scan_nit_manual = 1;
 		scansettings.scan_fta_flag = 0;
 		if (scansettings.scan_logical_numbers) {
-			g_settings.keep_channel_numbers = 1;
+			//g_settings.keep_channel_numbers = 1;
 			CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
 		}
-		CScanTs scanTs(FE_QAM);
+		CScanTs scanTs(ALL_CABLE);
 		scanTs.exec(NULL, "manual");
 		if (is_wizard)
 			return menu_return::RETURN_EXIT_ALL;
 		return res;
 	}
+	if (actionKey == "fastdiseqc") {
+		printf("[neutrino] CScanSetup::%s: showFastscanDiseqcSetup()\n", __FUNCTION__);
+#ifdef ENABLE_FASTSCAN
+		return showFastscanDiseqcSetup();
+#else
+		return res;
+#endif
+	}
 	std::string scants_key[] = {"all", "manual", "test", "fast", "auto"/*doesn't exists in CScanTs!*/};
 
 	if (actionKey.size() > 1) {
-		int delsys = actionKey[0] == 's' ? FE_QPSK : FE_QAM;
+		delivery_system_t delsys;
+		switch (actionKey[0]) {
+			case 's': delsys = ALL_SAT; break;
+			case 't': delsys = ALL_TERR;  break;
+			default:  delsys = ALL_CABLE; break;
+		}
 		std::string as = actionKey.substr(1);
 		printf("[neutrino] CScanSetup::%s scan %c in %s mode...\n", __FUNCTION__, actionKey[0], as.c_str());
 		for (uint i=0; i< (sizeof(scants_key)/sizeof(scants_key[0])); i++)
@@ -323,8 +454,16 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				//...then start scan
 				CScanTs scanTs(delsys);
 				scanTs.exec(NULL, scants_key[i]);
-				if (is_wizard && as == "fast")
-					return menu_return::RETURN_EXIT_ALL;
+#if 0
+				/* FIXME save fst version. other than fast scan will reset it to 0
+				   to disable fast scan updates */
+				scansettings.fst_version = CServiceScan::getInstance()->GetFstVersion();
+#endif
+				if (as == "fast") {
+					//scansettings.fst_update = 1;
+					if (is_wizard)
+						return menu_return::RETURN_EXIT_ALL;
+				}
 				return res;
 			}
 		}
@@ -348,7 +487,7 @@ unsigned int CScanSetup::getSatMenuListWidth()
 
 	satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
 	for(sat_iterator_t it = satmap.begin(); it != satmap.end(); ++it) {
-		sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(it->second.name.c_str(), true);
+		sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(it->second.name);
 		max_txt_w = std::max(max_txt_w, sat_txt_w);
 	}
 
@@ -368,6 +507,7 @@ int CScanSetup::showScanMenu()
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortcut = 1;
 	int w = getSatMenuListWidth();
+	printf("C: %d S: %d T: %d\n", CFEManager::getInstance()->haveCable(),CFEManager::getInstance()->haveSat(), CFEManager::getInstance()->haveTerr());
 
 	CMenuForwarder  * mf;
 	CMenuOptionChooser * mc;
@@ -383,7 +523,7 @@ int CScanSetup::showScanMenu()
 	//----------------------------------------------------------------------
 #if 0
 	//save scan settings
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "save_scansettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "save_scansettings", CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_SAVESETTINGS);
 	settings->addItem(mf);
 	//----------------------------------------------------------------------
@@ -399,7 +539,7 @@ int CScanSetup::showScanMenu()
 	}
 #endif
 	if (CFEManager::getInstance()->haveSat()) {
-		r_system = DVB_S;
+		r_system = ALL_SAT;
 
 		//settings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SCANTS_PREVERENCES_RECEIVING_SYSTEM ));
 
@@ -412,34 +552,41 @@ int CScanSetup::showScanMenu()
 
 		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN);
 		addScanMenuAutoScan(autoScan);
-		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", CRCInput::RC_red);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
 		settings->addItem(mf);
 
 		//manual scan
 		CMenuWidget * manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
 		addScanMenuManualScan(manualScan);
-		mf = new CMenuDForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
 		settings->addItem(mf);
 		//auto scan all
 		CMenuWidget * autoScanAll = new CMenuWidget(LOCALE_SATSETUP_AUTO_SCAN_ALL, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN_ALL);
 		addScanMenuAutoScanAll(autoScanAll);
-		fautoScanAll = new CMenuDForwarder(LOCALE_SATSETUP_AUTO_SCAN_ALL, true /*(dmode != NO_DISEQC)*/, NULL, autoScanAll, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		fautoScanAll = new CMenuDForwarder(LOCALE_SATSETUP_AUTO_SCAN_ALL, true /*(dmode != NO_DISEQC)*/, NULL, autoScanAll, "", CRCInput::RC_yellow);
 		fautoScanAll->setHint("", LOCALE_MENU_HINT_SCAN_AUTOALL);
 		settings->addItem(fautoScanAll);
 #ifdef ENABLE_FASTSCAN
 		//fast scan
 		CMenuWidget * fastScanMenu = new CMenuWidget(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_FAST_SCAN);
 		addScanMenuFastScan(fastScanMenu);
-		mf = new CMenuDForwarder(LOCALE_SATSETUP_FASTSCAN_HEAD, true, NULL, fastScanMenu, "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_FASTSCAN_HEAD, true, NULL, fastScanMenu, "", CRCInput::RC_blue);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FAST);
 		settings->addItem(mf);
 #endif
+		//signal test
+		CMenuWidget * sTest = new CMenuWidget(LOCALE_SCANTS_TEST, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
+		addScanMenuManualScan(sTest, true);
+		mf = new CMenuDForwarder(LOCALE_SCANTS_TEST, true, NULL, sTest, "", CRCInput::convertDigitToKey(shortcut++));
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_TEST);
+		settings->addItem(mf);
 		settings->addItem(GenericMenuSeparatorLine);
 	}
+
 	if (CFEManager::getInstance()->haveCable()) {
-		r_system = DVB_C;
+		r_system = ALL_CABLE;
 
 		//tune timeout
 		if(CFEManager::getInstance()->getFrontendCount() <= 1) {
@@ -458,22 +605,53 @@ int CScanSetup::showScanMenu()
 
 		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN);
 		addScanMenuAutoScan(autoScan);
-		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_red, have_sat ? NULL : NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_red);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
 		settings->addItem(mf);
 
 		//manual scan
 		CMenuWidget * manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
 		addScanMenuManualScan(manualScan);
-		mf = new CMenuDForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_green, have_sat ? NULL : NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
 		settings->addItem(mf);
 		//simple cable scan
 		CMenuWidget * cableScan = new CMenuWidget(LOCALE_SATSETUP_CABLE, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_CABLE_SCAN);
 		addScanMenuCable(cableScan);
-		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_yellow, have_sat ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
+		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_yellow);
 		fcableScan->setHint("", LOCALE_MENU_HINT_SCAN_CABLE_SIMPLE);
 		settings->addItem(fcableScan);
+		settings->addItem(GenericMenuSeparatorLine);
+	}
+
+	if (CFEManager::getInstance()->haveTerr()) {
+		r_system = ALL_TERR;
+		// tune timeout, "Setup tuner" is not shown for only one non-sat tuner
+		if (CFEManager::getInstance()->getFrontendCount() <= 1) {
+			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
+			nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
+			settings->addItem(nc);
+		}
+
+		//auto scan
+		char autoscan[64];
+		std::string s_capt_part = g_Locale->getText(LOCALE_TERRESTRIALSETUP_PROVIDER);
+		snprintf(autoscan, 64, g_Locale->getText(LOCALE_SATSETUP_AUTO_SCAN), s_capt_part.c_str());
+		bool have_other = ! CFEManager::getInstance()->terrOnly();
+
+		/* FIXME leak, satSelect added to both auto and manual scan, so one of them cannot be deleted */
+		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_AUTO_SCAN);
+		addScanMenuAutoScan(autoScan);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_green);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
+		settings->addItem(mf);
+
+		//manual scan
+		CMenuWidget * manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
+		addScanMenuManualScan(manualScan);
+		mf = new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_yellow);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
+		settings->addItem(mf);
 		settings->addItem(GenericMenuSeparatorLine);
 	}
 	//service select mode
@@ -486,7 +664,27 @@ int CScanSetup::showScanMenu()
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_BOUQUET);
 	settings->addItem(mc);
 
+	//bouquet write_names selection
+	const short SCANTS_BOUQUET_WRITENAMES_COUNT = 4;
+	const CMenuOptionChooser::keyval SCANTS_BOUQUET_WRITENAMES[SCANTS_BOUQUET_WRITENAMES_COUNT] =
+	{
+		{ CBouquetManager::BWN_NEVER		, LOCALE_SCANTS_BOUQUET_WRITENAMES_NEVER     	},
+		{ CBouquetManager::BWN_UBOUQUETS    	, LOCALE_SCANTS_BOUQUET_WRITENAMES_UBOUQUETS   	},
+		{ CBouquetManager::BWN_BOUQUETS     	, LOCALE_SCANTS_BOUQUET_WRITENAMES_BOUQUETS    	},
+		{ CBouquetManager::BWN_EVER        	, LOCALE_SCANTS_BOUQUET_WRITENAMES_EVER    	}
+	};
+
+	int tmp_writeChannelsNames = zapitCfg.writeChannelsNames;
+	mc = new CMenuOptionChooser(LOCALE_SCANTS_BOUQUET_WRITENAMES, (int *)&zapitCfg.writeChannelsNames, SCANTS_BOUQUET_WRITENAMES, SCANTS_BOUQUET_WRITENAMES_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true);
+	mc->setHint("", LOCALE_MENU_HINT_SCAN_BOUQUET_WRITENAMES);
+	settings->addItem(mc);
+
 	int res = settings->exec(NULL, "");
+	//set write_names if changed
+	if(zapitCfg.writeChannelsNames != tmp_writeChannelsNames){
+		CZapit::getInstance()->SetConfig(&zapitCfg);
+		g_Zapit->saveBouquets();
+	}
 
 	delete satOnOff;
 	delete settings;
@@ -511,7 +709,6 @@ neutrino_locale_t CScanSetup::getModeLocale(int mode)
 int CScanSetup::showScanMenuFrontendSetup()
 {
 	CMenuForwarder * mf;
-	int shortcut = 1;
 
 	fe_restart = false;
 	allow_start = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
@@ -532,33 +729,31 @@ int CScanSetup::showScanMenuFrontendSetup()
 		char name[255];
 		if (g_settings.easymenu)
 			snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
-					fe->getInfo()->type == FE_QPSK ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+					fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
+					: fe->hasSat() ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+					: fe->hasTerr() ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
 					: g_Locale->getText(LOCALE_SCANTS_ACTCABLE));
 		else
 			snprintf(name, sizeof(name), "%s %d: %s %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
-					fe->getInfo()->type == FE_QPSK ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+					fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
+					: fe->hasSat() ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+					: fe->hasTerr()? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
 					: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
-					fe->getInfo()->name);
+					fe->getName());
 
-		const char * icon = NULL;
 		neutrino_msg_t key = CRCInput::RC_nokey;
-		if (i == 0) {
+		if (i == 0)
 			key = CRCInput::RC_red;
-			icon = NEUTRINO_ICON_BUTTON_RED;
-		} else if (i == 1) {
+		else if (i == 1)
 			key = CRCInput::RC_green;
-			icon = NEUTRINO_ICON_BUTTON_GREEN;
-		} else if (i == 2) {
+		else if (i == 2)
 			key = CRCInput::RC_yellow;
-			icon = NEUTRINO_ICON_BUTTON_YELLOW;
-		} else if (i == 3) {
+		else if (i == 3)
 			key = CRCInput::RC_blue;
-			icon = NEUTRINO_ICON_BUTTON_BLUE;
-		}
 
 		modestr[i] = g_Locale->getText(getModeLocale(fe->getMode()));
 
-		mf = new CMenuForwarder(name, allow_start, modestr[i], this, tmp, key, icon);
+		mf = new CMenuForwarder(name, allow_start, modestr[i], this, tmp, key);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SETUP_FE);
 		setupMenu->addItem(mf);
 		if(i != 0)
@@ -578,28 +773,35 @@ int CScanSetup::showScanMenuFrontendSetup()
 		zapit_lat_str = std::string(zapit_lat);
 		zapit_long_str = std::string(zapit_long);
 
-		setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
+		CMenuWidget * rotorMenu = new CMenuWidget(LOCALE_SATSETUP_EXTENDED_MOTOR, NEUTRINO_ICON_SETTINGS, width);
+		rotorMenu->addIntroItems();
+
+		int shortcut = 1;
 		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_LADIRECTION,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_LADIRECTION);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 
 		CStringInput * toff1 = new CStringInput(LOCALE_EXTRA_LATITUDE, &zapit_lat_str, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
 		mf = new CMenuDForwarder(LOCALE_EXTRA_LATITUDE, true, zapit_lat, toff1, "", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_LATITUDE);
-		setupMenu->addItem(mf);
+		rotorMenu->addItem(mf);
 
 		mc = new CMenuOptionChooser(LOCALE_EXTRA_LODIRECTION,  (int *)&zapitCfg.gotoXXLoDirection, OPTIONS_EAST0_WEST1_OPTIONS, OPTIONS_EAST0_WEST1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_LODIRECTION);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 
 		CStringInput * toff2 = new CStringInput(LOCALE_EXTRA_LONGITUDE, &zapit_long_str, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
 		mf = new CMenuDForwarder(LOCALE_EXTRA_LONGITUDE, true, zapit_long, toff2, "", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_LONGITUDE);
-		setupMenu->addItem(mf);
+		rotorMenu->addItem(mf);
 
-		nc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF);
+		nc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, CRCInput::convertDigitToKey(shortcut++), NULL, 0, 0, LOCALE_OPTIONS_OFF);
 		nc->setHint("", LOCALE_MENU_HINT_SCAN_USALS_REPEAT);
-		setupMenu->addItem(nc);
+		rotorMenu->addItem(nc);
+
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_EXTENDED_MOTOR, true, NULL, rotorMenu);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_USALS);
+		setupMenu->addItem(mf);
 	}
 
 	int res = setupMenu->exec(NULL, "");
@@ -624,6 +826,38 @@ static std::string rotationSpeed2str(int i)
 	return to_string(i/10) + g_Locale->getText(LOCALE_UNIT_DECIMAL) + to_string(i%10) + "°/" + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
 }
 
+static struct CMenuOptionChooser::keyval_ext twin_doptions[2];
+void CScanSetup::setDiseqcOptions(int number)
+{
+	CFrontend * fe = CFEManager::getInstance()->getFE(number);
+
+	int mode = fe->getMode();
+	if (CFrontend::linked(femode)) {
+		printf("CScanSetup::setDiseqcOptions: set options for linked\n");
+		CFrontend * mfe = CFEManager::getInstance()->getFE(femaster);
+		frontend_config_t & mfe_config = mfe->getConfig();
+
+		int count = 1;
+		twin_doptions[0].key = mfe_config.diseqcType;
+		twin_doptions[0].value = (mfe_config.diseqcType == NO_DISEQC ? LOCALE_SATSETUP_NODISEQC :
+			mfe_config.diseqcType == MINI_DISEQC ? LOCALE_SATSETUP_MINIDISEQC :
+			mfe_config.diseqcType == DISEQC_1_0 ? LOCALE_SATSETUP_DISEQC10 :
+			mfe_config.diseqcType == DISEQC_1_1 ? LOCALE_SATSETUP_DISEQC11 :
+			mfe_config.diseqcType == DISEQC_ADVANCED ? LOCALE_SATSETUP_DISEQC_ADVANCED :
+			LOCALE_SATSETUP_UNICABLE);
+
+		if (mode == CFrontend::FE_MODE_LINK_TWIN && mfe_config.diseqcType != DISEQC_UNICABLE) {
+			count++;
+			twin_doptions[1].key = DISEQC_UNICABLE;
+			twin_doptions[1].value = LOCALE_SATSETUP_UNICABLE;
+		}
+		dtype->setOptions(twin_doptions, count);
+	} else if( mode != CFrontend::FE_MODE_UNUSED) {
+		printf("CScanSetup::setDiseqcOptions: set default options\n");
+		dtype->setOptions(SATSETUP_DISEQC_OPTIONS, SATSETUP_DISEQC_OPTION_COUNT);
+	}
+}
+
 int CScanSetup::showFrontendSetup(int number)
 {
 	int shortcut = 1;
@@ -640,10 +874,12 @@ int CScanSetup::showFrontendSetup(int number)
 	char name[255];
 	if (g_settings.easymenu)
 		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1,
-				fe->getInfo()->type == FE_QPSK ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+				fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
+				: fe->hasSat() ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+				: fe->hasTerr() ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
 				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE));
 	else
-		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, fe->getInfo()->name);
+		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, fe->getName());
 
 	CMenuWidget * setupMenu = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	setupMenu->setSelected(feselected);
@@ -664,14 +900,14 @@ int CScanSetup::showFrontendSetup(int number)
 
 	/* by default, enable first 2 options */
 	int mode_count = 2;
-	if (fe->getInfo()->type == FE_QPSK) {
+	if (fe->hasSat()) {
 		/* enable master option, check if we have masters to enable link options */
 		mode_count = 3;
 		for (int i = 0; i < fecount; i++) {
 			CFrontend * testfe = CFEManager::getInstance()->getFE(i);
-			if (i != fenumber && (fe->getType() == testfe->getType()) && (testfe->getMode() == CFrontend::FE_MODE_MASTER)) {
+			if (i != fenumber && (fe->getSupportedDeliverySystems() == testfe->getSupportedDeliverySystems()) && (testfe->getMode() == CFrontend::FE_MODE_MASTER)) {
 				int num = testfe->getNumber();
-				snprintf(fename[select_count], sizeof(fename[select_count]), "%d: %s", num+1, testfe->getInfo()->name);
+				snprintf(fename[select_count], sizeof(fename[select_count]), "%d: %s", num+1, testfe->getName());
 				feselect[select_count].key = num;
 				feselect[select_count].value = NONEXISTANT_LOCALE;
 				feselect[select_count].valname = fename[select_count];
@@ -697,18 +933,18 @@ int CScanSetup::showFrontendSetup(int number)
 		femaster = fe->getMaster();
 
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE, (int *)&femode, SATSETUP_FRONTEND_MODE, mode_count,
-			enable, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+			enable, this, CRCInput::RC_red, NULL, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_FEMODE);
 	setupMenu->addItem(mc);
 
 	msettings.Clear();
-	if (fe->getInfo()->type == FE_QPSK) {
+	if (fe->hasSat()) {
 		/* disable all but mode option for linked frontends */
 		bool allow_moptions = !CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED;
 
 		if (fecount > 1) {
 			/* link to master select */
-			linkfe = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE_MASTER, &femaster, feselect, select_count, CFrontend::linked(femode), this, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+			linkfe = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE_MASTER, &femaster, feselect, select_count, CFrontend::linked(femode), this, CRCInput::RC_green, NULL, true);
 			linkfe->setHint("", LOCALE_MENU_HINT_SCAN_FELINK);
 			setupMenu->addItem(linkfe);
 		}
@@ -718,6 +954,9 @@ int CScanSetup::showFrontendSetup(int number)
 				this, CRCInput::convertDigitToKey(shortcut++), "", true);
 		dtype->setHint("", LOCALE_MENU_HINT_SCAN_DISEQCTYPE);
 		setupMenu->addItem(dtype);
+
+		if (fecount > 1)
+			setDiseqcOptions(fenumber);
 
 		/* diseqc repeats */
 		ojDiseqcRepeats = new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQCREPEAT, (int *)&fe_config.diseqcRepeats, allow_moptions && (dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED), 0, 2, NULL);
@@ -753,27 +992,38 @@ int CScanSetup::showFrontendSetup(int number)
 		uniSetup	= new CMenuForwarder(LOCALE_SATSETUP_UNI_SETTINGS, (dmode == DISEQC_UNICABLE), NULL, this, "unisetup", CRCInput::convertDigitToKey(shortcut++));
 		setupMenu->addItem(uniSetup);
 
-		setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
+		CMenuWidget * rotorMenu = new CMenuWidget(LOCALE_SATSETUP_EXTENDED_MOTOR, NEUTRINO_ICON_SETTINGS, width);
+		rotorMenu->addIntroItems();
+
 		CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_MOTOR_SPEED, (int *)&fe_config.motorRotationSpeed, allow_moptions, 0, 64, NULL);
 		nc->setNumberFormat(rotationSpeed2str);
 		nc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_SPEED);
-		setupMenu->addItem(nc);
+		rotorMenu->addItem(nc);
 		msettings.Add(nc);
 
 		mc = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_HVOLTAGE,  (int *)&fe_config.highVoltage, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions);
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_18V);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 		msettings.Add(mc);
 
 		mc = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &fe_config.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions, this);
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_USALSALL);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 		msettings.Add(mc);
 
-		CMenuForwarder * mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_moptions, NULL, this, "satfind", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mc = new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP,  &fe_config.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions, this);
+		mc->setHint("", LOCALE_MENU_HINT_ROTOR_SWAP);
+		rotorMenu->addItem(mc);
+		msettings.Add(mc);
+
+		CMenuForwarder * mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_moptions, NULL, this, "satfind", CRCInput::RC_blue);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SATFIND);
-		setupMenu->addItem(mf);
+		rotorMenu->addItem(mf);
 		msettings.Add(mf);
+
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_EXTENDED_MOTOR, allow_moptions, NULL, rotorMenu, "", CRCInput::RC_blue);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR);
+		setupMenu->addItem(mf);
 	}
 
 	int res = setupMenu->exec(NULL, "");
@@ -835,7 +1085,7 @@ int CScanSetup::showScanMenuLnbSetup()
 	CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 
 	char name[255];
-	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_SATELLITE), fenumber+1, fe->getInfo()->name);
+	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_SATELLITE), fenumber+1, fe->getName());
 
 	CMenuWidget * sat_setup = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	sat_setup->addIntroItems();
@@ -891,7 +1141,7 @@ void CScanSetup::fillSatSelect(CMenuOptionStringChooser * select)
 	for(int i = 0; i < count; i++) {
 		CFrontend * fe = CFEManager::getInstance()->getFE(i);
 
-		if ((fe->getInfo()->type != FE_QPSK) || (fe->getMode() == CFrontend::FE_MODE_UNUSED))
+		if (!fe->hasSat() || (fe->getMode() == CFrontend::FE_MODE_UNUSED))
 			continue;
 
 		satellite_map_t & satmap = fe->getSatellites();
@@ -926,17 +1176,18 @@ void CScanSetup::fillSatSelect(CMenuOptionStringChooser * select)
 //init cable provider menu
 void CScanSetup::fillCableSelect(CMenuOptionStringChooser * select)
 {
-	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
+	const char *what = (r_system & ALL_CABLE) ? "cable" : "terrestrial";
+	printf("[neutrino] CScanSetup call %s (%s)...\n", __func__, what);
 	//don't misunderstand the name "satSelect", in this context it's actually for cable providers
 	satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
 	bool sfound = false;
 	std::string fname;
 	for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); sit++)
 	{
-		if (sit->second.deltype != FE_QAM)
+		if (!(r_system & sit->second.delsys))
 			continue;
 
-		printf("Adding cable menu for %s position %d\n", sit->second.name.c_str(), sit->first);
+		printf("Adding %s menu for %s position %d\n", what, sit->second.name.c_str(), sit->first);
 		select->addOption(sit->second.name.c_str());
 
 		if (fname.empty())
@@ -945,10 +1196,45 @@ void CScanSetup::fillCableSelect(CMenuOptionStringChooser * select)
 		if (!sfound && (scansettings.cableName == sit->second.name))
 			sfound = true;
 
-		dprintf(DEBUG_DEBUG, "got scanprovider (cable): %s\n", sit->second.name.c_str());
+		dprintf(DEBUG_DEBUG, "got scanprovider (%s): %s\n", what, sit->second.name.c_str());
 	}
-	if (!sfound && !fname.empty())
-		scansettings.cableName = fname;
+
+	if (!sfound && !fname.empty()) {
+		if (r_system & ALL_CABLE)
+			scansettings.cableName = fname;
+	}
+}
+
+//init terrestrial provider menu
+void CScanSetup::fillTerrSelect(CMenuOptionStringChooser * select)
+{
+	const char *what = (r_system & ALL_TERR) ? "terrestrial" : "cable";
+	printf("[neutrino] CScanSetup call %s (%s)...\n", __func__, what);
+	//don't misunderstand the name "satSelect", in this context it's actually for cable providers
+	satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
+	bool sfound = false;
+	std::string fname;
+	for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); sit++)
+	{
+		if (!(r_system & sit->second.delsys))
+			continue;
+
+		printf("Adding %s menu for %s position %d\n", what, sit->second.name.c_str(), sit->first);
+		select->addOption(sit->second.name.c_str());
+
+		if (fname.empty())
+			fname = sit->second.name;
+
+		if (!sfound && (scansettings.terrestrialName == sit->second.name))
+			sfound = true;
+
+		dprintf(DEBUG_DEBUG, "got scanprovider (%s): %s\n", what, sit->second.name.c_str());
+	}
+
+	if (!sfound && !fname.empty()) {
+		if (r_system & ALL_TERR)
+			scansettings.terrestrialName = fname;
+	}
 }
 
 int CScanSetup::showScanMenuSatFind()
@@ -959,15 +1245,15 @@ int CScanSetup::showScanMenuSatFind()
 	char name[255];
 	static int selected = 0;
 
-	r_system = DVB_S;
+	r_system = ALL_SAT;
 
-	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), fenumber+1, fe->getInfo()->name);
+	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), fenumber+1, fe->getName());
 
 	CMenuWidget* sat_findMenu = new CMenuWidget(name /*LOCALE_MOTORCONTROL_HEAD*/, NEUTRINO_ICON_SETTINGS, width);
 	sat_findMenu->setSelected(selected);
 	sat_findMenu->addIntroItems();
 
-	CMenuOptionStringChooser * feSatSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	CMenuOptionStringChooser * feSatSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, NULL, CRCInput::RC_red, NULL, true);
 	feSatSelect->setHint("", LOCALE_MENU_HINT_SCAN_SATSELECT);
 
 	satellite_map_t & satmap = fe->getSatellites();
@@ -990,7 +1276,7 @@ int CScanSetup::showScanMenuSatFind()
 	sat_findMenu->addItem(feSatSelect);
 
 	CTPSelectHandler tpSelect;
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, &tpSelect, "sat", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, &tpSelect, "sat", CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TPSELECT);
 	sat_findMenu->addItem(mf);
 	sat_findMenu->addItem(GenericMenuSeparatorLine);
@@ -999,7 +1285,7 @@ int CScanSetup::showScanMenuSatFind()
 	//--------------------------------------------------------------
 	sat_findMenu->addItem(GenericMenuSeparatorLine);
 	CMotorControl mcontrol(fenumber);
-	mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_start, NULL, &mcontrol, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_start, NULL, &mcontrol, "", CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_SATFIND_START);
 	sat_findMenu->addItem(mf);
 
@@ -1022,17 +1308,17 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 	bool unicable = (dmode == DISEQC_UNICABLE);
 
 	if (!unicable) {
-		diseqc	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQC_INPUT, &satconfig.diseqc, ((dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED)), -1, 15, this, 1, -1, LOCALE_OPTIONS_OFF);
+		diseqc	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQC_INPUT, &satconfig.diseqc, ((dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED)), -1, 15, this, CRCInput::RC_nokey, NULL, 1, -1, LOCALE_OPTIONS_OFF);
 		diseqc->setHint("", LOCALE_MENU_HINT_SCAN_DISEQC);
-		comm 	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_COMM_INPUT, &satconfig.commited, dmode == DISEQC_ADVANCED, -1, 15, NULL, 1, -1, LOCALE_OPTIONS_OFF);
+		comm 	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_COMM_INPUT, &satconfig.commited, dmode == DISEQC_ADVANCED, -1, 15, NULL, CRCInput::RC_nokey, NULL, 1, -1, LOCALE_OPTIONS_OFF);
 		comm->setHint("", LOCALE_MENU_HINT_SCAN_COMMITED);
-		uncomm = new CMenuOptionNumberChooser(LOCALE_SATSETUP_UNCOMM_INPUT, &satconfig.uncommited, dmode == DISEQC_ADVANCED, -1, 15, NULL, 1, -1, LOCALE_OPTIONS_OFF);
+		uncomm = new CMenuOptionNumberChooser(LOCALE_SATSETUP_UNCOMM_INPUT, &satconfig.uncommited, dmode == DISEQC_ADVANCED, -1, 15, NULL, CRCInput::RC_nokey, NULL, 1, -1, LOCALE_OPTIONS_OFF);
 		uncomm->setHint("", LOCALE_MENU_HINT_SCAN_UNCOMMITED);
-		motor 	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_MOTOR_POS, &satconfig.motor_position, true /*dmode == DISEQC_ADVANCED*/, 0, 64, this, 0, 0, LOCALE_OPTIONS_OFF);
+		motor 	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_MOTOR_POS, &satconfig.motor_position, true /*dmode == DISEQC_ADVANCED*/, 0, 64, this, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 		motor->setHint("", LOCALE_MENU_HINT_SCAN_MOTORPOS);
 		usals 	= new CMenuOptionChooser(LOCALE_EXTRA_USE_GOTOXX,  &satconfig.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true /*dmode == DISEQC_ADVANCED*/);
 		usals->setHint("", LOCALE_MENU_HINT_SCAN_USEUSALS);
-	}else{
+	} else {
 		if (satconfig.diseqc < 0)
 			satconfig.diseqc = 0;
 		unilnb = new CMenuOptionNumberChooser(LOCALE_UNICABLE_LNB, &satconfig.diseqc, true, 0, 1);
@@ -1065,31 +1351,42 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 }
 
 //init manual scan menu
-void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan)
+void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan, bool stest)
 {
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortCut = 1;
 	CMenuForwarder * mf;
 
 	manual_Scan->addIntroItems();
+	const char *act_test, *act_manual;
 	//----------------------------------------------------------------------
-	if (r_system == DVB_C)  {
-		CMenuOptionStringChooser * cableSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	if (r_system == ALL_CABLE)  {
+		act_test = "ctest"; act_manual = "cmanual";
+		CMenuOptionStringChooser * cableSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NULL, true);
 		cableSelect->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 		fillCableSelect(cableSelect);
 		manual_Scan->addItem(cableSelect);
 		mf = new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_NID);
 		manual_Scan->addItem(mf);
-		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "cable", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-	} else {
-		CMenuOptionStringChooser * satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "cable", CRCInput::RC_green);
+	} else if (r_system == ALL_TERR) {
+		act_test = "ttest"; act_manual = "tmanual";
+		CMenuOptionStringChooser * terrSelect = new CMenuOptionStringChooser(LOCALE_TERRESTRIALSETUP_PROVIDER, &scansettings.terrestrialName, true, this, CRCInput::RC_red, NULL, true);
+		//terrSelect->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
+		fillTerrSelect(terrSelect);
+		manual_Scan->addItem(terrSelect);
+		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "terrestrial", CRCInput::RC_green);
+	} else if (r_system == ALL_SAT) {
+		act_test = "stest"; act_manual = "smanual";
+		CMenuOptionStringChooser * satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, this, CRCInput::RC_red, NULL, true);
 		satSelect->setHint("", LOCALE_MENU_HINT_SCAN_SATELLITE);
 		/* add configured satellites to satSelect */
 		fillSatSelect(satSelect);
 		manual_Scan->addItem(satSelect);
-		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "sat", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-	}
+		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "sat", CRCInput::RC_green);
+	} else
+		return;
 
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TPSELECT);
 	manual_Scan->addItem(mf);
@@ -1101,13 +1398,15 @@ void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan)
 	//----------------------------------------------------------------------
 	manual_Scan->addItem(GenericMenuSeparatorLine);
 
-	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, r_system == DVB_C ? "ctest" : "stest", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, act_test, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TEST);
 	manual_Scan->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, r_system == DVB_C ? "cmanual" : "smanual", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
-	manual_Scan->addItem(mf);
+	if (!stest) {
+		mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, act_manual, CRCInput::RC_blue);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+		manual_Scan->addItem(mf);
+	}
 }
 
 //init auto scan all menu
@@ -1116,7 +1415,7 @@ void CScanSetup::addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll)
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	auto_ScanAll->addIntroItems();
 	//----------------------------------------------------------------------
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_SATELLITE, true, NULL, satOnOff, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_SATELLITE, true, NULL, satOnOff, "", CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTOALL_SELECT);
 	auto_ScanAll->addItem(mf);
 
@@ -1125,12 +1424,13 @@ void CScanSetup::addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll)
 	addListFlagsItems(auto_ScanAll, 1);
 	//----------------------------------------------------------------------
 	auto_ScanAll->addItem(GenericMenuSeparatorLine);
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sall", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sall", CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	auto_ScanAll->addItem(mf);
 }
 
 #ifdef ENABLE_FASTSCAN
+#if 0
 #define FAST_SCAN_OPTIONS_COUNT 2
 const CMenuOptionChooser::keyval FAST_SCAN_OPTIONS[FAST_SCAN_OPTIONS_COUNT] =
 {
@@ -1138,14 +1438,22 @@ const CMenuOptionChooser::keyval FAST_SCAN_OPTIONS[FAST_SCAN_OPTIONS_COUNT] =
 	{ FAST_SCAN_HD, LOCALE_SATSETUP_FASTSCAN_HD  }
 	/*{ FAST_SCAN_ALL, LOCALE_SATSETUP_FASTSCAN_ALL  }*/
 };
+#endif
 
-#define FAST_SCAN_PROV_OPTIONS_COUNT 3
-const CMenuOptionChooser::keyval FAST_SCAN_PROV_OPTIONS[FAST_SCAN_PROV_OPTIONS_COUNT] =
+const CMenuOptionChooser::keyval FAST_SCAN_PROV_OPTIONS[] =
 {
-	{ OPERATOR_CD, LOCALE_SATSETUP_FASTSCAN_PROV_CD },
-	{ OPERATOR_TVV, LOCALE_SATSETUP_FASTSCAN_PROV_TVV  },
-	{ OPERATOR_TELESAT, LOCALE_SATSETUP_FASTSCAN_PROV_TELESAT  }
+	{ OPERATOR_CD_SD, LOCALE_SATSETUP_FASTSCAN_PROV_CD_SD },
+	{ OPERATOR_CD_HD, LOCALE_SATSETUP_FASTSCAN_PROV_CD_HD },
+	{ OPERATOR_TVV_SD, LOCALE_SATSETUP_FASTSCAN_PROV_TVV_SD },
+	{ OPERATOR_TVV_HD, LOCALE_SATSETUP_FASTSCAN_PROV_TVV_HD },
+	{ OPERATOR_TELESAT_B, LOCALE_SATSETUP_FASTSCAN_PROV_TELESAT_B },
+	{ OPERATOR_TELESAT_L, LOCALE_SATSETUP_FASTSCAN_PROV_TELESAT_L },
+	{ OPERATOR_HD_AUSTRIA, LOCALE_SATSETUP_FASTSCAN_PROV_HDA },
+	{ OPERATOR_SKYLINK_C, LOCALE_SATSETUP_FASTSCAN_PROV_SKYLINK_C },
+	{ OPERATOR_SKYLINK_S, LOCALE_SATSETUP_FASTSCAN_PROV_SKYLINK_S },
+	{ OPERATOR_HELLO, LOCALE_SATSETUP_FASTSCAN_PROV_HELLO }
 };
+#define FAST_SCAN_PROV_OPTIONS_COUNT (sizeof(FAST_SCAN_PROV_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 //init fast scan menu
 void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
@@ -1153,19 +1461,62 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	fast_ScanMenu->addIntroItems();
 
-	CMenuOptionChooser* fastProv = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_PROV, (int *)&scansettings.fast_op, FAST_SCAN_PROV_OPTIONS, FAST_SCAN_PROV_OPTIONS_COUNT, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	CMenuOptionChooser* fastProv = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_PROV, (int *)&scansettings.fast_op, FAST_SCAN_PROV_OPTIONS, FAST_SCAN_PROV_OPTIONS_COUNT, true, NULL, CRCInput::RC_red, NULL, true);
 	fastProv->setHint("", LOCALE_MENU_HINT_SCAN_FASTPROV);
-	CMenuOptionChooser* fastType = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_TYPE, (int *)&scansettings.fast_type, FAST_SCAN_OPTIONS, FAST_SCAN_OPTIONS_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
-	fastType->setHint("", LOCALE_MENU_HINT_SCAN_FASTTYPE);
-
-	//----------------------------------------------------------------------
 	fast_ScanMenu->addItem(fastProv);
+#if 0
+	CMenuOptionChooser* fastType = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_TYPE, (int *)&scansettings.fast_type, FAST_SCAN_OPTIONS, FAST_SCAN_OPTIONS_COUNT, true, NULL, CRCInput::RC_green, NULL, true);
+	fastType->setHint("", LOCALE_MENU_HINT_SCAN_FASTTYPE);
 	fast_ScanMenu->addItem(fastType);
-	//----------------------------------------------------------------------
+#endif
+	CMenuOptionChooser* fastUp = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_UPDATE, (int *)&scansettings.fst_update, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_green, NULL, true);
+	fastUp->setHint("", LOCALE_MENU_HINT_SCAN_FASTUPDATE);
+	fast_ScanMenu->addItem(fastUp);
 	fast_ScanMenu->addItem(GenericMenuSeparatorLine);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC, allow_start, NULL, this, "fastdiseqc", CRCInput::RC_yellow);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_FASTDISEQC);
 	fast_ScanMenu->addItem(mf);
+
+	if (1 /* !g_settings.easymenu */)
+	{
+		mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+		fast_ScanMenu->addItem(mf);
+	}
+}
+
+int CScanSetup::showFastscanDiseqcSetup()
+{
+	CHintBox * hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC_WAIT));
+	hintbox->paint();
+
+	CServiceScan::getInstance()->TestDiseqcConfig(scansettings.fast_op);
+	delete hintbox;
+
+	CMenuWidget * sat_setup = new CMenuWidget(LOCALE_SATSETUP_DISEQC_INPUT, NEUTRINO_ICON_SETTINGS, width);
+	sat_setup->addIntroItems();
+
+	CFrontend * fe = CFEManager::getInstance()->getFE(0);
+	satellite_map_t & satmap = fe->getSatellites();
+	INFO("satmap size = %d", (int)satmap.size());
+	for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); ++sit)
+	{
+		if(!sit->second.configured)
+			continue;
+
+		std::string satname = CServiceManager::getInstance()->GetSatelliteName(sit->first);
+		CMenuOptionNumberChooser *diseqc = new CMenuOptionNumberChooser(satname, &sit->second.diseqc, true, -1, 15, this, CRCInput::RC_nokey, NULL, 1, -1, LOCALE_OPTIONS_OFF);
+		sat_setup->addItem(diseqc);
+	}
+	sat_setup->addItem(GenericMenuSeparatorLine);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_yellow);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+	sat_setup->addItem(mf);
+
+	int res = sat_setup->exec(NULL, "");
+	delete sat_setup;
+	return res;
 }
 #endif /*ENABLE_FASTSCAN*/
 
@@ -1176,20 +1527,31 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 	CMenuForwarder * mf;
 	auto_Scan->addIntroItems();
 
-	if (r_system == DVB_C)  { //cable
-		CMenuOptionStringChooser * cableSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	const char *action;
+	if (r_system == ALL_CABLE)  { //cable
+		CMenuOptionStringChooser * cableSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NULL, true);
 		cableSelect->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 		fillCableSelect(cableSelect);
 		auto_Scan->addItem(cableSelect);
 		mf = new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_NID);
 		auto_Scan->addItem(mf);
-	} else {
-		CMenuOptionStringChooser * satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		action = "cauto";
+	} else if (r_system == ALL_TERR) {
+		CMenuOptionStringChooser * terrSelect = new CMenuOptionStringChooser(LOCALE_TERRESTRIALSETUP_PROVIDER, &scansettings.terrestrialName, true, this, CRCInput::RC_red, NULL, true);
+		//terrSelect->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
+		fillCableSelect(terrSelect);
+		auto_Scan->addItem(terrSelect);
+		action = "tauto";
+	} else if (r_system == ALL_SAT) {
+		CMenuOptionStringChooser * satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, this, CRCInput::RC_red, NULL, true);
 		satSelect->setHint("", LOCALE_MENU_HINT_SCAN_SATELLITE);
 		/* add configured satellites to satSelect */
 		fillSatSelect(satSelect);
 		auto_Scan->addItem(satSelect);
+		action = "sauto";
+	} else {
+		return;
 	}
 
 	auto_Scan->addItem(GenericMenuSeparatorLine);
@@ -1197,7 +1559,7 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 	addListFlagsItems(auto_Scan, 1);
 	//----------------------------------------------------------------------
 	auto_Scan->addItem(GenericMenuSeparatorLine);
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, r_system == DVB_C ? "cauto" : "sauto", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, action, CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	auto_Scan->addItem(mf);
 }
@@ -1211,7 +1573,7 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 
 	menu->addIntroItems();
 	//----------------------------------------------------------------------
-	CMenuOptionStringChooser * select = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	CMenuOptionStringChooser * select = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NULL, true);
 	fillCableSelect(select);
 	select->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 	menu->addItem(select);
@@ -1220,11 +1582,14 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_NID);
 	menu->addItem(mf);
 
-	mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "cable", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "cable", CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TPSELECT);
 	menu->addItem(mf);
 
 	menu->addItem(GenericMenuSeparatorLine);
+
+	CMenuOptionChooser *delsys = new CMenuOptionChooser(LOCALE_EXTRA_TP_DELSYS, (int *)&scansettings.cable_TP_delsys, CABLESETUP_SCANTP_DELSYS, CABLESETUP_SCANTP_DELSYS_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
+	delsys->setHint("", LOCALE_MENU_HINT_SCAN_DELSYS);
 
 	CStringInput		*freq	= new CStringInput(LOCALE_EXTRA_TP_FREQ, &scansettings.cable_TP_freq, 6, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 	CMenuForwarder		*Freq 	= new CMenuDForwarder(LOCALE_EXTRA_TP_FREQ, true, scansettings.cable_TP_freq, freq, "", CRCInput::convertDigitToKey(shortCut++));
@@ -1234,14 +1599,16 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 	CMenuForwarder		*Rate 	= new CMenuDForwarder(LOCALE_EXTRA_TP_RATE, true, scansettings.cable_TP_rate, rate, "", CRCInput::convertDigitToKey(shortCut++));
 	Rate->setHint("", LOCALE_MENU_HINT_SCAN_RATE);
 
-	CMenuOptionChooser * mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.cable_TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
-	mod_pol->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
 
+	CMenuOptionChooser *mod = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.cable_TP_mod, CABLESETUP_SCANTP_MOD, CABLESETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+	mod->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
+
+	menu->addItem(delsys);
 	menu->addItem(Freq);
 	menu->addItem(Rate);
-	menu->addItem(mod_pol);
+	menu->addItem(mod);
 
-	CMenuOptionChooser *lcn  = new CMenuOptionChooser(LOCALE_SATSETUP_LOGICAL_NUMBERS, (int *)&scansettings.scan_logical_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortCut++));
+	CMenuOptionChooser *lcn  = new CMenuOptionChooser(LOCALE_SATSETUP_LOGICAL_NUMBERS, (int *)&scansettings.scan_logical_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.keep_channel_numbers, this, CRCInput::convertDigitToKey(shortCut++));
 	lcn->setHint("", LOCALE_MENU_HINT_SCAN_LOGICAL);
 	menu->addItem(lcn);
 
@@ -1251,11 +1618,11 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 
 	menu->addItem(GenericMenuSeparatorLine);
 #if 0
-	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, "test", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, "test", CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TEST);
 	menu->addItem(mf);
 #endif
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "cable", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "cable", CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	menu->addItem(mf);
 }
@@ -1266,40 +1633,96 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortCut = shortcut;
 
-
 	CMenuOptionChooser	*fec = NULL;
-	CMenuOptionChooser	*mod_pol = NULL;
+	CMenuOptionChooser	*mod = NULL;
+	CMenuOptionChooser	*pol = NULL;
+	CMenuOptionChooser	*bw = NULL;
+	CMenuOptionChooser	*gi = NULL;
+	CMenuOptionChooser	*hi = NULL;
+	CMenuOptionChooser	*delsys = NULL;
+	CMenuOptionChooser	*coderateHP = NULL;
+	CMenuOptionChooser	*coderateLP = NULL;
+	CMenuOptionChooser	*tm = NULL;
 	CMenuForwarder		*Freq = NULL;
 	CMenuForwarder		*Rate = NULL;
-	if (r_system == DVB_S) {
+	CMenuOptionChooser	*pilot = NULL;
+	if (r_system == ALL_SAT) {
+		delsys = new CMenuOptionChooser(LOCALE_EXTRA_TP_DELSYS, (int *)&scansettings.sat_TP_delsys, SATSETUP_SCANTP_DELSYS, SATSETUP_SCANTP_DELSYS_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
+		delsys->setHint("", LOCALE_MENU_HINT_SCAN_DELSYS);
 		CStringInput		*freq	= new CStringInput(LOCALE_EXTRA_TP_FREQ, &scansettings.sat_TP_freq, 8, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Freq 	= new CMenuDForwarder(LOCALE_EXTRA_TP_FREQ, true, scansettings.sat_TP_freq, freq, "", CRCInput::convertDigitToKey(shortCut++));
 		Freq->setHint("", LOCALE_MENU_HINT_SCAN_FREQ);
-
 		CStringInput		*rate 	= new CStringInput(LOCALE_EXTRA_TP_RATE, &scansettings.sat_TP_rate, 8, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Rate 	= new CMenuDForwarder(LOCALE_EXTRA_TP_RATE, true, scansettings.sat_TP_rate, rate, "", CRCInput::convertDigitToKey(shortCut++));
 		Rate->setHint("", LOCALE_MENU_HINT_SCAN_RATE);
+		mod = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.sat_TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
+		mod->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
 		fec 	= new CMenuOptionChooser(LOCALE_EXTRA_TP_FEC, (int *)&scansettings.sat_TP_fec, SATSETUP_SCANTP_FEC, SATSETUP_SCANTP_FEC_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
 		fec->setHint("", LOCALE_MENU_HINT_SCAN_FEC);
-		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_POL, (int *)&scansettings.sat_TP_pol, SATSETUP_SCANTP_POL, SATSETUP_SCANTP_POL_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
-		mod_pol->setHint("", LOCALE_MENU_HINT_SCAN_POL);
-	} else if (r_system == DVB_C) {
+		pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_POL, (int *)&scansettings.sat_TP_pol, SATSETUP_SCANTP_POL, SATSETUP_SCANTP_POL_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		pol->setHint("", LOCALE_MENU_HINT_SCAN_POL);
+		pilot = new CMenuOptionChooser(LOCALE_EXTRA_TP_PILOT, (int *)&scansettings.sat_TP_pilot, SATSETUP_SCANTP_PILOT, SATSETUP_SCANTP_PILOT_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		pilot->setHint("", LOCALE_MENU_HINT_SCAN_PILOT);
+	} else if (r_system == ALL_CABLE) {
+		delsys = new CMenuOptionChooser(LOCALE_EXTRA_TP_DELSYS, (int *)&scansettings.cable_TP_delsys, CABLESETUP_SCANTP_DELSYS, CABLESETUP_SCANTP_DELSYS_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
+		delsys->setHint("", LOCALE_MENU_HINT_SCAN_DELSYS);
 		CStringInput		*freq	= new CStringInput(LOCALE_EXTRA_TP_FREQ, &scansettings.cable_TP_freq, 6, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Freq 	= new CMenuDForwarder(LOCALE_EXTRA_TP_FREQ, true, scansettings.cable_TP_freq, freq, "", CRCInput::convertDigitToKey(shortCut++));
 		Freq->setHint("", LOCALE_MENU_HINT_SCAN_FREQ);
-
 		CStringInput		*rate 	= new CStringInput(LOCALE_EXTRA_TP_RATE, &scansettings.cable_TP_rate, 8, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Rate 	= new CMenuDForwarder(LOCALE_EXTRA_TP_RATE, true, scansettings.cable_TP_rate, rate, "", CRCInput::convertDigitToKey(shortCut++));
 		Rate->setHint("", LOCALE_MENU_HINT_SCAN_RATE);
-		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.cable_TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
-		mod_pol->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
+		mod = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.cable_TP_mod, CABLESETUP_SCANTP_MOD, CABLESETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		mod->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
+	} else if (r_system == ALL_TERR) {
+		// TODO: more params ?
+		delsys = new CMenuOptionChooser(LOCALE_EXTRA_TP_DELSYS, (int *)&scansettings.terrestrial_TP_delsys, TERRSETUP_SCANTP_DELSYS, TERRSETUP_SCANTP_DELSYS_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
+		delsys->setHint("", LOCALE_MENU_HINT_SCAN_DELSYS);
+		CStringInput *freq = new CStringInput(LOCALE_EXTRA_TP_FREQ, &scansettings.terrestrial_TP_freq, 6, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+		Freq = new CMenuDForwarder(LOCALE_EXTRA_TP_FREQ, true, scansettings.terrestrial_TP_freq, freq, "", CRCInput::convertDigitToKey(shortCut++));
+		Freq->setHint("", LOCALE_MENU_HINT_SCAN_FREQ);
+		bw = new CMenuOptionChooser(LOCALE_EXTRA_TP_BANDWIDTH, (int *)&scansettings.terrestrial_TP_bw, TERRSETUP_SCANTP_BW, TERRSETUP_SCANTP_BW_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		bw->setHint("", LOCALE_MENU_HINT_SCAN_BW);
+		mod = new CMenuOptionChooser(LOCALE_EXTRA_TP_CONSTELLATION, (int *)&scansettings.terrestrial_TP_constel, TERRSETUP_SCANTP_MOD, TERRSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		mod->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
+		gi = new CMenuOptionChooser(LOCALE_EXTRA_TP_GI, (int *)&scansettings.terrestrial_TP_guard, TERRSETUP_SCANTP_GI, TERRSETUP_SCANTP_GI_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		gi->setHint("", LOCALE_MENU_HINT_SCAN_GI);
+		hi = new CMenuOptionChooser(LOCALE_EXTRA_TP_HIERARCHY, (int *)&scansettings.terrestrial_TP_hierarchy, TERRSETUP_SCANTP_HIERARCHY, TERRSETUP_SCANTP_HIERARCHY_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		hi->setHint("", LOCALE_MENU_HINT_SCAN_HIERARCHY);
+		coderateHP = new CMenuOptionChooser(LOCALE_EXTRA_TP_CODERATE_HP, (int *)&scansettings.terrestrial_TP_coderate_HP, TERRSETUP_SCANTP_FEC, TERRSETUP_SCANTP_FEC_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
+		coderateHP->setHint("", LOCALE_MENU_HINT_SCAN_FEC);
+		coderateLP = new CMenuOptionChooser(LOCALE_EXTRA_TP_CODERATE_LP, (int *)&scansettings.terrestrial_TP_coderate_LP, TERRSETUP_SCANTP_FEC, TERRSETUP_SCANTP_FEC_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
+		coderateLP->setHint("", LOCALE_MENU_HINT_SCAN_FEC);
+		tm = new CMenuOptionChooser(LOCALE_EXTRA_TP_TRANSMIT_MODE, (int *)&scansettings.terrestrial_TP_transmit_mode, TERRSETUP_SCANTP_TRANSMIT_MODE, TERRSETUP_SCANTP_TRANSMIT_MODE_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		tm->setHint("", LOCALE_MENU_HINT_SCAN_TRANSMIT_MODE);
 	}
 
-	options_menu->addItem(Freq);
-	options_menu->addItem(Rate);
-	if (r_system == DVB_S)
+	if (delsys)
+		options_menu->addItem(delsys);
+	if (Freq)
+		options_menu->addItem(Freq);
+	if (Rate)
+		options_menu->addItem(Rate);
+	if (bw)
+		options_menu->addItem(bw);
+	if (mod)
+		options_menu->addItem(mod);
+	if (fec)
 		options_menu->addItem(fec);
-	options_menu->addItem(mod_pol);
+	if (gi)
+		options_menu->addItem(gi);
+	if (hi)
+		options_menu->addItem(hi);
+	if (coderateHP)
+		options_menu->addItem(coderateHP);
+	if (coderateLP)
+		options_menu->addItem(coderateLP);
+	if (tm)
+		options_menu->addItem(tm);
+	if (pol)
+		options_menu->addItem(pol);
+	if (pilot)
+		options_menu->addItem(pilot);
 
 	return shortCut;
 }
@@ -1340,13 +1763,6 @@ int CScanSetup::addListFlagsItems(CMenuWidget *listflags_menu, const int &shortc
 	return shortCut;
 }
 
-//sets menu mode to "wizard" or "default"
-void CScanSetup::setWizardMode(bool mode)
-{
-	printf("[neutrino] CScanSetup %s set scan-setup to mode %d...\n", __FUNCTION__, mode);
-	is_wizard = mode;
-}
-
 //save current settings
 void CScanSetup::saveScanSetup()
 {
@@ -1385,18 +1801,20 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		bool enable = (dmode < DISEQC_ADVANCED) && (dmode != NO_DISEQC);
 		ojDiseqcRepeats->setActive(enable && !CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
 		dorder->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && dmode == DISEQC_ADVANCED);
-
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE)) {
 		printf("[neutrino] CScanSetup::%s: fe%d mode %d master %d\n", __FUNCTION__, fenumber, femode, femaster);
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
-		if (fe->getMode() == femode)
+
+		if (fe && fe->getMode() == femode)
 			return ret;
 
 		modestr[fenumber] = g_Locale->getText(getModeLocale(femode));
 		fe_restart = true;
-		fe->setMode(femode);
-		if (fe && fe->getType() == FE_QPSK) {
+		if (fe)
+			fe->setMode(femode);
+
+		if (fe && fe->hasSat()) {
 			if (linkfe)
 				linkfe->setActive(CFrontend::linked(femode));
 			/* leave diseqc type enabled for TWIN in case user need different unicable setup */
@@ -1413,6 +1831,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			/* if mode changed, set current master too */
 			if (femaster >= 0)
 				fe->setMaster(femaster);
+			setDiseqcOptions(fenumber);
 		}
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE_MASTER)) {
@@ -1421,6 +1840,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		if (fe)
 			fe->setMaster(femaster);
+		setDiseqcOptions(fenumber);
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_CABLESETUP_PROVIDER)) {
 		printf("[neutrino] CScanSetup::%s: new provider: [%s]\n", __FUNCTION__, scansettings.cableName.c_str());
@@ -1470,25 +1890,34 @@ void CScanSetup::updateManualSettings()
 		transponder_list_t::iterator tI;
 		tI = transponders.find(channel->getTransponderId());
 		if(tI != transponders.end()) {
-			CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
-			switch (frontend->getType()) {
-				case FE_QPSK:
-					scansettings.sat_TP_freq = to_string(tI->second.feparams.dvb_feparams.frequency);
-					scansettings.sat_TP_rate = to_string(tI->second.feparams.dvb_feparams.u.qpsk.symbol_rate);
-					scansettings.sat_TP_fec = tI->second.feparams.dvb_feparams.u.qpsk.fec_inner;
-					scansettings.sat_TP_pol = tI->second.polarization;
-					scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
-					break;
-				case FE_QAM:
-					scansettings.cable_TP_freq = to_string(tI->second.feparams.dvb_feparams.frequency);
-					scansettings.cable_TP_rate = to_string(tI->second.feparams.dvb_feparams.u.qam.symbol_rate);
-					scansettings.cable_TP_fec = tI->second.feparams.dvb_feparams.u.qam.fec_inner;
-					scansettings.cable_TP_mod = tI->second.feparams.dvb_feparams.u.qam.modulation;
-					scansettings.cableName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
-					break;
-				case FE_OFDM:
-				case FE_ATSC:
-					break;
+			// CFrontend *frontend = CFEManager::getInstance()->getLiveFE();
+			// FIXME: should this be live fe current delsys or delsys from tuned TP
+			if (CFrontend::isSat(tI->second.feparams.delsys)) {
+				scansettings.sat_TP_freq = to_string(tI->second.feparams.frequency);
+				scansettings.sat_TP_rate = to_string(tI->second.feparams.symbol_rate);
+				scansettings.sat_TP_fec = tI->second.feparams.fec_inner;
+				scansettings.sat_TP_pol = tI->second.feparams.polarization;
+				scansettings.sat_TP_delsys = tI->second.feparams.delsys;
+				scansettings.sat_TP_mod = tI->second.feparams.modulation;
+				scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
+			} else if (CFrontend::isCable(tI->second.feparams.delsys)) {
+				scansettings.cable_TP_freq = to_string(tI->second.feparams.frequency);
+				scansettings.cable_TP_rate = to_string(tI->second.feparams.symbol_rate);
+				scansettings.cable_TP_fec = tI->second.feparams.fec_inner;
+				scansettings.cable_TP_mod = tI->second.feparams.modulation;
+				scansettings.cable_TP_delsys = tI->second.feparams.delsys;
+				scansettings.cableName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
+			} else if (CFrontend::isTerr(tI->second.feparams.delsys)) {
+				scansettings.terrestrial_TP_freq = to_string(tI->second.feparams.frequency);
+				scansettings.terrestrial_TP_bw = tI->second.feparams.bandwidth;
+				scansettings.terrestrial_TP_constel = tI->second.feparams.modulation;
+				scansettings.terrestrial_TP_hierarchy = tI->second.feparams.hierarchy;
+				scansettings.terrestrial_TP_delsys = tI->second.feparams.delsys;
+				scansettings.terrestrial_TP_transmit_mode = tI->second.feparams.transmission_mode;
+				scansettings.terrestrial_TP_coderate_HP = tI->second.feparams.code_rate_HP;
+				scansettings.terrestrial_TP_coderate_LP = tI->second.feparams.code_rate_LP;
+
+				scansettings.terrestrialName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
 			}
 		}
 	}
@@ -1503,7 +1932,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 	static int old_selected = 0;
 	static t_satellite_position old_position = 0;
 
-	int width = w_max (40, 10);
+	int width = 40;
 
 	if (parent)
 		parent->hide();
@@ -1512,6 +1941,8 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 	std::string name;
 	if (actionkey == "sat")
 		name = scansettings.satName;
+	else if (actionkey == "terrestrial")
+		name = scansettings.terrestrialName;
 	else 
 		name = scansettings.cableName;
 
@@ -1567,27 +1998,33 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 
 		tmpI = tmplist.find(select);
 
-		printf("CTPSelectHandler::exec: selected TP: freq %d pol %d SR %d\n", tmpI->second.feparams.dvb_feparams.frequency,
-		       tmpI->second.polarization, tmpI->second.feparams.dvb_feparams.u.qpsk.symbol_rate);
-
-		switch (tmpI->second.deltype) {
-			case FE_QPSK:
-				scansettings.sat_TP_freq = to_string(tmpI->second.feparams.dvb_feparams.frequency);
-				scansettings.sat_TP_rate = to_string(tmpI->second.feparams.dvb_feparams.u.qpsk.symbol_rate);
-				scansettings.sat_TP_fec = tmpI->second.feparams.dvb_feparams.u.qpsk.fec_inner;
-				scansettings.sat_TP_pol = tmpI->second.polarization;
-				break;
-			case FE_QAM:
-				scansettings.cable_TP_freq = to_string(tmpI->second.feparams.dvb_feparams.frequency);
-				scansettings.cable_TP_rate = to_string(tmpI->second.feparams.dvb_feparams.u.qam.symbol_rate);
-				scansettings.cable_TP_fec = tmpI->second.feparams.dvb_feparams.u.qam.fec_inner;
-				scansettings.cable_TP_mod = tmpI->second.feparams.dvb_feparams.u.qam.modulation;
-				break;
-			case FE_OFDM:
-			case FE_ATSC:
-				break;
+		tmpI->second.dump("CTPSelectHandler::exec: selected TP:");
+		if (CFrontend::isSat(tmpI->second.feparams.delsys)) {
+			scansettings.sat_TP_freq = to_string(tmpI->second.feparams.frequency);
+			scansettings.sat_TP_rate = to_string(tmpI->second.feparams.symbol_rate);
+			scansettings.sat_TP_fec = tmpI->second.feparams.fec_inner;
+			scansettings.sat_TP_pol = tmpI->second.feparams.polarization;
+			scansettings.sat_TP_delsys = tmpI->second.feparams.delsys;
+			scansettings.sat_TP_mod = tmpI->second.feparams.modulation;
+			scansettings.sat_TP_pilot = tmpI->second.feparams.pilot;
 		}
-
+		else if (CFrontend::isCable(tmpI->second.feparams.delsys)) {
+			scansettings.cable_TP_freq = to_string(tmpI->second.feparams.frequency);
+			scansettings.cable_TP_rate = to_string(tmpI->second.feparams.symbol_rate);
+			scansettings.cable_TP_fec = tmpI->second.feparams.fec_inner;
+			scansettings.cable_TP_mod = tmpI->second.feparams.modulation;
+		}
+		else if (CFrontend::isTerr(tmpI->second.feparams.delsys)) {
+			scansettings.terrestrial_TP_freq = to_string(tmpI->second.feparams.frequency);
+			scansettings.terrestrial_TP_bw = tmpI->second.feparams.bandwidth;
+			scansettings.terrestrial_TP_constel = tmpI->second.feparams.modulation;
+			scansettings.terrestrial_TP_hierarchy = tmpI->second.feparams.hierarchy;
+			scansettings.terrestrial_TP_delsys = tmpI->second.feparams.delsys;
+			scansettings.terrestrial_TP_transmit_mode = tmpI->second.feparams.transmission_mode;
+			scansettings.terrestrial_TP_coderate_HP = tmpI->second.feparams.code_rate_HP;
+			scansettings.terrestrial_TP_coderate_LP = tmpI->second.feparams.code_rate_LP;
+			//scansettings.terrestrialName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
+		}
 	}
 
 	if (retval == menu_return::RETURN_EXIT_ALL)

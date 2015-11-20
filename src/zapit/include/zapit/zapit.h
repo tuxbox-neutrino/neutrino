@@ -35,9 +35,6 @@ typedef std::multimap<t_channel_id, pid_pair_t> volume_map_t;
 typedef volume_map_t::iterator volume_map_iterator_t;
 typedef std::pair<volume_map_iterator_t,volume_map_iterator_t> volume_map_range_t;
 
-#define VOLUME_PERCENT_AC3 100
-#define VOLUME_PERCENT_PCM 100
-
 /* complete zapit start thread-parameters in a struct */
 typedef struct ZAPIT_start_arg
 {
@@ -47,6 +44,7 @@ typedef struct ZAPIT_start_arg
         int video_mode;
 	int volume;
         int ci_clock;
+	std::list<std::string> *webtv_xml;
 } Z_start_arg;
 
 typedef struct Zapit_config {
@@ -121,6 +119,8 @@ class CZapit : public OpenThreads::Thread
 		int current_volume;
 		int volume_percent;
 
+		std::list<std::string> *webtv_xml;
+
 		int currentMode;
 		bool playbackStopForced;
 		//diseqc_t diseqcType;
@@ -135,6 +135,7 @@ class CZapit : public OpenThreads::Thread
 		t_channel_id live_channel_id;
 		t_channel_id pip_channel_id;
 		t_channel_id lock_channel_id;
+		t_channel_id last_channel_id;
 		/* scan params */
 		TP_params TP;
 		fast_scan_type_t scant;
@@ -144,6 +145,9 @@ class CZapit : public OpenThreads::Thread
 
 		audio_map_t audio_map;
 		volume_map_t vol_map;
+		OpenThreads::Mutex vol_map_mutex;
+		int volume_percent_ac3;
+		int volume_percent_pcm;
 		//bool current_is_nvod;
 		//bool standby;
 		t_channel_id  lastChannelRadio;
@@ -206,6 +210,7 @@ class CZapit : public OpenThreads::Thread
 	public:
 		~CZapit();
 		static CZapit * getInstance();
+		void ClearVolumeMap();
 
 		virtual void LoadSettings();
 		virtual bool Start(Z_start_arg* ZapStart_arg);
@@ -258,10 +263,15 @@ class CZapit : public OpenThreads::Thread
 		void SetVolume(int vol);
 		int GetVolume() { return current_volume; };
 		int SetVolumePercent(int percent);
+		void SetVolumePercent(int default_ac3, int default_pcm);
 		bool StartPip(const t_channel_id channel_id);
 		bool StopPip();
 		void Lock() { mutex.lock(); }
 		void Unlock() { mutex.unlock(); }
 		void EnablePlayback(bool enable) { playbackStopForced = !enable; }
+		void lockPlayBack(const bool sendpmt = true);
+		void unlockPlayBack(const bool sendpmt = true);
+		void Rezap();
+		std::list<std::string> *GetWebTVXML(void) { return webtv_xml; }
 };
 #endif /* __zapit_h__ */

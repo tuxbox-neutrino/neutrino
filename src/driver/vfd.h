@@ -76,9 +76,15 @@ class CVFD
 
 
 	private:
+#ifdef BOXMODEL_APOLLO
+		fp_display_caps_t		caps;
+#endif
 		MODES				mode;
 
 		std::string			servicename;
+		int				service_number;
+		bool				support_text;
+		bool				support_numbers;
 		char				volume;
 		unsigned char			percentOver;
 		bool				muted;
@@ -103,6 +109,7 @@ class CVFD
 
 		~CVFD();
 		bool has_lcd;
+		bool has_led_segment;
 		void setlcdparameter(void);
 		void setled(void);
 		void setled(bool on_off);
@@ -112,16 +119,16 @@ class CVFD
 
 		void setMode(const MODES m, const char * const title = "");
 
-		void showServicename(const std::string & name); // UTF-8
+		void showServicename(const std::string & name, int number = -1); // UTF-8
 		void showTime(bool force = false);
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);
 		void showVolume(const char vol, const bool perform_update = true);
-		void showPercentOver(const unsigned char perc, const bool perform_update = true);
+		void showPercentOver(const unsigned char perc, const bool perform_update = true, const MODES origin = MODE_TVRADIO);
 		void showMenuText(const int position, const char * text, const int highlight = -1, const bool utf_encoded = false);
 		void showAudioTrack(const std::string & artist, const std::string & title, const std::string & album);
 		void showAudioPlayMode(AUDIOMODES m=AUDIO_MODE_PLAY);
-		void showAudioProgress(const char perc, bool isMuted);
+		void showAudioProgress(const unsigned char perc);
 		void setBrightness(int);
 		int getBrightness();
 
@@ -147,6 +154,7 @@ class CVFD
 		void Clear();
 		void ShowIcon(fp_icon icon, bool show);
 		void ShowText(const char *str);
+		void ShowNumber(int number);
 		void wake_up();
 		MODES getMode(void) { return mode; };
 #ifdef LCD_UPDATE

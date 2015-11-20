@@ -29,6 +29,7 @@
 #include "cc_item_picture.h"
 #include "cc_item_text.h"
 #include "cc_frm_icons.h"
+#include <driver/colorgradient.h>
 
 //! Sub class of CComponentsForm. Shows a header with prepared items.
 /*!
@@ -42,6 +43,7 @@ class CComponentsHeader : public CComponentsForm
 					const std::string& caption = "header",
 					const std::string& = "",
 					const int& buttons = 0,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
@@ -52,7 +54,7 @@ class CComponentsHeader : public CComponentsForm
 		CComponentsPicture * cch_icon_obj;
 		///object: caption object, see also setCaption()
 		CComponentsText * cch_text_obj;
-		///object: context button object, see also addButtonIcon(), removeButtonIcons()
+		///object: context button object, see also addContextButton(), removeContextButtons()
 		CComponentsIconForm * cch_btn_obj;
 
 		///property: caption text, see also setCaption()
@@ -72,17 +74,11 @@ class CComponentsHeader : public CComponentsForm
 		int cch_icon_w;
 		///property: internal x-position for caption object
 		int cch_text_x;
-		///property: internal context button definition button icons, see modes CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
-		int cch_buttons;
-		///property: internal width for context button object
-		int cch_buttons_w;
-		///property: internal height for context button object
-		int cch_buttons_h;
 		///property: internal offset of context button icons within context button object
 		int cch_buttons_space;
 		///property: internal offset for header items
 		int cch_offset;
-		///property: internal container of icon names for context button object, see also addButtonIcon()
+		///property: internal container of icon names for context button object, see also addContextButton()
 		std::vector<std::string> v_cch_btn;
 		///property: size of header, possible values are CC_HEADER_SIZE_LARGE, CC_HEADER_SIZE_SMALL
 		int cch_size_mode;
@@ -97,10 +93,6 @@ class CComponentsHeader : public CComponentsForm
 		void initCaption();
 		///sub: init context button object
 		void initButtons();
-		///sub: init default buttons for context button object
-		void initDefaultButtons();
-		///sub: init default buttons for context button object
-		void initButtonFormSize();
 
 	public:
 		enum
@@ -110,11 +102,12 @@ class CComponentsHeader : public CComponentsForm
 			CC_HEADER_ITEM_BUTTONS	= 2
 		};
 
-		CComponentsHeader();
+		CComponentsHeader(CComponentsForm *parent = NULL);
 		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const std::string& caption = "",
 					const std::string& = "",
 					const int& buttons = 0,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
@@ -131,6 +124,8 @@ class CComponentsHeader : public CComponentsForm
 		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;};
 		///set text font object for caption
 		virtual void setCaptionFont(Font* font);
+		///returns font object of title caption
+		virtual Font* getCaptionFont(){return cch_font;};
 		///set text color for caption
 		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
 
@@ -141,21 +136,50 @@ class CComponentsHeader : public CComponentsForm
 		///set name of icon
 		virtual void setIcon(const std::string& icon_name);
 
-		///add separate button icons to context button object
-		virtual void addButtonIcon(const std::string& button_name);
-		///remove button icons from context button object
-		virtual void removeButtonIcons();
-		
+		///context buttons are to find on the right part of header
+		///add a single context button icon to the header object, arg as string, icon will just add, existing icons are preserved
+		virtual void addContextButton(const std::string& button_name);
+		///add a group of context button icons to the header object, arg as string vector, icons will just add, existing icons are preserved
+		virtual void addContextButton(const std::vector<std::string>& v_button_names);
+		///add a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
+		///icons will just add, existing  icons are preserved
+		virtual void addContextButton(const int& buttons);
+		///remove context buttons from context button object
+		virtual void removeContextButtons();
+		///sets a single context button icon to the header object, arg as string, existing buttons are removed
+		virtual void setContextButton(const std::string& button_name){removeContextButtons(); addContextButton(button_name);};
+		///sets a group of context button icons to the header object, arg as string vector, existing buttons are removed
+		virtual void setContextButton(const std::vector<std::string>& v_button_names){removeContextButtons(); addContextButton(v_button_names);};
+		///sets a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
+		///existing buttons are removed
+		virtual void setContextButton(const int& buttons){removeContextButtons(); addContextButton(buttons);};
+
+		///gets the embedded context button object, so it's possible to get access directly to its methods and properties
+		virtual CComponentsIconForm* getContextBtnObject() { return cch_btn_obj;};
+
 		enum
 		{
-			CC_BTN_HELP = 0x02,
-			CC_BTN_INFO = 0x04,
-			CC_BTN_MENU = 0x40,
-			CC_BTN_EXIT = 0x80
-
+			CC_BTN_HELP 			= 0x02,
+			CC_BTN_INFO 			= 0x04,
+			CC_BTN_MENU 			= 0x40,
+			CC_BTN_EXIT 			= 0x80,
+			CC_BTN_MUTE_ZAP_ACTIVE 		= 0x100,
+			CC_BTN_MUTE_ZAP_INACTIVE 	= 0x200,
+			CC_BTN_OKAY			= 0x400,
+			CC_BTN_MUTE			= 0x800,
+			CC_BTN_TOP			= 0x1000,
+			CC_BTN_DOWN			= 0x2000,
+			CC_BTN_RIGHT			= 0x4000,
+			CC_BTN_LEFT			= 0x8000,
+			CC_BTN_FORWARD			= 0x10000,
+			CC_BTN_BACKWARD			= 0x20000,
+			CC_BTN_PAUSE			= 0x40000,
+			CC_BTN_PLAY			= 0x80000,
+			CC_BTN_RECORD_ACTIVE		= 0x100000,
+			CC_BTN_RECORD_INACTIVE		= 0x200000,
+			CC_BTN_RECORD_STOP		= 0x400000
 		};
-		///set internal context button icons, possible modes CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
-		virtual void setDefaultButtons(const int buttons);
+
 		///set offset between icons within context button object
 		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 
@@ -188,6 +212,7 @@ class CComponentsHeaderLocalized : public CComponentsHeader
 						neutrino_locale_t caption_locale = NONEXISTANT_LOCALE,
 						const std::string& = "",
 						const int& buttons = 0,
+						CComponentsForm *parent = NULL,
 						bool has_shadow = CC_SHADOW_OFF,
 						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 						fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,

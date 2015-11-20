@@ -63,7 +63,7 @@ class CBookmark
 
 //-----------------------------------------
 
-class CBookmarkManager
+class CBookmarkManager : public CChangeObserver
 {
  private:
 	std::vector<CBookmark> bookmarks;
@@ -84,6 +84,7 @@ class CBookmarkManager
 
 	
 	//int bookmarkCount;
+	bool bookmarkname_entered;
 	bool bookmarksmodified;
 	void readBookmarkFile();
 	void writeBookmarkFile();
@@ -101,6 +102,7 @@ class CBookmarkManager
  public:
 	CBookmarkManager();
 	~CBookmarkManager();
+	bool changeNotify(const neutrino_locale_t, void *);
 	int createBookmark(const std::string & name, const std::string & url, const std::string & time);
 	int createBookmark(const std::string & url, const std::string & time);
 	void removeBookmark(unsigned int index);

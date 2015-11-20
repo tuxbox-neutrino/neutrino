@@ -32,7 +32,7 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 	png_infop info_ptr;
 	png_uint_32 width, height;
 	unsigned int i;
-	int bit_depth, color_type, interlace_type, number_passes, pass, int_bpp = 3;
+	int bit_depth, color_type, interlace_type, number_passes, pass, int_bpp;
 	png_byte * fbptr;
 	FILE     * fh;
 
@@ -100,6 +100,7 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 			png_set_strip_alpha(png_ptr);
 		if (bit_depth < 8)
 			png_set_packing(png_ptr);
+		int_bpp = 3;
 	}
 	if (bit_depth == 16)
 		png_set_strip_16(png_ptr);

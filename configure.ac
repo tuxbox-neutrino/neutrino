@@ -3,6 +3,7 @@ AM_INIT_AUTOMAKE([1.0.1 nostdinc])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
 TUXBOX_APPS
+TUXBOX_APPS_DVB
 TUXBOX_APPS_DIRECTORY
 TUXBOX_APPS_PKGCONFIG
 TUXBOX_BOXTYPE
@@ -76,6 +77,7 @@ TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
 if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
 fi
+TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 else
 TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 fi
@@ -94,6 +96,8 @@ TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
+TUXBOX_APPS_LIB_PKGCONFIG(BLURAY,libbluray)
+TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
@@ -123,6 +127,10 @@ AC_ARG_ENABLE(freesatepg,
 	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
 	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
 
+AC_ARG_ENABLE(viasatepg,
+	[  --enable-viasatepg                  enable ViaSat EPG code (experimental)],
+	[AC_DEFINE(ENABLE_VIASATEPG,1,[enable ViaSat EPG code])])
+
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
 	,[enable_giflib=no])
@@ -131,6 +139,17 @@ AM_CONDITIONAL(ENABLE_GIFLIB,test "$enable_giflib" = "yes")
 if test "$enable_giflib" = "yes"; then
 	AC_DEFINE(ENABLE_GIFLIB,1,[use giflib instead of libungif])
 fi
+
+### USE_PUGIXML
+AC_ARG_ENABLE(pugixml,
+       AS_HELP_STRING(--enable-pugixml,use pugixml instead of xmltree),
+       ,[enable_pugixml=no])
+
+AM_CONDITIONAL(USE_PUGIXML,test "$enable_pugixml" = "yes")
+if test "$enable_pugixml" = "yes"; then
+       AC_DEFINE(USE_PUGIXML,1,[use pugixml instead of xmltree])
+fi
+
 
 # FLAC - Free Lossless Audio Codec
 AC_ARG_ENABLE(flac,
@@ -178,13 +197,14 @@ AC_ARG_ENABLE(pip,
 	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
 
 
-AC_ARG_ENABLE(testmenu,
-       AS_HELP_STRING(--enable-testmenu,include test menu in neutrino main menu))
+AC_ARG_ENABLE(testing,
+       AS_HELP_STRING(--enable-testing,include devel code parts for neutrino tests))
 
-AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
-if test "$enable_testmenu" = "yes"; then
-	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
+AM_CONDITIONAL(ENABLE_TESTING,test "$enable_testing" = "yes")
+if test "$enable_testing" = "yes"; then
+	AC_DEFINE(ENABLE_TESTING,1,[include devel code parts for neutrino tests - not recommended for general users!])
 fi
+
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
@@ -224,6 +244,7 @@ AC_SUBST(VORBISIDEC_CFLAGS)
 AC_SUBST(VORBISIDEC_LIBS)
 AC_SUBST(LUA_CFLAGS)
 AC_SUBST(LUA_LIBS)
+AC_SUBST(BLURAY_LIBS)
 
 AC_OUTPUT([
 Makefile
@@ -234,6 +255,7 @@ lib/libeventserver/Makefile
 lib/libmd5sum/Makefile
 lib/libnet/Makefile
 lib/xmltree/Makefile
+lib/jsoncpp/Makefile
 lib/sectionsdclient/Makefile
 lib/timerdclient/Makefile
 lib/libtriple/Makefile
@@ -241,14 +263,15 @@ lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile
 lib/libiw/Makefile
+lib/luaclient/Makefile
 src/lcddisplay/Makefile
 src/nhttpd/Makefile
 src/nhttpd/web/Makefile
 src/nhttpd/web/images/Makefile
 src/nhttpd/web/scripts/Makefile
 src/nhttpd/web/languages/Makefile
+src/nhttpd/web/styles/Makefile
 src/nhttpd/tuxboxapi/Makefile
-src/nhttpd/tuxboxapi/coolstream/Makefile
 src/nhttpd/yhttpd_core/Makefile
 src/nhttpd/yhttpd_mods/Makefile
 src/nhttpd/nhttpd.conf

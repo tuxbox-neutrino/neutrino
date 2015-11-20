@@ -37,6 +37,8 @@
 #include <system/settings.h>
 
 #include <string>
+#include <vector>
+#include <map>
 
 typedef struct usermenu_props_t
 {
@@ -48,7 +50,7 @@ typedef struct usermenu_props_t
 
 }usermenu_props_struct_t;
 
-#define USERMENU_ITEMS_COUNT 4
+#define USERMENU_ITEMS_COUNT SNeutrinoSettings::BUTTON_MAX
 const struct usermenu_props_t usermenu[USERMENU_ITEMS_COUNT] =
 {
 	{LOCALE_USERMENU_BUTTON_RED	, SNeutrinoSettings::BUTTON_RED		, CRCInput::RC_red	,NEUTRINO_ICON_BUTTON_RED	,LOCALE_INFOVIEWER_EVENTLIST	},
@@ -64,20 +66,26 @@ class CUserMenuSetup : public CMenuTarget
 		int width;
 		int max_char;
 		int button;
+		int item_offset;
 		std::string pref_name;
 		neutrino_locale_t local;
+		CMenuForwarder *forwarder;
+		CMenuWidget * ums;
+		std::vector<std::string> options;
+		std::map<std::string,std::string> keys;
+		std::map<std::string,std::string> vals;
 
 		int showSetup();
 		void checkButtonItems();
 		void checkButtonName();
-		
-		CMenuWidget * ums;
-		
+
 	public:
 		CUserMenuSetup(neutrino_locale_t menue_title, int menue_button);
 		~CUserMenuSetup();
+		void setCaller(CMenuForwarder *fw) { forwarder = fw ; }
 		int getUsedItemsCount();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		static neutrino_locale_t getLocale(unsigned int i);
 };
 
 

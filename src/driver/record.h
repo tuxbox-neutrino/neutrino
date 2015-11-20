@@ -27,34 +27,35 @@
 #include <map>
 #include <list>
 
-#include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdtypes.h>
 
 #include <neutrinoMessages.h>
 #include <gui/movieinfo.h>
-#include <zapit/channel.h>
-#include <zapit/client/zapittools.h>
-#include <zapit/femanager.h>
 
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
-#include <driver/vfd.h>
 #endif
 #if HAVE_TRIPLEDRAGON
 #include <record_td.h>
-#include <driver/lcdd.h>
 #endif
 
 #include <OpenThreads/Mutex>
+#include <OpenThreads/Thread>
+
+extern "C" {
+#include <libavformat/avformat.h>
+}
 
 #define REC_MAX_APIDS 10
 #define FILENAMEBUFFERSIZE 1024
 #define RECORD_MAX_COUNT 8
 
-#define TSHIFT_MODE_OFF 0
-#define TSHIFT_MODE_TEMPORAER 1
-#define TSHIFT_MODE_PERMANET 2
-#define TSHIFT_MODE_PAUSE 3
+#define TSHIFT_MODE_OFF		0
+#define TSHIFT_MODE_ON		1
+#define TSHIFT_MODE_PAUSE	2
+#define TSHIFT_MODE_REWIND	3
+
+class CFrontend;
 
 //FIXME
 enum record_error_msg_t
@@ -68,7 +69,7 @@ enum record_error_msg_t
 
 class CRecordInstance
 {
-	private:
+	protected:
 		typedef struct {
 			uint32_t apid;
 			unsigned int index;//FIXME not used ?
@@ -79,6 +80,7 @@ class CRecordInstance
 		t_channel_id	channel_id;
 		event_id_t	epgid;
 		std::string	epgTitle;
+		std::string	epgInfo1;
 		unsigned char	apidmode;
 		time_t		epg_time;
 		time_t		start_time;
@@ -99,20 +101,22 @@ class CRecordInstance
 		MI_MOVIE_INFO *	recMovieInfo;
 		cRecord *	record;
 
-		void GetPids(CZapitChannel * channel);
+		virtual void GetPids(CZapitChannel * channel);
+		virtual void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
+		record_error_msg_t Start(CZapitChannel * channel);
 		void ProcessAPIDnames();
 		void FilterPids(APIDList & apid_list);
-		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis);
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
-		record_error_msg_t Start(CZapitChannel * channel);
 		void WaitRecMsg(time_t StartTime, time_t WaitTime);
-	public:		
+		void MakeExtFileName(CZapitChannel * channel, std::string &FilenameTemplate);
+		void StringReplace(std::string &str, const std::string search, const std::string rstr);
+	public:
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
-		~CRecordInstance();
+		virtual ~CRecordInstance();
 
-		record_error_msg_t Record();
-		bool Stop(bool remove_event = true);
+		virtual record_error_msg_t Record();
+		virtual bool Stop(bool remove_event = true);
 		bool Update();
 
 		void SetRecordingId(int id) { recording_id = id; };
@@ -163,14 +167,12 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 
 		bool CutBackNeutrino(const t_channel_id channel_id, CFrontend * &frontend);
 		void RestoreNeutrino(void);
-		bool CheckRecording(const CTimerd::RecordingInfo * const eventinfo);
 		void StartNextRecording();
 		void StopPostProcess();
 		void StopInstance(CRecordInstance * inst, bool remove_event = true);
 		CRecordInstance * FindInstance(t_channel_id);
 		CRecordInstance * FindInstanceID(int recid);
 		CRecordInstance * FindTimeshift();
-		//void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
 		enum record_modes_t
@@ -197,6 +199,8 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		int  exec(CMenuTarget* parent, const std::string & actionKey);
 		bool StartAutoRecord();
 		bool StopAutoRecord(bool lock = true);
+		void StopAutoTimer();
+		bool CheckRecordingId_if_Timeshift(int recid);
 
 		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
 		const std::string GetFileName(const t_channel_id channel_id, bool timeshift = true);
@@ -225,7 +229,6 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		CRecordInstance* getRecordInstance(std::string file);
 		// old code
 #if 0
-		bool IsTimeshift(t_channel_id channel_id=0);
 		bool MountDirectory(const char *recordingDir);
 		bool ChooseRecDir(std::string &dir);
 		int recordingstatus;
@@ -233,4 +236,31 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 #endif
 };
+
+class CStreamRec : public CRecordInstance, OpenThreads::Thread
+{
+	private:
+		AVFormatContext *ifcx;
+		AVFormatContext *ofcx;
+		bool stopped;
+		bool interrupt;
+		time_t time_started;
+		int  stream_index;
+
+		void GetPids(CZapitChannel * channel);
+		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
+		bool Start();
+
+		void Close();
+		bool Open(CZapitChannel * channel);
+		void run();
+		void WriteHeader(uint32_t duration);
+	public:
+		CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
+		~CStreamRec();
+		record_error_msg_t Record();
+		bool Stop(bool remove_event = true);
+		static int Interrupt(void * data);
+};
+
 #endif

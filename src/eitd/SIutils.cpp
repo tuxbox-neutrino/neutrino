@@ -139,6 +139,12 @@ int saveStringToXMLfile(FILE *out, const char *c, int /*withControlCodes*/)
 		case '\'':
 			fprintf(out, "&apos;");
 			break;
+		case 0x0a:
+			fprintf(out,"&#x0a;");
+			break;
+		case 0x0d:
+			fprintf(out,"&#x0d;");
+			break;
 #if 0
 		case 0x81:
 		case 0x82:

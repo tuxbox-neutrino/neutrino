@@ -7,10 +7,8 @@
 	{=var-set:help_url=Help-Info-Hilfe=}{=var-set:menu={=L:info.help=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<ul>
-		<li><a href="http://www.yjogol.com/faq" class="exlink" title="FAQ at yjogol.com" target="_blank">FAQ yWeb</a></li>
 		<li><a href="http://wiki.tuxbox.org/Neutrino:yWeb" class="exlink" title="yWeb Help from Tuxbox Wiki" target="_blank">Tuxbox-Wiki Help</a></li>
 		<li><a href="http://forum.tuxbox.org/forum" class="exlink" title="Tuxbox Dicussion Forum" target="_blank">Tuxbox Forum</a></li>
-		<li><a href="http://www.yjogol.com" class="exlink" title="Homepage of yWeb" target="_blank">Homepage yWeb</a></li>
 		<li><a href="http://www.cstworld.net" class="exlink" title="CST User Forum" target="_blank">CST User Forum</a></li>
 		<li><a href="http://www.dbox2world.net/board329-development/" class="exlink" title="CST Dev Forum" target="_blank">CST Developer Forum</a></li>
 	</ul>

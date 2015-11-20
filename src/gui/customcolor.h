@@ -13,6 +13,7 @@
 */
 #define COL_DARK_RED 0x02
 #define COL_DARK_GREEN 0x03
+#define COL_OLIVE 0x04
 #define COL_DARK_BLUE 0x05
 #define COL_LIGHT_GRAY 0x08
 #define COL_DARK_GRAY 0x09
@@ -27,6 +28,7 @@
 #else
 #define COL_DARK_RED0	 0x02
 #define COL_DARK_GREEN0	 0x03
+#define COL_OLIVE0 	 0x04
 #define COL_DARK_BLUE0	 0x05
 #define COL_LIGHT_GRAY0	 0x08
 #define COL_DARK_GRAY0	 0x09
@@ -41,6 +43,7 @@
 
 #define COL_DARK_RED			(CFrameBuffer::getInstance()->realcolor[0x02])
 #define COL_DARK_GREEN			(CFrameBuffer::getInstance()->realcolor[0x03])
+#define COL_OLIVE 			(CFrameBuffer::getInstance()->realcolor[0x04])
 #define COL_DARK_BLUE			(CFrameBuffer::getInstance()->realcolor[0x05])
 #define COL_LIGHT_GRAY			(CFrameBuffer::getInstance()->realcolor[0x08])
 #define COL_DARK_GRAY			(CFrameBuffer::getInstance()->realcolor[0x09])

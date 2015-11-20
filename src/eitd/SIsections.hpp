@@ -194,7 +194,7 @@ class SIsectionTIME
 			parsed = 0;
 			parse(buf);
 		}
-		time_t getTime() { return dvbtime; }
+		time_t getTime() const { return dvbtime; }
 		int is_parsed(void) const { return parsed; }
 };
 

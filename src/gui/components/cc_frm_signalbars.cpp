@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Class for signalbar based up CComponent classes.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-1014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -37,16 +37,17 @@
 
 using namespace std;
 
-CSignalBar::CSignalBar()
+CSignalBar::CSignalBar(CComponentsForm *parent)
 {
 	initVarSigBar();
 	sb_name 	= "SIG";
 
 	initDimensions();
 	initSBItems();
+	initParent(parent);
 }
 
-CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const string& sbname)
+CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const string& sbname, CComponentsForm *parent)
 {
 	initVarSigBar();
 	sb_frontend 	= frontend_ref;
@@ -58,6 +59,7 @@ CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int
 
 	initDimensions();
 	initSBItems();
+	initParent(parent);
 }
 
 void CSignalBar::initDimensions()
@@ -121,11 +123,8 @@ void CSignalBar::initVarSigBar()
 void CSignalBar::initSBarScale()
 {
 	//create scale object if required
-	if (sb_scale == NULL){
+	if (sb_scale == NULL)
 		sb_scale = new CProgressBar();
-		//we want colored scale!
-		sb_scale->setBlink();
-	}
 
 	//move and set dimensions
 	int scale_y = (sb_item_height/2 - sb_scale_height/2);
@@ -256,7 +255,7 @@ void CSignalNoiseRatioBar::Refresh()
 
 
 //**********************************************************************************************************************
-CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vert)
+CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vert, CComponentsForm *parent)
 {
 	initVarSigBox();
 	vertical = vert;
@@ -284,6 +283,7 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 	addCCItem(snrbar);
 
 	initSignalItems();
+	initParent(parent);
 }
 
 void CSignalBox::initVarSigBox()

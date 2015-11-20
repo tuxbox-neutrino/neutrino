@@ -46,6 +46,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <system/helpers.h>
 // yhttpd
 #include <yconfig.h>
 #include <ytypes_globals.h>
@@ -74,7 +75,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 #endif //Y_CONFIG_USE_HOSTEDWEB
 
 	std::string mime = sendfileTypes[hh->UrlData["fileext"]];
-	if (((mime != "") || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
+	if (((!mime.empty()) || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
 			&& !(hh->UrlData["fileext"] == "yhtm" || hh->UrlData["fileext"] == "yjs" || hh->UrlData["fileext"] == "ysh")) {
 		//TODO: Check allowed directories / actually in GetFileName
 		// build filename
@@ -96,7 +97,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 
 			// check If-Modified-Since
 			time_t if_modified_since = (time_t) - 1;
-			if (hh->HeaderList["If-Modified-Since"] != "") {
+			if (!hh->HeaderList["If-Modified-Since"].empty()) {
 				struct tm mod;
 				if (strptime(hh->HeaderList["If-Modified-Since"].c_str(),
 						RFC1123FMT, &mod) != NULL) {
@@ -113,8 +114,22 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 
 			// Send normal or not-modified header
 			if (modified) {
-				hh->SendFile(fullfilename);
-				hh->ResponseMimeType = mime;
+				hh->RangeStart = 0;
+				hh->RangeEnd = hh->ContentLength - 1;
+				const char *range = (hh->HeaderList["Range"].empty()) ? NULL : hh->HeaderList["Range"].c_str();
+				if ((range &&
+				     (2 != sscanf(range, "bytes=%lld-%lld", &hh->RangeStart, &hh->RangeEnd)) &&
+				     (1 != sscanf(range, "bytes=%lld-", &hh->RangeStart)))
+				 || (hh->RangeStart > hh->RangeEnd)
+				 || (hh->RangeEnd > hh->ContentLength - 1)) {
+					hh->SetError(HTTP_REQUEST_RANGE_NOT_SATISFIABLE);
+					aprintf("mod_sendfile: Client requested range '%s' which is outside of [0,%lld]\n", range, hh->ContentLength - 1);
+				} else {
+					hh->SendFile(fullfilename);
+					hh->ResponseMimeType = mime;
+					if (hh->RangeStart && (hh->RangeEnd != hh->ContentLength - 1))
+						hh->httpStatus = HTTP_PARTIAL_CONTENT;
+				}
 			} else
 				hh->SetHeader(HTTP_NOT_MODIFIED, mime, HANDLED_READY);
 		} else {
@@ -165,16 +180,16 @@ std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::
 		tmpfilename = path + "/" + filename;
 	else
 		tmpfilename = path + filename;
-	if (access(std::string(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename).c_str(), 4) == 0)
+	if (access(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename, R_OK) == 0)
 		tmpfilename = hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename;
-	else if (access(std::string(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename + ".gz").c_str(), 4) == 0)
+	else if (access(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename + ".gz", R_OK) == 0)
 		tmpfilename = hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename + ".gz";
-	else if (access(std::string(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename).c_str(), 4) == 0)
+	else if (access(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename, R_OK) == 0)
 		tmpfilename = hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename;
-	else if (access(std::string(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename + ".gz").c_str(), 4) == 0)
+	else if (access(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename + ".gz", R_OK) == 0)
 		tmpfilename = hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename + ".gz";
 #ifdef Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL
-	else if(access(tmpfilename.c_str(),4) == 0)
+	else if(access(tmpfilename,R_OK) == 0)
 	;
 #endif
 	else {
@@ -187,7 +202,7 @@ std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::
 //-----------------------------------------------------------------------------
 int CmodSendfile::OpenFile(CyhookHandler *, std::string fullfilename) {
 	int fd = -1;
-	if (fullfilename.length() > 0) {
+	if (!fullfilename.empty()) {
 		fd = open(fullfilename.c_str(), O_RDONLY | O_LARGEFILE);
 		if (fd <= 0) {
 			aprintf("cannot open file %s: ", fullfilename.c_str());

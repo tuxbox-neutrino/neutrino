@@ -38,13 +38,16 @@ typedef struct sat_config {
 	int input;
 	int configured;
 	int cable_nid;
-	int deltype;
+	delivery_system_t delsys;
 } sat_config_t;
 
 typedef enum diseqc_cmd_order {
 	UNCOMMITED_FIRST,
 	COMMITED_FIRST
 } diseqc_cmd_order_t;
+
+#define SAT_POSITION_CABLE(satellitePosition) ((satellitePosition > 0) && ((satellitePosition & 0xF00) == 0xF00))
+#define SAT_POSITION_TERR(satellitePosition) ((satellitePosition > 0) && ((satellitePosition & 0xF00) == 0xE00))
 
 typedef std::pair<t_satellite_position, sat_config_t> satellite_pair_t;
 typedef std::map<t_satellite_position, sat_config_t> satellite_map_t;

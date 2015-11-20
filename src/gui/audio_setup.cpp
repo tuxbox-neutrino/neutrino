@@ -45,17 +45,18 @@
 #include <driver/screen_max.h>
 
 #include <audio.h>
+#include <zapit/zapit.h>
 
 #include <system/debug.h>
 
 extern CAudioSetupNotifier	* audioSetupNotifier;
 extern cAudio *audioDecoder;
 
-CAudioSetup::CAudioSetup(bool wizard_mode)
+CAudioSetup::CAudioSetup(int wizard_mode)
 {
 	is_wizard = wizard_mode;
 
-	width = w_max (40, 10);
+	width = 40;
 	selected = -1;
 }
 
@@ -64,8 +65,14 @@ CAudioSetup::~CAudioSetup()
 
 }
 
-int CAudioSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CAudioSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
+	if (actionKey == "clear_vol_map") {
+		CZapit::getInstance()->ClearVolumeMap();
+		CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
+		return menu_return::RETURN_NONE;
+	}
+
 	dprintf(DEBUG_DEBUG, "init audio setup\n");
 	int   res = menu_return::RETURN_REPAINT;
 
@@ -150,6 +157,7 @@ int CAudioSetup::showAudioSetup()
 
 	CMenuOptionChooser * as_oj_avsync = NULL;
 	CMenuOptionNumberChooser * as_oj_vsteps = NULL;
+	CMenuOptionNumberChooser * st = NULL;
 	if (!g_settings.easymenu) {
 		//av synch
 		as_oj_avsync	= new CMenuOptionChooser(LOCALE_AUDIOMENU_AVSYNC, &g_settings.avsync, AUDIOMENU_AVSYNC_OPTIONS, AUDIOMENU_AVSYNC_OPTION_COUNT, true, audioSetupNotifier);
@@ -158,6 +166,9 @@ int CAudioSetup::showAudioSetup()
 		//volume steps
 		as_oj_vsteps = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 25, NULL);
 		as_oj_vsteps->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTEP);
+
+		st    = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_START, &g_settings.start_volume, true, -1, 100, NULL, CRCInput::RC_nokey, NULL, 0, -1, LOCALE_OPTIONS_OFF);
+		st->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTART);
 		//clock rec
 		//CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
 	}
@@ -180,6 +191,23 @@ int CAudioSetup::showAudioSetup()
 	CMenuOptionChooser * as_oj_srsonoff 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_IQ, &g_settings.srs_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &truevolSetupNotifier);
 	as_oj_srsonoff->setHint("", LOCALE_MENU_HINT_AUDIO_SRS);
 
+	// ac3,pcm and clear volume adjustment
+	CMenuOptionNumberChooser *adj_ac3 = NULL, *adj_pcm = NULL;
+	CMenuForwarder *adj_clear = NULL;
+	if (!g_settings.easymenu) {
+		adj_ac3 = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT_AC3,
+		(int *)&g_settings.audio_volume_percent_ac3, true, 0, 100, audioSetupNotifier);
+		adj_ac3->setNumberFormat("%d%%");
+		adj_ac3->setHint("", LOCALE_MENU_HINT_AUDIO_ADJUST_VOL_AC3);
+
+		adj_pcm  = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT_PCM,
+		(int *)&g_settings.audio_volume_percent_pcm, true, 0, 100, audioSetupNotifier);
+		adj_pcm->setNumberFormat("%d%%");
+		adj_pcm->setHint("", LOCALE_MENU_HINT_AUDIO_ADJUST_VOL_PCM);
+
+		adj_clear = new CMenuForwarder(LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT_CLEAR, true, NULL, this, "clear_vol_map");
+		adj_clear->setHint("", LOCALE_MENU_HINT_AUDIO_ADJUST_VOL_CLEAR);
+	}
 	//paint items
 	audioSettings->addIntroItems(LOCALE_MAINSETTINGS_AUDIO);
 	//---------------------------------------------------------
@@ -194,6 +222,7 @@ int CAudioSetup::showAudioSetup()
 		audioSettings->addItem(GenericMenuSeparatorLine);
 		audioSettings->addItem(as_oj_avsync);
 		audioSettings->addItem(as_oj_vsteps);
+		audioSettings->addItem(st);
 		//audioSettings->addItem(as_clockrec);
 	}
 	//---------------------------------------------------------
@@ -207,6 +236,12 @@ int CAudioSetup::showAudioSetup()
 #if 0
 	audioSettings->addItem(mf);
 #endif
+	if (!g_settings.easymenu) {
+		audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT));
+		audioSettings->addItem(adj_ac3);
+		audioSettings->addItem(adj_pcm);
+		audioSettings->addItem(adj_clear);
+	}
 
 	int res = audioSettings->exec(NULL, "");
 	selected = audioSettings->getSelected();
@@ -214,14 +249,10 @@ int CAudioSetup::showAudioSetup()
 #ifdef BOXMODEL_APOLLO
 	delete as_oj_noise;
 #endif
-	return res;
-}
+	if (!g_settings.easymenu)
+		CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
 
-//sets menu mode to "wizard" or "default"
-void CAudioSetup::setWizardMode(bool mode)
-{
-	printf("[neutrino audio setup] %s set audio settings menu to mode %d...\n", __FUNCTION__, mode);
-	is_wizard = mode;
+	return res;
 }
 
 CTruVolumeNotifier::CTruVolumeNotifier(CMenuOptionChooser* o1, CMenuOptionChooser* o2, CMenuOptionNumberChooser *n1)

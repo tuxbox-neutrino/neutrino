@@ -97,17 +97,24 @@ struct NeutrinoMessages {
 #endif
 		EVT_SCAN_FAILED                          = CRCInput::RC_Events + 29,
 		EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS = CRCInput::RC_Events + 30,
- 		EVT_SCAN_REPORT_FREQUENCY                = CRCInput::RC_Events + 31,
+
  		EVT_SCAN_FOUND_RADIO_CHAN                = CRCInput::RC_Events + 32,
  		EVT_SCAN_FOUND_DATA_CHAN                 = CRCInput::RC_Events + 33,
  		EVT_SCAN_FOUND_TV_CHAN                   = CRCInput::RC_Events + 34,
- 		EVT_SCAN_REPORT_FREQUENCYP               = CRCInput::RC_Events + 36,
  		EVT_ZAP_MOTOR                            = CRCInput::RC_Events + 37,
  		/* sectionsd */
 		EVT_SERVICES_UPD                         = CRCInput::RC_Events + 38,
 		EVT_SI_FINISHED                          = CRCInput::RC_Events + 39,
 
 		EVT_PMT_CHANGED				 = CRCInput::RC_Events + 40,
+		/* from nhttpd */
+		EVT_HDMI_CEC_VIEW_ON                     = CRCInput::RC_Events + 41,
+		EVT_HDMI_CEC_STANDBY                     = CRCInput::RC_Events + 42,
+		EVT_SET_MUTE                             = CRCInput::RC_Events + 43,
+		EVT_SET_VOLUME                           = CRCInput::RC_Events + 44,
+		EVT_STREAM_START                         = CRCInput::RC_Events + 45, /* data = fd */
+		EVT_STREAM_STOP                          = CRCInput::RC_Events + 46,
+
 		/* NEVER CHANGE THIS */
 		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
 		EVT_SUBT_MESSAGE                         = CRCInput::RC_Events + 61, /* data = subtitles pointer */
@@ -152,11 +159,10 @@ struct NeutrinoMessages {
 		EVT_EIT_COMPLETE                         = CRCInput::RC_WithData + 24, /* data: (t_channel_id *) */
 		EVT_BACK_ZAP_COMPLETE                    = CRCInput::RC_WithData + 25, /* data: (t_channel_id *) */
 
-		EVT_HDMI_CEC_VIEW_ON	    		 = CRCInput::RC_WithData + 26,
-		EVT_HDMI_CEC_STANDBY	    		 = CRCInput::RC_WithData + 27,
-
-		EVT_SET_MUTE                             = CRCInput::RC_WithData + 28,
-		EVT_SET_VOLUME                           = CRCInput::RC_WithData + 29
+		EVT_HOTPLUG                              = CRCInput::RC_WithData + 26, /* data: char */
+		EVT_FORMAT_DRIVE                         = CRCInput::RC_WithData + 27, /* data: char */
+		EVT_WEBTV_ZAP_COMPLETE                   = CRCInput::RC_WithData + 28,  /* data: (t_channel_id *) */
+ 		EVT_SCAN_REPORT_FREQUENCYP               = CRCInput::RC_WithData + 29
 	};
 	enum
 	{
@@ -168,6 +174,7 @@ struct NeutrinoMessages {
 		mode_audio = 5,
 		mode_pic = 6,
 		mode_ts = 7,
+		mode_webtv = 9,
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};

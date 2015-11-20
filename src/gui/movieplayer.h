@@ -50,6 +50,9 @@
 #include <string>
 #include <vector>
 
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+
 class CMoviePlayerGui : public CMenuTarget
 {
  public:
@@ -64,15 +67,29 @@ class CMoviePlayerGui : public CMenuTarget
 		    REW         =  6
 		};
 
+	enum
+		{
+		    PLUGIN_PLAYSTATE_NORMAL = 0,
+		    PLUGIN_PLAYSTATE_STOP   = 1,
+		    PLUGIN_PLAYSTATE_NEXT   = 2,
+		    PLUGIN_PLAYSTATE_PREV   = 3
+		};
+
+	enum repeat_mode_enum { REPEAT_OFF = 0, REPEAT_TRACK = 1, REPEAT_ALL = 2 };
+
  private:
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
 
-	std::string	full_name;
 	std::string	file_name;
+	std::string	pretty_name;
+	std::string	info_1, info_2;
 	std::string    	currentaudioname;
 	bool		playing;
+	bool		time_forced;
 	CMoviePlayerGui::state playstate;
+	int keyPressed;
+	bool isLuaPlay;
 	int speed;
 	int startposition;
 	int position;
@@ -86,6 +103,7 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short apids[MAX_PLAYBACK_PIDS];
 	unsigned short ac3flags[MAX_PLAYBACK_PIDS];
 	unsigned short currentapid, currentac3;
+	repeat_mode_enum repeat_mode;
 
 	/* subtitles vars */
 	unsigned short numsubs;
@@ -95,40 +113,60 @@ class CMoviePlayerGui : public CMenuTarget
 	int currentspid;
 	int min_x, min_y, max_x, max_y;
 	time_t end_time;
+	bool ext_subs;
+	bool lock_subs;
+	uint64_t last_read;
 
 	/* playback from MB */
 	bool isMovieBrowser;
 	bool isHTTP;
 	bool isUPNP;
+	bool isWebTV;
+	bool isYT;
 	bool showStartingHint;
-	CMovieBrowser* moviebrowser;
+	static CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
+	MI_MOVIE_INFO movie_info;
+	P_MI_MOVIE_LIST milist;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
 	/* playback from file */
 	bool is_file_player;
+	bool iso_file;
+	bool stopped;
 	CFileBrowser * filebrowser;
 	CFileFilter tsfilefilter;
+	CFileList filelist;
+	CFileList::iterator filelist_it;
 	std::string Path_local;
 	int menu_ret;
+	bool autoshot_done;
 
 	/* playback from bookmark */
-	CBookmarkManager * bookmarkmanager;
+	static CBookmarkManager * bookmarkmanager;
 	bool isBookmark;
 
-	cPlayback *playback;
+	static OpenThreads::Mutex mutex;
+	static OpenThreads::Mutex bgmutex;
+	static OpenThreads::Condition cond;
+	static pthread_t bgThread;
+
+	static cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
+	static CMoviePlayerGui* instance_bg;
 
 	void Init(void);
 	void PlayFile();
+	bool PlayFileStart();
+	void PlayFileLoop();
+	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
 	void restoreNeutrino();
 
 	void showHelpTS(void);
-	void callInfoViewer(/*const int duration, const int pos*/);
+	void callInfoViewer();
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
-	void selectAudioPid(bool file_player);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
 	void addAudioFormat(int count, std::string &apidtitle, bool& enabled );
 
@@ -136,13 +174,21 @@ class CMoviePlayerGui : public CMenuTarget
 	bool SelectFile();
 	void updateLcd();
 
-	void selectSubtitle();
-	void showSubtitle(neutrino_msg_data_t data);
-	void clearSubtitle();
+	bool convertSubtitle(std::string &text);
 	void selectChapter();
+	void selectAutoLang();
+	void parsePlaylist(CFile *file);
+	bool mountIso(CFile *file);
+	void makeFilename();
+	bool prepareFile(CFile *file);
+	void makeScreenShot(bool autoshot = false, bool forcover = false);
 
 	void Cleanup();
+	void ClearFlags();
+	void ClearQueue();
+	void EnableClockAndMute(bool enable);
 	static void *ShowStartHint(void *arg);
+	static void* bgPlayThread(void *arg);
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
@@ -150,7 +196,7 @@ class CMoviePlayerGui : public CMenuTarget
  public:
 	~CMoviePlayerGui();
 
-	static CMoviePlayerGui& getInstance();
+	static CMoviePlayerGui& getInstance(bool background = false);
 
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
@@ -162,7 +208,19 @@ class CMoviePlayerGui : public CMenuTarget
 	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
-	void SetFile(std::string &name, std::string &file) { file_name = name; full_name = file; }
+	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }
+	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan);
+	void stopPlayBack(void);
+	void setLastMode(int m) { m_LastMode = m; }
+	void Pause(bool b = true);
+	void selectAudioPid();
+	bool SetPosition(int pos, bool absolute = false);
+	void selectSubtitle();
+	void showSubtitle(neutrino_msg_data_t data);
+	void clearSubtitle(bool lock = false);
+	int getKeyPressed() { return keyPressed; };
+	size_t GetReadCount();
+	std::string GetFile() { return pretty_name; }
 };
 
 #endif

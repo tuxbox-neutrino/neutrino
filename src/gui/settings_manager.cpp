@@ -38,7 +38,9 @@
 #include <gui/filebrowser.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
+#include <gui/widget/keyboard_input.h>
 
+#include <driver/display.h>
 #include <driver/screen_max.h>
 #include <system/helpers.h>
 
@@ -46,9 +48,10 @@
 
 
 
-CSettingsManager::CSettingsManager()
+CSettingsManager::CSettingsManager(int wizard_mode)
 {
-	width = w_max (40, 10);
+	width = 40;
+	is_wizard = wizard_mode;
 }
 
 
@@ -76,6 +79,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			CNeutrinoApp::getInstance()->loadSetup(fileBrowser.getSelectedFile()->Name.c_str());
 			CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier;
 			colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_ALL);
 			CVFD::getInstance()->setlcdparameter();
 			printf("[neutrino] new settings: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			delete colorSetupNotifier;
@@ -88,7 +92,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (fileBrowser.exec("/var/tuxbox") == true)
 		{
 			std::string fname = "neutrino.conf";
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECONFIG, &fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
+			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname);
 			sms->exec(NULL, "");
 
 			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
@@ -133,8 +137,32 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
-	res = showMenu();
+	res = is_wizard ? showMenu_wizard() : showMenu();
 
+	return res;
+}
+
+//use a own small menu for start_wizard, because i don't want to fiddle around the easymenu code
+int CSettingsManager::showMenu_wizard()
+{
+	printf("[neutrino] CSettingsManager call %s...\n", __FUNCTION__);
+
+	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
+	mset->setWizardMode(is_wizard);
+	mset->addIntroItems(LOCALE_MAINSETTINGS_MANAGE);
+
+	CMenuForwarder * mf;
+
+	mf = new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig", CRCInput::RC_red);
+	mf->setHint(NEUTRINO_ICON_HINT_LOAD, LOCALE_MENU_HINT_LOAD);
+	mset->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_green);
+	mf->setHint(NEUTRINO_ICON_HINT_BACKUP, LOCALE_MENU_HINT_BACKUP);
+	mset->addItem(mf);
+
+	int res = mset->exec(NULL, "");
+	delete mset;
 	return res;
 }
 
@@ -149,7 +177,7 @@ int CSettingsManager::showMenu()
 
 	CMenuForwarder * mf;
 	if (g_settings.easymenu)
-		mf = new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier,    "settings",     CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier,    "settings",     CRCInput::RC_red);
 	else
 		mf = new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier,    "settings",     CRCInput::RC_recall);
 
@@ -159,11 +187,11 @@ int CSettingsManager::showMenu()
 	if (!g_settings.easymenu) {
 		mset->addItem(GenericMenuSeparatorLine);
 
-		mf = new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig", CRCInput::RC_red);
 		mf->setHint(NEUTRINO_ICON_HINT_SAVEAS, LOCALE_MENU_HINT_SAVEAS);
 		mset->addItem(mf);
 
-		mf = new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig", CRCInput::RC_green);
 		mf->setHint(NEUTRINO_ICON_HINT_LOAD, LOCALE_MENU_HINT_LOAD);
 		mset->addItem(mf);
 
@@ -171,26 +199,26 @@ int CSettingsManager::showMenu()
 	}
 
 	if (g_settings.easymenu)
-		mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_green);
 	else
-		mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_yellow);
 
 	mf->setHint(NEUTRINO_ICON_HINT_BACKUP, LOCALE_MENU_HINT_BACKUP);
 	mset->addItem(mf);
 
 	if (g_settings.easymenu)
-		mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_yellow);
 	else
-		mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_blue);
 
 	mf->setHint(NEUTRINO_ICON_HINT_RESTORE, LOCALE_MENU_HINT_RESTORE);
 	mset->addItem(mf);
 
 	if (g_settings.easymenu) {
-		mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_blue);
 	} else {
 		mset->addItem(GenericMenuSeparatorLine);
-		mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER);
+		mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_standby);
 	}
 	mf->setHint(NEUTRINO_ICON_HINT_FACTORY, LOCALE_MENU_HINT_FACTORY);
 	mset->addItem(mf);

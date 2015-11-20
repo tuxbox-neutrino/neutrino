@@ -1,9 +1,9 @@
-/* 
+/*
  * audio.h
  *
  * Copyright (C) 2000 Ralph  Metzler <ralph@convergence.de>
  *                  & Marcus Metzler <marcus@convergence.de>
-                      for convergence integrated media GmbH
+ *                    for convergence integrated media GmbH
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Lesser Public License
@@ -24,62 +24,59 @@
 #ifndef _DVBAUDIO_H_
 #define _DVBAUDIO_H_
 
-#ifdef __KERNEL__
 #include <linux/types.h>
-#else
-#include <stdint.h>
-#endif
-
 
 typedef enum {
-        AUDIO_SOURCE_DEMUX, /* Select the demux as the main source */ 
-	AUDIO_SOURCE_MEMORY /* Select internal memory as the main source */ 
+	AUDIO_SOURCE_DEMUX, /* Select the demux as the main source */
+	AUDIO_SOURCE_MEMORY /* Select internal memory as the main source */
 } audio_stream_source_t;
 
 
-typedef enum { 
-	AUDIO_STOPPED,      /* Device is stopped */ 
-        AUDIO_PLAYING,      /* Device is currently playing */ 
-	AUDIO_PAUSED        /* Device is paused */ 
+typedef enum {
+	AUDIO_STOPPED,      /* Device is stopped */
+	AUDIO_PLAYING,      /* Device is currently playing */
+	AUDIO_PAUSED        /* Device is paused */
 } audio_play_state_t;
 
 
 typedef enum {
-        AUDIO_STEREO,
-        AUDIO_MONO_LEFT, 
-	AUDIO_MONO_RIGHT 
+	AUDIO_STEREO,
+	AUDIO_MONO_LEFT,
+	AUDIO_MONO_RIGHT,
+	AUDIO_MONO,
+	AUDIO_STEREO_SWAPPED
 } audio_channel_select_t;
 
 
-typedef struct audio_mixer { 
-        unsigned int volume_left;
-        unsigned int volume_right;
+typedef struct audio_mixer {
+	unsigned int volume_left;
+	unsigned int volume_right;
   // what else do we need? bass, pass-through, ...
 } audio_mixer_t;
 
 
-typedef struct audio_status { 
-        int                    AV_sync_state;  /* sync audio and video? */
-        int                    mute_state;     /* audio is muted */ 
-        audio_play_state_t     play_state;     /* current playback state */
-        audio_stream_source_t  stream_source;  /* current stream source */
-        audio_channel_select_t channel_select; /* currently selected channel */
-        int                    bypass_mode;    /* pass on audio data to */
+typedef struct audio_status {
+	int                    AV_sync_state;  /* sync audio and video? */
+	int                    mute_state;     /* audio is muted */
+	audio_play_state_t     play_state;     /* current playback state */
+	audio_stream_source_t  stream_source;  /* current stream source */
+	audio_channel_select_t channel_select; /* currently selected channel */
+	int                    bypass_mode;    /* pass on audio data to */
 	audio_mixer_t	       mixer_state;    /* current mixer state */
 } audio_status_t;                              /* separate decoder hardware */
 
 
 typedef
-struct audio_karaoke{  /* if Vocal1 or Vocal2 are non-zero, they get mixed  */
+struct audio_karaoke {  /* if Vocal1 or Vocal2 are non-zero, they get mixed  */
 	int vocal1;    /* into left and right t at 70% each */
 	int vocal2;    /* if both, Vocal1 and Vocal2 are non-zero, Vocal1 gets*/
 	int melody;    /* mixed into the left channel and */
-                       /* Vocal2 into the right channel at 100% each. */
-                       /* if Melody is non-zero, the melody channel gets mixed*/
+		       /* Vocal2 into the right channel at 100% each. */
+		       /* if Melody is non-zero, the melody channel gets mixed*/
 } audio_karaoke_t;     /* into left and right  */
 
 
-typedef uint16_t audio_attributes_t;
+typedef __u16 audio_attributes_t;
 /*   bits: descr. */
 /*   15-13 audio coding mode (0=ac3, 2=mpeg1, 3=mpeg2ext, 4=LPCM, 6=DTS, */
 /*   12    multichannel extension */
@@ -88,7 +85,7 @@ typedef uint16_t audio_attributes_t;
 /*    7- 6 Quantization / DRC (mpeg audio: 1=DRC exists)(lpcm: 0=16bit,  */
 /*    5- 4 Sample frequency fs (0=48kHz, 1=96kHz) */
 /*    2- 0 number of audio channels (n+1 channels) */
- 
+
 
 /* for GET_CAPABILITIES and SET_FORMAT, the latter should only set one bit */
 #define AUDIO_CAP_DTS    1
@@ -101,7 +98,7 @@ typedef uint16_t audio_attributes_t;
 #define AUDIO_CAP_SDDS 128
 #define AUDIO_CAP_AC3  256
 
-#define AUDIO_STOP                 _IO('o', 1) 
+#define AUDIO_STOP                 _IO('o', 1)
 #define AUDIO_PLAY                 _IO('o', 2)
 #define AUDIO_PAUSE                _IO('o', 3)
 #define AUDIO_CONTINUE             _IO('o', 4)
@@ -121,5 +118,18 @@ typedef uint16_t audio_attributes_t;
 #define AUDIO_SET_ATTRIBUTES       _IOW('o', 17, audio_attributes_t)
 #define AUDIO_SET_KARAOKE          _IOW('o', 18, audio_karaoke_t)
 
-#endif /* _DVBAUDIO_H_ */
+/**
+ * AUDIO_GET_PTS
+ *
+ * Read the 33 bit presentation time stamp as defined
+ * in ITU T-REC-H.222.0 / ISO/IEC 13818-1.
+ *
+ * The PTS should belong to the currently played
+ * frame if possible, but may also be a value close to it
+ * like the PTS of the last decoded frame or the last PTS
+ * extracted by the PES parser.
+ */
+#define AUDIO_GET_PTS              _IOR('o', 19, __u64)
+#define AUDIO_BILINGUAL_CHANNEL_SELECT _IO('o', 20)
 
+#endif /* _DVBAUDIO_H_ */

@@ -4,13 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2011-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -44,12 +38,14 @@
 #include <driver/screen_max.h>
 #include <driver/record.h>
 #include <driver/volume.h>
+#include <driver/display.h>
 
 #include <gui/color.h>
 
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/components/cc.h>
+#include <gui/movieplayer.h>
 
 #include <system/settings.h>
 #include <system/helpers.h>
@@ -64,23 +60,22 @@
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 #include <video.h>
+
 extern cVideo * videoDecoder;
 
 #define NEUTRINO_SCAN_START_SCRIPT	CONFIGDIR "/scan.start"
 #define NEUTRINO_SCAN_STOP_SCRIPT	CONFIGDIR "/scan.stop"
-#define NEUTRINO_SCAN_SETTINGS_FILE	CONFIGDIR "/scan.conf"
 
 #define BAR_BORDER 2
 #define BAR_WIDTH 150
 #define BAR_HEIGHT 16//(13 + BAR_BORDER*2)
 
-CScanTs::CScanTs(int dtype)
+CScanTs::CScanTs(delivery_system_t DelSys)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	radar = 0;
 	total = done = 0;
-	freqready = 0;
-	deltype = dtype;
+	delsys = DelSys;
 	signalbox = NULL;
 	memset(&TP, 0, sizeof(TP)); // valgrind
 }
@@ -93,10 +88,12 @@ void CScanTs::prev_next_TP( bool up)
 {
 	t_satellite_position position = 0;
 
-	if (deltype == FE_QPSK)
+	if (CFrontend::isSat(delsys))
 		position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satName);
-	else
+	else if (CFrontend::isCable(delsys))
 		position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.cableName);
+	else if (CFrontend::isTerr(delsys))
+		position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.terrestrialName);
 
 	transponder_list_t &select_transponders = CServiceManager::getInstance()->GetSatelliteTransponders(position);
 	transponder_list_t::iterator tI;
@@ -105,14 +102,14 @@ void CScanTs::prev_next_TP( bool up)
 	/* FIXME transponders with duplicate frequency skipped */
 	if(up) {
 		for (tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
-			if(tI->second.feparams.dvb_feparams.frequency > TP.feparams.dvb_feparams.frequency){
+			if(tI->second.feparams.frequency > TP.feparams.frequency){
 				next_tp = true;
 				break;
 			}
 		}
 	} else {
 		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); --tI ) {
-			if(tI->second.feparams.dvb_feparams.frequency < TP.feparams.dvb_feparams.frequency) {
+			if(tI->second.feparams.frequency < TP.feparams.frequency) {
 				next_tp = true;
 				break;
 			}
@@ -120,16 +117,7 @@ void CScanTs::prev_next_TP( bool up)
 	}
 
 	if(next_tp) {
-		TP.feparams.dvb_feparams.frequency = tI->second.feparams.dvb_feparams.frequency;
-		if (deltype == FE_QPSK) {
-			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = tI->second.feparams.dvb_feparams.u.qpsk.symbol_rate;
-			TP.feparams.dvb_feparams.u.qpsk.fec_inner =   tI->second.feparams.dvb_feparams.u.qpsk.fec_inner;
-			TP.polarization = tI->second.polarization;
-		} else {
-			TP.feparams.dvb_feparams.u.qam.symbol_rate	= tI->second.feparams.dvb_feparams.u.qam.symbol_rate;
-			TP.feparams.dvb_feparams.u.qam.fec_inner	= tI->second.feparams.dvb_feparams.u.qam.fec_inner;
-			TP.feparams.dvb_feparams.u.qam.modulation	= tI->second.feparams.dvb_feparams.u.qam.modulation;
-		}
+		TP.feparams = tI->second.feparams;
 		testFunc();
 	}
 }
@@ -138,16 +126,21 @@ void CScanTs::testFunc()
 {
 	int w = x + width - xpos2;
 	char buffer[128];
-	char * f, *s, *m;
+	char *f, *s, *m, *f2;
 
-	if(deltype == FE_QPSK) {
-		CFrontend::getDelSys(deltype, TP.feparams.dvb_feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.dvb_feparams.u.qpsk.fec_inner), f, s, m);
-		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.dvb_feparams.frequency/1000, transponder::pol(TP.polarization), TP.feparams.dvb_feparams.u.qpsk.symbol_rate/1000, f, s, m);
-	} else {
-		CFrontend::getDelSys(deltype, TP.feparams.dvb_feparams.u.qam.fec_inner, TP.feparams.dvb_feparams.u.qam.modulation, f, s, m);
-		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", TP.feparams.dvb_feparams.frequency/1000, TP.feparams.dvb_feparams.u.qam.symbol_rate/1000, f, s, m);
+	if (CFrontend::isSat(delsys)) {
+		CFrontend::getDelSys(TP.feparams.delsys, TP.feparams.fec_inner, TP.feparams.modulation, f, s, m);
+		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.frequency/1000, transponder::pol(TP.feparams.polarization), TP.feparams.symbol_rate/1000, f, s, m);
+	} else if (CFrontend::isCable(delsys)) {
+		CFrontend::getDelSys(TP.feparams.delsys, TP.feparams.fec_inner, TP.feparams.modulation, f, s, m);
+		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", TP.feparams.frequency/1000, TP.feparams.symbol_rate/1000, f, s, m);
+	} else if (CFrontend::isTerr(delsys)) {
+		CFrontend::getDelSys(TP.feparams.delsys, TP.feparams.code_rate_HP, TP.feparams.modulation, f, s, m);
+		CFrontend::getDelSys(TP.feparams.delsys, TP.feparams.code_rate_LP, TP.feparams.modulation, f2, s, m);
+		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s %s", TP.feparams.frequency/1000, TP.feparams.bandwidth, f, f2, s, m);
 	}
-printf("CScanTs::testFunc: %s\n", buffer);
+
+	printf("CScanTs::testFunc: %s\n", buffer);
 	paintLine(xpos2, ypos_cur_satellite, w - 95, pname.c_str());
 	paintLine(xpos2, ypos_frequency, w, buffer);
 	success = g_Zapit->tune_TP(TP);
@@ -155,6 +148,7 @@ printf("CScanTs::testFunc: %s\n", buffer);
 
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
+	printf("CScanTs::exec %s\n", actionKey.c_str());
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
@@ -179,7 +173,14 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	bool manual = (actionKey == "manual") || test;
 	bool fast = (actionKey == "fast");
 
-	pname = (deltype == FE_QPSK) ? scansettings.satName : scansettings.cableName;
+	if (CFrontend::isSat(delsys))
+		pname = scansettings.satName;
+	else if (CFrontend::isCable(delsys))
+		pname = scansettings.cableName;
+	else if (CFrontend::isTerr(delsys))
+		pname = scansettings.terrestrialName;
+	else
+		printf("CScanTs::exec:%d unknown delivery_system %d\n", __LINE__, delsys);
 
 	int scan_pids = CZapit::getInstance()->scanPids();
 
@@ -187,7 +188,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
 	width       = w_max(fw * 42, 0);
-	height      = h_max(hheight + (10 * mheight), 0); //9 lines
+	height      = h_max(hheight + (12 * mheight), 0); //9 lines
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 	xpos_radar = x + 36 * fw;
@@ -198,13 +199,13 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		return menu_return::RETURN_EXIT_ALL;
 
 	CRecordManager::getInstance()->StopAutoRecord();
-	g_Zapit->stopPlayBack();
+	CNeutrinoApp::getInstance()->stopPlayBack();
 #ifdef ENABLE_PIP
 	CZapit::getInstance()->StopPip();
 #endif
 
 	frameBuffer->paintBackground();
-	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/scan.jpg");
+	frameBuffer->showFrame("scan.jpg");
 	g_Sectionsd->setPauseScanning(true);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
@@ -216,23 +217,43 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		if(scansettings.scan_nit_manual)
 			scan_flags |= CServiceScan::SCAN_NIT;
 		TP.scan_mode = scan_flags;
-		if (deltype == FE_QPSK) {
-			TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq.c_str());
-			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
-			TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) scansettings.sat_TP_fec;
-			TP.polarization = scansettings.sat_TP_pol;
-		} else {
-			TP.feparams.dvb_feparams.frequency = atoi(scansettings.cable_TP_freq.c_str());
-			TP.feparams.dvb_feparams.u.qam.symbol_rate	= atoi(scansettings.cable_TP_rate.c_str());
-			TP.feparams.dvb_feparams.u.qam.fec_inner	= (fe_code_rate_t)scansettings.cable_TP_fec;
-			TP.feparams.dvb_feparams.u.qam.modulation	= (fe_modulation_t) scansettings.cable_TP_mod;
+		if (CFrontend::isSat(delsys)) {
+			TP.feparams.frequency = atoi(scansettings.sat_TP_freq.c_str());
+			TP.feparams.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
+			TP.feparams.fec_inner = (fe_code_rate_t) scansettings.sat_TP_fec;
+			TP.feparams.polarization = scansettings.sat_TP_pol;
+			TP.feparams.delsys = (delivery_system_t)scansettings.sat_TP_delsys;
+			TP.feparams.modulation = (fe_modulation_t) scansettings.sat_TP_mod;
+			TP.feparams.pilot = (zapit_pilot_t) scansettings.sat_TP_pilot;
+		} else if (CFrontend::isTerr(delsys)) {
+			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
+			TP.feparams.frequency = atoi(scansettings.terrestrial_TP_freq.c_str());
+//			if (TP.feparams.frequency < 300000)
+//				TP.feparams.bandwidth	= BANDWIDTH_7_MHZ;
+//			else
+//				TP.feparams.bandwidth	= BANDWIDTH_8_MHZ;
+			TP.feparams.bandwidth		= (fe_bandwidth_t)scansettings.terrestrial_TP_bw;
+			TP.feparams.code_rate_HP	= (fe_code_rate_t)scansettings.terrestrial_TP_coderate_HP;
+			TP.feparams.code_rate_LP	= (fe_code_rate_t)scansettings.terrestrial_TP_coderate_LP;
+			TP.feparams.modulation		= (fe_modulation_t)scansettings.terrestrial_TP_constel;
+			TP.feparams.transmission_mode	= (fe_transmit_mode_t)scansettings.terrestrial_TP_transmit_mode;
+			TP.feparams.guard_interval	= (fe_guard_interval_t)scansettings.terrestrial_TP_guard;
+			TP.feparams.hierarchy		= (fe_hierarchy_t)scansettings.terrestrial_TP_hierarchy;
+			TP.feparams.delsys		= (delivery_system_t)scansettings.terrestrial_TP_delsys;
+		} else if (CFrontend::isCable(delsys)) {
+			TP.feparams.frequency	= atoi(scansettings.cable_TP_freq.c_str());
+			TP.feparams.symbol_rate	= atoi(scansettings.cable_TP_rate.c_str());
+			TP.feparams.fec_inner	= (fe_code_rate_t)scansettings.cable_TP_fec;
+			TP.feparams.modulation	= (fe_modulation_t)scansettings.cable_TP_mod;
+			TP.feparams.delsys	= (delivery_system_t)scansettings.cable_TP_delsys;
 		}
-		//printf("[neutrino] freq %d rate %d fec %d pol %d\n", TP.feparams.dvb_feparams.frequency, TP.feparams.dvb_feparams.u.qpsk.symbol_rate, TP.feparams.dvb_feparams.u.qpsk.fec_inner, TP.polarization);
+		//printf("[neutrino] freq %d rate %d fec %d pol %d\n", TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner, TP.feparams.polarization);
 	} else {
 		if(scansettings.scan_nit)
 			scan_flags |= CServiceScan::SCAN_NIT;
 	}
-	if(deltype == FE_QAM)
+
+	if (CFrontend::isCable(delsys))
 		CServiceScan::getInstance()->SetCableNID(scansettings.cable_nid);
 
 	CZapitClient::commandSetScanSatelliteList sat;
@@ -277,6 +298,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
+		CServiceScan::getInstance()->QuietFastScan(false);
 		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
 	}
 	else
@@ -343,7 +365,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	hide();
 
 	CZapit::getInstance()->scanPids(scan_pids);
-	videoDecoder->StopPicture();
+	frameBuffer->stopFrame();
 	frameBuffer->Clear();
 	g_Sectionsd->setPauseScanning(false);
 	if (CNeutrinoApp::getInstance()->channelList)
@@ -381,24 +403,18 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			CVFD::getInstance()->showMenuText(0, str, -1, true);
 			break;
 
-		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCY:
-			freqready = 1;
-			sprintf(buffer, "%u", data);
-			xpos_frequency = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(buffer, true)+2;
-			paintLine(xpos2, ypos_frequency, xpos_frequency, buffer);
-			paintRadar();
-			break;
-
 		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCYP:
 			{
-				int pol = data & 0xFF;
-				int fec = (data >> 8) & 0xFF;
-				int rate = data >> 16;
+				FrontendParameters *feparams = (FrontendParameters*) data;
 				char * f, *s, *m;
-				CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
-				frontend->getDelSys(fec, (fe_modulation_t)0, f, s, m); // FIXME
-				snprintf(buffer,sizeof(buffer), " %c %d %s %s %s", transponder::pol(pol), rate, f, s, m);
-				paintLine(xpos2 + xpos_frequency, ypos_frequency, w - xpos_frequency - (7*fw), buffer);
+
+				CFrontend::getDelSys(feparams->delsys, feparams->fec_inner, feparams->modulation,  f, s, m);
+				uint32_t freq = feparams->frequency/1000;
+				if (CFrontend::isSat(feparams->delsys))
+					snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m);
+				else
+					snprintf(buffer,sizeof(buffer), "%u %d %s %s", freq, feparams->symbol_rate/1000, s, m);
+				paintLine(xpos2, ypos_frequency, w - (7*fw), buffer);
 			}
 			break;
 
@@ -471,13 +487,12 @@ void CScanTs::hide()
 	//frameBuffer->loadPal("radiomode.pal", 18, COL_MAXFREE);
 	//frameBuffer->paintBackgroundBoxRel(0, 0, 720, 576);
 	frameBuffer->paintBackground();
-	freqready = 0;
 }
 
 void CScanTs::paintLineLocale(int px, int * py, int pwidth, const neutrino_locale_t l)
 {
 	frameBuffer->paintBoxRel(px, *py, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px+2, *py + mheight, pwidth, g_Locale->getText(l), COL_MENUCONTENTINACTIVE_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px+2, *py + mheight, pwidth, g_Locale->getText(l), COL_MENUCONTENTINACTIVE_TEXT);
 	*py += mheight;
 }
 
@@ -485,12 +500,13 @@ void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 {
 //printf("CScanTs::paintLine x %d y %d w %d width %d xpos2 %d: %s\n", px, py, w, width, xpos2, txt);
 	frameBuffer->paintBoxRel(px, py, w, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px+2, py + mheight, w, txt, COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px+2, py + mheight, w, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CScanTs::paint(bool fortest)
 {
 	CComponentsHeaderLocalized header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD);
+	header.setCaptionAlignment(CTextBox::CENTER);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
@@ -501,15 +517,20 @@ void CScanTs::paint(bool fortest)
 
 	ypos_cur_satellite = ypos;
 
-	if(deltype == FE_QPSK)
+	if(CFrontend::isSat(delsys))
 	{	//sat
 		paintLineLocale(xpos1, &ypos, width - xpos1, LOCALE_SCANTS_ACTSATELLITE);
-		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE), true)+2; // UTF-8
+		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE))+2;
 	}
-	if(deltype == FE_QAM)
+	else if(CFrontend::isCable(delsys))
 	{	//cable
 		paintLineLocale(xpos1, &ypos, width - xpos1, LOCALE_SCANTS_ACTCABLE);
-		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTCABLE), true)+2; // UTF-8
+		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTCABLE))+2;
+	}
+	else if(CFrontend::isTerr(delsys))
+	{	//terrestrial
+		paintLineLocale(xpos1, &ypos, width - xpos1, LOCALE_SCANTS_ACTTERRESTRIAL);
+		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL))+2;
 	}
 
 	ypos_transponder = ypos;
@@ -540,7 +561,7 @@ void CScanTs::paint(bool fortest)
 
 int CScanTs::greater_xpos(int xpos, const neutrino_locale_t txt)
 {
-	int txt_xpos = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(txt), true)+2; // UTF-8
+	int txt_xpos = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(txt))+2;
 	if (txt_xpos > xpos)
 		return txt_xpos;
 	else
@@ -551,7 +572,8 @@ void CScanTs::showSNR ()
 {
 	if (signalbox == NULL){
 		CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
-		signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
+		//signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
+		signalbox = new CSignalBox(xpos1, y + height - (mheight*2*3)/2 - 5, width - 2*(xpos1-x), (g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight()*2*3)/2, frontend, true);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);

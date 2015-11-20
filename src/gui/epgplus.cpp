@@ -31,7 +31,9 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <gui/infoviewer.h>
 #include <gui/epgplus.h>
+#include <gui/epgview.h>
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
 
@@ -173,7 +175,7 @@ void EpgPlus::TimeLine::paint (time_t startTime, int pduration)
 					, toggleColor ? COL_MENUCONTENT_PLUS_2 : COL_MENUCONTENT_PLUS_1);
 
 	this->fontDate->RenderString (this->x + 4, this->y + this->fontDate->getHeight()
-				      , this->width, EpgPlus::getTimeString (startTime, "%d-%b") , COL_MENUCONTENT_TEXT, 0, true);	// UTF-8
+				      , this->width, EpgPlus::getTimeString (startTime, "%d-%b") , COL_MENUCONTENT_TEXT);
 
 	// paint ticks
 	for (int i = 0; i < numberOfTicks; ++i, xPos += tickDist, tickTime += pduration / numberOfTicks) {
@@ -186,15 +188,15 @@ void EpgPlus::TimeLine::paint (time_t startTime, int pduration)
 
 		std::string timeStr = EpgPlus::getTimeString (tickTime, "%H");
 
-		int textWidth = this->fontTime->getRenderWidth (timeStr, true);
+		int textWidth = this->fontTime->getRenderWidth (timeStr);
 
 		this->fontTime->RenderString (xPos - textWidth - 4, this->y + this->fontTime->getHeight()
-					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2, 0, true);	// UTF-8
+					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2);
 
 		timeStr = EpgPlus::getTimeString (tickTime, "%M");
-		textWidth = this->fontTime->getRenderWidth (timeStr, true);
+		textWidth = this->fontTime->getRenderWidth (timeStr);
 		this->fontTime->RenderString (xPos + 4, this->y + this->fontTime->getHeight()
-					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2, 0, true);	// UTF-8
+					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2);
 
 		toggleColor = !toggleColor;
 	}
@@ -223,21 +225,21 @@ void EpgPlus::TimeLine::paintMark (time_t startTime, int pduration, int px, int 
 
 	// display start time before mark
 	std::string timeStr = EpgPlus::getTimeString (startTime, "%H:%M");
-	int textWidth = this->fontTime->getRenderWidth (timeStr, true);
+	int textWidth = this->fontTime->getRenderWidth (timeStr);
 
 	this->fontTime->RenderString (px - textWidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()
-				      , textWidth, timeStr, COL_MENUCONTENT_TEXT, 0, true);	// UTF-8
+				      , textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 	// display end time after mark
 	timeStr = EpgPlus::getTimeString (startTime + pduration, "%H:%M");
-	textWidth = fontTime->getRenderWidth (timeStr, true);
+	textWidth = fontTime->getRenderWidth (timeStr);
 
 	if (px + pwidth + textWidth < this->x + this->width) {
 		this->fontTime->RenderString (px + pwidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()
-					      , textWidth, timeStr, COL_MENUCONTENT_TEXT, 0, true);	// UTF-8
+					      , textWidth, timeStr, COL_MENUCONTENT_TEXT);
 	} else if (textWidth < pwidth - 10) {
 		this->fontTime->RenderString (px + pwidth - textWidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()
-					      , textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT, 0, true);	// UTF-8
+					      , textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT);
 	}
 }
 
@@ -291,8 +293,7 @@ void EpgPlus::ChannelEventEntry::paint (bool pisSelected, bool toggleColor)
 			, this->channelEvent.description.empty()? COL_MENUCONTENT_PLUS_0 : (pisSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : (toggleColor ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENT_PLUS_2)));
 
 	this->font->RenderString (this->x + 2, this->y + this->font->getHeight()
-				  , this->width - 4 > 0 ? this->width - 4 : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : (toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2)
-				  , 0, true);
+				  , this->width - 4 > 0 ? this->width - 4 : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : (toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2));
 
 	// paint the separation line
 	if (separationLineHeight > 0) {
@@ -368,7 +369,7 @@ void EpgPlus::ChannelEntry::paint (bool isSelected, time_t selectedTime)
 			isSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : COL_MENUCONTENT_PLUS_0);
 
 	this->font->RenderString (this->x + 2, this->y + this->font->getHeight(),
-			this->width - 4, this->displayName, isSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT, 0, true);
+			this->width - 4, this->displayName, isSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
 
 	if (isSelected) {
 #if 0
@@ -469,7 +470,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	yPos += height;
 
 	// display new text
-	this->fontBouquetChannelName->RenderString (this->x + 10, yPos, this->width - 20, this->currentBouquetName + " : " + this->currentChannelName, COL_MENUHEAD_TEXT, 0, true);
+	this->fontBouquetChannelName->RenderString (this->x + 10, yPos, this->width - 20, this->currentBouquetName + " : " + this->currentChannelName, COL_MENUHEAD_TEXT);
 
 	height = this->fontEventDescription->getHeight();
 
@@ -479,7 +480,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	yPos += height;
 
 	// display new text
-	this->fontEventDescription->RenderString (this->x + 10, yPos, this->width - 20, description, COL_MENUHEAD_TEXT, 0, true);
+	this->fontEventDescription->RenderString (this->x + 10, yPos, this->width - 20, description, COL_MENUHEAD_TEXT);
 
 	height = this->fontEventShortDescription->getHeight();
 
@@ -489,7 +490,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	yPos += height;
 
 	// display new text
-	this->fontEventShortDescription->RenderString (this->x + 10, yPos, this->width - 20, shortDescription, COL_MENUHEAD_TEXT, 0, true);
+	this->fontEventShortDescription->RenderString (this->x + 10, yPos, this->width - 20, shortDescription, COL_MENUHEAD_TEXT);
 }
 
 struct button_label buttonLabels[] = {
@@ -550,9 +551,9 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 			CZapitChannel * channel = (*this->channelList)[i];
 
 			ChannelEntry *channelEntry = new ChannelEntry (channel, i, this->frameBuffer, this->footer, this->bouquetList, this->channelsTableX + 2, yPosChannelEntry, this->channelsTableWidth);
-//printf("Going to get getEventsServiceKey for %llx\n", (channel->channel_id & 0xFFFFFFFFFFFFULL));
+//printf("Going to get getEventsServiceKey for %llx\n", (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
 			CChannelEventList channelEventList;
-			CEitManager::getInstance()->getEventsServiceKey(channel->channel_id, channelEventList);
+			CEitManager::getInstance()->getEventsServiceKey(channel->getEpgID(), channelEventList);
 //printf("channelEventList size %d\n", channelEventList.size());
 
 			int xPosEventEntry = this->eventsTableX;
@@ -563,13 +564,13 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 			//for (CChannelEventList::const_iterator It = channelEventList.begin(); (It != channelEventList.end()) && (It->startTime < (this->startTime + this->duration)); ++It)
 			for (CChannelEventList::const_iterator It = channelEventList.begin(); It != channelEventList.end(); ++It)
 			{
-//if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** Check1 event %s event start %ld this start %ld\n", It->description.c_str(), It->startTime, (this->startTime + this->duration));
+//if(0x2bc000b004b7ULL == (channel->getChannelID() & 0xFFFFFFFFFFFFULL)) printf("*** Check1 event %s event start %ld this start %ld\n", It->description.c_str(), It->startTime, (this->startTime + this->duration));
 				if (!(It->startTime < (this->startTime + this->duration)) )
 					continue;
 				if ((lastIt == channelEventList.end()) || (lastIt->startTime != It->startTime)) {
 					int startTimeDiff = It->startTime - this->startTime;
 					int endTimeDiff = this->startTime + time_t (this->duration) - It->startTime - time_t (It->duration);
-//if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** Check event %s\n", It->description.c_str());
+//if(0x2bc000b004b7ULL == (channel->getChannelID() & 0xFFFFFFFFFFFFULL)) printf("*** Check event %s\n", It->description.c_str());
 					if ((startTimeDiff >= 0) && (endTimeDiff >= 0)) {
 						// channel event fits completely in the visible part of time line
 						startTimeDiff = 0;
@@ -583,10 +584,10 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 						// channel event ends after visible part of the time line but starts in the visible part
 						startTimeDiff = 0;
 					} else if (startTimeDiff > 0) {	// channel event starts and ends after visible part of the time line => break the loop
-//if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** break 1\n");
+//if(0x2bc000b004b7ULL == (channel->getChannelID() & 0xFFFFFFFFFFFFULL)) printf("*** break 1\n");
 						break;
 					} else {				// channel event starts and ends after visible part of the time line => ignore the channel event
-//if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** continue 1 startTimeDiff %ld endTimeDiff %ld\n", startTimeDiff, endTimeDiff);
+//if(0x2bc000b004b7ULL == (channel->getChannelID() & 0xFFFFFFFFFFFFULL)) printf("*** continue 1 startTimeDiff %ld endTimeDiff %ld\n", startTimeDiff, endTimeDiff);
 						continue;
 					}
 
@@ -776,7 +777,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 
 	int res = menu_return::RETURN_REPAINT;
 
-	COSDFader fader(g_settings.menu_Content_alpha);
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	do {
 		this->refreshFooterButtons = false;
 		time_t currentTime = time (NULL);
@@ -818,8 +819,8 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
 
-			if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-				if(fader.Fade())
+			if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+				if(fader.FadeDone())
 					loop = false;
 			}
 			else if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t) g_settings.key_channelList_cancel)) {
@@ -927,7 +928,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 			} 
 			else if (msg == CRCInput::RC_ok) {
 				if (selectedChannelEntry)
-					CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->channel_id);
+					CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->getChannelID());
 				current_bouquet = bouquetList->getActiveBouquetNumber();
 			} 
 			else if (CRCInput::isNumeric (msg)) {
@@ -999,9 +1000,9 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				MenuTargetRefreshEpg refresh(this);
 				MenuTargetAddReminder remind(this);
 				if (!g_settings.minimode)
-					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, &record, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
-				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, &refresh, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
-				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, &remind, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), false);
+					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, &record, NULL, CRCInput::RC_red), false);
+				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, &refresh, NULL, CRCInput::RC_green), false);
+				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, &remind, NULL, CRCInput::RC_yellow), false);
 				if (selectedChannelEntry)
 					menuWidgetActions.exec (NULL, "");
 
@@ -1110,7 +1111,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 						this->hide();
 
 						time_t startTime2 = (*It)->channelEvent.startTime;
-						res = g_EpgData->show (this->selectedChannelEntry->channel->channel_id, (*It)->channelEvent.eventID, &startTime2);
+						res = g_EpgData->show (this->selectedChannelEntry->channel->getChannelID(), (*It)->channelEvent.eventID, &startTime2);
 
 						if (res == menu_return::RETURN_EXIT_ALL) {
 							loop = false;
@@ -1133,6 +1134,10 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				g_RCInput->postMsg (msg, 0);
 				res = menu_return::RETURN_EXIT_ALL;
 				loop = false;
+			} else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
+				g_RCInput->postMsg(msg, data);
+				loop = false;
+				res = menu_return::RETURN_EXIT_ALL;
 			}
 			else {
 				if (CNeutrinoApp::getInstance()->handleMsg (msg, data) & messages_return::cancel_all) {
@@ -1149,7 +1154,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 
 		this->hide();
 
-		fader.Stop();
+		fader.StopFade();
 #if 0
 		for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
 				It != this->displayedChannelEntries.end(); It++) {
@@ -1232,10 +1237,10 @@ void EpgPlus::paint()
 	this->frameBuffer->paintBoxRel (this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, COL_MENUCONTENT_PLUS_0);
 
 	int tmp = ((this->channelList->getSize() - 1) / this->maxNumberOfDisplayableEntries) + 1;
-	float sliderKnobHeight = (sliderHeight - 4) / tmp;
+	float sliderKnobHeight = float((sliderHeight - 4) / tmp);
 	int sliderKnobPosition = this->selectedChannelEntry == NULL ? 0 : (this->selectedChannelEntry->index / this->maxNumberOfDisplayableEntries);
 
-	this->frameBuffer->paintBoxRel (this->sliderX + 2, this->sliderY + int (sliderKnobPosition * sliderKnobHeight)
+	this->frameBuffer->paintBoxRel (this->sliderX + 2, this->sliderY +  (int(sliderKnobPosition * sliderKnobHeight))
 					, this->sliderWidth - 4, int (sliderKnobHeight) , COL_MENUCONTENT_PLUS_3);
 }
 
@@ -1283,7 +1288,7 @@ int EpgPlus::MenuTargetAddReminder::exec (CMenuTarget * /*parent*/, const std::s
 			&& (!(*It)->channelEvent.description.empty())
 	   ) {
 		if (g_Timerd->isTimerdAvailable()) {
-			g_Timerd->addZaptoTimerEvent (this->epgPlus->selectedChannelEntry->channel->channel_id, (*It)->channelEvent.startTime - (g_settings.zapto_pre_time * 60), (*It)->channelEvent.startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, 0);
+			g_Timerd->addZaptoTimerEvent (this->epgPlus->selectedChannelEntry->channel->getChannelID(), (*It)->channelEvent.startTime - (g_settings.zapto_pre_time * 60), (*It)->channelEvent.startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, 0);
 
 			ShowMsg (LOCALE_TIMER_EVENTTIMED_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTTIMED_MSG)
 				    , CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);	// UTF-8
@@ -1306,7 +1311,7 @@ int EpgPlus::MenuTargetAddRecordTimer::exec (CMenuTarget * /*parent*/, const std
 	   ) {
 		if (g_Timerd->isTimerdAvailable()) {
 
-			g_Timerd->addRecordTimerEvent (this->epgPlus->selectedChannelEntry->channel->channel_id, (*It)->channelEvent.startTime, (*It)->channelEvent.startTime + (*It)->channelEvent.duration, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, (*It)->channelEvent.startTime - (ANNOUNCETIME + 120)
+			g_Timerd->addRecordTimerEvent (this->epgPlus->selectedChannelEntry->channel->getChannelID(), (*It)->channelEvent.startTime, (*It)->channelEvent.startTime + (*It)->channelEvent.duration, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, (*It)->channelEvent.startTime - (ANNOUNCETIME + 120)
 						       , TIMERD_APIDS_CONF, true);
 			ShowMsg (LOCALE_TIMER_EVENTRECORD_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTRECORD_MSG)
 				    , CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);	// UTF-8

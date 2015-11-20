@@ -47,6 +47,7 @@ extern CRemoteControl		* g_RemoteControl; /* neutrino.cpp */
 extern CAudioSetupNotifier	* audioSetupNotifier;
 
 #include <gui/audio_select.h>
+#include <gui/movieplayer.h>
 #include <libdvbsub/dvbsub.h>
 #include <libtuxtxt/teletext.h>
 
@@ -57,7 +58,7 @@ extern CAudioSetupNotifier	* audioSetupNotifier;
 
 CAudioSelectMenuHandler::CAudioSelectMenuHandler()
 {
-	width = w_max (40, 10);
+	width = 40;
 }
 
 CAudioSelectMenuHandler::~CAudioSelectMenuHandler()
@@ -93,6 +94,11 @@ int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &action
 
 int CAudioSelectMenuHandler::doMenu ()
 {
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	if (mode == NeutrinoMessages::mode_webtv) {
+		CMoviePlayerGui::getInstance(true).selectAudioPid();
+		return menu_return::RETURN_EXIT;
+	}
 	CMenuWidget AudioSelector(LOCALE_AUDIOSELECTMENUE_HEAD, NEUTRINO_ICON_AUDIO, width);
 
 	CSubtitleChangeExec SubtitleChanger;
@@ -124,15 +130,16 @@ int CAudioSelectMenuHandler::doMenu ()
 	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_MODE,
 			&g_settings.audio_AnalogMode,
 			AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT,
-			true, audioSetupNotifier, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+			true, audioSetupNotifier, CRCInput::RC_red);
 
 	AudioSelector.addItem( oj );
 
-	oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_OUT, &g_settings.analog_out,
-			OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
-			true, audioSetupNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-
-	AudioSelector.addItem( oj );
+	if (!g_settings.easymenu) {
+		oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_OUT, &g_settings.analog_out,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
+				true, audioSetupNotifier, CRCInput::RC_green);
+		AudioSelector.addItem( oj );
+	}
 
 	CChannelList *channelList = CNeutrinoApp::getInstance ()->channelList;
 	int curnum = channelList->getActiveChannelNumber();
@@ -193,7 +200,7 @@ int CAudioSelectMenuHandler::doMenu ()
 	CVolume::getInstance()->SetCurrentPid(0);
 	int percent[p_count];
 	for (uint i=0; i < p_count; i++) {
-		percent[i] = CZapit::getInstance()->GetPidVolume(0, g_RemoteControl->current_PIDs.APIDs[i].pid);
+		percent[i] = CZapit::getInstance()->GetPidVolume(0, g_RemoteControl->current_PIDs.APIDs[i].pid, g_RemoteControl->current_PIDs.APIDs[i].is_ac3);
 		AudioSelector.addItem(new CMenuOptionNumberChooser(g_RemoteControl->current_PIDs.APIDs[i].desc,
 					&percent[i], i == g_RemoteControl->current_PIDs.PIDs.selected_apid,
 					0, 999, CVolume::getInstance()));

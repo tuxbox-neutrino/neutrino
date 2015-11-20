@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Class for signalbar based up CComponent classes.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -110,9 +110,9 @@ class CSignalBar : public CComponentsForm
 		std::string sb_name;
 
 	public:
-		CSignalBar();
+		CSignalBar(CComponentsForm *parent = NULL);
 		///basic component class constructor for signal.
-		CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const std::string& sb_name = "SIG");
+		CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const std::string& sb_name = "SIG", CComponentsForm *parent = NULL);
 
 		///assigns the current used frontend, simplified a tuner object, see frontend_c.h
 		virtual void setFrontEnd(CFrontend *frontend_ref){sb_frontend = frontend_ref;};
@@ -157,10 +157,11 @@ class CSignalNoiseRatioBar : public CSignalBar
 		void Refresh();
 
 	public:
-		CSignalNoiseRatioBar(){};
+		CSignalNoiseRatioBar(CComponentsForm *parent = NULL)
+					: CSignalBar(parent){};
 		///basic component class constructor for signal noise ratio.
-		CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref)
-					: CSignalBar(xpos, ypos, w, h, frontend_ref, "SNR"){};
+		CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, CComponentsForm *parent = NULL)
+					: CSignalBar(xpos, ypos, w, h, frontend_ref, "SNR", parent){};
 };
 
 /// Class CSignalBox() provides CSignalBar(), CSignalNoiseRatioBar() scales at once.
@@ -268,7 +269,7 @@ class CSignalBox : public CComponentsForm
 
 	public:
 		///class constructor for signal noise ratio.
-		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref = NULL, const bool vertical = true);
+		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref = NULL, const bool vertical = true, CComponentsForm *parent = NULL);
 
 		///returns the signal object, type = CSignalBar*
 		CSignalBar* getScaleObject(){return sbar;};
