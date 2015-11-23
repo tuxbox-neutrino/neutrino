@@ -542,6 +542,7 @@ void CLuaInstance::abortScript()
 
 const luaL_Reg CLuaInstance::methods[] =
 {
+	{ "GetRevision", CLuaInstance::GetRevision },
 	{ "PaintBox", CLuaInstance::PaintBox },
 	{ "RenderString", CLuaInstance::RenderString },
 	{ "PaintIcon", CLuaInstance::PaintIcon },
@@ -643,6 +644,16 @@ int CLuaInstance::NewWindow(lua_State *L)
 	lua_boxpointer(L, D);
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstance::GetRevision(lua_State *L)
+{
+	unsigned int ret = 0;
+#if HAVE_COOL_HARDWARE
+	ret = cs_get_revision();
+#endif
+	lua_pushinteger(L, ret);
 	return 1;
 }
 

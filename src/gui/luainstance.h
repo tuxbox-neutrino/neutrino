@@ -34,7 +34,7 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 11
+#define LUA_API_VERSION_MINOR 12
 
 /* this is stored as userdata in the lua_State */
 struct CLuaData
@@ -215,6 +215,7 @@ private:
 	static void paramDeprecated(lua_State *L, const char* oldParam, const char* newParam);
 	static lua_Unsigned checkMagicMask(lua_Unsigned &col);
 
+	static int GetRevision(lua_State *L);
 	static int NewWindow(lua_State *L);
 	static int PaintBox(lua_State *L);
 	static int PaintIcon(lua_State *L);
