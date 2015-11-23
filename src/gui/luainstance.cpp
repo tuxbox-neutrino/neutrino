@@ -660,8 +660,12 @@ int CLuaInstance::PaintBox(lua_State *L)
 	y = luaL_checkint(L, 3);
 	w = luaL_checkint(L, 4);
 	h = luaL_checkint(L, 5);
+#if HAVE_COOL_HARDWARE
+	c = luaL_checkunsigned(L, 6);
+#else
 	/* luaL_checkint does not like e.g. 0xffcc0000 on powerpc (returns INT_MAX) instead */
 	c = (unsigned int)luaL_checknumber(L, 6);
+#endif
 	if (count > 6)
 		radius = luaL_checkint(L, 7);
 	if (count > 7)
@@ -874,7 +878,11 @@ int CLuaInstance::RenderString(lua_State *L)
 	x = luaL_checkint(L, 4);
 	y = luaL_checkint(L, 5);
 	if (numargs > 5)
+#if HAVE_COOL_HARDWARE
+		c = luaL_checkunsigned(L, 6);
+#else
 		c = luaL_checkint(L, 6);
+#endif
 	if (numargs > 6)
 		w = luaL_checkint(L, 7);
 	else
