@@ -539,27 +539,29 @@ void CCDraw::paintFbItems(bool do_save_bg)
 			if (fbtype == CC_FBDATA_TYPE_BACKGROUND){
 				frameBuffer->paintBackgroundBoxRel(x, y, fbdata.dx, fbdata.dy);
 			}
-			else if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && !is_painted) { //TODO: is_painted is too global here, shadow will not paint on current instance without called kill/hide
-				if (fbdata.enabled) {
-					/* here we paint the shadow around the body
-					 * on 1st step we check for already cached screen buffer, if true
-					 * then restore this instead to call the paint methode.
-					 * This could be usally, if we use existant instances of "this" object
-					*/
-					if (cc_allow_paint){
-						if (fbdata.pixbuf){
-							dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint shadow from cache...\033[0m\n", __func__, __LINE__);
-							frameBuffer->RestoreScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, fbdata.pixbuf);
-						}else{
-							frameBuffer->paintBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, fbdata.color, fbdata.r, fbdata.rtype);
-						}
-						//if is paint cache enabled
-						if (cc_paint_cache && fbdata.pixbuf == NULL)
-							fbdata.pixbuf = getScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
+		}
+		if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && !is_painted) { //TODO: is_painted is too global here, shadow will not paint on current instance without called kill/hide
+			if (fbdata.enabled) {
+				/* here we paint the shadow around the body
+					* on 1st step we check for already cached screen buffer, if true
+					* then restore this instead to call the paint methode.
+					* This could be usally, if we use existant instances of "this" object
+				*/
+				if (cc_allow_paint){
+					if (fbdata.pixbuf){
+						dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint shadow from cache...\033[0m\n", __func__, __LINE__);
+						frameBuffer->RestoreScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, fbdata.pixbuf);
+					}else{
+						frameBuffer->paintBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, fbdata.color, fbdata.r, fbdata.rtype);
 					}
+					//if is paint cache enabled
+					if (cc_paint_cache && fbdata.pixbuf == NULL)
+						fbdata.pixbuf = getScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
 				}
 			}
-			else if (fbtype == CC_FBDATA_TYPE_BOX){
+		}
+		if (paint_bg){
+			if (fbtype == CC_FBDATA_TYPE_BOX){
 				if(cc_allow_paint) {
 					/* here we paint the main body of box
 					* on 1st step we check for already cached background buffer, if true
