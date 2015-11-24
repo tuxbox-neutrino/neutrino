@@ -489,6 +489,8 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 		if (filelist_it != filelist.end()) {
 			unsigned idx = filelist_it - filelist.begin();
 			p_movie_info = milist[idx];
+			startposition = p_movie_info->bookmarks.start > 0 ? p_movie_info->bookmarks.start*1000 : -1;
+			printf("CMoviePlayerGui::prepareFile: file %s start %d\n", file_name.c_str(), startposition);
 		}
 		if (isYT) {
 			file_name = file->Url;
