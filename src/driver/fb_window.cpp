@@ -68,6 +68,16 @@ void CFBWindow::paintBoxRel(const int _x, const int _y, const int _dx, const int
 	frameBuffer->paintBoxRel(x + _x, y + _y, _dx, _dy, _col, radius, type);
 }
 
+void CFBWindow::paintVLineRel(int _x, int _y, int _dy, const color_t _col)
+{
+	frameBuffer->paintVLineRel(x + _x, y + _y, _dy, _col);
+}
+
+void CFBWindow::paintHLineRel(int _x, int _dx, int _y, const color_t _col)
+{
+	frameBuffer->paintHLineRel(x + _x, _dx, y + _y, _col);
+}
+
 bool CFBWindow::paintIcon(const char * const _filename, const int _x, const int _y, const int _h, const color_t _offset)
 {
 	frameBuffer->paintIcon(_filename, x + _x, y + _y, _h, _offset);

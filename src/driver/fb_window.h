@@ -43,6 +43,8 @@ class CFBWindow
 	~CFBWindow();
 
 	void paintBoxRel(const int _x, const int _y, const int _dx, const int _dy, const color_t _col, int radius = 0, int type = 0xF);
+	void paintVLineRel(int _x, int _y, int _dy, const color_t _col);
+	void paintHLineRel(int _x, int _dx, int _y, const color_t _col);
 	bool paintIcon(const char * const _filename, const int _x, const int _y, const int _h = 0, const color_t _offset = 1);
 	void RenderString(const font_t _font, const int _x, const int _y, const int _width, const char * const _text, const color_t _color, const int _boxheight = 0, const unsigned int _flags = Font::IS_UTF8);
 
