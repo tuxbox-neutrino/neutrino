@@ -34,7 +34,7 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 15
+#define LUA_API_VERSION_MINOR 16
 
 typedef std::pair<lua_Integer, Font*> fontmap_pair_t;
 typedef std::map<lua_Integer, Font*> fontmap_t;
@@ -238,6 +238,8 @@ private:
 	static int restoreScreen(lua_State *L);
 	static int deleteSavedScreen(lua_State *L);
 	static int PaintBox(lua_State *L);
+	static int paintHLineRel(lua_State *L);
+	static int paintVLineRel(lua_State *L);
 	static int PaintIcon(lua_State *L);
 	static int RenderString(lua_State *L);
 	static int getRenderWidth(lua_State *L);

@@ -558,6 +558,8 @@ const luaL_Reg CLuaInstance::methods[] =
 {
 	{ "GetRevision", CLuaInstance::GetRevision },
 	{ "PaintBox", CLuaInstance::PaintBox },
+	{ "paintHLine", CLuaInstance::paintHLineRel },
+	{ "paintVLine", CLuaInstance::paintVLineRel },
 	{ "saveScreen", CLuaInstance::saveScreen },
 	{ "restoreScreen", CLuaInstance::restoreScreen },
 	{ "deleteSavedScreen", CLuaInstance::deleteSavedScreen },
@@ -780,6 +782,64 @@ int CLuaInstance::PaintBox(lua_State *L)
 		h = W->fbwin->dy - y;
 	checkMagicMask(c);
 	W->fbwin->paintBoxRel(x, y, w, h, c, radius, corner);
+	return 0;
+}
+
+int CLuaInstance::paintHLineRel(lua_State *L)
+{
+	int x, y, dx;
+	unsigned int c;
+
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin)
+		return 0;
+	x  = luaL_checkint(L, 2);
+	dx = luaL_checkint(L, 3);
+	y  = luaL_checkint(L, 4);
+
+#if HAVE_COOL_HARDWARE
+	c = luaL_checkunsigned(L, 5);
+#else
+	/* luaL_checkint does not like e.g. 0xffcc0000 on powerpc (returns INT_MAX) instead */
+	c = (unsigned int)luaL_checknumber(L, 5);
+#endif
+	if (x < 0)
+		x = 0;
+	if (y < 0)
+		y = 0;
+	if (dx < 0 || x + dx > W->fbwin->dx)
+		dx = W->fbwin->dx - x;
+	checkMagicMask(c);
+	W->fbwin->paintHLineRel(x, dx, y, c);
+	return 0;
+}
+
+int CLuaInstance::paintVLineRel(lua_State *L)
+{
+	int x, y, dy;
+	unsigned int c;
+
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin)
+		return 0;
+	x  = luaL_checkint(L, 2);
+	y  = luaL_checkint(L, 3);
+	dy = luaL_checkint(L, 4);
+
+#if HAVE_COOL_HARDWARE
+	c = luaL_checkunsigned(L, 5);
+#else
+	/* luaL_checkint does not like e.g. 0xffcc0000 on powerpc (returns INT_MAX) instead */
+	c = (unsigned int)luaL_checknumber(L, 5);
+#endif
+	if (x < 0)
+		x = 0;
+	if (y < 0)
+		y = 0;
+	if (dy < 0 || y + dy > W->fbwin->dy)
+		dy = W->fbwin->dy - y;
+	checkMagicMask(c);
+	W->fbwin->paintVLineRel(x, y, dy, c);
 	return 0;
 }
 
