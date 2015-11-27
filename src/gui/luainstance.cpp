@@ -558,6 +558,9 @@ const luaL_Reg CLuaInstance::methods[] =
 {
 	{ "GetRevision", CLuaInstance::GetRevision },
 	{ "PaintBox", CLuaInstance::PaintBox },
+	{ "saveScreen", CLuaInstance::saveScreen },
+	{ "restoreScreen", CLuaInstance::restoreScreen },
+	{ "deleteSavedScreen", CLuaInstance::deleteSavedScreen },
 	{ "RenderString", CLuaInstance::RenderString },
 	{ "PaintIcon", CLuaInstance::PaintIcon },
 	{ "GetInput", CLuaInstance::GetInput },
@@ -660,6 +663,74 @@ int CLuaInstance::NewWindow(lua_State *L)
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
 	return 1;
+}
+
+int CLuaInstance::saveScreen(lua_State *L)
+{
+	int x, y, w, h;
+	fb_pixel_t* buf;
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin)
+		return 0;
+	x = luaL_checkint(L, 2);
+	y = luaL_checkint(L, 3);
+	w = luaL_checkint(L, 4);
+	h = luaL_checkint(L, 5);
+
+	buf = W->fbwin->saveScreen(x, y, w, h);
+
+	lua_Integer id = W->screenmap.size() + 1;
+	W->screenmap.insert(screenmap_pair_t(id, buf));
+	lua_pushinteger(L, id);
+	return 1;
+}
+
+int CLuaInstance::restoreScreen(lua_State *L)
+{
+	int x, y, w, h, id;
+	fb_pixel_t* buf = NULL;
+	bool del;
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin)
+		return 0;
+	x = luaL_checkint(L, 2);
+	y = luaL_checkint(L, 3);
+	w = luaL_checkint(L, 4);
+	h = luaL_checkint(L, 5);
+	id = luaL_checkint(L, 6);
+	del = _luaL_checkbool(L, 7);
+
+	for (screenmap_iterator_t it = W->screenmap.begin(); it != W->screenmap.end(); ++it) {
+		if (it->first == id) {
+			buf = it->second;
+			if (del)
+				it->second = NULL;
+			break;
+		}
+	}
+	if (buf != NULL)
+		W->fbwin->restoreScreen(x, y, w, h, buf, del);
+	return 0;
+}
+
+int CLuaInstance::deleteSavedScreen(lua_State *L)
+{
+	int id;
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin)
+		return 0;
+	id = luaL_checkint(L, 2);
+
+	for (screenmap_iterator_t it = W->screenmap.begin(); it != W->screenmap.end(); ++it) {
+		if (it->first == id) {
+			if (it->second != NULL) {
+				delete[] it->second;
+				it->second = NULL;
+			}
+			break;
+		}
+	}
+	return 0;
 }
 
 int CLuaInstance::GetRevision(lua_State *L)
@@ -1083,6 +1154,12 @@ int CLuaInstance::GCWindow(lua_State *L)
 	CLuaData *w = (CLuaData *)lua_unboxpointer(L, 1);
 
 	if (w && w->fbwin) {
+		for (screenmap_iterator_t it = w->screenmap.begin(); it != w->screenmap.end(); ++it) {
+			if (it->second != NULL)
+				delete[] it->second;
+		}
+		DBG1("CLuaInstance::%s delete screenmap\n", __func__);
+		w->screenmap.clear();
 		w->fontmap.clear();
 	}
 	CNeutrinoFonts::getInstance()->deleteDynFontExtAll();

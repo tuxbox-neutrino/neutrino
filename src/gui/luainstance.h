@@ -34,11 +34,15 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 13
+#define LUA_API_VERSION_MINOR 14
 
 typedef std::pair<lua_Integer, Font*> fontmap_pair_t;
 typedef std::map<lua_Integer, Font*> fontmap_t;
 typedef fontmap_t::iterator fontmap_iterator_t;
+
+typedef std::pair<lua_Integer, fb_pixel_t*> screenmap_pair_t;
+typedef std::map<lua_Integer, fb_pixel_t*> screenmap_t;
+typedef screenmap_t::iterator screenmap_iterator_t;
 
 /* this is stored as userdata in the lua_State */
 struct CLuaData
@@ -46,6 +50,7 @@ struct CLuaData
 	CFBWindow *fbwin;
 	CRCInput *rcinput;
 	fontmap_t fontmap;
+	screenmap_t screenmap;
 };
 
 struct CLuaMenuItem
@@ -229,6 +234,9 @@ private:
 
 	static int GetRevision(lua_State *L);
 	static int NewWindow(lua_State *L);
+	static int saveScreen(lua_State *L);
+	static int restoreScreen(lua_State *L);
+	static int deleteSavedScreen(lua_State *L);
 	static int PaintBox(lua_State *L);
 	static int PaintIcon(lua_State *L);
 	static int RenderString(lua_State *L);
