@@ -85,6 +85,8 @@ class CComponentsWindow : public CComponentsForm
 		int ccw_w_sidebar;
 		///header bg color
 		fb_pixel_t ccw_col_head;
+		///header text color
+		fb_pixel_t ccw_col_head_text;
 
 		///initialze header object
 		void initHeader();
@@ -160,7 +162,9 @@ class CComponentsWindow : public CComponentsForm
 		void enableSidebar(const int& sidbar_type = CC_WINDOW_LEFT_SIDEBAR | CC_WINDOW_RIGHT_SIDEBAR);
 
 		///set caption in header with string, see also getHeaderObject()
-		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;};
+		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;}
+		///set header text color
+		void setWindowHeaderTextColor(const fb_pixel_t& color){ccw_col_head_text = color;}
 		///set background to header
 		void setWindowHeaderColor(const fb_pixel_t& color){ccw_col_head = color;}
 		///set caption in header from locales, see also getHeaderObject()

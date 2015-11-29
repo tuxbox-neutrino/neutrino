@@ -152,7 +152,8 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_show_l_sideber = false;
 	ccw_show_r_sideber = false;
 	ccw_w_sidebar	= 40;
-	ccw_col_head = COL_MENUCONTENT_PLUS_0;
+	ccw_col_head 	= COL_MENUCONTENT_PLUS_0;
+	ccw_col_head_text = COL_MENUHEAD_TEXT;
 
 	page_scroll_mode = PG_SCROLL_M_OFF; //permanent disabled here, only in body used!
 
@@ -198,7 +199,7 @@ void CComponentsWindow::initHeader()
 		ccw_head->setWidth(width-2*fr_thickness);
 		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
-		ccw_head->setCaption(ccw_caption, ccw_align_mode);
+		ccw_head->setCaption(ccw_caption, ccw_align_mode, ccw_col_head_text);
 		ccw_head->setContextButton(ccw_buttons);
 		ccw_head->setCorner(corner_rad, CORNER_TOP);
 		ccw_head->setColorBody(ccw_col_head);
