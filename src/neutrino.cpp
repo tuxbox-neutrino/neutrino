@@ -2152,6 +2152,35 @@ void CNeutrinoApp::showInfo()
 	StartSubtitles();
 }
 
+void CNeutrinoApp::showMainMenu()
+{
+	StopSubtitles();
+	InfoClock->enableInfoClock(false);
+	int old_ttx = g_settings.cacheTXT;
+	int old_epg = g_settings.epg_scan;
+	int old_mode = g_settings.epg_scan_mode;
+	int old_save_mode = g_settings.epg_save_mode;
+	mainMenu->exec(NULL, "");
+	InfoClock->enableInfoClock(true);
+	StartSubtitles();
+	saveSetup(NEUTRINO_SETTINGS_FILE);
+
+	if (old_save_mode != g_settings.epg_save_mode)
+		CEpgScan::getInstance()->ConfigureEIT();
+	if (old_epg != g_settings.epg_scan || old_mode != g_settings.epg_scan_mode) {
+		if (g_settings.epg_scan_mode != CEpgScan::MODE_OFF)
+			CEpgScan::getInstance()->Start();
+		else
+			CEpgScan::getInstance()->Clear();
+	}
+	if (old_ttx != g_settings.cacheTXT) {
+		if(g_settings.cacheTXT) {
+			tuxtxt_init();
+		} else
+			tuxtxt_close();
+	}
+}
+
 void CNeutrinoApp::screensaver(bool on)
 {
 	if (on)
@@ -2167,8 +2196,10 @@ void CNeutrinoApp::screensaver(bool on)
 	}
 }
 
-void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
+void CNeutrinoApp::RealRun(CMenuWidget &_mainMenu)
 {
+	mainMenu = &_mainMenu;
+
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
@@ -2251,31 +2282,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			/* the only hardcoded key to check before key bindings */
 			else if( msg == CRCInput::RC_setup ) {
 				if(!g_settings.minimode) {
-					StopSubtitles();
-					InfoClock->enableInfoClock(false);
-					int old_ttx = g_settings.cacheTXT;
-					int old_epg = g_settings.epg_scan;
-					int old_mode = g_settings.epg_scan_mode;
-					int old_save_mode = g_settings.epg_save_mode;
-					mainMenu.exec(NULL, "");
-					InfoClock->enableInfoClock(true);
-					StartSubtitles();
-					saveSetup(NEUTRINO_SETTINGS_FILE);
-
-					if (old_save_mode != g_settings.epg_save_mode)
-						CEpgScan::getInstance()->ConfigureEIT();
-					if (old_epg != g_settings.epg_scan || old_mode != g_settings.epg_scan_mode) {
-						if (g_settings.epg_scan_mode != CEpgScan::MODE_OFF)
-							CEpgScan::getInstance()->Start();
-						else
-							CEpgScan::getInstance()->Clear();
-					}
-					if (old_ttx != g_settings.cacheTXT) {
-						if(g_settings.cacheTXT) {
-							tuxtxt_init();
-						} else
-							tuxtxt_close();
-					}
+					showMainMenu();
 				}
 			}
 			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
@@ -2741,6 +2748,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		}
 	}
+	if (msg == NeutrinoMessages::SHOW_MAINMENU) {
+		showMainMenu();
+		return messages_return::handled;
+	}
+
 
 	res = res | g_RemoteControl->handleMsg(msg, data);
 	res = res | g_InfoViewer->handleMsg(msg, data);

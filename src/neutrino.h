@@ -73,6 +73,7 @@ public:
 private:
 	CFrameBuffer * frameBuffer;
 
+	CMenuWidget			*mainMenu;
 	CConfigFile			configfile;
 	CScanSettings			scanSettings;
 	CPersonalizeGui			personalize;
@@ -214,6 +215,7 @@ public:
 	bool StartPip(const t_channel_id channel_id);
 	void SelectSubtitles();
 	void showInfo(void);
+	void showMainMenu(void);
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
 

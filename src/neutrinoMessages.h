@@ -73,6 +73,7 @@ struct NeutrinoMessages {
 		UNLOCK_RC               =       CRCInput::RC_Messages + 20,
 		REBOOT                  =       CRCInput::RC_Messages + 21,
 		RELOAD_SETUP            =       CRCInput::RC_Messages + 22,
+		SHOW_MAINMENU		=       CRCInput::RC_Messages + 23,
 
 		EVT_VOLCHANGED                           = CRCInput::RC_Events + 1,
 		EVT_MUTECHANGED                          = CRCInput::RC_Events + 2,
