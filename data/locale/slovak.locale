@@ -1329,8 +1329,8 @@ menu.hint_scrambled_message Zobrazenie správy kódovania, pokiaľ kanál nebol 
 menu.hint_screen_setup Konfigurácia okrajov obrazu
 menu.hint_screensaver_delay Nastavte čas (v minútach), po ktorom sa šetrič obrazovky spustí alebo vypne
 menu.hint_screensaver_dir Vyberte adresár v ktorom sa šetrič obrazovky spustí
-menu.hint_screensaver_timeout Zvoľte časový interval zmeny obrazovky v šetriči obrazovky
 menu.hint_screensaver_setup Konfigurácia možností šetríča obrazovky pre zvukový prehrávač a rádio režim
+menu.hint_screensaver_timeout Zvoľte časový interval zmeny obrazovky v šetriči obrazovky
 menu.hint_screenshot_count Pokiaľ žiadny GUI na obrazovke, môže byť uložených 1-5\nsériových zosnímaní
 menu.hint_screenshot_cover ZAP: Pokiaľ prehráva nahrávky, prepíše jedno\nzachytenie do zobrazenia v Prehliadači filmov
 menu.hint_screenshot_dir Výber adresára pre uloženie zachyteného obrázku
