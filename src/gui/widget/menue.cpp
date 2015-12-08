@@ -968,7 +968,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	return retval;
 }
 
-void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut)
+void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut, bool enabled)
 {
 	bool separatorline = false;
 	unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
@@ -984,7 +984,7 @@ void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigne
 			}
 			printf("[neutrino] integratePlugins: add %s\n", g_PluginList->getName(count));
 			neutrino_msg_t dk = (shortcut != CRCInput::RC_nokey) ? CRCInput::convertDigitToKey(sc++) : CRCInput::RC_nokey;
-			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
+			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), enabled, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
 			fw_plugin->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 			addItem(fw_plugin);
 		}

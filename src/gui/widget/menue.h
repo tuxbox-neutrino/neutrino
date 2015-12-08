@@ -575,7 +575,7 @@ class CMenuWidget : public CMenuTarget
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual const char *getName();
-		virtual void integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut=CRCInput::RC_nokey);
+		virtual void integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut=CRCInput::RC_nokey, bool enabled=true);
 		void setSelected(const int &Preselected){ selected = Preselected; };
 		int getSelected()const { return selected; };
 		void move(int xoff, int yoff);
