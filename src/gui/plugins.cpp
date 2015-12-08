@@ -69,7 +69,7 @@ extern cVideo * videoDecoder;
 #include "plugins.h"
 
 #include <daemonc/remotecontrol.h>
-#include <gui/luainstance.h>
+#include <gui/lua/luainstance.h>
 
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */

@@ -36,10 +36,10 @@
 #include <gui/infoclock.h>
 #include <driver/neutrinofonts.h>
 #include <driver/pictureviewer/pictureviewer.h>
+#include <video.h>
 #include <neutrino.h>
 
 #include "luainstance.h"
-#include <video.h>
 
 /* the magic color that tells us we are using one of the palette colors */
 #define MAGIC_COLOR 0x42424200
@@ -411,7 +411,7 @@ bool CLuaInstance::_luaL_checkbool(lua_State *L, int numArg)
 		lua_Debug ar;
 		lua_getstack(L, 0, &ar);
 		lua_getinfo(L, "n", &ar);
-		luaL_error(L, "bad argument #%d to '%s' (%s expected, got %s)\n", 
+		luaL_error(L, "bad argument #%d to '%s' (%s expected, got %s)\n",
 				numArg-1, ar.name,
 				lua_typename(L, LUA_TBOOLEAN),
 				lua_typename(L, lua_type(L, numArg)));
@@ -436,8 +436,8 @@ void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const c
 	lua_Debug ar;
 	lua_getstack(L, 1, &ar);
 	lua_getinfo(L, "Sl", &ar);
-	printf("[Lua Script] \33[1;31m%s\33[0m %s \33[33m%s\33[0m %s \33[1;33m%s\33[0m.\n                      (%s:%d)\n", 
-					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED1), 
+	printf("[Lua Script] \33[1;31m%s\33[0m %s \33[33m%s\33[0m %s \33[1;33m%s\33[0m.\n                      (%s:%d)\n",
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED1),
 					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED2), oldFunc,
 					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED3), newFunc,
 					ar.short_src, ar.currentline);
@@ -568,19 +568,21 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "getRenderWidth", CLuaInstance::getRenderWidth },
 	{ "GetSize", CLuaInstance::GetSize },
 	{ "DisplayImage", CLuaInstance::DisplayImage },
-	{ "setBlank", CLuaInstance::setBlank },
-	{ "ShowPicture", CLuaInstance::ShowPicture },
-	{ "StopPicture", CLuaInstance::StopPicture },
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
 	{ "runScript", CLuaInstance::runScriptExt },
-	{ "PlayFile", CLuaInstance::PlayFile },
 	{ "strFind", CLuaInstance::strFind },
 	{ "strSub", CLuaInstance::strSub },
 	{ "checkVersion", CLuaInstance::checkVersion },
 	{ "createChannelIDfromUrl", CLuaInstance::createChannelIDfromUrl },
 	{ "enableInfoClock", CLuaInstance::enableInfoClock },
 	{ "getDynFont", CLuaInstance::getDynFont },
+
+	/* gui/lua/lua_video.cpp*/
+	{ "setBlank", CLuaInstance::setBlank },
+	{ "ShowPicture", CLuaInstance::ShowPicture },
+	{ "StopPicture", CLuaInstance::StopPicture },
+	{ "PlayFile", CLuaInstance::PlayFile },
 	{ NULL, NULL }
 };
 
@@ -877,63 +879,6 @@ int CLuaInstance::DisplayImage(lua_State *L)
 		trans = luaL_checkint(L, 7);
 	g_PicViewer->DisplayImage(fname, x, y, w, h, trans);
 	return 0;
-}
-
-extern cVideo * videoDecoder;
-
-int CLuaInstance::setBlank(lua_State *L)
-{
-	bool enable = true;
-	int numargs = lua_gettop(L);
-	if (numargs > 1)
-		enable = _luaL_checkbool(L, 2);
-	videoDecoder->setBlank(enable);
-	return 0;
-}
-
-int CLuaInstance::ShowPicture(lua_State *L)
-{
-	const char *fname = luaL_checkstring(L, 2);
-	CFrameBuffer::getInstance()->showFrame(fname);
-	return 0;
-}
-
-int CLuaInstance::StopPicture(lua_State */*L*/)
-{
-	CFrameBuffer::getInstance()->stopFrame();
-	return 0;
-}
-
-int CLuaInstance::PlayFile(lua_State *L)
-{
-	printf("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
-	int numargs = lua_gettop(L);
-
-	if (numargs < 3) {
-		printf("CLuaInstance::%s: not enough arguments (%d, expected 3)\n", __func__, numargs);
-		return 0;
-	}
-	const char *title;
-	const char *info1 = "";
-	const char *info2 = "";
-	const char *fname;
-
-	title = luaL_checkstring(L, 2);
-	fname = luaL_checkstring(L, 3);
-	if (numargs > 3)
-		info1 = luaL_checkstring(L, 4);
-	if (numargs > 4)
-		info2 = luaL_checkstring(L, 5);
-	printf("CLuaInstance::%s: title %s file %s\n", __func__, title, fname);
-	std::string st(title);
-	std::string si1(info1);
-	std::string si2(info2);
-	std::string sf(fname);
-	CMoviePlayerGui::getInstance().SetFile(st, sf, si1, si2);
-	CMoviePlayerGui::getInstance().exec(NULL, "http_lua");
-	int ret = CMoviePlayerGui::getInstance().getKeyPressed();
-	lua_pushinteger(L, ret);
-	return 1;
 }
 
 int CLuaInstance::strFind(lua_State *L)

@@ -86,6 +86,7 @@ neutrino_LDADD = \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
 	gui/components/libneutrino_gui_components.a \
+	gui/lua/libneutrino_gui_lua.a \
 	eitd/libsectionsd.a \
 	gui/volumebar.o \
 	driver/libneutrino_driver.a \

@@ -1,0 +1,91 @@
+/*
+ * lua video functions
+ *
+ * (C) 2014 [CST ]Focus
+ * (C) 2014-2015 M. Liebmann (micha-bbg)
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <config.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h>
+
+#include <global.h>
+#include <system/debug.h>
+#include <gui/movieplayer.h>
+#include <video.h>
+#include <neutrino.h>
+
+#include "luainstance.h"
+
+extern cVideo * videoDecoder;
+
+int CLuaInstance::setBlank(lua_State *L)
+{
+	bool enable = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		enable = _luaL_checkbool(L, 2);
+	videoDecoder->setBlank(enable);
+	return 0;
+}
+
+int CLuaInstance::ShowPicture(lua_State *L)
+{
+	const char *fname = luaL_checkstring(L, 2);
+	CFrameBuffer::getInstance()->showFrame(fname);
+	return 0;
+}
+
+int CLuaInstance::StopPicture(lua_State */*L*/)
+{
+	CFrameBuffer::getInstance()->stopFrame();
+	return 0;
+}
+
+int CLuaInstance::PlayFile(lua_State *L)
+{
+	printf("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	int numargs = lua_gettop(L);
+
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 3)\n", __func__, numargs);
+		return 0;
+	}
+
+	const char *title;
+	const char *info1 = "";
+	const char *info2 = "";
+	const char *fname;
+
+	title = luaL_checkstring(L, 2);
+	fname = luaL_checkstring(L, 3);
+	if (numargs > 3)
+		info1 = luaL_checkstring(L, 4);
+	if (numargs > 4)
+		info2 = luaL_checkstring(L, 5);
+	printf("CLuaInstance::%s: title %s file %s\n", __func__, title, fname);
+	std::string st(title);
+	std::string si1(info1);
+	std::string si2(info2);
+	std::string sf(fname);
+	CMoviePlayerGui::getInstance().SetFile(st, sf, si1, si2);
+	CMoviePlayerGui::getInstance().exec(NULL, "http_lua");
+	int ret = CMoviePlayerGui::getInstance().getKeyPressed();
+	lua_pushinteger(L, ret);
+	return 1;
+}

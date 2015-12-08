@@ -283,6 +283,7 @@ src/driver/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
 src/gui/components/Makefile
+src/gui/lua/Makefile
 src/gui/widget/Makefile
 src/system/Makefile
 src/system/mtdutils/Makefile

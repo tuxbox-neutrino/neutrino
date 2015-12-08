@@ -251,10 +251,6 @@ private:
 	static int runScriptExt(lua_State *L);
 	static int GetSize(lua_State *L);
 	static int DisplayImage(lua_State *L);
-	static int setBlank(lua_State *L);
-	static int ShowPicture(lua_State *L);
-	static int StopPicture(lua_State *L);
-	static int PlayFile(lua_State *L);
 
 	static int strFind(lua_State *L);
 	static int strSub(lua_State *L);
@@ -346,6 +342,9 @@ private:
 	static int createChannelIDfromUrl(lua_State *L);
 	static int enableInfoClock(lua_State *L);
 	static int getDynFont(lua_State *L);
+
+#include "lua_video.inc"
+
 };
 
 #endif /* _LUAINSTANCE_H */

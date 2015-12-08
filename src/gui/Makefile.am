@@ -16,6 +16,10 @@ noinst_HEADERS = version.h
 
 SUBDIRS = bedit components widget
 
+if ENABLE_LUA
+SUBDIRS += lua
+endif
+
 AM_CPPFLAGS += \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
@@ -31,12 +35,6 @@ AM_CPPFLAGS += \
 	@SIGC_CFLAGS@ \
 	@CURL_CFLAGS@ \
 	@FREETYPE_CFLAGS@
-
-if ENABLE_LUA
-AM_CPPFLAGS += \
-	@LUA_CFLAGS@
-endif
-
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
@@ -123,11 +121,6 @@ libneutrino_gui_a_SOURCES = \
 if ENABLE_TESTING
 libneutrino_gui_a_SOURCES += \
 	test_menu.cpp
-endif
-
-if ENABLE_LUA
-libneutrino_gui_a_SOURCES += \
-	luainstance.cpp
 endif
 
 libneutrino_gui2_a_SOURCES = \
