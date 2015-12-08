@@ -744,12 +744,15 @@ int CLuaInstance::deleteSavedScreen(lua_State *L)
 
 int CLuaInstance::GetRevision(lua_State *L)
 {
-	unsigned int ret = 0;
+	unsigned int rev = 0;
+	std::string hw   = "";
 #if HAVE_COOL_HARDWARE
-	ret = cs_get_revision();
+	hw = "Coolstream";
 #endif
-	lua_pushinteger(L, ret);
-	return 1;
+	rev = cs_get_revision();
+	lua_pushinteger(L, rev);
+	lua_pushstring(L, hw.c_str());
+	return 2;
 }
 
 int CLuaInstance::PaintBox(lua_State *L)

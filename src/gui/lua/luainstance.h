@@ -34,7 +34,7 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 21
+#define LUA_API_VERSION_MINOR 22
 
 typedef std::pair<lua_Integer, Font*> fontmap_pair_t;
 typedef std::map<lua_Integer, Font*> fontmap_t;
