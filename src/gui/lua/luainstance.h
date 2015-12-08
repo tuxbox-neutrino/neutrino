@@ -34,7 +34,7 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 17
+#define LUA_API_VERSION_MINOR 18
 
 typedef std::pair<lua_Integer, Font*> fontmap_pair_t;
 typedef std::map<lua_Integer, Font*> fontmap_t;
@@ -51,6 +51,7 @@ struct CLuaData
 	CRCInput *rcinput;
 	fontmap_t fontmap;
 	screenmap_t screenmap;
+	bool moviePlayerBlocked;
 };
 
 struct CLuaMenuItem

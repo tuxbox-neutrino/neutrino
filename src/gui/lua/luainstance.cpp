@@ -512,6 +512,11 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
+		/* restoreNeutrino at plugin crash, when blocked from plugin */
+		if (CMoviePlayerGui::getInstance().getBlockedFromPlugin()) {
+			CMoviePlayerGui::getInstance().setBlockedFromPlugin(false);
+			CMoviePlayerGui::getInstance().restoreNeutrino();
+		}
 	}
 }
 
@@ -660,6 +665,7 @@ int CLuaInstance::NewWindow(lua_State *L)
 	CFBWindow *W = new CFBWindow(x, y, w, h);
 	D->fbwin = W;
 	D->rcinput = g_RCInput;
+	D->moviePlayerBlocked = false;
 	lua_boxpointer(L, D);
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
@@ -1155,6 +1161,16 @@ int CLuaInstance::GCWindow(lua_State *L)
 		w->fontmap.clear();
 	}
 	CNeutrinoFonts::getInstance()->deleteDynFontExtAll();
+
+	/* restoreNeutrino at plugin closing, when blocked from plugin */
+	if (w->moviePlayerBlocked &&
+	    CMoviePlayerGui::getInstance().getBlockedFromPlugin() &&
+	    CMoviePlayerGui::getInstance().Playing()) {
+//			printf(">>>>[%s:%d] (restoreNeutrino()) moviePlayerBlocked: %d\n", __func__, __LINE__, w->moviePlayerBlocked);
+			CMoviePlayerGui::getInstance().setBlockedFromPlugin(false);
+			w->moviePlayerBlocked = false;
+			CMoviePlayerGui::getInstance().restoreNeutrino();
+		}
 
 	delete w->fbwin;
 	w->rcinput = NULL;

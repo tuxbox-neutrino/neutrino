@@ -67,6 +67,14 @@ int CLuaInstance::PlayFile(lua_State *L)
 		return 0;
 	}
 
+	CLuaData *W = CheckData(L, 1);
+	if (!W)
+		return 0;
+	if (W->moviePlayerBlocked == false) {
+		CMoviePlayerGui::getInstance().setBlockedFromPlugin(true);
+		W->moviePlayerBlocked = true;
+	}
+
 	const char *title;
 	const char *info1 = "";
 	const char *info2 = "";
