@@ -273,12 +273,37 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		StopCam(channel_id, cam);
 	}
 
+
 	CaIdVector caids;
 	cCA::GetInstance()->GetCAIDS(caids);
 	//uint8_t list = CCam::CAPMT_FIRST;
 	uint8_t list = CCam::CAPMT_ONLY;
 	if (channel_map.size() > 1)
 		list = CCam::CAPMT_ADD;
+
+#ifdef BOXMODEL_APOLLO
+	int ci_use_count = 0;
+	for (it = channel_map.begin(); it != channel_map.end(); ++it)
+	{
+		cam = it->second;
+		channel = CServiceManager::getInstance()->FindChannel(it->first);
+
+		if (tunerno >= 0 && tunerno == cDemux::GetSource(cam->getSource())) {
+			cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
+			ci_use_count++;
+			break;
+		} else if (filter_channels) {
+			if (channel && channel->bUseCI)
+				ci_use_count++;
+		} else
+			ci_use_count++;
+	}
+	if (ci_use_count == 0) {
+		INFO("CI: not used, disabling TS\n");
+		cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
+	}
+#endif
+
 	for (it = channel_map.begin(); it != channel_map.end(); /*++it*/)
 	{
 		cam = it->second;
@@ -298,17 +323,10 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_SMARTCARD);
 
 		if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
-			INFO("CI: configured tuner %d do not match %d, skip...\n", tunerno, cam->getSource());
+			INFO("CI: configured tuner %d do not match %d, skip [%s]\n", tunerno, cam->getSource(), channel->getName().c_str());
 		} else if (filter_channels && !channel->bUseCI) {
-			INFO("CI: filter enabled, CI not used, disabling TS\n");
-#ifdef BOXMODEL_APOLLO
-			cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
-#endif
+			INFO("CI: filter enabled, CI not used for [%s]\n", channel->getName().c_str());
 		} else {
-#ifdef BOXMODEL_APOLLO
-			if (tunerno >= 0)
-				cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
-#endif
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
 		}
 		//list = CCam::CAPMT_MORE;
