@@ -27,6 +27,7 @@
 #include <global.h>
 #include <system/debug.h>
 #include <gui/movieplayer.h>
+#include <zapit/zapit.h>
 #include <video.h>
 #include <neutrino.h>
 
@@ -96,4 +97,19 @@ int CLuaInstance::PlayFile(lua_State *L)
 	int ret = CMoviePlayerGui::getInstance().getKeyPressed();
 	lua_pushinteger(L, ret);
 	return 1;
+}
+
+int CLuaInstance::zapitStopPlayBack(lua_State *L)
+{
+	bool stop = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		stop = _luaL_checkbool(L, 2);
+	if (stop) {
+		CMoviePlayerGui::getInstance().stopPlayBack();
+		g_Zapit->stopPlayBack();
+	}
+	else
+		g_Zapit->startPlayBack();
+	return 0;
 }
