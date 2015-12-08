@@ -3547,13 +3547,8 @@ void CNeutrinoApp::tvMode( bool rezap )
 
 	g_RemoteControl->tvMode();
 	SetChannelMode(g_settings.channel_mode);
-	if( rezap ) {
-		t_channel_id last_chid = CZapit::getInstance()->GetLastTVChannel();
-		if(CServiceManager::getInstance()->FindChannel(last_chid))
-			channelList->zapTo_ChannelID(last_chid, true); /* force re-zap */
-		else
-			channelList->zapTo(0, true);
-	}
+	if( rezap )
+		channelRezap();
 #ifdef USEACTIONLOG
 	g_ActionLog->println("mode: tv");
 #endif
@@ -3778,14 +3773,25 @@ void CNeutrinoApp::radioMode( bool rezap)
 	if (g_settings.radiotext_enable && !g_Radiotext)
 		g_Radiotext = new CRadioText;
 
-	if( rezap ) {
-		t_channel_id last_chid = CZapit::getInstance()->GetLastRADIOChannel();
-		if(CServiceManager::getInstance()->FindChannel(last_chid))
-			channelList->zapTo_ChannelID(last_chid, true); /* force re-zap */
-		else
-			channelList->zapTo(0, true); /* force re-zap */
-	}
+	if( rezap )
+		channelRezap();
 	frameBuffer->showFrame("radiomode.jpg");
+}
+
+void CNeutrinoApp::channelRezap()
+{
+	t_channel_id last_chid = 0;
+	if (mode == mode_tv)
+		last_chid = CZapit::getInstance()->GetLastTVChannel();
+	else if (mode == mode_radio)
+		last_chid = CZapit::getInstance()->GetLastRADIOChannel();
+	else
+		return;
+
+	if(CServiceManager::getInstance()->FindChannel(last_chid))
+		channelList->zapTo_ChannelID(last_chid, true);
+	else
+		channelList->zapTo(0, true);
 }
 
 //switching from current mode to tv or radio mode or to optional parameter prev_mode

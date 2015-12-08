@@ -113,3 +113,11 @@ int CLuaInstance::zapitStopPlayBack(lua_State *L)
 		g_Zapit->startPlayBack();
 	return 0;
 }
+
+int CLuaInstance::channelRezap(lua_State */*L*/)
+{
+	CNeutrinoApp::getInstance()->channelRezap();
+	if (CNeutrinoApp::getInstance()->getMode() == CNeutrinoApp::mode_radio)
+		CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
+	return 0;
+}

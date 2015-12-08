@@ -589,6 +589,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "StopPicture", CLuaInstance::StopPicture },
 	{ "PlayFile", CLuaInstance::PlayFile },
 	{ "zapitStopPlayBack", CLuaInstance::zapitStopPlayBack },
+	{ "channelRezap", CLuaInstance::channelRezap },
 	{ NULL, NULL }
 };
 

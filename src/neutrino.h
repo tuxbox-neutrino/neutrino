@@ -234,6 +234,7 @@ public:
 	void screensaver(bool);
 	//signal/event handler before restart of neutrino gui
 	sigc::signal<bool> OnBeforeRestart;
+	void channelRezap();
 };
 #endif
 
