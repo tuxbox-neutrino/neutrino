@@ -90,6 +90,7 @@ class CMoviePlayerGui : public CMenuTarget
 	CMoviePlayerGui::state playstate;
 	int keyPressed;
 	bool isLuaPlay;
+	bool blockedFromPlugin;
 	int speed;
 	int startposition;
 	int position;
@@ -161,7 +162,6 @@ class CMoviePlayerGui : public CMenuTarget
 	void PlayFileLoop();
 	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
-	void restoreNeutrino();
 
 	void showHelpTS(void);
 	void callInfoViewer();
@@ -221,6 +221,9 @@ class CMoviePlayerGui : public CMenuTarget
 	int getKeyPressed() { return keyPressed; };
 	size_t GetReadCount();
 	std::string GetFile() { return pretty_name; }
+	void restoreNeutrino();
+	void setBlockedFromPlugin(bool b) { blockedFromPlugin = b; };
+	bool getBlockedFromPlugin() { return blockedFromPlugin; };
 };
 
 #endif

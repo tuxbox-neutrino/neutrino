@@ -189,6 +189,7 @@ void CMoviePlayerGui::Init(void)
 	filelist_it = filelist.end();
 	keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL;
 	isLuaPlay = false;
+	blockedFromPlugin = false;
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -766,7 +767,10 @@ void CMoviePlayerGui::PlayFile(void)
 	PlayFileStart();
 	mutex.unlock();
 	PlayFileLoop();
-	PlayFileEnd(repeat_mode == REPEAT_OFF);
+	bool repeat = (repeat_mode == REPEAT_OFF);
+	if (isLuaPlay)
+		repeat = (!blockedFromPlugin);
+	PlayFileEnd(repeat);
 }
 
 bool CMoviePlayerGui::PlayFileStart(void)
