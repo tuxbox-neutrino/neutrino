@@ -34,7 +34,7 @@ extern "C" {
 #include <vector>
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 16
+#define LUA_API_VERSION_MINOR 17
 
 typedef std::pair<lua_Integer, Font*> fontmap_pair_t;
 typedef std::map<lua_Integer, Font*> fontmap_t;
@@ -254,7 +254,6 @@ private:
 	static int setBlank(lua_State *L);
 	static int ShowPicture(lua_State *L);
 	static int StopPicture(lua_State *L);
-	static int zapitSetStandby(lua_State *L);
 	static int PlayFile(lua_State *L);
 
 	static int strFind(lua_State *L);
