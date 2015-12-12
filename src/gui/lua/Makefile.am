@@ -29,8 +29,8 @@ endif
 noinst_LIBRARIES = libneutrino_gui_lua.a
 
 libneutrino_gui_lua_a_SOURCES = \
-	luainstance_helpers.cpp \
 	luainstance.cpp \
+	luainstance_helpers.cpp \
 	lua_cc_picture.cpp \
 	lua_cc_signalbox.cpp \
 	lua_cc_text.cpp \

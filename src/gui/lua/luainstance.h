@@ -63,23 +63,23 @@ private:
 	void registerFunctions();
 
 	static int NewWindow(lua_State *L);
-	static int saveScreen(lua_State *L);
-	static int restoreScreen(lua_State *L);
-	static int deleteSavedScreen(lua_State *L);
+	static int GCWindow(lua_State *L);
+	static int GetInput(lua_State *L);
+	static int Blit(lua_State *L);
+	static int GetLanguage(lua_State *L);
 	static int PaintBox(lua_State *L);
 	static int paintHLineRel(lua_State *L);
 	static int paintVLineRel(lua_State *L);
-	static int PaintIcon(lua_State *L);
 	static int RenderString(lua_State *L);
 	static int getRenderWidth(lua_State *L);
 	static int FontHeight(lua_State *L);
-	static int GetInput(lua_State *L);
-	static int GCWindow(lua_State *L);
-	static int Blit(lua_State *L);
-	static int GetLanguage(lua_State *L);
-	static int GetSize(lua_State *L);
-	static int DisplayImage(lua_State *L);
 	static int getDynFont(lua_State *L);
+	static int PaintIcon(lua_State *L);
+	static int DisplayImage(lua_State *L);
+	static int GetSize(lua_State *L);
+	static int saveScreen(lua_State *L);
+	static int restoreScreen(lua_State *L);
+	static int deleteSavedScreen(lua_State *L);
 };
 
 #endif /* _LUAINSTANCE_H */
