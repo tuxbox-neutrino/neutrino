@@ -30,10 +30,10 @@ extern "C" {
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/components/cc.h>
-#include <configfile.h>
 #include <vector>
 
 #include "luainstance_helpers.h"
+
 
 #define LUA_API_VERSION_MAJOR 1
 #define LUA_API_VERSION_MINOR 22
@@ -173,15 +173,6 @@ class CLuaPicture
 		~CLuaPicture() { if (parent == NULL) delete cp; }
 };
 
-class CLuaConfigFile
-{
-	public:
-		CConfigFile *c;
-		CLuaConfigFile() { c = NULL; }
-		~CLuaConfigFile() { delete c; }
-};
-
-
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
 class CLuaInstance
 {
@@ -297,20 +288,6 @@ private:
 	static int CPictureSetPicture(lua_State *L);
 	static int CPictureSetCenterPos(lua_State *L);
 	static int CPictureDelete(lua_State *L);
-
-	static CLuaConfigFile *LuaConfigFileCheck(lua_State *L, int n);
-	static void LuaConfigFileRegister(lua_State *L);
-	static int LuaConfigFileNew(lua_State *L);
-	static int LuaConfigFileLoadConfig(lua_State *L);
-	static int LuaConfigFileSaveConfig(lua_State *L);
-	static int LuaConfigFileClear(lua_State *L);
-	static int LuaConfigFileGetString(lua_State *L);
-	static int LuaConfigFileSetString(lua_State *L);
-	static int LuaConfigFileGetInt32(lua_State *L);
-	static int LuaConfigFileSetInt32(lua_State *L);
-	static int LuaConfigFileGetBool(lua_State *L);
-	static int LuaConfigFileSetBool(lua_State *L);
-	static int LuaConfigFileDelete(lua_State *L);
 
 	static int checkVersion(lua_State *L);
 	static int createChannelIDfromUrl(lua_State *L);

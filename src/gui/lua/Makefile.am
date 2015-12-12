@@ -31,4 +31,5 @@ noinst_LIBRARIES = libneutrino_gui_lua.a
 libneutrino_gui_lua_a_SOURCES = \
 	luainstance_helpers.cpp \
 	luainstance.cpp \
+	lua_configfile.cpp \
 	lua_video.cpp
