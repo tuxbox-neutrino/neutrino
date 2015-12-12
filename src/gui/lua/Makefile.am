@@ -39,4 +39,5 @@ libneutrino_gui_lua_a_SOURCES = \
 	lua_hintbox.cpp \
 	lua_menue.cpp \
 	lua_messagebox.cpp \
+	lua_misc.cpp \
 	lua_video.cpp

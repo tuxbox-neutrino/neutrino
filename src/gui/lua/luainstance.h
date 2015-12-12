@@ -62,7 +62,6 @@ private:
 	lua_State* lua;
 	void registerFunctions();
 
-	static int GetRevision(lua_State *L);
 	static int NewWindow(lua_State *L);
 	static int saveScreen(lua_State *L);
 	static int restoreScreen(lua_State *L);
@@ -78,18 +77,9 @@ private:
 	static int GCWindow(lua_State *L);
 	static int Blit(lua_State *L);
 	static int GetLanguage(lua_State *L);
-	static int runScriptExt(lua_State *L);
 	static int GetSize(lua_State *L);
 	static int DisplayImage(lua_State *L);
-
-	static int strFind(lua_State *L);
-	static int strSub(lua_State *L);
-
-	static int checkVersion(lua_State *L);
-	static int createChannelIDfromUrl(lua_State *L);
-	static int enableInfoClock(lua_State *L);
 	static int getDynFont(lua_State *L);
-
 };
 
 #endif /* _LUAINSTANCE_H */

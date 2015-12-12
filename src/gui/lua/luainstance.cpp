@@ -31,10 +31,8 @@
 #include <gui/widget/msgbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/movieplayer.h>
-#include <gui/infoclock.h>
 #include <driver/neutrinofonts.h>
 #include <driver/pictureviewer/pictureviewer.h>
-#include <video.h>
 #include <neutrino.h>
 
 #include "luainstance.h"
@@ -46,6 +44,7 @@
 #include "lua_hintbox.h"
 #include "lua_menue.h"
 #include "lua_messagebox.h"
+#include "lua_misc.h"
 #include "lua_video.h"
 
 static void set_lua_variables(lua_State *L)
@@ -471,7 +470,6 @@ void CLuaInstance::abortScript()
 
 const luaL_Reg CLuaInstance::methods[] =
 {
-	{ "GetRevision", CLuaInstance::GetRevision },
 	{ "PaintBox", CLuaInstance::PaintBox },
 	{ "paintHLine", CLuaInstance::paintHLineRel },
 	{ "paintVLine", CLuaInstance::paintVLineRel },
@@ -487,13 +485,19 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "DisplayImage", CLuaInstance::DisplayImage },
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
-	{ "runScript", CLuaInstance::runScriptExt },
-	{ "strFind", CLuaInstance::strFind },
-	{ "strSub", CLuaInstance::strSub },
-	{ "checkVersion", CLuaInstance::checkVersion },
-	{ "createChannelIDfromUrl", CLuaInstance::createChannelIDfromUrl },
-	{ "enableInfoClock", CLuaInstance::enableInfoClock },
 	{ "getDynFont", CLuaInstance::getDynFont },
+
+	/*
+	   lua_misc.cpp
+	   Deprecated, for the future separate class for misc functions
+	*/
+	{ "strFind",                CLuaInstMisc::getInstance()->strFind_old },
+	{ "strSub",                 CLuaInstMisc::getInstance()->strSub_old },
+	{ "createChannelIDfromUrl", CLuaInstMisc::getInstance()->createChannelIDfromUrl_old },
+	{ "enableInfoClock",        CLuaInstMisc::getInstance()->enableInfoClock_old },
+	{ "runScript",              CLuaInstMisc::getInstance()->runScriptExt_old },
+	{ "GetRevision",            CLuaInstMisc::getInstance()->GetRevision_old },
+	{ "checkVersion",           CLuaInstMisc::getInstance()->checkVersion_old },
 
 	/*
 	   lua_video.cpp
@@ -658,19 +662,6 @@ int CLuaInstance::deleteSavedScreen(lua_State *L)
 	return 0;
 }
 
-int CLuaInstance::GetRevision(lua_State *L)
-{
-	unsigned int rev = 0;
-	std::string hw   = "";
-#if HAVE_COOL_HARDWARE
-	hw = "Coolstream";
-#endif
-	rev = cs_get_revision();
-	lua_pushinteger(L, rev);
-	lua_pushstring(L, hw.c_str());
-	return 2;
-}
-
 int CLuaInstance::PaintBox(lua_State *L)
 {
 	int count = lua_gettop(L);
@@ -806,62 +797,6 @@ int CLuaInstance::DisplayImage(lua_State *L)
 		trans = luaL_checkint(L, 7);
 	g_PicViewer->DisplayImage(fname, x, y, w, h, trans);
 	return 0;
-}
-
-int CLuaInstance::strFind(lua_State *L)
-{
-	int numargs = lua_gettop(L);
-	if (numargs < 3) {
-		printf("CLuaInstance::%s: not enough arguments (%d, expected 2 (or 3 or 4))\n", __func__, numargs);
-		lua_pushnil(L);
-		return 1;
-	}
-	const char *s1;
-	const char *s2;
-	int pos=0, n=0, ret=0;
-	s1 = luaL_checkstring(L, 2);
-	s2 = luaL_checkstring(L, 3);
-	if (numargs > 3)
-		pos = luaL_checkint(L, 4);
-	if (numargs > 4)
-		n = luaL_checkint(L, 5);
-
-	std::string str(s1);
-	if (numargs > 4)
-		ret = str.find(s2, pos, n);
-	else
-		ret = str.find(s2, pos);
-
-//	printf("####[%s:%d] str_len: %d, s2: %s, pos: %d, n: %d, ret: %d\n", __func__, __LINE__, str.length(), s2, pos, n, ret);
-	if (ret == (int)std::string::npos)
-		lua_pushnil(L);
-	else
-		lua_pushinteger(L, ret);
-	return 1;
-}
-
-int CLuaInstance::strSub(lua_State *L)
-{
-	int numargs = lua_gettop(L);
-	if (numargs < 3) {
-		printf("CLuaInstance::%s: not enough arguments (%d, expected 2 (or 3))\n", __func__, numargs);
-		lua_pushstring(L, "");
-		return 1;
-	}
-	const char *s1;
-	int pos=0, len=std::string::npos;
-	std::string ret="";
-	s1 = luaL_checkstring(L, 2);
-	pos = luaL_checkint(L, 3);
-	if (numargs > 3)
-		len = luaL_checkint(L, 4);
-
-	std::string str(s1);
-	ret = str.substr(pos, len);
-
-//	printf("####[%s:%d] str_len: %d, pos: %d, len: %d, ret_len: %d\n", __func__, __LINE__, str.length(), pos, len, ret.length());
-	lua_pushstring(L, ret.c_str());
-	return 1;
 }
 
 int CLuaInstance::GetSize(lua_State *L)
@@ -1126,90 +1061,6 @@ int CLuaInstance::GetLanguage(lua_State *L)
 	return 1;
 }
 
-int CLuaInstance::runScriptExt(lua_State *L)
-{
-	CLuaData *W = CheckData(L, 1);
-	if (!W) return 0;
-
-	int numargs = lua_gettop(L);
-	const char *script = luaL_checkstring(L, 2);
-	std::vector<std::string> args;
-	for (int i = 3; i <= numargs; i++) {
-		std::string arg = luaL_checkstring(L, i);
-		if (!arg.empty())
-			args.push_back(arg);
-	}
-
-	CLuaInstance *lua = new CLuaInstance();
-	lua->runScript(script, &args);
-	args.clear();
-	delete lua;
-	return 0;
-}
-
-int CLuaInstance::checkVersion(lua_State *L)
-{
-	int numargs = lua_gettop(L);
-	if (numargs < 3) {
-		printf("CLuaInstance::%s: not enough arguments (%d, expected 2)\n", __func__, numargs);
-		lua_pushnil(L);
-		return 1;
-	}
-	int major=0, minor=0;
-	major = luaL_checkint(L, 2);
-	minor = luaL_checkint(L, 3);
-	if ((major > LUA_API_VERSION_MAJOR) || ((major == LUA_API_VERSION_MAJOR) && (minor > LUA_API_VERSION_MINOR))) {
-		char msg[1024];
-		snprintf(msg, sizeof(msg)-1, "%s (v%d.%d)\n%s v%d.%d",
-				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK1),
-				LUA_API_VERSION_MAJOR, LUA_API_VERSION_MINOR,
-				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK2),
-				major, minor);
-		luaL_error(L, msg);
-	}
-	lua_pushinteger(L, 1); /* for backward compatibility */
-	return 1;
-}
-
-// --------------------------------------------------------------------------------
-
-int CLuaInstance::createChannelIDfromUrl(lua_State *L)
-{
-	int numargs = lua_gettop(L);
-	if (numargs < 2) {
-		printf("CLuaInstance::%s: no arguments\n", __func__);
-		lua_pushnil(L);
-		return 1;
-	}
-
-	const char *url = luaL_checkstring(L, 2);
-	if (strlen(url) < 1 ) {
-		lua_pushnil(L);
-		return 1;
-	}
-
-	t_channel_id id = CREATE_CHANNEL_ID(0, 0, 0, url);
-	char id_str[17];
-	snprintf(id_str, sizeof(id_str), "%" PRIx64, id);
-
-	lua_pushstring(L, id_str);
-	return 1;
-}
-
-// --------------------------------------------------------------------------------
-
-int CLuaInstance::enableInfoClock(lua_State *L)
-{
-	bool enable = true;
-	int numargs = lua_gettop(L);
-	if (numargs > 1)
-		enable = _luaL_checkbool(L, 2);
-	CInfoClock::getInstance()->enableInfoClock(enable);
-	return 0;
-}
-
-// --------------------------------------------------------------------------------
-
 int CLuaInstance::getDynFont(lua_State *L)
 {
 	int numargs = lua_gettop(L);
@@ -1260,5 +1111,3 @@ int CLuaInstance::getDynFont(lua_State *L)
 	lua_pushinteger(L, DYNFONT_NO_ERROR);
 	return 2;
 }
-
-// --------------------------------------------------------------------------------
