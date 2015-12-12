@@ -25,7 +25,12 @@
 //#define LUA_DEBUG printf
 #define LUA_DEBUG(...)
 
-#define LUA_CLASSNAME "neutrino"
+#define LUA_CLASSNAME       "neutrino"
+#define LUA_VIDEO_CLASSNAME "video"
+#define LUA_MISC_CLASSNAME  "misc"
+
+//#define LUA_WIKI "http://wiki.tuxbox.org/....."
+#define LUA_WIKI "https://slknet.de/wiki/w"
 
 /* the magic color that tells us we are using one of the palette colors */
 #define MAGIC_COLOR 0x42424200
@@ -72,7 +77,6 @@ struct CLuaData
 	CRCInput *rcinput;
 	fontmap_t fontmap;
 	screenmap_t screenmap;
-	bool moviePlayerBlocked;
 };
 
 bool _luaL_checkbool(lua_State *L, int numArg);

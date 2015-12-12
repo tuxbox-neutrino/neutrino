@@ -42,16 +42,42 @@ CLuaInstMisc* CLuaInstMisc::getInstance()
 	return LuaInstMisc;
 }
 
-CLuaData *CLuaInstMisc::CheckData(lua_State *L, int narg)
+CLuaMisc *CLuaInstMisc::MiscCheckData(lua_State *L, int n)
 {
-	luaL_checktype(L, narg, LUA_TUSERDATA);
-	void *ud = luaL_checkudata(L, narg, LUA_CLASSNAME);
-	if (!ud)
-		fprintf(stderr, "[CLuaInstMisc::%s] wrong type %p, %d, %s\n", __func__, L, narg, LUA_CLASSNAME);
-	return *(CLuaData **)ud;  // unbox pointer
+	return *(CLuaMisc **) luaL_checkudata(L, n, LUA_MISC_CLASSNAME);
 }
 
-int CLuaInstMisc::strFind_old(lua_State *L)
+void CLuaInstMisc::LuaMiscRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new",             CLuaInstMisc::MiscNew },
+		{ "strFind",         CLuaInstMisc::strFind },
+		{ "strSub",          CLuaInstMisc::strSub },
+		{ "enableInfoClock", CLuaInstMisc::enableInfoClock },
+		{ "runScript",       CLuaInstMisc::runScriptExt },
+		{ "GetRevision",     CLuaInstMisc::GetRevision },
+		{ "checkVersion",    CLuaInstMisc::checkVersion },
+		{ "__gc",            CLuaInstMisc::MiscDelete },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, LUA_MISC_CLASSNAME);
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, LUA_MISC_CLASSNAME);
+}
+
+int CLuaInstMisc::MiscNew(lua_State *L)
+{
+	CLuaMisc **udata = (CLuaMisc **) lua_newuserdata(L, sizeof(CLuaMisc *));
+	*udata = new CLuaMisc();
+	luaL_getmetatable(L, LUA_MISC_CLASSNAME);
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstMisc::strFind(lua_State *L)
 {
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
@@ -75,7 +101,7 @@ int CLuaInstMisc::strFind_old(lua_State *L)
 	else
 		ret = str.find(s2, pos);
 
-//	printf("####[%s:%d] str_len: %d, s2: %s, pos: %d, n: %d, ret: %d\n", __func__, __LINE__, str.length(), s2, pos, n, ret);
+	LUA_DEBUG("####[%s:%d] str_len: %d, s2: %s, pos: %d, n: %d, ret: %d\n", __func__, __LINE__, str.length(), s2, pos, n, ret);
 	if (ret == (int)std::string::npos)
 		lua_pushnil(L);
 	else
@@ -83,7 +109,7 @@ int CLuaInstMisc::strFind_old(lua_State *L)
 	return 1;
 }
 
-int CLuaInstMisc::strSub_old(lua_State *L)
+int CLuaInstMisc::strSub(lua_State *L)
 {
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
@@ -102,35 +128,12 @@ int CLuaInstMisc::strSub_old(lua_State *L)
 	std::string str(s1);
 	ret = str.substr(pos, len);
 
-//	printf("####[%s:%d] str_len: %d, pos: %d, len: %d, ret_len: %d\n", __func__, __LINE__, str.length(), pos, len, ret.length());
+	LUA_DEBUG("####[%s:%d] str_len: %d, pos: %d, len: %d, ret_len: %d\n", __func__, __LINE__, str.length(), pos, len, ret.length());
 	lua_pushstring(L, ret.c_str());
 	return 1;
 }
 
-int CLuaInstMisc::createChannelIDfromUrl_old(lua_State *L)
-{
-	int numargs = lua_gettop(L);
-	if (numargs < 2) {
-		printf("CLuaInstMisc::%s: no arguments\n", __func__);
-		lua_pushnil(L);
-		return 1;
-	}
-
-	const char *url = luaL_checkstring(L, 2);
-	if (strlen(url) < 1 ) {
-		lua_pushnil(L);
-		return 1;
-	}
-
-	t_channel_id id = CREATE_CHANNEL_ID(0, 0, 0, url);
-	char id_str[17];
-	snprintf(id_str, sizeof(id_str), "%" PRIx64, id);
-
-	lua_pushstring(L, id_str);
-	return 1;
-}
-
-int CLuaInstMisc::enableInfoClock_old(lua_State *L)
+int CLuaInstMisc::enableInfoClock(lua_State *L)
 {
 	bool enable = true;
 	int numargs = lua_gettop(L);
@@ -140,11 +143,8 @@ int CLuaInstMisc::enableInfoClock_old(lua_State *L)
 	return 0;
 }
 
-int CLuaInstMisc::runScriptExt_old(lua_State *L)
+int CLuaInstMisc::runScriptExt(lua_State *L)
 {
-	CLuaData *W = CheckData(L, 1);
-	if (!W) return 0;
-
 	int numargs = lua_gettop(L);
 	const char *script = luaL_checkstring(L, 2);
 	std::vector<std::string> args;
@@ -161,7 +161,7 @@ int CLuaInstMisc::runScriptExt_old(lua_State *L)
 	return 0;
 }
 
-int CLuaInstMisc::GetRevision_old(lua_State *L)
+int CLuaInstMisc::GetRevision(lua_State *L)
 {
 	unsigned int rev = 0;
 	std::string hw   = "";
@@ -174,7 +174,7 @@ int CLuaInstMisc::GetRevision_old(lua_State *L)
 	return 2;
 }
 
-int CLuaInstMisc::checkVersion_old(lua_State *L)
+int CLuaInstMisc::checkVersion(lua_State *L)
 {
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
@@ -196,4 +196,62 @@ int CLuaInstMisc::checkVersion_old(lua_State *L)
 	}
 	lua_pushinteger(L, 1); /* for backward compatibility */
 	return 1;
+}
+
+int CLuaInstMisc::MiscDelete(lua_State *L)
+{
+	CLuaMisc *D = MiscCheckData(L, 1);
+	delete D;
+	return 0;
+}
+
+/* --------------------------------------------------------------
+  deprecated functions
+  --------------------------------------------------------------- */
+
+//#define MISC_FUNC_DEPRECATED miscFunctionDeprecated
+#define MISC_FUNC_DEPRECATED(...)
+
+void CLuaInstMisc::miscFunctionDeprecated(lua_State *L, std::string oldFunc)
+{
+	std::string of = std::string("n:") + oldFunc + "()";
+	std::string nf = std::string("M = misc.new(); M:") + oldFunc + "()";
+	functionDeprecated(L, of.c_str(), nf.c_str());
+	printf("  [see also] \33[33m%s\33[0m\n", LUA_WIKI "/Kategorie:Lua:Neutrino-API:SonstigeFunktionen:de");
+}
+
+int CLuaInstMisc::strFind_old(lua_State *L)
+{
+	MISC_FUNC_DEPRECATED(L, "strFind");
+	return strFind(L);
+}
+
+int CLuaInstMisc::strSub_old(lua_State *L)
+{
+	MISC_FUNC_DEPRECATED(L, "strSub");
+	return strSub(L);
+}
+
+int CLuaInstMisc::enableInfoClock_old(lua_State *L)
+{
+	MISC_FUNC_DEPRECATED(L, "enableInfoClock");
+	return enableInfoClock(L);
+}
+
+int CLuaInstMisc::runScriptExt_old(lua_State *L)
+{
+	MISC_FUNC_DEPRECATED(L, "runScript");
+	return runScriptExt(L);
+}
+
+int CLuaInstMisc::GetRevision_old(lua_State *L)
+{
+	MISC_FUNC_DEPRECATED(L, "GetRevision");
+	return GetRevision(L);
+}
+
+int CLuaInstMisc::checkVersion_old(lua_State *L)
+{
+	MISC_FUNC_DEPRECATED(L, "checkVersion");
+	return checkVersion(L);
 }

@@ -20,32 +20,43 @@
 #ifndef _LUAVIDEO_H
 #define _LUAVIDEO_H
 
-/*
 class CLuaVideo
 {
 	public:
 		CLuaVideo() {};
 		~CLuaVideo() {};
 };
-*/
 
 class CLuaInstVideo
 {
-	static CLuaData *CheckData(lua_State *L, int narg);
 	public:
 		CLuaInstVideo() {};
 		~CLuaInstVideo() {};
 		static CLuaInstVideo* getInstance();
-//		static void LuaVideoRegister(lua_State *L);
+		static void LuaVideoRegister(lua_State *L);
 
+		/* deprecated functions */
 		static int setBlank_old(lua_State *L);
 		static int ShowPicture_old(lua_State *L);
 		static int StopPicture_old(lua_State *L);
 		static int PlayFile_old(lua_State *L);
 		static int zapitStopPlayBack_old(lua_State *L);
 		static int channelRezap_old(lua_State *L);
+		static int createChannelIDfromUrl_old(lua_State *L);
 
-//	private:
+	private:
+		static CLuaVideo *VideoCheckData(lua_State *L, int n);
+		static int VideoNew(lua_State *L);
+		static int setBlank(lua_State *L);
+		static int ShowPicture(lua_State *L);
+		static int StopPicture(lua_State *L);
+		static int PlayFile(lua_State *L);
+		static int zapitStopPlayBack(lua_State *L);
+		static int channelRezap(lua_State *L);
+		static int createChannelIDfromUrl(lua_State *L);
+		static int VideoDelete(lua_State *L);
+
+		static void videoFunctionDeprecated(lua_State *L, std::string oldFunc);
 };
 
 #endif //_LUAVIDEO_H

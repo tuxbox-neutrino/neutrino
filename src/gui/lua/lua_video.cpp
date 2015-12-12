@@ -45,16 +45,43 @@ CLuaInstVideo* CLuaInstVideo::getInstance()
 	return LuaInstVideo;
 }
 
-CLuaData *CLuaInstVideo::CheckData(lua_State *L, int narg)
+CLuaVideo *CLuaInstVideo::VideoCheckData(lua_State *L, int n)
 {
-	luaL_checktype(L, narg, LUA_TUSERDATA);
-	void *ud = luaL_checkudata(L, narg, LUA_CLASSNAME);
-	if (!ud)
-		fprintf(stderr, "[CLuaInstVideo::%s] wrong type %p, %d, %s\n", __func__, L, narg, LUA_CLASSNAME);
-	return *(CLuaData **)ud;  // unbox pointer
+	return *(CLuaVideo **) luaL_checkudata(L, n, LUA_VIDEO_CLASSNAME);
 }
 
-int CLuaInstVideo::setBlank_old(lua_State *L)
+void CLuaInstVideo::LuaVideoRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new",                    CLuaInstVideo::VideoNew },
+		{ "setBlank",               CLuaInstVideo::setBlank },
+		{ "ShowPicture",            CLuaInstVideo::ShowPicture },
+		{ "StopPicture",            CLuaInstVideo::StopPicture },
+		{ "PlayFile",               CLuaInstVideo::PlayFile },
+		{ "zapitStopPlayBack",      CLuaInstVideo::zapitStopPlayBack },
+		{ "channelRezap",           CLuaInstVideo::channelRezap },
+		{ "createChannelIDfromUrl", CLuaInstVideo::createChannelIDfromUrl },
+		{ "__gc",                   CLuaInstVideo::VideoDelete },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, LUA_VIDEO_CLASSNAME);
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, LUA_VIDEO_CLASSNAME);
+}
+
+int CLuaInstVideo::VideoNew(lua_State *L)
+{
+	CLuaVideo **udata = (CLuaVideo **) lua_newuserdata(L, sizeof(CLuaVideo *));
+	*udata = new CLuaVideo();
+	luaL_getmetatable(L, LUA_VIDEO_CLASSNAME);
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstVideo::setBlank(lua_State *L)
 {
 	bool enable = true;
 	int numargs = lua_gettop(L);
@@ -64,22 +91,22 @@ int CLuaInstVideo::setBlank_old(lua_State *L)
 	return 0;
 }
 
-int CLuaInstVideo::ShowPicture_old(lua_State *L)
+int CLuaInstVideo::ShowPicture(lua_State *L)
 {
 	const char *fname = luaL_checkstring(L, 2);
 	CFrameBuffer::getInstance()->showFrame(fname);
 	return 0;
 }
 
-int CLuaInstVideo::StopPicture_old(lua_State */*L*/)
+int CLuaInstVideo::StopPicture(lua_State */*L*/)
 {
 	CFrameBuffer::getInstance()->stopFrame();
 	return 0;
 }
 
-int CLuaInstVideo::PlayFile_old(lua_State *L)
+int CLuaInstVideo::PlayFile(lua_State *L)
 {
-	printf("CLuaInstVideo::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstVideo::%s %d\n", __func__, lua_gettop(L));
 	int numargs = lua_gettop(L);
 
 	if (numargs < 3) {
@@ -87,13 +114,8 @@ int CLuaInstVideo::PlayFile_old(lua_State *L)
 		return 0;
 	}
 
-	CLuaData *W = CheckData(L, 1);
-	if (!W)
-		return 0;
-	if (W->moviePlayerBlocked == false) {
+	if (CMoviePlayerGui::getInstance().getBlockedFromPlugin() == false)
 		CMoviePlayerGui::getInstance().setBlockedFromPlugin(true);
-		W->moviePlayerBlocked = true;
-	}
 
 	const char *title;
 	const char *info1 = "";
@@ -118,7 +140,7 @@ int CLuaInstVideo::PlayFile_old(lua_State *L)
 	return 1;
 }
 
-int CLuaInstVideo::zapitStopPlayBack_old(lua_State *L)
+int CLuaInstVideo::zapitStopPlayBack(lua_State *L)
 {
 	bool stop = true;
 	int numargs = lua_gettop(L);
@@ -133,10 +155,100 @@ int CLuaInstVideo::zapitStopPlayBack_old(lua_State *L)
 	return 0;
 }
 
-int CLuaInstVideo::channelRezap_old(lua_State */*L*/)
+int CLuaInstVideo::channelRezap(lua_State */*L*/)
 {
 	CNeutrinoApp::getInstance()->channelRezap();
 	if (CNeutrinoApp::getInstance()->getMode() == CNeutrinoApp::mode_radio)
 		CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
 	return 0;
 }
+
+int CLuaInstVideo::createChannelIDfromUrl(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 2) {
+		printf("CLuaInstVideo::%s: no arguments\n", __func__);
+		lua_pushnil(L);
+		return 1;
+	}
+
+	const char *url = luaL_checkstring(L, 2);
+	if (strlen(url) < 1 ) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	t_channel_id id = CREATE_CHANNEL_ID(0, 0, 0, url);
+	char id_str[17];
+	snprintf(id_str, sizeof(id_str), "%" PRIx64, id);
+
+	lua_pushstring(L, id_str);
+	return 1;
+}
+
+int CLuaInstVideo::VideoDelete(lua_State *L)
+{
+	CLuaVideo *D = VideoCheckData(L, 1);
+	delete D;
+	return 0;
+}
+
+
+/* --------------------------------------------------------------
+  deprecated functions
+  --------------------------------------------------------------- */
+
+//#define VIDEO_FUNC_DEPRECATED videoFunctionDeprecated
+#define VIDEO_FUNC_DEPRECATED(...)
+
+void CLuaInstVideo::videoFunctionDeprecated(lua_State *L, std::string oldFunc)
+{
+	std::string of = std::string("n:") + oldFunc + "()";
+	std::string nf = std::string("video = video.new(); video:") + oldFunc + "()";
+	functionDeprecated(L, of.c_str(), nf.c_str());
+	printf("  [see also] \33[33m%s\33[0m\n", LUA_WIKI "/Kategorie:Lua:Neutrino-API:Videofunktionen:de");
+}
+
+int CLuaInstVideo::setBlank_old(lua_State *L)
+{
+	VIDEO_FUNC_DEPRECATED(L, "setBlank");
+	return setBlank(L);
+}
+
+int CLuaInstVideo::ShowPicture_old(lua_State *L)
+{
+	VIDEO_FUNC_DEPRECATED(L, "ShowPicture");
+	return ShowPicture(L);
+}
+
+int CLuaInstVideo::StopPicture_old(lua_State *L)
+{
+	VIDEO_FUNC_DEPRECATED(L, "StopPicture");
+	return StopPicture(L);
+}
+
+int CLuaInstVideo::PlayFile_old(lua_State *L)
+{
+	VIDEO_FUNC_DEPRECATED(L, "PlayFile");
+	return PlayFile(L);
+}
+
+int CLuaInstVideo::zapitStopPlayBack_old(lua_State *L)
+{
+	VIDEO_FUNC_DEPRECATED(L, "zapitStopPlayBack");
+	return zapitStopPlayBack(L);
+}
+
+int CLuaInstVideo::channelRezap_old(lua_State *L)
+{
+	VIDEO_FUNC_DEPRECATED(L, "channelRezap");
+	return channelRezap(L);
+}
+
+int CLuaInstVideo::createChannelIDfromUrl_old(lua_State *L)
+{
+	VIDEO_FUNC_DEPRECATED(L, "createChannelIDfromUrl");
+	return createChannelIDfromUrl(L);
+}
+
+/* --------------------------------------------------------------- */

@@ -21,34 +21,41 @@
 #ifndef _LUAMISCFUNCS_H
 #define _LUAMISCFUNCS_H
 
-/*
 class CLuaMisc
 {
 	public:
 		CLuaMisc() {};
 		~CLuaMisc() {};
 };
-*/
 
 class CLuaInstMisc
 {
-	static CLuaData *CheckData(lua_State *L, int narg);
 	public:
 		CLuaInstMisc() {};
 		~CLuaInstMisc() {};
 		static CLuaInstMisc* getInstance();
-//		static void MiscRegister(lua_State *L);
+		static void LuaMiscRegister(lua_State *L);
 
+		/* deprecated functions */
 		static int strFind_old(lua_State *L);
 		static int strSub_old(lua_State *L);
-		static int createChannelIDfromUrl_old(lua_State *L);
 		static int enableInfoClock_old(lua_State *L);
 		static int runScriptExt_old(lua_State *L);
 		static int GetRevision_old(lua_State *L);
 		static int checkVersion_old(lua_State *L);
 
-//	private:
-//		static CLuaMisc *MiscCheck(lua_State *L, int n);
+	private:
+		static CLuaMisc *MiscCheckData(lua_State *L, int n);
+		static int MiscNew(lua_State *L);
+		static int strFind(lua_State *L);
+		static int strSub(lua_State *L);
+		static int enableInfoClock(lua_State *L);
+		static int runScriptExt(lua_State *L);
+		static int GetRevision(lua_State *L);
+		static int checkVersion(lua_State *L);
+		static int MiscDelete(lua_State *L);
+
+		static void miscFunctionDeprecated(lua_State *L, std::string oldFunc);
 };
 
 #endif //_LUAMISCFUNCS_H

@@ -495,7 +495,6 @@ const luaL_Reg CLuaInstance::methods[] =
 	*/
 	{ "strFind",                CLuaInstMisc::getInstance()->strFind_old },
 	{ "strSub",                 CLuaInstMisc::getInstance()->strSub_old },
-	{ "createChannelIDfromUrl", CLuaInstMisc::getInstance()->createChannelIDfromUrl_old },
 	{ "enableInfoClock",        CLuaInstMisc::getInstance()->enableInfoClock_old },
 	{ "runScript",              CLuaInstMisc::getInstance()->runScriptExt_old },
 	{ "GetRevision",            CLuaInstMisc::getInstance()->GetRevision_old },
@@ -511,6 +510,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "PlayFile",               CLuaInstVideo::getInstance()->PlayFile_old },
 	{ "zapitStopPlayBack",      CLuaInstVideo::getInstance()->zapitStopPlayBack_old },
 	{ "channelRezap",           CLuaInstVideo::getInstance()->channelRezap_old },
+	{ "createChannelIDfromUrl", CLuaInstVideo::getInstance()->createChannelIDfromUrl_old },
 	{ NULL, NULL }
 };
 
@@ -559,6 +559,8 @@ void CLuaInstance::registerFunctions()
 	CLuaInstHintbox::getInstance()->HintboxRegister(lua);
 	CLuaInstMenu::getInstance()->MenuRegister(lua);
 	CLuaInstMessagebox::getInstance()->MessageboxRegister(lua);
+	CLuaInstMisc::getInstance()->LuaMiscRegister(lua);
+	CLuaInstVideo::getInstance()->LuaVideoRegister(lua);
 }
 
 CLuaData *CLuaInstance::CheckData(lua_State *L, int narg)
@@ -589,7 +591,6 @@ int CLuaInstance::NewWindow(lua_State *L)
 	CFBWindow *W = new CFBWindow(x, y, w, h);
 	D->fbwin = W;
 	D->rcinput = g_RCInput;
-	D->moviePlayerBlocked = false;
 	lua_boxpointer(L, D);
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
@@ -613,14 +614,13 @@ int CLuaInstance::GCWindow(lua_State *L)
 	CNeutrinoFonts::getInstance()->deleteDynFontExtAll();
 
 	/* restoreNeutrino at plugin closing, when blocked from plugin */
-	if (w->moviePlayerBlocked &&
-	    CMoviePlayerGui::getInstance().getBlockedFromPlugin() &&
+	LUA_DEBUG(">>>>[%s:%d] (restoreNeutrino()) BlockedFromPlugin: %d, Playing: %d\n", __func__, __LINE__,
+		CMoviePlayerGui::getInstance().getBlockedFromPlugin, CMoviePlayerGui::getInstance().Playing());
+	if (CMoviePlayerGui::getInstance().getBlockedFromPlugin() &&
 	    CMoviePlayerGui::getInstance().Playing()) {
-//			printf(">>>>[%s:%d] (restoreNeutrino()) moviePlayerBlocked: %d\n", __func__, __LINE__, w->moviePlayerBlocked);
-			CMoviePlayerGui::getInstance().setBlockedFromPlugin(false);
-			w->moviePlayerBlocked = false;
-			CMoviePlayerGui::getInstance().restoreNeutrino();
-		}
+		CMoviePlayerGui::getInstance().setBlockedFromPlugin(false);
+		CMoviePlayerGui::getInstance().restoreNeutrino();
+	}
 
 	delete w->fbwin;
 	w->rcinput = NULL;
