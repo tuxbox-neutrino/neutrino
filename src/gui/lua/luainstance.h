@@ -28,7 +28,6 @@ extern "C" {
 #include <driver/fb_window.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
-#include <gui/components/cc.h>
 #include <vector>
 
 #include "luainstance_helpers.h"
@@ -52,42 +51,6 @@ class CLuaMessagebox
 		CMessageBox *b;
 		CLuaMessagebox();
 		~CLuaMessagebox();
-};
-
-class CLuaCWindow
-{
-	public:
-		CComponentsWindow *w;
-		CLuaCWindow() { w = NULL; }
-		~CLuaCWindow() { delete w; }
-};
-
-class CLuaSignalBox
-{
-	public:
-		CSignalBox *s;
-		CComponentsForm *parent;
-		CLuaSignalBox() { s = NULL; parent = NULL;}
-		~CLuaSignalBox() { if (parent == NULL) delete s; }
-};
-
-class CLuaComponentsText
-{
-	public:
-		CComponentsText *ct;
-		CComponentsForm *parent;
-		int mode, font_text;
-		CLuaComponentsText() { ct = NULL; parent = NULL; mode = 0; font_text = 0;}
-		~CLuaComponentsText() { if (parent == NULL) delete ct; }
-};
-
-class CLuaPicture
-{
-	public:
-		CComponentsPicture *cp;
-		CComponentsForm *parent;
-		CLuaPicture() { cp = NULL; parent = NULL; }
-		~CLuaPicture() { if (parent == NULL) delete cp; }
 };
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
@@ -153,48 +116,6 @@ private:
 	void MessageboxRegister(lua_State *L);
 	static int MessageboxExec(lua_State *L);
 	static CLuaMessagebox *MessageboxCheck(lua_State *L, int n);
-
-	void CWindowRegister(lua_State *L);
-	static int CWindowNew(lua_State *L);
-	static CLuaCWindow *CWindowCheck(lua_State *L, int n);
-	static int CWindowPaint(lua_State *L);
-	static int CWindowHide(lua_State *L);
-	static int CWindowSetCaption(lua_State *L);
-	static int CWindowSetWindowColor(lua_State *L);
-	static int CWindowPaintHeader(lua_State *L);
-	static int CWindowGetHeaderHeight(lua_State *L);
-	static int CWindowGetFooterHeight(lua_State *L);
-	static int CWindowGetHeaderHeight_dep(lua_State *L); // function 'header_height' is deprecated
-	static int CWindowGetFooterHeight_dep(lua_State *L); // function 'footer_height' is deprecated
-	static int CWindowSetCenterPos(lua_State *L);
-	static int CWindowDelete(lua_State *L);
-
-	static CLuaSignalBox *SignalBoxCheck(lua_State *L, int n);
-	static void SignalBoxRegister(lua_State *L);
-	static int SignalBoxNew(lua_State *L);
-	static int SignalBoxPaint(lua_State *L);
-	static int SignalBoxSetCenterPos(lua_State *L);
-	static int SignalBoxDelete(lua_State *L);
-
-	static CLuaComponentsText *ComponentsTextCheck(lua_State *L, int n);
-	static void ComponentsTextRegister(lua_State *L);
-	static int ComponentsTextNew(lua_State *L);
-	static int ComponentsTextPaint(lua_State *L);
-	static int ComponentsTextHide(lua_State *L);
-	static int ComponentsTextSetText(lua_State *L);
-	static int ComponentsTextScroll(lua_State *L);
-	static int ComponentsTextSetCenterPos(lua_State *L);
-	static int ComponentsTextEnableUTF8(lua_State *L);
-	static int ComponentsTextDelete(lua_State *L);
-
-	static CLuaPicture *CPictureCheck(lua_State *L, int n);
-	static void CPictureRegister(lua_State *L);
-	static int CPictureNew(lua_State *L);
-	static int CPicturePaint(lua_State *L);
-	static int CPictureHide(lua_State *L);
-	static int CPictureSetPicture(lua_State *L);
-	static int CPictureSetCenterPos(lua_State *L);
-	static int CPictureDelete(lua_State *L);
 
 	static int checkVersion(lua_State *L);
 	static int createChannelIDfromUrl(lua_State *L);
