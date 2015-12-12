@@ -29,6 +29,7 @@
 #include <system/settings.h>
 #include <system/set_threadname.h>
 #include <gui/widget/msgbox.h>
+#include <gui/widget/messagebox.h>
 #include <gui/movieplayer.h>
 #include <gui/infoclock.h>
 #include <driver/neutrinofonts.h>
@@ -42,7 +43,9 @@
 #include "lua_cc_text.h"
 #include "lua_cc_window.h"
 #include "lua_configfile.h"
+#include "lua_hintbox.h"
 #include "lua_menue.h"
+#include "lua_messagebox.h"
 #include "lua_video.h"
 
 static void set_lua_variables(lua_State *L)
@@ -542,14 +545,14 @@ void CLuaInstance::registerFunctions()
 
 	lua_register(lua, className, NewWindow);
 
-	HintboxRegister(lua);
-	MessageboxRegister(lua);
 	CLuaInstCCPicture::getInstance()->CCPictureRegister(lua);
 	CLuaInstCCSignalbox::getInstance()->CCSignalBoxRegister(lua);
 	CLuaInstCCText::getInstance()->CCTextRegister(lua);
 	CLuaInstCCWindow::getInstance()->CCWindowRegister(lua);
 	CLuaInstConfigFile::getInstance()->LuaConfigFileRegister(lua);
+	CLuaInstHintbox::getInstance()->HintboxRegister(lua);
 	CLuaInstMenu::getInstance()->MenuRegister(lua);
+	CLuaInstMessagebox::getInstance()->MessageboxRegister(lua);
 }
 
 CLuaData *CLuaInstance::CheckData(lua_State *L, int narg)
@@ -1143,249 +1146,6 @@ int CLuaInstance::runScriptExt(lua_State *L)
 	delete lua;
 	return 0;
 }
-
-void CLuaInstance::HintboxRegister(lua_State *L)
-{
-	luaL_Reg meth[] = {
-		{ "new", CLuaInstance::HintboxNew },
-		{ "exec", CLuaInstance::HintboxExec },
-		{ "paint", CLuaInstance::HintboxPaint },
-		{ "hide", CLuaInstance::HintboxHide },
-		{ "__gc", CLuaInstance::HintboxDelete },
-		{ NULL, NULL }
-	};
-
-	luaL_newmetatable(L, "hintbox");
-	luaL_setfuncs(L, meth, 0);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -1, "__index");
-	lua_setglobal(L, "hintbox");
-}
-
-CLuaHintbox *CLuaInstance::HintboxCheck(lua_State *L, int n)
-{
-	return *(CLuaHintbox **) luaL_checkudata(L, n, "hintbox");
-}
-
-CLuaHintbox::CLuaHintbox()
-{
-	caption = NULL;
-	b = NULL;
-}
-
-CLuaHintbox::~CLuaHintbox()
-{
-	if (caption)
-		free(caption);
-	delete b;
-}
-
-int CLuaInstance::HintboxNew(lua_State *L)
-{
-	lua_assert(lua_istable(L,1));
-
-	std::string name, text, icon = std::string(NEUTRINO_ICON_INFO);
-	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
-	tableLookup(L, "text", text);
-	tableLookup(L, "icon", icon);
-	lua_Integer width = 450;
-	tableLookup(L, "width", width);
-
-	CLuaHintbox **udata = (CLuaHintbox **) lua_newuserdata(L, sizeof(CLuaHintbox *));
-	*udata = new CLuaHintbox();
-	(*udata)->caption = strdup(name.c_str());
-	(*udata)->b = new CHintBox((*udata)->caption, text.c_str(), width, icon.c_str());
-	luaL_getmetatable(L, "hintbox");
-	lua_setmetatable(L, -2);
-	return 1;
-}
-
-int CLuaInstance::HintboxDelete(lua_State *L)
-{
-	CLuaHintbox *m = HintboxCheck(L, 1);
-	delete m;
-	return 0;
-}
-
-int CLuaInstance::HintboxPaint(lua_State *L)
-{
-	CLuaHintbox *m = HintboxCheck(L, 1);
-	if (!m)
-		return 0;
-	m->b->paint();
-	return 0;
-}
-
-int CLuaInstance::HintboxHide(lua_State *L)
-{
-	CLuaHintbox *m = HintboxCheck(L, 1);
-	m->b->hide();
-	return 0;
-}
-
-int CLuaInstance::HintboxExec(lua_State *L)
-{
-	CLuaHintbox *m = HintboxCheck(L, 1);
-	if (!m)
-		return 0;
-	int timeout = -1;
-	if (lua_isnumber(L, -1))
-		timeout = (int) lua_tonumber(L, -1);
-	m->b->paint();
-
-	// copied from gui/widget/hintbox.cpp
-
-	neutrino_msg_t msg;
-	neutrino_msg_data_t data;
-	if ( timeout == -1 )
-		timeout = 5; /// default timeout 5 sec
-		//timeout = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR];
-
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
-
-	int res = messages_return::none;
-
-	while ( ! ( res & ( messages_return::cancel_info | messages_return::cancel_all ) ) )
-	{
-		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
-
-		if ((msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_ok))
-			res = messages_return::cancel_info;
-		else if(msg == CRCInput::RC_home)
-			res = messages_return::cancel_all;
-		else if ((m->b->has_scrollbar()) && ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)))
-		{
-			if (msg == CRCInput::RC_up)
-				m->b->scroll_up();
-			else
-				m->b->scroll_down();
-		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
-		}
-		else if(msg == CRCInput::RC_mode) {
-			res = messages_return::handled;
-			break;
-		}
-		else if((msg == CRCInput::RC_next) || (msg == CRCInput::RC_prev)) {
-			res = messages_return::cancel_all;
-			g_RCInput->postMsg(msg, data);
-		}
-		else
-		{
-			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
-			if (res & messages_return::unhandled)
-			{
-
-				// leave here and handle above...
-				g_RCInput->postMsg(msg, data);
-				res = messages_return::cancel_all;
-			}
-		}
-	}
-	m->b->hide();
-	return 0;
-}
-
-void CLuaInstance::MessageboxRegister(lua_State *L)
-{
-	luaL_Reg meth[] = {
-		{ "exec", CLuaInstance::MessageboxExec },
-		{ NULL, NULL }
-	};
-
-	luaL_newmetatable(L, "messagebox");
-	luaL_setfuncs(L, meth, 0);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -1, "__index");
-	lua_setglobal(L, "messagebox");
-}
-
-// messagebox.exec{caption="Title", text="text", icon="settings", width=500,timeout=-1,return_default_on_timeout=0,
-//	default = "yes", buttons = { "yes", "no", "cancel", "all", "back", "ok" }, align="center1|center2|left|right" }
-int CLuaInstance::MessageboxExec(lua_State *L)
-{
-	lua_assert(lua_istable(L,1));
-
-	std::string name, text, icon = std::string(NEUTRINO_ICON_INFO);
-	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
-	tableLookup(L, "text", text);
-	tableLookup(L, "icon", icon);
-	lua_Integer timeout = -1, width = 450, return_default_on_timeout = 0, show_buttons = 0, default_button = 0;
-	tableLookup(L, "timeout", timeout);
-	tableLookup(L, "width", width);
-	tableLookup(L, "return_default_on_timeout", return_default_on_timeout);
-
-	std::string tmp;
-	if (tableLookup(L, "align", tmp)) {
-		lua_pushvalue(L, -2);
-		const char *val = lua_tostring(L, -2);
-		table_key mb[] = {
-			{ "center1",	CMessageBox::mbBtnAlignCenter1 },
-			{ "center2",	CMessageBox::mbBtnAlignCenter2 },
-			{ "left",	CMessageBox::mbBtnAlignLeft },
-			{ "right",	CMessageBox::mbBtnAlignRight },
-			{ NULL,		0 }
-		};
-		for (int i = 0; mb[i].name; i++)
-			if (!strcmp(mb[i].name, val)) {
-				show_buttons |= mb[i].code;
-				break;
-			}
-	}
-	lua_pushstring(L, "buttons");
-	lua_gettable(L, -2);
-	for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 2)) {
-		lua_pushvalue(L, -2);
-		const char *val = lua_tostring(L, -2);
-		table_key mb[] = {
-			{ "yes",	CMessageBox::mbYes },
-			{ "no",		CMessageBox::mbNo },
-			{ "cancel",	CMessageBox::mbCancel },
-			{ "all",	CMessageBox::mbAll },
-			{ "back",	CMessageBox::mbBack },
-			{ "ok",		CMessageBox::mbOk },
-			{ NULL,		0 }
-		};
-		for (int i = 0; mb[i].name; i++)
-			if (!strcmp(mb[i].name, val)) {
-				show_buttons |= mb[i].code;
-				break;
-			}
-	}
-	lua_pop(L, 1);
-
-	table_key mbr[] = {
-		{ "yes",	CMessageBox::mbrYes },
-		{ "no",		CMessageBox::mbrNo },
-		{ "cancel",	CMessageBox::mbrCancel },
-		{ "back",	CMessageBox::mbrBack },
-		{ "ok",		CMessageBox::mbrOk },
-		{ NULL,		0 }
-	};
-	if (tableLookup(L, "default", tmp)) {
-		lua_pushvalue(L, -2);
-		const char *val = lua_tostring(L, -2);
-		for (int i = 0; mbr[i].name; i++)
-			if (!strcmp(mbr[i].name, val)) {
-				default_button = mbr[i].code;
-				break;
-			}
-	}
-
-	int res = ShowMsg(name, text, (CMessageBox::result_) default_button, (CMessageBox::buttons_) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
-
-	tmp = "cancel";
-	for (int i = 0; mbr[i].name; i++)
-		if (res == mbr[i].code) {
-			tmp = mbr[i].name;
-			break;
-		}
-	lua_pushstring(L, tmp.c_str());
-
-	return 1;
-}
-
-// --------------------------------------------------------------------------------
 
 int CLuaInstance::checkVersion(lua_State *L)
 {

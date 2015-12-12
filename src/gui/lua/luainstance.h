@@ -26,32 +26,12 @@ extern "C" {
 #include <lualib.h>
 }
 #include <driver/fb_window.h>
-#include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
 #include <vector>
 
 #include "luainstance_helpers.h"
 
 #define LUA_API_VERSION_MAJOR 1
 #define LUA_API_VERSION_MINOR 22
-
-
-class CLuaHintbox
-{
-	public:
-		CHintBox *b;
-		char *caption;
-		CLuaHintbox();
-		~CLuaHintbox();
-};
-
-class CLuaMessagebox
-{
-	public:
-		CMessageBox *b;
-		CLuaMessagebox();
-		~CLuaMessagebox();
-};
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
 class CLuaInstance
@@ -104,18 +84,6 @@ private:
 
 	static int strFind(lua_State *L);
 	static int strSub(lua_State *L);
-
-	void HintboxRegister(lua_State *L);
-	static int HintboxNew(lua_State *L);
-	static int HintboxDelete(lua_State *L);
-	static int HintboxExec(lua_State *L);
-	static int HintboxPaint(lua_State *L);
-	static int HintboxHide(lua_State *L);
-	static CLuaHintbox *HintboxCheck(lua_State *L, int n);
-
-	void MessageboxRegister(lua_State *L);
-	static int MessageboxExec(lua_State *L);
-	static CLuaMessagebox *MessageboxCheck(lua_State *L, int n);
 
 	static int checkVersion(lua_State *L);
 	static int createChannelIDfromUrl(lua_State *L);

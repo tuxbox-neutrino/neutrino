@@ -36,5 +36,7 @@ libneutrino_gui_lua_a_SOURCES = \
 	lua_cc_text.cpp \
 	lua_cc_window.cpp \
 	lua_configfile.cpp \
+	lua_hintbox.cpp \
 	lua_menue.cpp \
+	lua_messagebox.cpp \
 	lua_video.cpp
