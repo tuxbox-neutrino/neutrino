@@ -26,7 +26,6 @@ extern "C" {
 #include <lualib.h>
 }
 #include <driver/fb_window.h>
-#include <gui/widget/menue.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/components/cc.h>
@@ -37,87 +36,6 @@ extern "C" {
 #define LUA_API_VERSION_MAJOR 1
 #define LUA_API_VERSION_MINOR 22
 
-struct CLuaMenuItem
-{
-	int int_val;
-	std::string str_val;
-	std::string name;
-};
-
-class CLuaMenuChangeObserver : public CChangeObserver
-{
-	public:
-		bool changeNotify(lua_State *, const std::string &, const std::string &, void *);
-};
-
-typedef std::pair<lua_Integer, CMenuItem*> itemmap_pair_t;
-typedef std::map<lua_Integer, CMenuItem*> itemmap_t;
-typedef itemmap_t::iterator itemmap_iterator_t;
-
-class CLuaMenu
-{
-	public:
-		CMenuWidget *m;
-		CLuaMenuChangeObserver *observ;
-		std::list<CLuaMenuItem> items;
-		std::list<CMenuTarget *> targets;
-		std::list<void *> tofree;
-		itemmap_t itemmap;
-		CLuaMenu();
-		~CLuaMenu();
-};
-
-class CLuaMenuForwarder : public CMenuTarget
-{
-	public:
-		lua_State *L;
-		std::string luaAction;
-		std::string luaId;
-		CLuaMenuForwarder(lua_State *L, std::string _luaAction, std::string _luaId);
-		~CLuaMenuForwarder();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
-
-class CLuaMenuFilebrowser : public CLuaMenuForwarder
-{
-	private:
-		std::string *value;
-		bool dirMode;
-		std::vector<std::string> filter;
-	public:
-		CLuaMenuFilebrowser(lua_State *_L, std::string _luaAction, std::string _luaId, std::string *_value, bool _dirMode);
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		void addFilter(std::string s) { filter.push_back(s); };
-};
-
-class CLuaMenuStringinput : public CLuaMenuForwarder
-{
-	private:
-		std::string *value;
-		std::string valid_chars;
-		const char *name;
-		const char *icon;
-		bool sms;
-		int size;
-		CChangeObserver *observ;
-	public:
-		CLuaMenuStringinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
-
-class CLuaMenuKeyboardinput : public CLuaMenuForwarder
-{
-	private:
-		std::string *value;
-		const char *name;
-		const char *icon;
-		int size;
-		CChangeObserver *observ;
-		std::string help, help2;
-	public:
-		CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2);
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
 
 class CLuaHintbox
 {
@@ -223,16 +141,6 @@ private:
 
 	static int strFind(lua_State *L);
 	static int strSub(lua_State *L);
-
-	void MenuRegister(lua_State *L);
-	static int MenuNew(lua_State *L);
-	static int MenuDelete(lua_State *L);
-	static int MenuAddKey(lua_State *L);
-	static int MenuAddItem(lua_State *L);
-	static int MenuHide(lua_State *L);
-	static int MenuExec(lua_State *L);
-	static CLuaMenu *MenuCheck(lua_State *L, int n);
-	static int MenuSetActive(lua_State *L);
 
 	void HintboxRegister(lua_State *L);
 	static int HintboxNew(lua_State *L);
