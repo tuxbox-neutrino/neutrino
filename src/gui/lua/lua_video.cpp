@@ -32,10 +32,29 @@
 #include <neutrino.h>
 
 #include "luainstance.h"
+#include "lua_video.h"
 
 extern cVideo * videoDecoder;
 
-int CLuaInstance::setBlank(lua_State *L)
+CLuaInstVideo* CLuaInstVideo::getInstance()
+{
+	static CLuaInstVideo* LuaInstVideo = NULL;
+
+	if(!LuaInstVideo)
+		LuaInstVideo = new CLuaInstVideo();
+	return LuaInstVideo;
+}
+
+CLuaData *CLuaInstVideo::CheckData(lua_State *L, int narg)
+{
+	luaL_checktype(L, narg, LUA_TUSERDATA);
+	void *ud = luaL_checkudata(L, narg, LUA_CLASSNAME);
+	if (!ud)
+		fprintf(stderr, "[CLuaInstVideo::%s] wrong type %p, %d, %s\n", __func__, L, narg, LUA_CLASSNAME);
+	return *(CLuaData **)ud;  // unbox pointer
+}
+
+int CLuaInstVideo::setBlank_old(lua_State *L)
 {
 	bool enable = true;
 	int numargs = lua_gettop(L);
@@ -45,26 +64,26 @@ int CLuaInstance::setBlank(lua_State *L)
 	return 0;
 }
 
-int CLuaInstance::ShowPicture(lua_State *L)
+int CLuaInstVideo::ShowPicture_old(lua_State *L)
 {
 	const char *fname = luaL_checkstring(L, 2);
 	CFrameBuffer::getInstance()->showFrame(fname);
 	return 0;
 }
 
-int CLuaInstance::StopPicture(lua_State */*L*/)
+int CLuaInstVideo::StopPicture_old(lua_State */*L*/)
 {
 	CFrameBuffer::getInstance()->stopFrame();
 	return 0;
 }
 
-int CLuaInstance::PlayFile(lua_State *L)
+int CLuaInstVideo::PlayFile_old(lua_State *L)
 {
-	printf("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	printf("CLuaInstVideo::%s %d\n", __func__, lua_gettop(L));
 	int numargs = lua_gettop(L);
 
 	if (numargs < 3) {
-		printf("CLuaInstance::%s: not enough arguments (%d, expected 3)\n", __func__, numargs);
+		printf("CLuaInstVideo::%s: not enough arguments (%d, expected 3)\n", __func__, numargs);
 		return 0;
 	}
 
@@ -87,7 +106,7 @@ int CLuaInstance::PlayFile(lua_State *L)
 		info1 = luaL_checkstring(L, 4);
 	if (numargs > 4)
 		info2 = luaL_checkstring(L, 5);
-	printf("CLuaInstance::%s: title %s file %s\n", __func__, title, fname);
+	printf("CLuaInstVideo::%s: title %s file %s\n", __func__, title, fname);
 	std::string st(title);
 	std::string si1(info1);
 	std::string si2(info2);
@@ -99,7 +118,7 @@ int CLuaInstance::PlayFile(lua_State *L)
 	return 1;
 }
 
-int CLuaInstance::zapitStopPlayBack(lua_State *L)
+int CLuaInstVideo::zapitStopPlayBack_old(lua_State *L)
 {
 	bool stop = true;
 	int numargs = lua_gettop(L);
@@ -114,7 +133,7 @@ int CLuaInstance::zapitStopPlayBack(lua_State *L)
 	return 0;
 }
 
-int CLuaInstance::channelRezap(lua_State */*L*/)
+int CLuaInstVideo::channelRezap_old(lua_State */*L*/)
 {
 	CNeutrinoApp::getInstance()->channelRezap();
 	if (CNeutrinoApp::getInstance()->getMode() == CNeutrinoApp::mode_radio)

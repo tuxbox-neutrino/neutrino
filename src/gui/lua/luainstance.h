@@ -34,7 +34,6 @@ extern "C" {
 
 #include "luainstance_helpers.h"
 
-
 #define LUA_API_VERSION_MAJOR 1
 #define LUA_API_VERSION_MINOR 22
 
@@ -293,8 +292,6 @@ private:
 	static int createChannelIDfromUrl(lua_State *L);
 	static int enableInfoClock(lua_State *L);
 	static int getDynFont(lua_State *L);
-
-#include "lua_video.inc"
 
 };
 

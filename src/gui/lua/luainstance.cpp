@@ -29,7 +29,6 @@
 #include <system/settings.h>
 #include <system/set_threadname.h>
 #include <gui/widget/msgbox.h>
-#include <gui/widget/messagebox.h>
 #include <gui/widget/keyboard_input.h>
 #include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
@@ -41,6 +40,7 @@
 
 #include "luainstance.h"
 #include "lua_configfile.h"
+#include "lua_video.h"
 
 static void set_lua_variables(lua_State *L)
 {
@@ -489,13 +489,16 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "enableInfoClock", CLuaInstance::enableInfoClock },
 	{ "getDynFont", CLuaInstance::getDynFont },
 
-	/* gui/lua/lua_video.cpp*/
-	{ "setBlank", CLuaInstance::setBlank },
-	{ "ShowPicture", CLuaInstance::ShowPicture },
-	{ "StopPicture", CLuaInstance::StopPicture },
-	{ "PlayFile", CLuaInstance::PlayFile },
-	{ "zapitStopPlayBack", CLuaInstance::zapitStopPlayBack },
-	{ "channelRezap", CLuaInstance::channelRezap },
+	/*
+	   lua_video.cpp
+	   Deprecated, for the future separate class for video
+	*/
+	{ "setBlank",          CLuaInstVideo::getInstance()->setBlank_old },
+	{ "ShowPicture",       CLuaInstVideo::getInstance()->ShowPicture_old },
+	{ "StopPicture",       CLuaInstVideo::getInstance()->StopPicture_old },
+	{ "PlayFile",          CLuaInstVideo::getInstance()->PlayFile_old },
+	{ "zapitStopPlayBack", CLuaInstVideo::getInstance()->zapitStopPlayBack_old },
+	{ "channelRezap",      CLuaInstVideo::getInstance()->channelRezap_old },
 	{ NULL, NULL }
 };
 
