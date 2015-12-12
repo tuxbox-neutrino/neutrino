@@ -33,26 +33,10 @@ extern "C" {
 #include <configfile.h>
 #include <vector>
 
+#include "luainstance_helpers.h"
+
 #define LUA_API_VERSION_MAJOR 1
 #define LUA_API_VERSION_MINOR 22
-
-typedef std::pair<lua_Integer, Font*> fontmap_pair_t;
-typedef std::map<lua_Integer, Font*> fontmap_t;
-typedef fontmap_t::iterator fontmap_iterator_t;
-
-typedef std::pair<lua_Integer, fb_pixel_t*> screenmap_pair_t;
-typedef std::map<lua_Integer, fb_pixel_t*> screenmap_t;
-typedef screenmap_t::iterator screenmap_iterator_t;
-
-/* this is stored as userdata in the lua_State */
-struct CLuaData
-{
-	CFBWindow *fbwin;
-	CRCInput *rcinput;
-	fontmap_t fontmap;
-	screenmap_t screenmap;
-	bool moviePlayerBlocked;
-};
 
 struct CLuaMenuItem
 {
@@ -227,12 +211,6 @@ private:
 	lua_State* lua;
 	void registerFunctions();
 
-	static bool _luaL_checkbool(lua_State *L, int numArg);
-	static void paramBoolDeprecated(lua_State *L, const char* val);
-	static void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc);
-	static void paramDeprecated(lua_State *L, const char* oldParam, const char* newParam);
-	static lua_Unsigned checkMagicMask(lua_Unsigned &col);
-
 	static int GetRevision(lua_State *L);
 	static int NewWindow(lua_State *L);
 	static int saveScreen(lua_State *L);
@@ -333,11 +311,6 @@ private:
 	static int LuaConfigFileGetBool(lua_State *L);
 	static int LuaConfigFileSetBool(lua_State *L);
 	static int LuaConfigFileDelete(lua_State *L);
-	static bool tableLookup(lua_State*, const char*, std::string&);
-	static bool tableLookup(lua_State*, const char*, lua_Integer&);
-	static bool tableLookup(lua_State*, const char*, lua_Unsigned&);
-	static bool tableLookup(lua_State*, const char*, void**);
-	static bool tableLookup(lua_State*, const char*, bool &value);
 
 	static int checkVersion(lua_State *L);
 	static int createChannelIDfromUrl(lua_State *L);

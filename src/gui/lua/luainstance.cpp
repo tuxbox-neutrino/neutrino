@@ -41,30 +41,6 @@
 
 #include "luainstance.h"
 
-/* the magic color that tells us we are using one of the palette colors */
-#define MAGIC_COLOR 0x42424200
-#define MAGIC_MASK  0xFFFFFF00
-
-struct table_key {
-	const char *name;
-	lua_Integer code;
-};
-
-struct table_key_u {
-	const char *name;
-	lua_Unsigned code;
-};
-
-struct lua_envexport {
-	const char *name;
-	table_key *t;
-};
-
-struct lua_envexport_u {
-	const char *name;
-	table_key_u *t;
-};
-
 static void set_lua_variables(lua_State *L)
 {
 	/* keyname table created with
@@ -372,16 +348,7 @@ static void set_lua_variables(lua_State *L)
 	}
 }
 
-//#define DBG1 printf
-#define DBG1(...)
-
-#define lua_boxpointer(L, u) \
-	(*(void **)(lua_newuserdata(L, sizeof(void *))) = (u))
-
-#define lua_unboxpointer(L, i) \
-	(*(void **)(lua_touserdata(L, i)))
-
-const char CLuaInstance::className[] = "neutrino";
+const char CLuaInstance::className[] = LUA_CLASSNAME;
 
 CLuaInstance::CLuaInstance()
 {
@@ -399,68 +366,6 @@ CLuaInstance::~CLuaInstance()
 		lua_close(lua);
 		lua = NULL;
 	}
-}
-
-/* Ported by Benny Chen, http://www.bennychen.cn/tag/lual_checkbool/ */
-bool CLuaInstance::_luaL_checkbool(lua_State *L, int numArg)
-{
-	bool b = false;
-	if (lua_isboolean(L, numArg))
-		b = lua_toboolean(L, numArg);
-	else {
-		lua_Debug ar;
-		lua_getstack(L, 0, &ar);
-		lua_getinfo(L, "n", &ar);
-		luaL_error(L, "bad argument #%d to '%s' (%s expected, got %s)\n",
-				numArg-1, ar.name,
-				lua_typename(L, LUA_TBOOLEAN),
-				lua_typename(L, lua_type(L, numArg)));
-	}
-	return b;
-}
-
-void CLuaInstance::paramBoolDeprecated(lua_State *L, const char* val)
-{
-	lua_Debug ar;
-	lua_getstack(L, 1, &ar);
-	lua_getinfo(L, "Sl", &ar);
-	printf("[Lua Script] \33[1;31m%s\33[0m %s (\33[31m\"%s\"\33[0m)\n                      %s \33[32mtrue\33[0m.\n                      (%s:%d)\n",
-					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED1),
-					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED2), val,
-					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED3),
-					ar.short_src, ar.currentline);
-}
-
-void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc)
-{
-	lua_Debug ar;
-	lua_getstack(L, 1, &ar);
-	lua_getinfo(L, "Sl", &ar);
-	printf("[Lua Script] \33[1;31m%s\33[0m %s \33[33m%s\33[0m %s \33[1;33m%s\33[0m.\n                      (%s:%d)\n",
-					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED1),
-					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED2), oldFunc,
-					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED3), newFunc,
-					ar.short_src, ar.currentline);
-}
-
-void CLuaInstance::paramDeprecated(lua_State *L, const char* oldParam, const char* newParam)
-{
-	lua_Debug ar;
-	lua_getstack(L, 1, &ar);
-	lua_getinfo(L, "Sl", &ar);
-	printf("[Lua Script] \33[1;31m%s\33[0m %s \33[33m%s\33[0m %s \33[1;33m%s\33[0m.\n                      (%s:%d)\n",
-					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED1),
-					g_Locale->getText(LOCALE_LUA_PARAMETER_DEPRECATED2), oldParam,
-					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED3), newParam,
-					ar.short_src, ar.currentline);
-}
-
-lua_Unsigned CLuaInstance::checkMagicMask(lua_Unsigned &col)
-{
-	if ((col & MAGIC_MASK) == MAGIC_COLOR)
-		/* use the color constants */
-		col = CFrameBuffer::getInstance()->realcolor[col & 0x000000ff];
-	return col;
 }
 
 #define SET_VAR1(NAME) \
@@ -758,7 +663,7 @@ int CLuaInstance::GetRevision(lua_State *L)
 int CLuaInstance::PaintBox(lua_State *L)
 {
 	int count = lua_gettop(L);
-	DBG1("CLuaInstance::%s %d\n", __func__, count);
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, count);
 	int x, y, w, h, radius = 0, corner = CORNER_ALL;
 	unsigned int c;
 
@@ -855,7 +760,7 @@ int CLuaInstance::paintVLineRel(lua_State *L)
 
 int CLuaInstance::PaintIcon(lua_State *L)
 {
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, h;
 	unsigned int o;
 	const char *fname;
@@ -876,7 +781,7 @@ extern CPictureViewer * g_PicViewer;
 
 int CLuaInstance::DisplayImage(lua_State *L)
 {
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, w, h;
 	const char *fname;
 
@@ -950,7 +855,7 @@ int CLuaInstance::strSub(lua_State *L)
 
 int CLuaInstance::GetSize(lua_State *L)
 {
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int w = 0, h = 0;
 	const char *fname;
 
@@ -968,7 +873,7 @@ int CLuaInstance::RenderString(lua_State *L)
 	unsigned int c;
 	const char *text;
 	int numargs = lua_gettop(L);
-	DBG1("CLuaInstance::%s %d\n", __func__, numargs);
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, numargs);
 	c = COL_MENUCONTENT_TEXT;
 	boxh = 0;
 	center = 0;
@@ -1042,7 +947,7 @@ int CLuaInstance::getRenderWidth(lua_State *L)
 	int f, id;
 	Font* font = NULL;
 	const char *text;
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W)
@@ -1098,7 +1003,7 @@ int CLuaInstance::GetInput(lua_State *L)
 	/* TODO: I'm not sure if this works... */
 	if (msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC)
 	{
-		DBG1("CLuaInstance::%s: msg 0x%08" PRIx32 " data 0x%08" PRIx32 "\n", __func__, msg, data);
+		LUA_DEBUG("CLuaInstance::%s: msg 0x%08" PRIx32 " data 0x%08" PRIx32 "\n", __func__, msg, data);
 		CNeutrinoApp::getInstance()->handleMsg(msg, data);
 	}
 	/* signed int is debatable, but the "big" messages can't yet be handled
@@ -1112,7 +1017,7 @@ int CLuaInstance::FontHeight(lua_State *L)
 {
 	int f, id;
 	Font* font = NULL;
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W)
@@ -1153,7 +1058,7 @@ int CLuaInstance::FontHeight(lua_State *L)
 
 int CLuaInstance::GCWindow(lua_State *L)
 {
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaData *w = (CLuaData *)lua_unboxpointer(L, 1);
 
 	if (w && w->fbwin) {
@@ -1161,7 +1066,7 @@ int CLuaInstance::GCWindow(lua_State *L)
 			if (it->second != NULL)
 				delete[] it->second;
 		}
-		DBG1("CLuaInstance::%s delete screenmap\n", __func__);
+		LUA_DEBUG("CLuaInstance::%s delete screenmap\n", __func__);
 		w->screenmap.clear();
 		w->fontmap.clear();
 	}
@@ -1229,66 +1134,6 @@ int CLuaInstance::runScriptExt(lua_State *L)
 	args.clear();
 	delete lua;
 	return 0;
-}
-
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &value)
-{
-	bool res = false;
-	lua_pushstring(L, what);
-	lua_gettable(L, -2);
-	res = lua_isstring(L, -1);
-	if (res)
-		value = lua_tostring(L, -1);
-	lua_pop(L, 1);
-	return res;
-}
-
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer &value)
-{
-	bool res = false;
-	lua_pushstring(L, what);
-	lua_gettable(L, -2);
-	res = lua_isnumber(L, -1);
-	if (res)
-		value = (lua_Integer) lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	return res;
-}
-
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Unsigned &value)
-{
-	bool res = false;
-	lua_pushstring(L, what);
-	lua_gettable(L, -2);
-	res = lua_isnumber(L, -1);
-	if (res)
-		value = (lua_Unsigned) lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	return res;
-}
-
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, void** value)
-{
-	bool res = false;
-	lua_pushstring(L, what);
-	lua_gettable(L, -2);
-	res = lua_isuserdata(L, -1);
-	if (res)
-		*value = lua_unboxpointer(L, -1);
-	lua_pop(L, 1);
-	return res;
-}
-
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, bool &value)
-{
-	bool res = false;
-	lua_pushstring(L, what);
-	lua_gettable(L, -2);
-	res = lua_isboolean(L, -1);
-	if (res)
-		value = lua_toboolean(L, -1);
-	lua_pop(L, 1);
-	return res;
 }
 
 bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAction, const std::string &luaId, void *Data)
@@ -2289,7 +2134,7 @@ int CLuaInstance::CWindowSetCenterPos(lua_State *L)
 
 int CLuaInstance::CWindowDelete(lua_State *L)
 {
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaCWindow *m = CWindowCheck(L, 1);
 	if (!m)
 		return 0;
@@ -2612,7 +2457,7 @@ int CLuaInstance::ComponentsTextEnableUTF8(lua_State *L)
 
 int CLuaInstance::ComponentsTextDelete(lua_State *L)
 {
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
 	if (!m)
 		return 0;
@@ -2777,7 +2622,7 @@ int CLuaInstance::CPictureSetCenterPos(lua_State *L)
 
 int CLuaInstance::CPictureDelete(lua_State *L)
 {
-	DBG1("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaPicture *m = CPictureCheck(L, 1);
 	if (!m) return 0;
 
