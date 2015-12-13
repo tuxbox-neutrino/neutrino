@@ -45,6 +45,8 @@ class CComponentsText : public CComponentsItem, public CBox
 		CTextBox 	* ct_textbox;
 		///object: Fontrenderer object
 		Font		* ct_font;
+		///property: font style
+		int 		ct_text_style;
 
 		///property: text color
 		fb_pixel_t ct_col_text;
@@ -60,6 +62,8 @@ class CComponentsText : public CComponentsItem, public CBox
 		std::string ct_text;
 		///status: cached text string, mainly required to compare with current text
 		std::string ct_old_text;
+
+		bool ct_utf8_encoded;
 
 		///status: current text string is sent to CTextBox object
 		bool ct_text_sent;
@@ -89,6 +93,12 @@ class CComponentsText : public CComponentsItem, public CBox
 		///paint CCItem backckrond (if paint_bg=true), apply initCCText() and send paint() to the CTextBox object
 		void paintText(bool do_save_bg = CC_SAVE_SCREEN_YES);
 	public:
+		enum {
+			FONT_STYLE_REGULAR	= 0,
+			FONT_STYLE_BOLD		= 1,
+			FONT_STYLE_ITALIC	= 2
+		};
+
 		CComponentsText(	const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
 					std::string text = "",
 					const int mode = CTextBox::AUTO_WIDTH,
@@ -116,7 +126,7 @@ class CComponentsText : public CComponentsItem, public CBox
 		///send options for text font (size and type), color and mode (allignment)
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		///set text color
-		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
+		virtual void setTextColor(const fb_pixel_t& color_text);
 		///get text color
 		virtual inline fb_pixel_t getTextColor(){return ct_col_text;};
 		///set text alignment, also see textbox.h for possible alignment modes
@@ -128,17 +138,17 @@ class CComponentsText : public CComponentsItem, public CBox
 		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
 
 		///set text as string also possible with overloades members for loacales, const char and text file
-		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0);
+		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///set text with const char*
-		virtual	void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0);
+		virtual	void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///set text from locale
-		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0);
+		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///set text from digit, digit is integer
-		virtual void setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0);
+		virtual void setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///set text directly from a textfile, path as string is required
-		virtual bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0);
+		virtual bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///get text directly from a textfile, path as string is required
-		virtual std::string getTextFromFile(const std::string& path_to_textfile);
+		static std::string getTextFromFile(const std::string& path_to_textfile);
 		///returns current text content of text/label object as std::string
 		virtual std::string getText(){return ct_text;};
 
@@ -162,6 +172,9 @@ class CComponentsText : public CComponentsItem, public CBox
 			if (ct_textbox)
 				ct_textbox->enableSaveScreen(mode);
 		}
+		///enable/disable utf8 encoding
+		void enableUTF8(bool enable = true){ct_utf8_encoded = enable;}
+		void disableUTF8(bool enable = false){enableUTF8(enable);}
 };
 
 

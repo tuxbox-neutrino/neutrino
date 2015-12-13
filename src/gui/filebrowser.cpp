@@ -39,6 +39,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <driver/display.h>
 #include <driver/screen_max.h>
 #include <driver/display.h>
 
@@ -440,7 +441,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 		xmlDocPtr answer_parser = parseXml(answer.c_str());
 
 		if (answer_parser != NULL) {
-			char *ptr;
+			const char *ptr = NULL;
 			unsigned char xml_decode = 0;
 			xmlNodePtr element = xmlDocGetRootElement(answer_parser);
 
@@ -448,7 +449,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 				xml_decode = 1;
 			else if (strcmp(xmlGetName(element), "stationlist") == 0)
 				xml_decode = 2;
-			element = element->xmlChildrenNode;
+			element = xmlChildrenNode(element);
 
 			if (element == NULL) {
 				printf("[FileBrowser] SC: Directory cannot be read.\n");
@@ -459,7 +460,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 				file.Time = 0;
 				flist->push_back(file);
 			} else {
-				char * tunein_base = NULL;
+				const char * tunein_base = NULL;
 
 				if (xml_decode == 1) {
 					CFile file;
@@ -482,7 +483,9 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 					CFile file;
 					if (xml_decode == 1) {
 						file.Mode = S_IFDIR + 0777 ;
-						file.Name = xmlGetAttribute(element, "name");
+						const char *eptr = xmlGetAttribute(element, "name");
+						if(eptr)
+							file.Name = eptr;
 						file.Url = sc_get_genre + file.Name;
 						file.Size = 0;
 						file.Time = 0;
@@ -499,8 +502,14 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 								ptr = xmlGetAttribute(element, "mt");
 								if (ptr && (strcmp(ptr, "audio/mpeg")==0)) {
 									file.Mode = S_IFREG + 0777 ;
-									file.Name = xmlGetAttribute(element, "name");
-									file.Url = sc_tune_in_base + tunein_base + (std::string)"?id=" + xmlGetAttribute(element, "id") + (std::string)"&k=" + g_settings.shoutcast_dev_id;
+									const char *aptr = xmlGetAttribute(element, "name");
+									if(aptr)
+										file.Name = aptr;
+									const char *idptr = xmlGetAttribute(element, "id");
+									std::string id;
+									if(idptr)
+										id = idptr;
+									file.Url = sc_tune_in_base + tunein_base + (std::string)"?id=" + id + (std::string)"&k=" + g_settings.shoutcast_dev_id;
 									//printf("adding %s (%s)\n", file.Name.c_str(), file.Url.c_str());
 									ptr = xmlGetAttribute(element, "br");
 									if (ptr) {
@@ -515,7 +524,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 							}
 						}
 					}
-					element = element->xmlNextNode;
+					element = xmlNextNode(element);
 				}
 			}
 			xmlFreeDoc(answer_parser);

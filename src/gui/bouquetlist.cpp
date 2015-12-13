@@ -47,6 +47,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
@@ -223,7 +224,7 @@ int CBouquetList::exec( bool bShowChannelList)
 
 int CBouquetList::doMenu()
 {
-	int i = 0;
+	int i = 0, ret = 0;
 	int select = -1;
 	static int old_selected = 0;
 	signed int bouquet_id;
@@ -245,13 +246,16 @@ int CBouquetList::doMenu()
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	int old_epg = zapitBouquet ? zapitBouquet->bScanEpg : 0;
+	int old_ci = zapitBouquet ? zapitBouquet->bUseCI : 0;
 	sprintf(cnt, "%d", i);
 	/* FIXME menu centered different than bouquet list ??? */
 	/* provider bouquet */
 	if (zapitBouquet && !zapitBouquet->bUser) {
 		menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_COPY, true, NULL, selector, cnt, CRCInput::RC_blue), old_selected == i ++);
-		if (g_settings.epg_scan == CEpgScan::SCAN_SEL)
+		if (!zapitBouquet->bWebtv && g_settings.epg_scan == CEpgScan::SCAN_SEL)
 			menu->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &zapitBouquet->bScanEpg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+		if (!zapitBouquet->bWebtv)
+			menu->addItem(new CMenuOptionChooser(LOCALE_CI_USE, &zapitBouquet->bUseCI, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		menu->exec(NULL, "");
 		delete menu;
 		delete selector;
@@ -259,6 +263,21 @@ int CBouquetList::doMenu()
 		if (old_epg != zapitBouquet->bScanEpg) {
 			save_bouquets = true;
 			CNeutrinoApp::getInstance()->MarkBouquetsChanged();
+			ret = -1;
+		}
+		if (old_ci != zapitBouquet->bUseCI) {
+			channels = &zapitBouquet->tvChannels;
+			for(int li = 0; li < (int) channels->size(); li++)
+				(*channels)[li]->bUseCI = zapitBouquet->bUseCI;
+
+			channels = &zapitBouquet->radioChannels;
+			for(int li = 0; li < (int) channels->size(); li++)
+				(*channels)[li]->bUseCI = zapitBouquet->bUseCI;
+
+			CServiceManager::getInstance()->SetCIFilter();
+			save_bouquets = true;
+			CNeutrinoApp::getInstance()->MarkBouquetsChanged();
+			ret = -1;
 		}
 
 		if(select >= 0) {
@@ -304,8 +323,10 @@ int CBouquetList::doMenu()
 	} else {
 		/* user or satellite bouquet */
 		menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_red), old_selected == i ++);
-		if (zapitBouquet && (g_settings.epg_scan == CEpgScan::SCAN_SEL))
+		if (zapitBouquet && !zapitBouquet->bWebtv && (g_settings.epg_scan == CEpgScan::SCAN_SEL))
 			menu->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &zapitBouquet->bScanEpg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+		if (zapitBouquet && !zapitBouquet->bWebtv)
+			menu->addItem(new CMenuOptionChooser(LOCALE_CI_USE, &zapitBouquet->bUseCI, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 		menu->exec(NULL, "");
 		delete menu;
@@ -313,6 +334,21 @@ int CBouquetList::doMenu()
 		if (zapitBouquet && (old_epg != zapitBouquet->bScanEpg)) {
 			save_bouquets = true;
 			CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+			ret = -1;
+		}
+		if (zapitBouquet && (old_ci != zapitBouquet->bUseCI)) {
+			channels = &zapitBouquet->tvChannels;
+			for(int li = 0; li < (int) channels->size(); li++)
+				(*channels)[li]->bUseCI = zapitBouquet->bUseCI;
+
+			channels = &zapitBouquet->radioChannels;
+			for(int li = 0; li < (int) channels->size(); li++)
+				(*channels)[li]->bUseCI = zapitBouquet->bUseCI;
+
+			CServiceManager::getInstance()->SetCIFilter();
+			save_bouquets = true;
+			CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+			ret = -1;
 		}
 
 		printf("CBouquetList::doMenu: %d selected\n", select);
@@ -342,7 +378,7 @@ int CBouquetList::doMenu()
 			}
 		}
 	}
-	return 0;
+	return ret;
 }
 
 const struct button_label CBouquetListButtons[4] =
@@ -394,7 +430,7 @@ int CBouquetList::show(bool bShowChannelList)
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "");
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 
-	width  = w_max (need_width, 20);//500
+	width  = w_max (need_width, 20);
 	height = h_max (16 * fheight, 40);
 
 	footerHeight = std::max(h_max_icon+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8);
@@ -512,7 +548,7 @@ int CBouquetList::show(bool bShowChannelList)
 				int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 				int new_selected = selected + step;
 				if (new_selected >= (int) Bouquets.size()) {
-					if ((Bouquets.size() - listmaxshow -1 < selected) && (selected != (Bouquets.size() - 1)) && (step != 1))
+					if (((Bouquets.size() - listmaxshow -1 < selected) && (step != 1)) || (selected != (Bouquets.size() - 1)))
 						new_selected = Bouquets.size() - 1;
 					else if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
 						new_selected = 0;
@@ -638,9 +674,19 @@ void CBouquetList::paintItem(int pos)
 			if (iw && ih) {
 				int icon_x = (x+width-2) - RADIUS_LARGE/2 - iw;
 				frameBuffer->paintIcon(NEUTRINO_ICON_EPG, icon_x - iw, ypos, fheight);
-				iw = iw + 12 + RADIUS_LARGE/2;
+				iw = iw + 4 + RADIUS_LARGE/2;
 			}
 		}
+		if (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bUseCI) {
+			int iw2;
+			frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED2, &iw2, &ih);
+			if (iw2 && ih) {
+				int icon_x = (x+width-2) - RADIUS_LARGE/2 - iw - iw2 - 2;
+				frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED2, icon_x - iw2, ypos, fheight);
+				iw = iw + iw2 + 4 + RADIUS_LARGE/2;
+			}
+		}
+
 		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
 

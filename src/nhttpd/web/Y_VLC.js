@@ -1,6 +1,6 @@
-/*	VLC abstraction by yjogol@online.de
-	$Date$
-	$Revision$
+/*	VLC abstraction by yjogol
+	$Date: $
+	$Revision: $
 */
 /*ie1=ActiveC, moz1=Mozilla<0.8.5.1, moz2>= 0.8.5.1*/
 var CyVLC = function(_id, masterid, width, height) {
@@ -29,14 +29,14 @@ CyVLC.prototype = {
 		this.c_masterid = masterid;
 		this.c_width = width;
 		this.c_height = height;
-		if(!is_ie) {
+		if(!isIE) {
 			this.version_string = this._get_version();
 			this._generate_sub_versions();
 			this._determine_plugin_generation();
 		}
 		this.insert_control();
 		this.vlc = id(_id);
-		if(is_ie) {
+		if(isIE) {
 			this.version_string = this._get_version();
 			this._generate_sub_versions();
 			this._determine_plugin_generation();
@@ -44,55 +44,68 @@ CyVLC.prototype = {
 		this.set_resolution(this.c_width, this.c_height);
 	},
 	_get_version : function() {
-		if(is_ie)
+		if(isIE)
 		{
 			var vstr = this.vlc.VersionInfo;
 			var words = vstr.split(" ");
 			return words[0];
 		}
-		else
-			if (navigator.plugins && (navigator.plugins.length > 0)) {
-				var name = "VLC";
-				for(var i=0;i<navigator.plugins.length;++i) 
-					if (navigator.plugins[i].name.indexOf(name) != -1) 
-						var plug = navigator.plugins[navigator.plugins[i].name];
-
-				if(typeof plug != 'undefined') {
-					var Suche = /(PLUGIN)/gi;
-					var Ergebnis = Suche.test(plug.description);
-					if (Ergebnis == true){
-						var ex = /^.*[pP]lugin [\"]*([^ \"]*)[\"]*.*$/;
-						var ve = ex.exec(plug.description);
-					}else{
-						var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
-						var ve = ex.exec(plug.description);
+		else if (navigator.plugins && (navigator.plugins.length > 0)) {
+				var numPlugins = navigator.plugins.length;
+				var plug_version = "0.0.0";
+				for(var i = 0; i < numPlugins; i++) {
+					var plugin = navigator.plugins[i];
+					var numTypes = plugin.length;
+					for (var j = 0; j < numTypes; j++)
+					{
+						var mimetype = plugin[j];
+						if (mimetype) {
+							if (mimetype.type.indexOf("application/x-vlc-plugin") != -1) {
+								if(plugin.version != 0){
+									plug_version = plugin.version;
+									break;
+								}
+								else
+								{
+									var Suche = /(PLUGIN)/gi;
+									var Ergebnis = Suche.test(plugin.description);
+									if (Ergebnis == true){
+										var ex = /^.*[pP]lugin [\"]*([^ \"]*)[\"]*.*$/;
+										var ve = ex.exec(plugin.description);
+									}else{
+										var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
+										var ve = ex.exec(plugin.description);
+									}
+									var Suche = /([0-9])/g;
+									var Ergebnis = Suche.test(ve);
+									if (Ergebnis == true)
+										plug_version = ve[1];
+									break;
+								}
+							}
+						}
 					}
 				}
-				var Suche = /([0-9])/g;
-				var Ergebnis = Suche.test(ve);
-				if (Ergebnis == true)
-						return ve[1];
-					else
-					return "0.0.0";
-			}
-			else
-				return "0.0.0";
+				return plug_version;
+		}
+		else
+			return "0.0.0";
 	},
 	_generate_sub_versions : function() {
-		if(this.version_string == "")
-			return
+		if(this.version_string === "")
+			return;
 		var ex = /([^\.]*)[\.]*([^\.]*)[\.]*([^\.-]*)[\.-]*([^\.]*).*$/;
 		var ve = ex.exec(this.version_string);
 		if(ve.length >1)	this.version_level1 = ve[1];
 		if(ve.length >2)	this.version_level2 = ve[2];
-		if(ve.length >3 && ve[3] != "")	this.version_level3 = ve[3];
-		if(ve.length >4 && ve[4] != "")	this.version_level4 = ve[4];
+		if(ve.length >3 && ve[3] !== "")	this.version_level3 = ve[3];
+		if(ve.length >4 && ve[4] !== "")	this.version_level4 = ve[4];
 	},
 	_determine_plugin_generation : function() {
-		if(is_ie)
+		if(isIE)
 			this.plugin = "ie1";
 		else
-			if(this.version_level1 <= "0" && this.version_level2 <= "8" && this.version_level3 <= "5")
+			if(this.version_level1 <= 0 && this.version_level2 <= 8 && this.version_level3 <= 5)
 				this.plugin = "moz1";
 			else
 				this.plugin = "moz2";
@@ -230,7 +243,7 @@ CyVLC.prototype = {
 	insert_control : function()
 	{
 		var vlc_control_html = "";
-		if(is_ie) {
+		if(isIE) {
 			vlc_control_html =
 				"<object classid=\"clsid:E23FE9C6-778E-49D4-B537-38FCDE4887D8\" " +
 /*				"<object classid=\"clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921\" " +*/

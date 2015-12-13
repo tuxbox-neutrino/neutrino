@@ -62,8 +62,6 @@ class CInfoViewer
 	int            InfoHeightY;
 	bool	       fileplay;
 
-	int            BoxStartX;
-	int            BoxStartY;
 	int            ButtonWidth;
 
         // dimensions of radiotext window
@@ -83,7 +81,8 @@ class CInfoViewer
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CSectionsdClient::CurrentNextInfo oldinfo;
-        t_channel_id   channel_id;
+        t_channel_id   current_channel_id;
+        t_channel_id   current_epg_id;
 
 	//uint32_t           fadeTimer;
 	COSDFader	fader;
@@ -108,6 +107,7 @@ class CInfoViewer
 	uint32_t lcdUpdateTimer;
 
 	void paintBackground(int col_Numbox);
+	void paintHead();
 	void show_Data( bool calledFromEvent = false );
 	void display_Info(const char *current, const char *next, bool UTF8 = true,
 			  bool starttimes = true, const int pb_pos = -1,
@@ -145,6 +145,8 @@ class CInfoViewer
 	char     aspectRatio;
 	uint32_t sec_timer_id;
 
+	int	BoxStartX;
+	int	BoxStartY;
 	int      BoxEndX;
 	int      BoxEndY;
 	int      ChanInfoX;
@@ -160,7 +162,6 @@ class CInfoViewer
 
 	void	start();
 	void	showEpgInfo();
-	void	showTitle(const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false, int epgpos = 0, char *pname=NULL); // Channel must be UTF-8 encoded
 	void	showTitle(CZapitChannel * channel, const bool calledFromNumZap = false, int epgpos = 0);
 	void	showTitle(t_channel_id channel_id, const bool calledFromNumZap = false, int epgpos = 0);
 	void lookAheadEPG(const int ChanNum, const std::string & Channel, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false); //alpha: fix for nvod subchannel update
@@ -179,6 +180,7 @@ class CInfoViewer
 	bool    SDT_freq_update;
 	void	setUpdateTimer(uint64_t interval);
 	uint32_t getUpdateTimer(void) { return lcdUpdateTimer; }
+	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
 };
 #if 0
 class CInfoViewerHandler : public CMenuTarget

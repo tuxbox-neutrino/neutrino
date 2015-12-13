@@ -37,6 +37,7 @@
 
 #define COL_MAXFREE			254-8*12 - 1
 #define COL_NEUTRINO_TEXT		254-8*12	// 24 values
+#define COL_INFOBAR_CASYSTEM		254-8*10
 #define COL_COLORED_EVENTS_CHANNELLIST	254-8*9
 #define COL_COLORED_EVENTS_INFOBAR	254-8*8
 #define COL_INFOBAR_SHADOW		254-8*7
@@ -56,6 +57,8 @@
 #define COL_INFOBAR_PLUS_1              (COL_INFOBAR + 1)
 #define COL_INFOBAR_PLUS_3              (COL_INFOBAR + 3)
 #define COL_INFOBAR_PLUS_7              (COL_INFOBAR + 7)
+#define COL_INFOBAR_CASYSTEM_PLUS_0     (COL_INFOBAR_CASYSTEM + 0)
+#define COL_INFOBAR_CASYSTEM_PLUS_2     (COL_INFOBAR_CASYSTEM + 2)
 #define COL_MENUHEAD_PLUS_0             (COL_MENUHEAD + 0)
 #define COL_MENUCONTENT_PLUS_0          (COL_MENUCONTENT + 0)
 #define COL_MENUCONTENT_PLUS_1          (COL_MENUCONTENT + 1)
@@ -78,6 +81,8 @@
 #define COL_INFOBAR_PLUS_1              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 1)])
 #define COL_INFOBAR_PLUS_3              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 3)])
 #define COL_INFOBAR_PLUS_7              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 7)])
+#define COL_INFOBAR_CASYSTEM_PLUS_0     (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR_CASYSTEM + 0)])
+#define COL_INFOBAR_CASYSTEM_PLUS_2     (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR_CASYSTEM + 2)])
 #define COL_MENUHEAD_PLUS_0             (CFrameBuffer::getInstance()->realcolor[(COL_MENUHEAD + 0)])
 #define COL_MENUCONTENT_PLUS_0          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 0)])
 #define COL_MENUCONTENT_PLUS_1          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 1)])

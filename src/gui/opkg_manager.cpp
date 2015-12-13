@@ -82,7 +82,7 @@ static const std::string pkg_types[OM_MAX] =
 
 COPKGManager::COPKGManager()
 {
-	width = w_max (80, 10); //%
+	width = 80;
 	pkg_map.clear();
 	list_installed_done = false;
 	list_upgradeable_done = false;
@@ -199,6 +199,7 @@ static std::string bad_pattern[] = {
 	"-gconv-",
 	"-localedata-",
 	"^locale-base-",
+	"^perl-module-",
 	""
 };
 
@@ -273,7 +274,7 @@ int COPKGManager::showMenu()
 	getPkgData(OM_LIST_UPGRADEABLE);
 
 	menu = new CMenuWidget(g_Locale->getText(LOCALE_SERVICEMENU_UPDATE), NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
-	menu->addIntroItems(LOCALE_OPKG_TITLE);
+	menu->addIntroItems(LOCALE_OPKG_TITLE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_BACK, CMenuWidget::BRIEF_HINT_YES);
 
 	upgrade_forwarder = new CMenuForwarder(LOCALE_OPKG_UPGRADE, true, NULL , this, pkg_types[OM_UPGRADE].c_str(), CRCInput::RC_red);
 	upgrade_forwarder->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_UPGRADE);

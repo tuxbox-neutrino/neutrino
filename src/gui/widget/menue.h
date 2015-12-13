@@ -46,6 +46,7 @@
 #include <gui/components/cc.h>
 #include <string>
 #include <vector>
+#include <neutrino_menue.h>
 extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
@@ -354,7 +355,7 @@ struct CMenuOptionChooserCompareItem: public std::binary_function <const CMenuOp
 	};
 };
 
-class CMenuOptionChooser : public CAbstractMenuOptionChooser
+class CMenuOptionChooser : public CAbstractMenuOptionChooser, public sigc::trackable
 {
 	public:
 		struct keyval
@@ -429,7 +430,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 		int getWidth(void);
 		void setOptions(const struct keyval * const Options, const unsigned Number_Of_Options);
 		void setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options);
-
+		sigc::signal<void> OnAfterChangeOption;
 		int paint(bool selected);
 
 		int exec(CMenuTarget* parent);
@@ -516,6 +517,7 @@ class CMenuWidget : public CMenuTarget
 		int			full_width, full_height;
 		bool			savescreen;
 		bool			has_hints; // is any items has hints
+		bool			brief_hints;
 		bool			hint_painted; // is hint painted
 
 		int			fbutton_width;
@@ -527,7 +529,7 @@ class CMenuWidget : public CMenuTarget
 		unsigned int		current_page;
 		unsigned int		total_pages;
 		bool			exit_pressed;
-		bool			from_wizard;
+		int			from_wizard;
 		bool			fade;
 		bool			washidden;
 		int			nextShortcut;
@@ -556,7 +558,12 @@ class CMenuWidget : public CMenuTarget
 			BTN_TYPE_NEXT	= 3,
 			BTN_TYPE_NO	= -1
 		};
-		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK );
+		enum
+		{
+			BRIEF_HINT_NO	= 0,
+			BRIEF_HINT_YES	= 1
+		};
+		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO);
 		bool hasItem();
 		void resetWidget(bool delete_items = false);
 		void insertItem(const uint& item_id, CMenuItem* menuItem);
@@ -568,12 +575,12 @@ class CMenuWidget : public CMenuTarget
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual const char *getName();
-		virtual void integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut=CRCInput::RC_nokey);
-		void setSelected(const int &Preselected){ preselected = Preselected; };
+		virtual void integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut=CRCInput::RC_nokey, bool enabled=true);
+		void setSelected(const int &Preselected){ selected = Preselected; };
 		int getSelected()const { return selected; };
 		void move(int xoff, int yoff);
 		int getSelectedLine(void)const {return exit_pressed ? -1 : selected;};
-		void setWizardMode(bool _from_wizard) { from_wizard = _from_wizard;};		
+		void setWizardMode(int _from_wizard) { from_wizard = _from_wizard;};
 		void enableFade(bool _enable) { fade = _enable; };
 		void enableSaveScreen(bool enable);
 		void paintHint(int num);

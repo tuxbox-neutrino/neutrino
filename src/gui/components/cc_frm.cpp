@@ -250,6 +250,11 @@ int CComponentsForm::genIndex()
 
 CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 {
+	if (cc_item_id >= size()){
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: parameter cc_item_id = %u, out of range (size = %u)...\n", __func__, __LINE__, cc_item_id, size());
+		return NULL;
+	}
+
 	if (v_cc_items[cc_item_id])
 		return v_cc_items[cc_item_id];
 	return NULL;
@@ -363,6 +368,7 @@ void CComponentsForm::paintCCItems()
 
 	//using of real x/y values to paint items if this text object is bound in a parent form
 	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = width;
+	int w_parent_frame = 0;
 	if (cc_parent){
 		this_x = auto_x = cc_xr;
 		this_y = auto_y = cc_yr;
@@ -404,15 +410,15 @@ void CComponentsForm::paintCCItems()
 		//assign item object
 		CComponentsItem *cc_item = v_cc_items[i];
 
-		dprintf(DEBUG_INFO, "[CComponentsForm] %s: page_count = %u, item_page = %u, cur_page = %u\n", __func__, getPageCount(), cc_item->getPageNumber(), this->cur_page);
-
-		//get current dimension of item
-		int w_item = cc_item->getWidth();
-		int h_item = cc_item->getHeight();
+		dprintf(DEBUG_DEBUG, "[CComponentsForm] %s: page_count = %u, item_page = %u, cur_page = %u\n", __func__, getPageCount(), cc_item->getPageNumber(), this->cur_page);
 
 		//get current position of item
 		int xpos = cc_item->getXPos();
 		int ypos = cc_item->getYPos();
+
+		//get current dimension of item
+		int w_item = cc_item->getWidth() - (xpos <= fr_thickness ? fr_thickness : 0);
+		int h_item = cc_item->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
 
 		//check item for corrupt position, skip current item if found problems
 		if (ypos > height || xpos > this_w){
@@ -422,38 +428,51 @@ void CComponentsForm::paintCCItems()
 				continue;
 		}
 
+		//move item x-position, if we have a frame on parent, TODO: other constellations not considered at the moment
+		w_parent_frame = xpos <= fr_thickness ? fr_thickness : 0;
+
 		//set required x-position to item:
 		//append vertical
 		if (xpos == CC_APPEND){
 			auto_x += append_x_offset;
-			cc_item->setRealXPos(auto_x + xpos);
+			cc_item->setRealXPos(auto_x + xpos + w_parent_frame);
 			auto_x += w_item;
 		}
 		//positionize vertical centered
 		else if (xpos == CC_CENTERED){
 			auto_x =  this_w/2 - w_item/2;
-			cc_item->setRealXPos(this_x + auto_x);
+			cc_item->setRealXPos(this_x + auto_x + w_parent_frame);
 		}
 		else{
-			cc_item->setRealXPos(this_x + xpos);
+			cc_item->setRealXPos(this_x + xpos + w_parent_frame);
 			auto_x = (cc_item->getRealXPos() + w_item);
 		}
+
+		//move item y-position, if we have a frame on parent, TODO: other constellations not considered at the moment
+		w_parent_frame = ypos <= fr_thickness ? fr_thickness : 0;
 
 		//set required y-position to item
 		//append hor
 		if (ypos == CC_APPEND){
 			auto_y += append_y_offset;
-			cc_item->setRealYPos(auto_y + ypos);
+			cc_item->setRealYPos(auto_y + ypos + w_parent_frame);
 			auto_y += h_item;
 		}
 		//positionize hor centered
 		else if (ypos == CC_CENTERED){
 			auto_y =  height/2 - h_item/2;
-			cc_item->setRealYPos(this_y + auto_y);
+			cc_item->setRealYPos(this_y + auto_y + w_parent_frame);
 		}
 		else{
-			cc_item->setRealYPos(this_y + ypos);
+			cc_item->setRealYPos(this_y + ypos + w_parent_frame);
 			auto_y = (cc_item->getRealYPos() + h_item);
+		}
+
+		//reduce corner radius, if we have a frame around parent item, ensure matching corners inside of embedded item, this avoids ugly unpainted spaces between frame and item border
+		//TODO: other constellations not considered at the moment
+		if (w_parent_frame){
+			if(xpos <= fr_thickness || ypos <= fr_thickness)
+				cc_item->setCorner(max(0, cc_item->getCornerRadius()-w_parent_frame), cc_item->getCornerType());
 		}
 
 		//These steps check whether the element can be painted into the container.
@@ -535,14 +554,14 @@ void CComponentsForm::setPageCount(const u_int8_t& pageCount)
 
 u_int8_t CComponentsForm::getPageCount()
 {
-	u_int8_t num = 0;
+	u_int8_t num = 1;
 	for(size_t i=0; i<v_cc_items.size(); i++){
 		u_int8_t item_num = v_cc_items[i]->getPageNumber();
 		num = max(item_num, num);
 	}
 
 	//convert type, possible -Wconversion warnings!
-	page_count = static_cast<u_int8_t>(num + 1);
+	page_count = static_cast<u_int8_t>(num);
 
 	return page_count;
 }
@@ -608,9 +627,14 @@ CComponentsItem* CComponentsForm::getSelectedItemObject()
 
 void CComponentsForm::ScrollPage(int direction, bool do_paint)
 {
+	if (getPageCount() == 1){
+		cur_page = 0;
+		return;
+	}
+
 	OnBeforeScrollPage();
 
-	int target_page_id = (int)getPageCount() - 1;
+	int target_page_id = (int)page_count - 1;
 	int target_page = (int)cur_page;
 	
 	if (direction == SCROLL_P_DOWN)

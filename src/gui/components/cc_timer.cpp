@@ -40,7 +40,10 @@ CComponentsTimer::CComponentsTimer( const int& interval)
 {
 	tm_thread 		= 0;
 	tm_interval		= interval;
-	startTimer();
+
+	sl = sigc::mem_fun(*this, &CComponentsTimer::stopTimer);
+	if (interval > 0)
+		startTimer();
 }
 
 CComponentsTimer::~CComponentsTimer()
@@ -52,17 +55,14 @@ CComponentsTimer::~CComponentsTimer()
 //thread handle
 void* CComponentsTimer::initTimerThread(void *arg)
 {
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
-	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
-
 	CComponentsTimer *timer = static_cast<CComponentsTimer*>(arg);
 
 	//start loop
 	while(timer) {
 		timer->mutex.lock();
 		timer->OnTimer();
-		timer->mutex.unlock();
 		mySleep(timer->tm_interval);
+		timer->mutex.unlock();
 	}
 
 	return 0;
@@ -73,14 +73,20 @@ bool CComponentsTimer::startTimer()
 {
 	void *ptr = static_cast<void*>(this);
 
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
+	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
+
 	if(!tm_thread) {
 		int res = pthread_create (&tm_thread, NULL, initTimerThread, ptr) ;
 		if (res != 0){
 			dprintf(DEBUG_NORMAL,"[CComponentsTimer]    [%s]  pthread_create  %s\n", __func__, strerror(errno));
 			return false;
 		}
+		dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer thread [%lu] created with interval = %d\n", __func__, tm_thread, tm_interval);
 	}
-	dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer thread [%lu] created with interval = %d\n", __func__, tm_thread, tm_interval);
+
+	//ensure kill of thread on any restart of neutrino
+	CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl);
 	return  true;
 }
 
@@ -99,6 +105,8 @@ bool CComponentsTimer::stopTimer()
 	}
 	if (thres == 0){
 		tm_thread = 0;
+		//ensure disconnect of unused slot
+		sl.disconnect();
 		return true;
 	}
 

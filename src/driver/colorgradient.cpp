@@ -171,4 +171,56 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 	return gradientBuf;
 }
 
+fb_pixel_t* CColorGradient::gradientColorToColor(fb_pixel_t start_col,fb_pixel_t end_col, fb_pixel_t *gradientBuf, int bSize, int mode, int /*intensity*/)
+{
+	if (gradientBuf == NULL) {
+		gradientBuf = (fb_pixel_t*) malloc(bSize * sizeof(fb_pixel_t));
+		if (gradientBuf == NULL) {
+			dprintf(DEBUG_NORMAL, "[%s:%d] malloc error\n", __func__, __LINE__);
+			return NULL;
+		}
+	}
+	memset((void*)gradientBuf, '\0', bSize * sizeof(fb_pixel_t));
+
+	int start_box = 0;
+	int end_box = bSize;
+
+	if (mode == gradientDark2Light) {
+		fb_pixel_t temp_col = start_col;
+		start_col = end_col;
+		end_col = temp_col;
+		}
+
+	uint8_t start_tr = (uint8_t)((start_col & 0xFF000000) >> 24);
+	uint8_t start_r  = (uint8_t)((start_col & 0x00FF0000) >> 16);
+	uint8_t start_g  = (uint8_t)((start_col & 0x0000FF00) >>  8);
+	uint8_t start_b  = (uint8_t) (start_col & 0x000000FF);
+
+	uint8_t end_tr = (uint8_t)((end_col & 0xFF000000) >> 24);
+	uint8_t end_r  = (uint8_t)((end_col & 0x00FF0000) >> 16);
+	uint8_t end_g  = (uint8_t)((end_col & 0x0000FF00) >>  8);
+	uint8_t end_b  = (uint8_t) (end_col & 0x000000FF);
+
+	float steps = (float) bSize;
+
+	float trStep = (float)(end_tr - start_tr) / steps;
+	float rStep = (float)(end_r - start_r) / steps;
+	float gStep = (float)(end_g - start_g) / steps;
+	float bStep = (float)(end_b - start_b) / steps;
+
+	for (int i = start_box; i < end_box; i++) {
+
+		uint8_t tr = limitChar((int)((float)start_tr + trStep*(float)i));
+		uint8_t r  = limitChar((int)((float)start_r + rStep*(float)i));
+		uint8_t g  = limitChar((int)((float)start_g + gStep*(float)i));
+		uint8_t b  = limitChar((int)((float)start_b + bStep*(float)i));
+
+		gradientBuf[i] = ((tr << 24) & 0xFF000000) |
+			         ((r  << 16) & 0x00FF0000) |
+			         ((g  <<  8) & 0x0000FF00) |
+			         ( b         & 0x000000FF);
+	}
+	return gradientBuf;
+}
+
 //printf("[%s #%d] factor_v: %f, factor_s: %f, v: 0x%02X, s: 0x%02X\n", __func__, __LINE__, factor_v, factor_s, v, s);

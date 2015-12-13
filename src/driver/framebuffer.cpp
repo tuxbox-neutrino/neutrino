@@ -59,7 +59,6 @@ extern cVideo * videoDecoder;
 
 extern CPictureViewer * g_PicViewer;
 #define ICON_CACHE_SIZE 1024*1024*2 // 2mb
-#define ICONDIR_VAR "/var/tuxbox/icons/"
 
 #define BACKGROUNDIMAGEWIDTH 720
 
@@ -1010,10 +1009,10 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	uint16_t	 width, height;
 	int	      lfd;
 
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_RDONLY);
 
 	if (lfd == -1) {
-		printf("paintIcon8: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
+		printf("paintIcon8: error while loading icon: %s/%s\n", iconBasePath.c_str(), filename.c_str());
 		return false;
 	}
 
@@ -1066,16 +1065,16 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	/* we cache and check original name */
 	it = icon_cache.find(filename);
 	if(it == icon_cache.end()) {
-		std::string newname = std::string(ICONDIR_VAR) + filename + ".png";
+		std::string newname = std::string(ICONSDIR_VAR) + "/" + filename + ".png";
 		if (access(newname.c_str(), F_OK))
-			newname = iconBasePath + filename + ".png";
+			newname = iconBasePath + "/" + filename + ".png";
 		if (filename.find("/", 0) != std::string::npos)
 			newname = filename;
 		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
 
-		if(data) {
+		if(data) { //TODO: intercepting of possible full icon cache, that could cause strange behavior while painting of uncached icons
 			int dsize = width*height*sizeof(fb_pixel_t);
 			//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
 			if(cache_size+dsize < ICON_CACHE_SIZE) {
@@ -1089,9 +1088,9 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			goto _display;
 		}
 
-		newname = std::string(ICONDIR_VAR) + filename + ".raw";
+		newname = std::string(ICONSDIR_VAR) + "/" + filename + ".raw";
 		if (access(newname.c_str(), F_OK))
-			newname = iconBasePath + filename + ".raw";
+			newname = iconBasePath + "/" + filename + ".raw";
 
 		int lfd = open(newname.c_str(), O_RDONLY);
 
@@ -1183,10 +1182,10 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 	struct rgbData rgbdata;
 	int	    lfd;
 
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_RDONLY);
 
 	if (lfd == -1) {
-		printf("error while loading palette: %s%s\n", iconBasePath.c_str(), filename.c_str());
+		printf("error while loading palette: %s/%s\n", iconBasePath.c_str(), filename.c_str());
 		return;
 	}
 
@@ -1489,11 +1488,11 @@ bool CFrameBuffer::loadPictureToMem(const std::string & filename, const uint16_t
 
 //printf("%s(%d, %d, memp)\n", __FUNCTION__, width, height);
 
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY );
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_RDONLY );
 
 	if (lfd == -1)
 	{
-		printf("error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
+		printf("error while loading icon: %s/%s\n", iconBasePath.c_str(), filename.c_str());
 		return false;
 	}
 
@@ -1545,11 +1544,11 @@ bool CFrameBuffer::savePictureFromMem(const std::string & filename, const fb_pix
 	header.height_hi = height >>    8;
 	header.transp    =	      0;
 
-	lfd = open((iconBasePath + filename).c_str(), O_WRONLY | O_CREAT, 0644);
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_WRONLY | O_CREAT, 0644);
 
 	if (lfd==-1)
 	{
-		printf("error while saving icon: %s%s", iconBasePath.c_str(), filename.c_str() );
+		printf("error while saving icon: %s/%s", iconBasePath.c_str(), filename.c_str() );
 		return false;
 	}
 
@@ -1614,7 +1613,7 @@ bool CFrameBuffer::loadBackgroundPic(const std::string & filename, bool show)
 		delete[] background;
 		background = NULL;
 	}
-	background = g_PicViewer->getImage(iconBasePath + filename, BACKGROUNDIMAGEWIDTH, 576);
+	background = g_PicViewer->getImage(iconBasePath + "/" + filename, BACKGROUNDIMAGEWIDTH, 576);
 
 	if (background == NULL) {
 		background=0;
@@ -1797,17 +1796,23 @@ void CFrameBuffer::Clear()
 	paintBackground();
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
-#if 0 
-//never used
+
 void CFrameBuffer::showFrame(const std::string & filename)
 {
-	std::string varpath = CONFIGDIR "/neutrino/icons/";
-	if(!access((varpath + filename).c_str(), F_OK))
-		videoDecoder->ShowPicture((varpath + filename).c_str());
-	else
-		videoDecoder->ShowPicture((iconBasePath + filename).c_str());
+	std::string picture = std::string(ICONSDIR_VAR) + "/" + filename;
+	if (access(picture.c_str(), F_OK))
+		picture = iconBasePath + "/" + filename;
+	if (filename.find("/", 0) != std::string::npos)
+		picture = filename;
+
+	videoDecoder->ShowPicture(picture.c_str());
 }
-#endif
+
+void CFrameBuffer::stopFrame()
+{
+	videoDecoder->StopPicture();
+}
+
 bool CFrameBuffer::Lock()
 {
 	if(locked)

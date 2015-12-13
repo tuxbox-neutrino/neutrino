@@ -45,19 +45,13 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 		int			vcr_video_out_signal;
 		int			prev_video_mode;
 		
-		bool is_wizard;
+		int is_wizard;
 		
 		int width, selected;
 		int showVideoSetup();
 
 public:
-		enum VIDEO_SETUP_MODE
-		{
-			V_SETUP_MODE_WIZARD_NO   = 0,
-			V_SETUP_MODE_WIZARD   = 1
-		};
-		
-		CVideoSettings(bool wizard_mode = V_SETUP_MODE_WIZARD_NO);
+		CVideoSettings(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~CVideoSettings();
 		
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
@@ -69,8 +63,7 @@ public:
 		void setVideoSettings();
 		void setupVideoSystem(bool do_ask);
 		
-		bool getWizardMode() {return is_wizard;};
-		void setWizardMode(bool mode);
+		void setWizardMode(int mode) {is_wizard = mode;};
 		
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };

@@ -47,6 +47,7 @@
 #include <gui/widget/messagebox.h>
 #include <gui/osd_setup.h>
 
+#include <driver/display.h>
 #include <driver/screen_max.h>
 #include <driver/display.h>
 
@@ -69,7 +70,7 @@ extern cVideo *pipDecoder;
 extern int prev_video_mode;
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
-CVideoSettings::CVideoSettings(bool wizard_mode)
+CVideoSettings::CVideoSettings(int wizard_mode)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 
@@ -78,7 +79,7 @@ CVideoSettings::CVideoSettings(bool wizard_mode)
 	SyncControlerForwarder = NULL;
 	VcrVideoOutSignalOptionChooser = NULL;
 
-	width = w_max (35, 20);
+	width = 35;
 	selected = -1;
 
 	prev_video_mode = g_settings.video_Mode;
@@ -728,11 +729,4 @@ void CVideoSettings::nextMode(void)
 	}
 	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName(), g_RemoteControl->getCurrentChannelNumber());
 	//ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
-}
-
-//sets menu mode to "wizard" or "default"
-void CVideoSettings::setWizardMode(bool mode)
-{
-	printf("[neutrino VideoSettings] %s set video settings menu to mode %d...\n", __FUNCTION__, mode);
-	is_wizard = mode;
 }

@@ -191,7 +191,7 @@ typedef enum
 } MB_SHOW_MODE;
 
 #define MB_MAX_ROWS LF_MAX_ROWS
-#define MB_MAX_DIRS 5
+#define MB_MAX_DIRS NETWORK_NFS_NR_OF_ENTRIES
 /* MB_SETTINGS to be stored in g_settings anytime ....*/
 typedef struct
 {
@@ -308,6 +308,8 @@ class CMovieBrowser : public CMenuTarget
 		bool m_showMovieInfo;
 		bool m_showFilter;
 		bool newHeader;
+		bool m_doRefresh;
+		bool m_doLoadMovies;
 
 		MI_MOVIE_INFO* m_movieSelectionHandler;
 		int m_currentStartPos;
@@ -328,6 +330,10 @@ class CMovieBrowser : public CMenuTarget
 		CMovieInfo m_movieInfo;
 		MB_SETTINGS m_settings;
 		std::vector<MB_DIR> m_dir;
+
+		CFileList filelist;
+		CFileList::iterator filelist_it;
+		P_MI_MOVIE_LIST movielist;
 
 		CComponentsChannelLogo* CChannelLogo;
 
@@ -419,7 +425,8 @@ class CMovieBrowser : public CMenuTarget
 		void onSetGUIWindow(MB_GUI gui);
 		void onSetGUIWindowNext(void);
 		void onSetGUIWindowPrev(void);
-		void onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skipAsk = false);  // P4
+		bool onDelete(bool cursor_only = false);
+		bool onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk = false);  // P4
 		bool onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& pv_handle_list, MB_INFO_ITEM sort_type, MB_DIRECTION direction);
 
 		///// parse Storage Directories /////////////
@@ -432,6 +439,7 @@ class CMovieBrowser : public CMenuTarget
 		///// Menu ////////////////////////////////////
 		bool showMenu(bool calledExternally = false);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
+		int showMovieCutMenu(); // P2
 		int  showStartPosSelectionMenu(void); // P2
 
 		///// settings ///////////////////////////////////
@@ -538,14 +546,13 @@ typedef enum
 	DIR_STATE_DISABLED = 4
 } DIR_STATE;
 
-#define MAX_DIR 10
 class CDirMenu : public CMenuWidget
 {
 	private:
 		std::vector<MB_DIR>* dirList;
-		DIR_STATE dirState[MAX_DIR];
-		std::string dirOptionText[MAX_DIR];
-		int dirNfsMountNr[MAX_DIR];
+		DIR_STATE dirState[MB_MAX_DIRS];
+		std::string dirOptionText[MB_MAX_DIRS];
+		int dirNfsMountNr[MB_MAX_DIRS];
 		bool changed;
 
 		void updateDirState(void);

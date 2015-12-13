@@ -28,6 +28,10 @@ if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
 endif
 
+if USE_PUGIXML
+PUGIXML_LIBS = -lpugixml
+endif
+
 if USE_TREMOR
 VORBISLIBS = @VORBISIDEC_LIBS@
 else
@@ -49,6 +53,7 @@ ADEC_LIBS = @SWRESAMPLE_LIBS@
 else
 ADEC_LIBS = @MAD_LIBS@ \
 	@ID3TAG_LIBS@ \
+	@SWRESAMPLE_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS)
 endif
@@ -60,6 +65,11 @@ MTDUTILSLIBS = \
 	system/mtdutils/libneutrino_system_mtdutils.a \
 	system/mtdutils/lib/libneutrino_system_mtdutils_lib.a
 endif
+
+#if ENABLE_LUA
+LUALIBS = \
+	gui/lua/libneutrino_gui_lua.a
+#endif
 
 neutrino_LDADD = \
 	daemonc/libneutrino_daemonc.a \
@@ -73,6 +83,7 @@ neutrino_LDADD = \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
 	gui/components/libneutrino_gui_components.a \
+	$(LUALIBS) \
 	eitd/libsectionsd.a \
 	gui/volumebar.o \
 	driver/libneutrino_driver.a \
@@ -81,7 +92,7 @@ neutrino_LDADD = \
 	timerd/libtimerd.a \
 	zapit/src/libzapit.a \
 	nhttpd/libnhttpd.a \
-	nhttpd/tuxboxapi/coolstream/libnhttpd_tuxboxapi.a \
+	nhttpd/tuxboxapi/libnhttpd_tuxboxapi.a \
 	nhttpd/yhttpd_mods/libyhttpdmods.a \
 	nhttpd/yhttpd_core/libyhttpd.a \
 	system/libneutrino_system.a \
@@ -92,6 +103,7 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/connection/libtuxbox-connection.a \
 	$(top_builddir)/lib/libeventserver/libtuxbox-eventserver.a \
 	$(top_builddir)/lib/xmltree/libtuxbox-xmltree.a \
+	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
 	$(top_builddir)/lib/libnet/libtuxbox-net.a \
 	$(top_builddir)/lib/libmd5sum/libtuxbox-md5sum.a \
 	$(top_builddir)/lib/libtuxtxt/libtuxtxt.a \
@@ -107,6 +119,7 @@ neutrino_LDADD = \
 	@AVCODEC_LIBS@ \
 	$(ADEC_LIBS) \
 	@SIGC_LIBS@ \
+	$(PUGIXML_LIBS) \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \

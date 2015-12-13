@@ -13,7 +13,6 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/src/nhttpd/yhttpd_core \
 	-I$(top_srcdir)/src/nhttpd/yhttpd_mods \
 	-I$(top_srcdir)/src/nhttpd/tuxboxapi \
-	-I$(top_srcdir)/src/nhttpd/tuxboxapi/coolstream \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \

@@ -91,6 +91,7 @@ printf("url is %s\n", URL.c_str());
 		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, (long)1);
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1800);
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10);
+		curl_easy_setopt(curl, CURLOPT_FAILONERROR, true);
 #ifdef DEBUG
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
 #endif
@@ -124,5 +125,5 @@ printf("download code %d\n", res);
 		fclose(headerfile);
 	}
 
-	return res==0;
+	return res==CURLE_OK;
 }

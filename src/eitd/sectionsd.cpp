@@ -37,7 +37,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/time.h>
-
+#include <time.h>
 #include <connection/basicsocket.h>
 #include <connection/basicserver.h>
 
@@ -101,7 +101,7 @@ static bool messaging_zap_detected = false;
 //NTP-Config
 #define CONF_FILE CONFIGDIR "/neutrino.conf"
 
-std::string ntp_system_cmd_prefix = "ntpdate ";
+std::string ntp_system_cmd_prefix = find_executable("ntpdate") + " ";
 
 std::string ntp_system_cmd;
 std::string ntpserver;
@@ -133,6 +133,11 @@ OpenThreads::Mutex filter_mutex;
 static CTimeThread threadTIME;
 static CEitThread threadEIT;
 static CCNThread threadCN;
+
+#ifdef ENABLE_VIASATEPG
+// ViaSAT uses pid 0x39 instead of 0x12
+static CEitThread threadVSEIT("viasatThread", 0x39);
+#endif
 
 #ifdef ENABLE_FREESATEPG
 static CFreeSatThread threadFSEIT;
@@ -837,6 +842,10 @@ static void wakeupAll()
 {
 	threadCN.change(0);
 	threadEIT.change(0);
+#ifdef ENABLE_VIASATEPG
+	threadVSEIT.change(0);
+#endif
+
 #ifdef ENABLE_FREESATEPG
 	threadFSEIT.change(0);
 #endif
@@ -959,6 +968,9 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 		threadCN.setCurrentService(messaging_current_servicekey);
 		threadEIT.setDemux(cmd->dnum);
 		threadEIT.setCurrentService(uniqueServiceKey /*messaging_current_servicekey*/);
+#ifdef ENABLE_VIASATEPG
+		threadVSEIT.setCurrentService(messaging_current_servicekey);
+#endif
 #ifdef ENABLE_FREESATEPG
 		threadFSEIT.setCurrentService(messaging_current_servicekey);
 #endif
@@ -1371,12 +1383,12 @@ void CTimeThread::waitForTimeset(void)
 void CTimeThread::setSystemTime(time_t tim)
 {
 	struct timeval tv;
-
+	struct tm t;
 	time_t now = time(NULL);
-	struct tm *tmTime = localtime(&now);
+	struct tm *tmTime = localtime_r(&now, &t);
 
 	gettimeofday(&tv, NULL);
-	timediff = (int64_t)tim * (int64_t)1000000 - (tv.tv_usec + tv.tv_sec * (int64_t)1000000);
+	timediff = int64_t(tim * 1000000 - (tv.tv_usec + tv.tv_sec * 1000000));
 
 	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
 			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
@@ -1392,8 +1404,8 @@ void CTimeThread::setSystemTime(time_t tim)
 		return;
 	if (timeset && abs(tim - tv.tv_sec) < 120) { /* abs() is int */
 		struct timeval oldd;
-		tv.tv_sec = timediff / 1000000LL;
-		tv.tv_usec = timediff % 1000000LL;
+		tv.tv_sec = time_t(timediff / 1000000LL);
+		tv.tv_usec = suseconds_t(timediff % 1000000LL);
 		if (adjtime(&tv, &oldd))
 			xprintf("adjtime(%d, %d) failed: %m\n", (int)tv.tv_sec, (int)tv.tv_usec);
 		else {
@@ -1725,6 +1737,11 @@ void CEventsThread::processSection()
 /********************************************************************************/
 CEitThread::CEitThread()
 	: CEventsThread("eitThread")
+{
+}
+
+CEitThread::CEitThread(std::string tname, unsigned short pid)
+	: CEventsThread(tname, pid)
 {
 }
 
@@ -2107,7 +2124,7 @@ static void *houseKeepingThread(void *)
 					if (*it == '/')
 						d.erase(it);
 				}
-				writeEventsToFile((char *)d.c_str());
+				writeEventsToFile(d.c_str());
 			}
 			ecount = 0;
 		}
@@ -2167,12 +2184,21 @@ bool CEitManager::Start()
 	max_events = config.epg_max_events;
 	epg_save_frequently = config.epg_save_frequently;
 
-	if (find_executable("ntpdate").empty())
-		ntp_system_cmd_prefix = "ntpd -n -q -p ";
+	if (find_executable("ntpdate").empty()){
+		ntp_system_cmd_prefix = find_executable("ntpd");
+		if (!ntp_system_cmd_prefix.empty()){
+			ntp_system_cmd_prefix += " -n -q -p ";
+			ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
+		}
+		else{
+			printf("[sectionsd] NTP Error: time sync not possible, ntpdate/ntpd not found\n");
+			ntpenable = false;
+		}
+	}
 
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
-	printf("[sectionsd] NTP: %s, server %s, command %s\n", ntpenable ? "enabled" : "disabled", ntpserver.c_str(), ntp_system_cmd_prefix.c_str());
+	printf("[sectionsd] NTP: %s, command %s\n", ntpenable ? "enabled" : "disabled", ntp_system_cmd.c_str());
 
 	xml_epg_filter = readEPGFilter();
 
@@ -2228,6 +2254,9 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 	threadTIME.Start();
 	threadEIT.Start();
 	threadCN.Start();
+#ifdef ENABLE_VIASATEPG
+	threadVSEIT.Start();
+#endif
 
 #ifdef ENABLE_FREESATEPG
 	threadFSEIT.Start();
@@ -2266,6 +2295,9 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 	threadEIT.StopRun();
 	threadCN.StopRun();
 	threadTIME.StopRun();
+#ifdef ENABLE_VIASATEPG
+	threadVSEIT.StopRun();
+#endif
 #ifdef ENABLE_SDT
 	threadSDT.StopRun();
 #endif
@@ -2294,6 +2326,10 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 
 	xprintf("join CN\n");
 	threadCN.Stop();
+#ifdef ENABLE_VIASATEPG
+	xprintf("join VSEIT\n");
+	threadVSEIT.Stop();
+#endif
 
 #ifdef ENABLE_SDT
 	xprintf("join SDT\n");
@@ -2313,7 +2349,7 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 }
 
 /* was: commandAllEventsChannelID sendAllEvents */
-void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search, std::string search_text,bool all_chann)
+void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search, std::string search_text,bool all_chann, int genre,int fsk)
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
 	if(!eList.empty() && search == 0)//skip on search mode
@@ -2353,6 +2389,22 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 					std::string eExtendedText = (*e)->getExtendedText();
 					std::transform(eExtendedText.begin(), eExtendedText.end(), eExtendedText.begin(), tolower);
 					copy = (eExtendedText.find(search_text) != std::string::npos);
+				}
+				if(copy && genre != 0xFF)
+				{
+					if((*e)->classifications.content==0)
+						copy=false;
+					if(copy && ((*e)->classifications.content < (genre & 0xf0 ) || (*e)->classifications.content > genre))
+						copy=false;
+				}
+				if(copy && fsk != 0)
+				{
+					if(fsk<0)
+					{
+						if( (*e)->getFSK() > abs(fsk))
+							copy=false;
+					}else if( (*e)->getFSK() < fsk)
+						copy=false;
 				}
 			}
 			if(copy) {
@@ -2768,9 +2820,6 @@ void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidl
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
 	{
 		uniqueNow = (*e)->get_channel_id();
-		if (IS_WEBTV(uniqueNow))
-			continue;
-
 
 		if (uniqueNow != uniqueOld)
 		{

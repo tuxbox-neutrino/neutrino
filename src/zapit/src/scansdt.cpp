@@ -237,8 +237,8 @@ uint8_t CSdt::FixServiceType(uint8_t type)
 {
 	if((type == 0x9A) || (type == 0x86) || (type==0xc3) ||
 			(type==0xc5) || (type==0xc6)  || (type == 0x11) ||
-			(type == 0x16) || (type == 0x19) || (type == 0x82) ||
-			(type == 0x87) || (type == 0xd3))
+			(type == 0x16) || (type == 0x19) || (type == 0x1f) ||
+			(type == 0x82) || (type == 0x87) || (type == 0xd3))
 		return 1;
 	return type;
 }

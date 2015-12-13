@@ -76,10 +76,11 @@ void CLanguage::setLanguage(std::string _language){
 	ConfigLanguage->loadConfig(language_dir + "/" + _language);
 	DefaultLanguage->loadConfig(language_dir + "/" + HTTPD_DEFAULT_LANGUAGE);
 
-	const char * path[2] = { CONFIGDIR "/locale/", DATADIR "/neutrino/locale/"};
+	const char * path[2] = { LOCALEDIR_VAR, LOCALEDIR };
 	for (int i = 0; i < 2; i++)
 	{
 		std::string filename = path[i];
+		filename += "/";
 		filename += g_settings.language;
 		filename += ".locale";
 
@@ -89,7 +90,7 @@ void CLanguage::setLanguage(std::string _language){
 		}
 		else if (i == 1) {
 			// load neutrino default language (should not happen)
-			NeutrinoLanguage->loadConfig(DATADIR "/neutrino/locale/english.locale", ' ');
+			NeutrinoLanguage->loadConfig(LOCALEDIR "/english.locale", ' ');
 		}
 	}
 }
@@ -103,6 +104,8 @@ std::string CLanguage::getTranslation(std::string id){
 		trans=NeutrinoLanguage->getString(id,"");
 	if(trans.empty())
 		trans=DefaultLanguage->getString(id,"");
+	if (trans.empty())
+		trans = "# " + id + " #";
 	return trans;
 }
 //-----------------------------------------------------------------------------

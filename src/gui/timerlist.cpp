@@ -341,7 +341,11 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 				data= &eventinfo;
 		}
 		else if (timerNew.eventType==CTimerd::TIMER_REMIND)
+		{
+			if (timerNew_message == "---")
+				return menu_return::RETURN_REPAINT;
 			data = (void*)timerNew_message.c_str();
+		}
 		else if (timerNew.eventType==CTimerd::TIMER_EXEC_PLUGIN)
 		{
 			if (timerNew_pluginName == "---")
@@ -383,6 +387,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		if(chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir)-1)) {
 			printf("[timerlist] new %s dir %s\n", action_str, timerlist[selected].recordingDir);
 		}
+		timer_recordingDir = timerlist[selected].recordingDir;
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "rec_dir2") {
@@ -391,6 +396,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		if(chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir)-1)) {
 			printf("[timerlist] new %s dir %s\n", action_str, timerNew.recordingDir);
 		}
+		timerNew_recordingDir = timerNew.recordingDir;
 		return menu_return::RETURN_REPAINT;
 	}
 	if (parent)
@@ -1051,12 +1057,9 @@ const CMenuOptionChooser::keyval MESSAGEBOX_NO_YES_OPTIONS[MESSAGEBOX_NO_YES_OPT
 int CTimerList::modifyTimer()
 {
 	CTimerd::responseGetTimer* timer=&timerlist[selected];
+	CTimerd::responseGetTimer t_old = timerlist[selected];
 	CMenuWidget timerSettings(LOCALE_TIMERLIST_MENUMODIFY, NEUTRINO_ICON_SETTINGS);
-	timerSettings.addItem(GenericMenuSeparator);
-	timerSettings.addItem(GenericMenuBack);
-	timerSettings.addItem(GenericMenuSeparatorLine);
-	timerSettings.addItem(new CMenuForwarder(LOCALE_TIMERLIST_SAVE, true, NULL, this, "modifytimer", CRCInput::RC_red));
-	timerSettings.addItem(GenericMenuSeparatorLine);
+	timerSettings.addIntroItems();
 
 	char type[80];
 	strcpy(type, convertTimerType2String(timer->eventType)); // UTF
@@ -1089,16 +1092,20 @@ int CTimerList::modifyTimer()
 
 	if (!strlen(timer->recordingDir))
 		strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timer->recordingDir)-1);
+	timer_recordingDir = timer->recordingDir;
 
-	bool recDirEnabled = (timer->eventType == CTimerd::TIMER_RECORD) && (g_settings.recording_type == RECORDING_FILE);
-	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer->recordingDir, this, "rec_dir1", CRCInput::RC_green);
+	bool recDirEnabled = (g_settings.recording_type == RECORDING_FILE); // obsolete?
+	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer_recordingDir, this, "rec_dir1", CRCInput::RC_green);
 
 	timerSettings.addItem(GenericMenuSeparatorLine);
 	timerSettings.addItem(m3);
 	timerSettings.addItem(m4);
 	timerSettings.addItem(m5);
-	timerSettings.addItem(GenericMenuSeparatorLine);
-	timerSettings.addItem(m6);
+	if (timer->eventType == CTimerd::TIMER_RECORD)
+	{
+		timerSettings.addItem(GenericMenuSeparatorLine);
+		timerSettings.addItem(m6);
+	}
 
 	CMenuWidget timerSettings_apids(LOCALE_TIMERLIST_APIDS, NEUTRINO_ICON_SETTINGS);
 	CTimerListApidNotifier apid_notifier(&timer_apids_dflt, &timer_apids_std, &timer_apids_ac3, &timer_apids_alt);
@@ -1106,16 +1113,18 @@ int CTimerList::modifyTimer()
 	timer_apids_std = (timer->apids & TIMERD_APIDS_STD) ? 1 : 0 ;
 	timer_apids_ac3 = (timer->apids & TIMERD_APIDS_AC3) ? 1 : 0 ;
 	timer_apids_alt = (timer->apids & TIMERD_APIDS_ALT) ? 1 : 0 ;
-	timerSettings_apids.addItem(GenericMenuSeparator);
-	timerSettings_apids.addItem(GenericMenuBack);
-	timerSettings_apids.addItem(GenericMenuSeparatorLine);
+	int t_old_apids_dflt = timer_apids_dflt;
+	int t_old_apids_std = timer_apids_std;
+	int t_old_apids_ac3 = timer_apids_ac3;
+	int t_old_apids_alt = timer_apids_alt;
+	timerSettings_apids.addIntroItems();
 	CMenuOptionChooser* ma1 = new CMenuOptionChooser(LOCALE_TIMERLIST_APIDS_DFLT, &timer_apids_dflt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, &apid_notifier);
 	timerSettings_apids.addItem(ma1);
-	CMenuOptionChooser* ma2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &timer_apids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, &apid_notifier);
+	CMenuOptionChooser* ma2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &timer_apids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
 	timerSettings_apids.addItem(ma2);
-	CMenuOptionChooser* ma3 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &timer_apids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, &apid_notifier);
+	CMenuOptionChooser* ma3 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &timer_apids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
 	timerSettings_apids.addItem(ma3);
-	CMenuOptionChooser* ma4 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_AC3, &timer_apids_ac3, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, &apid_notifier);
+	CMenuOptionChooser* ma4 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_AC3, &timer_apids_ac3, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
 	timerSettings_apids.addItem(ma4);
 	apid_notifier.setItems(ma1,ma2,ma3,ma4);
 	if (timer->eventType ==  CTimerd::TIMER_RECORD)
@@ -1123,7 +1132,33 @@ int CTimerList::modifyTimer()
 		timerSettings.addItem( new CMenuForwarder(LOCALE_TIMERLIST_APIDS, true, NULL, &timerSettings_apids ));
 	}
 
-	return timerSettings.exec(this,"");
+	int res = timerSettings.exec(this,"");
+
+	bool modified = (
+		   timer->alarmTime   != t_old.alarmTime
+		|| timer->stopTime    != t_old.stopTime
+		|| timer->eventRepeat != t_old.eventRepeat
+		|| timer->repeatCount != t_old.repeatCount
+	);
+	if (!modified && timer->eventType == CTimerd::TIMER_RECORD)
+	{
+		if (timer->recordingDir && t_old.recordingDir)
+			modified = strcmp(timer->recordingDir, t_old.recordingDir);
+		if (!modified)
+			modified = (
+				   t_old_apids_dflt != timer_apids_dflt
+				|| t_old_apids_std  != timer_apids_std
+				|| t_old_apids_ac3  != timer_apids_ac3
+				|| t_old_apids_alt  != timer_apids_alt
+			);
+	}
+	if (modified)
+	{
+		if (ShowMsg(LOCALE_TIMERLIST_SAVE, LOCALE_PERSONALIZE_APPLY_SETTINGS, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 20, true) == CMessageBox::mbrYes)
+			exec(NULL, "modifytimer");
+	}
+
+	return res;
 }
 
 int CTimerList::newTimer()
@@ -1139,15 +1174,13 @@ int CTimerList::newTimer()
 	timerNew.alarmTime = (time(NULL)/60)*60;
 	timerNew.stopTime = (time(NULL)/60)*60;
 	timerNew.channel_id = 0;
-	strcpy(timerNew.message, "");
+	strcpy(timerNew.message, "---");
 	timerNew_standby_on =false;
 	strncpy(timerNew.recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timerNew.recordingDir)-1);
 
 
 	CMenuWidget timerSettings(LOCALE_TIMERLIST_MENUNEW, NEUTRINO_ICON_SETTINGS);
-	timerSettings.addItem(GenericMenuSeparator);
-	timerSettings.addItem(GenericMenuBack);
-	timerSettings.addItem(GenericMenuSeparatorLine);
+	timerSettings.addIntroItems();
 	timerSettings.addItem(new CMenuForwarder(LOCALE_TIMERLIST_SAVE, true, NULL, this, "newtimer", CRCInput::RC_red));
 	timerSettings.addItem(GenericMenuSeparatorLine);
 
@@ -1206,8 +1239,8 @@ int CTimerList::newTimer()
 	mm.addItem(new CMenuForwarder(LOCALE_TIMERLIST_MODERADIO, true, NULL, &mcradio));
 	timerNew_channel_name = "---";
 	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_CHANNEL, true, timerNew_channel_name, &mm);
-
-	CMenuForwarder* m7 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, true,timerNew.recordingDir, this, "rec_dir2", CRCInput::RC_green);
+	timerNew_recordingDir = timerNew.recordingDir;
+	CMenuForwarder* m7 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, true, timerNew_recordingDir, this, "rec_dir2", CRCInput::RC_green);
 
 	CMenuOptionChooser* m8 = new CMenuOptionChooser(LOCALE_TIMERLIST_STANDBY, &timerNew_standby_on, TIMERLIST_STANDBY_OPTIONS, TIMERLIST_STANDBY_OPTION_COUNT, false);
 
@@ -1227,7 +1260,7 @@ int CTimerList::newTimer()
 					&timerSettings_stopTime.getValue());
 	CMenuOptionChooser* m0;
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2, CRCInput::RC_nokey, "", false, true);
+		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2, CRCInput::RC_nokey, "", true, true);
 	else
 		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, &TIMERLIST_TYPE_OPTIONS[1], TIMERLIST_TYPE_OPTION_COUNT-1, true, &notifier2);
 

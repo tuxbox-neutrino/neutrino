@@ -119,7 +119,7 @@ bool CNetworkService::changeNotify(const neutrino_locale_t /*OptionName*/, void 
 
 CNetworkServiceSetup::CNetworkServiceSetup()
 {
-	width = w_max (40, 10);
+	width = 40;
 	selected = -1;
 }
 
@@ -141,8 +141,8 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 {
 	int shortcut = 1;
 
-	CMenuWidget* setup = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width);
-	setup->setSelected(selected);
+	CMenuWidget* setup = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_SERVICES);
+
 	setup->addIntroItems(LOCALE_NETWORKMENU_SERVICES);
 
 	CNetworkService * items[SERVICE_COUNT];
@@ -195,7 +195,7 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 	}
 
 	int res = setup->exec (NULL, "");
-	selected = setup->getSelected();
+
 	delete setup;
 
 	for(unsigned i = 0; i < SERVICE_COUNT; i++)

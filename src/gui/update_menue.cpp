@@ -49,7 +49,7 @@
 
 CSoftwareUpdate::CSoftwareUpdate()
 {
-	width = w_max (40, 10);
+	width = 40;
 	fe = new CFlashExpert();
 }
 

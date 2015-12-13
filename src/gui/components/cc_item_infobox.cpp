@@ -95,23 +95,26 @@ void CComponentsInfoBox::setPicture(const char* picture_name)
 void CComponentsInfoBox::paintPicture()
 {
 	//ensure empty pic object
-	if (pic)
+	if (pic){
 		delete pic;
-	pic = NULL;
+		pic = NULL;
+	}
 
 	//exit if no image definied
 	if (pic_name.empty())
 		return;
 
 	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, "");
-	
-	//define icon
-	pic->setPicture(pic_name);
+	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, min(48, height-2*fr_thickness), pic_name); //NOTE: icons do not scale!
 
-	//fit icon into infobox
-	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
+
+	//set gradient behavior of pic object
+	if (col_body_gradient)
+		pic->doPaintBg(false);
+
+	//fit icon into frame
+	pic->setYPos(y+(height/2-pic->getHeight()/2));
 
 	//paint, but set visibility mode
 	pic->allowPaint(cc_allow_paint);
@@ -137,22 +140,25 @@ void CComponentsInfoBox::paint(bool do_save_bg)
  	if (!ct_text.empty()){
  		if (cctext)
 			delete cctext;
-		
-		cctext = new CComponentsText();
-		cctext->setText(ct_text, ct_text_mode, ct_font);
-		cctext->doPaintTextBoxBg(ct_paint_textbg);
-		cctext->doPaintBg(false);
-		cctext->setTextColor(ct_col_text);
-		cctext->enableTboxSaveScreen(save_tbox_screen);
-
-		//calculate vars for x-position and dimensions
-		int tx = x_offset + x_text + pic_w;
-		int tw = width - x_offset - pic_w - 2*fr_thickness;
-		int th = height-2*fr_thickness;
-		cctext->setDimensionsAll(tx, y_text, tw, th);
-
-		//paint, but set visibility mode
-		cctext->allowPaint(cc_allow_paint);
-		cctext->paint(CC_SAVE_SCREEN_NO);
+		cctext = NULL;
 	}
+
+	if (cctext == NULL)
+		cctext = new CComponentsText();
+
+	cctext->setText(ct_text, ct_text_mode, ct_font);
+	cctext->doPaintTextBoxBg(ct_paint_textbg);
+	cctext->doPaintBg(false);
+	cctext->setTextColor(ct_col_text);
+	cctext->enableTboxSaveScreen(save_tbox_screen);
+
+	//calculate vars for x-position and dimensions
+	int tx = x_offset + x_text + pic_w;
+	int tw = width - x_offset - pic_w - 2*fr_thickness;
+	int th = height-2*fr_thickness;
+	cctext->setDimensionsAll(tx, y_text, tw, th);
+
+	//paint, but set visibility mode
+	cctext->allowPaint(cc_allow_paint);
+	cctext->paint(CC_SAVE_SCREEN_NO);
 }

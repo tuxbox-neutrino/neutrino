@@ -35,7 +35,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
-
+#include <driver/display.h>
 #include <driver/screen_max.h>
 #include <driver/display.h>
 #include <system/debug.h>
@@ -75,7 +75,7 @@ const struct button_label TestButtons[/*TestButtonsCount*/] =
 
 CTestMenu::CTestMenu()
 {
-	width = w_max (50, 10);
+	width = 50;
 	circle = NULL;
 	sq = NULL;
 	pic = chnl_pic = NULL;
@@ -316,6 +316,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
+#if 0 //some parts DEPRECATED
 	else if (actionKey.find("22kon") != std::string::npos)
 	{
 		int fnum = atoi(actionKey.substr(5, 1).c_str());
@@ -371,6 +372,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		scanTs.exec(NULL, "manual");
 		return res;
 	}
+#endif
 	else if (actionKey == "button"){
 		if (button == NULL)
 			button = new CComponentsButtonRed(100, 100, 100, 50, "Test");
@@ -408,7 +410,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "picture"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 100, DATADIR "/neutrino/icons/mp3-5.jpg");
+			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/mp3-5.jpg");
 
 		if (!pic->isPainted() && !pic->isPicPainted())
 			pic->paint();
@@ -530,7 +532,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //		remove text item
 // 		header->removeCCItem(CComponentsHeader::CC_HEADER_ITEM_TEXT); //then remove text item
 //		create picture object with the last x position of text
-// 		CComponentsPicture *logo  = new CComponentsPicture(logo_x, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "/share/tuxbox/neutrino/icons/hint_tvmode.png");
+// 		CComponentsPicture *logo  = new CComponentsPicture(logo_x, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), ICONSDIR "/hint_tvmode.png");
 //		set the transparent background for picture item
 // 		logo->doPaintBg(false);
 //		insert the ne object
@@ -803,7 +805,7 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 #endif
 	widget->addItem(new CMenuForwarder("HDD", true, NULL, this, "hdd"));
 	widget->addItem(new CMenuForwarder("SD/MMC", true, NULL, this, "mmc"));
-
+#if 0 //some parts DEPRECATED
 	for (unsigned i = 0; i < sizeof(test_pos)/sizeof(int); i++) {
 		CServiceManager::getInstance()->InitSatPosition(test_pos[i], NULL, true);
 	}
@@ -850,4 +852,5 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 		}
 	}
 	CFEManager::getInstance()->linkFrontends(true);
+#endif
 }

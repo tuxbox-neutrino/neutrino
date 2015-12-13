@@ -67,6 +67,14 @@ class CMoviePlayerGui : public CMenuTarget
 		    REW         =  6
 		};
 
+	enum
+		{
+		    PLUGIN_PLAYSTATE_NORMAL = 0,
+		    PLUGIN_PLAYSTATE_STOP   = 1,
+		    PLUGIN_PLAYSTATE_NEXT   = 2,
+		    PLUGIN_PLAYSTATE_PREV   = 3
+		};
+
 	enum repeat_mode_enum { REPEAT_OFF = 0, REPEAT_TRACK = 1, REPEAT_ALL = 2 };
 
  private:
@@ -80,6 +88,9 @@ class CMoviePlayerGui : public CMenuTarget
 	bool		playing;
 	bool		time_forced;
 	CMoviePlayerGui::state playstate;
+	int keyPressed;
+	bool isLuaPlay;
+	bool blockedFromPlugin;
 	int speed;
 	int startposition;
 	int position;
@@ -104,6 +115,8 @@ class CMoviePlayerGui : public CMenuTarget
 	int min_x, min_y, max_x, max_y;
 	time_t end_time;
 	bool ext_subs;
+	bool lock_subs;
+	uint64_t last_read;
 
 	/* playback from MB */
 	bool isMovieBrowser;
@@ -112,7 +125,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isWebTV;
 	bool isYT;
 	bool showStartingHint;
-	CMovieBrowser* moviebrowser;
+	static CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
 	MI_MOVIE_INFO movie_info;
 	P_MI_MOVIE_LIST milist;
@@ -131,16 +144,17 @@ class CMoviePlayerGui : public CMenuTarget
 	bool autoshot_done;
 
 	/* playback from bookmark */
-	CBookmarkManager * bookmarkmanager;
+	static CBookmarkManager * bookmarkmanager;
 	bool isBookmark;
 
-	OpenThreads::Mutex mutex;
+	static OpenThreads::Mutex mutex;
 	static OpenThreads::Mutex bgmutex;
 	static OpenThreads::Condition cond;
-	pthread_t bgThread;
+	static pthread_t bgThread;
 
-	cPlayback *playback;
+	static cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
+	static CMoviePlayerGui* instance_bg;
 
 	void Init(void);
 	void PlayFile();
@@ -148,7 +162,6 @@ class CMoviePlayerGui : public CMenuTarget
 	void PlayFileLoop();
 	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
-	void restoreNeutrino();
 
 	void showHelpTS(void);
 	void callInfoViewer();
@@ -161,10 +174,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool SelectFile();
 	void updateLcd();
 
-	void selectSubtitle();
 	bool convertSubtitle(std::string &text);
-	void showSubtitle(neutrino_msg_data_t data);
-	void clearSubtitle();
 	void selectChapter();
 	void selectAutoLang();
 	void parsePlaylist(CFile *file);
@@ -186,7 +196,7 @@ class CMoviePlayerGui : public CMenuTarget
  public:
 	~CMoviePlayerGui();
 
-	static CMoviePlayerGui& getInstance();
+	static CMoviePlayerGui& getInstance(bool background = false);
 
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
@@ -205,6 +215,15 @@ class CMoviePlayerGui : public CMenuTarget
 	void Pause(bool b = true);
 	void selectAudioPid();
 	bool SetPosition(int pos, bool absolute = false);
+	void selectSubtitle();
+	void showSubtitle(neutrino_msg_data_t data);
+	void clearSubtitle(bool lock = false);
+	int getKeyPressed() { return keyPressed; };
+	size_t GetReadCount();
+	std::string GetFile() { return pretty_name; }
+	void restoreNeutrino();
+	void setBlockedFromPlugin(bool b) { blockedFromPlugin = b; };
+	bool getBlockedFromPlugin() { return blockedFromPlugin; };
 };
 
 #endif

@@ -207,7 +207,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 #endif
 
 	frameBuffer->paintBackground();
-	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/scan.jpg");
+	frameBuffer->showFrame("scan.jpg");
 	g_Sectionsd->setPauseScanning(true);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
@@ -368,7 +368,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	hide();
 
 	CZapit::getInstance()->scanPids(scan_pids);
-	videoDecoder->StopPicture();
+	frameBuffer->stopFrame();
 	frameBuffer->Clear();
 	g_Sectionsd->setPauseScanning(false);
 	if (CNeutrinoApp::getInstance()->channelList)

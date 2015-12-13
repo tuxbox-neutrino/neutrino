@@ -3264,7 +3264,8 @@ void ConfigMenu(int Init)
 
 							for (i1=hotindex; i1<maxhotlist; i1++) /* move rest of list */
 							{
-								hotlist[i1] = hotlist[i1+1];
+								if(i1+1<maxhotlist)
+									hotlist[i1] = hotlist[i1+1];
 							}
 							maxhotlist--;
 							if (hotindex > maxhotlist)
@@ -4826,7 +4827,8 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 					for (Pitch = 0; Pitch < sbit->pitch; Pitch++)
 					{
 						if (sbit_diacrit->pitch > Pitch && sbit_diacrit->height > Row)
-							sbitbuffer[Row*sbit->pitch+Pitch] |= sbit_diacrit->buffer[Row*sbit->pitch+Pitch];
+							if((sbit_diacrit->pitch*sbit_diacrit->height) > (Row*sbit->pitch+Pitch))
+								sbitbuffer[Row*sbit->pitch+Pitch] |= sbit_diacrit->buffer[Row*sbit->pitch+Pitch];
 					}
 				}
 			}

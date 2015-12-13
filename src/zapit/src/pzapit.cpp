@@ -653,7 +653,7 @@ int main (int argc, char** argv)
 				std::vector<CZapitClient::responseGetBouquetChannels>::const_iterator ch_resp;
 				for (ch_resp = channels.begin(), channel = 1; ch_resp != channels.end(); ch_resp++, ++channel)
 					//std::cout << channel << ": " << ch_resp->name << ": " << ch_resp->channel_id<< std::endl;
-					printf("%3d: %s (%04x)\n", channel, ch_resp->name, (short) (ch_resp->channel_id &0xFFFF));
+					printf("%3u: %s (%04x)\n", channel, ch_resp->name, (short) (ch_resp->channel_id &0xFFFF));
 				return 0;
 			}
 		}

@@ -41,6 +41,7 @@
 
 #include <daemonc/remotecontrol.h>
 
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 

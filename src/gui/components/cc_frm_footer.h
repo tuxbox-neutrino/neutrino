@@ -69,6 +69,8 @@ class CComponentsFooter : public CComponentsHeader
 
 		///show button frame and background, default false
 		bool btn_contour;
+		///enable/disable button frame in icon color, predefined for red, green, yellow and blue, default disabled
+		bool btn_auto_frame_col;
 
 		///property: set font for label caption, see also setButtonFont()
 		Font* ccf_btn_font;
@@ -91,9 +93,12 @@ class CComponentsFooter : public CComponentsHeader
 		///add button labels with locale label type as content, count as size_t, chain_width as int, label width as int
 		void setButtonLabels(const struct button_label_l * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
 		///add button labels with locale label type as content, parameter 1 as vector, chain_width as int, label width as int
-		void setButtonLabels(const std::vector<button_label_l>v_content, const int& chain_width, const int& label_width);
+		void setButtonLabels(const std::vector<button_label_l> &v_content, const int& chain_width, const int& label_width);
 		///add button labels with string label type as content, parameter 1 as vector, chain_width as int, label width as int
-		void setButtonLabels(const std::vector<button_label_s>v_content, const int& chain_width, const int& label_width);
+		void setButtonLabels(const std::vector<button_label_s> &v_content, const int& chain_width, const int& label_width);
+
+		///enable/disable button frame in icon color, predefined for red, green, yellow and blue
+		inline void enableButtonFrameColor(bool enable = true){btn_auto_frame_col = enable;}
 
 		///add button labels with old label type, count as size_t, chain_width as int, label width as int
 		///NOTE: for compatibility with older button handler find in gui/widget/buttons.h, if possible, don't use this
@@ -133,6 +138,14 @@ class CComponentsFooter : public CComponentsHeader
 					Font* font = NULL,
 					bool do_save_bg = CC_SAVE_SCREEN_NO
 				);
+
+		enum
+		{
+			CC_FOOTER_SIZE_LARGE 	= 0,
+			CC_FOOTER_SIZE_SMALL 	= 1
+		};
+		///set size of footer, possible values are CC_FOOTER_SIZE_LARGE, CC_FOOTER_SIZE_SMALL
+		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();};
 };
 
 #endif

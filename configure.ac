@@ -85,6 +85,7 @@ TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
 if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
 fi
+TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 else
 TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 fi
@@ -164,6 +165,10 @@ AC_ARG_ENABLE(freesatepg,
 	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
 	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
 
+AC_ARG_ENABLE(viasatepg,
+	[  --enable-viasatepg                  enable ViaSat EPG code (experimental)],
+	[AC_DEFINE(ENABLE_VIASATEPG,1,[enable ViaSat EPG code])])
+
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
 	,[enable_giflib=no])
@@ -172,6 +177,17 @@ AM_CONDITIONAL(ENABLE_GIFLIB,test "$enable_giflib" = "yes")
 if test "$enable_giflib" = "yes"; then
 	AC_DEFINE(ENABLE_GIFLIB,1,[use giflib instead of libungif])
 fi
+
+### USE_PUGIXML
+AC_ARG_ENABLE(pugixml,
+       AS_HELP_STRING(--enable-pugixml,use pugixml instead of xmltree),
+       ,[enable_pugixml=no])
+
+AM_CONDITIONAL(USE_PUGIXML,test "$enable_pugixml" = "yes")
+if test "$enable_pugixml" = "yes"; then
+       AC_DEFINE(USE_PUGIXML,1,[use pugixml instead of xmltree])
+fi
+
 
 # FLAC - Free Lossless Audio Codec
 AC_ARG_ENABLE(flac,
@@ -289,6 +305,7 @@ lib/libeventserver/Makefile
 lib/libmd5sum/Makefile
 lib/libnet/Makefile
 lib/xmltree/Makefile
+lib/jsoncpp/Makefile
 lib/sectionsdclient/Makefile
 lib/timerdclient/Makefile
 lib/libcoolstream/Makefile
@@ -305,7 +322,6 @@ src/nhttpd/web/scripts/Makefile
 src/nhttpd/web/languages/Makefile
 src/nhttpd/web/styles/Makefile
 src/nhttpd/tuxboxapi/Makefile
-src/nhttpd/tuxboxapi/coolstream/Makefile
 src/nhttpd/yhttpd_core/Makefile
 src/nhttpd/yhttpd_mods/Makefile
 src/nhttpd/nhttpd.conf
@@ -317,6 +333,7 @@ src/driver/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
 src/gui/components/Makefile
+src/gui/lua/Makefile
 src/gui/widget/Makefile
 src/system/Makefile
 src/system/mtdutils/Makefile

@@ -65,7 +65,7 @@ CNFSMountGui::CNFSMountGui()
 	m_cifs_sup = CFSMounter::FS_UNPROBED;
 	m_lufs_sup = CFSMounter::FS_UNPROBED;
 	
-	width = w_max (50, 10); //%
+	width = 50;
 }
 
 std::string CNFSMountGui::getEntryString(int i)

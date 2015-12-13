@@ -157,14 +157,14 @@ TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
 TUXBOX_APPS_DIRECTORY_ONE(luaplugindir,LUAPLUGINDIR,libdir,/lib,/tuxbox/luaplugins,
 	[--with-luaplugindir=PATH   ],[where to find Lua plugins])
 
-TUXBOX_APPS_DIRECTORY_ONE(ucodedir,UCODEDIR,localstatedir,/var,/tuxbox/ucodes,
-	[--with-ucodedir=PATH    ],[where to find the ucodes])
+TUXBOX_APPS_DIRECTORY_ONE(localedir,LOCALEDIR,datadir,/share, /tuxbox/neutrino/locale,
+	[--with-localedir=PATH     ],[where to find the locale])
 
 TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share,/tuxbox/neutrino/themes,
-	[--with-themesdir=PATH   ],[where to find the themes (don't change)])
+	[--with-themesdir=PATH   ],[where to find the themes])
 
 TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share,/tuxbox/neutrino/icons,
-	[--with-iconsdir=PATH    ],[where to find the icons (don't change)])
+	[--with-iconsdir=PATH    ],[where to find the icons])
 
 TUXBOX_APPS_DIRECTORY_ONE(private_httpddir,PRIVATE_HTTPDDIR,datadir,/share,/tuxbox/neutrino/httpd,
 	[--with-private_httpddir=PATH   ],[where to find the the private httpd files])
@@ -185,7 +185,7 @@ AC_SUBST(LIBDIR)
 AC_SUBST(MNTDIR)
 AC_SUBST(PLUGINDIR)
 AC_SUBST(LUAPLUGINDIR)
-AC_SUBST(UCODEDIR)
+AC_SUBST(LOCALEDIR)
 AC_SUBST(THEMESDIR)
 AC_SUBST(ICONSDIR)
 AC_SUBST(PRIVATE_HTTPDDIR)

@@ -83,7 +83,7 @@ class CFlashExpert : public CProgressWindow
 		bool checkSize(int mtd, std::string &backupFile);
 #ifdef BOXMODEL_APOLLO
 		bool readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_devtable_t &v_devtable);
-		void readmtdJFFS2(std::string &filename);
+		void readmtdJFFS2(std::string &filename, std::string title="", std::string path="/", bool makeDevTable=true);
 #endif
 
 	public:

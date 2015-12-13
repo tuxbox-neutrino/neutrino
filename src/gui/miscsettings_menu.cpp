@@ -61,7 +61,7 @@ extern cVideo *videoDecoder;
 
 CMiscMenue::CMiscMenue()
 {
-	width = w_max (40, 10);
+	width = 40;
 
 	epg_save = NULL;
 	epg_save_standby = NULL;
@@ -72,26 +72,6 @@ CMiscMenue::CMiscMenue()
 
 CMiscMenue::~CMiscMenue()
 {
-	if (epg_save) {
-		delete epg_save;
-		epg_save = NULL;
-	}
-	if (epg_save_standby) {
-		delete epg_save_standby;
-		epg_save_standby = NULL;
-	}
-	if (epg_save_frequently) {
-		delete epg_save_frequently;
-		epg_save_frequently = NULL;
-	}
-	if (epg_read) {
-		delete epg_read;
-		epg_read = NULL;
-	}
-	if (epg_dir) {
-		delete epg_dir;
-		epg_dir = NULL;
-	}
 }
 
 int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)

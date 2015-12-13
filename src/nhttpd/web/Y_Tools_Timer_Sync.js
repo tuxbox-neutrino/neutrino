@@ -109,8 +109,6 @@ function processReqChange()
 			}
 			else if (document.f.planer[1].checked == true)
 			{
-				var agt=navigator.userAgent.toLowerCase();
-				var is_ie     = ((agt.indexOf("msie") != -1) && (agt.indexOf("opera") == -1));
 				var xml = g_req.responseXML;
 				var recProg_NodeList = xml.getElementsByTagName('item');
 				for(i=0;i<recProg_NodeList.length;i++)
@@ -119,7 +117,7 @@ function processReqChange()
 
 					var progName 		= getXMLNodeItemValue(recProg_Node, 'title');
 					var description 	= getXMLNodeItemValue(recProg_Node, 'description');
-//FF3?Probs					if(is_ie)
+//FF3?Probs					if(isIE)
 					{
 						var sDate	= getXMLNodeItemValue(recProg_Node, 'dc:date');
 						var sender	= getXMLNodeItemValue(recProg_Node, 'dc:subject');

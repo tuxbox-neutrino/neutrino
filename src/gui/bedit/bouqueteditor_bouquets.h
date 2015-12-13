@@ -38,7 +38,7 @@
 #include <zapit/client/zapitclient.h>
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
-
+#include <gui/components/cc.h>
 #include <string>
 
 /* class for handling when bouquets changed.                  */
@@ -57,7 +57,7 @@ class CBEBouquetWidget : public CMenuTarget
 	private:
 
 		CFrameBuffer	*frameBuffer;
-
+		CComponentsFooter footer;
 		enum
 		{
 			beDefault,

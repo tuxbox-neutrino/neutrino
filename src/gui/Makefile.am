@@ -6,14 +6,19 @@ version.h:
 	echo '#define BUILT_DATE "'`date`'"' > $@
 	@if test -d $(top_srcdir)/.git ; then \
 		pushd $(top_srcdir) ; \
-		GITDESCRIBE=$$(git describe --always --dirty || echo 'VCS failed') ; \
+		GITBRANCH=$$(git rev-parse --abbrev-ref HEAD) ; \
+		GITDESCRIBE=$$(git describe --always --tags --dirty || echo 'VCS failed') ; \
 		popd ; \
-		echo '#define VCS "'$${GITDESCRIBE}'"' >> $@ ; \
+		echo '#define VCS "'$${GITDESCRIBE} [$${GITBRANCH}]'"' >> $@ ; \
 	fi
 noinst_HEADERS = version.h
 .PHONY: version.h
 
 SUBDIRS = bedit components widget
+
+#if ENABLE_LUA
+SUBDIRS += lua
+#endif
 
 AM_CPPFLAGS += \
 	-I$(top_builddir) \
@@ -29,7 +34,6 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@SIGC_CFLAGS@ \
 	@CURL_CFLAGS@ \
-	@LUA_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
 	@HWLIB_CFLAGS@
@@ -112,9 +116,6 @@ if ENABLE_TESTING
 libneutrino_gui_a_SOURCES += \
 	test_menu.cpp
 endif
-
-libneutrino_gui_a_SOURCES += \
-	luainstance.cpp
 
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \

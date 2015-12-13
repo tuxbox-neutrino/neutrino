@@ -127,12 +127,13 @@ private:
 
 	int ChannelList_Rec;
 
-	CComponentsChannelLogo* CChannelLogo;
+	CComponentsChannelLogoScalable* CChannelLogo;
 	bool headerNew;
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
 	void paintItem2DetailsLine (int pos);
+	void paintAdditionals(int index);
 	void paintItem(int pos,const bool firstpaint = false);
 	bool updateSelection(int newpos);
 	void paintBody();
@@ -241,5 +242,6 @@ public:
 	};
 	unsigned Size() { return (*chanlist).size(); }
 	ZapitChannelList &getChannels() { return channels; };
+	bool checkLockStatus(neutrino_msg_data_t data, bool pip = false);
 };
 #endif

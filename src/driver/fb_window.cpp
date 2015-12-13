@@ -39,22 +39,44 @@ CFBWindow::CFBWindow(const int _x, const int _y, const int _dx, const int _dy)
 	dy = _dy;
 
 	frameBuffer = CFrameBuffer::getInstance();
-	Background = new fb_pixel_t [_dx * _dy];
-	if (Background != NULL)
-		frameBuffer->SaveScreen(_x, _y, _dx, _dy, Background);
-
+	Background = saveScreen(_x, _y, _dx, _dy);
 }
 
 CFBWindow::~CFBWindow(void)
 {
 	if (Background != NULL)
-		frameBuffer->RestoreScreen(x, y, dx, dy, Background);
-	delete[] Background;
+		restoreScreen(x, y, dx, dy, Background, true);
+}
+
+fb_pixel_t* CFBWindow::saveScreen(const int _x, const int _y, const int _dx, const int _dy)
+{
+	fb_pixel_t* buf = new fb_pixel_t [_dx * _dy];
+	if (buf != NULL)
+		frameBuffer->SaveScreen(_x, _y, _dx, _dy, buf);
+	return buf;
+}
+
+void CFBWindow::restoreScreen(const int _x, const int _y, const int _dx, const int _dy, fb_pixel_t* buf, bool delBuf)
+{
+	if (buf != NULL)
+		frameBuffer->RestoreScreen(_x, _y, _dx, _dy, buf);
+	if (delBuf)
+		delete[] buf;
 }
 
 void CFBWindow::paintBoxRel(const int _x, const int _y, const int _dx, const int _dy, const color_t _col, int radius, int type)
 {
 	frameBuffer->paintBoxRel(x + _x, y + _y, _dx, _dy, _col, radius, type);
+}
+
+void CFBWindow::paintVLineRel(int _x, int _y, int _dy, const color_t _col)
+{
+	frameBuffer->paintVLineRel(x + _x, y + _y, _dy, _col);
+}
+
+void CFBWindow::paintHLineRel(int _x, int _dx, int _y, const color_t _col)
+{
+	frameBuffer->paintHLineRel(x + _x, _dx, y + _y, _col);
 }
 
 bool CFBWindow::paintIcon(const char * const _filename, const int _x, const int _y, const int _h, const color_t _offset)

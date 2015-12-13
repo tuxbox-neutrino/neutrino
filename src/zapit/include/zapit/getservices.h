@@ -109,7 +109,7 @@ class CServiceManager
 
 		static void CopyFile(char * from, char * to);
 
-		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
+		bool InitSatPosition(t_satellite_position position, const char * name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
 		bool LoadServices(bool only_current);
 		void SaveServices(bool tocopy, bool if_changed = false, bool no_deleted = false);
 		void SaveMotorPositions();
@@ -178,5 +178,6 @@ class CServiceManager
 		transponder_list_t & GetTransponders() { return transponders; }
 		transponder_list_t & GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }
 		void KeepNumbers(bool enable) { keep_numbers = enable; };
+		void SetCIFilter(void);
 };
 #endif /* __getservices_h__ */

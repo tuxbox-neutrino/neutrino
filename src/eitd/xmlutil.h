@@ -35,7 +35,9 @@
 #include <zapit/types.h>
 
 void *insertEventsfromFile(void * data);
-void writeEventsToFile(char *epgdir);
+bool readEventsFromFile(std::string &epgname, int &ev_count);
+bool readEventsFromDir(std::string &epgdir, int &ev_count);
+void writeEventsToFile(const char *epgdir);
 
 bool readEPGFilter(void);
 void readDVBTimeFilter(void);

@@ -60,7 +60,7 @@ CMediaPlayerMenu::CMediaPlayerMenu()
 	setMenuTitel();
 	setUsageMode();
 
-	width = w_max (40, 10); //%
+	width = 40;
 	
 	audioPlayer 	= NULL;
 	inetPlayer 	= NULL;
@@ -111,10 +111,10 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		InfoClock->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if( mode == NeutrinoMessages::mode_radio )
-			videoDecoder->StopPicture();
+			CFrameBuffer::getInstance()->stopFrame();
 		int res = CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
 		if( mode == NeutrinoMessages::mode_radio )
-			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+			CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
 		audiomute->enableMuteIcon(true);
 		InfoClock->enableInfoClock(true);
 		return res;
@@ -167,6 +167,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		fw_inet->setHint(NEUTRINO_ICON_HINT_INET_RADIO, LOCALE_MENU_HINT_INET_RADIO);
 	}
 
+	bool enabled = !CMoviePlayerGui::getInstance().Playing();
 	if (usage_mode == MODE_DEFAULT)
 	{
 		//movieplayer
@@ -174,9 +175,9 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 			moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MOVIEPLAYER, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
 			personalize->addWidget(moviePlayer);
 			if (g_settings.easymenu)
-				fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_red);
+				fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, enabled, NULL, moviePlayer, NULL, CRCInput::RC_red);
 			else
-				fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow);
+				fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, enabled, NULL, moviePlayer, NULL, CRCInput::RC_yellow);
 			fw_mp->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MENU_HINT_MOVIE);
 		}
 
@@ -192,7 +193,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		if (!g_settings.easymenu) {
 			if (!upnpbrowsergui)
 				upnpbrowsergui = new CUpnpBrowserGui();
-			fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, upnpbrowsergui, NULL, CRCInput::RC_0);
+			fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, enabled, NULL, upnpbrowsergui, NULL, CRCInput::RC_0);
 			fw_upnp->setHint(NEUTRINO_ICON_HINT_A_PIC, LOCALE_MENU_HINT_UPNP);
 		}
 #endif
@@ -261,7 +262,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		
 		//add I_TYPE_MULTIMEDIA plugins
 		unsigned int nextShortcut = (unsigned int)media->getNextShortcut();
-		media->integratePlugins(CPlugins::I_TYPE_MULTIMEDIA, nextShortcut);
+		media->integratePlugins(CPlugins::I_TYPE_MULTIMEDIA, nextShortcut, enabled);
 
 		res = media->exec(NULL, "");
 		delete media;

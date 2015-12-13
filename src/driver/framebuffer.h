@@ -258,6 +258,7 @@ class CFrameBuffer
 
 		void Clear();
 		void showFrame(const std::string & filename);
+		void stopFrame();
 		bool loadBackgroundPic(const std::string & filename, bool show = true);
 		bool Lock(void);
 		void Unlock(void);

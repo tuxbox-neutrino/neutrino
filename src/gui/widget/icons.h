@@ -186,7 +186,8 @@
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE "mute_zap_gray"
 
 /* menu hints */
-#define NEUTRINO_ICON_HINT_BACK	"hint_back"
+#define NEUTRINO_ICON_HINT_BACK		"hint_back"
+#define NEUTRINO_ICON_HINT_NEXT		"hint_next"
 /* main menu */
 #define NEUTRINO_ICON_HINT_TVRADIO_SWITCH	"hint_tvradio_switch"
 #define NEUTRINO_ICON_HINT_TVMODE	"hint_tvmode"
@@ -291,7 +292,5 @@
 #define NEUTRINO_ICON_EPG		"epg"
 
 #define NEUTRINO_ICON_BUTTON_LONGPRESS	"longpress"
-
-#define NEUTRINO_ICON_VARPATH		"/var/share/tuxbox/neutrino/icons/"  //alternatively path for user-defined icons 
 
 #endif /* __gui_widget_icons_h__ */

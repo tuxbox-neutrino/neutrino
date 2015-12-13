@@ -96,6 +96,13 @@ namespace ZapitTools {
 			case '\'':
 				r += "&apos;";
 				break;
+			case 0x0a:
+				r +="&#x0a;";
+				break;
+			case 0x0d:
+				r +="&#x0d;";
+				break;
+
 			default:
 				r += *s;
 			}

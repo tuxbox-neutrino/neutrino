@@ -55,9 +55,13 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CComponentsShapeSquare *win_demo;
 		COnOffNotifier* colorInfoclockNotifier;
 		COnOffNotifier* screensaverNotifier;
+		COnOffNotifier* channellistNotifier;
+		COnOffNotifier* infobarHddNotifier;
+		CMenuOptionChooser * ca_dotmatrix;
+		CMenuOptionChooser * ca_frame;
 
 		int width;
-		bool is_wizard;
+		int is_wizard;
 		int show_menu_hints;
 		int show_tuner_icon;
 
@@ -93,13 +97,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 			INFOBAR_LOGO_SHADED
 		};
 		
-		enum OSD_SETUP_MODE
-		{
-			OSD_SETUP_MODE_WIZARD_NO   = 0,
-			OSD_SETUP_MODE_WIZARD   = 1
-		};
-		
-		COsdSetup(bool wizard_mode = OSD_SETUP_MODE_WIZARD_NO);
+		COsdSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~COsdSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);

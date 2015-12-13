@@ -28,6 +28,7 @@
 #include <zapit/getservices.h>
 #include <zapit/settings.h>
 #include <zapit/satconfig.h>
+#include <zapit/capmt.h>
 #include <xmlinterface.h>
 #include <math.h>
 #include <sys/time.h>
@@ -422,10 +423,10 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			t.dump("[zapit] duplicate in all transponders:");
 
 		/* read channels that belong to the current transponder */
-		ParseChannels(node->xmlChildrenNode, transport_stream_id, original_network_id, satellitePosition, freq, feparams.polarization, delsys);
+		ParseChannels(xmlChildrenNode(node), transport_stream_id, original_network_id, satellitePosition, freq, feparams.polarization, delsys);
 
 		/* hop to next transponder */
-		node = node->xmlNextNode;
+		node = xmlNextNode(node);
 	}
 	UpdateSatTransponders(satellitePosition);
 	return;
@@ -443,7 +444,10 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 	while ((node = xmlGetNextOccurence(node, "S")) != NULL) {
 		*have_ptr = 1;
 		t_service_id service_id = xmlGetNumericAttribute(node, "i", 16);
-		std::string name = xmlGetAttribute(node, "n");
+		std::string name;
+		const char *nptr = xmlGetAttribute(node, "n");
+		if(nptr)
+			name = nptr;
 		uint8_t service_type = xmlGetNumericAttribute(node, "t", 16);
 		uint16_t vpid = xmlGetNumericAttribute(node, "v", 16);
 		uint16_t apid = xmlGetNumericAttribute(node, "a", 16);
@@ -459,9 +463,10 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 			flags = CZapitChannel::UPDATED;
 
 		t_channel_id chid = CREATE_CHANNEL_ID64;
-		char *ptr = xmlGetAttribute(node, "action");
+		const char *ptr = xmlGetAttribute(node, "action");
 		bool remove = ptr ? (!strcmp(ptr, "remove") || !strcmp(ptr, "replace")) : false;
 		bool add    = ptr ? (!strcmp(ptr, "add")    || !strcmp(ptr, "replace")) : true;
+
 		if (remove) {
 			int result = allchans.erase(chid);
 			printf("[getservices]: %s '%s' (sid=0x%x): %s", add ? "replacing" : "removing",
@@ -471,7 +476,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				add = false;//dont replace not existing channel
 		}
 		if(!add) {
-			node = node->xmlNextNode;
+			node = xmlNextNode(node);
 			continue;
 		}
 		audio_map_set_t * pidmap = CZapit::getInstance()->GetSavedPids(chid);
@@ -524,7 +529,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				channel->type = vtype;
 			}
 		}
-		node = node->xmlNextNode;
+		node = xmlNextNode(node);
 	}
 	return;
 }
@@ -538,12 +543,12 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 		std::string delivery_name = xmlGetName(search);
 
 		if (delivery_name == "cable") {
-			char *name = xmlGetAttribute(search, "name");
+			const char *name = xmlGetAttribute(search, "name");
 			satellitePosition = GetSatellitePosition(name);
 			delsys = ALL_CABLE;
 		}
 		else if (delivery_name == "terrestrial") {
-			char *name = xmlGetAttribute(search, "name");
+			const char *name = xmlGetAttribute(search, "name");
 			satellitePosition = GetSatellitePosition(name);
 			delsys = ALL_TERR;
 		}
@@ -552,18 +557,18 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 			delsys = ALL_SAT;
 		}
 		else {
-			search = search->xmlNextNode;
+			search = xmlNextNode(search);
 			continue;
 		}
 #if 0
 		//t_satellite_position satellitePosition = xmlGetSignedNumericAttribute(search, "position", 10);
-		char * name = xmlGetAttribute(search, "name");
+		const char * name = xmlGetAttribute(search, "name");
 		t_satellite_position satellitePosition = GetSatellitePosition(name);
 #endif
 		INFO("going to parse dvb-%c provider %s", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
-		ParseTransponders(search->xmlChildrenNode, satellitePosition, delsys);
+		ParseTransponders(xmlChildrenNode(search), satellitePosition, delsys);
 		newfound++;
-		search = search->xmlNextNode;
+		search = xmlNextNode(search);
 	}
 }
 
@@ -574,7 +579,7 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 	fake_tid = fake_nid = 0;
 	satelliteTransponders[satellitePosition].clear();
 
-	xmlNodePtr tps = search->xmlChildrenNode;
+	xmlNodePtr tps = xmlChildrenNode(search);
 
 	while ((tps = xmlGetNextOccurence(tps, "transponder")) != NULL) {
 		memset(&feparams, 0x00, sizeof(FrontendParameters));
@@ -727,7 +732,7 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 
 		fake_nid ++; fake_tid ++;
 
-		tps = tps->xmlNextNode;
+		tps = xmlNextNode(tps);
 	}
 }
 
@@ -800,7 +805,7 @@ void CServiceManager::SaveMotorPositions()
 }
 #endif
 
-bool CServiceManager::InitSatPosition(t_satellite_position position, char * name, bool force, delivery_system_t delsys, uint16_t nid)
+bool CServiceManager::InitSatPosition(t_satellite_position position, const char * name, bool force, delivery_system_t delsys, uint16_t nid)
 {
 	if(force || (satellitePositions.find(position) == satellitePositions.end())) {
 		satellitePositions[position].position = position;
@@ -831,27 +836,28 @@ bool CServiceManager::LoadScanXml(delivery_system_t delsys)
 		/* fake position for non-satellite */
 		t_satellite_position position = 0;
 
-		xmlNodePtr search = xmlDocGetRootElement(scanInputParser)->xmlChildrenNode;
+		xmlNodePtr search = xmlDocGetRootElement(scanInputParser);
+		search = xmlChildrenNode(search);
 		while (search) {
 			std::string delivery_name = xmlGetName(search);
 			if (delivery_name == "sat") {
 				position = xmlGetSignedNumericAttribute(search, "position", 10);
-				char * name = xmlGetAttribute(search, "name");
+				const char * name = xmlGetAttribute(search, "name");
 				InitSatPosition(position, name, false, ALL_SAT);
 			} else if (delivery_name == "terrestrial") {
-				char * name = xmlGetAttribute(search, "name");
+				const char * name = xmlGetAttribute(search, "name");
 				position = fake_pos++;
 				position &= 0x0EFF;
 				InitSatPosition(position, name, false, ALL_TERR);
 			} else if(delivery_name == "cable") {
-				char * name = xmlGetAttribute(search, "name");
+				const char * name = xmlGetAttribute(search, "name");
 				position = fake_pos++;
 				InitSatPosition(position, name, false, ALL_CABLE, xmlGetNumericAttribute(search, "nid", 0));
 			} else {
 			}
 
 			ParseSatTransponders(delsys, search, position);
-			search = search->xmlNextNode;
+			search = xmlNextNode(search);
 		}
 		delete scanInputParser;
 		scanInputParser = NULL;
@@ -868,20 +874,9 @@ bool CServiceManager::LoadServices(bool only_current)
 	xmlDocPtr parser;
 	service_count = 0;
 	printf("[zapit] Loading services, channel size %d ..\n", (int)sizeof(CZapitChannel));
-	//frontendType = CFEManager::getInstance()->getLiveFE()->getInfo()->type;
-
-	std::list<std::string> *webtv_xml = CZapit::getInstance()->GetWebTVXML();
 
 	if(only_current)
 		goto do_current;
-
-#if 0 // FIXME: obsolete ?
-	static bool satcleared = 0;//clear only once, because menu is static
-	if(!satcleared) {
-		satellitePositions.clear();
-		satcleared = 1;
-	}
-#endif
 
 	TIMER_START();
 	allchans.clear();
@@ -911,9 +906,10 @@ bool CServiceManager::LoadServices(bool only_current)
 
 	parser = parseXmlFile(SERVICES_XML);
 	if (parser != NULL) {
-		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
+		xmlNodePtr search = xmlDocGetRootElement(parser);
+		search = xmlChildrenNode(search);
 		while (search) {
-			char * name = xmlGetAttribute(search, "name");
+			const char * name = xmlGetAttribute(search, "name");
 			t_satellite_position position;
 			std::string delivery_name = xmlGetName(search);
 			if (delivery_name == "sat") {
@@ -932,46 +928,11 @@ bool CServiceManager::LoadServices(bool only_current)
 			} else {
 			}
 
-			search = search->xmlNextNode;
+			search = xmlNextNode(search);
 		}
-		FindTransponder(xmlDocGetRootElement(parser)->xmlChildrenNode);
+		FindTransponder(xmlChildrenNode(xmlDocGetRootElement(parser)));
 		xmlFreeDoc(parser);
 	}
-
-	if (webtv_xml) {
-		for (std::list<std::string>::iterator it = webtv_xml->begin(); it != webtv_xml->end(); ++it) {
-			if (!access((*it).c_str(), R_OK)) {
-				INFO("Loading webtv from %s ...", (*it).c_str());
-				parser = parseXmlFile((*it).c_str());
-				if (parser == NULL)
-					continue;
-
-				xmlNodePtr l0 = xmlDocGetRootElement(parser);
-				xmlNodePtr l1 = l0->xmlChildrenNode;
-				if (l1) {
-					while ((xmlGetNextOccurence(l1, "webtv"))) {
-						char *title = xmlGetAttribute(l1, "title");
-						char *url = xmlGetAttribute(l1, "url");
-						char *desc = xmlGetAttribute(l1, "description");
-						if (title && url) {
-							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
-							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc);
-							AddChannel(channel);
-							channel->flags = CZapitChannel::UPDATED;
-						}
-
-						l1 = l1->xmlNextNode;
-					}
-				}
-				xmlFreeDoc(parser);
-			}
-		}
-	}
-#if 0
-	if (CFEManager::getInstance()->haveSat()) {
-		LoadMotorPositions();
-	}
-#endif
 
 	LoadProviderMap();
 	printf("[zapit] %d services loaded (%d)...\n", service_count, (int)allchans.size());
@@ -990,7 +951,7 @@ do_current:
 	if (CZapit::getInstance()->scanSDT() && (parser = parseXmlFile(CURRENTSERVICES_XML))) {
 		newfound = 0;
 		printf("[getservices] " CURRENTSERVICES_XML "  found.\n");
-		FindTransponder(xmlDocGetRootElement(parser)->xmlChildrenNode);
+		FindTransponder(xmlChildrenNode(xmlDocGetRootElement(parser)));
 		xmlFreeDoc(parser);
 		unlink(CURRENTSERVICES_XML);
 		if(newfound) {
@@ -1002,7 +963,7 @@ do_current:
 	if(!only_current) {
 		parser = parseXmlFile(MYSERVICES_XML);
 		if (parser != NULL) {
-			FindTransponder(xmlDocGetRootElement(parser)->xmlChildrenNode);
+			FindTransponder(xmlChildrenNode(xmlDocGetRootElement(parser)));
 			xmlFreeDoc(parser);
 		}
 	}
@@ -1295,15 +1256,16 @@ bool CServiceManager::LoadProviderMap()
 	replace_map.clear();
 	parser = parseXmlFile(PROVIDER_MAP_XML);
 	if (parser != NULL) {
-		xmlNodePtr node = xmlDocGetRootElement(parser)->xmlChildrenNode;
+		xmlNodePtr node = xmlDocGetRootElement(parser);
+		node = xmlChildrenNode(node);
 		while ((node = xmlGetNextOccurence(node, "TS")) != NULL) {
 			provider_replace replace;
 			replace.transport_stream_id = xmlGetNumericAttribute(node, "id", 16);
 			replace.original_network_id = xmlGetNumericAttribute(node, "on", 16);
 			replace.frequency = xmlGetNumericAttribute(node, "frq", 0);
 
-			char * name = xmlGetAttribute(node, "name");
-			char * newname = xmlGetAttribute(node, "newname");
+			const char * name = xmlGetAttribute(node, "name");
+			const char * newname = xmlGetAttribute(node, "newname");
 			if(name)
 				replace.name = name;
 			if(newname)
@@ -1313,7 +1275,7 @@ bool CServiceManager::LoadProviderMap()
 					replace.transport_stream_id, replace.original_network_id,
 					replace.frequency, replace.name.c_str(), replace.newname.c_str());
 			replace_map.push_back(replace);
-			node = node->xmlNextNode;
+			node = xmlNextNode(node);
 		}
 		xmlFreeDoc(parser);
 		return true;
@@ -1435,4 +1397,16 @@ bool CServiceManager::IsChannelTVChannel(const t_channel_id channel_id)
 	if(channel)
 		ret = (channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
 	return ret;
+}
+
+void CServiceManager::SetCIFilter()
+{
+	bool enable = false;
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		if (it->second.bUseCI) {
+			enable = true;
+			break;
+		}
+	}
+	CCamManager::getInstance()->EnableChannelFilter(enable);
 }

@@ -41,20 +41,44 @@
 #ifdef USE_LIBXML
 #include <libxml/parser.h>
 #define xmlNextNode next
-inline char*      xmlGetAttribute     (xmlNodePtr cur, const char * s) { return (char *)xmlGetProp(cur, (const xmlChar *)s); };
-inline char*      xmlGetName          (xmlNodePtr cur)                 { return (char *)(cur->name); };
+inline const char*      xmlGetAttribute     (xmlNodePtr cur, const char * s) { return (const char *)xmlGetProp(cur, (const xmlChar *)s); };
+inline const char*      xmlGetName          (xmlNodePtr cur)                 { return (const char *)(cur->name); };
+/* ------------------------------------------------ USE_PUGIXML ------------------------------------------------*/
+#elif  (defined( USE_PUGIXML ) )
+#include <pugixml.hpp>
+typedef pugi::xml_document *xmlDocPtr;
+typedef pugi::xml_node  xmlNodePtr;
+inline void       	xmlFreeDoc          (xmlDocPtr  doc)		     { delete doc; }
+inline const char*      xmlGetName          (const xmlNodePtr cur)	     { return cur.name();  }
+inline xmlNodePtr      	xmlNextNode         (xmlNodePtr cur)		     { return cur.next_sibling();  }
+inline xmlNodePtr      	xmlChildrenNode     (xmlNodePtr cur)		     { return cur.first_child();  }
+inline const char*      xmlGetData          (xmlNodePtr cur)		     { return cur.child_value();  }
 
+inline const char*      xmlGetAttribute     (const xmlNodePtr cur, const char *s)
+{
+	if(cur.attribute(s))
+		return cur.attribute(s).value();
+	else
+		return NULL;
+}
+
+inline xmlNodePtr xmlDocGetRootElement(xmlDocPtr  doc)
+{
+	xmlNodePtr firstNode = doc->root().first_child();
+	return firstNode;
+}
+/* ------------------------------------------------ END of USE_PUGIXML ------------------------------------------------*/
 #else  /* use libxmltree */
 #include "xmltree.h"
 typedef XMLTreeParser* xmlDocPtr;
 typedef XMLTreeNode*   xmlNodePtr;
-#define xmlChildrenNode GetChild()
-#define xmlNextNode     GetNext()
-inline xmlNodePtr xmlDocGetRootElement(xmlDocPtr  doc)                 { return doc->RootNode(); }
-inline void       xmlFreeDoc          (xmlDocPtr  doc)                 { delete doc; }
-inline char*      xmlGetAttribute     (xmlNodePtr cur, const char *s)  { return cur->GetAttributeValue(s); }
-inline char*      xmlGetName          (xmlNodePtr cur)                 { return cur->GetType();  }
-inline char*      xmlGetData          (xmlNodePtr cur)                 { return cur->GetData();  }
+inline xmlNodePtr      xmlChildrenNode      	(xmlNodePtr cur)                 { return cur->GetChild();  }
+inline xmlNodePtr      xmlNextNode          	(xmlNodePtr cur)                 { return cur->GetNext();  }
+inline xmlNodePtr 	xmlDocGetRootElement	(xmlDocPtr  doc)                 { return doc->RootNode(); }
+inline void       	xmlFreeDoc          	(xmlDocPtr  doc)                 { delete doc; }
+inline const char*      xmlGetAttribute     	(xmlNodePtr cur, const char *s)  { return cur->GetAttributeValue(s); }
+inline const char*      xmlGetName          	(xmlNodePtr cur)                 { return cur->GetType();  }
+inline const char*      xmlGetData          	(xmlNodePtr cur)                 { return cur->GetData();  }
 #endif /* USE_LIBXML */
 
 
@@ -66,7 +90,7 @@ std::string Unicode_Character_to_UTF8(const int character);
 
 std::string convert_UTF8_To_UTF8_XML(const char *s);
 
-xmlDocPtr parseXml(const char *data);
-xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence = true);
+xmlDocPtr parseXml(const char *data,const char *encoding = NULL);
+xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence = true,const char *encoding = NULL);
 
 #endif /* __xmlinterface_h__ */

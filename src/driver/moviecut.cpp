@@ -291,7 +291,7 @@ int CMovieCut::getInput()
 	int retval = 0;
 	g_RCInput->getMsg(&msg, &data, 1, false);
 	if (msg == CRCInput::RC_home) {
-		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, "Cancel movie cut/split ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIECUT_CANCEL, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
 			retval |= 4;
 	}
 	if (msg != CRCInput::RC_timeout)
@@ -316,14 +316,6 @@ bool CMovieCut::cutMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 	bool retval = false;
 	time_t tt = time(0);
 	time_t tt1;
-
-	unsigned char * buf = new unsigned char[BUF_SIZE];
-	if (buf == 0) {
-		perror("new");
-		return false;
-	}
-
-	paintProgress(true);
 
 	off64_t size = minfo->file.Size;
 	off64_t secsize = getSecondSize(minfo);
@@ -356,11 +348,18 @@ bool CMovieCut::cutMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 		printf("CMovieCut::%s: end bookmark %d at %" PRId64 "\n", __func__, bcount, books[bcount].pos);
 		bcount++;
 	}
-	printf("\n");
-	if (!bcount) {
-		delete [] buf;
+
+	if (!bcount)
+		return false;
+
+	unsigned char * buf = new unsigned char[BUF_SIZE];
+	if (buf == 0) {
+		perror("new");
 		return false;
 	}
+
+	paintProgress(true);
+
 	qsort(books, bcount, sizeof(struct mybook), compare_book);
 	for (int i = 0; i < bcount; i++) {
 		if (books[i].ok) {
@@ -528,6 +527,7 @@ bool CMovieCut::copyMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 			bcount++;
 		}
 	}
+
 	if (!bcount)
 		return false;
 

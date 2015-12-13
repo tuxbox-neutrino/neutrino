@@ -10,7 +10,7 @@ EPGPlus.bypage_mode Per pagina
 EPGPlus.head Programmagids overzicht (EPG Plus)
 EPGPlus.next_bouquet Volgende favorietenlijst
 EPGPlus.options Opties
-EPGPlus.page_down Pagina omlaag
+EPGPlus.page_down Pagina omlaag                                                        
 EPGPlus.page_up Pagina omhoog
 EPGPlus.prev_bouquet Vorige favorietenlijst
 EPGPlus.record Opnemen
@@ -294,6 +294,7 @@ colormenusetup.menuhead Menu kop
 colorstatusbar.text Infobalk 
 colorthememenu.head Selecteer thema
 colorthememenu.head2 Thema's laden
+colorthememenu.menu_hints Hint box
 colorthememenu.name Naam thema
 colorthememenu.neutrino_theme Neutrino Thema
 colorthememenu.question Geselecteerde thema gebruiken?
@@ -731,7 +732,7 @@ infoviewer.motor_moving Schotel positionering
 infoviewer.next Volgende
 infoviewer.nocurrent Geen informatie beschikbaar over huidige programma
 infoviewer.noepg EPG is niet beschikbaar
-infoviewer.notavailable Kanaal niet beschikbaar
+infoviewer.notavailable Geen of slecht antennesignaal
 infoviewer.now Nu
 infoviewer.selecttime Tijd selectie
 infoviewer.streaminfo Mogelijkheden
@@ -865,7 +866,7 @@ mainsettings.lcd Voorpaneel instellingen
 mainsettings.manage Beheer instellingen
 mainsettings.misc Diverse instellingen
 mainsettings.multimedia Multimedia
-mainsettings.network Netwerk
+mainsettings.network Netwerk instellingen
 mainsettings.osd OSD instellingen
 mainsettings.recording Opnemen
 mainsettings.savesettingsnow Instellingen opslaan
@@ -910,7 +911,6 @@ menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC stand-by
 menu.hint_cec_view_on CEC view ingeschakeld
 menu.hint_channellist_additional Extra informatie weergeven in hoofdvenster
-menu.hint_channellist_colored Gebruik andere kleur voor huidige of volgende programma
 menu.hint_channellist_epg_align EPG evenement uitlijnen
 menu.hint_channellist_extended Programma voortgang balk weergeven
 menu.hint_channellist_fonts Verander lettertype grote kanalenlijst
@@ -928,6 +928,8 @@ menu.hint_clock_seconds Toon tijdsformaat met secondes
 menu.hint_clock_size Stel grootte van de info klok in
 menu.hint_clock_textcolor Configureer digit kleuren
 menu.hint_color_gradient Schakel kleur verloop van menu items aan/uit
+menu.hint_colored_events Gebruik andere kleur voor huidige of volgende programma
+menu.hint_colored_events_textcolor Wijzig programma kleur voor gekleurde programma opties in kanalenlijst en infobalk.
 menu.hint_colors Configureer GUI-kleuren
 menu.hint_content_back Wijzig venster achtergrond kleur
 menu.hint_content_textcolor Wijzig venster tekst kleur
@@ -945,7 +947,6 @@ menu.hint_epg_save Cached EPG informatie opslaan op opslagmedium \nen laad de in
 menu.hint_epg_save_standby EPG opslaan in soft standby modus.
 menu.hint_epg_scan Selecteer te scannen EPG-bouquetten, tijdens zap,\nalle of geselecteerde favorieten
 menu.hint_epg_scan_mode Achtergrond EPG-scan door vrije tuner inschakelen
-menu.hint_event_textcolor Wijzig programma kleur voor gekleurde \nprogramma opties in kanalenlijst en infobalk.
 menu.hint_eventlist_additional Toon additionale infos\nin mainbox
 menu.hint_eventlist_fonts Wijzig lettertype grote in programma lijst
 menu.hint_eventlist_setup Configureer eventlijst GUI opties
@@ -981,7 +982,6 @@ menu.hint_inet_radio Internet radio
 menu.hint_info Informatie over firmware, ontvanger CPU,\nopslag en stream informatie
 menu.hint_infobar_back Wijzig achtergrond kleur van de infobalk
 menu.hint_infobar_casys Aan:  display all with colored active, mini: single\nlocked icon, descreet: all active ca-sys
-menu.hint_infobar_colored_event Gebruik andere kleur voor huidige programma en komende programma
 menu.hint_infobar_dd Dolbydigital icoon weergeven
 menu.hint_infobar_filesys Gebruikte schijfruimte van Flashgeheugen en HDD weergeven
 menu.hint_infobar_fonts Wijzig lettertype grote van de infobalk
@@ -1111,9 +1111,9 @@ menu.hint_net_proxypass Proxy wachtwoord\n(indien autorisatie vereist is)
 menu.hint_net_proxyserver Proxy servernaam
 menu.hint_net_proxyuser Proxy gebruikersnaam\n(indien autorisatie vereist is)
 menu.hint_net_services Configureer netwerkdiensten\n(Telnet, FTP, uPNP)
-menu.hint_net_setupnow Huidige instellingen toepassen
-menu.hint_net_setuponstartup Start netwerk tijdens het opstarten
-menu.hint_net_show Huidige netwerk instellingen weergeven
+menu.hint_net_setupnow Netwerk herstarten
+menu.hint_net_setuponstartup Netwerk interface
+menu.hint_net_show Netwerk instellingen weergeven
 menu.hint_net_ssid SSID van draadloos netwerk waarmee u \nverbinding wilt maken invoeren
 menu.hint_net_ssid_scan Zoek beschikbare WLAN netwerken
 menu.hint_net_telnet Telnet login op uw ontvanger inschakelen
@@ -1353,11 +1353,13 @@ messagebox.no Nee
 messagebox.ok Ok
 messagebox.yes Ja
 miscsettings.channellist Kanalenlijst
-miscsettings.channellist_colored_events Gekleurde programma's
 miscsettings.channellist_epgtext_align Uitlijning programma tekst
+miscsettings.colored_events Gekleurde programma's
 miscsettings.colored_events_0 Geen
 miscsettings.colored_events_1 Huidige
 miscsettings.colored_events_2 Straks
+miscsettings.colored_events_channellist In Kanalenlijst
+miscsettings.colored_events_infobar In Informatiebalk
 miscsettings.energy Energie
 miscsettings.epg_cache EPG-Cache (Dagen)
 miscsettings.epg_cache_hint1 Hoe ver in de toekomst wordt EPG informatie bewaard.
@@ -1389,15 +1391,14 @@ miscsettings.infobar Infobalk
 miscsettings.infobar_casystem_display CA-System weergeven
 miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet
-miscsettings.infobar_colored_events Gekleurde programma's
-miscsettings.infobar_disp_0 Zonder Logo
-miscsettings.infobar_disp_1 Logo in nummerbox
-miscsettings.infobar_disp_2 Logo + kanaalnummer
-miscsettings.infobar_disp_3 Logo + kanaalnaam + signaal
-miscsettings.infobar_disp_4 Logo + kanaalnaam/nummer 
-miscsettings.infobar_disp_5 Logo + signaal
-miscsettings.infobar_disp_6 Logo + kanaalnummer + signaal
-miscsettings.infobar_disp_log Logo
+miscsettings.infobar_disp Logo display
+miscsettings.infobar_disp_0 Kanaalnaam [Kanaalnummer]
+miscsettings.infobar_disp_1 Kanaalnummer, Kanaalnaam [Logo]
+miscsettings.infobar_disp_2 Logo [Kanaalnummer]
+miscsettings.infobar_disp_3 Logo, Kanaalnaam [Signaal]
+miscsettings.infobar_disp_4 Logo, Kanaalnaam [Kanaalnummer]
+miscsettings.infobar_disp_5 Logo [Signaal]
+miscsettings.infobar_disp_6 Kanaalnummer, Logo [Signaal]
 miscsettings.infobar_logo_hdd_dir Logo directory
 miscsettings.infobar_sat_display Satelliet weergeven op de infobalk
 miscsettings.infobar_show show Info wanneer EPG verandert
@@ -1666,18 +1667,18 @@ mpkey.subtitle Ondertitels
 mpkey.time Tijd weergeven
 networkmenu.apply_settings Wijzigingen worden toegepast... 
 networkmenu.apply_settings_now Wilt u de instellingen toepassen?
-networkmenu.broadcast Uitzending
+networkmenu.broadcast broadcast adres
 networkmenu.dhcp DHCP
 networkmenu.error_no_address Adres ontbreekt
 networkmenu.gateway Standaard gateway
-networkmenu.hostname Hostname
+networkmenu.hostname Hostnaam
 networkmenu.hostname_hint1 Hostnaam invoeren
 networkmenu.hostname_hint2 Opnieuw opstarten na wijzigingen
 networkmenu.inactive_network Netwerk inactief!
 networkmenu.ipaddress IP adres
-networkmenu.mount Bewerk netwerk locaties
+networkmenu.mount Beheer netwerklocaties
 networkmenu.nameserver Naamserver
-networkmenu.netmask Netmasker
+networkmenu.netmask Subnetmasker
 networkmenu.ntpenable Synchronisatie via
 networkmenu.ntprefresh NTP/DVB verversen
 networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync in minuten
@@ -1685,20 +1686,20 @@ networkmenu.ntprefresh_hint2 Ontvanger dient herstart te worden of EPG gereset
 networkmenu.ntpserver NTP-Server
 networkmenu.ntpserver_hint1 NTP-Server voorbeeld: ntp1.ptb.de
 networkmenu.ntpserver_hint2 Ontvanger dient herstart te worden of EPG gereset
-networkmenu.ntptitle Time-Synchronisatie
+networkmenu.ntptitle Tijd-Synchronisatie
 networkmenu.password Pre-Shared Key (PSK)
 networkmenu.reset_settings_now Wilt u de vorige instellingen herstellen?
 networkmenu.select_if Interface
 networkmenu.services Netwerk diensten
-networkmenu.setupnow Netwerk instellingen toepassen
-networkmenu.setuponstartup Netwerk bij het opstarten instellen
-networkmenu.show Actieve Netwerk instellingen weergeven
+networkmenu.setupnow Netwerk herstarten
+networkmenu.setuponstartup Netwerk interface
+networkmenu.show Netwerk instellingen tonen
 networkmenu.ssid Netwerk naam (SSID)
-networkmenu.ssid_scan WLAN netwoek scan
+networkmenu.ssid_scan WLAN netwerk scan
 networkmenu.ssid_scan_error Geen WLAN netwerken gevonden.
 networkmenu.ssid_scan_wait WLAN netwerk scan is bezig...
-networkmenu.test Netwerk nu testen 
-neutrino_starting Neutrino wordt opgestart...
+networkmenu.test Netwerktest uitvoeren 
+neutrino_starting Een moment geduld a.u.b...
 nfs.alreadymounted directory reeds gekoppeld
 nfs.automount Koppelen tijdens het opstarten
 nfs.dir directory/locatie
@@ -2024,7 +2025,7 @@ screenshot.tv TV resolutie
 screenshot.video Video in de achtergrond
 servicemenu.getplugins Herlaad plugins
 servicemenu.getplugins_hint Plugins worden geladen,\nmoment geduld alstublieft.
-servicemenu.head Installatie
+servicemenu.head Installatie / Software update
 servicemenu.imageinfo Firmware info
 servicemenu.reload Herlaad kanalenlijst 
 servicemenu.reload_hint Kanalenlijst wordt geladen,\nmoment geduld alstublieft.
@@ -2239,7 +2240,7 @@ videomenu.pip PiP instelling
 videomenu.pip_error PiP start mislukt
 videomenu.saturation Verzadiging
 videomenu.scart Scart
-videomenu.screensetup Scherm instellicingen
+videomenu.screensetup Scherm instellingen
 videomenu.sdosd SD OSD
 videomenu.sharpness Scherpheid
 videomenu.tv-scart Video

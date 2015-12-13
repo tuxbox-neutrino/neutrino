@@ -30,6 +30,7 @@
 #endif
 #include <global.h>
 #include <neutrino.h>
+#include <driver/display.h>
 #include <gui/infoclock.h>
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>

@@ -51,16 +51,23 @@ style_get()
 # -----------------------------------------------------------
 style_set()
 {
+	# This function should be called one time after installing a new image
+	# to get sure, the right skin is installed too
+
+	style=${1:-$(config_get_value_direct $y_config_Y_Web 'style')}
+	test -n "$style" || return
+
 	y_path_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.directory')
 	y_path_override_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.override_directory')
 
 	cd $y_path_directory
-	if [ -e $y_path_override_directory/styles/Y_Dist-$1.css ]; then
-		cp $y_path_override_directory/styles/Y_Dist-$1.css Y_Dist.css
+	if [ -e $y_path_override_directory/styles/Y_Dist-$style.css ]; then
+		cp $y_path_override_directory/styles/Y_Dist-$style.css Y_Dist.css
+	elif [ -e $y_path_directory/styles/Y_Dist-$style.css ]; then
+		cp $y_path_directory/styles/Y_Dist-$style.css Y_Dist.css
 	else
-		cp $y_path_directory/styles/Y_Dist-$1.css Y_Dist.css
+		config_set_value_direct $y_config_Y_Web 'style'
 	fi
-	#config_set_value_direct $y_config_Y_Web 'style' $1
 }
 # -----------------------------------------------------------
 # Image Backup - build form
@@ -574,7 +581,7 @@ case "$1" in
 	fbshot)					shift 1; do_fbshot $* ;;
 	fbshot_clear)			do_fbshot_clear ;;
 	screenshot_clear)		do_screenshot_clear ;;
-	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt" ;;
+	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt;hb=refs/heads/cst-next" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)				shift 1; $* ;;
 	automount_list)			shift 1; do_automount_list $* ;;

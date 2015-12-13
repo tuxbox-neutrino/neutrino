@@ -69,17 +69,22 @@ CNeutrinoFonts::CNeutrinoFonts()
 	InitDynFonts();
 }
 
+void CNeutrinoFonts::clearDynFontStruct(dyn_font_t* f)
+{
+	f->dx			= 0;
+	f->dy			= 0;
+	f->size			= 0;
+	f->style		= 0;
+	f->text			= "";
+	f->font			= NULL;
+	f->useDigitOffset	= false;
+}
+
 void CNeutrinoFonts::InitDynFonts()
 {
 	for (int i = 0; i < FONT_ID_MAX; i++) {
 		dyn_font_t dyn_font;
-		dyn_font.dx		= 0;
-		dyn_font.dy		= 0;
-		dyn_font.size		= 0;
-		dyn_font.style		= 0;
-		dyn_font.text		= "";
-		dyn_font.font		= NULL;
-		dyn_font.useDigitOffset	= false;
+		clearDynFontStruct(&dyn_font);
 		v_dyn_fonts.push_back(dyn_font);
 	}
 }
@@ -97,6 +102,8 @@ CNeutrinoFonts::~CNeutrinoFonts()
 			delete v_dyn_fonts[i].font;
 		v_dyn_fonts.clear();
 	}
+
+	deleteDynFontExtAll();
 }
 
 CNeutrinoFonts* CNeutrinoFonts::getInstance()
@@ -117,7 +124,7 @@ void CNeutrinoFonts::SetupDynamicFonts(bool initRenderClass/*=true*/)
 		dynFontStyle[0] = g_dynFontRenderer->AddFont(fontDescr.filename.c_str());
 
 		fontDescr.name = g_dynFontRenderer->getFamily(fontDescr.filename.c_str());
-		dprintf(DEBUG_NORMAL, " dynamic font family: %s\n", fontDescr.name.c_str());
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] dynamic font family: %s\n", __func__, __LINE__, fontDescr.name.c_str());
 		dynFontStyle[1] = "Bold Regular";
 
 		g_dynFontRenderer->AddFont(fontDescr.filename.c_str(), true);  // make italics
@@ -135,14 +142,14 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.size_offset = fontDescr.size_offset;
 		old_fontDescr.filename = fontDescr.filename;
 		fontDescr.filename = "";
-		dprintf(DEBUG_NORMAL, "font file: %s\n", g_settings.font_file.c_str());
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] font file: %s\n", __func__, __LINE__, g_settings.font_file.c_str());
 		if (access(g_settings.font_file.c_str(), F_OK)) {
 			if (!access(FONTDIR"/neutrino.ttf", F_OK)) {
 				fontDescr.filename = FONTDIR"/neutrino.ttf";
 				g_settings.font_file = fontDescr.filename;
 			}
 			else {
-				fprintf( stderr,"[neutrino] font file [%s] not found\n neutrino exit\n",FONTDIR"/neutrino.ttf");
+				fprintf( stderr,"[CNeutrinoFonts] [%s - %d] font file [%s] not found\n neutrino exit\n", __func__, __LINE__, FONTDIR"/neutrino.ttf");
 				_exit(0);
 			}
 		}
@@ -154,7 +161,7 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.name = fontDescr.name;
 		fontDescr.name = "";
 		fontDescr.name = g_fontRenderer->getFamily(fontDescr.filename.c_str());
-		dprintf(DEBUG_NORMAL, "standard font family: %s\n", fontDescr.name.c_str());
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] standard font family: %s\n", __func__, __LINE__, fontDescr.name.c_str());
 		fontStyle[1] = "Bold Regular";
 
 		g_fontRenderer->AddFont(fontDescr.filename.c_str(), true);  // make italics
@@ -209,10 +216,11 @@ void CNeutrinoFonts::refreshDynFont(int dx, int dy, std::string text, int style,
 	Font *dynFont	= g_dynFontRenderer->getFont(fontDescr.name.c_str(), dynFontStyle[style].c_str(), dynSize);
 	dyn_font->font = dynFont;
 	dyn_font->size = dynSize;
-	if (dyn_font->size != dynSize)
-		printf("##### [%s] change %s_font size old %d to new %d, index: %u\n", __FUNCTION__, (isShare)?"share":"dyn", oldSize, dyn_font->size, index);
-	else
-		printf("##### [%s] refresh %s_font size %d, index: %u\n", __FUNCTION__, (isShare)?"share":"dyn", dyn_font->size, index);
+	if (dyn_font->size != dynSize){
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d]  change %s_font size old %d to new %d, index: %u\n", __func__, __LINE__, (isShare)?"share":"dyn", oldSize, dyn_font->size, index);
+	}else{
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d]  refresh %s_font size %d, index: %u\n",__func__, __LINE__, (isShare)?"share":"dyn", dyn_font->size, index);
+	}
 }
 
 int CNeutrinoFonts::getFontHeight(Font* fnt)
@@ -337,6 +345,66 @@ Font **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int 
 	dy = (*ret)->getHeight();
 	if (!text.empty())
 		dx = (*ret)->getRenderWidth(text);
+#ifdef DEBUG_NFONTS
+	printf("##### [%s] dx: %d, dy: %d, dynSize: %d, dynFont: %p, ret: %p, FontID: %d\n", __FUNCTION__, dx, dy, dynSize, *ret, ret, f_id);
+#endif
+	return ret;
+}
+
+void CNeutrinoFonts::initDynFontExt()
+{
+	for (int i = 0; i < DYNFONTEXT_MAX; i++) {
+		dyn_font_t dyn_font;
+		clearDynFontStruct(&dyn_font);
+		v_dyn_fonts_ext.push_back(dyn_font);
+	}
+}
+
+void CNeutrinoFonts::deleteDynFontExtAll()
+{
+	if (!v_dyn_fonts_ext.empty()) {
+		for (size_t i = 0; i < v_dyn_fonts_ext.size(); ++i) {
+			if (v_dyn_fonts_ext[i].font != NULL)
+				delete v_dyn_fonts_ext[i].font;
+		}
+		v_dyn_fonts_ext.clear();
+	}
+}
+
+Font *CNeutrinoFonts::getDynFontExt(int &dx, int &dy, unsigned int f_id, std::string text/*=""*/, int style/*=FONT_STYLE_REGULAR*/)
+{
+	if ((dx <= 0) && (dy <= 0))
+		return NULL;
+	if ((fontDescr.name.empty()) || (fontDescr.filename.empty()))
+		SetupNeutrinoFonts();
+	if (g_dynFontRenderer == NULL)
+		SetupDynamicFonts();
+	if (v_dyn_fonts_ext.empty())
+		initDynFontExt();
+
+	int dynSize = getDynFontSize(dx, dy, text, style);
+	Font *dynFont = NULL;
+	Font *ret = NULL;
+
+	if (f_id < v_dyn_fonts_ext.size()) {
+		dynFont = g_dynFontRenderer->getFont(fontDescr.name.c_str(), dynFontStyle[style].c_str(), dynSize);
+		if (v_dyn_fonts_ext[f_id].font != NULL)
+			delete v_dyn_fonts_ext[f_id].font;
+		v_dyn_fonts_ext[f_id].dx		= dx;
+		v_dyn_fonts_ext[f_id].dy		= dy;
+		v_dyn_fonts_ext[f_id].size		= dynSize;
+		v_dyn_fonts_ext[f_id].style		= style;
+		v_dyn_fonts_ext[f_id].text		= text;
+		v_dyn_fonts_ext[f_id].font		= dynFont;
+		v_dyn_fonts_ext[f_id].useDigitOffset	= useDigitOffset;
+		ret = v_dyn_fonts_ext[f_id].font;
+	}
+	else
+		return NULL;
+
+	dy = ret->getHeight();
+	if (!text.empty())
+		dx = ret->getRenderWidth(text);
 #ifdef DEBUG_NFONTS
 	printf("##### [%s] dx: %d, dy: %d, dynSize: %d, dynFont: %p, ret: %p, FontID: %d\n", __FUNCTION__, dx, dy, dynSize, *ret, ret, f_id);
 #endif

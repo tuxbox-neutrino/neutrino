@@ -43,7 +43,7 @@ extern CBouquetManager *g_bouquetManager;
 
 #define GET_ATTR(node, name, fmt, arg)                                  \
         do {                                                            \
-                char * ptr = xmlGetAttribute(node, name);               \
+                const char * ptr = xmlGetAttribute(node, name);               \
                 if ((ptr == NULL) || (sscanf(ptr, fmt, &arg) <= 0))     \
                         arg = 0;                                        \
         }                                                               \
@@ -230,6 +230,7 @@ void CBouquetManager::writeBouquetHeader(FILE * bouq_fd, uint32_t i, const char 
 	if (Bouquets[i]->bHidden!=DEFAULT_BQ_HIDDEN) fprintf(bouq_fd, " hidden=\"%d\"", Bouquets[i]->bHidden ? 1 : 0);
 	if (Bouquets[i]->bLocked!=DEFAULT_BQ_LOCKED) fprintf(bouq_fd, " locked=\"%d\"", Bouquets[i]->bLocked ? 1 : 0);
 	if (Bouquets[i]->bScanEpg!=DEFAULT_BQ_SCANEPG) fprintf(bouq_fd, " epg=\"%d\"", Bouquets[i]->bScanEpg ? 1 : 0);
+	if (Bouquets[i]->bUseCI) fprintf(bouq_fd, " ci=\"1\"");
 	fprintf(bouq_fd, ">\n");
 }
 
@@ -272,7 +273,7 @@ void CBouquetManager::saveBouquets(void)
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
 			DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]->bUser);
-			if(!Bouquets[i]->bUser) {
+			if(!Bouquets[i]->bUser && !Bouquets[i]->bWebtv) {
 				writeBouquet(bouq_fd, i,false);
 			}
 		}
@@ -382,7 +383,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 		return;
 
 	xmlNodePtr root = xmlDocGetRootElement(parser);
-	xmlNodePtr search = root->xmlChildrenNode;
+	xmlNodePtr search = xmlChildrenNode(root);
 	xmlNodePtr channel_node;
 
 	if (search) {
@@ -395,31 +396,33 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 		INFO("reading bouquets from %s", fname);
 
 		while ((search = xmlGetNextOccurence(search, "Bouquet")) != NULL) {
-			char * name = xmlGetAttribute(search, "name");
+			const char * name = xmlGetAttribute(search, "name");
 			if(name == NULL)
 				name = const_cast<char*>("Unknown");
 
 			CZapitBouquet* newBouquet = addBouquet(name, bUser);
 			// per default in contructor: newBouquet->BqID = 0; //set to default, override if bqID exists
 			GET_ATTR(search, "bqID", SCANF_BOUQUET_ID_TYPE, newBouquet->BqID);
-			char* hidden = xmlGetAttribute(search, "hidden");
-			char* locked = xmlGetAttribute(search, "locked");
-			char* scanepg = xmlGetAttribute(search, "epg");
+			const char* hidden = xmlGetAttribute(search, "hidden");
+			const char* locked = xmlGetAttribute(search, "locked");
+			const char* scanepg = xmlGetAttribute(search, "epg");
+			const char* useci = xmlGetAttribute(search, "ci");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
 			newBouquet->bFav = (strcmp(name, "favorites") == 0);
 			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
-			channel_node = search->xmlChildrenNode;
+			newBouquet->bUseCI = useci ? (strcmp(useci, "1") == 0) : false;
+			channel_node = xmlChildrenNode(search);
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
 				std::string name2;
 				name = xmlGetAttribute(channel_node, "n");
 				if (name)
 					name2 = name;
 				std::string uname;
-				char *uName = xmlGetAttribute(channel_node, "un");
+				const char *uName = xmlGetAttribute(channel_node, "un");
 				if (uName)
 					uname = uName;
-				char *url = xmlGetAttribute(channel_node, "u");
+				const char *url = xmlGetAttribute(channel_node, "u");
 				GET_ATTR(channel_node, "i", SCANF_SERVICE_ID_TYPE, service_id);
 				GET_ATTR(channel_node, "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
 				GET_ATTR(channel_node, "s", SCANF_SATELLITE_POSITION_TYPE, satellitePosition);
@@ -444,6 +447,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;
+					chan->bUseCI = newBouquet->bUseCI;
 
 					newBouquet->addService(chan);
 				} else if (bUser) {
@@ -464,7 +468,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					CServiceManager::getInstance()->SetServicesChanged(false);
 				}
 
-				channel_node = channel_node->xmlNextNode;
+				channel_node = xmlNextNode(channel_node);
 				if(!bUser) {
 					/* set satellite position for provider bouquets.
 					   reset position to 0, if position not match - means mixed bouquet */
@@ -476,7 +480,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			}
 			if(!bUser)
 				newBouquet->sortBouquet();
-			search = search->xmlNextNode;
+			search = xmlNextNode(search);
 		}
 		INFO("total: %d bouquets", (int)Bouquets.size());
 	}
@@ -492,8 +496,10 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 		sortBouquets();
 	}
 
+	loadWebtv();
 	parseBouquetsXml(UBOUQUETS_XML, true);
 	renumServices();
+	CServiceManager::getInstance()->SetCIFilter();
 	TIMER_STOP("[zapit] bouquet loading took");
 }
 
@@ -776,6 +782,75 @@ void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
 			tmplist.push_back(Bouquets[i]);
 	}
 	Bouquets = tmplist;
+}
+
+CZapitBouquet* CBouquetManager::addBouquetIfNotExist(const std::string &name)
+{
+	CZapitBouquet* bouquet = NULL;
+
+	int bouquetId = existsBouquet(name.c_str(), true);
+	if (bouquetId == -1)
+		bouquet = addBouquet(name, false);
+	else
+		bouquet = Bouquets[bouquetId];
+
+	return bouquet;
+}
+
+void CBouquetManager::loadWebtv()
+{
+	std::list<std::string> *webtv_xml = CZapit::getInstance()->GetWebTVXML();
+	if (!webtv_xml)
+		return;
+
+	for (std::list<std::string>::iterator it = webtv_xml->begin(); it != webtv_xml->end(); ++it) {
+		if (!access((*it).c_str(), R_OK)) {
+			INFO("Loading webtv from %s ...", (*it).c_str());
+			xmlDocPtr parser = parseXmlFile((*it).c_str());
+			if (parser == NULL)
+				continue;
+
+			xmlNodePtr l0 = xmlDocGetRootElement(parser);
+			xmlNodePtr l1 = xmlChildrenNode(l0);
+			if (l1) {
+				CZapitBouquet* pbouquet = NULL;
+				const char *prov = xmlGetAttribute(l0, "name");
+				if (!prov)
+					prov = "WebTV";
+				pbouquet = addBouquetIfNotExist(prov);
+				pbouquet->bWebtv = true;
+
+				while ((xmlGetNextOccurence(l1, "webtv"))) {
+					const char *title = xmlGetAttribute(l1, "title");
+					const char *url = xmlGetAttribute(l1, "url");
+					const char *desc = xmlGetAttribute(l1, "description");
+					const char *genre = xmlGetAttribute(l1, "genre");
+					const char *epgid = xmlGetAttribute(l1, "epgid");
+					t_channel_id epg_id = 0;
+					if (epgid)
+						epg_id = strtoull(epgid, NULL, 16);
+
+					CZapitBouquet* gbouquet = pbouquet;
+					if (genre) {
+						std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
+						gbouquet = addBouquetIfNotExist(bname);
+						gbouquet->bWebtv = true;
+					}
+					if (title && url) {
+						t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
+						CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id);
+						CServiceManager::getInstance()->AddChannel(channel);
+						channel->flags = CZapitChannel::UPDATED;
+						if (gbouquet)
+							gbouquet->addService(channel);
+					}
+
+					l1 = xmlNextNode(l1);
+				}
+			}
+			xmlFreeDoc(parser);
+		}
+	}
 }
 
 CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const bool TV)

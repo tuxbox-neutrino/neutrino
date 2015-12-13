@@ -46,6 +46,15 @@
 #define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
 
+#define ICONSDIR_VAR	"/var/tuxbox/icons/"
+#define LOCALEDIR_VAR	"/var/tuxbox/locale"
+#define THEMESDIR_VAR	"/var/tuxbox/themes"
+#define PLUGINDIR_VAR	"/var/tuxbox/plugins"
+#define PLUGINDIR_MNT	"/mnt/plugins"
+
+#define LOGODIR		ICONSDIR "/logo"
+#define LOGODIR_VAR	ICONSDIR_VAR "/logo"
+
 NEUTRINO_CPP  SNeutrinoSettings	g_settings;
 NEUTRINO_CPP  SglobalInfo	g_info;
 
@@ -75,8 +84,8 @@ class CEpgData;
 NEUTRINO_CPP  CEpgData		*g_EpgData;
 class CInfoViewer;
 NEUTRINO_CPP  CInfoViewer	*g_InfoViewer;
-class CNeutrinoEventList;
-NEUTRINO_CPP  CNeutrinoEventList		*g_EventList;
+class CEventList;
+NEUTRINO_CPP  CEventList	*g_EventList;
 
 class CLocaleManager;
 NEUTRINO_CPP CLocaleManager	*g_Locale;

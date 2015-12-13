@@ -54,8 +54,8 @@
 #include <gui/widget/stringinput.h>
 #include <gui/infoclock.h>
 #include <gui/infoviewer.h>
-#include <driver/volume.h>
 #include <driver/display.h>
+#include <driver/volume.h>
 #include <system/helpers.h>
 // obsolete #include <gui/streaminfo.h>
 
@@ -178,6 +178,10 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(t.infobar_Text_red, t.infobar_Text_green, t.infobar_Text_blue),
 	                              8, convertSetupAlpha2Alpha(t.infobar_alpha) );
 
+	frameBuffer->paletteGenFade(COL_INFOBAR_CASYSTEM,
+	                              convertSetupColor2RGB(t.infobar_casystem_red, t.infobar_casystem_green, t.infobar_casystem_blue),
+	                              convertSetupColor2RGB(t.infobar_Text_red, t.infobar_Text_green, t.infobar_Text_blue),
+	                              8, convertSetupAlpha2Alpha(t.infobar_casystem_alpha) );
 
 	frameBuffer->paletteGenFade(COL_COLORED_EVENTS_INFOBAR,
 	                              convertSetupColor2RGB(t.infobar_red, t.infobar_green, t.infobar_blue),
@@ -452,18 +456,24 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 
         xmlDocPtr parser = parseXmlFile("/etc/timezone.xml");
         if (parser != NULL) {
-                xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
+                xmlNodePtr search = xmlDocGetRootElement(parser);
+		search = xmlChildrenNode(search);
                 while (search) {
                         if (!strcmp(xmlGetName(search), "zone")) {
-				name = xmlGetAttribute(search, "name");
+				const char *nptr = xmlGetAttribute(search, "name");
+				if(nptr)
+					name = nptr;
+
 				if(g_settings.timezone == name) {
-					zone = xmlGetAttribute(search, "zone");
+					const char *zptr = xmlGetAttribute(search, "zone");
+					if(zptr)
+						zone = zptr;
 					if (!access("/usr/share/zoneinfo/" + zone, R_OK))
 						found = true;
 					break;
 				}
                         }
-                        search = search->xmlNextNode;
+                        search = xmlNextNode(search);
                 }
                 xmlFreeDoc(parser);
         }

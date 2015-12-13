@@ -20,6 +20,8 @@ EPGPlus.scroll_mode Scroll Mode
 EPGPlus.stretch_mode Stretch Mode
 EPGPlus.swap_mode swap mode
 EPGPlus.view_mode view mode
+GENRE.ALL off
+GENRE.ARTS Arts
 GENRE.ARTS.0 arts / culture
 GENRE.ARTS.1 performing arts
 GENRE.ARTS.10 arts/culture magazines
@@ -32,12 +34,14 @@ GENRE.ARTS.6 film/cinema
 GENRE.ARTS.7 experimental film/video
 GENRE.ARTS.8 broadcasting/press
 GENRE.ARTS.9 new media
+GENRE.CHILDRENs_PROGRAMMES children
 GENRE.CHILDRENs_PROGRAMMES.0 children / juvenile program
 GENRE.CHILDRENs_PROGRAMMES.1 pre-school children's programmes
 GENRE.CHILDRENs_PROGRAMMES.2 entertainment programmes for 6 to 14
 GENRE.CHILDRENs_PROGRAMMES.3 entertainment programmes for 10 to 16
 GENRE.CHILDRENs_PROGRAMMES.4 informational/educational/school programmes
 GENRE.CHILDRENs_PROGRAMMES.5 cartoons/puppets
+GENRE.DOCUS_MAGAZINES documentation
 GENRE.DOCUS_MAGAZINES.0 documentation / magazine
 GENRE.DOCUS_MAGAZINES.1 nature/animals/environment
 GENRE.DOCUS_MAGAZINES.2 technology/natural sciences
@@ -46,6 +50,7 @@ GENRE.DOCUS_MAGAZINES.4 foreign countries/expeditions
 GENRE.DOCUS_MAGAZINES.5 social/spiritual sciences
 GENRE.DOCUS_MAGAZINES.6 further education
 GENRE.DOCUS_MAGAZINES.7 languages
+GENRE.MOVIE movie
 GENRE.MOVIE.0 movie/drama
 GENRE.MOVIE.1 detective/thriller
 GENRE.MOVIE.2 adventure/western/war
@@ -55,6 +60,7 @@ GENRE.MOVIE.5 soap/melodrama/folkloric
 GENRE.MOVIE.6 romance
 GENRE.MOVIE.7 serious/classical/religious/historical movie/drama
 GENRE.MOVIE.8 adult movie/drama
+GENRE.MUSIC_DANCE music
 GENRE.MUSIC_DANCE.0 music / ballet / dance
 GENRE.MUSIC_DANCE.1 rock/pop
 GENRE.MUSIC_DANCE.2 serious music/classical music
@@ -62,19 +68,23 @@ GENRE.MUSIC_DANCE.3 folk/traditional music
 GENRE.MUSIC_DANCE.4 jazz
 GENRE.MUSIC_DANCE.5 musical/opera
 GENRE.MUSIC_DANCE.6 ballet
+GENRE.NEWS news
 GENRE.NEWS.0 news
 GENRE.NEWS.1 news/weather report
 GENRE.NEWS.2 news magazine
 GENRE.NEWS.3 documentary
 GENRE.NEWS.4 discussion/interview/debate
+GENRE.SHOW Show
 GENRE.SHOW.0 Show / Gameshow
 GENRE.SHOW.1 game show/quiz/contest
 GENRE.SHOW.2 variety show
 GENRE.SHOW.3 talk show
+GENRE.SOCIAL_POLITICAL social
 GENRE.SOCIAL_POLITICAL.0 social & politic events / business
 GENRE.SOCIAL_POLITICAL.1 magazines/reports/documentary
 GENRE.SOCIAL_POLITICAL.2 economics/social advisory
 GENRE.SOCIAL_POLITICAL.3 remarkable people
+GENRE.SPORTS sports
 GENRE.SPORTS.0 sports
 GENRE.SPORTS.1 special events (Olympic Games,World Cup etc.)
 GENRE.SPORTS.10 equestrian
@@ -87,6 +97,7 @@ GENRE.SPORTS.6 athletics
 GENRE.SPORTS.7 motor sports
 GENRE.SPORTS.8 water sports
 GENRE.SPORTS.9 winter sports
+GENRE.TRAVEL_HOBBIES Leisure
 GENRE.TRAVEL_HOBBIES.0 travel & recreation
 GENRE.TRAVEL_HOBBIES.1 tourism/travel
 GENRE.TRAVEL_HOBBIES.2 handicraft
@@ -255,6 +266,7 @@ channellist.sats Satellites
 channellist.show_channellogo Show channel logos
 channellist.show_channelnumber Show channel numbers
 channellist.show_empty_favs Show empty favorites bouquets
+channellist.show_infobox Show bottom infobox
 channellist.since since
 channellist.start starts
 ci.clock CI clock (Mhz)
@@ -266,8 +278,11 @@ ci.inserted CAM inserted in slot
 ci.removed CAM removed from slot
 ci.reset Reset
 ci.reset_standby Reset after standby
+ci.save_pincode Save pincode
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
+ci.tuner Use CI only with tuner:
+ci.use Enable CI
 ci.waiting Waiting for CI answer
 clock_background Show background
 clock_seconds Show seconds
@@ -275,6 +290,7 @@ clock_size_height Display height
 clock_switch_off Clock off
 clock_switch_on Clock on
 color.gradient Color gradient
+color.gradient_c2c Color to color gradient
 colorchooser.alpha alpha
 colorchooser.blue blue
 colorchooser.green green
@@ -299,6 +315,7 @@ colormenusetup.menuhead Header
 colorstatusbar.text Infobar
 colorthememenu.head Select theme
 colorthememenu.head2 Load themes
+colorthememenu.menu_hints Hint box
 colorthememenu.name Theme name
 colorthememenu.neutrino_theme Neutrino Theme
 colorthememenu.question Use selected theme?
@@ -349,6 +366,8 @@ epgviewer.genre Genre
 epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
+eventfinder.fsk Age rating Filter
+eventfinder.genre Genre-Filter
 eventfinder.head Search in EPG
 eventfinder.history Search history
 eventfinder.keyword Keyword
@@ -568,9 +587,11 @@ flashupdate.copy_image Copy Image to main memory
 flashupdate.createimage Save image
 flashupdate.createimage_add_env Add 'env' to image
 flashupdate.createimage_add_kernel Add 'kernel' to image
+flashupdate.createimage_add_root1 Add 'root1' to image
 flashupdate.createimage_add_spare Add 'spare' to image
 flashupdate.createimage_add_u_boot Add 'u-boot' to image
 flashupdate.createimage_add_uldr Add 'uldr' to image
+flashupdate.createimage_add_var Add 'var' to image
 flashupdate.createimage_menu Save current software
 flashupdate.createimage_options Options
 flashupdate.createimage_other Create image for %s STB
@@ -586,16 +607,16 @@ flashupdate.fileis0bytes the filesize is 0 Bytes
 flashupdate.fileselector File-Selector
 flashupdate.flashreadyreboot The image was successfully flashed.\nThe box will be rebooted now.
 flashupdate.getinfofile getting versioninfo
-flashupdate.getinfofileerror can't get versioninfo
+flashupdate.getinfofileerror Can't get update versioninfo!
 flashupdate.getupdatefile getting update
-flashupdate.getupdatefileerror can't get update
+flashupdate.getupdatefileerror Can't get update!
 flashupdate.globalprogress Global Progress:
 flashupdate.head Software Update
 flashupdate.md5check checking image
 flashupdate.md5sumerror image has errors
 flashupdate.menu_apply_kernel Flashing kernel
 flashupdate.menu_apply_settings Allow apply settings
-flashupdate.mkfs_create_image Create image
+flashupdate.mkfs_create_image Create backup
 flashupdate.mkfs_preparing_files Preparing files and directories
 flashupdate.mkfs_using_sumtool Using sumtool
 flashupdate.msgbox Found the following new file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nDo you want to download and install this version now?
@@ -686,6 +707,14 @@ fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
 fontsize.subtitles Text subtitles
+fsk.all off
+fsk.from_12 from 12
+fsk.from_16 from 16
+fsk.from_18 from 18
+fsk.from_7 from 7
+fsk.to_12 to 12
+fsk.to_16 to 16
+fsk.to_7 to 7
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -843,6 +872,9 @@ lua.boolparam_deprecated3 for a Boolean parameter is deprecated.\n              
 lua.function_deprecated1 Caution!
 lua.function_deprecated2 Function
 lua.function_deprecated3 is deprecated,\n                      please use
+lua.parameter_deprecated2 Parameter
+lua.versionscheck1 Your Lua API version is too old
+lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer
 mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG Cache
@@ -924,7 +956,6 @@ menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
 menu.hint_channellist_additional Show additional informations\nin main box
-menu.hint_channellist_colored Use different color for current or next event
 menu.hint_channellist_epg_align EPG event align
 menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
@@ -935,6 +966,7 @@ menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channellist_show_channellogo Show channel logos in channel list
 menu.hint_channellist_show_channelnumber Show channel number in channel list
 menu.hint_channellist_show_empty_favs Show / hide empty bouquets in favorites
+menu.hint_channellist_show_infobox Show or hide bottom infobox of channellist
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_clock_background Show clock with theme's background color
@@ -943,6 +975,9 @@ menu.hint_clock_seconds Show time format with seconds
 menu.hint_clock_size Set the size of the info clock
 menu.hint_clock_textcolor Configure digit colors
 menu.hint_color_gradient Switches color gradients for various menu items on/off
+menu.hint_color_gradient_c2c Switches smooth gradient between 2 colors and one-color gradient
+menu.hint_colored_events Use different color for current or next event
+menu.hint_colored_events_textcolor Change color for colored events in channellist and infobar
 menu.hint_colors Configure GUI colors
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
@@ -963,7 +998,6 @@ menu.hint_epg_save_mode Cache EPG only for channels present in favorite bouquets
 menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
-menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_eventlist_additional Show additional informations\nin main box
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_eventlist_setup Configure event list GUI options
@@ -998,12 +1032,14 @@ menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inet_radio Internet radio
 menu.hint_info Information about image, box cpu and storage,\nstream information
 menu.hint_infobar_back Change infobar background color
-menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-sys
-menu.hint_infobar_colored_event Use different color for current or next event
+menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-systems
+menu.hint_infobar_casys_color Change CA-System background color
+menu.hint_infobar_casys_dotmatrix on: CA-System with dot matrix in background
+menu.hint_infobar_casys_frame on: CA-System with frame
 menu.hint_infobar_dd Show DD icon
 menu.hint_infobar_filesys Show flash and HDD used space levels
 menu.hint_infobar_fonts Change infobar font sizes
-menu.hint_infobar_logo Logo / signal options
+menu.hint_infobar_logo Logo, channelnumber and signal display; Options in [brackets] will be displayed in small infobox
 menu.hint_infobar_logo_dir Select directory to search for channels logo
 menu.hint_infobar_on_epg Show infobar on current EPG event change
 menu.hint_infobar_radiotext Show radiotext window
@@ -1141,6 +1177,8 @@ menu.hint_net_ushare Share connected HDD over uPnp
 menu.hint_net_xupnpd Share live channels over UPNP
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
+menu.hint_next Continue to next menu\nPress menu key to close all menus
+menu.hint_next_brief Continue to next menu
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_opkg Install or update software packages
 menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
@@ -1371,7 +1409,7 @@ menu.hint_window_size Channellist, EPG-infos and some other windows are scaled b
 menu.hint_ytplay Play selected youtube feeds
 menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
-menu.next Next (press Menu to quit)
+menu.next Next
 messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?
@@ -1381,11 +1419,13 @@ messagebox.no No
 messagebox.ok Ok
 messagebox.yes Yes
 miscsettings.channellist Channellist
-miscsettings.channellist_colored_events Program colored
 miscsettings.channellist_epgtext_align Programtext Align
+miscsettings.colored_events Program colored
 miscsettings.colored_events_0 none
 miscsettings.colored_events_1 current
 miscsettings.colored_events_2 next
+miscsettings.colored_events_channellist In channellist
+miscsettings.colored_events_infobar In infobar
 miscsettings.energy Energy
 miscsettings.epg_cache EPG-Cache (Days)
 miscsettings.epg_cache_hint1 How long will EPG-Data in the future cached?
@@ -1417,25 +1457,28 @@ miscsettings.epg_scan_standby Standby
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar
-miscsettings.infobar_casystem_display CA-System Display
+miscsettings.infobar_casystem_display CA-System display
+miscsettings.infobar_casystem_dotmatrix CA display with dot matrix
+miscsettings.infobar_casystem_frame CA display with frame
 miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet
-miscsettings.infobar_colored_events Program colored
-miscsettings.infobar_disp_0 without Logo
-miscsettings.infobar_disp_1 Logo in number box
-miscsettings.infobar_disp_2 Logo+channel number
-miscsettings.infobar_disp_3 Logo+channel name+signal
-miscsettings.infobar_disp_4 Logo+channel name/number
-miscsettings.infobar_disp_5 Logo+signal
-miscsettings.infobar_disp_6 Logo+channel number+signal
-miscsettings.infobar_disp_log Logo
-miscsettings.infobar_logo_hdd_dir Logo dir
+miscsettings.infobar_disp Logo display
+miscsettings.infobar_disp_0 Channelname [Channelnumber]
+miscsettings.infobar_disp_1 Channelnumber, Channelname [Logo]
+miscsettings.infobar_disp_2 Logo [Channelnumber]
+miscsettings.infobar_disp_3 Logo, Channelname [Signal]
+miscsettings.infobar_disp_4 Logo, Channelname [Channelnumber]
+miscsettings.infobar_disp_5 Logo [Signal]
+miscsettings.infobar_disp_6 Channelnumber, Logo [Signal]
+miscsettings.infobar_gradient_bottom Gradient bottom
+miscsettings.infobar_gradient_top Gradient top
+miscsettings.infobar_logo_hdd_dir Logo directory
 miscsettings.infobar_sat_display Satellite display on infobar
 miscsettings.infobar_show show Info on EPG change
 miscsettings.infobar_show_dd_available show DD availability
 miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
-miscsettings.infobar_show_sysfs_hdd Fill level (sysFS & hdd)
+miscsettings.infobar_show_sysfs_hdd Fill level (SysFS and HDD)
 miscsettings.infobar_show_tuner Display active tuner
 miscsettings.infoclock Clock
 miscsettings.progressbar Progressbar
@@ -1534,6 +1577,7 @@ moviebrowser.copying Coping, please wait ...
 moviebrowser.cut Cut jumps from movie?
 moviebrowser.cut_failed Cut failed, are there jump bookmarks and enough free space?
 moviebrowser.cutting Cutting movie, please wait ...
+moviebrowser.delete_all Delete all selected movies without any questions?
 moviebrowser.delete_info Delete files, please wait...
 moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
@@ -1558,11 +1602,15 @@ moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
 moviebrowser.hide_series Hide series
+moviebrowser.hint_copy_onefile 
+moviebrowser.hint_copy_several 
+moviebrowser.hint_cut 
 moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel
 moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel
 moviebrowser.hint_movieend Film end in 5 s\n '0' to cancel
 moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition
 moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition
+moviebrowser.hint_truncate 
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_file File
@@ -1594,6 +1642,10 @@ moviebrowser.info_videoformat Picture
 moviebrowser.last_play_max_items Number of lines last play
 moviebrowser.last_record_max_items Number of lines last record
 moviebrowser.load_default Load default settings
+moviebrowser.menu_copy_onefile Copy movie
+moviebrowser.menu_copy_several Copy and split movie
+moviebrowser.menu_cut Cut movie
+moviebrowser.menu_cut_head Copy, cut and truncate
 moviebrowser.menu_directories_head Paths
 moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
@@ -1607,6 +1659,7 @@ moviebrowser.menu_parental_lock_head Parental Lock
 moviebrowser.menu_parental_lock_rate_head Lock movies from
 moviebrowser.menu_save Save changes
 moviebrowser.menu_save_all Start update of movie info files
+moviebrowser.menu_truncate Truncate movie
 moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
 moviebrowser.remount_at_start Remount at start
@@ -1672,6 +1725,7 @@ moviebrowser.yt_recently_featured Recently featured
 moviebrowser.yt_region Region
 moviebrowser.yt_related Related videos
 moviebrowser.yt_search Search keyword
+moviecut.cancel Cancel movie editing?
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
@@ -2191,7 +2245,7 @@ timerlist.repeatcount repeats
 timerlist.repeatcount.help1 amount of timer repeats
 timerlist.repeatcount.help2 0 for unlimited repeats
 timerlist.save Save timer
-timerlist.standby SB mode
+timerlist.standby Action
 timerlist.standby.off Leave standby
 timerlist.standby.on Enter standby
 timerlist.stoptime Stop time

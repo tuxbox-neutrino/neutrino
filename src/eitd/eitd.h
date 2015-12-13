@@ -228,6 +228,7 @@ class CEitThread : public CEventsThread
 		void beforeSleep();
 	public:
 		CEitThread();
+		CEitThread(std::string tname, unsigned short pid = 0x12);
 };
 
 class CFreeSatThread : public CEventsThread

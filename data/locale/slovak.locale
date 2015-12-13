@@ -20,6 +20,8 @@ EPGPlus.scroll_mode pretáčanie
 EPGPlus.stretch_mode rozšírenie
 EPGPlus.swap_mode Zmena stránkovania
 EPGPlus.view_mode Spôsob zobrazenia
+GENRE.ALL vypnuté
+GENRE.ARTS umelecké
 GENRE.ARTS.0 umenie/kultúra
 GENRE.ARTS.1 divadlo
 GENRE.ARTS.10 umelecké/kultúrne maazíny
@@ -30,14 +32,16 @@ GENRE.ARTS.4 ľudové umenie
 GENRE.ARTS.5 literatúra
 GENRE.ARTS.6 film/kino
 GENRE.ARTS.7 experimentálny film /video
-GENRE.ARTS.8 vysielanie/tlač
+GENRE.ARTS.8 prenosy/tlačovky
 GENRE.ARTS.9 nové média
+GENRE.CHILDRENs_PROGRAMMES detské
 GENRE.CHILDRENs_PROGRAMMES.0 programy pre deti a mládež
 GENRE.CHILDRENs_PROGRAMMES.1 programy pre deti predškolského veku
 GENRE.CHILDRENs_PROGRAMMES.2 zábavné programy pre ľudí vo veku 6 – 14 rokov
 GENRE.CHILDRENs_PROGRAMMES.3 zábavné programy pre ľudí vo veku 10 – 16 rokov
 GENRE.CHILDRENs_PROGRAMMES.4 informačné a náučné školské programy
 GENRE.CHILDRENs_PROGRAMMES.5 animované programy
+GENRE.DOCUS_MAGAZINES dokumentárne
 GENRE.DOCUS_MAGAZINES.0 dokumenty/magazíny
 GENRE.DOCUS_MAGAZINES.1 príroda/zvieratá/životné prostredie
 GENRE.DOCUS_MAGAZINES.2 technológie/prírodné vedy
@@ -46,6 +50,7 @@ GENRE.DOCUS_MAGAZINES.4 zahraničie/výpravy
 GENRE.DOCUS_MAGAZINES.5 spoločenské/humanitné vedy
 GENRE.DOCUS_MAGAZINES.6 osveta
 GENRE.DOCUS_MAGAZINES.7 jazyky
+GENRE.MOVIE filmové
 GENRE.MOVIE.0 kinofilm/dráma
 GENRE.MOVIE.1 kriminálny/napínavý
 GENRE.MOVIE.2 dobrodružný/western/vojenský
@@ -55,6 +60,7 @@ GENRE.MOVIE.5 telenovela/melodráma/folklór
 GENRE.MOVIE.6 romantika
 GENRE.MOVIE.7 vážna dráma/klasika/náboženský/historický
 GENRE.MOVIE.8 filmy pre dospelých
+GENRE.MUSIC_DANCE hudobné
 GENRE.MUSIC_DANCE.0 hudba/tanec
 GENRE.MUSIC_DANCE.1 rock/pop
 GENRE.MUSIC_DANCE.2 vážna/klasická hudba
@@ -62,24 +68,28 @@ GENRE.MUSIC_DANCE.3 národná/ľudová hudba
 GENRE.MUSIC_DANCE.4 jazz
 GENRE.MUSIC_DANCE.5 muzikál/opera
 GENRE.MUSIC_DANCE.6 balet
+GENRE.NEWS spravodajské
 GENRE.NEWS.0 správy
 GENRE.NEWS.1 správy/počasie
 GENRE.NEWS.2 spravodajský magazín
 GENRE.NEWS.3 dokument
 GENRE.NEWS.4 diskusia/rozhovor/rokovanie
+GENRE.SHOW estrádne
 GENRE.SHOW.0 estráda/telehra
 GENRE.SHOW.1 telehra/kvíz/súťaž
 GENRE.SHOW.2 varieté
 GENRE.SHOW.3 debata
+GENRE.SOCIAL_POLITICAL spoločenské
 GENRE.SOCIAL_POLITICAL.0 spoločenské a politické udalosti/obchod
 GENRE.SOCIAL_POLITICAL.1 magazíny/reportáže/dokumenty
 GENRE.SOCIAL_POLITICAL.2 ekonomické/spoločenské poradenstvo
 GENRE.SOCIAL_POLITICAL.3 významný ľudia
+GENRE.SPORTS športové
 GENRE.SPORTS.0 šport
 GENRE.SPORTS.1 mimoriadne udalosti (olimpiady, majstrovstvá sveta...)
 GENRE.SPORTS.10 jazdectvo
-GENRE.SPORTS.11 vojenské športy
-GENRE.SPORTS.2 športové magazíny
+GENRE.SPORTS.11 vojenský šport
+GENRE.SPORTS.2 športový magazín
 GENRE.SPORTS.3 futbal
 GENRE.SPORTS.4 tenis
 GENRE.SPORTS.5 skupinové športy
@@ -87,6 +97,7 @@ GENRE.SPORTS.6 atletika
 GENRE.SPORTS.7 motorizmus
 GENRE.SPORTS.8 vodné športy
 GENRE.SPORTS.9 zimné športy
+GENRE.TRAVEL_HOBBIES voľné chvíle
 GENRE.TRAVEL_HOBBIES.0 cestovanie a odych
 GENRE.TRAVEL_HOBBIES.1 turistika/cestovanie
 GENRE.TRAVEL_HOBBIES.2 plavba
@@ -173,7 +184,6 @@ audioplayer.receiving_list Načítavam zoznam, čakaj...
 audioplayer.repeat_on Spusti režim opakovania
 audioplayer.rewind pretoč dozadu
 audioplayer.save_playlist ulož zoznam
-audioplayer.screensaver_timeout Vypnutie obrazu (v minútach, 0=vypnuté)
 audioplayer.select_title_by_name Vyber titul podľa názvu (SMS)
 audioplayer.show_playlist Zobraz zoznam
 audioplayer.shuffle náhodne
@@ -256,6 +266,7 @@ channellist.sats Satelity
 channellist.show_channellogo Zobraziť logo staníc
 channellist.show_channelnumber Zobraziť čísla kanála
 channellist.show_empty_favs Zobraziť aj prázdne obľúbené
+channellist.show_infobox Zobraziť spodný InfoBox
 channellist.since od
 channellist.start spúšťa
 ci.clock CI taktovanie (MHz)
@@ -267,8 +278,11 @@ ci.inserted Vložený modul do šachty
 ci.removed Odstránený modul zo šachty
 ci.reset Resetnúť
 ci.reset_standby Resetovať po spustení
+ci.save_pincode Uložiť PIN kód
 ci.settings Podmienený prístup
 ci.timeout Čas čakania uplynul,\nvraciam sa do menu
+ci.tuner Použiť CI len s tunerom:
+ci.use Použiť CI
 ci.waiting Čakám na odpoveď
 clock_background Zobraziť pozadie
 clock_seconds Zobraziť sekundy
@@ -276,6 +290,7 @@ clock_size_height Výška zobrazenia
 clock_switch_off Skryť hodiny
 clock_switch_on Zobraziť hodiny
 color.gradient Farebný gradient
+color.gradient_c2c Farba farebného gradienta
 colorchooser.alpha Priehľadnosť
 colorchooser.blue Modrý
 colorchooser.green Zelený
@@ -300,6 +315,7 @@ colormenusetup.menuhead Hlavička
 colorstatusbar.text Text stavového riadku
 colorthememenu.head Výber vzhľadu
 colorthememenu.head2 Nahraj vzhľad
+colorthememenu.menu_hints Tipy boxu
 colorthememenu.name Názov vzhľadu
 colorthememenu.neutrino_theme Neutrino
 colorthememenu.question Použiť vybraný vzhľad?
@@ -350,6 +366,8 @@ epgviewer.genre Žáner
 epgviewer.length Dĺžka (min.)
 epgviewer.nodetailed Detailné informácie sú nedostupné
 epgviewer.notfound Nenájdené programové informácie (EPG)
+eventfinder.fsk Filtrovať vek
+eventfinder.genre Filtrovať žáner
 eventfinder.head Hľadaj v EPG
 eventfinder.history Hľadať históriu
 eventfinder.keyword Slovo
@@ -569,9 +587,11 @@ flashupdate.copy_image Kopítrovať Image do hlavnej pamäte
 flashupdate.createimage Uložiť Image
 flashupdate.createimage_add_env Pridať "env"
 flashupdate.createimage_add_kernel Pridať "kernel"
+flashupdate.createimage_add_root1 Pridať "root1"
 flashupdate.createimage_add_spare Pridať "spare"
 flashupdate.createimage_add_u_boot Pridať "u-boot"
 flashupdate.createimage_add_uldr Pridať "uldr"
+flashupdate.createimage_add_var Pridať "var"
 flashupdate.createimage_menu Uložiť aktuálny softvér
 flashupdate.createimage_options Nastavenia
 flashupdate.createimage_other Vytvorenie Image pre %s STB
@@ -687,6 +707,14 @@ fontsize.menu_hint Popis menu
 fontsize.menu_info Informačné menu
 fontsize.menu_title Titulok menu
 fontsize.subtitles Text titulkov
+fsk.all Vypnuté
+fsk.from_12 od 12
+fsk.from_16 od 16
+fsk.from_18 od 18
+fsk.from_7 od 7
+fsk.to_12 do 12
+fsk.to_16 do 16
+fsk.to_7 do 7
 hdd_10min 10 minút
 hdd_1min 1 minúta
 hdd_20min 20 minút
@@ -844,6 +872,9 @@ lua.boolparam_deprecated3 pre Boolean parameter je zastarané.\n                
 lua.function_deprecated1 Upozornenie!
 lua.function_deprecated2 Funkcia
 lua.function_deprecated3 je kritická,\n                      prosím použiť
+lua.parameter_deprecated2 Parameter
+lua.versionscheck1 Vaša Lua API veryia je zastaralá
+lua.versionscheck2 Je vyžadovaná novšia
 mainmenu.audioplayer Prehrávač hudby
 mainmenu.channels Zoznam kanálov
 mainmenu.clearsectionsd Vyčistenie EPG zachytávania
@@ -888,6 +919,7 @@ menu.back späť
 menu.cancel zrušiť
 menu.hint_a_pic Nastavenie prehrávača hudby a obrázkového prehliadača
 menu.hint_aplay Prehrávanie zvukových súborov
+menu.hint_aplay_setup Zmena zobrazenia titulu, východzieho adresára, šetriča a ďaľšieho
 menu.hint_audio Audio výstup, DD, SRS TrueVolume \nVoľby
 menu.hint_audio_adjust_vol_ac3 Špecifické nastavenie hlasitosti pre AC3 prúdy
 menu.hint_audio_adjust_vol_clear Vyčistenie všetkých uložených hodnôt pre PCM a AC3 prúdy
@@ -901,7 +933,7 @@ menu.hint_audio_srs SRS TruVolume ovládanie hlasitosti \npoužitím zmien obsah
 menu.hint_audio_srs_algo Účinnosť ovládania, jemná alebo klasická
 menu.hint_audio_srs_nmgr Potlačovač šumu
 menu.hint_audio_srs_volume Referenčná úroveň citlivosti
-menu.hint_audio_volstart Vždy naství zvolenú hodnotu hlasitosti pri spustení
+menu.hint_audio_volstart Vždy nastaví zvolenú hodnotu hlasitosti pri spustení
 menu.hint_audio_volstep Zvýšenie/zníženie kroku pre klávesy VOL +/-
 menu.hint_audioplayer_defdir Prednastavený adresár prehrávača hudby
 menu.hint_audioplayer_follow Pohyb vybraného ukazovateľa zoznamu prehrávania\nna aktuálne hrajúcu pieseň
@@ -910,7 +942,6 @@ menu.hint_audioplayer_order Zmena triedenia zonamu prehrávania
 menu.hint_audioplayer_playlist Zobrazenie položiek zoznamu prehrávania
 menu.hint_audioplayer_repeat Použiť opakovanie zoznamu prehrávania pri dosiahnutí konca
 menu.hint_audioplayer_sc_metadata Použije extrakciu meta-dát z prehrávaného zvuku
-menu.hint_audioplayer_screensaver Nastavenie času šetriča, v minútach
 menu.hint_audioplayer_title Použije SMS štýl vyhľadávania titulov v zozname prehrávania
 menu.hint_auto_lang Automatické prepnutie zvuku na preferovaný jazyk
 menu.hint_auto_subs Automatické spustenie titulkov pre preferovaný jazyk
@@ -925,7 +956,6 @@ menu.hint_cec_mode CEC režim
 menu.hint_cec_standby Ováldanie externými CEC príkazami v pripravenosti
 menu.hint_cec_view_on Ovládanie externými CEC príkazami pri sledovaní
 menu.hint_channellist_additional Zobrazenie doplnkových informácií\nv hlavnom boxe
-menu.hint_channellist_colored Použitie rozdielnej farby pre aktuálnu a nasledujúcu udalosť
 menu.hint_channellist_epg_align Zarovnanie EPG udalostí
 menu.hint_channellist_extended Grafické zobrazenie aktuálnej udalosti
 menu.hint_channellist_fonts Zmena veľkosti písma zoznamu kanálov
@@ -936,6 +966,7 @@ menu.hint_channellist_setup Konfigurácia GUI volieb zonamu kanálov
 menu.hint_channellist_show_channellogo Zobrazenie loga staníc v zozname kanálov
 menu.hint_channellist_show_channelnumber Zobrazenie čísla kanála v zozname kanálov
 menu.hint_channellist_show_empty_favs Zobrazenie / skrytie prázdnych buketov v obľúbených
+menu.hint_channellist_show_infobox Zobrazenie / skrytie dolneho InfoBoxu zo zoznamu kanálov
 menu.hint_channels Otvorí zoznam kanálov
 menu.hint_ci Nastavovacie menu podmieneného pristupu\npre váš CI CAM alebo vloženú Conax kartu
 menu.hint_clock_background Zobrazenie hodín s farbami témy vzhľadu
@@ -944,6 +975,9 @@ menu.hint_clock_seconds Zobraenie formátu času so sekundami
 menu.hint_clock_size Nastavenie veľkosti informačných hodín.
 menu.hint_clock_textcolor Nastavenie ferieb číslic
 menu.hint_color_gradient Prepne farebné prechody pre rôzne položky ponuky Zap/Vyp
+menu.hint_color_gradient_c2c Prepne prechody medzi 2 farbami a jednofarebným gradientom
+menu.hint_colored_events Použije inú farbu pre aktuálnu alebo ďaľšiu udalosť
+menu.hint_colored_events_textcolor Zmena farby pre farebné udalosti v zozname kanálov a infolištu
 menu.hint_colors Konfigurácia farieb GUI
 menu.hint_content_back Zmena farby podkladu GUI okna
 menu.hint_content_textcolor Zmena farby textu GUI okna
@@ -960,10 +994,10 @@ menu.hint_epg_old_events Hodiny po skončení udalosti aby sa označilo\nako sta
 menu.hint_epg_read Načíta uložené EPG údaje po zavedení z externého zariadenia
 menu.hint_epg_save Uloženie zachyteného EPG na disk alebo usb\na načítanie po spustení
 menu.hint_epg_save_frequently Uloženie zachyteného EPG v pravidelných intervaloch na externé zariadenie
+menu.hint_epg_save_mode Kešovať EPG len pre kanály prítomné v obľúbených buketoch
 menu.hint_epg_save_standby Uloženie EPG v režime pripravenosti
 menu.hint_epg_scan Povolenie prehľadávania EPG na pozadí ak je voľný tuner
 menu.hint_epg_scan_mode Výber výsledku príjmača pre spustenie prehľadania EPG
-menu.hint_event_textcolor Zmena farby udalosti pre nastavenia farebnosti udalosti\nv zozname kanálov a stavovom riadku
 menu.hint_eventlist_additional Zobrazí podrobnejšie informácie\nv hlavnom okne
 menu.hint_eventlist_fonts Zmena veľkosti písma zoznamu udalostí
 menu.hint_eventlist_setup Konfigurácia GUI volieb zoznamu udalostí
@@ -999,7 +1033,9 @@ menu.hint_inet_radio Internetové rádia
 menu.hint_info Informácia o IMAGE, systéme, streame a podmienenom prístupe
 menu.hint_infobar_back Zmena farby podkladu informačnej lišty
 menu.hint_infobar_casys áno: zobrazí všetko farebne,\n CA mini: jedna ikona zámku, CA mód: len aktívne systémy, nie: nezobrazí
-menu.hint_infobar_colored_event Použije inú farbu pre aktuálnu alebo nasledujúcu udalosť
+menu.hint_infobar_casys_color Zmena farby pozadia CA-Systému
+menu.hint_infobar_casys_dotmatrix Ihličkový CA-Systém v pozadí
+menu.hint_infobar_casys_frame áno: CA-Systém s rámom
 menu.hint_infobar_dd Zobrazenie DolbyDigital ikony
 menu.hint_infobar_filesys Zobrazenie úrovne obsadenia pamäte a disku
 menu.hint_infobar_fonts Zmena veľkosti fontu informačnej lišty
@@ -1104,6 +1140,7 @@ menu.hint_misc_filebrowser Kódovanie súborového systemu, oprávnenia súboru,
 menu.hint_misc_general Spustenie do pripravenosti, zachytávanie teletextu, hdd adresár doplnkov,\núroveň debugovania
 menu.hint_misc_zapit Východzie TV/Radio kanály
 menu.hint_movie Prehrávanie filmov
+menu.hint_moviebrowser_setup Nastavenie výberu a volieb zobrazenia.
 menu.hint_movieplayer_plugin Výber doplnku pre overenie s jedným potvrdením klávesy v režime prehrávača
 menu.hint_net_broadcast Zadanie adresy vysielania, ak netušíte použite IP adresu s koncom .255
 menu.hint_net_dhcp Použije DHCP server pre automatickú konfiguráciu
@@ -1140,6 +1177,8 @@ menu.hint_net_ushare Zdielanie pripojeného HDD cez uPnp
 menu.hint_net_xupnpd Zdielanie "Živých kanálov" cez uPnp
 menu.hint_network IP adresa, brána, DNS, Synch. času\nSieťové zdielanie a služby
 menu.hint_new_zap_mode Povoliť prepnutie kanála počas prehliadania\n(prepnuť režim s 'MUTE' v zozname kanálov)
+menu.hint_next Pokračovať na ďaľšie menu\nStlačenie MENU tlačítka zatvorí všetky ponuky
+menu.hint_next_brief Pokračovať na ďaľšej ponuke
 menu.hint_numeric_adjust Nastavenie režimu zoznamu kanálov na číselné prepnutie
 menu.hint_opkg Inštalovať alebo aktualizovať programové balíčky
 menu.hint_opkg_upgrade Aktualizuje všetky inštalované balíčky na poslednú dostupnú verziu
@@ -1155,6 +1194,7 @@ menu.hint_parentallock_prompt Konfigurácia keď sa Neutrino opýta na PIN kód
 menu.hint_personalize Povolenie/zakázanie alebo Položky menu zabezpečenia\nKonfigurácia farebných tlačítok uživateľských ponúk
 menu.hint_pictureviewer_defdir Východzí adresár prehliadača obrázkov
 menu.hint_pictureviewer_scaling Algoritmus mierky obrázku
+menu.hint_pictureviewer_setup Konfigurácia správania sa prehliadača obrázkov
 menu.hint_pictureviewer_slide_time Interval zmeny obrázka, v sekundách
 menu.hint_picview Sledovanie obrázkov
 menu.hint_plugin_type_games Zobrazí hry v uživateľskom menu pri výbere 'Typy doplnkov'
@@ -1287,6 +1327,10 @@ menu.hint_scan_usalsall Nastavenie USALS označenia pre všetky satelity
 menu.hint_scan_useusals Použije USALS pre\ntento satelit
 menu.hint_scrambled_message Zobrazenie správy kódovania, pokiaľ kanál nebol dekódovaný
 menu.hint_screen_setup Konfigurácia okrajov obrazu
+menu.hint_screensaver_delay Nastavte čas (v minútach), po ktorom sa šetrič obrazovky spustí alebo vypne
+menu.hint_screensaver_dir Vyberte adresár v ktorom sa šetrič obrazovky spustí
+menu.hint_screensaver_setup Konfigurácia možností šetríča obrazovky pre zvukový prehrávač a rádio režim
+menu.hint_screensaver_timeout Zvoľte časový interval zmeny obrazovky v šetriči obrazovky
 menu.hint_screenshot_count Pokiaľ žiadny GUI na obrazovke, môže byť uložených 1-5\nsériových zosnímaní
 menu.hint_screenshot_cover ZAP: Pokiaľ prehráva nahrávky, prepíše jedno\nzachytenie do zobrazenia v Prehliadači filmov
 menu.hint_screenshot_dir Výber adresára pre uloženie zachyteného obrázku
@@ -1363,6 +1407,7 @@ menu.hint_volume_size Výber výšky indikátora hlasitosti
 menu.hint_webtv_setup Tu nakonfigurované WebTV kanály budú k dispozícii v štandartnom zozname kanálov
 menu.hint_window_size Zoznam kanálov, EPG-Infp a niektoré iné okná sú zmenšené týmto faktorom
 menu.hint_ytplay Prehrávanie vybraných youtube videí
+menu.hint_ytplay_setup Konfigurácia špecifických možností YouTube, napr. horná hranica výsledkov vyhľadávania
 menu.hint_zap_cycle Pri prepínaní kanálov zotrvať v aktuálnom bukete
 menu.next ďaľej (MENU ukončí)
 messagebox.back späť
@@ -1374,11 +1419,13 @@ messagebox.no nie
 messagebox.ok ok
 messagebox.yes áno
 miscsettings.channellist Nastavenia zoznamu kanálov
-miscsettings.channellist_colored_events Udalosť farebne
 miscsettings.channellist_epgtext_align Zarovnaj EPG text
+miscsettings.colored_events Farebnosť udalostí
 miscsettings.colored_events_0 žiadny
 miscsettings.colored_events_1 aktuálny
 miscsettings.colored_events_2 nasledujúci
+miscsettings.colored_events_channellist V zozname kanálov
+miscsettings.colored_events_infobar V info lište
 miscsettings.energy Energia
 miscsettings.epg_cache Zachytávanie EPG (dni)
 miscsettings.epg_cache_hint1 Ako dlho uchovávať dáta EPG v budúcnosti?
@@ -1397,6 +1444,7 @@ miscsettings.epg_old_events_hint2 Nastavenie v hodinách.
 miscsettings.epg_read Obnoviť EPG pri zavádzaní
 miscsettings.epg_save Ulož/Obnov EPG po reštarte
 miscsettings.epg_save_frequently Periodické ukladanie EPG
+miscsettings.epg_save_mode Len obľúbené
 miscsettings.epg_save_standby Ulož EPG pri soft standby
 miscsettings.epg_scan Prehľadávanie EPG
 miscsettings.epg_scan_always Vždy
@@ -1410,9 +1458,11 @@ miscsettings.general Hlavné nastavenia
 miscsettings.head Rôzne nastavenia
 miscsettings.infobar Inforiadok
 miscsettings.infobar_casystem_display Zobrazenie CA-Systému
+miscsettings.infobar_casystem_dotmatrix Ihličkové zobrazenie CA
+miscsettings.infobar_casystem_frame Orámované zobrazenie CA
 miscsettings.infobar_casystem_mini CA mini
 miscsettings.infobar_casystem_mode CA mód
-miscsettings.infobar_colored_events Farebné udalosti
+miscsettings.infobar_disp Zobrazovanie loga
 miscsettings.infobar_disp_0 bez Loga
 miscsettings.infobar_disp_1 Logo v číselnom boxe
 miscsettings.infobar_disp_2 Logo+číslo kanála
@@ -1420,7 +1470,8 @@ miscsettings.infobar_disp_3 Logo+názov kanála+signál
 miscsettings.infobar_disp_4 Logo+názov+číslo kanála
 miscsettings.infobar_disp_5 Logo+signál
 miscsettings.infobar_disp_6 Logo+číslo kanála+signál
-miscsettings.infobar_disp_log len Logo
+miscsettings.infobar_gradient_bottom Spodok gradientu
+miscsettings.infobar_gradient_top Vrch gradientu
 miscsettings.infobar_logo_hdd_dir Adresár loga
 miscsettings.infobar_sat_display Zobrazenie satelitu v stavovom riadku
 miscsettings.infobar_show Zobraziť Info pri zmene EPG
@@ -1508,6 +1559,7 @@ moviebrowser.book_movieend Koniec filmu:
 moviebrowser.book_moviestart Žačiatok filmu:
 moviebrowser.book_name Názov:
 moviebrowser.book_new Nová záložka
+moviebrowser.book_no_end Nedefinovaný koniec záložky
 moviebrowser.book_position Pozícia:
 moviebrowser.book_type Skok (<0 vzad , >0 vpred):
 moviebrowser.book_type_backward Opakovať
@@ -1518,7 +1570,16 @@ moviebrowser.browser_row_item Položka stĺpca
 moviebrowser.browser_row_nr Počet stĺpcov
 moviebrowser.browser_row_width Šírka stĺpca [%]
 moviebrowser.cache_dir Adresár cache
+moviebrowser.copies Kopírovať skoky z filmu do nových súborov?
+moviebrowser.copy Kopírovať skoky z filmu do nového súboru?
+moviebrowser.copy_failed Kopírovanie zlyhalo, je tam skok záložiek a dostatok voľného miesta?
+moviebrowser.copying Kopírovanie, prosím čakajte ...
+moviebrowser.cut Vystrihnúť skoky z filmu?
+moviebrowser.cut_failed Vystrihovanie zlyhalo, je tam skok záložiek a dostatok voľného miesta?
+moviebrowser.cutting Strihanie, prosím čakajte ...
+moviebrowser.delete_all Zmazať všetky vybrané filmy bez akýchkoľvek otázok?
 moviebrowser.delete_info Mazanie súborov, prosim čakajte...
+moviebrowser.delete_screenshot Zmazať obrázok obrazovky?
 moviebrowser.dir Adresár
 moviebrowser.dir_head Doplnkové adresáre
 moviebrowser.edit_book Zmeň záložku
@@ -1541,11 +1602,15 @@ moviebrowser.head_filter Filtrovanie filmov podľa kategórie:
 moviebrowser.head_playlist Posledné pustený:
 moviebrowser.head_recordlist Posledne nahraný:
 moviebrowser.hide_series Skryť serialy
+moviebrowser.hint_copy_onefile 11111
+moviebrowser.hint_copy_several 22222
+moviebrowser.hint_cut 33333
 moviebrowser.hint_jumpbackward Skok vzad o 5s\n '0' zruš
 moviebrowser.hint_jumpforward Skok vpred o 5s\n '0' zruš
 moviebrowser.hint_movieend Ukončenie sledovania za 5 s\n '0' zruš
 moviebrowser.hint_newbook_backward Nový skok vzad \n 'MODRÝ' na koniec
 moviebrowser.hint_newbook_forward Nový skok vpred\n 'MODRÝ' na koniec
+moviebrowser.hint_truncate 44444
 moviebrowser.info_audio Zvuk
 moviebrowser.info_channel Kanál
 moviebrowser.info_file Súbor
@@ -1555,6 +1620,7 @@ moviebrowser.info_genre_minor Vedľajší žáner
 moviebrowser.info_head Informácia o filme
 moviebrowser.info_head_update Ulož zmeny vo všetkých informačných súboroch filmu
 moviebrowser.info_info1 Info 1
+moviebrowser.info_info2 Info 2
 moviebrowser.info_length Dĺžka (Min)
 moviebrowser.info_parental_lockage Rodičovský zámok
 moviebrowser.info_parental_lockage_0year vždy
@@ -1576,6 +1642,10 @@ moviebrowser.info_videoformat Obraz
 moviebrowser.last_play_max_items Počet liniek posledného prehrávania
 moviebrowser.last_record_max_items Počet liniek posledného nahrávania
 moviebrowser.load_default Nahrať prednastavené nastavenia
+moviebrowser.menu_copy_onefile Kopírovať film
+moviebrowser.menu_copy_several Kopírovať a rozdeliť film
+moviebrowser.menu_cut Vystrihnúť film
+moviebrowser.menu_cut_head Kopírovať, vystrihnúť a skrátiť
 moviebrowser.menu_directories_head Adresáre
 moviebrowser.menu_help_head Nápoveda
 moviebrowser.menu_main_bookmarks Záložky
@@ -1589,6 +1659,7 @@ moviebrowser.menu_parental_lock_head Blokovanie
 moviebrowser.menu_parental_lock_rate_head Blokovať film z ...
 moviebrowser.menu_save Ulož zmeny
 moviebrowser.menu_save_all Spusti aktualizáciu informácií o súbore
+moviebrowser.menu_truncate Skrátiť film
 moviebrowser.option_browser Možnosti prehliadača
 moviebrowser.reload_at_start Načítanie informácie o filme pri štarte
 moviebrowser.remount_at_start Pripoj pri štarte
@@ -1618,6 +1689,10 @@ moviebrowser.short_size Veľkosť
 moviebrowser.short_title Titul
 moviebrowser.start_head Pozerať film od:
 moviebrowser.start_record_start Začiatok filmu
+moviebrowser.truncate Orezať film?
+moviebrowser.truncate_failed Orezanie zlyhalo.
+moviebrowser.truncate_failed_playing Nemožné orezať prehrávanie filmu.
+moviebrowser.truncating Orezávanie, čakajte prosím ...
 moviebrowser.ts_only Zobraziť iba nahrávky
 moviebrowser.update_if_dest_empty_only Kopírovať len ak je cieľové miesto prázdne
 moviebrowser.use_dir Použi adresár
@@ -1650,6 +1725,7 @@ moviebrowser.yt_recently_featured Nedávno odporúčané
 moviebrowser.yt_region Región
 moviebrowser.yt_related Podobné videá
 moviebrowser.yt_search Hľadať slovo
+moviecut.cancel Zrušiť editovanie filmu?
 movieplayer.bookmark Záložky
 movieplayer.bookmarkname Názov záložky
 movieplayer.bookmarkname_hint1 Vloženie názvu
@@ -2038,6 +2114,11 @@ scants.startnow Spusti prehľadávanie
 scants.test Otestovanie signálu
 scants.transponders Transpondéry:
 scrambled_channel Kódovaný kanál
+screensaver.delay Oneskorenie
+screensaver.dir Adresár
+screensaver.menu Šetrič obrazovky
+screensaver.off Vypnutie šetriča
+screensaver.timeout Zmena obrázkov
 screensetup.lowerright zelený = dolný, pravý okraj
 screensetup.upperleft červený = horný, ľavý oraj
 screenshot.count Počet
@@ -2098,7 +2179,7 @@ streaminfo.framerate Snímková rýchlosť
 streaminfo.framerate_unknown Snímková rýchlosť: neznáma
 streaminfo.head Technické informácie
 streaminfo.not_available nedostupné
-streaminfo.resolution Rolíšenie
+streaminfo.resolution Rozlíšenie
 streaminfo.signal Parametre signálu
 streaming.busy Nahrávací proces aktívny.\nAk sa správa zobrazuje a nie je nič nahrávané,\nreštartujte Neutrino.
 streaming.dir_not_writable Do nahrávacieho adresára nie je možné nahrávať.\nNahrávanie nebude pracovať.
@@ -2109,7 +2190,6 @@ stringinput.backspace Naspäť
 stringinput.caps veľké/malé znaky
 stringinput.clear všetko zmaž
 stringinput.insert Vložiť
-stringinput.layout Rozloženie
 stringinput.save Uložiť
 subtitles.charset Znaková sada
 subtitles.head Titulky

@@ -1,4 +1,4 @@
-installdir = $(DATADIR)/neutrino/themes
+installdir = $(THEMESDIR)
 
 install_DATA = \
 	Classic.theme \
@@ -7,6 +7,7 @@ install_DATA = \
 	DarkBlue.theme \
 	DarkBrown.theme \
 	Gray.theme \
+	Grey-Blue.theme \
 	MonoChrom.theme \
 	Olive.theme \
 	Red.theme \

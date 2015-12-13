@@ -142,10 +142,10 @@ bool CCam::setCaPmt(bool update)
 	return sendMessage((char *)cabuf, calen, update);
 }
 
-bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen)
+bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type)
 {
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
-			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawpmt ? rawlen : 0);
+			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawpmt ? rawlen : 0, (CA_SLOT_TYPE) type);
 }
 
 int CCam::makeMask(int demux, bool add)
@@ -170,6 +170,8 @@ CCamManager * CCamManager::manager = NULL;
 CCamManager::CCamManager()
 {
 	channel_map.clear();
+	tunerno = -1;
+	filter_channels = false;
 }
 
 CCamManager::~CCamManager()
@@ -190,7 +192,7 @@ CCamManager * CCamManager::getInstance(void)
 void CCamManager::StopCam(t_channel_id channel_id, CCam *cam)
 {
 	cam->sendMessage(NULL, 0, false);
-	cam->sendCaPmt(channel_id, NULL, 0);
+	cam->sendCaPmt(channel_id, NULL, 0, CA_SLOT_TYPE_ALL);
 	channel_map.erase(channel_id);
 	delete cam;
 }
@@ -271,19 +273,20 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
+
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 
 	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
 	if (mode == RECORD && start == false && source != cDemux::GetSource(0)) {
 		INFO("MODE!=record(%d) start=false, src %d getsrc %d", mode, source, cDemux::GetSource(0));
 		cam->sendMessage(NULL, 0, false);
-		cam->sendCaPmt(channel->getChannelID(), NULL, 0);
+		cam->sendCaPmt(channel->getChannelID(), NULL, 0, CA_SLOT_TYPE_ALL);
 	}
 
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);
 		cam->setSource(source);
-		if(newmask != 0) {
+		if(newmask != 0 && (!filter_channels || !channel->bUseCI)) {
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
 		}
@@ -296,12 +299,37 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		StopCam(channel_id, cam);
 	}
 
+
 	CaIdVector caids;
 	cCA::GetInstance()->GetCAIDS(caids);
 	//uint8_t list = CCam::CAPMT_FIRST;
 	uint8_t list = CCam::CAPMT_ONLY;
 	if (channel_map.size() > 1)
 		list = CCam::CAPMT_ADD;
+
+#ifdef BOXMODEL_APOLLO
+	int ci_use_count = 0;
+	for (it = channel_map.begin(); it != channel_map.end(); ++it)
+	{
+		cam = it->second;
+		channel = CServiceManager::getInstance()->FindChannel(it->first);
+
+		if (tunerno >= 0 && tunerno == cDemux::GetSource(cam->getSource())) {
+			cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
+			ci_use_count++;
+			break;
+		} else if (filter_channels) {
+			if (channel && channel->bUseCI)
+				ci_use_count++;
+		} else
+			ci_use_count++;
+	}
+	if (ci_use_count == 0) {
+		INFO("CI: not used, disabling TS\n");
+		cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
+	}
+#endif
+
 	for (it = channel_map.begin(); it != channel_map.end(); /*++it*/)
 	{
 		cam = it->second;
@@ -318,9 +346,26 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->makeCaPmt(channel, false, list, caids);
 		int len;
 		unsigned char * buffer = channel->getRawPmt(len);
-		cam->sendCaPmt(channel->getChannelID(), buffer, len);
+		cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_SMARTCARD);
+
+		if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
+			INFO("CI: configured tuner %d do not match %d, skip [%s]\n", tunerno, cam->getSource(), channel->getName().c_str());
+		} else if (filter_channels && !channel->bUseCI) {
+			INFO("CI: filter enabled, CI not used for [%s]\n", channel->getName().c_str());
+		} else {
+			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
+		}
 		//list = CCam::CAPMT_MORE;
 	}
 
 	return true;
+}
+
+void CCamManager::SetCITuner(int tuner)
+{
+	tunerno = tuner;
+#ifdef BOXMODEL_APOLLO
+	if (tunerno >= 0)
+		cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
+#endif
 }

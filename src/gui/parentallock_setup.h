@@ -53,7 +53,7 @@ class CParentalSetup : public CMenuTarget, public CPINProtection
 		
 		CParentalSetup() : CPINProtection(g_settings.parentallock_pincode)
 		{ 
-			width = w_max (40, 10); //%
+			width = 40;
 			title = LOCALE_PARENTALLOCK_HEAD;
 		};
 		~CParentalSetup();

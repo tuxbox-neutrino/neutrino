@@ -44,7 +44,7 @@
 #include <string>
 
 
-class CNeutrinoEventList
+class CEventList
 {
 	// Eventfinder start
 	public:
@@ -69,6 +69,8 @@ class CNeutrinoEventList
 	std::string     m_search_keyword;
 	std::string     m_search_autokeyword;
 	int             m_search_list;
+	int    		m_search_genre;
+	int    		m_search_fsk;
 	t_channel_id    m_search_channel_id;
 	t_bouquet_id    m_search_bouquet_id;
 	bool m_showChannel;
@@ -124,8 +126,8 @@ class CNeutrinoEventList
 	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
 	
 	public:
-		CNeutrinoEventList();
-		~CNeutrinoEventList();
+		CEventList();
+		~CEventList();
 		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = "", const CChannelEventList &followlist = CChannelEventList ()); // UTF-8
 };
 
@@ -142,6 +144,8 @@ class CEventFinderMenu : public CMenuTarget, CChangeObserver
 		CMenuForwarder* m_search_channelname_mf;
 		int*           	m_event;
 		int*   	        m_search_epg_item;
+		int*   		m_search_genre;
+		int*		m_search_fsk;
 		std::string*    m_search_keyword;
 		int*   	        m_search_list;
 		std::string     m_search_channelname;
@@ -156,7 +160,10 @@ class CEventFinderMenu : public CMenuTarget, CChangeObserver
 				  std::string*  	search_keyword,
 				  int*			search_list,
 				  t_channel_id* search_channel_id,
-				  t_bouquet_id* search_bouquet_id);
+				  t_bouquet_id* search_bouquet_id,
+				  int* 			search_genre,
+				  int*			search_fsk
+				);
                 int  exec( CMenuTarget* parent,  const std::string &actionkey);
 		bool changeNotify(const neutrino_locale_t OptionName, void *);
 

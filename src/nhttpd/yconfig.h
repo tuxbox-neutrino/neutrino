@@ -112,7 +112,7 @@
 #define NEUTRINO_CONFIGFILE				CONFIGDIR"/neutrino.conf"
 #define HOSTEDDOCUMENTROOT				HOSTED_HTTPDDIR
 #define HOSTEDDOCUMENTURL				"/hosted/"
-#define EXTRASDOCUMENTROOT				"/mnt/hosted/extras"
+#define EXTRASDOCUMENTROOT				HOSTED_HTTPDDIR"/extras"
 #define EXTRASDOCUMENTURL				"/hosted/extras"
 #define ZAPITXMLPATH					CONFIGDIR"/zapit"
 #define TUXBOX_LOGOS_URL				ICONSDIR"/logo"

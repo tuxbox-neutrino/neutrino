@@ -50,15 +50,13 @@
 
 #include "themes.h"
 
-#define THEMEDIR DATADIR "/neutrino/themes/"
-#define THEMEDIR_VAR "/var/tuxbox/themes/"
-#define USERDIR "/var" THEMEDIR
+#define USERDIR "/var" THEMESDIR
 #define FILE_PREFIX ".theme"
 
 CThemes::CThemes()
 : themefile('\t')
 {
-	width 	= w_max (40, 10);
+	width = 40;
 	notifier = NULL;
 	hasThemeChanged = false;
 }
@@ -82,10 +80,10 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
 			{
 				themeFile.erase(0, 3);
-				readFile(((std::string)THEMEDIR_VAR + themeFile + FILE_PREFIX).c_str());
+				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile + FILE_PREFIX).c_str());
 			} 
 			else
-				readFile(((std::string)THEMEDIR + themeFile + FILE_PREFIX).c_str());
+				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_PREFIX).c_str());
 		}
 		return res;
 	}
@@ -104,7 +102,7 @@ void CThemes::readThemes(CMenuWidget &themes)
 {
 	struct dirent **themelist;
 	int n;
-	const char *pfade[] = {THEMEDIR, THEMEDIR_VAR};
+	const char *pfade[] = {THEMESDIR, THEMESDIR_VAR};
 	bool hasCVSThemes, hasUserThemes;
 	hasCVSThemes = hasUserThemes = false;
 	std::string userThemeFile = "";
@@ -163,21 +161,22 @@ int CThemes::Show()
 	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
 
-	if (mkdirhier(THEMEDIR_VAR) && errno != EEXIST) {
-		printf("[neutrino theme] error creating %s\n", THEMEDIR_VAR);
+	if (!CFileHelpers::createDir(THEMESDIR_VAR)) {
+		printf("[neutrino theme] error creating %s\n", THEMESDIR_VAR);
 	}
-	if (access(THEMEDIR_VAR, F_OK) == 0 ) {
+
+	if (access(THEMESDIR_VAR, F_OK) == 0 ) {
 		themes.addItem(GenericMenuSeparatorLine);
 		themes.addItem(m1);
 	} else {
 		delete m1;
-		printf("[neutrino theme] error accessing %s\n", THEMEDIR_VAR);
+		printf("[neutrino theme] error accessing %s\n", THEMESDIR_VAR);
 	}
 
 	int res = themes.exec(NULL, "");
 
 	if (!file_name.empty()) {
-		saveFile(((std::string)THEMEDIR_VAR + file_name + FILE_PREFIX).c_str());
+		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_PREFIX).c_str());
 	}
 
 	if (hasThemeChanged) {
@@ -244,6 +243,7 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "menu_Head_Text_red", t.menu_Head_Text_red );
 	configfile.setInt32( "menu_Head_Text_green", t.menu_Head_Text_green );
 	configfile.setInt32( "menu_Head_Text_blue", t.menu_Head_Text_blue );
+	configfile.setInt32( "menu_Head_gradient" , t.menu_Head_gradient);
 	configfile.setInt32( "menu_Content_alpha", t.menu_Content_alpha );
 	configfile.setInt32( "menu_Content_red", t.menu_Content_red );
 	configfile.setInt32( "menu_Content_green", t.menu_Content_green );
@@ -268,10 +268,17 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "menu_Content_inactive_Text_red", t.menu_Content_inactive_Text_red );
 	configfile.setInt32( "menu_Content_inactive_Text_green", t.menu_Content_inactive_Text_green );
 	configfile.setInt32( "menu_Content_inactive_Text_blue", t.menu_Content_inactive_Text_blue );
+	configfile.setInt32( "menu_Hint_gradient" , t.menu_Hint_gradient);
 	configfile.setInt32( "infobar_alpha", t.infobar_alpha );
 	configfile.setInt32( "infobar_red", t.infobar_red );
 	configfile.setInt32( "infobar_green", t.infobar_green );
 	configfile.setInt32( "infobar_blue", t.infobar_blue );
+	configfile.setInt32( "infobar_casystem_alpha", t.infobar_casystem_alpha );
+	configfile.setInt32( "infobar_casystem_red", t.infobar_casystem_red );
+	configfile.setInt32( "infobar_casystem_green", t.infobar_casystem_green );
+	configfile.setInt32( "infobar_casystem_blue", t.infobar_casystem_blue );
+	configfile.setInt32( "infobar_gradient_top", t.infobar_gradient_top );
+	configfile.setInt32( "infobar_gradient_bottom", t.infobar_gradient_bottom );
 	configfile.setInt32( "infobar_Text_alpha", t.infobar_Text_alpha );
 	configfile.setInt32( "infobar_Text_red", t.infobar_Text_red );
 	configfile.setInt32( "infobar_Text_green", t.infobar_Text_green );
@@ -280,10 +287,14 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "colored_events_red", t.colored_events_red );
 	configfile.setInt32( "colored_events_green", t.colored_events_green );
 	configfile.setInt32( "colored_events_blue", t.colored_events_blue );
+	configfile.setInt32( "colored_events_channellist", t.colored_events_channellist );
+	configfile.setInt32( "colored_events_infobar", t.colored_events_infobar );
+
 	configfile.setInt32( "clock_Digit_alpha", t.clock_Digit_alpha );
 	configfile.setInt32( "clock_Digit_red", t.clock_Digit_red );
 	configfile.setInt32( "clock_Digit_green", t.clock_Digit_green );
 	configfile.setInt32( "clock_Digit_blue", t.clock_Digit_blue );
+	configfile.setInt32( "gradient_c2c", t.gradient_c2c );
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -297,6 +308,7 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.menu_Head_Text_red = configfile.getInt32( "menu_Head_Text_red", 0x5f );
 	t.menu_Head_Text_green = configfile.getInt32( "menu_Head_Text_green", 0x46 );
 	t.menu_Head_Text_blue = configfile.getInt32( "menu_Head_Text_blue", 0x00 );
+	t.menu_Head_gradient = configfile.getInt32( "menu_Head_gradient", 1);
 	t.menu_Content_alpha = configfile.getInt32( "menu_Content_alpha", 0x14 );
 	t.menu_Content_red = configfile.getInt32( "menu_Content_red", 0x00 );
 	t.menu_Content_green = configfile.getInt32( "menu_Content_green", 0x0f );
@@ -321,10 +333,17 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.menu_Content_inactive_Text_red = configfile.getInt32( "menu_Content_inactive_Text_red", 55 );
 	t.menu_Content_inactive_Text_green = configfile.getInt32( "menu_Content_inactive_Text_green", 70 );
 	t.menu_Content_inactive_Text_blue = configfile.getInt32( "menu_Content_inactive_Text_blue", 85 );
+	t.menu_Hint_gradient = configfile.getInt32( "menu_Hint_gradient", 0);
 	t.infobar_alpha = configfile.getInt32( "infobar_alpha", 0x14 );
 	t.infobar_red = configfile.getInt32( "infobar_red", 0x00 );
 	t.infobar_green = configfile.getInt32( "infobar_green", 0x0e );
 	t.infobar_blue = configfile.getInt32( "infobar_blue", 0x23 );
+	t.infobar_casystem_alpha = configfile.getInt32( "infobar_casystem_alpha", 0x08 );
+	t.infobar_casystem_red = configfile.getInt32( "infobar_casystem_red", 0x00 );
+	t.infobar_casystem_green = configfile.getInt32( "infobar_casystem_green", 0x00 );
+	t.infobar_casystem_blue = configfile.getInt32( "infobar_casystem_blue", 0x00 );
+	t.infobar_gradient_top = configfile.getInt32( "infobar_gradient_top", 0 );
+	t.infobar_gradient_bottom = configfile.getInt32( "infobar_gradient_bottom", 0 );
 	t.infobar_Text_alpha = configfile.getInt32( "infobar_Text_alpha", 0x00 );
 	t.infobar_Text_red = configfile.getInt32( "infobar_Text_red", 0x64 );
 	t.infobar_Text_green = configfile.getInt32( "infobar_Text_green", 0x64 );
@@ -333,19 +352,22 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.colored_events_red = configfile.getInt32( "colored_events_red", 95 );
 	t.colored_events_green = configfile.getInt32( "colored_events_green", 70 );
 	t.colored_events_blue = configfile.getInt32( "colored_events_blue", 0 );
+	t.colored_events_channellist = configfile.getInt32( "colored_events_channellist", 0 );
+	t.colored_events_infobar = configfile.getInt32( "colored_events_infobar", 2 );
 	t.clock_Digit_alpha = configfile.getInt32( "clock_Digit_alpha", t.menu_Content_Text_alpha );
 	t.clock_Digit_red = configfile.getInt32( "clock_Digit_red", t.menu_Content_Text_red );
 	t.clock_Digit_green = configfile.getInt32( "clock_Digit_green", t.menu_Content_Text_green );
 	t.clock_Digit_blue = configfile.getInt32( "clock_Digit_blue", t.menu_Content_Text_blue );
+	t.gradient_c2c = configfile.getInt32( "gradient_c2c", 0 );
 }
 
 void CThemes::move_userDir()
 {
 	if (access(USERDIR, F_OK) == 0)
 	{
-		if (mkdirhier(THEMEDIR_VAR) && errno != EEXIST)
+		if (!CFileHelpers::createDir(THEMESDIR_VAR))
 		{
-			printf("[neutrino theme] error creating %s\n", THEMEDIR_VAR);
+			printf("[neutrino theme] error creating %s\n", THEMESDIR_VAR);
 			return;
 		}
 		struct dirent **themelist;
@@ -362,8 +384,8 @@ void CThemes::move_userDir()
 				const char *file = themelist[count]->d_name;
 				if (strcmp(file, ".") == 0 || strcmp(file, "..") == 0)
 					continue;
-				const char *dest = ((std::string)USERDIR + file).c_str();
-				const char *target = ((std::string)THEMEDIR_VAR + file).c_str();
+				const char *dest = ((std::string)USERDIR + "/" + file).c_str();
+				const char *target = ((std::string)THEMESDIR_VAR + "/" + file).c_str();
 				printf("[neutrino theme] moving %s to %s\n", dest, target);
 				rename(dest, target);
 			}

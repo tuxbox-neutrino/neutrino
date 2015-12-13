@@ -34,6 +34,7 @@
 
 #include <gui/rc_lock.h>
 
+#include <driver/display.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>

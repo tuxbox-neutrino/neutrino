@@ -50,7 +50,7 @@ chmod +x /lib/tuxbox/luaplugins/test.lua
 #include <system/helpers.h>
 #include <system/set_threadname.h>
 #include <luaclient/luaclient.h>
-#include <gui/luainstance.h>
+#include <gui/lua/luainstance.h>
 
 #include "luaserver.h"
 

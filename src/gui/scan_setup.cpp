@@ -348,9 +348,9 @@ const CMenuOptionChooser::keyval SATSETUP_FRONTEND_MODE[SATSETUP_FRONTEND_MODE_C
 	{ CFrontend::FE_MODE_LINK_TWIN,   LOCALE_SATSETUP_FE_MODE_LINK_TWIN   },
 };
 
-CScanSetup::CScanSetup(bool wizard_mode)
+CScanSetup::CScanSetup(int wizard_mode)
 {
-	width = w_max (40, 10);
+	width = 40;
 	is_wizard = wizard_mode;
 
 	satOnOff	= NULL;
@@ -450,7 +450,7 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		scansettings.scan_nit_manual = 1;
 		scansettings.scan_fta_flag = 0;
 		if (scansettings.scan_logical_numbers) {
-			g_settings.keep_channel_numbers = 1;
+			//g_settings.keep_channel_numbers = 1;
 			CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
 		}
 		CScanTs scanTs(ALL_CABLE);
@@ -494,7 +494,7 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				scansettings.fst_version = CServiceScan::getInstance()->GetFstVersion();
 #endif
 				if (as == "fast") {
-					scansettings.fst_update = 1;
+					//scansettings.fst_update = 1;
 					if (is_wizard)
 						return menu_return::RETURN_EXIT_ALL;
 				}
@@ -1514,7 +1514,8 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_FASTDISEQC);
 	fast_ScanMenu->addItem(mf);
 
-	if (!g_settings.easymenu) {
+	if (1 /* !g_settings.easymenu */)
+	{
 		mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 		fast_ScanMenu->addItem(mf);
@@ -1643,7 +1644,7 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 	menu->addItem(Rate);
 	menu->addItem(mod);
 
-	CMenuOptionChooser *lcn  = new CMenuOptionChooser(LOCALE_SATSETUP_LOGICAL_NUMBERS, (int *)&scansettings.scan_logical_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortCut++));
+	CMenuOptionChooser *lcn  = new CMenuOptionChooser(LOCALE_SATSETUP_LOGICAL_NUMBERS, (int *)&scansettings.scan_logical_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.keep_channel_numbers, this, CRCInput::convertDigitToKey(shortCut++));
 	lcn->setHint("", LOCALE_MENU_HINT_SCAN_LOGICAL);
 	menu->addItem(lcn);
 
@@ -1796,13 +1797,6 @@ int CScanSetup::addListFlagsItems(CMenuWidget *listflags_menu, const int &shortc
 	listflags_menu->addItem(lcn);
 #endif
 	return shortCut;
-}
-
-//sets menu mode to "wizard" or "default"
-void CScanSetup::setWizardMode(bool mode)
-{
-	printf("[neutrino] CScanSetup %s set scan-setup to mode %d...\n", __FUNCTION__, mode);
-	is_wizard = mode;
 }
 
 //save current settings
@@ -1974,7 +1968,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 	static int old_selected = 0;
 	static t_satellite_position old_position = 0;
 
-	int width = w_max (40, 10);
+	int width = 40;
 
 	if (parent)
 		parent->hide();

@@ -38,7 +38,7 @@
 #include <gui/pluginlist.h>
 #include <gui/widget/stringinput.h>
 
-#include <neutrino_menue.h>
+
 #include <driver/fade.h>
 #include <driver/display.h>
 #include <system/helpers.h>
@@ -493,7 +493,7 @@ CMenuWidget::CMenuWidget()
 	selected 	= -1;
 	iconOffset 	= 0;
 	offx = offy 	= 0;
-	from_wizard 	= false;
+	from_wizard 	= SNeutrinoSettings::WIZARD_OFF;
 	fade 		= true;
 	sb_width	= 0;
 	savescreen	= false;
@@ -562,11 +562,12 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 
 	current_page	= 0;
 	offx = offy 	= 0;
-	from_wizard 	= false;
+	from_wizard 	= SNeutrinoSettings::WIZARD_OFF;
 	fade 		= true;
 	savescreen	= false;
 	background	= NULL;
 	has_hints	= false;
+	brief_hints	= BRIEF_HINT_NO;
 	hint_painted	= false;
 	hint_height	= 0;
 	fbutton_count	= 0;
@@ -966,7 +967,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	return retval;
 }
 
-void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut)
+void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut, bool enabled)
 {
 	bool separatorline = false;
 	unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
@@ -982,7 +983,7 @@ void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigne
 			}
 			printf("[neutrino] integratePlugins: add %s\n", g_PluginList->getName(count));
 			neutrino_msg_t dk = (shortcut != CRCInput::RC_nokey) ? CRCInput::convertDigitToKey(sc++) : CRCInput::RC_nokey;
-			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
+			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), enabled, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
 			fw_plugin->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 			addItem(fw_plugin);
 		}
@@ -1009,15 +1010,20 @@ void CMenuWidget::hide()
 
 void CMenuWidget::checkHints()
 {
+	brief_hints = (brief_hints || (from_wizard == SNeutrinoSettings::WIZARD_START));
+
 	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
+	GenericMenuNext->setHint("", NONEXISTANT_LOCALE);
 	for (unsigned int i= 0; i< items.size(); i++) {
 		if(items[i]->hintIcon || items[i]->hint != NONEXISTANT_LOCALE || !items[i]->hintText.empty()) {
 			has_hints = true;
 			break;
 		}
 	}
-	if (has_hints)
-		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
+	if (has_hints) {
+		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, brief_hints ? LOCALE_MENU_HINT_BACK_BRIEF : LOCALE_MENU_HINT_BACK);
+		GenericMenuNext->setHint(NEUTRINO_ICON_HINT_NEXT, brief_hints ? LOCALE_MENU_HINT_NEXT_BRIEF : LOCALE_MENU_HINT_NEXT);
+	}
 }
 
 void CMenuWidget::calcSize()
@@ -1239,8 +1245,10 @@ void CMenuWidget::paintItems()
 }
 
 /*adds the typical menu intro with optional subhead, separator, back or cancel button and separatorline to menu*/
-void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_t section_text, int buttontype)
+void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_t section_text, int buttontype, bool brief_hint)
 {
+	brief_hints = brief_hint;
+
 	if (subhead_text != NONEXISTANT_LOCALE)
 		addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, subhead_text));
 
@@ -1301,6 +1309,10 @@ void CMenuWidget::paintHint(int pos)
 	
 	if (pos < 0 && !hint_painted)
 		return;
+
+	info_box->enableGradient(g_settings.theme.menu_Hint_gradient  != 0);
+	info_box->set2ndColor(COL_INFOBAR_SHADOW_PLUS_1); // COL_INFOBAR_SHADOW_PLUS_1 is default footer color
+
 	
 	if (hint_painted) {
 		/* clear detailsline line */
@@ -1356,7 +1368,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
 		info_box->setFrameThickness(2);
 		info_box->removeLineBreaks(str);
-		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
 		info_box->setCorner(RADIUS_LARGE);
 		info_box->syncSysColors();
 		info_box->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
@@ -1822,6 +1834,7 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 		}
 	}
 	paint(true);
+	OnAfterChangeOption();
 	if(observ && !luaAction.empty()) {
 		if (optionValname)
 			wantsRepaint = observ->changeNotify(luaState, luaAction, luaId, optionValname);
@@ -2169,7 +2182,7 @@ int CMenuSeparator::paint(bool selected)
 	if ((type & SUB_HEAD))
 	{
 		item_color = COL_MENUHEAD_TEXT;
-		item_bgcolor = COL_MENUHEAD_PLUS_0;
+		item_bgcolor = g_settings.theme.menu_Head_gradient ? COL_MENUCONTENT_PLUS_0 : COL_MENUHEAD_PLUS_0;
 	}
 	else
 	{

@@ -55,9 +55,6 @@
 
 class CProgressBar : public CComponentsItem
 {
-	protected:
-		void initVarProgressbar();
-
 	private:
 		///colors of active and passive bar area, active means the displayed value, passive the neutral area
 		fb_pixel_t pb_active_col, pb_passive_col;

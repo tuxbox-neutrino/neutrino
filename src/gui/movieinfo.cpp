@@ -619,6 +619,8 @@ std::string decodeXmlSpecialChars(std::string s)
 	strReplace(s,"&amp;","&");
 	strReplace(s,"&quot;","\"");
 	strReplace(s,"&apos;","\'");
+	strReplace(s,"&#x0a;","\n");
+	strReplace(s,"&#x0d;","\n");
 	return s;
 }
 
@@ -895,6 +897,7 @@ void MI_MOVIE_INFO::clear(void)
 	ytid = "";
 	ytitag = 0;
 	marked = false;
+	delAsk = true;
 }
 
 /************************************************************************

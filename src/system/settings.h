@@ -64,6 +64,8 @@ struct SNeutrinoTheme
 	unsigned char menu_Head_Text_green;
 	unsigned char menu_Head_Text_blue;
 
+	int menu_Head_gradient;
+
 	unsigned char menu_Content_alpha;
 	unsigned char menu_Content_red;
 	unsigned char menu_Content_green;
@@ -94,25 +96,39 @@ struct SNeutrinoTheme
 	unsigned char menu_Content_inactive_Text_green;
 	unsigned char menu_Content_inactive_Text_blue;
 
+	int menu_Hint_gradient;
+
 	unsigned char infobar_alpha;
 	unsigned char infobar_red;
 	unsigned char infobar_green;
 	unsigned char infobar_blue;
+
+	unsigned char infobar_casystem_alpha;
+	unsigned char infobar_casystem_red;
+	unsigned char infobar_casystem_green;
+	unsigned char infobar_casystem_blue;
 
 	unsigned char infobar_Text_alpha;
 	unsigned char infobar_Text_red;
 	unsigned char infobar_Text_green;
 	unsigned char infobar_Text_blue;
 
+	int infobar_gradient_top;
+	int infobar_gradient_bottom;
+
 	unsigned char colored_events_alpha;
 	unsigned char colored_events_red;
 	unsigned char colored_events_green;
 	unsigned char colored_events_blue;
 
+	int colored_events_channellist;
+	int colored_events_infobar;
+
 	unsigned char clock_Digit_alpha;
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
 	unsigned char clock_Digit_blue;
+	int gradient_c2c;
 };
 
 struct SNeutrinoSettings
@@ -160,6 +176,8 @@ struct SNeutrinoSettings
 	int progressbar_timescale_yellow;
 	int progressbar_timescale_invert;
 	int casystem_display;
+	int casystem_dotmatrix;
+	int casystem_frame;
 	int scrambled_message;
 	int volume_pos;
 	int volume_digits;
@@ -208,6 +226,9 @@ struct SNeutrinoSettings
 	int ci_standby_reset;
 	int ci_clock;
 	int ci_ignore_messages;
+	int ci_save_pincode;
+	int ci_tuner;
+	std::string ci_pincode;
 	int radiotext_enable;
 	int easymenu;
 
@@ -367,10 +388,7 @@ struct SNeutrinoSettings
 
 	SNeutrinoTheme theme;
 
-	int colored_events_channellist;
-	int colored_events_infobar;
 	int contrast_fonts;
-	int gradiant;
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8
@@ -392,6 +410,7 @@ struct SNeutrinoSettings
 	std::string network_nfs_recordingdir;
 	std::string timeshiftdir;
 	std::string downloadcache_dir;
+	std::string last_webtv_dir;
 
 	//recording
 	int  recording_type;
@@ -533,6 +552,7 @@ struct SNeutrinoSettings
 	int channellist_sort_mode;
 	int channellist_numeric_adjust;
 	int channellist_show_channellogo;
+	int channellist_show_infobox;
 	int channellist_show_numbers;
 	int repeat_blocker;
 	int repeat_genericblocker;
@@ -572,6 +592,8 @@ struct SNeutrinoSettings
 	int apply_settings;
 	int apply_kernel;
 
+	int flashupdate_createimage_add_var;
+	int flashupdate_createimage_add_root1;
 	int flashupdate_createimage_add_uldr;
 	int flashupdate_createimage_add_u_boot;
 	int flashupdate_createimage_add_env;
@@ -676,6 +698,7 @@ struct SNeutrinoSettings
 
 	//movieplayer
 	int   movieplayer_repeat_on;
+	std::string youtube_dev_id;
 
 	//zapit setup
 	std::string StartChannelTV;
@@ -758,6 +781,12 @@ struct SNeutrinoSettings
 		INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS = 3	
 	}INFOBAR_PROGRESSBAR_ARRANGEMENT_TYPES;
 
+	enum WIZARD_MODES
+	{
+		WIZARD_OFF	= 0,
+		WIZARD_START	= 1,
+		WIZARD_ON	= 2
+	};
 };
 
 /* some default Values */

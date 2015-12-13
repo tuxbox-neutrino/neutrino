@@ -20,6 +20,8 @@ EPGPlus.scroll_mode Scroll-Modus
 EPGPlus.stretch_mode Stretch-Modus
 EPGPlus.swap_mode Blättern
 EPGPlus.view_mode Modus
+GENRE.ALL aus
+GENRE.ARTS Kultur
 GENRE.ARTS.0 Kunst/Kultur
 GENRE.ARTS.1 Darstellende Künste
 GENRE.ARTS.10 Kunst-/Kultur-Magazin
@@ -32,12 +34,14 @@ GENRE.ARTS.6 Film/ Kino
 GENRE.ARTS.7 Experimental Film/Video
 GENRE.ARTS.8 Rundfunk/Presse
 GENRE.ARTS.9 Neue Medien
+GENRE.CHILDRENs_PROGRAMMES Kinder
 GENRE.CHILDRENs_PROGRAMMES.0 Kinder/Jugendprogramm
 GENRE.CHILDRENs_PROGRAMMES.1 Programm für Vorschulkinder
 GENRE.CHILDRENs_PROGRAMMES.2 Unterhaltungsprogramm für 6 bis 14-Jährige
 GENRE.CHILDRENs_PROGRAMMES.3 Unterhaltungsprogramm für 10 bis 16-Jährige
 GENRE.CHILDRENs_PROGRAMMES.4 Informations- und Bildungsprogramm
 GENRE.CHILDRENs_PROGRAMMES.5 Trickfilm
+GENRE.DOCUS_MAGAZINES Magazin
 GENRE.DOCUS_MAGAZINES.0 Doku/Magazin
 GENRE.DOCUS_MAGAZINES.1 Natur/Tiere/Umwelt
 GENRE.DOCUS_MAGAZINES.2 Naturwissenschaft und Technik
@@ -46,6 +50,7 @@ GENRE.DOCUS_MAGAZINES.4 Ausland/Expeditions
 GENRE.DOCUS_MAGAZINES.5 Sozial- und Geisteswissenschaften
 GENRE.DOCUS_MAGAZINES.6 Weiterbildung
 GENRE.DOCUS_MAGAZINES.7 Sprachen
+GENRE.MOVIE Spielfilm
 GENRE.MOVIE.0 Spielfilm/Drama
 GENRE.MOVIE.1 Kriminalfilm/Thriller
 GENRE.MOVIE.2 Abenteuerfilm/Western/Kriegsfilm
@@ -55,6 +60,7 @@ GENRE.MOVIE.5 Soap/Melodram/Folklore
 GENRE.MOVIE.6 Romantik
 GENRE.MOVIE.7 klassischer/religiöser/historischer Film/Drama
 GENRE.MOVIE.8 Erwachsenen Film/Drama
+GENRE.MUSIC_DANCE Musik
 GENRE.MUSIC_DANCE.0 Musik/Ballet/Tanz
 GENRE.MUSIC_DANCE.1 Rock/Pop
 GENRE.MUSIC_DANCE.2 Klassik
@@ -62,19 +68,23 @@ GENRE.MUSIC_DANCE.3 Volksmusik
 GENRE.MUSIC_DANCE.4 Jazz
 GENRE.MUSIC_DANCE.5 Musical/Oper
 GENRE.MUSIC_DANCE.6 Ballet
+GENRE.NEWS Nachrichten
 GENRE.NEWS.0 Nachrichten
 GENRE.NEWS.1 Nachrichten/Wetter
 GENRE.NEWS.2 Nachrichtenmagazin
 GENRE.NEWS.3 Dokumentation
 GENRE.NEWS.4 Diskussion/Interview/Debatte
+GENRE.SHOW Show
 GENRE.SHOW.0 Show/ Gameshow
 GENRE.SHOW.1 Gameshow/Quiz
 GENRE.SHOW.2 Varietee
 GENRE.SHOW.3 Talkshow
+GENRE.SOCIAL_POLITICAL Sozial
 GENRE.SOCIAL_POLITICAL.0 Sozial & Politikereignisse/Wirtschaft
 GENRE.SOCIAL_POLITICAL.1 Magazin/Report/Dokumentation
 GENRE.SOCIAL_POLITICAL.2 Wirtschaft und Soziales
 GENRE.SOCIAL_POLITICAL.3 Besondere Menschen
+GENRE.SPORTS Sport
 GENRE.SPORTS.0 Sport
 GENRE.SPORTS.1 Großereignisse (Olympische Spiele, Weltmeisterschaften usw.)
 GENRE.SPORTS.10 Reiten
@@ -87,6 +97,7 @@ GENRE.SPORTS.6 Leichtathletik
 GENRE.SPORTS.7 Motorsport
 GENRE.SPORTS.8 Wassersport
 GENRE.SPORTS.9 Wintersport
+GENRE.TRAVEL_HOBBIES Freizeit
 GENRE.TRAVEL_HOBBIES.0 Reise & Freizeit
 GENRE.TRAVEL_HOBBIES.1 Reisen und Tourismus
 GENRE.TRAVEL_HOBBIES.2 Handwerk
@@ -255,6 +266,7 @@ channellist.sats Satelliten
 channellist.show_channellogo Senderlogos zeigen
 channellist.show_channelnumber Kanalnummern zeigen
 channellist.show_empty_favs Zeige leere Favoriten-Bouquets
+channellist.show_infobox Sendungsfenster anzeigen
 channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
@@ -266,8 +278,11 @@ ci.inserted CAM im Slot
 ci.removed CAM entfernt -> Slot
 ci.reset Reset
 ci.reset_standby Reset nach Standby
+ci.save_pincode Jugendschutz-PIN speichern
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
+ci.tuner Nutze CI nur mit Tuner:
+ci.use Erlaube CI
 ci.waiting Warte auf CAM-Antwort
 clock_background Hintergrund anzeigen
 clock_seconds Sekunden anzeigen
@@ -299,6 +314,7 @@ colormenusetup.menuhead Titelleiste
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
 colorthememenu.head2 Themes laden
+colorthememenu.menu_hints Hinweisfenster
 colorthememenu.name Themename
 colorthememenu.neutrino_theme Neutrino Theme
 colorthememenu.question Aktuelles Theme beibehalten?
@@ -349,6 +365,8 @@ epgviewer.genre Genre
 epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
+eventfinder.fsk Altersfreigabe Filter
+eventfinder.genre Genre Filter
 eventfinder.head EPG-Suche
 eventfinder.history Frühere Suchen
 eventfinder.keyword Suche nach Textpassage
@@ -568,9 +586,11 @@ flashupdate.copy_image Kopiere Image in den Arbeitsspeicher
 flashupdate.createimage Image speichern
 flashupdate.createimage_add_env 'env' hinzufügen
 flashupdate.createimage_add_kernel 'kernel' hinzufügen
+flashupdate.createimage_add_root1 Partition 'root1' sichern
 flashupdate.createimage_add_spare 'spare' hinzufügen
 flashupdate.createimage_add_u_boot 'u-boot' hinzufügen
 flashupdate.createimage_add_uldr 'uldr' hinzufügen
+flashupdate.createimage_add_var Datenpartition 'var' sichern
 flashupdate.createimage_menu Aktuelle Software sichern
 flashupdate.createimage_options Einstellungen
 flashupdate.createimage_other Image für %s STB erstellen
@@ -586,19 +606,19 @@ flashupdate.fileis0bytes die Dateigröße ist 0 Byte
 flashupdate.fileselector Datei-Auswahl
 flashupdate.flashreadyreboot Das Image wurde erfolgreich geflasht.\nIhre Box wird jetzt neu gestartet.
 flashupdate.getinfofile lade Versioninfo
-flashupdate.getinfofileerror kann Info nicht laden
+flashupdate.getinfofileerror Kann Aktualisierungs-Info nicht laden!
 flashupdate.getupdatefile lade Update
-flashupdate.getupdatefileerror kann Update nicht laden
+flashupdate.getupdatefileerror Kann Aktualisierung nicht laden!
 flashupdate.globalprogress Gesamtstatus:
 flashupdate.head Aktualisierung
 flashupdate.md5check Imageprüfung
 flashupdate.md5sumerror Das Image ist fehlerhaft
 flashupdate.menu_apply_kernel Kernel flashen
 flashupdate.menu_apply_settings Settingsübernahme erlauben
-flashupdate.mkfs_create_image Image erstellen
+flashupdate.mkfs_create_image Backup erstellen
 flashupdate.mkfs_preparing_files Dateien und Verzeichnisse vorbereiten
 flashupdate.mkfs_using_sumtool Benutze Sumtool
-flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
+flashupdate.msgbox Es wurde folgende neue Datei gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen und installieren?
 flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
 flashupdate.mtdselector Partitions-Auswahl
 flashupdate.namemode1 Dateiname Settingsfile
@@ -686,6 +706,14 @@ fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
 fontsize.subtitles Text Untertitel
+fsk.all aus
+fsk.from_12 ab 12
+fsk.from_16 ab 16
+fsk.from_18 ab 18
+fsk.from_7 ab 7
+fsk.to_12 bis 12
+fsk.to_16 bis 16
+fsk.to_7 bis 7
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -716,7 +744,7 @@ hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
 hdd_slow Langsam
-hdd_statfs Füllstands-Abfrage
+hdd_statfs Füllstandsabfrage
 hdd_statfs_always immer
 hdd_statfs_recording nur während Aufnahme
 hdd_umount Aushängen
@@ -843,6 +871,9 @@ lua.boolparam_deprecated3 für einen Boolean Parameter ist veraltet.\n          
 lua.function_deprecated1 Achtung!
 lua.function_deprecated2 Die Funktion
 lua.function_deprecated3 ist veraltet,\n                      bitte nutzen Sie
+lua.parameter_deprecated2 Der Parameter
+lua.versionscheck1 Ihre Lua API Version ist zu alt
+lua.versionscheck2 Erforderlich ist mindestens
 mainmenu.audioplayer Audioplayer
 mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
@@ -924,7 +955,6 @@ menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
 menu.hint_channellist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
-menu.hint_channellist_colored Definiert, ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
 menu.hint_channellist_epg_align Legen Sie fest, wie der Text für das EPG in der Liste rechts vom Programmnamen ausgerichtet wird
 menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen ein Balken eingeblendet, der den Sendungsfortschritt anzeigt
 menu.hint_channellist_fonts Ändern Sie die Schriftgrößen in der Kanalliste
@@ -935,6 +965,7 @@ menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
 menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
 menu.hint_channellist_show_empty_favs Zeigt oder versteckt leere Bouquets in den Favoriten
+menu.hint_channellist_show_infobox Zeigt oder versteckt das untere Sendungsfenster
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
@@ -943,6 +974,8 @@ menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
 menu.hint_clock_size Stellen Sie die Größe der Uhr ein
 menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
 menu.hint_color_gradient Schaltet Farbverläufe für verschiedene Menüelemente ein/aus
+menu.hint_colored_events Definiert, ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
+menu.hint_colored_events_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -963,7 +996,6 @@ menu.hint_epg_save_mode Speichert die EPG-Daten nur für Sender, die in die Favo
 menu.hint_epg_save_standby Speichert die EPG-Daten auch, wenn in den Standby-Modus geschalten wird
 menu.hint_epg_scan Zu scannende Bouquets wählen. Aktuelles Bouquet beim Umschalten, markierte Bouquets oder alle Favoriten
 menu.hint_epg_scan_mode Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
-menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
 menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
@@ -998,12 +1030,14 @@ menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fenster
 menu.hint_inet_radio Internetradio
 menu.hint_info Informationen über das Image, CPU, Arbeitsspeicher und Stream und mehr
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
-menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gespeert, Diskret: alle Aktiven CA-Systeme
-menu.hint_infobar_colored_event Verwenden Sie unterschiedliche Farben für die aktuelle oder nächste Sendung in der Infobar
+menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gesperrt, Diskret: alle Aktiven CA-Systeme
+menu.hint_infobar_casys_color Ändern Sie die Hintergrundfarbe für die CA-Systemanzeige der Infobar
+menu.hint_infobar_casys_dotmatrix ein: CA-Systemanzeige mit Punktematrix im Hintergrund
+menu.hint_infobar_casys_frame ein: CA-Systemanzeige mit Rahmen
 menu.hint_infobar_dd Zeigt ein Dolby Digital Icon bei Verfügbarkeit
 menu.hint_infobar_filesys Zeigen den vom Flash- und einer HDD verwendeten Speicherplatz
 menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
-menu.hint_infobar_logo Logo- und Signal-Optionen
+menu.hint_infobar_logo Logo-, Kanalnummer- und Signal-Anzeige; Optionen in [Klammern] erscheinen in der kleinen Infobox
 menu.hint_infobar_logo_dir Wählen Sie das Verzeichnis für die Senderlogos
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
 menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
@@ -1141,6 +1175,8 @@ menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
 menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
+menu.hint_next Weiter zum nächsten Menü.\nDie Taste 'Menü' schließt alle Menüs
+menu.hint_next_brief Weiter zum nächsten Menü
 menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
 menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
@@ -1371,7 +1407,7 @@ menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
-menu.next Weiter (Menü zum Beenden)
+menu.next Weiter
 messagebox.back Zurück
 messagebox.cancel Abbruch
 messagebox.discard Wollen Sie die Änderungen verwerfen?
@@ -1381,11 +1417,13 @@ messagebox.no Nein
 messagebox.ok OK
 messagebox.yes Ja
 miscsettings.channellist Kanalliste
-miscsettings.channellist_colored_events Sendung farbig
 miscsettings.channellist_epgtext_align Event-Text ausrichten
+miscsettings.colored_events Sendung hervorheben
 miscsettings.colored_events_0 keine
 miscsettings.colored_events_1 aktuelle
 miscsettings.colored_events_2 nächste
+miscsettings.colored_events_channellist In der Kanalliste
+miscsettings.colored_events_infobar In der Infobar
 miscsettings.energy Energieverbrauch
 miscsettings.epg_cache EPG-Cache (Tage)
 miscsettings.epg_cache_hint1 EPG-Daten im Voraus zwischenspeichern?
@@ -1417,25 +1455,28 @@ miscsettings.epg_scan_standby Im Standby Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
-miscsettings.infobar_casystem_display CA-System Anzeige
+miscsettings.infobar_casystem_display CA-Systemanzeige
+miscsettings.infobar_casystem_dotmatrix CA-Anzeige mit Punktematrix
+miscsettings.infobar_casystem_frame CA-Anzeige mit Rahmen
 miscsettings.infobar_casystem_mini Mini
 miscsettings.infobar_casystem_mode Diskret
-miscsettings.infobar_colored_events Sendung farbig
-miscsettings.infobar_disp_0 Kein Logo
-miscsettings.infobar_disp_1 Logo in der Nummernbox
-miscsettings.infobar_disp_2 Logo/Kanalnummer
-miscsettings.infobar_disp_3 Logo+Kanalname/Signalbalken
-miscsettings.infobar_disp_4 Logo+Kanalname/Kanalnummer
-miscsettings.infobar_disp_5 Logo/Signalbalken
-miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
-miscsettings.infobar_disp_log Logo
-miscsettings.infobar_logo_hdd_dir Logo-Verz.
+miscsettings.infobar_disp Logo-Anzeige
+miscsettings.infobar_disp_0 Kanalname [Kanalnummer]
+miscsettings.infobar_disp_1 Kanalnummer, Kanalname [Logo]
+miscsettings.infobar_disp_2 Logo [Kanalnummer]
+miscsettings.infobar_disp_3 Logo, Kanalname [Signalbalken]
+miscsettings.infobar_disp_4 Logo, Kanalname [Kanalnummer]
+miscsettings.infobar_disp_5 Logo [Signalbalken]
+miscsettings.infobar_disp_6 Kanalnummer, Logo [Signalbalken]
+miscsettings.infobar_gradient_bottom Farbverlauf unten
+miscsettings.infobar_gradient_top Farbverlauf oben
+miscsettings.infobar_logo_hdd_dir Logo-Verzeichnis
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
 miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
-miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
+miscsettings.infobar_show_sysfs_hdd Füllstandsanzeige (SysFS und HDD)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.infoclock Uhr
 miscsettings.progressbar Fortschrittsbalken
@@ -1534,6 +1575,7 @@ moviebrowser.copying Kopiere Sprungmarken, bitte warten ...
 moviebrowser.cut Schneide Sprungmarken aus dem Film?
 moviebrowser.cut_failed Fehler beim Schneiden. Sind Sprungmarken und genug freier Speicher vorhanden?
 moviebrowser.cutting Schneide Film, bitte warten ...
+moviebrowser.delete_all Alle markierten Filme ohne weitere Nachfrage löschen?
 moviebrowser.delete_info Lösche Dateien, bitte warten...
 moviebrowser.delete_screenshot Lösche Screenshot?
 moviebrowser.dir Pfad
@@ -1558,11 +1600,15 @@ moviebrowser.head_filter Filme nach Kategorie filtern:
 moviebrowser.head_playlist Zuletzt gesehen:
 moviebrowser.head_recordlist Zuletzt aufgenommen:
 moviebrowser.hide_series Verstecke Serien
+moviebrowser.hint_copy_onefile 
+moviebrowser.hint_copy_several 
+moviebrowser.hint_cut 
 moviebrowser.hint_jumpbackward Rücksprung in 5 s\n '0' zum Weitersehen
 moviebrowser.hint_jumpforward Werbung überspringen in 5 s\n '0' zum Ansehen
 moviebrowser.hint_movieend Filmende in 5 s\n '0' zum Weitersehen
 moviebrowser.hint_newbook_backward Neue Wiederholung\n 'blue' für Endposition
 moviebrowser.hint_newbook_forward Neuer Werbesprung\n 'blue' für Endposition
+moviebrowser.hint_truncate 
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
 moviebrowser.info_file Datei
@@ -1594,6 +1640,10 @@ moviebrowser.info_videoformat Bildformat
 moviebrowser.last_play_max_items Zeilen 'zuletzt aufgenommen'
 moviebrowser.last_record_max_items Zeilen 'zuletzt gesehen'
 moviebrowser.load_default Lade Voreinstellung
+moviebrowser.menu_copy_onefile Film kopieren
+moviebrowser.menu_copy_several Film kopieren und teilen
+moviebrowser.menu_cut Film schneiden
+moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
 moviebrowser.menu_directories_head Verzeichnisse/Freier Speicher
 moviebrowser.menu_help_head Hilfe
 moviebrowser.menu_main_bookmarks Markierungen
@@ -1607,6 +1657,7 @@ moviebrowser.menu_parental_lock_head Jugendschutz
 moviebrowser.menu_parental_lock_rate_head Filme sperren ab
 moviebrowser.menu_save Veränderungen speichern
 moviebrowser.menu_save_all Starte Übernahme in allen sichtbaren Filminfos
+moviebrowser.menu_truncate Film kürzen
 moviebrowser.option_browser Anzeigeoptionen
 moviebrowser.reload_at_start Filminfos neu laden bei Start
 moviebrowser.remount_at_start Filmdepot verbinden bei Start
@@ -1672,6 +1723,7 @@ moviebrowser.yt_recently_featured Vor kurzem empfohlen
 moviebrowser.yt_region Region
 moviebrowser.yt_related Passende Videos
 moviebrowser.yt_search Suche nach Stichwort
+moviecut.cancel Bearbeiten des Filmes abbrechen?
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
@@ -2191,7 +2243,7 @@ timerlist.repeatcount Wiederholungen
 timerlist.repeatcount.help1 Anzahl der Timerausführungen
 timerlist.repeatcount.help2 0 für unbegrenzte Anzahl
 timerlist.save Timer speichern
-timerlist.standby SB Modus
+timerlist.standby Aktion
 timerlist.standby.off Aufwachen aus Standby
 timerlist.standby.on In Standby gehen
 timerlist.stoptime Stoppzeit
