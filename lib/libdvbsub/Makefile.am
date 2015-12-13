@@ -4,7 +4,9 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/zapit/include
 
-AM_CPPFLAGS += @HWLIB_CFLAGS@
+AM_CPPFLAGS +=\
+	@HWLIB_CFLAGS@ \
+	@AVFORMAT_CFLAGS@
 
 AM_CPPFLAGS += -fno-rtti -fno-exceptions
 
