@@ -57,7 +57,7 @@ class CFrameBuffer;
 class CConfigFile;
 class CScanSettings;
 
-class CNeutrinoApp : public CMenuTarget, CChangeObserver, sigc::trackable
+class CNeutrinoApp : public CMenuTarget, CChangeObserver, public sigc::trackable
 {
 public:
 	enum

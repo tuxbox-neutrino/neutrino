@@ -153,7 +153,7 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 #include <mymenu.h>
-
+#include <sigc++/bind.h>
 #include <stdio.h>
 #include <sstream>
 #include <stdlib.h>
@@ -626,7 +626,7 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 						//found observer item and if found, then define 'this' as observer for current option chooser and run changeNotify
 						bool is_observer = isObserver(v_item[i].widget, v_item[i].menuItem) ? true : false;
 						CChangeObserver* observer = is_observer ? this : NULL;
-						CMenuOptionChooser * opt = new CMenuOptionChooser(name, p_mode, PERSONALIZE_MODE_OPTIONS, PERSONALIZE_MODE_MAX, v_item[i].menuItem->active, observer);
+						CMenuOptionChooser * opt = new CMenuOptionChooser(name, p_mode, PERSONALIZE_MODE_OPTIONS, PERSONALIZE_MODE_MAX, v_item[i].menuItem->current_active, observer);
 						if (is_observer)
 							changeNotify(name, (void*)p_mode);
 
@@ -830,20 +830,20 @@ void CPersonalizeGui::addIntroItems(CMenuWidget *widget)
 
 
 //overloaded version from 'addItem', first parameter is an id from widget collection 'v_widget'
-void CPersonalizeGui::addItem(const int& widget_id, CMenuItem *menu_Item, const int *personalize_mode, const bool defaultselected, const int& item_mode, CMenuItem *observer_Item)
+void CPersonalizeGui::addItem(const int& widget_id, CMenuItem *menu_Item, const int *personalize_mode, const bool defaultselected, const int& item_mode, CMenuItem *observer_Item, const menu_item_disable_cond_t& disable_condition)
 {
-	addItem(v_widget[widget_id], menu_Item, personalize_mode, defaultselected, item_mode, observer_Item);
+	addItem(v_widget[widget_id], menu_Item, personalize_mode, defaultselected, item_mode, observer_Item, disable_condition);
 }
 
 //adds a personalized menu item object to menu with personalizing parameters
-void CPersonalizeGui::addItem(CMenuWidget *widget, CMenuItem *menu_Item, const int *personalize_mode, const bool defaultselected, const int& item_mode, CMenuItem *observer_Item)
+void CPersonalizeGui::addItem(CMenuWidget *widget, CMenuItem *menu_Item, const int *personalize_mode, const bool defaultselected, const int& item_mode, CMenuItem *observer_Item, const menu_item_disable_cond_t& disable_condition)
 {
 	if (observer_Item != NULL)
 		addObservedItem(widget, observer_Item, menu_Item);
 
- 	CMenuForwarder *fw = static_cast <CMenuForwarder*> (menu_Item);
+	CMenuForwarder *fw = static_cast <CMenuForwarder*> (menu_Item);
 
-	menu_item_t item = {widget, menu_Item, defaultselected, fw->getTextLocale(), (int*)personalize_mode, item_mode, observer_Item};
+	menu_item_t item = {widget, menu_Item, defaultselected, fw->getTextLocale(), (int*)personalize_mode, item_mode, observer_Item, disable_condition};
 
 	if (item_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION)
 	{
@@ -871,10 +871,10 @@ void CPersonalizeGui::addSeparator(const int& widget_id, const neutrino_locale_t
 void CPersonalizeGui::addSeparator(CMenuWidget &widget, const neutrino_locale_t locale_text, const int& item_mode)
 {
 	if (locale_text == NONEXISTANT_LOCALE) {
-		menu_item_t to_add_sep = {&widget, GenericMenuSeparatorLine, false, locale_text, NULL, item_mode, NULL};
+		menu_item_t to_add_sep = {&widget, GenericMenuSeparatorLine, false, locale_text, NULL, item_mode, NULL, DCOND_MODE_NONE };
 		v_item.push_back(to_add_sep);
 	} else {
-		menu_item_t to_add_sep = {&widget, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, locale_text), false, locale_text, NULL, item_mode, NULL};
+		menu_item_t to_add_sep = {&widget, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, locale_text), false, locale_text, NULL, item_mode, NULL, DCOND_MODE_NONE };
 		v_item.push_back(to_add_sep);
 	}
 }
@@ -909,7 +909,7 @@ void CPersonalizeGui::addPersonalizedItems()
 	//get current mode of personlize itself
 	int in_pinmode = hasPinItems() ? PERSONALIZE_PROTECT_MODE_PIN_PROTECTED : PERSONALIZE_PROTECT_MODE_NOT_PROTECTED;
 
- 	for (uint i = 0; i < v_item.size(); i++)
+	for (uint i = 0; i < v_item.size(); i++)
 	{
 		int i_mode = v_item[i].item_mode;
 
@@ -939,6 +939,7 @@ void CPersonalizeGui::addPersonalizedItems()
 				neutrino_msg_t d_key 	= fw->directKey;
 				bool add_shortcut 	= false;
 
+
 				//get shortcut
 				if (fw->active && (d_key == CRCInput::RC_nokey || CRCInput::isNumeric(d_key))) //if RC_nokey  or RC_key is digi and item is active, allow to generate a shortcut,
 				{
@@ -965,6 +966,14 @@ void CPersonalizeGui::addPersonalizedItems()
 						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey(), d_key, NULL, lock_icon);
 				v_item[i].menuItem->hintIcon = fw->hintIcon;
 				v_item[i].menuItem->hint = fw->hint;
+
+				//assign slot for items, causes disable/enable by condition eg: receiver mode
+				if (v_item[i].condition != DCOND_MODE_NONE ){
+					sigc::slot0<void> sl = sigc::bind<0>(sigc::mem_fun1(v_item[i].menuItem, &CMenuForwarder::disableByCondition), v_item[i].condition);
+					v_item[i].menuItem->OnPaintItem.connect(sl);
+					v_item[i].default_selected = false;
+				}
+
 				//add item if it's set to visible or pin protected and allow to add an forwarder as next
 				if (p_mode != PERSONALIZE_MODE_NOTVISIBLE || i_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION)
 				{

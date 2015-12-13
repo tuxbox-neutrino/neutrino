@@ -59,7 +59,7 @@ CMenuForwarder * const GenericMenuNext = &CGenericMenuNext;
 
 CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
-	active		= Active;
+	active		= current_active = Active;
 	directKey	= DirectKey;
 	isStatic	= IsStatic;
 
@@ -89,6 +89,7 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	selected_iconName = NULL;
 	height = 0;
 	actObserv	= NULL;
+	parent_widget	= NULL;
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -104,12 +105,54 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 
 void CMenuItem::setActive(const bool Active)
 {
-	active = Active;
+	active	= current_active = Active;
 	/* used gets set by the addItem() function. This is for disabling
 	   machine-specific options by just not calling the addItem() function.
 	   Without this, the changeNotifiers would become machine-dependent. */
 	if (used && x != -1)
 		paint();
+}
+
+bool CMenuItem::initModeCondition(const int& stb_mode)
+{
+	if (CNeutrinoApp::getInstance()->getMode() == stb_mode){
+		active 	= false;
+		marked 	= false;
+		if (parent_widget)
+			if (!isSelectable())
+				parent_widget->initSelectable();
+		return true;
+	}
+	printf("\033[33m[CMenuItem] [%s - %d] missmatching stb mode condition \033[0m\n", __func__, __LINE__, stb_mode);
+	return false;
+}
+
+void CMenuItem::disableByCondition(const menu_item_disable_cond_t& condition)
+{
+	int stb_mode = CNeutrinoApp::getInstance()->getMode();
+
+	if (condition & DCOND_MODE_TS){
+		if (stb_mode == CNeutrinoApp::mode_ts)
+			if (initModeCondition(stb_mode))
+				return;
+	}
+	if (condition & DCOND_MODE_RADIO){
+		if (stb_mode == CNeutrinoApp::mode_radio)
+			if (initModeCondition(stb_mode))
+				return;
+	}
+	if (condition & DCOND_MODE_TV){
+		if (stb_mode == CNeutrinoApp::mode_tv)
+			if (initModeCondition(stb_mode))
+				return;
+	}
+
+	active = current_active;
+
+	if (parent_widget){
+		if (!isSelectable())
+			parent_widget->initSelectable();
+	}
 }
 
 void CMenuItem::setMarked(const bool Marked)
@@ -605,6 +648,7 @@ void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
 
 	menuItem->isUsed();
 	items.push_back(menuItem);
+	menuItem->setParentWidget(this);
 }
 
 void CMenuWidget::resetWidget(bool delete_items)
@@ -668,12 +712,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	neutrino_msg_data_t data;
 	bool bAllowRepeatLR = false;
 	CVFD::MODES oldLcdMode = CVFD::getInstance()->getMode();
-	
-	int pos = 0;
-	if (selected > 0 && selected < (int)items.size())
-		pos = selected;
-	else
-		selected = -1;
+
 	exit_pressed = false;
 
 	frameBuffer->Lock();
@@ -693,20 +732,21 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 	}
-	/* make sure we start with a selectable item... */
-	while (pos < (int)items.size()) {
-		if (items[pos]->isSelectable())
-			break;
-		pos++;
-	}
+
 	checkHints();
 
 	if(savescreen) {
 		calcSize();
 		saveScreen();
 	}
+
+	/* make sure we start with a selectable item... */
+	initSelectable();
+
 	paint();
 	frameBuffer->blit();
+
+	int pos = selected;
 
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
@@ -1132,6 +1172,22 @@ void CMenuWidget::calcSize()
 	setMenuPos(full_width);
 }
 
+void CMenuWidget::initSelectable()
+{
+	int pos = 0;
+	if (selected > 0 && selected < (int)items.size())
+		pos = selected;
+	else
+		selected = -1;
+
+	while (pos < (int)items.size()) {
+		if (items[pos]->isSelectable())
+			break;
+		pos++;
+	}
+	selected = pos;
+}
+
 void CMenuWidget::paint()
 {
 	calcSize();
@@ -1218,16 +1274,16 @@ void CMenuWidget::paintItems()
 		 * different height and this might leave artifacts otherwise after changing pages */
 		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	}
+
 	int ypos=item_start_y;
 	for (int count = 0; count < (int)items.size(); count++)
 	{
 		CMenuItem* item = items[count];
-
+		item->OnPaintItem();
 		if ((count >= page_start[current_page]) &&
 		    (count < page_start[current_page + 1]))
 		{
 			item->init(x, ypos, width, iconOffset);
-
 			if (item->isSelectable() && selected == -1)
 				selected = count;
 
@@ -2124,7 +2180,8 @@ std::string CMenuForwarder::getOption(void)
 
 int CMenuForwarder::paint(bool selected)
 {
- 	std::string option_name = getOption();
+	std::string option_name = getOption();
+
 	fb_pixel_t bgcol = 0;
 	if (jumpTarget)
 		bgcol = jumpTarget->getColor();
@@ -2137,7 +2194,7 @@ int CMenuForwarder::paint(bool selected)
 	
 	//caption
 	paintItemCaption(selected, option_name.c_str(), bgcol);
-	
+
 	return y+ height;
 }
 

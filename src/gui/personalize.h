@@ -111,6 +111,7 @@ typedef struct menu_item_t
 	int* personalize_mode;
 	int item_mode;
 	CMenuItem *observer_Item;
+	int condition;
 }menu_item_struct_t;
 
 typedef struct observ_menu_item_t
@@ -242,8 +243,8 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		int	getItemsCount(CMenuWidget *widget);
 		int	getItemsCount(const int& widget_id);
 		void	setShortcut(const int& short_cut = 1) {shortcut = short_cut;};
-		void 	addItem(CMenuWidget *widget, CMenuItem *menu_Item, const int *personalize_mode = NULL, const bool defaultselected = false, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION, CMenuItem *observer_Item = NULL);
-		void 	addItem(const int& widget_id, CMenuItem *menu_Item, const int *personalize_mode = NULL, const bool defaultselected = false, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION, CMenuItem *observer_Item = NULL);
+		void 	addItem(CMenuWidget *widget, CMenuItem *menu_Item, const int *personalize_mode = NULL, const bool defaultselected = false, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION, CMenuItem *observer_Item = NULL, const menu_item_disable_cond_t& disable_condition = DCOND_MODE_NONE );
+		void 	addItem(const int& widget_id, CMenuItem *menu_Item, const int *personalize_mode = NULL, const bool defaultselected = false, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION, CMenuItem *observer_Item = NULL, const menu_item_disable_cond_t& disable_condition = DCOND_MODE_NONE );
 		void	addIntroItems(CMenuWidget *widget);
 		void	addIntroItems(const int& widget_id);
 		void 	addSeparator(CMenuWidget &menu, const neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION);
