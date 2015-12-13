@@ -84,7 +84,7 @@ void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc)
 					ar.short_src, ar.currentline);
 }
 
-lua_Unsigned checkMagicMask(lua_Unsigned &col)
+lua_Unsigned checkMagicMask(lua_Unsigned col)
 {
 	if ((col & MAGIC_MASK) == MAGIC_COLOR)
 		col = CFrameBuffer::getInstance()->realcolor[col & 0x000000ff];
