@@ -125,6 +125,8 @@ PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
 		AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
 	])
 ])
+# hack...
+AC_DEFINE(LUA_COMPAT_5_2,1,[does not really belong in config.h, but is needed for build with lua 5.3+])
 
 if test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "tripledragon" ||
