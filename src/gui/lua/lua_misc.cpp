@@ -118,12 +118,12 @@ int CLuaInstMisc::strSub(lua_State *L)
 		return 1;
 	}
 	const char *s1;
-	int pos=0, len=std::string::npos;
+	size_t pos=0, len=std::string::npos;
 	std::string ret="";
 	s1 = luaL_checkstring(L, 2);
 	pos = luaL_checkint(L, 3);
 	if (numargs > 3)
-		len = luaL_checkint(L, 4);
+		len = (size_t)luaL_checkint(L, 4);
 
 	std::string str(s1);
 	ret = str.substr(pos, len);
