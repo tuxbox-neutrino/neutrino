@@ -30,6 +30,7 @@
 #include <gui/widget/keyboard_input.h>
 #include <gui/filebrowser.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <neutrino.h>
 
 #include "luainstance.h"
@@ -165,15 +166,17 @@ int CLuaMenuFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*acti
 	if (!filter.empty())
 		fileBrowser.Filter = &fileFilter;
 
-	if (fileBrowser.exec(value->c_str()) == true)
+	std::string tmpValue = (dirMode) ? *value : getPathName(*value);
+	if (fileBrowser.exec(tmpValue.c_str()) == true)
 		*value = fileBrowser.getSelectedFile()->Name;
 
 	if (!luaAction.empty()) {
 		lua_pushglobaltable(L);
 		lua_getfield(L, -1, luaAction.c_str());
 		lua_remove(L, -2);
+		lua_pushstring(L, luaId.c_str());
 		lua_pushstring(L, value->c_str());
-		int status = lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
+		int status = lua_pcall(L, 2 /* two arg */, 1 /* one result */, 0);
 		if (status) {
 			fprintf(stderr, "[CLuaMenuFilebrowser::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
 			luaL_error(L, " => %s", lua_tostring(L, -1));
