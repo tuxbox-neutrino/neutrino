@@ -749,12 +749,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 	w = luaL_checkint(L, 4);
 	h = luaL_checkint(L, 5);
 
-#if HAVE_COOL_HARDWARE
 	c = luaL_checkunsigned(L, 6);
-#else
-	/* luaL_checkint does not like e.g. 0xffcc0000 on powerpc (returns INT_MAX) instead */
-	c = (unsigned int)luaL_checknumber(L, 6);
-#endif
 
 	if (count > 6)
 		radius = luaL_checkint(L, 7);
@@ -785,12 +780,7 @@ int CLuaInstance::paintHLineRel(lua_State *L)
 	dx = luaL_checkint(L, 3);
 	y  = luaL_checkint(L, 4);
 
-#if HAVE_COOL_HARDWARE
 	c = luaL_checkunsigned(L, 5);
-#else
-	/* luaL_checkint does not like e.g. 0xffcc0000 on powerpc (returns INT_MAX) instead */
-	c = (unsigned int)luaL_checknumber(L, 5);
-#endif
 	if (x < 0)
 		x = 0;
 	if (y < 0)
@@ -813,12 +803,7 @@ int CLuaInstance::paintVLineRel(lua_State *L)
 	y  = luaL_checkint(L, 3);
 	dy = luaL_checkint(L, 4);
 
-#if HAVE_COOL_HARDWARE
 	c = luaL_checkunsigned(L, 5);
-#else
-	/* luaL_checkint does not like e.g. 0xffcc0000 on powerpc (returns INT_MAX) instead */
-	c = (unsigned int)luaL_checknumber(L, 5);
-#endif
 	if (x < 0)
 		x = 0;
 	if (y < 0)
@@ -880,11 +865,7 @@ int CLuaInstance::RenderString(lua_State *L)
 	x = luaL_checkint(L, 4+step);
 	y = luaL_checkint(L, 5+step);
 	if (numargs > 5+step)
-#if HAVE_COOL_HARDWARE
 		c = luaL_checkunsigned(L, 6+step);
-#else
-		c = luaL_checkint(L, 6+step);
-#endif
 	if (numargs > 6+step)
 		w = luaL_checkint(L, 7+step);
 	else
