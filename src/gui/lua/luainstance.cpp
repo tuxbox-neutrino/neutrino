@@ -740,7 +740,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 	int count = lua_gettop(L);
 	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, count);
 	int x, y, w, h, radius = 0, corner = CORNER_ALL;
-	unsigned int c;
+	lua_Unsigned c;
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W || !W->fbwin) return 0;
@@ -777,7 +777,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 int CLuaInstance::paintHLineRel(lua_State *L)
 {
 	int x, y, dx;
-	unsigned int c;
+	lua_Unsigned c;
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W || !W->fbwin) return 0;
@@ -805,7 +805,7 @@ int CLuaInstance::paintHLineRel(lua_State *L)
 int CLuaInstance::paintVLineRel(lua_State *L)
 {
 	int x, y, dy;
-	unsigned int c;
+	lua_Unsigned c;
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W || !W->fbwin) return 0;
@@ -836,7 +836,7 @@ int CLuaInstance::RenderString(lua_State *L)
 {
 	int x, y, w, boxh, center;
 	Font* font = NULL;
-	unsigned int c;
+	lua_Unsigned c;
 	const char *text;
 	int numargs = lua_gettop(L);
 	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, numargs);
@@ -1010,7 +1010,8 @@ int CLuaInstance::getDynFont(lua_State *L)
 		return 2;
 	}
 
-	lua_Integer dx = 0, dy = 0, style = CNeutrinoFonts::FONT_STYLE_REGULAR;
+	int dx = 0, dy = 0;
+	lua_Integer style = CNeutrinoFonts::FONT_STYLE_REGULAR;
 	std::string text="";
 
 	dx = luaL_checkint(L, 2);
