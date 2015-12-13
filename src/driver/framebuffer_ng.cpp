@@ -713,6 +713,9 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 {
 	iconBasePath = iconPath;
+	if (!iconBasePath.empty() && '/' == *iconBasePath.rbegin()) /* .back() is only c++11 :-( */
+		return;
+	iconBasePath += "/";
 }
 
 void CFrameBuffer::getIconSize(const char * const filename, int* width, int *height)
