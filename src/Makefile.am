@@ -21,7 +21,10 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@ \
+	@FREETYPE_CFLAGS@
+
+AM_CPPFLAGS += \
+	@AVFORMAT_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 if BOXTYPE_TRIPLE

@@ -9,7 +9,10 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@ \
+	@FREETYPE_CFLAGS@
+
+AM_CPPFLAGS += \
+	@AVFORMAT_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_driver_audiodec.a

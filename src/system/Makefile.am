@@ -18,7 +18,10 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/jsoncpp/include \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@ \
+	@FREETYPE_CFLAGS@
+
+AM_CPPFLAGS += \
+	@AVFORMAT_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_system.a

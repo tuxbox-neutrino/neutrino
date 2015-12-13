@@ -17,6 +17,7 @@ AM_CPPFLAGS += \
 	@FREETYPE_CFLAGS@
 
 AM_CPPFLAGS += \
+	@AVFORMAT_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libnhttpd_tuxboxapi.a
