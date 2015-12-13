@@ -1366,3 +1366,21 @@ void CFrameBuffer::mark(int x, int y, int dx, int dy)
 {
 	accel->mark(x, y, dx, dy);
 };
+
+/* argh. really not the right thing to do here... */
+extern cVideo *videoDecoder;
+void CFrameBuffer::showFrame(const std::string & filename)
+{
+	std::string picture = ICONSDIR_VAR + filename;
+	if (access(picture.c_str(), F_OK))
+		picture = iconBasePath + filename;
+	if (filename.find("/", 0) != std::string::npos)
+		picture = filename;
+
+	videoDecoder->ShowPicture(picture.c_str());
+}
+
+void CFrameBuffer::stopFrame()
+{
+	videoDecoder->StopPicture();
+}
