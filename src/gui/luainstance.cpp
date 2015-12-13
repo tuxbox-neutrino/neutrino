@@ -395,7 +395,7 @@ void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const c
 					ar.short_src, ar.currentline);
 }
 
-lua_Unsigned CLuaInstance::checkMagicMask(lua_Unsigned &col)
+lua_Unsigned CLuaInstance::checkMagicMask(lua_Unsigned col)
 {
 	if ((col & MAGIC_MASK) == MAGIC_COLOR)
 		/* use the color constants */
