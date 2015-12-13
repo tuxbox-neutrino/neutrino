@@ -186,6 +186,8 @@ if test "$enable_lua" = "yes"; then
 			AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
 		])
 	])
+# hack...
+AC_DEFINE(LUA_COMPAT_5_2,1,[does not really belong in config.h, but is needed for build with lua 5.3+])
 fi
 
 AC_ARG_ENABLE(cleanup,
