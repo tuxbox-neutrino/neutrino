@@ -1091,6 +1091,7 @@ int CMovieBrowser::exec(const char* path)
 				//FIXME do nothing ?
 			}
 			else if (msg == NeutrinoMessages::STANDBY_ON ||
+					msg == NeutrinoMessages::LEAVE_ALL ||
 					msg == NeutrinoMessages::SHUTDOWN ||
 					msg == NeutrinoMessages::SLEEPTIMER)
 			{

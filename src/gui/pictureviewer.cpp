@@ -621,6 +621,7 @@ int CPictureViewerGui::show()
 		else if (msg == NeutrinoMessages::RECORD_START ||
 				msg == NeutrinoMessages::ZAPTO ||
 				msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::LEAVE_ALL ||
 				msg == NeutrinoMessages::SHUTDOWN ||
 				msg == NeutrinoMessages::SLEEPTIMER)
 		{

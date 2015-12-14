@@ -2795,6 +2795,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
 		return messages_return::cancel_all | messages_return::handled;
 	}
+	else if ((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) {
+		if (data == 0)
+			g_RCInput->postMsg(NeutrinoMessages::LEAVE_ALL, 0);
+		return messages_return::cancel_all | messages_return::handled;
+	}
 	else if (msg == (neutrino_msg_t) g_settings.key_power_off /*CRCInput::RC_standby*/) {
 		if (data == 0) {
 			neutrino_msg_t new_msg;
@@ -3150,6 +3155,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::STANDBY_TOGGLE ) {
 		standbyMode( !(mode & mode_standby) );
+		g_RCInput->clearRCMsg();
+		return messages_return::handled;
+	}
+	else if( msg == NeutrinoMessages::LEAVE_ALL ) {
 		g_RCInput->clearRCMsg();
 		return messages_return::handled;
 	}

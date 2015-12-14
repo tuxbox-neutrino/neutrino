@@ -1163,6 +1163,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		} else if (msg == NeutrinoMessages::ZAPTO ||
 				msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::LEAVE_ALL ||
 				msg == NeutrinoMessages::SHUTDOWN ||
 				((msg == NeutrinoMessages::SLEEPTIMER) && !data) ) {	// Exit for Record/Zapto Timers
 			printf("CMoviePlayerGui::PlayFile: ZAPTO etc..\n");
