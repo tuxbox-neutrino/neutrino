@@ -568,3 +568,17 @@ bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* d
 	}
 	return false;
 }
+
+const char *CKeybindSetup::getMoviePlayerButtonName(const neutrino_msg_t key, bool &active)
+{
+	active = false;
+	for (unsigned int i = MPKEY_REWIND; i <= MPKEY_PLUGIN; i++)
+	{
+		if ((uint32_t)*key_settings[i].keyvalue_p == (unsigned int)key)
+		{
+			active = true;
+			return g_Locale->getText(key_settings[i].keydescription);
+		}
+	}
+	return "";
+}

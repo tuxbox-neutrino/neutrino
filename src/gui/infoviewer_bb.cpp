@@ -45,6 +45,7 @@
 
 #include <gui/infoviewer.h>
 #include <gui/bouquetlist.h>
+#include "gui/keybind_setup.h"
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/customcolor.h>
@@ -222,16 +223,16 @@ void CInfoViewerBB::getBBButtonInfo()
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts) {
-				text = g_Locale->getText(LOCALE_EPGMENU_STREAMINFO);
-				active = true;
-			} else {
-				text = CUserMenu::getUserMenuButtonName(0, active);
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_red, active);
 				if (!text.empty())
 					break;
-				text = g_settings.usermenu[SNeutrinoSettings::BUTTON_RED]->title;
-				if (text.empty())
-					text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
 			}
+			text = CUserMenu::getUserMenuButtonName(0, active);
+			if (!text.empty())
+				break;
+			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_RED]->title;
+			if (text.empty())
+				text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
 			break;
 		case CInfoViewerBB::BUTTON_GREEN:
 			icon = NEUTRINO_ICON_BUTTON_GREEN;
@@ -240,6 +241,12 @@ void CInfoViewerBB::getBBButtonInfo()
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (!text.empty() && mode < NeutrinoMessages::mode_audio)
 				break;
+			mode = CNeutrinoApp::getInstance()->getMode();
+			if (mode == NeutrinoMessages::mode_ts) {
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active);
+				if (!text.empty())
+					break;
+			}
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_GREEN]->title;
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
@@ -255,6 +262,12 @@ void CInfoViewerBB::getBBButtonInfo()
 		case CInfoViewerBB::BUTTON_YELLOW:
 			icon = NEUTRINO_ICON_BUTTON_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
+			mode = CNeutrinoApp::getInstance()->getMode();
+			if (mode == NeutrinoMessages::mode_ts) {
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active);
+				if (!text.empty())
+					break;
+			}
 			text = CUserMenu::getUserMenuButtonName(2, active);
 			if (!text.empty())
 				break;
@@ -265,6 +278,12 @@ void CInfoViewerBB::getBBButtonInfo()
 		case CInfoViewerBB::BUTTON_BLUE:
 			icon = NEUTRINO_ICON_BUTTON_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
+			mode = CNeutrinoApp::getInstance()->getMode();
+			if (mode == NeutrinoMessages::mode_ts) {
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_blue, active);
+				if (!text.empty())
+					break;
+			}
 			text = CUserMenu::getUserMenuButtonName(3, active);
 			if (!text.empty())
 				break;
@@ -288,12 +307,14 @@ void CInfoViewerBB::getBBButtonInfo()
 	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
 	int br = 0, count = 0;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
+#if 0
 		if ((i == CInfoViewerBB::BUTTON_YELLOW) && (g_RemoteControl->subChannels.empty())) { // no subchannels
 			bbButtonInfo[i].paint = false;
 //			bbButtonInfo[i].x = -1;
 //			continue;
 		}
 		else
+#endif
 		{
 			count++;
 			bbButtonInfo[i].paint = true;
