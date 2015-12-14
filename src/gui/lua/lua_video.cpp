@@ -61,6 +61,7 @@ void CLuaInstVideo::LuaVideoRegister(lua_State *L)
 		{ "zapitStopPlayBack",      CLuaInstVideo::zapitStopPlayBack },
 		{ "channelRezap",           CLuaInstVideo::channelRezap },
 		{ "createChannelIDfromUrl", CLuaInstVideo::createChannelIDfromUrl },
+		{ "getNeutrinoMode",        CLuaInstVideo::getNeutrinoMode },
 		{ "__gc",                   CLuaInstVideo::VideoDelete },
 		{ NULL, NULL }
 	};
@@ -183,6 +184,12 @@ int CLuaInstVideo::createChannelIDfromUrl(lua_State *L)
 	snprintf(id_str, sizeof(id_str), "%" PRIx64, id);
 
 	lua_pushstring(L, id_str);
+	return 1;
+}
+
+int CLuaInstVideo::getNeutrinoMode(lua_State *L)
+{
+	lua_pushinteger(L, (lua_Integer)CNeutrinoApp::getInstance()->getMode());
 	return 1;
 }
 

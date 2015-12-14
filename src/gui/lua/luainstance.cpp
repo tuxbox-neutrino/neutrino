@@ -307,7 +307,6 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
-
 	table_key curl_status[] =
 	{
 		{ "OK",			(lua_Integer)CLuaInstCurl::LUA_CURL_OK },
@@ -315,6 +314,23 @@ static void set_lua_variables(lua_State *L)
 		{ "ERR_NO_URL",		(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_NO_URL },
 		{ "ERR_CREATE_FILE",	(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_CREATE_FILE },
 		{ "ERR_CURL",		(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_CURL },
+		{ NULL, 0 }
+	};
+
+	table_key neutrino_mode[] =
+	{
+		{ "UNKNOWN",		(lua_Integer)CNeutrinoApp::mode_unknown },
+		{ "TV",			(lua_Integer)CNeutrinoApp::mode_tv },
+		{ "RADIO",		(lua_Integer)CNeutrinoApp::mode_radio },
+		{ "SCART",		(lua_Integer)CNeutrinoApp::mode_scart },
+		{ "STANDBY",		(lua_Integer)CNeutrinoApp::mode_standby },
+		{ "AUDIO",		(lua_Integer)CNeutrinoApp::mode_audio },
+		{ "PIC",		(lua_Integer)CNeutrinoApp::mode_pic },
+		{ "TS",			(lua_Integer)CNeutrinoApp::mode_ts },
+		{ "OFF",		(lua_Integer)CNeutrinoApp::mode_off },
+		{ "WEBTV",		(lua_Integer)CNeutrinoApp::mode_webtv },
+		{ "MASK",		(lua_Integer)CNeutrinoApp::mode_mask },
+		{ "NOREZAP",		(lua_Integer)CNeutrinoApp::norezap },
 		{ NULL, 0 }
 	};
 
@@ -331,6 +347,7 @@ static void set_lua_variables(lua_State *L)
 		{ "CC",          ccomponents },
 		{ "DYNFONT",     dynfont },
 		{ "CURL",        curl_status },
+		{ "NMODE",       neutrino_mode },
 		{ NULL, NULL }
 	};
 

@@ -54,6 +54,7 @@ class CLuaInstVideo
 		static int zapitStopPlayBack(lua_State *L);
 		static int channelRezap(lua_State *L);
 		static int createChannelIDfromUrl(lua_State *L);
+		static int getNeutrinoMode(lua_State *L);
 		static int VideoDelete(lua_State *L);
 
 		static void videoFunctionDeprecated(lua_State *L, std::string oldFunc);
