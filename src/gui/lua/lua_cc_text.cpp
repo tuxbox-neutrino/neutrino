@@ -215,15 +215,19 @@ int CLuaInstCCText::CCTextScroll(lua_State *L)
 	std::string tmp = "true";
 	tableLookup(L, "dir", tmp);
 	bool scrollDown = (tmp == "down" || tmp == "1");
+	lua_Integer pages = 1;
+	tableLookup(L, "pages", pages);
 
 	//get the textbox instance from lua object and use CTexBbox scroll methods
 	CTextBox* ctb = m->ct->getCTextBoxObject();
 	if (ctb) {
+		if (pages == -1)
+			pages = ctb->getPages();
 		ctb->enableBackgroundPaint(true);
 		if (scrollDown)
-			ctb->scrollPageDown(1);
+			ctb->scrollPageDown(pages);
 		else
-			ctb->scrollPageUp(1);
+			ctb->scrollPageUp(pages);
 		ctb->enableBackgroundPaint(false);
 	}
 	return 0;
