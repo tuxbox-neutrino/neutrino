@@ -83,9 +83,9 @@ size_t CLuaInstCurl::CurlWriteToString(void *ptr, size_t size, size_t nmemb, voi
 	return size*nmemb;
 }
 
-int CLuaInstCurl::CurlProgressFunc(void *p, double dltotal, double dlnow, double /*ultotal*/, double /*ulnow*/)
+int CLuaInstCurl::CurlProgressFunc(void *p, curl_off_t dltotal, curl_off_t dlnow, curl_off_t /*ultotal*/, curl_off_t /*ulnow*/)
 {
-	if (dltotal <= 0.0)
+	if (dltotal == 0)
 		return 0;
 
 	struct progressData *_pgd = static_cast<struct progressData*>(p);
@@ -98,15 +98,16 @@ int CLuaInstCurl::CurlProgressFunc(void *p, double dltotal, double dlnow, double
 	curl_easy_getinfo(_pgd->curl, CURLINFO_SPEED_DOWNLOAD, &dlSpeed);
 	curl_easy_getinfo(_pgd->curl, CURLINFO_RESPONSE_CODE, &responseCode);
 
-	double dlFragment = dlnow / dltotal;
+	uint32_t MUL = 0x7FFF;
+	uint32_t dlFragment = (dlnow * MUL) / dltotal;
 	if (responseCode != 200) {
 		dlFragment = 0;
 		dlSpeed    = 0;
 	}
 
 	int showDots = 50;
-	int dots = round(dlFragment * showDots);
-	printf(" %3.0f%% [", dlFragment * 100);
+	int dots = (dlFragment * showDots) / MUL;
+	printf(" %d%% [", (dlFragment * 100) / MUL);
 	int i = 0;
 	for (; i < dots-1; i++)
 		printf("=");
@@ -117,9 +118,15 @@ int CLuaInstCurl::CurlProgressFunc(void *p, double dltotal, double dlnow, double
 	for (; i < showDots; i++)
 		printf(" ");
 	printf("] speed: %.03f KB/sec     \r", dlSpeed/1024); fflush(stdout);
-
 	return 0;
 }
+
+#if LIBCURL_VERSION_NUM < 0x072000
+int CLuaInstCurl::CurlProgressFunc_old(void *p, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+	return CurlProgressFunc(p, (curl_off_t)dltotal, (curl_off_t)dlnow, (curl_off_t)ultotal, (curl_off_t)ulnow);
+}
+#endif
 
 int CLuaInstCurl::CurlDownload(lua_State *L)
 {
@@ -275,10 +282,15 @@ Example:
 	progressData pgd;
 
 	if (!silent) {
-		curl_easy_setopt(curl_handle, CURLOPT_PROGRESSFUNCTION, CLuaInstCurl::CurlProgressFunc);
 		pgd.curl = curl_handle;
 		pgd.last_dlnow = -1;
+#if LIBCURL_VERSION_NUM >= 0x072000
+		curl_easy_setopt(curl_handle, CURLOPT_XFERINFOFUNCTION, CLuaInstCurl::CurlProgressFunc);
+		curl_easy_setopt(curl_handle, CURLOPT_XFERINFODATA, &pgd);
+#else
+		curl_easy_setopt(curl_handle, CURLOPT_PROGRESSFUNCTION, CLuaInstCurl::CurlProgressFunc_old);
 		curl_easy_setopt(curl_handle, CURLOPT_PROGRESSDATA, &pgd);
+#endif
 	}
 
 	char cerror[CURL_ERROR_SIZE];

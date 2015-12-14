@@ -29,7 +29,7 @@ class CLuaCurl
 
 struct progressData {
 	CURL *curl;
-	double last_dlnow;
+	curl_off_t last_dlnow;
 };
 
 class CLuaInstCurl
@@ -52,7 +52,10 @@ class CLuaInstCurl
 		static CLuaCurl *CurlCheckData(lua_State *L, int n);
 		static int CurlNew(lua_State *L);
 		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
-		static int CurlProgressFunc(void *p, double dltotal, double dlnow, double ultotal, double ulnow);
+#if LIBCURL_VERSION_NUM < 0x072000
+		static int CurlProgressFunc_old(void *p, double dltotal, double dlnow, double ultotal, double ulnow);
+#endif
+		static int CurlProgressFunc(void *p, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow);
 		static int CurlDownload(lua_State *L);
 		static int CurlDelete(lua_State *L);
 };
