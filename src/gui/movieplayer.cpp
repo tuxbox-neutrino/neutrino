@@ -1142,6 +1142,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			}
 			if (restore)
 				FileTime.show(position);
+#if 0
 		} else if (msg == CRCInput::RC_red) {
 			bool restore = FileTime.IsVisible();
 			FileTime.kill();
@@ -1150,6 +1151,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (restore)
 				FileTime.show(position);
 			update_lcd = true;
+#endif
 		} else if (msg == NeutrinoMessages::SHOW_EPG) {
 			handleMovieBrowser(NeutrinoMessages::SHOW_EPG, position);
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
@@ -1178,6 +1180,16 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			makeScreenShot(false, true);
 		} else if (msg == CRCInput::RC_sat) {
 			//FIXME do nothing ?
+		} else if (msg == CRCInput::RC_red || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow || msg == CRCInput::RC_blue ) {
+			bool restore = FileTime.IsVisible();
+			FileTime.kill();
+
+			CUserMenu u;
+			u.showUserMenu(msg);
+
+			if (restore)
+				FileTime.show(position);
+			update_lcd = true;
 		} else {
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all) {
 				printf("CMoviePlayerGui::PlayFile: neutrino handleMsg messages_return::cancel_all\n");
