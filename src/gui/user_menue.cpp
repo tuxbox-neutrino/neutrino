@@ -172,6 +172,8 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	else
 		menu->addItem(GenericMenuSeparator);
 	
+	bool _mode_ts = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_ts;
+
 	std::string itemstr_last("1");
 
 	std::vector<std::string> items = ::split(g_settings.usermenu[button]->items, ',');
@@ -206,7 +208,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_settings.recording_type == RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, neutrino, "tsmoviebrowser", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, !_mode_ts, NULL, neutrino, "tsmoviebrowser", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_MB, LOCALE_MENU_HINT_MB);
 			break;
 		case SNeutrinoSettings::ITEM_TIMERLIST:
@@ -221,17 +223,17 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			break;
 		case SNeutrinoSettings::ITEM_EPG_SUPER:
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EPGPLUS   , true, NULL, new CEPGplusHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EPGPLUS, !_mode_ts, NULL, new CEPGplusHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_EPG_LIST:
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTLIST , true, NULL, new CEventListHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTLIST, !_mode_ts, NULL, new CEventListHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_EPG_INFO:
 			keyhelper.get(&key,&icon,CRCInput::RC_yellow);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTINFO , true, NULL, new CEPGDataHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTINFO, !_mode_ts, NULL, new CEPGDataHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_EPG_MISC:
@@ -249,7 +251,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_AUDIO_SELECT:
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuDForwarder(LOCALE_AUDIOSELECTMENUE_HEAD, true, NULL, new CAudioSelectMenuHandler, "-1", key,icon);
+			menu_item = new CMenuDForwarder(LOCALE_AUDIOSELECTMENUE_HEAD, !_mode_ts, NULL, new CAudioSelectMenuHandler, "-1", key,icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_SUBCHANNEL:
@@ -388,12 +390,12 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 #endif
 		case SNeutrinoSettings::ITEM_YOUTUBE:
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, true, NULL, neutrino, "ytplayback", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, !_mode_ts, NULL, neutrino, "ytplayback", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
 			break;
 		case SNeutrinoSettings::ITEM_FILEPLAY:
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, neutrino, "fileplayback", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, !_mode_ts, NULL, neutrino, "fileplayback", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
 			break;
 		case SNeutrinoSettings::ITEM_AUDIOPLAY:
