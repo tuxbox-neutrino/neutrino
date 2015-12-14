@@ -50,10 +50,10 @@ class CInfoViewerBB
 		enum
 		{
 			// The order of icons from left to right. Here nothing changes!
-			BUTTON_EPG	= 0,
-			BUTTON_AUDIO	= 1,
-			BUTTON_SUBS	= 2,
-			BUTTON_FEAT	= 3,
+			BUTTON_RED	= 0,
+			BUTTON_GREEN	= 1,
+			BUTTON_YELLOW	= 2,
+			BUTTON_BLUE	= 3,
 			BUTTON_MAX	= 4
 		};
 
