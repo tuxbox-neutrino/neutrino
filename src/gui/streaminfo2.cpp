@@ -273,12 +273,17 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	int y1;
 	int xd = w/4;
 
-        std::string tname(g_Locale->getText(LOCALE_STREAMINFO_SIGNAL));
-        tname += ": ";
-        if (mp)
-                tname += g_Locale->getText(LOCALE_WEBTV_HEAD);
-        else
-                tname += to_string(1 + frontend->getNumber()) + ": " + frontend->getName();
+	std::string tname(g_Locale->getText(LOCALE_STREAMINFO_SIGNAL));
+	tname += ": ";
+	if (mp)
+	{
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
+			tname += g_Locale->getText(LOCALE_WEBTV_HEAD);
+		else
+			tname += g_Locale->getText(LOCALE_MAINMENU_MOVIEPLAYER);
+	}
+	else
+		tname += to_string(1 + frontend->getNumber()) + ": " + frontend->getName();
 
 #if 0
 	int tuner = 1 + frontend->getNumber();
