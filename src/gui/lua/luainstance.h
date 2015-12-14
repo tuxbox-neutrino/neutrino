@@ -30,8 +30,10 @@ extern "C" {
 
 #include "luainstance_helpers.h"
 
+#if 0
 #define LUA_API_VERSION_MAJOR 1
 #define LUA_API_VERSION_MINOR 27
+#endif
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
 class CLuaInstance
