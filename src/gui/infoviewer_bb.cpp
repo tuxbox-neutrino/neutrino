@@ -223,6 +223,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts) {
 				text = g_Locale->getText(LOCALE_EPGMENU_STREAMINFO);
+				active = true;
 			} else {
 				text = CUserMenu::getUserMenuButtonName(0, active);
 				if (!text.empty())
