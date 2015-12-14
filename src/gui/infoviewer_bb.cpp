@@ -213,12 +213,14 @@ void CInfoViewerBB::getBBButtonInfo()
 	bbButtonMaxX = g_InfoViewer->ChanInfoX;
 	int bbButtonMaxW = 0;
 	int mode = NeutrinoMessages::mode_unknown;
+	int pers = -1;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		int w = 0, h = 0;
 		bool active;
 		std::string text, icon;
 		switch (i) {
 		case CInfoViewerBB::BUTTON_RED:
+			pers = SNeutrinoSettings::P_MAIN_RED_BUTTON;
 			icon = NEUTRINO_ICON_BUTTON_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
@@ -235,6 +237,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
 			break;
 		case CInfoViewerBB::BUTTON_GREEN:
+			pers = SNeutrinoSettings::P_MAIN_GREEN_BUTTON;
 			icon = NEUTRINO_ICON_BUTTON_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
@@ -259,6 +262,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			}
 			break;
 		case CInfoViewerBB::BUTTON_YELLOW:
+			pers = SNeutrinoSettings::P_MAIN_YELLOW_BUTTON;
 			icon = NEUTRINO_ICON_BUTTON_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
@@ -275,6 +279,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				text = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
 			break;
 		case CInfoViewerBB::BUTTON_BLUE:
+			pers = SNeutrinoSettings::P_MAIN_BLUE_BUTTON;
 			icon = NEUTRINO_ICON_BUTTON_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
@@ -298,6 +303,8 @@ void CInfoViewerBB::getBBButtonInfo()
 		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
 		bbButtonInfo[i].icon = icon;
+		if (pers > -1 && (g_settings.personalize[pers] != CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED))
+			active = false;
 		bbButtonInfo[i].active = active;
 	}
 	// Calculate position/size of buttons
