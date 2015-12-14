@@ -50,6 +50,7 @@ class CLuaInstConfigFile
 		static int LuaConfigFileSetInt32(lua_State *L);
 		static int LuaConfigFileGetBool(lua_State *L);
 		static int LuaConfigFileSetBool(lua_State *L);
+		static int LuaConfigFileDeleteKey(lua_State *L);
 		static int LuaConfigFileDelete(lua_State *L);
 };
 

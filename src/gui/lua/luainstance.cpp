@@ -41,6 +41,7 @@
 #include "lua_cc_text.h"
 #include "lua_cc_window.h"
 #include "lua_configfile.h"
+#include "lua_curl.h"
 #include "lua_hintbox.h"
 #include "lua_menue.h"
 #include "lua_messagebox.h"
@@ -306,6 +307,17 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+
+	table_key curl_status[] =
+	{
+		{ "OK",			(lua_Integer)CLuaInstCurl::LUA_CURL_OK },
+		{ "ERR_HANDLE",		(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_HANDLE },
+		{ "ERR_NO_URL",		(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_NO_URL },
+		{ "ERR_CREATE_FILE",	(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_CREATE_FILE },
+		{ "ERR_CURL",		(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_CURL },
+		{ NULL, 0 }
+	};
+
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
 	{
@@ -318,6 +330,7 @@ static void set_lua_variables(lua_State *L)
 		{ "PLAYSTATE",   playstate },
 		{ "CC",          ccomponents },
 		{ "DYNFONT",     dynfont },
+		{ "CURL",        curl_status },
 		{ NULL, NULL }
 	};
 
@@ -556,6 +569,7 @@ void CLuaInstance::registerFunctions()
 	CLuaInstCCText::getInstance()->CCTextRegister(lua);
 	CLuaInstCCWindow::getInstance()->CCWindowRegister(lua);
 	CLuaInstConfigFile::getInstance()->LuaConfigFileRegister(lua);
+	CLuaInstCurl::getInstance()->LuaCurlRegister(lua);
 	CLuaInstHintbox::getInstance()->HintboxRegister(lua);
 	CLuaInstMenu::getInstance()->MenuRegister(lua);
 	CLuaInstMessagebox::getInstance()->MessageboxRegister(lua);

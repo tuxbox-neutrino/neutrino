@@ -28,6 +28,7 @@
 #define LUA_CLASSNAME       "neutrino"
 #define LUA_VIDEO_CLASSNAME "video"
 #define LUA_MISC_CLASSNAME  "misc"
+#define LUA_CURL_CLASSNAME  "curl"
 
 //#define LUA_WIKI "http://wiki.tuxbox.org/....."
 #define LUA_WIKI "https://slknet.de/wiki/w"
