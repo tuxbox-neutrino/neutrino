@@ -1181,12 +1181,10 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == CRCInput::RC_sat) {
 			//FIXME do nothing ?
 		} else if (msg == CRCInput::RC_red || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow || msg == CRCInput::RC_blue ) {
+			//maybe move FileTime.kill to Usermenu to simplify this call
 			bool restore = FileTime.IsVisible();
 			FileTime.kill();
-
-			CUserMenu u;
-			u.showUserMenu(msg);
-
+			CNeutrinoApp::getInstance()->usermenu.showUserMenu(msg);
 			if (restore)
 				FileTime.show(position);
 			update_lcd = true;

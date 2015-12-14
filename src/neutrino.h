@@ -77,7 +77,6 @@ private:
 	CConfigFile			configfile;
 	CScanSettings			scanSettings;
 	CPersonalizeGui			personalize;
-	CUserMenu 			usermenu;
 	int                             network_dhcp;
 	int                             network_automatic_start;
 
@@ -155,6 +154,8 @@ public:
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};
+
+	CUserMenu usermenu;
 
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
