@@ -57,6 +57,7 @@ void CLuaInstConfigFile::LuaConfigFileRegister(lua_State *L)
 		{ "setInt32",   CLuaInstConfigFile::LuaConfigFileSetInt32 },
 		{ "getBool",    CLuaInstConfigFile::LuaConfigFileGetBool },
 		{ "setBool",    CLuaInstConfigFile::LuaConfigFileSetBool },
+		{ "deleteKey",  CLuaInstConfigFile::LuaConfigFileDeleteKey },
 		{ "__gc",       CLuaInstConfigFile::LuaConfigFileDelete },
 		{ NULL, NULL }
 	};
@@ -70,9 +71,17 @@ void CLuaInstConfigFile::LuaConfigFileRegister(lua_State *L)
 
 int CLuaInstConfigFile::LuaConfigFileNew(lua_State *L)
 {
+	int numargs = lua_gettop(L);
+	const char *delimiter = "\t";
+	if (numargs > 0)
+		delimiter = luaL_checkstring(L, 1);
+	bool saveDefaults = true;
+	if (numargs > 1)
+		saveDefaults = _luaL_checkbool(L, 2);
+
 	CLuaConfigFile **udata = (CLuaConfigFile **) lua_newuserdata(L, sizeof(CLuaConfigFile *));
 	*udata = new CLuaConfigFile();
-	(*udata)->c = new CConfigFile('\t');
+	(*udata)->c = new CConfigFile(delimiter[0], saveDefaults);
 	luaL_getmetatable(L, "configfile");
 	lua_setmetatable(L, -2);
 	return 1;
@@ -187,6 +196,17 @@ int CLuaInstConfigFile::LuaConfigFileSetBool(lua_State *L)
 	const char *key = luaL_checkstring(L, 2);
 	bool val = _luaL_checkbool(L, 3);
 	c->c->setBool(key, val);
+	return 0;
+}
+
+int CLuaInstConfigFile::LuaConfigFileDeleteKey(lua_State *L)
+{
+	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
+	if (!c) return 0;
+
+	const char *s1 = luaL_checkstring(L, 2);
+	std::string key(s1);
+	c->c->deleteKey(key);
 	return 0;
 }
 
