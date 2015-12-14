@@ -1027,7 +1027,6 @@ menu.hint_key_mprewind Knop toewijzen voor het terugspoelen van een opname
 menu.hint_key_mpstop Knop toewijzen voor het stoppen van het afspelen/opnemen van een opname.
 menu.hint_key_mpsubtitle Toewijzen knop om ondertitelselectie te tonen
 menu.hint_key_mptime Knop toewijzen voor de weergave van de resterende afspeeltijd
-menu.hint_key_mptimeshift Knop toewijzen voor het starten van de timeshift functie
 menu.hint_key_pagedown Knop toewijzen voor de pagina weergave van het volgende item
 menu.hint_key_pageup Knop toewijzen voor de pagina weergaven van het vorige item
 menu.hint_key_pic_mode_active Deactiveer/activeer toets voor het scherm formaat
@@ -1048,6 +1047,7 @@ menu.hint_key_sort Knop toewijzen voor het veranderen van de sorteer orde van uw
 menu.hint_key_special_active Uitschakelen of inschakelen van speciale toetsen
 menu.hint_key_subchanneldown Knop toewijzen om snel te \nschakelen naar het vorige subkanaal
 menu.hint_key_subchannelup Knop toewijzen om snel te \nschakelen naar het volgende subkanaal
+menu.hint_key_timeshift Knop toewijzen voor het starten van de timeshift functie
 menu.hint_key_transponder Knop toewijzen voor de weergave van\n de kanalenlijst op de huidige transponder
 menu.hint_key_tvradiomode Knop toewijzen voor het schakelen tussen Radio en TV
 menu.hint_key_unlock Knop toewijzen voor het ontgrendelen van de ontvanger.\nOm te ontgrendelen drukt u eerst op de rode toets \ngevolgd door de door u gedefinieerde toets (binnen 5 seconden).

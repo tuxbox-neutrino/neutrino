@@ -1079,7 +1079,6 @@ menu.hint_key_mprewind Weisen Sie eine Taste zum Zurückspulen in ihren Aufnahme
 menu.hint_key_mpstop Weisen Sie eine Taste zum Beenden der Wiedergabe zu
 menu.hint_key_mpsubtitle Weisen Sie eine Taste für die Untertitel-Auswahl zu
 menu.hint_key_mptime Weisen Sie eine Taste für die Restzeitanzeige ihrer Aufnahmen zu
-menu.hint_key_mptimeshift Weisen Sie eine Taste für das Starten von Timeshift zu
 menu.hint_key_pagedown Weisen Sie eine Taste für das Herunterblättern zu
 menu.hint_key_pageup Weisen Sie eine Taste für das Hochblättern zu
 menu.hint_key_pic_mode_active Die Taste für das Bildschirmformat deaktivieren/aktivieren
@@ -1100,6 +1099,7 @@ menu.hint_key_sort Weisen Sie eine Taste für das Sortieren in der Kanalliste zu
 menu.hint_key_special_active Deaktivieren oder aktivieren einiger Sondertasten
 menu.hint_key_subchanneldown Weisen Sie eine Taste für das Zurückschalten in den Unterkanälen zu
 menu.hint_key_subchannelup Weisen Sie eine Taste für das Weiterschalten in den Unterkanälen zu
+menu.hint_key_timeshift Weisen Sie eine Taste für das Starten von Timeshift zu
 menu.hint_key_transponder Weisen Sie eine Taste für das Anzeigen der Transponder in der Kanalliste zu
 menu.hint_key_tvradiomode Wählen Sie eine Taste für das Umschalten zwischen TV- und Radio-Modus
 menu.hint_key_unlock Weisen Sie eine Taste zum Entriegeln zu, \nbetätigen Sie die Taste 'Rot' für 5 Sekunden
