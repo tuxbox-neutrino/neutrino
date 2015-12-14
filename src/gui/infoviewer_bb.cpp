@@ -313,7 +313,11 @@ void CInfoViewerBB::getBBButtonInfo()
 //			continue;
 		}
 		else
+#else
+		if (!bbButtonInfo[i].active)
+			bbButtonInfo[i].paint = false;
 #endif
+		else
 		{
 			count++;
 			bbButtonInfo[i].paint = true;
