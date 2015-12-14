@@ -1751,11 +1751,11 @@ movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
 movieplayer.ytplayback Youtube videoplayer
-mpkey.audio Audio track
-mpkey.bookmark save bookmark
+mpkey.audio Audiotracks
+mpkey.bookmark Bookmarks
 mpkey.forward Forward
 mpkey.goto Enter playtime
-mpkey.next_repeat_mode next repeat mode
+mpkey.next_repeat_mode Next repeat mode
 mpkey.pause Pause
 mpkey.play Play
 mpkey.plugin Movieplayer plugin
