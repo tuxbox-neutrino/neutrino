@@ -4062,8 +4062,9 @@ void stop_daemons(bool stopall, bool for_flash)
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
 
-	CZapit::getInstance()->Stop();
 	delete &CMoviePlayerGui::getInstance();
+
+	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
 	if (!for_flash) {
 		CVFD::getInstance()->Clear();
