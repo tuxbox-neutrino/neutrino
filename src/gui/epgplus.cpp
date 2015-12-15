@@ -465,7 +465,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	int height = this->fontBouquetChannelName->getHeight();
 
 	// clear the region
-	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, height, COL_MENUHEAD_PLUS_0);
+	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, height, COL_MENUCONTENT_PLUS_0);
 
 	yPos += height;
 
@@ -475,7 +475,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	height = this->fontEventDescription->getHeight();
 
 	// clear the region
-	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, height, COL_MENUHEAD_PLUS_0);
+	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, height, COL_MENUCONTENT_PLUS_0);
 
 	yPos += height;
 
@@ -485,7 +485,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	height = this->fontEventShortDescription->getHeight();
 
 	// clear the region
-	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, height, COL_MENUHEAD_PLUS_0);
+	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, height, COL_MENUCONTENT_PLUS_0);
 
 	yPos += height;
 
