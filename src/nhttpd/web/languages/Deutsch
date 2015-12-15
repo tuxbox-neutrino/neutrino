@@ -519,6 +519,7 @@ live.timer_edit.standby=Standby
 live.timer_edit.plugin=Plugin
 live.timer_edit.rec_dir=Aufnahmeverzeichnis
 live.timer_edit.description=Beschreibung
+live.timer_edit.type=Typ
 
 =========== LIVE Timer Sync
 live.timer-sync.get_timer=Timer holen.

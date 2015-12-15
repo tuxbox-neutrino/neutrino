@@ -522,6 +522,7 @@ live.timer_edit.standby=Standby
 live.timer_edit.plugin=Plugin
 live.timer_edit.rec_dir=Recordind directory
 live.timer_edit.description=Description
+live.timer_edit.type=Type
 
 =========== LIVE Timer Sync
 live.timer-sync.get_timer=Get timer.
