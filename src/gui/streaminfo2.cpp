@@ -724,7 +724,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			sprintf(buf, "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 		} else {
 			unsigned int sw=spaceoffset;
-			for (unsigned int li= 0; (li<g_RemoteControl->current_PIDs.APIDs.size()) && (li<10); li++)
+			for (unsigned int li= 0; (li<g_RemoteControl->current_PIDs.APIDs.size()) && (li<16); li++)
 			{
 				sprintf(buf, "0x%04X (%i)", g_RemoteControl->current_PIDs.APIDs[li].pid, g_RemoteControl->current_PIDs.APIDs[li].pid );
 				if (li == g_RemoteControl->current_PIDs.PIDs.selected_apid){
@@ -734,7 +734,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 					g_Font[font_small]->RenderString(xpos+sw, ypos, box_width, buf, COL_INFOBAR_TEXT);
 				}
 				sw = g_Font[font_small]->getRenderWidth(buf)+sw+10;
-				if (((li+1)%3 == 0) &&(g_RemoteControl->current_PIDs.APIDs.size()-1 > li)){ // if we have lots of apids, put "intermediate" line with pids
+				if (((li+1)%4 == 0) &&(g_RemoteControl->current_PIDs.APIDs.size()-1 > li)){ // if we have lots of apids, put "intermediate" line with pids
 					ypos+= sheight;
 					sw=spaceoffset;
 				}
