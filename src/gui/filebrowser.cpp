@@ -679,6 +679,7 @@ bool CFileBrowser::exec(const char * const dirname)
 			}
 		}
 		else if (msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::LEAVE_ALL ||
 				msg == NeutrinoMessages::SHUTDOWN ||
 				msg == NeutrinoMessages::SLEEPTIMER)
 		{
@@ -958,6 +959,7 @@ bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing)
 			loop = false;
 		}
 		else if (msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::LEAVE_ALL ||
 				msg == NeutrinoMessages::SHUTDOWN ||
 				msg == NeutrinoMessages::SLEEPTIMER)
 		{

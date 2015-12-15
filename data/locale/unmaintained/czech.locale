@@ -1044,7 +1044,6 @@ menu.hint_key_mprewind Přiřazení klávesy pro přetáčení vzad nahrávky
 menu.hint_key_mpstop Přiřazení klávesy pro zastavení nahrávky
 menu.hint_key_mpsubtitle Přiřazení klávesy pro zobrazení titulků
 menu.hint_key_mptime Přiřazení klávesy pro zobrazení časů nahrávky
-menu.hint_key_mptimeshift Přiřazení klávesy pro spuštění časového posunu
 menu.hint_key_pagedown Přiřazení klávesy pro zobrazení následující strany položek
 menu.hint_key_pageup Přiřazení klávesy pro zobrazení předchozí strany položek
 menu.hint_key_pic_mode_active Povolení/zakázání klávesy pro změnu formátu obrazu
@@ -1065,6 +1064,7 @@ menu.hint_key_sort Přiřazení klávesy pro změnu třídění seznamu kanálů
 menu.hint_key_special_active Povolení/zákaz některých speciálních kláves
 menu.hint_key_subchanneldown Přiřazení klávesy pro rychlou změnu \ndo předchozího subkanálu
 menu.hint_key_subchannelup Přiřazení klávesy pro rychlou změnu \ndo následujícího subkanálu
+menu.hint_key_timeshift Přiřazení klávesy pro spuštění časového posunu
 menu.hint_key_transponder Přiřazení tlačítka pro zobrazení seznamu kanálů \nz aktuálního transpondéru
 menu.hint_key_tvradiomode Přiřazení tlačítka pro změnu TV <> Rádio režimu
 menu.hint_key_unlock Přiřazení klávesy pro odemknutí pole pokud je zamčené \nPro odemčení stisknout 'RED', pak během 5 vteřin toto tlačítko

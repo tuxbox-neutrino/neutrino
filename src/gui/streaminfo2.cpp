@@ -176,7 +176,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 				sprintf(currate, "%u", rate.short_average / 1000);
 				g_Font[font_info]->RenderString(dx1, average_bitrate_pos, width/2, br_str, COL_INFOBAR_TEXT);
 				g_Font[font_info]->RenderString(dx1+average_bitrate_offset+sw+10 , average_bitrate_pos, offset, avg_str, COL_INFOBAR_TEXT);
-				frameBuffer->paintBoxRel (dx1 + average_bitrate_offset , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
+				frameBuffer->paintBoxRel (dx1 + average_bitrate_offset , average_bitrate_pos -dheight, sw, dheight, COL_MENUCONTENT_PLUS_0);
 				g_Font[font_info]->RenderString(dx1+average_bitrate_offset, average_bitrate_pos, sw, currate, COL_INFOBAR_TEXT);
 			}
 			if (!mp) {
@@ -268,12 +268,17 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	int y1;
 	int xd = w/4;
 
-        std::string tname(g_Locale->getText(LOCALE_STREAMINFO_SIGNAL));
-        tname += ": ";
-        if (mp)
-                tname += g_Locale->getText(LOCALE_WEBTV_HEAD);
-        else
-                tname += to_string(1 + frontend->getNumber()) + ": " + frontend->getName();
+	std::string tname(g_Locale->getText(LOCALE_STREAMINFO_SIGNAL));
+	tname += ": ";
+	if (mp)
+	{
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
+			tname += g_Locale->getText(LOCALE_WEBTV_HEAD);
+		else
+			tname += g_Locale->getText(LOCALE_MAINMENU_MOVIEPLAYER);
+	}
+	else
+		tname += to_string(1 + frontend->getNumber()) + ": " + frontend->getName();
 
 #if 0
 	int tuner = 1 + frontend->getNumber();
@@ -419,7 +424,7 @@ void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
 	char str[30];
 	int fw = g_Font[font_small]->getWidth();
 	fw *=(fw>17)?5:6;
-	frameBuffer->paintBoxRel(_x, _y - sheight + 5, fw, sheight -1, COL_MENUHEAD_PLUS_0);
+	frameBuffer->paintBoxRel(_x, _y - sheight + 5, fw, sheight -1, COL_MENUCONTENT_PLUS_0);
 	sprintf(str,"%6u",value);
 	g_Font[font_small]->RenderString(_x, _y + 5, fw, str, COL_INFOBAR_TEXT);
 }
@@ -448,7 +453,7 @@ void CStreamInfo2::paint (int /*mode*/)
 		CVFD::getInstance ()->setMode (CVFD::MODE_MENU_UTF8, head_string);
 
 		// paint backround, title pig, etc.
-		frameBuffer->paintBoxRel (0, 0, max_width, max_height, COL_MENUHEAD_PLUS_0);
+		frameBuffer->paintBoxRel (0, 0, max_width, max_height, COL_MENUCONTENT_PLUS_0);
 		g_Font[font_head]->RenderString (xpos, ypos + hheight + 1, width, head_string, COL_MENUHEAD_TEXT);
 		ypos += hheight;
 
@@ -461,7 +466,7 @@ void CStreamInfo2::paint (int /*mode*/)
 	} else {
 		// --  small PIG, small signal graph
 		// -- paint backround, title pig, etc.
-		frameBuffer->paintBoxRel (0, 0, max_width, max_height, COL_MENUHEAD_PLUS_0);
+		frameBuffer->paintBoxRel (0, 0, max_width, max_height, COL_MENUCONTENT_PLUS_0);
 
 		// -- paint large signal graph
 		paint_signal_fe_box (x, y, width, height-100);
@@ -479,7 +484,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	yypos = ypos;
 	if(box_h > 0)
-		frameBuffer->paintBoxRel (0, ypos, box_width, box_h, COL_MENUHEAD_PLUS_0);
+		frameBuffer->paintBoxRel (0, ypos, box_width, box_h, COL_MENUCONTENT_PLUS_0);
 
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(!channel)
@@ -752,7 +757,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 	unsigned short i;
 	int box_width = width*2/3-10;
 	if (box_h2 > ypos+(iheight*2))
-		frameBuffer->paintBox(0, ypos+(iheight*2), box_width, box_h2, COL_MENUHEAD_PLUS_0);
+		frameBuffer->paintBox(0, ypos+(iheight*2), box_width, box_h2, COL_MENUCONTENT_PLUS_0);
 
 	std::string casys[NUM_CAIDS]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
 	bool caids[NUM_CAIDS];
@@ -999,7 +1004,7 @@ void CStreamInfo2::showSNR ()
 	if (signalbox == NULL)
 	{
 		signalbox = new CSignalBox(sigBox_x, snr_y, 240, snr_h, frontend);
-		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
+		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_INFOBAR_TEXT);
 		signalbox->doPaintBg(true);
 	}

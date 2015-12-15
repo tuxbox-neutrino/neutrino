@@ -1170,6 +1170,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			}
 			if (restore)
 				FileTime.show(position);
+#if 0
 		} else if (msg == CRCInput::RC_red) {
 			bool restore = FileTime.IsVisible();
 			FileTime.kill();
@@ -1178,6 +1179,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (restore)
 				FileTime.show(position);
 			update_lcd = true;
+#endif
 		} else if (msg == NeutrinoMessages::SHOW_EPG) {
 			handleMovieBrowser(NeutrinoMessages::SHOW_EPG, position);
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
@@ -1189,6 +1191,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		} else if (msg == NeutrinoMessages::ZAPTO ||
 				msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::LEAVE_ALL ||
 				msg == NeutrinoMessages::SHUTDOWN ||
 				((msg == NeutrinoMessages::SLEEPTIMER) && !data) ) {	// Exit for Record/Zapto Timers
 			printf("CMoviePlayerGui::PlayFile: ZAPTO etc..\n");
@@ -1196,7 +1199,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				menu_ret = menu_return::RETURN_EXIT_ALL;
 
 			playstate = CMoviePlayerGui::STOPPED;
-			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
+			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL;
 			ClearQueue();
 			g_RCInput->postMsg(msg, data);
 		} else if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER) {
@@ -1206,12 +1209,20 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			makeScreenShot(false, true);
 		} else if (msg == CRCInput::RC_sat) {
 			//FIXME do nothing ?
+		} else if (msg == CRCInput::RC_red || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow || msg == CRCInput::RC_blue ) {
+			//maybe move FileTime.kill to Usermenu to simplify this call
+			bool restore = FileTime.IsVisible();
+			FileTime.kill();
+			CNeutrinoApp::getInstance()->usermenu.showUserMenu(msg);
+			if (restore)
+				FileTime.show(position);
+			update_lcd = true;
 		} else {
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all) {
 				printf("CMoviePlayerGui::PlayFile: neutrino handleMsg messages_return::cancel_all\n");
 				menu_ret = menu_return::RETURN_EXIT_ALL;
 				playstate = CMoviePlayerGui::STOPPED;
-				keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
+				keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL;
 				ClearQueue();
 			}
 			else if (msg <= CRCInput::RC_MaxRC ) {

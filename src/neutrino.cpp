@@ -2857,6 +2857,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
 		return messages_return::cancel_all | messages_return::handled;
 	}
+	else if ((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) {
+		if (data == 0)
+			g_RCInput->postMsg(NeutrinoMessages::LEAVE_ALL, 0);
+		return messages_return::cancel_all | messages_return::handled;
+	}
 	else if (msg == (neutrino_msg_t) g_settings.key_power_off /*CRCInput::RC_standby*/) {
 		if (data == 0) {
 			neutrino_msg_t new_msg;
@@ -3214,6 +3219,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::STANDBY_TOGGLE ) {
 		standbyMode( !(mode & mode_standby) );
+		g_RCInput->clearRCMsg();
+		return messages_return::handled;
+	}
+	else if( msg == NeutrinoMessages::LEAVE_ALL ) {
 		g_RCInput->clearRCMsg();
 		return messages_return::handled;
 	}
@@ -4196,8 +4205,9 @@ void stop_daemons(bool stopall, bool for_flash)
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
 
-	CZapit::getInstance()->Stop();
 	delete &CMoviePlayerGui::getInstance();
+
+	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
 	if (!for_flash) {
 		CVFD::getInstance()->Clear();
@@ -4332,7 +4342,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_play );
 	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
 	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_timeshift );
-	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
+	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_yellow );
 	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", (unsigned int)CRCInput::RC_nokey );
 	g_settings.mpkey_subtitle = tconfig.getInt32( "mpkey.subtitle", CRCInput::RC_sub );
 

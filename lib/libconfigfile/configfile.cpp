@@ -55,7 +55,7 @@ bool CConfigFile::loadConfig(const char * const filename, char _delimiter)
 {
 	std::ifstream configFile(filename);
 
-	if (configFile != NULL)
+	if (configFile.good())
 	{
 		std::string s;
 		clear();
@@ -97,7 +97,7 @@ bool CConfigFile::saveConfig(const char * const filename, char _delimiter)
 	unlink(tmpname.c_str());
 	std::fstream configFile(tmpname.c_str(), std::ios::out);
 
-	if (configFile != NULL)
+	if (configFile.good())
 	{
 		std::cout << "[ConfigFile] saving " << filename << std::endl;
 		for (ConfigDataMap::const_iterator it = configData.begin(); it != configData.end(); ++it)
