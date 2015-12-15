@@ -57,6 +57,7 @@ void CLuaInstMisc::LuaMiscRegister(lua_State *L)
 		{ "runScript",       CLuaInstMisc::runScriptExt },
 		{ "GetRevision",     CLuaInstMisc::GetRevision },
 		{ "checkVersion",    CLuaInstMisc::checkVersion },
+		{ "postMsg",         CLuaInstMisc::postMsg },
 		{ "__gc",            CLuaInstMisc::MiscDelete },
 		{ NULL, NULL }
 	};
@@ -196,6 +197,22 @@ int CLuaInstMisc::checkVersion(lua_State *L)
 	}
 	lua_pushinteger(L, 1); /* for backward compatibility */
 	return 1;
+}
+
+int CLuaInstMisc::postMsg(lua_State *L)
+{
+	lua_Integer msg = 0;
+	neutrino_msg_t post_msg = 0;
+	msg = luaL_checkint(L, 2);
+	switch (msg) {
+		case POSTMSG_STANDBY_ON:
+			post_msg = NeutrinoMessages::STANDBY_ON;
+			break;
+		default:
+			return 0;
+	}
+	g_RCInput->postMsg(post_msg, 0);
+	return 0;
 }
 
 int CLuaInstMisc::MiscDelete(lua_State *L)

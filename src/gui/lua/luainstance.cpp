@@ -335,6 +335,12 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+	table_key post_msg[] =
+	{
+		{ "STANDBY_ON",		(lua_Integer)CLuaInstMisc::POSTMSG_STANDBY_ON },
+		{ NULL, 0 }
+	};
+
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
 	{
@@ -349,6 +355,7 @@ static void set_lua_variables(lua_State *L)
 		{ "DYNFONT",     dynfont },
 		{ "CURL",        curl_status },
 		{ "NMODE",       neutrino_mode },
+		{ "POSTMSG",     post_msg },
 		{ NULL, NULL }
 	};
 
