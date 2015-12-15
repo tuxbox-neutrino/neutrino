@@ -277,10 +277,11 @@ static void set_lua_variables(lua_State *L)
 
 	table_key playstate[] =
 	{
-		{ "NORMAL", CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL },
-		{ "STOP",   CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP },
-		{ "NEXT",   CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT },
-		{ "PREV",   CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV },
+		{ "NORMAL",    CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL },
+		{ "STOP",      CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP },
+		{ "NEXT",      CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT },
+		{ "PREV",      CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV },
+		{ "LEAVE_ALL", CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL },
 		{ NULL, 0 }
 	};
 

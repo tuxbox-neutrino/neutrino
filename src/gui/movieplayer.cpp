@@ -1171,7 +1171,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				menu_ret = menu_return::RETURN_EXIT_ALL;
 
 			playstate = CMoviePlayerGui::STOPPED;
-			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
+			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL;
 			ClearQueue();
 			g_RCInput->postMsg(msg, data);
 		} else if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER) {
@@ -1194,7 +1194,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				printf("CMoviePlayerGui::PlayFile: neutrino handleMsg messages_return::cancel_all\n");
 				menu_ret = menu_return::RETURN_EXIT_ALL;
 				playstate = CMoviePlayerGui::STOPPED;
-				keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
+				keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL;
 				ClearQueue();
 			}
 			else if (msg <= CRCInput::RC_MaxRC ) {

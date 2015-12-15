@@ -69,10 +69,11 @@ class CMoviePlayerGui : public CMenuTarget
 
 	enum
 		{
-		    PLUGIN_PLAYSTATE_NORMAL = 0,
-		    PLUGIN_PLAYSTATE_STOP   = 1,
-		    PLUGIN_PLAYSTATE_NEXT   = 2,
-		    PLUGIN_PLAYSTATE_PREV   = 3
+		    PLUGIN_PLAYSTATE_NORMAL    = 0,
+		    PLUGIN_PLAYSTATE_STOP      = 1,
+		    PLUGIN_PLAYSTATE_NEXT      = 2,
+		    PLUGIN_PLAYSTATE_PREV      = 3,
+		    PLUGIN_PLAYSTATE_LEAVE_ALL = 4
 		};
 
 	enum repeat_mode_enum { REPEAT_OFF = 0, REPEAT_TRACK = 1, REPEAT_ALL = 2 };
