@@ -665,7 +665,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		ypos += iheight;
 		sprintf (buf, "%s:",g_Locale->getText (LOCALE_TIMERLIST_CHANNEL));//swiped locale
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR_TEXT);
-		sprintf(buf, "%s", channel->getName().c_str());
+			// process additional RealName if UserName exists >> uname.empty() ? realname : uname + realname
+		sprintf(buf, "%s", (channel->getName()==channel->getRealname()) ? channel->getRealname().c_str():(channel->getName()+" << "+channel->getRealname()).c_str());
 		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
 
 		//tsfrequenz
