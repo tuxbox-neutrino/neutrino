@@ -1601,6 +1601,16 @@ moviebrowser.head My recordings
 moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
+moviebrowser.help_button_blue Reload movie informations
+moviebrowser.help_button_green Show filter selection
+moviebrowser.help_button_left Change view
+moviebrowser.help_button_menu Open main menu
+moviebrowser.help_button_mute Delete movies
+moviebrowser.help_button_okay Play movies
+moviebrowser.help_button_play Mark movies
+moviebrowser.help_button_red Change sort
+moviebrowser.help_button_right Change view
+moviebrowser.help_button_yellow Switch active window
 moviebrowser.hide_series Hide series
 moviebrowser.hint_copy_onefile 
 moviebrowser.hint_copy_several 
