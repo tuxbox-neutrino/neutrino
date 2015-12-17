@@ -966,7 +966,7 @@ void CPersonalizeGui::addPersonalizedItems()
 				v_item[i].menuItem->hintIcon = fw->hintIcon;
 				v_item[i].menuItem->hint = fw->hint;
 				//add item if it's set to visible or pin protected and allow to add an forwarder as next
-				if (v_item[i].menuItem->active && (p_mode != PERSONALIZE_MODE_NOTVISIBLE || i_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION))
+				if (p_mode != PERSONALIZE_MODE_NOTVISIBLE || i_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION)
 				{
 					//add item
 					v_item[i].widget->addItem(v_item[i].menuItem, v_item[i].default_selected); //forwarders...
