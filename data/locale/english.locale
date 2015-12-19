@@ -1581,7 +1581,8 @@ moviebrowser.delete_all Delete all selected movies without any questions?
 moviebrowser.delete_info Delete files, please wait...
 moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
-moviebrowser.dir_head Additional paths
+moviebrowser.directories Directories
+moviebrowser.directories_additional Additional directories
 moviebrowser.edit_book Bookmark change
 moviebrowser.edit_book_name_info1 Enter new Bookmark name
 moviebrowser.edit_book_name_info2 book name info2
@@ -1656,7 +1657,7 @@ moviebrowser.menu_copy_onefile Copy movie
 moviebrowser.menu_copy_several Copy and split movie
 moviebrowser.menu_cut Cut movie
 moviebrowser.menu_cut_head Copy, cut and truncate
-moviebrowser.menu_directories_head Paths
+moviebrowser.menu_directories_head Directories de/activate
 moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Settings

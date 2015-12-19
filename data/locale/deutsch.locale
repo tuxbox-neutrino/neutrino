@@ -1579,7 +1579,8 @@ moviebrowser.delete_all Alle markierten Filme ohne weitere Nachfrage löschen?
 moviebrowser.delete_info Lösche Dateien, bitte warten...
 moviebrowser.delete_screenshot Lösche Screenshot?
 moviebrowser.dir Pfad
-moviebrowser.dir_head Zusätzliche Verzeichnisse
+moviebrowser.directories Verzeichnisse
+moviebrowser.directories_additional Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern
 moviebrowser.edit_book_name_info1 Neuer Markierungsname
 moviebrowser.edit_book_name_info2 Markierungsname info2
@@ -1654,7 +1655,7 @@ moviebrowser.menu_copy_onefile Film kopieren
 moviebrowser.menu_copy_several Film kopieren und teilen
 moviebrowser.menu_cut Film schneiden
 moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
-moviebrowser.menu_directories_head Verzeichnisse/Freier Speicher
+moviebrowser.menu_directories_head Verzeichnisse de/aktivieren
 moviebrowser.menu_help_head Hilfe
 moviebrowser.menu_main_bookmarks Markierungen
 moviebrowser.menu_main_head Einstellungen

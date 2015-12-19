@@ -3006,7 +3006,7 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 
 	optionsMenuDir.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_MOVIE_DIR,     (int*)(&m_settings.storageDirMovieUsed), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true));
 	optionsMenuDir.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR, false, g_settings.network_nfs_moviedir));
-	optionsMenuDir.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_DIR_HEAD));
+	optionsMenuDir.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_DIRECTORIES_ADDITIONAL));
 
 	COnOffNotifier* notifier[MB_MAX_DIRS];
 	for (i = 0; i < MB_MAX_DIRS ; i++)
@@ -3056,7 +3056,7 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	optionsMenu.addIntroItems(LOCALE_EPGPLUS_OPTIONS);
 	optionsMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_LOAD_DEFAULT, true, NULL, this, "loaddefault",              CRCInput::RC_red));
 	optionsMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_OPTION_BROWSER, true, NULL, &optionsMenuBrowser,NULL,       CRCInput::RC_green));
-	optionsMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &optionsMenuDir,NULL,    CRCInput::RC_yellow));
+	optionsMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DIRECTORIES, true, NULL, &optionsMenuDir,NULL,    CRCInput::RC_yellow));
 	if (m_parentalLock != MB_PARENTAL_LOCK_OFF)
 		optionsMenu.addItem(new CLockedMenuForwarder(LOCALE_MOVIEBROWSER_MENU_PARENTAL_LOCK_HEAD, g_settings.parentallock_pincode, true,  true, NULL, &parentalMenu,NULL,CRCInput::RC_blue));
 	else
