@@ -340,6 +340,9 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 	//get data of number icon and paint
 	if (icon_name && *icon_name)
 	{
+               if (!active)
+			icon_name = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+
 		frameBuffer->getIconSize(icon_name, &icon_w, &icon_h);
 
 		if (/*active  &&*/ icon_w>0 && icon_h>0 && icon_space_x >= icon_w)
