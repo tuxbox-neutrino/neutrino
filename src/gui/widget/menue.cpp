@@ -123,7 +123,7 @@ bool CMenuItem::initModeCondition(const int& stb_mode)
 				parent_widget->initSelectable();
 		return true;
 	}
-	printf("\033[33m[CMenuItem] [%s - %d] missmatching stb mode condition \033[0m\n", __func__, __LINE__, stb_mode);
+	printf("\033[33m[CMenuItem] [%s - %d] missmatching stb mode condition %d\033[0m\n", __func__, __LINE__, stb_mode);
 	return false;
 }
 
