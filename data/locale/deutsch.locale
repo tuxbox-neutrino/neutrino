@@ -1579,7 +1579,8 @@ moviebrowser.delete_all Alle markierten Filme ohne weitere Nachfrage löschen?
 moviebrowser.delete_info Lösche Dateien, bitte warten...
 moviebrowser.delete_screenshot Lösche Screenshot?
 moviebrowser.dir Pfad
-moviebrowser.dir_head Zusätzliche Verzeichnisse
+moviebrowser.directories Verzeichnisse
+moviebrowser.directories_additional Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern
 moviebrowser.edit_book_name_info1 Neuer Markierungsname
 moviebrowser.edit_book_name_info2 Markierungsname info2
@@ -1599,15 +1600,25 @@ moviebrowser.head Meine Aufnahmen
 moviebrowser.head_filter Filme nach Kategorie filtern:
 moviebrowser.head_playlist Zuletzt gesehen:
 moviebrowser.head_recordlist Zuletzt aufgenommen:
+moviebrowser.help_button_blue Filminfos neu laden
+moviebrowser.help_button_green Filterfenster einblenden
+moviebrowser.help_button_left Ansicht ändern
+moviebrowser.help_button_menu Hauptmenü öffnen
+moviebrowser.help_button_mute Filme löschen
+moviebrowser.help_button_okay Filme abspielen
+moviebrowser.help_button_play Filme markieren
+moviebrowser.help_button_red Sortierung ändern
+moviebrowser.help_button_right Ansicht ändern
+moviebrowser.help_button_yellow Aktives Fenster wechseln
 moviebrowser.hide_series Verstecke Serien
 moviebrowser.hint_copy_onefile 
 moviebrowser.hint_copy_several 
 moviebrowser.hint_cut 
-moviebrowser.hint_jumpbackward Rücksprung in 5 s\n '0' zum Weitersehen
-moviebrowser.hint_jumpforward Werbung überspringen in 5 s\n '0' zum Ansehen
-moviebrowser.hint_movieend Filmende in 5 s\n '0' zum Weitersehen
-moviebrowser.hint_newbook_backward Neue Wiederholung\n 'blue' für Endposition
-moviebrowser.hint_newbook_forward Neuer Werbesprung\n 'blue' für Endposition
+moviebrowser.hint_jumpbackward Rücksprung in 5 Sekunden\n'0' zum Weitersehen
+moviebrowser.hint_jumpforward Werbung überspringen in 5 Sekunden\n'0' zum Ansehen
+moviebrowser.hint_movieend Filmende in 5 Sekunden\n'0' zum Weitersehen
+moviebrowser.hint_newbook_backward Neue Wiederholung gestartet.\n'%s' bestimmt die Endposition, '0' bricht ab.
+moviebrowser.hint_newbook_forward Neuer Werbesprung gestartet.\n'%s' bestimmt die Endposition, '0' bricht ab.
 moviebrowser.hint_truncate 
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
@@ -1644,7 +1655,7 @@ moviebrowser.menu_copy_onefile Film kopieren
 moviebrowser.menu_copy_several Film kopieren und teilen
 moviebrowser.menu_cut Film schneiden
 moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
-moviebrowser.menu_directories_head Verzeichnisse/Freier Speicher
+moviebrowser.menu_directories_head Verzeichnisse de/aktivieren
 moviebrowser.menu_help_head Hilfe
 moviebrowser.menu_main_bookmarks Markierungen
 moviebrowser.menu_main_head Einstellungen
