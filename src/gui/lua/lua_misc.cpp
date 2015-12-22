@@ -26,12 +26,17 @@
 
 #include <global.h>
 #include <system/debug.h>
+#include <gui/widget/menue.h>
+#include <driver/volume.h>
+#include <gui/audiomute.h>
 #include <gui/infoclock.h>
 #include <cs_api.h>
 #include <neutrino.h>
 
 #include "luainstance.h"
 #include "lua_misc.h"
+
+extern CVolume* g_volume;
 
 CLuaInstMisc* CLuaInstMisc::getInstance()
 {
@@ -54,6 +59,11 @@ void CLuaInstMisc::LuaMiscRegister(lua_State *L)
 		{ "strFind",         CLuaInstMisc::strFind },
 		{ "strSub",          CLuaInstMisc::strSub },
 		{ "enableInfoClock", CLuaInstMisc::enableInfoClock },
+		{ "enableMuteIcon",  CLuaInstMisc::enableMuteIcon },
+		{ "setVolume",       CLuaInstMisc::setVolume },
+		{ "getVolume",       CLuaInstMisc::getVolume },
+		{ "AudioMute",       CLuaInstMisc::AudioMute },
+		{ "isMuted",         CLuaInstMisc::isMuted },
 		{ "runScript",       CLuaInstMisc::runScriptExt },
 		{ "GetRevision",     CLuaInstMisc::GetRevision },
 		{ "checkVersion",    CLuaInstMisc::checkVersion },
@@ -142,6 +152,56 @@ int CLuaInstMisc::enableInfoClock(lua_State *L)
 		enable = _luaL_checkbool(L, 2);
 	CInfoClock::getInstance()->enableInfoClock(enable);
 	return 0;
+}
+
+int CLuaInstMisc::enableMuteIcon(lua_State *L)
+{
+	bool enable = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		enable = _luaL_checkbool(L, 2);
+	CAudioMute::getInstance()->enableMuteIcon(enable);
+	return 0;
+}
+
+int CLuaInstMisc::setVolume(lua_State *L)
+{
+	lua_Integer vol = luaL_checkint(L, 2);
+	if (vol < 0) vol = 0;
+	if (vol > 100) vol = 100;
+	g_settings.current_volume = vol;
+	g_volume->setvol(vol);
+	return 0;
+}
+
+int CLuaInstMisc::getVolume(lua_State *L)
+{
+	lua_pushinteger(L, g_settings.current_volume);
+	return 1;
+}
+
+int CLuaInstMisc::AudioMute(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 2) {
+		printf("CLuaInstMisc::%s: not enough arguments (%d, expected 1 (or 2))\n", __func__, numargs);
+		return 0;
+	}
+
+	bool newValue = false;
+	bool isEvent  = false;
+	newValue = _luaL_checkbool(L, 2);
+	if (numargs > 2)
+		isEvent = _luaL_checkbool(L, 3);
+
+	CAudioMute::getInstance()->AudioMute(newValue, isEvent);
+	return 0;
+}
+
+int CLuaInstMisc::isMuted(lua_State *L)
+{
+	lua_pushboolean(L, CNeutrinoApp::getInstance()->isMuted());
+	return 1;
 }
 
 int CLuaInstMisc::runScriptExt(lua_State *L)

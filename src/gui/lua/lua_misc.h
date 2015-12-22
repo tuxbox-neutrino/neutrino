@@ -54,6 +54,11 @@ class CLuaInstMisc
 		static int strFind(lua_State *L);
 		static int strSub(lua_State *L);
 		static int enableInfoClock(lua_State *L);
+		static int enableMuteIcon(lua_State *L);
+		static int setVolume(lua_State *L);
+		static int getVolume(lua_State *L);
+		static int AudioMute(lua_State *L);
+		static int isMuted(lua_State *L);
 		static int runScriptExt(lua_State *L);
 		static int GetRevision(lua_State *L);
 		static int checkVersion(lua_State *L);
