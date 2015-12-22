@@ -58,6 +58,10 @@
 	const bool item_mode		= optional, default true, if you don't want to see this item in personalize menue, then set it to false
 	CMenuItem *observer_Item	= optional, default NULL, if you want to observe this item with another item (observer), then use this prameter.
 					  Effect: this observed item will be deactivated, if observer is set to 'visible' or 'pin-protected'
+	menu_item_disable_cond_t& disable_condition = optional, default DCOND_MODE_NONE
+					  Effect: on used condition eg. DCOND_MODE_TS, this item is disabled in mode_ts
+					  Also usable are combined conditions: eg: DCOND_MODE_TV | DCOND_MODE_TS, this item is disabled in mode_tv and mode_ts
+					  More possible conditions are defined in menue.h.
 	
 	Icon handling:
 	If you define an icon in the item object, this will be shown in the personalized menu but not the personilazitions menue itself, otherwise a shortcut will be create
