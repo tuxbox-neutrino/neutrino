@@ -30,6 +30,7 @@ extern "C"
 #include <lauxlib.h>
 #include <lualib.h>
 }
+#include <pthread.h>
 
 /* wrap strerror_r(). */
 #ifndef strerror_r
