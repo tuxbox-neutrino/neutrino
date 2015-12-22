@@ -46,6 +46,7 @@
 #include "lua_menue.h"
 #include "lua_messagebox.h"
 #include "lua_misc.h"
+#include "lua_threads.h"
 #include "lua_video.h"
 
 extern CPictureViewer * g_PicViewer;
@@ -402,7 +403,7 @@ CLuaInstance::CLuaInstance()
 	lua = luaL_newstate();
 
 	/* register standard + custom functions. */
-	registerFunctions();
+	LuaInstRegisterFunctions(lua);
 }
 
 CLuaInstance::~CLuaInstance()
@@ -508,50 +509,6 @@ void CLuaInstance::abortScript()
 	lua_sethook(lua, &abortHook, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
-const luaL_Reg CLuaInstance::methods[] =
-{
-	{ "GetInput",               CLuaInstance::GetInput },
-	{ "Blit",                   CLuaInstance::Blit },
-	{ "GetLanguage",            CLuaInstance::GetLanguage },
-	{ "PaintBox",               CLuaInstance::PaintBox },
-	{ "paintHLine",             CLuaInstance::paintHLineRel },
-	{ "paintVLine",             CLuaInstance::paintVLineRel },
-	{ "RenderString",           CLuaInstance::RenderString },
-	{ "getRenderWidth",         CLuaInstance::getRenderWidth },
-	{ "FontHeight",             CLuaInstance::FontHeight },
-	{ "getDynFont",             CLuaInstance::getDynFont },
-	{ "PaintIcon",              CLuaInstance::PaintIcon },
-	{ "DisplayImage",           CLuaInstance::DisplayImage },
-	{ "GetSize",                CLuaInstance::GetSize },
-	{ "saveScreen",             CLuaInstance::saveScreen },
-	{ "restoreScreen",          CLuaInstance::restoreScreen },
-	{ "deleteSavedScreen",      CLuaInstance::deleteSavedScreen },
-
-	/*
-	   lua_misc.cpp
-	   Deprecated, for the future separate class for misc functions
-	*/
-	{ "strFind",                CLuaInstMisc::getInstance()->strFind_old },
-	{ "strSub",                 CLuaInstMisc::getInstance()->strSub_old },
-	{ "enableInfoClock",        CLuaInstMisc::getInstance()->enableInfoClock_old },
-	{ "runScript",              CLuaInstMisc::getInstance()->runScriptExt_old },
-	{ "GetRevision",            CLuaInstMisc::getInstance()->GetRevision_old },
-	{ "checkVersion",           CLuaInstMisc::getInstance()->checkVersion_old },
-
-	/*
-	   lua_video.cpp
-	   Deprecated, for the future separate class for video
-	*/
-	{ "setBlank",               CLuaInstVideo::getInstance()->setBlank_old },
-	{ "ShowPicture",            CLuaInstVideo::getInstance()->ShowPicture_old },
-	{ "StopPicture",            CLuaInstVideo::getInstance()->StopPicture_old },
-	{ "PlayFile",               CLuaInstVideo::getInstance()->PlayFile_old },
-	{ "zapitStopPlayBack",      CLuaInstVideo::getInstance()->zapitStopPlayBack_old },
-	{ "channelRezap",           CLuaInstVideo::getInstance()->channelRezap_old },
-	{ "createChannelIDfromUrl", CLuaInstVideo::getInstance()->createChannelIDfromUrl_old },
-	{ NULL, NULL }
-};
-
 #ifdef STATIC_LUAPOSIX
 /* hack: we link against luaposix, which is included in our
  * custom built lualib */
@@ -559,47 +516,101 @@ extern "C" { LUAMOD_API int (luaopen_posix_c) (lua_State *L); }
 #endif
 
 /* load basic functions and register our own C callbacks */
-void CLuaInstance::registerFunctions()
+void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 {
-	luaL_openlibs(lua);
-	luaopen_table(lua);
-	luaopen_io(lua);
-	luaopen_string(lua);
-	luaopen_math(lua);
-	lua_newtable(lua);
-	int methodtable = lua_gettop(lua);
-	luaL_newmetatable(lua, className);
-	int metatable = lua_gettop(lua);
-	lua_pushliteral(lua, "__metatable");
-	lua_pushvalue(lua, methodtable);
-	lua_settable(lua, metatable);
+// ------------------------------------------
+	const luaL_Reg methods[] =
+	{
+		{ "GetInput",               CLuaInstance::GetInput },
+		{ "Blit",                   CLuaInstance::Blit },
+		{ "GetLanguage",            CLuaInstance::GetLanguage },
+		{ "PaintBox",               CLuaInstance::PaintBox },
+		{ "paintHLine",             CLuaInstance::paintHLineRel },
+		{ "paintVLine",             CLuaInstance::paintVLineRel },
+		{ "RenderString",           CLuaInstance::RenderString },
+		{ "getRenderWidth",         CLuaInstance::getRenderWidth },
+		{ "FontHeight",             CLuaInstance::FontHeight },
+		{ "getDynFont",             CLuaInstance::getDynFont },
+		{ "PaintIcon",              CLuaInstance::PaintIcon },
+		{ "DisplayImage",           CLuaInstance::DisplayImage },
+		{ "GetSize",                CLuaInstance::GetSize },
+		{ "saveScreen",             CLuaInstance::saveScreen },
+		{ "restoreScreen",          CLuaInstance::restoreScreen },
+		{ "deleteSavedScreen",      CLuaInstance::deleteSavedScreen },
 
-	lua_pushliteral(lua, "__index");
-	lua_pushvalue(lua, methodtable);
-	lua_settable(lua, metatable);
+		/*
+		   lua_misc.cpp
+		   Deprecated, for the future using separate class for misc functions
+		*/
+		{ "strFind",                CLuaInstMisc::getInstance()->strFind_old },
+		{ "strSub",                 CLuaInstMisc::getInstance()->strSub_old },
+		{ "enableInfoClock",        CLuaInstMisc::getInstance()->enableInfoClock_old },
+		{ "runScript",              CLuaInstMisc::getInstance()->runScriptExt_old },
+		{ "GetRevision",            CLuaInstMisc::getInstance()->GetRevision_old },
+		{ "checkVersion",           CLuaInstMisc::getInstance()->checkVersion_old },
 
-	lua_pushliteral(lua, "__gc");
-	lua_pushcfunction(lua, GCWindow);
-	lua_settable(lua, metatable);
+		/*
+		   lua_video.cpp
+		   Deprecated, for the future using separate class for video
+		*/
+		{ "setBlank",               CLuaInstVideo::getInstance()->setBlank_old },
+		{ "ShowPicture",            CLuaInstVideo::getInstance()->ShowPicture_old },
+		{ "StopPicture",            CLuaInstVideo::getInstance()->StopPicture_old },
+		{ "PlayFile",               CLuaInstVideo::getInstance()->PlayFile_old },
+		{ "zapitStopPlayBack",      CLuaInstVideo::getInstance()->zapitStopPlayBack_old },
+		{ "channelRezap",           CLuaInstVideo::getInstance()->channelRezap_old },
+		{ "createChannelIDfromUrl", CLuaInstVideo::getInstance()->createChannelIDfromUrl_old },
+		{ NULL, NULL }
+	};
+// ------------------------------------------
+	int top;
+	if (fromThreads)
+		top = lua_gettop(L);
 
-	lua_pop(lua, 1);
+	luaL_openlibs(L);
+	luaopen_table(L);
+	luaopen_io(L);
+	luaopen_string(L);
+	luaopen_math(L);
+	lua_newtable(L);
+	int methodtable = lua_gettop(L);
+	luaL_newmetatable(L, LUA_CLASSNAME);
+	int metatable = lua_gettop(L);
+	lua_pushliteral(L, "__metatable");
+	lua_pushvalue(L, methodtable);
+	lua_settable(L, metatable);
 
-	luaL_setfuncs(lua, methods, 0);
-	lua_pop(lua, 1);
+	lua_pushliteral(L, "__index");
+	lua_pushvalue(L, methodtable);
+	lua_settable(L, metatable);
 
-	lua_register(lua, className, NewWindow);
+	lua_pushliteral(L, "__gc");
+	lua_pushcfunction(L, CLuaInstance::GCWindow);
+	lua_settable(L, metatable);
 
-	CLuaInstCCPicture::getInstance()->CCPictureRegister(lua);
-	CLuaInstCCSignalbox::getInstance()->CCSignalBoxRegister(lua);
-	CLuaInstCCText::getInstance()->CCTextRegister(lua);
-	CLuaInstCCWindow::getInstance()->CCWindowRegister(lua);
-	CLuaInstConfigFile::getInstance()->LuaConfigFileRegister(lua);
-	CLuaInstCurl::getInstance()->LuaCurlRegister(lua);
-	CLuaInstHintbox::getInstance()->HintboxRegister(lua);
-	CLuaInstMenu::getInstance()->MenuRegister(lua);
-	CLuaInstMessagebox::getInstance()->MessageboxRegister(lua);
-	CLuaInstMisc::getInstance()->LuaMiscRegister(lua);
-	CLuaInstVideo::getInstance()->LuaVideoRegister(lua);
+	lua_pop(L, 1);
+
+	luaL_setfuncs(L, methods, 0);
+	lua_pop(L, 1);
+
+	lua_register(L, LUA_CLASSNAME, CLuaInstance::NewWindow);
+
+	if (fromThreads)
+		lua_settop(L, top);
+// ------------------------------------------
+	CLuaInstCCPicture::getInstance()->CCPictureRegister(L);
+	CLuaInstCCSignalbox::getInstance()->CCSignalBoxRegister(L);
+	CLuaInstCCText::getInstance()->CCTextRegister(L);
+	CLuaInstCCWindow::getInstance()->CCWindowRegister(L);
+	CLuaInstConfigFile::getInstance()->LuaConfigFileRegister(L);
+	CLuaInstCurl::getInstance()->LuaCurlRegister(L);
+	CLuaInstHintbox::getInstance()->HintboxRegister(L);
+	CLuaInstMenu::getInstance()->MenuRegister(L);
+	CLuaInstMessagebox::getInstance()->MessageboxRegister(L);
+	CLuaInstMisc::getInstance()->LuaMiscRegister(L);
+	CLuaInstVideo::getInstance()->LuaVideoRegister(L);
+	if (!fromThreads)
+		CLLThread::getInstance()->LuaThreadsRegister(L);
 }
 
 CLuaData *CLuaInstance::CheckData(lua_State *L, int narg)
@@ -653,10 +664,10 @@ int CLuaInstance::GCWindow(lua_State *L)
 	CNeutrinoFonts::getInstance()->deleteDynFontExtAll();
 
 	/* restoreNeutrino at plugin closing, when blocked from plugin */
-	LUA_DEBUG(">>>>[%s:%d] (restoreNeutrino()) BlockedFromPlugin: %d, Playing: %d\n", __func__, __LINE__,
-		CMoviePlayerGui::getInstance().getBlockedFromPlugin, CMoviePlayerGui::getInstance().Playing());
-	if (CMoviePlayerGui::getInstance().getBlockedFromPlugin() &&
-	    CMoviePlayerGui::getInstance().Playing()) {
+	bool block = CMoviePlayerGui::getInstance().getBlockedFromPlugin();
+	bool play  = CMoviePlayerGui::getInstance().Playing();
+	LUA_DEBUG(">>>>[%s:%d] (restoreNeutrino()) BlockedFromPlugin: %d, Playing: %d\n", __func__, __LINE__, block, play);
+	if (block && play) {
 		CMoviePlayerGui::getInstance().setBlockedFromPlugin(false);
 		CMoviePlayerGui::getInstance().restoreNeutrino();
 	}

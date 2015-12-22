@@ -31,14 +31,14 @@ extern "C" {
 #include "luainstance_helpers.h"
 
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 33
+#define LUA_API_VERSION_MINOR 34
+
+void LuaInstRegisterFunctions(lua_State *L, bool fromThreads=false);
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
 class CLuaInstance
 {
 	static const char className[];
-	static const luaL_Reg methods[];
-	static const luaL_Reg menu_methods[];
 	static CLuaData *CheckData(lua_State *L, int narg);
 public:
 	CLuaInstance();
@@ -58,10 +58,6 @@ public:
 	//	The last parameter to NULL is imperative.
 	void runScript(const char *fileName, const char *arg0, ...);
 
-private:
-	lua_State* lua;
-	void registerFunctions();
-
 	static int NewWindow(lua_State *L);
 	static int GCWindow(lua_State *L);
 	static int GetInput(lua_State *L);
@@ -80,6 +76,10 @@ private:
 	static int saveScreen(lua_State *L);
 	static int restoreScreen(lua_State *L);
 	static int deleteSavedScreen(lua_State *L);
+
+private:
+	lua_State* lua;
+
 };
 
 #endif /* _LUAINSTANCE_H */
