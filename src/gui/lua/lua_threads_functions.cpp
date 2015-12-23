@@ -73,6 +73,7 @@ int CLLThread::l_llthread_new(lua_State *L)
 int CLLThread::l_llthread_start(lua_State *L)
 {
 	llthread_t *_this = l_llthread_at(L, 1);
+	if (!_this) return 0;
 	int start_detached = lua_toboolean(L, 2);
 	int joinable, rc;
 
@@ -99,6 +100,7 @@ int CLLThread::l_llthread_start(lua_State *L)
 int CLLThread::l_llthread_cancel(lua_State *L)
 {
 	llthread_t *_this = l_llthread_at(L, 1);
+	if (!_this) return 0;
 	/*  llthread_child_t *child = _this->child; */
 	int rc;
 
@@ -134,6 +136,7 @@ int CLLThread::l_llthread_cancel(lua_State *L)
 int CLLThread::l_llthread_join(lua_State *L)
 {
 	llthread_t *_this = l_llthread_at(L, 1);
+	if (!_this) return 0;
 	llthread_child_t *child = _this->child;
 	int rc;
 
@@ -191,6 +194,7 @@ int CLLThread::l_llthread_join(lua_State *L)
 int CLLThread::l_llthread_alive(lua_State *L)
 {
 	llthread_t *_this = l_llthread_at(L, 1);
+	if (!_this) return 0;
 	/* llthread_child_t *child = _this->child; */
 	int rc;
 
@@ -234,6 +238,7 @@ int CLLThread::l_llthread_set_logger(lua_State *L)
 int CLLThread::l_llthread_started(lua_State *L)
 {
 	llthread_t *_this = l_llthread_at(L, 1);
+	if (!_this) return 0;
 	lua_pushboolean(L, IS(_this, STARTED)?1:0);
 	return 1;
 }
@@ -241,6 +246,7 @@ int CLLThread::l_llthread_started(lua_State *L)
 int CLLThread::l_llthread_detached(lua_State *L)
 {
 	llthread_t *_this = l_llthread_at(L, 1);
+	if (!_this) return 0;
 	lua_pushboolean(L, IS(_this, DETACHED)?1:0);
 	return 1;
 }
@@ -248,6 +254,7 @@ int CLLThread::l_llthread_detached(lua_State *L)
 int CLLThread::l_llthread_joinable(lua_State *L)
 {
 	llthread_t *_this = l_llthread_at(L, 1);
+	if (!_this) return 0;
 	lua_pushboolean(L, IS(_this, JOINABLE)?1:0);
 	return 1;
 }

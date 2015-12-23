@@ -129,8 +129,8 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 int CLuaInstCCPicture::CCPicturePaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCPicture *m = CCPictureCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
 
 	bool do_save_bg = true;
 	if (!tableLookup(L, "do_save_bg", do_save_bg)) {
@@ -139,15 +139,15 @@ int CLuaInstCCPicture::CCPicturePaint(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
-	m->cp->paint(do_save_bg);
+	D->cp->paint(do_save_bg);
 	return 0;
 }
 
 int CLuaInstCCPicture::CCPictureHide(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCPicture *m = CCPictureCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
 
 	bool no_restore = false;
 	if (!tableLookup(L, "no_restore", no_restore)) {
@@ -156,48 +156,47 @@ int CLuaInstCCPicture::CCPictureHide(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
-	if (m->parent) {
-		m->cp->setPicture("");
-		m->cp->paint();
+	if (D->parent) {
+		D->cp->setPicture("");
+		D->cp->paint();
 	} else
-		m->cp->hide(no_restore);
+		D->cp->hide(no_restore);
 	return 0;
 }
 
 int CLuaInstCCPicture::CCPictureSetPicture(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCPicture *m = CCPictureCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
 
 	std::string image_name = "";
 	tableLookup(L, "image", image_name);
 
-	m->cp->setPicture(image_name);
+	D->cp->setPicture(image_name);
 	return 0;
 }
 
 int CLuaInstCCPicture::CCPictureSetCenterPos(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCPicture *m = CCPictureCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
 	lua_Integer  tmp_along_mode, along_mode = CC_ALONG_X | CC_ALONG_Y;
 	tableLookup(L, "along_mode", tmp_along_mode);
 
 	if (tmp_along_mode & CC_ALONG_X || tmp_along_mode & CC_ALONG_Y)
 		along_mode=tmp_along_mode;
 
-	m->cp->setCenterPos(along_mode);
+	D->cp->setCenterPos(along_mode);
 	return 0;
 }
 
 int CLuaInstCCPicture::CCPictureDelete(lua_State *L)
 {
 	LUA_DEBUG("CLuaInstCCPicture::%s %d\n", __func__, lua_gettop(L));
-	CLuaCCPicture *m = CCPictureCheck(L, 1);
-	if (!m) return 0;
-
-	delete m;
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
+	delete D;
 	return 0;
 }

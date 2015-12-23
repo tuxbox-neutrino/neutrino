@@ -177,8 +177,8 @@ CLuaCCWindow *CLuaInstCCWindow::CCWindowCheck(lua_State *L, int n)
 int CLuaInstCCWindow::CCWindowPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
 
 	bool do_save_bg = true;
 	if (!tableLookup(L, "do_save_bg", do_save_bg)) {
@@ -187,15 +187,15 @@ int CLuaInstCCWindow::CCWindowPaint(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
-	m->w->paint(do_save_bg);
+	D->w->paint(do_save_bg);
 	return 0;
 }
 
 int CLuaInstCCWindow::CCWindowHide(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
 
 	bool no_restore = false;
 	if (!tableLookup(L, "no_restore", no_restore)) {
@@ -204,41 +204,41 @@ int CLuaInstCCWindow::CCWindowHide(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
-	m->w->hide(no_restore);
+	D->w->hide(no_restore);
 	return 0;
 }
 
 int CLuaInstCCWindow::CCWindowSetCaption(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
 
 	std::string name = "";
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 
-	m->w->setWindowCaption(name);
+	D->w->setWindowCaption(name);
 	return 0;
 }
 
 int CLuaInstCCWindow::CCWindowSetWindowColor(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
 
 	lua_Unsigned color;
 	if (tableLookup(L, "color_frame"  , color)) {
 		checkMagicMask(color);
-		m->w->setColorFrame(color);
+		D->w->setColorFrame(color);
 	}
 	if (tableLookup(L, "color_body"  , color)) {
 		checkMagicMask(color);
-		m->w->setColorBody(color);
+		D->w->setColorBody(color);
 	}
 	if (tableLookup(L, "color_shadow"  , color)) {
 		checkMagicMask(color);
-		m->w->setColorShadow(color);
+		D->w->setColorShadow(color);
 	}
 
 	return 0;
@@ -246,12 +246,12 @@ int CLuaInstCCWindow::CCWindowSetWindowColor(lua_State *L)
 
 int CLuaInstCCWindow::CCWindowPaintHeader(lua_State *L)
 {
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
 
-	CComponentsHeader* header = m->w->getHeaderObject();
+	CComponentsHeader* header = D->w->getHeaderObject();
 	if (header)
-		m->w->showHeader();
+		D->w->showHeader();
 	header->paint();
 
 	return 0;
@@ -273,11 +273,10 @@ int CLuaInstCCWindow::CCWindowGetFooterHeight_dep(lua_State *L)
 
 int CLuaInstCCWindow::CCWindowGetHeaderHeight(lua_State *L)
 {
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m)
-		return 0;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
 
-	CComponentsHeader* header = m->w->getHeaderObject();
+	CComponentsHeader* header = D->w->getHeaderObject();
 	int hh = 0;
 	if (header)
 		hh = header->getHeight();
@@ -287,11 +286,10 @@ int CLuaInstCCWindow::CCWindowGetHeaderHeight(lua_State *L)
 
 int CLuaInstCCWindow::CCWindowGetFooterHeight(lua_State *L)
 {
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m)
-		return 0;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
 
-	CComponentsFooter* footer = m->w->getFooterObject();
+	CComponentsFooter* footer = D->w->getFooterObject();
 	int fh = 0;
 	if (footer)
 		fh = footer->getHeight();
@@ -302,25 +300,23 @@ int CLuaInstCCWindow::CCWindowGetFooterHeight(lua_State *L)
 int CLuaInstCCWindow::CCWindowSetCenterPos(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
 	lua_Integer  tmp_along_mode, along_mode = CC_ALONG_X | CC_ALONG_Y;
 	tableLookup(L, "along_mode", tmp_along_mode);
 
 	if (tmp_along_mode & CC_ALONG_X || tmp_along_mode & CC_ALONG_Y)
 		along_mode=tmp_along_mode;
 
-	m->w->setCenterPos(along_mode);
+	D->w->setCenterPos(along_mode);
 	return 0;
 }
 
 int CLuaInstCCWindow::CCWindowDelete(lua_State *L)
 {
 	LUA_DEBUG("CLuaInstCCWindow::%s %d\n", __func__, lua_gettop(L));
-	CLuaCCWindow *m = CCWindowCheck(L, 1);
-	if (!m)
-		return 0;
-
-	delete m;
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
+	delete D;
 	return 0;
 }

@@ -685,8 +685,7 @@ int CLuaInstance::GetInput(lua_State *L)
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
 	CLuaData *W = CheckData(L, 1);
-	if (!W)
-		return 0;
+	if (!W) return 0;
 	if (numargs > 1)
 		timeout = luaL_checkint(L, 2);
 	W->rcinput->getMsg_ms(&msg, &data, timeout);
@@ -740,8 +739,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 	unsigned int c;
 
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 	x = luaL_checkint(L, 2);
 	y = luaL_checkint(L, 3);
 	w = luaL_checkint(L, 4);
@@ -778,8 +776,7 @@ int CLuaInstance::paintHLineRel(lua_State *L)
 	unsigned int c;
 
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 	x  = luaL_checkint(L, 2);
 	dx = luaL_checkint(L, 3);
 	y  = luaL_checkint(L, 4);
@@ -807,8 +804,7 @@ int CLuaInstance::paintVLineRel(lua_State *L)
 	unsigned int c;
 
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 	x  = luaL_checkint(L, 2);
 	y  = luaL_checkint(L, 3);
 	dy = luaL_checkint(L, 4);
@@ -845,8 +841,7 @@ int CLuaInstance::RenderString(lua_State *L)
 	center = 0;
 
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 
 	int step = 0;
 	bool isDynFont = false;
@@ -915,8 +910,7 @@ int CLuaInstance::getRenderWidth(lua_State *L)
 	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
 	CLuaData *W = CheckData(L, 1);
-	if (!W)
-		return 0;
+	if (!W) return 0;
 
 	int step = 0;
 	bool isDynFont = false;
@@ -959,8 +953,7 @@ int CLuaInstance::FontHeight(lua_State *L)
 	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
 	CLuaData *W = CheckData(L, 1);
-	if (!W)
-		return 0;
+	if (!W) return 0;
 
 	int step = 0;
 	bool isDynFont = false;
@@ -999,8 +992,7 @@ int CLuaInstance::getDynFont(lua_State *L)
 {
 	int numargs = lua_gettop(L);
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 
 	if (numargs < 3) {
 		printf("CLuaInstance::%s: not enough arguments (%d, expected 2)\n", __func__, numargs);
@@ -1056,8 +1048,7 @@ int CLuaInstance::PaintIcon(lua_State *L)
 	const char *fname;
 
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 	fname = luaL_checkstring(L, 2);
 	x = luaL_checkint(L, 3);
 	y = luaL_checkint(L, 4);
@@ -1069,6 +1060,8 @@ int CLuaInstance::PaintIcon(lua_State *L)
 
 int CLuaInstance::DisplayImage(lua_State *L)
 {
+	CLuaData *W = CheckData(L, 1);
+	if (!W) return 0;
 	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, w, h;
 	const char *fname;
@@ -1087,6 +1080,8 @@ int CLuaInstance::DisplayImage(lua_State *L)
 
 int CLuaInstance::GetSize(lua_State *L)
 {
+	CLuaData *W = CheckData(L, 1);
+	if (!W) return 0;
 	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int w = 0, h = 0;
 	const char *fname;
@@ -1105,8 +1100,7 @@ int CLuaInstance::saveScreen(lua_State *L)
 	int x, y, w, h;
 	fb_pixel_t* buf;
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 	x = luaL_checkint(L, 2);
 	y = luaL_checkint(L, 3);
 	w = luaL_checkint(L, 4);
@@ -1126,8 +1120,7 @@ int CLuaInstance::restoreScreen(lua_State *L)
 	fb_pixel_t* buf = NULL;
 	bool del;
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 	x = luaL_checkint(L, 2);
 	y = luaL_checkint(L, 3);
 	w = luaL_checkint(L, 4);
@@ -1152,8 +1145,7 @@ int CLuaInstance::deleteSavedScreen(lua_State *L)
 {
 	int id;
 	CLuaData *W = CheckData(L, 1);
-	if (!W || !W->fbwin)
-		return 0;
+	if (!W || !W->fbwin) return 0;
 	id = luaL_checkint(L, 2);
 
 	for (screenmap_iterator_t it = W->screenmap.begin(); it != W->screenmap.end(); ++it) {

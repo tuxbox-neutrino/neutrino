@@ -100,36 +100,36 @@ int CLuaInstHintbox::HintboxNew(lua_State *L)
 
 int CLuaInstHintbox::HintboxDelete(lua_State *L)
 {
-	CLuaHintbox *m = HintboxCheck(L, 1);
-	delete m;
+	CLuaHintbox *D = HintboxCheck(L, 1);
+	if (!D) return 0;
+	delete D;
 	return 0;
 }
 
 int CLuaInstHintbox::HintboxPaint(lua_State *L)
 {
-	CLuaHintbox *m = HintboxCheck(L, 1);
-	if (!m)
-		return 0;
-	m->b->paint();
+	CLuaHintbox *D = HintboxCheck(L, 1);
+	if (!D) return 0;
+	D->b->paint();
 	return 0;
 }
 
 int CLuaInstHintbox::HintboxHide(lua_State *L)
 {
-	CLuaHintbox *m = HintboxCheck(L, 1);
-	m->b->hide();
+	CLuaHintbox *D = HintboxCheck(L, 1);
+	if (!D) return 0;
+	D->b->hide();
 	return 0;
 }
 
 int CLuaInstHintbox::HintboxExec(lua_State *L)
 {
-	CLuaHintbox *m = HintboxCheck(L, 1);
-	if (!m)
-		return 0;
+	CLuaHintbox *D = HintboxCheck(L, 1);
+	if (!D) return 0;
 	int timeout = -1;
 	if (lua_isnumber(L, -1))
 		timeout = (int) lua_tonumber(L, -1);
-	m->b->paint();
+	D->b->paint();
 
 	// copied from gui/widget/hintbox.cpp
 	neutrino_msg_t msg;
@@ -149,11 +149,11 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 			res = messages_return::cancel_info;
 		else if (msg == CRCInput::RC_home)
 			res = messages_return::cancel_all;
-		else if ((m->b->has_scrollbar()) && ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))) {
+		else if ((D->b->has_scrollbar()) && ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))) {
 			if (msg == CRCInput::RC_up)
-				m->b->scroll_up();
+				D->b->scroll_up();
 			else
-				m->b->scroll_down();
+				D->b->scroll_down();
 		} else if ((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
 		} else if (msg == CRCInput::RC_mode) {
 			res = messages_return::handled;
@@ -171,6 +171,6 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 			}
 		}
 	}
-	m->b->hide();
+	D->b->hide();
 	return 0;
 }

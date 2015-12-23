@@ -173,6 +173,8 @@ Example:
 #define CURL_MSG_ERROR "[curl:download \33[1;31mERROR!\33[0m]"
 
 	lua_assert(lua_istable(L,1));
+	CLuaCurl *D = CurlCheckData(L, 1);
+	if (!D) return 0;
 
 	char errMsg[1024];
 	CURL *curl_handle = curl_easy_init();
@@ -359,6 +361,7 @@ Example:
 int CLuaInstCurl::CurlDelete(lua_State *L)
 {
 	CLuaCurl *D = CurlCheckData(L, 1);
+	if (!D) return 0;
 	delete D;
 	return 0;
 }
