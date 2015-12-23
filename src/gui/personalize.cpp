@@ -630,7 +630,7 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 						//found observer item and if found, then define 'this' as observer for current option chooser and run changeNotify
 						bool is_observer = isObserver(v_item[i].widget, v_item[i].menuItem) ? true : false;
 						CChangeObserver* observer = is_observer ? this : NULL;
-						CMenuOptionChooser * opt = new CMenuOptionChooser(name, p_mode, PERSONALIZE_MODE_OPTIONS, PERSONALIZE_MODE_MAX, v_item[i].menuItem->current_active, observer);
+						CMenuOptionChooser * opt = new CMenuOptionChooser(name, p_mode, PERSONALIZE_MODE_OPTIONS, PERSONALIZE_MODE_MAX, v_item[i].menuItem->current_active || is_observer, observer);
 						if (is_observer)
 							changeNotify(name, (void*)p_mode);
 
