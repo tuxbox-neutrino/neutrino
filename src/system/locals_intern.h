@@ -639,6 +639,8 @@ const char * locale_real_names[] =
 	"flashupdate.getupdatefileerror",
 	"flashupdate.globalprogress",
 	"flashupdate.head",
+	"flashupdate.install_image",
+	"flashupdate.install_package",
 	"flashupdate.md5check",
 	"flashupdate.md5sumerror",
 	"flashupdate.menu_apply_kernel",
