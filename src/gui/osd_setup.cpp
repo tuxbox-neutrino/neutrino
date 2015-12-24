@@ -678,23 +678,23 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	sigc::slot0<void> slot_repaint = sigc::mem_fun(menu_colors, &CMenuWidget::paint); //we want to repaint after changed Option
 
 	CColorChooser* chHeadcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.menu_Head_red, &t.menu_Head_green, &t.menu_Head_blue,
-			&t.menu_Head_alpha, &g_settings.theme.menu_Head_gradient, colorSetupNotifier);
+			&t.menu_Head_alpha, colorSetupNotifier);
 	chHeadcolor->setGradient(CColorChooser::gradient_head_body);
 	CColorChooser* chHeadTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.menu_Head_Text_red, &t.menu_Head_Text_green, &t.menu_Head_Text_blue,
-			NULL, NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 	chHeadTextcolor->setGradient(CColorChooser::gradient_head_text);
 	CColorChooser* chContentcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.menu_Content_red, &t.menu_Content_green, &t.menu_Content_blue,
-			&t.menu_Content_alpha, NULL, colorSetupNotifier);
+			&t.menu_Content_alpha, colorSetupNotifier);
 	CColorChooser* chContentTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.menu_Content_Text_red, &t.menu_Content_Text_green, &t.menu_Content_Text_blue,
-			NULL, NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 	CColorChooser* chContentSelectedcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.menu_Content_Selected_red, &t.menu_Content_Selected_green, &t.menu_Content_Selected_blue,
-			&t.menu_Content_Selected_alpha, NULL, colorSetupNotifier);
+			&t.menu_Content_Selected_alpha, colorSetupNotifier);
 	CColorChooser* chContentSelectedTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.menu_Content_Selected_Text_red, &t.menu_Content_Selected_Text_green, &t.menu_Content_Selected_Text_blue,
-			NULL, NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 	CColorChooser* chContentInactivecolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.menu_Content_inactive_red, &t.menu_Content_inactive_green, &t.menu_Content_inactive_blue,
-			&t.menu_Content_inactive_alpha, NULL, colorSetupNotifier);
+			&t.menu_Content_inactive_alpha, colorSetupNotifier);
 	CColorChooser* chContentInactiveTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.menu_Content_inactive_Text_red, &t.menu_Content_inactive_Text_green, &t.menu_Content_inactive_Text_blue,
-			NULL, NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
@@ -776,11 +776,11 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	// infoviewer color
 	CColorChooser* chInfobarcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.infobar_red,
-			&t.infobar_green, &t.infobar_blue, &t.infobar_alpha, NULL, colorSetupNotifier);
+			&t.infobar_green, &t.infobar_blue, &t.infobar_alpha, colorSetupNotifier);
 	CColorChooser* chInfobarTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.infobar_Text_red,
-			&t.infobar_Text_green, &t.infobar_Text_blue, NULL, NULL, colorSetupNotifier);
+			&t.infobar_Text_green, &t.infobar_Text_blue, NULL, colorSetupNotifier);
 	CColorChooser* chInfobarCASystem = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.infobar_casystem_red,
-			&t.infobar_casystem_green, &t.infobar_casystem_blue, &t.infobar_casystem_alpha, NULL, colorSetupNotifier);
+			&t.infobar_casystem_green, &t.infobar_casystem_blue, &t.infobar_casystem_alpha, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORSTATUSBAR_TEXT));
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chInfobarcolor );
@@ -832,7 +832,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	// colored events
 	CColorChooser* chColored_Events = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR,	&t.colored_events_red,
-			&t.colored_events_green, &t.colored_events_blue, NULL, NULL, colorSetupNotifier);
+			&t.colored_events_green, &t.colored_events_blue, NULL, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_COLORED_EVENTS));
 
@@ -1254,7 +1254,7 @@ void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 
 	// digit color
 	CColorChooser* cc = new CColorChooser(LOCALE_COLORMENU_CLOCK_TEXTCOLOR, &g_settings.theme.clock_Digit_red, &g_settings.theme.clock_Digit_green, &g_settings.theme.clock_Digit_blue,
-			NULL, NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 	CMenuDForwarder* mf = new CMenuDForwarder(LOCALE_COLORMENU_CLOCK_TEXTCOLOR, !g_settings.infoClockBackground, NULL, cc);
 	mf->setHint("", LOCALE_MENU_HINT_CLOCK_TEXTCOLOR);
 	menu_infoclock->addItem(mf);
