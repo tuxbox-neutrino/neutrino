@@ -60,9 +60,11 @@ void CInfoClock::initCCLockItems()
 	if (paint_bg){
 		cl_col_text = COL_MENUCONTENT_TEXT;
 		setColorBody(COL_MENUCONTENT_PLUS_0);
+		enableShadow(CC_SHADOW_ON, 3);
 	}else{
 		cl_col_text = COL_INFOCLOCK_TEXT;
 		setColorBody(COL_BACKGROUND_PLUS_0);
+		disableShadow();
 	}
 
 	if (g_settings.infoClockSeconds)
