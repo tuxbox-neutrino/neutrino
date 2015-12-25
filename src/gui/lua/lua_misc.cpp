@@ -90,8 +90,14 @@ int CLuaInstMisc::MiscNew(lua_State *L)
 
 int CLuaInstMisc::strFind(lua_State *L)
 {
-	CLuaMisc *D = MiscCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaMisc *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = MiscCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0; */
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
 		printf("CLuaInstMisc::%s: not enough arguments (%d, expected 2 (or 3 or 4))\n", __func__, numargs);
@@ -124,8 +130,14 @@ int CLuaInstMisc::strFind(lua_State *L)
 
 int CLuaInstMisc::strSub(lua_State *L)
 {
-	CLuaMisc *D = MiscCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaMisc *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = MiscCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0; */
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
 		printf("CLuaInstMisc::%s: not enough arguments (%d, expected 2 (or 3))\n", __func__, numargs);
@@ -150,8 +162,14 @@ int CLuaInstMisc::strSub(lua_State *L)
 
 int CLuaInstMisc::enableInfoClock(lua_State *L)
 {
-	CLuaMisc *D = MiscCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaMisc *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = MiscCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0; */
 	bool enable = true;
 	int numargs = lua_gettop(L);
 	if (numargs > 1)
@@ -222,8 +240,14 @@ int CLuaInstMisc::isMuted(lua_State *L)
 
 int CLuaInstMisc::runScriptExt(lua_State *L)
 {
-	CLuaMisc *D = MiscCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaMisc *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = MiscCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0; */
 	int numargs = lua_gettop(L);
 	const char *script = luaL_checkstring(L, 2);
 	std::vector<std::string> args;
@@ -242,8 +266,14 @@ int CLuaInstMisc::runScriptExt(lua_State *L)
 
 int CLuaInstMisc::GetRevision(lua_State *L)
 {
-	CLuaMisc *D = MiscCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaMisc *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = MiscCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0; */
 	unsigned int rev = 0;
 	std::string hw   = "";
 #if HAVE_COOL_HARDWARE
@@ -257,8 +287,14 @@ int CLuaInstMisc::GetRevision(lua_State *L)
 
 int CLuaInstMisc::checkVersion(lua_State *L)
 {
-	CLuaMisc *D = MiscCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaMisc *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = MiscCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0; */
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
 		printf("CLuaInstMisc::%s: not enough arguments (%d, expected 2)\n", __func__, numargs);

@@ -85,8 +85,14 @@ int CLuaInstVideo::VideoNew(lua_State *L)
 
 int CLuaInstVideo::setBlank(lua_State *L)
 {
-	CLuaVideo *D = VideoCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaVideo *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = VideoCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0; */
 	bool enable = true;
 	int numargs = lua_gettop(L);
 	if (numargs > 1)
@@ -97,8 +103,14 @@ int CLuaInstVideo::setBlank(lua_State *L)
 
 int CLuaInstVideo::ShowPicture(lua_State *L)
 {
-	CLuaVideo *D = VideoCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaVideo *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = VideoCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0; */
 	const char *fname = luaL_checkstring(L, 2);
 	CFrameBuffer::getInstance()->showFrame(fname);
 	return 0;
@@ -106,16 +118,28 @@ int CLuaInstVideo::ShowPicture(lua_State *L)
 
 int CLuaInstVideo::StopPicture(lua_State *L)
 {
-	CLuaVideo *D = VideoCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaVideo *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = VideoCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0; */
 	CFrameBuffer::getInstance()->stopFrame();
 	return 0;
 }
 
 int CLuaInstVideo::PlayFile(lua_State *L)
 {
-	CLuaVideo *D = VideoCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaVideo *D = NULL;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = VideoCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0; */
 	LUA_DEBUG("CLuaInstVideo::%s %d\n", __func__, lua_gettop(L));
 	int numargs = lua_gettop(L);
 
@@ -155,8 +179,14 @@ int CLuaInstVideo::PlayFile(lua_State *L)
 
 int CLuaInstVideo::zapitStopPlayBack(lua_State *L)
 {
-	CLuaVideo *D = VideoCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaVideo *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = VideoCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0; */
 	bool stop = true;
 	int numargs = lua_gettop(L);
 	if (numargs > 1)
@@ -172,8 +202,14 @@ int CLuaInstVideo::zapitStopPlayBack(lua_State *L)
 
 int CLuaInstVideo::channelRezap(lua_State *L)
 {
-	CLuaVideo *D = VideoCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaVideo *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = VideoCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0; */
 	CNeutrinoApp::getInstance()->channelRezap();
 	if (CNeutrinoApp::getInstance()->getMode() == CNeutrinoApp::mode_radio)
 		CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
@@ -182,8 +218,14 @@ int CLuaInstVideo::channelRezap(lua_State *L)
 
 int CLuaInstVideo::createChannelIDfromUrl(lua_State *L)
 {
-	CLuaVideo *D = VideoCheckData(L, 1);
-	if (!D) return 0;
+	/* workaround for deprecated functions */
+	CLuaVideo *D;
+	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL) {
+		D = VideoCheckData(L, 1);
+		if (!D) return 0;
+	}
+	/* CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0; */
 	int numargs = lua_gettop(L);
 	if (numargs < 2) {
 		printf("CLuaInstVideo::%s: no arguments\n", __func__);
