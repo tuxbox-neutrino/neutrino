@@ -308,7 +308,7 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.menu_Head_Text_red = configfile.getInt32( "menu_Head_Text_red", 0x5f );
 	t.menu_Head_Text_green = configfile.getInt32( "menu_Head_Text_green", 0x46 );
 	t.menu_Head_Text_blue = configfile.getInt32( "menu_Head_Text_blue", 0x00 );
-	t.menu_Head_gradient = configfile.getInt32( "menu_Head_gradient", 1);
+	t.menu_Head_gradient = configfile.getInt32( "menu_Head_gradient", 0);
 	t.menu_Content_alpha = configfile.getInt32( "menu_Content_alpha", 0x14 );
 	t.menu_Content_red = configfile.getInt32( "menu_Content_red", 0x00 );
 	t.menu_Content_green = configfile.getInt32( "menu_Content_green", 0x0f );
