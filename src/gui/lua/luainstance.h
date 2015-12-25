@@ -26,6 +26,7 @@ extern "C" {
 #include <lualib.h>
 }
 #include <driver/fb_window.h>
+#include <video_cs.h>
 #include <vector>
 
 #include "luainstance_helpers.h"

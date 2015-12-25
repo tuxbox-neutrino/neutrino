@@ -350,7 +350,7 @@ Example:
 		return 2;
 	}
 
-	if (silent == false)
+	if (verbose == true)
 		printf("%s\n \n", msg.c_str());
 
 	lua_pushinteger(L, LUA_CURL_OK);

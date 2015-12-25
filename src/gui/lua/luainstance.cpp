@@ -50,6 +50,7 @@
 #include "lua_video.h"
 
 extern CPictureViewer * g_PicViewer;
+extern cVideo         * videoDecoder;
 
 static void set_lua_variables(lua_State *L)
 {
@@ -468,7 +469,8 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		if (CMoviePlayerGui::getInstance().getBlockedFromPlugin()) {
 			CMoviePlayerGui::getInstance().setBlockedFromPlugin(false);
 			CMoviePlayerGui::getInstance().restoreNeutrino();
-		}
+		} else if (videoDecoder->getBlank())
+			CLuaInstVideo::getInstance()->channelRezap(lua);
 	}
 }
 
@@ -671,6 +673,8 @@ int CLuaInstance::GCWindow(lua_State *L)
 		CMoviePlayerGui::getInstance().setBlockedFromPlugin(false);
 		CMoviePlayerGui::getInstance().restoreNeutrino();
 	}
+	else if (videoDecoder->getBlank())
+		CLuaInstVideo::getInstance()->channelRezap(L);
 
 	delete w->fbwin;
 	w->rcinput = NULL;

@@ -35,6 +35,7 @@ class CLuaInstVideo
 		~CLuaInstVideo() {};
 		static CLuaInstVideo* getInstance();
 		static void LuaVideoRegister(lua_State *L);
+		static int channelRezap(lua_State *L);
 
 		/* deprecated functions */
 		static int setBlank_old(lua_State *L);
@@ -53,7 +54,6 @@ class CLuaInstVideo
 		static int StopPicture(lua_State *L);
 		static int PlayFile(lua_State *L);
 		static int zapitStopPlayBack(lua_State *L);
-		static int channelRezap(lua_State *L);
 		static int createChannelIDfromUrl(lua_State *L);
 		static int getNeutrinoMode(lua_State *L);
 		static int setSinglePlay(lua_State *L);
