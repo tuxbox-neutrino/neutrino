@@ -34,6 +34,7 @@
 #include <driver/neutrinofonts.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <neutrino.h>
+#include <video_cs.h>
 
 #include "luainstance.h"
 #include "lua_cc_picture.h"
