@@ -89,39 +89,39 @@ int CLuaInstConfigFile::LuaConfigFileNew(lua_State *L)
 
 int CLuaInstConfigFile::LuaConfigFileLoadConfig(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 
 	const char *fname = luaL_checkstring(L, 2);
-	bool ret = c->c->loadConfig(fname);
+	bool ret = D->c->loadConfig(fname);
 	lua_pushboolean(L, ret);
 	return 1;
 }
 
 int CLuaInstConfigFile::LuaConfigFileSaveConfig(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 
 	const char *fname = luaL_checkstring(L, 2);
-	bool ret = c->c->saveConfig(fname);
+	bool ret = D->c->saveConfig(fname);
 	lua_pushboolean(L, ret);
 	return 1;
 }
 
 int CLuaInstConfigFile::LuaConfigFileClear(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 
-	c->c->clear();
+	D->c->clear();
 	return 0;
 }
 
 int CLuaInstConfigFile::LuaConfigFileGetString(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 	int numargs = lua_gettop(L);
 
 	std::string ret;
@@ -129,26 +129,26 @@ int CLuaInstConfigFile::LuaConfigFileGetString(lua_State *L)
 	const char *defaultVal = "";
 	if (numargs > 2)
 		defaultVal = luaL_checkstring(L, 3);
-	ret = c->c->getString(key, defaultVal);
+	ret = D->c->getString(key, defaultVal);
 	lua_pushstring(L, ret.c_str());
 	return 1;
 }
 
 int CLuaInstConfigFile::LuaConfigFileSetString(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 
 	const char *key = luaL_checkstring(L, 2);
 	const char *val = luaL_checkstring(L, 3);
-	c->c->setString(key, val);
+	D->c->setString(key, val);
 	return 0;
 }
 
 int CLuaInstConfigFile::LuaConfigFileGetInt32(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 	int numargs = lua_gettop(L);
 
 	int ret;
@@ -156,26 +156,26 @@ int CLuaInstConfigFile::LuaConfigFileGetInt32(lua_State *L)
 	int defaultVal = 0;
 	if (numargs > 2)
 		defaultVal = luaL_checkint(L, 3);
-	ret = c->c->getInt32(key, defaultVal);
+	ret = D->c->getInt32(key, defaultVal);
 	lua_pushinteger(L, ret);
 	return 1;
 }
 
 int CLuaInstConfigFile::LuaConfigFileSetInt32(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 
 	const char *key = luaL_checkstring(L, 2);
 	int val = luaL_checkint(L, 3);
-	c->c->setInt32(key, val);
+	D->c->setInt32(key, val);
 	return 0;
 }
 
 int CLuaInstConfigFile::LuaConfigFileGetBool(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 	int numargs = lua_gettop(L);
 
 	bool ret;
@@ -183,37 +183,37 @@ int CLuaInstConfigFile::LuaConfigFileGetBool(lua_State *L)
 	bool defaultVal = false;
 	if (numargs > 2)
 		defaultVal = _luaL_checkbool(L, 3);
-	ret = c->c->getBool(key, defaultVal);
+	ret = D->c->getBool(key, defaultVal);
 	lua_pushboolean(L, ret);
 	return 1;
 }
 
 int CLuaInstConfigFile::LuaConfigFileSetBool(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 
 	const char *key = luaL_checkstring(L, 2);
 	bool val = _luaL_checkbool(L, 3);
-	c->c->setBool(key, val);
+	D->c->setBool(key, val);
 	return 0;
 }
 
 int CLuaInstConfigFile::LuaConfigFileDeleteKey(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
 
 	const char *s1 = luaL_checkstring(L, 2);
 	std::string key(s1);
-	c->c->deleteKey(key);
+	D->c->deleteKey(key);
 	return 0;
 }
 
 int CLuaInstConfigFile::LuaConfigFileDelete(lua_State *L)
 {
-	CLuaConfigFile *c = LuaConfigFileCheck(L, 1);
-	if (!c) return 0;
-	delete c;
+	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
+	if (!D) return 0;
+	delete D;
 	return 0;
 }

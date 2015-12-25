@@ -154,8 +154,8 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 int CLuaInstCCText::CCTextPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCText *m = CCTextCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
 
 	bool do_save_bg = true;
 	if (!tableLookup(L, "do_save_bg", do_save_bg)) {
@@ -164,15 +164,15 @@ int CLuaInstCCText::CCTextPaint(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
-	m->ct->paint(do_save_bg);
+	D->ct->paint(do_save_bg);
 	return 0;
 }
 
 int CLuaInstCCText::CCTextHide(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCText *m = CCTextCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
 
 	bool no_restore = false;
 	if (!tableLookup(L, "no_restore", no_restore)) {
@@ -181,36 +181,36 @@ int CLuaInstCCText::CCTextHide(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
-	if (m->parent) {
-		m->ct->setText("", m->mode, g_Font[m->font_text]);
-		m->ct->paint();
+	if (D->parent) {
+		D->ct->setText("", D->mode, g_Font[D->font_text]);
+		D->ct->paint();
 	} else
-		m->ct->hide(no_restore);
+		D->ct->hide(no_restore);
 	return 0;
 }
 
 int CLuaInstCCText::CCTextSetText(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCText *m = CCTextCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
 
 	std::string text = "";
-	lua_Integer mode = m->mode;
-	lua_Integer font_text = m->font_text;
+	lua_Integer mode = D->mode;
+	lua_Integer font_text = D->font_text;
 	tableLookup(L, "text", text);
 	tableLookup(L, "mode", mode);
 	tableLookup(L, "font_text", font_text);
 
-	m->ct->setText(text, mode, g_Font[font_text]);
+	D->ct->setText(text, mode, g_Font[font_text]);
 	return 0;
 }
 
 int CLuaInstCCText::CCTextScroll(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCText *m = CCTextCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
 
 	std::string tmp = "true";
 	tableLookup(L, "dir", tmp);
@@ -219,7 +219,7 @@ int CLuaInstCCText::CCTextScroll(lua_State *L)
 	tableLookup(L, "pages", pages);
 
 	//get the textbox instance from lua object and use CTexBbox scroll methods
-	CTextBox* ctb = m->ct->getCTextBoxObject();
+	CTextBox* ctb = D->ct->getCTextBoxObject();
 	if (ctb) {
 		if (pages == -1)
 			pages = ctb->getPages();
@@ -236,23 +236,23 @@ int CLuaInstCCText::CCTextScroll(lua_State *L)
 int CLuaInstCCText::CCTextSetCenterPos(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCText *m = CCTextCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
 	lua_Integer  tmp_along_mode, along_mode = CC_ALONG_X | CC_ALONG_Y;
 	tableLookup(L, "along_mode", tmp_along_mode);
 
 	if (tmp_along_mode & CC_ALONG_X || tmp_along_mode & CC_ALONG_Y)
 		along_mode=tmp_along_mode;
 
-	m->ct->setCenterPos(along_mode);
+	D->ct->setCenterPos(along_mode);
 	return 0;
 }
 
 int CLuaInstCCText::CCTextEnableUTF8(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCText *m = CCTextCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
 
 	bool utf8_encoded = true;
 	if (!tableLookup(L, "utf8_encoded", utf8_encoded)) {
@@ -261,17 +261,15 @@ int CLuaInstCCText::CCTextEnableUTF8(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		utf8_encoded = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
-	m->ct->enableUTF8(utf8_encoded);
+	D->ct->enableUTF8(utf8_encoded);
 	return 0;
 }
 
 int CLuaInstCCText::CCTextDelete(lua_State *L)
 {
 	LUA_DEBUG("CLuaInstCCText::%s %d\n", __func__, lua_gettop(L));
-	CLuaCCText *m = CCTextCheck(L, 1);
-	if (!m)
-		return 0;
-
-	delete m;
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
+	delete D;
 	return 0;
 }

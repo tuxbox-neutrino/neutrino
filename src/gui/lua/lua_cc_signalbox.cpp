@@ -92,8 +92,8 @@ int CLuaInstCCSignalbox::CCSignalBoxNew(lua_State *L)
 int CLuaInstCCSignalbox::CCSignalBoxPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCSignalBox *m = CCSignalBoxCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCSignalBox *D = CCSignalBoxCheck(L, 1);
+	if (!D) return 0;
 
 	bool do_save_bg = true;
 	if (!tableLookup(L, "do_save_bg", do_save_bg)) {
@@ -102,31 +102,29 @@ int CLuaInstCCSignalbox::CCSignalBoxPaint(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
-	m->s->paint(do_save_bg);
+	D->s->paint(do_save_bg);
 	return 0;
 }
 
 int CLuaInstCCSignalbox::CCSignalBoxSetCenterPos(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	CLuaCCSignalBox *m = CCSignalBoxCheck(L, 1);
-	if (!m) return 0;
+	CLuaCCSignalBox *D = CCSignalBoxCheck(L, 1);
+	if (!D) return 0;
 	lua_Integer  tmp_along_mode, along_mode = CC_ALONG_X | CC_ALONG_Y;
 	tableLookup(L, "along_mode", tmp_along_mode);
 
 	if (tmp_along_mode & CC_ALONG_X || tmp_along_mode & CC_ALONG_Y)
 		along_mode=tmp_along_mode;
 
-	m->s->setCenterPos(along_mode);
+	D->s->setCenterPos(along_mode);
 	return 0;
 }
 
 int CLuaInstCCSignalbox::CCSignalBoxDelete(lua_State *L)
 {
-	CLuaCCSignalBox *m = CCSignalBoxCheck(L, 1);
-	if (!m)
-		return 0;
-
-	delete m;
+	CLuaCCSignalBox *D = CCSignalBoxCheck(L, 1);
+	if (!D) return 0;
+	delete D;
 	return 0;
 }

@@ -611,6 +611,8 @@ flashupdate.getupdatefile lade Update
 flashupdate.getupdatefileerror Kann Aktualisierung nicht laden!
 flashupdate.globalprogress Gesamtstatus:
 flashupdate.head Aktualisierung
+flashupdate.install_image Heruntergeladenes Image installieren?
+flashupdate.install_package Heruntergeladenes Paket installieren?
 flashupdate.md5check Imageprüfung
 flashupdate.md5sumerror Das Image ist fehlerhaft
 flashupdate.menu_apply_kernel Kernel flashen

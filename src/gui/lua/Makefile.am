@@ -37,6 +37,9 @@ libneutrino_gui_lua_a_SOURCES = \
 	lua_menue.cpp \
 	lua_messagebox.cpp \
 	lua_misc.cpp \
+	lua_threads.cpp \
+	lua_threads_copy.cpp \
+	lua_threads_functions.cpp \
 	lua_video.cpp
 
 # the continuous changes of LUA_API_VERSION_* in luainstance.h

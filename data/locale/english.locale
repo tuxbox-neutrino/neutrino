@@ -612,6 +612,8 @@ flashupdate.getupdatefile getting update
 flashupdate.getupdatefileerror Can't get update!
 flashupdate.globalprogress Global Progress:
 flashupdate.head Software Update
+flashupdate.install_image Flash downloaded image?
+flashupdate.install_package Install downloadad pack?
 flashupdate.md5check checking image
 flashupdate.md5sumerror image has errors
 flashupdate.menu_apply_kernel Flashing kernel

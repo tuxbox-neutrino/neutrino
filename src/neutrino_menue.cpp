@@ -154,7 +154,7 @@ void CNeutrinoApp::InitMenuMain()
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
 			CMenuForwarder *mb = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, CMediaPlayerMenu::getInstance(), "movieplayer", CRCInput::RC_red);
 			mb->setHint(NEUTRINO_ICON_HINT_MB, LOCALE_MENU_HINT_MB);
-			personalize.addItem(MENU_MAIN, mb, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_MBROWSER]);
+			personalize.addItem(MENU_MAIN, mb, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_MBROWSER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, NULL, DCOND_MODE_TS);
 		}
 #if 0
 		CMenuForwarder *cl = new CMenuForwarder(LOCALE_MAINMENU_CHANNELS, true, NULL, this, "channels", CRCInput::RC_green);
@@ -168,17 +168,17 @@ void CNeutrinoApp::InitMenuMain()
 		//tv <-> radio toggle
 		CMenuForwarder *tvradio_switch = new CMenuForwarder(LOCALE_MAINMENU_TVRADIO_SWITCH, true, NULL, this, "tv_radio_switch", CRCInput::RC_red);
 		tvradio_switch->setHint(NEUTRINO_ICON_HINT_TVRADIO_SWITCH, LOCALE_MENU_HINT_TVRADIO_SWITCH);
-		personalize.addItem(MENU_MAIN, tvradio_switch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_RADIO_MODE]);
+		personalize.addItem(MENU_MAIN, tvradio_switch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_RADIO_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, NULL, DCOND_MODE_TS);
 
 		//tv-mode
 		CMenuForwarder *tvswitch = new CMenuForwarder(LOCALE_MAINMENU_TVMODE, true, NULL, this, "tv", CRCInput::RC_red);
 		tvswitch->setHint(NEUTRINO_ICON_HINT_TVMODE, LOCALE_MENU_HINT_TVMODE);
-		personalize.addItem(MENU_MAIN, tvswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch); //observed
+		personalize.addItem(MENU_MAIN, tvswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch, DCOND_MODE_TV | DCOND_MODE_TS); //observed
 
 		//radio-mode
 		CMenuForwarder *radioswitch = new CMenuForwarder(LOCALE_MAINMENU_RADIOMODE, true, NULL, this, "radio", CRCInput::RC_green);
 		radioswitch->setHint(NEUTRINO_ICON_HINT_RADIOMODE, LOCALE_MENU_HINT_RADIOMODE);
-		personalize.addItem(MENU_MAIN, radioswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_RADIO_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch); //observed
+		personalize.addItem(MENU_MAIN, radioswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_RADIO_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch, DCOND_MODE_RADIO | DCOND_MODE_TS); //observed
 	}
 
 	//timer
@@ -489,7 +489,7 @@ void CNeutrinoApp::InitMenuService()
 	// channel scan
 	mf = new CMenuForwarder(LOCALE_SERVICEMENU_SCANTS    , true, NULL, CScanSetup::getInstance(), "", CRCInput::RC_green);
 	mf->setHint(NEUTRINO_ICON_HINT_SERVICE_SCAN, LOCALE_MENU_HINT_SERVICE_SCAN);
-	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_SCANTS]);
+	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_SCANTS], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, NULL, DCOND_MODE_TS);
 
 	if (!g_settings.easymenu) {
 		//reload channels
@@ -564,5 +564,5 @@ void CNeutrinoApp::InitMenuService()
 		mf = new CMenuForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, new CSoftwareUpdate());
 
 	mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_SW_UPDATE);
-	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_SOFTUPDATE]);
+	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_SOFTUPDATE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, NULL, DCOND_MODE_TS);
 }

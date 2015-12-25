@@ -56,7 +56,8 @@ extern "C" {
 #define NO_WIDGET_ID -1
 
 typedef int mn_widget_id_t;
-
+typedef int menu_item_disable_cond_t;
+class CMenuWidget;
 struct menu_return
 {
 	enum
@@ -68,6 +69,15 @@ struct menu_return
 			RETURN_EXIT_REPAINT = 5
 		};
 };
+
+enum
+{
+	DCOND_MODE_NONE 	= 1,
+
+	DCOND_MODE_TV 		= 2,
+	DCOND_MODE_RADIO  	= 4,
+	DCOND_MODE_TS 		= 8
+}/*menu_item_disable_cond_t*/;
 
 class CChangeObserver
 {
@@ -104,15 +114,16 @@ class CMenuTarget
 		virtual fb_pixel_t getColor(void) { return 0; }
 };
 
-class CMenuItem
+class CMenuItem : public  CComponentsSignals
 {
 	private:
 		void setIconName();
+		CMenuWidget* parent_widget;
 	protected:
 		int x, y, dx, offx, name_start_x, icon_frame_w;
 		bool used;
 		fb_pixel_t item_color, item_bgcolor;
-		
+		bool initModeCondition(const int& stb_mode);
 		void initItemColors(const bool select_mode);
 		lua_State	*luaState;
 		std::string	luaAction;
@@ -124,7 +135,7 @@ class CMenuItem
 		CActivateObserver * actObserv;
 	public:
 		int		height;
-		bool		active;
+		bool		active, current_active;
 		bool		marked;
 		bool		inert;
 		bool		isStatic;
@@ -157,7 +168,7 @@ class CMenuItem
 		}
 		virtual int getYPosition(void) const { return y; }
 
-		virtual bool isSelectable(void) const { return active; }
+		virtual bool isSelectable(void) const { return (active && current_active); }
 
 		virtual int exec(CMenuTarget* /*parent*/)
 		{
@@ -166,9 +177,9 @@ class CMenuItem
 		virtual void setActive(const bool Active);
 		virtual void setMarked(const bool Marked);
 		virtual void setInert(const bool Inert);
-		
+
 		virtual void paintItemButton(const bool select_mode, int item_height, const char * const icon_Name = NEUTRINO_ICON_BUTTON_RIGHT);
-		
+
 		virtual void prepareItem(const bool select_mode, const int &item_height);
 
 		virtual void setItemButton(const char * const icon_Name, const bool is_select_button = false);
@@ -180,17 +191,20 @@ class CMenuItem
 		virtual int isMenueOptionChooser(void) const{return 0;}
 		void setHint(const char * const icon, const neutrino_locale_t text) { hintIcon = (icon && *icon) ? icon : NULL; hint = text; }
 		void setHint(const char * const icon, const std::string text) { hintIcon = (icon && *icon) ? icon : NULL; hintText = text; }
+
 		void setLua(lua_State *_luaState, std::string &_luaAction, std::string &_luaId) { luaState = _luaState; luaAction = _luaAction; luaId = _luaId; };
 		virtual const char *getName();
 		virtual void setName(const std::string& text);
 		virtual void setName(const neutrino_locale_t text);
-
+		sigc::signal<void> OnPaintItem;
 		virtual const char *getDescription();
 		virtual void setDescription(const std::string& text);
 		virtual void setDescription(const neutrino_locale_t text);
 		virtual int getDescriptionHeight(void);
 		void setActivateObserver(CActivateObserver * Observ) { actObserv = Observ; }
 		void activateNotify(void);
+		virtual void disableByCondition(const menu_item_disable_cond_t& condition);
+		void setParentWidget(CMenuWidget* parent){parent_widget = parent;}
 };
 
 class CMenuSeparator : public CMenuItem
@@ -355,7 +369,7 @@ struct CMenuOptionChooserCompareItem: public std::binary_function <const CMenuOp
 	};
 };
 
-class CMenuOptionChooser : public CAbstractMenuOptionChooser, public sigc::trackable
+class CMenuOptionChooser : public CAbstractMenuOptionChooser
 {
 	public:
 		struct keyval
@@ -577,6 +591,7 @@ class CMenuWidget : public CMenuTarget
 		virtual const char *getName();
 		virtual void integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut=CRCInput::RC_nokey, bool enabled=true);
 		void setSelected(const int &Preselected){ selected = Preselected; };
+		void initSelectable();
 		int getSelected()const { return selected; };
 		void move(int xoff, int yoff);
 		int getSelectedLine(void)const {return exit_pressed ? -1 : selected;};
@@ -584,6 +599,7 @@ class CMenuWidget : public CMenuTarget
 		void enableFade(bool _enable) { fade = _enable; };
 		void enableSaveScreen(bool enable);
 		void paintHint(int num);
+		void paintHint(){hint_painted = false;}
 		enum 
 		{
 			MENU_POS_CENTER 	,
