@@ -249,8 +249,8 @@ void CImageInfo::InitInfoData()
 #ifdef IMAGE_VERSION
 	version_string = IMAGE_VERSION;
 #else
-	const char * _version = config.getString("version", "U000000000000000").c_str();
-	static CFlashVersionInfo versionInfo(_version);
+	std::string _version = config.getString("version", "U000000000000000").c_str();
+	static CFlashVersionInfo versionInfo(_version.c_str());
 
 	version_string = versionInfo.getReleaseCycle();
 	version_string += " ";
