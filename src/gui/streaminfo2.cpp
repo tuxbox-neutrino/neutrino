@@ -485,7 +485,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	// paint labels
 	int spaceoffset = 0,i = 0;
 	int ypos1 = ypos;
-	int box_width = width*2/3 - 10;
+	int box_width = width-width/3-10;
 
 	yypos = ypos;
 	if(box_h > 0)
@@ -509,6 +509,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	spaceoffset += g_Font[font_info]->getRenderWidth(" ");
 
 	average_bitrate_offset = spaceoffset;
+	int box_width2 = box_width-(spaceoffset+xpos);
 
 	if((channel->getVideoPid() || IS_WEBTV(channel->getChannelID())) && !(videoDecoder->getBlank())){
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
@@ -522,7 +523,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION));
 	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR_TEXT);
 	snprintf(buf, sizeof(buf), "%dx%d", xres, yres);
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 	//audio rate
 	ypos += iheight;
@@ -547,7 +548,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		default:
 			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_ARATIO_UNKNOWN), sizeof (buf)-1);
 	}
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 	//Video FRAMERATE
 	ypos += iheight;
@@ -582,7 +583,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE_UNKNOWN), sizeof (buf)-1);
 			break;
 	}
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 	// place for average bitrate
 	average_bitrate_pos = ypos += iheight;
 	//AUDIOTYPE
@@ -624,7 +625,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	} else {
 		snprintf(buf, sizeof(buf), "%s (%d)", g_Locale->getText(LOCALE_STREAMINFO_AUDIOTYPE_UNKNOWN), freq);
 	}
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 	if (mp) {
 		//channel
@@ -633,12 +634,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_TIMERLIST_CHANNEL));//swiped locale
 			g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR_TEXT);
 			snprintf(buf, sizeof(buf), "%s", channel->getName().c_str());
-			g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+			g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 		} else {
 			snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_MOVIEBROWSER_INFO_FILE));//swiped locale
 			g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR_TEXT);
 			snprintf(buf, sizeof(buf), "%s", mp->GetFile().c_str());
-			g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+			g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 		}
 
 		scaling = 27000;
@@ -659,7 +660,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 		snprintf(buf, sizeof(buf), "%s", IS_WEBTV(channel->getChannelID()) ? g_Locale->getText(LOCALE_WEBTV_HEAD) :
 				CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition()).c_str());
-		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 		//channel
 		ypos += iheight;
@@ -667,7 +668,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR_TEXT);
 			// process additional RealName if UserName exists >> uname.empty() ? realname : uname + realname
 		snprintf(buf, sizeof(buf), "%s", (channel->getName()==channel->getRealname()) ? channel->getRealname().c_str():(channel->getName()+" << "+channel->getRealname()).c_str());
-		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 		//tsfrequenz
 		ypos += iheight;
@@ -678,35 +679,36 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 		snprintf(buf, sizeof(buf), "%s",g_Locale->getText (LOCALE_SCANTS_FREQDATA));
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR_TEXT);
-		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, box_width, t.description().c_str(), COL_INFOBAR_TEXT);
+		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, box_width2, t.description().c_str(), COL_INFOBAR_TEXT);
 
 		// paint labels
 		int fontW = g_Font[font_small]->getWidth();
 		spaceoffset = 7 * fontW;
+		box_width2 = box_width-(spaceoffset+xpos);
 		//onid
 		ypos+= sheight;
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", channel->getOriginalNetworkId(), channel->getOriginalNetworkId());
 		g_Font[font_small]->RenderString(xpos, ypos, box_width, "ONid:" , COL_INFOBAR_TEXT);
-		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 		//sid
 		ypos+= sheight;
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", channel->getServiceId(), channel->getServiceId());
 		g_Font[font_small]->RenderString(xpos, ypos, box_width, "Sid:" , COL_INFOBAR_TEXT);
-		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 		//tsid
 		ypos+= sheight;
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", channel->getTransportStreamId(), channel->getTransportStreamId());
 		g_Font[font_small]->RenderString(xpos, ypos, box_width, "TSid:" , COL_INFOBAR_TEXT);
-		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 		//pmtpid
 		ypos+= sheight;
 		pmt_version = channel->getPmtVersion();
 		snprintf(buf, sizeof(buf), "0x%04X (%i) [0x%02X]", channel->getPmtPid(), channel->getPmtPid(), pmt_version);
 		g_Font[font_small]->RenderString(xpos, ypos, box_width, "PMTpid:", COL_INFOBAR_TEXT);
-		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 		//vpid
 		ypos+= sheight;
@@ -716,7 +718,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf(buf, sizeof(buf), "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 		}
 		g_Font[font_small]->RenderString(xpos, ypos, box_width, "Vpid:" , COL_INFOBAR_TEXT);
-		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 		//apid
 		ypos+= sheight;
@@ -729,10 +731,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			{
 				snprintf(buf, sizeof(buf), "0x%04X (%i)", g_RemoteControl->current_PIDs.APIDs[li].pid, g_RemoteControl->current_PIDs.APIDs[li].pid );
 				if (li == g_RemoteControl->current_PIDs.PIDs.selected_apid){
-					g_Font[font_small]->RenderString(xpos+sw, ypos, box_width, buf, COL_MENUHEAD_TEXT);
+					g_Font[font_small]->RenderString(xpos+sw, ypos, box_width2, buf, COL_MENUHEAD_TEXT);
 				}
 				else{
-					g_Font[font_small]->RenderString(xpos+sw, ypos, box_width, buf, COL_INFOBAR_TEXT);
+					g_Font[font_small]->RenderString(xpos+sw, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 				}
 				sw = g_Font[font_small]->getRenderWidth(buf)+sw+10;
 				if (((li+1)%4 == 0) &&(g_RemoteControl->current_PIDs.APIDs.size()-1 > li)){ // if we have lots of apids, put "intermediate" line with pids
@@ -749,7 +751,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		else
 			snprintf(buf, sizeof(buf), "0x%04X (%i)", g_RemoteControl->current_PIDs.PIDs.vtxtpid, g_RemoteControl->current_PIDs.PIDs.vtxtpid );
 		g_Font[font_small]->RenderString(xpos, ypos, box_width, "VTXTpid:" , COL_INFOBAR_TEXT);
-		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
+		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 		if(box_h == 0)
 			box_h = ypos - ypos1;
 		yypos = ypos;
