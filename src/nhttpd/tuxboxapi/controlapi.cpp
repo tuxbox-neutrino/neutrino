@@ -857,7 +857,7 @@ void CControlAPI::LogolistCGI(CyhookHandler *hh)
 		if (pos < v.size())
 			continue;
 		v.push_back(channel->getChannelID());
-		result += string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS";%s;"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"", channel->getChannelID(), channel->getName().c_str(), (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
+		result += string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS";%s;" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"", channel->getChannelID(), channel->getName().c_str(), (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
 
 		if (hh->ParamList["1"].compare("files") == 0)
 		{

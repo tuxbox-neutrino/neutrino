@@ -731,7 +731,7 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 
 	std::string channel_name = channel->getName();
 	if (!(channel_name.empty())) {
-		snprintf(buf, sizeof(buf), UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
+		snprintf(buf, sizeof(buf),"%s", UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
 		ZapitTools::replace_char(buf);
 		StringReplace(FilenameTemplate,"%C",buf);
 	}
@@ -741,7 +741,7 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 	CShortEPGData epgdata;
 	if(CEitManager::getInstance()->getEPGidShort(epgid, &epgdata)) {
 		if (!(epgdata.title.empty())) {
-			snprintf(buf, sizeof(buf), epgdata.title.c_str());
+			snprintf(buf, sizeof(buf),"%s", epgdata.title.c_str());
 			ZapitTools::replace_char(buf);
 			StringReplace(FilenameTemplate,"%T",buf);
 		}
@@ -749,7 +749,7 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 			StringReplace(FilenameTemplate,"%T","no_title");
 
 		if (!(epgdata.info1.empty())) {
-			snprintf(buf, sizeof(buf), epgdata.info1.c_str());
+			snprintf(buf, sizeof(buf),"%s", epgdata.info1.c_str());
 			ZapitTools::replace_char(buf);
 			StringReplace(FilenameTemplate,"%I",buf);
 		}

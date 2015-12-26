@@ -383,7 +383,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 
 			yresult += string_printf(
 					"<td class=\"%c logo_cell %s\" width=\"44\" rowspan=\"2\">"
-					"<a href=\"javascript:do_zap('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"')\">"
+					"<a href=\"javascript:do_zap('" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"')\">"
 					"%s"
 					"</a>"
 					"</td>"
@@ -531,7 +531,7 @@ std::string  CNeutrinoYParser::func_get_logo_name(CyhookHandler *hh, std::string
 {
 	if (hh->WebserverConfigList["Tuxbox.DisplayLogos"] == "true") {
 		t_channel_id cid;
-		if (1 == sscanf(channelId.c_str(), "%llx", &cid))
+		if (1 == sscanf(channelId.c_str(), "%" PRIx64, &cid))
 			return NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], cid);
 	}
 	return "";
