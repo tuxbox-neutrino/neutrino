@@ -407,19 +407,19 @@ void CInfoViewerBB::showBBButtons(const int modus)
 
 	if (paint) {
 		fb_pixel_t *pixbuf = NULL;
-		int buf_x = bbIconMinX;
+		int buf_x = bbIconMinX - 5;
 		int buf_y = BBarY;
-		int buf_w = g_InfoViewer->BoxEndX-bbIconMinX;
+		int buf_w = g_InfoViewer->BoxEndX-buf_x;
 		int buf_h = InfoHeightY_Info;
 		if (modus != -1) {
 			pixbuf = new fb_pixel_t[buf_w * buf_h];
 //printf("\nbuf_x: %d, buf_y: %d, buf_w: %d, buf_h: %d, pixbuf: %p\n \n", buf_x, buf_y, buf_w, buf_h, pixbuf);
 			frameBuffer->SaveScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
-		}
-		paintFoot(minX - g_InfoViewer->ChanInfoX);
-		if ((modus != -1) && (pixbuf != NULL)) {
-			frameBuffer->RestoreScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
-			delete [] pixbuf;
+			paintFoot();
+			if (pixbuf != NULL) {
+				frameBuffer->RestoreScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
+				delete [] pixbuf;
+			}
 		}
 		int last_x = minX;
 		for (i = BUTTON_MAX; i > 0;) {
