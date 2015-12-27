@@ -1344,6 +1344,7 @@ menu.hint_scrambled_message Show scrambled message, when channel cannot be decod
 menu.hint_screen_setup Configure screen margins
 menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start or turn it off
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
+menu.hint_screensaver_random Enable/disable random image selection.
 menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
 menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
@@ -2145,6 +2146,7 @@ screensaver.delay Delay
 screensaver.dir Directory
 screensaver.menu Screensaver
 screensaver.off Screensaver off
+screensaver.random Random Images
 screensaver.timeout Change pictures
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left

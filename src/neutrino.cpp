@@ -513,6 +513,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screensaver_delay = configfile.getInt32("screensaver_delay", 1);
 	g_settings.screensaver_dir = configfile.getString("screensaver_dir", ICONSDIR);
 	g_settings.screensaver_timeout = configfile.getInt32("screensaver_timeout", 10);
+	g_settings.screensaver_random = configfile.getInt32("screensaver_random", false);
 
 	//vcr
 	g_settings.vcr_AutoSwitch = configfile.getBool("vcr_AutoSwitch"       , true );
@@ -1049,6 +1050,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("screensaver_delay", g_settings.screensaver_delay);
 	configfile.setString("screensaver_dir", g_settings.screensaver_dir);
 	configfile.setInt32("screensaver_timeout", g_settings.screensaver_timeout);
+	configfile.setInt32("screensaver_random", g_settings.screensaver_random);
 
 	//vcr
 	configfile.setBool("vcr_AutoSwitch"       , g_settings.vcr_AutoSwitch       );

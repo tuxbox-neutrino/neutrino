@@ -1442,6 +1442,12 @@ void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSAVER_DIR);
 	menu_screensaver->addItem(mf);
 	screensaverNotifier->addItem(mf);
+
+	// screensaver random mode
+	CMenuOptionChooser* oc = new CMenuOptionChooser(LOCALE_SCREENSAVER_RANDOM, &g_settings.screensaver_random, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_RANDOM);
+	menu_screensaver->addItem(oc);
+	screensaverNotifier->addItem(oc);
 }
 
 void COsdSetup::paintWindowSize(int w, int h)

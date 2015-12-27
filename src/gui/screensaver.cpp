@@ -234,7 +234,11 @@ void CScreenSaver::PaintPicture()
 	dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
 	m_viewer->ShowImage(v_bg_files.at(index).c_str(), false /*unscaled*/);
 
-	index++;
+	if (!g_settings.screensaver_random)
+		index++;
+	else
+		index = rand() % v_bg_files.size();
+
 	if(index ==  v_bg_files.size())
 		index = 0;
 }

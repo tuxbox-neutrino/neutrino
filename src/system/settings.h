@@ -240,6 +240,7 @@ struct SNeutrinoSettings
 	int screensaver_delay;
 	std::string screensaver_dir;
 	int screensaver_timeout;
+	int screensaver_random;
 
 	//vcr
 	int vcr_AutoSwitch;
