@@ -1419,6 +1419,13 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	menu_screenshot->addItem(mc);
 }
 
+#define SCREENSAVER_MODE_OPTION_COUNT 2
+const CMenuOptionChooser::keyval SCREENSAVER_MODE_OPTIONS[SCREENSAVER_MODE_OPTION_COUNT] =
+{
+	{ 0, LOCALE_SCREENSAVER_MODE_IMAGE },
+	{ 1, LOCALE_SCREENSAVER_MODE_CLOCK }
+};
+
 void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
 {
 	menu_screensaver->addIntroItems(LOCALE_SCREENSAVER_MENU);
@@ -1429,6 +1436,12 @@ void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
 	nc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE));
 	nc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_DELAY);
 	menu_screensaver->addItem(nc);
+
+	// screensaver mode
+	CMenuOptionChooser* oc = new CMenuOptionChooser(LOCALE_SCREENSAVER_MODE, &g_settings.screensaver_mode, SCREENSAVER_MODE_OPTIONS, SCREENSAVER_MODE_OPTION_COUNT, true);
+	oc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_MODE);
+	menu_screensaver->addItem(oc);
+	screensaverNotifier->addItem(oc);
 
 	// screensaver timeout
 	nc = new CMenuOptionNumberChooser(LOCALE_SCREENSAVER_TIMEOUT, &g_settings.screensaver_timeout, (g_settings.screensaver_delay != 0), 0, 60, NULL, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
@@ -1444,7 +1457,7 @@ void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
 	screensaverNotifier->addItem(mf);
 
 	// screensaver random mode
-	CMenuOptionChooser* oc = new CMenuOptionChooser(LOCALE_SCREENSAVER_RANDOM, &g_settings.screensaver_random, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oc = new CMenuOptionChooser(LOCALE_SCREENSAVER_RANDOM, &g_settings.screensaver_random, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	oc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_RANDOM);
 	menu_screensaver->addItem(oc);
 	screensaverNotifier->addItem(oc);

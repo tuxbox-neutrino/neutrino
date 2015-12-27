@@ -52,6 +52,7 @@ CScreenSaver::CScreenSaver()
 	m_viewer	= new CPictureViewer();
 	index 		= 0;
 	status_mute	= CAudioMute::getInstance()->getStatus();
+	scr_clock	= NULL;
 }
 
 CScreenSaver::~CScreenSaver()
@@ -61,6 +62,8 @@ CScreenSaver::~CScreenSaver()
 	thrScreenSaver = 0;
 
 	delete m_viewer;
+	if (scr_clock)
+		delete scr_clock;
 }
 
 
@@ -113,6 +116,12 @@ void CScreenSaver::Stop()
 		pthread_cancel(thrScreenSaver);
 	thrScreenSaver = 0;
 
+	if (scr_clock){
+		scr_clock->Stop();
+		delete scr_clock;
+		scr_clock = NULL;
+	}
+
 	m_frameBuffer->paintBackground(); //clear entire screen
 
 	CAudioMute::getInstance()->enableMuteIcon(status_mute);
@@ -136,12 +145,12 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 	{
 		while(1)
 		{
-			PScreenSaver->PaintPicture();
+			PScreenSaver->paint();
 			sleep(g_settings.screensaver_timeout);
 		}
 	}
 	else
-		PScreenSaver->PaintPicture(); //just paint first found picture
+		PScreenSaver->paint(); //just paint first found picture
 
 	return 0;
 }
@@ -219,26 +228,41 @@ bool CScreenSaver::ReadDir()
 }
 
 
-void CScreenSaver::PaintPicture()
+void CScreenSaver::paint()
 {
-	if(v_bg_files.empty())
-		return;
+	if (g_settings.screensaver_mode == SCR_MODE_IMAGE && !v_bg_files.empty()){
 
-	if( (index >= v_bg_files.size()) || (access(v_bg_files.at(index).c_str(), F_OK)) )
-	{
-		ReadDir();
-		index = 0;
-		return;
+		if( (index >= v_bg_files.size()) || (access(v_bg_files.at(index).c_str(), F_OK)) )
+		{
+			ReadDir();
+			index = 0;
+			return;
+		}
+
+		dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
+		m_viewer->ShowImage(v_bg_files.at(index).c_str(), false /*unscaled*/);
+
+		if (!g_settings.screensaver_random)
+			index++;
+		else
+			index = rand() % v_bg_files.size();
+
+		if(index ==  v_bg_files.size())
+			index = 0;
 	}
+	else{
+		if (!scr_clock){
+			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H.%M:%S", "%H.%M %S", true);
+			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
+			scr_clock->setTextColor(COL_DARK_GRAY);
+			scr_clock->enableSaveBg();
+			scr_clock->doPaintBg(false);
+		}
+		if (scr_clock->isPainted())
+			scr_clock->Stop();
 
-	dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
-	m_viewer->ShowImage(v_bg_files.at(index).c_str(), false /*unscaled*/);
-
-	if (!g_settings.screensaver_random)
-		index++;
-	else
-		index = rand() % v_bg_files.size();
-
-	if(index ==  v_bg_files.size())
-		index = 0;
+		scr_clock->kill();
+		scr_clock->setPosP(rand() % 80, rand() % 90);
+		scr_clock->Start();
+	}
 }

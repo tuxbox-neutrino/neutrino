@@ -28,12 +28,14 @@
 #include <driver/framebuffer.h>
 #include <vector>
 #include <string>
+#include <gui/components/cc.h>
 
 class CScreenSaver : public sigc::trackable
 {
 	private:
 		CFrameBuffer 	*m_frameBuffer;
 		CPictureViewer	*m_viewer;
+		CComponentsFrmClock *scr_clock;
 		pthread_t	thrScreenSaver;
 		static void*	ScreenSaverPrg(void *arg);
 		vector<string> 	v_bg_files;
@@ -42,9 +44,14 @@ class CScreenSaver : public sigc::trackable
 		bool		status_mute;
 
 		bool ReadDir();
-		void PaintPicture();
+		void paint();
 
 	public:
+		enum
+		{
+			SCR_MODE_IMAGE,
+			SCR_MODE_CLOCK
+		};
 		CScreenSaver();
 		~CScreenSaver();
 		static CScreenSaver* getInstance();

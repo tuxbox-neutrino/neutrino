@@ -1344,8 +1344,9 @@ menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn 
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screensaver_delay Legen sie die Zeit (in Minuten) fest, nach der der Bildschirmschoner starten soll oder schaltet ihn aus
 menu.hint_screensaver_dir Wählen Sie das Verzeichnis, in dem die Bilder für Ihren Bildschirmschoner gespeichert sind
+menu.hint_screensaver_mode Modus des Bilschirmschoners wählen.
 menu.hint_screensaver_random Aktviere/deaktiviere zufällige Bilderauswahl.
-menu.hint_screensaver_timeout Wählen Sie Die Wartezeit bis zum Bilderwechsel des Bildschirmschoners
+menu.hint_screensaver_timeout Wechselintervall des Bildschirmschoners
 menu.hint_screensaver_setup Konfigurieren Sie die Optionen des Bildschirmschoners für den Audioplayer und den Radio-Modus
 menu.hint_screenshot_count Wählen Sie, wie viele Screenshots erstellt werden sollen
 menu.hint_screenshot_cover Während der Wiedergabe von Aufnahmen kann ein Screenshot für die Vorschau im Moviebrowser erstellt werden
@@ -2145,9 +2146,12 @@ scrambled_channel Verschlüsselung aktiv
 screensaver.delay Verzögerung
 screensaver.dir Verzeichnis
 screensaver.menu Bildschirmschoner
+screensaver.mode Modus
+screensaver.mode_clock Uhr
+screensaver.mode_image Bilder
 screensaver.off Bildschirmschoner aus
 screensaver.random Zufällige Bilderwahl
-screensaver.timeout Bilderwechsel
+screensaver.timeout Wechselintervall
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
 screenshot.count Anzahl
