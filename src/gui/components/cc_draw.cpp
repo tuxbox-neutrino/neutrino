@@ -465,6 +465,9 @@ void CCDraw::enablePaintCache(bool enable)
 //paint framebuffer layers
 void CCDraw::paintFbItems(bool do_save_bg)
 {
+	//pick up signal if filled
+	OnBeforePaintLayers();
+
 	//first modify background handling
 	enableSaveBg(do_save_bg);
 
@@ -609,6 +612,8 @@ void CCDraw::paintFbItems(bool do_save_bg)
 			}
 		}
 	}
+	//pick up signal if filled
+	OnAfterPaintLayers();
 }
 
 

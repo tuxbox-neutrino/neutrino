@@ -26,6 +26,7 @@
 #define __CC_DRAW__
 
 #include "cc_types.h"
+#include "cc_signals.h"
 #include <driver/colorgradient.h>
 #include <driver/fade.h>
 #include <gui/color.h>
@@ -35,7 +36,7 @@
 Basic paint attributes and member functions for component classes
 */
 
-class CCDraw : public COSDFader
+class CCDraw : public COSDFader, public CComponentsSignals
 {
 	protected:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
@@ -293,6 +294,11 @@ class CCDraw : public COSDFader
 		virtual void paint1(){paint(CC_SAVE_SCREEN_YES);}
 		///paint item, same like paint(CC_SAVE_SCREEN_NO) but without any argument
 		virtual void paint0(){paint(CC_SAVE_SCREEN_NO);}
+
+		///signal on before paint fb layers, called inside paintFbItems()
+		sigc::signal<void> OnBeforePaintLayers;
+		///signal on after paint fb layers, called inside paintFbItems()
+		sigc::signal<void> OnAfterPaintLayers;
 
 		/*!
 		 Removes current item from screen and
