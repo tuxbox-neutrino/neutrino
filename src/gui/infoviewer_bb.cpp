@@ -221,7 +221,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts) {
+			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_red, active);
 				if (!text.empty())
 					break;
@@ -238,7 +238,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts) {
+			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active);
 				if (text != g_Locale->getText(LOCALE_MPKEY_AUDIO))
 					break;
@@ -263,7 +263,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts) {
+			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active);
 				if (!text.empty())
 					break;
@@ -280,7 +280,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts) {
+			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_blue, active);
 				if (!text.empty())
 					break;
