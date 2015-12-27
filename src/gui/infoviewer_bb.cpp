@@ -230,8 +230,6 @@ void CInfoViewerBB::getBBButtonInfo()
 			if (!text.empty())
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_RED]->title;
-			if (text.empty())
-				text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
 			break;
 		case CInfoViewerBB::BUTTON_GREEN:
 			pers = SNeutrinoSettings::P_MAIN_GREEN_BUTTON;
@@ -251,11 +249,6 @@ void CInfoViewerBB::getBBButtonInfo()
 				break;
 			if ((mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) && !CMoviePlayerGui::getInstance().timeshift) {
 				text = CMoviePlayerGui::getInstance(mode == NeutrinoMessages::mode_webtv).CurrentAudioName();
-			} else if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
-				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;
-				if (text.empty()){
-					text = g_RemoteControl->current_PIDs.APIDs[selected].desc;
-				}
 			}
 			break;
 		case CInfoViewerBB::BUTTON_YELLOW:
@@ -272,8 +265,6 @@ void CInfoViewerBB::getBBButtonInfo()
 			if (!text.empty())
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->title;
-			if (text.empty())
-				text = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
 			break;
 		case CInfoViewerBB::BUTTON_BLUE:
 			pers = SNeutrinoSettings::P_MAIN_BLUE_BUTTON;
@@ -289,8 +280,6 @@ void CInfoViewerBB::getBBButtonInfo()
 			if (!text.empty())
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_BLUE]->title;
-			if (text.empty())
-				text = g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO);
 			break;
 		default:
 			break;
