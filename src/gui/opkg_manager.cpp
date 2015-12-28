@@ -57,7 +57,12 @@
 #include <sys/wait.h>
 #include <fstream>
 
+#if 0
 #define OPKG_CL "opkg"
+#else
+#define OPKG_CL "opkg-cl"
+#endif
+
 #define OPKG_TMP_DIR "/tmp/.opkg"
 #define OPKG_TEST_DIR OPKG_TMP_DIR "/test"
 #define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
