@@ -492,8 +492,8 @@ int COPKGManager::showMenu()
 	//feed setup
 	CMenuWidget feeds_menu(LOCALE_OPKG_TITLE, NEUTRINO_ICON_UPDATE, w_max (100, 10));
 	showMenuConfigFeed(&feeds_menu);
-	fw = new CMenuForwarder(LOCALE_OPKG_FEED_ADRESSES, true, NULL, &feeds_menu, NULL, CRCInput::RC_www);
-	fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_FEED_ADRESSES_EDIT);
+	fw = new CMenuForwarder(LOCALE_OPKG_FEED_ADDRESSES, true, NULL, &feeds_menu, NULL, CRCInput::RC_www);
+	fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_FEED_ADDRESSES_EDIT);
 	menu->addItem(fw);
 
 	menu->addItem(GenericMenuSeparatorLine);
@@ -879,7 +879,7 @@ bool COPKGManager::isUpgradable(const string& pkg_name)
 
 void COPKGManager::showMenuConfigFeed(CMenuWidget *feed_menu)
 {
-	feed_menu->addIntroItems(LOCALE_OPKG_FEED_ADRESSES);
+	feed_menu->addIntroItems(LOCALE_OPKG_FEED_ADDRESSES);
 
 	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
 		CKeyboardInput *feedinput = new CKeyboardInput("Feed " +to_string(i+1), &config_src[i], 0, NULL, NULL, LOCALE_OPKG_ENTER_FEED_ADDRESS, LOCALE_OPKG_ENTER_FEED_ADDRESS_EXAMPLE);
