@@ -87,6 +87,8 @@ class CComponentsWindow : public CComponentsForm
 		fb_pixel_t ccw_col_head;
 		///header text color
 		fb_pixel_t ccw_col_head_text;
+		///footer bg color
+		fb_pixel_t ccw_col_footer;
 
 		///initialze header object
 		void initHeader();
@@ -146,7 +148,7 @@ class CComponentsWindow : public CComponentsForm
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///add item to body object, also usable is addCCItem() to add items to the windo object
-		void addWindowItem(CComponentsItem* cc_Item);
+		int addWindowItem(CComponentsItem* cc_Item);
 
 		///allow/disallow paint a footer, default true, see also ccw_show_footer, showHeader()
 		void showFooter(bool show = true){ccw_show_footer = show; initCCWItems();};
@@ -185,6 +187,9 @@ class CComponentsWindow : public CComponentsForm
 		CComponentsForm* getBodyObject(){return ccw_body;};
 		///returns a pointer to the internal footer object, use this to get access to footer properities
 		CComponentsFooter* getFooterObject(){return ccw_footer;};
+
+		///set background to footer
+		void setWindowFooterColor(const fb_pixel_t& color){ccw_col_footer = color;}
 
 		///returns a pointer to the internal left side bar object, use this to get access to left sidebar properities
 		CComponentsFrmChain* getLeftSidebarObject(){return ccw_left_sidebar;};
