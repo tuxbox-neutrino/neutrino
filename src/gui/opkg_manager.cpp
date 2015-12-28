@@ -701,7 +701,7 @@ int COPKGManager::execCmd(const char *cmdstr, int verbose_mode)
 	int res = 0;
 	has_err = false;
 	tmp_str.clear();
-	bool ok = true;
+	//bool ok = true;
 
 	//create CShellWindow object
 	CShellWindow shell(cmd, verbose_mode, &res, false);
