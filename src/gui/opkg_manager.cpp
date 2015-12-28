@@ -306,10 +306,10 @@ bool COPKGManager::checkSize(const string& pkg_name)
 	//clean up
 	fh.removeDir(OPKG_TEST_DIR);
 
-	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d] Package: %s [required size=%lld (free size: %lld)]\n", __func__, __LINE__, pkg_name.c_str(), req_size, free_size);
+	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d] Package: %s [required size=%" PRId64 " (free size: %" PRId64 ")]\n", __func__, __LINE__, pkg_name.c_str(), req_size, free_size);
 	if (free_size < req_size){
 		//exit if required size too much
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%lld (recommended: %lld)\n", __func__, __LINE__, free_size, req_size);
+		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%" PRId64 " (recommended: %" PRId64 ")\n", __func__, __LINE__, free_size, req_size);
 		return false;
 	}
 #endif

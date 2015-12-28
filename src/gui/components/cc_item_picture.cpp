@@ -263,7 +263,7 @@ void CComponentsPicture::paintPicture()
 		gettimeofday(&t2, NULL);
 		uint64_t duration = ((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL;
 		if (duration)
-			fprintf(stderr, "\033[33m[CComponentsPicture] %s: %llu ms to paint image \033[0m\n",	__func__, duration);
+			fprintf(stderr, "\033[33m[CComponentsPicture] %s: %" PRIu64 " ms to paint image \033[0m\n",	__func__, duration);
 	}
 }
 
