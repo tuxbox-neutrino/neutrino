@@ -164,15 +164,21 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	if (menu == NULL)
 		return true;
 
+	/*
+	using native callback to ensure paint for info clock after hide of this menu window
+	menu->hide() handler comes too early, nice to see if clock is transparent.
+	*/
+	menu->OnAfterHide.connect(sigc::mem_fun(CInfoClock::getInstance(), &CInfoClock::block));
+
 	if (button < COL_BUTTONMAX)	
 		menu->setSelected(user_menu[button].selected);
-	
+
 	//show cancel button if configured
 	if (g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL])
 		menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 	else
 		menu->addItem(GenericMenuSeparator);
-	
+
 	bool _mode_ts = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_ts;
 
 	std::string itemstr_last("1");
@@ -455,7 +461,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 	extern CInfoClock *InfoClock;
 	InfoClock->enableInfoClock(false);
-
 	// show menu if there are more than 2 items only
 	// otherwise, we start the item directly (must be the last one)
 	if (menu_items > 1 )

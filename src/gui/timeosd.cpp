@@ -36,41 +36,46 @@
 
 
 
-CTimeOSD::CTimeOSD():CComponentsFrmClock( 0, 0, 0, 50, "%H:%M:%S", false, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
+CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
 {
 	Init();
 }
 
 void CTimeOSD::Init()
 {
-	static int oldSize = 0;
-
-	m_mode = MODE_HIDE;
-	m_time_show = 0;
-
-	if (oldSize != g_settings.infoClockFontSize) {
-		oldSize = g_settings.infoClockFontSize;
-		setClockFontSize(g_settings.infoClockFontSize);
-	}
-
-	//use current theme colors
-	syncSysColors();
-
 	paint_bg = g_settings.infoClockBackground;
 
-	setClockFormat("%H:%M:%S");
+	//use current theme colors
+	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
 
-	int x_old = x, y_old = y, width_old = width, height_old = height;
-	CVolumeHelper::getInstance()->refresh(cl_font);
-	CVolumeHelper::getInstance()->getTimeDimensions(&x, &y, &width, &height);
-	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height))
-		clear();
+	//set text color
+	if (paint_bg){
+		cl_col_text = COL_MENUCONTENT_TEXT;
+		setColorBody(COL_MENUCONTENT_PLUS_0);
+	}else{
+		cl_col_text = COL_INFOCLOCK_TEXT;
+		setColorBody(COL_BACKGROUND_PLUS_0);
+	}
+
+	if (g_settings.infoClockSeconds)
+		setClockFormat("%H:%M:%S");
+	else
+		setClockFormat("%H:%M", "%H %M");
+
+	//set height, NOTE: height is strictly bound to settings
+	if (g_settings.infoClockFontSize != height){
+		height = g_settings.infoClockFontSize;
+		int dx = 0;
+		int dy = height;
+		setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
+	}
 
 	// set corner radius depending on clock height
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
 
-	initCCLockItems();
-
+	CComponentsFrmClock::initCCLockItems();
+	CVolumeHelper::getInstance()->refresh(cl_font);
+	CVolumeHelper::getInstance()->getTimeDimensions(&x, &y, &width, &height);
 	timescale.setType(CProgressBar::PB_TIMESCALE);
 }
 
@@ -85,13 +90,10 @@ CTimeOSD::~CTimeOSD()
 void CTimeOSD::initTimeString()
 {
 	struct tm t;
-	if (m_mode == MODE_DESC) {
-		char tt[20];
-		strftime(tt, sizeof(tt), cl_format_str, gmtime_r(&m_time_show, &t));
-		snprintf(cl_timestr, sizeof(cl_timestr), "-%s", tt);
-	}
-	else
-		strftime(cl_timestr, sizeof(cl_timestr), cl_format_str, gmtime_r(&m_time_show, &t));
+	toggleFormat();
+	if (m_mode == MODE_DESC)
+		cl_format = "-" + cl_format;
+	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format.c_str(), gmtime_r(&m_time_show, &t));
 }
 
 void CTimeOSD::show(time_t time_show, bool force)
@@ -101,7 +103,7 @@ void CTimeOSD::show(time_t time_show, bool force)
 		return;
 	m_time_show = time_show;
 
-	syncSysColors();
+	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0); //use current theme colors
 
 	paint_bg = true;
 	if (g_settings.infoClockBackground)
@@ -109,7 +111,7 @@ void CTimeOSD::show(time_t time_show, bool force)
 	else
 		setColorBody(COL_BACKGROUND_PLUS_0);
 
-	setShadowOnOff(g_settings.infoClockBackground);
+	enableShadow(g_settings.infoClockBackground);
 
 	paint(false);
 }
@@ -124,7 +126,6 @@ void CTimeOSD::updatePos(int position, int duration)
 
 	timescale.setProgress(x, y + height/4, width, height/2, percent, 100);
 	timescale.paint();
-	frameBuffer->blit();
 }
 
 void CTimeOSD::update(int position, int duration)
@@ -157,7 +158,6 @@ void CTimeOSD::switchMode(int position, int duration)
 			break;
 		case MODE_BAR:
 			KillAndResetTimescale();
-			frameBuffer->blit();
 			return;
 		default:
 			m_mode = MODE_ASC;

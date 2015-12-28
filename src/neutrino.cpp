@@ -497,9 +497,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 1));
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 1 ); // below channel name
-	g_settings.casystem_display = configfile.getInt32("casystem_display", 1 );//discreet ca mode default
-	g_settings.casystem_dotmatrix = configfile.getInt32("casystem_dotmatrix", 1 );
-	g_settings.casystem_frame = configfile.getInt32("casystem_frame", 0 );
+	g_settings.infobar_casystem_display = configfile.getInt32("infobar_casystem_display", 1 );//discreet ca mode default
+	g_settings.infobar_casystem_dotmatrix = configfile.getInt32("infobar_casystem_dotmatrix", 0 );
+	g_settings.infobar_casystem_frame = configfile.getInt32("infobar_casystem_frame", 1 );
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", CVolumeBar::VOLUMEBAR_POS_TOP_RIGHT );
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
@@ -534,6 +534,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screensaver_delay = configfile.getInt32("screensaver_delay", 1);
 	g_settings.screensaver_dir = configfile.getString("screensaver_dir", ICONSDIR);
 	g_settings.screensaver_timeout = configfile.getInt32("screensaver_timeout", 10);
+	g_settings.screensaver_random = configfile.getInt32("screensaver_random", 0);
+	g_settings.screensaver_mode = configfile.getInt32("screensaver_mode", CScreenSaver::SCR_MODE_IMAGE);
 
 	//vcr
 	g_settings.vcr_AutoSwitch = configfile.getBool("vcr_AutoSwitch"       , true );
@@ -570,9 +572,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
 
+	//theme/color options
 	CThemes::getTheme(configfile);
-
-
+	g_settings.osd_colorsettings_advanced_mode = configfile.getBool("osd_colorsettings_advanced_mode", false);
 
 	//personalize
 	g_settings.personalize_pincode = configfile.getString( "personalize_pincode", "0000" );
@@ -795,7 +797,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.font_file = configfile.getString("font_file", FONTDIR"/neutrino.ttf");
 	g_settings.ttx_font_file = configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf");
 	ttx_font_file = g_settings.ttx_font_file.c_str();
+
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
+	g_settings.update_dir_opkg = configfile.getString("update_dir_opkg", g_settings.update_dir);
 
 	// parentallock
 	if (!parentallocked) {
@@ -1047,9 +1051,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
-	configfile.setInt32("casystem_display"  , g_settings.casystem_display  );
-	configfile.setInt32("casystem_dotmatrix"  , g_settings.casystem_dotmatrix  );
-	configfile.setInt32("casystem_frame"  , g_settings.casystem_frame  );
+	configfile.setInt32("infobar_casystem_display"  , g_settings.infobar_casystem_display  );
+	configfile.setInt32("infobar_casystem_dotmatrix"  , g_settings.infobar_casystem_dotmatrix  );
+	configfile.setInt32("infobar_casystem_frame"  , g_settings.infobar_casystem_frame  );
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setBool("volume_digits", g_settings.volume_digits);
@@ -1080,6 +1084,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("screensaver_delay", g_settings.screensaver_delay);
 	configfile.setString("screensaver_dir", g_settings.screensaver_dir);
 	configfile.setInt32("screensaver_timeout", g_settings.screensaver_timeout);
+	configfile.setInt32("screensaver_random", g_settings.screensaver_random);
+	configfile.setInt32("screensaver_mode", g_settings.screensaver_mode);
 
 	//vcr
 	configfile.setBool("vcr_AutoSwitch"       , g_settings.vcr_AutoSwitch       );
@@ -1111,9 +1117,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//widget settings
 	configfile.setBool("widget_fade"          , g_settings.widget_fade          );
 
+	//theme/color options
 	CThemes::setTheme(configfile);
-
-
+	configfile.setBool("osd_colorsettings_advanced_mode", g_settings.osd_colorsettings_advanced_mode);
 
 	//personalize
 	configfile.setString("personalize_pincode", g_settings.personalize_pincode);
@@ -1266,6 +1272,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("softupdate_proxypassword" , g_settings.softupdate_proxypassword );
 
 	configfile.setString("update_dir", g_settings.update_dir);
+	configfile.setString("update_dir_opkg", g_settings.update_dir_opkg);
+
 	configfile.setString("font_file", g_settings.font_file);
 	configfile.setString("ttx_font_file", g_settings.ttx_font_file);
 
@@ -2242,6 +2250,7 @@ void CNeutrinoApp::screensaver(bool on)
 	if (on)
 	{
 		m_screensaver = true;
+		CInfoClock::getInstance()->block();
 		CScreenSaver::getInstance()->Start();
 	}
 	else
@@ -2261,9 +2270,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &_mainMenu)
 
 	dprintf(DEBUG_NORMAL, "initialized everything\n");
 
+	//activating infoclock
 	InfoClock = CInfoClock::getInstance();
-	if(g_settings.mode_clock)
-		g_settings.mode_clock = InfoClock->StartClock();
 
 	if(g_settings.power_standby || init_cec_setting)
 		standbyMode(true, true);
@@ -2585,7 +2593,7 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 	channelList_painted = true;
 
 	neutrino_msg_t msg = _msg;
-	InfoClock->enableInfoClock(false);
+	InfoClock->enableInfoClock(false);//TODO: use callback in channel list class
 	StopSubtitles();
 
 //_show:
@@ -3961,17 +3969,6 @@ void CNeutrinoApp::switchTvRadioMode(const int prev_mode)
 	}
 }
 
-//switching clock on or off depends of current displayed or not
-void CNeutrinoApp::switchClockOnOff()
-{
-	if(g_settings.mode_clock) {
-		InfoClock->enableInfoClock(false);
-		g_settings.mode_clock = false;
-	} else {
-		g_settings.mode_clock = true;
-		InfoClock->enableInfoClock(true);
-	}
-}
 
 /**************************************************************************************
 *          CNeutrinoApp -  exec, menuitem callback (shutdown)                         *
@@ -3998,7 +3995,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if (actionKey=="clock_switch")
 	{
-		switchClockOnOff();
+		InfoClock->switchClockOnOff();
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
 	else if (actionKey=="tv_radio_switch")//used in mainmenu

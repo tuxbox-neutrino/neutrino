@@ -290,11 +290,23 @@ clock_size_height Display height
 clock_switch_off Clock off
 clock_switch_on Clock on
 color.gradient Color gradient
-color.gradient_c2c Color to color gradient
+color.gradient_a2b color A to B
+color.gradient_b2a color B to A
+color.gradient_d2l dark to light
+color.gradient_dld dark light dark
+color.gradient_l2d light to dark
+color.gradient_ldl light dark light
+color.gradient_mode_direction Direction
+color.gradient_mode_direction_hor horizontal
+color.gradient_mode_direction_ver vertical
+color.gradient_separator_enable Color gradient separator line
 colorchooser.alpha alpha
 colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
+colorchooser.save Save
+colormenu.advanced_mode_off Default options
+colormenu.advanced_mode_on Advanced options
 colormenu.background Background
 colormenu.clock_textcolor Digit color
 colormenu.contrast_fonts Contrast fonts
@@ -977,7 +989,8 @@ menu.hint_clock_seconds Show time format with seconds
 menu.hint_clock_size Set the size of the info clock
 menu.hint_clock_textcolor Configure digit colors
 menu.hint_color_gradient Switches color gradients for various menu items on/off
-menu.hint_color_gradient_c2c Switches smooth gradient between 2 colors and one-color gradient
+menu.hint_color_gradient_direction Define direction of color gradient.
+menu.hint_color_gradient_separator_enable Disable/enable color gradient for menu separator lines
 menu.hint_colored_events Use different color for current or next event
 menu.hint_colored_events_textcolor Change color for colored events in channellist and infobar
 menu.hint_colors Configure GUI colors
@@ -1183,6 +1196,8 @@ menu.hint_next Continue to next menu\nPress menu key to close all menus
 menu.hint_next_brief Continue to next menu
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_opkg Install or update software packages
+menu.hint_opkg_feed_address_edit Edit feed addresses
+menu.hint_opkg_install_local_package Install package from USB, SD, share or local directory.
 menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
@@ -1331,7 +1346,9 @@ menu.hint_scrambled_message Show scrambled message, when channel cannot be decod
 menu.hint_screen_setup Configure screen margins
 menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start or turn it off
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
-menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
+menu.hint_screensaver_mode Select screensaver mode.
+menu.hint_screensaver_random Enable/disable random image selection.
+menu.hint_screensaver_timeout Select the timeout to changes in screensavers
 menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
@@ -1416,6 +1433,8 @@ messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?
 messagebox.error Error
+messagebox.feature_not_supported Funkcia nie je podporovaná.
+messagebox.feature_not_supported Feature is not supported. Please contact your firmware provider!
 messagebox.info Information
 messagebox.no No
 messagebox.ok Ok
@@ -1472,6 +1491,7 @@ miscsettings.infobar_disp_3 Logo, Channelname [Signal]
 miscsettings.infobar_disp_4 Logo, Channelname [Channelnumber]
 miscsettings.infobar_disp_5 Logo [Signal]
 miscsettings.infobar_disp_6 Channelnumber, Logo [Signal]
+miscsettings.infobar_gradient_body Gradient EPG-area
 miscsettings.infobar_gradient_bottom Gradient bottom
 miscsettings.infobar_gradient_top Gradient top
 miscsettings.infobar_logo_hdd_dir Logo directory
@@ -1844,14 +1864,21 @@ opkg.button.expert_on Expert mode
 opkg.button.info Package information
 opkg.button.install Install package
 opkg.button.uninstall Uninstall package
-opkg.failure.install Install failed (%d)
-opkg.failure.update Update failed (%d)
-opkg.failure.upgrade Upgrade failed (%d)
+opkg.enter.feed.address Please enter address for server, local folder or share!
+opkg.enter.feed.address.example Example: http://pkg.nevis.neutrino-hd.com
+opkg.failure.install Install failed
+opkg.failure.update Update failed
+opkg.failure.upgrade Upgrade failed
+opkg.feed.addresses Feed addresses
+opkg.install.local.package Install local package
 opkg.messagebox.reinstall Re-install %s?
 opkg.messagebox.remove Remove %s?
-opkg.success.install Install successful, restart of Neutrino might be required.
+opkg.messagebox.size.error Not enough free memory available for this package!
+opkg.messagebox.updates.available Updates available!
+opkg.success.install Install successful!\n restart of Neutrino might be required. Restart now?
 opkg.title Package Management
 opkg.upgrade Upgrade installed packages
+opkg.warning_3rdparty_packages 3rd party packages could damage your system! Are you sure install this package?
 options.default Reset to defaults
 options.fb framebuffer
 options.hint_default Reset the values to their defaults
@@ -2130,8 +2157,12 @@ scrambled_channel Scrambled channel
 screensaver.delay Delay
 screensaver.dir Directory
 screensaver.menu Screensaver
+screensaver.mode Mode
+screensaver.mode_clock Clock
+screensaver.mode_image Images
 screensaver.off Screensaver off
-screensaver.timeout Change pictures
+screensaver.random Random Images
+screensaver.timeout Change interval
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
 screenshot.count Count

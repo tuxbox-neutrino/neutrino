@@ -61,8 +61,8 @@ void* CComponentsTimer::initTimerThread(void *arg)
 	while(timer) {
 		timer->mutex.lock();
 		timer->OnTimer();
-		mySleep(timer->tm_interval);
 		timer->mutex.unlock();
+		mySleep(timer->tm_interval);
 	}
 
 	return 0;
@@ -79,36 +79,39 @@ bool CComponentsTimer::startTimer()
 	if(!tm_thread) {
 		int res = pthread_create (&tm_thread, NULL, initTimerThread, ptr) ;
 		if (res != 0){
-			dprintf(DEBUG_NORMAL,"[CComponentsTimer]    [%s]  pthread_create  %s\n", __func__, strerror(errno));
+			dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_create\033[0m\n", __func__, __LINE__);
 			return false;
 		}
-		dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer thread [%lu] created with interval = %d\n", __func__, tm_thread, tm_interval);
+		if (res == 0){
+			dprintf(DEBUG_INFO,"\033[33m[CComponentsTimer] [%s - %d]  timer thread [%lu] created with interval = %d\033[0m\n", __func__,  __LINE__, pthread_self(), tm_interval);
+			CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl);
+		}else{
+			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_create\033[0m\n", __func__, __LINE__);
+		}
 	}
-
-	//ensure kill of thread on any restart of neutrino
-	CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl);
 	return  true;
 }
 
 //stop ticking timer and kill thread, return true on succses
 bool CComponentsTimer::stopTimer()
 {
-	int thres = 0;
 	if(tm_thread) {
-		thres = pthread_cancel(tm_thread);
-		dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s] waiting for timer thread terminate ...\n", __func__);
+		int thres = pthread_cancel(tm_thread);
 		if (thres != 0)
-			dprintf(DEBUG_NORMAL,"[CComponentsTimer]    [%s] pthread_cancel  %s\n", __func__, strerror(errno));
-		thres = pthread_join(tm_thread, NULL);
-		if (thres != 0)
-			dprintf(DEBUG_NORMAL, "[CComponentsTimer]    [%s] pthread_join  %s\n", __func__, strerror(errno));
-	}
-	if (thres == 0){
-		tm_thread = 0;
-		//ensure disconnect of unused slot
-		sl.disconnect();
-		return true;
-	}
+			dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_cancel\033[0m\n", __func__, __LINE__);
 
+		thres = pthread_join(tm_thread, NULL);
+
+		if (thres != 0)
+			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_join\033[0m\n", __func__, __LINE__);
+
+		if (thres == 0){
+			tm_thread = 0;
+			//ensure disconnect of unused slot
+			sl.disconnect();
+			dprintf(DEBUG_INFO,"\033[33m[CComponentsTimer]    [%s] timer thread terminated ...\033[0m\n", __func__);
+			return true;
+		}
+	}
 	return false;
 }

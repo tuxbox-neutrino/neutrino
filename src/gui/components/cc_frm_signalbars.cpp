@@ -143,6 +143,8 @@ void CSignalBar::initSBarValue()
 	if (sb_vlbl == NULL){
 		sb_vlbl = new CComponentsLabel();
 		sb_vlbl->doPaintBg(false);
+		sb_vlbl->doPaintTextBoxBg(false);
+		sb_vlbl->enableTboxSaveScreen(true);
 		sb_vlbl->setText("  0%", sb_val_mode, sb_font);
 	}
 
@@ -150,7 +152,7 @@ void CSignalBar::initSBarValue()
 	int vlbl_x = sb_scale->getXPos() + sb_scale_width + append_y_offset;
 	int vlbl_h = sb_scale->getHeight();
 	int vlbl_y = sb_item_height/2 + sb_item_top - vlbl_h/2 - append_x_offset;
-	sb_vlbl->setDimensionsAll(vlbl_x, vlbl_y, sb_vlbl_width, vlbl_h);
+	sb_vlbl->setDimensionsAll(vlbl_x, vlbl_y, sb_vlbl_width - append_x_offset, vlbl_h);
 
 	//set current text and body color color
 	sb_vlbl->setTextColor(sb_caption_color);
@@ -167,20 +169,21 @@ void CSignalBar::initSBarName()
 	if (sb_lbl == NULL){
 		sb_lbl = new CComponentsLabel();
 		sb_lbl->doPaintBg(false);
+		sb_lbl->doPaintTextBoxBg(false);
+		sb_lbl->enableTboxSaveScreen(true);
 		sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, sb_font);
-		sb_lbl->forceTextPaint();
-		sb_lbl->doPaintTextBoxBg(true);
 	}
 
 	//move and set dimensions
 	int lbl_x = sb_vlbl->getXPos()+ sb_vlbl->getWidth();
 	int lbl_h = sb_vlbl->getHeight();
 	int lbl_y = sb_item_height/2 + sb_item_top - lbl_h/2 - append_x_offset;
-	sb_lbl->setDimensionsAll(lbl_x, lbl_y, sb_lbl_width, lbl_h);
+	sb_lbl->setDimensionsAll(lbl_x, lbl_y, sb_lbl_width- append_x_offset, lbl_h);
 
 	//set current text and body color
 	sb_lbl->setTextColor(sb_caption_color);
 	sb_lbl->setColorBody(col_body);
+
 
 	//add name label object to container
 	if (!sb_lbl->isAdded())
@@ -217,12 +220,6 @@ void CSignalBar::paintScale()
 		string percent(i_str.str());
 		percent += "%";
 		sb_vlbl->setText(percent, sb_val_mode, sb_font);
-
-		//we must force paint backround, because of changing values
-		sb_vlbl->doPaintBg(true);
-		sb_vlbl->forceTextPaint();
-		sb_vlbl->doPaintTextBoxBg(true);
-		sb_vlbl->setColorBody(col_body);
 
 		//repaint labels
 		for(size_t i=0; i<this->v_cc_items.size(); i++)

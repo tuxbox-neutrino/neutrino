@@ -265,7 +265,7 @@ class CMovieBrowser : public CMenuTarget
 
 	private: // Variables
 		CFrameBuffer * framebuffer;
-
+		CComponentsPicture *pic;
 		CListFrame* m_pcBrowser;
 		CListFrame* m_pcLastPlay;
 		CListFrame* m_pcLastRecord;
@@ -336,7 +336,7 @@ class CMovieBrowser : public CMenuTarget
 		P_MI_MOVIE_LIST movielist;
 
 		CComponentsChannelLogo* CChannelLogo;
-
+		uint64_t old_EpgId;
 		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
 		int movieInfoUpdateAllIfDestEmptyOnly;
 

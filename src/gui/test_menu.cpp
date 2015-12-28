@@ -500,9 +500,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			header->addContextButton(NEUTRINO_ICON_BUTTON_RED);
 			header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
-		else	//For existing instances it's recommended to remove old button icons before add new buttons,
+		else{	//For existing instances it's recommended to remove old button icons before add new buttons,
 			//otherwise icons will be appended to already existant icons, alternatively use the setContextButton() methode
  			header->removeContextButtons();
+			//enable clock in header with default format
+			header->enableClock(true, "%H:%M", "%H %M", true);
+		}
 
 //		example to manipulate header items
 // 		header->setFrameThickness(5);
@@ -539,10 +542,13 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 		header->insertCCItem(1, logo); //replace text with logo
 
 		
-		if (!header->isPainted())
+		if (!header->isPainted()){
 			header->paint();
-		else
+		}
+		else{
 			header->hide();
+		}
+
 		return res;
 	}
 	else if (actionKey == "footer"){
@@ -634,7 +640,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			window->setWindowCaption("|.....................|");
 			window->setDimensionsAll(50, 50, 500, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
-			window->setShadowOnOff(true);
+			window->enableShadow();
 
 			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
 			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);
@@ -677,8 +683,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "running_clock"){	
 		if (clock_r == NULL){
-			clock_r = new CComponentsFrmClock(100, 50, 0, 50, "%H.%M:%S", true);
-			clock_r->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+			clock_r = new CComponentsFrmClock(100, 50, NULL, "%H.%M:%S", NULL, true);
+			clock_r->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 			clock_r->setClockIntervall(1);
 // 			clock_r->doPaintBg(false);
 		}
@@ -689,7 +695,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		else {
 			if (clock_r->Stop()){
-				clock_r->hide();
+				clock_r->kill();
 				delete clock_r;
 				clock_r = NULL;
 				return menu_return::RETURN_EXIT_ALL;
@@ -698,8 +704,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "clock"){
 		if (clock == NULL){
-			clock = new CComponentsFrmClock(100, 50, 0, 50, "%H:%M", false);
-			clock->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+			clock = new CComponentsFrmClock(100, 50, NULL, "%d.%m.%Y-%H:%M");
+			clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 		}
 
 		if (!clock->isPainted())

@@ -350,10 +350,11 @@ CMovieBrowser::~CMovieBrowser()
 
 	clearListLines();
 
-	if (CChannelLogo) {
+	if (CChannelLogo)
 		delete CChannelLogo;
-		CChannelLogo = NULL;
-	}
+
+	if (pic)
+		delete pic;
 }
 
 void CMovieBrowser::clearListLines()
@@ -420,7 +421,7 @@ void CMovieBrowser::init(void)
 	m_pcLastRecord = NULL;
 	m_pcInfo = NULL;
 	m_pcFilter = NULL;
-
+	pic = NULL;
 	m_windowFocus = MB_FOCUS_BROWSER;
 
 	m_textTitle = g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD);
@@ -501,7 +502,7 @@ void CMovieBrowser::init(void)
 	movielist.clear();
 
 	CChannelLogo = NULL;
-
+	old_EpgId = 0;
 	m_doRefresh = false;
 	m_doLoadMovies = false;
 }
@@ -1133,6 +1134,11 @@ int CMovieBrowser::exec(const char* path)
 void CMovieBrowser::hide(void)
 {
 	//TRACE("[mb]->%s\n", __func__);
+	if (CChannelLogo){
+		delete CChannelLogo;
+		CChannelLogo = NULL;
+	}
+	old_EpgId = 0;
 	framebuffer->paintBackground();
 	if (m_pcFilter != NULL)
 		m_currentFilterSelection = m_pcFilter->getSelectedLine();
@@ -1339,16 +1345,13 @@ void CMovieBrowser::refreshMovieInfo(void)
 	bool logo_ok = (!fname.empty());
 	int flogo_w = 0, flogo_h = 0;
 	if (logo_ok) {
-		int picw = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
-		int pich = m_cBoxFrameInfo.iHeight;
-		g_PicViewer->getSize(fname.c_str(), &flogo_w, &flogo_h);
-		g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, picw-2, pich-2);
+		flogo_w = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
+		flogo_h = m_cBoxFrameInfo.iHeight;
 #ifdef BOXMODEL_APOLLO
 		/* align for hw blit */
 		flogo_w = ((flogo_w + 3) / 4) * 4;
 #endif
 	}
-	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-flogo_w-20 : 0);
 
 	static int logo_w = 0;
 	static int logo_h = 0;
@@ -1360,17 +1363,18 @@ void CMovieBrowser::refreshMovieInfo(void)
 	short pb_hdd_offset = 104;
 	if (show_mode == MB_SHOW_YT)
 		pb_hdd_offset = 0;
-	static uint64_t old_EpgId = 0;
+
 	if (CChannelLogo && (old_EpgId != m_movieSelectionHandler->epgEpgId >>16)) {
 		if (newHeader)
-			CChannelLogo->clearSavedScreen();
+			CChannelLogo->clearFbData(); // reset logo screen data
 		else
 			CChannelLogo->hide();
 		delete CChannelLogo;
 		CChannelLogo = NULL;
 	}
 	if (old_EpgId != m_movieSelectionHandler->epgEpgId >>16) {
-		CChannelLogo = new CComponentsChannelLogo(0, 0, m_movieSelectionHandler->epgChannel, m_movieSelectionHandler->epgEpgId >>16);
+		if (CChannelLogo == NULL)
+			CChannelLogo = new CComponentsChannelLogoScalable(0, 0, m_movieSelectionHandler->epgChannel, m_movieSelectionHandler->epgEpgId >>16); //TODO: add logo into header as item
 		old_EpgId = m_movieSelectionHandler->epgEpgId >>16;
 	}
 
@@ -1388,6 +1392,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 		ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-CChannelLogo->getHeight())/2;
 		CChannelLogo->setXPos(lx - pb_hdd_offset);
 		CChannelLogo->setYPos(ly);
+		CChannelLogo->hide();
 		CChannelLogo->paint();
 		newHeader = false;
 	}
@@ -1395,12 +1400,23 @@ void CMovieBrowser::refreshMovieInfo(void)
 	if (m_settings.gui != MB_GUI_FILTER && logo_ok) {
 		lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
 		ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
-		g_PicViewer->DisplayImage(fname, lx+2, ly+1, flogo_w, flogo_h, CFrameBuffer::TM_NONE);
-		framebuffer->paintVLineRel(lx, ly, flogo_h+1, COL_WHITE);
-		framebuffer->paintVLineRel(lx+flogo_w+2, ly, flogo_h+2, COL_WHITE);
-		framebuffer->paintHLineRel(lx, flogo_w+2, ly, COL_WHITE);
-		framebuffer->paintHLineRel(lx, flogo_w+2, ly+flogo_h+1, COL_WHITE);
+		if (pic == NULL){
+			pic = new CComponentsPicture(lx+2, ly+1, flogo_w, flogo_h, fname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTSELECTED_PLUS_0);
+			pic->enableFrame(true, 2);
+			pic->enableCache();
+			pic->doPaintBg(false);
+		}else{
+			pic->setPicture(fname);
+		}
+		if (!m_movieSelectionHandler->epgInfo2.empty())
+			m_pcInfo->OnAfterRefresh.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
+		else
+			pic->paint0();
+	}else{
+		delete pic;
+		pic = NULL;
 	}
+	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-flogo_w-20 : 0);
 }
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)
@@ -1711,7 +1727,7 @@ void CMovieBrowser::refreshTitle(void)
 
 	CComponentsHeader header(x, y, w, h, title.c_str(), icon);
 	header.paint(CC_SAVE_SCREEN_NO);
-	newHeader = true;
+	newHeader = header.isPainted();
 
 	info_hdd_level(true);
 }
@@ -2981,6 +2997,7 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 {
 	/* first clear screen */
 	framebuffer->paintBackground();
+
 	int i;
 	/********************************************************************/
 	/**  directory menu ******************************************************/
@@ -3129,8 +3146,8 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 			refreshLastPlayList();
 			refreshLastRecordList();
 			refreshFilterList();
-			refreshMovieInfo();
 			refreshTitle();
+			refreshMovieInfo();
 			refreshFoot();
 			refreshLCD();
 		}

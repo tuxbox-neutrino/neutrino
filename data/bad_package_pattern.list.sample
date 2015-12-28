@@ -1,0 +1,11 @@
+-dev$
+-doc$
+-dbg$
+-ptest$
+-staticdev$
+-locale-
+-charmap-
+-gconv-
+-localedata-
+^locale-base-
+^perl-module-

@@ -37,7 +37,7 @@
 #include <map>
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
-
+#include <sigc++/signal.h>
 #define fb_pixel_t uint32_t
 
 typedef struct fb_var_screeninfo t_fb_var_screeninfo;
@@ -71,7 +71,7 @@ typedef struct gradientData_t
 #define ConnectLineBox_Width	16 // px
 
 /** Ausfuehrung als Singleton */
-class CFrameBuffer
+class CFrameBuffer : public sigc::trackable
 {
 	private:
 
@@ -325,6 +325,7 @@ class CFrameBuffer
 		void fbNoCheck(bool noCheck) { fb_no_check = noCheck; }
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
 		void blit(void) {}
+		sigc::signal<void> OnAfterSetPallette;
 };
 
 #endif

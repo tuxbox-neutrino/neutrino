@@ -108,7 +108,7 @@ class CInfoViewerBB
 		pthread_t scrambledT;
 
 		CProgressBar *hddscale, *sysscale;
-
+		CComponentsShapeSquare *foot, *cabar;
 		void paintFoot(int w = 0);
 		void showBBIcons(const int modus, const std::string & icon);
 		void getBBIconInfo(void);
@@ -148,8 +148,11 @@ class CInfoViewerBB
 		void paintshowButtonBar();
 		void getBBButtonInfo(void);
 		void reset_allScala(void);
-		void setBBOffset(void);
-
+		void initBBOffset(void);
+		// modules
+		CComponentsShapeSquare* getFooter(void){return foot;}
+		CComponentsShapeSquare* getCABar(void){return cabar;}
+		void ResetModules(void);
 };
 
 #endif // __infoview_bb__

@@ -309,7 +309,7 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 			ibox->setDimensionsAll(x, ypos2, width, info_height);
 			ibox->setFrameThickness(2);
 			ibox->setCorner(RADIUS_LARGE);
-			ibox->setShadowOnOff(CC_SHADOW_OFF);
+			ibox->disableShadow();
 		}
 	}
 }

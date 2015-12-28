@@ -38,7 +38,8 @@ class CComponentsScrollBar;
 ///cc item types
 typedef enum
 {
-	CC_ITEMTYPE_BASE,
+	CC_ITEMTYPE_GENERIC,
+	CC_ITEMTYPE_ITEM,
 	CC_ITEMTYPE_PICTURE,
 	CC_ITEMTYPE_TEXT,
 	CC_ITEMTYPE_TEXT_INFOBOX,
@@ -67,8 +68,9 @@ typedef enum
 }CC_ITEMTYPES_T;
 
 //required typedefs
-typedef struct comp_fbdata_t
+typedef struct cc_fbdata_t
 {
+	bool enabled;
 	int fbdata_type;
 	int x;
 	int y;
@@ -76,32 +78,48 @@ typedef struct comp_fbdata_t
 	int dy;
 	fb_pixel_t color;
 	int r;
+	int rtype;
 	int frame_thickness;
 	fb_pixel_t* pixbuf;
+	gradientData_t *gradient_data;
 	void * data;
-} comp_fbdata_struct_t;
+	bool is_painted;
+} cc_fbdata_struct_t;
 
-//fb data object types
+//fb data object layer types
 typedef enum
 {
 	CC_FBDATA_TYPE_BGSCREEN,
 	CC_FBDATA_TYPE_BOX,
 	CC_FBDATA_TYPE_SHADOW_BOX,
 	CC_FBDATA_TYPE_FRAME,
-	CC_FBDATA_TYPE_LINE,
 	CC_FBDATA_TYPE_BACKGROUND,
 
 	CC_FBDATA_TYPES
 }FBDATA_TYPES;
 
-typedef struct comp_screen_data_t
+//fb color gradient types
+typedef enum
+{
+	CC_COLGRAD_OFF, 		//no gradient
+	CC_COLGRAD_LIGHT_2_DARK,	//normal one color
+	CC_COLGRAD_DARK_2_LIGHT,	//changed
+	CC_COLGRAD_COL_A_2_COL_B,	//gradient from color A to color B
+	CC_COLGRAD_COL_B_2_COL_A,	//gradient from color B to color A
+	CC_COLGRAD_COL_LIGHT_DARK_LIGHT,//gradient from color A to B to A
+	CC_COLGRAD_COL_DARK_LIGHT_DARK,	//gradient from color B to A to B
+
+	CC_COLGRAD_TYPES
+}COLOR_GRADIENT_TYPES;
+
+typedef struct cc_screen_data_t
 {
 	int x;
 	int y;
 	int dx;
 	int dy;
 	fb_pixel_t* pixbuf;
-} comp_screen_data_struct_t;
+} cc_screen_data_struct_t;
 
 //combination of rc messages with related icon
 typedef struct msg_list_t
@@ -136,7 +154,7 @@ enum
 	CC_ITEMBOX_CLOCK
 };
 
-typedef struct comp_element_data_t
+typedef struct cc_element_data_t
 {
 	int		type;
 	int		align;
@@ -147,27 +165,31 @@ typedef struct comp_element_data_t
 	int		height;
 	void*		handler1;
 	void*		handler2;
-}comp_element_data_struct_t;
+}cc_element_data_struct_t;
 
-//text lebel types
-typedef struct locale_ext_txt_t
+//text label types
+typedef struct cc_locale_ext_txt_t
 {
 	neutrino_locale_t label_text;
 	neutrino_locale_t text;
 	Font* font;
-} locale_ext_txt_struct_t;
+} cc_locale_ext_txt_struct_t;
 
-typedef struct string_ext_txt_t
+typedef struct cc_string_ext_txt_t
 {
 	std::string label_text;
 	std::string text;
 	Font* font;
-} string_ext_txt_struct_t;
+} cc_string_ext_txt_struct_t;
 
 #define CC_WIDTH_MIN		16
 #define CC_HEIGHT_MIN		16
-#define CC_SHADOW_ON 		true
-#define CC_SHADOW_OFF 		false
+
+#define CC_SHADOW_OFF 		0
+#define CC_SHADOW_ON 		1
+#define CC_SHADOW_RIGHT 	2
+#define CC_SHADOW_BOTTOM 	4
+
 #define CC_SAVE_SCREEN_YES 	true
 #define CC_SAVE_SCREEN_NO 	false
 

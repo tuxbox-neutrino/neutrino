@@ -63,7 +63,7 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		CComponentsScrollBar(	const int &x_pos, const int &y_pos, const int &w = 15, const int &h = 40,
 					const int& count = 1,
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_3,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 // 		~CComponentsScrollBar(); //inherited from CComponentsForm

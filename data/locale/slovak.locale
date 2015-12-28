@@ -290,11 +290,21 @@ clock_size_height Výška zobrazenia
 clock_switch_off Skryť hodiny
 clock_switch_on Zobraziť hodiny
 color.gradient Farebný gradient
-color.gradient_c2c Farba farebného gradienta
+color.gradient_a2b color A to B
+color.gradient_b2a color B to A
+color.gradient_d2l dark nach light
+color.gradient_dld dark light dark
+color.gradient_l2d light to dark
+color.gradient_ldl light dark light
+color.gradient_mode_direction Smer
+color.gradient_mode_direction_hor horizontálne
+color.gradient_mode_direction_ver vertikálne
+color.gradient_separator_enable Gradient pre Separator
 colorchooser.alpha Priehľadnosť
 colorchooser.blue Modrý
 colorchooser.green Zelený
 colorchooser.red Červený
+colorchooser.save Save
 colormenu.background Pozadie
 colormenu.clock_textcolor Farba čílic
 colormenu.contrast_fonts Kontrast písma
@@ -975,9 +985,8 @@ menu.hint_clock_seconds Zobraenie formátu času so sekundami
 menu.hint_clock_size Nastavenie veľkosti informačných hodín.
 menu.hint_clock_textcolor Nastavenie ferieb číslic
 menu.hint_color_gradient Prepne farebné prechody pre rôzne položky ponuky Zap/Vyp
-menu.hint_color_gradient_c2c Prepne prechody medzi 2 farbami a jednofarebným gradientom
-menu.hint_colored_events Použije inú farbu pre aktuálnu alebo ďaľšiu udalosť
-menu.hint_colored_events_textcolor Zmena farby pre farebné udalosti v zozname kanálov a infolištu
+menu.hint_color_gradient_direction Definujte smer farebného prechodu.
+menu.hint_color_gradient_separator_enable Povoliť/zakázať farebný gradient pre menu oddeľovacích liniek
 menu.hint_colors Konfigurácia farieb GUI
 menu.hint_content_back Zmena farby podkladu GUI okna
 menu.hint_content_textcolor Zmena farby textu GUI okna
@@ -1414,6 +1423,7 @@ messagebox.back späť
 messagebox.cancel zruš
 messagebox.discard Zruš zmeny?
 messagebox.error Chyba
+messagebox.feature_not_supported Funkcia nie je podporovaná!
 messagebox.info Správa
 messagebox.no nie
 messagebox.ok ok
@@ -1470,8 +1480,10 @@ miscsettings.infobar_disp_3 Logo+názov kanála+signál
 miscsettings.infobar_disp_4 Logo+názov+číslo kanála
 miscsettings.infobar_disp_5 Logo+signál
 miscsettings.infobar_disp_6 Logo+číslo kanála+signál
-miscsettings.infobar_gradient_bottom Spodok gradientu
-miscsettings.infobar_gradient_top Vrch gradientu
+miscsettings.infobar_disp_log len Logo
+miscsettings.infobar_gradient_body Gradient EPG-area
+miscsettings.infobar_gradient_bottom Gradient buttobar
+miscsettings.infobar_gradient_top Gradient top
 miscsettings.infobar_logo_hdd_dir Adresár loga
 miscsettings.infobar_sat_display Zobrazenie satelitu v stavovom riadku
 miscsettings.infobar_show Zobraziť Info pri zmene EPG
@@ -1831,14 +1843,18 @@ opkg.button.expert_on Expertný mód
 opkg.button.info Informácia balíčka
 opkg.button.install Inštalovať balíček
 opkg.button.uninstall Odstrániť balíček
-opkg.failure.install Chyba inštalácie (%d)
-opkg.failure.update Chyba aktualizácie (%d)
-opkg.failure.upgrade Chyba aktualizovania (%d)
+opkg.failure.install inštalácia zlyhala
+opkg.failure.update aktualizácie zlyhala
+opkg.failure.upgrade Upgrade zlyhalo
+opkg.install.local.package Nainštalujte miestne balíček
 opkg.messagebox.reinstall Preinštalovať %s?
 opkg.messagebox.remove Odstrániť %s?
-opkg.success.install Inštalácia v poriadku, reštart Neutrina bude žiadúci.
+opkg.messagebox.size.error Nie je dostatok voľnej pamäte pre tento balík!
+opkg.messagebox.updates.available Aktualizácia k dispozícii!
+opkg.success.install inštalácia úspešne!\n Môže byť potrebné reštart neutríno. Teraz reštartovať?
 opkg.title Správa balíčkov
 opkg.upgrade Aktualizovanie inštalovaných balíčkov
+opkg.warning_3rdparty_packages Zahraničné balíčky by mohli poškodiť systém! Si si istý, že inštaláciu tohto balíka?
 options.default obnov predvolené
 options.fb FRAMEBUFFER
 options.hint_default Nastaviť prednastavené hodnoty

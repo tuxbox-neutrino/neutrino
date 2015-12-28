@@ -83,6 +83,10 @@ class CComponentsWindow : public CComponentsForm
 		bool ccw_show_r_sideber;
 		///width of sidebars
 		int ccw_w_sidebar;
+		///header bg color
+		fb_pixel_t ccw_col_head;
+		///header text color
+		fb_pixel_t ccw_col_head_text;
 
 		///initialze header object
 		void initHeader();
@@ -101,7 +105,7 @@ class CComponentsWindow : public CComponentsForm
 					const std::string& caption = "",
 					const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
@@ -126,7 +130,7 @@ class CComponentsWindow : public CComponentsForm
 					const std::string& caption = "",
 					const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
@@ -136,7 +140,7 @@ class CComponentsWindow : public CComponentsForm
 					neutrino_locale_t locale_text = NONEXISTANT_LOCALE,
 					const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
@@ -158,8 +162,11 @@ class CComponentsWindow : public CComponentsForm
 		void enableSidebar(const int& sidbar_type = CC_WINDOW_LEFT_SIDEBAR | CC_WINDOW_RIGHT_SIDEBAR);
 
 		///set caption in header with string, see also getHeaderObject()
-		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;};
-
+		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;}
+		///set header text color
+		void setWindowHeaderTextColor(const fb_pixel_t& color){ccw_col_head_text = color;}
+		///set background to header
+		void setWindowHeaderColor(const fb_pixel_t& color){ccw_col_head = color;}
 		///set caption in header from locales, see also getHeaderObject()
 		void setWindowCaption(neutrino_locale_t locale_text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
 		///set caption alignment, see CTextBox for possible modes
@@ -214,7 +221,7 @@ class CComponentsWindowMax : public CComponentsWindow
 		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, this shows a centered window based up current screen settings
 		CComponentsWindowMax(	const std::string& caption, const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
@@ -222,7 +229,7 @@ class CComponentsWindowMax : public CComponentsWindow
 		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, this shows a centered window based up current screen settings
 		CComponentsWindowMax(	neutrino_locale_t locale_caption, const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);

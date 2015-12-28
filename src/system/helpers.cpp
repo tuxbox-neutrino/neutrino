@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <inttypes.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -284,7 +285,7 @@ int check_dir(const char * dir, bool allow_tmp)
 				ret = 0;	// ok
 		}
 		if(ret == -1)
-			printf("Wrong Filessystem Type: 0x%x\n",s.f_type);
+			printf("Wrong Filessystem Type: 0x%" PRIx32"\n",s.f_type);
 	}
 	return ret;
 }

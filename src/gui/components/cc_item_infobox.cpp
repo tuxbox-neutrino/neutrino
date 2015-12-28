@@ -43,7 +43,7 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 					const int mode,
 					Font* font_text,
 					CComponentsForm *parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t color_text,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
@@ -55,7 +55,7 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 	y 		= y_pos;
 	width 		= w;
 	height	 	= h;
-	shadow		= has_shadow;
+	shadow		= shadow_mode;
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
@@ -110,7 +110,7 @@ void CComponentsInfoBox::paintPicture()
 	pic->setColorBody(col_body);
 
 	//set gradient behavior of pic object
-	if (col_body_gradient)
+	if (cc_body_gradient_enable)
 		pic->doPaintBg(false);
 
 	//fit icon into frame
@@ -150,7 +150,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	cctext->doPaintTextBoxBg(ct_paint_textbg);
 	cctext->doPaintBg(false);
 	cctext->setTextColor(ct_col_text);
-	cctext->enableTboxSaveScreen(save_tbox_screen);
+	cctext->enableTboxSaveScreen(cc_txt_save_screen);
 
 	//calculate vars for x-position and dimensions
 	int tx = x_offset + x_text + pic_w;

@@ -877,7 +877,7 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	int font_lr  = SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE;
 
 	CComponentsFrmChain header(x, y, full_width, theight);
-	header.enableColBodyGradient(g_settings.theme.menu_Head_gradient);
+	header.enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 	header.setCorner(RADIUS_LARGE, CORNER_TOP);
 
 	int x_off = 10;
@@ -905,19 +905,19 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	}
 	else {
 		header.removeCCItem(midLogo); //remove/destroy logo object, if it is not available
-		CComponentsText *midText = new CComponentsText(CC_CENTERED, CC_CENTERED, mid_width, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		CComponentsText *midText = new CComponentsText(CC_CENTERED, CC_CENTERED, mid_width, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], CComponentsText::FONT_STYLE_REGULAR, &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		midText->doPaintBg(false);
 	}
 
 	if (!_channelname_prev.empty()) {
-		CComponentsText *lText = new CComponentsText(x_off, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		CComponentsText *lText = new CComponentsText(x_off, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		lText->doPaintBg(false);
 	}
 
 	if (!_channelname_next.empty()) {
 		int name_w = std::min(g_Font[font_lr]->getRenderWidth(_channelname_next), side_width);
 		int x_pos = full_width - name_w - x_off;
-		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		rText->doPaintBg(false);
 	}
 

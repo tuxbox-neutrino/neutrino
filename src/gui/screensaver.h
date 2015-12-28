@@ -28,30 +28,38 @@
 #include <driver/framebuffer.h>
 #include <vector>
 #include <string>
+#include <gui/components/cc.h>
 
-class CScreenSaver
+class CScreenSaver : public sigc::trackable
 {
 	private:
 		CFrameBuffer 	*m_frameBuffer;
 		CPictureViewer	*m_viewer;
+		CComponentsFrmClock *scr_clock;
 		pthread_t	thrScreenSaver;
 		static void*	ScreenSaverPrg(void *arg);
 		vector<string> 	v_bg_files;
 		unsigned int 	index;
 
 		bool		status_mute;
-		bool		status_clock;
 
 		bool ReadDir();
-		void PaintPicture();
+		void paint();
 
 	public:
+		enum
+		{
+			SCR_MODE_IMAGE,
+			SCR_MODE_CLOCK
+		};
 		CScreenSaver();
 		~CScreenSaver();
 		static CScreenSaver* getInstance();
 
 		void Start();
 		void Stop();
+		sigc::signal<void> OnBeforeStart;
+		sigc::signal<void> OnAfterStop;
 };
 
 #endif // __CSCREENSAVER_H__

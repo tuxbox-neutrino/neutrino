@@ -33,12 +33,12 @@ CComponentsFrmChain::CComponentsFrmChain(	const int& x_pos, const int& y_pos, co
 						const std::vector<CComponentsItem*> *v_items,
 						int direction,
 						CComponentsForm* parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t& color_frame,
 						fb_pixel_t& color_body,
 						fb_pixel_t& color_shadow)
 {
-	initVarChain(x_pos, y_pos, w, h, v_items, direction, parent, has_shadow, color_frame, color_body, color_shadow);
+	initVarChain(x_pos, y_pos, w, h, v_items, direction, parent, shadow_mode, color_frame, color_body, color_shadow);
 }
 
 
@@ -46,7 +46,7 @@ void CComponentsFrmChain::initVarChain(	const int& x_pos, const int& y_pos, cons
 					const std::vector<CComponentsItem*> *v_items,
 					int direction,
 					CComponentsForm* parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t& color_frame,
 					fb_pixel_t& color_body,
 					fb_pixel_t& color_shadow)
@@ -59,7 +59,7 @@ void CComponentsFrmChain::initVarChain(	const int& x_pos, const int& y_pos, cons
 	width 		= w;
 	height 		= h;
 
-	shadow		= has_shadow;
+	shadow		= shadow_mode;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;

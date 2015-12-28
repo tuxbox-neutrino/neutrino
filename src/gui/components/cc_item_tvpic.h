@@ -31,6 +31,7 @@
 #endif
 
 #include "cc_base.h"
+#include "cc_item.h"
 #include <string>
 
 //! Sub class of CComponentsItem. Shows a mini tv box, similar to a PIP-Feature with current tv-channel.
@@ -52,7 +53,7 @@ class CComponentsPIP : public CComponentsItem
 		///constructor: initialize of position like all other items with x and y values, but dimensions in percent
 		CComponentsPIP(	const int x_pos = 0, const int y_pos = 0, const int percent = 30,
 				CComponentsForm *parent = NULL,
-				bool has_shadow = CC_SHADOW_OFF,
+				int shadow_mode = CC_SHADOW_OFF,
 				fb_pixel_t color_frame = COL_BLACK, fb_pixel_t color_body = COL_BACKGROUND_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsPIP();
 
@@ -66,7 +67,7 @@ class CComponentsPIP : public CComponentsItem
 		///show tv box
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		///remove tv box from screen
-		void hide(bool no_restore = false);
+		void hide();
 };
 
 #endif

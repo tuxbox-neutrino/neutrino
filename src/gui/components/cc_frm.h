@@ -26,7 +26,8 @@
 
 
 #include "config.h"
-#include <gui/components/cc_base.h>
+#include "cc_base.h"
+#include "cc_item.h"
 #include "cc_frm_scrollbar.h"
 
 class CComponentsForm : public CComponentsItem
@@ -55,10 +56,16 @@ class CComponentsForm : public CComponentsItem
 		///enable/disable page scrolling, default enabled with page scroll mode up/down keys, see also enablePageScroll()
 		int page_scroll_mode;
 
+		///initialize basic properties
+		virtual void Init(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const fb_pixel_t& color_frame,
+					const fb_pixel_t& color_body,
+					const fb_pixel_t& color_shadow);
+
 	public:
 		CComponentsForm(	const int x_pos = 0, const int y_pos = 0, const int w = 800, const int h = 600,
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
@@ -66,8 +73,6 @@ class CComponentsForm : public CComponentsItem
 
 		///paints current form on screen, for paint a page use paintPage()
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		///hides current form, background will be restored, if parameter = false
-		void hide(bool no_restore = false);
 
 		///same like CComponentsItem::kill(), but erases all embedded items inside of parent at once, this = parent
 		///NOTE: Items always have parent bindings to "this" and use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
@@ -190,6 +195,14 @@ class CComponentsForm : public CComponentsItem
 		};
 		///scroll page and paint current selected page, if parameter2 = true (default)
 		virtual void ScrollPage(int direction = SCROLL_P_DOWN, bool do_paint = true);
+
+		virtual bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_colorconst, const int& direction = -1 /*CFrameBuffer::gradientVertical*/);
+		///cleans saved screen buffer include from sub items, required by hide(), returns true if any buffer was deleted
+		virtual bool clearSavedScreen();
+		///cleanup paint cache include from sub items, removes saved buffer contents from cached foreground layers, returns true if any buffer was removed
+		virtual bool clearPaintCache();
+		///cleanup old gradient buffers include from sub items, returns true if any gradient buffer data was removed
+		virtual bool clearFbGradientData();
 };
 
 #endif

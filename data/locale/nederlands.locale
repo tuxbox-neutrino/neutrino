@@ -270,10 +270,23 @@ clock_size_height Display hoogte
 clock_switch_off klok uit
 clock_switch_on klok aan
 color.gradient Kleur gradient
+color.gradient_a2b color A to B
+color.gradient_a2b color B to A
+color.gradient_d2l donker tot licht
+color.gradient_dld donker licht donker
+color.gradient_l2d licht tot donker
+color.gradient_ldl licht donker licht
+color.gradient_mode_direction Richting
+color.gradient_mode_direction_hor horizontaal
+color.gradient_mode_direction_ver vertikaal
+color.gradient_separator_enable Gradiënt voor separator
 colorchooser.alpha Alpha
 colorchooser.blue Blauw
 colorchooser.green Groen
 colorchooser.red Rood
+colorchooser.save Save
+colormenu.advanced_mode_off Toon standaard opties
+colormenu.advanced_mode_on Toon geavanceerde zoekopties
 colormenu.background Achtergrond
 colormenu.clock_textcolor Digit kleur
 colormenu.contrast_fonts Contrast lettertype
@@ -928,6 +941,8 @@ menu.hint_clock_seconds Toon tijdsformaat met secondes
 menu.hint_clock_size Stel grootte van de info klok in
 menu.hint_clock_textcolor Configureer digit kleuren
 menu.hint_color_gradient Schakel kleur verloop van menu items aan/uit
+menu.hint_color_gradient_direction Definieer de richting van kleurverloop.
+menu.hint_color_gradient_separator_enable Uitschakelen/inschakelen kleurverloop voor menu separator lijnen
 menu.hint_colored_events Gebruik andere kleur voor huidige of volgende programma
 menu.hint_colored_events_textcolor Wijzig programma kleur voor gekleurde programma opties in kanalenlijst en infobalk.
 menu.hint_colors Configureer GUI-kleuren
@@ -1124,6 +1139,8 @@ menu.hint_network IP adres, gateway, DNS, Tijd synchronisatie\nNetwerklocaties e
 menu.hint_new_zap_mode Schakelen van kanalen toestaan tijdens het browsen.\n(Schakelen tussen vensters met de 'Mute' toets)
 menu.hint_numeric_adjust Pas zenderlijst modus aan na numerieke zap
 menu.hint_opkg Installeer of update software pakketten
+menu.hint_opkg_feed_address_edit Bewerk server adressen!
+menu.hint_opkg_install_local_package Installatiepakket van USB, SD of netwerk.
 menu.hint_opkg_upgrade Update alle geinstalleerde pakketten naar de meest recente beschikbare versie
 menu.hint_osd Kleuren, Lettertypes, scherm afmeting\ngebruikersinterface vormgeving
 menu.hint_osd_language Selecteer OSD taal
@@ -1348,6 +1365,7 @@ messagebox.back Terug
 messagebox.cancel Annuleer 
 messagebox.discard Wijzigingen ongedaan maken?
 messagebox.error Foutmelding
+messagebox.feature_not_supported Functie wordt niet ondersteund. Neem contact op met uw firmware provider!
 messagebox.info Informatie
 messagebox.no Nee
 messagebox.ok Ok
@@ -1399,6 +1417,9 @@ miscsettings.infobar_disp_3 Logo, Kanaalnaam [Signaal]
 miscsettings.infobar_disp_4 Logo, Kanaalnaam [Kanaalnummer]
 miscsettings.infobar_disp_5 Logo [Signaal]
 miscsettings.infobar_disp_6 Kanaalnummer, Logo [Signaal]
+miscsettings.infobar_gradient_body Gradient EPG-area
+miscsettings.infobar_gradient_bottom Gradient knoppenbalk beschikbaar
+miscsettings.infobar_gradient_top Gradient top
 miscsettings.infobar_logo_hdd_dir Logo directory
 miscsettings.infobar_sat_display Satelliet weergeven op de infobalk
 miscsettings.infobar_show show Info wanneer EPG verandert
@@ -1733,14 +1754,21 @@ opkg.button.expert_on Expert modus
 opkg.button.info Pakket info
 opkg.button.install Installeer pakket
 opkg.button.uninstall Deinstaleer pakket
-opkg.failure.install installatie mislukt (%d)
-opkg.failure.update Update mislukt (%d)
-opkg.failure.upgrade Upgrade mislukt (%d)
+opkg.enter.feed.address Voer het adres van de server!
+opkg.enter.feed.address.example Voorbeeld: http://pkg.nevis.neutrino-hd.com
+opkg.failure.install installatie mislukt
+opkg.failure.update Update mislukt
+opkg.failure.upgrade Upgrade mislukt
+opkg.feed.addresses Feed adressen
+opkg.install.local.package Installeer lokale pakket
 opkg.messagebox.reinstall Herinstalleer %s?
 opkg.messagebox.remove Wissen%s?
-opkg.success.install installatie succesvol, herstart van Neutrino mogelijk vereist.
+opkg.messagebox.size.error Onvoldoende geheugen beschikbaar voor dit pakket!
+opkg.messagebox.updates.available Updates beschikbare!
+opkg.success.install installatie succesvol!\n herstart van Neutrino mogelijk vereist. Nu opnieuw opstarten?
 opkg.title Pakket management
 opkg.upgrade Upgrade geïnstalleerd pakketten
+opkg.warning_3rdparty_packages 3rd party pakketten kan uw systeem beschadigen! Bent u zeker dat dit pakket te installeren?
 options.default Herstel standaardwaarden
 options.fb framebuffer
 options.hint_default Reset de waardes naar standaard waardes

@@ -41,16 +41,16 @@ CComponentsIconForm::CComponentsIconForm(CComponentsForm* parent)
 CComponentsIconForm::CComponentsIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 						const std::vector<std::string> &v_icon_names,
 						CComponentsForm* parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarIconForm(x_pos, y_pos, w, h, v_icon_names, parent, has_shadow, color_frame, color_body, color_shadow);
+	initVarIconForm(x_pos, y_pos, w, h, v_icon_names, parent, shadow_mode, color_frame, color_body, color_shadow);
 }
 
 void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 						const std::vector<std::string> &v_icon_names,
 						CComponentsForm* parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	cc_item_type 	= CC_ITEMTYPE_FRM_ICONFORM;
@@ -60,7 +60,7 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 	width 		= w;
 	height 		= h;
 	v_icons		= v_icon_names;
-	shadow		= has_shadow;
+	shadow		= shadow_mode;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;

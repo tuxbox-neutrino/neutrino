@@ -48,7 +48,7 @@
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
-
+#include <gui/opkg_manager.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 
@@ -410,8 +410,10 @@ printf("[update] mode is %d\n", softupdate_mode);
 
 		CFileFilter UpdatesFilter;
 		if(allow_flash) UpdatesFilter.addFilter(FILEBROWSER_UPDATE_FILTER);
-		UpdatesFilter.addFilter("bin");
-		UpdatesFilter.addFilter("txt");
+
+		string filters[] = {"bin", "txt", "opk", "ipk"};
+		for(size_t i=0; i<sizeof(filters)/sizeof(filters[0]) ;i++)
+			UpdatesFilter.addFilter(filters[i]);
 
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
@@ -433,18 +435,39 @@ printf("[update] mode is %d\n", softupdate_mode);
 			fclose(fd);
 		else {
 			hide();
-			printf("flash-file not found: %s\n", filename.c_str());
-			ShowHint(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE)); // UTF-8
+			printf("flash/package-file not found: %s\n", filename.c_str());
+			DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE));
 			return false;
 		}
 		hide();
+
+		//package install:
+		if (file_selected->getType() == CFile::FILE_PKG_PACKAGE){
+			COPKGManager opkg;
+			if (opkg.hasOpkgSupport()){
+				int msgres = ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_WARNING_3RDPARTY_PACKAGES, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE, 700); // UTF-8
+				if (msgres == CMessageBox::mbrYes){
+					if (!opkg.installPackage(UpdatesBrowser.getSelectedFile()->Name))
+						DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL));
+				}
+			}
+			else
+				DisplayInfoMessage(g_Locale->getText(LOCALE_MESSAGEBOX_FEATURE_NOT_SUPPORTED));
+			//!always leave here!
+			return false;
+		}
+		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
 		if(ptr) {
 			ptr++;
-			if(!strcmp(ptr, "bin")) fileType = 'A';
-			else if(!strcmp(ptr, "txt")) fileType = 'T';
-			else if(!allow_flash) return false;
-			else fileType = 0;
+			if(!strcmp(ptr, "bin"))
+				fileType = 'A';
+			else if(!strcmp(ptr, "txt"))
+				fileType = 'T';
+			else if(!allow_flash)
+				return false;
+			else
+				fileType = 0;
 #ifdef DEBUG
 			printf("[update] manual file type: %s %c\n", ptr, fileType);
 #endif

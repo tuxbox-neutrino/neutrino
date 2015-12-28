@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2015, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -31,120 +31,142 @@
 #include <config.h>
 #endif
 
-#include <OpenThreads/ScopedLock>
-#include <OpenThreads/Thread>
-#include <OpenThreads/Condition>
-
+#include <driver/neutrinofonts.h>
 #include "cc_base.h"
 #include "cc_frm.h"
-
-
+#include "cc_timer.h"
+#include "cc_text_screen.h"
 //! Sub class of CComponents. Show clock with digits on screen. 
 /*!
 Usable as simple fixed display or as ticking clock.
 */
 
-class CComponentsFrmClock : public CComponentsForm
+class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 {
 	private:
-		
-// 		bool cl_force_segment_paint;
+		CComponentsTimer *cl_timer;
+		void ShowTime();
+#if 0
 		bool may_blit;
-	
+#endif
+
 	protected:
-		///thread
-		pthread_t  cl_thread;
+		///slot for timer event, reserved for ShowTime()
+		sigc::slot0<void> cl_sl;
+
 		///refresh interval in seconds
 		int cl_interval;
-		///init function to start clock in own thread
-		static void* initClockThread(void *arg);
 
 		///raw time chars
 		char cl_timestr[20];
 
 		///handle paint clock within thread and is not similar to cc_allow_paint
 		bool paintClock;
-		//TODO: please add comments!
-		bool activeClock;
 
 		///object: font render object
-		Font **cl_font;
-
-		int cl_font_type;
-		int dyn_font_size;
+		Font *cl_font;
+		int cl_font_style;
 
 		///text color
 		int cl_col_text;
-		///time format
-		const char *cl_format_str;
-		///time format for blink
-		const char *cl_blink_str;
-		///time string align, default align is ver and hor centered
-		int cl_align;
+
+		///current time format
+		std::string cl_format;
+		///primary time format
+		std::string cl_format_str;
+		///secondary time format for blink
+		std::string cl_blink_str;
 
 		///initialize clock contents  
 		void initCCLockItems();
 		///initialize timestring, called in initCCLockItems()
 		virtual void initTimeString();
-		///initialize of general alignment of timestring segments within form area
-		void initSegmentAlign(int* segment_width, int* segment_height);
-		//return current time string format
-		const char *getTimeFormat(time_t when) { return (when & 1) ? cl_format_str : cl_blink_str; }
+
+		///start ticking clock, returns true on success, if false causes log output
+		bool startClock();
+		///stop ticking clock, returns true on success, if false causes log output
+		bool stopClock();
+		///switch between primary and secondary format
+		void toggleFormat();
 
 		///return pointer of font object
-		inline Font** getClockFont();
+		Font* getClockFont();
 
 	public:
-		OpenThreads::Mutex mutex;
 
-		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1, const int& w = 200, const int& h = 48,
+		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1,
+					Font * font = NULL,
 					const char* format_str = "%H:%M",
+					const char* secformat_str = NULL,
 					bool activ=false,
+					const int& interval_seconds = 1,
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					int shadow_mode = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_LIGHT_GRAY,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					int font_style = CNeutrinoFonts::FONT_STYLE_BOLD
+				);
 		virtual ~CComponentsFrmClock();
 
-		///set font type or font size for segments
-		virtual void setClockFont(int font);
-		virtual void setClockFontSize(int font_size);
+		/*! Sets font type for clock segments.
+		 * 1st parameter expects a pointer to font type, usually a type from the global g_Font collection, but also possible
+		 * are dynamic font.
+		 * The use of NULL pointer enforces dynamic font.
+		 * 2nd paramter is relevant for dynamic fonts only, you can use the enum types
+		 * - FONT_STYLE_REGULAR
+		 * - FONT_STYLE_BOLD
+		 * - FONT_STYLE_ITALIC
+		 * (see /.src/driver/neutrinofonts.h)
+		*/
+		void setClockFont(Font * font, const int& style = -1);
 
 		///set text color
-		virtual void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;};
+		virtual void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;}
 
-		///set alignment of timestring, possible modes see align types in cc_types.h 
-		virtual void setClockAlignment(int align_type){cl_align = align_type;};
+		///set height of clock on screen
+		virtual void setHeight(const int& h);
+		///set width of clock on screen
+		virtual void setWidth(const int& w);
 
 		///use string expession: "%H:%M" = 12:22, "%H:%M:%S" = 12:22:12
-		virtual void setClockFormat(const char* format_str){cl_format_str = format_str;};
+		///set current time format string, 1st parameter set the default format, 2nd parameter sets an alternatively format for use as blink effect
+		virtual void setClockFormat(const char* prformat_str, const char* secformat_str = NULL);
 
-		///time format for blink ("%H %M", "%H:%M %S" etc.)
-		virtual void setClockBlink(const char* format_str){cl_blink_str = format_str;};
-
-		///start ticking clock thread, returns true on success, if false causes log output
-		virtual bool startThread();
-		///stop ticking clock thread, returns true on success, if false causes log output
-		virtual bool stopThread();
-
+		///start and paint ticking clock
 		virtual bool Start(bool do_save_bg = CC_SAVE_SCREEN_NO);
+		///same like Start() but for usage as simple call without return value
+		virtual void unblock(/*bool do_save_bg = CC_SAVE_SCREEN_NO*/){Start(cc_save_bg);}
+		///stop ticking clock, but don't hide, use kill() or hide() to remove from screen
 		virtual bool Stop();
+		///same like Stop() but for usage as simple call without return value
+		virtual void block(){Stop();}
+		///return true on blocked status, blocked means clock can be initalized but would be not paint, to unblock use unblock()
+		virtual bool isBlocked(void) {return !paintClock;}
 
-		///returns true, if clock is running in thread
-		virtual bool isClockRun() const {return cl_thread == 0 ? false:true;};
+		///returns true, if clock is running
+		virtual bool isRun() const {return cl_timer ? true : false;};
 		///set refresh interval in seconds, default value=1 (=1 sec)
 		virtual void setClockIntervall(const int& seconds){cl_interval = seconds;};
 
 		///show clock on screen
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		///hide clock on screen
+		virtual void hide(){Stop(); CComponentsForm::hide();}
+		///does the same like kill() from base class, but stopping clock before kill
+		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false);
 
 		///reinitialize clock contents
 		virtual void refresh() { initCCLockItems(); }
+		///allows to save bg screen behind text within segment objects, see also cl_save_segment_screen
+		void enableSegmentSaveScreen(bool mode);
 
-		///set clock activ/inactiv
-		virtual void setClockActiv(bool activ = true);
-
+		///set color gradient on/off, returns true if gradient mode was changed
+		virtual bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/);
+#if 0
 		///enable/disable automatic blitting
 		void setBlit(bool _may_blit = true) { may_blit = _may_blit; }
+#endif
 };
 
 #endif

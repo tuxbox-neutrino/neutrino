@@ -2,7 +2,7 @@ if BOXMODEL_APOLLO
 SUBDIRS = mtdutils
 endif
 
-AM_CXXFLAGS = -fno-rtti -fno-exceptions
+AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 AM_CPPFLAGS = \
 	-I$(top_builddir) \

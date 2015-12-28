@@ -70,7 +70,7 @@
 #include <gui/screensaver.h>
 #include "gui/pictureviewer.h"
 extern CPictureViewer * g_PicViewer;
-
+#include <gui/infoclock.h>
 #include <system/settings.h>
 #include <system/helpers.h>
 #include <driver/screen_max.h>
@@ -335,7 +335,8 @@ int CAudioPlayerGui::show()
 
 	// clear whole screen
 	m_frameBuffer->paintBackground();
-
+	CInfoClock::getInstance()->block();
+	CScreenSaver::getInstance()->OnAfterStop.connect(sigc::mem_fun(CInfoClock::getInstance(), &CInfoClock::block));
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 	paintLCD();
 
@@ -849,7 +850,8 @@ int CAudioPlayerGui::show()
 
 	if (m_state != CAudioPlayerGui::STOP)
 		stop();
-
+	CInfoClock::getInstance()->enableInfoClock(CInfoClock::getInstance()->isRun());
+	CScreenSaver::getInstance()->OnAfterStop.clear();
 	return ret;
 }
 

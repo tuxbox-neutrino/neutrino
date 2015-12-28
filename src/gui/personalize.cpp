@@ -632,7 +632,7 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 						//found observer item and if found, then define 'this' as observer for current option chooser and run changeNotify
 						bool is_observer = isObserver(v_item[i].widget, v_item[i].menuItem) ? true : false;
 						CChangeObserver* observer = is_observer ? this : NULL;
-						CMenuOptionChooser * opt = new CMenuOptionChooser(name, p_mode, PERSONALIZE_MODE_OPTIONS, PERSONALIZE_MODE_MAX, v_item[i].menuItem->current_active, observer);
+						CMenuOptionChooser * opt = new CMenuOptionChooser(name, p_mode, PERSONALIZE_MODE_OPTIONS, PERSONALIZE_MODE_MAX, v_item[i].menuItem->current_active || is_observer, observer);
 						if (is_observer)
 							changeNotify(name, (void*)p_mode);
 
@@ -978,6 +978,9 @@ void CPersonalizeGui::addPersonalizedItems()
 					sigc::slot0<void> sl = sigc::bind<0>(sigc::mem_fun1(v_item[i].menuItem, &CMenuForwarder::disableByCondition), v_item[i].condition);
 					v_item[i].menuItem->OnPaintItem.connect(sl);
 					v_item[i].default_selected = false;
+
+					//value of current_active for personalized item must have value of current settings state here!
+					v_item[i].menuItem->current_active = (p_mode || i_mode);
 				}
 
 				//add item if it's set to visible or pin protected and allow to add an forwarder as next

@@ -4,7 +4,7 @@
 
 	Info Clock Window
 	based up CComponentsFrmClock
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2015, Thilo Graf 'dbt'
 	Copyright (C) 2013, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -34,21 +34,21 @@
 
 class CInfoClock : public CComponentsFrmClock
 {
-	protected:
-		void initVarInfoClock();
 	private:
-		void		Init();
+		void		initCCLockItems();
 	public:
 		CInfoClock();
 	// 	~CInfoClock(); // inherited from CComponentsFrmClock
 		static		CInfoClock* getInstance();
 
-		bool 		StartClock();
-		bool 		StopClock();
-		bool		enableInfoClock(bool enable);
+		bool 		StartInfoClock();
+		bool 		StopInfoClock();
+		bool		enableInfoClock(bool enable = true);
+		bool		disableInfoClock() {return enableInfoClock(false);}
 		void		ClearDisplay();
+		void 		setHeight(const int){}//NOTE: dummy member, height is strictly bound to settings
 
-		bool		getStatus(void) { return paintClock; }
+		static void	switchClockOnOff();
 };
 
 #endif

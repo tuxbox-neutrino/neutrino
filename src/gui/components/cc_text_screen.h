@@ -1,10 +1,9 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2015, Thilo Graf 'dbt'
-	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
+	Copyright (C) 2015, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -22,18 +21,24 @@
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#ifndef __CC_TXT_SCREEN__
+#define __CC_TXT_SCREEN__
 
-#include <global.h>
-#include <neutrino.h>
-#include "cc_base.h"
 
-using namespace std;
-
-//abstract basic class CComponents
-CComponents::CComponents()
+//! Sub class for CTextBox using CComponent classes.
+/*!
+This class contains flags or helpers to control CTextBox screen and paint handling and mostly used by
+CComponentsText and its derivatives and should be implemented as heredity.
+At the moment used in classes with text handlers. e.g. buttons, headers, ext text ...
+*/
+class CCTextScreen
 {
-	cc_tag			= NULL;
-}
+	protected:
+		///allows to save bg screen behind caption within CTextBox object, default = false
+		bool cc_txt_save_screen;
+
+	public:
+		CCTextScreen(){cc_txt_save_screen = false;};
+};
+
+#endif

@@ -44,26 +44,26 @@ using namespace std;
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& image_name,
 					CComponentsForm *parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
-	init(x_pos, y_pos, w, h, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent, SCALE);
+	init(x_pos, y_pos, w, h, image_name, parent, shadow_mode, color_frame, color_background, color_shadow, transparent, SCALE);
 }
 
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos,
 					const std::string& image_name,
 					CComponentsForm *parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
-	init(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent, NO_SCALE);
+	init(x_pos, y_pos, 0, 0, image_name, parent, shadow_mode, color_frame, color_background, color_shadow, transparent, NO_SCALE);
 }
 
 
 void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const string& image_name,
 				CComponentsForm *parent,
-				bool has_shadow,
+				int shadow_mode,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent,
 				bool allow_scale)
 {
@@ -75,17 +75,19 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	y 		= y_pos;
 	width	= dx	= w;
 	height	= dy	= h;
-	pic_name 	= image_name;
-	shadow		= has_shadow;
+	pic_name = pic_name_old = image_name;
+	shadow		= shadow_mode;
 	shadow_w	= SHADOW_OFFSET;
 	col_frame 	= color_frame;
 	col_body	= color_background;
 	col_shadow	= color_shadow;
 	do_scale	= allow_scale;
-
+	image_cache	= NULL; //image
+	enable_cache	= false;
 	is_image_painted= false;
 	do_paint	= true;
 	image_transparent = transparent;
+	cc_paint_cache	= false; //bg
 	keep_dx_aspect 	= false;
 	keep_dy_aspect	= false;
 
@@ -93,8 +95,19 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	initParent(parent);
 }
 
+void CComponentsPicture::clearCache()
+{
+	if (image_cache){
+		delete[] image_cache;
+		image_cache = NULL;
+	}
+}
+
 void CComponentsPicture::setPicture(const std::string& picture_name)
 {
+	if (pic_name == picture_name)
+		return;
+	clearCache();
 	pic_name = picture_name;
 	initCCItem();
 }
@@ -157,6 +170,9 @@ void CComponentsPicture::initCCItem()
 	if (width == dx && height == dy)
 		return;
 
+	//clean up possible cache on changed dimensions
+	clearCache();
+
 	//temporarily vars
 	int w_2scale = width;
 	int h_2scale = height;
@@ -210,11 +226,17 @@ int CComponentsPicture::getHeight()
 
 void CComponentsPicture::paintPicture()
 {
+	struct timeval t1, t2;
+	if (debug)
+		gettimeofday(&t1, NULL);
+
 	is_image_painted = false;
 	//initialize image position
 	int x_pic = x;
 	int y_pic = y;
 	initPosition(&x_pic, &y_pic);
+	x_pic += fr_thickness;
+	y_pic += fr_thickness;
 	initCCItem();
 
 	if (pic_name.empty())
@@ -222,12 +244,26 @@ void CComponentsPicture::paintPicture()
 
 	if (cc_allow_paint){
 		dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
-		frameBuffer->SetTransparent(image_transparent);
-		if (do_scale)
-			is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width, height);
-		else
-			is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
-		frameBuffer->SetTransparentDefault();
+		if (image_cache == NULL){
+			frameBuffer->SetTransparent(image_transparent);
+			if (do_scale)
+				is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width-2*fr_thickness, height-2*fr_thickness);
+			else
+				is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
+			frameBuffer->SetTransparentDefault();
+			if (enable_cache)
+				image_cache = getScreen(x_pic, y_pic, width, height);
+		}else{
+			frameBuffer->RestoreScreen(x_pic, y_pic, width, height, image_cache);
+		}
+	}
+
+	//benchmark
+	if (debug){
+		gettimeofday(&t2, NULL);
+		uint64_t duration = ((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL;
+		if (duration)
+			fprintf(stderr, "\033[33m[CComponentsPicture] %s: %llu ms to paint image \033[0m\n",	__func__, duration);
 	}
 }
 
@@ -239,10 +275,23 @@ void CComponentsPicture::paint(bool do_save_bg)
 	paintPicture();
 }
 
-void CComponentsPicture::hide(bool no_restore)
+void CComponentsPicture::hide()
 {
-	hideCCItem(no_restore);
+	CComponents::hide();
 	is_image_painted = false;
+}
+
+bool CComponentsPicture::hasChanges()
+{
+	bool ret = false;
+	if (pic_name != pic_name_old){
+		pic_name_old = pic_name;
+		ret = true;
+	}
+	if (CCDraw::hasChanges())
+		ret = true;
+
+	return ret;
 }
 
 
@@ -250,10 +299,10 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 						const std::string& channelName,
 						const uint64_t& channelId,
 						CComponentsForm *parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 						:CComponentsPicture(x_pos, y_pos, w, h,
-						"", parent, has_shadow,
+						"", parent, shadow_mode,
 						color_frame, color_background, color_shadow, transparent)
 {
 	init(channelId, channelName, SCALE);
@@ -263,10 +312,10 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 						const std::string& channelName,
 						const uint64_t& channelId,
 						CComponentsForm *parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 						:CComponentsPicture(x_pos, y_pos, 0, 0,
-						"", parent, has_shadow,
+						"", parent, shadow_mode,
 						color_frame, color_background, color_shadow, transparent)
 {
 	init(channelId, channelName, NO_SCALE);
