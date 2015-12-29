@@ -262,37 +262,31 @@ int CUserMenuSetup::showSetup()
 }
 
 
-//check items of current button menu and set prefered menue name
-void CUserMenuSetup::checkButtonItems()
+//check button name for details like empty string and show an user message on issue
+void CUserMenuSetup::checkButtonName()
 {
 	//count of configured items
 	int used_items = getUsedItemsCount();
-	
+
 	//warn if no items defined and reset menu name, if empty
-	if (used_items == 0){
+	if (used_items == 0)
+	{
 		if (!g_settings.usermenu[button]->title.empty()){
 			// DisplayInfoMessage(g_Locale->getText(LOCALE_USERMENU_MSG_WARNING_NO_ITEMS));
 			g_settings.usermenu[button]->title = "";
 		}
+		//exit function
 		return;
 	}
 
+#if 0
 	//if found only 1 configured item, ensure that the caption of usermenu is the same like this
 	if (used_items == 1) {
 		bool dummy;
 		g_settings.usermenu[button]->title =  CUserMenu::getUserMenuButtonName(button, dummy);
 	}
-}
+#endif
 
-//check button name for details like empty string and show an user message on issue
-void CUserMenuSetup::checkButtonName()
-{
-	checkButtonItems();
-	
-	//exit function, if no items found
-	if (getUsedItemsCount() == 0)
-		return;
-	
 	if (button < USERMENU_ITEMS_COUNT && g_settings.usermenu[button]->title.empty())
 	{
 		std::string msg(g_Locale->getText(LOCALE_USERMENU_MSG_INFO_IS_EMPTY));
@@ -303,10 +297,8 @@ void CUserMenuSetup::checkButtonName()
 	}
 }
 
-
 //get count of used items
 int CUserMenuSetup::getUsedItemsCount()
 {
 	return ::split(g_settings.usermenu[button]->items, ',').size();
 }
-
