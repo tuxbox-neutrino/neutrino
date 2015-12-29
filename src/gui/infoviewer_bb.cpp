@@ -238,18 +238,13 @@ void CInfoViewerBB::getBBButtonInfo()
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active);
-				if (text != g_Locale->getText(LOCALE_MPKEY_AUDIO))
+				if (!text.empty())
 					break;
 			}
 			text = CUserMenu::getUserMenuButtonName(1, active);
-			if (!text.empty() && (mode == NeutrinoMessages::mode_tv || mode == NeutrinoMessages::mode_radio))
+			if (!text.empty())
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_GREEN]->title;
-			if (text != g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
-				break;
-			if ((mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) && !CMoviePlayerGui::getInstance().timeshift) {
-				text = CMoviePlayerGui::getInstance(mode == NeutrinoMessages::mode_webtv).CurrentAudioName();
-			}
 			break;
 		case CInfoViewerBB::BUTTON_YELLOW:
 			pers = SNeutrinoSettings::P_MAIN_YELLOW_BUTTON;
@@ -283,6 +278,17 @@ void CInfoViewerBB::getBBButtonInfo()
 			break;
 		default:
 			break;
+		}
+		//label audio control button in movieplayer/upnp mode
+		if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio)
+		{
+			if (!CMoviePlayerGui::getInstance().timeshift)
+			{
+				if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO))
+				{
+					text = CMoviePlayerGui::getInstance(mode == NeutrinoMessages::mode_webtv).CurrentAudioName();
+				}
+			}
 		}
 		bbButtonInfo[i].w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(text) + w + 10;
 		bbButtonInfo[i].cx = w + 5;
