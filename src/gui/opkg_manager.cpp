@@ -105,6 +105,14 @@ static const string pkg_types[OM_MAX] =
 
 COPKGManager::COPKGManager(): opkg_conf('\t')
 {
+	init();
+}
+
+void COPKGManager::init()
+{
+	if (!hasOpkgSupport())
+		return;
+
 	OM_ERRORS();
 	width = 80;
 

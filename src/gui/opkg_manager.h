@@ -51,7 +51,7 @@ class COPKGManager : public CMenuTarget
 		void saveConfig();
 		void loadConfig();
 		struct pkg;
-
+		void init();
 		//config
 		std::string config_src[OPKG_MAX_FEEDS];
 		std::vector<std::string> config_dest;
