@@ -650,10 +650,8 @@ int COsdSetup::showOsdSetup()
 	if (oldInfoClockSize != g_settings.infoClockFontSize) {
 		CInfoClock::getInstance()->setHeight(g_settings.infoClockFontSize);
 		CVolumeHelper::getInstance()->refresh();
-		if (CNeutrinoApp::getInstance()->isMuted()) {
-			CAudioMute::getInstance()->enableMuteIcon(false);
+		if (CNeutrinoApp::getInstance()->isMuted())
 			CAudioMute::getInstance()->enableMuteIcon(true);
-		}
 	}
 
 	delete colorInfoclockNotifier;
