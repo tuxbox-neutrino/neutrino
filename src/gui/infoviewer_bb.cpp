@@ -226,7 +226,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				if (!text.empty())
 					break;
 			}
-			text = CUserMenu::getUserMenuButtonName(0, active);
+			text = CUserMenu::getUserMenuButtonName(0, active, g_settings.infobar_buttons_usertitle);
 			if (!text.empty())
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_RED]->title;
@@ -241,7 +241,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				if (!text.empty())
 					break;
 			}
-			text = CUserMenu::getUserMenuButtonName(1, active);
+			text = CUserMenu::getUserMenuButtonName(1, active, g_settings.infobar_buttons_usertitle);
 			if (!text.empty())
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_GREEN]->title;
@@ -256,7 +256,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				if (!text.empty())
 					break;
 			}
-			text = CUserMenu::getUserMenuButtonName(2, active);
+			text = CUserMenu::getUserMenuButtonName(2, active, g_settings.infobar_buttons_usertitle);
 			if (!text.empty())
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->title;
@@ -271,7 +271,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				if (!text.empty())
 					break;
 			}
-			text = CUserMenu::getUserMenuButtonName(3, active);
+			text = CUserMenu::getUserMenuButtonName(3, active, g_settings.infobar_buttons_usertitle);
 			if (!text.empty())
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_BLUE]->title;
@@ -284,7 +284,7 @@ void CInfoViewerBB::getBBButtonInfo()
 		{
 			if (!CMoviePlayerGui::getInstance().timeshift)
 			{
-				if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO))
+				if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO) && !g_settings.infobar_buttons_usertitle)
 				{
 					text = CMoviePlayerGui::getInstance(mode == NeutrinoMessages::mode_webtv).CurrentAudioName();
 				}
