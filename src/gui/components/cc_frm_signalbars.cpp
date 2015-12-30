@@ -34,6 +34,7 @@
 #include <sstream>
 
 #define SB_MIN_HEIGHT 12
+#define REF_PERCENT_TXT "00% "
 
 using namespace std;
 
@@ -72,11 +73,12 @@ void CSignalBar::initDimensions()
 
 	int dx 		= 0;
 	int dy          = min(sb_item_height, 100);
-	sb_font 	= *dy_font->getDynFont(dx, dy, "100% "+sb_name);
+
+	sb_font 	= *dy_font->getDynFont(dx, dy, REF_PERCENT_TXT + sb_name);
 	dx		+= dx/10;
 	sb_scale_width	= width - dx;
 
-	sb_vlbl_width = sb_font->getRenderWidth("100% ") + dx/20;
+	sb_vlbl_width = sb_font->getRenderWidth(REF_PERCENT_TXT) + dx/20;
 	sb_lbl_width  = dx - sb_vlbl_width;
 }
 
@@ -145,7 +147,7 @@ void CSignalBar::initSBarValue()
 		sb_vlbl->doPaintBg(false);
 		sb_vlbl->doPaintTextBoxBg(false);
 		sb_vlbl->enableTboxSaveScreen(true);
-		sb_vlbl->setText("  0%", sb_val_mode, sb_font);
+		sb_vlbl->setText(REF_PERCENT_TXT, sb_val_mode, sb_font);
 	}
 
 	//move and set dimensions
