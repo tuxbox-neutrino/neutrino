@@ -1503,7 +1503,7 @@ void CInfoViewer::showSNR ()
 			SDT_freq_update = false;
 		}
 		if (sigbox == NULL){
-			sigbox = new CSignalBox(BoxStartX+4, BoxStartY+ChanHeight/2-4, ChanWidth-8, ChanHeight/2+2, CFEManager::getInstance()->getLiveFE());
+			sigbox = new CSignalBox(BoxStartX+8, BoxStartY+ChanHeight/2-4, ChanWidth-12, ChanHeight/2+2, CFEManager::getInstance()->getLiveFE(), true, NULL, "S", "Q");
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
 			sigbox->doPaintBg(false);
 		}
