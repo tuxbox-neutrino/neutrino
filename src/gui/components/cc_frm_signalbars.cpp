@@ -153,8 +153,7 @@ void CSignalBar::initSBarValue()
 	//move and set dimensions
 	int vlbl_x = sb_scale->getXPos() + sb_scale_width + append_y_offset;
 	int vlbl_h = sb_scale->getHeight();
-	int vlbl_y = sb_item_height/2 + sb_item_top - vlbl_h/2 - append_x_offset;
-	sb_vlbl->setDimensionsAll(vlbl_x, vlbl_y, sb_vlbl_width - append_x_offset, vlbl_h);
+	sb_vlbl->setDimensionsAll(vlbl_x, 1, sb_vlbl_width - append_x_offset, vlbl_h);
 
 	//set current text and body color color
 	sb_vlbl->setTextColor(sb_caption_color);
@@ -179,8 +178,7 @@ void CSignalBar::initSBarName()
 	//move and set dimensions
 	int lbl_x = sb_vlbl->getXPos()+ sb_vlbl->getWidth();
 	int lbl_h = sb_vlbl->getHeight();
-	int lbl_y = sb_item_height/2 + sb_item_top - lbl_h/2 - append_x_offset;
-	sb_lbl->setDimensionsAll(lbl_x, lbl_y, sb_lbl_width- append_x_offset, lbl_h);
+	sb_lbl->setDimensionsAll(lbl_x, 1, sb_lbl_width- append_x_offset, lbl_h);
 
 	//set current text and body color
 	sb_lbl->setTextColor(sb_caption_color);
@@ -273,11 +271,11 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 		sbx_bar_width	= width/2-2*corner_rad;
 	}
 
-	sbar = new CSignalBar(sbx_bar_x, 0, sbx_bar_width, sbx_bar_height, sbx_frontend, sig_name);
+	sbar = new CSignalBar(sbx_bar_x, 1, sbx_bar_width, sbx_bar_height, sbx_frontend, sig_name);
 	sbar->doPaintBg(false);
 	addCCItem(sbar);
 
-	snrbar = new CSignalNoiseRatioBar(vertical ? sbx_bar_x : CC_APPEND, vertical ? CC_APPEND : 0, sbx_bar_width, sbx_bar_height, sbx_frontend, snr_name);
+	snrbar = new CSignalNoiseRatioBar(vertical ? sbx_bar_x : CC_APPEND, vertical ? CC_APPEND : 1, sbx_bar_width, sbx_bar_height, sbx_frontend, snr_name);
 	snrbar->doPaintBg(false);
 	addCCItem(snrbar);
 
@@ -302,15 +300,10 @@ void CSignalBox::initVarSigBox()
 void CSignalBox::initSignalItems()
 {
 	//set current properties for items
-// 	int cor_rad = corner_rad/2-fr_thickness;
-
-// 	int corr_y = sbx_bar_height%2;
-// 	int sb_h = sbx_bar_height - corr_y;
-
-	int sbar_h = sbx_bar_height - fr_thickness - append_y_offset/2;
-	int sbar_w = sbx_bar_width - 2*fr_thickness;
+	int sbar_h = sbx_bar_height - 2*fr_thickness - 2*append_y_offset;
+	int sbar_w = sbx_bar_width - 2*fr_thickness - 2*append_x_offset;
 	int sbar_x = sbx_bar_x + fr_thickness;
-	int scale_h = sbar_h * 76 / 100;
+	int scale_h = sbar_h * 64 / 100;
 
 	int sbar_sw = sbar->getScaleWidth();
 	int snrbar_sw = snrbar->getScaleWidth();
@@ -319,12 +312,12 @@ void CSignalBox::initSignalItems()
 	else if (snrbar_sw < sbar_sw)
 		sbar->setScaleWidth(snrbar_sw);
 
-	sbar->setDimensionsAll(sbar_x, fr_thickness, sbar_w, sbar_h);
+	sbar->setDimensionsAll(sbar_x, 1, sbar_w, sbar_h);
 	sbar->setFrontEnd(sbx_frontend);
 	sbar->setCorner(0);
 	sbar->setScaleHeight(scale_h);
 
-	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : fr_thickness, sbar_w, sbar_h);
+	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : 1, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
 	snrbar->setCorner(0);
 	snrbar->setScaleHeight(scale_h);
