@@ -876,7 +876,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 			if (cabar == NULL)
 				cabar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX+11, g_InfoViewer->BoxEndY+1, ca_width-22 , bottom_bar_offset-11 , NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
 			//cabar->setCorner(RADIUS_SMALL, CORNER_ALL);
-			cabar->enableShadow(CC_SHADOW_ON, 3);
+			cabar->enableShadow(CC_SHADOW_ON, 3, true);
 			cabar->setFrameThickness(2);
 
 // 			cabar->paint(CC_SAVE_SCREEN_NO);
