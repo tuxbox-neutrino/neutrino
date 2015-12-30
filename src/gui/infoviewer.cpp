@@ -1932,6 +1932,10 @@ void CInfoViewer::showInfoFile()
 		return;
 	}
 
+	//check dimension, if changed then kill to force reinit
+	if (infobar_txt->getWidth() != width)
+		infobar_txt->kill();
+
 	//set some properties for info object
 	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
 	infobar_txt->setCorner(RADIUS_SMALL);
