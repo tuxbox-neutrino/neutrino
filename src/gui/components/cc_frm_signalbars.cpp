@@ -252,7 +252,7 @@ void CSignalNoiseRatioBar::Refresh()
 
 
 //**********************************************************************************************************************
-CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vert, CComponentsForm *parent)
+CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vert, CComponentsForm *parent, const std::string& sig_name, const std::string& snr_name)
 {
 	initVarSigBox();
 	vertical = vert;
@@ -271,11 +271,11 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 		sbx_bar_width	= width/2-2*corner_rad;
 	}
 
-	sbar = new CSignalBar(sbx_bar_x, 0, sbx_bar_width, sbx_bar_height, sbx_frontend);
+	sbar = new CSignalBar(sbx_bar_x, 0, sbx_bar_width, sbx_bar_height, sbx_frontend, sig_name);
 	sbar->doPaintBg(false);
 	addCCItem(sbar);
 
-	snrbar = new CSignalNoiseRatioBar(vertical ? sbx_bar_x : CC_APPEND, vertical ? CC_APPEND : 0, sbx_bar_width, sbx_bar_height, sbx_frontend);
+	snrbar = new CSignalNoiseRatioBar(vertical ? sbx_bar_x : CC_APPEND, vertical ? CC_APPEND : 0, sbx_bar_width, sbx_bar_height, sbx_frontend, snr_name);
 	snrbar->doPaintBg(false);
 	addCCItem(snrbar);
 
