@@ -1,5 +1,5 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
+	Neutrino-GUI   -  DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 							 and some other guys
