@@ -434,9 +434,13 @@ void CInfoViewer::paintBody()
 {
 	int h_body = InfoHeightY - header_height + (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
 	if (body == NULL)
-		body = new CComponentsShapeSquare(ChanInfoX, ChanNameY + header_height, BoxEndX-ChanInfoX, h_body, NULL, CC_SHADOW_RIGHT);
+		body = new CComponentsShapeSquare(ChanInfoX, ChanNameY + header_height, BoxEndX-ChanInfoX, h_body);
 	else
 		body->setDimensionsAll(ChanInfoX, ChanNameY + header_height, BoxEndX-ChanInfoX, h_body);
+
+	//set corner and shadow modes, consider virtual zap mode
+	body->setCorner(RADIUS_LARGE, virtual_zap_mode ? CORNER_BOTTOM : CORNER_NONE);
+	body->enableShadow(virtual_zap_mode ? CC_SHADOW_ON : CC_SHADOW_RIGHT);
 
 	body->setColorBody(g_settings.theme.infobar_gradient_body ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	body->enableColBodyGradient(g_settings.theme.infobar_gradient_body, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_body_direction);
