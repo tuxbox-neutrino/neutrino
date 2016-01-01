@@ -1047,6 +1047,7 @@ menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inet_radio Internet radio
 menu.hint_info Information about image, box cpu and storage,\nstream information
 menu.hint_infobar_back Change infobar background color
+menu.hint_infobar_buttons_usertitle Forces userdefined titles for the color keys
 menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-systems
 menu.hint_infobar_casys_color Change CA-System background color
 menu.hint_infobar_casys_dotmatrix on: CA-System with dot matrix in background
@@ -1196,7 +1197,7 @@ menu.hint_next Continue to next menu\nPress menu key to close all menus
 menu.hint_next_brief Continue to next menu
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_opkg Install or update software packages
-menu.hint_opkg_feed_address_edit Edit feed addresses
+menu.hint_opkg_feed_addresses_edit Edit feed addresses
 menu.hint_opkg_install_local_package Install package from USB, SD, share or local directory.
 menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
@@ -1348,8 +1349,8 @@ menu.hint_screensaver_delay Set the time (in minutes) after which the screensave
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
 menu.hint_screensaver_mode Select screensaver mode.
 menu.hint_screensaver_random Enable/disable random image selection.
-menu.hint_screensaver_timeout Select the timeout to changes in screensavers
 menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
+menu.hint_screensaver_timeout Select the timeout to changes in screensavers
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
 menu.hint_screenshot_dir Select directory to save screenshots
@@ -1433,7 +1434,6 @@ messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?
 messagebox.error Error
-messagebox.feature_not_supported Funkcia nie je podporovaná.
 messagebox.feature_not_supported Feature is not supported. Please contact your firmware provider!
 messagebox.info Information
 messagebox.no No
@@ -1478,6 +1478,7 @@ miscsettings.epg_scan_standby Standby
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar
+miscsettings.infobar_buttons_usertitle Usertitles for color keys
 miscsettings.infobar_casystem_display CA-System display
 miscsettings.infobar_casystem_dotmatrix CA display with dot matrix
 miscsettings.infobar_casystem_frame CA display with frame

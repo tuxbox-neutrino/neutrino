@@ -78,8 +78,10 @@ class CComponentsForm : public CComponentsItem
 		///NOTE: Items always have parent bindings to "this" and use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
 		virtual void killCCItems(const fb_pixel_t& bg_color, bool ignore_parent);
 
-		virtual void addCCItem(CComponentsItem* cc_Item);
-		virtual void addCCItem(const std::vector<CComponentsItem*> &cc_items);
+		///add an item to form collection, returns id
+		virtual int addCCItem(CComponentsItem* cc_Item);
+		///add items from a vector to form collection, returns size/count of items
+		virtual int addCCItem(const std::vector<CComponentsItem*> &cc_items);
 		virtual void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
 
 		///removes item object from container and deallocates instance

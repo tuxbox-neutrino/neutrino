@@ -234,6 +234,25 @@ if test "$BOXTYPE" != coolstream; then
 	HWLIB_CFLAGS="-I$STB_HAL_INC"
 fi
 
+# Lua - embeddable scripting language
+AC_ARG_ENABLE(lua,
+	AS_HELP_STRING(--enable-lua,include Lua support),
+	,[enable_lua=no])
+
+AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
+if test "$enable_lua" = "yes"; then
+	AC_DEFINE(ENABLE_LUA,1,[include Lua support])
+	PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
+		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
+			echo "=> lualib not found, assuming static lua in linker path..."
+			LUA_LIBS="-llua -ldl"
+			AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
+		])
+	])
+# hack...
+AC_DEFINE(LUA_COMPAT_5_2,1,[does not really belong in config.h, but is needed for build with lua 5.3+])
+fi
+
 AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])

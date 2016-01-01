@@ -76,7 +76,6 @@ class CUserMenuSetup : public CMenuTarget
 		std::map<std::string,std::string> vals;
 
 		int showSetup();
-		void checkButtonItems();
 		void checkButtonName();
 
 	public:

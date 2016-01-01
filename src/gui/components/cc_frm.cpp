@@ -202,7 +202,7 @@ void CComponentsForm::clear()
 }
 
 
-void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
+int CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
 		dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_item_index);
@@ -218,16 +218,18 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 		cc_Item->setFocus(true);
 
 		dprintf(DEBUG_DEBUG, "\t%s-%d parent index = %d, assigned index ======> %d\n", __func__, __LINE__, cc_item_index, new_index);
-
+		return getCCItemId(cc_Item);
 	}
 	else
 		dprintf(DEBUG_NORMAL, "[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __func__, __LINE__);
+	return -1;
 }
 
-void CComponentsForm::addCCItem(const std::vector<CComponentsItem*> &cc_Items)
+int CComponentsForm::addCCItem(const std::vector<CComponentsItem*> &cc_Items)
 {
 	for (size_t i= 0; i< cc_Items.size(); i++)
 		addCCItem(cc_Items[i]);
+	return size();
 }
 
 int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)

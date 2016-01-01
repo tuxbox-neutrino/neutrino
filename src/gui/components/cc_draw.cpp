@@ -50,6 +50,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 
 	shadow			= CC_SHADOW_OFF;
 	shadow_w = shadow_w_old	= SHADOW_OFFSET;
+	shadow_force		= false;
 
 	cc_paint_cache		= false;
 	cc_scrdata.pixbuf	= NULL;
@@ -543,7 +544,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 				frameBuffer->paintBackgroundBoxRel(x, y, fbdata.dx, fbdata.dy);
 			}
 		}
-		if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && !is_painted) { //TODO: is_painted is too global here, shadow will not paint on current instance without called kill/hide
+		if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && (!is_painted || shadow_force)) {
 			if (fbdata.enabled) {
 				/* here we paint the shadow around the body
 					* on 1st step we check for already cached screen buffer, if true
@@ -688,12 +689,13 @@ bool CCDraw::doPaintBg(bool do_paint)
 	return true;
 }
 
-void CCDraw::enableShadow(int mode, const int& shadow_width)
+void CCDraw::enableShadow(int mode, const int& shadow_width, bool force_paint)
 {
 	if (shadow != mode)
 		shadow = mode;
 	if (shadow != CC_SHADOW_OFF)
 		if (shadow_width != -1)
 			setShadowWidth(shadow_width);
+	shadow_force = force_paint;
 }
 

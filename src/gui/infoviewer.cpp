@@ -403,9 +403,10 @@ void CInfoViewer::paintBackground(int col_NumBox)
 	paintBody();
 
 	// number box
-	if (numbox == NULL) //TODO: move into an own member, paintNumBox() or so...
-		numbox = new CComponentsShapeSquare(BoxStartX, BoxStartY, ChanWidth, ChanHeight, NULL, CC_SHADOW_ON);
-	else
+	if (numbox == NULL){ //TODO: move into an own member, paintNumBox() or so...
+		numbox = new CComponentsShapeSquare(BoxStartX, BoxStartY, ChanWidth, ChanHeight);
+		numbox->enableShadow(CC_SHADOW_ON, 6, true);
+	}else
 		numbox->setDimensionsAll(BoxStartX, BoxStartY, ChanWidth, ChanHeight);
 
 	numbox->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : col_NumBox);
@@ -416,11 +417,13 @@ void CInfoViewer::paintBackground(int col_NumBox)
 
 void CInfoViewer::paintHead()
 {
+	int head_x = BoxStartX+ChanWidth+5;
+	int head_w = BoxEndX-head_x;
 	if (header == NULL){
-		header = new CComponentsShapeSquare(ChanInfoX, ChanNameY, BoxEndX-ChanInfoX, time_height, NULL, CC_SHADOW_RIGHT);
+		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT);
 		header->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 	}else
-		header->setDimensionsAll(ChanInfoX, ChanNameY, BoxEndX-ChanInfoX, time_height);
+		header->setDimensionsAll(head_x, ChanNameY, head_w, time_height);
 
 	header->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	header->enableColBodyGradient(g_settings.theme.infobar_gradient_top, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_top_direction);
@@ -1503,7 +1506,8 @@ void CInfoViewer::showSNR ()
 			SDT_freq_update = false;
 		}
 		if (sigbox == NULL){
-			sigbox = new CSignalBox(BoxStartX+4, BoxStartY+ChanHeight/2-4, ChanWidth-8, ChanHeight/2+2, CFEManager::getInstance()->getLiveFE());
+			int sb_x = ChanWidth *10/100;
+			sigbox = new CSignalBox(BoxStartX+sb_x, BoxStartY+ChanHeight/2, ChanWidth-2*sb_x, ChanHeight/2, CFEManager::getInstance()->getLiveFE(), true, NULL, "S", "Q");
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
 			sigbox->doPaintBg(false);
 		}
@@ -1935,6 +1939,10 @@ void CInfoViewer::showInfoFile()
 		killInfobarText();
 		return;
 	}
+
+	//check dimension, if changed then kill to force reinit
+	if (infobar_txt->getWidth() != width)
+		infobar_txt->kill();
 
 	//set some properties for info object
 	infobar_txt->setDimensionsAll(xStart, yStart, width, height);

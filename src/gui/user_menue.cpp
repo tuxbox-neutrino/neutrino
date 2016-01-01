@@ -479,13 +479,12 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	return true;
 }
 
-const char *CUserMenu::getUserMenuButtonName(int button, bool &active)
+const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool return_title)
 {
 	active = false;
 	if(button < 0 || button >= (int) g_settings.usermenu.size())
 		return "";
 
-	bool return_title = false;
 	neutrino_locale_t loc = NONEXISTANT_LOCALE;
 	const char *text = NULL;
 

@@ -196,15 +196,12 @@ int CLuaInstCCWindow::CCWindowHide(lua_State *L)
 	lua_assert(lua_istable(L,1));
 	CLuaCCWindow *D = CCWindowCheck(L, 1);
 	if (!D) return 0;
-#if 0
-	bool no_restore = false;
-	if (!tableLookup(L, "no_restore", no_restore)) {
-		std::string tmp = "false";
-		if (tableLookup(L, "no_restore", tmp))
-			paramBoolDeprecated(L, tmp.c_str());
-		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
-	}
-#endif
+
+	bool tmp1 = false;
+	std::string tmp2 = "false";
+	if ((tableLookup(L, "no_restore", tmp1)) || (tableLookup(L, "no_restore", tmp2)))
+		printf("[%s:hide] Warning, obsolete parameter in use, please remove!\n", "cwindow");
+
 	D->w->hide();
 	return 0;
 }

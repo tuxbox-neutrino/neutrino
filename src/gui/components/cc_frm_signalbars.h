@@ -160,8 +160,8 @@ class CSignalNoiseRatioBar : public CSignalBar
 		CSignalNoiseRatioBar(CComponentsForm *parent = NULL)
 					: CSignalBar(parent){};
 		///basic component class constructor for signal noise ratio.
-		CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, CComponentsForm *parent = NULL)
-					: CSignalBar(xpos, ypos, w, h, frontend_ref, "SNR", parent){};
+		CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const std::string& snr_name = "SNR", CComponentsForm *parent = NULL)
+					: CSignalBar(xpos, ypos, w, h, frontend_ref, snr_name, parent){};
 };
 
 /// Class CSignalBox() provides CSignalBar(), CSignalNoiseRatioBar() scales at once.
@@ -269,7 +269,7 @@ class CSignalBox : public CComponentsForm
 
 	public:
 		///class constructor for signal noise ratio.
-		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref = NULL, const bool vertical = true, CComponentsForm *parent = NULL);
+		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref = NULL, const bool vertical = true, CComponentsForm *parent = NULL, const std::string& sig_name = "SIG", const std::string& snr_name = "SNR" );
 
 		///returns the signal object, type = CSignalBar*
 		CSignalBar* getScaleObject(){return sbar;};

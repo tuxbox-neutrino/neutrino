@@ -154,6 +154,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_w_sidebar	= 40;
 	ccw_col_head 	= COL_MENUCONTENT_PLUS_0;
 	ccw_col_head_text = COL_MENUHEAD_TEXT;
+	ccw_col_footer	= COL_INFOBAR_SHADOW_PLUS_1;
 
 	page_scroll_mode = PG_SCROLL_M_OFF; //permanent disabled here, only in body used!
 
@@ -217,6 +218,7 @@ void CComponentsWindow::initFooter()
 		ccw_footer->setWidth(width-2*fr_thickness);
 		ccw_footer->enableShadow(shadow);
 		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
+		ccw_footer->setColorBody(ccw_col_footer);
 	}
 }
 
@@ -359,10 +361,11 @@ void CComponentsWindow::enableSidebar(const int& sidbar_type)
 	initCCWItems();
 }
 
-void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
+int CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
 {
 	if (ccw_body)
-		ccw_body->addCCItem(cc_Item);
+		return ccw_body->addCCItem(cc_Item);
+	return -1;
 }
 
 void CComponentsWindow::setCurrentPage(const u_int8_t& current_page)

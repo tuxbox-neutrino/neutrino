@@ -103,7 +103,7 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 		cc_fbdata_t fbdata[] =
 		{
 			/*buffered bg full width and height */
-			{true, CC_FBDATA_TYPE_BGSCREEN,	x,			y_mark_top, 		width,			y_mark_down-y_mark_top+h_mark_down,	0, 0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BGSCREEN,	x,			y_mark_top, 		width,			y_mark_down-y_mark_top+h_mark_down+sw,	0, 0, 0, 0, NULL, NULL, NULL, false},
 
 			/* vertical item mark | */
 			{true, CC_FBDATA_TYPE_BOX, 	x+width-thickness-sw, 	y_mark_top, 		thickness, 		h_mark_top, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},

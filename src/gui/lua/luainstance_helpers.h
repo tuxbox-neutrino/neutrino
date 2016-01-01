@@ -85,7 +85,7 @@ bool _luaL_checkbool(lua_State *L, int numArg);
 void paramBoolDeprecated(lua_State *L, const char* val);
 void paramDeprecated(lua_State *L, const char* oldParam, const char* newParam);
 void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc);
-lua_Unsigned checkMagicMask(lua_Unsigned &col);
+lua_Unsigned checkMagicMask(lua_Unsigned col);
 
 bool tableLookup(lua_State*, const char*, std::string&);
 bool tableLookup(lua_State*, const char*, lua_Integer&);

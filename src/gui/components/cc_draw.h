@@ -84,6 +84,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		int shadow;
 		///property: width of shadow
 		int shadow_w, shadow_w_old;
+		///property: force shadow paint, see enableShadow()
+		bool shadow_force;
 
 		///returns true if internal property was changed
 		virtual bool hasChanges();
@@ -245,8 +247,11 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///switch shadow on/off
 		virtual void setShadowWidth(const int& shadow_width){if (shadow_w != shadow_width) shadow_w = shadow_width;}
-		///Note: it's recommended to use #defines: CC_SHADOW_ON=true or CC_SHADOW_OFF=false as parameter, see also cc_types.h
-		virtual void enableShadow(int mode = CC_SHADOW_ON, const int& shadow_width = -1);
+		/**1st parameter requires defines CC_SHADOW_ON (default), CC_SHADOW_OFF, CC_SHADOW_BOTTOM or CC_SHADOW_RIGHT, see also cc_types.h
+		 * 2nd parameter defines shadow width, default = defined by system
+		 * 3rd parameter forces paint of shadow layer, default = false, Note: default shadow will paint only on first paint, use 3rd parameter=true ignores this
+		*/
+		virtual void enableShadow(int mode = CC_SHADOW_ON, const int& shadow_width = -1, bool force_paint = false);
 		///switch shadow off
 		virtual void disableShadow(){enableShadow(CC_SHADOW_OFF);}
 

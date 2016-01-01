@@ -44,6 +44,7 @@ CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1
 void CTimeOSD::Init()
 {
 	paint_bg = g_settings.infoClockBackground;
+	m_time_show = time(0);
 
 	//use current theme colors
 	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
