@@ -116,19 +116,6 @@ if test "$BOXTYPE" = "coolstream"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(BLURAY,libbluray)
 fi
 
-# either use dynamic lualib in package lua (openSUSE)
-# ... or in package lua5.2 (debian-derivates)
-# ... and if all fails, assume it is in the linker path (cross build)
-PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
-	PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
-		echo "=> lualib not found, assuming static lua in linker path..."
-		LUA_LIBS="-llua -ldl"
-		AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
-	])
-])
-# hack...
-AC_DEFINE(LUA_COMPAT_5_2,1,[does not really belong in config.h, but is needed for build with lua 5.3+])
-
 if test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "tripledragon" ||
    test "$BOXTYPE" = "spark"; then
@@ -236,8 +223,8 @@ fi
 
 # Lua - embeddable scripting language
 AC_ARG_ENABLE(lua,
-	AS_HELP_STRING(--enable-lua,include Lua support),
-	,[enable_lua=no])
+	AS_HELP_STRING(--disable-lua,disable Lua support),
+	,[enable_lua=yes])
 
 AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
 if test "$enable_lua" = "yes"; then

@@ -16,9 +16,9 @@ noinst_HEADERS = version.h
 
 SUBDIRS = bedit components widget
 
-#if ENABLE_LUA
+if ENABLE_LUA
 SUBDIRS += lua
-#endif
+endif
 
 AM_CPPFLAGS += \
 	-I$(top_builddir) \
