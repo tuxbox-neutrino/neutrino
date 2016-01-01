@@ -137,6 +137,7 @@ void COPKGManager::init()
 
 COPKGManager::~COPKGManager()
 {
+	pkg_map.clear();
 	CFileHelpers::removeDir(OPKG_TMP_DIR);
 }
 
