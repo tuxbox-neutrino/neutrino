@@ -768,7 +768,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 		w = W->fbwin->dx - x;
 	if (h < 0 || y + h > W->fbwin->dy)
 		h = W->fbwin->dy - y;
-	checkMagicMask(c);
+	c = checkMagicMask(c);
 	W->fbwin->paintBoxRel(x, y, w, h, c, radius, corner);
 	return 0;
 }
@@ -791,7 +791,7 @@ int CLuaInstance::paintHLineRel(lua_State *L)
 		y = 0;
 	if (dx < 0 || x + dx > W->fbwin->dx)
 		dx = W->fbwin->dx - x;
-	checkMagicMask(c);
+	c = checkMagicMask(c);
 	W->fbwin->paintHLineRel(x, dx, y, c);
 	return 0;
 }
@@ -814,7 +814,7 @@ int CLuaInstance::paintVLineRel(lua_State *L)
 		y = 0;
 	if (dy < 0 || y + dy > W->fbwin->dy)
 		dy = W->fbwin->dy - y;
-	checkMagicMask(c);
+	c = checkMagicMask(c);
 	W->fbwin->paintVLineRel(x, y, dy, c);
 	return 0;
 }
@@ -885,7 +885,7 @@ int CLuaInstance::RenderString(lua_State *L)
 		if (rwidth < w)
 			x += (w - rwidth) / 2;
 	}
-	checkMagicMask(c);
+	c = checkMagicMask(c);
 	if (boxh > -1) /* if boxh < 0, don't paint string */
 		W->fbwin->RenderString(font, x, y, w, text, c, boxh);
 	lua_pushinteger(L, rwidth); /* return renderwidth */

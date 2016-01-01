@@ -108,9 +108,9 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	tableLookup(L, "color_shadow",     color_shadow);
 	tableLookup(L, "transparency",     transparency);
 
-	checkMagicMask(color_frame);
-	checkMagicMask(color_background);
-	checkMagicMask(color_shadow);
+	color_frame      = checkMagicMask(color_frame);
+	color_background = checkMagicMask(color_background);
+	color_shadow     = checkMagicMask(color_shadow);
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 

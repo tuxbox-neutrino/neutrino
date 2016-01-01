@@ -111,10 +111,10 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	tableLookup(L, "color_body",   color_body);
 	tableLookup(L, "color_shadow", color_shadow);
 
-	checkMagicMask(color_text);
-	checkMagicMask(color_frame);
-	checkMagicMask(color_body);
-	checkMagicMask(color_shadow);
+	color_text   = checkMagicMask(color_text);
+	color_frame  = checkMagicMask(color_frame);
+	color_body   = checkMagicMask(color_body);
+	color_shadow = checkMagicMask(color_shadow);
 
 	if (!tmpMode.empty()) {
 		table_key txt_align[] = {
