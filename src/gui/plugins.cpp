@@ -409,7 +409,8 @@ void CPlugins::startScriptPlugin(int number)
 		chmod(script, 0755);
 	if (plugin_list[number].shellwindow)
 	{
-		CShellWindow(script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE);
+		int res = 0;
+		CShellWindow (script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE, &res);
 		scriptOutput = "";
 	}
 	else
