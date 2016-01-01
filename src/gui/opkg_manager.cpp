@@ -72,7 +72,7 @@
 #endif
 
 #define OPKG_BAD_PATTERN_LIST_FILE CONFIGDIR "/bad_package_pattern.list"
-#define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf"
+#define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf.borken"
 
 using namespace std;
 
