@@ -59,11 +59,6 @@ void CTimeOSD::Init()
 		setColorBody(COL_BACKGROUND_PLUS_0);
 	}
 
-	if (g_settings.infoClockSeconds)
-		setClockFormat("%H:%M:%S");
-	else
-		setClockFormat("%H:%M", "%H %M");
-
 	//set height, NOTE: height is strictly bound to settings
 	if (g_settings.infoClockFontSize != height){
 		height = g_settings.infoClockFontSize;
