@@ -104,9 +104,9 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	tableLookup(L, "btnYellow", btnYellow);
 	tableLookup(L, "btnBlue", btnBlue);
 
-	checkMagicMask(color_frame);
-	checkMagicMask(color_body);
-	checkMagicMask(color_shadow);
+	color_frame  = checkMagicMask(color_frame);
+	color_body   = checkMagicMask(color_body);
+	color_shadow = checkMagicMask(color_shadow);
 
 	bool show_header = true;
 	if (!tableLookup(L, "show_header", show_header)) {
@@ -200,7 +200,7 @@ int CLuaInstCCWindow::CCWindowHide(lua_State *L)
 	bool tmp1 = false;
 	std::string tmp2 = "false";
 	if ((tableLookup(L, "no_restore", tmp1)) || (tableLookup(L, "no_restore", tmp2)))
-		printf("[%s:hide] Warning, obsolete parameter in use, please remove!\n", "cwindow");
+		obsoleteHideParameter(L);
 
 	D->w->hide();
 	return 0;
@@ -227,15 +227,15 @@ int CLuaInstCCWindow::CCWindowSetWindowColor(lua_State *L)
 
 	lua_Unsigned color;
 	if (tableLookup(L, "color_frame"  , color)) {
-		checkMagicMask(color);
+		color = checkMagicMask(color);
 		D->w->setColorFrame(color);
 	}
 	if (tableLookup(L, "color_body"  , color)) {
-		checkMagicMask(color);
+		color = checkMagicMask(color);
 		D->w->setColorBody(color);
 	}
 	if (tableLookup(L, "color_shadow"  , color)) {
-		checkMagicMask(color);
+		color = checkMagicMask(color);
 		D->w->setColorShadow(color);
 	}
 

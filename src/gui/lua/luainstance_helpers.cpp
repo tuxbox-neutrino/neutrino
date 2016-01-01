@@ -84,6 +84,14 @@ void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc)
 					ar.short_src, ar.currentline);
 }
 
+void obsoleteHideParameter(lua_State *L)
+{
+	lua_Debug ar;
+	lua_getstack(L, 1, &ar);
+	lua_getinfo(L, "Sl", &ar);
+	printf("\33[1;31m[Lua script warning]\33[0m %s:%d: Obsolete parameter for hide() in use, please remove!\n", ar.short_src, ar.currentline);
+}
+
 lua_Unsigned checkMagicMask(lua_Unsigned col)
 {
 	if ((col & MAGIC_MASK) == MAGIC_COLOR)

@@ -108,9 +108,9 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	tableLookup(L, "color_shadow",     color_shadow);
 	tableLookup(L, "transparency",     transparency);
 
-	checkMagicMask(color_frame);
-	checkMagicMask(color_background);
-	checkMagicMask(color_shadow);
+	color_frame      = checkMagicMask(color_frame);
+	color_background = checkMagicMask(color_background);
+	color_shadow     = checkMagicMask(color_shadow);
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 
@@ -152,7 +152,7 @@ int CLuaInstCCPicture::CCPictureHide(lua_State *L)
 	bool tmp1 = false;
 	std::string tmp2 = "false";
 	if ((tableLookup(L, "no_restore", tmp1)) || (tableLookup(L, "no_restore", tmp2)))
-		printf("[%s:hide] Warning, obsolete parameter in use, please remove!\n", "cpicture");
+		obsoleteHideParameter(L);
 
 	if (D->parent) {
 		D->cp->setPicture("");
