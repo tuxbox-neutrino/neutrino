@@ -328,6 +328,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 				!configfile.getInt32("screen_EndY_lcd", 0)) {
 			printf("[neutrino] config file %s is broken, using defaults\n", fname);
 			configfile.clear();
+		} else {
+			migrateConfig(fname);
 		}
 	}
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
@@ -4616,3 +4618,49 @@ bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 
 	return true;
 }
+
+/*
+ * commit 523b273a changed the names of config file entries:
+ *	casystem_display	=> infobar_casystem_display
+ *	casystem_dotmatrix	=> infobar_casystem_dotmatrix
+ *	casystem_frame		=> infobar_casystem_frame
+ * convert these, so that users do not need to set up their system again
+*/
+struct __key_rename {
+	const char *from;
+	const char *to;
+};
+
+static struct __key_rename key_rename[] = {
+	{ "casystem_display",	"infobar_casystem_display" },
+	{ "casystem_dotmatrix",	"infobar_casystem_dotmatrix"},
+	{ "casystem_frame",	"infobar_casystem_frame" },
+	{ NULL, NULL }
+};
+
+/* actually do the migration of the config entries */
+void CNeutrinoApp::migrateConfig(const char *fname)
+{
+	/* we need a second configfile to not create new entries and trigger the
+	 * "new entry created" flag */
+	CConfigFile migconf('\t', false);
+	migconf.loadConfig(fname);
+	/* here we do a simple rename of config file keys */
+	int magic = -424242; /* obviously a value that does not appear in real cases */
+	int tmp = magic;
+	int i;
+	for (i = 0; key_rename[i].from != NULL; i++) {
+		const char *from = key_rename[i].from;
+		const char *to   = key_rename[i].to;
+		tmp = migconf.getInt32(from, magic);
+		if (tmp == magic)	/* old key does not exist */
+			continue;
+		/* only set new key to old value if the new key does not yet exist */
+		if (configfile.getInt32(to, magic) == magic)
+			configfile.setInt32(to, tmp);
+		/* always remove old key*/
+		configfile.deleteKey(from);
+	}
+	/* more complex migration, including converting values etc. could be done here */
+}
+

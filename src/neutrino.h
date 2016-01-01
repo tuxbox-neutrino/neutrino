@@ -126,6 +126,8 @@ private:
 	void InitZapitClient();
 	void InitSectiondClient();
 
+	void migrateConfig(const char *fname);
+
 	//menues
 	void InitMenu();
  	void InitMenuMain();
