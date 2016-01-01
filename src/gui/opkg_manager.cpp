@@ -11,7 +11,7 @@
 	Adaptions:
 	Copyright (C) 2013 martii
 	gitorious.org/neutrino-mp/martiis-neutrino-mp
-	Copyright (C) 2015 Stefan Seyfried
+	Copyright (C) 2015-2016 Stefan Seyfried
 
 	License: GPL
 
@@ -67,7 +67,7 @@
 #define OPKG_TEST_DIR OPKG_TMP_DIR "/test"
 #define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
 
-#define OPKG_BAD_PATTERN_LIST_FILE "/var/tuxbox/config/bad_package_pattern.list"
+#define OPKG_BAD_PATTERN_LIST_FILE CONFIGDIR "/bad_package_pattern.list"
 #define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf"
 
 using namespace std;
