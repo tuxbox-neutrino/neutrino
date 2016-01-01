@@ -177,7 +177,7 @@ int CLuaInstCCText::CCTextHide(lua_State *L)
 	bool tmp1 = false;
 	std::string tmp2 = "false";
 	if ((tableLookup(L, "no_restore", tmp1)) || (tableLookup(L, "no_restore", tmp2)))
-		printf("[%s:hide] Warning, obsolete parameter in use, please remove!\n", "ctext");
+		obsoleteHideParameter(L);
 
 	if (D->parent) {
 		D->ct->setText("", D->mode, g_Font[D->font_text]);

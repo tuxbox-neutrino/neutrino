@@ -152,7 +152,7 @@ int CLuaInstCCPicture::CCPictureHide(lua_State *L)
 	bool tmp1 = false;
 	std::string tmp2 = "false";
 	if ((tableLookup(L, "no_restore", tmp1)) || (tableLookup(L, "no_restore", tmp2)))
-		printf("[%s:hide] Warning, obsolete parameter in use, please remove!\n", "cpicture");
+		obsoleteHideParameter(L);
 
 	if (D->parent) {
 		D->cp->setPicture("");
