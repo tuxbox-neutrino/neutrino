@@ -30,11 +30,6 @@ extern "C" {
 
 #include "luainstance_helpers.h"
 
-#if 0
-#define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 35
-#endif
-
 void LuaInstRegisterFunctions(lua_State *L, bool fromThreads=false);
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
