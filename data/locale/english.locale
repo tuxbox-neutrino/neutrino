@@ -779,8 +779,6 @@ imageinfo.version Version:
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded....
 infoviewer.epgwait waiting for EPG...
-infoviewer.eventlist Event-List
-infoviewer.languages Audio
 infoviewer.motor_moving Antenna positioning
 infoviewer.next next
 infoviewer.nocurrent No info for current program available
@@ -788,10 +786,8 @@ infoviewer.noepg EPG not available
 infoviewer.notavailable Channel not available
 infoviewer.now now
 infoviewer.selecttime Timeselection
-infoviewer.streaminfo Features
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subchan_infobar Full infobar
-infoviewer.subservice Subservices
 infoviewer.waittime Waiting for time...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
 ipsetup.hint_2 OK saves, Exit aborts
@@ -1455,7 +1451,7 @@ miscsettings.epg_dir EPG save path
 miscsettings.epg_extendedcache EPG Long Description (hours)
 miscsettings.epg_extendedcache_hint1 How long into the future will EPG extended descriptions
 miscsettings.epg_extendedcache_hint2 be Cached? (Set in hours)
-miscsettings.epg_head Epg
+miscsettings.epg_head EPG
 miscsettings.epg_max_events Max. Events
 miscsettings.epg_max_events_hint1 How many events should be stored?
 miscsettings.epg_max_events_hint2 normaly 6000, 0 to disable limit
@@ -1857,9 +1853,10 @@ nfs.username username
 nfsmenu.head NFS/CIFS/FTPFS settings
 nvod.percentage (%d%% over)
 nvod.starting (starting in %d min)
-nvodselector.directormode Direct-Mode
-nvodselector.head Select starting-time
-nvodselector.subservice Select Subservice
+nvodselector.directormode Director mode
+nvodselector.head Subservices
+nvodselector.starttime Select starting time
+nvodselector.subservice Select subservice
 opkg.button.expert_off Standard mode
 opkg.button.expert_on Expert mode
 opkg.button.info Package information
@@ -2355,6 +2352,10 @@ usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing 
 usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menue defined.\nIt is recommended to enter a new name!
 usermenu.msg_warning_no_items No items defined!\nThe menu name is reset!
 usermenu.name Name
+usermenu.title_blue Features
+usermenu.title_green Audio
+usermenu.title_red Event-List
+usermenu.title_yellow Subservices
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode
 videomenu.analog_auto AUTO

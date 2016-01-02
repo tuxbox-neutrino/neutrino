@@ -779,8 +779,6 @@ imageinfo.version Version:
 inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen...
 infoviewer.epgwait Warte auf EPG-Informationen...
-infoviewer.eventlist EPG/Vorschau
-infoviewer.languages Tonwahl
 infoviewer.motor_moving Antennenpositionierung
 infoviewer.next Später
 infoviewer.nocurrent Keine Info zu laufendem Programm
@@ -788,10 +786,8 @@ infoviewer.noepg Keine EPG-Information verfügbar
 infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar
 infoviewer.now Jetzt
 infoviewer.selecttime Startzeiten
-infoviewer.streaminfo Erweiterungen
 infoviewer.subchan_disp_pos Unterkanalanzeige
 infoviewer.subchan_infobar Infobar
-infoviewer.subservice Bildregie
 infoviewer.waittime Warte auf Uhrzeit...
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
@@ -1858,7 +1854,8 @@ nfsmenu.head NFS/CIFS/FTPFS Einstellungen
 nvod.percentage (%d%% vorbei)
 nvod.starting (Beginn in %d min)
 nvodselector.directormode Bildregie-Modus
-nvodselector.head Anfangszeit auswählen
+nvodselector.head Bildregie
+nvodselector.starttime Anfangszeit auswählen
 nvodselector.subservice Perspektiven
 opkg.button.expert_off Standard-Modus
 opkg.button.expert_on Experten-Modus
@@ -2355,6 +2352,10 @@ usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwe
 usermenu.msg_warning_name Sie haben mehrere Menüpunkte für dieses Menü angelegt,\naber keinen neuen Namen festgelegt.\nEs ist daher empfohlen, einen neuen Namen zu vergeben!
 usermenu.msg_warning_no_items Sie haben keine Menüpunkte für dieses Menü angelegt!\nDer Menüname wird daher zurückgesetzt!
 usermenu.name Name
+usermenu.title_blue Erweiterungen
+usermenu.title_green Tonwahl
+usermenu.title_red EPG
+usermenu.title_yellow Bildregie
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
 videomenu.analog_auto AUTO
