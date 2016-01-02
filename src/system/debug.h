@@ -39,7 +39,11 @@ enum
 
 void setDebugLevel( int level );
 
-#define dprintf(debuglevel, fmt, args...) {if(debug>=debuglevel) printf( "[neutrino] " fmt, ## args);}
+#define dprintf(debuglevel, fmt, args...) \
+	do { \
+		if (debug >= debuglevel) \
+			printf( "[neutrino] " fmt, ## args); \
+	} while(0)
 #define dperror(str) {perror("[neutrino] " str);}
 
 
