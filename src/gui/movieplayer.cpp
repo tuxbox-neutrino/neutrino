@@ -987,8 +987,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				repeat_mode = REPEAT_OFF;
 			g_settings.movieplayer_repeat_on = repeat_mode;
 			callInfoViewer();
-		} else if (msg == (neutrino_msg_t) CRCInput::RC_setup) {
-			CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::SHOW_MAINMENU, 0);
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (time_forced) {
 				time_forced = false;
@@ -1181,6 +1179,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			makeScreenShot(false, true);
 		} else if (msg == CRCInput::RC_sat) {
 			//FIXME do nothing ?
+		} else if (msg == (neutrino_msg_t) CRCInput::RC_setup) {
+			CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::SHOW_MAINMENU, 0);
 		} else if (msg == CRCInput::RC_red || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow || msg == CRCInput::RC_blue ) {
 			//maybe move FileTime.kill to Usermenu to simplify this call
 			bool restore = FileTime.IsVisible();
