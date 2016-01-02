@@ -1920,7 +1920,6 @@ static int oldfontheight = 0;
 int Init(int source)
 {
 	int error, i;
-	unsigned char magazine;
 	static std::string font_file;
 
 	/* init data */
@@ -1928,12 +1927,13 @@ int Init(int source)
 	//page_atrb[32] = transp<<4 | transp;
 	inputcounter  = 2;
 
+#if TUXTXT_CFG_STANDALONE
+	unsigned char magazine;
 	for (magazine = 1; magazine < 9; magazine++)
 	{
 		tuxtxt_cache.current_page  [magazine] = -1;
 		tuxtxt_cache.current_subpage [magazine] = -1;
 	}
-#if TUXTXT_CFG_STANDALONE
 	/* init data */
 	memset(&tuxtxt_cache.astCachetable, 0, sizeof(tuxtxt_cache.astCachetable));
 	memset(&tuxtxt_cache.subpagetable, 0xFF, sizeof(tuxtxt_cache.subpagetable));
