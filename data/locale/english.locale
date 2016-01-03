@@ -1632,15 +1632,15 @@ moviebrowser.help_button_red Change sort
 moviebrowser.help_button_right Change view
 moviebrowser.help_button_yellow Switch active window
 moviebrowser.hide_series Hide series
-moviebrowser.hint_copy_onefile 
-moviebrowser.hint_copy_several 
-moviebrowser.hint_cut 
+moviebrowser.hint_copy_onefile Creating one new movie from the bookmarks of the movie
+moviebrowser.hint_copy_several Creating several new movies from the bookmarks of the movie
+moviebrowser.hint_cut Cutting bookmarks from movie and creating one new movie
 moviebrowser.hint_jumpbackward Jump back in 5 seconds\n'0' to cancel
 moviebrowser.hint_jumpforward Jump forward in 5 seconds\n'0' to cancel
 moviebrowser.hint_movieend Film end in 5 seconds\n'0' to cancel
 moviebrowser.hint_newbook_backward New jump back started\n'%s' to define endposition, '0' to cancel
 moviebrowser.hint_newbook_forward New jump forward started\n'%s' to define endposition, '0' to cancel
-moviebrowser.hint_truncate 
+moviebrowser.hint_truncate Truncating all data beyond the end-bookmark
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_file File
