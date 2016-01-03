@@ -978,6 +978,18 @@ void CFbAccel::mark(int xs, int ys, int xe, int ye)
 		else
 			to_blit.ye = ye;
 	}
+#if 0
+	/* debug code that kills neutrino right away if the blit area is invalid
+	 * only enable this for creating a coredumo for debugging */
+	fb_var_screeninfo s;
+	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
+		perror("CFbAccel <FBIOGET_VSCREENINFO>");
+	if ((xe > s.xres) || (ye > s.yres)) {
+		fprintf(stderr, "CFbAccel::mark: values out of range xe:%d ye:%d\n", xe, ye);
+		int *kill = NULL;
+		*kill = 1; /* oh my */
+	}
+#endif
 }
 #else
 void CFbAccel::mark(int, int, int, int)
