@@ -135,6 +135,7 @@ void CComponentsItem::kill(const fb_pixel_t& bg_color, bool ignore_parent)
 		else
 			CComponents::kill(cc_parent->getColorBody(), cc_parent->getCornerRadius());
 	}
+	clearScreenBuffer();
 }
 
 //synchronize colors for forms
