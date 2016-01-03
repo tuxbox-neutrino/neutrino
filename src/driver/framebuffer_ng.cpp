@@ -1242,7 +1242,7 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 		fbp += swidth;
 		line++;
 	}
-	accel->mark(xoff, yoff, xoff + width, xoff + height);
+	accel->mark(xoff, yoff, xoff + width, yoff + height);
 
 	checkFbArea(xoff, yoff, width, height, false);
 }
