@@ -232,6 +232,8 @@ void CInfoViewer::ResetPB()
 	}
 
 	if (timescale){
+		if (g_settings.infobar_progressbar == SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT)
+			timescale->kill();
 		delete timescale;
 		timescale = NULL;
 	}
