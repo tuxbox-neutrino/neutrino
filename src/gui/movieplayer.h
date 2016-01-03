@@ -107,6 +107,11 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short currentapid, currentac3;
 	repeat_mode_enum repeat_mode;
 
+	/* screensaver */
+	int		m_idletime;
+	bool		m_screensaver;
+	void		screensaver(bool on);
+
 	/* subtitles vars */
 	unsigned short numsubs;
 	std::string    slanguage[MAX_PLAYBACK_PIDS];
