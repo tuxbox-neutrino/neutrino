@@ -38,7 +38,7 @@ sort-locals:
 
 work-locals: $(master.locale)
 	for locale in $(locale); do \
-		$(top_srcdir)/data/locale/helpers/create-locals-work $${locale}; \
+		( cd $(top_srcdir)/data/locale; helpers/create-locals-work $${locale}; ); \
 	done
 
 ordercheck: $(master.locale)
