@@ -89,7 +89,7 @@ void CShellWindow::exec()
 		int w_shell = frameBuffer->getScreenWidth();
 		unsigned int lines_max = h_shell / font->getHeight();
 		list<std::string> lines;
-		CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenX(), w_shell, h_shell);
+		CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenY(), w_shell, h_shell);
 		if (textBox == NULL){
 			textBox = new CTextBox(cmd.c_str(), font, CTextBox::BOTTOM, &textBoxPosition);
 			textBox->enableSaveScreen(false);
