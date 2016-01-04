@@ -249,6 +249,13 @@ bool COPKGManager::checkSize(const string& pkg_name)
 	if (isInstalled(plain_pkg))
 		return true;
 
+	/* this is pretty broken right now for several reasons:
+	   * space in /tmp is limited (/tmp being ramfs usually, but wasted
+	     by unpacking the archive and then untaring it instead of using a pipe
+	   * the file is downloaded for this test, then discarded and later
+	     downloaded again for installation
+	   so until a better solution is found, simply disable it.  */
+#if 0
 	//get available root fs size
 	//TODO: Check writability!
 	struct statfs root_fs;
@@ -303,6 +310,7 @@ bool COPKGManager::checkSize(const string& pkg_name)
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%lld (recommended: %lld)\n", __func__, __LINE__, free_size, req_size);
 		return false;
 	}
+#endif
 	return true;
 }
 
