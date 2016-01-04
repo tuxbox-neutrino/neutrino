@@ -118,7 +118,6 @@ class CInfoViewerBB
 		void paint_ca_icons(int, const char*, int&);
 		void paintCA_bar(int,int);
 		void showOne_CAIcon();
-		void changePB(void);
 
 		static void* scrambledThread(void *arg);
 		void scrambledCheck(bool force=false);
@@ -153,6 +152,7 @@ class CInfoViewerBB
 		CComponentsShapeSquare* getFooter(void){return foot;}
 		CComponentsShapeSquare* getCABar(void){return cabar;}
 		void ResetModules(void);
+		void changePB(void);
 };
 
 #endif // __infoview_bb__
