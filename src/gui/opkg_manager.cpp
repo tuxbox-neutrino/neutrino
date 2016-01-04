@@ -212,7 +212,9 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		} else
 			installed = true;
 		refreshMenu();
+		/* I don't think ending up at the last package in the list is a good idea...
 		g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_up, 0);
+		 */
 		return res;
 	}
 
