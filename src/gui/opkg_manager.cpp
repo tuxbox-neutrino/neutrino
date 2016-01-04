@@ -555,6 +555,10 @@ int COPKGManager::showMenu()
 			res = menu_return::RETURN_EXIT_ALL;
 		}
 	}
+	/* remove the package-generated files... */
+	unlink("/tmp/.restart");
+	unlink("/tmp/.force_restart");
+	unlink("/tmp/.reboot");
 
 	delete menu;
 
