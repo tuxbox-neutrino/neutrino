@@ -43,6 +43,7 @@
 #include <gui/widget/messagebox.h>
 
 #include <gui/widget/progresswindow.h>
+#include <gui/widget/hintbox.h>
 #include <gui/widget/keyboard_input.h>
 #include <driver/screen_max.h>
 #include <gui/filebrowser.h>
@@ -428,23 +429,30 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 
 	bool ret = false;
 
-	getPkgData(OM_LIST);
-	getPkgData(OM_LIST_UPGRADEABLE);
-
 	size_t i = 0;
 	CProgressWindow status;
 	status.showHeader(false);
 
 	if (show_progress){
 		status.paint();
-		status.showStatus(i);
+		status.showStatusMessageUTF(g_Locale->getText(LOCALE_OPKG_UPDATE_READING_LISTS));
+		status.showStatus(25); /* after do_update, we have actually done the hardest work already */
 	}
+
+	getPkgData(OM_LIST);
+	if (show_progress)
+		status.showStatus(50);
+	getPkgData(OM_LIST_UPGRADEABLE);
+	if (show_progress)
+		status.showStatus(75);
 
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++){
 		dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update check for...%s\n", __func__, __LINE__, it->second.name.c_str());
 		if (show_progress){
+			/* showing the names only makes things *much* slower...
 			status.showStatusMessageUTF(it->second.name);
-			status.showStatus(100*i /  pkg_map.size());
+			 */
+			status.showStatus(75 + 25*i /  pkg_map.size());
 		}
 
 		if (it->second.upgradable){
@@ -473,7 +481,10 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 
 int COPKGManager::doUpdate()
 {
+	CHintBox *hb = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_UPDATE_CHECK);
+	hb->paint();
 	int r = execCmd(pkg_types[OM_UPDATE], CShellWindow::QUIET);
+	delete hb;
 	if (r) {
 		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
 		msg += '\n' + tmp_str;

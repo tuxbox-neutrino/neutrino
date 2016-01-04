@@ -1875,6 +1875,8 @@ opkg.messagebox.size.error Nicht genügend freier Speicher für Paketinstallatio
 opkg.messagebox.updates.available Aktualisierungen verfügbar!
 opkg.success.install Installation erfolgreich!\nNeustart von Neutrino kann erforderlich sein. Jetzt neu starten?
 opkg.title Paketverwaltung
+opkg.update.check Prüfe auf Updates...
+opkg.update.reading_lists Paketlisten werden eingelesen...
 opkg.upgrade Installierte Pakete aktualisieren
 opkg.warning_3rdparty_packages Drittanbieter-Pakete könnten Ihr System beschädigen! Sind Sie sicher, dieses Paket zu installieren?
 options.default Voreinstellungen benutzen

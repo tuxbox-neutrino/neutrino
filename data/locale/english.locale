@@ -1875,6 +1875,8 @@ opkg.messagebox.size.error Not enough free memory available for this package!
 opkg.messagebox.updates.available Updates available!
 opkg.success.install Install successful!\n restart of Neutrino might be required. Restart now?
 opkg.title Package Management
+opkg.update.check Checking for updates...
+opkg.update.reading_lists Reading package lists...
 opkg.upgrade Upgrade installed packages
 opkg.warning_3rdparty_packages 3rd party packages could damage your system! Are you sure install this package?
 options.default Reset to defaults

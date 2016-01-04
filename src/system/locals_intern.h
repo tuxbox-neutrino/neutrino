@@ -1902,6 +1902,8 @@ const char * locale_real_names[] =
 	"opkg.messagebox.updates.available",
 	"opkg.success.install",
 	"opkg.title",
+	"opkg.update.check",
+	"opkg.update.reading_lists",
 	"opkg.upgrade",
 	"opkg.warning_3rdparty_packages",
 	"options.default",
