@@ -392,6 +392,7 @@ void COPKGManager::updateMenu()
 	getPkgData(OM_LIST_INSTALLED);
 	getPkgData(OM_LIST_UPGRADEABLE);
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
+		/* this should no longer trigger at all */
 		if (badpackage(it->second.name))
 			continue;
 		it->second.forwarder->iconName_Info_right = "";
@@ -524,6 +525,7 @@ int COPKGManager::showMenu()
 
 	pkg_vec.clear();
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
+		/* this should no longer trigger at all */
 		if (badpackage(it->second.name))
 			continue;
 		it->second.forwarder = new CMenuForwarder(it->second.desc, true, NULL , this, it->second.name.c_str());
@@ -643,10 +645,12 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 			continue;
 
 		switch (pkg_content_id) {
-			case OM_LIST: {
+			case OM_LIST:
+				/* do not even put "bad" packages into the list to save memory */
+				if (badpackage(name))
+					continue;
 				pkg_map[name] = pkg(name, line, line);
 				break;
-			}
 			case OM_LIST_INSTALLED: {
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
