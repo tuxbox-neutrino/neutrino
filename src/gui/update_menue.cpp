@@ -106,7 +106,7 @@ int CSoftwareUpdate::showSoftwareUpdate()
 		softUpdate.addItem(mf);
 
 		//firmware update via opkg
-		mf = new CMenuForwarder(LOCALE_OPKG_TITLE, COPKGManager::hasOpkgSupport(), NULL, new COPKGManager());
+		mf = new CMenuDForwarder(LOCALE_OPKG_TITLE, COPKGManager::hasOpkgSupport(), NULL, new COPKGManager());
 		mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
 		softUpdate.addItem(mf);
 	}
