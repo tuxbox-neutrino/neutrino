@@ -379,7 +379,7 @@ bool COPKGManager::badpackage(std::string &s)
 	}
 
 	if (!st.empty()){
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d] found bad package => %s [filtered with %s]\n", __func__, __LINE__, s.c_str(), st.c_str());
+		dprintf(DEBUG_INFO, "[%s] filtered '%s' pattern(s) '%s'\n", __func__, s.c_str(), st.c_str());
 		return true;
 	}
 
