@@ -365,13 +365,14 @@ bool COPKGManager::badpackage(std::string &s)
 		bool res = false;
 		/* poor man's regex :-) only supported are "^" and "$" */
 		if (p.substr(patlen, 1) == "$") { /* match at end */
-			if (s.rfind(p.substr(0, patlen)) == (s.length() - patlen))
+			size_t pos = s.rfind(p.substr(0, patlen)); /* s.len-patlen can be -1 == npos */
+			if (pos != string::npos && pos == (s.length() - patlen))
 				res = true;
 		} else if (p.substr(0, 1) == "^") { /* match at beginning */
 			if (s.find(p.substr(1)) == 0)
 				res = true;
 		} else { /* match everywhere */
-			if (s.find(p) != std::string::npos)
+			if (s.find(p) != string::npos)
 				res = true;
 		}
 		if (res)
