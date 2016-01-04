@@ -464,7 +464,9 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 		status.hide();
 	}
 
+#if 0
 	pkg_map.clear();
+#endif
 
 	return ret;
 }
@@ -493,8 +495,10 @@ int COPKGManager::showMenu()
 	if (checkUpdates())
 		DisplayInfoMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE));
 
+#if 0
 	getPkgData(OM_LIST);
 	getPkgData(OM_LIST_UPGRADEABLE);
+#endif
 
 	menu = new CMenuWidget(g_Locale->getText(LOCALE_SERVICEMENU_UPDATE), NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
 	menu->addIntroItems(LOCALE_OPKG_TITLE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_BACK, CMenuWidget::BRIEF_HINT_YES);
