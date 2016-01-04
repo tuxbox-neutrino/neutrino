@@ -93,10 +93,6 @@ class CComponentsPicture : public CComponentsItem
 		///paint image
 		void paintPicture();
 
-		// t = CFrameBuffer::TM_BLACK : Transparency when black content ('pseudo' transparency)
-		// t = CFrameBuffer::TM_NONE : No 'pseudo' transparency
-		void SetTransparent(int t){ image_transparent = t; }
-
 	public:
 		/*!
 		Constructor for image objects: use this for scaled images.
@@ -159,6 +155,13 @@ class CComponentsPicture : public CComponentsItem
 
 		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.
 		virtual inline bool isPicPainted(){return is_image_painted;};
+
+		/**sets transparency mode if icons
+		 * @param[in] t 	Transparency mode
+		 * 			@li t = CFrameBuffer::TM_BLACK : Transparency when black content ('pseudo' transparency)
+		 * 			@li t = CFrameBuffer::TM_NONE : No 'pseudo' transparency
+		*/
+		void SetTransparent(int t){ image_transparent = t; }
 
 		///paint item
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
