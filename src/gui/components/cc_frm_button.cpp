@@ -150,7 +150,7 @@ void CComponentsButton::initIcon()
 			cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
 
 		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, y_icon, cc_btn_icon, this);
-
+		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 		int h_icon = cc_btn_icon_obj->getHeight();
 
 		//get required icon height
