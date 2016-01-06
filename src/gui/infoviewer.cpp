@@ -195,35 +195,22 @@ void CInfoViewer::start ()
 		      2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 25;
 	infoViewerBB->Init();
 
-	if ( g_settings.infobar_show_channellogo != 3 && g_settings.infobar_show_channellogo != 5  && g_settings.infobar_show_channellogo != 6) /* 3 & 5 & 6 is "default" with sigscales etc. */
-	{
-		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10;
-		ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
-	}
-	else
-	{	/* default mode, with signal bars etc. */
-		ChanWidth = 122;
-		ChanHeight = 74;
-		int test = g_SignalFont->getWidth() * 14;
-		if (test > ChanWidth) {
-			ChanWidth = test;
-		}
-		test = (g_SignalFont->getHeight() * 2) + (36 * g_settings.screen_yres / 100);
-		if (test > ChanHeight) {
-			ChanHeight = test;
-		}
-	}
+	ChanWidth = max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10);
+
+	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
+	ChanHeight += g_SignalFont->getHeight()/2;
+	ChanHeight = max(75, ChanHeight);
 
 	BoxStartX = g_settings.screen_StartX + 10;
 	BoxEndX = g_settings.screen_EndX - 10;
 	BoxEndY = g_settings.screen_EndY - 10 - infoViewerBB->InfoHeightY_Info - infoViewerBB->bottom_bar_offset;
 	BoxStartY = BoxEndY - InfoHeightY - ChanHeight / 2;
 
-	ChanNameY = BoxStartY + (ChanHeight / 2)/* + SHADOW_OFFSET*/;	//oberkante schatten?
+	ChanNameY = BoxStartY + (ChanHeight / 2) + SHADOW_OFFSET;
 	ChanInfoX = BoxStartX + (ChanWidth / 3);
 
 	initClock();
-	time_height = clock->getHeight();
+	time_height = max(ChanHeight / 2, clock->getHeight());
 	time_width = clock->getWidth();
 }
 
@@ -405,12 +392,12 @@ void CInfoViewer::paintBackground(int col_NumBox)
 	paintBody();
 
 	// number box
+	int y_numbox = body->getYPos()-ChanHeight-SHADOW_OFFSET;
 	if (numbox == NULL){ //TODO: move into an own member, paintNumBox() or so...
-		numbox = new CComponentsShapeSquare(BoxStartX, BoxStartY, ChanWidth, ChanHeight);
-		numbox->enableShadow(CC_SHADOW_ON, 6, true);
+		numbox = new CComponentsShapeSquare(BoxStartX, y_numbox, ChanWidth, ChanHeight);
+		numbox->enableShadow(CC_SHADOW_ON, SHADOW_OFFSET, true);
 	}else
-		numbox->setDimensionsAll(BoxStartX, BoxStartY, ChanWidth, ChanHeight);
-
+		numbox->setDimensionsAll(BoxStartX, y_numbox, ChanWidth, ChanHeight);
 	numbox->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : col_NumBox);
 	numbox->enableColBodyGradient(g_settings.theme.infobar_gradient_top, g_settings.theme.infobar_gradient_top ? COL_INFOBAR_PLUS_0 : col_NumBox, g_settings.theme.infobar_gradient_top_direction);
 	numbox->setCorner(c_rad_mid, CORNER_ALL);
@@ -419,7 +406,7 @@ void CInfoViewer::paintBackground(int col_NumBox)
 
 void CInfoViewer::paintHead()
 {
-	int head_x = BoxStartX+ChanWidth+5;
+	int head_x = BoxStartX+ChanWidth;
 	int head_w = BoxEndX-head_x;
 	if (header == NULL){
 		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT);
@@ -782,7 +769,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 				}
 			}
 			int chanH = g_SignalFont->getHeight ();
-			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2) , BoxStartY + chanH, satNameWidth, satname_tmp, COL_INFOBAR_TEXT);
+			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2) , numbox->getYPos() + chanH, satNameWidth, satname_tmp, COL_INFOBAR_TEXT);
 			ChanNumYPos += 10;
 		}
 
@@ -1501,7 +1488,7 @@ void CInfoViewer::showSNR ()
 	   TODO: decouple this  */
 	if (!fileplay && !IS_WEBTV(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 )) {
 		int chanH = g_SignalFont->getHeight();
-// 		int freqStartY = BoxStartY + 2 * chanH - 3;
+		int y_numbox = numbox->getYPos();
 		if ((newfreq && chanready) || SDT_freq_update) {
 			char freq[20];
 			newfreq = false;
@@ -1515,12 +1502,12 @@ void CInfoViewer::showSNR ()
 			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / 1000, frequency % 1000, polarisation.c_str());
 
 			int satNameWidth = g_SignalFont->getRenderWidth (freq);
-			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2), BoxStartY + 2 * chanH - 3, satNameWidth, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT);
+			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2), y_numbox + 2 * chanH - 3, satNameWidth, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT);
 			SDT_freq_update = false;
 		}
 		if (sigbox == NULL){
 			int sb_x = ChanWidth *10/100;
-			sigbox = new CSignalBox(BoxStartX+sb_x, BoxStartY+ChanHeight/2, ChanWidth-2*sb_x, ChanHeight/2, CFEManager::getInstance()->getLiveFE(), true, NULL, "S", "Q");
+			sigbox = new CSignalBox(BoxStartX+sb_x, y_numbox+ChanHeight/2, ChanWidth-2*sb_x, ChanHeight/2, CFEManager::getInstance()->getLiveFE(), true, NULL, "S", "Q");
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
 			sigbox->doPaintBg(false);
 		}
@@ -2079,7 +2066,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 		// calculate mid of numberbox
 		int satNameHeight = g_settings.infobar_sat_display ? g_SignalFont->getHeight() : 0;
 		int x_mid = BoxStartX + ChanWidth / 2;
-		y_mid = BoxStartY + (satNameHeight + ChanHeight) / 2;
+		y_mid = numbox->getYPos() + (satNameHeight + ChanHeight) / 2;
 
 		g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, ChanWidth, ChanHeight - satNameHeight);
 		// channel name with number
