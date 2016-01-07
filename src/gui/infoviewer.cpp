@@ -327,7 +327,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 			if (rec == NULL){ //TODO: full refactoring of this icon handler
 				rec = new CComponentsShapeSquare(box_posX, BoxStartY + box_posY , box_len, chanH, NULL, CC_SHADOW_ON, COL_RED, COL_INFOBAR_PLUS_0);
 				rec->setFrameThickness(2);
-				rec->setShadowWidth(3);
+				rec->setShadowWidth(SHADOW_OFFSET/2);
 				rec->setCorner(RADIUS_MIN, CORNER_ALL);
 			}
 			if (!rec->isPainted())
@@ -1949,7 +1949,7 @@ void CInfoViewer::showInfoFile()
 	//set some properties for info object
 	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
 	infobar_txt->setCorner(RADIUS_SMALL);
-	infobar_txt->enableShadow(CC_SHADOW_ON, 3);
+	infobar_txt->enableShadow(CC_SHADOW_ON, SHADOW_OFFSET/2);
 	infobar_txt->setTextColor(COL_INFOBAR_TEXT);
 	infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
 	infobar_txt->doPaintTextBoxBg(false);
