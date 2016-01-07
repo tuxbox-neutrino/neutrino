@@ -406,7 +406,7 @@ void CInfoViewer::paintBackground(int col_NumBox)
 
 void CInfoViewer::paintHead()
 {
-	int head_x = BoxStartX+ChanWidth;
+	int head_x = BoxStartX+ChanWidth -1; /*Ugly: -1 to avoid background shine through round borders*/
 	int head_w = BoxEndX-head_x;
 	if (header == NULL){
 		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT);
