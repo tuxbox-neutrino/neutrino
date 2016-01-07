@@ -1422,11 +1422,12 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	menu_screenshot->addItem(mc);
 }
 
-#define SCREENSAVER_MODE_OPTION_COUNT 2
+#define SCREENSAVER_MODE_OPTION_COUNT 3
 const CMenuOptionChooser::keyval SCREENSAVER_MODE_OPTIONS[SCREENSAVER_MODE_OPTION_COUNT] =
 {
 	{ 0, LOCALE_SCREENSAVER_MODE_IMAGE },
-	{ 1, LOCALE_SCREENSAVER_MODE_CLOCK }
+	{ 1, LOCALE_SCREENSAVER_MODE_CLOCK },
+	{ 2, LOCALE_SCREENSAVER_MODE_CLOCK_COLOR }
 };
 
 void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)

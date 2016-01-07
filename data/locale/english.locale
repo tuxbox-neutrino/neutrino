@@ -2159,6 +2159,7 @@ screensaver.dir Directory
 screensaver.menu Screensaver
 screensaver.mode Mode
 screensaver.mode_clock Clock
+screensaver.mode_clock_color Clock colored
 screensaver.mode_image Images
 screensaver.off Screensaver off
 screensaver.random Random Images
