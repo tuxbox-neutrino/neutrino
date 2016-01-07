@@ -33,7 +33,7 @@
 #include <neutrino.h>
 #include <gui/volumebar.h>
 #include <gui/timeosd.h>
-
+#include "screensaver.h"
 
 
 CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
@@ -96,7 +96,7 @@ void CTimeOSD::initTimeString()
 void CTimeOSD::show(time_t time_show, bool force)
 {
 	time_show /= 1000;
-	if (!force && (m_mode == MODE_HIDE || m_time_show == time_show))
+	if (!force && (m_mode == MODE_HIDE || m_time_show == time_show) || CScreenSaver::getInstance()->IsRun())
 		return;
 	m_time_show = time_show;
 

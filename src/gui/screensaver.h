@@ -65,7 +65,7 @@ class CScreenSaver : public sigc::trackable
 		CScreenSaver();
 		~CScreenSaver();
 		static CScreenSaver* getInstance();
-
+		bool IsRun();
 		void Start();
 		void Stop();
 		sigc::signal<void> OnBeforeStart;
