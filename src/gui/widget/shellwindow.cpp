@@ -245,14 +245,13 @@ void CShellWindow::showResult()
 		}
 
 		if ((mode & VERBOSE)){
-			CComponentsButton *btn = NULL;
 			if (show_button){
 				int b_width = 150;
 				int b_height = 35;
 				int xpos = frameBuffer->getScreenWidth() - b_width;
 				int ypos = frameBuffer->getScreenHeight() - b_height;
-				btn = new CComponentsButton(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_BACK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
-				btn->paint(false); /* saving background is not really needed */
+				CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_BACK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
+				btn.paint();
 			}
 
 			neutrino_msg_t msg;
@@ -265,8 +264,6 @@ void CShellWindow::showResult()
 					g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 				while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
 			}
-			if (btn)
-				delete btn;
 			textBox->hide();
 		}
 	}
