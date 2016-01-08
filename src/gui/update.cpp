@@ -508,7 +508,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	CVFD::getInstance()->setMode(CLCD::MODE_PROGRESSBAR2);
 #endif // VFD_UPDATE
 
-	showGlobalStatus(19);
+
 	paint();
 	showGlobalStatus(20);
 

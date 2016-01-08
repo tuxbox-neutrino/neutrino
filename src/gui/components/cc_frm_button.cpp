@@ -102,8 +102,8 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	shadow		= shadow_mode;
 	shadow_w	= SHADOW_OFFSET;
 
-	cc_body_gradient_enable = false/*g_settings.gradiant*/; //gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
-	setColBodyGradient(CColorGradient::gradientLight2Dark, CFrameBuffer::gradientVertical, CColorGradient::light);
+	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
+	setColBodyGradient(cc_body_gradient_enable/*CColorGradient::gradientLight2Dark*/, CFrameBuffer::gradientVertical, CColorGradient::light);
 	col_frame 	= color_frame;
 	col_body	= cc_body_gradient_enable? COL_DARK_GRAY : color_body;
 	col_shadow	= color_shadow;
@@ -150,7 +150,7 @@ void CComponentsButton::initIcon()
 			cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
 
 		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, y_icon, cc_btn_icon, this);
-
+		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 		int h_icon = cc_btn_icon_obj->getHeight();
 
 		//get required icon height

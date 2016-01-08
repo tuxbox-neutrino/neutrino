@@ -112,10 +112,6 @@ void CScreenSaver::Stop()
 		thrScreenSaver = 0;
 	}
 
-	if(thrScreenSaver)
-		pthread_cancel(thrScreenSaver);
-	thrScreenSaver = 0;
-
 	if (scr_clock){
 		scr_clock->Stop();
 		delete scr_clock;

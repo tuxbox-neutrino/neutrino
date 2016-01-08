@@ -779,8 +779,6 @@ imageinfo.version Version:
 inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen...
 infoviewer.epgwait Warte auf EPG-Informationen...
-infoviewer.eventlist EPG/Vorschau
-infoviewer.languages Tonwahl
 infoviewer.motor_moving Antennenpositionierung
 infoviewer.next Später
 infoviewer.nocurrent Keine Info zu laufendem Programm
@@ -788,10 +786,8 @@ infoviewer.noepg Keine EPG-Information verfügbar
 infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar
 infoviewer.now Jetzt
 infoviewer.selecttime Startzeiten
-infoviewer.streaminfo Erweiterungen
 infoviewer.subchan_disp_pos Unterkanalanzeige
 infoviewer.subchan_infobar Infobar
-infoviewer.subservice Bildregie
 infoviewer.waittime Warte auf Uhrzeit...
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
@@ -1636,15 +1632,15 @@ moviebrowser.help_button_red Sortierung ändern
 moviebrowser.help_button_right Ansicht ändern
 moviebrowser.help_button_yellow Aktives Fenster wechseln
 moviebrowser.hide_series Verstecke Serien
-moviebrowser.hint_copy_onefile 
-moviebrowser.hint_copy_several 
-moviebrowser.hint_cut 
+moviebrowser.hint_copy_onefile Erstellt aus den Sprungmarken des Films einen neuen Film
+moviebrowser.hint_copy_several Erstellt aus den Sprungmarken des Films mehrere neue Filme
+moviebrowser.hint_cut Schneidet die Sprungmarken aus dem Film und erstellt einen neuen Film
 moviebrowser.hint_jumpbackward Rücksprung in 5 Sekunden\n'0' zum Weitersehen
 moviebrowser.hint_jumpforward Werbung überspringen in 5 Sekunden\n'0' zum Ansehen
 moviebrowser.hint_movieend Filmende in 5 Sekunden\n'0' zum Weitersehen
 moviebrowser.hint_newbook_backward Neue Wiederholung gestartet.\n'%s' bestimmt die Endposition, '0' bricht ab.
 moviebrowser.hint_newbook_forward Neuer Werbesprung gestartet.\n'%s' bestimmt die Endposition, '0' bricht ab.
-moviebrowser.hint_truncate 
+moviebrowser.hint_truncate Entfernt den Filmteil hinter der Filmende-Markierung
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
 moviebrowser.info_file Datei
@@ -1858,7 +1854,8 @@ nfsmenu.head NFS/CIFS/FTPFS Einstellungen
 nvod.percentage (%d%% vorbei)
 nvod.starting (Beginn in %d min)
 nvodselector.directormode Bildregie-Modus
-nvodselector.head Anfangszeit auswählen
+nvodselector.head Bildregie
+nvodselector.starttime Anfangszeit auswählen
 nvodselector.subservice Perspektiven
 opkg.button.expert_off Standard-Modus
 opkg.button.expert_on Experten-Modus
@@ -2357,6 +2354,10 @@ usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwe
 usermenu.msg_warning_name Sie haben mehrere Menüpunkte für dieses Menü angelegt,\naber keinen neuen Namen festgelegt.\nEs ist daher empfohlen, einen neuen Namen zu vergeben!
 usermenu.msg_warning_no_items Sie haben keine Menüpunkte für dieses Menü angelegt!\nDer Menüname wird daher zurückgesetzt!
 usermenu.name Name
+usermenu.title_blue Erweiterungen
+usermenu.title_green Tonwahl
+usermenu.title_red EPG
+usermenu.title_yellow Bildregie
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
 videomenu.analog_auto AUTO

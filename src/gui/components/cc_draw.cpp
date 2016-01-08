@@ -76,7 +76,6 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 
 CCDraw::~CCDraw()
 {
-	hide();
 	clearFbData();
 }
 

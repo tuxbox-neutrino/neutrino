@@ -89,7 +89,7 @@ void CShellWindow::exec()
 		int w_shell = frameBuffer->getScreenWidth();
 		unsigned int lines_max = h_shell / font->getHeight();
 		list<std::string> lines;
-		CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenX(), w_shell, h_shell);
+		CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenY(), w_shell, h_shell);
 		if (textBox == NULL){
 			textBox = new CTextBox(cmd.c_str(), font, CTextBox::BOTTOM, &textBoxPosition);
 			textBox->enableSaveScreen(false);
@@ -251,7 +251,8 @@ void CShellWindow::showResult()
 				int xpos = frameBuffer->getScreenWidth() - b_width;
 				int ypos = frameBuffer->getScreenHeight() - b_height;
 				CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_BACK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
-				btn.paint();
+				btn.setColorBody(COL_MENUCONTENT_PLUS_0);
+				btn.paint(false);
 			}
 
 			neutrino_msg_t msg;

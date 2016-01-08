@@ -266,14 +266,15 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_RemoteControl->subChannels.empty())
 				break;
 			// NVOD/SubService- Kanal!
-			CMenuWidget *tmpNVODSelector = new CMenuWidget(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, NEUTRINO_ICON_VIDEO);
+			CMenuWidget *tmpNVODSelector = new CMenuWidget(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_STARTTIME, NEUTRINO_ICON_VIDEO);
 			if (!subchanselect.getNVODMenu(tmpNVODSelector)) {
 				delete tmpNVODSelector;
 				break;
 			}
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuDForwarder(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, true, NULL, tmpNVODSelector, "-1", key,icon);
+			menu_item = new CMenuDForwarder(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_STARTTIME, true, NULL, tmpNVODSelector, "-1", key,icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
+
 			break;
 		}
 		case SNeutrinoSettings::ITEM_TECHINFO:
@@ -519,7 +520,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 			case SNeutrinoSettings::ITEM_SUBCHANNEL:
 				if (!g_RemoteControl->subChannels.empty()) {
 					if(loc == NONEXISTANT_LOCALE && !text)
-						loc = g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD;
+						loc = g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_STARTTIME;
 					else
 						return_title = true;
 					active = true;

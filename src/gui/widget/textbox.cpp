@@ -580,7 +580,7 @@ void CTextBox::refreshText(void)
 	}
 
 	//detect corrupt position values
-	if ((ax<=0) || (ay<=0)){
+	if ((ax<0) || (ay<0)){
 		dprintf(DEBUG_NORMAL, "\033[33m[CTextBox] [%s - %d] ERROR! position out of range: ax = %d, ay = %d, dx = %d, dy = %d\033[0m\n", __func__, __LINE__, ax, ay, dx, dy);
 		return;
 	}
