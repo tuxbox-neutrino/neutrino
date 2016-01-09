@@ -728,6 +728,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh) {
 	if (!hh->ParamList["repeat"].empty())
 		repeat = atoi(hh->ParamList["repeat"].c_str());
 #endif
+#if 0
 	int evd = open(EVENTDEV, O_RDWR);
 	if (evd < 0) {
 		hh->SendError();
@@ -747,6 +748,9 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh) {
 		return;
 	}
 	close(evd);
+#endif
+	/* 0 == KEY_PRESSED in rcinput.cpp */
+	g_RCInput->postMsg((neutrino_msg_t) sendcode, 0);
 	hh->SendOk();
 }
 //-----------------------------------------------------------------------------
