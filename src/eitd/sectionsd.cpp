@@ -1473,7 +1473,8 @@ void CTimeThread::run()
 			else
 				change(0);
 
-			xprintf("%s: getting DVB time (isOpen %d)\n", name.c_str(), isOpen());
+			xprintf("%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)\n",
+				name.c_str(), current_service, isOpen());
 			int rc;
 #if HAVE_COOL_HARDWARE
 			/* libcoolstream does not like the repeated read if the dmx is not yet running
@@ -1489,7 +1490,8 @@ void CTimeThread::run()
 			} while (running && rc == 0
 				 && (time_monotonic_ms() - start) < (time_t)timeoutInMSeconds);
 #endif
-			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
+			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
+				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
 				SIsectionTIME st(static_buf);
 				if (st.is_parsed()) {
