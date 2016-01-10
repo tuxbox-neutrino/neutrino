@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 							 and some other guys
 
-	Copyright (C) 2006-2014 Stefan Seyfried
+	Copyright (C) 2006-2016 Stefan Seyfried
 
 	Copyright (C) 2011 CoolStream International Ltd
 
@@ -1879,7 +1879,11 @@ void CNeutrinoApp::InitSectiondClient()
 	dprintf(DEBUG_NORMAL, "had to wait %ld ms for sectionsd to start up\n", time_monotonic_ms() - t);
 #endif
 	g_Sectionsd = new CSectionsdClient;
-	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
+	struct timespec t;
+	if (clock_gettime(CLOCK_MONOTONIC, &t)) {
+		dprintf(DEBUG_NORMAL, "CLOCK_MONOTONIC not supported? (%m), falling back to EVT_TIMESET\n");
+		g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
+	}
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_EIT_COMPLETE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
