@@ -2,6 +2,7 @@
  * $Id: debug.h,v 1.7 2003/04/30 04:39:03 obi Exp $
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
+ * (C) 2011,2013,2016 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,14 +49,14 @@ extern int zapit_debug;
 	do {							\
 		if (zapit_debug)					\
 			fprintf(stdout, "[%s:%s:%d] " fmt,	\
-				__FILE__, __FUNCTION__,		\
+				__file__, __func__,		\
 				__LINE__ , ## args);		\
 	} while (0)
 
 #define ERROR(str)						\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] %s: %s\n",		\
-			__FILE__, __FUNCTION__,			\
+			__file__, __func__,			\
 			__LINE__, str, strerror(errno));	\
 	} while (0)
 
@@ -64,14 +65,14 @@ extern int zapit_debug;
 #define INFO(fmt, args...)					\
 	do {							\
 		fprintf(stdout, "[%s:%s:%d] " fmt "\n",		\
-			__FILE__, __FUNCTION__,			\
+			__file__, __func__,			\
 			__LINE__ , ## args);			\
 	} while (0)
 
 #define WARN(fmt, args...)					\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] " fmt "\n",		\
-			__FILE__, __FUNCTION__,			\
+			__file__, __func__,			\
 			__LINE__ , ## args);			\
 	} while (0)
 
