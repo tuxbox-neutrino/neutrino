@@ -681,7 +681,7 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 				break;
 			}
 			default:
-				fprintf(stderr, "%s %s %d: unrecognized content id %d\n", __FILE__, __func__, __LINE__, pkg_content_id);
+				fprintf(stderr, "%s %s %d: unrecognized content id %d\n", __file__, __func__, __LINE__, pkg_content_id);
 				break;
 		}
 	}
