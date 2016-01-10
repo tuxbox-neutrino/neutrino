@@ -5,7 +5,7 @@
 							 and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2006-2014 Stefan Seyfried
+	Copyright (C) 2006-2016 Stefan Seyfried
 
 	Copyright (C) 2011 CoolStream International Ltd
 
@@ -1981,7 +1981,11 @@ void CNeutrinoApp::InitZapitClient()
 void CNeutrinoApp::InitSectiondClient()
 {
 	g_Sectionsd = new CSectionsdClient;
-	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
+	struct timespec t;
+	if (clock_gettime(CLOCK_MONOTONIC, &t)) {
+		dprintf(DEBUG_NORMAL, "CLOCK_MONOTONIC not supported? (%m), falling back to EVT_TIMESET\n");
+		g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
+	}
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_EIT_COMPLETE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
