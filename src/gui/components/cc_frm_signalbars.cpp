@@ -34,7 +34,7 @@
 #include <sstream>
 
 #define SB_MIN_HEIGHT 12
-#define REF_PERCENT_TXT "00% "
+#define REF_PERCENT_TXT "100% "
 
 using namespace std;
 
