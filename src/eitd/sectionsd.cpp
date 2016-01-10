@@ -5,7 +5,7 @@
  * Copyright (C) 2001 by fnbrd (fnbrd@gmx.de)
  * Homepage: http://dbox2.elxsi.de
  *
- * Copyright (C) 2008-2013 Stefan Seyfried
+ * Copyright (C) 2008-2016 Stefan Seyfried
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
  *
@@ -1380,7 +1380,7 @@ void CTimeThread::waitForTimeset(void)
 	time_mutex.unlock();
 }
 
-void CTimeThread::setSystemTime(time_t tim)
+bool CTimeThread::setSystemTime(time_t tim, bool force)
 {
 	struct timeval tv;
 	struct tm t;
@@ -1388,6 +1388,7 @@ void CTimeThread::setSystemTime(time_t tim)
 	gettimeofday(&tv, NULL);
 	timediff = int64_t(tim * 1000000 - (tv.tv_usec + tv.tv_sec * 1000000));
 	localtime_r(&tv.tv_sec, &t);
+	int absdiff = abs(tim - tv.tv_sec);
 
 	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s",
 		name.c_str(), timediff,
@@ -1399,9 +1400,9 @@ void CTimeThread::setSystemTime(time_t tim)
 		return;
 	}
 #endif
-	if (timediff == 0) /* very unlikely... :-) */
-		return;
-	if (timeset && abs(tim - tv.tv_sec) < 120) { /* abs() is int */
+	if (absdiff < 1) /* do not bother for differences less than one second */
+		return true;
+	if (absdiff < 120) {
 		struct timeval oldd;
 		tv.tv_sec = time_t(timediff / 1000000LL);
 		tv.tv_usec = suseconds_t(timediff % 1000000LL);
@@ -1411,14 +1412,21 @@ void CTimeThread::setSystemTime(time_t tim)
 			xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
 				(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
 			timediff = 0;
-			return;
+			return true;
 		}
+	} else if (timeset && ! force) {
+		xprintf("difference is > 120s, try again and set 'force=true'\n");
+		return false;
 	}
+	/* still fall through if adjtime() failed */
 
 	tv.tv_sec = tim;
 	tv.tv_usec = 0;
-	if (settimeofday(&tv, NULL) < 0)
-		perror("[sectionsd] settimeofday");
+	if (settimeofday(&tv, NULL) == 0)
+		return true;
+
+	perror("[sectionsd] settimeofday");
+	return false;
 }
 
 void CTimeThread::addFilters()
@@ -1430,6 +1438,7 @@ void CTimeThread::addFilters()
 void CTimeThread::run()
 {
 	time_t dvb_time = 0;
+	bool retry = false; /* if time seems fishy, set to true and try again */
 	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
 	const char *tn = ("sd:" + name).c_str();
 	set_threadname(tn);
@@ -1503,7 +1512,14 @@ void CTimeThread::run()
 		sleep_time = ntprefresh * 60;
 		if(success) {
 			if(dvb_time) {
-				setSystemTime(dvb_time);
+				bool ret = setSystemTime(dvb_time, retry);
+				if (! ret) {
+					xprintf("%s: time looks wrong, trying again\n", name.c_str());
+					sendToSleepNow = false;
+					retry = true;
+					continue;
+				}
+				retry = false;
 				/* retry a second time immediately after start, to get TOT ? */
 				if(first_time)
 					sleep_time = 5;
