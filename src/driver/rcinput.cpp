@@ -884,39 +884,11 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 						{
 							case CSectionsdClient::EVT_TIMESET:
 							{
-#if 0
-								struct timeval ltv;
-								gettimeofday(&ltv, NULL);
-								int64_t timeOld = ltv.tv_usec + ltv.tv_sec * (int64_t)1000000;
-								time_t dvbtime = *((time_t*)p);
-								if (dvbtime) {
-									printf("[neutrino] timeset event. ");
-									time_t difftime = dvbtime - ltv.tv_sec;
-									if (abs(difftime) > 120) 
-									{
-										printf("difference is %ld s, stepping...\n", difftime);
-										if (stime(&dvbtime))
-											perror("stime");
-									} else if (difftime != 0) {
-										struct timeval oldd;
-										ltv.tv_sec = difftime;
-										ltv.tv_usec = 0;
-										if (adjtime(&ltv, &oldd))
-											perror("adjtime");
-										int64_t t = oldd.tv_sec * 1000000LL + oldd.tv_usec;
-										printf("difference is %ld s, using adjtime(). oldd: %lld us\n", difftime, t);
-									} else
-										printf("difference is 0 s, nothing to do...\n");
-								}
-								gettimeofday( &ltv, NULL );
-								int64_t timeNew = ltv.tv_usec + ltv.tv_sec * (int64_t)1000000;
-
-								delete[] p;//new [] delete []
-								p = new unsigned char[sizeof(int64_t)];
-								*(int64_t*) p = timeNew - timeOld;
-#endif
 								printf("[neutrino] CSectionsdClient::EVT_TIMESET: timediff %" PRId64 "\n", *(int64_t*) p);
-								/* FIXME what this code really do ? */
+								/* compensate last_keypress for autorepeat / long press detection
+								 * I doubt this works correcty, if we had kernel 3.4+, using
+								 * EVIOCSCLOCKID ioctl would be better.
+								 * Still guessing the logic behind the condition... */
 								if ((int64_t)last_keypress > *(int64_t*)p)
 									last_keypress += *(int64_t *)p;
 
