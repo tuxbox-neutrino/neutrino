@@ -218,16 +218,16 @@ bool CLuaServer::luaserver_parse_command(CBasicMessage::Header &rmsg __attribute
 	size_t size;
 
 	if (!CBasicServer::receive_data(connfd, &size, sizeof(size))) {
-		fprintf(stderr, "%s %s %d: receive_data failed\n", __FILE__, __func__, __LINE__);
+		fprintf(stderr, "%s %s %d: receive_data failed\n", __file__, __func__, __LINE__);
 		return true;
 	}
 	char data[size];
 	if (!CBasicServer::receive_data(connfd, data, size)) {
-		fprintf(stderr, "%s %s %d: receive_data failed\n", __FILE__, __func__, __LINE__);
+		fprintf(stderr, "%s %s %d: receive_data failed\n", __file__, __func__, __LINE__);
 		return true;
 	}
 	if (data[size - 1]) {
-		fprintf(stderr, "%s %s %d: unterminated string\n", __FILE__, __func__, __LINE__);
+		fprintf(stderr, "%s %s %d: unterminated string\n", __file__, __func__, __LINE__);
 		return true;
 	}
 	std::string luascript;
@@ -239,7 +239,7 @@ bool CLuaServer::luaserver_parse_command(CBasicMessage::Header &rmsg __attribute
 		luascript += ".lua";
 	}
 	if (access(luascript, R_OK)) {
-		fprintf(stderr, "%s %s %d: %s not found\n", __FILE__, __func__, __LINE__, luascript.c_str());
+		fprintf(stderr, "%s %s %d: %s not found\n", __file__, __func__, __LINE__, luascript.c_str());
 		const char *result_code = "-1";
 		const char *result_string = "";
 		std::string error_string = luascript + " not found\n";
@@ -288,7 +288,7 @@ void *CLuaServer::luaserver_main_thread(void *) {
 
 	CBasicServer server;
 	if (!server.prepare(LUACLIENT_UDS_NAME)) {
-		fprintf(stderr, "%s %s %d: prepare failed\n", __FILE__, __func__, __LINE__);
+		fprintf(stderr, "%s %s %d: prepare failed\n", __file__, __func__, __LINE__);
 		pthread_exit(NULL);
 	}
 

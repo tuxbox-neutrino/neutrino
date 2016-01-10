@@ -105,14 +105,14 @@ static unsigned int timer_msec;
 #define DBG_TIMER_STOP(label)												\
 	gettimeofday(&timer_tv2, NULL);											\
 	timer_msec = ((timer_tv2.tv_sec - timer_tv.tv_sec) * 1000) + ((timer_tv2.tv_usec - timer_tv.tv_usec) / 1000);	\
-	printf("##### [%s] %s: %u msec\n", __FILE__, label, timer_msec);
+	printf("##### [%s] %s: %u msec\n", __file__, label, timer_msec);
 #else
 #define DBG_TIMER_START()
 #define DBG_TIMER_STOP(label)
 #endif // UPDATE_DEBUG_TIMER
 
 #ifdef UPDATE_DEBUG
-#define DBG_MSG(fmt, args...) printf("#### [%s:%s:%d] " fmt "\n", __FILE__, __FUNCTION__, __LINE__ , ## args);
+#define DBG_MSG(fmt, args...) printf("#### [%s:%s:%d] " fmt "\n", __file__, __func__, __LINE__ , ## args);
 #else
 #define DBG_MSG(fmt, args...)
 #endif // UPDATE_DEBUG

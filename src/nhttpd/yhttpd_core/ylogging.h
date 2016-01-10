@@ -61,11 +61,11 @@ class CLogging
 	
 // print show file and linenumber
 #define log_printfX(fmt, args...) \
-	do { CLogging::getInstance()->printf("[yhttpd(%s:%d)] " fmt, __FILE__, __LINE__, ## args); } while (0)
+	do { CLogging::getInstance()->printf("[yhttpd(%s:%d)] " fmt, __file__, __LINE__, ## args); } while (0)
 
 //Set Watch Point (show file and linenumber and function)
 #define WP() \
-	do { CLogging::getInstance()->printf("[yhttpd(%s:%d)%s]\n", __FILE__, __LINE__, __FUNCTION__); } while (0)
+	do { CLogging::getInstance()->printf("[yhttpd(%s:%d)%s]\n", __file__, __LINE__, __FUNCTION__); } while (0)
 
 // print if level matches
 #define log_level_printf(level, fmt, args...) \
@@ -73,7 +73,7 @@ class CLogging
 
 // print if level matches / show file and linenumber
 #define log_level_printfX(level, fmt, args...) \
-	do { if(CLogging::getInstance()->LogLevel>=level) CLogging::getInstance()->printf("[yhttpd#%d(%s:%d)] " fmt, level, __FILE__, __LINE__, ## args); } while (0)
+	do { if(CLogging::getInstance()->LogLevel>=level) CLogging::getInstance()->printf("[yhttpd#%d(%s:%d)] " fmt, level, __file__, __LINE__, ## args); } while (0)
 
 // print only if debug is on
 #define dprintf(fmt, args...) \

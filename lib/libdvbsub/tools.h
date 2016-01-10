@@ -37,7 +37,7 @@ extern int SysLogLevel;
 #define dsyslog	printf
 #endif
 
-#define LOG_ERROR         esyslog("ERROR (%s,%d): %m", __FILE__, __LINE__)
+#define LOG_ERROR         esyslog("ERROR (%s,%d): %m", __file__, __LINE__)
 #define LOG_ERROR_STR(s)  esyslog("ERROR: %s: %m", s)
 
 #define SECSINDAY  86400
