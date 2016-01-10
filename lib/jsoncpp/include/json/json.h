@@ -68,6 +68,11 @@ license you like.
 // End of content of file: LICENSE
 // //////////////////////////////////////////////////////////////////////
 
+/* own assert() which does not abort... */
+#define assert(x) do { \
+	if (x) \
+		fprintf(stderr, "JSONCPP:%s:%d assert(%s) failed\n", __func__, __LINE__, #x); \
+} while (0)
 
 
 
