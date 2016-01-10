@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <memory.h>
-#include <assert.h>
+//#include <assert.h>
 #include <errno.h>
 #include <string.h>
 #include <signal.h>
@@ -32,6 +32,11 @@
 #include <driver/rcinput.h>
 #include <gui/lua/luainstance.h>
 #include "lua_threads.h"
+
+#define assert(x) do {	\
+	if (x) \
+		fprintf(stderr, "CLLThread:%s:%d assert(%s) failed\n", __func__, __LINE__, #x); \
+} while (0)
 
 int __strerror_r(int err, char* buf, size_t len)
 {
