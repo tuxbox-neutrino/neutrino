@@ -2,7 +2,7 @@
  * $Id: debug.h,v 1.7 2003/04/30 04:39:03 obi Exp $
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
- * (C) 2011,2013 Stefan Seyfried
+ * (C) 2011,2013,2016 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,35 +45,18 @@
 /* zapit.cpp */
 extern int zapit_debug;
 
-#if defined __NFILE__
-/* this is ugly.
- * __FILE__ here is /.../zapit/include/debug.h when building outside the
- * source tree, but it is ../../src/zapit/include/zapit/debug.h (relative),
- * when building inside the source_tree.
- * So we cannot find the real filename here. Hack: when including this file
- * from src/neutrino.cpp, src/gui/..., __NFILE__ is defined => strip less characters
- * Later on, __FILE__ is the real filename, so if it starts with ../ now, the build
- * is from within the source tree => __FILE__ is only basename => strip nothing */
-static int __striplen = (strncmp(__FILE__, "../", 3) == 0) ? 0 :
-			(strstr(__FILE__, "src/zapit") != NULL) ? (strstr(__FILE__, "src/zapit") - __FILE__ + 4) : 0;
-#else
-static int __striplen = (strncmp(__FILE__, "../", 3) == 0) ? 0 :
-			(strstr(__FILE__, "src/zapit") != NULL) ? (strstr(__FILE__, "src/zapit") - __FILE__ + 14) : 0;
-#endif
-#define __SHORTFILE__ (__FILE__ + __striplen)
-
 #define DBG(fmt, args...)					\
 	do {							\
 		if (zapit_debug)					\
 			fprintf(stdout, "[%s:%s:%d] " fmt,	\
-				__SHORTFILE__, __FUNCTION__,	\
+				__file__, __func__,		\
 				__LINE__ , ## args);		\
 	} while (0)
 
 #define ERROR(str)						\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] %s: %s\n",		\
-			__SHORTFILE__, __FUNCTION__,		\
+			__file__, __func__,			\
 			__LINE__, str, strerror(errno));	\
 	} while (0)
 
@@ -82,14 +65,14 @@ static int __striplen = (strncmp(__FILE__, "../", 3) == 0) ? 0 :
 #define INFO(fmt, args...)					\
 	do {							\
 		fprintf(stdout, "[%s:%s:%d] " fmt "\n",		\
-			__SHORTFILE__, __FUNCTION__,		\
+			__file__, __func__,			\
 			__LINE__ , ## args);			\
 	} while (0)
 
 #define WARN(fmt, args...)					\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] " fmt "\n",		\
-			__SHORTFILE__, __FUNCTION__,		\
+			__file__, __func__,			\
 			__LINE__ , ## args);			\
 	} while (0)
 

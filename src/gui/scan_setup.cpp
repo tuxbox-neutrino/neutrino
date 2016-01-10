@@ -59,7 +59,6 @@
 #include <zapit/getservices.h>
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
-#define __NFILE__ 1
 #include <zapit/debug.h>
 #include <set>
 

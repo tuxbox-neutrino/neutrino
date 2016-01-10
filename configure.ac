@@ -275,6 +275,12 @@ fi
 fi
 fi
 
+# hack to define a short filename also for out-of-tree build
+if test `dirname $0` = `pwd`; then
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__=__FILE__'
+else
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__="\"$(subst $(srcdir)/,,$(abspath $<))\""'
+fi
 #
 # Check for libtdservicedb - the new one - for testing only
 #

@@ -29,7 +29,6 @@
 #include <config.h>
 #endif
 
-#define __NFILE__ 1
 #define NEUTRINO_CPP
 
 #include <stdio.h>
