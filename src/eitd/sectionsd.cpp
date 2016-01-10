@@ -1383,16 +1383,14 @@ void CTimeThread::setSystemTime(time_t tim)
 {
 	struct timeval tv;
 	struct tm t;
-	time_t now = time(NULL);
-	struct tm *tmTime = localtime_r(&now, &t);
 
 	gettimeofday(&tv, NULL);
 	timediff = int64_t(tim * 1000000 - (tv.tv_usec + tv.tv_sec * 1000000));
+	localtime_r(&tv.tv_sec, &t);
 
-	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
-			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
-			tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
-
+	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s",
+		name.c_str(), timediff,
+		t.tm_mday, t.tm_mon+1, t.tm_year+1900, t.tm_hour, t.tm_min, t.tm_sec, ctime(&tim));
 #if 0
 	/* if new time less than current for less than 1 second, ignore */
 	if(timediff < 0 && timediff > (int64_t) -1000000) {
