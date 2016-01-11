@@ -332,6 +332,9 @@ void CInfoViewer::showRecordIcon (const bool show)
 				rec->setShadowWidth(SHADOW_OFFSET/2);
 				rec->setCorner(RADIUS_MIN, CORNER_ALL);
 			}
+			if (rec->getWidth() != box_len)
+				rec->setWidth(box_len);
+
 			if (!rec->isPainted())
 				rec->paint(CC_SAVE_SCREEN_NO);
 			
