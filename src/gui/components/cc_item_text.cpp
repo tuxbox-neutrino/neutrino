@@ -133,7 +133,7 @@ void CComponentsText::initCCText()
 	if (cc_parent){
 		int th_parent_fr = cc_parent->getFrameThickness();
 		iX = cc_xr + (x <= th_parent_fr ? th_parent_fr : 0);
-		iY = cc_yr + (y <= th_parent_fr ? th_parent_fr : 0);
+		iY = cc_yr - (y <= th_parent_fr ? th_parent_fr : 0);
 	}
 
 	//init textbox
