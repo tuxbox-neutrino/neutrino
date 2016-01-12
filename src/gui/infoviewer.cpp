@@ -142,7 +142,7 @@ void CInfoViewer::Init()
 	showButtonBar = false;
 	//gotTime = g_Sectionsd->getIsTimeSet ();
 	gotTime = timeset;
-	virtual_zap_mode = false;
+	zap_mode = IV_MODE_DEFAULT;
 	newfreq = true;
 	chanready = 1;
 	fileplay = 0;
@@ -431,7 +431,7 @@ void CInfoViewer::paintBody()
 {
 	int h_body = InfoHeightY - header_height + (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
 
-	if(virtual_zap_mode)
+	if(zap_mode)
 		h_body -= (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
 
 	if (body == NULL)
@@ -440,8 +440,8 @@ void CInfoViewer::paintBody()
 		body->setDimensionsAll(ChanInfoX, ChanNameY + header_height, BoxEndX-ChanInfoX, h_body);
 
 	//set corner and shadow modes, consider virtual zap mode
-	body->setCorner(RADIUS_LARGE, virtual_zap_mode ? CORNER_BOTTOM : CORNER_NONE);
-	body->enableShadow(virtual_zap_mode ? CC_SHADOW_ON : CC_SHADOW_RIGHT);
+	body->setCorner(RADIUS_LARGE, (zap_mode) ? CORNER_BOTTOM : CORNER_NONE);
+	body->enableShadow(zap_mode ? CC_SHADOW_ON : CC_SHADOW_RIGHT);
 
 	body->setColorBody(g_settings.theme.infobar_gradient_body ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	body->enableColBodyGradient(g_settings.theme.infobar_gradient_body, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_body_direction);
@@ -702,7 +702,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	ChannelName = Channel;
 	bool new_chan = false;
 
-	if (virtual_zap_mode) {
+	if (zap_mode & IV_MODE_VIRTUAL_ZAP) {
 		if (g_RemoteControl->current_channel_id != new_channel_id) {
 			col_NumBoxText = COL_MENUHEAD_TEXT;
 		}
@@ -895,7 +895,7 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 void CInfoViewer::loop(bool show_dot)
 {
 	bool hideIt = true;
-	virtual_zap_mode = false;
+	resetSwitchMode(); //no virtual zap
 	//bool fadeOut = false;
 	timeoutEnd=0;;
 	setInfobarTimeout();
@@ -950,7 +950,7 @@ void CInfoViewer::loop(bool show_dot)
 			//infoViewerBB->showIcon_CA_Status(0);
 			infoViewerBB->showIcon_Resolution();
 		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
-			virtual_zap_mode = true;
+			setSwitchMode(IV_MODE_VIRTUAL_ZAP);
 			res = messages_return::cancel_all;
 			hideIt = true;
 		} else if ((msg == NeutrinoMessages::EVT_RECORDMODE) && 
@@ -1029,7 +1029,7 @@ void CInfoViewer::loop(bool show_dot)
 
 	g_RCInput->killTimer (sec_timer_id);
 	fader.StopFade();
-	if (virtual_zap_mode) {
+	if (zap_mode & IV_MODE_VIRTUAL_ZAP) {
 		/* if bouquet cycle set, do virtual over current bouquet */
 		if (/*g_settings.zap_cycle && */ /* (bouquetList != NULL) && */ !(bouquetList->Bouquets.empty()))
 			bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->virtual_zap_mode(msg == CRCInput::RC_right);
@@ -1444,7 +1444,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 
 void CInfoViewer::sendNoEpg(const t_channel_id for_channel_id)
 {
-	if (!virtual_zap_mode) {
+	if (!zap_mode/* & IV_MODE_DEFAULT*/) {
 		char *p = new char[sizeof(t_channel_id)];
 		memcpy(p, &for_channel_id, sizeof(t_channel_id));
 		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);
@@ -1968,7 +1968,7 @@ void CInfoViewer::showInfoFile()
 
 	//paint info, don't save background, if already painted, global hide is also done by killTitle()
 	bool save_bg = !infobar_txt->isPainted();
-	if (new_text || virtual_zap_mode)
+	if (new_text || (zap_mode & IV_MODE_VIRTUAL_ZAP))
 		infobar_txt->paint(save_bg);
 
 }

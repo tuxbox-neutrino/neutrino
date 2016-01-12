@@ -1461,7 +1461,7 @@ void CChannelList::virtual_zap_mode(bool up)
 			break;
 		}
 	}
-	g_InfoViewer->clearVirtualZapMode();
+	g_InfoViewer->resetSwitchMode(); //disable virtual_zap_mode
 
 	if (doZap) {
 		if(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0)

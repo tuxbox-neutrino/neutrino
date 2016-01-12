@@ -57,6 +57,7 @@ class CInfoViewer
 
 	bool           gotTime;
 	bool           recordModeActive;
+
 #ifndef SKIP_CA_STATUS
 	bool           CA_Status;
 #endif
@@ -110,6 +111,7 @@ class CInfoViewer
 	bool casysChange;
 	bool channellogoChange;
 	uint32_t lcdUpdateTimer;
+	int	 zap_mode;
 
 	void paintBackground(int col_Numbox);
 	void paintHead();
@@ -147,7 +149,7 @@ class CInfoViewer
  public:
 	bool     chanready;
 	bool	 is_visible;
-	bool	 virtual_zap_mode;
+
 	char     aspectRatio;
 	uint32_t sec_timer_id;
 
@@ -178,7 +180,27 @@ class CInfoViewer
 	//void	Set_CA_Status(int Status);
 	
 	int     handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
-	void    clearVirtualZapMode() {virtual_zap_mode = false;}
+
+	enum{
+		IV_MODE_DEFAULT		= 0,
+		IV_MODE_VIRTUAL_ZAP 	= 1,
+		IV_MODE_NUMBER_ZAP	= 2
+	};/*iv_switch_mode_t*/
+	/**sets mode for infoviewer.
+	* @param[in]  mode
+	* 	@li IV_MODE_DEFAULT
+	* 	@li IV_MODE_VIRTUAL_ZAP 	means the virtual zap mode, user is typing keys for virtual channel switch
+	* 	@li IV_MODE_NUMBER_ZAP 		means number mode, user is typing number keys into screen
+	* @return
+	*	void
+	* @see
+	* 	resetSwitchMode()
+	* 	getSwitchMode()
+	*/
+	void	setSwitchMode(const int& mode) {zap_mode = mode;}
+	int	getSwitchMode() {return zap_mode;}
+	void    resetSwitchMode() {setSwitchMode(IV_MODE_DEFAULT);}
+
 	void    changePB();
 	void 	ResetPB();
 	void    showSNR();
