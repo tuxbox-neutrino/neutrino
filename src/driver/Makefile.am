@@ -13,7 +13,9 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@
+	@FREETYPE_CFLAGS@ \
+	@AVFORMAT_CFLAGS@ \
+	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
 
@@ -45,21 +47,12 @@ libneutrino_driver_a_SOURCES = \
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
 	vfd.cpp
+endif
 
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
 if BOXTYPE_TRIPLE
 libneutrino_driver_a_SOURCES += \
 	newclock.cpp \
 	lcdd.cpp
-
-AM_CPPFLAGS += \
-	-I$(top_srcdir)/lib/libtriple
 endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp
-

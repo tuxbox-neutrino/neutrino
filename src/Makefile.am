@@ -22,18 +22,12 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
-	@LIBCS_CFLAGS@
+	@LIBCS_CFLAGS@ \
+	@AVFORMAT_CFLAGS@ \
+	@HWLIB_CFLAGS@
 
-if BOXTYPE_COOL
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
 if USE_PUGIXML

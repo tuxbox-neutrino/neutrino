@@ -212,6 +212,7 @@ if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
 fi
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream -I$(top_srcdir)/src/zapit/include/private'
 
 if test "$BOXMODEL" = "apollo"; then
 if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
@@ -220,6 +221,7 @@ fi
 if test -e ${srcdir}/lib/libcoolstream2/cs_frontpanel.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
 fi
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2 -I$(top_srcdir)/src/zapit/include/private'
 fi
 fi
 
@@ -238,6 +240,7 @@ fi
 #*** libcoolstream $CSL_VERSION or newer is required! ***
   #])
 #fi
+AC_SUBST(HWLIB_CFLAGS)
 AC_SUBST(LIBCS_CFLAGS)
 AC_SUBST(LIBCS_LIBS)
 AC_SUBST(FREETYPE_CFLAGS)
