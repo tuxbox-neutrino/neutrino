@@ -1472,9 +1472,11 @@ void CTimeThread::run()
 			else
 				change(0);
 
-			xprintf("%s: getting DVB time (isOpen %d)\n", name.c_str(), isOpen());
+			xprintf("%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)\n",
+				name.c_str(), current_service, isOpen());
 			int rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
-			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
+			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
+				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
 				SIsectionTIME st(static_buf);
 				if (st.is_parsed()) {
