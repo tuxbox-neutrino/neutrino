@@ -281,13 +281,8 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
-		t_channel_id chid = *(t_channel_id *)data;
-		if (chid != next_chid) {
-			/* live channel can send EVT_EIT_COMPLETE, even if no EPG scan is running */
-			INFO("EIT read complete [" PRINTF_CHANNEL_ID_TYPE "]!=[" PRINTF_CHANNEL_ID_TYPE "], ignoring", chid, next_chid);
-			return messages_return::handled;
-		}
 		scan_in_progress = false;
+		t_channel_id chid = *(t_channel_id *)data;
 		newchan = CServiceManager::getInstance()->FindChannel(chid);
 		if (newchan) {
 			scanned.insert(newchan->getTransponderId());
