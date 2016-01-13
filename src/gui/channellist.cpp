@@ -1203,7 +1203,9 @@ bool CChannelList::zapTo_ChannelID(const t_channel_id channel_id, bool force)
 bool CChannelList::showEmptyError()
 {
 	if ((*chanlist).empty()) {
-		DisplayErrorMessage(g_Locale->getText(LOCALE_CHANNELLIST_NONEFOUND)); // UTF-8
+		/* No error message when the frontend is only simulated */
+		if (!getenv("SIMULATE_FE"))
+			DisplayErrorMessage(g_Locale->getText(LOCALE_CHANNELLIST_NONEFOUND)); // UTF-8
 		return true;
 	}
 	return false;
