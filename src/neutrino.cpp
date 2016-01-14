@@ -1357,7 +1357,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	memset(radiosort, -1, sizeof(tvsort));
 
 	const char * fav_bouquetname = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
-	if(g_bouquetManager->existsUBouquet(fav_bouquetname, true) == -1)
+	if(g_bouquetManager && g_bouquetManager->existsUBouquet(fav_bouquetname, true) == -1)
 		g_bouquetManager->addBouquet(fav_bouquetname, true, true);
 
 	if(TVbouquetList) delete TVbouquetList;
@@ -1507,29 +1507,31 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	AllFavBouquetList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_FAVS));
 	/* Favorites and providers bouquets */
 	tvi = ri = 0;
-	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
-		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
-		if (!b->bHidden) {
-			if (b->getTvChannels(zapitList) || (g_settings.show_empty_favorites && b->bUser)) {
-				if(b->bUser)
-					tmp = TVfavList->addBouquet(b);
-				else
-					tmp = TVbouquetList->addBouquet(b);
+	if(g_bouquetManager){
+		for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
+			CZapitBouquet *b = g_bouquetManager->Bouquets[i];
+			if (!b->bHidden) {
+				if (b->getTvChannels(zapitList) || (g_settings.show_empty_favorites && b->bUser)) {
+					if(b->bUser)
+						tmp = TVfavList->addBouquet(b);
+					else
+						tmp = TVbouquetList->addBouquet(b);
 
-				tmp->channelList->SetChannelList(&zapitList);
-				tvi++;
-			}
-			if (b->getRadioChannels(zapitList) || (g_settings.show_empty_favorites && b->bUser)) {
-				if(b->bUser)
-					tmp = RADIOfavList->addBouquet(b);
-				else
-					tmp = RADIObouquetList->addBouquet(b);
+					tmp->channelList->SetChannelList(&zapitList);
+					tvi++;
+				}
+				if (b->getRadioChannels(zapitList) || (g_settings.show_empty_favorites && b->bUser)) {
+					if(b->bUser)
+						tmp = RADIOfavList->addBouquet(b);
+					else
+						tmp = RADIObouquetList->addBouquet(b);
 
-				tmp->channelList->SetChannelList(&zapitList);
-				ri++;
+					tmp->channelList->SetChannelList(&zapitList);
+					ri++;
+				}
+				if(b->bUser)
+					AllFavBouquetList->addBouquet(b);
 			}
-			if(b->bUser)
-				AllFavBouquetList->addBouquet(b);
 		}
 	}
 #if 0
