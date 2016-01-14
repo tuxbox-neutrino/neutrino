@@ -935,7 +935,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 					update_lcd = true;
 				}
 #ifdef DEBUG
-				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+				printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
 #endif
 				/* in case ffmpeg report incorrect values */
 				int posdiff = duration - position;
@@ -1750,7 +1750,7 @@ void CMoviePlayerGui::UpdatePosition()
 			file_prozent = (unsigned char) (position / (duration / 100));
 		FileTime.update(position, duration);
 #ifdef DEBUG
-		printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+		printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
 #endif
 	}
 }
