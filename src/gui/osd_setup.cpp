@@ -253,7 +253,8 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (xre != g_settings.screen_xres || yre != g_settings.screen_yres) {
 			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", g_settings.screen_xres, g_settings.screen_yres);
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST | CNeutrinoFonts::FONTSETUP_DYN_FONT);
-			CNeutrinoApp::getInstance()->channelList->ResetModules(); //force re init of all modules
+			if (CNeutrinoApp::getInstance()->channelList)
+				CNeutrinoApp::getInstance()->channelList->ResetModules(); //force re init of all modules
 		}
 		return res;
 	}
