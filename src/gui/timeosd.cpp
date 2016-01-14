@@ -45,7 +45,7 @@ void CTimeOSD::Init()
 {
 	paint_bg = g_settings.infoClockBackground;
 	m_time_show = time(0);
-	m_mode = MODE_ASC;
+	m_mode = MODE_HIDE;
 
 	//use current theme colors
 	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
