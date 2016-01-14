@@ -2169,7 +2169,7 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 		if (strlen(cLine) > 0 && cLine[0]!='#')
 		{
 			char *url = NULL;
-			if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) || (url = strstr(cLine, "mmsh://")) ) {
+			if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "https://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) || (url = strstr(cLine, "mmsh://")) ) {
 				if (url != NULL) {
 					printf("name %s [%d] url: %s\n", name, dur, url);
 					tmp_file.Name = name;
