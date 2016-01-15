@@ -504,13 +504,11 @@ void CUpnpBrowserGui::selectDevice()
 		{
 			int step =  ((int) msg == g_settings.key_pagedown) ? m_listmaxshow : 1;  // browse or step 1
 			int new_selected = m_selecteddevice + step;
-			if (new_selected >= (int) m_devices.size()) {
-				if (((m_devices.size() - m_listmaxshow -1 < m_selecteddevice) && (step != 1)) || (m_selecteddevice != (m_devices.size() - 1)))
+			if (new_selected > (int) m_devices.size() - 1) {
+				if ((m_selecteddevice != m_devices.size() - 1))
 					new_selected = m_devices.size() - 1;
-				else if (((m_devices.size() / m_listmaxshow) + 1) * m_listmaxshow == m_devices.size() + m_listmaxshow) // last page has full entries
-					new_selected = 0;
 				else
-					new_selected = ((step == (int) m_listmaxshow) && (new_selected < (int) (((m_devices.size() / m_listmaxshow)+1) * m_listmaxshow))) ? (m_devices.size() - 1) : 0;
+					new_selected = 0;
 			}
 			updateDeviceSelection(new_selected);
 		}
