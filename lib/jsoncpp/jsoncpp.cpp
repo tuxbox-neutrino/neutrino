@@ -198,7 +198,7 @@ static inline void fixNumericLocale(char* begin, char* end) {
 #endif // if !defined(JSON_IS_AMALGAMATION)
 #include <utility>
 #include <cstdio>
-#include <cassert>
+//#include <cassert>
 #include <cstring>
 #include <istream>
 #include <sstream>
@@ -2195,7 +2195,7 @@ ValueIterator& ValueIterator::operator=(const SelfType& other) {
 #include <sstream>
 #include <utility>
 #include <cstring>
-#include <cassert>
+//#include <cassert>
 #ifdef JSON_USE_CPPTL
 #include <cpptl/conststring.h>
 #endif
@@ -3725,7 +3725,7 @@ Value& Path::make(Value& root) const {
 #include <sstream>
 #include <utility>
 #include <set>
-#include <cassert>
+//#include <cassert>
 #include <cstring>
 #include <cstdio>
 
