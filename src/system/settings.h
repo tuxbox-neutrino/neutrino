@@ -817,7 +817,7 @@ typedef struct time_settings_t
 
 const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_COUNT] =
 {
-	{ 0,	LOCALE_TIMING_MENU        },
+	{ 240,	LOCALE_TIMING_MENU        },
 	{ 60,	LOCALE_TIMING_CHANLIST    },
 	{ 240,	LOCALE_TIMING_EPG         },
 	{ 6,	LOCALE_TIMING_INFOBAR     },
