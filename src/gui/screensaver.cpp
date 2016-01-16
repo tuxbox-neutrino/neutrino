@@ -22,6 +22,9 @@
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -88,9 +91,11 @@ void CScreenSaver::Start()
 	if(!CInfoClock::getInstance()->isBlocked())
 		CInfoClock::getInstance()->disableInfoClock();
 
+#ifdef ENABLE_PIP
 	pip_channel_id = CZapit::getInstance()->GetPipChannelID();
 	if (pip_channel_id)
 		g_Zapit->stopPip();
+#endif
 
 	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
@@ -127,10 +132,12 @@ void CScreenSaver::Stop()
 		scr_clock = NULL;
 	}
 
+#ifdef ENABLE_PIP
 	if(pip_channel_id) {
 		CNeutrinoApp::getInstance()->StartPip(pip_channel_id);
 		pip_channel_id = 0;
 	}
+#endif
 
 	m_frameBuffer->paintBackground(); //clear entire screen
 
