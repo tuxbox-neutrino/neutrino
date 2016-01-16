@@ -40,11 +40,12 @@
 #include "infoviewer.h"
 
 #include "widget/menue.h"
+#include "widget/listhelpers.h"
 
 #include <string>
 
 
-class CEventList
+class CEventList : public CListHelpers
 {
 	// Eventfinder start
 	public:

@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2009-2014 Stefan Seyfried
+	Copyright (C) 2009-2016 Stefan Seyfried
 
 	License: GPL
 
@@ -359,7 +359,6 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
 			bool paint_buttonbar = false; //function bar
-			int step = 0;
 			int prev_selected = selected;
 			// TODO: do we need this at all? Search button is always painted IIUC...
 			if ((g_settings.key_channelList_addremind != (int)CRCInput::RC_nokey) ||
@@ -367,27 +366,9 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			    ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
 			     (g_settings.key_channelList_addrecord != (int)CRCInput::RC_nokey)))
 				paint_buttonbar = true;
-			
-			if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
-			{
-				step = ((int) msg == g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-				selected -= step;
-				if((prev_selected-step) < 0)            // because of uint
-					selected = evtlist.size() - 1;
-				paintDescription(selected);
-			}
-			else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
-			{
-				step = ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-				selected += step;
-
-				if(selected >= evtlist.size()) 
-				{
-					if (((evtlist.size() / listmaxshow) + 1) * listmaxshow == evtlist.size() + listmaxshow) // last page has full entries
-						selected = 0;
-					else
-						selected = ((step == (int)listmaxshow) && (selected < (((evtlist.size() / listmaxshow) + 1) * listmaxshow))) ? (evtlist.size() - 1) : 0;
-				}
+			int new_sel = UpDownKey(evtlist, msg, listmaxshow, selected);
+			if (new_sel >= 0) {
+				selected = new_sel;
 				paintDescription(selected);
 			}
 			paintItem(prev_selected - liststart, channel_id);
