@@ -2159,6 +2159,7 @@ screensaver.dir Verzeichnis
 screensaver.menu Bildschirmschoner
 screensaver.mode Modus
 screensaver.mode_clock Uhr
+screensaver.mode_clock_color Farbige Uhr
 screensaver.mode_image Bilder
 screensaver.off Bildschirmschoner aus
 screensaver.random Zufällige Bilderwahl

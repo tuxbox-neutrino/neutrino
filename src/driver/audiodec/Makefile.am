@@ -9,9 +9,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@
-
-AM_CPPFLAGS += \
+	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
 	@HWLIB_CFLAGS@
 

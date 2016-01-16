@@ -21,9 +21,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@
-
-AM_CPPFLAGS += \
+	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
 	@HWLIB_CFLAGS@
 

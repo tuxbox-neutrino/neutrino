@@ -38,7 +38,7 @@
 #include "screensaver.h"
 #include <system/debug.h>
 #include <gui/infoclock.h>
-extern CInfoClock *InfoClock;
+
 
 #include <video.h>
 extern cVideo * videoDecoder;
@@ -53,6 +53,7 @@ CScreenSaver::CScreenSaver()
 	index 		= 0;
 	status_mute	= CAudioMute::getInstance()->getStatus();
 	scr_clock	= NULL;
+	clr.i_color	= COL_DARK_GRAY;
 }
 
 CScreenSaver::~CScreenSaver()
@@ -82,6 +83,9 @@ void CScreenSaver::Start()
 	OnBeforeStart();
 	status_mute = CAudioMute::getInstance()->getStatus();
 	CAudioMute::getInstance()->enableMuteIcon(false);
+
+	if(!CInfoClock::getInstance()->isBlocked())
+		CInfoClock::getInstance()->disableInfoClock();
 
 	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
@@ -124,7 +128,7 @@ void CScreenSaver::Stop()
 	if (!OnAfterStop.empty())
 		OnAfterStop();
 	else
-		InfoClock->enableInfoClock();
+		CInfoClock::getInstance()->enableInfoClock();
 }
 
 void* CScreenSaver::ScreenSaverPrg(void* arg)
@@ -250,7 +254,6 @@ void CScreenSaver::paint()
 		if (!scr_clock){
 			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H.%M:%S", "%H.%M %S", true);
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
-			scr_clock->setTextColor(COL_DARK_GRAY);
 			scr_clock->enableSaveBg();
 			scr_clock->doPaintBg(false);
 		}
@@ -258,7 +261,33 @@ void CScreenSaver::paint()
 			scr_clock->Stop();
 
 		scr_clock->kill();
+		scr_clock->setTextColor(clr.i_color);
 		scr_clock->setPosP(rand() % 80, rand() % 90);
 		scr_clock->Start();
+
+		if (g_settings.screensaver_mode == SCR_MODE_CLOCK_COLOR) {
+			srand (time(NULL));
+			uint32_t brightness;
+
+			// sorcery, no darkness
+			do {
+				clr.i_color = rand();
+				brightness = (unsigned int)clr.uc_color.r * 19595 + (unsigned int)clr.uc_color.g * 38469 + (unsigned int)clr.uc_color.b * 7471;
+				//printf("[%s] %s: brightness: %d\n", __FILE__, __FUNCTION__, brightness>> 16);
+			}
+			while(brightness >> 16 < 80);
+
+			clr.i_color &= 0x00FFFFFF;
+			//printf("[%s] %s: clr.i_color: r %02x g %02x b %02x a %02x\n", __FILE__, __FUNCTION__, clr.uc_color.r, clr.uc_color.g, clr.uc_color.b, clr.uc_color.a);
+		}
+		else
+			clr.i_color = COL_DARK_GRAY;
 	}
+}
+
+bool CScreenSaver::IsRun()
+{
+	if(thrScreenSaver)
+		return true;
+	return false;
 }

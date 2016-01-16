@@ -255,7 +255,8 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (xre != g_settings.screen_xres || yre != g_settings.screen_yres) {
 			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", g_settings.screen_xres, g_settings.screen_yres);
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST | CNeutrinoFonts::FONTSETUP_DYN_FONT);
-			CNeutrinoApp::getInstance()->channelList->ResetModules(); //force re init of all modules
+			if (CNeutrinoApp::getInstance()->channelList)
+				CNeutrinoApp::getInstance()->channelList->ResetModules(); //force re init of all modules
 		}
 		return res;
 	}
@@ -1439,11 +1440,12 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 }
 #endif
 
-#define SCREENSAVER_MODE_OPTION_COUNT 2
+#define SCREENSAVER_MODE_OPTION_COUNT 3
 const CMenuOptionChooser::keyval SCREENSAVER_MODE_OPTIONS[SCREENSAVER_MODE_OPTION_COUNT] =
 {
 	{ 0, LOCALE_SCREENSAVER_MODE_IMAGE },
-	{ 1, LOCALE_SCREENSAVER_MODE_CLOCK }
+	{ 1, LOCALE_SCREENSAVER_MODE_CLOCK },
+	{ 2, LOCALE_SCREENSAVER_MODE_CLOCK_COLOR }
 };
 
 void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)

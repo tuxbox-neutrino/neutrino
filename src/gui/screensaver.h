@@ -46,16 +46,26 @@ class CScreenSaver : public sigc::trackable
 		bool ReadDir();
 		void paint();
 
+		union u_color {
+			struct s_color {
+				uint8_t b, g, r, a;
+			} uc_color;
+		unsigned int i_color;
+		};
+
+		u_color clr;
+
 	public:
 		enum
 		{
 			SCR_MODE_IMAGE,
-			SCR_MODE_CLOCK
+			SCR_MODE_CLOCK,
+			SCR_MODE_CLOCK_COLOR
 		};
 		CScreenSaver();
 		~CScreenSaver();
 		static CScreenSaver* getInstance();
-
+		bool IsRun();
 		void Start();
 		void Stop();
 		sigc::signal<void> OnBeforeStart;

@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <gui/widget/keyboard_input.h>
+#include <gui/widget/messagebox.h>
 #include <gui/filebrowser.h>
 #include <system/debug.h>
 #include <system/helpers.h>
@@ -56,7 +57,7 @@ bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAc
 	int status = lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
 	if (status) {
 		fprintf(stderr, "[CLuaMenuChangeObserver::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
-		luaL_error(L, " => %s", lua_tostring(L, -1));
+		DisplayErrorMessage(lua_tostring(L, -1), "Lua Script Error:");
 	}
 	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
 	return (((int)res == menu_return::RETURN_REPAINT) || ((int)res == menu_return::RETURN_EXIT_REPAINT));
@@ -135,7 +136,7 @@ int CLuaMenuForwarder::exec(CMenuTarget* /*parent*/, const std::string & /*actio
 		int status = lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
 		if (status) {
 			fprintf(stderr, "[CLuaMenuForwarder::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
-			luaL_error(L, " => %s", lua_tostring(L, -1));
+			DisplayErrorMessage(lua_tostring(L, -1), "Lua Script Error:");
 		}
 		if (lua_isnumber(L, -1))
 			res = (int) lua_tonumber(L, -1);
@@ -179,7 +180,7 @@ int CLuaMenuFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*acti
 		int status = lua_pcall(L, 2 /* two arg */, 1 /* one result */, 0);
 		if (status) {
 			fprintf(stderr, "[CLuaMenuFilebrowser::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
-			luaL_error(L, " => %s", lua_tostring(L, -1));
+			DisplayErrorMessage(lua_tostring(L, -1), "Lua Script Error:");
 		}
 		lua_pop(L, 1);
 	}
@@ -222,7 +223,7 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 		int status = lua_pcall(L, 2 /* two arg */, 1 /* one result */, 0);
 		if (status) {
 			fprintf(stderr, "[CLuaMenuStringinput::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
-			luaL_error(L, " => %s", lua_tostring(L, -1));
+			DisplayErrorMessage(lua_tostring(L, -1), "Lua Script Error:");
 		}
 		lua_pop(L, 2);
 	}
@@ -260,7 +261,7 @@ int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*a
 		int status = lua_pcall(L, 2 /* two arg */, 1 /* one result */, 0);
 		if (status) {
 			fprintf(stderr, "[CLuaMenuKeyboardinput::%s:%d] error in script: %s\n", __func__, __LINE__, lua_tostring(L, -1));
-			luaL_error(L, " => %s", lua_tostring(L, -1));
+			DisplayErrorMessage(lua_tostring(L, -1), "Lua Script Error:");
 		}
 		lua_pop(L, 2);
 	}

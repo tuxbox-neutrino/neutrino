@@ -18,9 +18,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/jsoncpp/include \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@
-
-AM_CPPFLAGS += \
+	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
 	@HWLIB_CFLAGS@
 

@@ -2186,6 +2186,7 @@ const char * locale_real_names[] =
 	"screensaver.menu",
 	"screensaver.mode",
 	"screensaver.mode_clock",
+	"screensaver.mode_clock_color",
 	"screensaver.mode_image",
 	"screensaver.off",
 	"screensaver.random",
