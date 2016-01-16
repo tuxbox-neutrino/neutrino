@@ -5,14 +5,7 @@
 	Homepage: http://dbox.cyberphoria.org/
 
 	Copyright (C) 2011 CoolStream International Ltd
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2009,2011,2013,2016 Stefan Seyfried
 
 	License: GPL
 
@@ -283,7 +276,7 @@ void CBEChannelWidget::hide()
 
 void CBEChannelWidget::updateSelection(unsigned int newpos)
 {
-        if(newpos == selected)
+        if (newpos == selected || newpos == (unsigned int)-1)
                 return;
 
         unsigned int prev_selected = selected;
@@ -360,34 +353,11 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				cancelMoveChannel();
 			}
 		}
-		else if (msg==CRCInput::RC_up || msg==(neutrino_msg_t)g_settings.key_pageup)
+		else if (msg == CRCInput::RC_up || msg == (neutrino_msg_t)g_settings.key_pageup ||
+			 msg == CRCInput::RC_down || msg == (neutrino_msg_t)g_settings.key_pagedown)
 		{
-			if (!(Channels->empty())) {
-                                int step = (msg == (neutrino_msg_t)g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-                                int new_selected = selected - step;
-
-                                if (new_selected < 0) {
-                                        if (selected != 0 && step != 1)
-                                                new_selected = 0;
-                                        else
-                                                new_selected = Channels->size() - 1;
-                                }
-                                updateSelection(new_selected);
-			}
-		}
-		else if (msg==CRCInput::RC_down || msg==(neutrino_msg_t)g_settings.key_pagedown)
-		{
-                        if (!(Channels->empty())) {
-                                int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-                                int new_selected = selected + step;
-				if (new_selected > (int) Channels->size() - 1) {
-					if ((selected != Channels->size() - 1))
-						new_selected = Channels->size() - 1;
-					else
-						new_selected = 0;
-				}
-                                updateSelection(new_selected);
-                        }
+			int new_selected = UpDownKey(*Channels, msg, listmaxshow, selected);
+			updateSelection(new_selected);
 		}
                 else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end) {
                         if (!(Channels->empty())) {
