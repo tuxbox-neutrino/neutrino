@@ -458,7 +458,7 @@ void CTimerList::updateEvents(void)
 		height = theight+listmaxshow*fheight*2+footerHeight;	// recalc height
 	}
 
-	if (selected==timerlist.size() && !(timerlist.empty()))
+	if (!timerlist.empty() && selected == (int)timerlist.size())
 	{
 		selected=timerlist.size()-1;
 		liststart = (selected/listmaxshow)*listmaxshow;
@@ -519,58 +519,22 @@ int CTimerList::show()
 				loop=false;
 
 		}
-		else if ((msg == CRCInput::RC_up || msg == (unsigned int)g_settings.key_pageup) && !(timerlist.empty()))
+		else if (!timerlist.empty() &&
+			 (msg == CRCInput::RC_up || (int)msg == g_settings.key_pageup ||
+			  msg == CRCInput::RC_down || (int)msg == g_settings.key_pagedown))
 		{
-			int step = 0;
 			int prev_selected = selected;
-
-			step = (msg == (unsigned int)g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-			selected -= step;
-			if((prev_selected-step) < 0)		// because of uint
-				selected = timerlist.size() - 1;
-
-			paintItem(prev_selected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if (oldliststart!=liststart)
-			{
+			int oldliststart = liststart;
+			selected = UpDownKey(timerlist, msg, listmaxshow, selected);
+			if (selected < 0) /* UpDownKey error */
+				selected = prev_selected;
+			liststart = (selected / listmaxshow) * listmaxshow;
+			if (oldliststart != liststart)
 				paint();
-			}
-			else
-			{
+			else {
+				paintItem(prev_selected - liststart);
 				paintItem(selected - liststart);
 			}
-
-			paintFoot();
-		}
-		else if ((msg == CRCInput::RC_down || msg == (unsigned int)g_settings.key_pagedown) && !(timerlist.empty()))
-		{
-			unsigned int step = 0;
-			int prev_selected = selected;
-
-			step = (msg == (unsigned int)g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-
-			if(selected >= timerlist.size())
-			{
-				if (((timerlist.size() / listmaxshow) + 1) * listmaxshow == timerlist.size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((timerlist.size() / listmaxshow) + 1) * listmaxshow))) ? (timerlist.size() - 1) : 0;
-			}
-			paintItem(prev_selected - liststart);
-
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if (oldliststart!=liststart)
-			{
-				paint();
-			}
-			else
-			{
-				paintItem(selected - liststart);
-			}
-
 			paintFoot();
 		}
 		else if ((msg == CRCInput::RC_right || msg == CRCInput::RC_ok || msg==CRCInput::RC_blue) && !(timerlist.empty()))
@@ -719,7 +683,7 @@ void CTimerList::paintItem(int pos)
 	//selected item
 	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor, RADIUS_MID);
 
-	if (liststart+pos<timerlist.size())
+	if (liststart + pos < (int)timerlist.size())
 	{
 		CTimerd::responseGetTimer & timer = timerlist[liststart+pos];
 		char zAlarmTime[25] = {0};
