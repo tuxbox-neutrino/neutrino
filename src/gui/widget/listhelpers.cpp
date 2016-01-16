@@ -69,3 +69,4 @@ template <class T> int CListHelpers::UpDownKey(T list, neutrino_msg_t msg, int l
 template int CListHelpers::UpDownKey<std::vector<CBouquet*> >(std::vector<CBouquet*>, neutrino_msg_t, int, int);
 template int CListHelpers::UpDownKey<std::vector<CZapitBouquet*> >(std::vector<CZapitBouquet*>, neutrino_msg_t, int, int);
 template int CListHelpers::UpDownKey<std::vector<CZapitChannel*> >(std::vector<CZapitChannel*>, neutrino_msg_t, int, int);
+template int CListHelpers::UpDownKey<std::vector<CChannelEvent> >(std::vector<CChannelEvent>, neutrino_msg_t, int, int);
