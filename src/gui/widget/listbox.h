@@ -26,12 +26,13 @@
 #define __listbox__
 
 #include "menue.h"
+#include "listhelpers.h"
 
 #include <driver/framebuffer.h>
 
 #include <string>
 
-class CListBox : public CMenuTarget
+class CListBox : public CMenuTarget, public CListHelpers
 {
 	protected:
 		CFrameBuffer*	frameBuffer;
