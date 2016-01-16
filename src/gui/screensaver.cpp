@@ -38,7 +38,7 @@
 #include "screensaver.h"
 #include <system/debug.h>
 #include <gui/infoclock.h>
-
+#include <zapit/zapit.h>
 
 #include <video.h>
 extern cVideo * videoDecoder;
@@ -54,6 +54,7 @@ CScreenSaver::CScreenSaver()
 	status_mute	= CAudioMute::getInstance()->getStatus();
 	scr_clock	= NULL;
 	clr.i_color	= COL_DARK_GRAY;
+	pip_channel_id	= 0;
 }
 
 CScreenSaver::~CScreenSaver()
@@ -86,6 +87,10 @@ void CScreenSaver::Start()
 
 	if(!CInfoClock::getInstance()->isBlocked())
 		CInfoClock::getInstance()->disableInfoClock();
+
+	pip_channel_id = CZapit::getInstance()->GetPipChannelID();
+	if (pip_channel_id)
+		g_Zapit->stopPip();
 
 	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
@@ -120,6 +125,11 @@ void CScreenSaver::Stop()
 		scr_clock->Stop();
 		delete scr_clock;
 		scr_clock = NULL;
+	}
+
+	if(pip_channel_id) {
+		CNeutrinoApp::getInstance()->StartPip(pip_channel_id);
+		pip_channel_id = 0;
 	}
 
 	m_frameBuffer->paintBackground(); //clear entire screen
