@@ -37,6 +37,7 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/filebrowser.h>
 #include <gui/widget/menue.h>
+#include <gui/widget/listhelpers.h>
 
 #include <string>
 #include <sstream>
@@ -66,7 +67,7 @@ struct UPnPEntry
 	int		type;
 };
 
-class CUpnpBrowserGui : public CMenuTarget
+class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 {
 	public:
 	CUpnpBrowserGui();
