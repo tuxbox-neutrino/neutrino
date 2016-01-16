@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2007-2015 Stefan Seyfried
+	Copyright (C) 2007-2016 Stefan Seyfried
 
 	Kommentar:
 
@@ -724,31 +724,13 @@ int CChannelList::show()
 		else if (!empty && msg == (neutrino_msg_t) g_settings.key_list_end) {
 			actzap = updateSelection((*chanlist).size()-1);
 		}
-		else if (!empty && (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup))
+		else if (!empty && (msg == CRCInput::RC_up || (int)msg == g_settings.key_pageup ||
+				    msg == CRCInput::RC_down || (int)msg == g_settings.key_pagedown))
 		{
 			displayList = 1;
-			int step = ((int) msg == g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-			int new_selected = selected - step;
-			if (new_selected < 0) {
-				if (selected != 0 && step != 1)
-					new_selected = 0;
-				else
-					new_selected = (*chanlist).size() - 1;
-			}
-			actzap = updateSelection(new_selected);
-		}
-		else if (!empty && (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown))
-		{
-			displayList = 1;
-			int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-			int new_selected = selected + step;
-			if (new_selected > (int) (*chanlist).size() - 1) {
-				if ((selected != (*chanlist).size() - 1))
-					new_selected = (*chanlist).size() - 1;
-				else
-					new_selected = 0;
-			}
-			actzap = updateSelection(new_selected);
+			int new_selected = UpDownKey((*chanlist), msg, listmaxshow, selected);
+			if (new_selected >= 0)
+				actzap = updateSelection(new_selected);
 		}
 		else if (!edit_state && (msg == (neutrino_msg_t)g_settings.key_bouquet_up ||
 					msg == (neutrino_msg_t)g_settings.key_bouquet_down)) {

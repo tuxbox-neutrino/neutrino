@@ -2,15 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2009,2011,2013,2015-2016 Stefan Seyfried
 
 	License: GPL
 
@@ -390,6 +382,8 @@ const struct button_label CBouquetListButtons[4] =
 
 void CBouquetList::updateSelection(int newpos)
 {
+	if (newpos < 0) /* to avoid all callers having to check */
+		return;
 	if((int) selected != newpos) {
 		int prev_selected = selected;
 		unsigned int oldliststart = liststart;
@@ -527,33 +521,11 @@ int CBouquetList::show(bool bShowChannelList)
 			if (!Bouquets.empty())
 				updateSelection(Bouquets.size()-1);
 		}
-		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
+		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup ||
+			 msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
-			if (!Bouquets.empty()) {
-				int step = ((int) msg == g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-				int new_selected = selected - step;
-				if (new_selected < 0) {
-					if (selected != 0 && step != 1)
-						new_selected = 0;
-					else
-						new_selected = Bouquets.size() - 1;
-				}
-				updateSelection(new_selected);
-			}
-		}
-		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
-		{
-			if (!Bouquets.empty()) {
-				int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-				int new_selected = selected + step;
-				if (new_selected > (int) Bouquets.size() - 1) {
-					if ((selected != Bouquets.size() - 1))
-						new_selected = Bouquets.size() - 1;
-					else
-						new_selected = 0;
-				}
-				updateSelection(new_selected);
-			}
+			int new_selected = UpDownKey(Bouquets, msg, listmaxshow, selected);
+			updateSelection(new_selected);
 		}
 		else if(msg == (neutrino_msg_t)g_settings.key_bouquet_up || msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
 			if(bShowChannelList) {

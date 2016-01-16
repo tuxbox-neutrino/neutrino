@@ -34,6 +34,7 @@
 #define __bouquetlist__
 
 #include <gui/channellist.h>
+#include <gui/widget/listhelpers.h>
 
 #include <driver/framebuffer.h>
 #include <system/lastchannel.h>
@@ -77,7 +78,7 @@ class CBouquet
 };
 
 
-class CBouquetList
+class CBouquetList : public CListHelpers
 {
 	private:
 		CFrameBuffer		*frameBuffer;

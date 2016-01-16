@@ -39,6 +39,7 @@
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 #include <gui/components/cc.h>
+#include <gui/widget/listhelpers.h>
 #include <string>
 
 /* class for handling when bouquets changed.                  */
@@ -51,7 +52,7 @@ public:
 	virtual void onBouquetsChanged() {};
 };
 
-class CBEBouquetWidget : public CMenuTarget
+class CBEBouquetWidget : public CMenuTarget, public CListHelpers
 {
 
 	private:
