@@ -25,6 +25,7 @@ libneutrino_gui_widget_a_SOURCES = \
 	keyboard_input.cpp \
 	listbox.cpp \
 	listframe.cpp \
+	listhelpers.cpp \
 	menue.cpp \
 	messagebox.cpp \
 	mountchooser.cpp \
