@@ -24,10 +24,10 @@
 #include <global.h>
 #include <gui/bouquetlist.h>
 
-template <class T> int CListHelpers::UpDownKey(T list, neutrino_msg_t msg, int lines, int sel)
+static int upDownKey(int size, neutrino_msg_t msg, int lines, int sel)
 {
 	int step;
-	if (list.empty())
+	if (size <= 0) /* list.empty() or similar... */
 		return -1;
 
 	if (msg >= CRCInput::RC_MaxRC) {
@@ -47,7 +47,6 @@ template <class T> int CListHelpers::UpDownKey(T list, neutrino_msg_t msg, int l
 		printf("CListHelpers:%s: invalid key? 0x%lx\n", __func__, msg);
 		return -1;
 	}
-	int size = (int)list.size(); /* bigger than 0, because we checked for empty() before */
 	// printf("CListHelpers:%s: key 0x%04lx lines %d size %d sel %d\n", __func__, msg, lines, size, sel);
 	int new_sel = sel + step;
 	if (new_sel < 0) {
@@ -65,8 +64,20 @@ template <class T> int CListHelpers::UpDownKey(T list, neutrino_msg_t msg, int l
 	return new_sel;
 }
 
+int CListHelpers::_UpDownKey(int size, neutrino_msg_t msg, int lines, int sel, _id<int>)
+{
+	return upDownKey(size, msg, lines, sel);
+}
+
+template <typename T> int CListHelpers::_UpDownKey(T list, neutrino_msg_t msg, int lines, int sel, _id<T>)
+{
+	return upDownKey(list.size(), msg, lines, sel);
+}
+
 /* all used versions need to be prototyped here, to avoid linker errors */
-template int CListHelpers::UpDownKey<std::vector<CBouquet*> >(std::vector<CBouquet*>, neutrino_msg_t, int, int);
-template int CListHelpers::UpDownKey<std::vector<CZapitBouquet*> >(std::vector<CZapitBouquet*>, neutrino_msg_t, int, int);
-template int CListHelpers::UpDownKey<std::vector<CZapitChannel*> >(std::vector<CZapitChannel*>, neutrino_msg_t, int, int);
-template int CListHelpers::UpDownKey<std::vector<CChannelEvent> >(std::vector<CChannelEvent>, neutrino_msg_t, int, int);
+/* helper macro for the prototypes */
+#define updown_t(x) template int CListHelpers::_UpDownKey<x >(x, neutrino_msg_t, int, int, _id<x >)
+updown_t(std::vector<CBouquet*>);
+updown_t(std::vector<CZapitBouquet*>);
+updown_t(std::vector<CZapitChannel*>);
+updown_t(std::vector<CChannelEvent>);

@@ -21,10 +21,18 @@
 
 #ifndef __LISTHELPERS__
 #define __LISTHELPERS__
+/* allow to trick the compiler into overriding template definitions */
+template<typename T> struct _id { typedef T type; };
 
 class CListHelpers
 {
 	public:
-		template <class T> int UpDownKey(T list, neutrino_msg_t k, int lines, int sel);
+		template <typename T> int UpDownKey(T list, neutrino_msg_t k, int lines, int sel) {
+			return _UpDownKey(list, k, lines, sel, _id<T>());
+		}
+	private:
+		/* stackoverflow.com/questions/3052579 */
+		template <typename T> int _UpDownKey(T list, neutrino_msg_t k, int lines, int sel, _id<T>);
+		int _UpDownKey(int list, neutrino_msg_t k, int lines, int sel, _id<int>);
 };
 #endif
