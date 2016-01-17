@@ -111,7 +111,7 @@ void CScreenSaver::Start()
 
 	if(!thrScreenSaver)
 	{
-		//printf("[%s] %s: starting thread\n", __FILE__, __FUNCTION__);
+		//printf("[%s] %s: starting thread\n", __file__, __FUNCTION__);
 		pthread_create(&thrScreenSaver, NULL, ScreenSaverPrg, (void*) this);
 		pthread_detach(thrScreenSaver);
 	}
@@ -290,12 +290,12 @@ void CScreenSaver::paint()
 			do {
 				clr.i_color = rand();
 				brightness = (unsigned int)clr.uc_color.r * 19595 + (unsigned int)clr.uc_color.g * 38469 + (unsigned int)clr.uc_color.b * 7471;
-				//printf("[%s] %s: brightness: %d\n", __FILE__, __FUNCTION__, brightness>> 16);
+				//printf("[%s] %s: brightness: %d\n", __file__, __FUNCTION__, brightness>> 16);
 			}
 			while(brightness >> 16 < 80);
 
 			clr.i_color &= 0x00FFFFFF;
-			//printf("[%s] %s: clr.i_color: r %02x g %02x b %02x a %02x\n", __FILE__, __FUNCTION__, clr.uc_color.r, clr.uc_color.g, clr.uc_color.b, clr.uc_color.a);
+			//printf("[%s] %s: clr.i_color: r %02x g %02x b %02x a %02x\n", __file__, __FUNCTION__, clr.uc_color.r, clr.uc_color.g, clr.uc_color.b, clr.uc_color.a);
 		}
 		else
 			clr.i_color = COL_DARK_GRAY;
