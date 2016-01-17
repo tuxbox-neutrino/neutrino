@@ -177,6 +177,8 @@ int CLuaInstVideo::PlayFile(lua_State *L)
 	CMoviePlayerGui::getInstance().SetFile(st, sf, si1, si2);
 	CMoviePlayerGui::getInstance().exec(NULL, "http_lua");
 	CMoviePlayerGui::getInstance().setLuaInfoFunc(L, false);
+	if (D != NULL && !D->infoFunc.empty())
+		D->infoFunc = "";
 	int ret = CMoviePlayerGui::getInstance().getKeyPressed();
 	lua_pushinteger(L, ret);
 	return 1;

@@ -32,7 +32,7 @@ extern "C" {
 
 #if 0
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 36
+#define LUA_API_VERSION_MINOR 37
 #endif
 
 void LuaInstRegisterFunctions(lua_State *L, bool fromThreads=false);
