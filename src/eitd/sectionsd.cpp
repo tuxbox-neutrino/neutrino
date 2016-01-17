@@ -1388,7 +1388,6 @@ bool CTimeThread::setSystemTime(time_t tim, bool force)
 	gettimeofday(&tv, NULL);
 	timediff = int64_t(tim * 1000000 - (tv.tv_usec + tv.tv_sec * 1000000));
 	localtime_r(&tv.tv_sec, &t);
-	int absdiff = abs(tim - tv.tv_sec);
 
 	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s",
 		name.c_str(), timediff,
@@ -1400,9 +1399,7 @@ bool CTimeThread::setSystemTime(time_t tim, bool force)
 		return;
 	}
 #endif
-	if (absdiff < 1) /* do not bother for differences less than one second */
-		return true;
-	if (absdiff < 120) {
+	if (timeset && abs(tim - tv.tv_sec) < 120) { /* abs() is int */
 		struct timeval oldd;
 		tv.tv_sec = time_t(timediff / 1000000LL);
 		tv.tv_usec = suseconds_t(timediff % 1000000LL);
