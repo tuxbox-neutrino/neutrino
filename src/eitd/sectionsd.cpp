@@ -1503,7 +1503,8 @@ void CTimeThread::run()
 					dvb_time = st.getTime();
 					success = true;
 				}
-			}
+			} else
+				retry = false; /* reset bogon detector after invalid read() */
 		}
 		/* default sleep time */
 		sleep_time = ntprefresh * 60;
