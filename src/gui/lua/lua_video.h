@@ -24,7 +24,8 @@ class CLuaVideo
 {
 	public:
 		bool singlePlay;
-		CLuaVideo() { singlePlay=false; };
+		std::string infoFunc;
+		CLuaVideo() { singlePlay=false; infoFunc=""; };
 		~CLuaVideo() {};
 };
 
@@ -36,6 +37,7 @@ class CLuaInstVideo
 		static CLuaInstVideo* getInstance();
 		static void LuaVideoRegister(lua_State *L);
 		static int channelRezap(lua_State *L);
+		static bool execLuaInfoFunc(lua_State *L, int xres, int yres, int aspectRatio, int framerate);
 
 		/* deprecated functions */
 		static int setBlank_old(lua_State *L);
@@ -53,6 +55,7 @@ class CLuaInstVideo
 		static int ShowPicture(lua_State *L);
 		static int StopPicture(lua_State *L);
 		static int PlayFile(lua_State *L);
+		static int setInfoFunc(lua_State *L);
 		static int zapitStopPlayBack(lua_State *L);
 		static int createChannelIDfromUrl(lua_State *L);
 		static int getNeutrinoMode(lua_State *L);
