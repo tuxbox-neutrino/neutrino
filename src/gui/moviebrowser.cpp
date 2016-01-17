@@ -1400,23 +1400,23 @@ void CMovieBrowser::refreshMovieInfo(void)
 	if (m_settings.gui != MB_GUI_FILTER && logo_ok) {
 		lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
 		ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
-		if (pic == NULL){
+		if (pic == NULL){ //TODO: paint custom covers with different ratio, currently only works with default ratio 16/9 or 4/3
 			pic = new CComponentsPicture(lx+2, ly+1, flogo_w, flogo_h, fname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTSELECTED_PLUS_0);
 			pic->enableFrame(true, 2);
 			pic->enableCache();
 			pic->doPaintBg(false);
-		}else{
+		}else
 			pic->setPicture(fname);
-		}
+
 		if (!m_movieSelectionHandler->epgInfo2.empty())
-			m_pcInfo->OnAfterRefresh.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
-		else
-			pic->paint0();
+			m_pcInfo->OnAfterScrollPage.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
 	}else{
 		delete pic;
 		pic = NULL;
 	}
 	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-flogo_w-20 : 0);
+	if (pic)
+		pic->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)
