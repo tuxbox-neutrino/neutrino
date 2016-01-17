@@ -53,6 +53,12 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
+
 class CMoviePlayerGui : public CMenuTarget
 {
  public:
@@ -91,6 +97,8 @@ class CMoviePlayerGui : public CMenuTarget
 	CMoviePlayerGui::state playstate;
 	int keyPressed;
 	bool isLuaPlay;
+	bool haveLuaInfoFunc;
+	lua_State* luaState;
 	bool blockedFromPlugin;
 	int speed;
 	int startposition;
@@ -230,6 +238,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void restoreNeutrino();
 	void setBlockedFromPlugin(bool b) { blockedFromPlugin = b; };
 	bool getBlockedFromPlugin() { return blockedFromPlugin; };
+	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };
 };
 
 #endif

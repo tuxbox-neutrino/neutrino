@@ -27,6 +27,7 @@
 #include <global.h>
 #include <system/debug.h>
 #include <gui/movieplayer.h>
+#include <gui/widget/messagebox.h>
 #include <zapit/zapit.h>
 #include <video.h>
 #include <neutrino.h>
@@ -58,6 +59,7 @@ void CLuaInstVideo::LuaVideoRegister(lua_State *L)
 		{ "ShowPicture",            CLuaInstVideo::ShowPicture },
 		{ "StopPicture",            CLuaInstVideo::StopPicture },
 		{ "PlayFile",               CLuaInstVideo::PlayFile },
+		{ "setInfoFunc",            CLuaInstVideo::setInfoFunc },
 		{ "zapitStopPlayBack",      CLuaInstVideo::zapitStopPlayBack },
 		{ "channelRezap",           CLuaInstVideo::channelRezap },
 		{ "createChannelIDfromUrl", CLuaInstVideo::createChannelIDfromUrl },
@@ -170,11 +172,56 @@ int CLuaInstVideo::PlayFile(lua_State *L)
 	std::string si1(info1);
 	std::string si2(info2);
 	std::string sf(fname);
+	if (D != NULL && !D->infoFunc.empty())
+		CMoviePlayerGui::getInstance().setLuaInfoFunc(L, true);
 	CMoviePlayerGui::getInstance().SetFile(st, sf, si1, si2);
 	CMoviePlayerGui::getInstance().exec(NULL, "http_lua");
+	CMoviePlayerGui::getInstance().setLuaInfoFunc(L, false);
+	if (D != NULL && !D->infoFunc.empty())
+		D->infoFunc = "";
 	int ret = CMoviePlayerGui::getInstance().getKeyPressed();
 	lua_pushinteger(L, ret);
 	return 1;
+}
+
+int CLuaInstVideo::setInfoFunc(lua_State *L)
+{
+	CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L);
+	if (numargs < 2) {
+		printf("CLuaInstVideo::%s: not enough arguments (%d, expected 1)\n", __func__, numargs-1);
+		return 0;
+	}
+
+	D->infoFunc = luaL_checkstring(L, 2);
+	return 0;
+}
+
+bool CLuaInstVideo::execLuaInfoFunc(lua_State *L, int xres, int yres, int aspectRatio, int framerate)
+{
+	CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return false;
+
+	lua_getglobal(L, D->infoFunc.c_str());
+	lua_pushinteger(L, (lua_Integer)xres);
+	lua_pushinteger(L, (lua_Integer)yres);
+	lua_pushinteger(L, (lua_Integer)aspectRatio);
+	lua_pushinteger(L, (lua_Integer)framerate);
+	int status = lua_pcall(L, 4, 0, 0);
+	if (status) {
+		char msg[1024];
+		lua_Debug ar;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		memset(msg, '\0', sizeof(msg));
+		snprintf(msg, sizeof(msg)-1, "[%s:%d] error running function '%s': %s", ar.short_src, ar.currentline, D->infoFunc.c_str(), lua_tostring(L, -1));
+		fprintf(stderr, "[CLuaInstVideo::%s:%d] %s\n", __func__, __LINE__, msg);
+		DisplayErrorMessage(msg);
+		return false;
+	}
+	return true;
 }
 
 int CLuaInstVideo::zapitStopPlayBack(lua_State *L)

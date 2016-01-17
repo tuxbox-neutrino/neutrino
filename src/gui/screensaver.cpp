@@ -22,6 +22,9 @@
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -38,7 +41,7 @@
 #include "screensaver.h"
 #include <system/debug.h>
 #include <gui/infoclock.h>
-
+#include <zapit/zapit.h>
 
 #include <video.h>
 extern cVideo * videoDecoder;
@@ -54,6 +57,7 @@ CScreenSaver::CScreenSaver()
 	status_mute	= CAudioMute::getInstance()->getStatus();
 	scr_clock	= NULL;
 	clr.i_color	= COL_DARK_GRAY;
+	pip_channel_id	= 0;
 }
 
 CScreenSaver::~CScreenSaver()
@@ -87,6 +91,12 @@ void CScreenSaver::Start()
 	if(!CInfoClock::getInstance()->isBlocked())
 		CInfoClock::getInstance()->disableInfoClock();
 
+#ifdef ENABLE_PIP
+	pip_channel_id = CZapit::getInstance()->GetPipChannelID();
+	if (pip_channel_id)
+		g_Zapit->stopPip();
+#endif
+
 	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
 
@@ -101,7 +111,7 @@ void CScreenSaver::Start()
 
 	if(!thrScreenSaver)
 	{
-		//printf("[%s] %s: starting thread\n", __FILE__, __FUNCTION__);
+		//printf("[%s] %s: starting thread\n", __file__, __FUNCTION__);
 		pthread_create(&thrScreenSaver, NULL, ScreenSaverPrg, (void*) this);
 		pthread_detach(thrScreenSaver);
 	}
@@ -121,6 +131,13 @@ void CScreenSaver::Stop()
 		delete scr_clock;
 		scr_clock = NULL;
 	}
+
+#ifdef ENABLE_PIP
+	if(pip_channel_id) {
+		CNeutrinoApp::getInstance()->StartPip(pip_channel_id);
+		pip_channel_id = 0;
+	}
+#endif
 
 	m_frameBuffer->paintBackground(); //clear entire screen
 
@@ -273,12 +290,12 @@ void CScreenSaver::paint()
 			do {
 				clr.i_color = rand();
 				brightness = (unsigned int)clr.uc_color.r * 19595 + (unsigned int)clr.uc_color.g * 38469 + (unsigned int)clr.uc_color.b * 7471;
-				//printf("[%s] %s: brightness: %d\n", __FILE__, __FUNCTION__, brightness>> 16);
+				//printf("[%s] %s: brightness: %d\n", __file__, __FUNCTION__, brightness>> 16);
 			}
 			while(brightness >> 16 < 80);
 
 			clr.i_color &= 0x00FFFFFF;
-			//printf("[%s] %s: clr.i_color: r %02x g %02x b %02x a %02x\n", __FILE__, __FUNCTION__, clr.uc_color.r, clr.uc_color.g, clr.uc_color.b, clr.uc_color.a);
+			//printf("[%s] %s: clr.i_color: r %02x g %02x b %02x a %02x\n", __file__, __FUNCTION__, clr.uc_color.r, clr.uc_color.g, clr.uc_color.b, clr.uc_color.a);
 		}
 		else
 			clr.i_color = COL_DARK_GRAY;

@@ -45,6 +45,7 @@
 #include <gui/plugins.h>
 #include <gui/videosettings.h>
 #include <gui/streaminfo2.h>
+#include <gui/lua/lua_video.h>
 #include <gui/screensaver.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
@@ -206,6 +207,7 @@ void CMoviePlayerGui::Init(void)
 	filelist_it = filelist.end();
 	keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL;
 	isLuaPlay = false;
+	haveLuaInfoFunc = false;
 	blockedFromPlugin = false;
 	m_screensaver = false;
 	m_idletime = time(NULL);
@@ -337,6 +339,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		isLuaPlay = true;
 		is_file_player = true;
 		PlayFile();
+		haveLuaInfoFunc = false;
 	}
 	else {
 		return menu_return::RETURN_REPAINT;
@@ -1758,14 +1761,25 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 			}
 		}
-	} else if (msg == NeutrinoMessages::SHOW_EPG && p_movie_info) {
+	} else if (msg == NeutrinoMessages::SHOW_EPG && (p_movie_info || (isLuaPlay && haveLuaInfoFunc))) {
 		CTimeOSD::mode m_mode = FileTime.getMode();
 		bool restore = FileTime.IsVisible();
 		if (restore)
 			FileTime.kill();
 		InfoClock->enableInfoClock(false);
 
-		cMovieInfo.showMovieInfo(*p_movie_info);
+		if (isLuaPlay && haveLuaInfoFunc) {
+			int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
+			if (!videoDecoder->getBlank()) {
+				videoDecoder->getPictureInfo(xres, yres, framerate);
+				if (yres == 1088)
+					yres = 1080;
+				aspectRatio = videoDecoder->getAspectRatio();
+			}
+			CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
+		}
+		else if (p_movie_info)
+			cMovieInfo.showMovieInfo(*p_movie_info);
 
 		InfoClock->enableInfoClock(true);
 		if (restore) {
