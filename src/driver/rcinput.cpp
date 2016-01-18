@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
                       2003 thegoodguy
 
-	Copyright (C) 2008-2014,2016 Stefan Seyfried
+	Copyright (C) 2008-2012 Stefan Seyfried
 	Copyright (C) 2013-2014 martii
 
 	License: GPL
@@ -519,6 +519,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	//static __u16 rc_last_key =  KEY_MAX;
 	static __u16 rc_last_repeat_key =  KEY_MAX;
 
+	struct timeval tv;
 	struct timeval tvselect;
 	uint64_t InitialTimeout = Timeout;
 	int64_t targetTimeout;
@@ -1201,7 +1202,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 
 		for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++) {
 			if ((fd_rc[i] != -1) && (FD_ISSET(fd_rc[i], &rfds))) {
-				uint64_t now_pressed = 0;
 				t_input_event ev;
 				int ret = read(fd_rc[i], &ev, sizeof(t_input_event));
 				if (ret != sizeof(t_input_event)) {
@@ -1214,22 +1214,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
-				if (ev.value) {
-					/* try to compensate for possible changes in wall clock
-					 * kernel ev.time default uses CLOCK_REALTIME, as does gettimeofday().
-					 * so subtract gettimeofday() from ev.time and then add
-					 * CLOCK_MONOTONIC, which is supposed to not change with settimeofday.
-					 * Everything would be much easier if we could use the post-kernel 3.4
-					 * EVIOCSCLOCKID ioctl :-) */
-					struct timespec t1;
-					now_pressed = ev.time.tv_usec + ev.time.tv_sec * 1000000ULL;
-					if (!clock_gettime(CLOCK_MONOTONIC, &t1)) {
-						struct timeval t2;
-						gettimeofday(&t2, NULL);
-						now_pressed += t1.tv_sec * 1000000ULL + t1.tv_nsec / 1000;
-						now_pressed -= (t2.tv_usec + t2.tv_sec * 1000000ULL);
-					}
-				}
 				SHTDCNT::getInstance()->resetSleepTimer();
 				if (ev.value && firstKey) {
 					firstKey = false;
@@ -1276,12 +1260,11 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 #ifdef RCDEBUG
 					printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
 #endif
-					bool keyok = true;
-#if 0
 					uint64_t now_pressed;
+					bool keyok = true;
+
 					tv = ev.time;
 					now_pressed = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-#endif
 					if (trkey == rc_last_key) {
 						/* only allow selected keys to be repeated */
 						if (mayRepeat(trkey, bAllowRepeatLR) ||
