@@ -1401,13 +1401,15 @@ void CMovieBrowser::refreshMovieInfo(void)
 		lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
 		ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
 		if (pic == NULL){ //TODO: paint custom covers with different ratio, currently only works with default ratio 16/9 or 4/3
-			pic = new CComponentsPicture(lx+2, ly+1, flogo_w, flogo_h, fname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTSELECTED_PLUS_0);
+			pic = new CComponentsPicture(lx+2, ly+1, fname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTSELECTED_PLUS_0);
+			pic->setHeight(flogo_h, true); /*flogo_w*/
 			pic->enableFrame(true, 2);
 			pic->enableCache();
 			pic->doPaintBg(false);
 		}else
 			pic->setPicture(fname);
-
+		flogo_w = pic->getWidth();
+		pic->setXPos(m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -12);
 		if (!m_movieSelectionHandler->epgInfo2.empty())
 			m_pcInfo->OnAfterScrollPage.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
 	}else{
