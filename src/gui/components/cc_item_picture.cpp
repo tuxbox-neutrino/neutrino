@@ -152,6 +152,18 @@ void CComponentsPicture::initCCItem()
 	if (!do_scale){
 		//use image/icon size as object dimension values
 		frameBuffer->getIconSize(pic_name.c_str(), &width, &height);
+
+		/*if we have an image with full path => fallback to pv methode.
+		 * That's always a cramp, why we don't have an unified solution in render classes?
+		*/
+		if (width == 0 || height == 0){
+			int dx_tmp, dy_tmp;
+			g_PicViewer->getSize(pic_name.c_str(), &dx_tmp, &dy_tmp);
+			if (width == 0)
+				width = dx_tmp;
+			if (height == 0)
+				height = dy_tmp;
+		}
 		return;
 	}
 	else{ //initialized scaled size
@@ -169,10 +181,10 @@ void CComponentsPicture::initCCItem()
 	//check dimensions, leave if dimensions are equal
 	if (width == dx && height == dy)
 		return;
-
+#if 0
 	//clean up possible cache on changed dimensions
 	clearCache();
-
+#endif
 	//temporarily vars
 	int w_2scale = width;
 	int h_2scale = height;
@@ -293,7 +305,6 @@ bool CComponentsPicture::hasChanges()
 
 	return ret;
 }
-
 
 CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
 						const std::string& channelName,
