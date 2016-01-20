@@ -3237,8 +3237,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::LOCK_RC)
 	{
-		CRCLock rcLock;
-		rcLock.exec(NULL,CRCLock::NO_USER_INPUT);
+		CRCLock::getInstance()->exec(NULL, CRCLock::NO_USER_INPUT);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {

@@ -1991,10 +1991,10 @@ plugintype.game Game
 plugintype.lua Lua plugin
 plugintype.script Script
 plugintype.tool Tool
-rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
-rclock.menueadd Lock RC
-rclock.title Lock Remote Control
-rclock.unlockmsg Remote control reactivated.
+rclock.locked Locked
+rclock.lockmsg Remote control will be locked.\nTo unlock, press\n[red] followed by [%s]\non your remote control.
+rclock.title Lock remote control
+rclock.unlockmsg Remote control unlocked
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait...!
 recording.startstop_msg Message when recording is start/stop

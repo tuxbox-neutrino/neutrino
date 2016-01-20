@@ -498,14 +498,15 @@ void CControlAPI::RCCGI(CyhookHandler *hh)
 {
 	if (!(hh->ParamList.empty()))
 	{
+		bool locked = CRCLock::getInstance()->isLocked();
+
 		if (hh->ParamList["1"] == "lock"){	// lock remote control
-			if(!CRCLock::locked)
+			if (!locked)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD);
 		}
 		else if (hh->ParamList["1"] == "unlock"){// unlock remote control
-			if(CRCLock::locked)
+			if (locked)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD);
-			  
 		}
 		else{
 			hh->SendError();

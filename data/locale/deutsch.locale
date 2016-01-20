@@ -1991,10 +1991,10 @@ plugintype.game Spiel
 plugintype.lua Lua-Plugin
 plugintype.script Skript
 plugintype.tool Werkzeug
-rclock.lockmsg Die Fernbedienung der CST wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
-rclock.menueadd FB sperren
+rclock.locked Gesperrt
+rclock.lockmsg Die Fernbedienung wird gesperrt.\nUm die Sperre aufzuheben, bitte\n[rot] gefolgt von [%s]\nauf der Fernbedienung drücken.
 rclock.title Fernbedienung sperren
-rclock.unlockmsg Fernbedienung reaktiviert...
+rclock.unlockmsg Fernbedienung reaktiviert
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten...!
 recording.startstop_msg Meldung bei Aufnahme Start/Ende
