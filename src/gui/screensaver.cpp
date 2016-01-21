@@ -271,7 +271,7 @@ void CScreenSaver::paint()
 		if (!scr_clock){
 			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H.%M:%S", "%H.%M %S", true);
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
-			scr_clock->enableSaveBg();
+			scr_clock->disableSaveBg();
 			scr_clock->doPaintBg(false);
 		}
 		if (scr_clock->isPainted())
@@ -279,7 +279,17 @@ void CScreenSaver::paint()
 
 		scr_clock->kill();
 		scr_clock->setTextColor(clr.i_color);
-		scr_clock->setPosP(rand() % 80, rand() % 90);
+
+		//check position and size use only possible available screen size
+		int x_cl, y_cl, w_cl, h_cl;
+		scr_clock->getDimensions( &x_cl, &y_cl, &w_cl, &h_cl);
+		bool unchecked = true;
+		while(unchecked){
+			scr_clock->setPosP(uint8_t(rand() % 100),uint8_t(rand() % 100));
+			scr_clock->getDimensions( &x_cl, &y_cl, &w_cl, &h_cl);
+			if (x_cl+w_cl < g_settings.screen_EndX && y_cl+h_cl < g_settings.screen_EndY)
+				unchecked = false;
+		}
 		scr_clock->Start();
 
 		if (g_settings.screensaver_mode == SCR_MODE_CLOCK_COLOR) {
