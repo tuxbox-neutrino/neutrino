@@ -63,6 +63,7 @@ class CLuaInstMisc
 		static int GetRevision(lua_State *L);
 		static int checkVersion(lua_State *L);
 		static int postMsg(lua_State *L);
+		static int getTimeOfDay(lua_State *L);
 		static int MiscDelete(lua_State *L);
 
 		static void miscFunctionDeprecated(lua_State *L, std::string oldFunc);
