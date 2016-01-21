@@ -211,6 +211,23 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		///returns the text object
 		virtual CComponentsText* getTextObject(){return cch_text_obj;}
 
+		/**Member to modify background behavior of embeded title
+		* @param[in]  mode
+		* 	@li bool, default = true
+		* @return
+		*	void
+		* @see
+		* 	Parent member: CCTextScreen::enableTboxSaveScreen()
+		* 	CTextBox::enableSaveScreen()
+		* 	disableTboxSaveScreen()
+		*/
+		void enableTboxSaveScreen(bool mode)
+		{
+			cc_txt_save_screen = mode;
+			if (cch_text_obj->getCTextBoxObject())
+				cch_text_obj->getCTextBoxObject()->enableSaveScreen(cc_txt_save_screen);
+		}
+
 		///returns the clock object
 		virtual CComponentsFrmClock* getClockObject(){return cch_cl_obj;}
 

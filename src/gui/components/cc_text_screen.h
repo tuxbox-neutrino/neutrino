@@ -24,7 +24,6 @@
 #ifndef __CC_TXT_SCREEN__
 #define __CC_TXT_SCREEN__
 
-
 //! Sub class for CTextBox using CComponent classes.
 /*!
 This class contains flags or helpers to control CTextBox screen and paint handling and mostly used by
@@ -38,7 +37,25 @@ class CCTextScreen
 		bool cc_txt_save_screen;
 
 	public:
-		CCTextScreen(){cc_txt_save_screen = false;};
+		CCTextScreen(){cc_txt_save_screen = false;}
+
+		/**Abstract member to modify background behavior of embeded textbox object
+		* @param[in]  mode
+		* 	@li bool, default = true, enables backround saving of textbox object. This causes painting of backround from saved screen instead simple backround (if enabled)
+		* 	    This is usefull if text should be paint on transparent background or background with color gradient.
+		* @return
+		*	void
+		* @see
+		* 	CTextBox::enableSaveScreen()
+		* 	disableTboxSaveScreen()
+		*/
+		virtual void enableTboxSaveScreen(bool mode) = 0;
+
+		/**member to disable background behavior of embeded textbox object.
+		* @see
+		* 	disableTboxSaveScreen()
+		*/
+		virtual void disableTboxSaveScreen(){enableTboxSaveScreen(false);}
 };
 
 #endif

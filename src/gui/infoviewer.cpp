@@ -252,10 +252,10 @@ void CInfoViewer::initClock()
 
 	InfoClock->getInstance()->disableInfoClock();
 	clock->enableColBodyGradient(gradient_top, COL_INFOBAR_PLUS_0);
-	clock->enableSegmentSaveScreen(gradient_top);
+	clock->doPaintBg(!gradient_top);
+	clock->enableTboxSaveScreen(gradient_top);
 	clock->setColorBody(COL_INFOBAR_PLUS_0);
 	clock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-	clock->doPaintBg(!gradient_top);
 	clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 	clock->setPos(BoxEndX - 10 - clock->getWidth(), ChanNameY);
 	clock->setTextColor(COL_INFOBAR_TEXT);
@@ -1523,7 +1523,9 @@ void CInfoViewer::showSNR ()
 			int sigbox_offset = ChanWidth *10/100;
 			sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox+ChanHeight/2, ChanWidth - 2*sigbox_offset, ChanHeight/2, CFEManager::getInstance()->getLiveFE(), true, NULL, "S", "Q");
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
+			sigbox->setColorBody(numbox->getColorBody());
 			sigbox->doPaintBg(false);
+			sigbox->enableTboxSaveScreen(numbox->getColBodyGradientMode());
 		}
 		sigbox->paint(CC_SAVE_SCREEN_NO);
 	}

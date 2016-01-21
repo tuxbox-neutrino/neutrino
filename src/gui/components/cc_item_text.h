@@ -177,14 +177,22 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 
 		///returns count of lines from a text box page
 		virtual int getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode);
-		///allows to save bg screen behind text within CTextBox object, see also cc_txt_save_screen
+
+		/**Member to modify background behavior of textbox object
+		* @param[in]  mode
+		* 	@li bool, default = true
+		* @return
+		*	void
+		* @see
+		* 	Parent member: CCTextScreen::enableTboxSaveScreen()
+		* 	CTextBox::enableSaveScreen()
+		* 	disableTboxSaveScreen()
+		*/
 		void enableTboxSaveScreen(bool mode)
 		{
-			if (cc_txt_save_screen == mode)
-				return;
 			cc_txt_save_screen = mode;
 			if (ct_textbox)
-				ct_textbox->enableSaveScreen(mode);
+				ct_textbox->enableSaveScreen(cc_txt_save_screen);
 		}
 		///enable/disable utf8 encoding
 		void enableUTF8(bool enable = true){ct_utf8_encoded = enable;}

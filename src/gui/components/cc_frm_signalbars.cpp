@@ -106,7 +106,7 @@ void CSignalBar::initVarSigBar()
 	append_x_offset = 2;
 	append_y_offset = 2;
 	height		= SB_MIN_HEIGHT;
-
+	cc_item_type 	= CC_ITEMTYPE_FRM_SIGNALBAR;
 	sb_scale_height = -1;
 	dy_font 	= CNeutrinoFonts::getInstance();
 
@@ -144,11 +144,12 @@ void CSignalBar::initSBarValue()
 	//create value label object with basic properties
 	if (sb_vlbl == NULL){
 		sb_vlbl = new CComponentsLabel();
-		sb_vlbl->doPaintBg(false);
-		sb_vlbl->doPaintTextBoxBg(false);
-		sb_vlbl->enableTboxSaveScreen(true);
 		sb_vlbl->setText(REF_PERCENT_TXT, sb_val_mode, sb_font);
 	}
+
+	sb_vlbl->doPaintBg(false);
+	sb_vlbl->doPaintTextBoxBg(!cc_txt_save_screen);
+	sb_vlbl->enableTboxSaveScreen(cc_txt_save_screen);
 
 	//move and set dimensions
 	int vlbl_x = sb_scale->getXPos() + sb_scale_width + append_y_offset;
@@ -169,11 +170,13 @@ void CSignalBar::initSBarName()
 	//create name label object with basic properties
 	if (sb_lbl == NULL){
 		sb_lbl = new CComponentsLabel();
-		sb_lbl->doPaintBg(false);
-		sb_lbl->doPaintTextBoxBg(false);
-		sb_lbl->enableTboxSaveScreen(true);
-		sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, sb_font);
 	}
+
+	sb_lbl->doPaintBg(false);
+	sb_lbl->doPaintTextBoxBg(!cc_txt_save_screen);
+	sb_lbl->enableTboxSaveScreen(cc_txt_save_screen);
+
+	sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, sb_font);
 
 	//move and set dimensions
 	int lbl_x = sb_vlbl->getXPos()+ sb_vlbl->getWidth();
@@ -316,11 +319,13 @@ void CSignalBox::initSignalItems()
 	sbar->setFrontEnd(sbx_frontend);
 	sbar->setCorner(0);
 	sbar->setScaleHeight(scale_h);
+	sbar->enableTboxSaveScreen(cc_txt_save_screen);
 
 	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : 1, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
 	snrbar->setCorner(0);
 	snrbar->setScaleHeight(scale_h);
+	snrbar->enableTboxSaveScreen(cc_txt_save_screen);
 }
 
 void CSignalBox::paintScale()
