@@ -56,7 +56,7 @@ function ni(){
 			</tr>
 			</table>
 	<form name="f" accept-charset="UTF-8" action="/y/cgi?execute=include-block:Y_Filemgr_blocks.txt;edit_save_settings;nix" method="POST">
-		<textarea id="txt" name="editfile" cols="100" rows="31"  wrap="off" title="Editor" style="width:100%;background : white; font : 'Courier New',medium  monospace; color : #333333;">{=include:{=file=}=}</textarea>
+		<textarea id="txt" name="editfile" cols="100" rows="31"  wrap="off" title="Editor" style="width: 100%;">{=include:{=file=}=}</textarea>
 		<input type="hidden" name="tmpl" value="Y_Filemgr_Edit.yhtm"/>
 		<input type="hidden" name="file" value="{=file=}"/>
 	</form>
