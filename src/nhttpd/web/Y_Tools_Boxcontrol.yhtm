@@ -73,6 +73,7 @@ function standby(_standby){
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/rc?unlock");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/rc?lock");'/>
+			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/rc?status");'/>
 			</td>
 			<td>
 			<input type="button" value="{=L:bc.control.lock=}" onclick='live_lock();' />
