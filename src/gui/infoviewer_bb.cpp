@@ -439,9 +439,6 @@ void CInfoViewerBB::showBBButtons(const int modus)
 			}
 		}
 
-		if (modus == CInfoViewerBB::BUTTON_GREEN)
-			showIcon_DD();
-
 		for (i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 			tmp_bbButtonInfoText[i] = bbButtonInfo[i].text;
 		}
