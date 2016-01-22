@@ -377,7 +377,7 @@ void CInfoViewerBB::getBBButtonInfo()
 	}
 }
 
-void CInfoViewerBB::showBBButtons(const int modus)
+void CInfoViewerBB::showBBButtons(bool paintFooter)
 {
 	if (!is_visible)
 		return;
@@ -406,7 +406,7 @@ void CInfoViewerBB::showBBButtons(const int modus)
 		int buf_y = BBarY;
 		int buf_w = g_InfoViewer->BoxEndX-buf_x;
 		int buf_h = InfoHeightY_Info;
-		if (modus != -1) {
+		if (paintFooter) {
 			pixbuf = new fb_pixel_t[buf_w * buf_h];
 //printf("\nbuf_x: %d, buf_y: %d, buf_w: %d, buf_h: %d, pixbuf: %p\n \n", buf_x, buf_y, buf_w, buf_h, pixbuf);
 			frameBuffer->SaveScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);

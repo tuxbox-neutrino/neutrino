@@ -1368,7 +1368,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		if ((*(t_channel_id *) data) == current_channel_id) {
 			if (is_visible && showButtonBar) {
 				infoViewerBB->showIcon_DD();
-				infoViewerBB->showBBButtons(); // in case button text has changed
+				infoViewerBB->showBBButtons(true /*paintFooter*/); // in case button text has changed
 			}
 			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
 				g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
@@ -1377,7 +1377,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES) {
 		if ((*(t_channel_id *) data) == current_channel_id) {
 			if (is_visible && showButtonBar)
-				infoViewerBB->showBBButtons(); // in case button text has changed
+				infoViewerBB->showBBButtons(true /*paintFooter*/); // in case button text has changed
 		}
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_COMPLETE) {
