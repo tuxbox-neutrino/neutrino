@@ -2,15 +2,12 @@
  * determine the capabilities of the hardware.
  * part of libstb-hal
  *
- * (C) 2010-2012 Stefan Seyfried
+ * (C) 2010-2012,2016 Stefan Seyfried
  *
  * License: GPL v2 or later
  */
 #ifndef __HARDWARE_CAPS_H__
 #define __HARDWARE_CAPS_H__
-
-#include "cs_api.h"
-#include <string.h>
 
 typedef enum
 {
@@ -36,6 +33,7 @@ typedef struct hw_caps
 	int can_set_display_brightness;
 	char boxvendor[64];
 	char boxname[64];
+	char boxarch[64];
 } hw_caps_t;
 
 hw_caps_t *get_hwcaps(void);
