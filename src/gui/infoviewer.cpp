@@ -430,14 +430,15 @@ void CInfoViewer::paintHead()
 void CInfoViewer::paintBody()
 {
 	int h_body = InfoHeightY - header_height - SHADOW_OFFSET + (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
+	int y_body = ChanNameY + header_height;
 
 	if(zap_mode)
 		h_body -= (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
 
 	if (body == NULL)
-		body = new CComponentsShapeSquare(ChanInfoX, ChanNameY + header_height, BoxEndX-ChanInfoX, h_body);
+		body = new CComponentsShapeSquare(ChanInfoX, y_body, BoxEndX-ChanInfoX, h_body);
 	else
-		body->setDimensionsAll(ChanInfoX, ChanNameY + header_height, BoxEndX-ChanInfoX, h_body);
+		body->setDimensionsAll(ChanInfoX, y_body, BoxEndX-ChanInfoX, h_body);
 
 	//set corner and shadow modes, consider virtual zap mode
 	body->setCorner(RADIUS_LARGE, (zap_mode) ? CORNER_BOTTOM : CORNER_NONE);
