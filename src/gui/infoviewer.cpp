@@ -1352,7 +1352,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 					snprintf(runningRest, sizeof(runningRest), "%d / %d %s", (curr_pos + 30000) / 60000, (duration - curr_pos + 30000) / 60000, unit_short_minute);
 					display_Info(NULL, NULL, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
 				} else if (!IS_WEBTV(current_channel_id)) {
-					show_Data( true );
+					show_Data(false);
 				}
 			}
 			showLcdPercentOver ();
@@ -1812,7 +1812,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current)
 	{
-		if (info_CurrentNext.current_uniqueKey != last_curr_id)
+		if (!calledFromEvent || info_CurrentNext.current_uniqueKey != last_curr_id)
 		{
 			last_curr_id = info_CurrentNext.current_uniqueKey;
 			curr_time = runningStart;
