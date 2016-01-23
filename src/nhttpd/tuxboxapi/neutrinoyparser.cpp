@@ -767,6 +767,7 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 //-------------------------------------------------------------------------
 std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
+#if 0
 	unsigned int system_rev = cs_get_revision();
 	std::string boxname = "CST ";
 
@@ -811,7 +812,15 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			boxname += buffer;
 			break;
 	}
-
+#else
+	std::string boxname = g_info.hw_caps->boxvendor;
+	if (boxname.compare("Coolstream") == 0)
+		boxname = "CST"; /* that's more or less an external API... */
+	boxname += " " + std::string(g_info.hw_caps->boxname);
+	if (!strcmp(g_info.hw_caps->boxname, "Neo") &&
+	    CFEManager::getInstance()->getFrontendCount() > 1)
+		boxname += " Twin";
+#endif
 	return boxname;
 }
 //-------------------------------------------------------------------------
@@ -819,6 +828,7 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 //-------------------------------------------------------------------------
 std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
 {
+#if 0
 	unsigned int system_rev = cs_get_revision();
 	std::string boxmodel = "Unknown";
 
@@ -842,7 +852,9 @@ std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
 		default:
 			break;
 	}
-
+#else
+	std::string boxmodel = std::string(g_info.hw_caps->boxarch);
+#endif
 	return boxmodel;
 }
 //-------------------------------------------------------------------------
