@@ -362,13 +362,13 @@ void CPlugins::startPlugin_by_name(const std::string & name)
 	}
 }
 
-void CPlugins::startPlugin(const char * const name)
+void CPlugins::startPlugin(const char * const filename)
 {
-	int pluginnr = find_plugin(name);
+	int pluginnr = find_plugin(filename);
 	if (pluginnr > -1)
 		startPlugin(pluginnr);
 	else
-		printf("[CPlugins] could not find %s\n", name);
+		printf("[CPlugins] could not find %s\n", filename);
 
 }
 
