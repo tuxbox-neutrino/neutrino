@@ -133,7 +133,7 @@ void CComponentsText::initCCText()
 	if (cc_parent){
 		int th_parent_fr = cc_parent->getFrameThickness();
 		iX = cc_xr + (x <= th_parent_fr ? th_parent_fr : 0);
-		iY = cc_yr + (y <= th_parent_fr ? th_parent_fr : 0);
+		iY = cc_yr - (y <= th_parent_fr ? th_parent_fr : 0);
 	}
 
 	//init textbox
@@ -145,13 +145,13 @@ void CComponentsText::initCCText()
 	ct_textbox->setTextMode(ct_text_mode);
 	ct_textbox->setWindowPos(this);
 	ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
-	ct_textbox->enableBackgroundPaint(ct_paint_textbg);
+	ct_textbox->enableBackgroundPaint(ct_paint_textbg && !cc_txt_save_screen);
 	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
 	ct_textbox->setTextColor(ct_col_text);
 	ct_textbox->setWindowMaxDimensions(iWidth, iHeight);
 	ct_textbox->setWindowMinDimensions(iWidth, iHeight);
-	ct_textbox->enableSaveScreen(cc_txt_save_screen);
+	ct_textbox->enableSaveScreen(cc_txt_save_screen && !ct_paint_textbg);
 	ct_textbox->enableUTF8(ct_utf8_encoded);
 
 	//observe behavior of parent form if available

@@ -95,6 +95,11 @@ input[type="text"],input[type="password"],select{
 	margin: 0px;
 
 }
+textarea {
+	font: monospace medium 'Courier New', sans-serif;
+	background: #ffffff;
+	color: #436976;
+}
 * html .boxhead h2 {height: 1%;} /* For IE 5 PC */
 a {
 	color: #555555;

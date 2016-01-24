@@ -37,6 +37,7 @@
 #include <video_cs.h>
 
 #include "luainstance.h"
+#include "lua_cc_header.h"
 #include "lua_cc_picture.h"
 #include "lua_cc_signalbox.h"
 #include "lua_cc_text.h"
@@ -605,6 +606,7 @@ void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 		lua_settop(L, top);
 // ------------------------------------------
 	CLuaInstCCPicture::getInstance()->CCPictureRegister(L);
+	CLuaInstCCHeader::getInstance()->CCHeaderRegister(L);
 	CLuaInstCCSignalbox::getInstance()->CCSignalBoxRegister(L);
 	CLuaInstCCText::getInstance()->CCTextRegister(L);
 	CLuaInstCCWindow::getInstance()->CCWindowRegister(L);

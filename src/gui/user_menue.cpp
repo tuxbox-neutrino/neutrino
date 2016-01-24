@@ -225,7 +225,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			break;
 		case SNeutrinoSettings::ITEM_REMOTE:
 			keyhelper.get(&key,&icon,feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_RC_LOCK]].key); //CRCInput::RC_nokey);
-			menu_item = new CMenuDForwarder(LOCALE_RCLOCK_MENUEADD, true, NULL, new CRCLock, "-1" , key, icon );
+			menu_item = new CMenuForwarder(LOCALE_RCLOCK_TITLE, true, NULL, CRCLock::getInstance(), "-1" , key, icon );
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_EPG_SUPER:

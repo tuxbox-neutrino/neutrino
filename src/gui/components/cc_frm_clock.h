@@ -158,8 +158,18 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 
 		///reinitialize clock contents
 		virtual void refresh() { initCCLockItems(); }
-		///allows to save bg screen behind text within segment objects, see also cl_save_segment_screen
-		void enableSegmentSaveScreen(bool mode);
+
+		/**Member to modify background behavior of embeded segment objects
+		* @param[in]  mode
+		* 	@li bool, default = true
+		* @return
+		*	void
+		* @see
+		* 	Parent member: CCTextScreen::enableTboxSaveScreen()
+		* 	CTextBox::enableSaveScreen()
+		* 	disableTboxSaveScreen()
+		*/
+		void enableTboxSaveScreen(bool mode);
 
 		///set color gradient on/off, returns true if gradient mode was changed
 		virtual bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/);

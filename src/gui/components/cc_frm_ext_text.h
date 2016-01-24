@@ -110,6 +110,24 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 		///returns a pointer to the internal text object, use this to get access to its most properties
 		CComponentsText*getTextObject(){return ccx_text_obj;};
 
+		/**Member to modify background behavior of embeded label and text objects
+		* @param[in]  mode
+		* 	@li bool, default = true
+		* @return
+		*	void
+		* @see
+		* 	Parent member: CCTextScreen::enableTboxSaveScreen()
+		* 	CTextBox::enableSaveScreen()
+		* 	disableTboxSaveScreen()
+		*/
+		void enableTboxSaveScreen(bool mode){
+			if (cc_txt_save_screen == mode)
+				return;
+			cc_txt_save_screen = mode;
+			for(size_t i=0; i<v_cc_items.size(); i++)
+				static_cast<CComponentsText*>(v_cc_items[i])->enableTboxSaveScreen(cc_txt_save_screen);
+		};
+
 		///sets the text modes (mainly text alignment) to the label and text object, see /gui/widget/textbox.h for possible modes
 		void setTextModes(const int& label_mode, const int& text_mode);
 

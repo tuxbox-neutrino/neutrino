@@ -50,7 +50,7 @@ function do_submit() {
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td><textarea name="channels" cols="60" rows="10" style="background : white; font : 'Courier New',medium  monospace; color : #436976;">{=if-file-exists:/var/tuxbox/config/channels.txt~{=include:/var/tuxbox/config/channels.txt=}~{=if-file-exists:/var/httpd/channels.txt~{=include:/var/httpd/channels.txt=}~{=include:/share/tuxbox/neutrino/httpd/channels.txt=}=}=}</textarea></td>
+				<td><textarea name="channels" cols="60" rows="10">{=if-file-exists:/var/tuxbox/config/channels.txt~{=include:/var/tuxbox/config/channels.txt=}~{=if-file-exists:/var/httpd/channels.txt~{=include:/var/httpd/channels.txt=}~{=include:/share/tuxbox/neutrino/httpd/channels.txt=}=}=}</textarea></td>
 			</tr>
 		</table>
 		<br/>

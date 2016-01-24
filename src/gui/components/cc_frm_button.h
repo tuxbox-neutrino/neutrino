@@ -135,6 +135,27 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///set text color
 		virtual void setButtonTextColor(fb_pixel_t text_color, fb_pixel_t text_color_disabled = COL_MENUCONTENTINACTIVE_TEXT){cc_btn_capt_col = text_color; cc_btn_capt_disable_col = text_color_disabled;}
 
+		/**Member to modify background behavior of embeded caption object.
+		* @param[in]  mode
+		* 	@li bool, default = true
+		* @return
+		*	void
+		* @see
+		* 	Parent member: CCTextScreen::enableTboxSaveScreen()
+		* 	CTextBox::enableSaveScreen()
+		* 	disableTboxSaveScreen()
+		*/
+		virtual void enableTboxSaveScreen(bool mode)
+		{
+			if (cc_txt_save_screen == mode)
+				return;
+			cc_txt_save_screen = mode;
+			for(size_t i=0; i<v_cc_items.size(); i++){
+				if (v_cc_items[i]->getItemType() == CC_ITEMTYPE_LABEL)
+					static_cast<CComponentsLabel*>(v_cc_items[i])->enableTboxSaveScreen(cc_txt_save_screen);
+			}
+		};
+
 		///set caption: parameter as string
 		virtual void setCaption(const std::string& text);
 		///set caption: parameter as locale

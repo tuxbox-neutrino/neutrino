@@ -86,7 +86,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 					fb_pixel_t color_shadow)
 {
 	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
-	cc_txt_save_screen	= true;
+	cc_txt_save_screen	= false;
 	x	= x_old = x_pos;
 	y	= y_old = y_pos;
 

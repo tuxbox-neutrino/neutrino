@@ -402,16 +402,13 @@ void CComponentsFrmClock::kill(const fb_pixel_t& bg_color, bool ignore_parent)
 	CComponentsForm::kill(bg_color, ignore_parent);
 }
 
-void CComponentsFrmClock::enableSegmentSaveScreen(bool mode)
+void CComponentsFrmClock::enableTboxSaveScreen(bool mode)
 {
 	if (cc_txt_save_screen == mode || v_cc_items.empty())
 		return;
-
 	cc_txt_save_screen = mode;
-
 	for (size_t i = 0; i < v_cc_items.size(); i++){
 		CComponentsLabel *seg = static_cast <CComponentsLabel*>(v_cc_items[i]);
-		//seg->clearSavedScreen();
 		seg->enableTboxSaveScreen(cc_txt_save_screen);
 	}
 }

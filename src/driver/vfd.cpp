@@ -404,8 +404,18 @@ void CVFD::showTime(bool force)
 	recstatus = tmp_recstatus;
 }
 
-void CVFD::showRCLock(int /*duration*/)
+void CVFD::showRCLock(int duration)
 {
+	if (!has_lcd)
+	{
+		sleep(duration);
+		return;
+	}
+
+	std::string _text = text;
+	ShowText(g_Locale->getText(LOCALE_RCLOCK_LOCKED));
+	sleep(duration);
+	ShowText(_text.c_str());
 }
 
 void CVFD::showVolume(const char vol, const bool force_update)

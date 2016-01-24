@@ -2196,6 +2196,7 @@ void CNeutrinoApp::quickZap(int msg)
 void CNeutrinoApp::numericZap(int msg)
 {
 	StopSubtitles();
+	g_InfoViewer->setSwitchMode(CInfoViewer::IV_MODE_NUMBER_ZAP);
 	int res = channelList->numericZap( msg );
 	StartSubtitles(res < 0);
 	if (res >= 0 && CRCInput::isNumeric(msg)) {
@@ -2606,14 +2607,10 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 	//_show:
 	if(msg == CRCInput::RC_ok)
 	{
-		if (g_settings.channellist_new_zap_mode > 0) /* allow or active */
-			g_audioMute->enableMuteIcon(false);
 		if( !bouquetList->Bouquets.empty() && bouquetList->Bouquets[old_b]->channelList->getSize() > 0)
 			nNewChannel = bouquetList->Bouquets[old_b]->channelList->exec();//with ZAP!
 		else
 			nNewChannel = bouquetList->exec(true);
-		if (g_settings.channellist_new_zap_mode > 0) /* allow or active */
-			g_audioMute->enableMuteIcon(true);
 	} else if(msg == CRCInput::RC_sat) {
 		SetChannelMode(LIST_MODE_SAT);
 		nNewChannel = bouquetList->exec(true);
@@ -2842,7 +2839,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 
 	/* ================================== KEYS ================================================ */
-	if( msg == CRCInput::RC_ok || (!g_InfoViewer->virtual_zap_mode && (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites))) {
+	if( msg == CRCInput::RC_ok || (!g_InfoViewer->getSwitchMode() && (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites))) {
 		if( (mode == mode_tv) || (mode == mode_radio) || (mode == mode_ts) || (mode == mode_webtv)) {
 			showChannelList(msg);
 			return messages_return::handled;
@@ -3306,8 +3303,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::LOCK_RC)
 	{
-		CRCLock rcLock;
-		rcLock.exec(NULL,CRCLock::NO_USER_INPUT);
+		CRCLock::getInstance()->exec(NULL, CRCLock::NO_USER_INPUT);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {

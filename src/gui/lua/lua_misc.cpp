@@ -71,6 +71,7 @@ void CLuaInstMisc::LuaMiscRegister(lua_State *L)
 		{ "GetRevision",     CLuaInstMisc::GetRevision },
 		{ "checkVersion",    CLuaInstMisc::checkVersion },
 		{ "postMsg",         CLuaInstMisc::postMsg },
+		{ "getTimeOfDay",    CLuaInstMisc::getTimeOfDay },
 		{ "__gc",            CLuaInstMisc::MiscDelete },
 		{ NULL, NULL }
 	};
@@ -336,6 +337,20 @@ int CLuaInstMisc::postMsg(lua_State *L)
 	}
 	g_RCInput->postMsg(post_msg, 0);
 	return 0;
+}
+
+int CLuaInstMisc::getTimeOfDay(lua_State *L)
+{
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
+
+	struct timeval t1;
+	double dt;
+	gettimeofday(&t1, NULL);
+	dt = (double)t1.tv_sec + ((double)t1.tv_usec)/1000000ULL;
+
+	lua_pushnumber(L, (lua_Number)dt);
+	return 1;
 }
 
 int CLuaInstMisc::MiscDelete(lua_State *L)

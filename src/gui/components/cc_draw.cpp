@@ -620,8 +620,6 @@ void CCDraw::paintFbItems(bool do_save_bg)
 
 void CCDraw::hide()
 {
-	bool restored = false;
-
 	//restore saved screen background of item if available
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
@@ -629,14 +627,9 @@ void CCDraw::hide()
 				//restore screen from backround layer
 				frameBuffer->waitForIdle("CCDraw::hide()");
 				frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
-				restored = true;
 			}
 		}
 	}
-	//cleanup background layer, but only if restore was required
-	if (restored)
-		clearSavedScreen();
-
 	is_painted = false;
 	firstPaint = true;
 }

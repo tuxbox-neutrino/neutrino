@@ -104,7 +104,8 @@ void CComponentsExtTextForm::initLabel()
 	//initialize label object
 	if (ccx_label_obj == NULL){
 		ccx_label_obj = new CComponentsLabel();
-		ccx_label_obj->doPaintBg(false);
+		ccx_label_obj->doPaintBg(!cc_txt_save_screen);
+		ccx_label_obj->doPaintTextBoxBg(false);
 		ccx_label_obj->enableTboxSaveScreen(cc_txt_save_screen);
 	}	
 
@@ -117,7 +118,7 @@ void CComponentsExtTextForm::initLabel()
 		ccx_label_width = (ccx_percent_label_w * width/100);
 		ccx_label_obj->setText(ccx_label_text, ccx_label_align, ccx_font);
 		ccx_label_obj->setTextColor(ccx_label_color);
-		ccx_label_obj->setDimensionsAll(fr_thickness, 0, ccx_label_width-fr_thickness, height-2*fr_thickness);
+		ccx_label_obj->setDimensionsAll(0, 0, ccx_label_width-2*fr_thickness, height-2*fr_thickness);
 		ccx_label_obj->setCorner(this->corner_rad, CORNER_LEFT);
 	}
 }
@@ -127,7 +128,8 @@ void CComponentsExtTextForm::initText()
 	//initialize text object
 	if (ccx_text_obj == NULL){
 		ccx_text_obj = new CComponentsText();
-		ccx_text_obj->doPaintBg(false);
+		ccx_text_obj->doPaintBg(!cc_txt_save_screen);
+		ccx_text_obj->doPaintTextBoxBg(false);
 		ccx_text_obj->enableTboxSaveScreen(cc_txt_save_screen);
 	}
 

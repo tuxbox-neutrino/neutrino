@@ -588,8 +588,8 @@ void CTextBox::refreshText(void)
 	//save screen only if no paint of background required
 	if (!m_nPaintBackground && m_SaveScreen) {
 		if (m_bgpixbuf == NULL){
-			//TRACE("[CTextBox] %s save bg %d\r\n", __FUNCTION__, __LINE__);
 			if ((dx * dy) >0){
+// 				TRACE("[CTextBox]  [%s - %d] save bg for use as transparent background [%s]\n", __func__, __LINE__, m_cText.c_str());
 				m_bgpixbuf= new fb_pixel_t[dx * dy];
 				frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
 			}
@@ -598,7 +598,7 @@ void CTextBox::refreshText(void)
 
 	//Paint Text Background
 	bool allow_paint_bg = (m_old_cText != m_cText || has_changed || m_has_scrolled);
-	if (m_nPaintBackground){
+	if (m_nPaintBackground  && !m_SaveScreen){
 		clearScreenBuffer();
 		if (allow_paint_bg){
 			//TRACE("[CTextBox] %s paint bg %d\r\n", __FUNCTION__, __LINE__);
@@ -685,6 +685,7 @@ void CTextBox::scrollPageDown(const int pages)
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 	if (oldCurrentLine != m_nCurrentLine)
 		refresh();
+	OnAfterScrollPage();
 }
 
 void CTextBox::scrollPageUp(const int pages)
@@ -708,6 +709,7 @@ void CTextBox::scrollPageUp(const int pages)
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 	if (oldCurrentLine != m_nCurrentLine)
 		refresh();
+	OnAfterScrollPage();
 }
 
 void CTextBox::refresh(void)
