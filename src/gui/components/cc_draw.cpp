@@ -536,16 +536,19 @@ void CCDraw::paintFbItems(bool do_save_bg)
 		*/
 		if (cc_enable_frame){
 			if (fbtype == CC_FBDATA_TYPE_FRAME) {
-				if (fbdata.frame_thickness > 0 && cc_allow_paint)
+				if (fbdata.frame_thickness > 0 && cc_allow_paint){
 					frameBuffer->paintBoxFrame(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, fbdata.frame_thickness, fbdata.color, fbdata.r, fbdata.rtype);
+					v_fbdata[i].is_painted = true;
+				}
 			}
 		}
 		if (paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_BACKGROUND){
 				frameBuffer->paintBackgroundBoxRel(x, y, fbdata.dx, fbdata.dy);
+				v_fbdata[i].is_painted = true;
 			}
 		}
-		if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && (!is_painted || shadow_force)) {
+		if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && ((!is_painted || !fbdata.is_painted)|| shadow_force)) {
 			if (fbdata.enabled) {
 				/* here we paint the shadow around the body
 					* on 1st step we check for already cached screen buffer, if true
@@ -562,6 +565,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 					//if is paint cache enabled
 					if (cc_paint_cache && fbdata.pixbuf == NULL)
 						fbdata.pixbuf = getScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
+					fbdata.is_painted = true;
 				}
 			}
 		}
@@ -611,7 +615,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 								fbdata.pixbuf = getScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
 						}
 					}
-					is_painted = true;
+					is_painted = v_fbdata[i].is_painted = true;
 				}
 			}
 		}
@@ -629,6 +633,7 @@ void CCDraw::hide()
 				//restore screen from backround layer
 				frameBuffer->waitForIdle("CCDraw::hide()");
 				frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
+				v_fbdata[i].is_painted = false;
 			}
 		}
 	}
@@ -637,9 +642,10 @@ void CCDraw::hide()
 }
 
 //erase or paint over rendered objects
-void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius)
+void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type /*fbdata_type*/)
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++){
+		if (fblayer_type == CC_FBDATA_TYPES || v_fbdata[i].fbdata_type & fblayer_type){
 #if 0
 		if (bg_color != COL_BACKGROUND_PLUS_0)
 #endif
@@ -662,15 +668,23 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius)
 								   bg_color,
 								   r,
 								   corner_type);
-
+			v_fbdata[i].is_painted = false;
 #if 0
 		else
 			frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
 #endif
+		}
 	}
 
-	firstPaint = true;
-	is_painted = false;
+	if (fblayer_type == CC_FBDATA_TYPE_BOX){
+		firstPaint = true;
+		is_painted = false;
+	}
+}
+
+void CCDraw::killShadow(const fb_pixel_t& bg_color, const int& corner_radius)
+{
+	kill(bg_color, corner_radius, CC_FBDATA_TYPE_SHADOW_BOX);
 }
 
 bool CCDraw::doPaintBg(bool do_paint)
@@ -685,8 +699,10 @@ bool CCDraw::doPaintBg(bool do_paint)
 
 void CCDraw::enableShadow(int mode, const int& shadow_width, bool force_paint)
 {
-	if (shadow != mode)
+	if (shadow != mode){
+		killShadow();
 		shadow = mode;
+	}
 	if (shadow != CC_SHADOW_OFF)
 		if (shadow_width != -1)
 			setShadowWidth(shadow_width);

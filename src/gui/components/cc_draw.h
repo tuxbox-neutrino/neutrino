@@ -314,9 +314,42 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		*/
 		virtual void hide();
 
-		///erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
-		///from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND_PLUS_0 (empty background)
-		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1);
+		/**Erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
+		 * from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND_PLUS_0 (empty background)
+		 *
+		 * @return void
+		 *
+		 * @param[in] bg_color		optional, color, default color is current screen
+		 * @param[in] corner_radius	optional, defined corner radius, default radius is the current defined radius
+		 * @param[in] fblayer_type	optional, defines layer that to remove, default all layers (cc_fbdata_t) will remove
+		 * 				possible layer types are:
+		 * 				@li CC_FBDATA_TYPE_BGSCREEN,
+		 * 				@li CC_FBDATA_TYPE_BOX,
+		 * 				@li CC_FBDATA_TYPE_SHADOW_BOX,
+		 * 				@li CC_FBDATA_TYPE_FRAME,
+		 * 				@li CC_FBDATA_TYPE_BACKGROUND,
+		 * @see
+		 * 	cc_types.h
+		 * 	gui/color.h
+		 * 	driver/framebuffer.h
+		 * @todo
+		 *	Shadow paint must be reworked, because dimensions of shadow containes not the real defined size. Parts of item are killed too.
+		 *
+		*/
+		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = CC_FBDATA_TYPES);
+
+		/**Erase shadow around rendered item.
+		 * This is similar with the kill() member, but shadow will be handled only.
+		 *
+		 * @return void
+		 *
+		 * @param[in] bg_color		optional, color, default color is current screen
+		 * @param[in] corner_radius	optional, defined corner radius, default radius is the current defined radius
+		 *
+		 * @see
+		 * 	kill()
+		*/
+		virtual void killShadow(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1);
 
 		virtual void enableGradientBgCleanUp(bool enable = true) { cc_gradient_bg_cleanup = enable; };
 		virtual void disableGradientBgCleanUp(){ enableGradientBgCleanUp(false); };
