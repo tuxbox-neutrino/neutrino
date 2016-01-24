@@ -1719,10 +1719,21 @@ bool CCNThread::shouldSleep()
 	if (eit_version != 0xff)
 		return true;
 
-	if (++eit_retry > 1) {
-		xprintf("%s::%s eit_retry > 1 (%d) -> going to sleep\n", name.c_str(), __func__, eit_retry);
+	/* on first retry, restart the demux. I'm not sure if it is a driver bug
+	 * or a bug in our logic, but without this, I'm sometimes missing CN events
+	 * and / or the eit_version and thus the update filter will stop working */
+	if (++eit_retry < 2) {
+		xprintf("%s::%s first retry (%d) -> restart demux\n", name.c_str(), __func__, eit_retry);
+		change(0); /* this also resets lastChanged */
+	}
+	/* ugly, this has been checked before. But timeoutsDMX can be < 0 for multiple reasons,
+	 * and only skipTime should send CNThread finally to sleep if eit_version is not found */
+	time_t since = time_monotonic() - lastChanged;
+	if (since > skipTime) {
+		xprintf("%s::%s timed out after %lds -> going to sleep\n", name.c_str(), __func__, since);
 		return true;
 	}
+	/* retry */
 	sendToSleepNow = false;
 	return false;
 }
