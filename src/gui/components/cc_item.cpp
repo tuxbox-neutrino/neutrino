@@ -65,8 +65,10 @@ void CComponentsItem::initParent(CComponentsForm* parent)
 // If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 void CComponentsItem::paintInit(bool do_save_bg)
 {
-	if (hasChanges())
+	if (hasChanges()){
 		clearFbData();
+		is_painted = false; //force repaint if required
+	}
 
 	if (v_fbdata.empty()){
 		int th = fr_thickness;
