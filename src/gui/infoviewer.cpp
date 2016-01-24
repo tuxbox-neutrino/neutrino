@@ -429,7 +429,7 @@ void CInfoViewer::paintHead()
 
 void CInfoViewer::paintBody()
 {
-	int h_body = InfoHeightY - header_height + (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
+	int h_body = InfoHeightY - header_height - SHADOW_OFFSET + (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
 
 	if(zap_mode)
 		h_body -= (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
@@ -1984,9 +1984,11 @@ void CInfoViewer::killTitle()
 	{
 		is_visible = false;
 		infoViewerBB->is_visible = false;
+#if 0 //unused
 		int bottom = BoxEndY + SHADOW_OFFSET + infoViewerBB->bottom_bar_offset;
 		if (showButtonBar)
 			bottom += infoViewerBB->InfoHeightY_Info;
+#endif
 		if (infoViewerBB->getFooter())
 			infoViewerBB->getFooter()->kill();
 		if (infoViewerBB->getCABar())
