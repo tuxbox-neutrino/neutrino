@@ -92,8 +92,8 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	CNeutrinoApp::getInstance()->stopPlayBack(true);
 	m_frameBuffer->showFrame("mp3.jpg");
 
-	// tell neutrino we're in audio mode
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_audio);
+	// tell neutrino we're in upnp mode
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_upnp);
 
 	// remember last mode
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
@@ -1230,12 +1230,18 @@ printf("updateTimes: force %d updatePlayed %d\n", force, updatePlayed);
 
 void CUpnpBrowserGui::playAudio(std::string name, int type)
 {
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_audio);
+
 	CAudiofile mp3(name, (CFile::FileType) type);
 	CAudioPlayer::getInstance()->play(&mp3, g_settings.audioplayer_highprio == 1);
+
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_upnp | NeutrinoMessages::norezap);
 }
 
 void CUpnpBrowserGui::showPicture(std::string name)
 {
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_pic);
+
 	g_PicViewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	g_PicViewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
 
@@ -1246,14 +1252,20 @@ void CUpnpBrowserGui::showPicture(std::string name)
 
 	g_PicViewer->ShowImage(name, false);
 	g_PicViewer->Cleanup();
+
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_upnp | NeutrinoMessages::norezap);
 }
 
 void CUpnpBrowserGui::playVideo(std::string name, std::string url)
 {
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_ts);
+
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 		CAudioPlayer::getInstance()->stop();
 
 	m_frameBuffer->stopFrame();
 	CMoviePlayerGui::getInstance().SetFile(name, url);
 	CMoviePlayerGui::getInstance().exec(NULL, "upnp");
+
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_upnp | NeutrinoMessages::norezap);
 }
