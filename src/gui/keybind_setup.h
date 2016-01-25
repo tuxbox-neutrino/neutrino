@@ -112,7 +112,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 		~CKeybindSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * data);
-		static const char *getMoviePlayerButtonName(const neutrino_msg_t key, bool &active);
+		static const char *getMoviePlayerButtonName(const neutrino_msg_t key, bool &active, bool return_title = false);
 };
 
 #endif

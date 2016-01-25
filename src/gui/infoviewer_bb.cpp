@@ -222,7 +222,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_red, active);
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_red, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
@@ -237,7 +237,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active);
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
@@ -252,7 +252,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active);
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
@@ -267,7 +267,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_blue, active);
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_blue, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
