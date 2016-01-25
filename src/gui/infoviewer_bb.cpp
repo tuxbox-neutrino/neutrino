@@ -280,15 +280,10 @@ void CInfoViewerBB::getBBButtonInfo()
 			break;
 		}
 		//label audio control button in movieplayer mode
-		if (mode == NeutrinoMessages::mode_ts)
+		if (mode == NeutrinoMessages::mode_ts && !CMoviePlayerGui::getInstance().timeshift)
 		{
-			if (!CMoviePlayerGui::getInstance().timeshift)
-			{
-				if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO) && !g_settings.infobar_buttons_usertitle)
-				{
-					text = CMoviePlayerGui::getInstance(mode == NeutrinoMessages::mode_webtv).CurrentAudioName();
-				}
-			}
+			if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO) && !g_settings.infobar_buttons_usertitle)
+				text = CMoviePlayerGui::getInstance(false).CurrentAudioName(); // use instance_mp
 		}
 		bbButtonInfo[i].w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(text) + w + 10;
 		bbButtonInfo[i].cx = w + 5;

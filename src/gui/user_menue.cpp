@@ -487,6 +487,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 
 	neutrino_locale_t loc = NONEXISTANT_LOCALE;
 	const char *text = NULL;
+	int mode = CNeutrinoApp::getInstance()->getMode();
 
 	std::vector<std::string> items = ::split(g_settings.usermenu[button]->items, ',');
 	for (std::vector<std::string>::iterator it = items.begin(); it != items.end(); ++it) {
@@ -537,7 +538,9 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 				continue;
 			case SNeutrinoSettings::ITEM_AUDIO_SELECT:
 				if(loc == NONEXISTANT_LOCALE && !text) {
-					if (!g_RemoteControl->current_PIDs.APIDs.empty())
+					if (mode == NeutrinoMessages::mode_webtv)
+						text = CMoviePlayerGui::getInstance(true).CurrentAudioName().c_str(); // use instance_bg
+					else if (!g_RemoteControl->current_PIDs.APIDs.empty())
 						text = g_RemoteControl->current_PIDs.APIDs[
 							g_RemoteControl->current_PIDs.PIDs.selected_apid].desc;
 				} else
