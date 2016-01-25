@@ -434,6 +434,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.backlight_standby = configfile.getInt32( "backlight_standby", 0);
 	g_settings.backlight_deepstandby = configfile.getInt32( "backlight_deepstandby", 0);
 	g_settings.lcd_scroll = configfile.getInt32( "lcd_scroll", 1);
+	g_settings.lcd_notify_rclock = configfile.getInt32("lcd_notify_rclock", 1);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
@@ -984,6 +985,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "backlight_standby", g_settings.backlight_standby);
 	configfile.setInt32( "backlight_deepstandby", g_settings.backlight_deepstandby);
 	configfile.setInt32( "lcd_scroll", g_settings.lcd_scroll);
+	configfile.setInt32( "lcd_notify_rclock", g_settings.lcd_notify_rclock);
 
 	//misc
 	configfile.setInt32( "power_standby", g_settings.power_standby);
