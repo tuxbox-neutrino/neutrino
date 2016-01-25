@@ -3263,7 +3263,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			lastMode=mode;
 			mode=mode_pic;
 		}
-		if((data & mode_mask)== mode_ts && CMoviePlayerGui::getInstance().Playing()) {
+		if((data & mode_mask)== mode_ts) {
 			if(mode == mode_radio)
 				frameBuffer->stopFrame();
 			lastMode=mode;
