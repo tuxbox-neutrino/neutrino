@@ -812,6 +812,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					if (titem->isSelectable()) {
 						items[selected]->paint( false );
 						selected= i;
+						if (selected > page_start[current_page + 1] || selected < page_start[current_page]) {
+							/* different page */
+							paintItems();
+						}
 						paintHint(selected);
 						pos = selected;
 						if (titem->directKeyOK)
