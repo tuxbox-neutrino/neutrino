@@ -280,7 +280,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			break;
 		}
 		//label audio control button in movieplayer/upnp mode
-		if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio)
+		if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_audio)
 		{
 			if (!CMoviePlayerGui::getInstance().timeshift)
 			{
