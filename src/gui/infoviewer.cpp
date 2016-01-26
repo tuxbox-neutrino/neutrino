@@ -430,11 +430,11 @@ void CInfoViewer::paintHead()
 
 void CInfoViewer::paintBody()
 {
-	int h_body = InfoHeightY - header_height - SHADOW_OFFSET + (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
-	int y_body = ChanNameY + header_height;
+	int h_body = InfoHeightY - header_height - SHADOW_OFFSET;
+	if (!zap_mode)
+		h_body += infoViewerBB->bottom_bar_offset;
 
-	if(zap_mode)
-		h_body -= (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
+	int y_body = ChanNameY + header_height;
 
 	if (body == NULL){
 		body = new CComponentsShapeSquare(ChanInfoX, y_body, BoxEndX-ChanInfoX, h_body);
