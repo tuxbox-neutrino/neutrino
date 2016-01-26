@@ -142,6 +142,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///sub: get gradient data evaluted with current parameters
 		gradientData_t* getGradientData();
 
+		bool gradientBgCleanUp;
+
 		///rendering of framebuffer elements at once,
 		///elements are contained in v_fbdata, presumes added frambuffer elements with paintInit(),
 		///parameter do_save_bg=true, saves background of element to pixel buffer, this can be restore with hide()
@@ -315,6 +317,9 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
 		///from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND_PLUS_0 (empty background)
 		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1);
+
+		virtual void enableGradientBgCleanUp(bool enable = true) { gradientBgCleanUp = enable; };
+		virtual void disableGradientBgCleanUp(){ enableGradientBgCleanUp(false); };
 };
 
 #endif
