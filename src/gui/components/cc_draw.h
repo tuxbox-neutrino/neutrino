@@ -142,7 +142,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///sub: get gradient data evaluted with current parameters
 		gradientData_t* getGradientData();
 
-		bool gradientBgCleanUp;
+		bool cc_gradient_bg_cleanup;
 
 		///rendering of framebuffer elements at once,
 		///elements are contained in v_fbdata, presumes added frambuffer elements with paintInit(),
@@ -318,7 +318,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND_PLUS_0 (empty background)
 		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1);
 
-		virtual void enableGradientBgCleanUp(bool enable = true) { gradientBgCleanUp = enable; };
+		virtual void enableGradientBgCleanUp(bool enable = true) { cc_gradient_bg_cleanup = enable; };
 		virtual void disableGradientBgCleanUp(){ enableGradientBgCleanUp(false); };
 };
 

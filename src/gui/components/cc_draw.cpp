@@ -71,7 +71,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	cc_body_gradient_saturation 				= 0xC0;
 	cc_body_gradient_direction = cc_body_gradient_direction_old	= CFrameBuffer::gradientVertical;
 
-	gradientBgCleanUp = false;
+	cc_gradient_bg_cleanup = false;
 
 	v_fbdata.clear();
 }
@@ -593,7 +593,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 							}
 
 							// if found empty gradient buffer, create it, otherwise paint from cache
-							if (gradientBgCleanUp)
+							if (cc_gradient_bg_cleanup)
 								frameBuffer->paintBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, 0, fbdata.r, fbdata.rtype);
 							if (fbdata.gradient_data->boxBuf == NULL){
 								dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint new gradient)...\033[0m\n", __func__, __LINE__);
