@@ -48,6 +48,7 @@
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <global.h>
 #include <video.h>
 #include <cs_api.h>
@@ -671,7 +672,7 @@ void CFrameBuffer::paintHLineRelInternal2Buf(const int& x, const int& dx, const 
 		*(dest++) = col;
 }
 
-fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const fb_pixel_t col, fb_pixel_t* buf/* = NULL*/, int radius/* = 0*/, int type/* = CORNER_ALL*/)
+fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const int w_align, const int offs_align, const fb_pixel_t col, fb_pixel_t* buf/* = NULL*/, int radius/* = 0*/, int type/* = CORNER_ALL*/)
 {
 	if (!getActive())
 		return buf;
@@ -682,13 +683,13 @@ fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const fb_p
 
 	fb_pixel_t* pixBuf = buf;
 	if (pixBuf == NULL) {
-		pixBuf = (fb_pixel_t*) cs_malloc_uncached(dx*dy*sizeof(fb_pixel_t));
+		pixBuf = (fb_pixel_t*) cs_malloc_uncached(w_align*dy*sizeof(fb_pixel_t));
 		if (pixBuf == NULL) {
 			dprintf(DEBUG_NORMAL, "[%s #%d] Error cs_malloc_uncached\n", __func__, __LINE__);
 			return NULL;
 		}
 	}
-	memset((void*)pixBuf, '\0', dx*dy*sizeof(fb_pixel_t));
+	memset((void*)pixBuf, '\0', w_align*dy*sizeof(fb_pixel_t));
 
 	if (type && radius) {
 		setCornerFlags(type);
@@ -709,16 +710,16 @@ fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const fb_p
 				line++;
 				continue;
 			}
-			paintHLineRelInternal2Buf(ofl, dx-ofl-ofr, line, dx, col, pixBuf);
+			paintHLineRelInternal2Buf(ofl+offs_align, dx-ofl-ofr, line, w_align, col, pixBuf);
 			line++;
 		}
 	} else {
 		fb_pixel_t *bp = pixBuf;
 		int line = 0;
 		while (line < dy) {
-			for (int pos = 0; pos < dx; pos++)
+			for (int pos = offs_align; pos < dx+offs_align; pos++)
 				*(bp + pos) = col;
-			bp += dx;
+			bp += w_align;
 			line++;
 		}
 	}
@@ -729,42 +730,64 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 				      const fb_pixel_t /*col*/, gradientData_t *gradientData,
 				      int radius, int type)
 {
-#define MASK 0xFFFFFFFF
+	fb_pixel_t MASK = 0xFFFFFFFF;
+	int _dx = dx;
+	int w_align;
+	int offs_align;
 
-	fb_pixel_t* boxBuf    = paintBoxRel2Buf(dx, dy, MASK, NULL, radius, type);
-        if (!boxBuf)
-               return NULL;
+#ifdef BOXMODEL_APOLLO
+	if (_dx%4 != 0) {
+		w_align = GetWidth4FB_HW_ACC(x, _dx, true);
+		if (w_align < _dx)
+			_dx = w_align;
+		offs_align = w_align - _dx;
+		if ((x - offs_align) < 0)
+			offs_align = 0;
+	}
+	else {
+		w_align    = _dx;
+		offs_align = 0;
+	}
+#else
+	w_align    = _dx;
+	offs_align = 0;
+#endif
 
+	fb_pixel_t* boxBuf    = paintBoxRel2Buf(_dx, dy, w_align, offs_align, MASK, NULL, radius, type);
 	fb_pixel_t *bp        = boxBuf;
 	fb_pixel_t *gra       = gradientData->gradientBuf;
 	gradientData->boxBuf  = boxBuf;
+	gradientData->x       = x - offs_align;
+	gradientData->dx      = w_align;
 
 	if (gradientData->direction == gradientVertical) {
 		// vertical
-		for (int pos = 0; pos < dx; pos++) {
+		for (int pos = offs_align; pos < _dx+offs_align; pos++) {
 			for(int count = 0; count < dy; count++) {
 				if (*(bp + pos) == MASK)
 					*(bp + pos) = (fb_pixel_t)(*(gra + count));
-				bp += dx;
+				bp += w_align;
 			}
 			bp = boxBuf;
 		}
 	} else {
 		// horizontal
 		for (int line = 0; line < dy; line++) {
-			for (int pos = 0; pos < dx; pos++) {
-				if (*(bp + pos) == MASK)
-					*(bp + pos) = (fb_pixel_t)(*(gra + pos));
+			int gra_pos = 0;
+			for (int pos = 0; pos < w_align; pos++) {
+				if ((*(bp + pos) == MASK) && (pos >= offs_align) && (gra_pos < _dx)) {
+					*(bp + pos) = (fb_pixel_t)(*(gra + gra_pos));
+					gra_pos++;
+				}
 			}
-			bp += dx;
+			bp += w_align;
 		}
 	}
 
 	if ((gradientData->mode & pbrg_noPaint) == pbrg_noPaint)
 		return boxBuf;
 
-//	blit2FB(boxBuf, dx, dy, x, y);
-	blitBox2FB(boxBuf, dx, dy, x, y);
+	blitBox2FB(boxBuf, w_align, dy, x-offs_align, y);
 
 	if ((gradientData->mode & pbrg_noFree) == pbrg_noFree)
 		return boxBuf;
