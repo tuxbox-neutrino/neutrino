@@ -95,6 +95,8 @@ class CFileHelpers
 		static uint64_t getDirSize(const std::string& dir){return getDirSize(dir.c_str());};
 };
 
+uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max=true);
+
 std::string to_string(int);
 std::string to_string(unsigned int);
 std::string to_string(long);
