@@ -33,6 +33,7 @@
 #include "cc_item_picture.h"
 #include <unistd.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 
 extern CPictureViewer * g_PicViewer;
 
@@ -196,6 +197,10 @@ void CComponentsPicture::initCCItem()
 	if (keep_dx_aspect){
 		float h_ratio = float(height)*100/(float)dy;
 		width = int(h_ratio*(float)dx/100);
+#ifdef BOXMODEL_APOLLO
+		if (do_scale && (width > 10 || height > 10))
+			width = GetWidth4FB_HW_ACC(x+fr_thickness, width-2*fr_thickness)+2*fr_thickness;
+#endif
 	}
 	if (keep_dy_aspect){
 		float w_ratio = float(width)*100/(float)dx;

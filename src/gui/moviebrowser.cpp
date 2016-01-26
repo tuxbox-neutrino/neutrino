@@ -1347,10 +1347,6 @@ void CMovieBrowser::refreshMovieInfo(void)
 	if (logo_ok) {
 		flogo_w = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
 		flogo_h = m_cBoxFrameInfo.iHeight;
-#ifdef BOXMODEL_APOLLO
-		/* align for hw blit */
-		flogo_w = ((flogo_w + 3) / 4) * 4;
-#endif
 	}
 
 	static int logo_w = 0;
