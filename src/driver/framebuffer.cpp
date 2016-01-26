@@ -545,11 +545,13 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	}
 
 	stride = _fix.line_length;
-	printf("FB: %dx%dx%d line length %d. %s nevis GXA accelerator.\n", xRes, yRes, bpp, stride,
-#ifdef USE_NEVIS_GXA
-		"Using"
+	printf("FB: %dx%dx%d line length %d. %s accelerator.\n", xRes, yRes, bpp, stride,
+#if defined(USE_NEVIS_GXA)
+		"Using nevis GXA"
+#elif defined(FB_HW_ACCELERATION)
+		"Using fb hw graphics"
 #else
-		"Not using"
+		"Not using graphics"
 #endif
 	);
 
@@ -1917,6 +1919,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 			ioctl(fd, FBIO_IMAGE_BLT, &image);
 		}
 #endif
+		//printf("\033[34m>>>>\033[0m [%s:%s:%d] FB_HW_ACCELERATION (image) x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
 		return;
 	}
 	
@@ -1972,16 +1975,51 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 
 void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
 {
-	checkFbArea(xoff, yoff, width, height, true);
+	uint32_t xc = (width > xRes) ? (uint32_t)xRes : width;
+	uint32_t yc = (height > yRes) ? (uint32_t)yRes : height;
 
+	checkFbArea(xoff, yoff, xc, yc, true);
+
+#if defined(FB_HW_ACCELERATION)
+	if (!(width%4)) {
+		fb_image image;
+		image.dx = xoff;
+		image.dy = yoff;
+		image.width = xc;
+		image.height = yc;
+		image.cmap.len = 0;
+		image.depth = 32;
+		image.data = (const char*)boxBuf;
+		ioctl(fd, FBIO_IMAGE_BLT, &image);
+		//printf("\033[33m>>>>\033[0m [%s:%s:%d] FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+		checkFbArea(xoff, yoff, xc, yc, false);
+		return;
+	}
+	printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+#elif defined(USE_NEVIS_GXA)
+	void* uKva = cs_phys_addr((void*)boxBuf);
+	if(uKva != NULL) {
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		u32 cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
+		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
+		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
+		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff));
+		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));
+		_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));
+		//printf("\033[33m>>>>\033[0m [%s:%s:%d] USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+		checkFbArea(xoff, yoff, xc, yc, false);
+		return;
+	}
+	printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+#endif
 	uint32_t swidth = stride / sizeof(fb_pixel_t);
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * yoff);
 	fb_pixel_t* data = (fb_pixel_t*)boxBuf;
 
 	uint32_t line = 0;
-	while (line < height) {
-		fb_pixel_t *pixpos = &data[line * width];
-		for (uint32_t pos = xoff; pos < xoff + width; pos++) {
+	while (line < yc) {
+		fb_pixel_t *pixpos = &data[line * xc];
+		for (uint32_t pos = xoff; pos < xoff + xc; pos++) {
 			//don't paint backgroundcolor (*pixpos = 0x00000000)
 			if (*pixpos)
 				*(fbp + pos) = *pixpos;
@@ -1990,8 +2028,7 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 		fbp += swidth;
 		line++;
 	}
-
-	checkFbArea(xoff, yoff, width, height, false);
+	checkFbArea(xoff, yoff, xc, yc, false);
 }
 
 void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb, int transp)
