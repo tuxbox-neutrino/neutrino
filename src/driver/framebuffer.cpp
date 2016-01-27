@@ -2030,6 +2030,7 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));
 		_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));
 		//printf("\033[33m>>>>\033[0m [%s:%s:%d] USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+		add_gxa_sync_marker();
 		checkFbArea(xoff, yoff, xc, yc, false);
 		return;
 	}

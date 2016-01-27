@@ -407,6 +407,8 @@ void CInfoViewerBB::showBBButtons(bool paintFooter)
 			frameBuffer->SaveScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
 			paintFoot();
 			if (pixbuf != NULL) {
+				if (g_settings.theme.infobar_gradient_bottom)
+					frameBuffer->waitForIdle("CInfoViewerBB::showBBButtons");
 				frameBuffer->RestoreScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
 				delete [] pixbuf;
 			}
