@@ -676,7 +676,7 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 		}
 	}
 
-	if (fblayer_type == CC_FBDATA_TYPE_BOX){
+	if (fblayer_type == CC_FBDATA_TYPES){
 		firstPaint = true;
 		is_painted = false;
 	}
