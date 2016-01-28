@@ -224,6 +224,7 @@ CNeutrinoApp::CNeutrinoApp()
 	SetupFrameBuffer();
 
 	mode 			= mode_unknown;
+	lastMode		= mode_unknown;
 	channelList		= NULL;
 	TVchannelList		= NULL;
 	RADIOchannelList	= NULL;
@@ -1748,6 +1749,7 @@ void CNeutrinoApp::InitZapper()
 	int tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;
 	lastChannelMode = tvmode ? g_settings.channel_mode : g_settings.channel_mode_radio;
 	mode = tvmode ? mode_tv : mode_radio;
+	lastMode = mode;
 
 	SDTreloadChannels = false;
 	channelsInit();
