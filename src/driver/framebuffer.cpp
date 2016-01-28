@@ -730,6 +730,9 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 				      const fb_pixel_t /*col*/, gradientData_t *gradientData,
 				      int radius, int type)
 {
+	if (!getActive())
+		return NULL;
+
 	fb_pixel_t MASK = 0xFFFFFFFF;
 	int _dx = dx;
 	int w_align;
@@ -754,6 +757,8 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 #endif
 
 	fb_pixel_t* boxBuf    = paintBoxRel2Buf(_dx, dy, w_align, offs_align, MASK, NULL, radius, type);
+	if (boxBuf == NULL)
+		return NULL;
 	fb_pixel_t *bp        = boxBuf;
 	fb_pixel_t *gra       = gradientData->gradientBuf;
 	gradientData->boxBuf  = boxBuf;
