@@ -33,6 +33,7 @@
 #include <math.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <fstream>
 
 //#define SAVE_DEBUG
 
@@ -968,13 +969,18 @@ do_current:
 	return true;
 }
 
-void CServiceManager::CopyFile(char * from, char * to)
+void CServiceManager::CopyFile(const char * from, const char * to)
 {
-        char cmd[256] = "cp -f ";
-        strcat(cmd, from);
-        strcat(cmd, " ");
-        strcat(cmd, to);
-        system(cmd);
+	std::ifstream in(from, std::ios::in | std::ios::binary);
+	if(in.good()){
+		std::ofstream out(to, std::ios::out | std::ios::binary);
+		if(out.good()){
+			out << in.rdbuf();
+			out.close();
+		}
+		in.close();
+		remove(from);
+	}
 	sync();
 }
 
