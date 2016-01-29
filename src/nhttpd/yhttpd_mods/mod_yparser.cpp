@@ -528,10 +528,14 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 		} else
 			yresult = "ycgi-type unknown";
 	} else if (!hh->ParamList[ycmd].empty()) {
+#if 0
 		if ((hh->ParamList[ycmd]).find("script") == std::string::npos)
 			yresult = hh->ParamList[ycmd];
 		else
 			yresult = "<!--Not Allowed script in " + ycmd + " -->";
+#else
+		yresult = hh->ParamList[ycmd];
+#endif
 	}
 
 	return yresult;
