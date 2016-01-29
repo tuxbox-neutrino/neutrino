@@ -979,7 +979,6 @@ void CServiceManager::CopyFile(const char * from, const char * to)
 			out.close();
 		}
 		in.close();
-		remove(from);
 	}
 	sync();
 }
