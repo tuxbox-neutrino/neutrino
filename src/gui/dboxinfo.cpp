@@ -324,7 +324,6 @@ void CDBoxInfoWidget::paint()
 		nameWidth += diff;
 	}
 	height = h_max(height, 0);
-	x = getScreenStartX(width);
 	y = getScreenStartY(height);
 
 	// fprintf(stderr, "CDBoxInfoWidget::CDBoxInfoWidget() x = %d, y = %d, width = %d height = %d\n", x, y, width, height);
@@ -358,7 +357,8 @@ void CDBoxInfoWidget::paint()
 	sprintf(ss, "%016llx", cs_get_serial());
 	title += ", S/N ";
 	title += ss;
-	width = max(width, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(title, true));
+	width = max(width, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(title, true) + 50);
+	x = getScreenStartX(width);
 
 	CComponentsHeader header(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
 	header.paint(CC_SAVE_SCREEN_NO);
