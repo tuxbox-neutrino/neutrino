@@ -74,7 +74,7 @@ main.info=Info
 main.info_desc=Information &uuml;ber das yWeb, Version
 main.live_tv_desc=LiveTV
 main.live_tv_popup_desc=LiveTV Popup
-main.remote_full_desc=Fernbedinung & OSD Vollbild
+main.remote_full_desc=Fernbedienung & OSD Vollbild
 main.stream_to_vlc_client_desc=Live TV direkt im VLC Client
 main.version=Version
 
@@ -85,7 +85,7 @@ bc.menue.control_desc=Box Funktionen (Neustart, Aufnahmemodus, ...)
 bc.menue.control=Steuerung
 bc.menue.messages_desc=Nachricht an die Box senden
 bc.menue.messages=Nachrichten
-bc.menue.remote_desc=Fernbedinung
+bc.menue.remote_desc=Fernbedienung
 bc.menue.remote=Fernbedienung
 bc.menue.lcd_screenshot_desc=LCD Screenshot erstellen
 bc.menue.lcd_screenshot=LCD Screenshot
