@@ -1813,7 +1813,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 			frameBuffer->paintBackgroundBoxRel (BoxEndX - 108, posy, 112, height2);
 		}
 #endif
-		infoViewerBB->showBBButtons();
+		infoViewerBB->showBBButtons(calledFromEvent);
 	}
 
 	if ((info_CurrentNext.flags & CSectionsdClient::epgflags::not_broadcast) ||
