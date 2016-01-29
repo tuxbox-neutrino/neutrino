@@ -2066,7 +2066,6 @@ void CChannelList::paintHead()
 	}
 
 	header->setDimensionsAll(x, y, full_width, theight);
-	header->enableGradientBgCleanUp();
 
 	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
 		header->setIcon(NEUTRINO_ICON_LOCK);

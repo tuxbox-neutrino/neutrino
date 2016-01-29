@@ -71,7 +71,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	cc_body_gradient_saturation 				= 0xC0;
 	cc_body_gradient_direction = cc_body_gradient_direction_old	= CFrameBuffer::gradientVertical;
 
-	cc_gradient_bg_cleanup = false;
+	cc_gradient_bg_cleanup = true;
 
 	v_fbdata.clear();
 }

@@ -1482,7 +1482,6 @@ void CMenuWidget::paintHint(int pos)
 	info_box->enableShadow();
 	info_box->setPicture(item->hintIcon ? item->hintIcon : "");
 	info_box->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);// COL_INFOBAR_SHADOW_PLUS_1 is default footer color
-	info_box->enableGradientBgCleanUp();
 
 	//paint result
 	if (details_line)

@@ -127,7 +127,6 @@ void EpgPlus::Header::paint(const char * Name)
 	std::string head = Name ? Name : g_Locale->getText (LOCALE_EPGPLUS_HEAD);
 
 	CComponentsHeader header(this->x, this->y, this->width, this->font->getHeight()+4, head);
-	header.enableGradientBgCleanUp();
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 

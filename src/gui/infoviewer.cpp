@@ -422,7 +422,6 @@ void CInfoViewer::paintHead()
 	header->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	header->enableColBodyGradient(g_settings.theme.infobar_gradient_top, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_top_direction);
 	clock->setColorBody(header->getColorBody());
-	header->enableGradientBgCleanUp();
 
 	header->paint(CC_SAVE_SCREEN_NO);
 	header_height = header->getHeight();
@@ -458,7 +457,6 @@ void CInfoViewer::paintBody()
 
 	body->setColorBody(g_settings.theme.infobar_gradient_body ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	body->enableColBodyGradient(g_settings.theme.infobar_gradient_body, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_body_direction);
-	body->enableGradientBgCleanUp();
 
 	body->paint(CC_SAVE_SCREEN_NO);
 }
