@@ -1945,8 +1945,8 @@ void CInfoViewer::killInfobarText()
 		if (infobar_txt->isPainted())
 			infobar_txt->kill();
 		delete infobar_txt;
+		infobar_txt = NULL;
 	}
-	infobar_txt = NULL;
 }
 
 
@@ -1975,12 +1975,22 @@ void CInfoViewer::showInfoFile()
 	const int height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
 
 	//create info object
-	if (infobar_txt == NULL)
+	if (infobar_txt == NULL){
 		infobar_txt = new CComponentsInfoBox();
+		//set some properties for info object
+		infobar_txt->setCorner(RADIUS_SMALL);
+		infobar_txt->enableShadow(CC_SHADOW_ON, SHADOW_OFFSET/2);
+		infobar_txt->setTextColor(COL_INFOBAR_TEXT);
+		infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
+		infobar_txt->doPaintTextBoxBg(false);
+		infobar_txt->enableColBodyGradient(g_settings.theme.infobar_gradient_top, g_settings.theme.infobar_gradient_top ? COL_INFOBAR_PLUS_0 : header->getColorBody(), g_settings.theme.infobar_gradient_top_direction);
+	}
 
 	//get text from file and set it to info object, exit and delete object if failed
-	bool new_text = infobar_txt->setTextFromFile(infobar_file, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]);
-	if (!new_text){
+	string old_txt = infobar_txt->getText();
+	string new_txt = infobar_txt->getTextFromFile(infobar_file);
+	bool has_text = infobar_txt->setText(new_txt, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]);
+	if (new_txt.empty()){
 		killInfobarText();
 		return;
 	}
@@ -1989,20 +1999,14 @@ void CInfoViewer::showInfoFile()
 	if (infobar_txt->getWidth() != width)
 		infobar_txt->kill();
 
-	//set some properties for info object
+	//consider possible size change
 	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
-	infobar_txt->setCorner(RADIUS_SMALL);
-	infobar_txt->enableShadow(CC_SHADOW_ON, SHADOW_OFFSET/2);
-	infobar_txt->setTextColor(COL_INFOBAR_TEXT);
-	infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
-	infobar_txt->doPaintTextBoxBg(false);
-	infobar_txt->enableColBodyGradient(g_settings.theme.infobar_gradient_top, g_settings.theme.infobar_gradient_top ? COL_INFOBAR_PLUS_0 : header->getColorBody(), g_settings.theme.infobar_gradient_top_direction);
 
-	//paint info, don't save background, if already painted, global hide is also done by killTitle()
-	bool save_bg = !infobar_txt->isPainted();
-	if (new_text || (zap_mode & IV_MODE_VIRTUAL_ZAP))
-		infobar_txt->paint(save_bg);
-
+	//paint info if not painted or text has changed
+	if (has_text || (zap_mode & IV_MODE_VIRTUAL_ZAP)){
+		if ((old_txt != new_txt) || !infobar_txt->isPainted())
+			infobar_txt->paint(CC_SAVE_SCREEN_NO);
+	}
 }
 
 void CInfoViewer::killTitle()
@@ -2024,9 +2028,12 @@ void CInfoViewer::killTitle()
 			rec->kill();
 		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET-BoxStartX, bottom-BoxStartY);
 		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
-		if (infobar_txt)
-			infobar_txt->kill();
-		numbox->kill();
+		if (zap_mode != IV_MODE_VIRTUAL_ZAP){
+			if (infobar_txt)
+				infobar_txt->kill();
+			numbox->kill();
+		}
+
 #if 0 //not really required to kill sigbox, numbox does this
 		if (sigbox)
 			sigbox->kill();
@@ -2058,7 +2065,6 @@ void CInfoViewer::killTitle()
 			g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
 			killRadiotext();
 		}
-		killInfobarText();
 	}
 	showButtonBar = false;
 	InfoClock->getInstance()->enableInfoClock();
