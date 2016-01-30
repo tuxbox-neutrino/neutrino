@@ -606,7 +606,9 @@ void CCDraw::paintFbItems(bool do_save_bg)
 									fbdata.pixbuf = getScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
 							}else{
 								dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint cached gradient)...\033[0m\n", __func__, __LINE__);
+								frameBuffer->checkFbArea(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, true);
 								frameBuffer->blitBox2FB(fbdata.gradient_data->boxBuf, fbdata.gradient_data->dx, fbdata.dy, fbdata.gradient_data->x, fbdata.y);
+								frameBuffer->checkFbArea(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, false);
 							}
 						}else{
 							dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint default box)...\033[0m\n", __func__, __LINE__);

@@ -733,6 +733,8 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 	if (!getActive())
 		return NULL;
 
+	checkFbArea(x, y, dx, dy, true);
+
 	fb_pixel_t MASK = 0xFFFFFFFF;
 	int _dx = dx;
 	int w_align;
@@ -757,8 +759,10 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 #endif
 
 	fb_pixel_t* boxBuf    = paintBoxRel2Buf(_dx, dy, w_align, offs_align, MASK, NULL, radius, type);
-	if (boxBuf == NULL)
+	if (boxBuf == NULL) {
+		checkFbArea(x, y, dx, dy, false);
 		return NULL;
+	}
 	fb_pixel_t *bp        = boxBuf;
 	fb_pixel_t *gra       = gradientData->gradientBuf;
 	gradientData->boxBuf  = boxBuf;
@@ -789,16 +793,21 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 		}
 	}
 
-	if ((gradientData->mode & pbrg_noPaint) == pbrg_noPaint)
+	if ((gradientData->mode & pbrg_noPaint) == pbrg_noPaint) {
+		checkFbArea(x, y, dx, dy, false);
 		return boxBuf;
+	}
 
 	blitBox2FB(boxBuf, w_align, dy, x-offs_align, y);
 
-	if ((gradientData->mode & pbrg_noFree) == pbrg_noFree)
+	if ((gradientData->mode & pbrg_noFree) == pbrg_noFree) {
+		checkFbArea(x, y, dx, dy, false);
 		return boxBuf;
+	}
 
 	cs_free_uncached(boxBuf);
 
+	checkFbArea(x, y, dx, dy, false);
 	return NULL;
 }
 
@@ -2006,8 +2015,6 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 	uint32_t xc = (width > xRes) ? (uint32_t)xRes : width;
 	uint32_t yc = (height > yRes) ? (uint32_t)yRes : height;
 
-	checkFbArea(xoff, yoff, xc, yc, true);
-
 #if defined(FB_HW_ACCELERATION)
 	if (!(width%4)) {
 		fb_image image;
@@ -2020,7 +2027,6 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 		image.data = (const char*)boxBuf;
 		ioctl(fd, FBIO_IMAGE_BLT, &image);
 		//printf("\033[33m>>>>\033[0m [%s:%s:%d] FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
-		checkFbArea(xoff, yoff, xc, yc, false);
 		return;
 	}
 	printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
@@ -2036,7 +2042,6 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 		_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));
 		//printf("\033[33m>>>>\033[0m [%s:%s:%d] USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
 		add_gxa_sync_marker();
-		checkFbArea(xoff, yoff, xc, yc, false);
 		return;
 	}
 	printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
@@ -2057,7 +2062,6 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 		fbp += swidth;
 		line++;
 	}
-	checkFbArea(xoff, yoff, xc, yc, false);
 }
 
 void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb, int transp)
