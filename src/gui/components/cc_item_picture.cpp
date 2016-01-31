@@ -256,8 +256,10 @@ void CComponentsPicture::paintPicture()
 	y_pic += fr_thickness;
 	initCCItem();
 
-	if (pic_name.empty())
+	if (pic_name.empty()){
+		clearCache();
 		return;
+	}
 
 	if (cc_allow_paint){
 		dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
