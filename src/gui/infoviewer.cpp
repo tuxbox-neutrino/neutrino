@@ -986,6 +986,10 @@ void CInfoViewer::loop(bool show_dot)
 
 				g_RCInput->postMsg (msg, data);
 				res = messages_return::cancel_info;
+			} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
+				setSwitchMode(IV_MODE_VIRTUAL_ZAP);
+				res = messages_return::cancel_all;
+				hideIt = true;
 			} else if (msg == NeutrinoMessages::EVT_TIMESET) {
 				/* handle timeset event in upper layer, ignore here */
 				res = neutrino->handleMsg (msg, data);
@@ -1013,11 +1017,6 @@ void CInfoViewer::loop(bool show_dot)
 			}
 			else
 				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
-
-		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
-			setSwitchMode(IV_MODE_VIRTUAL_ZAP);
-			res = messages_return::cancel_all;
-			hideIt = true;
 		}
 #if 0
 		else if (CMoviePlayerGui::getInstance().start_timeshift && (msg == NeutrinoMessages::EVT_TIMER)) {
