@@ -954,6 +954,9 @@ void CMoviePlayerGui::PlayFileLoop(void)
 					eof = 0;
 			}
 			handleMovieBrowser(0, position);
+			if (playstate == CMoviePlayerGui::STOPPED)
+				at_eof = true;
+
 			FileTime.update(position, duration);
 		}
 		showSubtitle(0);
