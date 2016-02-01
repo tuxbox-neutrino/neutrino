@@ -179,7 +179,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 #define	MB_ROW_WIDTH_INFO2		25
 #define	MB_ROW_WIDTH_PARENTAL_LOCKAGE	4
 #define	MB_ROW_WIDTH_CHANNEL		15
-#define	MB_ROW_WIDTH_BOOKMARK		4
+#define	MB_ROW_WIDTH_BOOKMARK		6
 #define	MB_ROW_WIDTH_QUALITY		10
 #define	MB_ROW_WIDTH_PREVPLAYDATE	12
 #define	MB_ROW_WIDTH_RECORDDATE		12
@@ -3280,6 +3280,9 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 	int i=0;
 	int counter=0;
 
+	std::string b;
+	bool s, e, u;
+
 	switch(item)
 	{
 		case MB_INFO_FILENAME: 				// 		= 0,
@@ -3321,13 +3324,41 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			*item_string = movie_info.epgChannel;
 			break;
 		case MB_INFO_BOOKMARK: 				//		= 10,
+			b = "";
+
+			s = false;
+			if (movie_info.bookmarks.start != 0)
+			{
+				s = true;
+				b += "S";
+			}
+
+			e = false;
+			if (movie_info.bookmarks.end != 0)
+			{
+				e = true;
+				if (s)
+					b += ",";
+				b += "E";
+			}
+
 			// we just return the number of bookmarks
 			for (i = 0; i < MI_MOVIE_BOOK_USER_MAX; i++)
 			{
 				if (movie_info.bookmarks.user[i].pos != 0)
 					counter++;
 			}
-			*item_string = to_string(counter);;
+			u = (counter > 0);
+			if (u)
+			{
+				if (s || e)
+					b += ",";
+				b += "U[";
+				b += to_string(counter);
+				b += "]";
+			}
+
+			*item_string = b;
 			break;
 		case MB_INFO_QUALITY: 				// 		= 11,
 			snprintf(str_tmp, sizeof(str_tmp),"%d",movie_info.quality);
