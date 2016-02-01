@@ -437,8 +437,9 @@ void CInfoViewer::paintBody()
 
 	if (body == NULL){
 		body = new CComponentsShapeSquare(ChanInfoX, y_body, BoxEndX-ChanInfoX, h_body);
-	}else{
-		if(txt_cur_event && txt_next_event){
+	} else {
+		if (txt_cur_event && txt_cur_start && txt_cur_event_rest &&
+				txt_next_event && txt_next_start && txt_next_in) {
 			if (h_body != body->getHeight() || y_body != body->getYPos()){
 				txt_cur_start->getCTextBoxObject()->clearScreenBuffer();
 				txt_cur_event->getCTextBoxObject()->clearScreenBuffer();
@@ -964,10 +965,6 @@ void CInfoViewer::loop(bool show_dot)
 			infoViewerBB->showIcon_16_9();
 			//infoViewerBB->showIcon_CA_Status(0);
 			infoViewerBB->showIcon_Resolution();
-		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
-			setSwitchMode(IV_MODE_VIRTUAL_ZAP);
-			res = messages_return::cancel_all;
-			hideIt = true;
 		} else if ((msg == NeutrinoMessages::EVT_RECORDMODE) && 
 			   (CMoviePlayerGui::getInstance().timeshift) && (CRecordManager::getInstance()->GetRecordCount() == 1)) {
 			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
@@ -1008,7 +1005,7 @@ void CInfoViewer::loop(bool show_dot)
 
 			/* this debug message will only hit in movieplayer mode, where console is
 			 * spammed to death anyway... */
-			printf("%s:%d msg:%08lx, data: %08lx\n", __func__, __LINE__, (long)msg, (long)data);
+			printf("%s:%d msg->MP: %08lx, data: %08lx\n", __func__, __LINE__, (long)msg, (long)data);
 			if (msg < CRCInput::RC_Events) /* RC / Keyboard event */
 			{
 				g_RCInput->postMsg (msg, data);
@@ -1017,6 +1014,10 @@ void CInfoViewer::loop(bool show_dot)
 			else
 				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 
+		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
+			setSwitchMode(IV_MODE_VIRTUAL_ZAP);
+			res = messages_return::cancel_all;
+			hideIt = true;
 		}
 #if 0
 		else if (CMoviePlayerGui::getInstance().start_timeshift && (msg == NeutrinoMessages::EVT_TIMER)) {
