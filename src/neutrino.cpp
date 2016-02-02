@@ -2712,7 +2712,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	if (mode == mode_webtv && msg == NeutrinoMessages::EVT_SUBT_MESSAGE) {
-		CMoviePlayerGui::getInstance().showSubtitle(data);
+		CMoviePlayerGui::getInstance(true).showSubtitle(data);
+		return messages_return::handled;
 	}
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
 		CZapit::getInstance()->GetAudioMode(g_settings.audio_AnalogMode);
