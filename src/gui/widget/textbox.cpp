@@ -97,7 +97,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 
 	//TRACE(" CTextBox::m_cText: %d, m_nMode %d\t\r\n",m_cText.size(),m_nMode);
 
-	m_textBackgroundColor 	= textBackgroundColor;
+	m_textBackgroundColor 	= m_old_textBackgroundColor = textBackgroundColor;
 	m_nFontTextHeight 	= getFontTextHeight();
 
 	//TRACE("[CTextBox] %s Line %d\r\n", __FUNCTION__, __LINE__);
