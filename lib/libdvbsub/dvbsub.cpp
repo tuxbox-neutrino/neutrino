@@ -115,7 +115,7 @@ printf("[dvb-sub] ***************************************** start, stopped %d pi
 		pthread_mutex_lock(&readerMutex);
 		pthread_cond_broadcast(&readerCond);
 		pthread_mutex_unlock(&readerMutex);
-		printf("[dvb-sub] started with pid 0x%x\n", pid);
+		printf("[dvb-sub] started with pid 0x%x\n", dvbsub_pid);
 	}
 
 	return 1;
