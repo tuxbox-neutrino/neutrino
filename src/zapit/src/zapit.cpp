@@ -505,8 +505,14 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	}
 
 	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
+	if (!firstzap && current_channel)
+		SaveChannelPids(current_channel);
+
+	/* firstzap right now does nothing but control saving the audio channel */
+	firstzap = false;
 
 	if (IS_WEBTV(newchannel->getChannelID()) && !newchannel->getUrl().empty()) {
+		dvbsub_stop();
 		if (!IS_WEBTV(live_channel_id))
 			CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
 
@@ -540,12 +546,6 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		return false;
 	}
 	sig_delay = 2;
-	if (!firstzap && current_channel)
-		SaveChannelPids(current_channel);
-
-	/* firstzap right now does nothing but control saving the audio channel */
-	firstzap = false;
-
 	pmt_stop_update_filter(&pmt_update_fd);
 
 	/* stop playback on the old frontend... */
