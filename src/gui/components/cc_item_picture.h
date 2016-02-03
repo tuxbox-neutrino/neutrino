@@ -136,6 +136,8 @@ class CComponentsPicture : public CComponentsItem
 		virtual void setPicture(const std::string& picture_name);
 		///sets an image name (unscaled icons only), full image path or url to an image file
 		virtual void setPicture(const char* picture_name);
+		///returns current assigned image name
+		std::string getPictureName(){return pic_name;}
 
 		///handle image size
 		virtual void getSize(int* width_image, int *height_image);
