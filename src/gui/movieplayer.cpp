@@ -2218,8 +2218,10 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 
 void CMoviePlayerGui::selectAutoLang()
 {
-	if (ext_subs) {
+	if (!numsubs)
 		playback->FindAllSubs(spids, sub_supported, &numsubs, slanguage);
+
+	if (ext_subs) {
 		for (unsigned count = 0; count < numsubs; count++) {
 			if (spids[count] == 0x1FFF) {
 				currentspid = spids[count];
@@ -2256,6 +2258,34 @@ void CMoviePlayerGui::selectAutoLang()
 			currentac3 = ac3flags[pref_idx];
 			playback->SetAPid(currentapid, currentac3);
 			getCurrentAudioName(is_file_player, currentaudioname);
+		}
+	}
+	if (isWebTV && g_settings.auto_subs && numsubs > 0) {
+		for(int i = 0; i < 3; i++) {
+			if(g_settings.pref_subs[i].empty() || g_settings.pref_subs[i] == "none")
+				continue;
+
+			std::string temp(g_settings.pref_subs[i]);
+			std::string slang;
+			for (int j = 0 ; j < numsubs; j++) {
+				if (!sub_supported[j])
+					continue;
+				slang = slanguage[j].substr(0, 3);
+				std::map<std::string, std::string>::const_iterator it;
+				for(it = iso639.begin(); it != iso639.end(); ++it) {
+					if(temp == it->second && slang == it->first) {
+						currentspid = spids[j];
+						break;
+					}
+				}
+				if (currentspid > 0)
+					break;
+			}
+			if (currentspid > 0) {
+				playback->SelectSubtitles(currentspid, g_settings.subs_charset);
+				printf("[movieplayer] spid changed to %d %s (%s)\n", currentspid, temp.c_str(), slang.c_str());
+				break;
+			}
 		}
 	}
 }
