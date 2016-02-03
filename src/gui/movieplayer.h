@@ -153,6 +153,9 @@ class CMoviePlayerGui : public CMenuTarget
 	CFileFilter tsfilefilter;
 	CFileList filelist;
 	CFileList::iterator filelist_it;
+	CFileList::iterator vzap_it;
+	void set_vzap_it(bool up);
+	bool fromInfoviewer;
 	std::string Path_local;
 	int menu_ret;
 	bool autoshot_done;
@@ -177,8 +180,9 @@ class CMoviePlayerGui : public CMenuTarget
 	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
 
+	void quickZap(neutrino_msg_t msg);
 	void showHelpTS(void);
-	void callInfoViewer();
+	void callInfoViewer(bool init_vzap_it = true);
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
@@ -236,6 +240,7 @@ class CMoviePlayerGui : public CMenuTarget
 	size_t GetReadCount();
 	std::string GetFile() { return pretty_name; }
 	void restoreNeutrino();
+	void setFromInfoviewer(bool f) { fromInfoviewer = f; };
 	void setBlockedFromPlugin(bool b) { blockedFromPlugin = b; };
 	bool getBlockedFromPlugin() { return blockedFromPlugin; };
 	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };

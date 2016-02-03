@@ -809,7 +809,7 @@ keybindingmenu.head Edit Keybindings
 keybindingmenu.lastchannel Quick Zap
 keybindingmenu.longkeypress_duration Long key-press
 keybindingmenu.misc Misc
-keybindingmenu.mode_left_right_key_tv Left/Right Key Behavior in TV-Mode
+keybindingmenu.mode_left_right_key_tv Left/Right key behaviour
 keybindingmenu.mode_left_right_key_tv_infobar Show Infobar
 keybindingmenu.mode_left_right_key_tv_volume Volume Control
 keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
@@ -1107,7 +1107,7 @@ menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_record Assign button to start a recording
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
 menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
-menu.hint_key_right Select 'right' function in live TV/Radio mode
+menu.hint_key_right Select function for 'left' and 'right' keys in live TV/Radio mode and movieplayer mode
 menu.hint_key_save Save keybindings to file
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order

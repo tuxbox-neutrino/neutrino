@@ -940,18 +940,41 @@ void CInfoViewer::loop(bool show_dot)
 		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
 			g_RCInput->postMsg (msg, 0);
 			res = messages_return::cancel_info;
-		}
-		else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
+		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
 			res = messages_return::cancel_info;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
 			if(fader.FadeDone())
 				res = messages_return::cancel_info;
 		} else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
+			if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && (msg == CRCInput::RC_ok))
+			{
+				if (fileplay)
+				{
+					// in movieplayer mode process vzap keys in movieplayer.cpp
+					//printf("%s:%d: imitate VZAP; RC_ok\n", __func__, __LINE__);
+					CMoviePlayerGui::getInstance().setFromInfoviewer(true);
+					g_RCInput->postMsg (msg, data);
+					hideIt = true;
+				}
+			}
 			if(fader.StartFadeOut())
 				timeoutEnd = CRCInput::calcTimeoutEnd (1);
 			else
 				res = messages_return::cancel_info;
+		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
+			if (fileplay)
+			{
+				// in movieplayer mode process vzap keys in movieplayer.cpp
+				//printf("%s:%d: imitate VZAP; RC_left/right\n", __func__, __LINE__);
+				CMoviePlayerGui::getInstance().setFromInfoviewer(true);
+				g_RCInput->postMsg (msg, data);
+				hideIt = true;
+			}
+			else
+				setSwitchMode(IV_MODE_VIRTUAL_ZAP);
+			res = messages_return::cancel_all;
+			hideIt = true;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == sec_timer_id)) {
 			showSNR ();
 			if (timeset)
@@ -986,10 +1009,6 @@ void CInfoViewer::loop(bool show_dot)
 
 				g_RCInput->postMsg (msg, data);
 				res = messages_return::cancel_info;
-			} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
-				setSwitchMode(IV_MODE_VIRTUAL_ZAP);
-				res = messages_return::cancel_all;
-				hideIt = true;
 			} else if (msg == NeutrinoMessages::EVT_TIMESET) {
 				/* handle timeset event in upper layer, ignore here */
 				res = neutrino->handleMsg (msg, data);
