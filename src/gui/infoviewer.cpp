@@ -529,7 +529,7 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channel_Id, const std::string &Channel,
 				 const std::string &g_file_epg, const std::string &g_file_epg1,
 				 const int duration, const int curr_pos,
-				 const int repeat_mode)
+				 const int repeat_mode, const int _zap_mode)
 {
 	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
 	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
@@ -544,6 +544,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	last_curr_id = last_next_id = 0;
 	showButtonBar = true;
 	fileplay = true;
+	zap_mode = _zap_mode;
 	reset_allScala();
 	if (!gotTime)
 		gotTime = timeset;
@@ -573,7 +574,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	showRecordIcon (show_dot);
 	show_dot = !show_dot;
 
-	infoViewerBB->paintshowButtonBar();
+	if (!zap_mode)
+		infoViewerBB->paintshowButtonBar();
 
 	int ChannelLogoMode = 0;
 	if (g_settings.infobar_show_channellogo > 1)
