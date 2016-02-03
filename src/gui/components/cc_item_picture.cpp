@@ -99,6 +99,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 void CComponentsPicture::clearCache()
 {
 	if (image_cache){
+		dprintf(DEBUG_DEBUG, "\033[32m[CComponentsPicture] %s - %d: clean up image cache %s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 		delete[] image_cache;
 		image_cache = NULL;
 	}
@@ -140,7 +141,7 @@ void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
 void CComponentsPicture::initCCItem()
 {
 	if (pic_name.empty()){
-		dprintf(DEBUG_INFO, "[CComponentsPicture] %s - %d : no image file assigned...\n",  __func__, __LINE__);
+		dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s - %d : no image file assigned...\n",  __func__, __LINE__);
 		return;
 	}
 
@@ -262,7 +263,6 @@ void CComponentsPicture::paintPicture()
 	}
 
 	if (cc_allow_paint){
-		dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
 		if (image_cache == NULL){
 			frameBuffer->SetTransparent(image_transparent);
 			if (do_scale)
@@ -270,9 +270,12 @@ void CComponentsPicture::paintPicture()
 			else
 				is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
 			frameBuffer->SetTransparentDefault();
-			if (enable_cache)
+			if (enable_cache){
+				dprintf(DEBUG_DEBUG, "\033[31m[CComponentsPicture] %s - %d: create cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 				image_cache = getScreen(x_pic, y_pic, width, height);
+			}
 		}else{
+			dprintf(DEBUG_DEBUG, "\033[36m[CComponentsPicture] %s - %d: paint cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 			frameBuffer->RestoreScreen(x_pic, y_pic, width, height, image_cache);
 		}
 	}
