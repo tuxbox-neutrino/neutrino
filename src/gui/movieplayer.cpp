@@ -2081,18 +2081,25 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		int xres = 0, yres = 0, framerate;
 		videoDecoder->getPictureInfo(xres, yres, framerate);
 
-		double xc = (double) CFrameBuffer::getInstance()->getScreenWidth(/*true*/)/(double) xres;
-		double yc = (double) CFrameBuffer::getInstance()->getScreenHeight(/*true*/)/(double) yres;
+		double xc, yc;
+		if (sub->num_rects && (sub->rects[0]->x + sub->rects[0]->w) <= 720 &&
+				sub->rects[0]->y + sub->rects[0]->h <= 576) {
+			xc = (double) CFrameBuffer::getInstance()->getScreenWidth(/*true*/)/(double) 720;
+			yc = (double) CFrameBuffer::getInstance()->getScreenHeight(/*true*/)/(double) 576;
+		} else {
+			xc = (double) CFrameBuffer::getInstance()->getScreenWidth(/*true*/)/(double) xres;
+			yc = (double) CFrameBuffer::getInstance()->getScreenHeight(/*true*/)/(double) yres;
+		}
 
 		clearSubtitle();
 
 		for (unsigned i = 0; i < sub->num_rects; i++) {
 			uint32_t * colors = (uint32_t *) sub->rects[i]->pict.data[1];
 
-			int nw = (double) sub->rects[i]->w * xc;
-			int nh = (double) sub->rects[i]->h * yc;
 			int xoff = (double) sub->rects[i]->x * xc;
 			int yoff = (double) sub->rects[i]->y * yc;
+			int nw = GetWidth4FB_HW_ACC(xoff, (double) sub->rects[i]->w * xc);
+			int nh = (double) sub->rects[i]->h * yc;
 
 			printf("Draw: #%d at %d,%d size %dx%d colors %d (x=%d y=%d w=%d h=%d) \n", i+1,
 					sub->rects[i]->x, sub->rects[i]->y, sub->rects[i]->w, sub->rects[i]->h,
