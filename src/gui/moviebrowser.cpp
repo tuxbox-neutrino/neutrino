@@ -1800,11 +1800,13 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	}
 	else if (msg == CRCInput::RC_left)
 	{
-		onSetGUIWindowPrev();
+		if (show_mode != MB_SHOW_YT)
+			onSetGUIWindowPrev();
 	}
 	else if (msg == CRCInput::RC_right)
 	{
-		onSetGUIWindowNext();
+		if (show_mode != MB_SHOW_YT)
+			onSetGUIWindowNext();
 	}
 	else if (msg == CRCInput::RC_green)
 	{
