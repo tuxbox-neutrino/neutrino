@@ -764,6 +764,11 @@ bool CStreamStream::Open()
 	if (url.empty())
 		return false;
 
+	//av_log_set_level(AV_LOG_VERBOSE);
+	av_register_all();
+	avcodec_register_all();
+	avformat_network_init();
+
 	printf("%s: Open input [%s]....\n", __FUNCTION__, url.c_str());
 
 	AVDictionary *options = NULL;
