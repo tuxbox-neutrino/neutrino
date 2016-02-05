@@ -1408,7 +1408,8 @@ void CMovieBrowser::refreshMovieInfo(void)
 		flogo_w = pic->getWidth();
 		pic->setXPos(m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -12);
 		if (!m_movieSelectionHandler->epgInfo2.empty())
-			m_pcInfo->OnAfterScrollPage.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
+			if (m_pcInfo->OnAfterScrollPage.empty())
+				m_pcInfo->OnAfterScrollPage.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
 	}else{
 		delete pic;
 		pic = NULL;
