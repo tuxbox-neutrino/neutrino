@@ -72,10 +72,10 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	cc_item_type 	= CC_ITEMTYPE_PICTURE;
 
 	//CComponents
-	x 		= x_pos;
-	y 		= y_pos;
-	width	= dx	= w;
-	height	= dy	= h;
+	x =	x_old	= x_pos;
+	y =	y_old	= y_pos;
+	width	= dx = dxc = w;
+	height	= dy = dyc = h;
 	pic_name = pic_name_old = image_name;
 	shadow		= shadow_mode;
 	shadow_w	= SHADOW_OFFSET;
@@ -91,7 +91,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	cc_paint_cache	= false; //bg
 	keep_dx_aspect 	= false;
 	keep_dy_aspect	= false;
-
+	need_init	= true;
 	initCCItem();
 	initParent(parent);
 }
@@ -109,6 +109,7 @@ void CComponentsPicture::setPicture(const std::string& picture_name)
 {
 	if (pic_name == picture_name)
 		return;
+	need_init = true;
 	clearCache();
 	pic_name = picture_name;
 	initCCItem();
@@ -124,7 +125,10 @@ void CComponentsPicture::setPicture(const char* picture_name)
 
 void CComponentsPicture::setWidth(const int& w, bool keep_aspect)
 {
-	CComponentsItem::setWidth(w),
+	CComponentsItem::setWidth(w);
+	if (w == width && keep_aspect == keep_dy_aspect)
+		return;
+	need_init = true;
 	do_scale = true;
 	keep_dy_aspect = keep_aspect;
 	initCCItem();
@@ -132,7 +136,10 @@ void CComponentsPicture::setWidth(const int& w, bool keep_aspect)
 
 void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
 {
-	CComponentsItem::setHeight(h),
+	CComponentsItem::setHeight(h);
+	if (h == height && keep_aspect == keep_dx_aspect)
+		return;
+	need_init = true;
 	do_scale = true;
 	keep_dx_aspect = keep_aspect;
 	initCCItem();
@@ -140,10 +147,11 @@ void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
 
 void CComponentsPicture::initCCItem()
 {
-	if (pic_name.empty()){
+	if (pic_name.empty() || !need_init){
 		dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s - %d : no image file assigned...\n",  __func__, __LINE__);
 		return;
 	}
+	need_init = false; //avoid new init if not required
 
 	//check for path or name, set icon or image with full path, has no path, then use as icon and disble scale mode
 	string::size_type pos = pic_name.find("/", 0);
@@ -255,6 +263,7 @@ void CComponentsPicture::paintPicture()
 	initPosition(&x_pic, &y_pic);
 	x_pic += fr_thickness;
 	y_pic += fr_thickness;
+
 	initCCItem();
 
 	if (pic_name.empty()){
@@ -272,11 +281,13 @@ void CComponentsPicture::paintPicture()
 			frameBuffer->SetTransparentDefault();
 			if (enable_cache){
 				dprintf(DEBUG_DEBUG, "\033[31m[CComponentsPicture] %s - %d: create cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
-				image_cache = getScreen(x_pic, y_pic, width, height);
+				dxc = width;
+				dyc = height;
+				image_cache = getScreen(x_pic, y_pic, dxc, dyc);
 			}
 		}else{
 			dprintf(DEBUG_DEBUG, "\033[36m[CComponentsPicture] %s - %d: paint cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
-			frameBuffer->RestoreScreen(x_pic, y_pic, width, height, image_cache);
+			frameBuffer->RestoreScreen(x_pic, y_pic, dxc, dyc, image_cache);
 		}
 	}
 
@@ -350,6 +361,9 @@ void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& 
 }
 void CComponentsChannelLogo::setAltLogo(const std::string& picture_name)
 {
+	if (alt_pic_name == picture_name)
+		return;
+	need_init = true;
 	alt_pic_name = picture_name;
 	channel_id = 0;
 	channel_name = "";
@@ -368,7 +382,16 @@ void CComponentsChannelLogo::setAltLogo(const char* picture_name)
 
 void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::string& channelName)
 {
-	channel_id = channelId; 
+	if (channel_id)
+		if (channel_id == channelId)
+			return;
+	channel_id = channelId;
+
+	if (!channel_name.empty())
+		if (channel_name == channelName)
+			return;
+
+	need_init = true;
 	channel_name = channelName;
 	int dummy;
 
