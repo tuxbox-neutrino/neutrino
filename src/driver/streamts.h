@@ -31,12 +31,16 @@
 #include <set>
 #include <map>
 
+extern "C" {
+#include <libavformat/avformat.h>
+}
+
 typedef std::set<int> stream_pids_t;
 typedef std::set<int> stream_fds_t;
 
 class CStreamInstance : public OpenThreads::Thread
 {
-	private:
+	protected:
 		bool	running;
 		cDemux * dmx;
 		CFrontend * frontend;
@@ -47,20 +51,45 @@ class CStreamInstance : public OpenThreads::Thread
 		stream_pids_t pids;
 		stream_fds_t fds;
 
-		bool Send(ssize_t r);
-		void Close();
-		void run();
+		virtual bool Send(ssize_t r, unsigned char * _buf = NULL);
+		virtual void Close();
+		virtual void run();
 		friend class CStreamManager;
 	public:
 		CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t &pids);
-		~CStreamInstance();
-		bool Start();
-		bool Stop();
+		virtual ~CStreamInstance();
+		virtual bool Open();
+		virtual bool Start();
+		virtual bool Stop();
 		void AddClient(int clientfd);
 		void RemoveClient(int clientfd);
 		bool HasFd(int fd);
 		stream_fds_t & GetFds() { return fds; }
 		t_channel_id GetChannelId() { return channel_id; }
+};
+
+class CStreamStream : public CStreamInstance
+{
+	private:
+		AVFormatContext *ifcx;
+		AVFormatContext *ofcx;
+		AVIOContext *avio_ctx;
+
+		bool stopped;
+		bool interrupt;
+		void run();
+		void Close();
+
+	public:
+		CStreamStream(int clientfd, t_channel_id chid, stream_pids_t &pids);
+		~CStreamStream();
+
+		bool Open();
+		bool Start();
+		bool Stop();
+
+		static int Interrupt(void * data);
+		static int write_packet(void *opaque, uint8_t *buf, int buf_size);
 };
 
 typedef std::pair<t_channel_id, CStreamInstance*> streammap_pair_t;
@@ -102,5 +131,4 @@ class CStreamManager : public OpenThreads::Thread
 		int GetPort() { return port; }
 		bool AddClient(int fd);
 };
-
 #endif
