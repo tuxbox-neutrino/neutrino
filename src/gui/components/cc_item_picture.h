@@ -134,7 +134,7 @@ class CComponentsPicture : public CComponentsItem
 					int transparent = CFrameBuffer::TM_NONE);
 		virtual~CComponentsPicture()
 		{
-			delete[]image_cache;
+			clearCache();
 		}
 
 		///sets an image name (unscaled icons only), full image path or url to an image file
