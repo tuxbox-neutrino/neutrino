@@ -2128,7 +2128,10 @@ void CStreamRec::run()
 	time_t tstart = time_monotonic();
 	time_started = tstart;
 	start_time = time(0);
-	avformat_write_header(ofcx, NULL);
+	if (avformat_write_header(ofcx, NULL) < 0) {
+		printf("%s: avformat_write_header failed\n", __FUNCTION__);
+		return;
+	}
 
 	double total = 0;
 	while (!stopped) {
