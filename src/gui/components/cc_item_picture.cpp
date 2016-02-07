@@ -148,10 +148,11 @@ void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
 void CComponentsPicture::initCCItem()
 {
 	if (pic_name.empty() || !need_init){
-		dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s - %d : no image file assigned...\n",  __func__, __LINE__);
+		dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s - %d : no init required [file: %s] [need init: %d]...\n",  __func__, __LINE__, pic_name.c_str(), need_init);
 		return;
 	}
-	need_init = false; //avoid new init if not required
+	//reset condition for new init
+	need_init = false;
 
 	//check for path or name, set icon or image with full path, has no path, then use as icon and disble scale mode
 	string::size_type pos = pic_name.find("/", 0);
@@ -163,8 +164,13 @@ void CComponentsPicture::initCCItem()
 		//use image/icon size as object dimension values
 		frameBuffer->getIconSize(pic_name.c_str(), &width, &height);
 
-		/*if we have an image with full path => fallback to pv methode.
+		/* frameBuffer->getIconSize() normally evaluates only icon names, no paths.
+		 * So it is possible that we have wrong dimension values.
+		 * So we fall back to picture viewer methode.
 		 * That's always a cramp, why we don't have an unified solution in render classes?
+		 * Anyway...this is only a workaround, otherwies it is possible, that dimension values are wrong or = 0 and
+		 * this could lead to problems if external items are reliant on these values,
+		 * and in worst case, no image would be painted!
 		*/
 		if (width == 0 || height == 0){
 			int dx_tmp, dy_tmp;
@@ -174,35 +180,47 @@ void CComponentsPicture::initCCItem()
 			if (height == 0)
 				height = dy_tmp;
 		}
+		/* leave init methode here if we in no scale mode
+		 * otherwise goto next step!
+		*/
 		return;
 	}
-	else{ //initialized scaled size
-		//first get real image dimensions
+	else{	/* Here we are in scale mode
+		 * first check current item dimensions (width/height) and for different values and
+		 * check internal dimension values (dx/dy) and ensure that values are >0
+		 * real image size
+		*/
 		if  ((dx != width || dy != height) || (dx == 0 || dy == 0))
 			g_PicViewer->getSize(pic_name.c_str(), &dx, &dy);
 	}
 
-	//ensure filled inital values
+	/* on next step check item dimensions (width/height) for 0 values
+	 * and fill with current internal (dx/dy) dimension values.
+	 * values <= 0 are not allowed
+	*/
 	if (width == 0)
 		width = dx;
 	if (height == 0)
 		height = dy;
 
-	//check dimensions, leave if dimensions are equal
+	/* on next step, check dimensions and
+	 * leave if dimensions are equal
+	 */
 	if (width == dx && height == dy)
 		return;
-#if 0
-	//clean up possible cache on changed dimensions
-	clearCache();
-#endif
-	//temporarily vars
+
+
+	/* finally handle scale behavior
+	 * This evaluates the parameters given
+	 * by setters setWidth/setHeight
+	*/
+	//resize image and apply current assigned scale values
 	int w_2scale = width;
 	int h_2scale = height;
-
-	//resize image and set current dimensions
 	g_PicViewer->rescaleImageDimensions(&width, &height, w_2scale, h_2scale);
 
-	//handle aspect ratio
+	/* these steps are required to assign the current image dimensions to item dimensions
+	*/
 	if (keep_dx_aspect){
 		float h_ratio = float(height)*100/(float)dy;
 		width = int(h_ratio*(float)dx/100);
@@ -231,7 +249,6 @@ void CComponentsPicture::initPosition(int *x_position, int *y_position)
 
 void CComponentsPicture::getSize(int* width_image, int *height_image)
 {
-	initCCItem();
 	*width_image = width;
 	*height_image = height;
 }
@@ -281,8 +298,8 @@ void CComponentsPicture::paintPicture()
 			frameBuffer->SetTransparentDefault();
 			if (enable_cache){
 				dprintf(DEBUG_DEBUG, "\033[31m[CComponentsPicture] %s - %d: create cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
-				dxc = width;
-				dyc = height;
+				dxc = width-2*fr_thickness;
+				dyc = height-2*fr_thickness;
 				image_cache = getScreen(x_pic, y_pic, dxc, dyc);
 			}
 		}else{
