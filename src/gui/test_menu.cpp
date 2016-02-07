@@ -107,7 +107,7 @@ CTestMenu::~CTestMenu()
 	delete scrollbar;
 }
 
-static int test_pos[4] = { 130, 192, 282, 360 };
+//static int test_pos[4] = { 130, 192, 282, 360 };
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
