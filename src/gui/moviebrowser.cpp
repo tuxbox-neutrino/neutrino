@@ -1343,7 +1343,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 	int flogo_w = 0, flogo_h = 0;
 	if (logo_ok) {
 		flogo_w = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
-		flogo_h = m_cBoxFrameInfo.iHeight;
+		flogo_h = m_cBoxFrameInfo.iHeight*90/100;
 	}
 
 	static int logo_w = 0;
@@ -1391,13 +1391,13 @@ void CMovieBrowser::refreshMovieInfo(void)
 	}
 
 	if (m_settings.gui != MB_GUI_FILTER && logo_ok) {
-		lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
-		ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
-		if (pic == NULL){ //TODO: paint custom covers with different ratio, currently only works with default ratio 16/9 or 4/3
-			pic = new CComponentsPicture(lx+2, ly+1, fname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTSELECTED_PLUS_0);
+		lx = m_cBoxFrameInfo.iX + m_cBoxFrameInfo.iWidth - flogo_w -14;
+		ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
+		if (pic == NULL){ //TODO: paint custom covers with different ratio, currently only works with default ratio HD 16/9
+			pic = new CComponentsPicture(lx, ly, fname, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0);
 			if (pic->getHeight() < flogo_h/2){
 				flogo_h = flogo_h/2;
-				pic->setYPos(m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2);
+				pic->setYPos(m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2);
 			}
 			pic->setHeight(flogo_h, true); /*flogo_w*/
 			pic->enableFrame(true, 2);
@@ -1405,15 +1405,18 @@ void CMovieBrowser::refreshMovieInfo(void)
 			pic->doPaintBg(false);
 		}else
 			pic->setPicture(fname);
+
 		flogo_w = pic->getWidth();
-		pic->setXPos(m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -12);
+		pic->setXPos(m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -24);
+
 		if (!m_movieSelectionHandler->epgInfo2.empty())
 			if (m_pcInfo->OnAfterScrollPage.empty())
 				m_pcInfo->OnAfterScrollPage.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
 	}else{
-		delete pic;
-		pic = NULL;
+		if (pic)
+			delete pic; pic = NULL;
 	}
+
 	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-flogo_w-20 : 0);
 	if (pic)
 		pic->paint(CC_SAVE_SCREEN_NO);
