@@ -109,6 +109,8 @@ void CComponentsPicture::setPicture(const std::string& picture_name)
 {
 	if (pic_name == picture_name)
 		return;
+	width	= dx = dxc = 0;
+	height	= dy = dyc = 0;
 	need_init = true;
 	clearCache();
 	pic_name = picture_name;
@@ -209,17 +211,10 @@ void CComponentsPicture::initCCItem()
 	if (width == dx && height == dy)
 		return;
 
-
 	/* finally handle scale behavior
 	 * This evaluates the parameters given
 	 * by setters setWidth/setHeight
-	*/
-	//resize image and apply current assigned scale values
-	int w_2scale = width;
-	int h_2scale = height;
-	g_PicViewer->rescaleImageDimensions(&width, &height, w_2scale, h_2scale);
-
-	/* these steps are required to assign the current image dimensions to item dimensions
+	 * these steps are required to assign the current image dimensions to item dimensions
 	*/
 	if (keep_dx_aspect){
 		float h_ratio = float(height)*100/(float)dy;
@@ -233,6 +228,11 @@ void CComponentsPicture::initCCItem()
 		float w_ratio = float(width)*100/(float)dx;
 		height = int(w_ratio*(float)dy/100);
 	}
+
+	//resize image and apply current assigned scale values
+	int w_2scale = width;
+	int h_2scale = height;
+	g_PicViewer->rescaleImageDimensions(&width, &height, w_2scale, h_2scale);
 }
 
 void CComponentsPicture::initPosition(int *x_position, int *y_position)
