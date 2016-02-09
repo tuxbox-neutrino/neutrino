@@ -729,6 +729,7 @@ struct SNeutrinoSettings
 	int	hdd_statfs_mode;
 	int	zap_cycle;
 	int	sms_channel;
+	int	sms_movie;
 	std::string	font_file;
 	std::string	ttx_font_file;
 

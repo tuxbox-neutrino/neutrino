@@ -105,6 +105,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 		void showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist);
 		void showKeyBindQuickzapSetup(CMenuWidget *bindSettings_qzap);
 		void showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplayer);
+		void showKeyBindMoviebrowserSetup(CMenuWidget *bindSettings_mbrowser);
 		void showKeyBindSpecialSetup(CMenuWidget *bindSettings_special);
 
 	public:				

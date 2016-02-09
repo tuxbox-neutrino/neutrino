@@ -464,7 +464,8 @@ extra.saveconfig Neutrino-HD Settings: Save as
 extra.savekeys Save keys as
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
-extra.sms_channel sms-mode channel
+extra.sms_channel SMS-mode channel
+extra.sms_movie SMS-mode movie
 extra.south South
 extra.start_tostandby Startup to standby
 extra.temp_timeshift Temporary timeshift
@@ -1070,7 +1071,6 @@ menu.hint_key_binding Re-define keys used for common operations
 menu.hint_key_bouquetdown Assign button to switch channel list\nto previous bouquet
 menu.hint_key_bouquetup Assign button to switch channel list\nto next bouquet
 menu.hint_key_cancel Assign button to close GUI window
-menu.hint_key_channel_sms If enabled, numeric buttons in channel list\nused to search channel in SMS style
 menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
 menu.hint_key_channellist Configure keybingdings for channel list
 menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
@@ -1083,6 +1083,7 @@ menu.hint_key_list_end Assign button to go do list end
 menu.hint_key_list_start Assign button to go to list start
 menu.hint_key_load Load keybindings from file
 menu.hint_key_modechange Change TV/Radio mode and standby keys
+menu.hint_key_moviebrowser Configure keybingdings for movie browser
 menu.hint_key_movieplayer Configure keybingdings for movie player
 menu.hint_key_mpaudio Assign button to show audio selection\nin record/file playback mode
 menu.hint_key_mpbookmark Assign button to create bookmark\nwhile playing record
@@ -1370,6 +1371,8 @@ menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more th
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
 menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_sleeptimer_min Default setting for sleeptimer
+menu.hint_sms_channel If enabled, numeric buttons in channel list used to search channel in SMS style
+menu.hint_sms_movie If enabled, numeric buttons in moviebrowser used to search movie in SMS style
 menu.hint_soft_restart Restart Neutrino-HD without reboot
 menu.hint_softupdate_check Check online update, download and flash firmware
 menu.hint_softupdate_check_local Select and flash firmware from local file

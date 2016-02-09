@@ -375,6 +375,13 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf->setHint("", LOCALE_MENU_HINT_KEY_MOVIEPLAYER);
 	bindSettings->addItem(mf);
 
+	//moviebrowser
+	CMenuWidget* bindSettings_mbrowser = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MOVIEBROWSER);
+	showKeyBindMoviebrowserSetup(bindSettings_mbrowser);
+	mf = new CMenuDForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, bindSettings_mbrowser, NULL, CRCInput::RC_nokey);
+	mf->setHint("", LOCALE_MENU_HINT_KEY_MOVIEBROWSER);
+	bindSettings->addItem(mf);
+
 	//video
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_VIDEO));
 	for (int i = NKEY_NEXT43MODE; i <= NKEY_SWITCHFORMAT; i++) {
@@ -440,7 +447,8 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	bindSettings->addItem(new CMenuForwarder(key_settings[NKEY_HELP].keydescription, true, keychooser[NKEY_HELP]->getKeyName(), keychooser[NKEY_HELP]));
 	bindSettings->addItem(new CMenuForwarder(key_settings[NKEY_RECORD].keydescription, true, keychooser[NKEY_RECORD]->getKeyName(), keychooser[NKEY_RECORD]));
 
-	// right key
+	bindSettings->addItem(new CMenuSeparator());
+	// left/right keys
 	mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV, &g_settings.mode_left_right_key_tv, KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_OPTIONS, KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_KEY_RIGHT);
 	bindSettings->addItem(mc);
@@ -475,7 +483,7 @@ void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist
 	}
 
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_SMS_CHANNEL, &g_settings.sms_channel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_KEY_CHANNEL_SMS);
+	mc->setHint("", LOCALE_MENU_HINT_SMS_CHANNEL);
 	bindSettings_chlist->addItem(mc);
 }
 
@@ -499,6 +507,15 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_mplayer->addItem(mf);
 	}
+}
+
+void CKeybindSetup::showKeyBindMoviebrowserSetup(CMenuWidget *bindSettings_mbrowser)
+{
+	bindSettings_mbrowser->addIntroItems(LOCALE_MOVIEBROWSER_HEAD);
+
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_SMS_MOVIE, &g_settings.sms_movie, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_SMS_MOVIE);
+	bindSettings_mbrowser->addItem(mc);
 }
 
 void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)

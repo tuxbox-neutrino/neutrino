@@ -83,6 +83,7 @@ typedef struct dirent64 dirent_struct;
 #define TRACE  printf
 
 #define NUMBER_OF_MOVIES_LAST 40 // This is the number of movies shown in last recored and last played list
+#define MOVIE_SMSKEY_TIMEOUT 800
 
 #define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 20
 const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_ROW_ITEM_COUNT] =
@@ -1790,6 +1791,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 {
 	//TRACE("[mb]->onButtonPressMainFrame: %d\n",msg);
 	bool result = true;
+	neutrino_msg_data_t data;
 
 	if (msg == CRCInput::RC_home)
 	{
@@ -1874,6 +1876,68 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 				refresh();
 		}
 
+	}
+	else if (g_settings.sms_movie && (msg >= CRCInput::RC_1) && (msg <= CRCInput::RC_9))
+	{
+		unsigned char smsKey = 0;
+		SMSKeyInput smsInput;
+		smsInput.setTimeout(MOVIE_SMSKEY_TIMEOUT);
+
+		std::vector<MI_MOVIE_INFO*> *current_list = NULL;
+		CListFrame *current_frame = NULL;
+
+		if (m_windowFocus == MB_FOCUS_BROWSER)
+		{
+			current_list = &m_vHandleBrowserList;
+			current_frame = m_pcBrowser;
+		}
+		else if (m_windowFocus == MB_FOCUS_LAST_PLAY)
+		{
+			current_list = &m_vHandlePlayList;
+			current_frame = m_pcLastPlay;
+		}
+		else if (m_windowFocus == MB_FOCUS_LAST_RECORD)
+		{
+			current_list = &m_vHandleRecordList;
+			current_frame = m_pcLastRecord;
+		}
+
+		if (current_list == NULL || current_frame == NULL)
+			return result;
+
+		do {
+			smsKey = smsInput.handleMsg(msg);
+			printf("SMS new key: %c\n", smsKey);
+			g_RCInput->getMsg_ms(&msg, &data, MOVIE_SMSKEY_TIMEOUT-100);
+		} while ((msg >= CRCInput::RC_1) && (msg <= CRCInput::RC_9));
+
+		int selected = current_frame->getSelectedLine();
+		if (msg == CRCInput::RC_timeout || msg == CRCInput::RC_nokey) {
+			uint32_t i;
+			for (i = selected+1; i < (*current_list).size(); i++) {
+
+				char firstCharOfTitle = (*current_list)[i]->epgTitle.c_str()[0];
+				if (tolower(firstCharOfTitle) == smsKey) {
+					printf("SMS found selected=%d i=%d \"%s\"\n", selected, i, (*current_list)[i]->epgTitle.c_str());
+					break;
+				}
+			}
+			if (i >= (*current_list).size()) {
+				for (i = 0; i < (*current_list).size(); i++) {
+					char firstCharOfTitle = (*current_list)[i]->epgTitle.c_str()[0];
+					if (tolower(firstCharOfTitle) == smsKey) {
+						printf("SMS found selected=%d i=%d \"%s\"\n", selected, i, (*current_list)[i]->epgTitle.c_str());
+						break;
+					}
+				}
+			}
+			if (i < (*current_list).size()) {
+				current_frame->setSelectedLine(i);
+				updateMovieSelection();
+			}
+
+			smsInput.resetOldKey();
+		}
 	}
 	// just here to stay backward compatible with these horrible key assignments
 	else if (msg == CRCInput::RC_radio)
