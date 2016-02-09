@@ -205,6 +205,10 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_EXTRA_KEY_PIC_MODE,		&g_settings.key_pic_mode_active,	LOCALE_MENU_HINT_KEY_PIC_MODE_ACTIVE },
 	{LOCALE_EXTRA_KEY_PIC_SIZE,		&g_settings.key_pic_size_active,	LOCALE_MENU_HINT_KEY_PIC_SIZE_ACTIVE },
 	{LOCALE_EXTRA_KEY_RECORD,		&g_settings.key_record,			LOCALE_MENU_HINT_KEY_RECORD },
+	{LOCALE_MBKEY_COPY_ONEFILE,		&g_settings.mbkey_copy_onefile,		NONEXISTANT_LOCALE },
+	{LOCALE_MBKEY_COPY_SEVERAL,		&g_settings.mbkey_copy_several,		NONEXISTANT_LOCALE },
+	{LOCALE_MBKEY_CUT,			&g_settings.mbkey_cut,			NONEXISTANT_LOCALE },
+	{LOCALE_MBKEY_TRUNCATE,			&g_settings.mbkey_truncate,		NONEXISTANT_LOCALE },
 };
 
 // used by driver/rcinput.cpp
@@ -512,6 +516,12 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 void CKeybindSetup::showKeyBindMoviebrowserSetup(CMenuWidget *bindSettings_mbrowser)
 {
 	bindSettings_mbrowser->addIntroItems(LOCALE_MOVIEBROWSER_HEAD);
+
+	for (int i = MBKEY_COPY_ONEFILE; i <= MBKEY_TRUNCATE; i++) {
+		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
+		mf->setHint("", key_settings[i].hint);
+		bindSettings_mbrowser->addItem(mf);
+	}
 
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_SMS_MOVIE, &g_settings.sms_movie, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SMS_MOVIE);

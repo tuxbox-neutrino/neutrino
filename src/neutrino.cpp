@@ -4180,6 +4180,10 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_bouquet_up = tconfig.getInt32( "key_bouquet_up",  CRCInput::RC_right);
 	g_settings.key_bouquet_down = tconfig.getInt32( "key_bouquet_down",  CRCInput::RC_left);
 
+	g_settings.mbkey_copy_onefile = tconfig.getInt32( "mbkey.copy_onefile", CRCInput::RC_radio );
+	g_settings.mbkey_copy_several = tconfig.getInt32( "mbkey.copy_several", CRCInput::RC_text );
+	g_settings.mbkey_cut = tconfig.getInt32( "mbkey.cut", CRCInput::RC_audio );
+	g_settings.mbkey_truncate = tconfig.getInt32( "mbkey.truncate", CRCInput::RC_games );
 
 	g_settings.mpkey_rewind = tconfig.getInt32( "mpkey.rewind", CRCInput::RC_rewind );
 	g_settings.mpkey_forward = tconfig.getInt32( "mpkey.forward", CRCInput::RC_forward );
@@ -4258,6 +4262,11 @@ void CNeutrinoApp::saveKeys(const char * fname)
 
 	tconfig.setInt32( "key_bouquet_up", g_settings.key_bouquet_up );
 	tconfig.setInt32( "key_bouquet_down", g_settings.key_bouquet_down );
+
+	tconfig.setInt32( "mbkey.copy_onefile", g_settings.mbkey_copy_onefile );
+	tconfig.setInt32( "mbkey.copy_several", g_settings.mbkey_copy_several );
+	tconfig.setInt32( "mbkey.cut", g_settings.mbkey_cut );
+	tconfig.setInt32( "mbkey.truncate", g_settings.mbkey_truncate );
 
 	tconfig.setInt32( "mpkey.rewind", g_settings.mpkey_rewind );
 	tconfig.setInt32( "mpkey.forward", g_settings.mpkey_forward );

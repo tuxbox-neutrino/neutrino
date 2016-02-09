@@ -1789,7 +1789,29 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	bool result = true;
 	neutrino_msg_data_t data;
 
-	if (msg == CRCInput::RC_home)
+	if (msg == (neutrino_msg_t) g_settings.mbkey_copy_onefile
+	 || msg == (neutrino_msg_t) g_settings.mbkey_copy_several
+	 || msg == (neutrino_msg_t) g_settings.mbkey_cut
+	 || msg == (neutrino_msg_t) g_settings.mbkey_truncate)
+	{
+		if (msg == (neutrino_msg_t) g_settings.mbkey_copy_onefile)
+			exec(NULL, "copy_onefile");
+		else
+		if (msg == (neutrino_msg_t) g_settings.mbkey_copy_several)
+			exec(NULL, "copy_several");
+		else
+		if (msg == (neutrino_msg_t) g_settings.mbkey_cut)
+			exec(NULL, "cut");
+		else
+		if (msg == (neutrino_msg_t) g_settings.mbkey_truncate)
+			exec(NULL, "truncate");
+
+		if (m_doLoadMovies)
+			loadMovies();
+		if (m_doRefresh)
+			refresh();
+	}
+	else if (msg == CRCInput::RC_home)
 	{
 		if (m_settings.gui == MB_GUI_FILTER)
 			onSetGUIWindow(MB_GUI_MOVIE_INFO);
@@ -1934,39 +1956,6 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 
 			smsInput.resetOldKey();
 		}
-	}
-	// just here to stay backward compatible with these horrible key assignments
-	else if (msg == CRCInput::RC_radio)
-	{
-		exec(NULL, "copy_onefile");
-		if (m_doLoadMovies)
-			loadMovies();
-		if (m_doRefresh)
-			refresh();
-	}
-	else if (msg == CRCInput::RC_text)
-	{
-		exec(NULL, "copy_several");
-		if (m_doLoadMovies)
-			loadMovies();
-		if (m_doRefresh)
-			refresh();
-	}
-	else if (msg == CRCInput::RC_audio)
-	{
-		exec(NULL, "cut");
-		if (m_doLoadMovies)
-			loadMovies();
-		if (m_doRefresh)
-			refresh();
-	}
-	else if (msg == CRCInput::RC_games)
-	{
-		exec(NULL, "truncate");
-		if (m_doLoadMovies)
-			loadMovies();
-		if (m_doRefresh)
-			refresh();
 	}
 	else if (msg == CRCInput::RC_favorites)
 	{

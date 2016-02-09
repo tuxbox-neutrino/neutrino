@@ -927,6 +927,10 @@ mainsettings.savesettingsnow Einstellungen jetzt speichern
 mainsettings.savesettingsnow_hint Einstellungen werden jetzt gespeichert,\nbitte warten...
 mainsettings.timezone Zeitzone
 mainsettings.video Video
+mbkey.copy_onefile Film kopieren
+mbkey.copy_several Film kopieren und teilen
+mbkey.cut Film schneiden
+mbkey.truncate Film kürzen
 menu.back Zurück
 menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter

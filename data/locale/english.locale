@@ -927,6 +927,10 @@ mainsettings.savesettingsnow Save settings now
 mainsettings.savesettingsnow_hint Saving settings,\nplease wait...
 mainsettings.timezone Timezone
 mainsettings.video Video
+mbkey.copy_onefile Copy movie
+mbkey.copy_several Copy and split movie
+mbkey.cut Cut movie
+mbkey.truncate Truncate movie
 menu.back Back
 menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer

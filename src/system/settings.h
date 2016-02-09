@@ -491,6 +491,11 @@ struct SNeutrinoSettings
 	int key_volumeup;
 	int key_volumedown;
 
+	int mbkey_copy_onefile;
+	int mbkey_copy_several;
+	int mbkey_cut;
+	int mbkey_truncate;
+
 	int mpkey_rewind;
 	int mpkey_forward;
 	int mpkey_pause;
