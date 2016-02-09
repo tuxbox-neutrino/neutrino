@@ -11,7 +11,7 @@ function epg_imdb(){
 
 </head>
 <body>
-{=var-set:wait_text={=L:get_epg=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+{=var-set:wait_text={=L:epg.get_epg=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
 	{=var-set:help_url=Help-Live_Timer-EPG_Plus=}{=var-set:menu={=L:epg.epg_plus=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
