@@ -59,6 +59,22 @@ automatic=automatisch
 show=zeigen
 hide=verstecken
 
+# ========== Dates
+date.su=So
+date.sunday=Sonntag
+date.mo=Mo
+date.monday=Montag
+date.tu=Di
+date.tuesday=Dienstag
+date.we=Mi
+date.wednesday=Mittwoch
+date.th=Do
+date.thursday=Donnerstag
+date.fr=Fr
+date.friday=Freitag
+date.sa=Sa
+date.saturday=Samstag
+
 # ==========Main Menue
 main.boxcontrol=Boxsteuerung
 main.boxcontrol_desc=Boxcontrol & Bouquets

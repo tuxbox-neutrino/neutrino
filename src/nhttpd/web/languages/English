@@ -59,6 +59,22 @@ automatic=automatically
 show=show
 hide=hide
 
+# ========== Dates
+date.su=Su
+date.sunday=Sunday
+date.mo=Mo
+date.monday=Monday
+date.tu=Tu
+date.tuesday=Tuesday
+date.we=We
+date.wednesday=Wednesday
+date.th=Th
+date.thursday=Thursday
+date.fr=Fr
+date.friday=Friday
+date.sa=Sa
+date.saturday=Saturday
+
 #========= MAIN Menue
 main.live_tv_desc=LiveTV
 main.live_tv_popup_desc=LiveTV popup
