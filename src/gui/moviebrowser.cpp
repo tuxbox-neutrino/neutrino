@@ -899,7 +899,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete hintBox;
 			framebuffer->paintBackground(); // clear screen
 			CMovieCut mc;
-			bool res = mc.copyMovie(m_movieSelectionHandler, &m_movieInfo, onefile);
+			bool res = mc.copyMovie(m_movieSelectionHandler, onefile);
 			//g_RCInput->clearRCMsg();
 			if (res == 0)
 				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_COPY_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
@@ -924,7 +924,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete hintBox;
 			framebuffer->paintBackground(); // clear screen
 			CMovieCut mc;
-			bool res = mc.cutMovie(m_movieSelectionHandler, &m_movieInfo);
+			bool res = mc.cutMovie(m_movieSelectionHandler);
 			//g_RCInput->clearRCMsg();
 			if (!res)
 				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_CUT_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
@@ -955,11 +955,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 					if (!res)
 						ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 					else
-					{
-						//printf("New movie info: size %lld len %d\n", res, m_movieSelectionHandler->bookmarks.end/60);
-						m_movieInfo.saveMovieInfo(*m_movieSelectionHandler);
 						m_doLoadMovies = true;
-					}
 					m_doRefresh = true;
 				}
 			}
