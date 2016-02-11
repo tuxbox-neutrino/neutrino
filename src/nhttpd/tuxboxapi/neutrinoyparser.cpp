@@ -495,17 +495,35 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
 			timestr = timeString(event->startTime);
 
+			CShortEPGData epg;
+			std::string EPGInfoC = "";
+			if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
+			{
+				EPGInfoC += epg.info1;
+				EPGInfoC += epg.info2;
+			}
+
 			yresult += string_printf("<tr><td class=\"%cepg\">",classname);
-			yresult += string_printf("%s&nbsp;%s&nbsp;"
+			yresult += string_printf("%s&nbsp;<span class='pointer' title='%s'>%s</span>&nbsp;"
 					"<span style=\"font-size: 8pt; white-space: nowrap\">(%ld {=L:from=} %d {=L:unit.short.minute=}, %d%%)</span>"
 					, timestr.c_str()
+					, EPGInfoC.c_str()
 					, event->description.c_str()
 					, (time(NULL) - event->startTime)/60
 					, event->duration / 60,prozent);
 
 			if ((has_current_next) && (currentNextInfo.flags & CSectionsdClient::epgflags::has_next)) {
+				std::string EPGInfoN = "";
+				if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.next_uniqueKey, &epg))
+				{
+					EPGInfoN += epg.info1;
+					EPGInfoN += epg.info2;
+				}
 				timestr = timeString(currentNextInfo.next_zeit.startzeit);
-				yresult += string_printf("<br />%s&nbsp;%s", timestr.c_str(), currentNextInfo.next_name.c_str());
+				yresult += string_printf("<br />%s&nbsp;<span class='pointer' title='%s'>%s</span>"
+						, timestr.c_str()
+						, EPGInfoN.c_str()
+						, currentNextInfo.next_name.c_str());
 			}
 
 			yresult += string_printf("</td></tr>\n");
