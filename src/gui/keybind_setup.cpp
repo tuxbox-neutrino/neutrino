@@ -209,6 +209,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_MBKEY_COPY_SEVERAL,		&g_settings.mbkey_copy_several,		NONEXISTANT_LOCALE },
 	{LOCALE_MBKEY_CUT,			&g_settings.mbkey_cut,			NONEXISTANT_LOCALE },
 	{LOCALE_MBKEY_TRUNCATE,			&g_settings.mbkey_truncate,		NONEXISTANT_LOCALE },
+	{LOCALE_MBKEY_COVER,			&g_settings.mbkey_cover,		LOCALE_MENU_HINT_MBKEY_COVER },
 };
 
 // used by driver/rcinput.cpp
@@ -517,7 +518,7 @@ void CKeybindSetup::showKeyBindMoviebrowserSetup(CMenuWidget *bindSettings_mbrow
 {
 	bindSettings_mbrowser->addIntroItems(LOCALE_MOVIEBROWSER_HEAD);
 
-	for (int i = MBKEY_COPY_ONEFILE; i <= MBKEY_TRUNCATE; i++) {
+	for (int i = MBKEY_COPY_ONEFILE; i <= MBKEY_COVER; i++) {
 		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_mbrowser->addItem(mf);

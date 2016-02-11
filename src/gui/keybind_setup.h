@@ -94,6 +94,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			MBKEY_COPY_SEVERAL,
 			MBKEY_CUT,
 			MBKEY_TRUNCATE,
+			MBKEY_COVER,
 			
 			KEYBINDS_COUNT
 		};

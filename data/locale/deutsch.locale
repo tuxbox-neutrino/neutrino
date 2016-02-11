@@ -929,6 +929,7 @@ mainsettings.timezone Zeitzone
 mainsettings.video Video
 mbkey.copy_onefile Film kopieren
 mbkey.copy_several Film kopieren und teilen
+mbkey.cover Filmcover erzeugen/löschen
 mbkey.cut Film schneiden
 mbkey.truncate Film kürzen
 menu.back Zurück
@@ -1145,6 +1146,7 @@ menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens 'gelös
 menu.hint_make_webtvlist Bei aktiver Option wird ein Bouquet namens 'WebTV' erzeugt, in dem alle WebTV-Sender zusammengefasst sind
 menu.hint_manage_settings Sichern, Wiederherstellen und Auslieferungszustand wiederherstellen
 menu.hint_mb Ihre Aufnahmen
+menu.hint_mbkey_cover Weisen Sie eine Taste zu, um Filmcover wärend der Wiedergabe zu erzeugen oder sie im Moviebrowser zu löschen
 menu.hint_media Abspielen von Musik, Internetradio und Filmen; Betrachten Sie Bilder
 menu.hint_menu_fonts Ändern Sie die Schriftgrößen im Menü
 menu.hint_menu_hints Zeigt Ihnen Hinweise zu den Menüpunkten an. Sie erreichen das auch jederzeit mit der Taste 'Hilfe'

@@ -1811,6 +1811,17 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		if (m_doRefresh)
 			refresh();
 	}
+	else if (msg == (neutrino_msg_t) g_settings.mbkey_cover)
+	{
+		if (m_movieSelectionHandler != NULL) {
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+				std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
+				if (!fname.empty())
+					unlink(fname.c_str());
+				refresh();
+			}
+		}
+	}
 	else if (msg == CRCInput::RC_home)
 	{
 		if (m_settings.gui == MB_GUI_FILTER)
@@ -1955,17 +1966,6 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			}
 
 			smsInput.resetOldKey();
-		}
-	}
-	else if (msg == CRCInput::RC_favorites)
-	{
-		if (m_movieSelectionHandler != NULL) {
-			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
-				std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
-				if (!fname.empty())
-					unlink(fname.c_str());
-				refresh();
-			}
 		}
 	}
 	else

@@ -929,6 +929,7 @@ mainsettings.timezone Timezone
 mainsettings.video Video
 mbkey.copy_onefile Copy movie
 mbkey.copy_several Copy and split movie
+mbkey.cover Create/remove movie cover
 mbkey.cut Cut movie
 mbkey.truncate Truncate movie
 menu.back Back
@@ -1145,6 +1146,7 @@ menu.hint_make_removedlist Create list of recently removed channels
 menu.hint_make_webtvlist Auto-create WebTV channel list based on\nchannel type and name
 menu.hint_manage_settings Backup, restore, revert to defaults\nFactory box reset
 menu.hint_mb Your recordings
+menu.hint_mbkey_cover Assign button to create movie cover while playback or delete it in moviebrowser
 menu.hint_media Play movies, audio files\nWatch pictures
 menu.hint_menu_fonts Change menu font sizes
 menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button

@@ -495,6 +495,7 @@ struct SNeutrinoSettings
 	int mbkey_copy_several;
 	int mbkey_cut;
 	int mbkey_truncate;
+	int mbkey_cover;
 
 	int mpkey_rewind;
 	int mpkey_forward;
