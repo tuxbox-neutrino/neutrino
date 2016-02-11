@@ -898,7 +898,6 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 	std::string result, firstEPG, secondEPG = "";
 	t_channel_id current_channel = CZapit::getInstance()->GetCurrentChannelID();
 	std::string timestr;
-	uint64_t epgid = 0;
 	CShortEPGData epg;
 
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
