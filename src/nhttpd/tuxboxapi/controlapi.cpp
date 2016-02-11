@@ -913,28 +913,28 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 		timestr = timeString(event->startTime);
 
 		firstEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.current_uniqueKey), true);
-		firstEPG += hh->outPair("startTime", timestr, true);
 		firstEPG += hh->outPair("description", hh->outValue(event->description), true);
-		firstEPG += hh->outPair("timeTotal", string_printf("%d", event->duration / 60), true);
 		if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
 		{
 			firstEPG += hh->outPair("info1", hh->outValue(epg.info1), true);
 			firstEPG += hh->outPair("info2", hh->outValue(epg.info2), true);
 		}
+		firstEPG += hh->outPair("startTime", timestr, true);
+		firstEPG += hh->outPair("timeTotal", string_printf("%d", event->duration / 60), true);
 		firstEPG += hh->outPair("timeElapsed", string_printf("%d", (time(NULL) - event->startTime) / 60), true);
 		firstEPG += hh->outPair("percentage", string_printf("%d", percentage), false);
 
 		if (currentNextInfo.flags & CSectionsdClient::epgflags::has_next) {
 			timestr = timeString(currentNextInfo.next_zeit.startzeit);
 			secondEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.next_uniqueKey), true);
-			secondEPG += hh->outPair("startTime", timestr, true);
-			secondEPG += hh->outPair("description", hh->outValue(currentNextInfo.next_name), false);
-			secondEPG += hh->outPair("timeTotal", string_printf("%d", currentNextInfo.next_zeit.dauer / 60), true);
+			secondEPG += hh->outPair("description", hh->outValue(currentNextInfo.next_name), true);
 			if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.next_uniqueKey, &epg))
 			{
 				secondEPG += hh->outPair("info1", hh->outValue(epg.info1), true);
 				secondEPG += hh->outPair("info2", hh->outValue(epg.info2), true);
 			}
+			secondEPG += hh->outPair("startTime", timestr, true);
+			secondEPG += hh->outPair("timeTotal", string_printf("%d", currentNextInfo.next_zeit.dauer / 60), false);
 		}
 	}
 
