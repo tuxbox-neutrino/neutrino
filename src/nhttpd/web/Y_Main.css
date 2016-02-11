@@ -24,6 +24,9 @@ button,input,select,form,td {
 	height: 0;
 	overflow: hidden;
 }
+.pointer {
+	cursor: pointer;
+}
 /* buttons */
 a img:hover {
 	position:relative;
