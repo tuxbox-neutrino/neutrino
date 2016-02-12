@@ -27,6 +27,18 @@ private:
 	} TyCgiCall;
 	const static TyCgiCall yCgiCallList[];
 
+	struct FileCGI_List
+	{
+		std::string name;
+		std::string type_str;
+		unsigned char type;
+		std::string fullname;
+    	bool operator () (FileCGI_List a,FileCGI_List b)
+    	{
+        	return (a.name < b.name);
+    	}
+	} fsort;
+
 	int rc_send(int ev, unsigned int code, unsigned int value);
 
 	// send functions for ExecuteCGI (controld api)

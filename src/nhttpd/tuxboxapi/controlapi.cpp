@@ -3079,13 +3079,14 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
  *
  * @par nhttpd-usage
  * @code
- * /control/file?action=list&path={path}[&format=|xml|json]
+ * /control/file?action=list&path={path}[&format=|xml|json][&sort=false]
  * @endcode
  *
  * @par example:
  * @code
  * /control/file?action=list&path=/
  * /control/file?action=list&path=/&format=json
+ * /control/file?action=list&path=/&format=json&sort=false
  * @endcode
  *
  * @par output
@@ -3137,10 +3138,9 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 		if ((dirp = opendir(path.c_str()))) {
 			bool isFirstLine = true;
 			struct dirent *entry;
+			std::vector<FileCGI_List> filelist;
 			while ((entry = readdir(dirp))) {
-				std::string item = "";
-				item += hh->outPair("name",
-						hh->outValue(hh->outValue(entry->d_name)), true);
+				if ( !strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..") ) continue;
 				std::string ftype;
 				if (entry->d_type == DT_DIR)
 					ftype = "dir";
@@ -3148,17 +3148,23 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 					ftype = "lnk";
 				else if (entry->d_type == 8)
 					ftype = "file";
-
-				item += hh->outPair("type_str", ftype, true);
-				item += hh->outPair("type",
-						string_printf("%d", (int) entry->d_type), true);
 				if (path[path.length() - 1] != '/')
 					path += "/";
 				std::string fullname = path + entry->d_name;
-				item += hh->outPair("fullname", hh->outValue(fullname), true);
+				filelist.push_back(FileCGI_List{std::string(entry->d_name),ftype,entry->d_type,fullname});
+			}
+			closedir(dirp);
+			if (hh->ParamList["sort"].empty())
+				sort(filelist.begin(), filelist.end(),fsort);
+			for(std::vector<FileCGI_List>::iterator f = filelist.begin(); f != filelist.end(); ++f) {
+				std::string item = "";
+				item += hh->outPair("name",	    hh->outValue(f->name.c_str()), true);
+				item += hh->outPair("type_str", hh->outValue(f->type_str.c_str()), true);
+				item += hh->outPair("type",		string_printf("%d", (int) f->type), true);
+				item += hh->outPair("fullname", hh->outValue(f->fullname.c_str()), true);
 
 				struct stat statbuf;
-				if (stat(fullname.c_str(), &statbuf) != -1) {
+				if (stat(f->fullname.c_str(), &statbuf) != -1) {
 					item
 							+= hh->outPair(
 									"mode",
@@ -3208,7 +3214,6 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 					result += hh->outNext();
 				result += hh->outArrayItem("item", item, false);
 			}
-			closedir(dirp);
 		}
 		result = hh->outArray("filelist", result);
 		// write footer
