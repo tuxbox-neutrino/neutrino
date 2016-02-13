@@ -902,7 +902,9 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
 	CChannelEvent *event;
+	NeutrinoAPI->mutex.lock();
 	event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
+	NeutrinoAPI->mutex.unlock();
 
 	if (event) {
 		int percentage = 100;
@@ -966,7 +968,9 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 	}
 	else {
 		CChannelEvent *event;
+		NeutrinoAPI->mutex.lock();
 		event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
+		NeutrinoAPI->mutex.unlock();
 
 		if (event && isEPGdetails) {
 			result += string_printf("%u "
@@ -1599,7 +1603,9 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 		CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 		for (; !(cit.EndOfChannels()); cit++) {
 			CZapitChannel * channel = *cit;
+			NeutrinoAPI->mutex.lock();
 			event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
+			NeutrinoAPI->mutex.unlock();
 			if (event) {
 				if (!isExt) {
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS

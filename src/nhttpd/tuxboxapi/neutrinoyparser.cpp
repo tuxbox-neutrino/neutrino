@@ -359,7 +359,9 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	{
 		CZapitChannel * channel = channels[j];
 		CChannelEvent *event;
+		NeutrinoAPI->mutex.lock();
 		event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
+		NeutrinoAPI->mutex.unlock();
 
 		classname = (i++ & 1) ? 'a' : 'b';
 		if (channel->getChannelID() == current_channel)
@@ -439,7 +441,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				(channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : "",
 				channel->getChannelID(),
 				channel->getChannelID() & 0xFFFFFFFFFFFFULL,
-				((NeutrinoAPI->ChannelListEvents[channel->getChannelID()]) ? "<img src=\"/images/elist.png\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
+				(event ? "<img src=\"/images/elist.png\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
 
 		if (channel->getChannelID() == current_channel)
 			yresult += string_printf("\n&nbsp;&nbsp;<a href=\"javascript:do_streaminfo()\"><img src=\"/images/streaminfo.png\" alt=\"Streaminfo\" style=\"border: 0px\" /></a>");
@@ -489,7 +491,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			}
 		}
 
-		else if ((event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()]))
+		else if (event)
 		{
 			bool has_current_next = true;
 			CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);

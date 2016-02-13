@@ -15,6 +15,7 @@
 #include <helper.h>
 #include "neutrinoyparser.h"
 #include "controlapi.h"
+#include <OpenThreads/ScopedLock>
 
 //-------------------------------------------------------------------------
 // No Class Helpers
@@ -24,6 +25,7 @@ bool _initialize_iso639_map(void);
 //-------------------------------------------------------------------------
 class CNeutrinoAPI
 {
+	OpenThreads::Mutex	mutex;
 	// Clientlibs
 	CSectionsdClient	*Sectionsd;
 	CZapitClient		*Zapit;

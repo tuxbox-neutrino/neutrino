@@ -41,6 +41,7 @@
 #include <zapit/bouquets.h>
 #include <zapit/getservices.h>
 #include <eitd/sectionsd.h>
+#include <OpenThreads/ScopedLock>
 
 extern CBouquetManager *g_bouquetManager;
 extern CFrontend * frontend;
@@ -171,6 +172,7 @@ void CNeutrinoAPI::UpdateBouquets(void)
 //-------------------------------------------------------------------------
 void CNeutrinoAPI::ZapTo(const char * const target)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	t_channel_id channel_id;
 
 	sscanf(target,
@@ -182,6 +184,7 @@ void CNeutrinoAPI::ZapTo(const char * const target)
 //-------------------------------------------------------------------------
 void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	if (channel_id == Zapit->getCurrentServiceID())
 	{
 		//printf("Kanal ist aktuell\n");
@@ -195,6 +198,7 @@ void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 
 void CNeutrinoAPI::ZapToSubService(const char * const target)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	t_channel_id channel_id;
 
 	sscanf(target,
@@ -207,6 +211,7 @@ void CNeutrinoAPI::ZapToSubService(const char * const target)
 //-------------------------------------------------------------------------
 t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_name)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 //FIXME depending on mode missing
 	//int mode = Zapit->getMode();
 	t_channel_id channel_id = (t_channel_id)-1;
@@ -264,6 +269,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 
 bool CNeutrinoAPI::GetChannelEvents(void)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	eList.clear();
 	CEitManager::getInstance()->getChannelEvents(eList);
 	CChannelEventList::iterator eventIterator;
@@ -283,6 +289,7 @@ bool CNeutrinoAPI::GetChannelEvents(void)
 
 std::string CNeutrinoAPI::GetServiceName(t_channel_id channel_id)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	return CServiceManager::getInstance()->GetServiceName(channel_id);
 }
 
@@ -410,7 +417,8 @@ std::string CNeutrinoAPI::timerEventRepeat2Str(CTimerd::CTimerEventRepeat rep)
 }
 
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getVideoAspectRatioAsString(void) {
+std::string CNeutrinoAPI::getVideoAspectRatioAsString(void)
+{
 	int aspectRatio = videoDecoder->getAspectRatio();
 	if (aspectRatio >= 0 && aspectRatio <= 4)
 		return videoformat_names[aspectRatio];
@@ -418,7 +426,9 @@ std::string CNeutrinoAPI::getVideoAspectRatioAsString(void) {
 		return "unknown";
 }
 //-------------------------------------------------------------------------
-int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString) {
+int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	int newRatioInt = -1;
 	for(int i=0;i<(int)sizeof(videoformat_names);i++)
 		if( videoformat_names[i] == newRatioString){
@@ -430,7 +440,8 @@ int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString) {
 	return newRatioInt;
 }
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getVideoResolutionAsString(void) {
+std::string CNeutrinoAPI::getVideoResolutionAsString(void)
+{
 	int xres, yres, framerate;
 	videoDecoder->getPictureInfo(xres, yres, framerate);
 	std::stringstream out;
@@ -439,7 +450,8 @@ std::string CNeutrinoAPI::getVideoResolutionAsString(void) {
 }
 
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getVideoFramerateAsString(void) {
+std::string CNeutrinoAPI::getVideoFramerateAsString(void)
+{
 	int xres, yres, framerate;
 	std::string sframerate="unknown";
 	videoDecoder->getPictureInfo(xres, yres, framerate);
@@ -453,7 +465,8 @@ std::string CNeutrinoAPI::getVideoFramerateAsString(void) {
 }
 
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getAudioInfoAsString(void) {
+std::string CNeutrinoAPI::getAudioInfoAsString(void)
+{
 	int type, layer, freq, mode, lbitrate;
 	audioDecoder->getAudioInfo(type, layer, freq, lbitrate, mode);
 	std::stringstream out;
@@ -465,11 +478,13 @@ std::string CNeutrinoAPI::getAudioInfoAsString(void) {
 }
 
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getCryptInfoAsString(void) {
+std::string CNeutrinoAPI::getCryptInfoAsString(void)
+{
 	std::stringstream out;
 	std::string casys[11]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
 	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
 
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(channel) {
                 for (unsigned short i = 0; i < 11; i++) {
@@ -485,7 +500,8 @@ std::string CNeutrinoAPI::getCryptInfoAsString(void) {
 }
 
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getLogoFile(std::string _logoURL, t_channel_id channelId) {
+std::string CNeutrinoAPI::getLogoFile(std::string _logoURL, t_channel_id channelId)
+{
 	std::string channelIdAsString = string_printf( PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS , channelId & 0xFFFFFFFFFFFFULL);
 	std::string channelName = GetServiceName(channelId);
 //	replace(channelName, " ", "_");
@@ -505,4 +521,3 @@ std::string CNeutrinoAPI::getLogoFile(std::string _logoURL, t_channel_id channel
 	else
 		return "";
 }
-
