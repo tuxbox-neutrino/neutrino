@@ -75,7 +75,6 @@ function do_check_input_LogosURL()
 				<td><input type="text" name="port" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80~cache=}" title="{=L:set.nhttpd.port=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
 				</td>
 			</tr>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 			<tr>
 				<td>{=L:set.nhttpd.threading=}</td>
 				<td>
@@ -83,7 +82,6 @@ function do_check_input_LogosURL()
 					<input type="radio" name="threading" value="true" />{=L:on=}
 				</td>
 			</tr>
-			=}
 			<tr>
 				<td>{=L:set.nhttpd.alternate_web_folder=}</td>
 				<td>
