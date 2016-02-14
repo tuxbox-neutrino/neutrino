@@ -648,6 +648,11 @@ tr {
 /*	width:auto;*/
 	overflow:auto;
 }
+#epg_plus_container {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	max-height: 75vh;
+}
 .ep_bouquet {
 	margin: 0px;
 	padding: 0px;
@@ -658,8 +663,6 @@ tr {
 .ep_bouquet_name {
 	background: #A1CCF2;
 	border-right : #BBBBBB solid 1px;
-	width : 100px;
-/*	height: 1.3em;*/
 	overflow:hidden;
 	padding-left: 1px;
 	padding-right: 1px;
@@ -724,7 +727,6 @@ tr {
 	background-color : #DDDDDD;
 }
 .ep_time_bar {
-	width:100%;
 	margin-bottom: 0px;
 	position:relative;
 	border-bottom : #BBBBBB solid 1px;

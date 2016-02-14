@@ -9,8 +9,8 @@ var g_number_of_cols=0; /*nr of cols*/
 var g_width_all_items=0; /*width without bouquet*/
 var c_width_px_per_min=3;	/* px per minute */
 var c_min_per_col=15;/*minutes per col*/
-var c_width_px_bouquet=103; /* width of bouquet*/
-var c_slider_width=20;
+var c_width_px_bouquet=100; /* width of bouquet*/
+var c_slider_width=25;
 var epg_data; /* all EPG Data in 2-dim Array*/
 var epg_data_index=0;
 var g_timer_eventids = new Array();
@@ -21,10 +21,10 @@ var g_selected=0;
 function epg_plus_calc_dimensions(){
 	var show_dim=$('epg_plus').getDimensions();
 	var usable_width_px = show_dim.width-c_slider_width; /*get display width*/
-	var max_minutes_to_display = Math.round((usable_width_px-c_width_px_bouquet)/c_width_px_per_min); /* calc display minutes*/
+	var max_minutes_to_display = Math.round((usable_width_px-c_width_px_bouquet-c_width_px_per_min)/c_width_px_per_min); /* calc display minutes*/
 	g_number_of_cols = Math.round(max_minutes_to_display/c_min_per_col);
-	g_width_px = g_number_of_cols * c_width_px_per_min * c_min_per_col + c_width_px_bouquet;
-	g_width_all_items=g_width_px-c_width_px_bouquet;
+	g_width_px = g_number_of_cols * c_width_px_per_min * c_min_per_col + c_width_px_bouquet + c_width_px_per_min;
+	g_width_all_items=g_width_px-c_width_px_bouquet-c_width_px_per_min;
 	$('epg_plus').style.cssText = "width:"+g_width_px;
 }
 function epg_zapto(){
@@ -45,7 +45,7 @@ function build_epg_clear(){
 function build_epg_setbox(_item, _starttime, _stoptime, _start, _stop){
 	var d_start = Math.max(_start, _starttime);
 	var d_stop = Math.min(_stop, _stoptime);
-	var d_left = c_width_px_bouquet+ Math.round((d_start-_starttime) * c_width_px_per_min / 60);
+	var d_left = c_width_px_bouquet+c_width_px_per_min+ Math.round((d_start-_starttime) * c_width_px_per_min / 60);
 	var d_width = Math.max(0,Math.round((d_stop-d_start) * c_width_px_per_min / 60)-3);
 	d_width= Math.min(d_width,g_width_px-d_left);
 	if(d_start<_stoptime)
@@ -180,7 +180,11 @@ function build_epg_plus(_bouquet, _starttime)
 		var __tdiv = obj_createAt(ep, "div", "ep_time_bar");
 		var __tname_div = obj_createAt(__tdiv, "div", "ep_time_bar_item");
 		__tname_div.innerHTML = "Uhrzeit";
+		__tname_div.style.cssText = "width:"+c_width_px_bouquet+"px;";
 		build_epg_time_bar(__tdiv, _starttime, _stoptime);
+		__tdiv.style.cssText = "width:"+g_width_px;
+		var __ediv = obj_createAt(ep, "div", "epg_plus_container");
+		__ediv.setAttribute("id", "epg_plus_container")
 		g_i=0;
 		window.setTimeout("build_epg_plus_loop("+_starttime+","+_stoptime+")",100);
 	}
@@ -193,10 +197,11 @@ function build_epg_plus_loop(_starttime, _stoptime)
 		var __channel_id = getXMLNodeItemValue(_bouquet, "id");
 		var __short_channel_id = getXMLNodeItemValue(_bouquet, "short_id");
 		var __logo = getXMLNodeItemValue(_bouquet, "logo");
-		var ep = $("epg_plus");
+		var ep = $("epg_plus_container");
 		var __bdiv = obj_createAt(ep, "div", "ep_bouquet");
 		var __bname_div = obj_createAt(__bdiv, "div", "ep_bouquet_name");
 		var ch_name_with_logo= (g_logosURL!="")?"<img class=\"channel_logos\" src=\""+__logo+"\" title=\""+__channel_name+"\" alt=\""+__channel_name+"\" >":__channel_name;
+		$(__bname_div).style.cssText = "width:"+c_width_px_bouquet+"px;";
 		$(__bname_div).update("<a href=\"javascript:do_zap('"+__channel_id+"');\">"+ch_name_with_logo+"</a>");
 		build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime, __logo);
 		window.setTimeout("build_epg_plus_loop("+_starttime+","+_stoptime+")",100);
