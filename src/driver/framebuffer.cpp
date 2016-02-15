@@ -1020,6 +1020,10 @@ void CFrameBuffer::getIconSize(const char * const filename, int* width, int *hei
 
 	if(filename == NULL)
 		return;
+	//check for full path, icon don't have full path, or ?
+	if (filename[0]== '/'){
+		return;
+	}
 
 	std::map<std::string, rawIcon>::iterator it;
 
