@@ -24,8 +24,8 @@
 		<td><a href="http://box_ip/control/epgsearch">http://box_ip/control/epgsearch</a></td>
 	</tr>
 	<tr>
-		<td><a href="#epgsearchxml">EPG-Suche mit XML Ausgabe</a></td>
-		<td><a href="http://box_ip/control/epgsearchxml">http://box_ip/control/epgsearchxml</a></td>
+		<td><a href="#epgsearchxml"><s>EPG-Suche mit XML Ausgabe</s></a></td>
+		<td><a href="http://box_ip/control/epgsearchxml"><s>http://box_ip/control/epgsearchxml</s></a></td>
 	</tr>
 	<tr>
 		<td><a href="#shutdown">Die Box herunterfahren</a></td>
@@ -415,7 +415,7 @@ Beispiel:<br>
 </div>
 <br>
 <b>Parameter:</b> xml=true&amp;channelid=&lt;channel_id&gt;|channelname=&lt;channel_name&gt;
-[&amp;details=true][&amp;max=&lt;max items&gt;][&amp;stoptime=&lt;long:stop time&gt;]<br>
+[&amp;details=true][&amp;max=&lt;max items&gt;][&amp;stoptime=&lt;long:stop time&gt;][&amp;search=&lt;keywords&gt;]<br>
 <b>R&uuml;ckgabe:</b><br>
 Liefert zum angegebenen Sender (angegeben durch channel_id oder channel_name) 
 das EPG als XML-Liste zur&uuml;ck.<br>
@@ -509,13 +509,17 @@ USA 2005, mit Jerry Stiller, Kevin James, Leah Remini. 20 Min.<br>
 fsk:0<br>
 Soap/Melodram/Folklore<br>
 </div>
-<b>Parameter:</b> Suchbegriff;epginfo=false<br>
+<br>
+<b>Parameter:</b> Suchbegriffe</br>
+oder</br>
+<b>Parameter:</b> search=Suchbegriffe[&epginfo=false][&format=plain|xml|json]<br>
 <b>R&uuml;ckgabe:</b><br>
 <br>
 Es werden alle Sendungen im EPG zur&uuml;ckgegeben, die den Suchbegriff<br>
 im Titel oder Beschreibungstext beinhalten.<br>
 Die Treffer lassen sich unter Angabe von epginfo=false auf Treffer im Titel beschr&auml;nken.<br>
 Hier werden die Sendungsinhalte (info1 und info2) nicht mitgeliefert.<br>
+Die Ausgabe erfolgt im angegebenen Format. Ist kein Format angegeben, wird reiner Text ausgegeben</br>
 <br>
 <b>R&uuml;ckgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung<br>
 <br>
@@ -538,47 +542,9 @@ Nachrichten<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->
-<div class="title1"><a name="epgsearchxml"></a><b>EPG-Suche mit XML Ausgabe</b></div>
-<div class="URL">Handler: http://box_ip/control/epgsearchxml</div>
+<div class="title1"><a name="epgsearchxml"></a><b><s>EPG-Suche mit XML Ausgabe</s> <i>Deprecated!</i></b></div>
+<div class="URL"><s>Handler: http://box_ip/control/epgsearchxml</s></div>
 <br>
-<b>Parameter:</b> keine<br>
-<b>R&uuml;ckgabe:</b><br>
-<br>
-Es werden alle verf&uuml;gbaren EPG-Daten aller Programme in einer XML zur&uuml;ckgegeben. <br>
-<div class="example">
-Beispiel:<br>
-<br>
-&gt;&gt;&gt;http://box_ip/control/epgsearchxml<br>
-&lt;neutrino commandversion="1"&gt;<br>
-&lt;epgsearch&gt;<br>
-&lt;channelname&gt;Sparhandy TV&lt;/channelname&gt;<br>
-&lt;epgtitle&gt;Homeshopping mit SparhandyTV&lt;/epgtitle&gt;<br>
-&lt;info1&gt;SparhandyTV ist der neue Homeshopping-Kanal von Sparhandy und bietet Ihnen
-attraktive und g&uuml;nstige Angebote rund um das Thema Mobilfunk.&lt;/info1&gt;<br>
-...<br>
-</div>
-<b>Parameter:</b> Suchbegriff;epginfo=false<br>
-<b>R&uuml;ckgabe:</b><br>
-<br>
-Es werden alle Sendungen im EPG zur&uuml;ckgegeben, die den Suchbegriff<br>
-im Titel oder Beschreibungstext beinhalten.<br>
-Die Treffer lassen sich unter Angabe von epginfo=false auf Treffer im Titel beschr&auml;nken.<br>
-Hier werden die Sendungsinhalte (info1 und info2) nicht mitgeliefert.<br>
-<br>
-<b>R&uuml;ckgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung<br>
-<br>
-<div class="example">
-Beispiel:<br>
-<br>
-&gt;&gt;&gt;http://box_ip/control/epgsearchxml?Nachtmagazin&epginfo=false<br>
-&lt;neutrino commandversion="1"&gt;<br>
-&lt;epgsearch&gt;<br>
-&lt;channelname&gt;Das Erste HD&lt;/channelname&gt;<br>
-&lt;epgtitle&gt;Nachtmagazin&lt;/epgtitle&gt;<br>
-&lt;fsk&gt;0&lt;/fsk&gt;<br>
-&lt;genre&gt;Nachrichten&lt;/genre&gt;<br>
-<br>
-</div>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="shutdown"></a><b>Die Box herunterfahren</b></div>

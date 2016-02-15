@@ -31,6 +31,7 @@ private:
 
 	// send functions for ExecuteCGI (controld api)
 	void SendEventList(CyhookHandler *hh,t_channel_id channel_id);
+	void SendFoundEvents(CyhookHandler *hh, bool xml_format = false);
 	void SendcurrentVAPid(CyhookHandler *hh);
 	void SendAllCurrentVAPid(CyhookHandler *hh);
 	void SendStreamInfo(CyhookHandler *hh);
