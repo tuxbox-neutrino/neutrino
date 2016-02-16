@@ -25,7 +25,7 @@ bool _initialize_iso639_map(void);
 //-------------------------------------------------------------------------
 class CNeutrinoAPI
 {
-	OpenThreads::Mutex	mutex;
+	OpenThreads::Mutex	*pmutex;
 	// Clientlibs
 	CSectionsdClient	*Sectionsd;
 	CZapitClient		*Zapit;
@@ -88,6 +88,8 @@ public:
 	CChannelEventList	eList;
 	CNeutrinoYParser	*NeutrinoYParser;
 	CControlAPI		*ControlAPI;
+	void Lock() { pmutex->lock(); }
+	void Unlock() { pmutex->unlock(); }
 
 	friend class CNeutrinoYParser; // Backreference
 	friend class CControlAPI;

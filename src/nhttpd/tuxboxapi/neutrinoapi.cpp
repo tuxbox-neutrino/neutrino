@@ -136,6 +136,8 @@ CNeutrinoAPI::CNeutrinoAPI()
 	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_STANDBY, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_MUTE, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_VOLUME, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+
+	pmutex = new OpenThreads::Mutex(OpenThreads::Mutex::MUTEX_RECURSIVE);
 }
 //-------------------------------------------------------------------------
 
@@ -153,6 +155,8 @@ CNeutrinoAPI::~CNeutrinoAPI(void)
 		delete Timerd;
 	if (EventServer)
 		delete EventServer;
+
+	delete pmutex;
 }
 
 //-------------------------------------------------------------------------
@@ -172,7 +176,7 @@ void CNeutrinoAPI::UpdateBouquets(void)
 //-------------------------------------------------------------------------
 void CNeutrinoAPI::ZapTo(const char * const target)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	t_channel_id channel_id;
 
 	sscanf(target,
@@ -184,7 +188,7 @@ void CNeutrinoAPI::ZapTo(const char * const target)
 //-------------------------------------------------------------------------
 void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	if (channel_id == Zapit->getCurrentServiceID())
 	{
 		//printf("Kanal ist aktuell\n");
@@ -198,7 +202,7 @@ void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 
 void CNeutrinoAPI::ZapToSubService(const char * const target)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	t_channel_id channel_id;
 
 	sscanf(target,
@@ -211,7 +215,7 @@ void CNeutrinoAPI::ZapToSubService(const char * const target)
 //-------------------------------------------------------------------------
 t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_name)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 //FIXME depending on mode missing
 	//int mode = Zapit->getMode();
 	t_channel_id channel_id = (t_channel_id)-1;
@@ -269,7 +273,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 
 bool CNeutrinoAPI::GetChannelEvents(void)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	eList.clear();
 	CEitManager::getInstance()->getChannelEvents(eList);
 	CChannelEventList::iterator eventIterator;
@@ -289,7 +293,7 @@ bool CNeutrinoAPI::GetChannelEvents(void)
 
 std::string CNeutrinoAPI::GetServiceName(t_channel_id channel_id)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	return CServiceManager::getInstance()->GetServiceName(channel_id);
 }
 
@@ -428,7 +432,7 @@ std::string CNeutrinoAPI::getVideoAspectRatioAsString(void)
 //-------------------------------------------------------------------------
 int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	int newRatioInt = -1;
 	for(int i=0;i<(int)sizeof(videoformat_names);i++)
 		if( videoformat_names[i] == newRatioString){
@@ -484,7 +488,7 @@ std::string CNeutrinoAPI::getCryptInfoAsString(void)
 	std::string casys[11]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
 	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
 
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(channel) {
                 for (unsigned short i = 0; i < 11; i++) {

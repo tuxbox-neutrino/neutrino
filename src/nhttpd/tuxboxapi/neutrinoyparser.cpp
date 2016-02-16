@@ -359,9 +359,9 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	{
 		CZapitChannel * channel = channels[j];
 		CChannelEvent *event;
-		NeutrinoAPI->mutex.lock();
+		NeutrinoAPI->Lock();
 		event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
-		NeutrinoAPI->mutex.unlock();
+		NeutrinoAPI->Unlock();
 
 		classname = (i++ & 1) ? 'a' : 'b';
 		if (channel->getChannelID() == current_channel)
