@@ -2724,7 +2724,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if (mode != mode_webtv) {
 			scrambled_timer = g_RCInput->addTimer(10*1000*1000, true);
 			SelectSubtitles();
-			StartSubtitles(!g_InfoViewer->is_visible);
+			//StartSubtitles(!g_InfoViewer->is_visible);
 
 			/* update scan settings for manual scan to current channel */
 			CScanSetup::getInstance()->updateManualSettings();
