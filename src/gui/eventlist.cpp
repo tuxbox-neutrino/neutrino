@@ -866,7 +866,7 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
 	//create an logo object
-	CComponentsChannelLogo* midLogo = new CComponentsChannelLogo(0, 0, _channelname, _channel_id, &header);
+	CComponentsChannelLogoScalable* midLogo = new CComponentsChannelLogoScalable(0, 0, _channelname, _channel_id, &header);
 	if (midLogo->hasLogo()) {
 		//if logo object has found a logo and was ititialized, the hand  it's size
  		int w_logo = midLogo->getWidth();
