@@ -296,7 +296,7 @@ void CComponentsPicture::paintPicture()
 			else
 				is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
 			frameBuffer->SetTransparentDefault();
-			if (enable_cache){
+			if (enable_cache && do_scale){
 				dprintf(DEBUG_DEBUG, "\033[31m[CComponentsPicture] %s - %d: create cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 				dxc = width-2*fr_thickness;
 				dyc = height-2*fr_thickness;
