@@ -1390,6 +1390,13 @@ void CMovieBrowser::refreshMovieInfo(void)
 		newHeader = false;
 	}
 
+	if (pic){
+		if (pic->getPictureName() != fname || !logo_ok){
+			delete pic; pic = NULL;
+		}
+	}
+
+	int max_txt_width = 0;
 	if (m_settings.gui != MB_GUI_FILTER && logo_ok) {
 		lx = m_cBoxFrameInfo.iX + m_cBoxFrameInfo.iWidth - flogo_w -14;
 		ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
@@ -1399,25 +1406,20 @@ void CMovieBrowser::refreshMovieInfo(void)
 				flogo_h = flogo_h/2;
 				pic->setYPos(m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2);
 			}
-			pic->setHeight(flogo_h, true); /*flogo_w*/
+			pic->setHeight(flogo_h, true);
 			pic->enableFrame(true, 2);
-			pic->enableCache();
 			pic->doPaintBg(false);
-		}else
-			pic->setPicture(fname);
-
-		flogo_w = pic->getWidth();
-		pic->setXPos(m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -24);
-
+			flogo_w = pic->getWidth();
+			max_txt_width = m_cBoxFrameInfo.iWidth - flogo_w - 24;
+			pic->setXPos(m_cBoxFrameInfo.iX + max_txt_width);
+		}
+#if 0
 		if (!m_movieSelectionHandler->epgInfo2.empty())
 			if (m_pcInfo->OnAfterScrollPage.empty())
 				m_pcInfo->OnAfterScrollPage.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
-	}else{
-		if (pic)
-			delete pic; pic = NULL;
+#endif
 	}
-
-	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-flogo_w-20 : 0);
+	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, max_txt_width);
 	if (pic)
 		pic->paint(CC_SAVE_SCREEN_NO);
 }
