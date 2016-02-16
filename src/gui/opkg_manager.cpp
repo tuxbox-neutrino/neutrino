@@ -524,14 +524,14 @@ int COPKGManager::showMenu()
 	fw = new CMenuForwarder(LOCALE_OPKG_INSTALL_LOCAL_PACKAGE, true, NULL, this, "local_package", CRCInput::RC_green);
 	fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_INSTALL_LOCAL_PACKAGE);
 	menu->addItem(fw);
-
+#if ENABLE_OPKG_GUI_FEED_SETUP
 	//feed setup
 	CMenuWidget feeds_menu(LOCALE_OPKG_TITLE, NEUTRINO_ICON_UPDATE, w_max (100, 10));
 	showMenuConfigFeed(&feeds_menu);
 	fw = new CMenuForwarder(LOCALE_OPKG_FEED_ADDRESSES, true, NULL, &feeds_menu, NULL, CRCInput::RC_www);
 	fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_FEED_ADDRESSES_EDIT);
 	menu->addItem(fw);
-
+#endif
 	menu->addItem(GenericMenuSeparatorLine);
 
 	menu_offset = menu->getItemsCount();
