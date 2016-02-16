@@ -322,7 +322,7 @@ void CFileBrowser::ChangeDir(const std::string & filename, int selection)
 	readDir(newpath, &allfiles);
 	// filter
 	CFileList::iterator file = allfiles.begin();
-	for(; file != allfiles.end() ; file++)
+	for(; file != allfiles.end() ; ++file)
 	{
 		if (Filter != NULL && !file->isDir() && use_filter)
 		{

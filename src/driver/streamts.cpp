@@ -308,7 +308,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	for (streammap_iterator_t it = streams.begin(); it != streams.end(); ++it)
 		frontends.insert(it->second->frontend);
 
-	for (std::set<CFrontend*>::iterator ft = frontends.begin(); ft != frontends.end(); ft++)
+	for (std::set<CFrontend*>::iterator ft = frontends.begin(); ft != frontends.end(); ++ft)
 		CFEManager::getInstance()->lockFrontend(*ft);
 
 	frontend = CFEManager::getInstance()->allocateFE(channel, true);
@@ -342,7 +342,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	}
 
 	CFEManager::getInstance()->Lock();
-	for (std::set<CFrontend*>::iterator ft = frontends.begin(); ft != frontends.end(); ft++)
+	for (std::set<CFrontend*>::iterator ft = frontends.begin(); ft != frontends.end(); ++ft)
 		CFEManager::getInstance()->unlockFrontend(*ft);
 
 	if (unlock)

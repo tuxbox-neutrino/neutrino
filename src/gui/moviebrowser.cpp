@@ -3887,7 +3887,7 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 				m_settings.ytmode = newmode;
 				m_settings.ytsearch_history.push_front(search);
 				std::list<std::string>::iterator it = m_settings.ytsearch_history.begin();
-				it++;
+				++it;
 				while (it != m_settings.ytsearch_history.end()) {
 					if (*it == search)
 						it = m_settings.ytsearch_history.erase(it);
