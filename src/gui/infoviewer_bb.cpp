@@ -703,6 +703,7 @@ void CInfoViewerBB::showSysfsHdd()
 void CInfoViewerBB::showBarSys(int percent)
 {	
 	if (is_visible){
+		sysscale->reset();
 		sysscale->doPaintBg(false);
 		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6);
 		sysscale->setValues(percent, 100);
@@ -713,6 +714,7 @@ void CInfoViewerBB::showBarSys(int percent)
 void CInfoViewerBB::showBarHdd(int percent)
 {
 	if (is_visible) {
+		hddscale->reset();
 		hddscale->doPaintBg(false);
 		if (percent >= 0){
 			hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6);
@@ -720,7 +722,6 @@ void CInfoViewerBB::showBarHdd(int percent)
 			hddscale->paint();
 		}else {
 			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, COL_INFOBAR_BUTTONS_BACKGROUND);
-			hddscale->reset();
 		}
 	}
 }
