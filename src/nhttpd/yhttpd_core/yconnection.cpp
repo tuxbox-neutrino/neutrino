@@ -52,6 +52,7 @@ CWebserverConnection::CWebserverConnection() {
 	enlapsed_request = 0;
 	enlapsed_response = 0;
 	ConnectionNumber = ++GConnectionNumber;
+	Webserver = NULL;
 }
 //-------------------------------------------------------------------------
 CWebserverConnection::~CWebserverConnection(void) {

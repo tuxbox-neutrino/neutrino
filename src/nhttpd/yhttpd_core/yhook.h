@@ -145,7 +145,7 @@ public:
 	CStringList 	HookVarList;		// Variables in Hook-Handling passing to other Hooks
 	THttp_Method 	Method;			// HTTP Method (requested)
 	// constructor & deconstructor
-	CyhookHandler(){ContentLength = 0; RangeStart = 0; RangeEnd = -1; cached = false; keep_alive = 0; _outIndent = 0;status = HANDLED_NONE;Method = M_UNKNOWN;httpStatus =  HTTP_NIL;outType = plain;};
+	CyhookHandler(){ContentLength = 0; RangeStart = 0; RangeEnd = -1; cached = false; keep_alive = 0; _outIndent = 0;status = HANDLED_NONE;Method = M_UNKNOWN;httpStatus =  HTTP_NIL;outType = plain;LastModified=0;};
 	virtual ~CyhookHandler(){};
 
 	// hook slot handler

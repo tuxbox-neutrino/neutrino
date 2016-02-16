@@ -38,6 +38,7 @@
 CWebserverRequest::CWebserverRequest(CWebserver *pWebserver) {
 	Webserver = pWebserver;
 	CWebserverRequest();
+	Connection=NULL;
 }
 
 //=============================================================================
