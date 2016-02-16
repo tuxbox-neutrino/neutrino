@@ -446,6 +446,7 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 	m_busy_buffer = (unsigned char *) malloc (width * width * cpp);
 	if (m_busy_buffer == NULL) {
 		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc\n", __func__, __LINE__);
+		cs_free_uncached (fb_buffer);
 		return;
 	}
 	busy_buffer_wrk = m_busy_buffer;
