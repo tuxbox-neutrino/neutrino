@@ -131,8 +131,6 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///property: background gradient direction
 		int cc_body_gradient_direction, cc_body_gradient_direction_old;
 
-		//TODO: move into layers
-		int old_gradient_color;
 		///property: background gradient 2nd color
 		fb_pixel_t cc_body_gradient_2nd_col, cc_body_gradient_2nd_col_old;
 
