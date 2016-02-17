@@ -103,7 +103,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	col_frame = col_frame_old 	= color_frame;
 	col_body = col_body_old		= color_body;
 	col_shadow = col_shadow_old	= color_shadow;
-	col_body = col_body_old		= COL_MENUHEAD_PLUS_0;
+
 	cc_body_gradient_enable	 	= cc_body_gradient_enable_old	= g_settings.theme.menu_Head_gradient;
 	cc_body_gradient_direction	= cc_body_gradient_direction_old = g_settings.theme.menu_Head_gradient_direction;
 	cc_body_gradient_mode		= CColorGradient::gradientLight2Dark;
