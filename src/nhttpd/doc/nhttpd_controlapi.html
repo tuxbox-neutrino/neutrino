@@ -512,13 +512,15 @@ Soap/Melodram/Folklore<br>
 <br>
 <b>Parameter:</b> Suchbegriffe</br>
 oder</br>
-<b>Parameter:</b> search=Suchbegriffe[&epginfo=false][&format=plain|xml|json]<br>
+<b>Parameter:</b> search=Suchbegriffe[&epginfo=true|false|search][&format=plain|xml|json]<br>
 <b>R&uuml;ckgabe:</b><br>
 <br>
 Es werden alle Sendungen im EPG zur&uuml;ckgegeben, die den Suchbegriff<br>
 im Titel oder Beschreibungstext beinhalten.<br>
 Die Treffer lassen sich unter Angabe von epginfo=false auf Treffer im Titel beschr&auml;nken.<br>
 Hier werden die Sendungsinhalte (info1 und info2) nicht mitgeliefert.<br>
+Mit der Angabe von epginfo=search werden die Sendungsinhalte (info1 und info2) zwar in die Suche</br>
+einbezogen, aber nicht mitgeliefert.</br>
 Die Ausgabe erfolgt im angegebenen Format. Ist kein Format angegeben, wird reiner Text ausgegeben</br>
 <br>
 <b>R&uuml;ckgabe-Format:</b> Datum Startzeit Monat Wochentag Dauer in Minuten Sender Titel der Sendung<br>

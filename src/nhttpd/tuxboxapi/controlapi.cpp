@@ -1425,7 +1425,7 @@ void CControlAPI::EpgSearchXMLCGI(CyhookHandler *hh)
  * @code
  * /control/epgsearch?<keywords>
  * or
- * /control/epgsearch?search=<keywords>[&epginfo=false][&format=plain|xml|json]
+ * /control/epgsearch?search=<keywords>[&epginfo=true|false|search][&format=plain|xml|json]
  * @endcode
  */
 
@@ -1449,6 +1449,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 	CChannelEventList evtlist;
 
 	bool search_epginfo = (hh->ParamList["epginfo"] != "false");
+	bool return_epginfo = (hh->ParamList["epginfo"] == "true");
 
 	std::string search_keyword = (hh->ParamList["search"].empty()) ? hh->ParamList["1"] : hh->ParamList["search"];
 	const int search_epg_item = search_epginfo ? 5 /*SEARCH_EPG_ALL*/ : 1 /*SEARCH_EPG_TITLE*/;
@@ -1524,7 +1525,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 			{
 				item += hh->outPair("channelname", NeutrinoAPI->GetServiceName(eventIterator->channelID), true);
 				item += hh->outPair("epgtitle", epg.title, true);
-				if (search_epginfo) {
+				if (return_epginfo) {
 					item += hh->outPair("info1", hh->outValue(epg.info1), true);
 					item += hh->outPair("info2", hh->outValue(epg.info2), true);
 				}
@@ -1566,7 +1567,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 				hh->WriteLn(datetimer_str);
 				hh->WriteLn(NeutrinoAPI->GetServiceName(eventIterator->channelID));
 				hh->WriteLn(epg.title);
-				if (search_epginfo) {
+				if (return_epginfo) {
 					if(!epg.info1.empty())
 						hh->WriteLn(epg.info1);
 					if(!epg.info2.empty())
