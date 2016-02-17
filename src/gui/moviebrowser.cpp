@@ -1396,9 +1396,8 @@ void CMovieBrowser::refreshMovieInfo(void)
 		}
 	}
 
-	int max_txt_width = 0;
 	if (m_settings.gui != MB_GUI_FILTER && logo_ok) {
-		lx = m_cBoxFrameInfo.iX + m_cBoxFrameInfo.iWidth - flogo_w -14;
+		lx = m_cBoxFrameInfo.iX + m_cBoxFrameBrowserList.iWidth - flogo_w -14;
 		ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
 		if (pic == NULL){ //TODO: paint custom covers with different ratio, currently only works with default ratio HD 16/9
 			pic = new CComponentsPicture(lx, ly, fname, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0);
@@ -1410,8 +1409,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 			pic->enableFrame(true, 2);
 			pic->doPaintBg(false);
 			flogo_w = pic->getWidth();
-			max_txt_width = m_cBoxFrameInfo.iWidth - flogo_w - 24;
-			pic->setXPos(m_cBoxFrameInfo.iX + max_txt_width);
+			pic->setXPos(m_cBoxFrameInfo.iX + m_cBoxFrameInfo.iWidth - flogo_w - 24);
 		}
 #if 0
 		if (!m_movieSelectionHandler->epgInfo2.empty())
@@ -1419,7 +1417,9 @@ void CMovieBrowser::refreshMovieInfo(void)
 				m_pcInfo->OnAfterScrollPage.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
 #endif
 	}
-	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, max_txt_width);
+	if (pic)
+		flogo_w = pic->getWidth();
+	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, m_cBoxFrameInfo.iWidth - flogo_w - 24);
 	if (pic)
 		pic->paint(CC_SAVE_SCREEN_NO);
 }
