@@ -144,6 +144,7 @@ bool CInfoViewerBB::checkBBIcon(const char * const icon, int *w, int *h)
 void CInfoViewerBB::getBBIconInfo()
 {
 	bbIconMaxH 		= 0;
+	initBBOffset();
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= g_InfoViewer->BoxEndX - 8; //should be 10px, but 2px will be reduced for each icon
@@ -856,6 +857,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 
 void CInfoViewerBB::paintCA_bar(int left, int right)
 {
+	initBBOffset();
 	int xcnt = (g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - (g_settings.infobar_casystem_frame ? 24 : 0)) / 4;
 	int ycnt = (bottom_bar_offset - (g_settings.infobar_casystem_frame ? 14 : 0)) / 4;
 	int ca_width = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;
