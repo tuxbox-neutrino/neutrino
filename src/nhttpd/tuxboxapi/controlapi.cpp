@@ -1443,8 +1443,8 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 		return;
 	}
 
-	std::string result;
-	std::string epgsearch = "";
+	std::string result ="";
+	std::string item = "";
 	t_channel_id channel_id;
 	CChannelEventList evtlist;
 
@@ -1512,24 +1512,25 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 	unsigned int u_azeit = ( azeit > -1)? azeit:0;
 	for (eventIterator = evtlist.begin(); eventIterator != evtlist.end(); ++eventIterator)
 	{
+		bool got_next = (eventIterator != (evtlist.end() - 1));
 		if (CEitManager::getInstance()->getEPGidShort(eventIterator->eventID, &epg))
 		{
 			if( (eventIterator->startTime+eventIterator->duration) < u_azeit)
 				continue;
 
 			struct tm *tmStartZeit = localtime(&eventIterator->startTime);
-			result.clear();
+			item.clear();
 			if (hh->outType == json || hh->outType == xml)
 			{
-				result += hh->outPair("channelname", NeutrinoAPI->GetServiceName(eventIterator->channelID), true);
-				result += hh->outPair("epgtitle", epg.title, true);
+				item += hh->outPair("channelname", NeutrinoAPI->GetServiceName(eventIterator->channelID), true);
+				item += hh->outPair("epgtitle", epg.title, true);
 				if (search_epginfo) {
-					result += hh->outPair("info1", hh->outValue(epg.info1), true);
-					result += hh->outPair("info2", hh->outValue(epg.info2), true);
+					item += hh->outPair("info1", hh->outValue(epg.info1), true);
+					item += hh->outPair("info2", hh->outValue(epg.info2), true);
 				}
 				if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg))
 					{
-					result += hh->outPair("fsk", string_printf("%c", longepg.fsk), true);
+					item += hh->outPair("fsk", string_printf("%c", longepg.fsk), true);
 					genre = "";
 #ifdef FULL_CONTENT_CLASSIFICATION
 					if (!longepg.contentClassification.empty())
@@ -1538,17 +1539,17 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 					if (longepg.contentClassification)
 						genre = GetGenre(longepg.contentClassification);
 #endif
-					result += hh->outPair("genre", ZapitTools::UTF8_to_UTF8XML(genre.c_str()), true);
+					item += hh->outPair("genre", ZapitTools::UTF8_to_UTF8XML(genre.c_str()), true);
 				}
 				strftime(tmpstr, sizeof(tmpstr), "%Y-%m-%d", tmStartZeit );
-				result += hh->outPair("date", tmpstr, true);
+				item += hh->outPair("date", tmpstr, true);
 				strftime(tmpstr, sizeof(tmpstr), "%H:%M", tmStartZeit );
-				result += hh->outPair("time", tmpstr, true);
-				result += hh->outPair("duration", string_printf("%d", eventIterator->duration / 60), true);
-				result += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, eventIterator->channelID), true);
-				result += hh->outPair("eventid", string_printf("%ld", eventIterator->eventID), false);
+				item += hh->outPair("time", tmpstr, true);
+				item += hh->outPair("duration", string_printf("%d", eventIterator->duration / 60), true);
+				item += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, eventIterator->channelID), true);
+				item += hh->outPair("eventid", string_printf("%ld", eventIterator->eventID), false);
 
-				epgsearch += hh->outCollection("epgsearch", result);
+				result += hh->outArrayItem("item", item, got_next);
 			}
 			else // outType == plain
 			{
@@ -1591,12 +1592,12 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 			}
 		}
 	}
+	result = hh->outArray("epgsearch", result);
 	if (outType == json) {
-		hh->WriteLn(json_out_success(epgsearch));
+		hh->WriteLn(json_out_success(result));
 	}
 	else if (outType == xml) {
-		epgsearch = hh->outCollection("neutrino", epgsearch); // to stay backward compatible :/
-		hh->WriteLn(epgsearch);
+		hh->WriteLn(result);
 	}
 }
 
