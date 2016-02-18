@@ -220,7 +220,8 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	// settings
 	{"config",			&CControlAPI::ConfigCGI,	"text/plain"},
 	// filehandling
-	{"file",			&CControlAPI::FileCGI,	"+xml"}
+	{"file",			&CControlAPI::FileCGI,	"+xml"},
+	{"getdir",			&CControlAPI::getDirCGI, "+xml"}
 
 
 };
@@ -3225,4 +3226,120 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
 		//TODO
 	}
+}
+
+//-----------------------------------------------------------------------------
+/** Get neutrino directories
+ *
+ * @param hh CyhookHandler
+ *
+ * @par nhttpd-usage
+ * @code
+ * /control/getdir?dir=allmoviedirs&[&subdirs=true][&format=|xml|json]
+ * @endcode
+ *
+{"success": "true", "data":{"dirs": [{"dir": "/mnt/series/",
+"used": "1"
+}
+,{"dir": "/mnt/movies/",
+"used": "1"
+}
+,{"dir": "/mnt/movies/subdir"
+}
+{"dir": "/media/sda1/movie"
+}
+,]
+}}
+ * @endcode
+ *
+ */
+//-----------------------------------------------------------------------------
+void CControlAPI::getDirCGI(CyhookHandler *hh) {
+	std::string result = "";
+	std::string item = "";
+	bool isFirstLine = true;
+
+	TOutType outType = hh->outStart();
+
+	//Shows all 7 directories stored in the moviebrowser.conf
+	if (hh->ParamList["dir"] == "moviedir" || hh->ParamList["dir"] == "allmoviedirs" ) {
+		CConfigFile *Config = new CConfigFile(',');
+		Config->loadConfig(MOVIEBROWSER_CONFIGFILE);
+		char index[21];
+		std::string mb_dir_used;
+		std::string mb_dir;
+
+		for(int i=0;i<8;i++) {
+			snprintf(index, sizeof(index), "%d", i);
+			mb_dir = "mb_dir_";
+			mb_dir = mb_dir + index;
+			mb_dir = Config->getString(mb_dir, "");
+
+			if(!mb_dir.empty()) {
+				item += hh->outPair("dir", hh->outValue(mb_dir), false);
+				if(isFirstLine) {
+					isFirstLine = false;
+				}
+				else {
+					result += hh->outNext();
+				}
+				result += hh->outArrayItem("item", item, false);
+				item = "";
+				if (hh->ParamList["subdirs"] == "true") {
+					result = getSubdirectories(hh, mb_dir, result);
+				}
+			}
+		}
+	}
+
+	//Shows the neutrino recording dir
+	if (hh->ParamList["dir"] == "recordingdir" || hh->ParamList["dir"] == "allmoviedirs" ) {
+		item += hh->outPair("dir", hh->outValue(g_settings.network_nfs_recordingdir), false);
+		if(isFirstLine) {
+			isFirstLine = false;
+		}
+		else {
+			result += hh->outNext();
+		}
+		result += hh->outArrayItem("item", item, false);
+		if (hh->ParamList["subdirs"] == "true") {
+			result = getSubdirectories(hh, g_settings.network_nfs_recordingdir, result);
+		}
+	}
+
+
+	result = hh->outArray("dirs", result);
+	// write footer
+	if (outType == json) {
+		hh->WriteLn(json_out_success(result));
+	}
+	else {
+		hh->WriteLn(result);
+	}
+}
+
+//Helpfunction to get subdirs of a dir
+std::string CControlAPI::getSubdirectories(CyhookHandler *hh, std::string path, std::string result) {
+	std::string item = "";
+	std::string dirname;
+	DIR *dirp;
+	struct dirent *entry;
+
+	if ((dirp = opendir(path.c_str()))) {
+		while ((entry = readdir(dirp))) {
+			if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
+				if (path[path.length() - 1] != '/') {
+					path += "/";
+				}
+				std::string fullname = path + entry->d_name;
+				item += hh->outPair("dir", hh->outValue(fullname), false);
+				result += hh->outNext();
+				result += hh->outArrayItem("item", item, false);
+				item = "";
+				result = getSubdirectories(hh, fullname, result);
+			}
+		}
+		closedir(dirp);
+	}
+	return result;
 }
