@@ -1411,11 +1411,14 @@ void CMovieBrowser::refreshMovieInfo(void)
 			flogo_w = pic->getWidth();
 			pic->setXPos(m_cBoxFrameInfo.iX + m_cBoxFrameInfo.iWidth - flogo_w - 24);
 		}
-#if 0
-		if (!m_movieSelectionHandler->epgInfo2.empty())
-			if (m_pcInfo->OnAfterScrollPage.empty())
+
+		if (!m_movieSelectionHandler->epgInfo2.empty()){
+			if (m_pcInfo->OnAfterScrollPage.empty()){
+				pic->enableCache();
 				m_pcInfo->OnAfterScrollPage.connect(sigc::mem_fun(pic, &CComponentsPicture::paint0));
-#endif
+			}
+		}
+
 	}
 	if (pic)
 		flogo_w = pic->getWidth();
