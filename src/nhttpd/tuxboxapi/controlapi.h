@@ -33,10 +33,11 @@ private:
 		std::string type_str;
 		unsigned char type;
 		std::string fullname;
-    	bool operator () (FileCGI_List a,FileCGI_List b)
-    	{
-        	return (a.name < b.name);
-    	}
+
+		bool operator() (FileCGI_List a, FileCGI_List b)
+		{
+			return (a.name < b.name);
+		}
 	} fsort;
 
 	int rc_send(int ev, unsigned int code, unsigned int value);

@@ -3136,11 +3136,11 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 
 		std::string path = hh->ParamList["path"];
 		if ((dirp = opendir(path.c_str()))) {
-			bool isFirstLine = true;
 			struct dirent *entry;
 			std::vector<FileCGI_List> filelist;
 			while ((entry = readdir(dirp))) {
-				if ( !strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..") ) continue;
+				if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+					continue;
 				std::string ftype;
 				if (entry->d_type == DT_DIR)
 					ftype = "dir";
@@ -3151,75 +3151,68 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 				if (path[path.length() - 1] != '/')
 					path += "/";
 				std::string fullname = path + entry->d_name;
-				filelist.push_back(FileCGI_List{std::string(entry->d_name),ftype,entry->d_type,fullname});
+
+				FileCGI_List listitem;
+				listitem.name = std::string(entry->d_name);
+				listitem.type_str = ftype;
+				listitem.type = entry->d_type;
+				listitem.fullname = fullname;
+
+				filelist.push_back(listitem);
 			}
 			closedir(dirp);
-			if (hh->ParamList["sort"].empty())
-				sort(filelist.begin(), filelist.end(),fsort);
-			for(std::vector<FileCGI_List>::iterator f = filelist.begin(); f != filelist.end(); ++f) {
+
+			if (hh->ParamList["sort"] != "false")
+				sort(filelist.begin(), filelist.end(), fsort);
+
+			for(std::vector<FileCGI_List>::iterator f = filelist.begin(); f != filelist.end(); ++f)
+			{
+				bool got_next = (f != filelist.end()-1);
+
 				std::string item = "";
-				item += hh->outPair("name",	    hh->outValue(f->name.c_str()), true);
-				item += hh->outPair("type_str", hh->outValue(f->type_str.c_str()), true);
-				item += hh->outPair("type",		string_printf("%d", (int) f->type), true);
-				item += hh->outPair("fullname", hh->outValue(f->fullname.c_str()), true);
+				item += hh->outPair("name",	hh->outValue(f->name.c_str()), true);
+				item += hh->outPair("type_str",	hh->outValue(f->type_str.c_str()), true);
+				item += hh->outPair("type",	string_printf("%d", (int) f->type), true);
+				item += hh->outPair("fullname",	hh->outValue(f->fullname.c_str()), true);
 
 				struct stat statbuf;
 				if (stat(f->fullname.c_str(), &statbuf) != -1) {
-					item
-							+= hh->outPair(
-									"mode",
-									string_printf("%xld",
-											(long) statbuf.st_mode), true);
+					item += hh->outPair("mode", string_printf("%xld", (long) statbuf.st_mode), true);
 
 					/* Print out type, permissions, and number of links. */
 					//TODO:	hh->printf("\t\t<permission>%10.10s</permission>\n", sperm (statbuf.st_mode));
-					item += hh->outPair("nlink",
-							string_printf("%d", statbuf.st_nlink), true);
+					item += hh->outPair("nlink", string_printf("%d", statbuf.st_nlink), true);
 
 					/* Print out owner's name if it is found using getpwuid(). */
 					struct passwd *pwd;
-					if ((pwd = getpwuid(statbuf.st_uid)) != NULL) {
+					if ((pwd = getpwuid(statbuf.st_uid)) != NULL)
 						item += hh->outPair("user", pwd->pw_name, true);
-					}
-					else {
-						item += hh->outPair("user",
-								string_printf("%d", statbuf.st_uid), true);
-					}
+					else
+						item += hh->outPair("user", string_printf("%d", statbuf.st_uid), true);
+
 					/* Print out group name if it is found using getgrgid(). */
 					struct group *grp;
 					if ((grp = getgrgid(statbuf.st_gid)) != NULL)
 						item += hh->outPair("group", grp->gr_name, true);
-					else {
-						item += hh->outPair("group",
-								string_printf("%d", statbuf.st_gid), true);
-					}
+					else
+						item += hh->outPair("group", string_printf("%d", statbuf.st_gid), true);
+
 					/* Print size of file. */
-					item += hh->outPair("size",
-							string_printf("%jd", (intmax_t) statbuf.st_size),
-							true);
+					item += hh->outPair("size", string_printf("%jd", (intmax_t) statbuf.st_size), true);
+
 					struct tm *tm = localtime(&statbuf.st_mtime);
 					char datestring[256] = {0};
 					/* Get localized date string. */
-					strftime(datestring, sizeof(datestring),
-							nl_langinfo(D_T_FMT), tm);
+					strftime(datestring, sizeof(datestring), nl_langinfo(D_T_FMT), tm);
 					item += hh->outPair("time", hh->outValue(datestring), true);
-
-					item += hh->outPair("time_t",
-							string_printf("%ld", (long) statbuf.st_mtime),
-							false);
+					item += hh->outPair("time_t", string_printf("%ld", (long) statbuf.st_mtime), false);
 				}
-				if(isFirstLine)
-					isFirstLine = false;
-				else
-					result += hh->outNext();
-				result += hh->outArrayItem("item", item, false);
+				result += hh->outArrayItem("item", item, got_next);
 			}
 		}
 		result = hh->outArray("filelist", result);
-		// write footer
-		if (outType == json) {
+		if (outType == json)
 			hh->WriteLn(json_out_success(result));
-		}
 		else
 			hh->WriteLn(result);
 	}
