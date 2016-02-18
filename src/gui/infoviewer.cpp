@@ -262,106 +262,119 @@ void CInfoViewer::initClock()
 
 void CInfoViewer::showRecordIcon (const bool show)
 {
+	/* FIXME if record or timeshift stopped while infobar visible, artifacts */
+
 	CRecordManager * crm		= CRecordManager::getInstance();
 	
 	recordModeActive		= crm->RecordingStatus();
-	/* FIXME if record or timeshift stopped while infobar visible, artifacts */
 	if (recordModeActive)
 	{
-		std::string Icon_Rec = NEUTRINO_ICON_REC_GRAY, Icon_Ts = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
-		t_channel_id cci	= g_RemoteControl->current_channel_id;
+		std::string rec_icon = NEUTRINO_ICON_REC_GRAY;
+		std::string ts_icon  = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
 
+		t_channel_id cci	= g_RemoteControl->current_channel_id;
 		/* global record mode */
 		int rec_mode 		= crm->GetRecordMode();
 		/* channel record mode */
 		int ccrec_mode 		= crm->GetRecordMode(cci);
 
 		/* set 'active' icons for current channel */
-		if (ccrec_mode & CRecordManager::RECMODE_TSHIFT)
-			Icon_Ts		= NEUTRINO_ICON_AUTO_SHIFT;
-
 		if (ccrec_mode & CRecordManager::RECMODE_REC)
-			Icon_Rec	= NEUTRINO_ICON_REC;
+			rec_icon = NEUTRINO_ICON_REC;
 
-		int records		= crm->GetRecordCount();
-		
+		if (ccrec_mode & CRecordManager::RECMODE_TSHIFT)
+			ts_icon  = NEUTRINO_ICON_AUTO_SHIFT;
 
-		const int ChanName_X = BoxStartX + ChanWidth + SHADOW_OFFSET;
-		const int icon_space = 3, box_posY = 12;
-		int box_len = 0, rec_icon_posX = 0, ts_icon_posX = 0;
+		int records = crm->GetRecordCount();
 		
-		int rec_icon_w = 0, rec_icon_h = 0, ts_icon_w = 0, ts_icon_h = 0;
-		frameBuffer->getIconSize(Icon_Rec.c_str(), &rec_icon_w, &rec_icon_h);
-		frameBuffer->getIconSize(Icon_Ts.c_str(), &ts_icon_w, &ts_icon_h);
+		int txt_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+		int txt_w = 0;
+
+		int box_x = BoxStartX + ChanWidth + 2*SHADOW_OFFSET;
+		int box_y = BoxStartY + SHADOW_OFFSET;
+		int box_w = 0;
+		int box_h = txt_h;
+
+		int icon_space = SHADOW_OFFSET/2;
+
+		int rec_icon_x = 0, rec_icon_w = 0, rec_icon_h = 0;
+		int ts_icon_x  = 0, ts_icon_w  = 0, ts_icon_h  = 0;
+
+		frameBuffer->getIconSize(rec_icon.c_str(), &rec_icon_w, &rec_icon_h);
+		frameBuffer->getIconSize(ts_icon.c_str(), &ts_icon_w, &ts_icon_h);
 		
-		int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight () * (g_settings.screen_yres / 100);
-		if (chanH < rec_icon_h)
-			chanH = rec_icon_h;
-		const int box_posX = ChanName_X + SHADOW_OFFSET;
+		int icon_h = std::max(rec_icon_h, ts_icon_h);
+		box_h = std::max(box_h, icon_h+icon_space*2);
 		
+		int icon_y = box_y + (box_h - icon_h)/2;
+		int txt_y  = box_y + (box_h + txt_h)/2;
+
 		char records_msg[8];
-		snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
-		int TextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg) 
-					* (g_settings.screen_xres / 100);
 					
 		if (rec_mode == CRecordManager::RECMODE_REC)
 		{
-			box_len = rec_icon_w + TextWidth + icon_space*5;
-			rec_icon_posX = box_posX + icon_space*2;
+			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
+			txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg);
+
+			box_w = rec_icon_w + txt_w + icon_space*5;
+			rec_icon_x = box_x + icon_space*2;
 		}
 		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
 		{
-			box_len = ts_icon_w + icon_space*4;
-			ts_icon_posX = box_posX + icon_space*2;
+			box_w = ts_icon_w + icon_space*4;
+			ts_icon_x = box_x + icon_space*2;
 		}
 		else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
 		{
-			box_len = ts_icon_w + rec_icon_w + TextWidth + icon_space*7;
-			ts_icon_posX = box_posX + icon_space*2;
-			rec_icon_posX = ts_icon_posX + ts_icon_w + icon_space*2;
+			//subtract ts
 			records--;
 			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
+			txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg);
+
+			box_w = ts_icon_w + rec_icon_w + txt_w + icon_space*7;
+			ts_icon_x = box_x + icon_space*2;
+			rec_icon_x = ts_icon_x + ts_icon_w + icon_space*2;
 		}
 		
 		if (show)
 		{
 			if (rec == NULL){ //TODO: full refactoring of this icon handler
-				rec = new CComponentsShapeSquare(box_posX, BoxStartY + box_posY , box_len, chanH, NULL, CC_SHADOW_ON, COL_RED, COL_INFOBAR_PLUS_0);
+				rec = new CComponentsShapeSquare(box_x, box_y , box_w, box_h, NULL, CC_SHADOW_ON, COL_RED, COL_INFOBAR_PLUS_0);
 				rec->setFrameThickness(2);
 				rec->setShadowWidth(SHADOW_OFFSET/2);
 				rec->setCorner(RADIUS_MIN, CORNER_ALL);
 			}
-			if (rec->getWidth() != box_len)
-				rec->setWidth(box_len);
+			if (rec->getWidth() != box_w)
+				rec->setWidth(box_w);
 
 			if (!rec->isPainted())
 				rec->paint(CC_SAVE_SCREEN_NO);
 			
 			if (rec_mode != CRecordManager::RECMODE_TSHIFT)
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (rec_icon_posX + rec_icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, records_msg, COL_INFOBAR_TEXT);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rec_icon_x + rec_icon_w + icon_space, txt_y, txt_w, records_msg, COL_INFOBAR_TEXT);
 			
 			if (rec_mode == CRecordManager::RECMODE_REC)
 			{
-				frameBuffer->paintIcon(Icon_Rec, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
+				frameBuffer->paintIcon(rec_icon, rec_icon_x, icon_y);
 			}
 			else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
 			{
-				frameBuffer->paintIcon(Icon_Ts, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
+				frameBuffer->paintIcon(ts_icon, ts_icon_x, icon_y);
 			}
 			else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
 			{
-				frameBuffer->paintIcon(Icon_Rec, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
-				frameBuffer->paintIcon(Icon_Ts, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
+				frameBuffer->paintIcon(rec_icon, rec_icon_x, icon_y);
+				frameBuffer->paintIcon(ts_icon, ts_icon_x, icon_y);
 			}
 		}
 		else
 		{
 			if (rec_mode == CRecordManager::RECMODE_REC)
-				frameBuffer->paintBoxRel(rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2, rec_icon_w, rec_icon_h, COL_INFOBAR_PLUS_0);
+				frameBuffer->paintBoxRel(rec_icon_x, icon_y, rec_icon_w, icon_h, COL_INFOBAR_PLUS_0);
 			else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
-				frameBuffer->paintBoxRel(ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2, ts_icon_w, ts_icon_h, COL_INFOBAR_PLUS_0);
+				frameBuffer->paintBoxRel(ts_icon_x, icon_y, ts_icon_w, icon_h, COL_INFOBAR_PLUS_0);
 			else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
-				frameBuffer->paintBoxRel(ts_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2, ts_icon_w + rec_icon_w + icon_space*2, rec_icon_h, COL_INFOBAR_PLUS_0);
+				frameBuffer->paintBoxRel(ts_icon_x, icon_y, ts_icon_w + rec_icon_w + icon_space*2, icon_h, COL_INFOBAR_PLUS_0);
 		}
 	}
 }
