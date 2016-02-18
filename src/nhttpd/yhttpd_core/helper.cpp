@@ -292,17 +292,58 @@ std::string json_out_error(std::string _error) {
 //-----------------------------------------------------------------------------
 // JSON: convert string to JSON-String
 //-----------------------------------------------------------------------------
+
 std::string json_convert_string(std::string s) {
 	std::stringstream ss;
-	for (size_t i = 0; i < s.length(); ++i) {
-		if (unsigned(s[i]) < '\x20' || s[i] == '\\' || s[i] == '"' || unsigned(s[i]) >= '\x80') {
-			ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex
-					<< unsigned(s[i]);
+	for (size_t i = 0; i < s.length(); ) {
+		unsigned char ch = unsigned(s[i]);
+		if(ch == 0x0d){
+			ss << "\\u000d";
+			i++;
+			continue;
+		}
+		if(ch == 0x0a){
+			ss << "\\u000a";
+			i++;
+			continue;
+		}
+
+		if(ch < '\x20' || ch == '\\' || ch == '"' || ch >= '\x80') {
+			unsigned long unicode = 0;
+			size_t todo = 0;
+			if (ch <= 0xBF) {
+			}
+			else if (ch <= 0xDF) {
+				unicode = ch & 0x1F;
+				todo = 1;
+			}
+			else if (ch <= 0xEF) {
+				unicode = ch & 0x0F;
+				todo = 2;
+			}
+			else if (ch <= 0xF7) {
+				unicode = ch & 0x07;
+				todo = 3;
+			}
+			for (size_t j = 0; j < todo; ++j){
+				++i;
+				unicode <<= 6;
+				unicode += unsigned(s[i]) & 0x3F;
+			}
+			if (unicode <= 0xFFFF)
+			{
+				ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << unicode;
+			}else
+			{
+				unicode -= 0x10000;
+				ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << ((unicode >> 10) + 0xD800);
+				ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << ((unicode & 0x3FF) + 0xDC00);
+			}
 		}
 		else {
 			ss << s[i];
 		}
+		++i;
 	}
 	return ss.str();
 }
-
