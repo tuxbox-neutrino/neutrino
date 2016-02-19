@@ -3479,7 +3479,6 @@ void CControlAPI::getDirCGI(CyhookHandler *hh)
 		CConfigFile *Config = new CConfigFile(',');
 		Config->loadConfig(MOVIEBROWSER_CONFIGFILE);
 		char index[21];
-		std::string mb_dir_used;
 		std::string mb_dir;
 
 		for(int i=0;i<8;i++) {
@@ -3530,7 +3529,6 @@ void CControlAPI::getDirCGI(CyhookHandler *hh)
 std::string CControlAPI::getSubdirectories(CyhookHandler *hh, std::string path, std::string result)
 {
 	std::string item = "";
-	std::string dirname;
 	DIR *dirp;
 	struct dirent *entry;
 
