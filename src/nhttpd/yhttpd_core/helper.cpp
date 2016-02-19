@@ -76,10 +76,17 @@ std::string timeString(time_t time) {
 // Printf and return formatet String. Buffer-save!
 // max length up to bufferlen -> then snip
 //-------------------------------------------------------------------------
-#define bufferlen 4*1024
 std::string string_printf(const char *fmt, ...) {
-	char buffer[bufferlen];
 	va_list arglist;
+	va_start (arglist, fmt);
+	int len = vsnprintf (NULL, 0, fmt, arglist);
+	va_end (arglist);
+	const int bufferlen = 4*1024;
+	if(len >=  bufferlen){
+		printf("string_printf: error: buffer overflow : len %i line %i\n",len,__LINE__);
+		return "error";
+	}
+	char buffer[bufferlen] = {0};
 	va_start(arglist, fmt);
 	vsnprintf(buffer, bufferlen, fmt, arglist);
 	va_end(arglist);
