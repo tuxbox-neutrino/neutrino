@@ -1525,7 +1525,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 			if (hh->outType == json || hh->outType == xml)
 			{
 				item += hh->outPair("channelname", NeutrinoAPI->GetServiceName(eventIterator->channelID), true);
-				item += hh->outPair("epgtitle", epg.title, true);
+				item += hh->outPair("epgtitle", hh->outValue(epg.title), true);
 				if (return_epginfo) {
 					item += hh->outPair("info1", hh->outValue(epg.info1), true);
 					item += hh->outPair("info2", hh->outValue(epg.info2), true);
