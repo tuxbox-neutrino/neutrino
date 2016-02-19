@@ -225,7 +225,8 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	// filehandling
 	{"file",		&CControlAPI::FileCGI,			"+xml"},
 	{"statfs",		&CControlAPI::StatfsCGI,		"+xml"},
-	{"getdir",		&CControlAPI::getDirCGI,		"+xml"}
+	{"getdir",		&CControlAPI::getDirCGI,		"+xml"},
+	{"getmovies",		&CControlAPI::getMoviesCGI,		"+xml"}
 };
 //-----------------------------------------------------------------------------
 // Main Dispatcher
@@ -3547,6 +3548,155 @@ std::string CControlAPI::getSubdirectories(CyhookHandler *hh, std::string path, 
 			}
 		}
 		closedir(dirp);
+	}
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+/** Get neutrino movies
+ *
+ * @param hh CyhookHandler
+ *
+ * @par nhttpd-usage
+ * @code
+ * /control/getmovies?ir=allmoviedirs&[&subdirs=true][&format=|xml|json]
+ * @endcode
+ *
+{"success": "true", "data":{"movies": [{"title": "Sample.mkv",
+"path": "/media/sda1/movies/Sample.mkv",
+"size": "1136242099"
+}
+,{"title": "Aufnahme1.ts",
+"path": "/media/sda1/recording/Aufnahme1.ts",
+"size": "941"
+}
+,{"title": "Aufnahme2.ts",
+"path": "/media/sda1/recording/Aufnahme2.ts",
+"size": "941"
+}
+]
+}}
+ * @endcode
+ *
+ */
+//-----------------------------------------------------------------------------
+void CControlAPI::getMoviesCGI(CyhookHandler *hh) {
+	std::string result = "";
+	bool isFirstLine = true;
+	bool subdirs = true;
+
+	if(hh->ParamList["subdirs"] == "false") {
+		subdirs = false;
+	}
+
+	TOutType outType = hh->outStart();
+
+	//Shows all movies with path in moviebrowser.conf
+	if (hh->ParamList["dir"] == "moviedir" || hh->ParamList["dir"] == "allmoviedirs" ) {
+		CConfigFile *Config = new CConfigFile(',');
+		Config->loadConfig(MOVIEBROWSER_CONFIGFILE);
+		char index[21];
+		std::string mb_dir;
+
+		for(int i=0;i<8;i++) {
+			snprintf(index, sizeof(index), "%d", i);
+			mb_dir = "mb_dir_";
+			mb_dir = mb_dir + index;
+			mb_dir = Config->getString(mb_dir, "");
+
+			if(!mb_dir.empty()) {
+				result = readMovies(hh, mb_dir, result, subdirs);
+			}
+		}
+	}
+
+	//Shows all movies in the recordingdir
+	if (hh->ParamList["dir"] == "recordingdir" || hh->ParamList["dir"] == "allmoviedirs" ) {
+		result = readMovies(hh, g_settings.network_nfs_recordingdir, result, subdirs);
+	}
+
+	//Shows movie from a given path
+	if (hh->ParamList["dir"][0] == '/') {
+		result = readMovies(hh, hh->ParamList["dir"], result, subdirs);
+	}
+
+	result = hh->outArray("movies", result);
+	// write footer
+	if (outType == json) {
+		hh->WriteLn(json_out_success(result));
+	}
+	else {
+		hh->WriteLn(result);
+	}
+}
+
+//Helpfunction to get subdirs of a dir
+std::string CControlAPI::getSubdirectories(CyhookHandler *hh, std::string path, std::string result) {
+	std::string item = "";
+	std::string dirname;
+	DIR *dirp;
+	struct dirent *entry;
+
+	if ((dirp = opendir(path.c_str()))) {
+		while ((entry = readdir(dirp))) {
+			if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
+				if (path[path.length() - 1] != '/') {
+					path += "/";
+				}
+				std::string fullname = path + entry->d_name;
+				item += hh->outPair("dir", hh->outValue(fullname), false);
+				result += hh->outNext();		
+				result += hh->outArrayItem("item", item, false);
+				item = "";
+				result = getSubdirectories(hh, fullname, result);
+			}
+		}
+		closedir(dirp);
+	}
+	return result;
+}
+
+//Helpfunction to get movies of a dir
+std::string CControlAPI::readMovies(CyhookHandler *hh, std::string path, std::string result, bool subdirs) {
+	std::string item = "";
+	std::string fullname;
+	DIR *dirp;
+	struct dirent *entry;
+
+	if ((dirp = opendir(path.c_str()))) {
+		if (path[path.length() - 1] != '/') {
+			path += "/";
+		}
+		while ((entry = readdir(dirp))) {
+			if(entry->d_type == 8) {
+				fullname = path + entry->d_name;
+				item += hh->outPair("title", hh->outValue(entry->d_name),true);
+				item += hh->outPair("path", hh->outValue(fullname), true);
+				struct stat statbuf;
+				if (stat(fullname.c_str(), &statbuf) != -1) {
+					/* Print size of file. */
+					item += hh->outPair("size", string_printf("%jd", (intmax_t) statbuf.st_size), false);
+				}
+				if(!result.empty()) {
+					result += hh->outNext();
+				}
+				result += hh->outArrayItem("item", item, false);
+				item = "";							
+			}
+		}
+		closedir(dirp);
+		if ((dirp = opendir(path.c_str()))) {
+			if(subdirs)
+			{
+				while ((entry = readdir(dirp))) {
+					if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
+						fullname = path + entry->d_name;
+						result = readMovies(hh, fullname, result, subdirs);
+					}
+				}
+			}
+			closedir(dirp);
+		}
 	}
 	return result;
 }
