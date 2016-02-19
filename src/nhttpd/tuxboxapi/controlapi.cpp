@@ -1532,7 +1532,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 				}
 				if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg))
 					{
-					item += hh->outPair("fsk", string_printf("%c", longepg.fsk), true);
+					item += hh->outPair("fsk", string_printf("%u", longepg.fsk), true);
 					genre = "";
 #ifdef FULL_CONTENT_CLASSIFICATION
 					if (!longepg.contentClassification.empty())
