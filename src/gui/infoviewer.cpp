@@ -693,13 +693,14 @@ void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int 
 
 void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap, int epgpos)
 {
-	if(!calledFromNumZap && zap_mode != IV_MODE_DEFAULT)
+	if(!calledFromNumZap && !(zap_mode & IV_MODE_DEFAULT))
 		resetSwitchMode();
 
 	std::string Channel = channel->getName();
 	t_satellite_position satellitePosition = channel->getSatellitePosition();
 	t_channel_id new_channel_id = channel->getChannelID();
 	int ChanNum = channel->number;
+
 	current_epg_id = channel->getEpgID();
 
 	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
@@ -2059,7 +2060,7 @@ void CInfoViewer::killTitle()
 			rec->kill();
 		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET-BoxStartX, bottom-BoxStartY);
 		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
-		if (zap_mode != IV_MODE_VIRTUAL_ZAP){
+		if (!(zap_mode & IV_MODE_VIRTUAL_ZAP)){
 			if (infobar_txt)
 				infobar_txt->kill();
 			numbox->kill();
