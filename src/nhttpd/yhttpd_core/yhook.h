@@ -123,6 +123,9 @@ class CyhookHandler
 protected:
 	static THookList HookList;
 public:
+	CyhookHandler();
+	~CyhookHandler();
+
 	// Output
 	std::string 	yresult;		// content for response output
 	THandleStatus 	status; 		// status of Hook handling
@@ -144,9 +147,6 @@ public:
 	CStringList 	WebserverConfigList;	// Reference (writable) to ConfigList
 	CStringList 	HookVarList;		// Variables in Hook-Handling passing to other Hooks
 	THttp_Method 	Method;			// HTTP Method (requested)
-	// constructor & deconstructor
-	CyhookHandler(){ContentLength = 0; RangeStart = 0; RangeEnd = -1; cached = false; keep_alive = 0; _outIndent = 0;status = HANDLED_NONE;Method = M_UNKNOWN;httpStatus =  HTTP_NIL;outType = plain;LastModified=0;};
-	virtual ~CyhookHandler(){};
 
 	// hook slot handler
 	static void 	attach(Cyhook *yh)	// attach a Hook-Class to HookHandler

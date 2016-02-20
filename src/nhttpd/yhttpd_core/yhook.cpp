@@ -14,6 +14,28 @@
 #include "helper.h"
 
 //=============================================================================
+// Constructor & Ceconstructor
+//=============================================================================
+CyhookHandler::CyhookHandler()
+{
+	ContentLength = 0;
+	RangeStart = 0;
+	RangeEnd = -1;
+	cached = false;
+	keep_alive = 0;
+	_outIndent = 0;
+	status = HANDLED_NONE;
+	Method = M_UNKNOWN;
+	httpStatus = HTTP_NIL;
+	outType = plain;
+	LastModified=0;
+}
+
+CyhookHandler::~CyhookHandler()
+{
+}
+
+//=============================================================================
 // Initialization of static variables
 //=============================================================================
 THookList CyhookHandler::HookList;
