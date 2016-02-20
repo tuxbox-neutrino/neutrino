@@ -3129,7 +3129,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 	if (hh->ParamList["action"] == "list") { // directory list: action=list&path=<path>
 		DIR *dirp;
 
-		TOutType outType = hh->outStart(true /*old mode*/);
+		TOutType outType = hh->outStart();
 
 		std::string path = hh->ParamList["path"];
 		if ((dirp = opendir(path.c_str()))) {
