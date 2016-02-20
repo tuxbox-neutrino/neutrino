@@ -1058,7 +1058,7 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
  */
 //-------------------------------------------------------------------------
 void CControlAPI::GetBouquetCGI(CyhookHandler *hh) {
-	TOutType outType = hh->outStart();
+	TOutType outType = hh->outStart(true /*old mode*/);
 
 	std::string result = "";
 	if (!(hh->ParamList.empty())) {
@@ -1211,7 +1211,7 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh) {
 	bool encode = false;
 	std::string result = "";
 
-	TOutType outType = hh->outStart();
+	TOutType outType = hh->outStart(true /*old mode*/);
 
 	if (hh->ParamList["showhidden"] == "false")
 		show_hidden = false;
@@ -1357,7 +1357,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
 	}
 
 	// ------ generate output ------
-	TOutType outType = hh->outStart();
+	TOutType outType = hh->outStart(true /*old mode*/);
 	std::string result = "";
 
 	NeutrinoAPI->eList.clear();
@@ -1457,7 +1457,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 
 	if (xml_format) // to stay backward compatible :/
 		hh->ParamList["format"] = "xml";
-	TOutType outType = hh->outStart();
+	TOutType outType = hh->outStart(true /*old mode*/);
 
 	/* TODO: maybe add following options as in tuxbox neutrino
 		hh->ParamList["epgitem"]
@@ -2996,7 +2996,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 	std::string result = "";
 	std::string configFileName = hh->ParamList["config"];
 
-	TOutType outType = hh->outStart();
+	TOutType outType = hh->outStart(true /*old mode*/);
 
 	if (hh->ParamList["action"] == "submit")
 		load = false;
@@ -3133,7 +3133,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 	if (hh->ParamList["action"] == "list") { // directory list: action=list&path=<path>
 		DIR *dirp;
 
-		TOutType outType = hh->outStart();
+		TOutType outType = hh->outStart(true /*old mode*/);
 
 		std::string path = hh->ParamList["path"];
 		if ((dirp = opendir(path.c_str()))) {
@@ -3259,7 +3259,7 @@ void CControlAPI::getDirCGI(CyhookHandler *hh) {
 	std::string item = "";
 	bool isFirstLine = true;
 
-	TOutType outType = hh->outStart();
+	TOutType outType = hh->outStart(true /*old mode*/);
 
 	//Shows all 7 directories stored in the moviebrowser.conf
 	if (hh->ParamList["dir"] == "moviedir" || hh->ParamList["dir"] == "allmoviedirs" ) {

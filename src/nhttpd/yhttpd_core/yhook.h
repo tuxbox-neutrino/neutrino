@@ -139,6 +139,7 @@ public:
 	std::string	Sendfile;		// Path & Name (local os style) of file to send
 	bool		keep_alive;
 	bool		cached;			// cached by mod_cache
+	bool		outSingle;
 
 	// Input
 	CStringList 	ParamList;		// local copy of ParamList (Request)
@@ -199,7 +200,7 @@ public:
 
 	int _outIndent;
 	TOutType outType;			// Outputtpe = plain (default)|xml|json
-	TOutType outStart();
+	TOutType outStart(bool single = false);
 	TOutType checkOutput();
 	std::string outIndent();
 	std::string outPair(std::string _key, std::string _content, bool _next);

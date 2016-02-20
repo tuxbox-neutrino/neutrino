@@ -28,6 +28,7 @@ CyhookHandler::CyhookHandler()
 	Method = M_UNKNOWN;
 	httpStatus = HTTP_NIL;
 	outType = plain;
+	outSingle = false;
 	LastModified=0;
 }
 
@@ -405,7 +406,8 @@ TOutType CyhookHandler::checkOutput() {
 	return outType;
 }
 //-----------------------------------------------------------------------------
-TOutType CyhookHandler::outStart() {
+TOutType CyhookHandler::outStart(bool single) {
+	outSingle = single; // for compatibility
 	// get outType
 	outType = plain; // plain
 	if (ParamList["format"] == "json")
@@ -440,7 +442,13 @@ std::string CyhookHandler::outPair(std::string _key, std::string _content, bool 
 		result += "\n";
 		break;
 	default:
-		result = _content;
+		if (outSingle)
+			result = _content;
+		else
+		{
+			result = _key + "=" + _content;
+			result += "\n";
+		}
 		break;
 	}
 	return result;
