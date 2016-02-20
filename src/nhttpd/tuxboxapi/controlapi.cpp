@@ -15,6 +15,7 @@
 // system
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/vfs.h> // for statfs
 #include <fcntl.h>
 #include <unistd.h>
 #include <pwd.h>
@@ -221,6 +222,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"config",			&CControlAPI::ConfigCGI,	"text/plain"},
 	// filehandling
 	{"file",			&CControlAPI::FileCGI,	"+xml"},
+	{"statfs",			&CControlAPI::StatfsCGI,	"+xml"},
 	{"getdir",			&CControlAPI::getDirCGI, "+xml"}
 
 
@@ -3222,6 +3224,86 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
 		//TODO
 	}
+}
+
+//-----------------------------------------------------------------------------
+/** Get a list of statfs output for a given path
+ *
+ * @param hh CyhookHandler
+ *
+ * @par nhttpd-usage
+ * @code
+ * /control/statfs[?path={path}][&format=plain|xml|json]
+ * @endcode
+ *
+ * @par example:
+ * @code
+ * /control/statfs
+ * /control/statfs?path=/media/sda1/movies&format=json
+ * @endcode
+ *
+ * @par output
+ * @code
+ * {"success": "true", "data":
+ * {
+ * 	"statfs": [{
+ * 		"path": "/media/sda1/movies",
+ * 		"f_type": "0x4d44",
+ * 		"f_bsize": "4096",
+ * 		"f_blocks": "488444",
+ * 		"f_bfree": "365874",
+ * 		"f_bavail": "365874",
+ * 		"f_files": "0",
+ * 		"f_ffree": "0",
+ * 		"f_fsid": "0x801, 0",
+ * 		"f_namelen": "1530",
+ * 		"f_frsize": "24"
+ * 	}]
+ * }}
+ * @endcode
+ */
+//-----------------------------------------------------------------------------
+void CControlAPI::StatfsCGI(CyhookHandler *hh) {
+	std::string result = "";
+
+	if (hh->ParamList["path"].empty())
+		hh->ParamList["path"] = "/";
+
+	TOutType outType = hh->outStart();
+
+	std::string path = hh->ParamList["path"];
+	struct statfs s;
+	if (::statfs(path.c_str(), &s) == 0)
+	{
+		std::string item = "";
+		item += hh->outPair("path", path.c_str(), true);
+		item += hh->outPair("f_type", string_printf("%#lx", (unsigned long) s.f_type), true);
+		item += hh->outPair("f_bsize", string_printf("%lu", (unsigned long) s.f_bsize), true);
+		item += hh->outPair("f_blocks", string_printf("%lu", (unsigned long) s.f_blocks), true);
+		item += hh->outPair("f_bfree", string_printf("%lu", (unsigned long) s.f_bfree), true);
+		item += hh->outPair("f_bavail", string_printf("%lu", (unsigned long) s.f_bavail), true);
+		item += hh->outPair("f_files", string_printf("%lu", (unsigned long) s.f_files), true);
+		item += hh->outPair("f_ffree", string_printf("%lu", (unsigned long) s.f_ffree), true);
+		item += hh->outPair("f_fsid", string_printf("%#x, %#x", (unsigned) s.f_fsid.__val[0], (unsigned) s.f_fsid.__val[1]), true);
+		item += hh->outPair("f_namelen", string_printf("%lu", (unsigned long) s.f_namelen), true);
+		item += hh->outPair("f_frsize", string_printf("%lu", (unsigned long) s.f_frsize), false);
+
+		result = hh->outArrayItem("path", item, false);
+		result = hh->outArray("statfs", result);
+
+		if (outType == json)
+			hh->WriteLn(json_out_success(result));
+		else
+			hh->WriteLn(result);
+	}
+	else
+	{
+		if (outType == json)
+			hh->WriteLn(json_out_error("statfs failed"));
+		else
+			hh->SendError();
+	}
+
 }
 
 //-----------------------------------------------------------------------------
