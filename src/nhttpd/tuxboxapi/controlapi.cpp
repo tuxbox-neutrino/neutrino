@@ -3045,9 +3045,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 	}
 	else {
 		if(!configFileName.empty())
-			error = string_printf("no config defined for: %s", (hh->ParamList["config"]).c_str());
-		else
-			error = "no config given";
+			error = string_printf("no config defined for %s", (hh->ParamList["config"]).c_str());
 	}
 
 	// write footer
@@ -3059,14 +3057,8 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 			hh->WriteLn(hh->outCollection("config", result));
 		}
 	}
-	else {
-		if (outType == json) {
-			hh->WriteLn(json_out_error(error));
-		}
-		else {
-			hh->SendError();
-		}
-	}
+	else
+		hh->SendError(error);
 
 	delete Config;
 }
