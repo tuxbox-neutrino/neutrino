@@ -55,8 +55,7 @@ private:
 	void SendTimersXML(CyhookHandler *hh);
 	void epgDetailList(CyhookHandler *hh);
 	void EpgSearchXMLCGI(CyhookHandler *hh);
-	void EpgSearchTXTCGI(CyhookHandler *hh);
-	void EpgSearchCGI(CyhookHandler *hh, bool xml_format = false);
+	void EpgSearchCGI(CyhookHandler *hh);
 	// subs
 	friend class CNeutrinoWebserver; // for timer /fb/ compatibility
 	void doModifyTimer(CyhookHandler *hh);

@@ -167,7 +167,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"getmode", 		&CControlAPI::GetModeCGI,		"text/plain"},
 	{"setmode", 		&CControlAPI::SetModeCGI,		"text/plain"},
 	{"epgsearchxml", 	&CControlAPI::EpgSearchXMLCGI,			""},
-	{"epgsearch", 		&CControlAPI::EpgSearchTXTCGI,			""},
+	{"epgsearch", 		&CControlAPI::EpgSearchCGI,			""},
 	{"epg", 		&CControlAPI::EpgCGI,			""},
 	{"zapto", 		&CControlAPI::ZaptoCGI,			"text/plain"},
 	{"signal", 		&CControlAPI::SignalInfoCGI,			"text/plain"},
@@ -1433,7 +1433,7 @@ void CControlAPI::EpgSearchXMLCGI(CyhookHandler *hh)
  */
 
 //-------------------------------------------------------------------------
-void CControlAPI::EpgSearchTXTCGI(CyhookHandler *hh) 
+void CControlAPI::EpgSearchCGI(CyhookHandler *hh)
 {
 	SendFoundEvents(hh);
 }
