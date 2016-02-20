@@ -334,33 +334,33 @@ std::string CNeutrinoAPI::timerEventType2Str(CTimerd::CTimerEventTypes type)
 	std::string result;
 	switch (type) {
 	case CTimerd::TIMER_SHUTDOWN:
-		result = "Shutdown";
+		result = "{=L:timerlist.type.shutdown=}";
 		break;
 #if 0
 	case CTimerd::TIMER_NEXTPROGRAM:
-		result = "Next program";
+		result = "{=L:timerlist.type.nextprogram=}";
 		break;
 #endif
 	case CTimerd::TIMER_ZAPTO:
-		result = "Zap to";
+		result = "{=L:timerlist.type.zapto=}";
 		break;
 	case CTimerd::TIMER_STANDBY:
-		result = "Standby";
+		result = "{=L:timerlist.type.standby=}";
 		break;
 	case CTimerd::TIMER_RECORD:
-		result = "Record";
+		result = "{=L:timerlist.type.record=}";
 		break;
 	case CTimerd::TIMER_REMIND:
-		result = "Reminder";
+		result = "{=L:timerlist.type.remind=}";
 		break;
 	case CTimerd::TIMER_EXEC_PLUGIN:
-		result = "Execute plugin";
+		result = "{=L:timerlist.type.execplugin=}";
 		break;
 	case CTimerd::TIMER_SLEEPTIMER:
-		result = "Sleeptimer";
+		result = "{=L:timerlist.type.sleeptimer=}";
 		break;
 	default:
-		result = "Unknown";
+		result = "{=L:timerlist.type.unknown=}";
 		break;
 	}
 	return result;
@@ -373,49 +373,49 @@ std::string CNeutrinoAPI::timerEventRepeat2Str(CTimerd::CTimerEventRepeat rep)
 	std::string result;
 	switch (rep) {
 	case CTimerd::TIMERREPEAT_ONCE:
-		result = "once";
+		result = "{=L:timerlist.repeat.once=}";
 		break;
 	case CTimerd::TIMERREPEAT_DAILY:
-		result = "daily";
+		result = "{=L:timerlist.repeat.daily=}";
 		break;
 	case CTimerd::TIMERREPEAT_WEEKLY:
-		result = "weekly";
+		result = "{=L:timerlist.repeat.weekly=}";
 		break;
 	case CTimerd::TIMERREPEAT_BIWEEKLY:
-		result = "2-weekly";
+		result = "{=L:timerlist.repeat.biweekly=}";
 		break;
 	case CTimerd::TIMERREPEAT_FOURWEEKLY:
-		result = "4-weekly";
+		result = "{=L:timerlist.repeat.fourweekly=}";
 		break;
 	case CTimerd::TIMERREPEAT_MONTHLY:
-		result = "monthly";
+		result = "{=L:timerlist.repeat.monthly=}";
 		break;
 	case CTimerd::TIMERREPEAT_BYEVENTDESCRIPTION:
-		result = "event";
+		result = "{=L:timerlist.repeat.byeventdescription=}";
 		break;
 	case CTimerd::TIMERREPEAT_WEEKDAYS:
-		result = "weekdays";
+		result = "{=L:timerlist.repeat.weekdays=}";
 		break;
 	default:
 		if (rep > CTimerd::TIMERREPEAT_WEEKDAYS)
 		{
 			if (rep & 0x0200)
-				result += "Mo ";
+				result += "{=L:date.mo=} ";
 			if (rep & 0x0400)
-				result += "Tu ";
+				result += "{=L:date.tu=} ";
 			if (rep & 0x0800)
-				result += "We ";
+				result += "{=L:date.we=} ";
 			if (rep & 0x1000)
-				result += "Th ";
+				result += "{=L:date.th=} ";
 			if (rep & 0x2000)
-				result += "Fr ";
+				result += "{=L:date.fr=} ";
 			if (rep & 0x4000)
-				result += "Sa ";
+				result += "{=L:date.sa=} ";
 			if (rep & 0x8000)
-				result += "Su ";
+				result += "{=L:date.su=} ";
 		}
 		else
-			result = "Unknown";
+			result = "{=L:timerlist.type.unknown=}";
 	}
 	return result;
 }
@@ -427,7 +427,7 @@ std::string CNeutrinoAPI::getVideoAspectRatioAsString(void)
 	if (aspectRatio >= 0 && aspectRatio <= 4)
 		return videoformat_names[aspectRatio];
 	else
-		return "unknown";
+		return "{=L:unknown=}";
 }
 //-------------------------------------------------------------------------
 int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString)
@@ -457,7 +457,7 @@ std::string CNeutrinoAPI::getVideoResolutionAsString(void)
 std::string CNeutrinoAPI::getVideoFramerateAsString(void)
 {
 	int xres, yres, framerate;
-	std::string sframerate="unknown";
+	std::string sframerate = "{=L:unknown=}";
 	videoDecoder->getPictureInfo(xres, yres, framerate);
 	switch(framerate){
 		case 2:

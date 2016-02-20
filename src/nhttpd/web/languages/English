@@ -58,6 +58,7 @@ restriced_by_management_ip=restricted by ManagementIP
 automatic=automatically
 show=show
 hide=hide
+unknown=Unknown
 
 # ========== Dates
 date.su=Su

@@ -58,6 +58,7 @@ restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
 automatic=automatisch
 show=zeigen
 hide=verstecken
+unknown=Unbekannt
 
 # ========== Dates
 date.su=So
