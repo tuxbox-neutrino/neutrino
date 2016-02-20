@@ -538,3 +538,44 @@ std::string CyhookHandler::outNext() {
 		return "";
 }
 
+//-----------------------------------------------------------------------------
+void CyhookHandler::SendOk() {
+	std::string result = "";
+	switch (outType) {
+	case xml:
+		result = "<success>true</success>";
+		break;
+	case json:
+		result = "{\"success\": \"true\"}";
+		break;
+	default:
+		result = "ok";
+		break;
+	}
+	Write(result);
+}
+//-----------------------------------------------------------------------------
+void CyhookHandler::SendError(std::string error) {
+	std::string result = "";
+	switch (outType) {
+	case xml:
+		if (error.empty())
+			result = "<success>false</success>";
+		else
+			result = "<success>false<error>" + error + "</error></success>";
+		break;
+	case json:
+		if (error.empty())
+			result = "{\"success\": \"false\"}";
+		else
+			result = "{\"success\": \"false\", \"error\":{\"text\": \"" + error + "\"}}";
+		break;
+	default:
+		if (error.empty())
+			result = "error";
+		else
+			result = "error=" + error;
+		break;
+	}
+	Write(result);
+}
