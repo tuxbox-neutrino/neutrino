@@ -2996,7 +2996,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 	std::string result = "";
 	std::string configFileName = hh->ParamList["config"];
 
-	TOutType outType = hh->outStart(true /*old mode*/);
+	TOutType outType = hh->outStart();
 
 	if (hh->ParamList["action"] == "submit")
 		load = false;
@@ -3022,13 +3022,9 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 				replace(key, ".", "_dot_");
 				replace(key, "-", "_bind_");
 				if (!(hh->ParamList["config"] == "nhttpd" && it->first == "mod_auth.password")) {
-					if(outType == plain)
-						result += key + "=" + it->second + "\n";
-					else {
-						if(it != start)
-							result += hh->outNext();
-						result += hh->outPair(key, it->second, false);
-					}
+					if(it != start)
+						result += hh->outNext();
+					result += hh->outPair(key, it->second, false);
 				}
 			}
 		}
