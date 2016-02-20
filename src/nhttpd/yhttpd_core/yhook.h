@@ -194,6 +194,7 @@ public:
 	void SendHTMLFooter(void);
 	void SendOk(void);
 	void SendError(std::string error = "");
+	void SendResult(std::string _content);
 	void SendFile(const std::string& url)		{NewURL = url; status = HANDLED_SENDFILE;}
 	void SendRedirect(const std::string& url)	{httpStatus=HTTP_MOVED_TEMPORARILY; NewURL = url; status = HANDLED_REDIRECTION;}
 	void SendRewrite(const std::string& url)	{NewURL = url; status = HANDLED_REWRITE;}

@@ -579,3 +579,19 @@ void CyhookHandler::SendError(std::string error) {
 	}
 	Write(result);
 }
+//-----------------------------------------------------------------------------
+void CyhookHandler::SendResult(std::string _content) {
+	std::string result = "";
+	switch (outType) {
+	case xml:
+		result = _content;
+		break;
+	case json:
+		result = json_out_success(_content);
+		break;
+	default:
+		result = _content;
+		break;
+	}
+	WriteLn(result);
+}
