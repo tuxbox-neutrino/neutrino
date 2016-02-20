@@ -3289,13 +3289,7 @@ void CControlAPI::StatfsCGI(CyhookHandler *hh) {
 			hh->WriteLn(result);
 	}
 	else
-	{
-		if (outType == json)
-			hh->WriteLn(json_out_error("statfs failed"));
-		else
-			hh->SendError();
-	}
-
+		hh->SendError("statfs failed");
 }
 
 //-----------------------------------------------------------------------------
