@@ -1127,22 +1127,12 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh) {
 					}
 				}
 			result = hh->outArray("channels", result);
-			// write footer
-			if (outType == json) {
-				hh->WriteLn(json_out_success(result));
-			}
-			else {
-				hh->WriteLn(result);
-			}
+
+			hh->SendResult(result);
 		}
 	}
-	else {
-		if (hh->ParamList["format"] == "json") {
-			hh->WriteLn(json_out_error("no parameter"));
-		}
-		else
-			hh->WriteLn("error");
-	}
+	else
+		hh->SendError("no parameter");
 }
 
 //-------------------------------------------------------------------------
@@ -1258,13 +1248,8 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh) {
 		}
 	}
 	result = hh->outArray("bouquets", result);
-	// write footer
-	if (outType == json) {
-		hh->WriteLn(json_out_success(result));
-	}
-	else {
-		hh->WriteLn(result);
-	}
+
+	hh->SendResult(result);
 }
 //-----------------------------------------------------------------------------
 //	details EPG Information for channelid
@@ -1359,7 +1344,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
 	}
 
 	// ------ generate output ------
-	TOutType outType = hh->outStart(true /*old mode*/);
+	hh->outStart(true /*old mode*/);
 	std::string result = "";
 
 	NeutrinoAPI->eList.clear();
@@ -1400,13 +1385,8 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
 		result = channelEPGformated(hh, 0, channel_id, max, stoptime);
 
 	result = hh->outCollection("epglist", result);
-	// write footer
-	if (outType == json) {
-		hh->WriteLn(json_out_success(result));
-	}
-	else {
-		hh->WriteLn(result);
-	}
+
+	hh->SendResult(result);
 }
 //-------------------------------------------------------------------------------------------------
 inline static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
@@ -1459,7 +1439,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 
 	if (xml_format) // to stay backward compatible :/
 		hh->ParamList["format"] = "xml";
-	TOutType outType = hh->outStart(true /*old mode*/);
+	hh->outStart(true /*old mode*/);
 
 	/* TODO: maybe add following options as in tuxbox neutrino
 		hh->ParamList["epgitem"]
@@ -1593,16 +1573,13 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 #endif
 				}
 				hh->WriteLn("----------------------------------------------------------");
+				return;
 			}
 		}
 	}
 	result = hh->outArray("epgsearch", result);
-	if (outType == json) {
-		hh->WriteLn(json_out_success(result));
-	}
-	else if (outType == xml) {
-		hh->WriteLn(result);
-	}
+
+	hh->SendResult(result);
 }
 
 //-------------------------------------------------------------------------
@@ -2998,7 +2975,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 	std::string result = "";
 	std::string configFileName = hh->ParamList["config"];
 
-	TOutType outType = hh->outStart();
+	hh->outStart();
 
 	if (hh->ParamList["action"] == "submit")
 		load = false;
@@ -3048,15 +3025,10 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 			error = string_printf("no config defined for %s", (hh->ParamList["config"]).c_str());
 	}
 
-	// write footer
-	if (error.empty()) {
-		if (outType == json) {
-			hh->WriteLn(json_out_success(result));
-		}
-		else {
-			hh->WriteLn(hh->outCollection("config", result));
-		}
-	}
+	hh->WriteLn(hh->outCollection("config", result));
+
+	if (error.empty())
+		hh->SendResult(result);
 	else
 		hh->SendError(error);
 
@@ -3123,7 +3095,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 	if (hh->ParamList["action"] == "list") { // directory list: action=list&path=<path>
 		DIR *dirp;
 
-		TOutType outType = hh->outStart();
+		hh->outStart();
 
 		std::string path = hh->ParamList["path"];
 		if ((dirp = opendir(path.c_str()))) {
@@ -3202,10 +3174,8 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 			}
 		}
 		result = hh->outArray("filelist", result);
-		if (outType == json)
-			hh->WriteLn(json_out_success(result));
-		else
-			hh->WriteLn(result);
+
+		hh->SendResult(result);
 	}
 	// create new folder
 	else if (hh->ParamList["action"] == "new_folder") {
@@ -3261,7 +3231,7 @@ void CControlAPI::StatfsCGI(CyhookHandler *hh) {
 	if (hh->ParamList["path"].empty())
 		hh->ParamList["path"] = "/";
 
-	TOutType outType = hh->outStart();
+	hh->outStart();
 
 	std::string path = hh->ParamList["path"];
 	struct statfs s;
@@ -3283,10 +3253,7 @@ void CControlAPI::StatfsCGI(CyhookHandler *hh) {
 		result = hh->outArrayItem("path", item, false);
 		result = hh->outArray("statfs", result);
 
-		if (outType == json)
-			hh->WriteLn(json_out_success(result));
-		else
-			hh->WriteLn(result);
+		hh->SendResult(result);
 	}
 	else
 		hh->SendError("statfs failed");
@@ -3323,7 +3290,7 @@ void CControlAPI::getDirCGI(CyhookHandler *hh) {
 	std::string item = "";
 	bool isFirstLine = true;
 
-	TOutType outType = hh->outStart(true /*old mode*/);
+	hh->outStart(true /*old mode*/);
 
 	//Shows all 7 directories stored in the moviebrowser.conf
 	if (hh->ParamList["dir"] == "moviedir" || hh->ParamList["dir"] == "allmoviedirs" ) {
@@ -3373,13 +3340,8 @@ void CControlAPI::getDirCGI(CyhookHandler *hh) {
 
 
 	result = hh->outArray("dirs", result);
-	// write footer
-	if (outType == json) {
-		hh->WriteLn(json_out_success(result));
-	}
-	else {
-		hh->WriteLn(result);
-	}
+
+	hh->SendResult(result);
 }
 
 //Helpfunction to get subdirs of a dir
