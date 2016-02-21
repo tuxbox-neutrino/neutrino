@@ -1019,11 +1019,17 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entries, unsigned int po
 	char tmp_time[] = "00:00:00.0";
 	int w = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getRenderWidth(tmp_time);
 
-	m_frameBuffer->paintIcon(fileicon, m_x + 5 , ypos + (m_fheight - 16) / 2);
-	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + m_width - 15 - w, ypos + m_fheight,
-			w, info, color, m_fheight);
-	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + 30, ypos + m_fheight, m_width - 50 - w,
-			name, color, m_fheight);
+	int icon_w = 0;
+	int icon_h = 0;
+	int icon_o = 0;
+	m_frameBuffer->getIconSize(fileicon.c_str(), &icon_w, &icon_h);
+	if (icon_w && icon_h)
+	{
+		icon_o = icon_w + 10;
+		m_frameBuffer->paintIcon(fileicon, m_x + 10, ypos + (m_fheight - icon_h) / 2);
+	}
+	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + m_width - 15 - 10 - w, ypos + m_fheight, w, info, color, m_fheight);
+	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + 10 + icon_o, ypos + m_fheight, m_width - icon_o - 15 - 2*10 - w, name, color, m_fheight);
 }
 
 void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
