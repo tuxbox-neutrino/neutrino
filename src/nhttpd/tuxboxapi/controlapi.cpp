@@ -1203,7 +1203,7 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh) {
 	bool encode = false;
 	std::string result = "";
 
-	TOutType outType = hh->outStart(true /*old mode*/);
+	TOutType outType = hh->outStart();
 
 	if (hh->ParamList["showhidden"] == "false")
 		show_hidden = false;
@@ -1241,9 +1241,13 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh) {
 			bouquet = std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str());
 			if (encode)
 				bouquet = encodeString(bouquet); // encode (URLencode) the bouquetname
-			item = hh->outPair("number", string_printf("%u", i + 1), true);
-			if(outType == plain) item+= " ";
-			item += hh->outPair("name", bouquet, false);
+			if (outType == plain)
+				item = string_printf("%u", i + 1) + " " + bouquet + "\n";
+			else
+			{
+				item = hh->outPair("number", string_printf("%u", i + 1), true);
+				item += hh->outPair("name", bouquet, false);
+			}
 			result += hh->outArrayItem("bouquet", item, (i < size-1));
 		}
 	}
