@@ -264,7 +264,7 @@ void CControlAPI::Execute(CyhookHandler *hh)
 	else if(std::string(yCgiCallList[index].mime_type).empty())	// decide in function
 		;
 	else if(std::string(yCgiCallList[index].mime_type) == "+xml")		// Parameter xml?
-		if ((!hh->ParamList["xml"].empty()) ||(hh->ParamList["format"] == "xml"))
+		if (hh->getOutType() == xml)
 			hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
 		else
 			hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
@@ -314,7 +314,7 @@ void CControlAPI::TimerCGI(CyhookHandler *hh)
 			}
 		}
 		else {
-			if (hh->ParamList["format"] == "xml")
+			if (hh->getOutType() == xml)
 				SendTimersXML(hh);
 			else
 				SendTimers(hh);
@@ -400,9 +400,9 @@ void CControlAPI::ExecCGI(CyhookHandler *hh)
 	bool res = false;
 	std::string script, result;
 	// override standard header
-	if (hh->ParamList.size() > 1 && hh->ParamList["xml"].empty())
+	if (hh->ParamList.size() > 1 && (hh->getOutType() != xml))
 		hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
-	else if (hh->ParamList.size() > 1 && !hh->ParamList["xml"].empty())
+	else if (hh->ParamList.size() > 1 && (hh->getOutType() == xml))
 		hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
 	else
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
@@ -1608,7 +1608,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	bool param_empty = hh->ParamList.empty();
 	hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8"); // default
 	// Detailed EPG list in XML or JSON
-	if (!hh->ParamList["xml"].empty() || !hh->ParamList["json"].empty() || !hh->ParamList["detaillist"].empty()) {
+	if (hh->getOutType() == xml || hh->getOutType() == json || !hh->ParamList["detaillist"].empty()) {
 		epgDetailList(hh);
 	}
 	// Standard list normal or extended
@@ -1639,7 +1639,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	}
 	else if (!hh->ParamList["search"].empty())
 	{
-		SendFoundEvents(hh, (!hh->ParamList["xml"].empty() || hh->ParamList["format"] == "xml"));
+		SendFoundEvents(hh, (hh->getOutType() == xml));
 	}
 	// query details for given eventid
 	else if (!hh->ParamList["eventid"].empty()) {
