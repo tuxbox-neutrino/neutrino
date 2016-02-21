@@ -73,7 +73,7 @@ THandleStatus CyhookHandler::Hooks_SendResponse() {
 //-----------------------------------------------------------------------------
 THandleStatus CyhookHandler::Hooks_PrepareResponse() {
 	log_level_printf(4, "PrepareResponse Hook-List Start\n");
-	outType = checkOutput();
+	outType = getOutType();
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
 	for (; i != HookList.end(); ++i) {
@@ -392,28 +392,24 @@ void CyhookHandler::printf(const char *fmt, ...) {
 	Write(outbuf);
 }
 //-----------------------------------------------------------------------------
-TOutType CyhookHandler::checkOutput() {
-	// get outType
-	outType = plain; // plain
+TOutType CyhookHandler::getOutType() {
+	TOutType _outType = plain;
 	if(!(ParamList.empty())) {
 		if ((ParamList.find("format") != ParamList.end() && ParamList["format"] == "json")
 				|| (ParamList.find("json") != ParamList.end() && !(ParamList["json"].empty())) )
-			outType = json;
+			_outType = json;
 		else if ((ParamList.find("format") != ParamList.end() && ParamList["format"] == "xml")
 				|| (ParamList.find("xml") != ParamList.end() && !(ParamList["xml"].empty())) )
-			outType = xml;
+			_outType = xml;
 	}
-	return outType;
+	return _outType;
 }
 //-----------------------------------------------------------------------------
 TOutType CyhookHandler::outStart(bool single) {
-	outSingle = single; // for compatibility
+	// for compatibility
+	outSingle = single;
 	// get outType
-	outType = plain; // plain
-	if (ParamList["format"] == "json")
-		outType = json;
-	else if (ParamList["format"] == "xml" || !(ParamList["xml"].empty()) )
-		outType = xml;
+	outType = getOutType();
 	// set response header
 	if (outType == xml)
 		SetHeader(HTTP_OK, "text/xml; charset=UTF-8");

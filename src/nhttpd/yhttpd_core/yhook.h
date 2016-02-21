@@ -202,7 +202,7 @@ public:
 	int _outIndent;
 	TOutType outType;			// Outputtpe = plain (default)|xml|json
 	TOutType outStart(bool single = false);
-	TOutType checkOutput();
+	TOutType getOutType();
 	std::string outIndent();
 	std::string outPair(std::string _key, std::string _content, bool _next);
 	std::string outArray(std::string _key, std::string _content);
