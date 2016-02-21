@@ -178,6 +178,8 @@ void CComponentsText::initCCText()
 	ct_textbox->setTextRenderModeFullBG(!paint_bg);
 
 	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
+	x_old = iX = x + fr_thickness;
+	y_old = iY = y + fr_thickness;
 }
 
 void CComponentsText::clearCCText()
