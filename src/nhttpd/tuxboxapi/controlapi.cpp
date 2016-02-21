@@ -385,13 +385,37 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::GetModeCGI(CyhookHandler *hh)
 {
-	int mode = NeutrinoAPI->Zapit->getMode();
-	if ( mode == CZapitClient::MODE_TV)
-		hh->WriteLn("tv");
-	else if ( mode == CZapitClient::MODE_RADIO)
-		return hh->WriteLn("radio");
+	hh->outStart();
+
+	std::string result = "";
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	if (mode == NeutrinoMessages::mode_tv)
+		result = "tv";
+	else if (mode == NeutrinoMessages::mode_radio)
+		result = "radio";
+	else if (mode == NeutrinoMessages::mode_scart)
+		result = "scart";
+	else if (mode == NeutrinoMessages::mode_standby)
+		result = "standby";
+	else if (mode == NeutrinoMessages::mode_audio)
+		result = "audio";
+	else if (mode == NeutrinoMessages::mode_pic)
+		result = "pic";
+	else if (mode == NeutrinoMessages::mode_ts)
+		result = "ts";
+	else if (mode == NeutrinoMessages::mode_webtv)
+		result = "webtv";
+	else if (mode == NeutrinoMessages::mode_upnp)
+		result = "upnp";
 	else
-		return hh->WriteLn("unknown");
+		result = "unknown";
+
+	if (hh->getOutType() != plain)
+	{
+		result = hh->outPair("mode", result, false);
+		result = hh->outCollection("getmode", result);
+	}
+	hh->SendResult(result);
 }
 
 //-----------------------------------------------------------------------------
