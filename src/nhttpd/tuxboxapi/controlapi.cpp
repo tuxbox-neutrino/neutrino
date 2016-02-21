@@ -3210,7 +3210,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
  * @code
  * {"success": "true", "data":
  * {
- * 	"statfs": [{
+ * 	"statfs": {
  * 		"path": "/media/sda1/movies",
  * 		"f_type": "0x4d44",
  * 		"f_bsize": "4096",
@@ -3222,7 +3222,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
  * 		"f_fsid": "0x801, 0",
  * 		"f_namelen": "1530",
  * 		"f_frsize": "24"
- * 	}]
+ * 	}
  * }}
  * @endcode
  */
@@ -3252,8 +3252,7 @@ void CControlAPI::StatfsCGI(CyhookHandler *hh) {
 		item += hh->outPair("f_namelen", string_printf("%lu", (unsigned long) s.f_namelen), true);
 		item += hh->outPair("f_frsize", string_printf("%lu", (unsigned long) s.f_frsize), false);
 
-		result = hh->outArrayItem("path", item, false);
-		result = hh->outArray("statfs", result);
+		result = hh->outCollection("statfs", item);
 
 		hh->SendResult(result);
 	}
