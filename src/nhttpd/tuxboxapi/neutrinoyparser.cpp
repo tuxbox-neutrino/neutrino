@@ -358,9 +358,12 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	for(int j = 0; j < (int) channels.size(); j++)
 	{
 		CZapitChannel * channel = channels[j];
-		CChannelEvent *event;
+		CChannelEvent event;
+		event.eventID = 0;
 		NeutrinoAPI->Lock();
-		event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
+		CChannelEvent * evt = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
+		if (evt)
+			event = *evt;
 		NeutrinoAPI->Unlock();
 
 		classname = (i++ & 1) ? 'a' : 'b';
@@ -399,9 +402,9 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		}
 
 		/* timer slider */
-		if(event && event->duration > 0)
+		if(event.eventID && event.duration > 0)
 		{
-			prozent = 100 * (time(NULL) - event->startTime) / event->duration;
+			prozent = 100 * (time(NULL) - event.startTime) / event.duration;
 			yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
 					"\t<table border=\"0\" rules=\"none\" class=\"cslider cslider_table\">"
 					"<tr>"
@@ -441,7 +444,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				(channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : "",
 				channel->getChannelID(),
 				channel->getChannelID() & 0xFFFFFFFFFFFFULL,
-				(event ? "<img src=\"/images/elist.png\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
+				(event.eventID ? "<img src=\"/images/elist.png\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
 
 		if (channel->getChannelID() == current_channel)
 			yresult += string_printf("\n&nbsp;&nbsp;<a href=\"javascript:do_streaminfo()\"><img src=\"/images/streaminfo.png\" alt=\"Streaminfo\" style=\"border: 0px\" /></a>");
@@ -491,11 +494,11 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			}
 		}
 
-		else if (event)
+		else if (event.eventID)
 		{
 			bool has_current_next = true;
 			CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
-			timestr = timeString(event->startTime);
+			timestr = timeString(event.startTime);
 
 			CShortEPGData epg;
 			std::string EPGInfoC = "";
@@ -510,9 +513,9 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 					"<span style=\"font-size: 8pt; white-space: nowrap\">(%ld {=L:from=} %d {=L:unit.short.minute=}, %d%%)</span>"
 					, timestr.c_str()
 					, EPGInfoC.c_str()
-					, event->description.c_str()
-					, (time(NULL) - event->startTime)/60
-					, event->duration / 60,prozent);
+					, event.description.c_str()
+					, (time(NULL) - event.startTime)/60
+					, event.duration / 60,prozent);
 
 			if ((has_current_next) && (currentNextInfo.flags & CSectionsdClient::epgflags::has_next)) {
 				std::string EPGInfoN = "";
