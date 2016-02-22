@@ -375,12 +375,20 @@ int CNVODChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
 
 int CMoviePluginChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
 {
-	int sel= atoi(actionKey.c_str());
-	parent->hide();
-	if (sel>=0)
+	if (parent)
+		parent->hide();
+
+	if (actionKey == "---")
 	{
-			g_settings.movieplayer_plugin=g_PluginList->getName(sel);
+		g_settings.movieplayer_plugin = actionKey;
 	}
+	else
+	{
+		int sel = atoi(actionKey.c_str());
+		if (sel >= 0)
+			g_settings.movieplayer_plugin = g_PluginList->getName(sel);
+	}
+
 	return menu_return::RETURN_EXIT;
 }
 

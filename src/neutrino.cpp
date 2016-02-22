@@ -638,7 +638,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_startstop_msg	   = configfile.getBool("recording_startstop_msg"     , true);
 
 	// default plugin for movieplayer
-	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "noplugin" );
+	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "---" );
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/media/sda1/plugins" );
 
 	g_settings.plugins_disabled = configfile.getString( "plugins_disabled", "" );

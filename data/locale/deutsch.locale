@@ -1772,7 +1772,7 @@ movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
 movieplayer.chapters Kapitel
-movieplayer.defplugin Start-Plugin
+movieplayer.plugin Movieplayer-Plugin
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
 movieplayer.starting Wiedergabe starten...
@@ -1996,6 +1996,7 @@ ping.unreachable ist nicht erreichbar (unerreichbar)
 pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verz.
+plugins.no_plugin Kein Plugin
 plugins.result Pluginausgabe
 plugintype.disabled Deaktiviert
 plugintype.game Spiel

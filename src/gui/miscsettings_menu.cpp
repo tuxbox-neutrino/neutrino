@@ -100,11 +100,11 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "movieplayer_plugin")
 	{
-		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);
+		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_PLUGIN, NEUTRINO_ICON_FEATURES);
 		MoviePluginSelector.addItem(GenericMenuSeparator);
-
+		MoviePluginSelector.addItem(new CMenuForwarder(LOCALE_PLUGINS_NO_PLUGIN, true, NULL, new CMoviePluginChangeExec(), "---", CRCInput::RC_red));
+		MoviePluginSelector.addItem(GenericMenuSeparatorLine);
 		char id[5];
-		int cnt = 0;
 		int enabled_count = 0;
 		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++)
 		{
@@ -112,8 +112,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 			{
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new CMoviePluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
-				cnt++;
+				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new CMoviePluginChangeExec(), id, CRCInput::convertDigitToKey(count)));
 			}
 		}
 
