@@ -1567,38 +1567,32 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 				snprintf(tmpstr, sizeof(tmpstr)," [%d min]",eventIterator->duration / 60);
 				datetimer_str += tmpstr;
 
-				hh->WriteLn(datetimer_str);
-				hh->WriteLn(NeutrinoAPI->GetServiceName(eventIterator->channelID));
-				hh->WriteLn(epg.title);
+				result += hh->outSingle(datetimer_str);
+				result += hh->outSingle(NeutrinoAPI->GetServiceName(eventIterator->channelID));
+				result += hh->outSingle(epg.title);
 				if (return_epginfo) {
 					if(!epg.info1.empty())
-						hh->WriteLn(epg.info1);
+						result += hh->outSingle(epg.info1);
 					if(!epg.info2.empty())
-						hh->WriteLn(epg.info2);
+						result += hh->outSingle(epg.info2);
 				}
 				if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
-					hh->printf("fsk:%u\n", longepg.fsk);
+					result += hh->outSingle(string_printf("fsk:%u", longepg.fsk));
+					genre = "";
 #ifdef FULL_CONTENT_CLASSIFICATION
-					if (!longepg.contentClassification.empty()){
+					if (!longepg.contentClassification.empty())
 						genre = GetGenre(longepg.contentClassification[0]);
-						genre = ZapitTools::UTF8_to_UTF8XML(genre.c_str());
-						hh->WriteLn(genre);
-					}
 #else
-					if (longepg.contentClassification) {
+					if (longepg.contentClassification)
 						genre = GetGenre(longepg.contentClassification);
-						genre = ZapitTools::UTF8_to_UTF8XML(genre.c_str());
-						hh->WriteLn(genre);
-					}
 #endif
+					if(!genre.empty())
+						result += hh->outSingle(ZapitTools::UTF8_to_UTF8XML(genre.c_str()));
 				}
-				hh->WriteLn("----------------------------------------------------------");
+				result += hh->outSingle("----------------------------------------------------------");
 			}
 		}
 	}
-	if (hh->outType == plain)
-		return;
-
 	result = hh->outArray("epgsearch", result);
 
 	hh->SendResult(result);
