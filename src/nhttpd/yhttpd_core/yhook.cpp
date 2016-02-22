@@ -425,6 +425,11 @@ std::string CyhookHandler::outIndent() {
 }
 
 //-----------------------------------------------------------------------------
+std::string CyhookHandler::outSingle(std::string _content) {
+	return _content + "\n";
+}
+
+//-----------------------------------------------------------------------------
 std::string CyhookHandler::outPair(std::string _key, std::string _content, bool _next) {
 	std::string result = "";
 	switch (outType) {

@@ -204,6 +204,7 @@ public:
 	TOutType outStart(bool single = false);
 	TOutType getOutType();
 	std::string outIndent();
+	std::string outSingle(std::string _content);
 	std::string outPair(std::string _key, std::string _content, bool _next);
 	std::string outArray(std::string _key, std::string _content);
 	std::string outArrayItem(std::string _key, std::string _content, bool _next);
