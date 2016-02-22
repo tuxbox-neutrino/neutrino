@@ -88,8 +88,8 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 
 	iX = x 		= x_old = x_pos; //TODO: equalize inhertited member names
 	iY = y 		= y_old = y_pos;
-	iWidth=width 	= w;
-	iHeight=height 	= h;
+	iWidth		= width_old = width 	= w;
+	iHeight		= height_old = height 	= h;
 
 	/* we need a minimal borderwith of 1px because the edge-smoothing
 	(or fontrenderer?) otherwise will paint single pixels outside the
@@ -126,15 +126,18 @@ void CComponentsText::initCCText()
 	//init CBox dimensions
 	iWidth 	= width-2*fr_thickness;
 	iHeight	= height-2*fr_thickness;
-	iX = x + fr_thickness;
-	iY = y + fr_thickness;
 
 	//using of real x/y values to paint textbox if this text object is bound in a parent form
 	if (cc_parent){
 		int th_parent_fr = cc_parent->getFrameThickness();
 		iX = cc_xr + (x <= th_parent_fr ? th_parent_fr : 0);
 		iY = cc_yr - (y <= th_parent_fr ? th_parent_fr : 0);
+	}else{
+		iX = x;
+		iY = y;
 	}
+	iX += fr_thickness;
+	iY += fr_thickness;
 
 	//init textbox
 	if (ct_textbox == NULL)
@@ -177,9 +180,7 @@ void CComponentsText::initCCText()
 	//ensure clean font rendering on transparency background
 	ct_textbox->setTextRenderModeFullBG(!paint_bg);
 
-	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
-	x_old = iX = x + fr_thickness;
-	y_old = iY = y + fr_thickness;
+// 	dprintf(DEBUG_NORMAL, "[CComponentsText]   [%s - %d] init text: %s [x %d x_old %d, y %d y_old %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->x, x_old, this->y, y_old, this->iWidth, this->iHeight);
 }
 
 void CComponentsText::clearCCText()
@@ -285,22 +286,26 @@ void CComponentsText::hide()
 
 void CComponentsText::setXPos(const int& xpos)
 {
-	iX = x = xpos;
+	CCDraw::setXPos(xpos);
+	iX = x;
 }
 
 void CComponentsText::setYPos(const int& ypos)
 {
-	iY = y = ypos;
+	CCDraw::setYPos(ypos);
+	iY = y;
 }
 
 void CComponentsText::setHeight(const int& h)
 {
-	iHeight = height = h;
+	CCDraw::setHeight(h);
+	iHeight = height;
 }
 
 void CComponentsText::setWidth(const int& w)
 {
-	iWidth = width = w;
+	CCDraw::setWidth(w);
+	iWidth = width;
 }
 
 //small helper to remove excessiv linbreaks
