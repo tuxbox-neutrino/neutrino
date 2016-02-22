@@ -1452,7 +1452,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 	CChannelEventList evtlist;
 
 	bool search_epginfo = (hh->ParamList["epginfo"] != "false");
-	bool return_epginfo = (hh->ParamList["epginfo"] == "true");
+	bool return_epginfo = (hh->ParamList["epginfo"] == "true" || hh->ParamList["epginfo"].empty());
 
 	std::string search_keyword = (hh->ParamList["search"].empty()) ? hh->ParamList["1"] : hh->ParamList["search"];
 	const int search_epg_item = search_epginfo ? 5 /*SEARCH_EPG_ALL*/ : 1 /*SEARCH_EPG_TITLE*/;
@@ -1593,10 +1593,12 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 #endif
 				}
 				hh->WriteLn("----------------------------------------------------------");
-				return;
 			}
 		}
 	}
+	if (hh->outType == plain)
+		return;
+
 	result = hh->outArray("epgsearch", result);
 
 	hh->SendResult(result);
