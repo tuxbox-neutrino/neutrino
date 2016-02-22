@@ -28,7 +28,7 @@ CyhookHandler::CyhookHandler()
 	Method = M_UNKNOWN;
 	httpStatus = HTTP_NIL;
 	outType = plain;
-	outSingle = false;
+	nonPair = false;
 	LastModified=0;
 }
 
@@ -407,7 +407,7 @@ TOutType CyhookHandler::getOutType() {
 //-----------------------------------------------------------------------------
 TOutType CyhookHandler::outStart(bool single) {
 	// for compatibility
-	outSingle = single;
+	nonPair = single;
 	// get outType
 	outType = getOutType();
 	// set response header
@@ -437,7 +437,7 @@ std::string CyhookHandler::outPair(std::string _key, std::string _content, bool 
 			result += ",";
 		break;
 	default:
-		if (outSingle)
+		if (nonPair)
 			result = _content;
 		else
 			result = _key + "=" + _content;

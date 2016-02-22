@@ -139,7 +139,7 @@ public:
 	std::string	Sendfile;		// Path & Name (local os style) of file to send
 	bool		keep_alive;
 	bool		cached;			// cached by mod_cache
-	bool		outSingle;
+	bool		nonPair;
 
 	// Input
 	CStringList 	ParamList;		// local copy of ParamList (Request)
