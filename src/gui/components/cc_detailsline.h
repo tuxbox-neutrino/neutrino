@@ -61,15 +61,18 @@ class CComponentsDetailLine : public CComponents
 		~CComponentsDetailLine();
 
 		///set colors
-		inline void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
+		void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
 		///set colors with system settings
 		void syncSysColors();
 		///set property: lowest y position
-		inline void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
+		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
 		///set property: height of top marker
-		inline void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_;};
+		void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_;};
 		///property: height of bottom marker
-		inline void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
+		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
+		///set all positions and dimensions of details line at once
+		void setDimensionsAll(const int& x_pos,const int& y_pos, const int& y_pos_down, const int& h_mark_top_ , const int& h_mark_down_)
+					{setXPos(x_pos); setYPos(y_pos); setYPosDown(y_pos_down); setHMarkTop(h_mark_top_); setHMarkDown(h_mark_down_);}
 
 		///paint all to screen
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
