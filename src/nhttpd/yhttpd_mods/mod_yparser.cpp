@@ -397,7 +397,7 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 					yresult = "<!-- " + comment_html + " -->";
 			}
 		} else if (ycmd_type == "script")
-			yresult = YexecuteScript(hh, ycmd_name);
+			yresult = yExecuteScript(ycmd_name);
 		else if (ycmd_type == "if-empty") {
 			std::string if_value, if_then, if_else;
 			if (ySplitString(ycmd_name, "~", if_value, if_then)) {
@@ -634,54 +634,6 @@ std::string CyParser::YWeb_cgi_include_block(std::string filename,
 				filename.c_str(), blockname.c_str());
 
 	return yresult;
-}
-
-//-------------------------------------------------------------------------
-
-std::string CyParser::YexecuteScript(CyhookHandler *, std::string cmd) {
-	std::string script, para, result;
-	bool found = false;
-
-	// split script and parameters
-	int pos;
-	if ((pos = cmd.find_first_of(" ")) > 0) {
-		script = cmd.substr(0, pos);
-		para = cmd.substr(pos + 1, cmd.length() - (pos + 1)); // snip
-	} else
-		script = cmd;
-	// get file
-	std::string fullfilename;
-	script += ".sh"; //add script extention
-
-	char cwd[255];
-	getcwd(cwd, 254);
-	for (unsigned int i = 0; i < PLUGIN_DIR_COUNT && !found; i++) {
-		fullfilename = PLUGIN_DIRS[i] + "/" + script;
-		FILE *test = fopen(fullfilename.c_str(), "r"); // use fopen: popen does not work
-		if (test != NULL) {
-			fclose(test);
-			chdir(PLUGIN_DIRS[i].c_str());
-			FILE *f = popen((fullfilename + " " + para).c_str(), "r"); //execute
-			if (f != NULL) {
-				found = true;
-
-				char output[1024];
-				while (fgets(output, 1024, f)) // get script output
-					result += output;
-				pclose(f);
-			}
-		}
-	}
-	chdir(cwd);
-
-	if (!found) {
-		printf("<yparser> script %s not found in\n", script.c_str());
-		for (unsigned int i = 0; i < PLUGIN_DIR_COUNT; i++) {
-			printf("%s\n", PLUGIN_DIRS[i].c_str());
-		}
-		result = "error";
-	}
-	return result;
 }
 
 //=============================================================================

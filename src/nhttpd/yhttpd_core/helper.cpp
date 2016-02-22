@@ -11,8 +11,11 @@
 #include <sstream>
 #include <iomanip>
 
+#include <unistd.h>
+
 // yhttpd
 #include <yconfig.h>
+#include <tuxboxapi/controlapi.h>
 #include "ytypes_globals.h"
 #include "helper.h"
 #include "ylogging.h"
@@ -353,4 +356,52 @@ std::string json_convert_string(std::string s) {
 		++i;
 	}
 	return ss.str();
+}
+
+std::string yExecuteScript(std::string cmd) {
+	std::string script, para, result;
+	bool found = false;
+
+	//aprintf("%s: %s\n", __func__, cmd.c_str());
+
+	// split script and parameters
+	int pos;
+	if ((pos = cmd.find_first_of(" ")) > 0) {
+		script = cmd.substr(0, pos);
+		para = cmd.substr(pos + 1, cmd.length() - (pos + 1)); // snip
+	} else
+		script = cmd;
+	// get file
+	std::string fullfilename;
+	script += ".sh"; //add script extention
+
+	char cwd[255];
+	getcwd(cwd, 254);
+	for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT && !found; i++) {
+		fullfilename = CControlAPI::PLUGIN_DIRS[i] + "/" + script;
+		FILE *test = fopen(fullfilename.c_str(), "r"); // use fopen: popen does not work
+		if (test != NULL) {
+			fclose(test);
+			chdir(CControlAPI::PLUGIN_DIRS[i].c_str());
+			FILE *f = popen((fullfilename + " " + para).c_str(), "r"); //execute
+			if (f != NULL) {
+				found = true;
+
+				char output[1024];
+				while (fgets(output, 1024, f)) // get script output
+					result += output;
+				pclose(f);
+			}
+		}
+	}
+	chdir(cwd);
+
+	if (!found) {
+		printf("%s: script %s not found in:\n", __func__, script.c_str());
+		for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT; i++) {
+			printf("\t%s\n", CControlAPI::PLUGIN_DIRS[i].c_str());
+		}
+		result = "error";
+	}
+	return result;
 }

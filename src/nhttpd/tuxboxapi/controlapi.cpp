@@ -194,7 +194,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"rcem",		&CControlAPI::RCEmCGI,			"text/plain"},
 	// Start skripts, plugins
 	{"startplugin",		&CControlAPI::StartPluginCGI,		"text/plain"},
-	{"exec",		&CControlAPI::ExecCGI,			"+xml"},
+	{"exec",		&CControlAPI::ExecCGI,			"text/plain"},
 	{"yweb",		&CControlAPI::YWebCGI,			"text/plain"},
 	// video & Audio handling
 	{"aspectratio",		&CControlAPI::AspectRatioCGI,		"text/plain"},
@@ -421,16 +421,8 @@ void CControlAPI::GetModeCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::ExecCGI(CyhookHandler *hh)
 {
-	bool res = false;
 	std::string script, result;
-	// override standard header
-	if (hh->ParamList.size() > 1 && (hh->getOutType() != xml))
-		hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
-	else if (hh->ParamList.size() > 1 && (hh->getOutType() == xml))
-		hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
-	else
-		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
-	if ( !hh->ParamList.empty() )
+	if (!hh->ParamList.empty() )
 	{
 		script = hh->ParamList["1"];
 		unsigned int len = hh->ParamList.size();
@@ -440,16 +432,18 @@ void CControlAPI::ExecCGI(CyhookHandler *hh)
 				script += " ";
 				script += hh->ParamList[itoa(y)];
 			}
-		result = YexecuteScript(hh, script);
+		result = yExecuteScript(script);
 	}
 	else
-		printf("[CControlAPI] no script given\n");
+	{
+		log_level_printf(0, "[%s] no script given\n", __func__);
+		result = "error";
+	}
 
-	res = (result != "error");
-	if (res)
-		hh->Write(result);
-	else
+	if (result == "error")
 		hh->SetError(HTTP_NOT_FOUND);
+	else
+		hh->WriteLn(result);
 }
 
 //-----------------------------------------------------------------------------
@@ -2433,59 +2427,6 @@ void CControlAPI::YWeb_SendRadioStreamingPid(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
-std::string CControlAPI::YexecuteScript(CyhookHandler *, std::string cmd)
-{
-	std::string script, para, result;
-	bool found = false;
-
-	// split script and parameters
-	int pos;
-	if ((pos = cmd.find_first_of(" ")) > 0)
-	{
-		script = cmd.substr(0, pos);
-		para = cmd.substr(pos+1,cmd.length() - (pos+1)); // snip
-	}
-	else
-		script=cmd;
-	// get file
-	std::string fullfilename;
-	script += ".sh"; //add script extention
-	char cwd[255]={0};
-	getcwd(cwd, 254);
-
-	for (unsigned int i=0; i<PLUGIN_DIR_COUNT && !found; i++)
-	{
-		fullfilename = PLUGIN_DIRS[i]+"/"+script;
-		FILE *test =fopen(fullfilename.c_str(),"r"); // use fopen: popen does not work
-		if( test != NULL )
-		{
-			fclose(test);
-			chdir(PLUGIN_DIRS[i].c_str());
-			FILE *f = popen( (fullfilename+" "+para).c_str(),"r"); //execute
-			if (f != NULL)
-			{
-				found = true;
-
-				char output[1024];
-				while (fgets(output,1024,f)) // get script output
-					result += output;
-				pclose(f);
-			}
-		}
-	}
-	chdir(cwd);
-
-	if (!found)
-	{
-		printf("[CControlAPI] script %s not found in\n",script.c_str());
-		for (unsigned int i=0; i<PLUGIN_DIR_COUNT; i++) {
-			printf("%s\n",PLUGIN_DIRS[i].c_str());
-		}
-		result="error";
-	}
-	return result;
-}
-//-------------------------------------------------------------------------
 void CControlAPI::doModifyTimer(CyhookHandler *hh)
 {
 	hh->ParamList["update"]="1";
