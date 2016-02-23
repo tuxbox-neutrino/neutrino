@@ -413,7 +413,7 @@ void CControlAPI::GetModeCGI(CyhookHandler *hh)
 	if (hh->getOutType() != plain)
 	{
 		result = hh->outPair("mode", result, false);
-		result = hh->outCollection("getmode", result);
+		result = hh->outObject("getmode", result);
 	}
 	hh->SendResult(result);
 }
@@ -938,13 +938,13 @@ void CControlAPI::LogolistCGI(CyhookHandler *hh)
 
 			id = hh->outPair("short", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL), true);
 			id += hh->outPair("long", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()), false);
-			item += hh->outCollection("id", id, files);
+			item += hh->outObject("id", id, files);
 
 			if (files)
 			{
 				logo = hh->outPair("used", logo_used, true);
 				logo += hh->outPair("real", logo_real, false);
-				item += hh->outCollection("logo", logo);
+				item += hh->outObject("logo", logo);
 			}
 		}
 		if (isFirstLine)
@@ -1007,11 +1007,11 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 
 	result += hh->outPair("isActiveChannel", (channel->getChannelID() == current_channel) ? "true" : "false", (!firstEPG.empty()));
 	if(!firstEPG.empty()) {
-		result += hh->outCollection("firstEPG", firstEPG);
+		result += hh->outObject("firstEPG", firstEPG);
 	}
 	if(!secondEPG.empty()) {
 		result += hh->outNext();
-		result += hh->outCollection("secondEPG", secondEPG);
+		result += hh->outObject("secondEPG", secondEPG);
 	}
 	return result;
 }
@@ -1329,7 +1329,7 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 	channelData += hh->outPair("channel_short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id & 0xFFFFFFFFFFFFULL), true);
 	channelData += hh->outPair("channel_name", hh->outValue(NeutrinoAPI->GetServiceName(channel_id)), false);
 	if(hh->outType == json)
-		channelData = hh->outCollection("channelData", channelData);
+		channelData = hh->outObject("channelData", channelData);
 	int i = 0;
 	CChannelEventList::iterator eventIterator;
 	bool isFirstLine = true;
@@ -1451,7 +1451,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
 		// list one channel, no bouquetnr given
 		result = channelEPGformated(hh, 0, channel_id, max, stoptime);
 
-	result = hh->outCollection("epglist", result);
+	result = hh->outObject("epglist", result);
 
 	hh->SendResult(result);
 }
@@ -3035,7 +3035,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 			error = string_printf("no config defined for %s", (hh->ParamList["config"]).c_str());
 	}
 
-	hh->WriteLn(hh->outCollection("config", result));
+	hh->WriteLn(hh->outObject("config", result));
 
 	if (error.empty())
 		hh->SendResult(result);
@@ -3260,7 +3260,7 @@ void CControlAPI::StatfsCGI(CyhookHandler *hh) {
 		item += hh->outPair("f_namelen", string_printf("%lu", (unsigned long) s.f_namelen), true);
 		item += hh->outPair("f_frsize", string_printf("%lu", (unsigned long) s.f_frsize), false);
 
-		result = hh->outCollection("statfs", item);
+		result = hh->outObject("statfs", item);
 
 		hh->SendResult(result);
 	}

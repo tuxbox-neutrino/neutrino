@@ -495,7 +495,7 @@ std::string CyhookHandler::outArrayItem(std::string _key, std::string _content, 
 	return result;
 }
 //-----------------------------------------------------------------------------
-std::string CyhookHandler::outCollection(std::string _key, std::string _content, bool _next) {
+std::string CyhookHandler::outObject(std::string _key, std::string _content, bool _next) {
 	std::string result = "";
 	switch (outType) {
 	case xml:
