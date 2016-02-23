@@ -877,38 +877,85 @@ void CControlAPI::ChannellistCGI(CyhookHandler *hh)
 
 void CControlAPI::LogolistCGI(CyhookHandler *hh)
 {
+	hh->outStart();
+
 	std::string result = "";
+	bool isFirstLine = true;
+
+	bool files = false;
+	unsigned int s = hh->ParamList.size();
+	for (unsigned int i = 1; i <= s; i++)
+	{
+		files = (hh->ParamList[itoa(i)] == "files" && hh->ParamList["files"] != "false");
+		if (files)
+			break;
+	}
+
 	int mode = NeutrinoAPI->Zapit->getMode();
 	CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++)
 	{
+		std::string item = "";
+		std::string id = "";
+		std::string logo = "";
+
 		std::vector<t_channel_id> v;
 		CZapitChannel * channel = *cit;
 		size_t pos = std::find(v.begin(), v.end(), channel->getChannelID()) - v.begin();
 		if (pos < v.size())
 			continue;
 		v.push_back(channel->getChannelID());
-		result += string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS";%s;" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"", channel->getChannelID(), channel->getName().c_str(), (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
 
-		if (hh->ParamList["1"].compare("files") == 0)
+		std::string logo_used = "";
+		std::string logo_real = "";
+		if (files)
 		{
-			std::string logoFile = "";
-			std::string logoLink = "";
-			char link[PATH_MAX + 1] = {0};
-			if (g_PicViewer->GetLogoName(channel->getChannelID(), NeutrinoAPI->GetServiceName(channel->getChannelID()), logoFile, NULL, NULL))
+			char _real[PATH_MAX + 1] = {0};
+			if (g_PicViewer->GetLogoName(channel->getChannelID(), NeutrinoAPI->GetServiceName(channel->getChannelID()), logo_used, NULL, NULL))
 			{
-				result += string_printf(";%s", logoFile.c_str());
-				realpath(logoFile.c_str(), link);
-				logoLink = string(link);
-				if (strcmp(logoFile.c_str(), logoLink.c_str()) != 0)
-					result += string_printf(";%s", logoLink.c_str());
+				realpath(logo_used.c_str(), _real);
+				logo_real = string(_real);
+				if (strcmp(logo_used.c_str(), logo_real.c_str()) == 0)
+					logo_real.clear();
 			}
 		}
 
-		result += "\n";
+		if (hh->outType == plain)
+		{
+			std::string outLine = string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS";%s;" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"", channel->getChannelID(), channel->getName().c_str(), (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
+			if (files)
+			{
+				if (!logo_used.empty())
+					outLine += string_printf(";%s", logo_used.c_str());
+				if (!logo_real.empty())
+					outLine += string_printf(";%s", logo_real.c_str());
+			}
+			item = hh->outSingle(outLine);
+		}
+		else
+		{
+			item = hh->outPair("name", hh->outValue(channel->getName()), true);
+
+			id = hh->outPair("short", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL), true);
+			id += hh->outPair("long", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()), false);
+			item += hh->outCollection("id", id, files);
+
+			if (files)
+			{
+				logo = hh->outPair("used", logo_used, true);
+				logo += hh->outPair("real", logo_real, false);
+				item += hh->outCollection("logo", logo);
+			}
+		}
+		if (isFirstLine)
+			isFirstLine = false;
+		else
+			result += hh->outNext();
+		result += hh->outArrayItem("channel", item, false);
 	}
-	hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
-	hh->WriteLn(result);
+	result = hh->outArray("logolist", result);
+
+	hh->SendResult(result);
 }
 //-----------------------------------------------------------------------------
 // get actual and next event data for given channel
