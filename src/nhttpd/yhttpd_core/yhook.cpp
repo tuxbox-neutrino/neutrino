@@ -495,7 +495,7 @@ std::string CyhookHandler::outArrayItem(std::string _key, std::string _content, 
 	return result;
 }
 //-----------------------------------------------------------------------------
-std::string CyhookHandler::outCollection(std::string _key, std::string _content) {
+std::string CyhookHandler::outCollection(std::string _key, std::string _content, bool _next) {
 	std::string result = "";
 	switch (outType) {
 	case xml:
@@ -506,6 +506,8 @@ std::string CyhookHandler::outCollection(std::string _key, std::string _content)
 	case json:
 		//TODO: json check
 		result = outIndent() + "\"" + _key + "\": {" + _content + "}";
+		if(_next)
+			result += ",";
 		result += "\n";
 		break;
 	default:

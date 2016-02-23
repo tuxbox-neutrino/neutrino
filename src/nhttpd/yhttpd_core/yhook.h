@@ -208,7 +208,7 @@ public:
 	std::string outPair(std::string _key, std::string _content, bool _next);
 	std::string outArray(std::string _key, std::string _content);
 	std::string outArrayItem(std::string _key, std::string _content, bool _next);
-	std::string outCollection(std::string _key,std::string  _content);
+	std::string outCollection(std::string _key,std::string  _content, bool _next = false);
 	std::string outValue(std::string _content);
 	std::string outNext();
 	friend class CyParser;
