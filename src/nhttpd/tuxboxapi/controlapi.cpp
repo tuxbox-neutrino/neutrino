@@ -936,8 +936,8 @@ void CControlAPI::LogolistCGI(CyhookHandler *hh)
 		{
 			item = hh->outPair("name", hh->outValue(channel->getName()), true);
 
-			id = hh->outPair("short", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL), true);
-			id += hh->outPair("long", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()), false);
+			id = hh->outPair("id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()), true);
+			id += hh->outPair("short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL), false);
 			item += hh->outObject("id", id, files);
 
 			if (files)
