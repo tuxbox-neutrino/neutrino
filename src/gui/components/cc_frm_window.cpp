@@ -152,7 +152,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_show_l_sideber = false;
 	ccw_show_r_sideber = false;
 	ccw_w_sidebar	= 40;
-	ccw_col_head 	= COL_MENUCONTENT_PLUS_0;
+	ccw_col_head 	= COL_MENUHEAD_PLUS_0;
 	ccw_col_head_text = COL_MENUHEAD_TEXT;
 	ccw_col_footer	= COL_INFOBAR_SHADOW_PLUS_1;
 
