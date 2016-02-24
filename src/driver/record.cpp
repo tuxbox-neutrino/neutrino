@@ -395,15 +395,20 @@ void CRecordInstance::ProcessAPIDnames()
 		if (allpids.APIDs[count].component_tag != 0xFF)
 			has_unresolved_ctags= true;
 
-		if ( strlen( allpids.APIDs[count].desc ) == 3 )
-			strncpy( allpids.APIDs[count].desc, getISO639Description( allpids.APIDs[count].desc ),DESC_MAX_LEN -1 );
+		std::string tmp_desc = allpids.APIDs[count].desc;
+		if ( strlen( allpids.APIDs[count].desc ) == 3 ){
+			tmp_desc = getISO639Description( allpids.APIDs[count].desc );
+		}
 
-		if ( allpids.APIDs[count].is_ac3 && !strstr(allpids.APIDs[count].desc, " (AC3)"))
-			strncat(allpids.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
-		else if (allpids.APIDs[count].is_aac && !strstr(allpids.APIDs[count].desc, " (AAC)"))
-			strncat(allpids.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
-		else if (allpids.APIDs[count].is_eac3 && !strstr(allpids.APIDs[count].desc, " (EAC3)"))
-			strncat(allpids.APIDs[count].desc, " (EAC3)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
+		if ( allpids.APIDs[count].is_ac3 && tmp_desc.find(" (AC3)"))
+			tmp_desc += " (AC3)";
+		else if (allpids.APIDs[count].is_aac && tmp_desc.find(" (AAC)"))
+			tmp_desc += " (AAC)";
+		else if (allpids.APIDs[count].is_eac3 && tmp_desc.find(" (EAC3)"))
+			tmp_desc +=  " (EAC3)";
+		if(!tmp_desc.empty()){
+			strncpy( allpids.APIDs[count].desc, tmp_desc.c_str(),DESC_MAX_LEN -1) ;
+		}
 	}
 
 	if(has_unresolved_ctags && (epgid != 0)) {
@@ -413,13 +418,18 @@ void CRecordInstance::ProcessAPIDnames()
 				for(unsigned int j=0; j< allpids.APIDs.size(); j++) {
 					if(allpids.APIDs[j].component_tag == tags[i].componentTag) {
 						if(!tags[i].component.empty()) {
-							strncpy(allpids.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN -1);
-							if (allpids.APIDs[j].is_ac3 && !strstr(allpids.APIDs[j].desc, " (AC3)"))
-								strncat(allpids.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
-							else if (allpids.APIDs[j].is_aac && !strstr(allpids.APIDs[j].desc, " (AAC)"))
-								strncat(allpids.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
-							else if (allpids.APIDs[j].is_eac3 && !strstr(allpids.APIDs[j].desc, " (EAC3)"))
-								strncat(allpids.APIDs[j].desc, " (EAC3)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
+							std::string tmp_desc2;
+							tmp_desc2 = tags[i].component;
+							if (allpids.APIDs[j].is_ac3 && tmp_desc2.find(" (AC3)"))
+								tmp_desc2 += " (AC3)";
+							else if (allpids.APIDs[j].is_aac && tmp_desc2.find(" (AAC)"))
+								tmp_desc2 += " (AAC)";
+							else if (allpids.APIDs[j].is_eac3 && tmp_desc2.find(" (EAC3)"))
+								tmp_desc2 += " (EAC3)";
+
+							if(!tmp_desc2.empty()){
+								strncpy(allpids.APIDs[j].desc, tmp_desc2.c_str(), DESC_MAX_LEN -1);
+							}
 						}
 						allpids.APIDs[j].component_tag = -1;
 						break;
