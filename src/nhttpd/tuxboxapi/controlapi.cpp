@@ -1298,6 +1298,8 @@ void CControlAPI::GetChannelCGI(CyhookHandler *hh)
 {
 	hh->outStart();
 
+	std::string result = "";
+
 	t_channel_id channel_id = 0;
 	if (hh->ParamList["id"].empty())
 		channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -1308,10 +1310,14 @@ void CControlAPI::GetChannelCGI(CyhookHandler *hh)
 	{
 		NeutrinoAPI->GetChannelEvents();
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
-		std::string result = _GetBouquetWriteItem(hh, channel, -1, -1);
-		result = hh->outArray("channel", result);
-
-		hh->SendResult(result);
+		if (channel)
+		{
+			result = _GetBouquetWriteItem(hh, channel, -1, -1);
+			result = hh->outArray("channel", result);
+			hh->SendResult(result);
+		}
+		else
+			hh->SendError(hh->ParamList["id"] + " seems wrong");
 	}
 	else
 		hh->SendError();
