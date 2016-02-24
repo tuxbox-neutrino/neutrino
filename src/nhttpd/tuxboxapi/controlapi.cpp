@@ -990,6 +990,8 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 		event = *evt;
 	NeutrinoAPI->Unlock();
 
+	bool return_epginfo = (hh->ParamList["epginfo"] != "false");
+
 	result += hh->outPair("isActiveChannel", (channel->getChannelID() == current_channel) ? "true" : "false", false);
 
 	if (event.eventID) {
@@ -1001,7 +1003,7 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 
 		firstEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.current_uniqueKey), true);
 		firstEPG += hh->outPair("description", hh->outValue(event.description), true);
-		if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
+		if (return_epginfo && CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
 		{
 			firstEPG += hh->outPair("info1", hh->outValue(epg.info1), true);
 			firstEPG += hh->outPair("info2", hh->outValue(epg.info2), true);
@@ -1015,7 +1017,7 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 			timestr = timeString(currentNextInfo.next_zeit.startzeit);
 			secondEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.next_uniqueKey), true);
 			secondEPG += hh->outPair("description", hh->outValue(currentNextInfo.next_name), true);
-			if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.next_uniqueKey, &epg))
+			if (return_epginfo && CEitManager::getInstance()->getEPGidShort(currentNextInfo.next_uniqueKey, &epg))
 			{
 				secondEPG += hh->outPair("info1", hh->outValue(epg.info1), true);
 				secondEPG += hh->outPair("info2", hh->outValue(epg.info2), true);
