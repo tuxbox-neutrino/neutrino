@@ -1734,7 +1734,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 				item += hh->outPair("time", tmpstr, true);
 				item += hh->outPair("duration", string_printf("%d", eventIterator->duration / 60), true);
 				item += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, eventIterator->channelID), true);
-				item += hh->outPair("eventid", string_printf("%ld", eventIterator->eventID), false);
+				item += hh->outPair("eventid", string_printf("%llu", eventIterator->eventID), false);
 
 				result += hh->outArrayItem("item", item, got_next);
 			}
