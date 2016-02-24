@@ -133,7 +133,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_icon_name	= iconname;
 
 	dprintf(DEBUG_DEBUG, "[CComponentsWindow]   [%s - %d] icon name = %s\n", __func__, __LINE__, ccw_icon_name.c_str());
-
+	paint_bg	= false;
 	shadow		= shadow_mode;
 	col_frame	= color_frame;
 	col_body	= color_body;
