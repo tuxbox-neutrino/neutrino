@@ -171,7 +171,8 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"epg",			&CControlAPI::EpgCGI,			""},
 	{"zapto",		&CControlAPI::ZaptoCGI,			"text/plain"},
 	{"signal",		&CControlAPI::SignalInfoCGI,		"text/plain"},
-	{"getonidsid",		&CControlAPI::GetChannel_IDCGI,		"text/plain"},
+	{"getonidsid",		&CControlAPI::GetChannelIDCGI,		"text/plain"},
+	{"getchannelid",	&CControlAPI::GetChannelIDCGI,		""},
 	{"currenttpchannels",	&CControlAPI::GetTPChannel_IDCGI,	"text/plain"},
 	// boxcontrol - system
 	{"standby",		&CControlAPI::StandbyCGI,		"text/plain"},
@@ -238,28 +239,29 @@ void CControlAPI::Execute(CyhookHandler *hh)
 	for(unsigned int i = 0; i < filename.length(); i++)
 		filename[i] = tolower(filename[i]);
 
+	func_req = filename;
+
 	// debugging informations
 	if(CLogging::getInstance()->getDebug())
 	{
-		dprintf("Execute CGI : %s\n",filename.c_str());
-		for(CStringList::iterator it = hh->ParamList.begin() ;
-				it != hh->ParamList.end() ; ++it)
-			dprintf("  Parameter %s : %s\n",it->first.c_str(), it->second.c_str());
+		dprintf("Execute CGI : %s\n", func_req.c_str());
+		for(CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it)
+			dprintf("  Parameter %s : %s\n", it->first.c_str(), it->second.c_str());
 	}
 
 	// get function index
 	for(unsigned int i = 0; i < (sizeof(yCgiCallList)/sizeof(yCgiCallList[0])); i++)
-		if (filename == yCgiCallList[i].func_name)
+		if (func_req == yCgiCallList[i].func_name)
 		{
 			index = i;
 			break;
 		}
+
 	if(index == -1) // function not found
 	{
 		hh->SetError(HTTP_NOT_IMPLEMENTED, HANDLED_NOT_IMPLEMENTED);
 		return;
 	}
-
 	// send header
 	else if(std::string(yCgiCallList[index].mime_type).empty())	// decide in function
 		;
@@ -270,6 +272,7 @@ void CControlAPI::Execute(CyhookHandler *hh)
 			hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
 	else
 		hh->SetHeader(HTTP_OK, yCgiCallList[index].mime_type);
+
 	// response
 	hh->status = HANDLED_READY;
 	if (hh->Method == M_HEAD)	// HEAD or function call
@@ -610,13 +613,24 @@ void CControlAPI::GetUBouquetsxmlCGI(CyhookHandler *hh)
 
 //-----------------------------------------------------------------------------
 // get actual channel_id
-void CControlAPI::GetChannel_IDCGI(CyhookHandler *hh)
+void CControlAPI::GetChannelIDCGI(CyhookHandler *hh)
 {
-	CZapitClient::CCurrentServiceInfo current_pids = NeutrinoAPI->Zapit->getCurrentServiceInfo();
-	hh->printf("%x%04x%04x\n",current_pids.tsid, current_pids.onid, current_pids.sid);
+	t_channel_id channel_id = CZapit::getInstance()->GetCurrentChannelID();
+	if (func_req == "getonidsid") //what a terrible name!
+	{
+		hh->WriteLn(string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id & 0xFFFFFFFFFFFFULL));
+		return;
+	}
+
+	hh->outStart();
+	std::string result = "";
+	result = hh->outPair("id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id), true);
+	result += hh->outPair("short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id & 0xFFFFFFFFFFFFULL), false);
+	result = hh->outObject("id", result);
+	hh->SendResult(result);
 }
 
-// get actual channel_id
+//-----------------------------------------------------------------------------
 void CControlAPI::GetTPChannel_IDCGI(CyhookHandler *hh)
 {
 	SendChannelList(hh, true);
