@@ -62,7 +62,7 @@ private:
 	void doModifyTimer(CyhookHandler *hh);
 	void doNewTimer(CyhookHandler *hh);
 	void _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
-	std::string _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int nr);
+	std::string _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int channelNr);
 	std::string channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime);
 	std::string _GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel);
 
@@ -94,6 +94,7 @@ private:
 	void ChannellistCGI(CyhookHandler *hh);
 	void LogolistCGI(CyhookHandler *hh);
 	void GetBouquetCGI(CyhookHandler *hh);
+	void GetChannelCGI(CyhookHandler *hh);
 	void GetBouquetsCGI(CyhookHandler *hh);
 	void EpgCGI(CyhookHandler *hh);
 	void VersionCGI(CyhookHandler *hh);
