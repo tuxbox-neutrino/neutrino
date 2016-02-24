@@ -612,6 +612,37 @@ void CControlAPI::GetUBouquetsxmlCGI(CyhookHandler *hh)
 	hh->SendFile(CONFIGDIR "/zapit/ubouquets.xml");
 }
 
+//-------------------------------------------------------------------------
+/** Display channel id's
+ * @param hh CyhookHandler
+ *
+ * @par nhttpd-usage
+ * @code
+ * /control/getonidsid
+ * /control/getchannelid[?format=plain|json|xml]
+ * @endcode
+ *
+ * @par output
+ * @code
+ * /control/getonidsid
+ * @endcode
+ *
+ * @code
+ * 3f300012b66
+ * @endcode
+ *
+ * @par output (xml)
+ * @code
+ * /control/getchannelid?format=xml
+ * @endcode
+ *
+ * @code
+ * <id>
+ *     <id>361d03f300012b66</id>
+ *     <short_id>3f300012b66</short_id>
+ * </id>
+ * @endcode
+ */
 //-----------------------------------------------------------------------------
 // get actual channel_id
 void CControlAPI::GetChannelIDCGI(CyhookHandler *hh)
@@ -1097,7 +1128,7 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
  * Get bouquet list (all) oder filtered to a given bouquet number
  * Option epg=true for actual and next epg data for each channel
  * @code
- * /control/getbouquet?[bouquet=<bouquet number>][&mode=TV|RADIO][&epg=true]
+ * /control/getbouquet?[bouquet=<bouquet number>][&mode=TV|RADIO][&epg=true[&epginfo=false]]
  * @endcode
  * Get the actual used bouquet number
  * @code
@@ -1231,6 +1262,36 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh) {
 		hh->SendError("no parameter");
 }
 
+//-------------------------------------------------------------------------
+/** Show some infos about current or given (by full ID!) channel
+ * @param hh CyhookHandler
+ *
+ * @par nhttpd-usage
+ * @code
+ * /control/getchannel[?format=plain|xml|json][&id=<channel_id>][&epg=true[&epginfo=false]]
+ * @endcode
+ *
+ * @par output (json)
+ * @code
+ * /control/getchannel?format=json
+ * @endcode
+ *
+ * @code
+ * {
+ * "success": "true",
+ * "data": {
+ *     "channel": [
+ *         {
+ *             "id": "361d03f300012b66",
+ *             "short_id": "3f300012b66",
+ *             "name": "ZDFHD",
+ *             "logo": "/share/tuxbox/neutrino/icons/logo/3f300012b66.png"
+ *         }
+ *     ]
+ * }
+ * }
+ * @endcode
+ */
 //-------------------------------------------------------------------------
 // get actual channel info
 void CControlAPI::GetChannelCGI(CyhookHandler *hh)
