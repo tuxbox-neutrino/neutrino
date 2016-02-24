@@ -1527,6 +1527,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
 	else if (!(hh->ParamList["channelname"].empty())) {
 		channel_id = NeutrinoAPI->ChannelNameToChannelId(hh->ParamList["channelname"].c_str());
 	}
+
 	// or determine bouquetnr -> iterate the bouquet
 	int bouquetnr = -1;
 	bool all_bouquets = false;
@@ -1536,6 +1537,13 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
 	else if (!(hh->ParamList["bouquetnr"].empty())) {
 		bouquetnr = atoi(hh->ParamList["bouquetnr"].c_str());
 		bouquetnr--;
+	}
+
+	// fallback
+	if ((channel_id == (t_channel_id) -1) && (bouquetnr == -1))
+	{
+		channel_id = CZapit::getInstance()->GetCurrentChannelID();
+		//all_bouquets = true; //better, but broken
 	}
 
 	// ------ generate output ------
