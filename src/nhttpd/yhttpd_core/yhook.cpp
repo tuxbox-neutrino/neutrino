@@ -572,7 +572,7 @@ void CyhookHandler::SendError(std::string error) {
 		if (error.empty())
 			result = "{\"success\": \"false\"}";
 		else
-			result = "{\"success\": \"false\", \"error\":{\"text\": \"" + error + "\"}}";
+			result = "{\"success\": \"false\", \"error\":{\"msg\": \"" + error + "\"}}";
 		break;
 	default:
 		if (error.empty())
