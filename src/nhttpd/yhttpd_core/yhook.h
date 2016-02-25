@@ -206,7 +206,7 @@ public:
 	std::string outIndent();
 	std::string outSingle(std::string _content);
 	std::string outPair(std::string _key, std::string _content, bool _next);
-	std::string outArray(std::string _key, std::string _content);
+	std::string outArray(std::string _key, std::string _content, bool _next = false);
 	std::string outArrayItem(std::string _key, std::string _content, bool _next);
 	std::string outObject(std::string _key,std::string  _content, bool _next = false);
 	std::string outValue(std::string _content);
