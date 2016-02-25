@@ -52,8 +52,8 @@ private:
 	void SendBouquets(CyhookHandler *hh);
 	void SendBouquet(CyhookHandler *hh,int BouquetNr);
 	void SendChannelList(CyhookHandler *hh,  bool currentTP = false);
+	void SendTimersPlain(CyhookHandler *hh);
 	void SendTimers(CyhookHandler *hh);
-	void SendTimersXML(CyhookHandler *hh);
 	void epgDetailList(CyhookHandler *hh);
 	void EpgSearchXMLCGI(CyhookHandler *hh);
 	void EpgSearchCGI(CyhookHandler *hh);
@@ -61,7 +61,7 @@ private:
 	friend class CNeutrinoWebserver; // for timer /fb/ compatibility
 	void doModifyTimer(CyhookHandler *hh);
 	void doNewTimer(CyhookHandler *hh);
-	void _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
+	std::string _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
 	std::string _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int channelNr);
 	std::string channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime);
 	std::string _GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel);
