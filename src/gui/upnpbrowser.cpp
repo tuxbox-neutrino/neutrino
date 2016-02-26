@@ -69,15 +69,22 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	m_socket = new CUPnPSocket();
 	m_frameBuffer = CFrameBuffer::getInstance();
 	m_playing_entry_is_shown = false;
+	
+	topbox.enableFrame(true, 2);
+	topbox.setCorner(RADIUS_LARGE);
+	topbox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_MENUCONTENTDARK_PLUS_0, COL_MENUHEAD_TEXT);
+	topbox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]);
+	topbox.enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Head_gradient_direction);
+
 	ibox.enableFrame(true, 2);
 	ibox.setCorner(RADIUS_LARGE);
-	ibox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	ibox.setColorAll(topbox.getColorFrame(), COL_MENUCONTENTDARK_PLUS_0);
 	ibox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
 	ibox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);
 
 	timebox.enableFrame(true, 2);
 	timebox.setCorner(RADIUS_LARGE);
-	timebox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	timebox.setColorAll(ibox.getColorFrame(), ibox.getColorBody());
 	timebox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
 	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);
 
@@ -864,39 +871,44 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 void CUpnpBrowserGui::paintDeviceInfo()
 {
 	std::string tmp;
-	int w, xstart;
+// 	int w, xstart;
 
 	CVFD::getInstance()->showMenuText(0, m_devices[m_selecteddevice].friendlyname.c_str(), -1, true);
+	
+	topbox.setDimensionsAll(m_x, m_y, m_width, m_title_height-10);
+// 	topbox.paint0();
 
 	// Info
-	m_frameBuffer->paintBoxRel(m_x, m_y, m_width, m_title_height - 10, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
-	m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2, m_width - 4, m_title_height - 14, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_MID);
+//	m_frameBuffer->paintBoxRel(m_x, m_y, m_width, m_title_height - 10, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
+//	m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2, m_width - 4, m_title_height - 14, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_MID);
 
 	// first line
 	tmp = m_devices[m_selecteddevice].manufacturer + " " +
-	      m_devices[m_selecteddevice].manufacturerurl;
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-	w = std::min(w, m_width - 20);
-	xstart = (m_width - w) / 2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT);
+	      m_devices[m_selecteddevice].manufacturerurl + "\n";
+// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
+// 	w = std::min(w, m_width - 20);
+// 	xstart = (m_width - w) / 2;
+// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
+// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	// second line
-	tmp = m_devices[m_selecteddevice].modelname + " " +
+	tmp += m_devices[m_selecteddevice].modelname + " " +
 	      m_devices[m_selecteddevice].modelnumber + " " +
-	      m_devices[m_selecteddevice].modeldescription;
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-	w = std::min(w, m_width - 20);
-	xstart = (m_width - w) / 2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT);
+	      m_devices[m_selecteddevice].modeldescription + "\n";
+// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
+// 	w = std::min(w, m_width - 20);
+// 	xstart = (m_width - w) / 2;
+// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
+// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
 	// third line
-	tmp = m_devices[m_selecteddevice].modelurl;
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-	w = std::min(w, m_width - 20);
-	xstart = (m_width - w) / 2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT);
+	tmp += m_devices[m_selecteddevice].modelurl;
+// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
+// 	w = std::min(w, m_width - 20);
+// 	xstart = (m_width - w) / 2;
+// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
+// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
+	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
+	topbox.paint0();
 }
 
 void CUpnpBrowserGui::paintDevice(unsigned int _pos)
@@ -1052,8 +1064,8 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	CVFD::getInstance()->showMenuText(0, entry->title.c_str(), -1, true);
 
 	// Info
-	m_frameBuffer->paintBoxRel(m_x, m_y, m_width, m_title_height - 10, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
-	m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2, m_width - 4, m_title_height - 14, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_MID);
+// 	m_frameBuffer->paintBoxRel(m_x, m_y, m_width, m_title_height - 10, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
+// 	m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2, m_width - 4, m_title_height - 14, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_MID);
 
 	// first line
 	ts << "Resources: " << entry->resources.size() << " Selected: " << preferred+1 << " ";
@@ -1063,52 +1075,59 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 		tmp = tmp + "Duration: " + entry->resources[preferred].duration;
 	else
 		tmp = tmp + "No resource for Item";
+	tmp += "\n";
 
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-	w = std::min(w, m_width - 20);
-	xstart = (m_width - w) / 2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT);
+// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
+// 	w = std::min(w, m_width - 20);
+// 	xstart = (m_width - w) / 2;
+//	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
+//			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	// second line
 	if (entry->isdir)
-		tmp = "Directory";
+		tmp += "Directory";
 	else
 	{
-		tmp = "";
+		tmp += "";
 		if (preferred != -1)
-			tmp = "Protocol: " + entry->proto + ", MIME-Type: " + entry->mime;
+			tmp += "Protocol: " + entry->proto + ", MIME-Type: " + entry->mime;
 	}
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-	w = std::min(w, m_width - 20);
-	xstart = (m_width - w) / 2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT);
+	tmp += "\n";
+// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
+// 	w = std::min(w, m_width - 20);
+// 	xstart = (m_width - w) / 2;
+// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
+// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	//third line
-	tmp = "";
+// 	tmp += "";
 	if (!entry->isdir && preferred != -1)
-		tmp = "URL: " + entry->resources[preferred].url;
+		tmp += "URL: " + entry->resources[preferred].url;
 
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-	w = std::min(w, m_width - 20);
-	xstart = (m_width - w) / 2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT);
+// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
+// 	w = std::min(w, m_width - 20);
+// 	xstart = (m_width - w) / 2;
+// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
+// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
+	
+#if 0
 	static std::string lastname = "", tmpname = "";
 	if(!entry->albumArtURI.empty()){
 		static int flogo_w = 0, flogo_h = 0;
 		if(lastname != entry->albumArtURI){
 			tmpname = lastname = entry->albumArtURI.c_str();
 			tmpname = g_PicViewer->DownloadImage(tmpname );
-			flogo_w = 0, flogo_h = 0;
-			g_PicViewer->getSize(tmpname.c_str(), &flogo_w, &flogo_h);
-			if((flogo_h > m_title_height-14) || (m_title_height*2 > flogo_h)){
-				g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, m_title_height*2, m_title_height-14);
-			}
+// 			flogo_w = 0, flogo_h = 0;
+// 			g_PicViewer->getSize(tmpname.c_str(), &flogo_w, &flogo_h);
+// 			if((flogo_h > m_title_height-14) || (m_title_height*2 > flogo_h)){
+// 				g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, m_title_height*2, m_title_height-14);
+// 			}
 		}
-		g_PicViewer->DisplayImage(tmpname.c_str(), m_x+m_width-flogo_w-2-RADIUS_MID, m_y + 2, flogo_w, flogo_h);
+		//g_PicViewer->DisplayImage(tmpname.c_str(), m_x+m_width-flogo_w-2-RADIUS_MID, m_y + 2, flogo_w, flogo_h);
 	}
+#endif
+	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
+	topbox.paint0();
 }
 
 void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset)
@@ -1154,8 +1173,8 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 {
 	// Foot info
 	int i_height = 2 * m_buttonHeight;
-	ibox.setDimensionsAll(m_x, footer.getYPos()+ footer.getHeight()+2, m_width-i_height-SHADOW_OFFSET, i_height);
-	timebox.setDimensionsAll(m_x + m_width - i_height, footer.getYPos()+ footer.getHeight()+2, i_height, i_height);
+	ibox.setDimensionsAll(m_x, footer.getYPos()+ footer.getHeight()+SHADOW_OFFSET, m_width-i_height-SHADOW_OFFSET, i_height);
+	timebox.setDimensionsAll(m_x + m_width - i_height, ibox.getYPos(), i_height, i_height);
 
 	printf("paintDetails: use_playing %d shown %d\n", use_playing, m_playing_entry_is_shown);
 	if ((!use_playing) && entry->isdir){
@@ -1216,8 +1235,6 @@ void CUpnpBrowserGui::updateTimes(const bool force)
 		printf("updateTimes: force %d updatePlayed %d\n", force, updatePlayed);
 		char play_time[8];
 		snprintf(play_time, 7, "%ld:%02ld", m_time_played / 60, m_time_played % 60);
-		char tmp_time[] = "000:00";
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getRenderWidth(tmp_time);
 
 		if (updatePlayed){
 			timebox.setText(play_time, CTextBox::CENTER);

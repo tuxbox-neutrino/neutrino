@@ -103,7 +103,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	time_t         timeout;
 	CComponentsDetailLine * dline;
 	CComponentsFooter footer;
-	CComponentsInfoBox ibox, timebox;
+	CComponentsInfoBox ibox, timebox, topbox;
 
 	bool discoverDevices();
 	void splitProtocol(std::string &protocol, std::string &prot, std::string &network, std::string &mime, std::string &additional);
