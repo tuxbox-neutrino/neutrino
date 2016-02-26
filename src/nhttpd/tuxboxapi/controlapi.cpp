@@ -1469,14 +1469,8 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 		if (hh->outType == plain)
 			prog += hh->outSingle("");
 
-		prog += hh->outPair("description", hh->outValue(eventIterator->description), true);
-		if (!(hh->ParamList["details"].empty())) {
-			CShortEPGData epg;
-			if (CEitManager::getInstance()->getEPGidShort(eventIterator->eventID, &epg)) {
-				prog += hh->outPair("info1", hh->outValue(epg.info1), true);
-				prog += hh->outPair("info2", hh->outValue(epg.info2), true);
-			}
-		}
+		prog += hh->outPair("bouquetnr", string_printf("%d", bouquetnr), true);
+		prog += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id), true);
 		prog += hh->outPair("eventid", string_printf("%llu", eventIterator->eventID), true);
 		prog += hh->outPair("eventid_hex", string_printf("%llx", eventIterator->eventID), true);
 		prog += hh->outPair("start_sec", string_printf("%ld", eventIterator->startTime), true);
@@ -1492,7 +1486,16 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 		mtime = localtime(&_stoptime);
 		strftime(zbuffer, 20, "%H:%M", mtime);
 		prog += hh->outPair("stop_t", std::string(zbuffer), true);
-		prog += hh->outPair("duration_min", string_printf("%d", (int) (eventIterator->duration / 60)), false);
+		prog += hh->outPair("duration_min", string_printf("%d", (int) (eventIterator->duration / 60)), true);
+
+		if (!(hh->ParamList["details"].empty())) {
+			CShortEPGData epg;
+			if (CEitManager::getInstance()->getEPGidShort(eventIterator->eventID, &epg)) {
+				prog += hh->outPair("info1", hh->outValue(epg.info1), true);
+				prog += hh->outPair("info2", hh->outValue(epg.info2), true);
+			}
+		}
+		prog += hh->outPair("description", hh->outValue(eventIterator->description), false);
 
 		if(isFirstLine)
 			isFirstLine = false;
