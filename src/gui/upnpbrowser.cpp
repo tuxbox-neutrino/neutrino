@@ -56,12 +56,13 @@ extern cVideo * videoDecoder;
 extern CPictureViewer * g_PicViewer;
 
 const struct button_label RescanButton = {NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_UPNPBROWSER_RESCAN};
-const struct button_label BrowseButtons[4] =
+const struct button_label BrowseButtons[] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_FILEBROWSER_NEXTPAGE },
 	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_FILEBROWSER_PREVPAGE },
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_AUDIOPLAYER_STOP },
-	{ NEUTRINO_ICON_BUTTON_OKAY  , LOCALE_AUDIOPLAYER_PLAY }
+	{ NEUTRINO_ICON_BUTTON_OKAY  , LOCALE_AUDIOPLAYER_PLAY },
+	{ NEUTRINO_ICON_BUTTON_HOME ,  LOCALE_MENU_BACK, }
 };
 
 CUpnpBrowserGui::CUpnpBrowserGui()
