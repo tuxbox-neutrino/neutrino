@@ -132,6 +132,13 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		///set text color
 		virtual void setTextColor(const fb_pixel_t& color_text);
+		///set all basic framebuffer element colors at once
+		///Note: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
+		virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0, fb_pixel_t color_text = COL_MENUCONTENT_TEXT)
+					{
+						CCDraw::setColorAll(color_frame, color_body, color_shadow);
+						setTextColor(color_text);
+					};
 		///get text color
 		virtual inline fb_pixel_t getTextColor(){return ct_col_text;};
 		///set text alignment, also see textbox.h for possible alignment modes
