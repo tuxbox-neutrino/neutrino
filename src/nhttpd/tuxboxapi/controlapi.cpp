@@ -2432,7 +2432,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 		repeat += hh->outPair("text", zRep, true);
 		repeat += hh->outPair("weekdays", weekdays, false);
 
-		timer_item += hh->outObject("repeat", repeat, true);
+		timer_item += hh->outObject("repeat", repeat, false);
 
 		// channel infos
 		std::string channel_name = NeutrinoAPI->GetServiceName(timer->channel_id);
@@ -2460,6 +2460,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 #endif
 
 		case CTimerd::TIMER_ZAPTO : {
+			timer_item += hh->outNext();
 			timer_item += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->channel_id), true);
 			timer_item += hh->outPair("channel_name", channel_name, true);
 			timer_item += hh->outPair("title", title, false);
@@ -2467,6 +2468,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 		break;
 
 		case CTimerd::TIMER_RECORD : {
+			timer_item += hh->outNext();
 			timer_item += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->channel_id), true);
 			timer_item += hh->outPair("channel_name", channel_name, true);
 			timer_item += hh->outPair("title", title, true);
@@ -2502,6 +2504,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 		break;
 
 		case CTimerd::TIMER_STANDBY : {
+			timer_item += hh->outNext();
 			timer_item += hh->outPair("status", (timer->standby_on) ? "on" : "off", false);
 		}
 		break;
@@ -2509,11 +2512,13 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 		case CTimerd::TIMER_REMIND : {
 			std::string _message;
 			_message = std::string(timer->message).substr(0,20);
+			timer_item += hh->outNext();
 			timer_item += hh->outPair("message", _message, false);
 		}
 		break;
 
 		case CTimerd::TIMER_EXEC_PLUGIN : {
+			timer_item += hh->outNext();
 			timer_item += hh->outPair("plugin", timer->pluginName, false);
 		}
 		break;
