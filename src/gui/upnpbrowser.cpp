@@ -89,15 +89,17 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);
 
 	dline = NULL;
+	image = NULL;
 }
 
 CUpnpBrowserGui::~CUpnpBrowserGui()
 {
 	delete m_socket;
 	if (dline){
-		delete dline;
-		dline = NULL;
+		delete dline; dline = NULL;
 	}
+	if (image)
+		delete image, image = NULL;
 }
 
 int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
@@ -870,43 +872,24 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 
 void CUpnpBrowserGui::paintDeviceInfo()
 {
-	std::string tmp;
-// 	int w, xstart;
-
 	CVFD::getInstance()->showMenuText(0, m_devices[m_selecteddevice].friendlyname.c_str(), -1, true);
-	
-	topbox.setDimensionsAll(m_x, m_y, m_width, m_title_height-10);
-// 	topbox.paint0();
 
 	// Info
-//	m_frameBuffer->paintBoxRel(m_x, m_y, m_width, m_title_height - 10, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
-//	m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2, m_width - 4, m_title_height - 14, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_MID);
+	std::string tmp;
 
 	// first line
 	tmp = m_devices[m_selecteddevice].manufacturer + " " +
 	      m_devices[m_selecteddevice].manufacturerurl + "\n";
-// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-// 	w = std::min(w, m_width - 20);
-// 	xstart = (m_width - w) / 2;
-// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
-// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	// second line
 	tmp += m_devices[m_selecteddevice].modelname + " " +
 	      m_devices[m_selecteddevice].modelnumber + " " +
 	      m_devices[m_selecteddevice].modeldescription + "\n";
-// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-// 	w = std::min(w, m_width - 20);
-// 	xstart = (m_width - w) / 2;
-// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
-// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
+
 	// third line
 	tmp += m_devices[m_selecteddevice].modelurl;
-// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-// 	w = std::min(w, m_width - 20);
-// 	xstart = (m_width - w) / 2;
-// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
-// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
+
+	topbox.setDimensionsAll(m_x, m_y, m_width, m_title_height-10);
 	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
 	topbox.paint0();
 }
@@ -1063,10 +1046,6 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	// LCD
 	CVFD::getInstance()->showMenuText(0, entry->title.c_str(), -1, true);
 
-	// Info
-// 	m_frameBuffer->paintBoxRel(m_x, m_y, m_width, m_title_height - 10, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
-// 	m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2, m_width - 4, m_title_height - 14, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_MID);
-
 	// first line
 	ts << "Resources: " << entry->resources.size() << " Selected: " << preferred+1 << " ";
 	tmp = ts.str();
@@ -1076,12 +1055,6 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	else
 		tmp = tmp + "No resource for Item";
 	tmp += "\n";
-
-// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-// 	w = std::min(w, m_width - 20);
-// 	xstart = (m_width - w) / 2;
-//	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
-//			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	// second line
 	if (entry->isdir)
@@ -1093,39 +1066,34 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 			tmp += "Protocol: " + entry->proto + ", MIME-Type: " + entry->mime;
 	}
 	tmp += "\n";
-// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-// 	w = std::min(w, m_width - 20);
-// 	xstart = (m_width - w) / 2;
-// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
-// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	//third line
 // 	tmp += "";
 	if (!entry->isdir && preferred != -1)
 		tmp += "URL: " + entry->resources[preferred].url;
 
-// 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-// 	w = std::min(w, m_width - 20);
-// 	xstart = (m_width - w) / 2;
-// 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
-// 			tmp, COL_MENUCONTENTSELECTED_TEXT);
-	
-#if 0
 	static std::string lastname = "", tmpname = "";
 	if(!entry->albumArtURI.empty()){
 		static int flogo_w = 0, flogo_h = 0;
 		if(lastname != entry->albumArtURI){
 			tmpname = lastname = entry->albumArtURI.c_str();
-			tmpname = g_PicViewer->DownloadImage(tmpname );
-// 			flogo_w = 0, flogo_h = 0;
-// 			g_PicViewer->getSize(tmpname.c_str(), &flogo_w, &flogo_h);
-// 			if((flogo_h > m_title_height-14) || (m_title_height*2 > flogo_h)){
-// 				g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, m_title_height*2, m_title_height-14);
-// 			}
+			tmpname = g_PicViewer->DownloadImage(tmpname);
+			int h_image = ibox.getHeight()- SHADOW_OFFSET - ibox.getCornerRadius();
+			int y_image = ibox.getYPos() + ibox.getHeight()/2 - h_image/2;
+			if (!image){
+				image = new CComponentsPicture(100, y_image, tmpname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTDARK_PLUS_0);
+			}
+			image->setPicture(tmpname);
+			image->setHeight(h_image, true);
+			int x_image = ibox.getXPos() + ibox.getWidth()- image->getWidth()- SHADOW_OFFSET - ibox.getCornerRadius();
+			image->setXPos(x_image);
 		}
-		//g_PicViewer->DisplayImage(tmpname.c_str(), m_x+m_width-flogo_w-2-RADIUS_MID, m_y + 2, flogo_w, flogo_h);
+	}else{
+		if (image){
+			delete image; image = NULL;
+		}
 	}
-#endif
+
 	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
 	topbox.paint0();
 }
@@ -1200,6 +1168,8 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 			text += "\n" + entry->album;
 			ibox.setText(text, CTextBox::AUTO_WIDTH);
 			ibox.paint0();
+			if (image)
+				image->paint0();
 		}
 		timebox.paint0();
 	}

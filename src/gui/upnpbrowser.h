@@ -104,6 +104,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	CComponentsDetailLine * dline;
 	CComponentsFooter footer;
 	CComponentsInfoBox ibox, timebox, topbox;
+	CComponentsPicture *image;
 
 	bool discoverDevices();
 	void splitProtocol(std::string &protocol, std::string &prot, std::string &network, std::string &mime, std::string &additional);
