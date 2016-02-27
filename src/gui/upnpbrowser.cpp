@@ -70,7 +70,15 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	m_socket = new CUPnPSocket();
 	m_frameBuffer = CFrameBuffer::getInstance();
 	m_playing_entry_is_shown = false;
-	
+
+	initModules();
+
+	dline = NULL;
+	image = NULL;
+}
+
+void CUpnpBrowserGui::initModules()
+{
 	topbox.enableFrame(true, 2);
 	topbox.setCorner(RADIUS_LARGE);
 	topbox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_MENUCONTENTDARK_PLUS_0, COL_MENUHEAD_TEXT);
@@ -88,9 +96,6 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	timebox.setColorAll(ibox.getColorFrame(), ibox.getColorBody());
 	timebox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
 	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);
-
-	dline = NULL;
-	image = NULL;
 }
 
 CUpnpBrowserGui::~CUpnpBrowserGui()
