@@ -4005,7 +4005,10 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if(actionKey == "adzap") {
 		CAdZapMenu::getInstance()->exec(parent, "adzap");
-		return menu_return::RETURN_EXIT_ALL;
+		if (CAdZapMenu::getInstance()->isActive())
+			return menu_return::RETURN_EXIT_ALL;
+		else
+			return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "moviedir") {
 		parent->hide();
