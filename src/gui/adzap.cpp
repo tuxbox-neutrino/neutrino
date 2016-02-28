@@ -59,21 +59,15 @@ CAdZapMenu *CAdZapMenu::getInstance()
 CAdZapMenu::CAdZapMenu()
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	width = w_max(40, 10);
-	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	height = hheight + 13 * mheight + 10;
-
-	x = (((g_settings.screen_EndX - g_settings.screen_StartX) - width) / 2) + g_settings.screen_StartX;
-	y = (((g_settings.screen_EndY - g_settings.screen_StartY) - height) / 2) + g_settings.screen_StartY;
+	width = 40;
 
 	sem_init(&sem, 0, 0);
 
 	pthread_t thr;
 	if (pthread_create(&thr, 0, CAdZapMenu::Run, this))
-	fprintf(stderr, "ERROR: pthread_create(CAdZapMenu::CAdZapMenu)\n");
+		fprintf(stderr, "ERROR: pthread_create(CAdZapMenu::CAdZapMenu)\n");
 	else
-	pthread_detach(thr);
+		pthread_detach(thr);
 	channelId = -1;
 	armed = false;
 	monitor = false;

@@ -35,11 +35,7 @@ class CAdZapMenu: public CMenuTarget
 {
 	private:
 		CFrameBuffer * frameBuffer;
-		int x;
-		int y;
 		int width;
-		int height;
-		int hheight, mheight;	// head/menu font height
 		bool running;
 		bool armed;
 		bool alerted;
