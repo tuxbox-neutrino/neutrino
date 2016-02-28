@@ -1,25 +1,26 @@
 /*
- * adzap.h
- * 
- * (C)2012 by martii
- * 
- * License: GPL
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
+	adzap.h
 
+	(C) 2012-2013 by martii
+	(C) 2016 Sven Hoefer (svenhoefer)
+
+	License: GPL
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+*/
 
 #ifndef __adzap__
 #define __adzap__
@@ -58,4 +59,4 @@ class CAdZapMenu: public CMenuTarget
 		static CAdZapMenu *getInstance();
 		int exec(CMenuTarget * parent, const std::string & actionKey);
 };
-#endif				// __adzap__
+#endif // __adzap__
