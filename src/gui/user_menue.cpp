@@ -68,6 +68,7 @@
 #include <mymenu.h>
 
 #include <gui/widget/icons.h>
+#include <gui/adzap.h>
 #include <gui/network_setup.h>
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
@@ -185,6 +186,8 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	bool _mode_ts    = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_ts;
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) &&
 				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+
+	bool adzap_active = CAdZapMenu::getInstance()->isActive();
 
 	std::string itemstr_last("1");
 
@@ -374,8 +377,8 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			break;
 		case SNeutrinoSettings::ITEM_ADZAP:
 			keyhelper.get(&key,&icon,CRCInput::RC_blue);
-			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_ADZAP, true, NULL, neutrino, "adzap", key, icon);
-			menu_item->setHint("", LOCALE_MENU_HINT_ADZAP);
+			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_ADZAP, true, adzap_active ? g_Locale->getText(LOCALE_OPTIONS_OFF) : NULL, neutrino, "adzap", key, icon);
+			menu_item->setHint("", adzap_active ? LOCALE_MENU_HINT_ADZAP_ACTIVE : LOCALE_MENU_HINT_ADZAP);
 			break;
 #if 0
 		case SNeutrinoSettings::ITEM_TUNER_RESTART:

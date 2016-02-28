@@ -948,6 +948,7 @@ menu.back Zurück
 menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
 menu.hint_adzap Der Werbe-Zapper schaltet nach der eingestellten Zeit wieder auf den ursprünglichen Kanal zurück
+menu.hint_adzap_active Der Werbe-Zapper ist aktiv. Mit einem erneuten Aufruf wird er deaktiviert.
 menu.hint_aplay Audioplayer
 menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen und mehr

@@ -975,6 +975,7 @@ const char * locale_real_names[] =
 	"menu.cancel",
 	"menu.hint_a_pic",
 	"menu.hint_adzap",
+	"menu.hint_adzap_active",
 	"menu.hint_aplay",
 	"menu.hint_aplay_setup",
 	"menu.hint_audio",
