@@ -47,6 +47,7 @@ class CAdZapMenu: public CMenuTarget
 		t_channel_id channelId;
 		sem_t sem;
 		CAdZapMenu();
+		void Init();
 		void Settings();
 		void Update();
 		void Run(void);

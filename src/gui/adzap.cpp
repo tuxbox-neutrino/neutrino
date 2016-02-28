@@ -79,6 +79,32 @@ static bool sortByDateTime(const CChannelEvent & a, const CChannelEvent & b)
 	return a.startTime < b.startTime;
 }
 
+void CAdZapMenu::Init()
+{
+	CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
+	channelId = channelList ? channelList->getActiveChannel_ChannelID() : -1;
+	channelName = channelList->getActiveChannelName();
+	CChannelEventList evtlist;
+	CEitManager::getInstance()->getEventsServiceKey(channelId & 0xFFFFFFFFFFFFULL, evtlist);
+	monitorLifeTime.tv_sec = 0;
+	if (!evtlist.empty())
+	{
+		sort(evtlist.begin(), evtlist.end(), sortByDateTime);
+		CChannelEventList::iterator eli;
+		struct timespec ts;
+		clock_gettime(CLOCK_REALTIME, &ts);
+		for (eli = evtlist.begin(); eli != evtlist.end(); ++eli)
+		{
+			if ((u_int) eli->startTime + (u_int) eli->duration > (u_int) ts.tv_sec)
+			{
+				monitorLifeTime.tv_sec = (uint) eli->startTime + eli->duration;
+				Update();
+				break;
+			}
+		}
+	}
+}
+
 void CAdZapMenu::Update()
 {
 	clock_gettime(CLOCK_REALTIME, &zapBackTime);
@@ -164,7 +190,7 @@ void CAdZapMenu::Run()
 				{
 					alerted = false;
 					if (channelList)
-					channelList->zapTo_ChannelID(channelId);
+						channelList->zapTo_ChannelID(channelId);
 					armed = false;
 				}
 			}
@@ -174,6 +200,8 @@ void CAdZapMenu::Run()
 
 int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 {
+	Init();
+
 	int res = menu_return::RETURN_EXIT_ALL;
 
 	if (actionKey == "enable")
@@ -223,6 +251,7 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 	if (parent)
 		parent->hide();
 
+	monitor = false;
 	Settings();
 
 	return res;
@@ -230,31 +259,7 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 
 void CAdZapMenu::Settings()
 {
-	CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
-	channelId = channelList ? channelList->getActiveChannel_ChannelID() : -1;
-	channelName = channelList->getActiveChannelName();
-	CChannelEventList evtlist;
-	CEitManager::getInstance()->getEventsServiceKey(channelId & 0xFFFFFFFFFFFFULL, evtlist);
-	monitorLifeTime.tv_sec = 0;
-	bool show_monitor = false;
-	if (!evtlist.empty())
-	{
-		sort(evtlist.begin(), evtlist.end(), sortByDateTime);
-		CChannelEventList::iterator eli;
-		struct timespec ts;
-		clock_gettime(CLOCK_REALTIME, &ts);
-		for (eli = evtlist.begin(); eli != evtlist.end(); ++eli)
-		{
-			if ((u_int) eli->startTime + (u_int) eli->duration > (u_int) ts.tv_sec)
-			{
-				monitorLifeTime.tv_sec = (uint) eli->startTime + eli->duration;
-				show_monitor = true;
-				Update();
-				break;
-			}
-		}
-	}
-	monitor = false;
+	bool show_monitor = monitorLifeTime.tv_sec;
 
 	CMenuWidget *menu = new CMenuWidget(LOCALE_ADZAP, "settings", width);
 	menu->addKey(CRCInput::RC_red, this, "disable");
