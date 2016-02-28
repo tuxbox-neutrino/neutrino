@@ -43,11 +43,13 @@ class CAdZapMenu: public CMenuTarget
 		struct timespec zapBackTime;
 		std::string channelName;
 		CMenuForwarder *forwarders[9];
+		CChannelEventList evtlist;
 		struct timespec monitorLifeTime;
 		t_channel_id channelId;
 		sem_t sem;
 		CAdZapMenu();
 		void Init();
+		time_t getMonitorLifeTime();
 		void Settings();
 		void Update();
 		void Run(void);

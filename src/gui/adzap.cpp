@@ -84,25 +84,32 @@ void CAdZapMenu::Init()
 	CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
 	channelId = channelList ? channelList->getActiveChannel_ChannelID() : -1;
 	channelName = channelList->getActiveChannelName();
-	CChannelEventList evtlist;
+	evtlist.clear();
 	CEitManager::getInstance()->getEventsServiceKey(channelId & 0xFFFFFFFFFFFFULL, evtlist);
 	monitorLifeTime.tv_sec = 0;
 	if (!evtlist.empty())
 	{
 		sort(evtlist.begin(), evtlist.end(), sortByDateTime);
-		CChannelEventList::iterator eli;
-		struct timespec ts;
-		clock_gettime(CLOCK_REALTIME, &ts);
-		for (eli = evtlist.begin(); eli != evtlist.end(); ++eli)
-		{
-			if ((u_int) eli->startTime + (u_int) eli->duration > (u_int) ts.tv_sec)
-			{
-				monitorLifeTime.tv_sec = (uint) eli->startTime + eli->duration;
-				Update();
-				break;
-			}
-		}
+		monitorLifeTime.tv_sec = getMonitorLifeTime();
+		Update();
 	}
+	printf("CAdZapMenu::%s: monitorLifeTime.tv_sec: %d\n", __func__, (uint) monitorLifeTime.tv_sec);
+}
+
+time_t CAdZapMenu::getMonitorLifeTime()
+{
+	if (evtlist.empty())
+		return 0;
+
+	CChannelEventList::iterator eli;
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	for (eli = evtlist.begin(); eli != evtlist.end(); ++eli)
+	{
+		if ((u_int) eli->startTime + (u_int) eli->duration > (u_int) ts.tv_sec)
+			return (uint) eli->startTime + eli->duration;
+	}
+	return 0;
 }
 
 void CAdZapMenu::Update()
