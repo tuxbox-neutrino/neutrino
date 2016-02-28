@@ -242,6 +242,7 @@ void CAdZapMenu::Settings()
 	CChannelEventList evtlist;
 	CEitManager::getInstance()->getEventsServiceKey(channelId & 0xFFFFFFFFFFFFULL, evtlist);
 	monitorLifeTime.tv_sec = 0;
+	bool show_monitor = false;
 	if (!evtlist.empty())
 	{
 		sort(evtlist.begin(), evtlist.end(), sortByDateTime);
@@ -253,6 +254,7 @@ void CAdZapMenu::Settings()
 			if ((u_int) eli->startTime + (u_int) eli->duration > (u_int) ts.tv_sec)
 			{
 				monitorLifeTime.tv_sec = (uint) eli->startTime + eli->duration;
+				show_monitor = true;
 				Update();
 				break;
 			}
@@ -278,7 +280,7 @@ void CAdZapMenu::Settings()
 		minute = LOCALE_ADZAP_MINUTES;
 	}
 
-	menu->setFooter(CAdZapMenuFooterButtons, CAdZapMenuFooterButtonCount);
+	menu->setFooter(CAdZapMenuFooterButtons, CAdZapMenuFooterButtonCount - (show_monitor ? 0 : 1));
 	menu->exec(NULL, "");
 	menu->hide();
 	delete menu;
