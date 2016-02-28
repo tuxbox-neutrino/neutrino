@@ -40,6 +40,13 @@
 
 #define ZAPBACK_ALERT_PERIOD 15 // seconds
 
+static const struct button_label CAdZapMenuFooterButtons[] = {
+	{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_ADZAP_DISABLE },
+	{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_ADZAP_ENABLE },
+	{ NEUTRINO_ICON_BUTTON_BLUE,	LOCALE_ADZAP_MONITOR }
+};
+#define CAdZapMenuFooterButtonCount (sizeof(CAdZapMenuFooterButtons)/sizeof(button_label))
+
 static CAdZapMenu *azm = NULL;
 
 CAdZapMenu *CAdZapMenu::getInstance()
@@ -232,26 +239,6 @@ void CAdZapMenu::Settings()
 	CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
 	channelId = channelList ? channelList->getActiveChannel_ChannelID() : -1;
 	channelName = channelList->getActiveChannelName();
-
-	CMenuWidget *menu = new CMenuWidget(LOCALE_ADZAP, "settings", width);
-	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_ADZAP_SWITCHBACK));
-	neutrino_locale_t minute = LOCALE_ADZAP_MINUTE;
-	for (int shortcut = 1; shortcut < 10; shortcut++) {
-		char actionKey[2];
-		actionKey[0] = '0' + shortcut;
-		actionKey[1] = 0;
-		bool selected = g_settings.adzap_zapBackPeriod == 60 * shortcut;
-		forwarders[shortcut - 1] = new CMenuForwarder(minute, true, NULL, this, actionKey, CRCInput::convertDigitToKey(shortcut));
-		forwarders[shortcut - 1]->setMarked(selected);
-		menu->addItem(forwarders[shortcut - 1], selected);
-		minute = LOCALE_ADZAP_MINUTES;
-	}
-
-	menu->addItem(GenericMenuSeparatorLine);
-
-	menu->addItem(new CMenuForwarder(LOCALE_ADZAP_DISABLE, true, NULL, this, "disable", CRCInput::RC_red));
-	menu->addItem(new CMenuForwarder(LOCALE_ADZAP_ENABLE, true, NULL, this, "enable", CRCInput::RC_green));
-
 	CChannelEventList evtlist;
 	CEitManager::getInstance()->getEventsServiceKey(channelId & 0xFFFFFFFFFFFFULL, evtlist);
 	monitorLifeTime.tv_sec = 0;
@@ -271,10 +258,27 @@ void CAdZapMenu::Settings()
 			}
 		}
 	}
-
-	menu->addItem(new CMenuForwarder(LOCALE_ADZAP_MONITOR, monitorLifeTime.tv_sec, NULL, this, "monitor", CRCInput::RC_blue));
-
 	monitor = false;
+
+	CMenuWidget *menu = new CMenuWidget(LOCALE_ADZAP, "settings", width);
+	menu->addKey(CRCInput::RC_red, this, "disable");
+	menu->addKey(CRCInput::RC_green, this, "enable");
+	menu->addKey(CRCInput::RC_blue, this, "monitor");
+	menu->addIntroItems(NONEXISTANT_LOCALE, LOCALE_ADZAP_SWITCHBACK);
+
+	neutrino_locale_t minute = LOCALE_ADZAP_MINUTE;
+	for (int shortcut = 1; shortcut < 10; shortcut++) {
+		char actionKey[2];
+		actionKey[0] = '0' + shortcut;
+		actionKey[1] = 0;
+		bool selected = g_settings.adzap_zapBackPeriod == 60 * shortcut;
+		forwarders[shortcut - 1] = new CMenuForwarder(minute, true, NULL, this, actionKey, CRCInput::convertDigitToKey(shortcut));
+		forwarders[shortcut - 1]->setMarked(selected);
+		menu->addItem(forwarders[shortcut - 1], selected);
+		minute = LOCALE_ADZAP_MINUTES;
+	}
+
+	menu->setFooter(CAdZapMenuFooterButtons, CAdZapMenuFooterButtonCount);
 	menu->exec(NULL, "");
 	menu->hide();
 	delete menu;

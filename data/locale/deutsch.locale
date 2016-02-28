@@ -110,11 +110,11 @@ GENRE.UNKNOWN Unbekannt
 adzap Werbezapper
 adzap.announce In %d Sekunden wird umgeschaltet auf\n%s
 adzap.cancel Deaktiviert
-adzap.disable Deaktivieren
-adzap.enable Einmalig aktivieren
+adzap.disable Aus
+adzap.enable Ein (einmalig)
 adzap.minute Minute
 adzap.minutes Minuten
-adzap.monitor Daueraktiv bei aktueller Sendung
+adzap.monitor Ein (dauerhaft)
 adzap.switchback Zurückschalten nach
 apidselector.head Sprachauswahl
 audio.srs_algo Art

@@ -110,11 +110,11 @@ GENRE.UNKNOWN unknown
 adzap AdZap
 adzap.announce In %d seconds, the channel will be switched to\n%s
 adzap.cancel Timer was cancelled
-adzap.disable Deactivate
-adzap.enable Activate once
+adzap.disable Off
+adzap.enable On (once)
 adzap.minute minute
 adzap.minutes minutes
-adzap.monitor Stay active during current broadcast
+adzap.monitor On (durable)
 adzap.switchback Switch back after
 apidselector.head Select language
 audio.srs_algo Type
