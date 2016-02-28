@@ -232,6 +232,9 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 		armed = false;
 		monitor = true;
 		alerted = false;
+		if (!evtlist.empty())
+			monitorLifeTime.tv_sec = getMonitorLifeTime();
+		printf("CAdZapMenu::%s: monitorLifeTime.tv_sec: %d\n", __func__, (uint) monitorLifeTime.tv_sec);
 		Update();
 		return res;
 	}
