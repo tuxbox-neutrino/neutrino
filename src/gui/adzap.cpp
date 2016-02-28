@@ -38,7 +38,7 @@
 #include <driver/screen_max.h>
 #include <system/set_threadname.h>
 
-#define ZAPBACK_ALERT_PERIOD 15	// seconds. Keep this in sync with the locales.
+#define ZAPBACK_ALERT_PERIOD 15 // seconds
 
 static CAdZapMenu *azm = NULL;
 
@@ -152,9 +152,9 @@ void CAdZapMenu::Run()
 				{
 					if (channelId != curChannelId)
 					{
-						std::string name = g_Locale->getText(LOCALE_ADZAP_ANNOUNCE);
-						name += "\n" + channelName;
-						ShowHint(LOCALE_ADZAP, name.c_str());
+						char name[1024];
+						snprintf(name, sizeof(name)-1, g_Locale->getText(LOCALE_ADZAP_ANNOUNCE), ZAPBACK_ALERT_PERIOD, channelName.c_str());
+						ShowHint(LOCALE_ADZAP, name);
 					}
 					alerted = true;
 					zapBackTime.tv_sec += ZAPBACK_ALERT_PERIOD;

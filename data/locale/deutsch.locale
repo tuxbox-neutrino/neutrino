@@ -108,7 +108,7 @@ GENRE.TRAVEL_HOBBIES.6 Einkauf
 GENRE.TRAVEL_HOBBIES.7 Garten
 GENRE.UNKNOWN Unbekannt
 adzap Werbezapper
-adzap.announce In 15 Sekunden wird umgeschaltet auf
+adzap.announce In %d Sekunden wird umgeschaltet auf\n%s
 adzap.cancel Deaktiviert
 adzap.disable Deaktivieren
 adzap.enable Einmalig aktivieren

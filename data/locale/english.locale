@@ -108,7 +108,7 @@ GENRE.TRAVEL_HOBBIES.6 advertisement/shopping
 GENRE.TRAVEL_HOBBIES.7 gardening
 GENRE.UNKNOWN unknown
 adzap AdZap
-adzap.announce In 15 seconds, the channel will be switched to
+adzap.announce In %d seconds, the channel will be switched to\n%s
 adzap.cancel Timer was cancelled
 adzap.disable Deactivate
 adzap.enable Activate once
