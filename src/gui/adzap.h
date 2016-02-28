@@ -57,5 +57,6 @@ class CAdZapMenu: public CMenuTarget
 	public:
 		static CAdZapMenu *getInstance();
 		int exec(CMenuTarget * parent, const std::string & actionKey);
+		bool isActive() { return (armed || monitor); };
 };
 #endif // __adzap__
