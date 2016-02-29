@@ -731,6 +731,7 @@ struct SNeutrinoSettings
 
 	//adzap
 	int adzap_zapBackPeriod;
+	int adzap_writeData;
 
 	int	power_standby;
 	int	hdd_sleep;
@@ -883,7 +884,6 @@ const int PARENTALLOCK_PROMPT_NEVER          = 0;
 const int PARENTALLOCK_PROMPT_ONSTART        = 1;
 const int PARENTALLOCK_PROMPT_CHANGETOLOCKED = 2;
 const int PARENTALLOCK_PROMPT_ONSIGNAL       = 3;
-
 
 class CScanSettings
 {

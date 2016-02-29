@@ -116,6 +116,7 @@ adzap.minute minute
 adzap.minutes minutes
 adzap.monitor On (durable)
 adzap.switchback Switch back after
+adzap.writedata Write status data
 apidselector.head Select language
 audio.srs_algo Type
 audio.srs_algo_heavy Heavy
@@ -949,6 +950,8 @@ menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer
 menu.hint_adzap AdZap will switch back to the current channel when the selected time is up
 menu.hint_adzap_active AdZap is active. With a new call it will be deactivated.
+menu.hint_adzap_setup Settings for the AdZap service
+menu.hint_adzap_writedata Write data according to adzap status to /tmp/adzap.data
 menu.hint_aplay Audio player
 menu.hint_aplay_setup Change title display, start directory, screen saver and more
 menu.hint_audio Audio output, DD\nSRS True volume options

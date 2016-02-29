@@ -31,14 +31,17 @@
 #include <stdlib.h>
 #include <global.h>
 #include <neutrino.h>
+#include <mymenu.h>
 #include <algorithm>
 #include <gui/adzap.h>
 #include <gui/widget/hintbox.h>
 #include <eitd/sectionsd.h>
 #include <driver/screen_max.h>
+#include <system/helpers.h>
 #include <system/set_threadname.h>
 
 #define ZAPBACK_ALERT_PERIOD 15 // seconds
+#define ADZAP_DATA "/tmp/adzap.data"
 
 static const struct button_label CAdZapMenuFooterButtons[] = {
 	{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_ADZAP_DISABLE },
@@ -167,9 +170,41 @@ void CAdZapMenu::Run()
 			}
 		}
 		else if (armed)
-			sem_timedwait(&sem, &zapBackTime);
+		{
+			if (g_settings.adzap_writeData)
+			{
+				struct timespec ts;
+				clock_gettime(CLOCK_REALTIME, &ts);
+				ts.tv_sec += 1;
+
+				sem_timedwait(&sem, &ts);
+
+				int zp = g_settings.adzap_zapBackPeriod;
+				long int zb = zapBackTime.tv_sec + ZAPBACK_ALERT_PERIOD - ts.tv_sec;
+
+				if (FILE *f = fopen(ADZAP_DATA, "w"))
+				{
+					fprintf(f, "%" PRIx64 "\n%s\n%d\n%d:%02d\n%ld\n%ld:%02ld\n",
+							channelId,
+							channelName.c_str(),
+							zp,
+							zp / 60, zp % 60,
+							zb,
+							zb / 60, zb % 60);
+					fclose(f);
+				}
+				else
+					printf("CAdZapMenu::%s: write data failed.\n", __func__);
+			}
+			else
+				sem_timedwait(&sem, &zapBackTime);
+		}
 		else
+		{
+			if (access(ADZAP_DATA, F_OK) == 0)
+				unlink(ADZAP_DATA);
 			sem_wait(&sem);
+		}
 
 		if (armed)
 		{
@@ -262,20 +297,26 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 		parent->hide();
 
 	monitor = false;
-	Settings();
+	ShowMenu();
 
 	return res;
 }
 
-void CAdZapMenu::Settings()
+void CAdZapMenu::ShowMenu()
 {
 	bool show_monitor = monitorLifeTime.tv_sec;
 
-	CMenuWidget *menu = new CMenuWidget(LOCALE_ADZAP, "settings", width);
+	CMenuWidget *menu = new CMenuWidget(LOCALE_ADZAP, NEUTRINO_ICON_SETTINGS, width);
 	menu->addKey(CRCInput::RC_red, this, "disable");
 	menu->addKey(CRCInput::RC_green, this, "enable");
 	menu->addKey(CRCInput::RC_blue, this, "monitor");
-	menu->addIntroItems(NONEXISTANT_LOCALE, LOCALE_ADZAP_SWITCHBACK);
+	menu->addIntroItems();
+
+	CMenuOptionChooser *oc = new CMenuOptionChooser(LOCALE_ADZAP_WRITEDATA, &g_settings.adzap_writeData, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oc->setHint("", LOCALE_MENU_HINT_ADZAP_WRITEDATA);
+	menu->addItem(oc);
+
+	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_ADZAP_SWITCHBACK));
 
 	neutrino_locale_t minute = LOCALE_ADZAP_MINUTE;
 	for (int shortcut = 1; shortcut < 10; shortcut++) {

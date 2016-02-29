@@ -50,7 +50,7 @@ class CAdZapMenu: public CMenuTarget
 		CAdZapMenu();
 		void Init();
 		time_t getMonitorLifeTime();
-		void Settings();
+		void ShowMenu();
 		void Update();
 		void Run(void);
 		static void *Run(void *arg);
