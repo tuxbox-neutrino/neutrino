@@ -377,7 +377,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			break;
 		case SNeutrinoSettings::ITEM_ADZAP:
 			keyhelper.get(&key,&icon,CRCInput::RC_blue);
-			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_ADZAP, true, adzap_active ? g_Locale->getText(LOCALE_OPTIONS_OFF) : NULL, neutrino, "adzap", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_ADZAP, true, adzap_active ? g_Locale->getText(LOCALE_OPTIONS_OFF) : NULL, CAdZapMenu::getInstance(), "adzap", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_ADZAP, adzap_active ? LOCALE_MENU_HINT_ADZAP_ACTIVE : LOCALE_MENU_HINT_ADZAP);
 			break;
 #if 0
