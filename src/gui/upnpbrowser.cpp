@@ -71,13 +71,17 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	m_frameBuffer = CFrameBuffer::getInstance();
 	m_playing_entry_is_shown = false;
 
-	initModules();
+	Init();
 
 	dline = NULL;
 	image = NULL;
+
+	sigc::slot0<void> reinit = sigc::mem_fun(this, &CUpnpBrowserGui::Init);
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(reinit);
+	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(reinit);
 }
 
-void CUpnpBrowserGui::initModules()
+void CUpnpBrowserGui::Init()
 {
 	topbox.enableFrame(true, 2);
 	topbox.setCorner(RADIUS_LARGE);
@@ -96,6 +100,27 @@ void CUpnpBrowserGui::initModules()
 	timebox.setColorAll(ibox.getColorFrame(), ibox.getColorBody());
 	timebox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
 	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);
+
+	m_width = m_frameBuffer->getScreenWidthRel();
+	m_height = m_frameBuffer->getScreenHeightRel();
+
+	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	m_theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	m_buttonHeight = m_theight;
+	m_mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	m_fheight = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getHeight();
+	m_title_height = m_mheight*2 + 20 + m_sheight + 4;
+	m_info_height = m_mheight*2;
+	m_listmaxshow = (m_height - m_info_height - m_title_height - m_theight - 2*m_buttonHeight) / (m_fheight);
+	m_height = m_theight + m_info_height + m_title_height + 2*m_buttonHeight + m_listmaxshow * m_fheight; // recalc height
+
+	footer.setColorBody(COL_INFOBAR_SHADOW_PLUS_1);
+	footer.setHeight(m_buttonHeight);
+
+	m_x=getScreenStartX(m_width);
+	if (m_x < ConnectLineBox_Width)
+		m_x = ConnectLineBox_Width;
+	m_y=getScreenStartY(m_height);
 }
 
 CUpnpBrowserGui::~CUpnpBrowserGui()
@@ -124,24 +149,6 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 
 	// remember last mode
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
-
-	m_width = m_frameBuffer->getScreenWidthRel();
-	m_height = m_frameBuffer->getScreenHeightRel();
-
-	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	m_buttonHeight = std::max(footer.getHeight(), m_sheight);
-	m_theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	m_mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	m_fheight = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getHeight();
-	m_title_height = m_mheight*2 + 20 + m_sheight + 4;
-	m_info_height = m_mheight*2;
-	m_listmaxshow = (m_height - m_info_height - m_title_height - m_theight - 2*m_buttonHeight) / (m_fheight);
-	m_height = m_theight + m_info_height + m_title_height + 2*m_buttonHeight + m_listmaxshow * m_fheight; // recalc height
-
-	m_x=getScreenStartX(m_width);
-	if (m_x < ConnectLineBox_Width)
-		m_x = ConnectLineBox_Width;
-	m_y=getScreenStartY(m_height);
 
 	// Stop sectionsd
 	g_Sectionsd->setPauseScanning(true);
@@ -946,8 +953,10 @@ void CUpnpBrowserGui::paintDevices()
 
 	// Head
 	CComponentsHeaderLocalized header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
-	if (CNeutrinoApp::getInstance()->isMuted())
+	if (CNeutrinoApp::getInstance()->isMuted()) //TODO: consider mute mode on runtime
 		header.addContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
+	else
+		header.removeContextButtons();
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	// Items
