@@ -459,8 +459,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 	}
 
-	extern CInfoClock *InfoClock;
-	InfoClock->enableInfoClock(false);
+	CInfoClock::getInstance()->enableInfoClock(false);
 	// show menu if there are more than 2 items only
 	// otherwise, we start the item directly (must be the last one)
 	if (menu_items > 1 )
@@ -468,7 +467,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	else if (last_menu_item)
 		last_menu_item->exec( NULL );
 	
-	InfoClock->enableInfoClock(true);
+	CInfoClock::getInstance()->enableInfoClock(true);
 	CNeutrinoApp::getInstance()->StartSubtitles();
 
 	if (button < COL_BUTTONMAX)

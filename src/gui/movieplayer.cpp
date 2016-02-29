@@ -74,7 +74,7 @@
 
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
-extern CInfoClock *InfoClock;
+
 extern CVolume* g_volume;
 
 #define TIMESHIFT_SECONDS 3
@@ -459,7 +459,7 @@ void CMoviePlayerGui::ClearQueue()
 void CMoviePlayerGui::EnableClockAndMute(bool enable)
 {
 	CAudioMute::getInstance()->enableMuteIcon(enable);
-	InfoClock->enableInfoClock(enable);
+	CInfoClock::getInstance()->enableInfoClock(enable);
 }
 
 void CMoviePlayerGui::makeFilename()
@@ -1828,7 +1828,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 		bool restore = FileTime.IsVisible();
 		if (restore)
 			FileTime.kill();
-		InfoClock->enableInfoClock(false);
+		CInfoClock::getInstance()->enableInfoClock(false);
 
 		if (isLuaPlay && haveLuaInfoFunc) {
 			int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
@@ -1843,7 +1843,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 		else if (p_movie_info)
 			cMovieInfo.showMovieInfo(*p_movie_info);
 
-		InfoClock->enableInfoClock(true);
+		CInfoClock::getInstance()->enableInfoClock(true);
 		if (restore) {
 			FileTime.setMode(m_mode);
 			FileTime.update(position, duration);

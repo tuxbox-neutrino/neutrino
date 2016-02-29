@@ -79,7 +79,7 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
 extern cVideo * videoDecoder;
-extern CInfoClock *InfoClock;
+
 
 #define LEFT_OFFSET 5
 
@@ -249,7 +249,7 @@ void CInfoViewer::initClock()
 		clock->setClockIntervall(1);
 	}
 
-	InfoClock->getInstance()->disableInfoClock();
+	CInfoClock::getInstance()->disableInfoClock();
 	clock->enableColBodyGradient(gradient_top, COL_INFOBAR_PLUS_0);
 	clock->doPaintBg(!gradient_top);
 	clock->enableTboxSaveScreen(gradient_top);
@@ -1213,7 +1213,7 @@ void CInfoViewer::killRadiotext()
 	if (g_Radiotext->S_RtOsd)
 		frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
 	rt_x = rt_y = rt_h = rt_w = 0;
-	InfoClock->enableInfoClock(true);
+	CInfoClock::getInstance()->enableInfoClock(true);
 }
 
 void CInfoViewer::showRadiotext()
@@ -1225,7 +1225,7 @@ void CInfoViewer::showRadiotext()
 	infoViewerBB->showIcon_RadioText(g_Radiotext->haveRadiotext());
 
 	if (g_Radiotext->S_RtOsd) {
-		InfoClock->enableInfoClock(false);
+		CInfoClock::getInstance()->enableInfoClock(false);
 		// dimensions of radiotext window
 		int /*yoff = 8,*/ ii = 0;
 		rt_dx = BoxEndX - BoxStartX;
@@ -2099,7 +2099,7 @@ void CInfoViewer::killTitle()
 		}
 	}
 	showButtonBar = false;
-	InfoClock->getInstance()->enableInfoClock();
+	CInfoClock::getInstance()->enableInfoClock();
 }
 
 #if 0

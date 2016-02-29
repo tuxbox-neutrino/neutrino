@@ -53,7 +53,7 @@
 #include <system/debug.h>
 #include <video.h>
 extern cVideo * videoDecoder;
-extern CInfoClock *InfoClock;
+
 
 CMediaPlayerMenu::CMediaPlayerMenu()
 {
@@ -108,7 +108,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "movieplayer")
 	{
 		audiomute->enableMuteIcon(false);
-		InfoClock->enableInfoClock(false);
+		CInfoClock::getInstance()->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if( mode == NeutrinoMessages::mode_radio )
 			CFrameBuffer::getInstance()->stopFrame();
@@ -116,7 +116,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if( mode == NeutrinoMessages::mode_radio )
 			CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
 		audiomute->enableMuteIcon(true);
-		InfoClock->enableInfoClock(true);
+		CInfoClock::getInstance()->enableInfoClock(true);
 		return res;
 	}
 	
