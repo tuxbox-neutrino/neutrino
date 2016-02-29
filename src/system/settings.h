@@ -196,7 +196,6 @@ struct SNeutrinoSettings
 	int infobar_show_res;
 	int infobar_show_tuner;
 	int infobar_show_dd_available;
-	int wzap_time;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;

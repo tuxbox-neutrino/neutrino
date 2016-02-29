@@ -1294,9 +1294,6 @@ void CTimerEvent_Zapto::announceEvent()
 //------------------------------------------------------------
 void CTimerEvent_Zapto::fireEvent()
 {
-	if(CTimerdClient::adzap_eventID == eventID)
-		CTimerdClient::adzap_eventID = 0;//reset adzap flag
-
 	CTimerManager::getInstance()->getEventServer()->sendEvent(CTimerdClient::EVT_ZAPTO,
 								  CEventServer::INITID_TIMERD,
 								  &eventInfo,

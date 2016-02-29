@@ -26,6 +26,7 @@
 #endif
 
 #include <algorithm>
+#include <gui/adzap.h>
 #include <gui/epgview.h>
 #include <gui/eventlist.h>
 
@@ -671,9 +672,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	int showPos = 0;
 	textCount = epgText.size();
 	showText(showPos, sy + toph);
-	bool wzap = isCurrentEPG(channel_id);
 	// show Timer Event Buttons
-	showTimerEventBar (true,wzap);
+	showTimerEventBar (true, isCurrentEPG(channel_id));
 	
 	//show progressbar
 	if ( epg_done!= -1 )
@@ -783,24 +783,23 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				break;
 			case CRCInput::RC_page_up:
 				if(isCurrentEPG(channel_id)){
-					if(g_settings.wzap_time> 14)
-						g_settings.wzap_time+=5;
-					else
-						g_settings.wzap_time++;
-					if(g_settings.wzap_time>60)
-						g_settings.wzap_time = 0;
+					int zapBackPeriod = g_settings.adzap_zapBackPeriod / 60;
+					if (zapBackPeriod < 9)
+						zapBackPeriod++;
+					if (zapBackPeriod > 9)
+						zapBackPeriod = 9;
+					g_settings.adzap_zapBackPeriod = zapBackPeriod * 60;
 					showTimerEventBar(true, true);
 				}
 				break;
 			case CRCInput::RC_page_down:
 				if(isCurrentEPG(channel_id)){
-					if(g_settings.wzap_time> 19)
-						g_settings.wzap_time-=5;
-					else
-						g_settings.wzap_time--;
-					  
-					if(g_settings.wzap_time<0)
-						g_settings.wzap_time = 60;
+					int zapBackPeriod = g_settings.adzap_zapBackPeriod / 60;
+					if (zapBackPeriod > 1)
+						zapBackPeriod--;
+					if (zapBackPeriod < 1)
+						zapBackPeriod = 1;
+					g_settings.adzap_zapBackPeriod = zapBackPeriod * 60;
 					showTimerEventBar(true, true);
 				}
 				break;
@@ -889,20 +888,20 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				// 31.05.2002 dirch		zapto timer
 			case CRCInput::RC_yellow:
 			{
-				//CTimerdClient timerdclient;
-				if (g_Timerd->isTimerdAvailable())
+				if (isCurrentEPG(channel_id))
+				{
+					CAdZapMenu::getInstance()->exec(NULL, "enable");
+					loop = false;
+				}
+                                //CTimerdClient timerdclient;
+				else if (g_Timerd->isTimerdAvailable())
 				{	
-					if(!g_Timerd->adzap_eventID && g_settings.wzap_time && isCurrentEPG(channel_id)){
-						g_Timerd->addAdZaptoTimerEvent(channel_id,
-								     time (NULL) + (g_settings.wzap_time * 60));
-						loop = false;
-					}else{
-						g_Timerd->addZaptoTimerEvent(channel_id,
-								     epgData.epg_times.startzeit - (g_settings.zapto_pre_time * 60),
-								     epgData.epg_times.startzeit - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
-								     epgData.eventID, epgData.epg_times.startzeit, 0);
-						ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-					}
+					g_Timerd->addZaptoTimerEvent(channel_id,
+							     epgData.epg_times.startzeit - (g_settings.zapto_pre_time * 60),
+							     epgData.epg_times.startzeit - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
+							     epgData.eventID, epgData.epg_times.startzeit, 0);
+					ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+
 					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 				}
 				else
@@ -1170,7 +1169,7 @@ const struct button_label EpgButtons[] =
 
 };
 
-void CEpgData::showTimerEventBar (bool pshow, bool webzap)
+void CEpgData::showTimerEventBar (bool pshow, bool adzap)
 
 {
 	int  x,y,h,fh;
@@ -1192,16 +1191,17 @@ void CEpgData::showTimerEventBar (bool pshow, bool webzap)
 	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
 	/* 2 * ICON_LARGE_WIDTH for potential 16:9 and DD icons */
 	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
-	std::string tmp_but_name;
-	if(g_settings.wzap_time && webzap && !g_Timerd->adzap_eventID){
-		tmp_but_name = g_Locale->getText(LOCALE_ADZAP);
-		tmp_but_name += " "+ to_string(g_settings.wzap_time) + " ";
-		tmp_but_name += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+	std::string adzap_button;
+	if (adzap)
+	{
+		adzap_button = g_Locale->getText(LOCALE_ADZAP);
+		adzap_button += " " + to_string(g_settings.adzap_zapBackPeriod / 60) + " ";
+		adzap_button += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 	}
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 3:2, EpgButtons, aw, h,"",false,COL_INFOBAR_SHADOW_TEXT,tmp_but_name.empty() ? NULL:tmp_but_name.c_str(),1);
+		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 3:2, EpgButtons, aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 2);
 	else
-		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 2:1, &EpgButtons[1], aw, h,"",false,COL_INFOBAR_SHADOW_TEXT,tmp_but_name.empty() ? NULL:tmp_but_name.c_str(),0);
+		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 2:1, &EpgButtons[1], aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
 
 #if 0
 	// Button: Timer Record & Channelswitch
