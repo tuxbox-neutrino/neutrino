@@ -102,7 +102,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	shadow		= shadow_mode;
 	shadow_w	= SHADOW_OFFSET;
 
-	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
+	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //TODO: gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
 	setColBodyGradient(cc_body_gradient_enable/*CColorGradient::gradientLight2Dark*/, CFrameBuffer::gradientVertical, CColorGradient::light);
 	col_frame 	= color_frame;
 	col_body	= cc_body_gradient_enable? COL_DARK_GRAY : color_body;
@@ -110,7 +110,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
-	fr_thickness 	= 3;
+	fr_thickness 	= 3; //TODO: parts of the GUI still don't use framed buttons
 	append_x_offset = 6;
 	append_y_offset = 0;
 	corner_rad	= 0;
@@ -160,7 +160,7 @@ void CComponentsButton::initIcon()
 		if (h_icon > h_max)
 			cc_btn_icon_obj->setHeight(h_max, true);
 
-		y_icon = height/2 - cc_btn_icon_obj->getHeight()/2;
+		y_icon = h_max/2 - cc_btn_icon_obj->getHeight()/2;
 
 		cc_btn_icon_obj->setYPos(y_icon);
 		cc_btn_icon_obj->doPaintBg(false);
@@ -192,7 +192,7 @@ void CComponentsButton::initCaption()
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
 		int w_cap = width - fr_thickness - append_x_offset - x_cap - fr_thickness;
-		int h_cap = height*80/100/* - 2*fr_thickness*/;
+		int h_cap = height*85/100/* - 2*fr_thickness*/;
 
 		/*NOTE:
 			paint of centered text in y direction without y_offset
