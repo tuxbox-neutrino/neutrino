@@ -86,6 +86,7 @@ install_DATA += \
 	help_small.png \
 	hidden.png \
 	hint_a_pic.png \
+	hint_adzap.png \
 	hint_aplay.png \
 	hint_audio.png \
 	hint_back.png \

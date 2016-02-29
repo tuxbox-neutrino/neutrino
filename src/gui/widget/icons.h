@@ -204,6 +204,7 @@
 #define NEUTRINO_ICON_HINT_SHUTDOWN	"hint_shutdown"
 #define NEUTRINO_ICON_HINT_INFO		"hint_info"
 #define NEUTRINO_ICON_HINT_CI		"hint_ci"
+#define NEUTRINO_ICON_HINT_ADZAP	"hint_adzap"
 /* media */
 #define NEUTRINO_ICON_HINT_APLAY	"hint_aplay"
 #define NEUTRINO_ICON_HINT_INET_RADIO	"hint_inetradio"

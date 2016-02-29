@@ -313,7 +313,7 @@ void CAdZapMenu::ShowMenu()
 	menu->addIntroItems();
 
 	CMenuOptionChooser *oc = new CMenuOptionChooser(LOCALE_ADZAP_WRITEDATA, &g_settings.adzap_writeData, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	oc->setHint("", LOCALE_MENU_HINT_ADZAP_WRITEDATA);
+	oc->setHint(NEUTRINO_ICON_HINT_ADZAP, LOCALE_MENU_HINT_ADZAP_WRITEDATA);
 	menu->addItem(oc);
 
 	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_ADZAP_SWITCHBACK));
@@ -326,6 +326,7 @@ void CAdZapMenu::ShowMenu()
 		bool selected = g_settings.adzap_zapBackPeriod == 60 * shortcut;
 		forwarders[shortcut - 1] = new CMenuForwarder(minute, true, NULL, this, actionKey, CRCInput::convertDigitToKey(shortcut));
 		forwarders[shortcut - 1]->setMarked(selected);
+		forwarders[shortcut - 1]->setHint(NEUTRINO_ICON_HINT_ADZAP, "");
 		menu->addItem(forwarders[shortcut - 1], selected);
 		minute = LOCALE_ADZAP_MINUTES;
 	}
