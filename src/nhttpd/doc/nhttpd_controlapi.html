@@ -48,7 +48,7 @@
 		<td><a href="http://box_ip/control/setmode">http://box_ip/control/setmode</a></td>
 	</tr>
 	<tr>
-		<td><a href="#getmode">Radio/TV Mode Abfrage</a></td>
+		<td><a href="#getmode">Neutrino Mode Abfrage</a></td>
 		<td><a href="http://box_ip/control/getmode">http://box_ip/control/getmode</td>
 	</tr>
 	<tr>
@@ -952,18 +952,30 @@ ok<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->
-<div class="title1"><a name="getmode"></a><b>Radio/TV Mode Abfrage</b></div>
+<div class="title1"><a name="getmode"></a><b>Neutrino Mode Abfrage</b></div>
 <div class="URL">Handler: http://box_ip/control/getmode</div>
 <br>
-<b>Parameter:</b> <br>
-<b>R&uuml;ckgabe:</b> &quot;tv&quot;, &quot;radio&quot;, &quot;unkown&quot;<br>
+<b>Parameter:</b> keine<br>
+<b>R&uuml;ckgabe:</b> &quot;tv&quot;, &quot;radio&quot;, &quot;scart&quot;, &quot;standby&quot;, &quot;audio&quot;,<br>
+&quot;pic&quot;, &quot;ts&quot;, &quot;webtv&quot;, &quot;upnp&quot;, &quot;unknown&quot;<br>
 <br>
-Es wird der aktuelle mode zur&uuml;ckgegeben tv / radio / unknown (shouldn't happen)<br>
+Es wird der aktuelle Modus der Box zur&uuml;ckgegeben<br>
 <div class="example">
 Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/getmode<br>
 tv<br>
+<br>
+</div>
+<b>Parameter:</b> channelsmode<br>
+<b>R&uuml;ckgabe:</b> &quot;tv&quot;, &quot;radio&quot;, &quot;unknown&quot;<br>
+<br>
+Es wird der eingestellte Kanalmodus der Box zur&uuml;ckgegeben<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/getmode?channelmode<br>
+radio<br>
 <br>
 </div>
 

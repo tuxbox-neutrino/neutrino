@@ -392,36 +392,56 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 void CControlAPI::GetModeCGI(CyhookHandler *hh)
 {
 	hh->outStart();
-
 	std::string result = "";
-	int mode = CNeutrinoApp::getInstance()->getMode();
-	if (mode == NeutrinoMessages::mode_tv)
-		result = "tv";
-	else if (mode == NeutrinoMessages::mode_radio)
-		result = "radio";
-	else if (mode == NeutrinoMessages::mode_scart)
-		result = "scart";
-	else if (mode == NeutrinoMessages::mode_standby)
-		result = "standby";
-	else if (mode == NeutrinoMessages::mode_audio)
-		result = "audio";
-	else if (mode == NeutrinoMessages::mode_pic)
-		result = "pic";
-	else if (mode == NeutrinoMessages::mode_ts)
-		result = "ts";
-	else if (mode == NeutrinoMessages::mode_webtv)
-		result = "webtv";
-	else if (mode == NeutrinoMessages::mode_upnp)
-		result = "upnp";
-	else
-		result = "unknown";
+	std::string key = "mode";
 
-	if (hh->getOutType() != plain)
+	if (hh->ParamList_exist("channelsmode") && hh->ParamList["channelsmode"] != "false")
 	{
-		result = hh->outPair("mode", result, false);
-		result = hh->outObject("getmode", result);
+		key = "channelsmode";
+		int mode = NeutrinoAPI->Zapit->getMode();
+		if (mode == CZapitClient::MODE_TV)
+			result = "tv";
+		else if (mode == CZapitClient::MODE_RADIO)
+			result = "radio";
+		else
+			result = "unknown";
 	}
-	hh->SendResult(result);
+	else
+	{
+		int mode = CNeutrinoApp::getInstance()->getMode();
+		if (mode == NeutrinoMessages::mode_tv)
+			result = "tv";
+		else if (mode == NeutrinoMessages::mode_radio)
+			result = "radio";
+		else if (mode == NeutrinoMessages::mode_scart)
+			result = "scart";
+		else if (mode == NeutrinoMessages::mode_standby)
+			result = "standby";
+		else if (mode == NeutrinoMessages::mode_audio)
+			result = "audio";
+		else if (mode == NeutrinoMessages::mode_pic)
+			result = "pic";
+		else if (mode == NeutrinoMessages::mode_ts)
+			result = "ts";
+		else if (mode == NeutrinoMessages::mode_webtv)
+			result = "webtv";
+		else if (mode == NeutrinoMessages::mode_upnp)
+			result = "upnp";
+		else
+			result = "unknown";
+	}
+
+	if (!result.empty())
+	{
+		if (hh->getOutType() != plain)
+		{
+			result = hh->outPair(key, result, false);
+			result = hh->outObject("getmode", result);
+		}
+		hh->SendResult(result);
+	}
+	else
+		hh->SendError();
 }
 
 //-----------------------------------------------------------------------------
