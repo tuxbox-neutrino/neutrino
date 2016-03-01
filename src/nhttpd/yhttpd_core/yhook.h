@@ -199,6 +199,8 @@ public:
 	void SendRedirect(const std::string& url)	{httpStatus=HTTP_MOVED_TEMPORARILY; NewURL = url; status = HANDLED_REDIRECTION;}
 	void SendRewrite(const std::string& url)	{NewURL = url; status = HANDLED_REWRITE;}
 
+	bool ParamList_exist(std::string keyword);
+
 	int _outIndent;
 	TOutType outType;			// Outputtpe = plain (default)|xml|json
 	TOutType outStart(bool single = false);

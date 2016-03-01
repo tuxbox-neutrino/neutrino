@@ -366,6 +366,19 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 	return result;
 }
 
+bool CyhookHandler::ParamList_exist(std::string keyword)
+{
+	bool exist = false;
+	unsigned int s = ParamList.size();
+	for (unsigned int i = 1; i <= s; i++)
+	{
+		exist = (ParamList[itoa(i)] == keyword);
+		if (exist)
+			break;
+	}
+	return exist;
+}
+
 //=============================================================================
 // Output helpers
 //=============================================================================
