@@ -2307,12 +2307,13 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 	while (infile.good())
 	{
 		infile.getline(cLine, sizeof(cLine));
-		if (cLine[strlen(cLine)-1]=='\r')
-			cLine[strlen(cLine)-1]=0;
+		size_t len = strlen(cLine);
+		if (len > 0 && cLine[len-1]=='\r')
+			cLine[len-1]=0;
 
 		int dur;
 		sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &dur, name);
-		if (strlen(cLine) > 0 && cLine[0]!='#')
+		if (len > 0 && cLine[0]!='#')
 		{
 			char *url = NULL;
 			if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "https://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) || (url = strstr(cLine, "mmsh://")) ) {
