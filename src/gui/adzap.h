@@ -31,7 +31,7 @@
 #include <string>
 #include <semaphore.h>
 
-class CAdZapMenu: public CMenuTarget
+class CAdZapMenu: public CMenuTarget, CChangeObserver
 {
 	private:
 		CFrameBuffer * frameBuffer;
@@ -43,6 +43,7 @@ class CAdZapMenu: public CMenuTarget
 		struct timespec zapBackTime;
 		std::string channelName;
 		CMenuForwarder *forwarders[9];
+		CMenuOptionNumberChooser *nc;
 		CChannelEventList evtlist;
 		struct timespec monitorLifeTime;
 		t_channel_id channelId;
@@ -57,6 +58,7 @@ class CAdZapMenu: public CMenuTarget
 	public:
 		static CAdZapMenu *getInstance();
 		int exec(CMenuTarget * parent, const std::string & actionKey);
+		bool changeNotify(const neutrino_locale_t, void * data);
 		bool isActive() { return (armed || monitor); };
 };
 #endif // __adzap__

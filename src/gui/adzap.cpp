@@ -62,7 +62,7 @@ CAdZapMenu *CAdZapMenu::getInstance()
 CAdZapMenu::CAdZapMenu()
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	width = 40;
+	width = 35;
 
 	sem_init(&sem, 0, 0);
 
@@ -289,6 +289,7 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 		g_settings.adzap_zapBackPeriod = actionKey[0] - '0';
 		for (int shortcut = 1; shortcut < 10; shortcut++)
 			forwarders[shortcut - 1]->setMarked(shortcut == g_settings.adzap_zapBackPeriod);
+		nc->setMarked(false);
 		g_settings.adzap_zapBackPeriod *= 60;
 		return menu_return::RETURN_REPAINT;
 	}
@@ -331,9 +332,27 @@ void CAdZapMenu::ShowMenu()
 		minute = LOCALE_ADZAP_MINUTES;
 	}
 
+	menu->addItem(GenericMenuSeparator);
+
+	int zapBackPeriod = g_settings.adzap_zapBackPeriod / 60;
+	nc = new CMenuOptionNumberChooser(minute, &zapBackPeriod, true, 10, 120, this, CRCInput::RC_0);
+	nc->setMarked(g_settings.adzap_zapBackPeriod / 60 > 9);
+	nc->setHint(NEUTRINO_ICON_HINT_ADZAP, "");
+	menu->addItem(nc);
+
 	menu->setFooter(CAdZapMenuFooterButtons, CAdZapMenuFooterButtonCount - (show_monitor ? 0 : 1));
 	menu->exec(NULL, "");
 	menu->hide();
 	delete menu;
 	Update();
+}
+
+bool CAdZapMenu::changeNotify(const neutrino_locale_t, void * data)
+{
+	int z = (*(int *)data);
+	g_settings.adzap_zapBackPeriod = z * 60;
+	for (int shortcut = 1; shortcut < 10; shortcut++)
+		forwarders[shortcut - 1]->setMarked(false);
+	nc->setMarked(true);
+	return false;
 }

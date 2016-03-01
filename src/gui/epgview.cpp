@@ -784,10 +784,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			case CRCInput::RC_page_up:
 				if(isCurrentEPG(channel_id)){
 					int zapBackPeriod = g_settings.adzap_zapBackPeriod / 60;
-					if (zapBackPeriod < 9)
+					if (zapBackPeriod < 120)
 						zapBackPeriod++;
-					if (zapBackPeriod > 9)
-						zapBackPeriod = 9;
+					if (zapBackPeriod > 120)
+						zapBackPeriod = 120;
 					g_settings.adzap_zapBackPeriod = zapBackPeriod * 60;
 					showTimerEventBar(true, true);
 				}
