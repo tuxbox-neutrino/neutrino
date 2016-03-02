@@ -1742,6 +1742,7 @@ void CNeutrinoApp::SetupFonts(int fmode)
 	/* recalculate infobar position */
 	if (g_InfoViewer)
 		g_InfoViewer->start();
+	OnAfterSetupFonts();
 }
 
 /**************************************************************************************
