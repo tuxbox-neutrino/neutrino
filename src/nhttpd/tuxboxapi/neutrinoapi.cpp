@@ -136,6 +136,8 @@ CNeutrinoAPI::CNeutrinoAPI()
 	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_STANDBY, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_MUTE, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_VOLUME, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::RECORD_START, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::RECORD_STOP, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 
 	pmutex = new OpenThreads::Mutex(OpenThreads::Mutex::MUTEX_RECURSIVE);
 }

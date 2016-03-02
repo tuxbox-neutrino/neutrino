@@ -370,17 +370,27 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 		}
 		else if (hh->ParamList["record"] == "start")	// start record mode
 		{
+#if 0
 			if(hh->ParamList["stopplayback"] == "true")
 				NeutrinoAPI->Zapit->stopPlayBack();
 			NeutrinoAPI->Sectionsd->setPauseScanning(true);
 			NeutrinoAPI->Zapit->setRecordMode(true);
+#endif
+			CTimerd::RecordingInfo recinfo;
+			recinfo.eventID = 0;
+			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RECORD_START, CEventServer::INITID_HTTPD, (void *)&recinfo, sizeof(CTimerd::RecordingInfo));
 		}
 		else if (hh->ParamList["record"] == "stop")	// stop record mode
 		{
+#if 0
 			NeutrinoAPI->Zapit->setRecordMode(false);
 			NeutrinoAPI->Sectionsd->setPauseScanning(false);
 			if (!NeutrinoAPI->Zapit->isPlayBackActive())
 				NeutrinoAPI->Zapit->startPlayBack();
+#endif
+			CTimerd::RecordingInfo recinfo;
+			recinfo.eventID = 0; // FIXME must present
+			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RECORD_STOP, CEventServer::INITID_HTTPD, (void *)&recinfo, sizeof(CTimerd::RecordingInfo));
 		}
 		hh->SendOk();
 	}

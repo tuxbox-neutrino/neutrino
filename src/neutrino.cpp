@@ -3007,16 +3007,24 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 #endif
 		//zap to rec channel in standby-mode
+		CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+		/* special case for nhttpd: start direct record, if no eventID */
+		if (eventinfo->eventID == 0) {
+			int rec_mode = CRecordManager::getInstance()->GetRecordMode(live_channel_id);
+			/* start only if not recorded yet */
+			if (rec_mode == CRecordManager::RECMODE_OFF || rec_mode == CRecordManager::RECMODE_TSHIFT)
+				CRecordManager::getInstance()->Record(live_channel_id);
+			delete[] (unsigned char*) data;
+			return messages_return::handled | messages_return::cancel_all;
+		}
 		if(mode == mode_standby){
-			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
-			t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-
 			if((eventinfo->channel_id != live_channel_id) && !(SAME_TRANSPONDER(live_channel_id, eventinfo->channel_id)))
 				zapTo(eventinfo->channel_id);
 		}
 
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
-			CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
+			CRecordManager::getInstance()->Record(eventinfo);
 			autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 		}
 
