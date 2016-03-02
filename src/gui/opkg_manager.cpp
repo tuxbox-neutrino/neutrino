@@ -174,6 +174,16 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		//show package info...
 		bool is_installed = pkg_vec[selected]->installed;
 		string infostr = getPkgInfo(pkg_vec[selected]->name, "", is_installed /*status or info*/);
+
+		//if available, generate a readable string for installation time
+		if (is_installed){
+			string tstr = getPkgInfo(pkg_vec[selected]->name, "Installed-Time", is_installed);
+			stringstream sstr(tstr);
+			time_t tval; sstr >> tval;
+			string newstr = asctime(localtime(&tval));
+			infostr = str_replace(tstr, newstr, infostr);
+		}
+
 		DisplayInfoMessage(infostr.c_str());
 		return res;
 	}
