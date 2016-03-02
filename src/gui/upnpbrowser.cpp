@@ -672,7 +672,7 @@ bool CUpnpBrowserGui::updateItemSelection(std::string id, std::vector<UPnPEntry>
 
 		selected = newpos;
 		liststart = (selected/m_listmaxshow)*m_listmaxshow;
-		printf("updateItemSelection: list start old %d new %d selected old %d new %d\n", oldliststart, liststart, prev_selected, selected);
+		printf("updateItemSelection: list start old %u new %d selected old %d new %d\n", oldliststart, liststart, prev_selected, selected);
 		if (oldliststart != liststart) {
 			unsigned int total;
 			if (!getItems(id, liststart, entries, total))
@@ -945,7 +945,6 @@ void CUpnpBrowserGui::paintDevice(unsigned int _pos)
 
 void CUpnpBrowserGui::paintDevices()
 {
-	std::string tmp;
 	int ypos, top;
 
 	// LCD
@@ -1055,7 +1054,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 {
 	std::string tmp;
 	std::stringstream ts;
-	int w, xstart;
+
 	int preferred=entry->preferred;
 
 	// LCD
@@ -1083,13 +1082,11 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	tmp += "\n";
 
 	//third line
-// 	tmp += "";
 	if (!entry->isdir && preferred != -1)
 		tmp += "URL: " + entry->resources[preferred].url;
 
 	static std::string lastname = "", tmpname = "";
 	if(!entry->albumArtURI.empty()){
-		static int flogo_w = 0, flogo_h = 0;
 		if(lastname != entry->albumArtURI){
 			tmpname = lastname = entry->albumArtURI.c_str();
 			tmpname = g_PicViewer->DownloadImage(tmpname);
