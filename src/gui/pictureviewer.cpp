@@ -232,6 +232,8 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	// Restore last mode
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
+	if (m_LastMode == NeutrinoMessages::mode_ts)
+		videoDecoder->setBlank(false);
 
 	// always exit all
 	return menu_return::RETURN_REPAINT;
