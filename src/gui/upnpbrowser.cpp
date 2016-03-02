@@ -3,6 +3,7 @@
 
   UPnP Browser (c) 2007 by Jochen Friedrich
                (c) 2009-2011,2016 Stefan Seyfried
+               (c) 2016 Thilo Graf
 
   License: GPL
 
@@ -17,8 +18,7 @@
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
