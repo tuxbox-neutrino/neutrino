@@ -912,9 +912,30 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.version_pseudo = configfile.getString("version_pseudo", "19700101000000");
 
+	if (g_settings.version_pseudo < NEUTRINO_VERSION_PSEUDO)
+		upgradeSetup(fname);
+
 	if(erg)
 		configfile.setModifiedFlag(true);
 	return erg;
+}
+
+void CNeutrinoApp::upgradeSetup(const char * fname)
+{
+	if (g_settings.version_pseudo < "20160226110000")
+	{
+		if (g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->items == "7")
+		{
+			g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->items = "7,31";
+			configfile.setString("usermenu_tv_yellow", g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->items);
+		}
+	}
+
+	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
+	configfile.setString("version_pseudo", g_settings.version_pseudo);
+
+	if (configfile.getModifiedFlag())
+		configfile.saveConfig(fname);
 }
 
 /**************************************************************************************
