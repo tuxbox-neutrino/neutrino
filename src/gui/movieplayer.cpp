@@ -716,7 +716,6 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 	}
 
 	Json::Value root;
-	Json::Value data;
 	Json::Reader reader;
 	bool parsedSuccess = reader.parse(result_string, root, false);
 	if (!parsedSuccess) {
@@ -730,15 +729,59 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 	}
 
 	livestream_info_t info;
-	for(size_t i = 0; i < root.size(); ++i) {
-		data = root[i]["url"];  info.url        = data.asString();
-		data = root[i]["name"]; info.name       = data.asString();
-		data = root[i]["band"]; info.bandwidth  = atoi(data.asString().c_str());
-		data = root[i]["res1"]; std::string tmp = data.asString(); info.res1 = atoi(tmp.c_str());
-		data = root[i]["res2"]; info.resolution = tmp + "x" + data.asString();
-		streamList.push_back(info);
+	std::string tmp;
+	bool haveurl = false;
+	if ( !root.isObject() ) {
+		for (Json::Value::iterator it = root.begin(); it != root.end(); ++it) {
+			info.url=""; info.name=""; info.bandwidth = 1; info.resolution=""; info.res1 = 1;
+			tmp = "0";
+			Json::Value object_it = *it;
+			for (Json::Value::iterator iti = object_it.begin(); iti != object_it.end(); iti++) {
+				std::string name = iti.name();
+				if (name=="url") {
+					info.url = (*iti).asString();
+					haveurl = true;
+				} else if (name=="name") {
+					info.name = (*iti).asString();
+				} else if (name=="band") {
+					info.bandwidth  = atoi((*iti).asString().c_str());
+				} else if (name=="res1") {
+					tmp = (*iti).asString();
+					info.res1 = atoi(tmp.c_str());
+				} else if (name=="res2") {
+					info.resolution = tmp + "x" + (*iti).asString();
+				}
+			}
+			if (haveurl) {
+				streamList.push_back(info);
+			}
+			haveurl = false;
+		}
 	}
-
+	if (root.isObject()) {
+		for (Json::Value::iterator it = root.begin(); it != root.end(); ++it) {
+			info.url=""; info.name=""; info.bandwidth = 1; info.resolution=""; info.res1 = 1;
+			tmp = "0";
+			std::string name = it.name();
+			if (name=="url") {
+				info.url = (*it).asString();
+				haveurl = true;
+			} else if (name=="name") {
+				info.name = (*it).asString();
+			} else if (name=="band") {
+				info.bandwidth  = atoi((*it).asString().c_str());
+			} else if (name=="res1") {
+				tmp = (*it).asString();
+				info.res1 = atoi(tmp.c_str());
+			} else if (name=="res2") {
+				info.resolution = tmp + "x" + (*it).asString();
+			}
+		}
+		if (haveurl) {
+			streamList.push_back(info);
+		}
+		haveurl = false;
+	}
 	/* sort streamlist */
 	std::sort(streamList.begin(), streamList.end(), sortStreamList);
 
