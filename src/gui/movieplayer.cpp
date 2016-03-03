@@ -44,6 +44,7 @@
 #include <gui/plugins.h>
 #include <gui/videosettings.h>
 #include <gui/streaminfo2.h>
+#include <gui/lua/luainstance.h>
 #include <gui/lua/lua_video.h>
 #include <gui/screensaver.h>
 #include <driver/screenshot.h>
@@ -61,6 +62,7 @@
 #include <stdlib.h>
 #include <sys/timeb.h>
 #include <sys/mount.h>
+#include <json/json.h>
 
 #include <video.h>
 #include <libtuxtxt/teletext.h>
@@ -70,6 +72,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include <iconv.h>
 
 extern cVideo * videoDecoder;
@@ -199,6 +202,7 @@ void CMoviePlayerGui::Init(void)
 	blockedFromPlugin = false;
 	m_screensaver = false;
 	m_idletime = time(NULL);
+	liveStreamList.clear();
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -683,7 +687,131 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	pthread_exit(NULL);
 }
 
-bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan)
+bool CMoviePlayerGui::sortStreamList(livestream_info_t info1, livestream_info_t info2)
+{
+	return (info1.res1 < info2.res1);
+}
+
+bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList)
+{
+	CHintBox* box = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_LIVESTREAM_READ_DATA));
+	box->paint();
+
+	std::string result_code = "";
+	std::string result_string = "";
+
+	std::vector<std::string> args;
+	args.push_back(file);
+
+	CLuaInstance *lua = new CLuaInstance();
+	lua->runScript(script.c_str(), &args, &result_code, &result_string);
+	delete lua;
+
+	if ((result_code != "0") || result_string.empty()) {
+		if (box != NULL) {
+			box->hide();
+			delete box;
+		}
+		return false;
+	}
+
+	Json::Value root;
+	Json::Value data;
+	Json::Reader reader;
+	bool parsedSuccess = reader.parse(result_string, root, false);
+	if (!parsedSuccess) {
+		printf("Failed to parse JSON\n");
+		printf("%s\n", reader.getFormattedErrorMessages().c_str());
+		if (box != NULL) {
+			box->hide();
+			delete box;
+		}
+		return false;
+	}
+
+	livestream_info_t info;
+	for(size_t i = 0; i < root.size(); ++i) {
+		data = root[i]["url"];  info.url        = data.asString();
+		data = root[i]["name"]; info.name       = data.asString();
+		data = root[i]["band"]; info.bandwidth  = atoi(data.asString().c_str());
+		data = root[i]["res1"]; std::string tmp = data.asString(); info.res1 = atoi(tmp.c_str());
+		data = root[i]["res2"]; info.resolution = tmp + "x" + data.asString();
+		streamList.push_back(info);
+	}
+
+	/* sort streamlist */
+	std::sort(streamList.begin(), streamList.end(), sortStreamList);
+
+	/* remove duplicate resolutions */
+	livestream_info_t *_info;
+	int res_old = 0;
+	for (size_t i = 0; i < streamList.size(); ++i) {
+		_info = &(streamList[i]);
+		if (res_old == _info->res1)
+			streamList.erase(streamList.begin()+i);
+		res_old = _info->res1;
+	}
+
+	if (box != NULL) {
+		box->hide();
+		delete box;
+	}
+
+	return true;
+}
+
+bool CMoviePlayerGui::selectLivestream(std::vector<livestream_info_t> &streamList, int res, livestream_info_t* info)
+{
+	livestream_info_t* _info;
+	int _res = res;
+
+#if 0
+	printf("\n");
+	for (size_t i = 0; i < streamList.size(); ++i) {
+		_info = &(streamList[i]);
+		printf("%d - _info->res1: %4d, _info->res: %9s, _info->bandwidth: %d\n", i, _info->res1, (_info->resolution).c_str(), _info->bandwidth);
+	}
+	printf("\n");
+#endif
+
+	bool resIO = false;
+	while (1) {
+		size_t i;
+		for (i = 0; i < streamList.size(); ++i) {
+			_info = &(streamList[i]);
+			if (_info->res1 == _res) {
+				info->url        = _info->url;
+				info->name       = _info->name;
+				info->resolution = _info->resolution;
+				info->res1       = _info->res1;
+				info->bandwidth  = _info->bandwidth;
+				return true;
+			}
+		}
+		/* Required resolution not found, decreasing resolution */
+		for (i = streamList.size(); i > 0; --i) {
+			_info = &(streamList[i-1]);
+			if (_info->res1 < _res) {
+				_res = _info->res1;
+				resIO = true;
+				break;
+			}
+		}
+		/* Required resolution not found, increasing resolution */
+		if (resIO == false) {
+			for (i = 0; i < streamList.size(); ++i) {
+				_info = &(streamList[i]);
+				if (_info->res1 > _res) {
+					_res = _info->res1;
+					break;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script)
 {
 	printf("%s: starting...\n", __func__);
 	static CZapProtection *zp = NULL;
@@ -715,6 +843,40 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 		}
 	}
 
+	static t_channel_id oldChan = 0;
+	std::string realUrl      = file;
+	std::string _pretty_name = name;
+	std::string _epgTitle    = name;
+	std::string _script      = script;
+	livestream_info_t info;
+	if (!_script.empty()) {
+		if (_script.find("/") == std::string::npos)
+			_script = g_settings.livestreamScriptPath + "/" + _script;
+
+		size_t pos = _script.find(".lua");
+		if ((file_exists(_script.c_str())) && (pos != std::string::npos) && (_script.length()-pos == 4)) {
+			if ((oldChan != chan) || liveStreamList.empty()) {
+				liveStreamList.clear();
+				if (!luaGetUrl(_script, file, liveStreamList))
+					return false;
+				oldChan = chan;
+			}
+
+			if (!selectLivestream(liveStreamList, g_settings.livestreamResolution, &info))
+				return false;
+
+			realUrl = info.url;
+			if (!info.name.empty()) {
+				_pretty_name = info.name;
+				_epgTitle = info.name;
+			}
+			if (!info.resolution.empty())
+				_epgTitle += (std::string)" (" + info.resolution + ")";
+		}
+		else
+			return false;
+	}
+
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	instance_bg->Cleanup();
@@ -724,12 +886,11 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->isWebTV = true;
 	instance_bg->is_file_player = true;
 	instance_bg->isHTTP = true;
+	instance_bg->file_name = realUrl;
+	instance_bg->pretty_name = _pretty_name;
 
-	instance_bg->file_name = file;
-	instance_bg->pretty_name = name;
-
-	instance_bg->movie_info.epgTitle = name;
-	instance_bg->movie_info.epgChannel = file;
+	instance_bg->movie_info.epgTitle = _epgTitle;
+	instance_bg->movie_info.epgChannel = realUrl;
 	instance_bg->movie_info.epgId = chan;
 	instance_bg->p_movie_info = &movie_info;
 

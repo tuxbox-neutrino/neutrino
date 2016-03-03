@@ -288,7 +288,7 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_red,             "2,3,4,13",                             "",     "red"           },
 	{ CRCInput::RC_green,           "6",                                    "",     "green"         },
-	{ CRCInput::RC_yellow,          "7",                                    "",     "yellow"        },
+	{ CRCInput::RC_yellow,          "7,31",                                 "",     "yellow"        },
 	{ CRCInput::RC_blue,            "12,11,20,21,19,14,29,30,15",           "",     "blue"          },
 	{ CRCInput::RC_play,            "9",                                    "",     "5"             },
 	{ CRCInput::RC_audio,           "27",                                   "",     "6"             },
@@ -906,6 +906,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infoClockBackground = configfile.getInt32("infoClockBackground", 0);
 	g_settings.infoClockSeconds = configfile.getInt32("infoClockSeconds", 1);
 
+	g_settings.livestreamResolution = configfile.getInt32("livestreamResolution", 1920);
+	g_settings.livestreamScriptPath = configfile.getString("livestreamScriptPath", PLUGINDIR_VAR "/webtv");
+
 	if(erg)
 		configfile.setModifiedFlag(true);
 	return erg;
@@ -1341,6 +1344,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infoClockBackground", g_settings.infoClockBackground);
 	configfile.setInt32("infoClockSeconds", g_settings.infoClockSeconds);
 	configfile.setInt32("easymenu", g_settings.easymenu);
+
+	configfile.setInt32("livestreamResolution", g_settings.livestreamResolution);
+	configfile.setString("livestreamScriptPath", g_settings.livestreamScriptPath);
 
 	if(strcmp(fname, NEUTRINO_SETTINGS_FILE) || configfile.getModifiedFlag())
 		configfile.saveConfig(fname);
@@ -2704,7 +2710,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 			if (cc && (chid == cc->getChannelID())) {
 				CMoviePlayerGui::getInstance().stopPlayBack();
-				if (CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID()))
+				if (CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName()))
 					delete [] (unsigned char*) data;
 				else
 					g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);
@@ -3293,7 +3299,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 				if (cc && IS_WEBTV(cc->getChannelID())) {
 					CMoviePlayerGui::getInstance().stopPlayBack();
-					CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID());
+					if (!CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName()))
+						g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);
 				}
 			}
 		}

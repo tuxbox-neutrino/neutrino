@@ -739,6 +739,9 @@ struct SNeutrinoSettings
 	std::string	font_file;
 	std::string	ttx_font_file;
 
+	int		livestreamResolution;
+	std::string	livestreamScriptPath;
+
 	// USERMENU
 	typedef enum
 	{
@@ -782,6 +785,8 @@ struct SNeutrinoSettings
 		ITEM_INETPLAY = 28,
 		ITEM_NETSETTINGS = 29,
 		ITEM_SWUPDATE = 30,
+
+		ITEM_LIVESTREAM_RESOLUTION = 31,
 
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;

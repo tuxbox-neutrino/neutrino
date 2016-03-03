@@ -40,4 +40,16 @@ class CWebTVSetup : public CMenuTarget
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		int Show();
 };
+
+class CWebTVResolution : public CMenuTarget
+{
+	private:
+		int width;
+		CMenuWidget *m;
+	public:
+		CWebTVResolution();
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int Show();
+};
+
 #endif

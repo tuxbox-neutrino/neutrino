@@ -32,6 +32,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
+	-I$(top_srcdir)/lib/jsoncpp/include \
 	@SIGC_CFLAGS@ \
 	@CURL_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \

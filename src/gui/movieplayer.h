@@ -85,6 +85,15 @@ class CMoviePlayerGui : public CMenuTarget
 	enum repeat_mode_enum { REPEAT_OFF = 0, REPEAT_TRACK = 1, REPEAT_ALL = 2 };
 
  private:
+	typedef struct livestream_info_t
+	{
+		std::string url;
+		std::string name;
+		std::string resolution;
+		int res1;
+		int bandwidth;
+	} livestream_info_struct_t;
+
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
 
@@ -159,6 +168,7 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string Path_local;
 	int menu_ret;
 	bool autoshot_done;
+	std::vector<livestream_info_t> liveStreamList;
 
 	/* playback from bookmark */
 	static CBookmarkManager * bookmarkmanager;
@@ -207,6 +217,9 @@ class CMoviePlayerGui : public CMenuTarget
 	void EnableClockAndMute(bool enable);
 	static void *ShowStartHint(void *arg);
 	static void* bgPlayThread(void *arg);
+	static bool sortStreamList(livestream_info_t info1, livestream_info_t info2);
+	bool selectLivestream(std::vector<livestream_info_t> &streamList, int res, livestream_info_t* info);
+	bool luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList);
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
@@ -227,7 +240,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int timeshift;
 	int file_prozent;
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }
-	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan);
+	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
 	void stopPlayBack(void);
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);

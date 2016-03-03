@@ -878,6 +878,10 @@ ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
+livestream.head Livestreams
+livestream.read_data Lese Daten...
+livestream.resolution Auflösung
+livestream.scriptpath Script Verzeichnis
 lua.boolparam_deprecated1 Achtung!
 lua.boolparam_deprecated2 Die Verwendung von Zahl oder String
 lua.boolparam_deprecated3 für einen Boolean Parameter ist veraltet.\n                      Bitte nutzen Sie native Bool Werte zB:

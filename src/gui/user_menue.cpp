@@ -71,12 +71,14 @@
 #include <gui/network_setup.h>
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
+#include <gui/webtv_setup.h>
 
 #include <driver/radiotext.h>
 #include <driver/record.h>
 #include <driver/screen_max.h>
 
 #include <system/helpers.h>
+#include <zapit/zapit.h>
 
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl;	/* neutrino.cpp */
@@ -178,7 +180,9 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	else
 		menu->addItem(GenericMenuSeparator);
 
-	bool _mode_ts = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_ts;
+	bool _mode_ts    = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_ts;
+	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) &&
+				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
 	std::string itemstr_last("1");
 
@@ -263,6 +267,8 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_SUBCHANNEL:
 		{
 			if (g_RemoteControl->subChannels.empty())
+				break;
+			if (_mode_webtv)
 				break;
 			// NVOD/SubService- Kanal!
 			CMenuWidget *tmpNVODSelector = new CMenuWidget(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_STARTTIME, NEUTRINO_ICON_VIDEO);
@@ -430,6 +436,13 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item = new CMenuDForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, new CSoftwareUpdate(), NULL, key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_SW_UPDATE);
 			break;
+		case SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION:
+			if (!_mode_webtv)
+				break;
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuDForwarder(LOCALE_LIVESTREAM_RESOLUTION, true, NULL, new CWebTVResolution(), NULL, key, icon);
+			//menu_item->setHint(xx, yy);
+			break;
 		case -1: // plugin
 		    {
 			int number_of_plugins = g_PluginList->getNumberOfPlugins();
@@ -511,6 +524,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 				continue;
 			case SNeutrinoSettings::ITEM_NONE:
 			case SNeutrinoSettings::ITEM_BAR:
+			case SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION:
 				continue;
 			case SNeutrinoSettings::ITEM_EPG_MISC:
 				return_title = true;
