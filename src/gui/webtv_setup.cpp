@@ -43,8 +43,7 @@ CWebTVSetup::CWebTVSetup()
 	changed = false;
 }
 
-#define LIVESTREAM_RESOLUTION_OPTION_COUNT 6
-const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[LIVESTREAM_RESOLUTION_OPTION_COUNT] =
+const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =
 {
 	{ 1920, NONEXISTANT_LOCALE, "1920x1080" },
 	{ 1280, NONEXISTANT_LOCALE, "1280x720"  },
@@ -53,6 +52,7 @@ const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[LIVESTREAM_RE
 	{ 426,  NONEXISTANT_LOCALE, "426x240"   },
 	{ 128,  NONEXISTANT_LOCALE, "128x72"    }
 };
+#define LIVESTREAM_RESOLUTION_OPTION_COUNT (sizeof(LIVESTREAM_RESOLUTION_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 
 #define CWebTVSetupFooterButtonCount 2
 static const struct button_label CWebTVSetupFooterButtons[CWebTVSetupFooterButtonCount] = {
