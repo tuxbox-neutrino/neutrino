@@ -525,6 +525,15 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 			case SNeutrinoSettings::ITEM_NONE:
 			case SNeutrinoSettings::ITEM_BAR:
 			case SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION:
+				if(loc == NONEXISTANT_LOCALE && !text) {
+					/* TODO
+					   get const char *valname from struct
+					   keyval_ext LIVESTREAM_RESOLUTION_OPTIONS
+					*/
+					text = to_string(g_settings.livestreamResolution).c_str();
+				} else
+					return_title = true;
+				active = true;
 				continue;
 			case SNeutrinoSettings::ITEM_EPG_MISC:
 				return_title = true;

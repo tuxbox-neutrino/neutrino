@@ -222,13 +222,6 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-#if 0
-			if (mode == NeutrinoMessages::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
-				text = g_Locale->getText(LOCALE_LIVESTREAM_RESOLUTION);
-				active = true;
-				break;
-			}
-#endif
 			if (mode == NeutrinoMessages::mode_ts) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_red, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
@@ -244,13 +237,6 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-#if 0
-			if (mode == NeutrinoMessages::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
-				text = g_Locale->getText(LOCALE_LIVESTREAM_RESOLUTION);
-				active = true;
-				break;
-			}
-#endif
 			if (mode == NeutrinoMessages::mode_ts) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
@@ -266,13 +252,6 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-#if 1
-			if (mode == NeutrinoMessages::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
-				text = g_Locale->getText(LOCALE_LIVESTREAM_RESOLUTION);
-				active = true;
-				break;
-			}
-#endif
 			if (mode == NeutrinoMessages::mode_ts) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
@@ -288,13 +267,6 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-#if 0
-			if (mode == NeutrinoMessages::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
-				text = g_Locale->getText(LOCALE_LIVESTREAM_RESOLUTION);
-				active = true;
-				break;
-			}
-#endif
 			if (mode == NeutrinoMessages::mode_ts) {
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_blue, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
