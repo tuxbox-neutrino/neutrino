@@ -48,6 +48,7 @@ class CWebTVResolution : public CMenuTarget
 		CMenuWidget *m;
 	public:
 		CWebTVResolution();
+		const char *getResolutionValue();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		int Show();
 };

@@ -79,10 +79,12 @@
 
 #include <system/helpers.h>
 #include <zapit/zapit.h>
+#include <video.h>
 
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl;	/* neutrino.cpp */
 extern CPlugins * g_PluginList;			/* neutrino.cpp */
+extern cVideo * videoDecoder;
 #if !HAVE_SPARK_HARDWARE
 extern CCAMMenuHandler * g_CamHandler;
 #endif
@@ -525,15 +527,28 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 			case SNeutrinoSettings::ITEM_NONE:
 			case SNeutrinoSettings::ITEM_BAR:
 			case SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION:
-				if(loc == NONEXISTANT_LOCALE && !text) {
-					/* TODO
-					   get const char *valname from struct
-					   keyval_ext LIVESTREAM_RESOLUTION_OPTIONS
-					*/
-					text = to_string(g_settings.livestreamResolution).c_str();
-				} else
-					return_title = true;
-				active = true;
+				if (mode == NeutrinoMessages::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
+					if(loc == NONEXISTANT_LOCALE && !text) {
+						CWebTVResolution webtvres;
+						text = webtvres.getResolutionValue();
+						if (!(videoDecoder->getBlank()))
+						{
+							int xres = 0, yres = 0, framerate;
+							videoDecoder->getPictureInfo(xres, yres, framerate);
+							if (xres && yres)
+							{
+								std::string res = to_string(xres) + "x" + to_string(yres);
+								if (res.compare(text))
+								{
+									std::string tmp = (string)text + " (" + res + ")";
+									text = tmp.c_str();
+								}
+							}
+						}
+					} else
+						return_title = true;
+					active = true;
+				}
 				continue;
 			case SNeutrinoSettings::ITEM_EPG_MISC:
 				return_title = true;

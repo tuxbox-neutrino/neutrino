@@ -210,4 +210,12 @@ int CWebTVResolution::Show()
 	return res;
 }
 
-// vim:ts=4
+const char *CWebTVResolution::getResolutionValue()
+{
+	for (unsigned int i = 0; i < LIVESTREAM_RESOLUTION_OPTION_COUNT; ++i)
+	{
+		if (g_settings.livestreamResolution == LIVESTREAM_RESOLUTION_OPTIONS[i].key)
+			return LIVESTREAM_RESOLUTION_OPTIONS[i].valname;
+	}
+	return "";
+}
