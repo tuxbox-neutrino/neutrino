@@ -203,6 +203,8 @@ void CMoviePlayerGui::Init(void)
 	m_screensaver = false;
 	m_idletime = time(NULL);
 	liveStreamList.clear();
+	livestreamInfo1.clear();
+	livestreamInfo2.clear();
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -887,10 +889,9 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	}
 
 	static t_channel_id oldChan = 0;
-	std::string realUrl      = file;
+	std::string realUrl = file;
+	std::string _script = script;
 	std::string _pretty_name = name;
-	std::string _epgTitle    = name;
-	std::string _script      = script;
 	livestream_info_t info;
 	if (!_script.empty()) {
 		if (_script.find("/") == std::string::npos)
@@ -900,24 +901,48 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 		if ((file_exists(_script.c_str())) && (pos != std::string::npos) && (_script.length()-pos == 4)) {
 			if ((oldChan != chan) || liveStreamList.empty()) {
 				liveStreamList.clear();
-				if (!luaGetUrl(_script, file, liveStreamList))
+				if (!luaGetUrl(_script, file, liveStreamList)) {
+					liveStreamList.clear();
+					printf(">>>>> [%s:%s:%d] lua script error\n", __file__, __func__, __LINE__);
 					return false;
+				}
 				oldChan = chan;
 			}
 
-			if (!selectLivestream(liveStreamList, g_settings.livestreamResolution, &info))
+			if (!selectLivestream(liveStreamList, g_settings.livestreamResolution, &info)) {
+				liveStreamList.clear();
+				printf(">>>>> [%s:%s:%d] error selectLivestream\n", __file__, __func__, __LINE__);
 				return false;
+			}
 
 			realUrl = info.url;
 			if (!info.name.empty()) {
+				livestreamInfo1 = info.name;
 				_pretty_name = info.name;
-				_epgTitle = info.name;
 			}
+#if 0
 			if (!info.resolution.empty())
-				_epgTitle += (std::string)" (" + info.resolution + ")";
+				livestreamInfo2 = info.resolution;
+			if (info.bandwidth > 0) {
+				char buf[32];
+				memset(buf, '\0', sizeof(buf));
+				snprintf(buf, sizeof(buf), "%.02f kbps", (float)((float)info.bandwidth/(float)1000));
+				livestreamInfo2 += (std::string)", " + (std::string)buf;
+			}
+#else
+			if (info.bandwidth > 0) {
+				char buf[32];
+				memset(buf, '\0', sizeof(buf));
+				snprintf(buf, sizeof(buf), "%.02f kbps", (float)((float)info.bandwidth/(float)1000));
+				livestreamInfo2 = (std::string)buf;
+			}
+#endif
 		}
-		else
+		else {
+			liveStreamList.clear();
+			printf(">>>>> [%s:%s:%d] script error\n", __file__, __func__, __LINE__);
 			return false;
+		}
 	}
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
@@ -932,7 +957,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->file_name = realUrl;
 	instance_bg->pretty_name = _pretty_name;
 
-	instance_bg->movie_info.epgTitle = _epgTitle;
+	instance_bg->movie_info.epgTitle = name;
 	instance_bg->movie_info.epgChannel = realUrl;
 	instance_bg->movie_info.epgId = chan;
 	instance_bg->p_movie_info = &movie_info;
@@ -959,6 +984,8 @@ void CMoviePlayerGui::stopPlayBack(void)
 		pthread_join(bgThread, NULL);
 		bgThread = 0;
 	}
+	livestreamInfo1.clear();
+	livestreamInfo2.clear();
 	printf("%s: stopped\n", __func__);
 }
 

@@ -162,6 +162,9 @@ void CInfoViewer::Init()
 	rt_x = rt_y = rt_h = rt_w = 0;
 
 	infobar_txt = NULL;
+
+	_livestreamInfo1.clear();
+	_livestreamInfo2.clear();
 }
 
 /*
@@ -533,7 +536,11 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 			loc = LOCALE_INFOVIEWER_EPGWAIT;
 		else
 			loc = LOCALE_INFOVIEWER_EPGNOTLOAD;
-		display_Info(g_Locale->getText(loc), NULL);
+
+		_livestreamInfo1.clear();
+		_livestreamInfo2.clear();
+		if (!showLivestreamInfo())
+			display_Info(g_Locale->getText(loc), NULL);
 	} else {
 		show_Data ();
 	}
@@ -924,6 +931,66 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 				break;
 	}
 }
+
+bool CInfoViewer::showLivestreamInfo()
+{
+	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv &&
+	    cc->getEpgID() == 0 && !cc->getScriptName().empty()) {
+		std::string livestreamInfo1 = "";
+		std::string livestreamInfo2 = "";
+		std::string tmp1            = "";
+		CMoviePlayerGui::getInstance().getLivestreamInfo(&livestreamInfo1, &tmp1);
+
+		if (!(videoDecoder->getBlank())) {
+			int xres, yres, framerate;
+			std::string tmp2;
+			videoDecoder->getPictureInfo(xres, yres, framerate);
+			switch (framerate) {
+				case 0:
+					tmp2 = "23.976fps";
+					break;
+				case 1:
+					tmp2 = "24fps";
+					break;
+				case 2:
+					tmp2 = "25fps";
+					break;
+				case 3:
+					tmp2 = "29,976fps";
+					break;
+				case 4:
+					tmp2 = "30fps";
+					break;
+				case 5:
+					tmp2 = "50fps";
+					break;
+				case 6:
+					tmp2 = "50,94fps";
+					break;
+				case 7:
+					tmp2 = "60fps";
+					break;
+				default:
+					tmp2 = g_Locale->getText(LOCALE_STREAMINFO_FRAMERATE_UNKNOWN);
+					break;
+			}
+			livestreamInfo2 = to_string(xres) + "x" + to_string(yres) + ", " + tmp2;
+			if (!tmp1.empty())
+				livestreamInfo2 += (std::string)", " + tmp1;
+		}
+
+		if (livestreamInfo1 != _livestreamInfo1 || livestreamInfo2 != _livestreamInfo2) {
+			display_Info(livestreamInfo1.c_str(), livestreamInfo2.c_str());
+			_livestreamInfo1 = livestreamInfo1;
+			_livestreamInfo2 = livestreamInfo2;
+			infoViewerBB->showBBButtons(true /*paintFooter*/);
+		}
+		return true;
+	}
+	return false;
+}
+
 void CInfoViewer::loop(bool show_dot)
 {
 	bool hideIt = true;
@@ -939,8 +1006,13 @@ void CInfoViewer::loop(bool show_dot)
 	if (isVolscale)
 		CVolume::getInstance()->showVolscale();
 
+	_livestreamInfo1.clear();
+	_livestreamInfo2.clear();
+
 	while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
+
+		showLivestreamInfo();
 
 #ifdef ENABLE_PIP
 		if ((msg == (neutrino_msg_t) g_settings.key_pip_close) || 
@@ -1418,6 +1490,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		if ((*(t_channel_id *) data) == current_channel_id) {
 			if (is_visible && showButtonBar) {
 				infoViewerBB->showIcon_DD();
+				showLivestreamInfo();
 				infoViewerBB->showBBButtons(true /*paintFooter*/); // in case button text has changed
 			}
 			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))

@@ -94,6 +94,9 @@ class CMoviePlayerGui : public CMenuTarget
 		int bandwidth;
 	} livestream_info_struct_t;
 
+	std::string livestreamInfo1;
+	std::string livestreamInfo2;
+
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
 
@@ -257,6 +260,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void setBlockedFromPlugin(bool b) { blockedFromPlugin = b; };
 	bool getBlockedFromPlugin() { return blockedFromPlugin; };
 	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };
+	void getLivestreamInfo(std::string *i1, std::string *i2) { *i1=livestreamInfo1; *i2=livestreamInfo2; };
 };
 
 #endif

@@ -112,6 +112,8 @@ class CInfoViewer
 	bool channellogoChange;
 	uint32_t lcdUpdateTimer;
 	int	 zap_mode;
+	std::string _livestreamInfo1;
+	std::string _livestreamInfo2;
 
 	void paintBackground(int col_Numbox);
 	void paintHead();
@@ -146,6 +148,8 @@ class CInfoViewer
 	void reset_allScala();
 	void check_channellogo_ca_SettingsChange();
 	void sendNoEpg(const t_channel_id channel_id);
+	bool showLivestreamInfo();
+
  public:
 	bool     chanready;
 	bool	 is_visible;
