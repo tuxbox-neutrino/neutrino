@@ -729,6 +729,9 @@ struct SNeutrinoSettings
 	t_channel_id startchannelradio_id;
 	int uselastchannel;
 
+	//adzap
+	int adzap_zapBackPeriod;
+
 	int	power_standby;
 	int	hdd_sleep;
 	int	hdd_noise;
@@ -789,6 +792,7 @@ struct SNeutrinoSettings
 		ITEM_SWUPDATE = 30,
 
 		ITEM_LIVESTREAM_RESOLUTION = 31,
+		ITEM_ADZAP = 32,
 
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;
@@ -816,8 +820,6 @@ struct SNeutrinoSettings
 		WIZARD_ON	= 2
 	};
 };
-
-/* some default Values */
 
 extern const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SETTINGS_MAX];
 
@@ -864,9 +866,6 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 
 // shadow
 #define SHADOW_OFFSET                   6
-
-/* end default values */
-
 
 struct SglobalInfo
 {

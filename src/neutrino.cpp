@@ -65,6 +65,7 @@
 #include <driver/radiotext.h>
 #include <driver/scanepg.h>
 
+#include "gui/adzap.h"
 #include "gui/audiomute.h"
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
@@ -828,6 +829,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
 
+	g_settings.adzap_zapBackPeriod = configfile.getInt32("adzap_zapBackPeriod", 180);
 
 	// USERMENU -> in system/settings.h
 	//-------------------------------------------
@@ -1314,6 +1316,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt64("startchanneltv_id", g_settings.startchanneltv_id);
 	configfile.setInt64("startchannelradio_id", g_settings.startchannelradio_id);
 	configfile.setInt32("uselastchannel", g_settings.uselastchannel);
+	configfile.setInt32("adzap_zapBackPeriod", g_settings.adzap_zapBackPeriod);
 	//epg search
 	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
 	if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
@@ -3999,6 +4002,10 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			execvp(global_argv[0], global_argv); // no return if successful
 			exit(1);
 		}
+	}
+	else if(actionKey == "adzap") {
+		CAdZapMenu::getInstance()->exec(parent, "adzap");
+		return menu_return::RETURN_EXIT_ALL;
 	}
 	else if(actionKey == "moviedir") {
 		parent->hide();

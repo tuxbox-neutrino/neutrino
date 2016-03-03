@@ -108,6 +108,14 @@ GENRE.TRAVEL_HOBBIES.6 advertisement/shopping
 GENRE.TRAVEL_HOBBIES.7 gardening
 GENRE.UNKNOWN unknown
 adzap AdZap
+adzap.announce In 15 seconds, the channel will be switched to
+adzap.cancel Timer was cancelled
+adzap.disable Deactivate
+adzap.enable Activate once
+adzap.minute minute
+adzap.minutes minutes
+adzap.monitor Stay active during current broadcast
+adzap.switchback Switch back after
 apidselector.head Select language
 audio.srs_algo Type
 audio.srs_algo_heavy Heavy
@@ -939,6 +947,7 @@ mbkey.truncate Truncate movie
 menu.back Back
 menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer
+menu.hint_adzap AdZap will switch back to the current channel when the selected time is up
 menu.hint_aplay Audio player
 menu.hint_aplay_setup Change title display, start directory, screen saver and more
 menu.hint_audio Audio output, DD\nSRS True volume options
@@ -2359,6 +2368,7 @@ usermenu.button_green User menu green
 usermenu.button_red User menu red
 usermenu.button_yellow User menu yellow
 usermenu.head User menu
+usermenu.item_adzap Adzap
 usermenu.item_bar ---- Boarder ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
