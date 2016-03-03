@@ -981,7 +981,7 @@ bool CInfoViewer::showLivestreamInfo()
 		}
 
 		if (livestreamInfo1 != _livestreamInfo1 || livestreamInfo2 != _livestreamInfo2) {
-			display_Info(livestreamInfo1.c_str(), livestreamInfo2.c_str());
+			display_Info(livestreamInfo1.c_str(), livestreamInfo2.c_str(), false);
 			_livestreamInfo1 = livestreamInfo1;
 			_livestreamInfo2 = livestreamInfo2;
 			infoViewerBB->showBBButtons(true /*paintFooter*/);
@@ -1770,7 +1770,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			txt_cur_event->hide();
 		txt_cur_event->paint(CC_SAVE_SCREEN_YES);
 
-		if (runningStart){
+		if (runningStart && starttimes){
 			if (txt_cur_start == NULL)
 				txt_cur_start = new CComponentsTextTransp(NULL, InfoX, CurrInfoY - height, info_time_width, height);
 			else
@@ -1805,7 +1805,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			txt_next_event->hide();
 		txt_next_event->paint(CC_SAVE_SCREEN_YES);
 
-		if (nextStart){
+		if (nextStart && starttimes){
 			if (txt_next_start == NULL)
 				txt_next_start = new CComponentsTextTransp(NULL, InfoX, NextInfoY, info_time_width, height);
 			else
