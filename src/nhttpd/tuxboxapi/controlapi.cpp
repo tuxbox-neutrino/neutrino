@@ -347,8 +347,8 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 		if (hh->ParamList["1"] == "radio")	// switch to radio mode
 		{
 			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby){
-				int mode = NeutrinoMessages::mode_radio;
-				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::CHANGEMODE, CEventServer::INITID_HTTPD, (void *)&mode,sizeof(int));
+				neutrino_msg_data_t mode = NeutrinoMessages::mode_radio;
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::CHANGEMODE, CEventServer::INITID_HTTPD, (void *)&mode,sizeof(neutrino_msg_data_t));
 				sleep(1);
 				NeutrinoAPI->UpdateBouquets();
 			}else{
@@ -359,8 +359,8 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 		else if (hh->ParamList["1"] == "tv")	// switch to tv mode
 		{
 			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby){
-				int mode = NeutrinoMessages::mode_tv;
-				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::CHANGEMODE, CEventServer::INITID_HTTPD, (void *)&mode,sizeof(int));
+				neutrino_msg_data_t mode = NeutrinoMessages::mode_tv;
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::CHANGEMODE, CEventServer::INITID_HTTPD, (void *)&mode,sizeof(neutrino_msg_data_t));
 				sleep(1);
 				NeutrinoAPI->UpdateBouquets();
 			}else{
