@@ -120,6 +120,8 @@ class CZapitChannel
 	private:
 		/* channel name */
 		std::string name;
+		/* scripts for webtv livestreams */
+		std::string script;
 		/* TODO : Enable different unames in different bouquets ( generated bouquetID ? ) */
 		std::string uname;
 		t_channel_id epg_id;
@@ -205,15 +207,16 @@ class CZapitChannel
 		freq_id_t			freq;
 
 		/* constructor, desctructor */
-		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
-		CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq);
-		CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid = 0);
+		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq, const std::string script_name="");
+		CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq, const std::string script_name="");
+		CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid = 0, const char* script_name=NULL);
 		~CZapitChannel(void);
 
 		/* get methods - read only variables */
 		t_service_id		getServiceId(void)         	const { return service_id; }
 		t_transport_stream_id	getTransportStreamId(void) 	const { return transport_stream_id; }
 		t_original_network_id	getOriginalNetworkId(void) 	const { return original_network_id; }
+		std::string		getScriptName(void)		const { return script; }
 		unsigned char        	getServiceType(bool real=false);
 		bool			isHD();
 		t_channel_id         	getChannelID(void)         	const { return channel_id; }
