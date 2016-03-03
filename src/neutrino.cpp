@@ -47,6 +47,7 @@
 
 #include "global.h"
 #include "neutrino.h"
+#include "version_pseudo.h"
 
 #include <daemonc/remotecontrol.h>
 
@@ -909,6 +910,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.livestreamResolution = configfile.getInt32("livestreamResolution", 1920);
 	g_settings.livestreamScriptPath = configfile.getString("livestreamScriptPath", PLUGINDIR_VAR "/webtv");
 
+	g_settings.version_pseudo = configfile.getString("version_pseudo", "19700101000000");
+
 	if(erg)
 		configfile.setModifiedFlag(true);
 	return erg;
@@ -1347,6 +1350,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setInt32("livestreamResolution", g_settings.livestreamResolution);
 	configfile.setString("livestreamScriptPath", g_settings.livestreamScriptPath);
+
+	configfile.setString("version_pseudo", g_settings.version_pseudo);
 
 	if(strcmp(fname, NEUTRINO_SETTINGS_FILE) || configfile.getModifiedFlag())
 		configfile.saveConfig(fname);
