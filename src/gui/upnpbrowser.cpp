@@ -47,7 +47,7 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <system/settings.h>
-
+#include <gui/infoclock.h>
 #include <gui/upnpbrowser.h>
 #include <zapit/zapit.h>
 #include <video.h>
@@ -1114,6 +1114,9 @@ void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int sel
 {
 printf("CUpnpBrowserGui::paintItem:s selected %d max %d offset %d\n", selected, max, offset);
 	int ypos, top;
+
+	//block infoclock
+	CInfoClock::getInstance()->block();
 
 	// LCD
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "Select UPnP Entry");
