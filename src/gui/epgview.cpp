@@ -281,13 +281,11 @@ void CEpgData::showText( int startPos, int ypos, bool cover, bool fullClear)
 
 	if (stars > 0 && startPos == 0){
 		int icon_w,icon_h;
-		frameBuffer->getIconSize(ICONSDIR"/star-off.png", &icon_w, &icon_h);
-		for (int i=1; i < 11;i++) {
-			frameBuffer->paintIcon(ICONSDIR"/star-off.png", sx+3+cover_offset+i*icon_w+3, ypos+3);
-		}
-		for (int i=1; i < stars+1;i++) {
-			frameBuffer->paintIcon(ICONSDIR"/star-on.png", sx+3+cover_offset+i*icon_w+3, ypos+3);
-		}
+		frameBuffer->getIconSize(NEUTRINO_ICON_STAR_OFF, &icon_w, &icon_h);
+		for (int i = 0; i < 10; i++)
+			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_OFF, sx+10+cover_offset + i*(icon_w+3), ypos+3);
+		for (int i = 0; i < stars; i++)
+			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_ON, sx+10+cover_offset + i*(icon_w+3), ypos+3);
 	}
 
 	int sbc = ((textSize - 1)/ medlinecount) + 1;

@@ -244,6 +244,8 @@ install_DATA += \
 	shell.png \
 	shutdown.jpg \
 	softupdate.png \
+	star-off.png \
+	star-on.png \
 	start.jpg \
 	streaming.png \
 	subt.png \
