@@ -58,7 +58,7 @@ class cTmdb
 		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 		std::string encodeUrl(std::string txt);
 		std::string decodeUrl(std::string url);
-		std::string random_API_KEY();
+		std::string key; // tmdb api key
 		bool getUrl(std::string &url, std::string &answer, CURL *_curl_handle = NULL);
 		bool DownloadUrl(std::string url, std::string file, CURL *_curl_handle = NULL);
 		bool GetMovieDetails();

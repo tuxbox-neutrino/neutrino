@@ -720,6 +720,7 @@ struct SNeutrinoSettings
 	//movieplayer
 	int   movieplayer_repeat_on;
 	std::string youtube_dev_id;
+	std::string tmdb_api_key;
 
 	//zapit setup
 	std::string StartChannelTV;

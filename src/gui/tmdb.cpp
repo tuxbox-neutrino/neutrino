@@ -49,10 +49,6 @@
 #endif
 
 #define URL_TIMEOUT 60
-#define API_KEY_1 "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-#define API_KEY_2 "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-#define API_KEY_3 "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-#define API_KEY_4 "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 #define TMDB_COVER "/tmp/tmdb.jpg"
 
 cTmdb::cTmdb(std::string epgtitle)
@@ -71,6 +67,11 @@ cTmdb::cTmdb(std::string epgtitle)
 	sx = getScreenStartX(ox);
 	sy = getScreenStartY(oy + buttonheight); /* button box is handled separately (why?) */
 
+#ifdef TMDB_API_KEY
+	key = TMDB_API_KEY;
+#else
+	key = g_settings.tmdb_api_key;
+#endif
 
 	GetMovieDetails();
 }
@@ -190,18 +191,11 @@ bool cTmdb::DownloadUrl(std::string url, std::string file, CURL *_curl_handle)
 	}
 	return true;
 }
-std::string cTmdb::random_API_KEY()
-{
-	std::string keys[] = {API_KEY_1,API_KEY_2,API_KEY_3,API_KEY_4};
-	int i = rand() % (sizeof(keys) / sizeof(keys[0]));
-	return keys[i];
-}
-
 
 bool cTmdb::GetMovieDetails()
 {
 	printf("[TMDB]: %s\n",__func__);
-	std::string url	= "http://api.themoviedb.org/3/search/multi?api_key="+random_API_KEY()+"&language=de&query=" + encodeUrl(minfo.epgtitle);
+	std::string url	= "http://api.themoviedb.org/3/search/multi?api_key="+key+"&language=de&query=" + encodeUrl(minfo.epgtitle);
 	std::string answer;
 	if (!getUrl(url, answer))
 		return false;
@@ -224,7 +218,7 @@ bool cTmdb::GetMovieDetails()
 		minfo.id = elements[0].get("id",-1).asInt();
 		minfo.media_type = elements[0].get("media_type","").asString();
 		if (minfo.id > -1) {
-			url	= "http://api.themoviedb.org/3/"+minfo.media_type+"/"+to_string(minfo.id)+"?api_key="+random_API_KEY()+"&language=de&append_to_response=credits";
+			url = "http://api.themoviedb.org/3/"+minfo.media_type+"/"+to_string(minfo.id)+"?api_key="+key+"&language=de&append_to_response=credits";
 			answer.clear();
 			if (!getUrl(url, answer))
 				return false;
