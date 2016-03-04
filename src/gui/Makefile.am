@@ -98,6 +98,7 @@ libneutrino_gui_a_SOURCES = \
 	subchannel_select.cpp \
 	themes.cpp \
 	timeosd.cpp \
+	tmdb.cpp \
 	update.cpp \
 	update_ext.cpp \
 	update_menue.cpp \

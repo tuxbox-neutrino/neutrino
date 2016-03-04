@@ -45,6 +45,7 @@
 #include <cstdlib>
 #include "moviebrowser.h"
 #include "filebrowser.h"
+#include <gui/tmdb.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/helpbox.h>
 #include <gui/widget/icons.h>
@@ -1979,6 +1980,46 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			}
 
 			smsInput.resetOldKey();
+		}
+	}
+	else if (msg == CRCInput::RC_favorites)
+	{
+		if (m_movieSelectionHandler != NULL) {
+#if 0
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+				std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
+				if (!fname.empty())
+					unlink(fname.c_str());
+				refresh();
+			}
+#else
+			std::string fname = m_movieSelectionHandler->file.Name.c_str();
+			int ext_pos = 0;
+			ext_pos = fname.rfind('.');
+			if( ext_pos > 0) {
+				std::string extension;
+				extension = fname.substr(ext_pos + 1, fname.length() - ext_pos);
+				extension = "." + extension;
+				strReplace(fname, extension.c_str(), ".jpg");
+			}
+			printf("TMDB: %s : %s\n",m_movieSelectionHandler->file.Name.c_str(),fname.c_str());
+			if (!access(fname, F_OK)) {
+				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+					if (!fname.empty())
+						unlink(fname.c_str());
+						refresh();
+				}
+			} else {
+				cTmdb* tmdb = new cTmdb(m_movieSelectionHandler->epgTitle);
+				if ((tmdb->getResults() > 0) && (tmdb->hasCover())) {
+					if (!fname.empty())
+						if (tmdb->getSmallCover(fname))
+							refresh();
+				}
+				if (tmdb)
+					delete tmdb;
+			}
+#endif
 		}
 	}
 	else

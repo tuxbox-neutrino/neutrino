@@ -64,6 +64,8 @@ class CEpgData
 		bool			bigFonts;
 		bool 			has_follow_screenings;
 		bool 			call_fromfollowlist;
+		bool			tmdbtoggle;
+		int				stars;
 		time_t			tmp_curent_zeit;
 
 		uint64_t		prev_id;
@@ -76,6 +78,7 @@ class CEpgData
 		int         		textCount;
 		typedef std::pair<std::string,int> epg_pair;
 		std::vector<epg_pair> epgText;
+		std::vector<epg_pair> epgText_saved;
 		int			topheight,topboxheight;
 		int			buttonheight,botboxheight;
 		int			medlineheight,medlinecount;
@@ -84,7 +87,7 @@ class CEpgData
 		void GetPrevNextEPGData( uint64_t id, time_t* startzeit );
 		void addTextToArray( const std::string & text, int screening );
 		void processTextToArray(std::string text, int screening = 0);
-		void showText( int startPos, int ypos );
+		void showText( int startPos, int ypos, bool cover= false );
 		bool hasFollowScreenings(const t_channel_id channel_id, const std::string & title);
 		int FollowScreenings(const t_channel_id channel_id, const std::string & title);
 		void showTimerEventBar(bool show, bool adzap = false);
