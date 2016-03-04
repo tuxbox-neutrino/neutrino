@@ -202,9 +202,6 @@ void CMoviePlayerGui::Init(void)
 	blockedFromPlugin = false;
 	m_screensaver = false;
 	m_idletime = time(NULL);
-	liveStreamList.clear();
-	livestreamInfo1.clear();
-	livestreamInfo2.clear();
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -856,6 +853,68 @@ bool CMoviePlayerGui::selectLivestream(std::vector<livestream_info_t> &streamLis
 	return false;
 }
 
+bool CMoviePlayerGui::getLiveUrl(const t_channel_id chan, const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2)
+{
+	static t_channel_id oldChan = 0;
+	static std::vector<livestream_info_t> liveStreamList;
+	livestream_info_t info;
+
+	if (script.empty()) {
+		realUrl = url;
+		return true;
+	}
+	std::string _script = script;
+
+	if (_script.find("/") == std::string::npos)
+		_script = g_settings.livestreamScriptPath + "/" + _script;
+
+	size_t pos = _script.find(".lua");
+	if (!file_exists(_script.c_str()) || (pos == std::string::npos) || (_script.length()-pos != 4)) {
+		liveStreamList.clear();
+		printf(">>>>> [%s:%s:%d] script error\n", __file__, __func__, __LINE__);
+		return false;
+	}
+	if ((oldChan != chan) || liveStreamList.empty()) {
+		liveStreamList.clear();
+		if (!luaGetUrl(_script, url, liveStreamList)) {
+			liveStreamList.clear();
+			printf(">>>>> [%s:%s:%d] lua script error\n", __file__, __func__, __LINE__);
+			return false;
+		}
+		oldChan = chan;
+	}
+
+	if (!selectLivestream(liveStreamList, g_settings.livestreamResolution, &info)) {
+		liveStreamList.clear();
+		printf(">>>>> [%s:%s:%d] error selectLivestream\n", __file__, __func__, __LINE__);
+		return false;
+	}
+
+	realUrl = info.url;
+	if (!info.name.empty()) {
+		info1 = info.name;
+		_pretty_name = info.name;
+	}
+#if 0
+	if (!info.resolution.empty())
+		info2 = info.resolution;
+	if (info.bandwidth > 0) {
+		char buf[32];
+		memset(buf, '\0', sizeof(buf));
+		snprintf(buf, sizeof(buf), "%.02f kbps", (float)((float)info.bandwidth/(float)1000));
+		info2 += (std::string)", " + (std::string)buf;
+	}
+#else
+	if (info.bandwidth > 0) {
+		char buf[32];
+		memset(buf, '\0', sizeof(buf));
+		snprintf(buf, sizeof(buf), "%.02f kbps", (float)((float)info.bandwidth/(float)1000));
+		info2 = (std::string)buf;
+	}
+#endif
+	return true;
+}
+
 bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script)
 {
 	printf("%s: starting...\n", __func__);
@@ -888,62 +947,10 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 		}
 	}
 
-	static t_channel_id oldChan = 0;
 	std::string realUrl = file;
-	std::string _script = script;
 	std::string _pretty_name = name;
-	livestream_info_t info;
-	if (!_script.empty()) {
-		if (_script.find("/") == std::string::npos)
-			_script = g_settings.livestreamScriptPath + "/" + _script;
-
-		size_t pos = _script.find(".lua");
-		if ((file_exists(_script.c_str())) && (pos != std::string::npos) && (_script.length()-pos == 4)) {
-			if ((oldChan != chan) || liveStreamList.empty()) {
-				liveStreamList.clear();
-				if (!luaGetUrl(_script, file, liveStreamList)) {
-					liveStreamList.clear();
-					printf(">>>>> [%s:%s:%d] lua script error\n", __file__, __func__, __LINE__);
-					return false;
-				}
-				oldChan = chan;
-			}
-
-			if (!selectLivestream(liveStreamList, g_settings.livestreamResolution, &info)) {
-				liveStreamList.clear();
-				printf(">>>>> [%s:%s:%d] error selectLivestream\n", __file__, __func__, __LINE__);
-				return false;
-			}
-
-			realUrl = info.url;
-			if (!info.name.empty()) {
-				livestreamInfo1 = info.name;
-				_pretty_name = info.name;
-			}
-#if 0
-			if (!info.resolution.empty())
-				livestreamInfo2 = info.resolution;
-			if (info.bandwidth > 0) {
-				char buf[32];
-				memset(buf, '\0', sizeof(buf));
-				snprintf(buf, sizeof(buf), "%.02f kbps", (float)((float)info.bandwidth/(float)1000));
-				livestreamInfo2 += (std::string)", " + (std::string)buf;
-			}
-#else
-			if (info.bandwidth > 0) {
-				char buf[32];
-				memset(buf, '\0', sizeof(buf));
-				snprintf(buf, sizeof(buf), "%.02f kbps", (float)((float)info.bandwidth/(float)1000));
-				livestreamInfo2 = (std::string)buf;
-			}
-#endif
-		}
-		else {
-			liveStreamList.clear();
-			printf(">>>>> [%s:%s:%d] script error\n", __file__, __func__, __LINE__);
-			return false;
-		}
-	}
+	if (!getLiveUrl(chan, file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2))
+		return false;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
