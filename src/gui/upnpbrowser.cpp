@@ -1096,6 +1096,8 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 			int y_image = ibox.getYPos() + ibox.getHeight()/2 - h_image/2;
 			if (!image){
 				image = new CComponentsPicture(100, y_image, tmpname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTDARK_PLUS_0);
+				image->doPaintBg(false);
+				image->SetTransparent(CFrameBuffer::TM_BLACK);
 			}
 			image->setPicture(tmpname);
 			image->setHeight(h_image, true);
@@ -1185,9 +1187,9 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 			text += "\n" + entry->album;
 			ibox.setText(text, CTextBox::AUTO_WIDTH);
 			ibox.paint0();
-			if (image)
-				image->paint0();
 		}
+		if (image)
+			image->paint0();
 		timebox.paint0();
 	}
 }
