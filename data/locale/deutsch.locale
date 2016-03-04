@@ -2354,6 +2354,7 @@ timing.infobar_radio Infobar (Radiobetrieb)
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
 timing.volumebar Lautstärkeanzeige
+tmdb.read_data Suche TMDB Daten...
 unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR

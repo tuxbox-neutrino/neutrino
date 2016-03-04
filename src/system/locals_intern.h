@@ -2381,6 +2381,7 @@ const char * locale_real_names[] =
 	"timing.menu",
 	"timing.numericzap",
 	"timing.volumebar",
+	"tmdb.read_data",
 	"unicable.lnb",
 	"unicable.qrg",
 	"unicable.scr",

@@ -2296,6 +2296,7 @@ timing.infobar_radio Stavový riadok (rádio mód)
 timing.menu Menu
 timing.numericzap Prepínanie číslami
 timing.volumebar Ukazovateľ hlasitosti
+tmdb.read_data Hľadaj TMDB dáta...
 unicable.lnb Vstup Unicable
 unicable.qrg Kmitočet Unicable
 unicable.scr SCR Unicable

@@ -36,6 +36,7 @@
 #include "system/settings.h"
 #include "system/helpers.h"
 #include "system/set_threadname.h"
+#include "gui/widget/hintbox.h"
 
 #include <driver/screen_max.h>
 
@@ -73,10 +74,18 @@ cTmdb::cTmdb(std::string epgtitle)
 	key = g_settings.tmdb_api_key;
 #endif
 
+	CHintBox* box = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_TMDB_READ_DATA));
+	box->paint();
+
 	std::string lang = Lang2ISO639_1(g_settings.language);
 	GetMovieDetails(lang);
 	if ((minfo.result < 1 || minfo.overview.empty()) && lang != "en")
 		GetMovieDetails("en");
+
+	if (box != NULL) {
+		box->hide();
+		delete box;
+	}
 }
 
 cTmdb::~cTmdb()

@@ -2196,6 +2196,7 @@ timing.infobar_radio Infobalk (radio modus)
 timing.menu Menu
 timing.numericzap Numeriek Zap
 timing.volumebar Volume balk
+tmdb.read_data Zoeken TMDB data...
 unicable.lnb Invoer Unicable
 unicable.qrg Unicable Frequentie
 unicable.scr Unicable SCR
