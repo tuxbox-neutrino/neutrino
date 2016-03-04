@@ -944,3 +944,36 @@ std::string getJFFS2MountPoint(int mtdPos)
 	fclose(fd);
 	return "";
 }
+
+std::string Lang2ISO639_1(std::string& lang)
+{
+	std::string ret = "";
+	if ((lang == "deutsch") || (lang == "bayrisch") || (lang == "ch-baslerdeutsch") || (lang == "ch-berndeutsch"))
+		ret = "de";
+	else if (lang == "english")
+		ret = "en";
+	else if (lang == "nederlands")
+		ret = "nl";
+	else if (lang == "slovak")
+		ret = "sk";
+	else if (lang == "bosanski")
+		ret = "bs";
+	else if (lang == "czech")
+		ret = "cs";
+	else if (lang == "francais")
+		ret = "fr";
+	else if (lang == "italiano")
+		ret = "it";
+	else if (lang == "polski")
+		ret = "pl";
+	else if (lang == "portugues")
+		ret = "pt";
+	else if (lang == "russkij")
+		ret = "ru";
+	else if (lang == "suomi")
+		ret = "fi";
+	else if (lang == "svenska")
+		ret = "sv";
+
+	return ret;
+}

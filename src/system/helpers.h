@@ -117,5 +117,6 @@ std::vector<std::string> split(const std::string &s, char delim);
 bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap);
 
 std::string getJFFS2MountPoint(int mtdPos);
+std::string Lang2ISO639_1(std::string& lang);
 
 #endif
