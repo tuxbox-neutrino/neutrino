@@ -73,7 +73,10 @@ cTmdb::cTmdb(std::string epgtitle)
 	key = g_settings.tmdb_api_key;
 #endif
 
-	GetMovieDetails();
+	std::string lang = Lang2ISO639_1(g_settings.language);
+	GetMovieDetails(lang);
+	if ((minfo.result < 1 || minfo.overview.empty()) && lang != "en")
+		GetMovieDetails("en");
 }
 
 cTmdb::~cTmdb()
@@ -192,10 +195,10 @@ bool cTmdb::DownloadUrl(std::string url, std::string file, CURL *_curl_handle)
 	return true;
 }
 
-bool cTmdb::GetMovieDetails()
+bool cTmdb::GetMovieDetails(std::string lang)
 {
 	printf("[TMDB]: %s\n",__func__);
-	std::string url	= "http://api.themoviedb.org/3/search/multi?api_key="+key+"&language=de&query=" + encodeUrl(minfo.epgtitle);
+	std::string url	= "http://api.themoviedb.org/3/search/multi?api_key="+key+"&language="+lang+"&query=" + encodeUrl(minfo.epgtitle);
 	std::string answer;
 	if (!getUrl(url, answer))
 		return false;
@@ -218,7 +221,7 @@ bool cTmdb::GetMovieDetails()
 		minfo.id = elements[0].get("id",-1).asInt();
 		minfo.media_type = elements[0].get("media_type","").asString();
 		if (minfo.id > -1) {
-			url = "http://api.themoviedb.org/3/"+minfo.media_type+"/"+to_string(minfo.id)+"?api_key="+key+"&language=de&append_to_response=credits";
+			url = "http://api.themoviedb.org/3/"+minfo.media_type+"/"+to_string(minfo.id)+"?api_key="+key+"&language="+lang+"&append_to_response=credits";
 			answer.clear();
 			if (!getUrl(url, answer))
 				return false;

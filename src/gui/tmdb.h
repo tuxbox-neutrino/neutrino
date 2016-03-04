@@ -61,7 +61,7 @@ class cTmdb
 		std::string key; // tmdb api key
 		bool getUrl(std::string &url, std::string &answer, CURL *_curl_handle = NULL);
 		bool DownloadUrl(std::string url, std::string file, CURL *_curl_handle = NULL);
-		bool GetMovieDetails();
+		bool GetMovieDetails(std::string lang);
 
 	public:
 		cTmdb(std::string epgtitle);
