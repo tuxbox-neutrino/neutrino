@@ -299,7 +299,7 @@ std::string cTmdb::CreateEPGText()
 	return epgtext;
 }
 
-int cTmdb::exec()
+void cTmdb::exec()
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;

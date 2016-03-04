@@ -66,7 +66,7 @@ class cTmdb
 	public:
 		cTmdb(std::string epgtitle);
 		~cTmdb();
-		int exec();
+		void exec();
 		std::string CreateEPGText();
 
 		std::string getTitle()				{ return minfo.epgtitle;}
