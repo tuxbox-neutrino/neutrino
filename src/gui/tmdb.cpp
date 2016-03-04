@@ -275,6 +275,8 @@ bool cTmdb::GetMovieDetails()
 		}
 	} else
 		return false;
+
+	return false;
 }
 
 std::string cTmdb::CreateEPGText()
