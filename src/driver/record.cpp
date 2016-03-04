@@ -1892,7 +1892,7 @@ void CStreamRec::GetPids(CZapitChannel * channel)
 	channel = channel;
 }
 
-void CStreamRec::FillMovieInfo(CZapitChannel * channel, APIDList & apid_list)
+void CStreamRec::FillMovieInfo(CZapitChannel * /*channel*/, APIDList & /*apid_list*/)
 {
 	recMovieInfo->VideoType = 0;
 
