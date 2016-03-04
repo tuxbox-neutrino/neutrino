@@ -220,7 +220,7 @@ void CEpgData::processTextToArray(std::string text, int screening) // UTF-8
 	addTextToArray( aktLine + aktWord, screening );
 }
 
-void CEpgData::showText( int startPos, int ypos, bool cover )
+void CEpgData::showText( int startPos, int ypos, bool cover, bool fullClear)
 {
 	// recalculate
 	medlineheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
@@ -241,10 +241,14 @@ void CEpgData::showText( int startPos, int ypos, bool cover )
 			continue;
 		max_wday_w = std::max(max_wday_w, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getWeekday(i))) + " "));
 	}
-	frameBuffer->paintBoxRel(sx, y, ox- 15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
+	int offs = fullClear ? 0 : cover_offset;
+	frameBuffer->paintBoxRel(sx+offs, y, ox-15-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 	if (cover) {
-		if (!g_PicViewer->DisplayImage("/tmp/tmdb.jpg",sx+3,y+3+((sb-cover_height)/2),cover_width,cover_height, 1))
-			cover_offset = 0; }
+		if (!g_PicViewer->DisplayImage("/tmp/tmdb.jpg",sx+3,y+3+((sb-cover_height)/2),cover_width,cover_height, 1)) {
+			cover_offset = 0;
+			frameBuffer->paintBoxRel(sx, y, ox-15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
+		}
+	}
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
 	{
 		if(epgText[i].second){
@@ -793,7 +797,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				if (showPos+scrollCount<textCount)
 				{
 					showPos += scrollCount;
-					showText(showPos, sy + toph, tmdbtoggle);
+					showText(showPos, sy + toph, tmdbtoggle, false);
 				}
 				break;
 
@@ -802,7 +806,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				if (showPos<0)
 					showPos=0;
 				else
-					showText(showPos, sy + toph, tmdbtoggle);
+					showText(showPos, sy + toph, tmdbtoggle, false);
 				break;
 			case CRCInput::RC_page_up:
 				if(isCurrentEPG(channel_id)){

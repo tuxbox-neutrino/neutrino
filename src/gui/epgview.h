@@ -87,7 +87,7 @@ class CEpgData
 		void GetPrevNextEPGData( uint64_t id, time_t* startzeit );
 		void addTextToArray( const std::string & text, int screening );
 		void processTextToArray(std::string text, int screening = 0);
-		void showText( int startPos, int ypos, bool cover= false );
+		void showText( int startPos, int ypos, bool cover=false, bool fullClear=true );
 		bool hasFollowScreenings(const t_channel_id channel_id, const std::string & title);
 		int FollowScreenings(const t_channel_id channel_id, const std::string & title);
 		void showTimerEventBar(bool show, bool adzap = false);
