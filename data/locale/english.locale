@@ -1789,9 +1789,9 @@ movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
 movieplayer.bookmarkname_hint2 
 movieplayer.chapters Chapters
-movieplayer.plugin Movieplayer plugin
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
+movieplayer.plugin Movieplayer plugin
 movieplayer.starting Starting playback...
 movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
