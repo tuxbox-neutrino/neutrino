@@ -1045,35 +1045,32 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 	CShortEPGData epg;
 
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-	CChannelEvent event;
-	event.eventID = 0;
+	CChannelEvent *event;
 	NeutrinoAPI->Lock();
-	CChannelEvent * evt = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
-	if (evt)
-		event = *evt;
+	event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
 	NeutrinoAPI->Unlock();
 
 	bool return_epginfo = (hh->ParamList["epginfo"] != "false");
 
 	result += hh->outPair("isActiveChannel", (channel->getChannelID() == current_channel) ? "true" : "false", false);
 
-	if (event.eventID) {
+	if (event) {
 		int percentage = 100;
-		if (event.duration > 0)
-			percentage = 100 * (time(NULL) - event.startTime) / event.duration;
+		if (event->duration > 0)
+			percentage = 100 * (time(NULL) - event->startTime) / event->duration;
 		CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
-		timestr = timeString(event.startTime);
+		timestr = timeString(event->startTime);
 
 		firstEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.current_uniqueKey), true);
-		firstEPG += hh->outPair("description", hh->outValue(event.description), true);
+		firstEPG += hh->outPair("description", hh->outValue(event->description), true);
 		if (return_epginfo && CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
 		{
 			firstEPG += hh->outPair("info1", hh->outValue(epg.info1), true);
 			firstEPG += hh->outPair("info2", hh->outValue(epg.info2), true);
 		}
 		firstEPG += hh->outPair("startTime", timestr, true);
-		firstEPG += hh->outPair("timeTotal", string_printf("%d", event.duration / 60), true);
-		firstEPG += hh->outPair("timeElapsed", string_printf("%d", (time(NULL) - event.startTime) / 60), true);
+		firstEPG += hh->outPair("timeTotal", string_printf("%d", event->duration / 60), true);
+		firstEPG += hh->outPair("timeElapsed", string_printf("%d", (time(NULL) - event->startTime) / 60), true);
 		firstEPG += hh->outPair("percentage", string_printf("%d", percentage), false);
 
 		if (currentNextInfo.flags & CSectionsdClient::epgflags::has_next) {
@@ -1126,21 +1123,18 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 		result = hh->outArrayItem("channel", result, false);
 	}
 	else {
-		CChannelEvent event;
-		event.eventID = 0;
+		CChannelEvent *event;
 		NeutrinoAPI->Lock();
-		CChannelEvent * evt = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
-		if (evt)
-			event = *evt;
+		event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
 		NeutrinoAPI->Unlock();
 
-		if (event.eventID && isEPGdetails) {
+		if (event && isEPGdetails) {
 			result += string_printf("%u "
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					" %s (%s)\n",
 					channelNr,
 					channel->getChannelID(),
-					channel->getName().c_str(), event.description.c_str());
+					channel->getName().c_str(), event->description.c_str());
 		} else {
 			result += string_printf("%u "
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
@@ -1847,27 +1841,24 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	else if (param_empty || hh->ParamList["1"] == "ext") {
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
 		bool isExt = (hh->ParamList["1"] == "ext");
-		CChannelEvent event;
+		CChannelEvent *event = NULL;
 		NeutrinoAPI->GetChannelEvents();
 
 		int mode = NeutrinoAPI->Zapit->getMode();
 		CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 		for (; !(cit.EndOfChannels()); cit++) {
 			CZapitChannel * channel = *cit;
-			event.eventID = 0;
 			NeutrinoAPI->Lock();
-			CChannelEvent * evt = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
-			if (evt)
-				event = *evt;
+			event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
 			NeutrinoAPI->Unlock();
-			if (event.eventID) {
+			if (event) {
 				if (!isExt) {
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					" %llu %s\n", channel->getChannelID(), event.eventID, event.description.c_str());
+					" %llu %s\n", channel->getChannelID(), event->eventID, event->description.c_str());
 				}
 				else { // ext output
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					" %ld %u %llu %s\n", channel->getChannelID(), event.startTime, event.duration, event.eventID, event.description.c_str());
+					" %ld %u %llu %s\n", channel->getChannelID(), event->startTime, event->duration, event->eventID, event->description.c_str());
 				}
 			}
 		}
