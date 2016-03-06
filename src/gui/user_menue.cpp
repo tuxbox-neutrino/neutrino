@@ -533,7 +533,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 				if (mode == NeutrinoMessages::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
 					if(loc == NONEXISTANT_LOCALE && !text) {
 						CWebTVResolution webtvres;
-						text = webtvres.getResolutionValue();
+						std::string tmp = webtvres.getResolutionValue();
 						if (!(videoDecoder->getBlank()))
 						{
 							int xres = 0, yres = 0, framerate;
@@ -541,12 +541,14 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 							if (xres && yres)
 							{
 								std::string res = to_string(xres) + "x" + to_string(yres);
-								if (res.compare(text))
+								if (res.compare(tmp))
 								{
-									std::string tmp = (string)text + " (" + res + ")";
+									tmp = " (" + res + ")";
 									text = tmp.c_str();
 								}
 							}
+						}else{
+							text = tmp.c_str();
 						}
 					} else
 						return_title = true;
