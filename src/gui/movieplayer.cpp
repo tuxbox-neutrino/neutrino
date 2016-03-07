@@ -642,6 +642,9 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 		else if (msg != NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE && msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC) {
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
+		else if ((msg>= CRCInput::RC_WithData) && (msg< CRCInput::RC_WithData+ 0x10000000))
+                        delete[] (unsigned char*) data;
+
 	}
 	if (hintbox != NULL) {
 		hintbox->hide();
@@ -949,8 +952,11 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 
 	std::string realUrl = file;
 	std::string _pretty_name = name;
-	if (!getLiveUrl(chan, file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2))
-		return false;
+	if (!getLiveUrl(chan, file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2)) {
+		/* FIXME: lua->runScript calling channelRezap, which makes neutrino to loop at start,
+		   let playback start -> drop messages in ShowStartHint */
+		//return false;
+	}
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
