@@ -938,9 +938,9 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				} else {
 					epgText = epgText_saved;
 					textCount = epgText.size();
+					tmdbtoggle = !tmdbtoggle;
 					stars=0;
 					showText(showPos, sy + toph);
-					tmdbtoggle = !tmdbtoggle;
 				}
 				break;
 			}
