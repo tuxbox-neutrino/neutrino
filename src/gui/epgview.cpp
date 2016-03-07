@@ -165,7 +165,7 @@ void CEpgData::addTextToArray(const std::string & text, int screening) // UTF-8
 	}
 }
 
-void CEpgData::processTextToArray(std::string text, int screening) // UTF-8
+void CEpgData::processTextToArray(std::string text, int screening, bool has_cover) // UTF-8
 {
 	std::string	aktLine = "";
 	std::string	aktWord = "";
@@ -185,7 +185,7 @@ void CEpgData::processTextToArray(std::string text, int screening) // UTF-8
 
 			// check the wordwidth - add to this line if size ok
 			int aktWordWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(aktWord);
-			if ((aktWordWidth+aktWidth)<(ox - 20 - 15 - (tmdbtoggle? (std::min((sb-10)*342/513,342)) :0)))
+			if ((aktWordWidth+aktWidth)<(ox - 20 - 15 - (has_cover? (std::min((sb-10)*342/513,342)) :0)))
 			{//space ok, add
 				aktWidth += aktWordWidth;
 				aktLine += aktWord;
@@ -220,7 +220,7 @@ void CEpgData::processTextToArray(std::string text, int screening) // UTF-8
 	addTextToArray( aktLine + aktWord, screening );
 }
 
-void CEpgData::showText( int startPos, int ypos, bool cover, bool fullClear)
+void CEpgData::showText(int startPos, int ypos, bool cover, bool fullClear)
 {
 	// recalculate
 	medlineheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
@@ -243,11 +243,27 @@ void CEpgData::showText( int startPos, int ypos, bool cover, bool fullClear)
 	}
 	int offs = fullClear ? 0 : cover_offset;
 	frameBuffer->paintBoxRel(sx+offs, y, ox-15-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
+
 	if (cover) {
-		if (!g_PicViewer->DisplayImage("/tmp/tmdb.jpg",sx+3,y+3+((sb-cover_height)/2),cover_width,cover_height, 1)) {
+		if (!g_PicViewer->DisplayImage("/tmp/tmdb.jpg",sx+3,y+3+((sb-cover_height)/2),cover_width,cover_height, CFrameBuffer::TM_NONE)) {
 			cover_offset = 0;
 			frameBuffer->paintBoxRel(sx, y, ox-15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
+	}
+	int logo_offset = 0;
+	if (tmdbtoggle && startPos == 0) {
+		int icon_w,icon_h;
+		frameBuffer->getIconSize(NEUTRINO_ICON_TMDB, &icon_w, &icon_h);
+		frameBuffer->paintIcon(NEUTRINO_ICON_TMDB, sx+10+cover_offset, ypos+5);
+		logo_offset = icon_w + 10;
+	}
+	if (stars > 0 && startPos == 0) {
+		int icon_w,icon_h;
+		frameBuffer->getIconSize(NEUTRINO_ICON_STAR_OFF, &icon_w, &icon_h);
+		for (int i = 0; i < 10; i++)
+			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_OFF, sx+10+cover_offset+logo_offset + i*(icon_w+3), y+3);
+		for (int i = 0; i < stars; i++)
+			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_ON, sx+10+cover_offset+logo_offset + i*(icon_w+3), y+3);
 	}
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
 	{
@@ -279,14 +295,6 @@ void CEpgData::showText( int startPos, int ypos, bool cover, bool fullClear)
 		}
 	}
 
-	if (stars > 0 && startPos == 0){
-		int icon_w,icon_h;
-		frameBuffer->getIconSize(NEUTRINO_ICON_STAR_OFF, &icon_w, &icon_h);
-		for (int i = 0; i < 10; i++)
-			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_OFF, sx+10+cover_offset + i*(icon_w+3), ypos+3);
-		for (int i = 0; i < stars; i++)
-			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_ON, sx+10+cover_offset + i*(icon_w+3), ypos+3);
-	}
 
 	int sbc = ((textSize - 1)/ medlinecount) + 1;
 	int sbs= (startPos+ 1)/ medlinecount;
@@ -800,11 +808,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				break;
 
 			case CRCInput::RC_up:
-				showPos -= scrollCount;
-				if (showPos<0)
-					showPos=0;
-				else
+				if (showPos > 0) {
+					showPos -= scrollCount;
+					if (showPos < 0)
+						showPos = 0;
 					showText(showPos, sy + toph, tmdbtoggle, false);
+				}
 				break;
 			case CRCInput::RC_page_up:
 				if(isCurrentEPG(channel_id)){
@@ -911,31 +920,22 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				break;
 			case CRCInput::RC_info:
 			{
+				showPos = 0;
 				if (!tmdbtoggle) {
 					cTmdb* tmdb = new cTmdb(epgData.title);
 					if ((tmdb->getResults() > 0) && (!tmdb->getDescription().empty())) {
 						epgText_saved = epgText;
 						epgText.clear();
-						if (tmdb->hasCover()) {
-							tmdbtoggle = !tmdbtoggle;
-							processTextToArray(tmdb->CreateEPGText());
-							textCount = epgText.size();
-							stars = tmdb->getStars();
-							showText(showPos, sy + toph, tmdbtoggle);
-						} else {
-							processTextToArray(tmdb->CreateEPGText());
-							textCount = epgText.size();
-							stars = tmdb->getStars();
-							showText(showPos, sy + toph, tmdbtoggle);
-							tmdbtoggle = !tmdbtoggle;
-						}
+						tmdbtoggle = !tmdbtoggle;
+						processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
+						textCount = epgText.size();
+						stars = tmdb->getStars();
+						showText(showPos, sy + toph, tmdbtoggle);
 					} else {
 						ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMessageBox::mbrOk , CMessageBox::mbrOk);
 					}
-					if (tmdb)
-						delete tmdb;
+					delete tmdb;
 				} else {
-					epgText.clear();
 					epgText = epgText_saved;
 					textCount = epgText.size();
 					stars=0;
