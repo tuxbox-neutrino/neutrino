@@ -1029,6 +1029,13 @@ void CInfoViewer::loop(bool show_dot)
 			g_RCInput->postMsg (msg, 0);
 			res = messages_return::cancel_info;
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
+			if (fileplay)
+			{
+				CMoviePlayerGui::getInstance().setFromInfoviewer(true);
+				g_RCInput->postMsg (msg, data);
+				hideIt = true;
+			}
+			else
 			g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
 			res = messages_return::cancel_info;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {

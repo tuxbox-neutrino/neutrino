@@ -487,6 +487,313 @@ bool CEpgData::isCurrentEPG(const t_channel_id channel_id)
 	return false;
 }
 
+int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_duration, bool doLoop)
+{
+	int res = menu_return::RETURN_REPAINT;
+	static uint64_t channel_id = 0;
+
+	if (mp_movie_info == NULL)
+		return res;
+
+	channel_id = mp_movie_info->epgEpgId >>16;
+
+	epgText.clear();
+
+	start();
+
+	tmdbtoggle = false;
+	stars = 0;
+
+	CComponentsHeader*  header     = NULL;
+	CComponentsPicture* headerPic  = NULL;
+	CComponentsText*    headerText = NULL;
+
+	int height = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight();
+
+	if (mp_movie_info->epgTitle.empty()) /* no epg info found */
+	{
+		ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EPGVIEWER_NOTFOUND)); // UTF-8
+		hide();
+		return res;
+	}
+	// Calculate offset for the title when logo appears.
+	int pic_offx = 0;
+	std::string lname;
+	int logo_w = 0;
+	int logo_h = 0;
+	int logo_w_max = ox / 4;
+	if(channel_id) {
+		if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, mp_movie_info->epgChannel, lname, &logo_w, &logo_h)) {
+			if((logo_h > (toph-4)) || (logo_w > logo_w_max)) {
+				g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, toph-4);
+			}
+			pic_offx = logo_w + 10;
+		}
+	}
+
+	int pos;
+	std::string text1 = mp_movie_info->epgTitle;
+	std::string text2 = "";
+	if (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 18)
+	{
+		do
+		{
+			pos = text1.find_last_of("[ .]+");
+			if (pos != -1)
+				text1 = text1.substr(0, pos);
+		} while ((pos != -1) && (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 18));
+		if (mp_movie_info->epgTitle.length() > text1.length()) // shold never be false in this place
+			text2 = mp_movie_info->epgTitle.substr(text1.length()+ 1, uint(-1) );
+	}
+
+	const int pic_h = 39;
+
+	if (!text2.empty())
+		toph = 2 * topboxheight;
+	else
+		toph = topboxheight;
+
+	toph = std::max(toph, pic_h);
+
+	sb = oy - toph ;
+
+	// 21.07.2005 - rainerk
+	// Only show info1 if it's not included in info2!
+	std::string strEpisode = "";	// Episode title in case info1 gets stripped
+	if (!mp_movie_info->epgInfo1.empty()) {
+		bool bHide = false;
+		if (false == mp_movie_info->epgInfo2.empty()) {
+			// Look for the first . in info1, usually this is the title of an episode.
+			std::string::size_type nPosDot = mp_movie_info->epgInfo1.find('.');
+			if (std::string::npos != nPosDot) {
+				nPosDot += 2; // Skip dot and first blank
+				if (nPosDot < mp_movie_info->epgInfo2.length() && nPosDot < mp_movie_info->epgInfo1.length()) {   // Make sure we don't overrun the buffer
+
+					// Check if the stuff after the dot equals the beginning of info2
+					if (0 == mp_movie_info->epgInfo2.find(mp_movie_info->epgInfo1.substr(nPosDot, mp_movie_info->epgInfo1.length() - nPosDot))) {
+						strEpisode = mp_movie_info->epgInfo1.substr(0, nPosDot) + "\n";
+						bHide = true;
+					}
+				}
+			}
+			// Compare strings normally if not positively found to be equal before
+			if (false == bHide && 0 == mp_movie_info->epgInfo2.find(mp_movie_info->epgInfo1)) {
+				bHide = true;
+			}
+		}
+		if (false == bHide) {
+			processTextToArray(mp_movie_info->epgInfo1);
+		}
+	}
+
+	info1_lines = epgText.size();
+
+	//scan epg-data - sort to list
+	if ((mp_movie_info->epgInfo2.empty()) && (info1_lines == 0))
+		processTextToArray(g_Locale->getText(LOCALE_EPGVIEWER_NODETAILED)); // UTF-8
+	else
+		processTextToArray(strEpisode + mp_movie_info->epgInfo2);
+
+	// Add a blank line
+	processTextToArray("");
+
+	// Show FSK information
+	if (mp_movie_info->parentalLockAge > 0)
+	{
+		char fskInfo[4];
+		sprintf(fskInfo, "%d", mp_movie_info->parentalLockAge);
+		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AGE_RATING)) + ": " + fskInfo); // UTF-8
+	}
+
+	// Show length information
+	char lengthInfo[11];
+	sprintf(lengthInfo, "%d", mp_movie_info->length);
+	processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_LENGTH)) + ": " + lengthInfo); // UTF-8
+
+	// Show audio information
+	std::string audioInfo = "";
+	std::vector<EPG_AUDIO_PIDS> tags = mp_movie_info->audioPids;
+	if (tags.size())
+	{
+		for (unsigned int i = 0; i < tags.size(); i++)
+				if (!tags[i].epgAudioPidName.empty())
+					audioInfo += tags[i].epgAudioPidName + ", ";
+
+		if (!audioInfo.empty())
+		{
+			audioInfo.erase(audioInfo.size()-2);
+			processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AUDIO)) + ": " + audioInfo); // UTF-8
+		}
+	}
+
+	// Show genre information
+#ifdef FULL_CONTENT_CLASSIFICATION
+	if (!mp_movie_info->genreMajor.empty())
+		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_GENRE)) + ": " + GetGenre(mp_movie_info->genreMajor[0])); // UTF-8
+//	processTextToArray( epgData.userClassification.c_str() );
+#else
+	if (mp_movie_info->genreMajor)
+		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_GENRE)) + ": " + GetGenre(mp_movie_info->genreMajor)); // UTF-8
+#endif
+
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
+	fader.StartFadeIn();
+
+	//show the epg
+	// header + logo
+	int header_h = std::max(toph, logo_h);
+	header = new CComponentsHeader(sx, sy, ox, header_h);
+	if (pic_offx > 0) {
+		headerPic = new CComponentsPicture(sx+10, sy + (header_h-logo_h)/2, logo_w, logo_h, lname);
+		headerPic->doPaintBg(false);
+	}
+	std::string textAll = (!text2.empty()) ? text1 + "\n" + text2 : text1;
+	headerText = new CComponentsText(sx+15+pic_offx, sy, ox-15-pic_offx, header_h, textAll, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);
+	headerText->doPaintBg(false);
+	headerText->setTextColor(COL_MENUHEAD_TEXT);
+	header->paint(CC_SAVE_SCREEN_NO);
+	headerText->paint(CC_SAVE_SCREEN_NO);
+	if (headerPic)
+		headerPic->paint(CC_SAVE_SCREEN_NO);
+
+	int showPos = 0;
+	textCount = epgText.size();
+	showText(showPos, sy + toph);
+
+	// show Button
+	const struct button_label Button[] =
+	{
+		{ NEUTRINO_ICON_BUTTON_INFO_SMALL  , LOCALE_CHANNELLIST_ADDITIONAL }
+	};
+	int icol_w, icol_h;
+	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+	int h = std::max(fh, icol_h+4);
+	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
+	frameBuffer->paintBoxRel(sx,sy+oy,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
+	::paintButtons(sx + 10, sy+oy, 0, 1, Button, aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 1);
+
+#if 0
+	//show progressbar
+	epg_done = mp_position/mp_duration*100;
+	if ( epg_done > 0 )
+	{
+		int pbx = sx + 10 /*+ widthl */+ 10 + ((ox-104/*-widthr-widthl*/-10-10-20)>>1);
+		CProgressBar pb(pbx, sy+oy-height, 104, height-6);
+		pb.setType(CProgressBar::PB_TIMESCALE);
+		pb.setValues(epg_done, 100);
+		pb.paint(false);
+	}
+#endif
+
+	frameBuffer->blit();
+	if ( doLoop )
+	{
+		neutrino_msg_t      msg = 0;
+		neutrino_msg_data_t data = 0;
+
+		int scrollCount = 0;
+
+		bool loop = true;
+
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
+
+		while (loop)
+		{
+			g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+			if ( msg <= CRCInput::RC_MaxRC )
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
+
+			scrollCount = medlinecount;
+
+			switch ( msg )
+			{
+			case CRCInput::RC_down:
+				if (showPos+scrollCount<textCount)
+				{
+					showPos += scrollCount;
+					showText(showPos, sy + toph, tmdbtoggle, false);
+				}
+				break;
+
+			case CRCInput::RC_up:
+				showPos -= scrollCount;
+				if (showPos<0)
+					showPos=0;
+				else
+					showText(showPos, sy + toph, tmdbtoggle, false);
+				break;
+
+			case CRCInput::RC_info:
+			{
+				showPos = 0;
+				if (!tmdbtoggle) {
+					cTmdb* tmdb = new cTmdb(mp_movie_info->epgTitle);
+					if ((tmdb->getResults() > 0) && (!tmdb->getDescription().empty())) {
+						epgText_saved = epgText;
+						epgText.clear();
+						tmdbtoggle = !tmdbtoggle;
+						processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
+						textCount = epgText.size();
+						stars = tmdb->getStars();
+						showText(showPos, sy + toph, tmdbtoggle);
+					} else {
+						ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMessageBox::mbrOk , CMessageBox::mbrOk);
+					}
+					delete tmdb;
+				} else {
+					epgText = epgText_saved;
+					textCount = epgText.size();
+					tmdbtoggle = !tmdbtoggle;
+					stars=0;
+					showText(showPos, sy + toph);
+				}
+				break;
+			}
+
+			case CRCInput::RC_help:
+			case CRCInput::RC_ok:
+			case CRCInput::RC_timeout:
+				if(fader.StartFadeOut()) {
+					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					msg = 0;
+				} else
+					loop = false;
+				break;
+
+			default:
+				// konfigurierbare Keys handlen...
+				if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel) {
+					if(fader.StartFadeOut()) {
+						timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+						msg = 0;
+					} else
+						loop = false;
+				}
+				else
+				{
+					if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
+					{
+						loop = false;
+						res = menu_return::RETURN_EXIT_ALL;
+					}
+				}
+			}
+			frameBuffer->blit();
+		}
+		hide();
+		fader.StopFade();
+	}
+	if (headerPic)
+		delete headerPic;
+	if (headerText)
+		delete headerText;
+	if (header)
+		delete header;
+
+	return res;
+}
+
 int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_startzeit, bool doLoop, bool callFromfollowlist )
 {
 	int res = menu_return::RETURN_REPAINT;
