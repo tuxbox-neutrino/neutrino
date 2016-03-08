@@ -251,6 +251,7 @@ install_DATA += \
 	subt.png \
 	subt_gray.png \
 	timer.png \
+	tmdb.png \
 	tuner_1.png \
 	tuner_2.png \
 	tuner_3.png \
