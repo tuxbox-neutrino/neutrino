@@ -74,6 +74,7 @@ class cTmdb
 		std::string getReleaseDate()			{ return minfo.release_date;}
 		std::string getDescription()			{ return minfo.overview;}
 		std::string getVote()				{ return minfo.vote_average;}
+		std::string getCast()				{ return minfo.cast;}
 		bool        hasCover()				{ return !minfo.poster_path.empty();}
 		bool        getBigCover(std::string cover)	{ return DownloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, cover);}
 		bool        getSmallCover(std::string cover)	{ return DownloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, cover);}

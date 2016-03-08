@@ -491,6 +491,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 {
 	int res = menu_return::RETURN_REPAINT;
 	static uint64_t channel_id = 0;
+	std::string tmdb_str = "";
 
 	if (mp_movie_info == NULL)
 		return res;
@@ -503,6 +504,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 
 	tmdbtoggle = false;
 	stars = 0;
+	tmdb_str = mp_movie_info->epgInfo2;
 
 	CComponentsHeader*  header     = NULL;
 	CComponentsPicture* headerPic  = NULL;
@@ -663,6 +665,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 	// show Button
 	const struct button_label Button[] =
 	{
+		{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_EPG_SAVING },
 		{ NEUTRINO_ICON_BUTTON_INFO_SMALL  , LOCALE_CHANNELLIST_ADDITIONAL }
 	};
 	int icol_w, icol_h;
@@ -671,7 +674,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 	int h = std::max(fh, icol_h+4);
 	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
 	frameBuffer->paintBoxRel(sx,sy+oy,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
-	::paintButtons(sx + 10, sy+oy, 0, 1, Button, aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 1);
+	::paintButtons(sx + 10, sy+oy, 0, 2, Button, aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 1);
 
 #if 0
 	//show progressbar
@@ -741,6 +744,9 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 						epgText_saved = epgText;
 						epgText.clear();
 						tmdbtoggle = !tmdbtoggle;
+						tmdb_str = tmdb->getDescription();
+						if (!tmdb->getCast().empty())
+							tmdb_str += "\n\n"+(std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS)+":\n"+ tmdb->getCast()+"\n";
 						processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
 						textCount = epgText.size();
 						stars = tmdb->getStars();
@@ -758,7 +764,12 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 				}
 				break;
 			}
-
+			case CRCInput::RC_red:
+			{
+				if (tmdbtoggle) {
+					mp_movie_info->epgInfo2 = tmdb_str;
+				}
+			}
 			case CRCInput::RC_help:
 			case CRCInput::RC_ok:
 			case CRCInput::RC_timeout:
