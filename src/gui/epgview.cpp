@@ -708,6 +708,14 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 
 			switch ( msg )
 			{
+			case NeutrinoMessages::EVT_TIMER:
+				if(data == fader.GetFadeTimer()) {
+					if(fader.FadeDone())
+						loop = false;
+				}
+				else
+					CNeutrinoApp::getInstance()->handleMsg(msg, data);
+				break;
 			case CRCInput::RC_down:
 				if (showPos+scrollCount<textCount)
 				{
