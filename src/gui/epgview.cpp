@@ -500,7 +500,15 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*m
 
 	epgText.clear();
 
-	start();
+	if (doLoop)
+	{
+		if (!bigFonts && g_settings.bigFonts) {
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIG_FONT_FAKTOR));
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIG_FONT_FAKTOR));
+		}
+		bigFonts = g_settings.bigFonts;
+		start();
+	}
 
 	tmdbtoggle = false;
 	stars = 0;
