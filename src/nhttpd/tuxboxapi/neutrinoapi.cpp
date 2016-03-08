@@ -291,6 +291,15 @@ bool CNeutrinoAPI::GetChannelEvents(void)
 	return true;
 }
 
+void CNeutrinoAPI::GetChannelEvent(t_channel_id channel_id, CChannelEvent &event)
+{
+	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
+	event.eventID = 0;
+	CChannelEvent * evt = ChannelListEvents[channel_id];
+	if (evt)
+		event = *evt;
+}
+
 //-------------------------------------------------------------------------
 
 std::string CNeutrinoAPI::GetServiceName(t_channel_id channel_id)

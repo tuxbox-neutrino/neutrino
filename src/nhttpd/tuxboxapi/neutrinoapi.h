@@ -25,23 +25,27 @@ bool _initialize_iso639_map(void);
 //-------------------------------------------------------------------------
 class CNeutrinoAPI
 {
+private:
+	CChannelEventList	eList;
 	OpenThreads::Mutex	*pmutex;
+	std::map<unsigned, CChannelEvent *> ChannelListEvents;
+
+	// complete channellists
+	//CZapitClient::BouquetChannelList RadioChannelList,TVChannelList;
+	// events of actual channel
+	// List of available tv bouquets
+	//std::map<int, CZapitClient::BouquetChannelList> TVBouquetsList;
+	// List of available radio bouquets
+	//std::map<int, CZapitClient::BouquetChannelList> RadioBouquetsList;
+	// List of bouquets
+	CZapitClient::BouquetList BouquetList;
+public:
 	// Clientlibs
 	CSectionsdClient	*Sectionsd;
 	CZapitClient		*Zapit;
 	CTimerdClient		*Timerd;
 	CEventServer		*EventServer;
 
-	// complete channellists
-	CZapitClient::BouquetChannelList RadioChannelList,TVChannelList;
-	// events of actual channel
-	std::map<unsigned, CChannelEvent *> ChannelListEvents;
-	// List of available tv bouquets
-	std::map<int, CZapitClient::BouquetChannelList> TVBouquetsList;
-	// List of available radio bouquets
-	std::map<int, CZapitClient::BouquetChannelList> RadioBouquetsList;
-	// List of bouquets
-	CZapitClient::BouquetList BouquetList;
 
 	//bool standby_mode;
 
@@ -85,14 +89,14 @@ public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);
 
-	CChannelEventList	eList;
 	CNeutrinoYParser	*NeutrinoYParser;
 	CControlAPI		*ControlAPI;
 	void Lock() { pmutex->lock(); }
 	void Unlock() { pmutex->unlock(); }
+	void GetChannelEvent(t_channel_id channel_id, CChannelEvent &event);
 
-	friend class CNeutrinoYParser; // Backreference
-	friend class CControlAPI;
+	//friend class CNeutrinoYParser; // Backreference
+	//friend class CControlAPI;
 };
 
 #endif /*__nhttpd_neutrinoapi_h__*/
