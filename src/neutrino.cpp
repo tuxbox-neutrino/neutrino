@@ -2179,7 +2179,6 @@ void CNeutrinoApp::quickZap(int msg)
 void CNeutrinoApp::numericZap(int msg)
 {
 	StopSubtitles();
-	g_InfoViewer->setSwitchMode(CInfoViewer::IV_MODE_NUMBER_ZAP);
 	int res = channelList->numericZap( msg );
 	StartSubtitles(res < 0);
 	if (res >= 0 && CRCInput::isNumeric(msg)) {
