@@ -1801,6 +1801,10 @@ void ShoutCAST_MetaFilter(STREAM_FILTER *arg)
 	FILTERDATA *filterdata = (FILTERDATA*)arg->user;
 	int meta_int = filterdata->meta_int;
 	int len = *arg->len;
+	if(len < 0){
+		dprintf(stderr, "[%s] : error ---> len %i < 0\n",__func__, len);
+		return;
+	}
 	char*buf = (char*)arg->buf;
 	int meta_start;
 
@@ -1815,6 +1819,12 @@ void ShoutCAST_MetaFilter(STREAM_FILTER *arg)
 	if(filterdata->stored < filterdata->len)
 	{
 		int bsize = (filterdata->len + 1) - filterdata->stored;
+		printf("filterdata->len %i bsize %i len %i\n",filterdata->len,bsize,len);
+			/*check overload size*/
+			if(bsize > len){
+				dprintf(stderr, "[%s] : error ---> bsize %i > len %i\n",__func__,bsize, len);
+				return;
+			}
 
 		/* if there is some meta data, extract it */
 		/* there can be zero size blocks too */
@@ -1883,7 +1893,12 @@ void ShoutCAST_MetaFilter(STREAM_FILTER *arg)
 
 				//dprintf(stderr, "filter : metadata : \n\n\n----------\n%s\n----------\n\n\n", filterdata->meta_data);
 			}
-
+			/*check negative size*/
+			if(len - b < 0)
+			{
+				dprintf(stderr, "[%s] : error ---> len - b %i\n",__func__,len-b);
+				return;
+			}
 			/* remove the metadata and it's size indicator from the buffer */
 			memmove(buf + meta_start, buf + b, len - b );
 
