@@ -245,8 +245,9 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 	Init();
 
 	int res = menu_return::RETURN_EXIT_ALL;
+	bool marked_ok = (actionKey.length() == 1 && g_settings.adzap_zapBackPeriod == (actionKey[0] - '0') * 60);
 
-	if (actionKey == "enable")
+	if (actionKey == "enable" || marked_ok)
 	{
 		if (!monitor)
 			armed = true;
