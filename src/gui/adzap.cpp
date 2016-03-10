@@ -289,7 +289,11 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 	{
 		g_settings.adzap_zapBackPeriod = actionKey[0] - '0';
 		for (int shortcut = 1; shortcut < 10; shortcut++)
-			forwarders[shortcut - 1]->setMarked(shortcut == g_settings.adzap_zapBackPeriod);
+		{
+			bool selected = (g_settings.adzap_zapBackPeriod == shortcut);
+			forwarders[shortcut - 1]->setMarked(selected);
+			forwarders[shortcut - 1]->iconName_Info_right = selected ? NEUTRINO_ICON_CHECKMARK : NULL;
+		}
 		nc->setMarked(false);
 		g_settings.adzap_zapBackPeriod *= 60;
 		return menu_return::RETURN_REPAINT;
@@ -328,6 +332,7 @@ void CAdZapMenu::ShowMenu()
 		bool selected = g_settings.adzap_zapBackPeriod == 60 * shortcut;
 		forwarders[shortcut - 1] = new CMenuForwarder(minute, true, NULL, this, actionKey, CRCInput::convertDigitToKey(shortcut));
 		forwarders[shortcut - 1]->setMarked(selected);
+		forwarders[shortcut - 1]->iconName_Info_right = selected ? NEUTRINO_ICON_CHECKMARK : NULL;
 		forwarders[shortcut - 1]->setHint(NEUTRINO_ICON_HINT_ADZAP, "");
 		menu->addItem(forwarders[shortcut - 1], selected);
 		minute = LOCALE_ADZAP_MINUTES;
