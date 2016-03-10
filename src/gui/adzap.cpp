@@ -44,7 +44,7 @@
 #define ADZAP_DATA "/tmp/adzap.data"
 
 static const struct button_label CAdZapMenuFooterButtons[] = {
-	{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_ADZAP_DISABLE },
+	//{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_ADZAP_DISABLE },
 	{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_ADZAP_ENABLE },
 	{ NEUTRINO_ICON_BUTTON_BLUE,	LOCALE_ADZAP_MONITOR }
 };
@@ -313,7 +313,7 @@ void CAdZapMenu::ShowMenu()
 	bool show_monitor = monitorLifeTime.tv_sec;
 
 	CMenuWidget *menu = new CMenuWidget(LOCALE_ADZAP, NEUTRINO_ICON_SETTINGS, width);
-	menu->addKey(CRCInput::RC_red, this, "disable");
+	//menu->addKey(CRCInput::RC_red, this, "disable");
 	menu->addKey(CRCInput::RC_green, this, "enable");
 	menu->addKey(CRCInput::RC_blue, this, "monitor");
 	menu->addIntroItems();
