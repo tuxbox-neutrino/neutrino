@@ -1117,7 +1117,14 @@ void CInfoViewer::loop(bool show_dot)
 			/* this debug message will only hit in movieplayer mode, where console is
 			 * spammed to death anyway... */
 			printf("%s:%d msg->MP: %08lx, data: %08lx\n", __func__, __LINE__, (long)msg, (long)data);
-			if (msg < CRCInput::RC_Events) /* RC / Keyboard event */
+
+			bool volume_keys = (
+				   msg == CRCInput::RC_spkr
+				|| msg == (neutrino_msg_t) g_settings.key_volumeup
+				|| msg == (neutrino_msg_t) g_settings.key_volumedown
+			);
+
+			if (msg < CRCInput::RC_Events && !volume_keys)
 			{
 				g_RCInput->postMsg (msg, data);
 				res = messages_return::cancel_info;
