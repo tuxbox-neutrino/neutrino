@@ -1708,16 +1708,13 @@ int f_status(FILE *stream, void (*cb)(void*))
 /* information into the CSTATE structure */
 void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 {
-	#define SKIP(a) for(;(a && !isalnum(*a)); ++a) {};
-	char *ptr;
-
 	/* abort if we were submitted a NULL pointer */
 	if((!md) || (!state))
 		return;
 
 	dprintf(stderr, "ShoutCAST_ParseMetaData(%p : %s, %p)\n", md, md, state);
 
-	ptr = strstr(md, "StreamTitle=");
+	char *ptr = strstr(md, "StreamTitle=");
 
 	if(ptr)
 	{
@@ -1727,13 +1724,13 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 		if(!ptr)
 			ptr = strstr(md, ", ");
 
-
+		const int bufsize = 4095;
 		/* no separator, simply copy everything into the 'title' field */
 		if(!ptr)
 		{
 			ptr = strchr(md, '=');
-			strncpy(state->title, ptr + 2, 4095);
-			 state->title[4095] = '\0';
+			strncpy(state->title, ptr + 2, bufsize);
+			state->title[bufsize] = '\0';
 			ptr = strchr(state->title, ';');
 			if(ptr)
 				*(ptr - 1) = 0;
@@ -1741,16 +1738,18 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 		}
 		else
 		{
-			SKIP(ptr);
-			strcpy(state->title, ptr);
+			//SKIP()
+			for(int i = 0;(ptr && i < bufsize && !isalnum(*ptr)); ++ptr,i++){};
+
+			strncpy(state->title, ptr,bufsize);
 			ptr = strchr(state->title, ';');
 			if(ptr)
 				*(ptr - 1) = 0;
 
 			ptr = strstr(md, "StreamTitle=");
 			ptr = strchr(ptr, '\'');
-			strncpy(state->artist, ptr + 1, 4095);
-			state->artist[4095] = '\0';
+			strncpy(state->artist, ptr + 1, bufsize);
+			state->artist[bufsize] = '\0';
 			ptr = strstr(state->artist, " - ");
 			if(!ptr)
 				ptr = strstr(state->artist, ", ");
