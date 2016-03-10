@@ -190,6 +190,10 @@ int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 static neutrino_locale_t locals[SNeutrinoSettings::ITEM_MAX];
 neutrino_locale_t CUserMenuSetup::getLocale(unsigned int key)
 {
+	if(key >= SNeutrinoSettings::ITEM_MAX){
+		key = SNeutrinoSettings::ITEM_MAX-1;
+	}
+
 	static bool initialized = false;
 	if (!initialized) {
 		initialized = true;
