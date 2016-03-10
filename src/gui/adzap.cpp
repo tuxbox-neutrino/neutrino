@@ -231,7 +231,7 @@ void CAdZapMenu::Run()
 				else
 				{
 					alerted = false;
-					if (channelList)
+					if ((channelId != curChannelId) && channelList)
 						channelList->zapTo_ChannelID(channelId);
 					armed = false;
 				}
