@@ -105,7 +105,6 @@ time_t CAdZapMenu::getMonitorLifeTime()
 		return 0;
 
 	CChannelEventList::iterator eli;
-	struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	for (eli = evtlist.begin(); eli != evtlist.end(); ++eli)
 	{
@@ -139,7 +138,6 @@ void CAdZapMenu::Run()
 
 		if (monitor)
 		{
-			struct timespec ts;
 			clock_gettime(CLOCK_REALTIME, &ts);
 			ts.tv_sec += 1;
 
@@ -173,42 +171,19 @@ void CAdZapMenu::Run()
 		{
 			if (g_settings.adzap_writeData)
 			{
-				struct timespec ts;
 				clock_gettime(CLOCK_REALTIME, &ts);
 				ts.tv_sec += 1;
 
 				sem_timedwait(&sem, &ts);
-
-				int zp = g_settings.adzap_zapBackPeriod;
-				long int zb = zapBackTime.tv_sec + ZAPBACK_ALERT_PERIOD - ts.tv_sec;
-
-				if (FILE *f = fopen(ADZAP_DATA, "w"))
-				{
-					fprintf(f, "%" PRIx64 "\n%s\n%d\n%d:%02d\n%ld\n%ld:%02ld\n",
-							channelId,
-							channelName.c_str(),
-							zp,
-							zp / 60, zp % 60,
-							zb,
-							zb / 60, zb % 60);
-					fclose(f);
-				}
-				else
-					printf("CAdZapMenu::%s: write data failed.\n", __func__);
 			}
 			else
 				sem_timedwait(&sem, &zapBackTime);
 		}
 		else
-		{
-			if (access(ADZAP_DATA, F_OK) == 0)
-				unlink(ADZAP_DATA);
 			sem_wait(&sem);
-		}
 
 		if (armed)
 		{
-			struct timespec ts;
 			clock_gettime(CLOCK_REALTIME, &ts);
 			if (ts.tv_sec >= zapBackTime.tv_sec)
 			{
@@ -237,9 +212,40 @@ void CAdZapMenu::Run()
 				}
 			}
 		}
+
+		if (g_settings.adzap_writeData && (monitor || armed))
+			WriteData();
+		else
+			RemoveData();
 	}
 }
 
+void CAdZapMenu::WriteData()
+{
+	int zp = g_settings.adzap_zapBackPeriod;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	long int zb = armed ? zapBackTime.tv_sec + ZAPBACK_ALERT_PERIOD - ts.tv_sec : 0;
+
+	if (FILE *f = fopen(ADZAP_DATA, "w"))
+	{
+		fprintf(f, "%" PRIx64 "\n%s\n%d\n%d:%02d\n%ld\n%ld:%02ld\n",
+				channelId,
+				channelName.c_str(),
+				zp,
+				zp / 60, zp % 60,
+				zb,
+				zb / 60, zb % 60);
+		fclose(f);
+	}
+	else
+		printf("CAdZapMenu::%s: failed.\n", __func__);
+}
+
+void CAdZapMenu::RemoveData()
+{
+	if (access(ADZAP_DATA, F_OK) == 0)
+		unlink(ADZAP_DATA);
+}
 int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 {
 	Init();

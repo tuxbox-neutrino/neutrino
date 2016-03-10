@@ -40,6 +40,7 @@ class CAdZapMenu: public CMenuTarget, CChangeObserver
 		bool armed;
 		bool alerted;
 		bool monitor;
+		struct timespec ts;
 		struct timespec zapBackTime;
 		std::string channelName;
 		CMenuForwarder *forwarders[9];
@@ -54,6 +55,8 @@ class CAdZapMenu: public CMenuTarget, CChangeObserver
 		void ShowMenu();
 		void Update();
 		void Run(void);
+		void WriteData(void);
+		void RemoveData(void);
 		static void *Run(void *arg);
 	public:
 		static CAdZapMenu *getInstance();
