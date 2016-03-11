@@ -419,7 +419,7 @@ int request_file(URL *url)
 				send(url->fd, str, strlen(str), 0);
 
 				if( (meta_int = parse_response(url, &id3, &tmp)) < 0)
-					return -1;
+					return meta_int;
 
 				if(meta_int)
 				{
@@ -493,7 +493,7 @@ int request_file(URL *url)
 			send(url->fd, str, strlen(str), 0);
 
 			if( (meta_int = parse_response(url, &id3, &tmp)) < 0)
-				return -1;
+				return meta_int;
 
 			if(meta_int)
 			{
