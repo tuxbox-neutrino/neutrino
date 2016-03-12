@@ -135,13 +135,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CVFD::getInstance()->ShowIcon((fp_icon) 0x09000002, true);
 		CVFD::getInstance()->ShowIcon((fp_icon) 0x0B000002, true);
 		char text[255];
-		char buf[XML_UTF8_ENCODE_MAX];
 		int ch = 0x2588;
-		int len = XmlUtf8Encode(ch, buf);
-
+		std::string tmp = Unicode_Character_to_UTF8(ch);
+		size_t len = tmp.size();
 		for (int i = 0; i < 12; i++)
 		{
-			memmove(&text[i*len], buf, len);
+			memmove(&text[i*len], tmp.c_str(), len);
 		}
 		text[12*len] = 0;
 
