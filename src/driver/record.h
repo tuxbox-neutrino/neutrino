@@ -242,6 +242,7 @@ class CStreamRec : public CRecordInstance, OpenThreads::Thread
 	private:
 		AVFormatContext *ifcx;
 		AVFormatContext *ofcx;
+		AVBitStreamFilterContext *bsfc;
 		bool stopped;
 		bool interrupt;
 		time_t time_started;

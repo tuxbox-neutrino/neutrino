@@ -73,6 +73,7 @@ class CStreamStream : public CStreamInstance
 	private:
 		AVFormatContext *ifcx;
 		AVFormatContext *ofcx;
+		AVBitStreamFilterContext *bsfc;
 		AVIOContext *avio_ctx;
 
 		bool stopped;
