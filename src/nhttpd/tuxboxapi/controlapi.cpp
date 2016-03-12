@@ -2247,7 +2247,8 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 					{
 						if(!(init_iso))
 						{
-							strncpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ),DESC_MAX_LEN );
+							std::string tmp_desc = _getISO639Description( pids.APIDs[j].desc);
+							strncpy(pids.APIDs[j].desc, tmp_desc.c_str(), DESC_MAX_LEN -1);
 						}
 						hh->printf("%05u %s %s\n",pids.APIDs[j].pid,pids.APIDs[j].desc,pids.APIDs[j].is_ac3 ? " (AC3)": pids.APIDs[j].desc,pids.APIDs[j].is_aac ? "(AAC)" : pids.APIDs[j].desc,pids.APIDs[j].is_eac3 ? "(EAC3)" : " ");
 					}

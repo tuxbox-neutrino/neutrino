@@ -694,7 +694,8 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 						{
 							if(!(init_iso))
 							{
-								strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
+								std::string tmp_desc = _getISO639Description( pids.APIDs[j].desc);
+								strncpy(pids.APIDs[j].desc, tmp_desc.c_str(), DESC_MAX_LEN -1);
 							}
 							yresult += string_printf("<option value=%05u %s>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,(j==selected_apid) ? "selected=\"selected\"" : "",std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": pids.APIDs[j].is_aac ? "(AAC)" : pids.APIDs[j].is_eac3 ? "(EAC3)" : " ");
 						}
@@ -711,7 +712,8 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 			{
 				if(!(init_iso))
 				{
-					strcpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ) );
+					std::string tmp_desc = _getISO639Description( pids.APIDs[i].desc);
+					strncpy(pids.APIDs[i].desc, tmp_desc.c_str(), DESC_MAX_LEN -1);
 				}
 				yresult += string_printf("<option value=%05u %s>%s %s</option>\r\n",
 							 idx_as_id ? i : it->pid, (i==selected_apid) ? "selected=\"selected\"" : "",pids.APIDs[i].desc,
