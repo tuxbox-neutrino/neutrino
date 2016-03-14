@@ -450,6 +450,15 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			yresult += "</a>\n";
 		}
 
+		if (!channel->getUrl().empty())
+		{
+			yresult += "<img src=\"/images/webtv.png\" alt=\"WebTV\" title=\"WebTV\" />\n";
+		}
+
+		if (channel->scrambled)
+		{
+			yresult += "<img src=\"/images/key.png\" alt=\"Scrambled\" title=\"Scrambled\" />\n";
+		}
 		if (event.eventID)
 		{
 			yresult += string_printf("<a href=\"javascript:do_epg('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"','"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"')\">"

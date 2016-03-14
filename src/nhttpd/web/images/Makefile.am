@@ -34,6 +34,7 @@ install_DATA =	accept.png \
 		hidden.png \
 		info.png \
 		inlink.gif \
+		key.png \
 		live.png \
 		live_popup.png \
 		livelock.png \
@@ -82,6 +83,7 @@ install_DATA =	accept.png \
 		volumeunmute.png \
 		volumeup.png \
 		wait.gif \
+		webtv.png \
 		wget.png \
 		x_red.png \
 		zap.png
