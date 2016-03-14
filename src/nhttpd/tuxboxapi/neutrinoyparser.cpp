@@ -460,6 +460,13 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				);
 		}
 
+		yresult += string_printf("<a href=\"javascript:do_stream('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"','%s')\">"
+				"<img src=\"/images/stream.png\" alt=\"Stream\" title=\"Stream\" />"
+				"</a>\n"
+				, channel->getChannelID()
+				, channel->getName().c_str()
+			);
+
 		yresult += "</td></tr></table>\n</td>\n</tr>\n";
 
 		if (channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE)
