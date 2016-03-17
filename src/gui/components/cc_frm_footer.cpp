@@ -142,7 +142,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			continue;
 		}
 
-		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, height-height/(btn_contour ? 4 : 3), txt, btn_name);
+		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (btn_contour ? height-2*fr_thickness : height), txt, btn_name);
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(btn_contour);
 		btn->enableFrame(btn_contour);
