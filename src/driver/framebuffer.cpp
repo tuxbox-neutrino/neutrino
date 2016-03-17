@@ -1013,6 +1013,18 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 	iconBasePath = iconPath;
 }
 
+std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_type)
+{
+	std::string path, filetype;
+	filetype = "." + file_type;
+	path = std::string(ICONSDIR_VAR) + "/" + icon_name + filetype;
+	if (access(path.c_str(), F_OK))
+		path = iconBasePath + "/" + icon_name + filetype;
+	if (icon_name.find("/", 0) != std::string::npos)
+		path = icon_name;
+	return path;
+}
+
 void CFrameBuffer::getIconSize(const char * const filename, int* width, int *height)
 {
 	*width = 0;
@@ -1110,11 +1122,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	/* we cache and check original name */
 	it = icon_cache.find(filename);
 	if(it == icon_cache.end()) {
-		std::string newname = std::string(ICONSDIR_VAR) + "/" + filename + ".png";
-		if (access(newname.c_str(), F_OK))
-			newname = iconBasePath + "/" + filename + ".png";
-		if (filename.find("/", 0) != std::string::npos)
-			newname = filename;
+		std::string newname = getIconPath(filename);
 		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
@@ -1133,9 +1141,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			goto _display;
 		}
 
-		newname = std::string(ICONSDIR_VAR) + "/" + filename + ".raw";
-		if (access(newname.c_str(), F_OK))
-			newname = iconBasePath + "/" + filename + ".raw";
+		newname = getIconPath(filename, "raw");
 
 		int lfd = open(newname.c_str(), O_RDONLY);
 
