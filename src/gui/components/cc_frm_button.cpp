@@ -142,29 +142,29 @@ void CComponentsButton::initIcon()
 	}
 
 	//initialize icon object
+	string::size_type pos = cc_btn_icon.find("/", 0);
+	if (pos == string::npos)
+		cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
+
 	if (cc_btn_icon_obj == NULL){
-		int y_icon = 0;
-
-		string::size_type pos = cc_btn_icon.find("/", 0);
-		if (pos == string::npos)
-			cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
-
-		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, y_icon, cc_btn_icon, this);
+		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, 0, cc_btn_icon, this);
 		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
-		int h_icon = cc_btn_icon_obj->getHeight();
-
-		//get required icon height
-		int h_max = height-2*fr_thickness;
-
-		//get current icon dimensions
-		if (h_icon > h_max)
-			cc_btn_icon_obj->setHeight(h_max, true);
-
-		y_icon = h_max/2 - cc_btn_icon_obj->getHeight()/2;
-
-		cc_btn_icon_obj->setYPos(y_icon);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
+
+	int y_icon = cc_btn_icon_obj->getYPos();
+	int h_icon = cc_btn_icon_obj->getHeight();
+
+	//get required icon height
+	int h_max = height-2*fr_thickness;
+
+	//get current icon dimensions
+	if (h_icon > h_max)
+		cc_btn_icon_obj->setHeight(h_max, true);
+
+	y_icon = h_max/2 - cc_btn_icon_obj->getHeight()/2;
+
+	cc_btn_icon_obj->setYPos(y_icon);
 }
 
 void CComponentsButton::initCaption()
@@ -237,6 +237,11 @@ void CComponentsButton::initCaption()
 		x_icon += fr_thickness + append_x_offset;
 		cc_btn_icon_obj->setXPos(x_icon);
 		w_icon = cc_btn_icon_obj->getWidth();
+		/*in case of dynamic changed height of caption or button opbject itself,
+		 *we must ensure centered y position of icon object
+		*/
+		int y_icon = height/2 - cc_btn_icon_obj->getHeight()/2;
+		cc_btn_icon_obj->setYPos(y_icon);
 	}
 	if (cc_btn_capt_obj){
 		cc_btn_capt_obj->setXPos(x_icon + w_icon + append_x_offset);
