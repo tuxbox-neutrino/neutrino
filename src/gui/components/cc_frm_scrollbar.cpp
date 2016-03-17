@@ -80,9 +80,8 @@ void CComponentsScrollBar::initVarSbForm(const int& count)
 	sb_up_obj 	= sb_down_obj = NULL;
 	sb_segments_obj = NULL;
 
-	string ftype = ".png";
-	sb_up_icon	= NEUTRINO_ICON_BUTTON_TOP + ftype;
-	sb_down_icon	= NEUTRINO_ICON_BUTTON_DOWN + ftype;
+	sb_up_icon	= frameBuffer->getIconPath(NEUTRINO_ICON_BUTTON_TOP) ;
+	sb_down_icon	= frameBuffer->getIconPath(NEUTRINO_ICON_BUTTON_DOWN);
 
 	sb_segments_count = count;
 	sb_mark_id	= 0;
