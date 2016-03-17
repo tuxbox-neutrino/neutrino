@@ -144,7 +144,7 @@ void CComponentsButton::initIcon()
 	//initialize icon object
 	string::size_type pos = cc_btn_icon.find("/", 0);
 	if (pos == string::npos)
-		cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
+		cc_btn_icon = frameBuffer->getIconPath(cc_btn_icon);
 
 	if (cc_btn_icon_obj == NULL){
 		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, 0, cc_btn_icon, this);
