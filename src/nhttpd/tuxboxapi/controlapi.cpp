@@ -3622,13 +3622,8 @@ void CControlAPI::getMoviesCGI(CyhookHandler *hh) {
 	}
 
 	result = hh->outArray("movies", result);
-	// write footer
-	if (outType == json) {
-		hh->WriteLn(json_out_success(result));
-	}
-	else {
-		hh->WriteLn(result);
-	}
+
+	hh->SendResult(result);
 }
 
 //Helpfunction to get movies of a dir
