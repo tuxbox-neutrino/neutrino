@@ -3583,14 +3583,13 @@ std::string CControlAPI::getSubdirectories(CyhookHandler *hh, std::string path, 
 //-----------------------------------------------------------------------------
 void CControlAPI::getMoviesCGI(CyhookHandler *hh) {
 	std::string result = "";
-	bool isFirstLine = true;
 	bool subdirs = true;
 
 	if(hh->ParamList["subdirs"] == "false") {
 		subdirs = false;
 	}
 
-	TOutType outType = hh->outStart();
+	hh->outStart();
 
 	//Shows all movies with path in moviebrowser.conf
 	if (hh->ParamList["dir"] == "moviedir" || hh->ParamList["dir"] == "allmoviedirs" ) {

@@ -309,7 +309,7 @@ std::string CNeutrinoAPI::GetServiceName(t_channel_id channel_id)
 }
 
 //-------------------------------------------------------------------------
-
+#if 0 //never used
 CZapitClient::BouquetChannelList *CNeutrinoAPI::GetBouquet(unsigned int, int)
 {
 	//FIXME
@@ -337,7 +337,7 @@ void CNeutrinoAPI::UpdateChannelList(void)
 {
 	//FIXME
 }
-
+#endif
 //-------------------------------------------------------------------------
 
 std::string CNeutrinoAPI::timerEventType2Str(CTimerd::CTimerEventTypes type)

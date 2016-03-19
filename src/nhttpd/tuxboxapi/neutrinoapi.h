@@ -61,10 +61,12 @@ public:
 	bool GetChannelEvents(void);
 #if 0 /* unused funktion*/
 	bool GetStreamInfo(int bitinfo[10]);
-#endif
-	std::string GetServiceName(t_channel_id channel_id);
 	CZapitClient::BouquetChannelList *GetBouquet(unsigned int BouquetNr, int Mode);
 	CZapitClient::BouquetChannelList *GetChannelList(int Mode);
+	void UpdateBouquet(unsigned int BouquetNr);
+	void UpdateChannelList(void);
+#endif
+	std::string GetServiceName(t_channel_id channel_id);
 
 	// support functions
 	void ZapTo          (const char * const target);
@@ -72,8 +74,6 @@ public:
 	void ZapToChannelId (t_channel_id channel_id);
 	t_channel_id ChannelNameToChannelId(std::string search_channel_name);
 
-	void UpdateBouquet(unsigned int BouquetNr);
-	void UpdateChannelList(void);
 	void UpdateBouquets(void);
 
 	std::string timerEventType2Str(CTimerd::CTimerEventTypes type);
