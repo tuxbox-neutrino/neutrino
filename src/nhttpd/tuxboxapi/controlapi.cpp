@@ -3552,6 +3552,7 @@ std::string CControlAPI::getSubdirectories(CyhookHandler *hh, std::string path, 
 	return result;
 }
 
+
 //-----------------------------------------------------------------------------
 /** Get neutrino movies
  *
@@ -3630,32 +3631,6 @@ void CControlAPI::getMoviesCGI(CyhookHandler *hh) {
 	}
 }
 
-//Helpfunction to get subdirs of a dir
-std::string CControlAPI::getSubdirectories(CyhookHandler *hh, std::string path, std::string result) {
-	std::string item = "";
-	std::string dirname;
-	DIR *dirp;
-	struct dirent *entry;
-
-	if ((dirp = opendir(path.c_str()))) {
-		while ((entry = readdir(dirp))) {
-			if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
-				if (path[path.length() - 1] != '/') {
-					path += "/";
-				}
-				std::string fullname = path + entry->d_name;
-				item += hh->outPair("dir", hh->outValue(fullname), false);
-				result += hh->outNext();		
-				result += hh->outArrayItem("item", item, false);
-				item = "";
-				result = getSubdirectories(hh, fullname, result);
-			}
-		}
-		closedir(dirp);
-	}
-	return result;
-}
-
 //Helpfunction to get movies of a dir
 std::string CControlAPI::readMovies(CyhookHandler *hh, std::string path, std::string result, bool subdirs) {
 	std::string item = "";
@@ -3681,7 +3656,7 @@ std::string CControlAPI::readMovies(CyhookHandler *hh, std::string path, std::st
 					result += hh->outNext();
 				}
 				result += hh->outArrayItem("item", item, false);
-				item = "";							
+				item = "";
 			}
 		}
 		closedir(dirp);
