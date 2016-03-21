@@ -265,7 +265,12 @@
 		<td><a href="#logolist">Senderlogos auflisten</a></td>
 		<td><a href="http://box_ip/control/logolist">
 		http://box_ip/control/logolist</a></td>
-	</tr>	
+	</tr>
+	<tr>
+		<td><a href="#getdir">Neutrino-Ordner auflisten</a></td>
+		<td><a href="http://box_ip/control/getdir">
+		http://box_ip/control/getdir</a></td>
+	</tr>		
 	<tr>
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>
@@ -2211,6 +2216,34 @@ Beispiel:<br>
 66dd03fb0001283d;Das Erste HD;3fb0001283d;/share/logo/3fb0001283d.png;/share/logo/3f300012b5c.png<br>
 5b9d045900013355;BTV;45900013355<br>
 519d0007008532da;Folx TV;7008532da<br>
+&nbsp;</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="getdir"></a><b>Neutrino-Ordner auflisten</b></div>
+<div class="URL">Handler: http://box_ip/control/getdir</div>
+<br>
+<b>Parameter:</b> dir, subdirs, format
+<br><br>
+<i>Dir</i> kann folgende Werte erhalten:<br>
+<li>moviedir - gibt alle Pfade der moviebrowser.conf zur&uuml;ck</li>
+<li>recordingdir - gibt den Aufnahmeordner der neutrino.conf zur&uuml;ck</li>
+<li>allmoviedirs - moviedir + recordingdir </li>
+<br>
+<i>subdirs</i> gibt an ob die Unterordner mit ausgegeben werden sollen (true/false)<br>
+<i>format</i> gibt das Ausgabeformat an (xml,json)
+<br><br>
+<b>R&uuml;ckgabe:</b> dir [absoluter Pfad zum Ordner]
+<br><br>
+<div class="example">
+<br>
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/getdir?dir=allmoviedirs&subdirs=true&format=json<br><br>
+{"success": "true", "data":{"dirs": [{"dir": "/mnt/series/",
+}
+,{"dir": "/mnt/movies/",
+}]
+}}
 &nbsp;</div>
 
 
