@@ -891,16 +891,11 @@ void CStreamStream::run()
 		if (bsfc && codec->codec_id == CODEC_ID_H264 ) {
 			AVPacket newpkt = pkt;
 
-			int len;
-			if ((len = av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY)) < 0) {
+			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
 				av_free_packet(&pkt);
-				continue;
-			}
-
-			av_free_packet(&pkt);
-
-			newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
-			pkt = newpkt;
+				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
+				pkt = newpkt;
+			}       
 		}
 		pkt.pts = av_rescale_q(pkt.pts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);
 		pkt.dts = av_rescale_q(pkt.dts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);
