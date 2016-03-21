@@ -296,6 +296,53 @@ std::string json_out_error(std::string _error) {
 // JSON: convert string to JSON-String
 //-----------------------------------------------------------------------------
 
+std::string json_convert_string(std::string value)
+{
+	std::string result;
+	for (size_t i = 0; i < value.length(); i++)
+	{
+		unsigned char c = unsigned(value[i]);
+		switch(c)
+		{
+		case '\"':
+			result += "\\\"";
+			break;
+		case '\\':
+			result += "\\\\";
+			break;
+		case '\b':
+			result += "\\b";
+			break;
+		case '\f':
+			result += "\\f";
+			break;
+		case '\n':
+			result += "\\n";
+			break;
+		case '\r':
+			result += "\\r";
+			break;
+		case '\t':
+			result += "\\t";
+			break;
+		default:
+			if ( isControlCharacter( c ) )
+			{
+				std::ostringstream oss;
+				oss << "\\u" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << static_cast<int>(c);
+				result += oss.str();
+			}
+			else
+			{
+				result += c;
+			}
+			break;
+		}
+	}
+	return result;
+}
+
+#if 0
 std::string json_convert_string(std::string s) {
 	std::stringstream ss;
 	for (size_t i = 0; i < s.length(); ) {
@@ -350,6 +397,7 @@ std::string json_convert_string(std::string s) {
 	}
 	return ss.str();
 }
+#endif // 0
 
 std::string yExecuteScript(std::string cmd) {
 	std::string script, para, result;
