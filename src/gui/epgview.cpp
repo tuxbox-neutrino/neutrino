@@ -121,6 +121,13 @@ CEpgData::CEpgData()
 	bigFonts = false;
 	frameBuffer = CFrameBuffer::getInstance();
 	tmdbtoggle = false;
+	header     = NULL;
+}
+
+CEpgData::~CEpgData()
+{
+	delete header;
+	header = NULL;
 }
 
 void CEpgData::start()
@@ -491,10 +498,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	tmdbtoggle = false;
 	stars = 0;
 
-	CComponentsHeader*  header     = NULL;
-	CComponentsPicture* headerPic  = NULL;
-	CComponentsText*    headerText = NULL;
-
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight();
 
 	t_channel_id epg_id = channel_id;
@@ -675,17 +678,25 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	//show the epg
 	// header + logo
 	int header_h = std::max(toph, logo_h);
-	header = new CComponentsHeader(sx, sy, ox, header_h);
+	if (!header){
+		header = new CComponentsShapeSquare(sx, sy, ox, header_h);
+		header->setCorner(RADIUS_LARGE, CORNER_TOP);
+	}
+	header->setColorBody(COL_MENUHEAD_PLUS_0);
+	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+	header->setHeight(header_h);
+
+	CComponentsPicture* headerPic  = NULL; //NOTE: class CComponentsChannelLogo is preferred for channel logos
 	if (pic_offx > 0) {
 		headerPic = new CComponentsPicture(sx+10, sy + (header_h-logo_h)/2, logo_w, logo_h, lname);
 		headerPic->doPaintBg(false);
 	}
 	std::string textAll = (!text2.empty()) ? text1 + "\n" + text2 : text1;
-	headerText = new CComponentsText(sx+15+pic_offx, sy, ox-15-pic_offx, header_h, textAll, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);
-	headerText->doPaintBg(false);
-	headerText->setTextColor(COL_MENUHEAD_TEXT);
+	CComponentsText headerText(sx+15+pic_offx, sy, ox-15-pic_offx, header_h, textAll, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);
+	headerText.doPaintBg(false);
+	headerText.setTextColor(COL_MENUHEAD_TEXT);
 	header->paint(CC_SAVE_SCREEN_NO);
-	headerText->paint(CC_SAVE_SCREEN_NO);
+	headerText.paint(CC_SAVE_SCREEN_NO);
 	if (headerPic)
 		headerPic->paint(CC_SAVE_SCREEN_NO);
 
@@ -1057,11 +1068,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	}
 	if (headerPic)
 		delete headerPic;
-	if (headerText)
-		delete headerText;
-	if (header)
-		delete header;
-
 	return res;
 }
 

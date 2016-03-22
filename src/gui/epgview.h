@@ -56,7 +56,7 @@ class CEpgData
 		CChannelEventList	evtlist;
 		CChannelEventList	followlist;
 		CEPGData		epgData;
-
+		CComponentsShapeSquare* header;
 		std::string 		epg_date;
 		std::string 		epg_start;
 		std::string 		epg_end;
@@ -96,6 +96,7 @@ class CEpgData
 	public:
 
 		CEpgData();
+		~CEpgData();
 		void start( );
 		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false );
 		void hide();
