@@ -596,15 +596,29 @@ void CCDraw::paintFbItems(bool do_save_bg)
 								fbdata.gradient_data = getGradientData();
 							}
 
-							// if found empty gradient buffer, create it, otherwise paint from cache
-							if (cc_gradient_bg_cleanup)
-								frameBuffer->paintBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, 0, fbdata.r, fbdata.rtype);
+							// if found empty gradient buffer, create it, otherwise paint from gradient cache
 							if (fbdata.gradient_data->boxBuf == NULL){
-								dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint new gradient)...\033[0m\n", __func__, __LINE__);
-								fbdata.gradient_data->boxBuf = frameBuffer->paintBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, 0, fbdata.gradient_data, fbdata.r, fbdata.rtype);
-								if (cc_paint_cache)
+								if (!fbdata.pixbuf){
+									// on enabled clean up, paint blank screen before create gradient box, this prevents possible ghost text with hw acceleration
+									if (cc_gradient_bg_cleanup)
+										frameBuffer->paintBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, 0, fbdata.r, fbdata.rtype);
+
+									// create gradient buffer and paint gradient box
+									fbdata.gradient_data->boxBuf = frameBuffer->paintBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, 0, fbdata.gradient_data, fbdata.r, fbdata.rtype);
+									dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint and cache new gradient into gradient cache...\033[0m\n", __func__, __LINE__);
+								}
+
+								/* On enabled paint cache or clean up, catch the screen into paint cache and clean up unused gradient buffer.
+								 * If we don't do this, gradient cache is used.
+								*/
+								if (cc_paint_cache || cc_gradient_bg_cleanup){
+									dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], cache new created gradient into external cache...\033[0m\n", __func__, __LINE__);
 									fbdata.pixbuf = getScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
+									if (clearFbGradientData())
+										dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], remove unused gradient data...\033[0m\n", __func__, __LINE__);
+								}
 							}else{
+								//use gradient cache to repaint gradient box
 								dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint cached gradient)...\033[0m\n", __func__, __LINE__);
 								frameBuffer->checkFbArea(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, true);
 								frameBuffer->blitBox2FB(fbdata.gradient_data->boxBuf, fbdata.gradient_data->dx, fbdata.dy, fbdata.gradient_data->x, fbdata.y);
