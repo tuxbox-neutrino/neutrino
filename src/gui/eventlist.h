@@ -109,7 +109,7 @@ class CEventList : public CListHelpers
 	int      	sort_mode;
 	event_id_t 	item_event_ID;
 	CComponentsText	*cc_infozone;
-
+	CComponentsFrmChain *header;
 	const char *	unit_short_minute;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);

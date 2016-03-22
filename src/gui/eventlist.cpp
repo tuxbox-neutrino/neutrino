@@ -116,10 +116,13 @@ CEventList::CEventList()
 	oldIndex = -1;
 	oldEventID = -1;
 	bgRightBoxPaint = false;
+	header = NULL;
 }
 
 CEventList::~CEventList()
 {
+	delete header;
+	header = NULL;
 }
 
 void CEventList::UpdateTimerList(void)
@@ -857,16 +860,19 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	int font_mid = SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE;
 	int font_lr  = SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE;
 
-	CComponentsFrmChain header(x, y, full_width, theight);
-	header.enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-	header.setCorner(RADIUS_LARGE, CORNER_TOP);
+	if (!header){
+		header = new CComponentsFrmChain(x, y, full_width, theight);
+		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+		header->setCorner(RADIUS_LARGE, CORNER_TOP);
+	}
+	header->clear();
 
 	int x_off = 10;
 	int mid_width = full_width * 40 / 100; // 40%
 	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
 	//create an logo object
-	CComponentsChannelLogoScalable* midLogo = new CComponentsChannelLogoScalable(0, 0, _channelname, _channel_id, &header);
+	CComponentsChannelLogoScalable* midLogo = new CComponentsChannelLogoScalable(0, 0, _channelname, _channel_id, header);
 	if (midLogo->hasLogo()) {
 		//if logo object has found a logo and was ititialized, the hand  it's size
  		int w_logo = midLogo->getWidth();
@@ -885,24 +891,24 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 		side_width = ((full_width - w_logo) / 2) - (4 * x_off);
 	}
 	else {
-		header.removeCCItem(midLogo); //remove/destroy logo object, if it is not available
-		CComponentsText *midText = new CComponentsText(CC_CENTERED, CC_CENTERED, mid_width, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], CComponentsText::FONT_STYLE_REGULAR, &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		header->removeCCItem(midLogo); //remove/destroy logo object, if it is not available
+		CComponentsText *midText = new CComponentsText(CC_CENTERED, CC_CENTERED, mid_width, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		midText->doPaintBg(false);
 	}
 
 	if (!_channelname_prev.empty()) {
-		CComponentsText *lText = new CComponentsText(x_off, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		CComponentsText *lText = new CComponentsText(x_off, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		lText->doPaintBg(false);
 	}
 
 	if (!_channelname_next.empty()) {
 		int name_w = std::min(g_Font[font_lr]->getRenderWidth(_channelname_next), side_width);
 		int x_pos = full_width - name_w - x_off;
-		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		rText->doPaintBg(false);
 	}
 
-	header.paint(CC_SAVE_SCREEN_NO);
+	header->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CEventList::paint(t_channel_id channel_id)
