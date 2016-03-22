@@ -193,6 +193,7 @@ bool CMovieInfo::encodeMovieInfoXml(std::string * extMessage, MI_MOVIE_INFO * mo
 	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_LENGTH, movie_info->length);
 	XML_ADD_TAG_STRING(*extMessage, MI_XML_TAG_PRODUCT_COUNTRY, movie_info->productionCountry);
 	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_PRODUCT_DATE, movie_info->productionDate);
+	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_RATING, movie_info->rating);
 	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_QUALITY, movie_info->quality);
 	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_PARENTAL_LOCKAGE, movie_info->parentalLockAge);
 	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_DATE_OF_LAST_PLAY, movie_info->dateOfLastPlay);
@@ -364,6 +365,7 @@ bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 				XML_GET_DATA_STRING(xam1, MI_XML_TAG_PRODUCT_COUNTRY, movie_info->productionCountry);
 				//if(!strcmp(xam1->GetType(), MI_XML_TAG_PRODUCT_COUNTRY)) if(xam1->GetData() != NULL)strncpy(movie_info->productionCountry, xam1->GetData(),4);
 				XML_GET_DATA_INT(xam1, MI_XML_TAG_PRODUCT_DATE, movie_info->productionDate);
+				XML_GET_DATA_INT(xam1, MI_XML_TAG_RATING, movie_info->rating);
 				XML_GET_DATA_INT(xam1, MI_XML_TAG_QUALITIY, movie_info->quality);
 				XML_GET_DATA_INT(xam1, MI_XML_TAG_QUALITY, movie_info->quality);
 				XML_GET_DATA_INT(xam1, MI_XML_TAG_PARENTAL_LOCKAGE, movie_info->parentalLockAge);
@@ -419,6 +421,15 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 		print_buffer += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_CHANNEL);
 		print_buffer += ": ";
 		print_buffer += movie_info.epgChannel;
+		print_buffer += "\n";
+	}
+	if (movie_info.rating != 0) {
+		print_buffer += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_RATING);
+		print_buffer += ": ";
+		print_buffer += to_string(movie_info.rating / 10);
+		print_buffer += ",";
+		print_buffer += to_string(movie_info.rating % 10);
+		print_buffer += "/10";
 		print_buffer += "\n";
 	}
 	if (movie_info.quality != 0) {
@@ -516,6 +527,7 @@ void CMovieInfo::printDebugMovieInfo(MI_MOVIE_INFO & movie_info)
 	TRACE(" genreMajor: \t\t%d\r\n", movie_info.genreMajor);	//genreMajor;
 	TRACE(" genreMinor: \t\t%d\r\n", movie_info.genreMinor);	//genreMinor;
 	TRACE(" length: \t\t%d\r\n", movie_info.length);	// (minutes)
+	TRACE(" rating: \t\t%d,%d\r\n", movie_info.rating / 10, movie_info.rating % 10); // user rating (like IMDb rating; 75 means 7.5/10)
 	TRACE(" quality: \t\t%d\r\n", movie_info.quality);	// (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
 	TRACE(" productionCount:\t>%s<\r\n", movie_info.productionCountry.c_str());
 	TRACE(" productionDate: \t%d\r\n", movie_info.productionDate);	// (Year)  years since 1900
@@ -660,6 +672,7 @@ bool CMovieInfo::parseXmlQuickFix(std::string &_text, MI_MOVIE_INFO * movie_info
 		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_PRODUCT_COUNTRY, movie_info->productionCountry)
 		GET_XML_DATA_INT(text, pos, MI_XML_TAG_PRODUCT_DATE, movie_info->productionDate)
 		GET_XML_DATA_INT(text, pos, MI_XML_TAG_PARENTAL_LOCKAGE, movie_info->parentalLockAge)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_RATING, movie_info->rating)
 		GET_XML_DATA_INT(text, pos, MI_XML_TAG_QUALITIY, movie_info->quality)
 		GET_XML_DATA_INT(text, pos, MI_XML_TAG_QUALITY, movie_info->quality)
 		GET_XML_DATA_INT(text, pos, MI_XML_TAG_DATE_OF_LAST_PLAY, movie_info->dateOfLastPlay)
@@ -863,6 +876,7 @@ void MI_MOVIE_INFO::clear(void)
 	genreMajor = 0;	//genreMajor;
 	genreMinor = 0;	//genreMinor;
 	length = 0;	// (minutes)
+	rating = 0;	// (like IMDb rating)
 	quality = 0;	// (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
 	productionDate = 0;	// (Year)  years since 1900
 	parentalLockAge = 0;	// MI_PARENTAL_LOCKAGE (0,6,12,16,18)

@@ -86,7 +86,7 @@ typedef struct dirent64 dirent_struct;
 #define NUMBER_OF_MOVIES_LAST 40 // This is the number of movies shown in last recored and last played list
 #define MOVIE_SMSKEY_TIMEOUT 800
 
-#define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 20
+#define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 21
 const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_ROW_ITEM_COUNT] =
 {
 	{ MB_INFO_FILENAME,		LOCALE_MOVIEBROWSER_INFO_FILENAME },
@@ -108,7 +108,8 @@ const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_
 	{ MB_INFO_GEOMETRIE,		LOCALE_MOVIEBROWSER_INFO_VIDEOFORMAT },
 	{ MB_INFO_AUDIO,		LOCALE_MOVIEBROWSER_INFO_AUDIO },
 	{ MB_INFO_LENGTH,		LOCALE_MOVIEBROWSER_INFO_LENGTH },
-	{ MB_INFO_SIZE,			LOCALE_MOVIEBROWSER_INFO_SIZE }
+	{ MB_INFO_SIZE,			LOCALE_MOVIEBROWSER_INFO_SIZE },
+	{ MB_INFO_RATING,		LOCALE_MOVIEBROWSER_INFO_RATING }
 };
 
 #define MESSAGEBOX_YES_NO_OPTIONS_COUNT 2
@@ -167,6 +168,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 	LOCALE_MOVIEBROWSER_SHORT_AUDIO,
 	LOCALE_MOVIEBROWSER_SHORT_LENGTH,
 	LOCALE_MOVIEBROWSER_SHORT_SIZE,
+	LOCALE_MOVIEBROWSER_SHORT_RATING,
 	NONEXISTANT_LOCALE
 };
 
@@ -191,6 +193,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 #define	MB_ROW_WIDTH_AUDIO		8
 #define	MB_ROW_WIDTH_LENGTH		10
 #define	MB_ROW_WIDTH_SIZE 		12
+#define	MB_ROW_WIDTH_RATING		5
 
 const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 {
@@ -214,6 +217,7 @@ const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 	MB_ROW_WIDTH_AUDIO,
 	MB_ROW_WIDTH_LENGTH,
 	MB_ROW_WIDTH_SIZE,
+	MB_ROW_WIDTH_RATING,
 	0 //MB_ROW_WIDTH_MAX_NUMBER
 };
 static MI_MOVIE_INFO* playing_info;
@@ -283,6 +287,13 @@ bool sortByAge(const MI_MOVIE_INFO* a, const MI_MOVIE_INFO* b)
 	else
 		return a->parentalLockAge < b->parentalLockAge;
 }
+bool sortByRating(const MI_MOVIE_INFO* a, const MI_MOVIE_INFO* b)
+{
+	if (sortDirection)
+		return a->rating > b->rating;
+	else
+		return a->rating < b->rating;
+}
 bool sortByQuality(const MI_MOVIE_INFO* a, const MI_MOVIE_INFO* b)
 {
 	if (sortDirection)
@@ -328,7 +339,8 @@ bool (* const sortBy[MB_INFO_MAX_NUMBER+1])(const MI_MOVIE_INFO* a, const MI_MOV
 	NULL, 			//MB_INFO_AUDIO 		= 17,
 	NULL, 			//MB_INFO_LENGTH 		= 18,
 	&sortBySize, 		//MB_INFO_SIZE 			= 19,
-	NULL			//MB_INFO_MAX_NUMBER		= 20
+	&sortByRating,		//MB_INFO_RATING		= 20,
+	NULL			//MB_INFO_MAX_NUMBER		= 21
 };
 
 CMovieBrowser::CMovieBrowser(): configfile ('\t')
@@ -848,6 +860,10 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			if (!((*current_list)[i]->genreMajor!=0 && movieInfoUpdateAllIfDestEmptyOnly == true) &&
 					movieInfoUpdateAll[MB_INFO_MAJOR_GENRE])
 				(*current_list)[i]->genreMajor = m_movieSelectionHandler->genreMajor;
+
+			if (!((*current_list)[i]->rating!=0 && movieInfoUpdateAllIfDestEmptyOnly == true) &&
+					movieInfoUpdateAll[MB_INFO_RATING])
+				(*current_list)[i]->rating = m_movieSelectionHandler->rating;
 
 			if (!((*current_list)[i]->quality!=0 && movieInfoUpdateAllIfDestEmptyOnly == true) &&
 					movieInfoUpdateAll[MB_INFO_QUALITY])
@@ -2526,7 +2542,8 @@ bool CMovieBrowser::onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& handl
 	{
 		if (sort_item == MB_INFO_QUALITY || sort_item == MB_INFO_PARENTAL_LOCKAGE ||
 				sort_item == MB_INFO_PREVPLAYDATE || sort_item == MB_INFO_RECORDDATE ||
-				sort_item == MB_INFO_PRODDATE || sort_item == MB_INFO_SIZE)
+				sort_item == MB_INFO_PRODDATE || sort_item == MB_INFO_SIZE ||
+				sort_item == MB_INFO_RATING)
 			sortDirection = 1;
 		else
 			sortDirection = 0;
@@ -2944,6 +2961,11 @@ void CMovieBrowser::showHelp(void)
 	help.exec(NULL,NULL);
 }
 
+static std::string rateFormat(int i)
+{
+	return to_string(i/10) + "," + to_string(i%10);
+}
+
 #define MAX_STRING 30
 int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 {
@@ -3008,12 +3030,13 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_TITLE,             &movieInfoUpdateAll[MB_INFO_TITLE], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true, NULL, CRCInput::RC_1));
 	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_INFO1,             &movieInfoUpdateAll[MB_INFO_INFO1], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true, NULL, CRCInput::RC_2));
 	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_SERIE,             &movieInfoUpdateAll[MB_INFO_SERIE], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true, NULL, CRCInput::RC_3));
-	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_QUALITY,           &movieInfoUpdateAll[MB_INFO_QUALITY], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true, NULL, CRCInput::RC_4));
-	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PARENTAL_LOCKAGE,  &movieInfoUpdateAll[MB_INFO_PARENTAL_LOCKAGE], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_5));
-	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR,       &movieInfoUpdateAll[MB_INFO_MAJOR_GENRE], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_6));
-	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,          &movieInfoUpdateAll[MB_INFO_PRODDATE], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_7));
-	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PRODCOUNTRY,       &movieInfoUpdateAll[MB_INFO_COUNTRY], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_8));
-	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_LENGTH,            &movieInfoUpdateAll[MB_INFO_LENGTH], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_9));
+	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_RATING,            &movieInfoUpdateAll[MB_INFO_RATING], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true, NULL, CRCInput::RC_4));
+	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_QUALITY,           &movieInfoUpdateAll[MB_INFO_QUALITY], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true, NULL, CRCInput::RC_5));
+	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PARENTAL_LOCKAGE,  &movieInfoUpdateAll[MB_INFO_PARENTAL_LOCKAGE], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_6));
+	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR,       &movieInfoUpdateAll[MB_INFO_MAJOR_GENRE], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_7));
+	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,          &movieInfoUpdateAll[MB_INFO_PRODDATE], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_8));
+	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PRODCOUNTRY,       &movieInfoUpdateAll[MB_INFO_COUNTRY], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_9));
+	movieInfoMenuUpdate.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_LENGTH,            &movieInfoUpdateAll[MB_INFO_LENGTH], MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,NULL, CRCInput::RC_0));
 
 	/********************************************************************/
 	/**  movieInfo  ******************************************************/
@@ -3034,6 +3057,9 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	CIntInput    lengthUserIntInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,       (int *)&movie_info->length, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	CIntInput    yearUserIntInput(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,       (int *)&movie_info->productionDate, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 
+	CMenuOptionNumberChooser *rate = new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_INFO_RATING, &movie_info->rating, true, 0, 100, NULL);
+	rate->setNumberFormat(rateFormat);
+
 	CMenuWidget movieInfoMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 
 	movieInfoMenu.addIntroItems(LOCALE_MOVIEBROWSER_INFO_HEAD);
@@ -3046,6 +3072,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_INFO1,          (movie_info->epgInfo1.size() <= MAX_STRING) /*true*/, movie_info->epgInfo1,      &epgUserInput,NULL,                     CRCInput::RC_3));
 	movieInfoMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR, &movie_info->genreMajor, GENRE_ALL, GENRE_ALL_COUNT, true,NULL,         CRCInput::RC_4, "", true));
 	movieInfoMenu.addItem(GenericMenuSeparatorLine);
+	movieInfoMenu.addItem(rate);
 	movieInfoMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_INFO_QUALITY,&movie_info->quality,true,0,3, NULL));
 	movieInfoMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PARENTAL_LOCKAGE, &movie_info->parentalLockAge, MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS, MESSAGEBOX_PARENTAL_LOCKAGE_OPTION_COUNT, true,NULL,         CRCInput::RC_6));
 	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,       true, yearUserIntInput.getValue(),      &yearUserIntInput,NULL,           CRCInput::RC_7));
@@ -3507,7 +3534,14 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			snprintf(str_tmp, sizeof(str_tmp),"%4" PRIu64 "",movie_info.file.Size>>20);
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_MAX_NUMBER: 			//		= 20
+		case MB_INFO_RATING: 				// 		= 20,
+			if (movie_info.rating)
+			{
+				snprintf(str_tmp, sizeof(str_tmp),"%d,%d",movie_info.rating/10, movie_info.rating%10);
+				*item_string = str_tmp;
+			}
+			break;
+		case MB_INFO_MAX_NUMBER: 			//		= 21
 		default:
 			*item_string="";
 			result = false;

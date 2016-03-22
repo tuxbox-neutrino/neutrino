@@ -114,7 +114,8 @@ typedef enum
 	MB_INFO_AUDIO 			= 17,
 	MB_INFO_LENGTH 			= 18,
 	MB_INFO_SIZE 			= 19,
-	MB_INFO_MAX_NUMBER		= 20 	// MUST be allways the last item in the list
+	MB_INFO_RATING			= 20,
+	MB_INFO_MAX_NUMBER		= 21 	// MUST be allways the last item in the list
 }MB_INFO_ITEM;
 
 
