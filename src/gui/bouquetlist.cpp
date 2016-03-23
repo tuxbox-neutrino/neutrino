@@ -500,6 +500,12 @@ int CBouquetList::show(bool bShowChannelList)
 				hide();
 				return CHANLIST_CHANGE_MODE;
 			}
+		} else if(msg == CRCInput::RC_www) {
+			if(!favonly && bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_WEBTV) {
+				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_WEBTV);
+				hide();
+				return CHANLIST_CHANGE_MODE;
+			}
 		}
 		else if ( msg == CRCInput::RC_setup) {
 			if (!favonly && !Bouquets.empty()) {

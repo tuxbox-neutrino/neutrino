@@ -623,7 +623,7 @@ int CTimerList::show()
 			}
 			// help key
 		}
-		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites || msg == CRCInput::RC_www) {
 			g_RCInput->postMsg (msg, 0);
 			loop = false;
 			res = menu_return::RETURN_EXIT_ALL;

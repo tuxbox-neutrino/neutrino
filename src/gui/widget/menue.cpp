@@ -967,6 +967,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 			case (CRCInput::RC_sat):
 			case (CRCInput::RC_favorites):
+			case (CRCInput::RC_www):
 				g_RCInput->postMsg (msg, 0);
 				//close any menue on dbox-key
 			case (CRCInput::RC_setup):

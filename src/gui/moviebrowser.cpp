@@ -1102,7 +1102,7 @@ int CMovieBrowser::exec(const char* path)
 			{
 				loop = false;
 			}
-			else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+			else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites || msg == CRCInput::RC_www) {
 				//FIXME do nothing ?
 			}
 			else if (msg == NeutrinoMessages::STANDBY_ON ||

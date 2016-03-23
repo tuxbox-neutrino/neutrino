@@ -447,7 +447,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				cancelMoveChannel();
 			}
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www)) {
 		}
 		else
 		{

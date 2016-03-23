@@ -232,6 +232,7 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 
 			case CRCInput::RC_sat:
 			case CRCInput::RC_favorites:
+			case CRCInput::RC_www:
 				break;
 			case CRCInput::RC_timeout:
 			case CRCInput::RC_ok:

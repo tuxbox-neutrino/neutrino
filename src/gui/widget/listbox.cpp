@@ -223,7 +223,7 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		{
 			onBlueKeyPressed();
 		}
-		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites))
+		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www))
 		{
 		}
 		else

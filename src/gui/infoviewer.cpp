@@ -1025,7 +1025,7 @@ void CInfoViewer::loop(bool show_dot)
 		if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 
-		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites || msg == CRCInput::RC_www) {
 			g_RCInput->postMsg (msg, 0);
 			res = messages_return::cancel_info;
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {

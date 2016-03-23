@@ -1034,6 +1034,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				break;
 			case CRCInput::RC_favorites:
 			case CRCInput::RC_sat:
+			case CRCInput::RC_www:
 				if( !call_fromfollowlist){
 					g_RCInput->postMsg (msg, 0);
 					loop = false;

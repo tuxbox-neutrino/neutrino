@@ -151,7 +151,7 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			btn_red->kill();
 			btn_red->paint(false);
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www)) {
 			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			break;

@@ -719,7 +719,7 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 		{
 			loop = false;
 		}
-		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites))
+		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www))
 		{
 		}
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
