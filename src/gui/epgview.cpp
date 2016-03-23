@@ -682,9 +682,9 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		header = new CComponentsShapeSquare(sx, sy, ox, header_h);
 		header->setCorner(RADIUS_LARGE, CORNER_TOP);
 	}
+	header->setDimensionsAll(sx, sy, ox, header_h);
 	header->setColorBody(COL_MENUHEAD_PLUS_0);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-	header->setHeight(header_h);
 
 	CComponentsPicture* headerPic  = NULL; //NOTE: class CComponentsChannelLogo is preferred for channel logos
 	if (pic_offx > 0) {
