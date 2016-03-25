@@ -55,6 +55,7 @@ public:
 	bool Open(playmode_t PlayMode);
 	void Close(void);
 	bool Start(char * filename, unsigned short vpid, int vtype, unsigned short apid, int audio_flag, unsigned int duration = 0);
+	bool Start(std::string filename, std::string headers = "");
 	bool Stop(void);
 	bool SetAPid(unsigned short pid, int audio_flag);
 	bool SetSpeed(int speed);
