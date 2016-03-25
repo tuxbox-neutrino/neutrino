@@ -137,8 +137,10 @@ int CLuaInstCurl::CurlDownload(lua_State *L)
 	o, outputfile	string		when empty then save to string
 					as secund return value
 	A, userAgent	string		empty
+	P, postfields	string		empty
 	v, verbose	bool		false
 	s, silent	bool		false
+	h, header	bool		false
 	connectTimeout	number		20
 	ipv4		bool		false
 	ipv6		bool		false
@@ -219,12 +221,18 @@ Example:
 	std::string userAgent = "";
 	tableLookup(L, "A", userAgent) || tableLookup(L, "userAgent", userAgent);
 
+	std::string postfields = "";//specify data to POST to server
+	tableLookup(L, "P", postfields) || tableLookup(L, "postfields", postfields);
+
 	bool verbose = false;
 	tableLookup(L, "v", verbose) || tableLookup(L, "verbose", verbose);
 
 	bool silent = false;
 	if (!verbose)
 		tableLookup(L, "s", silent) || tableLookup(L, "silent", silent);
+
+	bool pass_header = false;//pass headers to the data stream
+	tableLookup(L, "header", pass_header);
 
 	lua_Integer connectTimeout = 20;
 	tableLookup(L, "connectTimeout", connectTimeout);
@@ -261,6 +269,9 @@ Example:
 	if (!userAgent.empty())
 		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
+	if (!postfields.empty())
+		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, postfields.c_str());
+
 	if (ipv4 && ipv6)
 		curl_easy_setopt(curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_WHATEVER);
 	else if (ipv4)
@@ -280,6 +291,7 @@ Example:
 	curl_easy_setopt(curl_handle, CURLOPT_MAXREDIRS, (long)maxRedirs);
 	curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, (silent)?1L:0L);
 	curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, (verbose)?1L:0L);
+	curl_easy_setopt(curl_handle, CURLOPT_HEADER, (pass_header)?1L:0L);
 
 	progressData pgd;
 
