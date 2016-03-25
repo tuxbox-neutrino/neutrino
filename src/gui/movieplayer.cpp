@@ -532,6 +532,7 @@ bool CMoviePlayerGui::SelectFile()
 	info_2 = "";
 	pretty_name.clear();
 	file_name.clear();
+	cookie_header.clear();
 	//reinit Path_local for webif reloadsetup
 	if (g_settings.network_nfs_moviedir.empty())
 		Path_local = "/";
@@ -735,7 +736,7 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 	bool haveurl = false;
 	if ( !root.isObject() ) {
 		for (Json::Value::iterator it = root.begin(); it != root.end(); ++it) {
-			info.url=""; info.name=""; info.bandwidth = 1; info.resolution=""; info.res1 = 1;
+			info.url=""; info.name=""; info.header=""; info.bandwidth = 1; info.resolution=""; info.res1 = 1;
 			tmp = "0";
 			Json::Value object_it = *it;
 			for (Json::Value::iterator iti = object_it.begin(); iti != object_it.end(); iti++) {
@@ -745,7 +746,11 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 					haveurl = true;
 				} else if (name=="name") {
 					info.name = (*iti).asString();
-				} else if (name=="band") {
+				}
+				else if (name=="header") {
+					info.header = (*iti).asString();
+				}
+				else if (name=="band") {
 					info.bandwidth  = atoi((*iti).asString().c_str());
 				} else if (name=="res1") {
 					tmp = (*iti).asString();
@@ -762,7 +767,7 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 	}
 	if (root.isObject()) {
 		for (Json::Value::iterator it = root.begin(); it != root.end(); ++it) {
-			info.url=""; info.name=""; info.bandwidth = 1; info.resolution=""; info.res1 = 1;
+			info.url=""; info.name=""; info.header=""; info.bandwidth = 1; info.resolution=""; info.res1 = 1;
 			tmp = "0";
 			std::string name = it.name();
 			if (name=="url") {
@@ -770,6 +775,8 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 				haveurl = true;
 			} else if (name=="name") {
 				info.name = (*it).asString();
+			} else if (name=="header") {
+					info.header = (*it).asString();
 			} else if (name=="band") {
 				info.bandwidth  = atoi((*it).asString().c_str());
 			} else if (name=="res1") {
@@ -827,6 +834,7 @@ bool CMoviePlayerGui::selectLivestream(std::vector<livestream_info_t> &streamLis
 			if (_info->res1 == _res) {
 				info->url        = _info->url;
 				info->name       = _info->name;
+				info->header     = _info->header;
 				info->resolution = _info->resolution;
 				info->res1       = _info->res1;
 				info->bandwidth  = _info->bandwidth;
@@ -856,7 +864,7 @@ bool CMoviePlayerGui::selectLivestream(std::vector<livestream_info_t> &streamLis
 	return false;
 }
 
-bool CMoviePlayerGui::getLiveUrl(const t_channel_id chan, const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2)
+bool CMoviePlayerGui::getLiveUrl(const t_channel_id chan, const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header)
 {
 	static t_channel_id oldChan = 0;
 	static std::vector<livestream_info_t> liveStreamList;
@@ -898,6 +906,10 @@ bool CMoviePlayerGui::getLiveUrl(const t_channel_id chan, const std::string &url
 		info1 = info.name;
 		_pretty_name = info.name;
 	}
+	if (!info.header.empty()) {
+		header = info.header;
+	}
+
 #if 0
 	if (!info.resolution.empty())
 		info2 = info.resolution;
@@ -952,7 +964,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 
 	std::string realUrl = file;
 	std::string _pretty_name = name;
-	if (!getLiveUrl(chan, file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2)) {
+	if (!getLiveUrl(chan, file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2, cookie_header)) {
 		/* FIXME: lua->runScript calling channelRezap, which makes neutrino to loop at start,
 		   let playback start -> drop messages in ShowStartHint */
 		//return false;
@@ -969,6 +981,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->isHTTP = true;
 	instance_bg->file_name = realUrl;
 	instance_bg->pretty_name = _pretty_name;
+	instance_bg->cookie_header = cookie_header;
 
 	instance_bg->movie_info.epgTitle = name;
 	instance_bg->movie_info.epgChannel = realUrl;
@@ -1070,7 +1083,13 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		showStartingHint = true;
 		pthread_create(&thrStartHint, NULL, CMoviePlayerGui::ShowStartHint, this);
 	}
-	bool res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
+	bool res = false;
+	if(cookie_header.empty()){
+		res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
+	}else{
+		res = playback->Start((char *) file_name.c_str(), cookie_header);//url with cookies
+	}
+
 	if (thrStartHint) {
 		showStartingHint = false;
 		pthread_join(thrStartHint, NULL);

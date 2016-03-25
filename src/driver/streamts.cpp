@@ -770,8 +770,8 @@ bool CStreamStream::Open()
 	if (url.empty())
 		return false;
 
-	std::string pretty_name, livestreamInfo1, livestreamInfo2;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getChannelID(), channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2)) {
+	std::string pretty_name, livestreamInfo1, livestreamInfo2, headers;
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getChannelID(), channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}
@@ -784,6 +784,8 @@ bool CStreamStream::Open()
 	printf("%s: Open input [%s]....\n", __FUNCTION__, url.c_str());
 
 	AVDictionary *options = NULL;
+	if (!headers.empty())
+		av_dict_set(&options, "headers", headers.c_str(), 0);
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
 		return false;

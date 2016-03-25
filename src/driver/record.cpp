@@ -2065,8 +2065,8 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	if (url.empty())
 		return false;
 
-	std::string pretty_name;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getChannelID(), channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2)) {
+	std::string pretty_name,headers;
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getChannelID(), channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2,headers)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}
@@ -2078,6 +2078,8 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	printf("%s: Open input [%s]....\n", __FUNCTION__, url.c_str());
 
 	AVDictionary *options = NULL;
+	if (!headers.empty())//add cookies
+		av_dict_set(&options, "headers", headers.c_str(), 0);
 
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, url.c_str());

@@ -90,6 +90,7 @@ class CMoviePlayerGui : public CMenuTarget
 		std::string url;
 		std::string name;
 		std::string resolution;
+		std::string header;//cookie
 		int res1;
 		int bandwidth;
 	} livestream_info_struct_t;
@@ -102,6 +103,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	std::string	file_name;
 	std::string	pretty_name;
+	std::string	cookie_header;
 	std::string	info_1, info_2;
 	std::string    	currentaudioname;
 	bool		playing;
@@ -261,7 +263,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool getBlockedFromPlugin() { return blockedFromPlugin; };
 	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };
 	void getLivestreamInfo(std::string *i1, std::string *i2) { *i1=livestreamInfo1; *i2=livestreamInfo2; };
-	bool getLiveUrl(const t_channel_id chan, const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2);
+	bool getLiveUrl(const t_channel_id chan, const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header);
 };
 
 #endif
