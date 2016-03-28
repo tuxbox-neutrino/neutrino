@@ -964,6 +964,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 
 	std::string realUrl = file;
 	std::string _pretty_name = name;
+	cookie_header.clear();
 	if (!getLiveUrl(chan, file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2, cookie_header)) {
 		/* FIXME: lua->runScript calling channelRezap, which makes neutrino to loop at start,
 		   let playback start -> drop messages in ShowStartHint */
