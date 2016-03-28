@@ -502,9 +502,11 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 	if (isMovieBrowser) {
 		if (filelist_it != filelist.end()) {
 			unsigned idx = filelist_it - filelist.begin();
-			p_movie_info = milist[idx];
-			startposition = p_movie_info->bookmarks.start > 0 ? p_movie_info->bookmarks.start*1000 : -1;
-			printf("CMoviePlayerGui::prepareFile: file %s start %d\n", file_name.c_str(), startposition);
+			if(milist.size() > idx){
+				p_movie_info = milist[idx];
+				startposition = p_movie_info->bookmarks.start > 0 ? p_movie_info->bookmarks.start*1000 : -1;
+				printf("CMoviePlayerGui::prepareFile: file %s start %d\n", file_name.c_str(), startposition);
+			}
 		}
 		if (isYT) {
 			file_name = file->Url;
@@ -1643,7 +1645,8 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 			if (vzap_it <= filelist.end()) {
 				unsigned idx = vzap_it - filelist.begin();
 				//printf("CMoviePlayerGui::%s: idx: %d\n", __func__, idx);
-				mi = milist[idx];
+				if(milist.size() > idx)
+					mi = milist[idx];
 			}
 		}
 		g_InfoViewer->showMovieTitle(playstate, mi->epgEpgId >>16, mi->epgChannel, mi->epgTitle, mi->epgInfo1,
