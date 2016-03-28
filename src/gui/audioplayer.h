@@ -76,12 +76,11 @@ class RandomNumber
  public:
 	RandomNumber()
 	{
-		srand(time(0));
+		std::srand(time(0));
 	}
 
-	int operator()(int n)
-	{
-		return (n * rand() / RAND_MAX);
+	int operator()(int n){
+		return std::rand() / (1.0 + RAND_MAX) * n;
 	}
 };
 
