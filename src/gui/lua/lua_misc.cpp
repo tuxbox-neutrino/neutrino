@@ -27,6 +27,7 @@
 #include <global.h>
 #include <system/debug.h>
 #include <gui/widget/menue.h>
+#include <gui/widget/messagebox.h>
 #include <driver/volume.h>
 #include <gui/audiomute.h>
 #include <gui/infoclock.h>
@@ -315,7 +316,8 @@ int CLuaInstMisc::checkVersion(lua_State *L)
 				LUA_API_VERSION_MAJOR, LUA_API_VERSION_MINOR,
 				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK2),
 				major, minor);
-		luaL_error(L, msg);
+		DisplayErrorMessage(msg, "Lua Script Error:");
+
 	}
 	lua_pushinteger(L, 1); /* for backward compatibility */
 	return 1;
