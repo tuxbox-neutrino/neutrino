@@ -780,6 +780,7 @@ hdd_statfs_recording while recording only
 hdd_umount Unmount
 hdd_umount_warn unmount device
 hdd_umounted Device removed
+help_box_title Help
 imageinfo.api API:
 imageinfo.creator Creator:
 imageinfo.date Date:

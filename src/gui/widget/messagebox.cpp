@@ -338,32 +338,12 @@ int ShowMsg(const std::string &Caption, const std::string & Text, const CMessage
 	return ShowMsg(Caption, Text.c_str(), Default, ShowButtons, Icon, Width, timeout,returnDefaultOnTimeout);
 }
 
-void DisplayErrorMessage(const char * const ErrorMsg)
-{
-	ShowMsg(LOCALE_MESSAGEBOX_ERROR, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-}
-
-void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t Caption)
-{
-	ShowMsg(Caption, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-}
-
-void DisplayErrorMessage(const char * const ErrorMsg, const std::string &Caption)
-{
-	ShowMsg(Caption, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
-}
-
-void DisplayInfoMessage(const char * const InfoMsg)
-{
-	ShowMsg(LOCALE_MESSAGEBOX_INFO, InfoMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-}
-
-void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t Caption)
-{
-	ShowMsg(Caption, InfoMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-}
-
-void DisplayInfoMessage(const char * const InfoMsg, const std::string &Caption)
-{
-	ShowMsg(Caption, InfoMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-}
+// void DisplayErrorMessage(const char * const ErrorMsg)
+// {
+// 	ShowMsg(LOCALE_MESSAGEBOX_ERROR, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+// }
+//
+// void DisplayInfoMessage(const char * const ErrorMsg)
+// {
+// 	ShowMsg(LOCALE_MESSAGEBOX_INFO, ErrorMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+// }

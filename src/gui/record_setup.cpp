@@ -43,7 +43,7 @@
 #include <gui/filebrowser.h>
 
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
@@ -85,7 +85,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "help_recording")
 	{
-		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
+		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMsgBox::mbrBack, CMsgBox::mbBack);
 		return res;
 	}
 	else if(actionKey == "recordingdir")

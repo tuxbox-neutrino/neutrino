@@ -28,7 +28,7 @@
 #include <config.h>
 #endif
 
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include "bouqueteditor_channels.h"
 
 #include <global.h>
@@ -470,7 +470,7 @@ void CBEChannelWidget::deleteChannel()
 	if (selected >= Channels->size()) /* Channels.size() might be 0 */
 		return;
 
-	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Channels)[selected]->getName(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
+	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Channels)[selected]->getName(), CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)!=CMsgBox::mbrYes)
 		return;
 
 	g_bouquetManager->Bouquets[bouquet]->removeService((*Channels)[selected]->getChannelID());

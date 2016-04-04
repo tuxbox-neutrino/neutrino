@@ -61,7 +61,7 @@
 #include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
@@ -2653,8 +2653,8 @@ bool CAudioPlayerGui::askToOverwriteFile(const std::string& filename)
 		 g_Locale->getText(LOCALE_AUDIOPLAYER_PLAYLIST_FILEOVERWRITE_MSG),
 		 filename.c_str());
 	bool res = (ShowMsg(LOCALE_AUDIOPLAYER_PLAYLIST_FILEOVERWRITE_TITLE,
-			       msg,CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo)
-		    == CMessageBox::mbrYes);
+			       msg,CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo)
+		    == CMsgBox::mbrYes);
 	this->paint();
 	return res;
 }

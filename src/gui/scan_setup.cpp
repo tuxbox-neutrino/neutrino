@@ -371,7 +371,7 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "reloadchannels")
 	{
 		printf("[neutrino] CScanSetup::%s reloadchannels...\n", __FUNCTION__);
-		CHintBox chb(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT));
+		CHint chb(LOCALE_SERVICEMENU_RELOAD_HINT);
 		chb.paint();
 		/* save if changed, to make sure NEW/REMOVED/... flags are updated */
 		CServiceManager::getInstance()->SaveServices(true, true);

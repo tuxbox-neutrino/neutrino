@@ -35,7 +35,7 @@
 #include <gui/components/cc.h>
 
 #include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
 #include <zapit/client/zapittools.h>
@@ -245,19 +245,19 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			{
 				if (bouquetsChanged)
 				{
-					int result = ShowMsg(LOCALE_BOUQUETEDITOR_NAME, LOCALE_BOUQUETEDITOR_SAVECHANGES, CMessageBox::mbrYes, CMessageBox::mbAll);
+					int result = ShowMsg(LOCALE_BOUQUETEDITOR_NAME, LOCALE_BOUQUETEDITOR_SAVECHANGES, CMsgBox::mbrYes, CMsgBox::mbYesNoCancel, NULL, 600);
 
 					switch( result )
 					{
-						case CMessageBox::mbrYes :
+						case CMsgBox::mbrYes :
 							loop=false;
 							saveChanges();
 						break;
-						case CMessageBox::mbrNo :
+						case CMsgBox::mbrNo :
 							loop=false;
 							discardChanges();
 						break;
-						case CMessageBox::mbrCancel :
+						case CMsgBox::mbrCancel :
 							paintHead();
 							paint();
 							paintFoot();
@@ -394,7 +394,7 @@ void CBEBouquetWidget::deleteBouquet()
 	if (selected >= Bouquets->size()) /* Bouquets->size() might be 0 */
 		return;
 
-	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
+	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)!=CMsgBox::mbrYes)
 		return;
 
 	g_bouquetManager->deleteBouquet(selected);

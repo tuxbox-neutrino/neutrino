@@ -125,9 +125,9 @@ typedef struct cc_screen_data_t
 //combination of rc messages with related icon
 typedef struct msg_list_t
 {
-	neutrino_msg_t 	msg;
+	neutrino_msg_t 	directKey;
 	const char* 	icon;
-} key_list_t;
+} msg_list_struct_t;
 
 //align types
 enum

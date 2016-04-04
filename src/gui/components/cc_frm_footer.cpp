@@ -144,9 +144,8 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (btn_contour ? height-2*fr_thickness : height), txt, icon_name);
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(btn_contour);
-		btn->enableFrame(btn_contour);
-		btn->setButtonTextColor(COL_MENUFOOT_TEXT);
-		btn->setButtonEventMsg(content[i].btn_msg);
+		btn->setButtonDirectKey(content[i].directKey);
+		btn->setButtonDirectKeyA(content[i].directKeyAlt);
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);
 
@@ -163,6 +162,9 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 				f_col = COL_DARK_BLUE;
 			btn->setColorFrame(f_col);
 		}
+
+		if (btn_contour)
+			btn->setFrameThickness(3, 3);
 
 		chain->addCCItem(btn);
 
@@ -200,7 +202,8 @@ void CComponentsFooter::setButtonLabels(const struct button_label_l * const cont
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = content[i].button;
 		buttons[i].text = content[i].locale != NONEXISTANT_LOCALE ? g_Locale->getText(content[i].locale) : "";
-		buttons[i].btn_msg = content[i].btn_msg;
+		buttons[i].directKey = content[i].directKey;
+		buttons[i].directKeyAlt = content[i].directKeyAlt;
 		buttons[i].btn_result = content[i].btn_result;
 		buttons[i].btn_alias = content[i].btn_alias;
 	}
@@ -217,7 +220,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 		buttons[i].locale = content[i].locale;
 		//NOTE: here are used default values, because old button label struct don't know about this,
 		//if it possible, don't use this methode!
-		buttons[i].btn_msg = CRCInput::RC_nokey;
+		buttons[i].directKey = buttons[i].directKeyAlt = CRCInput::RC_nokey;
 		buttons[i].btn_result = -1;
 		buttons[i].btn_alias = -1;
 	}
@@ -232,7 +235,8 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_l> &v_content,
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = v_content[i].button;
 		buttons[i].locale = v_content[i].locale;
-		buttons[i].btn_msg = v_content[i].btn_msg;
+		buttons[i].directKey = v_content[i].directKey;
+		buttons[i].directKeyAlt = v_content[i].directKeyAlt;
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
@@ -248,7 +252,8 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_s> &v_content,
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = v_content[i].button;
 		buttons[i].text = v_content[i].text;
-		buttons[i].btn_msg = v_content[i].btn_msg;
+		buttons[i].directKey = v_content[i].directKey;
+		buttons[i].directKeyAlt = v_content[i].directKeyAlt;
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
@@ -256,24 +261,39 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_s> &v_content,
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabel(const char *button_icon, const std::string& text, const int& chain_width, const int& label_width, const neutrino_msg_t& msg, const int& result_value, const int& alias_value)
+void CComponentsFooter::setButtonLabel(	const char *button_icon,
+					const std::string& text,
+					const int& chain_width,
+					const int& label_width,
+					const neutrino_msg_t& msg,
+					const int& result_value,
+					const int& alias_value,
+					const neutrino_msg_t& directKeyAlt)
 {
 	button_label_s button[1];
 
 	button[0].button = button_icon;
 	button[0].text = text;
-	button[0].btn_msg = msg;
+	button[0].directKey = msg;
+	button[0].directKeyAlt = directKeyAlt;
 	button[0].btn_result = result_value;
 	button[0].btn_alias = alias_value;
 
 	setButtonLabels(button, 1, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& chain_width, const int& label_width, const neutrino_msg_t& msg, const int& result_value, const int& alias_value)
+void CComponentsFooter::setButtonLabel(	const char *button_icon,
+					const neutrino_locale_t& locale,
+					const int& chain_width,
+					const int& label_width,
+					const neutrino_msg_t& msg,
+					const int& result_value,
+					const int& alias_value,
+					const neutrino_msg_t& directKeyAlt)
 {
 	string txt = locale != NONEXISTANT_LOCALE ? g_Locale->getText(locale) : "";
 
-	setButtonLabel(button_icon, txt, chain_width, label_width, msg, result_value, alias_value);
+	setButtonLabel(button_icon, txt, chain_width, label_width, msg, result_value, alias_value, directKeyAlt);
 }
 
 void CComponentsFooter::showButtonContour(bool show)
@@ -324,4 +344,15 @@ void CComponentsFooter::paintButtons(const int& x_pos,
 	this->setButtonLabels(content, label_count, 0, label_width);
 
 	this->paint(do_save_bg);
+}
+
+void CComponentsFooter::setButtonText(const uint& btn_id, const std::string& text)
+{
+	CComponentsItem *item = getButtonChainObject()->getCCItem(btn_id);
+	if (item){
+		CComponentsButton *button = static_cast<CComponentsButton*>(item);
+		button->setCaption(text);
+	}
+	else
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: can't set button text, possible wrong btn_id=%u, item=%p...\n", __func__, __LINE__, btn_id, item);
 }

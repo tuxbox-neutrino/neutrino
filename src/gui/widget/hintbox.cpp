@@ -1,24 +1,29 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
+	Based up Neutrino-GUI - Tuxbox-Project
+	Copyright (C) 2001 by Steffen Hehn 'McClean
 
-	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
+	Hintbox based up initial code by
+	Copyright (C) 2003 Ralf Gandy 'thegoodguy'
+	Copyright (C) 2004 Sven Traenkle 'zwen'
 	Copyright (C) 2008-2009, 2011, 2013 Stefan Seyfried
+
+	Implementation of CComponent Window class.
+	Copyright (C) 2014-2015 Thilo Graf 'dbt'
 
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -26,250 +31,139 @@
 #include <config.h>
 #endif
 
-#include <gui/widget/hintbox.h>
-
 #include <global.h>
 #include <neutrino.h>
+#include "hintbox.h"
+#include <system/debug.h>
 
-#define borderwidth 4
 
 
-#define HINTBOX_MAX_HEIGHT 420
+/*
+        x                             w
+       y+-ccw_head----------------------------------------------+
+        |icon |       caption                         | buttons |header (ccw_head)
+        +-ccw_body----------------------------------------------+
+        |+-obj_content-----------------------------------------+|
+        ||+-obj_hint 0----------------------------------------+||body (ccw_body)
+       h||| obj_picon |             obj_text                  |||           |
+        ||+---------------------------------------------------+||           +-contents (obj_content)
+        |+-----------------------------------------------------+|                           |
+        +-------------------------------------------------------+                           +-hint 0 (obj_hint) default added with new instance of CHintBox
+                                                                                            |
+                                                                                            |
+                                                                                            +-hint n optional added with addHintItem()
+*/
 
-CHintBox::CHintBox(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon)
+using namespace std;
+
+
+CHintBox::CHintBox(	const neutrino_locale_t Caption,
+			const char * const Text,
+			const int Width,
+			const char * const Icon,
+			const char * const Picon,
+			const int& header_buttons,
+			const int& text_mode,
+			const int& indent): CComponentsWindow(	1, 1, width,
+									HINTBOX_MIN_HEIGHT,
+									Caption,
+									string(Icon == NULL ? "" : Icon),
+									NULL,
+									CC_SHADOW_ON)
 {
-	const char * caption_tmp = g_Locale->getText(Caption);
-	init(caption_tmp, Text, Width, Icon);
+	init(Text, Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
 }
 
-CHintBox::CHintBox(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width, const char * const Icon)
+CHintBox::CHintBox(	const char * const Caption,
+			const char * const Text,
+			const int Width,
+			const char * const Icon,
+			const char * const Picon,
+			const int& header_buttons,
+			const int& text_mode,
+			const int& indent):CComponentsWindow(	1, 1, width,
+									HINTBOX_MIN_HEIGHT,
+									Caption,
+									string(Icon == NULL ? "" : Icon),
+									NULL,
+									CC_SHADOW_ON)
 {
-	const char * caption_tmp = g_Locale->getText(Caption);
-	const char * text_tmp = g_Locale->getText(Text);
-	init(caption_tmp, text_tmp, Width, Icon);
+	init(string(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
 }
 
-CHintBox::CHintBox(const char * const Caption, const char * const Text, const int Width, const char * const Icon)
+CHintBox::CHintBox(	const neutrino_locale_t  Caption,
+			const neutrino_locale_t  Text,
+			const int Width,
+			const char * const Icon,
+			const char * const Picon,
+			const int& header_buttons,
+			const int& text_mode,
+			const int& indent):CComponentsWindow(	1, 1, width,
+									HINTBOX_MIN_HEIGHT,
+									Caption,
+									string(Icon == NULL ? "" : Icon),
+									NULL,
+									CC_SHADOW_ON)
 {
-	init(Caption, Text, Width, Icon);
+	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
 }
 
-CHintBox::CHintBox(const char * const Caption, const neutrino_locale_t Text, const int Width, const char * const Icon)
+CHintBox::CHintBox(	const char * const Caption,
+			const neutrino_locale_t  Text,
+			const int Width,
+			const char * const Icon,
+			const char * const Picon,
+			const int& header_buttons,
+			const int& text_mode,
+			const int& indent):CComponentsWindow(	1, 1, width,
+									HINTBOX_MIN_HEIGHT,
+									Caption,
+									string(Icon == NULL ? "" : Icon),
+									NULL,
+									CC_SHADOW_ON)
 {
-	const char * text_tmp = g_Locale->getText(Text);
-	init(Caption, text_tmp, Width, Icon);
-}
-void CHintBox::init(const char * const Caption, const char * const Text, const int Width, const char * const Icon)
-{
-	char * begin;
-	char * pos;
-	int    nw;
-	int    scrollWidth = 0;
-	int    maxLineWidth = 0;
-
-	message = strdup(Text);
-
-	width   = Width;
-
-	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	height  = theight + fheight;
-	textStartX = 0;
-
-	caption = Caption;
-
-	begin   = message;
-
-	while (true)
-	{
-		height += fheight;
-		if (height > HINTBOX_MAX_HEIGHT)
-			height -= fheight;
-
-		line.push_back(begin);
-		pos = strchr(begin, '\n');
-		if (pos != NULL)
-		{
-			*pos = 0;
-			begin = pos + 1;
-		}
-		else
-			break;
-	}
-	if (fheight != 0)
-		entries_per_page = ((height - theight) / fheight) - 1;
-	else	/* avoid division by zero */
-		entries_per_page = 1;
-	current_page = 0;
-
-	unsigned int additional_width;
-
-	if (entries_per_page < line.size())
-		scrollWidth = 15;
-	else
-		scrollWidth = 0;
-	additional_width = 20 + scrollWidth;
-
-	if (Icon != NULL)
-	{
-		iconfile = Icon;
-		additional_width += 30;
-	}
-	else
-		iconfile = "";
-
-	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(caption);
-
-	if (nw > width)
-		width = nw;
-
-	for (std::vector<char *>::const_iterator it = line.begin(); it != line.end(); ++it)
-	{
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(*it);
-		maxLineWidth = std::max(maxLineWidth, w);
-		nw = additional_width + w;
-		if (nw > width)
-			width = nw;
-	}
-
-	/* make sure we don't overflow the usable area */
-	if (nw > (int)CFrameBuffer::getInstance()->getScreenWidth())
-		width = CFrameBuffer::getInstance()->getScreenWidth();
-	textStartX = (width - scrollWidth - maxLineWidth) / 2;
-
-	window = NULL;
+	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
 }
 
-CHintBox::~CHintBox(void)
+void CHintBox::init(const std::string& Text, const int& Width, const std::string& Picon, const int& header_buttons, const int& text_mode, const int& indent)
 {
-	hide();
-	free(message);
+	lines = 0;
+	timeout		= HINTBOX_DEFAULT_TIMEOUT;
+	w_indentation	= indent;
+
+	//set required window width and basic height
+	width 		= max(HINTBOX_MIN_WIDTH, Width);
+	height 		= max(HINTBOX_MIN_HEIGHT, height);
+
+	ccw_buttons = header_buttons;
+
+	//enable shadow
+	shadow = true;
+
+	//disable disable header if no title has been defined
+	if (ccw_caption.empty())
+		showHeader(false);
+
+	//disable footer for default
+	showFooter(false);
+
+	//add the content container, contains the hint objects
+	obj_content = new CComponentsFrmChain(CC_CENTERED, CC_CENTERED,  ccw_body->getWidth(), ccw_body->getHeight(), NULL, CC_DIR_X, ccw_body);
+	obj_content->doPaintBg(false);
+
+	y_hint_obj 	= 0;
+	h_hint_obj	= obj_content->getHeight();
+
+	if (!Text.empty())
+		addHintItem(Text, text_mode, Picon);
 }
 
-void CHintBox::paint(void)
-{
-	if (window != NULL)
-	{
-		/*
-		 * do not paint stuff twice:
-		 * => thread safety needed by movieplayer.cpp:
-		 *    one thread calls our paint method, the other one our hide method
-		 * => no memory leaks
-		 */
-		return;
-	}
-
-	CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
-	window = new CFBWindow(frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width ) >> 1),
-			       frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 2),
-			       width + borderwidth,
-			       height + borderwidth);
-	refresh();
-}
-
-void CHintBox::refresh(void)
-{
-	if (window == NULL)
-	{
-		return;
-	}
-
-	//window->paintBoxRel(borderwidth, height, width, borderwidth, COL_SHADOW_PLUS_0);
-	//window->paintBoxRel(width, borderwidth, borderwidth, height - borderwidth, COL_SHADOW_PLUS_0);
-	window->paintBoxRel(width - 20, borderwidth, borderwidth + 20, height - borderwidth - 20, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP); // right
-	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); // bottom
-
-	CComponentsHeader header(window->x, window->y, width, theight, caption, iconfile);
-	header.paint(CC_SAVE_SCREEN_NO);
-
-#if 0
-	//window->paintBoxRel(0, 0, width, theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
-	window->paintBoxRel(0, 0, width, theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
-
-	if (!iconfile.empty())
-	{
-		int iw, ih;
-		CFrameBuffer::getInstance()->getIconSize(iconfile.c_str(), &iw, &ih);
-		//window->paintIcon(iconfile.c_str(), 8, 5);
-		window->paintIcon(iconfile.c_str(), 10, 0, theight);
-		//window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, g_Locale->getText(caption), COL_MENUHEAD_TEXT);
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, caption, COL_MENUHEAD_TEXT);
-	}
-	else
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, caption, COL_MENUHEAD_TEXT);
-#endif
-	//window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0);
-	window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
-
-	int count = entries_per_page;
-	int ypos  = theight + (fheight >> 1);
-
-	for (std::vector<char *>::const_iterator it = line.begin() + (entries_per_page * current_page); ((it != line.end()) && (count > 0)); ++it, count--)
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], textStartX, (ypos += fheight), width, *it, COL_MENUCONTENT_TEXT);
-
-	if (entries_per_page < line.size())
-	{
-		ypos = theight + (fheight >> 1);
-		window->paintBoxRel(width - 15, ypos, 15, entries_per_page * fheight, COL_SCROLLBAR_PASSIVE_PLUS_0);
-		unsigned int marker_size = (entries_per_page * fheight) / ((line.size() + entries_per_page - 1) / entries_per_page);
-		window->paintBoxRel(width - 13, ypos + current_page * marker_size, 11, marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0);
-	}
-}
-
-bool CHintBox::has_scrollbar(void)
-{
-	return (entries_per_page < line.size());
-}
-
-void CHintBox::scroll_up(void)
-{
-	if (current_page > 0)
-	{
-		current_page--;
-		refresh();
-	}
-}
-
-void CHintBox::scroll_down(void)
-{
-	if ((entries_per_page * (current_page + 1)) <= line.size())
-	{
-		current_page++;
-		refresh();
-	}
-}
-
-void CHintBox::hide(void)
-{
-	if (window != NULL)
-	{
-		delete window;
-		window = NULL;
-	}
-}
-
-int ShowHint(const neutrino_locale_t Caption, const char * const Text, const int Width, int timeout, const char * const Icon)
-{
-	const char * caption = g_Locale->getText(Caption);
-
-	return ShowHint(caption, Text, Width, timeout, Icon);
-}
-
-int ShowHint(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon)
+int CHintBox::exec()
 {
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
-
- 	CHintBox * hintBox = new CHintBox(Caption, Text, Width, Icon);
-	hintBox->paint();
-
-	if ( timeout == -1 )
-		timeout = 5; /// default timeout 5 sec
-		//timeout = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR];
-
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
-
 	int res = messages_return::none;
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
 
 	while ( ! ( res & ( messages_return::cancel_info | messages_return::cancel_all ) ) )
 	{
@@ -283,21 +177,21 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 		{
 			res = messages_return::cancel_all;
 		}
-		else if ((hintBox->has_scrollbar()) && ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)))
+		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))
 		{
 			if (msg == CRCInput::RC_up)
-				hintBox->scroll_up();
+				this->scroll_up();
 			else
-				hintBox->scroll_down();
+				this->scroll_down();
 		}
-		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
-			// do nothing
-		}
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)){
+			// do nothing //TODO: if passed rc messages are ignored rc messaages: has no effect here too!!
+                }
 		else if(msg == CRCInput::RC_mode) {
 			res = messages_return::handled;
 			break;
 		}
-		else if((msg == (neutrino_msg_t) g_settings.key_switchformat) || (msg == (neutrino_msg_t) g_settings.key_next43mode)) {
+		else if((msg == CRCInput::RC_next) || (msg == CRCInput::RC_prev)) {
 			res = messages_return::cancel_all;
 			g_RCInput->postMsg(msg, data);
 		}
@@ -306,26 +200,257 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 			if (res & messages_return::unhandled)
 			{
-
 				// leave here and handle above...
 				g_RCInput->postMsg(msg, data);
 				res = messages_return::cancel_all;
 			}
 		}
 	}
-
-	hintBox->hide();
-	delete hintBox;
 	return res;
 }
 
-int ShowHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width, int timeout, const char * const Icon)
+void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const std::string& Picon, const u_int8_t& at_page_number, const fb_pixel_t& color_text, Font* font_text)
 {
-	return ShowHint(Caption, g_Locale->getText(Text),Width,timeout,Icon);
+	dprintf(DEBUG_INFO, "[CHintBox]  [%s - %d] add new hint '%s' %s\n", __func__, __LINE__, Text.c_str(), Picon.c_str());
+
+	//set required font and line size
+	Font* font = font_text == NULL ? g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO] : font_text;
+	int h_line = font->getHeight();
+
+	//init side picon object
+	CComponentsPicture *obj_picon = new CComponentsPicture(0, 0, Picon);
+	obj_picon->doPaintBg(false);
+	int w_picon = obj_picon->getWidth();
+
+	//init text item object
+	int x_text_obj = (w_picon > 0) ? (w_picon + w_indentation) : 0;
+	int w_text_obj = obj_content->getWidth() - w_picon - w_indentation;
+	int h_text_obj = max(h_line, obj_picon->getHeight());
+	CComponentsText *obj_text = new CComponentsText(x_text_obj,
+							0,
+							w_text_obj,
+							h_text_obj,
+							Text,
+							text_mode,
+							font);
+
+	//provide the internal textbox object
+	CTextBox *textbox = obj_text->getCTextBoxObject();
+	int lines_count = textbox->getLines();
+
+	//get required height of text object related to lines count and height of head and footer, if available
+	int h_required = lines_count * h_line + (ccw_head ? ccw_head->getHeight() : 0) + (ccw_footer ? ccw_footer->getHeight() : 0);
+
+	//set minimal required height
+	height = max(height, min(HINTBOX_MAX_HEIGHT, max(HINTBOX_MIN_HEIGHT, h_required)));
+
+	//if have no pre defined text mode:
+	//more than 1 line or a picon is defined, then do not center text and allow scroll if > 1 lines
+	if (text_mode == 0){
+		if (lines_count == 1)
+			obj_text->setTextMode(CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER);
+		if (w_picon > 1)
+			obj_text->setTextMode(CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH);
+		if (lines_count > 1)
+			obj_text->setTextMode(CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | (h_required > HINTBOX_MAX_HEIGHT ? CTextBox::SCROLL : CTextBox::AUTO_HIGH));
+		if (lines_count > 1 && w_picon == 0)
+			obj_text->setTextMode(CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER | (h_required > HINTBOX_MAX_HEIGHT ? CTextBox::SCROLL : CTextBox::AUTO_HIGH));
+	}
+	else
+		obj_text->setTextMode(text_mode);
+
+	//text item object: don't paint background
+	obj_text->doPaintBg(false);
+	obj_text->setCorner(corner_rad, corner_type);
+
+	//set text color
+	obj_text->setTextColor(color_text);
+
+	//calculate height of hint object
+	if (obj_content->size() == 0){
+		if (lines_count == 1){
+			h_hint_obj = max(h_hint_obj, h_text_obj);
+			obj_text->setYPos(CC_CENTERED);
+		}
+		else
+			h_hint_obj = max(h_hint_obj, h_line*lines_count);
+	}
+	else{
+		if (lines_count == 1){
+			h_hint_obj = h_text_obj;
+			obj_text->setYPos(CC_CENTERED);
+		}
+		else
+			h_hint_obj = h_line*lines_count;
+	}
+
+	//init hint container object
+	if (isPageChanged())
+		y_hint_obj = 0;
+	CComponentsFrmChain *obj_hint = new CComponentsFrmChain(	0+w_indentation,
+									y_hint_obj,
+									obj_content->getWidth()-2*w_indentation,
+									h_hint_obj,
+									NULL,
+									CC_DIR_X,
+									obj_content);
+
+	//don't paint background for hint container
+	obj_hint->doPaintBg(false);
+	obj_hint->setCorner(corner_rad, corner_type);
+	obj_hint->setPageNumber(at_page_number);
+
+	//add the created items to obj_hint
+	obj_hint->addCCItem(obj_picon);
+	obj_hint->addCCItem(obj_text);
+
+	//text object obtains the full height of its parent object
+	obj_text->setHeightP(100);
+
+	//if we have only one line and a defined picon, then do centering picon to text on the left site
+	if (lines_count == 1)
+		obj_picon->setYPos(CC_CENTERED);
+
+	//set next y pos for the next hint object
+	y_hint_obj += h_hint_obj;
+
+
+	//recalculate new hintbox height
+	ReSize();
+
+	//set hint box position general to center and refresh window
+	setCenterPos();
+	Refresh();
+
+	lines += lines_count;
 }
 
-int ShowHint(const char * const Caption, const neutrino_locale_t Text, const int Width, int timeout, const char * const Icon)
+void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const int& mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
 {
-	return ShowHint(Caption, g_Locale->getText(Text),Width,timeout,Icon);
+	uint id = hint_id;
+	if (hint_id+1 > obj_content->size()){
+		id = 0;
+		dprintf(DEBUG_NORMAL, "[CHintBox]   [%s - %d] mismatching hint_id [%u]...\n", __func__, __LINE__, id);
+	}
+
+	CComponentsFrmChain 	*obj_hint = static_cast<CComponentsFrmChain*>(obj_content->getCCItem(id));
+	CComponentsText 	*obj_text = static_cast<CComponentsText*>(obj_hint->getCCItem(1));
+
+	//set required font and line size
+	Font* font = font_text == NULL ? g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO] : font_text;
+	if (obj_text)
+		obj_text->setText(Text, mode, font, color_text, style);
 }
 
+void CHintBox::ReSize()
+{
+	int h_content_old = obj_content->getHeight();
+	int h_content_new = 0;
+	for (size_t i= 0; i< obj_content->size(); i++){
+		CComponentsItem *item = obj_content->getCCItem(i);
+		h_content_new += item->getHeight();
+	}
+	int h_content_diff = h_content_new - h_content_old;
+
+	obj_content->setHeight(h_content_new);
+	setHeight(height+h_content_diff);
+}
+
+
+void CHintBox::Scroll(bool down, const uint& hint_id)
+{
+	uint id = hint_id;
+	if (hint_id+1 > obj_content->size()){
+		id = 0;
+		dprintf(DEBUG_NORMAL, "[CHintBox]   [%s - %d] mismatching hint_id [%u]...\n", __func__, __LINE__, id);
+	}
+
+	CComponentsFrmChain 	*obj_hint = static_cast<CComponentsFrmChain*>(obj_content->getCCItem(id));
+	CComponentsText 	*obj_text = static_cast<CComponentsText*>(obj_hint->getCCItem(1));
+
+	if (obj_text) {
+		dprintf(DEBUG_INFO, "[CHintBox]   [%s - %d] try to scroll %s hint_id [%u]...Text= %s\n", __func__, __LINE__, down ? "down" : "up", id, obj_text->getText().c_str());
+		CTextBox* textbox = obj_text->getCTextBoxObject();
+		if (textbox) {
+			textbox->enableBackgroundPaint(true);
+			if (down)
+				textbox->scrollPageDown(1);
+			else
+				textbox->scrollPageUp(1);
+			textbox->enableBackgroundPaint(false);
+		}
+	}
+}
+
+void CHintBox::scroll_up(const uint& hint_id)
+{
+	Scroll(false, hint_id);
+}
+
+void CHintBox::scroll_down(const uint& hint_id)
+{
+	Scroll(true, hint_id);
+}
+
+
+int ShowHint(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon, const char * const Picon, const int& header_buttons)
+{
+	int res = messages_return::none;
+
+	CHintBox hintBox(Caption, Text, Width, Icon, Picon, header_buttons);
+	hintBox.setTimeOut(timeout);
+	hintBox.paint();
+	res = hintBox.exec();
+	hintBox.hide();
+
+	return res;
+}
+
+int ShowHint(const neutrino_locale_t Caption, const char * const Text, const int Width, int timeout, const char * const Icon, const char * const Picon, const int& header_buttons)
+{
+	const char * caption = g_Locale->getText(Caption);
+	return ShowHint(caption, Text, Width, timeout, Icon, Picon, header_buttons);
+}
+
+int ShowHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width, int timeout, const char * const Icon, const char * const Picon, const int& header_buttons)
+{
+	return ShowHint(Caption, g_Locale->getText(Text),Width,timeout,Icon, Picon, header_buttons);
+}
+
+int ShowHint(const char * const Caption, const neutrino_locale_t Text, const int Width, int timeout, const char * const Icon, const char * const Picon, const int& header_buttons)
+{
+	return ShowHint(Caption, g_Locale->getText(Text),Width,timeout, Icon, Picon, header_buttons);
+}
+
+
+CHint::CHint(const char * const Text, bool show_background) : CHintBox("" , Text)
+{
+	paint_bg = show_background;
+	ccw_show_header = false;
+	ccw_show_footer = false;
+}
+
+CHint::CHint(const neutrino_locale_t Text, bool show_background) : CHintBox("" , g_Locale->getText(Text))
+{
+	paint_bg = show_background;
+	ccw_show_header = false;
+	ccw_show_footer = false;
+}
+
+int ShowHintS(const char * const Text, int timeout, bool show_background)
+{
+	int res = messages_return::none;
+
+	CHint hint(Text, show_background);
+	hint.setTimeOut(timeout);
+	hint.paint();
+	res = hint.exec();
+	hint.hide();
+
+	return res;
+}
+
+int ShowHintS(const neutrino_locale_t Text, int timeout, bool show_background)
+{
+	return ShowHintS(g_Locale->getText(Text), timeout, show_background);
+}

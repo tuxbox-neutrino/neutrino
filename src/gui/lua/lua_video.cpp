@@ -27,7 +27,7 @@
 #include <global.h>
 #include <system/debug.h>
 #include <gui/movieplayer.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <zapit/zapit.h>
 #include <video.h>
 #include <neutrino.h>

@@ -57,6 +57,10 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 	corner_type 	= CORNER_ALL;
 	cc_item_index	= 0;
 
+	//add default exit keys for exec handler
+	v_exit_keys.push_back(CRCInput::RC_home);
+	v_exit_keys.push_back(CRCInput::RC_setup);
+
 	v_cc_items.clear();
 
 	append_x_offset = 0;
@@ -69,7 +73,7 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 	page_scroll_mode = PG_SCROLL_M_UP_DOWN_KEY;
 
 	//connect page scroll slot
-	sigc::slot3<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> sl = sigc::mem_fun(*this, &CComponentsForm::execPageScroll);
+	sigc::slot4<void, neutrino_msg_t&, neutrino_msg_data_t&, int&, bool&> sl = sigc::mem_fun(*this, &CComponentsForm::execPageScroll);
 	this->OnExec.connect(sl);
 }
 
@@ -91,74 +95,65 @@ CComponentsForm::~CComponentsForm()
 int CComponentsForm::exec()
 {
 	dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] \n", __func__, __LINE__);
-	OnBeforeExec();
+
+	//basic values
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
-
 	int res = menu_return::RETURN_REPAINT;
-
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(-1);
 
-	//required exit keys
-	msg_list_t exit_keys[2];
-	exit_keys[0].msg = CRCInput::RC_setup;
-	exit_keys[1].msg = CRCInput::RC_home;
+	//allow exec loop
+	bool cancel_exec = false;
 
-	bool exit_loop = false;
-	while (!exit_loop)
+	//signal before exec
+	OnBeforeExec();
+
+	while (!cancel_exec)
 	{
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 		//execute connected slots
-		OnExec(msg, data, res);
-
+		OnExec(msg, data, res, cancel_exec);
 		//exit loop
-		execExit(msg, data, res, exit_loop, exit_keys, 2);
+		execExit(msg, data, res, cancel_exec, v_exit_keys);
 
 		if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 		{
 			dprintf(DEBUG_INFO, "[CComponentsForm]   [%s - %d]  messages_return::cancel_all\n", __func__, __LINE__);
 			res  = menu_return::RETURN_EXIT_ALL;
-			exit_loop = EXIT;
+			cancel_exec = EXIT;
 		}
 	}
 
+	//signal after exec
 	OnAfterExec();
+
 	return res;
 }
 
 
-void CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const struct msg_list_t * const msg_list, const size_t& key_count, bool force_exit)
-{
-	for(size_t i = 0; i < key_count; i++){
-		if (execKey(msg, data, res, exit_loop, msg_list[i].msg, force_exit)){
-			break;
-		}
-	}
-}
-
-void CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const std::vector<neutrino_msg_t>& v_msg_list, bool force_exit)
+void CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec, const std::vector<neutrino_msg_t>& v_msg_list, bool force_exit)
 {
 	for(size_t i = 0; i < v_msg_list.size(); i++){
-		if (execKey(msg, data, res, exit_loop, v_msg_list[i], force_exit)){
+		if (execKey(msg, data, res, cancel_exec, v_msg_list[i], force_exit)){
 			break;
 		}
 	}
 }
 
-inline bool CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const neutrino_msg_t& msg_val, bool force_exit)
+inline bool CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec, const neutrino_msg_t& msg_val, bool force_exit)
 {
 	if (msg == msg_val){
 		OnExecMsg(msg, data, res);
 		if (force_exit)
-			exit_loop = EXIT;
+			cancel_exec = EXIT;
 		return true;
 	}
 	return false;
 }
 
 
-void CComponentsForm::execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& /*data*/, int& /*res*/)
+void CComponentsForm::execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& /*data*/, int& /*res*/, bool& /*cancel_exec*/)
 {
 	if (page_scroll_mode == PG_SCROLL_M_OFF)
 		return;
@@ -178,9 +173,9 @@ void CComponentsForm::execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& /
 	}
 }
 
-void CComponentsForm::execExit(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const struct msg_list_t * const msg_list, const size_t& key_count)
+void CComponentsForm::execExit(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec, const std::vector<neutrino_msg_t>& v_msg_list)
 {
-	execKey(msg, data, res, exit_loop, msg_list, key_count, true);
+	execKey(msg, data, res, cancel_exec, v_msg_list, true);
 }
 
 
@@ -558,14 +553,14 @@ void CComponentsForm::setPageCount(const u_int8_t& pageCount)
 
 u_int8_t CComponentsForm::getPageCount()
 {
-	u_int8_t num = 1;
+	u_int8_t num = 0;
 	for(size_t i=0; i<v_cc_items.size(); i++){
 		u_int8_t item_num = v_cc_items[i]->getPageNumber();
 		num = max(item_num, num);
 	}
 
 	//convert type, possible -Wconversion warnings!
-	page_count = static_cast<u_int8_t>(num);
+	page_count = static_cast<u_int8_t>(num+1);
 
 	return page_count;
 }

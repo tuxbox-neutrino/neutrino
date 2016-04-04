@@ -34,7 +34,8 @@ typedef struct button_label_s
 {
 	const char *		button;
 	std::string 		text;
-	neutrino_msg_t 		btn_msg;
+	neutrino_msg_t 		directKey;
+	neutrino_msg_t 		directKeyAlt;
 	int 			btn_result;
 	int 			btn_alias;
 } button_label_s_struct;
@@ -43,7 +44,8 @@ typedef struct button_label_l
 {
 	const char *      	button;
 	neutrino_locale_t 	locale;
-	neutrino_msg_t		btn_msg;
+	neutrino_msg_t		directKey;
+	neutrino_msg_t 		directKeyAlt;
 	int 			btn_result;
 	int 			btn_alias;
 } button_label_l_struct;
@@ -106,9 +108,23 @@ class CComponentsFooter : public CComponentsHeader
 		void setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
 
 		///add single button label with string label type as content, chain_width as int, label width as int
-		void setButtonLabel(const char *button_icon, const std::string& text, const int& chain_width = 0, const int& label_width = 0, const neutrino_msg_t& msg = CRCInput::RC_nokey, const int& result_value = -1, const int& alias_value = -1);
+		void setButtonLabel(	const char *button_icon,
+					const std::string& text,
+					const int& chain_width = 0,
+					const int& label_width = 0,
+					const neutrino_msg_t& msg = CRCInput::RC_nokey,
+					const int& result_value = -1,
+					const int& alias_value = -1,
+					const neutrino_msg_t& directKeyAlt = CRCInput::RC_nokey);
 		///add single button label with locale label type as content, chain_width as int, label width as int
-		void setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& chain_width = 0, const int& label_width = 0, const neutrino_msg_t& msg = CRCInput::RC_nokey, const int& result_value = -1, const int& alias_value = -1);
+		void setButtonLabel(	const char *button_icon,
+					const neutrino_locale_t& locale,
+					const int& chain_width = 0,
+					const int& label_width = 0,
+					const neutrino_msg_t& msg = CRCInput::RC_nokey,
+					const int& result_value = -1,
+					const int& alias_value = -1,
+					const neutrino_msg_t& directKeyAlt = CRCInput::RC_nokey);
 		
 		///causes show/hide countour of button frame and background, parameter bool show, default= true
 		void showButtonContour(bool show = true);
@@ -120,11 +136,25 @@ class CComponentsFooter : public CComponentsHeader
 		///returns selected button object, return value as pointer to object, NULL means nothing is selected
 		CComponentsButton* getSelectedButtonObject();
 
+		/*!
+		Sets a new text to an already predefined button.
+		1st parameter 'btn_id' accepts current id of an already defined button. 2nd parameter sets the new text as std::string
+		Usage:
+		Buttons come with any text eg. 'Ok', 'No', 'Yes' ...whatever and this member allows to manipulate the text via button id.
+		Button id means the showed button begins from the left position of button chain, starts with value=0, also to get via getButtonChainObject()->getCCItemId([CComponentsButton*])
+		example: 1st buttons text is 'Hello', 2nd Button's text is 'You!',
+		Now we want to change the text of 2nd button to 'World", so we must do this:
+			setButtonText(1, "World");
+		Wrong id's will be ignored.
+		*/
+		void setButtonText(const uint& btn_id, const std::string& text);
+
 		///property: set font for label caption, parameter as font object, value NULL causes usage of dynamic font
 		void setButtonFont(Font* font){ccf_btn_font = font;};
 
 		///returns pointer to internal button container
 		CComponentsFrmChain* getButtonChainObject(){return chain;};
+
 
 		///this is a nearly methode similar with the older button handler find in gui/widget/buttons.h, some parameters are different, but require minimalized input
 		///this member sets some basic parameters and will paint concurrently on execute, explicit call of paint() is not required

@@ -28,7 +28,7 @@
 
 #include <global.h>
 #include <gui/widget/keyboard_input.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/filebrowser.h>
 #include <system/debug.h>
 #include <system/helpers.h>

@@ -40,7 +40,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/helpbox.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/components/cc.h>
 
 #include <driver/screen_max.h>
@@ -295,7 +295,7 @@ int CMovieCut::getInput()
 	int retval = 0;
 	g_RCInput->getMsg(&msg, &data, 1, false);
 	if (msg == CRCInput::RC_home) {
-		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIECUT_CANCEL, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIECUT_CANCEL, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes)
 			retval |= 4;
 	}
 	if (msg != CRCInput::RC_timeout)
