@@ -57,6 +57,7 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 	height	 	= h;
 	shadow		= shadow_mode;
 	col_frame 	= color_frame;
+	cc_enable_frame	= true;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 
