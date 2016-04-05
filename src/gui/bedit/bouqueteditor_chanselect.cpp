@@ -252,7 +252,7 @@ void CBEChannelSelectWidget::paintFoot()
 		break;
 	}
 
-	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, Button, width/numbuttons-20);
+	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, Button, width/numbuttons-20, 0, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
 }
 
 std::string CBEChannelSelectWidget::getInfoText(int index)
