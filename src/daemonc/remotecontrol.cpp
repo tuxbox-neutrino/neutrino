@@ -138,6 +138,16 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			if ((!is_video_started) &&
 			    (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED))
 				g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false);
+
+			//check epg fsk in onsignal mode
+			if ((!is_video_started) &&
+			    (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_ONSIGNAL)){
+					CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
+					CEitManager::getInstance()->getCurrentNextServiceKey(current_channel_id, currentNextInfo);
+					if(currentNextInfo.current_fsk  && currentNextInfo.current_fsk >= g_settings.parentallock_lockage){
+						g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false);
+					}
+			}
 		}
 	} else {
 		if ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) || (msg == NeutrinoMessages::EVT_ZAP_FAILED  ) ||
