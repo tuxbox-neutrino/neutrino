@@ -224,6 +224,11 @@ void CCDraw::setFrameThickness(const int& thickness, const int& thickness_sel)
 
 	if (fr_thickness_sel != thickness_sel)
 		fr_thickness_sel = thickness_sel;
+
+	//ensure enabled frame if frame width > 0
+	cc_enable_frame = false;
+	if (fr_thickness)
+		cc_enable_frame = true;
 }
 
 bool CCDraw::enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color, const int& direction)
