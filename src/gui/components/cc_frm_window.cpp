@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2014 Thilo Graf 'dbt'
+	Copyright (C) 2012-2016 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -144,6 +144,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_right_sidebar= NULL;	
 	ccw_body	= NULL;
 	ccw_footer	= NULL;
+	ccw_button_font	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
@@ -218,6 +219,7 @@ void CComponentsWindow::initFooter()
 		ccw_footer->setWidth(width-2*fr_thickness);
 		ccw_footer->enableShadow(shadow);
 		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
+		ccw_footer->setButtonFont(ccw_button_font);
 		ccw_footer->setColorBody(ccw_col_footer);
 	}
 }

@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014, Thilo Graf 'dbt'
+	Copyright (C) 2012-2016, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -89,6 +89,8 @@ class CComponentsWindow : public CComponentsForm
 		fb_pixel_t ccw_col_head_text;
 		///footer bg color
 		fb_pixel_t ccw_col_footer;
+		///footer button font
+		Font*	ccw_button_font;
 
 		///initialze header object
 		void initHeader();
@@ -190,6 +192,8 @@ class CComponentsWindow : public CComponentsForm
 
 		///set background to footer
 		void setWindowFooterColor(const fb_pixel_t& color){ccw_col_footer = color;}
+		///set font for footer buttons
+		void setWindowFooterFont(Font* font_type){ccw_button_font = font_type;}
 
 		///returns a pointer to the internal left side bar object, use this to get access to left sidebar properities
 		CComponentsFrmChain* getLeftSidebarObject(){return ccw_left_sidebar;};
