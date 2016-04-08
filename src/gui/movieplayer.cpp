@@ -1671,6 +1671,9 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 		return;
 	}
 
+	if(duration == 0)
+		UpdatePosition();
+
 	if (isMovieBrowser && p_movie_info)
 	{
 		MI_MOVIE_INFO *mi;
