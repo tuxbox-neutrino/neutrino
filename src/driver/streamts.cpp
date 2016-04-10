@@ -169,6 +169,8 @@ bool CStreamInstance::Open()
 		return false;
 
 	dmx = new cDemux(tmpchan->getRecordDemux());//FIXME
+	if(!dmx)
+		return false;
 	return dmx->Open(DMX_TP_CHANNEL, NULL, DMX_BUFFER_SIZE);
 }
 
