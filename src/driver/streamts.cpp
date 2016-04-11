@@ -596,7 +596,7 @@ void CStreamManager::run()
 						printf("CStreamManager::run(): POLLHUP, fd %d\n", pfd[i].fd);
 						RemoveClient(pfd[i].fd);
 						if (streams.empty()) {
-							poll_timeout = -1;
+							poll_timeout = 2000;
 							g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_STOP, 0);
 						}
 					}
