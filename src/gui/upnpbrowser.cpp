@@ -973,7 +973,7 @@ void CUpnpBrowserGui::paintDevices()
 
 	// Foot
 	top = m_y + (m_height - m_info_height - 2 * m_buttonHeight);
-	footer.paintButtons(m_x, top, m_width, m_buttonHeight, 1, &RescanButton, m_width/2);
+	footer.paintButtons(m_x, top, m_width, m_buttonHeight, 1, &RescanButton, m_width/2, 0, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
 
 	paintItem2DetailsLine (-1); // clear it
 }
@@ -1149,7 +1149,7 @@ printf("CUpnpBrowserGui::paintItem:s selected %d max %d offset %d\n", selected, 
 	// Foot buttons
 	top = m_y + (m_height - m_info_height - 2 * m_buttonHeight);
 	size_t numbuttons = sizeof(BrowseButtons)/sizeof(BrowseButtons[0]);
-	footer.paintButtons(m_x, top, m_width, m_buttonHeight, numbuttons, BrowseButtons, m_width/numbuttons);
+	footer.paintButtons(m_x, top, m_width, m_buttonHeight, numbuttons, BrowseButtons, m_width/numbuttons, 0, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
 }
 
 void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
