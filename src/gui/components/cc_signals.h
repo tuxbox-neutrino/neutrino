@@ -85,7 +85,7 @@ class CYourClass : sigc::trackable //<- not forget, requierd by destructor!
 */
 
 #ifndef __CC_SIGNALS_H__
-#define __CC_SIGNALS_H____
+#define __CC_SIGNALS_H__
 
 #include <sigc++/signal.h>
 #include <driver/rcinput.h>
