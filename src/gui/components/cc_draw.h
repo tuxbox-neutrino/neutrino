@@ -277,7 +277,12 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
-		void allowPaint(bool allow){cc_allow_paint = allow; is_painted = cc_allow_paint ? false : true;}
+		void allowPaint(bool allow) {
+			if (allow != cc_allow_paint)
+				cc_allow_paint = allow;
+			if (cc_allow_paint)
+				is_painted = false;
+		}
 		///returns visibility mode
 		virtual bool paintAllowed(){return cc_allow_paint;};
 
