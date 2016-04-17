@@ -306,7 +306,10 @@ bool readEventsFromFile(std::string &epgname, int &ev_count)
 		onid = xmlGetNumericAttribute(service, "original_network_id", 16);
 		tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
 		sid = xmlGetNumericAttribute(service, "service_id", 16);
-
+		if(!onid || !tsid || !sid){
+			service = xmlNextNode(service);
+			continue;
+		}
 		event = xmlChildrenNode(service);
 
 		while (event) {
