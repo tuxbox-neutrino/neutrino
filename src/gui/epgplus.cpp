@@ -126,8 +126,8 @@ void EpgPlus::Header::paint(const char * Name)
 {
 	std::string head = Name ? Name : g_Locale->getText (LOCALE_EPGPLUS_HEAD);
 
-	CComponentsHeader header(this->x, this->y, this->width, this->font->getHeight()+4, head);
-	header.paint(CC_SAVE_SCREEN_NO);
+	CComponentsHeader _header(this->x, this->y, this->width, this->font->getHeight()+4, head);
+	_header.paint(CC_SAVE_SCREEN_NO);
 }
 
 int EpgPlus::Header::getUsedHeight()
@@ -158,7 +158,7 @@ EpgPlus::TimeLine::~TimeLine()
 {
 }
 
-void EpgPlus::TimeLine::paint (time_t startTime, int pduration)
+void EpgPlus::TimeLine::paint (time_t _startTime, int pduration)
 {
 	this->clearMark();
 
@@ -167,7 +167,7 @@ void EpgPlus::TimeLine::paint (time_t startTime, int pduration)
 	this->currentDuration = pduration;
 	int numberOfTicks = this->currentDuration / (60 * 60) * 2;
 	int tickDist = (this->durationX) / numberOfTicks;
-	time_t tickTime = startTime;
+	time_t tickTime = _startTime;
 	bool toggleColor = false;
 
 	// display date of begin
@@ -175,7 +175,7 @@ void EpgPlus::TimeLine::paint (time_t startTime, int pduration)
 					, toggleColor ? COL_MENUCONTENT_PLUS_2 : COL_MENUCONTENT_PLUS_1);
 
 	this->fontDate->RenderString (this->x + 4, this->y + this->fontDate->getHeight()
-				      , this->width, EpgPlus::getTimeString (startTime, "%d-%b") , COL_MENUCONTENT_TEXT);
+				      , this->width, EpgPlus::getTimeString (_startTime, "%d-%b") , COL_MENUCONTENT_TEXT);
 
 	// paint ticks
 	for (int i = 0; i < numberOfTicks; ++i, xPos += tickDist, tickTime += pduration / numberOfTicks) {
@@ -214,7 +214,7 @@ void EpgPlus::TimeLine::paintGrid()
 	}
 }
 
-void EpgPlus::TimeLine::paintMark (time_t startTime, int pduration, int px, int pwidth)
+void EpgPlus::TimeLine::paintMark (time_t _startTime, int pduration, int px, int pwidth)
 {
 	// clear old mark
 	this->clearMark();
@@ -224,14 +224,14 @@ void EpgPlus::TimeLine::paintMark (time_t startTime, int pduration, int px, int 
 					, pwidth, this->fontTime->getHeight() , COL_MENUCONTENTSELECTED_PLUS_0);
 
 	// display start time before mark
-	std::string timeStr = EpgPlus::getTimeString (startTime, "%H:%M");
+	std::string timeStr = EpgPlus::getTimeString (_startTime, "%H:%M");
 	int textWidth = this->fontTime->getRenderWidth (timeStr);
 
 	this->fontTime->RenderString (px - textWidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()
 				      , textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 	// display end time after mark
-	timeStr = EpgPlus::getTimeString (startTime + pduration, "%H:%M");
+	timeStr = EpgPlus::getTimeString (_startTime + pduration, "%H:%M");
 	textWidth = fontTime->getRenderWidth (timeStr);
 
 	if (px + pwidth + textWidth < this->x + this->width) {
@@ -282,9 +282,9 @@ EpgPlus::ChannelEventEntry::~ChannelEventEntry()
 {
 }
 
-bool EpgPlus::ChannelEventEntry::isSelected (time_t selectedTime) const
+bool EpgPlus::ChannelEventEntry::isSelected (time_t _selectedTime) const
 {
-	return (selectedTime >= this->channelEvent.startTime) && (selectedTime < this->channelEvent.startTime + time_t (this->channelEvent.duration));
+	return (_selectedTime >= this->channelEvent.startTime) && (_selectedTime < this->channelEvent.startTime + time_t (this->channelEvent.duration));
 }
 
 void EpgPlus::ChannelEventEntry::paint (bool pisSelected, bool toggleColor)
@@ -363,7 +363,7 @@ EpgPlus::ChannelEntry::~ChannelEntry()
 	this->channelEventEntries.clear();
 }
 
-void EpgPlus::ChannelEntry::paint (bool isSelected, time_t selectedTime)
+void EpgPlus::ChannelEntry::paint (bool isSelected, time_t _selectedTime)
 {
 	this->frameBuffer->paintBoxRel (this->x, this->y, this->width, this->font->getHeight(),
 			isSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : COL_MENUCONTENT_PLUS_0);
@@ -408,7 +408,7 @@ void EpgPlus::ChannelEntry::paint (bool isSelected, time_t selectedTime)
 	for (TCChannelEventEntries::iterator It = this->channelEventEntries.begin();
 			It != this->channelEventEntries.end();
 			++It) {
-		(*It)->paint (isSelected && (*It)->isSelected (selectedTime), toggleColor);
+		(*It)->paint (isSelected && (*It)->isSelected (_selectedTime), toggleColor);
 
 		toggleColor = !toggleColor;
 	}
@@ -839,7 +839,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				refreshAll = true;
 				break;
 			}
-			else if ((msg == CRCInput::RC_page_down)) {
+			else if (msg == CRCInput::RC_page_down) {
 				int selected = this->selectedChannelEntry->index;
 				int prev_selected = selected;
 				int step = this->maxNumberOfDisplayableEntries;

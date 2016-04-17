@@ -292,7 +292,7 @@ int CTimerManager::unlockEvents()
 
 bool CTimerManager::listEvents(CTimerEventMap &Events)
 {
-	if(!&Events)
+	if(Events.empty())
 		return false;
 
 

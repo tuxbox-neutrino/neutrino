@@ -139,7 +139,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	return showMiscSettingsMenu();
 }
 
-
+#if 0 //not used
 #define MISCSETTINGS_FB_DESTINATION_OPTION_COUNT 3
 const CMenuOptionChooser::keyval MISCSETTINGS_FB_DESTINATION_OPTIONS[MISCSETTINGS_FB_DESTINATION_OPTION_COUNT] =
 {
@@ -147,6 +147,7 @@ const CMenuOptionChooser::keyval MISCSETTINGS_FB_DESTINATION_OPTIONS[MISCSETTING
 	{ 1, LOCALE_OPTIONS_SERIAL },
 	{ 2, LOCALE_OPTIONS_FB     }
 };
+#endif
 
 #define MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT 2
 const CMenuOptionChooser::keyval MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS[MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT] =

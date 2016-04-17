@@ -75,7 +75,6 @@ class CEventList : public CListHelpers
 	t_channel_id    m_search_channel_id;
 	t_bouquet_id    m_search_bouquet_id;
 	bool m_showChannel;
-	int FunctionBarHeight;
 	int oldIndex;
 	event_id_t oldEventID;
 	bool bgRightBoxPaint;
@@ -91,18 +90,16 @@ class CEventList : public CListHelpers
 	unsigned int	current_event;
 	unsigned int	liststart;
 	unsigned int	listmaxshow;
-	unsigned int	numwidth;
 	int		fheight; // Fonthoehe Channellist-Inhalt
 	int		fheight1,fheight2;
 	int		fwidth1,fwidth2;
 	int		theight; // Fonthoehe Channellist-Titel
 	int		iheight; // Height info bar
 
-	int		key;
 	std::string	search_head_name;
 
-	int 		full_width, width, infozone_width, fw;
-	int 		height, infozone_height, fh;
+	int 		full_width, width, infozone_width;
+	int 		height;
 	int 		x;
 	int 		y;
 	std::string	infozone_text;

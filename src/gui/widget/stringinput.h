@@ -95,7 +95,6 @@ class CStringInput : public CMenuTarget
 
 class CStringInputSMS : public CStringInput
 {
-		bool	capsMode;
 		int 	arraySizes[10];
 		char	Chars[10][10];					// maximal 10 character in one CharList entry!
 

@@ -41,7 +41,6 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CFanControlNotifier *fanNotifier;
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
 		//COnOffNotifier* miscNotifier;
-		COnOffNotifier* miscEpgScanNotifier;
 		CMenuOptionChooser * epg_save;
 		CMenuOptionChooser * epg_save_standby;
 		CMenuOptionChooser * epg_save_frequently;

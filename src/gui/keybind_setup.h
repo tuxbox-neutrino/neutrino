@@ -100,7 +100,6 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 		};
 
 	private:
-		CFrameBuffer *frameBuffer;
 		CKeyChooser *keychooser[KEYBINDS_COUNT];
 		int width;
 

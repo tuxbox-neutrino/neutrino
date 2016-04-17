@@ -42,7 +42,6 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 		CMenuForwarder 		*SyncControlerForwarder;
 		CMenuOptionChooser 	*VcrVideoOutSignalOptionChooser;
 
-		int			vcr_video_out_signal;
 		int			prev_video_mode;
 		
 		int is_wizard;

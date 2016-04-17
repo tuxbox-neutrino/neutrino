@@ -46,7 +46,6 @@ class COPKGManager : public CMenuTarget
 	private:
 		int width;
 		std::string tmp_str;
-		CFrameBuffer *frameBuffer;
 		CConfigFile opkg_conf;
 		void saveConfig();
 		void loadConfig();

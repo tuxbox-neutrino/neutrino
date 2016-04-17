@@ -36,7 +36,6 @@ class CAdZapMenu: public CMenuTarget, CChangeObserver
 	private:
 		CFrameBuffer * frameBuffer;
 		int width;
-		bool running;
 		bool armed;
 		bool alerted;
 		bool monitor;
