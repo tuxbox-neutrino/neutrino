@@ -73,7 +73,7 @@ bool CPmt::Read(unsigned short pid, unsigned short sid)
 	mask[2] = 0xFF;
 	mask[3] = 0x01;
 	mask[4] = 0xFF;
-	if ((dmx->sectionFilter(pid, filter, mask, 5) < 0) || (dmx->Read(buffer, PMT_SECTION_SIZE) < 0)) {
+	if ((!dmx->sectionFilter(pid, filter, mask, 5)) || (dmx->Read(buffer, PMT_SECTION_SIZE) < 0)) {
 		printf("CPmt::Read: pid %x failed\n", pid);
 		ret = false;
 	}
