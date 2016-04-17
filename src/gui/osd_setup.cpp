@@ -897,8 +897,8 @@ public:
 
 void COsdSetup::AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry)
 {
-	CMenuNumberInput *bla = new CMenuNumberInput(neutrino_font[number_of_fontsize_entry].name, neutrino_font[number_of_fontsize_entry].defaultsize, fontsizenotifier, CNeutrinoApp::getInstance()->getConfigFile());
-	font_Settings.addItem(bla);
+	CMenuNumberInput *ni = new CMenuNumberInput(neutrino_font[number_of_fontsize_entry].name, neutrino_font[number_of_fontsize_entry].defaultsize, fontsizenotifier, CNeutrinoApp::getInstance()->getConfigFile());
+	font_Settings.addItem(ni);
 }
 
 //font settings menu
@@ -998,7 +998,6 @@ const CMenuOptionChooser::keyval PROGRESSBAR_INFOBAR_POSITION_OPTIONS[PROGRESSBA
 	{ 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_2 },
 	{ 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_3 }
 };
-#if 0 //not used
 
 //menus
 void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
@@ -1007,7 +1006,6 @@ void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
 	CMenuOptionChooser * mc;
 
 	submenu_menus->addIntroItems(LOCALE_SETTINGS_MENUS);
-#endif
 	// menu position
 	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_POS, &g_settings.menu_pos, MENU_DISP_POS_OPTIONS, MENU_DISP_POS_OPTIONS_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_MENU_POS);
