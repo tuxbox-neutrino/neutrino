@@ -855,6 +855,12 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 		case 12:
 			boxname += "Zee2";
 			break;
+		case 13:
+			boxname += "Link";
+			break;
+		case 14:
+			boxname += "Trinity Duo";
+			break;
 
 		default:
 			char buffer[10];
@@ -889,6 +895,8 @@ std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
 			boxmodel = "Shiner";
 			break;
 		case 12:
+		case 13:
+		case 14:
 			boxmodel = "Kronos";
 			break;
 		default:
