@@ -851,6 +851,8 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			break;
 		case 11:
 			boxname += "Trinity";
+			if (cs_get_chip_type() != 33904 /*0x8470*/)
+				boxname += " V2";
 			break;
 		case 12:
 			boxname += "Zee2";
@@ -892,7 +894,10 @@ std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
 			boxmodel = "Apollo";
 			break;
 		case 11:
-			boxmodel = "Shiner";
+			if (cs_get_chip_type() == 33904 /*0x8470*/)
+				boxmodel = "Shiner";
+			else
+				boxmodel = "Kronos";
 			break;
 		case 12:
 		case 13:
