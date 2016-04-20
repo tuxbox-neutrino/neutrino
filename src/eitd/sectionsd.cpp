@@ -86,7 +86,7 @@ static bool notify_complete = false;
 
 static unsigned int epg_save_frequently;
 static long secondsToCache;
-static long secondsExtendedTextCache;
+long int secondsExtendedTextCache = 0;
 static long oldEventsAre;
 static int scanning = 1;
 
