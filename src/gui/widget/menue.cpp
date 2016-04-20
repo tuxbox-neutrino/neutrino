@@ -2258,7 +2258,7 @@ CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, boo
 	nameString	= "";
 }
 
-CMenuSeparator::CMenuSeparator(const int Type, const std::string Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
+CMenuSeparator::CMenuSeparator(const int Type, const std::string &Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
 {
 	type		= Type;
 	name		= NONEXISTANT_LOCALE;

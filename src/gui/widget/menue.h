@@ -190,7 +190,7 @@ class CMenuItem : public  CComponentsSignals
 
 		virtual int isMenueOptionChooser(void) const{return 0;}
 		void setHint(const char * const icon, const neutrino_locale_t text) { hintIcon = (icon && *icon) ? icon : NULL; hint = text; }
-		void setHint(const char * const icon, const std::string text) { hintIcon = (icon && *icon) ? icon : NULL; hintText = text; }
+		void setHint(const char * const icon, const std::string &text) { hintIcon = (icon && *icon) ? icon : NULL; hintText = text; }
 
 		void setLua(lua_State *_luaState, std::string &_luaAction, std::string &_luaId) { luaState = _luaState; luaAction = _luaAction; luaId = _luaId; };
 		virtual const char *getName();
@@ -226,7 +226,7 @@ class CMenuSeparator : public CMenuItem
 
 
 		CMenuSeparator(const int Type = 0, const neutrino_locale_t Text = NONEXISTANT_LOCALE, bool IsStatic = false);
-		CMenuSeparator(const int Type, const std::string Text, bool IsStatic = false);
+		CMenuSeparator(const int Type, const std::string &Text, bool IsStatic = false);
 		virtual ~CMenuSeparator(){}
 
 		int paint(bool selected=false);
