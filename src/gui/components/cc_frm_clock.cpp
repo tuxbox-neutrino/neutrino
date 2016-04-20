@@ -349,8 +349,6 @@ bool CComponentsFrmClock::stopClock()
 bool CComponentsFrmClock::Start(bool do_save_bg)
 {
 	if (startClock()) {
-		//ensure paint of segements on first paint
-		paint(do_save_bg);
 		paintClock = true;
 		return true;
 	}
