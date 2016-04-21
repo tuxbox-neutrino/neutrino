@@ -1055,7 +1055,8 @@ void CMoviePlayerGui::stopPlayBack(void)
 		printf("%s: this %p join background thread %lx\n", __func__, this, bgThread);fflush(stdout);
 		mutex.lock();
 		webtv_started = false;
-		playback->RequestAbort();
+		if(playback)
+			playback->RequestAbort();
 		mutex.unlock();
 		cond.broadcast();
 		pthread_join(bgThread, NULL);
@@ -1832,7 +1833,7 @@ void CMoviePlayerGui::selectAudioPid()
 		APIDSelector.addItem(item, defpid);
 	}
 
-	int percent[numpida];
+	int percent[numpida+1];
 	if (p_movie_info && numpida <= p_movie_info->audioPids.size()) {
 		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUST));
 
@@ -2061,7 +2062,8 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 #endif
 			const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 			char play_pos[32];
-			snprintf(play_pos, sizeof(play_pos), "%3d %s", p_movie_info->bookmarks.lastPlayStop/60, unit_short_minute);
+			int lastplaystop = p_movie_info ? p_movie_info->bookmarks.lastPlayStop/60:0;
+			snprintf(play_pos, sizeof(play_pos), "%3d %s", lastplaystop, unit_short_minute);
 			char start_pos[32] = {0};
 			if (p_movie_info->bookmarks.start != 0)
 				snprintf(start_pos, sizeof(start_pos), "%3d %s", p_movie_info->bookmarks.start/60, unit_short_minute);

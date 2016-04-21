@@ -86,7 +86,8 @@ void CAdZapMenu::Init()
 {
 	CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
 	channelId = channelList ? channelList->getActiveChannel_ChannelID() : -1;
-	channelName = channelList->getActiveChannelName();
+	if(channelList)
+		channelName = channelList->getActiveChannelName();
 	evtlist.clear();
 	CEitManager::getInstance()->getEventsServiceKey(channelId & 0xFFFFFFFFFFFFULL, evtlist);
 	monitorLifeTime.tv_sec = 0;

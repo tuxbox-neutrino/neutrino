@@ -248,10 +248,10 @@ int CLuaInstCCWindow::CCWindowPaintHeader(lua_State *L)
 	if (!D) return 0;
 
 	CComponentsHeader* header = D->w->getHeaderObject();
-	if (header)
+	if (header){
 		D->w->showHeader();
-	header->paint();
-
+		header->paint();
+	}
 	return 0;
 }
 
