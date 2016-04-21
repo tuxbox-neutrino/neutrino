@@ -2161,9 +2161,9 @@ void CChannelList::paintBody()
 	const int ypos = y+ theight;
 	const int sb = height - theight - footerHeight; // paint scrollbar over full height of main box
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
-
-	int sbc= (((*chanlist).size()- 1)/ listmaxshow)+ 1;
-	const int sbs= (selected/listmaxshow);
+	unsigned int listmaxshow_tmp = listmaxshow ? listmaxshow : 1;//avoid division by zero
+	int sbc= (((*chanlist).size()- 1)/ listmaxshow_tmp)+ 1;
+	const int sbs= (selected/listmaxshow_tmp);
 	if (sbc < 1)
 		sbc = 1;
 

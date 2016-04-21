@@ -221,12 +221,15 @@ int paintButtons(	const button_label_ext * const content,
 	}
 
 	if (spacing >= 0)
-	{				 /* add half of the inter-object space to the */
-		spacing /= count_labels; /* left and right (this might break vertical */
-		x_button += spacing / 2; /* alignment, but nobody is using this (yet) */
-	}				 /* and I'm don't know how it should work.    */
+	{
+		int tmp = count_labels ? count_labels : 1;//avoid division by zero
+						/* add half of the inter-object space to the */
+		spacing /= tmp;	 		/* left and right (this might break vertical */
+		x_button += spacing / 2;	/* alignment, but nobody is using this (yet) */
+	}					/* and I'm don't know how it should work.    */
 	else
 	{
+		w_text = w_text ? w_text : 1;
 		/* shorten captions relative to their length */
 		for (int i = 0; i < cnt; i++)
 			fwidth[i] = (fwidth[i] * (w_text + spacing)) / w_text; /* spacing is negative...*/
@@ -410,8 +413,9 @@ int paintButtons(       const int &x,
 	else
 	{
 		/* shorten captions relative to their length */
+		int tmp = w_text ? w_text : 1;//avoid division by zero
 		for (i = 0; i < cnt; i++)
-			fwidth[i] = (fwidth[i] * (w_text + spacing)) / w_text; /* spacing is negative...*/
+			fwidth[i] = (fwidth[i] * (w_text + spacing)) / tmp; /* spacing is negative...*/
 		spacing = 0;
 	}
 

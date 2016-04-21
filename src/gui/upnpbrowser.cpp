@@ -1137,9 +1137,9 @@ printf("CUpnpBrowserGui::paintItem:s selected %d max %d offset %d\n", selected, 
 	ypos = m_y + m_title_height + m_theight;
 	int sb = m_fheight * m_listmaxshow;
 	m_frameBuffer->paintBoxRel(m_x + m_width - 15, ypos, 15, sb, COL_MENUCONTENT_PLUS_1);
-
-	int sbc = ((max + offset - 1) / m_listmaxshow) + 1;
-	int sbs = ((selected + offset) / m_listmaxshow);
+	unsigned int tmp = m_listmaxshow ? m_listmaxshow : 1;//avoid division by zero
+	int sbc = ((max + offset - 1) / tmp) + 1;
+	int sbs = ((selected + offset) / tmp);
 
 	int sbh = 0;
 	if ((sbc > 0) && (sbc > sb-4))

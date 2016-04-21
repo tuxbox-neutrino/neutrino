@@ -774,10 +774,11 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 							r+=q[0]; g+=q[1]; b+=q[2]; a+=q[3];
 						}
 					}
-					p[0]= uint8_t(r/sq);
-					p[1]= uint8_t(g/sq);
-					p[2]= uint8_t(b/sq);
-					p[3]= uint8_t(a/sq);
+					int sq_tmp = sq ? sq : 1;//avoid division by zero
+					p[0]= uint8_t(r/sq_tmp);
+					p[1]= uint8_t(g/sq_tmp);
+					p[2]= uint8_t(b/sq_tmp);
+					p[3]= uint8_t(a/sq_tmp);
 				}
 			}
 		}else
@@ -796,9 +797,10 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 							r+=q[0]; g+=q[1]; b+=q[2];
 						}
 					}
-					p[0]= uint8_t(r/sq);
-					p[1]= uint8_t(g/sq);
-					p[2]= uint8_t(b/sq);
+					int sq_tmp = sq ? sq : 1;//avoid division by zero
+					p[0]= uint8_t(r/sq_tmp);
+					p[1]= uint8_t(g/sq_tmp);
+					p[2]= uint8_t(b/sq_tmp);
 				}
 			}
 		}
