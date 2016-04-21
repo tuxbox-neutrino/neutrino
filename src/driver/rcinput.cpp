@@ -1183,7 +1183,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 						case NeutrinoMessages::EVT_NEXTEPG:
 							{
 								CSectionsdClient::CurrentNextInfo *cn = (CSectionsdClient::CurrentNextInfo *) p;
-								delete cn;
+								delete [] cn;
 								p = NULL;
 								break;
 							}

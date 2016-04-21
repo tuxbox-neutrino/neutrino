@@ -142,8 +142,10 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 			start_v = max_v;
 			end_v   = min_v;
 			break;
-		default:
+		default:{
+			free(gradientBuf);
 			return 0;
+		}
 	}
 
 	int bSize1 = ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) ? bSize/2 : bSize;
