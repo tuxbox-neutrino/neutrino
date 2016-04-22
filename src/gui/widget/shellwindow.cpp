@@ -233,7 +233,7 @@ void CShellWindow::showResult()
 			show_button = true;
 		}
 		else if (mode & ACKNOWLEDGE_EVENT){
-			if (*res != 0){
+			if (res && *res != 0){
 				OnResultError(res);
 				if (OnResultError.empty())
 					DisplayErrorMessage("Error while execution of task. Please see window for details!");

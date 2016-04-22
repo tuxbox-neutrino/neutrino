@@ -706,8 +706,6 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 	MakeExtFileName(channel, ext_file_name);
 	strcpy(&(filename[pos]), UTF8_TO_FILESYSTEM_ENCODING(ext_file_name.c_str()));
 
-	pos = strlen(filename);
-
 	if(autoshift)
 		strncat(filename, "_temp",FILENAMEBUFFERSIZE - strlen(filename)-1);
 

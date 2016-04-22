@@ -2638,14 +2638,13 @@ bool CZapitSdtMonitor::Stop()
 
 void CZapitSdtMonitor::run()
 {
-	time_t /*tstart,*/ tcur, wtime = 0;
+	time_t /*tstart,*/ tcur = 0, wtime = 0;
 	t_transport_stream_id           transport_stream_id = 0;
 	t_original_network_id           original_network_id = 0;
 	t_satellite_position            satellitePosition = 0;
 	freq_id_t                       freq = 0;
 	transponder_id_t 		tpid = 0;
 
-	tcur = time(0);
 	//tstart = time(0);
 	sdt_tp.clear();
 	printf("[zapit] sdt monitor started\n");
