@@ -134,9 +134,9 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		virtual void setClockFormat(const char* prformat_str, const char* secformat_str = NULL);
 
 		///start and paint ticking clock
-		virtual bool Start(bool do_save_bg = CC_SAVE_SCREEN_NO);
+		virtual bool Start();
 		///same like Start() but for usage as simple call without return value
-		virtual void unblock(/*bool do_save_bg = CC_SAVE_SCREEN_NO*/){Start(cc_save_bg);}
+		virtual void unblock(){Start();}
 		///stop ticking clock, but don't hide, use kill() or hide() to remove from screen
 		virtual bool Stop();
 		///same like Stop() but for usage as simple call without return value

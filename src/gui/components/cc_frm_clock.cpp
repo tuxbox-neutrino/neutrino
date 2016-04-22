@@ -346,7 +346,7 @@ bool CComponentsFrmClock::stopClock()
 	return false;
 }
 
-bool CComponentsFrmClock::Start(bool do_save_bg)
+bool CComponentsFrmClock::Start()
 {
 	if (startClock()) {
 		paintClock = true;
