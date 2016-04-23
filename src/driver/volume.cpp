@@ -100,8 +100,8 @@ void CVolume::setVolume(const neutrino_msg_t key)
 	hideVolscale();
 	showVolscale();
 
-	neutrino_msg_data_t data;
-	uint64_t timeoutEnd;
+	neutrino_msg_data_t data = 0;
+	uint64_t timeoutEnd = 0;
 	int vol = g_settings.current_volume;
 
 	do {

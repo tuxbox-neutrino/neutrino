@@ -152,7 +152,8 @@ int CLuaInstVideo::PlayFile(lua_State *L)
 
 	bool sp = false;
 	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL)
-		sp = D->singlePlay;
+		if (D)
+			sp = D->singlePlay;
 	if ((sp == false) && (CMoviePlayerGui::getInstance().getBlockedFromPlugin() == false))
 		CMoviePlayerGui::getInstance().setBlockedFromPlugin(true);
 

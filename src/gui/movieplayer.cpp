@@ -2065,10 +2065,10 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			int lastplaystop = p_movie_info ? p_movie_info->bookmarks.lastPlayStop/60:0;
 			snprintf(play_pos, sizeof(play_pos), "%3d %s", lastplaystop, unit_short_minute);
 			char start_pos[32] = {0};
-			if (p_movie_info->bookmarks.start != 0)
+			if (p_movie_info && p_movie_info->bookmarks.start != 0)
 				snprintf(start_pos, sizeof(start_pos), "%3d %s", p_movie_info->bookmarks.start/60, unit_short_minute);
 			char end_pos[32] = {0};
-			if (p_movie_info->bookmarks.end != 0)
+			if (p_movie_info && p_movie_info->bookmarks.end != 0)
 				snprintf(end_pos, sizeof(end_pos), "%3d %s", p_movie_info->bookmarks.end/60, unit_short_minute);
 
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, isMovieBrowser, play_pos, &cSelectedMenuBookStart[1]));
