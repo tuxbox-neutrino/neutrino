@@ -384,10 +384,11 @@ void CInfoViewer::showRecordIcon (const bool show)
 void CInfoViewer::paintBackground(int col_NumBox)
 {
 	int c_rad_mid = RADIUS_MID;
+#if 0	// kill left side
 	int BoxEndInfoY = BoxEndY;
 	if (showButtonBar) // add button bar and blinkenlights
 		BoxEndInfoY += infoViewerBB->InfoHeightY_Info + infoViewerBB->bottom_bar_offset;
-#if 0	// kill left side
+
 	frameBuffer->paintBackgroundBox(BoxStartX,
 					BoxStartY + ChanHeight - 6,
 					BoxStartX + ChanWidth / 3,

@@ -81,17 +81,13 @@ void CComponentsFrmChain::setDirection(int direction)
 
 void CComponentsFrmChain::initChainItems()
 {
-	//init required dimensions, preferred are current width and height
-	int w_tmp = width;
-	int h_tmp = height;
-
 	//exit if no item available
 	if (v_cc_items.empty())
 		return;
 
 	//set new values
-	w_tmp = append_x_offset;
-	h_tmp = append_y_offset;
+	int w_tmp = append_x_offset;
+	int h_tmp = append_y_offset;
 
 	for (size_t i= 0; i< v_cc_items.size(); i++){
 		int x_item = v_cc_items[i]->getXPos();

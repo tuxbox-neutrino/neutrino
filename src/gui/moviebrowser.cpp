@@ -1363,13 +1363,13 @@ void CMovieBrowser::refreshMovieInfo(void)
 		flogo_h = m_cBoxFrameInfo.iHeight*90/100;
 	}
 
-	static int logo_w = 0;
-	static int logo_h = 0;
+// 	static int logo_w = 0;
+// 	static int logo_h = 0;
 	int logo_w_max = m_cBoxFrameTitleRel.iWidth / 4;
 
 	//printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->epgId, m_cBoxFrameTitleRel.iY);
-	int lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
-	int ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
+	int lx = 0;//never read m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
+	int ly = 0;//never read m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
 	short pb_hdd_offset = 104;
 	if (show_mode == MB_SHOW_YT)
 		pb_hdd_offset = 0;

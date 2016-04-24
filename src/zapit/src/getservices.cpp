@@ -517,7 +517,6 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 			channel->flags = flags;
 			channel->scrambled = scrambled;
 			channel->polarization = polarization;
-			service_type = channel->getServiceType();
 			if(pmtpid != 0 && (((channel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) && (apid > 0))
 						|| ( (channel->getServiceType() == ST_DIGITAL_TELEVISION_SERVICE)  && (vpid > 0) && (apid > 0))) ) {
 				DBG("[getserv] preset chan %s vpid %X sid %X tpid %X onid %X\n", name.c_str(), vpid, service_id, transport_stream_id, transport_stream_id);

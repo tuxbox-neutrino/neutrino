@@ -837,7 +837,6 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 		if (haveurl) {
 			streamList.push_back(info);
 		}
-		haveurl = false;
 	}
 	/* sort streamlist */
 	std::sort(streamList.begin(), streamList.end(), sortStreamList);

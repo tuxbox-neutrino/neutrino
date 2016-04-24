@@ -474,7 +474,7 @@ printf("[update] mode is %d\n", softupdate_mode);
 		}
 
 		strcpy(msg, g_Locale->getText(LOCALE_FLASHUPDATE_NOVERSION));
-		msg_body = LOCALE_FLASHUPDATE_MSGBOX_MANUAL;
+//never read		msg_body = LOCALE_FLASHUPDATE_MSGBOX_MANUAL;
 	}
 	return (ShowMsg(LOCALE_MESSAGEBOX_INFO, msg, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes); // UTF-8
 }

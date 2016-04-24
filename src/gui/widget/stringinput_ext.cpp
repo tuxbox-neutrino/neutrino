@@ -310,7 +310,6 @@ void CExtendedInput::paint()
 			tmp_y += iheight;
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_2), COL_MENUCONTENT_TEXT);
 		}
-		tmp_y += offset;
 	}
 
 	for(unsigned int i=0; i<inputFields.size();i++)

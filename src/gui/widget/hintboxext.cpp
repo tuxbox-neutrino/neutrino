@@ -47,9 +47,7 @@ CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, const char * const Tex
 {
 	m_message = strdup(Text);
 
-	char *begin   = m_message;
-
-	begin = strtok(m_message, "\n");
+	char *begin = strtok(m_message, "\n");
 	while (begin != NULL)
 	{
 		std::vector<Drawable*> oneLine;
@@ -67,9 +65,7 @@ CHintBoxExt::CHintBoxExt(const std::string &CaptionString, const char * const Te
 {
 	m_message = strdup(Text);
 
-	char *begin   = m_message;
-
-	begin = strtok(m_message, "\n");
+	char *begin = strtok(m_message, "\n");
 	while (begin != NULL)
 	{
 		std::vector<Drawable*> oneLine;

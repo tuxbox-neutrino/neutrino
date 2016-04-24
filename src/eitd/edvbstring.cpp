@@ -2060,7 +2060,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 	}
 	case 0x11:// Basic Multilingual Plane of ISO/IEC 10646-1 enc (UTF-16... Unicode)
 		table = 65;
-		tsidonid = 0;
+// 		tsidonid = 0;
 		++i;
 		break;
 	case 0x12:

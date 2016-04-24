@@ -1371,7 +1371,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 	if(sl >= (*chanlist).size())
 		sl = (*chanlist).size()-1;
 
-	CZapitChannel* channel = (*chanlist)[sl];
+	CZapitChannel* channel = NULL;
 	int bsize = bouquetList->Bouquets.size();
 	int bactive = bouquetList->getActiveBouquetNumber();
 

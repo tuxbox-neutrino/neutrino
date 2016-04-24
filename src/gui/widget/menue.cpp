@@ -379,7 +379,7 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 
 		if (icon_w>0 && icon_h>0)
 		{
-			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
+			frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
 		}
 	}
 }
@@ -1996,12 +1996,11 @@ int CMenuOptionChooser::paint( bool selected)
 
 int CMenuOptionChooser::getWidth(void)
 {
-	int ow = 0;
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(getName());
 	int width = tw;
 
 	for(unsigned int count = 0; count < options.size(); count++) {
-		ow = 0;
+		int ow = 0;
 		if (options[count].valname)
 			ow = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(options[count].valname);
 		else

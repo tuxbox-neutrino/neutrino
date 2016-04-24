@@ -556,7 +556,6 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 			CEitManager::getInstance()->getEventsServiceKey(channel->getEpgID(), channelEventList);
 //printf("channelEventList size %d\n", channelEventList.size());
 
-			int xPosEventEntry = this->eventsTableX;
 			int widthEventEntry = 0;
 			time_t lastEndTime = this->startTime;
 
@@ -601,7 +600,7 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 						channelEntry->channelEventEntries.push_back (channelEventEntry);
 					}
 					// correct position
-					xPosEventEntry = this->eventsTableX + ((It->startTime - startTimeDiff - this->startTime) * this->eventsTableWidth) / this->duration;
+					int xPosEventEntry = this->eventsTableX + ((It->startTime - startTimeDiff - this->startTime) * this->eventsTableWidth) / this->duration;
 
 					// correct width
 					widthEventEntry = ((It->duration + startTimeDiff + endTimeDiff) * this->eventsTableWidth) / this->duration + 1;

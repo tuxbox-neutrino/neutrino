@@ -276,9 +276,6 @@ static void* reader_thread(void * /*arg*/)
 			sub_debug.print(Debug::VERBOSE, "%s changed to pid 0x%x\n", __FUNCTION__, dvbsub_pid);
 		}
 
-		len = 0;
-		count = 0;
-
 		len = dmx->Read(tmp, 6, 1000);
 		if(len <= 0)
 			continue;
