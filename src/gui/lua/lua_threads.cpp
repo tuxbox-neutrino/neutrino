@@ -174,7 +174,7 @@ llthread_t *CLLThread::llthread_create(lua_State *L, const char *code, size_t co
 			/* non-string error message. */
 			lua_pushfstring(L, "luaL_loadbuffer() failed to load Lua code: rc=%d", rc);
 		}
-		/*    llthread_destroy(_this); */
+		llthread_destroy(_this);
 		lua_error(L);
 		return NULL;
 	}
