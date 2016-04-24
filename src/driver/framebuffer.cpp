@@ -2167,6 +2167,8 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 	if (v_fbarea.empty())
 		return true;
 
+	static bool firstMutePaint = true;
+
 	for (unsigned int i = 0; i < v_fbarea.size(); i++) {
 		int ret = checkFbAreaElement(_x, _y, _dx, _dy, &v_fbarea[i]);
 		if (ret == FB_PAINTAREA_MATCH_OK) {
@@ -2176,10 +2178,14 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 						break;
 //					waitForIdle();
 					fb_no_check = true;
-					if (prev)
+					if (prev) {
+						firstMutePaint = false;
 						CAudioMute::getInstance()->hide();
-					else
-						CAudioMute::getInstance()->paint();
+					}
+					else {
+						if (!firstMutePaint)
+							CAudioMute::getInstance()->paint();
+					}
 					fb_no_check = false;
 					break;
 				default:
