@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Generic Timer.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2016, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -36,66 +36,72 @@
 
 using namespace std;
 
-CComponentsTimer::CComponentsTimer( const int& interval)
+CComponentsTimer::CComponentsTimer(const int& interval)
 {
 	tm_thread 		= 0;
-	tm_interval		= interval;
+	tm_interval 		= interval;
 
-	sl = sigc::mem_fun(*this, &CComponentsTimer::stopTimer);
+	sl_stop_timer 		= sigc::mem_fun(*this, &CComponentsTimer::stopTimer);
+
 	if (interval > 0)
 		startTimer();
 }
 
 CComponentsTimer::~CComponentsTimer()
 {
-	if (stopTimer())
-		dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer stopped\n", __func__);
+	stopTimer();
+}
+
+void CComponentsTimer::runSharedTimerAction()
+{
+	//start loop
+
+	while(tm_enable && tm_interval > 0) {
+		tm_mutex.lock();
+		OnTimer();
+		mySleep(tm_interval);
+		tm_mutex.unlock();
+	}
+
+	if (tm_thread)
+		stopThread();
 }
 
 //thread handle
-void* CComponentsTimer::initTimerThread(void *arg)
+void* CComponentsTimer::initThreadAction(void *arg)
 {
 	CComponentsTimer *timer = static_cast<CComponentsTimer*>(arg);
 
-	//start loop
-	while(timer) {
-		timer->mutex.lock();
-		timer->OnTimer();
-		timer->mutex.unlock();
-		mySleep(timer->tm_interval);
-	}
+	timer->runSharedTimerAction();
 
 	return 0;
 }
 
 //start up running timer with own thread, return true on succses
-bool CComponentsTimer::startTimer()
+void CComponentsTimer::initThread()
 {
-	void *ptr = static_cast<void*>(this);
-
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
-	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
+	if (!tm_enable)
+		return;
 
 	if(!tm_thread) {
-		int res = pthread_create (&tm_thread, NULL, initTimerThread, ptr) ;
+		void *ptr = static_cast<void*>(this);
+
+		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
+		pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
+
+		int res = pthread_create (&tm_thread, NULL, initThreadAction, ptr);
+
 		if (res != 0){
 			dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_create\033[0m\n", __func__, __LINE__);
-			return false;
+			return;
 		}
-		if (res == 0){
-			if (!sl.empty()){
-				dprintf(DEBUG_INFO,"\033[33m[CComponentsTimer] [%s - %d]  timer thread [%lu] created with interval = %d\033[0m\n", __func__,  __LINE__, pthread_self(), tm_interval);
-				CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl);
-			}
-		}else{
-			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_create\033[0m\n", __func__, __LINE__);
-		}
+
+		if (res == 0)
+			CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl_stop_timer);
 	}
-	return  true;
 }
 
-//stop ticking timer and kill thread, return true on succses
-bool CComponentsTimer::stopTimer()
+void CComponentsTimer::stopThread()
 {
 	if(tm_thread) {
 		int thres = pthread_cancel(tm_thread);
@@ -109,14 +115,37 @@ bool CComponentsTimer::stopTimer()
 
 		if (thres == 0){
 			tm_thread = 0;
-			dprintf(DEBUG_INFO,"\033[33m[CComponentsTimer] [%s] timer thread terminated ...\033[0m\n", __func__);
 			//ensure disconnect of unused slot
-			if (!sl.empty()){
-				dprintf(DEBUG_INFO,"\033[33m[CComponentsTimer][%s] disconnect timer slot ...\033[0m\n", __func__);
-				sl.disconnect();
-			}
-			return true;
+			while (!sl_stop_timer.empty())
+				sl_stop_timer.disconnect();
 		}
 	}
+}
+
+bool CComponentsTimer::startTimer()
+{
+	tm_enable = true;
+	initThread();
+	if(tm_thread)
+		return true;
+
 	return false;
+}
+
+bool CComponentsTimer::stopTimer()
+{
+	tm_enable = false;
+	stopThread();
+	if(tm_thread == 0)
+		return true;
+
+	return false;
+}
+
+void CComponentsTimer::setTimerInterval(const int& seconds)
+{
+	if (tm_interval == seconds)
+		return;
+
+	tm_interval = seconds;
 }

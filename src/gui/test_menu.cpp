@@ -679,7 +679,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (clock_r == NULL){
 			clock_r = new CComponentsFrmClock(100, 50, NULL, "%H.%M:%S", NULL, true);
 			clock_r->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
-			clock_r->setClockIntervall(1);
+			clock_r->setClockInterval(1);
 // 			clock_r->doPaintBg(false);
 		}
 		
