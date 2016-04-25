@@ -1985,6 +1985,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 		std::string text = "No transponders found for ";
 		text += name;
 		ShowHint(LOCALE_MESSAGEBOX_ERROR, text.c_str(), 450, 2);
+		delete selector;
 		return menu_return::RETURN_REPAINT;
 	}
 
