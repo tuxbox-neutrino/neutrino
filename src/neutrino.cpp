@@ -4727,12 +4727,11 @@ void CNeutrinoApp::migrateConfig(const char *fname)
 	migconf.loadConfig(fname);
 	/* here we do a simple rename of config file keys */
 	int magic = -424242; /* obviously a value that does not appear in real cases */
-	int tmp = magic;
 	int i;
 	for (i = 0; key_rename[i].from != NULL; i++) {
 		const char *from = key_rename[i].from;
 		const char *to   = key_rename[i].to;
-		tmp = migconf.getInt32(from, magic);
+		int tmp = migconf.getInt32(from, magic);
 		if (tmp == magic)	/* old key does not exist */
 			continue;
 		/* only set new key to old value if the new key does not yet exist */

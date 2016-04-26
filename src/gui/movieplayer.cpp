@@ -576,7 +576,7 @@ bool CMoviePlayerGui::SelectFile()
 			if (moviebrowser->getSelectedFiles(filelist, milist)) {
 				filelist_it = filelist.begin();
 				p_movie_info = *(milist.begin());
-				file = &(*filelist_it);
+// 				file = &(*filelist_it);
 			}
 			else if ((file = moviebrowser->getSelectedFile()) != NULL) {
 				p_movie_info = moviebrowser->getCurrentMovieInfo();
