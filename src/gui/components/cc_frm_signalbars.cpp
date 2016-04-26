@@ -40,17 +40,37 @@ using namespace std;
 
 CSignalBar::CSignalBar(CComponentsForm *parent)
 {
-	initVarSigBar();
-	sb_name 	= "SIG";
-
-	initDimensions();
-	initSBItems();
-	initParent(parent);
+	initVarSigBar(0, 0, 100, SB_MIN_HEIGHT, NULL, "SIG", parent);
 }
 
 CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const string& sbname, CComponentsForm *parent)
 {
-	initVarSigBar();
+	initVarSigBar(xpos, ypos, w, h, frontend_ref, sbname, parent);
+}
+
+void CSignalBar::initVarSigBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const std::string& sbname, CComponentsForm *parent)
+{
+	cc_item_type 	= CC_ITEMTYPE_FRM_SIGNALBAR;
+
+	corner_rad 	= 0;
+	corner_type 	= 0;
+	append_x_offset = 2;
+	append_y_offset = 2;
+
+	sb_scale_height = -1;
+	dy_font 	= CNeutrinoFonts::getInstance();
+
+	sb_caption_color= COL_INFOBAR_TEXT;
+	sb_val_mode 	= CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT;
+
+	sb_lastsig 	= 0;
+	sb_signal 	= 0;
+
+	sb_frontend 	= NULL;
+	sb_scale 	= NULL;
+	sb_vlbl		= NULL;
+	sb_lbl		= NULL;
+
 	sb_frontend 	= frontend_ref;
 	x 		= xpos;
 	y 		= ypos;
@@ -97,29 +117,6 @@ void CSignalBar::initSBItems()
 	initSBarScale();
 	initSBarValue();
 	initSBarName();
-}
-
-void CSignalBar::initVarSigBar()
-{
-	corner_rad 	= 0;
-	corner_type 	= 0;
-	append_x_offset = 2;
-	append_y_offset = 2;
-	height		= SB_MIN_HEIGHT;
-	cc_item_type 	= CC_ITEMTYPE_FRM_SIGNALBAR;
-	sb_scale_height = -1;
-	dy_font 	= CNeutrinoFonts::getInstance();
-
-	sb_caption_color= COL_INFOBAR_TEXT;
-	sb_val_mode 	= CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT;
-
-	sb_lastsig 	= 0;
-	sb_signal 	= 0;
-
-	sb_frontend 	= NULL;
-	sb_scale 	= NULL;
-	sb_vlbl		= NULL;
-	sb_lbl		= NULL;
 }
 
 void CSignalBar::initSBarScale()

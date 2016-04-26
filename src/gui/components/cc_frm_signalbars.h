@@ -91,7 +91,7 @@ class CSignalBar : public CComponentsForm, public CCTextScreen
 		uint16_t sb_signal;
 
 		///initialize all needed basich attributes and objects
-		void initVarSigBar();
+		void initVarSigBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const std::string& sb_name, CComponentsForm *parent);
 		///initianlize position and dimensions of signalbar container
 		void initDimensions();
 		///initialize scale object
