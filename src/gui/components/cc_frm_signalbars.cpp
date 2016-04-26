@@ -66,7 +66,6 @@ void CSignalBar::initVarSigBar(const int& xpos, const int& ypos, const int& w, c
 	sb_lastsig 	= 0;
 	sb_signal 	= 0;
 
-	sb_frontend 	= NULL;
 	sb_scale 	= NULL;
 	sb_vlbl		= NULL;
 	sb_lbl		= NULL;
