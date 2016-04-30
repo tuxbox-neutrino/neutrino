@@ -31,8 +31,8 @@
 #define LUA_CURL_CLASSNAME  "curl"
 #define LUA_HEADER_CLASSNAME  "header"
 
-//#define LUA_WIKI "http://wiki.tuxbox.org/....."
-#define LUA_WIKI "https://slknet.de/wiki/w"
+#define LUA_WIKI "https://wiki.neutrino-hd.de/wiki"
+//#define LUA_WIKI "https://wiki.slknet.de/wiki"
 
 /* the magic color that tells us we are using one of the palette colors */
 #define MAGIC_COLOR 0x42424200
