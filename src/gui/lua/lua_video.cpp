@@ -48,7 +48,11 @@ CLuaInstVideo* CLuaInstVideo::getInstance()
 
 CLuaVideo *CLuaInstVideo::VideoCheckData(lua_State *L, int n)
 {
-	return *(CLuaVideo **) luaL_checkudata(L, n, LUA_VIDEO_CLASSNAME);
+	void* ret = luaL_testudata(L, n, LUA_VIDEO_CLASSNAME);
+	if (ret == NULL)
+		return NULL;
+	else
+		return *(CLuaVideo **) ret;
 }
 
 void CLuaInstVideo::LuaVideoRegister(lua_State *L)
