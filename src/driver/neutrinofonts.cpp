@@ -102,7 +102,9 @@ CNeutrinoFonts::~CNeutrinoFonts()
 			delete v_dyn_fonts[i].font;
 		v_dyn_fonts.clear();
 	}
-
+	if (!vDynSize.empty()) {
+		vDynSize.clear();
+	}
 	deleteDynFontExtAll();
 }
 
@@ -124,6 +126,9 @@ void CNeutrinoFonts::SetupDynamicFonts(bool initRenderClass/*=true*/)
 		dynFontStyle[0] = g_dynFontRenderer->AddFont(fontDescr.filename.c_str());
 
 		fontDescr.name = g_dynFontRenderer->getFamily(fontDescr.filename.c_str());
+		if (!vDynSize.empty()) {
+			vDynSize.clear();
+		}
 		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] dynamic font family: %s\n", __func__, __LINE__, fontDescr.name.c_str());
 		dynFontStyle[1] = "Bold Regular";
 
@@ -161,6 +166,9 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.name = fontDescr.name;
 		fontDescr.name = "";
 		fontDescr.name = g_fontRenderer->getFamily(fontDescr.filename.c_str());
+		if (!vDynSize.empty()) {
+			vDynSize.clear();
+		}
 		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] standard font family: %s\n", __func__, __LINE__, fontDescr.name.c_str());
 		fontStyle[1] = "Bold Regular";
 
@@ -233,11 +241,22 @@ int CNeutrinoFonts::getFontHeight(Font* fnt)
 
 int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 {
-	Font *dynFont	= NULL;
-	int dynSize	= 8;
-	bool dynFlag	= false;
-
+	int dynSize	= dy/1.6;
 	if (dx == 0) dx = 1280;
+
+	if (!vDynSize.empty()) {
+		for (size_t i = 0; i < vDynSize.size(); i++) {
+			if ((vDynSize[i].dy == dy) &&
+			    (vDynSize[i].dx == dx) &&
+			    (vDynSize[i].style == style) &&
+			    (vDynSize[i].text == text)) {
+				dynSize = vDynSize[i].dynsize;
+				return dynSize;
+			}
+		}
+	}
+	Font *dynFont	= NULL;
+	bool dynFlag	= false;
 	while (1) {
 		if (dynFont)
 			delete dynFont;
@@ -264,8 +283,22 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 			break;
 	}
 
-	if (dynFont)
+	if (dynFont){
 		delete dynFont;
+
+		if (!vDynSize.empty() && vDynSize.size() > 99) {
+			vDynSize.clear();
+		}
+		if(dynSize){
+			dyn_size_t v;
+			v.dx		= dx;
+			v.dy		= dy;
+			v.dynsize	= dynSize;
+			v.style		= style;
+			v.text		= text;
+			vDynSize.push_back(v);
+		}
+	}
 
 	return dynSize;
 }
