@@ -677,8 +677,10 @@ void CMenuWidget::resetWidget(bool delete_items)
 {
 	for(unsigned int count=0;count<items.size();count++) {
 		CMenuItem * item = items[count];
-		if (delete_items && !item->isStatic)
+		if (delete_items && !item->isStatic){
 			delete item;
+			item = NULL;
+		}
 	}
 	
 	items.clear();
