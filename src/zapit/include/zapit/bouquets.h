@@ -98,7 +98,10 @@ class CBouquetManager
 		void writeBouquetChannels        (FILE * bouq_fd, uint32_t i, bool bUser = false);
 		void writeChannels(FILE * bouq_fd, ZapitChannelList &list, bool bUser);
 		void writeBouquet(FILE * bouq_fd, uint32_t i, bool bUser);
-
+		//remap epg_id
+		std::map<t_channel_id, t_channel_id> EpgIDMapping;
+		void readEPGMapping();
+		t_channel_id reMapEpgID(t_channel_id channelid);
 	public:
 		CBouquetManager() { remainChannels = NULL; };
 		~CBouquetManager();

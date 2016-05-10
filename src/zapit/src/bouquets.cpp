@@ -387,6 +387,10 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 	xmlNodePtr channel_node;
 
 	if (search) {
+		if(!bUser){
+			readEPGMapping();
+		}
+
 		t_original_network_id original_network_id;
 		t_service_id service_id;
 		t_transport_stream_id transport_stream_id;
@@ -448,6 +452,10 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;
 					chan->bUseCI = newBouquet->bUseCI;
+					//remapinng epg_id
+					t_channel_id new_epgid = reMapEpgID(chan->getChannelID());
+					if(new_epgid)
+						chan->setEPGid(new_epgid);
 
 					newBouquet->addService(chan);
 				} else if (bUser) {
@@ -483,6 +491,9 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			search = xmlNextNode(search);
 		}
 		INFO("total: %d bouquets", (int)Bouquets.size());
+		if(!bUser && !EpgIDMapping.empty()){
+			EpgIDMapping.clear();
+		}
 	}
 	xmlFreeDoc(parser);
 }
@@ -928,4 +939,48 @@ int CBouquetManager::ChannelIterator::getNrofFirstChannelofBouquet(const unsigne
 		i += getBouquet()->size();
 
 	return i;
+}
+
+t_channel_id CBouquetManager::reMapEpgID(t_channel_id channelid)
+{
+	if(!EpgIDMapping.empty()){
+		std::map<t_channel_id, t_channel_id>::iterator it = EpgIDMapping.find(channelid);
+		if ( it != EpgIDMapping.end() )
+			return it->second;
+	}
+	return 0;
+}
+
+void CBouquetManager::readEPGMapping()
+{
+	if(!EpgIDMapping.empty())
+		EpgIDMapping.clear();
+
+	const std::string epg_map_dir = CONFIGDIR "/zapit/epgmap.xml";
+	xmlDocPtr epgmap_parser = parseXmlFile(epg_map_dir.c_str());
+
+	if (epgmap_parser != NULL)
+	{
+
+		xmlNodePtr epgmap = xmlDocGetRootElement(epgmap_parser);
+		if(epgmap)
+			epgmap = xmlChildrenNode(epgmap);
+
+		while (epgmap) {
+			const char *cannelid = xmlGetAttribute(epgmap, "channel_id");
+			const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
+			t_channel_id epg_id = 0;
+			t_channel_id chid = 0;
+			if (epgid)
+				epg_id = strtoull(epgid, NULL, 16);
+			if (cannelid)
+				chid = strtoull(cannelid, NULL, 16);
+			if(chid && epg_id){
+				EpgIDMapping[chid]=epg_id;
+			}
+
+			epgmap = xmlNextNode(epgmap);
+		}
+	}
+	xmlFreeDoc(epgmap_parser);
 }
