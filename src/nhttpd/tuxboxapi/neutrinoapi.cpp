@@ -295,7 +295,13 @@ void CNeutrinoAPI::GetChannelEvent(t_channel_id channel_id, CChannelEvent &event
 {
 	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	event.eventID = 0;
-	CChannelEvent * evt = ChannelListEvents[channel_id];
+
+	t_channel_id epg_id = channel_id;
+	CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (ch)
+		epg_id = ch->getEpgID();
+
+	CChannelEvent * evt = ChannelListEvents[epg_id];
 	if (evt)
 		event = *evt;
 }

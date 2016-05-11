@@ -1478,8 +1478,6 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 {
 	std::string result = "";
 	std::string channelData = "";
-	CChannelEventList eList;
-	CEitManager::getInstance()->getEventsServiceKey(channel_id, eList);
 	channelData += hh->outPair("channel_name", hh->outValue(NeutrinoAPI->GetServiceName(channel_id)), true);
 	channelData += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id), true);
 	channelData += hh->outPair("channel_short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id & 0xFFFFFFFFFFFFULL), (bouquetnr > -1));
@@ -1490,6 +1488,15 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 	int i = 0;
 	CChannelEventList::iterator eventIterator;
 	bool isFirstLine = true;
+
+	t_channel_id epg_id = channel_id;
+	CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (ch)
+		epg_id = ch->getEpgID();
+
+	CChannelEventList eList;
+	CEitManager::getInstance()->getEventsServiceKey(epg_id, eList);
+
 	for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator, i++) {
 		if ((max != -1 && i >= max) || (stoptime != -1 && eventIterator->startTime >= stoptime))
 			break;

@@ -524,7 +524,9 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		else if (event.eventID)
 		{
 			bool has_current_next = true;
-			CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
+			t_channel_id epg_id = channel->getChannelID();
+			epg_id = channel->getEpgID();
+			CEitManager::getInstance()->getCurrentNextServiceKey(epg_id, currentNextInfo);
 			timestr = timeString(event.startTime);
 
 			CShortEPGData epg;
