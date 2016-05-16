@@ -215,7 +215,7 @@ void CComponentsWindow::initFooter()
 	//add of footer item happens initCCWItems()
 	//set footer properties
 	if (ccw_footer){
-		ccw_footer->setPos(0, cc_yr + height - ccw_footer->getHeight()/*- fr_thickness*/);
+		ccw_footer->setPos(0, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
 		ccw_footer->setWidth(width-2*fr_thickness);
 		ccw_footer->enableShadow(false/*shadow*/);
 		ccw_footer->setCorner(corner_rad-fr_thickness/2, CORNER_BOTTOM);
@@ -287,7 +287,7 @@ void CComponentsWindow::initBody()
 			w_l_sidebar = ccw_left_sidebar->getWidth();
 		if (ccw_right_sidebar)
 			w_r_sidebar = ccw_right_sidebar->getWidth();
-		int h_body = height - h_header - h_footer/* - 2*fr_thickness*/;
+		int h_body = height - h_header - h_footer - fr_thickness;
 		int x_body = w_l_sidebar;
 		int w_body = width-2*fr_thickness - w_l_sidebar - w_r_sidebar;
 		
