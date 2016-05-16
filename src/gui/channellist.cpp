@@ -1185,7 +1185,8 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 
 		selected_chid = channel->getChannelID();
 		g_RemoteControl->zapTo_ChannelID(selected_chid, channel->getName(), channel->number, (channel->Locked() == g_settings.parentallock_defaultlocked));
-		CNeutrinoApp::getInstance()->adjustToChannelID(channel->getChannelID());
+		if(CNeutrinoApp::getInstance()->adjustToChannelID(channel->getChannelID()))
+			CZapit::getInstance()->SetCurrentChannelID(channel->getChannelID());
 	}
 	if(new_zap_mode != 2 /* not active */) {
 		/* remove recordModeActive from infobar */
