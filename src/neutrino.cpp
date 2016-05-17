@@ -2667,7 +2667,9 @@ _repeat:
 		bouquets_changed = false;
 		channels_init = false;
 
-		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+		t_channel_id live_channel_id = channelList->getActiveChannel_ChannelID();
+		if(!live_channel_id)
+			live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		delete hintBox;
 	}
