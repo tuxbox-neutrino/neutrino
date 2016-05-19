@@ -282,6 +282,7 @@ const char * locale_real_names[] =
 	"channellist.foot_sort_sat",
 	"channellist.head",
 	"channellist.history",
+	"channellist.history_clear",
 	"channellist.keep_numbers",
 	"channellist.make_hdlist",
 	"channellist.make_newlist",
