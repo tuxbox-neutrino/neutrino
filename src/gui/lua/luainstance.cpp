@@ -435,8 +435,10 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 	/* run the script */
 	int status = luaL_loadfile(lua, fileName);
 	if (status) {
-		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, lua_tostring(lua, -1));
-		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
+		bool isString = lua_isstring(lua,-1);
+		const char *null = "NULL";
+		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, isString ? lua_tostring(lua, -1):null);
+		DisplayErrorMessage(isString ? lua_tostring(lua, -1):null, "Lua Script Error:");
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
 		return;
@@ -466,8 +468,10 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		*result_string = std::string(lua_tostring(lua, -1));
 	if (status)
 	{
-		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
-		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
+		bool isString = lua_isstring(lua,-1);
+		const char *null = "NULL";
+		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, isString ? lua_tostring(lua, -1):null);
+		DisplayErrorMessage(isString ? lua_tostring(lua, -1):null, "Lua Script Error:");
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
 		/* restoreNeutrino at plugin crash, when blocked from plugin */

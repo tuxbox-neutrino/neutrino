@@ -221,7 +221,9 @@ bool CLuaInstVideo::execLuaInfoFunc(lua_State *L, int xres, int yres, int aspect
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
 		memset(msg, '\0', sizeof(msg));
-		snprintf(msg, sizeof(msg)-1, "[%s:%d] error running function '%s': %s", ar.short_src, ar.currentline, D->infoFunc.c_str(), lua_tostring(L, -1));
+		bool isString = lua_isstring(L,-1);
+		const char *null = "NULL";
+		snprintf(msg, sizeof(msg)-1, "[%s:%d] error running function '%s': %s", ar.short_src, ar.currentline, D->infoFunc.c_str(), isString ? lua_tostring(L, -1):null);
 		fprintf(stderr, "[CLuaInstVideo::%s:%d] %s\n", __func__, __LINE__, msg);
 		DisplayErrorMessage(msg);
 		return false;
