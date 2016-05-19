@@ -37,7 +37,6 @@
 #include <gui/widget/listhelpers.h>
 
 #include <driver/framebuffer.h>
-#include <system/lastchannel.h>
 #include <zapit/bouquets.h>
 
 #include <string>

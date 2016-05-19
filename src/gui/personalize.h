@@ -58,7 +58,6 @@
 #include <string>
 #include <vector>
 #include <configfile.h>
-#include <system/lastchannel.h>
 #include <system/setting_helpers.h>
 
 class CPlugins;
