@@ -399,6 +399,15 @@ int my_system(const char *cmd)
 
 int my_system(int argc, const char *arg, ...)
 {
+	// Per call, and never shared: the ampersand belongs to the one command that
+	// carried it, and a value that outlived the call would detach commands that
+	// did not ask and leave this process unable to be told what any of its
+	// children exit with.
+	// volatile because vfork() shares this stack with the child: a copy the
+	// compiler keeps in a register instead of reloading from memory is not
+	// guaranteed to still hold the parent's value once the child (which reads
+	// it too, to decide the SIGCHLD handling) has run.
+	volatile bool background = false;
 	int i = 0, ret, childExit = 0;
 #define ARGV_MAX 64
 	/* static right now but could be made dynamic if necessary */
@@ -417,12 +426,27 @@ int my_system(int argc, const char *arg, ...)
 			return -1;
 		}
 		argv[i] = va_arg(args, const char *);
+
+		// The argument has to be the ampersand, not merely carry one: a file
+		// name such as "Film & Serie.iso" is a value and not a request to
+		// detach, and matching it here both cut the argument list short at
+		// that point and left this process unable to be told about any of its
+		// children afterwards.
+		if (argv[i] != NULL && strcmp(argv[i], "&") == 0)
+		{
+			background = true;
+			printf("%s: start processes as background job\n", __func__);
+			argv[i] = NULL;
+		}
+
 	}
 	argv[i] = NULL; /* sentinel */
 	//fprintf(stderr,"%s:", __func__);for(i=0;argv[i];i++)fprintf(stderr," '%s'",argv[i]);fprintf(stderr,"\n");
 
 	pid_t pid;
 	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
+	if (background)
+		signal(SIGCHLD, SIG_IGN);
 	switch (pid = vfork())
 	{
 		case -1: /* can't vfork */
@@ -431,6 +455,10 @@ int my_system(int argc, const char *arg, ...)
 			break;
 		case 0: /* child process */
 			ret = 0;
+
+			if (background)
+				signal(SIGCHLD, SIG_DFL);
+
 			for (i = 3; i < maxfd; i++)
 				close(i);
 			if (setsid() == -1)
