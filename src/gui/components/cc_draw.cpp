@@ -431,7 +431,7 @@ bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int 
 //screen area save
 fb_pixel_t* CCDraw::getScreen(int ax, int ay, int dx, int dy)
 {
-	if (dx * dy == 0)
+	if (dx < 1 ||  dy < 1 || dx * dy == 0)
 		return NULL;
 
 	dprintf(DEBUG_INFO, "[CCDraw] INFO! [%s - %d], ax = %d, ay = %d, dx = %d, dy = %d\n", __func__, __LINE__, ax, ay, dx, dy);
