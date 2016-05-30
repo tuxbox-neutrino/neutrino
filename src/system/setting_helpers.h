@@ -69,19 +69,16 @@ class COnOffNotifier : public CChangeObserver
 
 class CSectionsdConfigNotifier : public CChangeObserver
 {
-        public:
-                bool changeNotify(const neutrino_locale_t, void * );
+	public:
+		bool changeNotify(const neutrino_locale_t, void * );
 };
 
 class CTouchFileNotifier : public CChangeObserver
 {
 	const char * filename;
- public:
-	inline CTouchFileNotifier(const char * file_to_modify)
-		{
-			filename = file_to_modify;
-		};
-	bool changeNotify(const neutrino_locale_t, void * data);
+	public:
+		inline CTouchFileNotifier(const char * _filename) { filename = _filename; };
+		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
 class CColorSetupNotifier : public CChangeObserver
@@ -123,33 +120,33 @@ class CMoviePluginChangeExec : public CMenuTarget
 
 class CTZChangeNotifier : public CChangeObserver
 {
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
+	public:
+		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
 class CDataResetNotifier : public CMenuTarget
 {
-public:
-        int exec(CMenuTarget* parent, const std::string& actionKey);
+	public:
+		int exec(CMenuTarget* parent, const std::string& actionKey);
 };
 
 class CFanControlNotifier : public CChangeObserver
 {
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
-	static void setSpeed(unsigned int speed);
+	public:
+		bool changeNotify(const neutrino_locale_t, void * data);
+		static void setSpeed(unsigned int speed);
 };
 
 class CCpuFreqNotifier : public CChangeObserver
 {
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
+	public:
+		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
 class CAutoModeNotifier : public CChangeObserver
 {
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
+	public:
+		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
 #endif

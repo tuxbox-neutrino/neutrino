@@ -401,7 +401,7 @@ long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
 	int s, i;
 	int ok = 0;
 	s = socket(AF_INET, SOCK_DGRAM, 0);
-	if (s==-1) 
+	if (s==-1)
 	{
 		return -1;
 	}
@@ -413,11 +413,11 @@ long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
 	for (i = ifc.ifc_len / sizeof(struct ifreq); --i >= 0; IFR++)
 	{
 		strcpy(ifr.ifr_name, IFR->ifr_name);
-		if (ioctl(s, SIOCGIFFLAGS, &ifr) == 0) 
+		if (ioctl(s, SIOCGIFFLAGS, &ifr) == 0)
 		{
-			if (! (ifr.ifr_flags & IFF_LOOPBACK)) 
+			if (! (ifr.ifr_flags & IFF_LOOPBACK))
 			{
-				if (ioctl(s, SIOCGIFHWADDR, &ifr) == 0) 
+				if (ioctl(s, SIOCGIFHWADDR, &ifr) == 0)
 				{
 					ok = 1;
 					break;
