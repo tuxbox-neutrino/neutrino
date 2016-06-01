@@ -647,7 +647,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			oldIndex = -1;
 			oldEventID = -1;
 			bgRightBoxPaint = false;
-			in_search = findEvents();
+			in_search = findEvents(channel_id, channelname);
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
 		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites || msg == CRCInput::RC_www) {
@@ -1034,12 +1034,11 @@ int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*
 }
 
 /************************************************************************************************/
-bool CEventList::findEvents(void)
+bool CEventList::findEvents(t_channel_id channel_id, std::string channelname)
 /************************************************************************************************/
 {
 	bool res = false;
 	int event = 0;
-	t_channel_id channel_id = 0;
 
 	if((m_search_keyword.empty() || m_search_keyword == m_search_autokeyword) && evtlist[selected].eventID != 0)
 	{
@@ -1130,14 +1129,11 @@ bool CEventList::findEvents(void)
 		}
 		if(evtlist.empty())
 		{
-			if ( evtlist.empty() )
-			{
-				CChannelEvent evt;
-				//evt.description = m_search_keyword + ": " + g_Locale->getText(LOCALE_EPGVIEWER_NOTFOUND);
-				evt.description = g_Locale->getText(LOCALE_EPGVIEWER_NOTFOUND);
-				evt.eventID = 0;
-				evtlist.push_back(evt);
-			}
+			CChannelEvent evt;
+			//evt.description = m_search_keyword + ": " + g_Locale->getText(LOCALE_EPGVIEWER_NOTFOUND);
+			evt.description = g_Locale->getText(LOCALE_EPGVIEWER_NOTFOUND);
+			evt.eventID = 0;
+			evtlist.push_back(evt);
 		}
 		if (current_event == (unsigned int)-1)
 			current_event = 0;
@@ -1163,7 +1159,10 @@ bool CEventList::findEvents(void)
 		}
 
 	}
-	paintHead(0, search_head_name);
+	if(event)
+		paintHead(0, search_head_name);
+	else
+		paintHead(channel_id, channelname);
 	paint();
 	showFunctionBar(true, channel_id);
 	return(res);

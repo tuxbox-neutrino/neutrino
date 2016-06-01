@@ -79,7 +79,7 @@ class CEventList : public CListHelpers
 	event_id_t oldEventID;
 	bool bgRightBoxPaint;
 
-	bool findEvents(void);
+	bool findEvents(t_channel_id channel_id, std::string channelname);
     // Eventfinder end
 
 	CFrameBuffer	*frameBuffer;
