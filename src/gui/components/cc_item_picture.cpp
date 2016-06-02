@@ -399,17 +399,15 @@ void CComponentsChannelLogo::setAltLogo(const char* picture_name)
 
 void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::string& channelName)
 {
-	if (channel_id)
-		if (channel_id == channelId)
-			return;
-	channel_id = channelId;
-
-	if (!channel_name.empty())
-		if (channel_name == channelName)
-			return;
-
 	need_init = true;
+	if (channelId || !channelName.empty()){
+		if ((channel_id == channelId) && (channel_name == channelName))
+			need_init = false;
+	}
+
+	channel_id = channelId;
 	channel_name = channelName;
+
 	int dummy;
 
 	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, pic_name, &dummy, &dummy);
