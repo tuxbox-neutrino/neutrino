@@ -234,6 +234,11 @@ int CRecordSetup::showRecordSetup()
 	end_of_recording->setHint("", LOCALE_MENU_HINT_RECORD_END);
 	recordingSettings->addItem(end_of_recording);
 
+	// already_found
+	CMenuOptionChooser* already_found = new CMenuOptionChooser(LOCALE_RECORDINGMENU_ALREADY_FOUND_CHECK, &g_settings.recording_already_found_check, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	already_found->setHint(NEUTRINO_ICON_HINT_IMAGELOGO, LOCALE_MENU_HINT_RECORD_ALREADY_FOUND_CHECK);
+	recordingSettings->addItem(already_found);
+
 	if (!g_settings.easymenu) {
 		CMenuOptionChooser* slow_warn = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SLOW_WARN, &g_settings.recording_slow_warning, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		slow_warn->setHint("", LOCALE_MENU_HINT_RECORD_SLOW_WARN);

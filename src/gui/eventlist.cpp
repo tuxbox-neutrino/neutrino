@@ -33,6 +33,7 @@
 #include <gui/eventlist.h>
 #include <gui/epgplus.h>
 #include <gui/epgview.h>
+#include <gui/moviebrowser.h>
 #include <gui/timerlist.h>
 #include <gui/user_menue.h>
 
@@ -466,8 +467,25 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					else
 						recDir = "";
 				}
+				bool doRecord = true;
+				if (g_settings.recording_already_found_check)
+				{
+					CHintBox loadBox(LOCALE_RECORDING_ALREADY_FOUND_CHECK, LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES);
+					loadBox.paint();
+					CMovieBrowser moviebrowser;
+					const char *rec_title = evtlist[selected].description.c_str();
+					bool already_found = moviebrowser.gotMovie(rec_title);
+					loadBox.hide();
+					if (already_found)
+					{
+						printf("already found in moviebrowser: %s\n", rec_title);
+						char message[1024];
+						snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_RECORDING_ALREADY_FOUND), rec_title);
+						doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes);
+					}
+				}
 				t_channel_id used_id = IS_WEBTV(channel_id) ? channel_id : evtlist[selected].channelID;
-				if (!recDir.empty()) //add/remove recording timer events and check/warn for conflicts
+				if (!recDir.empty() && doRecord) //add/remove recording timer events and check/warn for conflicts
 				{
 					if (g_Timerd->addRecordTimerEvent(used_id,
 								evtlist[selected].startTime,

@@ -1257,6 +1257,7 @@ menu.hint_progressbar_timescale_yellow Choose the yellow portion of colored prog
 menu.hint_protection Protect content by PIN code\nDefault PIN 0000
 menu.hint_radiomode Switch box to radio mode
 menu.hint_reboot Reboot box\nNo confirmation
+menu.hint_record_already_found_check Checks before setting a new record timer if an eponymous title already exists
 menu.hint_record_apid_ac3 Record AC3 audio pids
 menu.hint_record_apid_alt Record alternative non-AC3 audio pids
 menu.hint_record_apid_std Record first audio pid
@@ -2027,6 +2028,8 @@ rclock.locked Locked
 rclock.lockmsg Remote control will be locked.\nTo unlock, press\n[red] followed by [%s]\non your remote control.
 rclock.title Lock remote control
 rclock.unlockmsg Remote control unlocked
+recording.already_found %s\nwas already found. Nevertheless start record?
+recording.already_found_check Check recordings
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait...!
 recording.startstop_msg Message when recording is start/stop
@@ -2034,6 +2037,7 @@ recording.stop Stop recording, please wait...!
 recording.time_hour hour
 recording.time_hours hours
 recording.time_min min
+recordingmenu.already_found_check Check, if title is already present
 recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams

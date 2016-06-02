@@ -387,6 +387,7 @@ class CMovieBrowser : public CMenuTarget
 				m_file_info_stale = true;
 			show_mode = mode; 
 		}
+		bool gotMovie(const char *rec_title);
 
 	private: //Functions
 		///// MovieBrowser init ///////////////

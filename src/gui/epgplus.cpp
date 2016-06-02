@@ -34,12 +34,14 @@
 #include <gui/infoviewer.h>
 #include <gui/epgplus.h>
 #include <gui/epgview.h>
+#include <gui/moviebrowser.h>
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
 
 #include <gui/components/cc.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/buttons.h>
+#include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 #include "bouquetlist.h"
@@ -1308,12 +1310,33 @@ int EpgPlus::MenuTargetAddRecordTimer::exec (CMenuTarget * /*parent*/, const std
 	if ((It != this->epgPlus->selectedChannelEntry->channelEventEntries.end())
 			&& (!(*It)->channelEvent.description.empty())
 	   ) {
-		if (g_Timerd->isTimerdAvailable()) {
-
-			g_Timerd->addRecordTimerEvent (this->epgPlus->selectedChannelEntry->channel->getChannelID(), (*It)->channelEvent.startTime, (*It)->channelEvent.startTime + (*It)->channelEvent.duration, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, (*It)->channelEvent.startTime - (ANNOUNCETIME + 120)
-						       , TIMERD_APIDS_CONF, true);
-			ShowMsg (LOCALE_TIMER_EVENTRECORD_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTRECORD_MSG)
-				    , CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);	// UTF-8
+		bool doRecord = true;
+		if (g_settings.recording_already_found_check)
+		{
+			CHintBox loadBox(LOCALE_RECORDING_ALREADY_FOUND_CHECK, LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES);
+			loadBox.paint();
+			CMovieBrowser moviebrowser;
+			const char *rec_title = (*It)->channelEvent.description.c_str();
+			bool already_found = moviebrowser.gotMovie(rec_title);
+			loadBox.hide();
+			if (already_found)
+			{
+				printf("already found in moviebrowser: %s\n", rec_title);
+				char message[1024];
+				snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_RECORDING_ALREADY_FOUND), rec_title);
+				doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes);
+			}
+		}
+		if (g_Timerd->isTimerdAvailable() && doRecord)
+		{
+			g_Timerd->addRecordTimerEvent (this->epgPlus->selectedChannelEntry->channel->getChannelID(),
+							(*It)->channelEvent.startTime,
+							(*It)->channelEvent.startTime + (*It)->channelEvent.duration,
+							(*It)->channelEvent.eventID,
+							(*It)->channelEvent.startTime,
+							(*It)->channelEvent.startTime - (ANNOUNCETIME + 120),
+							TIMERD_APIDS_CONF, true);
+			ShowMsg (LOCALE_TIMER_EVENTRECORD_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTRECORD_MSG), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		} else
 			printf ("timerd not available\n");
 	}

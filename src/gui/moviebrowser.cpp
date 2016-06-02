@@ -2609,6 +2609,26 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 	TRACE("[mb] Dir%d, Files:%d\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size());
 }
 
+bool CMovieBrowser::gotMovie(const char *rec_title)
+{
+	//TRACE("[mb]->gotMovie\n");
+
+	m_doRefresh = false;
+	loadAllTsFileNamesFromStorage();
+
+	bool found = false;
+	for (unsigned int i = 0; i < m_vMovieInfo.size(); i++)
+	{
+		//printf("[mb] search for %s in %s\n", rec_title, m_vMovieInfo[i].epgTitle.c_str());
+		if (strcmp(rec_title, m_vMovieInfo[i].epgTitle.c_str()) == 0)
+		{
+			found = true;
+			break;
+		}
+	}
+	return found;
+}
+
 static const char * const ext_list[] =
 {
 	"avi", "mkv", "mp4", "flv", "mov", "mpg", "mpeg", "m2ts", "iso"

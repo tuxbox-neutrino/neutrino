@@ -46,6 +46,7 @@
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 #include <gui/filebrowser.h>
+#include <gui/moviebrowser.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/tmdb.h>
@@ -897,6 +898,22 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							}
 							if (lid != -1)
 								recDir = g_settings.network_nfs[lid].local_dir;
+						}
+						if (doRecord && g_settings.recording_already_found_check)
+						{
+							CHintBox loadBox(LOCALE_RECORDING_ALREADY_FOUND_CHECK, LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES);
+							loadBox.paint();
+							CMovieBrowser moviebrowser;
+							const char *rec_title = epgData.title.c_str();
+							bool already_found = moviebrowser.gotMovie(rec_title);
+							loadBox.hide();
+							if (already_found)
+							{
+								printf("already found in moviebrowser: %s\n", rec_title);
+								char message[1024];
+								snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_RECORDING_ALREADY_FOUND), rec_title);
+								doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes);
+							}
 						}
 						if (doRecord)
 						{
