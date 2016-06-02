@@ -351,7 +351,7 @@ CMovieBrowser::CMovieBrowser(): configfile ('\t')
 CMovieBrowser::~CMovieBrowser()
 {
 	//TRACE("[mb] del\n");
-	hide();
+
 	m_dir.clear();
 
 	m_dirNames.clear();
