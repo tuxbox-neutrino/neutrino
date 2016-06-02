@@ -140,7 +140,7 @@ void CSignalBar::initSBarValue()
 	//create value label object with basic properties
 	if (sb_vlbl == NULL){
 		sb_vlbl = new CComponentsLabel();
-		sb_vlbl->setText(REF_PERCENT_TXT, sb_val_mode, sb_font);
+		sb_vlbl->setText("0%", sb_val_mode, sb_font);
 	}
 
 	sb_vlbl->doPaintBg(false);
