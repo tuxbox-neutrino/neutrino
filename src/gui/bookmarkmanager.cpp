@@ -469,8 +469,10 @@ void CBookmarkManager::paint()
 		int ypos = y+ theight;
 		int sb = 2*fheight* listmaxshow;
 		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
-
-		int sbc= ((bookmarks.size()- 1)/ listmaxshow)+ 1;
+		unsigned  int  tmp_max  =  listmaxshow;
+		if(!tmp_max)
+			tmp_max  =  1;
+		int sbc= ((bookmarks.size()- 1)/ tmp_max)+ 1;
 		if (sbc < 1)
 			sbc = 1;
 
