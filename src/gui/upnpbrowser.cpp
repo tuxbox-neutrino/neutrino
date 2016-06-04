@@ -965,9 +965,11 @@ void CUpnpBrowserGui::paintDevices()
 	ypos = m_y + m_title_height + m_theight;
 	int sb = m_fheight * m_listmaxshow;
 	m_frameBuffer->paintBoxRel(m_x + m_width - 15, ypos, 15, sb, COL_MENUCONTENT_PLUS_1);
-
-	int sbc = ((m_devices.size() - 1) / m_listmaxshow) + 1;
-	int sbs = ((m_selecteddevice) / m_listmaxshow);
+	unsigned int tmp_max = m_listmaxshow;
+	if(!tmp_max)
+		tmp_max = 1;
+	int sbc = ((m_devices.size() - 1) / tmp_max) + 1;
+	int sbs = ((m_selecteddevice) / tmp_max);
 
 	m_frameBuffer->paintBoxRel(m_x + m_width - 13, ypos + 2 + sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
 
