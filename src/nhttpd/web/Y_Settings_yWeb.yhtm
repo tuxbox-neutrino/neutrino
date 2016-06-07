@@ -38,6 +38,8 @@ function do_init(){
 		case "4":	// cst neo twin
 		case "5":	// cst tank
 		case "6":	// cst trinity
+		case "7":	// cst link
+		case "8":	// cst trinity duo
 			sel=(sel*1+val*1);
 			break;
 		default:
@@ -123,6 +125,8 @@ select {
 						<option value="4">CST HD-1plus | Neo Twin</option>
 						<option value="5">CST HD-2 | Tank</option>
 						<option value="6">CST HD-2 | Trinity</option>
+						<option value="7">CST HD-2 | Link</option>
+						<option value="8">CST HD-2 | Trinity Duo</option>
 					</select>
 				</td>
 			</tr>
