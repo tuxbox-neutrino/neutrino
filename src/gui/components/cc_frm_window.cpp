@@ -352,15 +352,19 @@ void CComponentsWindow::initCCWItems()
 	//init window body core
 	initBody();
 
-	//add header, body and footer items only one time
+	/*Add header and footer items as first  and  body as last item.
+	Render of items occurs in listed order. So it's better for performance while render of window.
+	This is something more advantageously because all other items are contained inside body.
+	So we avoid possible delay while rendering of base items. It looks better on screen.
+	*/
 	if (ccw_head)
 		if (!ccw_head->isAdded())
 			addCCItem(ccw_head);
-	if (!ccw_body->isAdded())
-		addCCItem(ccw_body);
 	if (ccw_footer)
 		if (!ccw_footer->isAdded())
 			addCCItem(ccw_footer);
+	if (!ccw_body->isAdded())
+		addCCItem(ccw_body);
 }
 
 void CComponentsWindow::enableSidebar(const int& sidbar_type)
