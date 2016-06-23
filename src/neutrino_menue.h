@@ -37,7 +37,6 @@
 #ifndef __neutrino_menue__
 #define __neutrino_menue__
 
-
 //enums for menu widget indicies, 
 enum MN_WIDGET_ID
 {
@@ -193,5 +192,14 @@ enum MN_WIDGET_ID
 	MN_WIDGET_ID_MAX
 };
 
+enum
+{
+	MENU_MAIN,
+	MENU_SETTINGS,
+	MENU_SERVICE,
+	MENU_SHUTDOWN,
+
+	MENU_MAX
+};
 
 #endif
