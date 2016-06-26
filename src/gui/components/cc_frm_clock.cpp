@@ -420,7 +420,7 @@ void CComponentsFrmClock::setHeight(const int& h)
 
 	int f_height = cl_font->getHeight();
 	if (h != f_height){
-		dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock]\t[%s - %d], font height is different than current height [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, h, f_height);
+		dprintf(DEBUG_DEBUG, "\033[33m[CComponentsFrmClock]\t[%s - %d], font height is different than current height [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, h, f_height);
 		CCDraw::setHeight(f_height);
 	}else
 		CCDraw::setHeight(h);
