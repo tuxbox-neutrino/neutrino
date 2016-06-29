@@ -56,6 +56,10 @@ class CShellWindow : public sigc::trackable
 		};
 		CShellWindow(const std::string &Command, const int Mode = 0, int* Res = NULL, bool auto_exec = true);
 		~CShellWindow();
+		void setCommand(const std::string &Command, const int Mode = 0, int* Res = NULL, bool auto_exec = true);
+		std::string getCommand(){return command;}
+		int getMode(){return mode;}
+
 		void exec();
 
 		/*!

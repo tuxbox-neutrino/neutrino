@@ -51,10 +51,14 @@ CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res,
 	textBox 	= NULL;
 	frameBuffer 	= CFrameBuffer::getInstance();
 
-	command 	= Command;
-	mode 		= Mode;
-	res 		= Res;
+	setCommand(Command, Mode, Res, auto_exec);
+}
 
+void CShellWindow::setCommand(const std::string &Command, const int Mode, int* Res, bool auto_exec)
+{
+	command = Command;
+	mode = Mode;
+	res = Res;
 	if (auto_exec)
 		exec();
 }
