@@ -33,6 +33,7 @@
 #include <gui/eventlist.h>
 #include <gui/epgplus.h>
 #include <gui/epgview.h>
+#include <gui/followscreenings.h>
 #include <gui/moviebrowser.h>
 #include <gui/timerlist.h>
 #include <gui/user_menue.h>
@@ -487,32 +488,12 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				t_channel_id used_id = IS_WEBTV(channel_id) ? channel_id : evtlist[selected].channelID;
 				if (!recDir.empty() && doRecord) //add/remove recording timer events and check/warn for conflicts
 				{
-					if (g_Timerd->addRecordTimerEvent(used_id,
-								evtlist[selected].startTime,
-								evtlist[selected].startTime + evtlist[selected].duration,
-								evtlist[selected].eventID, evtlist[selected].startTime,
-								evtlist[selected].startTime - (ANNOUNCETIME + 120),
-								TIMERD_APIDS_CONF, true, recDir,false) == -1)
-					{
-						if(askUserOnTimerConflict(evtlist[selected].startTime - (ANNOUNCETIME + 120), evtlist[selected].startTime + evtlist[selected].duration)) //check for timer conflict
-						{
-							g_Timerd->addRecordTimerEvent(used_id,
-									evtlist[selected].startTime,
-									evtlist[selected].startTime + evtlist[selected].duration,
-									evtlist[selected].eventID, evtlist[selected].startTime,
-									evtlist[selected].startTime - (ANNOUNCETIME + 120),
-									TIMERD_APIDS_CONF, true, recDir,true);
-									
-							//ask user whether the timer event should be set anyway
-							ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-							timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
-						}
-					} 
-					else 
-					{
-						//ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-						timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
-					}
+					CFollowScreenings m(channel_id,
+						evtlist[selected].startTime,
+						evtlist[selected].startTime + evtlist[selected].duration,
+						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist);
+					m.exec(NULL, "");
+					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 				}
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);

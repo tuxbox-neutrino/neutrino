@@ -46,6 +46,7 @@
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 #include <gui/filebrowser.h>
+#include <gui/followscreenings.h>
 #include <gui/moviebrowser.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
@@ -915,7 +916,16 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes);
 							}
 						}
-						if (doRecord)
+						if (doRecord && !call_fromfollowlist)
+						{
+							CFollowScreenings m(channel_id,
+								epgData.epg_times.startzeit,
+								epgData.epg_times.startzeit + epgData.epg_times.dauer,
+								epgData.title, epgData.eventID, TIMERD_APIDS_CONF, true, recDir, &evtlist);
+							m.exec(NULL, "");
+							timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
+						}
+						else if (doRecord)
 						{
 							if (g_Timerd->addRecordTimerEvent(channel_id,
 											  epgData.epg_times.startzeit,

@@ -97,7 +97,6 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		static std::string convertChannelId2String(const t_channel_id id); // UTF-8
 };
 
-bool askUserOnTimerConflict(time_t announceTime, time_t stopTime);
-
+bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id channel_id = 0);
 
 #endif

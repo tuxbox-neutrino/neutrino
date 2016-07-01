@@ -32,6 +32,7 @@
 #include <neutrino.h>
 
 #include <gui/infoviewer.h>
+#include <gui/followscreenings.h>
 #include <gui/epgplus.h>
 #include <gui/epgview.h>
 #include <gui/moviebrowser.h>
@@ -1303,6 +1304,11 @@ EpgPlus::MenuTargetAddRecordTimer::MenuTargetAddRecordTimer (EpgPlus * pepgPlus)
 	this->epgPlus = pepgPlus;
 }
 
+static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
+{
+	return a.startTime < b.startTime;
+}
+
 int EpgPlus::MenuTargetAddRecordTimer::exec (CMenuTarget * /*parent*/, const std::string & /*actionKey*/)
 {
 	TCChannelEventEntries::const_iterator It = this->epgPlus->getSelectedEvent();
@@ -1329,14 +1335,14 @@ int EpgPlus::MenuTargetAddRecordTimer::exec (CMenuTarget * /*parent*/, const std
 		}
 		if (g_Timerd->isTimerdAvailable() && doRecord)
 		{
-			g_Timerd->addRecordTimerEvent (this->epgPlus->selectedChannelEntry->channel->getChannelID(),
-							(*It)->channelEvent.startTime,
-							(*It)->channelEvent.startTime + (*It)->channelEvent.duration,
-							(*It)->channelEvent.eventID,
-							(*It)->channelEvent.startTime,
-							(*It)->channelEvent.startTime - (ANNOUNCETIME + 120),
-							TIMERD_APIDS_CONF, true);
-			ShowMsg (LOCALE_TIMER_EVENTRECORD_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTRECORD_MSG), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+			CChannelEventList evtlist;
+			CEitManager::getInstance()->getEventsServiceKey(this->epgPlus->selectedChannelEntry->channel->channel_id, evtlist);
+			sort(evtlist.begin(),evtlist.end(),sortByDateTime);
+			CFollowScreenings m(this->epgPlus->selectedChannelEntry->channel->channel_id,
+				(*It)->channelEvent.startTime,
+				(*It)->channelEvent.startTime + (*It)->channelEvent.duration,
+				(*It)->channelEvent.description, (*It)->channelEvent.eventID, TIMERD_APIDS_CONF, true, "", &evtlist);
+			m.exec(NULL, "");
 		} else
 			printf ("timerd not available\n");
 	}

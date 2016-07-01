@@ -388,6 +388,7 @@ epgviewer.genre Genre
 epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
+epgviewer.select_screening Terminauswahl
 eventfinder.fsk Altersfreigabe Filter
 eventfinder.genre Genre Filter
 eventfinder.head EPG-Suche

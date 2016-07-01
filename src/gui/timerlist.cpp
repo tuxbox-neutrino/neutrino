@@ -1261,12 +1261,22 @@ int CTimerList::newTimer()
 	return ret;
 }
 
-bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
+bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id channel_id)
 {
 	if (CFEManager::getInstance()->getEnabledCount() == 1) {
 		CTimerdClient Timer;
 		CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(announceTime,stopTime);
 		//printf("[CTimerdClient] attention\n%d\t%d\t%d conflicts with:\n",timerNew.announceTime,timerNew.alarmTime,timerNew.stopTime);
+
+		// Don't ask if there are overlapping timers on the same transponder.
+		if (channel_id) {
+			CTimerd::TimerList::iterator i;
+			for (i = overlappingTimers.begin(); i != overlappingTimers.end(); i++)
+				if ((i->eventType != CTimerd::TIMER_RECORD || !SAME_TRANSPONDER(channel_id, i->channel_id)))
+					break;
+			if (i == overlappingTimers.end())
+				return true; // yes, add timer
+		}
 
 		std::string timerbuf = g_Locale->getText(LOCALE_TIMERLIST_OVERLAPPING_TIMER);
 		timerbuf += "\n";
@@ -1290,20 +1300,13 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
 					timerbuf += it->epgTitle;
 				}
 			}
-			timerbuf += ")";
+			timerbuf += "):\n";
 
-			timerbuf += ":\n";
-			char at[25] = {0};
 			struct tm *annTime = localtime(&(it->announceTime));
-			strftime(at,20,"%d.%m. %H:%M",annTime);
-			timerbuf += at;
-			timerbuf += " - ";
+			timerbuf += strftime("%d.%m. %H:%M\n",annTime);
 
-			char st[25] = {0};
 			struct tm *sTime = localtime(&(it->stopTime));
-			strftime(st,20,"%d.%m. %H:%M",sTime);
-			timerbuf += st;
-			timerbuf += "\n";
+			timerbuf += strftime("%d.%m. %H:%M\n",sTime);
 			//printf("%d\t%d\t%d\n",it->announceTime,it->alarmTime,it->stopTime);
 		}
 		//printf("message:\n%s\n",timerbuf.c_str());

@@ -415,6 +415,7 @@ const char * locale_real_names[] =
 	"epgviewer.length",
 	"epgviewer.nodetailed",
 	"epgviewer.notfound",
+	"epgviewer.select_screening",
 	"eventfinder.fsk",
 	"eventfinder.genre",
 	"eventfinder.head",

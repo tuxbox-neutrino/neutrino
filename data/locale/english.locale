@@ -388,6 +388,7 @@ epgviewer.genre Genre
 epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
+epgviewer.select_screening Select Screening
 eventfinder.fsk Age rating Filter
 eventfinder.genre Genre-Filter
 eventfinder.head Search in EPG
