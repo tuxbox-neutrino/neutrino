@@ -1857,7 +1857,7 @@ networkmenu.ssid_scan Hľadanie WLAN sietí
 networkmenu.ssid_scan_error Nenájdené WLAN siete
 networkmenu.ssid_scan_wait Prebieha hľadanie WLAN sietí
 networkmenu.test Test siete
-neutrino_starting Start NG-Neutrino
+neutrino_starting Start Neutrino...
 nfs.alreadymounted Zložka je už pripojená
 nfs.automount Pripojiť pri spustení
 nfs.dir Zložka / Zdielanie
@@ -2219,7 +2219,7 @@ servicemenu.restart_hint Reštartovanie, čakajte prosím...
 servicemenu.restart_refused_recording Prebieha nahrávanie... Reštart nie je povolený!
 servicemenu.scants Prehľadávanie kanálov
 servicemenu.update Aktualizácia softvéru
-settings.backup NG-Záloha: Uloženie nastavení
+settings.backup Záloha: Uloženie nastavení
 settings.backup_failed Chybná záloha!
 settings.help Nápoveda
 settings.menu_hints Zobraziť nápovedu
@@ -2235,7 +2235,7 @@ settings.pos_higher_center spodný vyšší stred
 settings.pos_top_center v strede navrchu
 settings.pos_top_left vľavo hore
 settings.pos_top_right vpravo hore
-settings.restore NG-Záloha: Obnovenie nastavení
+settings.restore Záloha: Obnovenie nastavení
 settings.restore_warn Všetky nastavenia budú nahradené a vykoná sa reštart.\nPokračovať?
 shutdown.recording_query Skutočne prerušiť nahrávanie?
 shutdowntimer.announce Vypnutie boxu za minútu.\nZrušiť vypnutie?
@@ -2459,8 +2459,8 @@ wizard.setup_advanced Rozšírená
 wizard.setup_easy Jednoduchá
 wizard.setup_type Typ inštalácie
 wizard.setup_type_hint Jednoduché nastavenie pre CanalDigitaal/TĂ©lĂ©SAT/TV Vlaanderen alebo jednoduché káblové vyhľadávanie
-wizard.welcome_head Vitajte v NG-Sprievodcovi nastavení
-wizard.welcome_text NG-Image Informácia:\nVáš prijímač môžete pohodlne ovládať\ns webovým rozhraním pre správu časovača alebo živé vysielanie cez internetový prehliadač.\nPrístupové heslo nie je zatiaľ nastavené!\nNastavte ho za pomoci použitia príkazu "passwd" cez telnet rozhranie\nChcete pokračovať ?\nBlahoželáme k zakúpeniu CST. Nasledujúce \nkroky vás prevedú počiatočnou inštaláciou nastavenia prístroja.\nPrajeme vám veľa radosti s týmto prijímačom!\nĎalší krok ?
+wizard.welcome_head Vitajte v sprievodcovi nastavení
+wizard.welcome_text Nasledujúce kroky vás prevedú počiatočnou inštaláciou nastavenia prístroja.\nInformácia: Váš prijímač môžete pohodlne ovládať\ncez webové rozhranie pre správu časovača alebo živé vysielanie cez internetový prehliadač.\nPrístupové heslo nie je zatiaľ nastavené!\nNastavte ho za pomoci použitia príkazu "passwd" cez telnet rozhranie.\nChcete pokračovať?
 word.from z
 word.in v
 zapit.scantype Vyhľadávanie kanálov
