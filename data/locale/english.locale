@@ -305,6 +305,7 @@ channellist.show_infobox Show bottom infobox
 channellist.show_res_icon Signalize resolution
 channellist.since since
 channellist.start starts
+ci.check_live_slot Check CI-slot for live-tv use
 ci.clock CI clock (Mhz)
 ci.clock_high high
 ci.clock_normal normal

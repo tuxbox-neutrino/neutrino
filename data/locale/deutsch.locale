@@ -305,6 +305,7 @@ channellist.show_infobox Sendungsfenster anzeigen
 channellist.show_res_icon Auflösung signalisieren
 channellist.since seit
 channellist.start Start
+ci.check_live_slot CI-Slot auf Live-TV Nutzung prüfen
 ci.clock CI Takt (Mhz)
 ci.clock_high hoch
 ci.clock_normal normal
