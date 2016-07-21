@@ -1311,9 +1311,9 @@ void CMenuWidget::paintItems()
 	//Item not currently on screen
 	if (selected >= 0)
 	{
-		while (selected < page_start[current_page])
+		while (current_page > 0 && selected < page_start[current_page])
 			current_page--;
-		while (selected >= page_start[current_page + 1])
+		while (current_page+1 < page_start.size() && selected >= page_start[current_page + 1])
 			current_page++;
 	}
 
