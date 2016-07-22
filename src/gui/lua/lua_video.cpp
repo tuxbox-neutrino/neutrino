@@ -153,6 +153,23 @@ int CLuaInstVideo::PlayFile(lua_State *L)
 		printf("CLuaInstVideo::%s: not enough arguments (%d, expected 3)\n", __func__, numargs);
 		return 0;
 	}
+	const char *errmsg = "is not a string.";
+	if(!lua_isstring(L,2)){
+		printf("CLuaInstVideo::%s: argument 1 %s\n", __func__, errmsg);
+			return 0;
+	}
+	if(!lua_isstring(L,3)){
+		printf("CLuaInstVideo::%s: argument 2 %s\n", __func__, errmsg);
+			return 0;
+	}
+	if(numargs > 3 && !lua_isstring(L,4)){
+		printf("CLuaInstVideo::%s: argument 3 %s\n", __func__, errmsg);
+			return 0;
+	}
+	if(numargs > 4 && !lua_isstring(L,5)){
+		printf("CLuaInstVideo::%s: argument 4 %s\n", __func__, errmsg);
+			return 0;
+	}
 
 	bool sp = false;
 	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL)
