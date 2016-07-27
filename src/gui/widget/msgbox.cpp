@@ -619,6 +619,13 @@ void CMsgBox::refresh(void)
 	refreshTitle();
 	refreshFoot();
 
+	//draw body
+	m_pcWindow->paintBoxRel(	m_cBoxFrameText.iX,
+								m_cBoxFrameText.iY,
+								m_cBoxFrameText.iWidth,
+								m_cBoxFrameText.iHeight,
+								COL_MENUCONTENT_PLUS_0);
+
 	// rep-draw textbox if there is one
 	if(m_pcTextBox != NULL)
 	{
@@ -750,7 +757,6 @@ bool CMsgBox::setText(const std::string* newText)
 	// update text in textbox if there is one
 	if(m_pcTextBox != NULL && newText != NULL)
 	{
-		lresult = m_pcTextBox->setText(newText);
 		if(m_nMode & AUTO_WIDTH || m_nMode & AUTO_HIGH)
 		{
 			/* window might changed in size ...*/
@@ -768,6 +774,8 @@ bool CMsgBox::setText(const std::string* newText)
 				m_cBoxFrame.iY		= g_settings.screen_StartY + ((g_settings.screen_EndY - g_settings.screen_StartY - m_cBoxFrame.iHeight) >>1);
 			}
 		}
+
+		lresult = m_pcTextBox->setText(newText);
 	}
 
 	return(lresult);
