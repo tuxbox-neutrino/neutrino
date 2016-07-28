@@ -46,6 +46,7 @@
 #include "moviebrowser.h"
 #include "filebrowser.h"
 #include <gui/tmdb.h>
+#include <gui/epgview.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/helpbox.h>
 #include <gui/widget/icons.h>
@@ -1922,7 +1923,10 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	{
 		if (m_movieSelectionHandler != NULL)
 		{
-			m_movieInfo.showMovieInfo(*m_movieSelectionHandler);
+			if (m_settings.gui == MB_GUI_MOVIE_INFO &&  m_windowFocus == MB_FOCUS_MOVIE_INFO)
+				g_EpgData->show_mp(m_movieSelectionHandler,0,0);
+			else
+				m_movieInfo.showMovieInfo(*m_movieSelectionHandler);
 			refresh();
 		}
 	}
