@@ -487,7 +487,7 @@ bool CEpgData::isCurrentEPG(const t_channel_id channel_id)
 	return false;
 }
 
-int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_duration, bool doLoop)
+int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*mp_duration*/, bool doLoop)
 {
 	int res = menu_return::RETURN_REPAINT;
 	static uint64_t channel_id = 0;
@@ -506,11 +506,9 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 	stars = 0;
 	tmdb_str = mp_movie_info->epgInfo2;
 
-	CComponentsHeader*  header     = NULL;
+	CComponentsHeader*  _header     = NULL;
 	CComponentsPicture* headerPic  = NULL;
 	CComponentsText*    headerText = NULL;
-
-	int height = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight();
 
 	if (mp_movie_info->epgTitle.empty()) /* no epg info found */
 	{
@@ -644,7 +642,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 	//show the epg
 	// header + logo
 	int header_h = std::max(toph, logo_h);
-	header = new CComponentsHeader(sx, sy, ox, header_h);
+	_header = new CComponentsHeader(sx, sy, ox, header_h);
 	if (pic_offx > 0) {
 		headerPic = new CComponentsPicture(sx+10, sy + (header_h-logo_h)/2, logo_w, logo_h, lname);
 		headerPic->doPaintBg(false);
@@ -653,7 +651,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 	headerText = new CComponentsText(sx+15+pic_offx, sy, ox-15-pic_offx, header_h, textAll, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);
 	headerText->doPaintBg(false);
 	headerText->setTextColor(COL_MENUHEAD_TEXT);
-	header->paint(CC_SAVE_SCREEN_NO);
+	_header->paint(CC_SAVE_SCREEN_NO);
 	headerText->paint(CC_SAVE_SCREEN_NO);
 	if (headerPic)
 		headerPic->paint(CC_SAVE_SCREEN_NO);
@@ -677,6 +675,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 	::paintButtons(sx + 10, sy+oy, 0, 2, Button, aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 1);
 
 #if 0
+	int height = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight();
 	//show progressbar
 	epg_done = mp_position/mp_duration*100;
 	if ( epg_done > 0 )
@@ -807,8 +806,8 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position, int mp_dura
 		delete headerPic;
 	if (headerText)
 		delete headerText;
-	if (header)
-		delete header;
+	if (_header)
+		delete _header;
 
 	return res;
 }
