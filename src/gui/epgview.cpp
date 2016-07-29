@@ -680,7 +680,8 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*m
 	int h = std::max(fh, icol_h+4);
 	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
 	frameBuffer->paintBoxRel(sx,sy+oy,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
-	::paintButtons(sx + 10, sy+oy, 0, 2, Button, aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 1);
+	if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		::paintButtons(sx + 10, sy+oy, 0, 2, Button, aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 1);
 
 #if 0
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight();
@@ -744,36 +745,40 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*m
 
 			case CRCInput::RC_info:
 			{
-				showPos = 0;
-				if (!tmdbtoggle) {
-					cTmdb* tmdb = new cTmdb(mp_movie_info->epgTitle);
-					if ((tmdb->getResults() > 0) && (!tmdb->getDescription().empty())) {
-						epgText_saved = epgText;
-						epgText.clear();
-						tmdbtoggle = !tmdbtoggle;
-						tmdb_str = tmdb->getDescription();
-						if (!tmdb->getCast().empty())
-							tmdb_str += "\n\n"+(std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS)+":\n"+ tmdb->getCast()+"\n";
-						processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
-						textCount = epgText.size();
-						stars = tmdb->getStars();
-						showText(showPos, sy + toph, tmdbtoggle);
+				if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"){
+					showPos = 0;
+					if (!tmdbtoggle) {
+						cTmdb* tmdb = new cTmdb(mp_movie_info->epgTitle);
+						if ((tmdb->getResults() > 0) && (!tmdb->getDescription().empty())) {
+							epgText_saved = epgText;
+							epgText.clear();
+							tmdbtoggle = !tmdbtoggle;
+							tmdb_str = tmdb->getDescription();
+							if (!tmdb->getCast().empty())
+								tmdb_str += "\n\n"+(std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS)+":\n"+ tmdb->getCast()+"\n";
+							processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
+							textCount = epgText.size();
+							stars = tmdb->getStars();
+							showText(showPos, sy + toph, tmdbtoggle);
+						} else {
+							ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMessageBox::mbrOk , CMessageBox::mbrOk);
+						}
+						delete tmdb;
 					} else {
-						ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMessageBox::mbrOk , CMessageBox::mbrOk);
+						epgText = epgText_saved;
+						textCount = epgText.size();
+						tmdbtoggle = !tmdbtoggle;
+						stars=0;
+						showText(showPos, sy + toph);
 					}
-					delete tmdb;
-				} else {
-					epgText = epgText_saved;
-					textCount = epgText.size();
-					tmdbtoggle = !tmdbtoggle;
-					stars=0;
-					showText(showPos, sy + toph);
 				}
 				break;
 			}
 			case CRCInput::RC_red:
 			{
-				if (tmdbtoggle) {
+				if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+					break;
+				else if (tmdbtoggle) {
 					mp_movie_info->epgInfo2 = tmdb_str;
 				}
 			}
@@ -1291,27 +1296,29 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				break;
 			case CRCInput::RC_info:
 			{
-				showPos = 0;
-				if (!tmdbtoggle) {
-					cTmdb* tmdb = new cTmdb(epgData.title);
-					if ((tmdb->getResults() > 0) && (!tmdb->getDescription().empty())) {
-						epgText_saved = epgText;
-						epgText.clear();
-						tmdbtoggle = !tmdbtoggle;
-						processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
-						textCount = epgText.size();
-						stars = tmdb->getStars();
-						showText(showPos, sy + toph, tmdbtoggle);
+				if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"){
+					showPos = 0;
+					if (!tmdbtoggle) {
+						cTmdb* tmdb = new cTmdb(epgData.title);
+						if ((tmdb->getResults() > 0) && (!tmdb->getDescription().empty())) {
+							epgText_saved = epgText;
+							epgText.clear();
+							tmdbtoggle = !tmdbtoggle;
+							processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
+							textCount = epgText.size();
+							stars = tmdb->getStars();
+							showText(showPos, sy + toph, tmdbtoggle);
+						} else {
+							ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMessageBox::mbrOk , CMessageBox::mbrOk);
+						}
+						delete tmdb;
 					} else {
-						ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMessageBox::mbrOk , CMessageBox::mbrOk);
+						epgText = epgText_saved;
+						textCount = epgText.size();
+						tmdbtoggle = !tmdbtoggle;
+						stars=0;
+						showText(showPos, sy + toph);
 					}
-					delete tmdb;
-				} else {
-					epgText = epgText_saved;
-					textCount = epgText.size();
-					tmdbtoggle = !tmdbtoggle;
-					stars=0;
-					showText(showPos, sy + toph);
 				}
 				break;
 			}

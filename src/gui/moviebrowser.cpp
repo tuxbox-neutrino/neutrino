@@ -1856,7 +1856,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 						unlink(fname.c_str());
 					refresh();
 				}
-			}else {
+			}else if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"){
 				//add TMDB Cover
 				fname = m_movieSelectionHandler->file.Name.c_str();
 				int ext_pos = 0;
