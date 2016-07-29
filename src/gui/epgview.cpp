@@ -776,7 +776,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*m
 			}
 			case CRCInput::RC_red:
 			{
-				if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+				if (g_settings.tmdb_api_key == "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 					break;
 				else if (tmdbtoggle) {
 					mp_movie_info->epgInfo2 = tmdb_str;
