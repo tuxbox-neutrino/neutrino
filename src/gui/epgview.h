@@ -80,6 +80,7 @@ class CEpgData
 		typedef std::pair<std::string,int> epg_pair;
 		std::vector<epg_pair> epgText;
 		std::vector<epg_pair> epgText_saved;
+		std::string epgTextSwitch;
 		int			topheight,topboxheight;
 		int			buttonheight,botboxheight;
 		int			medlineheight,medlinecount;
@@ -91,7 +92,7 @@ class CEpgData
 		void showText( int startPos, int ypos, bool cover=false, bool fullClear=true );
 		bool hasFollowScreenings(const t_channel_id channel_id, const std::string & title);
 		int FollowScreenings(const t_channel_id channel_id, const std::string & title);
-		void showTimerEventBar(bool show, bool adzap = false);
+		void showTimerEventBar(bool show, bool adzap = false, bool mp_info = false);
 		bool isCurrentEPG(const t_channel_id channel_id);
 
 	public:
@@ -99,7 +100,7 @@ class CEpgData
 		CEpgData();
 		~CEpgData();
 		void start( );
-		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false );
+		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false, bool mp_info = false );
 		int show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position = 1, int mp_duration = 1, bool doLoop = true);
 		void hide();
 };
