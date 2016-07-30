@@ -499,6 +499,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*m
 		hide();
 		return res;
 	}
+	epgText.clear();
 	epgData.title = mp_movie_info->epgTitle;
 	epgData.info1 = mp_movie_info->epgInfo1;
 	epgData.info2 = mp_movie_info->epgInfo2;
