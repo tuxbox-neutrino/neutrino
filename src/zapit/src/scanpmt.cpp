@@ -263,29 +263,44 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 		}
 	}
 	switch (stream_type) {
-	case 0x01:
-	case 0x02:
-	case 0x24:
+	case 0x01: // MPEG1 Video
+	case 0x02: // MPEG2 Video (H262)
+		channel->setVideoPid(esinfo->getPid());
+		channel->type = CHANNEL_MPEG2;
+		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+		break;
+	case 0x10: // AVC Video Stream (MPEG4 H263)
 	case 0x1b: // AVC Video Stream (MPEG4 H264)
 		channel->setVideoPid(esinfo->getPid());
-		channel->type = (stream_type == 0x1b) ? 1 : (stream_type == 0x24) ? 2 : 0; //FIXME
-		printf("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+		channel->type = CHANNEL_MPEG4;
+		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x03:
-	case 0x04:
+	case 0x24: // HEVC Video Stream (MPEG4 H265)
+	case 0x27: // SHVC Video Stream (MPEG4 H265 TS)
+		channel->setVideoPid(esinfo->getPid());
+		channel->type = CHANNEL_HEVC;
+		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+		break;
+	case 0x42: // CAVS Video Stream (China)
+		channel->setVideoPid(esinfo->getPid());
+		channel->type = CHANNEL_CAVS;
+		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+		break;
+	case 0x03: // MPEG1 Audio
+	case 0x04: // MPEG2 Audio
 		audio_type = CZapitAudioChannel::MPEG;
 		audio = true;
 		break;
-	case 0x06:
+	case 0x06: // MPEG2 Subtitiles
 		if(audio_type != CZapitAudioChannel::UNKNOWN)
 			audio = true;
 		break;
-	case 0x0F: // AAC ADTS
-	case 0x11: // AAC LATM
+	case 0x0F: // AAC ADTS (MPEG2)
+	case 0x11: // AAC LATM (MPEG4)
 		audio_type = CZapitAudioChannel::AAC;
 		audio = true;
 		break;
-	case 0x81:
+	case 0x81: // Dolby Digital
 		audio_type = CZapitAudioChannel::AC3;
 		audio = true;
 		break;
