@@ -236,7 +236,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///set corner types
 		///Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h)
-		///Note: default values are given from settings
+		///Note: default values are given from settings and corner radius sizes are predefined in /system/settings.h
 		virtual void setCornerType(const int& type);
 		///set corner radius and type
 		virtual void setCorner(const int& radius, const int& type = CORNER_ALL);
