@@ -235,9 +235,23 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	medlineheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
 	medlinecount = sb / medlineheight;
 
-	int cover_height = std::min(sb-10,513);
-	int cover_width = std::min((sb-10)*342/513,342);
-	int cover_offset = has_cover ? cover_width+3 : 0;
+	std::string cover = "/tmp/tmdb.jpg"; //todo: maybe add a getCover()-function to tmdb class
+	int cover_max_width = ox/4; //25%
+	int cover_max_height = sb-(2*10);
+	int cover_width = 0;
+	int cover_height = 0;
+	int cover_offset = 0;
+
+	if (has_cover)
+	{
+		g_PicViewer->getSize(cover.c_str(), &cover_width, &cover_height);
+		if (cover_width && cover_height)
+		{
+			g_PicViewer->rescaleImageDimensions(&cover_width, &cover_height, cover_max_width, cover_max_height);
+			cover_offset = cover_width + 10;
+		}
+	}
+
 	int textSize = epgText.size();
 	int y=ypos;
 	const char tok = ' ';
@@ -254,7 +268,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	frameBuffer->paintBoxRel(sx+offs, y, ox-15-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 
 	if (has_cover) {
-		if (!g_PicViewer->DisplayImage("/tmp/tmdb.jpg",sx+3,y+3+((sb-cover_height)/2),cover_width,cover_height, CFrameBuffer::TM_NONE)) {
+		if (!g_PicViewer->DisplayImage(cover ,sx+10 ,y+10+((sb-cover_height)/2), cover_width, cover_height, CFrameBuffer::TM_NONE)) {
 			cover_offset = 0;
 			frameBuffer->paintBoxRel(sx, y, ox-15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
@@ -263,16 +277,16 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	if (tmdbtoggle && startPos == 0) {
 		int icon_w,icon_h;
 		frameBuffer->getIconSize(NEUTRINO_ICON_TMDB, &icon_w, &icon_h);
-		frameBuffer->paintIcon(NEUTRINO_ICON_TMDB, sx+10+cover_offset, ypos+5);
+		frameBuffer->paintIcon(NEUTRINO_ICON_TMDB, sx+10+cover_offset, ypos+10);
 		logo_offset = icon_w + 10;
 	}
 	if (stars > 0 && startPos == 0) {
 		int icon_w,icon_h;
 		frameBuffer->getIconSize(NEUTRINO_ICON_STAR_OFF, &icon_w, &icon_h);
 		for (int i = 0; i < 10; i++)
-			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_OFF, sx+10+cover_offset+logo_offset + i*(icon_w+3), y+3);
+			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_OFF, sx+10+cover_offset+logo_offset + i*(icon_w+3), y+10);
 		for (int i = 0; i < stars; i++)
-			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_ON, sx+10+cover_offset+logo_offset + i*(icon_w+3), y+3);
+			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_ON, sx+10+cover_offset+logo_offset + i*(icon_w+3), y+10);
 	}
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
 	{
@@ -300,7 +314,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			count = 0;
 		}
 		else{
-			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10+cover_offset, y+medlineheight, ox- 15- 15, epgText[i].first, COL_MENUCONTENT_TEXT);
+			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10+cover_offset, y+medlineheight, ox-15-15-cover_offset, epgText[i].first, COL_MENUCONTENT_TEXT);
 		}
 	}
 
