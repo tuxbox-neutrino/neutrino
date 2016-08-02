@@ -194,7 +194,7 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 
 			// check the wordwidth - add to this line if size ok
 			int aktWordWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(aktWord);
-			if ((aktWordWidth+aktWidth)<(ox - 20 - 15 - (has_cover? (std::min((sb-10)*342/513,342)) :0)))
+			if ((aktWordWidth+aktWidth)<(ox - 20 - 15 - (has_cover? ((ox/4)+10) :0)))
 			{//space ok, add
 				aktWidth += aktWordWidth;
 				aktLine += aktWord;
