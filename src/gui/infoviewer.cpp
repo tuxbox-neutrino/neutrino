@@ -1036,7 +1036,7 @@ void CInfoViewer::loop(bool show_dot)
 				hideIt = true;
 			}
 			else
-			g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
+				g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
 			res = messages_return::cancel_info;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
 			if(fader.FadeDone())

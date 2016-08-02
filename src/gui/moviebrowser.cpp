@@ -1850,13 +1850,17 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	{
 		if (m_movieSelectionHandler != NULL) {
 			std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
-			if (!fname.empty()){
+			if (!fname.empty())
+			{
 				//delete Cover
-				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
-						unlink(fname.c_str());
+				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+				{
+					unlink(fname.c_str());
 					refresh();
 				}
-			}else if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"){
+			}
+			else if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+			{
 				//add TMDB Cover
 				fname = m_movieSelectionHandler->file.Name.c_str();
 				int ext_pos = 0;
