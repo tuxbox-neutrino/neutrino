@@ -229,7 +229,7 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 	addTextToArray( aktLine + aktWord, screening );
 }
 
-void CEpgData::showText(int startPos, int ypos, bool cover, bool fullClear)
+void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 {
 	// recalculate
 	medlineheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
@@ -237,7 +237,7 @@ void CEpgData::showText(int startPos, int ypos, bool cover, bool fullClear)
 
 	int cover_height = std::min(sb-10,513);
 	int cover_width = std::min((sb-10)*342/513,342);
-	int cover_offset = cover ? cover_width+3 : 0;
+	int cover_offset = has_cover ? cover_width+3 : 0;
 	int textSize = epgText.size();
 	int y=ypos;
 	const char tok = ' ';
@@ -253,7 +253,7 @@ void CEpgData::showText(int startPos, int ypos, bool cover, bool fullClear)
 	int offs = fullClear ? 0 : cover_offset;
 	frameBuffer->paintBoxRel(sx+offs, y, ox-15-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 
-	if (cover) {
+	if (has_cover) {
 		if (!g_PicViewer->DisplayImage("/tmp/tmdb.jpg",sx+3,y+3+((sb-cover_height)/2),cover_width,cover_height, CFrameBuffer::TM_NONE)) {
 			cover_offset = 0;
 			frameBuffer->paintBoxRel(sx, y, ox-15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
