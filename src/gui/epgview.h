@@ -65,8 +65,8 @@ class CEpgData
 		bool			bigFonts;
 		bool 			has_follow_screenings;
 		bool 			call_fromfollowlist;
-		bool			tmdbtoggle;
-		int				stars;
+		bool			tmdb_active;
+		int			stars;
 		time_t			tmp_curent_zeit;
 
 		uint64_t		prev_id;
