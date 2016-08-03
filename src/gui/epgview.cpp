@@ -1383,19 +1383,6 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		else
 			::paintButtons(x, y, 0, c, &EpgButtons[fscr ? 0 : 1][1], aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 0);
 	}
-#if 0
-	// Button: Timer Record & Channelswitch
-	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-	{
-		pos = 0;
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, x+8+cellwidth*pos, y+h_offset );
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+29+cellwidth*pos, y+h-h_offset, w-30, g_Locale->getText(LOCALE_TIMERBAR_RECORDEVENT), COL_INFOBAR_TEXT);
-	}
-	// Button: Timer Channelswitch
-	pos = 2;
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x+8+cellwidth*pos, y+h_offset );
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+29+cellwidth*pos, y+h-h_offset, w-30, g_Locale->getText(LOCALE_TIMERBAR_CHANNELSWITCH), COL_INFOBAR_TEXT);
-#endif
 }
 
 //  -- EPG Data Viewer Menu Handler Class
