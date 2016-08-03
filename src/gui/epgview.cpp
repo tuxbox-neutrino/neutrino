@@ -1341,11 +1341,12 @@ const struct button_label EpgButtons[][EpgButtonsMax] =
 
 void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 {
-	int  x,y,h,fh;
+	int  x, y, w, h, fh;
         int icol_w, icol_h;
 
-	x = sx + 10;
+	x = sx;
 	y = sy + oy;
+	w = ox;
 
 	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
@@ -1357,9 +1358,7 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		frameBuffer->paintBackgroundBoxRel(sx,y,ox,h);
 		return;
 	}
-	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
-	/* 2 * ICON_LARGE_WIDTH for potential 16:9 and DD icons */
-	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
+
 	std::string adzap_button;
 	if (adzap)
 	{
@@ -1370,7 +1369,7 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 	bool tmdb = (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 	bool fscr = (has_follow_screenings && !call_fromfollowlist);
 	if (mp_info)
-		::paintButtons(x, y, 0, tmdb ? 2 : 1, EpgButtons[2], aw, h);
+		::paintButtons(x, y, w, tmdb ? 2 : 1, EpgButtons[2], w, h);
 	else
 	{
 		int c = EpgButtonsMax;
@@ -1379,9 +1378,9 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		if (!fscr)
 			c--; // reduce blue button
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-			::paintButtons(x, y, 0, c, EpgButtons[fscr ? 0 : 1], aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
+			::paintButtons(x, y, w, c, EpgButtons[fscr ? 0 : 1], w, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
 		else
-			::paintButtons(x, y, 0, c, &EpgButtons[fscr ? 0 : 1][1], aw, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 0);
+			::paintButtons(x, y, w, c, &EpgButtons[fscr ? 0 : 1][1], w, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 0);
 	}
 }
 
