@@ -1195,6 +1195,11 @@ void COsdSetup::showOsdEventlistSetup(CMenuWidget *menu_eventlist)
 	mc = new CMenuOptionChooser(LOCALE_EVENTLIST_ADDITIONAL, &g_settings.eventlist_additional, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_EVENTLIST_ADDITIONAL);
 	menu_eventlist->addItem(mc);
+
+	// epgplus in eventlist
+	mc = new CMenuOptionChooser(LOCALE_EVENTLIST_EPGPLUS, &g_settings.eventlist_epgplus, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_EVENTLIST_EPGPLUS);
+	menu_eventlist->addItem(mc);
 }
 
 // volume

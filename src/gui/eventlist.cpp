@@ -601,10 +601,13 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 		}
 		else if (msg == CRCInput::RC_epg)
 		{
-			hide();
-			CEPGplusHandler eplus;
-			eplus.exec(NULL, "");
-			loop = false;
+			if (g_settings.eventlist_epgplus)
+			{
+				hide();
+				CEPGplusHandler eplus;
+				eplus.exec(NULL, "");
+				loop = false;
+			}
 		}
 		else if (msg==CRCInput::RC_help || msg==CRCInput::RC_ok || msg==CRCInput::RC_info)
 		{

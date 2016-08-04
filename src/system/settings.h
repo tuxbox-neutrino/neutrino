@@ -561,6 +561,7 @@ struct SNeutrinoSettings
 	int window_width;
 	int window_height;
 	int eventlist_additional;
+	int eventlist_epgplus;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_progressbar_design;

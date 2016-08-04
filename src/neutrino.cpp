@@ -692,6 +692,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
 	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 2); //default minitv
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 0);
+	g_settings.eventlist_epgplus = configfile.getInt32("eventlist_epgplus", 1);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_progressbar_design = configfile.getInt32("channellist_progressbar_design", g_settings.progressbar_design);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
@@ -1220,6 +1221,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "zapto_pre_time", g_settings.zapto_pre_time );
 	configfile.setBool("spectrum", g_settings.spectrum);
 	configfile.setInt32("eventlist_additional", g_settings.eventlist_additional);
+	configfile.setInt32("eventlist_epgplus", g_settings.eventlist_epgplus);
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
 	configfile.setInt32("channellist_progressbar_design", g_settings.channellist_progressbar_design);

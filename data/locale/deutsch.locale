@@ -402,6 +402,7 @@ eventfinder.search_within_list Suche innerhalb Text
 eventfinder.searching Suche...
 eventfinder.start_search Suche starten
 eventlist.additional Zusatzinformationen
+eventlist.epgplus EPG Plus anzeigen
 eventlist.name Eventliste
 eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
@@ -1036,6 +1037,7 @@ menu.hint_epg_save_standby Speichert die EPG-Daten auch, wenn in den Standby-Mod
 menu.hint_epg_scan Zu scannende Bouquets wählen. Aktuelles Bouquet beim Umschalten, markierte Bouquets oder alle Favoriten
 menu.hint_epg_scan_mode Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
+menu.hint_eventlist_epgplus Definiert, ob EPG Plus (Vorschau-Übersicht) mit der EPG-Taste angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
 menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
 menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal und mehr

@@ -402,6 +402,7 @@ eventfinder.search_within_list Search within
 eventfinder.searching Search for keyword in EPG...
 eventfinder.start_search Start Search
 eventlist.additional Additional informations
+eventlist.epgplus Show EPG Plus
 eventlist.name Eventlist
 eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
@@ -1036,6 +1037,7 @@ menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
 menu.hint_eventlist_additional Show additional informations\nin main box
+menu.hint_eventlist_epgplus Show EPG Plus (Eventlist overview) when pressing EPG key
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_eventlist_setup Configure event list GUI options
 menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
