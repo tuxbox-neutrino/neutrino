@@ -724,6 +724,7 @@ struct SNeutrinoSettings
 	//movieplayer
 	int   movieplayer_repeat_on;
 	std::string youtube_dev_id;
+	int youtube_enabled;
 	std::string tmdb_api_key;
 	int tmdb_enabled;
 
