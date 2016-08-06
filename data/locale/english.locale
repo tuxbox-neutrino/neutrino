@@ -1179,6 +1179,7 @@ menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
 menu.hint_misc_epg Save/load EPG options, EPG cache options\nEPG save directory
 menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leave
 menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
+menu.hint_misc_onlineservices Configure and control online services like YouTube, ShoutCast and TMDb
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
 menu.hint_moviebrowser_setup Set selection and display options.
@@ -1391,6 +1392,7 @@ menu.hint_selected_text Change selected item text color
 menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
 menu.hint_service_scan Auto / manual service scan
 menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
+menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
@@ -1418,6 +1420,7 @@ menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Configure time to hide GUI windows\nin seconds
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
+menu.hint_tmdb_api_key Type your TMDb API key. An empty input disables TMDb support
 menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
@@ -1455,6 +1458,7 @@ menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
+menu.hint_youtube_dev_id Type your YouTube Dev ID. An empty input disables YouTube support
 menu.hint_ytplay Play selected youtube feeds
 menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
@@ -1533,6 +1537,7 @@ miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_sysfs_hdd Fill level (SysFS and HDD)
 miscsettings.infobar_show_tuner Display active tuner
 miscsettings.infoclock Clock
+miscsettings.onlineservices Online services
 miscsettings.progressbar Progressbar
 miscsettings.progressbar_color Color
 miscsettings.progressbar_design Design
@@ -2245,6 +2250,7 @@ settings.pos_top_left top left
 settings.pos_top_right top right
 settings.restore Image-Settings: Restore
 settings.restore_warn This will replace all settings and reboot\nContinue ?
+shoutcast.dev_id SHOUTcast Dev ID
 shutdown.recording_query You really want to to stop record ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
 sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
@@ -2364,6 +2370,7 @@ timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap
 timing.volumebar Volume bar
+tmdb.api_key TMDb API key
 tmdb.read_data Search TMDB Data...
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
@@ -2471,6 +2478,7 @@ wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CST set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from
 word.in in
+youtube.dev_id YouTube Dev ID
 zapit.scantype scan for services
 zapit.scantype.all all services
 zapit.scantype.radio only radio
