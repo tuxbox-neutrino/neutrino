@@ -1859,7 +1859,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					refresh();
 				}
 			}
-			else if (g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+			else if (g_settings.tmdb_enabled)
 			{
 				//add TMDB Cover
 				fname = m_movieSelectionHandler->file.Name.c_str();
