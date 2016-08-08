@@ -157,7 +157,7 @@ audiomenu.volume_step Volume step
 audioplayer.add Add
 audioplayer.add_ic Icecast
 audioplayer.add_loc Local radio list
-audioplayer.add_sc Shoutcast
+audioplayer.add_sc SHOUTcast
 audioplayer.artist_title Artist, Title
 audioplayer.building_search_index building search index
 audioplayer.button_select_title_by_id search by ID
@@ -166,7 +166,7 @@ audioplayer.defdir start dir.
 audioplayer.delete Remove
 audioplayer.deleteall remove all
 audioplayer.display_order display order
-audioplayer.enable_sc_metadata enable shoutcast meta data parsing
+audioplayer.enable_sc_metadata enable SHOUTcast meta data parsing
 audioplayer.fastforward fast forw.
 audioplayer.follow auto select current
 audioplayer.head Audio Playlist
@@ -1179,7 +1179,7 @@ menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
 menu.hint_misc_epg Save/load EPG options, EPG cache options\nEPG save directory
 menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leave
 menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
-menu.hint_misc_onlineservices Configure and control online services like YouTube, ShoutCast and TMDb
+menu.hint_misc_onlineservices Configure and control online services like YouTube, SHOUTCast and TMDb
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
 menu.hint_moviebrowser_setup Set selection and display options.
@@ -1462,7 +1462,7 @@ menu.hint_webtv_setup WebTV channels configured here will be available in the st
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
 menu.hint_youtube_dev_id Type your YouTube Dev ID. An empty input disables YouTube support
 menu.hint_youtube_enabled Enable or disable YouTube support
-menu.hint_ytplay Play selected youtube feeds
+menu.hint_ytplay Play selected YouTube feeds
 menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next
@@ -1778,7 +1778,7 @@ moviebrowser.yt_cancel_transfer Cancel download?
 moviebrowser.yt_clear Clear
 moviebrowser.yt_completed Completed downloads
 moviebrowser.yt_concurrent_connections Concurrent connections
-moviebrowser.yt_error Failed to load youtube feed
+moviebrowser.yt_error Failed to load YouTube feed
 moviebrowser.yt_failed Failed downloads
 moviebrowser.yt_history Search history
 moviebrowser.yt_max_history Max search history size
@@ -1823,7 +1823,7 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
-movieplayer.ytplayback Youtube videoplayer
+movieplayer.ytplayback YouTube videoplayer
 mpkey.audio Audiotracks
 mpkey.bookmark Bookmarks
 mpkey.forward Forward
