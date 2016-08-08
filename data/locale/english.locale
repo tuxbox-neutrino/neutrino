@@ -1393,6 +1393,7 @@ menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
 menu.hint_service_scan Auto / manual service scan
 menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
 menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
+menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
@@ -1421,6 +1422,7 @@ menu.hint_timeouts Configure time to hide GUI windows\nin seconds
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
 menu.hint_tmdb_api_key Type your TMDb API key. An empty input disables TMDb support
+menu.hint_tmdb_enabled Enable or disable TMDb support (themoviedb.org)
 menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
@@ -1459,6 +1461,7 @@ menu.hint_volume_size Select volume indicator height
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
 menu.hint_youtube_dev_id Type your YouTube Dev ID. An empty input disables YouTube support
+menu.hint_youtube_enabled Enable or disable YouTube support
 menu.hint_ytplay Play selected youtube feeds
 menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
@@ -2251,6 +2254,7 @@ settings.pos_top_right top right
 settings.restore Image-Settings: Restore
 settings.restore_warn This will replace all settings and reboot\nContinue ?
 shoutcast.dev_id SHOUTcast Dev ID
+shoutcast.enabled SHOUTcast support
 shutdown.recording_query You really want to to stop record ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
 sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
@@ -2371,6 +2375,7 @@ timing.menu Menu
 timing.numericzap Numeric Zap
 timing.volumebar Volume bar
 tmdb.api_key TMDb API key
+tmdb.enabled TMDb support
 tmdb.read_data Search TMDB Data...
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
@@ -2479,6 +2484,7 @@ wizard.welcome_text Next steps will guide you through initial installation of th
 word.from from
 word.in in
 youtube.dev_id YouTube Dev ID
+youtube.enabled YouTube support
 zapit.scantype scan for services
 zapit.scantype.all all services
 zapit.scantype.radio only radio

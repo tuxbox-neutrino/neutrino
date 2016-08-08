@@ -1393,6 +1393,7 @@ menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung un
 menu.hint_service_scan Automatischer / manueller Service Suchlauf
 menu.hint_settings Konfigurieren von Neutrino-HD,\nNetzwerk, Video, Audio, OSD und mehr
 menu.hint_shoutcast_dev_id Geben Sie die SHOUTcast Dev ID ein. Eine leere Eingabe schaltet die SHOUTcast-Unterstützung aus
+menu.hint_shoutcast_enabled Schaltet die SHOUTcast-Unterstützung ein oder aus
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
 menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus oder schalten Sie die Box komplett aus
 menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn die Box im Standby-Modus ist
@@ -1421,6 +1422,7 @@ menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofe
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tmdb_api_key Geben Sie den TMDb API Schlüssel ein. Eine leere Eingabe schaltet die TMDb-Unterstützung aus
+menu.hint_tmdb_enabled Schaltet die TMDb-Unterstützung (themoviedb.org) ein bzw. aus
 menu.hint_tools Werkzeuge ausführen
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
@@ -1459,6 +1461,7 @@ menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_youtube_dev_id Geben Sie die YouTube Dev ID ein. Eine leere Eingabe schaltet die YouTube-Unterstützung aus
+menu.hint_youtube_enabled Schaltet die YouTube-Unterstützung ein oder aus
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
@@ -2251,6 +2254,7 @@ settings.pos_top_right oben rechts
 settings.restore Image-Einstellungen: Wiederherstellen
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
 shoutcast.dev_id SHOUTcast Dev ID
+shoutcast.enabled SHOUTcast-Unterstützung
 shutdown.recording_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Die Box wird in 1 Min. in Standby-Betrieb gehen.\nStandby-Betrieb abbrechen?
@@ -2371,6 +2375,7 @@ timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
 timing.volumebar Lautstärkeanzeige
 tmdb.api_key TMDb API Schlüssel
+tmdb.enabled TMDb-Unterstützung
 tmdb.read_data Suche TMDB Daten...
 unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
@@ -2479,6 +2484,7 @@ wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer CST. In den nun folgend
 word.from ab
 word.in in
 youtube.dev_id YouTube Dev ID
+youtube.enabled YouTube-Unterstützung
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio
