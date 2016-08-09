@@ -1377,7 +1377,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 	//printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->epgId, m_cBoxFrameTitleRel.iY);
 	int lx = 0;//never read m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 	int ly = 0;//never read m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-	short pb_hdd_offset = 104;
+	short pb_hdd_offset = g_settings.infobar_show_sysfs_hdd ? 104 : 0;
 	if (show_mode == MB_SHOW_YT)
 		pb_hdd_offset = 0;
 
