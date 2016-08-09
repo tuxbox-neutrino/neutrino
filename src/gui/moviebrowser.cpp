@@ -1949,10 +1949,8 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	{
 		if (m_movieSelectionHandler != NULL)
 		{
-			if (m_settings.gui == MB_GUI_MOVIE_INFO &&  m_windowFocus == MB_FOCUS_MOVIE_INFO)
-				g_EpgData->show_mp(m_movieSelectionHandler,0,0);
-			else
-				m_movieInfo.showMovieInfo(*m_movieSelectionHandler);
+			framebuffer->paintBackground(); //clear whole screen
+			g_EpgData->show_mp(m_movieSelectionHandler, 0, 0);
 			refresh();
 		}
 	}

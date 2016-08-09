@@ -2160,7 +2160,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
 		}
 		else if (p_movie_info)
-			cMovieInfo.showMovieInfo(*p_movie_info);
+			g_EpgData->show_mp(p_movie_info,0,0);
 
 		CInfoClock::getInstance()->enableInfoClock(true);
 		if (restore) {

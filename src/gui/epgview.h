@@ -81,6 +81,7 @@ class CEpgData
 		std::vector<epg_pair> epgText;
 		std::vector<epg_pair> epgText_saved;
 		std::string epgTextSwitch;
+		std::string extMovieInfo;
 		int			topheight,topboxheight;
 		int			buttonheight,botboxheight;
 		int			medlineheight,medlinecount;

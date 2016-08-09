@@ -529,7 +529,121 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*m
 #else
 	epgData.contentClassification = 0;
 #endif
-	epgData.epg_times.dauer = mp_movie_info->length;
+	epgData.epg_times.dauer = mp_movie_info->length * 60; // we need the seconds
+
+	extMovieInfo.clear();
+	if ( !mp_movie_info->productionCountry.empty() || mp_movie_info->productionDate != 0)
+	{
+		extMovieInfo += mp_movie_info->productionCountry;
+		extMovieInfo += to_string(mp_movie_info->productionDate + 1900);
+		extMovieInfo += "\n";
+	}
+	if (!mp_movie_info->serieName.empty())
+	{
+		extMovieInfo += "\n";
+		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_SERIE);
+		extMovieInfo += ": ";
+		extMovieInfo += mp_movie_info->serieName;
+		extMovieInfo += "\n";
+	}
+	if (!mp_movie_info->epgChannel.empty())
+	{
+		extMovieInfo += "\n";
+		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_CHANNEL);
+		extMovieInfo += ": ";
+		extMovieInfo += mp_movie_info->epgChannel;
+		extMovieInfo += "\n";
+	}
+	if (mp_movie_info->rating != 0)
+	{
+		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_RATING);
+		extMovieInfo += ": ";
+		extMovieInfo += to_string(mp_movie_info->rating / 10);
+		extMovieInfo += ",";
+		extMovieInfo += to_string(mp_movie_info->rating % 10);
+		extMovieInfo += "/10";
+		extMovieInfo += "\n";
+	}
+	if (mp_movie_info->quality != 0)
+	{
+		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_QUALITY);
+		extMovieInfo += ": ";
+		extMovieInfo += to_string(mp_movie_info->quality);
+		extMovieInfo += "\n";
+	}
+	if (mp_movie_info->parentalLockAge != 0)
+	{
+		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_PARENTAL_LOCKAGE);
+		extMovieInfo += ": ";
+		extMovieInfo += to_string(mp_movie_info->parentalLockAge);
+		extMovieInfo += " ";
+		extMovieInfo += g_Locale->getText(LOCALE_UNIT_LONG_YEARS);
+		extMovieInfo += "\n";
+	}
+	if (!mp_movie_info->audioPids.empty())
+	{
+		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_AUDIO);
+		extMovieInfo += ": ";
+		for (unsigned int i = 0; i < mp_movie_info->audioPids.size(); i++)
+		{
+			if (i)
+				extMovieInfo += ", ";
+			extMovieInfo += mp_movie_info->audioPids[i].epgAudioPidName;
+		}
+		extMovieInfo += "\n";
+	}
+	if (mp_movie_info->genreMajor != 0)
+	{
+		neutrino_locale_t locale_genre;
+		unsigned char i = (mp_movie_info->genreMajor & 0x0F0);
+		if (i >= 0x010 && i < 0x0B0)
+		{
+			i >>= 4;
+			i--;
+			locale_genre = genre_sub_classes_list[i][((mp_movie_info->genreMajor & 0x0F) < genre_sub_classes[i]) ? (mp_movie_info->genreMajor & 0x0F) : 0];
+		}
+		else
+			locale_genre = LOCALE_GENRE_UNKNOWN;
+		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR);
+		extMovieInfo += ": ";
+		extMovieInfo += g_Locale->getText(locale_genre);
+		extMovieInfo += "\n";
+	}
+
+	extMovieInfo += "\n";
+
+	tm *date_tm = localtime(&mp_movie_info->dateOfLastPlay);
+	extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE);
+	extMovieInfo += ": ";
+	extMovieInfo += strftime("%F", date_tm);
+	extMovieInfo += "\n";
+
+	date_tm = localtime(&mp_movie_info->file.Time);
+	extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_RECORDDATE);
+	extMovieInfo += ": ";
+	extMovieInfo += strftime("%F", date_tm);
+	extMovieInfo += "\n";
+
+	extMovieInfo += "\n";
+
+	if (mp_movie_info->file.Size != 0)
+	{
+		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_SIZE);
+		extMovieInfo += ": ";
+		extMovieInfo += to_string(mp_movie_info->file.Size >> 20);
+		extMovieInfo += "\n";
+	}
+
+	extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_PATH);
+	extMovieInfo += ": ";
+	extMovieInfo += mp_movie_info->file.getPath();
+	extMovieInfo += "\n";
+
+	extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_FILE);
+	extMovieInfo += ": ";
+	extMovieInfo += mp_movie_info->file.getFileName();
+	extMovieInfo += "\n";
+
 	res = show(mp_movie_info->epgEpgId >>16, 0, 0, doLoop, false,true );
 	if(!epgTextSwitch.empty())
 		mp_movie_info->epgInfo2 = epgTextSwitch;
@@ -559,6 +673,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		GetEPGData(epg_id, id, &startzeit);
 
 	epgTextSwitch.clear();
+	if (!mp_info)
+		extMovieInfo.clear();
 	if (doLoop)
 	{
 		if (!bigFonts && g_settings.bigFonts) {
@@ -664,7 +780,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	// Add a blank line
 	processTextToArray("");
 
-
 	// 21.07.2005 - rainerk
 	// Show extended information
 	if ( !epgData.itemDescriptions.empty() && !epgData.items.empty()) {
@@ -690,20 +805,23 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	sprintf(lengthInfo, "%d", epgData.epg_times.dauer / 60);
 	processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_LENGTH)) + ": " + lengthInfo); // UTF-8
 
-	// Show audio information
-	std::string audioInfo = "";
-	CSectionsdClient::ComponentTagList tags;
-	bool hasComponentTags = CEitManager::getInstance()->getComponentTagsUniqueKey( epgData.eventID, tags);
-	if (hasComponentTags)
+	if (!mp_info)
 	{
-		for (unsigned int i = 0; i < tags.size(); i++)
-			if (tags[i].streamContent == 2 && !tags[i].component.empty())
-				audioInfo += tags[i].component + ", ";
-
-		if (!audioInfo.empty())
+		// Show audio information
+		std::string audioInfo = "";
+		CSectionsdClient::ComponentTagList tags;
+		bool hasComponentTags = CEitManager::getInstance()->getComponentTagsUniqueKey( epgData.eventID, tags);
+		if (hasComponentTags)
 		{
-			audioInfo.erase(audioInfo.size()-2);
-			processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AUDIO)) + ": " + audioInfo); // UTF-8
+			for (unsigned int i = 0; i < tags.size(); i++)
+				if (tags[i].streamContent == 2 && !tags[i].component.empty())
+					audioInfo += tags[i].component + ", ";
+
+			if (!audioInfo.empty())
+			{
+				audioInfo.erase(audioInfo.size()-2);
+				processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AUDIO)) + ": " + audioInfo); // UTF-8
+			}
 		}
 	}
 
@@ -720,12 +838,16 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	// -- display more screenings on the same channel
 	// -- 2002-05-03 rasc
 	has_follow_screenings = false;
-	if (hasFollowScreenings(channel_id, epgData.title)) {
+	if (!mp_info && hasFollowScreenings(channel_id, epgData.title)) {
 		processTextToArray(""); // UTF-8
 		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS)) + ':'); // UTF-8
 		FollowScreenings(channel_id, epgData.title);
 		has_follow_screenings = true;
 	}
+
+	// show extended movie info
+	if (mp_info && !extMovieInfo.empty())
+		processTextToArray(extMovieInfo);
 
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
