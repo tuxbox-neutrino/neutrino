@@ -509,7 +509,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 	ShowMsg2UTF(movie_info.epgTitle.empty()? movie_info.file.getFileName().c_str() : movie_info.epgTitle.c_str(), print_buffer.c_str(), CMsgBox::mbrBack, CMsgBox::mbBack);	// UTF-8*/
 
 }
-
+#endif
 /************************************************************************
 
 ************************************************************************/
@@ -819,7 +819,7 @@ bool CMovieInfo::parseXmlQuickFix(std::string &_text, MI_MOVIE_INFO * movie_info
 #endif
 	return (false);
 }
-#endif
+
 /************************************************************************
 
 ************************************************************************/
