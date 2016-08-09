@@ -24,7 +24,6 @@
 #include <curl/easy.h>
 
 #include <string>
-#include <gui/components/cc.h>
 
 typedef struct {
 	std::string epgtitle;
@@ -49,11 +48,7 @@ class cTmdb
 {
 	private:
 		CURL *curl_handle;
-		CComponentsForm *form;
 		tmdbinfo minfo;
-
-		CFrameBuffer *frameBuffer;
-		int           ox, oy, sx, sy, toph;
 
 		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 		std::string encodeUrl(std::string txt);
@@ -66,7 +61,6 @@ class cTmdb
 	public:
 		cTmdb(std::string epgtitle);
 		~cTmdb();
-		void exec();
 		std::string CreateEPGText();
 
 		std::string getTitle()				{ return minfo.epgtitle;}

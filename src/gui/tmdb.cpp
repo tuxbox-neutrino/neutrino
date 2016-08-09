@@ -54,19 +54,8 @@
 
 cTmdb::cTmdb(std::string epgtitle)
 {
-	frameBuffer = CFrameBuffer::getInstance();
 	minfo.epgtitle = epgtitle;
 	curl_handle = curl_easy_init();
-	form = NULL;
-
-	ox = frameBuffer->getScreenWidthRel(false);
-	oy = frameBuffer->getScreenHeightRel(false);
-
-	int buttonheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;
-	toph = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight() + 6;
-
-	sx = getScreenStartX(ox);
-	sy = getScreenStartY(oy + buttonheight); /* button box is handled separately (why?) */
 
 #ifdef TMDB_API_KEY
 	key = TMDB_API_KEY;
@@ -91,7 +80,6 @@ cTmdb::cTmdb(std::string epgtitle)
 cTmdb::~cTmdb()
 {
 	curl_easy_cleanup(curl_handle);
-	delete form;
 }
 
 size_t cTmdb::CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
@@ -305,49 +293,4 @@ std::string cTmdb::CreateEPGText()
 	if (!minfo.cast.empty())
 		epgtext += (std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS)+":\n"+ minfo.cast+"\n";
 	return epgtext;
-}
-
-void cTmdb::exec()
-{
-	neutrino_msg_t      msg;
-	neutrino_msg_data_t data;
-
-	if (form == NULL)
-		form = new CComponentsForm();
-	form->setDimensionsAll(sx, sy, ox, oy);
-
-	CComponentsHeader *header  = new CComponentsHeader(0, 0, ox, toph);
-	CComponentsText *headerText = new CComponentsText(15, 0, ox-15, toph, getTitle(), CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);;
-	headerText->doPaintBg(false);
-	headerText->setTextColor(COL_MENUHEAD_TEXT);
-	form->addCCItem(header);
-	form->addCCItem(headerText);
-
-
-	CComponentsPicture *ptmp = new CComponentsPicture(5, toph+5, "/tmp/tmdb.jpg");
-	ptmp->setWidth(342);
-	ptmp->setHeight(513);
-	ptmp->setColorBody(COL_BLUE);
-	ptmp->setCorner(RADIUS_MID, CORNER_TOP_LEFT);
-	form->addCCItem(ptmp);
-
-	CComponentsText *des = new CComponentsText(ptmp->getWidth()+10, toph+5, form->getWidth()-ptmp->getWidth()-10, form->getHeight(), CreateEPGText(), CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS | CTextBox::TOP);
-	des->setCorner(RADIUS_MID, CORNER_BOTTOM_RIGHT);
-	des->setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]);
-	form->addCCItem(des);
-
-	form->paint();
-	frameBuffer->blit();
-
-	while (1) {
-		g_RCInput->getMsg(&msg, &data, 100);
-		if (msg == CRCInput::RC_home)
-			break;
-	}
-
-	if (form->isPainted()) {
-		form->hide();
-		delete form;
-		form = NULL;
-	}
 }
