@@ -649,7 +649,12 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int /*mp_position*/, int /*mp_duration*
 
 	res = show(mp_movie_info->epgEpgId >> 16, 0, 0, doLoop, false, true);
 	if(!epgTextSwitch.empty())
+	{
 		mp_movie_info->epgInfo2 = epgTextSwitch;
+		CMovieInfo m_movieInfo;
+		//printf("#####[%s:%d] saveMovieInfo\n", __func__, __LINE__);
+		m_movieInfo.saveMovieInfo(*mp_movie_info);
+	}
 	return res;
 }
 
