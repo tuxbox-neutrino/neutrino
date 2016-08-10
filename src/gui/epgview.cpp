@@ -48,6 +48,7 @@
 #include <gui/filebrowser.h>
 #include <gui/followscreenings.h>
 #include <gui/moviebrowser.h>
+#include <gui/movieplayer.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/tmdb.h>
@@ -504,7 +505,7 @@ bool CEpgData::isCurrentEPG(const t_channel_id channel_id)
 	return false;
 }
 
-int CEpgData::show_mp(MI_MOVIE_INFO *mi, int /*mp_position*/, int /*mp_duration*/, bool doLoop)
+int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool doLoop)
 {
 	int res = menu_return::RETURN_REPAINT;
 
@@ -646,6 +647,12 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int /*mp_position*/, int /*mp_duration*
 	extMovieInfo += ": ";
 	extMovieInfo += mp_movie_info->file.getFileName();
 	extMovieInfo += "\n";
+
+	// this calculation is taken from timeosd.cpp
+	epg_done = (mp_duration && mp_duration > 100) ? (mp_position * 100 / mp_duration) : -1;
+	if (epg_done > 100)
+		epg_done = 100;
+	//printf("[%s:%d] epg_done: %d\n", __func__, __LINE__, epg_done);
 
 	res = show(mp_movie_info->epgEpgId >> 16, 0, 0, doLoop, false, true);
 	if(!epgTextSwitch.empty())
@@ -911,10 +918,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			if (next_id)
 				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, sx + ox - iw - 10, iy);
 		}
-
-		// why we do not show movie progress?
-		showProgressBar();
 	}
+	showProgressBar();
 
 	// show Timer Event Buttons
 	showTimerEventBar(true, isCurrentEPG(channel_id), mp_info);
@@ -955,6 +960,20 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						GetEPGData(channel_id, id, &startzeit, false);
 						showProgressBar();
 					}
+				}
+				else if (epg_done != -1)
+				{
+					CMoviePlayerGui::getInstance().UpdatePosition();
+					int mp_position = CMoviePlayerGui::getInstance().GetPosition();
+					int mp_duration = CMoviePlayerGui::getInstance().GetDuration();
+
+					// this calculation is taken from timeosd.cpp
+					epg_done = (mp_duration && mp_duration > 100) ? (mp_position * 100 / mp_duration) : -1;
+					if (epg_done > 100)
+						epg_done = 100;
+					//printf("[%s:%d] epg_done: %d\n", __func__, __LINE__, epg_done);
+
+					showProgressBar();
 				}
 				break;
 			case NeutrinoMessages::EVT_CURRENTNEXT_EPG:
