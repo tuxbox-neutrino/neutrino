@@ -123,6 +123,7 @@ CEpgData::CEpgData()
 	bigFonts = false;
 	frameBuffer = CFrameBuffer::getInstance();
 	tmdb_active = false;
+	mp_movie_info = NULL;
 	header     = NULL;
 }
 
@@ -503,9 +504,11 @@ bool CEpgData::isCurrentEPG(const t_channel_id channel_id)
 	return false;
 }
 
-int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*mp_duration*/, bool doLoop)
+int CEpgData::show_mp(MI_MOVIE_INFO *mi, int /*mp_position*/, int /*mp_duration*/, bool doLoop)
 {
 	int res = menu_return::RETURN_REPAINT;
+
+	mp_movie_info = mi;
 	if (mp_movie_info == NULL)
 		return res;
 
@@ -644,7 +647,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mp_movie_info, int /*mp_position*/, int /*m
 	extMovieInfo += mp_movie_info->file.getFileName();
 	extMovieInfo += "\n";
 
-	res = show(mp_movie_info->epgEpgId >>16, 0, 0, doLoop, false,true );
+	res = show(mp_movie_info->epgEpgId >> 16, 0, 0, doLoop, false, true);
 	if(!epgTextSwitch.empty())
 		mp_movie_info->epgInfo2 = epgTextSwitch;
 	return res;
@@ -1217,7 +1220,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() / BIG_FONT_FAKTOR));
 				}
 				g_settings.bigFonts = bigFonts;
-				show(channel_id, id, &startzeit, false, call_fromfollowlist);
+				if (mp_info)
+					show(mp_movie_info->epgEpgId >> 16, 0, 0, false, false, true);
+				else
+					show(channel_id, id, &startzeit, false, call_fromfollowlist);
 				showPos=0;
 				break;
 			case CRCInput::RC_ok:

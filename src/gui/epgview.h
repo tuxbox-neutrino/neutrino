@@ -86,6 +86,8 @@ class CEpgData
 		int			buttonheight,botboxheight;
 		int			medlineheight,medlinecount;
 
+		MI_MOVIE_INFO *mp_movie_info;
+
 		void GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear = true );
 		void GetPrevNextEPGData( uint64_t id, time_t* startzeit );
 		void addTextToArray( const std::string & text, int screening );
@@ -103,7 +105,7 @@ class CEpgData
 		~CEpgData();
 		void start( );
 		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false, bool mp_info = false );
-		int show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position = 1, int mp_duration = 1, bool doLoop = true);
+		int show_mp(MI_MOVIE_INFO *mi, int mp_position = 1, int mp_duration = 1, bool doLoop = true);
 		void hide();
 };
 
