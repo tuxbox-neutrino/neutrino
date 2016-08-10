@@ -94,6 +94,7 @@ class CEpgData
 		bool hasFollowScreenings(const t_channel_id channel_id, const std::string & title);
 		int FollowScreenings(const t_channel_id channel_id, const std::string & title);
 		void showTimerEventBar(bool show, bool adzap = false, bool mp_info = false);
+		void showProgressBar();
 		bool isCurrentEPG(const t_channel_id channel_id);
 
 	public:
