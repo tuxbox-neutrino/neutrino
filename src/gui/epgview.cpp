@@ -539,7 +539,8 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	if ( !mp_movie_info->productionCountry.empty() || mp_movie_info->productionDate != 0)
 	{
 		extMovieInfo += mp_movie_info->productionCountry;
-		extMovieInfo += to_string(mp_movie_info->productionDate + 1900);
+		extMovieInfo += " ";
+		extMovieInfo += to_string(mp_movie_info->productionDate);
 		extMovieInfo += "\n";
 	}
 	if (!mp_movie_info->serieName.empty())
