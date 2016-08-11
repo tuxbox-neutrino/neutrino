@@ -252,7 +252,7 @@ static int find_next_char(char to_find, const char *text, int start_pos, int end
 		while(_pos_ < bytes && _text_[_pos_] != '<' ) _pos_++;\
 		_dest_ = "";\
 		_dest_.append(&_text_[pos_prev],_pos_ - pos_prev );\
-		_dest_ = decodeXmlSpecialChars(_dest_);\
+		_dest_ = htmlEntityDecode(_dest_);\
 		_pos_ += sizeof(_tag_);\
 		continue;\
 	}
@@ -275,31 +275,6 @@ static int find_next_char(char to_find, const char *text, int start_pos, int end
 		_dest_ = strtoull(&_text_[pos_prev], NULL, 10);\
 		continue;\
 	}
-
-void strReplace(std::string &orig, const char *fstr, const std::string &rstr)
-{
-	// replace all occurrence of fstr with rstr and returns a reference to itself
-	size_t index = 0;
-	size_t fstrlen = strlen(fstr);
-	size_t rstrlen = rstr.size();
-
-	while ((index = orig.find(fstr, index)) != std::string::npos) {
-		orig.replace(index, fstrlen, rstr);
-		index += rstrlen;
-	}
-}
-
-std::string decodeXmlSpecialChars(std::string s)
-{
-	strReplace(s,"&lt;","<");
-	strReplace(s,"&gt;",">");
-	strReplace(s,"&amp;","&");
-	strReplace(s,"&quot;","\"");
-	strReplace(s,"&apos;","\'");
-	strReplace(s,"&#x0a;","\n");
-	strReplace(s,"&#x0d;","\n");
-	return s;
-}
 
 bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 {
@@ -408,7 +383,7 @@ bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 					if (text[pos + pos3] == '\"')
 					{
 						audio_pids.epgAudioPidName.append(&text[pos + pos2 + 1], pos3 - pos2 - 1);
-						audio_pids.epgAudioPidName = decodeXmlSpecialChars(audio_pids.epgAudioPidName);
+						audio_pids.epgAudioPidName = htmlEntityDecode(audio_pids.epgAudioPidName);
 					}
 				}
 			}
@@ -456,7 +431,7 @@ bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 										if (text[pos + pos3] == '\"')
 										{
 											movie_info->bookmarks.user[bookmark_nr].name.append(&text[pos + pos2 + 1], pos3 - pos2 - 1);
-											movie_info->bookmarks.user[bookmark_nr].name = decodeXmlSpecialChars(movie_info->bookmarks.user[bookmark_nr].name);
+											movie_info->bookmarks.user[bookmark_nr].name = htmlEntityDecode(movie_info->bookmarks.user[bookmark_nr].name);
 										}
 									}
 								}

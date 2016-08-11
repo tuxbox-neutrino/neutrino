@@ -1871,7 +1871,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					std::string extension;
 					extension = fname.substr(ext_pos + 1, fname.length() - ext_pos);
 					extension = "." + extension;
-					strReplace(fname, extension.c_str(), ".jpg");
+					str_replace(extension, ".jpg", fname);
 					printf("TMDB: %s : %s\n",m_movieSelectionHandler->file.Name.c_str(),fname.c_str());
 					cTmdb* tmdb = new cTmdb(m_movieSelectionHandler->epgTitle);
 					if ((tmdb->getResults() > 0) && (tmdb->hasCover())) {
