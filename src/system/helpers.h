@@ -146,4 +146,9 @@ std::string getJFFS2MountPoint(int mtdPos);
 std::string Lang2ISO639_1(std::string& lang);
 std::string readLink(std::string lnk);
 
+int getpidof(const char *process);
+std::string filehash(const char * file);
+std::string get_path(const char * path);
+inline bool file_exists(const std::string file) { return file_exists(file.c_str()); }
+
 #endif
