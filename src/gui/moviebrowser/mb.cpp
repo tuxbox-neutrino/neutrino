@@ -27,7 +27,7 @@
 
 	Date:	   Nov 2005
 
-	Author: Günther@tuxbox.berlios.org
+	Author: GÃ¼nther@tuxbox.berlios.org
 		based on code of Steffen Hehn 'McClean'
 
 	(C) 2009-2014 Stefan Seyfried
@@ -43,8 +43,8 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include "moviebrowser.h"
-#include "filebrowser.h"
+#include "mb.h"
+#include <gui/filebrowser.h>
 #include <gui/tmdb.h>
 #include <gui/epgview.h>
 #include <gui/widget/hintbox.h>
@@ -1404,7 +1404,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 			int w_logo = ratio*CChannelLogo->getWidth()/100;
 			CChannelLogo->setWidth(min(w_logo, logo_w_max));
 		}
-		
+
 		lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-CChannelLogo->getWidth()-10;
 		ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-CChannelLogo->getHeight())/2;
 		CChannelLogo->setXPos(lx - pb_hdd_offset);

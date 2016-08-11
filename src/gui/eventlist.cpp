@@ -34,7 +34,7 @@
 #include <gui/epgplus.h>
 #include <gui/epgview.h>
 #include <gui/followscreenings.h>
-#include <gui/moviebrowser.h>
+#include <gui/moviebrowser/mb.h>
 #include <gui/timerlist.h>
 #include <gui/user_menue.h>
 

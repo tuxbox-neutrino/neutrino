@@ -35,7 +35,7 @@
 #include <gui/followscreenings.h>
 #include <gui/epgplus.h>
 #include <gui/epgview.h>
-#include <gui/moviebrowser.h>
+#include <gui/moviebrowser/mb.h>
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
 

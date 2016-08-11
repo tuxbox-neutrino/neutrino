@@ -45,7 +45,7 @@
 #include <gui/audioplayer_setup.h>
 #include <gui/pictureviewer_setup.h>
 #include <gui/webtv_setup.h>
-#include <gui/moviebrowser.h>
+#include <gui/moviebrowser/mb.h>
 
 #include <driver/screen_max.h>
 

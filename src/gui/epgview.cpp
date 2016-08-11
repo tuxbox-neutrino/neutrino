@@ -47,7 +47,7 @@
 #include <driver/fade.h>
 #include <gui/filebrowser.h>
 #include <gui/followscreenings.h>
-#include <gui/moviebrowser.h>
+#include <gui/moviebrowser/mb.h>
 #include <gui/movieplayer.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>

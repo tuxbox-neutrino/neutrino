@@ -38,7 +38,7 @@
 #include <gui/filebrowser.h>
 #include <gui/bookmarkmanager.h>
 #include <gui/widget/menue.h>
-#include <gui/moviebrowser.h>
+#include <gui/moviebrowser/mb.h>
 #include <gui/movieinfo.h>
 #include <gui/widget/hintbox.h>
 #include <gui/timeosd.h>

@@ -1,7 +1,7 @@
 /***************************************************************************
 	Neutrino-GUI  -   DBoxII-Project
 
- 	Homepage: http://dbox.cyberphoria.org/
+	Homepage: http://dbox.cyberphoria.org/
 
 	$Id: moviebrowser.h,v 1.5 2006/09/11 21:11:35 guenther Exp $
 
@@ -37,7 +37,7 @@
 
 	Date:	   Nov 2005
 
-	Author: Günther@tuxbox.berlios.org
+	Author: GÃ¼nther@tuxbox.berlios.org
 		based on code of Steffen Hehn 'McClean'
 
 	$Log: moviebrowser.h,v $
@@ -74,9 +74,9 @@
 #include <string>
 #include <vector>
 #include <list>
-#include <gui/widget/listframe.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/textbox.h>
+#include <gui/widget/listframe.h>
 #include <gui/movieinfo.h>
 #include <driver/file.h>
 #include <driver/fb_window.h>
@@ -385,7 +385,7 @@ class CMovieBrowser : public CMenuTarget
 		void setMode(int mode) {
 			if (show_mode != mode)
 				m_file_info_stale = true;
-			show_mode = mode; 
+			show_mode = mode;
 		}
 		bool gotMovie(const char *rec_title);
 
@@ -651,7 +651,3 @@ const CMenuOptionChooser::keyval GENRE_ALL[GENRE_ALL_COUNT] =
 };
 
 #endif /*MOVIEBROWSER_H_*/
-
-
-
-
