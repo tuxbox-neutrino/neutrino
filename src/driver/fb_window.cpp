@@ -68,6 +68,11 @@ void CFBWindow::paintBoxRel(const int _x, const int _y, const int _dx, const int
 	frameBuffer->paintBoxRel(x + _x, y + _y, _dx, _dy, _col, radius, type);
 }
 
+void CFBWindow::paintBoxFrame(int _x, int _y, int _dx, int _dy, int _px, const color_t _col, int radius, int type)
+{
+	frameBuffer->paintBoxFrame(x + _x, y + _y, _dx, _dy, _px, _col, radius, type);
+}
+
 void CFBWindow::paintVLineRel(int _x, int _y, int _dy, const color_t _col)
 {
 	frameBuffer->paintVLineRel(x + _x, y + _y, _dy, _col);
