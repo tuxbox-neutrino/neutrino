@@ -37,6 +37,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <driver/fontrenderer.h>
+
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
@@ -67,6 +69,7 @@ std::string getFileName(std::string &file);
 std::string getFileExt(std::string &file);
 std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string cutString(const std::string str, Font *msgFont, const int width);
 std::string strftime(const char *format, const struct tm *tm);
 std::string strftime(const char *format, time_t when, bool gm = false);
 time_t toEpoch(std::string &date);

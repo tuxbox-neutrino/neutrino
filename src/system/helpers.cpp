@@ -438,6 +438,27 @@ std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 	return result.erase(0, result.find_first_not_of(trimChars));
 }
 
+std::string cutString(const std::string str, Font *msgFont, const int width)
+{
+	std::string ret = str;
+	ret = trim(ret);
+	int sw = msgFont->getRenderWidth(ret);
+	if (sw <= width)
+		return ret;
+	else {
+		std::string z = "...";
+		int zw = msgFont->getRenderWidth(z);
+		if (width <= 2*zw)
+			return ret;
+		do {
+			ret = ret.substr(0, ret.length()-1);
+			sw = msgFont->getRenderWidth(ret);
+		} while (sw+zw > width);
+		ret = trim(ret) + z;
+	}
+	return ret;
+}
+
 std::string strftime(const char *format, const struct tm *tm)
 {
 	char buf[4096];
