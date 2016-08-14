@@ -198,6 +198,7 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
 		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_TEXT) },
 		{ "MENUFOOT_TEXT",			(lua_Unsigned) (COL_MENUFOOT_TEXT) },
+		{ "SHADOW_PLUS_0",			(lua_Unsigned) (COL_SHADOW_PLUS_0) },
 		{ "MENUHEAD_PLUS_0",			(lua_Unsigned) (COL_MENUHEAD_PLUS_0) },
 		{ "MENUCONTENT_PLUS_0",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_0) },
 		{ "MENUCONTENT_PLUS_1",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_1) },
