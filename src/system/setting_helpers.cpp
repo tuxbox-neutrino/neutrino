@@ -168,6 +168,11 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(t.menu_Content_inactive_Text_red, t.menu_Content_inactive_Text_green, t.menu_Content_inactive_Text_blue),
 	                              8, convertSetupAlpha2Alpha(t.menu_Content_inactive_alpha) );
 
+	frameBuffer->paletteGenFade(COL_MENUFOOT,
+	                              convertSetupColor2RGB(t.menu_Foot_red, t.menu_Foot_green, t.menu_Foot_blue),
+	                              convertSetupColor2RGB(int(t.infobar_Text_red*0.6), int(t.infobar_Text_green*0.6), int(t.infobar_Text_blue*0.6)), /*TODO: use own color*/
+	                              8, convertSetupAlpha2Alpha( t.menu_Foot_alpha ) );
+
 	frameBuffer->paletteGenFade(COL_INFOBAR,
 	                              convertSetupColor2RGB(t.infobar_red, t.infobar_green, t.infobar_blue),
 	                              convertSetupColor2RGB(t.infobar_Text_red, t.infobar_Text_green, t.infobar_Text_blue),

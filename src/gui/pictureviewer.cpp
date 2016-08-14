@@ -728,7 +728,7 @@ void CPictureViewerGui::paintFoot()
 	else
 		PictureViewerButtons2[0].locale = LOCALE_PICTUREVIEWER_SORTORDER_DATE;
 
-	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (!playlist.empty())
 	{

@@ -65,7 +65,7 @@ class CComponentsFooter : public CComponentsHeader
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
-					fb_pixel_t color_body = COL_SHADOW_PLUS_1,
+					fb_pixel_t color_body = COL_MENUFOOT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///show button frame and background, default false
@@ -86,7 +86,7 @@ class CComponentsFooter : public CComponentsHeader
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
-					fb_pixel_t color_body = COL_SHADOW_PLUS_1,
+					fb_pixel_t color_body = COL_MENUFOOT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///add button labels with string label type as content, count as size_t, chain_width as int, label width as int

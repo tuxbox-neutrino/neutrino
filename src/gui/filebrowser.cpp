@@ -1416,7 +1416,7 @@ int CFileBrowser::paintFoot(bool show)
 
 
 	if (filelist.empty()) {
-		frameBuffer->paintBoxRel(x, y + height - foheight, width, foheight, COL_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
+		frameBuffer->paintBoxRel(x, y + height - foheight, width, foheight, COL_MENUFOOT_PLUS_0, RADIUS_MID, CORNER_BOTTOM);
 		return foheight;
 	}
 	if (playlistmode)
@@ -1431,8 +1431,8 @@ void CFileBrowser::paintSMSKey()
 {
 	int skheight = fnt_small->getHeight();
 
-	//background
-	frameBuffer->paintBoxRel(x + width - skwidth, y + height - foheight, skwidth, foheight, COL_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM_RIGHT);
+	//background - Why? Most of them is over-painted
+	frameBuffer->paintBoxRel(x + width - skwidth, y + height - foheight, skwidth, foheight, COL_MENUFOOT_PLUS_0, RADIUS_MID, CORNER_BOTTOM_RIGHT);
 
 	if(m_SMSKeyInput.getOldKey()!=0)
 	{

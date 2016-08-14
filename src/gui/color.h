@@ -35,8 +35,9 @@
 
 #include <driver/framebuffer.h>
 
-#define COL_MAXFREE			254-8*12 - 1
-#define COL_NEUTRINO_TEXT		254-8*12	// 24 values
+#define COL_MAXFREE			254-8*16 - 1
+#define COL_NEUTRINO_TEXT		254-8*16 // 32 values?
+#define COL_MENUFOOT			254-8*11
 #define COL_INFOBAR_CASYSTEM		254-8*10
 #define COL_COLORED_EVENTS_CHANNELLIST	254-8*9
 #define COL_COLORED_EVENTS_INFOBAR	254-8*8
@@ -73,6 +74,7 @@
 #define COL_MENUCONTENTSELECTED_PLUS_0  (COL_MENUCONTENTSELECTED + 0)
 #define COL_MENUCONTENTSELECTED_PLUS_2  (COL_MENUCONTENTSELECTED + 2)
 #define COL_MENUCONTENTINACTIVE_PLUS_0  (COL_MENUCONTENTINACTIVE + 0)
+#define COL_MENUFOOT_PLUS_0             (COL_MENUFOOT + 0)
 #define COL_BACKGROUND_PLUS_0           (COL_BACKGROUND + 0)
 #else
 #define COL_SHADOW_PLUS_0               (CFrameBuffer::getInstance()->realcolor[(COL_SHADOW + 0)])
@@ -97,6 +99,7 @@
 #define COL_MENUCONTENTSELECTED_PLUS_0  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTSELECTED + 0)])
 #define COL_MENUCONTENTSELECTED_PLUS_2  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTSELECTED + 2)])
 #define COL_MENUCONTENTINACTIVE_PLUS_0  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTINACTIVE + 0)])
+#define COL_MENUFOOT_PLUS_0             (CFrameBuffer::getInstance()->realcolor[(COL_MENUFOOT + 0)])
 #define COL_BACKGROUND_PLUS_0           (CFrameBuffer::getInstance()->realcolor[(COL_BACKGROUND + 0)])
 
 // text colors

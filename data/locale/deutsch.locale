@@ -333,6 +333,7 @@ colormenu.timing Timeouts
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
+colormenusetup.menufoot Fußleiste
 colormenusetup.menuhead Titelleiste
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
@@ -1062,6 +1063,7 @@ menu.hint_hdd_noise Setzen Sie Parameter für das Automatic Acoustic Management.
 menu.hint_hdd_sleep Dieser Wert definiert, nach wieviel Minuten die Festplatte bei Inaktivität in den Sleep-Modus geschaltet wird
 menu.hint_hdd_statfs Legen Sie fest, wann die Aufnahmeverzeichnis-Füllstandsanzeige im InfoViewer (und ggf. am VFD-Display) aktualisiert werden darf
 menu.hint_hdd_tools Formatieren Sie die gefundenen Datenträger bzw. überprüfen Sie deren Dateisystem
+menu.hint_foot_back Ändern Sie die Fußleisten-Hintergrundfarbe
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
 menu.hint_imageinfo Informationen über die installierte Software

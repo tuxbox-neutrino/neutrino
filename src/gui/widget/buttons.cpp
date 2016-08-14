@@ -195,7 +195,7 @@ int paintButtons(	const button_label_ext * const content,
 
 	//paint footer
 	if (w_footer > 0)
-		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 	
 	//baseline
@@ -392,7 +392,7 @@ int paintButtons(       const int &x,
 
 	//paint footer
 	if (w_footer > 0)
-		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 
 	//baseline
