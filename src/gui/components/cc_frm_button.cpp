@@ -115,7 +115,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	append_y_offset = 0;
 	corner_rad	= 0;
 	
-	cc_btn_capt_col		= cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_INFOBAR_SHADOW_TEXT;
+	cc_btn_capt_col		= cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_MENUFOOT_TEXT;
 	cc_btn_capt_disable_col = cc_body_gradient_enable ? COL_BUTTON_TEXT_DISABLED : COL_MENUCONTENTINACTIVE_TEXT;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;

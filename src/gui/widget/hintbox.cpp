@@ -174,10 +174,10 @@ void CHintBox::refresh(void)
 		return;
 	}
 
-	//window->paintBoxRel(borderwidth, height, width, borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
-	//window->paintBoxRel(width, borderwidth, borderwidth, height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
-	window->paintBoxRel(width - 20, borderwidth, borderwidth + 20, height - borderwidth - 20, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP); // right
-	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); // bottom
+	//window->paintBoxRel(borderwidth, height, width, borderwidth, COL_SHADOW_PLUS_0);
+	//window->paintBoxRel(width, borderwidth, borderwidth, height - borderwidth, COL_SHADOW_PLUS_0);
+	window->paintBoxRel(width - 20, borderwidth, borderwidth + 20, height - borderwidth - 20, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP); // right
+	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); // bottom
 
 	CComponentsHeader header(window->x, window->y, width, theight, caption, iconfile);
 	header.paint(CC_SAVE_SCREEN_NO);

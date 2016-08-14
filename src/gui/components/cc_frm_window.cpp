@@ -155,7 +155,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_w_sidebar	= 40;
 	ccw_col_head 	= COL_MENUHEAD_PLUS_0;
 	ccw_col_head_text = COL_MENUHEAD_TEXT;
-	ccw_col_footer	= COL_INFOBAR_SHADOW_PLUS_1;
+	ccw_col_footer	= COL_SHADOW_PLUS_1;
 
 	page_scroll_mode = PG_SCROLL_M_OFF; //permanent disabled here, only in body used!
 

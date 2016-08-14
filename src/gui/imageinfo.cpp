@@ -189,7 +189,7 @@ void CImageInfo::ShowWindow()
 		fb_pixel_t btn_col = /*g_settings.theme.Button_gradient ?  COL_BUTTON_BODY :*/ footer->getColorBody(); //TODO: Button_gradient option
 		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, h_footer-h_footer/4, LOCALE_BUILDINFO_MENU, footer, false , true, false, footer->getColorBody(), btn_col);
 		btn_red->doPaintBg(false);
-		btn_red->setButtonTextColor(COL_INFOBAR_SHADOW_TEXT);
+		btn_red->setButtonTextColor(COL_MENUFOOT_TEXT);
 		btn_red->setColBodyGradient(CC_COLGRAD_OFF);
 	}
 

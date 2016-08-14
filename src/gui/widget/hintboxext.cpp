@@ -267,7 +267,7 @@ void CHintBoxExt::refresh(bool toround)
 	
 	if (!bgPainted) {
 		// bottom, right shadow
-		m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
+		m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_SHADOW_PLUS_0, RADIUS_LARGE, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
 		bgPainted = true;
 	}
 

@@ -176,9 +176,9 @@ void CMessageBox::paintButtons()
 			bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 		}
 		CFrameBuffer::getInstance()->getIconSize(Buttons[i].icon, &iw, &ih);
-		m_window->paintBoxRel(xpos + SHADOW_OFFSET, ypos + SHADOW_OFFSET, b_width, b_height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_MID);
+		m_window->paintBoxRel(xpos + SHADOW_OFFSET, ypos + SHADOW_OFFSET, b_width, b_height, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_window->paintBoxRel(xpos, ypos, b_width, b_height, (CFBWindow::color_t)bgcolor, RADIUS_MID);
-		m_window->paintBoxFrame(xpos, ypos, b_width, b_height, 1, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_MID);
+		m_window->paintBoxFrame(xpos, ypos, b_width, b_height, 1, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_window->paintIcon(Buttons[i].icon, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
 			               b_width - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color);

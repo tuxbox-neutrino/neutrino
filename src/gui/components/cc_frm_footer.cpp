@@ -146,7 +146,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(btn_contour);
 		btn->enableFrame(btn_contour);
-		btn->setButtonTextColor(COL_INFOBAR_SHADOW_TEXT);
+		btn->setButtonTextColor(COL_MENUFOOT_TEXT);
 		btn->setButtonEventMsg(content[i].btn_msg);
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);

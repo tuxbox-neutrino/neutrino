@@ -1529,9 +1529,9 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		if (!fscr)
 			c--; // reduce blue button
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-			::paintButtons(x, y, w, c, EpgButtons[fscr ? 0 : 1], w, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
+			::paintButtons(x, y, w, c, EpgButtons[fscr ? 0 : 1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
 		else
-			::paintButtons(x, y, w, c, &EpgButtons[fscr ? 0 : 1][1], w, h, "", false, COL_INFOBAR_SHADOW_TEXT, adzap ? adzap_button.c_str() : NULL, 0);
+			::paintButtons(x, y, w, c, &EpgButtons[fscr ? 0 : 1][1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 0);
 	}
 }
 

@@ -159,7 +159,8 @@ static void set_lua_variables(lua_State *L)
 	{
 		{ "COLORED_EVENTS_CHANNELLIST",	MAGIC_COLOR | (COL_COLORED_EVENTS_CHANNELLIST) },
 		{ "COLORED_EVENTS_INFOBAR",	MAGIC_COLOR | (COL_COLORED_EVENTS_INFOBAR) },
-		{ "INFOBAR_SHADOW",		MAGIC_COLOR | (COL_INFOBAR_SHADOW) },
+		{ "SHADOW",			MAGIC_COLOR | (COL_SHADOW) },
+/* obsolete */	{ "INFOBAR_SHADOW",		MAGIC_COLOR | (COL_SHADOW) }, // just here to stay backward compatible
 		{ "INFOBAR",			MAGIC_COLOR | (COL_INFOBAR) },
 		{ "MENUHEAD",			MAGIC_COLOR | (COL_MENUHEAD) },
 		{ "MENUCONTENT",		MAGIC_COLOR | (COL_MENUCONTENT) },
@@ -182,7 +183,7 @@ static void set_lua_variables(lua_State *L)
 		{ "BLACK",			MAGIC_COLOR | (COL_BLACK0) },
 		{ "COLORED_EVENTS_TEXT",	(lua_Unsigned) (COL_COLORED_EVENTS_TEXT) },
 		{ "INFOBAR_TEXT",		(lua_Unsigned) (COL_INFOBAR_TEXT) },
-		{ "INFOBAR_SHADOW_TEXT",	(lua_Unsigned) (COL_INFOBAR_SHADOW_TEXT) },
+/* obsolete */	{ "INFOBAR_SHADOW_TEXT",	(lua_Unsigned) (COL_MENUFOOT_TEXT) }, // just here to stay backward compatible
 		{ "MENUHEAD_TEXT",		(lua_Unsigned) (COL_MENUHEAD_TEXT) },
 		{ "MENUCONTENT_TEXT",		(lua_Unsigned) (COL_MENUCONTENT_TEXT) },
 		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_1) },
@@ -195,6 +196,7 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
 		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
 		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_TEXT) },
+		{ "MENUFOOT_TEXT",			(lua_Unsigned) (COL_MENUFOOT_TEXT) },
 		{ "MENUHEAD_PLUS_0",			(lua_Unsigned) (COL_MENUHEAD_PLUS_0) },
 		{ "MENUCONTENT_PLUS_0",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_0) },
 		{ "MENUCONTENT_PLUS_1",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_1) },

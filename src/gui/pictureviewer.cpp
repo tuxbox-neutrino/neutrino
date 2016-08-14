@@ -167,8 +167,8 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
         //get footerHeight from paintButtons
-	buttons1Height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
-	buttons2Height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
+	buttons1Height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
+	buttons2Height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
 	footerHeight = buttons1Height + buttons2Height;
 
 	listmaxshow = (height-theight-footerHeight)/(fheight);
@@ -728,7 +728,7 @@ void CPictureViewerGui::paintFoot()
 	else
 		PictureViewerButtons2[0].locale = LOCALE_PICTUREVIEWER_SORTORDER_DATE;
 
-	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (!playlist.empty())
 	{

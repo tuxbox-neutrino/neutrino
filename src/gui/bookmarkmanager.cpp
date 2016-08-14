@@ -434,8 +434,8 @@ const struct button_label BookmarkmanagerButtons[2] =
 void CBookmarkManager::paintFoot()
 {
 	int ButtonWidth = (width - 20) / 4;
-	frameBuffer->paintBoxRel(x,y+height, width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1);
-	frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
+	frameBuffer->paintBoxRel(x,y+height, width, footerHeight, COL_SHADOW_PLUS_1);
+	frameBuffer->paintHLine(x, x+width,  y, COL_SHADOW_PLUS_0);
 
 	if (bookmarks.empty()) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 1* ButtonWidth + 10, y+height);

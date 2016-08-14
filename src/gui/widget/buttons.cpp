@@ -195,7 +195,7 @@ int paintButtons(	const button_label_ext * const content,
 
 	//paint footer
 	if (w_footer > 0)
-		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 	
 	//baseline
@@ -250,7 +250,7 @@ int paintButtons(	const button_label_ext * const content,
 		// paint icon and text
 		frameBuffer->paintIcon(icon, x_button , y_base - iconh[j]/2);
 		x_caption = x_button + iconw[j] + h_space;
-		font->RenderString(x_caption, y_caption, fwidth[j], caption, COL_INFOBAR_SHADOW_TEXT);
+		font->RenderString(x_caption, y_caption, fwidth[j], caption, COL_MENUFOOT_TEXT);
  		
  		/* 	set next startposition x, if text is length=0 then offset is =renderwidth of icon, 
   		* 	for generating buttons without captions, 
@@ -284,7 +284,7 @@ int paintButtons(	const button_label_ext * const content,
 
  * stuff below here was obviously not tested recently
  * vertical_paint       optional, default value is false (horizontal) sets direction of painted buttons
- * fcolor               optional, default value is COL_INFOBAR_SHADOW_TEXT, use it to render font with other color
+ * fcolor               optional, default value is COL_MENUFOOT_TEXT, use it to render font with other color
  * alt_buttontext       optional, default NULL, overwrites button caption at definied buttonlabel id (see parameter alt_buttontext_id) with this text
  * alt_buttontext_id    optional, default 0, means id from buttonlable struct which text you will change 
  * show                 optional, default value is true (show button), if false, then no show and return the height of the button.
@@ -392,7 +392,7 @@ int paintButtons(       const int &x,
 
 	//paint footer
 	if (w_footer > 0)
-		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 
 	//baseline
