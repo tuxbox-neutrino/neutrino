@@ -87,19 +87,19 @@ void CUpnpBrowserGui::Init()
 	topbox.setCorner(RADIUS_LARGE);
 	topbox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_MENUCONTENTDARK_PLUS_0, COL_MENUHEAD_TEXT);
 	topbox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]);
-	topbox.enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_SHADOW_PLUS_1, g_settings.theme.menu_Head_gradient_direction);
+	topbox.enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 
 	ibox.enableFrame(true, 2);
 	ibox.setCorner(RADIUS_LARGE);
 	ibox.setColorAll(topbox.getColorFrame(), COL_MENUCONTENTDARK_PLUS_0);
 	ibox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
-	ibox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);
+	ibox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);
 
 	timebox.enableFrame(true, 2);
 	timebox.setCorner(RADIUS_LARGE);
 	timebox.setColorAll(ibox.getColorFrame(), ibox.getColorBody());
 	timebox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
-	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);
+	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);
 
 	m_width = m_frameBuffer->getScreenWidthRel();
 	m_height = m_frameBuffer->getScreenHeightRel();
