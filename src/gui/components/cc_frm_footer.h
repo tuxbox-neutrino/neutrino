@@ -26,6 +26,7 @@
 
 #include "cc_frm_header.h"
 #include "cc_frm_button.h"
+#include <global.h>
 #include <gui/widget/buttons.h> //for compatibility with 'button_label' type
 
 //for 'button_label' type with string
@@ -135,7 +136,7 @@ class CComponentsFooter : public CComponentsHeader
 					const struct button_label * const content,
 					const int& label_width = 0,
 					const int& context_buttons = 0,
-					Font* font = NULL,
+					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL],
 					bool do_save_bg = CC_SAVE_SCREEN_NO
 				);
 
