@@ -53,7 +53,6 @@
 
 #ifdef FB_USE_PALETTE
 #define COL_SHADOW_PLUS_0               (COL_SHADOW + 0)
-#define COL_SHADOW_PLUS_1               (COL_SHADOW + 1)
 #define COL_INFOBAR_PLUS_0              (COL_INFOBAR + 0)
 #define COL_INFOBAR_PLUS_1              (COL_INFOBAR + 1)
 #define COL_INFOBAR_PLUS_3              (COL_INFOBAR + 3)
@@ -78,7 +77,6 @@
 #define COL_BACKGROUND_PLUS_0           (COL_BACKGROUND + 0)
 #else
 #define COL_SHADOW_PLUS_0               (CFrameBuffer::getInstance()->realcolor[(COL_SHADOW + 0)])
-#define COL_SHADOW_PLUS_1               (CFrameBuffer::getInstance()->realcolor[(COL_SHADOW + 1)])
 #define COL_INFOBAR_PLUS_0              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 0)])
 #define COL_INFOBAR_PLUS_1              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 1)])
 #define COL_INFOBAR_PLUS_3              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 3)])
