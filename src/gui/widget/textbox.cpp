@@ -563,7 +563,7 @@ void CTextBox::refreshText(void)
 	//bg variables
 	int ax = m_cFrameTextRel.iX+m_cFrame.iX;
 	int ay = m_cFrameTextRel.iY+m_cFrame.iY;
-	int dx = m_old_cText != m_cText ? m_cFrameTextRel.iWidth : m_nMaxTextWidth;
+	int dx = m_old_cText != m_cText || m_nNrOfPages>1 ? m_cFrameTextRel.iWidth : m_nMaxTextWidth;
 	int dy = m_cFrameTextRel.iHeight;
 	
 	//find changes
