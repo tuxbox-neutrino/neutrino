@@ -1431,7 +1431,7 @@ void CFileBrowser::paintSMSKey()
 {
 	int skheight = fnt_small->getHeight();
 
-	//background - Why? Most of them is over-painted
+	//background
 	frameBuffer->paintBoxRel(x + width - skwidth, y + height - foheight, skwidth, foheight, COL_MENUFOOT_PLUS_0, RADIUS_MID, CORNER_BOTTOM_RIGHT);
 
 	if(m_SMSKeyInput.getOldKey()!=0)
