@@ -48,7 +48,7 @@ extern font_sizes_groups_struct font_sizes_groups[];
 extern font_sizes_struct neutrino_font[];
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 
-const font_sizes_struct signal_font = {LOCALE_FONTSIZE_INFOBAR_SMALL, 14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
+const font_sizes_struct signal_font = {NONEXISTANT_LOCALE, 14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
 
 CNeutrinoFonts::CNeutrinoFonts()
 {
