@@ -83,6 +83,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	int            m_theight; // title font height
 	int            m_mheight; // lower box font height
 	int            m_iheight; // upper box font height
+	int		font_item;
 	int            m_buttonHeight;
 	int            m_title_height;
 	int            m_info_height;
