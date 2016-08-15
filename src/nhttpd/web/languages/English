@@ -618,6 +618,7 @@ rc.key_stop=Stop
 rc.key_record=Record
 rc.key_pause=Pause
 rc.key_games=
+rc.key_trsp=Trsp
 rc.key_time=
 rc.key_picsize=Pic Size
 rc.key_picmode=Pic Mode

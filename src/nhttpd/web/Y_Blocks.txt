@@ -787,7 +787,7 @@ start-block~rc_cst_v5
   <area shape="rect" href="javascript:rcsim('KEY_PAGEUP')" coords="124,396,166,431" alt="page+" title="{=L:rc.key_pageup=}" />
   <area shape="rect" href="javascript:rcsim('KEY_PAGEDOWN')" coords="124,441,166,476" alt="page-" title="{=L:rc.key_pagedown=}" />
 
-  <!-- area shape="rect" coords="24,485,66,513" alt="trsp" / -->
+  <area shape="rect" coords="24,485,66,513" alt="trsp" href="javascript:rcsim('KEY_GAMES')" title="{=L:rc.key_trsp=}" />
   <!-- area shape="rect" coords="76,485,118,513" alt="stb/tv" / -->
   <!-- area shape="rect" coords="128,485,170,513" alt="recall" / -->
 
@@ -824,7 +824,7 @@ start-block~rc_cst_v6
   <area shape="circle" coords="114,171,14" alt="audio" href="javascript:rcsim('KEY_AUDIO')" title="{=L:rc.key_audio=}" />
   <area shape="circle" coords="114,204,14" alt="text" href="javascript:rcsim('KEY_TEXT')" title="{=L:rc.key_text=}" />
   <!-- area shape="circle" coords="34,183,14" alt="sub" / -->
-  <!-- area shape="circle" coords="34,217,14" alt="trsp" / -->
+  <area shape="circle" coords="34,217,14" alt="trsp" href="javascript:rcsim('KEY_GAMES')" title="{=L:rc.key_trsp=}" />
   <area shape="circle" coords="154,183,14" alt="help" href="javascript:rcsim('KEY_HELP')" title="{=L:rc.key_help=}" />
   <!-- area shape="circle" coords="154,217,14" alt="recall" / -->
 
