@@ -104,12 +104,12 @@ void CUpnpBrowserGui::Init()
 	m_width = m_frameBuffer->getScreenWidthRel();
 	m_height = m_frameBuffer->getScreenHeightRel();
 
-	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	m_iheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getHeight();
 	m_theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	m_buttonHeight = m_theight;
 	m_mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	m_fheight = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getHeight();
-	m_title_height = m_mheight*2 + 20 + m_sheight + 4;
+	m_title_height = m_iheight*3 + 20; // 3 lines + offset
 	m_info_height = m_mheight*2;
 	m_listmaxshow = (m_height - m_info_height - m_title_height - m_theight - 2*m_buttonHeight) / (m_fheight);
 	m_height = m_theight + m_info_height + m_title_height + 2*m_buttonHeight + m_listmaxshow * m_fheight; // recalc height

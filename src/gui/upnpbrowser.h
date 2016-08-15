@@ -79,10 +79,10 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	unsigned int   m_listmaxshow;
 	unsigned int   m_deviceliststart;
 	unsigned int   m_selecteddevice;
-	int            m_fheight; // Fonthoehe Inhalt
-	int            m_theight; // Fonthoehe Titel
-	int            m_mheight; // Fonthoehe Info
-	int            m_sheight; // Fonthoehe Status
+	int            m_fheight; // items font height
+	int            m_theight; // title font height
+	int            m_mheight; // lower box font height
+	int            m_iheight; // upper box font height
 	int            m_buttonHeight;
 	int            m_title_height;
 	int            m_info_height;
