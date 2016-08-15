@@ -136,7 +136,7 @@ class CComponentsFooter : public CComponentsHeader
 					const struct button_label * const content,
 					const int& label_width = 0,
 					const int& context_buttons = 0,
-					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL],
+					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT],
 					bool do_save_bg = CC_SAVE_SCREEN_NO
 				);
 

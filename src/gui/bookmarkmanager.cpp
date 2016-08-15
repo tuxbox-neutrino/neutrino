@@ -226,7 +226,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 	selected = 0;
 	// Max
 	width = 90;
-	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
+	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //initial height value for buttonbar
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	x=getScreenStartX( width );
@@ -439,14 +439,14 @@ void CBookmarkManager::paintFoot()
 
 	if (bookmarks.empty()) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 1* ButtonWidth + 10, y+height);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT);
 	}
 	else
 	{
 		::paintButtons(x + 10, y + height + 4, width, 2, BookmarkmanagerButtons, footerHeight, ButtonWidth);
 
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 1* ButtonWidth + 10, y+height);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT);
 	}
 }
 

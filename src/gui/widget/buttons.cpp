@@ -97,7 +97,7 @@ int paintButtons(	const button_label_ext * const content,
 			int *wantedheight)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 	int cnt = count;
 	int x_footer = x;
 	int y_footer = y;
@@ -306,7 +306,7 @@ int paintButtons(       const int &x,
 		const std::vector<neutrino_locale_t>& /*all_buttontext_id*/)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 	uint cnt = count;
 	int x_footer = x;
 	int y_footer = y;

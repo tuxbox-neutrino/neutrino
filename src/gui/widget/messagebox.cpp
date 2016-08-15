@@ -73,7 +73,7 @@ void CMessageBox::Init(const CMessageBox::result_ &Default, const uint32_t ShowB
 		ih = std::max(h, ih);
 		i_maxw = std::max(w, i_maxw);
 	}
-	fh                     = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	fh                     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight();
 	b_height               = std::max(fh, ih) + 8 + (RADIUS_MID / 2);
 	m_bbheight             = b_height + fh/2 + ButtonSpacing + SHADOW_OFFSET;
 	result                 = Default;
@@ -131,7 +131,7 @@ int CMessageBox::getButtonWidth()
 	neutrino_locale_t localeMsg[localeMsgCount] = {LOCALE_MESSAGEBOX_YES, LOCALE_MESSAGEBOX_NO, LOCALE_MESSAGEBOX_CANCEL, LOCALE_MESSAGEBOX_OK, LOCALE_MESSAGEBOX_BACK};
 	int MaxButtonTextWidth = 0;
 	for (int i = 0; i < localeMsgCount; i++)
-		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(localeMsg[i])), MaxButtonTextWidth);
+		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(localeMsg[i])), MaxButtonTextWidth);
 	return MaxButtonTextWidth + i_maxw + 36 + (RADIUS_LARGE / 2);
 }
 
@@ -180,7 +180,7 @@ void CMessageBox::paintButtons()
 		m_window->paintBoxRel(xpos, ypos, b_width, b_height, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_window->paintBoxFrame(xpos, ypos, b_width, b_height, 1, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_window->paintIcon(Buttons[i].icon, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
+		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
 			               b_width - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color);
 		xpos += b_width + ButtonDistance;
 	}

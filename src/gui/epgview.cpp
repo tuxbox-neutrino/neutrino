@@ -142,7 +142,7 @@ void CEpgData::start()
 	topheight    = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
 	topboxheight = topheight + 6;
 	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 6;
-	buttonheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;
+	buttonheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 6;
 	if (buttonheight < 30)
 		buttonheight = 30; // the buttons and icons need space
 	oy-=buttonheight/2;
@@ -1499,7 +1499,8 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 	y = sy + oy;
 	w = ox;
 
-	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	// why we don't use buttonheight member?
+	fh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight();
 
         frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 	h = std::max(fh, icol_h+4);

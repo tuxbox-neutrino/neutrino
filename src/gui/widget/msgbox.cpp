@@ -67,7 +67,7 @@
 #define MIN_WINDOW_HEIGHT 40
 
 #define DEFAULT_TITLE_FONT	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]
-#define DEFAULT_FOOT_FONT	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
+#define DEFAULT_FOOT_FONT	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

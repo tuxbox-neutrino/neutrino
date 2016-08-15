@@ -434,7 +434,7 @@ EpgPlus::Footer::Footer (CFrameBuffer * pframeBuffer, int px, int py, int pwidth
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
- 	this->buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //TODO get height from buttons
+	this->buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //TODO get height from buttons
 }
 
 EpgPlus::Footer::~Footer()
@@ -695,7 +695,7 @@ void EpgPlus::init()
 // 	if(icol_h < h2)
 // 		icol_h = h2;
 
-	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //TODO get height from buttons/*std::max (icol_h+8, fonts[EPGPlus_footer_fontbuttons]->getHeight());*/
+	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //TODO get height from buttons/*std::max (icol_h+8, fonts[EPGPlus_footer_fontbuttons]->getHeight());*/
 	int footerHeight = Footer::getUsedHeight() + buttonHeight;
 
 	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - horGap1Height - horGap2Height - footerHeight) / this->entryHeight;

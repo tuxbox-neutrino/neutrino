@@ -68,7 +68,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	width 	= w == 0 ? frameBuffer->getScreenWidth(true) : w;
 
 	//init footer height
-	cch_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+	cch_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 	height 		= max(h, cch_font->getHeight());
 
 	shadow		= shadow_mode;

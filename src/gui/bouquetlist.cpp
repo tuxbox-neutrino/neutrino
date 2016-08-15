@@ -412,7 +412,7 @@ int CBouquetList::show(bool bShowChannelList)
 	favonly = !bShowChannelList;
 
 	for(unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);count++){
-		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(CBouquetListButtons[count].locale));
+		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(CBouquetListButtons[count].locale));
 		w_max_text = std::max(w_max_text, w_text);
 		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
 		w_max_icon = std::max(w_max_icon, icol_w);
@@ -426,7 +426,7 @@ int CBouquetList::show(bool bShowChannelList)
 	width  = w_max (need_width, 20);
 	height = h_max (16 * fheight, 40);
 
-	footerHeight = std::max(h_max_icon+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8);
+	footerHeight = std::max(h_max_icon+8, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8);
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	listmaxshow = (height - theight - footerHeight)/fheight;
 	height      = theight + footerHeight + listmaxshow * fheight; // recalc height

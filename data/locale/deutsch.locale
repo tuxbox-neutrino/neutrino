@@ -731,6 +731,7 @@ fontsize.infobar_info Info
 fontsize.infobar_number Nummer
 fontsize.infobar_small Klein
 fontsize.menu Menütext
+fontsize.menu_foot Fußleiste (in allen GUI-Elementen)
 fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
