@@ -139,7 +139,7 @@ bool paintBoxRel0(	const int& x,
 *	@param[in] y 				position
 *	@param[in] dx 				witdh
 *	@param[in] dy 				height
-*	@param[in] *font			pointer to font type object, default = NULL, sets g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL] as default font
+*	@param[in] *font			pointer to font type object, default = NULL, sets g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO] as default font
 *	@param[in] color_body			color of box, default = COL_MENUCONTENT_PLUS_0
 *	@param[in] font_style			font style
 *						@li CComponentsText::FONT_STYLE_REGULAR (default)
