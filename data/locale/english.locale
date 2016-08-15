@@ -1064,6 +1064,7 @@ menu.hint_hdd_sleep Select time to stop hdd on inactivity
 menu.hint_hdd_statfs Specify when the recording directory fill level in infoviewer and, if available, on VFD, may be updated
 menu.hint_hdd_tools Initialize HDD, check filesystem
 menu.hint_foot_back Change GUI footer background color
+menu.hint_foot_textcolor Change GUI window footer text color
 menu.hint_head_back Change GUI title background color
 menu.hint_head_textcolor Change GUI window title text color
 menu.hint_imageinfo Information about installed software

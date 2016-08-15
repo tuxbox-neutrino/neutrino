@@ -1091,6 +1091,7 @@ const char * locale_real_names[] =
 	"menu.hint_hdd_statfs",
 	"menu.hint_hdd_tools",
 	"menu.hint_foot_back",
+	"menu.hint_foot_textcolor",
 	"menu.hint_head_back",
 	"menu.hint_head_textcolor",
 	"menu.hint_imageinfo",

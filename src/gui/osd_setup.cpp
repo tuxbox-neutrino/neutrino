@@ -695,6 +695,8 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 			NULL, colorSetupNotifier);
 	CColorChooser* chFootcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.menu_Foot_red, &t.menu_Foot_green, &t.menu_Foot_blue,
 			&t.menu_Foot_alpha, colorSetupNotifier);
+	CColorChooser* chFootTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.menu_Foot_Text_red, &t.menu_Foot_Text_green, &t.menu_Foot_Text_blue,
+			NULL, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
@@ -757,7 +759,12 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	// footer
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUFOOT));
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chFootcolor );
-	mf->setHint("", LOCALE_MENU_HINT_HEAD_BACK);
+	mf->setHint("", LOCALE_MENU_HINT_FOOT_BACK);
+	menu_colors->addItem(mf);
+
+	// footer text
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chFootTextcolor );
+	mf->setHint("", LOCALE_MENU_HINT_FOOT_TEXTCOLOR);
 	menu_colors->addItem(mf);
 
 	// hintbox color gradient

@@ -170,7 +170,7 @@ void CColorSetupNotifier::setPalette()
 
 	frameBuffer->paletteGenFade(COL_MENUFOOT,
 	                              convertSetupColor2RGB(t.menu_Foot_red, t.menu_Foot_green, t.menu_Foot_blue),
-	                              convertSetupColor2RGB(int(t.infobar_Text_red*0.6), int(t.infobar_Text_green*0.6), int(t.infobar_Text_blue*0.6)), /*TODO: use own color*/
+	                              convertSetupColor2RGB(t.menu_Foot_Text_red, t.menu_Foot_Text_green, t.menu_Foot_Text_blue),
 	                              8, convertSetupAlpha2Alpha( t.menu_Foot_alpha ) );
 
 	frameBuffer->paletteGenFade(COL_INFOBAR,
@@ -211,8 +211,8 @@ void CColorSetupNotifier::setPalette()
 
 	// COL_MENUFOOT_TEXT
 	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 2,
-	                              convertSetupColor2RGB(int(t.infobar_Text_red*0.6), int(t.infobar_Text_green*0.6), int(t.infobar_Text_blue*0.6)),
-	                              convertSetupAlpha2Alpha(t.infobar_alpha));
+	                              convertSetupColor2RGB(t.menu_Foot_Text_red, t.menu_Foot_Text_green, t.menu_Foot_Text_blue),
+	                              convertSetupAlpha2Alpha(t.menu_Foot_alpha));
 
 	// COL_MENUHEAD_TEXT
 	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 3,

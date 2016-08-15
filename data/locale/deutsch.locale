@@ -1064,6 +1064,7 @@ menu.hint_hdd_sleep Dieser Wert definiert, nach wieviel Minuten die Festplatte b
 menu.hint_hdd_statfs Legen Sie fest, wann die Aufnahmeverzeichnis-Füllstandsanzeige im InfoViewer (und ggf. am VFD-Display) aktualisiert werden darf
 menu.hint_hdd_tools Formatieren Sie die gefundenen Datenträger bzw. überprüfen Sie deren Dateisystem
 menu.hint_foot_back Ändern Sie die Fußleisten-Hintergrundfarbe
+menu.hint_foot_textcolor Ändern Sie die Fußleisten-Textfarbe
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
 menu.hint_imageinfo Informationen über die installierte Software

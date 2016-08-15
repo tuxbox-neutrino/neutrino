@@ -99,6 +99,11 @@ struct SNeutrinoTheme
 	unsigned char menu_Foot_green;
 	unsigned char menu_Foot_blue;
 
+	unsigned char menu_Foot_Text_alpha;
+	unsigned char menu_Foot_Text_red;
+	unsigned char menu_Foot_Text_green;
+	unsigned char menu_Foot_Text_blue;
+
 	int menu_Hint_gradient;
 	int menu_Hint_gradient_direction;
 	int menu_ButtonBar_gradient;
