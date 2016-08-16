@@ -74,7 +74,7 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	std::string name, icon    = std::string(NEUTRINO_ICON_INFO);
 	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
 	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
-	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_SHADOW_PLUS_0;
 	std::string tmp1          = "false";
 	std::string btnRed        = "";
 	std::string btnGreen      = "";

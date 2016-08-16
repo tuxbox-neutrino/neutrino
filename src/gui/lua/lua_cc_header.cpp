@@ -76,7 +76,7 @@ int CLuaInstCCHeader::CCHeaderNew(lua_State *L)
 	std::string caption, icon;
 	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
 	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
-	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_SHADOW_PLUS_0;
 
 	tableLookup(L, "parent",       (void**)&parent);
 	tableLookup(L, "x",            x);
