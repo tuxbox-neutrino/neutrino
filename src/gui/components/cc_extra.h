@@ -63,7 +63,7 @@
 *						@li CFrameBuffer::advanced
 *	@param[in] color_frame 			color of frame around box, default = COL_MENUCONTENT_PLUS_6
 *	@param[in] shadow_mode 			enable/disable shadow behind box, default = CC_SHADOW_OFF
-*	@param[in] color_shadow 		color of shadow, default = COL_MENUCONTENTDARK_PLUS_0
+*	@param[in] color_shadow 		color of shadow, default = COL_SHADOW_PLUS_0
 *
 *	@return
 *		True if painted
@@ -88,7 +88,7 @@ bool paintBoxRel(	const int& x,
 			const int& w_frame = 0,
 			const fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
 			int shadow_mode = CC_SHADOW_OFF,
-			const fb_pixel_t& color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 
 /** 	Paint a box on screen.
 *	@param[in] x 				position
@@ -110,7 +110,7 @@ bool paintBoxRel(	const int& x,
 *						@li CORNER_ALL
 *	@param[in] color_frame 			color of frame around box, default = COL_MENUCONTENT_PLUS_6
 *	@param[in] shadow_mode 			enable/disable shadow behind box, default = CC_SHADOW_OFF
-*	@param[in] color_shadow 		color of shadow, default = COL_MENUCONTENTDARK_PLUS_0
+*	@param[in] color_shadow 		color of shadow, default = COL_SHADOW_PLUS_0
 *
 *	@return
 *		True if painted
@@ -131,7 +131,7 @@ bool paintBoxRel0(	const int& x,
 			const int& w_frame = 0,
 			const fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
 			int shadow_mode = CC_SHADOW_OFF,
-			const fb_pixel_t& color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 
 /** 	Paint a text box on screen.
 *	@param[in] std::string& 		text
@@ -175,7 +175,7 @@ bool paintBoxRel0(	const int& x,
 *						@li CFrameBuffer::advanced
 *	@param[in] color_frame 			color of frame around box, default = COL_MENUCONTENT_PLUS_6
 *	@param[in] shadow_mode 			enable/disable shadow behind box, default = CC_SHADOW_OFF
-*	@param[in] color_shadow 		color of shadow, default = COL_MENUCONTENTDARK_PLUS_0
+*	@param[in] color_shadow 		color of shadow, default = COL_SHADOW_PLUS_0
 *
 *	@return
 *		True if painted
@@ -206,7 +206,7 @@ bool paintTextBoxRel(	const std::string& text,
 			const int& gradient_intensity = CColorGradient::normal,
 			const fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
 			int shadow_mode = CC_SHADOW_OFF,
-			const fb_pixel_t& color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 
 /** 	Paint an image on screen.
 *	@param[in] std::string& 		full path or filename
@@ -250,7 +250,7 @@ bool paintTextBoxRel(	const std::string& text,
 *						@li CFrameBuffer::advanced
 *	@param[in] color_frame 			color of frame around box, default = COL_MENUCONTENT_PLUS_6
 *	@param[in] shadow_mode 			enable/disable shadow behind box, default = CC_SHADOW_OFF
-*	@param[in] color_shadow 		color of shadow, default = COL_MENUCONTENTDARK_PLUS_0
+*	@param[in] color_shadow 		color of shadow, default = COL_SHADOW_PLUS_0
 *
 *	@return
 *		True if painted
@@ -272,5 +272,5 @@ bool paintImage(	const std::string& image_name,
 			const int& corner_type = CORNER_NONE,
 			const fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
 			int shadow_mode = CC_SHADOW_OFF,
-			const fb_pixel_t& color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 #endif

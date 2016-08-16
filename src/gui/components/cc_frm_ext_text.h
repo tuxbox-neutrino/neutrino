@@ -84,7 +84,7 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 					fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 // 		~CComponentsExtTextForm(); //inherited from CComponentsForm
 
 		///assigns texts for label and text, parameter as string, parameter Font is optional for required font type, default font is dependently from defined item height
@@ -145,7 +145,7 @@ class CComponentsExtTextFormLocalized : public CComponentsExtTextForm
 						int shadow_mode = CC_SHADOW_OFF,
 						fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
 						fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
-						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 };
 
 #endif

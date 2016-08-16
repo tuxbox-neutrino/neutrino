@@ -39,7 +39,7 @@ class CComponentsIconForm : public CComponentsFrmChain
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 	public:
 		CComponentsIconForm(CComponentsForm *parent = NULL);
@@ -48,7 +48,7 @@ class CComponentsIconForm : public CComponentsFrmChain
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
-					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 // 		~CComponentsIconForm(); //inherited from CComponentsForm
 
 		void addIcon(const std::string& icon_name);

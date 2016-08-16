@@ -68,7 +68,7 @@ class CComponentsForm : public CComponentsItem
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 		virtual ~CComponentsForm();
 
 		///paints current form on screen, for paint a page use paintPage()

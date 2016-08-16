@@ -69,7 +69,7 @@ class CComponentsFrmChain : public CComponentsForm
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t& color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t& color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 // 		~CComponentsFrmChain(); //inherited from CComponentsForm
 
 		///defines mode for arrangement direction of items, see also chn_direction

@@ -47,7 +47,7 @@ class CComponentsShapeCircle : public CComponentsItem
 		CComponentsShapeCircle(	const int x_pos, const int y_pos, const int diam,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///set property: diam
 		inline void setDiam(const int& diam){d=width=height=diam, corner_rad=d/2;};
@@ -64,7 +64,7 @@ class CComponentsShapeSquare : public CComponentsItem
 		CComponentsShapeSquare(	const int x_pos, const int y_pos, const int w, const int h,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };

@@ -114,7 +114,7 @@ class CComponentsPicture : public CComponentsItem
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int transparent = CFrameBuffer::TM_NONE);
 
 		/*!
@@ -130,7 +130,7 @@ class CComponentsPicture : public CComponentsItem
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int transparent = CFrameBuffer::TM_NONE);
 		virtual~CComponentsPicture()
 		{
@@ -198,7 +198,7 @@ class 	CComponentsPictureScalable : public CComponentsPicture
 						int shadow_mode = CC_SHADOW_OFF,
 						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 						fb_pixel_t color_background = 0,
-						fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 						int transparent = CFrameBuffer::TM_NONE)
 						: CComponentsPicture(x_pos, y_pos, 0, 0, image_name, parent, shadow_mode, color_frame, color_background, color_shadow, transparent){};
 };
@@ -233,7 +233,7 @@ class CComponentsChannelLogo : public CComponentsPicture
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int transparent = CFrameBuffer::TM_BLACK);
 
 		/*!
@@ -249,7 +249,7 @@ class CComponentsChannelLogo : public CComponentsPicture
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int transparent = CFrameBuffer::TM_BLACK);
 
 		///set channel id and/or channel name, NOTE: channel name is prefered
@@ -282,7 +282,7 @@ class 	CComponentsChannelLogoScalable : public CComponentsChannelLogo
 						int shadow_mode = CC_SHADOW_OFF,
 						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 						fb_pixel_t color_background = 0,
-						fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 						int transparent = CFrameBuffer::TM_BLACK)
 						: CComponentsChannelLogo(x_pos, y_pos, 0, 0, channelName, channelId, parent, shadow_mode, color_frame, color_background, color_shadow, transparent){};
 };

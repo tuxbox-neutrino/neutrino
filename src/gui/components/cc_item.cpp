@@ -145,7 +145,7 @@ void CComponentsItem::kill(const fb_pixel_t& bg_color, bool ignore_parent, const
 void CComponentsItem::syncSysColors()
 {
 	col_body 	= COL_MENUCONTENT_PLUS_0;
-	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
+	col_shadow 	= COL_SHADOW_PLUS_0;
 	col_frame 	= COL_MENUCONTENT_PLUS_6;
 }
 

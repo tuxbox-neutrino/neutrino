@@ -112,7 +112,7 @@ class CComponentsWindow : public CComponentsForm
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 		///initialize width and height
 		void initWindowSize();
 		///initialize position
@@ -137,7 +137,7 @@ class CComponentsWindow : public CComponentsForm
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///advanced constructor for CComponentsWindow, provides parameters for the most required properties, and caption from locales, x_pos or y_pos = 0 will center window
 		CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -147,7 +147,7 @@ class CComponentsWindow : public CComponentsForm
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///add item to body object, also usable is addCCItem() to add items to the windo object
 		int addWindowItem(CComponentsItem* cc_Item);
@@ -233,7 +233,7 @@ class CComponentsWindowMax : public CComponentsWindow
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, this shows a centered window based up current screen settings
 		CComponentsWindowMax(	neutrino_locale_t locale_caption, const std::string& iconname = "",
@@ -241,7 +241,7 @@ class CComponentsWindowMax : public CComponentsWindow
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 };
 
 #endif

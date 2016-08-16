@@ -104,7 +104,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int font_style = CNeutrinoFonts::FONT_STYLE_BOLD
 				);
 		virtual ~CComponentsFrmClock();

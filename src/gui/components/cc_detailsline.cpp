@@ -140,5 +140,5 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 void CComponentsDetailLine::syncSysColors()
 {
 	col_body 	= COL_MENUCONTENT_PLUS_6;
-	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
+	col_shadow 	= COL_SHADOW_PLUS_0;
 }

@@ -109,7 +109,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		CComponentsText(	CComponentsForm *parent,
 					const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
@@ -118,7 +118,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 					Font* font_text = NULL,
 					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		virtual ~CComponentsText();
 
@@ -134,7 +134,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 		virtual void setTextColor(const fb_pixel_t& color_text);
 		///set all basic framebuffer element colors at once
 		///Note: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
-		virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0, fb_pixel_t color_text = COL_MENUCONTENT_TEXT)
+		virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0, fb_pixel_t color_text = COL_MENUCONTENT_TEXT)
 					{
 						CCDraw::setColorAll(color_frame, color_body, color_shadow);
 						setTextColor(color_text);
@@ -256,7 +256,7 @@ class CComponentsLabel : public CComponentsText
 					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_LABEL;

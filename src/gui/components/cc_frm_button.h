@@ -103,7 +103,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -112,7 +112,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -121,7 +121,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
@@ -130,7 +130,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///set text color
 		virtual void setButtonTextColor(fb_pixel_t text_color, fb_pixel_t text_color_disabled = COL_MENUCONTENTINACTIVE_TEXT){cc_btn_capt_col = text_color; cc_btn_capt_disable_col = text_color_disabled;}
@@ -204,7 +204,7 @@ class CComponentsButtonRed : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
@@ -215,7 +215,7 @@ class CComponentsButtonRed : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
@@ -235,7 +235,7 @@ class CComponentsButtonGreen : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
@@ -246,7 +246,7 @@ class CComponentsButtonGreen : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
@@ -266,7 +266,7 @@ class CComponentsButtonYellow : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
@@ -277,7 +277,7 @@ class CComponentsButtonYellow : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
@@ -297,7 +297,7 @@ class CComponentsButtonBlue : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
@@ -308,7 +308,7 @@ class CComponentsButtonBlue : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;

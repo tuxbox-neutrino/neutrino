@@ -100,7 +100,7 @@ class CProgressBar : public CComponentsItem
 				const int h = -1,
 				fb_pixel_t color_frame = 0,
 				fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-				fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+				fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 				const fb_pixel_t active_col = COL_INFOBAR_PLUS_7,
 				const fb_pixel_t passive_col = COL_INFOBAR_PLUS_3,
 				const int R = 40,

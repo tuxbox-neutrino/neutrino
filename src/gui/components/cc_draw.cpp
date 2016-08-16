@@ -38,7 +38,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	width	= width_old	= CC_WIDTH_MIN;
 
 	col_body = col_body_old			= COL_MENUCONTENT_PLUS_0;
-	col_shadow = col_shadow_old 		= COL_MENUCONTENTDARK_PLUS_0;
+	col_shadow = col_shadow_old 		= COL_SHADOW_PLUS_0;
 	col_frame = col_frame_old 		= COL_MENUCONTENT_PLUS_6;
 	col_frame_sel = col_frame_sel_old 	= COL_MENUCONTENTSELECTED_PLUS_0;
 
