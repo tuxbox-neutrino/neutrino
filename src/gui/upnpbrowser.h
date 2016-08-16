@@ -79,14 +79,19 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	unsigned int   m_listmaxshow;
 	unsigned int   m_deviceliststart;
 	unsigned int   m_selecteddevice;
-	int            m_fheight; // items font height
-	int            m_theight; // title font height
-	int            m_mheight; // lower box font height
-	int            m_iheight; // upper box font height
+
 	int		font_item;
-	int            m_buttonHeight;
-	int            m_title_height;
-	int            m_info_height;
+
+	int            m_topbox_height;
+	int            m_header_height;
+	int            m_header_y;
+	int            m_item_height;
+	int            m_item_y;
+	int            m_footer_height;
+	int            m_footer_y;
+	int            m_infobox_height;
+	int            m_infobox_y;
+
 	bool           m_folderplay;
 	std::string    m_playfolder;
 	int            m_playid;
@@ -95,7 +100,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	time_t         timeout;
 	CComponentsDetailLine * dline;
 	CComponentsFooter footer;
-	CComponentsInfoBox ibox, timebox, topbox;
+	CComponentsInfoBox topbox, infobox, timebox;
 	CComponentsPicture *image;
 
 	bool discoverDevices();
