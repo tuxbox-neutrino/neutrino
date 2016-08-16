@@ -73,8 +73,6 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 
 	Init();
 
-	font_item = SNeutrinoSettings::FONT_TYPE_MENU;
-
 	dline = NULL;
 	image = NULL;
 
@@ -87,6 +85,8 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 
 void CUpnpBrowserGui::Init()
 {
+	font_item = SNeutrinoSettings::FONT_TYPE_MENU;
+
 	topbox.enableFrame(true, 2);
 	topbox.setCorner(RADIUS_LARGE);
 	topbox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_MENUCONTENTDARK_PLUS_0, COL_MENUHEAD_TEXT);
