@@ -89,24 +89,24 @@ void CUpnpBrowserGui::Init()
 
 	topbox.enableFrame(true, 2);
 	topbox.setCorner(RADIUS_LARGE);
-	topbox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_MENUCONTENTDARK_PLUS_0, COL_MENUHEAD_TEXT);
+	topbox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, COL_MENUHEAD_TEXT);
 	topbox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]);
 	topbox.enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-	//topbox.enableShadow();
+	topbox.enableShadow(CC_SHADOW_ON, -1, true);
 
 	infobox.enableFrame(true, 2);
 	infobox.setCorner(RADIUS_LARGE);
 	infobox.setColorAll(topbox.getColorFrame(), COL_MENUCONTENTDARK_PLUS_0);
 	infobox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
 	infobox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);
-	//infobox.enableShadow();
+	infobox.enableShadow(CC_SHADOW_ON, -1, true);
 
 	timebox.enableFrame(true, 2);
 	timebox.setCorner(RADIUS_LARGE);
 	timebox.setColorAll(infobox.getColorFrame(), infobox.getColorBody());
 	timebox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
 	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);
-	//timebox.enableShadow();
+	timebox.enableShadow(CC_SHADOW_ON, -1, true);
 
 	m_width = m_frameBuffer->getScreenWidthRel();
 	m_height = m_frameBuffer->getScreenHeightRel();
@@ -132,9 +132,6 @@ void CUpnpBrowserGui::Init()
 	 *  - footer
 	 * INNER_OFFSET
 	 * infobox/timebox (with shadow)
-	 *
-	 * Note: box shadows are disabled atm, so it looks like double offset between boxes
-	 *       box shadows seems buggy in ccomponents classes
 	*/
 
 	m_listmaxshow = (m_height - m_topbox_height - SHADOW_OFFSET - INNER_OFFSET - m_header_height - m_footer_height - SHADOW_OFFSET - INNER_OFFSET - m_infobox_height - SHADOW_OFFSET) / (m_item_height);
@@ -143,6 +140,7 @@ void CUpnpBrowserGui::Init()
 	m_height = m_topbox_height + SHADOW_OFFSET + INNER_OFFSET + m_header_height + (m_listmaxshow * m_item_height) + m_footer_height + SHADOW_OFFSET + INNER_OFFSET + m_infobox_height + SHADOW_OFFSET;
 
 	footer.setHeight(m_footer_height);
+	footer.enableShadow(CC_SHADOW_ON, -1, true);
 
 	m_x=getScreenStartX(m_width);
 	if (m_x < ConnectLineBox_Width) // shouldn't happen
@@ -983,6 +981,7 @@ void CUpnpBrowserGui::paintDevices()
 
 	// Head
 	CComponentsHeaderLocalized header(m_x, m_header_y, m_width, m_header_height, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
+	header.enableShadow(CC_SHADOW_RIGHT, -1, true);
 	if (CNeutrinoApp::getInstance()->isMuted()) //TODO: consider mute mode on runtime
 		header.addContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 	else
@@ -1005,10 +1004,9 @@ void CUpnpBrowserGui::paintDevices()
 	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
 
 	//shadow
-	//m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + SHADOW_OFFSET, SHADOW_OFFSET, sb, COL_SHADOW_PLUS_0);
+	m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + SHADOW_OFFSET, SHADOW_OFFSET, sb, COL_SHADOW_PLUS_0);
 
 	// Foot
-	//footer.enableShadow();
 	footer.paintButtons(m_x, m_footer_y, m_width, m_footer_height, 1, &RescanButton, m_width/2);
 
 	paintItem2DetailsLine (-1); // clear it
@@ -1188,7 +1186,7 @@ void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int sel
 
 	// Foot buttons
 	size_t numbuttons = sizeof(BrowseButtons)/sizeof(BrowseButtons[0]);
-	//footer.enableShadow();
+
 	footer.paintButtons(m_x, m_footer_y, m_width, m_footer_height, numbuttons, BrowseButtons, m_width/numbuttons);
 }
 
