@@ -90,31 +90,54 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		bool sh_r = (shadow & CC_SHADOW_ON) || (shadow & CC_SHADOW_RIGHT);
 		bool sh_b = (shadow & CC_SHADOW_ON) || (shadow & CC_SHADOW_BOTTOM);
 
-		//if item is bound on a parent form, we must use real x/y values and from parent form as reference
+		//if item is bound on a parent form,...
 		int ix = x, iy = y;
+		fb_pixel_t col_shadow_clean = 0;
 		if (cc_parent){
+			//we must use real x/y values and from parent form as reference
 			ix = cc_xr;
 			iy = cc_yr;
+			//we must use color of parent body instead screen background
+			col_shadow_clean = cc_parent->getColorBody();
 		}
 
-		//handle shadow width
-		if (width <= sw || height <= sw){ //don't use shadow, if item dimensions too small
-			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsItem]\t[%s - %d] shadow dimensions too small sw=%d, shadow is disabled set dimension to 0\033[0m\n",__func__, __LINE__, sw);
-			shadow = CC_SHADOW_OFF;
-			sw = 0;
-		}
-		int isw = sw*2;
-		int ixsr = ix + width - isw/2;
-		int iysb = iy + height - isw/2;
+// 		//handle shadow width
+// 		if (width <= sw || height <= sw){ //don't use shadow, if item dimensions too small
+// 			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsItem]\t[%s - %d] shadow dimensions too small sw=%d, shadow is disabled set dimension to 0\033[0m\n",__func__, __LINE__, sw);
+// 			shadow = CC_SHADOW_OFF;
+// 			sw = 0;
+// 		}
 
 		//init paint layers
 		cc_fbdata_t fbdata[] =
 		{
-			{true, CC_FBDATA_TYPE_BGSCREEN,		ix,		iy, 		width+isw/2, 	height+isw/2, 	0, 		0, 		0,				0, 	NULL, NULL, NULL, false}, //buffered bg
-			{sh_r, CC_FBDATA_TYPE_SHADOW_BOX, 	ixsr,		iy+isw/2,	isw, 		height, 	col_shadow, 	corner_rad,	corner_type & CORNER_RIGHT,	0, 	NULL, NULL, NULL, false}, //shadow right
-			{sh_b, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+isw/2,	iysb, 		width, 		isw, 		col_shadow, 	corner_rad,	corner_type & CORNER_BOTTOM,	0, 	NULL, NULL, NULL, false}, //shadow bottom
-			{true, CC_FBDATA_TYPE_BOX,		ix+th,  	iy+th,  	width-2*th,     height-2*th,    col_body,       rad,		corner_type,			0, 	NULL, NULL, NULL, false}, //body
-			{true, CC_FBDATA_TYPE_FRAME,		ix,		iy, 		width, 		height, 	col_frame_cur, 	corner_rad,	corner_type,			th, 	NULL, NULL, NULL, false}  //frame
+			 //buffered bg
+			{true, CC_FBDATA_TYPE_BGSCREEN,		ix,			iy, 			width+sw, 		height+sw, 		0, 		0, 		0,					0, 		NULL, NULL, NULL, false},
+
+			//shadow bottom corner left
+			{sh_b, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+sw,			iy+height-corner_rad, 	corner_rad+sw, 		corner_rad+sw, 		col_shadow, 		corner_rad,	CORNER_BOTTOM_LEFT,			0, 		NULL, NULL, NULL, false},
+			//clean up
+			{sh_b, CC_FBDATA_TYPE_SHADOW_BOX, 	ix,			iy+height-corner_rad-sw, corner_rad+2*sw, 	corner_rad+sw, 		col_shadow_clean, 	corner_rad,	CORNER_BOTTOM_LEFT,			0, 		NULL, NULL, NULL, false},
+
+			//shadow bottom corner right
+			{sh_r, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+width-corner_rad,	iy+height-corner_rad, 	corner_rad+sw, 		corner_rad+sw, 		col_shadow, 		corner_rad,	corner_type & CORNER_BOTTOM_RIGHT,	0, 		NULL, NULL, NULL, false},
+			//clean up
+			{sh_r, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+width-corner_rad-sw,iy+height-corner_rad-sw, corner_rad+sw, 		corner_rad+sw, 		col_shadow_clean, 	corner_rad,	corner_type & CORNER_BOTTOM_RIGHT,	0, 		NULL, NULL, NULL, false},
+
+			//shadow top corner right
+			{sh_r, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+width-corner_rad,	iy+sw, 			corner_rad+sw, 		corner_rad+sw, 		col_shadow, 		corner_rad,	corner_type & CORNER_TOP_RIGHT,			0, 		NULL, NULL, NULL, false},
+			//clean up
+			{sh_r, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+width-corner_rad-sw,	iy, 			corner_rad+sw, 		corner_rad+2*sw, 	col_shadow_clean, 	corner_rad,	corner_type & CORNER_TOP_RIGHT,			0, 		NULL, NULL, NULL, false},
+
+			//shadow bar bottom
+			{sh_b, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+2*sw+corner_rad,	iy+height, 		max(width-2*corner_rad-2*sw,0), 	sw, 					col_shadow, 	0,		CORNER_NONE,	0, 	NULL, NULL, NULL, false},
+			//shadow bar right
+			{sh_r, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+width,		iy+2*sw+corner_rad,	sw, 					max(height-2*corner_rad-2*sw,0), 	col_shadow, 	0,		CORNER_NONE,	0, 	NULL, NULL, NULL, false},
+
+			//body box
+			{true, CC_FBDATA_TYPE_BOX,		ix+th,  		iy+th,  		width-2*th,     			height-2*th,    			col_body,       rad,		corner_type,	0, 	NULL, NULL, NULL, false},
+			//body frame
+			{true, CC_FBDATA_TYPE_FRAME,		ix,			iy, 			width, 					height, 				col_frame_cur, 	corner_rad,	corner_type,	th, 	NULL, NULL, NULL, false}
 		};
 
 		for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++) {
