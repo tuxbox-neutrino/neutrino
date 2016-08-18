@@ -83,7 +83,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;
 
-	btn_contour	= false /*g_settings.theme.Button_gradient*/; //TODO: not implemented at the moment
+	ccf_enable_button_bg	= false /*g_settings.theme.Button_gradient*/; //TODO: not implemented at the moment
 	ccf_btn_font	= NULL;
 	chain		= NULL;
 
@@ -141,13 +141,15 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			continue;
 		}
 
-		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (btn_contour ? height-2*fr_thickness : height), txt, icon_name);
+		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (ccf_enable_button_bg ? height-2*fr_thickness : height), txt, icon_name);
+
 		btn->setButtonFont(ccf_btn_font);
-		btn->doPaintBg(btn_contour);
+		btn->doPaintBg(ccf_enable_button_bg);
 		btn->setButtonDirectKey(content[i].directKey);
 		btn->setButtonDirectKeyA(content[i].directKeyAlt);
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);
+		btn->enableShadow();
 
 		//set button frames to icon color, predefined for available color buttons
 		if (btn_auto_frame_col){
@@ -162,9 +164,6 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 				f_col = COL_DARK_BLUE;
 			btn->setColorFrame(f_col);
 		}
-
-		if (btn_contour)
-			btn->setFrameThickness(3, 3);
 
 		chain->addCCItem(btn);
 
@@ -296,12 +295,12 @@ void CComponentsFooter::setButtonLabel(	const char *button_icon,
 	setButtonLabel(button_icon, txt, chain_width, label_width, msg, result_value, alias_value, directKeyAlt);
 }
 
-void CComponentsFooter::showButtonContour(bool show)
+void CComponentsFooter::enableButtonBg(bool enable)
 {
-	btn_contour = show;
+	ccf_enable_button_bg = enable;
 	if (chain) {
 		for (size_t i= 0; i< chain->size(); i++)
-			chain->getCCItem(i)->doPaintBg(btn_contour);
+			chain->getCCItem(i)->doPaintBg(ccf_enable_button_bg);
 	}
 }
 

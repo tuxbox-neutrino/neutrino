@@ -112,6 +112,9 @@ class CMsgBox : public CHintBox
 		///assigned button captions
 		std::string BTN_TEXT(const int& showed_button);
 
+		///enables/disable button background
+		bool btn_enable_bg;
+
 		void initButtons();
 	public:
 		/* Constructor */
@@ -180,6 +183,11 @@ class CMsgBox : public CHintBox
 		Result values are not touched!
 		*/
 		void setButtonText(const int& showed_button, const std::string& text);
+
+		///enables background of buttons, parameter bool show, default= true
+		void enableButtonBg(bool enable = true);
+		///disables background of buttons
+		void disableButtonBg(){enableButtonBg(false);}
 
 // 		bool	setText(const std::string* newText);
 };

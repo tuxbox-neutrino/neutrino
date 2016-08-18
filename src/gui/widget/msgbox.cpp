@@ -7,7 +7,7 @@
 	Günther@tuxbox.berlios.org
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2015 Thilo Graf 'dbt'
+	Copyright (C) 2014-2016 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -87,6 +87,7 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 
 	//enable footer and add its height
 	showFooter(true);
+	btn_enable_bg = false;
 	ccw_footer->doPaintBg(false);
 	int h_current = height;
 	h_current += ccw_footer->getHeight();
@@ -174,8 +175,8 @@ void CMsgBox::initButtons()
 
 	ccw_footer->setButtonLabels(v_buttons, 0, 125);
 
-	//show buttons with frame and background
-	ccw_footer->showButtonContour(true);
+	//show buttons with background
+	ccw_footer->enableButtonBg(btn_enable_bg);
 
 	//set position of meassage window and refresh window properties
 	setCenterPos();

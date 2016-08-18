@@ -70,8 +70,8 @@ class CComponentsFooter : public CComponentsHeader
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow );
 
-		///show button frame and background, default false
-		bool btn_contour;
+		///show button with background, default false
+		bool ccf_enable_button_bg;
 		///enable/disable button frame in icon color, predefined for red, green, yellow and blue, default disabled
 		bool btn_auto_frame_col;
 
@@ -126,8 +126,10 @@ class CComponentsFooter : public CComponentsHeader
 					const int& alias_value = -1,
 					const neutrino_msg_t& directKeyAlt = CRCInput::RC_nokey);
 		
-		///causes show/hide countour of button frame and background, parameter bool show, default= true
-		void showButtonContour(bool show = true);
+		///enables background of buttons, parameter bool show, default= true
+		void enableButtonBg(bool enable = true);
+		///disables background of buttons
+		void disableButtonBg(){enableButtonBg(false);}
 
 		///select a definied button, parameter1 as size_t
 		void setSelectedButton(size_t item_id);
