@@ -369,8 +369,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 #endif
 	else if (actionKey == "button"){
-		if (button == NULL)
+		if (button == NULL){
 			button = new CComponentsButtonRed(100, 100, 100, 50, "Test");
+			button->enableShadow();
+		}
+		
 
 		if (!button->isPainted()){
 			if (button->isSelected())
@@ -385,7 +388,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "circle"){
 		if (circle == NULL)
-			circle = new CComponentsShapeCircle (100, 100, 100, NULL, false);
+			circle = new CComponentsShapeCircle (100, 100, 100, NULL, CC_SHADOW_ON, COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_RED);
 
 		if (!circle->isPainted())	
 			circle->paint();
