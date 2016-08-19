@@ -77,7 +77,7 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	CLuaCCWindow* parent = NULL;
-	lua_Integer x=10, y=10, dx=100, dy=100;
+	lua_Integer x=10, y=10, dx=-1, dy=-1;
 	std::string text = "";
 	std::string tmpMode       = "";
 	lua_Integer mode          = CTextBox::AUTO_WIDTH;
@@ -139,6 +139,16 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	}
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
+	if(pw){
+		if(dx == -1)
+			dx = pw->getHeight();
+		if(dy == -1)
+			dy = pw->getWidth();
+	}
+	if(dx == -1)
+		dx = 100;
+	if(dy == -1)
+		dy = 100;
 
 	CLuaCCText **udata = (CLuaCCText **) lua_newuserdata(L, sizeof(CLuaCCText *));
 	*udata = new CLuaCCText();
