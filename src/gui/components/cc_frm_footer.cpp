@@ -117,7 +117,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	//footer as primary container (in this context '=this') and the parent for the button label container (chain object),
 	//button label container (chain object) itself is concurrent the parent object for button objects.
 	if (chain == NULL){
-		chain = new CComponentsFrmChain(x_chain, CC_CENTERED, w_chain, height, 0, CC_DIR_X, this);
+		chain = new CComponentsFrmChain(x_chain, CC_CENTERED, w_chain, height, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
 		chain->setCorner(this->corner_rad, this->corner_type);
 		chain->doPaintBg(false);
 	}
