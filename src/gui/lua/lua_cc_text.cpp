@@ -140,10 +140,10 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 	if(pw){
-		if(dx < 1)
-			dx = pw->getHeight();
 		if(dy < 1)
-			dy = pw->getWidth();
+			dy = pw->getHeight();
+		if(dx < 1)
+			dx = pw->getWidth();
 	}
 	if(dx < 1)
 		dx = 100;
