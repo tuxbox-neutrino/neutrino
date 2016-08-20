@@ -188,7 +188,7 @@ void CComponentsButton::initCaption()
 	}
 
 	//set basic properties
-	int w_frame = max(fr_thickness, fr_thickness_sel);
+	int w_frame = fr_thickness;
 	if (cc_btn_capt_obj){
 		//position and size
 		int x_cap = w_frame;

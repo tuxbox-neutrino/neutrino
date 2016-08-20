@@ -30,7 +30,7 @@
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
-
+#include <gui/color_custom.h>
 
 class CComponentsForm;
 class CComponentsScrollBar;

@@ -72,16 +72,11 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		is_painted = false; //force repaint if required
 	}
 
+	//calculate current needed frame thickeness and color, if item selected or not
+	fb_pixel_t col_frame_cur = col_frame;
+	int th = fr_thickness;
+
 	if (v_fbdata.empty()){
-		int th = fr_thickness;
-		fb_pixel_t col_frame_cur = col_frame;
-
-		//calculate current needed frame thickeness and color, if item selected or not
-		if (cc_item_selected){
-			col_frame_cur = col_frame_sel;
-			th = max(fr_thickness_sel, fr_thickness);
-		}
-
 		//calculate current needed corner radius for body box, depends of frame thickness
 		int rad = (corner_rad>th) ? corner_rad-th : corner_rad;
 		int sw = (shadow) ? shadow_w : 0;
@@ -136,6 +131,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 
 			//body box
 			{true, CC_FBDATA_TYPE_BOX,		ix+th,  		iy+th,  		width-2*th,     			height-2*th,    			col_body,       rad,		corner_type,	0, 	NULL, NULL, NULL, false},
+
 			//body frame
 			{true, CC_FBDATA_TYPE_FRAME,		ix,			iy, 			width, 					height, 				col_frame_cur, 	corner_rad,	corner_type,	th, 	NULL, NULL, NULL, false}
 		};
@@ -145,8 +141,17 @@ void CComponentsItem::paintInit(bool do_save_bg)
 				continue;
 			v_fbdata.push_back(fbdata[i]);
 		}
-
 		dprintf(DEBUG_DEBUG, "[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __func__, cc_item_type,  cc_item_index, height, width);
+	}
+
+	//handle frame color for slected/not selected item
+	if (fr_thickness) {
+		for(size_t j =0; j< v_fbdata.size() ;j++) {
+			if ((v_fbdata[j].fbdata_type == CC_FBDATA_TYPE_FRAME)){
+				v_fbdata[j].color = col_frame_cur;
+				v_fbdata[j].frame_thickness = th;
+			}
+		}
 	}
 	paintFbItems(do_save_bg);
 }
@@ -241,4 +246,12 @@ void CComponentsItem::setFocus(bool focus)
 		}
 	}
 	cc_has_focus = focus;
+}
+
+void CComponentsItem::setSelected(bool selected, const fb_pixel_t& sel_frame_col,  const fb_pixel_t& frame_col, const fb_pixel_t& sel_body_col, const fb_pixel_t& body_col, const int& frame_w, const int& sel_frame_w)
+{
+	cc_item_selected = selected;
+	fr_thickness = cc_item_selected ? sel_frame_w : frame_w;
+	col_body = cc_item_selected ? sel_body_col : body_col;
+	col_frame = cc_item_selected ? sel_frame_col : frame_col;
 }

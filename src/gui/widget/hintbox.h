@@ -39,7 +39,7 @@
 //frame around hint container as indent
 #define W_FRAME 15
 //frame color around hint/message box
-#define HINTBOX_DEFAULT_FRAME_COLOR COL_MENUCONTENT_PLUS_6
+#define HINTBOX_DEFAULT_FRAME_COLOR COL_FRAME
 
 //! Sub class of CComponentsWindow. Shows a window as a hintbox with text and optional icon beside of text.
 /*!
