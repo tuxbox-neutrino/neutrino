@@ -170,7 +170,12 @@ void CComponentsWindow::initWindowSize()
 
 	if (width == 0)
 		width = frameBuffer->getScreenWidth();
+	else if ((unsigned)width > frameBuffer->getScreenWidth())
+		width = frameBuffer->getScreenWidth();
+
 	if (height == 0)
+		height = frameBuffer->getScreenHeight();
+	else if((unsigned)height > frameBuffer->getScreenHeight())
 		height = frameBuffer->getScreenHeight();
 }
 
