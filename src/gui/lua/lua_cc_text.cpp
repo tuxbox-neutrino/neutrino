@@ -140,14 +140,14 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 	if(pw){
-		if(dx == -1)
+		if(dx < 1)
 			dx = pw->getHeight();
-		if(dy == -1)
+		if(dy < 1)
 			dy = pw->getWidth();
 	}
-	if(dx == -1)
+	if(dx < 1)
 		dx = 100;
-	if(dy == -1)
+	if(dy < 1)
 		dy = 100;
 
 	CLuaCCText **udata = (CLuaCCText **) lua_newuserdata(L, sizeof(CLuaCCText *));
