@@ -72,6 +72,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	height 		= max(h, cch_font->getHeight());
 
 	shadow		= shadow_mode;
+	ccf_enable_button_shadow = false;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
@@ -141,7 +142,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			continue;
 		}
 
-		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (ccf_enable_button_bg ? height-2*fr_thickness : height)- 2*shadow_w, txt, icon_name, NULL, false, true, CC_SHADOW_ON);
+		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (ccf_enable_button_bg ? height-2*fr_thickness : height)- 2*shadow_w, txt, icon_name, NULL, false, true, ccf_enable_button_shadow);
 
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(ccf_enable_button_bg);
@@ -353,4 +354,14 @@ void CComponentsFooter::setButtonText(const uint& btn_id, const std::string& tex
 	}
 	else
 		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: can't set button text, possible wrong btn_id=%u, item=%p...\n", __func__, __LINE__, btn_id, item);
+}
+
+
+void CComponentsFooter::enableButtonShadow(int mode, const int& shadow_width, bool force_paint)
+{
+	ccf_enable_button_shadow = mode;
+	if (chain){
+		for(size_t i=0; i<chain->size(); i++)
+			chain->enableShadow(mode, shadow_width, force_paint);
+	}
 }
