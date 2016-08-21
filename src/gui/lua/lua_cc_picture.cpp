@@ -57,6 +57,8 @@ void CLuaInstCCPicture::CCPictureRegister(lua_State *L)
 		{ "hide",         CLuaInstCCPicture::CCPictureHide },
 		{ "setPicture",   CLuaInstCCPicture::CCPictureSetPicture },
 		{ "setCenterPos", CLuaInstCCPicture::CCPictureSetCenterPos },
+		{ "getHeight",    CLuaInstCCPicture::CCPictureGetHeight },
+		{ "getWidth",    CLuaInstCCPicture::CCPictureGetWidth },
 		{ "__gc",         CLuaInstCCPicture::CCPictureDelete },
 		{ NULL, NULL }
 	};
@@ -123,6 +125,26 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, "cpicture");
 	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstCCPicture::CCPictureGetHeight(lua_State *L)
+{
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
+
+	int h = D->cp->getHeight();
+	lua_pushinteger(L, h);
+	return 1;
+}
+
+int CLuaInstCCPicture::CCPictureGetWidth(lua_State *L)
+{
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
+
+	int w = D->cp->getWidth();
+	lua_pushinteger(L, w);
 	return 1;
 }
 
