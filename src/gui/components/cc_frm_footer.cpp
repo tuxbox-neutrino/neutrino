@@ -141,7 +141,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			continue;
 		}
 
-		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (ccf_enable_button_bg ? height-2*fr_thickness : height), txt, icon_name);
+		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (ccf_enable_button_bg ? height-2*fr_thickness : height)- 2*shadow_w, txt, icon_name, NULL, false, true, CC_SHADOW_ON);
 
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(ccf_enable_button_bg);
@@ -149,7 +149,6 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		btn->setButtonDirectKeyA(content[i].directKeyAlt);
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);
-		btn->enableShadow();
 
 		//set button frames to icon color, predefined for available color buttons
 		if (btn_auto_frame_col){
