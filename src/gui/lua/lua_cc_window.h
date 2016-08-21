@@ -51,6 +51,7 @@ class CLuaInstCCWindow
 		static int CCWindowGetFooterHeight_dep(lua_State *L); // function 'footer_height' is deprecated
 		static int CCWindowSetCenterPos(lua_State *L);
 		static int CCWindowDelete(lua_State *L);
+		static int CCWindowSetDimensionsAll(lua_State *L);
 };
 
 #endif //_LUACCWINDOW_H

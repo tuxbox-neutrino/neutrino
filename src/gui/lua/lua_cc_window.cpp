@@ -56,6 +56,7 @@ void CLuaInstCCWindow::CCWindowRegister(lua_State *L)
 		{ "header_height",  CLuaInstCCWindow::CCWindowGetHeaderHeight_dep }, /* function 'header_height' is deprecated */
 		{ "footer_height",  CLuaInstCCWindow::CCWindowGetFooterHeight_dep }, /* function 'footer_height' is deprecated */
 		{ "setCenterPos",   CLuaInstCCWindow::CCWindowSetCenterPos },
+		{ "setDimensionsAll", CLuaInstCCWindow::CCWindowSetDimensionsAll },
 		{ "__gc",           CLuaInstCCWindow::CCWindowDelete },
 		{ NULL, NULL }
 	};
@@ -293,6 +294,28 @@ int CLuaInstCCWindow::CCWindowGetFooterHeight(lua_State *L)
 		fh = footer->getHeight();
 	lua_pushinteger(L, fh);
 	return 1;
+}
+
+int CLuaInstCCWindow::CCWindowSetDimensionsAll(lua_State *L)
+{
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
+	lua_Integer x = luaL_checkint(L, 2);
+	lua_Integer y = luaL_checkint(L, 3);
+	lua_Integer w = luaL_checkint(L, 4);
+	lua_Integer h = luaL_checkint(L, 5);
+	if(x>-1 && y > -1 && w > 1 && h > 1){
+		if (h > (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight())
+			h = (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight();
+		if (w > (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth())
+			w = (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth();
+		if(x > w)
+			x = 0;
+		if(y > h)
+			y = 0;
+		D->w->setDimensionsAll(x,y,w,h);
+	}
+	return 0;
 }
 
 int CLuaInstCCWindow::CCWindowSetCenterPos(lua_State *L)
