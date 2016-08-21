@@ -1243,7 +1243,7 @@ void CMenuWidget::paint()
 		header->enableShadow(CC_SHADOW_RIGHT);
 		header->setOffset(10);
 	}
-	header->setColorBody(COL_MENUHEAD_PLUS_0);
+	header->setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
 	header->setCaptionColor(COL_MENUHEAD_TEXT);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0);
 	header->enableGradientBgCleanUp(savescreen);
