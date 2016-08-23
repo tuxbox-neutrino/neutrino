@@ -60,13 +60,13 @@ Missing parameters are filled with default values and must be assigned afterward
 class CComponentsFooter : public CComponentsHeader
 {
 	private:
-		void initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
-					const int& buttons = 0,
-					CComponentsForm *parent = NULL,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
-					fb_pixel_t color_body = COL_MENUFOOT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		void initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const int& buttons,
+					CComponentsForm *parent,
+					int shadow_mode,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow );
 
 		///show button frame and background, default false
 		bool btn_contour;

@@ -36,7 +36,7 @@ using namespace std;
 CComponentsFooter::CComponentsFooter(CComponentsForm* parent)
 {
 	//CComponentsFooter
-	initVarFooter(1, 1, 0, 0, 0, parent);
+	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0);
 }
 
 CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
