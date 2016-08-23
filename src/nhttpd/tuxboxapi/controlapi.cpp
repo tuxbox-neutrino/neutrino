@@ -217,6 +217,9 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"renamebouquet",	&CControlAPI::renameBouquetCGI,		"text/plain"},
 	{"changebouquet",	&CControlAPI::changeBouquetCGI,		"text/plain"},
 	{"updatebouquet",	&CControlAPI::updateBouquetCGI,		"text/plain"},
+	// xmltv
+	{"xmltv.data",		&CControlAPI::xmltvepgCGI,		"+xml"},
+	{"xmltv.m3u",		&CControlAPI::xmltvm3uCGI,		""},
 	// utils
 	{"build_live_url",	&CControlAPI::build_live_url,		""},
 	{"get_logo",		&CControlAPI::logoCGI,			"text/plain"},
@@ -3027,6 +3030,126 @@ void CControlAPI::updateBouquetCGI(CyhookHandler *hh)
 {
 	NeutrinoAPI->UpdateBouquets();
 	hh->SendOk();
+}
+//-----------------------------------------------------------------------------
+//	details EPG Information in xmltv format from all user bouquets
+//-----------------------------------------------------------------------------
+void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
+{
+	int mode = NeutrinoAPI->Zapit->getMode();
+	hh->ParamList["format"] = "xml";
+	TOutType outType = hh->outStart();
+
+	t_channel_id channel_id;
+	std::string result = "";
+	std::string channelTag = "", channelData = "";
+	std::string programmeTag = "", programmeData = "";
+
+	ZapitChannelList chanlist;
+	CChannelEventList eList;
+	CChannelEventList::iterator eventIterator;
+
+	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
+	{
+		if (mode == CZapitClient::MODE_RADIO)
+			g_bouquetManager->Bouquets[i]->getRadioChannels(chanlist);
+		else
+			g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
+		if(!chanlist.empty() && !g_bouquetManager->Bouquets[i]->bHidden && g_bouquetManager->Bouquets[i]->bUser)
+		{
+			for(int j = 0; j < (int) chanlist.size(); j++)
+			{
+				CZapitChannel * channel = chanlist[j];
+				channel_id = channel->getChannelID() & 0xFFFFFFFFFFFFULL;
+				channelTag = "channel id=\""+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id)+"\"";
+				channelData = hh->outPair("display-name", hh->outValue(channel->getName()), true);
+				result += hh->outObject(channelTag, channelData);
+
+				eList.clear();
+
+				CEitManager::getInstance()->getEventsServiceKey(channel_id, eList);
+
+				if (eList.size() == 0)
+					continue;
+
+				if (eList.size() > 50)
+					eList.erase(eList.begin()+50,eList.end());
+
+				for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator)
+				{
+					if (eventIterator->get_channel_id() == channel_id)
+					{
+						programmeTag  = "programme ";
+						programmeTag += "channel=\""+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id)+"\" ";
+						char zbuffer[25] = { 0 };
+						struct tm *mtime = localtime(&eventIterator->startTime);
+						strftime(zbuffer, 21, "%Y%m%d%H%M%S +0200", mtime);
+						programmeTag += "start=\""+std::string(zbuffer)+"\" ";
+						long _stoptime = eventIterator->startTime + eventIterator->duration;
+						mtime = localtime(&_stoptime);
+						strftime(zbuffer, 21, "%Y%m%d%H%M%S +0200", mtime);
+						programmeTag += "stop=\""+std::string(zbuffer)+"\" ";
+
+						programmeData  = hh->outPair("title lang=\"de\"", hh->outValue(eventIterator->description), false);
+						programmeData += hh->outPair("desc lang=\"de\"", hh->outValue(eventIterator->text), true);
+
+						result += hh->outArrayItem(programmeTag, programmeData, false);
+					}
+				}
+			}
+		}
+	}
+
+
+	result = hh->outObject("tv generator-info-name=\"Neutrino XMLTV Generator v1.0\"", result);
+
+	result = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE tv SYSTEM \"xmltv.dtd\">\n" + result;
+
+	hh->SendResult(result);
+}
+
+void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
+{
+
+    TOutType outType = hh->outStart();
+    std::string result = "";
+
+    int mode = NeutrinoAPI->Zapit->getMode();
+    // build url
+    std::string url = "";
+    if(!hh->ParamList["host"].empty())
+        url = "http://"+hh->ParamList["host"];
+    else
+        url = "http://"+hh->HeaderList["Host"];
+    /* strip off optional custom port */
+    if (url.rfind(":") != 4)
+        url = url.substr(0, url.rfind(":"));
+
+    url += ":31339/id=";
+
+    result += "#EXTM3U\n";
+
+    for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
+    {
+        ZapitChannelList chanlist;
+        if (mode == CZapitClient::MODE_RADIO)
+            g_bouquetManager->Bouquets[i]->getRadioChannels(chanlist);
+        else
+            g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
+        if(!chanlist.empty() && !g_bouquetManager->Bouquets[i]->bHidden && g_bouquetManager->Bouquets[i]->bUser)
+        {
+            for(int j = 0; j < (int) chanlist.size(); j++)
+            {
+                CZapitChannel * channel = chanlist[j];
+				std::string bouq_name = g_bouquetManager->Bouquets[i]->Name;
+				std::string chan_id_short = string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL);
+                result += "#EXTINF:-1 tvg-id=\""+chan_id_short+"\" tvg-logo=\""+chan_id_short+".png\" group-title=\""+bouq_name+"\", [COLOR gold]"+channel->getName()+"[/COLOR]\n";
+                result += url+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID())+"\n";
+            }
+        }
+    }
+
+    hh->SendResult(result);
 }
 //-------------------------------------------------------------------------
 // audio_no : (optional) audio channel
