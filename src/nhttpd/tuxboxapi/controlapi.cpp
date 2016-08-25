@@ -3142,7 +3142,7 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
                 CZapitChannel * channel = chanlist[j];
 				std::string bouq_name = g_bouquetManager->Bouquets[i]->Name;
 				std::string chan_id_short = string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL);
-                result += "#EXTINF:-1 tvg-id=\""+chan_id_short+"\" tvg-logo=\""+chan_id_short+".png\" group-title=\""+bouq_name+"\", [COLOR gold]"+channel->getName()+"[/COLOR]\n";
+                result += "#EXTINF:-1 tvg-id=\""+chan_id_short+"\" tvg-logo=\""+NeutrinoAPI->getLogoFile("",channel->getChannelID())+"\" group-title=\""+bouq_name+"\", [COLOR gold]"+channel->getName()+"[/COLOR]\n";
                 result += url+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID())+"\n";
             }
         }
