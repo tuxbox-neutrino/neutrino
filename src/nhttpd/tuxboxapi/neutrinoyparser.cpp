@@ -368,7 +368,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		yresult += "<tr>";
 
 		if (have_logos) {
-			std::string channel_logo = NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->getChannelID());
+			std::string channel_logo = func_get_logo_name(hh, string_printf(PRINTF_CHANNEL_ID_TYPE, channel->getChannelID()));
 			std::string zaplink;
 			if (channel_logo.empty())
 				zaplink = channel->getName().c_str();
@@ -575,14 +575,33 @@ std::string  CNeutrinoYParser::func_get_actual_channel_id(CyhookHandler *, std::
 }
 
 //-------------------------------------------------------------------------
-// func: Get Logo Name
+// func: Get logo name for Webif
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_logo_name(CyhookHandler *hh, std::string channelId)
 {
-	if (hh->WebserverConfigList["Tuxbox.DisplayLogos"] == "true") {
-		t_channel_id cid;
-		if (1 == sscanf(channelId.c_str(), "%" PRIx64, &cid))
-			return NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], cid);
+	std::string LogosURL = hh->WebserverConfigList["Tuxbox.LogosURL"];
+	if (hh->WebserverConfigList["Tuxbox.DisplayLogos"] == "true" && !LogosURL.empty())
+	{
+		std::string fileType[] = { ".png", ".jpg" , ".gif" };
+
+		std::string channelIdShort = channelId.substr(channelId.length() - 12);
+		channelIdShort = channelIdShort.erase(0, min(channelIdShort.find_first_not_of('0'), channelIdShort.size()-1));
+
+		std::string channelName = "";
+		t_channel_id chId = 0;
+		if (sscanf(channelId.c_str(), "%" PRIx64, &chId) == 1)
+			channelName = NeutrinoAPI->GetServiceName(chId);
+
+		for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
+		{
+			// first check Tuxbox.LogosURL from nhttpd.conf
+			if (access((LogosURL + "/" + channelName + fileType[i]).c_str(), R_OK) == 0)
+				return LogosURL + "/" + channelName + fileType[i];
+			else if (access((LogosURL + "/" + channelIdShort + fileType[i]).c_str(), R_OK) == 0)
+				return LogosURL + "/" + channelIdShort + fileType[i];
+			else // fallback to default logos
+				return NeutrinoAPI->getLogoFile("", chId);
+		}
 	}
 	return "";
 }
