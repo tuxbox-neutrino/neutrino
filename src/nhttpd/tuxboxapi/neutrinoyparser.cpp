@@ -600,7 +600,7 @@ std::string  CNeutrinoYParser::func_get_logo_name(CyhookHandler *hh, std::string
 			else if (access((LogosURL + "/" + channelIdShort + fileType[i]).c_str(), R_OK) == 0)
 				return LogosURL + "/" + channelIdShort + fileType[i];
 			else // fallback to default logos
-				return NeutrinoAPI->getLogoFile("", chId);
+				return NeutrinoAPI->getLogoFile(chId);
 		}
 	}
 	return "";

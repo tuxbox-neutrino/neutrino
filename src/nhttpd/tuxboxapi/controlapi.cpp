@@ -1114,7 +1114,7 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 		result += hh->outPair("id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()), true);
 		result += hh->outPair("short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()&0xFFFFFFFFFFFFULL), true);
 		result += hh->outPair("name", hh->outValue(channel->getName()), true);
-		result += hh->outPair("logo", hh->outValue(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->getChannelID())), false);
+		result += hh->outPair("logo", hh->outValue(NeutrinoAPI->getLogoFile(channel->getChannelID())), false);
 		if (bouquetNr > -1)
 		{
 			result += hh->outNext();
@@ -3142,7 +3142,7 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
                 CZapitChannel * channel = chanlist[j];
 				std::string bouq_name = g_bouquetManager->Bouquets[i]->Name;
 				std::string chan_id_short = string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL);
-                result += "#EXTINF:-1 tvg-id=\""+chan_id_short+"\" tvg-logo=\""+NeutrinoAPI->getLogoFile("",channel->getChannelID())+"\" group-title=\""+bouq_name+"\", [COLOR gold]"+channel->getName()+"[/COLOR]\n";
+                result += "#EXTINF:-1 tvg-id=\""+chan_id_short+"\" tvg-logo=\""+NeutrinoAPI->getLogoFile(channel->getChannelID())+"\" group-title=\""+bouq_name+"\", [COLOR gold]"+channel->getName()+"[/COLOR]\n";
                 result += url+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID())+"\n";
             }
         }
@@ -3223,7 +3223,7 @@ void CControlAPI::logoCGI(CyhookHandler *hh)
 	sscanf(hh->ParamList["1"].c_str(),
 	       SCANF_CHANNEL_ID_TYPE,
 	       &channel_id);
-	hh->Write(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel_id));
+	hh->Write(NeutrinoAPI->getLogoFile(channel_id));
 }
 //-------------------------------------------------------------------------
 /** Get Config File or save values to given config file

@@ -523,7 +523,7 @@ std::string CNeutrinoAPI::getCryptInfoAsString(void)
 }
 
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getLogoFile(std::string _logoURL __attribute__((unused)), t_channel_id channelId)
+std::string CNeutrinoAPI::getLogoFile(t_channel_id channelId)
 {
 	std::string channelName = GetServiceName(channelId);
 	std::string logoString;
