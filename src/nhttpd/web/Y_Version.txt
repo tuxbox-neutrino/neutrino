@@ -1,4 +1,4 @@
-version=2.9.0.38
-date=15.08.2016
+version=2.9.0.39
+date=26.08.2016
 type=Release
 info=Port CST

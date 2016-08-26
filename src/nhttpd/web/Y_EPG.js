@@ -166,7 +166,7 @@ function get_timer(){
 /* main */
 var g_i = 0;
 var g_bouquet_list;
-var g_logosURL="";
+var g_display_logos="";
 function build_epg_plus(_bouquet, _starttime)
 {
 	build_epg_clear();
@@ -200,7 +200,7 @@ function build_epg_plus_loop(_starttime, _stoptime)
 		var ep = $("epg_plus_container");
 		var __bdiv = obj_createAt(ep, "div", "ep_bouquet");
 		var __bname_div = obj_createAt(__bdiv, "div", "ep_bouquet_name");
-		var ch_name_with_logo= (g_logosURL!="")?"<img class=\"channel_logos\" src=\""+__logo+"\" title=\""+__channel_name+"\" alt=\""+__channel_name+"\" >":__channel_name;
+		var ch_name_with_logo= (g_display_logos=="true")?"<img class=\"channel_logos\" src=\""+__logo+"\" title=\""+__channel_name+"\" alt=\""+__channel_name+"\" >":__channel_name;
 		$(__bname_div).style.cssText = "width:"+c_width_px_bouquet+"px;";
 		$(__bname_div).update("<a href=\"javascript:do_zap('"+__channel_id+"');\">"+ch_name_with_logo+"</a>");
 		build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime, __logo);
@@ -257,8 +257,8 @@ function build_time_list(_delta){
 	}
 }
 /*init call*/
-function epg_plus_init(_logosURL){
-	g_logosURL = _logosURL;
+function epg_plus_init(_display_logos){
+	g_display_logos = _display_logos;
 	window.onresize=epg_plus_calc_dimensions;
 	build_time_list(0);
 }
