@@ -398,8 +398,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "square"){
 		if (sq == NULL){
-			sq = new CComponentsShapeSquare (100, 220, 100, 100, NULL, CC_SHADOW_ON, COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_RED);
-			sq->setCorner(11);
+			sq = new CComponentsShapeSquare (100, 220, 100, 100, NULL, CC_SHADOW_ON, COL_MENUCONTENT_PLUS_6, COL_LIGHT_GRAY, COL_RED);
+			sq->setCorner(11, CORNER_BOTTOM_LEFT);
 		}
 
 		if (!sq->isPainted())
