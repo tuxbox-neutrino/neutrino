@@ -429,7 +429,7 @@ void CInfoViewer::paintHead()
 	int head_x = BoxStartX+ChanWidth -1; /*Ugly: -1 to avoid background shine through round borders*/
 	int head_w = BoxEndX-head_x;
 	if (header == NULL){
-		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT);
+		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 	}else
 		header->setDimensionsAll(head_x, ChanNameY, head_w, time_height);
@@ -470,7 +470,7 @@ void CInfoViewer::paintBody()
 
 	//set corner and shadow modes, consider virtual zap mode
 	body->setCorner(RADIUS_LARGE, (zap_mode) ? CORNER_BOTTOM : CORNER_NONE);
-	body->enableShadow(zap_mode ? CC_SHADOW_ON : CC_SHADOW_RIGHT);
+	body->enableShadow(zap_mode ? CC_SHADOW_ON : CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 
 	body->setColorBody(g_settings.theme.infobar_gradient_body ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	body->enableColBodyGradient(g_settings.theme.infobar_gradient_body, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_body_direction);
