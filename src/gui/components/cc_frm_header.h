@@ -40,15 +40,15 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 {
 	private:
 		///member: init genaral variables, parameters for mostly used properties
-		void initVarHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
-					const std::string& caption = "header",
-					const std::string& = "",
-					const int& buttons = 0,
-					CComponentsForm *parent = NULL,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
-					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		void initVarHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption,
+					const std::string& icon_name,
+					const int& buttons,
+					CComponentsForm *parent,
+					int shadow_mode,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow);
 
 	protected:
 		///object: icon object, see also setIcon()
