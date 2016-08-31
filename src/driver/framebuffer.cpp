@@ -819,9 +819,11 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		return;
 
 	if (dx == 0 || dy == 0) {
-		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx, y+dy);
+		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx, y+dy);
 		return;
 	}
+	if (radius < 0)
+		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: WARNING! radius < 0 [%d] FIXME\n", __func__, __LINE__, radius);
 
 	checkFbArea(x, y, dx, dy, true);
 
