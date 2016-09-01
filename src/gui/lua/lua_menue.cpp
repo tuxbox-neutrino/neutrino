@@ -3,7 +3,7 @@
  *
  * (C) 2014 by martii
  * (C) 2014-2015 M. Liebmann (micha-bbg)
- * (C) 2014 Sven Hoefer (svenhoefer)
+ * (C) 2016 Sven Hoefer (svenhoefer)
  * (C) 2015 Jacek Jendrzej (SatBaby)
  *
  * This program is free software; you can redistribute it and/or
@@ -162,6 +162,7 @@ void CLuaMenuFilebrowser::Init(std::string *_value, bool _dirMode)
 
 int CLuaMenuFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*actionKey*/)
 {
+	int res = menu_return::RETURN_REPAINT;
 	CFileBrowser fileBrowser;
 	fileBrowser.Dir_Mode = dirMode;
 
@@ -188,9 +189,11 @@ int CLuaMenuFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*acti
 			fprintf(stderr, "[CLuaMenuFilebrowser::%s:%d] error in script: %s\n", __func__, __LINE__, isString ? lua_tostring(L, -1):null);
 			DisplayErrorMessage(isString ? lua_tostring(L, -1):null, "Lua Script Error:");
 		}
+		if (lua_isnumber(L, -1))
+			res = (int) lua_tonumber(L, -1);
 		lua_pop(L, 1);
 	}
-	return menu_return::RETURN_REPAINT;
+	return res;
 }
 
 CLuaMenuStringinput::CLuaMenuStringinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms) : CLuaMenuForwarder(_L, _luaAction, _luaId)
@@ -211,6 +214,7 @@ void CLuaMenuStringinput::Init(const char *_name, std::string *_value, int _size
 
 int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
 {
+	int res = menu_return::RETURN_REPAINT;
 	CStringInput *i;
 	if (sms)
 		i = new CStringInputSMS((char *)name, value, size,
@@ -233,9 +237,11 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 			fprintf(stderr, "[CLuaMenuStringinput::%s:%d] error in script: %s\n", __func__, __LINE__, isString ? lua_tostring(L, -1):null);
 			DisplayErrorMessage(isString ? lua_tostring(L, -1):null, "Lua Script Error:");
 		}
+		if (lua_isnumber(L, -1))
+			res = (int) lua_tonumber(L, -1);
 		lua_pop(L, 2);
 	}
-	return menu_return::RETURN_REPAINT;
+	return res;
 }
 
 CLuaMenuKeyboardinput::CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2) : CLuaMenuForwarder(_L, _luaAction, _luaId)
@@ -256,6 +262,7 @@ void CLuaMenuKeyboardinput::Init(const char *_name, std::string *_value, int _si
 
 int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
 {
+	int res = menu_return::RETURN_REPAINT;
 	CKeyboardInput *i;
 	i = new CKeyboardInput((char *)name, value, size, observ, icon, help, help2);
 	i->exec(NULL, "");
@@ -273,9 +280,11 @@ int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*a
 			fprintf(stderr, "[CLuaMenuKeyboardinput::%s:%d] error in script: %s\n", __func__, __LINE__, isString ? lua_tostring(L, -1):null);
 			DisplayErrorMessage(isString ? lua_tostring(L, -1):null, "Lua Script Error:");
 		}
+		if (lua_isnumber(L, -1))
+			res = (int) lua_tonumber(L, -1);
 		lua_pop(L, 2);
 	}
-	return menu_return::RETURN_REPAINT;
+	return res;
 }
 
 int CLuaInstMenu::MenuNew(lua_State *L)
