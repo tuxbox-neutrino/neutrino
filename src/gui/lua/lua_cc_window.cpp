@@ -161,7 +161,7 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 				buttons.push_back(btnSblue);
 			}
 			if (!buttons.empty())
-				footer->setButtonLabels(buttons, (*udata)->w->getWidth()-20, ((*udata)->w->getWidth()-20) / (buttons.size()+1));
+				footer->setButtonLabels(buttons, footer->getWidth(), footer->getWidth() / buttons.size());
 		}
 	}
 
