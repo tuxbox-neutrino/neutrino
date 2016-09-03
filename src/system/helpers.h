@@ -105,6 +105,8 @@ std::string to_string(unsigned long);
 std::string to_string(long long);
 std::string to_string(unsigned long long);
 
+std::string itoa(int value, int base);
+
 inline int atoi(std::string &s) { return atoi(s.c_str()); }
 inline int atoi(const std::string &s) { return atoi(s.c_str()); }
 inline int access(std::string &s, int mode) { return access(s.c_str(), mode); }
