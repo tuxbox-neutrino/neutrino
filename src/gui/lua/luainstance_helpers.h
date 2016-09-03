@@ -2,7 +2,7 @@
  * lua instance helper functions
  *
  * (C) 2013 Stefan Seyfried (seife)
- * (C) 2014-2015 M. Liebmann (micha-bbg)
+ * (C) 2014-2016 M. Liebmann (micha-bbg)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,6 +30,7 @@
 #define LUA_MISC_CLASSNAME  "misc"
 #define LUA_CURL_CLASSNAME  "curl"
 #define LUA_HEADER_CLASSNAME  "header"
+#define LUA_FILEHELPER_CLASSNAME  "filehelpers"
 
 #define LUA_WIKI "https://wiki.neutrino-hd.de/wiki"
 //#define LUA_WIKI "https://wiki.slknet.de/wiki"
