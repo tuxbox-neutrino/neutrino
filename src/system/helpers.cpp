@@ -554,6 +554,116 @@ CFileHelpers* CFileHelpers::getInstance()
 	return FileHelpers;
 }
 
+bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/)
+{
+	if ((Src == NULL) || (Dst == NULL))
+		return false;
+
+	std::string src = Src;
+	src = trim(src);
+	if (src.find_first_of("/") != 0)
+		src = "./" + src;
+	size_t pos = src.find_last_of("/");
+	if (pos == src.length()-1)
+		src = src.substr(0, pos);
+
+	std::string dst = Dst;
+	dst = trim(dst);
+	if (dst.find_first_of("/") != 0)
+		dst = "./" + dst;
+	pos = dst.find_last_of("/");
+	if (pos == dst.length()-1)
+		dst = dst.substr(0, pos);
+
+	bool wildcards      = (src.find("*") != std::string::npos);
+	bool recursive      = ((strchr(Flags, 'r') != NULL) || (strchr(Flags, 'a') != NULL));
+	bool no_dereference = ((strchr(Flags, 'd') != NULL) || (strchr(Flags, 'a') != NULL));
+
+	static struct stat FileInfo;
+	char buf[PATH_MAX];
+	if (wildcards == false) {
+		if (!file_exists(src.c_str()))
+			return false;
+		if (lstat(src.c_str(), &FileInfo) == -1)
+			return false;
+
+		pos = src.find_last_of("/");
+		std::string fname = src.substr(pos);
+
+		static struct stat FileInfo2;
+		// is symlink
+		if (S_ISLNK(FileInfo.st_mode)) {
+			int len = readlink(src.c_str(), buf, sizeof(buf)-1);
+			if (len != -1) {
+				buf[len] = '\0';
+				if (!no_dereference) { /* copy */
+					std::string buf_ = (std::string)buf;
+					char buf2[PATH_MAX + 1];
+					if (buf[0] != '/')
+						buf_ = getPathName(src) + "/" + buf_;
+					buf_ = (std::string)realpath(buf_.c_str(), buf2);
+					//printf("\n>>>> RealPath: %s\n \n", buf_.c_str());
+					if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1)){
+						if (S_ISDIR(FileInfo2.st_mode))
+							copyFile(buf_.c_str(), (dst + fname).c_str());
+						else {
+							unlink(dst.c_str());
+							copyFile(buf_.c_str(), dst.c_str());
+						}
+					}
+					else
+						copyFile(buf_.c_str(), dst.c_str());
+				}
+				else { /* link */
+					if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1)){
+						if (S_ISDIR(FileInfo2.st_mode))
+							symlink(buf, (dst + fname).c_str());
+						else {
+							unlink(dst.c_str());
+							symlink(buf, dst.c_str());
+						}
+					}
+					else
+						symlink(buf, dst.c_str());
+				}
+			}
+		}
+		// is directory
+		else if (S_ISDIR(FileInfo.st_mode)) {
+			if (recursive)
+				copyDir(src.c_str(), dst.c_str());
+			else {
+				printf("#### [%s:%d] 'recursive flag' must be set to copy dir.\n", __func__, __LINE__);
+				return false;
+			}
+		}
+		// is file
+		else if (S_ISREG(FileInfo.st_mode)) {
+			if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1)){
+				if (S_ISDIR(FileInfo2.st_mode))
+					copyFile(src.c_str(), (dst + fname).c_str());
+				else {
+					unlink(dst.c_str());
+					copyFile(src.c_str(), dst.c_str());
+				}
+			}
+			else
+				copyFile(src.c_str(), dst.c_str());
+		}
+		else {
+			printf("#### [%s:%d] Currently unsupported st_mode.\n", __func__, __LINE__);
+			return false;
+		}
+
+	}
+	else {
+		printf("#### [%s:%d] Wildcard feature not yet realized.\n", __func__, __LINE__);
+		return false;
+	}
+
+	return true;
+}
+
 bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*=0*/)
 {
 	doCopyFlag = true;
