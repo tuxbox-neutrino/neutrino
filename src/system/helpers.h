@@ -87,7 +87,7 @@ class CFileHelpers
 		static CFileHelpers* getInstance();
 		bool doCopyFlag;
 
-		bool copyFile(const char *Src, const char *Dst, mode_t mode);
+		bool copyFile(const char *Src, const char *Dst, mode_t forceMode=0);
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
 		static bool createDir(std::string& Dir, mode_t mode = 755);
 		static bool createDir(const char *Dir, mode_t mode = 755){std::string dir = std::string(Dir);return createDir(dir, mode);}

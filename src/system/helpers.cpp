@@ -554,12 +554,36 @@ CFileHelpers* CFileHelpers::getInstance()
 	return FileHelpers;
 }
 
-bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
+bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*=0*/)
 {
 	doCopyFlag = true;
-	unlink(Dst);
+
+	/*
+	set mode for Dst
+	----------------
+	when forceMode==0 (default) then
+	    when Dst exists
+	        mode = mode from Dst
+	    else
+	        mode = mode from Src
+	else
+	    mode = forceMode
+	*/
+	mode_t mode = forceMode & 0x0FFF;
+	if (mode == 0) {
+		static struct stat FileInfo;
+		const char *f = Dst;
+		if (!file_exists(Dst))
+			f = Src;
+		if (lstat(f, &FileInfo) == -1)
+			return false;
+		mode = FileInfo.st_mode & 0x0FFF;
+	}
+
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
+	if (file_exists(Dst))
+		unlink(Dst);
 	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, mode)) < 0) {
 		close(fd1);
 		return false;
@@ -692,7 +716,7 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 				std::string save = "";
 				if (backupMode && (CExtUpdate::getInstance()->isBlacklistEntry(srcPath)))
 					save = ".save";
-				copyFile(srcPath, (dstPath + save).c_str(), FileInfo.st_mode & 0x0FFF);
+				copyFile(srcPath, (dstPath + save).c_str()); /* mode is set by copyFile */
 			}
 		}
 	}
