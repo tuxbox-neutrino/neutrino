@@ -49,8 +49,9 @@ CLuaFileHelpers *CLuaInstFileHelpers::FileHelpersCheckData(lua_State *L, int n)
 void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 {
 	luaL_Reg meth[] = {
-		{ "new",      CLuaInstFileHelpers::FileHelpersNew },
-		{ "__gc",     CLuaInstFileHelpers::FileHelpersDelete },
+		{ "new",        CLuaInstFileHelpers::FileHelpersNew      },
+		{ "cp",         CLuaInstFileHelpers::FileHelpersCp       },
+		{ "__gc",       CLuaInstFileHelpers::FileHelpersDelete   },
 		{ NULL, NULL }
 	};
 
@@ -70,6 +71,46 @@ int CLuaInstFileHelpers::FileHelpersNew(lua_State *L)
 	return 1;
 }
 
+int CLuaInstFileHelpers::FileHelpersCp(lua_State *L)
+{
+	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L) - 1;
+	int min_numargs = 2;
+	if (numargs < min_numargs) {
+		printf("luascript cp: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	if (!lua_isstring(L, 2)) {
+		printf("luascript cp: argument 1 is not a string.\n");
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	const char *from = "";
+	from = luaL_checkstring(L, 2);
+
+	if (!lua_isstring(L, 3)) {
+		printf("luascript cp: argument 2 is not a string.\n");
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	const char *to = "";
+	to = luaL_checkstring(L, 3);
+
+	const char *flags = "";
+	if (numargs > min_numargs)
+		flags = luaL_checkstring(L, 4);
+
+	bool ret = false;
+	CFileHelpers fh;
+	ret = fh.cp(from, to, flags);
+
+	lua_pushboolean(L, ret);
+	return 1;
+}
 
 
 
