@@ -55,6 +55,7 @@ void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 		{ "cp",         CLuaInstFileHelpers::FileHelpersCp       },
 		{ "chmod",      CLuaInstFileHelpers::FileHelpersChmod    },
 		{ "touch",      CLuaInstFileHelpers::FileHelpersTouch    },
+		{ "rmdir",      CLuaInstFileHelpers::FileHelpersRmdir    },
 		{ "__gc",       CLuaInstFileHelpers::FileHelpersDelete   },
 		{ NULL, NULL }
 	};
@@ -225,6 +226,39 @@ int CLuaInstFileHelpers::FileHelpersTouch(lua_State *L)
 	return 1;
 }
 
+int CLuaInstFileHelpers::FileHelpersRmdir(lua_State *L)
+{
+	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L) - 1;
+	int min_numargs = 1;
+	if (numargs < min_numargs) {
+		printf("luascript rmdir: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	const char *dir = "";
+	dir = luaL_checkstring(L, 2);
+
+	bool ret = false;
+	CFileHelpers* fh = CFileHelpers::getInstance();
+	fh->setConsoleQuiet(true);
+	ret = fh->removeDir(dir);
+	if (ret == false) {
+		helpersDebugInfo di;
+		fh->readDebugInfo(&di);
+		lua_Debug ar;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+		       ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
+	}
+
+	lua_pushboolean(L, ret);
+	return 1;
+}
 
 
 

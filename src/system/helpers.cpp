@@ -910,13 +910,16 @@ bool CFileHelpers::createDir(string& Dir, mode_t mode)
 
 bool CFileHelpers::removeDir(const char *Dir)
 {
+	CFileHelpers* fh = CFileHelpers::getInstance();
+	fh->clearDebugInfo();
 	DIR *dir;
 	struct dirent *entry;
 	char path[PATH_MAX];
 
 	dir = opendir(Dir);
 	if (dir == NULL) {
-		printf("Error opendir()\n");
+		fh->setDebugInfo("Error opendir().", __path_file__, __func__, __LINE__);
+		fh->printDebugInfo();
 		return false;
 	}
 	while ((entry = readdir(dir)) != NULL) {

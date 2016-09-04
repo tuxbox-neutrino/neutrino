@@ -42,6 +42,7 @@ class CLuaInstFileHelpers
 		static int FileHelpersCp(lua_State *L);
 		static int FileHelpersChmod(lua_State *L);
 		static int FileHelpersTouch(lua_State *L);
+		static int FileHelpersRmdir(lua_State *L);
 		static int FileHelpersDelete(lua_State *L);
 };
 
