@@ -45,6 +45,7 @@ class CLuaInstFileHelpers
 		static int FileHelpersRmdir(lua_State *L);
 		static int FileHelpersMkdir(lua_State *L);
 		static int FileHelpersReadlink(lua_State *L);
+		static int FileHelpersLn(lua_State *L);
 		static int FileHelpersDelete(lua_State *L);
 };
 

@@ -58,6 +58,7 @@ void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 		{ "rmdir",      CLuaInstFileHelpers::FileHelpersRmdir    },
 		{ "mkdir",      CLuaInstFileHelpers::FileHelpersMkdir    },
 		{ "readlink",   CLuaInstFileHelpers::FileHelpersReadlink },
+		{ "ln",         CLuaInstFileHelpers::FileHelpersLn       },
 		{ "__gc",       CLuaInstFileHelpers::FileHelpersDelete   },
 		{ NULL, NULL }
 	};
@@ -336,6 +337,65 @@ int CLuaInstFileHelpers::FileHelpersReadlink(lua_State *L)
 	}
 
 	lua_pushstring(L, buf);
+	return 1;
+}
+
+int CLuaInstFileHelpers::FileHelpersLn(lua_State *L)
+{
+	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L) - 1;
+	int min_numargs = 2;
+	if (numargs < min_numargs) {
+		printf("luascript ln: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	const char *src = "";
+	src = luaL_checkstring(L, 2);
+	const char *link = "";
+	link = luaL_checkstring(L, 3);
+
+	const char *flags = "";
+	if (numargs > min_numargs)
+		flags = luaL_checkstring(L, 4);
+
+	bool symlnk = (strchr(flags, 's') != NULL);
+	bool force  = (strchr(flags, 'f') != NULL);
+	lua_Debug ar;
+
+	if (!symlnk) {
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		const char* s = "Currently only supports symlinks.";
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	bool ret = true;
+	if (symlink(src, link) != 0) {
+		if (force && (errno == EEXIST)) {
+			if (unlink(link) == 0) {
+				if (symlink(src, link) == 0) {
+					lua_pushboolean(L, ret);
+					return 1;
+				}
+			}
+		}
+		ret = false;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		const char* s = strerror(errno);
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+
+	}
+
+	lua_pushboolean(L, ret);
 	return 1;
 }
 
