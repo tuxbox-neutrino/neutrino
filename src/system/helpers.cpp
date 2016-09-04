@@ -538,6 +538,8 @@ CFileHelpers::CFileHelpers()
 	FileBufSize	= 0xFFFF;
 	FileBuf		= new char[FileBufSize];
 	doCopyFlag	= true;
+	ConsoleQuiet	= false;
+	clearDebugInfo();
 }
 
 CFileHelpers::~CFileHelpers()
@@ -552,6 +554,36 @@ CFileHelpers* CFileHelpers::getInstance()
 	if(!FileHelpers)
 		FileHelpers = new CFileHelpers();
 	return FileHelpers;
+}
+
+void CFileHelpers::clearDebugInfo()
+{
+	DebugInfo.msg.clear();
+	DebugInfo.file.clear();
+	DebugInfo.func.clear();
+	DebugInfo.line = 0;
+}
+
+void CFileHelpers::setDebugInfo(const char* msg, const char* file, const char* func, int line)
+{
+	DebugInfo.msg  = msg;
+	DebugInfo.file = file;
+	DebugInfo.func = func;
+	DebugInfo.line = line;
+}
+
+void CFileHelpers::readDebugInfo(helpersDebugInfo* di)
+{
+	di->msg  = DebugInfo.msg;
+	di->file = DebugInfo.file;
+	di->func = DebugInfo.func;
+	di->line = DebugInfo.line;
+}
+
+void CFileHelpers::printDebugInfo()
+{
+	if (!ConsoleQuiet)
+		printf(">>>> [%s:%d] %s\n", DebugInfo.func.c_str(), DebugInfo.line, DebugInfo.msg.c_str());
 }
 
 bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/)
