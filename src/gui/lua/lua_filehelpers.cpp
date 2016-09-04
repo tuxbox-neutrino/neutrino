@@ -106,7 +106,17 @@ int CLuaInstFileHelpers::FileHelpersCp(lua_State *L)
 
 	bool ret = false;
 	CFileHelpers fh;
+	fh.setConsoleQuiet(true);
 	ret = fh.cp(from, to, flags);
+	if (ret == false) {
+		helpersDebugInfo di;
+		fh.readDebugInfo(&di);
+		lua_Debug ar;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+		       ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
+	}
 
 	lua_pushboolean(L, ret);
 	return 1;

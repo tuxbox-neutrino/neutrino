@@ -588,8 +588,12 @@ void CFileHelpers::printDebugInfo()
 
 bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/)
 {
-	if ((Src == NULL) || (Dst == NULL))
+	clearDebugInfo();
+	if ((Src == NULL) || (Dst == NULL)) {
+		setDebugInfo("One or more parameters are NULL", __path_file__, __func__, __LINE__);
+		printDebugInfo();
 		return false;
+	}
 
 	std::string src = Src;
 	src = trim(src);
@@ -614,10 +618,16 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 	static struct stat FileInfo;
 	char buf[PATH_MAX];
 	if (wildcards == false) {
-		if (!file_exists(src.c_str()))
+		if (!file_exists(src.c_str())) {
+			setDebugInfo("Source file not exist", __path_file__, __func__, __LINE__);
+			printDebugInfo();
 			return false;
-		if (lstat(src.c_str(), &FileInfo) == -1)
+		}
+		if (lstat(src.c_str(), &FileInfo) == -1) {
+			setDebugInfo("lstat error", __path_file__, __func__, __LINE__);
+			printDebugInfo();
 			return false;
+		}
 
 		pos = src.find_last_of("/");
 		std::string fname = src.substr(pos);
@@ -665,7 +675,8 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 			if (recursive)
 				copyDir(src.c_str(), dst.c_str());
 			else {
-				printf("#### [%s:%d] 'recursive flag' must be set to copy dir.\n", __func__, __LINE__);
+				setDebugInfo("'recursive flag' must be set to copy dir.", __path_file__, __func__, __LINE__);
+				printDebugInfo();
 				return false;
 			}
 		}
@@ -683,13 +694,14 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 				copyFile(src.c_str(), dst.c_str());
 		}
 		else {
-			printf("#### [%s:%d] Currently unsupported st_mode.\n", __func__, __LINE__);
+			setDebugInfo("Currently unsupported st_mode.", __path_file__, __func__, __LINE__);
+			printDebugInfo();
 			return false;
 		}
-
 	}
 	else {
-		printf("#### [%s:%d] Wildcard feature not yet realized.\n", __func__, __LINE__);
+		setDebugInfo("Wildcard feature not yet realized.", __path_file__, __func__, __LINE__);
+		printDebugInfo();
 		return false;
 	}
 
