@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <errno.h>
+#include <utime.h>
 
 #include <global.h>
 #include <system/debug.h>
@@ -53,6 +54,7 @@ void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 		{ "new",        CLuaInstFileHelpers::FileHelpersNew      },
 		{ "cp",         CLuaInstFileHelpers::FileHelpersCp       },
 		{ "chmod",      CLuaInstFileHelpers::FileHelpersChmod    },
+		{ "touch",      CLuaInstFileHelpers::FileHelpersTouch    },
 		{ "__gc",       CLuaInstFileHelpers::FileHelpersDelete   },
 		{ NULL, NULL }
 	};
@@ -150,6 +152,68 @@ int CLuaInstFileHelpers::FileHelpersChmod(lua_State *L)
 	if (chmod(file, mode) != 0) {
 		ret = false;
 		lua_Debug ar;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		const char* s = strerror(errno);
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+	}
+
+	lua_pushboolean(L, ret);
+	return 1;
+}
+
+int CLuaInstFileHelpers::FileHelpersTouch(lua_State *L)
+{
+	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L) - 1;
+	int min_numargs = 1;
+	if (numargs < min_numargs) {
+		printf("luascript touch: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	const char *file = "";
+	file = luaL_checkstring(L, 2);
+
+	bool ret = true;
+	lua_Debug ar;
+
+	if (!file_exists(file)) {
+		FILE *f = fopen(file, "w");
+		if (f == NULL) {
+			ret = false;
+			lua_getstack(L, 1, &ar);
+			lua_getinfo(L, "Sl", &ar);
+			const char* s = strerror(errno);
+			printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+			       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+			lua_pushboolean(L, ret);
+			return 1;
+		}
+		fclose(f);
+		if (numargs == min_numargs) {
+			lua_pushboolean(L, ret);
+			return 1;
+		}
+	}
+
+	time_t modTime;
+	if (numargs == min_numargs)
+		/* current time */
+		modTime = time(NULL);
+	else
+		/* new time */
+		modTime = (time_t)luaL_checkint(L, 3);
+
+	utimbuf utb;
+	utb.actime  = modTime;
+	utb.modtime = modTime;
+	if (utime(file, &utb) != 0) {
+		ret = false;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
 		const char* s = strerror(errno);
