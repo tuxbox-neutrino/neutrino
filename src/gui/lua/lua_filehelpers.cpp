@@ -56,6 +56,7 @@ void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 		{ "chmod",      CLuaInstFileHelpers::FileHelpersChmod    },
 		{ "touch",      CLuaInstFileHelpers::FileHelpersTouch    },
 		{ "rmdir",      CLuaInstFileHelpers::FileHelpersRmdir    },
+		{ "mkdir",      CLuaInstFileHelpers::FileHelpersMkdir    },
 		{ "__gc",       CLuaInstFileHelpers::FileHelpersDelete   },
 		{ NULL, NULL }
 	};
@@ -246,6 +247,49 @@ int CLuaInstFileHelpers::FileHelpersRmdir(lua_State *L)
 	CFileHelpers* fh = CFileHelpers::getInstance();
 	fh->setConsoleQuiet(true);
 	ret = fh->removeDir(dir);
+	if (ret == false) {
+		helpersDebugInfo di;
+		fh->readDebugInfo(&di);
+		lua_Debug ar;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+		       ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
+	}
+
+	lua_pushboolean(L, ret);
+	return 1;
+}
+
+int CLuaInstFileHelpers::FileHelpersMkdir(lua_State *L)
+{
+	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L) - 1;
+	int min_numargs = 1;
+	if (numargs < min_numargs) {
+		printf("luascript mkdir: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	const char *dir = "";
+	dir = luaL_checkstring(L, 2);
+
+	mode_t mode = 0755;
+	if (numargs > min_numargs) {
+		int mode_i = luaL_checkint(L, 3);
+		/* Hack for convert lua number to octal */
+		std::string mode_s = itoa(mode_i, 10);
+		mode = (mode_t)(strtol(mode_s.c_str(), (char **)NULL, 8) & 0x0FFF);
+		//printf("\n##### [%s:%d] str: %s, okt: %o \n \n", __func__, __LINE__, mode_s.c_str(), (int)mode);
+	}
+
+	bool ret = false;
+	CFileHelpers* fh = CFileHelpers::getInstance();
+	fh->setConsoleQuiet(true);
+	ret = fh->createDir(dir, mode);
 	if (ret == false) {
 		helpersDebugInfo di;
 		fh->readDebugInfo(&di);

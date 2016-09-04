@@ -882,6 +882,8 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 //		 false - errno is set
 bool CFileHelpers::createDir(string& Dir, mode_t mode)
 {
+	CFileHelpers* fh = CFileHelpers::getInstance();
+	fh->clearDebugInfo();
 	int res = 0;
 	for(string::iterator iter = Dir.begin() ; iter != Dir.end();) {
 		string::iterator newIter = find(iter, Dir.end(), '/' );
@@ -895,7 +897,12 @@ bool CFileHelpers::createDir(string& Dir, mode_t mode)
 					// We can assume that if an error
 					// occured, following will fail too,
 					// so break here.
-					dprintf(DEBUG_NORMAL, "[CFileHelpers %s] creating directory %s: %s\n", __func__, newPath.c_str(), strerror(errno));
+					if (!fh->getConsoleQuiet())
+						dprintf(DEBUG_NORMAL, "[CFileHelpers %s] creating directory %s: %s\n", __func__, newPath.c_str(), strerror(errno));
+					char buf[1024];
+					memset(buf, '\0', sizeof(buf));
+					snprintf(buf, sizeof(buf)-1, "creating directory %s: %s", newPath.c_str(), strerror(errno));
+					fh->setDebugInfo(buf, __path_file__, __func__, __LINE__);
 					break;
 				}
 			}
