@@ -107,8 +107,8 @@ class CFileHelpers
 		bool cp(const char *Src, const char *Dst, const char *Flags="");
 		bool copyFile(const char *Src, const char *Dst, mode_t forceMode=0);
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
-		static bool createDir(std::string& Dir, mode_t mode = 755);
-		static bool createDir(const char *Dir, mode_t mode = 755){std::string dir = std::string(Dir);return createDir(dir, mode);}
+		static bool createDir(std::string& Dir, mode_t mode = 0755);
+		static bool createDir(const char *Dir, mode_t mode = 0755){std::string dir = std::string(Dir);return createDir(dir, mode);}
 		static bool removeDir(const char *Dir);
 		static uint64_t getDirSize(const char *dir);
 		static uint64_t getDirSize(const std::string& dir){return getDirSize(dir.c_str());};
