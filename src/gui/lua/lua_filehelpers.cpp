@@ -57,6 +57,7 @@ void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 		{ "touch",      CLuaInstFileHelpers::FileHelpersTouch    },
 		{ "rmdir",      CLuaInstFileHelpers::FileHelpersRmdir    },
 		{ "mkdir",      CLuaInstFileHelpers::FileHelpersMkdir    },
+		{ "readlink",   CLuaInstFileHelpers::FileHelpersReadlink },
 		{ "__gc",       CLuaInstFileHelpers::FileHelpersDelete   },
 		{ NULL, NULL }
 	};
@@ -301,6 +302,40 @@ int CLuaInstFileHelpers::FileHelpersMkdir(lua_State *L)
 	}
 
 	lua_pushboolean(L, ret);
+	return 1;
+}
+
+int CLuaInstFileHelpers::FileHelpersReadlink(lua_State *L)
+{
+	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L) - 1;
+	int min_numargs = 1;
+	if (numargs < min_numargs) {
+		printf("luascript readlink: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
+		lua_pushnil(L);
+		return 1;
+	}
+
+	const char *link = "";
+	link = luaL_checkstring(L, 2);
+
+	char buf[PATH_MAX];
+	memset(buf, '\0', sizeof(buf));
+	if (readlink(link, buf, sizeof(buf)-1) == -1) {
+		lua_Debug ar;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		const char* s = strerror(errno);
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_pushstring(L, buf);
 	return 1;
 }
 
