@@ -59,6 +59,7 @@ void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 		{ "mkdir",      CLuaInstFileHelpers::FileHelpersMkdir    },
 		{ "readlink",   CLuaInstFileHelpers::FileHelpersReadlink },
 		{ "ln",         CLuaInstFileHelpers::FileHelpersLn       },
+		{ "exist",      CLuaInstFileHelpers::FileHelpersExist    },
 		{ "__gc",       CLuaInstFileHelpers::FileHelpersDelete   },
 		{ NULL, NULL }
 	};
@@ -399,6 +400,69 @@ int CLuaInstFileHelpers::FileHelpersLn(lua_State *L)
 	return 1;
 }
 
+int CLuaInstFileHelpers::FileHelpersExist(lua_State *L)
+{
+	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L) - 1;
+	int min_numargs = 2;
+	if (numargs < min_numargs) {
+		printf("luascript exist: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
+		lua_pushnil(L);
+		return 1;
+	}
+
+	bool ret = false;
+	bool err = false;
+	int errLine = 0;
+	std::string errMsg = "";
+
+	const char *file = "";
+	file = luaL_checkstring(L, 2);
+	const char *flag = "";
+	flag = luaL_checkstring(L, 3);
+
+	if (file_exists(file)) {
+		struct stat FileInfo;
+		if (lstat(file, &FileInfo) == -1) {
+			err = true;
+			errLine = __LINE__;
+			errMsg = (std::string)strerror(errno);
+		}
+		else if (strchr(flag, 'f') != NULL) {
+			if (S_ISREG(FileInfo.st_mode))
+				ret = true;
+		}
+		else if (strchr(flag, 'l') != NULL) {
+			if (S_ISLNK(FileInfo.st_mode))
+				ret = true;
+		}
+		else if (strchr(flag, 'd') != NULL) {
+			if (S_ISDIR(FileInfo.st_mode))
+				ret = true;
+		}
+		else {
+			err = true;
+			errLine = __LINE__;
+			errMsg = (strlen(flag) == 0) ? "no" : "unknown";
+			errMsg += " flag given.";
+		}
+	}
+
+	if (err) {
+		lua_Debug ar;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+		       ar.short_src, ar.currentline, errMsg.c_str(), __path_file__, errLine);
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_pushboolean(L, ret);
+	return 1;
+}
 
 
 int CLuaInstFileHelpers::FileHelpersDelete(lua_State *L)
