@@ -151,6 +151,7 @@ static void set_lua_variables(lua_State *L)
 		{ "prog3",		CRCInput::RC_prog3 },
 		{ "prog4",		CRCInput::RC_prog4 },
 #endif
+		{ "timeout",		(lua_Integer)CRCInput::RC_timeout },
 		/* to check if it is in our range */
 		{ "MaxRC",		CRCInput::RC_MaxRC },
 		{ NULL, 0 }
