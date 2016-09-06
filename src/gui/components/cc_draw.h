@@ -254,6 +254,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		virtual void enableShadow(int mode = CC_SHADOW_ON, const int& shadow_width = -1, bool force_paint = false);
 		///switch shadow off
 		virtual void disableShadow(){enableShadow(CC_SHADOW_OFF);}
+		///return current schadow width
+		int getShadowWidth(){return shadow_w;}
 
 		///paint caching for body and shadow, see also cc_paint_cache NOTE: has no effect if paint_bg = false
 		virtual void enablePaintCache(bool enable = true);
