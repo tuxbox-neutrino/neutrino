@@ -84,10 +84,11 @@ struct helpersDebugInfo {
 class CFileHelpers
 {
 	private:
-		unsigned long FileBufSize;
-		char *FileBuf;
+		uint32_t FileBufMaxSize;
 		int fd1, fd2;
 
+		char* initFileBuf(char* buf, uint32_t size);
+		char* deleteFileBuf(char* buf);
 		bool ConsoleQuiet;
 		helpersDebugInfo DebugInfo;
 		void setDebugInfo(const char* msg, const char* file, const char* func, int line);

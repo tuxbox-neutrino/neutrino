@@ -535,8 +535,7 @@ std::string& htmlEntityDecode(std::string& text)
 
 CFileHelpers::CFileHelpers()
 {
-	FileBufSize	= 0xFFFF;
-	FileBuf		= new char[FileBufSize];
+	FileBufMaxSize	= 0xFFFF;
 	doCopyFlag	= true;
 	ConsoleQuiet	= false;
 	clearDebugInfo();
@@ -544,8 +543,21 @@ CFileHelpers::CFileHelpers()
 
 CFileHelpers::~CFileHelpers()
 {
-	if (FileBuf != NULL)
-		delete [] FileBuf;
+}
+
+char* CFileHelpers::initFileBuf(char* buf, uint32_t size)
+{
+	if (buf == NULL)
+		buf = new char[size];
+	return buf;
+}
+
+char* CFileHelpers::deleteFileBuf(char* buf)
+{
+	if (buf != NULL)
+		delete [] buf;
+	buf = NULL;
+	return buf;
 }
 
 CFileHelpers* CFileHelpers::getInstance()
@@ -743,10 +755,13 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 		return false;
 	}
 
+	char* FileBuf = NULL;
 	uint32_t block;
 	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
 	lseek64(fd1, 0, SEEK_SET);
 	if (fsizeSrc64 > 0x7FFFFFF0) { // > 2GB
+		uint32_t FileBufSize = FileBufMaxSize;
+		FileBuf = initFileBuf(FileBuf, FileBufSize);
 		off64_t fsize64 = fsizeSrc64;
 		block = FileBufSize;
 		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
@@ -765,12 +780,15 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 			if (fsizeSrc64 != fsizeDst64){
 				close(fd1);
 				close(fd2);
+				FileBuf = deleteFileBuf(FileBuf);
 				return false;
 			}
 		}
 	}
 	else { // < 2GB
 		off_t fsizeSrc = lseek(fd1, 0, SEEK_END);
+		uint32_t FileBufSize = (fsizeSrc < (off_t)FileBufMaxSize) ? fsizeSrc : FileBufMaxSize;
+		FileBuf = initFileBuf(FileBuf, FileBufSize);
 		lseek(fd1, 0, SEEK_SET);
 		off_t fsize = fsizeSrc;
 		block = FileBufSize;
@@ -790,6 +808,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 			if (fsizeSrc != fsizeDst){
 				close(fd1);
 				close(fd2);
+				FileBuf = deleteFileBuf(FileBuf);
 				return false;
 			}
 		}
@@ -800,9 +819,11 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 	if (!doCopyFlag) {
 		sync();
 		unlink(Dst);
+		FileBuf = deleteFileBuf(FileBuf);
 		return false;
 	}
 
+	FileBuf = deleteFileBuf(FileBuf);
 	return true;
 }
 
