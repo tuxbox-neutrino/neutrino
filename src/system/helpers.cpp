@@ -925,8 +925,14 @@ bool CFileHelpers::removeDir(const char *Dir)
 
 	dir = opendir(Dir);
 	if (dir == NULL) {
-		fh->setDebugInfo("Error opendir().", __path_file__, __func__, __LINE__);
-		fh->printDebugInfo();
+		if (errno == ENOENT)
+			return true;
+		if (!fh->getConsoleQuiet())
+			dprintf(DEBUG_NORMAL, "[CFileHelpers %s] remove directory %s: %s\n", __func__, Dir, strerror(errno));
+		char buf[1024];
+		memset(buf, '\0', sizeof(buf));
+		snprintf(buf, sizeof(buf)-1, "remove directory %s: %s", Dir, strerror(errno));
+		fh->setDebugInfo(buf, __path_file__, __func__, __LINE__);
 		return false;
 	}
 	while ((entry = readdir(dir)) != NULL) {
