@@ -90,8 +90,17 @@ int CLuaInstStringInput::StringInputExec(lua_State *L)
 	lua_Integer sms = 0;
 	tableLookup(L, "sms", sms);
 
+	lua_Integer pin = 0;
+	tableLookup(L, "pin", pin);
+
+	if (sms && pin)
+		dprintf(DEBUG_NORMAL, "[CLuaInstance][%s - %d]: 'sms' AND 'pin' is defined! 'pin' will be prefered.\n", __func__, __LINE__);
+
 	CStringInput *i;
-	if (sms)
+	if (pin)
+		i = new CPINInput(name, &value, size,
+				     NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), NULL);
+	else if (sms)
 		i = new CStringInputSMS(name, &value, size,
 				     NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), NULL, icon.c_str());
 	else
