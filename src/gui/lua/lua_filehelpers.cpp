@@ -93,26 +93,23 @@ int CLuaInstFileHelpers::FileHelpersCp(lua_State *L)
 		return 1;
 	}
 
-	if (!lua_isstring(L, 2)) {
-		printf("luascript cp: argument 1 is not a string.\n");
+	if (!lua_isstring(L, 2) || !lua_isstring(L, 3)) {
+		printf("%s: argument 1 or 2 is not a string.\n",__func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
-	const char *from = "";
-	from = luaL_checkstring(L, 2);
-
-	if (!lua_isstring(L, 3)) {
-		printf("luascript cp: argument 2 is not a string.\n");
-		lua_pushboolean(L, false);
-		return 1;
-	}
-	const char *to = "";
-	to = luaL_checkstring(L, 3);
+	const char *from = luaL_checkstring(L, 2);
+	const char *to = luaL_checkstring(L, 3);
 
 	const char *flags = "";
-	if (numargs > min_numargs)
+	if (numargs > min_numargs){
+		if (!lua_isstring(L, 4)) {
+			printf("%s: argument 3 is not a string.\n",__func__);
+			lua_pushboolean(L, false);
+			return 1;
+		}
 		flags = luaL_checkstring(L, 4);
-
+	}
 	bool ret = false;
 	CFileHelpers fh;
 	fh.setConsoleQuiet(true);
@@ -143,9 +140,12 @@ int CLuaInstFileHelpers::FileHelpersChmod(lua_State *L)
 		lua_pushboolean(L, false);
 		return 1;
 	}
-
-	const char *file = "";
-	file = luaL_checkstring(L, 2);
+	if (!lua_isstring(L, 2)) {
+		printf("%s: argument 1 is not a string.\n",__func__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	const char *file = luaL_checkstring(L, 2);
 
 	int mode_i = luaL_checkint(L, 3);
 	/* Hack for convert lua number to octal */
@@ -180,9 +180,12 @@ int CLuaInstFileHelpers::FileHelpersTouch(lua_State *L)
 		lua_pushboolean(L, false);
 		return 1;
 	}
-
-	const char *file = "";
-	file = luaL_checkstring(L, 2);
+	if (!lua_isstring(L, 2)) {
+		printf("%s: argument 1 is not a string.\n",__func__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	const char *file = luaL_checkstring(L, 2);
 
 	bool ret = true;
 	lua_Debug ar;
@@ -242,9 +245,12 @@ int CLuaInstFileHelpers::FileHelpersRmdir(lua_State *L)
 		lua_pushboolean(L, false);
 		return 1;
 	}
-
-	const char *dir = "";
-	dir = luaL_checkstring(L, 2);
+	if (!lua_isstring(L, 2)) {
+		printf("%s: argument 1 is not a string.\n",__func__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	const char *dir = luaL_checkstring(L, 2);
 
 	bool ret = false;
 	CFileHelpers* fh = CFileHelpers::getInstance();
@@ -276,9 +282,12 @@ int CLuaInstFileHelpers::FileHelpersMkdir(lua_State *L)
 		lua_pushboolean(L, false);
 		return 1;
 	}
-
-	const char *dir = "";
-	dir = luaL_checkstring(L, 2);
+	if (!lua_isstring(L, 2)) {
+		printf("%s: argument 1 is not a string.\n",__func__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	const char *dir = luaL_checkstring(L, 2);
 
 	mode_t mode = 0755;
 	if (numargs > min_numargs) {
@@ -319,9 +328,12 @@ int CLuaInstFileHelpers::FileHelpersReadlink(lua_State *L)
 		lua_pushnil(L);
 		return 1;
 	}
-
-	const char *link = "";
-	link = luaL_checkstring(L, 2);
+	if (!lua_isstring(L, 2)) {
+		printf("%s: argument 1 is not a string.\n",__func__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	const char *link = luaL_checkstring(L, 2);
 
 	char buf[PATH_MAX];
 	memset(buf, '\0', sizeof(buf));
@@ -353,16 +365,23 @@ int CLuaInstFileHelpers::FileHelpersLn(lua_State *L)
 		lua_pushboolean(L, false);
 		return 1;
 	}
-
-	const char *src = "";
-	src = luaL_checkstring(L, 2);
-	const char *link = "";
-	link = luaL_checkstring(L, 3);
+	if (!lua_isstring(L, 2) || !lua_isstring(L, 3)) {
+		printf("%s: argument 1 or 2 is not a string.\n",__func__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	const char *src = luaL_checkstring(L, 2);
+	const char *link = luaL_checkstring(L, 3);
 
 	const char *flags = "";
-	if (numargs > min_numargs)
+	if (numargs > min_numargs){
+		if (!lua_isstring(L, 4)) {
+		printf("%s: argument 3 is not a string.\n",__func__);
+			lua_pushboolean(L, false);
+			return 1;
+		}
 		flags = luaL_checkstring(L, 4);
-
+	}
 	bool symlnk = (strchr(flags, 's') != NULL);
 	bool force  = (strchr(flags, 'f') != NULL);
 	lua_Debug ar;
@@ -413,15 +432,18 @@ int CLuaInstFileHelpers::FileHelpersExist(lua_State *L)
 		return 1;
 	}
 
+	if (!lua_isstring(L, 2) || !lua_isstring(L, 3)) {
+		printf("%s: argument 1 or 2 is not a string.\n",__func__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
 	bool ret = false;
 	bool err = false;
 	int errLine = 0;
 	std::string errMsg = "";
 
-	const char *file = "";
-	file = luaL_checkstring(L, 2);
-	const char *flag = "";
-	flag = luaL_checkstring(L, 3);
+	const char *file = luaL_checkstring(L, 2);
+	const char *flag = luaL_checkstring(L, 3);
 
 	if (file_exists(file)) {
 		struct stat FileInfo;
