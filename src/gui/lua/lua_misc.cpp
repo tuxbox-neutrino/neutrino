@@ -367,8 +367,7 @@ int CLuaInstMisc::MiscDelete(lua_State *L)
   deprecated functions
   --------------------------------------------------------------- */
 
-//#define MISC_FUNC_DEPRECATED miscFunctionDeprecated
-#define MISC_FUNC_DEPRECATED(...)
+#define MISC_FUNC_DEPRECATED miscFunctionDeprecated
 
 void CLuaInstMisc::miscFunctionDeprecated(lua_State *L, std::string oldFunc)
 {

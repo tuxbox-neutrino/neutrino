@@ -352,8 +352,7 @@ int CLuaInstVideo::VideoDelete(lua_State *L)
   deprecated functions
   --------------------------------------------------------------- */
 
-//#define VIDEO_FUNC_DEPRECATED videoFunctionDeprecated
-#define VIDEO_FUNC_DEPRECATED(...)
+#define VIDEO_FUNC_DEPRECATED videoFunctionDeprecated
 
 void CLuaInstVideo::videoFunctionDeprecated(lua_State *L, std::string oldFunc)
 {

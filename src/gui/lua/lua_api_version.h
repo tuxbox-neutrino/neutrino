@@ -4,4 +4,4 @@
  * to luainstance.h changes
  */
 #define LUA_API_VERSION_MAJOR 1
-#define LUA_API_VERSION_MINOR 58
+#define LUA_API_VERSION_MINOR 59
