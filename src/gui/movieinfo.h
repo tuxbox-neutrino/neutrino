@@ -108,9 +108,9 @@ typedef struct
 {
 	int atype;
 	int selected;
-	int epgAudioPid;		// epg audio pid nr, usually filled by VCR
-	std::string epgAudioPidName;	// epg audio pid name, usually filled by VCR
-} EPG_AUDIO_PIDS;
+	int AudioPid;		// audio pid nr, usually filled by VCR
+	std::string AudioPidName; // audio pid name, usually filled by VCR
+} AUDIO_PIDS;
 
 class MI_MOVIE_INFO //MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 {
@@ -135,7 +135,7 @@ class MI_MOVIE_INFO //MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 		//char format;			// currently not used
 		//char audio;			// currently not used
 		MI_MOVIE_BOOKMARKS bookmarks;	// bookmark collecton for this movie
-		std::vector<EPG_AUDIO_PIDS> audioPids; // available AudioPids, usually filled by VCR. Note: Vectors are easy to is also using the heap (memory fragmentation), might be changed to array [MI_MAX_AUDIO_PIDS]
+		std::vector<AUDIO_PIDS> audioPids; // available AudioPids, usually filled by VCR. Note: Vectors are easy to is also using the heap (memory fragmentation), might be changed to array [MI_MAX_AUDIO_PIDS]
 
 		uint64_t epgId;			// currently not used, we just do not want to loose this info if movie info is saved backed
 		uint64_t epgEpgId;		// off_t currently not used, we just do not want to loose this info if movie info is saved backed

@@ -593,7 +593,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 		{
 			if (i)
 				extMovieInfo += ", ";
-			extMovieInfo += mp_movie_info->audioPids[i].epgAudioPidName;
+			extMovieInfo += mp_movie_info->audioPids[i].AudioPidName;
 		}
 		extMovieInfo += "\n";
 	}

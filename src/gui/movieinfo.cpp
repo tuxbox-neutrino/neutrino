@@ -121,13 +121,13 @@ bool CMovieInfo::encodeMovieInfoXml(std::string * extMessage, MI_MOVIE_INFO * mo
 		for (unsigned int i = 0; i < movie_info->audioPids.size(); i++) // pids.APIDs.size()
 		{
 			*extMessage += "\t\t\t<" MI_XML_TAG_AUDIO " " MI_XML_TAG_PID "=\"";
-			*extMessage += to_string(movie_info->audioPids[i].epgAudioPid);
+			*extMessage += to_string(movie_info->audioPids[i].AudioPid);
 			*extMessage += "\" " MI_XML_TAG_ATYPE "=\"";
 			*extMessage += to_string(movie_info->audioPids[i].atype);
 			*extMessage += "\" " MI_XML_TAG_SELECTED "=\"";
 			*extMessage += to_string(movie_info->audioPids[i].selected);
 			*extMessage += "\" " MI_XML_TAG_NAME "=\"";
-			*extMessage += ZapitTools::UTF8_to_UTF8XML(movie_info->audioPids[i].epgAudioPidName.c_str());
+			*extMessage += ZapitTools::UTF8_to_UTF8XML(movie_info->audioPids[i].AudioPidName.c_str());
 			*extMessage += "\"/>\n";
 		}
 		*extMessage += "\t\t</" MI_XML_TAG_AUDIOPIDS ">\n";
@@ -287,7 +287,7 @@ bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 
 	int pos = 0;
 
-	EPG_AUDIO_PIDS audio_pids;
+	AUDIO_PIDS audio_pids;
 
 	while ((pos = find_next_char('<', text, pos, bytes)) != -1) {
 		pos++;
@@ -334,9 +334,9 @@ bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 				while (text[pos + pos2] != '\"' && text[pos + pos2] != 0 && text[pos + pos2] != '/')
 					pos2++;
 				if (text[pos + pos2] == '\"')
-					audio_pids.epgAudioPid = atoi(&text[pos + pos2 + 1]);
+					audio_pids.AudioPid = atoi(&text[pos + pos2 + 1]);
 			} else
-				audio_pids.epgAudioPid = 0;
+				audio_pids.AudioPid = 0;
 
 			audio_pids.atype = 0;
 			pos2 = -1;
@@ -366,7 +366,7 @@ bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 					audio_pids.selected = atoi(&text[pos + pos2 + 1]);
 			}
 
-			audio_pids.epgAudioPidName = "";
+			audio_pids.AudioPidName = "";
 			//pos2 = strcspn(&text[pos],MI_XML_TAG_NAME);
 			pos2 = -1;
 			ptr = strstr(&text[pos], MI_XML_TAG_NAME);
@@ -382,12 +382,12 @@ bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 						pos3++;
 					if (text[pos + pos3] == '\"')
 					{
-						audio_pids.epgAudioPidName.append(&text[pos + pos2 + 1], pos3 - pos2 - 1);
-						audio_pids.epgAudioPidName = htmlEntityDecode(audio_pids.epgAudioPidName);
+						audio_pids.AudioPidName.append(&text[pos + pos2 + 1], pos3 - pos2 - 1);
+						audio_pids.AudioPidName = htmlEntityDecode(audio_pids.AudioPidName);
 					}
 				}
 			}
-			//printf("MOVIE INFO: apid %d type %d name %s selected %d\n", audio_pids.epgAudioPid, audio_pids.atype, audio_pids.epgAudioPidName.c_str(), audio_pids.selected);
+			//printf("MOVIE INFO: apid %d type %d name %s selected %d\n", audio_pids.AudioPid, audio_pids.atype, audio_pids.AudioPidName.c_str(), audio_pids.selected);
 			movie_info->audioPids.push_back(audio_pids);
 		}
 		/* parse bookmarks */
