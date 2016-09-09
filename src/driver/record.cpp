@@ -616,7 +616,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	recMovieInfo->epgInfo2		= info2;
 	recMovieInfo->epgEpgId		= epgid;
 	recMovieInfo->mode		= g_Zapit->getMode();
-	recMovieInfo->epgVideoPid	= allpids.PIDs.vpid;
+	recMovieInfo->VideoPid		= allpids.PIDs.vpid;
 	recMovieInfo->VideoType		= channel->type;
 
 	EPG_AUDIO_PIDS audio_pids;
@@ -1937,10 +1937,10 @@ void CStreamRec::FillMovieInfo(CZapitChannel * /*channel*/, APIDList & /*apid_li
 			printf("%s: [AUDIO] 0x%x [%s]\n", __FUNCTION__, audio_pids.epgAudioPid, desc.c_str());
 
 		} else if (codec->codec_type == AVMEDIA_TYPE_VIDEO) {
-			recMovieInfo->epgVideoPid = st->id;
+			recMovieInfo->VideoPid = st->id;
 			if (codec->codec_id == AV_CODEC_ID_H264)
 				recMovieInfo->VideoType = 1;
-			printf("%s: [VIDEO] 0x%x\n", __FUNCTION__, recMovieInfo->epgVideoPid);
+			printf("%s: [VIDEO] 0x%x\n", __FUNCTION__, recMovieInfo->VideoPid);
 		}
 	}
 }

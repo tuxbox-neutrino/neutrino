@@ -398,7 +398,7 @@ void CMoviePlayerGui::fillPids()
 	if (p_movie_info == NULL)
 		return;
 
-	vpid = p_movie_info->epgVideoPid;
+	vpid = p_movie_info->VideoPid;
 	vtype = p_movie_info->VideoType;
 	numpida = 0; currentapid = 0;
 	/* FIXME: better way to detect TS recording */
