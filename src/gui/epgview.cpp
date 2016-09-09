@@ -551,12 +551,12 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 		extMovieInfo += mp_movie_info->serieName;
 		extMovieInfo += "\n";
 	}
-	if (!mp_movie_info->epgChannel.empty())
+	if (!mp_movie_info->channelName.empty())
 	{
 		extMovieInfo += "\n";
 		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_CHANNEL);
 		extMovieInfo += ": ";
-		extMovieInfo += mp_movie_info->epgChannel;
+		extMovieInfo += mp_movie_info->channelName;
 		extMovieInfo += "\n";
 	}
 	if (mp_movie_info->rating != 0)

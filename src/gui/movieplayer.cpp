@@ -1028,7 +1028,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->cookie_header = cookie_header;
 
 	instance_bg->movie_info.epgTitle = name;
-	instance_bg->movie_info.epgChannel = realUrl;
+	instance_bg->movie_info.channelName = realUrl;
 	instance_bg->movie_info.epgId = chan;
 	instance_bg->p_movie_info = &movie_info;
 
@@ -1700,7 +1700,7 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 					mi = milist[idx];
 			}
 		}
-		g_InfoViewer->showMovieTitle(playstate, mi->epgEpgId >>16, mi->epgChannel, mi->epgTitle, mi->epgInfo1,
+		g_InfoViewer->showMovieTitle(playstate, mi->epgEpgId >>16, mi->channelName, mi->epgTitle, mi->epgInfo1,
 			duration, position, repeat_mode, init_vzap_it ? 0 /*IV_MODE_DEFAULT*/ : 1 /*IV_MODE_VIRTUAL_ZAP*/);
 		return;
 	}

@@ -570,9 +570,9 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	std::string tmpstring = channel->getName();
 
 	if (tmpstring.empty())
-		recMovieInfo->epgChannel = "unknown";
+		recMovieInfo->channelName = "unknown";
 	else
-		recMovieInfo->epgChannel = tmpstring;
+		recMovieInfo->channelName = tmpstring;
 
 	tmpstring = "not available";
 	if (epgid != 0) {

@@ -120,7 +120,7 @@ class MI_MOVIE_INFO //MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 		std::string epgTitle;		// plain movie name, usually filled by EPG
 		std::string epgInfo1;		// used for Genre (Premiere) or second title, usually filled by EPG
 		std::string epgInfo2;		// detailed movie content, usually filled by EPG
-		std::string epgChannel;		// Channel name, usually filled by EPG
+		std::string channelName;		// Channel name, usually filled by EPG
 		std::string serieName;		// user defines series name
 
 		time_t dateOfLastPlay;		// last play date of movie in seconds since 1970

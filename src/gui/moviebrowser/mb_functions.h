@@ -42,9 +42,9 @@ bool sortByGenre(const MI_MOVIE_INFO* a, const MI_MOVIE_INFO* b)
 }
 bool sortByChannel(const MI_MOVIE_INFO* a, const MI_MOVIE_INFO* b)
 {
-	if (std::lexicographical_compare(a->epgChannel.begin(), a->epgChannel.end(), b->epgChannel.begin(), b->epgChannel.end(), compare_to_lower))
+	if (std::lexicographical_compare(a->channelName.begin(), a->channelName.end(), b->channelName.begin(), b->channelName.end(), compare_to_lower))
 		return true;
-	if (std::lexicographical_compare(b->epgChannel.begin(), b->epgChannel.end(), a->epgChannel.begin(), a->epgChannel.end(), compare_to_lower))
+	if (std::lexicographical_compare(b->channelName.begin(), b->channelName.end(), a->channelName.begin(), a->channelName.end(), compare_to_lower))
 		return false;
 	return sortByTitle(a,b);
 }
