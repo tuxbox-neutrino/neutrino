@@ -690,7 +690,7 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 
 	int eof = 0, pos = 0;
 	unsigned char *chid = new unsigned char[sizeof(t_channel_id)];
-	*(t_channel_id*)chid = mp->movie_info.epgId;
+	*(t_channel_id*)chid = mp->movie_info.channelId;
 
 	bool started = mp->StartWebtv();
 	printf("%s: started: %d\n", __func__, started);fflush(stdout);
@@ -1029,7 +1029,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 
 	instance_bg->movie_info.epgTitle = name;
 	instance_bg->movie_info.channelName = realUrl;
-	instance_bg->movie_info.epgId = chan;
+	instance_bg->movie_info.channelId = chan;
 	instance_bg->p_movie_info = &movie_info;
 
 	stopPlayBack();
@@ -1123,7 +1123,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		}
 
 		duration = p_movie_info->length * 60 * 1000;
-		int percent = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, currentapid, currentac3 == 1);
+		int percent = CZapit::getInstance()->GetPidVolume(p_movie_info->channelId, currentapid, currentac3 == 1);
 		CZapit::getInstance()->SetVolumePercent(percent);
 	}
 
@@ -1153,7 +1153,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 			int i;
 			int towait = (timeshift == TSHIFT_MODE_ON) ? TIMESHIFT_SECONDS+1 : TIMESHIFT_SECONDS;
 			int cnt = 500;
-			if (IS_WEBTV(movie_info.epgId)) {
+			if (IS_WEBTV(movie_info.channelId)) {
 				videoDecoder->setBlank(false);
 				cnt = 200;
 				towait = 20;
@@ -1842,10 +1842,10 @@ void CMoviePlayerGui::selectAudioPid()
 	if (p_movie_info && numpida <= p_movie_info->audioPids.size()) {
 		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUST));
 
-		CVolume::getInstance()->SetCurrentChannel(p_movie_info->epgId);
+		CVolume::getInstance()->SetCurrentChannel(p_movie_info->channelId);
 		CVolume::getInstance()->SetCurrentPid(currentapid);
 		for (uint i=0; i < numpida; i++) {
-			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
+			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->channelId, apids[i], ac3flags[i]);
 			APIDSelector.addItem(new CMenuOptionNumberChooser(p_movie_info->audioPids[i].AudioPidName,
 						&percent[i], currentapid == apids[i],
 						0, 999, CVolume::getInstance()));

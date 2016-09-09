@@ -611,7 +611,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		tmpstring = epgTitle;
 	}
 	recMovieInfo->epgTitle		= tmpstring;
-	recMovieInfo->epgId		= channel->getChannelID();
+	recMovieInfo->channelId		= channel->getChannelID();
 	recMovieInfo->epgInfo1		= info1;
 	recMovieInfo->epgInfo2		= info2;
 	recMovieInfo->epgEpgId		= epgid;

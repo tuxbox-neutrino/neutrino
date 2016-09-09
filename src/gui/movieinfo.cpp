@@ -108,7 +108,7 @@ bool CMovieInfo::encodeMovieInfoXml(std::string * extMessage, MI_MOVIE_INFO * mo
 			"\">\n";
 	XML_ADD_TAG_STRING(*extMessage, MI_XML_TAG_CHANNELNAME, movie_info->channelName);
 	XML_ADD_TAG_STRING(*extMessage, MI_XML_TAG_EPGTITLE, movie_info->epgTitle);
-	XML_ADD_TAG_LONG(*extMessage, MI_XML_TAG_ID, movie_info->epgId);
+	XML_ADD_TAG_LONG(*extMessage, MI_XML_TAG_ID, movie_info->channelId);
 	XML_ADD_TAG_STRING(*extMessage, MI_XML_TAG_INFO1, movie_info->epgInfo1);
 	XML_ADD_TAG_STRING(*extMessage, MI_XML_TAG_INFO2, movie_info->epgInfo2);
 	XML_ADD_TAG_LONG(*extMessage, MI_XML_TAG_EPGID, movie_info->epgEpgId); // %llu
@@ -293,7 +293,7 @@ bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 		pos++;
 		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_CHANNELNAME, movie_info->channelName)
 		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_EPGTITLE, movie_info->epgTitle)
-		GET_XML_DATA_LONG(text, pos, MI_XML_TAG_ID, movie_info->epgId)
+		GET_XML_DATA_LONG(text, pos, MI_XML_TAG_ID, movie_info->channelId)
 		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_INFO1, movie_info->epgInfo1)
 		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_INFO2, movie_info->epgInfo2)
 		GET_XML_DATA_LONG(text, pos, MI_XML_TAG_EPGID, movie_info->epgEpgId)
@@ -514,7 +514,7 @@ void MI_MOVIE_INFO::clear(void)
 	//format = 0;
 	//audio = 0;
 
-	epgId = 0;
+	channelId = 0;
 	epgEpgId = 0;
 	mode = 0;
 	VideoPid = 0;

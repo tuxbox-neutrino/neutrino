@@ -1240,7 +1240,7 @@ void CTimerEvent_Record::saveToConfig(CConfigFile *config)
 //------------------------------------------------------------
 void CTimerEvent_Record::Reschedule()
 {
-	// clear epgId on reschedule
+	// clear epgID on reschedule
 	eventInfo.epgID = 0;
 	eventInfo.epg_starttime = 0;
 	epgTitle="";

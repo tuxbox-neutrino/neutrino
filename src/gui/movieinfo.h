@@ -120,7 +120,7 @@ class MI_MOVIE_INFO //MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 		std::string epgTitle;		// plain movie name, usually filled by EPG
 		std::string epgInfo1;		// used for Genre (Premiere) or second title, usually filled by EPG
 		std::string epgInfo2;		// detailed movie content, usually filled by EPG
-		std::string channelName;		// Channel name, usually filled by EPG
+		std::string channelName;	// channel name, auto filled
 		std::string serieName;		// user defines series name
 
 		time_t dateOfLastPlay;		// last play date of movie in seconds since 1970
@@ -137,7 +137,7 @@ class MI_MOVIE_INFO //MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 		MI_MOVIE_BOOKMARKS bookmarks;	// bookmark collecton for this movie
 		std::vector<AUDIO_PIDS> audioPids; // available AudioPids, usually filled by VCR. Note: Vectors are easy to is also using the heap (memory fragmentation), might be changed to array [MI_MAX_AUDIO_PIDS]
 
-		uint64_t epgId;			// currently not used, we just do not want to loose this info if movie info is saved backed
+		uint64_t channelId;		// channel id, auto filled
 		uint64_t epgEpgId;		// off_t currently not used, we just do not want to loose this info if movie info is saved backed
 		int mode;			// record mode (0: unknown; 1: tv record; 2: radio record)
 		int VideoPid;			// currently not used, we just do not want to loose this info if movie info is saved backed
