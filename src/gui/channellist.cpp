@@ -709,8 +709,9 @@ int CChannelList::show()
 				loop = false;
 			}
 		}
-		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites || msg == CRCInput::RC_www) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
 			if (!edit_state) {
+				//FIXME: what about LIST_MODE_WEBTV?
 				int newmode = msg == CRCInput::RC_sat ? LIST_MODE_SAT : LIST_MODE_FAV;
 				CNeutrinoApp::getInstance()->SetChannelMode(newmode);
 				res = CHANLIST_CHANGE_MODE;
@@ -1318,7 +1319,8 @@ int CChannelList::numericZap(int key)
 			doZap = true;
 			break;
 		}
-		else if (msg == CRCInput::RC_favorites || msg == CRCInput::RC_sat || msg == CRCInput::RC_www || msg == CRCInput::RC_right) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg) || msg == CRCInput::RC_right) {
+			// do nothing
 		}
 		else if (CRCInput::isNumeric(msg)) {
 			if (pos == 4) {

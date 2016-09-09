@@ -318,7 +318,8 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 		( msg == CRCInput::RC_home ) ||
 		( msg == CRCInput::RC_ok ) )
 			doLoop = false;
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// do nothing
 		}
 		else
 		{

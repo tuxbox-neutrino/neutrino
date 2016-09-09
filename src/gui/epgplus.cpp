@@ -1132,7 +1132,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 					}
 				}
 			}
-			else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites || msg == CRCInput::RC_www) {
+			else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
 				g_RCInput->postMsg (msg, 0);
 				res = menu_return::RETURN_EXIT_ALL;
 				loop = false;

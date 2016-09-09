@@ -1585,8 +1585,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER) {
 			if (playstate == CMoviePlayerGui::PLAY && (position >= 300000 || (duration < 300000 && (position > (duration /2)))))
 				makeScreenShot(true);
-		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites || msg == CRCInput::RC_www) {
-			//FIXME do nothing ?
+		} else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// do nothing
 		} else if (msg == (neutrino_msg_t) CRCInput::RC_setup) {
 			CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::SHOW_MAINMENU, 0);
 		} else if (msg == CRCInput::RC_red || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow || msg == CRCInput::RC_blue ) {

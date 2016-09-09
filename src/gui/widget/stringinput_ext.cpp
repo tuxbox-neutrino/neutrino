@@ -251,14 +251,14 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 					 timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				 }
 			} else {
-				//keine änderungen - beenden ok
 				loop=false;
 				if(cancel != NULL)
 					*cancel = true;
 			}
 		}
-		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www))
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 		{
+			// do nothing
 		}
 		else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 		{

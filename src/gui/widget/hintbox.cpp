@@ -290,7 +290,8 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 			else
 				hintBox->scroll_down();
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// do nothing
 		}
 		else if(msg == CRCInput::RC_mode) {
 			res = messages_return::handled;

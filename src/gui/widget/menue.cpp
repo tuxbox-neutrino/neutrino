@@ -966,13 +966,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 			case (CRCInput::RC_timeout):
 				break;
-
-			case (CRCInput::RC_sat):
-			case (CRCInput::RC_favorites):
-			case (CRCInput::RC_www):
-				g_RCInput->postMsg (msg, 0);
-				//close any menue on dbox-key
 			case (CRCInput::RC_setup):
+				//close any menu on menu-key
 				{
 					msg = CRCInput::RC_timeout;
 					retval = menu_return::RETURN_EXIT_ALL;
@@ -989,7 +984,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 
 			default:
-				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
+				if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+					g_RCInput->postMsg (msg, 0);
+				}
+				else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 					retval = menu_return::RETURN_EXIT_ALL;
 					msg = CRCInput::RC_timeout;
 				}

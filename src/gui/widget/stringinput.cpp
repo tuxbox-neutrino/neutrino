@@ -494,8 +494,9 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 			loop=false;
 			res = menu_return::RETURN_EXIT_REPAINT;
 		}
-		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www))
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 		{
+			// do nothing
 		}
 		else
 		{

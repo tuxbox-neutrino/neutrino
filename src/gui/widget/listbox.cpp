@@ -223,13 +223,13 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		{
 			onBlueKeyPressed();
 		}
-		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www))
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 		{
+			// do nothing
 		}
 		else
 		{
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
-			// kein canceling...
 		}
 	}
 

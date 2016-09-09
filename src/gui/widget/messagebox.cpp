@@ -273,8 +273,9 @@ int CMessageBox::exec(int timeout)
 		{
 			loop = false;
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites) || (msg == CRCInput::RC_www) || (msg == CRCInput::RC_spkr))
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg) || (msg == CRCInput::RC_spkr))
 		{
+			// do nothing
 		}
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 		{

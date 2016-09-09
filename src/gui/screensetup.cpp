@@ -209,13 +209,12 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 				}
 				break;
 			}
-			case CRCInput::RC_favorites:
-			case CRCInput::RC_sat:
-			case CRCInput::RC_www:
-				break;
-
 			default:
-				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
+				if (CNeutrinoApp::getInstance()->listModeKey(msg))
+				{
+					break;
+				}
+				else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 				{
 					loop = false;
 					res = menu_return::RETURN_EXIT_ALL;

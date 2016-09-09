@@ -2765,6 +2765,17 @@ void CNeutrinoApp::lockPlayBack(bool blank)
 		videoDecoder->setBlank(true);
 }
 
+bool CNeutrinoApp::listModeKey(const neutrino_msg_t msg)
+{
+	if (
+		   msg == CRCInput::RC_sat
+		|| msg == CRCInput::RC_favorites
+		|| msg == CRCInput::RC_www
+	)
+		return true;
+	return false;
+}
+
 int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
 	int res = 0;
@@ -2854,7 +2865,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 
 	/* ================================== KEYS ================================================ */
-	if( msg == CRCInput::RC_ok || (!g_InfoViewer->getSwitchMode() && (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites || msg == CRCInput::RC_www))) {
+	if( msg == CRCInput::RC_ok || (!g_InfoViewer->getSwitchMode() && CNeutrinoApp::getInstance()->listModeKey(msg))) {
 		if( (mode == mode_tv) || (mode == mode_radio) || (mode == mode_ts) || (mode == mode_webtv)) {
 			showChannelList(msg);
 			return messages_return::handled;

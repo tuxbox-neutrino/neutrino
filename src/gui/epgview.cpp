@@ -1259,14 +1259,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				} else
 					loop = false;
 				break;
-			case CRCInput::RC_favorites:
-			case CRCInput::RC_sat:
-			case CRCInput::RC_www:
-				if( !call_fromfollowlist){
-					g_RCInput->postMsg (msg, 0);
-					loop = false;
-				}
-				break;
 			default:
 				if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel) {
 					if(fader.StartFadeOut()) {
@@ -1274,7 +1266,14 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						msg = 0;
 					} else
 						loop = false;
-				} else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
+				}
+				else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+					if (!call_fromfollowlist) {
+						g_RCInput->postMsg (msg, 0);
+						loop = false;
+					}
+				}
+				else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
 					g_RCInput->postMsg(msg, data);
 					loop = false;
 					res = menu_return::RETURN_EXIT_ALL;

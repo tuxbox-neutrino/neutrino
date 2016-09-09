@@ -229,18 +229,16 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 					*value[VALUE_ALPHA] = a_alt;
 				loop = false;
 				break;
-
-			case CRCInput::RC_sat:
-			case CRCInput::RC_favorites:
-			case CRCInput::RC_www:
-				break;
 			case CRCInput::RC_timeout:
 			case CRCInput::RC_ok:
 				loop = false;
 				break;
-
 			default:
-				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
+				if (CNeutrinoApp::getInstance()->listModeKey(msg))
+				{
+					break;
+				}
+				else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 				{
 					loop = false;
 					res = menu_return::RETURN_EXIT_ALL;
