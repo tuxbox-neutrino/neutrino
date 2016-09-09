@@ -527,7 +527,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	epgData.itemDescriptions.clear();
 	epgData.items.clear();
 	epgData.fsk = mp_movie_info->parentalLockAge;
-	epgData.table_id = mp_movie_info->epgEpgId;
+	epgData.table_id = mp_movie_info->epgId;
 #ifdef FULL_CONTENT_CLASSIFICATION
 	epgData.contentClassification.clear();
 #else
@@ -655,7 +655,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 		epg_done = 100;
 	//printf("[%s:%d] epg_done: %d\n", __func__, __LINE__, epg_done);
 
-	res = show(mp_movie_info->epgEpgId >> 16, 0, 0, doLoop, false, true);
+	res = show(mp_movie_info->epgId >> 16, 0, 0, doLoop, false, true);
 	if(!epgTextSwitch.empty())
 	{
 		mp_movie_info->epgInfo2 = epgTextSwitch;
@@ -1246,7 +1246,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				}
 				g_settings.bigFonts = bigFonts;
 				if (mp_info)
-					show(mp_movie_info->epgEpgId >> 16, 0, 0, false, false, true);
+					show(mp_movie_info->epgId >> 16, 0, 0, false, false, true);
 				else
 					show(channel_id, id, &startzeit, false, call_fromfollowlist);
 				showPos=0;

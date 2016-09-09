@@ -1260,14 +1260,14 @@ void CMovieBrowser::refreshMovieInfo(void)
 // 	static int logo_h = 0;
 	int logo_w_max = m_cBoxFrameTitleRel.iWidth / 4;
 
-	//printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->channelId, m_cBoxFrameTitleRel.iY);
+	//printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgId, m_movieSelectionHandler->channelId, m_cBoxFrameTitleRel.iY);
 	int lx = 0;//never read m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 	int ly = 0;//never read m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
 	short pb_hdd_offset = g_settings.infobar_show_sysfs_hdd ? 104 : 0;
 	if (show_mode == MB_SHOW_YT)
 		pb_hdd_offset = 0;
 
-	if (CChannelLogo && (old_EpgId != m_movieSelectionHandler->epgEpgId >>16)) {
+	if (CChannelLogo && (old_EpgId != m_movieSelectionHandler->epgId >>16)) {
 		if (newHeader)
 			CChannelLogo->clearFbData(); // reset logo screen data
 		else
@@ -1275,10 +1275,10 @@ void CMovieBrowser::refreshMovieInfo(void)
 		delete CChannelLogo;
 		CChannelLogo = NULL;
 	}
-	if (old_EpgId != m_movieSelectionHandler->epgEpgId >>16) {
+	if (old_EpgId != m_movieSelectionHandler->epgId >>16) {
 		if (CChannelLogo == NULL)
-			CChannelLogo = new CComponentsChannelLogoScalable(0, 0, m_movieSelectionHandler->channelName, m_movieSelectionHandler->epgEpgId >>16); //TODO: add logo into header as item
-		old_EpgId = m_movieSelectionHandler->epgEpgId >>16;
+			CChannelLogo = new CComponentsChannelLogoScalable(0, 0, m_movieSelectionHandler->channelName, m_movieSelectionHandler->epgId >>16); //TODO: add logo into header as item
+		old_EpgId = m_movieSelectionHandler->epgId >>16;
 	}
 
 	if (CChannelLogo && CChannelLogo->hasLogo()) {

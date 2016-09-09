@@ -614,7 +614,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	recMovieInfo->channelId		= channel->getChannelID();
 	recMovieInfo->epgInfo1		= info1;
 	recMovieInfo->epgInfo2		= info2;
-	recMovieInfo->epgEpgId		= epgid;
+	recMovieInfo->epgId		= epgid;
 	recMovieInfo->mode		= g_Zapit->getMode();
 	recMovieInfo->VideoPid		= allpids.PIDs.vpid;
 	recMovieInfo->VideoType		= channel->type;

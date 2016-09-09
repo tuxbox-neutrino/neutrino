@@ -1700,7 +1700,7 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 					mi = milist[idx];
 			}
 		}
-		g_InfoViewer->showMovieTitle(playstate, mi->epgEpgId >>16, mi->channelName, mi->epgTitle, mi->epgInfo1,
+		g_InfoViewer->showMovieTitle(playstate, mi->epgId >>16, mi->channelName, mi->epgTitle, mi->epgInfo1,
 			duration, position, repeat_mode, init_vzap_it ? 0 /*IV_MODE_DEFAULT*/ : 1 /*IV_MODE_VIRTUAL_ZAP*/);
 		return;
 	}
