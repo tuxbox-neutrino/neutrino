@@ -641,7 +641,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		audio_pids.selected = 1;
 		recMovieInfo->audioPids.push_back(audio_pids);
 	}
-	recMovieInfo->epgVTXPID = allpids.PIDs.vtxtpid;
+	recMovieInfo->VtxtPid = allpids.PIDs.vtxtpid;
 }
 
 record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
