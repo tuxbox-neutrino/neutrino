@@ -150,6 +150,8 @@ int CThemes::Show()
 	std::string file_name = "";
 
 	CMenuWidget themes (LOCALE_COLORMENU_MENUCOLORS, NEUTRINO_ICON_SETTINGS, width);
+	sigc::slot0<void> slot_repaint = sigc::mem_fun(themes, &CMenuWidget::hide); //we want to clean screen before repaint after changed Option
+	themes.OnBeforePaint.connect(slot_repaint);
 	
 	themes.addIntroItems(LOCALE_COLORTHEMEMENU_HEAD2);
 	
