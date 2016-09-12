@@ -61,7 +61,8 @@ void CComponentsDetailLine::initVarDline(	const int& x_pos, const int& y_pos_top
 	shadow_w	= 1;
 
 	//CComponentsDetailLine
-	thickness 	= 4;
+	thickness 	= 4; /* MUST be an even value! */
+
 	cc_body_gradient_enable = false;
 }
 
@@ -95,10 +96,13 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 
 	if (v_fbdata.empty()){
 
-		int y_mark_top = y-h_mark_top/2+thickness/2;
-		int y_mark_down = y_down-h_mark_down/2+thickness/2;
-
 		int sw = shadow_w;
+
+		// reduce two times the shadow width, to avoid shadow overlaps
+		h_mark_down -= 2*sw;
+
+		int y_mark_top = y-h_mark_top/2;
+		int y_mark_down = y_down-h_mark_down/2;
 
 		cc_fbdata_t fbdata[] =
 		{
@@ -111,16 +115,16 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 			{true, CC_FBDATA_TYPE_BOX, 	x+width-thickness,	y_mark_top+h_mark_top, 	thickness, 		sw,	 		col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
 
 			/* horizontal item line - */
-			{true, CC_FBDATA_TYPE_BOX, 	x, 			y,			width-thickness-sw,	thickness, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
-			{true, CC_FBDATA_TYPE_BOX, 	x+thickness,		y+thickness,		width-2*thickness-sw,	sw, 			col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x, 			y-thickness/2,		width-thickness-sw,	thickness, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+thickness,		y+thickness/2,		width-2*thickness-sw,	sw, 			col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
 
 			/* vertical connect line [ */
-			{true, CC_FBDATA_TYPE_BOX, 	x,			y+thickness, 		thickness, 		y_down-y-thickness, 	col_body, 	0, 0, 0, NULL, NULL, NULL, false},
-			{true, CC_FBDATA_TYPE_BOX, 	x+thickness,		y+thickness+sw,		sw, 			y_down-y-thickness-sw,	col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x,			y+thickness/2, 		thickness, 		y_down-y-thickness, 	col_body, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+thickness,		y+thickness/2+sw,	sw, 			y_down-y-thickness-sw,	col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
 
 			/* horizontal info line - */
-			{true, CC_FBDATA_TYPE_BOX, 	x,			y_down, 		width-thickness-sw, 	thickness, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
-			{true, CC_FBDATA_TYPE_BOX, 	x+sw,			y_down+thickness, 	width-thickness-2*sw,	sw, 			col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x,			y_down-thickness/2,	width-thickness-sw, 	thickness, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+sw,			y_down+thickness/2, 	width-thickness-2*sw,	sw, 			col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
 
 			/* vertical info mark | */
 			{true, CC_FBDATA_TYPE_BOX, 	x+width-thickness-sw,	y_mark_down, 		thickness, 		h_mark_down, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
