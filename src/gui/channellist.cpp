@@ -1654,13 +1654,13 @@ void CChannelList::paintItem2DetailsLine (int pos)
 		return;
 
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos1 = y + theight + pos*fheight + (fheight/2)-2;
-	int ypos2 = y + height + (info_height/2)-2;
+	int ypos1 = y + theight + pos*fheight + (fheight/2);
+	int ypos2 = y + height + (info_height/2);
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) {
 		if (dline == NULL)
-			dline = new CComponentsDetailLine(xpos, ypos1, ypos2, fheight/2+1, info_height-RADIUS_LARGE*2);
+			dline = new CComponentsDetailLine(xpos, ypos1, ypos2, fheight/2, info_height-RADIUS_LARGE*2);
 		dline->paint(false);
 	}
 }

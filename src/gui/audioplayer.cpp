@@ -1826,8 +1826,8 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	int xpos  = m_x - ConnectLineBox_Width;
 	int ypos1 = m_y + m_title_height + m_theight+ 0 + pos*m_fheight + INFO_BOX_Y_OFFSET;
 	int ypos2 = m_y + (m_height - m_info_height) + INFO_BOX_Y_OFFSET;
-	int ypos1a = ypos1 + (m_fheight / 2) - 2;
-	int ypos2a = ypos2 + (m_info_height / 2) - 2;
+	int ypos1a = ypos1 + (m_fheight / 2);
+	int ypos2a = ypos2 + (m_info_height / 2);
 
 	// clear details line
 	if (dline != NULL)
@@ -1838,7 +1838,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	{
 		//details line
 		if (dline == NULL)
-			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, m_fheight/2+1, m_fheight);
+			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, m_fheight/2, m_fheight);
 		dline->setYPos(ypos1a);
 		dline->paint(false);
 

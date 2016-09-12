@@ -1241,7 +1241,7 @@ void CUpnpBrowserGui::paintItem2DetailsLine (int pos)
 
 	if (!dline)
 		dline = new CComponentsDetailLine();
-	dline->setDimensionsAll(xpos, ypos1a, ypos2, m_item_height/2, infobox.getHeight()-RADIUS_LARGE*3);
+	dline->setDimensionsAll(xpos, ypos1a, ypos2, m_item_height/2, infobox.getHeight()-RADIUS_LARGE*2);
 	dline->paint();
 }
 

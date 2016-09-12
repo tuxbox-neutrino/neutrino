@@ -1453,10 +1453,10 @@ void CMenuWidget::paintHint(int pos)
 	
 	//init details line and infobox dimensions
 	int ypos1 = item->getYPosition();
-	int ypos1a = ypos1 + (iheight/2)-2;
-	int ypos2a = ypos2 + (hint_height/2)-2;
+	int ypos1a = ypos1 + (iheight/2);
+	int ypos2a = ypos2 + (hint_height/2);
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
-	int imarkh = iheight/2+1;
+	int imarkh = iheight/2;
 	
 	//init details line
 	if (details_line == NULL)

@@ -291,8 +291,8 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*iheight;
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
-	int ypos1a = ypos1 + (fheight/2)-2;
-	int ypos2a = ypos2 + (info_height/2)-2;
+	int ypos1a = ypos1 + (fheight/2);
+	int ypos2a = ypos2 + (info_height/2);
 
 	if (dline)
 		dline->kill(); //kill details line
@@ -301,7 +301,7 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
-			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
 
 		//infobox
