@@ -233,7 +233,7 @@ int CMessageBox::exec(int timeout)
 			result = mbrYes;
 			loop   = false;
 		}
-		else if(msg==CRCInput::RC_right)
+		else if(msg==CRCInput::RC_right && ButtonCount > 1)
 		{
 			bool ok = false;
 			while (!ok)
@@ -257,7 +257,7 @@ int CMessageBox::exec(int timeout)
 				paintButtons();
 			}
 		}
-		else if(msg==CRCInput::RC_left)
+		else if(msg==CRCInput::RC_left && ButtonCount > 1)
 		{
 			bool ok = false;
 			while (!ok)
