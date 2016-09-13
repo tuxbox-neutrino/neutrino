@@ -75,6 +75,8 @@
 #include <libtuxtxt/teletext.h>
 #include <OpenThreads/ScopedLock>
 
+#include <neutrino.h>
+
 /* globals */
 int sig_delay = 2; // seconds between signal check
 
@@ -1653,14 +1655,13 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		}
 		break;
 	}
-#if 0
         case CZapitMessages::CMD_SET_VIDEO_SYSTEM: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
 		videoDecoder->SetVideoSystem(msg.val);
+		CNeutrinoApp::getInstance()->g_settings_video_Mode(msg.val);
                 break;
         }
-#endif
 #if 0
         case CZapitMessages::CMD_SET_NTSC: {
 		videoDecoder->SetVideoSystem(8);
