@@ -133,15 +133,15 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	//generate and add button objects passed from button label content with default width to chain object.
 	for (size_t i= 0; i< label_count; i++){
 		string txt = content[i].text;
-		string btn_name = string(content[i].button);
+		string icon_name = string(content[i].button);
 
 		//ignore item, if no text and icon are defined;
-		if (txt.empty() && btn_name.empty()){
+		if (txt.empty() && icon_name.empty()){
 			dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  ignore item [%d], no icon and text defined!\n", __func__, __LINE__, i);
 			continue;
 		}
 
-		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (btn_contour ? height-2*fr_thickness : height), txt, btn_name);
+		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (btn_contour ? height-2*fr_thickness : height), txt, icon_name);
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(btn_contour);
 		btn->enableFrame(btn_contour);
@@ -153,13 +153,13 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		//set button frames to icon color, predefined for available color buttons
 		if (btn_auto_frame_col){
 			fb_pixel_t f_col = btn->getColorFrame();
-			if (btn_name == NEUTRINO_ICON_BUTTON_RED)
+			if (icon_name == NEUTRINO_ICON_BUTTON_RED)
 				f_col = COL_DARK_RED;
-			if (btn_name == NEUTRINO_ICON_BUTTON_GREEN)
+			if (icon_name == NEUTRINO_ICON_BUTTON_GREEN)
 				f_col = COL_DARK_GREEN;
-			if (btn_name == NEUTRINO_ICON_BUTTON_YELLOW)
+			if (icon_name == NEUTRINO_ICON_BUTTON_YELLOW)
 				f_col = COL_OLIVE;
-			if (btn_name == NEUTRINO_ICON_BUTTON_BLUE)
+			if (icon_name == NEUTRINO_ICON_BUTTON_BLUE)
 				f_col = COL_DARK_BLUE;
 			btn->setColorFrame(f_col);
 		}
