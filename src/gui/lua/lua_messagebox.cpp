@@ -66,7 +66,7 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "text", text);
 	tableLookup(L, "icon", icon);
-	lua_Integer timeout = -1, width = 450, return_default_on_timeout = 0, show_buttons = CMessageBox::mbAll, default_button = CMessageBox::mbrYes;
+	lua_Integer timeout = -1, width = 450, return_default_on_timeout = 0, show_buttons = 0, default_button = 0;
 	tableLookup(L, "timeout", timeout);
 	tableLookup(L, "width", width);
 	tableLookup(L, "return_default_on_timeout", return_default_on_timeout);
@@ -80,13 +80,13 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 			{ "right",	CMessageBox::mbBtnAlignRight },
 			{ NULL,		0 }
 		};
-		show_buttons = 0;
 		for (int i = 0; mb[i].name; i++)
 			if (!strcmp(mb[i].name, tmp.c_str())) {
 				show_buttons |= mb[i].code;
 				break;
 			}
 	}
+
 	lua_pushstring(L, "buttons");
 	lua_gettable(L, -2);
 	for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 2)) {
@@ -108,6 +108,8 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 			}
 	}
 	lua_pop(L, 1);
+	if ((show_buttons & 0xFF) == 0)
+		show_buttons |= CMessageBox::mbAll;
 
 	table_key mbr[] = {
 		{ "yes",	CMessageBox::mbrYes },
@@ -118,7 +120,6 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 		{ NULL,		0 }
 	};
 	if (tableLookup(L, "default", tmp)) {
-		default_button = 0;
 		for (int i = 0; mbr[i].name; i++)
 			if (!strcmp(mbr[i].name, tmp.c_str())) {
 				default_button = mbr[i].code;
