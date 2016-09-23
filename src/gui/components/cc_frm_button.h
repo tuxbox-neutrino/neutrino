@@ -195,6 +195,12 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		inline virtual void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;};
 		///returns an alias value from button object, see also cc_btn_alias
 		inline virtual int getButtonAlias(){return cc_btn_alias;};
+
+		/**1st parameter requires defines CC_SHADOW_ON (default), CC_SHADOW_OFF, CC_SHADOW_BOTTOM or CC_SHADOW_RIGHT, see also cc_types.h
+		 * 2nd parameter defines shadow width, default = defined by system
+		 * 3rd parameter forces paint of shadow layer, default = false, Note: default shadow will paint only on first paint, use 3rd parameter=true ignores this
+		*/
+		void enableShadow(int mode = CC_SHADOW_ON, const int& shadow_width = -1, bool force_paint = false);
 };
 
 //! Sub class of CComponentsButton.

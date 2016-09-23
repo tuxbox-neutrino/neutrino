@@ -72,8 +72,12 @@ class CComponentsFooter : public CComponentsHeader
 
 		///show button with background, default false
 		bool ccf_enable_button_bg;
-		///enable button with shadow, default false
-		bool ccf_enable_button_shadow;
+		///enable button with shadow mode, default CC_SHADOW_OFF
+		int ccf_enable_button_shadow;
+		///set button shadow button width
+		int ccf_button_shadow_width;
+		///set button shadow button repaint mode
+		bool ccf_button_shadow_force_paint;
 		///enable/disable button frame in icon color, predefined for red, green, yellow and blue, default disabled
 		bool btn_auto_frame_col;
 
@@ -183,7 +187,7 @@ class CComponentsFooter : public CComponentsHeader
 		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();}
 
 		///enable and sets shadow properties for embedded buttons
-		void enableButtonShadow(int mode = CC_SHADOW_ON, const int& shadow_width = RADIUS_SMALL, bool force_paint = false);
+		void enableButtonShadow(int mode = CC_SHADOW_ON, const int& shadow_width = OFFSET_SHADOW/2, bool force_paint = false);
 		///disable shadow for embedded buttons
 		void disbaleButtonShadow(){enableButtonShadow(CC_SHADOW_OFF);}
 };

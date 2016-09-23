@@ -247,11 +247,11 @@ void CComponentsPicture::initPosition(int *x_position, int *y_position)
 }
 
 
-void CComponentsPicture::getSize(int* width_image, int *height_image)
-{
-	*width_image = width;
-	*height_image = height;
-}
+// void CComponentsPicture::getSize(int* width_image, int *height_image)
+// {
+// 	*width_image = width;
+// 	*height_image = height;
+// }
 
 int CComponentsPicture::getWidth()
 {

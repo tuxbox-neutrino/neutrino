@@ -97,6 +97,8 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 	height = min(MAX_WINDOW_HEIGHT, height);
 	width = min(MAX_WINDOW_WIDTH, width);
 
+	shadow = CC_SHADOW_ON;
+
 	//set result
 	if (Default_result != mbrNone)
 		result = default_result = Default_result;
@@ -175,8 +177,9 @@ void CMsgBox::initButtons()
 
 	ccw_footer->setButtonLabels(v_buttons, 0, 125);
 
-	//show buttons with background
+	//show buttons with background and shadow
 	ccw_footer->enableButtonBg(btn_enable_bg);
+	ccw_footer->enableButtonShadow(CC_SHADOW_ON, OFFSET_SHADOW/2, true);
 
 	//set position of meassage window and refresh window properties
 	setCenterPos();

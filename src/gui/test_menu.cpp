@@ -370,9 +370,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 	else if (actionKey == "button"){
 		if (button == NULL){
-			button = new CComponentsButtonRed(100, 100, 100, 50, "Test");
+			button = new CComponentsButtonRed(100, 100, 100, 50, "Test", NULL, false, true, CC_SHADOW_OFF);
 			button->enableShadow();
-		}
+		}else
+			button->disableShadow();
 		
 
 		if (!button->isPainted()){
@@ -560,7 +561,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			footer->setIcon(NEUTRINO_ICON_INFO);
 
 			//add button labels with conventional button label struct
-			footer->setButtonLabels(TestButtons, TestButtonsCount, 0, footer->getWidth()/6);
+			footer->setButtonLabels(TestButtons, TestButtonsCount, 0, footer->getWidth()/TestButtonsCount);
 
 			//also possible: use directly button name and as 2nd parameter string or locale as text
 //			footer->setButtonLabel(NULL, "Test", 0, 250);

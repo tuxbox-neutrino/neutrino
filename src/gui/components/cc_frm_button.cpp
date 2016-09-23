@@ -101,7 +101,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	width 		= w;
 	height	 	= h;
 	shadow		= shadow_mode;
-	shadow_w	= shadow ? OFFSET_SHADOW/2 : 0; //buttons are mostly small elements, so these elements should have a reasonable shadow width
+	shadow_w	= shadow != CC_SHADOW_OFF ? OFFSET_SHADOW/2 : 0; //buttons are mostly small elements, so these elements should have a reasonable shadow width
 
 	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //TODO: gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
 	setColBodyGradient(cc_body_gradient_enable/*CColorGradient::gradientLight2Dark*/, CFrameBuffer::gradientVertical, CColorGradient::light);
@@ -195,24 +195,34 @@ void CComponentsButton::initCaption()
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
 		int w_cap = width - w_frame - append_x_offset - x_cap - w_frame;
-		int h_cap = height*65/100 /*- 2*fr_thickness*/;
-
+		int h_cap = (height*75/100) - 2*w_frame;
 		/*NOTE:
 			paint of centered text in y direction without y_offset
 			looks unlovely displaced in y direction especially besides small icons and inside small areas,
 			but text render isn't wrong here, because capitalized chars or long chars like e. 'q', 'y' are considered!
 			Therefore we here need other icons or a hack, that considers some different height values.
 		*/
-		int y_cap = height/2 - h_cap/2 + w_frame/2;
+		int y_cap = height/2 - h_cap/2;
 
 		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
 
 		//text and font
-		if (cc_btn_font == NULL)
-			cc_btn_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
+		Font* def_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
+		if (cc_btn_font == NULL){
+			/* use dynamic font as default font if no font defined */
+			cc_btn_font = def_font;
+		}else{ 
+			/* if button dimension too small, use dynamic font as default font size, this ignores possible defined font
+			 * Otherwise definied font will be used.
+			*/
+			if (cc_btn_font->getHeight() > h_cap){
+				cc_btn_font = def_font;
+			}
+		}
 
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_capt_obj->forceTextPaint(); //here required;
+		cc_btn_capt_obj->getCTextBoxObject()->setTextBorderWidth(0,0);
 
 		//set color
 		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? cc_btn_capt_col : cc_btn_capt_disable_col);
@@ -279,4 +289,10 @@ void CComponentsButton::paint(bool do_save_bg)
 
 	//paint form contents
 	paintForm(do_save_bg);
+}
+
+void CComponentsButton::enableShadow(int mode, const int& shadow_width, bool force_paint)
+{
+	clear();
+	initVarButton(x, y, width, height, cc_btn_capt, cc_btn_icon, cc_parent, cc_item_selected, cc_item_enabled, mode, col_frame, col_body, col_shadow);
 }
