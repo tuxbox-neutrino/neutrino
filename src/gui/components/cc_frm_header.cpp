@@ -86,6 +86,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 					fb_pixel_t color_shadow)
 {
 	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
+	clear();
 	cc_txt_save_screen	= false;
 	x	= x_old = x_pos;
 	y	= y_old = y_pos;
@@ -194,7 +195,7 @@ void CComponentsHeader::setIcon(const char* icon_name)
 
 void CComponentsHeader::setIcon(const std::string& icon_name)
 {
-	cch_icon_name 	= icon_name;
+	cch_icon_name = icon_name;
 	initIcon();
 }
 
@@ -203,10 +204,8 @@ void CComponentsHeader::initIcon()
 	//init cch_icon_obj only if an icon available
 	if (cch_icon_name.empty()) {
 		cch_icon_w = 0;
-		if (cch_icon_obj){
-			delete cch_icon_obj;
-			cch_icon_obj = NULL;
-		}
+		if (cch_icon_obj)
+			removeCCItem(cch_icon_obj);
 		return;
 	}
 
