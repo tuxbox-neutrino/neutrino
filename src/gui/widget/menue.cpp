@@ -261,7 +261,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			}
 			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, NULL, false, right_frame_col, right_bg_col);
 			col.setFrameThickness(3);
-			col.setCorner(RADIUS_LARGE);
+			col.setCorner(RADIUS_SMALL);
 			col.paint(false);
 		}
 		if (*right_text) {
