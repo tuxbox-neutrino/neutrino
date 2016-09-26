@@ -1299,6 +1299,9 @@ void CTimerEvent_Record::Refresh()
 //------------------------------------------------------------
 bool CTimerEvent_Record::adjustToCurrentEPG()
 {
+	if (!autoAdjustToEPG)
+		return false;
+
 	CChannelEventList evtlist;
 	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id, evtlist);
 
