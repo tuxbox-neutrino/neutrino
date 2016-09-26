@@ -1319,7 +1319,18 @@ bool CTimerEvent_Record::adjustToCurrentEPG()
 	if (first == evtlist.end())
 		return false;
 
-	CTimerEvent_Record *event= new CTimerEvent_Record(first->startTime - (alarmTime - announceTime), first->startTime, first->startTime + first->duration,
+	time_t _announceTime = first->startTime - (alarmTime - announceTime);
+	time_t _alarmTime = first->startTime;
+	time_t _stopTime = first->startTime + first->duration;
+	if (recordingSafety) {
+		int pre, post;
+		CTimerManager::getInstance()->getRecordingSafety(pre, post);
+		_announceTime -= pre;
+		_alarmTime -= pre;
+		_stopTime += post;
+	}
+
+	CTimerEvent_Record *event= new CTimerEvent_Record(_announceTime, _alarmTime, _stopTime,
 							  eventInfo.channel_id, eventInfo.epgID, first->startTime, eventInfo.apids,
 							  CTimerd::TIMERREPEAT_ONCE, 1, recordingDir, recordingSafety, autoAdjustToEPG);
 	CTimerManager::getInstance()->addEvent(event,false);
