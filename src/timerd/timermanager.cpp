@@ -1185,7 +1185,7 @@ void CTimerEvent_Record::fireEvent()
 {
 	if (adjustToCurrentEPG())
 		return;
-	Refresh();
+	getEpgId();
 	CTimerd::RecordingInfo ri=eventInfo;
 	ri.eventID=eventID;
 	strcpy(ri.recordingDir, recordingDir.substr(0,sizeof(ri.recordingDir)-1).c_str());
