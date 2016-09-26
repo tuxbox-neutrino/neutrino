@@ -1325,7 +1325,6 @@ bool CTimerEvent_Record::adjustToCurrentEPG()
 	if (recordingSafety) {
 		int pre, post;
 		CTimerManager::getInstance()->getRecordingSafety(pre, post);
-		_announceTime -= pre;
 		_alarmTime -= pre;
 		_stopTime += post;
 	}
