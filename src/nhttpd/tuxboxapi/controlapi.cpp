@@ -2804,7 +2804,8 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 	eventinfo.epgID = 0;
 	eventinfo.epg_starttime = 0;
 	eventinfo.apids = TIMERD_APIDS_CONF;
-	eventinfo.recordingSafety = (hh->ParamList["rs"] == "1");
+	eventinfo.recordingSafety = (hh->ParamList["rs"] == "1") || (hh->ParamList["rs"] == "on");
+	eventinfo.autoAdjustToEPG = (hh->ParamList["aj"] == "1") || (hh->ParamList["aj"] == "on");
 
 	// channel by Id or name
 	if(!hh->ParamList["channel_id"].empty())
