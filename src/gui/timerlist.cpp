@@ -316,6 +316,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		eventinfo.channel_id=timerNew.channel_id;
 		eventinfo.apids = TIMERD_APIDS_CONF;
 		eventinfo.recordingSafety = false;
+		eventinfo.autoAdjustToEPG = true;
 		timerNew.standby_on = (timerNew_standby_on == 1);
 		void *data=NULL;
 		if (timerNew.eventType == CTimerd::TIMER_STANDBY)
@@ -333,6 +334,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 				recinfo.channel_id=timerNew.channel_id;
 				recinfo.apids=TIMERD_APIDS_CONF;
 				recinfo.recordingSafety = false;
+				recinfo.autoAdjustToEPG = true; // FIXME -- add GUI option?
 
 				timerNew.announceTime-= 120; // 2 more mins for rec timer
 				strncpy(recinfo.recordingDir,timerNew.recordingDir,sizeof(recinfo.recordingDir)-1);

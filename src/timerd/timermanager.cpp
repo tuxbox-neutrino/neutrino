@@ -1132,7 +1132,8 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 				       event_id_t epgID,
 				       time_t epg_starttime, unsigned char apids,
 				       CTimerd::CTimerEventRepeat evrepeat,
-				       uint32_t repeatcount, const std::string &recDir) :
+				       uint32_t repeatcount, const std::string &recDir,
+				       bool _recordingSafety, bool _autoAdjustToEPG) :
 	CTimerEvent(getEventType(), announce_Time, alarm_Time, stop_Time, evrepeat, repeatcount)
 {
 	eventInfo.epgID = epgID;
@@ -1141,6 +1142,8 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 	eventInfo.apids = apids;
 	recordingDir = recDir;
 	epgTitle="";
+	autoAdjustToEPG = _autoAdjustToEPG;
+	recordingSafety = _recordingSafety;
 	CShortEPGData epgdata;
 	if (CEitManager::getInstance()->getEPGidShort(epgID, &epgdata))
 		epgTitle=epgdata.title;
@@ -1170,10 +1173,18 @@ CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
 
 	epgTitle = config->getString("EPG_TITLE_"+id);
 	dprintf("read EPG_TITLE_%s %s (%p)\n",id.c_str(),epgTitle.c_str(),&epgTitle);
+
+	recordingSafety = config->getInt32("RECORDING_SAFETY_"+id, true);
+	dprintf("read RECORDING_SAFETY_%s %d\n",id.c_str(), recordingSafety);
+
+	autoAdjustToEPG = config->getInt32("EPG_AUTO_ADJUST_"+id, true);
+	dprintf("read EPG_AUTO_ADJUST_TO_EPG_%s %d\n",id.c_str(), autoAdjustToEPG);
 }
 //------------------------------------------------------------
 void CTimerEvent_Record::fireEvent()
 {
+	if (adjustToCurrentEPG())
+		return;
 	Refresh();
 	CTimerd::RecordingInfo ri=eventInfo;
 	ri.eventID=eventID;
@@ -1188,6 +1199,8 @@ void CTimerEvent_Record::fireEvent()
 //------------------------------------------------------------
 void CTimerEvent_Record::announceEvent()
 {
+	if (adjustToCurrentEPG())
+		return;
 	Refresh();
 	CTimerd::RecordingInfo ri=eventInfo;
 	ri.eventID=eventID;
@@ -1236,6 +1249,12 @@ void CTimerEvent_Record::saveToConfig(CConfigFile *config)
 
 	config->setString("EPG_TITLE_"+id,epgTitle);
 	dprintf("set EPG_TITLE_%s to %s (%p)\n",id.c_str(),epgTitle.c_str(), &epgTitle);
+
+	config->setInt32("RECORDING_SAFETY_"+id, recordingSafety);
+	dprintf("set RECORDING_SAFETY_%s to %d\n",id.c_str(), recordingSafety);
+
+	config->setInt32("EPG_AUTO_ADJUST_"+id, autoAdjustToEPG);
+	dprintf("set EPG_AUTO_ADJUST_TO_EPG_%s to %d\n",id.c_str(), autoAdjustToEPG);
 }
 //------------------------------------------------------------
 void CTimerEvent_Record::Reschedule()
@@ -1276,6 +1295,34 @@ void CTimerEvent_Record::Refresh()
 {
 	if (eventInfo.epgID == 0)
 		getEpgId();
+}
+//------------------------------------------------------------
+bool CTimerEvent_Record::adjustToCurrentEPG()
+{
+	CChannelEventList evtlist;
+	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id, evtlist);
+
+	time_t now = time(NULL);
+	CChannelEventList::iterator first = evtlist.end();
+	for (CChannelEventList::iterator e = evtlist.begin(); e != evtlist.end(); ++e)
+	{
+		if (e->startTime <  now)
+			continue;
+		if (first == evtlist.end() || first->startTime > e->startTime)
+			first = e;
+		if (alarmTime <= e->startTime && e->startTime + (int)e->duration <= stopTime)
+			return false;
+	}
+	if (first == evtlist.end())
+		return false;
+
+	CTimerEvent_Record *event= new CTimerEvent_Record(first->startTime - (alarmTime - announceTime), first->startTime, first->startTime + first->duration,
+							  eventInfo.channel_id, eventInfo.epgID, first->startTime, eventInfo.apids,
+							  CTimerd::TIMERREPEAT_ONCE, 1, recordingDir, recordingSafety, autoAdjustToEPG);
+	CTimerManager::getInstance()->addEvent(event,false);
+	setState(CTimerd::TIMERSTATE_HASFINISHED);
+
+	return true;
 }
 //=============================================================
 // Zapto Event

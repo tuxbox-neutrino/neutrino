@@ -330,6 +330,7 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		tri.epg_starttime	= ri->epg_starttime;
 		tri.epgID = ri->epgID;
 		tri.recordingSafety = ri->recordingSafety;
+		tri.autoAdjustToEPG = ri->autoAdjustToEPG;
 		strncpy(tri.recordingDir, ri->recordingDir, RECORD_DIR_MAXLEN-1);
 		length = sizeof( CTimerd::TransferRecordingInfo);
 		data = &tri;
