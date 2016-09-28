@@ -192,7 +192,9 @@ void CSignalBar::initSBarName()
 void CSignalBar::Refresh()
 {
 	//get current value from frontend
-	sb_signal = sb_frontend->getSignalStrength();
+	sb_signal = 0;
+	if (sb_frontend)
+		sb_signal = sb_frontend->getSignalStrength();
 
 	//reinit items with current values
 	initSBItems();
@@ -242,7 +244,9 @@ void CSignalBar::paint(bool do_save_bg)
 void CSignalNoiseRatioBar::Refresh()
 {
 	//get current value from frontend
-	sb_signal = sb_frontend->getSignalNoiseRatio();
+	sb_signal = 0;
+	if (sb_frontend)
+		sb_signal = sb_frontend->getSignalNoiseRatio();
 
 	//reinit items with current values
 	initSBItems();
@@ -338,10 +342,8 @@ void CSignalBox::paintScale()
 void CSignalBox::paint(bool do_save_bg)
 {
 	//paint frame and body
-	if (!is_painted){
-		initSignalItems();
+	if (!is_painted)
 		paintForm(do_save_bg);
-	}
 
 	//paint current signal value
 	paintScale();
