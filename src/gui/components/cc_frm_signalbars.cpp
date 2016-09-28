@@ -29,7 +29,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <zapit/femanager.h>
 #include "cc_frm_signalbars.h"
 #include <sstream>
 
@@ -256,7 +255,7 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 	initVarSigBox();
 	vertical = vert;
 
-	sbx_frontend 	= (frontend_ref == NULL) ? CFEManager::getInstance()->getLiveFE() : frontend_ref;
+	sbx_frontend 	= frontend_ref;
 	x 		= xpos;
 	y 		= ypos;
 	width 		= w;

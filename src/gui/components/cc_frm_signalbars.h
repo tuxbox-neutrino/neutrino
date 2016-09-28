@@ -291,7 +291,7 @@ class CSignalBox : public CComponentsForm, public CCTextScreen
 
 	public:
 		///class constructor for signal noise ratio.
-		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref = NULL, const bool vertical = true, CComponentsForm *parent = NULL, const std::string& sig_name = "SIG", const std::string& snr_name = "SNR" );
+		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vertical = true, CComponentsForm *parent = NULL, const std::string& sig_name = "SIG", const std::string& snr_name = "SNR" );
 
 		///returns the signal object, type = CSignalBar*
 		CSignalBar* getScaleObject(){return sbar;};
