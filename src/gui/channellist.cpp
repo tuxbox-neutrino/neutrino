@@ -63,6 +63,7 @@
 #include <gui/movieplayer.h>
 #include <gui/infoclock.h>
 #include <system/settings.h>
+#include <system/set_threadname.h>
 #include <gui/customcolor.h>
 
 #include <gui/bouquetlist.h>
@@ -126,6 +127,8 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	move_state = beDefault;
 	edit_state = false;
 	channelsChanged = false;
+
+	paint_events_index = -2;
 }
 
 CChannelList::~CChannelList()
@@ -157,6 +160,8 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		return;
 
 	size_t chanlist_size = to - from;
+	if (chanlist_size <= 0) // WTF???
+		return;
 
 	CChannelEventList events;
 	if (displayNext) {
@@ -184,16 +189,18 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		for (uint32_t count = 0; count < chanlist_size; count++)
 			p_requested_channels[count] = (*chanlist)[count + from]->getEpgID();
 
-		CEitManager::getInstance()->getChannelEvents(events, p_requested_channels, chanlist_size);
+		CChannelEventList levents;
+		CEitManager::getInstance()->getChannelEvents(levents, p_requested_channels, chanlist_size);
 		for (uint32_t count=0; count < chanlist_size; count++) {
 			(*chanlist)[count + from]->currentEvent = CChannelEvent();
-			for (CChannelEventList::iterator e = events.begin(); e != events.end(); ++e) {
+			for (CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e) {
 				if (((*chanlist)[count + from]->getEpgID()&0xFFFFFFFFFFFFULL) == e->get_channel_id()) {
 					(*chanlist)[count + from]->currentEvent = *e;
 					break;
 				}
 			}
 		}
+		levents.clear();
 		delete[] p_requested_channels;
 	}
 }
@@ -918,6 +925,8 @@ int CChannelList::show()
 			}
 		}
 	}
+
+	paint_events(-2); // cancel paint_events thread
 
 	if (move_state == beMoving)
 		cancelMoveChannel();
@@ -2270,8 +2279,69 @@ void CChannelList::paintPig (int _x, int _y, int w, int h)
 
 void CChannelList::paint_events(int index)
 {
+	if (index == -2 && paint_events_index > -2) {
+		pthread_mutex_lock(&paint_events_mutex);
+		paint_events_index = index;
+		sem_post(&paint_events_sem);
+		pthread_join(paint_events_thr, NULL);
+		sem_destroy(&paint_events_sem);
+		pthread_mutex_unlock(&paint_events_mutex);
+	} else if (paint_events_index == -2) {
+		if (index == -2)
+			return;
+		// First paint_event. No need to lock.
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
+		pthread_mutex_init(&paint_events_mutex, &attr);
+
+		sem_init(&paint_events_sem, 0, 0);
+		paint_events_index = index;
+		if (!pthread_create(&paint_events_thr, NULL, paint_events, (void *) this))
+			sem_post(&paint_events_sem);
+		else
+			paint_events_index = -2;
+	} else {
+		pthread_mutex_lock(&paint_events_mutex);
+		paint_events_index = index;
+		pthread_mutex_unlock(&paint_events_mutex);
+		sem_post(&paint_events_sem);
+	}
+}
+
+void *CChannelList::paint_events(void *arg)
+{
+	CChannelList *me = (CChannelList *) arg;
+	me->paint_events();
+	pthread_exit(NULL);
+}
+
+void CChannelList::paint_events()
+{
+	set_threadname(__func__);
+
+	while (paint_events_index != -2) {
+		sem_wait(&paint_events_sem);
+		if (paint_events_index < 0)
+			continue;
+		while(!sem_trywait(&paint_events_sem));
+		int current_index = paint_events_index;
+
+		CChannelEventList evtlist;
+		readEvents((*chanlist)[current_index]->getChannelID(), evtlist);
+		if (current_index == paint_events_index) {
+			pthread_mutex_lock(&paint_events_mutex);
+			if (current_index == paint_events_index)
+				paint_events_index = -1;
+			pthread_mutex_unlock(&paint_events_mutex);
+			paint_events(evtlist);
+		}
+	}
+}
+
+void CChannelList::paint_events(CChannelEventList &evtlist)
+{
 	ffheight = g_Font[eventFont]->getHeight();
-	readEvents((*chanlist)[index]->getEpgID());
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
 	char startTime[10];
@@ -2333,8 +2403,6 @@ void CChannelList::paint_events(int index)
 		}
 		i++;
 	}
-	if ( !evtlist.empty() )
-		evtlist.clear();
 }
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
@@ -2342,7 +2410,7 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 	return a.startTime < b.startTime;
 }
 
-void CChannelList::readEvents(const t_channel_id channel_id)
+void CChannelList::readEvents(const t_channel_id channel_id, CChannelEventList &evtlist)
 {
 	CEitManager::getInstance()->getEventsServiceKey(channel_id , evtlist);
 
