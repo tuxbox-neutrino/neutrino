@@ -1658,12 +1658,13 @@ void CInfoViewer::showSNR ()
 		}
 		if (sigbox == NULL){
 			int sigbox_offset = ChanWidth *10/100;
-			sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox+ChanHeight/2, ChanWidth - 2*sigbox_offset, ChanHeight/2, CFEManager::getInstance()->getLiveFE(), true, NULL, "S", "Q");
+			sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox+ChanHeight/2, ChanWidth - 2*sigbox_offset, ChanHeight/2, NULL, true, NULL, "S", "Q");
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
 			sigbox->setColorBody(numbox->getColorBody());
 			sigbox->doPaintBg(false);
 			sigbox->enableTboxSaveScreen(numbox->getColBodyGradientMode());
 		}
+		sigbox->setFrontEnd(CFEManager::getInstance()->getLiveFE());
 		sigbox->paint(CC_SAVE_SCREEN_NO);
 	}
 	if(showButtonBar)
