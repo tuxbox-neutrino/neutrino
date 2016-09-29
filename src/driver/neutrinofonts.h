@@ -44,7 +44,7 @@ typedef struct font_sizes {
 
 typedef struct font_sizes_groups {
 	const neutrino_locale_t			groupname;
-	const unsigned int			count;
+	const size_t				count;
 	const SNeutrinoSettings::FONT_TYPES	*const content;
 	const char * const			actionkey;
 	const neutrino_locale_t hint;
