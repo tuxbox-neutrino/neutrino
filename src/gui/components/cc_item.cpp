@@ -55,6 +55,8 @@ CComponentsItem::CComponentsItem(CComponentsForm* parent)
 
 void CComponentsItem::initParent(CComponentsForm* parent)
 {
+	if (cc_parent == parent)
+		return;
 	cc_parent = parent;
 	if (cc_parent)
 		cc_parent->addCCItem(this);
