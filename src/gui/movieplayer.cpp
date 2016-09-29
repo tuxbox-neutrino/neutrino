@@ -1380,7 +1380,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == (neutrino_msg_t) g_settings.key_quickzap_up || msg == (neutrino_msg_t) g_settings.key_quickzap_down) {
 			quickZap(msg);
 		} else if (fromInfoviewer && msg == CRCInput::RC_ok && !filelist.empty()) {
-			printf("CMoviePlayerGui::%s: start playlist movie #%d\n", __func__, vzap_it - filelist.begin());
+			printf("CMoviePlayerGui::%s: start playlist movie #%ld\n", __func__, vzap_it - filelist.begin());
 			fromInfoviewer = false;
 			playstate = CMoviePlayerGui::STOPPED;
 			filelist_it = vzap_it;
