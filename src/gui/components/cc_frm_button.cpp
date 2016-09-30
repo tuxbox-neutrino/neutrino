@@ -101,7 +101,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	width 		= w;
 	height	 	= h;
 	shadow		= shadow_mode;
-	shadow_w	= shadow != CC_SHADOW_OFF ? OFFSET_SHADOW/2 : 0; //buttons are mostly small elements, so these elements should have a reasonable shadow width
+	shadow_w	= shadow != CC_SHADOW_OFF ? (shadow_w == -1 ? OFFSET_SHADOW/2 : shadow_w) : 0; //buttons are mostly small elements, so these elements should have a reasonable shadow width
 
 	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //TODO: gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
 	setColBodyGradient(cc_body_gradient_enable/*CColorGradient::gradientLight2Dark*/, CFrameBuffer::gradientVertical, CColorGradient::light);
@@ -294,5 +294,7 @@ void CComponentsButton::paint(bool do_save_bg)
 void CComponentsButton::enableShadow(int mode, const int& shadow_width, bool force_paint)
 {
 	clear();
+	shadow_w = shadow_width;
+	shadow_force = force_paint;
 	initVarButton(x, y, width, height, cc_btn_capt, cc_btn_icon, cc_parent, cc_item_selected, cc_item_enabled, mode, col_frame, col_body, col_shadow);
 }

@@ -74,7 +74,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 	shadow		= shadow_mode;
 	ccf_enable_button_shadow 	= false ;
-	ccf_button_shadow_width  	= 0;
+	ccf_button_shadow_width  	= shadow ? OFFSET_SHADOW/2 : 0;
 	ccf_button_shadow_force_paint 	= false;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -167,7 +167,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	 * with default width to chain object.
 	*/
 	vector<CComponentsItem*> v_btns;
-	int h_btn = height*85/100;
+	int h_btn = /*(ccf_enable_button_bg ? */(height*85/100)-2*fr_thickness/* : height)*/-ccf_button_shadow_width;
 	for (size_t i= 0; i< label_count; i++){
 		string txt 		= content[i].text;
 		string icon_name 	= string(content[i].button);
@@ -178,7 +178,9 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			continue;
 		}
 
-		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn, /*(ccf_enable_button_bg ? */h_btn-2*fr_thickness/* : height)*/-ccf_button_shadow_width, txt, icon_name, NULL, false, true, ccf_enable_button_shadow);
+		int y_btn = chain->getHeight()/2 - h_btn/2;
+		dprintf(DEBUG_NORMAL, "[CComponentsFooter]   [%s - %d]  y_btn [%d] ccf_button_shadow_width [%d]\n", __func__, __LINE__, y_btn, ccf_button_shadow_width);
+		CComponentsButton *btn = new CComponentsButton(0, y_btn, w_btn, h_btn, txt, icon_name, NULL, false, true, ccf_enable_button_shadow);
 
 		btn->doPaintBg(ccf_enable_button_bg);
 		btn->setButtonDirectKey(content[i].directKey);
@@ -346,7 +348,7 @@ void CComponentsFooter::enableButtonBg(bool enable)
 void CComponentsFooter::setSelectedButton(size_t item_id)
 {
 	if (chain)
-		chain->setSelectedItem(item_id);
+		chain->setSelectedItem(item_id, COL_GREEN, COL_SHADOW_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENT_PLUS_0, 2, 2);
 }
 
 int CComponentsFooter::getSelectedButton()
@@ -402,7 +404,10 @@ void CComponentsFooter::enableButtonShadow(int mode, const int& shadow_width, bo
 	ccf_button_shadow_width = shadow_width;
 	ccf_button_shadow_force_paint = force_paint;
 	if (chain){
-		for(size_t i=0; i<chain->size(); i++)
+		for(size_t i=0; i<chain->size(); i++){
 			chain->getCCItem(i)->enableShadow(ccf_enable_button_shadow, ccf_button_shadow_width, ccf_button_shadow_force_paint);
+			int y_btn = ccf_enable_button_shadow == CC_SHADOW_OFF ? CC_CENTERED : chain->getHeight()/2 - chain->getCCItem(i)->getHeight()/2 - ccf_button_shadow_width;
+			chain->getCCItem(i)->setYPos(y_btn);
+		}
 	}
 }
