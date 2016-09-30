@@ -1263,7 +1263,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 	//printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgId, m_movieSelectionHandler->channelId, m_cBoxFrameTitleRel.iY);
 	int lx = 0;//never read m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 	int ly = 0;//never read m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-	short pb_hdd_offset = g_settings.infobar_show_sysfs_hdd ? 104 : 0;
+	short pb_hdd_offset = 104;
 	if (show_mode == MB_SHOW_YT)
 		pb_hdd_offset = 0;
 
@@ -1339,7 +1339,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)
 {
-	if (show_mode == MB_SHOW_YT || !g_settings.infobar_show_sysfs_hdd)
+	if (show_mode == MB_SHOW_YT)
 		return;
 
 	struct statfs s;
