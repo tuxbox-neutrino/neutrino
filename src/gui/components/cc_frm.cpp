@@ -566,7 +566,7 @@ u_int8_t CComponentsForm::getPageCount()
 }
 
 
-void CComponentsForm::setSelectedItem(int item_id)
+void CComponentsForm::setSelectedItem(int item_id, const fb_pixel_t& sel_frame_col, const fb_pixel_t& frame_col, const fb_pixel_t& sel_body_col, const fb_pixel_t& body_col, const int& frame_w, const int& sel_frame_w)
 {
 	size_t count = v_cc_items.size();
 	int id = item_id;
@@ -590,19 +590,19 @@ void CComponentsForm::setSelectedItem(int item_id)
 	}
 
 	for (size_t i= 0; i< count; i++)
-		v_cc_items[i]->setSelected(i == (size_t)id);
+		v_cc_items[i]->setSelected(i == (size_t)id, sel_frame_col, frame_col, sel_body_col, body_col, frame_w, sel_frame_w);
 
 	OnSelect();
 }
 
-void CComponentsForm::setSelectedItem(CComponentsItem* cc_item)
+void CComponentsForm::setSelectedItem(CComponentsItem* cc_item, const fb_pixel_t& sel_frame_col, const fb_pixel_t& frame_col, const fb_pixel_t& sel_body_col, const fb_pixel_t& body_col, const int& frame_w, const int& sel_frame_w)
 {
 	int id = getCCItemId(cc_item);
 	if (id == -1){
 		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid item parameter, no object available\n", __func__,__LINE__);
 		return;
 	}
-	setSelectedItem(id);
+	setSelectedItem(id, sel_frame_col, frame_col, sel_body_col, body_col, frame_w, sel_frame_w);
 }
 
 int CComponentsForm::getSelectedItem()

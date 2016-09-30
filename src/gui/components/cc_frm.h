@@ -145,9 +145,21 @@ class CComponentsForm : public CComponentsItem
 		///returns pointer to selected item, return value as CComponentsItem*, returns NULL: if is nothing selected
 		virtual CComponentsItem* getSelectedItemObject();
 		///select a definied item, parameter1 as size_t
-		virtual void setSelectedItem(int item_id);
+		virtual void setSelectedItem(	int item_id,
+						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
+						const fb_pixel_t& frame_col = COL_SHADOW_PLUS_0,
+						const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
+						const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
+						const int& frame_w = 3,
+						const int& sel_frame_w = 3);
 		///select a definied item, parameter1 as CComponentsItem*
-		virtual void setSelectedItem(CComponentsItem* cc_item);
+		virtual void setSelectedItem(	CComponentsItem* cc_item,
+						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
+						const fb_pixel_t& frame_col = COL_SHADOW_PLUS_0,
+						const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
+						const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
+						const int& frame_w = 3,
+						const int& sel_frame_w = 3);
 
 		///exec main method, see also sub exec methods
 		virtual int exec();
