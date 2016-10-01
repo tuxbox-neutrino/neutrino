@@ -92,4 +92,8 @@ NEUTRINO_CPP CRadioText		*g_Radiotext;
 #define ENABLE_GUI_MOUNT
 #endif
 
+#ifndef TARGET_PREFIX
+#define TARGET_PREFIX ""
+#endif
+
 #endif /* __neutrino_global_h__ */
