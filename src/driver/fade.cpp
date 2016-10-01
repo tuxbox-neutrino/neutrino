@@ -96,9 +96,9 @@ void COSDFader::StopFade()
 		frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
 #else
 		frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
+#endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_APOLLO))
 		usleep(60000);
-#endif
 #endif
 		fadeIn = fadeOut = false;
 	}
@@ -127,9 +127,9 @@ bool COSDFader::FadeDone()
 			frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
 #else
 			frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
+#endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_APOLLO))
 			usleep(60000);
-#endif
 #endif
 		} else
 			frameBuffer->setBlendLevel(fadeValue);
