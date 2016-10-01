@@ -588,7 +588,7 @@ case "$1" in
 	automount_getline)		shift 1; do_automount_getline $* ;;
 	automount_setline)		shift 1; do_automount_setline $* ;;
 	restart_neutrino)		restart_neutrino ;;
-	have_plugin_scripts)	 find /var/tuxbox/plugins -name '*.sh' ;;
+	have_plugin_scripts)	 find %(PLUGINDIR_VAR) -name '*.sh' ;;
 
 	timer_get_tvinfo)
 		shift 1
