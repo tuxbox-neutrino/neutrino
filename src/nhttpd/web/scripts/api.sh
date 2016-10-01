@@ -12,7 +12,7 @@ API_VERSION_TEXT="$API_VERSION_MAJOR.$API_VERSION_MINOR"
 path_httpd=".."
 path_scripts="$path_httpd/scripts"
 path_bin="/bin"
-path_usrbin="/var/bin"
+path_varbin="/var/bin"
 path_sbin="/sbin"
 path_config="%(CONFIGDIR)"
 path_tmp="/tmp"
@@ -24,8 +24,8 @@ streaming_client_status="$path_tmp/streaming_client"
 do_udp_stream()
 {
 	up="no"
-	if [ -e $path_usrbin/udpstreamts ];	then
-		up="$path_usrbin/udpstreamts"
+	if [ -e $path_varbin/udpstreamts ];	then
+		up="$path_varbin/udpstreamts"
 	else
 		if [ -e $path_sbin/udpstreamts ]; then
 			up="$path_sbin/udpstreamts"

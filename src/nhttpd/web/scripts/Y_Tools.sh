@@ -471,8 +471,8 @@ wol()
 # -----------------------------------------------------------
 do_lcshot()
 {
-	if [ -e "$y_path_usrbin/lcshot" ]; then
-		$y_path_usrbin/lcshot $*
+	if [ -e "$y_path_varbin/lcshot" ]; then
+		$y_path_varbin/lcshot $*
 	else
 		$y_path_bin/lcshot $*
 	fi
@@ -485,15 +485,15 @@ do_fbshot()
 {
 	if [ "$1" = "fb" ]; then
 		shift 1
-		if [ -e "$y_path_usrbin/fbshot" ]; then
-			$y_path_usrbin/fbshot $*
+		if [ -e "$y_path_varbin/fbshot" ]; then
+			$y_path_varbin/fbshot $*
 		else
 			fbshot $*
 		fi
 	else
 		shift 1
-		if [ -e "$y_path_usrbin/dboxshot" ]; then
-			$y_path_usrbin/dboxshot $*
+		if [ -e "$y_path_varbin/dboxshot" ]; then
+			$y_path_varbin/dboxshot $*
 		else
 			dboxshot $*
 		fi
