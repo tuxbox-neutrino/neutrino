@@ -50,7 +50,7 @@ function do_submit() {
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td><textarea name="channels" cols="60" rows="10">{=if-file-exists:%(CONFIGDIR)/channels.txt~{=include:%(CONFIGDIR)/channels.txt=}~{=if-file-exists:%(PUBLIC_HTTPDDIR)/channels.txt~{=include:%(PUBLIC_HTTPDDIR)/channels.txt=}~{=include:/share/tuxbox/neutrino/httpd/channels.txt=}=}=}</textarea></td>
+				<td><textarea name="channels" cols="60" rows="10">{=if-file-exists:%(CONFIGDIR)/channels.txt~{=include:%(CONFIGDIR)/channels.txt=}~{=if-file-exists:%(PUBLIC_HTTPDDIR)/channels.txt~{=include:%(PUBLIC_HTTPDDIR)/channels.txt=}~{=include:%(PRIVATE_HTTPDDIR)/channels.txt=}=}=}</textarea></td>
 			</tr>
 		</table>
 		<br/>
