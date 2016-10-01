@@ -8,8 +8,10 @@
 API_VERSION_MAJOR="1"
 API_VERSION_MINOR="0"
 API_VERSION_TEXT="$API_VERSION_MAJOR.$API_VERSION_MINOR"
+#path_httpd="%(PRIVATE_HTTPDDIR)"
 path_httpd=".."
 path_scripts="$path_httpd/scripts"
+path_bin="/bin"
 path_usrbin="/var/bin"
 path_sbin="/sbin"
 path_config="%(CONFIGDIR)"
@@ -85,6 +87,3 @@ case "$1" in
 	*)
 		echo "[api.sh] Parameter wrong: $*" ;;
 esac
-
-
-

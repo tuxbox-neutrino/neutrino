@@ -459,7 +459,7 @@ proc()
 # -----------------------------------------------------------
 wol()
 {
-	if [ -e /bin/ether-wake ]; then
+	if [ -e $y_path_bin/ether-wake ]; then
 		msg=`ether-wake $1`
 	fi
 	msg="<b>Wake on LAN $1</b><br><br>$msg"
@@ -471,10 +471,10 @@ wol()
 # -----------------------------------------------------------
 do_lcshot()
 {
-	if [ -e "/var/bin/lcshot" ]; then
-		/var/bin/lcshot $*
+	if [ -e "$y_path_usrbin/lcshot" ]; then
+		$y_path_usrbin/lcshot $*
 	else
-		/bin/lcshot $*
+		$y_path_bin/lcshot $*
 	fi
 }
 # -----------------------------------------------------------
@@ -485,15 +485,15 @@ do_fbshot()
 {
 	if [ "$1" = "fb" ]; then
 		shift 1
-		if [ -e "/var/bin/fbshot" ]; then
-			/var/bin/fbshot $*
+		if [ -e "$y_path_usrbin/fbshot" ]; then
+			$y_path_usrbin/fbshot $*
 		else
 			fbshot $*
 		fi
 	else
 		shift 1
-		if [ -e "/var/bin/dboxshot" ]; then
-			/var/bin/dboxshot $*
+		if [ -e "$y_path_usrbin/dboxshot" ]; then
+			$y_path_usrbin/dboxshot $*
 		else
 			dboxshot $*
 		fi
@@ -525,7 +525,7 @@ do_settings_backup_restore()
 		backup)
 			rm -rf $workdir
 			mkdir -p $workdir
-			/bin/backup.sh $workdir >/dev/null
+			$y_path_bin/backup.sh $workdir >/dev/null
 			filename=$(ls -1 -tr $workdir/settings_* | tail -1)
 			echo "$filename"
 		;;
@@ -533,7 +533,7 @@ do_settings_backup_restore()
 		restore)
 			if [ -s "$y_upload_file" ]
 			then
-				msg=$(/bin/restore.sh "$y_upload_file")
+				msg=$($y_path_bin/restore.sh "$y_upload_file")
 			else
 				msg="error: no upload file"
 			fi
