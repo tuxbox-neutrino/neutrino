@@ -106,5 +106,6 @@ install-data-hook:
 		sed -i \
 			-e 's|%(CONFIGDIR)|$(CONFIGDIR)|g' \
 			-e 's|%(PLUGINDIR_VAR)|$(PLUGINDIR_VAR)|g' \
+			-e 's|%(PUBLIC_HTTPDDIR)|$(PUBLIC_HTTPDDIR)|g' \
 	;
 
