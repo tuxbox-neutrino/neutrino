@@ -43,10 +43,10 @@ function do_submit()
 				</form>
 			</td>
 			<td valign="top">
-				<a type="application/octet-stream" href="/var/tuxbox/config/zapit/bouquets.xml">bouquets.xml</a><br/>
-				<a type="application/octet-stream" href="/var/tuxbox/config/zapit/services.xml">services.xml</a><br/>
-				<a type="application/octet-stream" href="/var/tuxbox/config/zapit/ubouquets.xml">ubouquets.xml</a><br/>
-				<a type="application/octet-stream" href="/var/tuxbox/config/zapit/myservices.xml">myservices.xml</a><br/>
+				<a type="application/octet-stream" href="%(CONFIGDIR)/zapit/bouquets.xml">bouquets.xml</a><br/>
+				<a type="application/octet-stream" href="%(CONFIGDIR)/zapit/services.xml">services.xml</a><br/>
+				<a type="application/octet-stream" href="%(CONFIGDIR)/zapit/ubouquets.xml">ubouquets.xml</a><br/>
+				<a type="application/octet-stream" href="%(CONFIGDIR)/zapit/myservices.xml">myservices.xml</a><br/>
 			</td>
 		</tr>
 	</table>

@@ -1,4 +1,4 @@
-{=var-set:must_management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+{=var-set:must_management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~1~=}=}
 {=include-block:Y_Blocks.txt;head_no_charset=}
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
@@ -151,13 +151,13 @@ function view_transcode_mode(){
 <script type="text/javascript">
 //<![CDATA[
 	haveUDP = ("{=find-exec:udpstreamts=}" != "");
-	isUDP = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;udp;false=}" == "true");
+	isUDP = ("{=ini-get:%(CONFIGDIR)/Y-Web.conf;udp;false=}" == "true");
 	Mode = "{=mode=}";
 	LiveTyp = "{=typ=}";
 	ClientAddr = "{=func:get_request_data clientaddr=}";
 	insert_message_control("{=L:live.build_vlc=}");
-	isDeinterlace = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;false=}" == "true");
-	cachetime = {=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;0=};
+	isDeinterlace = ("{=ini-get:%(CONFIGDIR)/Y-Web.conf;deinterlace;false=}" == "true");
+	cachetime = {=ini-get:%(CONFIGDIR)/Y-Web.conf;http_caching;0=};
 	Lgetting_channels="{=L:live.getting_channels=}";
 	Lgetting_bouquets="{=L:live.getting_bouquets=}";
 	

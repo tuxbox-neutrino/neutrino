@@ -4,9 +4,9 @@
 <script type="text/javascript">
 //<![CDATA[
 var g_wol = new Array(
-	"{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_1=}",
-	"{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=}",
-	"{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=}");
+	"{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_1=}",
+	"{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_2=}",
+	"{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_3=}");
 function do_wol(_nr)
 {
 	var nhttpd_version = loadSyncURL("/control/exec?Y_Tools&wol&"+g_wol[_nr-1]);
@@ -30,15 +30,15 @@ function goto_settings(){
 	<form name="f" action="/y/cgi">
 		<table border="0" class="y_form_table">
 			<tr>
-				<td>Wake on Lan MAC 1 ({=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_1=}) {=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_1=}</td>
+				<td>Wake on Lan MAC 1 ({=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_1=}) {=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_1=}</td>
 				<td><input id="wol1" type="button" name="wol_mac_1" value="wake up" title="wake up that MAC" onclick='do_wol(1)'/></td>
 			</tr>
 			<tr>
-				<td>Wake on Lan MAC 2 ({=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=}) {=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_2=}</td>
+				<td>Wake on Lan MAC 2 ({=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_2=}) {=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_2=}</td>
 				<td><input id="wol2" type="button" name="wol_mac_2" value="wake up" title="wake up that MAC" onclick='do_wol(2)'/></td>
 			</tr>
 			<tr>
-				<td>Wake on Lan MAC 3 ({=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=}) {=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_3=}</td>
+				<td>Wake on Lan MAC 3 ({=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_3=}) {=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_3=}</td>
 				<td><input id="wol3" type="button" name="wol_mac_3" value="wake up" title="wake up that MAC" onclick='do_wol(3)'/></td>
 			</tr>
 			<tr><td colspan="2"><a href="javascript:goto_settings()" class="inlink">{=L:main.settings=}</a></td></tr>

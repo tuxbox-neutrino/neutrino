@@ -53,7 +53,7 @@ case "$1" in
 		cp -r -f $1 $2
 		;;
 	nhttpd_can_sendall)
-		grep sendAll=true /var/tuxbox/config/nhttpd.conf
+		grep sendAll=true %(CONFIGDIR)/nhttpd.conf
 		;;
 	filemgr_check_movieplayer_xml)
 		shift 1

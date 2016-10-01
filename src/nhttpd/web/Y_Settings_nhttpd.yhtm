@@ -5,10 +5,10 @@
 //<![CDATA[
 function form_init()
 {
-	obj_set_radio_value('authenticate', "{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.authenticate;false=}");
-	obj_set_radio_value('threading', "{=ini-get:/var/tuxbox/config/nhttpd.conf;webserver.threading;false=}");
-	obj_set_radio_value('mod_sendfile_sendAll', "{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_sendfile.sendAll;false=}");
-	obj_set_radio_value('Tuxbox_DisplayLogos', "{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.DisplayLogos;true=}"); // MARTII
+	obj_set_radio_value('authenticate', "{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.authenticate;false=}");
+	obj_set_radio_value('threading', "{=ini-get:%(CONFIGDIR)/nhttpd.conf;webserver.threading;false=}");
+	obj_set_radio_value('mod_sendfile_sendAll', "{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_sendfile.sendAll;false=}");
+	obj_set_radio_value('Tuxbox_DisplayLogos', "{=ini-get:%(CONFIGDIR)/nhttpd.conf;Tuxbox.DisplayLogos;true=}"); // MARTII
 
 	do_check_input_LogosURL()
 }
@@ -46,15 +46,15 @@ function do_check_input_LogosURL()
 			<tr><td colspan="2" class="y_form_header">{=L:set.nhttpd.authentication=}</td></tr>
 			<tr>
 				<td>{=L:user=}</td>
-				<td><input type="text" name="authuser" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.username;root~open=}" title="{=L:user=}"/></td>
+				<td><input type="text" name="authuser" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.username;root~open=}" title="{=L:user=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:password=}</td>
-				<td><input type="password" name="authpassword" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.password;dbox2~cache=}" title="{=L:password=}"/></td>
+				<td><input type="password" name="authpassword" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.password;dbox2~cache=}" title="{=L:password=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.client_without_authentication=}</td>
-				<td><input type="text" name="noauthclient" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.no_auth_client~cache=}" title="{=L:set.nhttpd.client_without_authentication_desc=}"/></td>
+				<td><input type="text" name="noauthclient" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.no_auth_client~cache=}" title="{=L:set.nhttpd.client_without_authentication_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.authentication=}</td>
@@ -72,7 +72,7 @@ function do_check_input_LogosURL()
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.port=}</td>
-				<td><input type="text" name="port" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80~cache=}" title="{=L:set.nhttpd.port=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
+				<td><input type="text" name="port" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80~cache=}" title="{=L:set.nhttpd.port=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
 				</td>
 			</tr>
 			<tr>
@@ -85,18 +85,18 @@ function do_check_input_LogosURL()
 			<tr>
 				<td>{=L:set.nhttpd.alternate_web_folder=}</td>
 				<td>
-					<input type="text" name="override_directory" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory~cache=}" title="{=L:set.nhttpd.alternate_web_folder=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
+					<input type="text" name="override_directory" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.override_directory~cache=}" title="{=L:set.nhttpd.alternate_web_folder=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
 				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.hosted_folder=}</td>
 				<td>
-					<input type="text" name="hosted_directory" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.hosted_directory~cache=}" title="Root of hosted Web. Enter mount directory."/>&nbsp;{=L:set.nhttpd.active_after_boot=}
+					<input type="text" name="hosted_directory" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.hosted_directory~cache=}" title="Root of hosted Web. Enter mount directory."/>&nbsp;{=L:set.nhttpd.active_after_boot=}
 				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.allowed_file_extensions=}</td>
-				<td><input type="text" name="mod_sendfile_mime_types" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_sendfile.mime_types~cache=}"/></td>
+				<td><input type="text" name="mod_sendfile_mime_types" size="60" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_sendfile.mime_types~cache=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.allow_all_file_extensions=}</td>
@@ -115,13 +115,13 @@ function do_check_input_LogosURL()
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.url_of_logos=}</td>
-				<td><input type="text" name="Tuxbox_LogosURL" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL~cache=}" title="{=L:set.nhttpd.url_of_logos_desc=}"/></td>
+				<td><input type="text" name="Tuxbox_LogosURL" size="60" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;Tuxbox.LogosURL~cache=}" title="{=L:set.nhttpd.url_of_logos_desc=}"/></td>
 			</tr>
 			<tr><td colspan="2" class="y_form_header">{=L:set.nhttpd.server=}</td></tr>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 			<tr>
 				<td>{=L:set.nhttpd.ips_without_keep_alive=}<br/>{=L:set.nhttpd.ips_without_keep_alive_desc=} </td>
-				<td><input type="text" name="no_keep_alive_ips" size="30" maxsize="254" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;~cache=}" />
+				<td><input type="text" name="no_keep_alive_ips" size="30" maxsize="254" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;server.no_keep-alive_ips;~cache=}" />
 				</td>
 			</tr>
 			=}

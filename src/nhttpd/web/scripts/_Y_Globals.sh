@@ -11,17 +11,17 @@
 boxtype="coolstream"
 
 # -----------------------------------------------------------
-# Pathes
+# Paths
 # -----------------------------------------------------------
 #y_path_httpd="/share/tuxbox/neutrino/httpd-y"
 y_path_httpd=".."
 y_path_scripts="$y_path_httpd/scripts"
 y_path_usrbin="/var/bin"
-y_path_config="/var/tuxbox/config"
+y_path_config="%(CONFIGDIR)"
 y_path_tmp="/tmp"
-y_path_zapit="/var/tuxbox/config/zapit"
+y_path_zapit="$y_path_config/zapit"
 
-y_path_plugin_tuxnew="/var/tuxbox/config/tuxnews"
+y_path_plugin_tuxnew="$y_path_config/tuxnews"
 
 y_url_control="http://localhost/control"
 
@@ -42,5 +42,3 @@ y_tmp_pls="$y_path_tmp/y.pls"
 
 y_out_html="$y_path_tmp/y_out.yhtm"
 y_install="$y_path_tmp/install.sh"
-
-

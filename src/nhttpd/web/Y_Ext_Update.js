@@ -236,7 +236,7 @@ function uninstall_build_list2(){
 	/*build_list*/
 	i=0;
 	ext.installed_extensions.sortBy(function(e){return e.get('tag');}).each(function(e){
-		res=loadSyncURL("/y/cgi?execute=if-file-exists:/var/tuxbox/config/ext/"+e.get('tag')+"_uninstall.inc~1~0");
+		res=loadSyncURL("/y/cgi?execute=if-file-exists:%(CONFIGDIR)/ext/"+e.get('tag')+"_uninstall.inc~1~0");
 		uninstall_list_addRow(update_body,++i,e,res=="1");
 	});
 	$('statusline').hide();

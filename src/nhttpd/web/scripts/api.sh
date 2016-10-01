@@ -12,7 +12,7 @@ path_httpd=".."
 path_scripts="$path_httpd/scripts"
 path_usrbin="/var/bin"
 path_sbin="/sbin"
-path_config="/var/tuxbox/config"
+path_config="%(CONFIGDIR)"
 path_tmp="/tmp"
 
 streaming_client_status="$path_tmp/streaming_client"

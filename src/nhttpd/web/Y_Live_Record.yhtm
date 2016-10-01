@@ -156,7 +156,7 @@ function doRecord()
 		<tr><td class="y_form_header" colspan="4">{=L:live.rec.record_mode=}</td></tr>
 		<tr>
 			<td>{=L:live.rec.filename=}:</td>
-			<td colspan="3"><input type="text" id="record_filename" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}"/></td>
+			<td colspan="3"><input type="text" id="record_filename" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;vlc_record_path=}"/></td>
 		</tr>
 		<tr>
 			<td colspan="4">

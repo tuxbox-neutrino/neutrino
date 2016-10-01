@@ -439,7 +439,7 @@ do_ext_installer()
 }
 do_ext_uninstaller()
 {
-	uinst="/var/tuxbox/config/ext/uninstall.sh"
+	uinst="%(CONFIGDIR)/ext/uninstall.sh"
 	if [ -e "$uinst"  ]; then
 		chmod 755 "$uinst"
 		`$uinst $1_uninstall.inc`
