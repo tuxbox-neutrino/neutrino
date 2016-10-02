@@ -780,6 +780,7 @@ hdd_statfs_recording nur während Aufnahme
 hdd_umount Aushängen
 hdd_umount_warn Laufwerk aushängen
 hdd_umounted Laufwerk entfernt
+imageinfo.api API:
 imageinfo.creator Ersteller:
 imageinfo.date Datum:
 imageinfo.dokumentation Dokus:
@@ -789,7 +790,6 @@ imageinfo.homepage Homepage:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license Lizenz
-imageinfo.lua LUA-API:
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio

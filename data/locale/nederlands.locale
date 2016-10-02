@@ -725,6 +725,7 @@ hdd_statfs_recording alleen tijdens opname
 hdd_umount Unmount
 hdd_umount_warn Apparaat ontkoppelen
 hdd_umounted Device verwijderd
+imageinfo.api API:
 imageinfo.creator Ontwikkelaar:
 imageinfo.date Datum:
 imageinfo.dokumentation Documentatie:
@@ -734,7 +735,6 @@ imageinfo.homepage Website:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license Licentie
-imageinfo.lua LUA-API:
 imageinfo.vcs Git:
 imageinfo.version Versie:
 inetradio.name Internetradio

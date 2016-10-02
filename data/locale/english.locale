@@ -780,6 +780,7 @@ hdd_statfs_recording while recording only
 hdd_umount Unmount
 hdd_umount_warn unmount device
 hdd_umounted Device removed
+imageinfo.api API:
 imageinfo.creator Creator:
 imageinfo.date Date:
 imageinfo.dokumentation Docs:
@@ -789,7 +790,6 @@ imageinfo.homepage Home page:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license License
-imageinfo.lua LUA-API:
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio

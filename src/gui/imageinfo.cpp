@@ -38,9 +38,13 @@
 #include <string>
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
+#include <system/helpers.h>
 #include "version.h"
 #include <gui/buildinfo.h>
 #define LICENSEDIR DATADIR "/neutrino/license/"
+#ifdef ENABLE_LUA
+#include <gui/lua/lua_api_version.h>
+#endif
 
 using namespace std;
 
@@ -294,6 +298,12 @@ void CImageInfo::InitInfoData()
 #endif
 	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
 	v_info.push_back(date);
+	string s_api;
+#ifdef ENABLE_LUA
+	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
+#endif
+	image_info_t api	= {LOCALE_IMAGEINFO_API,	s_api};
+	v_info.push_back(api);
 	if (uname(&uts_info) == 0) {
 		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
 		v_info.push_back(kernel);

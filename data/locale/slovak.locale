@@ -775,6 +775,7 @@ hdd_statfs_recording len pri nahrávaní
 hdd_umount Odpojenie
 hdd_umount_warn Chyba odpájania disku!
 hdd_umounted Zariadenie odstránené
+imageinfo.api API:
 imageinfo.creator Vytvoril:
 imageinfo.date Dátum:
 imageinfo.dokumentation Dokumentácia:
@@ -784,7 +785,6 @@ imageinfo.homepage Adresa:
 imageinfo.image Image:
 imageinfo.kernel Jadro:
 imageinfo.license Licencia:
-imageinfo.lua LUA-API:
 imageinfo.vcs Git:
 imageinfo.version Verzia:
 inetradio.name Internetové rádio
