@@ -45,6 +45,10 @@
 #ifdef ENABLE_LUA
 #include <gui/lua/lua_api_version.h>
 #endif
+#include <nhttpd/yconfig.h>
+
+#define VERSION_FILE TARGET_PREFIX "/.version"
+#define Y_VERSION_FILE TARGET_PREFIX "/share/tuxbox/neutrino/httpd/Y_Version.txt"
 
 using namespace std;
 
@@ -71,7 +75,7 @@ void CImageInfo::Init(void)
 	
 	license_txt	= "";
 	v_info.clear();
-	config.loadConfig(TARGET_PREFIX "/.version");
+	config.loadConfig(VERSION_FILE);
 }
 
 CImageInfo::~CImageInfo()
@@ -301,7 +305,18 @@ void CImageInfo::InitInfoData()
 	string s_api;
 #ifdef ENABLE_LUA
 	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
+	s_api	+= ", ";
 #endif
+	s_api	+= "yWeb ";
+	s_api	+= getYApi();
+	s_api	+= ", ";
+	s_api	+= HTTPD_NAME;
+	s_api	+= + " ";
+	s_api	+= HTTPD_VERSION;
+	s_api	+= + ", ";
+	s_api	+= YHTTPD_NAME;
+	s_api	+= + " ";
+	s_api	+= YHTTPD_VERSION;
 	image_info_t api	= {LOCALE_IMAGEINFO_API,	s_api};
 	v_info.push_back(api);
 	if (uname(&uts_info) == 0) {
@@ -440,3 +455,13 @@ void CImageInfo::hide()
 		Clean();
 	}
 }
+
+string CImageInfo::getYApi()
+{
+	string ret;
+	config.loadConfig(Y_VERSION_FILE);
+	ret = config.getString("version", "n/a");
+	config.loadConfig(VERSION_FILE);
+	return ret;
+}
+
