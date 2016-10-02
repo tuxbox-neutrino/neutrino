@@ -734,6 +734,7 @@ imageinfo.homepage Website:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license Licentie
+imageinfo.lua LUA-API:
 imageinfo.vcs Git:
 imageinfo.version Versie:
 inetradio.name Internetradio

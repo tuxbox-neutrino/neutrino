@@ -140,9 +140,9 @@
 #include <lib/libdvbsub/dvbsub.h>
 #include <lib/libtuxtxt/teletext.h>
 #include <eitd/sectionsd.h>
-
+#ifdef ENABLE_LUA
 #include <system/luaserver.h>
-
+#endif
 int old_b_id = -1;
 
 CInfoClock      *InfoClock;
@@ -2288,9 +2288,9 @@ void CNeutrinoApp::RealRun()
 		standbyMode(true, true);
 
 	//cCA::GetInstance()->Ready(true);
-
+#ifdef ENABLE_LUA
 	CLuaServer *luaServer = CLuaServer::getInstance();
-
+#endif
 	g_PluginList->startPlugin("startup");
 	if (!g_PluginList->getScriptOutput().empty()) {
 		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
@@ -2301,10 +2301,14 @@ void CNeutrinoApp::RealRun()
 	m_screensaver	= false;
 
 	while( true ) {
+#ifdef ENABLE_LUA
 		luaServer->UnBlock();
+#endif
 		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
+#ifdef ENABLE_LUA
 		if (luaServer->Block(msg, data))
 			continue;
+#endif
 
 		if (mode == mode_radio) {
 			bool ignored_msg = (

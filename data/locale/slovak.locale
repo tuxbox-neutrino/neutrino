@@ -784,6 +784,7 @@ imageinfo.homepage Adresa:
 imageinfo.image Image:
 imageinfo.kernel Jadro:
 imageinfo.license Licencia:
+imageinfo.lua LUA-API:
 imageinfo.vcs Git:
 imageinfo.version Verzia:
 inetradio.name Internetové rádio

@@ -753,11 +753,11 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 
 	std::vector<std::string> args;
 	args.push_back(file);
-
+#ifdef ENABLE_LUA
 	CLuaInstance *lua = new CLuaInstance();
 	lua->runScript(script.c_str(), &args, &result_code, &result_string);
 	delete lua;
-
+#endif
 	if ((result_code != "0") || result_string.empty()) {
 		if (box != NULL) {
 			box->hide();
@@ -2157,7 +2157,9 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 					yres = 1080;
 				aspectRatio = videoDecoder->getAspectRatio();
 			}
+#ifdef ENABLE_LUA
 			CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
+#endif
 		}
 		else if (p_movie_info)
 			g_EpgData->show_mp(p_movie_info, position, duration);
