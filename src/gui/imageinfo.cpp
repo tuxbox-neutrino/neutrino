@@ -105,7 +105,8 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	//init window object, add cc-items and paint all
 	ShowWindow();
-
+	bool fadeout = false;
+	neutrino_msg_t postmsg = 0;
 	neutrino_msg_t msg;
 	while (1)
 	{
@@ -113,9 +114,23 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(100);
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
+		if ((msg == NeutrinoMessages::EVT_TIMER) && (data ==cc_win->GetFadeTimer())){
+			if (cc_win->FadeDone())
+				break;
+			continue;
+		}
+		if (fadeout && msg == CRCInput::RC_timeout){
+			if (cc_win->StartFadeOut()){
+				msg = menu_return::RETURN_EXIT_ALL;
+				continue;
+			}
+			else
+				break;
+		}
+
 		if(msg == CRCInput::RC_setup) {
 			res = menu_return::RETURN_EXIT_ALL;
-			break;
+			fadeout = true;
 		}
 		else if (msg == CRCInput::RC_red){
 			// init temporarly vars
@@ -152,9 +167,9 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			btn_red->paint(false);
 		}
 		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
-			g_RCInput->postMsg (msg, 0);
+			postmsg = msg;
 			res = menu_return::RETURN_EXIT_ALL;
-			break;
+			fadeout = true;
 		}
 		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_page_up)) {
 			ScrollLic(false);
@@ -163,7 +178,7 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			ScrollLic(true);
 		}
 		else if (msg <= CRCInput::RC_MaxRC){
-			break;
+			fadeout = true;
 		}
 
 		if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout){
@@ -172,8 +187,10 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	}
 
+	if (postmsg)
+		g_RCInput->postMsg(postmsg, 0);
+
 	hide();
-	
 	return res;
 }
 
@@ -206,6 +223,7 @@ void CImageInfo::ShowWindow()
 	InitInfoText(getLicenseText());
 
 	//paint window
+	cc_win->StartFadeIn();
 	cc_win->paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -408,6 +426,7 @@ void CImageInfo::hide()
 	printf("[CImageInfo]   [%s - %d] hide...\n", __FUNCTION__, __LINE__);
 	if (cc_win){
 		cc_win->kill();
+		cc_win->StopFade();
 		Clean();
 	}
 }
