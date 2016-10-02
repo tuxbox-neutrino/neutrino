@@ -36,18 +36,20 @@ using namespace std;
 
 CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
+						Font* font_text,
 						CComponentsForm* parent,
 						int shadow_mode,
 						fb_pixel_t label_color,
 						fb_pixel_t text_color,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarExtTextForm(x_pos, y_pos, w, h, label_text, text, parent, shadow_mode, label_color, text_color, color_frame, color_body, color_shadow);
+	initVarExtTextForm(x_pos, y_pos, w, h, label_text, text, font_text, parent, shadow_mode, label_color, text_color, color_frame, color_body, color_shadow);
 	initCCTextItems();
 }
 
 CComponentsExtTextFormLocalized::CComponentsExtTextFormLocalized(const int& x_pos, const int& y_pos, const int& w, const int& h,
 								const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,
+								Font* font_text,
 								CComponentsForm* parent,
 								int shadow_mode,
 								fb_pixel_t label_color,
@@ -55,12 +57,14 @@ CComponentsExtTextFormLocalized::CComponentsExtTextFormLocalized(const int& x_po
 								fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 								: CComponentsExtTextForm(	x_pos, y_pos, w, h,
 												g_Locale->getText(locale_label_text), g_Locale->getText(locale_text),
+												font_text,
 												parent,
 												shadow_mode,
 												label_color, text_color, color_frame, color_body, color_shadow){};
 
 void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
+						Font* font_text,
 						CComponentsForm* parent,
 						int shadow_mode,
 						fb_pixel_t label_color,
@@ -92,7 +96,7 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	ccx_text_obj	= NULL;
 	corner_type	= 0;
 	int dx = 0, dy 	= DEF_HEIGHT;
-	ccx_font 	= *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy));
+	ccx_font 	= font_text == NULL ? *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy)) :  g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 	ccx_label_align = ccx_text_align = CTextBox::NO_AUTO_LINEBREAK;
 
 	initParent(parent);
