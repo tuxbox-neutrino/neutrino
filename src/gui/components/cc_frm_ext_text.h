@@ -133,6 +133,9 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 		///sets the text modes (mainly text alignment) to the label and text object, see /gui/widget/textbox.h for possible modes
 		void setTextModes(const int& label_mode, const int& text_mode);
 
+		///return current font
+		Font* getFont(){return ccx_font;}
+
 		///paint this item/form
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
