@@ -262,7 +262,7 @@ int CMsgBox::exec()
 					ccw_footer->setSelectedButton(selected-1);
 					mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
 				}
-				dprintf(DEBUG_INFO, "[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\n", __func__, __LINE__, result, mb_show_button);
+				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 				selected = ccw_footer->getSelectedButton();
 				refreshFoot();
 
@@ -275,7 +275,7 @@ int CMsgBox::exec()
 				CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
 				if (msg == btn_action->getButtonDirectKey() || msg == btn_action->getButtonDirectKeyA()){
 					result = (msg_result_t)btn_action->getButtonResult();
-					dprintf(DEBUG_INFO, "[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\n", __func__, __LINE__, result, mb_show_button);
+					dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 					loop = false;
 				}
 			}
@@ -291,7 +291,7 @@ int CMsgBox::exec()
 		}
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 		{
-			dprintf(DEBUG_INFO, "[CMsgBox]   [%s - %d]  messages_return::cancel_all\n", __func__, __LINE__);
+			dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d]  messages_return::cancel_all\033[0m\n", __func__, __LINE__);
 			res  = menu_return::RETURN_EXIT_ALL;
 			loop = false;
 		}
