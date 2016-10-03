@@ -359,8 +359,8 @@ void CImageInfo::InitInfos()
 			item_font = item->getFont();
 			//calculate initial height for info form
 			item_height = item_font->getHeight();
-			cc_info->setHeight(v_info.size()*item_height);
 		}
+		cc_info->setHeight(v_info.size()*item_height);
 
 		if ((i == 0) && (item->getYPos() == CC_APPEND))
 			item->setYPos(1);
