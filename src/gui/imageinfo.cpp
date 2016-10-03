@@ -70,8 +70,8 @@ void CImageInfo::Init(void)
 	b_info 		= NULL;
 	btn_red		= NULL;
 	item_offset	= 10;
-	item_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
-	item_height 	= item_font->getHeight();
+	item_font 	= NULL;
+	item_height 	= 0;
 	
 	license_txt	= "";
 	v_info.clear();
@@ -350,14 +350,17 @@ void CImageInfo::InitInfos()
 	//set width, use size between left border and minitv
 	cc_info->setWidth(cc_win->getWidth() - cc_tv->getWidth() - 2*item_offset);
 	
-	//calculate initial height for info form
-	cc_info->setHeight(v_info.size()*item_height);
-	
 	//create label and text items
 	for (size_t i=0; i<v_info.size(); i++) {
 		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, CC_APPEND, cc_info->getWidth(), item_height, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
-		item->setLabelAndTextFont(item_font);
 		item->setLabelWidthPercent(20);
+
+		if (!item_font){
+			item_font = item->getFont();
+			//calculate initial height for info form
+			item_height = item_font->getHeight();
+			cc_info->setHeight(v_info.size()*item_height);
+		}
 
 		if ((i == 0) && (item->getYPos() == CC_APPEND))
 			item->setYPos(1);
