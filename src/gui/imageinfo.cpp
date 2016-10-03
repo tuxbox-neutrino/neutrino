@@ -352,7 +352,7 @@ void CImageInfo::InitInfos()
 	
 	//create label and text items
 	for (size_t i=0; i<v_info.size(); i++) {
-		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, CC_APPEND, cc_info->getWidth(), item_height, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
+		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, CC_APPEND, cc_info->getWidth(), 0, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
 		item->setLabelWidthPercent(20);
 
 		if (!item_font){
@@ -360,6 +360,7 @@ void CImageInfo::InitInfos()
 			//calculate initial height for info form
 			item_height = item_font->getHeight();
 		}
+		item->setHeight(item_height);
 		cc_info->setHeight(v_info.size()*item_height);
 
 		if ((i == 0) && (item->getYPos() == CC_APPEND))
