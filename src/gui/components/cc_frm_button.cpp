@@ -293,8 +293,7 @@ void CComponentsButton::paint(bool do_save_bg)
 
 void CComponentsButton::enableShadow(int mode, const int& shadow_width, bool force_paint)
 {
-	clear();
 	shadow_w = shadow_width;
 	shadow_force = force_paint;
-	initVarButton(x, y, width, height, cc_btn_capt, cc_btn_icon, cc_parent, cc_item_selected, cc_item_enabled, mode, col_frame, col_body, col_shadow);
+	shadow	= mode;
 }
