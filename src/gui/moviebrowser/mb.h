@@ -1,67 +1,41 @@
-/***************************************************************************
-	Neutrino-GUI  -   DBoxII-Project
-
-	Homepage: http://dbox.cyberphoria.org/
-
-	$Id: moviebrowser.h,v 1.5 2006/09/11 21:11:35 guenther Exp $
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+/*
+	Based up Neutrino-GUI - Tuxbox-Project
+	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 	***********************************************************
 
-	Module Name: moviebrowser.h .
+	Module Name: mb.h
 
-	Description: implementation of the CMovieBrowser class
+	Description: Implementation of the CMovieBrowser class
+	             This class provides a filebrowser window to view, select and start a movies from HD.
+	             This class does replace the Filebrowser
 
 	Date:	   Nov 2005
 
-	Author: GÃ¼nther@tuxbox.berlios.org
+	Author: Guenther@tuxbox.berlios.org
 		based on code of Steffen Hehn 'McClean'
 
-	$Log: moviebrowser.h,v $
-	Revision 1.5  2006/09/11 21:11:35  guenther
-	General menu clean up
-	Dir menu updated
-	Add options menu
-	In movie info menu  "update all" added
-	Serie option added (hide serie, auto serie)
-	Update movie info on delete movie
-	Delete Background when menu is entered
-	Timeout updated (MB does not exit after options menu is left)
+	(C) 2009-2014 Stefan Seyfried
 
-	Revision 1.4  2006/02/20 01:10:34  guenther
-	- temporary parental lock updated - remove 1s debug prints in movieplayer- Delete file without rescan of movies- Crash if try to scroll in list with 2 movies only- UTF8XML to UTF8 conversion in preview- Last file selection recovered- use of standard folders adjustable in config- reload and remount option in config
+	outsourced:
+	(C) 2016, Thilo Graf 'dbt'
+*/
 
-	Revision 1.3  2005/12/18 09:23:53  metallica
-	fix compil warnings
-
-	Revision 1.2  2005/12/12 07:58:02  guenther
-	- fix bug on deleting CMovieBrowser - speed up parse time (20 ms per .ts file now)- update stale function- refresh directories on reload- print scan time in debug console
-
-
-****************************************************************************/
 #ifndef MOVIEBROWSER_H_
 #define MOVIEBROWSER_H_
 
