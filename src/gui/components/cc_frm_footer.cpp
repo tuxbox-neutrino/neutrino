@@ -179,7 +179,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		}
 
 		int y_btn = chain->getHeight()/2 - h_btn/2;
-		dprintf(DEBUG_NORMAL, "[CComponentsFooter]   [%s - %d]  y_btn [%d] ccf_button_shadow_width [%d]\n", __func__, __LINE__, y_btn, ccf_button_shadow_width);
+		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  y_btn [%d] ccf_button_shadow_width [%d]\n", __func__, __LINE__, y_btn, ccf_button_shadow_width);
 		CComponentsButton *btn = new CComponentsButton(0, y_btn, w_btn, h_btn, txt, icon_name, NULL, false, true, ccf_enable_button_shadow);
 
 		btn->doPaintBg(ccf_enable_button_bg);
@@ -210,7 +210,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			btn->setButtonFont(NULL);
 		}
 			
-		dprintf(DEBUG_NORMAL, "[CComponentsFooter]   [%s - %d]  button %s [%u]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, chain->getWidth());
+		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%u]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, chain->getWidth());
 	}
 
 	/* add generated button objects to chain object.
