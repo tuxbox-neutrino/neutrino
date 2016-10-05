@@ -1314,7 +1314,8 @@ void CMovieBrowser::refreshMovieInfo(void)
 		lx = m_cBoxFrameInfo.iX + m_cBoxFrameBrowserList.iWidth - flogo_w -14;
 		ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
 		if (pic == NULL){ //TODO: paint custom covers with different ratio, currently only works with default ratio HD 16/9
-			pic = new CComponentsPicture(lx, ly, fname, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0);
+			pic = new CComponentsPicture(lx, ly, fname, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENT_PLUS_0);
+
 			if (pic->getHeight() < flogo_h/2){
 				flogo_h = flogo_h/2;
 				pic->setYPos(m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2);
