@@ -67,6 +67,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		fb_pixel_t col_shadow, col_shadow_old;
 		///property: color of frame
 		fb_pixel_t col_frame, col_frame_old;
+		///internal property: color for shadow clean up
+		fb_pixel_t col_shadow_clean;
 
 		 ///property: frame thickness, see also setFrameThickness()
 		int fr_thickness, fr_thickness_old;

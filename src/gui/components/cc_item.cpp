@@ -95,7 +95,6 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		//Workaround: ensure radius values >= 0, framebuffer methode paintBoxRel() gets confused
 		box_rad = max(box_rad, 0);
 
-		fb_pixel_t col_shadow_clean = 0;
 		//if item is bound on a parent form,...
 		if (cc_parent){
 			//...we must use real x/y values and from parent form as reference
