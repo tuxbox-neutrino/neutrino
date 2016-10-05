@@ -135,6 +135,7 @@ void CMsgBox::initButtons()
 		btn.button = NEUTRINO_ICON_BUTTON_OKAY;
 		btn.text = BTN_TEXT(mbOk);
 		btn.directKey = CRCInput::RC_ok;
+		btn.directKeyAlt = btn.directKey;
 		btn.btn_result = mbrOk;
 		btn.btn_alias = mbOk;
 		v_buttons.push_back(btn);
@@ -170,6 +171,7 @@ void CMsgBox::initButtons()
 		btn.button = NEUTRINO_ICON_BUTTON_HOME;
 		btn.text = BTN_TEXT(mbBack);
 		btn.directKey = CRCInput::RC_home;
+		btn.directKeyAlt = btn.directKey;
 		btn.btn_result = mbrBack;
 		btn.btn_alias = mbBack;
 		v_buttons.push_back(btn);
@@ -216,7 +218,7 @@ int CMsgBox::exec()
 	int selected = ccw_footer->getSelectedButton();
 
 
-	dprintf(DEBUG_NORMAL, "[CMsgBox]   [%s - %d] getSelectedButton()= %d\n", __func__, __LINE__,ccw_footer->getSelectedButton());
+	dprintf(DEBUG_NORMAL, "\033[32m[CMsgBox]   [%s - %d] getSelectedButton()= %d\033[0m\n", __func__, __LINE__,ccw_footer->getSelectedButton());
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
@@ -262,13 +264,13 @@ int CMsgBox::exec()
 					ccw_footer->setSelectedButton(selected-1);
 					mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
 				}
-				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 				selected = ccw_footer->getSelectedButton();
 				refreshFoot();
 
 				//refresh timeout on any pressed navi key! This resets current timeout end to the initial value
 				if (timeout > 0)
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 			}
 			//***action buttons without preselection***
 			for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++){
