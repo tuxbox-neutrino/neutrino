@@ -173,7 +173,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 			//shadow corner bottom right
 			{sh_cbr, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_cbr_x,	sh_cbr_y, 	sh_cdx, 	sh_cdy, 			col_shadow, 		box_rad,	corner_type & CORNER_BOTTOM_RIGHT,	0, NULL, NULL, NULL, false},
 			//clean up inside body
-			{sh_cbr, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_cbr_x-sw-th,	sh_cbr_y-sw-th, sh_cdx, 	sh_cdy, 			col_shadow_clean, 	box_rad,	corner_type & CORNER_BOTTOM_RIGHT,	0, NULL, NULL, NULL, false},
+			{sh_cbr, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_cbr_x-sw,	sh_cbr_y-sw, 	sh_cdx, 	sh_cdy, 			col_shadow_clean, 	box_rad,	corner_type & CORNER_BOTTOM_RIGHT,	0, NULL, NULL, NULL, false},
 
 			//shadow bar right
 			{sh_br, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_rx,		sh_ry,		sw, 		sh_rdy, 			col_shadow, 		0,		CORNER_NONE,				0, NULL, NULL, NULL, false},
@@ -187,7 +187,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 			{true, CC_FBDATA_TYPE_BOX,		ix+th,  	iy+th,  	dx-2*th,     	dy-2*th,    			col_body,       	box_rad,	corner_type,				0, NULL, NULL, NULL, false},
 
 			//frame
-			{true, CC_FBDATA_TYPE_FRAME,		ix,		iy, 		dx, 		dy, 				col_frame_cur,		box_rad+th,	corner_type,				th, NULL, NULL, NULL, false}
+			{true, CC_FBDATA_TYPE_FRAME,		ix,		iy, 		dx, 		dy, 				col_frame_cur,		box_rad,	corner_type,				th, NULL, NULL, NULL, false}
 		};
 
 		for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++) {
