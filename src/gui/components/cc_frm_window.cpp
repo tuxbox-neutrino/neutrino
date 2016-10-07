@@ -300,9 +300,6 @@ void CComponentsWindow::initBody()
 			ccw_body->setCornerType(CORNER_TOP);
 		if (!ccw_show_footer)
 			ccw_body->setCornerType(ccw_body->getCornerType() | CORNER_BOTTOM);
-		if (!ccw_show_header)
-			ccw_body->setCornerType(CORNER_TOP);
-
 	}
 }
 
