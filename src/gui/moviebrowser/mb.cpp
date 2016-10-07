@@ -47,11 +47,11 @@
 //#include <cstdlib>
 #include "mb.h"
 #include "mb_functions.h"
+#include "mb_help.h"
 #include <gui/filebrowser.h>
 #include <gui/tmdb.h>
 #include <gui/epgview.h>
 #include <gui/widget/hintbox.h>
-#include <gui/widget/helpbox.h>
 #include <gui/widget/icons.h>
 #include <gui/components/cc.h>
 #include <gui/widget/messagebox.h>
@@ -3970,24 +3970,7 @@ int CMenuSelector::paint(bool selected)
 	return y+height;
 }
 
-int CMovieHelp::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
-{
-	Helpbox helpbox;
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_RED,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_RED));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_GREEN,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_GREEN));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_YELLOW,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_YELLOW));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_BLUE,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_BLUE));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_MENU_SMALL,g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MENU));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_PLAY,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_PLAY));
-	helpbox.addLine("");
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_OKAY));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_MUTE_SMALL,g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MUTE));
-	helpbox.addLine("");
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_LEFT,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_LEFT));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_RIGHT,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_RIGHT));
-	helpbox.show(LOCALE_MESSAGEBOX_INFO);
-	return(0);
-}
+
 /////////////////////////////////////////////////
 // MenuTargets
 ////////////////////////////////////////////////

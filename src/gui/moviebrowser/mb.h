@@ -354,16 +354,6 @@ class CMovieBrowser : public CMenuTarget
 		bool addFile(CFile &file, int dirItNr);
 };
 
-// Class to show Moviebrowser Information, to be used by menu
-class CMovieHelp : public CMenuTarget
-{
-	private:
-
-   public:
-		CMovieHelp(){};
-		~CMovieHelp(){};
-		int exec( CMenuTarget* parent, const std::string & actionKey );
-};
 
 // I tried a lot to use the menu.cpp as ListBox selection, and I got three solution which are all garbage.
 //Might be replaced by somebody who is familiar with this stuff .
