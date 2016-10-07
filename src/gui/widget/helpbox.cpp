@@ -45,7 +45,7 @@ Helpbox::Helpbox(	const string& Title,
 						CC_SHADOW_ON,
 						COL_MENUCONTENT_PLUS_6,
 						COL_MENUCONTENT_PLUS_0,
-						COL_MENUCONTENTDARK_PLUS_0)
+						COL_SHADOW_PLUS_0)
 {
 	page = 0;
 	hbox_y = 1;
