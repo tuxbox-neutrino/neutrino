@@ -290,10 +290,3 @@ void CComponentsButton::paint(bool do_save_bg)
 	//paint form contents
 	paintForm(do_save_bg);
 }
-
-void CComponentsButton::enableShadow(int mode, const int& shadow_width, bool force_paint)
-{
-	shadow_w = shadow_width;
-	shadow_force = force_paint;
-	shadow	= mode;
-}
