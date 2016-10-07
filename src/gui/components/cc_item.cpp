@@ -82,6 +82,8 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		
 		//and ensure sw is not larger than body dimensions, max x%
 		int sw = (shadow) ? min(shadow_w, min(dx, dy)*50/100) : 0;
+		/*ensure shadow is never < 0*/
+		sw = max(0, sw);
 
 		//set current needed corner main box radius
 		int box_rad = corner_rad;
@@ -131,7 +133,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		int sh_cbl_y = sh_cbr_y;
 
 		//handle general shadow bar dimensions
-		int sh_bdx = dx-sh_cdx-sh_cdx;
+		int sh_bdx = max(0, dx-sh_cdx-sh_cdx); /*ensure value is never < 0*/
 		int sh_rdy = dy-sh_cdy-sh_cdy;
 
 		//...bar bottom
