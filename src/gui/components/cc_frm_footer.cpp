@@ -347,8 +347,12 @@ void CComponentsFooter::enableButtonBg(bool enable)
 
 void CComponentsFooter::setSelectedButton(size_t item_id)
 {
-	if (chain)
-		chain->setSelectedItem(item_id, COL_GREEN, COL_SHADOW_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENT_PLUS_0, 2, 2);
+	if (chain){
+		fb_pixel_t sel_col = COL_MENUCONTENTSELECTED_PLUS_2;
+		if (chain->size() > 1)
+			sel_col = COL_MENUCONTENTSELECTED_PLUS_0; //TODO: make it configurable
+		chain->setSelectedItem(item_id, sel_col, COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENT_PLUS_0, 1, 2);
+	}
 }
 
 int CComponentsFooter::getSelectedButton()
