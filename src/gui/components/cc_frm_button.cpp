@@ -195,7 +195,7 @@ void CComponentsButton::initCaption()
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
 		int w_cap = width - w_frame - append_x_offset - x_cap - w_frame;
-		int h_cap = (height*75/100) - 2*w_frame;
+		int h_cap = (height*85/100) - 2*w_frame;
 		/*NOTE:
 			paint of centered text in y direction without y_offset
 			looks unlovely displaced in y direction especially besides small icons and inside small areas,
