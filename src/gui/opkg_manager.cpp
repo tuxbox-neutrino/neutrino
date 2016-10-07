@@ -609,19 +609,22 @@ int COPKGManager::showMenu()
 
 bool COPKGManager::hasOpkgSupport()
 {
-	string deps[] = {"/var/lib/opkg", /*"/bin/opkg-check-config", "/bin/update-alternatives", "/share/opkg/intercept"*/};
-
 	if (find_executable(OPKG_CL).empty()) {
 		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d]" OPKG_CL " executable not found\n", __func__, __LINE__);
 		return false;
 	}
+
+#if 0
+	/* If directory /var/lib/opkg resp. /opt/opkg
+	   does not exist, it is created by opkg itself */
+	string deps[] = {"/var/lib/opkg", /*"/bin/opkg-check-config", "/bin/update-alternatives", "/share/opkg/intercept"*/};
 	for(size_t i=0; i<sizeof(deps)/sizeof(deps[0]) ;i++){
 		if(access(deps[i].c_str(), R_OK) !=0) {
 			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d] %s not found\n", __func__, __LINE__, deps[i].c_str());
 			return false;
 		}
 	}
-
+#endif
 	return true;
 }
 
