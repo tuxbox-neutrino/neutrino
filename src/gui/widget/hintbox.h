@@ -32,7 +32,7 @@
 
 #include <gui/components/cc.h>
 
-#define HINTBOX_MIN_WIDTH 600
+#define HINTBOX_MIN_WIDTH 400
 #define HINTBOX_MIN_HEIGHT 125
 #define HINTBOX_MAX_HEIGHT 420
 #define HINTBOX_DEFAULT_TIMEOUT 5

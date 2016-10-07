@@ -215,6 +215,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 
 	//set required font and line size
 	Font* font = font_text == NULL ? g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO] : font_text;
+	width =  max(width, min(font->getRenderWidth(Text), HINTBOX_MIN_WIDTH));
 	int h_line = font->getHeight();
 
 	//init side picon object
