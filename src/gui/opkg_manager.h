@@ -150,6 +150,9 @@ class COPKGManager : public CMenuTarget
 		int doUpdate();
 		void handleShellOutput(std::string* cur_line, int* res, bool* ok);
 
+		std::string getInfoDir();
+		std::string getPkgDescription(std::string pkgName, std::string pkgDesc="");
+
 		struct pkg {
 			std::string name;
 			std::string version;

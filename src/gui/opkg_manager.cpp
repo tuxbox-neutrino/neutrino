@@ -628,6 +628,74 @@ bool COPKGManager::hasOpkgSupport()
 	return true;
 }
 
+string COPKGManager::getInfoDir()
+{
+	/* /opt/opkg/... is path in patched opkg, /var/lib/opkg/... is original path */
+	string dirs[] = {TARGET_PREFIX"/opt/opkg/info", TARGET_PREFIX"/var/lib/opkg/info"};
+	for (size_t i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++) {
+		if (access(dirs[i].c_str(), R_OK) == 0)
+			return dirs[i];
+	}
+	dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] InfoDir not found\n", __func__, __LINE__);
+	return "";
+}
+
+string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
+{
+	static string infoPath;
+	if (infoPath.empty())
+		infoPath = getInfoDir();
+	if (infoPath.empty())
+			return pkgDesc;
+
+	string infoFile = infoPath + "/" + pkgName + ".control";
+	if (file_exists(infoFile.c_str())) {
+		FILE* fd = fopen(infoFile.c_str(), "r");
+		if (fd == NULL)
+			return pkgDesc;
+
+		fpos_t fz;
+		fseek(fd, 0, SEEK_END);
+		fgetpos(fd, &fz);
+		fseek(fd, 0, SEEK_SET);
+		if (fz.__pos == 0)
+			return pkgDesc;
+
+		char buf[512];
+		string package, version, description;
+		while (fgets(buf, sizeof(buf), fd)) {
+			if (buf[0] == ' ')
+				continue;
+			string line(buf);
+			trim(line, " ");
+			string tmp;
+			/* When pkgDesc is empty, return description only for OM_INFO */
+			if (!pkgDesc.empty()) {
+				tmp = getKeyInfo(line, "Package:", " ");
+				if (!tmp.empty())
+					package = tmp;
+				tmp = getKeyInfo(line, "Version:", " ");
+				if (!tmp.empty())
+					version = tmp;
+			}
+			tmp = getKeyInfo(line, "Description:", " ");
+			if (!tmp.empty())
+				description = tmp;
+		}
+		fclose(fd);
+
+		if (pkgDesc.empty())
+			return description;
+
+		string desc = package + " - " + version;
+		if (!description.empty())
+			desc += " - " + description;
+
+		return desc;
+	}
+	return pkgDesc;
+}
+
 void COPKGManager::getPkgData(const int pkg_content_id)
 {
 	dprintf(DEBUG_INFO, "[COPKGManager] [%s - %d] executing %s\n", __func__, __LINE__, pkg_types[pkg_content_id].c_str());
@@ -675,12 +743,16 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 			continue;
 
 		switch (pkg_content_id) {
-			case OM_LIST:
+			case OM_LIST: {
 				/* do not even put "bad" packages into the list to save memory */
 				if (badpackage(name))
 					continue;
 				pkg_map[name] = pkg(name, line, line);
+				map<string, struct pkg>::iterator it = pkg_map.find(name);
+				if (it != pkg_map.end())
+					it->second.desc = getPkgDescription(name, line);
 				break;
+			}
 			case OM_LIST_INSTALLED: {
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
@@ -725,8 +797,17 @@ string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key, b
 	execCmd(pkg_types[current_status ? OM_STATUS : OM_INFO] + pkg_name, CShellWindow::QUIET);
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  [data: %s]\n", __func__, __LINE__, tmp_str.c_str());
 
-	if (pkg_key.empty())
+	if (pkg_key.empty()) {
+		/* When description is empty, read data from InfoDir */
+		string tmp = getKeyInfo(tmp_str, "Description:", " ");
+		if (tmp.empty()) {
+			tmp = getPkgDescription(pkg_name);
+			if (!tmp.empty()) {
+				tmp_str += (string)"\nDescription: " + tmp + "\n";
+			}
+		}
 		return tmp_str;
+	}
 
 	return getKeyInfo(tmp_str, pkg_key, ":");
 }
