@@ -50,7 +50,7 @@ Helpbox::Helpbox(	const string& Title,
 	page = 0;
 	hbox_y = 1;
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
-	ccw_footer->setButtonLabel(NEUTRINO_ICON_BUTTON_HOME, LOCALE_MESSAGEBOX_BACK, 0, 150);
+	ccw_footer->setButtonLabel(NEUTRINO_ICON_BUTTON_HOME, LOCALE_MESSAGEBOX_BACK);
 
 	hbox_font = default_font_text;
 	if (default_font_text == NULL)
