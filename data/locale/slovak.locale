@@ -775,6 +775,7 @@ hdd_statfs_recording len pri nahrávaní
 hdd_umount Odpojenie
 hdd_umount_warn Chyba odpájania disku!
 hdd_umounted Zariadenie odstránené
+help_box_title Help
 imageinfo.api API:
 imageinfo.creator Vytvoril:
 imageinfo.date Dátum:
