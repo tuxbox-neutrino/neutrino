@@ -737,7 +737,7 @@ void CPersonalizeGui::ShowHelpPersonalize()
 	Helpbox helpbox(g_Locale->getText(LOCALE_PERSONALIZE_HELP));
 
 	for (int i = (int)LOCALE_PERSONALIZE_HELP_LINE1; i<= (int)LOCALE_PERSONALIZE_HELP_LINE8; i++)
-		helpbox.addLine(g_Locale->getText((neutrino_locale_t)i), CTextBox::CENTER);
+		helpbox.addLine(g_Locale->getText((neutrino_locale_t)i));
 
 	helpbox.addExitKey(CRCInput::RC_ok);
 	helpbox.show();
