@@ -37,7 +37,7 @@
 #define HINTBOX_MAX_HEIGHT 420
 #define HINTBOX_DEFAULT_TIMEOUT 5
 //frame around hint container as indent
-#define W_FRAME 15
+#define W_FRAME std::max(HINTBOX_MIN_WIDTH, HINTBOX_MIN_HEIGHT) * 2/100
 //frame color around hint/message box
 #define HINTBOX_DEFAULT_FRAME_COLOR COL_FRAME
 
