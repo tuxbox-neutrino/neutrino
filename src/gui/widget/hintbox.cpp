@@ -221,6 +221,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	//init side picon object
 	CComponentsPicture *obj_picon = new CComponentsPicture(0, 0, Picon);
 	obj_picon->doPaintBg(false);
+	obj_picon->SetTransparent(CFrameBuffer::TM_BLACK);
 	int w_picon = obj_picon->getWidth();
 
 	//init text item object
