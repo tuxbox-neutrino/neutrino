@@ -1660,6 +1660,8 @@ void CInfoViewer::showSNR ()
 			int sigbox_offset = ChanWidth *10/100;
 			sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox+ChanHeight/2, ChanWidth - 2*sigbox_offset, ChanHeight/2, NULL, true, NULL, "S", "Q");
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
+			sigbox->setActiveColor(COL_INFOBAR_PLUS_7);
+			sigbox->setPassiveColor(COL_INFOBAR_PLUS_3);
 			sigbox->setColorBody(numbox->getColorBody());
 			sigbox->doPaintBg(false);
 			sigbox->enableTboxSaveScreen(numbox->getColBodyGradientMode());
@@ -1719,13 +1721,10 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		int pb_w = 112;
 		int pb_startx = BoxEndX - pb_w - SHADOW_OFFSET;
 		int pb_starty = ChanNameY - (pb_h + 10);
-		int pb_shadow = COL_SHADOW_PLUS_0;
-		timescale->enableShadow(!g_settings.infobar_progressbar);
-		int pb_color = (g_settings.progressbar_design == CProgressBar::PB_MONO) ? COL_INFOBAR_PLUS_0 : COL_SHADOW_PLUS_0;
-		if(g_settings.infobar_progressbar){
+		if (g_settings.infobar_progressbar)
+		{
 			pb_startx = xStart;
 			pb_w = BoxEndX - 10 - xStart;
-			pb_shadow = 0;
 		}
 		int tmpY = CurrInfoY - height - ChanNameY + header_height -
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset()/3+SHADOW_OFFSET;
@@ -1751,7 +1750,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			pb_p = pb_w;
 
 		timescale->setDimensionsAll(pb_startx, pb_starty, pb_w, pb_h);
-		timescale->setColorAll(pb_color, pb_color, pb_shadow);
+		timescale->setActiveColor(COL_INFOBAR_PLUS_7);
+		timescale->setPassiveColor(g_settings.infobar_progressbar ? COL_INFOBAR_PLUS_1 : COL_INFOBAR_PLUS_0);
+		timescale->enableShadow(!g_settings.infobar_progressbar);
 		timescale->setValues(pb_p, pb_w);
 
 		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h);
