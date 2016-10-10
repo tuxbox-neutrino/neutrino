@@ -1831,7 +1831,10 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 
 	// clear details line
 	if (dline != NULL)
+	{
 		dline->kill();
+		dline = NULL;
+	}
 
 	// paint Line if detail info (and not valid list pos) and info box
 	if (!m_playlist.empty() && (pos >= 0))
