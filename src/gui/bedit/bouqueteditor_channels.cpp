@@ -167,7 +167,7 @@ void CBEChannelWidget::paint()
 	int sbs= (selected/listmaxshow);
 
 	if (sbh)
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_SCROLLBAR_ACTIVE_PLUS_0);
 }
 
 void CBEChannelWidget::paintHead()

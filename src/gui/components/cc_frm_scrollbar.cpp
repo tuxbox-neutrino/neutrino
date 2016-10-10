@@ -63,7 +63,9 @@ CComponentsScrollBar::CComponentsScrollBar(	const int &x_pos, const int &y_pos, 
 						const int& count,
 						CComponentsForm* parent,
 						int shadow_mode,
-						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+						fb_pixel_t color_frame,
+						fb_pixel_t color_body,
+						fb_pixel_t color_shadow)
 						:CComponentsFrmChain(x_pos, y_pos, w, h, NULL, CC_DIR_Y, parent, shadow_mode, color_frame, color_body, color_shadow)
 {
 	initVarSbForm(count);

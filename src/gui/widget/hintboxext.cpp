@@ -341,7 +341,7 @@ void CHintBoxExt::refresh(bool toround)
 		yPos = m_theight;
 		m_window->paintBoxRel(m_width - 15, yPos, 15, m_maxEntriesPerPage * m_fheight, COL_MENUCONTENT_PLUS_1);
 		unsigned int marker_size = (m_maxEntriesPerPage * m_fheight) / m_pages;
-		m_window->paintBoxRel(m_width - 13, yPos + m_currentPage * marker_size, 11, marker_size, COL_MENUCONTENT_PLUS_3);
+		m_window->paintBoxRel(m_width - 13, yPos + m_currentPage * marker_size, 11, marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0);
 	}
 }
 

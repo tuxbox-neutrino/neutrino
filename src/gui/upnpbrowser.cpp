@@ -1001,7 +1001,7 @@ void CUpnpBrowserGui::paintDevices()
 	int sbc = ((m_devices.size() - 1) / tmp_max) + 1;
 	int sbs = ((m_selecteddevice) / tmp_max);
 
-	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
+	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0);
 
 	//shadow
 	m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + SHADOW_OFFSET, SHADOW_OFFSET, sb, COL_SHADOW_PLUS_0);
@@ -1179,7 +1179,7 @@ void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int sel
 	int sbh = 0;
 	if ((sbc > 0) && (sbc > sb-4))
 		sbh = 2;
-	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*((sb-4)/sbc+sbh), 11, (sb-4)/sbc + sbh, COL_MENUCONTENT_PLUS_3);
+	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*((sb-4)/sbc+sbh), 11, (sb-4)/sbc + sbh, COL_SCROLLBAR_ACTIVE_PLUS_0);
 
 	//shadow
 	//m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + SHADOW_OFFSET, SHADOW_OFFSET, sb, COL_SHADOW_PLUS_0);

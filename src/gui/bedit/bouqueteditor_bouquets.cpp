@@ -125,7 +125,7 @@ void CBEBouquetWidget::paint()
 		sbc = 1;
 
 	//scrollbar
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0);
 }
 
 void CBEBouquetWidget::paintHead()

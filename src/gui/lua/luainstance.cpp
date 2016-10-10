@@ -172,6 +172,7 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTINACTIVE",	MAGIC_COLOR | (COL_MENUCONTENTINACTIVE) },
 		{ "MENUFOOT",			MAGIC_COLOR | (COL_MENUFOOT) },
 		{ "FRAME",			MAGIC_COLOR | (COL_FRAME) },
+		{ "SCROLLBAR_ACTIVE",		MAGIC_COLOR | (COL_SCROLLBAR_ACTIVE) },
 		{ "BACKGROUND",			MAGIC_COLOR | (COL_BACKGROUND) },
 		{ "DARK_RED",			MAGIC_COLOR | (COL_DARK_RED0) },
 		{ "DARK_GREEN",			MAGIC_COLOR | (COL_DARK_GREEN0) },
@@ -219,6 +220,7 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTINACTIVE_PLUS_0",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_PLUS_0) },
 		{ "MENUFOOT_PLUS_0",			(lua_Unsigned) (COL_MENUFOOT_PLUS_0) },
 		{ "FRAME_PLUS_0",			(lua_Unsigned) (COL_FRAME_PLUS_0) },
+		{ "SCROLLBAR_ACTIVE_PLUS_0",		(lua_Unsigned) (COL_SCROLLBAR_ACTIVE_PLUS_0) },
 		{ NULL, 0 }
 	};
 

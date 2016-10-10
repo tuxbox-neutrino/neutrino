@@ -212,7 +212,7 @@ void CHintBox::refresh(void)
 		ypos = theight + (fheight >> 1);
 		window->paintBoxRel(width - 15, ypos                             , 15, entries_per_page * fheight, COL_MENUCONTENT_PLUS_1);
 		unsigned int marker_size = (entries_per_page * fheight) / ((line.size() + entries_per_page - 1) / entries_per_page);
-		window->paintBoxRel(width - 13, ypos + current_page * marker_size, 11, marker_size               , COL_MENUCONTENT_PLUS_3);
+		window->paintBoxRel(width - 13, ypos + current_page * marker_size, 11, marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0);
 	}
 }
 

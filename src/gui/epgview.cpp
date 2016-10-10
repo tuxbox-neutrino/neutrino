@@ -328,7 +328,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	if (sbc < 1)
 		sbc = 1;
 	frameBuffer->paintBoxRel(sx+ ox- 15, ypos, 15, sb,  COL_MENUCONTENT_PLUS_1); // scrollbar bg
-	frameBuffer->paintBoxRel(sx+ ox- 13, ypos+ 2+ sbs*(sb-4)/sbc , 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3); // scrollbar
+	frameBuffer->paintBoxRel(sx+ ox- 13, ypos+ 2+ sbs*(sb-4)/sbc , 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0); // scrollbar
 }
 
 #define GENRE_MOVIE_COUNT 9

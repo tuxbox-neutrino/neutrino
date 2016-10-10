@@ -499,7 +499,7 @@ void CTextBox::refreshScroll(void)
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + SCROLL_MARKER_BORDER+m_cFrame.iX,
 				m_cFrameScrollRel.iY + m_nCurrentPage * marker_size+m_cFrame.iY,
 				m_cFrameScrollRel.iWidth - 2*SCROLL_MARKER_BORDER,
-				marker_size, COL_MENUCONTENT_PLUS_3);
+				marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0);
 		m_has_scrolled = true;
 	}
 	else

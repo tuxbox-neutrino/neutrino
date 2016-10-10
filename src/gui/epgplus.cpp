@@ -1243,7 +1243,7 @@ void EpgPlus::paint()
 	int sliderKnobPosition = this->selectedChannelEntry == NULL ? 0 : (this->selectedChannelEntry->index / this->maxNumberOfDisplayableEntries);
 
 	this->frameBuffer->paintBoxRel (this->sliderX + 2, this->sliderY +  (int(sliderKnobPosition * sliderKnobHeight))
-					, this->sliderWidth - 4, int (sliderKnobHeight) , COL_MENUCONTENT_PLUS_3);
+					, this->sliderWidth - 4, int (sliderKnobHeight) , COL_SCROLLBAR_ACTIVE_PLUS_0);
 }
 
 //  -- EPG+ Menue Handler Class
