@@ -73,7 +73,9 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 					int shadow_mode,
 					fb_pixel_t label_color,
 					fb_pixel_t text_color,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow);
 
 	public:
 		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as string
@@ -151,7 +153,9 @@ class CComponentsExtTextFormLocalized : public CComponentsExtTextForm
 						int shadow_mode = CC_SHADOW_OFF,
 						fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
 						fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
-						fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+						fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+						fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 };
 
 #endif

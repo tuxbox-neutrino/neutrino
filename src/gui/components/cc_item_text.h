@@ -86,7 +86,10 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 					const int& font_style,
 					CComponentsForm *parent,
 					int shadow_mode,
-					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
+					fb_pixel_t color_text,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow);
 
 		///destroy current CTextBox and CBox objects
 		void clearCCText();
@@ -109,7 +112,10 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_text = COL_MENUCONTENT_TEXT,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		CComponentsText(	CComponentsForm *parent,
 					const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
@@ -118,7 +124,10 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 					Font* font_text = NULL,
 					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_text = COL_MENUCONTENT_TEXT,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		virtual ~CComponentsText();
 
