@@ -884,6 +884,7 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 
 // offsets
 #define OFFSET_SHADOW	6
+#define OFFSET_INTER	6
 
 struct SglobalInfo
 {

@@ -81,8 +81,6 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(reinit);
 }
 
-#define INNER_OFFSET OFFSET_SHADOW
-
 void CUpnpBrowserGui::Init()
 {
 	font_item = SNeutrinoSettings::FONT_TYPE_MENU;
@@ -125,19 +123,19 @@ void CUpnpBrowserGui::Init()
 	/* From top to bottom we have:
 	 *
 	 * topbox (with shadow)
-	 * INNER_OFFSET
+	 * OFFSET_INTER
 	 * mainwindow (with shadow)
 	 *  - header
 	 *  - body (items*listshowmax)
 	 *  - footer
-	 * INNER_OFFSET
+	 * OFFSET_INTER
 	 * infobox/timebox (with shadow)
 	*/
 
-	m_listmaxshow = (m_height - m_topbox_height - OFFSET_SHADOW - INNER_OFFSET - m_header_height - m_footer_height - OFFSET_SHADOW - INNER_OFFSET - m_infobox_height - OFFSET_SHADOW) / (m_item_height);
+	m_listmaxshow = (m_height - m_topbox_height - OFFSET_SHADOW - OFFSET_INTER - m_header_height - m_footer_height - OFFSET_SHADOW - OFFSET_INTER - m_infobox_height - OFFSET_SHADOW) / (m_item_height);
 
 	// recalc height
-	m_height = m_topbox_height + OFFSET_SHADOW + INNER_OFFSET + m_header_height + (m_listmaxshow * m_item_height) + m_footer_height + OFFSET_SHADOW + INNER_OFFSET + m_infobox_height + OFFSET_SHADOW;
+	m_height = m_topbox_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + (m_listmaxshow * m_item_height) + m_footer_height + OFFSET_SHADOW + OFFSET_INTER + m_infobox_height + OFFSET_SHADOW;
 
 	footer.setHeight(m_footer_height);
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
@@ -148,10 +146,10 @@ void CUpnpBrowserGui::Init()
 	m_y=getScreenStartY(m_height);
 
 	// calc positions
-	m_header_y = m_y + m_topbox_height + OFFSET_SHADOW + INNER_OFFSET;
+	m_header_y = m_y + m_topbox_height + OFFSET_SHADOW + OFFSET_INTER;
 	m_item_y = m_header_y + m_header_height;
 	m_footer_y = m_item_y + (m_listmaxshow * m_item_height);
-	m_infobox_y = m_footer_y + m_footer_height + OFFSET_SHADOW + INNER_OFFSET;
+	m_infobox_y = m_footer_y + m_footer_height + OFFSET_SHADOW + OFFSET_INTER;
 }
 
 CUpnpBrowserGui::~CUpnpBrowserGui()
@@ -1124,7 +1122,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 		if(lastname != entry->albumArtURI){
 			tmpname = lastname = entry->albumArtURI.c_str();
 			tmpname = g_PicViewer->DownloadImage(tmpname);
-			int h_image = infobox.getHeight() - INNER_OFFSET - infobox.getCornerRadius();
+			int h_image = infobox.getHeight() - OFFSET_INTER - infobox.getCornerRadius();
 			int y_image = infobox.getYPos() + infobox.getHeight()/2 - h_image/2;
 			if (!image){
 				image = new CComponentsPicture(100, y_image, tmpname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTDARK_PLUS_0);
@@ -1133,7 +1131,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 			}
 			image->setPicture(tmpname);
 			image->setHeight(h_image, true);
-			int x_image = infobox.getXPos() + infobox.getWidth() - image->getWidth() - INNER_OFFSET - infobox.getCornerRadius();
+			int x_image = infobox.getXPos() + infobox.getWidth() - image->getWidth() - OFFSET_INTER - infobox.getCornerRadius();
 			image->setXPos(x_image);
 		}
 	}else{
@@ -1194,7 +1192,7 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 {
 	// Foot info
 	int timebox_width = m_infobox_height; // maybe not enough
-	infobox.setDimensionsAll(m_x, m_infobox_y, m_width - OFFSET_SHADOW - INNER_OFFSET - timebox_width, m_infobox_height);
+	infobox.setDimensionsAll(m_x, m_infobox_y, m_width - OFFSET_SHADOW - OFFSET_INTER - timebox_width, m_infobox_height);
 	timebox.setDimensionsAll(m_x + m_width - timebox_width, infobox.getYPos(), m_infobox_height, timebox_width);
 
 	printf("paintDetails: use_playing %d shown %d\n", use_playing, m_playing_entry_is_shown);

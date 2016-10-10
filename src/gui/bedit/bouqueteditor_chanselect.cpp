@@ -290,7 +290,7 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*iheight;
-	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
+	int ypos2 = y + height + OFFSET_INTER;
 	int ypos1a = ypos1 + (fheight/2);
 	int ypos2a = ypos2 + (info_height/2);
 

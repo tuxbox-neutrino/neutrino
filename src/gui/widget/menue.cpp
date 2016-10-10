@@ -1191,7 +1191,7 @@ void CMenuWidget::calcSize()
 		sb_width=15;
 
 	full_width = /*ConnectLineBox_Width+*/width+sb_width+OFFSET_SHADOW;
-	full_height = height+RADIUS_LARGE+OFFSET_SHADOW*2 /*+hint_height+INFO_BOX_Y_OFFSET*/;
+	full_height = height+RADIUS_LARGE+OFFSET_SHADOW*2 /*+hint_height+OFFSET_INTER*/;
 	/* + ConnectLineBox_Width for the hintbox connection line
 	 * + center_offset for symmetry
 	 * + 20 for setMenuPos calculates 10 pixels border left and right */
@@ -1448,7 +1448,7 @@ void CMenuWidget::paintHint(int pos)
 	int iheight = item->getHeight();
 	int rad = RADIUS_LARGE;
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + fbutton_height + rad + OFFSET_SHADOW + INFO_BOX_Y_OFFSET;
+	int ypos2 = y + height + fbutton_height + rad + OFFSET_SHADOW + OFFSET_INTER;
 	int iwidth = width+sb_width;
 	
 	//init details line and infobox dimensions
