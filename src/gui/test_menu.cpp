@@ -38,7 +38,7 @@
 #include <driver/display.h>
 #include <driver/screen_max.h>
 #include <system/debug.h>
-
+#include <gui/color_custom.h>
 #include <cs_api.h>
 
 #include <unistd.h>
