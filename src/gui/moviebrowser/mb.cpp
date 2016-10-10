@@ -67,7 +67,6 @@
 #include <utime.h>
 //#include <unistd.h>
 #include <gui/pictureviewer.h>
-#include <gui/customcolor.h>
 #include <driver/record.h>
 #include <driver/display.h>
 //#include <system/helpers.h>

@@ -231,7 +231,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///set shadow color
 		virtual void setColorShadow(fb_pixel_t color){col_shadow = color;}
 		///set all basic framebuffer element colors at once
-		///Note: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
+		///Note: Possible color values are defined in "gui/color.h" and "gui/color_custom.h"
 		virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
 
 		///set corner types

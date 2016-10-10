@@ -28,7 +28,6 @@
 #include <neutrino.h>
 
 #include <gui/widget/buttons.h>
-#include <gui/customcolor.h>
 #include <system/settings.h>
 // #include <driver/stacktrace.h>
 

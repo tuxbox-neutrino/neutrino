@@ -49,6 +49,7 @@
 #include <driver/radiotext.h>
 
 #include <gui/color.h>
+#include <gui/color_custom.h>
 #include <gui/epgview.h>
 #include <gui/eventlist.h>
 #include <gui/infoviewer.h>
@@ -64,7 +65,6 @@
 #include <gui/infoclock.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
-#include <gui/customcolor.h>
 
 #include <gui/bouquetlist.h>
 #include <daemonc/remotecontrol.h>

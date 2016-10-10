@@ -54,7 +54,7 @@ class CComponentsPIP : public CComponentsItem
 		CComponentsPIP(	const int x_pos = 0, const int y_pos = 0, const int percent = 30,
 				CComponentsForm *parent = NULL,
 				int shadow_mode = CC_SHADOW_OFF,
-				fb_pixel_t color_frame = COL_BLACK, fb_pixel_t color_body = COL_BACKGROUND_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+				fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BACKGROUND_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 		~CComponentsPIP();
 
 		///set property: width of tv box in pixel

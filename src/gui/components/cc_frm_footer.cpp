@@ -26,6 +26,7 @@
 #endif
 
 #include <neutrino.h>
+#include <gui/color_custom.h>
 #include "cc_frm_footer.h"
 #include <system/debug.h>
 

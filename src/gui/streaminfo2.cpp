@@ -39,8 +39,8 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 #include <gui/color.h>
+#include <gui/color_custom.h>
 #include <gui/widget/icons.h>
-#include <gui/customcolor.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>

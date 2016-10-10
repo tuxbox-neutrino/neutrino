@@ -49,7 +49,6 @@
 #include <gui/followscreenings.h>
 #include <gui/moviebrowser/mb.h>
 #include <gui/movieplayer.h>
-#include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/tmdb.h>
 #include <driver/record.h>

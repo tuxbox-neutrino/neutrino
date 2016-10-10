@@ -28,6 +28,7 @@
 #include <system/helpers.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
+#include <gui/color_custom.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/movieplayer.h>

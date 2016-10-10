@@ -29,7 +29,6 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/color.h>
 #include <gui/widget/icons.h>
-#include <gui/customcolor.h>
 #include <gui/movieplayer.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/frontend_c.h>

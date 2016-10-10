@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <gui/color_custom.h>
 #include <system/debug.h>
 #include "cc_frm_button.h"
 

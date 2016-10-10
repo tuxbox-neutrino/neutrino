@@ -40,6 +40,7 @@
 #include "audiomute.h"
 #include "screensaver.h"
 #include <system/debug.h>
+#include <gui/color_custom.h>
 #include <gui/infoclock.h>
 #include <zapit/zapit.h>
 

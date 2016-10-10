@@ -48,7 +48,6 @@
 #include "gui/keybind_setup.h"
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
-#include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
 #include <system/helpers.h>

@@ -33,7 +33,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <gui/customcolor.h>
 #include <driver/rcinput.h>
 #include <gui/motorcontrol.h>
 #include <gui/scan_setup.h>
