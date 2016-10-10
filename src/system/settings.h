@@ -872,19 +872,25 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define DEFAULT_LCD_AUTODIMM			0x00
 #define DEFAULT_LCD_SHOW_VOLUME			0x01
 
-#define CORNER_RADIUS_LARGE             11
-#define CORNER_RADIUS_MID               7
-#define CORNER_RADIUS_SMALL             5
-#define CORNER_RADIUS_MIN	        3
+#define CORNER_RADIUS_LARGE	11
+#define CORNER_RADIUS_MID	7
+#define CORNER_RADIUS_SMALL	5
+#define CORNER_RADIUS_MIN	3
+#define CORNER_RADIUS_NONE	0
 
-#define RADIUS_LARGE    (g_settings.rounded_corners ? CORNER_RADIUS_LARGE : 0)
-#define RADIUS_MID      (g_settings.rounded_corners ? CORNER_RADIUS_MID : 0)
-#define RADIUS_SMALL    (g_settings.rounded_corners ? CORNER_RADIUS_SMALL : 0)
-#define RADIUS_MIN      (g_settings.rounded_corners ? CORNER_RADIUS_MIN : 0)
+#define RADIUS_LARGE	(g_settings.rounded_corners ? CORNER_RADIUS_LARGE : 0)
+#define RADIUS_MID	(g_settings.rounded_corners ? CORNER_RADIUS_MID : 0)
+#define RADIUS_SMALL	(g_settings.rounded_corners ? CORNER_RADIUS_SMALL : 0)
+#define RADIUS_MIN	(g_settings.rounded_corners ? CORNER_RADIUS_MIN : 0)
+#define RADIUS_NONE	0
 
 // offsets
 #define OFFSET_SHADOW	6
 #define OFFSET_INTER	6
+//#define OFFSET_INNER_LARGE	20
+//#define OFFSET_INNER_MID	10
+//#define OFFSET_INNER_SMALL	5
+
 
 struct SglobalInfo
 {
