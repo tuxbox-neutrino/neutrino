@@ -125,6 +125,8 @@
 
 #define COL_SCROLLBAR_ACTIVE COL_MENUCONTENT_PLUS_3
 #define COL_SCROLLBAR_ACTIVE_PLUS_0 COL_SCROLLBAR_ACTIVE
+#define COL_SCROLLBAR_PASSIVE COL_MENUCONTENT_PLUS_1
+#define COL_SCROLLBAR_PASSIVE_PLUS_0 COL_SCROLLBAR_PASSIVE
 
 int convertSetupColor2RGB(unsigned char r, unsigned char g, unsigned char b);
 int convertSetupAlpha2Alpha(unsigned char alpha);

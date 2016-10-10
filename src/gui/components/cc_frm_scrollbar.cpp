@@ -170,7 +170,7 @@ void CComponentsScrollBar::initSegments()
 			item->setColBodyGradient(CColorGradient::gradientDark2Light2Dark, CFrameBuffer::gradientHorizontal);
 		}
 		else{
-			item->setColorBody(COL_MENUCONTENT_PLUS_1);
+			item->setColorBody(COL_SCROLLBAR_PASSIVE_PLUS_0);
 			item->disableColBodyGradient();
 		}
 	}

@@ -716,7 +716,7 @@ void CBouquetList::paint()
 
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 	int listmaxshow_tmp = listmaxshow ? listmaxshow : 1;//avoid division by zero
 	int sbc= ((bsize - 1)/ listmaxshow_tmp)+ 1; /* bsize is > 0, so sbc is also > 0 */
 	int sbs= (selected/listmaxshow_tmp);
