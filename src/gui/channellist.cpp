@@ -1989,7 +1989,13 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		pb.setDesign(g_settings.channellist_progressbar_design);
 		pb.setCornerType(0);
 		pb.setStatusColors(COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1);
-		pb.setFrameThickness(g_settings.channellist_progressbar_design == CProgressBar::PB_MONO ? 1 : 0);
+		int pb_frame = 0;
+		if (g_settings.channellist_progressbar_design == CProgressBar::PB_MONO && !g_settings.progressbar_gradient)
+		{
+			// add small frame to mono progressbars w/o gradient for a better visibility
+			pb_frame = 1;
+		}
+		pb.setFrameThickness(pb_frame);
 		pb.doPaintBg(false);
 		int pb_max = pb_space - 4;
 
