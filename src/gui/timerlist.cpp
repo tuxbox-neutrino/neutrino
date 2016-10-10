@@ -650,7 +650,7 @@ void CTimerList::hide()
 {
 	if (visible)
 	{
-		frameBuffer->paintBackgroundBoxRel(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET);
+		frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 		visible = false;
 	}
 }
@@ -674,7 +674,7 @@ void CTimerList::paintItem(int pos)
 	else
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	//shadow
-	frameBuffer->paintBoxRel(x + width, ypos, SHADOW_OFFSET, 2*fheight, COL_SHADOW_PLUS_0);
+	frameBuffer->paintBoxRel(x + width, ypos, OFFSET_SHADOW, 2*fheight, COL_SHADOW_PLUS_0);
 	//item
 	frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, bgcolor);
 
@@ -855,7 +855,7 @@ void CTimerList::paintFoot()
 	}
 
 	//shadow
-	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + height - footerHeight, width, footerHeight + SHADOW_OFFSET, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + height - footerHeight, width, footerHeight + OFFSET_SHADOW, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (timerlist.empty())
 		::paintButtons(x, y + height - footerHeight, width, 2, &(TimerListButtons[1]), width);

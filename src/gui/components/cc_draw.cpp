@@ -49,7 +49,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	corner_rad = corner_rad_old		= 0;
 
 	shadow			= CC_SHADOW_OFF;
-	shadow_w = shadow_w_old	= SHADOW_OFFSET;
+	shadow_w = shadow_w_old	= OFFSET_SHADOW;
 	shadow_force		= false;
 
 	cc_paint_cache		= false;

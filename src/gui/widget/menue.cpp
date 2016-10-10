@@ -1190,8 +1190,8 @@ void CMenuWidget::calcSize()
 	if(total_pages > 1)
 		sb_width=15;
 
-	full_width = /*ConnectLineBox_Width+*/width+sb_width+SHADOW_OFFSET;
-	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2 /*+hint_height+INFO_BOX_Y_OFFSET*/;
+	full_width = /*ConnectLineBox_Width+*/width+sb_width+OFFSET_SHADOW;
+	full_height = height+RADIUS_LARGE+OFFSET_SHADOW*2 /*+hint_height+INFO_BOX_Y_OFFSET*/;
 	/* + ConnectLineBox_Width for the hintbox connection line
 	 * + center_offset for symmetry
 	 * + 20 for setMenuPos calculates 10 pixels border left and right */
@@ -1199,7 +1199,7 @@ void CMenuWidget::calcSize()
 	int max_possible = (int)frameBuffer->getScreenWidth() - ConnectLineBox_Width - center_offset - 20;
 	if (full_width > max_possible)
 	{
-		width = max_possible - sb_width - SHADOW_OFFSET;
+		width = max_possible - sb_width - OFFSET_SHADOW;
 		full_width = max_possible + center_offset; /* symmetry in MENU_POS_CENTER case */
 	}
 
@@ -1248,7 +1248,7 @@ void CMenuWidget::paint()
 	header->paint(CC_SAVE_SCREEN_NO);
 
 	// paint body shadow
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y + hheight + SHADOW_OFFSET, width + sb_width, height - hheight + RADIUS_LARGE + (fbutton_count ? fbutton_height : 0), COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x+OFFSET_SHADOW, y + hheight + OFFSET_SHADOW, width + sb_width, height - hheight + RADIUS_LARGE + (fbutton_count ? fbutton_height : 0), COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	// paint body background
 	frameBuffer->paintBoxRel(x, y+hheight, width + sb_width, height-hheight + RADIUS_LARGE, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, (fbutton_count ? CORNER_NONE : CORNER_BOTTOM));
 
@@ -1448,7 +1448,7 @@ void CMenuWidget::paintHint(int pos)
 	int iheight = item->getHeight();
 	int rad = RADIUS_LARGE;
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + fbutton_height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
+	int ypos2 = y + height + fbutton_height + rad + OFFSET_SHADOW + INFO_BOX_Y_OFFSET;
 	int iwidth = width+sb_width;
 	
 	//init details line and infobox dimensions

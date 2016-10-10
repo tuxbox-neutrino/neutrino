@@ -127,14 +127,14 @@ void CVolumeBar::initVolumeBarPosition()
 				if (CNeutrinoApp::getInstance()->getChannellistIsVisible() == true)
 					y += std::max(39, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight()) + v_spacer;
 				else if (g_settings.mode_clock)
-					y = clock_y + clock_height + v_spacer + SHADOW_OFFSET;
+					y = clock_y + clock_height + v_spacer + OFFSET_SHADOW;
 			}
 			x = sw - width - x_corr;
 			break;
 		}
 		case VOLUMEBAR_POS_TOP_LEFT:
 			if (CMoviePlayerGui::getInstance().osdTimeVisible())
-				y = clock_y + clock_height + v_spacer + SHADOW_OFFSET;
+				y = clock_y + clock_height + v_spacer + OFFSET_SHADOW;
 			break;
 		case VOLUMEBAR_POS_BOTTOM_LEFT:
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;

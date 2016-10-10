@@ -359,7 +359,7 @@ void CMsgBox::refreshFoot(void)
 			color   = COL_MENUCONTENTINACTIVE_TEXT;
 			bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 		}
-		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX + SHADOW_OFFSET, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY + SHADOW_OFFSET, ButtonWidth, m_nFontFootHeight + 4, COL_SHADOW_PLUS_0, RADIUS_MID);
+		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX + OFFSET_SHADOW, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY + OFFSET_SHADOW, ButtonWidth, m_nFontFootHeight + 4, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintBoxFrame(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, 1, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos + 14+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);
@@ -382,7 +382,7 @@ void CMsgBox::refreshFoot(void)
 			color   = COL_MENUCONTENTINACTIVE_TEXT;
 			bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 		}
-		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX + SHADOW_OFFSET, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY + SHADOW_OFFSET, ButtonWidth, m_nFontFootHeight + 4, COL_SHADOW_PLUS_0, RADIUS_MID);
+		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX + OFFSET_SHADOW, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY + OFFSET_SHADOW, ButtonWidth, m_nFontFootHeight + 4, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintBoxFrame(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, 1, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos + 14+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);
@@ -405,7 +405,7 @@ void CMsgBox::refreshFoot(void)
 			color   = COL_MENUCONTENTINACTIVE_TEXT;
 			bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 		}
-		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX + SHADOW_OFFSET, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY + SHADOW_OFFSET, ButtonWidth, m_nFontFootHeight + 4, COL_SHADOW_PLUS_0, RADIUS_MID);
+		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX + OFFSET_SHADOW, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY + OFFSET_SHADOW, ButtonWidth, m_nFontFootHeight + 4, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintBoxFrame(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, 1, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+10+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);

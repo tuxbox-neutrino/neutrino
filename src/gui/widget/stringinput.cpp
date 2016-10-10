@@ -394,9 +394,9 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	fb_pixel_t * pixbuf = NULL;
 	if (!parent) {
-		pixbuf = new fb_pixel_t[(width + SHADOW_OFFSET) * (height + SHADOW_OFFSET)];
+		pixbuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
 		if (pixbuf)
-			frameBuffer->SaveScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
+			frameBuffer->SaveScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
 	}
 
 	paint();
@@ -519,7 +519,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	if (pixbuf)
 	{
-		frameBuffer->RestoreScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
+		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
 		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
 		frameBuffer->blit();
 	} else
@@ -541,13 +541,13 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 
 void CStringInput::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET);
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 	frameBuffer->blit();
 }
 
 void CStringInput::paint(bool sms)
 {
-	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + SHADOW_OFFSET, width, height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
+	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + OFFSET_SHADOW, width, height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
 	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, sms ? 0 : RADIUS_LARGE, CORNER_BOTTOM);
 
 	CComponentsHeader header(x, y, width, hheight, head, iconfile);
@@ -901,7 +901,7 @@ const char * CPLPINInput::getHint1(void)
 	}
 }
 
-#define borderwidth SHADOW_OFFSET // FIXME: do we need border around ??
+#define borderwidth OFFSET_SHADOW // FIXME: do we need border around ??
 
 int CPLPINInput::exec( CMenuTarget* parent, const std::string & )
 {

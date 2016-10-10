@@ -48,7 +48,7 @@ CComponentsShapeSquare::CComponentsShapeSquare(	const int x_pos, const int y_pos
 	width 		= width_old = w;
 	height	 	= height_old = h;
 	shadow		= shadow_mode;
-	shadow_w	= SHADOW_OFFSET;
+	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
@@ -76,7 +76,7 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam,
 	y 		= y_pos;
 	//width = height	= d = diam;
 	shadow		= shadow_mode;
-	shadow_w	= SHADOW_OFFSET;
+	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;

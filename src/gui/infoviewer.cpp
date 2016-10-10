@@ -211,7 +211,7 @@ void CInfoViewer::start ()
 	BoxEndY = g_settings.screen_EndY - 10 - infoViewerBB->InfoHeightY_Info - infoViewerBB->bottom_bar_offset;
 	BoxStartY = BoxEndY - InfoHeightY - ChanHeight / 2;
 
-	ChanNameY = BoxStartY + (ChanHeight / 2) + SHADOW_OFFSET;
+	ChanNameY = BoxStartY + (ChanHeight / 2) + OFFSET_SHADOW;
 	ChanInfoX = BoxStartX + (ChanWidth / 3);
 
 	initClock();
@@ -292,12 +292,12 @@ void CInfoViewer::showRecordIcon (const bool show)
 		int txt_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 		int txt_w = 0;
 
-		int box_x = BoxStartX + ChanWidth + 2*SHADOW_OFFSET;
-		int box_y = BoxStartY + SHADOW_OFFSET;
+		int box_x = BoxStartX + ChanWidth + 2*OFFSET_SHADOW;
+		int box_y = BoxStartY + OFFSET_SHADOW;
 		int box_w = 0;
 		int box_h = txt_h;
 
-		int icon_space = SHADOW_OFFSET/2;
+		int icon_space = OFFSET_SHADOW/2;
 
 		int rec_icon_x = 0, rec_icon_w = 0, rec_icon_h = 0;
 		int ts_icon_x  = 0, ts_icon_w  = 0, ts_icon_h  = 0;
@@ -343,7 +343,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 			if (rec == NULL){ //TODO: full refactoring of this icon handler
 				rec = new CComponentsShapeSquare(box_x, box_y , box_w, box_h, NULL, CC_SHADOW_ON, COL_RED, COL_INFOBAR_PLUS_0);
 				rec->setFrameThickness(2);
-				rec->setShadowWidth(SHADOW_OFFSET/2);
+				rec->setShadowWidth(OFFSET_SHADOW/2);
 				rec->setCorner(RADIUS_MIN, CORNER_ALL);
 			}
 			if (rec->getWidth() != box_w)
@@ -392,17 +392,17 @@ void CInfoViewer::paintBackground(int col_NumBox)
 	frameBuffer->paintBackgroundBox(BoxStartX,
 					BoxStartY + ChanHeight - 6,
 					BoxStartX + ChanWidth / 3,
-					BoxEndInfoY + SHADOW_OFFSET);
+					BoxEndInfoY + OFFSET_SHADOW);
 	// kill progressbar + info-line
 	frameBuffer->paintBackgroundBox(BoxStartX + ChanWidth + 40, // 40 for the recording icon!
 					BoxStartY, BoxEndX, BoxStartY + ChanHeight);
 
 	// shadow for channel name, epg data...
-	frameBuffer->paintBox(BoxEndX - c_shadow_width, ChanNameY + SHADOW_OFFSET,
-			      BoxEndX + SHADOW_OFFSET,  BoxEndInfoY + SHADOW_OFFSET,
+	frameBuffer->paintBox(BoxEndX - c_shadow_width, ChanNameY + OFFSET_SHADOW,
+			      BoxEndX + OFFSET_SHADOW,  BoxEndInfoY + OFFSET_SHADOW,
 			      COL_SHADOW_PLUS_0, c_rad_large, CORNER_RIGHT);
-	frameBuffer->paintBox(ChanInfoX + SHADOW_OFFSET, BoxEndInfoY - c_shadow_width,
-			      BoxEndX - c_shadow_width, BoxEndInfoY + SHADOW_OFFSET,
+	frameBuffer->paintBox(ChanInfoX + OFFSET_SHADOW, BoxEndInfoY - c_shadow_width,
+			      BoxEndX - c_shadow_width, BoxEndInfoY + OFFSET_SHADOW,
 			      COL_SHADOW_PLUS_0, c_rad_large, CORNER_BOTTOM_LEFT);
 #endif
 	// background for channel name/logo and clock
@@ -412,10 +412,10 @@ void CInfoViewer::paintBackground(int col_NumBox)
 	paintBody();
 
 	// number box
-	int y_numbox = body->getYPos()-ChanHeight-SHADOW_OFFSET;
+	int y_numbox = body->getYPos()-ChanHeight-OFFSET_SHADOW;
 	if (numbox == NULL){ //TODO: move into an own member, paintNumBox() or so...
 		numbox = new CComponentsShapeSquare(BoxStartX, y_numbox, ChanWidth, ChanHeight);
-		numbox->enableShadow(CC_SHADOW_ON, SHADOW_OFFSET, true);
+		numbox->enableShadow(CC_SHADOW_ON, OFFSET_SHADOW, true);
 	}else
 		numbox->setDimensionsAll(BoxStartX, y_numbox, ChanWidth, ChanHeight);
 	numbox->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : col_NumBox);
@@ -444,7 +444,7 @@ void CInfoViewer::paintHead()
 
 void CInfoViewer::paintBody()
 {
-	int h_body = InfoHeightY - header_height - SHADOW_OFFSET;
+	int h_body = InfoHeightY - header_height - OFFSET_SHADOW;
 	infoViewerBB->initBBOffset();
 	if (!zap_mode)
 		h_body += infoViewerBB->bottom_bar_offset;
@@ -584,7 +584,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	current_channel_id = Channel_Id;
 
 	/* showChannelLogo() changes this, so better reset it every time... */
-	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
+	ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
 
 	paintBackground(COL_INFOBAR_PLUS_0);
 
@@ -761,7 +761,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	}
 
 	/* showChannelLogo() changes this, so better reset it every time... */
-	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
+	ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
 
 
 	paintBackground(col_NumBox);
@@ -1318,8 +1318,8 @@ void CInfoViewer::showRadiotext()
 		rt_dy = 25;
 		rt_x = BoxStartX;
 		rt_y = g_settings.screen_StartY + 10;
-		rt_h = rt_y + 7 + rt_dy*(g_Radiotext->S_RtOsdRows+1)+SHADOW_OFFSET;
-		rt_w = rt_x+rt_dx+SHADOW_OFFSET;
+		rt_h = rt_y + 7 + rt_dy*(g_Radiotext->S_RtOsdRows+1)+OFFSET_SHADOW;
+		rt_w = rt_x+rt_dx+OFFSET_SHADOW;
 		
 		int lines = 0;
 		for (int i = 0; i < g_Radiotext->S_RtOsdRows; i++) {
@@ -1339,7 +1339,7 @@ void CInfoViewer::showRadiotext()
 					sprintf(stext[0], g_Radiotext->RT_PTY == 0 ? "%s %s%s" : "%s (%s)%s", tr("Radiotext"), g_Radiotext->RT_PTY == 0 ? g_Radiotext->RDS_PTYN : g_Radiotext->ptynr2string(g_Radiotext->RT_PTY), ":");
 					
 					// shadow
-					frameBuffer->paintBoxRel(rt_x+SHADOW_OFFSET, rt_y+SHADOW_OFFSET, rt_dx, rt_dy, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP);
+					frameBuffer->paintBoxRel(rt_x+OFFSET_SHADOW, rt_y+OFFSET_SHADOW, rt_dx, rt_dy, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 					frameBuffer->paintBoxRel(rt_x, rt_y, rt_dx, rt_dy, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rt_x+10, rt_y+ 30, rt_dx-20, stext[0], COL_INFOBAR_TEXT, 0, RTisIsUTF);
 				}
@@ -1368,7 +1368,7 @@ void CInfoViewer::showRadiotext()
 			}
 			// Body
 			if (lines) {
-				frameBuffer->paintBoxRel(rt_x+SHADOW_OFFSET, rt_y+rt_dy+SHADOW_OFFSET, rt_dx, 7+rt_dy* g_Radiotext->S_RtOsdRows, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+				frameBuffer->paintBoxRel(rt_x+OFFSET_SHADOW, rt_y+rt_dy+OFFSET_SHADOW, rt_dx, 7+rt_dy* g_Radiotext->S_RtOsdRows, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 				frameBuffer->paintBoxRel(rt_x, rt_y+rt_dy, rt_dx, 7+rt_dy* g_Radiotext->S_RtOsdRows, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 				// RT-Text roundloop
@@ -1719,7 +1719,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (pb_pos > -1)
 	{
 		int pb_w = 112;
-		int pb_startx = BoxEndX - pb_w - SHADOW_OFFSET;
+		int pb_startx = BoxEndX - pb_w - OFFSET_SHADOW;
 		int pb_starty = ChanNameY - (pb_h + 10);
 		if (g_settings.infobar_progressbar)
 		{
@@ -1727,7 +1727,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			pb_w = BoxEndX - 10 - xStart;
 		}
 		int tmpY = CurrInfoY - height - ChanNameY + header_height -
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset()/3+SHADOW_OFFSET;
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset()/3+OFFSET_SHADOW;
 		switch(g_settings.infobar_progressbar){ //set progressbar position
 			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME:
 				pb_h = (pb_h/3);
@@ -1755,7 +1755,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		timescale->enableShadow(!g_settings.infobar_progressbar);
 		timescale->setValues(pb_p, pb_w);
 
-		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h);
+		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - OFFSET_SHADOW, ChanNameY - (pb_h + 10) , pb_w, pb_h);
 	}else{
 		if (g_settings.infobar_progressbar == SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT)
 			timescale->kill();
@@ -2100,7 +2100,7 @@ void CInfoViewer::showInfoFile()
 		infobar_txt = new CComponentsInfoBox();
 		//set some properties for info object
 		infobar_txt->setCorner(RADIUS_SMALL);
-		infobar_txt->enableShadow(CC_SHADOW_ON, SHADOW_OFFSET/2);
+		infobar_txt->enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2);
 		infobar_txt->setTextColor(COL_INFOBAR_TEXT);
 		infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
 		infobar_txt->doPaintTextBoxBg(false);
@@ -2137,7 +2137,7 @@ void CInfoViewer::killTitle()
 		is_visible = false;
 		infoViewerBB->is_visible = false;
 #if 0 //unused
-		int bottom = BoxEndY + SHADOW_OFFSET + infoViewerBB->bottom_bar_offset;
+		int bottom = BoxEndY + OFFSET_SHADOW + infoViewerBB->bottom_bar_offset;
 		if (showButtonBar)
 			bottom += infoViewerBB->InfoHeightY_Info;
 #endif
@@ -2147,8 +2147,8 @@ void CInfoViewer::killTitle()
 			infoViewerBB->getCABar()->kill();
 		if (rec)
 			rec->kill();
-		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET-BoxStartX, bottom-BoxStartY);
-		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
+		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ OFFSET_SHADOW-BoxStartX, bottom-BoxStartY);
+		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ OFFSET_SHADOW, bottom);
 		if (!(zap_mode & IV_MODE_VIRTUAL_ZAP)){
 			if (infobar_txt)
 				infobar_txt->kill();

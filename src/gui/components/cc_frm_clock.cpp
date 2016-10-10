@@ -61,7 +61,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	y 		= y_pos;
 
 	shadow		= shadow_mode;
-	shadow_w	= SHADOW_OFFSET;
+	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;

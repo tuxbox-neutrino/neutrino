@@ -75,7 +75,7 @@ void CMessageBox::Init(const CMessageBox::result_ &Default, const uint32_t ShowB
 	}
 	fh                     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight();
 	b_height               = std::max(fh, ih) + 8 + (RADIUS_MID / 2);
-	m_bbheight             = b_height + fh/2 + ButtonSpacing + SHADOW_OFFSET;
+	m_bbheight             = b_height + fh/2 + ButtonSpacing + OFFSET_SHADOW;
 	result                 = Default;
 	b_width                = getButtonWidth();
 	if (ShowButtons        & CMessageBox::mbBtnAlignCenter1)
@@ -176,7 +176,7 @@ void CMessageBox::paintButtons()
 			bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 		}
 		CFrameBuffer::getInstance()->getIconSize(Buttons[i].icon, &iw, &ih);
-		m_window->paintBoxRel(xpos + SHADOW_OFFSET, ypos + SHADOW_OFFSET, b_width, b_height, COL_SHADOW_PLUS_0, RADIUS_MID);
+		m_window->paintBoxRel(xpos + OFFSET_SHADOW, ypos + OFFSET_SHADOW, b_width, b_height, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_window->paintBoxRel(xpos, ypos, b_width, b_height, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_window->paintBoxFrame(xpos, ypos, b_width, b_height, 1, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_window->paintIcon(Buttons[i].icon, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);

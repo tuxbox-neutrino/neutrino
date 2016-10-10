@@ -60,7 +60,7 @@ void CInfoClock::initCCLockItems()
 	if (paint_bg){
 		cl_col_text = COL_MENUCONTENT_TEXT;
 		setColorBody(COL_MENUCONTENT_PLUS_0);
-		enableShadow(CC_SHADOW_ON, SHADOW_OFFSET/2);
+		enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2);
 	}else{
 		cl_col_text = COL_INFOCLOCK_TEXT;
 		setColorBody(COL_BACKGROUND_PLUS_0);

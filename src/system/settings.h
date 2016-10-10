@@ -882,8 +882,8 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define RADIUS_SMALL    (g_settings.rounded_corners ? CORNER_RADIUS_SMALL : 0)
 #define RADIUS_MIN      (g_settings.rounded_corners ? CORNER_RADIUS_MIN : 0)
 
-// shadow
-#define SHADOW_OFFSET                   6
+// offsets
+#define OFFSET_SHADOW	6
 
 struct SglobalInfo
 {

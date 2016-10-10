@@ -199,7 +199,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const std::string &Capti
 // 	printf("pages: %d, startEntryVec: %d\n",page+1,m_startEntryOfPage.size()-1);
 // 	printf("maxEntries: %d\n", m_maxEntriesPerPage);
 
-	m_width = w_max(maxWidth,SHADOW_OFFSET); 
+	m_width = w_max(maxWidth,OFFSET_SHADOW);
 	m_currentPage = 0;
 	m_pages = page + 1;
 	unsigned int additional_width;
@@ -227,7 +227,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const std::string &Capti
 
 	/* if the output does not fit, make sure we at least
 	 * stay inside the screen... */
-	m_width = w_max(m_width ,SHADOW_OFFSET);
+	m_width = w_max(m_width ,OFFSET_SHADOW);
 	if (maxLineWidth + scrollWidth > m_width)
 		maxLineWidth = m_width - scrollWidth;
 
@@ -250,10 +250,10 @@ void CHintBoxExt::paint(bool toround)
 	}
 
 	bgPainted = false;
-	m_window = new CFBWindow(getScreenStartX(m_width + SHADOW_OFFSET),
-				 getScreenStartY(m_height + SHADOW_OFFSET),
-				 m_width + SHADOW_OFFSET,
-				 m_height + SHADOW_OFFSET);
+	m_window = new CFBWindow(getScreenStartX(m_width + OFFSET_SHADOW),
+				 getScreenStartY(m_height + OFFSET_SHADOW),
+				 m_width + OFFSET_SHADOW,
+				 m_height + OFFSET_SHADOW);
 
 	refresh(toround);
 }
@@ -267,7 +267,7 @@ void CHintBoxExt::refresh(bool toround)
 	
 	if (!bgPainted) {
 		// bottom, right shadow
-		m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_SHADOW_PLUS_0, RADIUS_LARGE, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
+		m_window->paintBoxRel(OFFSET_SHADOW, OFFSET_SHADOW, m_width, m_height, COL_SHADOW_PLUS_0, RADIUS_LARGE, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
 		bgPainted = true;
 	}
 

@@ -81,7 +81,7 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(reinit);
 }
 
-#define INNER_OFFSET SHADOW_OFFSET
+#define INNER_OFFSET OFFSET_SHADOW
 
 void CUpnpBrowserGui::Init()
 {
@@ -134,10 +134,10 @@ void CUpnpBrowserGui::Init()
 	 * infobox/timebox (with shadow)
 	*/
 
-	m_listmaxshow = (m_height - m_topbox_height - SHADOW_OFFSET - INNER_OFFSET - m_header_height - m_footer_height - SHADOW_OFFSET - INNER_OFFSET - m_infobox_height - SHADOW_OFFSET) / (m_item_height);
+	m_listmaxshow = (m_height - m_topbox_height - OFFSET_SHADOW - INNER_OFFSET - m_header_height - m_footer_height - OFFSET_SHADOW - INNER_OFFSET - m_infobox_height - OFFSET_SHADOW) / (m_item_height);
 
 	// recalc height
-	m_height = m_topbox_height + SHADOW_OFFSET + INNER_OFFSET + m_header_height + (m_listmaxshow * m_item_height) + m_footer_height + SHADOW_OFFSET + INNER_OFFSET + m_infobox_height + SHADOW_OFFSET;
+	m_height = m_topbox_height + OFFSET_SHADOW + INNER_OFFSET + m_header_height + (m_listmaxshow * m_item_height) + m_footer_height + OFFSET_SHADOW + INNER_OFFSET + m_infobox_height + OFFSET_SHADOW;
 
 	footer.setHeight(m_footer_height);
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
@@ -148,10 +148,10 @@ void CUpnpBrowserGui::Init()
 	m_y=getScreenStartY(m_height);
 
 	// calc positions
-	m_header_y = m_y + m_topbox_height + SHADOW_OFFSET + INNER_OFFSET;
+	m_header_y = m_y + m_topbox_height + OFFSET_SHADOW + INNER_OFFSET;
 	m_item_y = m_header_y + m_header_height;
 	m_footer_y = m_item_y + (m_listmaxshow * m_item_height);
-	m_infobox_y = m_footer_y + m_footer_height + SHADOW_OFFSET + INNER_OFFSET;
+	m_infobox_y = m_footer_y + m_footer_height + OFFSET_SHADOW + INNER_OFFSET;
 }
 
 CUpnpBrowserGui::~CUpnpBrowserGui()
@@ -1004,7 +1004,7 @@ void CUpnpBrowserGui::paintDevices()
 	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0);
 
 	//shadow
-	m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + SHADOW_OFFSET, SHADOW_OFFSET, sb, COL_SHADOW_PLUS_0);
+	m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + OFFSET_SHADOW, OFFSET_SHADOW, sb, COL_SHADOW_PLUS_0);
 
 	// Foot
 	footer.paintButtons(m_x, m_footer_y, m_width, m_footer_height, 1, &RescanButton, m_width/2);
@@ -1182,7 +1182,7 @@ void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int sel
 	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*((sb-4)/sbc+sbh), 11, (sb-4)/sbc + sbh, COL_SCROLLBAR_ACTIVE_PLUS_0);
 
 	//shadow
-	//m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + SHADOW_OFFSET, SHADOW_OFFSET, sb, COL_SHADOW_PLUS_0);
+	//m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + OFFSET_SHADOW, OFFSET_SHADOW, sb, COL_SHADOW_PLUS_0);
 
 	// Foot buttons
 	size_t numbuttons = sizeof(BrowseButtons)/sizeof(BrowseButtons[0]);
@@ -1194,7 +1194,7 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 {
 	// Foot info
 	int timebox_width = m_infobox_height; // maybe not enough
-	infobox.setDimensionsAll(m_x, m_infobox_y, m_width - SHADOW_OFFSET - INNER_OFFSET - timebox_width, m_infobox_height);
+	infobox.setDimensionsAll(m_x, m_infobox_y, m_width - OFFSET_SHADOW - INNER_OFFSET - timebox_width, m_infobox_height);
 	timebox.setDimensionsAll(m_x + m_width - timebox_width, infobox.getYPos(), m_infobox_height, timebox_width);
 
 	printf("paintDetails: use_playing %d shown %d\n", use_playing, m_playing_entry_is_shown);

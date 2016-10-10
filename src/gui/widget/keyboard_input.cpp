@@ -530,9 +530,9 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 
 	fb_pixel_t * pixbuf = NULL;
 	if (!parent) {
-		pixbuf = new fb_pixel_t[(width + SHADOW_OFFSET) * (height + SHADOW_OFFSET)];
+		pixbuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
 		if (pixbuf)
-			frameBuffer->SaveScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
+			frameBuffer->SaveScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
 	}
 
 	paint();
@@ -626,7 +626,7 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 
 	if (pixbuf)
 	{
-		frameBuffer->RestoreScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
+		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
 		delete[] pixbuf;
 	} else
 		hide();
@@ -644,7 +644,7 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 
 void CKeyboardInput::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET);
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 }
 
 int CKeyboardInput::paintFooter(bool show)
@@ -668,7 +668,7 @@ int CKeyboardInput::paintFooter(bool show)
 
 void CKeyboardInput::paint()
 {
-	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + SHADOW_OFFSET, width, height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
+	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + OFFSET_SHADOW, width, height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
 	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0);
 
 	CComponentsHeader header(x, y, width, hheight, head, iconfile);
