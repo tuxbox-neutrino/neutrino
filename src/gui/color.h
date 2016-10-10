@@ -119,6 +119,9 @@
 #define COL_INFOCLOCK_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 15)])
 #endif
 
+// some wrappers to get more readability
+#define COL_FRAME COL_MENUCONTENT_PLUS_6
+#define COL_FRAME_PLUS_0 COL_FRAME
 
 int convertSetupColor2RGB(unsigned char r, unsigned char g, unsigned char b);
 int convertSetupAlpha2Alpha(unsigned char alpha);

@@ -57,7 +57,7 @@ class CComponentsDetailLine : public CComponents
 	public:
 		CComponentsDetailLine(	const int& x_pos = 1,const int& y_pos_top = 1, const int& y_pos_down = 1,
 					const int& h_mark_top_ = CC_HEIGHT_MIN , const int& h_mark_down_ = CC_HEIGHT_MIN,
-					fb_pixel_t color_line = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_line = COL_FRAME_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 		~CComponentsDetailLine();
 
 		///set colors

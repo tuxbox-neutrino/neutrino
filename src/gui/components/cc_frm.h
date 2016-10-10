@@ -66,7 +66,7 @@ class CComponentsForm : public CComponentsItem
 		CComponentsForm(	const int x_pos = 0, const int y_pos = 0, const int w = 800, const int h = 600,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 		virtual ~CComponentsForm();

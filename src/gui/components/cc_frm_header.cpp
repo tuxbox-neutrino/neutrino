@@ -43,7 +43,7 @@ using namespace std;
 CComponentsHeader::CComponentsHeader(CComponentsForm* parent)
 {
 	//CComponentsHeader
-	initVarHeader(1, 1, 0, 0, "", "", 0, parent, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
+	initVarHeader(1, 1, 0, 0, "", "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
 }
 
 CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,

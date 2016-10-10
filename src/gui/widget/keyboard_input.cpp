@@ -761,7 +761,7 @@ void CKeyboardInput::paintKey(int row, int column)
 
 	int radius = CORNER_RADIUS_SMALL;
 	frameBuffer->paintBoxRel(xpos, ypos, key_w, key_h, bgcolor, radius);
-	frameBuffer->paintBoxFrame(xpos, ypos, key_w, key_h, KEY_FRAME_WIDTH, COL_MENUCONTENT_PLUS_6, radius);
+	frameBuffer->paintBoxFrame(xpos, ypos, key_w, key_h, KEY_FRAME_WIDTH, COL_FRAME_PLUS_0, radius);
 
 	if (keyboard[row][column].empty())
 		return;

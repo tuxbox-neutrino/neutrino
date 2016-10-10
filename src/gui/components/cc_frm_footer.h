@@ -85,7 +85,7 @@ class CComponentsFooter : public CComponentsHeader
 					const int& buttons = 0,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUFOOT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 

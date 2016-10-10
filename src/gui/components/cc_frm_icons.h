@@ -37,7 +37,7 @@ class CComponentsIconForm : public CComponentsFrmChain
 					const std::vector<std::string> &v_icon_names,
 					CComponentsForm* parent,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
@@ -47,7 +47,7 @@ class CComponentsIconForm : public CComponentsFrmChain
 					const std::vector<std::string> &v_icon_names,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 // 		~CComponentsIconForm(); //inherited from CComponentsForm
 

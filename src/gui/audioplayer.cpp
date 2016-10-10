@@ -768,7 +768,7 @@ int CAudioPlayerGui::show()
 					int y1=(g_settings.screen_EndY- g_settings.screen_StartY)/2 + g_settings.screen_StartY;
 					int h = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight();
 					w = std::max(w, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(selectedKey));
-					m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_MENUCONTENT_PLUS_6, RADIUS_SMALL);
+					m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_FRAME_PLUS_0, RADIUS_SMALL);
 					m_frameBuffer->paintBoxRel(x1 - 4, y1 - h - 3, w +  8, h +  6, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_SMALL);
 					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]
 						->RenderString(x1,y1,w+1,selectedKey,COL_MENUCONTENTSELECTED_TEXT);
@@ -1730,7 +1730,7 @@ void CAudioPlayerGui::paintInfo()
 			title_height -= m_fheight;
 
 		m_frameBuffer->paintBoxRel(m_x + 1, m_y + 1 , m_width - 2, title_height - 12, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
-		m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, title_height - 10, 2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
+		m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, title_height - 10, 2, COL_FRAME_PLUS_0, c_rad_mid);
 
 		paintCover();
 
@@ -2272,7 +2272,7 @@ bool CAudioPlayerGui::getNumericInput(neutrino_msg_t& msg, int& val) {
 		sprintf(str, "%d", val);
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(str);
 		int h = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight();
-		m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_MENUCONTENT_PLUS_6);
+		m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_FRAME_PLUS_0);
 		m_frameBuffer->paintBoxRel(x1 - 4, y1 - h - 3, w +  8, h +  6, COL_MENUCONTENTSELECTED_PLUS_0);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(x1, y1, w + 1, str, COL_MENUCONTENTSELECTED_TEXT);
 		while (true)

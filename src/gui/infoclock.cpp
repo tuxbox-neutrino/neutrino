@@ -54,7 +54,7 @@ void CInfoClock::initCCLockItems()
 	paint_bg = g_settings.infoClockBackground;
 
 	//use current theme colors
-	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
 
 	//set text color
 	if (paint_bg){

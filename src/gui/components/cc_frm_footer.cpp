@@ -36,7 +36,7 @@ using namespace std;
 CComponentsFooter::CComponentsFooter(CComponentsForm* parent)
 {
 	//CComponentsFooter
-	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0);
+	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0);
 }
 
 CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -116,7 +116,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	//footer as primary container (in this context '=this') and the parent for the button label container (chain object),
 	//button label container (chain object) itself is concurrent the parent object for button objects.
 	if (chain == NULL){
-		chain = new CComponentsFrmChain(x_chain, CC_CENTERED, w_chain, height, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
+		chain = new CComponentsFrmChain(x_chain, CC_CENTERED, w_chain, height, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_FRAME_PLUS_0, col_body);
 		chain->setCorner(this->corner_rad, this->corner_type);
 		chain->doPaintBg(false);
 	}

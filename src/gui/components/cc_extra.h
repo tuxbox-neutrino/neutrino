@@ -61,7 +61,7 @@
 *						@li ColorGradient::light
 *						@li ColorGradient::normal (default)
 *						@li CFrameBuffer::advanced
-*	@param[in] color_frame 			color of frame around box, default = COL_MENUCONTENT_PLUS_6
+*	@param[in] color_frame 			color of frame around box, default = COL_FRAME_PLUS_0
 *	@param[in] shadow_mode 			enable/disable shadow behind box, default = CC_SHADOW_OFF
 *	@param[in] color_shadow 		color of shadow, default = COL_SHADOW_PLUS_0
 *
@@ -86,7 +86,7 @@ bool paintBoxRel(	const int& x,
 			const int& gradient_direction = CFrameBuffer::gradientVertical,
 			const int& gradient_intensity = CColorGradient::normal,
 			const int& w_frame = 0,
-			const fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
+			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 			int shadow_mode = CC_SHADOW_OFF,
 			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 
@@ -108,7 +108,7 @@ bool paintBoxRel(	const int& x,
 *						@li CORNER_LEFT
 *						@li CORNER_BOTTOM
 *						@li CORNER_ALL
-*	@param[in] color_frame 			color of frame around box, default = COL_MENUCONTENT_PLUS_6
+*	@param[in] color_frame 			color of frame around box, default = COL_FRAME_PLUS_0
 *	@param[in] shadow_mode 			enable/disable shadow behind box, default = CC_SHADOW_OFF
 *	@param[in] color_shadow 		color of shadow, default = COL_SHADOW_PLUS_0
 *
@@ -129,7 +129,7 @@ bool paintBoxRel0(	const int& x,
 			const int& radius = 0,
 			const int& corner_type = CORNER_NONE,
 			const int& w_frame = 0,
-			const fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
+			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 			int shadow_mode = CC_SHADOW_OFF,
 			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 
@@ -173,7 +173,7 @@ bool paintBoxRel0(	const int& x,
 *						@li ColorGradient::light
 *						@li ColorGradient::normal (default)
 *						@li CFrameBuffer::advanced
-*	@param[in] color_frame 			color of frame around box, default = COL_MENUCONTENT_PLUS_6
+*	@param[in] color_frame 			color of frame around box, default = COL_FRAME_PLUS_0
 *	@param[in] shadow_mode 			enable/disable shadow behind box, default = CC_SHADOW_OFF
 *	@param[in] color_shadow 		color of shadow, default = COL_SHADOW_PLUS_0
 *
@@ -204,7 +204,7 @@ bool paintTextBoxRel(	const std::string& text,
 			const int& gradient_sec_col = COL_MENUCONTENT_PLUS_0,
 			const int& gradient_direction = CFrameBuffer::gradientVertical,
 			const int& gradient_intensity = CColorGradient::normal,
-			const fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
+			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 			int shadow_mode = CC_SHADOW_OFF,
 			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 
@@ -248,7 +248,7 @@ bool paintTextBoxRel(	const std::string& text,
 *						@li ColorGradient::light
 *						@li ColorGradient::normal (default)
 *						@li CFrameBuffer::advanced
-*	@param[in] color_frame 			color of frame around box, default = COL_MENUCONTENT_PLUS_6
+*	@param[in] color_frame 			color of frame around box, default = COL_FRAME_PLUS_0
 *	@param[in] shadow_mode 			enable/disable shadow behind box, default = CC_SHADOW_OFF
 *	@param[in] color_shadow 		color of shadow, default = COL_SHADOW_PLUS_0
 *
@@ -270,7 +270,7 @@ bool paintImage(	const std::string& image_name,
 			const fb_pixel_t& color_body = 0,
 			const int& radius = 0,
 			const int& corner_type = CORNER_NONE,
-			const fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
+			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 			int shadow_mode = CC_SHADOW_OFF,
 			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 #endif

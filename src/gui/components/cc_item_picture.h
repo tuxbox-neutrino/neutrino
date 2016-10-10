@@ -112,7 +112,7 @@ class CComponentsPicture : public CComponentsItem
 					const std::string& image_name,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_background = 0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int transparent = CFrameBuffer::TM_NONE);
@@ -128,7 +128,7 @@ class CComponentsPicture : public CComponentsItem
 					const std::string& image_name,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_background = 0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int transparent = CFrameBuffer::TM_NONE);
@@ -196,7 +196,7 @@ class 	CComponentsPictureScalable : public CComponentsPicture
 						const std::string& image_name,
 						CComponentsForm *parent = NULL,
 						int shadow_mode = CC_SHADOW_OFF,
-						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+						fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 						fb_pixel_t color_background = 0,
 						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 						int transparent = CFrameBuffer::TM_NONE)
@@ -231,7 +231,7 @@ class CComponentsChannelLogo : public CComponentsPicture
 					const uint64_t& channelId =0,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_background = 0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int transparent = CFrameBuffer::TM_BLACK);
@@ -247,7 +247,7 @@ class CComponentsChannelLogo : public CComponentsPicture
 					const uint64_t& channelId =0,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_background = 0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int transparent = CFrameBuffer::TM_BLACK);
@@ -280,7 +280,7 @@ class 	CComponentsChannelLogoScalable : public CComponentsChannelLogo
 						const uint64_t& channelId =0,
 						CComponentsForm *parent = NULL,
 						int shadow_mode = CC_SHADOW_OFF,
-						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+						fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 						fb_pixel_t color_background = 0,
 						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 						int transparent = CFrameBuffer::TM_BLACK)

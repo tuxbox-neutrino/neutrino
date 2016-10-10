@@ -110,7 +110,7 @@ class CComponentsWindow : public CComponentsForm
 					const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 		///initialize width and height
@@ -135,7 +135,7 @@ class CComponentsWindow : public CComponentsForm
 					const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
@@ -145,7 +145,7 @@ class CComponentsWindow : public CComponentsForm
 					const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
@@ -231,7 +231,7 @@ class CComponentsWindowMax : public CComponentsWindow
 		CComponentsWindowMax(	const std::string& caption, const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
@@ -239,7 +239,7 @@ class CComponentsWindowMax : public CComponentsWindow
 		CComponentsWindowMax(	neutrino_locale_t locale_caption, const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 };

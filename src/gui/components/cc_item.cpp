@@ -148,7 +148,7 @@ void CComponentsItem::syncSysColors()
 {
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 	col_shadow 	= COL_SHADOW_PLUS_0;
-	col_frame 	= COL_MENUCONTENT_PLUS_6;
+	col_frame 	= COL_FRAME_PLUS_0;
 }
 
 //returns current item element type, if no available, return -1 as unknown type

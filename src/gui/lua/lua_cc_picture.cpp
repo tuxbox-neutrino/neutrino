@@ -78,7 +78,7 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	lua_Integer x=10, y=10, dx=100, dy=100;
 	std::string image_name        = "";
 	lua_Integer alignment         = 0;
-	lua_Unsigned color_frame      = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_frame      = (lua_Unsigned)COL_FRAME_PLUS_0;
 	lua_Unsigned color_background = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
 	lua_Unsigned color_shadow     = (lua_Unsigned)COL_SHADOW_PLUS_0;
 

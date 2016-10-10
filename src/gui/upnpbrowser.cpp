@@ -89,7 +89,7 @@ void CUpnpBrowserGui::Init()
 
 	topbox.enableFrame(true, 2);
 	topbox.setCorner(RADIUS_LARGE);
-	topbox.setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, COL_MENUHEAD_TEXT);
+	topbox.setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, COL_MENUHEAD_TEXT);
 	topbox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]);
 	topbox.enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 	topbox.enableShadow(CC_SHADOW_ON, -1, true);

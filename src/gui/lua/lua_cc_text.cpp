@@ -83,7 +83,7 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	lua_Integer mode          = CTextBox::AUTO_WIDTH;
 	lua_Integer font_text     = SNeutrinoSettings::FONT_TYPE_MENU;
 	lua_Unsigned color_text   = (lua_Unsigned)COL_MENUCONTENT_TEXT;
-	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_FRAME_PLUS_0;
 	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
 	lua_Unsigned color_shadow = (lua_Unsigned)COL_SHADOW_PLUS_0;
 
