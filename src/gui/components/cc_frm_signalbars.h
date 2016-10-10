@@ -69,6 +69,10 @@ class CSignalBar : public CComponentsForm, public CCTextScreen
 		CNeutrinoFonts 		*dy_font;
 		///property: text color, see also setTextColor()
 		fb_pixel_t 		sb_caption_color;
+		///property: active color, see also setActiveColor()
+		fb_pixel_t		sb_active_color;
+		///property: passive color, see also setPassiveColor()
+		fb_pixel_t		sb_passive_color;
 
 		///property: item top position
 		int sb_item_top;
@@ -121,6 +125,10 @@ class CSignalBar : public CComponentsForm, public CCTextScreen
 		virtual void setTextFont(Font* font_text){sb_font = font_text;};
 		///sets the caption color, see also property 'sb_caption_color'
 		virtual void setTextColor(const fb_pixel_t& caption_color){ sb_caption_color = caption_color;};
+		///set active color, see also property 'sb_active_color'
+		virtual void setActiveColor(const fb_pixel_t& active_color){ sb_active_color = active_color;};
+		///set passive color, see also property 'sb_passive_color'
+		virtual void setPassiveColor(const fb_pixel_t& passive_color){ sb_passive_color = passive_color;};
 		///assigns the height of scale
 		virtual void setScaleHeight(const int& scale_height){sb_scale_height = scale_height;};
 		///assigns the width of scale
@@ -277,6 +285,10 @@ class CSignalBox : public CComponentsForm, public CCTextScreen
 		int 		sbx_bar_x;
 		///property: text color, see also setTextColor()
 		fb_pixel_t 	sbx_caption_color;
+		///property: active color, see also setActiveColor()
+		fb_pixel_t	sbx_active_color;
+		///property: passive color, see also setPassiveColor()
+		fb_pixel_t	sbx_passive_color;
 
 		// true if vertical arrangement, false if horizontal
 		bool vertical;
@@ -306,6 +318,16 @@ class CSignalBox : public CComponentsForm, public CCTextScreen
 		///get caption color of signalbars, see also property 'sbx_caption_color'
 		fb_pixel_t getTextColor(){return sbx_caption_color;};
 		
+		///set active color of signalbars, see also property 'sbx_active_color'
+		void setActiveColor(const fb_pixel_t& active_color){ sbx_active_color = active_color;};
+		///get active color of signalbars, see also property 'sbx_active_color'
+		fb_pixel_t getActiveColor(){return sbx_active_color;};
+
+		///set passive color of signalbars, see also property 'sbx_passive_color'
+		void setPassiveColor(const fb_pixel_t& passive_color){ sbx_passive_color = passive_color;};
+		///get passive color of signalbars, see also property 'sbx_passive_color'
+		fb_pixel_t getPassiveColor(){return sbx_passive_color;};
+
 		///paint items
 		void paint(bool do_save_bg);
 

@@ -59,7 +59,9 @@ void CSignalBar::initVarSigBar(const int& xpos, const int& ypos, const int& w, c
 	sb_scale_height = -1;
 	dy_font 	= CNeutrinoFonts::getInstance();
 
-	sb_caption_color= COL_INFOBAR_TEXT;
+	sb_caption_color= COL_MENUCONTENT_TEXT;
+	sb_active_color = COL_PROGRESSBAR_ACTIVE_PLUS_0;
+	sb_passive_color= COL_PROGRESSBAR_PASSIVE_PLUS_0;
 	sb_val_mode 	= CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT;
 
 	sb_lastsig 	= 0;
@@ -109,6 +111,8 @@ void CSignalBar::initSBItems()
 		//and set required color for text to name label
 		CSignalBox *sbx = static_cast<CSignalBox*>(cc_parent);
 		sb_caption_color = sbx->getTextColor();
+		sb_active_color  = sbx->getActiveColor();
+		sb_passive_color = sbx->getPassiveColor();
 	}
 
 	//init items scale, value and name
@@ -127,11 +131,11 @@ void CSignalBar::initSBarScale()
 	int scale_y = (sb_item_height/2 - sb_scale_height/2);
 	sb_scale->setDimensionsAll(fr_thickness, scale_y, sb_scale_width, sb_scale_height);
 	sb_scale->setColorBody(col_body);
-
+	sb_scale->setActiveColor(sb_active_color);
+	sb_scale->setPassiveColor(sb_passive_color);
 	//add scale object to container
 	if(!sb_scale->isAdded())
 		addCCItem(sb_scale);
-
 }
 
 void CSignalBar::initSBarValue()
@@ -181,7 +185,6 @@ void CSignalBar::initSBarName()
 	//set current text and body color
 	sb_lbl->setTextColor(sb_caption_color);
 	sb_lbl->setColorBody(col_body);
-
 
 	//add name label object to container
 	if (!sb_lbl->isAdded())
@@ -295,7 +298,9 @@ void CSignalBox::initVarSigBox()
 	height 		= 3* SB_MIN_HEIGHT;
 	sbx_bar_height	= height/2;
 	sbx_bar_x	= corner_rad;
-	sbx_caption_color = COL_INFOBAR_TEXT;
+	sbx_caption_color = COL_MENUCONTENT_TEXT;
+	sbx_active_color  = COL_PROGRESSBAR_ACTIVE_PLUS_0;
+	sbx_passive_color = COL_PROGRESSBAR_PASSIVE_PLUS_0;
 	vertical = true;
 }
 
@@ -316,12 +321,18 @@ void CSignalBox::initSignalItems()
 
 	sbar->setDimensionsAll(sbar_x, 1, sbar_w, sbar_h);
 	sbar->setFrontEnd(sbx_frontend);
+	sbar->setTextColor(sbx_caption_color);
+	sbar->setActiveColor(sbx_active_color);
+	sbar->setPassiveColor(sbx_passive_color);
 	sbar->setCorner(0);
 	sbar->setScaleHeight(scale_h);
 	sbar->enableTboxSaveScreen(cc_txt_save_screen);
 
 	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : 1, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
+	snrbar->setTextColor(sbx_caption_color);
+	snrbar->setActiveColor(sbx_active_color);
+	snrbar->setPassiveColor(sbx_passive_color);
 	snrbar->setCorner(0);
 	snrbar->setScaleHeight(scale_h);
 	snrbar->enableTboxSaveScreen(cc_txt_save_screen);

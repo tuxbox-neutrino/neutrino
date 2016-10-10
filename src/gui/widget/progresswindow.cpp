@@ -67,9 +67,9 @@ void CProgressWindow::Init()
 	local_bar->allowPaint(false);
 	local_bar->setDimensionsAll(x_item, y_item, w_item, h_pbar);
 	local_bar->setColorBody(col_body);
-	local_bar->setActiveColor(COL_MENUCONTENT_PLUS_7);
+	local_bar->setActiveColor(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	local_bar->setFrameThickness(w_bar_frame);
-	local_bar->setColorFrame(COL_MENUCONTENT_PLUS_7);
+	local_bar->setColorFrame(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	addWindowItem(local_bar);
 	y_item += 2*h_pbar;
 
@@ -78,9 +78,9 @@ void CProgressWindow::Init()
 	global_bar->allowPaint(false);
 	global_bar->setDimensionsAll(x_item, y_item, w_item, h_pbar);
 	global_bar->setColorBody(col_body);
-	global_bar->setActiveColor(COL_MENUCONTENT_PLUS_7);
+	global_bar->setActiveColor(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	global_bar->setFrameThickness(w_bar_frame);
-	global_bar->setColorFrame(COL_MENUCONTENT_PLUS_7);
+	global_bar->setColorFrame(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	addWindowItem(global_bar);
 	y_item += 2*h_pbar;
 
