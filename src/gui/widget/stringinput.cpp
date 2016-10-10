@@ -547,7 +547,7 @@ void CStringInput::hide()
 
 void CStringInput::paint(bool sms)
 {
-	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + SHADOW_OFFSET, width, height, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
+	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + SHADOW_OFFSET, width, height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
 	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, sms ? 0 : RADIUS_LARGE, CORNER_BOTTOM);
 
 	CComponentsHeader header(x, y, width, hheight, head, iconfile);
