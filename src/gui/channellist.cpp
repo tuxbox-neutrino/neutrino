@@ -1848,42 +1848,59 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 	int ypos = y+ theight + pos*fheight;
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
-	bool iscurrent = true;
+	bool is_available = true;
 	bool paintbuttons = false;
 	unsigned int curr = liststart + pos;
-	fb_pixel_t c_rad_small = 0;
+	fb_pixel_t c_radius = 0;
 
-	if(curr < (*chanlist).size()) {
+	if (curr < (*chanlist).size())
+	{
 		if (edit_state)
-			iscurrent = !((*chanlist)[curr]->flags & CZapitChannel::NOT_PRESENT);
+			is_available = !((*chanlist)[curr]->flags & CZapitChannel::NOT_PRESENT);
 		else
-			iscurrent = SameTP((*chanlist)[curr]);
+			is_available = SameTP((*chanlist)[curr]);
 	}
 
-	if(selected >= (*chanlist).size())
+	if (selected >= (*chanlist).size())
 		selected = (*chanlist).size()-1;
 
-	if (curr == selected) {
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
+	unsigned int is_tuned = (getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber() && new_zap_mode != 2 /*active*/);
+
+	if (curr == selected)
+	{
+		if (is_tuned)
+		{
+			color   = COL_MENUCONTENTSELECTED_TEXT_PLUS_2;
+			bgcolor = COL_MENUCONTENTSELECTED_PLUS_2;
+		}
+		else
+		{
+			color   = COL_MENUCONTENTSELECTED_TEXT;
+			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
+		}
 		paintItem2DetailsLine (pos);
 		paintDetails(curr);
 		paintAdditionals(curr);
-		c_rad_small = RADIUS_LARGE;
+		c_radius = RADIUS_LARGE;
 		paintbuttons = true;
 	}
-	else if (getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber()  && new_zap_mode != 2/*active*/)
+	else
 	{
-		color   = !displayNext ? COL_MENUCONTENT_TEXT  : COL_MENUCONTENTINACTIVE_TEXT;
-		bgcolor = !displayNext ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENTINACTIVE_PLUS_0;
-		c_rad_small = RADIUS_LARGE;
-	} else {
-		color = iscurrent ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
-		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
+		if (is_tuned)
+		{
+			color   = !displayNext ? COL_MENUCONTENT_TEXT_PLUS_2 : COL_MENUCONTENTINACTIVE_TEXT;
+			bgcolor = !displayNext ? COL_MENUCONTENT_PLUS_2 : COL_MENUCONTENTINACTIVE_PLUS_0;
+			c_radius = RADIUS_LARGE;
+		}
+		else
+		{
+			color   = is_available ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
+			bgcolor = is_available ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
+		}
 	}
 
 	if(!firstpaint || (curr == selected) || getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber())
-		  frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
+		  frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_radius);
 
 	if(curr < (*chanlist).size()) {
 		char nameAndDescription[255];
@@ -1941,7 +1958,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 		//paint buttons
 		if (paintbuttons)
-			paintButtonBar(iscurrent);
+			paintButtonBar(is_available);
 
 		int icon_space = r_icon_w+s_icon_w;
 
