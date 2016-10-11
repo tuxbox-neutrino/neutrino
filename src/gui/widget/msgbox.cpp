@@ -218,11 +218,10 @@ int CMsgBox::exec()
 
 	ccw_footer->getSelectedButtonObject()->setButtonAlias(mb_show_button);
 	int selected = ccw_footer->getSelectedButton();
-
-
-	dprintf(DEBUG_NORMAL, "\033[32m[CMsgBox]   [%s - %d] getSelectedButton()= %d\033[0m\n", __func__, __LINE__,ccw_footer->getSelectedButton());
-
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+
+	if (timeout > 0)
+		showTimeOutBar();
 
 	bool loop = true;
 	while (loop)

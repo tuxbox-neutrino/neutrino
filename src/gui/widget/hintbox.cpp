@@ -125,6 +125,7 @@ CHintBox::CHintBox(	const char * const Caption,
 	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
 }
 
+
 void CHintBox::init(const std::string& Text, const int& Width, const std::string& Picon, const int& header_buttons, const int& text_mode, const int& indent)
 {
 	lines = 0;
@@ -154,8 +155,38 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	y_hint_obj 	= 0;
 	h_hint_obj	= obj_content->getHeight();
 
+	//initialize timeout bar and its timer
+	timeout_pb 	= NULL;
+	timeout_pb_timer= NULL;
+
 	if (!Text.empty())
 		addHintItem(Text, text_mode, Picon);
+}
+
+CHintBox::~CHintBox()
+{
+	if(timeout_pb){
+		delete timeout_pb; timeout_pb = NULL;
+	}
+	if(timeout_pb_timer){
+		delete timeout_pb_timer; timeout_pb_timer = NULL;
+	}
+}
+
+void CHintBox::showTimeOutBar()
+{
+	if(timeout_pb){
+		timeout_pb->paint0();
+		timeout_pb->setValues(timeout_pb->getValue()+1, timeout);
+	}else{
+		timeout_pb = new CProgressBar();
+		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), 8);
+		timeout_pb->setValues(0, timeout);
+		if (!timeout_pb_timer)
+			timeout_pb_timer = new CComponentsTimer(1);
+		timeout_pb_timer->OnTimer.connect(sigc::mem_fun0(this, &CHintBox::showTimeOutBar));
+		timeout_pb_timer->startTimer();
+	}
 }
 
 int CHintBox::exec()
@@ -164,6 +195,9 @@ int CHintBox::exec()
 	neutrino_msg_data_t data;
 	int res = messages_return::none;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+
+	if (timeout > 0)
+		showTimeOutBar();
 
 	while ( ! ( res & ( messages_return::cancel_info | messages_return::cancel_all ) ) )
 	{
@@ -393,7 +427,6 @@ void CHintBox::scroll_down(const uint& hint_id)
 {
 	Scroll(true, hint_id);
 }
-
 
 int ShowHint(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon, const char * const Picon, const int& header_buttons)
 {

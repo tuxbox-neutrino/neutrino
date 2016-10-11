@@ -64,6 +64,10 @@ class CHintBox : public CComponentsWindow
 		///content container object, contains the hint objects, it's a child of body object
 		CComponentsFrmChain *obj_content;
 
+		///timeout bar
+		CProgressBar *timeout_pb;
+		CComponentsTimer *timeout_pb_timer;
+
 		///scroll handler, default down and for the 1st hint item (=0), NOTE: exec() must be called! see also scroll_down()/scroll_up()
 		void Scroll(bool down, const uint& hint_id = 0);
 
@@ -115,11 +119,13 @@ class CHintBox : public CComponentsWindow
 				const int& text_mode = 0,
 				const int& indent = W_FRAME);
 
-		//~CHintBox(); //inherited
+		virtual ~CHintBox();
 		int exec();
 
 		///define timeout, timeout is enabled if parameter1 > -1
-		virtual void setTimeOut(const int& Timeout){timeout = Timeout;};
+		virtual void setTimeOut(const int& Timeout){timeout = Timeout;}
+		///shows timeout as progressbar
+		void showTimeOutBar();
 
 		///scroll handler for text objects: NOTE: exec() must be called ! see also Scroll()
 		///scroll up handler, default for the 1st hint item (=0), item id arises from the order of added items with addHintItem(), default we have minimal one item with id=0
