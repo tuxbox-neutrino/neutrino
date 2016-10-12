@@ -180,7 +180,7 @@ void CHintBox::showTimeOutBar()
 		timeout_pb->setValues(timeout_pb->getValue()+1, timeout);
 	}else{
 		timeout_pb = new CProgressBar();
-		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), 8);
+		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
 		timeout_pb->setValues(0, timeout);
 		if (!timeout_pb_timer)
 			timeout_pb_timer = new CComponentsTimer(1);
@@ -253,7 +253,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	int h_line = font->getHeight();
 
 	//init side picon object
-	CComponentsPicture *obj_picon = new CComponentsPicture(0, 0, Picon);
+	CComponentsPicture *obj_picon = new CComponentsPicture(0, timeout > 0 ? TIMEOUT_BAR_HEIGHT : 0, Picon);
 	obj_picon->doPaintBg(false);
 	obj_picon->SetTransparent(CFrameBuffer::TM_BLACK);
 	int w_picon = obj_picon->getWidth();
@@ -263,7 +263,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	int w_text_obj = obj_content->getWidth() - w_picon - w_indentation;
 	int h_text_obj = max(h_line, obj_picon->getHeight());
 	CComponentsText *obj_text = new CComponentsText(x_text_obj,
-							0,
+							timeout > 0 ? TIMEOUT_BAR_HEIGHT : 0,
 							w_text_obj,
 							h_text_obj,
 							Text,
