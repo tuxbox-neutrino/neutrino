@@ -331,7 +331,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	bool dont_hide = false;
 	paintHead(channel_id, channelname, channelname_prev, channelname_next);
 	paint(channel_id);
-	showFunctionBar(true, channel_id);
+	showFunctionBar(channel_id);
 
 	int oldselected = selected;
 
@@ -378,7 +378,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			else
 				paintItem(selected - liststart, channel_id);
 
-			showFunctionBar(true, channel_id);
+			showFunctionBar(channel_id);
 		}
 		//sort
 		else if (!showfollow && (msg == (neutrino_msg_t)g_settings.key_channelList_sort))
@@ -436,7 +436,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					timerlist.clear();
 					g_Timerd->getTimerList (timerlist);
 					paint(evtlist[selected].channelID);
-					showFunctionBar(true, evtlist[selected].channelID);
+					showFunctionBar(evtlist[selected].channelID);
 					continue;
 				}
 				std::string recDir = g_settings.network_nfs_recordingdir;
@@ -491,7 +491,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);
 				paint(used_id);
-				showFunctionBar(true, used_id);
+				showFunctionBar(used_id);
 			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_channelList_addremind )//add/remove zapto timer event
@@ -503,7 +503,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);
 				paint(evtlist[selected].channelID);
-				showFunctionBar(true, evtlist[selected].channelID);
+				showFunctionBar(evtlist[selected].channelID);
 				continue;
 			}
 			
@@ -515,7 +515,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			timerlist.clear();
 			g_Timerd->getTimerList (timerlist);
 			paint(evtlist[selected].channelID );
-			showFunctionBar(true, evtlist[selected].channelID );
+			showFunctionBar(evtlist[selected].channelID );
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel)
@@ -526,7 +526,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				paintHead(channel_id, channelname);
 				readEvents(epg_id);
 				paint(channel_id);
-				showFunctionBar(true, channel_id);
+				showFunctionBar(channel_id);
 			} else {
 				selected = oldselected;
 				if(fader.StartFadeOut()) {
@@ -589,7 +589,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			oldEventID = -1;
 			bgRightBoxPaint = false;
 			paint(channel_id);
-			showFunctionBar(true, channel_id);
+			showFunctionBar(channel_id);
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
 		else if (msg == CRCInput::RC_epg)
@@ -632,7 +632,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					oldEventID = -1;
 					bgRightBoxPaint = false;
 					paint(channel_id);
-					showFunctionBar(true, channel_id);
+					showFunctionBar(channel_id);
 					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 				}
 			}
@@ -938,18 +938,12 @@ void CEventList::paint(t_channel_id channel_id)
 
 }
 
-void  CEventList::showFunctionBar (bool show, t_channel_id channel_id)
+void CEventList::showFunctionBar(t_channel_id channel_id)
 {
 	int bx = x;
 	int bw = full_width;
 	int bh = iheight;
 	int by = y + height - bh;
-
-	if (! show) {
-		// -- hide only?
-		frameBuffer->paintBackgroundBoxRel(bx,by,bw,bh);
-		return;
-	}
 
 	CColorKeyHelper keyhelper; //user_menue.h
 	neutrino_msg_t dummy = CRCInput::RC_nokey;
@@ -1160,7 +1154,7 @@ bool CEventList::findEvents(t_channel_id channel_id, std::string channelname)
 	else
 		paintHead(channel_id, channelname);
 	paint();
-	showFunctionBar(true, channel_id);
+	showFunctionBar(channel_id);
 	return(res);
 }
 

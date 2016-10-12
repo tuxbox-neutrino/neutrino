@@ -114,7 +114,7 @@ class CEventList : public CListHelpers
 	void paint(t_channel_id channel_id = 0);
 	void paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev = "", std::string _channelname_next = "");
 	void hide();
-	void showFunctionBar(bool show, t_channel_id channel_id);
+	void showFunctionBar(t_channel_id channel_id);
 	
 	int timerPre;
 	int timerPost;
