@@ -363,14 +363,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 		if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup || 
 			msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
-			bool paint_buttonbar = false; //function bar
 			int prev_selected = selected;
-			// TODO: do we need this at all? Search button is always painted IIUC...
-			if ((g_settings.key_channelList_addremind != (int)CRCInput::RC_nokey) ||
-			    (g_settings.key_channelList_sort != (int)CRCInput::RC_nokey) ||
-			    ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
-			     (g_settings.key_channelList_addrecord != (int)CRCInput::RC_nokey)))
-				paint_buttonbar = true;
 			int new_sel = UpDownKey(evtlist, msg, listmaxshow, selected);
 			if (new_sel >= 0) {
 				selected = new_sel;
@@ -385,7 +378,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			else
 				paintItem(selected - liststart, channel_id);
 
-			showFunctionBar(paint_buttonbar, channel_id);
+			showFunctionBar(true, channel_id);
 		}
 		//sort
 		else if (!showfollow && (msg == (neutrino_msg_t)g_settings.key_channelList_sort))
