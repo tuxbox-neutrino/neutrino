@@ -87,6 +87,8 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 
 	//enable footer and add its height
 	showFooter(true);
+	ccw_h_footer = ccw_footer->getHeight()+OFFSET_INNER_MID;
+	ccw_footer->setHeight(ccw_h_footer);
 	btn_enable_bg = false;
 	ccw_col_footer = ccw_body->getColorBody();
 	ccw_footer->doPaintBg(false);
