@@ -173,6 +173,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 		///returns current text content of text/label object as std::string
 		virtual std::string getText(){return ct_text;};
 
+		///return current font
+		Font* getFont(){return ct_font;}
+
 		///set screen x-position, parameter as int
 		virtual void setXPos(const int& xpos);
 		///set screen y-position, parameter as int
