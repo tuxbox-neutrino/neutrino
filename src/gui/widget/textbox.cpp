@@ -160,8 +160,8 @@ void CTextBox::initVar(void)
 	m_nLinesPerPage 	= 0;
 	m_nCurrentLine 		= 0;
 	m_nCurrentPage 		= 0;
-	text_Hborder_width 	= 8; //border left and right
-	text_Vborder_width	= 8; //border top and buttom
+	text_Hborder_width 	= OFFSET_INNER_MID; //border left and right
+	text_Vborder_width	= OFFSET_INNER_MID; //border top and buttom
 
 	m_cFrame.iX		= m_old_x = g_settings.screen_StartX + ((g_settings.screen_EndX - g_settings.screen_StartX - MIN_WINDOW_WIDTH) >>1);
 	m_cFrame.iWidth		= m_old_dx = MIN_WINDOW_WIDTH;
