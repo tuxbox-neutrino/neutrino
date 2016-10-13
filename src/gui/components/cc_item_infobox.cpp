@@ -70,7 +70,7 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 	pic 		= NULL;
 	cctext		= NULL;
 	pic_name	= "";
-	x_offset	= 10;
+	x_offset	= OFFSET_INNER_MID;
 	initParent(parent);
 }
 
@@ -155,7 +155,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 
 	//calculate vars for x-position and dimensions
 	int tx = x_offset + x_text + pic_w;
-	int tw = width - x_offset - pic_w - 2*fr_thickness;
+	int tw = width - 2*x_offset - pic_w - 2*fr_thickness;
 	int th = height-2*fr_thickness;
 	cctext->setDimensionsAll(tx, y_text, tw, th);
 
