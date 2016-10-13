@@ -50,10 +50,10 @@ class CInfoViewerBB
 		enum
 		{
 			// The order of icons from left to right. Here nothing changes!
-			BUTTON_EPG	= 0,
-			BUTTON_AUDIO	= 1,
-			BUTTON_SUBS	= 2,
-			BUTTON_FEAT	= 3,
+			BUTTON_RED	= 0,
+			BUTTON_GREEN	= 1,
+			BUTTON_YELLOW	= 2,
+			BUTTON_BLUE	= 3,
 			BUTTON_MAX	= 4
 		};
 
@@ -108,17 +108,15 @@ class CInfoViewerBB
 		pthread_t scrambledT;
 
 		CProgressBar *hddscale, *sysscale;
-
+		CComponentsShapeSquare *foot, *cabar;
 		void paintFoot(int w = 0);
 		void showBBIcons(const int modus, const std::string & icon);
 		void getBBIconInfo(void);
 		bool checkBBIcon(const char * const icon, int *w, int *h);
-		void showIcon_DD(void);
 
 		void paint_ca_icons(int, const char*, int&);
 		void paintCA_bar(int,int);
 		void showOne_CAIcon();
-		void changePB(void);
 
 		static void* scrambledThread(void *arg);
 		void scrambledCheck(bool force=false);
@@ -144,12 +142,17 @@ class CInfoViewerBB
 		void showIcon_SubT();
 		void showIcon_Resolution();
 		void showIcon_Tuner(void);
-		void showBBButtons(const int modus=-1);
+		void showIcon_DD(void);
+		void showBBButtons(bool paintFooter = false);
 		void paintshowButtonBar();
 		void getBBButtonInfo(void);
 		void reset_allScala(void);
-		void setBBOffset(void);
-
+		void initBBOffset(void);
+		// modules
+		CComponentsShapeSquare* getFooter(void){return foot;}
+		CComponentsShapeSquare* getCABar(void){return cabar;}
+		void ResetModules(void);
+		void changePB(void);
 };
 
 #endif // __infoview_bb__

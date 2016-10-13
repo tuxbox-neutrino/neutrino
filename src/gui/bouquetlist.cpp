@@ -2,15 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2009,2011,2013,2015-2016 Stefan Seyfried
 
 	License: GPL
 
@@ -46,7 +38,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-
+#include <gui/infoclock.h>
 #include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
@@ -390,6 +382,8 @@ const struct button_label CBouquetListButtons[4] =
 
 void CBouquetList::updateSelection(int newpos)
 {
+	if (newpos < 0) /* to avoid all callers having to check */
+		return;
 	if((int) selected != newpos) {
 		int prev_selected = selected;
 		unsigned int oldliststart = liststart;
@@ -418,7 +412,7 @@ int CBouquetList::show(bool bShowChannelList)
 	favonly = !bShowChannelList;
 
 	for(unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);count++){
-		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(CBouquetListButtons[count].locale));
+		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(CBouquetListButtons[count].locale));
 		w_max_text = std::max(w_max_text, w_text);
 		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
 		w_max_icon = std::max(w_max_icon, icol_w);
@@ -432,7 +426,7 @@ int CBouquetList::show(bool bShowChannelList)
 	width  = w_max (need_width, 20);
 	height = h_max (16 * fheight, 40);
 
-	footerHeight = std::max(h_max_icon+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8);
+	footerHeight = std::max(h_max_icon+8, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8);
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	listmaxshow = (height - theight - footerHeight)/fheight;
 	height      = theight + footerHeight + listmaxshow * fheight; // recalc height
@@ -506,6 +500,12 @@ int CBouquetList::show(bool bShowChannelList)
 				hide();
 				return CHANLIST_CHANGE_MODE;
 			}
+		} else if(msg == CRCInput::RC_www) {
+			if(!favonly && bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_WEBTV) {
+				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_WEBTV);
+				hide();
+				return CHANLIST_CHANGE_MODE;
+			}
 		}
 		else if ( msg == CRCInput::RC_setup) {
 			if (!favonly && !Bouquets.empty()) {
@@ -527,35 +527,11 @@ int CBouquetList::show(bool bShowChannelList)
 			if (!Bouquets.empty())
 				updateSelection(Bouquets.size()-1);
 		}
-		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
+		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup ||
+			 msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
-			if (!Bouquets.empty()) {
-				int step = ((int) msg == g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-				int new_selected = selected - step;
-				if (new_selected < 0) {
-					if (selected != 0 && step != 1)
-						new_selected = 0;
-					else
-						new_selected = Bouquets.size() - 1;
-				}
-				updateSelection(new_selected);
-			}
-		}
-		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
-		{
-			if (!Bouquets.empty()) {
-				int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-				int new_selected = selected + step;
-				if (new_selected >= (int) Bouquets.size()) {
-					if (((Bouquets.size() - listmaxshow -1 < selected) && (step != 1)) || (selected != (Bouquets.size() - 1)))
-						new_selected = Bouquets.size() - 1;
-					else if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
-						new_selected = 0;
-					else
-						new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((Bouquets.size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
-				}
-				updateSelection(new_selected);
-			}
+			int new_selected = UpDownKey(Bouquets, msg, listmaxshow, selected);
+			updateSelection(new_selected);
 		}
 		else if(msg == (neutrino_msg_t)g_settings.key_bouquet_up || msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
 			if(bShowChannelList) {
@@ -635,6 +611,7 @@ int CBouquetList::show(bool bShowChannelList)
 void CBouquetList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+10);
+	CInfoClock::getInstance()->enableInfoClock(!CInfoClock::getInstance()->isBlocked());
 }
 
 void CBouquetList::paintItem(int pos)
@@ -702,6 +679,8 @@ void CBouquetList::paintHead()
 
 void CBouquetList::paint()
 {
+	//ensure stop info clock before paint this window
+	CInfoClock::getInstance()->disableInfoClock();
 	liststart = (selected/listmaxshow)*listmaxshow;
 	int lastnum =  liststart + listmaxshow;
 	int bsize = Bouquets.empty() ? 1 : Bouquets.size();
@@ -724,7 +703,7 @@ void CBouquetList::paint()
 	::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
 #endif
 	if (favonly)
-		frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
 	else 
 		::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
 
@@ -737,10 +716,10 @@ void CBouquetList::paint()
 
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
+	int listmaxshow_tmp = listmaxshow ? listmaxshow : 1;//avoid division by zero
+	int sbc= ((bsize - 1)/ listmaxshow_tmp)+ 1; /* bsize is > 0, so sbc is also > 0 */
+	int sbs= (selected/listmaxshow_tmp);
 
-	int sbc= ((bsize - 1)/ listmaxshow)+ 1; /* bsize is > 0, so sbc is also > 0 */
-	int sbs= (selected/listmaxshow);
-
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0);
 }

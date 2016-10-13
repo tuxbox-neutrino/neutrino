@@ -48,7 +48,7 @@ static int unused_demux;
         do {							\
                 if (fedebug)					\
                         fprintf(stdout, "[%s:%s:%d] " fmt "\n",	\
-                                __FILE__, __FUNCTION__,		\
+                                __file__, __func__,		\
                                 __LINE__ , ## args);		\
         } while (0)
 

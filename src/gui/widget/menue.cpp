@@ -37,6 +37,7 @@
 #include <driver/screen_max.h>
 #include <gui/pluginlist.h>
 #include <gui/widget/stringinput.h>
+#include <gui/infoclock.h>
 
 
 #include <driver/fade.h>
@@ -59,7 +60,7 @@ CMenuForwarder * const GenericMenuNext = &CGenericMenuNext;
 
 CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
-	active		= Active;
+	active		= current_active = Active;
 	directKey	= DirectKey;
 	isStatic	= IsStatic;
 
@@ -89,6 +90,7 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	selected_iconName = NULL;
 	height = 0;
 	actObserv	= NULL;
+	parent_widget	= NULL;
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -104,12 +106,54 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 
 void CMenuItem::setActive(const bool Active)
 {
-	active = Active;
+	active	= current_active = Active;
 	/* used gets set by the addItem() function. This is for disabling
 	   machine-specific options by just not calling the addItem() function.
 	   Without this, the changeNotifiers would become machine-dependent. */
 	if (used && x != -1)
 		paint();
+}
+
+bool CMenuItem::initModeCondition(const int& stb_mode)
+{
+	if (CNeutrinoApp::getInstance()->getMode() == stb_mode){
+		active 	= false;
+		marked 	= false;
+		if (parent_widget)
+			if (!isSelectable())
+				parent_widget->initSelectable();
+		return true;
+	}
+	printf("\033[33m[CMenuItem] [%s - %d] missmatching stb mode condition %d\033[0m\n", __func__, __LINE__, stb_mode);
+	return false;
+}
+
+void CMenuItem::disableByCondition(const menu_item_disable_cond_t& condition)
+{
+	int stb_mode = CNeutrinoApp::getInstance()->getMode();
+
+	if (condition & DCOND_MODE_TS){
+		if (stb_mode == CNeutrinoApp::mode_ts)
+			if (initModeCondition(stb_mode))
+				return;
+	}
+	if (condition & DCOND_MODE_RADIO){
+		if (stb_mode == CNeutrinoApp::mode_radio)
+			if (initModeCondition(stb_mode))
+				return;
+	}
+	if (condition & DCOND_MODE_TV){
+		if (stb_mode == CNeutrinoApp::mode_tv)
+			if (initModeCondition(stb_mode))
+				return;
+	}
+
+	active = current_active;
+
+	if (parent_widget){
+		if (!isSelectable())
+			parent_widget->initSelectable();
+	}
 }
 
 void CMenuItem::setMarked(const bool Marked)
@@ -209,7 +253,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			fb_pixel_t right_frame_col, right_bg_col;
 			if (active) {
 				right_bg_col = right_bgcol;
-				right_frame_col = COL_MENUCONTENT_PLUS_6;
+				right_frame_col = COL_FRAME_PLUS_0;
 			}
 			else {
 				right_bg_col = COL_MENUCONTENTINACTIVE_TEXT;
@@ -217,7 +261,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			}
 			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, NULL, false, right_frame_col, right_bg_col);
 			col.setFrameThickness(3);
-			col.setCorner(RADIUS_LARGE);
+			col.setCorner(RADIUS_SMALL);
 			col.paint(false);
 		}
 		if (*right_text) {
@@ -297,6 +341,9 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 	//get data of number icon and paint
 	if (icon_name && *icon_name)
 	{
+               if (!active)
+			icon_name = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+
 		frameBuffer->getIconSize(icon_name, &icon_w, &icon_h);
 
 		if (/*active  &&*/ icon_w>0 && icon_h>0 && icon_space_x >= icon_w)
@@ -332,7 +379,7 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 
 		if (icon_w>0 && icon_h>0)
 		{
-			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
+			frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
 		}
 	}
 }
@@ -501,7 +548,7 @@ CMenuWidget::CMenuWidget()
 	preselected 	= -1;
 	details_line	= NULL;
 	info_box	= NULL;
-	show_details_line = true;
+	header 		= NULL;
 	nextShortcut	= 1;
 }
 
@@ -526,10 +573,10 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
 	frameBuffer = CFrameBuffer::getInstance();
 	iconfile = Icon;
-	details_line = new CComponentsDetailLine();
-	show_details_line = true;
-	info_box = new CComponentsInfoBox();
-	
+	details_line = NULL;
+
+	info_box = NULL;
+	header	= NULL;
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
 		//error
@@ -586,8 +633,26 @@ void CMenuWidget::move(int xoff, int yoff)
 CMenuWidget::~CMenuWidget()
 {
 	resetWidget(true);
-	delete details_line;
-	delete info_box;
+	ResetModules();
+}
+
+void CMenuWidget::ResetModules()
+{
+	if (header){
+		header->hide();
+		delete header;
+		header = NULL;
+	}
+	if (details_line){
+		details_line->hide();
+		delete details_line;
+		details_line = NULL;
+	}
+	if (info_box){
+		info_box->kill();
+		delete info_box;
+		info_box = NULL;
+	}
 }
 
 void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
@@ -605,14 +670,17 @@ void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
 
 	menuItem->isUsed();
 	items.push_back(menuItem);
+	menuItem->setParentWidget(this);
 }
 
 void CMenuWidget::resetWidget(bool delete_items)
 {
 	for(unsigned int count=0;count<items.size();count++) {
 		CMenuItem * item = items[count];
-		if (delete_items && !item->isStatic)
+		if (delete_items && !item->isStatic){
 			delete item;
+			item = NULL;
+		}
 	}
 	
 	items.clear();
@@ -668,12 +736,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	neutrino_msg_data_t data;
 	bool bAllowRepeatLR = false;
 	CVFD::MODES oldLcdMode = CVFD::getInstance()->getMode();
-	
-	int pos = 0;
-	if (selected > 0 && selected < (int)items.size())
-		pos = selected;
-	else
-		selected = -1;
+
 	exit_pressed = false;
 
 	frameBuffer->Lock();
@@ -693,20 +756,21 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 	}
-	/* make sure we start with a selectable item... */
-	while (pos < (int)items.size()) {
-		if (items[pos]->isSelectable())
-			break;
-		pos++;
-	}
+
 	checkHints();
 
 	if(savescreen) {
 		calcSize();
 		saveScreen();
 	}
+
+	/* make sure we start with a selectable item... */
+	initSelectable();
+
 	paint();
 	frameBuffer->blit();
+
+	int pos = selected;
 
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
@@ -750,6 +814,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					if (titem->isSelectable()) {
 						items[selected]->paint( false );
 						selected= i;
+						if (selected > page_start[current_page + 1] || selected < page_start[current_page]) {
+							/* different page */
+							paintItems();
+						}
 						paintHint(selected);
 						pos = selected;
 						if (titem->directKeyOK)
@@ -898,12 +966,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 			case (CRCInput::RC_timeout):
 				break;
-
-			case (CRCInput::RC_sat):
-			case (CRCInput::RC_favorites):
-				g_RCInput->postMsg (msg, 0);
-				//close any menue on dbox-key
 			case (CRCInput::RC_setup):
+				//close any menu on menu-key
 				{
 					msg = CRCInput::RC_timeout;
 					retval = menu_return::RETURN_EXIT_ALL;
@@ -920,7 +984,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 
 			default:
-				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
+				if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+					g_RCInput->postMsg (msg, 0);
+				}
+				else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 					retval = menu_return::RETURN_EXIT_ALL;
 					msg = CRCInput::RC_timeout;
 				}
@@ -968,7 +1035,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	return retval;
 }
 
-void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut)
+void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut, bool enabled)
 {
 	bool separatorline = false;
 	unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
@@ -984,7 +1051,7 @@ void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigne
 			}
 			printf("[neutrino] integratePlugins: add %s\n", g_PluginList->getName(count));
 			neutrino_msg_t dk = (shortcut != CRCInput::RC_nokey) ? CRCInput::convertDigitToKey(sc++) : CRCInput::RC_nokey;
-			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
+			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), enabled, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
 			fw_plugin->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 			addItem(fw_plugin);
 		}
@@ -996,6 +1063,10 @@ void CMenuWidget::hide()
 	if(savescreen && background)
 		restoreScreen();//FIXME
 	else {
+		if (header)
+			header->kill();
+		if (info_box)
+			info_box->kill();
 		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height + fbutton_height);
 		//paintHint(-1);
 	}
@@ -1007,6 +1078,9 @@ void CMenuWidget::hide()
 		items[count]->init(-1, 0, 0, 0);
 	hint_painted	= false;
 	washidden = true;
+	if (CInfoClock::getInstance()->isRun())
+		CInfoClock::getInstance()->enableInfoClock(!CInfoClock::getInstance()->isBlocked());
+	OnAfterHide();
 }
 
 void CMenuWidget::checkHints()
@@ -1116,8 +1190,8 @@ void CMenuWidget::calcSize()
 	if(total_pages > 1)
 		sb_width=15;
 
-	full_width = /*ConnectLineBox_Width+*/width+sb_width+SHADOW_OFFSET;
-	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2 /*+hint_height+INFO_BOX_Y_OFFSET*/;
+	full_width = /*ConnectLineBox_Width+*/width+sb_width+OFFSET_SHADOW;
+	full_height = height+RADIUS_LARGE+OFFSET_SHADOW*2 /*+hint_height+OFFSET_INTER*/;
 	/* + ConnectLineBox_Width for the hintbox connection line
 	 * + center_offset for symmetry
 	 * + 20 for setMenuPos calculates 10 pixels border left and right */
@@ -1125,26 +1199,56 @@ void CMenuWidget::calcSize()
 	int max_possible = (int)frameBuffer->getScreenWidth() - ConnectLineBox_Width - center_offset - 20;
 	if (full_width > max_possible)
 	{
-		width = max_possible - sb_width - SHADOW_OFFSET;
+		width = max_possible - sb_width - OFFSET_SHADOW;
 		full_width = max_possible + center_offset; /* symmetry in MENU_POS_CENTER case */
 	}
 
 	setMenuPos(full_width);
 }
 
+void CMenuWidget::initSelectable()
+{
+	int pos = 0;
+	if (selected > 0 && selected < (int)items.size())
+		pos = selected;
+	else
+		selected = -1;
+
+	while (pos < (int)items.size()) {
+		if (items[pos]->isSelectable())
+			break;
+		pos++;
+	}
+	selected = pos;
+}
+
 void CMenuWidget::paint()
 {
+	OnBeforePaint();
+	if (header){
+		if ((bool)header->getCornerRadius() != (bool)g_settings.rounded_corners) //ensure reset if corner mode was changed
+			ResetModules();
+	}
+
+	if (CInfoClock::getInstance()->isRun())
+		CInfoClock::getInstance()->disableInfoClock();
 	calcSize();
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, nameString.c_str()*/);
 
 	// paint head
-	CComponentsHeader header(x, y, width + sb_width, hheight, getName(), iconfile);
-	header.setShadowOnOff(CC_SHADOW_ON);
-	header.setOffset(10);
-	header.paint(CC_SAVE_SCREEN_NO);
+	if (header == NULL){
+		header = new CComponentsHeader(x, y, width + sb_width, hheight, getName(), iconfile);
+		header->enableShadow(CC_SHADOW_RIGHT);
+		header->setOffset(10);
+	}
+	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
+	header->setCaptionColor(COL_MENUHEAD_TEXT);
+	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0);
+	header->enableGradientBgCleanUp(savescreen);
+	header->paint(CC_SAVE_SCREEN_NO);
 
 	// paint body shadow
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y + hheight + SHADOW_OFFSET, width + sb_width, height - hheight + RADIUS_LARGE + (fbutton_count ? fbutton_height : 0), COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x+OFFSET_SHADOW, y + hheight + OFFSET_SHADOW, width + sb_width, height - hheight + RADIUS_LARGE + (fbutton_count ? fbutton_height : 0), COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	// paint body background
 	frameBuffer->paintBoxRel(x, y+hheight, width + sb_width, height-hheight + RADIUS_LARGE, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, (fbutton_count ? CORNER_NONE : CORNER_BOTTOM));
 
@@ -1161,9 +1265,9 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int scr_y = frameBuffer->getScreenY();
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
-
 	int real_h = full_height + fbutton_height + hint_height;
-
+	int x_old = x;
+	int y_old = y;
 	//configured positions 
 	switch(g_settings.menu_pos) 
 	{
@@ -1195,6 +1299,8 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 			x = /*offx +*/ scr_x + scr_w - menu_width - 10;
 			break;
 	}
+	if (x_old != x || y_old != y)
+		ResetModules();
 }
 
 void CMenuWidget::paintItems()
@@ -1202,9 +1308,9 @@ void CMenuWidget::paintItems()
 	//Item not currently on screen
 	if (selected >= 0)
 	{
-		while (selected < page_start[current_page])
+		while (current_page > 0 && selected < page_start[current_page])
 			current_page--;
-		while (selected >= page_start[current_page + 1])
+		while (current_page+1 < page_start.size() && selected >= page_start[current_page + 1])
 			current_page++;
 	}
 
@@ -1212,22 +1318,22 @@ void CMenuWidget::paintItems()
 	if(total_pages>1)
 	{
 		int item_height=height-(item_start_y-y);
-		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
-		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
+		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_SCROLLBAR_PASSIVE_PLUS_0, RADIUS_MIN);
+		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_MIN);
 		/* background of menu items, paint every time because different items can have
 		 * different height and this might leave artifacts otherwise after changing pages */
 		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	}
+
 	int ypos=item_start_y;
 	for (int count = 0; count < (int)items.size(); count++)
 	{
 		CMenuItem* item = items[count];
-
+		item->OnPaintItem();
 		if ((count >= page_start[current_page]) &&
 		    (count < page_start[current_page + 1]))
 		{
 			item->init(x, ypos, width, iconOffset);
-
 			if (item->isSelectable() && selected == -1)
 				selected = count;
 
@@ -1305,24 +1411,23 @@ void CMenuWidget::enableSaveScreen(bool enable)
 
 void CMenuWidget::paintHint(int pos)
 {
-	if (!g_settings.show_menu_hints)
+	if (!g_settings.show_menu_hints){
+		ResetModules(); //ensure clean up on changed setting
 		return;
-	
+	}
+
 	if (pos < 0 && !hint_painted)
 		return;
 
-	info_box->enableGradient(g_settings.theme.menu_Hint_gradient  != 0);
-	info_box->set2ndColor(COL_INFOBAR_SHADOW_PLUS_1); // COL_INFOBAR_SHADOW_PLUS_1 is default footer color
-
-	
 	if (hint_painted) {
 		/* clear detailsline line */
 		if (details_line)
-			savescreen ? details_line->hide() : details_line->kill();
+			details_line->hide();
 		/* clear info box */
 		if ((info_box) && (pos < 0))
-			savescreen ? info_box->hide(true) : info_box->kill();
-		hint_painted = false;
+			savescreen ? info_box->hide() : info_box->kill();
+		if (info_box)
+			hint_painted = info_box->isPainted();
 	}
 	if (pos < 0)
 		return;
@@ -1331,8 +1436,8 @@ void CMenuWidget::paintHint(int pos)
 	
 	if (!item->hintIcon && item->hint == NONEXISTANT_LOCALE && item->hintText.empty()) {
 		if (info_box) {
-			savescreen ? info_box->hide(false) : info_box->kill();
-			hint_painted = false;
+			savescreen ? info_box->hide() : info_box->kill();
+			hint_painted = info_box->isPainted();
 		}
 		return;
 	}
@@ -1343,46 +1448,49 @@ void CMenuWidget::paintHint(int pos)
 	int iheight = item->getHeight();
 	int rad = RADIUS_LARGE;
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + fbutton_height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
+	int ypos2 = y + height + fbutton_height + rad + OFFSET_SHADOW + OFFSET_INTER;
 	int iwidth = width+sb_width;
 	
 	//init details line and infobox dimensions
 	int ypos1 = item->getYPosition();
-	int ypos1a = ypos1 + (iheight/2)-2;
-	int ypos2a = ypos2 + (hint_height/2)-2;
+	int ypos1a = ypos1 + (iheight/2);
+	int ypos2a = ypos2 + (hint_height/2);
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
-	int imarkh = iheight/2+1;
+	int imarkh = iheight/2;
 	
 	//init details line
-	if (details_line){
-		details_line->setXPos(xpos);
-		details_line->setYPos(ypos1a);
-		details_line->setYPosDown(ypos2a);
-		details_line->setHMarkTop(imarkh);
-		details_line->setHMarkDown(markh);
-		details_line->syncSysColors();
-	}
+	if (details_line == NULL)
+		details_line = new CComponentsDetailLine();
+
+	details_line->setXPos(xpos);
+	details_line->setYPos(ypos1a);
+	details_line->setYPosDown(ypos2a);
+	details_line->setHMarkTop(imarkh);
+	details_line->setHMarkDown(markh);
+	details_line->syncSysColors();
 
 	//init infobox
 	std::string str = item->hintText.empty() ? g_Locale->getText(item->hint) : item->hintText;
-	if (info_box){
-		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
-		info_box->setFrameThickness(2);
-		info_box->removeLineBreaks(str);
-		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
-		info_box->setCorner(RADIUS_LARGE);
-		info_box->syncSysColors();
-		info_box->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
-		info_box->setShadowOnOff(CC_SHADOW_ON);
-		info_box->setPicture(item->hintIcon ? item->hintIcon : "");
-	}
-	
+	if (info_box == NULL)
+		info_box = new CComponentsInfoBox();
+
+	info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
+	info_box->setFrameThickness(2);
+	info_box->removeLineBreaks(str);
+	info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
+	info_box->setCorner(RADIUS_LARGE);
+	info_box->setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	info_box->enableShadow();
+	info_box->setPicture(item->hintIcon ? item->hintIcon : "");
+	info_box->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_MENUFOOT_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);// COL_MENUFOOT_PLUS_0 is default footer color
+
 	//paint result
-	if (show_details_line)
-		details_line->paint(savescreen);
-	info_box->paint(savescreen);
+	if (details_line)
+		details_line->paint();
+	if (info_box)
+		info_box->paint(savescreen);
 	
-	hint_painted = true;
+	hint_painted = info_box ? info_box->isPainted() : false;
 }
 
 void CMenuWidget::addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string & action)
@@ -1505,7 +1613,7 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 
 	// give the observer a chance to modify the value
 	paint(true);
-
+	OnAfterChangeOption();
 	if (wantsRepaint)
 		res = menu_return::RETURN_REPAINT;
 
@@ -1888,12 +1996,11 @@ int CMenuOptionChooser::paint( bool selected)
 
 int CMenuOptionChooser::getWidth(void)
 {
-	int ow = 0;
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(getName());
 	int width = tw;
 
 	for(unsigned int count = 0; count < options.size(); count++) {
-		ow = 0;
+		int ow = 0;
 		if (options[count].valname)
 			ow = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(options[count].valname);
 		else
@@ -2124,7 +2231,8 @@ std::string CMenuForwarder::getOption(void)
 
 int CMenuForwarder::paint(bool selected)
 {
- 	std::string option_name = getOption();
+	std::string option_name = getOption();
+
 	fb_pixel_t bgcol = 0;
 	if (jumpTarget)
 		bgcol = jumpTarget->getColor();
@@ -2137,7 +2245,7 @@ int CMenuForwarder::paint(bool selected)
 	
 	//caption
 	paintItemCaption(selected, option_name.c_str(), bgcol);
-	
+
 	return y+ height;
 }
 
@@ -2149,7 +2257,7 @@ CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, boo
 	nameString	= "";
 }
 
-CMenuSeparator::CMenuSeparator(const int Type, const std::string Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
+CMenuSeparator::CMenuSeparator(const int Type, const std::string &Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
 {
 	type		= Type;
 	name		= NONEXISTANT_LOCALE;
@@ -2194,8 +2302,8 @@ int CMenuSeparator::paint(bool selected)
 	frameBuffer->paintBoxRel(x,y, dx, height, item_bgcolor);
 	if ((type & LINE))
 	{
-		frameBuffer->paintHLineRel(x+10,dx-20,y+(height>>1), COL_MENUCONTENT_PLUS_3);
-		frameBuffer->paintHLineRel(x+10,dx-20,y+(height>>1)+1, COL_MENUCONTENT_PLUS_1);
+		int grad = g_settings.theme.menu_Separator_gradient_enable ? CC_COLGRAD_COL_DARK_LIGHT_DARK : CC_COLGRAD_OFF;
+		paintBoxRel(x+10, y+(height>>1), dx-20, 2, COL_MENUCONTENT_PLUS_3, 0, CORNER_NONE, grad, COL_MENUCONTENT_PLUS_0, CFrameBuffer::gradientHorizontal, CColorGradient::light);
 	}
 	if ((type & STRING))
 	{

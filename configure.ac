@@ -186,6 +186,8 @@ if test "$enable_lua" = "yes"; then
 			AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
 		])
 	])
+# hack...
+AC_DEFINE(LUA_COMPAT_5_2,1,[does not really belong in config.h, but is needed for build with lua 5.3+])
 fi
 
 AC_ARG_ENABLE(cleanup,
@@ -210,6 +212,7 @@ if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
 fi
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream'
 
 if test "$BOXMODEL" = "apollo"; then
 if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
@@ -218,9 +221,18 @@ fi
 if test -e ${srcdir}/lib/libcoolstream2/cs_frontpanel.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
 fi
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2'
 fi
 fi
 
+# hack to define a short filename also for out-of-tree build
+if test `dirname $0` = `pwd`; then
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__=__FILE__'
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__path_file__=__FILE__'
+else
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__="\"$(subst $(srcdir)/,,$(abspath $<))\""'
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__path_file__="\"$(subst $(top_srcdir)/,,$(abspath $<))\""'
+fi
 #
 # Check for libtdservicedb - the new one - for testing only
 #
@@ -236,6 +248,7 @@ fi
 #*** libcoolstream $CSL_VERSION or newer is required! ***
   #])
 #fi
+AC_SUBST(HWLIB_CFLAGS)
 AC_SUBST(LIBCS_CFLAGS)
 AC_SUBST(LIBCS_LIBS)
 AC_SUBST(FREETYPE_CFLAGS)
@@ -283,6 +296,8 @@ src/driver/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
 src/gui/components/Makefile
+src/gui/lua/Makefile
+src/gui/moviebrowser/Makefile
 src/gui/widget/Makefile
 src/system/Makefile
 src/system/mtdutils/Makefile

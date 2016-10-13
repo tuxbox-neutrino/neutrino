@@ -27,7 +27,7 @@
 extern Zapit_config zapitCfg;
 
 
-CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq)
+CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq, const std::string script_name)
 {
 	name = p_name;
 	service_id = p_sid;
@@ -38,11 +38,12 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	freq = p_freq;
 	channel_id = CREATE_CHANNEL_ID64;
 	epg_id = channel_id;
+	script = script_name;
 	Init();
 //printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
 
-CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq)
+CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq, const std::string script_name)
 {
 	name = p_name;
 	channel_id = p_channel_id;
@@ -53,11 +54,12 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_
 	satellitePosition = p_satellite_position;
 	freq = p_freq;
 	epg_id = channel_id;
+	script = script_name;
 	Init();
 }
 
 // For WebTV ...
-CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid)
+CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid, const char* script_name)
 {
 	if (!p_name || !p_url)
 		return;
@@ -73,6 +75,10 @@ CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, cons
 	satellitePosition = 0;
 	freq = 0;
 	epg_id = epgid;
+	if (script_name)
+		script = std::string(script_name);
+	else
+		script = "";
 	Init();
 }
 

@@ -70,7 +70,7 @@ bool CPat::Parse()
 	do {
 		/* set filter for program association section */
 		/* read section */
-		if ((dmx->sectionFilter(0, filter, mask, 5) < 0) || (i = dmx->Read(buffer, PAT_SECTION_SIZE) < 0))
+		if ((!dmx->sectionFilter(0, filter, mask, 5)) || (i = dmx->Read(buffer, PAT_SECTION_SIZE) < 0))
 		{
 			delete dmx;
 			printf("[pat.cpp] dmx read failed\n");

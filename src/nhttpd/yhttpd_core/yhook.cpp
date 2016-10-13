@@ -14,6 +14,29 @@
 #include "helper.h"
 
 //=============================================================================
+// Constructor & Ceconstructor
+//=============================================================================
+CyhookHandler::CyhookHandler()
+{
+	ContentLength = 0;
+	RangeStart = 0;
+	RangeEnd = -1;
+	cached = false;
+	keep_alive = 0;
+	_outIndent = 0;
+	status = HANDLED_NONE;
+	Method = M_UNKNOWN;
+	httpStatus = HTTP_NIL;
+	outType = plain;
+	nonPair = false;
+	LastModified=0;
+}
+
+CyhookHandler::~CyhookHandler()
+{
+}
+
+//=============================================================================
 // Initialization of static variables
 //=============================================================================
 THookList CyhookHandler::HookList;
@@ -50,7 +73,7 @@ THandleStatus CyhookHandler::Hooks_SendResponse() {
 //-----------------------------------------------------------------------------
 THandleStatus CyhookHandler::Hooks_PrepareResponse() {
 	log_level_printf(4, "PrepareResponse Hook-List Start\n");
-	outType = checkOutput();
+	outType = getOutType();
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
 	for (; i != HookList.end(); ++i) {
@@ -343,6 +366,19 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 	return result;
 }
 
+bool CyhookHandler::ParamList_exist(std::string keyword)
+{
+	bool exist = false;
+	unsigned int s = ParamList.size();
+	for (unsigned int i = 1; i <= s; i++)
+	{
+		exist = (ParamList[itoa(i)] == keyword);
+		if (exist)
+			break;
+	}
+	return exist;
+}
+
 //=============================================================================
 // Output helpers
 //=============================================================================
@@ -369,27 +405,24 @@ void CyhookHandler::printf(const char *fmt, ...) {
 	Write(outbuf);
 }
 //-----------------------------------------------------------------------------
-TOutType CyhookHandler::checkOutput() {
-	// get outType
-	outType = plain; // plain
+TOutType CyhookHandler::getOutType() {
+	TOutType _outType = plain;
 	if(!(ParamList.empty())) {
 		if ((ParamList.find("format") != ParamList.end() && ParamList["format"] == "json")
 				|| (ParamList.find("json") != ParamList.end() && !(ParamList["json"].empty())) )
-			outType = json;
+			_outType = json;
 		else if ((ParamList.find("format") != ParamList.end() && ParamList["format"] == "xml")
 				|| (ParamList.find("xml") != ParamList.end() && !(ParamList["xml"].empty())) )
-			outType = xml;
+			_outType = xml;
 	}
-	return outType;
+	return _outType;
 }
 //-----------------------------------------------------------------------------
-TOutType CyhookHandler::outStart() {
+TOutType CyhookHandler::outStart(bool single) {
+	// for compatibility
+	nonPair = single;
 	// get outType
-	outType = plain; // plain
-	if (ParamList["format"] == "json")
-		outType = json;
-	else if (ParamList["format"] == "xml" || !(ParamList["xml"].empty()) )
-		outType = xml;
+	outType = getOutType();
 	// set response header
 	if (outType == xml)
 		SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
@@ -403,16 +436,48 @@ TOutType CyhookHandler::outStart() {
 std::string CyhookHandler::outIndent() {
 	return "";
 }
+
+//-----------------------------------------------------------------------------
+std::string CyhookHandler::outSingle(std::string _content) {
+	return _content + "\n";
+}
+
 //-----------------------------------------------------------------------------
 std::string CyhookHandler::outPair(std::string _key, std::string _content, bool _next) {
-	std::string result = "";
+	std::string result = "", _key_close = "", tmp;
+	ySplitString(_key, " ", _key_close, tmp);
 	switch (outType) {
 	case xml:
-		result = outIndent() + "<" + _key + ">" + _content + "</" + _key + ">";
-		result += "\n";
+		result = outIndent() + "<" + _key + ">" + _content + "</" + _key_close + ">";
 		break;
 	case json:
 		result = outIndent() + "\"" + _key + "\": \"" + _content + "\"";
+		if(_next)
+			result += ",";
+		break;
+	default:
+		if (nonPair)
+			result = _content;
+		else
+			result = _key + "=" + _content;
+		break;
+	}
+	return result + "\n";
+}
+
+//-----------------------------------------------------------------------------
+std::string CyhookHandler::outArray(std::string _key, std::string _content, bool _next) {
+	std::string result = "", _key_close = "", tmp;
+	ySplitString(_key, " ", _key_close, tmp);
+	switch (outType) {
+	case xml:
+		//TODO: xml check and DESC check
+		result = outIndent() + "<" + _key + ">\n" + _content + "</" + _key_close + ">";
+		result += "\n";
+		break;
+	case json:
+		//TODO: json check
+		result = outIndent() + "\"" + _key + "\": [" + _content + "]";
 		if(_next)
 			result += ",";
 		result += "\n";
@@ -425,61 +490,50 @@ std::string CyhookHandler::outPair(std::string _key, std::string _content, bool 
 }
 
 //-----------------------------------------------------------------------------
-std::string CyhookHandler::outArray(std::string _key, std::string _content) {
-	std::string result = "";
-	switch (outType) {
-	case xml:
-		//TODO: xml check and DESC check
-		result = outIndent() + "<" + _key + ">\n" + _content + "</" + _key + ">";
-		break;
-	case json:
-		//TODO: json check
-		result = outIndent() + "\"" + _key + "\": [" + _content + "]";
-		break;
-	default:
-		result = _content;
-		break;
-	}
-	return result + "\n";
-}
-
-//-----------------------------------------------------------------------------
 std::string CyhookHandler::outArrayItem(std::string _key, std::string _content, bool _next) {
-	std::string result = "";
+	std::string result = "", _key_close = "", tmp;
+	ySplitString(_key, " ", _key_close, tmp);
 	switch (outType) {
 	case xml:
 		//TODO: xml check and DESC check
-		result = outIndent() + "<" + _key + ">\n" + _content + "</" + _key + ">";
+		result = outIndent() + "<" + _key + ">\n" + _content + "</" + _key_close + ">";
+		result += "\n";
 		break;
 	case json:
 		//TODO: json check
 		result = outIndent() + "{" + _content + "}";
 		if(_next)
 			result += ",";
+		result += "\n";
 		break;
 	default:
 		result = _content;
 		break;
 	}
-	return result + "\n";
+	return result;
 }
 //-----------------------------------------------------------------------------
-std::string CyhookHandler::outCollection(std::string _key, std::string _content) {
-	std::string result = "";
+std::string CyhookHandler::outObject(std::string _key, std::string _content, bool _next) {
+	std::string result = "", _key_close = "", tmp;
+	ySplitString(_key, " ", _key_close, tmp);
 	switch (outType) {
 	case xml:
 		//TODO: xml check and DESC check
-		result = outIndent() + "<" + _key + ">\n" + _content + "</" + _key + ">";
+		result = outIndent() + "<" + _key + ">\n" + _content + "</" + _key_close + ">";
+		result += "\n";
 		break;
 	case json:
 		//TODO: json check
 		result = outIndent() + "\"" + _key + "\": {" + _content + "}";
+		if(_next)
+			result += ",";
+		result += "\n";
 		break;
 	default:
 		result = _content;
 		break;
 	}
-	return result + "\n";
+	return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -491,7 +545,6 @@ std::string CyhookHandler::outValue(std::string _content) {
 		break;
 	case json:
 		result = json_convert_string(_content);
-//		result = _content;
 		break;
 
 	default:
@@ -508,3 +561,60 @@ std::string CyhookHandler::outNext() {
 		return "";
 }
 
+//-----------------------------------------------------------------------------
+void CyhookHandler::SendOk() {
+	std::string result = "";
+	switch (outType) {
+	case xml:
+		result = "<success>true</success>";
+		break;
+	case json:
+		result = "{\"success\": \"true\"}";
+		break;
+	default:
+		result = "ok";
+		break;
+	}
+	Write(result);
+}
+//-----------------------------------------------------------------------------
+void CyhookHandler::SendError(std::string error) {
+	std::string result = "";
+	switch (outType) {
+	case xml:
+		if (error.empty())
+			result = "<success>false</success>";
+		else
+			result = "<success>false<error>" + error + "</error></success>";
+		break;
+	case json:
+		if (error.empty())
+			result = "{\"success\": \"false\"}";
+		else
+			result = "{\"success\": \"false\", \"error\":{\"msg\": \"" + error + "\"}}";
+		break;
+	default:
+		if (error.empty())
+			result = "error";
+		else
+			result = "error=" + error;
+		break;
+	}
+	Write(result);
+}
+//-----------------------------------------------------------------------------
+void CyhookHandler::SendResult(std::string _content) {
+	std::string result = "";
+	switch (outType) {
+	case xml:
+		result = _content;
+		break;
+	case json:
+		result = json_out_success(_content);
+		break;
+	default:
+		result = _content;
+		break;
+	}
+	WriteLn(result);
+}

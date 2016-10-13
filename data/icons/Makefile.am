@@ -86,6 +86,7 @@ install_DATA += \
 	help_small.png \
 	hidden.png \
 	hint_a_pic.png \
+	hint_adzap.png \
 	hint_aplay.png \
 	hint_audio.png \
 	hint_back.png \
@@ -212,6 +213,7 @@ install_DATA += \
 	radiotextget.png \
 	radiotextoff.png \
 	radiotextwait.png \
+	rclock.png \
 	rec.png \
 	rec_event_marker.png \
 	rec_gray.png \
@@ -242,11 +244,14 @@ install_DATA += \
 	shell.png \
 	shutdown.jpg \
 	softupdate.png \
+	star-off.png \
+	star-on.png \
 	start.jpg \
 	streaming.png \
 	subt.png \
 	subt_gray.png \
 	timer.png \
+	tmdb.png \
 	tuner_1.png \
 	tuner_2.png \
 	tuner_3.png \

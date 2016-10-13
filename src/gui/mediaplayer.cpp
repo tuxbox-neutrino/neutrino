@@ -53,7 +53,7 @@
 #include <system/debug.h>
 #include <video.h>
 extern cVideo * videoDecoder;
-extern CInfoClock *InfoClock;
+
 
 CMediaPlayerMenu::CMediaPlayerMenu()
 {
@@ -108,7 +108,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "movieplayer")
 	{
 		audiomute->enableMuteIcon(false);
-		InfoClock->enableInfoClock(false);
+		CInfoClock::getInstance()->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if( mode == NeutrinoMessages::mode_radio )
 			CFrameBuffer::getInstance()->stopFrame();
@@ -116,7 +116,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if( mode == NeutrinoMessages::mode_radio )
 			CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
 		audiomute->enableMuteIcon(true);
-		InfoClock->enableInfoClock(true);
+		CInfoClock::getInstance()->enableInfoClock(true);
 		return res;
 	}
 	
@@ -154,16 +154,17 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 #endif
 	CMenuWidget *moviePlayer = NULL;
 
+	bool enabled = !CMoviePlayerGui::getInstance().Playing();
 	if (usage_mode != MODE_VIDEO)
 	{
 		//audio player
 		neutrino_msg_t audio_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_audio : g_settings.easymenu ? CRCInput::RC_green : CRCInput::RC_red;
-		fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, this, "audioplayer", audio_rc);
+		fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, enabled, NULL, this, "audioplayer", audio_rc);
 		fw_audio->setHint(NEUTRINO_ICON_HINT_APLAY, LOCALE_MENU_HINT_APLAY);
 
 		//internet player
 		neutrino_msg_t inet_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_www : g_settings.easymenu ? CRCInput::RC_blue : CRCInput::RC_green;
-		fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, this, "inetplayer", inet_rc);
+		fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, enabled, NULL, this, "inetplayer", inet_rc);
 		fw_inet->setHint(NEUTRINO_ICON_HINT_INET_RADIO, LOCALE_MENU_HINT_INET_RADIO);
 	}
 
@@ -174,9 +175,9 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 			moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MOVIEPLAYER, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
 			personalize->addWidget(moviePlayer);
 			if (g_settings.easymenu)
-				fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_red);
+				fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, enabled, NULL, moviePlayer, NULL, CRCInput::RC_red);
 			else
-				fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow);
+				fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, enabled, NULL, moviePlayer, NULL, CRCInput::RC_yellow);
 			fw_mp->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MENU_HINT_MOVIE);
 		}
 
@@ -192,7 +193,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		if (!g_settings.easymenu) {
 			if (!upnpbrowsergui)
 				upnpbrowsergui = new CUpnpBrowserGui();
-			fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, upnpbrowsergui, NULL, CRCInput::RC_0);
+			fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, enabled, NULL, upnpbrowsergui, NULL, CRCInput::RC_0);
 			fw_upnp->setHint(NEUTRINO_ICON_HINT_A_PIC, LOCALE_MENU_HINT_UPNP);
 		}
 #endif
@@ -261,7 +262,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		
 		//add I_TYPE_MULTIMEDIA plugins
 		unsigned int nextShortcut = (unsigned int)media->getNextShortcut();
-		media->integratePlugins(CPlugins::I_TYPE_MULTIMEDIA, nextShortcut);
+		media->integratePlugins(CPlugins::I_TYPE_MULTIMEDIA, nextShortcut, enabled);
 
 		res = media->exec(NULL, "");
 		delete media;
@@ -294,7 +295,7 @@ void CMediaPlayerMenu::showMoviePlayer(CMenuWidget *moviePlayer, CPersonalizeGui
 	p->addItem(moviePlayer, fw_file, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_FILEPLAY]);
 	//ytplayback
 	if (!g_settings.easymenu) {
-		CMenuForwarder *fw_yt = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "ytplayback", CRCInput::RC_yellow);
+		CMenuForwarder *fw_yt = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, g_settings.youtube_enabled, NULL, &CMoviePlayerGui::getInstance(), "ytplayback", CRCInput::RC_yellow);
 		fw_yt->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
 		p->addItem(moviePlayer, fw_yt, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_YTPLAY]);
 	}

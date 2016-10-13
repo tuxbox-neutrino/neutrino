@@ -28,7 +28,7 @@
 #include "cc_item_text.h"
 
 
-class CComponentsExtTextForm : public CComponentsForm
+class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 {
 	private:
 		///property: content of label, see also setLabelAndText()
@@ -68,23 +68,27 @@ class CComponentsExtTextForm : public CComponentsForm
 		///initialize basic variables
 		void initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& label_text, const std::string& text,
+					Font* font_text,
 					CComponentsForm* parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t label_color,
 					fb_pixel_t text_color,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow);
 
 	public:
 		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as string
 		CComponentsExtTextForm(	const int& x_pos = 1, const int& y_pos = 1, const int& w = 300, const int& h = 48,
 					const std::string& label_text = "", const std::string& text = "",
+					Font* font_text = NULL,
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
 					fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 // 		~CComponentsExtTextForm(); //inherited from CComponentsForm
 
 		///assigns texts for label and text, parameter as string, parameter Font is optional for required font type, default font is dependently from defined item height
@@ -94,10 +98,10 @@ class CComponentsExtTextForm : public CComponentsForm
 		///assigns text Font type
 		void setLabelAndTextFont(Font* font);
 
-		///assigns texts for label and text, parameter as struct (locale_ext_txt_t), parameters provide the same properties like setLabelAndText()
-		void setLabelAndTexts(const locale_ext_txt_t& texts);
-		///assigns texts for label and text, parameter as struct (string_ext_txt_t), parameters provide the same properties like setLabelAndText()
-		void setLabelAndTexts(const string_ext_txt_t& locale_texts);
+		///assigns texts for label and text, parameter as struct (cc_locale_ext_txt_t), parameters provide the same properties like setLabelAndText()
+		void setLabelAndTexts(const cc_locale_ext_txt_t& texts);
+		///assigns texts for label and text, parameter as struct (cc_string_ext_txt_t), parameters provide the same properties like setLabelAndText()
+		void setLabelAndTexts(const cc_string_ext_txt_t& locale_texts);
 
 		///assigns colors for text for label text, parameter as fb_pixel_t
 		void setLabelAndTextColor(const fb_pixel_t label_color , const fb_pixel_t text_color);
@@ -110,8 +114,29 @@ class CComponentsExtTextForm : public CComponentsForm
 		///returns a pointer to the internal text object, use this to get access to its most properties
 		CComponentsText*getTextObject(){return ccx_text_obj;};
 
+		/**Member to modify background behavior of embeded label and text objects
+		* @param[in]  mode
+		* 	@li bool, default = true
+		* @return
+		*	void
+		* @see
+		* 	Parent member: CCTextScreen::enableTboxSaveScreen()
+		* 	CTextBox::enableSaveScreen()
+		* 	disableTboxSaveScreen()
+		*/
+		void enableTboxSaveScreen(bool mode){
+			if (cc_txt_save_screen == mode)
+				return;
+			cc_txt_save_screen = mode;
+			for(size_t i=0; i<v_cc_items.size(); i++)
+				static_cast<CComponentsText*>(v_cc_items[i])->enableTboxSaveScreen(cc_txt_save_screen);
+		};
+
 		///sets the text modes (mainly text alignment) to the label and text object, see /gui/widget/textbox.h for possible modes
 		void setTextModes(const int& label_mode, const int& text_mode);
+
+		///return current font
+		Font* getFont(){return ccx_font;}
 
 		///paint this item/form
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
@@ -123,11 +148,14 @@ class CComponentsExtTextFormLocalized : public CComponentsExtTextForm
 		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as locales
 		CComponentsExtTextFormLocalized(const int& x_pos = 1, const int& y_pos = 1, const int& w = 300, const int& h = 48,
 						const neutrino_locale_t& locale_label_text = NONEXISTANT_LOCALE, const neutrino_locale_t& locale_text = NONEXISTANT_LOCALE,
+						Font* font_text = NULL,
 						CComponentsForm *parent = NULL,
-						bool has_shadow = CC_SHADOW_OFF,
+						int shadow_mode = CC_SHADOW_OFF,
 						fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
 						fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
-						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+						fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+						fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 };
 
 #endif

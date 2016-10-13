@@ -73,9 +73,9 @@ void CMessageBox::Init(const CMessageBox::result_ &Default, const uint32_t ShowB
 		ih = std::max(h, ih);
 		i_maxw = std::max(w, i_maxw);
 	}
-	fh                     = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	b_height               = std::max(fh, ih) + 8 + (RADIUS_LARGE / 2);
-	m_bbheight             = b_height + fh/2 + ButtonSpacing;
+	fh                     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight();
+	b_height               = std::max(fh, ih) + 8 + (RADIUS_MID / 2);
+	m_bbheight             = b_height + fh/2 + ButtonSpacing + OFFSET_SHADOW;
 	result                 = Default;
 	b_width                = getButtonWidth();
 	if (ShowButtons        & CMessageBox::mbBtnAlignCenter1)
@@ -131,7 +131,7 @@ int CMessageBox::getButtonWidth()
 	neutrino_locale_t localeMsg[localeMsgCount] = {LOCALE_MESSAGEBOX_YES, LOCALE_MESSAGEBOX_NO, LOCALE_MESSAGEBOX_CANCEL, LOCALE_MESSAGEBOX_OK, LOCALE_MESSAGEBOX_BACK};
 	int MaxButtonTextWidth = 0;
 	for (int i = 0; i < localeMsgCount; i++)
-		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(localeMsg[i])), MaxButtonTextWidth);
+		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(localeMsg[i])), MaxButtonTextWidth);
 	return MaxButtonTextWidth + i_maxw + 36 + (RADIUS_LARGE / 2);
 }
 
@@ -172,13 +172,15 @@ void CMessageBox::paintButtons()
 			color   = COL_MENUCONTENTSELECTED_TEXT;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		} else {
-			color   = COL_INFOBAR_SHADOW_TEXT;
-			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
+			color   = COL_MENUCONTENTINACTIVE_TEXT;
+			bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 		}
 		CFrameBuffer::getInstance()->getIconSize(Buttons[i].icon, &iw, &ih);
-		m_window->paintBoxRel(xpos, ypos, b_width, b_height, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);
+		m_window->paintBoxRel(xpos + OFFSET_SHADOW, ypos + OFFSET_SHADOW, b_width, b_height, COL_SHADOW_PLUS_0, RADIUS_MID);
+		m_window->paintBoxRel(xpos, ypos, b_width, b_height, (CFBWindow::color_t)bgcolor, RADIUS_MID);
+		m_window->paintBoxFrame(xpos, ypos, b_width, b_height, 1, COL_SHADOW_PLUS_0, RADIUS_MID);
 		m_window->paintIcon(Buttons[i].icon, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
+		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
 			               b_width - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color);
 		xpos += b_width + ButtonDistance;
 	}
@@ -231,7 +233,7 @@ int CMessageBox::exec(int timeout)
 			result = mbrYes;
 			loop   = false;
 		}
-		else if(msg==CRCInput::RC_right)
+		else if(msg==CRCInput::RC_right && ButtonCount > 1)
 		{
 			bool ok = false;
 			while (!ok)
@@ -255,7 +257,7 @@ int CMessageBox::exec(int timeout)
 				paintButtons();
 			}
 		}
-		else if(msg==CRCInput::RC_left)
+		else if(msg==CRCInput::RC_left && ButtonCount > 1)
 		{
 			bool ok = false;
 			while (!ok)
@@ -271,8 +273,9 @@ int CMessageBox::exec(int timeout)
 		{
 			loop = false;
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites))
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg) || (msg == CRCInput::RC_spkr))
 		{
+			// do nothing
 		}
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 		{
@@ -289,7 +292,10 @@ int CMessageBox::exec(int timeout)
 
 int ShowMsg(const neutrino_locale_t Caption, const char * const Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon, const int Width, const int timeout, bool returnDefaultOnTimeout)
 {
-	CMessageBox* messageBox = new CMessageBox(Caption, Text, Width, Icon, Default, ShowButtons);
+	std::string tmpText = "msg error";
+	if(Text)
+		tmpText = Text;
+	CMessageBox* messageBox = new CMessageBox(Caption, tmpText.c_str(), Width, Icon, Default, ShowButtons);
 	messageBox->returnDefaultValueOnTimeout(returnDefaultOnTimeout);
 	messageBox->exec(timeout);
 	int res = messageBox->result;
@@ -300,7 +306,10 @@ int ShowMsg(const neutrino_locale_t Caption, const char * const Text, const CMes
 
 int ShowMsg(const std::string &Caption, const char * const Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon, const int Width, const int timeout, bool returnDefaultOnTimeout)
 {
-   	CMessageBox* messageBox = new CMessageBox(Caption, Text, Width, Icon, Default, ShowButtons);
+	std::string tmpText = "msg error";
+	if(Text)
+		tmpText = Text;
+	CMessageBox* messageBox = new CMessageBox(Caption, tmpText.c_str(), Width, Icon, Default, ShowButtons);
 	messageBox->returnDefaultValueOnTimeout(returnDefaultOnTimeout);
 	messageBox->exec(timeout);
 	int res = messageBox->result;

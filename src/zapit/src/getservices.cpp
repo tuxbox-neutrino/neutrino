@@ -33,6 +33,7 @@
 #include <math.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <fstream>
 
 //#define SAVE_DEBUG
 
@@ -516,7 +517,6 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 			channel->flags = flags;
 			channel->scrambled = scrambled;
 			channel->polarization = polarization;
-			service_type = channel->getServiceType();
 			if(pmtpid != 0 && (((channel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) && (apid > 0))
 						|| ( (channel->getServiceType() == ST_DIGITAL_TELEVISION_SERVICE)  && (vpid > 0) && (apid > 0))) ) {
 				DBG("[getserv] preset chan %s vpid %X sid %X tpid %X onid %X\n", name.c_str(), vpid, service_id, transport_stream_id, transport_stream_id);
@@ -968,13 +968,17 @@ do_current:
 	return true;
 }
 
-void CServiceManager::CopyFile(char * from, char * to)
+void CServiceManager::CopyFile(const char * from, const char * to)
 {
-        char cmd[256] = "cp -f ";
-        strcat(cmd, from);
-        strcat(cmd, " ");
-        strcat(cmd, to);
-        system(cmd);
+	std::ifstream in(from, std::ios::in | std::ios::binary);
+	if(in.good()){
+		std::ofstream out(to, std::ios::out | std::ios::binary);
+		if(out.good()){
+			out << in.rdbuf();
+			out.close();
+		}
+		in.close();
+	}
 	sync();
 }
 

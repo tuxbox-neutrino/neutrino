@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_detailsline.h"
+#include "cc_draw.h"
 
 using namespace std;
 
@@ -60,7 +61,9 @@ void CComponentsDetailLine::initVarDline(	const int& x_pos, const int& y_pos_top
 	shadow_w	= 1;
 
 	//CComponentsDetailLine
-	thickness 	= 4;
+	thickness 	= 4; /* MUST be an even value! */
+
+	cc_body_gradient_enable = false;
 }
 
 CComponentsDetailLine::~CComponentsDetailLine()
@@ -85,41 +88,53 @@ CComponentsDetailLine::~CComponentsDetailLine()
 //paint details line with current parameters
 void CComponentsDetailLine::paint(bool do_save_bg)
 {
-	clearFbData();
+	cc_save_bg = do_save_bg;
 
-	int y_mark_top = y-h_mark_top/2+thickness/2;
-	int y_mark_down = y_down-h_mark_down/2+thickness/2;
+	hide();
+	if (hasChanges())
+		clearFbData();
 
-	int sw = shadow_w;
+	if (v_fbdata.empty()){
 
-	comp_fbdata_t fbdata[] =
-	{
-		/* vertical item mark | */
-		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw, 	y_mark_top, 		thickness, 		h_mark_top, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_top+sw, 		sw, 			h_mark_top-sw, 		col_shadow, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-thickness,	y_mark_top+h_mark_top, 	thickness, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
+		int sw = shadow_w;
 
-		/* horizontal item line - */
-		{CC_FBDATA_TYPE_LINE, x, 			y,			width-thickness-sw,	thickness, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+thickness,		y+thickness,		width-2*thickness-sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
+		// reduce two times the shadow width, to avoid shadow overlaps
+		h_mark_down -= 2*sw;
 
-		/* vertical connect line [ */
-		{CC_FBDATA_TYPE_LINE, x,			y+thickness, 		thickness, 		y_down-y-thickness, 	col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+thickness,		y+thickness+sw,		sw, 			y_down-y-thickness-sw,	col_shadow, 	0, 0, NULL, NULL},
+		int y_mark_top = y-h_mark_top/2;
+		int y_mark_down = y_down-h_mark_down/2;
 
-		/* horizontal info line - */
-		{CC_FBDATA_TYPE_LINE, x,			y_down, 		width-thickness-sw, 	thickness, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+sw,			y_down+thickness, 	width-thickness-2*sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
+		cc_fbdata_t fbdata[] =
+		{
+			/*buffered bg full width and height */
+			{true, CC_FBDATA_TYPE_BGSCREEN,	x,			y_mark_top, 		width,			y_mark_down-y_mark_top+h_mark_down+sw,	0, 0, 0, 0, NULL, NULL, NULL, false},
 
-		/* vertical info mark | */
-		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down, 		thickness, 		h_mark_down, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_down+sw,		sw, 			h_mark_down-sw,		col_shadow, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-thickness,	y_mark_down+h_mark_down,thickness, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
-	};
+			/* vertical item mark | */
+			{true, CC_FBDATA_TYPE_BOX, 	x+width-thickness-sw, 	y_mark_top, 		thickness, 		h_mark_top, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+width-sw,		y_mark_top+sw, 		sw, 			h_mark_top-sw, 		col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+width-thickness,	y_mark_top+h_mark_top, 	thickness, 		sw,	 		col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
 
-	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
-		v_fbdata.push_back(fbdata[i]);
+			/* horizontal item line - */
+			{true, CC_FBDATA_TYPE_BOX, 	x, 			y-thickness/2,		width-thickness-sw,	thickness, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+thickness,		y+thickness/2,		width-2*thickness-sw,	sw, 			col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
 
+			/* vertical connect line [ */
+			{true, CC_FBDATA_TYPE_BOX, 	x,			y+thickness/2, 		thickness, 		y_down-y-thickness, 	col_body, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+thickness,		y+thickness/2+sw,	sw, 			y_down-y-thickness-sw,	col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
+
+			/* horizontal info line - */
+			{true, CC_FBDATA_TYPE_BOX, 	x,			y_down-thickness/2,	width-thickness-sw, 	thickness, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+sw,			y_down+thickness/2, 	width-thickness-2*sw,	sw, 			col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
+
+			/* vertical info mark | */
+			{true, CC_FBDATA_TYPE_BOX, 	x+width-thickness-sw,	y_mark_down, 		thickness, 		h_mark_down, 		col_body, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+width-sw,		y_mark_down+sw,		sw, 			h_mark_down-sw,		col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX, 	x+width-thickness,	y_mark_down+h_mark_down,thickness, 		sw,	 		col_shadow, 	0, 0, 0, NULL, NULL, NULL, false},
+		};
+
+		for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
+			v_fbdata.push_back(fbdata[i]);
+	}
 	paintFbItems(do_save_bg);
 }
 
@@ -128,6 +143,6 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 //so you can ensure correct applied system colors in relevant objects with unchanged instances.
 void CComponentsDetailLine::syncSysColors()
 {
-	col_body 	= COL_MENUCONTENT_PLUS_6;
-	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
+	col_body 	= COL_FRAME_PLUS_0;
+	col_shadow 	= COL_SHADOW_PLUS_0;
 }

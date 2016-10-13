@@ -1,7 +1,8 @@
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
-
+	Copyright (C) 2001 Steffen Hehn 'McClean'
+	Copyright (C) 2015 Sven Hoefer (svenhoefer)
 
 	License: GPL
 
@@ -21,28 +22,30 @@
 */
 
 
-#ifndef _remoteLock_
-#define _remoteLock_
+#ifndef _rc_lock_
+#define _rc_lock_
 
 #include <gui/widget/menue.h>
 
 #include <string>
 
-
-//
-// -- Implements RemoteControl Locking...
-// -- ... usefull, if you want to protect your box against unintented zapping
-// -- 2003-12-01 rasc
-//
 class CRCLock: public CMenuTarget
 {
 private:
-	void lockBox();
+	bool locked;
+	CComponentsPicture *lockIcon;
+
+	void lockRC();
 
 public:
-	static const std::string NO_USER_INPUT; 
-	int  exec(CMenuTarget* parent, const std::string & actionKey);
-	static bool locked;
+	CRCLock();
+	~CRCLock();
+	static CRCLock* getInstance();
+
+	static const std::string NO_USER_INPUT;
+
+	int isLocked() { return locked; }
+	int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
 #endif

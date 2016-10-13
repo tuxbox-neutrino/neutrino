@@ -1,7 +1,7 @@
 {=var-set:cancache=yPConf=}
 {=include-block:Y_Blocks.txt;head=}
 </head>
-{=var-set:alt_httpd={=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory;/var/httpd=}=}
+{=var-set:alt_httpd={=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.override_directory;%(PUBLIC_HTTPDDIR)=}=}
 {=var-set:vf={=if-file-exists:{=var-get:alt_httpd=}/Y_Version.txt~{=var-get:alt_httpd=}/Y_Version.txt~Y_Version.txt=}=}
 <body>
 <div class="work_box">

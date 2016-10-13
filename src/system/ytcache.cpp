@@ -290,12 +290,13 @@ void cYTCache::cancelAll(MI_MOVIE_INFO::miSource source)
 		if (pending.empty())
 			return;
 		if (pending.size() > 1)
-			for (std::vector<MI_MOVIE_INFO>::iterator it = pending.begin() + 1; it != pending.end();)
+			for (std::vector<MI_MOVIE_INFO>::iterator it = pending.begin() + 1; it != pending.end();){
 				if ((*it).source == source) {
 					failed.push_back(*it);
 					it = pending.erase(it);
 				} else
 					++it;
+			}
 		if (pending.front().source != source)
 			return;
 	}

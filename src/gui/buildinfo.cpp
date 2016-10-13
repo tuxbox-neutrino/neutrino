@@ -82,7 +82,7 @@ int CBuildInfo::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
 			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
@@ -145,7 +145,7 @@ bool CBuildInfo::HasData()
 
 #if 0
 	CConfigFile data ('\t');
-	data.loadConfig("/.version");
+	data.loadConfig(TARGET_PREFIX "/.version");
 	build_info_t creator	= {BI_TYPE_ID_CREATOR, LOCALE_BUILDINFO_CREATOR, data.getString("creator", "n/a")};
 	v_info.push_back(creator);
 #endif
@@ -174,7 +174,7 @@ void CBuildInfo::InitInfoItems()
 
 	//init info texts
 	for(size_t i=0; i<v_info.size(); i++){
-		CComponentsExtTextForm *info = new CComponentsExtTextForm(10, CC_APPEND, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text, ccw_body);
+		CComponentsExtTextForm *info = new CComponentsExtTextForm(10, CC_APPEND, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text, NULL, ccw_body);
 		info->setLabelAndTextFont(font);
 		info->setTextModes(CTextBox::TOP , CTextBox::AUTO_HIGH | CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS);
 		info->doPaintBg(false);

@@ -38,7 +38,7 @@
 #include <driver/display.h>
 #include <driver/screen_max.h>
 #include <system/debug.h>
-
+#include <gui/color_custom.h>
 #include <cs_api.h>
 
 #include <unistd.h>
@@ -107,7 +107,7 @@ CTestMenu::~CTestMenu()
 	delete scrollbar;
 }
 
-static int test_pos[4] = { 130, 192, 282, 360 };
+//static int test_pos[4] = { 130, 192, 282, 360 };
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
@@ -135,13 +135,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CVFD::getInstance()->ShowIcon((fp_icon) 0x09000002, true);
 		CVFD::getInstance()->ShowIcon((fp_icon) 0x0B000002, true);
 		char text[255];
-		char buf[XML_UTF8_ENCODE_MAX];
 		int ch = 0x2588;
-		int len = XmlUtf8Encode(ch, buf);
-
+		std::string tmp = Unicode_Character_to_UTF8(ch);
+		size_t len = tmp.size();
 		for (int i = 0; i < 12; i++)
 		{
-			memmove(&text[i*len], buf, len);
+			memmove(&text[i*len], tmp.c_str(), len);
 		}
 		text[12*len] = 0;
 
@@ -495,9 +494,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			header->addContextButton(NEUTRINO_ICON_BUTTON_RED);
 			header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
-		else	//For existing instances it's recommended to remove old button icons before add new buttons,
+		else{	//For existing instances it's recommended to remove old button icons before add new buttons,
 			//otherwise icons will be appended to already existant icons, alternatively use the setContextButton() methode
  			header->removeContextButtons();
+			//enable clock in header with default format
+			header->enableClock(true, "%H:%M", "%H %M", true);
+		}
 
 //		example to manipulate header items
 // 		header->setFrameThickness(5);
@@ -534,10 +536,13 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 		header->insertCCItem(1, logo); //replace text with logo
 
 		
-		if (!header->isPainted())
+		if (!header->isPainted()){
 			header->paint();
-		else
+		}
+		else{
 			header->hide();
+		}
+
 		return res;
 	}
 	else if (actionKey == "footer"){
@@ -545,7 +550,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (footer == NULL){
 			footer = new CComponentsFooter (100, 30, 1000, hh, CComponentsFooter::CC_BTN_HELP | CComponentsFooter::CC_BTN_EXIT | CComponentsFooter::CC_BTN_MENU |CComponentsFooter::CC_BTN_MUTE_ZAP_ACTIVE, NULL, true);
 			//int start = 5, btnw =90, btnh = 37;
-			footer->setButtonFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
+			footer->setButtonFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]);
 			footer->setIcon(NEUTRINO_ICON_INFO);
 
 			//add button labels with conventional button label struct
@@ -629,7 +634,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			window->setWindowCaption("|.....................|");
 			window->setDimensionsAll(50, 50, 500, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
-			window->setShadowOnOff(true);
+			window->enableShadow();
 
 			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
 			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);
@@ -672,9 +677,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "running_clock"){	
 		if (clock_r == NULL){
-			clock_r = new CComponentsFrmClock(100, 50, 0, 50, "%H.%M:%S", true);
-			clock_r->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
-			clock_r->setClockIntervall(1);
+			clock_r = new CComponentsFrmClock(100, 50, NULL, "%H.%M:%S", NULL, true);
+			clock_r->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
+			clock_r->setClockInterval(1);
 // 			clock_r->doPaintBg(false);
 		}
 		
@@ -684,7 +689,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		else {
 			if (clock_r->Stop()){
-				clock_r->hide();
+				clock_r->kill();
 				delete clock_r;
 				clock_r = NULL;
 				return menu_return::RETURN_EXIT_ALL;
@@ -693,8 +698,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "clock"){
 		if (clock == NULL){
-			clock = new CComponentsFrmClock(100, 50, 0, 50, "%H:%M", false);
-			clock->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+			clock = new CComponentsFrmClock(100, 50, NULL, "%d.%m.%Y-%H:%M");
+			clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 		}
 
 		if (!clock->isPainted())

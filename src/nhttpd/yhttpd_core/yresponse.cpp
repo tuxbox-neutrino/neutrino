@@ -34,6 +34,7 @@
 CWebserverResponse::CWebserverResponse(CWebserver *pWebserver) {
 	Webserver = pWebserver;
 	CWebserverResponse();
+	Connection=NULL;
 }
 //-----------------------------------------------------------------------------
 CWebserverResponse::CWebserverResponse() {

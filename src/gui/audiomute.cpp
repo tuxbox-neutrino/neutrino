@@ -5,7 +5,7 @@
 	audioMute - Neutrino-GUI
 	Copyright (C) 2013 M. Liebmann (micha-bbg)
 	CComponents implementation
-	Copyright (C) 2013 Thilo Graf
+	Copyright (C) 2013-2015 Thilo Graf
 
 	License: GPL
 
@@ -71,14 +71,20 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			if (do_paint_mute_icon)
 			{
 				frameBuffer->fbNoCheck(true);
-				this->hide(true);
+				this->hide();
 				frameBuffer->fbNoCheck(false);
 			}
 			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 			y_old = y;
 		}
-		if ((g_settings.mode_clock) && (doInit))
+
+		/* Infoclock should be blocked in all windows and clean the clock
+		 * display with ClearDisplay() by itself before paint,
+		 * so we don't do this here.
+		*/
+		if (!CInfoClock::getInstance()->isBlocked()){
 			CInfoClock::getInstance()->ClearDisplay();
+		}
 
 		frameBuffer->fbNoCheck(true);
 		if (newValue) {
@@ -87,8 +93,12 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1, x, y, width, height);
 		}
 		else {
-			if (do_paint_mute_icon)
-				this->hide(true);
+			if (!CInfoClock::getInstance()->isBlocked()){
+				CInfoClock::getInstance()->ClearDisplay();
+				this->kill();
+				clearSavedScreen();
+			}else
+				this->hide();
 			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 		}
 		frameBuffer->fbNoCheck(false);
@@ -107,8 +117,8 @@ void CAudioMute::enableMuteIcon(bool enable)
 			this->paint();
 	}
 	else {
-		if (neutrino->isMuted())
-			this->hide(true);
+		if (!neutrino->isMuted())
+			this->kill();
 		frameBuffer->doPaintMuteIcon(false);
 		do_paint_mute_icon = false;
 	}

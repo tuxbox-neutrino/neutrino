@@ -69,7 +69,7 @@ extern cVideo * videoDecoder;
 #include "plugins.h"
 
 #include <daemonc/remotecontrol.h>
-#include <gui/luainstance.h>
+#include <gui/lua/luainstance.h>
 
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -350,11 +350,11 @@ PluginParam * CPlugins::makeParam(const char * const id, const int value, Plugin
 }
 #endif
 
-void CPlugins::startPlugin_by_name(const std::string & filename)
+void CPlugins::startPlugin_by_name(const std::string & name)
 {
 	for (int i = 0; i <  (int) plugin_list.size(); i++)
 	{
-		if (!filename.compare(g_PluginList->getFileName(i)))
+		if (name.compare(g_PluginList->getName(i)) == 0)
 		{
 			startPlugin(i);
 			return;
@@ -362,13 +362,13 @@ void CPlugins::startPlugin_by_name(const std::string & filename)
 	}
 }
 
-void CPlugins::startPlugin(const char * const name)
+void CPlugins::startPlugin(const char * const filename)
 {
-	int pluginnr = find_plugin(name);
+	int pluginnr = find_plugin(filename);
 	if (pluginnr > -1)
 		startPlugin(pluginnr);
 	else
-		printf("[CPlugins] could not find %s\n", name);
+		printf("[CPlugins] could not find %s\n", filename);
 
 }
 
@@ -409,7 +409,8 @@ void CPlugins::startScriptPlugin(int number)
 		chmod(script, 0755);
 	if (plugin_list[number].shellwindow)
 	{
-		CShellWindow(script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE);
+		int res = 0;
+		CShellWindow (script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE, &res);
 		scriptOutput = "";
 	}
 	else
@@ -426,9 +427,11 @@ void CPlugins::startLuaPlugin(int number)
 		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
+#ifdef ENABLE_LUA
 	CLuaInstance *lua = new CLuaInstance();
 	lua->runScript(script);
 	delete lua;
+#endif
 #if HAVE_SPARK_HARDWARE
 	frameBuffer->ClearFB();
 #endif

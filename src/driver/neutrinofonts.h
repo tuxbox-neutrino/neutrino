@@ -44,7 +44,7 @@ typedef struct font_sizes {
 
 typedef struct font_sizes_groups {
 	const neutrino_locale_t			groupname;
-	const unsigned int			count;
+	const size_t				count;
 	const SNeutrinoSettings::FONT_TYPES	*const content;
 	const char * const			actionkey;
 	const neutrino_locale_t hint;
@@ -55,6 +55,16 @@ class CNeutrinoFonts
 	private:
 		std::string fontStyle[3];
 		std::string dynFontStyle[3];
+		typedef struct dyn_size_t
+		{
+			int dx;
+			int dy;
+			int dynsize;
+			int style;
+			std::string text;
+		} dyn_size_struct_t;
+		typedef std::vector<dyn_size_t> v_dyn_size_t;
+		v_dyn_size_t vDynSize;
 
 		typedef struct dyn_font_t
 		{
@@ -70,6 +80,7 @@ class CNeutrinoFonts
 		typedef std::vector<dyn_font_t> v_dyn_fonts_t;
 		v_dyn_fonts_t v_share_fonts;
 		v_dyn_fonts_t v_dyn_fonts;
+		v_dyn_fonts_t v_dyn_fonts_ext;
 		bool useDigitOffset;
 
 		void InitDynFonts();
@@ -78,6 +89,8 @@ class CNeutrinoFonts
 		int getDynFontSize(int dx, int dy, std::string text, int style);
 		Font **getDynFontShare(int &dx, int &dy, std::string text, int style);
 		Font **getDynFontWithID(int &dx, int &dy, std::string text, int style, unsigned int f_id);
+		void clearDynFontStruct(dyn_font_t* f);
+		void initDynFontExt();
 
 	public:
 		enum {
@@ -104,6 +117,10 @@ class CNeutrinoFonts
 			FONTSETUP_ALL			= FONTSETUP_NEUTRINO_FONT | FONTSETUP_NEUTRINO_FONT_INST | FONTSETUP_DYN_FONT | FONTSETUP_DYN_FONT_INST
 		};
 
+		enum {
+			DYNFONTEXT_MAX = 16
+		};
+
 		CNeutrinoFonts();
 		~CNeutrinoFonts();
 		static CNeutrinoFonts* getInstance();
@@ -116,6 +133,9 @@ class CNeutrinoFonts
 		void refreshDynFonts();
 		Font **getDynFont(int &dx, int &dy, std::string text="", int style=FONT_STYLE_REGULAR, int share=FONT_ID_SHARE);
 		void setFontUseDigitHeight(bool set=true) {useDigitOffset = set;}
+
+		Font *getDynFontExt(int &dx, int &dy, unsigned int f_id, std::string text="", int style=FONT_STYLE_REGULAR);
+		void deleteDynFontExtAll();
 };
 
 

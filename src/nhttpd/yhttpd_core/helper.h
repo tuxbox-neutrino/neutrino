@@ -48,5 +48,12 @@ std::string json_out_pair(std::string _key, std::string _value);
 std::string json_out_success(std::string _result);
 std::string json_out_error(std::string _error);
 std::string json_convert_string(std::string s);
+/// Returns true if ch is a control character (in range [0,32]).
+static inline bool isControlCharacter(char ch) { return ch > 0 && ch <= 0x1F;}
+
+//-----------------------------------------------------------------------------
+// Script Helpers
+//-----------------------------------------------------------------------------
+std::string yExecuteScript(std::string cmd);
 
 #endif /* __yhttpd_helper_h__ */

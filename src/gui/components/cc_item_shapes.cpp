@@ -37,18 +37,18 @@ using namespace std;
 //sub class CComponentsShapeSquare from CComponentsItem
 CComponentsShapeSquare::CComponentsShapeSquare(	const int x_pos, const int y_pos, const int w, const int h,
 						CComponentsForm *parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponentsItem
 	cc_item_type 	= CC_ITEMTYPE_SHAPE_SQUARE;
 
-	x 		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	height	 	= h;
-	shadow		= has_shadow;
-	shadow_w	= SHADOW_OFFSET;
+	x 		= x_old = x_pos;
+	y 		= y_old = y_pos;
+	width 		= width_old = w;
+	height	 	= height_old = h;
+	shadow		= shadow_mode;
+	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
@@ -65,7 +65,7 @@ void CComponentsShapeSquare::paint(bool do_save_bg)
 //sub class CComponentsShapeCircle from CComponentsItem
 CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam,
 						CComponentsForm *parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
@@ -75,8 +75,8 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam,
 	x 		= x_pos;
 	y 		= y_pos;
 	//width = height	= d = diam;
-	shadow		= has_shadow;
-	shadow_w	= SHADOW_OFFSET;
+	shadow		= shadow_mode;
+	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;

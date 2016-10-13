@@ -48,7 +48,7 @@ extern font_sizes_groups_struct font_sizes_groups[];
 extern font_sizes_struct neutrino_font[];
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 
-const font_sizes_struct signal_font = {LOCALE_FONTSIZE_INFOBAR_SMALL, 14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
+const font_sizes_struct signal_font = {NONEXISTANT_LOCALE, 14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
 
 CNeutrinoFonts::CNeutrinoFonts()
 {
@@ -69,17 +69,22 @@ CNeutrinoFonts::CNeutrinoFonts()
 	InitDynFonts();
 }
 
+void CNeutrinoFonts::clearDynFontStruct(dyn_font_t* f)
+{
+	f->dx			= 0;
+	f->dy			= 0;
+	f->size			= 0;
+	f->style		= 0;
+	f->text			= "";
+	f->font			= NULL;
+	f->useDigitOffset	= false;
+}
+
 void CNeutrinoFonts::InitDynFonts()
 {
 	for (int i = 0; i < FONT_ID_MAX; i++) {
 		dyn_font_t dyn_font;
-		dyn_font.dx		= 0;
-		dyn_font.dy		= 0;
-		dyn_font.size		= 0;
-		dyn_font.style		= 0;
-		dyn_font.text		= "";
-		dyn_font.font		= NULL;
-		dyn_font.useDigitOffset	= false;
+		clearDynFontStruct(&dyn_font);
 		v_dyn_fonts.push_back(dyn_font);
 	}
 }
@@ -97,6 +102,10 @@ CNeutrinoFonts::~CNeutrinoFonts()
 			delete v_dyn_fonts[i].font;
 		v_dyn_fonts.clear();
 	}
+	if (!vDynSize.empty()) {
+		vDynSize.clear();
+	}
+	deleteDynFontExtAll();
 }
 
 CNeutrinoFonts* CNeutrinoFonts::getInstance()
@@ -117,6 +126,9 @@ void CNeutrinoFonts::SetupDynamicFonts(bool initRenderClass/*=true*/)
 		dynFontStyle[0] = g_dynFontRenderer->AddFont(fontDescr.filename.c_str());
 
 		fontDescr.name = g_dynFontRenderer->getFamily(fontDescr.filename.c_str());
+		if (!vDynSize.empty()) {
+			vDynSize.clear();
+		}
 		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] dynamic font family: %s\n", __func__, __LINE__, fontDescr.name.c_str());
 		dynFontStyle[1] = "Bold Regular";
 
@@ -154,6 +166,9 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.name = fontDescr.name;
 		fontDescr.name = "";
 		fontDescr.name = g_fontRenderer->getFamily(fontDescr.filename.c_str());
+		if (!vDynSize.empty()) {
+			vDynSize.clear();
+		}
 		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] standard font family: %s\n", __func__, __LINE__, fontDescr.name.c_str());
 		fontStyle[1] = "Bold Regular";
 
@@ -226,11 +241,22 @@ int CNeutrinoFonts::getFontHeight(Font* fnt)
 
 int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 {
-	Font *dynFont	= NULL;
-	int dynSize	= 8;
-	bool dynFlag	= false;
-
+	int dynSize	= dy/1.6;
 	if (dx == 0) dx = 1280;
+
+	if (!vDynSize.empty()) {
+		for (size_t i = 0; i < vDynSize.size(); i++) {
+			if ((vDynSize[i].dy == dy) &&
+			    (vDynSize[i].dx == dx) &&
+			    (vDynSize[i].style == style) &&
+			    (vDynSize[i].text == text)) {
+				dynSize = vDynSize[i].dynsize;
+				return dynSize;
+			}
+		}
+	}
+	Font *dynFont	= NULL;
+	bool dynFlag	= false;
 	while (1) {
 		if (dynFont)
 			delete dynFont;
@@ -257,8 +283,22 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 			break;
 	}
 
-	if (dynFont)
+	if (dynFont){
 		delete dynFont;
+
+		if (!vDynSize.empty() && vDynSize.size() > 99) {
+			vDynSize.clear();
+		}
+		if(dynSize){
+			dyn_size_t v;
+			v.dx		= dx;
+			v.dy		= dy;
+			v.dynsize	= dynSize;
+			v.style		= style;
+			v.text		= text;
+			vDynSize.push_back(v);
+		}
+	}
 
 	return dynSize;
 }
@@ -338,6 +378,66 @@ Font **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int 
 	dy = (*ret)->getHeight();
 	if (!text.empty())
 		dx = (*ret)->getRenderWidth(text);
+#ifdef DEBUG_NFONTS
+	printf("##### [%s] dx: %d, dy: %d, dynSize: %d, dynFont: %p, ret: %p, FontID: %d\n", __FUNCTION__, dx, dy, dynSize, *ret, ret, f_id);
+#endif
+	return ret;
+}
+
+void CNeutrinoFonts::initDynFontExt()
+{
+	for (int i = 0; i < DYNFONTEXT_MAX; i++) {
+		dyn_font_t dyn_font;
+		clearDynFontStruct(&dyn_font);
+		v_dyn_fonts_ext.push_back(dyn_font);
+	}
+}
+
+void CNeutrinoFonts::deleteDynFontExtAll()
+{
+	if (!v_dyn_fonts_ext.empty()) {
+		for (size_t i = 0; i < v_dyn_fonts_ext.size(); ++i) {
+			if (v_dyn_fonts_ext[i].font != NULL)
+				delete v_dyn_fonts_ext[i].font;
+		}
+		v_dyn_fonts_ext.clear();
+	}
+}
+
+Font *CNeutrinoFonts::getDynFontExt(int &dx, int &dy, unsigned int f_id, std::string text/*=""*/, int style/*=FONT_STYLE_REGULAR*/)
+{
+	if ((dx <= 0) && (dy <= 0))
+		return NULL;
+	if ((fontDescr.name.empty()) || (fontDescr.filename.empty()))
+		SetupNeutrinoFonts();
+	if (g_dynFontRenderer == NULL)
+		SetupDynamicFonts();
+	if (v_dyn_fonts_ext.empty())
+		initDynFontExt();
+
+	int dynSize = getDynFontSize(dx, dy, text, style);
+	Font *dynFont = NULL;
+	Font *ret = NULL;
+
+	if (f_id < v_dyn_fonts_ext.size()) {
+		dynFont = g_dynFontRenderer->getFont(fontDescr.name.c_str(), dynFontStyle[style].c_str(), dynSize);
+		if (v_dyn_fonts_ext[f_id].font != NULL)
+			delete v_dyn_fonts_ext[f_id].font;
+		v_dyn_fonts_ext[f_id].dx		= dx;
+		v_dyn_fonts_ext[f_id].dy		= dy;
+		v_dyn_fonts_ext[f_id].size		= dynSize;
+		v_dyn_fonts_ext[f_id].style		= style;
+		v_dyn_fonts_ext[f_id].text		= text;
+		v_dyn_fonts_ext[f_id].font		= dynFont;
+		v_dyn_fonts_ext[f_id].useDigitOffset	= useDigitOffset;
+		ret = v_dyn_fonts_ext[f_id].font;
+	}
+	else
+		return NULL;
+
+	dy = ret->getHeight();
+	if (!text.empty())
+		dx = ret->getRenderWidth(text);
 #ifdef DEBUG_NFONTS
 	printf("##### [%s] dx: %d, dy: %d, dynSize: %d, dynFont: %p, ret: %p, FontID: %d\n", __FUNCTION__, dx, dy, dynSize, *ret, ret, f_id);
 #endif

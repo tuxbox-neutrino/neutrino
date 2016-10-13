@@ -19,6 +19,7 @@ class CControlAPI : public Cyhook
 private:
 	// Dispatcher Array
 	typedef void (CControlAPI::*TyFunc)(CyhookHandler *hh);
+	std::string func_req;
 	typedef struct
 	{
 		const char *func_name;
@@ -27,28 +28,41 @@ private:
 	} TyCgiCall;
 	const static TyCgiCall yCgiCallList[];
 
+	struct FileCGI_List
+	{
+		std::string name;
+		std::string type_str;
+		unsigned char type;
+		std::string fullname;
+
+		bool operator() (FileCGI_List a, FileCGI_List b)
+		{
+			return (a.name < b.name);
+		}
+	} fsort;
+
 	int rc_send(int ev, unsigned int code, unsigned int value);
 
 	// send functions for ExecuteCGI (controld api)
 	void SendEventList(CyhookHandler *hh,t_channel_id channel_id);
+	void SendFoundEvents(CyhookHandler *hh, bool xml_format = false);
 	void SendcurrentVAPid(CyhookHandler *hh);
 	void SendAllCurrentVAPid(CyhookHandler *hh);
 	void SendStreamInfo(CyhookHandler *hh);
 	void SendBouquets(CyhookHandler *hh);
 	void SendBouquet(CyhookHandler *hh,int BouquetNr);
 	void SendChannelList(CyhookHandler *hh,  bool currentTP = false);
+	void SendTimersPlain(CyhookHandler *hh);
 	void SendTimers(CyhookHandler *hh);
-	void SendTimersXML(CyhookHandler *hh);
 	void epgDetailList(CyhookHandler *hh);
 	void EpgSearchXMLCGI(CyhookHandler *hh);
-	void EpgSearchTXTCGI(CyhookHandler *hh);
-	void EpgSearchCGI(CyhookHandler *hh, bool xml_format = false);
+	void EpgSearchCGI(CyhookHandler *hh);
 	// subs
 	friend class CNeutrinoWebserver; // for timer /fb/ compatibility
 	void doModifyTimer(CyhookHandler *hh);
 	void doNewTimer(CyhookHandler *hh);
-	void _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
-	std::string _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int nr);
+	std::string _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
+	std::string _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int channelNr);
 	std::string channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime);
 	std::string _GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel);
 
@@ -56,7 +70,6 @@ private:
 	void YWeb_SendVideoStreamingPids(CyhookHandler *hh, int apid_no);
 	void YWeb_SendRadioStreamingPid(CyhookHandler *hh);
 	void compatibility_Timer(CyhookHandler *hh);
-	std::string YexecuteScript(CyhookHandler *hh, std::string cmd);
 
 	// CGI functions for ExecuteCGI
 	void TimerCGI(CyhookHandler *hh);
@@ -71,7 +84,7 @@ private:
 	void GetServicesxmlCGI(CyhookHandler *hh);
 	void GetBouquetsxmlCGI(CyhookHandler *hh);
 	void GetUBouquetsxmlCGI(CyhookHandler *hh);
-	void GetChannel_IDCGI(CyhookHandler *hh);
+	void GetChannelIDCGI(CyhookHandler *hh);
 	void GetTPChannel_IDCGI(CyhookHandler *hh);
 	void MessageCGI(CyhookHandler *hh);
 	void InfoCGI(CyhookHandler *hh);
@@ -81,6 +94,7 @@ private:
 	void ChannellistCGI(CyhookHandler *hh);
 	void LogolistCGI(CyhookHandler *hh);
 	void GetBouquetCGI(CyhookHandler *hh);
+	void GetChannelCGI(CyhookHandler *hh);
 	void GetBouquetsCGI(CyhookHandler *hh);
 	void EpgCGI(CyhookHandler *hh);
 	void VersionCGI(CyhookHandler *hh);
@@ -109,22 +123,30 @@ private:
 	void renameBouquetCGI(CyhookHandler *hh);
 	void changeBouquetCGI(CyhookHandler *hh);
 	void updateBouquetCGI(CyhookHandler *hh);
+	void xmltvepgCGI(CyhookHandler *hh);
+	void xmltvm3uCGI(CyhookHandler *hh);
 	void build_live_url(CyhookHandler *hh);
 	void logoCGI(CyhookHandler *hh);
 	void ConfigCGI(CyhookHandler *hh);
 	void FileCGI(CyhookHandler *hh);
+	void StatfsCGI(CyhookHandler *hh);
 	void SignalInfoCGI(CyhookHandler *hh);
+	void getDirCGI(CyhookHandler *hh);
+	void getMoviesCGI(CyhookHandler *hh);
+	std::string readMovies(CyhookHandler *hh, std::string path, std::string result, bool subdirs);
+	std::string getSubdirectories(CyhookHandler *hh, std::string path, std::string result);
 
 
 protected:
-	static const unsigned int PLUGIN_DIR_COUNT = 9;
-	static std::string PLUGIN_DIRS[PLUGIN_DIR_COUNT];
 	CNeutrinoAPI	*NeutrinoAPI;
 
 	void init(CyhookHandler *hh);
 	void Execute(CyhookHandler *hh);
 
 public:
+	static const unsigned int PLUGIN_DIR_COUNT = 9;
+	static std::string PLUGIN_DIRS[PLUGIN_DIR_COUNT];
+
 	// constructor & deconstructor
 	CControlAPI(CNeutrinoAPI *_NeutrinoAPI);
 

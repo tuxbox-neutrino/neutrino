@@ -68,7 +68,7 @@ void CListBox::paint()
 
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 
 	int sbc= ((getItemCount()- 1)/ listmaxshow)+ 1;
 	if (sbc < 1)
@@ -77,7 +77,7 @@ void CListBox::paint()
 	int sbh= (sb- 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs* sbh , 11, sbh,  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs* sbh , 11, sbh,  COL_SCROLLBAR_ACTIVE_PLUS_0);
 }
 
 void CListBox::paintHead()
@@ -188,35 +188,13 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		{
 			loop = false;
 		}
-		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
+		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup ||
+			 msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
-			if(getItemCount()!=0) {
-				int step = (msg == (neutrino_msg_t)g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-				int new_selected = selected - step;
-
-				if (new_selected < 0) {
-					if (selected != 0 && step != 1)
-						new_selected = 0;
-					else
-						new_selected = getItemCount() - 1;
-				}
-				updateSelection(new_selected);
-			}
-		}
-		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
-		{
-			if(getItemCount()!=0) {
-				int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-				int new_selected = selected + step;
-				if (new_selected >= (int) getItemCount()) {
-					if (((getItemCount() - listmaxshow -1 < selected) && (step != 1)) || (selected != (getItemCount() - 1)))
-						new_selected = getItemCount() - 1;
-					else if (((getItemCount() / listmaxshow) + 1) * listmaxshow == getItemCount() + listmaxshow) // last page has full entries
-						new_selected = 0;
-					else
-						new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((getItemCount() / listmaxshow)+1) * listmaxshow))) ? (getItemCount() - 1) : 0;
-				}
-				updateSelection(new_selected);
+			if (getItemCount() != 0) {
+				int new_selected = UpDownKey((int)getItemCount(), msg, listmaxshow, selected);
+				if (new_selected >= 0)
+					updateSelection(new_selected);
 			}
 		}
 		else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end) {
@@ -245,13 +223,13 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		{
 			onBlueKeyPressed();
 		}
-		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites))
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 		{
+			// do nothing
 		}
 		else
 		{
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
-			// kein canceling...
 		}
 	}
 

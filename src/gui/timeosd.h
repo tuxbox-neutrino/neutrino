@@ -60,5 +60,6 @@ class CTimeOSD : public CComponentsFrmClock
 		void switchMode(int position, int duration);
 		mode getMode() { return m_mode; };
 		void setMode (mode mode_) { m_mode = mode_; };
+		void setHeight(const int){}//NOTE: dummy member, height is strictly bound to settings
 };
 #endif

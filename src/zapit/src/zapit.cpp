@@ -75,6 +75,8 @@
 #include <libtuxtxt/teletext.h>
 #include <OpenThreads/ScopedLock>
 
+#include <neutrino.h>
+
 /* globals */
 int sig_delay = 2; // seconds between signal check
 
@@ -505,8 +507,14 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	}
 
 	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
+	if (!firstzap && current_channel)
+		SaveChannelPids(current_channel);
+
+	/* firstzap right now does nothing but control saving the audio channel */
+	firstzap = false;
 
 	if (IS_WEBTV(newchannel->getChannelID()) && !newchannel->getUrl().empty()) {
+		dvbsub_stop();
 		if (!IS_WEBTV(live_channel_id))
 			CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
 
@@ -540,12 +548,6 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		return false;
 	}
 	sig_delay = 2;
-	if (!firstzap && current_channel)
-		SaveChannelPids(current_channel);
-
-	/* firstzap right now does nothing but control saving the audio channel */
-	firstzap = false;
-
 	pmt_stop_update_filter(&pmt_update_fd);
 
 	/* stop playback on the old frontend... */
@@ -1653,14 +1655,13 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		}
 		break;
 	}
-#if 0
         case CZapitMessages::CMD_SET_VIDEO_SYSTEM: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
 		videoDecoder->SetVideoSystem(msg.val);
+		CNeutrinoApp::getInstance()->g_settings_video_Mode(msg.val);
                 break;
         }
-#endif
 #if 0
         case CZapitMessages::CMD_SET_NTSC: {
 		videoDecoder->SetVideoSystem(8);
@@ -2638,14 +2639,13 @@ bool CZapitSdtMonitor::Stop()
 
 void CZapitSdtMonitor::run()
 {
-	time_t /*tstart,*/ tcur, wtime = 0;
+	time_t /*tstart,*/ tcur = 0, wtime = 0;
 	t_transport_stream_id           transport_stream_id = 0;
 	t_original_network_id           original_network_id = 0;
 	t_satellite_position            satellitePosition = 0;
 	freq_id_t                       freq = 0;
 	transponder_id_t 		tpid = 0;
 
-	tcur = time(0);
 	//tstart = time(0);
 	sdt_tp.clear();
 	printf("[zapit] sdt monitor started\n");

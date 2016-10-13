@@ -37,7 +37,7 @@ extern int SysLogLevel;
 #define dsyslog	printf
 #endif
 
-#define LOG_ERROR         esyslog("ERROR (%s,%d): %m", __FILE__, __LINE__)
+#define LOG_ERROR         esyslog("ERROR (%s,%d): %m", __file__, __LINE__)
 #define LOG_ERROR_STR(s)  esyslog("ERROR: %s: %m", s)
 
 #define SECSINDAY  86400
@@ -120,8 +120,8 @@ private:
   mutable int allocated;
   mutable int size;
   mutable T *data;
-  cVector(const cVector &Vector) {} // don't copy...
-  cVector &operator=(const cVector &Vector) { return *this; } // ...or assign this!
+//  cVector(const cVector &Vector) {} // don't copy...
+//  cVector &operator=(const cVector &Vector) { return *this; } // ...or assign this!
   void Realloc(int Index) const
   {
     if (++Index > allocated) {

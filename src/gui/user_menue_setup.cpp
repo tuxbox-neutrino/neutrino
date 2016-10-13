@@ -80,13 +80,13 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_EPG_INFO,		LOCALE_EPGMENU_EVENTINFO,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_EPG_MISC,		LOCALE_USERMENU_ITEM_EPG_MISC,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_AUDIO_SELECT,		LOCALE_AUDIOSELECTMENUE_HEAD,		usermenu_show },
-	{ SNeutrinoSettings::ITEM_SUBCHANNEL,		LOCALE_INFOVIEWER_SUBSERVICE,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_SUBCHANNEL,		LOCALE_NVODSELECTOR_HEAD,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_FILEPLAY,		LOCALE_MOVIEPLAYER_FILEPLAYBACK,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_AUDIOPLAY,		LOCALE_AUDIOPLAYER_NAME,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_INETPLAY,		LOCALE_INETRADIO_NAME,			usermenu_show },
 	{ SNeutrinoSettings::ITEM_MOVIEPLAYER_MB,	LOCALE_MOVIEBROWSER_HEAD,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_TIMERLIST,		LOCALE_TIMERLIST_NAME,			usermenu_show },
-	{ SNeutrinoSettings::ITEM_REMOTE,		LOCALE_RCLOCK_MENUEADD,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_REMOTE,		LOCALE_RCLOCK_TITLE,			usermenu_show },
 	{ SNeutrinoSettings::ITEM_FAVORITS,		LOCALE_FAVORITES_MENUEADD,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_TECHINFO,		LOCALE_EPGMENU_STREAMINFO,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_PLUGIN_TYPES,		LOCALE_USERMENU_ITEM_PLUGIN_TYPES,	usermenu_show },
@@ -100,7 +100,6 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_LUA,                  LOCALE_MAINMENU_LUA,			usermenu_show },
 #if 0
-	{ SNeutrinoSettings::ITEM_ADZAP,		LOCALE_USERMENU_ITEM_ADZAP,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_TUNER_RESTART,	LOCALE_SERVICEMENU_RESTART_TUNER,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_THREE_D_MODE,		LOCALE_THREE_D_SETTINGS,		usermenu_show_three_d_mode },
 	{ SNeutrinoSettings::ITEM_RASS,			LOCALE_RASS_HEAD,			usermenu_show },
@@ -111,6 +110,8 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_HDDMENU,		LOCALE_HDD_SETTINGS,			usermenu_show },
 	{ SNeutrinoSettings::ITEM_NETSETTINGS,		LOCALE_MAINSETTINGS_NETWORK,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_SWUPDATE,		LOCALE_SERVICEMENU_UPDATE,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION,LOCALE_LIVESTREAM_RESOLUTION,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_ADZAP,		LOCALE_USERMENU_ITEM_ADZAP,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_MAX,			NONEXISTANT_LOCALE,			usermenu_show }
 };
 
@@ -189,6 +190,10 @@ int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 static neutrino_locale_t locals[SNeutrinoSettings::ITEM_MAX];
 neutrino_locale_t CUserMenuSetup::getLocale(unsigned int key)
 {
+	if(key >= SNeutrinoSettings::ITEM_MAX){
+		key = SNeutrinoSettings::ITEM_NONE;
+	}
+
 	static bool initialized = false;
 	if (!initialized) {
 		initialized = true;
@@ -262,37 +267,31 @@ int CUserMenuSetup::showSetup()
 }
 
 
-//check items of current button menu and set prefered menue name
-void CUserMenuSetup::checkButtonItems()
+//check button name for details like empty string and show an user message on issue
+void CUserMenuSetup::checkButtonName()
 {
 	//count of configured items
 	int used_items = getUsedItemsCount();
-	
+
 	//warn if no items defined and reset menu name, if empty
-	if (used_items == 0){
+	if (used_items == 0)
+	{
 		if (!g_settings.usermenu[button]->title.empty()){
 			// DisplayInfoMessage(g_Locale->getText(LOCALE_USERMENU_MSG_WARNING_NO_ITEMS));
 			g_settings.usermenu[button]->title = "";
 		}
+		//exit function
 		return;
 	}
 
+#if 0
 	//if found only 1 configured item, ensure that the caption of usermenu is the same like this
 	if (used_items == 1) {
 		bool dummy;
 		g_settings.usermenu[button]->title =  CUserMenu::getUserMenuButtonName(button, dummy);
 	}
-}
+#endif
 
-//check button name for details like empty string and show an user message on issue
-void CUserMenuSetup::checkButtonName()
-{
-	checkButtonItems();
-	
-	//exit function, if no items found
-	if (getUsedItemsCount() == 0)
-		return;
-	
 	if (button < USERMENU_ITEMS_COUNT && g_settings.usermenu[button]->title.empty())
 	{
 		std::string msg(g_Locale->getText(LOCALE_USERMENU_MSG_INFO_IS_EMPTY));
@@ -303,10 +302,8 @@ void CUserMenuSetup::checkButtonName()
 	}
 }
 
-
 //get count of used items
 int CUserMenuSetup::getUsedItemsCount()
 {
 	return ::split(g_settings.usermenu[button]->items, ',').size();
 }
-

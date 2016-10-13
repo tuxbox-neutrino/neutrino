@@ -72,7 +72,6 @@ int CPictureViewerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	if(actionKey == "picturedir")
 	{
-		parent->hide();
 		CFileBrowser b;
 		b.Dir_Mode=true;
 		if (b.exec(g_settings.network_nfs_picturedir.c_str()))

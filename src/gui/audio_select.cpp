@@ -198,7 +198,7 @@ int CAudioSelectMenuHandler::doMenu ()
 	/* setting volume percent to zapit with channel_id/apid = 0 means current channel and pid */
 	CVolume::getInstance()->SetCurrentChannel(0);
 	CVolume::getInstance()->SetCurrentPid(0);
-	int percent[p_count];
+	int percent[p_count+1];//+1 avoid zero size
 	for (uint i=0; i < p_count; i++) {
 		percent[i] = CZapit::getInstance()->GetPidVolume(0, g_RemoteControl->current_PIDs.APIDs[i].pid, g_RemoteControl->current_PIDs.APIDs[i].is_ac3);
 		AudioSelector.addItem(new CMenuOptionNumberChooser(g_RemoteControl->current_PIDs.APIDs[i].desc,

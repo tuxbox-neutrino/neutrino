@@ -28,7 +28,7 @@
 #include <driver/fade.h>
 #include <unistd.h>
 
-#ifdef HAVE_COOL_HARDWARE
+#if HAVE_COOL_HARDWARE
 #include <cnxtfb.h>
 #endif
 
@@ -61,6 +61,9 @@ void COSDFader::StartFadeIn()
 #endif
 
 	frameBuffer->setBlendLevel(fadeValue);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_APOLLO))
+	usleep(60000);
+#endif
 	fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 }
 
@@ -90,10 +93,12 @@ void COSDFader::StopFade()
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
 #ifdef BOXMODEL_APOLLO
-		usleep(40000);
 		frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
 #else
 		frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
+#endif
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_APOLLO))
+		usleep(60000);
 #endif
 		fadeIn = fadeOut = false;
 	}
@@ -122,6 +127,9 @@ bool COSDFader::FadeDone()
 			frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
 #else
 			frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
+#endif
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_APOLLO))
+			usleep(60000);
 #endif
 		} else
 			frameBuffer->setBlendLevel(fadeValue);

@@ -115,7 +115,7 @@ printf("[dvb-sub] ***************************************** start, stopped %d pi
 		pthread_mutex_lock(&readerMutex);
 		pthread_cond_broadcast(&readerCond);
 		pthread_mutex_unlock(&readerMutex);
-		printf("[dvb-sub] started with pid 0x%x\n", pid);
+		printf("[dvb-sub] started with pid 0x%x\n", dvbsub_pid);
 	}
 
 	return 1;
@@ -275,9 +275,6 @@ static void* reader_thread(void * /*arg*/)
 			dmx->Start();
 			sub_debug.print(Debug::VERBOSE, "%s changed to pid 0x%x\n", __FUNCTION__, dvbsub_pid);
 		}
-
-		len = 0;
-		count = 0;
 
 		len = dmx->Read(tmp, 6, 1000);
 		if(len <= 0)

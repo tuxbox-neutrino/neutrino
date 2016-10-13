@@ -52,9 +52,12 @@ class CInfoViewer
 	CFrameBuffer * frameBuffer;
 	CInfoViewerBB* infoViewerBB;
 	CComponentsFrmClock *clock;
+	CComponentsShapeSquare *header , *numbox, *body, *rec;
+	CComponentsTextTransp *txt_cur_start, *txt_cur_event, *txt_cur_event_rest, *txt_next_start, *txt_next_event, *txt_next_in;
 
 	bool           gotTime;
 	bool           recordModeActive;
+
 #ifndef SKIP_CA_STATUS
 	bool           CA_Status;
 #endif
@@ -78,6 +81,7 @@ class CInfoViewer
 	int            ChanNameY;
 	int            ChanWidth;
 	int            ChanHeight;
+	int            numbox_offset;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CSectionsdClient::CurrentNextInfo oldinfo;
@@ -90,7 +94,7 @@ class CInfoViewer
 	int time_width;
 	int time_height;
 	int info_time_width;
-
+	int header_height;
 	bool newfreq ;
 	static const short bar_width = 72;
 	static event_id_t last_curr_id, last_next_id;
@@ -101,15 +105,21 @@ class CInfoViewer
 	CChannelEventList::iterator     eli;
 
 	int lastsnr, lastsig, lasttime;
-	CProgressBar *snrscale, *sigscale, *timescale;
+	CProgressBar *timescale;
+	CSignalBox *sigbox;
+
 	bool casysChange;
 	bool channellogoChange;
 	uint32_t lcdUpdateTimer;
+	int	 zap_mode;
+	std::string _livestreamInfo1;
+	std::string _livestreamInfo2;
 
 	void paintBackground(int col_Numbox);
 	void paintHead();
+	void paintBody();
 	void show_Data( bool calledFromEvent = false );
-	void display_Info(const char *current, const char *next, bool UTF8 = true,
+	void display_Info(const char *current, const char *next,
 			  bool starttimes = true, const int pb_pos = -1,
 			  const char *runningStart = NULL, const char *runningRest = NULL,
 			  const char *nextStart = NULL, const char *nextDuration = NULL,
@@ -138,10 +148,12 @@ class CInfoViewer
 	void reset_allScala();
 	void check_channellogo_ca_SettingsChange();
 	void sendNoEpg(const t_channel_id channel_id);
+	bool showLivestreamInfo();
+
  public:
 	bool     chanready;
 	bool	 is_visible;
-	bool	 virtual_zap_mode;
+
 	char     aspectRatio;
 	uint32_t sec_timer_id;
 
@@ -158,7 +170,7 @@ class CInfoViewer
 
 	void	showMovieTitle(const int playState, const t_channel_id &channel_id, const std::string &title,
 				const std::string &g_file_epg, const std::string &g_file_epg1,
-				const int duration, const int curr_pos, const int repeat_mode);
+				const int duration, const int curr_pos, const int repeat_mode, const int _zap_mode = IV_MODE_DEFAULT);
 
 	void	start();
 	void	showEpgInfo();
@@ -172,14 +184,36 @@ class CInfoViewer
 	//void	Set_CA_Status(int Status);
 	
 	int     handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
-	void    clearVirtualZapMode() {virtual_zap_mode = false;}
+
+	enum{
+		IV_MODE_DEFAULT		= 0,
+		IV_MODE_VIRTUAL_ZAP 	= 1,
+		IV_MODE_NUMBER_ZAP	= 2
+	};/*iv_switch_mode_t*/
+	/**sets mode for infoviewer.
+	* @param[in]  mode
+	* 	@li IV_MODE_DEFAULT
+	* 	@li IV_MODE_VIRTUAL_ZAP 	means the virtual zap mode, user is typing keys for virtual channel switch
+	* 	@li IV_MODE_NUMBER_ZAP 		means number mode, user is typing number keys into screen
+	* @return
+	*	void
+	* @see
+	* 	resetSwitchMode()
+	* 	getSwitchMode()
+	*/
+	void	setSwitchMode(const int& mode) {zap_mode = mode;}
+	int	getSwitchMode() {return zap_mode;}
+	void    resetSwitchMode() {setSwitchMode(IV_MODE_DEFAULT);}
+
 	void    changePB();
+	void 	ResetPB();
 	void    showSNR();
 	void    Init(void);
 	bool    SDT_freq_update;
 	void	setUpdateTimer(uint64_t interval);
 	uint32_t getUpdateTimer(void) { return lcdUpdateTimer; }
 	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
+	void 	ResetModules();
 };
 #if 0
 class CInfoViewerHandler : public CMenuTarget

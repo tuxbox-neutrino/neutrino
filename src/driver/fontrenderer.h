@@ -100,7 +100,7 @@ class FBFontRenderClass
 
 		FT_Library	library;
 		FTC_Manager	cacheManager;	/* the cache manager               */
-		FTC_ImageCache	imageCache;	/* the glyph image cache           */
+// 		FTC_ImageCache	imageCache;	/* the glyph image cache           */
 		FTC_SBitCache	sbitsCache;	/* the glyph small bitmaps cache   */
 
 		FTC_FaceID getFaceID(const char * const family, const char * const style);

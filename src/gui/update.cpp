@@ -48,7 +48,7 @@
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
-
+#include <gui/opkg_manager.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 
@@ -144,7 +144,7 @@ bool CFlashUpdate::checkOnlineVersion()
 	std::vector<CUpdateMenuTarget*> update_t_list;
 
 	CConfigFile _configfile('\t');
-	const char * versionString = (_configfile.loadConfig("/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
+	const char * versionString = (_configfile.loadConfig(TARGET_PREFIX "/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
 #ifdef DEBUG
 	printf("[update] file %s\n", g_settings.softupdate_url_file.c_str());
 #endif
@@ -200,7 +200,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	int curVer, newVer, newfound = 0;
 
 	CConfigFile _configfile('\t');
-	const char * versionString = (_configfile.loadConfig("/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
+	const char * versionString = (_configfile.loadConfig(TARGET_PREFIX "/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
 
 	CFlashVersionInfo curInfo(versionString);
 	printf("current flash-version: %s (%d) date %s (%ld)\n", versionString, curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
@@ -410,8 +410,10 @@ printf("[update] mode is %d\n", softupdate_mode);
 
 		CFileFilter UpdatesFilter;
 		if(allow_flash) UpdatesFilter.addFilter(FILEBROWSER_UPDATE_FILTER);
-		UpdatesFilter.addFilter("bin");
-		UpdatesFilter.addFilter("txt");
+
+		string filters[] = {"bin", "txt", "opk", "ipk"};
+		for(size_t i=0; i<sizeof(filters)/sizeof(filters[0]) ;i++)
+			UpdatesFilter.addFilter(filters[i]);
 
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
@@ -433,25 +435,46 @@ printf("[update] mode is %d\n", softupdate_mode);
 			fclose(fd);
 		else {
 			hide();
-			printf("flash-file not found: %s\n", filename.c_str());
-			ShowHint(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE)); // UTF-8
+			printf("flash/package-file not found: %s\n", filename.c_str());
+			DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE));
 			return false;
 		}
 		hide();
+
+		//package install:
+		if (file_selected->getType() == CFile::FILE_PKG_PACKAGE){
+			COPKGManager opkg;
+			if (opkg.hasOpkgSupport()){
+				int msgres = ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_WARNING_3RDPARTY_PACKAGES, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE, 700); // UTF-8
+				if (msgres == CMessageBox::mbrYes){
+					if (!opkg.installPackage(UpdatesBrowser.getSelectedFile()->Name))
+						DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL));
+				}
+			}
+			else
+				DisplayInfoMessage(g_Locale->getText(LOCALE_MESSAGEBOX_FEATURE_NOT_SUPPORTED));
+			//!always leave here!
+			return false;
+		}
+		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
 		if(ptr) {
 			ptr++;
-			if(!strcmp(ptr, "bin")) fileType = 'A';
-			else if(!strcmp(ptr, "txt")) fileType = 'T';
-			else if(!allow_flash) return false;
-			else fileType = 0;
+			if(!strcmp(ptr, "bin"))
+				fileType = 'A';
+			else if(!strcmp(ptr, "txt"))
+				fileType = 'T';
+			else if(!allow_flash)
+				return false;
+			else
+				fileType = 0;
 #ifdef DEBUG
 			printf("[update] manual file type: %s %c\n", ptr, fileType);
 #endif
 		}
 
 		strcpy(msg, g_Locale->getText(LOCALE_FLASHUPDATE_NOVERSION));
-		msg_body = LOCALE_FLASHUPDATE_MSGBOX_MANUAL;
+//never read		msg_body = LOCALE_FLASHUPDATE_MSGBOX_MANUAL;
 	}
 	return (ShowMsg(LOCALE_MESSAGEBOX_INFO, msg, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes); // UTF-8
 }
@@ -485,7 +508,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	CVFD::getInstance()->setMode(CLCD::MODE_PROGRESSBAR2);
 #endif // VFD_UPDATE
 
-	showGlobalStatus(19);
+
 	paint();
 	showGlobalStatus(20);
 
@@ -517,7 +540,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	if(softupdate_mode==1) { //internet-update
-		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, (fileType < '3') ? "Flash downloaded image ?" : "Install downloaded pack ?", CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
+		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, (fileType < '3') ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
 		{
 			hide();
 			return menu_return::RETURN_REPAINT;

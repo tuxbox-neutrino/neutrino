@@ -35,6 +35,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
+#include <gui/widget/listhelpers.h>
 #include <gui/components/cc.h>
 #include <zapit/client/zapitclient.h>
 
@@ -42,7 +43,7 @@
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 
-class CBEChannelWidget : public CMenuTarget
+class CBEChannelWidget : public CMenuTarget, public CListHelpers
 {
 
 	private:

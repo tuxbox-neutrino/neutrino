@@ -86,7 +86,7 @@ static bool notify_complete = false;
 
 static unsigned int epg_save_frequently;
 static long secondsToCache;
-static long secondsExtendedTextCache;
+long int secondsExtendedTextCache = 0;
 static long oldEventsAre;
 static int scanning = 1;
 
@@ -1383,16 +1383,14 @@ void CTimeThread::setSystemTime(time_t tim)
 {
 	struct timeval tv;
 	struct tm t;
-	time_t now = time(NULL);
-	struct tm *tmTime = localtime_r(&now, &t);
 
 	gettimeofday(&tv, NULL);
 	timediff = int64_t(tim * 1000000 - (tv.tv_usec + tv.tv_sec * 1000000));
+	localtime_r(&tv.tv_sec, &t);
 
-	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
-			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
-			tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
-
+	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s",
+		name.c_str(), timediff,
+		t.tm_mday, t.tm_mon+1, t.tm_year+1900, t.tm_hour, t.tm_min, t.tm_sec, ctime(&tim));
 #if 0
 	/* if new time less than current for less than 1 second, ignore */
 	if(timediff < 0 && timediff > (int64_t) -1000000) {
@@ -1472,9 +1470,11 @@ void CTimeThread::run()
 			else
 				change(0);
 
-			xprintf("%s: getting DVB time (isOpen %d)\n", name.c_str(), isOpen());
+			xprintf("%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)\n",
+				name.c_str(), current_service, isOpen());
 			int rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
-			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
+			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
+				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
 				SIsectionTIME st(static_buf);
 				if (st.is_parsed()) {

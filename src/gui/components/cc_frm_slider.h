@@ -66,10 +66,10 @@ class CComponentsSlider : public CComponentsForm
 					const int& min_value = 0,
 					const int& max_value = 100,
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
+					int shadow_mode = CC_SHADOW_OFF,
+					fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t& color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t& color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 // 		~CComponentsSlider(); //inherited from CComponentsForm
 		
 		void setValuePos(const int& current_value);

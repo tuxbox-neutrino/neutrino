@@ -51,7 +51,7 @@ class CComponentsFrmChain : public CComponentsForm
 					const std::vector<CComponentsItem*> *v_items,
 					int direction,
 					CComponentsForm* parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t& color_frame,
 					fb_pixel_t& color_body,
 					fb_pixel_t& color_shadow);
@@ -66,10 +66,10 @@ class CComponentsFrmChain : public CComponentsForm
 					const std::vector<CComponentsItem*> *v_items = NULL,
 					int direction = CC_DIR_X,
 					CComponentsForm* parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
+					int shadow_mode = CC_SHADOW_OFF,
+					fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t& color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t& color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 // 		~CComponentsFrmChain(); //inherited from CComponentsForm
 
 		///defines mode for arrangement direction of items, see also chn_direction

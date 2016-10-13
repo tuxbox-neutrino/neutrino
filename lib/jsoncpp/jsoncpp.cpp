@@ -116,8 +116,8 @@ static inline std::string codePointToUTF8(unsigned int cp) {
   } else if (cp <= 0xFFFF) {
     result.resize(3);
     result[2] = static_cast<char>(0x80 | (0x3f & cp));
-    result[1] = 0x80 | static_cast<char>((0x3f & (cp >> 6)));
-    result[0] = 0xE0 | static_cast<char>((0xf & (cp >> 12)));
+    result[1] = static_cast<char>(0x80 | (0x3f & (cp >> 6)));
+    result[0] = static_cast<char>(0xE0 | (0xf & (cp >> 12)));
   } else if (cp <= 0x10FFFF) {
     result.resize(4);
     result[3] = static_cast<char>(0x80 | (0x3f & cp));
@@ -129,7 +129,7 @@ static inline std::string codePointToUTF8(unsigned int cp) {
   return result;
 }
 
-/// Returns true if ch is a control character (in range [0,32[).
+/// Returns true if ch is a control character (in range [1,31]).
 static inline bool isControlCharacter(char ch) { return ch > 0 && ch <= 0x1F; }
 
 enum {
@@ -149,7 +149,7 @@ typedef char UIntToStringBuffer[uintToStringBufferSize];
 static inline void uintToString(LargestUInt value, char*& current) {
   *--current = 0;
   do {
-    *--current = char(value % 10) + '0';
+    *--current = static_cast<signed char>(value % 10U + static_cast<unsigned>('0'));
     value /= 10;
   } while (value != 0);
 }
@@ -198,7 +198,7 @@ static inline void fixNumericLocale(char* begin, char* end) {
 #endif // if !defined(JSON_IS_AMALGAMATION)
 #include <utility>
 #include <cstdio>
-#include <cassert>
+//#include <cassert>
 #include <cstring>
 #include <istream>
 #include <sstream>
@@ -748,33 +748,9 @@ bool Reader::decodeDouble(Token& token) {
 
 bool Reader::decodeDouble(Token& token, Value& decoded) {
   double value = 0;
-  const int bufferSize = 32;
-  int count;
-  int length = int(token.end_ - token.start_);
-
-  // Sanity check to avoid buffer overflow exploits.
-  if (length < 0) {
-    return addError("Unable to parse token length", token);
-  }
-
-  // Avoid using a string constant for the format control string given to
-  // sscanf, as this can cause hard to debug crashes on OS X. See here for more
-  // info:
-  //
-  //     http://developer.apple.com/library/mac/#DOCUMENTATION/DeveloperTools/gcc-4.0.1/gcc/Incompatibilities.html
-  char format[] = "%lf";
-
-  if (length <= bufferSize) {
-    Char buffer[bufferSize + 1];
-    memcpy(buffer, token.start_, length);
-    buffer[length] = 0;
-    count = sscanf(buffer, format, &value);
-  } else {
-    std::string buffer(token.start_, token.end_);
-    count = sscanf(buffer.c_str(), format, &value);
-  }
-
-  if (count != 1)
+  std::string buffer(token.start_, token.end_);
+  std::istringstream is(buffer);
+  if (!(is >> value))
     return addError("'" + std::string(token.start_, token.end_) +
                         "' is not a number.",
                     token);
@@ -2128,26 +2104,26 @@ UInt ValueIteratorBase::index() const {
 }
 
 std::string ValueIteratorBase::name() const {
-  char const* mykey;
+  char const* keey;
   char const* end;
-  mykey = memberName(&end);
-  if (!mykey) return std::string();
-  return std::string(mykey, end);
+  keey = memberName(&end);
+  if (!keey) return std::string();
+  return std::string(keey, end);
 }
 
 char const* ValueIteratorBase::memberName() const {
-  const char* myname = (*current_).first.data();
-  return myname ? myname : "";
+  const char* cname = (*current_).first.data();
+  return cname ? cname : "";
 }
 
 char const* ValueIteratorBase::memberName(char const** end) const {
-  const char* myname = (*current_).first.data();
-  if (!myname) {
+  const char* cname = (*current_).first.data();
+  if (!cname) {
     *end = NULL;
     return NULL;
   }
-  *end = myname + (*current_).first.length();
-  return myname;
+  *end = cname + (*current_).first.length();
+  return cname;
 }
 
 // //////////////////////////////////////////////////////////////////
@@ -2223,7 +2199,7 @@ ValueIterator& ValueIterator::operator=(const SelfType& other) {
 #include <sstream>
 #include <utility>
 #include <cstring>
-#include <cassert>
+//#include <cassert>
 #ifdef JSON_USE_CPPTL
 #include <cpptl/conststring.h>
 #endif
@@ -2320,7 +2296,7 @@ static inline char* duplicateAndPrefixStringValue(
   JSON_ASSERT_MESSAGE(length <= (unsigned)Value::maxInt - sizeof(unsigned) - 1U,
                       "in Json::Value::duplicateAndPrefixStringValue(): "
                       "length too big for prefixing");
-  unsigned actualLength = length + sizeof(unsigned) + 1U;
+  unsigned actualLength = length + static_cast<unsigned>(sizeof(unsigned)) + 1U;
   char* newString = static_cast<char*>(malloc(actualLength));
   if (newString == 0) {
     throwRuntimeError(
@@ -2337,7 +2313,7 @@ inline static void decodePrefixedString(
     unsigned* length, char const** value)
 {
   if (!isPrefixed) {
-    *length = strlen(prefixed);
+    *length = static_cast<unsigned>(strlen(prefixed));
     *value = prefixed;
   } else {
     *length = *reinterpret_cast<unsigned const*>(prefixed);
@@ -2363,23 +2339,6 @@ static inline void releaseStringValue(char* value) { free(value); }
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
 namespace Json {
-
-class JSON_API Exception : public std::exception {
-public:
-  Exception(std::string const& msg);
-  virtual ~Exception() throw();
-  virtual char const* what() const throw();
-protected:
-  std::string const msg_;
-};
-class JSON_API RuntimeError : public Exception {
-public:
-  RuntimeError(std::string const& msg);
-};
-class JSON_API LogicError : public Exception {
-public:
-  LogicError(std::string const& msg);
-};
 
 Exception::Exception(std::string const& msg)
   : msg_(msg)
@@ -2450,8 +2409,8 @@ Value::CZString::CZString(char const* str, unsigned ulength, DuplicationPolicy a
     : cstr_(str)
 {
   // allocate != duplicate
-  storage_.policy_ = allocate;
-  storage_.length_ = ulength;
+  storage_.policy_ = allocate & 0x3;
+  storage_.length_ = ulength & 0x3FFFFFFF;
 }
 
 Value::CZString::CZString(const CZString& other)
@@ -2460,9 +2419,9 @@ Value::CZString::CZString(const CZString& other)
                 : other.cstr_)
 {
   storage_.policy_ = (other.cstr_
-                 ? (other.storage_.policy_ == noDuplication
+                 ? (static_cast<DuplicationPolicy>(other.storage_.policy_) == noDuplication
                      ? noDuplication : duplicate)
-                 : other.storage_.policy_);
+                 : static_cast<DuplicationPolicy>(other.storage_.policy_));
   storage_.length_ = other.storage_.length_;
 }
 
@@ -2691,7 +2650,7 @@ void Value::swapPayload(Value& other) {
   std::swap(value_, other.value_);
   int temp2 = allocated_;
   allocated_ = other.allocated_;
-  other.allocated_ = temp2;
+  other.allocated_ = temp2 & 0x1;
 }
 
 void Value::swap(Value& other) {
@@ -2817,12 +2776,12 @@ const char* Value::asCString() const {
   return this_str;
 }
 
-bool Value::getString(char const** str, char const** myend) const {
+bool Value::getString(char const** str, char const** cend) const {
   if (type_ != stringValue) return false;
   if (value_.string_ == 0) return false;
   unsigned length;
   decodePrefixedString(this->allocated_, this->value_.string_, &length, str);
-  *myend = *str + length;
+  *cend = *str + length;
   return true;
 }
 
@@ -3021,7 +2980,8 @@ bool Value::asBool() const {
   case uintValue:
     return value_.uint_ ? true : false;
   case realValue:
-    return value_.real_ ? true : false;
+    // This is kind of strange. Not recommended.
+    return (value_.real_ != 0.0) ? true : false;
   default:
     break;
   }
@@ -3197,15 +3157,15 @@ Value& Value::resolveReference(const char* key) {
 }
 
 // @param key is not null-terminated.
-Value& Value::resolveReference(char const* key, char const* myend)
+Value& Value::resolveReference(char const* key, char const* cend)
 {
   JSON_ASSERT_MESSAGE(
       type_ == nullValue || type_ == objectValue,
-      "in Json::Value::resolveReference(key, myend): requires objectValue");
+      "in Json::Value::resolveReference(key, end): requires objectValue");
   if (type_ == nullValue)
     *this = Value(objectValue);
   CZString actualKey(
-      key, static_cast<unsigned>(myend-key), CZString::duplicateOnCopy);
+      key, static_cast<unsigned>(cend-key), CZString::duplicateOnCopy);
   ObjectValues::iterator it = value_.map_->lower_bound(actualKey);
   if (it != value_.map_->end() && (*it).first == actualKey)
     return (*it).second;
@@ -3223,13 +3183,13 @@ Value Value::get(ArrayIndex index, const Value& defaultValue) const {
 
 bool Value::isValidIndex(ArrayIndex index) const { return index < size(); }
 
-Value const* Value::find(char const* key, char const* myend) const
+Value const* Value::find(char const* key, char const* cend) const
 {
   JSON_ASSERT_MESSAGE(
       type_ == nullValue || type_ == objectValue,
-      "in Json::Value::find(key, myend, found): requires objectValue or nullValue");
+      "in Json::Value::find(key, end, found): requires objectValue or nullValue");
   if (type_ == nullValue) return NULL;
-  CZString actualKey(key, static_cast<unsigned>(myend-key), CZString::noDuplication);
+  CZString actualKey(key, static_cast<unsigned>(cend-key), CZString::noDuplication);
   ObjectValues::const_iterator it = value_.map_->find(actualKey);
   if (it == value_.map_->end()) return NULL;
   return &(*it).second;
@@ -3273,9 +3233,9 @@ Value const& Value::operator[](CppTL::ConstString const& key) const
 
 Value& Value::append(const Value& value) { return (*this)[size()] = value; }
 
-Value Value::get(char const* key, char const* myend, Value const& defaultValue) const
+Value Value::get(char const* key, char const* cend, Value const& defaultValue) const
 {
-  Value const* found = find(key, myend);
+  Value const* found = find(key, cend);
   return !found ? defaultValue : *found;
 }
 Value Value::get(char const* key, Value const& defaultValue) const
@@ -3288,12 +3248,12 @@ Value Value::get(std::string const& key, Value const& defaultValue) const
 }
 
 
-bool Value::removeMember(const char* key, const char* myend, Value* removed)
+bool Value::removeMember(const char* key, const char* cend, Value* removed)
 {
   if (type_ != objectValue) {
     return false;
   }
-  CZString actualKey(key, static_cast<unsigned>(myend-key), CZString::noDuplication);
+  CZString actualKey(key, static_cast<unsigned>(cend-key), CZString::noDuplication);
   ObjectValues::iterator it = value_.map_->find(actualKey);
   if (it == value_.map_->end())
     return false;
@@ -3338,8 +3298,8 @@ bool Value::removeIndex(ArrayIndex index, Value* removed) {
   ArrayIndex oldSize = size();
   // shift left all items left, into the place of the "removed"
   for (ArrayIndex i = index; i < (oldSize - 1); ++i){
-    CZString mykey(i);
-    (*value_.map_)[mykey] = (*this)[i + 1];
+    CZString keey(i);
+    (*value_.map_)[keey] = (*this)[i + 1];
   }
   // erase the last one ("leftover")
   CZString keyLast(oldSize - 1);
@@ -3355,9 +3315,9 @@ Value Value::get(const CppTL::ConstString& key,
 }
 #endif
 
-bool Value::isMember(char const* key, char const* myend) const
+bool Value::isMember(char const* key, char const* cend) const
 {
-  Value const* value = find(key, myend);
+  Value const* value = find(key, cend);
   return NULL != value;
 }
 bool Value::isMember(char const* key) const
@@ -3769,7 +3729,7 @@ Value& Path::make(Value& root) const {
 #include <sstream>
 #include <utility>
 #include <set>
-#include <cassert>
+//#include <cassert>
 #include <cstring>
 #include <cstdio>
 
@@ -3786,8 +3746,16 @@ Value& Path::make(Value& root) const {
 
 #if defined(_MSC_VER) && _MSC_VER < 1500 // VC++ 8.0 and below
 #define snprintf _snprintf
+#elif defined(__ANDROID__)
+#define snprintf snprintf
 #elif __cplusplus >= 201103L
 #define snprintf std::snprintf
+#endif
+
+#if defined(__BORLANDC__)  
+#include <float.h>
+#define isfinite _finite
+#define snprintf _snprintf
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1400 // VC++ 8.0
@@ -4096,7 +4064,7 @@ void FastWriter::writeValue(const Value& value) {
       const std::string& name = *it;
       if (it != members.begin())
         document_ += ',';
-      document_ += valueToQuotedStringN(name.data(), name.length());
+      document_ += valueToQuotedStringN(name.data(), static_cast<unsigned>(name.length()));
       document_ += yamlCompatiblityEnabled_ ? ": " : ":";
       writeValue(value[name]);
     }
@@ -4656,7 +4624,7 @@ void BuiltStyledStreamWriter::writeValue(Value const& value) {
         std::string const& name = *it;
         Value const& childValue = value[name];
         writeCommentBeforeValue(childValue);
-        writeWithIndent(valueToQuotedStringN(name.data(), name.length()));
+        writeWithIndent(valueToQuotedStringN(name.data(), static_cast<unsigned>(name.length())));
         *sout_ << colonSymbol_;
         writeValue(childValue);
         if (++it == members.end()) {

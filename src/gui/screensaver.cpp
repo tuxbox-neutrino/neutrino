@@ -22,6 +22,9 @@
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -37,8 +40,9 @@
 #include "audiomute.h"
 #include "screensaver.h"
 #include <system/debug.h>
+#include <gui/color_custom.h>
 #include <gui/infoclock.h>
-extern CInfoClock *InfoClock;
+#include <zapit/zapit.h>
 
 #include <video.h>
 extern cVideo * videoDecoder;
@@ -52,7 +56,9 @@ CScreenSaver::CScreenSaver()
 	m_viewer	= new CPictureViewer();
 	index 		= 0;
 	status_mute	= CAudioMute::getInstance()->getStatus();
-	status_clock	= InfoClock->getStatus();
+	scr_clock	= NULL;
+	clr.i_color	= COL_DARK_GRAY;
+	pip_channel_id	= 0;
 }
 
 CScreenSaver::~CScreenSaver()
@@ -62,6 +68,8 @@ CScreenSaver::~CScreenSaver()
 	thrScreenSaver = 0;
 
 	delete m_viewer;
+	if (scr_clock)
+		delete scr_clock;
 }
 
 
@@ -77,11 +85,18 @@ CScreenSaver* CScreenSaver::getInstance()
 
 void CScreenSaver::Start()
 {
+	OnBeforeStart();
 	status_mute = CAudioMute::getInstance()->getStatus();
 	CAudioMute::getInstance()->enableMuteIcon(false);
 
-	status_clock = InfoClock->getStatus();
-	InfoClock->enableInfoClock(false);
+	if(!CInfoClock::getInstance()->isBlocked())
+		CInfoClock::getInstance()->disableInfoClock();
+
+#ifdef ENABLE_PIP
+	pip_channel_id = CZapit::getInstance()->GetPipChannelID();
+	if (pip_channel_id)
+		g_Zapit->stopPip();
+#endif
 
 	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
@@ -97,7 +112,7 @@ void CScreenSaver::Start()
 
 	if(!thrScreenSaver)
 	{
-		//printf("[%s] %s: starting thread\n", __FILE__, __FUNCTION__);
+		//printf("[%s] %s: starting thread\n", __file__, __FUNCTION__);
 		pthread_create(&thrScreenSaver, NULL, ScreenSaverPrg, (void*) this);
 		pthread_detach(thrScreenSaver);
 	}
@@ -112,13 +127,26 @@ void CScreenSaver::Stop()
 		thrScreenSaver = 0;
 	}
 
-	if(thrScreenSaver)
-		pthread_cancel(thrScreenSaver);
-	thrScreenSaver = 0;
+	if (scr_clock){
+		scr_clock->Stop();
+		delete scr_clock;
+		scr_clock = NULL;
+	}
+
+#ifdef ENABLE_PIP
+	if(pip_channel_id) {
+		CNeutrinoApp::getInstance()->StartPip(pip_channel_id);
+		pip_channel_id = 0;
+	}
+#endif
 
 	m_frameBuffer->paintBackground(); //clear entire screen
-	InfoClock->enableInfoClock(status_clock);
+
 	CAudioMute::getInstance()->enableMuteIcon(status_mute);
+	if (!OnAfterStop.empty())
+		OnAfterStop();
+	else
+		CInfoClock::getInstance()->enableInfoClock();
 }
 
 void* CScreenSaver::ScreenSaverPrg(void* arg)
@@ -135,12 +163,12 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 	{
 		while(1)
 		{
-			PScreenSaver->PaintPicture();
+			PScreenSaver->paint();
 			sleep(g_settings.screensaver_timeout);
 		}
 	}
 	else
-		PScreenSaver->PaintPicture(); //just paint first found picture
+		PScreenSaver->paint(); //just paint first found picture
 
 	return 0;
 }
@@ -218,22 +246,76 @@ bool CScreenSaver::ReadDir()
 }
 
 
-void CScreenSaver::PaintPicture()
+void CScreenSaver::paint()
 {
-	if(v_bg_files.empty())
-		return;
+	if (g_settings.screensaver_mode == SCR_MODE_IMAGE && !v_bg_files.empty()){
 
-	if( (index >= v_bg_files.size()) || (access(v_bg_files.at(index).c_str(), F_OK)) )
-	{
-		ReadDir();
-		index = 0;
-		return;
+		if( (index >= v_bg_files.size()) || (access(v_bg_files.at(index).c_str(), F_OK)) )
+		{
+			ReadDir();
+			index = 0;
+			return;
+		}
+
+		dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
+		m_viewer->ShowImage(v_bg_files.at(index).c_str(), false /*unscaled*/);
+
+		if (!g_settings.screensaver_random)
+			index++;
+		else
+			index = rand() % v_bg_files.size();
+
+		if(index ==  v_bg_files.size())
+			index = 0;
 	}
+	else{
+		if (!scr_clock){
+			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", "%H:%M %S", true);
+			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
+			scr_clock->disableSaveBg();
+			scr_clock->doPaintBg(false);
+		}
+		if (scr_clock->isPainted())
+			scr_clock->Stop();
 
-	dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
-	m_viewer->ShowImage(v_bg_files.at(index).c_str(), false /*unscaled*/);
+		scr_clock->kill();
+		scr_clock->setTextColor(clr.i_color);
 
-	index++;
-	if(index ==  v_bg_files.size())
-		index = 0;
+		//check position and size use only possible available screen size
+		int x_cl, y_cl, w_cl, h_cl;
+		scr_clock->getDimensions( &x_cl, &y_cl, &w_cl, &h_cl);
+		bool unchecked = true;
+		while(unchecked){
+			scr_clock->setPosP(uint8_t(rand() % 100),uint8_t(rand() % 100));
+			scr_clock->getDimensions( &x_cl, &y_cl, &w_cl, &h_cl);
+			if (x_cl+w_cl < g_settings.screen_EndX && y_cl+h_cl < g_settings.screen_EndY)
+				unchecked = false;
+		}
+		scr_clock->Start();
+
+		if (g_settings.screensaver_mode == SCR_MODE_CLOCK_COLOR) {
+			srand (time(NULL));
+			uint32_t brightness;
+
+			// sorcery, no darkness
+			do {
+				clr.i_color = rand();
+				brightness = (unsigned int)clr.uc_color.r * 19595 + (unsigned int)clr.uc_color.g * 38469 + (unsigned int)clr.uc_color.b * 7471;
+				//printf("[%s] %s: brightness: %d\n", __file__, __FUNCTION__, brightness>> 16);
+			}
+			while(brightness >> 16 < 80);
+
+			clr.i_color &= 0x00FFFFFF;
+			//printf("[%s] %s: clr.i_color: r %02x g %02x b %02x a %02x\n", __file__, __FUNCTION__, clr.uc_color.r, clr.uc_color.g, clr.uc_color.b, clr.uc_color.a);
+		}
+		else
+			clr.i_color = COL_DARK_GRAY;
+	}
+}
+
+bool CScreenSaver::IsRun()
+{
+	if(thrScreenSaver)
+		return true;
+	return false;
 }

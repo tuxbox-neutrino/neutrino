@@ -38,7 +38,7 @@
 #include <gui/filebrowser.h>
 #include <gui/bookmarkmanager.h>
 #include <gui/widget/menue.h>
-#include <gui/moviebrowser.h>
+#include <gui/moviebrowser/mb.h>
 #include <gui/movieinfo.h>
 #include <gui/widget/hintbox.h>
 #include <gui/timeosd.h>
@@ -52,6 +52,12 @@
 
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
+
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
 
 class CMoviePlayerGui : public CMenuTarget
 {
@@ -69,20 +75,35 @@ class CMoviePlayerGui : public CMenuTarget
 
 	enum
 		{
-		    PLUGIN_PLAYSTATE_NORMAL = 0,
-		    PLUGIN_PLAYSTATE_STOP   = 1,
-		    PLUGIN_PLAYSTATE_NEXT   = 2,
-		    PLUGIN_PLAYSTATE_PREV   = 3
+		    PLUGIN_PLAYSTATE_NORMAL    = 0,
+		    PLUGIN_PLAYSTATE_STOP      = 1,
+		    PLUGIN_PLAYSTATE_NEXT      = 2,
+		    PLUGIN_PLAYSTATE_PREV      = 3,
+		    PLUGIN_PLAYSTATE_LEAVE_ALL = 4
 		};
 
 	enum repeat_mode_enum { REPEAT_OFF = 0, REPEAT_TRACK = 1, REPEAT_ALL = 2 };
 
  private:
+	typedef struct livestream_info_t
+	{
+		std::string url;
+		std::string name;
+		std::string resolution;
+		std::string header;//cookie
+		int res1;
+		int bandwidth;
+	} livestream_info_struct_t;
+
+	std::string livestreamInfo1;
+	std::string livestreamInfo2;
+
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
 
 	std::string	file_name;
 	std::string	pretty_name;
+	std::string	cookie_header;
 	std::string	info_1, info_2;
 	std::string    	currentaudioname;
 	bool		playing;
@@ -90,6 +111,9 @@ class CMoviePlayerGui : public CMenuTarget
 	CMoviePlayerGui::state playstate;
 	int keyPressed;
 	bool isLuaPlay;
+	bool haveLuaInfoFunc;
+	lua_State* luaState;
+	bool blockedFromPlugin;
 	int speed;
 	int startposition;
 	int position;
@@ -104,6 +128,11 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short ac3flags[MAX_PLAYBACK_PIDS];
 	unsigned short currentapid, currentac3;
 	repeat_mode_enum repeat_mode;
+
+	/* screensaver */
+	int		m_idletime;
+	bool		m_screensaver;
+	void		screensaver(bool on);
 
 	/* subtitles vars */
 	unsigned short numsubs;
@@ -138,9 +167,13 @@ class CMoviePlayerGui : public CMenuTarget
 	CFileFilter tsfilefilter;
 	CFileList filelist;
 	CFileList::iterator filelist_it;
+	CFileList::iterator vzap_it;
+	void set_vzap_it(bool up);
+	bool fromInfoviewer;
 	std::string Path_local;
 	int menu_ret;
 	bool autoshot_done;
+	//std::vector<livestream_info_t> liveStreamList;
 
 	/* playback from bookmark */
 	static CBookmarkManager * bookmarkmanager;
@@ -150,6 +183,7 @@ class CMoviePlayerGui : public CMenuTarget
 	static OpenThreads::Mutex bgmutex;
 	static OpenThreads::Condition cond;
 	static pthread_t bgThread;
+	static bool webtv_started;
 
 	static cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
@@ -161,10 +195,11 @@ class CMoviePlayerGui : public CMenuTarget
 	void PlayFileLoop();
 	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
-	void restoreNeutrino();
+	bool StartWebtv();
 
+	void quickZap(neutrino_msg_t msg);
 	void showHelpTS(void);
-	void callInfoViewer();
+	void callInfoViewer(bool init_vzap_it = true);
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
@@ -189,6 +224,9 @@ class CMoviePlayerGui : public CMenuTarget
 	void EnableClockAndMute(bool enable);
 	static void *ShowStartHint(void *arg);
 	static void* bgPlayThread(void *arg);
+	static bool sortStreamList(livestream_info_t info1, livestream_info_t info2);
+	bool selectLivestream(std::vector<livestream_info_t> &streamList, int res, livestream_info_t* info);
+	bool luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList);
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
@@ -209,7 +247,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int timeshift;
 	int file_prozent;
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }
-	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan);
+	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
 	void stopPlayBack(void);
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);
@@ -221,6 +259,13 @@ class CMoviePlayerGui : public CMenuTarget
 	int getKeyPressed() { return keyPressed; };
 	size_t GetReadCount();
 	std::string GetFile() { return pretty_name; }
+	void restoreNeutrino();
+	void setFromInfoviewer(bool f) { fromInfoviewer = f; };
+	void setBlockedFromPlugin(bool b) { blockedFromPlugin = b; };
+	bool getBlockedFromPlugin() { return blockedFromPlugin; };
+	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };
+	void getLivestreamInfo(std::string *i1, std::string *i2) { *i1=livestreamInfo1; *i2=livestreamInfo2; };
+	bool getLiveUrl(const t_channel_id chan, const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header);
 };
 
 #endif

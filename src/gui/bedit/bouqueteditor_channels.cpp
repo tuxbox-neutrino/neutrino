@@ -5,14 +5,7 @@
 	Homepage: http://dbox.cyberphoria.org/
 
 	Copyright (C) 2011 CoolStream International Ltd
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2009,2011,2013,2016 Stefan Seyfried
 
 	License: GPL
 
@@ -164,7 +157,7 @@ void CBEChannelWidget::paint()
 
 	int ypos = y+ theight;
 	int sb = iheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 
 	int sbc= ((Channels->size()- 1)/ listmaxshow)+ 1;
 	if (sbc < 1)
@@ -174,7 +167,7 @@ void CBEChannelWidget::paint()
 	int sbs= (selected/listmaxshow);
 
 	if (sbh)
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_SCROLLBAR_ACTIVE_PLUS_0);
 }
 
 void CBEChannelWidget::paintHead()
@@ -235,9 +228,9 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*iheight;
-	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
-	int ypos1a = ypos1 + (fheight/2)-2;
-	int ypos2a = ypos2 + (info_height/2)-2;
+	int ypos2 = y + height + OFFSET_INTER;
+	int ypos1a = ypos1 + (fheight/2);
+	int ypos2a = ypos2 + (info_height/2);
 	
 	if (dline)
 		dline->kill(); //kill details line
@@ -246,17 +239,24 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
-			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
 		
 		//infobox
 		if (ibox == NULL){
 			ibox = new CComponentsInfoBox();
-			ibox->setDimensionsAll(x, ypos2, width, info_height);
-			ibox->setFrameThickness(2);
-			ibox->setCorner(RADIUS_LARGE);
-			ibox->setShadowOnOff(CC_SHADOW_OFF);
 		}
+
+		if (ibox->isPainted())
+			ibox->hide();
+
+		ibox->setDimensionsAll(x, ypos2, width, info_height);
+		ibox->setFrameThickness(2);
+#if 0
+		ibox->paint(false,true);
+#endif
+		ibox->setCorner(RADIUS_LARGE);
+		ibox->disableShadow();
 	}
 }
 
@@ -276,7 +276,7 @@ void CBEChannelWidget::hide()
 
 void CBEChannelWidget::updateSelection(unsigned int newpos)
 {
-        if(newpos == selected)
+        if (newpos == selected || newpos == (unsigned int)-1)
                 return;
 
         unsigned int prev_selected = selected;
@@ -353,36 +353,11 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				cancelMoveChannel();
 			}
 		}
-		else if (msg==CRCInput::RC_up || msg==(neutrino_msg_t)g_settings.key_pageup)
+		else if (msg == CRCInput::RC_up || msg == (neutrino_msg_t)g_settings.key_pageup ||
+			 msg == CRCInput::RC_down || msg == (neutrino_msg_t)g_settings.key_pagedown)
 		{
-			if (!(Channels->empty())) {
-                                int step = (msg == (neutrino_msg_t)g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-                                int new_selected = selected - step;
-
-                                if (new_selected < 0) {
-                                        if (selected != 0 && step != 1)
-                                                new_selected = 0;
-                                        else
-                                                new_selected = Channels->size() - 1;
-                                }
-                                updateSelection(new_selected);
-			}
-		}
-		else if (msg==CRCInput::RC_down || msg==(neutrino_msg_t)g_settings.key_pagedown)
-		{
-                        if (!(Channels->empty())) {
-                                int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-                                int new_selected = selected + step;
-                                if (new_selected >= (int) Channels->size()) {
-					if (((Channels->size() - listmaxshow -1 < selected) && (step != 1)) || (selected != (Channels->size() - 1)))
-                                                new_selected = Channels->size() - 1;
-                                        else if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
-                                                new_selected = 0;
-                                        else
-                                                new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((Channels->size() / listmaxshow)+1) * listmaxshow))) ? (Channels->size() - 1) : 0;
-                                }
-                                updateSelection(new_selected);
-                        }
+			int new_selected = UpDownKey(*Channels, msg, listmaxshow, selected);
+			updateSelection(new_selected);
 		}
                 else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end) {
                         if (!(Channels->empty())) {
@@ -472,7 +447,9 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				cancelMoveChannel();
 			}
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
+		{
+			// do nothing
 		}
 		else
 		{

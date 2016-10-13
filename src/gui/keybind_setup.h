@@ -75,11 +75,9 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			MPKEY_TIME,
 			MPKEY_BOOKMARK,
 			MPKEY_GOTO,
-			//MPKEY_NEXT3DMODE,
 			MPKEY_NEXT_REPEAT_MODE,
-			//MPKEY_VTXT,
-			NKEY_TIMESHIFT,
 			MPKEY_PLUGIN,
+			NKEY_TIMESHIFT,
 			NKEY_UNLOCK,
 			NKEY_HELP,
 			NKEY_NEXT43MODE,
@@ -92,12 +90,16 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			NKEY_PIC_MODE,
 			NKEY_PIC_SIZE,
 			NKEY_RECORD,
+			MBKEY_COPY_ONEFILE,
+			MBKEY_COPY_SEVERAL,
+			MBKEY_CUT,
+			MBKEY_TRUNCATE,
+			MBKEY_COVER,
 			
 			KEYBINDS_COUNT
 		};
 
 	private:
-		CFrameBuffer *frameBuffer;
 		CKeyChooser *keychooser[KEYBINDS_COUNT];
 		int width;
 
@@ -107,6 +109,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 		void showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist);
 		void showKeyBindQuickzapSetup(CMenuWidget *bindSettings_qzap);
 		void showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplayer);
+		void showKeyBindMoviebrowserSetup(CMenuWidget *bindSettings_mbrowser);
 		void showKeyBindSpecialSetup(CMenuWidget *bindSettings_special);
 
 	public:				
@@ -114,6 +117,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 		~CKeybindSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * data);
+		static const char *getMoviePlayerButtonName(const neutrino_msg_t key, bool &active, bool return_title = false);
 };
 
 #endif

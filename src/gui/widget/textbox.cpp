@@ -97,7 +97,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 
 	//TRACE(" CTextBox::m_cText: %d, m_nMode %d\t\r\n",m_cText.size(),m_nMode);
 
-	m_textBackgroundColor 	= textBackgroundColor;
+	m_textBackgroundColor 	= m_old_textBackgroundColor = textBackgroundColor;
 	m_nFontTextHeight 	= getFontTextHeight();
 
 	//TRACE("[CTextBox] %s Line %d\r\n", __FUNCTION__, __LINE__);
@@ -135,7 +135,7 @@ CTextBox::~CTextBox()
 	//TRACE("[CTextBox] del\r\n");
 	m_cLineArray.clear();
 	//hide();
-	delete[] m_bgpixbuf;
+	clearScreenBuffer();
 }
 
 void CTextBox::initVar(void)
@@ -494,12 +494,12 @@ void CTextBox::refreshScroll(void)
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
 				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
-				COL_MENUCONTENT_PLUS_1);
+				COL_SCROLLBAR_PASSIVE_PLUS_0);
 		unsigned int marker_size = m_cFrameScrollRel.iHeight / m_nNrOfPages;
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + SCROLL_MARKER_BORDER+m_cFrame.iX,
 				m_cFrameScrollRel.iY + m_nCurrentPage * marker_size+m_cFrame.iY,
 				m_cFrameScrollRel.iWidth - 2*SCROLL_MARKER_BORDER,
-				marker_size, COL_MENUCONTENT_PLUS_3);
+				marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0);
 		m_has_scrolled = true;
 	}
 	else
@@ -515,10 +515,8 @@ void CTextBox::refreshScroll(void)
 //first init is done in initVar() and reinit done in reInitToCompareVar()
 bool CTextBox::hasChanged(int* x, int* y, int* dx, int* dy)
 {
-	if (	   m_old_x != *x
-		|| m_old_y != *y
-		|| m_old_dx != *dx
-		|| m_old_dy != *dy
+	if (	   hasChangedPos(x, y)
+		|| hasChangedDim(dx, dy)
 		|| m_old_textBackgroundColor != m_textBackgroundColor
 		|| m_old_textColor != m_textColor
 		|| m_old_nBgRadius != m_nBgRadius
@@ -528,6 +526,17 @@ bool CTextBox::hasChanged(int* x, int* y, int* dx, int* dy)
 	}
 	return false;
 }
+
+bool CTextBox::hasChangedPos(int* x, int* y)
+{
+	return  (m_old_x != *x || m_old_y != *y);
+}
+
+bool CTextBox::hasChangedDim(int* dx, int* dy)
+{
+	return (m_old_dx != *dx || m_old_dy != *dy);
+}
+
 void CTextBox::reInitToCompareVar(int* x, int* y, int* dx, int* dy)
 {
 	m_old_x = *x;
@@ -554,23 +563,24 @@ void CTextBox::refreshText(void)
 	//bg variables
 	int ax = m_cFrameTextRel.iX+m_cFrame.iX;
 	int ay = m_cFrameTextRel.iY+m_cFrame.iY;
-	int dx = m_cFrameTextRel.iWidth;
+	int dx = m_old_cText != m_cText || m_nNrOfPages>1 ? m_cFrameTextRel.iWidth : m_nMaxTextWidth;
 	int dy = m_cFrameTextRel.iHeight;
 	
 	//find changes
 	bool has_changed = hasChanged(&ax, &ay, &dx, &dy);
 
-	//destroy pixel buffer on changed property values
-	if (has_changed){
-		if (m_bgpixbuf){
-			//TRACE("[CTextBox] %s destroy ol pixel buffer, has changes %d\r\n", __FUNCTION__, __LINE__);
-			delete[] m_bgpixbuf;
-			m_bgpixbuf = NULL;
-		}
+	//clean up possible screen on any changes
+	if (has_changed && m_bgpixbuf){
+		/*TODO/FIXME: in some cases could be required, that we must restore old saved screen. eg. if a text without bg was painted
+		 * and another text should be painted as next on the same position like current text, but new text will be overpaint and is
+		 * not visible. It's currently solvable only with appropriate order of text items
+		*/
+		frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
+		clearScreenBuffer();
 	}
 
 	//detect corrupt position values
-	if ((ax<=0) || (ay<=0)){
+	if ((ax<0) || (ay<0)){
 		dprintf(DEBUG_NORMAL, "\033[33m[CTextBox] [%s - %d] ERROR! position out of range: ax = %d, ay = %d, dx = %d, dy = %d\033[0m\n", __func__, __LINE__, ax, ay, dx, dy);
 		return;
 	}
@@ -578,8 +588,8 @@ void CTextBox::refreshText(void)
 	//save screen only if no paint of background required
 	if (!m_nPaintBackground && m_SaveScreen) {
 		if (m_bgpixbuf == NULL){
-			//TRACE("[CTextBox] %s save bg %d\r\n", __FUNCTION__, __LINE__);
 			if ((dx * dy) >0){
+// 				TRACE("[CTextBox]  [%s - %d] save bg for use as transparent background [%s]\n", __func__, __LINE__, m_cText.c_str());
 				m_bgpixbuf= new fb_pixel_t[dx * dy];
 				frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
 			}
@@ -588,15 +598,12 @@ void CTextBox::refreshText(void)
 
 	//Paint Text Background
 	bool allow_paint_bg = (m_old_cText != m_cText || has_changed || m_has_scrolled);
-	if (m_nPaintBackground){
-		if (m_bgpixbuf){
-			//TRACE("[CTextBox] %s destroy bg %d\r\n", __FUNCTION__, __LINE__);
-			delete[] m_bgpixbuf;
-			m_bgpixbuf = NULL;
-		}
+	if (m_nPaintBackground  && !m_SaveScreen){
+		clearScreenBuffer();
 		if (allow_paint_bg){
 			//TRACE("[CTextBox] %s paint bg %d\r\n", __FUNCTION__, __LINE__);
-			frameBuffer->paintBoxRel(ax, ay, dx, dy,  m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
+			//paint full background only on new text, otherwise paint required background
+			frameBuffer->paintBoxRel(ax, ay, dx, dy, m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
 		}
 	}
 	else{
@@ -679,6 +686,7 @@ void CTextBox::scrollPageDown(const int pages)
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 	if (oldCurrentLine != m_nCurrentLine)
 		refresh();
+	OnAfterScrollPage();
 }
 
 void CTextBox::scrollPageUp(const int pages)
@@ -702,6 +710,7 @@ void CTextBox::scrollPageUp(const int pages)
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 	if (oldCurrentLine != m_nCurrentLine)
 		refresh();
+	OnAfterScrollPage();
 }
 
 void CTextBox::refresh(void)
@@ -713,6 +722,7 @@ void CTextBox::refresh(void)
 	//Paint text
 	refreshScroll();
 	refreshText();
+	OnAfterRefresh();
 }
 
 
@@ -772,3 +782,28 @@ void CTextBox::hide (void)
 
 	frameBuffer = NULL;
 }
+
+bool CTextBox::clearScreenBuffer()
+{
+	if(m_bgpixbuf){
+		//TRACE("[CTextBox] %s destroy bg %d\r\n", __FUNCTION__, __LINE__);
+		delete[] m_bgpixbuf;
+		m_bgpixbuf = NULL;
+		return true;
+	}
+	return false;
+}
+
+bool CTextBox::enableSaveScreen(bool mode)
+{
+	if (m_SaveScreen == mode)
+		return false;
+
+	if (!m_SaveScreen || m_SaveScreen != mode)
+		clearScreenBuffer();
+
+	m_SaveScreen = mode;
+
+	return true;
+}
+

@@ -10,16 +10,8 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/xmltree \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@
-
-if BOXTYPE_COOL
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
-
+	@FREETYPE_CFLAGS@ \
+	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_gui_components.a
 
@@ -27,6 +19,8 @@ noinst_LIBRARIES = libneutrino_gui_components.a
 libneutrino_gui_components_a_SOURCES = \
 	cc_base.cpp \
 	cc_detailsline.cpp \
+	cc_draw.cpp \
+	cc_extra.cpp \
 	cc_frm_button.cpp \
 	cc_frm.cpp \
 	cc_frm_chain.cpp \

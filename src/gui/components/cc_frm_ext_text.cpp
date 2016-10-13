@@ -36,33 +36,37 @@ using namespace std;
 
 CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
+						Font* font_text,
 						CComponentsForm* parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t label_color,
 						fb_pixel_t text_color,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarExtTextForm(x_pos, y_pos, w, h, label_text, text, parent, has_shadow, label_color, text_color, color_frame, color_body, color_shadow);
+	initVarExtTextForm(x_pos, y_pos, w, h, label_text, text, font_text, parent, shadow_mode, label_color, text_color, color_frame, color_body, color_shadow);
 	initCCTextItems();
 }
 
 CComponentsExtTextFormLocalized::CComponentsExtTextFormLocalized(const int& x_pos, const int& y_pos, const int& w, const int& h,
 								const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,
+								Font* font_text,
 								CComponentsForm* parent,
-								bool has_shadow,
+								int shadow_mode,
 								fb_pixel_t label_color,
 								fb_pixel_t text_color,
 								fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 								: CComponentsExtTextForm(	x_pos, y_pos, w, h,
 												g_Locale->getText(locale_label_text), g_Locale->getText(locale_text),
+												font_text,
 												parent,
-												has_shadow,
+												shadow_mode,
 												label_color, text_color, color_frame, color_body, color_shadow){};
 
 void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
+						Font* font_text,
 						CComponentsForm* parent,
-						bool has_shadow,
+						int shadow_mode,
 						fb_pixel_t label_color,
 						fb_pixel_t text_color,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
@@ -82,7 +86,7 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	
 	ccx_label_text 	= label_text;
 	ccx_text 	= text;
-	shadow 		= has_shadow;
+	shadow 		= shadow_mode;
 	ccx_label_color	= label_color;
 	ccx_text_color	= text_color;
 	col_frame	= color_frame;
@@ -92,7 +96,7 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	ccx_text_obj	= NULL;
 	corner_type	= 0;
 	int dx = 0, dy 	= DEF_HEIGHT;
-	ccx_font 	= *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy));
+	ccx_font 	= font_text == NULL ? *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy)) :  g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 	ccx_label_align = ccx_text_align = CTextBox::NO_AUTO_LINEBREAK;
 
 	initParent(parent);
@@ -104,8 +108,9 @@ void CComponentsExtTextForm::initLabel()
 	//initialize label object
 	if (ccx_label_obj == NULL){
 		ccx_label_obj = new CComponentsLabel();
-		ccx_label_obj->doPaintBg(false);
-		ccx_label_obj->enableTboxSaveScreen(save_tbox_screen);
+		ccx_label_obj->doPaintBg(!cc_txt_save_screen);
+		ccx_label_obj->doPaintTextBoxBg(false);
+		ccx_label_obj->enableTboxSaveScreen(cc_txt_save_screen);
 	}	
 
 	//add label object
@@ -117,7 +122,7 @@ void CComponentsExtTextForm::initLabel()
 		ccx_label_width = (ccx_percent_label_w * width/100);
 		ccx_label_obj->setText(ccx_label_text, ccx_label_align, ccx_font);
 		ccx_label_obj->setTextColor(ccx_label_color);
-		ccx_label_obj->setDimensionsAll(fr_thickness, 0, ccx_label_width-fr_thickness, height-2*fr_thickness);
+		ccx_label_obj->setDimensionsAll(0, 0, ccx_label_width-2*fr_thickness, height-2*fr_thickness);
 		ccx_label_obj->setCorner(this->corner_rad, CORNER_LEFT);
 	}
 }
@@ -127,8 +132,9 @@ void CComponentsExtTextForm::initText()
 	//initialize text object
 	if (ccx_text_obj == NULL){
 		ccx_text_obj = new CComponentsText();
-		ccx_text_obj->doPaintBg(false);
-		ccx_text_obj->enableTboxSaveScreen(save_tbox_screen);
+		ccx_text_obj->doPaintBg(!cc_txt_save_screen);
+		ccx_text_obj->doPaintTextBoxBg(false);
+		ccx_text_obj->enableTboxSaveScreen(cc_txt_save_screen);
 	}
 
 	//add text object
@@ -161,12 +167,12 @@ void CComponentsExtTextForm::setLabelAndText(const neutrino_locale_t& locale_lab
 	setLabelAndText(g_Locale->getText(locale_label_text), g_Locale->getText(locale_text), font_text);
 }
 
-void CComponentsExtTextForm::setLabelAndTexts(const string_ext_txt_t& texts)
+void CComponentsExtTextForm::setLabelAndTexts(const cc_string_ext_txt_t& texts)
 {
 	setLabelAndText(texts.label_text, texts.text, texts.font);
 }
 
-void CComponentsExtTextForm::setLabelAndTexts(const locale_ext_txt_t& locale_texts)
+void CComponentsExtTextForm::setLabelAndTexts(const cc_locale_ext_txt_t& locale_texts)
 {
 	setLabelAndText(g_Locale->getText(locale_texts.label_text), g_Locale->getText(locale_texts.text), locale_texts.font);
 }

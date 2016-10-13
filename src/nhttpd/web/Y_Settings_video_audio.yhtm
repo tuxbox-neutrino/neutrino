@@ -8,32 +8,32 @@ function do_init()
 {
 	var val = "";
 //video
-	val = "{=ini-get:/var/tuxbox/config/controld.conf;videooutput;1~open=}";
+	val = "{=ini-get:%(CONFIGDIR)/controld.conf;videooutput;1~open=}";
 		document.f.videooutput.selectedIndex = val;
-	obj_set_radio_value('vcroutput', "{=ini-get:/var/tuxbox/config/controld.conf;vcroutput;0~cache=}");
+	obj_set_radio_value('vcroutput', "{=ini-get:%(CONFIGDIR)/controld.conf;vcroutput;0~cache=}");
 		document.f.h_vcroutput.value = obj_get_radio_value("vcroutput");
 
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;video_Format;2~open=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;video_Format;2~open=}";
 		document.f.video_Format.selectedIndex = val;
 	
-	val = "{=ini-get:/var/tuxbox/config/controld.conf;video_backgroundFormat;2~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/controld.conf;video_backgroundFormat;2~cache=}";
 	var sel = 0;
 	if(val=="2") sel=1;
 	if(val=="3") sel=2;
 	document.f.video_backgroundFormat.selectedIndex = sel;
 
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;video_csync;0~cache=}"
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;video_csync;0~cache=}"
 		document.f.video_csync.value = val;
-	obj_set_radio_value('vcr_AutoSwitch', "{=ini-get:/var/tuxbox/config/neutrino.conf;vcr_AutoSwitch;true~cache=}");
+	obj_set_radio_value('vcr_AutoSwitch', "{=ini-get:%(CONFIGDIR)/neutrino.conf;vcr_AutoSwitch;true~cache=}");
 //audio
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_AnalogMode;0~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;audio_AnalogMode;0~cache=}";
 		document.f.audio_AnalogMode.selectedIndex = val;
-	obj_set_radio_value('audiochannel_up_down_enable', "{=ini-get:/var/tuxbox/config/neutrino.conf;audiochannel_up_down_enable;false~cache=}");
-	obj_set_radio_value('audio_left_right_selectable', "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_left_right_selectable;false~cache=}");
-	obj_set_radio_value('audio_DolbyDigital', "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_DolbyDigital;false~cache=}");
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_avs_Control;1~cache=}";
+	obj_set_radio_value('audiochannel_up_down_enable', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audiochannel_up_down_enable;false~cache=}");
+	obj_set_radio_value('audio_left_right_selectable', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audio_left_right_selectable;false~cache=}");
+	obj_set_radio_value('audio_DolbyDigital', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audio_DolbyDigital;false~cache=}");
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;audio_avs_Control;1~cache=}";
 		document.f.audio_avs_Control.selectedIndex = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_step;5~cache=}"
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;audio_step;5~cache=}"
 		document.f.audio_step.value = val;
 }
 function set_hidden_values()

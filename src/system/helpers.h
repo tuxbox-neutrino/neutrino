@@ -67,18 +67,32 @@ std::string getFileName(std::string &file);
 std::string getFileExt(std::string &file);
 std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string cutString(const std::string str, int msgFont, const int width);
 std::string strftime(const char *format, const struct tm *tm);
 std::string strftime(const char *format, time_t when, bool gm = false);
 time_t toEpoch(std::string &date);
 std::string& str_replace(const std::string &search, const std::string &replace, std::string &text);
 std::string& htmlEntityDecode(std::string& text);
 
+struct helpersDebugInfo {
+	std::string msg;
+	std::string file;
+	std::string func;
+	int line;
+};
+
 class CFileHelpers
 {
 	private:
-		unsigned long FileBufSize;
-		char *FileBuf;
+		uint32_t FileBufMaxSize;
 		int fd1, fd2;
+
+		char* initFileBuf(char* buf, uint32_t size);
+		char* deleteFileBuf(char* buf);
+		bool ConsoleQuiet;
+		helpersDebugInfo DebugInfo;
+		void setDebugInfo(const char* msg, const char* file, const char* func, int line);
+		void printDebugInfo();
 
 	public:
 		CFileHelpers();
@@ -86,14 +100,22 @@ class CFileHelpers
 		static CFileHelpers* getInstance();
 		bool doCopyFlag;
 
-		bool copyFile(const char *Src, const char *Dst, mode_t mode);
+		void clearDebugInfo();
+		void readDebugInfo(helpersDebugInfo* di);
+		void setConsoleQuiet(bool q) { ConsoleQuiet = q; };
+		bool getConsoleQuiet() { return ConsoleQuiet; };
+
+		bool cp(const char *Src, const char *Dst, const char *Flags="");
+		bool copyFile(const char *Src, const char *Dst, mode_t forceMode=0);
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
-		static bool createDir(std::string& Dir, mode_t mode = 755);
-		static bool createDir(const char *Dir, mode_t mode = 755){std::string dir = std::string(Dir);return createDir(dir, mode);}
+		static bool createDir(std::string& Dir, mode_t mode = 0755);
+		static bool createDir(const char *Dir, mode_t mode = 0755){std::string dir = std::string(Dir);return createDir(dir, mode);}
 		static bool removeDir(const char *Dir);
 		static uint64_t getDirSize(const char *dir);
 		static uint64_t getDirSize(const std::string& dir){return getDirSize(dir.c_str());};
 };
+
+uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max=true);
 
 std::string to_string(int);
 std::string to_string(unsigned int);
@@ -101,6 +123,8 @@ std::string to_string(long);
 std::string to_string(unsigned long);
 std::string to_string(long long);
 std::string to_string(unsigned long long);
+
+std::string itoa(int value, int base);
 
 inline int atoi(std::string &s) { return atoi(s.c_str()); }
 inline int atoi(const std::string &s) { return atoi(s.c_str()); }
@@ -115,5 +139,6 @@ std::vector<std::string> split(const std::string &s, char delim);
 bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap);
 
 std::string getJFFS2MountPoint(int mtdPos);
+std::string Lang2ISO639_1(std::string& lang);
 
 #endif

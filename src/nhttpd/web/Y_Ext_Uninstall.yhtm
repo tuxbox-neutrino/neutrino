@@ -63,7 +63,7 @@ function init(){
 	<form name="f" accept-charset="UTF-8" action="/y/cgi">
 		<table border="0" class="y_form_table" cellspacing="0" cellpadding="0">
 			<tr>
-				<td><textarea name="extentions" cols="90" rows="5"   title="extention list" style="background : white; font : 'Courier New',medium  monospace; color : #436976;"></textarea></td>
+				<td><textarea name="extentions" cols="90" rows="5" title="extention list"></textarea></td>
 			</tr>
 		</table>
 		<br/>

@@ -138,6 +138,16 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			if ((!is_video_started) &&
 			    (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED))
 				g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false);
+
+			//check epg fsk in onsignal mode
+			if ((!is_video_started) &&
+			    (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_ONSIGNAL)){
+					CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
+					CEitManager::getInstance()->getCurrentNextServiceKey(current_channel_id, currentNextInfo);
+					if(currentNextInfo.current_fsk  && currentNextInfo.current_fsk >= g_settings.parentallock_lockage){
+						g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false);
+					}
+			}
 		}
 	} else {
 		if ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) || (msg == NeutrinoMessages::EVT_ZAP_FAILED  ) ||
@@ -507,24 +517,30 @@ void CRemoteControl::processAPIDnames()
 		{
 			has_unresolved_ctags= true;
 		}
-		if ( strlen( current_PIDs.APIDs[count].desc ) == 3 )
+		std::string tmp_desc = current_PIDs.APIDs[count].desc;
+		if ( tmp_desc.size() == 3 )
 		{
 			// unaufgeloeste Sprache...
-			strcpy( current_PIDs.APIDs[count].desc, getISO639Description( current_PIDs.APIDs[count].desc ) );
+			tmp_desc = getISO639Description( current_PIDs.APIDs[count].desc );
 		}
 
 		if ( current_PIDs.APIDs[count].is_ac3 )
 		{
 			if(!strstr(current_PIDs.APIDs[count].desc, " (AC3)"))
-				strncat(current_PIDs.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
+				tmp_desc += " (AC3)";
 			has_ac3 = true;
 			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
 				ac3_found = count;
 		}
 		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
-			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
+			tmp_desc += " (AAC)";
 		else if (current_PIDs.APIDs[count].is_eac3 &&  !strstr(current_PIDs.APIDs[count].desc, " (EAC3)"))
-			strncat(current_PIDs.APIDs[count].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
+			tmp_desc += " (EAC3)";
+
+		if(!tmp_desc.empty()){
+			strncpy(current_PIDs.APIDs[count].desc, tmp_desc.c_str(), DESC_MAX_LEN -1);
+		}
+
 	}
 
 	if ( has_unresolved_ctags )
@@ -545,13 +561,17 @@ void CRemoteControl::processAPIDnames()
 							// workaround for buggy ZDF ctags / or buggy sectionsd/drivers , who knows...
 							if(!tags[i].component.empty())
 							{
-								strncpy(current_PIDs.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN-1);
-								if (current_PIDs.APIDs[j].is_ac3 &&  !strstr(current_PIDs.APIDs[j].desc, " (AC3)"))
-									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
-								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (AAC)"))
-									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
-								else if (current_PIDs.APIDs[j].is_eac3 &&  !strstr(current_PIDs.APIDs[j].desc, " (EAC3)"))
-									strncat(current_PIDs.APIDs[j].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
+								std::string tmp_desc2 = tags[i].component.c_str();
+								if (current_PIDs.APIDs[j].is_ac3 &&  tmp_desc2.find(" (AC3)"))
+									tmp_desc2 += " (AC3)";
+								else if (current_PIDs.APIDs[j].is_aac && tmp_desc2.find(" (AAC)"))
+									tmp_desc2 += " (AAC)";
+								else if (current_PIDs.APIDs[j].is_eac3 &&  tmp_desc2.find(" (EAC3)"))
+									tmp_desc2 += " (EAC3)";
+
+								if(!tmp_desc2.empty()){
+									strncpy(current_PIDs.APIDs[j].desc, tmp_desc2.c_str(), DESC_MAX_LEN -1);
+								}
 							}
 							current_PIDs.APIDs[j].component_tag = -1;
 							break;

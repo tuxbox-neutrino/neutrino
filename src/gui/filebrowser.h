@@ -147,7 +147,7 @@ class CFileBrowser
 		CFrameBuffer		*frameBuffer;
 		Font *fnt_title;
 		Font *fnt_item;
-		Font *fnt_small;
+		Font *fnt_foot;
 
 		CFileList		selected_filelist;
 		bool			readDir(const std::string & dirname, CFileList* flist);

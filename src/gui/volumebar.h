@@ -39,8 +39,8 @@ class CVolumeBar : public CComponentsForm
 		CComponentsLabel *vb_digit;
 		int vb_digit_mode;
 		int VolumeFont;
-		int sy, sw, sh;
-		int mute_ax, mute_ay, mute_dx, mute_dy, mute_ay_old;
+		int sw, sh;
+		int mute_ax, mute_ay, mute_dx, mute_dy;
 		int h_spacer, v_spacer;
 		int vb_item_offset;
 
@@ -92,7 +92,6 @@ class CVolumeBar : public CComponentsForm
 // 		~CVolumeBar(); inherited from CComponentsForm
 
 		void repaintVolScale();
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 
@@ -106,13 +105,13 @@ class CVolumeHelper
 		int icon_width, icon_height, digit_width;
 		int h_spacer, v_spacer;
 		int vol_ay, vol_height;
-		Font** clock_font;
+		Font* clock_font;
 		CFrameBuffer *frameBuffer;
 
-		void Init(Font** font=NULL);
+		void Init(Font* font=NULL);
 		void initVolBarSize();
 		void initMuteIcon();
-		void initInfoClock(Font** font);
+		void initInfoClock(Font* font);
 
 	public:
 
@@ -130,7 +129,7 @@ class CVolumeHelper
 		void getTimeDimensions(int *_x, int *_y, int *w, int *h) { *_x = time_ax; *_y = clock_ay; *w = time_dx; *h = clock_dy; }
 		void getVolBarDimensions(int *_y, int *_dy) { *_y = vol_ay; *_dy = vol_height; }
 		void setMuteIconCorrY(int corr) { mute_corrY = corr; }
-		void refresh(Font** font=NULL);
+		void refresh(Font* font=NULL);
 };
 
 #endif

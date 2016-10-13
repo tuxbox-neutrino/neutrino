@@ -99,3 +99,13 @@ install_DATA +=	accordion.js \
 		Y_Filemgr.yhtm \
 		Y_Filemgr_Edit.yhtm \
 		Y_Filemgr_blocks.txt
+
+install-data-hook:
+	@# Badass hack, I know. If anyone knows a better way -- please send patch!
+	find $(DESTDIR)$(PRIVATE_HTTPDDIR)/ -type f -print0 | xargs --no-run-if-empty -0 \
+		sed -i \
+			-e 's|%(CONFIGDIR)|$(CONFIGDIR)|g' \
+			-e 's|%(PLUGINDIR_VAR)|$(PLUGINDIR_VAR)|g' \
+			-e 's|%(PRIVATE_HTTPDDIR)|$(PRIVATE_HTTPDDIR)|g' \
+			-e 's|%(PUBLIC_HTTPDDIR)|$(PUBLIC_HTTPDDIR)|g' \
+	;

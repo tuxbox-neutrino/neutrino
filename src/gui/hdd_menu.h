@@ -66,7 +66,7 @@ class CHDDMenuHandler : public CMenuTarget
 		std::vector<hdd_s> hdd_list;
 		struct cmp_hdd_by_name: public binary_function <const struct hdd_s, const struct hdd_s, bool>
 		{
-			bool operator() (const struct hdd_s c1, const struct hdd_s c2)
+			bool operator() (const struct hdd_s &c1, const struct hdd_s &c2)
 			{
 				return std::lexicographical_compare(c1.devname.begin(), c1.devname.end(), c2.devname.begin(), c2.devname.end());
 			};

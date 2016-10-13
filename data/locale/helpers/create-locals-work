@@ -49,7 +49,7 @@ foreach $term (sort keys %master) {
     }
 }
 
-if ($no_errors == 0) {}
+if ($no_errors == 0) {
     unlink($outfilename);
 } else {
     print "There were ", $no_errors, " error(s) in ", $localefilename, ".\n";

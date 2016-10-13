@@ -33,6 +33,7 @@
 */
 
 
+#include <global.h>
 #include <gui/widget/menue.h>
 
 #include <string>
@@ -69,19 +70,16 @@ class COnOffNotifier : public CChangeObserver
 
 class CSectionsdConfigNotifier : public CChangeObserver
 {
-        public:
-                bool changeNotify(const neutrino_locale_t, void * );
+	public:
+		bool changeNotify(const neutrino_locale_t, void * );
 };
 
 class CTouchFileNotifier : public CChangeObserver
 {
 	const char * filename;
- public:
-	inline CTouchFileNotifier(const char * file_to_modify)
-		{
-			filename = file_to_modify;
-		};
-	bool changeNotify(const neutrino_locale_t, void * data);
+	public:
+		inline CTouchFileNotifier(const char * _filename) { filename = _filename; };
+		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
 class CColorSetupNotifier : public CChangeObserver
@@ -123,33 +121,38 @@ class CMoviePluginChangeExec : public CMenuTarget
 
 class CTZChangeNotifier : public CChangeObserver
 {
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
+	public:
+		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
 class CDataResetNotifier : public CMenuTarget
 {
-public:
-        int exec(CMenuTarget* parent, const std::string& actionKey);
+	public:
+		int exec(CMenuTarget* parent, const std::string& actionKey);
 };
 
 class CFanControlNotifier : public CChangeObserver
 {
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
-	static void setSpeed(unsigned int speed);
+	public:
+		bool changeNotify(const neutrino_locale_t, void * data);
+		static void setSpeed(unsigned int speed);
 };
 
 class CCpuFreqNotifier : public CChangeObserver
 {
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
+	public:
+		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
 class CAutoModeNotifier : public CChangeObserver
 {
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
+	public:
+		bool changeNotify(const neutrino_locale_t, void * data);
 };
+
+//do we need a class?
+inline int check_shoutcast_dev_id() { return ((g_settings.shoutcast_dev_id != "XXXXXXXXXXXXXXXX") && !g_settings.shoutcast_dev_id.empty()); }
+inline int check_youtube_dev_id() { return ((g_settings.youtube_dev_id != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX") && !g_settings.youtube_dev_id.empty()); }
+inline int check_tmdb_api_key() { return ((g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX") && !g_settings.tmdb_api_key.empty()); }
 
 #endif

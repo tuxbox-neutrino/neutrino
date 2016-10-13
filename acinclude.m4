@@ -123,43 +123,58 @@ if test "$TARGET" = "cdk"; then
 fi
 
 TUXBOX_APPS_DIRECTORY_ONE(configdir,CONFIGDIR,localstatedir,/var,/tuxbox/config,
-	[--with-configdir=PATH   ],[where to find the config files])
+	[--with-configdir=PATH         ],[where to find the config files])
 
 TUXBOX_APPS_DIRECTORY_ONE(datadir,DATADIR,datadir,/share,/tuxbox,
-	[--with-datadir=PATH     ],[where to find data])
+	[--with-datadir=PATH           ],[where to find data])
 
 TUXBOX_APPS_DIRECTORY_ONE(fontdir,FONTDIR,datadir,/share,/fonts,
-	[--with-fontdir=PATH     ],[where to find the fonts])
+	[--with-fontdir=PATH           ],[where to find the fonts])
 
 TUXBOX_APPS_DIRECTORY_ONE(gamesdir,GAMESDIR,localstatedir,/var,/tuxbox/games,
-	[--with-gamesdir=PATH    ],[where games data is stored])
+	[--with-gamesdir=PATH          ],[where games data is stored])
 
 TUXBOX_APPS_DIRECTORY_ONE(libdir,LIBDIR,libdir,/lib,/tuxbox,
-	[--with-libdir=PATH      ],[where to find the internal libs])
+	[--with-libdir=PATH            ],[where to find the internal libs])
 
 TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
-	[--with-plugindir=PATH   ],[where to find the plugins])
+	[--with-plugindir=PATH         ],[where to find the plugins])
+
+TUXBOX_APPS_DIRECTORY_ONE(plugindir_var,PLUGINDIR_VAR,localstatedir,/var,/tuxbox/plugins,
+	[--with-plugindir_var=PATH     ],[where to find the plugins in /var])
+
+TUXBOX_APPS_DIRECTORY_ONE(plugindir_mnt,PLUGINDIR_MNT,mntdir,/mnt,/plugins,
+	[--with-plugindir_mnt=PATH     ],[where to find the the extern plugins])
 
 TUXBOX_APPS_DIRECTORY_ONE(luaplugindir,LUAPLUGINDIR,libdir,/lib,/tuxbox/luaplugins,
-	[--with-luaplugindir=PATH   ],[where to find Lua plugins])
+	[--with-luaplugindir=PATH      ],[where to find Lua plugins])
 
 TUXBOX_APPS_DIRECTORY_ONE(localedir,LOCALEDIR,datadir,/share, /tuxbox/neutrino/locale,
-	[--with-localedir=PATH     ],[where to find the locale])
+	[--with-localedir=PATH         ],[where to find the locale])
+
+TUXBOX_APPS_DIRECTORY_ONE(localedir_var,LOCALEDIR_VAR,localstatedir,/var,/tuxbox/locale,
+	[--with-localedir_var=PATH     ],[where to find the locale in /var])
 
 TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share, /tuxbox/neutrino/themes,
-	[--with-themesdir=PATH     ],[where to find the themes])
+	[--with-themesdir=PATH         ],[where to find the themes])
+
+TUXBOX_APPS_DIRECTORY_ONE(themesdir_var,THEMESDIR_VAR,localstatedir,/var,/tuxbox/themes,
+	[--with-themesdir_var=PATH     ],[where to find the themes in /var])
 
 TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share, /tuxbox/neutrino/icons,
-	[--with-iconsdir=PATH     ],[where to find the icons])
+	[--with-iconsdir=PATH          ],[where to find the icons])
+
+TUXBOX_APPS_DIRECTORY_ONE(iconsdir_var,ICONSDIR_VAR,localstatedir,/var,/tuxbox/icons,
+	[--with-iconsdir_var=PATH      ],[where to find the icons in /var])
 
 TUXBOX_APPS_DIRECTORY_ONE(private_httpddir,PRIVATE_HTTPDDIR,datadir,/share,/tuxbox/neutrino/httpd,
-	[--with-private_httpddir=PATH     ],[where to find the the private httpd files])
+	[--with-private_httpddir=PATH  ],[where to find the the private httpd files])
 
 TUXBOX_APPS_DIRECTORY_ONE(public_httpddir,PUBLIC_HTTPDDIR,localstatedir,/var,/httpd,
-	[--with-public_httpddir=PATH     ],[where to find the the public httpd files])
+	[--with-public_httpddir=PATH   ],[where to find the the public httpd files])
 
 TUXBOX_APPS_DIRECTORY_ONE(hosted_httpddir,HOSTED_HTTPDDIR,mntdir,/mnt,/hosted,
-	[--with-hosted_httpddir=PATH     ],[where to find the the hosted files])
+	[--with-hosted_httpddir=PATH   ],[where to find the the hosted files])
 ])
 
 dnl automake <= 1.6 needs this specifications
@@ -211,12 +226,6 @@ if test "$DVBINCLUDES"; then
 	CXXFLAGS="-I$DVBINCLUDES $CXXFLAGS"
 fi
 
-AC_CHECK_HEADERS(ost/dmx.h,[
-	DVB_API_VERSION=1
-	AC_MSG_NOTICE([found dvb version 1])
-])
-
-if test -z "$DVB_API_VERSION"; then
 AC_CHECK_HEADERS(linux/dvb/version.h,[
 	AC_LANG_PREPROC_REQUIRE()
 	AC_REQUIRE([AC_PROG_EGREP])
@@ -224,18 +233,17 @@ AC_CHECK_HEADERS(linux/dvb/version.h,[
 #include <linux/dvb/version.h>
 version DVB_API_VERSION
 	]])])
-	DVB_API_VERSION=`(eval "$ac_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
+	DVB_API_VERSION=`(eval "$ac_cpp -traditional-cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
 
 	AC_LANG_CONFTEST([AC_LANG_SOURCE([[
 #include <linux/dvb/version.h>
 version DVB_API_VERSION_MINOR
 	]])])
-	DVB_API_VERSION_MINOR=`(eval "$ac_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
+	DVB_API_VERSION_MINOR=`(eval "$ac_cpp -traditional-cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD | $EGREP "^version" | sed "s,version\ ,,"`
 	rm -f conftest*
 
 	AC_MSG_NOTICE([found dvb version $DVB_API_VERSION.$DVB_API_VERSION_MINOR])
 ])
-fi
 
 if test "$DVB_API_VERSION"; then
 	AC_DEFINE(HAVE_DVB,1,[Define to 1 if you have the dvb includes])

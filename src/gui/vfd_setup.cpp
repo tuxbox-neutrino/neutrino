@@ -155,6 +155,10 @@ int CVfdSetup::showSetup()
 		oj = new CMenuOptionChooser(LOCALE_LCDMENU_SCROLL, &g_settings.lcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
 		oj->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
 		vfds->addItem(oj);
+
+		oj = new CMenuOptionChooser(LOCALE_LCDMENU_NOTIFY_RCLOCK, &g_settings.lcd_notify_rclock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
+		oj->setHint("", LOCALE_MENU_HINT_VFD_NOTIFY_RCLOCK);
+		vfds->addItem(oj);
 	}
 
 	int res = vfds->exec(NULL, "");

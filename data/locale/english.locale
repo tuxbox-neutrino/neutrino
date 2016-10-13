@@ -108,6 +108,15 @@ GENRE.TRAVEL_HOBBIES.6 advertisement/shopping
 GENRE.TRAVEL_HOBBIES.7 gardening
 GENRE.UNKNOWN unknown
 adzap AdZap
+adzap.announce In %d seconds, the channel will be switched to\n%s
+adzap.cancel Timer was cancelled
+adzap.disable Off
+adzap.enable On (once)
+adzap.minute minute
+adzap.minutes minutes
+adzap.monitor On (durable)
+adzap.switchback Switch back after
+adzap.writedata Write status data
 apidselector.head Select language
 audio.srs_algo Type
 audio.srs_algo_heavy Heavy
@@ -148,7 +157,7 @@ audiomenu.volume_step Volume step
 audioplayer.add Add
 audioplayer.add_ic Icecast
 audioplayer.add_loc Local radio list
-audioplayer.add_sc Shoutcast
+audioplayer.add_sc SHOUTcast
 audioplayer.artist_title Artist, Title
 audioplayer.building_search_index building search index
 audioplayer.button_select_title_by_id search by ID
@@ -157,7 +166,7 @@ audioplayer.defdir start dir.
 audioplayer.delete Remove
 audioplayer.deleteall remove all
 audioplayer.display_order display order
-audioplayer.enable_sc_metadata enable shoutcast meta data parsing
+audioplayer.enable_sc_metadata enable SHOUTcast meta data parsing
 audioplayer.fastforward fast forw.
 audioplayer.follow auto select current
 audioplayer.head Audio Playlist
@@ -246,6 +255,7 @@ channellist.foot_sort_freq sorted[freq]
 channellist.foot_sort_sat sorted[sat]
 channellist.head All Services
 channellist.history History
+channellist.history_clear Clear history
 channellist.keep_numbers Persistent channel numbers
 channellist.make_hdlist Create list of HD channels
 channellist.make_newlist Create list of new channels
@@ -290,11 +300,23 @@ clock_size_height Display height
 clock_switch_off Clock off
 clock_switch_on Clock on
 color.gradient Color gradient
-color.gradient_c2c Color to color gradient
+color.gradient_a2b color A to B
+color.gradient_b2a color B to A
+color.gradient_d2l dark to light
+color.gradient_dld dark light dark
+color.gradient_l2d light to dark
+color.gradient_ldl light dark light
+color.gradient_mode_direction Direction
+color.gradient_mode_direction_hor horizontal
+color.gradient_mode_direction_ver vertical
+color.gradient_separator_enable Color gradient separator line
 colorchooser.alpha alpha
 colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
+colorchooser.save Save
+colormenu.advanced_mode_off Default options
+colormenu.advanced_mode_on Advanced options
 colormenu.background Background
 colormenu.clock_textcolor Digit color
 colormenu.contrast_fonts Contrast fonts
@@ -311,6 +333,7 @@ colormenu.timing Timeouts
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
+colormenusetup.menufoot Footer
 colormenusetup.menuhead Header
 colorstatusbar.text Infobar
 colorthememenu.head Select theme
@@ -366,6 +389,7 @@ epgviewer.genre Genre
 epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
+epgviewer.select_screening Select Screening
 eventfinder.fsk Age rating Filter
 eventfinder.genre Genre-Filter
 eventfinder.head Search in EPG
@@ -379,6 +403,7 @@ eventfinder.search_within_list Search within
 eventfinder.searching Search for keyword in EPG...
 eventfinder.start_search Start Search
 eventlist.additional Additional informations
+eventlist.epgplus Show EPG Plus
 eventlist.name Eventlist
 eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
@@ -452,7 +477,8 @@ extra.saveconfig Neutrino-HD Settings: Save as
 extra.savekeys Save keys as
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
-extra.sms_channel sms-mode channel
+extra.sms_channel SMS-mode channel
+extra.sms_movie SMS-mode movie
 extra.south South
 extra.start_tostandby Startup to standby
 extra.temp_timeshift Temporary timeshift
@@ -612,6 +638,8 @@ flashupdate.getupdatefile getting update
 flashupdate.getupdatefileerror Can't get update!
 flashupdate.globalprogress Global Progress:
 flashupdate.head Software Update
+flashupdate.install_image Flash downloaded image?
+flashupdate.install_package Install downloadad pack?
 flashupdate.md5check checking image
 flashupdate.md5sumerror image has errors
 flashupdate.menu_apply_kernel Flashing kernel
@@ -703,6 +731,7 @@ fontsize.infobar_info info
 fontsize.infobar_number Number
 fontsize.infobar_small Small
 fontsize.menu Menu text
+fontsize.menu_foot Footer (in all GUI elements)
 fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
@@ -751,6 +780,7 @@ hdd_statfs_recording while recording only
 hdd_umount Unmount
 hdd_umount_warn unmount device
 hdd_umounted Device removed
+imageinfo.api API:
 imageinfo.creator Creator:
 imageinfo.date Date:
 imageinfo.dokumentation Docs:
@@ -765,8 +795,6 @@ imageinfo.version Version:
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded....
 infoviewer.epgwait waiting for EPG...
-infoviewer.eventlist Event-List
-infoviewer.languages Audio
 infoviewer.motor_moving Antenna positioning
 infoviewer.next next
 infoviewer.nocurrent No info for current program available
@@ -774,10 +802,8 @@ infoviewer.noepg EPG not available
 infoviewer.notavailable Channel not available
 infoviewer.now now
 infoviewer.selecttime Timeselection
-infoviewer.streaminfo Features
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subchan_infobar Full infobar
-infoviewer.subservice Subservices
 infoviewer.waittime Waiting for time...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
 ipsetup.hint_2 OK saves, Exit aborts
@@ -799,7 +825,7 @@ keybindingmenu.head Edit Keybindings
 keybindingmenu.lastchannel Quick Zap
 keybindingmenu.longkeypress_duration Long key-press
 keybindingmenu.misc Misc
-keybindingmenu.mode_left_right_key_tv Left/Right Key Behavior in TV-Mode
+keybindingmenu.mode_left_right_key_tv Left/Right key behaviour
 keybindingmenu.mode_left_right_key_tv_infobar Show Infobar
 keybindingmenu.mode_left_right_key_tv_volume Volume Control
 keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
@@ -849,6 +875,7 @@ lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD/LED Settings
 lcdmenu.lcdcontroler Brightness
+lcdmenu.notify_rclock Notify when RC is locked
 lcdmenu.scroll Enable text scroll
 lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
@@ -866,6 +893,10 @@ ledcontroler.off Led1 & Led2 off
 ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
+livestream.head Live streams
+livestream.read_data Read data...
+livestream.resolution Resolution
+livestream.scriptpath Script path
 lua.boolparam_deprecated1 Caution!
 lua.boolparam_deprecated2 The use of number or string
 lua.boolparam_deprecated3 for a Boolean parameter is deprecated.\n                      Please use native bool values eg.
@@ -915,9 +946,18 @@ mainsettings.savesettingsnow Save settings now
 mainsettings.savesettingsnow_hint Saving settings,\nplease wait...
 mainsettings.timezone Timezone
 mainsettings.video Video
+mbkey.copy_onefile Copy movie
+mbkey.copy_several Copy and split movie
+mbkey.cover Create/remove movie cover
+mbkey.cut Cut movie
+mbkey.truncate Truncate movie
 menu.back Back
 menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer
+menu.hint_adzap AdZap will switch back to the current channel when the selected time is up
+menu.hint_adzap_active AdZap is active. With a new call it will be deactivated.
+menu.hint_adzap_setup Settings for the AdZap service
+menu.hint_adzap_writedata Write data according to adzap status to /tmp/adzap.data
 menu.hint_aplay Audio player
 menu.hint_aplay_setup Change title display, start directory, screen saver and more
 menu.hint_audio Audio output, DD\nSRS True volume options
@@ -975,7 +1015,8 @@ menu.hint_clock_seconds Show time format with seconds
 menu.hint_clock_size Set the size of the info clock
 menu.hint_clock_textcolor Configure digit colors
 menu.hint_color_gradient Switches color gradients for various menu items on/off
-menu.hint_color_gradient_c2c Switches smooth gradient between 2 colors and one-color gradient
+menu.hint_color_gradient_direction Define direction of color gradient.
+menu.hint_color_gradient_separator_enable Disable/enable color gradient for menu separator lines
 menu.hint_colored_events Use different color for current or next event
 menu.hint_colored_events_textcolor Change color for colored events in channellist and infobar
 menu.hint_colors Configure GUI colors
@@ -999,6 +1040,7 @@ menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
 menu.hint_eventlist_additional Show additional informations\nin main box
+menu.hint_eventlist_epgplus Show EPG Plus (Eventlist overview) when pressing EPG key
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_eventlist_setup Configure event list GUI options
 menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
@@ -1013,6 +1055,8 @@ menu.hint_font_gui Select font file to use for GUI
 menu.hint_font_scaling Set global vertical and horizontal\nGUI font scaling
 menu.hint_font_ttx Select font file to use for teletext
 menu.hint_fonts Configure GUI fonts and font sizes
+menu.hint_foot_back Change GUI footer background color
+menu.hint_foot_textcolor Change GUI window footer text color
 menu.hint_games Show list of installed games
 menu.hint_hdd Format / check data storage
 menu.hint_hdd_apply Apply sleep/noise parameters
@@ -1032,6 +1076,7 @@ menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inet_radio Internet radio
 menu.hint_info Information about image, box cpu and storage,\nstream information
 menu.hint_infobar_back Change infobar background color
+menu.hint_infobar_buttons_usertitle Forces userdefined titles for the color keys
 menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-systems
 menu.hint_infobar_casys_color Change CA-System background color
 menu.hint_infobar_casys_dotmatrix on: CA-System with dot matrix in background
@@ -1057,7 +1102,6 @@ menu.hint_key_binding Re-define keys used for common operations
 menu.hint_key_bouquetdown Assign button to switch channel list\nto previous bouquet
 menu.hint_key_bouquetup Assign button to switch channel list\nto next bouquet
 menu.hint_key_cancel Assign button to close GUI window
-menu.hint_key_channel_sms If enabled, numeric buttons in channel list\nused to search channel in SMS style
 menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
 menu.hint_key_channellist Configure keybingdings for channel list
 menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
@@ -1070,6 +1114,7 @@ menu.hint_key_list_end Assign button to go do list end
 menu.hint_key_list_start Assign button to go to list start
 menu.hint_key_load Load keybindings from file
 menu.hint_key_modechange Change TV/Radio mode and standby keys
+menu.hint_key_moviebrowser Configure keybingdings for movie browser
 menu.hint_key_movieplayer Configure keybingdings for movie player
 menu.hint_key_mpaudio Assign button to show audio selection\nin record/file playback mode
 menu.hint_key_mpbookmark Assign button to create bookmark\nwhile playing record
@@ -1081,7 +1126,6 @@ menu.hint_key_mprewind Assign button to rewind record playback
 menu.hint_key_mpstop Assign button to stop record/file playback
 menu.hint_key_mpsubtitle Assign button to show subtitle selection
 menu.hint_key_mptime Assign button to show play time\nleft time
-menu.hint_key_mptimeshift Assign button to start timeshift
 menu.hint_key_pagedown Assign button to show next items page
 menu.hint_key_pageup Assign button to show previous items page
 menu.hint_key_pic_mode_active Disable/enable key for the screen format
@@ -1095,13 +1139,14 @@ menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_record Assign button to start a recording
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
 menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
-menu.hint_key_right Select 'right' function in live TV/Radio mode
+menu.hint_key_right Select function for 'left' and 'right' keys in live TV/Radio mode and movieplayer mode
 menu.hint_key_save Save keybindings to file
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_key_special_active Disable or enable some special keys
 menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
 menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
+menu.hint_key_timeshift Assign button to start timeshift
 menu.hint_key_transponder Assign button to show channel list\nfor current transponder
 menu.hint_key_tvradiomode Assign button to switch TV <> Radio mode
 menu.hint_key_unlock Assign button to unlock box if locked\nTo unlock press 'red', then in next 5 seconds this key
@@ -1127,6 +1172,7 @@ menu.hint_make_removedlist Create list of recently removed channels
 menu.hint_make_webtvlist Auto-create WebTV channel list based on\nchannel type and name
 menu.hint_manage_settings Backup, restore, revert to defaults\nFactory box reset
 menu.hint_mb Your recordings
+menu.hint_mbkey_cover Assign button to create movie cover while playback or delete it in moviebrowser
 menu.hint_media Play movies, audio files\nWatch pictures
 menu.hint_menu_fonts Change menu font sizes
 menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button
@@ -1138,6 +1184,7 @@ menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
 menu.hint_misc_epg Save/load EPG options, EPG cache options\nEPG save directory
 menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leave
 menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
+menu.hint_misc_onlineservices Configure and control online services like YouTube, SHOUTCast and TMDb
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
 menu.hint_moviebrowser_setup Set selection and display options.
@@ -1181,6 +1228,8 @@ menu.hint_next Continue to next menu\nPress menu key to close all menus
 menu.hint_next_brief Continue to next menu
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_opkg Install or update software packages
+menu.hint_opkg_feed_addresses_edit Edit feed addresses
+menu.hint_opkg_install_local_package Install package from USB, SD, share or local directory.
 menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
@@ -1217,6 +1266,7 @@ menu.hint_progressbar_timescale_yellow Choose the yellow portion of colored prog
 menu.hint_protection Protect content by PIN code\nDefault PIN 0000
 menu.hint_radiomode Switch box to radio mode
 menu.hint_reboot Reboot box\nNo confirmation
+menu.hint_record_already_found_check Checks before setting a new record timer if an eponymous title already exists
 menu.hint_record_apid_ac3 Record AC3 audio pids
 menu.hint_record_apid_alt Record alternative non-AC3 audio pids
 menu.hint_record_apid_std Record first audio pid
@@ -1329,8 +1379,10 @@ menu.hint_scrambled_message Show scrambled message, when channel cannot be decod
 menu.hint_screen_setup Configure screen margins
 menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start or turn it off
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
-menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
+menu.hint_screensaver_mode Select screensaver mode.
+menu.hint_screensaver_random Enable/disable random image selection.
 menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
+menu.hint_screensaver_timeout Select the timeout to changes in screensavers
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
 menu.hint_screenshot_dir Select directory to save screenshots
@@ -1345,6 +1397,8 @@ menu.hint_selected_text Change selected item text color
 menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
 menu.hint_service_scan Auto / manual service scan
 menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
+menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
+menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
@@ -1353,6 +1407,8 @@ menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more th
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
 menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_sleeptimer_min Default setting for sleeptimer
+menu.hint_sms_channel If enabled, numeric buttons in channel list used to search channel in SMS style
+menu.hint_sms_movie If enabled, numeric buttons in moviebrowser used to search movie in SMS style
 menu.hint_soft_restart Restart Neutrino-HD without reboot
 menu.hint_softupdate_check Check online update, download and flash firmware
 menu.hint_softupdate_check_local Select and flash firmware from local file
@@ -1370,6 +1426,8 @@ menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Configure time to hide GUI windows\nin seconds
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
+menu.hint_tmdb_api_key Type your TMDb API key. An empty input disables TMDb support
+menu.hint_tmdb_enabled Enable or disable TMDb support (themoviedb.org)
 menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
@@ -1383,6 +1441,7 @@ menu.hint_vfd_brightnessstandby Brightness in soft-standby mode
 menu.hint_vfd_defaults Restore default brightness values
 menu.hint_vfd_dimtime Auto-dim time, in seconds
 menu.hint_vfd_infoline Choose what to display in main VFD line
+menu.hint_vfd_notify_rclock Displays a notification when a key is pressed while remote control is locked
 menu.hint_vfd_scroll Enable or disable text scrolling on VFD
 menu.hint_vfd_statusline Choose what to display in short\nVFD status line
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
@@ -1406,7 +1465,9 @@ menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
-menu.hint_ytplay Play selected youtube feeds
+menu.hint_youtube_dev_id Type your YouTube Dev ID. An empty input disables YouTube support
+menu.hint_youtube_enabled Enable or disable YouTube support
+menu.hint_ytplay Play selected YouTube feeds
 menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next
@@ -1414,6 +1475,7 @@ messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?
 messagebox.error Error
+messagebox.feature_not_supported Feature is not supported. Please contact your firmware provider!
 messagebox.info Information
 messagebox.no No
 messagebox.ok Ok
@@ -1434,7 +1496,7 @@ miscsettings.epg_dir EPG save path
 miscsettings.epg_extendedcache EPG Long Description (hours)
 miscsettings.epg_extendedcache_hint1 How long into the future will EPG extended descriptions
 miscsettings.epg_extendedcache_hint2 be Cached? (Set in hours)
-miscsettings.epg_head Epg
+miscsettings.epg_head EPG
 miscsettings.epg_max_events Max. Events
 miscsettings.epg_max_events_hint1 How many events should be stored?
 miscsettings.epg_max_events_hint2 normaly 6000, 0 to disable limit
@@ -1457,6 +1519,7 @@ miscsettings.epg_scan_standby Standby
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar
+miscsettings.infobar_buttons_usertitle Usertitles for color keys
 miscsettings.infobar_casystem_display CA-System display
 miscsettings.infobar_casystem_dotmatrix CA display with dot matrix
 miscsettings.infobar_casystem_frame CA display with frame
@@ -1470,6 +1533,7 @@ miscsettings.infobar_disp_3 Logo, Channelname [Signal]
 miscsettings.infobar_disp_4 Logo, Channelname [Channelnumber]
 miscsettings.infobar_disp_5 Logo [Signal]
 miscsettings.infobar_disp_6 Channelnumber, Logo [Signal]
+miscsettings.infobar_gradient_body Gradient EPG-area
 miscsettings.infobar_gradient_bottom Gradient bottom
 miscsettings.infobar_gradient_top Gradient top
 miscsettings.infobar_logo_hdd_dir Logo directory
@@ -1481,6 +1545,7 @@ miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_sysfs_hdd Fill level (SysFS and HDD)
 miscsettings.infobar_show_tuner Display active tuner
 miscsettings.infoclock Clock
+miscsettings.onlineservices Online services
 miscsettings.progressbar Progressbar
 miscsettings.progressbar_color Color
 miscsettings.progressbar_design Design
@@ -1581,7 +1646,8 @@ moviebrowser.delete_all Delete all selected movies without any questions?
 moviebrowser.delete_info Delete files, please wait...
 moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
-moviebrowser.dir_head Additional paths
+moviebrowser.directories Directories
+moviebrowser.directories_additional Additional directories
 moviebrowser.edit_book Bookmark change
 moviebrowser.edit_book_name_info1 Enter new Bookmark name
 moviebrowser.edit_book_name_info2 book name info2
@@ -1601,16 +1667,26 @@ moviebrowser.head My recordings
 moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
+moviebrowser.help_button_blue Reload movie informations
+moviebrowser.help_button_green Show filter selection
+moviebrowser.help_button_left Change view
+moviebrowser.help_button_menu Open main menu
+moviebrowser.help_button_mute Delete movies
+moviebrowser.help_button_okay Play movies
+moviebrowser.help_button_play Mark movies
+moviebrowser.help_button_red Change sort
+moviebrowser.help_button_right Change view
+moviebrowser.help_button_yellow Switch active window
 moviebrowser.hide_series Hide series
-moviebrowser.hint_copy_onefile 
-moviebrowser.hint_copy_several 
-moviebrowser.hint_cut 
-moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel
-moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel
-moviebrowser.hint_movieend Film end in 5 s\n '0' to cancel
-moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition
-moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition
-moviebrowser.hint_truncate 
+moviebrowser.hint_copy_onefile Creating one new movie from the bookmarks of the movie
+moviebrowser.hint_copy_several Creating several new movies from the bookmarks of the movie
+moviebrowser.hint_cut Cutting bookmarks from movie and creating one new movie
+moviebrowser.hint_jumpbackward Jump back in 5 seconds\n'0' to cancel
+moviebrowser.hint_jumpforward Jump forward in 5 seconds\n'0' to cancel
+moviebrowser.hint_movieend Film end in 5 seconds\n'0' to cancel
+moviebrowser.hint_newbook_backward New jump back started\n'%s' to define endposition, '0' to cancel
+moviebrowser.hint_newbook_forward New jump forward started\n'%s' to define endposition, '0' to cancel
+moviebrowser.hint_truncate Truncating all data beyond the end-bookmark
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_file File
@@ -1634,6 +1710,7 @@ moviebrowser.info_prevplaydate Last play date
 moviebrowser.info_prodcountry Country
 moviebrowser.info_prodyear Year
 moviebrowser.info_quality Quality
+moviebrowser.info_rating Rating
 moviebrowser.info_recorddate Record date
 moviebrowser.info_serie Serie
 moviebrowser.info_size File size (MB)
@@ -1646,7 +1723,7 @@ moviebrowser.menu_copy_onefile Copy movie
 moviebrowser.menu_copy_several Copy and split movie
 moviebrowser.menu_cut Cut movie
 moviebrowser.menu_cut_head Copy, cut and truncate
-moviebrowser.menu_directories_head Paths
+moviebrowser.menu_directories_head Directories de/activate
 moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Settings
@@ -1683,6 +1760,7 @@ moviebrowser.short_path Path
 moviebrowser.short_prevplaydate Last
 moviebrowser.short_prodyear Year
 moviebrowser.short_quality * (quality)
+moviebrowser.short_rating Vote
 moviebrowser.short_recorddate Date
 moviebrowser.short_serie Serie
 moviebrowser.short_size MB
@@ -1705,7 +1783,7 @@ moviebrowser.yt_cancel_transfer Cancel download?
 moviebrowser.yt_clear Clear
 moviebrowser.yt_completed Completed downloads
 moviebrowser.yt_concurrent_connections Concurrent connections
-moviebrowser.yt_error Failed to load youtube feed
+moviebrowser.yt_error Failed to load YouTube feed
 moviebrowser.yt_failed Failed downloads
 moviebrowser.yt_history Search history
 moviebrowser.yt_max_history Max search history size
@@ -1731,9 +1809,9 @@ movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
 movieplayer.bookmarkname_hint2 
 movieplayer.chapters Chapters
-movieplayer.defplugin Start-Plugin
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
+movieplayer.plugin Movieplayer plugin
 movieplayer.starting Starting playback...
 movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
@@ -1750,12 +1828,12 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
-movieplayer.ytplayback Youtube videoplayer
-mpkey.audio Audio track
-mpkey.bookmark save bookmark
+movieplayer.ytplayback YouTube videoplayer
+mpkey.audio Audiotracks
+mpkey.bookmark Bookmarks
 mpkey.forward Forward
 mpkey.goto Enter playtime
-mpkey.next_repeat_mode next repeat mode
+mpkey.next_repeat_mode Next repeat mode
 mpkey.pause Pause
 mpkey.play Play
 mpkey.plugin Movieplayer plugin
@@ -1823,22 +1901,32 @@ nfs.username username
 nfsmenu.head NFS/CIFS/FTPFS settings
 nvod.percentage (%d%% over)
 nvod.starting (starting in %d min)
-nvodselector.directormode Direct-Mode
-nvodselector.head Select starting-time
-nvodselector.subservice Select Subservice
+nvodselector.directormode Director mode
+nvodselector.head Subservices
+nvodselector.starttime Select starting time
+nvodselector.subservice Select subservice
 opkg.button.expert_off Standard mode
 opkg.button.expert_on Expert mode
 opkg.button.info Package information
 opkg.button.install Install package
 opkg.button.uninstall Uninstall package
-opkg.failure.install Install failed (%d)
-opkg.failure.update Update failed (%d)
-opkg.failure.upgrade Upgrade failed (%d)
+opkg.enter.feed.address Please enter address for server, local folder or share!
+opkg.enter.feed.address.example Example: http://pkg.nevis.neutrino-hd.com
+opkg.failure.install Install failed
+opkg.failure.update Update failed
+opkg.failure.upgrade Upgrade failed
+opkg.feed.addresses Feed addresses
+opkg.install.local.package Install local package
 opkg.messagebox.reinstall Re-install %s?
 opkg.messagebox.remove Remove %s?
-opkg.success.install Install successful, restart of Neutrino might be required.
+opkg.messagebox.size.error Not enough free memory available for this package!
+opkg.messagebox.updates.available Updates available!
+opkg.success.install Install successful!\n restart of Neutrino might be required. Restart now?
 opkg.title Package Management
+opkg.update.check Checking for updates...
+opkg.update.reading_lists Reading package lists...
 opkg.upgrade Upgrade installed packages
+opkg.warning_3rdparty_packages 3rd party packages could damage your system! Are you sure install this package?
 options.default Reset to defaults
 options.fb framebuffer
 options.hint_default Reset the values to their defaults
@@ -1945,16 +2033,19 @@ ping.unreachable is unreachable
 pinprotection.head Enter PIN code
 pinprotection.wrongcode PIN-Code was wrong! Try again.
 plugins.hdd_dir Plugin HDD dir.
+plugins.no_plugin No plugin
 plugins.result plugin output
 plugintype.disabled Disabled
 plugintype.game Game
 plugintype.lua Lua plugin
 plugintype.script Script
 plugintype.tool Tool
-rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
-rclock.menueadd Lock RC
-rclock.title Lock Remote Control
-rclock.unlockmsg Remote control reactivated.
+rclock.locked Locked
+rclock.lockmsg Remote control will be locked.\nTo unlock, press\n[red] followed by [%s]\non your remote control.
+rclock.title Lock remote control
+rclock.unlockmsg Remote control unlocked
+recording.already_found %s\nwas already found. Nevertheless start record?
+recording.already_found_check Check recordings
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait...!
 recording.startstop_msg Message when recording is start/stop
@@ -1962,6 +2053,7 @@ recording.stop Stop recording, please wait...!
 recording.time_hour hour
 recording.time_hours hours
 recording.time_min min
+recordingmenu.already_found_check Check, if title is already present
 recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
@@ -2117,8 +2209,13 @@ scrambled_channel Scrambled channel
 screensaver.delay Delay
 screensaver.dir Directory
 screensaver.menu Screensaver
+screensaver.mode Mode
+screensaver.mode_clock Clock
+screensaver.mode_clock_color Clock colored
+screensaver.mode_image Images
 screensaver.off Screensaver off
-screensaver.timeout Change pictures
+screensaver.random Random Images
+screensaver.timeout Change interval
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
 screenshot.count Count
@@ -2161,6 +2258,8 @@ settings.pos_top_left top left
 settings.pos_top_right top right
 settings.restore Image-Settings: Restore
 settings.restore_warn This will replace all settings and reboot\nContinue ?
+shoutcast.dev_id SHOUTcast Dev ID
+shoutcast.enabled SHOUTcast support
 shutdown.recording_query You really want to to stop record ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
 sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
@@ -2280,6 +2379,9 @@ timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap
 timing.volumebar Volume bar
+tmdb.api_key TMDb API key
+tmdb.enabled TMDb support
+tmdb.read_data Search TMDB Data...
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
 unicable.scr Unicable SCR
@@ -2298,6 +2400,7 @@ usermenu.button_green User menu green
 usermenu.button_red User menu red
 usermenu.button_yellow User menu yellow
 usermenu.head User menu
+usermenu.item_adzap Adzap
 usermenu.item_bar ---- Boarder ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
@@ -2310,6 +2413,10 @@ usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing 
 usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menue defined.\nIt is recommended to enter a new name!
 usermenu.msg_warning_no_items No items defined!\nThe menu name is reset!
 usermenu.name Name
+usermenu.title_blue Features
+usermenu.title_green Audio
+usermenu.title_red Event-List
+usermenu.title_yellow Video
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode
 videomenu.analog_auto AUTO
@@ -2381,6 +2488,8 @@ wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CST set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from
 word.in in
+youtube.dev_id YouTube Dev ID
+youtube.enabled YouTube support
 zapit.scantype scan for services
 zapit.scantype.all all services
 zapit.scantype.radio only radio

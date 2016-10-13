@@ -80,7 +80,7 @@ function vlc() {
 }
 </style>
 </head>
-{=var-set:alt_httpd={=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory;/var/httpd=}=}
+{=var-set:alt_httpd={=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.override_directory;%(PUBLIC_HTTPDDIR)=}=}
 {=var-set:vf={=if-file-exists:{=var-get:alt_httpd=}/Y_Version.txt~{=var-get:alt_httpd=}/Y_Version.txt~Y_Version.txt=}=}
 <body>
 <div class="y_menu_prim_box">
@@ -119,8 +119,8 @@ function vlc() {
 			</td>
 			<td align="right">
 				<span id="state" style="color : red;font-family: Courier New, Courier, monospace;">&nbsp;</span>
-				<span id="box_name" {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_color=}~~style="color : #{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_color=};"=}>
-					{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_name=}</span>
+				<span id="box_name" {=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_color=}~~style="color : #{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_color=};"=}>
+					{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}</span>
 				<span id="clock">00:00</span>
 			</td>
 		</tr>

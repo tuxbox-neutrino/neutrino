@@ -76,7 +76,7 @@
 #include <zapit/zapit.h>
 #include <video.h>
 extern cVideo * videoDecoder;
-extern CInfoClock *InfoClock;
+
 
 //------------------------------------------------------------------------
 bool comparePictureByDate (const CPicture& a, const CPicture& b)
@@ -162,13 +162,12 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	width = frameBuffer->getScreenWidthRel();
 	height = frameBuffer->getScreenHeightRel();
 
-	sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
         //get footerHeight from paintButtons
-	buttons1Height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
-	buttons2Height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
+	buttons1Height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
+	buttons2Height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
 	footerHeight = buttons1Height + buttons2Height;
 
 	listmaxshow = (height-theight-footerHeight)/(fheight);
@@ -232,6 +231,8 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	// Restore last mode
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
+	if (m_LastMode == NeutrinoMessages::mode_ts)
+		videoDecoder->setBlank(false);
 
 	// always exit all
 	return menu_return::RETURN_REPAINT;
@@ -258,7 +259,7 @@ int CPictureViewerGui::show()
 		m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
-	InfoClock->enableInfoClock(false);
+	CInfoClock::getInstance()->enableInfoClock(false);
 
 	while (loop)
 	{
@@ -621,6 +622,7 @@ int CPictureViewerGui::show()
 		else if (msg == NeutrinoMessages::RECORD_START ||
 				msg == NeutrinoMessages::ZAPTO ||
 				msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::LEAVE_ALL ||
 				msg == NeutrinoMessages::SHUTDOWN ||
 				msg == NeutrinoMessages::SLEEPTIMER)
 		{
@@ -630,7 +632,8 @@ int CPictureViewerGui::show()
 			loop = false;
 			g_RCInput->postMsg(msg, data);
 		}
-		else if ((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// do nothing
 		}
 		else
 		{
@@ -643,7 +646,7 @@ int CPictureViewerGui::show()
 	hide();
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
-	InfoClock->enableInfoClock(true);
+	CInfoClock::getInstance()->enableInfoClock(true);
 
 	return(res);
 }
@@ -725,7 +728,7 @@ void CPictureViewerGui::paintFoot()
 	else
 		PictureViewerButtons2[0].locale = LOCALE_PICTUREVIEWER_SORTORDER_DATE;
 
-	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (!playlist.empty())
 	{
@@ -756,14 +759,17 @@ void CPictureViewerGui::paint()
 
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 
-	int sbc= ((playlist.size()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
+	unsigned int tmp_max = listmaxshow;
+	if(!tmp_max)
+		tmp_max = 1;
+	int sbc= ((playlist.size()- 1)/ tmp_max)+ 1;
+	int sbs= (selected/tmp_max);
 	if (sbc < 1)
 		sbc = 1;
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0);
 
 	paintFoot();
 	paintInfo();

@@ -316,6 +316,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		eventinfo.channel_id=timerNew.channel_id;
 		eventinfo.apids = TIMERD_APIDS_CONF;
 		eventinfo.recordingSafety = false;
+		eventinfo.autoAdjustToEPG = false;
 		timerNew.standby_on = (timerNew_standby_on == 1);
 		void *data=NULL;
 		if (timerNew.eventType == CTimerd::TIMER_STANDBY)
@@ -333,6 +334,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 				recinfo.channel_id=timerNew.channel_id;
 				recinfo.apids=TIMERD_APIDS_CONF;
 				recinfo.recordingSafety = false;
+				recinfo.autoAdjustToEPG = false; // FIXME -- add GUI option?
 
 				timerNew.announceTime-= 120; // 2 more mins for rec timer
 				strncpy(recinfo.recordingDir,timerNew.recordingDir,sizeof(recinfo.recordingDir)-1);
@@ -382,7 +384,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		return menu_return::RETURN_EXIT;
 	}
 	else if(actionKey == "rec_dir1") {
-		parent->hide();
+		if (parent)
+			parent->hide();
 		const char *action_str = "RecDir1";
 		if(chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir)-1)) {
 			printf("[timerlist] new %s dir %s\n", action_str, timerlist[selected].recordingDir);
@@ -391,7 +394,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "rec_dir2") {
-		parent->hide();
+		if (parent)
+			parent->hide();
 		const char *action_str = "RecDir2";
 		if(chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir)-1)) {
 			printf("[timerlist] new %s dir %s\n", action_str, timerNew.recordingDir);
@@ -458,7 +462,7 @@ void CTimerList::updateEvents(void)
 		height = theight+listmaxshow*fheight*2+footerHeight;	// recalc height
 	}
 
-	if (selected==timerlist.size() && !(timerlist.empty()))
+	if (!timerlist.empty() && selected == (int)timerlist.size())
 	{
 		selected=timerlist.size()-1;
 		liststart = (selected/listmaxshow)*listmaxshow;
@@ -519,58 +523,22 @@ int CTimerList::show()
 				loop=false;
 
 		}
-		else if ((msg == CRCInput::RC_up || msg == (unsigned int)g_settings.key_pageup) && !(timerlist.empty()))
+		else if (!timerlist.empty() &&
+			 (msg == CRCInput::RC_up || (int)msg == g_settings.key_pageup ||
+			  msg == CRCInput::RC_down || (int)msg == g_settings.key_pagedown))
 		{
-			int step = 0;
 			int prev_selected = selected;
-
-			step = (msg == (unsigned int)g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
-			selected -= step;
-			if((prev_selected-step) < 0)		// because of uint
-				selected = timerlist.size() - 1;
-
-			paintItem(prev_selected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if (oldliststart!=liststart)
-			{
+			int oldliststart = liststart;
+			selected = UpDownKey(timerlist, msg, listmaxshow, selected);
+			if (selected < 0) /* UpDownKey error */
+				selected = prev_selected;
+			liststart = (selected / listmaxshow) * listmaxshow;
+			if (oldliststart != liststart)
 				paint();
-			}
-			else
-			{
+			else {
+				paintItem(prev_selected - liststart);
 				paintItem(selected - liststart);
 			}
-
-			paintFoot();
-		}
-		else if ((msg == CRCInput::RC_down || msg == (unsigned int)g_settings.key_pagedown) && !(timerlist.empty()))
-		{
-			unsigned int step = 0;
-			int prev_selected = selected;
-
-			step = (msg == (unsigned int)g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-
-			if(selected >= timerlist.size())
-			{
-				if (((timerlist.size() / listmaxshow) + 1) * listmaxshow == timerlist.size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((timerlist.size() / listmaxshow) + 1) * listmaxshow))) ? (timerlist.size() - 1) : 0;
-			}
-			paintItem(prev_selected - liststart);
-
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if (oldliststart!=liststart)
-			{
-				paint();
-			}
-			else
-			{
-				paintItem(selected - liststart);
-			}
-
 			paintFoot();
 		}
 		else if ((msg == CRCInput::RC_right || msg == CRCInput::RC_ok || msg==CRCInput::RC_blue) && !(timerlist.empty()))
@@ -657,9 +625,8 @@ int CTimerList::show()
 						paint();
 				}
 			}
-			// help key
 		}
-		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
 			g_RCInput->postMsg (msg, 0);
 			loop = false;
 			res = menu_return::RETURN_EXIT_ALL;
@@ -683,7 +650,7 @@ void CTimerList::hide()
 {
 	if (visible)
 	{
-		frameBuffer->paintBackgroundBoxRel(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET);
+		frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 		visible = false;
 	}
 }
@@ -707,7 +674,7 @@ void CTimerList::paintItem(int pos)
 	else
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	//shadow
-	frameBuffer->paintBoxRel(x + width, ypos, SHADOW_OFFSET, 2*fheight, COL_MENUCONTENTDARK_PLUS_0);
+	frameBuffer->paintBoxRel(x + width, ypos, OFFSET_SHADOW, 2*fheight, COL_SHADOW_PLUS_0);
 	//item
 	frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, bgcolor);
 
@@ -719,7 +686,7 @@ void CTimerList::paintItem(int pos)
 	//selected item
 	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor, RADIUS_MID);
 
-	if (liststart+pos<timerlist.size())
+	if (liststart + pos < (int)timerlist.size())
 	{
 		CTimerd::responseGetTimer & timer = timerlist[liststart+pos];
 		char zAlarmTime[25] = {0};
@@ -870,8 +837,8 @@ void CTimerList::paintItem(int pos)
 
 void CTimerList::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
-	header.setShadowOnOff(CC_SHADOW_ON);
+	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
+	header.enableClock(true, "%d.%m.%Y %H:%M");
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -888,7 +855,7 @@ void CTimerList::paintFoot()
 	}
 
 	//shadow
-	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + height - footerHeight, width, footerHeight + SHADOW_OFFSET, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + height - footerHeight, width, footerHeight + OFFSET_SHADOW, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (timerlist.empty())
 		::paintButtons(x, y + height - footerHeight, width, 2, &(TimerListButtons[1]), width);
@@ -914,11 +881,13 @@ void CTimerList::paint()
 	{
 		int ypos = y+ theight;
 		int sb = 2*fheight* listmaxshow;
-		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb, COL_MENUCONTENT_PLUS_1);
+		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb, COL_SCROLLBAR_PASSIVE_PLUS_0);
+		unsigned  int  tmp_max  =  listmaxshow;
+		if(!tmp_max)
+			tmp_max  =  1;
+		int sbc= ((timerlist.size()- 1)/ tmp_max)+ 1;
 
-		int sbc= ((timerlist.size()- 1)/ listmaxshow)+ 1;
-
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ page_nr * (sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
+		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ page_nr * (sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_SMALL);
 	}
 
 	paintFoot();
@@ -1090,19 +1059,18 @@ int CTimerList::modifyTimer()
 
 //printf("TIMER: rec dir %s len %s\n", timer->recordingDir, strlen(timer->recordingDir));
 
-	if (!strlen(timer->recordingDir))
-		strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timer->recordingDir)-1);
-	timer_recordingDir = timer->recordingDir;
-
-	bool recDirEnabled = (g_settings.recording_type == RECORDING_FILE); // obsolete?
-	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer_recordingDir, this, "rec_dir1", CRCInput::RC_green);
-
 	timerSettings.addItem(GenericMenuSeparatorLine);
 	timerSettings.addItem(m3);
 	timerSettings.addItem(m4);
 	timerSettings.addItem(m5);
 	if (timer->eventType == CTimerd::TIMER_RECORD)
 	{
+		if (!strlen(timer->recordingDir))
+			strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timer->recordingDir)-1);
+		timer_recordingDir = timer->recordingDir;
+
+		bool recDirEnabled = (g_settings.recording_type == RECORDING_FILE); // obsolete?
+		CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer_recordingDir, this, "rec_dir1", CRCInput::RC_green);
 		timerSettings.addItem(GenericMenuSeparatorLine);
 		timerSettings.addItem(m6);
 	}
@@ -1294,12 +1262,22 @@ int CTimerList::newTimer()
 	return ret;
 }
 
-bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
+bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id channel_id)
 {
 	if (CFEManager::getInstance()->getEnabledCount() == 1) {
 		CTimerdClient Timer;
 		CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(announceTime,stopTime);
 		//printf("[CTimerdClient] attention\n%d\t%d\t%d conflicts with:\n",timerNew.announceTime,timerNew.alarmTime,timerNew.stopTime);
+
+		// Don't ask if there are overlapping timers on the same transponder.
+		if (channel_id) {
+			CTimerd::TimerList::iterator i;
+			for (i = overlappingTimers.begin(); i != overlappingTimers.end(); i++)
+				if ((i->eventType != CTimerd::TIMER_RECORD || !SAME_TRANSPONDER(channel_id, i->channel_id)))
+					break;
+			if (i == overlappingTimers.end())
+				return true; // yes, add timer
+		}
 
 		std::string timerbuf = g_Locale->getText(LOCALE_TIMERLIST_OVERLAPPING_TIMER);
 		timerbuf += "\n";
@@ -1323,20 +1301,13 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
 					timerbuf += it->epgTitle;
 				}
 			}
-			timerbuf += ")";
+			timerbuf += "):\n";
 
-			timerbuf += ":\n";
-			char at[25] = {0};
 			struct tm *annTime = localtime(&(it->announceTime));
-			strftime(at,20,"%d.%m. %H:%M",annTime);
-			timerbuf += at;
-			timerbuf += " - ";
+			timerbuf += strftime("%d.%m. %H:%M\n",annTime);
 
-			char st[25] = {0};
 			struct tm *sTime = localtime(&(it->stopTime));
-			strftime(st,20,"%d.%m. %H:%M",sTime);
-			timerbuf += st;
-			timerbuf += "\n";
+			timerbuf += strftime("%d.%m. %H:%M\n",sTime);
 			//printf("%d\t%d\t%d\n",it->announceTime,it->alarmTime,it->stopTime);
 		}
 		//printf("message:\n%s\n",timerbuf.c_str());

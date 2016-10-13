@@ -36,6 +36,7 @@
 #include <timerdclient/timerdtypes.h>
 
 #include <gui/widget/menue.h>
+#include <gui/widget/listhelpers.h>
 
 #include <driver/framebuffer.h>
 
@@ -43,7 +44,7 @@
 
 
 class CTimerdClient;
-class CTimerList : public CMenuTarget
+class CTimerList : public CMenuTarget, public CListHelpers
 {
 	private:
 		CFrameBuffer	*frameBuffer;
@@ -54,8 +55,8 @@ class CTimerList : public CMenuTarget
 		int		fheight; // fontheight content
 		int		theight; // fontheight titel
 		int		footerHeight;
-		unsigned int	selected;
-		unsigned int	liststart;
+		int		selected;
+		int		liststart;
 		unsigned int	listmaxshow;
 		bool		visible;
 
@@ -96,7 +97,6 @@ class CTimerList : public CMenuTarget
 		static std::string convertChannelId2String(const t_channel_id id); // UTF-8
 };
 
-bool askUserOnTimerConflict(time_t announceTime, time_t stopTime);
-
+bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id channel_id = 0);
 
 #endif

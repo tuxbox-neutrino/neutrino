@@ -419,7 +419,7 @@ int request_file(URL *url)
 				send(url->fd, str, strlen(str), 0);
 
 				if( (meta_int = parse_response(url, &id3, &tmp)) < 0)
-					return -1;
+					return meta_int;
 
 				if(meta_int)
 				{
@@ -493,7 +493,7 @@ int request_file(URL *url)
 			send(url->fd, str, strlen(str), 0);
 
 			if( (meta_int = parse_response(url, &id3, &tmp)) < 0)
-				return -1;
+				return meta_int;
 
 			if(meta_int)
 			{
@@ -1708,16 +1708,13 @@ int f_status(FILE *stream, void (*cb)(void*))
 /* information into the CSTATE structure */
 void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 {
-	#define SKIP(a) for(;(a && !isalnum(*a)); ++a) {};
-	char *ptr;
-
 	/* abort if we were submitted a NULL pointer */
 	if((!md) || (!state))
 		return;
 
 	dprintf(stderr, "ShoutCAST_ParseMetaData(%p : %s, %p)\n", md, md, state);
 
-	ptr = strstr(md, "StreamTitle=");
+	char *ptr = strstr(md, "StreamTitle=");
 
 	if(ptr)
 	{
@@ -1727,13 +1724,13 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 		if(!ptr)
 			ptr = strstr(md, ", ");
 
-
+		const int bufsize = 4095;
 		/* no separator, simply copy everything into the 'title' field */
 		if(!ptr)
 		{
 			ptr = strchr(md, '=');
-			strncpy(state->title, ptr + 2, 4095);
-			 state->title[4095] = '\0';
+			strncpy(state->title, ptr + 2, bufsize);
+			state->title[bufsize] = '\0';
 			ptr = strchr(state->title, ';');
 			if(ptr)
 				*(ptr - 1) = 0;
@@ -1741,16 +1738,18 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 		}
 		else
 		{
-			SKIP(ptr);
-			strcpy(state->title, ptr);
+			//SKIP()
+			for(int i = 0;(ptr && i < bufsize && !isalnum(*ptr)); ++ptr,i++){};
+
+			strncpy(state->title, ptr,bufsize);
 			ptr = strchr(state->title, ';');
 			if(ptr)
 				*(ptr - 1) = 0;
 
 			ptr = strstr(md, "StreamTitle=");
 			ptr = strchr(ptr, '\'');
-			strncpy(state->artist, ptr + 1, 4095);
-			state->artist[4095] = '\0';
+			strncpy(state->artist, ptr + 1, bufsize);
+			state->artist[bufsize] = '\0';
 			ptr = strstr(state->artist, " - ");
 			if(!ptr)
 				ptr = strstr(state->artist, ", ");
@@ -1801,6 +1800,10 @@ void ShoutCAST_MetaFilter(STREAM_FILTER *arg)
 	FILTERDATA *filterdata = (FILTERDATA*)arg->user;
 	int meta_int = filterdata->meta_int;
 	int len = *arg->len;
+	if(len < 0){
+		dprintf(stderr, "[%s] : error ---> len %i < 0\n",__func__, len);
+		return;
+	}
 	char*buf = (char*)arg->buf;
 	int meta_start;
 
@@ -1815,6 +1818,12 @@ void ShoutCAST_MetaFilter(STREAM_FILTER *arg)
 	if(filterdata->stored < filterdata->len)
 	{
 		int bsize = (filterdata->len + 1) - filterdata->stored;
+		printf("filterdata->len %i bsize %i len %i\n",filterdata->len,bsize,len);
+			/*check overload size*/
+			if(bsize > len){
+				dprintf(stderr, "[%s] : error ---> bsize %i > len %i\n",__func__,bsize, len);
+				return;
+			}
 
 		/* if there is some meta data, extract it */
 		/* there can be zero size blocks too */
@@ -1883,7 +1892,12 @@ void ShoutCAST_MetaFilter(STREAM_FILTER *arg)
 
 				//dprintf(stderr, "filter : metadata : \n\n\n----------\n%s\n----------\n\n\n", filterdata->meta_data);
 			}
-
+			/*check negative size*/
+			if(len - b < 0)
+			{
+				dprintf(stderr, "[%s] : error ---> len - b %i\n",__func__,len-b);
+				return;
+			}
 			/* remove the metadata and it's size indicator from the buffer */
 			memmove(buf + meta_start, buf + b, len - b );
 

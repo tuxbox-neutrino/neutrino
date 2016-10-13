@@ -57,7 +57,7 @@ class CFrameBuffer;
 class CConfigFile;
 class CScanSettings;
 
-class CNeutrinoApp : public CMenuTarget, CChangeObserver, sigc::trackable
+class CNeutrinoApp : public CMenuTarget, CChangeObserver, public sigc::trackable
 {
 public:
 	enum
@@ -73,10 +73,10 @@ public:
 private:
 	CFrameBuffer * frameBuffer;
 
+	CMenuWidget			*mainMenu;
 	CConfigFile			configfile;
 	CScanSettings			scanSettings;
 	CPersonalizeGui			personalize;
-	CUserMenu 			usermenu;
 	int                             network_dhcp;
 	int                             network_automatic_start;
 
@@ -120,11 +120,13 @@ private:
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);
-	void RealRun(CMenuWidget &mainSettings);
+	void RealRun();
 	void InitZapper();
 	void InitTimerdClient();
 	void InitZapitClient();
 	void InitSectiondClient();
+
+	void migrateConfig(const char *fname);
 
 	//menues
 	void InitMenu();
@@ -151,12 +153,16 @@ public:
 		mode_ts = 7,
 		mode_off = 8,
 		mode_webtv = 9,
+		mode_upnp = 10,
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};
 
+	CUserMenu usermenu;
+
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
+	void upgradeSetup(const char * fname);
 	void loadKeys(const char * fname = NULL);
 	void saveKeys(const char * fname = NULL);
 	void SetupTiming();
@@ -183,6 +189,7 @@ public:
 // 	//onchange
  	bool changeNotify(const neutrino_locale_t OptionName, void *);
 
+	bool listModeKey(const neutrino_msg_t msg);
 	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 
 	int getMode() {
@@ -192,7 +199,7 @@ public:
 		return lastMode;
 	}
 	void switchTvRadioMode(const int prev_mode = mode_unknown);
-	void switchClockOnOff();
+
 	
 	bool isMuted() {return current_muted; }
 	void setCurrentMuted(int m) { current_muted = m; }
@@ -214,6 +221,7 @@ public:
 	bool StartPip(const t_channel_id channel_id);
 	void SelectSubtitles();
 	void showInfo(void);
+	void showMainMenu(void);
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
 
@@ -232,6 +240,10 @@ public:
 	void screensaver(bool);
 	//signal/event handler before restart of neutrino gui
 	sigc::signal<bool> OnBeforeRestart;
+	sigc::signal<void> OnAfterSetupFonts;
+	void channelRezap();
+
+	void g_settings_video_Mode(int value) { g_settings.video_Mode = value; }
 };
 #endif
 

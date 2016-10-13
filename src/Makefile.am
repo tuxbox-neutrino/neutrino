@@ -22,18 +22,12 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
-	@LIBCS_CFLAGS@
+	@LIBCS_CFLAGS@ \
+	@AVFORMAT_CFLAGS@ \
+	@HWLIB_CFLAGS@
 
-if BOXTYPE_COOL
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
 if USE_PUGIXML
@@ -74,6 +68,11 @@ MTDUTILSLIBS = \
 	system/mtdutils/lib/libneutrino_system_mtdutils_lib.a
 endif
 
+if ENABLE_LUA
+LUALIBS = \
+	gui/lua/libneutrino_gui_lua.a
+endif
+
 neutrino_LDADD = \
 	daemonc/libneutrino_daemonc.a \
 	gui/bedit/libneutrino_gui_bedit.a \
@@ -84,8 +83,10 @@ neutrino_LDADD = \
 	driver/pictureviewer/libneutrino_pictureviewer.a \
 	$(MTDUTILSLIBS) \
 	gui/movieinfo.o \
+	gui/moviebrowser/mb.o \
 	gui/libneutrino_gui2.a \
 	gui/components/libneutrino_gui_components.a \
+	$(LUALIBS) \
 	eitd/libsectionsd.a \
 	gui/volumebar.o \
 	driver/libneutrino_driver.a \

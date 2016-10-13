@@ -32,6 +32,7 @@
 
 #include "cc_item_text.h"
 #include "cc_item_picture.h"
+#include "cc_item.h"
 #include <string>
 
 //! Sub class of CComponentsItem. Shows box with text and optional icon on screen.
@@ -40,7 +41,6 @@ InfoBox has been originally intended for displaying text information or menue hi
 but is also usable like each other CCItems.
 */
 
-#define INFO_BOX_Y_OFFSET	2
 class CComponentsInfoBox : public CComponentsText
 {
 	private:
@@ -69,22 +69,20 @@ class CComponentsInfoBox : public CComponentsText
 					const int mode = CTextBox::AUTO_WIDTH,
 					Font* font_text = NULL,
 					CComponentsForm *parent = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
+					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT_TEXT,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 		
 		~CComponentsInfoBox();
 
 		///set property: space around fram and beetween picture and textbox
-		inline void setSpaceOffset(const int offset){x_offset = offset;};
+		void setSpaceOffset(const int offset){x_offset = offset;};
 		///set property: path or name of displayed image, parameter as string
 		void setPicture(const std::string& picture_name);
 		///set property: path or name of displayed image, parameter as const char*
 		void setPicture(const char* picture_name);
-		///set property: gradient behavior
-		void enableGradient(bool enable) { col_body_gradient = enable; }
 		///paint item
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };

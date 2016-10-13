@@ -13,7 +13,7 @@
 	<td>{=L:live.timer_edit.alarm_date=}</td>
 	<td>{=L:live.timer_edit.stop_date=}</td>
 	<td>{=L:live.timer_edit.repeat=}</td>
-	<td>{=L:live.timer_edit.repeat=}</td>
+	<td>{=L:live.timer_edit.repeat1=}</td>
 	<td>{=L:live.timer_edit.type=}</td>
 	<td>{=L:live.timer_edit.description=}</td>
 	<td>&nbsp;</td>

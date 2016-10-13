@@ -16,10 +16,10 @@ yI_Version="$Revision: 1.3 $"
 # -----------------------------------------------------------
 # Dirs
 # -----------------------------------------------------------
-y_path_usrbin="/var/bin"
-y_path_config="/var/tuxbox/config"
+y_path_varbin="/var/bin"
+y_path_config="%(CONFIGDIR)"
 y_path_tmp="/tmp"
-y_ywebover_dir="/var/httpd"
+y_ywebover_dir="%(PUBLIC_HTTPDDIR)"
 y_ext_conf_dir="$y_path_config/ext"
 
 # -----------------------------------------------------------

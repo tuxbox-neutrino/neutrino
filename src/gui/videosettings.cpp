@@ -128,8 +128,8 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS[VIDEOMENU_VID
 	{ ANALOG_MODE(CINCH,HD,YPRPB), LOCALE_VIDEOMENU_ANALOG_HD_YPRPB_CINCH }
 };
 
-#define VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT 6
-const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_TANK_OPTIONS[VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT] =
+#define VIDEOMENU_VIDEOSIGNAL_HD2_OPTION_COUNT 6
+const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD2_OPTIONS[VIDEOMENU_VIDEOSIGNAL_HD2_OPTION_COUNT] =
 {
 	{ ANALOG_MODE(BOTH ,xD,AUTO  ),LOCALE_VIDEOMENU_ANALOG_AUTO     }, /* Encoder automatically adjusts based on content   */
 	{ ANALOG_MODE(BOTH ,xD,CVBS  ),LOCALE_VIDEOMENU_ANALOG_CVBS     }, /* CVBS on SCART (disables fastblank, un-used dacs) */
@@ -249,20 +249,17 @@ int CVideoSettings::showVideoSetup()
 	}
 	else if (system_rev > 0x06)
 	{
-#ifdef ANALOG_MODE
-		if (system_rev == 9 || system_rev == 11 || system_rev == 12) { // Tank, Trinity, Zee2
-			vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_TANK_OPTIONS, VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT, true, this);
-			vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
-		} else 
-#endif
-		{
-			if(system_rev != 10) {
-				vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this);
-				vs_scart_ch->setHint("", LOCALE_MENU_HINT_VIDEO_SCART_MODE);
-			}
-			vs_chinch_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT, true, this);
-			vs_chinch_ch->setHint("", LOCALE_MENU_HINT_VIDEO_CINCH_MODE);
+#if defined(BOXMODEL_APOLLO) && defined(ANALOG_MODE)
+		vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD2_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD2_OPTION_COUNT, true, this);
+		vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
+#else
+		if(system_rev != 10) {
+			vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this);
+			vs_scart_ch->setHint("", LOCALE_MENU_HINT_VIDEO_SCART_MODE);
 		}
+		vs_chinch_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT, true, this);
+		vs_chinch_ch->setHint("", LOCALE_MENU_HINT_VIDEO_CINCH_MODE);
+#endif
 	}
 
 	//4:3 mode

@@ -51,7 +51,7 @@ function doUpload()
 		{=var-set:help_url=Help-Tools-Command_Shell=}{=var-set:menu={=L:tools.command_shell=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="co" action="">
-		<textarea name="cmds" cols="80" rows="18"  title="shell output window" style="display: block;background : white; font : 'Courier New','medium  monospace'; color : #436976;"></textarea>
+		<textarea name="cmds" cols="80" rows="18" title="shell output window"></textarea>
 	</form>
 
 	<form name="f" target="tmp" onsubmit="do_submit();return false;" action="">

@@ -57,22 +57,22 @@ function do_check(){
 	else
 		sLog_addRow(sLog_body, "green", "WebServer: version is "+nhttpd_version, "ok");
 
-	{=if-equal:{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.authenticate;false=}~false~~
+	{=if-equal:{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.authenticate;false=}~false~~
 		sLog_addRow(sLog_body, "yellow", "WebServer: Authentication is on. ", "notice");
 	=}
-	{=if-equal:{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80=}~80~~
+	{=if-equal:{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=}~80~~
 		sLog_addRow(sLog_body, "yellow",
-		"WebServer: not set to Standard-Port. Actual: {=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80=} "+wiki_url("Neutrino:yWeb#Webserver"), "notice");
+		"WebServer: not set to Standard-Port. Actual: {=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=} "+wiki_url("Neutrino:yWeb#Webserver"), "notice");
 	=}
 	/*settings*/
-	{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=}~~
+	{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=}~~
 		sLog_addRow(sLog_body, "yellow",
-		"Settings: Management IP(1) is set to {=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=} ! Your IP is {=func:get_request_data client_addr=}. "
+		"Settings: Management IP(1) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=} ! Your IP is {=func:get_request_data client_addr=}. "
 		+wiki_url("Help-Settings-yWeb"), "notice");
 	=}
-	{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~~
+	{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~~
 		sLog_addRow(sLog_body, "yellow",
-		"Settings: Management IP(2) is set to {=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=} ! Your IP is {=func:get_request_data client_addr=}. "
+		"Settings: Management IP(2) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=} ! Your IP is {=func:get_request_data client_addr=}. "
 		+wiki_url("Neutrino:yWeb#yWeb"), "notice");
 	=}
 

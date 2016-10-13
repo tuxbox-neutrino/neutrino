@@ -48,7 +48,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CColorSetupNotifier *colorSetupNotifier;
 		CFontSizeNotifier *fontsizenotifier;
 		CMenuWidget *osd_menu;
-		CMenuWidget *submenu_menus;
+		CMenuWidget *submenu_menus, *osd_menu_colors;
 		CMenuForwarder *mfFontFile, *mfTtxFontFile, *mfWindowSize;
 		char window_size_value[10];
 		std::string osdFontFile, osdTtxFontFile;
@@ -57,9 +57,10 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		COnOffNotifier* screensaverNotifier;
 		COnOffNotifier* channellistNotifier;
 		COnOffNotifier* infobarHddNotifier;
-		CMenuOptionChooser * ca_dotmatrix;
-		CMenuOptionChooser * ca_frame;
-
+		CGenericMenuActivate casystemActivate;
+		CGenericMenuActivate screensaverActivate;
+		CGenericMenuActivate screensaverOptActivate;
+		CGenericMenuActivate gradentHeadDirection, gradentHintDirection, gradentInfobarTopDirection, gradentInfobarBodyDirection, gradentInfobarFootDirection;
 		int width;
 		int is_wizard;
 		int show_menu_hints;
@@ -80,7 +81,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		void paintWindowSize(int w, int h);
 
  		void AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry);
- 
+
 	public:
 		enum INFOBAR_CHANNEL_LOGO_POS_OPTIONS	
 		{
@@ -101,7 +102,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		~COsdSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
-		int showContextChanlistMenu();
+		int showContextChanlistMenu(CChannelList *parent_channellist = NULL);
 };
 
 #endif

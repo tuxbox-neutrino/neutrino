@@ -46,6 +46,7 @@
 #include <driver/screen_max.h>
 #include <system/debug.h>
 #include <system/flashtool.h>
+#include <system/helpers.h>
 
 CSoftwareUpdate::CSoftwareUpdate()
 {
@@ -73,17 +74,27 @@ int CSoftwareUpdate::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 int CSoftwareUpdate::showSoftwareUpdate()
 /* shows the menue and options for software update */
 {
-	CMenuForwarder * mf;
+	CMenuForwarder * mf, *update_item;
 	CMenuWidget softUpdate(LOCALE_MAINMENU_SERVICE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
 
 	softUpdate.addIntroItems(LOCALE_SERVICEMENU_UPDATE);
 
 	//flashing
 	CFlashUpdate flash;
+	unsigned int inetkey = CRCInput::RC_red;
+	if (COPKGManager::hasOpkgSupport()) {
+		//firmware update via opkg
+		mf = new CMenuDForwarder(LOCALE_OPKG_TITLE, true, NULL, new COPKGManager(), NULL, CRCInput::RC_red);
+		mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
+		softUpdate.addItem(mf);
+		inetkey = CRCInput::convertDigitToKey(1);
+	}
 
-	CMenuForwarder *update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET, true, NULL, &flash, "inet", CRCInput::RC_red);
-	update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK);
-	softUpdate.addItem(update_item);
+	if (file_exists(g_settings.softupdate_url_file.c_str())) {
+		update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET, true, NULL, &flash, "inet", inetkey);
+		update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK);
+		softUpdate.addItem(update_item);
+	}
 
 	update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL, true, NULL, &flash, "local", CRCInput::RC_green);
 	update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK_LOCAL);
@@ -105,13 +116,12 @@ int CSoftwareUpdate::showSoftwareUpdate()
 		mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
 		softUpdate.addItem(mf);
 
+#if 0
 		//firmware update via opkg
-		if (COPKGManager::hasOpkgSupport()) {
-			mf = new CMenuForwarder(LOCALE_OPKG_TITLE, true, NULL, new COPKGManager());
-			mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
-			softUpdate.addItem(mf);
-		}
-
+		mf = new CMenuDForwarder(LOCALE_OPKG_TITLE, COPKGManager::hasOpkgSupport(), NULL, new COPKGManager());
+		mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
+		softUpdate.addItem(mf);
+#endif
 	}
 
 #ifdef BOXMODEL_APOLLO

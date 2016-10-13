@@ -61,6 +61,8 @@ struct SNeutrinoTheme
 	unsigned char menu_Head_Text_blue;
 
 	int menu_Head_gradient;
+	int menu_Head_gradient_direction;
+	int menu_Separator_gradient_enable;
 
 	unsigned char menu_Content_alpha;
 	unsigned char menu_Content_red;
@@ -92,7 +94,20 @@ struct SNeutrinoTheme
 	unsigned char menu_Content_inactive_Text_green;
 	unsigned char menu_Content_inactive_Text_blue;
 
+	unsigned char menu_Foot_alpha;
+	unsigned char menu_Foot_red;
+	unsigned char menu_Foot_green;
+	unsigned char menu_Foot_blue;
+
+	unsigned char menu_Foot_Text_alpha;
+	unsigned char menu_Foot_Text_red;
+	unsigned char menu_Foot_Text_green;
+	unsigned char menu_Foot_Text_blue;
+
 	int menu_Hint_gradient;
+	int menu_Hint_gradient_direction;
+	int menu_ButtonBar_gradient;
+	int menu_ButtonBar_gradient_direction;
 
 	unsigned char infobar_alpha;
 	unsigned char infobar_red;
@@ -110,7 +125,11 @@ struct SNeutrinoTheme
 	unsigned char infobar_Text_blue;
 
 	int infobar_gradient_top;
+	int infobar_gradient_top_direction;
+	int infobar_gradient_body;
+	int infobar_gradient_body_direction;
 	int infobar_gradient_bottom;
+	int infobar_gradient_bottom_direction;
 
 	unsigned char colored_events_alpha;
 	unsigned char colored_events_red;
@@ -124,11 +143,12 @@ struct SNeutrinoTheme
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
 	unsigned char clock_Digit_blue;
-	int gradient_c2c;
 };
 
 struct SNeutrinoSettings
 {
+	std::string version_pseudo;
+
 	//video
 	int video_Format;
 	int video_Mode;
@@ -161,6 +181,7 @@ struct SNeutrinoSettings
 	int infobar_sat_display;
 	int infobar_show_channeldesc;
 	int infobar_subchan_disp_pos;
+	int infobar_buttons_usertitle;
 	int fan_speed;
 	int infobar_show;
 	int infobar_show_channellogo;
@@ -171,9 +192,9 @@ struct SNeutrinoSettings
 	int progressbar_timescale_green;
 	int progressbar_timescale_yellow;
 	int progressbar_timescale_invert;
-	int casystem_display;
-	int casystem_dotmatrix;
-	int casystem_frame;
+	int infobar_casystem_display;
+	int infobar_casystem_dotmatrix;
+	int infobar_casystem_frame;
 	int scrambled_message;
 	int volume_pos;
 	int volume_digits;
@@ -185,7 +206,6 @@ struct SNeutrinoSettings
 	int infobar_show_res;
 	int infobar_show_tuner;
 	int infobar_show_dd_available;
-	int wzap_time;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
@@ -232,6 +252,8 @@ struct SNeutrinoSettings
 	int screensaver_delay;
 	std::string screensaver_dir;
 	int screensaver_timeout;
+	int screensaver_random;
+	int screensaver_mode;
 
 	//vcr
 	int vcr_AutoSwitch;
@@ -382,7 +404,9 @@ struct SNeutrinoSettings
 	//widget settings
 	int widget_fade;
 
+	//theme/color options
 	SNeutrinoTheme theme;
+	bool osd_colorsettings_advanced_mode;
 
 	int contrast_fonts;
 
@@ -427,6 +451,7 @@ struct SNeutrinoSettings
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
 	std::string recording_filename_template;
+	int recording_already_found_check;
 
 	int filesystem_is_utf8;
 	// default plugin for ts-movieplayer (red button)
@@ -477,6 +502,12 @@ struct SNeutrinoSettings
 	int key_switchformat;
 	int key_volumeup;
 	int key_volumedown;
+
+	int mbkey_copy_onefile;
+	int mbkey_copy_several;
+	int mbkey_cut;
+	int mbkey_truncate;
+	int mbkey_cover;
 
 	int mpkey_rewind;
 	int mpkey_forward;
@@ -540,6 +571,7 @@ struct SNeutrinoSettings
 	int window_width;
 	int window_height;
 	int eventlist_additional;
+	int eventlist_epgplus;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_progressbar_design;
@@ -596,6 +628,9 @@ struct SNeutrinoSettings
 	int flashupdate_createimage_add_spare;
 	int flashupdate_createimage_add_kernel;
 
+	std::string	update_dir;
+	std::string	update_dir_opkg;
+
 	//BouquetHandling
 	int bouquetlist_mode;
 
@@ -612,6 +647,7 @@ struct SNeutrinoSettings
 		FONT_TYPE_MENU = 0,
 		FONT_TYPE_MENU_TITLE,
 		FONT_TYPE_MENU_INFO,
+		FONT_TYPE_MENU_FOOT,
 		FONT_TYPE_EPG_TITLE,
 		FONT_TYPE_EPG_INFO1,
 		FONT_TYPE_EPG_INFO2,
@@ -668,6 +704,8 @@ struct SNeutrinoSettings
 	int backlight_standby;
 	int backlight_deepstandby;
 	int lcd_scroll;
+	int lcd_notify_rclock;
+
 	//#define FILESYSTEM_ENCODING_TO_UTF8(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
 #define FILESYSTEM_ENCODING_TO_UTF8(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
 #define UTF8_TO_FILESYSTEM_ENCODING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::UTF8_to_Latin1(a).c_str())
@@ -687,6 +725,8 @@ struct SNeutrinoSettings
 	int   audioplayer_show_playlist;
 	int   audioplayer_enable_sc_metadata;
 	std::string shoutcast_dev_id;
+	int shoutcast_enabled;
+
 	//Filebrowser
 	int filebrowser_showrights;
 	int filebrowser_sortmethod;
@@ -695,6 +735,9 @@ struct SNeutrinoSettings
 	//movieplayer
 	int   movieplayer_repeat_on;
 	std::string youtube_dev_id;
+	int youtube_enabled;
+	std::string tmdb_api_key;
+	int tmdb_enabled;
 
 	//zapit setup
 	std::string StartChannelTV;
@@ -702,6 +745,10 @@ struct SNeutrinoSettings
 	t_channel_id startchanneltv_id;
 	t_channel_id startchannelradio_id;
 	int uselastchannel;
+
+	//adzap
+	int adzap_zapBackPeriod;
+	int adzap_writeData;
 
 	int	power_standby;
 	int	hdd_sleep;
@@ -711,9 +758,13 @@ struct SNeutrinoSettings
 	int	hdd_statfs_mode;
 	int	zap_cycle;
 	int	sms_channel;
+	int	sms_movie;
 	std::string	font_file;
 	std::string	ttx_font_file;
-	std::string	update_dir;
+
+	int		livestreamResolution;
+	std::string	livestreamScriptPath;
+
 	// USERMENU
 	typedef enum
 	{
@@ -758,6 +809,9 @@ struct SNeutrinoSettings
 		ITEM_NETSETTINGS = 29,
 		ITEM_SWUPDATE = 30,
 
+		ITEM_LIVESTREAM_RESOLUTION = 31,
+		ITEM_ADZAP = 32,
+
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;
 	typedef struct {
@@ -784,8 +838,6 @@ struct SNeutrinoSettings
 		WIZARD_ON	= 2
 	};
 };
-
-/* some default Values */
 
 extern const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SETTINGS_MAX];
 
@@ -820,20 +872,24 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define DEFAULT_LCD_AUTODIMM			0x00
 #define DEFAULT_LCD_SHOW_VOLUME			0x01
 
-#define CORNER_RADIUS_LARGE             11
-#define CORNER_RADIUS_MID               7
-#define CORNER_RADIUS_SMALL             5
-#define CORNER_RADIUS_MIN	        3
+#define CORNER_RADIUS_LARGE	11
+#define CORNER_RADIUS_MID	7
+#define CORNER_RADIUS_SMALL	5
+#define CORNER_RADIUS_MIN	3
+#define CORNER_RADIUS_NONE	0
 
-#define RADIUS_LARGE    (g_settings.rounded_corners ? CORNER_RADIUS_LARGE : 0)
-#define RADIUS_MID      (g_settings.rounded_corners ? CORNER_RADIUS_MID : 0)
-#define RADIUS_SMALL    (g_settings.rounded_corners ? CORNER_RADIUS_SMALL : 0)
-#define RADIUS_MIN      (g_settings.rounded_corners ? CORNER_RADIUS_MIN : 0)
+#define RADIUS_LARGE	(g_settings.rounded_corners ? CORNER_RADIUS_LARGE : 0)
+#define RADIUS_MID	(g_settings.rounded_corners ? CORNER_RADIUS_MID : 0)
+#define RADIUS_SMALL	(g_settings.rounded_corners ? CORNER_RADIUS_SMALL : 0)
+#define RADIUS_MIN	(g_settings.rounded_corners ? CORNER_RADIUS_MIN : 0)
+#define RADIUS_NONE	0
 
-// shadow
-#define SHADOW_OFFSET                   6
-
-/* end default values */
+// offsets
+#define OFFSET_SHADOW	6
+#define OFFSET_INTER	6
+//#define OFFSET_INNER_LARGE	20
+//#define OFFSET_INNER_MID	10
+//#define OFFSET_INNER_SMALL	5
 
 
 struct SglobalInfo
@@ -852,7 +908,6 @@ const int PARENTALLOCK_PROMPT_NEVER          = 0;
 const int PARENTALLOCK_PROMPT_ONSTART        = 1;
 const int PARENTALLOCK_PROMPT_CHANGETOLOCKED = 2;
 const int PARENTALLOCK_PROMPT_ONSIGNAL       = 3;
-
 
 class CScanSettings
 {

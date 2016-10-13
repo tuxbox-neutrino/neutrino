@@ -182,6 +182,8 @@ void SIevent::parse(Event &event)
 {
 	int tsidonid = (transport_stream_id << 16) | original_network_id;
 	time_t start_time = parseDVBtime(event.getStartTimeMjd(), event.getStartTimeBcd());
+	extern long int secondsExtendedTextCache;
+	time_t now = time(NULL);
 
 	running = event.getRunningStatus();
 
@@ -226,6 +228,8 @@ void SIevent::parse(Event &event)
 		}
 		case EXTENDED_EVENT_DESCRIPTOR:
 		{
+			if(now && secondsExtendedTextCache && start_time > now + secondsExtendedTextCache)
+				continue;
 			const ExtendedEventDescriptor *d = (ExtendedEventDescriptor*) *dit;
 			std::string lang = d->getIso639LanguageCode();
 			std::transform(lang.begin(), lang.end(), lang.begin(), tolower);

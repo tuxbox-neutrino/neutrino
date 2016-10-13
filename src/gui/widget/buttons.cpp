@@ -28,7 +28,6 @@
 #include <neutrino.h>
 
 #include <gui/widget/buttons.h>
-#include <gui/customcolor.h>
 #include <system/settings.h>
 // #include <driver/stacktrace.h>
 
@@ -97,7 +96,7 @@ int paintButtons(	const button_label_ext * const content,
 			int *wantedheight)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 	int cnt = count;
 	int x_footer = x;
 	int y_footer = y;
@@ -195,7 +194,7 @@ int paintButtons(	const button_label_ext * const content,
 
 	//paint footer
 	if (w_footer > 0)
-		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 	
 	//baseline
@@ -221,12 +220,15 @@ int paintButtons(	const button_label_ext * const content,
 	}
 
 	if (spacing >= 0)
-	{				 /* add half of the inter-object space to the */
-		spacing /= count_labels; /* left and right (this might break vertical */
-		x_button += spacing / 2; /* alignment, but nobody is using this (yet) */
-	}				 /* and I'm don't know how it should work.    */
+	{
+		int tmp = count_labels ? count_labels : 1;//avoid division by zero
+						/* add half of the inter-object space to the */
+		spacing /= tmp;	 		/* left and right (this might break vertical */
+		x_button += spacing / 2;	/* alignment, but nobody is using this (yet) */
+	}					/* and I'm don't know how it should work.    */
 	else
 	{
+		w_text = w_text ? w_text : 1;
 		/* shorten captions relative to their length */
 		for (int i = 0; i < cnt; i++)
 			fwidth[i] = (fwidth[i] * (w_text + spacing)) / w_text; /* spacing is negative...*/
@@ -247,7 +249,7 @@ int paintButtons(	const button_label_ext * const content,
 		// paint icon and text
 		frameBuffer->paintIcon(icon, x_button , y_base - iconh[j]/2);
 		x_caption = x_button + iconw[j] + h_space;
-		font->RenderString(x_caption, y_caption, fwidth[j], caption, COL_INFOBAR_SHADOW_TEXT);
+		font->RenderString(x_caption, y_caption, fwidth[j], caption, COL_MENUFOOT_TEXT);
  		
  		/* 	set next startposition x, if text is length=0 then offset is =renderwidth of icon, 
   		* 	for generating buttons without captions, 
@@ -281,7 +283,7 @@ int paintButtons(	const button_label_ext * const content,
 
  * stuff below here was obviously not tested recently
  * vertical_paint       optional, default value is false (horizontal) sets direction of painted buttons
- * fcolor               optional, default value is COL_INFOBAR_SHADOW_TEXT, use it to render font with other color
+ * fcolor               optional, default value is COL_MENUFOOT_TEXT, use it to render font with other color
  * alt_buttontext       optional, default NULL, overwrites button caption at definied buttonlabel id (see parameter alt_buttontext_id) with this text
  * alt_buttontext_id    optional, default 0, means id from buttonlable struct which text you will change 
  * show                 optional, default value is true (show button), if false, then no show and return the height of the button.
@@ -303,7 +305,7 @@ int paintButtons(       const int &x,
 		const std::vector<neutrino_locale_t>& /*all_buttontext_id*/)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 	uint cnt = count;
 	int x_footer = x;
 	int y_footer = y;
@@ -389,7 +391,7 @@ int paintButtons(       const int &x,
 
 	//paint footer
 	if (w_footer > 0)
-		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(x_footer, y_footer, w_footer, h_footer, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 
 	//baseline
@@ -410,8 +412,9 @@ int paintButtons(       const int &x,
 	else
 	{
 		/* shorten captions relative to their length */
+		int tmp = w_text ? w_text : 1;//avoid division by zero
 		for (i = 0; i < cnt; i++)
-			fwidth[i] = (fwidth[i] * (w_text + spacing)) / w_text; /* spacing is negative...*/
+			fwidth[i] = (fwidth[i] * (w_text + spacing)) / tmp; /* spacing is negative...*/
 		spacing = 0;
 	}
 

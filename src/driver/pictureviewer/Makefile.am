@@ -8,18 +8,9 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@SIGC_CFLAGS@ \
-	@FREETYPE_CFLAGS@
+	@FREETYPE_CFLAGS@ \
+	@HWLIB_CFLAGS@
 
-if BOXTYPE_COOL
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
-if BOXTYPE_TRIPLE
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
-endif
 
 noinst_LIBRARIES = libneutrino_pictureviewer.a
 

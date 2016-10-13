@@ -13,7 +13,7 @@ function init(){
 }
 </script>
 </head>
-{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~1~=}=}
 {=var-set:automount={=find-exec:automount=}=}
 {=var-set:ether-wake={=find-exec:ether-wake=}=}
 <body onload="init()">
