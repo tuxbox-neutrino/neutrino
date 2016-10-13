@@ -89,6 +89,8 @@ class CComponentsWindow : public CComponentsForm
 		fb_pixel_t ccw_col_head_text;
 		///footer bg color
 		fb_pixel_t ccw_col_footer;
+		///footer heigh, default defined by footer object itself
+		int ccw_h_footer;
 		///footer button font
 		Font*	ccw_button_font;
 
