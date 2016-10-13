@@ -492,7 +492,7 @@ void CComponentsForm::paintCCItems()
 		}
 
 		//check height and adapt if required
-		int bottom_frm = (cc_parent ? cc_yr : y) + height - 2*fr_thickness;
+		int bottom_frm = (cc_parent ? cc_yr : y) + height/* - 2*fr_thickness*/;
 		int bottom_item = cc_item->getRealYPos() + h_item;
 		int h_diff = bottom_item - bottom_frm;
 		int new_h = h_item - h_diff;
