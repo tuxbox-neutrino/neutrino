@@ -105,7 +105,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 
 	bool discoverDevices();
 	void splitProtocol(std::string &protocol, std::string &prot, std::string &network, std::string &mime, std::string &additional);
-	bool getResults(std::string id, unsigned int start, unsigned int count, std::list<UPnPAttribute> &results); 
+	bool getResults(std::string id, unsigned int start, unsigned int count, std::list<UPnPAttribute> &results);
 	std::vector<UPnPEntry> *decodeResult(std::string);
 	void Init();
 	void updateDeviceSelection(int newpos);
@@ -119,13 +119,14 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	bool updateItemSelection(std::string id, std::vector<UPnPEntry> * &entries, int newpos, unsigned int &selected, unsigned int &liststart);
 	bool selectItem(std::string);
 	void paintItems(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset);
-	void paintItem  (std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected);
+	void paintItem(std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected);
 	void paintItemInfo(UPnPEntry *entry);
 	void paintDetails(UPnPEntry *entry, bool use_playing = false);
-	void paintItem2DetailsLine (int pos);
+	void paintItem2DetailsLine(int pos);
 
 	void updateTimes(const bool force = false);
 	void playAudio(std::string name, int type);
+	void stopAudio();
 	void showPicture(std::string name);
 	void playVideo(std::string name, std::string url);
 };
