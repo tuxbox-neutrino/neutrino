@@ -1306,8 +1306,7 @@ void CUpnpBrowserGui::playVideo(std::string name, std::string url)
 {
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_ts);
 
-	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
-		CAudioPlayer::getInstance()->stop();
+	stopAudio();
 
 	m_frameBuffer->stopFrame();
 	CMoviePlayerGui::getInstance().SetFile(name, url);
