@@ -271,8 +271,10 @@ int CMsgBox::exec()
 				refreshFoot();
 
 				//refresh timeout on any pressed navi key! This resets current timeout end to the initial value
-				if (timeout > 0)
+				if (timeout > 0){
+					timeout_pb->setValues(0, timeout);
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+				}
 				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 			}
 			//***action buttons without preselection***
