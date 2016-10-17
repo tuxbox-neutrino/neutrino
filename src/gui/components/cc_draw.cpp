@@ -633,6 +633,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 
 void CCDraw::hide()
 {
+	OnBeforeHide();
 	//restore saved screen background of item if available
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
@@ -646,6 +647,7 @@ void CCDraw::hide()
 	}
 	is_painted = false;
 	firstPaint = true;
+	OnAfterHide();
 }
 
 //erase or paint over rendered objects
