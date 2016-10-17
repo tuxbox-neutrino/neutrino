@@ -167,7 +167,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	 * with default width to chain object.
 	*/
 	vector<CComponentsItem*> v_btns;
-	int h_btn = /*(ccf_enable_button_bg ? */(height*85/100)-2*fr_thickness/* : height)*/-ccf_button_shadow_width;
+	int h_btn = /*(ccf_enable_button_bg ? */(height*85/100)-2*fr_thickness-OFFSET_INNER_SMALL/* : height)*/-ccf_button_shadow_width;
 	for (size_t i= 0; i< label_count; i++){
 		string txt 		= content[i].text;
 		string icon_name 	= string(content[i].button);
