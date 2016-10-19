@@ -94,35 +94,40 @@ CBEChannelWidget::~CBEChannelWidget()
 
 void CBEChannelWidget::paintItem(int pos)
 {
-	fb_pixel_t color;
-	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*iheight;
 	unsigned int current = liststart + pos;
 
-	if(current == selected) {
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
+	bool i_selected	= current == selected;
+	int i_radius	= RADIUS_NONE;
 
-		if(current < Channels->size()) {
-			initItem2DetailsLine (pos, current);
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, i_selected);
+
+	if (i_selected)
+	{
+		if (current < Channels->size())
+		{
+			initItem2DetailsLine(pos, current);
 			paintDetails(current);
 		}
-	
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
-	} else {
-		if(current < Channels->size() && ((*Channels)[current]->flags & CZapitChannel::NOT_PRESENT ))
-			color   = COL_MENUCONTENTINACTIVE_TEXT;// extra color for channels not found in service
-		else
-			color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
+		i_radius = RADIUS_LARGE;
 	}
+	else
+	{
+		if (current < Channels->size() && ((*Channels)[current]->flags & CZapitChannel::NOT_PRESENT))
+			color = COL_MENUCONTENTINACTIVE_TEXT;
+	}
+
+	if (i_radius)
+		frameBuffer->paintBoxRel(x, ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width- 15, iheight, bgcolor, i_radius);
 
 	if ((current == selected) && (state == beMoving)) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 5, ypos, iheight);
 	}
-	if(current < Channels->size())	{
+	if (current < Channels->size())	{
 		if ((*Channels)[current]->bLocked) {
 			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 22, ypos, iheight);
 		}
@@ -133,7 +138,6 @@ void CBEChannelWidget::paintItem(int pos)
 			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
 		else if (!(*Channels)[current]->getUrl().empty())
 			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x+width- 15 - 28, ypos, fheight);
-
 	}
 }
 
