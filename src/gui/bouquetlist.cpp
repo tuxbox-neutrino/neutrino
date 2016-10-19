@@ -617,27 +617,44 @@ void CBouquetList::hide()
 void CBouquetList::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight;
-	fb_pixel_t color;
-	fb_pixel_t bgcolor;
 	bool iscurrent = true;
 	int npos = liststart + pos;
 	const char * lname = NULL;
 
-	if(npos < (int) Bouquets.size())
+	bool i_selected	= npos == (int) selected;
+	int i_radius	= RADIUS_NONE;
+
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, i_selected);
+
+	if (i_selected)
+		i_radius = RADIUS_LARGE;
+
+	if (i_radius)
+		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor);
+	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, i_radius);
+
+	if (npos < (int) Bouquets.size())
 		lname = (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bFav) ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : Bouquets[npos]->channelList->getName();
 
-	if (npos == (int) selected) {
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
+	if (i_selected)
+	{
 		if(npos < (int) Bouquets.size())
 			CVFD::getInstance()->showMenuText(0, lname, -1, true);
-	} else {
+	}
+	else
+	{
 		if(!favonly && (npos < (int) Bouquets.size()))
 			iscurrent = !Bouquets[npos]->channelList->isEmpty();
-		color = iscurrent ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
-		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
-		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor);
+
+		if (!iscurrent)
+		{
+			//inactive colors? Is this correct?
+			color = COL_MENUCONTENTINACTIVE_TEXT;
+			//bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
+		}
 	}
 
 	if(npos < (int) Bouquets.size()) {
