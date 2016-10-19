@@ -1167,38 +1167,32 @@ void CFileBrowser::hide()
 void CFileBrowser::paintItem(unsigned int pos)
 {
 	int colwidth1, colwidth2, colwidth3;
-	int c_rad_small = 0;
-	fb_pixel_t color;
-	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	CFile * actual_file = NULL;
 	std::string fileicon;
-	unsigned int curr = liststart + pos;
+	unsigned int currpos = liststart + pos;
 
-	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0/*DARK*/);
-
-	if (curr >= filelist.size())
+	if (currpos >= filelist.size())
 		return;
 
-	actual_file = &filelist[curr];
-	if (curr == selected)
-	{
-		color   = actual_file->Marked ? COL_MENUCONTENTINACTIVE_TEXT : COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = actual_file->Marked ? COL_MENUCONTENTSELECTED_PLUS_2 : COL_MENUCONTENTSELECTED_PLUS_0;
-		c_rad_small = RADIUS_SMALL;
-	}
-	else if (actual_file->Marked)
-	{
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_2;
-	}
-	else
-	{
-		color   = COL_MENUCONTENT_TEXT;//DARK;
-		bgcolor = COL_MENUCONTENT_PLUS_0;//DARK;
-	}
+	actual_file = &filelist[currpos];
 
-	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
+	bool i_selected	= currpos == selected;
+	bool i_marked	= actual_file->Marked;
+	bool i_switch	= false; //(currpos < filelist.size()) && (pos & 1);
+	int i_radius	= RADIUS_NONE;
+
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, i_selected, i_marked, i_switch);
+
+	if (i_selected || i_marked)
+		i_radius = RADIUS_LARGE;
+
+	if (i_radius)
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, i_radius);
 
 	if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
 		colwidth2 = 0;
@@ -1209,7 +1203,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 
 	if ( !actual_file->Name.empty() )
 	{
-		if (curr == selected)
+		if (currpos == selected)
 			CVFD::getInstance()->showMenuText(0, FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()).c_str(), -1, true); // UTF-8
 
 		switch(actual_file->getType())
