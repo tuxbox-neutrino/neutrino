@@ -1485,83 +1485,52 @@ void CAudioPlayerGui::paintItem(int pos)
 		return;
 
 	int ypos = m_y + m_title_height + m_theight + pos*m_fheight;
-	int c_rad_small;
+	unsigned int currpos = m_liststart + pos;
+
+	bool i_selected	= currpos == m_selected;
+	bool i_marked	= currpos == (unsigned) m_current;
+	bool i_switch	= false; //(currpos < m_playlist.size()) && (pos & 1);
+	int i_radius	= RADIUS_NONE;
+
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	if ((pos + m_liststart) == m_selected)
-	{
-		if ((pos + m_liststart) == (unsigned)m_current)
-		{
-			color   = COL_MENUCONTENTSELECTED_TEXT_PLUS_2;
-			bgcolor = COL_MENUCONTENTSELECTED_PLUS_2;
-		}
-		else
-		{
-			color   = COL_MENUCONTENTSELECTED_TEXT;
-			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		}
+	getItemColors(color, bgcolor, i_selected, i_marked, i_switch);
+
+	if (i_selected || i_marked)
+		i_radius = RADIUS_LARGE;
+
+	if (i_selected)
 		paintItemID3DetailsLine(pos);
-		c_rad_small = RADIUS_SMALL;
-	}
-	else
-	{
-		if (((pos + m_liststart) < m_playlist.size()) && (pos & 1))
-		{
-			if ((pos + m_liststart) == (unsigned)m_current)
-			{
-				color   = COL_MENUCONTENTDARK_TEXT_PLUS_2;
-				bgcolor = COL_MENUCONTENTDARK_PLUS_2;
-			}
-			else
-			{
-				color   = COL_MENUCONTENTDARK_TEXT;
-				bgcolor = COL_MENUCONTENTDARK_PLUS_0;
-			}
-		}
-		else
-		{
-			if ((pos + m_liststart) == (unsigned)m_current)
-			{
-				color   = COL_MENUCONTENT_TEXT_PLUS_2;
-				bgcolor = COL_MENUCONTENT_PLUS_2;
-			}
-			else
-			{
-				color   = COL_MENUCONTENT_TEXT;
-				bgcolor = COL_MENUCONTENT_PLUS_0;
-			}
-		}
-		c_rad_small = 0;
-	}
 
-	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_fheight, COL_MENUCONTENT_PLUS_0);
-	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_fheight, bgcolor, c_rad_small);
+	if (i_radius)
+		m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_fheight, COL_MENUCONTENT_PLUS_0);
+	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_fheight, bgcolor, i_radius);
 
-	if ((pos + m_liststart) < m_playlist.size())
+	if (currpos < m_playlist.size())
 	{
 		char sNr[20];
-		sprintf(sNr, "%2d : ", pos + m_liststart + 1);
+		sprintf(sNr, "%2d : ", currpos + 1);
 		std::string tmp = sNr;
-		getFileInfoToDisplay(tmp, m_playlist[pos + m_liststart]);
+		getFileInfoToDisplay(tmp, m_playlist[currpos]);
 
 		char dura[9];
 		if (m_inetmode)
-			snprintf(dura, 8, "%ldk", m_playlist[pos + m_liststart].MetaData.total_time);
+			snprintf(dura, 8, "%ldk", m_playlist[currpos].MetaData.total_time);
 		else
-			snprintf(dura, 8, "%ld:%02ld", m_playlist[pos + m_liststart].MetaData.total_time / 60,
-				 m_playlist[pos + m_liststart].MetaData.total_time % 60);
+			snprintf(dura, 8, "%ld:%02ld", m_playlist[currpos].MetaData.total_time / 60,
+				 m_playlist[currpos].MetaData.total_time % 60);
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(dura) + 5;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos + m_fheight, m_width - 30 - w,
 				tmp, color, m_fheight);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + m_width - 15 - w, ypos + m_fheight,
 				w, dura, color, m_fheight);
-		if ((pos + m_liststart) == m_selected)
+		if (currpos == m_selected)
 		{
 			if (m_state == CAudioPlayerGui::STOP)
-				CVFD::getInstance()->showAudioTrack(m_playlist[pos + m_liststart].MetaData.artist,
-								    m_playlist[pos + m_liststart].MetaData.title,
-								    m_playlist[pos + m_liststart].MetaData.album);
+				CVFD::getInstance()->showAudioTrack(m_playlist[currpos].MetaData.artist,
+								    m_playlist[currpos].MetaData.title,
+								    m_playlist[currpos].MetaData.album);
 		}
 	}
 }
