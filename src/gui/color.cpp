@@ -228,3 +228,31 @@ void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv)
 	hsv->s = f_S;
 	hsv->v = f_V;
 }
+
+void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected, bool marked, bool switch_background)
+{
+	if (selected && marked)
+	{
+		t = COL_MENUCONTENTSELECTED_TEXT_PLUS_2;
+		b = COL_MENUCONTENTSELECTED_PLUS_2;
+		return;
+	}
+
+	if (selected)
+	{
+		t = COL_MENUCONTENTSELECTED_TEXT;
+		b = COL_MENUCONTENTSELECTED_PLUS_0;
+		return;
+	}
+
+	if (marked)
+	{
+		t = COL_MENUCONTENT_TEXT_PLUS_2;
+		b = COL_MENUCONTENT_PLUS_2;
+		return;
+	}
+
+	// default
+	t = COL_MENUCONTENT_TEXT;
+	b = switch_background ? COL_MENUCONTENTDARK_PLUS_0 : COL_MENUCONTENT_PLUS_0;
+}
