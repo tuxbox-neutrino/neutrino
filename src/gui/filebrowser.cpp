@@ -1172,6 +1172,9 @@ void CFileBrowser::paintItem(unsigned int pos)
 	std::string fileicon;
 	unsigned int currpos = liststart + pos;
 
+	if (currpos >= filelist.size())
+		return;
+
 	actual_file = &filelist[currpos];
 
 	bool i_selected	= currpos == selected;
@@ -1190,9 +1193,6 @@ void CFileBrowser::paintItem(unsigned int pos)
 	if (i_radius)
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, i_radius);
-
-	if (currpos >= filelist.size())
-		return;
 
 	if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
 		colwidth2 = 0;
