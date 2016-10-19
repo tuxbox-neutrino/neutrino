@@ -1173,7 +1173,11 @@ void CFileBrowser::paintItem(unsigned int pos)
 	unsigned int currpos = liststart + pos;
 
 	if (currpos >= filelist.size())
+	{
+		// just paint an empty line
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
 		return;
+	}
 
 	actual_file = &filelist[currpos];
 
