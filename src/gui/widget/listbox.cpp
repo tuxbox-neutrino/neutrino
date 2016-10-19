@@ -127,16 +127,7 @@ void CListBox::paintItem(unsigned int /*itemNr*/, int paintNr, bool pselected)
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	if (pselected)
-	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	else
-	{
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
+	getItemColors(color, bgcolor, pselected);
 
 	frameBuffer->paintBoxRel(x,ypos, width- 15, getItemHeight(), bgcolor);
 	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 10, ypos+ fheight, width-20, "demo", color);
