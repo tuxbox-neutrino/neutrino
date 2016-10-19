@@ -253,6 +253,6 @@ void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected, bool marked, boo
 	}
 
 	// default
-	t = COL_MENUCONTENT_TEXT;
+	t = switch_background ? COL_MENUCONTENTDARK_TEXT   : COL_MENUCONTENT_TEXT;
 	b = switch_background ? COL_MENUCONTENTDARK_PLUS_0 : COL_MENUCONTENT_PLUS_0;
 }
