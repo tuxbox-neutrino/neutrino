@@ -426,27 +426,19 @@ void CListFrame::refreshLine(int line)
 	if((line < m_nCurrentLine) && (line > m_nCurrentLine + m_nLinesPerPage))
 		return;
 
-	uint32_t color, bgcolor;
+	fb_pixel_t color, bgcolor;
 	int rel_line = line - m_nCurrentLine;
 	int y = m_cFrameListRel.iY + TEXT_BORDER_WIDTH + (rel_line*m_nFontListHeight);
 	int radius = 0;
 
+	bool selected = (line == m_nSelectedLine && m_showSelection == true);
 	bool marked = (!m_pLines->marked.empty() && m_pLines->marked[line]);
-	if(line == m_nSelectedLine && m_showSelection == true)
-	{
-		color = marked ? COL_MENUCONTENTINACTIVE_TEXT : COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = marked ? COL_MENUCONTENTSELECTED_PLUS_2 : COL_MENUCONTENTSELECTED_PLUS_0;
+
+	getItemColors(color, bgcolor, selected, marked);
+
+	if (selected || marked)
 		radius = RADIUS_LARGE;
-	}
-	else if (marked) {
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_2;
-	}
-	else
-	{
-		color = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
+
 	frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
 			m_cFrameListRel.iWidth, m_nFontListHeight, bgcolor, radius);
 
