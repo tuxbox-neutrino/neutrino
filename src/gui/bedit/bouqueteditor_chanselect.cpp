@@ -106,32 +106,31 @@ bool CBEChannelSelectWidget::hasChanged()
 void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselected)
 {
 	int ypos = y+ theight + paintNr*iheight;
+	int i_radius = RADIUS_NONE;
 
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, pselected);
+
 	if (pselected)
 	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-
-		if(itemNr < getItemCount()) {
+		if (itemNr < getItemCount())
+		{
 			initItem2DetailsLine (paintNr, itemNr);
 			paintDetails(itemNr);
 		}
-
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
+		i_radius = RADIUS_LARGE;
 	}
 	else
 	{
 		if (itemNr < getItemCount() && (Channels[itemNr]->flags & CZapitChannel::NOT_PRESENT))
 			color = COL_MENUCONTENTINACTIVE_TEXT;
-		else
-			color = COL_MENUCONTENT_TEXT;
-
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}
+
+	if (i_radius)
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, i_radius);
 
 	if(itemNr < getItemCount())
 	{
