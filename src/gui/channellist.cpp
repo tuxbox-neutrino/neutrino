@@ -1536,7 +1536,7 @@ void CChannelList::paintDetails(int index)
 	bool colored_event_C = (g_settings.theme.colored_events_channellist == 1);
 	bool colored_event_N = (g_settings.theme.colored_events_channellist == 2);
 
-	frameBuffer->paintBoxRel(x+1, y + height + 1, full_width-2, info_height - 2, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
+	frameBuffer->paintBoxRel(x, y + height, full_width, info_height, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);
 	frameBuffer->paintBoxFrame(x, y + height, full_width, info_height, 2, COL_FRAME_PLUS_0, RADIUS_LARGE);
 
 	if ((*chanlist).empty())
