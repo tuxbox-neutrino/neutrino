@@ -282,6 +282,7 @@ void CBEChannelSelectWidget::paintDetails(int index)
 	//info box
 	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 	ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+	ibox->setTextColor(COL_MENUCONTENTDARK_TEXT);
 	ibox->paint(false);
 }
 

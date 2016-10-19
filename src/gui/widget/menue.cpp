@@ -1482,6 +1482,7 @@ void CMenuWidget::paintHint(int pos)
 	info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
 	info_box->setCorner(RADIUS_LARGE);
 	info_box->setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	info_box->setTextColor(COL_MENUCONTENTDARK_TEXT);
 	info_box->enableShadow();
 	info_box->setPicture(item->hintIcon ? item->hintIcon : "");
 	info_box->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_MENUFOOT_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);// COL_MENUFOOT_PLUS_0 is default footer color

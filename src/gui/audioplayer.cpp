@@ -1819,6 +1819,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 			ibox->setFrameThickness(2);
 			ibox->setCorner(RADIUS_LARGE);
 			ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+			ibox->setTextColor(COL_MENUCONTENTDARK_TEXT);
 			ibox->forceTextPaint(false);
 		}
 
