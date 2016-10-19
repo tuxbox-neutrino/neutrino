@@ -715,19 +715,10 @@ void CKeyboardInput::paintChar(int pos, std::string &c)
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	if (pos == selected)
-	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	else
-	{
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
+	getItemColors(color, bgcolor, pos == selected);
 
-	frameBuffer->paintBoxRel(xpos, ypos, input_w, input_h, COL_MENUCONTENT_PLUS_2);
-	frameBuffer->paintBoxRel(xpos+ 1, ypos+ 1, input_w- 2, input_h- 2, bgcolor);
+	frameBuffer->paintBoxRel(xpos, ypos, input_w, input_h, bgcolor);
+	frameBuffer->paintBoxFrame(xpos, ypos, input_w, input_h, 1, COL_MENUCONTENT_PLUS_2);
 
 	int ch_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(c);
 	int ch_x = xpos + std::max(input_w/2 - ch_w/2, 0);
@@ -749,17 +740,14 @@ void CKeyboardInput::paintKey(int row, int column)
 	//key_y = y+ hheight+ offset+ input_h+ offset;
 	int ypos = key_y + (key_h + KEY_BORDER)*row;
 
+	int i_selected = (focus == FOCUS_KEY && row == srow && column == scol);
+
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
-	if (focus == FOCUS_KEY && row == srow && column == scol) {
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	} else {
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
 
-	int radius = CORNER_RADIUS_SMALL;
+	getItemColors(color, bgcolor, i_selected);
+
+	int radius = RADIUS_SMALL;
 	frameBuffer->paintBoxRel(xpos, ypos, key_w, key_h, bgcolor, radius);
 	frameBuffer->paintBoxFrame(xpos, ypos, key_w, key_h, KEY_FRAME_WIDTH, COL_FRAME_PLUS_0, radius);
 
