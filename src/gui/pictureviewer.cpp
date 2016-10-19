@@ -668,36 +668,33 @@ void CPictureViewerGui::paintItem(int pos)
 //	printf("paintItem{\n");
 	int ypos = y+ theight + 0 + pos*fheight;
 
+	unsigned int currpos = liststart + pos;
+
+	bool i_selected	= currpos == selected;
+	bool i_marked	= false;
+	bool i_switch	= false; //(currpos < playlist.size()) && (pos & 1);
+	int i_radius	= RADIUS_NONE;
+
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	if ((liststart+pos < playlist.size()) && (pos & 1) )
-	{
-		color   = COL_MENUCONTENTDARK_TEXT;
-		bgcolor = COL_MENUCONTENTDARK_PLUS_0;
-	}
-	else
-	{
-		color	= COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
+	getItemColors(color, bgcolor, i_selected, i_marked, i_switch);
 
-	if (liststart+pos == selected)
-	{
-		frameBuffer->paintBoxRel(x,ypos, width-15, fheight, bgcolor);
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
+	if (i_selected || i_marked)
+		i_radius = RADIUS_LARGE;
 
-	frameBuffer->paintBoxRel(x, ypos, width-15, fheight, bgcolor, liststart+pos == selected ? RADIUS_LARGE : 0);
-	if (liststart+pos<playlist.size())
+	if (i_radius)
+		frameBuffer->paintBoxRel(x, ypos, width - 15, fheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - 15, fheight, bgcolor, i_radius);
+
+	if (currpos < playlist.size())
 	{
-		std::string tmp = playlist[liststart+pos].Name;
+		std::string tmp = playlist[currpos].Name;
 		tmp += " (";
-		tmp += playlist[liststart+pos].Type;
+		tmp += playlist[currpos].Type;
 		tmp += ')';
 		char timestring[18];
-		strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&playlist[liststart+pos].Date));
+		strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&playlist[currpos].Date));
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(timestring);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, width-30 - w, tmp, color, fheight);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+width-20-w,ypos+fheight, w, timestring, color, fheight);
