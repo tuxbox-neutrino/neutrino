@@ -364,25 +364,16 @@ void CBookmarkManager::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight*2;
 
+	unsigned int currpos = liststart + pos;
+
+	bool i_selected	= currpos == selected;
+	bool i_marked	= false;
+	bool i_switch	= false; //(currpos < bookmarks.size()) && (pos & 1);
+
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	if (pos & 1)
-	{
-		color   = COL_MENUCONTENTDARK_TEXT;
-		bgcolor = COL_MENUCONTENTDARK_PLUS_0;
-	}
-	else
-	{
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
-
-	if (liststart + pos == selected)
-	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
+	getItemColors(color, bgcolor, i_selected, i_marked, i_switch);
 
 	int real_width=width;
 	if (bookmarks.size()>listmaxshow)
@@ -391,14 +382,14 @@ void CBookmarkManager::paintItem(int pos)
 	}
 
 	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor);
-	if (liststart+pos<bookmarks.size())
+	if (currpos < bookmarks.size())
 	{
-		CBookmark theBookmark = bookmarks[liststart+pos];
+		CBookmark theBookmark = bookmarks[currpos];
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, real_width-10, theBookmark.getName(), color, fheight);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+2*fheight, real_width-10, theBookmark.getUrl(), color, fheight);
 
 		// LCD Display
-		if (liststart+pos==selected)
+		if (i_selected)
 		{
 			CVFD::getInstance()->showMenuText(0, theBookmark.getName(), -1, true); // UTF-8
 			CVFD::getInstance()->showMenuText(1, theBookmark.getUrl(), -1, true); // UTF-8
