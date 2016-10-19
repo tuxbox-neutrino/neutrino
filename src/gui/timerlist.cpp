@@ -659,36 +659,36 @@ void CTimerList::paintItem(int pos)
 {
 	int ypos = y+ theight+ pos*fheight*2;
 
-	fb_pixel_t color;
-	fb_pixel_t bgcolor;
-
 	int real_width=width;
 	if (timerlist.size() > listmaxshow)
 	{
 		real_width-=15; //scrollbar
 	}
 
-	color   = COL_MENUCONTENT_TEXT;
-	if (pos & 1)
-		bgcolor = COL_MENUCONTENT_PLUS_1;
-	else
-		bgcolor = COL_MENUCONTENT_PLUS_0;
+	unsigned int currpos = liststart + pos;
+
+	bool i_selected	= currpos == (unsigned) selected;
+	bool i_marked	= false;
+	bool i_switch	= false; //pos & 1;
+	int i_radius	= RADIUS_NONE;
+
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, i_selected, i_marked, i_switch);
+
+	if (i_selected || i_marked)
+		i_radius = RADIUS_LARGE;
+
+	if (i_radius)
+		frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, bgcolor, i_radius);
 	//shadow
 	frameBuffer->paintBoxRel(x + width, ypos, OFFSET_SHADOW, 2*fheight, COL_SHADOW_PLUS_0);
-	//item
-	frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, bgcolor);
 
-	if (liststart + pos == selected)
+	if (currpos < timerlist.size())
 	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	//selected item
-	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor, RADIUS_MID);
-
-	if (liststart + pos < (int)timerlist.size())
-	{
-		CTimerd::responseGetTimer & timer = timerlist[liststart+pos];
+		CTimerd::responseGetTimer & timer = timerlist[currpos];
 		char zAlarmTime[25] = {0};
 		struct tm *alarmTime = localtime(&(timer.alarmTime));
 		strftime(zAlarmTime,20,"%d.%m. %H:%M",alarmTime);
@@ -802,7 +802,7 @@ void CTimerList::paintItem(int pos)
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13,ypos+2*fheight, real_width-(fw*13+5), zAddData, color, fheight);
 		// LCD Display
-		if (liststart+pos==selected)
+		if (currpos == (unsigned) selected)
 		{
 			std::string line1 = convertTimerType2String(timer.eventType); // UTF-8
 			//std::string line2 = zAlarmTime;
