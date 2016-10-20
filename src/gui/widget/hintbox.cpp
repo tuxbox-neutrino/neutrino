@@ -131,6 +131,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	lines = 0;
 	timeout		= HINTBOX_DEFAULT_TIMEOUT;
 	w_indentation	= indent;
+	hb_text_mode	= text_mode;
 
 	//set required window width and basic height
 	width 		= max(HINTBOX_MIN_WIDTH, Width);
@@ -160,7 +161,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	timeout_pb_timer= NULL;
 
 	if (!Text.empty())
-		addHintItem(Text, text_mode, Picon);
+		addHintItem(Text, hb_text_mode, Picon);
 }
 
 CHintBox::~CHintBox()
