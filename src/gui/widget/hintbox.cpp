@@ -177,13 +177,13 @@ void CHintBox::showTimeOutBar()
 {
 	if(timeout_pb){
 		timeout_pb->paint0();
-		timeout_pb->setValues(timeout_pb->getValue()+1, timeout);
+		timeout_pb->setValues(timeout_pb->getValue()+1, 100*timeout);
 	}else{
 		timeout_pb = new CProgressBar();
 		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
-		timeout_pb->setValues(0, timeout);
+		timeout_pb->setValues(0, 100*timeout);
 		if (!timeout_pb_timer)
-			timeout_pb_timer = new CComponentsTimer(1);
+			timeout_pb_timer = new CComponentsTimer(1, true);
 		timeout_pb_timer->OnTimer.connect(sigc::mem_fun0(this, &CHintBox::showTimeOutBar));
 		timeout_pb_timer->startTimer();
 	}
