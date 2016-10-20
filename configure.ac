@@ -234,7 +234,7 @@ fi
 fi
 
 # hack to define a short filename also for out-of-tree build
-if test `dirname $0` = `pwd`; then
+if test `dirname $0` = `pwd` || test "$0" = ./configure; then
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__=__FILE__'
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__path_file__=__FILE__'
 else
