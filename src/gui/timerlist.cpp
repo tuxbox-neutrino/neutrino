@@ -563,17 +563,17 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		}*/
 }
 
-#define TimerListButtonsCount 7
-struct button_label TimerListButtons[TimerListButtonsCount] =
+struct button_label TimerListButtons[] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   	, LOCALE_TIMERLIST_DELETE },
 	{ NEUTRINO_ICON_BUTTON_GREEN 	, LOCALE_TIMERLIST_NEW    },
 	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
 	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_TIMERLIST_MODIFY },
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, NONEXISTANT_LOCALE     },
-	{ NEUTRINO_ICON_BUTTON_PLAY, NONEXISTANT_LOCALE     },
-	{ NEUTRINO_ICON_BUTTON_MENU_SMALL, NONEXISTANT_LOCALE     }
+	{ NEUTRINO_ICON_BUTTON_MENU_SMALL, NONEXISTANT_LOCALE     },
+	{ NEUTRINO_ICON_BUTTON_PLAY	, NONEXISTANT_LOCALE      }
 };
+size_t TimerListButtonsCount = sizeof(TimerListButtons)/sizeof(TimerListButtons[0]);
 
 #define RemoteBoxFooterButtonCount 3
 static const struct button_label RemoteBoxFooterButtons[RemoteBoxFooterButtonCount] = {
