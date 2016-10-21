@@ -162,7 +162,7 @@ class CTimerd
 			char              pluginName[EXEC_PLUGIN_NAME_MAXLEN];      //only filled if applicable
 			char              recordingDir[RECORD_DIR_MAXLEN];       //only filled if applicable
 			char              epgTitle[EPG_TITLE_MAXLEN];       //only filled if applicable
-			char              remotebox_ip[15];
+			char              remotebox_ip[16];
 			int               rem_pre;
 			int               rem_post;
 			

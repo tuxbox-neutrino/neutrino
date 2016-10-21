@@ -575,7 +575,8 @@ void CTimerList::select_remotebox_ip()
 {
 	if (g_settings.timer_remotebox_ip.size() == 1) {
 		std::list<std::string>::iterator it = g_settings.timer_remotebox_ip.begin();
-		strncpy(timerlist[selected].remotebox_ip,it->c_str(),15);
+		strncpy(timerlist[selected].remotebox_ip,it->c_str(),sizeof(timerlist[selected].remotebox_ip));
+		timerlist[selected].remotebox_ip[sizeof(timerlist[selected].remotebox_ip) - 1] = 0;
 	}
 
 	int select = 0;
@@ -591,7 +592,8 @@ void CTimerList::select_remotebox_ip()
 
 	std::list<std::string>::iterator it = g_settings.timer_remotebox_ip.begin();
 	std::advance(it,select);
-	strncpy(timerlist[selected].remotebox_ip,it->c_str(),15);
+	strncpy(timerlist[selected].remotebox_ip,it->c_str(),sizeof(timerlist[selected].remotebox_ip));
+	timerlist[selected].remotebox_ip[sizeof(timerlist[selected].remotebox_ip) - 1] = 0;
 }
 
 bool CTimerList::remoteChanExists(t_channel_id channel_id)
@@ -613,6 +615,11 @@ bool CTimerList::remoteChanExists(t_channel_id channel_id)
 	}
 
 	r_url = root.get("success","false").asString();
+
+	if (r_url == "false")
+		ShowMsg(LOCALE_STREAMINFO_NOT_AVAILABLE, convertChannelId2String(channel_id),
+				CMessageBox::mbrOk, CMessageBox::mbOk, NULL, 450, 30, false);
+
 	return (r_url == "true");
 }
 
@@ -659,7 +666,8 @@ void CTimerList::remoteTimerList(CTimerd::TimerList &rtimerlist)
 	for (unsigned int i= 0; i<remotetimers.size();i++) {
 			CTimerd::responseGetTimer rtimer;
 			if ( atoi(remotetimers[i].get("type_number","").asString()) == 5) {
-					strncpy(rtimer.remotebox_ip,it->c_str(),15);
+					strncpy(rtimer.remotebox_ip,it->c_str(),sizeof(rtimer.remotebox_ip));
+					rtimer.remotebox_ip[sizeof(rtimer.remotebox_ip) - 1] = 0;
 					rtimer.rem_pre = rem_pre;
 					rtimer.rem_post = rem_post;
 				rtimer.eventID = atoi(remotetimers[i].get("id","").asString());
@@ -788,6 +796,13 @@ int CTimerList::show()
 		}
 		else if ((msg == CRCInput::RC_red) && !(timerlist.empty()))
 		{
+			if ((timerlist[selected].eventType == CTimerd::TIMER_REMOTEBOX) && (timerlist[selected].eventState < CTimerd::TIMERSTATE_ISRUNNING)) {
+					if (exec(this,"del_remotetimer"))
+					{
+						res=menu_return::RETURN_EXIT_ALL;
+						loop=false;
+					}
+			} else {
 			bool killTimer = true;
 			if (CRecordManager::getInstance()->RecordingStatus(timerlist[selected].channel_id)) {
 				CTimerd::RecordingStopInfo recinfo;
@@ -810,16 +825,10 @@ int CTimerList::show()
 				}
 			}
 			if (killTimer) {
-				if ((timerlist[selected].eventType == CTimerd::TIMER_REMOTEBOX) && (timerlist[selected].eventState < CTimerd::TIMERSTATE_ISRUNNING))
-					if (exec(this,"del_remotetimer"))
-					{
-						res=menu_return::RETURN_EXIT_ALL;
-						loop=false;
-					}
-				else
 					Timer->removeTimerEvent(timerlist[selected].eventID);
 				update = true;
 			}
+		}
 		}
 		else if (msg==CRCInput::RC_green)
 		{
@@ -991,13 +1000,20 @@ void CTimerList::paintItem(int pos)
 			}
 		}
 
+		if ((timer.eventType == CTimerd::TIMER_REMOTEBOX) && timer.eventState == CTimerd::TIMERSTATE_ISRUNNING) {
+				int icol_w, icol_h;
+				frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icol_w, &icol_h);
+				if ((icol_w > 0) && (icol_h > 0)) {
+					frameBuffer->paintIcon(NEUTRINO_ICON_REC, (x + real_width) - (icol_w + 8), ypos, 2*fheight);
+				}
+		}
+
 		std::string zAddData("");
 		switch (timer.eventType)
 		{
 		//case CTimerd::TIMER_NEXTPROGRAM :
 		case CTimerd::TIMER_ZAPTO :
 		case CTimerd::TIMER_RECORD :
-		case CTimerd::TIMER_REMOTEBOX :
 		{
 			zAddData = convertChannelId2String(timer.channel_id); // UTF-8
 			if (timer.apids != TIMERD_APIDS_CONF)
@@ -1038,6 +1054,57 @@ void CTimerList::paintItem(int pos)
 				}
 			}
 			else if (strlen(timer.epgTitle)!=0)
+			{
+				zAddData += " : ";
+				zAddData += timer.epgTitle;
+			}
+		}
+		break;
+		case CTimerd::TIMER_REMOTEBOX :
+		{
+			CHTTPTool httpTool;
+			std::string r_url;
+			r_url  = "http://";
+			r_url += std::string(timer.remotebox_ip);
+			r_url += "/control/getchannel?format=json&id=";
+			r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer.channel_id);
+			r_url = httpTool.downloadString(r_url);
+
+			Json::Value root;
+			Json::Reader reader;
+			bool parsedSuccess = reader.parse(r_url, root, false);
+			if (!parsedSuccess) {
+				printf("Failed to parse JSON\n");
+				printf("%s\n", reader.getFormattedErrorMessages().c_str());
+			}
+
+			Json::Value remotechannel = root["data"]["channel"][0];
+
+			zAddData = remotechannel.get("name","").asString();
+			if (timer.apids != TIMERD_APIDS_CONF)
+			{
+				std::string sep = "";
+				zAddData += " (";
+				if (timer.apids & TIMERD_APIDS_STD)
+				{
+					zAddData += "STD";
+					sep = "/";
+				}
+				if (timer.apids & TIMERD_APIDS_ALT)
+				{
+					zAddData += sep;
+					zAddData += "ALT";
+					sep = "/";
+				}
+				if (timer.apids & TIMERD_APIDS_AC3)
+				{
+					zAddData += sep;
+					zAddData += "AC3";
+//					sep = "/";
+				}
+				zAddData += ')';
+			}
+			if (strlen(timer.epgTitle)!=0)
 			{
 				zAddData += " : ";
 				zAddData += timer.epgTitle;
