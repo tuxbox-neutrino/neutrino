@@ -1243,10 +1243,14 @@ void CTimerList::paintFoot()
 	//shadow
 	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + height - footerHeight, width, footerHeight + OFFSET_SHADOW, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
+	int c = TimerListButtonsCount;
+	if (g_settings.timer_remotebox_ip.size() == 0)
+		c--; // reduce play button
+
 	if (timerlist.empty())
 		::paintButtons(x, y + height - footerHeight, width, 2, &(TimerListButtons[1]), width);
 	else
-		::paintButtons(x, y + height - footerHeight, width, TimerListButtonsCount, TimerListButtons, width);
+		::paintButtons(x, y + height - footerHeight, width, c, TimerListButtons, width);
 }
 
 void CTimerList::paint()
