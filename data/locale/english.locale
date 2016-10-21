@@ -1714,6 +1714,7 @@ moviebrowser.info_rating Rating
 moviebrowser.info_recorddate Record date
 moviebrowser.info_serie Serie
 moviebrowser.info_size File size (MB)
+moviebrowser.info_spacer Spacer
 moviebrowser.info_title Titel
 moviebrowser.info_videoformat Picture
 moviebrowser.last_play_max_items Number of lines last play
@@ -1764,6 +1765,7 @@ moviebrowser.short_rating Vote
 moviebrowser.short_recorddate Date
 moviebrowser.short_serie Serie
 moviebrowser.short_size MB
+moviebrowser.short_spacer
 moviebrowser.short_title Title
 moviebrowser.start_head Start movie from:
 moviebrowser.start_record_start Movie start

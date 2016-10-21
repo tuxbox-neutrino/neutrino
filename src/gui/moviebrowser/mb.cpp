@@ -31,6 +31,7 @@
 		based on code of Steffen Hehn 'McClean'
 
 	(C) 2009-2014 Stefan Seyfried
+	(C) 2016      Sven Hoefer
 
 	outsourced:
 	(C) 2016, Thilo Graf 'dbt'
@@ -89,7 +90,7 @@ typedef struct dirent64 dirent_struct;
 #define NUMBER_OF_MOVIES_LAST 40 // This is the number of movies shown in last recored and last played list
 #define MOVIE_SMSKEY_TIMEOUT 800
 
-#define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 21
+#define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 22
 const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_ROW_ITEM_COUNT] =
 {
 	{ MB_INFO_FILENAME,		LOCALE_MOVIEBROWSER_INFO_FILENAME },
@@ -112,7 +113,8 @@ const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_
 	{ MB_INFO_AUDIO,		LOCALE_MOVIEBROWSER_INFO_AUDIO },
 	{ MB_INFO_LENGTH,		LOCALE_MOVIEBROWSER_INFO_LENGTH },
 	{ MB_INFO_SIZE,			LOCALE_MOVIEBROWSER_INFO_SIZE },
-	{ MB_INFO_RATING,		LOCALE_MOVIEBROWSER_INFO_RATING }
+	{ MB_INFO_RATING,		LOCALE_MOVIEBROWSER_INFO_RATING },
+	{ MB_INFO_SPACER,		LOCALE_MOVIEBROWSER_INFO_SPACER }
 };
 
 #define MESSAGEBOX_YES_NO_OPTIONS_COUNT 2
@@ -170,6 +172,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 	LOCALE_MOVIEBROWSER_SHORT_LENGTH,
 	LOCALE_MOVIEBROWSER_SHORT_SIZE,
 	LOCALE_MOVIEBROWSER_SHORT_RATING,
+	LOCALE_MOVIEBROWSER_SHORT_SPACER,
 	NONEXISTANT_LOCALE
 };
 
@@ -195,6 +198,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 #define	MB_ROW_WIDTH_LENGTH		10
 #define	MB_ROW_WIDTH_SIZE 		12
 #define	MB_ROW_WIDTH_RATING		5
+#define	MB_ROW_WIDTH_SPACER		1
 
 const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 {
@@ -219,6 +223,7 @@ const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 	MB_ROW_WIDTH_LENGTH,
 	MB_ROW_WIDTH_SIZE,
 	MB_ROW_WIDTH_RATING,
+	MB_ROW_WIDTH_SPACER,
 	0 //MB_ROW_WIDTH_MAX_NUMBER
 };
 static MI_MOVIE_INFO* playing_info;
@@ -3439,7 +3444,8 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 				*item_string = str_tmp;
 			}
 			break;
-		case MB_INFO_MAX_NUMBER: 			//		= 21
+		case MB_INFO_SPACER: 				// 		= 21,
+		case MB_INFO_MAX_NUMBER: 			//		= 22
 		default:
 			*item_string="";
 			result = false;

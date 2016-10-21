@@ -1714,6 +1714,7 @@ moviebrowser.info_rating Bewertung
 moviebrowser.info_recorddate Aufnahmedatum
 moviebrowser.info_serie Serie
 moviebrowser.info_size Dateigröße (MB)
+moviebrowser.info_spacer Abstandshalter
 moviebrowser.info_title Titel
 moviebrowser.info_videoformat Bildformat
 moviebrowser.last_play_max_items Zeilen 'zuletzt aufgenommen'
@@ -1764,6 +1765,7 @@ moviebrowser.short_rating Vote
 moviebrowser.short_recorddate Datum
 moviebrowser.short_serie Serie
 moviebrowser.short_size Größe
+moviebrowser.short_spacer
 moviebrowser.short_title Titel
 moviebrowser.start_head Film starten von Position:
 moviebrowser.start_record_start Aufnahmestart
