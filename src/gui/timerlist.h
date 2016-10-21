@@ -87,6 +87,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int saved_dispmode;
 		void remoteTimerList(CTimerd::TimerList &timerlist);
 		void enterRemoteBox();
+		int rem_pre,rem_post;
 
 	public:
 		CTimerList();

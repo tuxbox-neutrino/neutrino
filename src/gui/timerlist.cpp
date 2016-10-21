@@ -342,8 +342,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url  = "http://";
 		r_url += g_settings.remotebox_address;
 		r_url += "/control/timer?action=new";
-		r_url += "&alarm=" + to_string((int)timerlist[selected].alarmTime);
-		r_url += "&stop=" + to_string((int)timerlist[selected].stopTime);
+		r_url += "&alarm=" + to_string((int)timerlist[selected].alarmTime + rem_pre);
+		r_url += "&stop=" + to_string((int)timerlist[selected].stopTime - rem_post);
 		r_url += "&announce=" + to_string((int)timerlist[selected].announceTime);
 		r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 		r_url += "&aj=on";
@@ -366,8 +366,10 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url = httpTool.downloadString(r_url);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
 		if (r_url=="ok") {
-			Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime,
-				   timerlist[selected].stopTime, 0, 0, timerlist[selected].announceTime,
+			int pre,post;
+			Timer->getRecordingSafety(pre,post);
+			Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + pre,
+				   timerlist[selected].stopTime - post, 0, 0, timerlist[selected].announceTime,
 				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL));
 		}
 	}
@@ -587,6 +589,12 @@ void CTimerList::remoteTimerList(CTimerd::TimerList &rtimerlist)
 		printf("Failed to parse JSON\n");
 		printf("%s\n", reader.getFormattedErrorMessages().c_str());
 	}
+	Json::Value delays = root["data"]["timer"][0];
+
+	rem_pre  = atoi(delays["config"].get("pre_delay","").asString());
+	rem_post = atoi(delays["config"].get("post_delay","").asString());
+
+	//printf("[remotetimer] pre:%d - post:%d\n", rem_pre, rem_post);
 
 	Json::Value remotetimers = root["data"]["timer"][0]["timer_list"];
 
@@ -743,7 +751,7 @@ int CTimerList::show()
 				if ((timerlist[selected].eventType == CTimerd::TIMER_REMOTEBOX) && (timerlist[selected].eventState < CTimerd::TIMERSTATE_ISRUNNING))
 					exec(this,"del_remotetimer");
 				else
-				Timer->removeTimerEvent(timerlist[selected].eventID);
+					Timer->removeTimerEvent(timerlist[selected].eventID);
 				update = true;
 			}
 		}
