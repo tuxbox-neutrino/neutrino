@@ -2355,6 +2355,7 @@ timerlist.type.execplugin Plugin ausführen
 timerlist.type.nextprogram Nächstes Programm
 timerlist.type.record Aufnahme
 timerlist.type.remind Erinnerung
+timerlist.type.remotebox Remote-Aufnahme
 timerlist.type.shutdown Shutdown
 timerlist.type.sleeptimer Sleeptimer
 timerlist.type.standby Standby

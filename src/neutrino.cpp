@@ -458,6 +458,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
 	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 
+	g_settings.remotebox_address = configfile.getString("timer_remotebox", "");
+
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
@@ -1043,6 +1045,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("shutdown_count"           , g_settings.shutdown_count);
 	configfile.setInt32("shutdown_min"  , g_settings.shutdown_min  );
 	configfile.setInt32("sleeptimer_min", g_settings.sleeptimer_min);
+	configfile.setString("timer_remotebox", g_settings.remotebox_address);
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );

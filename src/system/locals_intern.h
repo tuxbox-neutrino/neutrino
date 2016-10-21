@@ -2382,6 +2382,7 @@ const char * locale_real_names[] =
 	"timerlist.type.nextprogram",
 	"timerlist.type.record",
 	"timerlist.type.remind",
+	"timerlist.type.remotebox",
 	"timerlist.type.shutdown",
 	"timerlist.type.sleeptimer",
 	"timerlist.type.standby",

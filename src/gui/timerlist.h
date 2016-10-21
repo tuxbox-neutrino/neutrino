@@ -85,6 +85,8 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int newTimer();
 		/* todo: properly import the enum CVFD::MODES */
 		int saved_dispmode;
+		void remoteTimerList(CTimerd::TimerList &timerlist);
+		void enterRemoteBox();
 
 	public:
 		CTimerList();

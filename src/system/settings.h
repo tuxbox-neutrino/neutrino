@@ -450,6 +450,7 @@ struct SNeutrinoSettings
 	int recording_slow_warning;
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
+	std::string remotebox_address;
 	std::string recording_filename_template;
 	int recording_already_found_check;
 
