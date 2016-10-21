@@ -167,6 +167,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 CHintBox::~CHintBox()
 {
 	if(timeout_pb){
+		timeout_pb->kill(); //ensure cleanup from screen
 		delete timeout_pb; timeout_pb = NULL;
 	}
 	if(timeout_pb_timer){
