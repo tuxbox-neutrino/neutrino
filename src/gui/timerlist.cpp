@@ -301,23 +301,23 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 			remotebox_NetworkIP.hide();
 			changed = true;
 		}
-		return menu_return::RETURN_EXIT;
+		return menu_return::RETURN_REPAINT;
 	}
 
 	if(actionKey == "del_ip") {
-		selected = remboxmenu->getSelected();
-		if (selected >= item_offset) {
-			remboxmenu->removeItem(selected);
+		bselected = remboxmenu->getSelected();
+		if (bselected >= item_offset) {
+			remboxmenu->removeItem(bselected);
 		    remboxmenu->hide();
-			selected = remboxmenu->getSelected();
+			bselected = remboxmenu->getSelected();
 			changed = true;
 		}
-		return menu_return::RETURN_EXIT;
+		return menu_return::RETURN_REPAINT;
 	}
 
 	if(actionKey == "cha_ip") {
-		selected = remboxmenu->getSelected();
-		CMenuItem* item = remboxmenu->getItem(selected);
+		bselected = remboxmenu->getSelected();
+		CMenuItem* item = remboxmenu->getItem(bselected);
 		CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
 		std::string remoteip = f->getName();
 		CIPInput remotebox_NetworkIP(LOCALE_REMOTEBOX_IP  , &remoteip);
@@ -326,7 +326,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 			remotebox_NetworkIP.hide();
 			changed = true;
 		}
-		return menu_return::RETURN_EXIT;
+		return menu_return::RETURN_REPAINT;
 	}
 
 	if (strcmp(key, "modifytimer") == 0)
@@ -887,10 +887,8 @@ int CTimerList::show()
 		}
 		else if (msg==CRCInput::RC_setup)
 		{
-			hide();
 			enterRemoteBox();
 			update=true;
-			paint();
 		}
 		else if (msg==CRCInput::RC_yellow)
 		{
@@ -905,11 +903,6 @@ int CTimerList::show()
 			loop=false;
 		}
 #endif
-		else if (msg==CRCInput::RC_setup)
-		{
-			res=menu_return::RETURN_EXIT_ALL;
-			loop=false;
-		}
 		else if ( msg == CRCInput::RC_help || msg == CRCInput::RC_info)
 		{
 			CTimerd::responseGetTimer* timer=&timerlist[selected];

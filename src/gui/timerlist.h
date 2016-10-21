@@ -93,6 +93,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int rem_pre,rem_post;
 		int item_offset;
 		bool changed;
+		int  bselected;
 		CMenuWidget *remboxmenu;
 
 	public:
