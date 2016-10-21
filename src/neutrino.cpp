@@ -458,7 +458,17 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
 	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 
-	g_settings.remotebox_address = configfile.getString("timer_remotebox", "");
+	g_settings.timer_remotebox_ip.clear();
+	int timer_remotebox_ip_count = configfile.getInt32("timer_remotebox_ip_count", 0);
+	if (timer_remotebox_ip_count) {
+		for (int i = 0; i < timer_remotebox_ip_count; i++) {
+			std::string k = "timer_remotebox_ip_" + to_string(i);
+			std::string timer_remotebox_ip = configfile.getString(k, "");
+			if (timer_remotebox_ip.empty())
+				continue;
+			g_settings.timer_remotebox_ip.push_back(timer_remotebox_ip);
+		}
+	}
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
@@ -1045,7 +1055,15 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("shutdown_count"           , g_settings.shutdown_count);
 	configfile.setInt32("shutdown_min"  , g_settings.shutdown_min  );
 	configfile.setInt32("sleeptimer_min", g_settings.sleeptimer_min);
-	configfile.setString("timer_remotebox", g_settings.remotebox_address);
+
+	int timer_remotebox_ip_count = 0;
+	for (std::list<std::string>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it) {
+		std::string k = "timer_remotebox_ip_" + to_string(timer_remotebox_ip_count);
+		configfile.setString(k, *it);
+		timer_remotebox_ip_count++;
+	}
+	configfile.setInt32 ( "timer_remotebox_ip_count", g_settings.timer_remotebox_ip.size());
+
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );

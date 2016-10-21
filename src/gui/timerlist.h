@@ -87,6 +87,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int saved_dispmode;
 		void remoteTimerList(CTimerd::TimerList &timerlist);
 		void enterRemoteBox();
+		void select_remotebox_ip();
 		bool remoteChanExists(t_channel_id channel_id);
 		bool localChanExists(t_channel_id channel_id);
 		int rem_pre,rem_post;
