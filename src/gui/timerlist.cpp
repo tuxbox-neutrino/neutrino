@@ -335,7 +335,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return menu_return::RETURN_EXIT;
 	}
-	else if (strcmp(key, "send_remotetimer") == 0)
+	else if ((strcmp(key, "send_remotetimer") == 0) && remoteChanExists(timerlist[selected].channel_id))
 	{
 		CHTTPTool httpTool;
 		std::string r_url;
@@ -354,7 +354,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (r_url=="ok")
 			Timer->removeTimerEvent(timerlist[selected].eventID);
 	}
-	else if (strcmp(key, "fetch_remotetimer") == 0)
+	else if ((strcmp(key, "fetch_remotetimer") == 0) && localChanExists(timerlist[selected].channel_id))
 	{
 		CHTTPTool httpTool;
 		std::string r_url;
@@ -568,6 +568,41 @@ void CTimerList::updateEvents(void)
 
 	x = getScreenStartX(width);
 	y = getScreenStartY(height);
+}
+
+bool CTimerList::remoteChanExists(t_channel_id channel_id)
+{
+	if (g_settings.remotebox_address.empty())
+		return false;
+	CHTTPTool httpTool;
+	std::string r_url;
+	r_url  = "http://";
+	r_url += g_settings.remotebox_address;
+	r_url += "/control/getchannel?format=json&id=";
+	r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id);
+	r_url = httpTool.downloadString(r_url);
+
+	Json::Value root;
+	Json::Reader reader;
+	bool parsedSuccess = reader.parse(r_url, root, false);
+	if (!parsedSuccess) {
+		printf("Failed to parse JSON\n");
+		printf("%s\n", reader.getFormattedErrorMessages().c_str());
+	}
+
+	r_url = root.get("success","false").asString();
+	return (r_url == "true");
+}
+
+bool CTimerList::localChanExists(t_channel_id channel_id)
+{
+	if (g_settings.remotebox_address.empty())
+		return false;
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (channel)
+		return true;
+	else
+		return false;
 }
 
 void CTimerList::remoteTimerList(CTimerd::TimerList &rtimerlist)
