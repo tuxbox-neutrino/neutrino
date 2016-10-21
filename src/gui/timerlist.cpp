@@ -563,7 +563,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		}*/
 }
 
-#define TimerListButtonsCount 6
+#define TimerListButtonsCount 7
 struct button_label TimerListButtons[TimerListButtonsCount] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   	, LOCALE_TIMERLIST_DELETE },
@@ -571,6 +571,7 @@ struct button_label TimerListButtons[TimerListButtonsCount] =
 	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
 	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_TIMERLIST_MODIFY },
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, NONEXISTANT_LOCALE     },
+	{ NEUTRINO_ICON_BUTTON_PLAY, NONEXISTANT_LOCALE     },
 	{ NEUTRINO_ICON_BUTTON_MENU_SMALL, NONEXISTANT_LOCALE     }
 };
 
