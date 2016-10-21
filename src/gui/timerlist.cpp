@@ -3,6 +3,8 @@
 
 	Timerliste by Zwen
 	(C) 2009, 2011-2014 Stefan Seyfried
+	Remote Timers by
+	(C) 2016            TangoCash
 
 	Homepage: http://dbox.cyberphoria.org/
 
@@ -291,6 +293,42 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	const char * key = actionKey.c_str();
 
+	if(actionKey == "add_ip") {
+		std::string remoteip;
+		CIPInput remotebox_NetworkIP(LOCALE_REMOTEBOX_IP  , &remoteip);
+		if (remotebox_NetworkIP.exec(NULL,"") == true) {
+			remboxmenu->addItem(new CMenuForwarder(remoteip, true, NULL, this, "cha_ip"));
+			remotebox_NetworkIP.hide();
+			changed = true;
+		}
+		return menu_return::RETURN_EXIT;
+	}
+
+	if(actionKey == "del_ip") {
+		selected = remboxmenu->getSelected();
+		if (selected >= item_offset) {
+			remboxmenu->removeItem(selected);
+		    remboxmenu->hide();
+			selected = remboxmenu->getSelected();
+			changed = true;
+		}
+		return menu_return::RETURN_EXIT;
+	}
+
+	if(actionKey == "cha_ip") {
+		selected = remboxmenu->getSelected();
+		CMenuItem* item = remboxmenu->getItem(selected);
+		CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
+		std::string remoteip = f->getName();
+		CIPInput remotebox_NetworkIP(LOCALE_REMOTEBOX_IP  , &remoteip);
+		if (remotebox_NetworkIP.exec(NULL,"") == true) {
+			f->setName(remoteip);
+			remotebox_NetworkIP.hide();
+			changed = true;
+		}
+		return menu_return::RETURN_EXIT;
+	}
+
 	if (strcmp(key, "modifytimer") == 0)
 	{
 		timerlist[selected].announceTime = timerlist[selected].alarmTime -60;
@@ -536,6 +574,13 @@ struct button_label TimerListButtons[TimerListButtonsCount] =
 	{ NEUTRINO_ICON_BUTTON_MENU_SMALL, NONEXISTANT_LOCALE     }
 };
 
+#define RemoteBoxFooterButtonCount 3
+static const struct button_label RemoteBoxFooterButtons[RemoteBoxFooterButtonCount] = {
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_REMOTEBOX_DEL },
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_REMOTEBOX_ADD },
+	{ NEUTRINO_ICON_BUTTON_OKAY, LOCALE_REMOTEBOX_MOD }
+};
+
 void CTimerList::updateEvents(void)
 {
 	timerlist.clear();
@@ -580,13 +625,13 @@ void CTimerList::select_remotebox_ip()
 	}
 
 	int select = 0;
-	CMenuWidget *m = new CMenuWidget(LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
+	CMenuWidget *m = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	for (std::list<std::string>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
 		m->addItem(new CMenuForwarder(*it, true, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str()));
 
-	int res = m->exec(NULL, "");
+	m->exec(NULL, "");
 
 	delete selector;
 
@@ -617,7 +662,7 @@ bool CTimerList::remoteChanExists(t_channel_id channel_id)
 	r_url = root.get("success","false").asString();
 
 	if (r_url == "false")
-		ShowMsg(LOCALE_STREAMINFO_NOT_AVAILABLE, convertChannelId2String(channel_id),
+		ShowMsg(LOCALE_REMOTEBOX_CHANNEL_NA, convertChannelId2String(channel_id),
 				CMessageBox::mbrOk, CMessageBox::mbOk, NULL, 450, 30, false);
 
 	return (r_url == "true");
@@ -915,13 +960,31 @@ void CTimerList::hide()
 
 void CTimerList::enterRemoteBox()
 {
-/*
-	CMenuWidget* remboxmenu = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, 40, MN_WIDGET_ID_NETWORKSETUP);
-	CIPInput remotebox_NetworkIP(LOCALE_NETWORKMENU_IPADDRESS  , &g_settings.remotebox_address);
-	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_NETWORKMENU_IPADDRESS , true, g_settings.remotebox_address , &remotebox_NetworkIP );
-	remboxmenu->addItem( m1);
+	remboxmenu = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
+	remboxmenu->addKey(CRCInput::RC_red, this, "del_ip");
+	remboxmenu->addKey(CRCInput::RC_green, this, "add_ip");
+
+	remboxmenu->addIntroItems();
+
+	item_offset = remboxmenu->getItemsCount();
+	for (std::list<std::string>::iterator it = g_settings.timer_remotebox_ip.begin();
+									 it != g_settings.timer_remotebox_ip.end(); ++it)
+		remboxmenu->addItem(new CMenuForwarder(*it, true, NULL, this, "cha_ip"));
+
+	remboxmenu->setFooter(RemoteBoxFooterButtons, RemoteBoxFooterButtonCount);
+
 	remboxmenu->exec(NULL, "");
-*/
+	remboxmenu->hide();
+	if (changed) {
+			g_settings.timer_remotebox_ip.clear();
+			for (int i = item_offset; i < remboxmenu->getItemsCount(); i++) {
+				CMenuItem *item = remboxmenu->getItem(i);
+				CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
+				g_settings.timer_remotebox_ip.push_back(f->getName());
+			}
+			changed = false;
+	}
+	delete remboxmenu;
 }
 
 void CTimerList::paintItem(int pos)

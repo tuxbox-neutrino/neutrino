@@ -91,6 +91,9 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		bool remoteChanExists(t_channel_id channel_id);
 		bool localChanExists(t_channel_id channel_id);
 		int rem_pre,rem_post;
+		int item_offset;
+		bool changed;
+		CMenuWidget *remboxmenu;
 
 	public:
 		CTimerList();

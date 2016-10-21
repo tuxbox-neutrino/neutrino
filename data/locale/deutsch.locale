@@ -2091,6 +2091,12 @@ recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Teletext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
+remotebox_add hinzufügen
+remotebox_channel_na Kanal auf Remote-Box nicht verfügbar
+remotebox_del löschen
+remotebox_head Remote-Boxen
+remotebox_ip Remote-Box IP
+remotebox_mod bearbeiten
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?

@@ -2091,6 +2091,12 @@ recordingmenu.vcr vcr
 recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
+remotebox_add add
+remotebox_channel_na Channel not available on Remote-Box
+remotebox_del delete
+remotebox_head Remote-Boxes
+remotebox_ip Remote-Box IP
+remotebox_mod modify
 reset_all Factory reset and reboot
 reset_channels Delete all channels
 reset_confirm Are you sure ?
