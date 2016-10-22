@@ -117,12 +117,17 @@ class CFileHelpers
 
 uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max=true);
 
+#if __cplusplus <= 201103L
 std::string to_string(int);
 std::string to_string(unsigned int);
 std::string to_string(long);
 std::string to_string(unsigned long);
 std::string to_string(long long);
 std::string to_string(unsigned long long);
+#else
+/* hack... */
+#define to_string(x) std::to_string(x)
+#endif
 
 std::string itoa(int value, int base);
 
