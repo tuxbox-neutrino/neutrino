@@ -11,6 +11,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/xmltree \
 	@FREETYPE_CFLAGS@ \
+	@SIGC_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libzapit.a
