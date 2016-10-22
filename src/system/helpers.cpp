@@ -45,6 +45,7 @@
 #include <linux/fs.h>
 #include "debug.h"
 #include <global.h>
+#include <driver/fontrenderer.h>
 #include <system/helpers.h>
 #include <gui/update_ext.h>
 using namespace std;
