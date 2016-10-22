@@ -34,42 +34,96 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 
-//! Member of CComponents. Provides a generic timer class
-/*!
-
+/**CComponentsTimer
+* 	Member of CComponents. Provides a generic timer class
+* @see
+* 	CComponentsTimer()
 */
-
 class CComponentsTimer : public sigc::trackable
 {
 	private:
 		///thread
 		pthread_t  tm_thread;
+
 		///refresh interval in seconds
 		int tm_interval;
-		///init function to start timer in own thread
-		static void* initTimerThread(void *arg);
-		///mutex for timer
-		OpenThreads::Mutex mutex;
-		///slot for signals
-		sigc::slot0<bool> sl;
 
+		///init function to init shared timer action
+		static void* initThreadAction(void *arg);
+
+		///init function to start/stop timer in own thread
+		void initThread();
+		void stopThread();
+
+		///runs shared timer action provided inside OnTimer() signal
+		void runSharedTimerAction();
+
+		///flag to control thread state
+		bool tm_enable;
+
+		///mutex for timer
+		OpenThreads::Mutex tm_mutex;
+		///slot for restart signals
+		sigc::slot0<bool> sl_stop_timer;
 	public:
-		///class constructor, parameter interval sets the interval in seconds, default value=1 (1 sec)
+		/**Constructor for timer class
+		*
+		* @param[in]  interval
+		* 	@li int interval in seconds, default value=1 (1 sec)
+		* 	If init value for interval > 0, timer starts immediately
+		* @see
+		* 	setTimerInterval();
+		*/
 		CComponentsTimer(const int& interval = 1);
 		~CComponentsTimer();
 
-		///start timer thread, returns true on success, if false causes log output
+		/**Starts timer thread
+		* @return
+		*	bool
+		*	returns true, if timer is running in thread
+		* @see
+		* 	stopTimer()
+		*/
 		bool startTimer();
-		///stop timer thread, returns true on success, if false causes log output
+
+		/**Stops timer thread
+		* @return
+		*	bool
+		*	returns true, if timer thread stopped
+		* @see
+		* 	startTimer()
+		*/
 		bool stopTimer();
 
-		///returns true, if timer is running in thread
+		/**get current timer status
+		* @return
+		*	bool
+		*	returns true, if timer is running in thread
+		* @see
+		* 	startTimer()
+		* 	stopTimer()
+		*/
 		bool isRun() const {return tm_thread;};
-		///set another interval in seconds
-		void setTimerIntervall(const int& seconds){tm_interval = seconds;};
 
-		///signal for timer event, use this in your class where ever you need time controled actions
-		///for more details see also CComponentsSignals for similar handlings
+		/**set interval in seconds
+		* @param[in]  seconds
+		* 	@li int
+		* @return
+		*	void
+		* @see
+		* 	tm_interval
+		*/
+		void setTimerInterval(const int& seconds);
+
+		/**Provides a signal handler to receive any function or methode.
+		* Use this in your class where ever you need time controled actions.
+		*
+		* @param[in]  seconds
+		* 	@li int
+		* @see
+		* 	CComponentsSignals for similar handlings.
+		* 	CComponentsFrmClock::startClock()
+		*/
 		sigc::signal<void> OnTimer;
 };
 

@@ -293,7 +293,6 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 					seek_flags = 0;
 				}
 				av_seek_frame(avc, best_stream, pts, seek_flags);
-				skip = 0;
 				// if a custom value was set we only jump once
 				if (actSecsToSkip != 0) {
 					*state=PLAY;

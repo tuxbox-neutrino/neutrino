@@ -104,7 +104,7 @@ int CCAMMenuHandler::doMainMenu()
 	char name1[255]={0};
 	char str1[255]={0};
 
-	int CiSlots = ca->GetNumberCISlots();
+	int CiSlots = ca ? ca->GetNumberCISlots() : 0;
 
 	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
 	cammenu->addIntroItems();
@@ -171,7 +171,7 @@ int CCAMMenuHandler::doMainMenu()
 	}
 
 	i = 0;
-	int ScNum = ca->GetNumberSmartCardSlots();
+	int ScNum = ca ? ca->GetNumberSmartCardSlots() : 0;
 	printf("CCAMMenuHandler::doMainMenu sc slots: %d\n", ScNum);
 
 	if(ScNum && CiSlots)

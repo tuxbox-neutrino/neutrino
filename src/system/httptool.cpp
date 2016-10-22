@@ -41,6 +41,14 @@ void CHTTPTool::setStatusViewer( CProgressWindow* statusview )
 	statusViewer = statusview;
 }
 
+size_t CHTTPTool::CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
+{
+	if (size * nmemb > 0) {
+		std::string* pStr = (std::string*) data;
+		pStr->append((char*) ptr, nmemb);
+	}
+	return size*nmemb;
+}
 
 int CHTTPTool::show_progress( void *clientp, double dltotal, double dlnow, double /*ultotal*/, double /*ulnow*/ )
 {
@@ -126,4 +134,63 @@ printf("download code %d\n", res);
 	}
 
 	return res==CURLE_OK;
+}
+
+std::string CHTTPTool::downloadString(const std::string & URL, int globalProgressEnd)
+{
+	CURL *curl;
+	CURLcode res;
+	std::string retString = "";
+#ifdef DEBUG
+printf("url is %s\n", URL.c_str());
+#endif
+	res = (CURLcode) 1;
+	curl = curl_easy_init();
+	if(curl)
+	{
+		iGlobalProgressEnd = globalProgressEnd;
+		if(statusViewer)
+		{
+			iGlobalProgressBegin = statusViewer->getGlobalStatus();
+		}
+		curl_easy_setopt(curl, CURLOPT_URL, URL.c_str() );
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &CHTTPTool::CurlWriteToString);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&retString);
+		curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, show_progress);
+		curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, this);
+		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, (long)1);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1800);
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10);
+		curl_easy_setopt(curl, CURLOPT_FAILONERROR, true);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
+#ifdef DEBUG
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+#endif
+
+		if (!g_settings.softupdate_proxyserver.empty()) {//use proxyserver
+#ifdef DEBUG
+printf("use proxyserver : %s\n", g_settings.softupdate_proxyserver.c_str());
+#endif
+			curl_easy_setopt(curl, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+
+			if (!g_settings.softupdate_proxyusername.empty()) {//use auth
+				//printf("use proxyauth\n");
+				std::string tmp = g_settings.softupdate_proxyusername;
+				tmp += ":";
+				tmp += g_settings.softupdate_proxypassword;
+				curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, tmp.c_str());
+			}
+		}
+#ifdef DEBUG
+printf("going to download\n");
+#endif
+		res = curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
+	}
+#ifdef DEBUG
+printf("download code %d\n", res);
+#endif
+	return (res==CURLE_OK) ? retString : "";
 }

@@ -365,7 +365,6 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 			text++;
 			if (((*text) & 0xc0) != 0x80)
 			{
-				remaining_unicode_length = -1;
 				return -1;          // incomplete or corrupted character
 			}
 			unicode_value <<= 6;

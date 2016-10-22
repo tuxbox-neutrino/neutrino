@@ -24,6 +24,9 @@ button,input,select,form,td {
 	height: 0;
 	overflow: hidden;
 }
+.pointer {
+	cursor: pointer;
+}
 /* buttons */
 a img:hover {
 	position:relative;
@@ -645,6 +648,11 @@ tr {
 /*	width:auto;*/
 	overflow:auto;
 }
+#epg_plus_container {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	max-height: 75vh;
+}
 .ep_bouquet {
 	margin: 0px;
 	padding: 0px;
@@ -655,8 +663,6 @@ tr {
 .ep_bouquet_name {
 	background: #A1CCF2;
 	border-right : #BBBBBB solid 1px;
-	width : 100px;
-/*	height: 1.3em;*/
 	overflow:hidden;
 	padding-left: 1px;
 	padding-right: 1px;
@@ -721,7 +727,6 @@ tr {
 	background-color : #DDDDDD;
 }
 .ep_time_bar {
-	width:100%;
 	margin-bottom: 0px;
 	position:relative;
 	border-bottom : #BBBBBB solid 1px;
@@ -855,6 +860,10 @@ a:hover.clistsmall
 	font-size:10pt;
 	padding-left: 10px;
 }
+.cslider_cell
+{
+	width: 35px;
+}
 .cslider
 {
 	height: 10px;
@@ -878,6 +887,10 @@ a:hover.clistsmall
 .cslider_noepg
 {
 	background-color: #FAFAFF;
+}
+.title_table
+{
+	width: 100%;
 }
 /*EPG*/
 .epg

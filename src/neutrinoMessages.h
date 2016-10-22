@@ -177,6 +177,7 @@ struct NeutrinoMessages {
 		mode_pic = 6,
 		mode_ts = 7,
 		mode_webtv = 9,
+		mode_upnp = 10,
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};

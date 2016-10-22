@@ -50,7 +50,7 @@ start-block~neutrino_form-data_record
 			<tr><td colspan="2" class="y_form_header">{=L:set.rec.rec_behavior=}</td></tr>
 			<tr>
 				<td>{=L:directory=}</td>
-				<td><input type="text" name="network_nfs_recordingdir" size="60" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_recordingdir~open=}" /></td>
+				<td><input type="text" name="network_nfs_recordingdir" size="60" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~open=}" /></td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.channeldir=}</td>
@@ -68,12 +68,12 @@ start-block~neutrino_form-data_record
 			</tr>
 			<tr>
 				<td>{=L:set.rec.recordtime=}</td>
-				<td><input type="text" name="record_hours" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;record_hours~cache=}" /></td>
+				<td><input type="text" name="record_hours" size="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;record_hours~cache=}" /></td>
 			</tr>
 			<tr><td colspan="2" class="y_form_header">{=L:set.rec.timeshift_desc=}</td></tr>
 			<tr>
 				<td>{=L:directory=}</td>
-				<td><input type="text" name="timeshiftdir" size="60" value="{=ini-get:/var/tuxbox/config/neutrino.conf;timeshiftdir~open=}" /></td>
+				<td><input type="text" name="timeshiftdir" size="60" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;timeshiftdir~open=}" /></td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.timeshift.pause=}</td>
@@ -84,7 +84,7 @@ start-block~neutrino_form-data_record
 			</tr>
 			<tr>
 				<td>{=L:set.rec.timeshift.auto_record=}</td>
-				<td><input type="text" name="auto_timeshift" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;auto_timeshift~cache=}" /></td>
+				<td><input type="text" name="auto_timeshift" size="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;auto_timeshift~cache=}" /></td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.timeshift.auto_delete=}</td>
@@ -103,11 +103,11 @@ start-block~neutrino_form-data_record
 			<tr><td colspan="2" class="y_form_header">{=L:set.rec.timer_settings=}</td></tr>
 			<tr>
 				<td>{=L:set.rec.start_delay=}</td>
-				<td><input type="text" name="EXTRA_TIME_START" size="3" maxlength="3" value="{=ini-get:/var/tuxbox/config/timerd.conf;EXTRA_TIME_START;0=}" />&nbsp;{=L:set.reboot_required=}</td>
+				<td><input type="text" name="EXTRA_TIME_START" size="3" maxlength="3" value="{=ini-get:%(CONFIGDIR)/timerd.conf;EXTRA_TIME_START;0=}" />&nbsp;{=L:set.reboot_required=}</td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.stop_delay=}</td>
-				<td><input type="text" name="EXTRA_TIME_END" size="3" maxlength="3" value="{=ini-get:/var/tuxbox/config/timerd.conf;EXTRA_TIME_END;0=}" />&nbsp;{=L:set.reboot_required=}</td>
+				<td><input type="text" name="EXTRA_TIME_END" size="3" maxlength="3" value="{=ini-get:%(CONFIGDIR)/timerd.conf;EXTRA_TIME_END;0=}" />&nbsp;{=L:set.reboot_required=}</td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.zap=}</td>
@@ -118,7 +118,7 @@ start-block~neutrino_form-data_record
 			</tr>
 			<tr>
 				<td>{=L:set.rec.zap_delay=}</td>
-				<td><input type="text" name="ZAPTO_EXTRA_TIME_START" size="3" maxlength="3" value="{=ini-get:/var/tuxbox/config/timerd.conf;ZAPTO_EXTRA_TIME_START;0=}" />&nbsp;{=L:set.reboot_required=}</td>
+				<td><input type="text" name="ZAPTO_EXTRA_TIME_START" size="3" maxlength="3" value="{=ini-get:%(CONFIGDIR)/timerd.conf;ZAPTO_EXTRA_TIME_START;0=}" />&nbsp;{=L:set.reboot_required=}</td>
 			</tr>
 			<tr><td colspan="2" class="y_form_header">{=L:set.rec.audio_channels=}</td></tr>
 			<tr>
@@ -158,14 +158,14 @@ function form_init()
 {
 	var val = "";
 
-	obj_set_radio_value('recording_zap_on_announce', "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_zap_on_announce;false=}");
-	obj_set_radio_value('recording_epg_for_end', "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_epg_for_end;false=}");
-	obj_set_radio_value('recording_save_in_channeldir', "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_save_in_channeldir;false=}");
-	obj_set_radio_value('timeshift_pause', "{=ini-get:/var/tuxbox/config/neutrino.conf;timeshift_pause;0=}");
-	obj_set_radio_value('auto_delete', "{=ini-get:/var/tuxbox/config/neutrino.conf;auto_delete;true=}");
-	obj_set_radio_value('temp_timeshift', "{=ini-get:/var/tuxbox/config/neutrino.conf;temp_timeshift;0=}");
+	obj_set_radio_value('recording_zap_on_announce', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_zap_on_announce;false=}");
+	obj_set_radio_value('recording_epg_for_end', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_epg_for_end;false=}");
+	obj_set_radio_value('recording_save_in_channeldir', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_save_in_channeldir;false=}");
+	obj_set_radio_value('timeshift_pause', "{=ini-get:%(CONFIGDIR)/neutrino.conf;timeshift_pause;0=}");
+	obj_set_radio_value('auto_delete', "{=ini-get:%(CONFIGDIR)/neutrino.conf;auto_delete;true=}");
+	obj_set_radio_value('temp_timeshift', "{=ini-get:%(CONFIGDIR)/neutrino.conf;temp_timeshift;0=}");
 
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_audio_pids_default;true=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_audio_pids_default;true=}";
 	val = parseInt(val);
 	if(val & 1)
 		document.f.audio_std[1].checked = true;
@@ -197,20 +197,20 @@ end-block~neutrino_form-data_record
 
 # ------- yWeb save Settings
 start-block~neutrino_record_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_recordingdir;{=network_nfs_recordingdir=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_save_in_channeldir;{=recording_save_in_channeldir=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_zap_on_announce;{=recording_zap_on_announce=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_epg_for_end;{=recording_epg_for_end=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;timeshiftdir;{=timeshiftdir=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;record_hours;{=record_hours=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;timeshift_pause;{=timeshift_pause=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;auto_timeshift;{=auto_timeshift=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;auto_delete;{=auto_delete=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;temp_timeshift;{=temp_timeshift=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_audio_pids_default;{=recording_audio_pids_default=}~save=}
-{=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_START;{=EXTRA_TIME_START=}~open=}
-{=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_END;{=EXTRA_TIME_END=}~cache=}
-{=ini-set:/var/tuxbox/config/timerd.conf;ZAPTO_EXTRA_TIME_START;{=ZAPTO_EXTRA_TIME_START=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir;{=network_nfs_recordingdir=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_save_in_channeldir;{=recording_save_in_channeldir=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_zap_on_announce;{=recording_zap_on_announce=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_epg_for_end;{=recording_epg_for_end=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;timeshiftdir;{=timeshiftdir=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;record_hours;{=record_hours=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;timeshift_pause;{=timeshift_pause=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;auto_timeshift;{=auto_timeshift=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;auto_delete;{=auto_delete=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;temp_timeshift;{=temp_timeshift=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_audio_pids_default;{=recording_audio_pids_default=}~save=}
+{=ini-set:%(CONFIGDIR)/timerd.conf;EXTRA_TIME_START;{=EXTRA_TIME_START=}~open=}
+{=ini-set:%(CONFIGDIR)/timerd.conf;EXTRA_TIME_END;{=EXTRA_TIME_END=}~cache=}
+{=ini-set:%(CONFIGDIR)/timerd.conf;ZAPTO_EXTRA_TIME_START;{=ZAPTO_EXTRA_TIME_START=}~save=}
 end-block~neutrino_record_save_settings
 
 
@@ -241,7 +241,7 @@ start-block~neutrino_form-data_movieplayer
 function form_init()
 {
 	var val = "";
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_moviedir~open=}";	
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_moviedir~open=}";
 		document.f.network_nfs_moviedir.value = val;
 }
 function do_submit()
@@ -256,7 +256,7 @@ end-block~neutrino_form-data_movieplayer
 
 # ------- yWeb save Settings
 start-block~neutrino_movieplayer_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_moviedir;{=network_nfs_moviedir=}=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;network_nfs_moviedir;{=network_nfs_moviedir=}=}
 end-block~neutrino_movieplayer_save_settings
 
 
@@ -290,7 +290,7 @@ start-block~neutrino_form-data_parental
 			</tr>
 			<tr>
 				<td>{=L:set.parental.pin=}</td>
-				<td><input type="text" name="parentallock_pincode" size="4" maxlength="4" value="{=ini-get:/var/tuxbox/config/neutrino.conf;parentallock_pincode~open=}" /></td>
+				<td><input type="text" name="parentallock_pincode" size="4" maxlength="4" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;parentallock_pincode~open=}" /></td>
 			</tr>
 		</table>
 		<br/>
@@ -306,10 +306,10 @@ start-block~neutrino_form-data_parental
 function form_init()
 {
 	var val = "";
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;parentallock_prompt;0~open=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;parentallock_prompt;0~open=}";
 	if(val > 0) val--;
 		document.f.parentallock_prompt.selectedIndex = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;parentallock_lockage;0~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;parentallock_lockage;0~cache=}";
 	var sel=0;
 	if(val=="16") sel=1;
 	if(val=="18") sel=2;
@@ -331,9 +331,9 @@ end-block~neutrino_form-data_parental
 
 # ------- yWeb save Settings
 start-block~neutrino_parental_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;parentallock_prompt;{=parentallock_prompt=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;parentallock_lockage;{=parentallock_lockage=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;parentallock_pincode;{=parentallock_pincode=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;parentallock_prompt;{=parentallock_prompt=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;parentallock_lockage;{=parentallock_lockage=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;parentallock_pincode;{=parentallock_pincode=}~save=}
 end-block~neutrino_parental_save_settings
 
 # ------- Neutrino form-data: EPG -------------------------------
@@ -377,26 +377,26 @@ start-block~neutrino_form-data_epg
 			</tr>
 			<tr>
 				<td>{=L:miscsettings.epg_dir=}</td>
-				<td><input type="text" name="epg_dir" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;epg_dir~open=}" title="" />&nbsp;e.g. /media/sda1/epg/</td>
+				<td><input type="text" name="epg_dir" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_dir~open=}" title="" />&nbsp;e.g. /media/sda1/epg/</td>
 			</tr>
 			<tr>
 				<td colspan="2"><br/></td>
 			</tr>
 			<tr>
 				<td>{=L:miscsettings.epg_cache=}</td>
-				<td><input type="text" name="epg_cache_time" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;epg_cache_time~cache=}" title="" /></td>
+				<td><input type="text" name="epg_cache_time" size="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_cache_time~cache=}" title="" /></td>
 			</tr>
 			<tr>
 				<td>{=L:miscsettings.epg_extendedcache=}</td>
-				<td><input type="text" name="epg_extendedcache_time" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;epg_extendedcache_time~cache=}" title="" /></td>
+				<td><input type="text" name="epg_extendedcache_time" size="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_extendedcache_time~cache=}" title="" /></td>
 			</tr>
 			<tr>
 				<td>{=L:miscsettings.epg_old_events=}</td>
-				<td><input type="text" name="epg_old_events" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;epg_old_events~cache=}" title="" /></td>
+				<td><input type="text" name="epg_old_events" size="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_old_events~cache=}" title="" /></td>
 			</tr>
 			<tr>
 				<td>{=L:miscsettings.epg_max_events=}</td>
-				<td><input type="text" name="epg_max_events" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;epg_max_events~cache=}" title="" /></td>
+				<td><input type="text" name="epg_max_events" size="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_max_events~cache=}" title="" /></td>
 			</tr>
 			<tr>
 				<td colspan="2"><br/></td>
@@ -435,13 +435,13 @@ start-block~neutrino_form-data_epg
 //<![CDATA[
 function form_init()
 {
-	obj_set_radio_value('epg_save', "{=ini-get:/var/tuxbox/config/neutrino.conf;epg_save;false=}");
-	obj_set_radio_value('epg_save_standby', "{=ini-get:/var/tuxbox/config/neutrino.conf;epg_save_standby;false~cache=}");
-	obj_set_radio_value('epg_save_frequently', "{=ini-get:/var/tuxbox/config/neutrino.conf;epg_save_frequently;0~cache=}");
-	obj_set_radio_value('epg_read', "{=ini-get:/var/tuxbox/config/neutrino.conf;epg_read;false~cache=}");
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;epg_scan_mode;0~cache=}";
+	obj_set_radio_value('epg_save', "{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_save;false=}");
+	obj_set_radio_value('epg_save_standby', "{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_save_standby;false~cache=}");
+	obj_set_radio_value('epg_save_frequently', "{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_save_frequently;0~cache=}");
+	obj_set_radio_value('epg_read', "{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_read;false~cache=}");
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_scan_mode;0~cache=}";
 		document.f.epg_scan_mode.selectedIndex = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;epg_scan;1~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;epg_scan;1~cache=}";
 		document.f.epg_scan.selectedIndex = (val-1);
 }
 
@@ -457,17 +457,17 @@ end-block~neutrino_form-data_epg
 
 # ------- yWeb save EPG
 start-block~neutrino_epg_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_save;{=epg_save=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_save_standby;{=epg_save_standby=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_save_frequently;{=epg_save_frequently=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_read;{=epg_read=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_dir;{=epg_dir=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_cache_time;{=epg_cache_time=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_extendedcache_time;{=epg_extendedcache_time=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_max_events;{=epg_max_events=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_old_events;{=epg_old_events=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_scan_mode;{=epg_scan_mode=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;epg_scan;{=epg_scan=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_save;{=epg_save=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_save_standby;{=epg_save_standby=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_save_frequently;{=epg_save_frequently=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_read;{=epg_read=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_dir;{=epg_dir=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_cache_time;{=epg_cache_time=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_extendedcache_time;{=epg_extendedcache_time=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_max_events;{=epg_max_events=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_old_events;{=epg_old_events=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_scan_mode;{=epg_scan_mode=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;epg_scan;{=epg_scan=}~save=}
 end-block~neutrino_epg_save_settings
 
 # ------- Neutrino form-data: diverse -------------------------------
@@ -512,7 +512,7 @@ start-block~neutrino_form-data_diverse
 			</tr>
 			<tr>
 				<td>Komplett ausschalten nach</td>
-				<td><input type="text" name="shutdown_count" size="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;shutdown_count;0~open=}" title="shutdown after x sec"/>&nbsp;Min.</td>
+				<td><input type="text" name="shutdown_count" size="3" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;shutdown_count;0~open=}" title="shutdown after x sec"/>&nbsp;Min.</td>
 			</tr>
 			<tr title="shutdown delay: off/on">
 				<td>Verz&ouml;gerter Shutdown</td>
@@ -639,11 +639,11 @@ start-block~neutrino_form-data_diverse
 			</tr>
 			<tr>
 				<td>TV-Startkanal</td>
-				<td><input type="text" name="startchannel_tv" size="4" value="{=ini-get:/var/tuxbox/config/zapit/zapit.conf;startChannelTV;0~open=}" title="tv-startchannel"/></td>
+				<td><input type="text" name="startchannel_tv" size="4" value="{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;startChannelTV;0~open=}" title="tv-startchannel"/></td>
 			</tr>
 			<tr>
 				<td>Radio-Startkanal</td>
-				<td><input type="text" name="startchannel_radio" size="4" value="{=ini-get:/var/tuxbox/config/zapit/zapit.conf;startChannelRadio;0~cache=}" title="radio-startchannel"/></td>
+				<td><input type="text" name="startchannel_radio" size="4" value="{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;startChannelRadio;0~cache=}" title="radio-startchannel"/></td>
 			</tr>
 			<tr title="save audio-PIDs: on/off">
 				<td>Audio-PIDs speichern</td>
@@ -664,11 +664,11 @@ start-block~neutrino_form-data_diverse
 			</tr>
 			<tr>
 				<td>Anfangsverz&ouml;gerung</td>
-				<td><input type="text" name="repeat_blocker" size="3" maxlength="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;repeat_blocker~open=}" title="start delay"/></td>
+				<td><input type="text" name="repeat_blocker" size="3" maxlength="3" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;repeat_blocker~open=}" title="start delay"/></td>
 			</tr>
 			<tr>
 				<td>Wiederholungsverz&ouml;gerung</td>
-				<td><input type="text" name="repeat_genericblocker" size="3" maxlength="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;repeat_genericblocker~cache=}" title="repeat delay"/></td>
+				<td><input type="text" name="repeat_genericblocker" size="3" maxlength="3" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;repeat_genericblocker~cache=}" title="repeat delay"/></td>
 			</tr>
 			<tr>
 				<td colspan="2" width="35%" class="y_form_header">Filebrowser</td>
@@ -708,40 +708,40 @@ start-block~neutrino_form-data_diverse
 function form_init()
 {
 	var val = "";
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;startmode;0=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;startmode;0=}";
 		document.f.startmode.selectedIndex = val;
 
-	obj_set_radio_value('shutdown_real', "{=ini-get:/var/tuxbox/config/neutrino.conf;shutdown_real;true~cache=}");
-	obj_set_radio_value('standby_save_power', "{=ini-get:/var/tuxbox/config/neutrino.conf;standby_save_power;false~cache=}");
-	obj_set_radio_value('shutdown_real_rcdelay', "{=ini-get:/var/tuxbox/config/neutrino.conf;shutdown_real_rcdelay;true~cache=}");
-	obj_set_radio_value('tuxtxt_cache', "{=ini-get:/var/tuxbox/config/neutrino.conf;tuxtxt_cache;false~cache=}");
+	obj_set_radio_value('shutdown_real', "{=ini-get:%(CONFIGDIR)/neutrino.conf;shutdown_real;true~cache=}");
+	obj_set_radio_value('standby_save_power', "{=ini-get:%(CONFIGDIR)/neutrino.conf;standby_save_power;false~cache=}");
+	obj_set_radio_value('shutdown_real_rcdelay', "{=ini-get:%(CONFIGDIR)/neutrino.conf;shutdown_real_rcdelay;true~cache=}");
+	obj_set_radio_value('tuxtxt_cache', "{=ini-get:%(CONFIGDIR)/neutrino.conf;tuxtxt_cache;false~cache=}");
 	
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;volumebar_disp_pos;4=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;volumebar_disp_pos;4=}";
 		document.f.volumebar_disp_pos.selectedIndex = val;
-	obj_set_radio_value('show_mute_icon', "{=ini-get:/var/tuxbox/config/neutrino.conf;show_mute_icon;1~cache=}");
+	obj_set_radio_value('show_mute_icon', "{=ini-get:%(CONFIGDIR)/neutrino.conf;show_mute_icon;1~cache=}");
 
-	obj_set_radio_value('infobar_sat_display', "{=ini-get:/var/tuxbox/config/neutrino.conf;infobar_sat_display;true~cache=}");
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;infobar_subchan_disp_pos;0=}";
+	obj_set_radio_value('infobar_sat_display', "{=ini-get:%(CONFIGDIR)/neutrino.conf;infobar_sat_display;true~cache=}");
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;infobar_subchan_disp_pos;0=}";
 		document.f.infobar_subchan_disp_pos.selectedIndex = val;
 
-	obj_set_radio_value('virtual_zap_mode', "{=ini-get:/var/tuxbox/config/neutrino.conf;virtual_zap_mode;false~cache=}");
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;infobar_show;0=}";
+	obj_set_radio_value('virtual_zap_mode', "{=ini-get:%(CONFIGDIR)/neutrino.conf;virtual_zap_mode;false~cache=}");
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;infobar_show;0=}";
 		document.f.infobar_show.selectedIndex = val;
-	obj_set_radio_value('radiotext', "{=ini-get:/var/tuxbox/config/neutrino.conf;radiotext_enable;false~cache=}");
+	obj_set_radio_value('radiotext', "{=ini-get:%(CONFIGDIR)/neutrino.conf;radiotext_enable;false~cache=}");
 
-	obj_set_radio_value('epgtext_align_right', "{=ini-get:/var/tuxbox/config/neutrino.conf;channellist_epgtext_align_right;false~cache=}");
-	obj_set_radio_value('channellist_extended', "{=ini-get:/var/tuxbox/config/neutrino.conf;channellist_extended;false~cache=}");
+	obj_set_radio_value('epgtext_align_right', "{=ini-get:%(CONFIGDIR)/neutrino.conf;channellist_epgtext_align_right;false~cache=}");
+	obj_set_radio_value('channellist_extended', "{=ini-get:%(CONFIGDIR)/neutrino.conf;channellist_extended;false~cache=}");
 
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;standby_off_with;0=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;standby_off_with;0=}";
 		document.f.standby_off_with.selectedIndex = val;
 
-	obj_set_radio_value('filesystem_is_utf8', "{=ini-get:/var/tuxbox/config/neutrino.conf;filesystem_is_utf8;true~cache=}");
-	obj_set_radio_value('filebrowser_showrights', "{=ini-get:/var/tuxbox/config/neutrino.conf;filebrowser_showrights;1~cache=}");
-	obj_set_radio_value('filebrowser_denydirectoryleave', "{=ini-get:/var/tuxbox/config/neutrino.conf;filebrowser_denydirectoryleave;false~cache=}");
+	obj_set_radio_value('filesystem_is_utf8', "{=ini-get:%(CONFIGDIR)/neutrino.conf;filesystem_is_utf8;true~cache=}");
+	obj_set_radio_value('filebrowser_showrights', "{=ini-get:%(CONFIGDIR)/neutrino.conf;filebrowser_showrights;1~cache=}");
+	obj_set_radio_value('filebrowser_denydirectoryleave', "{=ini-get:%(CONFIGDIR)/neutrino.conf;filebrowser_denydirectoryleave;false~cache=}");
 //zapit
-	obj_set_radio_value('save_lastchannel', "{=ini-get:/var/tuxbox/config/zapit/zapit.conf;saveLastChannel;true~open=}");
-	obj_set_radio_value('save_audio_pids', "{=ini-get:/var/tuxbox/config/zapit/zapit.conf;saveAudioPIDs;false~cache=}");
-	obj_set_radio_value('bouquet_others', "{=ini-get:/var/tuxbox/config/zapit/zapit.conf;makeRemainingChannelsBouquet;true~cache=}");
+	obj_set_radio_value('save_lastchannel', "{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;saveLastChannel;true~open=}");
+	obj_set_radio_value('save_audio_pids', "{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;saveAudioPIDs;false~cache=}");
+	obj_set_radio_value('bouquet_others', "{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;makeRemainingChannelsBouquet;true~cache=}");
 	change_lastchannel();
 }
 
@@ -761,32 +761,32 @@ end-block~neutrino_form-data_diverse
 
 # ------- yWeb save Settings
 start-block~neutrino_diverse_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;channellist_epgtext_align_right;{=epgtext_align_right=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;channellist_extended;{=channellist_extended=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;filebrowser_showrights;{=filebrowser_showrights=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;filebrowser_denydirectoryleave;{=filebrowser_denydirectoryleave=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;filesystem_is_utf8;{=filesystem_is_utf8=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;infobar_sat_display;{=infobar_sat_display=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;infobar_show;{=infobar_show=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;infobar_subchan_disp_pos;{=infobar_subchan_disp_pos=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;radiotext_enable;{=radiotext=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;repeat_blocker;{=repeat_blocker=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;repeat_genericblocker;{=repeat_genericblocker=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;show_mute_icon;{=show_mute_icon=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;shutdown_count;{=shutdown_count=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;shutdown_real;{=shutdown_real=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;shutdown_real_rcdelay;{=shutdown_real_rcdelay=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;standby_off_with;{=standby_off_with=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;standby_save_power;{=standby_save_power=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;startmode;{=startmode=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;tuxtxt_cache;{=tuxtxt_cache=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;virtual_zap_mode;{=virtual_zap_mode=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;volumebar_disp_pos;{=volumebar_disp_pos=}~save=}
-{=ini-set:/var/tuxbox/config/zapit/zapit.conf;saveAudioPIDs;{=save_audio_pids=}~open=}
-{=ini-set:/var/tuxbox/config/zapit/zapit.conf;saveLastChannel;{=save_lastchannel=}~cache=}
-{=ini-set:/var/tuxbox/config/zapit/zapit.conf;startChannelRadio;{=startchannel_radio=}~cache=}
-{=ini-set:/var/tuxbox/config/zapit/zapit.conf;startChannelTV;{=startchannel_tv=}~cache=}
-{=ini-set:/var/tuxbox/config/zapit/zapit.conf;makeRemainingChannelsBouquet;{=bouquet_others=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;channellist_epgtext_align_right;{=epgtext_align_right=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;channellist_extended;{=channellist_extended=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;filebrowser_showrights;{=filebrowser_showrights=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;filebrowser_denydirectoryleave;{=filebrowser_denydirectoryleave=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;filesystem_is_utf8;{=filesystem_is_utf8=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;infobar_sat_display;{=infobar_sat_display=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;infobar_show;{=infobar_show=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;infobar_subchan_disp_pos;{=infobar_subchan_disp_pos=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;radiotext_enable;{=radiotext=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;repeat_blocker;{=repeat_blocker=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;repeat_genericblocker;{=repeat_genericblocker=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;show_mute_icon;{=show_mute_icon=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;shutdown_count;{=shutdown_count=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;shutdown_real;{=shutdown_real=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;shutdown_real_rcdelay;{=shutdown_real_rcdelay=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;standby_off_with;{=standby_off_with=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;standby_save_power;{=standby_save_power=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;startmode;{=startmode=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;tuxtxt_cache;{=tuxtxt_cache=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;virtual_zap_mode;{=virtual_zap_mode=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;volumebar_disp_pos;{=volumebar_disp_pos=}~save=}
+{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;saveAudioPIDs;{=save_audio_pids=}~open=}
+{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;saveLastChannel;{=save_lastchannel=}~cache=}
+{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;startChannelRadio;{=startchannel_radio=}~cache=}
+{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;startChannelTV;{=startchannel_tv=}~cache=}
+{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;makeRemainingChannelsBouquet;{=bouquet_others=}~save=}
 end-block~neutrino_diverse_save_settings
 
 # ------- Neutrino form-data: pictureviewer -------------------------------
@@ -809,11 +809,11 @@ start-block~neutrino_form-data_pictureviewer
 			</tr>
 			<tr>
 				<td>{=L:set.pv.slideshow_duration=}</td>
-				<td><input type="text" name="picviewer_slide_time" size="2" maxlength="2" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_slide_time~open=}" /></td>
+				<td><input type="text" name="picviewer_slide_time" size="2" maxlength="2" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;picviewer_slide_time~open=}" /></td>
 			</tr>
 			<tr>
 				<td>{=L:set.pv.start_dir=}</td>
-				<td><input type="text" name="network_nfs_picturedir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_picturedir~cache=}" /></td>
+				<td><input type="text" name="network_nfs_picturedir" size="20" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_picturedir~cache=}" /></td>
 			</tr>
 		</table>
 		<br/>
@@ -830,7 +830,7 @@ start-block~neutrino_form-data_pictureviewer
 function form_init()
 {
 	var val = "";
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_scaling;0=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;picviewer_scaling;0=}";
 	document.f.picviewer_scaling.selectedIndex = val;
 }
 
@@ -846,9 +846,9 @@ end-block~neutrino_form-data_pictureviewer
 
 # ------- yWeb save Settings
 start-block~neutrino_pictureviewer_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_scaling;{=picviewer_scaling=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_slide_time;{=picviewer_slide_time=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_picturedir;{=network_nfs_picturedir=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;picviewer_scaling;{=picviewer_scaling=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;picviewer_slide_time;{=picviewer_slide_time=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;network_nfs_picturedir;{=network_nfs_picturedir=}~save=}
 end-block~neutrino_pictureviewer_save_settings
 
 # ------- Neutrino form-data: audioplayer -------------------------------
@@ -898,7 +898,7 @@ start-block~neutrino_form-data_audioplayer
 			</tr>
 			<tr>
 				<td>{=L:set.ap.screensaver=}</td>
-				<td><input type="text" name="audioplayer_screensaver" size="2" maxlength="2" value="{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_screensaver~open=}" /></td>
+				<td><input type="text" name="audioplayer_screensaver" size="2" maxlength="2" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;audioplayer_screensaver~open=}" /></td>
 			</tr>
 			<tr>
 				<td>{=L:set.ap.decode_priority=}</td>
@@ -909,7 +909,7 @@ start-block~neutrino_form-data_audioplayer
 			</tr>
 			<tr>
 				<td>{=L:set.ap.start_dir=}</td>
-				<td><input type="text" name="network_nfs_audioplayerdir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_audioplayerdir~cache=}" /></td>
+				<td><input type="text" name="network_nfs_audioplayerdir" size="20" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_audioplayerdir~cache=}" /></td>
 			</tr>
 			<tr>
 				<td>{=L:set.ap.parse_shoutcast=}</td>
@@ -932,14 +932,14 @@ start-block~neutrino_form-data_audioplayer
 function form_init()
 {
 	var val = "";
-	obj_set_radio_value('audioplayer_follow', "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_follow;0~cache=}");
-	obj_set_radio_value('audioplayer_select_title_by_name', "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_select_title_by_name;0~cache=}");
-	obj_set_radio_value('audioplayer_repeat_on', "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_repeat_on;0~cache=}");
-	obj_set_radio_value('audioplayer_show_playlist', "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_show_playlist;0~cache=}");
-	obj_set_radio_value('audioplayer_highprio', "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_highprio;0~cache=}");
-	obj_set_radio_value('audioplayer_enable_sc_metadata', "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_enable_sc_metadata;0~cache=}");
+	obj_set_radio_value('audioplayer_follow', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audioplayer_follow;0~cache=}");
+	obj_set_radio_value('audioplayer_select_title_by_name', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audioplayer_select_title_by_name;0~cache=}");
+	obj_set_radio_value('audioplayer_repeat_on', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audioplayer_repeat_on;0~cache=}");
+	obj_set_radio_value('audioplayer_show_playlist', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audioplayer_show_playlist;0~cache=}");
+	obj_set_radio_value('audioplayer_highprio', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audioplayer_highprio;0~cache=}");
+	obj_set_radio_value('audioplayer_enable_sc_metadata', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audioplayer_enable_sc_metadata;0~cache=}");
 
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_display;0~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;audioplayer_display;0~cache=}";
 	document.f.audioplayer_display.selectedIndex = val;
 }
 
@@ -955,15 +955,15 @@ end-block~neutrino_form-data_audioplayer
 
 # ------- save Settings
 start-block~neutrino_audioplayer_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_display;{=audioplayer_display=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_follow;{=audioplayer_follow=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_select_title_by_name;{=audioplayer_select_title_by_name=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_repeat_on;{=audioplayer_repeat_on=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_show_playlist;{=audioplayer_show_playlist=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_screensaver;{=audioplayer_screensaver=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_highprio;{=audioplayer_highprio=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_audioplayerdir;{=network_nfs_audioplayerdir=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_enable_sc_metadata;{=audioplayer_enable_sc_metadata=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audioplayer_display;{=audioplayer_display=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audioplayer_follow;{=audioplayer_follow=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audioplayer_select_title_by_name;{=audioplayer_select_title_by_name=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audioplayer_repeat_on;{=audioplayer_repeat_on=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audioplayer_show_playlist;{=audioplayer_show_playlist=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audioplayer_screensaver;{=audioplayer_screensaver=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audioplayer_highprio;{=audioplayer_highprio=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;network_nfs_audioplayerdir;{=network_nfs_audioplayerdir=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audioplayer_enable_sc_metadata;{=audioplayer_enable_sc_metadata=}~save=}
 end-block~neutrino_audioplayer_save_settings
 
 # ------- Neutrino form-data: direct_recording -------------------------------
@@ -979,7 +979,7 @@ start-block~neutrino_form-data_direct_recording
 			</tr>
 			<tr>
 				<td width="35%">Max. Dateigr&ouml;&szlig;e (MB)</td>
-				<td><input type="text" name="recording_splitsize" size="5" maxlength="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_splitsize;9999~open=}" title="Max filesize/splitsize"/></td>
+				<td><input type="text" name="recording_splitsize" size="5" maxlength="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_splitsize;9999~open=}" title="Max filesize/splitsize"/></td>
 			</tr>
 			<tr>
 				<td>Gr&ouml;&szlig;e Ringpuffer</td>
@@ -1037,54 +1037,54 @@ start-block~neutrino_form-data_direct_recording
 			</tr>
 			<tr>
 				<td>Vorlage f&uuml;r Dateinamen</td>
-				<td><input type="text" name="recording_filename_template_0" size="16" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_filename_template_0;%C_%I_%d_%t~cache=}" title="filename template %C=channel %T=title %I=info %d=date %t=time"/></td>
+				<td><input type="text" name="recording_filename_template_0" size="16" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_filename_template_0;%C_%I_%d_%t~cache=}" title="filename template %C=channel %T=title %I=info %d=date %t=time"/></td>
 			</tr>
 			<tr>
 				<td>Verzeichnisrechte</td>
-				<td><input type="text" name="recording_dir_permissions_0" size="3" maxlength="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_permissions_0;755~cache=}" title="directory permissions (UNIX octals)"/></td>
+				<td><input type="text" name="recording_dir_permissions_0" size="3" maxlength="3" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_permissions_0;755~cache=}" title="directory permissions (UNIX octals)"/></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="y_form_header">Aufnahmeverzeichnisse</td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 0</td>
-				<td><input type="text" name="recording_dir_0" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_0;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_0" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_0;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 1</td>
-				<td><input type="text" name="recording_dir_1" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_1;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_1" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_1;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 2</td>
-				<td><input type="text" name="recording_dir_2" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_2;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_2" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_2;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 3</td>
-				<td><input type="text" name="recording_dir_3" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_3;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_3" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_3;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 4</td>
-				<td><input type="text" name="recording_dir_4" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_4;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_4" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_4;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 5</td>
-				<td><input type="text" name="recording_dir_5" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_5;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_5" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_5;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 6</td>
-				<td><input type="text" name="recording_dir_6" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_6;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_6" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_6;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 7</td>
-				<td><input type="text" name="recording_dir_7" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_7;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_7" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_7;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 8</td>
-				<td><input type="text" name="recording_dir_8" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_8;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_8" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_8;~cache=}" title="recording directory"/></td>
 			</tr>
 			<tr>
 				<td>Aufnahmeverzeichnis 9</td>
-				<td><input type="text" name="recording_dir_9" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_9;~cache=}" title="recording directory"/></td>
+				<td><input type="text" name="recording_dir_9" size="40" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_dir_9;~cache=}" title="recording directory"/></td>
 			</tr>
 
 		</table>
@@ -1100,15 +1100,15 @@ start-block~neutrino_form-data_direct_recording
 //<![CDATA[
 function form_init()
 {
-	var val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.ringbuffers;2~cache=}";
+	var val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;recordingmenu.ringbuffers;2~cache=}";
 	document.f.ringbuffers.selectedIndex = val;
 
-	obj_set_radio_value('recordingmenu_use_o_sync', "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.use_o_sync;0~cache=}");
-	obj_set_radio_value('recordingmenu_use_fdatasync', "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.use_fdatasync;0~cache=}");
-	obj_set_radio_value('recordingmenu_stream_subtitle_pid', "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.stream_subtitle_pid;0~cache=}");
-	obj_set_radio_value('recordingmenu_stream_vtxt_pid', "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.stream_vtxt_pid;0~cache=}");
-	obj_set_radio_value('recording_choose_direct_rec_dir', "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_choose_direct_rec_dir;0~cache=}");
-	obj_set_radio_value('recording_epg_for_filename', "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_epg_for_filename;0~cache=}");
+	obj_set_radio_value('recordingmenu_use_o_sync', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recordingmenu.use_o_sync;0~cache=}");
+	obj_set_radio_value('recordingmenu_use_fdatasync', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recordingmenu.use_fdatasync;0~cache=}");
+	obj_set_radio_value('recordingmenu_stream_subtitle_pid', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recordingmenu.stream_subtitle_pid;0~cache=}");
+	obj_set_radio_value('recordingmenu_stream_vtxt_pid', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recordingmenu.stream_vtxt_pid;0~cache=}");
+	obj_set_radio_value('recording_choose_direct_rec_dir', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_choose_direct_rec_dir;0~cache=}");
+	obj_set_radio_value('recording_epg_for_filename', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_epg_for_filename;0~cache=}");
 }
 
 function do_submit()
@@ -1124,72 +1124,72 @@ end-block~neutrino_form-data_direct_recording
 
 # ------- direct recording save Settings
 start-block~neutrino_direct_recording_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_splitsize;{=recording_splitsize=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.ringbuffers;{=recordingmenu_ringbuffers=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.use_o_sync;{=recordingmenu_use_o_sync=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.use_fdatasync;{=recordingmenu_use_fdatasync=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.stream_subtitle_pid;{=recordingmenu_stream_subtitle_pid=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.stream_vtxt_pid;{=recordingmenu_stream_vtxt_pid=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_choose_direct_rec_dir;{=recording_choose_direct_rec_dir=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_epg_for_filename;{=recording_epg_for_filename=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_filename_template_0;{=recording_filename_template_0=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_0;{=recording_dir_0=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_1;{=recording_dir_1=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_2;{=recording_dir_2=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_3;{=recording_dir_3=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_4;{=recording_dir_4=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_5;{=recording_dir_5=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_6;{=recording_dir_6=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_7;{=recording_dir_7=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_8;{=recording_dir_8=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_9;{=recording_dir_9=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_permissions_0;{=recording_dir_permissions_0=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_splitsize;{=recording_splitsize=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recordingmenu.ringbuffers;{=recordingmenu_ringbuffers=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recordingmenu.use_o_sync;{=recordingmenu_use_o_sync=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recordingmenu.use_fdatasync;{=recordingmenu_use_fdatasync=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recordingmenu.stream_subtitle_pid;{=recordingmenu_stream_subtitle_pid=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recordingmenu.stream_vtxt_pid;{=recordingmenu_stream_vtxt_pid=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_choose_direct_rec_dir;{=recording_choose_direct_rec_dir=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_epg_for_filename;{=recording_epg_for_filename=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_filename_template_0;{=recording_filename_template_0=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_0;{=recording_dir_0=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_1;{=recording_dir_1=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_2;{=recording_dir_2=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_3;{=recording_dir_3=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_4;{=recording_dir_4=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_5;{=recording_dir_5=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_6;{=recording_dir_6=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_7;{=recording_dir_7=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_8;{=recording_dir_8=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_9;{=recording_dir_9=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;recording_dir_permissions_0;{=recording_dir_permissions_0=}~save=}
 end-block~neutrino_direct_recording_save_settings
 
 # ------- list possible directorys for records
 start-block~neutrino_list_record_dirs
 <select name="rec_dir" id="rec_dir" class="y_live_button">
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_recordingdir~open=}" selected="selected">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_recordingdir~cache=}
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~open=}" selected="selected">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~cache=}
 	</option>
-	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_0~cache=}~~
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_0~cache=}">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_0~cache=}
-	</option>
-	=}
-	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_1~cache=}~~
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_1~cache=}">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_1~cache=}
+	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_0~cache=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_0~cache=}">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_0~cache=}
 	</option>
 	=}
-	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_2~cache=}~~
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_2~cache=}">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_2~cache=}
+	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_1~cache=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_1~cache=}">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_1~cache=}
 	</option>
 	=}
-	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_3~cache=}~~
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_3~cache=}">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_3~cache=}
+	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_2~cache=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_2~cache=}">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_2~cache=}
 	</option>
 	=}
-	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_4~cache=}~~
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_4~cache=}">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_4~cache=}
+	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_3~cache=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_3~cache=}">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_3~cache=}
 	</option>
 	=}
-	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_5~cache=}~~
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_5~cache=}">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_5~cache=}
+	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_4~cache=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_4~cache=}">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_4~cache=}
 	</option>
 	=}
-	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_6~cache=}~~
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_6~cache=}">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_6~cache=}
+	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_5~cache=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_5~cache=}">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_5~cache=}
 	</option>
 	=}
-	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_7~cache=}~~
-	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_7~cache=}">
-		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_7~cache=}
+	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_6~cache=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_6~cache=}">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_6~cache=}
+	</option>
+	=}
+	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_7~cache=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_7~cache=}">
+		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_7~cache=}
 	</option>
 	=}
 </select>

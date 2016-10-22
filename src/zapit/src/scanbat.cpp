@@ -99,7 +99,7 @@ bool CBat::Read()
 	filter[0] = 0x4A;
 	mask[0] = 0xFF;
 
-	if (dmx->sectionFilter(0x11, filter, mask, flen) < 0) {
+	if (!dmx->sectionFilter(0x11, filter, mask, flen)) {
 		delete dmx;
 		return false;
 	}

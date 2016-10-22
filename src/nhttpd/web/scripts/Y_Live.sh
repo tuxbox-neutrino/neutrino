@@ -95,9 +95,9 @@ case "$1" in
 			killall streamts
 			killall streampes
 			killall udpstreamts
-			if [ -e /var/bin/udpstreamts ]
+			if [ -e $y_path_varbin/udpstreamts ]
 			then
-				/var/bin/udpstreamts $* &
+				$y_path_varbin/udpstreamts $* &
 			else
 				udpstreamts $* &
 			fi

@@ -76,7 +76,6 @@ class CPictureViewerGui : public CMenuTarget
 		unsigned int		listmaxshow;
 		int					fheight; // Fonthoehe Playlist-Inhalt
 		int					theight; // Fonthoehe Playlist-Titel
-		int					sheight; // Fonthoehe MP Info
 		int			footerHeight;
 		int			buttons1Height;
 		int			buttons2Height;

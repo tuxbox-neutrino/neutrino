@@ -94,35 +94,40 @@ CBEChannelWidget::~CBEChannelWidget()
 
 void CBEChannelWidget::paintItem(int pos)
 {
-	fb_pixel_t color;
-	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*iheight;
 	unsigned int current = liststart + pos;
 
-	if(current == selected) {
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
+	bool i_selected	= current == selected;
+	int i_radius	= RADIUS_NONE;
 
-		if(current < Channels->size()) {
-			initItem2DetailsLine (pos, current);
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, i_selected);
+
+	if (i_selected)
+	{
+		if (current < Channels->size())
+		{
+			initItem2DetailsLine(pos, current);
 			paintDetails(current);
 		}
-	
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
-	} else {
-		if(current < Channels->size() && ((*Channels)[current]->flags & CZapitChannel::NOT_PRESENT ))
-			color   = COL_MENUCONTENTINACTIVE_TEXT;// extra color for channels not found in service
-		else
-			color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
+		i_radius = RADIUS_LARGE;
 	}
+	else
+	{
+		if (current < Channels->size() && ((*Channels)[current]->flags & CZapitChannel::NOT_PRESENT))
+			color = COL_MENUCONTENTINACTIVE_TEXT;
+	}
+
+	if (i_radius)
+		frameBuffer->paintBoxRel(x, ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width- 15, iheight, bgcolor, i_radius);
 
 	if ((current == selected) && (state == beMoving)) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 5, ypos, iheight);
 	}
-	if(current < Channels->size())	{
+	if (current < Channels->size())	{
 		if ((*Channels)[current]->bLocked) {
 			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 22, ypos, iheight);
 		}
@@ -133,7 +138,6 @@ void CBEChannelWidget::paintItem(int pos)
 			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
 		else if (!(*Channels)[current]->getUrl().empty())
 			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x+width- 15 - 28, ypos, fheight);
-
 	}
 }
 
@@ -157,7 +161,7 @@ void CBEChannelWidget::paint()
 
 	int ypos = y+ theight;
 	int sb = iheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 
 	int sbc= ((Channels->size()- 1)/ listmaxshow)+ 1;
 	int sbs= (selected/listmaxshow);
@@ -167,7 +171,7 @@ void CBEChannelWidget::paint()
 
 	if (sbh == 0)
 		return;
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * sbh, 11, sbh, COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * sbh, 11, sbh, COL_SCROLLBAR_ACTIVE_PLUS_0);
 }
 
 void CBEChannelWidget::paintHead()
@@ -221,6 +225,7 @@ void CBEChannelWidget::paintDetails(int index)
 	//info box
 	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 	ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+	ibox->setTextColor(COL_MENUCONTENTDARK_TEXT);
 	ibox->paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -228,9 +233,9 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*iheight;
-	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
-	int ypos1a = ypos1 + (fheight/2)-2;
-	int ypos2a = ypos2 + (info_height/2)-2;
+	int ypos2 = y + height + OFFSET_INTER;
+	int ypos1a = ypos1 + (fheight/2);
+	int ypos2a = ypos2 + (info_height/2);
 	
 	if (dline)
 		dline->kill(); //kill details line
@@ -239,7 +244,7 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
-			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
 		
 		//infobox
@@ -447,7 +452,9 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				cancelMoveChannel();
 			}
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
+		{
+			// do nothing
 		}
 		else
 		{

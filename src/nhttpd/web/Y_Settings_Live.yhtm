@@ -24,7 +24,7 @@ function do_refresh_liveview()
 			</tr>
 			<tr>
 				<td>{=L:live.set.http_caching=}</td>
-				<td><input type="text" name="http_caching" size="5" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;1000=}"/></td>
+				<td><input type="text" name="http_caching" size="5" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;http_caching;1000=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:live.set.udp_defaul=}</td>
@@ -35,15 +35,15 @@ function do_refresh_liveview()
 			</tr>
 			<tr>
 				<td>{=L:live.set.slavebox_ip=}</td>
-				<td><input type="text" name="slavebox" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}" title="{=L:live.set.enter_ip=}"/></td>
+				<td><input type="text" name="slavebox" size="15" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}" title="{=L:live.set.enter_ip=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:live.set.vlc_rec_dir=}</td>
-				<td><input type="text" name="vlc_record_path" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}"/></td>
+				<td><input type="text" name="vlc_record_path" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;vlc_record_path=}"/></td>
 			</tr>
 <!---			<tr>
 				<td>VLC Aufnahmetyp</td>
-				<td><input type="text" name="vlc_record_mux_type" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_mux_type=}" title="VLC record mux type"/></td>
+				<td><input type="text" name="vlc_record_mux_type" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;vlc_record_mux_type=}" title="VLC record mux type"/></td>
 			</tr>
 -->
 			</table>
@@ -57,12 +57,12 @@ function do_refresh_liveview()
 //<![CDATA[
 function form_init()
 {
-	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;false=}";
+	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;deinterlace;false=}";
 	if(val == "true")
 		document.f.deinterlace[1].checked = true;
 	else
 		document.f.deinterlace[0].checked = true;
-	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;udp;false=}";
+	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;udp;false=}";
 	if(val == "true")
 		document.f.udp[1].checked = true;
 	else

@@ -232,14 +232,14 @@ function get_data(){
 		</center>
 	</div>
 </div>
-{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}~~
+{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}~~
 <div class="y_menu_sec_box">
 	<div class="y_menu_sec_box_head"><h2>Switch to</h2></div>
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec">
 			<ul>
 				<li>
-					<a target="_top" title="{=L:bc.menue.webinf_slavebox=}" href="http://{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}/">{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}</a>
+					<a target="_top" title="{=L:bc.menue.webinf_slavebox=}" href="http://{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}/">{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}</a>
 				</li>
 			</ul>
 		</div>

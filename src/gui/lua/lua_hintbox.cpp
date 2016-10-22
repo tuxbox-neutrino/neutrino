@@ -154,9 +154,9 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 				D->b->scroll_up();
 			else
 				D->b->scroll_down();
-		} else if ((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		} else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// do nothing
 		} else if (msg == CRCInput::RC_mode) {
-			res = messages_return::handled;
 			break;
 		} else if ((msg == CRCInput::RC_next) || (msg == CRCInput::RC_prev)) {
 			res = messages_return::cancel_all;

@@ -36,6 +36,7 @@
 #include <gui/widget/menue.h>
 #include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
+#include <gui/components/cc.h>
 #include <string>
 
 class CDBoxInfoWidget : public CMenuTarget
@@ -54,12 +55,13 @@ class CDBoxInfoWidget : public CMenuTarget
 		int nameWidth;
 
 		void paint();
-
+		CComponentsHeader *header;
 		Font *fm, *ft;
 
 	public:
 
 		CDBoxInfoWidget();
+		~CDBoxInfoWidget();
 
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);

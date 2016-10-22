@@ -34,6 +34,8 @@
 #include "lua_cc_window.h"
 #include "lua_cc_signalbox.h"
 
+#include <zapit/femanager.h>
+
 CLuaInstCCSignalbox* CLuaInstCCSignalbox::getInstance()
 {
 	static CLuaInstCCSignalbox* LuaInstCCSignalbox = NULL;
@@ -82,7 +84,7 @@ int CLuaInstCCSignalbox::CCSignalBoxNew(lua_State *L)
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 	CLuaCCSignalBox **udata = (CLuaCCSignalBox **) lua_newuserdata(L, sizeof(CLuaCCSignalBox *));
 	*udata = new CLuaCCSignalBox();
-	(*udata)->s = new CSignalBox(x, y, dx, dy, NULL, (vertical!=0)?true:false, pw);
+	(*udata)->s = new CSignalBox(x, y, dx, dy, CFEManager::getInstance()->getLiveFE(), (vertical!=0)?true:false, pw);
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, "signalbox");
 	lua_setmetatable(L, -2);

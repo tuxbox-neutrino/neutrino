@@ -14,8 +14,8 @@
 		<table border="0" cellspacing="0" cellpadding="4" width="100%">
 		<tr>
 		<td>
-			<input type="radio" name="planer" value="TVInfo" checked="checked" {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_username=}~disabled~=}/>TVInfo<br/>
-			<input type="radio" name="planer" value="Klack" disabled="disabled" style="display: none;" {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_url=}~disabled~=}/><!--Klack// -->&nbsp;
+			<input type="radio" name="planer" value="TVInfo" checked="checked" {=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;tvinfo_username=}~disabled~=}/>TVInfo<br/>
+			<input type="radio" name="planer" value="Klack" disabled="disabled" style="display: none;" {=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;klack_url=}~disabled~=}/><!--Klack// -->&nbsp;
 		</td>
 		<td>
 		<!--
@@ -69,8 +69,8 @@
 </div>
 <script type="text/javascript">
 //<![CDATA[
-	var _username = "{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_username=}";
-	var _password = "{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_password=}";
+	var _username = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;tvinfo_username=}";
+	var _password = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;tvinfo_password=}";
 	var typ = "{=func:get_mode=}";
 
 	timer_list_init();

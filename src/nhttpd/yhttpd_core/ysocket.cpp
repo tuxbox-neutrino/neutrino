@@ -291,6 +291,7 @@ int CySocket::Send(char const *buffer, unsigned int length) {
 		BytesSend += len;
 	return len;
 }
+#if 0 //never used
 //-----------------------------------------------------------------------------
 // Check if Socket was closed by client
 //-----------------------------------------------------------------------------
@@ -303,7 +304,7 @@ bool CySocket::CheckSocketOpen() {
 	return !(recv(sock, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0);
 #endif
 }
-
+#endif
 //=============================================================================
 // Aggregated Send- and Receive- Operations
 //=============================================================================

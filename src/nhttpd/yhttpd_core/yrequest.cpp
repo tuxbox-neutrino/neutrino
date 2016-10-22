@@ -38,6 +38,7 @@
 CWebserverRequest::CWebserverRequest(CWebserver *pWebserver) {
 	Webserver = pWebserver;
 	CWebserverRequest();
+	Connection=NULL;
 }
 
 //=============================================================================
@@ -123,9 +124,8 @@ bool CWebserverRequest::ParseStartLine(std::string start_line) {
 			analyzeURL(url);
 			UrlData["httprotocol"] = Connection->httprotocol;
 			// determine http Method
-			if (method.compare("POST") == 0)		Connection->Method = M_POST;
+			if (method.compare("POST") == 0)	Connection->Method = M_POST;
 			else if (method.compare("GET") == 0)	Connection->Method = M_GET;
-			else if (method.compare("PUT") == 0)	Connection->Method = M_PUT;
 			else if (method.compare("HEAD") == 0)	Connection->Method = M_HEAD;
 			else if (method.compare("PUT") == 0)	Connection->Method = M_PUT;
 			else if (method.compare("DELETE") == 0)	Connection->Method = M_DELETE;

@@ -251,14 +251,14 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 					 timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				 }
 			} else {
-				//keine änderungen - beenden ok
 				loop=false;
 				if(cancel != NULL)
 					*cancel = true;
 			}
 		}
-		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites))
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 		{
+			// do nothing
 		}
 		else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 		{
@@ -310,7 +310,6 @@ void CExtendedInput::paint()
 			tmp_y += iheight;
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_2), COL_MENUCONTENT_TEXT);
 		}
-		tmp_y += offset;
 	}
 
 	for(unsigned int i=0; i<inputFields.size();i++)
@@ -351,19 +350,10 @@ void CExtendedInput_Item_Char::paint(int x, int y, bool focusGained )
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	if (focusGained)
-	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	else
-	{
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
+	getItemColors(color, bgcolor, focusGained);
 
-	frameBuffer->paintBoxRel(xpos, ypos, input_w, input_h, COL_MENUCONTENT_PLUS_2);
-	frameBuffer->paintBoxRel(xpos+ 1, ypos+ 1, input_w- 2, input_h- 2, bgcolor);
+	frameBuffer->paintBoxRel(xpos, ypos, input_w, input_h, bgcolor);
+	frameBuffer->paintBoxFrame(xpos, ypos, input_w, input_h, 1, COL_MENUCONTENT_PLUS_2);
 
 	int ch_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(ch);
 	int ch_x = xpos + std::max(input_w/2 - ch_w/2, 0);

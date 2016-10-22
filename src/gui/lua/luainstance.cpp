@@ -28,6 +28,7 @@
 #include <system/helpers.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
+#include <gui/color_custom.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/movieplayer.h>
@@ -44,10 +45,12 @@
 #include "lua_cc_window.h"
 #include "lua_configfile.h"
 #include "lua_curl.h"
+#include "lua_filehelpers.h"
 #include "lua_hintbox.h"
 #include "lua_menue.h"
 #include "lua_messagebox.h"
 #include "lua_misc.h"
+#include "lua_stringinput.h"
 #include "lua_threads.h"
 #include "lua_video.h"
 
@@ -149,6 +152,7 @@ static void set_lua_variables(lua_State *L)
 		{ "prog3",		CRCInput::RC_prog3 },
 		{ "prog4",		CRCInput::RC_prog4 },
 #endif
+		{ "timeout",		(lua_Integer)CRCInput::RC_timeout },
 		/* to check if it is in our range */
 		{ "MaxRC",		CRCInput::RC_MaxRC },
 		{ NULL, 0 }
@@ -159,13 +163,20 @@ static void set_lua_variables(lua_State *L)
 	{
 		{ "COLORED_EVENTS_CHANNELLIST",	MAGIC_COLOR | (COL_COLORED_EVENTS_CHANNELLIST) },
 		{ "COLORED_EVENTS_INFOBAR",	MAGIC_COLOR | (COL_COLORED_EVENTS_INFOBAR) },
-		{ "INFOBAR_SHADOW",		MAGIC_COLOR | (COL_INFOBAR_SHADOW) },
+		{ "SHADOW",			MAGIC_COLOR | (COL_SHADOW) },
+/* obsolete */	{ "INFOBAR_SHADOW",		MAGIC_COLOR | (COL_SHADOW) }, // just here to stay backward compatible
 		{ "INFOBAR",			MAGIC_COLOR | (COL_INFOBAR) },
 		{ "MENUHEAD",			MAGIC_COLOR | (COL_MENUHEAD) },
 		{ "MENUCONTENT",		MAGIC_COLOR | (COL_MENUCONTENT) },
 		{ "MENUCONTENTDARK",		MAGIC_COLOR | (COL_MENUCONTENTDARK) },
 		{ "MENUCONTENTSELECTED",	MAGIC_COLOR | (COL_MENUCONTENTSELECTED) },
 		{ "MENUCONTENTINACTIVE",	MAGIC_COLOR | (COL_MENUCONTENTINACTIVE) },
+		{ "MENUFOOT",			MAGIC_COLOR | (COL_MENUFOOT) },
+		{ "FRAME",			MAGIC_COLOR | (COL_FRAME) },
+		{ "SCROLLBAR_ACTIVE",		MAGIC_COLOR | (COL_SCROLLBAR_ACTIVE) },
+		{ "SCROLLBAR_PASSIVE",		MAGIC_COLOR | (COL_SCROLLBAR_PASSIVE) },
+		{ "PROGRESSBAR_ACTIVE",		MAGIC_COLOR | (COL_PROGRESSBAR_ACTIVE) },
+		{ "PROGRESSBAR_PASSIVE",	MAGIC_COLOR | (COL_PROGRESSBAR_PASSIVE) },
 		{ "BACKGROUND",			MAGIC_COLOR | (COL_BACKGROUND) },
 		{ "DARK_RED",			MAGIC_COLOR | (COL_DARK_RED0) },
 		{ "DARK_GREEN",			MAGIC_COLOR | (COL_DARK_GREEN0) },
@@ -182,7 +193,7 @@ static void set_lua_variables(lua_State *L)
 		{ "BLACK",			MAGIC_COLOR | (COL_BLACK0) },
 		{ "COLORED_EVENTS_TEXT",	(lua_Unsigned) (COL_COLORED_EVENTS_TEXT) },
 		{ "INFOBAR_TEXT",		(lua_Unsigned) (COL_INFOBAR_TEXT) },
-		{ "INFOBAR_SHADOW_TEXT",	(lua_Unsigned) (COL_INFOBAR_SHADOW_TEXT) },
+/* obsolete */	{ "INFOBAR_SHADOW_TEXT",	(lua_Unsigned) (COL_MENUFOOT_TEXT) }, // just here to stay backward compatible
 		{ "MENUHEAD_TEXT",		(lua_Unsigned) (COL_MENUHEAD_TEXT) },
 		{ "MENUCONTENT_TEXT",		(lua_Unsigned) (COL_MENUCONTENT_TEXT) },
 		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_1) },
@@ -195,6 +206,8 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
 		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
 		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_TEXT) },
+		{ "MENUFOOT_TEXT",			(lua_Unsigned) (COL_MENUFOOT_TEXT) },
+		{ "SHADOW_PLUS_0",			(lua_Unsigned) (COL_SHADOW_PLUS_0) },
 		{ "MENUHEAD_PLUS_0",			(lua_Unsigned) (COL_MENUHEAD_PLUS_0) },
 		{ "MENUCONTENT_PLUS_0",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_0) },
 		{ "MENUCONTENT_PLUS_1",			(lua_Unsigned) (COL_MENUCONTENT_PLUS_1) },
@@ -209,6 +222,12 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTSELECTED_PLUS_0",		(lua_Unsigned) (COL_MENUCONTENTSELECTED_PLUS_0) },
 		{ "MENUCONTENTSELECTED_PLUS_2",		(lua_Unsigned) (COL_MENUCONTENTSELECTED_PLUS_2) },
 		{ "MENUCONTENTINACTIVE_PLUS_0",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_PLUS_0) },
+		{ "MENUFOOT_PLUS_0",			(lua_Unsigned) (COL_MENUFOOT_PLUS_0) },
+		{ "FRAME_PLUS_0",			(lua_Unsigned) (COL_FRAME_PLUS_0) },
+		{ "SCROLLBAR_ACTIVE_PLUS_0",		(lua_Unsigned) (COL_SCROLLBAR_ACTIVE_PLUS_0) },
+		{ "SCROLLBAR_PASSIVE_PLUS_0",		(lua_Unsigned) (COL_SCROLLBAR_PASSIVE_PLUS_0) },
+		{ "PROGRESSBAR_ACTIVE_PLUS_0",		(lua_Unsigned) (COL_PROGRESSBAR_ACTIVE_PLUS_0) },
+		{ "PROGRESSBAR_PASSIVE_PLUS_0",		(lua_Unsigned) (COL_PROGRESSBAR_PASSIVE_PLUS_0) },
 		{ NULL, 0 }
 	};
 
@@ -435,8 +454,10 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 	/* run the script */
 	int status = luaL_loadfile(lua, fileName);
 	if (status) {
-		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, lua_tostring(lua, -1));
-		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
+		bool isString = lua_isstring(lua,-1);
+		const char *null = "NULL";
+		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, isString ? lua_tostring(lua, -1):null);
+		DisplayErrorMessage(isString ? lua_tostring(lua, -1):null, "Lua Script Error:");
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
 		return;
@@ -466,8 +487,10 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		*result_string = std::string(lua_tostring(lua, -1));
 	if (status)
 	{
-		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
-		DisplayErrorMessage(lua_tostring(lua, -1), "Lua Script Error:");
+		bool isString = lua_isstring(lua,-1);
+		const char *null = "NULL";
+		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, isString ? lua_tostring(lua, -1):null);
+		DisplayErrorMessage(isString ? lua_tostring(lua, -1):null, "Lua Script Error:");
 		if (error_string)
 			*error_string = std::string(lua_tostring(lua, -1));
 		/* restoreNeutrino at plugin crash, when blocked from plugin */
@@ -612,9 +635,11 @@ void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 	CLuaInstCCWindow::getInstance()->CCWindowRegister(L);
 	CLuaInstConfigFile::getInstance()->LuaConfigFileRegister(L);
 	CLuaInstCurl::getInstance()->LuaCurlRegister(L);
+	CLuaInstFileHelpers::getInstance()->LuaFileHelpersRegister(L);
 	CLuaInstHintbox::getInstance()->HintboxRegister(L);
 	CLuaInstMenu::getInstance()->MenuRegister(L);
 	CLuaInstMessagebox::getInstance()->MessageboxRegister(L);
+	CLuaInstStringInput::getInstance()->StringInputRegister(L);
 	CLuaInstMisc::getInstance()->LuaMiscRegister(L);
 	CLuaInstVideo::getInstance()->LuaVideoRegister(L);
 	if (!fromThreads)
@@ -625,8 +650,10 @@ CLuaData *CLuaInstance::CheckData(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
 	void *ud = luaL_checkudata(L, narg, className);
-	if (!ud)
+	if (!ud) {
 		fprintf(stderr, "[CLuaInstance::%s] wrong type %p, %d, %s\n", __func__, L, narg, className);
+		return NULL;
+	}
 	return *(CLuaData **)ud;  // unbox pointer
 }
 
@@ -682,9 +709,12 @@ int CLuaInstance::GCWindow(lua_State *L)
 	else if (videoDecoder->getBlank())
 		CLuaInstVideo::getInstance()->channelRezap(L);
 
-	delete w->fbwin;
-	w->rcinput = NULL;
-	delete w;
+	if(w){
+		if(w->fbwin)
+			delete w->fbwin;
+		w->rcinput = NULL;
+		delete w;
+	}
 	return 0;
 }
 

@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <gui/color_custom.h>
 #include <system/debug.h>
 #include "cc_frm_button.h"
 
@@ -100,9 +101,9 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	width 		= w;
 	height	 	= h;
 	shadow		= shadow_mode;
-	shadow_w	= SHADOW_OFFSET;
+	shadow_w	= shadow ? OFFSET_SHADOW/2 : 0; //buttons are mostly small elements, so these elements should have a reasonable shadow width
 
-	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
+	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //TODO: gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
 	setColBodyGradient(cc_body_gradient_enable/*CColorGradient::gradientLight2Dark*/, CFrameBuffer::gradientVertical, CColorGradient::light);
 	col_frame 	= color_frame;
 	col_body	= cc_body_gradient_enable? COL_DARK_GRAY : color_body;
@@ -110,12 +111,12 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
-	fr_thickness 	= 3;
+	fr_thickness 	= 0; //TODO: parts of the GUI still don't use framed buttons
 	append_x_offset = 6;
 	append_y_offset = 0;
-	corner_rad	= 0;
+	corner_rad	= RADIUS_SMALL;
 	
-	cc_btn_capt_col		= cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_INFOBAR_SHADOW_TEXT;
+	cc_btn_capt_col		= cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_MENUFOOT_TEXT;
 	cc_btn_capt_disable_col = cc_body_gradient_enable ? COL_BUTTON_TEXT_DISABLED : COL_MENUCONTENTINACTIVE_TEXT;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;
@@ -127,8 +128,8 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_btn_result	= -1;
 	cc_btn_alias	= -1;
 
-	initParent(parent);
 	initCCBtnItems();
+	initParent(parent);
 }
 
 void CComponentsButton::initIcon()
@@ -142,29 +143,29 @@ void CComponentsButton::initIcon()
 	}
 
 	//initialize icon object
+	string::size_type pos = cc_btn_icon.find("/", 0);
+	if (pos == string::npos)
+		cc_btn_icon = frameBuffer->getIconPath(cc_btn_icon);
+
 	if (cc_btn_icon_obj == NULL){
-		int y_icon = 0;
-
-		string::size_type pos = cc_btn_icon.find("/", 0);
-		if (pos == string::npos)
-			cc_btn_icon = frameBuffer->getIconBasePath() + "/" + cc_btn_icon + ".png";
-
-		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, y_icon, cc_btn_icon, this);
+		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, 0, cc_btn_icon, this);
 		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
-		int h_icon = cc_btn_icon_obj->getHeight();
-
-		//get required icon height
-		int h_max = height-2*fr_thickness;
-
-		//get current icon dimensions
-		if (h_icon > h_max)
-			cc_btn_icon_obj->setHeight(h_max, true);
-
-		y_icon = height/2 - cc_btn_icon_obj->getHeight()/2;
-
-		cc_btn_icon_obj->setYPos(y_icon);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
+
+	int y_icon = cc_btn_icon_obj->getYPos();
+	int h_icon = cc_btn_icon_obj->getHeight();
+
+	//get required icon height
+	int h_max = height-2*fr_thickness;
+
+	//get current icon dimensions
+	if (h_icon > h_max)
+		cc_btn_icon_obj->setHeight(h_max, true);
+
+	y_icon = h_max/2 - cc_btn_icon_obj->getHeight()/2;
+
+	cc_btn_icon_obj->setYPos(y_icon);
 }
 
 void CComponentsButton::initCaption()
@@ -192,7 +193,7 @@ void CComponentsButton::initCaption()
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
 		int w_cap = width - fr_thickness - append_x_offset - x_cap - fr_thickness;
-		int h_cap = height*80/100/* - 2*fr_thickness*/;
+		int h_cap = height*65/100 /*- 2*fr_thickness*/;
 
 		/*NOTE:
 			paint of centered text in y direction without y_offset
@@ -237,6 +238,11 @@ void CComponentsButton::initCaption()
 		x_icon += fr_thickness + append_x_offset;
 		cc_btn_icon_obj->setXPos(x_icon);
 		w_icon = cc_btn_icon_obj->getWidth();
+		/*in case of dynamic changed height of caption or button opbject itself,
+		 *we must ensure centered y position of icon object
+		*/
+		int y_icon = height/2 - cc_btn_icon_obj->getHeight()/2;
+		cc_btn_icon_obj->setYPos(y_icon);
 	}
 	if (cc_btn_capt_obj){
 		cc_btn_capt_obj->setXPos(x_icon + w_icon + append_x_offset);

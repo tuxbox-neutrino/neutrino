@@ -1,6 +1,7 @@
 installdir = $(THEMESDIR)
 
 install_DATA = \
+	Bluemoon-3.0.theme \
 	Classic.theme \
 	Crema.theme \
 	DVB2000.theme \

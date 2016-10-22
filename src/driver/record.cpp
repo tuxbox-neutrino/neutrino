@@ -173,11 +173,11 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		}
 	}
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
-		apids[numpids++] = recMovieInfo->audioPids[i].epgAudioPid;
+		apids[numpids++] = recMovieInfo->audioPids[i].AudioPid;
 		if(channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3){
-			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());		  
+			psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
 		}else
-			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+			psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
 
 		if (numpids >= REC_MAX_APIDS)
 			break;
@@ -334,10 +334,10 @@ bool CRecordInstance::Update()
 			record->AddPid(it->apid);
 			for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
 				if(allpids.APIDs[i].pid == it->apid) {
-					EPG_AUDIO_PIDS audio_pids;
+					AUDIO_PIDS audio_pids;
 
-					audio_pids.epgAudioPid = allpids.APIDs[i].pid;
-					audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
+					audio_pids.AudioPid = allpids.APIDs[i].pid;
+					audio_pids.AudioPidName = allpids.APIDs[i].desc;
 					audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
 					audio_pids.selected = 0;
 					recMovieInfo->audioPids.push_back(audio_pids);
@@ -394,15 +394,20 @@ void CRecordInstance::ProcessAPIDnames()
 		if (allpids.APIDs[count].component_tag != 0xFF)
 			has_unresolved_ctags= true;
 
-		if ( strlen( allpids.APIDs[count].desc ) == 3 )
-			strncpy( allpids.APIDs[count].desc, getISO639Description( allpids.APIDs[count].desc ),DESC_MAX_LEN -1 );
+		std::string tmp_desc = allpids.APIDs[count].desc;
+		if ( strlen( allpids.APIDs[count].desc ) == 3 ){
+			tmp_desc = getISO639Description( allpids.APIDs[count].desc );
+		}
 
-		if ( allpids.APIDs[count].is_ac3 && !strstr(allpids.APIDs[count].desc, " (AC3)"))
-			strncat(allpids.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
-		else if (allpids.APIDs[count].is_aac && !strstr(allpids.APIDs[count].desc, " (AAC)"))
-			strncat(allpids.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
-		else if (allpids.APIDs[count].is_eac3 && !strstr(allpids.APIDs[count].desc, " (EAC3)"))
-			strncat(allpids.APIDs[count].desc, " (EAC3)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
+		if ( allpids.APIDs[count].is_ac3 && tmp_desc.find(" (AC3)"))
+			tmp_desc += " (AC3)";
+		else if (allpids.APIDs[count].is_aac && tmp_desc.find(" (AAC)"))
+			tmp_desc += " (AAC)";
+		else if (allpids.APIDs[count].is_eac3 && tmp_desc.find(" (EAC3)"))
+			tmp_desc +=  " (EAC3)";
+		if(!tmp_desc.empty()){
+			strncpy( allpids.APIDs[count].desc, tmp_desc.c_str(),DESC_MAX_LEN -1) ;
+		}
 	}
 
 	if(has_unresolved_ctags && (epgid != 0)) {
@@ -412,13 +417,18 @@ void CRecordInstance::ProcessAPIDnames()
 				for(unsigned int j=0; j< allpids.APIDs.size(); j++) {
 					if(allpids.APIDs[j].component_tag == tags[i].componentTag) {
 						if(!tags[i].component.empty()) {
-							strncpy(allpids.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN -1);
-							if (allpids.APIDs[j].is_ac3 && !strstr(allpids.APIDs[j].desc, " (AC3)"))
-								strncat(allpids.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
-							else if (allpids.APIDs[j].is_aac && !strstr(allpids.APIDs[j].desc, " (AAC)"))
-								strncat(allpids.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
-							else if (allpids.APIDs[j].is_eac3 && !strstr(allpids.APIDs[j].desc, " (EAC3)"))
-								strncat(allpids.APIDs[j].desc, " (EAC3)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
+							std::string tmp_desc2;
+							tmp_desc2 = tags[i].component;
+							if (allpids.APIDs[j].is_ac3 && tmp_desc2.find(" (AC3)"))
+								tmp_desc2 += " (AC3)";
+							else if (allpids.APIDs[j].is_aac && tmp_desc2.find(" (AAC)"))
+								tmp_desc2 += " (AAC)";
+							else if (allpids.APIDs[j].is_eac3 && tmp_desc2.find(" (EAC3)"))
+								tmp_desc2 += " (EAC3)";
+
+							if(!tmp_desc2.empty()){
+								strncpy(allpids.APIDs[j].desc, tmp_desc2.c_str(), DESC_MAX_LEN -1);
+							}
 						}
 						allpids.APIDs[j].component_tag = -1;
 						break;
@@ -559,9 +569,9 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	std::string tmpstring = channel->getName();
 
 	if (tmpstring.empty())
-		recMovieInfo->epgChannel = "unknown";
+		recMovieInfo->channelName = "unknown";
 	else
-		recMovieInfo->epgChannel = tmpstring;
+		recMovieInfo->channelName = tmpstring;
 
 	tmpstring = "not available";
 	if (epgid != 0) {
@@ -600,23 +610,23 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		tmpstring = epgTitle;
 	}
 	recMovieInfo->epgTitle		= tmpstring;
-	recMovieInfo->epgId		= channel->getChannelID();
+	recMovieInfo->channelId		= channel->getChannelID();
 	recMovieInfo->epgInfo1		= info1;
 	recMovieInfo->epgInfo2		= info2;
-	recMovieInfo->epgEpgId		= epgid;
-	recMovieInfo->epgMode		= g_Zapit->getMode();
-	recMovieInfo->epgVideoPid	= allpids.PIDs.vpid;
+	recMovieInfo->epgId		= epgid;
+	recMovieInfo->mode		= g_Zapit->getMode();
+	recMovieInfo->VideoPid		= allpids.PIDs.vpid;
 	recMovieInfo->VideoType		= channel->type;
 
-	EPG_AUDIO_PIDS audio_pids;
+	AUDIO_PIDS audio_pids;
 	APIDList::iterator it;
 	for(unsigned int i= 0; i< allpids.APIDs.size(); i++) {
 		for(it = apid_list.begin(); it != apid_list.end(); ++it) {
 			if(allpids.APIDs[i].pid == it->apid) {
-				audio_pids.epgAudioPid = allpids.APIDs[i].pid;
-				audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
+				audio_pids.AudioPid = allpids.APIDs[i].pid;
+				audio_pids.AudioPidName = allpids.APIDs[i].desc;
 				audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
-				audio_pids.selected = (audio_pids.epgAudioPid == channel->getAudioPid()) ? 1 : 0;
+				audio_pids.selected = (audio_pids.AudioPid == channel->getAudioPid()) ? 1 : 0;
 				recMovieInfo->audioPids.push_back(audio_pids);
 			}
 		}
@@ -624,13 +634,13 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	/* FIXME sometimes no apid in xml ?? */
 	if(recMovieInfo->audioPids.empty() && !allpids.APIDs.empty()) {
 		int i = 0;
-		audio_pids.epgAudioPid = allpids.APIDs[i].pid;
-		audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
+		audio_pids.AudioPid = allpids.APIDs[i].pid;
+		audio_pids.AudioPidName = allpids.APIDs[i].desc;
 		audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
 		audio_pids.selected = 1;
 		recMovieInfo->audioPids.push_back(audio_pids);
 	}
-	recMovieInfo->epgVTXPID = allpids.PIDs.vtxtpid;
+	recMovieInfo->VtxtPid = allpids.PIDs.vtxtpid;
 }
 
 record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
@@ -694,8 +704,6 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 	std::string ext_file_name = g_settings.recording_filename_template;
 	MakeExtFileName(channel, ext_file_name);
 	strcpy(&(filename[pos]), UTF8_TO_FILESYSTEM_ENCODING(ext_file_name.c_str()));
-
-	pos = strlen(filename);
 
 	if(autoshift)
 		strncat(filename, "_temp",FILENAMEBUFFERSIZE - strlen(filename)-1);
@@ -1851,6 +1859,7 @@ CStreamRec::CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::stri
 	ofcx = NULL;
 	stopped = true;
 	interrupt = false;
+	bsfc = NULL;
 }
 
 CStreamRec::~CStreamRec()
@@ -1871,9 +1880,11 @@ void CStreamRec::Close()
 		}
 		avformat_free_context(ofcx);
 	}
-
+	if (bsfc)
+		av_bitstream_filter_close(bsfc);
 	ifcx = NULL;
 	ofcx = NULL;
+	bsfc = NULL;
 }
 
 void CStreamRec::GetPids(CZapitChannel * channel)
@@ -1881,16 +1892,15 @@ void CStreamRec::GetPids(CZapitChannel * channel)
 	channel = channel;
 }
 
-void CStreamRec::FillMovieInfo(CZapitChannel * channel, APIDList & apid_list)
+void CStreamRec::FillMovieInfo(CZapitChannel * /*channel*/, APIDList & /*apid_list*/)
 {
-	CRecordInstance::FillMovieInfo(channel, apid_list);
 	recMovieInfo->VideoType = 0;
 
 	for (unsigned i = 0; i < ofcx->nb_streams; i++) {
 		AVStream *st = ofcx->streams[i];
 		AVCodecContext * codec = st->codec;
 		if (codec->codec_type == AVMEDIA_TYPE_AUDIO) {
-			EPG_AUDIO_PIDS audio_pids;
+			AUDIO_PIDS audio_pids;
 			AVDictionaryEntry *lang = av_dict_get(st->metadata, "language", NULL, 0);
 			AVDictionaryEntry *title = av_dict_get(st->metadata, "title", NULL, 0);
 
@@ -1920,16 +1930,16 @@ void CStreamRec::FillMovieInfo(CZapitChannel * channel, APIDList & apid_list)
 			}
 
 			audio_pids.selected = 0;
-			audio_pids.epgAudioPidName = desc;
-			audio_pids.epgAudioPid = st->id;
+			audio_pids.AudioPidName = desc;
+			audio_pids.AudioPid = st->id;
 			recMovieInfo->audioPids.push_back(audio_pids);
-			printf("%s: [AUDIO] 0x%x [%s]\n", __FUNCTION__, audio_pids.epgAudioPid, desc.c_str());
+			printf("%s: [AUDIO] 0x%x [%s]\n", __FUNCTION__, audio_pids.AudioPid, desc.c_str());
 
 		} else if (codec->codec_type == AVMEDIA_TYPE_VIDEO) {
-			recMovieInfo->epgVideoPid = st->id;
+			recMovieInfo->VideoPid = st->id;
 			if (codec->codec_id == AV_CODEC_ID_H264)
 				recMovieInfo->VideoType = 1;
-			printf("%s: [VIDEO] 0x%x \n", __FUNCTION__, recMovieInfo->epgVideoPid);
+			printf("%s: [VIDEO] 0x%x\n", __FUNCTION__, recMovieInfo->VideoPid);
 		}
 	}
 }
@@ -2003,13 +2013,14 @@ record_error_msg_t CStreamRec::Record()
 		return ret;
 	}
 
+	CRecordInstance::FillMovieInfo(channel, apid_list);
 	if (!Open(channel) || !Start()) {
 		Close();
 		hintBox.hide();
 		return RECORD_FAILURE;
 	}
-
 	FillMovieInfo(channel, apid_list);
+
 	SaveXml();
 	if(recording_id == 0) {
 		time_t now = time(NULL);
@@ -2051,6 +2062,12 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	if (url.empty())
 		return false;
 
+	std::string pretty_name,headers;
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getChannelID(), channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2,headers)) {
+		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
+		return false;
+	}
+
 	//av_log_set_level(AV_LOG_VERBOSE);
 	av_register_all();
 	avcodec_register_all();
@@ -2058,17 +2075,27 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	printf("%s: Open input [%s]....\n", __FUNCTION__, url.c_str());
 
 	AVDictionary *options = NULL;
+	if (!headers.empty())//add cookies
+		av_dict_set(&options, "headers", headers.c_str(), 0);
 
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, url.c_str());
+		if (!headers.empty())
+			av_dict_free(&options);
 		return false;
 	}
+	if (!headers.empty())
+		av_dict_free(&options);
 
 	if (avformat_find_stream_info(ifcx, NULL) < 0) {
 		printf("%s: Cannot find stream info [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
 		return false;
 	}
-	if (!strstr(ifcx->iformat->name, "applehttp") && !strstr(ifcx->iformat->name, "mpegts")) {
+	if (!strstr(ifcx->iformat->name, "applehttp") &&
+		!strstr(ifcx->iformat->name, "mpegts") &&
+		!strstr(ifcx->iformat->name, "matroska") &&
+		!strstr(ifcx->iformat->name, "avi") &&
+		!strstr(ifcx->iformat->name, "mp4")) {
 		printf("%s: not supported format [%s]!\n", __FUNCTION__, ifcx->iformat->name);
 		return false;
 	}
@@ -2115,6 +2142,9 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	av_log_set_level(AV_LOG_VERBOSE);
 	av_dump_format(ofcx, 0, ofcx->filename, 1);
 	av_log_set_level(AV_LOG_WARNING);
+	bsfc = av_bitstream_filter_init("h264_mp4toannexb");
+	if (!bsfc)
+		printf("%s: av_bitstream_filter_init h264_mp4toannexb failed!\n", __FUNCTION__);
 
 	return true;
 }
@@ -2127,7 +2157,10 @@ void CStreamRec::run()
 	time_t tstart = time_monotonic();
 	time_started = tstart;
 	start_time = time(0);
-	avformat_write_header(ofcx, NULL);
+	if (avformat_write_header(ofcx, NULL) < 0) {
+		printf("%s: avformat_write_header failed\n", __FUNCTION__);
+		return;
+	}
 
 	double total = 0;
 	while (!stopped) {
@@ -2136,6 +2169,20 @@ void CStreamRec::run()
 			break;
 		if (pkt.stream_index < 0)
 			continue;
+
+		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
+		if (bsfc && codec->codec_id == CODEC_ID_H264) {
+			AVPacket newpkt = pkt;
+
+			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
+				av_free_packet(&pkt);
+				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
+				pkt = newpkt;
+			}
+		}
+		pkt.pts = av_rescale_q(pkt.pts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);
+		pkt.dts = av_rescale_q(pkt.dts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);
+
 		av_write_frame(ofcx, &pkt);
 		av_free_packet(&pkt);
 

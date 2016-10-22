@@ -120,8 +120,8 @@ private:
   mutable int allocated;
   mutable int size;
   mutable T *data;
-  cVector(const cVector &Vector) {} // don't copy...
-  cVector &operator=(const cVector &Vector) { return *this; } // ...or assign this!
+//  cVector(const cVector &Vector) {} // don't copy...
+//  cVector &operator=(const cVector &Vector) { return *this; } // ...or assign this!
   void Realloc(int Index) const
   {
     if (++Index > allocated) {

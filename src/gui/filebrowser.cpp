@@ -263,7 +263,7 @@ void CFileBrowser::fontInit()
 {
 	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	fnt_item  = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM];
-	fnt_small = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+	fnt_foot  = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 	width = frameBuffer->getScreenWidthRel();
 	height = frameBuffer->getScreenHeightRel();
 	x = getScreenStartX(width);
@@ -272,7 +272,7 @@ void CFileBrowser::fontInit()
 	fheight = fnt_item->getHeight();
 	if (fheight == 0)
 		fheight = 1; /* avoid div by zero on invalid font */
-	//foheight = fnt_small->getHeight()+6; //initial height value for buttonbar; TODO get value from buttonbar
+	//foheight = fnt_foot->getHeight()+6; //initial height value for buttonbar; TODO get value from buttonbar
 	foheight = paintFoot(false);
 	skwidth = 26;
 
@@ -323,7 +323,7 @@ void CFileBrowser::ChangeDir(const std::string & filename, int selection)
 	readDir(newpath, &allfiles);
 	// filter
 	CFileList::iterator file = allfiles.begin();
-	for(; file != allfiles.end() ; file++)
+	for(; file != allfiles.end() ; ++file)
 	{
 		if (Filter != NULL && !file->isDir() && use_filter)
 		{
@@ -1168,38 +1168,36 @@ void CFileBrowser::hide()
 void CFileBrowser::paintItem(unsigned int pos)
 {
 	int colwidth1, colwidth2, colwidth3;
-	int c_rad_small = 0;
-	fb_pixel_t color;
-	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	CFile * actual_file = NULL;
 	std::string fileicon;
-	unsigned int curr = liststart + pos;
+	unsigned int currpos = liststart + pos;
 
-	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0/*DARK*/);
-
-	if (curr >= filelist.size())
+	if (currpos >= filelist.size())
+	{
+		// just paint an empty line
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
 		return;
-
-	actual_file = &filelist[curr];
-	if (curr == selected)
-	{
-		color   = actual_file->Marked ? COL_MENUCONTENTINACTIVE_TEXT : COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = actual_file->Marked ? COL_MENUCONTENTSELECTED_PLUS_2 : COL_MENUCONTENTSELECTED_PLUS_0;
-		c_rad_small = RADIUS_SMALL;
-	}
-	else if (actual_file->Marked)
-	{
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_2;
-	}
-	else
-	{
-		color   = COL_MENUCONTENT_TEXT;//DARK;
-		bgcolor = COL_MENUCONTENT_PLUS_0;//DARK;
 	}
 
-	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
+	actual_file = &filelist[currpos];
+
+	bool i_selected	= currpos == selected;
+	bool i_marked	= actual_file->Marked;
+	bool i_switch	= false; //(currpos < filelist.size()) && (pos & 1);
+	int i_radius	= RADIUS_NONE;
+
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, i_selected, i_marked, i_switch);
+
+	if (i_selected || i_marked)
+		i_radius = RADIUS_LARGE;
+
+	if (i_radius)
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, i_radius);
 
 	if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
 		colwidth2 = 0;
@@ -1210,7 +1208,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 
 	if ( !actual_file->Name.empty() )
 	{
-		if (curr == selected)
+		if (currpos == selected)
 			CVFD::getInstance()->showMenuText(0, FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()).c_str(), -1, true); // UTF-8
 
 		switch(actual_file->getType())
@@ -1375,10 +1373,10 @@ int CFileBrowser::paintFoot(bool show)
 	std::string sort_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT);
 	sort_text += g_Locale->getText(sortByNames[g_settings.filebrowser_sortmethod]);
 
-	int sort_text_len = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT));
+	int sort_text_len = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT));
 	int len = 0;
 	for (int i = 0; i < FILEBROWSER_NUMBER_OF_SORT_VARIANTS; i++)
-		len = std::max(len, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(sortByNames[i])));
+		len = std::max(len, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(sortByNames[i])));
 
 	sort_text_len += len;
 
@@ -1417,7 +1415,7 @@ int CFileBrowser::paintFoot(bool show)
 
 
 	if (filelist.empty()) {
-		frameBuffer->paintBoxRel(x, y + height - foheight, width, foheight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
+		frameBuffer->paintBoxRel(x, y + height - foheight, width, foheight, COL_MENUFOOT_PLUS_0, RADIUS_MID, CORNER_BOTTOM);
 		return foheight;
 	}
 	if (playlistmode)
@@ -1430,17 +1428,17 @@ int CFileBrowser::paintFoot(bool show)
 
 void CFileBrowser::paintSMSKey()
 {
-	int skheight = fnt_small->getHeight();
+	int skheight = fnt_foot->getHeight();
 
 	//background
-	frameBuffer->paintBoxRel(x + width - skwidth, y + height - foheight, skwidth, foheight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM_RIGHT);
+	frameBuffer->paintBoxRel(x + width - skwidth, y + height - foheight, skwidth, foheight, COL_MENUFOOT_PLUS_0, RADIUS_MID, CORNER_BOTTOM_RIGHT);
 
 	if(m_SMSKeyInput.getOldKey()!=0)
 	{
 		char cKey[2] = {m_SMSKeyInput.getOldKey(), 0};
 		cKey[0] = toupper(cKey[0]);
-		int len = fnt_small->getRenderWidth(cKey);
-		fnt_small->RenderString(x + width - skwidth, y + height - foheight + foheight/2 + skheight/2, len, cKey, COL_MENUHEAD_TEXT);
+		int len = fnt_foot->getRenderWidth(cKey);
+		fnt_foot->RenderString(x + width - skwidth, y + height - foheight + foheight/2 + skheight/2, len, cKey, COL_MENUHEAD_TEXT);
 	}
 }
 
@@ -1456,14 +1454,14 @@ void CFileBrowser::paint()
 	//scrollbar
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 
 	int sbc= ((filelist.size()- 1)/ listmaxshow)+ 1;
 	int sbs= (selected/listmaxshow);
 	if (sbc < 1)
 		sbc = 1;
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_SMALL);
 }
 
 void CFileBrowser::SMSInput(const neutrino_msg_t msg)

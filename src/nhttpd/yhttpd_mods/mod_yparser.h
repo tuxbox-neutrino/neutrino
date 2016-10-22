@@ -95,7 +95,6 @@ private:
 	std::string YWeb_cgi_get_ini(CyhookHandler *hh, std::string filename, std::string varname, std::string yaccess);
 	void YWeb_cgi_set_ini(CyhookHandler *hh, std::string filename, std::string varname, std::string varvalue, std::string yaccess);
 	std::string YWeb_cgi_include_block(std::string filename, std::string blockname, std::string ydefault);
-	std::string YexecuteScript(CyhookHandler *hh, std::string cmd);
 
 	// CGIs
 	void cgi(CyhookHandler *hh);

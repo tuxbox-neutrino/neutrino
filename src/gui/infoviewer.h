@@ -112,6 +112,8 @@ class CInfoViewer
 	bool channellogoChange;
 	uint32_t lcdUpdateTimer;
 	int	 zap_mode;
+	std::string _livestreamInfo1;
+	std::string _livestreamInfo2;
 
 	void paintBackground(int col_Numbox);
 	void paintHead();
@@ -146,6 +148,8 @@ class CInfoViewer
 	void reset_allScala();
 	void check_channellogo_ca_SettingsChange();
 	void sendNoEpg(const t_channel_id channel_id);
+	bool showLivestreamInfo();
+
  public:
 	bool     chanready;
 	bool	 is_visible;
@@ -166,7 +170,7 @@ class CInfoViewer
 
 	void	showMovieTitle(const int playState, const t_channel_id &channel_id, const std::string &title,
 				const std::string &g_file_epg, const std::string &g_file_epg1,
-				const int duration, const int curr_pos, const int repeat_mode);
+				const int duration, const int curr_pos, const int repeat_mode, const int _zap_mode = IV_MODE_DEFAULT);
 
 	void	start();
 	void	showEpgInfo();

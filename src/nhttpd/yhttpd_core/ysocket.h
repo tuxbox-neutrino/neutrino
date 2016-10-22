@@ -68,8 +68,9 @@ public:
 	// send & receive (basic)
 	int 		Read(char *buffer, unsigned int length);	// Read a buffer (normal or SSL)
 	int 		Send(char const *buffer, unsigned int length);	// Send a buffer (normal or SSL)
+#if 0 //#endif
 	bool 		CheckSocketOpen();				// check if socket was closed by client
-	
+#endif
 	// send & receive
 	bool 		SendFile(int filed, off_t start = 0, off_t size = -1); // Send a File
 	std::string 	ReceiveBlock();					// receive a Block. Look at length

@@ -50,8 +50,8 @@ function standby(_standby){
 			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/zapto?statusplayback");'/>
 			</td>
 			<td>
-{=comment:disable non-working rec on/off buttons~
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/setmode?record=start");'/>
+{=comment:disable non-working rec off button~
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/setmode?record=stop");'/>
 =}
 			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/setmode?status");'/>

@@ -15,6 +15,7 @@
 #include <helper.h>
 #include "neutrinoyparser.h"
 #include "controlapi.h"
+#include <OpenThreads/ScopedLock>
 
 //-------------------------------------------------------------------------
 // No Class Helpers
@@ -24,22 +25,27 @@ bool _initialize_iso639_map(void);
 //-------------------------------------------------------------------------
 class CNeutrinoAPI
 {
+private:
+	CChannelEventList	eList;
+	OpenThreads::Mutex	*pmutex;
+	std::map<unsigned, CChannelEvent *> ChannelListEvents;
+
+	// complete channellists
+	//CZapitClient::BouquetChannelList RadioChannelList,TVChannelList;
+	// events of actual channel
+	// List of available tv bouquets
+	//std::map<int, CZapitClient::BouquetChannelList> TVBouquetsList;
+	// List of available radio bouquets
+	//std::map<int, CZapitClient::BouquetChannelList> RadioBouquetsList;
+	// List of bouquets
+	CZapitClient::BouquetList BouquetList;
+public:
 	// Clientlibs
 	CSectionsdClient	*Sectionsd;
 	CZapitClient		*Zapit;
 	CTimerdClient		*Timerd;
 	CEventServer		*EventServer;
 
-	// complete channellists
-	CZapitClient::BouquetChannelList RadioChannelList,TVChannelList;
-	// events of actual channel
-	std::map<unsigned, CChannelEvent *> ChannelListEvents;
-	// List of available tv bouquets
-	std::map<int, CZapitClient::BouquetChannelList> TVBouquetsList;
-	// List of available radio bouquets
-	std::map<int, CZapitClient::BouquetChannelList> RadioBouquetsList;
-	// List of bouquets
-	CZapitClient::BouquetList BouquetList;
 
 	//bool standby_mode;
 
@@ -55,10 +61,12 @@ class CNeutrinoAPI
 	bool GetChannelEvents(void);
 #if 0 /* unused funktion*/
 	bool GetStreamInfo(int bitinfo[10]);
-#endif
-	std::string GetServiceName(t_channel_id channel_id);
 	CZapitClient::BouquetChannelList *GetBouquet(unsigned int BouquetNr, int Mode);
 	CZapitClient::BouquetChannelList *GetChannelList(int Mode);
+	void UpdateBouquet(unsigned int BouquetNr);
+	void UpdateChannelList(void);
+#endif
+	std::string GetServiceName(t_channel_id channel_id);
 
 	// support functions
 	void ZapTo          (const char * const target);
@@ -66,8 +74,6 @@ class CNeutrinoAPI
 	void ZapToChannelId (t_channel_id channel_id);
 	t_channel_id ChannelNameToChannelId(std::string search_channel_name);
 
-	void UpdateBouquet(unsigned int BouquetNr);
-	void UpdateChannelList(void);
 	void UpdateBouquets(void);
 
 	std::string timerEventType2Str(CTimerd::CTimerEventTypes type);
@@ -78,17 +84,19 @@ class CNeutrinoAPI
 	std::string getVideoFramerateAsString(void);
 	std::string getAudioInfoAsString(void);
 	std::string getCryptInfoAsString(void);
-	std::string getLogoFile(std::string _logoURL, t_channel_id channelId);
+	std::string getLogoFile(t_channel_id channelId);
 public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);
 
-	CChannelEventList	eList;
 	CNeutrinoYParser	*NeutrinoYParser;
 	CControlAPI		*ControlAPI;
+	void Lock() { pmutex->lock(); }
+	void Unlock() { pmutex->unlock(); }
+	void GetChannelEvent(t_channel_id channel_id, CChannelEvent &event);
 
-	friend class CNeutrinoYParser; // Backreference
-	friend class CControlAPI;
+	//friend class CNeutrinoYParser; // Backreference
+	//friend class CControlAPI;
 };
 
 #endif /*__nhttpd_neutrinoapi_h__*/

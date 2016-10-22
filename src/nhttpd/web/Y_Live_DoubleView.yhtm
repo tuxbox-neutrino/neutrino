@@ -8,8 +8,8 @@
 		<iframe name="I1" src="Y_Live_View.yhtm" target="Hauptframe" width="400" height="360" scrolling="no">
 		Ihr Browser unterst&uuml;tzt Inlineframes nicht oder zeigt sie in der derzeitigen Konfiguration nicht an.
 		</iframe>
-		{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}~<div><font color="Red">Kein IP f�r Slave Box angegeben!<br>Einstellen unter Settings->yWeb.</font></div>~
-		<iframe name="I2" src="http://{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}/Y_Live_View.yhtm" width="400" height="360" scrolling="no">
+		{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}~<div><font color="Red">Kein IP f�r Slave Box angegeben!<br>Einstellen unter Settings->yWeb.</font></div>~
+		<iframe name="I2" src="http://{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}/Y_Live_View.yhtm" width="400" height="360" scrolling="no">
 		Ihr Browser unterst&uuml;tzt Inlineframes nicht oder zeigt sie in der derzeitigen Konfiguration nicht an.
 		</iframe>
 		=}

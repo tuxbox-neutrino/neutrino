@@ -56,6 +56,7 @@ void CLuaInstCCWindow::CCWindowRegister(lua_State *L)
 		{ "header_height",  CLuaInstCCWindow::CCWindowGetHeaderHeight_dep }, /* function 'header_height' is deprecated */
 		{ "footer_height",  CLuaInstCCWindow::CCWindowGetFooterHeight_dep }, /* function 'footer_height' is deprecated */
 		{ "setCenterPos",   CLuaInstCCWindow::CCWindowSetCenterPos },
+		{ "setDimensionsAll", CLuaInstCCWindow::CCWindowSetDimensionsAll },
 		{ "__gc",           CLuaInstCCWindow::CCWindowDelete },
 		{ NULL, NULL }
 	};
@@ -72,9 +73,9 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	std::string name, icon    = std::string(NEUTRINO_ICON_INFO);
-	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_FRAME_PLUS_0;
 	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
-	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_SHADOW_PLUS_0;
 	std::string tmp1          = "false";
 	std::string btnRed        = "";
 	std::string btnGreen      = "";
@@ -160,7 +161,7 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 				buttons.push_back(btnSblue);
 			}
 			if (!buttons.empty())
-				footer->setButtonLabels(buttons, dx-20, (dx-20) / (buttons.size()+1));
+				footer->setButtonLabels(buttons, footer->getWidth(), footer->getWidth() / buttons.size());
 		}
 	}
 
@@ -248,10 +249,10 @@ int CLuaInstCCWindow::CCWindowPaintHeader(lua_State *L)
 	if (!D) return 0;
 
 	CComponentsHeader* header = D->w->getHeaderObject();
-	if (header)
+	if (header){
 		D->w->showHeader();
-	header->paint();
-
+		header->paint();
+	}
 	return 0;
 }
 
@@ -293,6 +294,28 @@ int CLuaInstCCWindow::CCWindowGetFooterHeight(lua_State *L)
 		fh = footer->getHeight();
 	lua_pushinteger(L, fh);
 	return 1;
+}
+
+int CLuaInstCCWindow::CCWindowSetDimensionsAll(lua_State *L)
+{
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
+	lua_Integer x = luaL_checkint(L, 2);
+	lua_Integer y = luaL_checkint(L, 3);
+	lua_Integer w = luaL_checkint(L, 4);
+	lua_Integer h = luaL_checkint(L, 5);
+	if(x>-1 && y > -1 && w > 1 && h > 1){
+		if (h > (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight())
+			h = (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight();
+		if (w > (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth())
+			w = (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth();
+		if(x > w)
+			x = 0;
+		if(y > h)
+			y = 0;
+		D->w->setDimensionsAll(x,y,w,h);
+	}
+	return 0;
 }
 
 int CLuaInstCCWindow::CCWindowSetCenterPos(lua_State *L)

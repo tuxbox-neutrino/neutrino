@@ -33,7 +33,7 @@
 #include <libgen.h>
 
 #include <gui/dboxinfo.h>
-#include <gui/components/cc.h>
+
 
 #include <global.h>
 #include <neutrino.h>
@@ -67,13 +67,19 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	height = 0;
 	x = 0;
 	y = 0;
-
+	header = NULL;
 	fontWidth = fm->getWidth();
 	sizeWidth = 6 * fm->getMaxDigitWidth()
 		    + fm->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL)); ;//9999.99 MiB
 	percWidth = 3 * fm->getMaxDigitWidth()
 		    + fm->getRenderWidth("%"); //100%
 	nameWidth = fontWidth * 17;
+}
+
+CDBoxInfoWidget::~CDBoxInfoWidget()
+{
+	delete header;
+	header = NULL;
 }
 
 int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
@@ -125,7 +131,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 			res = menu_return::RETURN_EXIT_ALL;
 			doLoop = false;
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if(CNeutrinoApp::getInstance()->listModeKey(msg)) {
 			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			doLoop = false;
@@ -159,6 +165,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 
 void CDBoxInfoWidget::hide()
 {
+	header->kill();
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
 	frameBuffer->blit();
 }
@@ -317,7 +324,6 @@ void CDBoxInfoWidget::paint()
 		nameWidth += diff;
 	}
 	height = h_max(height, 0);
-	x = getScreenStartX(width);
 	y = getScreenStartY(height);
 
 	// fprintf(stderr, "CDBoxInfoWidget::CDBoxInfoWidget() x = %d, y = %d, width = %d height = %d\n", x, y, width, height);
@@ -353,9 +359,13 @@ void CDBoxInfoWidget::paint()
 	title += g_info.hw_caps->boxvendor;
 	title += " ";
 	title += g_info.hw_caps->boxname;
+	width = max(width, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(title, true) + 50);
+	x = getScreenStartX(width);
 
-	CComponentsHeader header(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
-	header.paint(CC_SAVE_SCREEN_NO);
+	if (!header)
+		header = new CComponentsHeader(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
+	if (!header->isPainted())
+		header->paint(CC_SAVE_SCREEN_NO);
 
 	//paint body
 	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);

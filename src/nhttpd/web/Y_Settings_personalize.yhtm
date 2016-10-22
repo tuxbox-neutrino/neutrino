@@ -15,44 +15,44 @@ function do_submit()
 }
 function do_init()
 {
-	obj_set_radio_value('p_tv', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_tvmode;1~open=}");
-	obj_set_radio_value('p_radio', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_radiomode;1~cache=}");
-	obj_set_radio_value('p_scart', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_scartmode;1~cache=}");
-	obj_set_radio_value('p_games', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_games;1~cache=}");
-	obj_set_radio_value('p_audioplayer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_audioplayer;1~cache=}");
-	obj_set_radio_value('p_inetradio', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_inetradio;1~cache=}");
-	obj_set_radio_value('p_movieplayer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_movieplayer;1~cache=}");
-	obj_set_radio_value('p_picviewer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_pictureviewer;1~cache=}");
-	obj_set_radio_value('p_pinstatus', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_pinstatus;0~cache=}");
-	obj_set_radio_value('p_upnp', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_upnpbrowser;1~cache=}");
-	obj_set_radio_value('p_sleeptimer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_sleeptimer;1~cache=}");
-	obj_set_radio_value('p_reboot', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_reboot;1~cache=}");
-	obj_set_radio_value('p_shutdown', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_shutdown;1~cache=}");
-	obj_set_radio_value('p_settings', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_settings;0~cache=}");
-	obj_set_radio_value('p_video', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_video;1~cache=}");
-	obj_set_radio_value('p_audio', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_audio;1~cache=}");
-	obj_set_radio_value('p_youth', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_youth;1~cache=}");
-	obj_set_radio_value('p_network', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_network;1~cache=}");
-	obj_set_radio_value('p_recording', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_recording;1~cache=}");
-	obj_set_radio_value('p_language', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_language;1~cache=}");
-	obj_set_radio_value('p_colors', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_colors;1~cache=}");
-	obj_set_radio_value('p_lcd', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_lcd;1~cache=}");
-	obj_set_radio_value('p_keybinding', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_keybinding;1~cache=}");
-	obj_set_radio_value('p_mediaplayer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_mediaplayer;1~cache=}");
-	obj_set_radio_value('p_driver', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_driver;1~cache=}");
-	obj_set_radio_value('p_misc', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_misc;1~cache=}");
-	obj_set_radio_value('p_service', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_service;0~cache=}");
-	obj_set_radio_value('p_bouqueteditor', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_bouqueteditor;1~cache=}");
-	obj_set_radio_value('p_scants', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_scants;1~cache=}");
-	obj_set_radio_value('p_reload', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_reload;1~cache=}");
-	obj_set_radio_value('p_getplugins', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_getplugins;1~cache=}");
-	obj_set_radio_value('p_restart', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_restart;1~cache=}");
-	obj_set_radio_value('p_epgrestart', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_epgrestart;1~cache=}");
-	obj_set_radio_value('p_chan_epg_stat', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_chan_epg_stat;1~cache=}");
-	obj_set_radio_value('p_imageinfo', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_imageinfo;1~cache=}");
-	obj_set_radio_value('p_update', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_update;1~cache=}");
-	obj_set_radio_value('p_bluebutton', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_bluebutton;1~cache=}");
-	obj_set_radio_value('p_redbutton', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_redbutton;1~cache=}");
+	obj_set_radio_value('p_tv', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_tvmode;1~open=}");
+	obj_set_radio_value('p_radio', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_radiomode;1~cache=}");
+	obj_set_radio_value('p_scart', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_scartmode;1~cache=}");
+	obj_set_radio_value('p_games', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_games;1~cache=}");
+	obj_set_radio_value('p_audioplayer', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_audioplayer;1~cache=}");
+	obj_set_radio_value('p_inetradio', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_inetradio;1~cache=}");
+	obj_set_radio_value('p_movieplayer', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_movieplayer;1~cache=}");
+	obj_set_radio_value('p_picviewer', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_pictureviewer;1~cache=}");
+	obj_set_radio_value('p_pinstatus', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_pinstatus;0~cache=}");
+	obj_set_radio_value('p_upnp', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_upnpbrowser;1~cache=}");
+	obj_set_radio_value('p_sleeptimer', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_sleeptimer;1~cache=}");
+	obj_set_radio_value('p_reboot', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_reboot;1~cache=}");
+	obj_set_radio_value('p_shutdown', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_shutdown;1~cache=}");
+	obj_set_radio_value('p_settings', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_settings;0~cache=}");
+	obj_set_radio_value('p_video', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_video;1~cache=}");
+	obj_set_radio_value('p_audio', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_audio;1~cache=}");
+	obj_set_radio_value('p_youth', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_youth;1~cache=}");
+	obj_set_radio_value('p_network', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_network;1~cache=}");
+	obj_set_radio_value('p_recording', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_recording;1~cache=}");
+	obj_set_radio_value('p_language', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_language;1~cache=}");
+	obj_set_radio_value('p_colors', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_colors;1~cache=}");
+	obj_set_radio_value('p_lcd', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_lcd;1~cache=}");
+	obj_set_radio_value('p_keybinding', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_keybinding;1~cache=}");
+	obj_set_radio_value('p_mediaplayer', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_mediaplayer;1~cache=}");
+	obj_set_radio_value('p_driver', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_driver;1~cache=}");
+	obj_set_radio_value('p_misc', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_misc;1~cache=}");
+	obj_set_radio_value('p_service', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_service;0~cache=}");
+	obj_set_radio_value('p_bouqueteditor', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_bouqueteditor;1~cache=}");
+	obj_set_radio_value('p_scants', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_scants;1~cache=}");
+	obj_set_radio_value('p_reload', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_reload;1~cache=}");
+	obj_set_radio_value('p_getplugins', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_getplugins;1~cache=}");
+	obj_set_radio_value('p_restart', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_restart;1~cache=}");
+	obj_set_radio_value('p_epgrestart', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_epgrestart;1~cache=}");
+	obj_set_radio_value('p_chan_epg_stat', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_chan_epg_stat;1~cache=}");
+	obj_set_radio_value('p_imageinfo', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_imageinfo;1~cache=}");
+	obj_set_radio_value('p_update', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_update;1~cache=}");
+	obj_set_radio_value('p_bluebutton', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_bluebutton;1~cache=}");
+	obj_set_radio_value('p_redbutton', "{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_redbutton;1~cache=}");
 }
 //]]>
 </script>
@@ -75,7 +75,7 @@ function do_init()
 			</tr>
 			<tr>
 				<td>PIN Code</td>
-				<td>&nbsp;<input type="text" name="p_pincode" size="4" maxlength="4" value="{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_pincode~open=}" title="PIN code"/></td>
+				<td>&nbsp;<input type="text" name="p_pincode" size="4" maxlength="4" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;personalize_pincode~open=}" title="PIN code"/></td>
 			</tr>
 			<tr><td colspan="2" class="y_form_header">Farbtasten</td></tr>
 			<tr><td>Taste Blau (Features)</td>

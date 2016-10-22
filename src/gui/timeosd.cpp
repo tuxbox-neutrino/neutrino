@@ -36,7 +36,7 @@
 #include "screensaver.h"
 
 
-CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
+CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
 {
 	Init();
 }
@@ -48,7 +48,7 @@ void CTimeOSD::Init()
 	m_mode = MODE_HIDE;
 
 	//use current theme colors
-	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 
 	//set text color
 	if (paint_bg){
@@ -100,7 +100,7 @@ void CTimeOSD::show(time_t time_show, bool force)
 		return;
 	m_time_show = time_show;
 
-	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0); //use current theme colors
+	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0); //use current theme colors
 
 	paint_bg = true;
 	if (g_settings.infoClockBackground)

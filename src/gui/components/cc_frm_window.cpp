@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2014 Thilo Graf 'dbt'
+	Copyright (C) 2012-2016 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -133,7 +133,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_icon_name	= iconname;
 
 	dprintf(DEBUG_DEBUG, "[CComponentsWindow]   [%s - %d] icon name = %s\n", __func__, __LINE__, ccw_icon_name.c_str());
-
+	paint_bg	= false;
 	shadow		= shadow_mode;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -144,6 +144,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_right_sidebar= NULL;	
 	ccw_body	= NULL;
 	ccw_footer	= NULL;
+	ccw_button_font	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
@@ -152,9 +153,9 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_show_l_sideber = false;
 	ccw_show_r_sideber = false;
 	ccw_w_sidebar	= 40;
-	ccw_col_head 	= COL_MENUCONTENT_PLUS_0;
+	ccw_col_head 	= COL_MENUHEAD_PLUS_0;
 	ccw_col_head_text = COL_MENUHEAD_TEXT;
-	ccw_col_footer	= COL_INFOBAR_SHADOW_PLUS_1;
+	ccw_col_footer	= COL_MENUFOOT_PLUS_0;
 
 	page_scroll_mode = PG_SCROLL_M_OFF; //permanent disabled here, only in body used!
 
@@ -167,9 +168,10 @@ void CComponentsWindow::initWindowSize()
 	if (cc_parent)
 		return;
 
-	if (width == 0)
+	if (width == 0 || (unsigned)width > frameBuffer->getScreenWidth())
 		width = frameBuffer->getScreenWidth();
-	if (height == 0)
+
+	if (height == 0 || (unsigned)height > frameBuffer->getScreenHeight())
 		height = frameBuffer->getScreenHeight();
 }
 
@@ -214,11 +216,13 @@ void CComponentsWindow::initFooter()
 	//add of footer item happens initCCWItems()
 	//set footer properties
 	if (ccw_footer){
-		ccw_footer->setPos(0, CC_APPEND);
+		ccw_footer->setPos(0, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
 		ccw_footer->setWidth(width-2*fr_thickness);
-		ccw_footer->enableShadow(shadow);
-		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
+		ccw_footer->enableShadow(false/*shadow*/);
+		ccw_footer->setCorner(corner_rad-fr_thickness, CORNER_BOTTOM);
+		ccw_footer->setButtonFont(ccw_button_font);
 		ccw_footer->setColorBody(ccw_col_footer);
+		ccw_footer->doPaintBg(true);
 	}
 }
 
@@ -238,7 +242,7 @@ void CComponentsWindow::initLeftSideBar()
 		int h_sbar = height - h_header - h_footer - 2*fr_thickness;
 		int w_sbar = ccw_w_sidebar;
 		ccw_left_sidebar->setDimensionsAll(0, CC_APPEND, w_sbar, h_sbar);
-		ccw_left_sidebar->doPaintBg(false);
+		ccw_left_sidebar->doPaintBg(true);
 	}
 }
 
@@ -258,7 +262,7 @@ void CComponentsWindow::initRightSideBar()
 		int h_sbar = height - h_header - h_footer - 2*fr_thickness;
 		int w_sbar = ccw_w_sidebar;
 		ccw_right_sidebar->setDimensionsAll(width - w_sbar, CC_APPEND, w_sbar, h_sbar);
-		ccw_right_sidebar->doPaintBg(false);
+		ccw_right_sidebar->doPaintBg(true);
 	}
 }
 
@@ -269,25 +273,33 @@ void CComponentsWindow::initBody()
 	//add of body item happens initCCWItems()
 	//set body properties
 	if (ccw_body){
-		ccw_body->setCornerType(0);
+		ccw_body->setCorner(corner_rad-fr_thickness/2, CORNER_NONE);
 		int h_footer = 0;
 		int h_header = 0;
 		int w_l_sidebar = 0;
 		int w_r_sidebar = 0;
-		if (ccw_footer)
+		if (ccw_footer){
 			h_footer = ccw_footer->getHeight();
-		if (ccw_head)
+		}
+		if (ccw_head){
 			h_header = ccw_head->getHeight();
+		}
 		if (ccw_left_sidebar)
 			w_l_sidebar = ccw_left_sidebar->getWidth();
 		if (ccw_right_sidebar)
 			w_r_sidebar = ccw_right_sidebar->getWidth();
-		int h_body = height - h_header - h_footer - 2*fr_thickness;
+		int h_body = height - h_header - h_footer - fr_thickness;
 		int x_body = w_l_sidebar;
 		int w_body = width-2*fr_thickness - w_l_sidebar - w_r_sidebar;
 		
-		ccw_body->setDimensionsAll(x_body, CC_APPEND, w_body, h_body);
-		ccw_body->doPaintBg(false);
+		ccw_body->setDimensionsAll(x_body, h_header, w_body, h_body);
+		ccw_body->doPaintBg(true);
+		
+		//handle corner behavior
+		if (!ccw_show_header)
+			ccw_body->setCornerType(CORNER_TOP);
+		if (!ccw_show_footer)
+			ccw_body->setCornerType(ccw_body->getCornerType() | CORNER_BOTTOM);
 	}
 }
 
@@ -338,15 +350,19 @@ void CComponentsWindow::initCCWItems()
 	//init window body core
 	initBody();
 
-	//add header, body and footer items only one time
+	/*Add header and footer items as first  and  body as last item.
+	Render of items occurs in listed order. So it's better for performance while render of window.
+	This is something more advantageously because all other items are contained inside body.
+	So we avoid possible delay while rendering of base items. It looks better on screen.
+	*/
 	if (ccw_head)
 		if (!ccw_head->isAdded())
 			addCCItem(ccw_head);
-	if (!ccw_body->isAdded())
-		addCCItem(ccw_body);
 	if (ccw_footer)
 		if (!ccw_footer->isAdded())
 			addCCItem(ccw_footer);
+	if (!ccw_body->isAdded())
+		addCCItem(ccw_body);
 }
 
 void CComponentsWindow::enableSidebar(const int& sidbar_type)

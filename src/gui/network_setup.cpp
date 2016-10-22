@@ -725,7 +725,7 @@ void CNetworkSetup::testNetworkSettings()
 
 	//get www-domain testsite from /.version
 	CConfigFile config('\t');
-	config.loadConfig("/.version");
+	config.loadConfig(TARGET_PREFIX "/.version");
 	testsite = config.getString("homepage",defaultsite);
 	testsite.replace( 0, testsite.find("www",0), "" );
 

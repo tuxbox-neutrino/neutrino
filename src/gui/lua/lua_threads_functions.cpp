@@ -263,7 +263,7 @@ int CLLThread::l_llthread_delete(lua_State *L)
 {
 	llthread_t **pthis = (llthread_t **)luaL_checkudata(L, 1, LLTHREAD_TAG);
 	luaL_argcheck (L, pthis != NULL, 1, "thread expected");
-	if (*pthis == NULL) return 0;
+	if (pthis == NULL || *pthis == NULL) return 0;
 	llthread_destroy(*pthis);
 	*pthis = NULL;
 

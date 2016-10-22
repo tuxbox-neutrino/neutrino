@@ -85,6 +85,16 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int newTimer();
 		/* todo: properly import the enum CVFD::MODES */
 		int saved_dispmode;
+		void remoteTimerList(CTimerd::TimerList &timerlist);
+		void enterRemoteBox();
+		void select_remotebox_ip();
+		bool remoteChanExists(t_channel_id channel_id);
+		bool localChanExists(t_channel_id channel_id);
+		int rem_pre,rem_post;
+		int item_offset;
+		bool changed;
+		int  bselected;
+		CMenuWidget *remboxmenu;
 
 	public:
 		CTimerList();
@@ -97,7 +107,6 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		static std::string convertChannelId2String(const t_channel_id id); // UTF-8
 };
 
-bool askUserOnTimerConflict(time_t announceTime, time_t stopTime);
-
+bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id channel_id = 0);
 
 #endif

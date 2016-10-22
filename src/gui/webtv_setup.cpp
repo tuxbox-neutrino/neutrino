@@ -29,7 +29,9 @@
 #include <neutrino.h>
 #include <driver/screen_max.h>
 #include <driver/framebuffer.h>
+#include <gui/movieplayer.h>
 #include <gui/widget/hintbox.h>
+#include <zapit/zapit.h>
 #include <neutrino_menue.h>
 #include "webtv_setup.h"
 
@@ -40,6 +42,17 @@ CWebTVSetup::CWebTVSetup()
 	item_offset = 0;
 	changed = false;
 }
+
+const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =
+{
+	{ 1920, NONEXISTANT_LOCALE, "1920x1080" },
+	{ 1280, NONEXISTANT_LOCALE, "1280x720"  },
+	{ 854,  NONEXISTANT_LOCALE, "854x480"   },
+	{ 640,  NONEXISTANT_LOCALE, "640x360"   },
+	{ 426,  NONEXISTANT_LOCALE, "426x240"   },
+	{ 128,  NONEXISTANT_LOCALE, "128x72"    }
+};
+#define LIVESTREAM_RESOLUTION_OPTION_COUNT (sizeof(LIVESTREAM_RESOLUTION_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 
 #define CWebTVSetupFooterButtonCount 2
 static const struct button_label CWebTVSetupFooterButtons[CWebTVSetupFooterButtonCount] = {
@@ -91,6 +104,11 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return res;
 	}
+	if (actionKey == "script_path") {
+		const char *action_str = "ScriptPath";
+		chooserDir(g_settings.livestreamScriptPath, false, action_str);
+		return res;
+	}
 
 	if(parent)
 		parent->hide();
@@ -108,10 +126,26 @@ int CWebTVSetup::Show()
 	m->addKey(CRCInput::RC_red, this, "d");
 	m->addKey(CRCInput::RC_green, this, "a");
 
-	m->addIntroItems(LOCALE_WEBTV_HEAD, LOCALE_WEBTV_XML);
+	m->addIntroItems(LOCALE_WEBTV_HEAD, LOCALE_LIVESTREAM_HEAD);
+
+	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) &&
+				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+
+	CMenuForwarder *mf;
+	int shortcut = 1;
+	mf = new CMenuForwarder(LOCALE_LIVESTREAM_SCRIPTPATH, !_mode_webtv, g_settings.livestreamScriptPath, this, "script_path", CRCInput::convertDigitToKey(shortcut++));
+	m->addItem(mf);
+#if 0
+	mf = new CMenuForwarder(LOCALE_LIVESTREAM_RESOLUTION, _mode_webtv, NULL, new CWebTVResolution(), NULL, CRCInput::convertDigitToKey(shortcut++));
+	m->addItem(mf);
+#endif
+
+	m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_WEBTV_XML));
+
 	item_offset = m->getItemsCount();
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it)
 		m->addItem(new CMenuForwarder(*it, true, NULL, this, "c"));
+
 	m->setFooter(CWebTVSetupFooterButtons, CWebTVSetupFooterButtonCount); //Why we need here an extra buttonbar?
 
 	int res = m->exec(NULL, "");
@@ -131,4 +165,57 @@ int CWebTVSetup::Show()
 
 	return res;
 }
-// vim:ts=4
+
+/* ## CWebTVResolution ############################################# */
+
+CWebTVResolution::CWebTVResolution()
+{
+	width = 40;
+}
+
+int CWebTVResolution::exec(CMenuTarget* parent, const std::string& /*actionKey*/)
+{
+	if (parent)
+		parent->hide();
+
+	return Show();
+}
+
+int CWebTVResolution::Show()
+{
+	m = new CMenuWidget(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_MOVIEPLAYER, width, MN_WIDGET_ID_LIVESTREAM_RESOLUTION);
+	m->addIntroItems(LOCALE_LIVESTREAM_HEAD);
+
+	CMenuOptionChooser *mc;
+	mc = new CMenuOptionChooser(LOCALE_LIVESTREAM_RESOLUTION, &g_settings.livestreamResolution,
+				    LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT,
+				    true, NULL, CRCInput::RC_nokey, NULL, true);
+	m->addItem(mc);
+
+	int oldRes = g_settings.livestreamResolution;
+	int res = m->exec(NULL, "");
+	m->hide();
+	delete m;
+
+	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) &&
+				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+	if (oldRes != g_settings.livestreamResolution && _mode_webtv) {
+		CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
+		if (cc && IS_WEBTV(cc->getChannelID())) {
+			CMoviePlayerGui::getInstance().stopPlayBack();
+			CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName());
+		}
+	}
+
+	return res;
+}
+
+const char *CWebTVResolution::getResolutionValue()
+{
+	for (unsigned int i = 0; i < LIVESTREAM_RESOLUTION_OPTION_COUNT; ++i)
+	{
+		if (g_settings.livestreamResolution == LIVESTREAM_RESOLUTION_OPTIONS[i].key)
+			return LIVESTREAM_RESOLUTION_OPTIONS[i].valname;
+	}
+	return "";
+}

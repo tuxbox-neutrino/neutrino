@@ -725,6 +725,7 @@ hdd_statfs_recording alleen tijdens opname
 hdd_umount Unmount
 hdd_umount_warn Apparaat ontkoppelen
 hdd_umounted Device verwijderd
+imageinfo.api API:
 imageinfo.creator Ontwikkelaar:
 imageinfo.date Datum:
 imageinfo.dokumentation Documentatie:
@@ -2196,6 +2197,7 @@ timing.infobar_radio Infobalk (radio modus)
 timing.menu Menu
 timing.numericzap Numeriek Zap
 timing.volumebar Volume balk
+tmdb.read_data Zoeken TMDB data...
 unicable.lnb Invoer Unicable
 unicable.qrg Unicable Frequentie
 unicable.scr Unicable SCR

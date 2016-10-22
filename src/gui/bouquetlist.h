@@ -37,7 +37,6 @@
 #include <gui/widget/listhelpers.h>
 
 #include <driver/framebuffer.h>
-#include <system/lastchannel.h>
 #include <zapit/bouquets.h>
 
 #include <string>
@@ -88,7 +87,6 @@ class CBouquetList : public CListHelpers
 		unsigned int		liststart;
 		unsigned int		listmaxshow;
 		unsigned int		numwidth;
-		unsigned int		maxpos;
 		int			fheight; // Fonthoehe Bouquetlist-Inhalt
 		int			theight; // Fonthoehe Bouquetlist-Titel
 		int			footerHeight;

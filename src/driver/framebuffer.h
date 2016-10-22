@@ -48,6 +48,8 @@ typedef struct gradientData_t
 	fb_pixel_t* boxBuf;
 	bool direction;
 	int mode;
+	int x;
+	int dx;
 } gradientData_struct_t;
 
 #define CORNER_NONE		0x0
@@ -208,7 +210,7 @@ class CFrameBuffer : public sigc::trackable
 			};
 		void paintPixel(int x, int y, const fb_pixel_t col);
 
-		fb_pixel_t* paintBoxRel2Buf(const int dx, const int dy, const fb_pixel_t col, fb_pixel_t* buf = NULL, int radius = 0, int type = CORNER_ALL);
+		fb_pixel_t* paintBoxRel2Buf(const int dx, const int dy, const int w_align, const int offs_align, const fb_pixel_t col, fb_pixel_t* buf = NULL, int radius = 0, int type = CORNER_ALL);
 		fb_pixel_t* paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, gradientData_t *gradientData, int radius = 0, int type = CORNER_ALL);
 
 		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
@@ -226,6 +228,7 @@ class CFrameBuffer : public sigc::trackable
 
 		void setIconBasePath(const std::string & iconPath);
 		std::string getIconBasePath(){return iconBasePath;};
+		std::string getIconPath(std::string icon_name, std::string file_type = "png");
 
 		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */

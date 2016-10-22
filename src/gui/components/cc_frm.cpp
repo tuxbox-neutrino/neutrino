@@ -52,7 +52,7 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 	cc_yr 	= y;
 
 	shadow 		= shadow_mode;
-	shadow_w	= SHADOW_OFFSET;
+	shadow_w	= OFFSET_SHADOW;
 	corner_rad	= RADIUS_LARGE;
 	corner_type 	= CORNER_ALL;
 	cc_item_index	= 0;

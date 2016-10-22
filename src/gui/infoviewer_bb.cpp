@@ -48,7 +48,6 @@
 #include "gui/keybind_setup.h"
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
-#include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
 #include <system/helpers.h>
@@ -65,7 +64,7 @@
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern cVideo * videoDecoder;
 
-#define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
+#define COL_INFOBAR_BUTTONS_BACKGROUND (COL_MENUFOOT_PLUS_0)
 
 CInfoViewerBB::CInfoViewerBB()
 {
@@ -108,7 +107,7 @@ void CInfoViewerBB::Init()
 		bbButtonInfo[i].x   = -1;
 	}
 
-	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
+	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
 	initBBOffset();
 
 	changePB();
@@ -144,8 +143,9 @@ bool CInfoViewerBB::checkBBIcon(const char * const icon, int *w, int *h)
 void CInfoViewerBB::getBBIconInfo()
 {
 	bbIconMaxH 		= 0;
+	initBBOffset();
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
-	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()) / 2; /* center in buttonbar */
+	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= g_InfoViewer->BoxEndX - 8; //should be 10px, but 2px will be reduced for each icon
 	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
 
@@ -221,8 +221,8 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_red, active);
+			if (mode == NeutrinoMessages::mode_ts) {
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_red, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
@@ -236,8 +236,8 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active);
+			if (mode == NeutrinoMessages::mode_ts) {
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
@@ -251,8 +251,8 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active);
+			if (mode == NeutrinoMessages::mode_ts) {
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
@@ -266,8 +266,8 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_blue, active);
+			if (mode == NeutrinoMessages::mode_ts) {
+				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_blue, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
@@ -279,18 +279,13 @@ void CInfoViewerBB::getBBButtonInfo()
 		default:
 			break;
 		}
-		//label audio control button in movieplayer/upnp mode
-		if (mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio)
+		//label audio control button in movieplayer mode
+		if (mode == NeutrinoMessages::mode_ts && !CMoviePlayerGui::getInstance().timeshift)
 		{
-			if (!CMoviePlayerGui::getInstance().timeshift)
-			{
-				if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO) && !g_settings.infobar_buttons_usertitle)
-				{
-					text = CMoviePlayerGui::getInstance(mode == NeutrinoMessages::mode_webtv).CurrentAudioName();
-				}
-			}
+			if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO) && !g_settings.infobar_buttons_usertitle)
+				text = CMoviePlayerGui::getInstance(false).CurrentAudioName(); // use instance_mp
 		}
-		bbButtonInfo[i].w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(text) + w + 10;
+		bbButtonInfo[i].w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(text) + w + 10;
 		bbButtonInfo[i].cx = w + 5;
 		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
@@ -412,6 +407,8 @@ void CInfoViewerBB::showBBButtons(bool paintFooter)
 			frameBuffer->SaveScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
 			paintFoot();
 			if (pixbuf != NULL) {
+				if (g_settings.theme.infobar_gradient_bottom)
+					frameBuffer->waitForIdle("CInfoViewerBB::showBBButtons");
 				frameBuffer->RestoreScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
 				delete [] pixbuf;
 			}
@@ -433,8 +430,8 @@ void CInfoViewerBB::showBBButtons(bool paintFooter)
 				if (bbButtonInfo[i].active) {
 					frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
-					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + bbButtonInfo[i].cx, BBarFontY, 
-							bbButtonInfo[i].w - bbButtonInfo[i].cx, bbButtonInfo[i].text, COL_INFOBAR_TEXT);
+					g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(bbButtonInfo[i].x + bbButtonInfo[i].cx, BBarFontY,
+							bbButtonInfo[i].w - bbButtonInfo[i].cx, bbButtonInfo[i].text, COL_MENUFOOT_TEXT);
 				}
 			}
 		}
@@ -706,6 +703,7 @@ void CInfoViewerBB::showSysfsHdd()
 void CInfoViewerBB::showBarSys(int percent)
 {	
 	if (is_visible){
+		sysscale->reset();
 		sysscale->doPaintBg(false);
 		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6);
 		sysscale->setValues(percent, 100);
@@ -716,6 +714,7 @@ void CInfoViewerBB::showBarSys(int percent)
 void CInfoViewerBB::showBarHdd(int percent)
 {
 	if (is_visible) {
+		hddscale->reset();
 		hddscale->doPaintBg(false);
 		if (percent >= 0){
 			hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6);
@@ -723,7 +722,6 @@ void CInfoViewerBB::showBarHdd(int percent)
 			hddscale->paint();
 		}else {
 			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, COL_INFOBAR_BUTTONS_BACKGROUND);
-			hddscale->reset();
 		}
 	}
 }
@@ -858,6 +856,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 
 void CInfoViewerBB::paintCA_bar(int left, int right)
 {
+	initBBOffset();
 	int xcnt = (g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - (g_settings.infobar_casystem_frame ? 24 : 0)) / 4;
 	int ycnt = (bottom_bar_offset - (g_settings.infobar_casystem_frame ? 14 : 0)) / 4;
 	int ca_width = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;

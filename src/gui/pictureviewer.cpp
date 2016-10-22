@@ -77,7 +77,7 @@
 #include <zapit/zapit.h>
 #include <video.h>
 extern cVideo * videoDecoder;
-extern CInfoClock *InfoClock;
+
 
 //------------------------------------------------------------------------
 bool comparePictureByDate (const CPicture& a, const CPicture& b)
@@ -163,13 +163,12 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	width = frameBuffer->getScreenWidthRel();
 	height = frameBuffer->getScreenHeightRel();
 
-	sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
         //get footerHeight from paintButtons
-	buttons1Height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
-	buttons2Height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
+	buttons1Height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
+	buttons2Height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
 	footerHeight = buttons1Height + buttons2Height;
 
 	listmaxshow = (height-theight-footerHeight)/(fheight);
@@ -233,6 +232,8 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	// Restore last mode
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
+	if (m_LastMode == NeutrinoMessages::mode_ts)
+		videoDecoder->setBlank(false);
 
 	// always exit all
 	return menu_return::RETURN_REPAINT;
@@ -259,7 +260,7 @@ int CPictureViewerGui::show()
 		m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
-	InfoClock->enableInfoClock(false);
+	CInfoClock::getInstance()->enableInfoClock(false);
 
 	while (loop)
 	{
@@ -632,7 +633,8 @@ int CPictureViewerGui::show()
 			loop = false;
 			g_RCInput->postMsg(msg, data);
 		}
-		else if ((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// do nothing
 		}
 		else
 		{
@@ -645,7 +647,7 @@ int CPictureViewerGui::show()
 	hide();
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
-	InfoClock->enableInfoClock(true);
+	CInfoClock::getInstance()->enableInfoClock(true);
 
 	return(res);
 }
@@ -667,36 +669,33 @@ void CPictureViewerGui::paintItem(int pos)
 //	printf("paintItem{\n");
 	int ypos = y+ theight + 0 + pos*fheight;
 
+	unsigned int currpos = liststart + pos;
+
+	bool i_selected	= currpos == selected;
+	bool i_marked	= false;
+	bool i_switch	= false; //(currpos < playlist.size()) && (pos & 1);
+	int i_radius	= RADIUS_NONE;
+
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	if ((liststart+pos < playlist.size()) && (pos & 1) )
-	{
-		color   = COL_MENUCONTENTDARK_TEXT;
-		bgcolor = COL_MENUCONTENTDARK_PLUS_0;
-	}
-	else
-	{
-		color	= COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
+	getItemColors(color, bgcolor, i_selected, i_marked, i_switch);
 
-	if (liststart+pos == selected)
-	{
-		frameBuffer->paintBoxRel(x,ypos, width-15, fheight, bgcolor);
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
+	if (i_selected || i_marked)
+		i_radius = RADIUS_LARGE;
 
-	frameBuffer->paintBoxRel(x, ypos, width-15, fheight, bgcolor, liststart+pos == selected ? RADIUS_LARGE : 0);
-	if (liststart+pos<playlist.size())
+	if (i_radius)
+		frameBuffer->paintBoxRel(x, ypos, width - 15, fheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - 15, fheight, bgcolor, i_radius);
+
+	if (currpos < playlist.size())
 	{
-		std::string tmp = playlist[liststart+pos].Name;
+		std::string tmp = playlist[currpos].Name;
 		tmp += " (";
-		tmp += playlist[liststart+pos].Type;
+		tmp += playlist[currpos].Type;
 		tmp += ')';
 		char timestring[18];
-		strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&playlist[liststart+pos].Date));
+		strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&playlist[currpos].Date));
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(timestring);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, width-30 - w, tmp, color, fheight);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+width-20-w,ypos+fheight, w, timestring, color, fheight);
@@ -727,7 +726,7 @@ void CPictureViewerGui::paintFoot()
 	else
 		PictureViewerButtons2[0].locale = LOCALE_PICTUREVIEWER_SORTORDER_DATE;
 
-	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (!playlist.empty())
 	{
@@ -758,14 +757,17 @@ void CPictureViewerGui::paint()
 
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 
-	int sbc= ((playlist.size()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
+	unsigned int tmp_max = listmaxshow;
+	if(!tmp_max)
+		tmp_max = 1;
+	int sbc= ((playlist.size()- 1)/ tmp_max)+ 1;
+	int sbs= (selected/tmp_max);
 	if (sbc < 1)
 		sbc = 1;
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0);
 
 	paintFoot();
 	paintInfo();

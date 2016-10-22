@@ -147,7 +147,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	return res;
 }
-
+#if 0 //not used
 #define RECORDINGMENU_RECORDING_TYPE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval RECORDINGMENU_RECORDING_TYPE_OPTIONS[RECORDINGMENU_RECORDING_TYPE_OPTION_COUNT] =
 {
@@ -157,7 +157,6 @@ const CMenuOptionChooser::keyval RECORDINGMENU_RECORDING_TYPE_OPTIONS[RECORDINGM
 	{ CNeutrinoApp::RECORDING_FILE  , LOCALE_RECORDINGMENU_FILE   }
 };
 
-#if 0 //not used
 #define CHOOSE_DIRECT_REC_DIR_COUNT 3
 const CMenuOptionChooser::keyval CHOOSE_DIRECT_REC_DIR[RECORDINGMENU_RECORDING_TYPE_OPTION_COUNT] =
 {
@@ -234,6 +233,11 @@ int CRecordSetup::showRecordSetup()
 	CMenuOptionChooser* end_of_recording = new CMenuOptionChooser(LOCALE_RECORDINGMENU_END_OF_RECORDING_NAME, &g_settings.recording_epg_for_end, END_OF_RECORDING, END_OF_RECORDING_COUNT, true);
 	end_of_recording->setHint("", LOCALE_MENU_HINT_RECORD_END);
 	recordingSettings->addItem(end_of_recording);
+
+	// already_found
+	CMenuOptionChooser* already_found = new CMenuOptionChooser(LOCALE_RECORDINGMENU_ALREADY_FOUND_CHECK, &g_settings.recording_already_found_check, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	already_found->setHint("", LOCALE_MENU_HINT_RECORD_ALREADY_FOUND_CHECK);
+	recordingSettings->addItem(already_found);
 
 	if (!g_settings.easymenu) {
 		CMenuOptionChooser* slow_warn = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SLOW_WARN, &g_settings.recording_slow_warning, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);

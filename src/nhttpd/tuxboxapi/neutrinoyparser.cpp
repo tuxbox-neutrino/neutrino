@@ -126,7 +126,6 @@ const CNeutrinoYParser::TyFuncCall CNeutrinoYParser::yFuncCallList[]=
 	{"set_timer_form",				&CNeutrinoYParser::func_set_timer_form},
 	{"bouquet_editor_main",			&CNeutrinoYParser::func_bouquet_editor_main},
 	{"set_bouquet_edit_form",		&CNeutrinoYParser::func_set_bouquet_edit_form},
-
 };
 //-------------------------------------------------------------------------
 // y-func : dispatching and executing
@@ -358,8 +357,8 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	for(int j = 0; j < (int) channels.size(); j++)
 	{
 		CZapitChannel * channel = channels[j];
-		CChannelEvent *event;
-		event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
+		CChannelEvent event;
+		NeutrinoAPI->GetChannelEvent(channel->getChannelID(), event);
 
 		classname = (i++ & 1) ? 'a' : 'b';
 		if (channel->getChannelID() == current_channel)
@@ -369,7 +368,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		yresult += "<tr>";
 
 		if (have_logos) {
-			std::string channel_logo = NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->getChannelID());
+			std::string channel_logo = func_get_logo_name(hh, string_printf(PRINTF_CHANNEL_ID_TYPE, channel->getChannelID()));
 			std::string zaplink;
 			if (channel_logo.empty())
 				zaplink = channel->getName().c_str();
@@ -397,10 +396,10 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		}
 
 		/* timer slider */
-		if(event && event->duration > 0)
+		if(event.eventID && event.duration > 0)
 		{
-			prozent = 100 * (time(NULL) - event->startTime) / event->duration;
-			yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
+			prozent = 100 * (time(NULL) - event.startTime) / event.duration;
+			yresult += string_printf("<td class=\"%c title_cell\"><table class=\"title_table\" border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td class=\"cslider_cell\">\n"
 					"\t<table border=\"0\" rules=\"none\" class=\"cslider cslider_table\">"
 					"<tr>"
 					"<td class=\"cslider cslider_used\" width=\"%d\"></td>"
@@ -414,7 +413,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		}
 		else
 		{
-			yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
+			yresult += string_printf("<td class=\"%c title_cell\"><table class=\"title_table\" border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td class=\"cslider_cell\">\n"
 					"\t<table border=\"0\" rules=\"none\" class=\"cslider cslider_table\">"
 					"<tr>"
 					"<td class=\"cslider cslider_noepg\"></td>"
@@ -424,27 +423,60 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				);
 		}
 
-		/* channel name and buttons */
-		yresult += string_printf("<td>\n%s<a class=\"clist\" href=\"javascript:do_zap('"
-				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				"')\">&nbsp;%d. %s%s</a>&nbsp;<a href=\"javascript:do_epg('"
-				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				"','"
-				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				"')\">%s</a>\n",
-				((channel->getChannelID() == current_channel) ? "<a name=\"akt\"></a>" : " "),
-				channel->getChannelID(),
-				channel->number /* num + j */,
-				channel->getName().c_str(),
-				(channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : "",
-				channel->getChannelID(),
-				channel->getChannelID() & 0xFFFFFFFFFFFFULL,
-				((NeutrinoAPI->ChannelListEvents[channel->getChannelID()]) ? "<img src=\"/images/elist.png\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
+		/* channel name */
+		yresult += "<td>\n";
 
 		if (channel->getChannelID() == current_channel)
-			yresult += string_printf("\n&nbsp;&nbsp;<a href=\"javascript:do_streaminfo()\"><img src=\"/images/streaminfo.png\" alt=\"Streaminfo\" style=\"border: 0px\" /></a>");
+			yresult += "<a name=\"akt\"></a>\n";
 
-		yresult += string_printf("</td></tr></table>\n</td>\n</tr>\n");
+		yresult += string_printf("<a class=\"clist\" href=\"javascript:do_zap('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"')\">"
+				"%d. %s%s"
+				"</a>\n"
+				, channel->getChannelID()
+				, channel->number
+				, channel->getName().c_str()
+				, (channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : ""
+			);
+
+		yresult += "</td>\n";
+
+		/* buttons */
+		yresult += "<td align=\"right\" >\n";
+
+		if (channel->getChannelID() == current_channel)
+		{
+			yresult += "<a href=\"javascript:do_streaminfo()\">";
+			yresult += "<img src=\"/images/streaminfo.png\" alt=\"Streaminfo\" title=\"Streaminfo\" />";
+			yresult += "</a>\n";
+		}
+
+		if (!channel->getUrl().empty())
+		{
+			yresult += "<img src=\"/images/webtv.png\" alt=\"WebTV\" title=\"WebTV\" />\n";
+		}
+
+		if (channel->scrambled)
+		{
+			yresult += "<img src=\"/images/key.png\" alt=\"Scrambled\" title=\"Scrambled\" />\n";
+		}
+		if (event.eventID)
+		{
+			yresult += string_printf("<a href=\"javascript:do_epg('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"','"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"')\">"
+					"<img src=\"/images/elist.png\" alt=\"Program preview\" title=\"EPG\" />"
+					"</a>\n"
+					, channel->getChannelID()
+					, channel->getChannelID() & 0xFFFFFFFFFFFFULL
+				);
+		}
+
+		yresult += string_printf("<a href=\"javascript:do_stream('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"','%s')\">"
+				"<img src=\"/images/stream.png\" alt=\"Stream\" title=\"Stream\" />"
+				"</a>\n"
+				, channel->getChannelID()
+				, channel->getName().c_str()
+			);
+
+		yresult += "</td></tr></table>\n</td>\n</tr>\n";
 
 		if (channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE)
 		{
@@ -489,23 +521,41 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			}
 		}
 
-		else if ((event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()]))
+		else if (event.eventID)
 		{
 			bool has_current_next = true;
-			CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
-			timestr = timeString(event->startTime);
+			CEitManager::getInstance()->getCurrentNextServiceKey(channel->getEpgID(), currentNextInfo);
+			timestr = timeString(event.startTime);
+
+			CShortEPGData epg;
+			std::string EPGInfoC = "";
+			if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
+			{
+				EPGInfoC += epg.info1;
+				EPGInfoC += epg.info2;
+			}
 
 			yresult += string_printf("<tr><td class=\"%cepg\">",classname);
-			yresult += string_printf("%s&nbsp;%s&nbsp;"
+			yresult += string_printf("%s&nbsp;<span class='pointer' title='%s'>%s</span>&nbsp;"
 					"<span style=\"font-size: 8pt; white-space: nowrap\">(%ld {=L:from=} %d {=L:unit.short.minute=}, %d%%)</span>"
 					, timestr.c_str()
-					, event->description.c_str()
-					, (time(NULL) - event->startTime)/60
-					, event->duration / 60,prozent);
+					, EPGInfoC.c_str()
+					, event.description.c_str()
+					, (time(NULL) - event.startTime)/60
+					, event.duration / 60,prozent);
 
 			if ((has_current_next) && (currentNextInfo.flags & CSectionsdClient::epgflags::has_next)) {
+				std::string EPGInfoN = "";
+				if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.next_uniqueKey, &epg))
+				{
+					EPGInfoN += epg.info1;
+					EPGInfoN += epg.info2;
+				}
 				timestr = timeString(currentNextInfo.next_zeit.startzeit);
-				yresult += string_printf("<br />%s&nbsp;%s", timestr.c_str(), currentNextInfo.next_name.c_str());
+				yresult += string_printf("<br />%s&nbsp;<span class='pointer' title='%s'>%s</span>"
+						, timestr.c_str()
+						, EPGInfoN.c_str()
+						, currentNextInfo.next_name.c_str());
 			}
 
 			yresult += string_printf("</td></tr>\n");
@@ -525,14 +575,33 @@ std::string  CNeutrinoYParser::func_get_actual_channel_id(CyhookHandler *, std::
 }
 
 //-------------------------------------------------------------------------
-// func: Get Logo Name
+// func: Get logo name for Webif
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_logo_name(CyhookHandler *hh, std::string channelId)
 {
-	if (hh->WebserverConfigList["Tuxbox.DisplayLogos"] == "true") {
-		t_channel_id cid;
-		if (1 == sscanf(channelId.c_str(), "%" PRIx64, &cid))
-			return NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], cid);
+	std::string LogosURL = hh->WebserverConfigList["Tuxbox.LogosURL"];
+	if (hh->WebserverConfigList["Tuxbox.DisplayLogos"] == "true" && !LogosURL.empty())
+	{
+		std::string fileType[] = { ".png", ".jpg" , ".gif" };
+
+		std::string channelIdShort = channelId.substr(channelId.length() - 12);
+		channelIdShort = channelIdShort.erase(0, min(channelIdShort.find_first_not_of('0'), channelIdShort.size()-1));
+
+		std::string channelName = "";
+		t_channel_id chId = 0;
+		if (sscanf(channelId.c_str(), "%" PRIx64, &chId) == 1)
+			channelName = NeutrinoAPI->GetServiceName(chId);
+
+		for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
+		{
+			// first check Tuxbox.LogosURL from nhttpd.conf
+			if (access((LogosURL + "/" + channelName + fileType[i]).c_str(), R_OK) == 0)
+				return LogosURL + "/" + channelName + fileType[i];
+			else if (access((LogosURL + "/" + channelIdShort + fileType[i]).c_str(), R_OK) == 0)
+				return LogosURL + "/" + channelIdShort + fileType[i];
+			else // fallback to default logos
+				return NeutrinoAPI->getLogoFile(chId);
+		}
 	}
 	return "";
 }
@@ -676,7 +745,8 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 						{
 							if(!(init_iso))
 							{
-								strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
+								std::string tmp_desc = _getISO639Description( pids.APIDs[j].desc);
+								strncpy(pids.APIDs[j].desc, tmp_desc.c_str(), DESC_MAX_LEN -1);
 							}
 							yresult += string_printf("<option value=%05u %s>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,(j==selected_apid) ? "selected=\"selected\"" : "",std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": pids.APIDs[j].is_aac ? "(AAC)" : pids.APIDs[j].is_eac3 ? "(EAC3)" : " ");
 						}
@@ -693,7 +763,8 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 			{
 				if(!(init_iso))
 				{
-					strcpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ) );
+					std::string tmp_desc = _getISO639Description( pids.APIDs[i].desc);
+					strncpy(pids.APIDs[i].desc, tmp_desc.c_str(), DESC_MAX_LEN -1);
 				}
 				yresult += string_printf("<option value=%05u %s>%s %s</option>\r\n",
 							 idx_as_id ? i : it->pid, (i==selected_apid) ? "selected=\"selected\"" : "",pids.APIDs[i].desc,
@@ -781,6 +852,7 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			if( boxname == "Armas ")
 				boxname += "TripleDragon";
 			break;
+#ifdef BOXMODEL_NEVIS
 		case 6:
 			boxname += "HD1";
 			break;
@@ -792,19 +864,29 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			if (CFEManager::getInstance()->getFrontendCount() > 1)
 				boxname += " Twin";
 			break;
-		case 9:
-			boxname += "Tank";
-			break;
 		case 10:
 			boxname += "Zee";
 			break;
+#endif
+#ifdef BOXMODEL_APOLLO
+		case 9:
+			boxname += "Tank";
+			break;
 		case 11:
 			boxname += "Trinity";
+			if (cs_get_chip_type() != 33904 /*0x8470*/)
+				boxname += " V2";
 			break;
 		case 12:
 			boxname += "Zee2";
 			break;
-
+		case 13:
+			boxname += "Link";
+			break;
+		case 14:
+			boxname += "Trinity Duo";
+			break;
+#endif
 		default:
 			char buffer[10];
 			snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
@@ -834,21 +916,30 @@ std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
 
 	switch(system_rev)
 	{
+#ifdef BOXMODEL_NEVIS
 		case 6:
 		case 7:
 		case 8:
 		case 10:
 			boxmodel = "Nevis";
 			break;
+#endif
+#ifdef BOXMODEL_APOLLO
 		case 9:
 			boxmodel = "Apollo";
 			break;
 		case 11:
-			boxmodel = "Shiner";
+			if (cs_get_chip_type() == 33904 /*0x8470*/)
+				boxmodel = "Shiner";
+			else
+				boxmodel = "Kronos";
 			break;
 		case 12:
+		case 13:
+		case 14:
 			boxmodel = "Kronos";
 			break;
+#endif
 		default:
 			break;
 	}

@@ -36,7 +36,7 @@
 
 
 
-CInfoClock::CInfoClock():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
+CInfoClock::CInfoClock():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
 {
 	initCCLockItems();
 }
@@ -54,13 +54,13 @@ void CInfoClock::initCCLockItems()
 	paint_bg = g_settings.infoClockBackground;
 
 	//use current theme colors
-	setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 
 	//set text color
 	if (paint_bg){
 		cl_col_text = COL_MENUCONTENT_TEXT;
 		setColorBody(COL_MENUCONTENT_PLUS_0);
-		enableShadow(CC_SHADOW_ON, 3);
+		enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2);
 	}else{
 		cl_col_text = COL_INFOCLOCK_TEXT;
 		setColorBody(COL_BACKGROUND_PLUS_0);

@@ -48,7 +48,11 @@ CLuaInstVideo* CLuaInstVideo::getInstance()
 
 CLuaVideo *CLuaInstVideo::VideoCheckData(lua_State *L, int n)
 {
-	return *(CLuaVideo **) luaL_checkudata(L, n, LUA_VIDEO_CLASSNAME);
+	void* ret = luaL_testudata(L, n, LUA_VIDEO_CLASSNAME);
+	if (ret == NULL)
+		return NULL;
+	else
+		return *(CLuaVideo **) ret;
 }
 
 void CLuaInstVideo::LuaVideoRegister(lua_State *L)
@@ -149,10 +153,28 @@ int CLuaInstVideo::PlayFile(lua_State *L)
 		printf("CLuaInstVideo::%s: not enough arguments (%d, expected 3)\n", __func__, numargs);
 		return 0;
 	}
+	const char *errmsg = "is not a string.";
+	if(!lua_isstring(L,2)){
+		printf("CLuaInstVideo::%s: argument 1 %s\n", __func__, errmsg);
+			return 0;
+	}
+	if(!lua_isstring(L,3)){
+		printf("CLuaInstVideo::%s: argument 2 %s\n", __func__, errmsg);
+			return 0;
+	}
+	if(numargs > 3 && !lua_isstring(L,4)){
+		printf("CLuaInstVideo::%s: argument 3 %s\n", __func__, errmsg);
+			return 0;
+	}
+	if(numargs > 4 && !lua_isstring(L,5)){
+		printf("CLuaInstVideo::%s: argument 4 %s\n", __func__, errmsg);
+			return 0;
+	}
 
 	bool sp = false;
 	if (luaL_testudata(L, 1, LUA_CLASSNAME) == NULL)
-		sp = D->singlePlay;
+		if (D)
+			sp = D->singlePlay;
 	if ((sp == false) && (CMoviePlayerGui::getInstance().getBlockedFromPlugin() == false))
 		CMoviePlayerGui::getInstance().setBlockedFromPlugin(true);
 
@@ -216,7 +238,9 @@ bool CLuaInstVideo::execLuaInfoFunc(lua_State *L, int xres, int yres, int aspect
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
 		memset(msg, '\0', sizeof(msg));
-		snprintf(msg, sizeof(msg)-1, "[%s:%d] error running function '%s': %s", ar.short_src, ar.currentline, D->infoFunc.c_str(), lua_tostring(L, -1));
+		bool isString = lua_isstring(L,-1);
+		const char *null = "NULL";
+		snprintf(msg, sizeof(msg)-1, "[%s:%d] error running function '%s': %s", ar.short_src, ar.currentline, D->infoFunc.c_str(), isString ? lua_tostring(L, -1):null);
 		fprintf(stderr, "[CLuaInstVideo::%s:%d] %s\n", __func__, __LINE__, msg);
 		DisplayErrorMessage(msg);
 		return false;
@@ -328,8 +352,7 @@ int CLuaInstVideo::VideoDelete(lua_State *L)
   deprecated functions
   --------------------------------------------------------------- */
 
-//#define VIDEO_FUNC_DEPRECATED videoFunctionDeprecated
-#define VIDEO_FUNC_DEPRECATED(...)
+#define VIDEO_FUNC_DEPRECATED videoFunctionDeprecated
 
 void CLuaInstVideo::videoFunctionDeprecated(lua_State *L, std::string oldFunc)
 {

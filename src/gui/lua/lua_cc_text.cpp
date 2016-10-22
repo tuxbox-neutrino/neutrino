@@ -77,15 +77,15 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	CLuaCCWindow* parent = NULL;
-	lua_Integer x=10, y=10, dx=100, dy=100;
+	lua_Integer x=10, y=10, dx=-1, dy=-1;
 	std::string text = "";
 	std::string tmpMode       = "";
 	lua_Integer mode          = CTextBox::AUTO_WIDTH;
 	lua_Integer font_text     = SNeutrinoSettings::FONT_TYPE_MENU;
 	lua_Unsigned color_text   = (lua_Unsigned)COL_MENUCONTENT_TEXT;
-	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_FRAME_PLUS_0;
 	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
-	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_SHADOW_PLUS_0;
 
 	tableLookup(L, "parent",    (void**)&parent);
 	tableLookup(L, "x",         x);
@@ -139,6 +139,16 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	}
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
+	if(pw){
+		if(dy < 1)
+			dy = pw->getHeight();
+		if(dx < 1)
+			dx = pw->getWidth();
+	}
+	if(dx < 1)
+		dx = 100;
+	if(dy < 1)
+		dy = 100;
 
 	CLuaCCText **udata = (CLuaCCText **) lua_newuserdata(L, sizeof(CLuaCCText *));
 	*udata = new CLuaCCText();

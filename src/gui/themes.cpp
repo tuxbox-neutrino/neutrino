@@ -150,6 +150,8 @@ int CThemes::Show()
 	std::string file_name = "";
 
 	CMenuWidget themes (LOCALE_COLORMENU_MENUCOLORS, NEUTRINO_ICON_SETTINGS, width);
+	sigc::slot0<void> slot_repaint = sigc::mem_fun(themes, &CMenuWidget::hide); //we want to clean screen before repaint after changed Option
+	themes.OnBeforePaint.connect(slot_repaint);
 	
 	themes.addIntroItems(LOCALE_COLORTHEMEMENU_HEAD2);
 	
@@ -274,6 +276,14 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "menu_Content_inactive_Text_red", t.menu_Content_inactive_Text_red );
 	configfile.setInt32( "menu_Content_inactive_Text_green", t.menu_Content_inactive_Text_green );
 	configfile.setInt32( "menu_Content_inactive_Text_blue", t.menu_Content_inactive_Text_blue );
+	configfile.setInt32( "menu_Foot_alpha", t.menu_Foot_alpha );
+	configfile.setInt32( "menu_Foot_red", t.menu_Foot_red );
+	configfile.setInt32( "menu_Foot_green", t.menu_Foot_green );
+	configfile.setInt32( "menu_Foot_blue", t.menu_Foot_blue );
+	configfile.setInt32( "menu_Foot_Text_alpha", t.menu_Foot_Text_alpha );
+	configfile.setInt32( "menu_Foot_Text_red", t.menu_Foot_Text_red );
+	configfile.setInt32( "menu_Foot_Text_green", t.menu_Foot_Text_green );
+	configfile.setInt32( "menu_Foot_Text_blue", t.menu_Foot_Text_blue );
 
 	configfile.setInt32( "menu_Hint_gradient" , t.menu_Hint_gradient);
 	configfile.setInt32( "menu_Hint_gradient_direction" , t.menu_Hint_gradient_direction);
@@ -363,6 +373,12 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.infobar_green = configfile.getInt32( "infobar_green", 0x0e );
 	t.infobar_blue = configfile.getInt32( "infobar_blue", 0x23 );
 
+	//t.menu_Foot default historically depends on t.infobar
+	t.menu_Foot_alpha = configfile.getInt32( "menu_Foot_alpha", t.infobar_alpha );
+	t.menu_Foot_red = configfile.getInt32( "menu_Foot_red", int(t.infobar_red*0.4)+14 );
+	t.menu_Foot_green = configfile.getInt32( "menu_Foot_green", int(t.infobar_green*0.4)+14 );
+	t.menu_Foot_blue = configfile.getInt32( "menu_Foot_blue", int(t.infobar_blue*0.4)+14 );
+
 	t.infobar_gradient_top = configfile.getInt32( "infobar_gradient_top", CC_COLGRAD_OFF );
 	t.infobar_gradient_top_direction = configfile.getInt32( "infobar_gradient_top_direction", CFrameBuffer::gradientVertical );
 	t.infobar_gradient_body = configfile.getInt32( "infobar_gradient_body", CC_COLGRAD_OFF);
@@ -378,6 +394,12 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.infobar_Text_red = configfile.getInt32( "infobar_Text_red", 0x64 );
 	t.infobar_Text_green = configfile.getInt32( "infobar_Text_green", 0x64 );
 	t.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
+
+	//t.menu_Foot_Text default historically depends on t.infobar_Text
+	t.menu_Foot_Text_alpha = configfile.getInt32( "menu_Foot_Text_alpha", 0x00 );
+	t.menu_Foot_Text_red = configfile.getInt32( "menu_Foot_Text_red", int(t.infobar_Text_red*0.6) );
+	t.menu_Foot_Text_green = configfile.getInt32( "menu_Foot_Text_green", int(t.infobar_Text_green*0.6) );
+	t.menu_Foot_Text_blue = configfile.getInt32( "menu_Foot_Text_blue", int(t.infobar_Text_blue*0.6) );
 
 	t.colored_events_alpha = configfile.getInt32( "colored_events_alpha", 0x00 );
 	t.colored_events_red = configfile.getInt32( "colored_events_red", 95 );

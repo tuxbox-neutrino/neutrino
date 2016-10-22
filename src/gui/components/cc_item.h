@@ -79,10 +79,26 @@ class CComponentsItem : public CComponents
 		///set or unset focus of item, stand alone items without parent have always set focus to true, inside of a parent form object, always the last added item has focus
 		virtual void setFocus(bool focus);
 
-		///erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
-		///from CFrameBuffer but with possiblity to define color, default color is 0 (empty background)
-		///NOTE: Items with parent binding use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
-		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false);
+		/**Erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
+		 * from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND_PLUS_0 (empty background)
+		 *
+		 * @return void
+		 *
+		 * @param[in] bg_color		optional, color, default color is current screen
+		 * @param[in] ignore_parent	optional, default = false, defines the behavior inside a form, if item is embedded current background color is used instead blank screen
+		 * @param[in] fblayer_type	optional, defines layer that to remove, default all layers (cc_fbdata_t) will remove
+		 * 				possible layer types are:
+		 * 				@li CC_FBDATA_TYPE_BGSCREEN,
+		 * 				@li CC_FBDATA_TYPE_BOX,
+		 * 				@li CC_FBDATA_TYPE_SHADOW_BOX,
+		 * 				@li CC_FBDATA_TYPE_FRAME,
+		 * 				@li CC_FBDATA_TYPE_BACKGROUND,
+		 * @see
+		 * 	cc_types.h
+		 * 	gui/color.h
+		 * 	driver/framebuffer.h
+		*/
+		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false, const int& fblayer_type = CC_FBDATA_TYPES);
 
 		///get the current item type, see attribute cc_item_type above
 		virtual int getItemType();

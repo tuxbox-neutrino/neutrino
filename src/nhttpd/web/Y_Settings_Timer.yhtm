@@ -25,11 +25,11 @@ function do_submit() {
 			</tr>
 			<tr>
 				<td>{=L:set.timer.username=}</td>
-				<td><input type="text" name="tvinfo_username" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_username=}"/></td>
+				<td><input type="text" name="tvinfo_username" size="15" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;tvinfo_username=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:set.timer.password=}</td>
-				<td><input type="password" name="tvinfo_password" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_password=}"/></td>
+				<td><input type="password" name="tvinfo_password" size="15" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;tvinfo_password=}"/></td>
 			</tr>
 <!--
 			<tr>
@@ -37,12 +37,12 @@ function do_submit() {
 			</tr>
 			<tr>
 				<td>{=L:set.timer.klack.url=}</td>
-				<td><input type="text" name="klack_url" size="60" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_url=}"/>
+				<td><input type="text" name="klack_url" size="60" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;klack_url=}"/>
 				<br/>{=L:set.timer.klack.url_desc=}</td>
 			</tr>
 			<tr>
 				<td>{=L:set.timer.klack.security_code=}</td>
-				<td><input type="password" name="klack_securitycode" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_securitycode=}" title="{=L:set.timer.klack.security_code_desc=}"/></td>
+				<td><input type="password" name="klack_securitycode" size="15" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;klack_securitycode=}" title="{=L:set.timer.klack.security_code_desc=}"/></td>
 			</tr>
 // -->
 			<tr>
@@ -50,7 +50,7 @@ function do_submit() {
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td><textarea name="channels" cols="60" rows="10">{=if-file-exists:/var/tuxbox/config/channels.txt~{=include:/var/tuxbox/config/channels.txt=}~{=if-file-exists:/var/httpd/channels.txt~{=include:/var/httpd/channels.txt=}~{=include:/share/tuxbox/neutrino/httpd/channels.txt=}=}=}</textarea></td>
+				<td><textarea name="channels" cols="60" rows="10">{=if-file-exists:%(CONFIGDIR)/channels.txt~{=include:%(CONFIGDIR)/channels.txt=}~{=if-file-exists:%(PUBLIC_HTTPDDIR)/channels.txt~{=include:%(PUBLIC_HTTPDDIR)/channels.txt=}~{=include:%(PRIVATE_HTTPDDIR)/channels.txt=}=}=}</textarea></td>
 			</tr>
 		</table>
 		<br/>

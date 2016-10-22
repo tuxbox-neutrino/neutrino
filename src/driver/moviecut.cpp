@@ -175,6 +175,9 @@ bool CMovieCut::truncateMovie(MI_MOVIE_INFO * minfo)
 	minfo->length = minfo->bookmarks.end/60;
 	minfo->bookmarks.end = 0;
 	reset_atime(minfo->file.Name.c_str(), minfo->file.Time);
+	CMovieInfo cmovie;
+	cmovie.saveMovieInfo(*minfo);
+	WriteHeader(minfo->file.Name.c_str(), newsize/secsize*1000);
 	return true;
 }
 
@@ -238,8 +241,9 @@ int CMovieCut::read_psi(const char * spart, unsigned char * buf)
 	return -1;
 }
 
-void CMovieCut::save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpart, off64_t spos, off64_t secsize)
+void CMovieCut::save_info(MI_MOVIE_INFO * minfo, char * dpart, off64_t spos, off64_t secsize)
 {
+	CMovieInfo cmovie;
 	MI_MOVIE_INFO ninfo = *minfo;
 	ninfo.file.Name = dpart;
 	ninfo.file.Size = spos;
@@ -253,7 +257,7 @@ void CMovieCut::save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpa
 			ninfo.bookmarks.user[book_nr].length = 0;
 		}
 	}
-	cmovie->saveMovieInfo(ninfo);
+	cmovie.saveMovieInfo(ninfo);
 	WriteHeader(ninfo.file.Name.c_str(), spos/secsize*1000);
 	reset_atime(dpart, minfo->file.Time);
 }
@@ -302,7 +306,7 @@ int CMovieCut::getInput()
 	return retval;
 }
 
-bool CMovieCut::cutMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
+bool CMovieCut::cutMovie(MI_MOVIE_INFO * minfo)
 {
 	struct mybook books[MI_MOVIE_BOOK_USER_MAX+2];
 	unsigned char psi[PSI_SIZE];
@@ -482,7 +486,7 @@ bool CMovieCut::cutMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 	tt1 = time(0);
 	printf("CMovieCut::%s: total written %" PRId64 " tooks %ld secs end time %s", __func__, spos, tt1-tt, ctime(&tt1));
 
-	save_info(cmovie, minfo, dpart, spos, secsize);
+	save_info(minfo, dpart, spos, secsize);
 	retval = true;
 ret_err:
 	if (srcfd >= 0)
@@ -498,7 +502,7 @@ ret_err:
 	return retval;
 }
 
-bool CMovieCut::copyMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefile)
+bool CMovieCut::copyMovie(MI_MOVIE_INFO * minfo, bool onefile)
 {
 	struct mybook books[MI_MOVIE_BOOK_USER_MAX+2];
 	struct stat64 s;
@@ -619,13 +623,13 @@ bool CMovieCut::copyMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 		if (!onefile) {
 			close(dstfd);
 			dstfd = -1;
-			save_info(cmovie, minfo, dpart, spos, secsize);
+			save_info(minfo, dpart, spos, secsize);
 			time_t tt1 = time(0);
 			printf("copy: ********* %s: total written %" PRId64 " took %ld secs\n", dpart, spos, tt1-tt);
 		}
 	} /* for all books */
 	if (onefile) {
-		save_info(cmovie, minfo, dpart, spos, secsize);
+		save_info(minfo, dpart, spos, secsize);
 		time_t tt1 = time(0);
 		printf("copy: ********* %s: total written %" PRId64 " took %ld secs\n", dpart, spos, tt1-tt);
 	}

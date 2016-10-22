@@ -168,12 +168,17 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(t.menu_Content_inactive_Text_red, t.menu_Content_inactive_Text_green, t.menu_Content_inactive_Text_blue),
 	                              8, convertSetupAlpha2Alpha(t.menu_Content_inactive_alpha) );
 
+	frameBuffer->paletteGenFade(COL_MENUFOOT,
+	                              convertSetupColor2RGB(t.menu_Foot_red, t.menu_Foot_green, t.menu_Foot_blue),
+	                              convertSetupColor2RGB(t.menu_Foot_Text_red, t.menu_Foot_Text_green, t.menu_Foot_Text_blue),
+	                              8, convertSetupAlpha2Alpha( t.menu_Foot_alpha ) );
+
 	frameBuffer->paletteGenFade(COL_INFOBAR,
 	                              convertSetupColor2RGB(t.infobar_red, t.infobar_green, t.infobar_blue),
 	                              convertSetupColor2RGB(t.infobar_Text_red, t.infobar_Text_green, t.infobar_Text_blue),
 	                              8, convertSetupAlpha2Alpha(t.infobar_alpha) );
 
-	frameBuffer->paletteGenFade(COL_INFOBAR_SHADOW,
+	frameBuffer->paletteGenFade(COL_SHADOW,
 	                              convertSetupColor2RGB(int(t.infobar_red*0.4), int(t.infobar_green*0.4), int(t.infobar_blue*0.4)),
 	                              convertSetupColor2RGB(t.infobar_Text_red, t.infobar_Text_green, t.infobar_Text_blue),
 	                              8, convertSetupAlpha2Alpha(t.infobar_alpha) );
@@ -204,10 +209,10 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(t.infobar_Text_red, t.infobar_Text_green, t.infobar_Text_blue),
 	                              convertSetupAlpha2Alpha(t.infobar_alpha));
 
-	// COL_INFOBAR_SHADOW_TEXT
+	// COL_MENUFOOT_TEXT
 	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 2,
-	                              convertSetupColor2RGB(int(t.infobar_Text_red*0.6), int(t.infobar_Text_green*0.6), int(t.infobar_Text_blue*0.6)),
-	                              convertSetupAlpha2Alpha(t.infobar_alpha));
+	                              convertSetupColor2RGB(t.menu_Foot_Text_red, t.menu_Foot_Text_green, t.menu_Foot_Text_blue),
+	                              convertSetupAlpha2Alpha(t.menu_Foot_alpha));
 
 	// COL_MENUHEAD_TEXT
 	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 3,
@@ -375,12 +380,20 @@ int CNVODChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
 
 int CMoviePluginChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
 {
-	int sel= atoi(actionKey.c_str());
-	parent->hide();
-	if (sel>=0)
+	if (parent)
+		parent->hide();
+
+	if (actionKey == "---")
 	{
-			g_settings.movieplayer_plugin=g_PluginList->getName(sel);
+		g_settings.movieplayer_plugin = actionKey;
 	}
+	else
+	{
+		int sel = atoi(actionKey.c_str());
+		if (sel >= 0)
+			g_settings.movieplayer_plugin = g_PluginList->getName(sel);
+	}
+
 	return menu_return::RETURN_EXIT;
 }
 
@@ -393,7 +406,7 @@ long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
 	int s, i;
 	int ok = 0;
 	s = socket(AF_INET, SOCK_DGRAM, 0);
-	if (s==-1) 
+	if (s==-1)
 	{
 		return -1;
 	}
@@ -405,11 +418,11 @@ long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
 	for (i = ifc.ifc_len / sizeof(struct ifreq); --i >= 0; IFR++)
 	{
 		strcpy(ifr.ifr_name, IFR->ifr_name);
-		if (ioctl(s, SIOCGIFFLAGS, &ifr) == 0) 
+		if (ioctl(s, SIOCGIFFLAGS, &ifr) == 0)
 		{
-			if (! (ifr.ifr_flags & IFF_LOOPBACK)) 
+			if (! (ifr.ifr_flags & IFF_LOOPBACK))
 			{
-				if (ioctl(s, SIOCGIFHWADDR, &ifr) == 0) 
+				if (ioctl(s, SIOCGIFHWADDR, &ifr) == 0)
 				{
 					ok = 1;
 					break;

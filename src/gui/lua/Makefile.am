@@ -32,10 +32,12 @@ libneutrino_gui_lua_a_SOURCES = \
 	lua_cc_window.cpp \
 	lua_configfile.cpp \
 	lua_curl.cpp \
+	lua_filehelpers.cpp \
 	lua_hintbox.cpp \
 	lua_menue.cpp \
 	lua_messagebox.cpp \
 	lua_misc.cpp \
+	lua_stringinput.cpp \
 	lua_threads.cpp \
 	lua_threads_copy.cpp \
 	lua_threads_functions.cpp \

@@ -73,8 +73,6 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 
 	std::string tmp;
 	if (tableLookup(L, "align", tmp)) {
-		lua_pushvalue(L, -2);
-		const char *val = lua_tostring(L, -2);
 		table_key mb[] = {
 			{ "center1",	CMessageBox::mbBtnAlignCenter1 },
 			{ "center2",	CMessageBox::mbBtnAlignCenter2 },
@@ -83,11 +81,12 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 			{ NULL,		0 }
 		};
 		for (int i = 0; mb[i].name; i++)
-			if (!strcmp(mb[i].name, val)) {
+			if (!strcmp(mb[i].name, tmp.c_str())) {
 				show_buttons |= mb[i].code;
 				break;
 			}
 	}
+
 	lua_pushstring(L, "buttons");
 	lua_gettable(L, -2);
 	for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 2)) {
@@ -109,6 +108,8 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 			}
 	}
 	lua_pop(L, 1);
+	if ((show_buttons & 0xFF) == 0)
+		show_buttons |= CMessageBox::mbAll;
 
 	table_key mbr[] = {
 		{ "yes",	CMessageBox::mbrYes },
@@ -119,10 +120,8 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 		{ NULL,		0 }
 	};
 	if (tableLookup(L, "default", tmp)) {
-		lua_pushvalue(L, -2);
-		const char *val = lua_tostring(L, -2);
 		for (int i = 0; mbr[i].name; i++)
-			if (!strcmp(mbr[i].name, val)) {
+			if (!strcmp(mbr[i].name, tmp.c_str())) {
 				default_button = mbr[i].code;
 				break;
 			}

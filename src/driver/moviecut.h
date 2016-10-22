@@ -41,7 +41,7 @@ class CMovieCut
 		int find_gop(unsigned char *buf, int r);
 		off64_t fake_read(int fd, unsigned char *buf, size_t size, off64_t fsize);
 		int read_psi(const char * spart, unsigned char * buf);
-		void save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpart, off64_t spos, off64_t secsize);
+		void save_info(MI_MOVIE_INFO * minfo, char * dpart, off64_t spos, off64_t secsize);
 		void findNewName(const char * fname, char * dpart,size_t dpart_len);
 		static int compare_book(const void *x, const void *y);
 		int getInput();
@@ -52,8 +52,8 @@ class CMovieCut
 		CMovieCut();
 		~CMovieCut();
 		bool truncateMovie(MI_MOVIE_INFO * minfo);
-		bool cutMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie);
-		bool copyMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefile);
+		bool cutMovie(MI_MOVIE_INFO * minfo);
+		bool copyMovie(MI_MOVIE_INFO * minfo, bool onefile);
 		//int handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 };
 

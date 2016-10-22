@@ -61,7 +61,6 @@ class CUpdateSettings : public CMenuTarget
 		int width;
 		int initMenu();
 		
-		CFlashExpert *fe;
 #ifdef USE_SMS_INPUT
 		CStringInputSMS *input_url_file;
 #endif

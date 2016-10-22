@@ -66,27 +66,37 @@ CBEBouquetWidget::CBEBouquetWidget()
 
 void CBEBouquetWidget::paintItem(int pos)
 {
-	fb_pixel_t color;
-	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*iheight;
 	unsigned int current = liststart + pos;
 
-	if (current == selected) {
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
-	} else {
+	bool i_selected	= current == selected;
+	int i_radius	= RADIUS_NONE;
+
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, i_selected);
+
+	if (i_selected)
+	{
+		i_radius = RADIUS_LARGE;
+	}
+	else
+	{
 		bool has_channels = true;
 		if(current < Bouquets->size())
 			has_channels = (!(*Bouquets)[current]->tvChannels.empty() ) || (!(*Bouquets)[current]->radioChannels.empty());
-		color   = has_channels ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
-		bgcolor = has_channels ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
+
+		if (!has_channels)
+			color = COL_MENUCONTENTINACTIVE_TEXT;
 	}
 
-	if(current < Bouquets->size()) {
-		if ((current == selected) && (state == beMoving))
+	if (i_radius)
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, i_radius);
+
+	if (current < Bouquets->size()) {
+		if ((i_selected) && (state == beMoving))
 			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 5, ypos, iheight);
 
 		if ((*Bouquets)[current]->bHidden)
@@ -117,7 +127,7 @@ void CBEBouquetWidget::paint()
 
 	int ypos = y+ theight;
 	int sb = iheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 
 	int sbc= ((Bouquets->size()- 1)/ listmaxshow)+ 1;
 	int sbs= (selected/listmaxshow);
@@ -125,7 +135,7 @@ void CBEBouquetWidget::paint()
 		sbc = 1;
 
 	//scrollbar
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0);
 }
 
 void CBEBouquetWidget::paintHead()
@@ -366,12 +376,13 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				cancelMoveBouquet();
 			}
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
+		{
+			// do nothing
 		}
 		else
 		{
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
-			// kein canceling...
 		}
 	}
 	hide();

@@ -174,10 +174,10 @@ void CHintBox::refresh(void)
 		return;
 	}
 
-	//window->paintBoxRel(borderwidth, height, width, borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
-	//window->paintBoxRel(width, borderwidth, borderwidth, height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
-	window->paintBoxRel(width - 20, borderwidth, borderwidth + 20, height - borderwidth - 20, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP); // right
-	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); // bottom
+	//window->paintBoxRel(borderwidth, height, width, borderwidth, COL_SHADOW_PLUS_0);
+	//window->paintBoxRel(width, borderwidth, borderwidth, height - borderwidth, COL_SHADOW_PLUS_0);
+	window->paintBoxRel(width - 20, borderwidth, borderwidth + 20, height - borderwidth - 20, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP); // right
+	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); // bottom
 
 	CComponentsHeader header(window->x, window->y, width, theight, caption, iconfile);
 	header.paint(CC_SAVE_SCREEN_NO);
@@ -210,9 +210,9 @@ void CHintBox::refresh(void)
 	if (entries_per_page < line.size())
 	{
 		ypos = theight + (fheight >> 1);
-		window->paintBoxRel(width - 15, ypos                             , 15, entries_per_page * fheight, COL_MENUCONTENT_PLUS_1);
+		window->paintBoxRel(width - 15, ypos, 15, entries_per_page * fheight, COL_SCROLLBAR_PASSIVE_PLUS_0);
 		unsigned int marker_size = (entries_per_page * fheight) / ((line.size() + entries_per_page - 1) / entries_per_page);
-		window->paintBoxRel(width - 13, ypos + current_page * marker_size, 11, marker_size               , COL_MENUCONTENT_PLUS_3);
+		window->paintBoxRel(width - 13, ypos + current_page * marker_size, 11, marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0);
 	}
 }
 
@@ -290,7 +290,8 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 			else
 				hintBox->scroll_down();
 		}
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// do nothing
 		}
 		else if(msg == CRCInput::RC_mode) {
 			res = messages_return::handled;

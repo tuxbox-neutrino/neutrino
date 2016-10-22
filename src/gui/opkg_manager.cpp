@@ -182,6 +182,16 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		//show package info...
 		bool is_installed = pkg_vec[selected]->installed;
 		string infostr = getPkgInfo(pkg_vec[selected]->name, "", is_installed /*status or info*/);
+
+		//if available, generate a readable string for installation time
+		if (is_installed){
+			string tstr = getPkgInfo(pkg_vec[selected]->name, "Installed-Time", is_installed);
+			stringstream sstr(tstr);
+			time_t tval; sstr >> tval;
+			string newstr = asctime(localtime(&tval));
+			infostr = str_replace(tstr, newstr, infostr);
+		}
+
 		DisplayInfoMessage(infostr.c_str());
 		return res;
 	}
@@ -402,7 +412,7 @@ void COPKGManager::updateMenu()
 	bool upgradesAvailable = false;
 	getPkgData(OM_LIST_INSTALLED);
 	getPkgData(OM_LIST_UPGRADEABLE);
-	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
+	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
 		if (badpackage(it->second.name))
 			continue;
@@ -454,7 +464,7 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 	if (show_progress)
 		status.showStatus(75);
 
-	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++){
+	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it){
 		dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update check for...%s\n", __func__, __LINE__, it->second.name.c_str());
 		if (show_progress){
 			/* showing the names only makes things *much* slower...
@@ -532,14 +542,14 @@ int COPKGManager::showMenu()
 	fw = new CMenuForwarder(LOCALE_OPKG_INSTALL_LOCAL_PACKAGE, true, NULL, this, "local_package", CRCInput::RC_green);
 	fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_INSTALL_LOCAL_PACKAGE);
 	menu->addItem(fw);
-
+#if ENABLE_OPKG_GUI_FEED_SETUP
 	//feed setup
 	CMenuWidget feeds_menu(LOCALE_OPKG_TITLE, NEUTRINO_ICON_UPDATE, w_max (100, 10));
 	showMenuConfigFeed(&feeds_menu);
 	fw = new CMenuForwarder(LOCALE_OPKG_FEED_ADDRESSES, true, NULL, &feeds_menu, NULL, CRCInput::RC_www);
 	fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_FEED_ADDRESSES_EDIT);
 	menu->addItem(fw);
-
+#endif
 	menu->addItem(GenericMenuSeparatorLine);
 
 	menu_offset = menu->getItemsCount();
@@ -549,7 +559,7 @@ int COPKGManager::showMenu()
 	menu->addKey(CRCInput::RC_yellow, this, "rc_yellow");
 
 	pkg_vec.clear();
-	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
+	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
 		if (badpackage(it->second.name))
 			continue;
@@ -607,20 +617,91 @@ int COPKGManager::showMenu()
 
 bool COPKGManager::hasOpkgSupport()
 {
-	string deps[] = {"/var/lib/opkg", /*"/bin/opkg-check-config", "/bin/update-alternatives", "/share/opkg/intercept"*/};
-
 	if (find_executable(OPKG_CL).empty()) {
 		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d]" OPKG_CL " executable not found\n", __func__, __LINE__);
 		return false;
 	}
+
+#if 0
+	/* If directory /var/lib/opkg resp. /opt/opkg
+	   does not exist, it is created by opkg itself */
+	string deps[] = {"/var/lib/opkg", /*"/bin/opkg-check-config", "/bin/update-alternatives", "/share/opkg/intercept"*/};
 	for(size_t i=0; i<sizeof(deps)/sizeof(deps[0]) ;i++){
 		if(access(deps[i].c_str(), R_OK) !=0) {
 			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d] %s not found\n", __func__, __LINE__, deps[i].c_str());
 			return false;
 		}
 	}
-
+#endif
 	return true;
+}
+
+string COPKGManager::getInfoDir()
+{
+	/* /opt/opkg/... is path in patched opkg, /var/lib/opkg/... is original path */
+	string dirs[] = {TARGET_PREFIX"/opt/opkg/info", TARGET_PREFIX"/var/lib/opkg/info"};
+	for (size_t i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++) {
+		if (access(dirs[i].c_str(), R_OK) == 0)
+			return dirs[i];
+	}
+	dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] InfoDir not found\n", __func__, __LINE__);
+	return "";
+}
+
+string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
+{
+	static string infoPath;
+	if (infoPath.empty())
+		infoPath = getInfoDir();
+	if (infoPath.empty())
+			return pkgDesc;
+
+	string infoFile = infoPath + "/" + pkgName + ".control";
+	if (file_exists(infoFile.c_str())) {
+		FILE* fd = fopen(infoFile.c_str(), "r");
+		if (fd == NULL)
+			return pkgDesc;
+
+		fpos_t fz;
+		fseek(fd, 0, SEEK_END);
+		fgetpos(fd, &fz);
+		fseek(fd, 0, SEEK_SET);
+		if (fz.__pos == 0)
+			return pkgDesc;
+
+		char buf[512];
+		string package, version, description;
+		while (fgets(buf, sizeof(buf), fd)) {
+			if (buf[0] == ' ')
+				continue;
+			string line(buf);
+			trim(line, " ");
+			string tmp;
+			/* When pkgDesc is empty, return description only for OM_INFO */
+			if (!pkgDesc.empty()) {
+				tmp = getKeyInfo(line, "Package:", " ");
+				if (!tmp.empty())
+					package = tmp;
+				tmp = getKeyInfo(line, "Version:", " ");
+				if (!tmp.empty())
+					version = tmp;
+			}
+			tmp = getKeyInfo(line, "Description:", " ");
+			if (!tmp.empty())
+				description = tmp;
+		}
+		fclose(fd);
+
+		if (pkgDesc.empty())
+			return description;
+
+		string desc = package + " - " + version;
+		if (!description.empty())
+			desc += " - " + description;
+
+		return desc;
+	}
+	return pkgDesc;
 }
 
 void COPKGManager::getPkgData(const int pkg_content_id)
@@ -637,14 +718,14 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 			if (list_installed_done)
 				return;
 			list_installed_done = true;
-			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++)
+			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it)
 				it->second.installed = false;
 			break;
 		case OM_LIST_UPGRADEABLE:
 			if (list_upgradeable_done)
 				return;
 			list_upgradeable_done = true;
-			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++)
+			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it)
 				it->second.upgradable = false;
 			break;
 	}
@@ -670,12 +751,16 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 			continue;
 
 		switch (pkg_content_id) {
-			case OM_LIST:
+			case OM_LIST: {
 				/* do not even put "bad" packages into the list to save memory */
 				if (badpackage(name))
 					continue;
 				pkg_map[name] = pkg(name, line, line);
+				map<string, struct pkg>::iterator it = pkg_map.find(name);
+				if (it != pkg_map.end())
+					it->second.desc = getPkgDescription(name, line);
 				break;
+			}
 			case OM_LIST_INSTALLED: {
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
@@ -720,8 +805,17 @@ string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key, b
 	execCmd(pkg_types[current_status ? OM_STATUS : OM_INFO] + pkg_name, CShellWindow::QUIET);
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  [data: %s]\n", __func__, __LINE__, tmp_str.c_str());
 
-	if (pkg_key.empty())
+	if (pkg_key.empty()) {
+		/* When description is empty, read data from InfoDir */
+		string tmp = getKeyInfo(tmp_str, "Description:", " ");
+		if (tmp.empty()) {
+			tmp = getPkgDescription(pkg_name);
+			if (!tmp.empty()) {
+				tmp_str += (string)"\nDescription: " + tmp + "\n";
+			}
+		}
 		return tmp_str;
+	}
 
 	return getKeyInfo(tmp_str, pkg_key, ":");
 }

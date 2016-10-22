@@ -4,7 +4,7 @@
 //<![CDATA[
 function form_init()
 {
-	var val = {=ini-get:/var/tuxbox/config/vnc.conf;scale;1=};
+	var val = {=ini-get:%(CONFIGDIR)/vnc.conf;scale;1=};
 	document.f.scale[val-1].selected = true;
 }
 function do_submit()
@@ -25,15 +25,15 @@ function do_submit()
 		<table border="0">
 			<tr>
 				<td>Server</td>
-				<td><input type="text" name="server" size="20" value="{=ini-get:/var/tuxbox/config/vnc.conf;server=}" title="enter IP (xxx.xxx.xxx.xxx)"/></td>
+				<td><input type="text" name="server" size="20" value="{=ini-get:%(CONFIGDIR)/vnc.conf;server=}" title="enter IP (xxx.xxx.xxx.xxx)"/></td>
 			</tr>
 			<tr>
 				<td>Port</td>
-				<td><input type="text" name="port" size="5" value="{=ini-get:/var/tuxbox/config/vnc.conf;port=}"/></td>
+				<td><input type="text" name="port" size="5" value="{=ini-get:%(CONFIGDIR)/vnc.conf;port=}"/></td>
 			</tr>
 			<tr>
 				<td>Passwort</td>
-				<td><input type="password" name="password" size="20" value="{=ini-get:/var/tuxbox/config/vnc.conf;passwd=}"/></td>
+				<td><input type="password" name="password" size="20" value="{=ini-get:%(CONFIGDIR)/vnc.conf;passwd=}"/></td>
 			</tr>
 			<tr>
 				<td>Skalierung</td>

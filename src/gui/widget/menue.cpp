@@ -253,7 +253,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			fb_pixel_t right_frame_col, right_bg_col;
 			if (active) {
 				right_bg_col = right_bgcol;
-				right_frame_col = COL_MENUCONTENT_PLUS_6;
+				right_frame_col = COL_FRAME_PLUS_0;
 			}
 			else {
 				right_bg_col = COL_MENUCONTENTINACTIVE_TEXT;
@@ -261,7 +261,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			}
 			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, NULL, false, right_frame_col, right_bg_col);
 			col.setFrameThickness(3);
-			col.setCorner(RADIUS_LARGE);
+			col.setCorner(RADIUS_SMALL);
 			col.paint(false);
 		}
 		if (*right_text) {
@@ -379,7 +379,7 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 
 		if (icon_w>0 && icon_h>0)
 		{
-			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
+			frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
 		}
 	}
 }
@@ -677,8 +677,10 @@ void CMenuWidget::resetWidget(bool delete_items)
 {
 	for(unsigned int count=0;count<items.size();count++) {
 		CMenuItem * item = items[count];
-		if (delete_items && !item->isStatic)
+		if (delete_items && !item->isStatic){
 			delete item;
+			item = NULL;
+		}
 	}
 	
 	items.clear();
@@ -811,6 +813,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					if (titem->isSelectable()) {
 						items[selected]->paint( false );
 						selected= i;
+						if (selected > page_start[current_page + 1] || selected < page_start[current_page]) {
+							/* different page */
+							paintItems();
+						}
 						paintHint(selected);
 						pos = selected;
 						if (titem->directKeyOK)
@@ -959,12 +965,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 			case (CRCInput::RC_timeout):
 				break;
-
-			case (CRCInput::RC_sat):
-			case (CRCInput::RC_favorites):
-				g_RCInput->postMsg (msg, 0);
-				//close any menue on dbox-key
 			case (CRCInput::RC_setup):
+				//close any menu on menu-key
 				{
 					msg = CRCInput::RC_timeout;
 					retval = menu_return::RETURN_EXIT_ALL;
@@ -981,7 +983,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 
 			default:
-				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
+				if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+					g_RCInput->postMsg (msg, 0);
+					retval = menu_return::RETURN_EXIT_ALL;
+					msg = CRCInput::RC_timeout;
+				}
+				else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 					retval = menu_return::RETURN_EXIT_ALL;
 					msg = CRCInput::RC_timeout;
 				}
@@ -1184,8 +1191,8 @@ void CMenuWidget::calcSize()
 	if(total_pages > 1)
 		sb_width=15;
 
-	full_width = /*ConnectLineBox_Width+*/width+sb_width+SHADOW_OFFSET;
-	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2 /*+hint_height+INFO_BOX_Y_OFFSET*/;
+	full_width = /*ConnectLineBox_Width+*/width+sb_width+OFFSET_SHADOW;
+	full_height = height+RADIUS_LARGE+OFFSET_SHADOW*2 /*+hint_height+OFFSET_INTER*/;
 	/* + ConnectLineBox_Width for the hintbox connection line
 	 * + center_offset for symmetry
 	 * + 20 for setMenuPos calculates 10 pixels border left and right */
@@ -1193,7 +1200,7 @@ void CMenuWidget::calcSize()
 	int max_possible = (int)frameBuffer->getScreenWidth() - ConnectLineBox_Width - center_offset - 20;
 	if (full_width > max_possible)
 	{
-		width = max_possible - sb_width - SHADOW_OFFSET;
+		width = max_possible - sb_width - OFFSET_SHADOW;
 		full_width = max_possible + center_offset; /* symmetry in MENU_POS_CENTER case */
 	}
 
@@ -1235,14 +1242,14 @@ void CMenuWidget::paint()
 		header->enableShadow(CC_SHADOW_RIGHT);
 		header->setOffset(10);
 	}
-	header->setColorBody(COL_MENUHEAD_PLUS_0);
-	header->setColorShadow(COL_MENUCONTENTDARK_PLUS_0);
+	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
 	header->setCaptionColor(COL_MENUHEAD_TEXT);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0);
+	header->enableGradientBgCleanUp(savescreen);
 	header->paint(CC_SAVE_SCREEN_NO);
 
 	// paint body shadow
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y + hheight + SHADOW_OFFSET, width + sb_width, height - hheight + RADIUS_LARGE + (fbutton_count ? fbutton_height : 0), COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x+OFFSET_SHADOW, y + hheight + OFFSET_SHADOW, width + sb_width, height - hheight + RADIUS_LARGE + (fbutton_count ? fbutton_height : 0), COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	// paint body background
 	frameBuffer->paintBoxRel(x, y+hheight, width + sb_width, height-hheight + RADIUS_LARGE, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, (fbutton_count ? CORNER_NONE : CORNER_BOTTOM));
 
@@ -1302,9 +1309,9 @@ void CMenuWidget::paintItems()
 	//Item not currently on screen
 	if (selected >= 0)
 	{
-		while (selected < page_start[current_page])
+		while (current_page > 0 && selected < page_start[current_page])
 			current_page--;
-		while (selected >= page_start[current_page + 1])
+		while (current_page+1 < page_start.size() && selected >= page_start[current_page + 1])
 			current_page++;
 	}
 
@@ -1312,8 +1319,8 @@ void CMenuWidget::paintItems()
 	if(total_pages>1)
 	{
 		int item_height=height-(item_start_y-y);
-		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
-		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
+		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_SCROLLBAR_PASSIVE_PLUS_0, RADIUS_MIN);
+		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_MIN);
 		/* background of menu items, paint every time because different items can have
 		 * different height and this might leave artifacts otherwise after changing pages */
 		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
@@ -1420,7 +1427,8 @@ void CMenuWidget::paintHint(int pos)
 		/* clear info box */
 		if ((info_box) && (pos < 0))
 			savescreen ? info_box->hide() : info_box->kill();
-		hint_painted = false;
+		if (info_box)
+			hint_painted = info_box->isPainted();
 	}
 	if (pos < 0)
 		return;
@@ -1430,7 +1438,7 @@ void CMenuWidget::paintHint(int pos)
 	if (!item->hintIcon && item->hint == NONEXISTANT_LOCALE && item->hintText.empty()) {
 		if (info_box) {
 			savescreen ? info_box->hide() : info_box->kill();
-			hint_painted = false;
+			hint_painted = info_box->isPainted();
 		}
 		return;
 	}
@@ -1441,15 +1449,15 @@ void CMenuWidget::paintHint(int pos)
 	int iheight = item->getHeight();
 	int rad = RADIUS_LARGE;
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + fbutton_height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
+	int ypos2 = y + height + fbutton_height + rad + OFFSET_SHADOW + OFFSET_INTER;
 	int iwidth = width+sb_width;
 	
 	//init details line and infobox dimensions
 	int ypos1 = item->getYPosition();
-	int ypos1a = ypos1 + (iheight/2)-2;
-	int ypos2a = ypos2 + (hint_height/2)-2;
+	int ypos1a = ypos1 + (iheight/2);
+	int ypos2a = ypos2 + (hint_height/2);
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
-	int imarkh = iheight/2+1;
+	int imarkh = iheight/2;
 	
 	//init details line
 	if (details_line == NULL)
@@ -1472,10 +1480,11 @@ void CMenuWidget::paintHint(int pos)
 	info_box->removeLineBreaks(str);
 	info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
 	info_box->setCorner(RADIUS_LARGE);
-	info_box->setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	info_box->setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	info_box->setTextColor(COL_MENUCONTENTDARK_TEXT);
 	info_box->enableShadow();
 	info_box->setPicture(item->hintIcon ? item->hintIcon : "");
-	info_box->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);// COL_INFOBAR_SHADOW_PLUS_1 is default footer color
+	info_box->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_MENUFOOT_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);// COL_MENUFOOT_PLUS_0 is default footer color
 
 	//paint result
 	if (details_line)
@@ -1989,12 +1998,11 @@ int CMenuOptionChooser::paint( bool selected)
 
 int CMenuOptionChooser::getWidth(void)
 {
-	int ow = 0;
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(getName());
 	int width = tw;
 
 	for(unsigned int count = 0; count < options.size(); count++) {
-		ow = 0;
+		int ow = 0;
 		if (options[count].valname)
 			ow = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(options[count].valname);
 		else
@@ -2251,7 +2259,7 @@ CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, boo
 	nameString	= "";
 }
 
-CMenuSeparator::CMenuSeparator(const int Type, const std::string Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
+CMenuSeparator::CMenuSeparator(const int Type, const std::string &Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
 {
 	type		= Type;
 	name		= NONEXISTANT_LOCALE;

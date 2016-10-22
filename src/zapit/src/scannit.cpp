@@ -108,7 +108,7 @@ bool CNit::Read()
 		flen = 3;
 	}
 
-	if (dmx->sectionFilter(0x10, filter, mask, flen) < 0) {
+	if (!dmx->sectionFilter(0x10, filter, mask, flen)) {
 		delete dmx;
 #ifdef DEBUG_NIT
 		printf("[NIT] filter failed\n");

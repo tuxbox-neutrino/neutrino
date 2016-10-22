@@ -11,8 +11,11 @@
 #include <sstream>
 #include <iomanip>
 
+#include <unistd.h>
+
 // yhttpd
 #include <yconfig.h>
+#include <tuxboxapi/controlapi.h>
 #include "ytypes_globals.h"
 #include "helper.h"
 #include "ylogging.h"
@@ -76,10 +79,10 @@ std::string timeString(time_t time) {
 // Printf and return formatet String. Buffer-save!
 // max length up to bufferlen -> then snip
 //-------------------------------------------------------------------------
-#define bufferlen 4*1024
 std::string string_printf(const char *fmt, ...) {
-	char buffer[bufferlen];
 	va_list arglist;
+	const int bufferlen = 4*1024;
+	char buffer[bufferlen] = {0};
 	va_start(arglist, fmt);
 	vsnprintf(buffer, bufferlen, fmt, arglist);
 	va_end(arglist);
@@ -292,17 +295,154 @@ std::string json_out_error(std::string _error) {
 //-----------------------------------------------------------------------------
 // JSON: convert string to JSON-String
 //-----------------------------------------------------------------------------
+
+std::string json_convert_string(std::string value)
+{
+	std::string result;
+	for (size_t i = 0; i < value.length(); i++)
+	{
+		unsigned char c = unsigned(value[i]);
+		switch(c)
+		{
+		case '\"':
+			result += "\\\"";
+			break;
+		case '\\':
+			result += "\\\\";
+			break;
+		case '\b':
+			result += "\\b";
+			break;
+		case '\f':
+			result += "\\f";
+			break;
+		case '\n':
+			result += "\\n";
+			break;
+		case '\r':
+			result += "\\r";
+			break;
+		case '\t':
+			result += "\\t";
+			break;
+		default:
+			if ( isControlCharacter( c ) )
+			{
+				std::ostringstream oss;
+				oss << "\\u" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << static_cast<int>(c);
+				result += oss.str();
+			}
+			else
+			{
+				result += c;
+			}
+			break;
+		}
+	}
+	return result;
+}
+
+#if 0
 std::string json_convert_string(std::string s) {
 	std::stringstream ss;
-	for (size_t i = 0; i < s.length(); ++i) {
-		if (unsigned(s[i]) < '\x20' || s[i] == '\\' || s[i] == '"' || unsigned(s[i]) >= '\x80') {
-			ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex
-					<< unsigned(s[i]);
+	for (size_t i = 0; i < s.length(); ) {
+		unsigned char ch = unsigned(s[i]);
+		if(ch == 0x0d){
+			ss << "\\u000d";
+			i++;
+			continue;
+		}
+		if(ch == 0x0a){
+			ss << "\\u000a";
+			i++;
+			continue;
+		}
+
+		if(ch < '\x20' || ch == '\\' || ch == '"' || ch >= '\x80') {
+			unsigned long unicode = 0;
+			size_t todo = 0;
+			if (ch <= 0xBF) {
+			}
+			else if (ch <= 0xDF) {
+				unicode = ch & 0x1F;
+				todo = 1;
+			}
+			else if (ch <= 0xEF) {
+				unicode = ch & 0x0F;
+				todo = 2;
+			}
+			else if (ch <= 0xF7) {
+				unicode = ch & 0x07;
+				todo = 3;
+			}
+			for (size_t j = 0; j < todo; ++j){
+				++i;
+				unicode <<= 6;
+				unicode += unsigned(s[i]) & 0x3F;
+			}
+			if (unicode <= 0xFFFF)
+			{
+				ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << unicode;
+			}else
+			{
+				unicode -= 0x10000;
+				ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << ((unicode >> 10) + 0xD800);
+				ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << ((unicode & 0x3FF) + 0xDC00);
+			}
 		}
 		else {
 			ss << s[i];
 		}
+		++i;
 	}
 	return ss.str();
 }
+#endif // 0
 
+std::string yExecuteScript(std::string cmd) {
+	std::string script, para, result;
+	bool found = false;
+
+	//aprintf("%s: %s\n", __func__, cmd.c_str());
+
+	// split script and parameters
+	int pos;
+	if ((pos = cmd.find_first_of(" ")) > 0) {
+		script = cmd.substr(0, pos);
+		para = cmd.substr(pos + 1, cmd.length() - (pos + 1)); // snip
+	} else
+		script = cmd;
+	// get file
+	std::string fullfilename;
+	script += ".sh"; //add script extention
+
+	char cwd[255];
+	getcwd(cwd, 254);
+	for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT && !found; i++) {
+		fullfilename = CControlAPI::PLUGIN_DIRS[i] + "/" + script;
+		FILE *test = fopen(fullfilename.c_str(), "r"); // use fopen: popen does not work
+		if (test != NULL) {
+			fclose(test);
+			chdir(CControlAPI::PLUGIN_DIRS[i].c_str());
+			FILE *f = popen((fullfilename + " " + para).c_str(), "r"); //execute
+			if (f != NULL) {
+				found = true;
+
+				char output[1024];
+				while (fgets(output, 1024, f)) // get script output
+					result += output;
+				pclose(f);
+			}
+		}
+	}
+	chdir(cwd);
+
+	if (!found) {
+		printf("%s: script %s not found in:\n", __func__, script.c_str());
+		for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT; i++) {
+			printf("\t%s\n", CControlAPI::PLUGIN_DIRS[i].c_str());
+		}
+		result = "error";
+	}
+	return result;
+}

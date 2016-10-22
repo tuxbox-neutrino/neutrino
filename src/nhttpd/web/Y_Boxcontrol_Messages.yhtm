@@ -1,26 +1,46 @@
 {=var-set:cancache=yPyes=}
 {=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/Y_yweb.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_send(mode) {
+	var msg = document.getElementById(mode);
+	var res = "error";
+	if (msg != "")
+		res = trim(loadSyncURL("/control/message?"+mode+"="+msg.value));
+	$("out").update(res);
+	$(mode).setValue("");
+}
+//]]>
+</script>
 </head>
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
 	{=var-set:help_url=Help-BoxControl-Message=}{=var-set:menu={=L:bc.menue.messages=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
-	<form name="f" action="/control/message" method="get" enctype="application/x-www-form-urlencoded" accept-charset="UTF-8">
 		<table class="y_invisible_table" cellpadding="5" width="100%">
 		<tr><td class="y_form_header">{=L:bc.msg.message_to_screen=}</td></tr>
 		<tr><td>
-			<input name="nmsg" type="text" size="50" maxlength="255" title="{=L:bc.msg.message_to_screen_desc=}"/>
-			<button type="submit" name="message" ytype="go" title="{=L:bc.msg.send_message=}">{=L:send=}</button>
+			<input id="nmsg" type="text" size="50" maxlength="255" title="{=L:bc.msg.message_to_screen_desc=}"/>
+			<button type="button" ytype="go" onclick="do_send('nmsg')" title="{=L:bc.msg.send_message=}">{=L:send=}</button>
 		</td></tr>
 		<tr><td class="y_form_header">{=L:bc.msg.popup_to_screen=}</td></tr>
 		<tr><td>
-			<input name="popup" type="text" size="50" maxlength="255" title="{=L:bc.msg.message_to_screen_desc=}"/>
-			<button type="submit" name="pmessage" ytype="go" title="{=L:bc.msg.send_message=}">{=L:send=}</button>
+			<input id="popup" type="text" size="50" maxlength="255" title="{=L:bc.msg.message_to_screen_desc=}"/>
+			<button type="button" ytype="go" onclick="do_send('popup')" title="{=L:bc.msg.send_message=}">{=L:send=}</button>
 		</td></tr>
 		</table>
 		<br/>
-	</form>
+	</div>
+</div>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-BoxControl-Message=}{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<div id="out"></div>
 	</div>
 </div>
 </body>

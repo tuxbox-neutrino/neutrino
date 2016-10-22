@@ -120,7 +120,7 @@ private:
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);
-	void RealRun(CMenuWidget &mainSettings);
+	void RealRun();
 	void InitZapper();
 	void InitTimerdClient();
 	void InitZapitClient();
@@ -153,6 +153,7 @@ public:
 		mode_ts = 7,
 		mode_off = 8,
 		mode_webtv = 9,
+		mode_upnp = 10,
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};
@@ -161,6 +162,7 @@ public:
 
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
+	void upgradeSetup(const char * fname);
 	void loadKeys(const char * fname = NULL);
 	void saveKeys(const char * fname = NULL);
 	void SetupTiming();
@@ -187,6 +189,7 @@ public:
 // 	//onchange
  	bool changeNotify(const neutrino_locale_t OptionName, void *);
 
+	bool listModeKey(const neutrino_msg_t msg);
 	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 
 	int getMode() {
@@ -237,7 +240,10 @@ public:
 	void screensaver(bool);
 	//signal/event handler before restart of neutrino gui
 	sigc::signal<bool> OnBeforeRestart;
+	sigc::signal<void> OnAfterSetupFonts;
 	void channelRezap();
+
+	void g_settings_video_Mode(int value) { g_settings.video_Mode = value; }
 };
 #endif
 

@@ -131,8 +131,6 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///property: background gradient direction
 		int cc_body_gradient_direction, cc_body_gradient_direction_old;
 
-		//TODO: move into layers
-		int old_gradient_color;
 		///property: background gradient 2nd color
 		fb_pixel_t cc_body_gradient_2nd_col, cc_body_gradient_2nd_col_old;
 
@@ -141,6 +139,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///sub: get gradient data evaluted with current parameters
 		gradientData_t* getGradientData();
+
+		bool cc_gradient_bg_cleanup;
 
 		///rendering of framebuffer elements at once,
 		///elements are contained in v_fbdata, presumes added frambuffer elements with paintInit(),
@@ -231,12 +231,12 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///set shadow color
 		virtual void setColorShadow(fb_pixel_t color){col_shadow = color;}
 		///set all basic framebuffer element colors at once
-		///Note: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
+		///Note: Possible color values are defined in "gui/color.h" and "gui/color_custom.h"
 		virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
 
 		///set corner types
 		///Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h)
-		///Note: default values are given from settings
+		///Note: default values are given from settings and corner radius sizes are predefined in /system/settings.h
 		virtual void setCornerType(const int& type);
 		///set corner radius and type
 		virtual void setCorner(const int& radius, const int& type = CORNER_ALL);
@@ -254,6 +254,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		virtual void enableShadow(int mode = CC_SHADOW_ON, const int& shadow_width = -1, bool force_paint = false);
 		///switch shadow off
 		virtual void disableShadow(){enableShadow(CC_SHADOW_OFF);}
+		///return current schadow width
+		int getShadowWidth(){return shadow_w;}
 
 		///paint caching for body and shadow, see also cc_paint_cache NOTE: has no effect if paint_bg = false
 		virtual void enablePaintCache(bool enable = true);
@@ -312,9 +314,45 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		*/
 		virtual void hide();
 
-		///erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
-		///from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND_PLUS_0 (empty background)
-		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1);
+		/**Erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
+		 * from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND_PLUS_0 (empty background)
+		 *
+		 * @return void
+		 *
+		 * @param[in] bg_color		optional, color, default color is current screen
+		 * @param[in] corner_radius	optional, defined corner radius, default radius is the current defined radius
+		 * @param[in] fblayer_type	optional, defines layer that to remove, default all layers (cc_fbdata_t) will remove
+		 * 				possible layer types are:
+		 * 				@li CC_FBDATA_TYPE_BGSCREEN,
+		 * 				@li CC_FBDATA_TYPE_BOX,
+		 * 				@li CC_FBDATA_TYPE_SHADOW_BOX,
+		 * 				@li CC_FBDATA_TYPE_FRAME,
+		 * 				@li CC_FBDATA_TYPE_BACKGROUND,
+		 * @see
+		 * 	cc_types.h
+		 * 	gui/color.h
+		 * 	driver/framebuffer.h
+		 * @todo
+		 *	Shadow paint must be reworked, because dimensions of shadow containes not the real defined size. Parts of item are killed too.
+		 *
+		*/
+		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = CC_FBDATA_TYPES);
+
+		/**Erase shadow around rendered item.
+		 * This is similar with the kill() member, but shadow will be handled only.
+		 *
+		 * @return void
+		 *
+		 * @param[in] bg_color		optional, color, default color is current screen
+		 * @param[in] corner_radius	optional, defined corner radius, default radius is the current defined radius
+		 *
+		 * @see
+		 * 	kill()
+		*/
+		virtual void killShadow(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1);
+
+		virtual void enableGradientBgCleanUp(bool enable = true) { cc_gradient_bg_cleanup = enable; };
+		virtual void disableGradientBgCleanUp(){ enableGradientBgCleanUp(false); };
 };
 
 #endif

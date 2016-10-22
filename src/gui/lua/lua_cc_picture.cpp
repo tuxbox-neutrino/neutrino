@@ -57,6 +57,8 @@ void CLuaInstCCPicture::CCPictureRegister(lua_State *L)
 		{ "hide",         CLuaInstCCPicture::CCPictureHide },
 		{ "setPicture",   CLuaInstCCPicture::CCPictureSetPicture },
 		{ "setCenterPos", CLuaInstCCPicture::CCPictureSetCenterPos },
+		{ "getHeight",    CLuaInstCCPicture::CCPictureGetHeight },
+		{ "getWidth",    CLuaInstCCPicture::CCPictureGetWidth },
 		{ "__gc",         CLuaInstCCPicture::CCPictureDelete },
 		{ NULL, NULL }
 	};
@@ -76,9 +78,9 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	lua_Integer x=10, y=10, dx=100, dy=100;
 	std::string image_name        = "";
 	lua_Integer alignment         = 0;
-	lua_Unsigned color_frame      = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_frame      = (lua_Unsigned)COL_FRAME_PLUS_0;
 	lua_Unsigned color_background = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
-	lua_Unsigned color_shadow     = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_shadow     = (lua_Unsigned)COL_SHADOW_PLUS_0;
 
 	/*
 	transparency = CFrameBuffer::TM_BLACK (2): Transparency when black content ('pseudo' transparency)
@@ -123,6 +125,26 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, "cpicture");
 	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstCCPicture::CCPictureGetHeight(lua_State *L)
+{
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
+
+	int h = D->cp->getHeight();
+	lua_pushinteger(L, h);
+	return 1;
+}
+
+int CLuaInstCCPicture::CCPictureGetWidth(lua_State *L)
+{
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
+
+	int w = D->cp->getWidth();
+	lua_pushinteger(L, w);
 	return 1;
 }
 

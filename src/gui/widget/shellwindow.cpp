@@ -51,10 +51,14 @@ CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res,
 	textBox 	= NULL;
 	frameBuffer 	= CFrameBuffer::getInstance();
 
-	command 	= Command;
-	mode 		= Mode;
-	res 		= Res;
+	setCommand(Command, Mode, Res, auto_exec);
+}
 
+void CShellWindow::setCommand(const std::string &Command, const int Mode, int* Res, bool auto_exec)
+{
+	command = Command;
+	mode = Mode;
+	res = Res;
 	if (auto_exec)
 		exec();
 }
@@ -233,7 +237,7 @@ void CShellWindow::showResult()
 			show_button = true;
 		}
 		else if (mode & ACKNOWLEDGE_EVENT){
-			if (*res != 0){
+			if (res && *res != 0){
 				OnResultError(res);
 				if (OnResultError.empty())
 					DisplayErrorMessage("Error while execution of task. Please see window for details!");

@@ -226,7 +226,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 	selected = 0;
 	// Max
 	width = 90;
-	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
+	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //initial height value for buttonbar
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	x=getScreenStartX( width );
@@ -364,25 +364,16 @@ void CBookmarkManager::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight*2;
 
+	unsigned int currpos = liststart + pos;
+
+	bool i_selected	= currpos == selected;
+	bool i_marked	= false;
+	bool i_switch	= false; //(currpos < bookmarks.size()) && (pos & 1);
+
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	if (pos & 1)
-	{
-		color   = COL_MENUCONTENTDARK_TEXT;
-		bgcolor = COL_MENUCONTENTDARK_PLUS_0;
-	}
-	else
-	{
-		color   = COL_MENUCONTENT_TEXT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
-
-	if (liststart + pos == selected)
-	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
+	getItemColors(color, bgcolor, i_selected, i_marked, i_switch);
 
 	int real_width=width;
 	if (bookmarks.size()>listmaxshow)
@@ -391,14 +382,14 @@ void CBookmarkManager::paintItem(int pos)
 	}
 
 	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor);
-	if (liststart+pos<bookmarks.size())
+	if (currpos < bookmarks.size())
 	{
-		CBookmark theBookmark = bookmarks[liststart+pos];
+		CBookmark theBookmark = bookmarks[currpos];
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, real_width-10, theBookmark.getName(), color, fheight);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+2*fheight, real_width-10, theBookmark.getUrl(), color, fheight);
 
 		// LCD Display
-		if (liststart+pos==selected)
+		if (i_selected)
 		{
 			CVFD::getInstance()->showMenuText(0, theBookmark.getName(), -1, true); // UTF-8
 			CVFD::getInstance()->showMenuText(1, theBookmark.getUrl(), -1, true); // UTF-8
@@ -434,19 +425,19 @@ const struct button_label BookmarkmanagerButtons[2] =
 void CBookmarkManager::paintFoot()
 {
 	int ButtonWidth = (width - 20) / 4;
-	frameBuffer->paintBoxRel(x,y+height, width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1);
-	frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
+	frameBuffer->paintBoxRel(x,y+height, width, footerHeight, COL_MENUFOOT_PLUS_0);
+	frameBuffer->paintHLine(x, x+width,  y, COL_MENUFOOT_PLUS_0);
 
 	if (bookmarks.empty()) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 1* ButtonWidth + 10, y+height);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT);
 	}
 	else
 	{
 		::paintButtons(x + 10, y + height + 4, width, 2, BookmarkmanagerButtons, footerHeight, ButtonWidth);
 
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 1* ButtonWidth + 10, y+height);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT);
 	}
 }
 
@@ -468,13 +459,15 @@ void CBookmarkManager::paint()
 	{
 		int ypos = y+ theight;
 		int sb = 2*fheight* listmaxshow;
-		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
-
-		int sbc= ((bookmarks.size()- 1)/ listmaxshow)+ 1;
+		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
+		unsigned  int  tmp_max  =  listmaxshow;
+		if(!tmp_max)
+			tmp_max  =  1;
+		int sbc= ((bookmarks.size()- 1)/ tmp_max)+ 1;
 		if (sbc < 1)
 			sbc = 1;
 
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ page_nr * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ page_nr * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0);
 	}
 
 	paintFoot();

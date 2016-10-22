@@ -46,7 +46,6 @@ class COPKGManager : public CMenuTarget
 	private:
 		int width;
 		std::string tmp_str;
-		CFrameBuffer *frameBuffer;
 		CConfigFile opkg_conf;
 		void saveConfig();
 		void loadConfig();
@@ -150,6 +149,9 @@ class COPKGManager : public CMenuTarget
 		void showError(const char* local_msg, char* err_msg = NULL, const std::string& additional_text = std::string());
 		int doUpdate();
 		void handleShellOutput(std::string* cur_line, int* res, bool* ok);
+
+		std::string getInfoDir();
+		std::string getPkgDescription(std::string pkgName, std::string pkgDesc="");
 
 		struct pkg {
 			std::string name;

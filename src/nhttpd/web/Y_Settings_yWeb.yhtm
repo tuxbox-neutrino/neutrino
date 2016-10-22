@@ -26,7 +26,7 @@ function do_submit(){
 	}
 }
 function do_init(){
-	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;0~open=}";
+	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;fb;0~open=}";
 	var sel=2;
 	switch(val){
 		case "-2":	// d-box philips
@@ -38,20 +38,22 @@ function do_init(){
 		case "4":	// cst neo twin
 		case "5":	// cst tank
 		case "6":	// cst trinity
+		case "7":	// cst link
+		case "8":	// cst trinity duo
 			sel=(sel*1+val*1);
 			break;
 		default:
 			break;
 	}
 	document.f.fb.selectedIndex = sel;
-	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;start_page;bouquets~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;start_page;bouquets~cache=}";
 	var sel=2;
 	switch(val){
 		case "bouquets": sel=0; break;
 		case "control": sel=1; break;
 	}
 	document.f.start_page.selectedIndex = sel;
-	style_old = "{=ini-get:/var/tuxbox/config/Y-Web.conf;style~cache=}";
+	style_old = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;style~cache=}";
 }
 //]]>
 </script>
@@ -73,40 +75,40 @@ select {
 			<tr><td class="y_form_header" colspan="4">{=L:set.yweb.management_IPs=}</td></tr>
 			<tr>
 				<td>IP 1</td>
-				<td colspan="3"><input type="text" name="managementIP" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=}" title="{=L:set.yweb.enter_ip_desc=}"/></td>
+				<td colspan="3"><input type="text" name="managementIP" size="15" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=}" title="{=L:set.yweb.enter_ip_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>IP 2</td>
-				<td colspan="3"><input type="text" name="managementIP2" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}" title="{=L:set.yweb.enter_ip_desc=}"/></td>
+				<td colspan="3"><input type="text" name="managementIP2" size="15" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}" title="{=L:set.yweb.enter_ip_desc=}"/></td>
 			</tr>
 			<tr><td class="y_form_header" colspan="4">{=L:set.yweb.wake_on_lan=}</td></tr>
 			<tr>
 				<td>MAC 1</td>
-				<td><input type="text" name="wol_mac_1" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_1=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
+				<td><input type="text" name="wol_mac_1" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_1=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
 				<td>{=L:set.yweb.description=}</td>
-				<td><input type="text" name="wol_desc_1" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_1=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
+				<td><input type="text" name="wol_desc_1" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_1=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>MAC 2</td>
-				<td><input type="text" name="wol_mac_2" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
+				<td><input type="text" name="wol_mac_2" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_2=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
 				<td>{=L:set.yweb.description=}</td>
-				<td><input type="text" name="wol_desc_2" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_2=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
+				<td><input type="text" name="wol_desc_2" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_2=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>MAC 3</td>
-				<td><input type="text" name="wol_mac_3" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
+				<td><input type="text" name="wol_mac_3" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_3=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
 				<td>{=L:set.yweb.description=}</td>
-				<td><input type="text" name="wol_desc_3" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_3=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
+				<td><input type="text" name="wol_desc_3" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_3=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
 			</tr>
 			<tr><td class="y_form_header" colspan="4">{=L:set.yweb.box_tag=}</td></tr>
 			<tr>
 				<td>{=L:set.yweb.box_tag=}</td>
-				<td colspan="3"><input type="text" name="yweb_box_name" size="8" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_name=}"
+				<td colspan="3"><input type="text" name="yweb_box_name" size="8" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}"
 					title="{=L:box_tag_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:set.yweb.box_color=}</td>
-				<td colspan="3"><input type="text" name="yweb_box_color" size="8" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_color=}"
+				<td colspan="3"><input type="text" name="yweb_box_color" size="8" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_color=}"
 					title="{=L:box_color_desc=}"/></td>
 			</tr>
 			<tr><td class="y_form_header" colspan="4">{=L:others=}</td></tr>
@@ -123,6 +125,8 @@ select {
 						<option value="4">CST HD-1plus | Neo Twin</option>
 						<option value="5">CST HD-2 | Tank</option>
 						<option value="6">CST HD-2 | Trinity</option>
+						<option value="7">CST HD-2 | Link</option>
+						<option value="8">CST HD-2 | Trinity Duo</option>
 					</select>
 				</td>
 			</tr>

@@ -33,7 +33,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <gui/customcolor.h>
 #include <driver/rcinput.h>
 #include <gui/motorcontrol.h>
 #include <gui/scan_setup.h>
@@ -138,7 +137,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	TP.feparams.polarization = scansettings.sat_TP_pol;
 	TP.feparams.delsys = (delivery_system_t) scansettings.sat_TP_delsys;
 	TP.feparams.modulation = (fe_modulation_t) scansettings.sat_TP_mod;
-
+	TP.TP_id = 0;
 	g_Zapit->tune_TP(TP);
 
 	paintHead();

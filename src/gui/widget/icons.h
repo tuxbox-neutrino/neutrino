@@ -179,6 +179,9 @@
 #define NEUTRINO_ICON_RECORDING_EVENT_MARKER	"rec_event_marker"
 #define NEUTRINO_ICON_ZAP		"zap"
 #define NEUTRINO_ICON_PIP		"pip"
+#define NEUTRINO_ICON_STAR_ON		"star-on"
+#define NEUTRINO_ICON_STAR_OFF		"star-off"
+#define NEUTRINO_ICON_TMDB		"tmdb"
 
 #define DUMMY_ICON			"dummy"
 
@@ -204,6 +207,7 @@
 #define NEUTRINO_ICON_HINT_SHUTDOWN	"hint_shutdown"
 #define NEUTRINO_ICON_HINT_INFO		"hint_info"
 #define NEUTRINO_ICON_HINT_CI		"hint_ci"
+#define NEUTRINO_ICON_HINT_ADZAP	"hint_adzap"
 /* media */
 #define NEUTRINO_ICON_HINT_APLAY	"hint_aplay"
 #define NEUTRINO_ICON_HINT_INET_RADIO	"hint_inetradio"

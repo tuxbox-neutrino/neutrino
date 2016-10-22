@@ -44,7 +44,7 @@ typedef struct font_sizes {
 
 typedef struct font_sizes_groups {
 	const neutrino_locale_t			groupname;
-	const unsigned int			count;
+	const size_t				count;
 	const SNeutrinoSettings::FONT_TYPES	*const content;
 	const char * const			actionkey;
 	const neutrino_locale_t hint;
@@ -55,6 +55,16 @@ class CNeutrinoFonts
 	private:
 		std::string fontStyle[3];
 		std::string dynFontStyle[3];
+		typedef struct dyn_size_t
+		{
+			int dx;
+			int dy;
+			int dynsize;
+			int style;
+			std::string text;
+		} dyn_size_struct_t;
+		typedef std::vector<dyn_size_t> v_dyn_size_t;
+		v_dyn_size_t vDynSize;
 
 		typedef struct dyn_font_t
 		{

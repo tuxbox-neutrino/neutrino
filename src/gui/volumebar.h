@@ -39,8 +39,8 @@ class CVolumeBar : public CComponentsForm
 		CComponentsLabel *vb_digit;
 		int vb_digit_mode;
 		int VolumeFont;
-		int sy, sw, sh;
-		int mute_ax, mute_ay, mute_dx, mute_dy, mute_ay_old;
+		int sw, sh;
+		int mute_ax, mute_ay, mute_dx, mute_dy;
 		int h_spacer, v_spacer;
 		int vb_item_offset;
 

@@ -336,7 +336,7 @@ bool CServiceScan::ReadFst(unsigned short pid, unsigned short operator_id, bool 
 	cDemux * dmx = new cDemux();
 	dmx->Open(DMX_PSI_CHANNEL);
 
-	if (dmx->sectionFilter(pid, filter, mask, 3, 3000) < 0) {
+	if (!dmx->sectionFilter(pid, filter, mask, 3, 3000)) {
 		delete dmx;
 		return false;
 	}
@@ -586,7 +586,7 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 	mask[0] = mask[1] = mask[2] = 0xFF;
 
 	printf("[FNT] scaning pid %d operator %d\n", pid, operator_id);
-	if (dmx->sectionFilter(pid, filter, mask, 3, 3000) < 0) {
+	if (!dmx->sectionFilter(pid, filter, mask, 3, 3000)) {
 		delete dmx;
 		return false;
 	}

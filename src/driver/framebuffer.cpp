@@ -48,6 +48,7 @@
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <global.h>
 #include <video.h>
 #include <cs_api.h>
@@ -545,11 +546,13 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	}
 
 	stride = _fix.line_length;
-	printf("FB: %dx%dx%d line length %d. %s nevis GXA accelerator.\n", xRes, yRes, bpp, stride,
-#ifdef USE_NEVIS_GXA
-		"Using"
+	printf("FB: %dx%dx%d line length %d. %s accelerator.\n", xRes, yRes, bpp, stride,
+#if defined(USE_NEVIS_GXA)
+		"Using nevis GXA"
+#elif defined(FB_HW_ACCELERATION)
+		"Using fb hw graphics"
 #else
-		"Not using"
+		"Not using graphics"
 #endif
 	);
 
@@ -669,7 +672,7 @@ void CFrameBuffer::paintHLineRelInternal2Buf(const int& x, const int& dx, const 
 		*(dest++) = col;
 }
 
-fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const fb_pixel_t col, fb_pixel_t* buf/* = NULL*/, int radius/* = 0*/, int type/* = CORNER_ALL*/)
+fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const int w_align, const int offs_align, const fb_pixel_t col, fb_pixel_t* buf/* = NULL*/, int radius/* = 0*/, int type/* = CORNER_ALL*/)
 {
 	if (!getActive())
 		return buf;
@@ -680,13 +683,13 @@ fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const fb_p
 
 	fb_pixel_t* pixBuf = buf;
 	if (pixBuf == NULL) {
-		pixBuf = (fb_pixel_t*) cs_malloc_uncached(dx*dy*sizeof(fb_pixel_t));
+		pixBuf = (fb_pixel_t*) cs_malloc_uncached(w_align*dy*sizeof(fb_pixel_t));
 		if (pixBuf == NULL) {
 			dprintf(DEBUG_NORMAL, "[%s #%d] Error cs_malloc_uncached\n", __func__, __LINE__);
 			return NULL;
 		}
 	}
-	memset((void*)pixBuf, '\0', dx*dy*sizeof(fb_pixel_t));
+	memset((void*)pixBuf, '\0', w_align*dy*sizeof(fb_pixel_t));
 
 	if (type && radius) {
 		setCornerFlags(type);
@@ -707,16 +710,16 @@ fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const fb_p
 				line++;
 				continue;
 			}
-			paintHLineRelInternal2Buf(ofl, dx-ofl-ofr, line, dx, col, pixBuf);
+			paintHLineRelInternal2Buf(ofl+offs_align, dx-ofl-ofr, line, w_align, col, pixBuf);
 			line++;
 		}
 	} else {
 		fb_pixel_t *bp = pixBuf;
 		int line = 0;
 		while (line < dy) {
-			for (int pos = 0; pos < dx; pos++)
+			for (int pos = offs_align; pos < dx+offs_align; pos++)
 				*(bp + pos) = col;
-			bp += dx;
+			bp += w_align;
 			line++;
 		}
 	}
@@ -727,48 +730,84 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 				      const fb_pixel_t /*col*/, gradientData_t *gradientData,
 				      int radius, int type)
 {
-#define MASK 0xFFFFFFFF
+	if (!getActive())
+		return NULL;
 
-	fb_pixel_t* boxBuf    = paintBoxRel2Buf(dx, dy, MASK, NULL, radius, type);
-        if (!boxBuf)
-               return NULL;
+	checkFbArea(x, y, dx, dy, true);
 
+	fb_pixel_t MASK = 0xFFFFFFFF;
+	int _dx = dx;
+	int w_align;
+	int offs_align;
+
+#ifdef BOXMODEL_APOLLO
+	if (_dx%4 != 0) {
+		w_align = GetWidth4FB_HW_ACC(x, _dx, true);
+		if (w_align < _dx)
+			_dx = w_align;
+		offs_align = w_align - _dx;
+		if ((x - offs_align) < 0)
+			offs_align = 0;
+	}
+	else {
+		w_align    = _dx;
+		offs_align = 0;
+	}
+#else
+	w_align    = _dx;
+	offs_align = 0;
+#endif
+
+	fb_pixel_t* boxBuf    = paintBoxRel2Buf(_dx, dy, w_align, offs_align, MASK, NULL, radius, type);
+	if (boxBuf == NULL) {
+		checkFbArea(x, y, dx, dy, false);
+		return NULL;
+	}
 	fb_pixel_t *bp        = boxBuf;
 	fb_pixel_t *gra       = gradientData->gradientBuf;
 	gradientData->boxBuf  = boxBuf;
+	gradientData->x       = x - offs_align;
+	gradientData->dx      = w_align;
 
 	if (gradientData->direction == gradientVertical) {
 		// vertical
-		for (int pos = 0; pos < dx; pos++) {
+		for (int pos = offs_align; pos < _dx+offs_align; pos++) {
 			for(int count = 0; count < dy; count++) {
 				if (*(bp + pos) == MASK)
 					*(bp + pos) = (fb_pixel_t)(*(gra + count));
-				bp += dx;
+				bp += w_align;
 			}
 			bp = boxBuf;
 		}
 	} else {
 		// horizontal
 		for (int line = 0; line < dy; line++) {
-			for (int pos = 0; pos < dx; pos++) {
-				if (*(bp + pos) == MASK)
-					*(bp + pos) = (fb_pixel_t)(*(gra + pos));
+			int gra_pos = 0;
+			for (int pos = 0; pos < w_align; pos++) {
+				if ((*(bp + pos) == MASK) && (pos >= offs_align) && (gra_pos < _dx)) {
+					*(bp + pos) = (fb_pixel_t)(*(gra + gra_pos));
+					gra_pos++;
+				}
 			}
-			bp += dx;
+			bp += w_align;
 		}
 	}
 
-	if ((gradientData->mode & pbrg_noPaint) == pbrg_noPaint)
+	if ((gradientData->mode & pbrg_noPaint) == pbrg_noPaint) {
+		checkFbArea(x, y, dx, dy, false);
 		return boxBuf;
+	}
 
-//	blit2FB(boxBuf, dx, dy, x, y);
-	blitBox2FB(boxBuf, dx, dy, x, y);
+	blitBox2FB(boxBuf, w_align, dy, x-offs_align, y);
 
-	if ((gradientData->mode & pbrg_noFree) == pbrg_noFree)
+	if ((gradientData->mode & pbrg_noFree) == pbrg_noFree) {
+		checkFbArea(x, y, dx, dy, false);
 		return boxBuf;
+	}
 
 	cs_free_uncached(boxBuf);
 
+	checkFbArea(x, y, dx, dy, false);
 	return NULL;
 }
 
@@ -780,9 +819,11 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		return;
 
 	if (dx == 0 || dy == 0) {
-		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx, y+dy);
+		dprintf(DEBUG_DEBUG, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx, y+dy);
 		return;
 	}
+	if (radius < 0)
+		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: WARNING! radius < 0 [%d] FIXME\n", __func__, __LINE__, radius);
 
 	checkFbArea(x, y, dx, dy, true);
 
@@ -974,6 +1015,18 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 	iconBasePath = iconPath;
 }
 
+std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_type)
+{
+	std::string path, filetype;
+	filetype = "." + file_type;
+	path = std::string(ICONSDIR_VAR) + "/" + icon_name + filetype;
+	if (access(path.c_str(), F_OK))
+		path = iconBasePath + "/" + icon_name + filetype;
+	if (icon_name.find("/", 0) != std::string::npos)
+		path = icon_name;
+	return path;
+}
+
 void CFrameBuffer::getIconSize(const char * const filename, int* width, int *height)
 {
 	*width = 0;
@@ -981,6 +1034,10 @@ void CFrameBuffer::getIconSize(const char * const filename, int* width, int *hei
 
 	if(filename == NULL)
 		return;
+	//check for full path, icon don't have full path, or ?
+	if (filename[0]== '/'){
+		return;
+	}
 
 	std::map<std::string, rawIcon>::iterator it;
 
@@ -1067,11 +1124,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	/* we cache and check original name */
 	it = icon_cache.find(filename);
 	if(it == icon_cache.end()) {
-		std::string newname = std::string(ICONSDIR_VAR) + "/" + filename + ".png";
-		if (access(newname.c_str(), F_OK))
-			newname = iconBasePath + "/" + filename + ".png";
-		if (filename.find("/", 0) != std::string::npos)
-			newname = filename;
+		std::string newname = getIconPath(filename);
 		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
@@ -1090,9 +1143,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			goto _display;
 		}
 
-		newname = std::string(ICONSDIR_VAR) + "/" + filename + ".raw";
-		if (access(newname.c_str(), F_OK))
-			newname = iconBasePath + "/" + filename + ".raw";
+		newname = getIconPath(filename, "raw");
 
 		int lfd = open(newname.c_str(), O_RDONLY);
 
@@ -1330,9 +1381,11 @@ void CFrameBuffer::paintBoxFrame(const int x, const int y, const int dx, const i
 		return;
 
 	if (dx == 0 || dy == 0) {
-		printf("paintBoxFrame: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, y+dy);
+		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n",  __func__, __LINE__, radius, x, y, x+dx, y+dy);
 		return;
 	}
+	if (radius < 0)
+		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: WARNING! radius < 0 [%d] FIXIT\n", __func__, __LINE__, radius);
 
 	setCornerFlags(type);
 	int rad_tl = 0, rad_tr = 0, rad_bl = 0, rad_br = 0;
@@ -1917,6 +1970,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 			ioctl(fd, FBIO_IMAGE_BLT, &image);
 		}
 #endif
+		//printf("\033[34m>>>>\033[0m [%s:%s:%d] FB_HW_ACCELERATION (image) x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
 		return;
 	}
 	
@@ -1972,16 +2026,48 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 
 void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
 {
-	checkFbArea(xoff, yoff, width, height, true);
+	uint32_t xc = (width > xRes) ? (uint32_t)xRes : width;
+	uint32_t yc = (height > yRes) ? (uint32_t)yRes : height;
 
+#if defined(FB_HW_ACCELERATION)
+	if (!(width%4)) {
+		fb_image image;
+		image.dx = xoff;
+		image.dy = yoff;
+		image.width = xc;
+		image.height = yc;
+		image.cmap.len = 0;
+		image.depth = 32;
+		image.data = (const char*)boxBuf;
+		ioctl(fd, FBIO_IMAGE_BLT, &image);
+		//printf("\033[33m>>>>\033[0m [%s:%s:%d] FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+		return;
+	}
+	printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+#elif defined(USE_NEVIS_GXA)
+	void* uKva = cs_phys_addr((void*)boxBuf);
+	if(uKva != NULL) {
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		u32 cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
+		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
+		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
+		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff));
+		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));
+		_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));
+		//printf("\033[33m>>>>\033[0m [%s:%s:%d] USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+		add_gxa_sync_marker();
+		return;
+	}
+	printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
+#endif
 	uint32_t swidth = stride / sizeof(fb_pixel_t);
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * yoff);
 	fb_pixel_t* data = (fb_pixel_t*)boxBuf;
 
 	uint32_t line = 0;
-	while (line < height) {
-		fb_pixel_t *pixpos = &data[line * width];
-		for (uint32_t pos = xoff; pos < xoff + width; pos++) {
+	while (line < yc) {
+		fb_pixel_t *pixpos = &data[line * xc];
+		for (uint32_t pos = xoff; pos < xoff + xc; pos++) {
 			//don't paint backgroundcolor (*pixpos = 0x00000000)
 			if (*pixpos)
 				*(fbp + pos) = *pixpos;
@@ -1990,8 +2076,6 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 		fbp += swidth;
 		line++;
 	}
-
-	checkFbArea(xoff, yoff, width, height, false);
 }
 
 void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb, int transp)
@@ -2087,6 +2171,8 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 	if (v_fbarea.empty())
 		return true;
 
+	static bool firstMutePaint = true;
+
 	for (unsigned int i = 0; i < v_fbarea.size(); i++) {
 		int ret = checkFbAreaElement(_x, _y, _dx, _dy, &v_fbarea[i]);
 		if (ret == FB_PAINTAREA_MATCH_OK) {
@@ -2096,10 +2182,14 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 						break;
 //					waitForIdle();
 					fb_no_check = true;
-					if (prev)
+					if (prev) {
+						firstMutePaint = false;
 						CAudioMute::getInstance()->hide();
-					else
-						CAudioMute::getInstance()->paint();
+					}
+					else {
+						if (!firstMutePaint)
+							CAudioMute::getInstance()->paint();
+					}
 					fb_no_check = false;
 					break;
 				default:

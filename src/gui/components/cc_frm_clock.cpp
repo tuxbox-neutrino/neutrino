@@ -61,7 +61,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	y 		= y_pos;
 
 	shadow		= shadow_mode;
-	shadow_w	= SHADOW_OFFSET;
+	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
@@ -316,13 +316,15 @@ bool CComponentsFrmClock::startClock()
 	}
 
 	if (cl_timer == NULL){
-		cl_timer = new CComponentsTimer();
-		dprintf(DEBUG_INFO, "[CComponentsFrmClock]    [%s]  init slot...\n", __func__);
-		cl_timer->OnTimer.connect(cl_sl);
+		cl_timer = new CComponentsTimer(0);
+		if (cl_timer->OnTimer.empty()){
+			dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
+			cl_timer->OnTimer.connect(cl_sl);
+		}
 	}
-	cl_timer->setTimerIntervall(cl_interval);
+	cl_timer->setTimerInterval(cl_interval);
 
-	if (cl_timer->isRun())
+	if (cl_timer->startTimer())
 		return true;
 	
 	return  false;
@@ -344,11 +346,9 @@ bool CComponentsFrmClock::stopClock()
 	return false;
 }
 
-bool CComponentsFrmClock::Start(bool do_save_bg)
+bool CComponentsFrmClock::Start()
 {
 	if (startClock()) {
-		//ensure paint of segements on first paint
-		paint(do_save_bg);
 		paintClock = true;
 		return true;
 	}
@@ -420,7 +420,7 @@ void CComponentsFrmClock::setHeight(const int& h)
 
 	int f_height = cl_font->getHeight();
 	if (h != f_height){
-		dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock]\t[%s - %d], font height is different than current height [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, h, f_height);
+		dprintf(DEBUG_DEBUG, "\033[33m[CComponentsFrmClock]\t[%s - %d], font height is different than current height [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, h, f_height);
 		CCDraw::setHeight(f_height);
 	}else
 		CCDraw::setHeight(h);

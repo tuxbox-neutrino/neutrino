@@ -17,6 +17,16 @@
 
 typedef void (*cs_messenger) (unsigned int msg, unsigned int data);
 
+#define CS_REVISION_CHIP_TYPE(a)	(((a) >> 16) & 0xFFF0)
+#define CS_REVISION_HW_VERSION_MAJOR(a)	(((a) >>  8)  & 0x00FF)
+#define CS_REVISION_HW_HAS_CI(a)	(!(CS_REVISION_HW_VERSION_MAJOR(a) & 0xC0))
+#define CS_REVISION_HW_VERSION_MINOR(a)	(((a) >>  0)  & 0x00FF)
+#define CS_CHIP_APOLLO			0x8490
+#define CS_CHIP_SHINER			0x8470
+#define CS_CHIP_KRONOS_S		0x7540
+#define CS_CHIP_KRONOS_C		0x7550
+#define CS_CHIP_KRONOS_IP		0x7530
+
 enum CS_LOG_MODULE {
 	CS_LOG_CI	= 0,
 	CS_LOG_HDMI_CEC,
@@ -63,6 +73,8 @@ unsigned int cs_get_ts_output(void);
 int cs_set_ts_output(unsigned int port);
 int cs_set_ts_ci_clock(unsigned int speed);
 int cs_get_ts_ci_clock(unsigned int *speed);
+int cs_set_ts_ci_clk_src(unsigned int clk_src);
+int cs_get_ts_ci_clk_src(unsigned int *clk_src);
 int cs_set_ts_config(unsigned int port, tsrouter_hsdp_config_t *hsdp_config);
 int cs_get_ts_config(unsigned int port, tsrouter_hsdp_config_t *hsdp_config);
 int cs_set_tsp_config(unsigned int port, tsrouter_tsp_config_t *tsp_config);
@@ -71,6 +83,8 @@ int cs_get_tsp_config(unsigned int port, tsrouter_tsp_config_t *tsp_config);
 // Serial nr and revision accessors
 unsigned long long cs_get_serial(void);
 unsigned int cs_get_revision(void);
+unsigned int cs_get_chip_type(void);
+bool cs_box_has_ci(void);
 
 unsigned int cs_get_chip_id(void);
 unsigned int cs_get_chip_rev_id(void);

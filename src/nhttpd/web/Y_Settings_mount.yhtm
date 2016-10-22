@@ -4,10 +4,10 @@
 //<![CDATA[
 function form_init()
 {
-	var check = {=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_type_{=R1=}=};
+	var check = {=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_type_{=R1=}=};
 	document.f.type[check].checked = true;
 
-	check = {=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_automount_{=R1=}=};
+	check = {=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_automount_{=R1=}=};
 	document.f.automount[check].checked = true;
 }
 function do_submit()
@@ -36,27 +36,27 @@ function do_submit()
 			</tr>
 			<tr>
 				<td>IP</td>
-				<td><input type="text" name="ip" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_ip_{=R1=}=}"/></td>
+				<td><input type="text" name="ip" size="20" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_ip_{=R1=}=}"/></td>
 			</tr>
 			<tr>
 				<td>Verzeichnis</td>
-				<td><input type="text" name="dir" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_dir_{=R1=}=}" title="remote directory. For CIFS do not use a leading slash."/></td>
+				<td><input type="text" name="dir" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_dir_{=R1=}=}" title="remote directory. For CIFS do not use a leading slash."/></td>
 			</tr>
 			<tr>
 				<td>Lokales Verzeichnis</td>
-				<td><input type="text" name="localdir" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_{=R1=}=}" title="local directory to by mounted"/></td>
+				<td><input type="text" name="localdir" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_{=R1=}=}" title="local directory to by mounted"/></td>
 			</tr>
 			<tr>
 				<td>MAC</td>
-				<td><input type="text" name="mac" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_mac_{=R1=}=}"/></td>
+				<td><input type="text" name="mac" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_mac_{=R1=}=}"/></td>
 			</tr>
 			<tr>
 				<td>Optionen 1</td>
-				<td><input type="text" name="opt1" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_mount_options1_{=R1=}=}" title="mount options 1"/></td>
+				<td><input type="text" name="opt1" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_mount_options1_{=R1=}=}" title="mount options 1"/></td>
 			</tr>
 			<tr>
 				<td>Optionen 2</td>
-				<td><input type="text" name="opt2" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_mount_options2_{=R1=}=}" title="mount options 2"/></td>
+				<td><input type="text" name="opt2" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_mount_options2_{=R1=}=}" title="mount options 2"/></td>
 			</tr>
 			<tr>
 				<td>Automount</td>
@@ -67,11 +67,11 @@ function do_submit()
 			</tr>
 			<tr>
 				<td>Benutzername</td>
-				<td><input type="text" name="username" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_username_{=R1=}=}" title="username"/></td>
+				<td><input type="text" name="username" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_username_{=R1=}=}" title="username"/></td>
 			</tr>
 			<tr>
 				<td>Passwort</td>
-				<td><input type="password" name="password" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_password_{=R1=}=}" title="password"/></td>
+				<td><input type="password" name="password" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_password_{=R1=}=}" title="password"/></td>
 			</tr>
 		</table>
 		<br/>

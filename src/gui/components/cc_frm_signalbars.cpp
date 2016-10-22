@@ -29,7 +29,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <zapit/femanager.h>
 #include "cc_frm_signalbars.h"
 #include <sstream>
 
@@ -40,17 +39,38 @@ using namespace std;
 
 CSignalBar::CSignalBar(CComponentsForm *parent)
 {
-	initVarSigBar();
-	sb_name 	= "SIG";
-
-	initDimensions();
-	initSBItems();
-	initParent(parent);
+	initVarSigBar(0, 0, 100, SB_MIN_HEIGHT, NULL, "SIG", parent);
 }
 
 CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const string& sbname, CComponentsForm *parent)
 {
-	initVarSigBar();
+	initVarSigBar(xpos, ypos, w, h, frontend_ref, sbname, parent);
+}
+
+void CSignalBar::initVarSigBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const std::string& sbname, CComponentsForm *parent)
+{
+	cc_item_type 	= CC_ITEMTYPE_FRM_SIGNALBAR;
+
+	corner_rad 	= 0;
+	corner_type 	= 0;
+	append_x_offset = 2;
+	append_y_offset = 2;
+
+	sb_scale_height = -1;
+	dy_font 	= CNeutrinoFonts::getInstance();
+
+	sb_caption_color= COL_MENUCONTENT_TEXT;
+	sb_active_color = COL_PROGRESSBAR_ACTIVE_PLUS_0;
+	sb_passive_color= COL_PROGRESSBAR_PASSIVE_PLUS_0;
+	sb_val_mode 	= CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT;
+
+	sb_lastsig 	= 0;
+	sb_signal 	= 0;
+
+	sb_scale 	= NULL;
+	sb_vlbl		= NULL;
+	sb_lbl		= NULL;
+
 	sb_frontend 	= frontend_ref;
 	x 		= xpos;
 	y 		= ypos;
@@ -91,35 +111,14 @@ void CSignalBar::initSBItems()
 		//and set required color for text to name label
 		CSignalBox *sbx = static_cast<CSignalBox*>(cc_parent);
 		sb_caption_color = sbx->getTextColor();
+		sb_active_color  = sbx->getActiveColor();
+		sb_passive_color = sbx->getPassiveColor();
 	}
 
 	//init items scale, value and name
 	initSBarScale();
 	initSBarValue();
 	initSBarName();
-}
-
-void CSignalBar::initVarSigBar()
-{
-	corner_rad 	= 0;
-	corner_type 	= 0;
-	append_x_offset = 2;
-	append_y_offset = 2;
-	height		= SB_MIN_HEIGHT;
-	cc_item_type 	= CC_ITEMTYPE_FRM_SIGNALBAR;
-	sb_scale_height = -1;
-	dy_font 	= CNeutrinoFonts::getInstance();
-
-	sb_caption_color= COL_INFOBAR_TEXT;
-	sb_val_mode 	= CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT;
-
-	sb_lastsig 	= 0;
-	sb_signal 	= 0;
-
-	sb_frontend 	= NULL;
-	sb_scale 	= NULL;
-	sb_vlbl		= NULL;
-	sb_lbl		= NULL;
 }
 
 void CSignalBar::initSBarScale()
@@ -132,11 +131,11 @@ void CSignalBar::initSBarScale()
 	int scale_y = (sb_item_height/2 - sb_scale_height/2);
 	sb_scale->setDimensionsAll(fr_thickness, scale_y, sb_scale_width, sb_scale_height);
 	sb_scale->setColorBody(col_body);
-
+	sb_scale->setActiveColor(sb_active_color);
+	sb_scale->setPassiveColor(sb_passive_color);
 	//add scale object to container
 	if(!sb_scale->isAdded())
 		addCCItem(sb_scale);
-
 }
 
 void CSignalBar::initSBarValue()
@@ -144,7 +143,7 @@ void CSignalBar::initSBarValue()
 	//create value label object with basic properties
 	if (sb_vlbl == NULL){
 		sb_vlbl = new CComponentsLabel();
-		sb_vlbl->setText(REF_PERCENT_TXT, sb_val_mode, sb_font);
+		sb_vlbl->setText("0%", sb_val_mode, sb_font);
 	}
 
 	sb_vlbl->doPaintBg(false);
@@ -187,7 +186,6 @@ void CSignalBar::initSBarName()
 	sb_lbl->setTextColor(sb_caption_color);
 	sb_lbl->setColorBody(col_body);
 
-
 	//add name label object to container
 	if (!sb_lbl->isAdded())
 		addCCItem(sb_lbl);
@@ -197,7 +195,9 @@ void CSignalBar::initSBarName()
 void CSignalBar::Refresh()
 {
 	//get current value from frontend
-	sb_signal = sb_frontend->getSignalStrength();
+	sb_signal = 0;
+	if (sb_frontend)
+		sb_signal = sb_frontend->getSignalStrength();
 
 	//reinit items with current values
 	initSBItems();
@@ -247,7 +247,9 @@ void CSignalBar::paint(bool do_save_bg)
 void CSignalNoiseRatioBar::Refresh()
 {
 	//get current value from frontend
-	sb_signal = sb_frontend->getSignalNoiseRatio();
+	sb_signal = 0;
+	if (sb_frontend)
+		sb_signal = sb_frontend->getSignalNoiseRatio();
 
 	//reinit items with current values
 	initSBItems();
@@ -260,7 +262,7 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 	initVarSigBox();
 	vertical = vert;
 
-	sbx_frontend 	= (frontend_ref == NULL) ? CFEManager::getInstance()->getLiveFE() : frontend_ref;
+	sbx_frontend 	= frontend_ref;
 	x 		= xpos;
 	y 		= ypos;
 	width 		= w;
@@ -296,7 +298,9 @@ void CSignalBox::initVarSigBox()
 	height 		= 3* SB_MIN_HEIGHT;
 	sbx_bar_height	= height/2;
 	sbx_bar_x	= corner_rad;
-	sbx_caption_color = COL_INFOBAR_TEXT;
+	sbx_caption_color = COL_MENUCONTENT_TEXT;
+	sbx_active_color  = COL_PROGRESSBAR_ACTIVE_PLUS_0;
+	sbx_passive_color = COL_PROGRESSBAR_PASSIVE_PLUS_0;
 	vertical = true;
 }
 
@@ -317,12 +321,18 @@ void CSignalBox::initSignalItems()
 
 	sbar->setDimensionsAll(sbar_x, 1, sbar_w, sbar_h);
 	sbar->setFrontEnd(sbx_frontend);
+	sbar->setTextColor(sbx_caption_color);
+	sbar->setActiveColor(sbx_active_color);
+	sbar->setPassiveColor(sbx_passive_color);
 	sbar->setCorner(0);
 	sbar->setScaleHeight(scale_h);
 	sbar->enableTboxSaveScreen(cc_txt_save_screen);
 
 	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : 1, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
+	snrbar->setTextColor(sbx_caption_color);
+	snrbar->setActiveColor(sbx_active_color);
+	snrbar->setPassiveColor(sbx_passive_color);
 	snrbar->setCorner(0);
 	snrbar->setScaleHeight(scale_h);
 	snrbar->enableTboxSaveScreen(cc_txt_save_screen);
@@ -343,10 +353,8 @@ void CSignalBox::paintScale()
 void CSignalBox::paint(bool do_save_bg)
 {
 	//paint frame and body
-	if (!is_painted){
-		initSignalItems();
+	if (!is_painted)
 		paintForm(do_save_bg);
-	}
 
 	//paint current signal value
 	paintScale();

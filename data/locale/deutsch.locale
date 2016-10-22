@@ -108,6 +108,15 @@ GENRE.TRAVEL_HOBBIES.6 Einkauf
 GENRE.TRAVEL_HOBBIES.7 Garten
 GENRE.UNKNOWN Unbekannt
 adzap Werbezapper
+adzap.announce In %d Sekunden wird umgeschaltet auf\n%s
+adzap.cancel Deaktiviert
+adzap.disable Aus
+adzap.enable Ein (einmalig)
+adzap.minute Minute
+adzap.minutes Minuten
+adzap.monitor Ein (dauerhaft)
+adzap.switchback Zurückschalten nach
+adzap.writedata Schreibe Status-Daten
 apidselector.head Sprachauswahl
 audio.srs_algo Art
 audio.srs_algo_heavy stark
@@ -148,7 +157,7 @@ audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
 audioplayer.add_ic Icecast
 audioplayer.add_loc Lokale Radioliste
-audioplayer.add_sc Shoutcast
+audioplayer.add_sc SHOUTcast
 audioplayer.artist_title Interpret, Titel
 audioplayer.building_search_index Erstelle Suchindex
 audioplayer.button_select_title_by_id Suche n. ID
@@ -157,7 +166,7 @@ audioplayer.defdir Start-Verz.
 audioplayer.delete entfernen
 audioplayer.deleteall Alle entfernen
 audioplayer.display_order Anzeige
-audioplayer.enable_sc_metadata Aktiviere Shoutcast Meta-Daten Parsing
+audioplayer.enable_sc_metadata Aktiviere SHOUTcast Meta-Daten Parsing
 audioplayer.fastforward schneller Vorl.
 audioplayer.follow Selektiere akt. Track
 audioplayer.head Audio Playlist
@@ -246,6 +255,7 @@ channellist.foot_sort_freq Sortiert[freq]
 channellist.foot_sort_sat Sortiert[sat]
 channellist.head Alle Kanäle
 channellist.history Verlauf
+channellist.history_clear Verlauf löschen
 channellist.keep_numbers Dauerhafte Kanalnummern
 channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
@@ -323,6 +333,7 @@ colormenu.timing Timeouts
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
+colormenusetup.menufoot Fußleiste
 colormenusetup.menuhead Titelleiste
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
@@ -378,6 +389,7 @@ epgviewer.genre Genre
 epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
+epgviewer.select_screening Terminauswahl
 eventfinder.fsk Altersfreigabe Filter
 eventfinder.genre Genre Filter
 eventfinder.head EPG-Suche
@@ -391,6 +403,7 @@ eventfinder.search_within_list Suche innerhalb Text
 eventfinder.searching Suche...
 eventfinder.start_search Suche starten
 eventlist.additional Zusatzinformationen
+eventlist.epgplus EPG Plus anzeigen
 eventlist.name Eventliste
 eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
@@ -464,7 +477,8 @@ extra.saveconfig Neutrino Einstellungen: Sichern als
 extra.savekeys Speichere Tastenbelegung als
 extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
-extra.sms_channel SMS-Modus Kanal
+extra.sms_channel SMS-Modus bei Kanalsuche
+extra.sms_movie SMS-Modus bei Filmsuche
 extra.south Süden
 extra.start_tostandby Standby nach Boxstart
 extra.temp_timeshift Temporäres Timeshift
@@ -717,6 +731,7 @@ fontsize.infobar_info Info
 fontsize.infobar_number Nummer
 fontsize.infobar_small Klein
 fontsize.menu Menütext
+fontsize.menu_foot Fußleiste (in allen GUI-Elementen)
 fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
@@ -765,6 +780,7 @@ hdd_statfs_recording nur während Aufnahme
 hdd_umount Aushängen
 hdd_umount_warn Laufwerk aushängen
 hdd_umounted Laufwerk entfernt
+imageinfo.api API:
 imageinfo.creator Ersteller:
 imageinfo.date Datum:
 imageinfo.dokumentation Dokus:
@@ -809,7 +825,7 @@ keybindingmenu.head Tasten-Belegungen bearbeiten
 keybindingmenu.lastchannel Letzter Kanal
 keybindingmenu.longkeypress_duration Langer Tastendruck
 keybindingmenu.misc Sonstige
-keybindingmenu.mode_left_right_key_tv Funktion li/re Tasten im TV-Modus
+keybindingmenu.mode_left_right_key_tv Funktion der li/re-Tasten
 keybindingmenu.mode_left_right_key_tv_infobar Infobar einblenden
 keybindingmenu.mode_left_right_key_tv_volume Lautstärkeregelung
 keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
@@ -859,6 +875,7 @@ lcdmenu.dim_brightness nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
 lcdmenu.head VFD/LED Einstellungen
 lcdmenu.lcdcontroler Helligkeit
+lcdmenu.notify_rclock Benachrichtigung bei FB-Sperre
 lcdmenu.scroll Laufschrift
 lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
@@ -876,6 +893,10 @@ ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
+livestream.head Livestreams
+livestream.read_data Lese Daten...
+livestream.resolution Auflösung
+livestream.scriptpath Script Verzeichnis
 lua.boolparam_deprecated1 Achtung!
 lua.boolparam_deprecated2 Die Verwendung von Zahl oder String
 lua.boolparam_deprecated3 für einen Boolean Parameter ist veraltet.\n                      Bitte nutzen Sie native Bool Werte zB:
@@ -925,9 +946,18 @@ mainsettings.savesettingsnow Einstellungen jetzt speichern
 mainsettings.savesettingsnow_hint Einstellungen werden jetzt gespeichert,\nbitte warten...
 mainsettings.timezone Zeitzone
 mainsettings.video Video
+mbkey.copy_onefile Film kopieren
+mbkey.copy_several Film kopieren und teilen
+mbkey.cover Filmcover erzeugen/löschen
+mbkey.cut Film schneiden
+mbkey.truncate Film kürzen
 menu.back Zurück
 menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
+menu.hint_adzap Der Werbezapper schaltet nach der eingestellten Zeit wieder auf den ursprünglichen Kanal zurück
+menu.hint_adzap_active Der Werbezapper ist aktiv. Mit einem erneuten Aufruf wird er deaktiviert.
+menu.hint_adzap_setup Einstellungen für den Werbezapper
+menu.hint_adzap_writedata Schreibe Daten über den Status des Werbezappers nach /tmp/adzap.data
 menu.hint_aplay Audioplayer
 menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen und mehr
@@ -1010,6 +1040,7 @@ menu.hint_epg_save_standby Speichert die EPG-Daten auch, wenn in den Standby-Mod
 menu.hint_epg_scan Zu scannende Bouquets wählen. Aktuelles Bouquet beim Umschalten, markierte Bouquets oder alle Favoriten
 menu.hint_epg_scan_mode Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
+menu.hint_eventlist_epgplus Definiert, ob EPG Plus (Vorschau-Übersicht) mit der EPG-Taste angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
 menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
 menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal und mehr
@@ -1024,6 +1055,8 @@ menu.hint_font_gui Wählen Sie die Schriftart für die Menüs
 menu.hint_font_scaling Legen Sie die vertikale und horizontale Skalierung der Menüschrift fest
 menu.hint_font_ttx Wählen Sie die Schriftart für den Teletext
 menu.hint_fonts Konfigurieren Sie die Schriftart und die Schriftgrößen für die Menüs
+menu.hint_foot_back Ändern Sie die Fußleisten-Hintergrundfarbe
+menu.hint_foot_textcolor Ändern Sie die Fußleisten-Textfarbe
 menu.hint_games Zeige Liste der installierten Spiele
 menu.hint_hdd Formatierung und Prüfung der Datenträger
 menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen
@@ -1069,7 +1102,6 @@ menu.hint_key_binding In diesem Menü können Einstellungen für die Tasten der 
 menu.hint_key_bouquetdown Weisen Sie eine Taste für das Zurückblättern in den Bouquets zu
 menu.hint_key_bouquetup Weisen Sie eine Taste für das Vorblättern in den Bouquets zu
 menu.hint_key_cancel Weisen Sie eine Taste für das Schließen der Menüs zu
-menu.hint_key_channel_sms Wenn es aktiviert ist, können Sie die Nummern-Tasten in der Kanalliste nutzen, um im SMS-Style zu suchen
 menu.hint_key_channeldown Weisen Sie eine Taste für das Herunterschalten in der Kanalliste zu
 menu.hint_key_channellist Konfigurieren Sie die Tastenbelegung für die Kanalliste
 menu.hint_key_channelup Weisen Sie eine Taste für das Hochschalten in der Kanalliste zu
@@ -1082,6 +1114,7 @@ menu.hint_key_list_end Weisen Sie eine Taste für den Wechsel zum Listenende zu
 menu.hint_key_list_start Weisen Sie eine Taste für den Wechsel zum Listenanfang zu
 menu.hint_key_load Laden Sie Ihre Tastenbelegungen aus einer Datei
 menu.hint_key_modechange Wählen Sie eine Taste für den Wechsel in den TV/Radio-Modus und für den Standby
+menu.hint_key_moviebrowser Konfigurieren Sie die Tastenbelegung für den Moviebrowser
 menu.hint_key_movieplayer Konfigurieren Sie die Tastenbelegung für den Movieplayer
 menu.hint_key_mpaudio Weisen Sie eine Taste zu, um die Tonspuren in ihren Aufnahmen zu wechseln
 menu.hint_key_mpbookmark Weisen Sie eine Taste zu, um Merker in ihren Aufnahmen für den Neustart zu setzen
@@ -1106,7 +1139,7 @@ menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumsc
 menu.hint_key_record Konfigurieren Sie die Taste für den Aufnahmestart
 menu.hint_key_repeatblock Die Verzögerung nach einem Tastendruck bis die Box reagieren soll
 menu.hint_key_repeatblockgeneric Die Verzögerung zwischen den Tastewiederholungen bis die Box reagieren soll
-menu.hint_key_right Wählen Sie die Funktion für die Tasten 'links' und 'rechts' im TV/Radio-Modus
+menu.hint_key_right Wählen Sie die Funktion für die Tasten 'links' und 'rechts' im TV/Radio- und Movieplayer-Modus
 menu.hint_key_save Speichern Sie Ihre Tastenbelegungen in einer Datei ab
 menu.hint_key_screenshot Weisen Sie eine Taste zu, um Menü- und/oder TV-Screenshots zu speichern
 menu.hint_key_sort Weisen Sie eine Taste für das Sortieren in der Kanalliste zu
@@ -1139,6 +1172,7 @@ menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens 'gelös
 menu.hint_make_webtvlist Bei aktiver Option wird ein Bouquet namens 'WebTV' erzeugt, in dem alle WebTV-Sender zusammengefasst sind
 menu.hint_manage_settings Sichern, Wiederherstellen und Auslieferungszustand wiederherstellen
 menu.hint_mb Ihre Aufnahmen
+menu.hint_mbkey_cover Weisen Sie eine Taste zu, um Filmcover während der Wiedergabe zu erzeugen oder sie im Moviebrowser zu löschen
 menu.hint_media Abspielen von Musik, Internetradio und Filmen; Betrachten Sie Bilder
 menu.hint_menu_fonts Ändern Sie die Schriftgrößen im Menü
 menu.hint_menu_hints Zeigt Ihnen Hinweise zu den Menüpunkten an. Sie erreichen das auch jederzeit mit der Taste 'Hilfe'
@@ -1150,6 +1184,7 @@ menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Auss
 menu.hint_misc_epg Diverse EPG-Einstellungen und Speicherverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, Startverzeichnisoptionen
 menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
+menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie YouTube, SHOUTCast und TMDb
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
 menu.hint_moviebrowser_setup Legen Sie Auswahl- und Anzeigeoptionen des MovieBrowsers fest
@@ -1231,6 +1266,7 @@ menu.hint_progressbar_timescale_yellow Hier können Sie den gelben Farbanteil bu
 menu.hint_protection Schützen Sie Inhalte per PIN-Code\nStandard-PIN ist 0000
 menu.hint_radiomode Schaltet zum Radio-Modus
 menu.hint_reboot Startet die Box neu\nDer Neustart erfolgt ohne Bestätigung!
+menu.hint_record_already_found_check Prüft vor dem Setzen eines neues Aufnahmetimers, ob ein gleichnamiger Titel bereits vorhanden ist
 menu.hint_record_apid_ac3 Schließt bei einer Aufnahme die durch den Sender definierte Tonspur 'Dolby Digital' in die Aufnahme ein, sofern diese vorhanden ist
 menu.hint_record_apid_alt Sind weitere Tonspuren verfügbar, dann können diese hiermit bei einer Aufnahme entsprechend ein- bzw. ausgeschlossen werden
 menu.hint_record_apid_std Schließt bei einer Aufnahme die durch den Sender definierte Tonspur 'Standard' in die Aufnahme ein bzw. aus
@@ -1361,6 +1397,8 @@ menu.hint_selected_text Ändern Sie die Textfarbe für ausgewählte Fensterinhal
 menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung und mehr
 menu.hint_service_scan Automatischer / manueller Service Suchlauf
 menu.hint_settings Konfigurieren von Neutrino,\nNetzwerk, Video, Audio, OSD und mehr
+menu.hint_shoutcast_dev_id Geben Sie die SHOUTcast Dev ID ein. Eine leere Eingabe schaltet die SHOUTcast-Unterstützung aus
+menu.hint_shoutcast_enabled Schaltet die SHOUTcast-Unterstützung ein oder aus
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
 menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus oder schalten Sie die Box komplett aus
 menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn die Box im Standby-Modus ist
@@ -1369,6 +1407,8 @@ menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn die Power-Taste län
 menu.hint_shutdown_real Aktiviert den Standby-Modus. Ist diese Option deaktiviert, fährt die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann in den Standby-Modus
 menu.hint_sleeptimer_min Voreinstellung der Zeitschaltuhr auf Ihrer Box
+menu.hint_sms_channel Wenn es aktiviert ist, können Sie die Nummern-Tasten in der Kanalliste nutzen, um im SMS-Style zu suchen
+menu.hint_sms_movie Wenn es aktiviert ist, können Sie die Nummern-Tasten im Moviebrowser nutzen, um im SMS-Style zu suchen
 menu.hint_soft_restart Neustarten von Neutrino, ohne die Box neu zu starten
 menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
 menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
@@ -1386,6 +1426,8 @@ menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden 
 menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofenster sich automatisch schließen (0 deaktiviert)
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
+menu.hint_tmdb_api_key Geben Sie den TMDb API Schlüssel ein. Eine leere Eingabe schaltet die TMDb-Unterstützung aus
+menu.hint_tmdb_enabled Schaltet die TMDb-Unterstützung (themoviedb.org) ein bzw. aus
 menu.hint_tools Werkzeuge ausführen
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
@@ -1399,6 +1441,7 @@ menu.hint_vfd_brightnessstandby Definiert die Helligkeit im Standby-Modus
 menu.hint_vfd_defaults Zurücksetzen der Helligkeitswerte auf die Standardeinstellungen
 menu.hint_vfd_dimtime Geben Sie einen Wert in Sekunden ein, nachdem sich das Display automatisch auf den gewünschten Wert dimmt
 menu.hint_vfd_infoline Wählen Sie, was in der Infozeile angezeigt werden soll
+menu.hint_vfd_notify_rclock Zeigt eine Meldung im Display, wenn bei gesperrter Fernbedienung eine Taste gedrückt wird
 menu.hint_vfd_scroll Laufschrift im Display ein- oder ausschalten
 menu.hint_vfd_statusline Wählen Sie, was in der Statuszeile angezeigt werden soll
 menu.hint_video Video-Ausgang, Auflösung, Format, Seitenverhältnisse und mehr
@@ -1422,7 +1465,9 @@ menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
-menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
+menu.hint_youtube_dev_id Geben Sie die YouTube Dev ID ein. Eine leere Eingabe schaltet die YouTube-Unterstützung aus
+menu.hint_youtube_enabled Schaltet die YouTube-Unterstützung ein oder aus
+menu.hint_ytplay Wiedergabe von ausgewählten YouTube Feeds
 menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter
@@ -1500,6 +1545,7 @@ miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandsanzeige (SysFS und HDD)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.infoclock Uhr
+miscsettings.onlineservices Online-Dienste
 miscsettings.progressbar Fortschrittsbalken
 miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design
@@ -1664,9 +1710,11 @@ moviebrowser.info_prevplaydate Letzte Wiedergabe
 moviebrowser.info_prodcountry Land
 moviebrowser.info_prodyear Jahr
 moviebrowser.info_quality Qualität
+moviebrowser.info_rating Bewertung
 moviebrowser.info_recorddate Aufnahmedatum
 moviebrowser.info_serie Serie
 moviebrowser.info_size Dateigröße (MB)
+moviebrowser.info_spacer Abstandshalter
 moviebrowser.info_title Titel
 moviebrowser.info_videoformat Bildformat
 moviebrowser.last_play_max_items Zeilen 'zuletzt aufgenommen'
@@ -1698,7 +1746,7 @@ moviebrowser.serie_auto_create Serien automatisch zuordnen
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Name ändern
 moviebrowser.short_audio Audio
-moviebrowser.short_book Markierung
+moviebrowser.short_book Mark.
 moviebrowser.short_channel Kanal
 moviebrowser.short_country Land
 moviebrowser.short_filename Name
@@ -1713,9 +1761,11 @@ moviebrowser.short_path Pfad
 moviebrowser.short_prevplaydate Zuletzt
 moviebrowser.short_prodyear Jahr
 moviebrowser.short_quality Qualität
+moviebrowser.short_rating Vote
 moviebrowser.short_recorddate Datum
 moviebrowser.short_serie Serie
 moviebrowser.short_size Größe
+moviebrowser.short_spacer
 moviebrowser.short_title Titel
 moviebrowser.start_head Film starten von Position:
 moviebrowser.start_record_start Aufnahmestart
@@ -1735,7 +1785,7 @@ moviebrowser.yt_cancel_transfer Download abbrechen?
 moviebrowser.yt_clear Liste leeren
 moviebrowser.yt_completed Vollständige Downloads
 moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
-moviebrowser.yt_error Fehler beim Laden des Youtube-Feeds
+moviebrowser.yt_error Fehler beim Laden des YouTube-Feeds
 moviebrowser.yt_failed Fehlgeschlagene Downloads
 moviebrowser.yt_history Frühere Suchen
 moviebrowser.yt_max_history Max. Anzahl früherer Suchen
@@ -1761,9 +1811,9 @@ movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
 movieplayer.chapters Kapitel
-movieplayer.defplugin Start-Plugin
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
+movieplayer.plugin Movieplayer-Plugin
 movieplayer.starting Wiedergabe starten...
 movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
@@ -1780,7 +1830,7 @@ movieplayer.tshelp7 ca. 1 Minute vor
 movieplayer.tshelp8 ca. 5 Minuten zurück
 movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback TS Abspielen
-movieplayer.ytplayback Youtube-Feed Wiedergabe
+movieplayer.ytplayback YouTube-Feed Wiedergabe
 mpkey.audio Tonspuren
 mpkey.bookmark Markierungen
 mpkey.forward Vorlauf
@@ -1985,6 +2035,7 @@ ping.unreachable ist nicht erreichbar (unerreichbar)
 pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verz.
+plugins.no_plugin Kein Plugin
 plugins.result Pluginausgabe
 plugintype.disabled Deaktiviert
 plugintype.game Spiel
@@ -1995,6 +2046,8 @@ rclock.locked Gesperrt
 rclock.lockmsg Die Fernbedienung wird gesperrt.\nUm die Sperre aufzuheben, bitte\n[rot] gefolgt von [%s]\nauf der Fernbedienung drücken.
 rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert
+recording.already_found %s\nwurde bereits gefunden. Trotzdem aufnehmen?
+recording.already_found_check Prüfe Aufnahmen
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten...!
 recording.startstop_msg Meldung bei Aufnahme Start/Ende
@@ -2002,6 +2055,7 @@ recording.stop Beende Aufnahme, bitte warten...!
 recording.time_hour Stunde
 recording.time_hours Stunden
 recording.time_min Min
+recordingmenu.already_found_check Prüfe, ob Titel bereits vorhanden
 recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
@@ -2037,6 +2091,12 @@ recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Teletext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
+remotebox_add hinzufügen
+remotebox_channel_na Kanal auf Remote-Box nicht verfügbar
+remotebox_del löschen
+remotebox_head Remote-Boxen
+remotebox_ip Remote-Box IP
+remotebox_mod bearbeiten
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
@@ -2206,6 +2266,8 @@ settings.pos_top_left oben links
 settings.pos_top_right oben rechts
 settings.restore Image-Einstellungen: Wiederherstellen
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
+shoutcast.dev_id SHOUTcast Dev ID
+shoutcast.enabled SHOUTcast-Unterstützung
 shutdown.recording_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Die Box wird in 1 Min. in Standby-Betrieb gehen.\nStandby-Betrieb abbrechen?
@@ -2299,6 +2361,7 @@ timerlist.type.execplugin Plugin ausführen
 timerlist.type.nextprogram Nächstes Programm
 timerlist.type.record Aufnahme
 timerlist.type.remind Erinnerung
+timerlist.type.remotebox Remote-Aufnahme
 timerlist.type.shutdown Shutdown
 timerlist.type.sleeptimer Sleeptimer
 timerlist.type.standby Standby
@@ -2325,6 +2388,9 @@ timing.infobar_radio Infobar (Radiobetrieb)
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
 timing.volumebar Lautstärkeanzeige
+tmdb.api_key TMDb API Schlüssel
+tmdb.enabled TMDb-Unterstützung
+tmdb.read_data Suche TMDB Daten...
 unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR
@@ -2343,6 +2409,7 @@ usermenu.button_green Benutzermenü 'grün'
 usermenu.button_red Benutzermenü 'rot'
 usermenu.button_yellow Benutzermenü 'gelb'
 usermenu.head Benutzermenü
+usermenu.item_adzap Werbezapper
 usermenu.item_bar ---- Trennung ----
 usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none (frei)
@@ -2358,7 +2425,7 @@ usermenu.name Name
 usermenu.title_blue Erweiterungen
 usermenu.title_green Tonwahl
 usermenu.title_red EPG
-usermenu.title_yellow Bildregie
+usermenu.title_yellow Bildoptionen
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
 videomenu.analog_auto AUTO
@@ -2430,6 +2497,8 @@ wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
 wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer CST. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nBeachten Sie: Ihre CST Set-Top-Box lässt sich bequem per Webinterface\nsteuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nAchten Sie darauf, dass Ihre Gerät nicht von aussen zugänglich ist,\nda sonst ein Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
 word.from ab
 word.in in
+youtube.dev_id YouTube Dev ID
+youtube.enabled YouTube-Unterstützung
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio

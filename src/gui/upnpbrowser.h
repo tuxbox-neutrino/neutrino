@@ -4,14 +4,6 @@
   Copyright (C) 2001 Steffen Hehn 'McClean'
   Homepage: http://dbox.cyberphoria.org/
 
-  Kommentar:
-
-  Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-  Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-  auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-  Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
-
   License: GPL
 
   This program is free software; you can redistribute it and/or modify
@@ -25,8 +17,7 @@
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef __upnpplayergui__
@@ -88,13 +79,19 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	unsigned int   m_listmaxshow;
 	unsigned int   m_deviceliststart;
 	unsigned int   m_selecteddevice;
-	int            m_fheight; // Fonthoehe Inhalt
-	int            m_theight; // Fonthoehe Titel
-	int            m_mheight; // Fonthoehe Info
-	int            m_sheight; // Fonthoehe Status
-	int            m_buttonHeight;
-	int            m_title_height;
-	int            m_info_height;
+
+	int		font_item;
+
+	int            m_topbox_height;
+	int            m_header_height;
+	int            m_header_y;
+	int            m_item_height;
+	int            m_item_y;
+	int            m_footer_height;
+	int            m_footer_y;
+	int            m_infobox_height;
+	int            m_infobox_y;
+
 	bool           m_folderplay;
 	std::string    m_playfolder;
 	int            m_playid;
@@ -102,12 +99,15 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	bool           m_playing_entry_is_shown;
 	time_t         timeout;
 	CComponentsDetailLine * dline;
+	CComponentsFooter footer;
+	CComponentsInfoBox topbox, infobox, timebox;
+	CComponentsPicture *image;
 
 	bool discoverDevices();
 	void splitProtocol(std::string &protocol, std::string &prot, std::string &network, std::string &mime, std::string &additional);
-	bool getResults(std::string id, unsigned int start, unsigned int count, std::list<UPnPAttribute> &results); 
+	bool getResults(std::string id, unsigned int start, unsigned int count, std::list<UPnPAttribute> &results);
 	std::vector<UPnPEntry> *decodeResult(std::string);
-
+	void Init();
 	void updateDeviceSelection(int newpos);
 	void selectDevice();
 	void paintDevices();
@@ -119,13 +119,14 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	bool updateItemSelection(std::string id, std::vector<UPnPEntry> * &entries, int newpos, unsigned int &selected, unsigned int &liststart);
 	bool selectItem(std::string);
 	void paintItems(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset);
-	void paintItem  (std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected);
+	void paintItem(std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected);
 	void paintItemInfo(UPnPEntry *entry);
 	void paintDetails(UPnPEntry *entry, bool use_playing = false);
-	void paintItem2DetailsLine (int pos);
+	void paintItem2DetailsLine(int pos);
 
 	void updateTimes(const bool force = false);
 	void playAudio(std::string name, int type);
+	void stopAudio();
 	void showPicture(std::string name);
 	void playVideo(std::string name, std::string url);
 };

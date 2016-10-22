@@ -328,7 +328,8 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 		( msg == CRCInput::RC_home ) ||
 		( msg == CRCInput::RC_ok ) )
 			doLoop = false;
-		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// do nothing
 		}
 		else
 		{
@@ -881,6 +882,16 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg = NeutrinoMessages::EVT_SET_VOLUME;
 								*data = *(char*) p;
 								break;
+							case NeutrinoMessages::RECORD_START :
+								*msg = NeutrinoMessages::RECORD_START;
+								*data = (unsigned long) p;
+								dont_delete_p = true;
+								break;
+							case NeutrinoMessages::RECORD_STOP :
+								*msg = NeutrinoMessages::RECORD_STOP;
+								*data = (unsigned long) p;
+								dont_delete_p = true;
+								break;
 							default:
 								printf("[neutrino] event INITID_HTTPD - unknown eventID 0x%x\n",  emsg.eventID );
 						}
@@ -1181,7 +1192,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 						case NeutrinoMessages::EVT_NEXTEPG:
 							{
 								CSectionsdClient::CurrentNextInfo *cn = (CSectionsdClient::CurrentNextInfo *) p;
-								delete cn;
+								delete [] cn;
 								p = NULL;
 								break;
 							}

@@ -50,8 +50,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <gui/customcolor.h>
-
 #include <zapit/femanager.h>
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
@@ -215,7 +213,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 //printf("[neutrino] scan_mode %d TP_freq %s TP_rate %s TP_fec %d TP_pol %d\n", scansettings.scan_mode, scansettings.TP_freq, scansettings.TP_rate, scansettings.TP_fec, scansettings.TP_pol);
 
 	if(manual) {
-		CZapit::getInstance()->scanPids(true);
+		CZapit::getInstance()->scanPids(scan_pids);
 		if(scansettings.scan_nit_manual)
 			scan_flags |= CServiceScan::SCAN_NIT;
 		TP.scan_mode = scan_flags;

@@ -123,6 +123,9 @@ class CyhookHandler
 protected:
 	static THookList HookList;
 public:
+	CyhookHandler();
+	~CyhookHandler();
+
 	// Output
 	std::string 	yresult;		// content for response output
 	THandleStatus 	status; 		// status of Hook handling
@@ -136,6 +139,7 @@ public:
 	std::string	Sendfile;		// Path & Name (local os style) of file to send
 	bool		keep_alive;
 	bool		cached;			// cached by mod_cache
+	bool		nonPair;
 
 	// Input
 	CStringList 	ParamList;		// local copy of ParamList (Request)
@@ -144,9 +148,6 @@ public:
 	CStringList 	WebserverConfigList;	// Reference (writable) to ConfigList
 	CStringList 	HookVarList;		// Variables in Hook-Handling passing to other Hooks
 	THttp_Method 	Method;			// HTTP Method (requested)
-	// constructor & deconstructor
-	CyhookHandler(){ContentLength = 0; RangeStart = 0; RangeEnd = -1; cached = false; keep_alive = 0; _outIndent = 0;status = HANDLED_NONE;Method = M_UNKNOWN;httpStatus =  HTTP_NIL;outType = plain;};
-	virtual ~CyhookHandler(){};
 
 	// hook slot handler
 	static void 	attach(Cyhook *yh)	// attach a Hook-Class to HookHandler
@@ -191,21 +192,25 @@ public:
 	void WriteLn(char const *text)				{WriteLn(std::string(text));}
 	void SendHTMLHeader(const std::string& Titel);
 	void SendHTMLFooter(void);
-	void SendOk(void)							{(ParamList["response"]=="json") ? Write("{\"success\": \"true\"}") : Write("ok");}
-	void SendError(void)						{(ParamList["response"]=="json") ? Write("{\"success\": \"false\"}") : Write("error");}
+	void SendOk(void);
+	void SendError(std::string error = "");
+	void SendResult(std::string _content);
 	void SendFile(const std::string& url)		{NewURL = url; status = HANDLED_SENDFILE;}
 	void SendRedirect(const std::string& url)	{httpStatus=HTTP_MOVED_TEMPORARILY; NewURL = url; status = HANDLED_REDIRECTION;}
 	void SendRewrite(const std::string& url)	{NewURL = url; status = HANDLED_REWRITE;}
 
+	bool ParamList_exist(std::string keyword);
+
 	int _outIndent;
 	TOutType outType;			// Outputtpe = plain (default)|xml|json
-	TOutType outStart();
-	TOutType checkOutput();
+	TOutType outStart(bool single = false);
+	TOutType getOutType();
 	std::string outIndent();
+	std::string outSingle(std::string _content);
 	std::string outPair(std::string _key, std::string _content, bool _next);
-	std::string outArray(std::string _key, std::string _content);
+	std::string outArray(std::string _key, std::string _content, bool _next = false);
 	std::string outArrayItem(std::string _key, std::string _content, bool _next);
-	std::string outCollection(std::string _key,std::string  _content);
+	std::string outObject(std::string _key,std::string  _content, bool _next = false);
 	std::string outValue(std::string _content);
 	std::string outNext();
 	friend class CyParser;

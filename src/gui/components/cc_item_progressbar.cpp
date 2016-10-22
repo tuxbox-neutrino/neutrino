@@ -197,6 +197,7 @@ void CProgressBarCache::pbcClear()
 			free((*it)->pbc_active);
 		if ((*it)->pbc_passive)
 			free((*it)->pbc_passive);
+		delete (*it);
 	}
 	pbCache.clear();
 }
@@ -465,7 +466,7 @@ void CProgressBar::paintProgress(bool do_save_bg)
 	bool pb_invert = (pb_type == PB_REDRIGHT) || ((pb_type == PB_TIMESCALE) && g_settings.progressbar_timescale_invert);
 
 	if (cc_allow_paint){
-		if (pb_active_width != pb_last_width) {
+		if (!is_painted || (pb_active_width != pb_last_width)) {
 			CProgressBarCache *pbc = CProgressBarCache::pbcLookup(pb_height, pb_max_width, pb_active_col, pb_passive_col, *pb_design, pb_invert, *pb_gradient, pb_red, pb_yellow, pb_green);
 			if (pbc)
 				pbc->pbcPaint(pb_x, pb_y, pb_active_width, pb_passive_width);

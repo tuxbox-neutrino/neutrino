@@ -106,32 +106,31 @@ bool CBEChannelSelectWidget::hasChanged()
 void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselected)
 {
 	int ypos = y+ theight + paintNr*iheight;
+	int i_radius = RADIUS_NONE;
 
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, pselected);
+
 	if (pselected)
 	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-
-		if(itemNr < getItemCount()) {
+		if (itemNr < getItemCount())
+		{
 			initItem2DetailsLine (paintNr, itemNr);
 			paintDetails(itemNr);
 		}
-
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
+		i_radius = RADIUS_LARGE;
 	}
 	else
 	{
 		if (itemNr < getItemCount() && (Channels[itemNr]->flags & CZapitChannel::NOT_PRESENT))
 			color = COL_MENUCONTENTINACTIVE_TEXT;
-		else
-			color = COL_MENUCONTENT_TEXT;
-
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}
+
+	if (i_radius)
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, i_radius);
 
 	if(itemNr < getItemCount())
 	{
@@ -283,6 +282,7 @@ void CBEChannelSelectWidget::paintDetails(int index)
 	//info box
 	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 	ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+	ibox->setTextColor(COL_MENUCONTENTDARK_TEXT);
 	ibox->paint(false);
 }
 
@@ -290,9 +290,9 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*iheight;
-	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
-	int ypos1a = ypos1 + (fheight/2)-2;
-	int ypos2a = ypos2 + (info_height/2)-2;
+	int ypos2 = y + height + OFFSET_INTER;
+	int ypos1a = ypos1 + (fheight/2);
+	int ypos2a = ypos2 + (info_height/2);
 
 	if (dline)
 		dline->kill(); //kill details line
@@ -301,7 +301,7 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
-			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
 
 		//infobox
