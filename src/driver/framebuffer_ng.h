@@ -35,6 +35,8 @@
 #include <map>
 #include <vector>
 
+#include <sigc++/signal.h>
+
 #define fb_pixel_t uint32_t
 
 typedef struct fb_var_screeninfo t_fb_var_screeninfo;
@@ -75,7 +77,7 @@ typedef struct gradientData_t
 
 class CFbAccel;
 /** Ausfuehrung als Singleton */
-class CFrameBuffer
+class CFrameBuffer : public sigc::trackable
 {
 	friend class CFbAccel;
 	private:
@@ -314,6 +316,7 @@ class CFrameBuffer
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
 		/* blit() is unnecessary, but here to avoid patches to the neutrino code */
 		void blit(void) {}
+		sigc::signal<void> OnAfterSetPallette;
 };
 
 #endif

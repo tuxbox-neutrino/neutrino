@@ -508,6 +508,7 @@ void CFrameBuffer::paletteSet(struct fb_cmap *map)
                 realcolor[i] = make16color(cmap.red[i], cmap.green[i], cmap.blue[i], cmap.transp[i],
                                            rl, ro, gl, go, bl, bo, tl, to);
 	}
+	OnAfterSetPallette();
 }
 
 void CFrameBuffer::paintHLineRelInternal2Buf(const int& x, const int& dx, const int& y, const int& box_dx, const fb_pixel_t& col, fb_pixel_t* buf)
