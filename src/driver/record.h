@@ -42,9 +42,11 @@
 #include <OpenThreads/Mutex>
 #include <OpenThreads/Thread>
 
+#if 0
 extern "C" {
 #include <libavformat/avformat.h>
 }
+#endif
 
 #define REC_MAX_APIDS 10
 #define FILENAMEBUFFERSIZE 1024
@@ -237,6 +239,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 #endif
 };
 
+#if 0
 class CStreamRec : public CRecordInstance, OpenThreads::Thread
 {
 	private:
@@ -263,5 +266,6 @@ class CStreamRec : public CRecordInstance, OpenThreads::Thread
 		bool Stop(bool remove_event = true);
 		static int Interrupt(void * data);
 };
+#endif
 
 #endif
