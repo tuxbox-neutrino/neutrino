@@ -296,7 +296,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	if(actionKey == "add_ip") {
 		std::string remoteip;
 		CIPInput remotebox_NetworkIP(LOCALE_REMOTEBOX_IP  , &remoteip);
-		if (remotebox_NetworkIP.exec(NULL,"") == true) {
+		if ((remotebox_NetworkIP.exec(NULL,"") == true) && (!remoteip.empty())) {
 			remboxmenu->addItem(new CMenuForwarder(remoteip, true, NULL, this, "cha_ip"));
 			remotebox_NetworkIP.hide();
 			changed = true;
