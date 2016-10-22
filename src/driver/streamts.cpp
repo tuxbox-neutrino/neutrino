@@ -896,7 +896,7 @@ void CStreamStream::run()
 			continue;
 
 		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
-		if (bsfc && codec->codec_id == CODEC_ID_H264 ) {
+		if (bsfc && codec->codec_id == AV_CODEC_ID_H264 ) {
 			AVPacket newpkt = pkt;
 
 			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
