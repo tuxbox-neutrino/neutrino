@@ -63,6 +63,37 @@
 #include <timerdclient/timerdclient.h>
 #include <cs_api.h>
 
+extern "C" {
+#include <libavformat/avformat.h>
+}
+
+class CStreamRec : public CRecordInstance, OpenThreads::Thread
+{
+	private:
+		AVFormatContext *ifcx;
+		AVFormatContext *ofcx;
+		AVBitStreamFilterContext *bsfc;
+		bool stopped;
+		bool interrupt;
+		time_t time_started;
+		int  stream_index;
+
+		void GetPids(CZapitChannel * channel);
+		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
+		bool Start();
+
+		void Close();
+		bool Open(CZapitChannel * channel);
+		void run();
+		void WriteHeader(uint32_t duration);
+	public:
+		CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
+		~CStreamRec();
+		record_error_msg_t Record();
+		bool Stop(bool remove_event = true);
+		static int Interrupt(void * data);
+};
+
 /* TODO:
  * nextRecording / pending recordings - needs testing
  * check/fix askUserOnTimerConflict gui/timerlist.cpp -> getOverlappingTimers lib/timerdclient/timerdclient.cpp
