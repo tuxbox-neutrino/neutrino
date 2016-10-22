@@ -283,8 +283,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		neutrino_msg_t      msg;
 		neutrino_msg_data_t data;
 		CHintBox * khintBox = NULL;
-		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Press button, or press EXIT to return");
-		hintBox->paint();
+		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Press button, or press EXIT to return");
+		hintBox.paint();
 		while (1)
 		{
 			g_RCInput->getMsg(&msg, &data, 100);
@@ -300,15 +300,15 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 					delete khintBox;
 				}
 				khintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, keyname);
-				hintBox->hide();
+				hintBox.hide();
 				khintBox->paint();
 			}
 		}
 		if (khintBox)
 			delete khintBox;
-		
-		delete hintBox;
-		
+
+		hintBox.hide();
+
 		return res;
 	}
 #if 0 //some parts DEPRECATED
