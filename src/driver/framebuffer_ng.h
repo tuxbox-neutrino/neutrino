@@ -45,6 +45,8 @@ typedef struct gradientData_t
 	fb_pixel_t* boxBuf;
 	bool direction;
 	int mode;
+	int x;
+	int dx;
 } gradientData_struct_t;
 
 #define CORNER_NONE		0x0
