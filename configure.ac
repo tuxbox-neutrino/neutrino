@@ -271,7 +271,6 @@ lib/xmltree/Makefile
 lib/jsoncpp/Makefile
 lib/sectionsdclient/Makefile
 lib/timerdclient/Makefile
-lib/libtriple/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile

@@ -17,8 +17,3 @@ if ENABLE_UPNP
 SUBDIRS += \
 	libupnpclient
 endif
-
-if BOXTYPE_TRIPLE
-SUBDIRS += \
-	libtriple
-endif
