@@ -7,7 +7,7 @@
 	Günther@tuxbox.berlios.org
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2015 Thilo Graf 'dbt'
+	Copyright (C) 2014-2016 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -38,6 +38,7 @@
 #define MSGBOX_MIN_WIDTH HINTBOX_MIN_WIDTH
 #define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT + 75
 
+#define DEFAULT_TEXT_MODE (CMsgBox::CENTER | CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH | CMsgBox::SCROLL)
 
 //! Sub class of CHintBox. Shows a window as a messagebox
 /*!
@@ -126,7 +127,7 @@ class CMsgBox : public CHintBox
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
 			const msg_result_t& Default_result = mbrCancel,
-			const int& Text_mode = CMsgBox::CENTER | CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::SCROLL);
+			const int& Text_mode = DEFAULT_TEXT_MODE);
 
 		CMsgBox(const char* Text,
 			const neutrino_locale_t locale_Title = NONEXISTANT_LOCALE,
@@ -136,7 +137,7 @@ class CMsgBox : public CHintBox
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
 			const msg_result_t& Default_result = mbrCancel,
-			const int& Text_mode = CMsgBox::CENTER | CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::SCROLL);
+			const int& Text_mode = DEFAULT_TEXT_MODE);
 
 // 		~CMsgBox(); //inherited
 		int     exec();
@@ -191,8 +192,6 @@ class CMsgBox : public CHintBox
 
 // 		bool	setText(const std::string* newText);
 };
-
-#define DEFAULT_TEXT_MODE (CMsgBox::CENTER | CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH)
 
 int ShowMsg2UTF(	const neutrino_locale_t Title,
 						const char * const Text, 
