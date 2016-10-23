@@ -118,7 +118,50 @@ class CMsgBox : public CHintBox
 
 		void initButtons();
 	public:
-		/* Constructor */
+		/**CMsgBox Constructor
+		* @param[in]	Text
+		* 	@li 	exepts type const char*, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	Title
+		* 	@li 	optional: exepts type const char*, default = NULL, this causes default title "Information"
+		* @param[in]	Icon
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = NULL (non Icon)
+		* @param[in]	Picon
+		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
+		* @param[in]	Width
+		* 	@li 	optional: exepts type int, defines box width, default value = MSGBOX_MIN_WIDTH
+		* @param[in]	Height
+		* 	@li 	optional: exepts type int, defines box width, default value = MSGBOX_MIN_HEIGHT
+		* @param[in]	ShowButtons
+		* 	@li 	optional: exepts type int, defines which buttons are available on screen, default value =  mbCancel
+		* 	@see	setShowedButtons()
+		* @param[in]	Default_result
+		* 	@li 	optional: exepts type int, defines default result value, default value =  mbrCancel
+		* 		possible values are:
+		* 		mbrYes    	= 0,
+		* 		mbrNo     	= 1,
+		* 		mbrCancel 	= 2,
+		* 		mbrBack   	= 3,
+		* 		mbrOk     	= 4,
+		* 		mbrTimeout 	= 5,
+		*
+		* 		mbrNone 	= -1
+		* 	@see	setDefaultResult(), getResult(); getDefaultResult(), enableDefaultResultOnTimeOut()
+		* @param[in]	text_mode
+		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
+		* 		Possible Modes defined in /gui/widget/textbox.h
+		* 		AUTO_WIDTH
+		* 		AUTO_HIGH
+		* 		SCROLL
+		* 		CENTER
+		* 		RIGHT
+		* 		TOP
+		* 		BOTTOM
+		* 		NO_AUTO_LINEBREAK
+		* 		AUTO_LINEBREAK_NO_BREAKCHARS
+		* 		NOTE: default parameter to find in macro DEFAULT_TEXT_MODE
+		*
+		* 	@see	class CHintBox()
+		*/
 		CMsgBox(const char* Text,
 			const char* Title = NULL,
 			const char* Icon = NULL,
@@ -129,6 +172,50 @@ class CMsgBox : public CHintBox
 			const msg_result_t& Default_result = mbrCancel,
 			const int& Text_mode = DEFAULT_TEXT_MODE);
 
+		/**CMsgBox Constructor
+		* @param[in]	Text
+		* 	@li 	exepts type const char*, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	Title
+		* 	@li 	optional: exepts type neutrino_locale_t with locale entry from /system/locals.h default = NONEXISTANT_LOCALE, this causes default title "Information"
+		* @param[in]	Icon
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = NULL (non Icon)
+		* @param[in]	Picon
+		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
+		* @param[in]	Width
+		* 	@li 	optional: exepts type int, defines box width, default value = MSGBOX_MIN_WIDTH
+		* @param[in]	Height
+		* 	@li 	optional: exepts type int, defines box width, default value = MSGBOX_MIN_HEIGHT
+		* @param[in]	ShowButtons
+		* 	@li 	optional: exepts type int, defines which buttons are available on screen, default value =  mbCancel
+		* 	@see	setShowedButtons()
+		* @param[in]	Default_result
+		* 	@li 	optional: exepts type int, defines default result value, default value =  mbrCancel
+		* 		possible values are:
+		* 		mbrYes    	= 0,
+		* 		mbrNo     	= 1,
+		* 		mbrCancel 	= 2,
+		* 		mbrBack   	= 3,
+		* 		mbrOk     	= 4,
+		* 		mbrTimeout 	= 5,
+		*
+		* 		mbrNone 	= -1
+		* 	@see	setDefaultResult(), getResult(); getDefaultResult(), enableDefaultResultOnTimeOut()
+		* @param[in]	text_mode
+		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
+		* 		Possible Modes defined in /gui/widget/textbox.h
+		* 		AUTO_WIDTH
+		* 		AUTO_HIGH
+		* 		SCROLL
+		* 		CENTER
+		* 		RIGHT
+		* 		TOP
+		* 		BOTTOM
+		* 		NO_AUTO_LINEBREAK
+		* 		AUTO_LINEBREAK_NO_BREAKCHARS
+		* 		NOTE: default parameter to find in macro DEFAULT_TEXT_MODE
+		*
+		* 	@see	class CHintBox()
+		*/
 		CMsgBox(const char* Text,
 			const neutrino_locale_t locale_Title = NONEXISTANT_LOCALE,
 			const char* Icon = NULL,
@@ -140,54 +227,87 @@ class CMsgBox : public CHintBox
 			const int& Text_mode = DEFAULT_TEXT_MODE);
 
 // 		~CMsgBox(); //inherited
-		int     exec();
+		/**
+		* exec caller
+		* @return	int
+		*/
+		int exec();
 
-		///returns current result as msg_result_t, result corresponds to the current result value of selected button
-		msg_result_t	getResult(){return result;};
-		///returns current default result as msg_result_t, independently from current selected button result
-		msg_result_t	getDefaultResult(){return default_result;};
-		///sets current default result as msg_result_t, independently from current selected button result
+		/**
+		* returns current result as msg_result_t, result corresponds to the current result value of selected button
+		* @return	result as int
+		*/
+
+		msg_result_t	getResult(){return result;}
+		/**
+		* returns current default result as msg_result_t, independently from current selected button result
+		* @return	result as int
+		*/
+
+		msg_result_t	getDefaultResult(){return default_result;}
+		/**
+		* sets current default result as msg_result_t, independently from current selected button result
+		* @param[in]	Default_result
+		* 	@li 	exepts type msg_result_t
+		*/
 		void	setDefaultResult(const msg_result_t& Default_result){default_result = Default_result;}
 
-		/*!
-		Sets the displayed buttons.
-		This member allows to set and overrides already defined buttons from constructor,
-		parameter ''ShowButtons'' accepts given types, find under button_define_t enumeration
-			mbYes
-			mbNo
-			mbCancel
-			mbBack
-			mbOk
-			mbOKCancel
-			mbYesNoCancel
-			mbYesNo
-			mbAll
+		/**
+		* Sets the displayed buttons.
+		* This member allows to set and overrides already defined buttons from constructor,
+		* parameter ''ShowButtons'' accepts given types, find under button_define_t enumeration
+		* @param[in]	ShowButtons
+		* 	@li 	optional: exepts type int, defines which buttons are available on screen, default value =  mbCancel
+		* 		possible values are:
+		* 		mbYes           = 0x01,
+		* 		mbNo            = 0x02,
+		* 		mbCancel        = 0x04,
+		* 		mbBack          = 0x08,
+		* 		mbOk            = 0x10,
+		* 		mbOKCancel	= 0x20,
+		* 		mbYesNoCancel	= 0x40,
+		* 		mbYesNo		= 0x80,
+		* 		mbAll		= 0x100,
+		* 		NOTE: allign parameters are currently not supported, these values are existing for compatibility only!
 		*/
 		void	setShowedButtons(const int& ShowButtons){mb_show_button = ShowButtons; initButtons();}
 
-		///define timeout, timeout is enabled if parmeter 1 > -1, otherwise it will be disabled,
+		/**
+		* define timeout, timeout is enabled if parmeter 1 > -1, otherwise it will be disabled,
+		* @param[in]	Timeout
+		* 	@li 	exepts type int
+		*/
 		void 	setTimeOut(const int& Timeout){timeout = Timeout;};
-		///enable/disable defined timeout, otherwise it will be ignored, parameter 1: bool default = true
+
+		/**
+		* enable/disable defined timeout, otherwise it will be ignored
+		* @param[in]	enable
+		* 	@li 	exepts type bool, default = true
+		*/
 		void 	enableDefaultResultOnTimeOut(bool enable = true);
 
-		/*!
-		Default defined button text is already predefiend with parameter 'ShowButtons' from constructor.
-		This member allows to define an alternate text for an already defined button,
-		1st parameter ''showed button'' accepts
-			mbYes
-			mbNo
-			mbCancel
-			mbBack
-			mbOk
-		others will be ignored!
-		2nd parameter sets the new text for button as std::string.
-		Result values are not touched!
+		/**
+		* Default defined button text is already predefiend with parameter 'ShowButtons' from constructor.
+		* This member allows to define an alternate text for an already defined button,
+		* Result values are not touched!
+		* @param[in]	showed_button
+		* 	@li 	exepts type int
+		* 	@see	setShowedButtons()
+		* @param[in]	text
+		* 	@li 	exepts type std::string, sets the new text for button
 		*/
 		void setButtonText(const int& showed_button, const std::string& text);
 
-		///enables background of buttons, parameter bool show, default= true
+		/**
+		* enables background of buttons
+		* @param[in]	enable
+		* 	@li 	exepts type bool, default = true
+		*/
 		void enableButtonBg(bool enable = true);
-		///disables background of buttons
+
+		/**
+		* disables background of buttons
+		*/
 		void disableButtonBg(){enableButtonBg(false);}
 
 // 		bool	setText(const std::string* newText);
