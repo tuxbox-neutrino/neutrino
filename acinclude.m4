@@ -82,21 +82,33 @@ check_path () {
 
 ])
 
+dnl expand nested ${foo}/bar
+AC_DEFUN([TUXBOX_EXPAND_VARIABLE],[__$1="$2"
+	for __CNT in false false false false true; do dnl max 5 levels of indirection
+
+		$1=`eval echo "$__$1"`
+		echo ${$1} | grep -q '\$' || break # 'grep -q' is POSIX, exit if no $ in variable
+		__$1="${$1}"
+	done
+	$__CNT && AC_MSG_ERROR([can't expand variable $1=$2]) dnl bail out if we did not expand
+])
+
 AC_DEFUN([TUXBOX_APPS_DIRECTORY_ONE],[
 AC_ARG_WITH($1,[  $6$7 [[PREFIX$4$5]]],[
 	_$2=$withval
 	if test "$TARGET" = "cdk"; then
-		$2=`eval echo "$TARGET_PREFIX$withval"`
+		$2=`eval echo "$TARGET_PREFIX$withval"` # no indirection possible IMNSHO
 	else
 		$2=$withval
 	fi
 	TARGET_$2=${$2}
 ],[
-	$2="\${$3}$5"
+	# RFC 1925: "you can always add another level of indirection..."
+	TUXBOX_EXPAND_VARIABLE($2,"${$3}$5")
 	if test "$TARGET" = "cdk"; then
-		_$2=`eval echo "${target$3}$5"`
+		TUXBOX_EXPAND_VARIABLE(_$2,"${target$3}$5")
 	else
-		_$2=`eval echo "${$3}$5"`
+		_$2=${$2}
 	fi
 	TARGET_$2=$_$2
 ])
@@ -317,6 +329,7 @@ if $PKG_CONFIG --exists "$2" ; then
 	AC_MSG_RESULT(yes)
 	$1_CFLAGS=$($PKG_CONFIG --cflags "$2")
 	$1_LIBS=$($PKG_CONFIG --libs "$2")
+	$1_EXISTS=yes
 else
 	AC_MSG_RESULT(no)
 fi
@@ -327,7 +340,7 @@ AC_SUBST($1_LIBS)
 
 AC_DEFUN([TUXBOX_APPS_LIB_PKGCONFIG],[
 _TUXBOX_APPS_LIB_PKGCONFIG($1,$2)
-if test -z "$$1_CFLAGS" ; then
+if test x"$$1_EXISTS" != xyes; then
 	AC_MSG_ERROR([could not find package $2]);
 fi
 ])

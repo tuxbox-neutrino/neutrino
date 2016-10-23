@@ -1080,10 +1080,12 @@ bool CChannelList::checkLockStatus(neutrino_msg_data_t data, bool pip)
 out:
 	if (startvideo) {
 		if(pip) {
+#ifdef ENABLE_PIP
 			if (CNeutrinoApp::getInstance()->StartPip((*chanlist)[selected]->getChannelID())) {
 				calcSize();
 				paintBody();
 			}
+#endif
 		} else
 			g_RemoteControl->startvideo();
 		return true;
