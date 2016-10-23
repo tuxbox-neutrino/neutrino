@@ -95,6 +95,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		bool changed;
 		int  bselected;
 		CMenuWidget *remboxmenu;
+		bool askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTime, char * remotebox_ip);
 
 	public:
 		CTimerList();

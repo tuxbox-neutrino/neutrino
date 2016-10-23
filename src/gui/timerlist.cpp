@@ -296,7 +296,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	if(actionKey == "add_ip") {
 		std::string remoteip;
 		CIPInput remotebox_NetworkIP(LOCALE_REMOTEBOX_IP  , &remoteip);
-		if (remotebox_NetworkIP.exec(NULL,"") == true) {
+		if ((remotebox_NetworkIP.exec(NULL,"") == true) && (!remoteip.empty())) {
 			remboxmenu->addItem(new CMenuForwarder(remoteip, true, NULL, this, "cha_ip"));
 			remotebox_NetworkIP.hide();
 			changed = true;
@@ -394,22 +394,37 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if ((strcmp(key, "fetch_remotetimer") == 0) && localChanExists(timerlist[selected].channel_id))
 	{
+		int pre,post;
+		Timer->getRecordingSafety(pre,post);
+		std::string remotebox_ip = timerlist[selected].remotebox_ip;
+		std::string eventID = to_string((int)timerlist[selected].eventID);
+
+		int res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + pre,
+				   timerlist[selected].stopTime - post, 0, 0, timerlist[selected].announceTime,
+				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",false);
+
+		if (res == -1)
+		{
+			bool forceAdd = askUserOnTimerConflict(timerlist[selected].announceTime,timerlist[selected].stopTime);
+
+			if (forceAdd)
+			{
+				res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + pre,
+				   timerlist[selected].stopTime - post, 0, 0, timerlist[selected].announceTime,
+				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",true);
+			}
+		}
+
 		CHTTPTool httpTool;
 		std::string r_url;
 		r_url  = "http://";
-		r_url += timerlist[selected].remotebox_ip;
+		r_url += remotebox_ip;
 		r_url += "/control/timer?action=remove";
-		r_url += "&id=" + to_string((int)timerlist[selected].eventID);
+		r_url += "&id=" + eventID;
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
+		if (res > 0)
 		r_url = httpTool.downloadString(r_url);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
-		if (r_url=="ok") {
-			int pre,post;
-			Timer->getRecordingSafety(pre,post);
-			Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + pre,
-				   timerlist[selected].stopTime - post, 0, 0, timerlist[selected].announceTime,
-				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL));
-		}
 	}
 	else if (strcmp(key, "del_remotetimer") == 0)
 	{
@@ -620,12 +635,6 @@ void CTimerList::updateEvents(void)
 
 void CTimerList::select_remotebox_ip()
 {
-	if (g_settings.timer_remotebox_ip.size() == 1) {
-		std::list<std::string>::iterator it = g_settings.timer_remotebox_ip.begin();
-		strncpy(timerlist[selected].remotebox_ip,it->c_str(),sizeof(timerlist[selected].remotebox_ip));
-		timerlist[selected].remotebox_ip[sizeof(timerlist[selected].remotebox_ip) - 1] = 0;
-	}
-
 	int select = 0;
 	CMenuWidget *m = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
@@ -639,12 +648,18 @@ void CTimerList::select_remotebox_ip()
 
 	std::list<std::string>::iterator it = g_settings.timer_remotebox_ip.begin();
 	std::advance(it,select);
+	if (askUserOnRemoteTimerConflict(timerlist[selected].announceTime, timerlist[selected].stopTime, (char*) it->c_str()))
+	{
 	strncpy(timerlist[selected].remotebox_ip,it->c_str(),sizeof(timerlist[selected].remotebox_ip));
 	timerlist[selected].remotebox_ip[sizeof(timerlist[selected].remotebox_ip) - 1] = 0;
+	}
 }
 
 bool CTimerList::remoteChanExists(t_channel_id channel_id)
 {
+	if (strcmp(timerlist[selected].remotebox_ip,"") == 0)
+		return false;
+
 	CHTTPTool httpTool;
 	std::string r_url;
 	r_url  = "http://";
@@ -1244,10 +1259,14 @@ void CTimerList::paintFoot()
 	//shadow
 	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + height - footerHeight, width, footerHeight + OFFSET_SHADOW, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
+	int c = TimerListButtonsCount;
+	if (g_settings.timer_remotebox_ip.size() == 0)
+		c--; // reduce play button
+
 	if (timerlist.empty())
 		::paintButtons(x, y + height - footerHeight, width, 2, &(TimerListButtons[1]), width);
 	else
-		::paintButtons(x, y + height - footerHeight, width, TimerListButtonsCount, TimerListButtons, width);
+		::paintButtons(x, y + height - footerHeight, width, c, TimerListButtons, width);
 }
 
 void CTimerList::paint()
@@ -1649,6 +1668,72 @@ int CTimerList::newTimer()
 	toDelete.clear();
 
 	return ret;
+}
+
+bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTime, char * remotebox_ip)
+{
+	CTimerd::TimerList overlappingTimers;
+	int pre,post;
+	Timer->getRecordingSafety(pre,post);
+
+	for (CTimerd::TimerList::iterator it = timerlist.begin();
+	     it != timerlist.end();++it)
+	{
+
+	if (strcmp(it->remotebox_ip,remotebox_ip) == 0) {
+
+		if(it->stopTime != 0 && stopTime != 0)
+		{
+			// Check if both timers have start and end. In this case do not show conflict, if endtime is the same than the starttime of the following timer
+			if ((stopTime+post > it->alarmTime) && (announceTime-pre < it->stopTime))
+			{
+				overlappingTimers.push_back(*it);
+			}
+		}
+		else
+		{
+			if (!((stopTime < it->announceTime) || (announceTime > it->stopTime)))
+			{
+				overlappingTimers.push_back(*it);
+			}
+		}
+		}
+	}
+
+	std::string timerbuf = g_Locale->getText(LOCALE_TIMERLIST_OVERLAPPING_TIMER);
+	timerbuf += "\n";
+	for (CTimerd::TimerList::iterator it = overlappingTimers.begin();
+				it != overlappingTimers.end(); ++it)
+	{
+		timerbuf += CTimerList::convertTimerType2String(it->eventType);
+		timerbuf += " (";
+		timerbuf += CTimerList::convertChannelId2String(it->channel_id); // UTF-8
+		if (it->epgID != 0)
+		{
+			CEPGData epgdata;
+			if (CEitManager::getInstance()->getEPGid(it->epgID, it->epg_starttime, &epgdata))
+			{
+				timerbuf += ":";
+				timerbuf += epgdata.title;
+			}
+			else if (strlen(it->epgTitle)!=0)
+			{
+				timerbuf += ":";
+				timerbuf += it->epgTitle;
+			}
+		}
+		timerbuf += "):\n";
+
+		struct tm *annTime = localtime(&(it->announceTime));
+		timerbuf += strftime("%d.%m. %H:%M\n",annTime);
+
+		struct tm *sTime = localtime(&(it->stopTime));
+		timerbuf += strftime("%d.%m. %H:%M\n",sTime);
+	}
+	if (overlappingTimers.size() > 0)
+		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
+	else
+		return true;
 }
 
 bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id channel_id)

@@ -1765,7 +1765,7 @@ moviebrowser.short_rating Vote
 moviebrowser.short_recorddate Datum
 moviebrowser.short_serie Serie
 moviebrowser.short_size Größe
-moviebrowser.short_spacer
+moviebrowser.short_spacer 
 moviebrowser.short_title Titel
 moviebrowser.start_head Film starten von Position:
 moviebrowser.start_record_start Aufnahmestart
