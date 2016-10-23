@@ -137,8 +137,29 @@ class CComponentsFooter : public CComponentsHeader
 		///disables background of buttons
 		void disableButtonBg(){enableButtonBg(false);}
 
-		///select a definied button, parameter1 as size_t
-		void setSelectedButton(size_t item_id);
+		/**Select a definied button inside button chain object
+		* @param[in]	item_id
+		* 	@li 	optional: exepts type size_t
+		* @param[in]	fr_col
+		* 	@li 	optional: exepts type fb_pixel_t, as default frame color
+		* @param[in]	sel_fr_col
+		* 	@li 	optional: exepts type fb_pixel_t, as selected frame color
+		* @param[in]	bg_col
+		* 	@li 	optional: exepts type fb_pixel_t, as default background color
+		* @param[in]	sel_bg_col
+		* 	@li 	optional: exepts type fb_pixel_t, as selected background color
+		* @param[in]	text_col
+		* 	@li 	optional: exepts type fb_pixel_t, as default text color
+		* @param[in]	sel_text_col
+		* 	@li 	optional: exepts type fb_pixel_t, as selected text color
+		*/
+		void setSelectedButton(size_t item_id,
+					const fb_pixel_t& fr_col 	= COL_MENUCONTENTSELECTED_PLUS_2,
+					const fb_pixel_t& sel_fr_col 	= COL_MENUCONTENTSELECTED_PLUS_0,
+					const fb_pixel_t& bg_col 	= COL_MENUFOOT_PLUS_0, /*TODO disabled at the moment, without effect*/
+					const fb_pixel_t& sel_bg_col 	= COL_MENUCONTENTSELECTED_PLUS_2, /*TODO disabled at the moment, without effect*/
+					const fb_pixel_t& text_col 	= COL_MENUCONTENTDARK_TEXT_PLUS_2,
+					const fb_pixel_t& sel_text_col 	= COL_MENUCONTENT_TEXT);
 		///returns id of select button, return value as int, -1 = nothing is selected
 		int getSelectedButton();
 		///returns selected button object, return value as pointer to object, NULL means nothing is selected

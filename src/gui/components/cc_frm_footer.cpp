@@ -345,13 +345,20 @@ void CComponentsFooter::enableButtonBg(bool enable)
 	}
 }
 
-void CComponentsFooter::setSelectedButton(size_t item_id)
+void CComponentsFooter::setSelectedButton(size_t item_id, const fb_pixel_t& fr_col, const fb_pixel_t& sel_fr_col, const fb_pixel_t& bg_col, const fb_pixel_t& sel_bg_col, const fb_pixel_t& text_col, const fb_pixel_t& sel_text_col)
 {
 	if (chain){
-		fb_pixel_t sel_col = COL_MENUCONTENTSELECTED_PLUS_2;
+		for (size_t i= 0; i< chain->size(); i++){
+			CComponentsButton *btn = static_cast<CComponentsButton*>(chain->getCCItem(i));
+			btn->setButtonTextColor(text_col);
+		}
+		fb_pixel_t sel_col = fr_col;
 		if (chain->size() > 1)
-			sel_col = COL_MENUCONTENTSELECTED_PLUS_0; //TODO: make it configurable
-		chain->setSelectedItem(item_id, sel_col, COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENT_PLUS_0, 1, 2);
+			sel_col = sel_fr_col; //TODO: make it configurable
+		chain->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, 1, 2);
+
+		if (chain->size() > 1)
+			getSelectedButtonObject()->setButtonTextColor(sel_text_col);
 	}
 }
 
