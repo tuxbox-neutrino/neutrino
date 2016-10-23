@@ -3430,7 +3430,7 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			*item_string = str_tmp;
 			break;
 		case MB_INFO_LENGTH: 				// 		= 18,
-			snprintf(str_tmp, sizeof(str_tmp),"%dh %dm", movie_info.length/60, movie_info.length%60);
+			snprintf(str_tmp, sizeof(str_tmp),"%dh %02dm", movie_info.length/60, movie_info.length%60);
 			*item_string = str_tmp;
 			break;
 		case MB_INFO_SIZE: 					// 		= 19,
