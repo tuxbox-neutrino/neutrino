@@ -8,7 +8,7 @@
 	Copyright (C) 2008-2009, 2011, 2013 Stefan Seyfried
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2015 Thilo Graf 'dbt'
+	Copyright (C) 2014-2016 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -133,8 +133,10 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	w_indentation	= indent;
 	hb_text_mode	= text_mode;
 
+	hb_font		= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO];
+
 	//set required window width and basic height
-	width 		= max(HINTBOX_MIN_WIDTH, Width);
+	width 		= max(HINTBOX_MIN_WIDTH, max(Width, min(hb_font->getRenderWidth(Text), (int)frameBuffer->getScreenWidth())));
 	height 		= max(HINTBOX_MIN_HEIGHT, height);
 
 	ccw_buttons = header_buttons;
@@ -250,9 +252,9 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	dprintf(DEBUG_INFO, "[CHintBox]  [%s - %d] add new hint '%s' %s\n", __func__, __LINE__, Text.c_str(), Picon.c_str());
 
 	//set required font and line size
-	Font* font = font_text == NULL ? g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO] : font_text;
-	width =  max(width, min(font->getRenderWidth(Text), HINTBOX_MIN_WIDTH));
-	int h_line = font->getHeight();
+	hb_font = !font_text ? hb_font : font_text;
+	width =  max(width, min(hb_font->getRenderWidth(Text), HINTBOX_MIN_WIDTH));
+	int h_line = hb_font->getHeight();
 
 	//init side picon object
 	CComponentsPicture *obj_picon = new CComponentsPicture(0, timeout > 0 ? TIMEOUT_BAR_HEIGHT : 0, Picon);
@@ -270,14 +272,15 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 							h_text_obj,
 							Text,
 							text_mode,
-							font);
+							hb_font);
 
 	//provide the internal textbox object
 	CTextBox *textbox = obj_text->getCTextBoxObject();
 	int lines_count = textbox->getLines();
 
-	//get required height of text object related to lines count and height of head and footer, if available
-	int h_required = lines_count * h_line + (ccw_head ? ccw_head->getHeight() : 0) + (ccw_footer ? ccw_footer->getHeight() : 0);
+	//get required height of text object related to height of current text object, header and footer
+	int fh_h = (ccw_head ? ccw_head->getHeight() : 0) + (ccw_footer ? ccw_footer->getHeight() : 0) + obj_text->getHeight();
+	int h_required = min( max(height,fh_h), (int)frameBuffer->getScreenHeight()) ;//lines_count * h_line + (ccw_head ? ccw_head->getHeight() : 0) + (ccw_footer ? ccw_footer->getHeight() : 0);
 
 	//set minimal required height
 	height = max(height, min(HINTBOX_MAX_HEIGHT, max(HINTBOX_MIN_HEIGHT, h_required)));

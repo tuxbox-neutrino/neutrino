@@ -57,6 +57,8 @@ class CHintBox : public CComponentsWindow
 		int w_indentation;
 		int hb_text_mode;
 
+		Font* hb_font;
+
 		///global count of lines
 		uint lines;
 
