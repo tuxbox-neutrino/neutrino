@@ -233,24 +233,8 @@ else
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__="\"$(subst $(srcdir)/,,$(abspath $<))\""'
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__path_file__="\"$(subst $(top_srcdir)/,,$(abspath $<))\""'
 fi
-#
-# Check for libtdservicedb - the new one - for testing only
-#
-#CSL_VERSION=0.0.1
-#FCSL_VERSION=`$PKG_CONFIG --modversion libcoolstream`
-#AC_MSG_CHECKING(for package libcoolstream >= $CSL_VERSION)
-#if $PKG_CONFIG --atleast-version $CSL_VERSION libcoolstream ; then
-      #AC_MSG_RESULT(found (version $FCSL_VERSION))
-      #LIBCS_CFLAGS=`$PKG_CONFIG --cflags libcoolstream`
-      #LIBCS_LIBS=`$PKG_CONFIG --libs libcoolstream`
-#else
-      #AC_MSG_ERROR([
-#*** libcoolstream $CSL_VERSION or newer is required! ***
-  #])
-#fi
+
 AC_SUBST(HWLIB_CFLAGS)
-AC_SUBST(LIBCS_CFLAGS)
-AC_SUBST(LIBCS_LIBS)
 AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
 AC_SUBST(VORBISIDEC_CFLAGS)
