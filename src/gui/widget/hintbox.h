@@ -8,7 +8,7 @@
 	Copyright (C) 2008-2009, 2011, 2013 Stefan Seyfried
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2015 Thilo Graf 'dbt'
+	Copyright (C) 2014-2016 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -81,10 +81,40 @@ class CHintBox : public CComponentsWindow
 				const int& text_mode,
 				const int& indent);
 
-		void ReSize();
+		virtual void ReSize();
 
 	public:
-		// Text is UTF-8 encoded
+		/**CHintBox Constructor
+		* @param[in]	Caption
+		* 	@li 	exepts type neutrino_locale_t with locale entry from /system/locals.h
+		* @param[in]	Text
+		* 	@li 	exepts type const char*, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	Width
+		* 	@li 	optional: exepts type int, defines box width, default value = HINTBOX_MIN_WIDTH
+		* @param[in]	Icon
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = NULL (non Icon)
+		* @param[in]	Picon
+		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
+		* @param[in]	header_buttons
+		* 	@li 	optional: exepts type int, defines the icon name on the left side of titlebar, default = 0 (non Icon)
+		* 	@see	class CComponentsWindow()
+		* @param[in]	text_mode
+		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
+		* 		Possible Modes defined in /gui/widget/textbox.h
+		* 		AUTO_WIDTH
+		* 		AUTO_HIGH
+		* 		SCROLL
+		* 		CENTER
+		* 		RIGHT
+		* 		TOP
+		* 		BOTTOM
+		* 		NO_AUTO_LINEBREAK
+		* 		AUTO_LINEBREAK_NO_BREAKCHARS
+		* @param[in]	indent
+		* 	@li	optional: exepts type int, defines indent of text
+		*
+		* 	@see	classes CComponentsText(), CTextBox()
+		*/
 		CHintBox(	const neutrino_locale_t Caption,
 				const char * const Text,
 				const int Width = HINTBOX_MIN_WIDTH,
@@ -94,6 +124,11 @@ class CHintBox : public CComponentsWindow
 				const int& text_mode = 0,
 				const int& indent = W_FRAME);
 
+		/**CHintBox Constructor
+		* @param[in]	Caption
+		* 	@li 	exepts type const char*
+		* 	@see	for other parameters take a look to basic class CHintBox()
+		*/
 		CHintBox(	const char * const Caption,
 				const char * const Text,
 				const int Width = HINTBOX_MIN_WIDTH,
@@ -103,6 +138,13 @@ class CHintBox : public CComponentsWindow
 				const int& text_mode = 0,
 				const int& indent = W_FRAME);
 
+		/**CHintBox Constructor
+		* @param[in]	Caption
+		* 	@li 	exepts type neutrino_locale_t with locale entry from /system/locals.h
+		* @param[in]	Text
+		* 	@li 	exepts type neutrino_locale_t with locale entry from /system/locals.h
+		* 	@see	for other parameters take a look to basic class CHintBox()
+		*/
 		CHintBox(	const neutrino_locale_t Caption,
 				const neutrino_locale_t Text,
 				const int Width = HINTBOX_MIN_WIDTH,
@@ -112,6 +154,13 @@ class CHintBox : public CComponentsWindow
 				const int& text_mode = 0,
 				const int& indent = W_FRAME);
 
+		/**CHintBox Constructor
+		* @param[in]	Caption
+		* 	@li 	exepts type const char*
+		* @param[in]	Text
+		* 	@li 	exepts type neutrino_locale_t with locale entry from /system/locals.h
+		* 	@see	for other parameters take a look to basic class CHintBox()
+		*/
 		CHintBox(	const char * const Caption,
 				const neutrino_locale_t Text,
 				const int Width = HINTBOX_MIN_WIDTH,
@@ -122,48 +171,109 @@ class CHintBox : public CComponentsWindow
 				const int& indent = W_FRAME);
 
 		virtual ~CHintBox();
+		/**
+		* exec caller
+		* @return	int
+		*/
 		int exec();
 
-		///define timeout, timeout is enabled if parameter1 > -1
+		/**
+		* Defines timeout, timeout is enabled if parameter1 > -1
+		* @param[in]	Timeout as int as seconds
+		*/
 		virtual void setTimeOut(const int& Timeout){timeout = Timeout;}
-		///shows timeout as progressbar
+
+		/**
+		* enable visualized timeout as progressbar under titelbar
+		*/
 		void showTimeOutBar();
 
-		///scroll handler for text objects: NOTE: exec() must be called ! see also Scroll()
-		///scroll up handler, default for the 1st hint item (=0), item id arises from the order of added items with addHintItem(), default we have minimal one item with id=0
+		/**
+		* scroll handler for text objects: NOTE: exec() must be called !
+		* @param[in]	hint_id
+		* 	@li 	optional: exepts type unsigned int, default = 0
+		* 		default for the 1st hint item (=0), item id arises from the order of added items with addHintItem(), default we have minimal one item with id=0
+		* @see		Scroll()
+		*/
 		void scroll_up(const uint& hint_id = 0);
-		///scroll down handler, default for the 1st hint item (=0), item id arises from the order of added items with addHintItem(), default we have minimal one item with id=0
+
+		/**
+		* scroll down handler for text objects: NOTE: exec() must be called !
+		* @param[in]	hint_id
+		* 	@li 	exepts type unsigned int, default = 0
+		* 		default for the 1st hint item (=0), item id arises from the order of added items with addHintItem(), default we h
+		* @see		Scroll()
+		*/
 		void scroll_down(const uint& hint_id = 0);
 
-		///specialized member to add a hint item, parameter1: UTF8 text that will be showed, parameter2: (optional) textmode, see gui/widget/textbox.h for possible modes, parameter3: (optional) = an icon that will be showed left beside of text
+		/**
+		* Member to add a hint item
+		* @param[in]	Text
+		* 	@li 	exepts type std::string, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	text_mode
+		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
+		* 		Possible Modes defined in /gui/widget/textbox.h
+		* 		AUTO_WIDTH
+		* 		AUTO_HIGH
+		* 		SCROLL
+		* 		CENTER
+		* 		RIGHT
+		* 		TOP
+		* 		BOTTOM
+		* 		NO_AUTO_LINEBREAK
+		* 		AUTO_LINEBREAK_NO_BREAKCHARS
+		* @param[in]	Picon
+		* 	@li 	optional: exepts type std::string, defines the picon name on the left side of message text, default = NULL (non Icon)
+		* @param[in]	at_page_number
+		* 	@li 	optional: exepts type int, defines the page number on that this hint will be, default = 0 (first page)
+		* @param[in]	color_text
+		* 	@li 	optional: exepts type fb_pixel_t, defines the text color, default = COL_MENUCONTENT_TEXT
+		* * @param[in]	font_text
+		* 	@li 	optional: exepts type Font*, defines the text font type, default = NULL for system preset for message contents
+		*/
 		void addHintItem(	const std::string& Text,
 					const int& text_mode = 0,
 					const std::string& Picon = std::string(),
 					const u_int8_t& at_page_number = 0,
 					const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
 					Font* font_text = NULL);
-		///add any cc-item to body object, also usable is addWindowItem() to add items to the window body object
+
+		/**
+		* Member to add a hint item from specified cc-item type
+		* @param[in]	cc_Item
+		* 	@li 	exepts type CComponentsItem*, allows to add any possible cc-item type
+		* 
+		* 	@see	/gui/components/cc_types.h
+		*/
 		void addHintItem(CComponentsItem* cc_Item){obj_content->addCCItem(cc_Item);}
 
-		/*!
-		 * Sets a new text to a hint item,
-		   2nd parameter expects an item number, default = 0 (1st item). Mostly this should be the only one, but if more than one items are exist, it's possible to select a target item.
-		   3rd parameter expects modes from CTextBox (default = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER)
-			AUTO_WIDTH
-			AUTO_HIGH
-			SCROLL
-			CENTER
-			RIGHT
-			TOP
-			BOTTOM
-			NO_AUTO_LINEBREAK
-			AUTO_LINEBREAK_NO_BREAKCHARS
-		   4th parameter font_text expects a font object, if default value = NULL, then g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO] is used
-		   5th parameter expects value from /gui/color.h or compatible color numbers
-		   6th parameter expects
-			FONT_STYLE_REGULAR (default)
-			FONT_STYLE_BOLD
-			FONT_STYLE_ITALIC
+		/**
+		* Sets a text to a hint item.
+		* @param[in]	Text
+		* 	@li 	exepts type std::string, this is the message text inside the hint item, text is UTF-8 encoded
+		* @param[in]	hint_id
+		* 	@li 	optional: exepts type unsigned int, default = 0 for the first or one and only item
+		* @param[in]	text_mode
+		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
+		* 		Possible Modes defined in /gui/widget/textbox.h
+		* 		AUTO_WIDTH
+		* 		AUTO_HIGH
+		* 		SCROLL
+		* 		CENTER
+		* 		RIGHT
+		* 		TOP
+		* 		BOTTOM
+		* 		NO_AUTO_LINEBREAK
+		* 		AUTO_LINEBREAK_NO_BREAKCHARS
+		* 		default: CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER
+		* @param[in]	color_text
+		* 	@li 	optional: exepts type fb_pixel_t, defines the text color, default = COL_MENUCONTENT_TEXT
+		* * @param[in]	style
+		* 	@li 	optional: exepts type int, defines the text style NOTE: only for dynamic font
+		* 		possible styles are:
+		* 		FONT_STYLE_REGULAR (default)
+		*		FONT_STYLE_BOLD
+		*		FONT_STYLE_ITALIC
 		*/
 		void setMsgText(const std::string& Text,
 				const uint& hint_id = 0,
@@ -173,7 +283,11 @@ class CHintBox : public CComponentsWindow
 				const int& style = CComponentsText::FONT_STYLE_REGULAR);
 };
 
-// Text is UTF-8 encoded
+/**
+* Simplified methodes to show hintboxes on screen
+* Text is UTF-8 encoded
+* 	@see	for possible parameters take a look to CHintBox()
+*/
 int ShowHint(const neutrino_locale_t Caption, const char * const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
 int ShowHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
 int ShowHint(const char * const Caption, const char * const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
@@ -190,11 +304,31 @@ optional disable/enable background
 class CHint : public CHintBox
 {
 	public:
+		/**CHint Constructor
+		* @param[in]	Text
+		* 	@li 	exepts type const char*, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	show_background
+		* 	@li 	optional: exepts type bool, enable/disable backround paint, default = true
+		*/
 		CHint(const char * const Text, bool show_background = true);
+		/**CHint Constructor
+		* @param[in]	Text
+		* 	@li 	exepts type neutrino_locale_t, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	show_background
+		* 	@li 	optional: exepts type bool, enable/disable backround paint, default = true
+		*/
 		CHint(const neutrino_locale_t Text, bool show_background = true);
 };
 
-//methods to show simplified hints
+/**
+* Simplified methodes to show hintboxes without titlebar and footer
+* Text is UTF-8 encoded
+* @param[in]	timeout
+* 	@li	optional: exepts type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (5 sec)
+* @param[in]	show_background
+* 	@li 	optional: exepts type bool, enable/disable backround paint, default = true
+* 	@see	for possible text parameters take a look to CHintBox()
+*/
 int ShowHintS(const neutrino_locale_t Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 int ShowHintS(const char * const Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 
