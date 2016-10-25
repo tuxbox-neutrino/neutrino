@@ -1336,7 +1336,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 	}
 	if (pic)
 		flogo_w = pic->getWidth();
-	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, m_cBoxFrameInfo.iWidth - flogo_w - 24);
+	m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, m_cBoxFrameInfo.iWidth - flogo_w - (flogo_w ? 24 : 0));
 	if (pic)
 		pic->paint(CC_SAVE_SCREEN_NO);
 }
