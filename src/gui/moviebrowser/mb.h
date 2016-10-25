@@ -67,10 +67,6 @@
 #define MAX_BROWSER_FRAME_HEIGHT 80
 // void strReplace(std::string& orig, const char* fstr, const std::string &rstr);
 
-
-
-
-
 #define MB_MAX_ROWS LF_MAX_ROWS
 #define MB_MAX_DIRS NETWORK_NFS_NR_OF_ENTRIES
 /* MB_SETTINGS to be stored in g_settings anytime ....*/
@@ -94,22 +90,24 @@ typedef struct
 
 	int browser_serie_mode;
 	int serie_auto_create;
+
 	/* these variables are used for the listframes */
 	int browserFrameHeight;
 	int browserRowNr;
-	MB_INFO_ITEM browserRowItem[MB_MAX_ROWS];//MB_INFO_ITEM
+	MB_INFO_ITEM browserRowItem[MB_MAX_ROWS];
 	int browserRowWidth[MB_MAX_ROWS];
 
 	// to be added to config later
 	int lastPlayMaxItems;
 	int lastPlayRowNr;
-	MB_INFO_ITEM lastPlayRow[2];
-	int lastPlayRowWidth[2];
+	MB_INFO_ITEM lastPlayRow[3];
+	int lastPlayRowWidth[3];
 
 	int lastRecordMaxItems;
 	int lastRecordRowNr;
-	MB_INFO_ITEM lastRecordRow[2];
-	int lastRecordRowWidth[2];
+	MB_INFO_ITEM lastRecordRow[3];
+	int lastRecordRowWidth[3];
+
 	int ytmode;
 	int ytorderby;
 	int ytresults;
