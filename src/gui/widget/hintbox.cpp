@@ -168,17 +168,21 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 
 CHintBox::~CHintBox()
 {
-	if(timeout_pb){
-		timeout_pb->kill(); //ensure cleanup from screen
-		delete timeout_pb; timeout_pb = NULL;
-	}
-	if(timeout_pb_timer){
-		delete timeout_pb_timer; timeout_pb_timer = NULL;
-	}
+	disableTimeOutBar();
 }
 
-void CHintBox::showTimeOutBar()
+void CHintBox::enableTimeOutBar(bool enable)
 {
+	if(!enable){
+		if(timeout_pb_timer){
+			delete timeout_pb_timer; timeout_pb_timer = NULL;
+		}
+		if(timeout_pb){
+			delete timeout_pb; timeout_pb = NULL;
+		}
+		return;
+	}
+
 	if(timeout_pb){
 		timeout_pb->paint0();
 		timeout_pb->setValues(timeout_pb->getValue()+1, 100*timeout);
@@ -201,7 +205,7 @@ int CHintBox::exec()
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
 
 	if (timeout > 0)
-		showTimeOutBar();
+		enableTimeOutBar();
 
 	while ( ! ( res & ( messages_return::cancel_info | messages_return::cancel_all ) ) )
 	{
@@ -244,6 +248,8 @@ int CHintBox::exec()
 			}
 		}
 	}
+
+	disableTimeOutBar();
 	return res;
 }
 

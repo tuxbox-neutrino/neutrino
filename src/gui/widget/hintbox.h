@@ -84,6 +84,7 @@ class CHintBox : public CComponentsWindow
 				const int& indent);
 
 		virtual void ReSize();
+		void showTimeOutBar(){enableTimeOutBar();}
 
 	public:
 		/**CHintBox Constructor
@@ -186,9 +187,17 @@ class CHintBox : public CComponentsWindow
 		virtual void setTimeOut(const int& Timeout){timeout = Timeout;}
 
 		/**
-		* enable visualized timeout as progressbar under titelbar
+		* enable/disable visualized timeout as progressbar under titlebar
+		* @param[in]	enable 
+		* 	@li	optional: exepts type bool, default = true
 		*/
-		void showTimeOutBar();
+		void enableTimeOutBar(bool enable = true);
+
+		/**
+		* disable visualized timeout as progressbar
+		* 	@see enableTimeOutBar
+		*/
+		void disableTimeOutBar(){enableTimeOutBar(false);}
 
 		/**
 		* scroll handler for text objects: NOTE: exec() must be called !
