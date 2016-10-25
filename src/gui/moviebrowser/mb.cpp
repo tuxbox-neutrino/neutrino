@@ -1088,20 +1088,22 @@ int CMovieBrowser::paint(void)
 
 	//CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD));
 
-	Font* font = NULL;
+	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST];
 	m_movieSelectionHandler = NULL;
+
 	m_pcBrowser = new CListFrame(&m_browserListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE,
-			&m_cBoxFrameBrowserList);
+			&m_cBoxFrameBrowserList, NULL,
+			g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD]);
 	m_pcLastPlay = new CListFrame(&m_playListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE | CListFrame::TITLE,
 			&m_cBoxFrameLastPlayList, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_PLAYLIST),
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD]);
 	m_pcLastRecord = new CListFrame(&m_recordListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE | CListFrame::TITLE,
 			&m_cBoxFrameLastRecordList, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_RECORDLIST),
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD]);
 	m_pcFilter = new CListFrame(&m_FilterLines, font, CListFrame::SCROLL | CListFrame::TITLE,
 			&m_cBoxFrameFilter, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_FILTER),
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]);
-	m_pcInfo = new CTextBox(" ", NULL, CTextBox::TOP | CTextBox::SCROLL, &m_cBoxFrameInfo);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD]);
+	m_pcInfo = new CTextBox(" ", g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_INFO], CTextBox::TOP | CTextBox::SCROLL, &m_cBoxFrameInfo);
 
 
 	if (m_pcBrowser == NULL || m_pcLastPlay == NULL ||
