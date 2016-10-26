@@ -703,6 +703,7 @@ fontmenu.eventlist Event-Liste
 fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
+fontmenu.moviebrowser Moviebrowser
 fontmenu.other Andere
 fontmenu.scaling Schriftgrößenfaktor
 fontmenu.scaling_x Horizontal (in %)
@@ -735,6 +736,9 @@ fontsize.menu_foot Fußleiste (in allen GUI-Elementen)
 fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
+fontsize.moviebrowser_head Überschriften
+fontsize.moviebrowser_info Info-Fenster
+fontsize.moviebrowser_list Listen-Einträge
 fontsize.subtitles Text Untertitel
 fsk.all aus
 fsk.from_12 ab 12
@@ -1188,6 +1192,7 @@ menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzei
 menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie YouTube, SHOUTCast und TMDb
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
+menu.hint_moviebrowser_fonts Ändern Sie die Schriftgrößen im Moviebrowser (Meine Aufnahmen)
 menu.hint_moviebrowser_setup Legen Sie Auswahl- und Anzeigeoptionen des MovieBrowsers fest
 menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste im Movieplayer-Modus gestartet wird
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255

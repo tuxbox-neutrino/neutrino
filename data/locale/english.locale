@@ -703,6 +703,7 @@ fontmenu.eventlist Eventlist
 fontmenu.head Font settings
 fontmenu.infobar Infobar
 fontmenu.menu Menu
+fontmenu.moviebrowser Moviebrowser
 fontmenu.other Other
 fontmenu.scaling Global Font Zoom Factor
 fontmenu.scaling_x Horizontal (in %)
@@ -735,6 +736,9 @@ fontsize.menu_foot Footer (in all GUI elements)
 fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
+fontsize.moviebrowser_head Headers
+fontsize.moviebrowser_info Info window
+fontsize.moviebrowser_list List items
 fontsize.subtitles Text subtitles
 fsk.all off
 fsk.from_12 from 12
@@ -1188,6 +1192,7 @@ menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd d
 menu.hint_misc_onlineservices Configure and control online services like YouTube, SHOUTCast and TMDb
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
+menu.hint_moviebrowser_fonts Change moviebrowser (My recordings) font sizes
 menu.hint_moviebrowser_setup Set selection and display options.
 menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch key in movieplayer mode
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
