@@ -300,6 +300,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		if ((remotebox_NetworkIP.exec(NULL,"") == true) && (!remoteip.empty())) {
 			remboxmenu->addItem(new CMenuForwarder(remoteip, true, NULL, this, "cha_ip"));
 			remotebox_NetworkIP.hide();
+			remboxmenu->enableSaveScreen(false);
+			remboxmenu->hide();
 			changed = true;
 		}
 		return menu_return::RETURN_REPAINT;
@@ -309,7 +311,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		bselected = remboxmenu->getSelected();
 		if (bselected >= item_offset) {
 			remboxmenu->removeItem(bselected);
-		    remboxmenu->hide();
+			remboxmenu->enableSaveScreen(false);
+			remboxmenu->hide();
 			bselected = remboxmenu->getSelected();
 			changed = true;
 		}
@@ -326,6 +329,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (remotebox_NetworkIP.exec(NULL,"") == true) {
 			f->setName(remoteip);
 			remotebox_NetworkIP.hide();
+			remboxmenu->enableSaveScreen(false);
+			remboxmenu->hide();
 			changed = true;
 		}
 		return menu_return::RETURN_REPAINT;
@@ -905,8 +910,7 @@ int CTimerList::show()
 		}
 		else if (msg==CRCInput::RC_setup)
 		{
-			enterRemoteBox();
-			update=true;
+			update = enterRemoteBox();
 		}
 		else if (msg==CRCInput::RC_yellow)
 		{
@@ -969,8 +973,9 @@ void CTimerList::hide()
 	}
 }
 
-void CTimerList::enterRemoteBox()
+bool CTimerList::enterRemoteBox()
 {
+	bool ret = false;
 	remboxmenu = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
 	remboxmenu->addKey(CRCInput::RC_red, this, "del_ip");
 	remboxmenu->addKey(CRCInput::RC_green, this, "add_ip");
@@ -984,8 +989,8 @@ void CTimerList::enterRemoteBox()
 
 	remboxmenu->setFooter(RemoteBoxFooterButtons, RemoteBoxFooterButtonCount);
 
+	remboxmenu->enableSaveScreen(true);
 	remboxmenu->exec(NULL, "");
-	remboxmenu->hide();
 	if (changed) {
 			g_settings.timer_remotebox_ip.clear();
 			for (int i = item_offset; i < remboxmenu->getItemsCount(); i++) {
@@ -994,8 +999,10 @@ void CTimerList::enterRemoteBox()
 				g_settings.timer_remotebox_ip.push_back(f->getName());
 			}
 			changed = false;
+			ret = true;
 	}
 	delete remboxmenu;
+	return ret;
 }
 
 void CTimerList::paintItem(int pos)
