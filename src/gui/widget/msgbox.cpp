@@ -304,6 +304,7 @@ int CMsgBox::exec()
 		}
 	}
 
+	disableTimeOutBar();
 	return res;
 }
 
