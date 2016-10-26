@@ -934,9 +934,10 @@ int CTimerList::show()
 				if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX || timer->eventType == CTimerd::TIMER_ZAPTO)
 				{
 					hide();
-					if (timer->epgID != 0)
+					if (timer->epgID != 0){
 						res = g_EpgData->show(timer->channel_id, timer->epgID, &timer->epg_starttime);
-					else
+						update=true;
+					}else
 						ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NOTFOUND);
 					if (res==menu_return::RETURN_EXIT_ALL)
 						loop=false;
