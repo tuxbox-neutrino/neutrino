@@ -58,7 +58,7 @@
 
 #include <zapit/client/zapittools.h>
 #include "widget/shellwindow.h"
-#include "widget/messagebox.h"
+
 #include <poll.h>
 #include <fcntl.h>
 #include <vector>
