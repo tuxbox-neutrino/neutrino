@@ -278,6 +278,7 @@ CTimerList::CTimerList()
 	Timer = new CTimerdClient();
 	timerNew_message = "";
 	timerNew_pluginName = "";
+	httpConnectTimeout = 3;
 
 	/* most probable default */
 	saved_dispmode = (int)CVFD::MODE_TVRADIO;
@@ -369,7 +370,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 			r_url += "&rs=on";
 			r_url += "&id=" + to_string((int)timerlist[selected].eventID);
 			//printf("[remotetimer] url:%s\n",r_url.c_str());
-			r_url = httpTool.downloadString(r_url);
+			r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 			//printf("[remotetimer] status:%s\n",r_url.c_str());
 		} else
 		{
@@ -394,7 +395,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "&aj=on";
 		r_url += "&rs=on";
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
-		r_url = httpTool.downloadString(r_url);
+		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
 		if (r_url=="ok")
 			Timer->removeTimerEvent(timerlist[selected].eventID);
@@ -430,7 +431,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "&id=" + eventID;
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
 		if (res > 0)
-		r_url = httpTool.downloadString(r_url);
+		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
 	}
 	else if (strcmp(key, "del_remotetimer") == 0)
@@ -442,7 +443,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "/control/timer?action=remove";
 		r_url += "&id=" + to_string((int)timerlist[selected].eventID);
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
-		r_url = httpTool.downloadString(r_url);
+		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
 	}
 	else if (strcmp(key, "update_remotetimer") == 0)
@@ -459,7 +460,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "&aj=on";
 		r_url += "&rs=on";
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
-		r_url = httpTool.downloadString(r_url);
+		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
 	}
 	else if (strcmp(key, "newtimer") == 0)
@@ -672,7 +673,7 @@ bool CTimerList::remoteChanExists(t_channel_id channel_id)
 	r_url += timerlist[selected].remotebox_ip;
 	r_url += "/control/getchannel?format=json&id=";
 	r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id);
-	r_url = httpTool.downloadString(r_url);
+	r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 
 	Json::Value root;
 	Json::Reader reader;
@@ -712,7 +713,7 @@ void CTimerList::remoteTimerList(CTimerd::TimerList &rtimerlist)
 	r_url  = "http://";
 		r_url += *it;
 	r_url += "/control/timer?format=json";
-	r_url = httpTool.downloadString(r_url);
+	r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 	//printf("[remotetimer] timers:%s\n",r_url.c_str());
 
 	Json::Value root;
@@ -1149,7 +1150,7 @@ void CTimerList::paintItem(int pos)
 			r_url += std::string(timer.remotebox_ip);
 			r_url += "/control/getchannel?format=json&id=";
 			r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer.channel_id);
-			r_url = httpTool.downloadString(r_url);
+			r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 
 			Json::Value root;
 			Json::Reader reader;

@@ -59,6 +59,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int		liststart;
 		unsigned int	listmaxshow;
 		bool		visible;
+		int		httpConnectTimeout;
 
 		CTimerdClient *Timer;
 		CTimerd::TimerList timerlist;             // List of timers		
