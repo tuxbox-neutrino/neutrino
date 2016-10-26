@@ -92,6 +92,9 @@ void CExtendedInput::Init(void)
 
 	x = getScreenStartX(width);
 	y = getScreenStartY(height);
+
+	savescreen	= false;
+	background	= NULL;
 }
 
 CExtendedInput::~CExtendedInput()
@@ -136,6 +139,34 @@ void CExtendedInput::calculateDialog()
 	y = getScreenStartY(height);
 }
 
+void CExtendedInput::saveScreen()
+{
+	if(!savescreen)
+		return;
+
+	delete[] background;
+
+	background = new fb_pixel_t [width * height];
+	if(background)
+		frameBuffer->SaveScreen(x, y, width, height, background);
+}
+
+void CExtendedInput::restoreScreen()
+{
+	if(background) {
+		if(savescreen)
+			frameBuffer->RestoreScreen(x, y, width, height, background);
+	}
+}
+
+void CExtendedInput::enableSaveScreen(bool enable)
+{
+	savescreen = enable;
+	if (!enable && background) {
+		delete[] background;
+		background = NULL;
+	}
+}
 
 int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 {
@@ -151,6 +182,8 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 
 	std::string oldval = *valueString;
 	std::string dispval = *valueString;
+	if (savescreen)
+		saveScreen();
 	paint();
 	frameBuffer->blit();
 
@@ -285,7 +318,10 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 
 void CExtendedInput::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width, height);
+	if (savescreen && background)
+		restoreScreen();
+	else
+		frameBuffer->paintBackgroundBoxRel(x, y, width, height);
 	frameBuffer->blit();
 }
 
