@@ -59,6 +59,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int		liststart;
 		unsigned int	listmaxshow;
 		bool		visible;
+		int		httpConnectTimeout;
 
 		CTimerdClient *Timer;
 		CTimerd::TimerList timerlist;             // List of timers		
@@ -86,7 +87,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		/* todo: properly import the enum CVFD::MODES */
 		int saved_dispmode;
 		void remoteTimerList(CTimerd::TimerList &timerlist);
-		void enterRemoteBox();
+		bool enterRemoteBox();
 		void select_remotebox_ip();
 		bool remoteChanExists(t_channel_id channel_id);
 		bool localChanExists(t_channel_id channel_id);

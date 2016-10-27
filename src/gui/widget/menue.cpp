@@ -1389,7 +1389,7 @@ void CMenuWidget::saveScreen()
 
 	delete[] background;
 
-	background = new fb_pixel_t [full_width * full_height];
+	background = new fb_pixel_t [full_width * (full_height+fbutton_height)];
 	if(background)
 		frameBuffer->SaveScreen(x /*-ConnectLineBox_Width*/, y, full_width, full_height + fbutton_height, background);
 }

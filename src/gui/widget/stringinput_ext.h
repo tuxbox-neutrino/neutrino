@@ -70,6 +70,11 @@ class CExtendedInput : public CMenuTarget
 		CChangeObserver*   observ;
 		bool* cancel;
 
+		fb_pixel_t		*background;
+		bool			savescreen;
+		void saveScreen();
+		void restoreScreen();
+
 		virtual void paint();
 		virtual void onBeforeExec(){};
 		virtual void onAfterExec(){};
@@ -85,6 +90,8 @@ class CExtendedInput : public CMenuTarget
 		void calculateDialog();
 
 		void addInputField( CExtendedInput_Item* );
+
+		void enableSaveScreen(bool enable);
 };
 
 
