@@ -143,15 +143,6 @@ void CMsgBox::initButtons()
 		btn.btn_alias = mbOk;
 		v_buttons.push_back(btn);
 	}
-	if (mb_show_button & mbYes){
-		btn.button = NEUTRINO_ICON_BUTTON_GREEN;
-		btn.text = BTN_TEXT(mbYes);
-		btn.directKey = CRCInput::RC_green;
-		btn.directKeyAlt = CRCInput::RC_ok;
-		btn.btn_result = mbrYes;
-		btn.btn_alias = mbYes;
-		v_buttons.push_back(btn);
-	}
 	if (mb_show_button & mbNo){
 		btn.button = NEUTRINO_ICON_BUTTON_RED;
 		btn.text = BTN_TEXT(mbNo);
@@ -159,6 +150,15 @@ void CMsgBox::initButtons()
 		btn.directKeyAlt = CRCInput::RC_home;
 		btn.btn_result = mbrNo;
 		btn.btn_alias = mbNo;
+		v_buttons.push_back(btn);
+	}
+	if (mb_show_button & mbYes){
+		btn.button = NEUTRINO_ICON_BUTTON_GREEN;
+		btn.text = BTN_TEXT(mbYes);
+		btn.directKey = CRCInput::RC_green;
+		btn.directKeyAlt = CRCInput::RC_ok;
+		btn.btn_result = mbrYes;
+		btn.btn_alias = mbYes;
 		v_buttons.push_back(btn);
 	}
 	if (mb_show_button & mbCancel){
@@ -180,19 +180,19 @@ void CMsgBox::initButtons()
 		v_buttons.push_back(btn);
 	}
 	if (mb_show_button & mbNoYes){
-		btn.button = NEUTRINO_ICON_BUTTON_GREEN;
-		btn.text = BTN_TEXT(mbNo);
-		btn.directKey = CRCInput::RC_green;
-		btn.directKeyAlt = CRCInput::RC_home;
-		btn.btn_result = mbrNo;
-		btn.btn_alias = mbNo;
-		v_buttons.push_back(btn);
 		btn.button = NEUTRINO_ICON_BUTTON_RED;
 		btn.text = BTN_TEXT(mbYes);
 		btn.directKey = CRCInput::RC_red;
 		btn.directKeyAlt = CRCInput::RC_ok;
 		btn.btn_result = mbrYes;
 		btn.btn_alias = mbYes;
+		v_buttons.push_back(btn);
+		btn.button = NEUTRINO_ICON_BUTTON_GREEN;
+		btn.text = BTN_TEXT(mbNo);
+		btn.directKey = CRCInput::RC_green;
+		btn.directKeyAlt = CRCInput::RC_home;
+		btn.btn_result = mbrNo;
+		btn.btn_alias = mbNo;
 		v_buttons.push_back(btn);
 	}
 
