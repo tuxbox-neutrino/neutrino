@@ -481,7 +481,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				t_channel_id used_id = IS_WEBTV(channel_id) ? channel_id : evtlist[selected].channelID;
 				if (!recDir.empty() && doRecord) //add/remove recording timer events and check/warn for conflicts
 				{
-					CFollowScreenings m(channel_id,
+					CFollowScreenings m(used_id,
 						evtlist[selected].startTime,
 						evtlist[selected].startTime + evtlist[selected].duration,
 						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist);
