@@ -784,6 +784,14 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
+	else if (actionKey == "msgbox_test_no_yes"){
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbNoYes, NULL, 500, -1);
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgRet);
+		ShowHint("MsgBox test returns", msg_txt.c_str());
+		return menu_return::RETURN_REPAINT;
+	}
 	else if (actionKey == "msgbox_test_ok"){
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key! ...", CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 500, -1);
 
@@ -972,6 +980,7 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "MsgBox"));
 	widget->addItem(new CMenuForwarder("cancel on timeout", true, NULL, this, 	"msgbox_test_cancel_timeout"));
 	widget->addItem(new CMenuForwarder("yes no", true, NULL, this, "msgbox_test_yes_no"));
+	widget->addItem(new CMenuForwarder("no yes", true, NULL, this, "msgbox_test_no_yes"));
 	widget->addItem(new CMenuForwarder("cancel", true, NULL, this, "msgbox_test_cancel"));
 	widget->addItem(new CMenuForwarder("ok", true, NULL, this, "msgbox_test_ok"));
 	widget->addItem(new CMenuForwarder("ok cancel", true, NULL, this, "msgbox_test_ok_cancel"));
