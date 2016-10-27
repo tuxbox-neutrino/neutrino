@@ -74,7 +74,8 @@ class CMsgBox : public CHintBox
 			mbOKCancel	= 0x20,
 			mbYesNoCancel	= 0x40,
 			mbYesNo		= 0x80,
-			mbAll		= 0x100,
+			mbNoYes		= 0x100,
+			mbAll		= 0x200,
 			//unused allign stuff, only for compatibility
 			mbBtnAlignCenter1 = 0x0400, /* centered, large distances */
 			mbBtnAlignCenter2 = 0x0800, /* centered, small distances */
@@ -267,7 +268,8 @@ class CMsgBox : public CHintBox
 		* 		mbOKCancel	= 0x20,
 		* 		mbYesNoCancel	= 0x40,
 		* 		mbYesNo		= 0x80,
-		* 		mbAll		= 0x100,
+		* 		mbNoYes		= 0x100,
+		* 		mbAll		= 0x200,
 		* 		NOTE: allign parameters are currently not supported, these values are existing for compatibility only!
 		*/
 		void	setShowedButtons(const int& ShowButtons){mb_show_button = ShowButtons; initButtons();}
