@@ -353,12 +353,13 @@ void CTextBox::refreshTextLineArray(void)
 	m_cLineArray.clear();
 	m_nNrOfLines = 0;
 
+	int MaxWidth = m_nMaxWidth - m_cFrameScrollRel.iWidth - 2*text_Hborder_width;
 	if( m_nMode & AUTO_WIDTH){
 		/* In case of autowidth, we calculate the max allowed width of the textbox */
-		lineBreakWidth = m_nMaxWidth - m_cFrameScrollRel.iWidth - 2*text_Hborder_width;
+		lineBreakWidth = MaxWidth;
 	}else{
 		/* If not autowidth, we just take the actuall textframe width */
-		lineBreakWidth = std::max(m_nMaxWidth, m_cFrameTextRel.iWidth - 2*text_Hborder_width);
+		lineBreakWidth = std::max(MaxWidth, m_cFrameTextRel.iWidth - 2*text_Hborder_width);
 	}
 
 	if(m_nMaxTextWidth)
