@@ -891,9 +891,11 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 							pos -= dir * items.size();
 						wrap = true;
 				}
-				if (pos >= (int)items.size())
+				if (!items.empty() && pos >= (int)items.size())
 					pos = (int)items.size() - 1;
 				do {
+					if(items.empty())
+						break;
 					CMenuItem* item = items[pos];
 					if (item->isSelectable()) {
 						if (pos < page_start[current_page + 1] && pos >= page_start[current_page]) {
