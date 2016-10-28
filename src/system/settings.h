@@ -145,6 +145,15 @@ struct SNeutrinoTheme
 	unsigned char clock_Digit_blue;
 };
 
+struct timer_remotebox_item
+{
+		unsigned int port;
+		std::string user;
+		std::string pass;
+		std::string rbname;
+		std::string rbaddress;
+};
+
 struct SNeutrinoSettings
 {
 	std::string version_pseudo;
@@ -450,7 +459,7 @@ struct SNeutrinoSettings
 	int recording_slow_warning;
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
-	std::list<std::string> timer_remotebox_ip;
+	std::vector<timer_remotebox_item> timer_remotebox_ip;
 	std::string recording_filename_template;
 	int recording_already_found_check;
 
