@@ -61,6 +61,8 @@ class CStringInput : public CMenuTarget
 		int          size;
 		int          selected;
 		CChangeObserver * observ;
+		bool force_saveScreen;
+		fb_pixel_t *pixBuf;
 
 		virtual void init();
 
@@ -91,6 +93,8 @@ class CStringInput : public CMenuTarget
 		int exec( CMenuTarget* parent, const std::string & actionKey );
 		void setMinMax(const int min_value, const int max_value);
 		virtual std::string &getValue(void);
+
+		void forceSaveScreen(bool enable);
 };
 
 class CStringInputSMS : public CStringInput
