@@ -298,10 +298,15 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		std::string rbname,rbaddress,user,pass = "";
 		std::string port = "80";
 		CKeyboardInput remotebox_name(LOCALE_REMOTEBOX_RBNAME  , &rbname, 25);
+		remotebox_name.forceSaveScreen(true);
 		CKeyboardInput remotebox_address(LOCALE_REMOTEBOX_RBADDR  , &rbaddress, 50);
+		remotebox_address.forceSaveScreen(true);
 		CStringInput   remotebox_port(LOCALE_REMOTEBOX_PORT  , &port, 5);
+		remotebox_port.forceSaveScreen(true);
 		CKeyboardInput remotebox_user(LOCALE_REMOTEBOX_USER  , &user, 15);
+		remotebox_user.forceSaveScreen(true);
 		CKeyboardInput remotebox_pass(LOCALE_REMOTEBOX_PASS  , &pass, 15);
+		remotebox_pass.forceSaveScreen(true);
 		CMenuWidget * rbsetup = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBNAME, true, rbname, &remotebox_name));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBADDR, true, rbaddress, &remotebox_address));
@@ -350,10 +355,15 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		std::advance(it,bselected-item_offset);
 		std::string port = to_string(it->port);
 		CKeyboardInput remotebox_name(LOCALE_REMOTEBOX_RBNAME  , &it->rbname, 25);
+		remotebox_name.forceSaveScreen(true);
 		CKeyboardInput remotebox_address(LOCALE_REMOTEBOX_RBADDR  , &it->rbaddress, 50);
+		remotebox_address.forceSaveScreen(true);
 		CStringInput   remotebox_port(LOCALE_REMOTEBOX_PORT  , &port, 5);
+		remotebox_port.forceSaveScreen(true);
 		CKeyboardInput remotebox_user(LOCALE_REMOTEBOX_USER  , &it->user, 15);
+		remotebox_user.forceSaveScreen(true);
 		CKeyboardInput remotebox_pass(LOCALE_REMOTEBOX_PASS  , &it->pass, 15);
+		remotebox_pass.forceSaveScreen(true);
 		CMenuWidget * rbsetup = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBNAME, true, it->rbname, &remotebox_name));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBADDR, true, it->rbaddress, &remotebox_address));
@@ -684,6 +694,7 @@ void CTimerList::RemoteBoxSelect()
 	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
 		m->addItem(new CMenuForwarder(it->rbname, true, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str()));
 
+	m->enableSaveScreen(true);
 	m->exec(NULL, "");
 
 	delete selector;
