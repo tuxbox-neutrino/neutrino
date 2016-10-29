@@ -152,6 +152,9 @@ class CListFrame
 
 inline	CBox	getWindowsPos(void)			{return(m_cFrame);};
 inline  int     getSelectedLine(void)		{return(m_nSelectedLine);};
+inline  int     getSelectedLineRel(void)	{return(m_nSelectedLine - m_nLinesPerPage*m_nCurrentPage);};
+inline  int     getTitleHeight(void)		{return(m_cFrameTitleRel.iHeight);};
+inline  int     getHeaderListHeight(void)	{return(m_cFrameHeaderListRel.iHeight);};
 inline  int     getLines(void)				{return(m_nNrOfLines);};
 inline  int     getPages(void)				{return(m_nNrOfPages);};
 inline  void    showSelection(bool show)	{m_showSelection = show;refreshLine(m_nSelectedLine);};
