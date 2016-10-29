@@ -2101,11 +2101,11 @@ remotebox_channel_na Channel not available on Remote-Box
 remotebox_del delete
 remotebox_head Remote-Boxes
 remotebox_mod modify
-remotebox_user User
 remotebox_pass Password
 remotebox_port Port
 remotebox_rbaddr Address
 remotebox_rbname Screenname
+remotebox_user User
 reset_all Factory reset and reboot
 reset_channels Delete all channels
 reset_confirm Are you sure ?
