@@ -199,6 +199,8 @@ CKeyboardInput::CKeyboardInput(const neutrino_locale_t Name, std::string* Value,
 	caps = 0;
 	srow = scol = 0;
 	focus = FOCUS_STRING;
+	force_saveScreen = false;
+	pixBuf = NULL;
 }
 
 CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
@@ -221,6 +223,8 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	caps = 0;
 	srow = scol = 0;
 	focus = FOCUS_STRING;
+	force_saveScreen = false;
+	pixBuf = NULL;
 }
 
 CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int Size, CChangeObserver* Observ, const char * const Icon, std::string HintText_1, std::string HintText_2)
@@ -243,6 +247,8 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	caps = 0;
 	srow = scol = 0;
 	focus = FOCUS_STRING;
+	force_saveScreen = false;
+	pixBuf = NULL;
 }
 
 CKeyboardInput::~CKeyboardInput()
@@ -515,6 +521,15 @@ std::string &CKeyboardInput::getValue(void)
 	return *valueString;
 }
 
+void CKeyboardInput::forceSaveScreen(bool enable)
+{
+	force_saveScreen = enable;
+	if (!enable && pixBuf) {
+		delete[] pixBuf;
+		pixBuf = NULL;
+	}
+}
+
 int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 {
 	neutrino_msg_t      msg;
@@ -528,11 +543,12 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 
 	std::string oldval = *valueString;
 
-	fb_pixel_t * pixbuf = NULL;
-	if (!parent) {
-		pixbuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
-		if (pixbuf)
-			frameBuffer->SaveScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
+	if (pixBuf)
+		delete[] pixBuf;
+	if (!parent || force_saveScreen) {
+		pixBuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
+		if (pixBuf)
+			frameBuffer->SaveScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixBuf);
 	}
 
 	paint();
@@ -624,10 +640,12 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		}
 	}
 
-	if (pixbuf)
+	if (pixBuf)
 	{
-		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
-		delete[] pixbuf;
+		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixBuf);
+		delete[] pixBuf;
+		pixBuf = NULL;
+		frameBuffer->blit();
 	} else
 		hide();
 

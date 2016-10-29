@@ -150,6 +150,8 @@ void CStringInput::init()
 	y = getScreenStartY(height);
 	selected = 0;
 	smstimer = 0;
+	force_saveScreen = false;
+	pixBuf = NULL;
 }
 
 void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
@@ -377,6 +379,15 @@ std::string &CStringInput::getValue(void)
 	return *valueString;
 }
 
+void CStringInput::forceSaveScreen(bool enable)
+{
+	force_saveScreen = enable;
+	if (!enable && pixBuf) {
+		delete[] pixBuf;
+		pixBuf = NULL;
+	}
+}
+
 int CStringInput::exec( CMenuTarget* parent, const std::string & )
 {
 	neutrino_msg_t      msg;
@@ -392,11 +403,12 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	if (size > (int) valueString->length())
 		valueString->append(size - valueString->length(), ' ');
 
-	fb_pixel_t * pixbuf = NULL;
-	if (!parent) {
-		pixbuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
-		if (pixbuf)
-			frameBuffer->SaveScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
+	if (pixBuf)
+		delete[] pixBuf;
+	if (!parent || force_saveScreen) {
+		pixBuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
+		if (pixBuf)
+			frameBuffer->SaveScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixBuf);
 	}
 
 	paint();
@@ -517,10 +529,11 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		}
 	}
 
-	if (pixbuf)
+	if (pixBuf)
 	{
-		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
-		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
+		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixBuf);
+		delete[] pixBuf;
+		pixBuf = NULL;
 		frameBuffer->blit();
 	} else
 		hide();
