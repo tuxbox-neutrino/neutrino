@@ -1661,6 +1661,7 @@ const char * locale_real_names[] =
 	"moviebrowser.book_type",
 	"moviebrowser.book_type_backward",
 	"moviebrowser.book_type_forward",
+	"moviebrowser.browser_additional",
 	"moviebrowser.browser_frame_high",
 	"moviebrowser.browser_row_head",
 	"moviebrowser.browser_row_item",

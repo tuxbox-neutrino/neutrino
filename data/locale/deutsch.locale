@@ -1634,6 +1634,7 @@ moviebrowser.book_position Position:
 moviebrowser.book_type Sprung (<0 zurück, >0 vor):
 moviebrowser.book_type_backward Wiederholung
 moviebrowser.book_type_forward Überspringen
+moviebrowser.browser_additional Zusätzliche Informationen
 moviebrowser.browser_frame_high Anzeigehöhe oberes Fenster [%]
 moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
