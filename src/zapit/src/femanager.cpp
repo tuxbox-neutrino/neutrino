@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2012,2013,2014 Stefan Seyfried
+	Copyright (C) 2012-2016 Stefan Seyfried
 
 	License: GPLv2
 
@@ -117,10 +117,12 @@ bool CFEManager::Init()
 	/* for testing without a frontend, export SIMULATE_FE=1 */
 	if (femap.empty() && getenv("SIMULATE_FE")) {
 		INFO("SIMULATE_FE is set, adding dummy frontend for testing");
-		fe = new CFrontend(0,0);
+		fe = new CFrontend(0, -1);
 		fekey = MAKE_FE_KEY(0, 0);
 		femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
+		fe->Open();
 		livefe = fe;
+		have_sat = true;
 	}
 	if (femap.empty())
 		return false;

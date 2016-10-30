@@ -3,7 +3,7 @@
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
- * (C) 2007-2013,2015 Stefan Seyfried
+ * (C) 2007-2013,2015-2016 Stefan Seyfried
  * Copyright (C) 2011 CoolStream International Ltd 
  *
  * This program is free software; you can redistribute it and/or modify
@@ -231,6 +231,14 @@ bool CFrontend::Open(bool init)
 	char filename[128];
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/frontend%d", adapter, fenumber);
 	DBG("[fe%d] open %s\n", fenumber, filename);
+
+	if (adapter == -1) {
+		deliverySystemMask |= DVB_S;
+		deliverySystemMask |= DVB_S2;
+		info.type = FE_QPSK;
+		strcpy(info.name, "dummyfe");
+		return false;
+	}
 
 	mutex.lock();
 	if (fd < 0) {
