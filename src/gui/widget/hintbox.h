@@ -85,6 +85,7 @@ class CHintBox : public CComponentsWindow
 
 		virtual void ReSize();
 		void showTimeOutBar(){enableTimeOutBar();}
+		int getMaxWidth(const std::string& Text, const int& minWidth);
 
 	public:
 		/**CHintBox Constructor

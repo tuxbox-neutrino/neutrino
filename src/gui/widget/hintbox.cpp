@@ -259,7 +259,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 
 	//set required font and line size
 	hb_font = !font_text ? hb_font : font_text;
-	width =  max(width, min(hb_font->getRenderWidth(Text), HINTBOX_MIN_WIDTH));
+	width = getMaxWidth(Text, width);
 	int h_line = hb_font->getHeight();
 
 	//init side picon object
@@ -437,6 +437,11 @@ void CHintBox::scroll_up(const uint& hint_id)
 void CHintBox::scroll_down(const uint& hint_id)
 {
 	Scroll(true, hint_id);
+}
+
+int CHintBox::getMaxWidth(const string& Text, const int& minWidth)
+{
+	return max(HINTBOX_MIN_WIDTH, max(minWidth, min(hb_font->getRenderWidth(Text), (int)frameBuffer->getScreenWidth())));
 }
 
 int ShowHint(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon, const char * const Picon, const int& header_buttons)
