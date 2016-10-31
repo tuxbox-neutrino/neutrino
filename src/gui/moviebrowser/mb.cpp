@@ -543,10 +543,10 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameInfo2.iWidth = 		m_cBoxFrame.iWidth - m_cBoxFrameBrowserList.iWidth;
 	m_cBoxFrameInfo2.iHeight = 		m_cBoxFrameBrowserList.iHeight;
 
-	m_cBoxFrameFilter.iX = 			m_cBoxFrameBrowserList.iX;
-	m_cBoxFrameFilter.iY = 			m_cBoxFrameBrowserList.iY;
-	m_cBoxFrameFilter.iWidth = 		m_cBoxFrameBrowserList.iWidth;
-	m_cBoxFrameFilter.iHeight = 		m_cBoxFrameBrowserList.iHeight;
+	m_cBoxFrameFilter.iX = 			m_cBoxFrameInfo1.iX;
+	m_cBoxFrameFilter.iY = 			m_cBoxFrameInfo1.iY;
+	m_cBoxFrameFilter.iWidth = 		m_cBoxFrameInfo1.iWidth;
+	m_cBoxFrameFilter.iHeight = 		m_cBoxFrameInfo1.iHeight;
 }
 
 void CMovieBrowser::initRows(void)
@@ -1124,7 +1124,7 @@ int CMovieBrowser::paint(void)
 	m_pcLastRecord = new CListFrame(&m_recordListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE | CListFrame::TITLE,
 			&m_cBoxFrameLastRecordList, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_RECORDLIST),
 			g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD]);
-	m_pcFilter = new CListFrame(&m_FilterLines, font, CListFrame::SCROLL | CListFrame::TITLE,
+	m_pcFilter = new CListFrame(&m_FilterLines, g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_INFO], CListFrame::SCROLL | CListFrame::TITLE,
 			&m_cBoxFrameFilter, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_FILTER),
 			g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD]);
 	m_pcInfo1 = new CTextBox(" ", g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_INFO], CTextBox::TOP | CTextBox::SCROLL, &m_cBoxFrameInfo1);
@@ -1339,9 +1339,6 @@ void CMovieBrowser::initMovieCover(void)
 
 		// we have to align cover to box width
 		cover_w = movieCoverBox.iWidth - 2*OFFSET_INNER_MID - OFFSET_SHADOW;
-
-	TRACE("[mb]->%s:%d m_windowFocus == MB_FOCUS_BROWSER\n", __func__, __LINE__);
-
 	}
 	else
 	{
@@ -1349,9 +1346,6 @@ void CMovieBrowser::initMovieCover(void)
 
 		// we have to align cover to box height
 		cover_h = movieCoverBox.iHeight - 2*OFFSET_INNER_MID - OFFSET_SHADOW;
-
-	TRACE("[mb]->%s:%d m_windowFocus != MB_FOCUS_BROWSER\n", __func__, __LINE__);
-
 	}
 
 	std::string cover_file;
@@ -1391,8 +1385,6 @@ void CMovieBrowser::initMovieCover(void)
 			m_movieCover->doPaintBg(false);
 		}
 
-TRACE("[mb]->%s:%d m_windowFocus: %d\n", __func__, __LINE__, m_windowFocus);
-
 		// always align positions and dimensions
 		if (m_windowFocus == MB_FOCUS_BROWSER && m_settings.browserAdditional)
 		{
@@ -1400,6 +1392,7 @@ TRACE("[mb]->%s:%d m_windowFocus: %d\n", __func__, __LINE__, m_windowFocus);
 				cover_w /= 2; // cover is upright, so we use just half width first
 
 			m_movieCover->setHeight(0); // force recalculation
+TRACE("[mb]->%s:%d m_movieCover->getHeight(): %d\n", __func__, __LINE__, m_movieCover->getHeight());
 			m_movieCover->setWidth(cover_w, true);
 			if (m_movieCover->getHeight() > movieCoverBox.iHeight/3)
 				m_movieCover->setHeight(movieCoverBox.iHeight/3, true); // use maximal one third of box height
@@ -1433,7 +1426,15 @@ void CMovieBrowser::refreshMovieCover(void)
 	TRACE("[mb]->%s:%d\n", __func__, __LINE__);
 
 	if (m_movieCover)
-		m_movieCover->paint(CC_SAVE_SCREEN_NO);
+		m_movieCover->paint(CC_SAVE_SCREEN_YES);
+}
+
+void CMovieBrowser::hideMovieCover(void)
+{
+	TRACE("[mb]->%s:%d\n", __func__, __LINE__);
+
+	if (m_movieCover)
+		m_movieCover->hide();
 }
 
 void CMovieBrowser::refreshMovieInfo(void)
@@ -1442,21 +1443,19 @@ void CMovieBrowser::refreshMovieInfo(void)
 
 	hideDetailsLine();
 
-	//reset text before new init, m_pcInfo1 must be clean
-	std::string emptytext = " ";
-	m_pcInfo1->setText(&emptytext);
-	if (m_windowFocus == MB_FOCUS_BROWSER && m_settings.browserAdditional)
-	{
-		m_pcInfo1->setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST]);
+	// clear m_pcInfo1 text before new init
+	m_pcInfo1->clear();
 
-		m_pcInfo2->setWindowMaxDimensions(m_cBoxFrameInfo2.iWidth, m_cBoxFrameInfo2.iHeight);
-		m_pcInfo2->setWindowMinDimensions(m_cBoxFrameInfo2.iWidth, m_cBoxFrameInfo2.iHeight);
-		m_pcInfo2->movePosition(m_cBoxFrameInfo2.iX, m_cBoxFrameInfo2.iY);
-		m_pcInfo2->setText(&emptytext);
-	}
+	// clear m_pcInfo2 text, reset position and dimensions before new init
+	m_pcInfo2->movePosition(m_cBoxFrameInfo2.iX, m_cBoxFrameInfo2.iY);
+	m_pcInfo2->setWindowMaxDimensions(m_cBoxFrameInfo2.iWidth, m_cBoxFrameInfo2.iHeight);
+	m_pcInfo2->setWindowMinDimensions(m_cBoxFrameInfo2.iWidth, m_cBoxFrameInfo2.iHeight);
+	m_pcInfo2->clear();
+
+	if (m_windowFocus == MB_FOCUS_BROWSER && m_settings.browserAdditional)
+		m_pcInfo1->setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST]);
 	else
 		m_pcInfo1->setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_INFO]);
-
 
 	if (m_vMovieInfo.empty() || m_movieSelectionHandler == NULL)
 		return;
@@ -1476,22 +1475,23 @@ void CMovieBrowser::refreshMovieInfo(void)
 			cover_y_offset += 2*OFFSET_INNER_MID;
 	}
 
-	std::string pcInfo_content;
+	std::string pcInfo1_content = " ";
 	if (m_windowFocus == MB_FOCUS_BROWSER && m_settings.browserAdditional)
 	{
 		m_pcInfo2->setWindowMaxDimensions(m_cBoxFrameInfo2.iWidth, m_cBoxFrameInfo2.iHeight - cover_y_offset);
 		m_pcInfo2->setWindowMinDimensions(m_cBoxFrameInfo2.iWidth, m_cBoxFrameInfo2.iHeight - cover_y_offset);
 		m_pcInfo2->movePosition(m_cBoxFrameInfo2.iX, m_cBoxFrameInfo2.iY + cover_y_offset);
 		m_pcInfo2->setText(&m_movieSelectionHandler->epgInfo2);
-		pcInfo_content = m_movieSelectionHandler->epgInfo1;
-		pcInfo_content += "\n";
-		pcInfo_content += m_movieSelectionHandler->channelName;
+
+		pcInfo1_content = m_movieSelectionHandler->epgInfo1;
+		pcInfo1_content += "\n";
+		pcInfo1_content += m_movieSelectionHandler->channelName;
 	}
 	else
 	{
-		pcInfo_content  = m_movieSelectionHandler->epgInfo2;
+		pcInfo1_content  = m_movieSelectionHandler->epgInfo2;
 	}
-	m_pcInfo1->setText(&pcInfo_content, m_cBoxFrameInfo1.iWidth - cover_x_offset);
+	m_pcInfo1->setText(&pcInfo1_content, m_cBoxFrameInfo1.iWidth - cover_x_offset);
 
 	updateInfoSelection();
 
@@ -2533,7 +2533,12 @@ void CMovieBrowser::onSetGUIWindow(MB_GUI gui)
 		m_showMovieInfo = false;
 
 		m_pcInfo1->hide();
-		m_pcInfo2->hide();
+		if (m_windowFocus == MB_FOCUS_BROWSER && m_settings.browserAdditional)
+		{
+			hideMovieCover();
+			m_pcInfo2->clear();
+		}
+		hideDetailsLine();
 		m_pcFilter->paint();
 
 		onSetFocus(MB_FOCUS_FILTER);
@@ -2587,7 +2592,8 @@ void CMovieBrowser::onSetFocus(MB_FOCUS new_focus)
 		m_pcFilter->showSelection(true);
 
 	updateMovieSelection();
-	updateInfoSelection();
+	if (m_windowFocus != MB_FOCUS_FILTER)
+		updateInfoSelection();
 	refreshFoot();
 }
 

@@ -293,6 +293,7 @@ class CMovieBrowser : public CMenuTarget
 		void refreshChannelLogo(void); //P1
 		void initMovieCover(void); //P1
 		void refreshMovieCover(void); //P1
+		void hideMovieCover(void); //P1
 		int refreshFoot(bool show = true); //P2
 		void refreshTitle(void); //P2
 		void refreshInfo(void); // P2
