@@ -1,4 +1,4 @@
 version=2.9.0.39
 date=26.08.2016
 type=Release
-info=Port CST
+info=Port Tuxbox-Neutrino

@@ -676,7 +676,7 @@ fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const int 
 {
 	if (!getActive())
 		return buf;
-	if (dx == 0 || dy == 0) {
+	if (dx < 1 || dy < 1) {
 		dprintf(DEBUG_INFO, "[CFrameBuffer] [%s - %d]: radius %d, dx %d dy %d\n", __func__, __LINE__, radius, dx, dy);
 		return buf;
 	}
@@ -2026,6 +2026,9 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 
 void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
 {
+	if(width <1 || height <1 || !boxBuf )
+		return;
+
 	uint32_t xc = (width > xRes) ? (uint32_t)xRes : width;
 	uint32_t yc = (height > yRes) ? (uint32_t)yRes : height;
 
