@@ -210,6 +210,7 @@ class CTextBox : public sigc::trackable
 		inline int	getTextMode()			{return m_nMode;};
 		void paint (void);
 		void hide (void);
+		void clear(void);
 		bool clearScreenBuffer();
 		sigc::signal<void> OnAfterRefresh;
 		sigc::signal<void> OnAfterScrollPage;

@@ -836,6 +836,16 @@ void CTextBox::hide (void)
 	frameBuffer = NULL;
 }
 
+void CTextBox::clear(void)
+{
+	//TRACE("[CTextBox] %s Line %d\r\n", __FUNCTION__, __LINE__);
+	if (frameBuffer == NULL)
+		return;
+
+	std::string clear(" ");
+	setText(&clear);
+}
+
 bool CTextBox::clearScreenBuffer()
 {
 	if(m_bgpixbuf){
