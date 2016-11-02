@@ -434,7 +434,7 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.sorting.direction = MB_DIRECTION_DOWN;
 
 	m_settings.filter.item = MB_INFO_MAX_NUMBER;
-	m_settings.filter.optionString = "";
+	m_settings.filter.optionString = g_Locale->getText(LOCALE_OPTIONS_OFF);
 	m_settings.filter.optionVar = 0;
 
 	m_settings.parentalLockAge = MI_PARENTAL_OVER18;
@@ -1594,7 +1594,7 @@ void CMovieBrowser::refreshFilterList(void)
 	}
 	else
 	{
-		std::string tmp = g_Locale->getText(LOCALE_MENU_BACK);
+		std::string tmp = g_Locale->getText(LOCALE_MOVIEBROWSER_FILTER_OFF);
 		m_FilterLines.lineArray[0].push_back(tmp);
 
 		if (m_settings.filter.item == MB_INFO_FILEPATH)
@@ -1853,17 +1853,19 @@ int CMovieBrowser::refreshFoot(bool show)
 	int ok_loc_len = std::max(FOOT_FONT->getRenderWidth(g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), true),
 				  FOOT_FONT->getRenderWidth(g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_PLAY), true));
 	std::string filter_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FILTER);
+	filter_text += " ";
 	filter_text += m_settings.filter.optionString;
 	std::string sort_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT);
-	sort_text += g_Locale->getText(m_localizedItemName[m_settings.sorting.item]);
-	int sort_text_len = FOOT_FONT->getRenderWidth(g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT), true);
+	sort_text += " ";
+	int sort_text_len = FOOT_FONT->getRenderWidth(sort_text, true);
 	int len = 0;
 	for (int i = 0; m_localizedItemName[i] != NONEXISTANT_LOCALE; i++)
 		len = std::max(len, FOOT_FONT->getRenderWidth(g_Locale->getText(m_localizedItemName[i]), true));
 	sort_text_len += len;
+	sort_text += g_Locale->getText(m_localizedItemName[m_settings.sorting.item]);
 
 	button_label_ext footerButtons[] = {
-		{ NEUTRINO_ICON_BUTTON_RED,		NONEXISTANT_LOCALE,			sort_text.c_str(),	sort_text_len,	false  },
+		{ NEUTRINO_ICON_BUTTON_RED,		NONEXISTANT_LOCALE,			sort_text.c_str(),	sort_text_len,	false },
 		{ NEUTRINO_ICON_BUTTON_GREEN,		NONEXISTANT_LOCALE,			filter_text.c_str(),	0,		true  },
 		{ NEUTRINO_ICON_BUTTON_YELLOW,		LOCALE_MOVIEBROWSER_FOOT_FOCUS,		NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_BLUE,		LOCALE_MOVIEBROWSER_FOOT_REFRESH,	NULL,			0,		false },
@@ -2270,7 +2272,7 @@ bool CMovieBrowser::onButtonPressFilterList(neutrino_msg_t msg)
 			if (selected_line == 0)
 			{
 				m_settings.filter.item = MB_INFO_MAX_NUMBER;
-				m_settings.filter.optionString = "";
+				m_settings.filter.optionString = g_Locale->getText(LOCALE_OPTIONS_OFF);
 				m_settings.filter.optionVar = 0;
 				refreshFilterList();
 				m_pcFilter->setSelectedLine(0);

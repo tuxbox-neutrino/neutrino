@@ -1690,6 +1690,7 @@ const char * locale_real_names[] =
 	"moviebrowser.edit_book_type_info2",
 	"moviebrowser.edit_serie",
 	"moviebrowser.error_no_movies",
+	"moviebrowser.filter_off",
 	"moviebrowser.foot_filter",
 	"moviebrowser.foot_focus",
 	"moviebrowser.foot_options",

@@ -1663,11 +1663,12 @@ moviebrowser.edit_book_type_info1 Neue Sprunglänge (s)
 moviebrowser.edit_book_type_info2 <0 zurück , >0 vor, 0: kein
 moviebrowser.edit_serie Name der Serie
 moviebrowser.error_no_movies Keine Filme gefunden
+moviebrowser.filter_off Filter aus
 moviebrowser.foot_filter Filter:
-moviebrowser.foot_focus Fenster umschalten
+moviebrowser.foot_focus Fenster wechseln
 moviebrowser.foot_options Optionen
-moviebrowser.foot_play Film starten
-moviebrowser.foot_refresh Liste neu laden
+moviebrowser.foot_play Wiedergabe
+moviebrowser.foot_refresh Neu laden
 moviebrowser.foot_sort Sortieren:
 moviebrowser.head Meine Aufnahmen
 moviebrowser.head_filter Filme nach Kategorie filtern:
