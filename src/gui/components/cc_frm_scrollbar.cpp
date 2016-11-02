@@ -136,6 +136,8 @@ void CComponentsScrollBar::initSegments()
 
 	//calculate height of segment container
 	int h_seg_obj = height - 2*sb_up_obj->getHeight() - 3*append_y_offset;
+	if(h_seg_obj < 0)
+		h_seg_obj = 0;
 
 	//init segment container
 	if (sb_segments_obj == NULL){
@@ -154,6 +156,8 @@ void CComponentsScrollBar::initSegments()
 	//set y position of 1st segment and set height of segments
 	int y_seg = 1+ append_y_offset;
 	int h_seg = sb_segments_obj->getHeight()/sb_segments_count - append_y_offset;
+	if(h_seg < 0)
+		h_seg = 0;
 
 	//create and add segments to segment container
 	for(u_int8_t i=0; i<sb_segments_count; i++){

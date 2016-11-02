@@ -445,6 +445,9 @@ void CInfoViewer::paintHead()
 void CInfoViewer::paintBody()
 {
 	int h_body = InfoHeightY - header_height - OFFSET_SHADOW;
+	if(h_body < 0)
+		h_body = 0;
+
 	infoViewerBB->initBBOffset();
 	if (!zap_mode)
 		h_body += infoViewerBB->bottom_bar_offset;
