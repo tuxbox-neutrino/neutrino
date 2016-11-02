@@ -842,8 +842,8 @@ void CTextBox::clear(void)
 	if (frameBuffer == NULL)
 		return;
 
-	std::string clear(" ");
-	setText(&clear);
+	std::string empty(" ");
+	setText(&empty);
 }
 
 bool CTextBox::clearScreenBuffer()
