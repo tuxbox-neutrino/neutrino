@@ -128,16 +128,14 @@ CHintBox::CHintBox(	const char * const Caption,
 
 void CHintBox::init(const std::string& Text, const int& Width, const std::string& Picon, const int& header_buttons, const int& text_mode, const int& indent)
 {
-	lines = 0;
 	timeout		= HINTBOX_DEFAULT_TIMEOUT;
 	w_indentation	= indent;
-	hb_text_mode	= text_mode;
 
 	hb_font		= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO];
 
 	//set required window width and basic height
-	width 		= max(HINTBOX_MIN_WIDTH, max(Width, min(hb_font->getRenderWidth(Text), (int)frameBuffer->getScreenWidth())));
-	height 		= max(HINTBOX_MIN_HEIGHT, height);
+	width 		= getMaxWidth(Text, hb_font, Width);
+	height 		= max(HINTBOX_MIN_HEIGHT, min(HINTBOX_MAX_HEIGHT, height));
 
 	ccw_buttons = header_buttons;
 
@@ -151,19 +149,14 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	//disable footer for default
 	showFooter(false);
 
-	//add the content container, contains the hint objects
-	obj_content = new CComponentsFrmChain(CC_CENTERED, CC_CENTERED,  ccw_body->getWidth(), ccw_body->getHeight(), NULL, CC_DIR_X, ccw_body);
-	obj_content->doPaintBg(false);
-
-	y_hint_obj 	= 0;
-	h_hint_obj	= obj_content->getHeight();
+	y_hint_obj 	= CC_CENTERED;
 
 	//initialize timeout bar and its timer
 	timeout_pb 	= NULL;
 	timeout_pb_timer= NULL;
 
 	if (!Text.empty())
-		addHintItem(Text, hb_text_mode, Picon);
+		addHintItem(Text, text_mode, Picon, COL_MENUCONTENT_TEXT, hb_font);
 }
 
 CHintBox::~CHintBox()
@@ -253,135 +246,73 @@ int CHintBox::exec()
 	return res;
 }
 
-void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const std::string& Picon, const u_int8_t& at_page_number, const fb_pixel_t& color_text, Font* font_text)
+void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const std::string& Picon, const fb_pixel_t& color_text, Font* font_text)
 {
-	dprintf(DEBUG_INFO, "[CHintBox]  [%s - %d] add new hint '%s' %s\n", __func__, __LINE__, Text.c_str(), Picon.c_str());
+	/* set required font and line height */
+	Font* item_font = !font_text ? hb_font : font_text;
 
-	//set required font and line size
-	hb_font = !font_text ? hb_font : font_text;
-	width = getMaxWidth(Text, width);
-	int h_line = hb_font->getHeight();
+	/* pre define required info height depends of lines and minimal needed height*/
+	int line_breaks = CTextBox::getLines(Text);
+	int h_font = item_font->getHeight();
+	int h_lines = h_font * line_breaks;
 
-	//init side picon object
-	CComponentsPicture *obj_picon = new CComponentsPicture(0, timeout > 0 ? TIMEOUT_BAR_HEIGHT : 0, Picon);
-	obj_picon->doPaintBg(false);
-	obj_picon->SetTransparent(CFrameBuffer::TM_BLACK);
-	int w_picon = obj_picon->getWidth();
+	/* get required height depends of possible lines and max height */
+	h_hint_obj = min(HINTBOX_MAX_HEIGHT - (ccw_head ? ccw_head->getHeight() : 0), h_lines + 2*w_indentation);
 
-	//init text item object
-	int x_text_obj = (w_picon > 0) ? (w_picon + w_indentation) : 0;
-	int w_text_obj = obj_content->getWidth() - w_picon - w_indentation;
-	int h_text_obj = max(h_line, obj_picon->getHeight());
-	CComponentsText *obj_text = new CComponentsText(x_text_obj,
-							timeout > 0 ? TIMEOUT_BAR_HEIGHT : 0,
-							w_text_obj,
-							h_text_obj,
-							Text,
-							text_mode,
-							hb_font);
-
-	//provide the internal textbox object
-	CTextBox *textbox = obj_text->getCTextBoxObject();
-	int lines_count = textbox->getLines();
-
-	//get required height of text object related to height of current text object, header and footer
-	int fh_h = (ccw_head ? ccw_head->getHeight() : 0) + (ccw_footer ? ccw_footer->getHeight() : 0) + obj_text->getHeight();
-	int h_required = min( max(height,fh_h), (int)frameBuffer->getScreenHeight()) ;//lines_count * h_line + (ccw_head ? ccw_head->getHeight() : 0) + (ccw_footer ? ccw_footer->getHeight() : 0);
-
-	//set minimal required height
-	height = max(height, min(HINTBOX_MAX_HEIGHT, max(HINTBOX_MIN_HEIGHT, h_required)));
-
-	//if have no pre defined text mode:
-	//more than 1 line or a picon is defined, then do not center text and allow scroll if > 1 lines
-	if (text_mode == 0){
-		if (lines_count == 1)
-			obj_text->setTextMode(CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER);
-		if (w_picon > 1)
-			obj_text->setTextMode(CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH);
-		if (lines_count > 1)
-			obj_text->setTextMode(CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | (h_required > HINTBOX_MAX_HEIGHT ? CTextBox::SCROLL : CTextBox::AUTO_HIGH));
-		if (lines_count > 1 && w_picon == 0)
-			obj_text->setTextMode(CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER | (h_required > HINTBOX_MAX_HEIGHT ? CTextBox::SCROLL : CTextBox::AUTO_HIGH));
-	}
-	else
-		obj_text->setTextMode(text_mode);
-
-	//text item object: don't paint background
-	obj_text->doPaintBg(false);
-	obj_text->setCorner(corner_rad, corner_type);
-
-	//set text color
-	obj_text->setTextColor(color_text);
-
-	//calculate height of hint object
-	if (obj_content->size() == 0){
-		if (lines_count == 1){
-			h_hint_obj = max(h_hint_obj, h_text_obj);
-			obj_text->setYPos(CC_CENTERED);
-		}
-		else
-			h_hint_obj = max(h_hint_obj, h_line*lines_count);
-	}
-	else{
-		if (lines_count == 1){
-			h_hint_obj = h_text_obj;
-			obj_text->setYPos(CC_CENTERED);
-		}
-		else
-			h_hint_obj = h_line*lines_count;
+	/* add scroll mode if needed */
+	int txt_mode = text_mode;
+	if (h_lines > h_hint_obj){
+		txt_mode = text_mode | CTextBox::SCROLL;
+		ccw_buttons = ccw_buttons | CComponentsHeader::CC_BTN_TOP | CComponentsHeader::CC_BTN_DOWN;
 	}
 
-	//init hint container object
-	if (isPageChanged())
-		y_hint_obj = 0;
-	CComponentsFrmChain *obj_hint = new CComponentsFrmChain(	0+w_indentation,
-									y_hint_obj,
-									obj_content->getWidth()-2*w_indentation,
-									h_hint_obj,
-									NULL,
-									CC_DIR_X,
-									obj_content);
+	/* define y start position of infobox inside body */
+	if(!ccw_body->empty()){
+		ccw_body->front()->setYPos(w_indentation);
+		y_hint_obj += ccw_body->back()->getYPos()+ ccw_body->back()->getHeight();
+	}
 
-	//don't paint background for hint container
-	obj_hint->doPaintBg(false);
-	obj_hint->setCorner(corner_rad, corner_type);
-	obj_hint->setPageNumber(at_page_number);
+	/* calcoulation of maximal hintbox height include possible header*/
+	height = min(HINTBOX_MAX_HEIGHT, (ccw_head ? ccw_head->getHeight() : 0)+ h_hint_obj);
+	height = max(height, HINTBOX_MIN_HEIGHT);
 
-	//add the created items to obj_hint
-	obj_hint->addCCItem(obj_picon);
-	obj_hint->addCCItem(obj_text);
+	/* get current maximal width and refresh window items TODO: required maximal width*/
+	width = getMaxWidth(Text, item_font, width);
 
-	//text object obtains the full height of its parent object
-	obj_text->setHeightP(100);
+	/* initialize infobox as container for text and possible picon*/
+	CComponentsInfoBox *info_box =  new CComponentsInfoBox(	0,
+								y_hint_obj,
+								width, // FIXME: not critical here but ccw_body->getWidth() != width, this should be the same value!
+								h_hint_obj,
+								Text,
+								txt_mode,
+								item_font,
+								ccw_body,
+								CC_SHADOW_OFF,
+								color_text);
 
-	//if we have only one line and a defined picon, then do centering picon to text on the left site
-	if (lines_count == 1)
-		obj_picon->setYPos(CC_CENTERED);
+	/* define picon and disable bg */
+	info_box->setPicture(Picon);
+	info_box->doPaintBg(false);
 
-	//set next y pos for the next hint object
-	y_hint_obj += h_hint_obj;
-
-
-	//recalculate new hintbox height
+	/* recalculate new hintbox height */
 	ReSize();
 
-	//set hint box position general to center and refresh window
+	/* set hint box position general to center and refresh window */
 	setCenterPos();
-	Refresh();
 
-	lines += lines_count;
+	Refresh();
 }
 
 void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const int& mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	uint id = hint_id;
-	if (hint_id+1 > obj_content->size()){
+	if (hint_id+1 > ccw_body->size()){
 		id = 0;
 		dprintf(DEBUG_NORMAL, "[CHintBox]   [%s - %d] mismatching hint_id [%u]...\n", __func__, __LINE__, id);
 	}
 
-	CComponentsFrmChain 	*obj_hint = static_cast<CComponentsFrmChain*>(obj_content->getCCItem(id));
-	CComponentsText 	*obj_text = static_cast<CComponentsText*>(obj_hint->getCCItem(1));
+	CComponentsInfoBox	*obj_text = static_cast<CComponentsInfoBox*>(ccw_body->getCCItem(id));
 
 	//set required font and line size
 	Font* font = font_text == NULL ? g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO] : font_text;
@@ -391,33 +322,29 @@ void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const in
 
 void CHintBox::ReSize()
 {
-	int h_content_old = obj_content->getHeight();
-	int h_content_new = 0;
-	for (size_t i= 0; i< obj_content->size(); i++){
-		CComponentsItem *item = obj_content->getCCItem(i);
-		h_content_new += item->getHeight();
+	int h = (ccw_head ? ccw_head->getHeight() : 0);
+	for (size_t i= 0; i< ccw_body->size(); i++){
+		CComponentsItem *item = ccw_body->getCCItem(i);
+		h += item->getHeight();
 	}
-	int h_content_diff = h_content_new - h_content_old;
-
-	obj_content->setHeight(h_content_new);
-	setHeight(height+h_content_diff);
+	height = min(HINTBOX_MAX_HEIGHT, max(HINTBOX_MIN_HEIGHT, max(height,h)));
+	Refresh();
 }
 
 
 void CHintBox::Scroll(bool down, const uint& hint_id)
 {
 	uint id = hint_id;
-	if (hint_id+1 > obj_content->size()){
+	if (hint_id+1 > ccw_body->size()){
 		id = 0;
 		dprintf(DEBUG_NORMAL, "[CHintBox]   [%s - %d] mismatching hint_id [%u]...\n", __func__, __LINE__, id);
 	}
 
-	CComponentsFrmChain 	*obj_hint = static_cast<CComponentsFrmChain*>(obj_content->getCCItem(id));
-	CComponentsText 	*obj_text = static_cast<CComponentsText*>(obj_hint->getCCItem(1));
+	CComponentsInfoBox	*obj_text = static_cast<CComponentsInfoBox*>(ccw_body->getCCItem(id));
 
 	if (obj_text) {
-		dprintf(DEBUG_INFO, "[CHintBox]   [%s - %d] try to scroll %s hint_id [%u]...Text= %s\n", __func__, __LINE__, down ? "down" : "up", id, obj_text->getText().c_str());
-		CTextBox* textbox = obj_text->getCTextBoxObject();
+		dprintf(DEBUG_DEBUG, "[CHintBox]   [%s - %d] try to scroll %s hint_id [%u]...Text= %s\n", __func__, __LINE__, down ? "down" : "up", id, obj_text->getText().c_str());
+		CTextBox* textbox = obj_text->cctext->getCTextBoxObject();
 		if (textbox) {
 			textbox->enableBackgroundPaint(true);
 			if (down)
@@ -439,9 +366,9 @@ void CHintBox::scroll_down(const uint& hint_id)
 	Scroll(true, hint_id);
 }
 
-int CHintBox::getMaxWidth(const string& Text, const int& minWidth)
+int CHintBox::getMaxWidth(const string& Text, Font *font, const int& minWidth)
 {
-	return max(HINTBOX_MIN_WIDTH, max(minWidth, min(hb_font->getRenderWidth(Text), (int)frameBuffer->getScreenWidth())));
+	return max(HINTBOX_MIN_WIDTH, max(minWidth+w_indentation, min(font->getRenderWidth(Text)+w_indentation, (int)frameBuffer->getScreenWidth())));
 }
 
 int ShowHint(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon, const char * const Picon, const int& header_buttons)

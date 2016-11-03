@@ -38,7 +38,7 @@
 #define MSGBOX_MIN_WIDTH HINTBOX_MIN_WIDTH
 #define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT + 75
 
-#define DEFAULT_TEXT_MODE (CMsgBox::CENTER | CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH | CMsgBox::SCROLL)
+#define DEFAULT_MSGBOX_TEXT_MODE (CMsgBox::CENTER | CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH)
 
 //! Sub class of CHintBox. Shows a window as a messagebox
 /*!
@@ -159,7 +159,7 @@ class CMsgBox : public CHintBox
 		* 		BOTTOM
 		* 		NO_AUTO_LINEBREAK
 		* 		AUTO_LINEBREAK_NO_BREAKCHARS
-		* 		NOTE: default parameter to find in macro DEFAULT_TEXT_MODE
+		* 		NOTE: default parameter to find in macro DEFAULT_MSGBOX_TEXT_MODE
 		*
 		* 	@see	class CHintBox()
 		*/
@@ -171,7 +171,7 @@ class CMsgBox : public CHintBox
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
 			const msg_result_t& Default_result = mbrCancel,
-			const int& Text_mode = DEFAULT_TEXT_MODE);
+			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
 		/**CMsgBox Constructor
 		* @param[in]	Text
@@ -213,7 +213,7 @@ class CMsgBox : public CHintBox
 		* 		BOTTOM
 		* 		NO_AUTO_LINEBREAK
 		* 		AUTO_LINEBREAK_NO_BREAKCHARS
-		* 		NOTE: default parameter to find in macro DEFAULT_TEXT_MODE
+		* 		NOTE: default parameter to find in macro DEFAULT_MSGBOX_TEXT_MODE
 		*
 		* 	@see	class CHintBox()
 		*/
@@ -225,7 +225,7 @@ class CMsgBox : public CHintBox
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
 			const msg_result_t& Default_result = mbrCancel,
-			const int& Text_mode = DEFAULT_TEXT_MODE);
+			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
 // 		~CMsgBox(); //inherited
 		/**
@@ -323,7 +323,7 @@ int ShowMsg2UTF(	const neutrino_locale_t Title,
 						const int Width = MSGBOX_MIN_WIDTH,
 						const int Timeout = -1,
 						bool returnDefaultOnTimeout = false,
-						const int& Text_mode = DEFAULT_TEXT_MODE,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
 int ShowMsg2UTF(	const char * const Title,
@@ -334,7 +334,7 @@ int ShowMsg2UTF(	const char * const Title,
 						const int Width = MSGBOX_MIN_WIDTH,
 						const int Timeout = -1,
 						bool returnDefaultOnTimeout = false,
-						const int& Text_mode = DEFAULT_TEXT_MODE,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
 int ShowMsg(	const neutrino_locale_t Title,
@@ -345,7 +345,7 @@ int ShowMsg(	const neutrino_locale_t Title,
 						const int Width = MSGBOX_MIN_WIDTH,
 						const int Timeout = -1,
 						bool returnDefaultOnTimeout = false,
-						const int& Text_mode = DEFAULT_TEXT_MODE,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
 int ShowMsg(	const char * const Title,
@@ -356,7 +356,7 @@ int ShowMsg(	const char * const Title,
 						const int Width = MSGBOX_MIN_WIDTH,
 						const int Timeout = -1,
 						bool returnDefaultOnTimeout = false,
-						const int& Text_mode = DEFAULT_TEXT_MODE,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
 int ShowMsg(	const neutrino_locale_t Title,
@@ -367,7 +367,7 @@ int ShowMsg(	const neutrino_locale_t Title,
 						const int Width = MSGBOX_MIN_WIDTH,
 						const int Timeout = -1,
 						bool returnDefaultOnTimeout = false,
-						const int& Text_mode = DEFAULT_TEXT_MODE,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
 int ShowMsg(	const neutrino_locale_t Title,
@@ -378,7 +378,7 @@ int ShowMsg(	const neutrino_locale_t Title,
 						const int Width = MSGBOX_MIN_WIDTH,
 						const int Timeout = -1,
 						bool returnDefaultOnTimeout = false,
-						const int& Text_mode = DEFAULT_TEXT_MODE,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
 int ShowMsg(	const std::string & Title,
@@ -389,13 +389,13 @@ int ShowMsg(	const std::string & Title,
 						const int Width = MSGBOX_MIN_WIDTH,
 						const int Timeout = -1,
 						bool returnDefaultOnTimeout = false,
-						const int& Text_mode = DEFAULT_TEXT_MODE,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
-void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode = DEFAULT_TEXT_MODE); // UTF-8
-void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_TEXT_MODE); // UTF-8
-void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode = DEFAULT_TEXT_MODE); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const int& Text_mode = DEFAULT_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Text_mode = DEFAULT_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
 #endif

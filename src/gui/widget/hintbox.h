@@ -32,7 +32,7 @@
 
 #include <gui/components/cc.h>
 
-#define HINTBOX_MIN_WIDTH 400
+#define HINTBOX_MIN_WIDTH 420
 #define HINTBOX_MIN_HEIGHT 125
 #define HINTBOX_MAX_HEIGHT 420
 #define HINTBOX_DEFAULT_TIMEOUT 5
@@ -41,6 +41,8 @@
 //frame color around hint/message box
 #define HINTBOX_DEFAULT_FRAME_COLOR COL_FRAME
 #define TIMEOUT_BAR_HEIGHT  OFFSET_SHADOW/2
+
+#define DEFAULT_HINTBOX_TEXT_MODE (CTextBox::NO_AUTO_LINEBREAK)
 
 //! Sub class of CComponentsWindow. Shows a window as a hintbox with text and optional icon beside of text.
 /*!
@@ -55,18 +57,11 @@ class CHintBox : public CComponentsWindow
 		int y_hint_obj;
 		int h_hint_obj;
 		int w_indentation;
-		int hb_text_mode;
 
 		Font* hb_font;
 
-		///global count of lines
-		uint lines;
-
 		///timeout value, see also setTimeOut()
 		int timeout;
-
-		///content container object, contains the hint objects, it's a child of body object
-		CComponentsFrmChain *obj_content;
 
 		///timeout bar
 		CProgressBar *timeout_pb;
@@ -85,7 +80,7 @@ class CHintBox : public CComponentsWindow
 
 		virtual void ReSize();
 		void showTimeOutBar(){enableTimeOutBar();}
-		int getMaxWidth(const std::string& Text, const int& minWidth);
+		int getMaxWidth(const std::string& Text, Font *font, const int& minWidth);
 
 	public:
 		/**CHintBox Constructor
@@ -125,7 +120,7 @@ class CHintBox : public CComponentsWindow
 				const char * const Icon = NULL,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
-				const int& text_mode = 0,
+				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
 				const int& indent = W_FRAME);
 
 		/**CHintBox Constructor
@@ -139,7 +134,7 @@ class CHintBox : public CComponentsWindow
 				const char * const Icon = NULL,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
-				const int& text_mode = 0,
+				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
 				const int& indent = W_FRAME);
 
 		/**CHintBox Constructor
@@ -155,7 +150,7 @@ class CHintBox : public CComponentsWindow
 				const char * const Icon = NULL,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
-				const int& text_mode = 0,
+				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
 				const int& indent = W_FRAME);
 
 		/**CHintBox Constructor
@@ -171,7 +166,7 @@ class CHintBox : public CComponentsWindow
 				const char * const Icon = NULL,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
-				const int& text_mode = 0,
+				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
 				const int& indent = W_FRAME);
 
 		virtual ~CHintBox();
@@ -236,17 +231,14 @@ class CHintBox : public CComponentsWindow
 		* 		AUTO_LINEBREAK_NO_BREAKCHARS
 		* @param[in]	Picon
 		* 	@li 	optional: exepts type std::string, defines the picon name on the left side of message text, default = NULL (non Icon)
-		* @param[in]	at_page_number
-		* 	@li 	optional: exepts type int, defines the page number on that this hint will be, default = 0 (first page)
 		* @param[in]	color_text
 		* 	@li 	optional: exepts type fb_pixel_t, defines the text color, default = COL_MENUCONTENT_TEXT
 		* * @param[in]	font_text
 		* 	@li 	optional: exepts type Font*, defines the text font type, default = NULL for system preset for message contents
 		*/
 		void addHintItem(	const std::string& Text,
-					const int& text_mode = 0,
+					const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
 					const std::string& Picon = std::string(),
-					const u_int8_t& at_page_number = 0,
 					const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
 					Font* font_text = NULL);
 
@@ -257,7 +249,7 @@ class CHintBox : public CComponentsWindow
 		* 
 		* 	@see	/gui/components/cc_types.h
 		*/
-		void addHintItem(CComponentsItem* cc_Item){obj_content->addCCItem(cc_Item);}
+		void addHintItem(CComponentsItem* cc_Item){ccw_body->addCCItem(cc_Item);}
 
 		/**
 		* Sets a text to a hint item.
