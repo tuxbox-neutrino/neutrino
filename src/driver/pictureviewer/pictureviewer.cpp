@@ -616,6 +616,11 @@ void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int m
 
 bool CPictureViewer::DisplayImage(const std::string & name, int posx, int posy, int width, int height, int transp)
 {
+	if(width < 1 || height < 1){
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: width %i height %i \n", __func__, __LINE__, width, height);
+		return false;
+	}
+
 	CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
 	if (transp > CFrameBuffer::TM_EMPTY)
 		frameBuffer->SetTransparent(transp);
@@ -672,6 +677,12 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		if (load_ret == FH_ERROR_OK)
 		{
 			dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] mode %s, decoded %s, (Pos: %d %d) ,bpp = %d \n", __func__, __LINE__, mode_str.c_str(), name.c_str(), x, y, bpp);
+			// image size error
+			if((GetImage) && (*width < 1 || *height < 1)){
+				dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode: %s, file: %s (Pos: %d %d, Dim: %d x %d)\n", __func__, __LINE__, mode_str.c_str(), name.c_str(), x, y, *width, *height);
+				free(buffer);
+				return NULL;
+			}
 			// resize only getImage
 			if ((GetImage) && (x != *width || y != *height))
 			{
@@ -691,6 +702,7 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 			*height = y;
 		}else{
 			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode %s: Error decoding file %s\n", __func__, __LINE__, mode_str.c_str(), name.c_str());
+			free(buffer);
 			return NULL;
 		}
 		free(buffer);
