@@ -83,6 +83,11 @@ CComponentsInfoBox::~CComponentsInfoBox()
 void CComponentsInfoBox::setPicture(const std::string& picture_name)
 {
 	pic_name 	= picture_name;
+	if (!pic_name.empty()){
+		int w, h;
+		frameBuffer->getIconSize(pic_name.c_str(), &w, &h);
+		height = max(h, height);
+	}
 }
 
 void CComponentsInfoBox::setPicture(const char* picture_name)
