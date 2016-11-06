@@ -713,10 +713,15 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	int logo_w = 0;
 	int logo_h = 0;
 	int logo_w_max = ox / 4;
-	if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, g_Zapit->getChannelName(channel_id), lname, &logo_w, &logo_h)) {
-		if((logo_h > (toph-4)) || (logo_w > logo_w_max)) {
+	std::string channel_name;
+	if (mp_info)
+		channel_name = mp_movie_info->channelName;
+	else
+		channel_name = g_Zapit->getChannelName(channel_id);
+	if (g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, channel_name, lname, &logo_w, &logo_h))
+	{
+		if ((logo_h > (toph-4)) || (logo_w > logo_w_max))
 			g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, toph-4);
-		}
 		pic_offx = logo_w + 10;
 	}
 
