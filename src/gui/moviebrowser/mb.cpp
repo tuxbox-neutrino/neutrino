@@ -1522,10 +1522,9 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST]->getHeight();
 		int hheight = m_pcBrowser->getHeaderListHeight();
 		int theight = m_pcBrowser->getTitleHeight();
-		int bheight = 8 /*TEXT_BORDER_WIDTH*/;
 
 		int xpos  = m_cBoxFrameBrowserList.iX - ConnectLineBox_Width;
-		int ypos1 = m_cBoxFrameBrowserList.iY + hheight + theight + bheight + pos*fheight + (fheight/2);
+		int ypos1 = m_cBoxFrameBrowserList.iY + hheight + theight + OFFSET_INNER_MID + pos*fheight + (fheight/2);
 		int ypos2 = m_cBoxFrameInfo1.iY + (m_cBoxFrameInfo1.iHeight/2);
 
 		if (m_detailsLine == NULL)
@@ -1558,8 +1557,8 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 		pb.setValues(blocks_percent_used, 100);
 		pb.paint(false);
 	}
-
 }
+
 void CMovieBrowser::refreshLCD(void)
 {
 	if (m_vMovieInfo.empty() || m_movieSelectionHandler == NULL)
