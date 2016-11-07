@@ -104,6 +104,8 @@ class CListFrame
 		int m_nCurrentPage;
 		int m_nSelectedLine;
 
+		int m_nBgRadius;
+
 		bool m_showSelection;
 		
 		Font* m_pcFontTitle;
@@ -141,6 +143,11 @@ class CListFrame
 		bool	setTitle(char* title);
 		bool    setSelectedLine(int selection);
 		void	setSelectedMarked(bool enable);
+		void	setBackGroundRadius(const int radius)
+			{
+				m_nBgRadius = radius;
+				initFramesRel();
+			};
 		void	clearMarked()
 			{
 				if (m_pLines)
