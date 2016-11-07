@@ -1390,7 +1390,7 @@ int COsdSetup::showContextChanlistMenu(CChannelList *parent_channellist)
 	CMenuWidget * menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 
 	//using native callback to ensure stop header clock in parent channellist before paint this menu window
-	if (parent_channellist)
+	if (parent_channellist && parent_channellist->getHeaderObject()->getClockObject())
 		menu_chanlist->OnBeforePaint.connect(sigc::mem_fun(parent_channellist->getHeaderObject()->getClockObject(), &CComponentsFrmClock::block));
 
 	menu_chanlist->enableSaveScreen(true);
