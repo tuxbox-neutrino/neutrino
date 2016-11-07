@@ -1282,6 +1282,7 @@ void CMovieBrowser::refreshChannelLogo(void)
 	TRACE("[mb]->%s:%d\n", __func__, __LINE__);
 
 	int w_logo_max = m_cBoxFrameTitleRel.iWidth / 4;
+	int h_logo_max = m_cBoxFrameTitleRel.iHeight - 2*OFFSET_INNER_MIN;
 	short pb_hdd_offset = 100 + OFFSET_INNER_MID;
 
 	if (show_mode == MB_SHOW_YT)
@@ -1308,12 +1309,10 @@ void CMovieBrowser::refreshChannelLogo(void)
 	{
 		// scale image if required, TODO: move into an own handler, eg. header, so channel logo should be paint in header object
 		int h_logo = m_channelLogo->getHeight();
-		if (h_logo > m_cBoxFrameTitleRel.iHeight)
+		if (h_logo > h_logo_max)
 		{
-			uint8_t ratio = m_cBoxFrameTitleRel.iHeight*100/h_logo;
-			m_channelLogo->setHeight(m_cBoxFrameTitleRel.iHeight);
-			int w_logo = ratio*m_channelLogo->getWidth()/100;
-			m_channelLogo->setWidth(min(w_logo, w_logo_max));
+			m_channelLogo->setWidth(0); // force recalculation
+			m_channelLogo->setHeight(h_logo_max, true);
 		}
 
 		int x = m_cBoxFrame.iX + m_cBoxFrameTitleRel.iX + m_cBoxFrameTitleRel.iWidth - m_channelLogo->getWidth() - OFFSET_INNER_MID;
