@@ -453,7 +453,7 @@ void CMovieBrowser::initGlobalSettings(void)
 	}
 
 	/***** Browser List **************/
-	m_settings.browserFrameHeight = 50; /* percent */
+	m_settings.browserFrameHeight = 65; /* percent */
 
 	m_settings.browserRowNr = 6;
 	m_settings.browserRowItem[0] = MB_INFO_CHANNEL;
@@ -466,12 +466,12 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowItem[7] = MB_INFO_MAX_NUMBER;
 	m_settings.browserRowItem[8] = MB_INFO_MAX_NUMBER;
 
-	m_settings.browserRowWidth[0] = m_defaultRowWidth[m_settings.browserRowItem[0]];		//300;
-	m_settings.browserRowWidth[1] = m_defaultRowWidth[m_settings.browserRowItem[1]]; 		//100;
-	m_settings.browserRowWidth[2] = m_defaultRowWidth[m_settings.browserRowItem[2]]; 		//80;
-	m_settings.browserRowWidth[3] = m_defaultRowWidth[m_settings.browserRowItem[3]]; 		//50;
-	m_settings.browserRowWidth[4] = m_defaultRowWidth[m_settings.browserRowItem[4]]; 		//30;
-	m_settings.browserRowWidth[5] = m_defaultRowWidth[m_settings.browserRowItem[5]]; 		//30;
+	m_settings.browserRowWidth[0] = m_defaultRowWidth[m_settings.browserRowItem[0]];
+	m_settings.browserRowWidth[1] = m_defaultRowWidth[m_settings.browserRowItem[1]];
+	m_settings.browserRowWidth[2] = m_defaultRowWidth[m_settings.browserRowItem[2]];
+	m_settings.browserRowWidth[3] = m_defaultRowWidth[m_settings.browserRowItem[3]];
+	m_settings.browserRowWidth[4] = m_defaultRowWidth[m_settings.browserRowItem[4]];
+	m_settings.browserRowWidth[5] = m_defaultRowWidth[m_settings.browserRowItem[5]];
 	m_settings.browserRowWidth[6] = m_defaultRowWidth[m_settings.browserRowItem[6]];
 	m_settings.browserRowWidth[7] = m_defaultRowWidth[m_settings.browserRowItem[7]];
 	m_settings.browserRowWidth[8] = m_defaultRowWidth[m_settings.browserRowItem[8]];
