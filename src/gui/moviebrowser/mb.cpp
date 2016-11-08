@@ -1307,13 +1307,10 @@ void CMovieBrowser::refreshChannelLogo(void)
 
 	if (m_channelLogo && m_channelLogo->hasLogo())
 	{
-		// scale image if required, TODO: move into an own handler, eg. header, so channel logo should be paint in header object
-		int h_logo = m_channelLogo->getHeight();
-		if (h_logo > h_logo_max)
-		{
-			m_channelLogo->setWidth(0); // force recalculation
+		// TODO: move into an own handler, eg. header, so channel logo should be paint in header object
+		m_channelLogo->setWidth(min(m_channelLogo->getWidth(), w_logo_max), true);
+		if (m_channelLogo->getHeight() > h_logo_max)
 			m_channelLogo->setHeight(h_logo_max, true);
-		}
 
 		int x = m_cBoxFrame.iX + m_cBoxFrameTitleRel.iX + m_cBoxFrameTitleRel.iWidth - m_channelLogo->getWidth() - OFFSET_INNER_MID;
 		int y = m_cBoxFrame.iY + m_cBoxFrameTitleRel.iY + (m_cBoxFrameTitleRel.iHeight - m_channelLogo->getHeight())/2;
