@@ -2336,7 +2336,7 @@ void CChannelList::paint_events()
 		int current_index = paint_events_index;
 
 		CChannelEventList evtlist;
-		readEvents((*chanlist)[current_index]->getChannelID(), evtlist);
+		readEvents((*chanlist)[current_index]->getEpgID(), evtlist);
 		if (current_index == paint_events_index) {
 			pthread_mutex_lock(&paint_events_mutex);
 			if (current_index == paint_events_index)
