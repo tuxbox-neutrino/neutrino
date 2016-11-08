@@ -855,28 +855,23 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	}
 	header->clear();
 
-	int x_off = 10;
+	int x_off = OFFSET_INNER_MID;
 	int mid_width = full_width * 40 / 100; // 40%
+	int max_height = theight - 2*OFFSET_INNER_MIN;
 	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
 	//create an logo object
 	CComponentsChannelLogoScalable* midLogo = new CComponentsChannelLogoScalable(0, 0, _channelname, _channel_id, header);
-	if (midLogo->hasLogo()) {
-		//if logo object has found a logo and was ititialized, the hand  it's size
- 		int w_logo = midLogo->getWidth();
+	if (midLogo->hasLogo())
+	{
+		midLogo->setWidth(min(midLogo->getWidth(), mid_width), true);
+		if (midLogo->getHeight() > max_height)
+			midLogo->setHeight(max_height, true);
 
-		//scale image if required, TODO: move into an own handler, eg. header, so channel logo should be paint in header object
-		int h_logo = midLogo->getHeight();
-		if (h_logo > theight){
-			uint8_t h_ratio = uint8_t(theight*100/h_logo);
-			midLogo->setHeight(theight);
-			w_logo = h_ratio*w_logo/100;
-			midLogo->setWidth(w_logo);
-		}	
 		midLogo->setPos(CC_CENTERED, CC_CENTERED);
 
 		// recalc widths
-		side_width = ((full_width - w_logo) / 2) - (4 * x_off);
+		side_width = ((full_width - midLogo->getWidth()) / 2) - (4 * x_off);
 	}
 	else {
 		header->removeCCItem(midLogo); //remove/destroy logo object, if it is not available
