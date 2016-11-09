@@ -201,10 +201,27 @@ class CTextBox : public sigc::trackable
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
 		inline	int	getMaxLineWidth(void)		{return(m_nMaxTextWidth);};
-		inline  int     getLines(void)			{return(m_nNrOfLines);};
+
 		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
 		inline	int	getBackGroundRadius(void)	{return(m_nBgRadius);};
+
+		/**
+		* Returns count of lines of a passed text.
+		* @param[in]	text
+		* 	@li 	exepts type std::string
+		* 	@return	count of lines as int
+		* 	@see	getLines()
+		*/
+		static int 	getLines(const std::string& text);
+
+		/**
+		* Returns count of evaluated lines from an existent CTextBox instance.
+		* 	@return	count of lines as int
+		* 	@see	static version getLines()
+		*/
+		int     	getLines(){return(m_nNrOfLines);}
+
 		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
 		int  getFontTextHeight();
 		inline int	getTextMode()			{return m_nMode;};

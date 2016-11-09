@@ -64,6 +64,7 @@
 #ifdef VISUAL_DEBUG
 #include <gui/color_custom.h>
 #endif
+#include <sstream>
 
 #define	SCROLL_FRAME_WIDTH	10
 #define	SCROLL_MARKER_BORDER	 2
@@ -870,3 +871,19 @@ bool CTextBox::enableSaveScreen(bool mode)
 	return true;
 }
 
+int CTextBox::getLines(const std::string& text)
+{
+	if (text.empty())
+		return 0;
+
+	std::stringstream s (text);
+	if (!s)
+		return 0;
+
+	int count = 0;
+	std::string line;
+	while(getline(s, line))
+		count++;
+
+	return count;
+}
