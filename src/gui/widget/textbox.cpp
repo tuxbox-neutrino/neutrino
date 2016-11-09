@@ -887,3 +887,21 @@ int CTextBox::getLines(const std::string& text)
 
 	return count;
 }
+
+int CTextBox::getMaxLineWidth(const std::string& text, Font* font)
+{
+	// if found no linebreak, return pure size only
+	if (text.find('\n', 0) == std::string::npos)
+		return font->getRenderWidth(text.c_str());
+
+	std::stringstream in (text);
+	if (!in)
+		return 0;
+
+	int len = 0;
+	std::string line;
+	while(getline(in, line))
+		len = std::max(len, font->getRenderWidth(line.c_str()));
+
+	return len;
+}
