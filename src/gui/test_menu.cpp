@@ -817,27 +817,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "footer_key"){
-		neutrino_msg_t      msg;
-		neutrino_msg_data_t data;
-		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return", 350, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
+		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return", 350, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
+		hintBox.setTimeOut(15);
 
 		//optional: it is also possible to add more items into the hint box
 		//here some examples:
-		hintBox->addHintItem(new CComponentsShapeSquare(CC_CENTERED, CC_APPEND, 330, 2, NULL, false, COL_MENUCONTENT_PLUS_6, COL_RED));
-		hintBox->addHintItem("- text with left icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, NEUTRINO_ICON_HINT_INFO);
-		hintBox->addHintItem("- text right without an icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::RIGHT);
-		hintBox->addHintItem("- text right with an icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::RIGHT, NEUTRINO_ICON_HINT_INFO);
+		hintBox.addHintItem(new CComponentsShapeSquare(CC_CENTERED, CC_APPEND, 330, 2, NULL, false, COL_MENUCONTENT_PLUS_6, COL_RED));
+		hintBox.addHintItem("- text with left icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, NEUTRINO_ICON_HINT_INFO);
+		hintBox.addHintItem("- text right without an icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::RIGHT);
+		hintBox.addHintItem("- text right with an icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::RIGHT, NEUTRINO_ICON_HINT_INFO);
 
-		hintBox->paint();
-		while (1)
-		{
-			g_RCInput->getMsg(&msg, &data, 100);
-			if (msg == CRCInput::RC_home)
-				hintBox->hide();
-				break;
-		}
-		hintBox->hide();
-		delete hintBox;
+		hintBox.paint();
+		res = hintBox.exec();
+		hintBox.hide();
 
 		return res;
 	}
