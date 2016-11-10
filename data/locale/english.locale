@@ -1635,6 +1635,7 @@ moviebrowser.book_position Position:
 moviebrowser.book_type Jump (<0 back , >0 for):
 moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward jump over
+moviebrowser.browser_additional Additional informations
 moviebrowser.browser_frame_high Browser height [%]
 moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
@@ -1663,10 +1664,11 @@ moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
 moviebrowser.error_no_movies No movies found
+moviebrowser.filter_off Filter off
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Switch window
 moviebrowser.foot_options Options
-moviebrowser.foot_play Start movie
+moviebrowser.foot_play Playback
 moviebrowser.foot_refresh Refresh list
 moviebrowser.foot_sort Sort:
 moviebrowser.head My recordings
