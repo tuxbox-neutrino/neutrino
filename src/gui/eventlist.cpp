@@ -885,9 +885,8 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	}
 
 	if (!_channelname_next.empty()) {
-		int name_w = std::min(g_Font[font_lr]->getRenderWidth(_channelname_next), side_width);
-		int x_pos = full_width - name_w - x_off;
-		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		int x_pos = full_width - side_width - x_off;
+		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, side_width, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		rText->doPaintBg(false);
 	}
 
