@@ -129,6 +129,7 @@ class CServiceManager
 
 		CZapitChannel* FindChannel(const t_channel_id channel_id, bool * current_is_nvod = NULL);
 		CZapitChannel* FindChannelByName(std::string name);
+		CZapitChannel* FindChannelByPattern(std::string pattern); //NI
 		CZapitChannel* FindCurrentChannel(const t_channel_id channel_id);
 		CZapitChannel* FindChannel48(const t_channel_id channel_id);
 		CZapitChannel* FindChannelFuzzy(const t_channel_id channel_id,

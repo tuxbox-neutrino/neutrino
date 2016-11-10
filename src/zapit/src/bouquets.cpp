@@ -854,7 +854,20 @@ void CBouquetManager::loadWebchannels(int mode)
 					const char *script = xmlGetAttribute(l1, "script");
 					t_channel_id epg_id = 0;
 					if (epgid)
+					{
+						//NI
+						if (strcmp(epgid, "auto") == 0 && title)
+						{
+							CZapitChannel * channel = CServiceManager::getInstance()->FindChannelByPattern(title);
+							if (channel)
+							{
+								epg_id = channel->getChannelID();
+								INFO("* auto epg_id found for %s: " PRINTF_CHANNEL_ID_TYPE "\n", title, epg_id);
+							}
+						}
+						else
 						epg_id = strtoull(epgid, NULL, 16);
+					}
 
 					CZapitBouquet* gbouquet = pbouquet;
 					if (genre) {

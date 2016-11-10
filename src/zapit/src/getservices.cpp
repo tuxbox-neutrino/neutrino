@@ -220,6 +220,18 @@ CZapitChannel * CServiceManager::FindChannelByName(std::string name)
 	return NULL;
 }
 
+//NI
+CZapitChannel * CServiceManager::FindChannelByPattern(std::string pattern)
+{
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		//INFO("searching for %s in %s", pattern.c_str(), it->second.getName().c_str());
+		if (strncasecmp(it->second.getName().c_str(), pattern.c_str(), pattern.length()) == 0) {
+			return &it->second;
+		}
+	}
+	return NULL;
+}
+
 CZapitChannel * CServiceManager::FindCurrentChannel(const t_channel_id channel_id)
 {
 	channel_map_iterator_t cit = curchans.find(channel_id);
