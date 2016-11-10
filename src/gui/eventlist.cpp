@@ -848,11 +848,11 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	int font_mid = SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE;
 	int font_lr  = SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE;
 
-	if (!header){
+	if (!header)
 		header = new CComponentsFrmChain(x, y, full_width, theight);
-		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-		header->setCorner(RADIUS_LARGE, CORNER_TOP);
-	}
+
+	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+	header->setCorner(RADIUS_LARGE, CORNER_TOP);
 	header->clear();
 
 	int x_off = OFFSET_INNER_MID;
@@ -885,9 +885,8 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	}
 
 	if (!_channelname_next.empty()) {
-		int name_w = std::min(g_Font[font_lr]->getRenderWidth(_channelname_next), side_width);
-		int x_pos = full_width - name_w - x_off;
-		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		int x_pos = full_width - side_width - x_off;
+		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, side_width, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		rText->doPaintBg(false);
 	}
 
