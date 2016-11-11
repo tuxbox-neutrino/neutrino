@@ -42,7 +42,7 @@
 #define HINTBOX_DEFAULT_FRAME_COLOR COL_FRAME
 #define TIMEOUT_BAR_HEIGHT  OFFSET_SHADOW/2
 
-#define DEFAULT_HINTBOX_TEXT_MODE (CTextBox::NO_AUTO_LINEBREAK)
+#define DEFAULT_HINTBOX_TEXT_MODE (CTextBox::CENTER)
 
 //! Sub class of CComponentsWindow. Shows a window as a hintbox with text and optional icon beside of text.
 /*!

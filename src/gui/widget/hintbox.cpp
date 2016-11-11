@@ -259,8 +259,13 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	/* get required height depends of possible lines and max height */
 	h_hint_obj = min(HINTBOX_MAX_HEIGHT - (ccw_head ? ccw_head->getHeight() : 0), h_lines + 2*w_indentation);
 
-	/* add scroll mode if needed */
 	int txt_mode = text_mode;
+	/* remove CENTER mode if picon defined */
+	if (!Picon.empty() && (txt_mode & CTextBox::CENTER)){
+		txt_mode &= ~CTextBox::CENTER;
+	}
+
+	/* add scroll mode if needed */
 	if (h_lines > h_hint_obj){
 		txt_mode = text_mode | CTextBox::SCROLL;
 		ccw_buttons = ccw_buttons | CComponentsHeader::CC_BTN_TOP | CComponentsHeader::CC_BTN_DOWN;
