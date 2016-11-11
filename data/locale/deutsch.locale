@@ -1700,10 +1700,10 @@ moviebrowser.info_file Datei
 moviebrowser.info_filename Dateiname
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre (untergeordnet)
-moviebrowser.info_head Film Informationen
+moviebrowser.info_head Film-Informationen
 moviebrowser.info_head_update Inhalte in allen sichtbaren Filminfos speichern
-moviebrowser.info_info1 Info 1
-moviebrowser.info_info2 Info 2
+moviebrowser.info_info1 Genre bzw. Episoden
+moviebrowser.info_info2 Film-Beschreibung
 moviebrowser.info_length Spieldauer (Min)
 moviebrowser.info_parental_lockage FSK
 moviebrowser.info_parental_lockage_0year immer
@@ -1760,9 +1760,9 @@ moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
 moviebrowser.short_genre_minor Genre
-moviebrowser.short_info1 Info 1
-moviebrowser.short_info2 Info 2
-moviebrowser.short_length Min
+moviebrowser.short_info1 Genre/Episoden
+moviebrowser.short_info2 Beschreibung
+moviebrowser.short_length Länge
 moviebrowser.short_parental_lockage FSK
 moviebrowser.short_path Pfad
 moviebrowser.short_prevplaydate Zuletzt
