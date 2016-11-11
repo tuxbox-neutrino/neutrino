@@ -141,7 +141,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 		showHeader(false);
 
 	//set required window width and basic height, consider existent header instance and its caption width
-	width 		= getMaxWidth(Text, hb_font, Width);
+	width 		= getMaxWidth(Text, ccw_caption, hb_font, Width);
 	height 		= max(HINTBOX_MIN_HEIGHT, min(HINTBOX_MAX_HEIGHT, height));
 
 	ccw_buttons = header_buttons;
@@ -277,7 +277,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	height = max(height, HINTBOX_MIN_HEIGHT);
 
 	/* get current maximal width and refresh window items */
-	width = getMaxWidth(Text, item_font, width);
+	width = getMaxWidth(Text, ccw_caption, item_font, width);
 
 	/* initialize infobox as container for text and possible picon*/
 	CComponentsInfoBox *info_box =  new CComponentsInfoBox(	0,
@@ -366,9 +366,15 @@ void CHintBox::scroll_down(const uint& hint_id)
 	Scroll(true, hint_id);
 }
 
-int CHintBox::getMaxWidth(const string& Text, Font *font, const int& minWidth)
+int CHintBox::getMaxWidth(const string& Text, const string& Title, Font *font, const int& minWidth)
 {
-	return max(HINTBOX_MIN_WIDTH, max(minWidth+w_indentation, min(CTextBox::getMaxLineWidth(Text, font)+w_indentation, (int)frameBuffer->getScreenWidth())));
+	int res = max(HINTBOX_MIN_WIDTH, max(minWidth+2*w_indentation, min(CTextBox::getMaxLineWidth(Text, font)+2*w_indentation, (int)frameBuffer->getScreenWidth())));
+	if (ccw_show_header){
+		initHeader();
+		return max(res, ccw_head->getCaptionFont()->getRenderWidth(Title) + 2*w_indentation);
+	}
+
+	return res;
 }
 
 int ShowHint(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon, const char * const Picon, const int& header_buttons)
