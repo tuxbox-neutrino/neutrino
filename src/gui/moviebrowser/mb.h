@@ -65,7 +65,6 @@
 /* percent */
 #define MIN_BROWSER_FRAME_HEIGHT 10
 #define MAX_BROWSER_FRAME_HEIGHT 80
-// void strReplace(std::string& orig, const char* fstr, const std::string &rstr);
 
 #define MB_MAX_ROWS LF_MAX_ROWS
 #define MB_MAX_DIRS NETWORK_NFS_NR_OF_ENTRIES
