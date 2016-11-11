@@ -3438,14 +3438,17 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 
 		if (reInitFrames) {
 #if 1
-			if (m_settings.browserAdditional && oldAdditional != m_settings.browserAdditional)
+			if (oldAdditional != m_settings.browserAdditional)
 			{
 				/*
 				   Bad 'hack' to force a smaller m_pcInfo1 box.
 				   This can be reconfigured by user later.
 				   It's just to align view to channellist's view.
 				*/
-				m_settings.browserFrameHeight = 75;
+				if (m_settings.browserAdditional)
+					m_settings.browserFrameHeight = 75;
+				else
+					m_settings.browserFrameHeight = 65;
 			}
 #endif
 			initFrames();
