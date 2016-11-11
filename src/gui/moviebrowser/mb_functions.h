@@ -43,8 +43,6 @@
 #include "mb_types.h"
 #include <system/helpers.h>
 
-void strReplace(std::string& orig, const char* fstr, const std::string &rstr);
-
 static std::string rateFormat(int i)
 {
 	return to_string(i/10) + "," + to_string(i%10);
