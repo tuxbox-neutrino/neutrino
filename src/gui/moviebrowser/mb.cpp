@@ -910,7 +910,6 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			}
 		}
 	}
-
 	return returnval;
 }
 
@@ -2011,18 +2010,42 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		if (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD)
 		{
 			// sorting is not avialable for last play and record
-			do
-			{
-				if (m_settings.sorting.item + 1 >= MB_INFO_MAX_NUMBER)
-					m_settings.sorting.item = (MB_INFO_ITEM)0;
-				else
-					m_settings.sorting.item = (MB_INFO_ITEM)(m_settings.sorting.item + 1);
-			} while (sortBy[m_settings.sorting.item] == NULL);
 
-			TRACE("[mb]->new sorting %d,%s\n",m_settings.sorting.item,g_Locale->getText(m_localizedItemName[m_settings.sorting.item]));
-			refreshBrowserList();
-			refreshMovieInfo();
-			refreshFoot();
+			int directkey = 1;
+			int selected = -1;
+			CMenuSelectorTarget * selector = new CMenuSelectorTarget(&selected);
+
+			CMenuWidget m(LOCALE_MOVIEBROWSER_FOOT_SORT, NEUTRINO_ICON_SETTINGS);
+			m.addIntroItems();
+
+			// just show sorting options for displayed rows; sorted by rows
+			for (int row = 0; row < MB_MAX_ROWS && row < m_settings.browserRowNr; row++)
+			{
+				for (unsigned int i = 0; i < MB_INFO_MAX_NUMBER; i++)
+				{
+					if (sortBy[i] == NULL)
+						continue;
+
+					if (m_settings.browserRowItem[row] == i)
+						m.addItem(new CMenuForwarder(g_Locale->getText(m_localizedItemName[i]), true, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(directkey++)));
+				}
+			}
+
+			m.enableSaveScreen(true);
+			m.exec(NULL, "");
+
+			delete selector;
+
+			if (selected >= 0)
+			{
+				m_settings.sorting.item = (MB_INFO_ITEM) selected;
+
+				TRACE("[mb]->new sorting %d, %s\n", m_settings.sorting.item, g_Locale->getText(m_localizedItemName[m_settings.sorting.item]));
+
+				refreshBrowserList();
+				refreshMovieInfo();
+				refreshFoot();
+			}
 		}
 	}
 	else if (msg == CRCInput::RC_spkr)
