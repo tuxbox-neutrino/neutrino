@@ -217,17 +217,21 @@ void CComponentsPicture::initCCItem()
 	 * by setters setWidth/setHeight
 	 * these steps are required to assign the current image dimensions to item dimensions
 	*/
-	if (keep_dx_aspect && dy){
+	if (keep_dx_aspect && dy)
+	{
 		float h_ratio = float(height)*100/(float)dy;
 		width = int(h_ratio*(float)dx/100);
 #ifdef BOXMODEL_APOLLO
 		if (do_scale && (width > 10 || height > 10))
 			width = GetWidth4FB_HW_ACC(x+fr_thickness, width-2*fr_thickness)+2*fr_thickness;
 #endif
+		keep_dx_aspect = false;
 	}
-	if (keep_dy_aspect && dx){
+	if (keep_dy_aspect && dx)
+	{
 		float w_ratio = float(width)*100/(float)dx;
 		height = int(w_ratio*(float)dy/100);
+		keep_dy_aspect = false;
 	}
 
 	//resize image and apply current assigned scale values
