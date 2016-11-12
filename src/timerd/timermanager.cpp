@@ -292,9 +292,10 @@ int CTimerManager::unlockEvents()
 
 bool CTimerManager::listEvents(CTimerEventMap &Events)
 {
+/* events is passed as reference and thus its address is never NULL
 	if(!&Events)
 		return false;
-
+ */
 
 	Events.clear();
 	for (CTimerEventMap::iterator pos = events.begin(); pos != events.end(); ++pos)
