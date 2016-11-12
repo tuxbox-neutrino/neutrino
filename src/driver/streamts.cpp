@@ -903,7 +903,7 @@ void CStreamStream::run()
 			AVPacket newpkt = pkt;
 
 			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
-				av_free_packet(&pkt);
+				av_packet_unref(&pkt);
 				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
 				pkt = newpkt;
 			}       
@@ -912,7 +912,7 @@ void CStreamStream::run()
 		pkt.dts = av_rescale_q(pkt.dts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);
 
 		av_write_frame(ofcx, &pkt);
-		av_free_packet(&pkt);
+		av_packet_unref(&pkt);
 	}
 
 	av_read_pause(ifcx);
