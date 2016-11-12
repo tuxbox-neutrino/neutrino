@@ -38,20 +38,21 @@
 
 
 
-/*
-        x                             w
-       y+-ccw_head----------------------------------------------+
-        |icon |       caption                         | buttons |header (ccw_head)
-        +-ccw_body----------------------------------------------+
-        |+-obj_content-----------------------------------------+|
-        ||+-obj_hint 0----------------------------------------+||body (ccw_body)
-       h||| obj_picon |             obj_text                  |||           |
-        ||+---------------------------------------------------+||           +-contents (obj_content)
-        |+-----------------------------------------------------+|                           |
-        +-------------------------------------------------------+                           +-hint 0 (obj_hint) default added with new instance of CHintBox
-                                                                                            |
-                                                                                            |
-                                                                                            +-hint n optional added with addHintItem()
+/**
+        x                             width                                ccw_head [relevant for CHintBox, CMsgBox. not enabled in CHint class]
+    + y +---------------------------------------------------------------+/
+        |[icon]|        caption                       |[context buttons]|
+        +===============================================================+ timeout_pb
+        | + W_FRAME (w_indentation)-----------------------------------+ |
+        | |                                                           | |
+ height | |  [picon]  [text]                                          | |  ccw_body > container for info box object
+        | |           i n f o b o x  (added with addHintItem()        | |/
+        | |                                                           | |
+        | +-----------------------------------------------------------+ |  ccw_footer with buttons [relevant for CMsgBox, not enabled in CHintBox and CHint classes]
+    +   +---------------------------------------------------------------+/
+        |               <ok> <yes> <no> <cancel> <back> ...             |
+    +   +---------------------------------------------------------------+
+
 */
 
 using namespace std;
