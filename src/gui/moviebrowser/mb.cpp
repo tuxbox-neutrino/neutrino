@@ -3726,6 +3726,8 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			}
 			break;
 		case MB_INFO_SPACER: 				// 		= 21,
+			*item_string="";
+			break;
 		case MB_INFO_MAX_NUMBER: 			//		= 22
 		default:
 			*item_string="";
