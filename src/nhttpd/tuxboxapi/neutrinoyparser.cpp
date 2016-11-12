@@ -429,7 +429,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		if (channel->getChannelID() == current_channel)
 			yresult += "<a name=\"akt\"></a>\n";
 
-		yresult += string_printf("<a class=\"clist\" href=\"javascript:do_zap('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"')\">"
+		yresult += string_printf("<a class=\"clist\" href=\"javascript:do_zap('" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "')\">"
 				"%d. %s%s"
 				"</a>\n"
 				, channel->getChannelID()
@@ -461,7 +461,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		}
 		if (event.eventID)
 		{
-			yresult += string_printf("<a href=\"javascript:do_epg('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"','"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"')\">"
+			yresult += string_printf("<a href=\"javascript:do_epg('" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "','" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "')\">"
 					"<img src=\"/images/elist.png\" alt=\"Program preview\" title=\"EPG\" />"
 					"</a>\n"
 					, channel->getChannelID()
@@ -469,7 +469,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				);
 		}
 
-		yresult += string_printf("<a href=\"javascript:do_stream('"PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"','%s')\">"
+		yresult += string_printf("<a href=\"javascript:do_stream('" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "','%s')\">"
 				"<img src=\"/images/stream.png\" alt=\"Stream\" title=\"Stream\" />"
 				"</a>\n"
 				, channel->getChannelID()
