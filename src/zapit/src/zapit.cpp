@@ -926,7 +926,7 @@ bool CZapit::ChangeAudioPid(uint8_t index)
 		return false;
 
 	/* stop demux filter */
-	if (audioDemux->Stop() < 0)
+	if (audioDemux->Stop() == false)
 		return false;
 
 	/* stop audio playback */
@@ -948,11 +948,11 @@ bool CZapit::ChangeAudioPid(uint8_t index)
 	SetAudioStreamType(currentAudioChannel->audioChannelType);
 
 	/* set demux filter */
-	if (audioDemux->pesFilter(current_channel->getAudioPid()) < 0)
+	if (audioDemux->pesFilter(current_channel->getAudioPid()) == false)
 		return false;
 
 	/* start demux filter */
-	if (audioDemux->Start() < 0)
+	if (audioDemux->Start() == false)
 		return false;
 
 	/* start audio playback */
