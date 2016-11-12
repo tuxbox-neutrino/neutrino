@@ -1402,6 +1402,8 @@ TRACE("[mb]->%s:%d m_movieCover->getHeight(): %d\n", __func__, __LINE__, m_movie
 			m_movieCover->setWidth(0); // force recalculation
 TRACE("[mb]->%s:%d m_movieCover->getWidth(): %d\n", __func__, __LINE__, m_movieCover->getWidth());
 			m_movieCover->setHeight(cover_h, true);
+			if (m_movieCover->getWidth() > movieCoverBox.iWidth/3)
+				m_movieCover->setWidth(movieCoverBox.iWidth/3, true); // use maximal one third of box width
 
 			m_movieCover->setXPos(movieCoverBox.iX + movieCoverBox.iWidth - m_movieCover->getWidth() - 2*OFFSET_INNER_MID - OFFSET_SHADOW);
 			m_movieCover->setYPos(movieCoverBox.iY + (movieCoverBox.iHeight - m_movieCover->getHeight())/2);
