@@ -195,7 +195,7 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 
 			// check the wordwidth - add to this line if size ok
 			int aktWordWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(aktWord);
-			if ((aktWordWidth+aktWidth)<(ox - 20 - 15 - (has_cover? ((ox/4)+10) :0)))
+			if ((aktWordWidth+aktWidth)<(ox - 2*OFFSET_INNER_MID - 15 - (has_cover ? ((ox/4)+OFFSET_INNER_MID) : 0)))
 			{//space ok, add
 				aktWidth += aktWordWidth;
 				aktLine += aktWord;
@@ -238,7 +238,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 
 	std::string cover = "/tmp/tmdb.jpg"; //todo: maybe add a getCover()-function to tmdb class
 	int cover_max_width = ox/4; //25%
-	int cover_max_height = sb-(2*10);
+	int cover_max_height = sb-(2*OFFSET_INNER_MID);
 	int cover_width = 0;
 	int cover_height = 0;
 	int cover_offset = 0;
@@ -249,7 +249,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 		if (cover_width && cover_height)
 		{
 			g_PicViewer->rescaleImageDimensions(&cover_width, &cover_height, cover_max_width, cover_max_height);
-			cover_offset = cover_width + 10;
+			cover_offset = cover_width + OFFSET_INNER_MID;
 		}
 	}
 
@@ -269,7 +269,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	frameBuffer->paintBoxRel(sx+offs, y, ox-15-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 
 	if (has_cover) {
-		if (!g_PicViewer->DisplayImage(cover ,sx+10 ,y+10+((sb-cover_height)/2), cover_width, cover_height, CFrameBuffer::TM_NONE)) {
+		if (!g_PicViewer->DisplayImage(cover ,sx+OFFSET_INNER_MID ,y+OFFSET_INNER_MID+((sb-cover_height)/2), cover_width, cover_height, CFrameBuffer::TM_NONE)) {
 			cover_offset = 0;
 			frameBuffer->paintBoxRel(sx, y, ox-15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
@@ -280,8 +280,8 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	if (tmdb_active && startPos == 0)
 	{
 		frameBuffer->getIconSize(NEUTRINO_ICON_TMDB, &icon_w, &icon_h);
-		frameBuffer->paintIcon(NEUTRINO_ICON_TMDB, sx+10+cover_offset, y+(medlineheight-icon_h)/2);
-		logo_offset = icon_w + 10;
+		frameBuffer->paintIcon(NEUTRINO_ICON_TMDB, sx+OFFSET_INNER_MID+cover_offset, y+(medlineheight-icon_h)/2);
+		logo_offset = icon_w + OFFSET_INNER_MID;
 	}
 	if (stars > 0 && startPos == 0)
 	{
@@ -308,7 +308,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 					offset += digi;
 					break;
 				}
-				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10+offset, y+medlineheight, ox- 15- 15, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE_TEXT: COL_MENUCONTENT_TEXT);
+				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+offset, y+medlineheight, ox- 15- 15, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE_TEXT: COL_MENUCONTENT_TEXT);
 				count++;
 				pos1 = epgText[i].first.find_first_not_of(tok, pos2);
 				pos2 = epgText[i].first.find_first_of(tok, pos1);
@@ -317,7 +317,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			count = 0;
 		}
 		else{
-			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10+cover_offset, y+medlineheight, ox-15-15-cover_offset, epgText[i].first, COL_MENUCONTENT_TEXT);
+			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+cover_offset, y+medlineheight, ox-15-15-cover_offset, epgText[i].first, COL_MENUCONTENT_TEXT);
 		}
 	}
 
@@ -707,44 +707,49 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		hide();
 		return res;
 	}
+
+	const int pic_h = 39;
+	toph = std::max(toph, pic_h);
+
 	// Calculate offset for the title when logo appears.
 	int pic_offx = 0;
 	std::string lname;
 	int logo_w = 0;
 	int logo_h = 0;
 	int logo_w_max = ox / 4;
-	if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, g_Zapit->getChannelName(channel_id), lname, &logo_w, &logo_h)) {
-		if((logo_h > (toph-4)) || (logo_w > logo_w_max)) {
-			g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, toph-4);
-		}
-		pic_offx = logo_w + 10;
+	int logo_h_max = toph - 2*OFFSET_INNER_MIN;
+	std::string channel_name;
+	if (mp_info)
+		channel_name = mp_movie_info->channelName;
+	else
+		channel_name = g_Zapit->getChannelName(channel_id);
+	if (g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, channel_name, lname, &logo_w, &logo_h))
+	{
+		if ((logo_h > logo_h_max) || (logo_w > logo_w_max))
+			g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, logo_h_max);
+		pic_offx = logo_w + OFFSET_INNER_MID;
 	}
 
 	int pos;
 	std::string text1 = epgData.title;
 	std::string text2 = "";
-	if (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 18)
+	if (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 2*OFFSET_INNER_MID)
 	{
 		do
 		{
 			pos = text1.find_last_of("[ .]+");
 			if (pos != -1)
 				text1 = text1.substr(0, pos);
-		} while ((pos != -1) && (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 18));
+		} while ((pos != -1) && (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 2*OFFSET_INNER_MID));
 		if (epgData.title.length() > text1.length()) // shold never be false in this place
 			text2 = epgData.title.substr(text1.length()+ 1, uint(-1) );
 	}
 
-	const int pic_h = 39;
-	if(!topboxheight)
+	if (!topboxheight)
 		start();
 
 	if (!text2.empty())
 		toph = 2 * topboxheight;
-	else
-		toph = topboxheight;
-
-	toph = std::max(toph, pic_h);
 
 	sb = oy - toph - botboxheight;
 
@@ -885,11 +890,11 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	CComponentsPicture* headerPic  = NULL; //NOTE: class CComponentsChannelLogo is preferred for channel logos
 	if (pic_offx > 0) {
-		headerPic = new CComponentsPicture(sx+10, sy + (header_h-logo_h)/2, logo_w, logo_h, lname);
+		headerPic = new CComponentsPicture(sx + OFFSET_INNER_MID, sy + (header_h-logo_h)/2, logo_w, logo_h, lname);
 		headerPic->doPaintBg(false);
 	}
 	std::string textAll = (!text2.empty()) ? text1 + "\n" + text2 : text1;
-	CComponentsText headerText(sx+15+pic_offx, sy, ox-15-pic_offx, header_h, textAll, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);
+	CComponentsText headerText(sx + OFFSET_INNER_MID + pic_offx, sy, ox - 2*OFFSET_INNER_MID - pic_offx, header_h, textAll, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);
 	headerText.doPaintBg(false);
 	headerText.setTextColor(COL_MENUHEAD_TEXT);
 	header->paint(CC_SAVE_SCREEN_NO);
@@ -909,23 +914,23 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		if (!iw && !ih)
 			frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_LEFT, &iw, &ih);
 		if (!io && iw)
-			io = iw + 10;
+			io = iw + OFFSET_INNER_MID;
 
 		std::string fromto = epg_start + " - " + epg_end;
 
 		int widthl = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getRenderWidth(fromto);
-		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+10+io, sy+oy-3, widthl, fromto, COL_MENUHEAD_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+OFFSET_INNER_MID+io, sy+oy-3, widthl, fromto, COL_MENUHEAD_TEXT);
 		int widthr = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getRenderWidth(epg_date);
-		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ox-10-io-widthr, sy+oy-3, widthr, epg_date, COL_MENUHEAD_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ox-OFFSET_INNER_MID-io-widthr, sy+oy-3, widthr, epg_date, COL_MENUHEAD_TEXT);
 
 		GetPrevNextEPGData(epgData.eventID, &epgData.epg_times.startzeit);
 		if (!call_fromfollowlist)
 		{
 			int iy = sy + oy - botboxheight + (botboxheight - iw)/2;
 			if (prev_id)
-				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_LEFT, sx + 10, iy);
+				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_LEFT, sx + OFFSET_INNER_MID, iy);
 			if (next_id)
-				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, sx + ox - iw - 10, iy);
+				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, sx + ox - iw - OFFSET_INNER_MID, iy);
 		}
 	}
 	showProgressBar();
@@ -995,6 +1000,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			case CRCInput::RC_left:
 				if ((prev_id != 0) && !call_fromfollowlist && !mp_info)
 				{
+					toph = topboxheight;
 					show(channel_id, prev_id, &prev_zeit, false);
 					showPos=0;
 				}
@@ -1002,6 +1008,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			case CRCInput::RC_right:
 				if ((next_id != 0) && !call_fromfollowlist && !mp_info)
 				{
+					toph = topboxheight;
 					show(channel_id, next_id, &next_zeit, false);
 					showPos=0;
 				}

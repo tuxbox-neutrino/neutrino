@@ -703,6 +703,7 @@ fontmenu.eventlist Event-Liste
 fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
+fontmenu.moviebrowser Moviebrowser
 fontmenu.other Andere
 fontmenu.scaling Schriftgrößenfaktor
 fontmenu.scaling_x Horizontal (in %)
@@ -735,6 +736,9 @@ fontsize.menu_foot Fußleiste (in allen GUI-Elementen)
 fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
+fontsize.moviebrowser_head Überschriften
+fontsize.moviebrowser_info Info-Fenster
+fontsize.moviebrowser_list Listen-Einträge
 fontsize.subtitles Text Untertitel
 fsk.all aus
 fsk.from_12 ab 12
@@ -1187,6 +1191,7 @@ menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzei
 menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie YouTube, SHOUTCast und TMDb
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
+menu.hint_moviebrowser_fonts Ändern Sie die Schriftgrößen im Moviebrowser (Meine Aufnahmen)
 menu.hint_moviebrowser_setup Legen Sie Auswahl- und Anzeigeoptionen des MovieBrowsers fest
 menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste im Movieplayer-Modus gestartet wird
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255
@@ -1629,6 +1634,7 @@ moviebrowser.book_position Position:
 moviebrowser.book_type Sprung (<0 zurück, >0 vor):
 moviebrowser.book_type_backward Wiederholung
 moviebrowser.book_type_forward Überspringen
+moviebrowser.browser_additional Zusätzliche Informationen
 moviebrowser.browser_frame_high Anzeigehöhe oberes Fenster [%]
 moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
@@ -1657,11 +1663,12 @@ moviebrowser.edit_book_type_info1 Neue Sprunglänge (s)
 moviebrowser.edit_book_type_info2 <0 zurück , >0 vor, 0: kein
 moviebrowser.edit_serie Name der Serie
 moviebrowser.error_no_movies Keine Filme gefunden
+moviebrowser.filter_off Filter aus
 moviebrowser.foot_filter Filter:
-moviebrowser.foot_focus Fenster umschalten
+moviebrowser.foot_focus Fenster wechseln
 moviebrowser.foot_options Optionen
-moviebrowser.foot_play Film starten
-moviebrowser.foot_refresh Liste neu laden
+moviebrowser.foot_play Wiedergabe
+moviebrowser.foot_refresh Neu laden
 moviebrowser.foot_sort Sortieren:
 moviebrowser.head Meine Aufnahmen
 moviebrowser.head_filter Filme nach Kategorie filtern:
@@ -1693,10 +1700,10 @@ moviebrowser.info_file Datei
 moviebrowser.info_filename Dateiname
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre (untergeordnet)
-moviebrowser.info_head Film Informationen
+moviebrowser.info_head Film-Informationen
 moviebrowser.info_head_update Inhalte in allen sichtbaren Filminfos speichern
-moviebrowser.info_info1 Info 1
-moviebrowser.info_info2 Info 2
+moviebrowser.info_info1 Genre bzw. Episoden
+moviebrowser.info_info2 Film-Beschreibung
 moviebrowser.info_length Spieldauer (Min)
 moviebrowser.info_parental_lockage FSK
 moviebrowser.info_parental_lockage_0year immer
@@ -1753,9 +1760,9 @@ moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
 moviebrowser.short_genre_minor Genre
-moviebrowser.short_info1 Info 1
-moviebrowser.short_info2 Info 2
-moviebrowser.short_length Min
+moviebrowser.short_info1 Genre/Episoden
+moviebrowser.short_info2 Beschreibung
+moviebrowser.short_length Länge
 moviebrowser.short_parental_lockage FSK
 moviebrowser.short_path Pfad
 moviebrowser.short_prevplaydate Zuletzt
@@ -2095,8 +2102,12 @@ remotebox_add hinzufügen
 remotebox_channel_na Kanal auf Remote-Box nicht verfügbar
 remotebox_del löschen
 remotebox_head Remote-Boxen
-remotebox_ip Remote-Box IP
 remotebox_mod bearbeiten
+remotebox_pass Passwort
+remotebox_port Port
+remotebox_rbaddr Adresse
+remotebox_rbname Anzeigename
+remotebox_user Benutzer
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?

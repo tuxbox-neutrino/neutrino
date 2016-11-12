@@ -296,9 +296,9 @@ void CTextBox::initFramesRel(void)
 	if(m_nMode & SCROLL)
 	{
 		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLL_FRAME_WIDTH;
-		m_cFrameScrollRel.iY		= m_cFrameTextRel.iY;
+		m_cFrameScrollRel.iY		= m_cFrameTextRel.iY + m_nBgRadius;
 		m_cFrameScrollRel.iWidth	= SCROLL_FRAME_WIDTH;
-		m_cFrameScrollRel.iHeight	= m_cFrameTextRel.iHeight;
+		m_cFrameScrollRel.iHeight	= m_cFrameTextRel.iHeight - 2*m_nBgRadius;
 	}
 	else
 	{
@@ -353,12 +353,13 @@ void CTextBox::refreshTextLineArray(void)
 	m_cLineArray.clear();
 	m_nNrOfLines = 0;
 
+	int MaxWidth = m_nMaxWidth - m_cFrameScrollRel.iWidth - 2*text_Hborder_width;
 	if( m_nMode & AUTO_WIDTH){
 		/* In case of autowidth, we calculate the max allowed width of the textbox */
-		lineBreakWidth = m_nMaxWidth - m_cFrameScrollRel.iWidth - 2*text_Hborder_width;
+		lineBreakWidth = MaxWidth;
 	}else{
 		/* If not autowidth, we just take the actuall textframe width */
-		lineBreakWidth = std::max(m_nMaxWidth, m_cFrameTextRel.iWidth - 2*text_Hborder_width);
+		lineBreakWidth = std::max(MaxWidth, m_cFrameTextRel.iWidth - 2*text_Hborder_width);
 	}
 
 	if(m_nMaxTextWidth)
@@ -494,25 +495,44 @@ void CTextBox::refreshScroll(void)
 	if( frameBuffer == NULL)
 		return;
 
+	/*
+	   FIXME: Find right conditions.
+	   So long let's paint scrollbar background in every case
+	   to avoid transparent spaces in scrollbar corners.
+	*/
+	if (1)
+	{
+		/*
+		   Why we paint scrollbar background seperately?
+		   So we have to reduce roundings from the left side of background.
+		*/
+		int BgRadiusType = CORNER_NONE;
+		if (m_nBgRadiusType == CORNER_ALL)
+			BgRadiusType = CORNER_RIGHT;
+		else if (m_nBgRadiusType == CORNER_TOP)
+			BgRadiusType = CORNER_TOP_RIGHT;
+		else if (m_nBgRadiusType == CORNER_BOTTOM)
+			BgRadiusType = CORNER_BOTTOM_RIGHT;
+
+		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrame.iY,
+				m_cFrameScrollRel.iWidth, m_cFrame.iHeight,
+				m_textBackgroundColor, m_nBgRadius, BgRadiusType);
+	}
+
 	if (m_nNrOfPages > 1)
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
 				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
-				COL_SCROLLBAR_PASSIVE_PLUS_0);
-		unsigned int marker_size = m_cFrameScrollRel.iHeight / m_nNrOfPages;
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + SCROLL_MARKER_BORDER+m_cFrame.iX,
-				m_cFrameScrollRel.iY + m_nCurrentPage * marker_size+m_cFrame.iY,
+				COL_SCROLLBAR_PASSIVE_PLUS_0, RADIUS_MIN);
+		unsigned int marker_size = (m_cFrameScrollRel.iHeight - 2*SCROLL_MARKER_BORDER) / m_nNrOfPages;
+		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + SCROLL_MARKER_BORDER + m_cFrame.iX,
+				m_cFrameScrollRel.iY + SCROLL_MARKER_BORDER + m_nCurrentPage * marker_size + m_cFrame.iY,
 				m_cFrameScrollRel.iWidth - 2*SCROLL_MARKER_BORDER,
-				marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0);
+				marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_MIN);
 		m_has_scrolled = true;
 	}
 	else
-	{
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
-				m_textBackgroundColor);
 		m_has_scrolled = false;
-	}
 }
 
 //evaluate comparsion between old and current properties WITHOUT text contents, return true if found changes
@@ -567,9 +587,15 @@ void CTextBox::refreshText(void)
 	//bg variables
 	int ax = m_cFrameTextRel.iX+m_cFrame.iX;
 	int ay = m_cFrameTextRel.iY+m_cFrame.iY;
-	int dx = m_old_cText != m_cText || m_nNrOfPages>1 ? m_cFrameTextRel.iWidth : m_nMaxTextWidth;
+	int dx = m_old_cText != m_cText || m_nNrOfPages>1 ? m_cFrameTextRel.iWidth : m_nMaxTextWidth - m_nBgRadius;
 	int dy = m_cFrameTextRel.iHeight;
 	
+	//avoid artefacts in transparent cornes
+	/*
+	   This happens, when text width is smaller then the radius width.
+	*/
+	dx = std::max(dx, 2*m_nBgRadius);
+
 	//find changes
 	bool has_changed = hasChanged(&ax, &ay, &dx, &dy);
 
@@ -604,10 +630,23 @@ void CTextBox::refreshText(void)
 	bool allow_paint_bg = (m_old_cText != m_cText || has_changed || m_has_scrolled);
 	if (m_nPaintBackground  && !m_SaveScreen){
 		clearScreenBuffer();
-		if (allow_paint_bg){
+		if (allow_paint_bg)
+		{
+			/*
+			   Why we paint scrollbar background seperately?
+			   So we have to reduce roundings from the right side of background.
+			*/
+			int BgRadiusType = CORNER_NONE;
+			if (m_nBgRadiusType == CORNER_ALL)
+				BgRadiusType = CORNER_LEFT;
+			else if (m_nBgRadiusType == CORNER_TOP)
+				BgRadiusType = CORNER_TOP_LEFT;
+			else if (m_nBgRadiusType == CORNER_BOTTOM)
+				BgRadiusType = CORNER_BOTTOM_LEFT;
+
 			//TRACE("[CTextBox] %s paint bg %d\r\n", __FUNCTION__, __LINE__);
 			//paint full background only on new text, otherwise paint required background
-			frameBuffer->paintBoxRel(ax, ay, dx, dy, m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
+			frameBuffer->paintBoxRel(ax, ay, dx, dy, m_textBackgroundColor, m_nBgRadius, BgRadiusType);
 		}
 	}
 	else{
@@ -795,6 +834,16 @@ void CTextBox::hide (void)
 		frameBuffer->paintBackgroundBoxRel(m_cFrame.iX, m_cFrame.iY, m_cFrame.iWidth, m_cFrame.iHeight);
 
 	frameBuffer = NULL;
+}
+
+void CTextBox::clear(void)
+{
+	//TRACE("[CTextBox] %s Line %d\r\n", __FUNCTION__, __LINE__);
+	if (frameBuffer == NULL)
+		return;
+
+	std::string empty(" ");
+	setText(&empty);
 }
 
 bool CTextBox::clearScreenBuffer()

@@ -324,7 +324,7 @@ bool CExtUpdate::applySettings()
 	fd2 = -1;
 	int tmpCount = 0;
 	while (fd2 < 0) {
-		fd2 = open(mtdBlockFileName.c_str(), O_WRONLY);
+		fd2 = open(mtdBlockFileName.c_str(), O_WRONLY, 00644);
 		tmpCount++;
 		if (tmpCount > 3)
 			break;
@@ -375,7 +375,7 @@ bool CExtUpdate::applySettings()
 	if (fd1 < 0)
 		return ErrorReset(RESET_UNLOAD | DELETE_MTDBUF, "cannot read mtdBlock");
 	fsize = mtdRamSize;
-	fd2 = open(imgFilename.c_str(), O_WRONLY | O_CREAT);
+	fd2 = open(imgFilename.c_str(), O_WRONLY | O_CREAT, 00644);
 	if (fd2 < 0)
 		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "cannot open image file: ", imgFilename);
 	while(fsize > 0) {

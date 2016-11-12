@@ -224,7 +224,7 @@ void CComponentsPicture::initCCItem()
 			width = GetWidth4FB_HW_ACC(x+fr_thickness, width-2*fr_thickness)+2*fr_thickness;
 #endif
 	}
-	if (keep_dy_aspect & dx){
+	if (keep_dy_aspect && dx){
 		float w_ratio = float(width)*100/(float)dx;
 		height = int(w_ratio*(float)dy/100);
 	}

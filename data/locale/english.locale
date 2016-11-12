@@ -703,6 +703,7 @@ fontmenu.eventlist Eventlist
 fontmenu.head Font settings
 fontmenu.infobar Infobar
 fontmenu.menu Menu
+fontmenu.moviebrowser Moviebrowser
 fontmenu.other Other
 fontmenu.scaling Global Font Zoom Factor
 fontmenu.scaling_x Horizontal (in %)
@@ -735,6 +736,9 @@ fontsize.menu_foot Footer (in all GUI elements)
 fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
+fontsize.moviebrowser_head Headers
+fontsize.moviebrowser_info Info window
+fontsize.moviebrowser_list List items
 fontsize.subtitles Text subtitles
 fsk.all off
 fsk.from_12 from 12
@@ -1187,6 +1191,7 @@ menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd d
 menu.hint_misc_onlineservices Configure and control online services like YouTube, SHOUTCast and TMDb
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
+menu.hint_moviebrowser_fonts Change moviebrowser (My recordings) font sizes
 menu.hint_moviebrowser_setup Set selection and display options.
 menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch key in movieplayer mode
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
@@ -1629,6 +1634,7 @@ moviebrowser.book_position Position:
 moviebrowser.book_type Jump (<0 back , >0 for):
 moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward jump over
+moviebrowser.browser_additional Additional informations
 moviebrowser.browser_frame_high Browser height [%]
 moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
@@ -1657,10 +1663,11 @@ moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
 moviebrowser.error_no_movies No movies found
+moviebrowser.filter_off Filter off
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Switch window
 moviebrowser.foot_options Options
-moviebrowser.foot_play Start movie
+moviebrowser.foot_play Playback
 moviebrowser.foot_refresh Refresh list
 moviebrowser.foot_sort Sort:
 moviebrowser.head My recordings
@@ -1693,10 +1700,10 @@ moviebrowser.info_file File
 moviebrowser.info_filename Filename
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre (minor)
-moviebrowser.info_head Film Information
+moviebrowser.info_head Movie informations
 moviebrowser.info_head_update Save changes in all movie info files
-moviebrowser.info_info1 Info 1
-moviebrowser.info_info2 Info 2
+moviebrowser.info_info1 Genre resp. episodes
+moviebrowser.info_info2 Movie description
 moviebrowser.info_length Length (Min)
 moviebrowser.info_parental_lockage Parental Lock age
 moviebrowser.info_parental_lockage_0year always
@@ -1753,9 +1760,9 @@ moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
 moviebrowser.short_genre_minor Genre
-moviebrowser.short_info1 Info 1
-moviebrowser.short_info2 Info 2
-moviebrowser.short_length Min
+moviebrowser.short_info1 Genre/Episodes
+moviebrowser.short_info2 Description
+moviebrowser.short_length Length
 moviebrowser.short_parental_lockage Age
 moviebrowser.short_path Path
 moviebrowser.short_prevplaydate Last
@@ -2095,8 +2102,12 @@ remotebox_add add
 remotebox_channel_na Channel not available on Remote-Box
 remotebox_del delete
 remotebox_head Remote-Boxes
-remotebox_ip Remote-Box IP
 remotebox_mod modify
+remotebox_pass Password
+remotebox_port Port
+remotebox_rbaddr Address
+remotebox_rbname Screenname
+remotebox_user User
 reset_all Factory reset and reboot
 reset_channels Delete all channels
 reset_confirm Are you sure ?

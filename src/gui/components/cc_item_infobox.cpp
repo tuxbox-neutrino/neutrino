@@ -83,6 +83,11 @@ CComponentsInfoBox::~CComponentsInfoBox()
 void CComponentsInfoBox::setPicture(const std::string& picture_name)
 {
 	pic_name 	= picture_name;
+	if (!pic_name.empty()){
+		int w, h;
+		frameBuffer->getIconSize(pic_name.c_str(), &w, &h);
+		height = max(h, height);
+	}
 }
 
 void CComponentsInfoBox::setPicture(const char* picture_name)
@@ -105,8 +110,12 @@ void CComponentsInfoBox::paintPicture()
 	if (pic_name.empty())
 		return;
 
+	//NOTE: real values are reqiured, if we paint this item within a form as embedded cc-item
+	int x_pic = (cc_parent ? cc_xr : x) + fr_thickness;
+	int y_pic = (cc_parent ? cc_yr : y) + fr_thickness;
+
 	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, min(48, height-2*fr_thickness), pic_name); //NOTE: icons do not scale!
+	pic = new CComponentsPicture(x_pic+x_offset, y_pic, 0, min(48, height-2*fr_thickness), pic_name); //NOTE: icons do not scale!
 
 	pic->setColorBody(col_body);
 
@@ -115,7 +124,7 @@ void CComponentsInfoBox::paintPicture()
 		pic->doPaintBg(false);
 
 	//fit icon into frame
-	pic->setYPos(y+(height/2-pic->getHeight()/2));
+	pic->setYPos(y_pic+(height/2-pic->getHeight()/2));
 
 	//paint, but set visibility mode
 	pic->allowPaint(cc_allow_paint);

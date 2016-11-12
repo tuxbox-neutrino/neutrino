@@ -1086,7 +1086,7 @@ std::vector<std::string> split(const std::string &s, char delim)
 	return vec;
 }
 
-#if __cplusplus <= 201103L
+#if __cplusplus < 201103L
 std::string to_string(int i)
 {
 	std::stringstream s;

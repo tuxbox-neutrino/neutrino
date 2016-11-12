@@ -121,7 +121,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_col_text		= COL_MENUHEAD_TEXT;
 	cch_caption_align	= CTextBox::NO_AUTO_LINEBREAK;
 	cch_items_y 		= CC_CENTERED;
-	cch_offset		= 8;
+	cch_offset		= OFFSET_INNER_MID;
 	cch_icon_x 		= cch_offset;
 	cch_icon_w		= 0;
 	cch_clock_w		= 0;

@@ -41,6 +41,7 @@
 #include <driver/framebuffer.h>
 
 #include <string>
+#include <vector>
 
 
 class CTimerdClient;
@@ -59,6 +60,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int		liststart;
 		unsigned int	listmaxshow;
 		bool		visible;
+		int		httpConnectTimeout;
 
 		CTimerdClient *Timer;
 		CTimerd::TimerList timerlist;             // List of timers		
@@ -85,11 +87,12 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int newTimer();
 		/* todo: properly import the enum CVFD::MODES */
 		int saved_dispmode;
-		void remoteTimerList(CTimerd::TimerList &timerlist);
-		void enterRemoteBox();
-		void select_remotebox_ip();
-		bool remoteChanExists(t_channel_id channel_id);
-		bool localChanExists(t_channel_id channel_id);
+		void RemoteBoxTimerList(CTimerd::TimerList &timerlist);
+		bool RemoteBoxSetup();
+		void RemoteBoxSelect();
+		std::string RemoteBoxConnectUrl(std::string _rbname);
+		bool RemoteBoxChanExists(t_channel_id channel_id);
+		bool LocalBoxChanExists(t_channel_id channel_id);
 		int rem_pre,rem_post;
 		int item_offset;
 		bool changed;

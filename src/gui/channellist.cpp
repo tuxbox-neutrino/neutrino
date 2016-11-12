@@ -1700,6 +1700,7 @@ void CChannelList::showChannelLogo() //TODO: move into an own handler, eg. heade
 		return;
 	if(g_settings.channellist_show_channellogo){
 		int logo_w_max = full_width / 4;
+		int logo_h_max = theight - 2*OFFSET_INNER_MIN;
 		if (CChannelLogo) {
 			if (headerNew)
 				CChannelLogo->clearSavedScreen();
@@ -1711,8 +1712,8 @@ void CChannelList::showChannelLogo() //TODO: move into an own handler, eg. heade
 
 		if (CChannelLogo->hasLogo()){
 			CChannelLogo->setWidth(min(CChannelLogo->getWidth(), logo_w_max), true);
-			if (CChannelLogo->getHeight() > theight) //scale image if required
-				CChannelLogo->setHeight(theight, true);
+			if (CChannelLogo->getHeight() > logo_h_max)
+				CChannelLogo->setHeight(logo_h_max, true);
 			CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
 			CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
 			CChannelLogo->paint();
@@ -2340,7 +2341,7 @@ void CChannelList::paint_events()
 		int current_index = paint_events_index;
 
 		CChannelEventList evtlist;
-		readEvents((*chanlist)[current_index]->getChannelID(), evtlist);
+		readEvents((*chanlist)[current_index]->getEpgID(), evtlist);
 		if (current_index == paint_events_index) {
 			pthread_mutex_lock(&paint_events_mutex);
 			if (current_index == paint_events_index)

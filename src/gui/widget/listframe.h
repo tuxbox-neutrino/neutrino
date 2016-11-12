@@ -104,6 +104,8 @@ class CListFrame
 		int m_nCurrentPage;
 		int m_nSelectedLine;
 
+		int m_nBgRadius;
+
 		bool m_showSelection;
 		
 		Font* m_pcFontTitle;
@@ -141,6 +143,11 @@ class CListFrame
 		bool	setTitle(char* title);
 		bool    setSelectedLine(int selection);
 		void	setSelectedMarked(bool enable);
+		void	setBackGroundRadius(const int radius)
+			{
+				m_nBgRadius = radius;
+				initFramesRel();
+			};
 		void	clearMarked()
 			{
 				if (m_pLines)
@@ -152,6 +159,9 @@ class CListFrame
 
 inline	CBox	getWindowsPos(void)			{return(m_cFrame);};
 inline  int     getSelectedLine(void)		{return(m_nSelectedLine);};
+inline  int     getSelectedLineRel(void)	{return(m_nSelectedLine - m_nLinesPerPage*m_nCurrentPage);};
+inline  int     getTitleHeight(void)		{return(m_cFrameTitleRel.iHeight);};
+inline  int     getHeaderListHeight(void)	{return(m_cFrameHeaderListRel.iHeight);};
 inline  int     getLines(void)				{return(m_nNrOfLines);};
 inline  int     getPages(void)				{return(m_nNrOfPages);};
 inline  void    showSelection(bool show)	{m_showSelection = show;refreshLine(m_nSelectedLine);};

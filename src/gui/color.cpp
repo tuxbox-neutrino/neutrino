@@ -233,8 +233,8 @@ void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected, bool marked, boo
 {
 	if (selected && marked)
 	{
-		t = COL_MENUCONTENTSELECTED_TEXT_PLUS_2;
-		b = COL_MENUCONTENTSELECTED_PLUS_2;
+		t = COL_MENUCONTENTSELECTED_TEXT;
+		b = COL_MENUCONTENTSELECTED_PLUS_0;
 		return;
 	}
 

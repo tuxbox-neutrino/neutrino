@@ -255,6 +255,7 @@ channellist.foot_sort_freq Triediť [frekvencia]
 channellist.foot_sort_sat Triediť [satelit]
 channellist.head Všetky kanály
 channellist.history História
+channellist.history_clear Vymazať históriu
 channellist.keep_numbers Zachovať čísla predvolieb
 channellist.make_hdlist Vytvoriť zoznam pre HD kanály
 channellist.make_newlist Vytvoriť zoznam pre nové kanály
@@ -332,6 +333,7 @@ colormenu.timing Čas zobrazenia OSD
 colormenusetup.menucontent Obsahové okno
 colormenusetup.menucontent_inactive Neaktívne v obsahovom okne
 colormenusetup.menucontent_selected Vybrané v obsahovom okne
+colormenusetup.menufoot Päta
 colormenusetup.menuhead Hlavička
 colorstatusbar.text Text stavového riadku
 colorthememenu.head Výber vzhľadu
@@ -387,6 +389,7 @@ epgviewer.genre Žáner
 epgviewer.length Dĺžka (min.)
 epgviewer.nodetailed Detailné informácie sú nedostupné
 epgviewer.notfound EPG nenájdené
+epgviewer.select_screening Voľba relácie
 eventfinder.fsk Filter hodnotenia veku
 eventfinder.genre Filter žánru
 eventfinder.head Hľadať v EPG
@@ -400,6 +403,7 @@ eventfinder.search_within_list Hľadať v zozname
 eventfinder.searching Hľadám slovo v EPG...
 eventfinder.start_search Spustiť hľadanie
 eventlist.additional Podrobnejšie informácie EPG
+eventlist.epgplus Zobraziť EPG Plus
 eventlist.name Zoznam udalostí EPG
 eventlistbar.channelswitch Prepnúť
 eventlistbar.eventsort Triediť
@@ -699,6 +703,7 @@ fontmenu.eventlist Programový sprievodca
 fontmenu.head Nastavenie písma
 fontmenu.infobar Informačná lišta
 fontmenu.menu Menu
+fontmenu.moviebrowser Prehliadač filmov
 fontmenu.other Iné
 fontmenu.scaling Faktor zoomu globálneho fontu
 fontmenu.scaling_x Vodorovne (v %)
@@ -727,9 +732,13 @@ fontsize.infobar_info Informácia na informačnej lište
 fontsize.infobar_ng_ecminfo ECM Informácia
 fontsize.infobar_number Kanál na informačnej lište
 fontsize.menu Text menu
+fontsize.menu_foot Päta (vo všetkých grafických elementoch)
 fontsize.menu_hint Popis menu
 fontsize.menu_info Informačné menu
 fontsize.menu_title Titulok menu
+fontsize.moviebrowser_head Hlavičky
+fontsize.moviebrowser_info Informačné okno
+fontsize.moviebrowser_list Zoznam položiek
 fontsize.subtitles Text titulkov
 fsk.all vyp
 fsk.from_12 od 12
@@ -1035,6 +1044,7 @@ menu.hint_epg_save_standby Uložiť EPG pred prechodom do pohotovostného režim
 menu.hint_epg_scan Povolenie prehľadávania EPG na pozadí ak je voľný tuner
 menu.hint_epg_scan_mode Výber výsledku prijímača pre spustenie prehľadania EPG
 menu.hint_eventlist_additional Zobrazí podrobnejšie informácie\nv hlavnom okne
+menu.hint_eventlist_epgplus Zobraziť EPG Plus (prehľad udalostí) pri stlačení klávesy EPG
 menu.hint_eventlist_fonts Zmena veľkosti písma zoznamu udalostí
 menu.hint_eventlist_setup Konfigurácia GUI volieb zoznamu udalostí v EPG
 menu.hint_extended Správa napájania, voľby ukladania/nahrania EPG \nHDMI-CEC, štartovací kanál, voľby prepínania
@@ -1049,6 +1059,8 @@ menu.hint_font_gui Výber súboru písma pre GUI
 menu.hint_font_scaling Zvislé a vodorovné nastavenie globálnej mierky písma
 menu.hint_font_ttx Výber písma pre teletext
 menu.hint_fonts Konfigurácia písma GUI
+menu.hint_foot_back Zmena farby pozadia grafického užívateľského rozhrania (GUI)
+menu.hint_foot_textcolor Zmena farby textu päty v okne grafického užívateľského rozhrania GUI
 menu.hint_games Zobrazenie zoznamu inštalovaných hier
 menu.hint_hdd Formátovanie/kontrola pevného disku
 menu.hint_hdd_apply Použitie parametrov uspania/stíšenia
@@ -1176,8 +1188,10 @@ menu.hint_misc_energy Použitie pohotovostného režimu, oneskorené vypnutie\n�
 menu.hint_misc_epg Voľby uloženia/načítania EPG, voľby ukladania EPG,\nEPG zložka uloženia
 menu.hint_misc_filebrowser Kódovanie súborového systemu, oprávnenia súboru,\nzákaz odstrániť zložky
 menu.hint_misc_general Spustenie do pohotovostného režimu, vyrovnávacia pamäť teletextu, hdd zložka doplnkov,\núroveň debugovania
+menu.hint_misc_onlineservices Konfigurácia a ovládanie online služieb ako YouTube, SHOUTCast a TMDb
 menu.hint_misc_zapit Východzie TV/Radio kanály
 menu.hint_movie Prehrávanie filmov
+menu.hint_moviebrowser_fonts Zmena veľkosti písma prehliadača filmov (Moje nahrávky)
 menu.hint_moviebrowser_setup Nastavenie výberu a volieb zobrazenia
 menu.hint_movieplayer_plugin Výber doplnku pre overenie s jedným potvrdením klávesy v režime prehrávača
 menu.hint_net_broadcast Zadanie adresy vysielania, ak netušíte použite IP adresu s koncom .255
@@ -1257,6 +1271,7 @@ menu.hint_progressbar_timescale_yellow Výber množstva žltej vo farebnosti inf
 menu.hint_protection Ochrana obsahu PIN kódom\nVýchodzí PIN 0000
 menu.hint_radiomode Prepne prijímač do režimu Rádio
 menu.hint_reboot Reštart prijímača - bez potvrdzovania
+menu.hint_record_already_found_check Kontrola pred nastavením novej nahrávky časovača na prítomnosť zhody rovnakého titulu
 menu.hint_record_apid_ac3 Nahrá AC3 zvukové pidy
 menu.hint_record_apid_alt Nahrá ostatné zvukové pidy
 menu.hint_record_apid_std Nahrá prvý zvukový pid
@@ -1388,6 +1403,8 @@ menu.hint_service Nastavenie tuneru, vyhľadanie služieb,\núprava buketov, akt
 menu.hint_service_scan Automatické / manuálne vyhľadávanie staníc, FastScan, Test signálu
 menu.hint_settings Konfigurácia Neutrino, sieť, zvuk, obraz, OSD a iné
 menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosťi bude 0
+menu.hint_shoutcast_dev_id Vložte vaše SHOUTcast údaje. Neuvedením údajov sa vypne podpora SHOUTcast.
+menu.hint_shoutcast_enabled Povoliť alebo zakázať podporu SHOUTcast
 menu.hint_shutdown Vypnutie prijímača - bez potvrdzovania
 menu.hint_shutdown_count Čas prepnutia prijímača z pohotovostného režimu do stavu vypnutia
 menu.hint_shutdown_menu Prepne prijímač do pohotovostného režimu alebo ho vypne, nastaví časovač vypnutia
@@ -1415,6 +1432,8 @@ menu.hint_theme Výber prednastavených farebných vzhľadov\nUloženie alebo na
 menu.hint_timeouts Konfigurácia času zmiznutia GUI okien\nv sekundách
 menu.hint_timers Pridanie/Odstránenie/Upravenie plánovaného\nnahrávania, pripomienky atď.
 menu.hint_timezone Výber časového pásma
+menu.hint_tmdb_api_key Vložte váš TMDb API kľúč. Neuvedením údajov sa vypne podpora TMDb
+menu.hint_tmdb_enabled Povoliť alebo zakázať podporu TMDb (themoviedb.org)
 menu.hint_tools Spustenie nástrojov
 menu.hint_tvmode Prepne prijímač do režimu TV
 menu.hint_tvradio_switch Prepínanie medzi TV a Rádio režimom
@@ -1452,6 +1471,8 @@ menu.hint_volume_pos Výber pozície indikátora hlasitosti
 menu.hint_volume_size Výber výšky indikátora hlasitosti
 menu.hint_webtv_setup Tu nakonfigurované WebTV kanály budú k dispozícii v štandartnom zozname kanálov
 menu.hint_window_size Zoznam kanálov, EPG-Infp a niektoré iné okná sú zmenšené týmto faktorom
+menu.hint_youtube_dev_id Vložte vaše YouTube údaje. Neuvedením údajov sa vypne podpora YouTube
+menu.hint_youtube_enabled Povoliť alebo zakázať podporu YouTube
 menu.hint_ytplay Prehrávanie vybraných youtube videí
 menu.hint_ytplay_setup Konfigurácia špecifických volieb YouTube, napr. horný limit výsledkov vyhľadávania
 menu.hint_zap_cycle Pri prepínaní kanálov zotrvať v aktuálnom bukete
@@ -1530,6 +1551,7 @@ miscsettings.infobar_show_res_simple jednoduché
 miscsettings.infobar_show_sysfs_hdd Indikátor zaplnenia (sysFS a HDD)
 miscsettings.infobar_show_tuner Zobraziť aktívny tuner
 miscsettings.infoclock Informačné hodiny
+miscsettings.onlineservices Online služby
 miscsettings.progressbar Ukazateľ
 miscsettings.progressbar_color Farba
 miscsettings.progressbar_design Vzhľad
@@ -1613,6 +1635,7 @@ moviebrowser.book_position Pozícia:
 moviebrowser.book_type Skok (<0 vzad , >0 vpred):
 moviebrowser.book_type_backward Opakovať
 moviebrowser.book_type_forward Skok za
+moviebrowser.browser_additional Doplnkové informácie
 moviebrowser.browser_frame_high Výška prehliadača [%]
 moviebrowser.browser_row_head Nastavenia riadku
 moviebrowser.browser_row_item Položka stĺpca
@@ -1698,6 +1721,7 @@ moviebrowser.info_rating Hodnotenie
 moviebrowser.info_recorddate Dátum nahrávky
 moviebrowser.info_serie Seriál
 moviebrowser.info_size Veľkosť (MB)
+moviebrowser.info_spacer Medzera
 moviebrowser.info_title Titul
 moviebrowser.info_videoformat Obraz
 moviebrowser.last_play_max_items Počet posledných prehrávaní v zozname
@@ -1746,8 +1770,9 @@ moviebrowser.short_prodyear Rok
 moviebrowser.short_quality * (kvalita)
 moviebrowser.short_rating Hlasy
 moviebrowser.short_recorddate Dátum
-moviebrowser.short_serie Serial
+moviebrowser.short_serie Seriál
 moviebrowser.short_size Veľkosť
+moviebrowser.short_spacer
 moviebrowser.short_title Titul
 moviebrowser.start_head Pozerať film od:
 moviebrowser.start_record_start Začiatok filmu
@@ -2028,6 +2053,8 @@ rclock.locked Uzamknuté
 rclock.lockmsg Diaľkový ovládač uzamknutý.\n\nPre odblokovanie stlačte [ČERVENÉ] \na [MENU] na Vašom ovládači.
 rclock.title Uzamknutie diaľkového ovládača
 rclock.unlockmsg Diaľkové ovládanie funkčné...
+recording.already_found %s\nuž bola nájdená. Napriek tomu spustiť nahrávanie?
+recording.already_found_check Kontrola nahrávky
 recording.is_running Tento kanál sa nahráva. Spustiť nové nahrávanie?
 recording.start Spúšťanie nahrávania, čakajte prosím...!
 recording.startstop_msg Upozorniť o začatí / ukončení nahrávania
@@ -2035,6 +2062,7 @@ recording.stop Zastavenie nahrávania, čakajte prosím...!
 recording.time_hour Hodina
 recording.time_hours Hodín
 recording.time_min Min
+recordingmenu.already_found_check Kontrola na prítomnosť rovnakého titulu
 recordingmenu.apids Predvolené zvukové stopy
 recordingmenu.apids_ac3 Nahrať zvuk AC3
 recordingmenu.apids_alt Nahrať ostatné zvukové stopy
@@ -2070,6 +2098,16 @@ recordingmenu.vcr Videorekordér
 recordingmenu.vtxt_pid Nahrať teletext
 recordingmenu.zap_on_announce Prepnúť na kanál pred začatím nahrávania
 recordtimer.announce Začatie nahrávania za pár minút.
+remotebox_add Pridať
+remotebox_channel_na Kanál na vzdialenom zariadení nedostupný
+remotebox_del Vymazať
+remotebox_head Vzdialené zariadnia
+remotebox_mod Upraviť
+remotebox_pass Heslo
+remotebox_port Port
+remotebox_rbaddr Adresa
+remotebox_rbname Názov
+remotebox_user Užívateľ
 reset_all Továrenské nastavenia
 reset_channels Zmazanie všetkych kanálov
 reset_confirm Skutočne?
@@ -2239,6 +2277,8 @@ settings.pos_top_left vľavo hore
 settings.pos_top_right vpravo hore
 settings.restore Záloha: Obnovenie nastavení
 settings.restore_warn Všetky nastavenia budú nahradené a vykoná sa reštart.\nPokračovať?
+shoutcast.dev_id SHOUTcast ID
+shoutcast.enabled SHOUTcast podpora
 shutdown.recording_query Skutočne prerušiť nahrávanie?
 shutdowntimer.announce Vypnutie boxu za minútu.\nZrušiť vypnutie?
 sleeptimerbox.announce Do vypnutia zostáva minúta.
@@ -2332,6 +2372,7 @@ timerlist.type.execplugin Spustenie doplnku
 timerlist.type.nextprogram Nasledujúci program
 timerlist.type.record Nahrávanie
 timerlist.type.remind Pripomenutie
+timerlist.type.remotebox Vzdialená nahrávka
 timerlist.type.shutdown Vypnutie
 timerlist.type.sleeptimer Časové vypnutie
 timerlist.type.standby Akcia
@@ -2358,6 +2399,8 @@ timing.infobar_radio Stavový riadok (rádio mód)
 timing.menu Ponuka
 timing.numericzap Prepínanie číslami
 timing.volumebar Ukazateľ hlasitosti
+tmdb.api_key TMDb API kľúč
+tmdb.enabled TMDb podpora
 tmdb.read_data Vyhľadávanie údajov TMDB...
 unicable.lnb Vstup Unicable
 unicable.qrg Frekvencia Unicable
@@ -2465,6 +2508,8 @@ wizard.welcome_head Vitajte v sprievodcovi nastavení
 wizard.welcome_text Nasledujúce kroky vás prevedú počiatočnou inštaláciou nastavenia prístroja.\nInformácia: Váš prijímač môžete pohodlne ovládať\ncez webové rozhranie pre správu časovača alebo živé vysielanie cez internetový prehliadač.\nPrístupové heslo nie je zatiaľ nastavené!\nNastavte ho za pomoci použitia príkazu "passwd" cez telnet rozhranie.\nChcete pokračovať?
 word.from z
 word.in v
+youtube.dev_id YouTube ID
+youtube.enabled YouTube podpora
 zapit.scantype Vyhľadávanie kanálov
 zapit.scantype.all Všetky
 zapit.scantype.radio Len Rádio

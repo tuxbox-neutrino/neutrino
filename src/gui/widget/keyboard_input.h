@@ -101,6 +101,8 @@ class CKeyboardInput : public CMenuTarget
 		int          selected;
 		bool	     changed;
 		CChangeObserver * observ;
+		bool force_saveScreen;
+		fb_pixel_t *pixBuf;
 
 		virtual void init();
 
@@ -133,6 +135,8 @@ class CKeyboardInput : public CMenuTarget
 		void hide();
 		int exec( CMenuTarget* parent, const std::string & actionKey );
 		virtual std::string &getValue(void);
+
+		void forceSaveScreen(bool enable);
 };
 
 #endif

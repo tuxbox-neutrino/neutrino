@@ -62,6 +62,9 @@ uint8_t CColorGradient::limitChar(int c)
 
 fb_pixel_t* CColorGradient::gradientColorToTransparent(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int /*mode*/, int /*intensity*/)
 {
+	if (bSize < 1)
+		return gradientBuf;
+
 	if (gradientBuf == NULL) {
 		gradientBuf = (fb_pixel_t*) malloc(bSize * sizeof(fb_pixel_t));
 		if (gradientBuf == NULL) {
@@ -94,6 +97,8 @@ fb_pixel_t* CColorGradient::gradientColorToTransparent(fb_pixel_t col, fb_pixel_
 
 fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int mode, int intensity, uint8_t v_min, uint8_t v_max, uint8_t s)
 {
+	if (bSize < 1)
+		return gradientBuf;
 
 	if (gradientBuf == NULL) {
 		gradientBuf = (fb_pixel_t*) malloc(bSize * sizeof(fb_pixel_t));
