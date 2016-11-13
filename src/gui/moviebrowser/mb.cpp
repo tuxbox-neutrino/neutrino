@@ -1440,8 +1440,6 @@ void CMovieBrowser::refreshMovieInfo(void)
 {
 	TRACE("[mb]->%s m_vMovieInfo.size %d\n", __func__, m_vMovieInfo.size());
 
-	hideDetailsLine();
-
 	// clear m_pcInfo1 text before new init
 	m_pcInfo1->clear();
 
@@ -1502,18 +1500,12 @@ void CMovieBrowser::refreshMovieInfo(void)
 
 void CMovieBrowser::hideDetailsLine()
 {
-	refreshDetailsLine(-1);
+	if (m_detailsLine)
+		m_detailsLine->hide();
 }
 
 void CMovieBrowser::refreshDetailsLine(int pos)
 {
-	if (m_detailsLine)
-	{
-		m_detailsLine->kill();
-		delete m_detailsLine;
-		m_detailsLine = NULL;
-	}
-
 	if (pos >= 0)
 	{
 		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST]->getHeight();
@@ -1525,8 +1517,10 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 		int ypos2 = m_cBoxFrameInfo1.iY + (m_cBoxFrameInfo1.iHeight/2);
 
 		if (m_detailsLine == NULL)
-			m_detailsLine = new CComponentsDetailLine(xpos, ypos1, ypos2, fheight/2, m_cBoxFrameInfo1.iHeight-2*RADIUS_LARGE);
-		m_detailsLine->paint(false);
+			m_detailsLine = new CComponentsDetailLine();
+
+		m_detailsLine->setDimensionsAll(xpos, ypos1, ypos2, fheight/2, m_cBoxFrameInfo1.iHeight-2*RADIUS_LARGE);
+		m_detailsLine->paint(true);
 	}
 }
 
