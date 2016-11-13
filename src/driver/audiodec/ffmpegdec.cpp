@@ -314,7 +314,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		}
 
 		if (rpacket.stream_index != best_stream) {
-			av_free_packet(&rpacket);
+			av_packet_unref(&rpacket);
 			continue;
 		}
 
@@ -373,7 +373,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		}
 		if (time_played && avc->streams[best_stream]->time_base.den)
 			*time_played = (pts - start_pts) * avc->streams[best_stream]->time_base.num / avc->streams[best_stream]->time_base.den;
-		av_free_packet(&rpacket);
+		av_packet_unref(&rpacket);
 	} while (*state!=STOP_REQ && Status==OK);
 
 	audioDecoder->StopClip();
@@ -381,7 +381,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 
 	swr_free(&swr);
 	av_free(outbuf);
-	av_free_packet(&rpacket);
+	av_packet_unref(&rpacket);
 	av_frame_free(&frame);
 	avcodec_close(c);
 	//av_free(avcc);
