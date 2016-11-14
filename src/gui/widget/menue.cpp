@@ -1429,7 +1429,7 @@ void CMenuWidget::paintHint(int pos)
 		if (details_line)
 			details_line->hide();
 		/* clear info box */
-		if ((info_box) && (pos < 0))
+		if ((info_box) && ((pos < 0) || savescreen))
 			savescreen ? info_box->hide() : info_box->kill();
 		if (info_box)
 			hint_painted = info_box->isPainted();
