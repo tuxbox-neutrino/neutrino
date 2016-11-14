@@ -2095,6 +2095,7 @@ const char * locale_real_names[] =
 	"opkg.update.reading_lists",
 	"opkg.upgrade",
 	"opkg.warning_3rdparty_packages",
+	"options.always",
 	"options.default",
 	"options.fb",
 	"options.hint_default",

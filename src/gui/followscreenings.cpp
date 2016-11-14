@@ -45,6 +45,8 @@
 
 #include <gui/timerlist.h>
 
+#include <zapit/zapit.h>
+
 #include <global.h>
 #include <neutrino.h>
 
@@ -152,8 +154,7 @@ void CFollowScreenings::show()
 
 	getFollowScreenings();
 
-	if (followlist.size() == 1)
-	{
+	if (followlist.size() == 1 && g_settings.timer_followscreenings < 2 /*always*/) {
 		snprintf(actionstr, sizeof(actionstr), "%lu", followlist.front().startTime);
 		exec(NULL, actionstr);
 	}

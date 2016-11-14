@@ -1541,7 +1541,7 @@ menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
 menu.hint_timeouts Anpassen von Timeouts und Anzeigeverhalten für Meldungen, Fenster, Menüs, Infobar usw.
 menu.hint_timeouts_static_messages Anzeigedauer für bestimmte Meldungen mit Benutzerinteraktion
-menu.hint_timer_followscreenings Zeige weitere Termine für Timerprogrammierung.
+menu.hint_timer_followscreenings Zeige Terminauswahl mit Folge-Events zur Timerprogrammierung. "Immer" zeigt die Auswahl auch dann, wenn nur ein Event gefunden wurde.
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tmdb_api_key Geben Sie den TMDb API Schlüssel ein. Eine leere Eingabe schaltet die TMDb-Unterstützung aus
@@ -2068,6 +2068,7 @@ opkg.update.check Prüfe auf Updates ...
 opkg.update.reading_lists Paketlisten werden eingelesen ...
 opkg.upgrade Installierte Pakete aktualisieren
 opkg.warning_3rdparty_packages Drittanbieter-Pakete könnten Ihr System beschädigen! Sind Sie sicher, dieses Paket zu installieren?
+options.always immer
 options.default Voreinstellungen benutzen
 options.fb framebuffer
 options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.

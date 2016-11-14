@@ -1252,6 +1252,15 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		configfile.deleteKey("auto_delete");
 	}
 
+	if (g_settings.version_pseudo < "20161411235900")
+	{
+		//convert and remove obsolete recording_tevents key
+		bool recording_tevents = configfile.getBool("recording_tevents", false);
+		if (recording_tevents)
+			g_settings.timer_followscreenings = 2 /*always*/;
+		configfile.deleteKey("recording_tevents");
+	}
+
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
 

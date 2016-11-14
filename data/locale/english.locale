@@ -1541,7 +1541,7 @@ menu.hint_sw_update Update software
 menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Customize display behavior and timeouts for messages, windows, menus, infobar, etc.
 menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
-menu.hint_timer_followscreenings Show selection with followscreenings for timer programming
+menu.hint_timer_followscreenings Show selection with followscreenings for timer programming. "Always" shows selection even if just one event is found.
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
 menu.hint_tmdb_api_key Type your TMDb API key. An empty input disables TMDb support
@@ -2068,6 +2068,7 @@ opkg.update.check Checking for updates ...
 opkg.update.reading_lists Reading package lists ...
 opkg.upgrade Upgrade installed packages
 opkg.warning_3rdparty_packages 3rd party packages could damage your system! Are you sure install this package?
+options.always always
 options.default Reset to defaults
 options.fb framebuffer
 options.hint_default Reset the values to their defaults
