@@ -1440,8 +1440,6 @@ void CMovieBrowser::refreshMovieInfo(void)
 {
 	TRACE("[mb]->%s m_vMovieInfo.size %d\n", __func__, m_vMovieInfo.size());
 
-	hideDetailsLine();
-
 	// clear m_pcInfo1 text before new init
 	m_pcInfo1->clear();
 
@@ -1502,18 +1500,12 @@ void CMovieBrowser::refreshMovieInfo(void)
 
 void CMovieBrowser::hideDetailsLine()
 {
-	refreshDetailsLine(-1);
+	if (m_detailsLine)
+		m_detailsLine->hide();
 }
 
 void CMovieBrowser::refreshDetailsLine(int pos)
 {
-	if (m_detailsLine)
-	{
-		m_detailsLine->kill();
-		delete m_detailsLine;
-		m_detailsLine = NULL;
-	}
-
 	if (pos >= 0)
 	{
 		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST]->getHeight();
@@ -1525,8 +1517,10 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 		int ypos2 = m_cBoxFrameInfo1.iY + (m_cBoxFrameInfo1.iHeight/2);
 
 		if (m_detailsLine == NULL)
-			m_detailsLine = new CComponentsDetailLine(xpos, ypos1, ypos2, fheight/2, m_cBoxFrameInfo1.iHeight-2*RADIUS_LARGE);
-		m_detailsLine->paint(false);
+			m_detailsLine = new CComponentsDetailLine();
+
+		m_detailsLine->setDimensionsAll(xpos, ypos1, ypos2, fheight/2, m_cBoxFrameInfo1.iHeight-2*RADIUS_LARGE);
+		m_detailsLine->paint(true);
 	}
 }
 
@@ -2020,12 +2014,28 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			CMenuWidget m(LOCALE_MOVIEBROWSER_FOOT_SORT, NEUTRINO_ICON_SETTINGS);
 			m.addIntroItems();
 
+			// add PREVPLAYDATE/RECORDDATE sort buttons to footer
+			m.addKey(CRCInput::RC_red, selector, to_string(MB_INFO_PREVPLAYDATE).c_str());
+			m.addKey(CRCInput::RC_green, selector, to_string(MB_INFO_RECORDDATE).c_str());
+
+			button_label footerButtons[] = {
+				{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE},
+				{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_MOVIEBROWSER_INFO_RECORDDATE}
+			};
+			int footerButtonsCount = sizeof(footerButtons) / sizeof(button_label);
+
+			m.setFooter(footerButtons, footerButtonsCount);
+
 			// just show sorting options for displayed rows; sorted by rows
 			for (int row = 0; row < MB_MAX_ROWS && row < m_settings.browserRowNr; row++)
 			{
 				for (unsigned int i = 0; i < MB_INFO_MAX_NUMBER; i++)
 				{
 					if (sortBy[i] == NULL)
+						continue;
+
+					// already added to footer
+					if (i == MB_INFO_PREVPLAYDATE || i == MB_INFO_RECORDDATE)
 						continue;
 
 					if (m_settings.browserRowItem[row] == i)
