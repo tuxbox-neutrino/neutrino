@@ -2014,12 +2014,28 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			CMenuWidget m(LOCALE_MOVIEBROWSER_FOOT_SORT, NEUTRINO_ICON_SETTINGS);
 			m.addIntroItems();
 
+			// add PREVPLAYDATE/RECORDDATE sort buttons to footer
+			m.addKey(CRCInput::RC_red, selector, to_string(MB_INFO_PREVPLAYDATE).c_str());
+			m.addKey(CRCInput::RC_green, selector, to_string(MB_INFO_RECORDDATE).c_str());
+
+			button_label footerButtons[] = {
+				{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE},
+				{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_MOVIEBROWSER_INFO_RECORDDATE}
+			};
+			int footerButtonsCount = sizeof(footerButtons) / sizeof(button_label);
+
+			m.setFooter(footerButtons, footerButtonsCount);
+
 			// just show sorting options for displayed rows; sorted by rows
 			for (int row = 0; row < MB_MAX_ROWS && row < m_settings.browserRowNr; row++)
 			{
 				for (unsigned int i = 0; i < MB_INFO_MAX_NUMBER; i++)
 				{
 					if (sortBy[i] == NULL)
+						continue;
+
+					// already added to footer
+					if (i == MB_INFO_PREVPLAYDATE || i == MB_INFO_RECORDDATE)
 						continue;
 
 					if (m_settings.browserRowItem[row] == i)
