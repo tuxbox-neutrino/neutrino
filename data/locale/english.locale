@@ -1429,6 +1429,7 @@ menu.hint_subchannel_pos Select subchannels menu position
 menu.hint_sw_update Update software
 menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Configure time to hide GUI windows\nin seconds
+menu.hint_timer_followscreenings Show selection with followscreenings for timer programming
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
 menu.hint_tmdb_api_key Type your TMDb API key. An empty input disables TMDb support
@@ -2381,6 +2382,7 @@ timerlist.type.zapto Zap to
 timerlist.weekdays Days of the week
 timerlist.weekdays.hint_1 Mo Tu We Th Fr Sa Su
 timerlist.weekdays.hint_2 'X'=timer '-' no timer
+timersettings.followscreenings Show screening selection
 timersettings.record_safety_time_after Record stop time correction
 timersettings.record_safety_time_after.hint_1 Correction time in min. (00=off). This time
 timersettings.record_safety_time_after.hint_2 will added to stop time of every record timer.

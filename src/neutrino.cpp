@@ -481,6 +481,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			g_settings.timer_remotebox_ip.push_back(timer_rb);
 		}
 	}
+	g_settings.timer_followscreenings = configfile.getInt32( "timer_followscreenings", 1 );
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
@@ -1084,6 +1085,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		timer_remotebox_itemcount++;
 	}
 	configfile.setInt32 ( "timer_remotebox_ip_count", g_settings.timer_remotebox_ip.size());
+	configfile.setInt32 ("timer_followscreenings", g_settings.timer_followscreenings);
 
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );

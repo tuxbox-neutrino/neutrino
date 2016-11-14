@@ -460,6 +460,7 @@ struct SNeutrinoSettings
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
 	std::vector<timer_remotebox_item> timer_remotebox_ip;
+	int timer_followscreenings;
 	std::string recording_filename_template;
 	int recording_already_found_check;
 
