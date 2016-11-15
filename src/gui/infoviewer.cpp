@@ -1755,7 +1755,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		timescale->setDimensionsAll(pb_startx, pb_starty, pb_w, pb_h);
 		timescale->setActiveColor(COL_INFOBAR_PLUS_7);
 		timescale->setPassiveColor(g_settings.infobar_progressbar ? COL_INFOBAR_PLUS_1 : COL_INFOBAR_PLUS_0);
-		timescale->enableShadow(!g_settings.infobar_progressbar);
+		timescale->enableShadow(!g_settings.infobar_progressbar ? CC_SHADOW_ON : CC_SHADOW_OFF, OFFSET_SHADOW/2);
 		timescale->setValues(pb_p, pb_w);
 
 		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - OFFSET_SHADOW, ChanNameY - (pb_h + 10) , pb_w, pb_h);
