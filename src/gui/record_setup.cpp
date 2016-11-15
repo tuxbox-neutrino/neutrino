@@ -338,6 +338,13 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	ch->setHint("", LOCALE_MENU_HINT_RECORD_ZAP_PRE_TIME);
 	ch->setNumberFormat(nf);
 	menu_timersettings->addItem(ch);
+
+	menu_timersettings->addItem(GenericMenuSeparatorLine);
+
+	//allow followscreenings
+	CMenuOptionChooser* followscreenings = new CMenuOptionChooser(LOCALE_TIMERSETTINGS_FOLLOWSCREENINGS, &g_settings.timer_followscreenings, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	followscreenings->setHint("", LOCALE_MENU_HINT_TIMER_FOLLOWSCREENINGS);
+	menu_timersettings->addItem(followscreenings);
 }
 
 

@@ -1430,6 +1430,7 @@ menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
 menu.hint_sw_update Neutrino-HD aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
 menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofenster sich automatisch schließen (0 deaktiviert)
+menu.hint_timer_followscreenings Zeige Terminauswahl mit Folge-Events zur Timerprogrammierung
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tmdb_api_key Geben Sie den TMDb API Schlüssel ein. Eine leere Eingabe schaltet die TMDb-Unterstützung aus
@@ -2382,6 +2383,7 @@ timerlist.type.zapto Umschalten
 timerlist.weekdays Wochentage
 timerlist.weekdays.hint_1 Mo Di Mi Do Fr Sa So
 timerlist.weekdays.hint_2 'X'=Timer '-' kein Timer
+timersettings.followscreenings Zeige Terminauswahl
 timersettings.record_safety_time_after Aufnahmeende-Korrektur
 timersettings.record_safety_time_after.hint_1 Korrekturzeit in Min. (00=aus), die auf die End-
 timersettings.record_safety_time_after.hint_2 zeit des jeweiligen Timers addiert wird
