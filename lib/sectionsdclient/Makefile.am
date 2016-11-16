@@ -1,4 +1,5 @@
 AM_CPPFLAGS = \
+	@HWLIB_CFLAGS@ \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/connection \
