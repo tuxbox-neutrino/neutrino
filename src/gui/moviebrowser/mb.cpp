@@ -3225,15 +3225,15 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE-1);
 	snprintf(size,BUFFER_SIZE,"%5" PRIu64 "",movie_info->file.Size>>20);
 
-	CKeyboardInput titelUserInput(LOCALE_MOVIEBROWSER_INFO_TITLE,            &movie_info->epgTitle, (movie_info->epgTitle.empty() || (movie_info->epgTitle.size() < MAX_STRING)) ? MAX_STRING:movie_info->epgTitle.size());
+	CKeyboardInput titelUserInput(LOCALE_MOVIEBROWSER_INFO_TITLE,          &movie_info->epgTitle, (movie_info->epgTitle.empty() || (movie_info->epgTitle.size() < MAX_STRING)) ? MAX_STRING:movie_info->epgTitle.size());
 	CKeyboardInput channelUserInput(LOCALE_MOVIEBROWSER_INFO_CHANNEL,      &movie_info->channelName, MAX_STRING);
 	CKeyboardInput epgUserInput(LOCALE_MOVIEBROWSER_INFO_INFO1,            &movie_info->epgInfo1, 20);
 	CKeyboardInput countryUserInput(LOCALE_MOVIEBROWSER_INFO_PRODCOUNTRY,  &movie_info->productionCountry, 11);
 
-	CDateInput   dateUserDateInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,        &movie_info->dateOfLastPlay, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-	CDateInput   recUserDateInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,         &movie_info->file.Time, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-	CIntInput    lengthUserIntInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,       (int *)&movie_info->length, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-	CIntInput    yearUserIntInput(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,       (int *)&movie_info->productionDate, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CDateInput     dateUserDateInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,      &movie_info->dateOfLastPlay);
+	CDateInput     recUserDateInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,       &movie_info->file.Time);
+	CIntInput      lengthUserIntInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,     (int *)&movie_info->length, 3);
+	CIntInput      yearUserIntInput(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,     (int *)&movie_info->productionDate, 4);
 
 	CMenuOptionNumberChooser *rate = new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_INFO_RATING, &movie_info->rating, true, 0, 100, NULL);
 	rate->setNumberFormat(rateFormat);
@@ -3241,27 +3241,28 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	CMenuWidget movieInfoMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 
 	movieInfoMenu.addIntroItems(LOCALE_MOVIEBROWSER_INFO_HEAD);
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_SAVE,     true, NULL, this, "save_movie_info",                                           CRCInput::RC_red));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD_UPDATE, true, NULL,      &movieInfoMenuUpdate, NULL,                                CRCInput::RC_green));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_HEAD,           true, NULL,      &bookmarkMenu, NULL,                                    CRCInput::RC_blue));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_SAVE,           true, NULL, this,                    "save_movie_info",                  CRCInput::RC_red));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD_UPDATE,    true, NULL,                          &movieInfoMenuUpdate, NULL,         CRCInput::RC_green));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_HEAD,           true, NULL,                          &bookmarkMenu, NULL,                CRCInput::RC_blue));
 	movieInfoMenu.addItem(GenericMenuSeparatorLine);
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_TITLE,          true, movie_info->epgTitle,  &titelUserInput,NULL,                       CRCInput::RC_1));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_SERIE,          true, movie_info->serieName, &serieMenu,NULL,                            CRCInput::RC_2));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_INFO1,          (movie_info->epgInfo1.size() <= MAX_STRING) /*true*/, movie_info->epgInfo1,      &epgUserInput,NULL,                     CRCInput::RC_3));
-	movieInfoMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR, &movie_info->genreMajor, GENRE_ALL, GENRE_ALL_COUNT, true,NULL,         CRCInput::RC_4, "", true));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_TITLE,          true, movie_info->epgTitle,          &titelUserInput, NULL,              CRCInput::RC_1));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_SERIE,          true, movie_info->serieName,         &serieMenu, NULL,                   CRCInput::RC_2));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_INFO1,          (movie_info->epgInfo1.size() <= MAX_STRING), movie_info->epgInfo1, &epgUserInput, NULL, CRCInput::RC_3));
+	movieInfoMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR,      &movie_info->genreMajor, GENRE_ALL, GENRE_ALL_COUNT, true, NULL,   CRCInput::RC_4, "", true));
+	movieInfoMenu.addItem(GenericMenuSeparatorLine);
+	movieInfoMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PARENTAL_LOCKAGE, &movie_info->parentalLockAge, MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS, MESSAGEBOX_PARENTAL_LOCKAGE_OPTION_COUNT, true, NULL, CRCInput::RC_5));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,       true, yearUserIntInput.getValue(),   &yearUserIntInput, NULL,            CRCInput::RC_6));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PRODCOUNTRY,    true, movie_info->productionCountry, &countryUserInput, NULL,            CRCInput::RC_7));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_LENGTH,         true, lengthUserIntInput.getValue(), &lengthUserIntInput, NULL,          CRCInput::RC_8));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_CHANNEL,        true, movie_info->channelName,       &channelUserInput, NULL,            CRCInput::RC_9));
+	movieInfoMenu.addItem(GenericMenuSeparatorLine);
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PATH,           false, dirItNr));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE,   false, dateUserDateInput.getValue()));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_RECORDDATE,     false, recUserDateInput.getValue()));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_SIZE,           false, size));
 	movieInfoMenu.addItem(GenericMenuSeparatorLine);
 	movieInfoMenu.addItem(rate);
-	movieInfoMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_INFO_QUALITY,&movie_info->quality,true,0,3, NULL));
-	movieInfoMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_INFO_PARENTAL_LOCKAGE, &movie_info->parentalLockAge, MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS, MESSAGEBOX_PARENTAL_LOCKAGE_OPTION_COUNT, true,NULL,         CRCInput::RC_6));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,       true, yearUserIntInput.getValue(),      &yearUserIntInput,NULL,           CRCInput::RC_7));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PRODCOUNTRY,    true, movie_info->productionCountry,         &countryUserInput,NULL,      CRCInput::RC_8));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_LENGTH,         true, lengthUserIntInput.getValue(),        &lengthUserIntInput,NULL,     CRCInput::RC_9));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_CHANNEL,        true, movie_info->channelName,    &channelUserInput,NULL,                  CRCInput::RC_0));//LOCALE_TIMERLIST_CHANNEL
-	movieInfoMenu.addItem(GenericMenuSeparatorLine);
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PATH,           false, dirItNr)); //LOCALE_TIMERLIST_RECORDING_DIR
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE,   false, dateUserDateInput.getValue()));//LOCALE_FLASHUPDATE_CURRENTVERSIONDATE
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_RECORDDATE,     false, recUserDateInput.getValue()));//LOCALE_FLASHUPDATE_CURRENTVERSIONDATE
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_SIZE,           false, size,     NULL));
+	movieInfoMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_INFO_QUALITY, &movie_info->quality, true, 0, 3, NULL));
 
 	int res = movieInfoMenu.exec(NULL,"");
 
