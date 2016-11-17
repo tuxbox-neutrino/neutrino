@@ -1632,7 +1632,7 @@ moviebrowser.book_name Name:
 moviebrowser.book_new Neue Markierung
 moviebrowser.book_no_end Keine Endmarkierung gefunden
 moviebrowser.book_position Position:
-moviebrowser.book_type Sprung (<0 zurück, >0 vor):
+moviebrowser.book_type Sprung (<0: zurück, >0: vor):
 moviebrowser.book_type_backward Wiederholung
 moviebrowser.book_type_forward Überspringen
 moviebrowser.browser_additional Zusätzliche Informationen
@@ -1655,13 +1655,13 @@ moviebrowser.delete_screenshot Lösche Screenshot?
 moviebrowser.dir Pfad
 moviebrowser.directories Verzeichnisse
 moviebrowser.directories_additional Zusätzliche Verzeichnisse
-moviebrowser.edit_book Bookmark Ändern
+moviebrowser.edit_book Markierung ändern
 moviebrowser.edit_book_name_info1 Neuer Markierungsname
-moviebrowser.edit_book_name_info2 Markierungsname info2
+moviebrowser.edit_book_name_info2 
 moviebrowser.edit_book_pos_info1 Neue Position (s)
 moviebrowser.edit_book_pos_info2 
 moviebrowser.edit_book_type_info1 Neue Sprunglänge (s)
-moviebrowser.edit_book_type_info2 <0 zurück , >0 vor, 0: kein
+moviebrowser.edit_book_type_info2 <0: zurück, >0: vor, 0: kein
 moviebrowser.edit_serie Name der Serie
 moviebrowser.error_no_movies Keine Filme gefunden
 moviebrowser.filter_off Filter aus

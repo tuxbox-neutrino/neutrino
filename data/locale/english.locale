@@ -1627,14 +1627,14 @@ moviebrowser.book_clear_all Clear all
 moviebrowser.book_head Bookmarks
 moviebrowser.book_lastmoviestop Last play stop:
 moviebrowser.book_movieend Movie end:
-moviebrowser.book_moviestart User Movie start:
+moviebrowser.book_moviestart Movie start:
 moviebrowser.book_name Name:
-moviebrowser.book_new New Bookmark
-moviebrowser.book_no_end No end bookmark defined
+moviebrowser.book_new New bookmark
+moviebrowser.book_no_end No end mark defined
 moviebrowser.book_position Position:
-moviebrowser.book_type Jump (<0 back , >0 for):
+moviebrowser.book_type Jump (<0: backward, >0: forward):
 moviebrowser.book_type_backward Repeat
-moviebrowser.book_type_forward jump over
+moviebrowser.book_type_forward Jump over
 moviebrowser.browser_additional Additional informations
 moviebrowser.browser_frame_high Browser height [%]
 moviebrowser.browser_row_head Row settings
@@ -1655,13 +1655,13 @@ moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
 moviebrowser.directories Directories
 moviebrowser.directories_additional Additional directories
-moviebrowser.edit_book Bookmark change
-moviebrowser.edit_book_name_info1 Enter new Bookmark name
-moviebrowser.edit_book_name_info2 book name info2
-moviebrowser.edit_book_pos_info1 Enter new Position (s)
+moviebrowser.edit_book Change bookmark
+moviebrowser.edit_book_name_info1 Enter new bookmark name
+moviebrowser.edit_book_name_info2 
+moviebrowser.edit_book_pos_info1 Enter new position (s)
 moviebrowser.edit_book_pos_info2 
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
-moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
+moviebrowser.edit_book_type_info2 <0: backward, >0: forward, 0: none
 moviebrowser.edit_serie Enter name of serie
 moviebrowser.error_no_movies No movies found
 moviebrowser.filter_off Filter off
