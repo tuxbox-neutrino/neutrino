@@ -810,7 +810,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 		m_movieSelectionHandler->bookmarks.lastPlayStop =0;
 		for (int i = 0; i < MI_MOVIE_BOOK_USER_MAX; i++)
 		{
-			m_movieSelectionHandler->bookmarks.user[i].name.empty();
+			m_movieSelectionHandler->bookmarks.user[i].name = g_Locale->getText(LOCALE_MOVIEBROWSER_BOOK_NEW);
 			m_movieSelectionHandler->bookmarks.user[i].length =0;
 			m_movieSelectionHandler->bookmarks.user[i].pos =0;
 		}
@@ -1438,7 +1438,7 @@ void CMovieBrowser::hideMovieCover(void)
 
 void CMovieBrowser::refreshMovieInfo(void)
 {
-	TRACE("[mb]->%s m_vMovieInfo.size %d\n", __func__, m_vMovieInfo.size());
+	TRACE("[mb]->%s m_vMovieInfo.size %d\n", __func__, (int)m_vMovieInfo.size());
 
 	// clear m_pcInfo1 text before new init
 	m_pcInfo1->clear();
