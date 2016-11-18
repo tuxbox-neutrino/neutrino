@@ -59,7 +59,7 @@ class CTestMenu : public CMenuTarget
 		int showTestMenu();
 		void showHWTests(CMenuWidget *widget);
 		void showCCTests(CMenuWidget *widget);
-
+		void showMsgTests(CMenuWidget *widget);
 	public:	
 		CTestMenu();
 		~CTestMenu();

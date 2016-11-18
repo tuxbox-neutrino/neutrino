@@ -61,7 +61,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
@@ -748,7 +748,7 @@ bool CTimerList::RemoteBoxChanExists(t_channel_id channel_id)
 
 	if (r_url == "false")
 		ShowMsg(LOCALE_REMOTEBOX_CHANNEL_NA, convertChannelId2String(channel_id),
-				CMessageBox::mbrOk, CMessageBox::mbOk, NULL, 450, 30, false);
+				CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 450, 30, false);
 
 	return (r_url == "true");
 }
@@ -835,8 +835,7 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 				rtimer.stopTime = (time_t) atoll(remotetimers[i]["stop"][0].get("digits","").asString().c_str());
 				rtimer.epgID = (event_id_t) atoi(remotetimers[i].get("epg_id","").asString());
 				sscanf(remotetimers[i].get("channel_id","").asString().c_str(),	SCANF_CHANNEL_ID_TYPE, &rtimer.channel_id);
-				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),sizeof(rtimer.epgTitle));
-				rtimer.epgTitle[sizeof(rtimer.epgTitle) - 1] = 0;
+				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),51);
 				if (remotetimers[i]["audio"].get("apids_conf","").asString() == "true")
 					rtimer.apids = TIMERD_APIDS_CONF;
 				//printf("[remotetimer] r-timer:%s - %s\n", remotetimers[i].get("channel_id","").asString().c_str(), remotetimers[i].get("title","").asString().c_str());
@@ -992,7 +991,7 @@ int CTimerList::show()
 						if (!epgdata.title.empty())
 							title = "(" + epgdata.title + ")\n";
 						snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
-						if (ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo)
+						if (ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30, false) == CMsgBox::mbrNo)
 						{
 							killTimer = false;
 							update = false;
@@ -1663,7 +1662,7 @@ int CTimerList::modifyTimer()
 	}
 	if (modified)
 	{
-		if (ShowMsg(LOCALE_TIMERLIST_SAVE, LOCALE_PERSONALIZE_APPLY_SETTINGS, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 20, true) == CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_TIMERLIST_SAVE, LOCALE_PERSONALIZE_APPLY_SETTINGS, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 20, true) == CMsgBox::mbrYes)
 			exec(NULL, "modifytimer");
 	}
 
@@ -1862,7 +1861,7 @@ bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTi
 		timerbuf += strftime("%d.%m. %H:%M\n",sTime);
 	}
 	if (overlappingTimers.size() > 0)
-		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
+		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMsgBox::mbrNo,CMsgBox::mbNo|CMsgBox::mbYes) == CMsgBox::mbrYes);
 	else
 		return true;
 }
@@ -1918,7 +1917,7 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id c
 		// todo: localize message
 		//g_Locale->getText(TIMERLIST_OVERLAPPING_MESSAGE);
 
-		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
+		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMsgBox::mbrNo,CMsgBox::mbNo|CMsgBox::mbYes) == CMsgBox::mbrYes);
 	}
 	else
 		return true;

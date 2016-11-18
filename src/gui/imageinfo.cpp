@@ -292,7 +292,7 @@ void CImageInfo::InitInfoData()
 
 	struct utsname uts_info;
 
-	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", "Neutrino-HD")};
+	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", PACKAGE_NAME)};
 	v_info.push_back(imagename);
 	image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
 	v_info.push_back(version);

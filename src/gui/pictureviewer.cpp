@@ -56,12 +56,12 @@
 #include <gui/widget/icons.h>
 #include <gui/infoclock.h>
 #include <gui/widget/menue.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 
 // remove this
 #include <gui/widget/hintbox.h>
 
-#include <gui/widget/helpbox.h>
+#include <gui/pictureviewer_help.h>
 #include <gui/widget/stringinput.h>
 #include <driver/screen_max.h>
 
@@ -845,7 +845,7 @@ void CPictureViewerGui::endView()
 void CPictureViewerGui::deletePicFile(unsigned int index, bool mode)
 {
 	CVFD::getInstance()->showMenuText(0, playlist[index].Name.c_str());
-	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, playlist[index].Filename, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
+	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, playlist[index].Filename, CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)==CMsgBox::mbrYes)
 	{
 		unlink(playlist[index].Filename.c_str());
 		printf("[ %s ]  delete file: %s\r\n",__FUNCTION__,playlist[index].Filename.c_str());
@@ -858,43 +858,8 @@ void CPictureViewerGui::deletePicFile(unsigned int index, bool mode)
 	}
 }
 
-void CPictureViewerGui::showHelp()
+int CPictureViewerGui::showHelp()
 {
-	Helpbox helpbox;
-	helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP1));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP2));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_5, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP3));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_0, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP4));
-	helpbox.addPagebreak();
-	helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP5));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_LEFT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP6));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_RIGHT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP7));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_5, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP3));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_HOME, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP8));
-	helpbox.addPagebreak();
-	helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP9));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP10));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_LEFT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP11));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_RIGHT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP12));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_1, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP13));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_3, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP14));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_2, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP15));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_4, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP16));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_6, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP17));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_8, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP18));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_5, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP3));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_0, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP19));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_HOME, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP8));
-	if(audioplayer)
-	{
-		helpbox.addPagebreak();
-		helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP30));
-		helpbox.addLine(NEUTRINO_ICON_BUTTON_PLAY, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP31));
-		helpbox.addLine(NEUTRINO_ICON_BUTTON_PAUSE, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP32));
-		helpbox.addLine(NEUTRINO_ICON_BUTTON_STOP, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP33));
-		helpbox.addLine(NEUTRINO_ICON_BUTTON_FORWARD, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP34));
-		helpbox.addLine(NEUTRINO_ICON_BUTTON_BACKWARD, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP35));
-	}
-	hide();
-	helpbox.show(LOCALE_MESSAGEBOX_INFO);
+	CPictureViewerHelp help(audioplayer);
+	return help.exec(NULL, "");
 }

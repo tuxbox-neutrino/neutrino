@@ -30,7 +30,7 @@
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
-
+#include <gui/color_custom.h>
 
 class CComponentsForm;
 class CComponentsScrollBar;
@@ -125,9 +125,9 @@ typedef struct cc_screen_data_t
 //combination of rc messages with related icon
 typedef struct msg_list_t
 {
-	neutrino_msg_t 	msg;
+	neutrino_msg_t 	directKey;
 	const char* 	icon;
-} key_list_t;
+} msg_list_struct_t;
 
 //align types
 enum
@@ -186,10 +186,13 @@ typedef struct cc_string_ext_txt_t
 #define CC_WIDTH_MIN		16
 #define CC_HEIGHT_MIN		16
 
-#define CC_SHADOW_OFF 		0
-#define CC_SHADOW_ON 		1
-#define CC_SHADOW_RIGHT 	2
-#define CC_SHADOW_BOTTOM 	4
+#define CC_SHADOW_OFF 			0x0
+#define CC_SHADOW_RIGHT 		0x2
+#define CC_SHADOW_BOTTOM 		0x4
+#define CC_SHADOW_CORNER_BOTTOM_LEFT	0x8
+#define CC_SHADOW_CORNER_BOTTOM_RIGHT	0x10
+#define CC_SHADOW_CORNER_TOP_RIGHT	0x20
+#define CC_SHADOW_ON 			CC_SHADOW_RIGHT | CC_SHADOW_BOTTOM | CC_SHADOW_CORNER_BOTTOM_LEFT | CC_SHADOW_CORNER_BOTTOM_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT
 
 #define CC_SAVE_SCREEN_YES 	true
 #define CC_SAVE_SCREEN_NO 	false

@@ -101,7 +101,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	width 		= w;
 	height	 	= h;
 	shadow		= shadow_mode;
-	shadow_w	= shadow ? OFFSET_SHADOW/2 : 0; //buttons are mostly small elements, so these elements should have a reasonable shadow width
+	shadow_w	= shadow != CC_SHADOW_OFF ? (shadow_w == -1 ? OFFSET_SHADOW/2 : shadow_w) : 0; //buttons are mostly small elements, so these elements should have a reasonable shadow width
 
 	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //TODO: gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
 	setColBodyGradient(cc_body_gradient_enable/*CColorGradient::gradientLight2Dark*/, CFrameBuffer::gradientVertical, CColorGradient::light);
@@ -124,7 +124,8 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_btn_font	= NULL;
 	cc_btn_icon	= icon_name;
 	cc_btn_capt	= caption;
-	cc_btn_msg	= CRCInput::RC_nokey;
+	cc_directKey	= CRCInput::RC_nokey;
+	cc_directKeyAlt = cc_directKey;
 	cc_btn_result	= -1;
 	cc_btn_alias	= -1;
 
@@ -187,43 +188,54 @@ void CComponentsButton::initCaption()
 	}
 
 	//set basic properties
+	int w_frame = fr_thickness;
 	if (cc_btn_capt_obj){
 		//position and size
-		int x_cap = fr_thickness;
+		int x_cap = w_frame;
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
-		int w_cap = width - fr_thickness - append_x_offset - x_cap - fr_thickness;
-		int h_cap = height*65/100 /*- 2*fr_thickness*/;
-
+		int w_cap = width - w_frame - append_x_offset - x_cap - w_frame;
+		int h_cap = (height*85/100) - 2*w_frame;
 		/*NOTE:
 			paint of centered text in y direction without y_offset
 			looks unlovely displaced in y direction especially besides small icons and inside small areas,
 			but text render isn't wrong here, because capitalized chars or long chars like e. 'q', 'y' are considered!
 			Therefore we here need other icons or a hack, that considers some different height values.
 		*/
-		int y_cap = height/2 - h_cap/2 + fr_thickness/2;
+		int y_cap = height/2 - h_cap/2;
 
 		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
 
 		//text and font
-		if (cc_btn_font == NULL)
-			cc_btn_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
+		Font* def_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
+		if (cc_btn_font == NULL){
+			/* use dynamic font as default font if no font defined */
+			cc_btn_font = def_font;
+		}else{ 
+			/* if button dimension too small, use dynamic font as default font size, this ignores possible defined font
+			 * Otherwise definied font will be used.
+			*/
+			if (cc_btn_font->getHeight() > h_cap){
+				cc_btn_font = def_font;
+			}
+		}
 
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_capt_obj->forceTextPaint(); //here required;
+		cc_btn_capt_obj->getCTextBoxObject()->setTextBorderWidth(0,0);
 
 		//set color
 		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? cc_btn_capt_col : cc_btn_capt_disable_col);
 
 		//corner of text item
-		cc_btn_capt_obj->setCorner(corner_rad-fr_thickness, corner_type);
+		cc_btn_capt_obj->setCorner(corner_rad-w_frame, corner_type);
 	}
 
 	//handle common position of icon and text inside container required for alignment
-	int w_required 	= fr_thickness + append_x_offset;
+	int w_required 	= w_frame + append_x_offset;
 	w_required 	+= cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() + append_x_offset : 0;
 	w_required 	+= cc_btn_font ? cc_btn_font->getRenderWidth(cc_btn_capt) : 0;
-	w_required 	+= append_x_offset + fr_thickness;
+	w_required 	+= append_x_offset + w_frame;
 
 	//dynamic width
 	if (w_required > width){
@@ -235,7 +247,7 @@ void CComponentsButton::initCaption()
 	int x_icon = width/2 - w_required/2 /*+ fr_thickness + append_x_offset*/;
 	int w_icon = 0;
 	if (cc_btn_icon_obj){
-		x_icon += fr_thickness + append_x_offset;
+		x_icon += w_frame + append_x_offset;
 		cc_btn_icon_obj->setXPos(x_icon);
 		w_icon = cc_btn_icon_obj->getWidth();
 		/*in case of dynamic changed height of caption or button opbject itself,

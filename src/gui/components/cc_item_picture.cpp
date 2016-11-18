@@ -82,6 +82,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	col_frame 	= color_frame;
 	col_body	= color_background;
 	col_shadow	= color_shadow;
+	col_shadow_clean= col_body;
 	do_scale	= allow_scale;
 	image_cache	= NULL; //image
 	enable_cache	= false;
@@ -251,11 +252,11 @@ void CComponentsPicture::initPosition(int *x_position, int *y_position)
 }
 
 
-void CComponentsPicture::getSize(int* width_image, int *height_image)
-{
-	*width_image = width;
-	*height_image = height;
-}
+// void CComponentsPicture::getSize(int* width_image, int *height_image)
+// {
+// 	*width_image = width;
+// 	*height_image = height;
+// }
 
 int CComponentsPicture::getWidth()
 {

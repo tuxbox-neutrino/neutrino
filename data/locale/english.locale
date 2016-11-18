@@ -461,7 +461,7 @@ extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadconfig Neutrino-HD Settings: Load from
+extra.loadconfig Settings: Load from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
 extra.longitude Longitude
@@ -473,7 +473,7 @@ extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
-extra.saveconfig Neutrino-HD Settings: Save as
+extra.saveconfig Settings: Save as
 extra.savekeys Save keys as
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
@@ -784,6 +784,7 @@ hdd_statfs_recording while recording only
 hdd_umount Unmount
 hdd_umount_warn unmount device
 hdd_umounted Device removed
+help_box_title Help
 imageinfo.api API:
 imageinfo.creator Creator:
 imageinfo.date Date:
@@ -1167,7 +1168,7 @@ menu.hint_leds_deepstandby LEDs state in deeps-standby mode
 menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
-menu.hint_load Load Neutrino-HD GUI settings from file
+menu.hint_load Load GUI settings from file
 menu.hint_longkeypress_duration A key press will be considered as "long key press" if it's pressed longer than the specified time.
 menu.hint_lua Run Lua Plugins
 menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
@@ -1244,7 +1245,7 @@ menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
 menu.hint_parentallock_menu Lock menus with pin code
-menu.hint_parentallock_prompt Configure when Neutrino-HD will ask you\nfor PIN code
+menu.hint_parentallock_prompt Configure when system will ask you\nfor PIN code
 menu.hint_personalize Enable, disable or Protect menu items\nConfigure color-buttons user menus
 menu.hint_pictureviewer_defdir Default picture viewer directory
 menu.hint_pictureviewer_scaling Picture scaling algorithm
@@ -1303,12 +1304,12 @@ menu.hint_record_zap_pre_time For ZapTo timers, switch channel\nbefore event sta
 menu.hint_recording Recording and timeshift options\nTimers safety, audio pids options
 menu.hint_reload_channels Reload channels from flash
 menu.hint_reload_plugins Reload plugins from flash
-menu.hint_reset Reset Neutrino-HD GUI settings to defaults\nTuner config and channels not affected
+menu.hint_reset Reset GUI settings to defaults\nTuner config and channels not affected
 menu.hint_restore Restore files from selected backup
 menu.hint_rotor_swap Swap rotor east/west directions\nin motor control
 menu.hint_rounded_corners Draw round or rectangular windows corners 
 menu.hint_save_settings Save all settings to flash
-menu.hint_saveas Save Neutrino-HD GUI settings to file
+menu.hint_saveas Save GUI settings to file
 menu.hint_scan_auto Auto-scan selected provider
 menu.hint_scan_autoall Scan several selected providers at once
 menu.hint_scan_autoall_select Add selected satellites to scan
@@ -1401,7 +1402,7 @@ menu.hint_selected_back Change selected item background color
 menu.hint_selected_text Change selected item text color
 menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
 menu.hint_service_scan Auto / manual service scan
-menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
+menu.hint_settings Configure System\nNetwork, audio, video, OSD and more
 menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
 menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
@@ -1414,7 +1415,7 @@ menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_sleeptimer_min Default setting for sleeptimer
 menu.hint_sms_channel If enabled, numeric buttons in channel list used to search channel in SMS style
 menu.hint_sms_movie If enabled, numeric buttons in moviebrowser used to search movie in SMS style
-menu.hint_soft_restart Restart Neutrino-HD without reboot
+menu.hint_soft_restart Restart GUI without reboot
 menu.hint_softupdate_check Check online update, download and flash firmware
 menu.hint_softupdate_check_local Select and flash firmware from local file
 menu.hint_softupdate_createimage_menu Backup of current software, including all settings
@@ -1885,7 +1886,7 @@ networkmenu.ssid_scan WLAN network scan
 networkmenu.ssid_scan_error No WLAN networks are found.
 networkmenu.ssid_scan_wait WLAN network scan in progress...
 networkmenu.test Test network now
-neutrino_starting Neutrino-HD starting...
+neutrino_starting %s %s starting...
 nfs.alreadymounted directory already mounted
 nfs.automount Mount on startup
 nfs.dir directory/share
@@ -2266,8 +2267,8 @@ settings.help Help
 settings.menu_hints Show menu hints
 settings.menu_pos Menu position
 settings.menus Menus
-settings.missingoptionsconffile The Neutrino-HD settings have been updated.\nNew Options will be set to default.
-settings.noconffile No Neutrino-HD settings found.\nUsing defaults.
+settings.missingoptionsconffile The settings have been updated.\nNew Options will be set to default.
+settings.noconffile No settings found.\nUsing defaults.
 settings.pos_bottom_center bottom center
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
@@ -2300,7 +2301,7 @@ streaminfo.head Stream-Information
 streaminfo.not_available not available
 streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
-streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino-HD.
+streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart GUI.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
 streaming.overflow Record buffer overflow, consider to stop some records
 streaming.slow System/hdd too slow, consider to stop some records

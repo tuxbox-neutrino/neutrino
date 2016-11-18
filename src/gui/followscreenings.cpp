@@ -40,9 +40,9 @@
 #include <system/helpers.h>
 
 #include <gui/widget/buttons.h>
-#include <gui/widget/hintbox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+
 #include <gui/timerlist.h>
 
 #include <global.h>
@@ -113,7 +113,7 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 						forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_REC;
 					else
 						ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG,
-							CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+							CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 					return menu_return::RETURN_REPAINT;
 				}
 				break; // for

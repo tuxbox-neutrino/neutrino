@@ -67,13 +67,11 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		fb_pixel_t col_shadow, col_shadow_old;
 		///property: color of frame
 		fb_pixel_t col_frame, col_frame_old;
-		///property: color of frame if component is selected, Note: fr_thickness_sel must be set
-		fb_pixel_t col_frame_sel, col_frame_sel_old;
+		///internal property: color for shadow clean up
+		fb_pixel_t col_shadow_clean;
 
 		 ///property: frame thickness, see also setFrameThickness()
 		int fr_thickness, fr_thickness_old;
-		///property: frame thickness of selected component, see also setFrameThickness()
-		int fr_thickness_sel, fr_thickness_sel_old;
 
 		///property: has corners with definied type, types are defined in /driver/frambuffer.h, without effect, if corner_radius=0
 		int corner_type, corner_type_old;
@@ -210,13 +208,12 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;}
 
 		///set frame thickness
-		virtual void setFrameThickness(const int& thickness, const int& thickness_sel = 3);
+		virtual void setFrameThickness(const int& thickness);
 		///return of frame thickness
 		virtual int getFrameThickness(){return fr_thickness;}
 		///set frame color
 		virtual void setColorFrame(fb_pixel_t color){col_frame = color;}
-		///set selected frame color
-		virtual void setColorFrameSel(fb_pixel_t color){col_frame_sel = color;}
+
 		virtual void set2ndColor(fb_pixel_t col_2nd){cc_body_gradient_2nd_col = col_2nd;}
 
 		///get frame color
@@ -277,7 +274,12 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
-		void allowPaint(bool allow){cc_allow_paint = allow; is_painted = cc_allow_paint ? false : true;}
+		void allowPaint(bool allow) {
+			if (allow != cc_allow_paint)
+				cc_allow_paint = allow;
+			if (cc_allow_paint)
+				is_painted = false;
+		}
 		///returns visibility mode
 		virtual bool paintAllowed(){return cc_allow_paint;};
 

@@ -43,7 +43,7 @@
 #include <driver/screen_max.h>
 
 #include <gui/color.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/icons.h>
 
 
@@ -218,7 +218,7 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 				}
 			case CRCInput::RC_home:
 				if (((*value[VALUE_R] != r_alt) || (*value[VALUE_G] != g_alt) || (*value[VALUE_B] != b_alt) || ((value[VALUE_ALPHA]) && (*(value[VALUE_ALPHA]) != a_alt))) &&
-						(ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel))
+						(ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel))
 					break;
 
 				// sonst abbruch...

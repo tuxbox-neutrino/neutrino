@@ -38,7 +38,7 @@
 #include <gui/scan_setup.h>
 #include <gui/color.h>
 #include <gui/widget/menue.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <system/settings.h>
 #include <driver/screen_max.h>
 #include <driver/neutrinofonts.h>
@@ -230,7 +230,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						buf += " ";
 						buf += satname;
 						buf += " ?";
-						store = (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
+						store = (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf,CMsgBox::mbrNo,CMsgBox::mbNo|CMsgBox::mbYes) == CMsgBox::mbrYes);
 					}
 				}
 				if(store)

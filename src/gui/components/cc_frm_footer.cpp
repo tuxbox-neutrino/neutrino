@@ -69,9 +69,13 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	width 	= w == 0 ? frameBuffer->getScreenWidth(true) : w;
 
 	//init footer height
+	initCaptionFont();
 	height 		= max(h, cch_font->getHeight());
 
 	shadow		= shadow_mode;
+	ccf_enable_button_shadow 	= false ;
+	ccf_button_shadow_width  	= shadow ? OFFSET_SHADOW/2 : 0;
+	ccf_button_shadow_force_paint 	= false;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
@@ -83,8 +87,8 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;
 
-	btn_contour	= false /*g_settings.theme.Button_gradient*/; //TODO: not implemented at the moment
-	ccf_btn_font	= NULL;
+	ccf_enable_button_bg	= false /*g_settings.theme.Button_gradient*/; //TODO: not implemented at the moment
+	ccf_btn_font	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 	chain		= NULL;
 
 	addContextButton(buttons);
@@ -94,46 +98,79 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 void CComponentsFooter::setButtonLabels(const struct button_label_s * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
-	//define required total width of button group, minimal width is >0, sensless values are nonsens! 
-	int w_chain = chain_width > 0 ? chain_width : width;//TODO: alow and handle only with rational values >0, exit here
-	if (w_chain < 100){
-		dprintf(DEBUG_NORMAL, "[CComponentsFooter]   [%s - %d] stupid width of chain: width = %d, values < 100 are nonsens, buttons not painted!\n", __func__, __LINE__, w_chain);
-		return;
+	/* clean up before init*/
+	if (chain)
+		chain->clear();
+
+	/* set general available full basic space for button chain,
+	 * in this case this is footer width
+	*/
+	int w_chain = width - 2*cch_offset;
+
+	/* calculate current available space for button container depends
+	 * of already enbedded footer objects.
+	 * If already existing some items then subtract those width from footer width.
+	 * ...so we have the possible usable size for button container.
+	*/
+	if(!v_cc_items.empty()){ //FIXME: footer container seems always not empty here, so here j initialized with = 1. I dont't know where it comes from! dbt!
+		for (size_t j= 1; j< size(); j++)
+			w_chain -= getCCItem(j)->getWidth();
 	}
 
-	//consider context button group on the right side of footer, if exist then subtract result from chain_width of button container
-	if (cch_btn_obj)
-		w_chain -= cch_btn_obj->getWidth();
+	/* On defined parameter chain_width
+	 * calculate current available space for button container depends
+	 * of passed chain with parameter
+	 * Consider that chain_width is not too large.
+	*/
+	if (chain_width > 0 && chain_width <= w_chain){
+		if (chain_width <= w_chain){
+			w_chain = chain_width;
+		}
+	}
 
-	//calculate required position of button container
-	//consider icon (inherited) width, if exist then set evaluated result as x position for button label container and ...
-	int x_chain = 0;
+	/* initialize button container (chain object): this contains all passed (as interleaved) button label items,
+	 * With this container we can work inside footer as primary container (in this context '=this') and the parent for the button label container (chain object).
+	 * Button label container (chain object) itself is concurrent to the parent object for button objects.
+	*/
+	int x_chain = width/2 - w_chain/2;
 	if (cch_icon_obj)
-		x_chain = (cch_icon_obj->getXPos() + cch_offset + cch_icon_obj->getWidth());
-	//... reduce also total width for button label container
-	w_chain -= x_chain;
-
-	//initialize container (chain object) as button label container: this contains all passed (as interleaved) button label items, with this container we can work inside
-	//footer as primary container (in this context '=this') and the parent for the button label container (chain object),
-	//button label container (chain object) itself is concurrent the parent object for button objects.
+		 x_chain = cch_offset+cch_icon_obj->getWidth()+cch_offset;
 	if (chain == NULL){
-		chain = new CComponentsFrmChain(x_chain, CC_CENTERED, w_chain, height, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_FRAME_PLUS_0, col_body);
+		chain = new CComponentsFrmChain(x_chain, 0, w_chain, height, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
+		chain->setAppendOffset(0, 0);
 		chain->setCorner(this->corner_rad, this->corner_type);
 		chain->doPaintBg(false);
 	}
-	if (!chain->empty())
-		chain->clear();
 
-	//calculate default static width of button labels inside button object container related to available width of chain object
-	int w_btn_fix = chain->getWidth() / label_count;
-	int w_btn_min = min(label_width, w_btn_fix);
+	/* Calculate usable width of button labels inside button object container
+	 * related to available width of chain object and passed
+	 * label_width parameter.
+	 * Parameter is used as minimal value and will be reduced
+	 * if it is too large.
+	 * Too small label_width parameter will be compensated by
+	 * button objects itself.
+	*/
+	int w_offset = int((label_count-1)*cch_offset);
+	int w_btn = chain->getWidth()/label_count - w_offset;
+	if (label_width){
+		int w_label = label_width;
+		int w_defined = int(label_width*label_count);
+		int w_max = chain->getWidth() - w_offset;
+		while (w_defined > w_max){
+			w_label--;
+			w_defined = int(w_label*label_count) - w_offset;
+		}
+		w_btn = w_label;
+	}
 
-	int w_used = 0;
-
-	//generate and add button objects passed from button label content with default width to chain object.
+	/* generate button objects passed from button label content
+	 * with default width to chain object.
+	*/
+	vector<CComponentsItem*> v_btns;
+	int h_btn = /*(ccf_enable_button_bg ? */(height*85/100)-2*fr_thickness-OFFSET_INNER_SMALL/* : height)*/-ccf_button_shadow_width;
 	for (size_t i= 0; i< label_count; i++){
-		string txt = content[i].text;
-		string icon_name = string(content[i].button);
+		string txt 		= content[i].text;
+		string icon_name 	= string(content[i].button);
 
 		//ignore item, if no text and icon are defined;
 		if (txt.empty() && icon_name.empty()){
@@ -141,14 +178,16 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			continue;
 		}
 
-		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, (btn_contour ? height-2*fr_thickness : height), txt, icon_name);
-		btn->setButtonFont(ccf_btn_font);
-		btn->doPaintBg(btn_contour);
-		btn->enableFrame(btn_contour);
-		btn->setButtonTextColor(COL_MENUFOOT_TEXT);
-		btn->setButtonEventMsg(content[i].btn_msg);
+		int y_btn = chain->getHeight()/2 - h_btn/2;
+		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  y_btn [%d] ccf_button_shadow_width [%d]\n", __func__, __LINE__, y_btn, ccf_button_shadow_width);
+		CComponentsButton *btn = new CComponentsButton(0, y_btn, w_btn, h_btn, txt, icon_name, NULL, false, true, ccf_enable_button_shadow);
+
+		btn->doPaintBg(ccf_enable_button_bg);
+		btn->setButtonDirectKey(content[i].directKey);
+		btn->setButtonDirectKeyA(content[i].directKeyAlt);
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);
+		btn->setButtonFont(ccf_btn_font);
 
 		//set button frames to icon color, predefined for available color buttons
 		if (btn_auto_frame_col){
@@ -164,32 +203,35 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			btn->setColorFrame(f_col);
 		}
 
-		chain->addCCItem(btn);
+		v_btns.push_back(btn);
 
-		//set x position of next button object
-		if (i != 0)
-			btn->setXPos(CC_APPEND);
-
-		//collect used button width inside chain object
-		w_used += btn->getWidth();
+		if (w_btn < btn->getWidth()){
+			btn->setWidth(w_btn);
+			btn->setButtonFont(NULL);
+		}
+			
+		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%u]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, chain->getWidth());
 	}
 
-	//calculate offset between button objects inside chain object
-	int w_rest = max(w_chain - w_used, 0);
-	int btn_offset = w_rest / chain->size();
-	chain->setAppendOffset(btn_offset, 0);
-	dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  btn_offset = %d, w_rest = %d, w_chain  = %d, w_used = %d, chain->size() = %u\n", __func__, __LINE__, btn_offset, w_rest, w_chain, w_used, chain->size());
+	/* add generated button objects to chain object.
+	*/
+	if (!v_btns.empty()){
+		/*add all buttons into button container*/
+		chain->addCCItem(v_btns);
 
-	//set x position of 1st button object inside chain, this is centering button objects inside chain
-	int x_1st_btn = btn_offset/2;
-	chain->getCCItem(0)->setXPos(x_1st_btn);
+		/* set position of labels, as centered inside button container*/
+		int w_chain_used = 0;
+		for (size_t a= 0; a< chain->size(); a++)
+			w_chain_used += chain->getCCItem(a)->getWidth();
+		w_chain_used += (chain->size()-1)*cch_offset;
 
-	//check used width of generated buttons, if required then use dynamic font, and try to fit buttons into chain container, dynamic font is used if ccf_btn_font==NULL
-	//NOTE: user should be set not too small window size and not too large fontsize, at some point this possibility will be depleted and it's no more space for readable caption
-	if (w_used > width && ccf_btn_font != NULL){
-		chain->clear();
-		ccf_btn_font = NULL;
-		setButtonLabels(content, label_count, chain_width, label_width);
+		int x_btn = chain->getWidth()/2 - w_chain_used/2;
+		chain->getCCItem(0)->setXPos(x_btn);
+
+		for (size_t c= 1; c< chain->size(); c++){
+			x_btn += chain->getCCItem(c-1)->getWidth()+ cch_offset;
+			chain->getCCItem(c)->setXPos(x_btn);
+		}
 	}
 }
 
@@ -200,7 +242,8 @@ void CComponentsFooter::setButtonLabels(const struct button_label_l * const cont
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = content[i].button;
 		buttons[i].text = content[i].locale != NONEXISTANT_LOCALE ? g_Locale->getText(content[i].locale) : "";
-		buttons[i].btn_msg = content[i].btn_msg;
+		buttons[i].directKey = content[i].directKey;
+		buttons[i].directKeyAlt = content[i].directKeyAlt;
 		buttons[i].btn_result = content[i].btn_result;
 		buttons[i].btn_alias = content[i].btn_alias;
 	}
@@ -217,7 +260,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 		buttons[i].locale = content[i].locale;
 		//NOTE: here are used default values, because old button label struct don't know about this,
 		//if it possible, don't use this methode!
-		buttons[i].btn_msg = CRCInput::RC_nokey;
+		buttons[i].directKey = buttons[i].directKeyAlt = CRCInput::RC_nokey;
 		buttons[i].btn_result = -1;
 		buttons[i].btn_alias = -1;
 	}
@@ -232,7 +275,8 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_l> &v_content,
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = v_content[i].button;
 		buttons[i].locale = v_content[i].locale;
-		buttons[i].btn_msg = v_content[i].btn_msg;
+		buttons[i].directKey = v_content[i].directKey;
+		buttons[i].directKeyAlt = v_content[i].directKeyAlt;
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
@@ -248,7 +292,8 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_s> &v_content,
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = v_content[i].button;
 		buttons[i].text = v_content[i].text;
-		buttons[i].btn_msg = v_content[i].btn_msg;
+		buttons[i].directKey = v_content[i].directKey;
+		buttons[i].directKeyAlt = v_content[i].directKeyAlt;
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
@@ -256,39 +301,65 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_s> &v_content,
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabel(const char *button_icon, const std::string& text, const int& chain_width, const int& label_width, const neutrino_msg_t& msg, const int& result_value, const int& alias_value)
+void CComponentsFooter::setButtonLabel(	const char *button_icon,
+					const std::string& text,
+					const int& chain_width,
+					const int& label_width,
+					const neutrino_msg_t& msg,
+					const int& result_value,
+					const int& alias_value,
+					const neutrino_msg_t& directKeyAlt)
 {
 	button_label_s button[1];
 
 	button[0].button = button_icon;
 	button[0].text = text;
-	button[0].btn_msg = msg;
+	button[0].directKey = msg;
+	button[0].directKeyAlt = directKeyAlt;
 	button[0].btn_result = result_value;
 	button[0].btn_alias = alias_value;
 
 	setButtonLabels(button, 1, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& chain_width, const int& label_width, const neutrino_msg_t& msg, const int& result_value, const int& alias_value)
+void CComponentsFooter::setButtonLabel(	const char *button_icon,
+					const neutrino_locale_t& locale,
+					const int& chain_width,
+					const int& label_width,
+					const neutrino_msg_t& msg,
+					const int& result_value,
+					const int& alias_value,
+					const neutrino_msg_t& directKeyAlt)
 {
 	string txt = locale != NONEXISTANT_LOCALE ? g_Locale->getText(locale) : "";
 
-	setButtonLabel(button_icon, txt, chain_width, label_width, msg, result_value, alias_value);
+	setButtonLabel(button_icon, txt, chain_width, label_width, msg, result_value, alias_value, directKeyAlt);
 }
 
-void CComponentsFooter::showButtonContour(bool show)
+void CComponentsFooter::enableButtonBg(bool enable)
 {
-	btn_contour = show;
+	ccf_enable_button_bg = enable;
 	if (chain) {
 		for (size_t i= 0; i< chain->size(); i++)
-			chain->getCCItem(i)->doPaintBg(btn_contour);
+			chain->getCCItem(i)->doPaintBg(ccf_enable_button_bg);
 	}
 }
 
-void CComponentsFooter::setSelectedButton(size_t item_id)
+void CComponentsFooter::setSelectedButton(size_t item_id, const fb_pixel_t& fr_col, const fb_pixel_t& sel_fr_col, const fb_pixel_t& bg_col, const fb_pixel_t& sel_bg_col, const fb_pixel_t& text_col, const fb_pixel_t& sel_text_col)
 {
-	if (chain)
-		chain->setSelectedItem(item_id);
+	if (chain){
+		for (size_t i= 0; i< chain->size(); i++){
+			CComponentsButton *btn = static_cast<CComponentsButton*>(chain->getCCItem(i));
+			btn->setButtonTextColor(text_col);
+		}
+		fb_pixel_t sel_col = fr_col;
+		if (chain->size() > 1)
+			sel_col = sel_fr_col; //TODO: make it configurable
+		chain->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, 1, 2);
+
+		if (chain->size() > 1)
+			getSelectedButtonObject()->setButtonTextColor(sel_text_col);
+	}
 }
 
 int CComponentsFooter::getSelectedButton()
@@ -324,4 +395,30 @@ void CComponentsFooter::paintButtons(const int& x_pos,
 	this->setButtonLabels(content, label_count, 0, label_width);
 
 	this->paint(do_save_bg);
+}
+
+void CComponentsFooter::setButtonText(const uint& btn_id, const std::string& text)
+{
+	CComponentsItem *item = getButtonChainObject()->getCCItem(btn_id);
+	if (item){
+		CComponentsButton *button = static_cast<CComponentsButton*>(item);
+		button->setCaption(text);
+	}
+	else
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: can't set button text, possible wrong btn_id=%u, item=%p...\n", __func__, __LINE__, btn_id, item);
+}
+
+
+void CComponentsFooter::enableButtonShadow(int mode, const int& shadow_width, bool force_paint)
+{
+	ccf_enable_button_shadow = mode;
+	ccf_button_shadow_width = shadow_width;
+	ccf_button_shadow_force_paint = force_paint;
+	if (chain){
+		for(size_t i=0; i<chain->size(); i++){
+			chain->getCCItem(i)->enableShadow(ccf_enable_button_shadow, ccf_button_shadow_width, ccf_button_shadow_force_paint);
+			int y_btn = ccf_enable_button_shadow == CC_SHADOW_OFF ? CC_CENTERED : chain->getHeight()/2 - chain->getCCItem(i)->getHeight()/2 - ccf_button_shadow_width;
+			chain->getCCItem(i)->setYPos(y_btn);
+		}
+	}
 }

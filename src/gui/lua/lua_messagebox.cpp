@@ -27,7 +27,7 @@
 
 #include <global.h>
 #include <system/debug.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <neutrino.h>
 
 #include "luainstance.h"
@@ -74,10 +74,10 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 	std::string tmp;
 	if (tableLookup(L, "align", tmp)) {
 		table_key mb[] = {
-			{ "center1",	CMessageBox::mbBtnAlignCenter1 },
-			{ "center2",	CMessageBox::mbBtnAlignCenter2 },
-			{ "left",	CMessageBox::mbBtnAlignLeft },
-			{ "right",	CMessageBox::mbBtnAlignRight },
+			{ "center1",	CMsgBox::mbBtnAlignCenter1 },
+			{ "center2",	CMsgBox::mbBtnAlignCenter2 },
+			{ "left",	CMsgBox::mbBtnAlignLeft },
+			{ "right",	CMsgBox::mbBtnAlignRight },
 			{ NULL,		0 }
 		};
 		for (int i = 0; mb[i].name; i++)
@@ -93,12 +93,12 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 		lua_pushvalue(L, -2);
 		const char *val = lua_tostring(L, -2);
 		table_key mb[] = {
-			{ "yes",	CMessageBox::mbYes },
-			{ "no",		CMessageBox::mbNo },
-			{ "cancel",	CMessageBox::mbCancel },
-			{ "all",	CMessageBox::mbAll },
-			{ "back",	CMessageBox::mbBack },
-			{ "ok",		CMessageBox::mbOk },
+			{ "yes",	CMsgBox::mbYes },
+			{ "no",		CMsgBox::mbNo },
+			{ "cancel",	CMsgBox::mbCancel },
+			{ "all",	CMsgBox::mbAll },
+			{ "back",	CMsgBox::mbBack },
+			{ "ok",		CMsgBox::mbOk },
 			{ NULL,		0 }
 		};
 		for (int i = 0; mb[i].name; i++)
@@ -109,14 +109,14 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 	}
 	lua_pop(L, 1);
 	if ((show_buttons & 0xFF) == 0)
-		show_buttons |= CMessageBox::mbAll;
+		show_buttons |= CMsgBox::mbAll;
 
 	table_key mbr[] = {
-		{ "yes",	CMessageBox::mbrYes },
-		{ "no",		CMessageBox::mbrNo },
-		{ "cancel",	CMessageBox::mbrCancel },
-		{ "back",	CMessageBox::mbrBack },
-		{ "ok",		CMessageBox::mbrOk },
+		{ "yes",	CMsgBox::mbrYes },
+		{ "no",		CMsgBox::mbrNo },
+		{ "cancel",	CMsgBox::mbrCancel },
+		{ "back",	CMsgBox::mbrBack },
+		{ "ok",		CMsgBox::mbrOk },
 		{ NULL,		0 }
 	};
 	if (tableLookup(L, "default", tmp)) {
@@ -127,7 +127,7 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 			}
 	}
 
-	int res = ShowMsg(name, text, (CMessageBox::result_) default_button, (CMessageBox::buttons_) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
+	int res = ShowMsg(name, text, (CMsgBox::msg_result_t) default_button, (CMsgBox::button_define_t) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
 
 	tmp = "cancel";
 	for (int i = 0; mbr[i].name; i++)

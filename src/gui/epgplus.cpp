@@ -43,7 +43,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include "bouquetlist.h"
 
@@ -1293,7 +1293,7 @@ int EpgPlus::MenuTargetAddReminder::exec (CMenuTarget * /*parent*/, const std::s
 			g_Timerd->addZaptoTimerEvent (this->epgPlus->selectedChannelEntry->channel->getChannelID(), (*It)->channelEvent.startTime - (g_settings.zapto_pre_time * 60), (*It)->channelEvent.startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, 0);
 
 			ShowMsg (LOCALE_TIMER_EVENTTIMED_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTTIMED_MSG)
-				    , CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);	// UTF-8
+				    , CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);	// UTF-8
 		} else
 			printf ("timerd not available\n");
 	}
@@ -1330,7 +1330,7 @@ int EpgPlus::MenuTargetAddRecordTimer::exec (CMenuTarget * /*parent*/, const std
 				printf("already found in moviebrowser: %s\n", rec_title);
 				char message[1024];
 				snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_RECORDING_ALREADY_FOUND), rec_title);
-				doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes);
+				doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes);
 			}
 		}
 		if (g_Timerd->isTimerdAvailable() && doRecord)

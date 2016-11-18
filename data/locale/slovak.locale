@@ -461,7 +461,7 @@ extra.key_timeshift Časový posun
 extra.key_unlock Odblokovanie
 extra.ladirection Umiestnenie zem.šírky
 extra.latitude Zem.šírka [N/S]
-extra.loadconfig Neutrino-HD: Obnoviť nastavenia z...
+extra.loadconfig Obnoviť nastavenia z...
 extra.loadkeys Obnoviť nastavenia kláves z ...
 extra.lodirection Umiestnenie zem.dľžky
 extra.longitude Zem.dľžka [E/W]
@@ -473,7 +473,7 @@ extra.rotor_swap Vymeniť východ/západ motoru
 extra.rounded_corners Vzhľad rohov
 extra.rounded_corners_off hranatý
 extra.rounded_corners_on zaoblený
-extra.saveconfig Neutrino-HD: Uložiť nastavenia do...
+extra.saveconfig Uložiť nastavenia do...
 extra.savekeys Uložiť nastavenia kláves do ...
 extra.scrambled_message Správa o kódovaní
 extra.show_mute_icon Ikona umlčania pri hlasitosti 0
@@ -784,6 +784,7 @@ hdd_statfs_recording len pri nahrávaní
 hdd_umount Odpojenie
 hdd_umount_warn Chyba odpájania disku!
 hdd_umounted Zariadenie odstránené
+help_box_title Help
 imageinfo.api API:
 imageinfo.creator Vytvoril:
 imageinfo.date Dátum:
@@ -1167,7 +1168,7 @@ menu.hint_leds_deepstandby Stav LED v režime spánku
 menu.hint_leds_record Stav LED počas nahrávania
 menu.hint_leds_standby Stav LED v pohotovostnom režime
 menu.hint_leds_tv Funkčný stav LED
-menu.hint_load Načítanie Neutrino-HD nastavení grafického užívateľského rozhrania (GUI) zo súboru
+menu.hint_load Načítanie nastavení grafického užívateľského rozhrania (GUI) zo súboru
 menu.hint_longkeypress_duration Stlačenie klávesy bude vyhodnotené ako "dlhý stisk klávesy" ak bude stlačené dlhšie ako špecifikovaný čas.
 menu.hint_lua Spustenie doplnkov
 menu.hint_make_hdlist Automaticky vytvorí HD zoznam kanálov na základe\ntypu kanálu a názvu
@@ -1244,7 +1245,7 @@ menu.hint_other_fonts Zmena veľkostí ďaľšieho písma
 menu.hint_parentallock_changepin Zmena PIN kódu
 menu.hint_parentallock_lockage Výber povoleného veku pre sledovanie
 menu.hint_parentallock_menu Zamknutie ponúk s pin kódom
-menu.hint_parentallock_prompt Konfigurácia keď sa Neutrino-HD opýta na PIN kód
+menu.hint_parentallock_prompt Konfigurácia keď sa system opýta na PIN kód
 menu.hint_personalize Povolenie/zakázanie alebo Položky menu zabezpečenia\nKonfigurácia farebných tlačidiel užívateľských ponúk
 menu.hint_pictureviewer_defdir Predvolená zložka prehliadača obrázkov
 menu.hint_pictureviewer_scaling Algoritmus mierky obrázku
@@ -1308,7 +1309,7 @@ menu.hint_restore Obnova konfigurácie a kanálov zo zvolenej zálohy
 menu.hint_rotor_swap Výmena umiestnenia motora východ/západ v ovládaní motora
 menu.hint_rounded_corners Kruhové vykreslovanie alebo zaoblené rohy okien
 menu.hint_save_settings Uloženie všetkých nastavení do pamäte
-menu.hint_saveas Uloženie Neutrino-HD nastavení grafického užívateľského rozhrania (GUI) do súboru
+menu.hint_saveas Uloženie nastavení grafického užívateľského rozhrania (GUI) do súboru
 menu.hint_scan_auto Prehľadanie vybraného satelitu
 menu.hint_scan_autoall Prehľadanie niektorých vybraných satelitov
 menu.hint_scan_autoall_select Pridá vybrané satelity do prehľadávania
@@ -1401,7 +1402,7 @@ menu.hint_selected_back Zmena farby podkladu označenej položky
 menu.hint_selected_text Zmena farby textu označenej položky
 menu.hint_service Nastavenie tuneru, vyhľadanie služieb,\núprava buketov, aktualizácia software
 menu.hint_service_scan Automatické / manuálne vyhľadávanie staníc, FastScan, Test signálu
-menu.hint_settings Konfigurácia Neutrino-HD, sieť, zvuk, obraz, OSD a iné
+menu.hint_settings Konfigurácia system, sieť, zvuk, obraz, OSD a iné
 menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosťi bude 0
 menu.hint_shoutcast_dev_id Vložte vaše SHOUTcast údaje. Neuvedením údajov sa vypne podpora SHOUTcast.
 menu.hint_shoutcast_enabled Povoliť alebo zakázať podporu SHOUTcast
@@ -1414,7 +1415,7 @@ menu.hint_sleeptimer Nastavenie časovača pre prechod prijímača do pohotovost
 menu.hint_sleeptimer_min Prednastavené nastavenia pre časovač vypnutia
 menu.hint_sms_channel Ak povolené, číselné klávesy v zozname kanálov budú použité pre vyhľadávanie kanálu v štýle SMS
 menu.hint_sms_movie Ak povolené, číselné klávesy v prehliadači filmov budú použité pre vyhľadávanie filmu v štýle SMS
-menu.hint_soft_restart Reštartovanie Neutrino-HD bez rebootu
+menu.hint_soft_restart Reštartovanie GUI bez rebootu
 menu.hint_softupdate_check Kontrola dostupných aktualizácií, stiahnutie a naprogramovanie firmware
 menu.hint_softupdate_check_local Výber a programovanie firmware z lokálneho súboru
 menu.hint_softupdate_createimage_menu Zálohovanie aktuálneho firmware vrátane všetkých nastavení
@@ -1883,7 +1884,7 @@ networkmenu.ssid_scan Hľadanie WLAN sietí
 networkmenu.ssid_scan_error Nenájdené WLAN siete
 networkmenu.ssid_scan_wait Prebieha hľadanie WLAN sietí
 networkmenu.test Test siete
-neutrino_starting Start Neutrino...
+neutrino_starting Start %s %s ...
 nfs.alreadymounted Zložka je už pripojená
 nfs.automount Pripojiť pri spustení
 nfs.dir Zložka / Zdielanie

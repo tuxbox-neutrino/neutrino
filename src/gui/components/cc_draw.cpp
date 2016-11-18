@@ -40,10 +40,9 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	col_body = col_body_old			= COL_MENUCONTENT_PLUS_0;
 	col_shadow = col_shadow_old 		= COL_SHADOW_PLUS_0;
 	col_frame = col_frame_old 		= COL_FRAME_PLUS_0;
-	col_frame_sel = col_frame_sel_old 	= COL_MENUCONTENTSELECTED_PLUS_0;
+	col_shadow_clean			= 0;
 
 	fr_thickness = fr_thickness_old		= 0;
-	fr_thickness_sel = fr_thickness_sel_old	= 3;
 
 	corner_type = corner_type_old		= CORNER_ALL;
 	corner_rad = corner_rad_old		= 0;
@@ -116,11 +115,6 @@ inline bool CCDraw::applyDimChanges()
 		fr_thickness_old = fr_thickness;
 		ret = true;
 	}
-	if (fr_thickness_sel != fr_thickness_sel_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], dim changes fr_thickness_sel %d != fr_thickness_sel_old %d...\033[0m\n", __func__, __LINE__, fr_thickness_sel, fr_thickness_sel_old);
-		fr_thickness_old = fr_thickness;
-		ret = true;
-	}
 	if (shadow_w != shadow_w_old){
 		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], dim changes shadow_w_sel %d != shadow_w_old %d...\033[0m\n", __func__, __LINE__, shadow_w, shadow_w_old);
 		shadow_w_old = shadow_w;
@@ -155,11 +149,6 @@ inline bool CCDraw::applyColChanges()
 	}
 	if (col_frame != col_frame_old){
 		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], col changes col_frame %d != col_frame_old %d...\033[0m\n", __func__, __LINE__, col_frame, col_frame_old);
-		col_frame_old = col_frame;
-		ret = true;
-	}
-	if (col_frame_sel != col_frame_sel_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], col changes col_frame_sel %d != col_frame_sel_old %d...\033[0m\n", __func__, __LINE__, col_frame_sel, col_frame_sel_old);
 		col_frame_old = col_frame;
 		ret = true;
 	}
@@ -218,12 +207,9 @@ inline void CCDraw::setWidth(const int& w)
 	width = w;
 }
 
-void CCDraw::setFrameThickness(const int& thickness, const int& thickness_sel)
+void CCDraw::setFrameThickness(const int& thickness)
 {
 	fr_thickness = thickness;
-
-	if (fr_thickness_sel != thickness_sel)
-		fr_thickness_sel = thickness_sel;
 
 	//ensure enabled frame if frame width > 0
 	cc_enable_frame = false;
@@ -647,6 +633,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 
 void CCDraw::hide()
 {
+	OnBeforeHide();
 	//restore saved screen background of item if available
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
@@ -660,6 +647,7 @@ void CCDraw::hide()
 	}
 	is_painted = false;
 	firstPaint = true;
+	OnAfterHide();
 }
 
 //erase or paint over rendered objects

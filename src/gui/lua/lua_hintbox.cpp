@@ -149,7 +149,7 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 			res = messages_return::cancel_info;
 		else if (msg == CRCInput::RC_home)
 			res = messages_return::cancel_all;
-		else if ((D->b->has_scrollbar()) && ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))) {
+		else if (/*(D->b->has_scrollbar()) &&*/ ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))) {
 			if (msg == CRCInput::RC_up)
 				D->b->scroll_up();
 			else

@@ -31,7 +31,8 @@
 #include <gui/rc_lock.h>
 
 #include <driver/display.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
+
 
 const std::string CRCLock::NO_USER_INPUT = "NO_USER_INPUT";
 
@@ -74,15 +75,15 @@ int CRCLock::exec(CMenuTarget* parent, const std::string &actionKey)
 	char lock_msg[1024];
 	snprintf(lock_msg, sizeof(lock_msg)-1, g_Locale->getText(LOCALE_RCLOCK_LOCKMSG), key_unlock.c_str());
 
-	if (ShowMsg(LOCALE_RCLOCK_TITLE, lock_msg, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel,
-			 NEUTRINO_ICON_INFO, 450, no_input ? 5 : -1, no_input) == CMessageBox::mbrCancel)
+	if (ShowMsg(LOCALE_RCLOCK_TITLE, lock_msg, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel,
+			 NEUTRINO_ICON_INFO, 450, no_input ? 5 : -1, no_input) == CMsgBox::mbrCancel)
 		return menu_return::RETURN_EXIT_ALL;
 
 	locked = true;
 	lockRC();
 	locked = false;
 
-	ShowMsg(LOCALE_RCLOCK_TITLE, LOCALE_RCLOCK_UNLOCKMSG, CMessageBox::mbrBack, CMessageBox::mbBack,
+	ShowMsg(LOCALE_RCLOCK_TITLE, LOCALE_RCLOCK_UNLOCKMSG, CMsgBox::mbrBack, CMsgBox::mbBack,
 			NEUTRINO_ICON_INFO, 450, no_input ? 5 : -1);
 	return  menu_return::RETURN_EXIT_ALL;
 }

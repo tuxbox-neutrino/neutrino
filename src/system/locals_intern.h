@@ -811,6 +811,7 @@ const char * locale_real_names[] =
 	"hdd_umount",
 	"hdd_umount_warn",
 	"hdd_umounted",
+	"help_box_title",
 	"imageinfo.api",
 	"imageinfo.creator",
 	"imageinfo.date",

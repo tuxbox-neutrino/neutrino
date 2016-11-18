@@ -37,7 +37,7 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/infoclock.h>
 #include <driver/display.h>
 #include <driver/fontrenderer.h>
@@ -346,8 +346,8 @@ int CBouquetList::doMenu()
 		if(select >= 0) {
 			old_selected = select;
 
-			int result = ShowMsg ( LOCALE_BOUQUETEDITOR_DELETE, Bouquets[selected]->channelList->getName(), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
-			if(result != CMessageBox::mbrYes)
+			int result = ShowMsg ( LOCALE_BOUQUETEDITOR_DELETE, Bouquets[selected]->channelList->getName(), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo );
+			if(result != CMsgBox::mbrYes)
 				return 0;
 
 			if (zapitBouquet) {

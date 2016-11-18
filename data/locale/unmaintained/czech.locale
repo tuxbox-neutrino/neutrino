@@ -1151,7 +1151,7 @@ menu.hint_other_fonts Zmena velikosti další písma
 menu.hint_parentallock_changepin Změna PIN kódu
 menu.hint_parentallock_lockage Výběr povoleného věku pro sledování
 menu.hint_parentallock_menu Zamknutí nabídek s pin kódem
-menu.hint_parentallock_prompt Konfigurace když se Neutrino-HD zeptá na PIN kód
+menu.hint_parentallock_prompt Konfigurace když se sytem zeptá na PIN kód
 menu.hint_personalize Povolení / zakázání nebo Položky menu zabezpečení \nKonfigurace barevných tlačítek uživatelských nabídek
 menu.hint_pictureviewer_defdir Výchozí adresář prohlížeče obrázků
 menu.hint_pictureviewer_scaling Algoritmus měřítka obrázku
@@ -1305,7 +1305,7 @@ menu.hint_selected_back Změna barvy podkladu označené položky
 menu.hint_selected_text Změna barvy textu označené položky
 menu.hint_service Nastavení tuneru, vyhledání služeb, \nÚprava buketů, aktualizace software
 menu.hint_service_scan Nastavení tuneru, vyhledání služeb
-menu.hint_settings Konfigurace Neutrino-HD, síť, zvuk, obraz, OSD a jiné
+menu.hint_settings Konfigurace system, síť, zvuk, obraz, OSD a jiné
 menu.hint_show_mute_icon Zobrazení ikony umlčení, pokud nastavení hlasitosti bude 0
 menu.hint_shutdown Přepne váš příjmač do spánku \nBez potvrzování
 menu.hint_shutdown_count Čas přepnutí přijímače do spánku \nz režimu připravenosti
@@ -1314,7 +1314,7 @@ menu.hint_shutdown_rcdelay Použije režim spánku, pokud tlačítko zapnutí \n
 menu.hint_shutdown_real Použije režim připravenosti \nPokud se nepoužije, tlačítko zapnutí přepne příjmač do spánku
 menu.hint_sleeptimer Nastavení časovače pro přechod vašeho příjmače \ndo režimu připravenosti
 menu.hint_sleeptimer_min Přednastavené nastavení pro časovač vypnutí
-menu.hint_soft_restart Restartování Neutrino-HD bez rebootu
+menu.hint_soft_restart Restartování GUI bez rebootu
 menu.hint_softupdate_check Kontrola dostupných aktualizací, stažení a naprogramování firmware
 menu.hint_softupdate_check_local Výběr a programování firmware z lokálního souboru
 menu.hint_softupdate_createimage_menu Zálohování aktuálního firmware včetně všech nastavení

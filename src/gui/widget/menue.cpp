@@ -1243,7 +1243,7 @@ void CMenuWidget::paint()
 	// paint head
 	if (header == NULL){
 		header = new CComponentsHeader(x, y, width + sb_width, hheight, getName(), iconfile);
-		header->enableShadow(CC_SHADOW_RIGHT);
+		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setOffset(10);
 	}
 	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);

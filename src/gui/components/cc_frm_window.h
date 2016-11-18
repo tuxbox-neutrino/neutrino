@@ -89,6 +89,8 @@ class CComponentsWindow : public CComponentsForm
 		fb_pixel_t ccw_col_head_text;
 		///footer bg color
 		fb_pixel_t ccw_col_footer;
+		///footer heigh, default defined by footer object itself
+		int ccw_h_footer;
 		///footer button font
 		Font*	ccw_button_font;
 
@@ -222,6 +224,11 @@ class CComponentsWindow : public CComponentsForm
 
 		///paint all window items, this overwriting paint() from CComponentsForm
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+		///adds additional exec key to current collection, default exit keys are CRCInput::RC_home and CRCInput::RC_setup
+		virtual void addExitKey(const neutrino_msg_t& key){getBodyObject()->addExitKey(key);}
+		///remove all current exec keys from current collection, NOTE: use addExitKey() if new exec key is required
+		virtual void removeExitKeys(){getBodyObject()->removeExitKeys();}
 };
 
 class CComponentsWindowMax : public CComponentsWindow

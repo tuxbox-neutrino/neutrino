@@ -45,7 +45,7 @@
 #include <gui/color.h>
 #include <gui/movieplayer.h>
 #include <gui/components/cc.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/infoclock.h>
 #include <gui/upnpbrowser.h>
@@ -254,13 +254,13 @@ bool CUpnpBrowserGui::discoverDevices()
 	catch (std::runtime_error error)
 	{
 		delete scanBox;
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, error.what(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		DisplayErrorMessage(error.what());
 		return false;
 	}
 	delete scanBox;
 	if (m_devices.empty())
 	{
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_UPNPBROWSER_NOSERVERS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		DisplayInfoMessage(g_Locale->getText(LOCALE_UPNPBROWSER_NOSERVERS));
 		return false;
 	}
 	return true;
@@ -288,7 +288,7 @@ bool CUpnpBrowserGui::getResults(std::string id, unsigned int start, unsigned in
 	}
 	catch (std::runtime_error error)
 	{
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, error.what(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		DisplayErrorMessage(error.what());
 		return false;
 	}
 	return true;
@@ -989,7 +989,7 @@ void CUpnpBrowserGui::paintDevices()
 
 	// Head
 	CComponentsHeaderLocalized header(m_x, m_header_y, m_width, m_header_height, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
-	header.enableShadow(CC_SHADOW_RIGHT, -1, true);
+	header.enableShadow( CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	if (CNeutrinoApp::getInstance()->isMuted()) //TODO: consider mute mode on runtime
 		header.addContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 	else

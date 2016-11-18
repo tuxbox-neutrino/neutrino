@@ -30,7 +30,7 @@
 #include <string>
 #include <driver/neutrinofonts.h>
 #include <gui/buildinfo.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <system/helpers.h>
 
 using namespace std;
