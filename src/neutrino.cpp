@@ -2039,12 +2039,15 @@ TIMER_START();
 	g_PicViewer = new CPictureViewer();
 	CColorSetupNotifier::setPalette();
 
-	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+	char start_text [100];
+	snprintf(start_text, sizeof(start_text), g_Locale->getText(LOCALE_NEUTRINO_STARTING), PACKAGE_NAME, PACKAGE_VERSION );
+	start_text[99] = '\0';
+	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, start_text);
 	hintBox->paint();
 
 	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
-	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+	CVFD::getInstance()->ShowText(start_text);
 	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 
 	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE))

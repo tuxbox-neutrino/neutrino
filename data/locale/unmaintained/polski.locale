@@ -1082,7 +1082,7 @@ menu.hint_leds_deepstandby LEDs state in deeps-standby mode
 menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
-menu.hint_load Load Neutrino-HD GUI settings from file
+menu.hint_load Load settings from file
 menu.hint_longkeypress_duration A key press will be considered as "long key press" if it's pressed longer than the specified time.
 menu.hint_lua Pluginy Lua
 menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
@@ -1152,7 +1152,7 @@ menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
 menu.hint_parentallock_menu Lock menus with pin code
-menu.hint_parentallock_prompt Configure when Neutrino-HD will ask you\nfor PIN code
+menu.hint_parentallock_prompt Configure when system will ask you\nfor PIN code
 menu.hint_personalize Enable, disable or Protect menu items\nConfigure color-buttons user menus
 menu.hint_pictureviewer_defdir Default picture viewer directory
 menu.hint_pictureviewer_scaling Picture scaling algorithm
@@ -1210,12 +1210,12 @@ menu.hint_record_zap_pre_time For ZapTo timers, switch channel\nbefore event sta
 menu.hint_recording Recording and timeshift options\nTimers safety, audio pids options
 menu.hint_reload_channels Reload channels from flash
 menu.hint_reload_plugins Reload plugins from flash
-menu.hint_reset Reset Neutrino-HD GUI settings to defaults\nTuner config and channels not affected
+menu.hint_reset Reset GUI settings to defaults\nTuner config and channels not affected
 menu.hint_restore Restore files from selected backup
 menu.hint_rotor_swap Swap rotor east/west directions\nin motor control
 menu.hint_rounded_corners Draw round or rectangular windows corners 
 menu.hint_save_settings Save all settings to flash
-menu.hint_saveas Save Neutrino-HD GUI settings to file
+menu.hint_saveas Save GUI settings to file
 menu.hint_scan_auto Auto-scan selected provider
 menu.hint_scan_autoall Scan several selected providers at once
 menu.hint_scan_autoall_select Add selected satellites to scan
@@ -1306,7 +1306,7 @@ menu.hint_selected_back Change selected item background color
 menu.hint_selected_text Change selected item text color
 menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
 menu.hint_service_scan Auto / manual service scan
-menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
+menu.hint_settings Configure system\nNetwork, audio, video, OSD and more
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
@@ -1315,7 +1315,7 @@ menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more th
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
 menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_sleeptimer_min Default setting for sleeptimer
-menu.hint_soft_restart Restart Neutrino-HD without reboot
+menu.hint_soft_restart Restart GUI without reboot
 menu.hint_softupdate_check Check online update, download and flash firmware
 menu.hint_softupdate_check_local Select and flash firmware from local file
 menu.hint_softupdate_createimage_menu Backup of current software, including all settings
