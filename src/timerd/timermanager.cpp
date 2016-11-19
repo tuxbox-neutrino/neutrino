@@ -1332,6 +1332,9 @@ void CTimerEvent_Record::Refresh()
 //------------------------------------------------------------
 bool CTimerEvent_Record::adjustToCurrentEPG()
 {
+	if (!(access(CONFIGDIR"/.adjust", F_OK) == 0))
+		return false;
+
 	if (!autoAdjustToEPG)
 		return false;
 
