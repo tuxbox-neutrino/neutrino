@@ -578,15 +578,14 @@ void CNetworkSetup::applyNetworkSettings()
 	if (!checkForIP())
 		return;
 
-	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS)); // UTF-8
-	hintBox->paint();
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS)); // UTF-8
+	hintBox.paint();
 
  	networkConfig->stopNetwork();
 	saveNetworkSettings();
  	networkConfig->startNetwork();
 
-	hintBox->hide();
-	delete hintBox;
+	hintBox.hide();
 }
 
 //open a message dialog with buttons,
