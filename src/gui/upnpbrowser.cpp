@@ -245,19 +245,19 @@ bool CUpnpBrowserGui::discoverDevices()
 	if (!m_devices.empty())
 		return true;
 
-	CHintBox *scanBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_UPNPBROWSER_SCANNING)); // UTF-8
-	scanBox->paint();
+	CHintBox hintbox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_UPNPBROWSER_SCANNING)); // UTF-8
+	hintbox.paint();
 
 	try {
 		m_devices = m_socket->Discover("urn:schemas-upnp-org:service:ContentDirectory:1");
 	}
 	catch (std::runtime_error error)
 	{
-		delete scanBox;
+		hintbox.hide();
 		DisplayErrorMessage(error.what());
 		return false;
 	}
-	delete scanBox;
+	hintbox.hide();
 	if (m_devices.empty())
 	{
 		DisplayInfoMessage(g_Locale->getText(LOCALE_UPNPBROWSER_NOSERVERS));
