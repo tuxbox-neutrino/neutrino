@@ -127,14 +127,13 @@ int CFavorites::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 #endif
 
-	CHintBox* hintBox = new CHintBox(LOCALE_FAVORITES_BOUQUETNAME, g_Locale->getText(LOCALE_FAVORITES_ADDCHANNEL), 380); // UTF-8
+	CHintBox hintBox(LOCALE_FAVORITES_BOUQUETNAME, g_Locale->getText(LOCALE_FAVORITES_ADDCHANNEL), 380); // UTF-8
 	if(!show_list)
-		hintBox->paint();
+		hintBox.paint();
 
 	status = addChannelToFavorites(show_list);
 
-	hintBox->hide();
-	delete hintBox;
+	hintBox.hide();
 
 	// -- Display result
 
