@@ -280,6 +280,7 @@ struct SNeutrinoSettings
 	int epg_save_standby;
 	int epg_save_frequently;
 	int epg_read;
+	int epg_read_frequently;
 	int epg_cache;
 	int epg_old_events;
 	int epg_max_events;

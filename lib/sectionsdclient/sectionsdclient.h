@@ -163,6 +163,7 @@ class CSectionsdClient : private CBasicClient
 		int epg_extendedcache;
 		std::string network_ntpserver;
 		int epg_save_frequently;
+		int epg_read_frequently;
 		std::string epg_dir;
 	} epg_config;
 
