@@ -345,7 +345,12 @@ void CComponentsFooter::enableButtonBg(bool enable)
 	}
 }
 
-void CComponentsFooter::setSelectedButton(size_t item_id, const fb_pixel_t& fr_col, const fb_pixel_t& sel_fr_col, const fb_pixel_t& bg_col, const fb_pixel_t& sel_bg_col, const fb_pixel_t& text_col, const fb_pixel_t& sel_text_col)
+void CComponentsFooter::setSelectedButton(size_t item_id,
+						const fb_pixel_t& fr_col, const fb_pixel_t& sel_fr_col,
+						const fb_pixel_t& bg_col, const fb_pixel_t& sel_bg_col,
+						const fb_pixel_t& text_col, const fb_pixel_t& sel_text_col,
+						const int& frame_width,
+						const int& sel_frame_width)
 {
 	if (chain){
 		for (size_t i= 0; i< chain->size(); i++){
@@ -355,7 +360,7 @@ void CComponentsFooter::setSelectedButton(size_t item_id, const fb_pixel_t& fr_c
 		fb_pixel_t sel_col = fr_col;
 		if (chain->size() > 1)
 			sel_col = sel_fr_col; //TODO: make it configurable
-		chain->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, 1, 2);
+		chain->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
 
 		if (chain->size() > 1)
 			getSelectedButtonObject()->setButtonTextColor(sel_text_col);

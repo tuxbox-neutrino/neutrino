@@ -152,6 +152,10 @@ class CComponentsFooter : public CComponentsHeader
 		* 	@li 	optional: exepts type fb_pixel_t, as default text color
 		* @param[in]	sel_text_col
 		* 	@li 	optional: exepts type fb_pixel_t, as selected text color
+		* @param[in]	frame_width
+		* 	@li 	optional: exepts type int, default = 1
+		* @param[in]	sel_frame_width
+		* 	@li 	optional: exepts type int, default = 2
 		*/
 		void setSelectedButton(size_t item_id,
 					const fb_pixel_t& fr_col 	= COL_MENUCONTENTSELECTED_PLUS_2,
@@ -159,7 +163,9 @@ class CComponentsFooter : public CComponentsHeader
 					const fb_pixel_t& bg_col 	= COL_MENUFOOT_PLUS_0, /*TODO disabled at the moment, without effect*/
 					const fb_pixel_t& sel_bg_col 	= COL_MENUCONTENTSELECTED_PLUS_2, /*TODO disabled at the moment, without effect*/
 					const fb_pixel_t& text_col 	= COL_MENUCONTENTDARK_TEXT_PLUS_2,
-					const fb_pixel_t& sel_text_col 	= COL_MENUCONTENT_TEXT);
+					const fb_pixel_t& sel_text_col 	= COL_MENUCONTENT_TEXT,
+					const int& frame_width 		= 1,
+					const int& sel_frame_width 	= 2);
 		///returns id of select button, return value as int, -1 = nothing is selected
 		int getSelectedButton();
 		///returns selected button object, return value as pointer to object, NULL means nothing is selected
