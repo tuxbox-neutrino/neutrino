@@ -336,8 +336,8 @@ bool CHDDMenuHandler::waitfordev(std::string dev, int maxwait)
 
 void CHDDMenuHandler::showHint(std::string &message)
 {
-	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, message.c_str());
-	hintBox->paint();
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, message.c_str());
+	hintBox.paint();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(3);
         neutrino_msg_t      msg;
@@ -355,7 +355,7 @@ void CHDDMenuHandler::showHint(std::string &message)
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 			break;
 	}
-	delete hintBox;
+	hintBox.hide();
 }
 
 void CHDDMenuHandler::setRecordPath(std::string &dev)
@@ -482,8 +482,8 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 	if (actionkey[0] == 'm') {
 		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
 			if (it->devname == dev) {
-				CHintBox * hintbox = new CHintBox(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT, it->devname.c_str());
-				hintbox->paint();
+				CHintBox hintbox(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT, it->devname.c_str());
+				hintbox.paint();
 				if  (it->mounted)
 					umount_dev(it->devname);
 				else
@@ -491,7 +491,7 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 
 				it->mounted = is_mounted(it->devname.c_str());
 				it->cmf->setOption(it->mounted ? umount : mount);
-				delete hintbox;
+				hintbox.hide();
 				return menu_return::RETURN_REPAINT;
 			}
 		}
