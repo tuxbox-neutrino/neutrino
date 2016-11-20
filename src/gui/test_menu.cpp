@@ -419,6 +419,32 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			pic->hide();
 		return res;
 	}
+	else if (actionKey == "blink"){
+		if (sq == NULL)
+			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
+
+		if (sq->paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking square is running ...", 700, 6);
+		}
+		if (sq->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking square stopped ...", 700, 2);
+		}
+
+		return res;
+	}
+	else if (actionKey == "blink_image"){
+		if (pic == NULL)
+			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/btn_play.png");
+
+		if (pic->paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
+		}
+		if (pic->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
+		}
+
+		return res;
+	}
 	else if (actionKey == "channellogo"){
 		if (chnl_pic == NULL)
 			chnl_pic = new CComponentsChannelLogo(100, 100, "ProSieben", 0);
@@ -478,6 +504,23 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			txt->hide();
 		else
 			txt->paint();
+
+		return res;
+	}
+	else if (actionKey == "blinking_text"){
+		if (txt == NULL){
+			txt = new CComponentsText();
+			txt->setDimensionsAll(100, 100, 250, 100);
+			txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
+		}
+
+		if (txt->paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking text is running ...", 700, 10);
+		}
+		if (txt->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking text stopped ...", 700, 2);
+		}
+
 		return res;
 	}
 	else if (actionKey == "text_ext"){
@@ -492,6 +535,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			text_ext->hide();
 		else
 			text_ext->paint();
+		return res;
+	}
+	else if (actionKey == "blinking_text_ext"){
+		if (text_ext == NULL){
+			text_ext = new CComponentsExtTextForm();
+			text_ext->setDimensionsAll(10, 20, 300, 48);
+			text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+			text_ext->setFrameThickness(2);
+	// 		text_ext->setLabelWidthPercent(15/*%*/);
+			text_ext->paint0();
+			static_cast<CComponentsText*>(text_ext->getCCItem(1))->kill();
+		}
+
+		if (static_cast<CComponentsText*>(text_ext->getCCItem(1))-> paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text is running ...", 700, 10);
+		}
+		if (text_ext->getTextObject()->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text stopped ...", 700, 2);
+		}
 		return res;
 	}
 	else if (actionKey == "header"){
@@ -599,40 +661,47 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "iconform"){
-		if (iconform == NULL)
+		if (iconform == NULL){
 			iconform = new CComponentsIconForm();
-		iconform->setColorBody(COL_LIGHT_GRAY);
-		iconform->setDimensionsAll(100, 100,80/*480*/, 80);
-		iconform->setFrameThickness(2);
-		iconform->setColorFrame(COL_WHITE);
-		iconform->setDirection(CC_DIR_X);
-		iconform->setAppendOffset(5, 5);
+			iconform->setColorBody(COL_LIGHT_GRAY);
+			iconform->setDimensionsAll(100, 100,80/*480*/, 80);
+			iconform->setFrameThickness(2);
+			iconform->setColorFrame(COL_WHITE);
+			iconform->setDirection(CC_DIR_X);
+			iconform->setAppendOffset(5, 5);
 
-		//For existing instances it's recommended
-		//to remove old items before add new icons, otherwise icons will be appended.
-		iconform->removeAllIcons();
+			//For existing instances it's recommended
+			//to remove old items before add new icons, otherwise icons will be appended.
+			iconform->removeAllIcons();
 
-		//you can...
-		//add icons step by step
-		iconform->addIcon(NEUTRINO_ICON_INFO);
-		iconform->addIcon(NEUTRINO_ICON_INFO);
-		iconform->addIcon(NEUTRINO_ICON_HINT_MEDIA);
-		//...or
-		//add icons with vector
-		std::vector<std::string> v_icons;
-		v_icons.push_back(NEUTRINO_ICON_HINT_VIDEO);
-		v_icons.push_back(NEUTRINO_ICON_HINT_AUDIO);
-		iconform->addIcon(v_icons);
+			//you can...
+			//add icons step by step
+			iconform->addIcon(NEUTRINO_ICON_INFO);
+			iconform->addIcon(NEUTRINO_ICON_INFO);
+			iconform->addIcon(NEUTRINO_ICON_HINT_MEDIA);
+			//...or
+			//add icons with vector
+			std::vector<std::string> v_icons;
+			v_icons.push_back(NEUTRINO_ICON_HINT_VIDEO);
+			v_icons.push_back(NEUTRINO_ICON_HINT_AUDIO);
+			iconform->addIcon(v_icons);
 
-		//insert any icon, here as first (index = 0...n)
-		iconform->insertIcon(0, NEUTRINO_ICON_HINT_APLAY);
-// 		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
-		
-		if (iconform->isPainted())
-			iconform->hide();
-		else{
+			//insert any icon, here as first (index = 0...n)
+			iconform->insertIcon(0, NEUTRINO_ICON_HINT_APLAY);
+	// 		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
 			iconform->paint();
 		}
+
+		CComponentsPicture* img = static_cast<CComponentsPicture*>(iconform->getCCItem(2));
+		img->kill();
+
+		if (img->paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
+		}
+		if (img->cancelBlink(true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
+		}
+
 		return res;
 	}
 	else if (actionKey == "window"){
@@ -894,15 +963,19 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Button", true, NULL, this, "button"));
 	widget->addItem(new CMenuForwarder("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarder("Square", true, NULL, this, "square"));
+	widget->addItem(new CMenuForwarder("Blinking-Square", true, NULL, this, "blink"));
+	widget->addItem(new CMenuForwarder("Blinking-Image", true, NULL, this, "blink_image"));
 	widget->addItem(new CMenuForwarder("Picture", true, NULL, this, "picture"));
 	widget->addItem(new CMenuForwarder("Channel-Logo", true, NULL, this, "channellogo"));
 	widget->addItem(new CMenuForwarder("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarder("Text", true, NULL, this, "text"));
+	widget->addItem(new CMenuForwarder("Blinking Text", true, NULL, this, "blinking_text"));
 	widget->addItem(new CMenuForwarder("Header", true, NULL, this, "header"));
 	widget->addItem(new CMenuForwarder("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarder("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarder("Window", true, NULL, this, "window"));
 	widget->addItem(new CMenuForwarder("Text-Extended", true, NULL, this, "text_ext"));
+	widget->addItem(new CMenuForwarder("Blinking Extended Text", true, NULL, this, "blinking_text_ext"));
 	widget->addItem(new CMenuForwarder("Scrollbar", true, NULL, this, "scrollbar"));
 }
 

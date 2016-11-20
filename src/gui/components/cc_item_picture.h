@@ -81,6 +81,9 @@ class CComponentsPicture : public CComponentsItem
 		///helper: indicate for reinit
 		bool need_init;
 
+		///paint item with changed paint and hide effect
+		void paintTrigger();
+
 		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const std::string& image_name,
 				CComponentsForm *parent,

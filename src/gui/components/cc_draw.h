@@ -27,6 +27,7 @@
 
 #include "cc_types.h"
 #include "cc_signals.h"
+#include "cc_timer.h"
 #include <driver/colorgradient.h>
 #include <driver/fade.h>
 #include <gui/color.h>
@@ -47,7 +48,14 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///object: framebuffer object, usable in all sub classes
 		CFrameBuffer * frameBuffer;
-		
+
+		///internal draw timer, used for effects
+		CComponentsTimer *cc_draw_timer;
+		///slot for timer event, reserved for cc_draw_timer
+		sigc::slot0<void> cc_draw_trigger_slot;
+		///paint item with trigger effect
+		virtual void paintTrigger();
+
 		///property: x-position on screen, to alter with setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
 		int x, x_old;
 		///property: y-position on screen, to alter setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
@@ -299,10 +307,40 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
-		///paint item, same like paint(CC_SAVE_SCREEN_YES) but without any argument
-		virtual void paint1(){paint(CC_SAVE_SCREEN_YES);}
 		///paint item, same like paint(CC_SAVE_SCREEN_NO) but without any argument
 		virtual void paint0(){paint(CC_SAVE_SCREEN_NO);}
+		///paint item, same like paint(CC_SAVE_SCREEN_YES) but without any argument
+		virtual void paint1(){paint(CC_SAVE_SCREEN_YES);}
+
+		/**paint item with blink effect
+		 * This should work with all cc item types.
+		 *
+		 * @return bool			returns true if effect is successful started
+		 *
+		 * @param[in] interval		optional, interval time as int, default =  1
+		 * @param[in] is_nano		optional, time mode as bool, default = false means as seconds, true means nano seconds.
+		 *
+		 * @see				take a look into test menu class for examples.
+		 * 				cancelBlink()
+		 *
+		 * 				NOTE: If you want to use enbedded items from a cc form (e.g. with gettCCItem(ID))
+		 * 				you must cast into current item type. e.g.:
+		 * 					CComponentsItemBla* item = static_cast<CComponentsItemBla*>(form->getCCItem(2));
+		 * 				and it's possible you must remove from screen before e.g.:
+		 * 					item->kill();
+		*/
+		virtual bool paintBlink(const int& interval = 1, bool is_nano = false);
+
+		/**Cancel blink effect
+		 *
+		 * @return bool			returns true if effect was successful canceled
+		 *
+		 * @param[in] keep_on_screen	optional, exepts bool, default = false. means: item is not repainted after canceled effect
+		 *
+		 * @see				take a look into test menu class for examples
+		 * 				NOTE: Effect must be started with paintBlink()
+		*/
+		bool cancelBlink(bool keep_on_screen = false);
 
 		///signal on before paint fb layers, called inside paintFbItems()
 		sigc::signal<void> OnBeforePaintLayers;

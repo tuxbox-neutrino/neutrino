@@ -349,6 +349,15 @@ bool CComponentsPicture::hasChanges()
 	return ret;
 }
 
+void CComponentsPicture::paintTrigger()
+{
+	if (!is_painted  && !isPicPainted())
+		paint1();
+	else
+		hide();
+}
+
+
 CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
 						const std::string& channelName,
 						const uint64_t& channelId,

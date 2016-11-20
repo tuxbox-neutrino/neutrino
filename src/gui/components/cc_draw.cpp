@@ -32,6 +32,7 @@
 CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 {
 	frameBuffer 		= CFrameBuffer::getInstance();
+
 	x = cc_xr = x_old	= 0;
 	y = cc_yr = y_old	= 0;
 	height	= height_old	= CC_HEIGHT_MIN;
@@ -70,6 +71,9 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	cc_body_gradient_saturation 				= 0xC0;
 	cc_body_gradient_direction = cc_body_gradient_direction_old	= CFrameBuffer::gradientVertical;
 
+	cc_draw_timer		= NULL;
+	cc_draw_trigger_slot 	= sigc::mem_fun0(*this, &CCDraw::paintTrigger);
+
 	cc_gradient_bg_cleanup = true;
 
 	v_fbdata.clear();
@@ -77,6 +81,9 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 
 CCDraw::~CCDraw()
 {
+	if(cc_draw_timer){
+		delete cc_draw_timer; cc_draw_timer = NULL;
+	}
 	clearFbData();
 }
 
@@ -718,3 +725,42 @@ void CCDraw::enableShadow(int mode, const int& shadow_width, bool force_paint)
 	shadow_force = force_paint;
 }
 
+void CCDraw::paintTrigger()
+{
+	if (!is_painted)
+		paint1();
+	else
+		hide();
+}
+
+bool CCDraw::paintBlink(const int& interval, bool is_nano)
+{
+	if (cc_draw_timer == NULL){
+		cc_draw_timer = new CComponentsTimer(interval, is_nano);
+		if (cc_draw_timer->OnTimer.empty()){
+			cc_draw_timer->OnTimer.connect(cc_draw_trigger_slot);
+		}
+	}
+	if (cc_draw_timer)
+		return cc_draw_timer->isRun();
+
+	return false;
+}
+
+bool CCDraw::cancelBlink(bool keep_on_screen)
+{
+	bool res = false;
+
+	if (cc_draw_timer){
+		res = cc_draw_timer->stopTimer();
+		delete cc_draw_timer; cc_draw_timer = NULL;
+	}
+
+	if(keep_on_screen)
+		paint1();
+	else
+		hide();
+		
+
+	return res;
+}
