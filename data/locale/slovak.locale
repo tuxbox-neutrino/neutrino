@@ -703,6 +703,7 @@ fontmenu.eventlist Programový sprievodca
 fontmenu.head Nastavenie písma
 fontmenu.infobar Informačná lišta
 fontmenu.menu Menu
+fontmenu.messages Messages
 fontmenu.moviebrowser Prehliadač filmov
 fontmenu.other Iné
 fontmenu.scaling Faktor zoomu globálneho fontu
@@ -732,6 +733,7 @@ fontsize.infobar_info Informácia na informačnej lište
 fontsize.infobar_ng_ecminfo ECM Informácia
 fontsize.infobar_number Kanál na informačnej lište
 fontsize.menu Text menu
+fontsize.message_text Messagwe Text
 fontsize.menu_foot Päta (vo všetkých grafických elementoch)
 fontsize.menu_hint Popis menu
 fontsize.menu_info Informačné menu
@@ -1183,6 +1185,7 @@ menu.hint_menu_fonts Zmena veľkosti písma menu
 menu.hint_menu_hints Zobrazí túto nápovedu. Taktiež môžno kedykoľvek zmeniť použitím tlačidla ´HELP´.
 menu.hint_menu_pos Výber umiestnenia menu
 menu.hint_menus Konfigurácia volieb ponuky
+menu.hint_message_fonts Change message text font sizes
 menu.hint_misc_cec HDMI-CEC voľby
 menu.hint_misc_channellist HD/Nové/Odstránené zoznamy kanálov, cyklické prepnutie
 menu.hint_misc_energy Použitie pohotovostného režimu, oneskorené vypnutie\nčasovače neaktivity

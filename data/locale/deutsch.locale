@@ -703,6 +703,7 @@ fontmenu.eventlist Event-Liste
 fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
+fontmenu.messages Meldungen
 fontmenu.moviebrowser Moviebrowser
 fontmenu.other Andere
 fontmenu.scaling Schriftgrößenfaktor
@@ -736,6 +737,7 @@ fontsize.menu_foot Fußleiste (in allen Fenstern)
 fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
+fontsize.message_text Meldungstext
 fontsize.moviebrowser_head Überschriften
 fontsize.moviebrowser_info Info-Fenster
 fontsize.moviebrowser_list Listen-Einträge
@@ -1183,6 +1185,7 @@ menu.hint_menu_fonts Ändern Sie die Schriftgrößen im Menü
 menu.hint_menu_hints Zeigt Ihnen Hinweise zu den Menüpunkten an. Sie erreichen das auch jederzeit mit der Taste 'Hilfe'
 menu.hint_menu_pos Legen Sie die Anzeigeposition der Menüs fest
 menu.hint_menus Wählen Sie die Anzeigeoptionen für die Menüs
+menu.hint_message_fonts Anpassen der Schrift in Meldungsfenstern
 menu.hint_misc_cec HDMI-CEC Optionen
 menu.hint_misc_channellist Erweiterte Einstellungen für die Kanallisten und Zapping-Einstellungen
 menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Ausschalten, setzen bzw. ändern des Inaktivitätstimers

@@ -657,6 +657,7 @@ fontmenu.eventlist Programmalijst
 fontmenu.head Lettertype instellingen
 fontmenu.infobar Informatiebalk
 fontmenu.menu Menu
+fontmenu.messages Messages
 fontmenu.other Andere
 fontmenu.scaling Globale lettertype Zoom Factor
 fontmenu.scaling_x Horizontaal (in %)
@@ -685,6 +686,7 @@ fontsize.infobar_info Info
 fontsize.infobar_number Nummer
 fontsize.infobar_small Klein
 fontsize.menu Menu tekst
+fontsize.message_text Messag Text
 fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Titel
@@ -1095,6 +1097,7 @@ menu.hint_menu_fonts Lettertype grote van menu's aanpassen
 menu.hint_menu_hints Hints weergeven Show this hints. U kunt tevens gebruik maken van de 'help' toets.
 menu.hint_menu_pos Selecteer menu positie
 menu.hint_menus Configureer menu opties
+menu.hint_message_fonts Change message text font sizes
 menu.hint_misc_cec HDMI-CEC Opties
 menu.hint_misc_channellist HD/Nieuw/Verwijderde kanalen lijst \nZap cyclus
 menu.hint_misc_energy Softstandby, uitgesteld uitschakelen en inactiviteit timers inschakelen

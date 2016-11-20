@@ -703,6 +703,7 @@ fontmenu.eventlist Eventlist
 fontmenu.head Font settings
 fontmenu.infobar Infobar
 fontmenu.menu Menu
+fontmenu.messages Messages
 fontmenu.moviebrowser Moviebrowser
 fontmenu.other Other
 fontmenu.scaling Global Font Zoom Factor
@@ -736,6 +737,7 @@ fontsize.menu_foot Footer (in all GUI elements)
 fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
+fontsize.message_text Message Text
 fontsize.moviebrowser_head Headers
 fontsize.moviebrowser_info Info window
 fontsize.moviebrowser_list List items
@@ -1183,6 +1185,7 @@ menu.hint_menu_fonts Change menu font sizes
 menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button
 menu.hint_menu_pos Select menu position
 menu.hint_menus Configure menu options
+menu.hint_message_fonts Change message text font sizes
 menu.hint_misc_cec HDMI-CEC Options
 menu.hint_misc_channellist HD/New/Removed channel lists\nZap cycle
 menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers

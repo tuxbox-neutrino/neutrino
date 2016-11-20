@@ -36,7 +36,7 @@
 #include "hintbox.h"
 #include <system/debug.h>
 
-
+#define MSG_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT]
 
 /**
         x                             width                                ccw_head [relevant for CHintBox, CMsgBox. not enabled in CHint class]
@@ -132,7 +132,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	timeout		= HINTBOX_DEFAULT_TIMEOUT;
 	w_indentation	= indent;
 
-	hb_font		= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO];
+	hb_font		= MSG_FONT;
 
 	//enable shadow
 	shadow = true;
@@ -321,7 +321,7 @@ void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const in
 	CComponentsInfoBox	*obj_text = static_cast<CComponentsInfoBox*>(ccw_body->getCCItem(id));
 
 	//set required font and line size
-	Font* font = font_text == NULL ? g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO] : font_text;
+	Font* font = font_text == NULL ? MSG_FONT : font_text;
 	if (obj_text)
 		obj_text->setText(Text, mode, font, color_text, style);
 }
