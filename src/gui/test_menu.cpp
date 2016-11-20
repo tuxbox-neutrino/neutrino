@@ -494,6 +494,39 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			form->paint();
 		return res;
 	}
+	else if (actionKey == "form_blink_item"){
+		if (form == NULL){
+			form = new CComponentsForm();
+			form->setColorBody(COL_DARK_GRAY);
+			form->setDimensionsAll(100, 100, 250, 100);
+			form->setFrameThickness(2);
+			form->setColorFrame(COL_WHITE);
+			//form->doPaintBg(false);
+
+			CComponentsPicture *ptmp = new CComponentsPicture(10, 10, NEUTRINO_ICON_HINT_INFO);
+			ptmp->doPaintBg(false);
+			ptmp->SetTransparent(CFrameBuffer::TM_BLACK);
+			form->addCCItem(ptmp);
+
+			CComponentsText *text = new CComponentsText(80, 30, 100, 50, "Info");
+			text->doPaintBg(false);
+			form->addCCItem(text);
+
+			form->paint0();
+			ptmp->kill();
+		}
+
+		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image ...", 700, 10);
+		}
+		if (form->getCCItem(0)->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image stopped ...", 700, 2);
+		}
+
+		form->kill();
+		delete form; form = NULL;
+		return res;
+	}
 	else if (actionKey == "text"){
 		if (txt == NULL)
 			txt = new CComponentsText();
@@ -968,6 +1001,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Picture", true, NULL, this, "picture"));
 	widget->addItem(new CMenuForwarder("Channel-Logo", true, NULL, this, "channellogo"));
 	widget->addItem(new CMenuForwarder("Form", true, NULL, this, "form"));
+	widget->addItem(new CMenuForwarder("Form with blinking item", true, NULL, this, "form_blink_item"));
 	widget->addItem(new CMenuForwarder("Text", true, NULL, this, "text"));
 	widget->addItem(new CMenuForwarder("Blinking Text", true, NULL, this, "blinking_text"));
 	widget->addItem(new CMenuForwarder("Header", true, NULL, this, "header"));
