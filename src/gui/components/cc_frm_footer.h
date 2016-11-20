@@ -165,7 +165,7 @@ class CComponentsFooter : public CComponentsHeader
 					const fb_pixel_t& text_col 	= COL_MENUCONTENTDARK_TEXT_PLUS_2,
 					const fb_pixel_t& sel_text_col 	= COL_MENUCONTENT_TEXT,
 					const int& frame_width 		= 1,
-					const int& sel_frame_width 	= 2);
+					const int& sel_frame_width 	= 1);
 		///returns id of select button, return value as int, -1 = nothing is selected
 		int getSelectedButton();
 		///returns selected button object, return value as pointer to object, NULL means nothing is selected
