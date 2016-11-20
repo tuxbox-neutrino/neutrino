@@ -1488,11 +1488,11 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 
 int CScanSetup::showFastscanDiseqcSetup()
 {
-	CHintBox * hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC_WAIT));
-	hintbox->paint();
+	CHintBox hintbox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC_WAIT));
+	hintbox.paint();
 
 	CServiceScan::getInstance()->TestDiseqcConfig(scansettings.fast_op);
-	delete hintbox;
+	hintbox.hide();
 
 	CMenuWidget * sat_setup = new CMenuWidget(LOCALE_SATSETUP_DISEQC_INPUT, NEUTRINO_ICON_SETTINGS, width);
 	sat_setup->addIntroItems();
