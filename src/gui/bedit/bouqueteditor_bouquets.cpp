@@ -502,18 +502,16 @@ std::string CBEBouquetWidget::inputName(const char * const defaultName, const ne
 
 void CBEBouquetWidget::saveChanges()
 {
-	CHintBox* hintBox= new CHintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVINGCHANGES), 480); // UTF-8
-	hintBox->paint();
+	CHintBox hintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVINGCHANGES), 480); // UTF-8
+	hintBox.paint();
 	g_Zapit->saveBouquets();
-	hintBox->hide();
-	delete hintBox;
+	hintBox.hide();
 }
 
 void CBEBouquetWidget::discardChanges()
 {
-	CHintBox* hintBox= new CHintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_DISCARDINGCHANGES), 480); // UTF-8
-	hintBox->paint();
+	CHintBox hintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_DISCARDINGCHANGES), 480); // UTF-8
+	hintBox.paint();
 	g_Zapit->restoreBouquets();
-	hintBox->hide();
-	delete hintBox;
+	hintBox.hide();
 }
