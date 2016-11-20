@@ -829,11 +829,11 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 		bool onefile = (actionKey == "copy_onefile");
 		if ((show_mode == MB_SHOW_RECORDS) && (ShowMsg(LOCALE_MESSAGEBOX_INFO, onefile ? LOCALE_MOVIEBROWSER_COPY : LOCALE_MOVIEBROWSER_COPIES, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes))
 		{
-			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_COPYING);
-			hintBox->paint();
-			sleep(1);
-			hintBox->hide();
-			delete hintBox;
+			CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_COPYING);
+			hintBox.paint();
+			sleep(1); //???
+			hintBox.hide();
+
 			framebuffer->paintBackground(); // clear screen
 			CMovieCut mc;
 			bool res = mc.copyMovie(m_movieSelectionHandler, onefile);
@@ -854,11 +854,11 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 #endif
 		if ((show_mode == MB_SHOW_RECORDS) && (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUT, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes))
 		{
-			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUTTING);
-			hintBox->paint();
-			sleep(1);
-			hintBox->hide();
-			delete hintBox;
+			CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUTTING);
+			hintBox.paint();
+			sleep(1); //???
+			hintBox.hide();
+
 			framebuffer->paintBackground(); // clear screen
 			CMovieCut mc;
 			bool res = mc.cutMovie(m_movieSelectionHandler);
@@ -882,12 +882,12 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			{
 				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATE, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes)
 				{
-					CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATING);
-					hintBox->paint();
+					CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATING);
+					hintBox.paint();
 					CMovieCut mc;
 					bool res = mc.truncateMovie(m_movieSelectionHandler);
-					hintBox->hide();
-					delete hintBox;
+					hintBox.hide();
+
 					g_RCInput->clearRCMsg();
 					if (!res)
 						ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED, CMsgBox::mbrCancel, CMsgBox::mbCancel, NEUTRINO_ICON_ERROR);
@@ -1014,7 +1014,7 @@ int CMovieBrowser::exec(const char* path)
 					snprintf(buf, sizeof(buf), format, m_movieSelectionHandler->file.Name.c_str());
 					CHintBox hintBox(LOCALE_MOVIEBROWSER_YT_CACHE, buf);
 					hintBox.paint();
-					sleep(1);
+					sleep(1); //???
 					hintBox.hide();
 				}
 			}
@@ -2408,8 +2408,8 @@ bool CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 	std::string msg = formatDeleteMsg(movieinfo, msgFont, msgBoxWidth);
 	if ((skipAsk || !movieinfo->delAsk) || (ShowMsg(LOCALE_FILEBROWSER_DELETE, msg, CMsgBox::mbrYes, CMsgBox::mbYes|CMsgBox::mbNo, NULL, msgBoxWidth)==CMsgBox::mbrYes))
 	{
-		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MOVIEBROWSER_DELETE_INFO));
-		hintBox->paint();
+		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MOVIEBROWSER_DELETE_INFO));
+		hintBox.paint();
 		delFile(movieinfo->file);
 
 		std::string cover_file = getScreenshotName(movieinfo->file.Name, S_ISDIR(movieinfo->file.Mode));
@@ -2420,7 +2420,7 @@ bool CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 		if (m_movieInfo.convertTs2XmlName(file_xml.Name))
 			unlink(file_xml.Name.c_str());
 
-		delete hintBox;
+		hintBox.hide();
 		g_RCInput->clearRCMsg();
 
 		TRACE("List size: %d\n", (int)m_vMovieInfo.size());
@@ -3923,7 +3923,7 @@ int CYTCacheSelectorTarget::exec(CMenuTarget* /*parent*/, const std::string & ac
 			snprintf(buf, sizeof(buf), format, movieBrowser->yt_failed[selected - movieBrowser->yt_failed_offset].file.Name.c_str());
 			CHintBox hintBox(LOCALE_MOVIEBROWSER_YT_CACHE, buf);
 			hintBox.paint();
-			sleep(1);
+			sleep(1); //???
 			hintBox.hide();
 		}
 	} else
