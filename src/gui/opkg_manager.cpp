@@ -491,10 +491,10 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 
 int COPKGManager::doUpdate()
 {
-	CHintBox *hb = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_UPDATE_CHECK);
-	hb->paint();
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_UPDATE_CHECK);
+	hintBox.paint();
 	int r = execCmd(pkg_types[OM_UPDATE], CShellWindow::QUIET);
-	delete hb;
+	hintBox.hide();
 	if (r) {
 		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
 		msg += '\n' + tmp_str;
