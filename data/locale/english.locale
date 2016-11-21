@@ -896,10 +896,10 @@ ledcontroler.mode.deepstandby Deep Standby
 ledcontroler.mode.record Blinke in Record
 ledcontroler.mode.standby Standby
 ledcontroler.mode.tv TV Mode
-ledcontroler.off Led1 and Led2 off
-ledcontroler.on.all Led1 and Led2 on
-ledcontroler.on.led1 Led1 on
-ledcontroler.on.led2 Led2 on
+ledcontroler.off LED1 and LED2 off
+ledcontroler.on.all LED1 and LED2 on
+ledcontroler.on.led1 LED1 on
+ledcontroler.on.led2 LED2 on
 livestream.head Live streams
 livestream.read_data Read data ...
 livestream.resolution Resolution
@@ -1165,7 +1165,7 @@ menu.hint_language OSD language, timezone\nPreffered audio and subtitles languag
 menu.hint_last_radio Start box on selected channel\nif last mode is Radio
 menu.hint_last_tv Start box on selected channel\nif last mode is TV
 menu.hint_last_use Start box on last used channel
-menu.hint_leds_blink Blink LEDS in deep-standby
+menu.hint_leds_blink Blinking LEDs in deep-standby
 menu.hint_leds_deepstandby LEDs state in deeps-standby mode
 menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
