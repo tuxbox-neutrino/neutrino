@@ -80,7 +80,7 @@ GENRE.SHOW.1 Gameshow/Quiz
 GENRE.SHOW.2 Varietee
 GENRE.SHOW.3 Talkshow
 GENRE.SOCIAL_POLITICAL Sozial
-GENRE.SOCIAL_POLITICAL.0 Sozial & Politikereignisse/Wirtschaft
+GENRE.SOCIAL_POLITICAL.0 Sozial und Politikereignisse/Wirtschaft
 GENRE.SOCIAL_POLITICAL.1 Magazin/Report/Dokumentation
 GENRE.SOCIAL_POLITICAL.2 Wirtschaft und Soziales
 GENRE.SOCIAL_POLITICAL.3 Besondere Menschen
@@ -98,7 +98,7 @@ GENRE.SPORTS.7 Motorsport
 GENRE.SPORTS.8 Wassersport
 GENRE.SPORTS.9 Wintersport
 GENRE.TRAVEL_HOBBIES Freizeit
-GENRE.TRAVEL_HOBBIES.0 Reise & Freizeit
+GENRE.TRAVEL_HOBBIES.0 Reise und Freizeit
 GENRE.TRAVEL_HOBBIES.1 Reisen und Tourismus
 GENRE.TRAVEL_HOBBIES.2 Handwerk
 GENRE.TRAVEL_HOBBIES.3 Motor
@@ -896,8 +896,8 @@ ledcontroler.mode.deepstandby Deep-Standby
 ledcontroler.mode.record Blinke bei Aufnahme
 ledcontroler.mode.standby Standby
 ledcontroler.mode.tv TV Betrieb
-ledcontroler.off LED1 & LED2 aus
-ledcontroler.on.all LED1 & LED2 an
+ledcontroler.off LED1 und LED2 aus
+ledcontroler.on.all LED1 und LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
 livestream.head Livestreams
@@ -2466,7 +2466,7 @@ videomenu.brightness Helligkeit
 videomenu.cinch Cinch
 videomenu.contrast Kontrast
 videomenu.dbdr MPEG2 Filter
-videomenu.dbdr_both deBlock & deRing
+videomenu.dbdr_both deBlock und deRing
 videomenu.dbdr_deblock deBlock
 videomenu.dbdr_none aus
 videomenu.enabled_modes Videosysteme auf der VF-Taste
@@ -2521,7 +2521,7 @@ zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
-zapit.scantype.tvradio Nur TV & Radio
+zapit.scantype.tvradio Nur TV und Radio
 zapitsetup.channelmode Start-Kanalliste für TV
 zapitsetup.channelmode_radio Start-Kanalliste für Radio
 zapitsetup.head Startkanal-Verwaltung

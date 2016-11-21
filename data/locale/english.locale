@@ -80,7 +80,7 @@ GENRE.SHOW.1 game show/quiz/contest
 GENRE.SHOW.2 variety show
 GENRE.SHOW.3 talk show
 GENRE.SOCIAL_POLITICAL social
-GENRE.SOCIAL_POLITICAL.0 social & politic events / business
+GENRE.SOCIAL_POLITICAL.0 social and politic events / business
 GENRE.SOCIAL_POLITICAL.1 magazines/reports/documentary
 GENRE.SOCIAL_POLITICAL.2 economics/social advisory
 GENRE.SOCIAL_POLITICAL.3 remarkable people
@@ -98,11 +98,11 @@ GENRE.SPORTS.7 motor sports
 GENRE.SPORTS.8 water sports
 GENRE.SPORTS.9 winter sports
 GENRE.TRAVEL_HOBBIES Leisure
-GENRE.TRAVEL_HOBBIES.0 travel & recreation
+GENRE.TRAVEL_HOBBIES.0 travel and recreation
 GENRE.TRAVEL_HOBBIES.1 tourism/travel
 GENRE.TRAVEL_HOBBIES.2 handicraft
 GENRE.TRAVEL_HOBBIES.3 motoring
-GENRE.TRAVEL_HOBBIES.4 fitness & health
+GENRE.TRAVEL_HOBBIES.4 fitness and health
 GENRE.TRAVEL_HOBBIES.5 cooking
 GENRE.TRAVEL_HOBBIES.6 advertisement/shopping
 GENRE.TRAVEL_HOBBIES.7 gardening
@@ -896,8 +896,8 @@ ledcontroler.mode.deepstandby Deep Standby
 ledcontroler.mode.record Blinke in Record
 ledcontroler.mode.standby Standby
 ledcontroler.mode.tv TV Mode
-ledcontroler.off Led1 & Led2 off
-ledcontroler.on.all Led1 & Led2 on
+ledcontroler.off Led1 and Led2 off
+ledcontroler.on.all Led1 and Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
 livestream.head Live streams
@@ -2481,8 +2481,8 @@ videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.hdmi_cec_view_on Enable CEC View on
 videomenu.hue Hue
 videomenu.letterbox Letterbox
-videomenu.panscan Pan&Scan
-videomenu.panscan2 14:9 Pan&Scan
+videomenu.panscan Pan & Scan
+videomenu.panscan2 14:9 Pan & Scan
 videomenu.pip PiP setup
 videomenu.pip_error PiP start failed
 videomenu.saturation Saturation
@@ -2521,7 +2521,7 @@ zapit.scantype scan for services
 zapit.scantype.all all services
 zapit.scantype.radio only radio
 zapit.scantype.tv only tv
-zapit.scantype.tvradio tv & radio
+zapit.scantype.tvradio tv and radio
 zapitsetup.channelmode Initial TV channel list
 zapitsetup.channelmode_radio Initial Radio channel list
 zapitsetup.head Start Channel Settings
