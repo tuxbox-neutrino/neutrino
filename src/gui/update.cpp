@@ -304,7 +304,7 @@ bool CFlashUpdate::selectHttpImage(void)
 		return false;
 	}
 	if (notify) {
-		if(!newfound)
+		if(newfound)
 			ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_NEW_FOUND, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO, MSGBOX_MIN_WIDTH, 6 );
 #if 0
 		else
