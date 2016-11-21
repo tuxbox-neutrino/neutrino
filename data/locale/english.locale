@@ -22,7 +22,7 @@ EPGPlus.swap_mode swap mode
 EPGPlus.view_mode view mode
 GENRE.ALL off
 GENRE.ARTS Arts
-GENRE.ARTS.0 arts / culture
+GENRE.ARTS.0 arts/culture
 GENRE.ARTS.1 performing arts
 GENRE.ARTS.10 arts/culture magazines
 GENRE.ARTS.11 fashion
@@ -35,14 +35,14 @@ GENRE.ARTS.7 experimental film/video
 GENRE.ARTS.8 broadcasting/press
 GENRE.ARTS.9 new media
 GENRE.CHILDRENs_PROGRAMMES children
-GENRE.CHILDRENs_PROGRAMMES.0 children / juvenile program
+GENRE.CHILDRENs_PROGRAMMES.0 children/juvenile program
 GENRE.CHILDRENs_PROGRAMMES.1 pre-school children's programmes
 GENRE.CHILDRENs_PROGRAMMES.2 entertainment programmes for 6 to 14
 GENRE.CHILDRENs_PROGRAMMES.3 entertainment programmes for 10 to 16
 GENRE.CHILDRENs_PROGRAMMES.4 informational/educational/school programmes
 GENRE.CHILDRENs_PROGRAMMES.5 cartoons/puppets
 GENRE.DOCUS_MAGAZINES documentation
-GENRE.DOCUS_MAGAZINES.0 documentation / magazine
+GENRE.DOCUS_MAGAZINES.0 documentation/magazine
 GENRE.DOCUS_MAGAZINES.1 nature/animals/environment
 GENRE.DOCUS_MAGAZINES.2 technology/natural sciences
 GENRE.DOCUS_MAGAZINES.3 medicine/physiology/psychology
@@ -61,7 +61,7 @@ GENRE.MOVIE.6 romance
 GENRE.MOVIE.7 serious/classical/religious/historical movie/drama
 GENRE.MOVIE.8 adult movie/drama
 GENRE.MUSIC_DANCE music
-GENRE.MUSIC_DANCE.0 music / ballet / dance
+GENRE.MUSIC_DANCE.0 music/ballet/dance
 GENRE.MUSIC_DANCE.1 rock/pop
 GENRE.MUSIC_DANCE.2 serious music/classical music
 GENRE.MUSIC_DANCE.3 folk/traditional music
@@ -75,12 +75,12 @@ GENRE.NEWS.2 news magazine
 GENRE.NEWS.3 documentary
 GENRE.NEWS.4 discussion/interview/debate
 GENRE.SHOW Show
-GENRE.SHOW.0 Show / Gameshow
+GENRE.SHOW.0 Show/Gameshow
 GENRE.SHOW.1 game show/quiz/contest
 GENRE.SHOW.2 variety show
 GENRE.SHOW.3 talk show
 GENRE.SOCIAL_POLITICAL social
-GENRE.SOCIAL_POLITICAL.0 social and politic events / business
+GENRE.SOCIAL_POLITICAL.0 social and politic events/business
 GENRE.SOCIAL_POLITICAL.1 magazines/reports/documentary
 GENRE.SOCIAL_POLITICAL.2 economics/social advisory
 GENRE.SOCIAL_POLITICAL.3 remarkable people
@@ -721,7 +721,7 @@ fontsize.epg_date EPG Date
 fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Title
-fontsize.eventlist_datetime Date / Time
+fontsize.eventlist_datetime Date and time
 fontsize.eventlist_event Event Info
 fontsize.eventlist_itemlarge Large
 fontsize.eventlist_itemsmall Small
@@ -869,7 +869,7 @@ keychooser.text2 wait a few seconds for abort
 keychoosermenu.currentkey current key
 keychoosermenu.setnew setup new key
 keychoosermenu.setnone no key
-languagesetup.head Language / Timezone
+languagesetup.head Language and timezone
 languagesetup.osd OSD Language
 languagesetup.select OSD Language
 lcd_info_line show in infoline
@@ -885,7 +885,7 @@ lcdmenu.lcdcontroler Brightness
 lcdmenu.notify_rclock Notify when RC is locked
 lcdmenu.scroll Enable text scroll
 lcdmenu.statusline status line
-lcdmenu.statusline.both volume / playtime
+lcdmenu.statusline.both volume and playtime
 lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
 ledcontroler.backlight Buttons backlight
@@ -941,7 +941,7 @@ mainmenu.tvradio_switch TV-Radio Switch
 mainsettings.audio Audio
 mainsettings.head Settings
 mainsettings.keybinding Key Setup
-mainsettings.language Language / Timezone
+mainsettings.language Language and timezone
 mainsettings.lcd Front-Panel
 mainsettings.manage Manage settings
 mainsettings.misc Extended settings
@@ -1012,7 +1012,7 @@ menu.hint_channellist_mode_radio Use the selected channel list mode on startup i
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channellist_show_channellogo Show channel logos in channel list
 menu.hint_channellist_show_channelnumber Show channel number in channel list
-menu.hint_channellist_show_empty_favs Show / hide empty bouquets in favorites
+menu.hint_channellist_show_empty_favs Show or hide empty bouquets in favorites
 menu.hint_channellist_show_infobox Show or hide bottom infobox of channellist
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
@@ -1065,7 +1065,7 @@ menu.hint_fonts Configure GUI fonts and font sizes
 menu.hint_foot_back Change GUI footer background color
 menu.hint_foot_textcolor Change GUI window footer text color
 menu.hint_games Show list of installed games
-menu.hint_hdd Format / check data storage
+menu.hint_hdd Format and check data storage
 menu.hint_hdd_apply Apply sleep/noise parameters
 menu.hint_hdd_check Check filesystem (fsck)
 menu.hint_hdd_fmt Select the data storage format
@@ -1404,7 +1404,7 @@ menu.hint_scripts Run scripts
 menu.hint_selected_back Change selected item background color
 menu.hint_selected_text Change selected item text color
 menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
-menu.hint_service_scan Auto / manual service scan
+menu.hint_service_scan Auto and manual service scan
 menu.hint_settings Configure System\nNetwork, audio, video, OSD and more
 menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
 menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
@@ -1422,7 +1422,7 @@ menu.hint_soft_restart Restart GUI without reboot
 menu.hint_softupdate_check Check online update, download and flash firmware
 menu.hint_softupdate_check_local Select and flash firmware from local file
 menu.hint_softupdate_createimage_menu Backup of current software, including all settings
-menu.hint_softupdate_expert Separate partitions from the flash read / write to the flash
+menu.hint_softupdate_expert Separate partitions from the flash. Read and write to the flash
 menu.hint_softupdate_expert_read Separate partitions (U-Boot, Splash, Kernel, SystemFS) from the flash read
 menu.hint_softupdate_expert_write Separate partitions (Splash, Kernel, SystemFS) write to the flash
 menu.hint_softupdate_settings The local update directory and the configuration file to set
@@ -2177,7 +2177,7 @@ satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Rotor position
 satsetup.nodiseqc no DiSEqC
 satsetup.reset_numbers Reset channel numbers
-satsetup.sat_setup Setup satellites input / LNB
+satsetup.sat_setup Setup satellites input and LNB
 satsetup.satellite Satellite
 satsetup.select_sat Select satellites
 satsetup.smatvremote SMATV Remote Tuning
@@ -2311,7 +2311,7 @@ streaming.overflow Record buffer overflow, consider to stop some records
 streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.backspace Backspace
-stringinput.caps caps / no caps
+stringinput.caps Upper/lower
 stringinput.clear clear all
 stringinput.insert Insert
 stringinput.save Save

@@ -30,7 +30,7 @@ GENRE.ARTS.2 Kunstwissenschaft
 GENRE.ARTS.3 Religion
 GENRE.ARTS.4 Volkskunst
 GENRE.ARTS.5 Literatur
-GENRE.ARTS.6 Film/ Kino
+GENRE.ARTS.6 Film/Kino
 GENRE.ARTS.7 Experimental Film/Video
 GENRE.ARTS.8 Rundfunk/Presse
 GENRE.ARTS.9 Neue Medien
@@ -75,7 +75,7 @@ GENRE.NEWS.2 Nachrichtenmagazin
 GENRE.NEWS.3 Dokumentation
 GENRE.NEWS.4 Diskussion/Interview/Debatte
 GENRE.SHOW Show
-GENRE.SHOW.0 Show/ Gameshow
+GENRE.SHOW.0 Show/Gameshow
 GENRE.SHOW.1 Gameshow/Quiz
 GENRE.SHOW.2 Varietee
 GENRE.SHOW.3 Talkshow
@@ -564,7 +564,7 @@ extra.volume_size Höhe der Anzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
 extra.zapit_fe_timeout Tuning Timeout
-extra.zapit_hvoltage High (13.5/ 18.5) Voltage
+extra.zapit_hvoltage High (13.5/18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
 extra.zapit_motor_speed Rotor Drehzeit
 extra.zapit_scanpids PIDs scannen/nutzen
@@ -1404,7 +1404,7 @@ menu.hint_scripts Shell-Skripte ausführen
 menu.hint_selected_back Ändern Sie die Hintergrundfarbe für ausgewählte Fensterinhalte
 menu.hint_selected_text Ändern Sie die Textfarbe für ausgewählte Fensterinhalte
 menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung etc.
-menu.hint_service_scan Automatischer / manueller Service Suchlauf
+menu.hint_service_scan Automatischer und manueller Service Suchlauf
 menu.hint_settings Konfigurieren des Systems,\nNetzwerk, Video, Audio, OSD etc.
 menu.hint_shoutcast_dev_id Geben Sie die SHOUTcast Dev ID ein. Eine leere Eingabe schaltet die SHOUTcast-Unterstützung aus
 menu.hint_shoutcast_enabled Schaltet die SHOUTcast-Unterstützung ein oder aus
@@ -1835,7 +1835,7 @@ movieplayer.tshelp10 ca. 10 Minuten zurück
 movieplayer.tshelp11 ca. 10 Minuten vor
 movieplayer.tshelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n
 movieplayer.tshelp2 Auswahl der Tonspur
-movieplayer.tshelp3 Pause/ Weiter
+movieplayer.tshelp3 Pause/Weiter
 movieplayer.tshelp4 Bookmark setzen
 movieplayer.tshelp5 Zeit einblenden
 movieplayer.tshelp6 ca. 1 Minute zurück
@@ -2311,7 +2311,7 @@ streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beende
 streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.backspace Rücklöschen
-stringinput.caps Groß / Klein
+stringinput.caps Groß/Klein
 stringinput.clear Alles löschen
 stringinput.insert Einfügen
 stringinput.save Speichern
