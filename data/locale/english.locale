@@ -380,7 +380,7 @@ epgextended.guests Guests
 epgextended.original_title Original Title
 epgextended.presenter Presenter
 epgextended.year_of_production Year of Production
-epglist.noevents EPG is not available...
+epglist.noevents EPG is not available ...
 epgviewer.More_Screenings More Screenings on this Channel
 epgviewer.More_Screenings_short More Screenings
 epgviewer.age_rating Age rating
@@ -400,7 +400,7 @@ eventfinder.search Search
 eventfinder.search_all_epg whole
 eventfinder.search_within_epg Search within
 eventfinder.search_within_list Search within
-eventfinder.searching Search for keyword in EPG...
+eventfinder.searching Search for keyword in EPG
 eventfinder.start_search Start Search
 eventlist.additional Additional informations
 eventlist.epgplus Show EPG Plus
@@ -413,8 +413,8 @@ extra.audio_run_player Audio key start player
 extra.auto_delete Auto-delete
 extra.auto_timeshift Auto-record, sec (0 = disable)
 extra.cache_txt Cache teletext
-extra.chadded The current channel has been added to selected bouquet....\n
-extra.chalreadyinbq The current channel is already in selected bouquet....\n
+extra.chadded The current channel has been added to selected bouquet.\n
+extra.chalreadyinbq The current channel is already in selected bouquet.\n
 extra.dboxinfo Box Info
 extra.dboxinfo_available Free
 extra.dboxinfo_boottime Boot
@@ -570,11 +570,11 @@ extra.zapit_motor_speed Motor moving speed
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
 fan_speed CPU Fan speed
-favorites.addchannel The current channel will be added \nto the bouquet "My Favorites". \n This will take a few seconds...
+favorites.addchannel The current channel will be added \nto the bouquet "My Favorites". \n This will take a few seconds ...
 favorites.bouquetname My Favorites
-favorites.bqcreated Bouquet "My Favorites" has been created...\n
-favorites.chadded The current channel has been added to your favorites...\n
-favorites.chalreadyinbq The current channel is already in your favorites...\n
+favorites.bqcreated Bouquet "My Favorites" has been created.\n
+favorites.chadded The current channel has been added to your favorites.\n
+favorites.chalreadyinbq The current channel is already in your favorites.\n
 favorites.copy Copy bouquet to Favorites
 favorites.finalhint \nUse the bouqueteditor to modify your favorites.\n
 favorites.menueadd add channel to favorites
@@ -685,10 +685,10 @@ flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.update_with_settings_del_skipped Folder [%s] can not be deleted. Entry is skipped.
 flashupdate.update_with_settings_error Flash Error!\n \nNew Image only has %ld KB (out of %ld KB) left. Not\nenough space to complete this operation.\n \nCanceling operation!
-flashupdate.update_with_settings_processed Image is being processed...
+flashupdate.update_with_settings_processed Image is being processed ...
 flashupdate.update_with_settings_skipped Folder [%s] can not be saved. Entry is skipped.
 flashupdate.update_with_settings_successfully Setting takeover successfully.\nThe image can now be flashed.
-flashupdate.update_with_settings_warning Flash Warning!\n \nNew Image only has %ld KB (out of %ld KB) left. Probably not\nenough space to complete this operation...\n \nDo you really want to proceed?
+flashupdate.update_with_settings_warning Flash Warning!\n \nNew Image only has %ld KB (out of %ld KB) left. Probably not\nenough space to complete this operation ...\n \nDo you really want to proceed?
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
 flashupdate.updatemode_manual from local update directory
@@ -727,7 +727,7 @@ fontsize.eventlist_itemlarge Large
 fontsize.eventlist_itemsmall Small
 fontsize.eventlist_title Title
 fontsize.filebrowser_item Filebrowser items
-fontsize.hint Initialising font,\nplease wait...
+fontsize.hint Initialising font,\nplease wait ...
 fontsize.infobar_channame Channel name
 fontsize.infobar_info info
 fontsize.infobar_number Number
@@ -778,7 +778,7 @@ hdd_not_found No HDD found
 hdd_removable_device Removable device
 hdd_set_recdir Use device for recording ?
 hdd_settings Data Storage
-hdd_sleep Switch off after...
+hdd_sleep Switch off after
 hdd_slow Slow
 hdd_statfs Fill level query
 hdd_statfs_always always
@@ -800,8 +800,8 @@ imageinfo.license License
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio
-infoviewer.epgnotload EPG not loaded....
-infoviewer.epgwait waiting for EPG...
+infoviewer.epgnotload EPG not loaded ...
+infoviewer.epgwait waiting for EPG ...
 infoviewer.motor_moving Antenna positioning
 infoviewer.next next
 infoviewer.nocurrent No info for current program available
@@ -811,7 +811,7 @@ infoviewer.now now
 infoviewer.selecttime Timeselection
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subchan_infobar Full infobar
-infoviewer.waittime Waiting for time...
+infoviewer.waittime Waiting for time ...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
 ipsetup.hint_2 OK saves, Exit aborts
 keybindingmenu.RC Tune Remote-Control
@@ -901,7 +901,7 @@ ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
 livestream.head Live streams
-livestream.read_data Read data...
+livestream.read_data Read data ...
 livestream.resolution Resolution
 livestream.scriptpath Script path
 lua.boolparam_deprecated1 Caution!
@@ -950,7 +950,7 @@ mainsettings.network Network
 mainsettings.osd OSD
 mainsettings.recording Recording
 mainsettings.savesettingsnow Save settings now
-mainsettings.savesettingsnow_hint Saving settings,\nplease wait...
+mainsettings.savesettingsnow_hint Saving settings,\nplease wait ...
 mainsettings.timezone Timezone
 mainsettings.video Video
 mbkey.copy_onefile Copy movie
@@ -1655,7 +1655,7 @@ moviebrowser.cut Cut jumps from movie?
 moviebrowser.cut_failed Cut failed, are there jump bookmarks and enough free space?
 moviebrowser.cutting Cutting movie, please wait ...
 moviebrowser.delete_all Delete all selected movies without any questions?
-moviebrowser.delete_info Delete files, please wait...
+moviebrowser.delete_info Delete files, please wait ...
 moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
 moviebrowser.directories Directories
@@ -1827,7 +1827,7 @@ movieplayer.chapters Chapters
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
 movieplayer.plugin Movieplayer plugin
-movieplayer.starting Starting playback...
+movieplayer.starting Starting playback ...
 movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tshelp1 Stop
@@ -1856,7 +1856,7 @@ mpkey.rewind Rewind
 mpkey.stop Stop
 mpkey.subtitle Subtitles
 mpkey.time Show time
-networkmenu.apply_settings Changes are applied...
+networkmenu.apply_settings Changes are applied
 networkmenu.apply_settings_now Do you want to apply settings now?
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
@@ -1888,9 +1888,9 @@ networkmenu.show Show active Network settings
 networkmenu.ssid Network name (SSID)
 networkmenu.ssid_scan WLAN network scan
 networkmenu.ssid_scan_error No WLAN networks are found.
-networkmenu.ssid_scan_wait WLAN network scan in progress...
+networkmenu.ssid_scan_wait WLAN network scan in progress ...
 networkmenu.test Test network now
-neutrino_starting %s %s starting...
+neutrino_starting %s %s starting ...
 nfs.alreadymounted directory already mounted
 nfs.automount Mount on startup
 nfs.dir directory/share
@@ -1938,8 +1938,8 @@ opkg.messagebox.size.error Not enough free memory available for this package!
 opkg.messagebox.updates.available Updates available!
 opkg.success.install Install successful!\n restart of Neutrino might be required. Restart now?
 opkg.title Package Management
-opkg.update.check Checking for updates...
-opkg.update.reading_lists Reading package lists...
+opkg.update.check Checking for updates ...
+opkg.update.reading_lists Reading package lists ...
 opkg.upgrade Upgrade installed packages
 opkg.warning_3rdparty_packages 3rd party packages could damage your system! Are you sure install this package?
 options.default Reset to defaults
@@ -1963,7 +1963,7 @@ parentallock.lockage lock program
 parentallock.lockage12 from 12 years up
 parentallock.lockage16 from 16 years up
 parentallock.lockage18 from 18 years up
-parentallock.lockedchannel Locked sender...
+parentallock.lockedchannel Locked sender
 parentallock.lockedprogram Locked program (from %d years up)
 parentallock.menu Menu Security
 parentallock.never never
@@ -2062,9 +2062,9 @@ rclock.unlockmsg Remote control unlocked
 recording.already_found %s\nwas already found. Nevertheless start record?
 recording.already_found_check Check recordings
 recording.is_running This channel already recording. Start new record?
-recording.start Start recording, please wait...!
+recording.start Start recording, please wait ...
 recording.startstop_msg Message when recording is start/stop
-recording.stop Stop recording, please wait...!
+recording.stop Stop recording, please wait ...
 recording.time_hour hour
 recording.time_hours hours
 recording.time_min min
@@ -2408,7 +2408,7 @@ timing.numericzap Numeric Zap
 timing.volumebar Volume bar
 tmdb.api_key TMDb API key
 tmdb.enabled TMDb support
-tmdb.read_data Search TMDB Data...
+tmdb.read_data Search TMDb data ...
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
 unicable.scr Unicable SCR

@@ -189,7 +189,7 @@ audioplayer.playlist_name Dateiname der Playlist
 audioplayer.playlist_name_hint1 Geben Sie den Dateinamen der Playlist ein
 audioplayer.playlist_name_hint2 Die Erweiterung .m3u wird automatisch angehängt
 audioplayer.reading_files Lese die Dateien ein
-audioplayer.receiving_list Liste wird empfangen, bitte warten...
+audioplayer.receiving_list Liste wird empfangen, bitte warten ...
 audioplayer.repeat_on Repeatmodus aktivieren
 audioplayer.rewind schneller Rückl.
 audioplayer.save_playlist Playlist speichern
@@ -400,7 +400,7 @@ eventfinder.search Suche
 eventfinder.search_all_epg Ganze 
 eventfinder.search_within_epg Suche innerhalb EPG-Daten
 eventfinder.search_within_list Suche innerhalb Text
-eventfinder.searching Suche...
+eventfinder.searching Suche ...
 eventfinder.start_search Suche starten
 eventlist.additional Zusatzinformationen
 eventlist.epgplus EPG Plus anzeigen
@@ -413,8 +413,8 @@ extra.audio_run_player Audiotaste startet Player
 extra.auto_delete Automatisch löschen
 extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
 extra.cache_txt Teletext zwischenspeichern
-extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
-extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
+extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt ...\n
+extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet.\n
 extra.dboxinfo Box-Info
 extra.dboxinfo_available Frei
 extra.dboxinfo_boottime Boot
@@ -570,14 +570,14 @@ extra.zapit_motor_speed Rotor Drehzeit
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
 fan_speed CPU-Lüftergeschwindigkeit
-favorites.addchannel Der aktuelle Kanal wird dem Bouquet \n"Meine Favoriten" hinzugefügt. \nDie Speicherung benötigt einen Moment...
+favorites.addchannel Der aktuelle Kanal wird dem Bouquet \n"Meine Favoriten" hinzugefügt. \nDie Speicherung benötigt einen Moment ...
 favorites.bouquetname Meine Favoriten
-favorites.bqcreated Bouquet "Meine Favoriten" wurde angelegt...\n
-favorites.chadded Der aktuelle Kanal wurde Ihren Favoriten hinzugefügt...\n
-favorites.chalreadyinbq Der aktuelle Kanal ist bereits in Ihren Favoriten...\n
+favorites.bqcreated Bouquet "Meine Favoriten" wurde angelegt.\n
+favorites.chadded Der aktuelle Kanal wurde Ihren Favoriten hinzugefügt.\n
+favorites.chalreadyinbq Der aktuelle Kanal ist bereits in Ihren Favoriten.\n
 favorites.copy Kopiere Bouquet zu Favoriten
 favorites.finalhint \nVersehentlich hinzugefügte Kanäle können mit\nder Bouquetverwaltung korrigiert werden.\n
-favorites.menueadd Kanal Favoriten hinzufügen
+favorites.menueadd Kanal zu Favoriten hinzufügen
 favorites.nobouquets Favoriten sind nur mit aktivierten Bouquets möglich.
 filebrowser.add Hinzufügen
 filebrowser.delete Löschen
@@ -685,7 +685,7 @@ flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
 flashupdate.update_with_settings_del_skipped Ordner [%s] kann nicht gelöscht werden. Eintrag wird übersprungen.
 flashupdate.update_with_settings_error Error Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nDer Vorgang wird abgebrochen!
-flashupdate.update_with_settings_processed Image wird bearbeitet...
+flashupdate.update_with_settings_processed Image wird bearbeitet ...
 flashupdate.update_with_settings_skipped Ordner [%s] kann nicht gesichert werden. Eintrag wird übersprungen.
 flashupdate.update_with_settings_successfully Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.
 flashupdate.update_with_settings_warning Warnung Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist möglicherweise zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nSoll der Vorgang trotzdem fortgesetzt werden?
@@ -727,7 +727,7 @@ fontsize.eventlist_itemlarge Groß
 fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
 fontsize.filebrowser_item Dateibrowsereinträge
-fontsize.hint Schriftart wird initialisiert,\nbitte warten...
+fontsize.hint Schriftart wird initialisiert,\nbitte warten ...
 fontsize.infobar_channame Kanalname
 fontsize.infobar_info Info
 fontsize.infobar_number Nummer
@@ -778,7 +778,7 @@ hdd_not_found Kein Datenträger
 hdd_removable_device Wechseldatenträger
 hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
 hdd_settings Laufwerke
-hdd_sleep Ausschalten nach...
+hdd_sleep Ausschalten nach
 hdd_slow Langsam
 hdd_statfs Füllstandsabfrage
 hdd_statfs_always immer
@@ -800,8 +800,8 @@ imageinfo.license Lizenz
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio
-infoviewer.epgnotload Informationen noch nicht geladen...
-infoviewer.epgwait Warte auf EPG-Informationen...
+infoviewer.epgnotload Informationen noch nicht geladen ...
+infoviewer.epgwait Warte auf EPG-Informationen ...
 infoviewer.motor_moving Antennenpositionierung
 infoviewer.next Später
 infoviewer.nocurrent Keine Info zu laufendem Programm
@@ -811,7 +811,7 @@ infoviewer.now Jetzt
 infoviewer.selecttime Startzeiten
 infoviewer.subchan_disp_pos Unterkanalanzeige
 infoviewer.subchan_infobar Infobar
-infoviewer.waittime Warte auf Uhrzeit...
+infoviewer.waittime Warte auf Uhrzeit ...
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
 keybindingmenu.RC Fernbedienung abstimmen
@@ -865,7 +865,7 @@ keybindingmenu.volumeup Lauter
 keybindingmenu.zaphistory Zapping-History Bouquet
 keychooser.head Neue Taste einstellen
 keychooser.text1 Bitte Taste drücken
-keychooser.text2 Zum Abbrechen warten...
+keychooser.text2 Zum Abbrechen warten ...
 keychoosermenu.currentkey Derzeitige Taste
 keychoosermenu.setnew Neue Taste einstellen
 keychoosermenu.setnone Keine Taste
@@ -901,7 +901,7 @@ ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
 livestream.head Livestreams
-livestream.read_data Lese Daten...
+livestream.read_data Lese Daten ...
 livestream.resolution Auflösung
 livestream.scriptpath Script Verzeichnis
 lua.boolparam_deprecated1 Achtung!
@@ -950,7 +950,7 @@ mainsettings.network Netzwerk
 mainsettings.osd OSD
 mainsettings.recording Aufnahme
 mainsettings.savesettingsnow Einstellungen jetzt speichern
-mainsettings.savesettingsnow_hint Einstellungen werden jetzt gespeichert,\nbitte warten...
+mainsettings.savesettingsnow_hint Einstellungen werden jetzt gespeichert,\nbitte warten ...
 mainsettings.timezone Zeitzone
 mainsettings.video Video
 mbkey.copy_onefile Film kopieren
@@ -1655,7 +1655,7 @@ moviebrowser.cut Schneide Sprungmarken aus dem Film?
 moviebrowser.cut_failed Fehler beim Schneiden. Sind Sprungmarken und genug freier Speicher vorhanden?
 moviebrowser.cutting Schneide Film, bitte warten ...
 moviebrowser.delete_all Alle markierten Filme ohne weitere Nachfrage löschen?
-moviebrowser.delete_info Lösche Dateien, bitte warten...
+moviebrowser.delete_info Lösche Dateien, bitte warten ...
 moviebrowser.delete_screenshot Lösche Screenshot?
 moviebrowser.dir Pfad
 moviebrowser.directories Verzeichnisse
@@ -1827,7 +1827,7 @@ movieplayer.chapters Kapitel
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
 movieplayer.plugin Movieplayer-Plugin
-movieplayer.starting Wiedergabe starten...
+movieplayer.starting Wiedergabe starten ...
 movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
@@ -1856,7 +1856,7 @@ mpkey.rewind Rücklauf
 mpkey.stop Stopp
 mpkey.subtitle Untertitel
 mpkey.time Zeitanzeige
-networkmenu.apply_settings Änderungen werden übernommen...
+networkmenu.apply_settings Änderungen werden übernommen ...
 networkmenu.apply_settings_now Änderungen jetzt zuweisen?
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
@@ -1888,9 +1888,9 @@ networkmenu.show Aktive Einstellungen zeigen
 networkmenu.ssid Netzwerkname (SSID)
 networkmenu.ssid_scan WLAN-Netzwerke suchen
 networkmenu.ssid_scan_error Keine WLAN-Netzwerke gefunden.
-networkmenu.ssid_scan_wait WLAN-Netzwerke werden gesucht...
+networkmenu.ssid_scan_wait WLAN-Netzwerke werden gesucht ...
 networkmenu.test Netzwerk testen
-neutrino_starting %s %s wird gestartet...
+neutrino_starting %s %s wird gestartet ...
 nfs.alreadymounted Verzeichnis bereits gemountet.
 nfs.automount Beim Start mounten
 nfs.dir Verzeichnis/Freigabe
@@ -1938,8 +1938,8 @@ opkg.messagebox.size.error Nicht genügend freier Speicher für Paketinstallatio
 opkg.messagebox.updates.available Aktualisierungen verfügbar!
 opkg.success.install Installation erfolgreich!\nNeustart von Neutrino kann erforderlich sein. Jetzt neu starten?
 opkg.title Paketverwaltung
-opkg.update.check Prüfe auf Updates...
-opkg.update.reading_lists Paketlisten werden eingelesen...
+opkg.update.check Prüfe auf Updates ...
+opkg.update.reading_lists Paketlisten werden eingelesen ...
 opkg.upgrade Installierte Pakete aktualisieren
 opkg.warning_3rdparty_packages Drittanbieter-Pakete könnten Ihr System beschädigen! Sind Sie sicher, dieses Paket zu installieren?
 options.default Voreinstellungen benutzen
@@ -1963,7 +1963,7 @@ parentallock.lockage Sendungen
 parentallock.lockage12 ab 12 Jahren sperren
 parentallock.lockage16 ab 16 Jahren sperren
 parentallock.lockage18 ab 18 Jahren sperren
-parentallock.lockedchannel Vorgesperrter Sender...
+parentallock.lockedchannel Vorgesperrter Sender
 parentallock.lockedprogram Gesperrtes Programm (FSK ab %d)
 parentallock.menu Sicherheits Menü
 parentallock.never Nie
@@ -2062,9 +2062,9 @@ rclock.unlockmsg Fernbedienung reaktiviert
 recording.already_found %s\nwurde bereits gefunden. Trotzdem aufnehmen?
 recording.already_found_check Prüfe Aufnahmen
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
-recording.start Starte Aufnahme, bitte warten...!
+recording.start Starte Aufnahme, bitte warten ...
 recording.startstop_msg Meldung bei Aufnahme Start/Ende
-recording.stop Beende Aufnahme, bitte warten...!
+recording.stop Beende Aufnahme, bitte warten ...
 recording.time_hour Stunde
 recording.time_hours Stunden
 recording.time_min Min
@@ -2198,7 +2198,7 @@ sc.reset Kartenreset
 sc.timeout Kartenmenü Timeout
 sc.waiting Warte auf Antwort
 scants.abort_body Scanvorgang wirklich abbrechen?
-scants.abort_header breche Scan ab...
+scants.abort_header Breche Scan ab ...
 scants.actcable Kabelnetz:
 scants.acthybrid Hybrid:
 scants.actsatellite Satellit:
@@ -2255,13 +2255,13 @@ screenshot.scale Skalierung
 screenshot.tv TV-Auflösung
 screenshot.video Video im Hintergrund
 servicemenu.getplugins Plugins neu laden
-servicemenu.getplugins_hint Plugins werden neu geladen,\nbitte warten...
+servicemenu.getplugins_hint Plugins werden neu geladen,\nbitte warten ...
 servicemenu.head Service
 servicemenu.imageinfo Imageinfo
 servicemenu.reload Kanallisten neu laden
-servicemenu.reload_hint Kanallisten werden neu geladen,\nbitte warten...
+servicemenu.reload_hint Kanallisten werden neu geladen,\nbitte warten ...
 servicemenu.restart GUI neu starten
-servicemenu.restart_hint GUI wird neu gestartet...
+servicemenu.restart_hint GUI wird neu gestartet ...
 servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
 servicemenu.update Software-Aktualisierung
@@ -2408,7 +2408,7 @@ timing.numericzap Umschalten mit Zifferntasten
 timing.volumebar Lautstärkeanzeige
 tmdb.api_key TMDb API Schlüssel
 tmdb.enabled TMDb-Unterstützung
-tmdb.read_data Suche TMDB Daten...
+tmdb.read_data Suche TMDb-Daten ...
 unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR
