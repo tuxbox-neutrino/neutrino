@@ -967,7 +967,7 @@ menu.hint_adzap_setup Einstellungen für den Werbezapper
 menu.hint_adzap_writedata Schreibe Daten über den Status des Werbezappers nach /tmp/adzap.data
 menu.hint_aplay Audioplayer
 menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
-menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen etc.
+menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen usw.
 menu.hint_audio_adjust_vol_ac3 Lautstärkeanpassung für AC3-Tonspuren
 menu.hint_audio_adjust_vol_clear Alle gespeicherten Werte für AC3- und PCM-Tonspuren löschen
 menu.hint_audio_adjust_vol_pcm Lautstärkeanpassung für PCM-Tonspuren
@@ -1050,7 +1050,7 @@ menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Haupt
 menu.hint_eventlist_epgplus Definiert, ob EPG Plus (Vorschau-Übersicht) mit der EPG-Taste angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
 menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
-menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal etc.
+menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal usw.
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen.\nDie Box wird danach neu gestartet
 menu.hint_fade Bei aktivierter Funktion werden die GUI-Fenster 'weich' ein- bzw. ausgeblendet
 menu.hint_fan_speed Steuerung der Lüftergeschwindigkeit für die CPU
@@ -1081,7 +1081,7 @@ menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten.\nDie Box
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
-menu.hint_info Informationen über das Image, CPU, Arbeitsspeicher und Stream etc.
+menu.hint_info Informationen über das Image, CPU, Arbeitsspeicher und Stream usw.
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_buttons_usertitle Erzwingt die benutzerdefinierten Titel der Farbtasten
 menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gesperrt, Diskret: alle Aktiven CA-Systeme
@@ -1161,7 +1161,7 @@ menu.hint_key_volumedown Weisen Sie eine Taste für die Reduzierung der Lautstä
 menu.hint_key_volumeup Weisen Sie eine Taste für die Erhöhung der Lautstärke zu
 menu.hint_keys Tastenbelegungen und Fernbedienungs-Abstimmung bearbeiten
 menu.hint_lang_pref Wählen Sie ihre bevorzugten Tonspuren und Untertitel-Sprachen
-menu.hint_language Menü-Sprache, Zeitzone, bevorzugte Tonspuren, Untertitel-Sprachen etc.
+menu.hint_language Menü-Sprache, Zeitzone, bevorzugte Tonspuren, Untertitel-Sprachen usw.
 menu.hint_last_radio Wählen Sie den Start-Sender im Radio-Modus
 menu.hint_last_tv Wählen Sie den Start-Sender im TV-Modus
 menu.hint_last_use Speichert den aktuellen Kanal beim Herunterfahren der Box
@@ -1231,7 +1231,7 @@ menu.hint_net_telnet Aktiviert Telnet auf Ihrer Box
 menu.hint_net_test Testet die Netzwerkverbindung:\nPing auf Gateway, Name-Server und externe IP-Adressen
 menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
 menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
-menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste etc.
+menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste usw.
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
 menu.hint_next Weiter zum nächsten Menü.\nDie Taste 'Menü' schließt alle Menüs
 menu.hint_next_brief Weiter zum nächsten Menü
@@ -1240,7 +1240,7 @@ menu.hint_opkg Software-Pakete installieren oder vorhandene aktualisieren
 menu.hint_opkg_feed_addresses_edit Bearbeiten von Feed-Adressen
 menu.hint_opkg_install_local_package Paket von USB-Stick, SD, Freigabe oder lokalem Ordner installieren.
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
-menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs etc.
+menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs usw.
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
 menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
@@ -1403,9 +1403,9 @@ menu.hint_screenshot_video Diese Funktion übernimmt das TV-Bild als Hintergrund
 menu.hint_scripts Shell-Skripte ausführen
 menu.hint_selected_back Ändern Sie die Hintergrundfarbe für ausgewählte Fensterinhalte
 menu.hint_selected_text Ändern Sie die Textfarbe für ausgewählte Fensterinhalte
-menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung etc.
+menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung usw.
 menu.hint_service_scan Automatischer und manueller Service Suchlauf
-menu.hint_settings Konfigurieren des Systems,\nNetzwerk, Video, Audio, OSD etc.
+menu.hint_settings Konfigurieren des Systems,\nNetzwerk, Video, Audio, OSD usw.
 menu.hint_shoutcast_dev_id Geben Sie die SHOUTcast Dev ID ein. Eine leere Eingabe schaltet die SHOUTcast-Unterstützung aus
 menu.hint_shoutcast_enabled Schaltet die SHOUTcast-Unterstützung ein oder aus
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
@@ -1428,7 +1428,7 @@ menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS
 menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfigurationsdatei festlegen
 menu.hint_standby Receiver in den Standby Modus versetzen
 menu.hint_start_tostandby Aktiviert den Standby-Modus direkt nach dem Starten der Box
-menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate etc.
+menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate usw.
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
 menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
@@ -1454,7 +1454,7 @@ menu.hint_vfd_infoline Wählen Sie, was in der Infozeile angezeigt werden soll
 menu.hint_vfd_notify_rclock Zeigt eine Meldung im Display, wenn bei gesperrter Fernbedienung eine Taste gedrückt wird
 menu.hint_vfd_scroll Laufschrift im Display ein- oder ausschalten
 menu.hint_vfd_statusline Wählen Sie, was in der Statuszeile angezeigt werden soll
-menu.hint_video Video-Ausgang, Auflösung, Format, Seitenverhältnisse etc.
+menu.hint_video Video-Ausgang, Auflösung, Format, Seitenverhältnisse usw.
 menu.hint_video_43mode Anzeige-Modus für 4:3-Inhalte auf 16:9-Fernsehern
 menu.hint_video_analog_mode Wählen Sie den Modus des Ausgangssignals für den CINCH-Anschluss
 menu.hint_video_brightness Change picture brightness
