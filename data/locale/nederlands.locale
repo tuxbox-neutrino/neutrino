@@ -686,10 +686,10 @@ fontsize.infobar_info Info
 fontsize.infobar_number Nummer
 fontsize.infobar_small Klein
 fontsize.menu Menu tekst
-fontsize.message_text Messag Text
 fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Titel
+fontsize.message_text Messag Text
 fontsize.subtitles Text ondertitels
 hdd_10min 10 min.
 hdd_1min 1 min.

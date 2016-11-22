@@ -733,11 +733,11 @@ fontsize.infobar_info Informácia na informačnej lište
 fontsize.infobar_ng_ecminfo ECM Informácia
 fontsize.infobar_number Kanál na informačnej lište
 fontsize.menu Text menu
-fontsize.message_text Messagwe Text
 fontsize.menu_foot Päta (vo všetkých grafických elementoch)
 fontsize.menu_hint Popis menu
 fontsize.menu_info Informačné menu
 fontsize.menu_title Titulok menu
+fontsize.message_text Messagwe Text
 fontsize.moviebrowser_head Hlavičky
 fontsize.moviebrowser_info Informačné okno
 fontsize.moviebrowser_list Zoznam položiek
@@ -1406,9 +1406,9 @@ menu.hint_selected_text Zmena farby textu označenej položky
 menu.hint_service Nastavenie tuneru, vyhľadanie služieb,\núprava buketov, aktualizácia software
 menu.hint_service_scan Automatické / manuálne vyhľadávanie staníc, FastScan, Test signálu
 menu.hint_settings Konfigurácia system, sieť, zvuk, obraz, OSD a iné
-menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosťi bude 0
 menu.hint_shoutcast_dev_id Vložte vaše SHOUTcast údaje. Neuvedením údajov sa vypne podpora SHOUTcast.
 menu.hint_shoutcast_enabled Povoliť alebo zakázať podporu SHOUTcast
+menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosťi bude 0
 menu.hint_shutdown Vypnutie prijímača - bez potvrdzovania
 menu.hint_shutdown_count Čas prepnutia prijímača z pohotovostného režimu do stavu vypnutia
 menu.hint_shutdown_menu Prepne prijímač do pohotovostného režimu alebo ho vypne, nastaví časovač vypnutia
