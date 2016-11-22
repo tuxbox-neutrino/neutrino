@@ -135,7 +135,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	hb_font		= MSG_FONT;
 
 	//enable shadow
-	shadow = true;
+	shadow = CC_SHADOW_ON;
 
 	//disable disable header if no title has been defined
 	if (ccw_caption.empty())
