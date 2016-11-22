@@ -35,7 +35,8 @@
 #define HINTBOX_MIN_WIDTH 420
 #define HINTBOX_MIN_HEIGHT 125
 #define HINTBOX_MAX_HEIGHT 520
-#define HINTBOX_DEFAULT_TIMEOUT 5
+#define HINTBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_POPUP_MESSAGES]
+#define NO_TIMEOUT -1
 //frame around hint container as indent
 #define W_FRAME std::max(HINTBOX_MIN_WIDTH, HINTBOX_MIN_HEIGHT) * 2/100
 //frame color around hint/message box
@@ -328,7 +329,7 @@ class CHint : public CHintBox
 * Simplified methodes to show hintboxes without titlebar and footer
 * Text is UTF-8 encoded
 * @param[in]	timeout
-* 	@li	optional: exepts type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (5 sec)
+* 	@li	optional: exepts type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (get from settings)
 * @param[in]	show_background
 * 	@li 	optional: exepts type bool, enable/disable backround paint, default = true
 * 	@see	for possible text parameters take a look to CHintBox()

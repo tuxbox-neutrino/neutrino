@@ -3350,7 +3350,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != mode_scart && mode != mode_standby) {
-			int timeout = HINTBOX_DEFAULT_TIMEOUT;
+			int timeout = NO_TIMEOUT;
 			std::string text = (char*)data;
 			std::string::size_type pos;
 
