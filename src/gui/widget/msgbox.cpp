@@ -204,7 +204,8 @@ void CMsgBox::initButtons()
 	ccw_footer->enableButtonShadow(CC_SHADOW_ON, OFFSET_SHADOW/2, true);
 
 	//set position of meassage window and refresh window properties
-	setCenterPos();
+	setCenterPos(CC_ALONG_X);
+	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 2),
 	Refresh();
 
 	//set the 1st button as default selected button

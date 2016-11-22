@@ -309,8 +309,8 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	ReSize();
 
 	/* set hint box position general to center and refresh window */
-	setCenterPos();
-
+	setCenterPos(CC_ALONG_X);
+	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 2),
 	Refresh();
 }
 
