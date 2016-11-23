@@ -203,6 +203,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool StopAutoRecord(bool lock = true);
 		void StopAutoTimer();
 		bool CheckRecordingId_if_Timeshift(int recid);
+		recmap_t GetRecordMap()const{return recmap;}
 
 		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
 		const std::string GetFileName(const t_channel_id channel_id, bool timeshift = true);
