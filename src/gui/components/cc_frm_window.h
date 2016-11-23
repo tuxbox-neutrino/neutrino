@@ -107,14 +107,14 @@ class CComponentsWindow : public CComponentsForm
 		///initialze all window objects at once
 		void initCCWItems();
 		///initialize all attributes
-		void initVarWindow(	const int& x_pos = CC_CENTERED, const int& y_pos = CC_CENTERED, const int& w = 0, const int& h = 0,
-					const std::string& caption = "",
-					const std::string& iconname = "",
-					CComponentsForm *parent = NULL,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		void initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption,
+					const std::string& iconname,
+					CComponentsForm *parent,
+					int shadow_mode,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow);
 		///initialize width and height
 		void initWindowSize();
 		///initialize position
