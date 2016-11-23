@@ -86,7 +86,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		sw = max(0, sw);
 
 		//set current needed corner main box radius
-		int box_rad = corner_rad;
+		int box_rad = corner_type ? corner_rad : 0;
 
 		//and ensure max main box radius < dimensions
 		if (2*box_rad > dy)
@@ -186,7 +186,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 			{sh_ctr, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_ctr_x-sw,	sh_ctr_y-sw+th, sh_cdx, 	sh_cdy-sh_cdy_size_offset+sw, 	col_shadow_clean, 	box_rad,	corner_type & CORNER_TOP_RIGHT,		0, NULL, NULL, NULL, false},
 
 			//main box
-			{true, CC_FBDATA_TYPE_BOX,		ix+th,  	iy+th,  	dx-2*th,     	dy-2*th,    			col_body,       	box_rad-th,	corner_type,				0, NULL, NULL, NULL, false},
+			{true, CC_FBDATA_TYPE_BOX,		ix+th,  	iy+th,  	dx-2*th,     	dy-2*th,    			col_body,       	max(0,box_rad-th),	corner_type,				0, NULL, NULL, NULL, false},
 
 			//frame
 			{true, CC_FBDATA_TYPE_FRAME,		ix,		iy, 		dx, 		dy, 				col_frame_cur,		box_rad,	corner_type,				th, NULL, NULL, NULL, false}
