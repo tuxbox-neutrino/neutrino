@@ -622,6 +622,8 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	fbutton_width	= 0;
 	fbutton_height	= 0;
 	nextShortcut	= 1;
+	saveScreen_width = 0;
+	saveScreen_height = 0;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -1391,17 +1393,18 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
-
-	background = new fb_pixel_t [full_width * (full_height+fbutton_height)];
+	saveScreen_height = full_height+fbutton_height;
+	saveScreen_width = full_width;
+	background = new fb_pixel_t [saveScreen_height * saveScreen_width];
 	if(background)
-		frameBuffer->SaveScreen(x /*-ConnectLineBox_Width*/, y, full_width, full_height + fbutton_height, background);
+		frameBuffer->SaveScreen(x /*-ConnectLineBox_Width*/, y, full_width, saveScreen_height, background);
 }
 
 void CMenuWidget::restoreScreen()
 {
 	if(background) {
 		if(savescreen)
-			frameBuffer->RestoreScreen(x /*-ConnectLineBox_Width*/, y, full_width, full_height + fbutton_height, background);
+			frameBuffer->RestoreScreen(x /*-ConnectLineBox_Width*/, y, saveScreen_width, saveScreen_height, background);
 	}
 }
 
@@ -1411,6 +1414,8 @@ void CMenuWidget::enableSaveScreen(bool enable)
 	if (!enable && background) {
 		delete[] background;
 		background = NULL;
+		saveScreen_width = 0;
+		saveScreen_height = 0;
 	}
 }
 
