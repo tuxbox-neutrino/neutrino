@@ -197,9 +197,6 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 		// blank background screen
 		videoDecoder->setBlank(true);
-
-		// Stop Sectionsd
-		g_Sectionsd->setPauseScanning(true);
 	}
 
 	// Save and Clear background
@@ -217,9 +214,6 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (!audioplayer) { // !!! why? !!!
 		//g_Zapit->unlockPlayBack();
 		CZapit::getInstance()->EnablePlayback(true);
-
-		// Start Sectionsd
-		g_Sectionsd->setPauseScanning(false);
 	}
 
 	// Restore previous background
