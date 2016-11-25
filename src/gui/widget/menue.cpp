@@ -1395,16 +1395,18 @@ void CMenuWidget::saveScreen()
 	delete[] background;
 	saveScreen_height = full_height+fbutton_height;
 	saveScreen_width = full_width;
+	saveScreen_y = y;
+	saveScreen_x = x;
 	background = new fb_pixel_t [saveScreen_height * saveScreen_width];
 	if(background)
-		frameBuffer->SaveScreen(x /*-ConnectLineBox_Width*/, y, full_width, saveScreen_height, background);
+		frameBuffer->SaveScreen(saveScreen_x /*-ConnectLineBox_Width*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
 }
 
 void CMenuWidget::restoreScreen()
 {
 	if(background) {
 		if(savescreen)
-			frameBuffer->RestoreScreen(x /*-ConnectLineBox_Width*/, y, saveScreen_width, saveScreen_height, background);
+			frameBuffer->RestoreScreen(saveScreen_x /*-ConnectLineBox_Width*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
 	}
 }
 
@@ -1416,6 +1418,8 @@ void CMenuWidget::enableSaveScreen(bool enable)
 		background = NULL;
 		saveScreen_width = 0;
 		saveScreen_height = 0;
+		saveScreen_y = 0;
+		saveScreen_x = 0;
 	}
 }
 

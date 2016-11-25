@@ -496,6 +496,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		CComponentsHeader 	*header;
 		unsigned int saveScreen_width ;
 		unsigned int saveScreen_height;
+		unsigned int saveScreen_y;
+		unsigned int saveScreen_x;
 	protected:
 		std::string		nameString;
 		neutrino_locale_t	name;
