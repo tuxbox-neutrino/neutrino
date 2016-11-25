@@ -104,6 +104,8 @@ class CKeyboardInput : public CMenuTarget
 		bool force_saveScreen;
 		fb_pixel_t *pixBuf;
 
+		void keyDigiPressed(const neutrino_msg_t key);
+
 		virtual void init();
 
 		virtual void paint();
