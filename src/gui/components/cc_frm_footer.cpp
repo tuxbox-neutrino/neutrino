@@ -79,7 +79,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	cc_body_gradient_enable		= cc_body_gradient_enable_old	= g_settings.theme.menu_ButtonBar_gradient; //TODO: not complete implemented at the moment
+	cc_body_gradient_enable		= cc_body_gradient_enable_old = CC_COLGRAD_OFF/*g_settings.theme.menu_ButtonBar_gradient*/; //TODO: not complete implemented at the moment
 	cc_body_gradient_direction	= CFrameBuffer::gradientVertical;
 	cc_body_gradient_mode		= CColorGradient::gradientDark2Light;
 	btn_auto_frame_col	= false;
