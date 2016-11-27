@@ -45,7 +45,7 @@ void CBuildInfo::initVarBuildInfo()
 {
 	setCenterPos();
 
-	font = NULL;
+	font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT];
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 	InitInfoItems();
 
