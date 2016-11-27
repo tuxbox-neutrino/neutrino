@@ -559,7 +559,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "text_ext"){
 		if (text_ext == NULL)
 			text_ext = new CComponentsExtTextForm();
-		text_ext->setDimensionsAll(10, 20, 300, 48);
+		text_ext->setDimensionsAll(10, 20, 300, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight());
 		text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
 		text_ext->setFrameThickness(2);
 // 		text_ext->setLabelWidthPercent(15/*%*/);

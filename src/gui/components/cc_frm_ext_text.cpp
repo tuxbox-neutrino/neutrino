@@ -34,6 +34,13 @@
 
 using namespace std;
 
+CComponentsExtTextForm::CComponentsExtTextForm(CComponentsForm* parent)
+{
+	Font* t_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+	initVarExtTextForm(0, 0, 300, t_font->getHeight(), "", "", t_font, parent, CC_SHADOW_OFF, COL_MENUCONTENTINACTIVE_TEXT, COL_MENUCONTENT_TEXT, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
+	initCCTextItems();
+}
+
 CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
 						Font* font_text,
@@ -47,20 +54,19 @@ CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_p
 	initCCTextItems();
 }
 
-CComponentsExtTextFormLocalized::CComponentsExtTextFormLocalized(const int& x_pos, const int& y_pos, const int& w, const int& h,
-								const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,
-								Font* font_text,
-								CComponentsForm* parent,
-								int shadow_mode,
-								fb_pixel_t label_color,
-								fb_pixel_t text_color,
-								fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
-								: CComponentsExtTextForm(	x_pos, y_pos, w, h,
-												g_Locale->getText(locale_label_text), g_Locale->getText(locale_text),
-												font_text,
-												parent,
-												shadow_mode,
-												label_color, text_color, color_frame, color_body, color_shadow){};
+CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+						neutrino_locale_t l_text, const std::string& text,
+						Font* font_text,
+						CComponentsForm* parent,
+						int shadow_mode,
+						fb_pixel_t label_color,
+						fb_pixel_t text_color,
+						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	initVarExtTextForm(x_pos, y_pos, w, h, (string)g_Locale->getText(l_text), text, font_text, parent, shadow_mode, label_color, text_color, color_frame, color_body, color_shadow);
+	initCCTextItems();
+}
+
 
 void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
@@ -81,9 +87,13 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	ccx_percent_label_w = DEF_LABEL_WIDTH_PERCENT;
 	ccx_label_width = ccx_percent_label_w * width/100;
 	ccx_text_width	= width-ccx_label_width;
-	
+
 	height = h;
-	
+	if (height == 0)
+		height = DEF_HEIGHT;
+
+	y_text = 0;
+
 	ccx_label_text 	= label_text;
 	ccx_text 	= text;
 	shadow 		= shadow_mode;
@@ -95,8 +105,11 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	ccx_label_obj	= NULL;
 	ccx_text_obj	= NULL;
 	corner_type	= 0;
-	int dx = 0, dy 	= DEF_HEIGHT;
-	ccx_font 	= font_text == NULL ? *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy)) :  g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+	ccx_font 	= font_text;
+	if (ccx_font == NULL){
+		int dx = 0, dy 	= height;
+		ccx_font =  *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy));
+	}
 	ccx_label_align = ccx_text_align = CTextBox::NO_AUTO_LINEBREAK;
 
 	initParent(parent);
@@ -120,9 +133,10 @@ void CComponentsExtTextForm::initLabel()
 	//set properties
 	if (ccx_label_obj){
 		ccx_label_width = (ccx_percent_label_w * width/100);
+		y_text = height/2 - height-2*fr_thickness;
 		ccx_label_obj->setText(ccx_label_text, ccx_label_align, ccx_font);
 		ccx_label_obj->setTextColor(ccx_label_color);
-		ccx_label_obj->setDimensionsAll(0, 0, ccx_label_width-2*fr_thickness, height-2*fr_thickness);
+		ccx_label_obj->setDimensionsAll(0, y_text, ccx_label_width-2*fr_thickness, height-2*fr_thickness);
 		ccx_label_obj->setCorner(this->corner_rad, CORNER_LEFT);
 	}
 }
@@ -146,7 +160,7 @@ void CComponentsExtTextForm::initText()
 		ccx_text_width = width-ccx_label_obj->getWidth();
 		ccx_text_obj->setText(ccx_text, ccx_text_align, ccx_font);
 		ccx_text_obj->setTextColor(ccx_text_color);
-		ccx_text_obj->setDimensionsAll(CC_APPEND, 0, ccx_text_width-2*fr_thickness, height-2*fr_thickness);
+		ccx_text_obj->setDimensionsAll(ccx_label_obj->getWidth(), y_text, ccx_text_width-2*fr_thickness, height-2*fr_thickness);
 		ccx_text_obj->setCorner(this->corner_rad, CORNER_RIGHT);
 	}
 }
