@@ -44,6 +44,7 @@
 #define TIMEOUT_BAR_HEIGHT  OFFSET_SHADOW/2
 
 #define DEFAULT_HINTBOX_TEXT_MODE (CTextBox::CENTER)
+#define DEFAULT_HEADER_ICON NEUTRINO_ICON_INFO
 
 //! Sub class of CComponentsWindow. Shows a window as a hintbox with text and optional icon beside of text.
 /*!
@@ -92,11 +93,11 @@ class CHintBox : public CComponentsWindow
 		* @param[in]	Width
 		* 	@li 	optional: exepts type int, defines box width, default value = HINTBOX_MIN_WIDTH
 		* @param[in]	Icon
-		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = NULL (non Icon)
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = DEFAULT_HEADER_ICON
 		* @param[in]	Picon
 		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
 		* @param[in]	header_buttons
-		* 	@li 	optional: exepts type int, defines the icon name on the left side of titlebar, default = 0 (non Icon)
+		* 	@li 	optional: exepts type int, defines the icon name on the right side of titlebar, default = 0 (non Icon)
 		* 	@see	class CComponentsWindow()
 		* @param[in]	text_mode
 		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
@@ -118,7 +119,7 @@ class CHintBox : public CComponentsWindow
 		CHintBox(	const neutrino_locale_t Caption,
 				const char * const Text,
 				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = NULL,
+				const char * const Icon = DEFAULT_HEADER_ICON,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
@@ -132,7 +133,7 @@ class CHintBox : public CComponentsWindow
 		CHintBox(	const char * const Caption,
 				const char * const Text,
 				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = NULL,
+				const char * const Icon = DEFAULT_HEADER_ICON,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
@@ -148,7 +149,7 @@ class CHintBox : public CComponentsWindow
 		CHintBox(	const neutrino_locale_t Caption,
 				const neutrino_locale_t Text,
 				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = NULL,
+				const char * const Icon = DEFAULT_HEADER_ICON,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
@@ -164,7 +165,7 @@ class CHintBox : public CComponentsWindow
 		CHintBox(	const char * const Caption,
 				const neutrino_locale_t Text,
 				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = NULL,
+				const char * const Icon = DEFAULT_HEADER_ICON,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
