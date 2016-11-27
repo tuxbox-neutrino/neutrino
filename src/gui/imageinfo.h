@@ -50,7 +50,7 @@ class CImageInfo : public CMenuTarget
 		std::string license_txt;
 		Font* item_font;
 		int item_height;
-
+		int y_tmp;
 		std::vector<image_info_t> v_info;
 
 		void Clean();
