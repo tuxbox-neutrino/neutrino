@@ -40,11 +40,12 @@ Handling of text parts based up CTextBox attributes and methodes.
 CComponentsText provides a interface to the embedded CTextBox object.
 */
 
-class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
+class CComponentsText : public CCTextScreen, public CComponentsItem
 {
 	protected:
 		///object: CTextBox object
 		CTextBox 	* ct_textbox;
+		CBox		ct_box;
 		///object: Fontrenderer object
 		Font		* ct_font;
 		///property: font style
@@ -96,6 +97,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 
 		///initialize all required attributes for text and send to the CTextBox object
 		void initCCText();
+		///init internal CBox object required by CTextBox object
+		void initCBox();
+
 		///paint CCItem backckrond (if paint_bg=true), apply initCCText() and send paint() to the CTextBox object
 		void paintText(bool do_save_bg = CC_SAVE_SCREEN_YES);
 	public:
@@ -105,7 +109,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 			FONT_STYLE_ITALIC	= 2
 		};
 
-		CComponentsText(	const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+		CComponentsText(	const int x_pos = 10, const int y_pos = 10, const int w = 0, const int h = 0,
 					std::string text = "",
 					const int mode = CTextBox::AUTO_WIDTH,
 					Font* font_text = NULL,
