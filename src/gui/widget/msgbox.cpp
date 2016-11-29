@@ -288,15 +288,19 @@ int CMsgBox::exec()
 					mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
 				}
 				selected = ccw_footer->getSelectedButton();
-				refreshFoot();
 
-				//refresh timeout on any pressed navi key! This resets current timeout end to the initial value
+				//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
+				if (ccw_footer->getButtonChainObject()->size()>1)
+					refreshFoot();
+
+				//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
 				if (timeout > 0){
 					timeout_pb->setValues(0, timeout);
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 				}
 				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 			}
+
 			//***action buttons without preselection***
 			for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++){
 				CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
