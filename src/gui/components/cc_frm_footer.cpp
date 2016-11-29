@@ -362,8 +362,7 @@ void CComponentsFooter::setSelectedButton(size_t item_id,
 			sel_col = sel_fr_col; //TODO: make it configurable
 		chain->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
 
-		if (chain->size() > 1)
-			getSelectedButtonObject()->setButtonTextColor(sel_text_col);
+		getSelectedButtonObject()->setButtonTextColor(sel_text_col);
 	}
 }
 
