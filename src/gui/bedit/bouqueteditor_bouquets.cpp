@@ -97,22 +97,22 @@ void CBEBouquetWidget::paintItem(int pos)
 
 	if (current < Bouquets->size()) {
 		if ((i_selected) && (state == beMoving))
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 5, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID, ypos, iheight);
 
 		if ((*Bouquets)[current]->bHidden)
-			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + 26, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + OFFSET_INNER_MID + iconoffset, ypos, iheight);
 
 		if ((*Bouquets)[current]->bLocked != g_settings.parentallock_defaultlocked)
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 18 + iconoffset, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_MID + 2*iconoffset, ypos, iheight);
 
 		if (!(*Bouquets)[current]->tvChannels.empty() ) {
-			frameBuffer->paintIcon(NEUTRINO_ICON_VIDEO, x + 20 + 2*iconoffset - 2, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_VIDEO, x + OFFSET_INNER_MID + 3*iconoffset, ypos, iheight);
 		}
 
 		if (!(*Bouquets)[current]->radioChannels.empty()) {
-			frameBuffer->paintIcon(NEUTRINO_ICON_AUDIO, x + 20+ 3*iconoffset - 4, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_AUDIO, x + OFFSET_INNER_MID + 4*iconoffset, ypos, iheight);
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x +20 + 4*iconoffset, ypos + iheight - (iheight-fheight)/2, width-iconoffset-20, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 2*OFFSET_INNER_MID + 5*iconoffset, ypos + iheight - (iheight-fheight)/2, width - 3*OFFSET_INNER_MID - 5*iconoffset, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
 	}
 }
 
@@ -203,21 +203,31 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 	int icol_w, icol_h;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icol_w, &icol_h);
-	iheight = std::max(fheight, icol_h+2);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
 	iconoffset = std::max(iconoffset, icol_w);
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icol_w, &icol_h);
-	iheight = std::max(iheight, icol_h+2);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
 	iconoffset = std::max(iconoffset, icol_w);
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_HIDDEN, &icol_w, &icol_h);
-	iheight = std::max(iheight, icol_h+2);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
+	iconoffset = std::max(iconoffset, icol_w);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_VIDEO, &icol_w, &icol_h);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
+	iconoffset = std::max(iconoffset, icol_w);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_AUDIO, &icol_w, &icol_h);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
 	iconoffset = std::max(iconoffset, icol_w);
 
 	width  = frameBuffer->getScreenWidthRel();
 	height = frameBuffer->getScreenHeightRel() - ButtonHeight;
-	listmaxshow = (height-theight-0)/iheight;
-	height = theight+0+listmaxshow*iheight; // recalc height
+
+	listmaxshow = (height-theight)/iheight;
+	height = theight+listmaxshow*iheight; // recalc height
+
         x = getScreenStartX(width);
         y = getScreenStartY(height + ButtonHeight);
 

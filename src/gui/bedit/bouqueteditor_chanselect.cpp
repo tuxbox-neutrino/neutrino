@@ -135,15 +135,15 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 	if(itemNr < getItemCount())
 	{
 		if( isChannelInBouquet(itemNr))
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x+10, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x + OFFSET_INNER_MID, ypos, iheight);
 		else
-			frameBuffer->paintBoxRel(x+10, ypos, iconoffset, iheight, bgcolor);
+			frameBuffer->paintBoxRel(x + OFFSET_INNER_MID, ypos, iconoffset, iheight, bgcolor);
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width - 20 - iconoffset, Channels[itemNr]->getName(), color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 2*OFFSET_INNER_MID + 2*iconoffset, ypos + iheight - (iheight-fheight)/2, width - 3*OFFSET_INNER_MID - 2*iconoffset, Channels[itemNr]->getName(), color);
 		if(Channels[itemNr]->scrambled)
-			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x + width - 15 - OFFSET_INNER_MID - iconoffset, ypos, fheight);
 		else if (!Channels[itemNr]->getUrl().empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x+width- 15 - 28, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x + width - 15 - OFFSET_INNER_MID - iconoffset, ypos, fheight);
 	}
 }
 
