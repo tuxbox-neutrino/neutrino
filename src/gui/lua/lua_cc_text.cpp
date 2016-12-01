@@ -54,14 +54,16 @@ CLuaCCText *CLuaInstCCText::CCTextCheck(lua_State *L, int n)
 void CLuaInstCCText::CCTextRegister(lua_State *L)
 {
 	luaL_Reg meth[] = {
-		{ "new",          CLuaInstCCText::CCTextNew },
-		{ "paint",        CLuaInstCCText::CCTextPaint },
-		{ "hide",         CLuaInstCCText::CCTextHide },
-		{ "setText",      CLuaInstCCText::CCTextSetText },
-		{ "scroll",       CLuaInstCCText::CCTextScroll },
-		{ "setCenterPos", CLuaInstCCText::CCTextSetCenterPos },
-		{ "enableUTF8",   CLuaInstCCText::CCTextEnableUTF8 },
-		{ "__gc",         CLuaInstCCText::CCTextDelete },
+		{ "new",              CLuaInstCCText::CCTextNew },
+		{ "paint",            CLuaInstCCText::CCTextPaint },
+		{ "hide",             CLuaInstCCText::CCTextHide },
+		{ "setText",          CLuaInstCCText::CCTextSetText },
+		{ "getLines",         CLuaInstCCText::CCTextGetLines },
+		{ "scroll",           CLuaInstCCText::CCTextScroll },
+		{ "setCenterPos",     CLuaInstCCText::CCTextSetCenterPos },
+		{ "enableUTF8",       CLuaInstCCText::CCTextEnableUTF8 },
+		{ "setDimensionsAll", CLuaInstCCText::CCTextSetDimensionsAll },
+		{ "__gc",             CLuaInstCCText::CCTextDelete },
 		{ NULL, NULL }
 	};
 
@@ -214,6 +216,26 @@ int CLuaInstCCText::CCTextSetText(lua_State *L)
 	return 0;
 }
 
+int CLuaInstCCText::CCTextGetLines(lua_State *L)
+{
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
+
+	lua_Integer lines = 0;
+	if (lua_gettop(L) == 2) {
+		const char* Text = luaL_checkstring(L, 2);
+		lines = (lua_Integer)CTextBox::getLines(Text);
+	}
+	else {
+		CTextBox* ctb = D->ct->getCTextBoxObject();
+		if (ctb)
+			lines = (lua_Integer)ctb->getLines();
+	}
+
+	lua_pushinteger(L, lines);
+	return 1;
+}
+
 int CLuaInstCCText::CCTextScroll(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
@@ -270,6 +292,28 @@ int CLuaInstCCText::CCTextEnableUTF8(lua_State *L)
 		utf8_encoded = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
 	D->ct->enableUTF8(utf8_encoded);
+	return 0;
+}
+
+int CLuaInstCCText::CCTextSetDimensionsAll(lua_State *L)
+{
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
+	lua_Integer x = luaL_checkint(L, 2);
+	lua_Integer y = luaL_checkint(L, 3);
+	lua_Integer w = luaL_checkint(L, 4);
+	lua_Integer h = luaL_checkint(L, 5);
+	if(x>-1 && y > -1 && w > 1 && h > 1){
+		if (h > (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight())
+			h = (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight();
+		if (w > (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth())
+			w = (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth();
+		if(x > w)
+			x = 0;
+		if(y > h)
+			y = 0;
+		D->ct->setDimensionsAll(x,y,w,h);
+	}
 	return 0;
 }
 
