@@ -2434,6 +2434,7 @@ const char * locale_real_names[] =
 	"timing.menu",
 	"timing.numericzap",
 	"timing.popup_messages",
+	"timing.static_messages",
 	"timing.volumebar",
 	"tmdb.api_key",
 	"tmdb.enabled",

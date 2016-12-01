@@ -38,6 +38,7 @@
 #define MSGBOX_MIN_WIDTH HINTBOX_MIN_WIDTH
 #define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT + 75
 
+#define MSGBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]
 #define DEFAULT_MSGBOX_TEXT_MODE (CMsgBox::CENTER | CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH)
 
 //! Sub class of CHintBox. Shows a window as a messagebox

@@ -238,7 +238,7 @@ int CMsgBox::exec()
 	ccw_footer->getSelectedButtonObject()->setButtonAlias(mb_show_button);
 	int selected = ccw_footer->getSelectedButton();
 	if (timeout == NO_TIMEOUT)
-		timeout = 0;
+		timeout = MSGBOX_DEFAULT_TIMEOUT;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
