@@ -1525,14 +1525,13 @@ void CMoviePlayerGui::PlayFileLoop(void)
 
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			if (fromInfoviewer) {
+				CTimeOSD::mode m_mode = FileTime.getMode();
+				bool restore = FileTime.IsVisible();
+				if (restore)
+					FileTime.kill();
+				CInfoClock::getInstance()->enableInfoClock(false);
 #ifdef ENABLE_LUA
 				if (isLuaPlay && haveLuaInfoFunc) {
-					CTimeOSD::mode m_mode = FileTime.getMode();
-					bool restore = FileTime.IsVisible();
-					if (restore)
-						FileTime.kill();
-					CInfoClock::getInstance()->enableInfoClock(false);
-
 					int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
 					if (!videoDecoder->getBlank()) {
 						videoDecoder->getPictureInfo(xres, yres, framerate);
@@ -1541,21 +1540,19 @@ void CMoviePlayerGui::PlayFileLoop(void)
 						aspectRatio = videoDecoder->getAspectRatio();
 					}
 					CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
-					fromInfoviewer = false;
-
-					CInfoClock::getInstance()->enableInfoClock(true);
-					if (restore) {
-						FileTime.setMode(m_mode);
-						FileTime.update(position, duration);
-					}
 				}
 				else {
 #endif
 					g_EpgData->show_mp(p_movie_info,GetPosition(),GetDuration());
-					fromInfoviewer = false;
 #ifdef ENABLE_LUA
 				}
 #endif
+				fromInfoviewer = false;
+				CInfoClock::getInstance()->enableInfoClock(true);
+				if (restore) {
+					FileTime.setMode(m_mode);
+					FileTime.update(position, duration);
+				}
 			}
 			else
 				callInfoViewer();
