@@ -297,6 +297,7 @@ void CComponentsWindow::initBody()
 
 		ccw_body->setDimensionsAll(x_body, h_header, w_body, h_body);
 		ccw_body->doPaintBg(true);
+		ccw_body->setColorBody(col_body);
 
 		//handle corner behavior
 		if (!ccw_show_header)
