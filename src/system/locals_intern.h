@@ -1461,6 +1461,7 @@ const char * locale_real_names[] =
 	"menu.hint_sw_update",
 	"menu.hint_theme",
 	"menu.hint_timeouts",
+	"menu.hint_timeouts_static_messages",
 	"menu.hint_timer_followscreenings",
 	"menu.hint_timers",
 	"menu.hint_timezone",

@@ -1433,6 +1433,7 @@ menu.hint_subchannel_pos Pozícia menu výberu sub-kanálov
 menu.hint_sw_update Aktualizácia software
 menu.hint_theme Výber prednastavených farebných vzhľadov\nUloženie alebo nahranie vzhľadu zo súborov
 menu.hint_timeouts Konfigurácia času zmiznutia GUI okien\nv sekundách
+menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
 menu.hint_timers Pridanie/Odstránenie/Upravenie plánovaného\nnahrávania, pripomienky atď.
 menu.hint_timezone Výber časového pásma
 menu.hint_tmdb_api_key Vložte váš TMDb API kľúč. Neuvedením údajov sa vypne podpora TMDb
@@ -2402,6 +2403,8 @@ timing.infobar_radio Stavový riadok (rádio mód)
 timing.menu Ponuka
 timing.numericzap Prepínanie číslami
 timing.volumebar Ukazateľ hlasitosti
+timing.popup_messages Popup messages
+timing.static_messages Interactive messages
 tmdb.api_key TMDb API kľúč
 tmdb.enabled TMDb podpora
 tmdb.read_data Vyhľadávanie údajov TMDB...

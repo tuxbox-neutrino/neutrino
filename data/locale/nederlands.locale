@@ -1326,6 +1326,7 @@ menu.hint_subchannel_pos Selecteer menu positie van subkanalen
 menu.hint_sw_update Update software
 menu.hint_theme Select voorgedefinieerde thema\n Opslaan of laad thema van bestand
 menu.hint_timeouts Verberg gebruikers interface na bepaald aantal seconden.
+menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
 menu.hint_timers Toevoegen/Verplaats/Bewerk \ngeplande opnames of timers etc. 
 menu.hint_timezone Selecteer uw tijdzone
 menu.hint_tools Start tools
@@ -2201,6 +2202,8 @@ timing.infobar_radio Infobalk (radio modus)
 timing.menu Menu
 timing.numericzap Numeriek Zap
 timing.volumebar Volume balk
+timing.popup_messages Popup messages
+timing.static_messages Interactive messages
 tmdb.read_data Zoeken TMDB data...
 unicable.lnb Invoer Unicable
 unicable.qrg Unicable Frequentie

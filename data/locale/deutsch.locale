@@ -1433,7 +1433,8 @@ menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, 
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
 menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
-menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofenster sich automatisch schließen (0 deaktiviert)
+menu.hint_timeouts Anzeigedauer für Menüs oder Infofenster, die sich automatisch schließen (0 deaktiviert)
+menu.hint_timeouts_static_messages Anzeigedauer für bestimmte Meldungen mit Benutzerinteraktion
 menu.hint_timer_followscreenings Zeige Terminauswahl mit Folge-Events zur Timerprogrammierung
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
@@ -2407,6 +2408,7 @@ timing.infobar_radio Infobar (Radiobetrieb)
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
 timing.popup_messages Popup Meldungen
+timing.static_messages Interaktive Meldungen
 timing.volumebar Lautstärkeanzeige
 tmdb.api_key TMDb API Schlüssel
 tmdb.enabled TMDb-Unterstützung

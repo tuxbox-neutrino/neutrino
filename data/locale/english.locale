@@ -1434,6 +1434,7 @@ menu.hint_subchannel_pos Select subchannels menu position
 menu.hint_sw_update Update software
 menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Configure time to hide GUI windows\nin seconds
+menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
 menu.hint_timer_followscreenings Show selection with followscreenings for timer programming
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
@@ -2407,6 +2408,7 @@ timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap
 timing.popup_messages Popup messages
+timing.static_messages Interactive messages
 timing.volumebar Volume bar
 tmdb.api_key TMDb API key
 tmdb.enabled TMDb support
