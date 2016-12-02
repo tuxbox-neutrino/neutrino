@@ -2402,9 +2402,9 @@ timing.infobar_movieplayer Stavový riadok (filmový mód)
 timing.infobar_radio Stavový riadok (rádio mód)
 timing.menu Ponuka
 timing.numericzap Prepínanie číslami
-timing.volumebar Ukazateľ hlasitosti
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
+timing.volumebar Ukazateľ hlasitosti
 tmdb.api_key TMDb API kľúč
 tmdb.enabled TMDb podpora
 tmdb.read_data Vyhľadávanie údajov TMDB...

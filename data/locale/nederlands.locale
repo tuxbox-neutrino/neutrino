@@ -2201,9 +2201,9 @@ timing.infobar_movieplayer Infobalk (film modus)
 timing.infobar_radio Infobalk (radio modus)
 timing.menu Menu
 timing.numericzap Numeriek Zap
-timing.volumebar Volume balk
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
+timing.volumebar Volume balk
 tmdb.read_data Zoeken TMDB data...
 unicable.lnb Invoer Unicable
 unicable.qrg Unicable Frequentie
