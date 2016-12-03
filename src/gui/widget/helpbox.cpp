@@ -118,7 +118,7 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 
 
 
-void Helpbox::addSeparatorLine(const int& line_space, const int& line_indent, bool enable_gradient)
+void Helpbox::addSeparatorLine(const int& line_space, const int& line_indent)
 {
 	CComponentsItem *pre_item = !ccw_body->empty() ? ccw_body->back() : NULL; //get the last current item
 
@@ -140,8 +140,11 @@ void Helpbox::addSeparatorLine(const int& line_space, const int& line_indent, bo
 	CComponentsShapeSquare *sepline = new CComponentsShapeSquare (0, 0, line->getWidth(), 2);
 	sepline->setYPos(line->getHeight()/2 - sepline->getHeight()/2);
 	sepline->setColorBody(COL_MENUCONTENTINACTIVE_TEXT);
-	sepline->enableColBodyGradient(enable_gradient);
-	sepline->setColBodyGradient(CColorGradient::gradientLight2Dark, CFrameBuffer::gradientHorizontal, CColorGradient::light);
+	if (g_settings.theme.menu_Separator_gradient_enable)
+	{
+		sepline->enableColBodyGradient(true);
+		sepline->setColBodyGradient(CColorGradient::gradientLight2Dark, CFrameBuffer::gradientHorizontal, CColorGradient::light);
+	}
 
 	line->addCCItem(sepline);
 

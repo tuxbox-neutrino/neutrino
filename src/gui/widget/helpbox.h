@@ -82,8 +82,7 @@ public:
 	///arg 'line_indent' defines begin of line from left border within body object.
 	///arg 'enable_gradient' enable/disable gradient, Note: default = true, but gradient is only effected, if global/theme gradient settings are enabled!
 	void addSeparatorLine(	const int& line_space = HELPBOX_DEFAULT_LINE_HEIGHT,
-				const int& line_indent = HELPBOX_DEFAULT_LINE_INDENT,
-				bool enable_gradient = true);
+				const int& line_indent = HELPBOX_DEFAULT_LINE_INDENT);
 	///adds a simple empty separator as horizontal space, arg 'line_space' defines the space of full separator height
 	void addSeparator(	const int& line_space = HELPBOX_DEFAULT_LINE_HEIGHT);
 
