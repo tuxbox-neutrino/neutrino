@@ -55,14 +55,14 @@ class CMovieHelp : public CMenuTarget
 			helpbox.addLine("Standard functions", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 10, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_OKAY), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_PLAY, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_PLAY), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_MUTE, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MUTE), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_MUTE_SMALL, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MUTE), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
 			helpbox.addSeparatorLine();
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_RED, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_RED), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_GREEN, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_GREEN), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_YELLOW, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_YELLOW), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_BLUE, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_BLUE), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_MENU, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MENU), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
-			helpbox.addLine("+/-  Change view", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine("</>  Change view", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
 #if 0
 			helpbox.addPagebreak();
 #endif
