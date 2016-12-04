@@ -26,7 +26,6 @@
 #include <config.h>
 #endif
 
-
 #include <global.h>
 #include <neutrino.h>
 #include <gui/widget/helpbox.h>
@@ -36,16 +35,13 @@ using namespace std;
 Helpbox::Helpbox(	const string& Title,
 			const string& Default_Text,
 			const int& text_mode,
-			const int& line_space,
+			const int& line_height,
 			Font* default_font_text,
 			const char* Icon):
 			CComponentsWindowMax(	Title,
 						Icon,
 						NULL,
-						CC_SHADOW_ON,
-						COL_MENUCONTENT_PLUS_6,
-						COL_MENUCONTENT_PLUS_0,
-						COL_SHADOW_PLUS_0)
+						CC_SHADOW_ON)
 {
 	page = 0;
 	hbox_y = 1;
@@ -53,18 +49,17 @@ Helpbox::Helpbox(	const string& Title,
 	ccw_footer->setButtonLabel(NEUTRINO_ICON_BUTTON_HOME, LOCALE_MESSAGEBOX_BACK);
 
 	hbox_font = default_font_text;
-	if (default_font_text == NULL)
+	if (hbox_font == NULL)
 		hbox_font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO];
 
 	if (!Default_Text.empty())
-		addLine(Default_Text.c_str(), Default_Text, text_mode, line_space, HELPBOX_DEFAULT_LINE_INDENT ,hbox_font);
+		addLine(Default_Text.c_str(), Default_Text, text_mode, line_height, HELPBOX_DEFAULT_LINE_INDENT, hbox_font);
 
 	//ensure hided channellist, because shared RC_ok
 	CNeutrinoApp::getInstance()->allowChannelList(false);
 }
 
-
-void Helpbox::addLine(const std::string& icon, const std::string& text, const int& text_mode, const int& line_space, const int& line_indent, Font* font_text)
+void Helpbox::addLine(const std::string& icon, const std::string& text, const int& text_mode, const int& line_height, const int& line_indent, Font* font_text)
 {
 	CComponentsItem *pre_item = !ccw_body->empty() ? ccw_body->back() : NULL; //get the last current item
 
@@ -73,12 +68,11 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 			hbox_y = pre_item->getYPos() + pre_item->getHeight();
 	}
 
-	int h_line = line_space;
 	Font* font = hbox_font;
-	if (font_text){
-		h_line = max(h_line, font_text->getHeight());
+	if (font_text)
 		font = font_text;
-	}
+
+	int h_line = getLineHeight(line_height, font);
 
 	CComponentsFrmChain *line = new CComponentsFrmChain(line_indent, hbox_y, 0, h_line);
 	if ((hbox_y + h_line)>ccw_body->getHeight()){
@@ -88,7 +82,7 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 	line->setPageNumber(page);
 
 	int w_body = ccw_body->getWidth();
-	line->setWidth(w_body - line_indent - 40);
+	line->setWidth(w_body - 2*line_indent);
 	line->setXPos(line_indent);
 	line->setColorBody(ccw_body->getColorBody());
 
@@ -105,7 +99,7 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 
 	if (!text.empty()){
 		int x_text = w_picon + (picon ? 10 : 0);
-		CComponentsText * txt = new CComponentsText(x_text, 0, line->getWidth()-x_text, line_space, text, text_mode, font);
+		CComponentsText * txt = new CComponentsText(x_text, 0, line->getWidth()-x_text, line_height, text, text_mode, font);
 #if 0 //"contrast agent", if you want to see where the text items are drawn.
 		txt->setColorBody(COL_RED);
 		txt->doPaintBg(true);
@@ -115,10 +109,7 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 	addWindowItem(line);
 }
 
-
-
-
-void Helpbox::addSeparatorLine(const int& line_space, const int& line_indent)
+void Helpbox::addSeparatorLine(const int& line_height, const int& line_indent)
 {
 	CComponentsItem *pre_item = !ccw_body->empty() ? ccw_body->back() : NULL; //get the last current item
 
@@ -127,13 +118,11 @@ void Helpbox::addSeparatorLine(const int& line_space, const int& line_indent)
 			hbox_y = pre_item->getYPos() + pre_item->getHeight();
 	}
 
-	int h_line = line_space;
-
-	CComponentsFrmChain *line = new CComponentsFrmChain(line_indent, hbox_y, 0, h_line);
+	CComponentsFrmChain *line = new CComponentsFrmChain(line_indent, hbox_y, 0, getLineHeight(line_height, hbox_font, true));
 	line->setPageNumber(page);
 
 	int w_body = ccw_body->getWidth();
-	line->setWidth(w_body - line_indent - 40);
+	line->setWidth(w_body - 2*line_indent);
 	line->setXPos(line_indent);
 	line->setColorBody(ccw_body->getColorBody());
 
@@ -151,7 +140,7 @@ void Helpbox::addSeparatorLine(const int& line_space, const int& line_indent)
 	addWindowItem(line);
 }
 
-void Helpbox::addSeparator(const int& line_space)
+void Helpbox::addSeparator(const int& line_height)
 {
 	CComponentsItem *pre_item = !ccw_body->empty() ? ccw_body->back() : NULL; //get the last current item
 
@@ -160,7 +149,7 @@ void Helpbox::addSeparator(const int& line_space)
 			hbox_y = pre_item->getYPos() + pre_item->getHeight();
 	}
 
-	CComponentsFrmChain *line = new CComponentsFrmChain(0, hbox_y, 0, line_space);
+	CComponentsFrmChain *line = new CComponentsFrmChain(0, hbox_y, 0, getLineHeight(line_height, hbox_font, true));
 	line->setPageNumber(page);
 
 	int w_body = ccw_body->getWidth();
@@ -170,28 +159,20 @@ void Helpbox::addSeparator(const int& line_space)
 	addWindowItem(line);
 }
 
-
-
-
-
-void Helpbox::addLine(const char *icon, const char *text, const int& text_mode, const int& line_space, const int& line_indent, Font* font_text)
+void Helpbox::addLine(const char *icon, const char *text, const int& text_mode, const int& line_height, const int& line_indent, Font* font_text)
 {
-	addLine(icon, std::string(text), text_mode, line_space, line_indent, font_text);
-
+	addLine(icon, std::string(text), text_mode, line_height, line_indent, font_text);
 }
 
-
-void Helpbox::addLine(const char *text, const int& text_mode, const int& line_space, const int& line_indent, Font* font_text)
+void Helpbox::addLine(const char *text, const int& text_mode, const int& line_height, const int& line_indent, Font* font_text)
 {
-	addLine("", std::string(text), text_mode, line_space, line_indent,  font_text);
+	addLine("", std::string(text), text_mode, line_height, line_indent, font_text);
 }
 
-void Helpbox::addLine(const std::string& text, const int& text_mode, const int& line_space, const int& line_indent, Font* font_text)
+void Helpbox::addLine(const std::string& text, const int& text_mode, const int& line_height, const int& line_indent, Font* font_text)
 {
-	addLine("", text, text_mode, line_space, line_indent,  font_text);
+	addLine("", text, text_mode, line_height, line_indent, font_text);
 }
-
-
 
 void Helpbox::addPagebreak(void)
 {
@@ -200,3 +181,15 @@ void Helpbox::addPagebreak(void)
 	hbox_y = 1;
 }
 
+int Helpbox::getLineHeight(int line_height, Font* font_text, bool separator)
+{
+	if (font_text == NULL)
+		return 0; // should not happen
+
+	int h = max(line_height, font_text->getHeight());
+
+	if (separator)
+		return h/2; // separators uses half height
+
+	return h;
+}

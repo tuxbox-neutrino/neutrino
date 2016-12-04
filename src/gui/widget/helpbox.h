@@ -29,8 +29,8 @@
 #include <global.h>
 #include <neutrino.h>
 
-#define HELPBOX_DEFAULT_LINE_HEIGHT 35
-#define HELPBOX_DEFAULT_LINE_INDENT 10
+#define HELPBOX_DEFAULT_LINE_HEIGHT 0 // use font height as default
+#define HELPBOX_DEFAULT_LINE_INDENT OFFSET_INNER_MID
 
 class Helpbox : public CComponentsWindowMax
 {
@@ -39,13 +39,15 @@ private:
 	//start position of items on page
 	int hbox_y;
 
+	int getLineHeight(int line_height, Font* font_text, bool separator = false);
+
 	///default font
 	Font* hbox_font;
 public:
 	Helpbox(	const std::string& Title,
 			const std::string& Default_Text = std::string(),
 			const int& text_mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
-			const int& line_space = HELPBOX_DEFAULT_LINE_HEIGHT,
+			const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT,
 			Font* font_text = NULL,
 			const char* Icon = NEUTRINO_ICON_INFO);
 
@@ -54,37 +56,37 @@ public:
 
 	void addLine(	const std::string& text,
 			const int& text_mode 	= CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
-			const int& line_space 	= HELPBOX_DEFAULT_LINE_HEIGHT,
+			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
 			Font* font_text = NULL);
 
 	void addLine(	const char *text,
 			const int& text_mode 	= CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
-			const int& line_space 	= HELPBOX_DEFAULT_LINE_HEIGHT,
+			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
 			Font* font_text = NULL);
 
 	void addLine(	const std::string& icon,
 			const std::string& text,
 			const int& text_mode 	= CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
-			const int& line_space 	= HELPBOX_DEFAULT_LINE_HEIGHT,
+			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
 			Font* font_text = NULL);
 
 	void addLine(	const char *icon,
 			const char *text,
 			const int& text_mode 	= CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
-			const int& line_space 	= HELPBOX_DEFAULT_LINE_HEIGHT,
+			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
 			Font* font_text = NULL);
 	
-	///adds a separator as horizontal line, arg 'line_space' defines the space of full separator height, the separator line itself has a defined height of 2px and is centered within line space.
+	///adds a separator as horizontal line, arg 'line_height' defines the space of full separator height, the separator line itself has a defined height of 2px and is centered within line space.
 	///arg 'line_indent' defines begin of line from left border within body object.
 	///arg 'enable_gradient' enable/disable gradient, Note: default = true, but gradient is only effected, if global/theme gradient settings are enabled!
-	void addSeparatorLine(	const int& line_space = HELPBOX_DEFAULT_LINE_HEIGHT,
+	void addSeparatorLine(	const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT,
 				const int& line_indent = HELPBOX_DEFAULT_LINE_INDENT);
-	///adds a simple empty separator as horizontal space, arg 'line_space' defines the space of full separator height
-	void addSeparator(	const int& line_space = HELPBOX_DEFAULT_LINE_HEIGHT);
+	///adds a simple empty separator as horizontal space, arg 'line_height' defines the space of full separator height
+	void addSeparator(	const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT);
 
 	void addPagebreak();
 	
