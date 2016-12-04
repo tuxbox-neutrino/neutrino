@@ -101,7 +101,7 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 
 	if (!text.empty()){
 		int x_text = w_picon + (picon ? OFFSET_INNER_MID : 0);
-		CComponentsText * txt = new CComponentsText(x_text, 0, line->getWidth()-x_text, line_height, text, text_mode, font);
+		CComponentsText * txt = new CComponentsText(x_text, 0, line->getWidth()-x_text, line->getHeight(), text, text_mode, font);
 #if 0 //"contrast agent", if you want to see where the text items are drawn.
 		txt->setColorBody(COL_RED);
 		txt->doPaintBg(true);
