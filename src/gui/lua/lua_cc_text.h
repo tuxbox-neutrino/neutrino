@@ -47,9 +47,11 @@ class CLuaInstCCText
 		static int CCTextPaint(lua_State *L);
 		static int CCTextHide(lua_State *L);
 		static int CCTextSetText(lua_State *L);
+		static int CCTextGetLines(lua_State *L);
 		static int CCTextScroll(lua_State *L);
 		static int CCTextSetCenterPos(lua_State *L);
 		static int CCTextEnableUTF8(lua_State *L);
+		static int CCTextSetDimensionsAll(lua_State *L);
 		static int CCTextDelete(lua_State *L);
 };
 

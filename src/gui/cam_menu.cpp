@@ -41,7 +41,7 @@
 #include <neutrino.h>
 #include "widget/icons.h"
 #include "widget/stringinput.h"
-#include "widget/messagebox.h"
+
 #include "widget/progresswindow.h"
 
 #include <system/setting_helpers.h>

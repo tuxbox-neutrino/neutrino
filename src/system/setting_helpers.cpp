@@ -59,7 +59,7 @@
 #include <system/helpers.h>
 // obsolete #include <gui/streaminfo.h>
 
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 
 #include <gui/plugins.h>
@@ -527,8 +527,8 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 
 	/* no need to confirm if we only remove deleted channels */
 	if (!delete_removed) {
-		int result = ShowMsg(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-		if (result != CMessageBox::mbrYes)
+		int result = ShowMsg(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
+		if (result != CMsgBox::mbrYes)
 			return true;
 	}
 

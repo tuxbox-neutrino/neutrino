@@ -38,7 +38,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 #include <system/flashtool.h>
 #include <lib/libnet/libnet.h>
@@ -549,7 +549,7 @@ bool CExtUpdate::checkSpecialFolders(std::string line, bool copy)
 		neutrino_locale_t msg = (copy) ? LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SKIPPED : LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_DEL_SKIPPED;
 		snprintf(buf, sizeof(buf), g_Locale->getText(msg), line.c_str());
 		WRITE_UPDATE_LOG("%s%s", buf, "\n");
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, buf, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, buf, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO);
 		return true;
 	}
 	return false;
@@ -719,13 +719,13 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 		memset(buf1, '\0', sizeof(buf1));
 		if (free3 <= flashError) {
 			snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_ERROR), free3, total);
-			ShowMsg(LOCALE_MESSAGEBOX_ERROR, buf1, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_ERROR);
+			ShowMsg(LOCALE_MESSAGEBOX_ERROR, buf1, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR);
 			flashErrorFlag = true;
 			return false;
 		}
 		else if (free3 <= flashWarning) {
 			snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_WARNING), free3, total);
-		    	if (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf1, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO) != CMessageBox::mbrYes) {
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf1, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO) != CMsgBox::mbrYes) {
 				flashErrorFlag = true;
 				return false;
 		    	}

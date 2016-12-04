@@ -51,6 +51,8 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 		Font* ccx_font;
 		///property: percentage val of label width related to full width, causes fit of text automatically into the available remaining size of item, see also setLabelWidthPercent()
 		uint8_t ccx_percent_label_w;
+		///centered y position of label and text
+		int y_text;
 
 		///object: label object
 		CComponentsLabel *ccx_label_obj;
@@ -79,8 +81,21 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 
 	public:
 		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as string
-		CComponentsExtTextForm(	const int& x_pos = 1, const int& y_pos = 1, const int& w = 300, const int& h = 48,
+		CComponentsExtTextForm(CComponentsForm* parent = NULL);
+
+		CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& label_text = "", const std::string& text = "",
+					Font* font_text = NULL,
+					CComponentsForm *parent = NULL,
+					int shadow_mode = CC_SHADOW_OFF,
+					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
+					fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+
+		CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					neutrino_locale_t l_text = NONEXISTANT_LOCALE, const std::string& text = "",
 					Font* font_text = NULL,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
@@ -140,22 +155,6 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 
 		///paint this item/form
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-};
-
-class CComponentsExtTextFormLocalized : public CComponentsExtTextForm
-{
-	public:
-		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as locales
-		CComponentsExtTextFormLocalized(const int& x_pos = 1, const int& y_pos = 1, const int& w = 300, const int& h = 48,
-						const neutrino_locale_t& locale_label_text = NONEXISTANT_LOCALE, const neutrino_locale_t& locale_text = NONEXISTANT_LOCALE,
-						Font* font_text = NULL,
-						CComponentsForm *parent = NULL,
-						int shadow_mode = CC_SHADOW_OFF,
-						fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
-						fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
-						fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-						fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 };
 
 #endif

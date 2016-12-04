@@ -35,7 +35,7 @@
 #include <gui/components/cc.h>
 
 #include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
 #include <zapit/client/zapittools.h>
@@ -97,22 +97,22 @@ void CBEBouquetWidget::paintItem(int pos)
 
 	if (current < Bouquets->size()) {
 		if ((i_selected) && (state == beMoving))
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 5, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID, ypos, iheight);
 
 		if ((*Bouquets)[current]->bHidden)
-			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + 26, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + OFFSET_INNER_MID + iconoffset, ypos, iheight);
 
 		if ((*Bouquets)[current]->bLocked != g_settings.parentallock_defaultlocked)
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 18 + iconoffset, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_MID + 2*iconoffset, ypos, iheight);
 
 		if (!(*Bouquets)[current]->tvChannels.empty() ) {
-			frameBuffer->paintIcon(NEUTRINO_ICON_VIDEO, x + 20 + 2*iconoffset - 2, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_VIDEO, x + OFFSET_INNER_MID + 3*iconoffset, ypos, iheight);
 		}
 
 		if (!(*Bouquets)[current]->radioChannels.empty()) {
-			frameBuffer->paintIcon(NEUTRINO_ICON_AUDIO, x + 20+ 3*iconoffset - 4, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_AUDIO, x + OFFSET_INNER_MID + 4*iconoffset, ypos, iheight);
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x +20 + 4*iconoffset, ypos + iheight - (iheight-fheight)/2, width-iconoffset-20, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 2*OFFSET_INNER_MID + 5*iconoffset, ypos + iheight - (iheight-fheight)/2, width - 3*OFFSET_INNER_MID - 5*iconoffset, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
 	}
 }
 
@@ -203,21 +203,31 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 	int icol_w, icol_h;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icol_w, &icol_h);
-	iheight = std::max(fheight, icol_h+2);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
 	iconoffset = std::max(iconoffset, icol_w);
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icol_w, &icol_h);
-	iheight = std::max(iheight, icol_h+2);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
 	iconoffset = std::max(iconoffset, icol_w);
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_HIDDEN, &icol_w, &icol_h);
-	iheight = std::max(iheight, icol_h+2);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
+	iconoffset = std::max(iconoffset, icol_w);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_VIDEO, &icol_w, &icol_h);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
+	iconoffset = std::max(iconoffset, icol_w);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_AUDIO, &icol_w, &icol_h);
+	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
 	iconoffset = std::max(iconoffset, icol_w);
 
 	width  = frameBuffer->getScreenWidthRel();
 	height = frameBuffer->getScreenHeightRel() - ButtonHeight;
-	listmaxshow = (height-theight-0)/iheight;
-	height = theight+0+listmaxshow*iheight; // recalc height
+
+	listmaxshow = (height-theight)/iheight;
+	height = theight+listmaxshow*iheight; // recalc height
+
         x = getScreenStartX(width);
         y = getScreenStartY(height + ButtonHeight);
 
@@ -245,19 +255,19 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			{
 				if (bouquetsChanged)
 				{
-					int result = ShowMsg(LOCALE_BOUQUETEDITOR_NAME, LOCALE_BOUQUETEDITOR_SAVECHANGES, CMessageBox::mbrYes, CMessageBox::mbAll);
+					int result = ShowMsg(LOCALE_BOUQUETEDITOR_NAME, LOCALE_BOUQUETEDITOR_SAVECHANGES, CMsgBox::mbrYes, CMsgBox::mbYesNoCancel, NULL, 600);
 
 					switch( result )
 					{
-						case CMessageBox::mbrYes :
+						case CMsgBox::mbrYes :
 							loop=false;
 							saveChanges();
 						break;
-						case CMessageBox::mbrNo :
+						case CMsgBox::mbrNo :
 							loop=false;
 							discardChanges();
 						break;
-						case CMessageBox::mbrCancel :
+						case CMsgBox::mbrCancel :
 							paintHead();
 							paint();
 							paintFoot();
@@ -394,7 +404,7 @@ void CBEBouquetWidget::deleteBouquet()
 	if (selected >= Bouquets->size()) /* Bouquets->size() might be 0 */
 		return;
 
-	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
+	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)!=CMsgBox::mbrYes)
 		return;
 
 	g_bouquetManager->deleteBouquet(selected);
@@ -502,18 +512,16 @@ std::string CBEBouquetWidget::inputName(const char * const defaultName, const ne
 
 void CBEBouquetWidget::saveChanges()
 {
-	CHintBox* hintBox= new CHintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVINGCHANGES), 480); // UTF-8
-	hintBox->paint();
+	CHintBox hintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVINGCHANGES), 480); // UTF-8
+	hintBox.paint();
 	g_Zapit->saveBouquets();
-	hintBox->hide();
-	delete hintBox;
+	hintBox.hide();
 }
 
 void CBEBouquetWidget::discardChanges()
 {
-	CHintBox* hintBox= new CHintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_DISCARDINGCHANGES), 480); // UTF-8
-	hintBox->paint();
+	CHintBox hintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_DISCARDINGCHANGES), 480); // UTF-8
+	hintBox.paint();
 	g_Zapit->restoreBouquets();
-	hintBox->hide();
-	delete hintBox;
+	hintBox.hide();
 }

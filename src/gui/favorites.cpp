@@ -36,7 +36,7 @@
 #include <gui/favorites.h>
 
 #include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 
 #include <zapit/client/zapitclient.h>
@@ -122,19 +122,18 @@ int CFavorites::exec(CMenuTarget* parent, const std::string & actionKey)
 
 #if 0
 	if (!bouquetList) {
-		ShowMsg(LOCALE_FAVORITES_BOUQUETNAME, LOCALE_FAVORITES_NOBOUQUETS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_FAVORITES_BOUQUETNAME, LOCALE_FAVORITES_NOBOUQUETS, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 		return res;
 	}
 #endif
 
-	CHintBox* hintBox = new CHintBox(LOCALE_FAVORITES_BOUQUETNAME, g_Locale->getText(LOCALE_FAVORITES_ADDCHANNEL), 380); // UTF-8
+	CHintBox hintBox(LOCALE_FAVORITES_BOUQUETNAME, g_Locale->getText(LOCALE_FAVORITES_ADDCHANNEL), 380); // UTF-8
 	if(!show_list)
-		hintBox->paint();
+		hintBox.paint();
 
 	status = addChannelToFavorites(show_list);
 
-	hintBox->hide();
-	delete hintBox;
+	hintBox.hide();
 
 	// -- Display result
 
@@ -147,7 +146,7 @@ int CFavorites::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 		if (status & 2)  str += g_Locale->getText(LOCALE_EXTRA_CHADDED);
 		else	str += g_Locale->getText(LOCALE_EXTRA_CHALREADYINBQ);
-		ShowMsg(LOCALE_EXTRA_ADD_TO_BOUQUET, str, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO); // UTF-8
+		ShowMsg(LOCALE_EXTRA_ADD_TO_BOUQUET, str, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO); // UTF-8
 	}
 	else
 	{
@@ -155,7 +154,7 @@ int CFavorites::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (status & 2)  str += g_Locale->getText(LOCALE_FAVORITES_CHADDED);
 		else             str += g_Locale->getText(LOCALE_FAVORITES_CHALREADYINBQ);
 		if (status) str +=  g_Locale->getText(LOCALE_FAVORITES_FINALHINT);
-		ShowMsg(LOCALE_FAVORITES_BOUQUETNAME, str, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO); // UTF-8
+		ShowMsg(LOCALE_FAVORITES_BOUQUETNAME, str, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO); // UTF-8
 	}
 
 

@@ -284,6 +284,7 @@ struct SNeutrinoSettings
 	int epg_save_standby;
 	int epg_save_frequently;
 	int epg_read;
+	int epg_read_frequently;
 	int epg_cache;
 	int epg_old_events;
 	int epg_max_events;
@@ -408,6 +409,8 @@ struct SNeutrinoSettings
 		TIMING_VOLUMEBAR	= 6,
 		TIMING_FILEBROWSER	= 7,
 		TIMING_NUMERICZAP	= 8,
+		TIMING_POPUP_MESSAGES	= 9,
+		TIMING_STATIC_MESSAGES	= 10,
 
 		TIMING_SETTING_COUNT
 	};
@@ -464,6 +467,7 @@ struct SNeutrinoSettings
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
 	std::vector<timer_remotebox_item> timer_remotebox_ip;
+	int timer_followscreenings;
 	std::string recording_filename_template;
 	int recording_already_found_check;
 
@@ -686,6 +690,7 @@ struct SNeutrinoSettings
 		FONT_TYPE_MOVIEBROWSER_LIST,
 		FONT_TYPE_MOVIEBROWSER_INFO,
 		FONT_TYPE_SUBTITLES,
+		FONT_TYPE_MESSAGE_TEXT,
 		FONT_TYPE_COUNT
 	};
 
@@ -862,19 +867,22 @@ typedef struct time_settings_t
 {
 	const int default_timing;
 	const neutrino_locale_t name;
+	const neutrino_locale_t hint;
 } time_settings_struct_t;
 
 const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_COUNT] =
 {
-	{ 240,	LOCALE_TIMING_MENU        },
-	{ 60,	LOCALE_TIMING_CHANLIST    },
-	{ 240,	LOCALE_TIMING_EPG         },
-	{ 6,	LOCALE_TIMING_INFOBAR     },
- 	{ 0,	LOCALE_TIMING_INFOBAR_RADIO },
- 	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER},
- 	{ 3,	LOCALE_TIMING_VOLUMEBAR   },
-	{ 60,	LOCALE_TIMING_FILEBROWSER },
-	{ 3,	LOCALE_TIMING_NUMERICZAP  }
+	{ 240,	LOCALE_TIMING_MENU,			LOCALE_MENU_HINT_OSD_TIMING},//TODO: add hint locales
+	{ 60,	LOCALE_TIMING_CHANLIST,			LOCALE_MENU_HINT_OSD_TIMING},
+	{ 240,	LOCALE_TIMING_EPG,			LOCALE_MENU_HINT_OSD_TIMING},
+	{ 6,	LOCALE_TIMING_INFOBAR,			LOCALE_MENU_HINT_OSD_TIMING},
+	{ 0,	LOCALE_TIMING_INFOBAR_RADIO,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER,	LOCALE_MENU_HINT_OSD_TIMING},
+	{ 3,	LOCALE_TIMING_VOLUMEBAR,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 60,	LOCALE_TIMING_FILEBROWSER,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 3,	LOCALE_TIMING_NUMERICZAP,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 6,	LOCALE_TIMING_POPUP_MESSAGES,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 60,	LOCALE_TIMING_STATIC_MESSAGES,		LOCALE_MENU_HINT_TIMEOUTS_STATIC_MESSAGES}
 };
 
 // lcdd

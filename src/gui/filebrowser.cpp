@@ -31,7 +31,7 @@
 #include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 
 #include <algorithm>
 #include <iostream>
@@ -801,7 +801,7 @@ bool CFileBrowser::exec(const char * const dirname)
 					_msg << filelist[selected].getFileName();
 
 				_msg << " " << g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
-				if (ShowMsg(LOCALE_FILEBROWSER_DELETE, _msg.str(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
+				if (ShowMsg(LOCALE_FILEBROWSER_DELETE, _msg.str(), CMsgBox::mbrYes, CMsgBox::mbNoYes)==CMsgBox::mbrYes)
 				{
 					std::string n = filelist[selected].Name;
 					recursiveDelete(n.c_str());

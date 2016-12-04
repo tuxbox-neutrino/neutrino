@@ -36,7 +36,7 @@
 
 #include <gui/settings_manager.h>
 #include <gui/filebrowser.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
 
@@ -117,7 +117,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 				my_system(2, backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
 			}
 			else
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_ERROR);
 		}
 		return res;
 	}
@@ -127,8 +127,8 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec("/media") == true)
 		{
-			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-			if(result == CMessageBox::mbrYes)
+			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
+			if(result == CMsgBox::mbrYes)
 			{
 				const char restore_sh[] = "/bin/restore.sh";
 				printf("restore: executing [%s %s]\n", restore_sh, fileBrowser.getSelectedFile()->Name.c_str());

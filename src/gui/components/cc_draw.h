@@ -27,6 +27,7 @@
 
 #include "cc_types.h"
 #include "cc_signals.h"
+#include "cc_timer.h"
 #include <driver/colorgradient.h>
 #include <driver/fade.h>
 #include <gui/color.h>
@@ -47,7 +48,14 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///object: framebuffer object, usable in all sub classes
 		CFrameBuffer * frameBuffer;
-		
+
+		///internal draw timer, used for effects
+		CComponentsTimer *cc_draw_timer;
+		///slot for timer event, reserved for cc_draw_timer
+		sigc::slot0<void> cc_draw_trigger_slot;
+		///paint item with trigger effect
+		virtual void paintTrigger();
+
 		///property: x-position on screen, to alter with setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
 		int x, x_old;
 		///property: y-position on screen, to alter setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
@@ -67,13 +75,11 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		fb_pixel_t col_shadow, col_shadow_old;
 		///property: color of frame
 		fb_pixel_t col_frame, col_frame_old;
-		///property: color of frame if component is selected, Note: fr_thickness_sel must be set
-		fb_pixel_t col_frame_sel, col_frame_sel_old;
+		///internal property: color for shadow clean up
+		fb_pixel_t col_shadow_clean;
 
 		 ///property: frame thickness, see also setFrameThickness()
 		int fr_thickness, fr_thickness_old;
-		///property: frame thickness of selected component, see also setFrameThickness()
-		int fr_thickness_sel, fr_thickness_sel_old;
 
 		///property: has corners with definied type, types are defined in /driver/frambuffer.h, without effect, if corner_radius=0
 		int corner_type, corner_type_old;
@@ -210,13 +216,12 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;}
 
 		///set frame thickness
-		virtual void setFrameThickness(const int& thickness, const int& thickness_sel = 3);
+		virtual void setFrameThickness(const int& thickness);
 		///return of frame thickness
 		virtual int getFrameThickness(){return fr_thickness;}
 		///set frame color
 		virtual void setColorFrame(fb_pixel_t color){col_frame = color;}
-		///set selected frame color
-		virtual void setColorFrameSel(fb_pixel_t color){col_frame_sel = color;}
+
 		virtual void set2ndColor(fb_pixel_t col_2nd){cc_body_gradient_2nd_col = col_2nd;}
 
 		///get frame color
@@ -277,7 +282,12 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
-		void allowPaint(bool allow){cc_allow_paint = allow; is_painted = cc_allow_paint ? false : true;}
+		void allowPaint(bool allow) {
+			if (allow != cc_allow_paint)
+				cc_allow_paint = allow;
+			if (cc_allow_paint)
+				is_painted = false;
+		}
 		///returns visibility mode
 		virtual bool paintAllowed(){return cc_allow_paint;};
 
@@ -297,10 +307,40 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
-		///paint item, same like paint(CC_SAVE_SCREEN_YES) but without any argument
-		virtual void paint1(){paint(CC_SAVE_SCREEN_YES);}
 		///paint item, same like paint(CC_SAVE_SCREEN_NO) but without any argument
 		virtual void paint0(){paint(CC_SAVE_SCREEN_NO);}
+		///paint item, same like paint(CC_SAVE_SCREEN_YES) but without any argument
+		virtual void paint1(){paint(CC_SAVE_SCREEN_YES);}
+
+		/**paint item with blink effect
+		 * This should work with all cc item types.
+		 *
+		 * @return bool			returns true if effect is successful started
+		 *
+		 * @param[in] interval		optional, interval time as int, default =  1
+		 * @param[in] is_nano		optional, time mode as bool, default = false means as seconds, true means nano seconds.
+		 *
+		 * @see				take a look into test menu class for examples.
+		 * 				cancelBlink()
+		 *
+		 * 				NOTE: If you want to use enbedded items from a cc form (e.g. with gettCCItem(ID))
+		 * 				you must cast into current item type. e.g.:
+		 * 					CComponentsItemBla* item = static_cast<CComponentsItemBla*>(form->getCCItem(2));
+		 * 				and it's possible you must remove from screen before e.g.:
+		 * 					item->kill();
+		*/
+		virtual bool paintBlink(const int& interval = 1, bool is_nano = false);
+
+		/**Cancel blink effect
+		 *
+		 * @return bool			returns true if effect was successful canceled
+		 *
+		 * @param[in] keep_on_screen	optional, exepts bool, default = false. means: item is not repainted after canceled effect
+		 *
+		 * @see				take a look into test menu class for examples
+		 * 				NOTE: Effect must be started with paintBlink()
+		*/
+		bool cancelBlink(bool keep_on_screen = false);
 
 		///signal on before paint fb layers, called inside paintFbItems()
 		sigc::signal<void> OnBeforePaintLayers;

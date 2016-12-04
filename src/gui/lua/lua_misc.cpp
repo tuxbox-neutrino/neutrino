@@ -27,7 +27,7 @@
 #include <global.h>
 #include <system/debug.h>
 #include <gui/widget/menue.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <driver/volume.h>
 #include <gui/audiomute.h>
 #include <gui/infoclock.h>

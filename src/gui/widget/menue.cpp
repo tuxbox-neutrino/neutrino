@@ -622,6 +622,8 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	fbutton_width	= 0;
 	fbutton_height	= 0;
 	nextShortcut	= 1;
+	saveScreen_width = 0;
+	saveScreen_height = 0;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -1242,7 +1244,7 @@ void CMenuWidget::paint()
 	// paint head
 	if (header == NULL){
 		header = new CComponentsHeader(x, y, width + sb_width, hheight, getName(), iconfile);
-		header->enableShadow(CC_SHADOW_RIGHT);
+		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setOffset(10);
 	}
 	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
@@ -1390,17 +1392,20 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
-
-	background = new fb_pixel_t [full_width * (full_height+fbutton_height)];
+	saveScreen_height = full_height+fbutton_height;
+	saveScreen_width = full_width;
+	saveScreen_y = y;
+	saveScreen_x = x;
+	background = new fb_pixel_t [saveScreen_height * saveScreen_width];
 	if(background)
-		frameBuffer->SaveScreen(x /*-ConnectLineBox_Width*/, y, full_width, full_height + fbutton_height, background);
+		frameBuffer->SaveScreen(saveScreen_x /*-ConnectLineBox_Width*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
 }
 
 void CMenuWidget::restoreScreen()
 {
 	if(background) {
 		if(savescreen)
-			frameBuffer->RestoreScreen(x /*-ConnectLineBox_Width*/, y, full_width, full_height + fbutton_height, background);
+			frameBuffer->RestoreScreen(saveScreen_x /*-ConnectLineBox_Width*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
 	}
 }
 
@@ -1410,6 +1415,10 @@ void CMenuWidget::enableSaveScreen(bool enable)
 	if (!enable && background) {
 		delete[] background;
 		background = NULL;
+		saveScreen_width = 0;
+		saveScreen_height = 0;
+		saveScreen_y = 0;
+		saveScreen_x = 0;
 	}
 }
 
@@ -1428,7 +1437,7 @@ void CMenuWidget::paintHint(int pos)
 		if (details_line)
 			details_line->hide();
 		/* clear info box */
-		if ((info_box) && (pos < 0))
+		if ((info_box) && ((pos < 0) || savescreen))
 			savescreen ? info_box->hide() : info_box->kill();
 		if (info_box)
 			hint_painted = info_box->isPainted();

@@ -36,7 +36,7 @@
 
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 
 #include <system/helpers.h>
 #include <gui/widget/keyboard_input.h>
@@ -502,6 +502,22 @@ void CKeyboardInput::keyBackspacePressed(void)
 	}
 }
 
+void CKeyboardInput::keyDigiPressed(const neutrino_msg_t key)
+{
+	int old_col = scol;
+	int old_srow = srow;
+	int digi = CRCInput::getNumericValue(key);
+	digi = (digi == 0) ? 10 : digi;
+	srow = 0;
+	scol = digi;
+	if (focus == FOCUS_KEY)
+		paintKey(old_srow, old_col);
+
+	focus = FOCUS_KEY;
+	paintKey(srow, scol);
+	NormalKeyPressed();
+}
+
 void CKeyboardInput::insertChar()
 {
 	int item = inputSize -1;
@@ -614,10 +630,14 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		{
 			switchLayout();
 		}
+		else if (CRCInput::isNumeric(msg))
+		{
+			keyDigiPressed(msg);
+		}
 		else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout))
 		{
 			if ((inputString->getValue() != oldval) &&
-					(ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel)) {
+					(ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}

@@ -42,7 +42,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <system/helpers.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <errno.h>
 #include <system/debug.h>
 

@@ -81,6 +81,9 @@ class CComponentsPicture : public CComponentsItem
 		///helper: indicate for reinit
 		bool need_init;
 
+		///paint item with changed paint and hide effect
+		void paintTrigger();
+
 		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const std::string& image_name,
 				CComponentsForm *parent,
@@ -144,12 +147,12 @@ class CComponentsPicture : public CComponentsItem
 		///returns current assigned image name
 		std::string getPictureName(){return pic_name;}
 
-		///handle image size
-		virtual void getSize(int* width_image, int *height_image);
-		///return width of component
-		virtual int getWidth();
-		///return height of component
-		virtual int getHeight();
+// 		///handle image size
+// 		void getSize(int* width_image, int *height_image);
+		///return width of item
+		int getWidth();
+		///return height of item
+		int getHeight();
 
 		///set width of object and image, value >0 causes scale of image, parameter keep_aspect = true causes scaling of height with same aspect, default = false
 		virtual void setWidth(const int& w, bool keep_aspect = false);

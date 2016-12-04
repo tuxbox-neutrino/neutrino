@@ -64,6 +64,7 @@
 #ifdef VISUAL_DEBUG
 #include <gui/color_custom.h>
 #endif
+#include <sstream>
 
 #define	SCROLL_FRAME_WIDTH	10
 #define	SCROLL_MARKER_BORDER	 2
@@ -185,7 +186,7 @@ void CTextBox::initVar(void)
 	m_nPaintBackground 	= true;
 	m_SaveScreen		= false;
 	m_nBgRadius		= m_old_nBgRadius = 0;
-	m_nBgRadiusType 	= m_old_nBgRadiusType = CORNER_ALL;
+	m_nBgRadiusType 	= m_old_nBgRadiusType = CORNER_NONE;
 
 	m_cLineArray.clear();
 
@@ -291,7 +292,7 @@ void CTextBox::initFramesRel(void)
 
 	m_cFrameTextRel.iX		= 0;
 	m_cFrameTextRel.iY		= 0;
-	m_cFrameTextRel.iHeight	= m_cFrame.iHeight ;
+	m_cFrameTextRel.iHeight		= m_cFrame.iHeight ;
 
 	if(m_nMode & SCROLL)
 	{
@@ -582,12 +583,12 @@ void CTextBox::refreshText(void)
 	if( frameBuffer == NULL)
 		return;
 
-	//TRACE("[CTextBox] m_nCurrentLine: %d, m_nNrOfLines %d, m_cLineArray[m_nCurrentLine]: %s\r\n",m_nCurrentLine, m_nNrOfLines, m_cLineArray[m_nCurrentLine].c_str());
+	//TRACE("[CTextBox] m_nCurrentLine: %d, m_nNrOfLines %d, m_cLineArray[m_nCurrentLine]: %s m_nBgRadius: %d\r\n",m_nCurrentLine, m_nNrOfLines, m_cLineArray[m_nCurrentLine].c_str(), m_nBgRadius, m_nBgRadiusType);
 
 	//bg variables
 	int ax = m_cFrameTextRel.iX+m_cFrame.iX;
 	int ay = m_cFrameTextRel.iY+m_cFrame.iY;
-	int dx = m_old_cText != m_cText || m_nNrOfPages>1 ? m_cFrameTextRel.iWidth : m_nMaxTextWidth - m_nBgRadius;
+	int dx = m_old_cText != m_cText || m_nNrOfPages>1 ? m_cFrameTextRel.iWidth : m_nMaxTextWidth - (m_nMode & SCROLL ? m_nBgRadius : 0);
 	int dy = m_cFrameTextRel.iHeight;
 	
 	//avoid artefacts in transparent cornes
@@ -687,7 +688,7 @@ void CTextBox::refreshText(void)
 		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * lines) >> 1);
 
 #ifdef VISUAL_DEBUG
-	frameBuffer->paintBoxRel(m_cFrame.iX, m_cFrame.iY, m_cFrame.iWidth, m_cFrame.iHeight, COL_GREEN);
+	frameBuffer->paintBoxRel(m_cFrame.iX, m_cFrame.iY, m_cFrame.iWidth, m_cFrame.iHeight, COL_GREEN, m_nBgRadius, m_nBgRadiusType);
 #endif
 
 	for(i = m_nCurrentLine; i < m_nNrOfLines && i < m_nCurrentLine + m_nLinesPerPage; i++)
@@ -709,7 +710,7 @@ void CTextBox::refreshText(void)
 
 #ifdef VISUAL_DEBUG
 		int th = m_nFontTextHeight;
-		frameBuffer->paintBoxRel(tx, ty-th, tw, th, COL_RED);
+		frameBuffer->paintBoxRel(tx, ty-th, tw, th, COL_RED, m_nBgRadius, m_nBgRadiusType);
 #endif
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
 		m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, m_renderMode | (m_utf8_encoded) ? Font::IS_UTF8 : 0);
@@ -870,3 +871,37 @@ bool CTextBox::enableSaveScreen(bool mode)
 	return true;
 }
 
+int CTextBox::getLines(const std::string& text)
+{
+	if (text.empty())
+		return 0;
+
+	std::stringstream s (text);
+	if (!s)
+		return 0;
+
+	int count = 0;
+	std::string line;
+	while(getline(s, line))
+		count++;
+
+	return count;
+}
+
+int CTextBox::getMaxLineWidth(const std::string& text, Font* font)
+{
+	// if found no linebreak, return pure size only
+	if (text.find('\n', 0) == std::string::npos)
+		return font->getRenderWidth(text.c_str());
+
+	std::stringstream in (text);
+	if (!in)
+		return 0;
+
+	int len = 0;
+	std::string line;
+	while(getline(in, line))
+		len = std::max(len, font->getRenderWidth(line.c_str()));
+
+	return len;
+}

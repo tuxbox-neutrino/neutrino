@@ -30,7 +30,7 @@
 #include <string>
 #include <driver/neutrinofonts.h>
 #include <gui/buildinfo.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <system/helpers.h>
 
 #include <local_build_config.h>
@@ -47,7 +47,7 @@ void CBuildInfo::initVarBuildInfo()
 {
 	setCenterPos();
 
-	font = NULL;
+	font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT];
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 	InitInfoItems();
 

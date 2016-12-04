@@ -427,6 +427,38 @@ int CTimerManager::rescheduleEvent(int peventID, time_t announceTime, time_t ala
 	pthread_mutex_unlock(&tm_eventsMutex);
 	return res;
 }
+
+int CTimerManager::adjustEvent(int peventID, time_t announceTime, time_t alarmTime, time_t stopTime)
+{
+	int res = 0;
+	pthread_mutex_lock(&tm_eventsMutex);
+
+	if(events.find(peventID)!=events.end())
+	{
+		CTimerEvent *event = events[peventID];
+		printf("before: EventID: %d - State %d\n",peventID,(int) event->eventState);
+		time_t now = time(NULL);
+		if(event->announceTime > 0)
+			event->announceTime = announceTime;
+		if (event->announceTime > now)
+			event->eventState = CTimerd::TIMERSTATE_SCHEDULED;
+		if(event->alarmTime > 0)
+			event->alarmTime = alarmTime;
+		if ((event->alarmTime > now) && (event->announceTime < now))
+			event->eventState = CTimerd::TIMERSTATE_PREANNOUNCE;
+		if(event->stopTime > 0)
+			event->stopTime = stopTime;
+		if ((event->stopTime > now) && (event->alarmTime < now))
+			event->eventState = CTimerd::TIMERSTATE_ISRUNNING;
+		m_saveEvents=true;
+		res = peventID;
+		printf("after: EventID: %d - State %d\n",peventID,(int) event->eventState);
+	}
+	else
+		res = 0;
+	pthread_mutex_unlock(&tm_eventsMutex);
+	return res;
+}
 // ---------------------------------------------------------------------------------
 void CTimerManager::loadEventsFromConfig()
 {
@@ -1184,7 +1216,7 @@ CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
 //------------------------------------------------------------
 void CTimerEvent_Record::fireEvent()
 {
-	if (adjustToCurrentEPG())
+	if ((adjustToCurrentEPG()) && (alarmTime > time(NULL)))
 		return;
 	getEpgId();
 	CTimerd::RecordingInfo ri=eventInfo;
@@ -1200,7 +1232,7 @@ void CTimerEvent_Record::fireEvent()
 //------------------------------------------------------------
 void CTimerEvent_Record::announceEvent()
 {
-	if (adjustToCurrentEPG())
+	if ((adjustToCurrentEPG()) && (announceTime > time(NULL)))
 		return;
 	Refresh();
 	CTimerd::RecordingInfo ri=eventInfo;
@@ -1300,50 +1332,52 @@ void CTimerEvent_Record::Refresh()
 //------------------------------------------------------------
 bool CTimerEvent_Record::adjustToCurrentEPG()
 {
+	if (!(access(CONFIGDIR"/.adjust", F_OK) == 0))
+		return false;
+
 	if (!autoAdjustToEPG)
 		return false;
 
 	CChannelEventList evtlist;
 	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id, evtlist);
 
-	time_t now = time(NULL);
-	time_t compare;
-
 	int pre, post;
 	CTimerManager::getInstance()->getRecordingSafety(pre, post);
 
-	CChannelEventList::iterator first = evtlist.end();
-	for (CChannelEventList::iterator e = evtlist.begin(); e != evtlist.end(); ++e)
-	{
-		compare = e->startTime;
-		if (!pre)
-			compare += e->duration;
+	time_t _announceTime = announceTime;
+	time_t _alarmTime = alarmTime;
+	time_t _stopTime = stopTime;
 
-		if (compare <= now)
-			continue;
-		if (first == evtlist.end() || first->startTime > e->startTime)
-			first = e;
-		if (alarmTime <= e->startTime && e->startTime + (int)e->duration <= stopTime)
-			return false;
+	if (recordingSafety) {
+		_alarmTime += pre;
+		_stopTime -= post;
 	}
-	if (first == evtlist.end())
-		return false;
 
-	time_t _announceTime = first->startTime - (alarmTime - announceTime);
-	time_t _alarmTime = first->startTime;
-	time_t _stopTime = first->startTime + first->duration;
+	// we check for a time in the middle of the recording without considering pre and post
+	time_t check_time=_alarmTime/2 + _stopTime/2;
+	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
+	{
+		if ( e->startTime <= check_time && (e->startTime + (int)e->duration) >= check_time)
+		{
+			_announceTime = e->startTime - (alarmTime - announceTime);
+			_alarmTime = e->startTime;
+			_stopTime = e->startTime + e->duration;
+			break;
+		}
+	}
+
 	if (recordingSafety) {
 		_alarmTime -= pre;
 		_stopTime += post;
 	}
 
-	CTimerEvent_Record *event= new CTimerEvent_Record(_announceTime, _alarmTime, _stopTime,
-							  eventInfo.channel_id, eventInfo.epgID, first->startTime, eventInfo.apids,
-							  CTimerd::TIMERREPEAT_ONCE, 1, recordingDir, recordingSafety, autoAdjustToEPG);
-	CTimerManager::getInstance()->addEvent(event,false);
-	setState(CTimerd::TIMERSTATE_HASFINISHED);
+	if ((_alarmTime != alarmTime) || (_announceTime != announceTime) || (_stopTime != stopTime)) {
+		alarmTime = _alarmTime; announceTime = _announceTime; stopTime = _stopTime;
+		if (CTimerManager::getInstance()->adjustEvent(eventID, _announceTime, _alarmTime, _stopTime))
+			return true;
+		}
 
-	return true;
+	return false;
 }
 //=============================================================
 // Zapto Event

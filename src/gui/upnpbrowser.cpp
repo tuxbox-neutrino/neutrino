@@ -45,7 +45,7 @@
 #include <gui/color.h>
 #include <gui/movieplayer.h>
 #include <gui/components/cc.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/infoclock.h>
 #include <gui/upnpbrowser.h>
@@ -183,9 +183,6 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	// remember last mode
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
 
-	// Stop sectionsd
-	g_Sectionsd->setPauseScanning(true);
-
 	m_deviceliststart=0;
 	m_selecteddevice=0;
 	timeout = 0;
@@ -194,8 +191,6 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 
 	stopAudio();
 
-	// Start Sectionsd
-	g_Sectionsd->setPauseScanning(false);
 	m_frameBuffer->stopFrame();
 	m_frameBuffer->Clear();
 
@@ -245,22 +240,22 @@ bool CUpnpBrowserGui::discoverDevices()
 	if (!m_devices.empty())
 		return true;
 
-	CHintBox *scanBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_UPNPBROWSER_SCANNING)); // UTF-8
-	scanBox->paint();
+	CHintBox hintbox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_UPNPBROWSER_SCANNING)); // UTF-8
+	hintbox.paint();
 
 	try {
 		m_devices = m_socket->Discover("urn:schemas-upnp-org:service:ContentDirectory:1");
 	}
 	catch (std::runtime_error error)
 	{
-		delete scanBox;
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, error.what(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		hintbox.hide();
+		DisplayErrorMessage(error.what());
 		return false;
 	}
-	delete scanBox;
+	hintbox.hide();
 	if (m_devices.empty())
 	{
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_UPNPBROWSER_NOSERVERS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		DisplayInfoMessage(g_Locale->getText(LOCALE_UPNPBROWSER_NOSERVERS));
 		return false;
 	}
 	return true;
@@ -288,7 +283,7 @@ bool CUpnpBrowserGui::getResults(std::string id, unsigned int start, unsigned in
 	}
 	catch (std::runtime_error error)
 	{
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, error.what(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		DisplayErrorMessage(error.what());
 		return false;
 	}
 	return true;
@@ -989,7 +984,7 @@ void CUpnpBrowserGui::paintDevices()
 
 	// Head
 	CComponentsHeaderLocalized header(m_x, m_header_y, m_width, m_header_height, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
-	header.enableShadow(CC_SHADOW_RIGHT, -1, true);
+	header.enableShadow( CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	if (CNeutrinoApp::getInstance()->isMuted()) //TODO: consider mute mode on runtime
 		header.addContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 	else

@@ -70,8 +70,10 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///property: icon name, only icons supported, to find in gui/widget/icons.h
 		std::string cc_btn_icon;
 
-		///property: assigned event message value, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonEventMsg(), getButtonEventMsg()
-		neutrino_msg_t 	cc_btn_msg;
+		///property: assigned event message value, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonDirectKey(), getButtonDirectKey()
+		neutrino_msg_t 	cc_directKey;
+		///property: assigned an alternate event message value, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonDirectKeyAlt(), getButtonDirectKeyAlt()
+		neutrino_msg_t 	cc_directKeyAlt;
 		///property: assigned return value, see also setButtonResult(), getButtonResult(), default value = -1 (not defined)
 		int 	cc_btn_result;
 		///property: assigned alias value, see also setButtonAlias(), getButtonAlias(), default value = -1 (not defined)
@@ -133,7 +135,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///set text color
-		virtual void setButtonTextColor(fb_pixel_t text_color, fb_pixel_t text_color_disabled = COL_MENUCONTENTINACTIVE_TEXT){cc_btn_capt_col = text_color; cc_btn_capt_disable_col = text_color_disabled;}
+		inline virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_capt_col = caption_color;};
 
 		/**Member to modify background behavior of embeded caption object.
 		* @param[in]  mode
@@ -162,9 +164,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		virtual void setCaption(const neutrino_locale_t locale_text);
 
 		///get caption, type as std::string
-		virtual std::string getCaptionString(){return cc_btn_capt;};
+		inline virtual std::string getCaptionString(){return cc_btn_capt;};
 		///get loacalized caption id, type = neutrino_locale_t
-		virtual neutrino_locale_t getCaptionLocale(){return cc_btn_capt_locale;};
+		inline virtual neutrino_locale_t getCaptionLocale(){return cc_btn_capt_locale;};
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
 		virtual void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
@@ -176,17 +178,21 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///assigns an event msg value to button object, parameter1 as neutrino_msg_t, see driver/rcinput.h for possible values
-		virtual void setButtonEventMsg(const neutrino_msg_t& msg){cc_btn_msg = msg;};
-		///return an event msg value to button object, see driver/rcinput.h for possible values
-		inline virtual neutrino_msg_t getButtonEventMsg(){return cc_btn_msg;};
+		inline virtual void setButtonDirectKey(const neutrino_msg_t& msg){cc_directKey = msg;};
+		///assigns an alternate event msg value to button object, parameter1 as neutrino_msg_t, see driver/rcinput.h for possible values
+		inline virtual void setButtonDirectKeyA(const neutrino_msg_t& msg){cc_directKeyAlt = msg;};
+		///returns an event msg value to button object, see driver/rcinput.h for possible values
+		inline virtual neutrino_msg_t getButtonDirectKey(){return cc_directKey;};
+		///returns an alternate event msg value to button object, but returns the primary direct key if no key was defined, see driver/rcinput.h for possible values
+		inline virtual neutrino_msg_t getButtonDirectKeyA(){return cc_directKeyAlt != CRCInput::RC_nokey ? cc_directKeyAlt : cc_directKey ;};
 
 		///assigns an return value to button object, parameter1 as int
-		virtual void setButtonResult(const int& result_value){cc_btn_result = result_value;};
+		inline virtual void setButtonResult(const int& result_value){cc_btn_result = result_value;};
 		///returns current result value of button object
 		inline virtual int getButtonResult(){return cc_btn_result;};
 
 		///assigns an alias value to button object, parameter1 as int, e.g. previous known as mbYes, mbNo... from message boxes 
-		virtual void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;};
+		inline virtual void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;};
 		///returns an alias value from button object, see also cc_btn_alias
 		inline virtual int getButtonAlias(){return cc_btn_alias;};
 };
@@ -239,6 +245,7 @@ class CComponentsButtonGreen : public CComponentsButton
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
+
 		};
 		CComponentsButtonGreen(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,

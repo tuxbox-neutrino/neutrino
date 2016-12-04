@@ -36,7 +36,7 @@
 #include <neutrino.h>
 #include <gui/filebrowser.h>
 #include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/debug.h>
 #include <zapit/getservices.h>

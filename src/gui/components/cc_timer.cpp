@@ -36,10 +36,11 @@
 
 using namespace std;
 
-CComponentsTimer::CComponentsTimer(const int& interval)
+CComponentsTimer::CComponentsTimer(const int& interval, bool is_nano)
 {
 	tm_thread 		= 0;
 	tm_interval 		= interval;
+	tm_enable_nano		= is_nano;
 
 	sl_stop_timer 		= sigc::mem_fun(*this, &CComponentsTimer::stopTimer);
 
@@ -59,7 +60,10 @@ void CComponentsTimer::runSharedTimerAction()
 	while(tm_enable && tm_interval > 0) {
 		tm_mutex.lock();
 		OnTimer();
-		mySleep(tm_interval);
+		if (!tm_enable_nano)
+			mySleep(tm_interval);
+		else
+			usleep((useconds_t)tm_interval);
 		tm_mutex.unlock();
 	}
 
@@ -142,10 +146,11 @@ bool CComponentsTimer::stopTimer()
 	return false;
 }
 
-void CComponentsTimer::setTimerInterval(const int& seconds)
+void CComponentsTimer::setTimerInterval(const int& interval, bool is_nano)
 {
-	if (tm_interval == seconds)
+	if (tm_interval == interval && tm_enable_nano == is_nano)
 		return;
 
-	tm_interval = seconds;
+	tm_enable_nano	= is_nano;
+	tm_interval 	= interval;
 }

@@ -175,12 +175,12 @@ void CSignalBar::initSBarName()
 	sb_lbl->doPaintTextBoxBg(!cc_txt_save_screen);
 	sb_lbl->enableTboxSaveScreen(cc_txt_save_screen);
 
-	sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, sb_font);
+	sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK, sb_font);
 
 	//move and set dimensions
 	int lbl_x = sb_vlbl->getXPos()+ sb_vlbl->getWidth();
 	int lbl_h = sb_vlbl->getHeight();
-	sb_lbl->setDimensionsAll(lbl_x, 1, sb_lbl_width- append_x_offset, lbl_h);
+	sb_lbl->setDimensionsAll(lbl_x, 1, sb_lbl_width/*- append_x_offset*/, lbl_h);
 
 	//set current text and body color
 	sb_lbl->setTextColor(sb_caption_color);

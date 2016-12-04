@@ -56,6 +56,9 @@ class CComponentsForm : public CComponentsItem
 		///enable/disable page scrolling, default enabled with page scroll mode up/down keys, see also enablePageScroll()
 		int page_scroll_mode;
 
+		///container for exit keys, default exit keys are CRCInput::RC_home and CRCInput::RC_setup
+		std::vector <neutrino_msg_t> v_exit_keys;
+
 		///initialize basic properties
 		virtual void Init(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const fb_pixel_t& color_frame,
@@ -142,12 +145,29 @@ class CComponentsForm : public CComponentsItem
 		///returns pointer to selected item, return value as CComponentsItem*, returns NULL: if is nothing selected
 		virtual CComponentsItem* getSelectedItemObject();
 		///select a definied item, parameter1 as size_t
-		virtual void setSelectedItem(int item_id);
+		virtual void setSelectedItem(	int item_id,
+						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
+						const fb_pixel_t& frame_col = COL_SHADOW_PLUS_0,
+						const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
+						const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
+						const int& frame_w = 3,
+						const int& sel_frame_w = 3);
 		///select a definied item, parameter1 as CComponentsItem*
-		virtual void setSelectedItem(CComponentsItem* cc_item);
+		virtual void setSelectedItem(	CComponentsItem* cc_item,
+						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
+						const fb_pixel_t& frame_col = COL_SHADOW_PLUS_0,
+						const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
+						const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
+						const int& frame_w = 3,
+						const int& sel_frame_w = 3);
 
 		///exec main method, see also sub exec methods
 		virtual int exec();
+
+		///adds additional exec key to current collection, default exit keys are CRCInput::RC_home and CRCInput::RC_setup
+		virtual void addExitKey(const neutrino_msg_t& key){v_exit_keys.push_back(key);}
+		///remove all current exec keys from current collection, NOTE: use addExitKey() if new exec key is required
+		virtual void removeExitKeys(){v_exit_keys.clear();}
 
 		///enum exec loop control
 		enum
@@ -156,38 +176,29 @@ class CComponentsForm : public CComponentsItem
 			EXIT	= 1
 		};
 		///execKey() methods handle events for defined neutrino messages, see class CRCInput::, this methodes contains a signal handler named OnExecMsg, so it is possible to connect with any common function or method
-		///exec sub method for pressed keys, parameters1/2 by rev, parameter3 msg_list as struct contains a list of possible RC-messages for defined message, parameter4 defines size of struct, parameter5 force_exit default = false
-		virtual void execKey(	neutrino_msg_t& msg,
-					neutrino_msg_data_t& data,
-					int& res,
-					bool& exit_loop,
-					const struct msg_list_t * const msg_list,
-					const size_t& key_count,
-					bool force_exit = false);
 		///exec sub method for pressed keys, parameters1/2 by rev, parameter3 msg_list as vector contains a list of possible RC-messages for defined message, parameter4 force_exit default = false
 		virtual void execKey(	neutrino_msg_t& msg,
 					neutrino_msg_data_t& data,
 					int& res,
-					bool& exit_loop,
+					bool& cancel_exec,
 					const std::vector<neutrino_msg_t>& msg_list,
 					bool force_exit = false);
 		///exec sub method for pressed key, parameters1/2 by rev, parameter3 force_exit default = false
 		virtual bool execKey(	neutrino_msg_t& msg,
 					neutrino_msg_data_t& data,
 					int& res,
-					bool& exit_loop,
+					bool& cancel_exec,
 					const neutrino_msg_t& msg_val,
 					bool force_exit = false);
 
 		///exec sub method for page scroll, parameter1 neutrino_msg_t by rev
-		virtual void execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res);
+		virtual void execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec);
 
 		///exec sub method for exit loop, parameters by rev
 		virtual void execExit(	neutrino_msg_t& msg,
 					neutrino_msg_data_t& data,
-					int& res, bool& exit_loop,
-					const struct msg_list_t * const msg_list,
-					const size_t& key_count);
+					int& res, bool& cancel_exec,
+					const std::vector<neutrino_msg_t>& v_msg_list);
 
 		///enum scroll direction
 		enum

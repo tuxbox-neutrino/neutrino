@@ -102,7 +102,7 @@ class CComponentsSignals : public sigc::trackable
 		sigc::signal<void> OnAfterExec;
 
 		///signal on execute of CComponentsForm::exec()
-		sigc::signal<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> OnExec;
+		sigc::signal<void, neutrino_msg_t&, neutrino_msg_data_t&, int&, bool&> OnExec;
 		///signal on received message in CComponentsForm::execKey()
 		sigc::signal<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> OnExecMsg;
 

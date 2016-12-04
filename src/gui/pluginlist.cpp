@@ -37,7 +37,7 @@
 
 #include <gui/pluginlist.h>
 #include <gui/components/cc.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/icons.h>
 
 #include <sstream>
@@ -77,7 +77,7 @@ int CPluginList::run()
 	g_PluginList->startPlugin(number);
 	if (!g_PluginList->getScriptOutput().empty()) {
 		hide();
-		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_SHELL);
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
 	}
 	return menu_return::RETURN_REPAINT;
 }
@@ -168,7 +168,7 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_PluginList->startPlugin(sel);
 
 	if (!g_PluginList->getScriptOutput().empty())
-		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_SHELL);
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
 
 	if (g_PluginList->getIntegration(sel) == CPlugins::I_TYPE_DISABLED)
 		return menu_return::RETURN_EXIT;

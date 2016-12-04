@@ -45,7 +45,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
 #include <gui/widget/keychooser.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 
 #include <driver/screen_max.h>
 

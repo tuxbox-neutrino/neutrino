@@ -1,170 +1,402 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
+	Based up Neutrino-GUI - Tuxbox-Project
+	Copyright (C) 2001 by Steffen Hehn 'McClean
 
- 	Homepage: http://dbox.cyberphoria.org/
+	Initial implementation as an interface of the CMsgBox class
+	Copyright (C) 2005 Günther
+	Günther@tuxbox.berlios.org
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Implementation of CComponent Window class.
+	Copyright (C) 2014-2016 Thilo Graf 'dbt'
 
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-	***********************************************************
-  
-	Module Name: msgbox.h .
-
-	Description: interface of the CMsgBox class
-
-	Date:	  Nov 2005
-
-	Author: Günther@tuxbox.berlios.org
-		based on code of Steffen Hehn 'McClean'
-
-	Revision History:
-	Date			Author		Change Description
-	   Nov 2005		Günther	initial implementation
-
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if !defined(MSGBOX_H)
-#define MSGBOX_H
+#ifndef __C_MSGBOX__
+#define __C_MSGBOX__
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include <string>
-#include "textbox.h"
+#include "hintbox.h"
+#include <gui/widget/drawable.h>
 
-#include <driver/fb_window.h>
+#define MSGBOX_MIN_WIDTH HINTBOX_MIN_WIDTH
+#define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT + 75
 
-class CMsgBox  
+#define MSGBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]
+#define DEFAULT_MSGBOX_TEXT_MODE (CMsgBox::CENTER | CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH)
+
+//! Sub class of CHintBox. Shows a window as a messagebox
+/*!
+CMsgBox provides a small window  with header, text and footer
+with predefined buttons.
+Optional you can add an icon in the header and/or beside left of
+text and context buttons on the right site of header.
+CMsgBox objects return predefined result values of type msg_result_t.
+Button combinations are defined with button_define_t
+*/
+class CMsgBox : public CHintBox
 {
 	public:
 		/* enum definition */
-		enum result_
+		enum msg_result_t
 		{
 			mbrYes    = 0,
 			mbrNo     = 1,
 			mbrCancel = 2,
-			mbrBack   = 3
+			mbrBack   = 3,
+			mbrOk     = 4,
+			mbrTimeout = 5,
+
+			mbrNone = -1
 		};
-		enum buttons_
+		enum button_define_t
 		{
-			mbYes =		0x01,
-			mbNo =		0x02,
-			mbCancel =	0x04,
-			mbAll =		0x07,
-			mbBack =	0x08
+			mbYes           = 0x01,
+			mbNo            = 0x02,
+			mbCancel        = 0x04,
+			mbBack          = 0x08,
+			mbOk            = 0x10,
+			mbOKCancel	= 0x20,
+			mbYesNoCancel	= 0x40,
+			mbYesNo		= 0x80,
+			mbNoYes		= 0x100,
+			mbAll		= 0x200,
+			//unused allign stuff, only for compatibility
+			mbBtnAlignCenter1 = 0x0400, /* centered, large distances */
+			mbBtnAlignCenter2 = 0x0800, /* centered, small distances */
+			mbBtnAlignLeft    = 0x1000,
+			mbBtnAlignRight   = 0x2000
 		};
-		enum modes
+
+		enum modes //TODO
 		{
-			AUTO_WIDTH	= 0x01,
-			AUTO_HIGH	= 0x02,
-			SCROLL		= 0x04,
-			TITLE		= 0x08,
-			FOOT		= 0x10,
-			BORDER		= 0x20,
-			CENTER		= 0x40,
-			NO_AUTO_LINEBREAK= 0x80
+			AUTO_WIDTH		= CTextBox::AUTO_WIDTH,
+			AUTO_HIGH		= CTextBox::AUTO_HIGH,
+			SCROLL			= CTextBox::SCROLL,
+// 			TITLE			= 0x08,
+// 			FOOT			= 0x10,
+// 			BORDER			= 0x20,
+			CENTER			= CTextBox::CENTER,
+			NO_AUTO_LINEBREAK	= CTextBox::NO_AUTO_LINEBREAK
 		};
 
 	private:
-		/* Functions */
-		void initVar(void);
-		void initFramesRel(void);
+		void init(const int& Height = -1, const int& ShowButtons = -1, const msg_result_t& Default_result = mbrNone);
 		void refreshFoot(void);
-		void refreshTitle(void);
-		void refreshText(void);
-		void refreshBorder(void);
+		int		mb_show_button;
 
-		/* Variables */
-		std::string m_cIcon;
-		std::string m_cTitle;
+		///current result value of selected button, see also getResult()
+		msg_result_t	result;
+		///defined default result, independently from current selected button result, see also setDefaultResult(), getDefaultResult()
+		msg_result_t	default_result;
+		///enable/disable default result on timeout
+		bool enable_timeout_result;
+		///initialize basic timeout
+		void initTimeOut();
 
-		CBox	m_cBoxFrame;
-		CBox	m_cBoxFrameText;
-		CBox	m_cBoxFrameTitleRel;
-		CBox	m_cBoxFrameFootRel;
+		///alternate button text
+		std::string btn_text_ok, btn_text_yes, btn_text_no, btn_text_cancel, btn_text_back;
+		///assigned button captions
+		std::string BTN_TEXT(const int& showed_button);
 
-		int		m_nMode;
+		///enables/disable button background
+		bool btn_enable_bg;
 
-		int		m_nWindowFrameBorderWidth;
-
-		Font*	m_pcFontTitle;
-		int		m_nFontTitleHeight;
-
-		Font*	m_pcFontFoot;
-		int		m_nFontFootHeight;
-		int		m_nFootButtons;
-
-		CTextBox* m_pcTextBox;
-		//CFBWindow* m_pcWindow;
-		CFrameBuffer * m_pcWindow;
-
-		result_	m_nResult;
+		void initButtons();
 	public:
-		/* Constructor */
-		virtual ~CMsgBox();
-		CMsgBox();
-		CMsgBox(const char * text);
-		CMsgBox(  const char * text, 
-				   Font* fontText,
-				   const int mode, 
-				   const CBox* position, 
-				   const char * title,
-				   Font* fontTitle,
-				   const char * icon,
-				   int return_button = mbCancel, 
-				   const result_ default_result = mbrCancel);
+		/**CMsgBox Constructor
+		* @param[in]	Text
+		* 	@li 	exepts type const char*, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	Title
+		* 	@li 	optional: exepts type const char*, default = NULL, this causes default title "Information"
+		* @param[in]	Icon
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = DEFAULT_HEADER_ICON
+		* @param[in]	Picon
+		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
+		* @param[in]	Width
+		* 	@li 	optional: exepts type int, defines box width, default value = MSGBOX_MIN_WIDTH
+		* @param[in]	Height
+		* 	@li 	optional: exepts type int, defines box width, default value = MSGBOX_MIN_HEIGHT
+		* @param[in]	ShowButtons
+		* 	@li 	optional: exepts type int, defines which buttons are available on screen, default value =  mbCancel
+		* 	@see	setShowedButtons()
+		* @param[in]	Default_result
+		* 	@li 	optional: exepts type int, defines default result value, default value =  mbrCancel
+		* 		possible values are:
+		* 		mbrYes    	= 0,
+		* 		mbrNo     	= 1,
+		* 		mbrCancel 	= 2,
+		* 		mbrBack   	= 3,
+		* 		mbrOk     	= 4,
+		* 		mbrTimeout 	= 5,
+		*
+		* 		mbrNone 	= -1
+		* 	@see	setDefaultResult(), getResult(); getDefaultResult(), enableDefaultResultOnTimeOut()
+		* @param[in]	text_mode
+		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
+		* 		Possible Modes defined in /gui/widget/textbox.h
+		* 		AUTO_WIDTH
+		* 		AUTO_HIGH
+		* 		SCROLL
+		* 		CENTER
+		* 		RIGHT
+		* 		TOP
+		* 		BOTTOM
+		* 		NO_AUTO_LINEBREAK
+		* 		AUTO_LINEBREAK_NO_BREAKCHARS
+		* 		NOTE: default parameter to find in macro DEFAULT_MSGBOX_TEXT_MODE
+		*
+		* 	@see	class CHintBox()
+		*/
+		CMsgBox(const char* Text,
+			const char* Title = NULL,
+			const char* Icon = DEFAULT_HEADER_ICON,
+			const char* Picon = NULL,
+			const int& Width = MSGBOX_MIN_WIDTH,
+			const int& Height = MSGBOX_MIN_HEIGHT,
+			const int& ShowButtons = mbCancel,
+			const msg_result_t& Default_result = mbrCancel,
+			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
-		/* Functions */
-		bool    paint(void);
-		bool    hide(void);
-		int     exec(int timeout,int returnDefaultOnTimeout = false);
-		void    refresh(void);
-		void    scrollPageDown(const int pages);
-		void    scrollPageUp(const int pages);
-		int		result(void);
+		/**CMsgBox Constructor
+		* @param[in]	Text
+		* 	@li 	exepts type const char*, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	Title
+		* 	@li 	optional: exepts type neutrino_locale_t with locale entry from /system/locals.h default = NONEXISTANT_LOCALE, this causes default title "Information"
+		* @param[in]	Icon
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = DEFAULT_HEADER_ICON
+		* @param[in]	Picon
+		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
+		* @param[in]	Width
+		* 	@li 	optional: exepts type int, defines box width, default value = MSGBOX_MIN_WIDTH
+		* @param[in]	Height
+		* 	@li 	optional: exepts type int, defines box width, default value = MSGBOX_MIN_HEIGHT
+		* @param[in]	ShowButtons
+		* 	@li 	optional: exepts type int, defines which buttons are available on screen, default value =  mbCancel
+		* 	@see	setShowedButtons()
+		* @param[in]	Default_result
+		* 	@li 	optional: exepts type int, defines default result value, default value =  mbrCancel
+		* 		possible values are:
+		* 		mbrYes    	= 0,
+		* 		mbrNo     	= 1,
+		* 		mbrCancel 	= 2,
+		* 		mbrBack   	= 3,
+		* 		mbrOk     	= 4,
+		* 		mbrTimeout 	= 5,
+		*
+		* 		mbrNone 	= -1
+		* 	@see	setDefaultResult(), getResult(); getDefaultResult(), enableDefaultResultOnTimeOut()
+		* @param[in]	text_mode
+		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
+		* 		Possible Modes defined in /gui/widget/textbox.h
+		* 		AUTO_WIDTH
+		* 		AUTO_HIGH
+		* 		SCROLL
+		* 		CENTER
+		* 		RIGHT
+		* 		TOP
+		* 		BOTTOM
+		* 		NO_AUTO_LINEBREAK
+		* 		AUTO_LINEBREAK_NO_BREAKCHARS
+		* 		NOTE: default parameter to find in macro DEFAULT_MSGBOX_TEXT_MODE
+		*
+		* 	@see	class CHintBox()
+		*/
+		CMsgBox(const char* Text,
+			const neutrino_locale_t locale_Title = NONEXISTANT_LOCALE,
+			const char* Icon = DEFAULT_HEADER_ICON,
+			const char* Picon = NULL,
+			const int& Width = MSGBOX_MIN_WIDTH,
+			const int& Height = MSGBOX_MIN_HEIGHT,
+			const int& ShowButtons = mbCancel,
+			const msg_result_t& Default_result = mbrCancel,
+			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
-		bool	setText(const std::string* newText);
+// 		~CMsgBox(); //inherited
+		/**
+		* exec caller
+		* @return	int
+		*/
+		int exec();
+
+		/**
+		* returns current result as msg_result_t, result corresponds to the current result value of selected button
+		* @return	result as int
+		*/
+
+		msg_result_t	getResult(){return result;}
+		/**
+		* returns current default result as msg_result_t, independently from current selected button result
+		* @return	result as int
+		*/
+
+		msg_result_t	getDefaultResult(){return default_result;}
+		/**
+		* sets current default result as msg_result_t, independently from current selected button result
+		* @param[in]	Default_result
+		* 	@li 	exepts type msg_result_t
+		*/
+		void	setDefaultResult(const msg_result_t& Default_result){default_result = Default_result;}
+
+		/**
+		* Sets the displayed buttons.
+		* This member allows to set and overrides already defined buttons from constructor,
+		* parameter ''ShowButtons'' accepts given types, find under button_define_t enumeration
+		* @param[in]	ShowButtons
+		* 	@li 	optional: exepts type int, defines which buttons are available on screen, default value =  mbCancel
+		* 		possible values are:
+		* 		mbYes           = 0x01,
+		* 		mbNo            = 0x02,
+		* 		mbCancel        = 0x04,
+		* 		mbBack          = 0x08,
+		* 		mbOk            = 0x10,
+		* 		mbOKCancel	= 0x20,
+		* 		mbYesNoCancel	= 0x40,
+		* 		mbYesNo		= 0x80,
+		* 		mbNoYes		= 0x100,
+		* 		mbAll		= 0x200,
+		* 		NOTE: allign parameters are currently not supported, these values are existing for compatibility only!
+		*/
+		void	setShowedButtons(const int& ShowButtons){mb_show_button = ShowButtons; initButtons();}
+
+		/**
+		* define timeout, timeout is enabled if parmeter 1 > -1, otherwise it will be disabled,
+		* @param[in]	Timeout
+		* 	@li 	exepts type int
+		*/
+		void 	setTimeOut(const int& Timeout){timeout = Timeout;};
+
+		/**
+		* enable/disable defined timeout, otherwise it will be ignored
+		* @param[in]	enable
+		* 	@li 	exepts type bool, default = true
+		*/
+		void 	enableDefaultResultOnTimeOut(bool enable = true);
+
+		/**
+		* Default defined button text is already predefiend with parameter 'ShowButtons' from constructor.
+		* This member allows to define an alternate text for an already defined button,
+		* Result values are not touched!
+		* @param[in]	showed_button
+		* 	@li 	exepts type int
+		* 	@see	setShowedButtons()
+		* @param[in]	text
+		* 	@li 	exepts type std::string, sets the new text for button
+		*/
+		void setButtonText(const int& showed_button, const std::string& text);
+
+		/**
+		* enables background of buttons
+		* @param[in]	enable
+		* 	@li 	exepts type bool, default = true
+		*/
+		void enableButtonBg(bool enable = true);
+
+		/**
+		* disables background of buttons
+		*/
+		void disableButtonBg(){enableButtonBg(false);}
+
+// 		bool	setText(const std::string* newText);
 };
 
-extern int ShowMsg2UTF(	const neutrino_locale_t Caption, 
+int ShowMsg2UTF(	const neutrino_locale_t Title,
 						const char * const Text, 
-						const CMsgBox::result_ Default, 
+						const CMsgBox::msg_result_t Default,
 						const uint32_t ShowButtons, 
 						const char * const Icon = NULL, 
-						const int Width = 450, 
-						const int timeout = -1, 
-						bool returnDefaultOnTimeout = false); // UTF-8
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
-extern int ShowMsg2UTF(	const char * const Title, 
+int ShowMsg2UTF(	const char * const Title,
 						const char * const Text, 
-						const CMsgBox::result_ Default, 
+						const CMsgBox::msg_result_t Default,
 						const uint32_t ShowButtons, 
 						const char * const Icon = NULL, 
-						const int Width = 450, 
-						const int timeout = -1, 
-						bool returnDefaultOnTimeout = false); // UTF-8
-						
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
+int ShowMsg(	const neutrino_locale_t Title,
+						const char * const Text,
+						const CMsgBox::msg_result_t Default,
+						const uint32_t ShowButtons,
+						const char * const Icon = NULL,
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
+
+int ShowMsg(	const char * const Title,
+						const char * const Text,
+						const CMsgBox::msg_result_t Default,
+						const uint32_t ShowButtons,
+						const char * const Icon = NULL,
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
+
+int ShowMsg(	const neutrino_locale_t Title,
+						const std::string & Text,
+						const CMsgBox::msg_result_t Default,
+						const uint32_t ShowButtons,
+						const char * const Icon = NULL,
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
+
+int ShowMsg(	const neutrino_locale_t Title,
+						const neutrino_locale_t Text,
+						const CMsgBox::msg_result_t Default,
+						const uint32_t ShowButtons,
+						const char * const Icon = NULL,
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
+
+int ShowMsg(	const std::string & Title,
+						const std::string & Text,
+						const CMsgBox::msg_result_t Default,
+						const uint32_t ShowButtons,
+						const char * const Icon = NULL,
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
+
+void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
 #endif

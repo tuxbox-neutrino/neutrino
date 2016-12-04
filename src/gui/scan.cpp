@@ -40,7 +40,7 @@
 #include <gui/color.h>
 
 #include <gui/widget/menue.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/components/cc.h>
 #include <gui/movieplayer.h>
 
@@ -330,7 +330,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			else if(msg == CRCInput::RC_home) {
 				if(manual && !scansettings.scan_nit_manual)
 					continue;
-				if (ShowMsg(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+				if (ShowMsg(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes) {
 					g_Zapit->stopScan();
 				}
 			}

@@ -108,7 +108,7 @@ class CPictureViewerGui : public CMenuTarget
 		void endView();
 		int  show();
 
-		void showHelp();
+		int showHelp();
 		void deletePicFile(unsigned int index, bool mode);
 
 		bool audioplayer;

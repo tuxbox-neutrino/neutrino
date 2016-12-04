@@ -40,6 +40,7 @@
 #include <driver/display.h>
 #include <system/debug.h>
 #include <gui/color_custom.h>
+#include <system/helpers.h>
 #include <cs_api.h>
 
 #include <unistd.h>
@@ -48,13 +49,13 @@
 #include <arpa/inet.h>
 #include <xmlinterface.h>
 
-#include <gui/widget/hintbox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/scan.h>
 #include <gui/scan_setup.h>
 #include <zapit/zapit.h>
 #include <zapit/scan.h>
 #include <zapit/femanager.h>
-#include <gui/widget/messagebox.h>
+
 #include <gui/buildinfo.h>
 #include <gui/widget/buttons.h>
 #include <system/helpers.h>
@@ -148,7 +149,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		text[12*len] = 0;
 
 		CVFD::getInstance()->ShowText(text);
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, "VFD test, Press OK to return", CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, "VFD test, Press OK to return", CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 		CVFD::getInstance()->Clear();
 		
 		return res;
@@ -188,7 +189,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		close(fd);
 		
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 		
 		return res;
 	}
@@ -200,17 +201,17 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		switch(ret)
 		{
 			case 0:
-				ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMsgBox::mbrBack, CMsgBox::mbBack, "info.raw");
 				break;
 			case -1:
-				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 ATR read failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 ATR read failed", CMsgBox::mbrBack, CMsgBox::mbBack, "info");
 				break;
 			case -2:
-				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 reset failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 reset failed", CMsgBox::mbrBack, CMsgBox::mbBack, "info");
 				break;
 			default:
 			case -3:
-				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 open failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 open failed", CMsgBox::mbrBack, CMsgBox::mbBack, "info");
 				break;
 		}
 		
@@ -223,17 +224,17 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		switch(ret)
 		{
 			case 0:
-				ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMsgBox::mbrBack, CMsgBox::mbBack, "info.raw");
 				break;
 			case -1:
-				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 ATR read failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 ATR read failed", CMsgBox::mbrBack, CMsgBox::mbBack, "info");
 				break;
 			case -2:
-				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 reset failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 reset failed", CMsgBox::mbrBack, CMsgBox::mbBack, "info");
 				break;
 			default:
 			case -3:
-				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 open failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 open failed", CMsgBox::mbrBack, CMsgBox::mbBack, "info");
 				break;
 		}
 		
@@ -257,7 +258,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		sprintf(buffer, "HDD: /dev/sda1 is %s", mounted ? "mounted" : "NOT mounted");
 		printf("%s\n", buffer);
 		
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 		
 		return res;
 	}
@@ -278,7 +279,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		sprintf(buffer, "MMC: /dev/mmcblk0p1 is %s", mounted ? "mounted" : "NOT mounted");
 		printf("%s\n", buffer);
 		
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 		
 		return res;
 	}
@@ -287,8 +288,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		neutrino_msg_t      msg;
 		neutrino_msg_data_t data;
 		CHintBox * khintBox = NULL;
-		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Press button, or press EXIT to return");
-		hintBox->paint();
+		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Press button, or press EXIT to return");
+		hintBox.paint();
 		while (1)
 		{
 			g_RCInput->getMsg(&msg, &data, 100);
@@ -304,15 +305,15 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 					delete khintBox;
 				}
 				khintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, keyname);
-				hintBox->hide();
+				hintBox.hide();
 				khintBox->paint();
 			}
 		}
 		if (khintBox)
 			delete khintBox;
-		
-		delete hintBox;
-		
+
+		hintBox.hide();
+
 		return res;
 	}
 #if 0 //some parts DEPRECATED
@@ -373,8 +374,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 #endif
 	else if (actionKey == "button"){
-		if (button == NULL)
-			button = new CComponentsButtonRed(100, 100, 100, 50, "Test");
+		if (button == NULL){
+			button = new CComponentsButtonRed(100, 100, 100, 50, "Test", NULL, false, true, CC_SHADOW_OFF);
+			button->enableShadow();
+		}else
+			button->disableShadow();
+		
 
 		if (!button->isPainted()){
 			if (button->isSelected())
@@ -389,7 +394,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "circle"){
 		if (circle == NULL)
-			circle = new CComponentsShapeCircle (100, 100, 100, NULL, false);
+			circle = new CComponentsShapeCircle (100, 100, 100, NULL, CC_SHADOW_ON, COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_RED);
 
 		if (!circle->isPainted())	
 			circle->paint();
@@ -398,8 +403,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "square"){
-		if (sq == NULL)
-			sq = new CComponentsShapeSquare (100, 220, 100, 100, NULL, false);
+		if (sq == NULL){
+			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
+			sq->enableFrame(true,1);
+		}
 
 		if (!sq->isPainted())
 			sq->paint();
@@ -415,6 +422,32 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			pic->paint();
 		else
 			pic->hide();
+		return res;
+	}
+	else if (actionKey == "blink"){
+		if (sq == NULL)
+			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
+
+		if (sq->paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking square is running ...", 700, 6);
+		}
+		if (sq->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking square stopped ...", 700, 2);
+		}
+
+		return res;
+	}
+	else if (actionKey == "blink_image"){
+		if (pic == NULL)
+			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/btn_play.png");
+
+		if (pic->paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
+		}
+		if (pic->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
+		}
+
 		return res;
 	}
 	else if (actionKey == "channellogo"){
@@ -466,6 +499,39 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			form->paint();
 		return res;
 	}
+	else if (actionKey == "form_blink_item"){
+		if (form == NULL){
+			form = new CComponentsForm();
+			form->setColorBody(COL_DARK_GRAY);
+			form->setDimensionsAll(100, 100, 250, 100);
+			form->setFrameThickness(2);
+			form->setColorFrame(COL_WHITE);
+			//form->doPaintBg(false);
+
+			CComponentsPicture *ptmp = new CComponentsPicture(10, 10, NEUTRINO_ICON_HINT_INFO);
+			ptmp->doPaintBg(false);
+			ptmp->SetTransparent(CFrameBuffer::TM_BLACK);
+			form->addCCItem(ptmp);
+
+			CComponentsText *text = new CComponentsText(80, 30, 100, 50, "Info");
+			text->doPaintBg(false);
+			form->addCCItem(text);
+
+			form->paint0();
+			ptmp->kill();
+		}
+
+		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image ...", 700, 10);
+		}
+		if (form->getCCItem(0)->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image stopped ...", 700, 2);
+		}
+
+		form->kill();
+		delete form; form = NULL;
+		return res;
+	}
 	else if (actionKey == "text"){
 		if (txt == NULL)
 			txt = new CComponentsText();
@@ -476,12 +542,29 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			txt->hide();
 		else
 			txt->paint();
+
+		return res;
+	}
+	else if (actionKey == "blinking_text"){
+		if (txt == NULL){
+			txt = new CComponentsText();
+			txt->setDimensionsAll(100, 100, 250, 100);
+			txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
+		}
+
+		if (txt->paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking text is running ...", 700, 10);
+		}
+		if (txt->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking text stopped ...", 700, 2);
+		}
+
 		return res;
 	}
 	else if (actionKey == "text_ext"){
 		if (text_ext == NULL)
 			text_ext = new CComponentsExtTextForm();
-		text_ext->setDimensionsAll(10, 20, 300, 48);
+		text_ext->setDimensionsAll(10, 20, 300, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight());
 		text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
 		text_ext->setFrameThickness(2);
 // 		text_ext->setLabelWidthPercent(15/*%*/);
@@ -490,6 +573,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			text_ext->hide();
 		else
 			text_ext->paint();
+		return res;
+	}
+	else if (actionKey == "blinking_text_ext"){
+		if (text_ext == NULL){
+			text_ext = new CComponentsExtTextForm();
+			text_ext->setDimensionsAll(10, 20, 300, 48);
+			text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+			text_ext->setFrameThickness(2);
+	// 		text_ext->setLabelWidthPercent(15/*%*/);
+			text_ext->paint0();
+			static_cast<CComponentsText*>(text_ext->getCCItem(1))->kill();
+		}
+
+		if (static_cast<CComponentsText*>(text_ext->getCCItem(1))-> paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text is running ...", 700, 10);
+		}
+		if (text_ext->getTextObject()->cancelBlink()){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text stopped ...", 700, 2);
+		}
 		return res;
 	}
 	else if (actionKey == "header"){
@@ -559,7 +661,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			footer->setIcon(NEUTRINO_ICON_INFO);
 
 			//add button labels with conventional button label struct
-			footer->setButtonLabels(TestButtons, TestButtonsCount, 0, footer->getWidth()/6);
+			footer->setButtonLabels(TestButtons, TestButtonsCount, 0, footer->getWidth()/TestButtonsCount);
 
 			//also possible: use directly button name and as 2nd parameter string or locale as text
 //			footer->setButtonLabel(NULL, "Test", 0, 250);
@@ -597,49 +699,57 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "iconform"){
-		if (iconform == NULL)
+		if (iconform == NULL){
 			iconform = new CComponentsIconForm();
-		iconform->setColorBody(COL_LIGHT_GRAY);
-		iconform->setDimensionsAll(100, 100,80/*480*/, 80);
-		iconform->setFrameThickness(2);
-		iconform->setColorFrame(COL_WHITE);
-		iconform->setDirection(CC_DIR_X);
-		iconform->setAppendOffset(5, 5);
+			iconform->setColorBody(COL_LIGHT_GRAY);
+			iconform->setDimensionsAll(100, 100,80/*480*/, 80);
+			iconform->setFrameThickness(2);
+			iconform->setColorFrame(COL_WHITE);
+			iconform->setDirection(CC_DIR_X);
+			iconform->setAppendOffset(5, 5);
 
-		//For existing instances it's recommended
-		//to remove old items before add new icons, otherwise icons will be appended.
-		iconform->removeAllIcons();
+			//For existing instances it's recommended
+			//to remove old items before add new icons, otherwise icons will be appended.
+			iconform->removeAllIcons();
 
-		//you can...
-		//add icons step by step
-		iconform->addIcon(NEUTRINO_ICON_INFO);
-		iconform->addIcon(NEUTRINO_ICON_INFO);
-		iconform->addIcon(NEUTRINO_ICON_HINT_MEDIA);
-		//...or
-		//add icons with vector
-		std::vector<std::string> v_icons;
-		v_icons.push_back(NEUTRINO_ICON_HINT_VIDEO);
-		v_icons.push_back(NEUTRINO_ICON_HINT_AUDIO);
-		iconform->addIcon(v_icons);
+			//you can...
+			//add icons step by step
+			iconform->addIcon(NEUTRINO_ICON_INFO);
+			iconform->addIcon(NEUTRINO_ICON_INFO);
+			iconform->addIcon(NEUTRINO_ICON_HINT_MEDIA);
+			//...or
+			//add icons with vector
+			std::vector<std::string> v_icons;
+			v_icons.push_back(NEUTRINO_ICON_HINT_VIDEO);
+			v_icons.push_back(NEUTRINO_ICON_HINT_AUDIO);
+			iconform->addIcon(v_icons);
 
-		//insert any icon, here as first (index = 0...n)
-		iconform->insertIcon(0, NEUTRINO_ICON_HINT_APLAY);
-// 		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
-		
-		if (iconform->isPainted())
-			iconform->hide();
-		else{
+			//insert any icon, here as first (index = 0...n)
+			iconform->insertIcon(0, NEUTRINO_ICON_HINT_APLAY);
+	// 		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
 			iconform->paint();
 		}
+
+		CComponentsPicture* img = static_cast<CComponentsPicture*>(iconform->getCCItem(2));
+		img->kill();
+
+		if (img->paintBlink(500000, true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
+		}
+		if (img->cancelBlink(true)){
+			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
+		}
+
 		return res;
 	}
 	else if (actionKey == "window"){
 		if (window == NULL){
 			window = new CComponentsWindow();
-			window->setWindowCaption("|.....................|");
+			window->setWindowCaption("|........HEADER........|", CTextBox::CENTER);
 			window->setDimensionsAll(50, 50, 500, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
 			window->enableShadow();
+			window->getFooterObject()->setCaption("|........FOOTER........|", CTextBox::CENTER);
 
 			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
 			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);
@@ -660,10 +770,20 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			c14->setColorBody(COL_RED);
 			c14->setPageNumber(1);
 			window->addWindowItem(c14);
-		}
-		else{
-			window->setWindowIcon(NEUTRINO_ICON_LOCK);
-			window->setWindowCaption("Test");
+
+			CComponentsExtTextForm	*text_1 = new CComponentsExtTextForm();
+			text_1->setDimensionsAll(10, CC_CENTERED, 380, 48);
+			text_1->setLabelAndText("Page", "Number 1", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+			text_1->setFrameThickness(2);
+			text_1->setPageNumber(0);
+			window->addWindowItem(text_1);
+
+			CComponentsExtTextForm	*text_2 = new CComponentsExtTextForm();
+			text_2->setDimensionsAll(10, 200, 380, 48);
+			text_2->setLabelAndText("Page", "Number 2", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+			text_2->setFrameThickness(2);
+			text_2->setPageNumber(1);
+			window->addWindowItem(text_2);
 		}
 #if 0
 		if (!window->isPainted()){
@@ -671,10 +791,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		else{
 #endif			//or paint direct a defined page
-			if (window->getCurrentPage() == 1)
-				window->paintPage(0);
-			else
-				window->paintPage(1);
+// 			if (window->getCurrentPage() == 1)
+			window->enablePageScroll(CComponentsWindow::PG_SCROLL_M_UP_DOWN_KEY | CComponentsWindow::PG_SCROLL_M_LEFT_RIGHT_KEY);
+			window->enableSidebar();
+			window->paint();
+			window->getBodyObject()->exec();
+			window->hide();
 #if 0
 		}
 #endif
@@ -716,18 +838,105 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
+	else if (actionKey == "hintbox_test")
+	{
+		ShowHint("Testmenu: Hintbox popup test", "Test for HintBox,\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_test_yes_no")
+	{
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 500, -1);
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgRet);
+		ShowHint("MsgBox test returns", msg_txt.c_str());
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_test_cancel"){
+		CMsgBox * msgBox = new CMsgBox("Testmenu: MsgBox exit test", "Please press key");
+// 		msgBox->setTimeOut(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]);
+		msgBox->paint();
+		res = msgBox->exec();
+		msgBox->hide();
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgBox->getResult());
+		delete msgBox;
+
+		ShowHint("MsgBox test returns", msg_txt.c_str(), 700, 10, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
+
+		return res;
+	}
+	else if (actionKey == "msgbox_test_all"){
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbAll, NULL, 700, -1);
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgRet);
+		ShowHint("MsgBox test returns", msg_txt.c_str());
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_test_yes_no_cancel"){
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel, NULL, 500, -1);
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgRet);
+		ShowHint("MsgBox test returns", msg_txt.c_str());
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_test_ok_cancel"){
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbOk | CMsgBox::mbCancel, NULL, 500, -1);
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgRet);
+		ShowHint("MsgBox test returns", msg_txt.c_str());
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_test_no_yes"){
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbNoYes, NULL, 500, -1);
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgRet);
+		ShowHint("MsgBox test returns", msg_txt.c_str());
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_test_ok"){
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key! ...", CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 500, -1);
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgRet);
+		ShowHint("MsgBox test returns", msg_txt.c_str());
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_test_cancel_timeout"){
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key or wait! ...", CMsgBox::mbrCancel, CMsgBox::mbOKCancel, NULL, 500, 6, true);
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgRet);
+		ShowHint("MsgBox test returns", msg_txt.c_str());
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_error"){
+		DisplayErrorMessage("Error Test!");
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_info"){
+		DisplayInfoMessage("Info Test!");
+		return menu_return::RETURN_REPAINT;
+	}
 	else if (actionKey == "footer_key"){
-		neutrino_msg_t      msg;
-		neutrino_msg_data_t data;
-		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return");
-		hintBox->paint();
-		while (1)
-		{
-			g_RCInput->getMsg(&msg, &data, 100);
-			if (msg == CRCInput::RC_home)
-				break;
-		}
-		delete hintBox;
+		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return", 350, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
+		hintBox.setTimeOut(15);
+
+		//optional: it is also possible to add more items into the hint box
+		//here some examples:
+		hintBox.addHintItem(new CComponentsShapeSquare(CC_CENTERED, CC_APPEND, 330, 2, NULL, false, COL_MENUCONTENT_PLUS_6, COL_RED));
+		hintBox.addHintItem("- text with left icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, NEUTRINO_ICON_HINT_INFO);
+		hintBox.addHintItem("- text right without an icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::RIGHT);
+		hintBox.addHintItem("- text right with an icon", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::RIGHT, NEUTRINO_ICON_HINT_INFO);
+
+		hintBox.paint();
+		res = hintBox.exec();
+		hintBox.hide();
 
 		return res;
 	}
@@ -765,6 +974,11 @@ int CTestMenu::showTestMenu()
 	f_bi->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
 	w_test.addItem(f_bi);
 
+	//msg/hintbox
+	CMenuWidget * w_msg = new CMenuWidget("MsgBox/Hint-Tests", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HINT_MSG_TESTS);
+	w_test.addItem(new CMenuForwarder(w_msg->getName(), true, NULL, w_msg));
+	showMsgTests(w_msg);
+
 	//footer buttons
 	static const struct button_label footerButtons[2] = {
 		{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_COLORCHOOSER_RED	},
@@ -787,15 +1001,20 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Button", true, NULL, this, "button"));
 	widget->addItem(new CMenuForwarder("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarder("Square", true, NULL, this, "square"));
+	widget->addItem(new CMenuForwarder("Blinking-Square", true, NULL, this, "blink"));
+	widget->addItem(new CMenuForwarder("Blinking-Image", true, NULL, this, "blink_image"));
 	widget->addItem(new CMenuForwarder("Picture", true, NULL, this, "picture"));
 	widget->addItem(new CMenuForwarder("Channel-Logo", true, NULL, this, "channellogo"));
 	widget->addItem(new CMenuForwarder("Form", true, NULL, this, "form"));
+	widget->addItem(new CMenuForwarder("Form with blinking item", true, NULL, this, "form_blink_item"));
 	widget->addItem(new CMenuForwarder("Text", true, NULL, this, "text"));
+	widget->addItem(new CMenuForwarder("Blinking Text", true, NULL, this, "blinking_text"));
 	widget->addItem(new CMenuForwarder("Header", true, NULL, this, "header"));
 	widget->addItem(new CMenuForwarder("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarder("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarder("Window", true, NULL, this, "window"));
 	widget->addItem(new CMenuForwarder("Text-Extended", true, NULL, this, "text_ext"));
+	widget->addItem(new CMenuForwarder("Blinking Extended Text", true, NULL, this, "blinking_text_ext"));
 	widget->addItem(new CMenuForwarder("Scrollbar", true, NULL, this, "scrollbar"));
 }
 
@@ -858,4 +1077,22 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	}
 	CFEManager::getInstance()->linkFrontends(true);
 #endif
+}
+
+void CTestMenu::showMsgTests(CMenuWidget *widget)
+{
+	widget->addIntroItems();
+	widget->addItem(new CMenuForwarder("HintBox test!", true, NULL, this, "hintbox_test"));
+	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "MsgBox"));
+	widget->addItem(new CMenuForwarder("cancel on timeout", true, NULL, this, 	"msgbox_test_cancel_timeout"));
+	widget->addItem(new CMenuForwarder("yes no", true, NULL, this, "msgbox_test_yes_no"));
+	widget->addItem(new CMenuForwarder("no yes", true, NULL, this, "msgbox_test_no_yes"));
+	widget->addItem(new CMenuForwarder("cancel", true, NULL, this, "msgbox_test_cancel"));
+	widget->addItem(new CMenuForwarder("ok", true, NULL, this, "msgbox_test_ok"));
+	widget->addItem(new CMenuForwarder("ok cancel", true, NULL, this, "msgbox_test_ok_cancel"));
+	widget->addItem(new CMenuForwarder("yes no cancel", true, NULL, this, "msgbox_test_yes_no_cancel"));
+	widget->addItem(new CMenuForwarder("all", true, NULL, this, "msgbox_test_all"));
+	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Error/Info"));
+	widget->addItem(new CMenuForwarder("Error Message!", true, NULL, this, "msgbox_error"));
+	widget->addItem(new CMenuForwarder("Info Message!", true, NULL, this, "msgbox_info"));
 }

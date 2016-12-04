@@ -89,6 +89,8 @@ class CComponentsWindow : public CComponentsForm
 		fb_pixel_t ccw_col_head_text;
 		///footer bg color
 		fb_pixel_t ccw_col_footer;
+		///footer heigh, default defined by footer object itself
+		int ccw_h_footer;
 		///footer button font
 		Font*	ccw_button_font;
 
@@ -105,14 +107,14 @@ class CComponentsWindow : public CComponentsForm
 		///initialze all window objects at once
 		void initCCWItems();
 		///initialize all attributes
-		void initVarWindow(	const int& x_pos = CC_CENTERED, const int& y_pos = CC_CENTERED, const int& w = 0, const int& h = 0,
-					const std::string& caption = "",
-					const std::string& iconname = "",
-					CComponentsForm *parent = NULL,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		void initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption,
+					const std::string& iconname,
+					CComponentsForm *parent,
+					int shadow_mode,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow);
 		///initialize width and height
 		void initWindowSize();
 		///initialize position
@@ -222,6 +224,11 @@ class CComponentsWindow : public CComponentsForm
 
 		///paint all window items, this overwriting paint() from CComponentsForm
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+		///adds additional exec key to current collection, default exit keys are CRCInput::RC_home and CRCInput::RC_setup
+		virtual void addExitKey(const neutrino_msg_t& key){getBodyObject()->addExitKey(key);}
+		///remove all current exec keys from current collection, NOTE: use addExitKey() if new exec key is required
+		virtual void removeExitKeys(){getBodyObject()->removeExitKeys();}
 };
 
 class CComponentsWindowMax : public CComponentsWindow

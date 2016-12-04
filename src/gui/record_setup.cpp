@@ -43,7 +43,7 @@
 #include <gui/filebrowser.h>
 
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
@@ -85,7 +85,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "help_recording")
 	{
-		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
+		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMsgBox::mbrBack, CMsgBox::mbBack);
 		return res;
 	}
 	else if(actionKey == "recordingdir")
@@ -338,6 +338,13 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	ch->setHint("", LOCALE_MENU_HINT_RECORD_ZAP_PRE_TIME);
 	ch->setNumberFormat(nf);
 	menu_timersettings->addItem(ch);
+
+	menu_timersettings->addItem(GenericMenuSeparatorLine);
+
+	//allow followscreenings
+	CMenuOptionChooser* followscreenings = new CMenuOptionChooser(LOCALE_TIMERSETTINGS_FOLLOWSCREENINGS, &g_settings.timer_followscreenings, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	followscreenings->setHint("", LOCALE_MENU_HINT_TIMER_FOLLOWSCREENINGS);
+	menu_timersettings->addItem(followscreenings);
 }
 
 

@@ -426,7 +426,7 @@ extra.key_timeshift Timeshift
 extra.key_unlock Ontgrendel toets
 extra.ladirection LA richting
 extra.latitude Breedtegraad (latitude)
-extra.loadconfig Neutrino Settings: Laden van
+extra.loadconfig Settings: Laden van
 extra.loadkeys Toetsen laden van
 extra.lodirection LO richting
 extra.longitude Lengtegraad (Longitude)
@@ -438,7 +438,7 @@ extra.rotor_swap Schakelen rotor oost/west
 extra.rounded_corners Vorm van hoeken
 extra.rounded_corners_off Rechthoekig
 extra.rounded_corners_on Rond
-extra.saveconfig Neutrino Settings: Opslaan als...
+extra.saveconfig Settings: Opslaan als...
 extra.savekeys Toetsen opslaan
 extra.scrambled_message Gecodeerd bericht
 extra.show_mute_icon Weergave Mute icoon wanneer volume niveau 0 is
@@ -657,6 +657,7 @@ fontmenu.eventlist Programmalijst
 fontmenu.head Lettertype instellingen
 fontmenu.infobar Informatiebalk
 fontmenu.menu Menu
+fontmenu.messages Messages
 fontmenu.other Andere
 fontmenu.scaling Globale lettertype Zoom Factor
 fontmenu.scaling_x Horizontaal (in %)
@@ -688,6 +689,7 @@ fontsize.menu Menu tekst
 fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Titel
+fontsize.message_text Messag Text
 fontsize.subtitles Text ondertitels
 hdd_10min 10 min.
 hdd_1min 1 min.
@@ -725,6 +727,7 @@ hdd_statfs_recording alleen tijdens opname
 hdd_umount Unmount
 hdd_umount_warn Apparaat ontkoppelen
 hdd_umounted Device verwijderd
+help_box_title Help
 imageinfo.api API:
 imageinfo.creator Ontwikkelaar:
 imageinfo.date Datum:
@@ -1080,7 +1083,7 @@ menu.hint_leds_deepstandby LEDs status in deeps-standby mode
 menu.hint_leds_record LEDs status wanneer een opname gemaakt wordt
 menu.hint_leds_standby LEDs status in soft-standby mode
 menu.hint_leds_tv LEDs status indien de ontvanger in werking is
-menu.hint_load Laad Neutrino gebruikersinterface \ninstellingen van back-up bestand
+menu.hint_load Laad gebruikersinterface \ninstellingen van back-up bestand
 menu.hint_longkeypress_duration Een toets-indruk wordt gezien als "lange toets indruk" wanneer deze langer is ingedrukt dan de gespecificeerde tijd.
 menu.hint_lua Start Lua Plugins
 menu.hint_make_hdlist Automatisch HD kanalenlijst maken \ngebaseerd op kanaaltype en naam
@@ -1094,6 +1097,7 @@ menu.hint_menu_fonts Lettertype grote van menu's aanpassen
 menu.hint_menu_hints Hints weergeven Show this hints. U kunt tevens gebruik maken van de 'help' toets.
 menu.hint_menu_pos Selecteer menu positie
 menu.hint_menus Configureer menu opties
+menu.hint_message_fonts Change message text font sizes
 menu.hint_misc_cec HDMI-CEC Opties
 menu.hint_misc_channellist HD/Nieuw/Verwijderde kanalen lijst \nZap cyclus
 menu.hint_misc_energy Softstandby, uitgesteld uitschakelen en inactiviteit timers inschakelen
@@ -1298,7 +1302,7 @@ menu.hint_selected_back Wijzig achtergrond kleur van het geselecteerde item
 menu.hint_selected_text Wijzig test kleur van het geselecteerde item
 menu.hint_service Tuner instellingen, service scan,\nfavorietenlijst editor, software update
 menu.hint_service_scan Tuner instellingen, service scan
-menu.hint_settings Configureer Neutrino\nNetwerk, audio, video, OSD en meer
+menu.hint_settings Configureer sytem\nNetwerk, audio, video, OSD en meer
 menu.hint_show_mute_icon Mute icoon weergeven wanneer volume op 0 staat.
 menu.hint_shutdown Schakel uw ontvanger in deep standby modus\n geen bevestiging
 menu.hint_shutdown_count Tijd voordat uw ontvanger in deepstand-by schakelt vanuit soft-standby modus
@@ -1307,7 +1311,7 @@ menu.hint_shutdown_rcdelay Deep standby modus inschakelen wanneer de power toets
 menu.hint_shutdown_real Soft-standby inschakelen indien soft-standby is \nuitgeschakeld schakelt de ontvanger gelijk in deep standby
 menu.hint_sleeptimer Timer instellen om uw ontvanger in slaapstand te schakelen
 menu.hint_sleeptimer_min Standaard instelling voor sleeptimer
-menu.hint_soft_restart Herstart Neutrino zonder reboot
+menu.hint_soft_restart Herstart GUI zonder reboot
 menu.hint_softupdate_check Controleer online voor updates, download en installeer deze.
 menu.hint_softupdate_check_local Selecteer en installeer firmware vanaf een lokaal bestand
 menu.hint_softupdate_createimage_menu Backup van huidige software, inclusief alle instellingen
@@ -1322,6 +1326,7 @@ menu.hint_subchannel_pos Selecteer menu positie van subkanalen
 menu.hint_sw_update Update software
 menu.hint_theme Select voorgedefinieerde thema\n Opslaan of laad thema van bestand
 menu.hint_timeouts Verberg gebruikers interface na bepaald aantal seconden.
+menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
 menu.hint_timers Toevoegen/Verplaats/Bewerk \ngeplande opnames of timers etc. 
 menu.hint_timezone Selecteer uw tijdzone
 menu.hint_tools Start tools
@@ -1721,7 +1726,7 @@ networkmenu.ssid_scan WLAN netwerk scan
 networkmenu.ssid_scan_error Geen WLAN netwerken gevonden.
 networkmenu.ssid_scan_wait WLAN netwerk scan is bezig...
 networkmenu.test Netwerktest uitvoeren 
-neutrino_starting Een moment geduld a.u.b...
+neutrino_starting %s %s starting ...
 nfs.alreadymounted directory reeds gekoppeld
 nfs.automount Koppelen tijdens het opstarten
 nfs.dir directory/locatie
@@ -2070,7 +2075,7 @@ settings.menu_hints Menu hints weergeven
 settings.menu_pos Menu positie
 settings.menus Menus
 settings.missingoptionsconffile De instellingen zijn geupdate.\nNieuwe opties zijn standaard ingesteld.
-settings.noconffile Geen Neutrino instellingen gevonden.\nGebruikt standaard instellingen.
+settings.noconffile Geen instellingen gevonden.\nGebruikt standaard instellingen.
 settings.pos_bottom_center midden onder
 settings.pos_bottom_left Links onder
 settings.pos_bottom_right Rechts onder
@@ -2197,6 +2202,8 @@ timing.infobar_radio Infobalk (radio modus)
 timing.menu Menu
 timing.numericzap Numeriek Zap
 timing.volumebar Volume balk
+timing.popup_messages Popup messages
+timing.static_messages Interactive messages
 tmdb.read_data Zoeken TMDB data...
 unicable.lnb Invoer Unicable
 unicable.qrg Unicable Frequentie

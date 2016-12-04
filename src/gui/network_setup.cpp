@@ -43,7 +43,7 @@
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
 #include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 
 #include <gui/network_service.h>
 
@@ -132,13 +132,13 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey=="restore")
 	{
-		int result =  	ShowMsg(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_RESET_SETTINGS_NOW), CMessageBox::mbrNo,
-				CMessageBox::mbYes |
-				CMessageBox::mbNo ,
+		int result =  	ShowMsg(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_RESET_SETTINGS_NOW), CMsgBox::mbrNo,
+				CMsgBox::mbYes |
+				CMsgBox::mbNo ,
 				NEUTRINO_ICON_QUESTION,
 				width);
 
-		if (result ==  CMessageBox::mbrYes) {
+		if (result ==  CMsgBox::mbrYes) {
 			restoreNetworkSettings();
 		}
 		return res;
@@ -552,7 +552,7 @@ bool CNetworkSetup::checkForIP()
 				printf("[network setup] empty address %s\n", g_Locale->getText(n_settings[i].addr_name));
 				char msg[64];
 				snprintf(msg, 64, g_Locale->getText(LOCALE_NETWORKMENU_ERROR_NO_ADDRESS), g_Locale->getText(n_settings[i].addr_name));
-				ShowMsg(LOCALE_MAINSETTINGS_NETWORK, msg, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_ERROR, width);
+				ShowMsg(LOCALE_MAINSETTINGS_NETWORK, msg, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR, width);
 				return false;
 			}
 		}
@@ -578,15 +578,14 @@ void CNetworkSetup::applyNetworkSettings()
 	if (!checkForIP())
 		return;
 
-	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS)); // UTF-8
-	hintBox->paint();
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS)); // UTF-8
+	hintBox.paint();
 
  	networkConfig->stopNetwork();
 	saveNetworkSettings();
  	networkConfig->startNetwork();
 
-	hintBox->hide();
-	delete hintBox;
+	hintBox.hide();
 }
 
 //open a message dialog with buttons,
@@ -595,21 +594,21 @@ void CNetworkSetup::applyNetworkSettings()
 int  CNetworkSetup::saveChangesDialog()
 {
 	// Save the settings after changes, if user wants to!
-	int result = 	ShowMsg(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS_NOW), CMessageBox::mbrYes,
-			CMessageBox::mbYes |
-			CMessageBox::mbNo ,
+	int result = 	ShowMsg(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS_NOW), CMsgBox::mbrYes,
+			CMsgBox::mbYes |
+			CMsgBox::mbNo ,
 			NEUTRINO_ICON_QUESTION,
 			width);
 
 	switch(result)
 	{
-		case CMessageBox::mbrYes:
+		case CMsgBox::mbrYes:
 			if (!checkForIP())
 				return menu_return::RETURN_REPAINT;
 			return exec(NULL, "networkapply");
 			break;
 
-		case CMessageBox::mbrNo: //no
+		case CMsgBox::mbrNo: //no
 			return exec(NULL, "restore");
 			break;
 	}
@@ -694,7 +693,7 @@ void CNetworkSetup::showCurrentNetworkSettings()
 			+ g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ": " + nameserver + '\n'
 			+ g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY   ) + ": " + router;
 	}
-	ShowMsg(LOCALE_NETWORKMENU_SHOW, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+	ShowMsg(LOCALE_NETWORKMENU_SHOW, text, CMsgBox::mbrBack, CMsgBox::mbBack); // UTF-8
 }
 
 const char * CNetworkSetup::mypinghost(std::string &host)
@@ -790,7 +789,7 @@ void CNetworkSetup::testNetworkSettings()
 		}
 	}
 
-	ShowMsg(LOCALE_NETWORKMENU_TEST, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+	ShowMsg(LOCALE_NETWORKMENU_TEST, text, CMsgBox::mbrBack, CMsgBox::mbBack); // UTF-8
 }
 
 int CNetworkSetup::showWlanList()
@@ -804,7 +803,7 @@ int CNetworkSetup::showWlanList()
 	bool found = get_wlan_list(g_settings.ifname, networks);
 	hintBox.hide();
 	if (!found) {
-		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_ERROR), CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_ERROR), CMsgBox::mbrBack, CMsgBox::mbBack); // UTF-8
 		return res;
 	}
 

@@ -25,7 +25,7 @@
 class CLuaMessagebox
 {
 	public:
-		CMessageBox *b;
+		CMsgBox *b;
 		CLuaMessagebox();
 		~CLuaMessagebox();
 };

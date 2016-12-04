@@ -119,8 +119,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 
 		CComponentsHeader(CComponentsForm *parent = NULL);
 		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
-					const std::string& caption = "",
-					const std::string& = "",
+					const std::string& caption = std::string(),
+					const std::string& = std::string(),
 					const int& buttons = 0,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,

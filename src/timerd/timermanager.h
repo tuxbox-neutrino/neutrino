@@ -249,6 +249,7 @@ public:
 	int modifyEvent(int eventID, time_t announceTime, time_t alarmTime, time_t stopTime, uint32_t repeatcount, CTimerd::CTimerEventRepeat evrepeat, CTimerd::responseGetTimer& data);
 	int modifyEvent(int eventID, unsigned char apids);
 	int rescheduleEvent(int eventID, time_t announceTime, time_t alarmTime, time_t stopTime);
+	int adjustEvent(int eventID, time_t announceTime, time_t alarmTime, time_t stopTime);
 	void saveEventsToConfig();
 	void loadEventsFromConfig();
 	bool shutdown();

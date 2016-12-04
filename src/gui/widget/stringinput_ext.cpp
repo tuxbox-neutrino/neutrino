@@ -35,7 +35,7 @@
 
 #include <gui/color.h>
 
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 
 #include <system/helpers.h>
 #include <global.h>
@@ -268,19 +268,19 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
 			if(*valueString != oldval){
-				int erg = ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbNo | CMessageBox::mbYes | CMessageBox::mbCancel);
-				 if(erg==CMessageBox::mbrYes){
+				int erg = ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbNo | CMsgBox::mbYes | CMsgBox::mbCancel);
+				 if(erg==CMsgBox::mbrYes){
 					*valueString = oldval;
 					loop=false;
 					if(cancel != NULL)
 						*cancel = true;
 				 }
-				 else if(erg==CMessageBox::mbrNo){
+				 else if(erg==CMsgBox::mbrNo){
 					 loop=false;
 					 if(cancel != NULL)
 						 *cancel = false;
 				 }
-				 else if(erg==CMessageBox::mbrCancel){
+				 else if(erg==CMsgBox::mbrCancel){
 					 timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				 }
 			} else {

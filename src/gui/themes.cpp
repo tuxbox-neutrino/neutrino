@@ -42,7 +42,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <driver/screen_max.h>
 
 #include <sys/stat.h>
@@ -182,7 +182,7 @@ int CThemes::Show()
 	}
 
 	if (hasThemeChanged) {
-		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_COLORTHEMEMENU_QUESTION, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_SETTINGS) != CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_COLORTHEMEMENU_QUESTION, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_SETTINGS) != CMsgBox::mbrYes)
 			rememberOldTheme( false );
 		else
 			hasThemeChanged = false;

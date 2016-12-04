@@ -172,7 +172,7 @@
 #include <driver/screen_max.h>
 #include <daemonc/remotecontrol.h>
 #include <gui/widget/helpbox.h>
-#include "widget/messagebox.h"
+#include "widget/msgbox.h"
 #include "widget/hintbox.h"
 #include "widget/keychooser.h"
 #include "color.h"
@@ -736,13 +736,15 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 //shows a short help message
 void CPersonalizeGui::ShowHelpPersonalize()
 {
-	Helpbox helpbox;
+	Helpbox helpbox(g_Locale->getText(LOCALE_PERSONALIZE_HELP));
 
 	for (int i = (int)LOCALE_PERSONALIZE_HELP_LINE1; i<= (int)LOCALE_PERSONALIZE_HELP_LINE8; i++)
 		helpbox.addLine(g_Locale->getText((neutrino_locale_t)i));
 
-
-	helpbox.show(LOCALE_PERSONALIZE_HELP);
+	helpbox.addExitKey(CRCInput::RC_ok);
+	helpbox.show();
+	helpbox.exec();
+	helpbox.hide();
 }
 
 void CPersonalizeGui::ApplySettings()
@@ -765,7 +767,7 @@ void CPersonalizeGui::SaveAndExit()
 			ApplySettings();
 			return;
 		}
-		if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_QUESTION) == CMsgBox::mbrYes)
 		{
 			CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
 			hintBox.paint();
@@ -774,7 +776,7 @@ void CPersonalizeGui::SaveAndExit()
 		}
 		else
 		{
-			if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_MESSAGEBOX_DISCARD), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
+			if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_MESSAGEBOX_DISCARD), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_QUESTION) == CMsgBox::mbrYes)
 				exec(NULL, "restore");
 		}
 	}

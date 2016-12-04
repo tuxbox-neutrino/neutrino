@@ -73,7 +73,7 @@ static bool notify_complete = false;
 /* period to clean cached sections and force restart sections read */
 #define META_HOUSEKEEPING_COUNT (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 #define STANDBY_HOUSEKEEPING_COUNT (60 * 60) / HOUSEKEEPING_SLEEP
-#define EPG_SAVE_FREQUENTLY_COUNT (60 * 60) / HOUSEKEEPING_SLEEP
+#define EPG_SERVICE_FREQUENTLY_COUNT (60 * 60) / HOUSEKEEPING_SLEEP
 
 // Timeout bei tcp/ip connections in ms
 #define READ_TIMEOUT_IN_SECONDS  2
@@ -86,6 +86,7 @@ static bool notify_complete = false;
 #define TIMEOUTS_EIT_VERSION_WAIT	(2 * CHECK_RESTART_DMX_AFTER_TIMEOUTS)
 
 static unsigned int epg_save_frequently;
+static unsigned int epg_read_frequently;
 static long secondsToCache;
 long int secondsExtendedTextCache = 0;
 static long oldEventsAre;
@@ -1127,6 +1128,8 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 	secondsExtendedTextCache = (long)(pmsg->epg_extendedcache)*60L*60L;
 	max_events = pmsg->epg_max_events;
 	epg_save_frequently = pmsg->epg_save_frequently;
+	epg_read_frequently = pmsg->epg_read_frequently;
+
 	unlockEvents();
 
 	bool time_wakeup = false;
@@ -2140,7 +2143,7 @@ static void *houseKeepingThread(void *)
 		removeOldEvents(oldEventsAre); // alte Events
 
 		ecount++;
-		if (ecount == EPG_SAVE_FREQUENTLY_COUNT)
+		if (ecount == EPG_SERVICE_FREQUENTLY_COUNT)
 		{
 			if (epg_save_frequently > 0)
 			{
@@ -2152,6 +2155,22 @@ static void *houseKeepingThread(void *)
 						d.erase(it);
 				}
 				writeEventsToFile(d.c_str());
+			}
+			if (epg_read_frequently > 0)
+			{
+				pthread_t thrInsert;
+				pthread_attr_t attr;
+				pthread_attr_init(&attr);
+				pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+				std::string d = epg_dir + "/";
+
+				printf("[%s]: %s\n",__func__,d.c_str());
+
+				if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)d.c_str() ))
+					{
+					perror("sectionsd: pthread_create()");
+					}
+				pthread_attr_destroy(&attr);
 			}
 			ecount = 0;
 		}
@@ -2210,6 +2229,7 @@ bool CEitManager::Start()
 	oldEventsAre = config.epg_old_events*60L*60L; //hours
 	max_events = config.epg_max_events;
 	epg_save_frequently = config.epg_save_frequently;
+	epg_read_frequently = config.epg_read_frequently;
 
 	if (find_executable("ntpdate").empty()){
 		ntp_system_cmd_prefix = find_executable("ntpd");

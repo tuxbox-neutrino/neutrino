@@ -82,6 +82,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	col_frame 	= color_frame;
 	col_body	= color_background;
 	col_shadow	= color_shadow;
+	col_shadow_clean= col_body;
 	do_scale	= allow_scale;
 	image_cache	= NULL; //image
 	enable_cache	= false;
@@ -216,17 +217,21 @@ void CComponentsPicture::initCCItem()
 	 * by setters setWidth/setHeight
 	 * these steps are required to assign the current image dimensions to item dimensions
 	*/
-	if (keep_dx_aspect && dy){
+	if (keep_dx_aspect && dy)
+	{
 		float h_ratio = float(height)*100/(float)dy;
 		width = int(h_ratio*(float)dx/100);
 #ifdef BOXMODEL_APOLLO
 		if (do_scale && (width > 10 || height > 10))
 			width = GetWidth4FB_HW_ACC(x+fr_thickness, width-2*fr_thickness)+2*fr_thickness;
 #endif
+		keep_dx_aspect = false;
 	}
-	if (keep_dy_aspect && dx){
+	if (keep_dy_aspect && dx)
+	{
 		float w_ratio = float(width)*100/(float)dx;
 		height = int(w_ratio*(float)dy/100);
+		keep_dy_aspect = false;
 	}
 
 	//resize image and apply current assigned scale values
@@ -247,11 +252,11 @@ void CComponentsPicture::initPosition(int *x_position, int *y_position)
 }
 
 
-void CComponentsPicture::getSize(int* width_image, int *height_image)
-{
-	*width_image = width;
-	*height_image = height;
-}
+// void CComponentsPicture::getSize(int* width_image, int *height_image)
+// {
+// 	*width_image = width;
+// 	*height_image = height;
+// }
 
 int CComponentsPicture::getWidth()
 {
@@ -343,6 +348,15 @@ bool CComponentsPicture::hasChanges()
 
 	return ret;
 }
+
+void CComponentsPicture::paintTrigger()
+{
+	if (!is_painted  && !isPicPainted())
+		paint1();
+	else
+		hide();
+}
+
 
 CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
 						const std::string& channelName,

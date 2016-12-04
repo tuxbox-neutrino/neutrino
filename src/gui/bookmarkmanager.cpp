@@ -39,7 +39,7 @@
 #include <driver/screen_max.h>
 #include <driver/display.h>
 #include <gui/components/cc.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/icons.h>

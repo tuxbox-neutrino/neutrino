@@ -46,7 +46,7 @@
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/keyboard_input.h>
 
 #include <driver/screen_max.h>
@@ -68,6 +68,7 @@ CMiscMenue::CMiscMenue()
 	epg_save_standby = NULL;
 	epg_save_frequently = NULL;
 	epg_read = NULL;
+	epg_read_frequently = NULL;
 	epg_dir = NULL;
 }
 
@@ -124,7 +125,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		unsigned num = CEitManager::getInstance()->getEventsCount();
 		char str[128];
 		sprintf(str, "Event count: %d", num);
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMsgBox::mbrBack, CMsgBox::mbBack);
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "energy")
@@ -416,11 +417,14 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	epg_save_standby = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE_STANDBY, &g_settings.epg_save_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_save);
 	epg_save_standby->setHint("", LOCALE_MENU_HINT_EPG_SAVE_STANDBY);
 
-	epg_save_frequently = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE_FREQUENTLY, &g_settings.epg_save_frequently, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_save, sectionsdConfigNotifier);
+	epg_save_frequently = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE_FREQUENTLY, &g_settings.epg_save_frequently,  OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_save, this);
 	epg_save_frequently->setHint("", LOCALE_MENU_HINT_EPG_SAVE_FREQUENTLY);
 
 	epg_read = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_READ, &g_settings.epg_read, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	epg_read->setHint("", LOCALE_MENU_HINT_EPG_READ);
+
+	epg_read_frequently = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_READ_FREQUENTLY, &g_settings.epg_read_frequently,  OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_read, this);
+	epg_read_frequently->setHint("", LOCALE_MENU_HINT_EPG_READ_FREQUENTLY);
 
 	epg_dir = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, (g_settings.epg_save || g_settings.epg_read), g_settings.epg_dir, this, "epgdir");
 	epg_dir->setHint("", LOCALE_MENU_HINT_EPG_DIR);
@@ -470,6 +474,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	ms_epg->addItem(epg_save_standby);
 	ms_epg->addItem(epg_save_frequently);
 	ms_epg->addItem(epg_read);
+	ms_epg->addItem(epg_read_frequently);
 	ms_epg->addItem(epg_dir);
 	ms_epg->addItem(GenericMenuSeparatorLine);
 	ms_epg->addItem(mf);
@@ -643,7 +648,28 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_READ))
 	{
-		epg_dir->setActive(g_settings.epg_save || g_settings.epg_read);
+		epg_read_frequently->setActive(g_settings.epg_read);
+		epg_dir->setActive(g_settings.epg_read || g_settings.epg_save);
+
+		CNeutrinoApp::getInstance()->SendSectionsdConfig();
+
+		ret = menu_return::RETURN_REPAINT;
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_READ_FREQUENTLY))
+	{
+		g_settings.epg_read_frequently      = g_settings.epg_read ? g_settings.epg_read_frequently : 0;
+
+		CNeutrinoApp::getInstance()->SendSectionsdConfig();
+
+		ret = menu_return::RETURN_REPAINT;
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_SAVE_FREQUENTLY))
+	{
+		g_settings.epg_save_frequently      = g_settings.epg_save ? g_settings.epg_save_frequently : 0;
+
+		CNeutrinoApp::getInstance()->SendSectionsdConfig();
+
+		ret = menu_return::RETURN_REPAINT;
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_SCAN))
 	{

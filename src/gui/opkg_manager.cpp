@@ -40,7 +40,7 @@
 #include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 
 #include <gui/widget/progresswindow.h>
 #include <gui/widget/hintbox.h>
@@ -166,7 +166,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 
 		char loc[200];
 		snprintf(loc, sizeof(loc), g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REMOVE), pkg_vec[selected]->name.c_str());
-		if (ShowMsg(LOCALE_OPKG_TITLE, loc, CMessageBox::mbrCancel, CMessageBox::mbYes | CMessageBox::mbCancel) != CMessageBox::mbrCancel) {
+		if (ShowMsg(LOCALE_OPKG_TITLE, loc, CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbCancel) != CMsgBox::mbrCancel) {
 			if (parent)
 				parent->hide();
 			execCmd(pkg_types[OM_REMOVE] + pkg_vec[selected]->name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
@@ -247,7 +247,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 			char l[200];
 			snprintf(l, sizeof(l), g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REINSTALL), actionKey.c_str());
 			l[sizeof(l) - 1] = 0;
-			if (ShowMsg(LOCALE_OPKG_TITLE, l, CMessageBox::mbrCancel, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel)
+			if (ShowMsg(LOCALE_OPKG_TITLE, l, CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)
 				return res;
 			force = "--force-reinstall ";
 		}
@@ -499,10 +499,10 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 
 int COPKGManager::doUpdate()
 {
-	CHintBox *hb = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_UPDATE_CHECK);
-	hb->paint();
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_UPDATE_CHECK);
+	hintBox.paint();
 	int r = execCmd(pkg_types[OM_UPDATE], CShellWindow::QUIET);
-	delete hb;
+	hintBox.hide();
 	if (r) {
 		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
 		msg += '\n' + tmp_str;
@@ -585,11 +585,11 @@ int COPKGManager::showMenu()
 		*/
 		//restart neutrino: user decision
 		if(!access( "/tmp/.restart", F_OK)){
-			int msg = ShowMsg(LOCALE_OPKG_TITLE, g_Locale->getText(LOCALE_OPKG_SUCCESS_INSTALL), CMessageBox::mbrNo,
-			CMessageBox::mbYes | CMessageBox::mbNo,
+			int msg = ShowMsg(LOCALE_OPKG_TITLE, g_Locale->getText(LOCALE_OPKG_SUCCESS_INSTALL), CMsgBox::mbrNo,
+			CMsgBox::mbYes | CMsgBox::mbNo,
 			NEUTRINO_ICON_QUESTION,
 			width);
-			if (msg == CMessageBox::mbrYes)
+			if (msg == CMsgBox::mbrYes)
 				exit_action = "restart";
 		}
 		//restart neutrino: forced
@@ -979,8 +979,8 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 					DisplayErrorMessage("Can't download package. Check network!");
 					break;
 				case OM_UNSATISFIED_DEPS_ERR:{
-					int msgRet = ShowMsg("Installation", "Unsatisfied deps while installation! Try to repeat to force dependencies!", CMessageBox::mbrCancel, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 600, -1);
-					if (msgRet == CMessageBox::mbrYes)
+					int msgRet = ShowMsg("Installation", "Unsatisfied deps while installation! Try to repeat to force dependencies!", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 600, -1);
+					if (msgRet == CMsgBox::mbrYes)
 						return installPackage(pkg_name, "--force-depends");
 					break;
 				}

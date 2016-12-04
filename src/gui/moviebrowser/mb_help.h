@@ -51,21 +51,33 @@ class CMovieHelp : public CMenuTarget
 
 		int exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
 		{
-			Helpbox helpbox;
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_RED,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_RED));
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_GREEN,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_GREEN));
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_YELLOW,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_YELLOW));
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_BLUE,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_BLUE));
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_MENU_SMALL,g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MENU));
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_PLAY,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_PLAY));
-			helpbox.addLine("");
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_OKAY));
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_MUTE_SMALL,g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MUTE));
-			helpbox.addLine("");
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_LEFT,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_LEFT));
-			helpbox.addLine(NEUTRINO_ICON_BUTTON_RIGHT,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_RIGHT));
-			helpbox.show(LOCALE_MESSAGEBOX_INFO);
-			return(0);
+			Helpbox helpbox(g_Locale->getText(LOCALE_HELP_BOX_TITLE));
+			helpbox.addLine("Standard functions", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 10, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_OKAY), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_PLAY, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_PLAY), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_MUTE_SMALL, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MUTE), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addSeparatorLine();
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_RED, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_RED), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_GREEN, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_GREEN), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_YELLOW, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_YELLOW), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_BLUE, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_BLUE), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_MENU, g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MENU), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine("</>  Change view", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+#if 0
+			helpbox.addPagebreak();
+#endif
+			helpbox.addLine("During playback", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 10, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+			helpbox.addSeparatorLine();
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_BLUE, "Marking menu", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+			helpbox.addLine(NEUTRINO_ICON_BUTTON_0,    "Not perform marking action", CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, 35, 30);
+
+			helpbox.addExitKey(CRCInput::RC_ok);
+
+			helpbox.show();
+			int ret = helpbox.exec();
+			helpbox.hide();
+
+			return ret;
 		}
 };
 

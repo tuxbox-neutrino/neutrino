@@ -59,7 +59,7 @@ using namespace std;
 //sub class CComponentsWindow inherit from CComponentsForm
 CComponentsWindow::CComponentsWindow(CComponentsForm *parent)
 {
-	initVarWindow(0, 0, 800, 600, "", "", parent);
+	initVarWindow(0, 0, 800, 600, "", "", parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -126,6 +126,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	y = y_pos;
 	width = w;
 	height = h;
+	ccw_h_footer = 0; //auto
 	initWindowSize();
 	initWindowPos();
 
@@ -216,6 +217,8 @@ void CComponentsWindow::initFooter()
 	//add of footer item happens initCCWItems()
 	//set footer properties
 	if (ccw_footer){
+		if (ccw_h_footer)
+			ccw_footer->setHeight(ccw_h_footer);
 		ccw_footer->setPos(0, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
 		ccw_footer->setWidth(width-2*fr_thickness);
 		ccw_footer->enableShadow(false/*shadow*/);
@@ -291,10 +294,11 @@ void CComponentsWindow::initBody()
 		int h_body = height - h_header - h_footer - fr_thickness;
 		int x_body = w_l_sidebar;
 		int w_body = width-2*fr_thickness - w_l_sidebar - w_r_sidebar;
-		
+
 		ccw_body->setDimensionsAll(x_body, h_header, w_body, h_body);
 		ccw_body->doPaintBg(true);
-		
+		ccw_body->setColorBody(col_body);
+
 		//handle corner behavior
 		if (!ccw_show_header)
 			ccw_body->setCornerType(CORNER_TOP);

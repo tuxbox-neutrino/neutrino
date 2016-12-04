@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2015, Thilo Graf 'dbt'
+	Copyright (C) 2012-2016, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -72,49 +72,124 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		is_painted = false; //force repaint if required
 	}
 
+	//calculate current needed frame thickeness and color, if item selected or not
+	fb_pixel_t col_frame_cur = col_frame;
+	int th = cc_enable_frame ? fr_thickness : 0;
+
 	if (v_fbdata.empty()){
-		int th = fr_thickness;
-		fb_pixel_t col_frame_cur = col_frame;
+		//set current position and dimensions
+		int ix = x, iy = y, dx = width, dy = height;
+		
+		//and ensure sw is not larger than body dimensions, max x%
+		int sw = (shadow) ? min(shadow_w, min(dx, dy)*50/100) : 0;
+		/*ensure shadow is never < 0*/
+		sw = max(0, sw);
 
-		//calculate current needed frame thickeness and color, if item selected or not
-		if (cc_item_selected){
-			col_frame_cur = col_frame_sel;
-			th = max(fr_thickness_sel, fr_thickness);
-		}
+		//set current needed corner main box radius
+		int box_rad = corner_type ? corner_rad : 0;
 
-		//calculate current needed corner radius for body box, depends of frame thickness
-		int rad = (corner_rad>th) ? corner_rad-th : corner_rad;
-		int sw = (shadow) ? shadow_w : 0;
+		//and ensure max main box radius < dimensions
+		if (2*box_rad > dy)
+			box_rad -= max(0, 2*box_rad-dy);
+		if (2*box_rad > dx)
+			box_rad -= max(0, 2*box_rad-dy);
 
-		//evaluate shadow mode
-		bool sh_r = (shadow & CC_SHADOW_ON) || (shadow & CC_SHADOW_RIGHT);
-		bool sh_b = (shadow & CC_SHADOW_ON) || (shadow & CC_SHADOW_BOTTOM);
+		//Workaround: ensure radius values >= 0, framebuffer methode paintBoxRel() gets confused
+		box_rad = max(box_rad, 0);
 
-		//if item is bound on a parent form, we must use real x/y values and from parent form as reference
-		int ix = x, iy = y;
+		//if item is bound on a parent form,...
 		if (cc_parent){
+			//...we must use real x/y values and from parent form as reference
 			ix = cc_xr;
 			iy = cc_yr;
+			//...we must use color of parent body instead screen background
+			col_shadow_clean = cc_parent->getColorBody();
 		}
 
-		//handle shadow width
-		if (width <= sw || height <= sw){ //don't use shadow, if item dimensions too small
-			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsItem]\t[%s - %d] shadow dimensions too small sw=%d, shadow is disabled set dimension to 0\033[0m\n",__func__, __LINE__, sw);
-			shadow = CC_SHADOW_OFF;
-			sw = 0;
-		}
-		int isw = sw*2;
-		int ixsr = ix + width - isw/2;
-		int iysb = iy + height - isw/2;
+		///evaluate shadow layer parts
+		//handle general shadow corner dimensions
+		int sh_cdx = box_rad+sw+th; //width
+		int sh_cdy = box_rad+sw+th; //height
+
+		//adapt shadow corner dimensions if body dimensions are too small, use an offset if required
+		int /*sh_cdx_size_offset,*/ sh_cdy_size_offset = 0;
+		if (sh_cdy*2 > dy)
+			sh_cdy_size_offset = sh_cdy*2-dy;
+#if 0
+		if (sh_cdx*2 > dx)
+			sh_cdx_size_offset = sh_cdx*2-dx;
+#endif
+		//handle shadow positions
+		//...corner bottom right
+		int sh_cbr_x = ix+dx-sh_cdx+sw;
+		int sh_cbr_y = iy+dy-sh_cdy+sw;
+
+		//...corner top right
+		int sh_ctr_x = sh_cbr_x;
+		int sh_ctr_y = iy+sw;
+
+		//...corner bottom left
+		int sh_cbl_x = ix+sw;
+		int sh_cbl_y = sh_cbr_y;
+
+		//handle general shadow bar dimensions
+		int sh_bdx = max(0, dx-sh_cdx-sh_cdx); /*ensure value is never < 0*/
+		int sh_rdy = dy-sh_cdy-sh_cdy;
+
+		//...bar bottom
+		int sh_bx = sh_cbl_x+sh_cdx;
+		int sh_by = iy+dy;
+
+		//...bar right
+		int sh_rx = ix+dx;
+		int sh_ry = sh_ctr_y+sh_cdy;
+
+		//corners
+		bool sh_ctr = (shadow & CC_SHADOW_CORNER_TOP_RIGHT);
+		bool sh_cbr = (shadow & CC_SHADOW_CORNER_BOTTOM_RIGHT);
+		bool sh_cbl = (shadow & CC_SHADOW_CORNER_BOTTOM_LEFT);
+
+		//...shadow bar right
+		bool sh_br = (shadow & CC_SHADOW_RIGHT);
+		if (sh_rdy < 1)
+ 			sh_br = false;
+		//...shadow bar bottom
+		bool sh_bb = (shadow & CC_SHADOW_BOTTOM);
+		if (sh_bdx < 1)
+			sh_bx = false;
 
 		//init paint layers
 		cc_fbdata_t fbdata[] =
 		{
-			{true, CC_FBDATA_TYPE_BGSCREEN,		ix,		iy, 		width+isw/2, 	height+isw/2, 	0, 		0, 		0,				0, 	NULL, NULL, NULL, false}, //buffered bg
-			{sh_r, CC_FBDATA_TYPE_SHADOW_BOX, 	ixsr,		iy+isw/2,	isw, 		height, 	col_shadow, 	corner_rad,	corner_type & CORNER_RIGHT,	0, 	NULL, NULL, NULL, false}, //shadow right
-			{sh_b, CC_FBDATA_TYPE_SHADOW_BOX, 	ix+isw/2,	iysb, 		width, 		isw, 		col_shadow, 	corner_rad,	corner_type & CORNER_BOTTOM,	0, 	NULL, NULL, NULL, false}, //shadow bottom
-			{true, CC_FBDATA_TYPE_BOX,		ix+th,  	iy+th,  	width-2*th,     height-2*th,    col_body,       rad,		corner_type,			0, 	NULL, NULL, NULL, false}, //body
-			{true, CC_FBDATA_TYPE_FRAME,		ix,		iy, 		width, 		height, 	col_frame_cur, 	corner_rad,	corner_type,			th, 	NULL, NULL, NULL, false}  //frame
+			 //buffered bg
+			{true, CC_FBDATA_TYPE_BGSCREEN,		ix,		iy, 		dx+sw, 		dy+sw, 				0, 			0, 		0,					0, NULL, NULL, NULL, false},
+
+			//shadow corner bottom left
+			{sh_cbl, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_cbl_x,	sh_cbl_y, 	sh_cdx, 	sh_cdy, 			col_shadow, 		box_rad,	corner_type & CORNER_BOTTOM_LEFT,	0, NULL, NULL, NULL, false},
+			//clean up inside body
+			{sh_cbl, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_cbl_x-sw+th,	sh_cbl_y-sw, 	sh_cdx+sw, 	sh_cdy, 			col_shadow_clean, 	box_rad,	corner_type & CORNER_BOTTOM_LEFT,	0, NULL, NULL, NULL, false},
+
+			//shadow bar bottom
+			{sh_bb, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_bx,		sh_by, 		sh_bdx, 	sw, 				col_shadow, 		0,		CORNER_NONE,				0, NULL, NULL, NULL, false},
+
+			//shadow corner bottom right
+			{sh_cbr, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_cbr_x,	sh_cbr_y, 	sh_cdx, 	sh_cdy, 			col_shadow, 		box_rad,	corner_type & CORNER_BOTTOM_RIGHT,	0, NULL, NULL, NULL, false},
+			//clean up inside body
+			{sh_cbr, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_cbr_x-sw,	sh_cbr_y-sw, 	sh_cdx, 	sh_cdy, 			col_shadow_clean, 	box_rad,	corner_type & CORNER_BOTTOM_RIGHT,	0, NULL, NULL, NULL, false},
+
+			//shadow bar right
+			{sh_br, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_rx,		sh_ry,		sw, 		sh_rdy, 			col_shadow, 		0,		CORNER_NONE,				0, NULL, NULL, NULL, false},
+
+			//shadow corner top right
+			{sh_ctr, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_ctr_x,	sh_ctr_y, 	sh_cdx, 	sh_cdy-sh_cdy_size_offset, 	col_shadow, 		box_rad,	corner_type & CORNER_TOP_RIGHT,		0, NULL, NULL, NULL, false},
+			//clean up inside body
+			{sh_ctr, CC_FBDATA_TYPE_SHADOW_BOX, 	sh_ctr_x-sw,	sh_ctr_y-sw+th, sh_cdx, 	sh_cdy-sh_cdy_size_offset+sw, 	col_shadow_clean, 	box_rad,	corner_type & CORNER_TOP_RIGHT,		0, NULL, NULL, NULL, false},
+
+			//main box
+			{true, CC_FBDATA_TYPE_BOX,		ix+th,  	iy+th,  	dx-2*th,     	dy-2*th,    			col_body,       	max(0,box_rad-th),	corner_type,				0, NULL, NULL, NULL, false},
+
+			//frame
+			{true, CC_FBDATA_TYPE_FRAME,		ix,		iy, 		dx, 		dy, 				col_frame_cur,		box_rad,	corner_type,				th, NULL, NULL, NULL, false}
 		};
 
 		for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++) {
@@ -122,8 +197,16 @@ void CComponentsItem::paintInit(bool do_save_bg)
 				continue;
 			v_fbdata.push_back(fbdata[i]);
 		}
+	}
 
-		dprintf(DEBUG_DEBUG, "[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __func__, cc_item_type,  cc_item_index, height, width);
+	//handle frame color for slected/not selected item
+	if (fr_thickness) {
+		for(size_t j =0; j< v_fbdata.size() ;j++) {
+			if ((v_fbdata[j].fbdata_type == CC_FBDATA_TYPE_FRAME)){
+				v_fbdata[j].color = col_frame_cur;
+				v_fbdata[j].frame_thickness = th;
+			}
+		}
 	}
 	paintFbItems(do_save_bg);
 }
@@ -218,4 +301,12 @@ void CComponentsItem::setFocus(bool focus)
 		}
 	}
 	cc_has_focus = focus;
+}
+
+void CComponentsItem::setSelected(bool selected, const fb_pixel_t& sel_frame_col,  const fb_pixel_t& frame_col, const fb_pixel_t& sel_body_col, const fb_pixel_t& body_col, const int& frame_w, const int& sel_frame_w)
+{
+	cc_item_selected = selected;
+	fr_thickness = cc_item_selected ? sel_frame_w : frame_w;
+	col_body = cc_item_selected ? sel_body_col : body_col;
+	col_frame = cc_item_selected ? sel_frame_col : frame_col;
 }

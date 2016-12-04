@@ -59,10 +59,14 @@
 #include <gui/widget/keyboard_input.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
-#include <gui/widget/hintbox.h>
 #include <gui/movieplayer.h>
 #include <gui/infoclock.h>
+#if 0
+#include <gui/widget/messagebox.h>
+#include <gui/widget/hintbox.h>
+#else
+#include <gui/widget/msgbox.h>
+#endif
 #include <system/settings.h>
 #include <system/set_threadname.h>
 
@@ -964,14 +968,15 @@ int CChannelList::show()
 
 void CChannelList::hide()
 {
+	paint_events(-2); // cancel paint_events thread
 	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
 	{
 		if (cc_minitv)
 			delete cc_minitv;
 		cc_minitv = NULL;
 	}
-
-	header->kill();
+	if(header)
+		header->kill();
 	if (CChannelLogo){
 		CChannelLogo->kill();
 		delete CChannelLogo;
@@ -2632,7 +2637,7 @@ void CChannelList::deleteChannel(bool ask)
 	if (!bouquet || !bouquet->zapitBouquet)
 		return;
 
-	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
+	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMsgBox::mbrYes, CMsgBox::mbNoYes)!=CMsgBox::mbrYes)
 		return;
 
 	bouquet->zapitBouquet->removeService((*chanlist)[selected]->getChannelID());
@@ -2723,7 +2728,7 @@ bool CChannelList::addChannelToBouquet()
 				}
 			}
 		} else {
-			ShowMsg(LOCALE_EXTRA_ADD_TO_BOUQUET, LOCALE_EXTRA_CHALREADYINBQ, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+			ShowMsg(LOCALE_EXTRA_ADD_TO_BOUQUET, LOCALE_EXTRA_CHALREADYINBQ, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 			return false;
 		}
 	}

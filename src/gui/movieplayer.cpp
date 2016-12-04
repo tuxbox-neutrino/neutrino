@@ -237,8 +237,6 @@ void CMoviePlayerGui::cutNeutrino()
 		return;
 
 	g_Zapit->lockPlayBack();
-	if (!isWebTV)
-		g_Sectionsd->setPauseScanning(true);
 
 #ifdef HAVE_AZBOX_HARDWARE
 	/* we need sectionsd to get idle and zapit to release the demuxes
@@ -273,7 +271,6 @@ void CMoviePlayerGui::restoreNeutrino()
 
 	//g_Zapit->unlockPlayBack();
 	CZapit::getInstance()->EnablePlayback(true);
-	g_Sectionsd->setPauseScanning(false);
 
 	printf("%s: restore mode %x\n", __func__, m_LastMode);fflush(stdout);
 #if 0
@@ -1559,10 +1556,35 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
 
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
-			if (fromInfoviewer)
-			{
-				g_EpgData->show_mp(p_movie_info,GetPosition(),GetDuration());
+			if (fromInfoviewer) {
+				CTimeOSD::mode m_mode = FileTime.getMode();
+				bool restore = FileTime.IsVisible();
+				if (restore)
+					FileTime.kill();
+				CInfoClock::getInstance()->enableInfoClock(false);
+#ifdef ENABLE_LUA
+				if (isLuaPlay && haveLuaInfoFunc) {
+					int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
+					if (!videoDecoder->getBlank()) {
+						videoDecoder->getPictureInfo(xres, yres, framerate);
+						if (yres == 1088)
+							yres = 1080;
+						aspectRatio = videoDecoder->getAspectRatio();
+					}
+					CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
+				}
+				else {
+#endif
+					g_EpgData->show_mp(p_movie_info,GetPosition(),GetDuration());
+#ifdef ENABLE_LUA
+				}
+#endif
 				fromInfoviewer = false;
+				CInfoClock::getInstance()->enableInfoClock(true);
+				if (restore) {
+					FileTime.setMode(m_mode);
+					FileTime.update(position, duration);
+				}
 			}
 			else
 				callInfoViewer();
@@ -2175,27 +2197,14 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 			}
 		}
-	} else if (msg == NeutrinoMessages::SHOW_EPG && (p_movie_info || (isLuaPlay && haveLuaInfoFunc))) {
+	} else if (msg == NeutrinoMessages::SHOW_EPG && p_movie_info) {
 		CTimeOSD::mode m_mode = FileTime.getMode();
 		bool restore = FileTime.IsVisible();
 		if (restore)
 			FileTime.kill();
 		CInfoClock::getInstance()->enableInfoClock(false);
 
-		if (isLuaPlay && haveLuaInfoFunc) {
-			int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
-			if (!videoDecoder->getBlank()) {
-				videoDecoder->getPictureInfo(xres, yres, framerate);
-				if (yres == 1088)
-					yres = 1080;
-				aspectRatio = videoDecoder->getAspectRatio();
-			}
-#ifdef ENABLE_LUA
-			CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
-#endif
-		}
-		else if (p_movie_info)
-			g_EpgData->show_mp(p_movie_info, position, duration);
+		g_EpgData->show_mp(p_movie_info, position, duration);
 
 		CInfoClock::getInstance()->enableInfoClock(true);
 		if (restore) {
@@ -2220,7 +2229,7 @@ void CMoviePlayerGui::UpdatePosition()
 
 void CMoviePlayerGui::showHelpTS()
 {
-	Helpbox helpbox;
+	Helpbox helpbox(g_Locale->getText(LOCALE_MESSAGEBOX_INFO));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_RED, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP1));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_GREEN, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP2));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_YELLOW, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP3));
@@ -2233,7 +2242,7 @@ void CMoviePlayerGui::showHelpTS()
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_7, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP10));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_9, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP11));
 	helpbox.addLine(g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP12));
-	helpbox.show(LOCALE_MESSAGEBOX_INFO);
+	helpbox.show();
 }
 
 void CMoviePlayerGui::selectChapter()

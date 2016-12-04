@@ -32,6 +32,7 @@
 CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 {
 	frameBuffer 		= CFrameBuffer::getInstance();
+
 	x = cc_xr = x_old	= 0;
 	y = cc_yr = y_old	= 0;
 	height	= height_old	= CC_HEIGHT_MIN;
@@ -40,10 +41,9 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	col_body = col_body_old			= COL_MENUCONTENT_PLUS_0;
 	col_shadow = col_shadow_old 		= COL_SHADOW_PLUS_0;
 	col_frame = col_frame_old 		= COL_FRAME_PLUS_0;
-	col_frame_sel = col_frame_sel_old 	= COL_MENUCONTENTSELECTED_PLUS_0;
+	col_shadow_clean			= 0;
 
 	fr_thickness = fr_thickness_old		= 0;
-	fr_thickness_sel = fr_thickness_sel_old	= 3;
 
 	corner_type = corner_type_old		= CORNER_ALL;
 	corner_rad = corner_rad_old		= 0;
@@ -71,6 +71,9 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	cc_body_gradient_saturation 				= 0xC0;
 	cc_body_gradient_direction = cc_body_gradient_direction_old	= CFrameBuffer::gradientVertical;
 
+	cc_draw_timer		= NULL;
+	cc_draw_trigger_slot 	= sigc::mem_fun0(*this, &CCDraw::paintTrigger);
+
 	cc_gradient_bg_cleanup = true;
 
 	v_fbdata.clear();
@@ -78,6 +81,9 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 
 CCDraw::~CCDraw()
 {
+	if(cc_draw_timer){
+		delete cc_draw_timer; cc_draw_timer = NULL;
+	}
 	clearFbData();
 }
 
@@ -116,11 +122,6 @@ inline bool CCDraw::applyDimChanges()
 		fr_thickness_old = fr_thickness;
 		ret = true;
 	}
-	if (fr_thickness_sel != fr_thickness_sel_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], dim changes fr_thickness_sel %d != fr_thickness_sel_old %d...\033[0m\n", __func__, __LINE__, fr_thickness_sel, fr_thickness_sel_old);
-		fr_thickness_old = fr_thickness;
-		ret = true;
-	}
 	if (shadow_w != shadow_w_old){
 		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], dim changes shadow_w_sel %d != shadow_w_old %d...\033[0m\n", __func__, __LINE__, shadow_w, shadow_w_old);
 		shadow_w_old = shadow_w;
@@ -155,11 +156,6 @@ inline bool CCDraw::applyColChanges()
 	}
 	if (col_frame != col_frame_old){
 		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], col changes col_frame %d != col_frame_old %d...\033[0m\n", __func__, __LINE__, col_frame, col_frame_old);
-		col_frame_old = col_frame;
-		ret = true;
-	}
-	if (col_frame_sel != col_frame_sel_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], col changes col_frame_sel %d != col_frame_sel_old %d...\033[0m\n", __func__, __LINE__, col_frame_sel, col_frame_sel_old);
 		col_frame_old = col_frame;
 		ret = true;
 	}
@@ -218,12 +214,9 @@ inline void CCDraw::setWidth(const int& w)
 	width = w;
 }
 
-void CCDraw::setFrameThickness(const int& thickness, const int& thickness_sel)
+void CCDraw::setFrameThickness(const int& thickness)
 {
 	fr_thickness = thickness;
-
-	if (fr_thickness_sel != thickness_sel)
-		fr_thickness_sel = thickness_sel;
 
 	//ensure enabled frame if frame width > 0
 	cc_enable_frame = false;
@@ -647,6 +640,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 
 void CCDraw::hide()
 {
+	OnBeforeHide();
 	//restore saved screen background of item if available
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
@@ -660,6 +654,7 @@ void CCDraw::hide()
 	}
 	is_painted = false;
 	firstPaint = true;
+	OnAfterHide();
 }
 
 //erase or paint over rendered objects
@@ -730,3 +725,42 @@ void CCDraw::enableShadow(int mode, const int& shadow_width, bool force_paint)
 	shadow_force = force_paint;
 }
 
+void CCDraw::paintTrigger()
+{
+	if (!is_painted)
+		paint1();
+	else
+		hide();
+}
+
+bool CCDraw::paintBlink(const int& interval, bool is_nano)
+{
+	if (cc_draw_timer == NULL){
+		cc_draw_timer = new CComponentsTimer(interval, is_nano);
+		if (cc_draw_timer->OnTimer.empty()){
+			cc_draw_timer->OnTimer.connect(cc_draw_trigger_slot);
+		}
+	}
+	if (cc_draw_timer)
+		return cc_draw_timer->isRun();
+
+	return false;
+}
+
+bool CCDraw::cancelBlink(bool keep_on_screen)
+{
+	bool res = false;
+
+	if (cc_draw_timer){
+		res = cc_draw_timer->stopTimer();
+		delete cc_draw_timer; cc_draw_timer = NULL;
+	}
+
+	if(keep_on_screen)
+		paint1();
+	else
+		hide();
+		
+
+	return res;
+}
