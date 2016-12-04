@@ -1685,7 +1685,7 @@ moviebrowser.head_recordlist Last recorded:
 moviebrowser.help_button_blue Reload movie informations
 moviebrowser.help_button_green Show filter selection
 moviebrowser.help_button_left Change view
-moviebrowser.help_button_menu Open main menu
+moviebrowser.help_button_menu Movie infos and settings
 moviebrowser.help_button_mute Delete movies
 moviebrowser.help_button_okay Play movies
 moviebrowser.help_button_play Mark movies

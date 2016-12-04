@@ -1685,7 +1685,7 @@ moviebrowser.head_recordlist Zuletzt aufgenommen:
 moviebrowser.help_button_blue Filminfos neu laden
 moviebrowser.help_button_green Filterfenster einblenden
 moviebrowser.help_button_left Ansicht ändern
-moviebrowser.help_button_menu Hauptmenü öffnen
+moviebrowser.help_button_menu Filminfos und Einstellungen
 moviebrowser.help_button_mute Filme löschen
 moviebrowser.help_button_okay Filme abspielen
 moviebrowser.help_button_play Filme markieren

@@ -2067,7 +2067,11 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			onDelete();
 		}
 	}
-	else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
+	else if (msg == CRCInput::RC_help)
+	{
+		showHelp();
+	}
+	else if (msg == CRCInput::RC_info)
 	{
 		if (m_movieSelectionHandler != NULL)
 		{
@@ -3136,10 +3140,8 @@ void CMovieBrowser::loadAllMovieInfo(void)
 void CMovieBrowser::showHelp(void)
 {
 	CMovieHelp help;
-	help.exec(NULL,NULL);
+	help.exec();
 }
-
-
 
 #define MAX_STRING 30
 int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
@@ -3402,7 +3404,6 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 
 	/********************************************************************/
 	/**  main menu ******************************************************/
-	CMovieHelp* movieHelp = new CMovieHelp();
 	CNFSSmallMenu* nfs =    new CNFSSmallMenu();
 
 	if (!calledExternally) {
@@ -3416,9 +3417,6 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &dirMenu,    NULL,                                  CRCInput::RC_2));
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES,       true, NULL, this,        "reload_movie_info",                   CRCInput::RC_3));
 		//mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_NFS_HEAD,       true, NULL, nfs,         NULL,                                  CRCInput::RC_setup));
-		mainMenu.addItem(GenericMenuSeparatorLine);
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_HELP_HEAD,        true, NULL, movieHelp,   NULL,                                  CRCInput::RC_help));
-		//mainMenu.addItem(GenericMenuSeparator);
 
 		mainMenu.exec(NULL, " ");
 	} else
@@ -3490,7 +3488,6 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	for (i = 0; i < MB_MAX_DIRS; i++)
 		delete notifier[i];
 
-	delete movieHelp;
 	delete nfs;
 
 	return(true);
