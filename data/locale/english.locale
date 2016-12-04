@@ -1828,22 +1828,25 @@ movieplayer.bookmarkname_hint2
 movieplayer.chapters Chapters
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
+movieplayer.help_additional To find more user definable key bindings, see "Mainmenu" > "Settings" > "Keys" > "Edit" > "Movieplayer".
+movieplayer.help_button_1 1 minute backward
+movieplayer.help_button_2 Jump to movie's start
+movieplayer.help_button_3 1 minute forward
+movieplayer.help_button_4 3 minutes backward
+movieplayer.help_button_5 Jump to movie's middle
+movieplayer.help_button_6 3 minutes forward
+movieplayer.help_button_7 10 minutes backward
+movieplayer.help_button_8 Jump to movie's end
+movieplayer.help_button_9 10 minutes forward
+movieplayer.help_button_backward Fast rewind
+movieplayer.help_button_forward Fast forward
+movieplayer.help_button_menu Open main manu
+movieplayer.help_button_pause Pause / Continue
+movieplayer.help_button_stop Stop
 movieplayer.plugin Movieplayer plugin
 movieplayer.starting Starting playback ...
 movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
-movieplayer.tshelp1 Stop
-movieplayer.tshelp10 approx. 10 minutes back
-movieplayer.tshelp11 skip approx. 10 minutes
-movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.tshelp2 Select audio track
-movieplayer.tshelp3 Pause/Continue
-movieplayer.tshelp4 Create bookmark
-movieplayer.tshelp5 Show progress
-movieplayer.tshelp6 approx. 1 minute back
-movieplayer.tshelp7 skip approx. 1 minute
-movieplayer.tshelp8 approx. 5 minutes back
-movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
 movieplayer.ytplayback YouTube videoplayer
 mpkey.audio Audiotracks

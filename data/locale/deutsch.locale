@@ -1828,22 +1828,25 @@ movieplayer.bookmarkname_hint2
 movieplayer.chapters Kapitel
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
+movieplayer.help_additional Weitere benutzerdefinierte Tastenbelegungen sind unter "Hauptmenü" > "Einstellungen" > "Tasten" > "Bearbeiten" > "Movieplayer" zu finden.
+movieplayer.help_button_1 1 Minute zurück
+movieplayer.help_button_2 Zum Filmanfang springen
+movieplayer.help_button_3 1 Minute vor
+movieplayer.help_button_4 3 Minuten zurück
+movieplayer.help_button_5 Zur Filmmitte springen
+movieplayer.help_button_6 3 Minuten vor
+movieplayer.help_button_7 10 Minuten zurück
+movieplayer.help_button_8 Zum Filmende springen
+movieplayer.help_button_9 10 Minuten vor
+movieplayer.help_button_backward Schneller Rücklauf
+movieplayer.help_button_forward Schneller Vorlauf
+movieplayer.help_button_menu Hauptmenü öffnen
+movieplayer.help_button_pause Pause / Weiter
+movieplayer.help_button_stop Stopp
 movieplayer.plugin Movieplayer-Plugin
 movieplayer.starting Wiedergabe starten ...
 movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
-movieplayer.tshelp1 Stopp
-movieplayer.tshelp10 ca. 10 Minuten zurück
-movieplayer.tshelp11 ca. 10 Minuten vor
-movieplayer.tshelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.tshelp2 Auswahl der Tonspur
-movieplayer.tshelp3 Pause/Weiter
-movieplayer.tshelp4 Bookmark setzen
-movieplayer.tshelp5 Zeit einblenden
-movieplayer.tshelp6 ca. 1 Minute zurück
-movieplayer.tshelp7 ca. 1 Minute vor
-movieplayer.tshelp8 ca. 5 Minuten zurück
-movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback TS Abspielen
 movieplayer.ytplayback YouTube-Feed Wiedergabe
 mpkey.audio Tonspuren

@@ -1523,7 +1523,9 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (!cancel && (3 == sscanf(Value.c_str(), "%d:%d:%d", &hh, &mm, &ss)))
 				SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
 
-		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
+		} else if (msg == CRCInput::RC_help) {
+			showHelp();
+		} else if (msg == CRCInput::RC_info) {
 			if (fromInfoviewer) {
 				CTimeOSD::mode m_mode = FileTime.getMode();
 				bool restore = FileTime.IsVisible();
@@ -2194,22 +2196,34 @@ void CMoviePlayerGui::UpdatePosition()
 	}
 }
 
-void CMoviePlayerGui::showHelpTS()
+void CMoviePlayerGui::showHelp()
 {
 	Helpbox helpbox(g_Locale->getText(LOCALE_MESSAGEBOX_INFO));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_RED, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP1));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_GREEN, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP2));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_YELLOW, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP3));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_BLUE, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP4));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_MENU, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP5));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_1, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP6));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_3, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP7));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_4, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP8));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_6, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP9));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_7, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP10));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_9, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP11));
-	helpbox.addLine(g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP12));
+	helpbox.addSeparator();
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_PAUSE, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_PAUSE));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_FORWARD, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_FORWARD));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_BACKWARD, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_BACKWARD));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_STOP, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_STOP));
+	helpbox.addSeparatorLine();
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_1, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_1));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_2, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_2));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_3, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_3));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_4, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_4));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_5, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_5));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_6, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_6));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_7, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_7));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_8, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_8));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_9, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_9));
+	helpbox.addSeparatorLine();
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_MENU, g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_BUTTON_MENU));
+	helpbox.addSeparator();
+	helpbox.addLine(g_Locale->getText(LOCALE_MOVIEPLAYER_HELP_ADDITIONAL));
+
+	helpbox.addExitKey(CRCInput::RC_ok);
+
 	helpbox.show();
+	helpbox.exec();
+	helpbox.hide();
 }
 
 void CMoviePlayerGui::selectChapter()
