@@ -88,17 +88,19 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 
 	CComponentsPicture *picon = NULL;
 	int w_picon = 0;
+	int h_picon = 0;
 	if (!icon.empty()){
 		picon = new CComponentsPicture (0, 0, icon);
-		w_picon = picon->getHeight();
+		w_picon = picon->getWidth();
+		h_picon = picon->getHeight();
 		picon->doPaintBg(false);
-		picon->setYPos(line->getHeight()/2 - w_picon/2);
+		picon->setYPos(line->getHeight()/2 - h_picon/2);
 		picon->SetTransparent(CFrameBuffer::TM_BLACK);
 		line->addCCItem(picon);
 	}
 
 	if (!text.empty()){
-		int x_text = w_picon + (picon ? 10 : 0);
+		int x_text = w_picon + (picon ? OFFSET_INNER_MID : 0);
 		CComponentsText * txt = new CComponentsText(x_text, 0, line->getWidth()-x_text, line_height, text, text_mode, font);
 #if 0 //"contrast agent", if you want to see where the text items are drawn.
 		txt->setColorBody(COL_RED);
