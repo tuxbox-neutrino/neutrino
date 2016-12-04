@@ -210,7 +210,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 			btn->setButtonFont(NULL);
 		}
 			
-		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%u]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, chain->getWidth());
+		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%zu]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, chain->getWidth());
 	}
 
 	/* add generated button objects to chain object.
