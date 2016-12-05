@@ -1840,7 +1840,7 @@ movieplayer.help_button_8 Jump to movie's end
 movieplayer.help_button_9 10 minutes forward
 movieplayer.help_button_backward Fast rewind
 movieplayer.help_button_forward Fast forward
-movieplayer.help_button_menu Open main manu
+movieplayer.help_button_menu Open main menu
 movieplayer.help_button_pause Pause / Continue
 movieplayer.help_button_stop Stop
 movieplayer.plugin Movieplayer plugin
