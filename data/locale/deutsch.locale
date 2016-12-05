@@ -1828,7 +1828,7 @@ movieplayer.bookmarkname_hint2
 movieplayer.chapters Kapitel
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
-movieplayer.help_additional Weitere benutzerdefinierte Tastenbelegungen sind unter "Hauptmenü" > "Einstellungen" > "Tasten" > "Bearbeiten" > "Movieplayer" zu finden.
+movieplayer.help_additional Weitere benutzerdefinierte Tastenbelegungen sind unter "Hauptmenü" > "Einstellungen" > "Tasten" > "Bearbeiten" > "Movieplayer" zu finden.\n\nWährend der Wiedergabe von Filmen sind im Hauptmenü einige Menüpunkte deaktiviert.
 movieplayer.help_button_1 1 Minute zurück
 movieplayer.help_button_2 Zum Filmanfang springen
 movieplayer.help_button_3 1 Minute vor

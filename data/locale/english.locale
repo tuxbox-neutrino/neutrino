@@ -1828,7 +1828,7 @@ movieplayer.bookmarkname_hint2
 movieplayer.chapters Chapters
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
-movieplayer.help_additional To find more user definable key bindings, see "Mainmenu" > "Settings" > "Keys" > "Edit" > "Movieplayer".
+movieplayer.help_additional To find more user definable key bindings, see "Mainmenu" > "Settings" > "Keys" > "Edit" > "Movieplayer".\n\nWhile movie playback some menuitems in mainmenu are deactivated.
 movieplayer.help_button_1 1 minute backward
 movieplayer.help_button_2 Jump to movie's start
 movieplayer.help_button_3 1 minute forward
