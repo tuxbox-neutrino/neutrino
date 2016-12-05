@@ -31,6 +31,7 @@
 
 #define HELPBOX_DEFAULT_LINE_HEIGHT 0 // use font height as default
 #define HELPBOX_DEFAULT_LINE_INDENT OFFSET_INNER_MID
+#define HELPBOX_DEFAULT_TEXT_MODE CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH
 
 class Helpbox : public CComponentsWindowMax
 {
@@ -44,9 +45,30 @@ private:
 	///default font
 	Font* hbox_font;
 public:
+	/**
+	* Creates a window with pre defined items added with addLine() or
+	* inhertited addWindowItem() methods. This allows to add any compatible cc-items types
+	* e.g. Text, label, infobox, images ...
+	* NOTE: addLine() members are used only for compatibilty with older implementation
+	* of lines.
+	* @param[in]	Title
+	* 	@li 	exepts type std::string, defines caption of window
+	* @param[in]	Default_Text
+	* 	@li 	optional: exepts type std::string, defines a pre defined help text
+	* @param[in]	text_mode
+	* 	@li 	optional: exepts type int, defines text modes, see /gui/widget/textbox.h for possible modes
+	* @param[in]	line_height
+	* 	@li 	optional: exepts type int, defines height of line
+	* @param[in]	line_indent
+	* 	@li 	optional: exepts type int, defines lenght of indent from left
+	* @param[in]	font_text
+	* 	@li 	optional: exepts type Font*, default = NULL, this means SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO is used
+	* @param[in]	Icon
+	* 	@li 	exepts type const char*, defins the title bar icon and can be name (see /gui/icons.h) or path to an image file
+	*/
 	Helpbox(	const std::string& Title,
 			const std::string& Default_Text = std::string(),
-			const int& text_mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
+			const int& text_mode = HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT,
 			Font* font_text = NULL,
 			const char* Icon = NEUTRINO_ICON_INFO);
@@ -54,35 +76,88 @@ public:
 	///show = paint, for compatibility
 	void show(bool do_save_bg = true){ paint(do_save_bg) ;}
 
+
+	/**Adds an item with pre defined text
+	* @param[in]	text
+	* 	@li 	exepts type std::string
+	* @param[in]	text_mode
+	* 	@li 	optional: exepts type int, defines text modes, see /gui/widget/textbox.h for possible modes
+	* @param[in]	line_height
+	* 	@li 	optional: exepts type int, defines height of line
+	* @param[in]	line_indent
+	* 	@li 	optional: exepts type int, defines lenght of indent from left
+	* @param[in]	font_text
+	* 	@li 	optional: exepts type Font*, default = NULL, this means SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO is used
+	*/
 	void addLine(	const std::string& text,
-			const int& text_mode 	= CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
+			const int& text_mode 	= HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
 			Font* font_text = NULL);
 
+	/**Adds an item with pre defined text
+	* @param[in]	text
+	* 	@li 	exepts type const char *
+	* @param[in]	text_mode
+	* 	@li 	optional: exepts type int, defines text modes, see /gui/widget/textbox.h for possible modes
+	* @param[in]	line_height
+	* 	@li 	optional: exepts type int, defines height of line
+	* @param[in]	line_indent
+	* 	@li 	optional: exepts type int, defines lenght of indent from left
+	* @param[in]	font_text
+	* 	@li 	optional: exepts type Font*, default = NULL, this means SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO is used
+	*/
 	void addLine(	const char *text,
-			const int& text_mode 	= CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
+			const int& text_mode 	= HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
 			Font* font_text = NULL);
 
+	/**Adds an item with pre defined icon and text
+	* @param[in]	icon
+	* 	@li 	exepts type std::string, icon can be name (see /gui/icons.h) or path to an image file
+	* @param[in]	text
+	* 	@li 	exepts type std::string
+	* @param[in]	text_mode
+	* 	@li 	optional: exepts type int, defines text modes, see /gui/widget/textbox.h for possible modes
+	* @param[in]	line_height
+	* 	@li 	optional: exepts type int, defines height of line
+	* @param[in]	line_indent
+	* 	@li 	optional: exepts type int, defines lenght of indent from left
+	* @param[in]	font_text
+	* 	@li 	optional: exepts type Font*, default = NULL, this means SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO is used
+	*/
 	void addLine(	const std::string& icon,
 			const std::string& text,
-			const int& text_mode 	= CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
+			const int& text_mode 	= HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
 			Font* font_text = NULL);
 
+	/**Adds an item with pre defined icon and text
+	* @param[in]	icon
+	* 	@li 	exepts type const char *, icon can be name (see /gui/icons.h) or path to an image file
+	* @param[in]	text
+	* 	@li 	exepts type const char *
+	* @param[in]	text_mode
+	* 	@li 	optional: exepts type int, defines text modes, see /gui/widget/textbox.h for possible modes
+	* @param[in]	line_height
+	* 	@li 	optional: exepts type int, defines height of line
+	* @param[in]	line_indent
+	* 	@li 	optional: exepts type int, defines lenght of indent from left
+	* @param[in]	font_text
+	* 	@li 	optional: exepts type Font*, default = NULL, this means SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO is used
+	*/
 	void addLine(	const char *icon,
 			const char *text,
-			const int& text_mode 	= CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
+			const int& text_mode 	= HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
 			Font* font_text = NULL);
-	
+
 	///adds a separator as horizontal line, arg 'line_height' defines the space of full separator height, the separator line itself has a defined height of 2px and is centered within line space.
 	///arg 'line_indent' defines begin of line from left border within body object.
-	///arg 'enable_gradient' enable/disable gradient, Note: default = true, but gradient is only effected, if global/theme gradient settings are enabled!
+	///gradient is only effected, if global/theme gradient settings are enabled!
 	void addSeparatorLine(	const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT,
 				const int& line_indent = HELPBOX_DEFAULT_LINE_INDENT);
 	///adds a simple empty separator as horizontal space, arg 'line_height' defines the space of full separator height
