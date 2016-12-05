@@ -75,11 +75,6 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 	int h_line = getLineHeight(line_height, font);
 
 	CComponentsFrmChain *line = new CComponentsFrmChain(line_indent, hbox_y, 0, h_line);
-	if ((hbox_y + h_line)>ccw_body->getHeight()){
-		addPagebreak();
-		line->setYPos(hbox_y);
-	}
-	line->setPageNumber(page);
 
 	int w_body = ccw_body->getWidth();
 	line->setWidth(w_body - 2*line_indent);
@@ -99,15 +94,31 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 		line->addCCItem(picon);
 	}
 
+	int txt_height = 0;
 	if (!text.empty()){
 		int x_text = w_picon + (picon ? OFFSET_INNER_MID : 0);
-		CComponentsText * txt = new CComponentsText(x_text, 0, line->getWidth()-x_text, line->getHeight(), text, text_mode, font);
+		CComponentsText * txt = new CComponentsText(x_text, 0, line->getWidth()-x_text, 0, text, text_mode, font);
 #if 0 //"contrast agent", if you want to see where the text items are drawn.
 		txt->setColorBody(COL_RED);
 		txt->doPaintBg(true);
 #endif
+		int lines = txt->getCTextBoxObject()->getLines();
+		txt_height = std::max(lines*font->getHeight(), h_line);
+		txt->setHeight(txt_height);
+
 		line->addCCItem(txt);
 	}
+
+	if (txt_height > line->getHeight())
+		line->setHeight(txt_height);
+
+	if ((hbox_y + line->getHeight()) > ccw_body->getHeight())
+	{
+		addPagebreak();
+		line->setYPos(hbox_y);
+	}
+	line->setPageNumber(page);
+
 	addWindowItem(line);
 }
 
