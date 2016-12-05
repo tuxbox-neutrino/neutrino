@@ -189,6 +189,9 @@ class CMoviePlayerGui : public CMenuTarget
 	static CMoviePlayerGui* instance_mp;
 	static CMoviePlayerGui* instance_bg;
 
+	CTimeOSD::mode m_mode;
+	bool m_restore;
+
 	void Init(void);
 	void PlayFile();
 	bool PlayFileStart();
@@ -221,7 +224,8 @@ class CMoviePlayerGui : public CMenuTarget
 	void Cleanup();
 	void ClearFlags();
 	void ClearQueue();
-	void EnableClockAndMute(bool enable);
+	void enableOsdElements(bool mute);
+	void disableOsdElements(bool mute);
 	static void *ShowStartHint(void *arg);
 	static void* bgPlayThread(void *arg);
 	static bool sortStreamList(livestream_info_t info1, livestream_info_t info2);
