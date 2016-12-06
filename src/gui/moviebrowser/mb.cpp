@@ -1836,7 +1836,7 @@ void CMovieBrowser::refreshTitle(void)
 	int h = m_cBoxFrameTitleRel.iHeight;
 
 	if (!m_header){
-		m_header = new CComponentsHeader(x, y, w, h, title.c_str(), icon, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_MENU);
+		m_header = new CComponentsHeader(x, y, w, h, title.c_str(), icon, CComponentsHeader::CC_BTN_HELP);
 	}
 	m_header->paint(CC_SAVE_SCREEN_NO);
 	newHeader = m_header->isPainted();
