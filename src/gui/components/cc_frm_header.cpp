@@ -279,10 +279,10 @@ void CComponentsHeader::addContextButton(const int& buttons)
 		addContextButton(NEUTRINO_ICON_BUTTON_TOP);
 	if (buttons & CC_BTN_DOWN)
 		addContextButton(NEUTRINO_ICON_BUTTON_DOWN);
-	if (buttons & CC_BTN_RIGHT)
-		addContextButton(NEUTRINO_ICON_BUTTON_RIGHT);
 	if (buttons & CC_BTN_LEFT)
 		addContextButton(NEUTRINO_ICON_BUTTON_LEFT);
+	if (buttons & CC_BTN_RIGHT)
+		addContextButton(NEUTRINO_ICON_BUTTON_RIGHT);
 	if (buttons & CC_BTN_FORWARD)
 		addContextButton(NEUTRINO_ICON_BUTTON_FORWARD);
 	if (buttons & CC_BTN_BACKWARD)
