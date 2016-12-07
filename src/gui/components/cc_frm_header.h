@@ -182,7 +182,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 			CC_BTN_MUTE_ZAP_INACTIVE 	= 0x200,
 			CC_BTN_OKAY			= 0x400,
 			CC_BTN_MUTE			= 0x800,
-			CC_BTN_TOP			= 0x1000,
+			CC_BTN_UP			= 0x1000,
 			CC_BTN_DOWN			= 0x2000,
 			CC_BTN_LEFT			= 0x4000,
 			CC_BTN_RIGHT			= 0x8000,

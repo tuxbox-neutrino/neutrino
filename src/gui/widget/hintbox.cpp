@@ -273,7 +273,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	/* add scroll mode if needed */
 	if (h_lines > h_hint_obj){
 		txt_mode = text_mode | CTextBox::SCROLL;
-		ccw_buttons = ccw_buttons | CComponentsHeader::CC_BTN_TOP | CComponentsHeader::CC_BTN_DOWN;
+		ccw_buttons = ccw_buttons | CComponentsHeader::CC_BTN_UP | CComponentsHeader::CC_BTN_DOWN;
 	}
 
 	/* define y start position of infobox inside body */

@@ -275,8 +275,8 @@ void CComponentsHeader::addContextButton(const int& buttons)
 		addContextButton(NEUTRINO_ICON_BUTTON_OKAY);
 	if (buttons & CC_BTN_MUTE)
 		addContextButton(NEUTRINO_ICON_BUTTON_MUTE);
-	if (buttons & CC_BTN_TOP)
-		addContextButton(NEUTRINO_ICON_BUTTON_TOP);
+	if (buttons & CC_BTN_UP)
+		addContextButton(NEUTRINO_ICON_BUTTON_UP);
 	if (buttons & CC_BTN_DOWN)
 		addContextButton(NEUTRINO_ICON_BUTTON_DOWN);
 	if (buttons & CC_BTN_LEFT)
