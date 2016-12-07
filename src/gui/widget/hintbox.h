@@ -36,7 +36,8 @@
 #define HINTBOX_MIN_HEIGHT 125
 #define HINTBOX_MAX_HEIGHT 520
 #define HINTBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_POPUP_MESSAGES]
-#define NO_TIMEOUT -1
+#define NO_TIMEOUT 0
+#define DEFAULT_TIMEOUT -1
 //frame around hint container as indent
 #define W_FRAME std::max(HINTBOX_MIN_WIDTH, HINTBOX_MIN_HEIGHT) * 2/100
 //frame color around hint/message box
@@ -179,7 +180,9 @@ class CHintBox : public CComponentsWindow
 		int exec();
 
 		/**
-		* Defines timeout, timeout is enabled if parameter1 > -1
+		* Defines timeout for message window.
+		* Timeout is enabled with parameter1 = DEFAULT_TIMEOUT (-1) or any other value > 0
+		* To disable timeout use NO_TIMEOUT (0)
 		* @param[in]	Timeout as int as seconds
 		*/
 		virtual void setTimeOut(const int& Timeout){timeout = Timeout;}
