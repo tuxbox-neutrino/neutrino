@@ -690,7 +690,7 @@ void CBouquetList::paintItem(int pos)
 
 void CBouquetList::paintHead()
 {
-	std::string icon = "";
+	std::string icon("");
 	CComponentsHeader header(x, y, width, theight, name, icon, CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT | CComponentsHeader::CC_BTN_MENU);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
