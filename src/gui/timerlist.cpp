@@ -1377,16 +1377,18 @@ void CTimerList::paintHead()
 
 void CTimerList::paintFoot()
 {
-	CTimerd::responseGetTimer* timer=&timerlist[selected];
-	if (timer != NULL)
+	if(!timerlist.empty() )
 	{
+		CTimerd::responseGetTimer* timer=&timerlist[selected];
+		if (timer != NULL)
+		{
 		//replace info button with dummy if timer is not type REC or ZAP
-		if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX || timer->eventType == CTimerd::TIMER_ZAPTO)
-			TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
-		else
-			TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+			if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX || timer->eventType == CTimerd::TIMER_ZAPTO)
+				TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
+			else
+				TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+		}
 	}
-
 	//shadow
 	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + height - footerHeight, width, footerHeight + OFFSET_SHADOW, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
