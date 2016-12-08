@@ -33,7 +33,6 @@
 #endif
 
 #include "hintbox.h"
-#include <gui/widget/drawable.h>
 
 #define MSGBOX_MIN_WIDTH HINTBOX_MIN_WIDTH
 #define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT + 75
