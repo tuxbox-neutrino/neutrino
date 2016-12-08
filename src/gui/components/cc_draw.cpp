@@ -668,13 +668,18 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 			int r =  v_fbdata[i].r;
 			if (corner_radius > -1)
 				r = corner_radius;
-			frameBuffer->paintBoxRel(v_fbdata[i].x,
-						 v_fbdata[i].y,
-						 v_fbdata[i].dx,
-						 v_fbdata[i].dy,
-						 bg_color,
-						 r,
-						 corner_type);
+
+			if (v_fbdata[i].dx > 0 && v_fbdata[i].dy > 0){
+				frameBuffer->paintBoxRel(v_fbdata[i].x,
+							v_fbdata[i].y,
+							v_fbdata[i].dx,
+							v_fbdata[i].dy,
+							bg_color,
+							r,
+							corner_type);
+			}else
+				dprintf(DEBUG_NORMAL, "\033[33m[CCDraw][%s - %d], WARNING! render with bad dimensions [dx = %d dy = %d]\033[0m\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy );
+
 			if (v_fbdata[i].frame_thickness)
 					frameBuffer->paintBoxFrame(v_fbdata[i].x,
 								   v_fbdata[i].y,
