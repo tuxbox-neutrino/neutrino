@@ -56,14 +56,14 @@ class CMsgBox : public CHintBox
 		/* enum definition */
 		enum msg_result_t
 		{
-			mbrYes    = 0,
-			mbrNo     = 1,
-			mbrCancel = 2,
-			mbrBack   = 3,
-			mbrOk     = 4,
-			mbrTimeout = 5,
+			mbrYes    	= 0x01,
+			mbrNo     	= 0x02,
+			mbrCancel 	= 0x04,
+			mbrBack   	= 0x08,
+			mbrOk     	= 0x10,
+			mbrTimeout 	= 0x20,
 
-			mbrNone = -1
+			mbrNone 	= 0x00
 		};
 		enum button_define_t
 		{
@@ -171,7 +171,7 @@ class CMsgBox : public CHintBox
 			const int& Width = MSGBOX_MIN_WIDTH,
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
-			const msg_result_t& Default_result = mbrCancel,
+			const msg_result_t& Default_result = mbrNone,
 			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
 		/**CMsgBox Constructor
@@ -225,7 +225,7 @@ class CMsgBox : public CHintBox
 			const int& Width = MSGBOX_MIN_WIDTH,
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
-			const msg_result_t& Default_result = mbrCancel,
+			const msg_result_t& Default_result = mbrNone,
 			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
 // 		~CMsgBox(); //inherited
