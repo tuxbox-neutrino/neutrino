@@ -906,12 +906,13 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define RADIUS_NONE	0
 
 // offsets
-#define OFFSET_SHADOW	6
-#define OFFSET_INTER	6
+#define OFFSET_SHADOW		6
+#define OFFSET_INTER		6
 #define OFFSET_INNER_LARGE	20
 #define OFFSET_INNER_MID	10
 #define OFFSET_INNER_SMALL	5
 #define OFFSET_INNER_MIN	2
+#define OFFSET_INNER_NONE	0
 
 struct SglobalInfo
 {
