@@ -1418,7 +1418,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			inst->GetRecordString(title, duration);
 			title += duration;
 			tostart = (ShowMsg(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
-						CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes);
+						CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT) == CMsgBox::mbrYes);
 		}
 		if (tostart) {
 			CRecordManager::getInstance()->Record(live_channel_id);
