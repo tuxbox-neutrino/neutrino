@@ -150,9 +150,8 @@ class CZapitMessages
 			CMD_GET_MODE43			   = 109,
 			CMD_SET_MODE43			   = 110,
 			CMD_STOP_PIP			   = 111,
-			CMD_ZAPTO_EPG			   = 112
-			
-
+			CMD_ZAPTO_EPG			   = 112,
+			CMD_LOCKRC				   = 113
 		};
 
 	struct commandBoolean

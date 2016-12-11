@@ -3394,6 +3394,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		CRCLock::getInstance()->exec(NULL, CRCLock::NO_USER_INPUT);
 		return messages_return::handled;
 	}
+	else if (msg == NeutrinoMessages::LOCK_RC_EXTERN || msg == NeutrinoMessages::UNLOCK_RC_EXTERN)
+	{
+		printf("CNeutrinoApp::handleMsg: RC is %s now\n", msg == NeutrinoMessages::LOCK_RC_EXTERN ? "LOCKED" : "UNLOCKED");
+		return messages_return::handled;
+	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
 		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %d rezap %d\n", data & mode_mask, (data & norezap) != norezap);
 		if((data & mode_mask)== mode_radio) {

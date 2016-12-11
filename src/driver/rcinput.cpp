@@ -278,21 +278,36 @@ CRCInput::~CRCInput()
 *	stopInput - stop reading rcin for plugins
 *
 **************************************************************************/
-void CRCInput::stopInput()
+void CRCInput::stopInput(const bool ext)
 {
+	if (isLocked())
+		return;
+
 	input_stopped = true;
 	close();
+	if (ext)
+		postMsg(NeutrinoMessages::LOCK_RC_EXTERN, 0);
+}
+
+bool CRCInput::isLocked(void)
+{
+	return input_stopped;
 }
 
 /**************************************************************************
 *	restartInput - restart reading rcin after calling plugins
 *
 **************************************************************************/
-void CRCInput::restartInput()
+void CRCInput::restartInput(const bool ext)
 {
+	if (!isLocked())
+		return;
+
 	close();
 	open();
 	input_stopped = false;
+	if (ext)
+		postMsg(NeutrinoMessages::UNLOCK_RC_EXTERN, 0);
 }
 #if 0 
 //never used
