@@ -133,9 +133,6 @@ private:
 	bool displayList;
 	bool pig_on_win;
 
-	int ChannelList_Rec;
-
-
 	bool headerNew;
 
 	void paintDetails(int index);
