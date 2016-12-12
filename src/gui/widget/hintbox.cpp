@@ -197,7 +197,7 @@ int CHintBox::exec()
 	neutrino_msg_data_t data;
 	int res = messages_return::none;
 
-	if (timeout == NO_TIMEOUT || timeout == 0)
+	if (timeout == NO_TIMEOUT || timeout == DEFAULT_TIMEOUT)
 		timeout = HINTBOX_DEFAULT_TIMEOUT;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
