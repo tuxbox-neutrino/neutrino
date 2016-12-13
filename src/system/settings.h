@@ -786,15 +786,18 @@ struct SNeutrinoSettings
 	// USERMENU
 	typedef enum
 	{
-		BUTTON_RED = 0,  // Do not change ordering of members, add new item just before BUTTON_MAX!!!
+		// Do not change ordering of members, add new item just before BUTTON_MAX!!!
+		BUTTON_RED = 0,
 		BUTTON_GREEN = 1,
 		BUTTON_YELLOW = 2,
 		BUTTON_BLUE = 3,
-		BUTTON_MAX   // MUST be always the last in the list
+		BUTTON_MAX // MUST be always the last in the list
 	} USER_BUTTON;
+
 	typedef enum
 	{
-		ITEM_NONE = 0, // Do not change ordering of members, add new item just before ITEM_MAX!!!
+		// Do not change ordering of members, add new item just before ITEM_MAX!!!
+		ITEM_NONE = 0,
 		ITEM_BAR = 1,
 		ITEM_EPG_LIST = 2,
 		ITEM_EPG_SUPER = 3,
@@ -820,18 +823,16 @@ struct SNeutrinoSettings
 		ITEM_FILEPLAY = 23,
 		ITEM_TOOLS = 24,
 		ITEM_LUA = 25,
-
 		ITEM_HDDMENU = 26,
 		ITEM_AUDIOPLAY = 27,
 		ITEM_INETPLAY = 28,
 		ITEM_NETSETTINGS = 29,
 		ITEM_SWUPDATE = 30,
-
 		ITEM_LIVESTREAM_RESOLUTION = 31,
 		ITEM_ADZAP = 32,
-
-		ITEM_MAX   // MUST be always the last in the list
+		ITEM_MAX // MUST be always the last in the list
 	} USER_ITEM;
+
 	typedef struct {
 		unsigned int key;
 		std::string items;
