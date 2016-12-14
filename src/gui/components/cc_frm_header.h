@@ -99,7 +99,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		bool cch_cl_enable_run;
 
 		///init font object and recalculates height if required
-		void initCaptionFont(Font* font = NULL);
+		void initCaptionFont();
 		///sub: init icon object
 		void initIcon();
 		///sub: init caption object
@@ -136,13 +136,44 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		virtual void setCaption(neutrino_locale_t caption_locale, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
 
 		///set alignment of caption within header, possible paramters are CTextBox::CENTER, CTextBox::NO_AUTO_LINEBREAK
-		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;};
-		///set text font object for caption
+		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;}
+
+		/**Set text font for title.
+		 * Internal default font is g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] and
+		 * default height of header object is calculated from this font type.
+		 * Height can be changed with modes by setSizeMode(), setHeight() or constructor.
+		 * @return void
+		 *
+		 * @param[in] font	exepts font object, type Font*
+		 * @see			getCaptionFont(), setSizeMode(),
+		 * 			setCaptionColor(),
+		 * 			setCaptionAlignment(),
+		 * 			setCaption()
+		*/
 		virtual void setCaptionFont(Font* font);
 		///returns font object of title caption
-		virtual Font* getCaptionFont(){return cch_font;};
+		virtual Font* getCaptionFont(){return cch_font;}
 		///set text color for caption
-		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
+		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;}
+
+		enum
+		{
+			CC_HEADER_SIZE_LARGE 	= 0,
+			CC_HEADER_SIZE_SMALL 	= 1
+		};
+		/**Set size mode of header.
+		 * These modes are using fonts SNeutrinoSettings::FONT_TYPE_MENU_TITLE for large mode (default)
+		 * and SNeutrinoSettings::FONT_TYPE_MENU for small mode to set required height.
+		 * If other size wanted then use set setCaptionFont() and setHeight()
+		 * @return void
+		 *
+		 * @param[in] size_mode	exepts type int (enums)
+		 *			possible modes are:
+		 *			CC_HEADER_SIZE_LARGE
+		 * 			CC_HEADER_SIZE_SMALL
+		 * @see			setCaption(), setHeight()
+		*/
+		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();}
 
 		///set offset between items
 		virtual void setOffset(const int offset){cch_offset = offset;};
@@ -197,14 +228,6 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 
 		///set offset between icons within context button object
 		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;}
-
-		enum
-		{
-			CC_HEADER_SIZE_LARGE 	= 0,
-			CC_HEADER_SIZE_SMALL 	= 1
-		};
-		///set size of header, possible values are CC_HEADER_SIZE_LARGE, CC_HEADER_SIZE_SMALL
-		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();}
 
 		///init all items within header object
 		virtual void initCCItems();

@@ -93,12 +93,10 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 
 	//init header width
 	width 	= width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
+	height 	= height_old = h;
 
-	//init header default height
-	height 	= height_old = max(h, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
-
-	cch_size_mode	= CC_HEADER_SIZE_LARGE;
-	initCaptionFont();	//sets cch_font and calculate height if required;
+	cch_font		= NULL;
+	cch_size_mode		= CC_HEADER_SIZE_LARGE;
 
 	shadow		= shadow_mode;
 	col_frame = col_frame_old 	= color_frame;
@@ -160,15 +158,15 @@ void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const int& 
 
 void CComponentsHeader::setCaptionFont(Font* font)
 {
-	initCaptionFont(font); //cch_font = font
+	cch_font = font;
 }
 
-void CComponentsHeader::initCaptionFont(Font* font)
+void CComponentsHeader::initCaptionFont()
 {
 	Font *l_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	Font *s_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
 
-	if (font == NULL){
+	if (cch_font == NULL){
 		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? l_font : s_font);
 
 		//select matching height
@@ -177,10 +175,8 @@ void CComponentsHeader::initCaptionFont(Font* font)
 		else
 			height	= std::min(height, s_font->getHeight());
 	}
-	else{
-		cch_font = font;
+	else
 		height = std::max(height, cch_font->getHeight());
-	}
 }
 
 void CComponentsHeader::setIcon(const char* icon_name)
@@ -513,11 +509,11 @@ void CComponentsHeader::initCaption()
 
 void CComponentsHeader::initCCItems()
 {
-	//set basic properties
-	Init(x, y, width, height, col_frame, col_body, col_shadow);
-
 	//set size
 	initCaptionFont();
+
+	//set basic properties
+	Init(x, y, width, height, col_frame, col_body, col_shadow);
 
 	//init icon
 	initIcon();
