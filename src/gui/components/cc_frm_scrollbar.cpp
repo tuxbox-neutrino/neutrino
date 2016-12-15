@@ -189,3 +189,20 @@ void CComponentsScrollBar::initSegments()
 	sb_segments_obj->front()->setCorner(RADIUS_MIN, CORNER_TOP);
 	sb_segments_obj->back()->setCorner(RADIUS_MIN, CORNER_BOTTOM);
 }
+
+
+void paintScrollBar(	const int &x_pos,
+			const int &y_pos,
+			const int &w,
+			const int &h,
+			const int& count,
+			const int& current_num,
+			int shadow_mode,
+			fb_pixel_t color_frame,
+			fb_pixel_t color_body,
+			fb_pixel_t color_shadow)
+{
+	CComponentsScrollBar scrollbar(x_pos, y_pos, w, h, count, NULL, shadow_mode, color_frame, color_body, color_shadow);
+	scrollbar.setMarkID(current_num);
+	scrollbar.paint0();
+}
