@@ -678,7 +678,7 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 							r,
 							corner_type);
 			}else
-				dprintf(DEBUG_NORMAL, "\033[33m[CCDraw][%s - %d], WARNING! render with bad dimensions [dx = %d dy = %d]\033[0m\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy );
+				dprintf(DEBUG_DEBUG, "\033[33m[CCDraw][%s - %d], WARNING! render with bad dimensions [dx = %d dy = %d]\033[0m\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy );
 
 			if (v_fbdata[i].frame_thickness)
 					frameBuffer->paintBoxFrame(v_fbdata[i].x,
