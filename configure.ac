@@ -270,11 +270,6 @@ lib/libiw/Makefile
 lib/luaclient/Makefile
 src/lcddisplay/Makefile
 src/nhttpd/Makefile
-src/nhttpd/web/Makefile
-src/nhttpd/web/images/Makefile
-src/nhttpd/web/scripts/Makefile
-src/nhttpd/web/languages/Makefile
-src/nhttpd/web/styles/Makefile
 src/nhttpd/tuxboxapi/Makefile
 src/nhttpd/yhttpd_core/Makefile
 src/nhttpd/yhttpd_mods/Makefile
@@ -324,6 +319,11 @@ data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile
 data/scripts/Makefile
 data/themes/Makefile
+data/y-web/Makefile
+data/y-web/images/Makefile
+data/y-web/scripts/Makefile
+data/y-web/languages/Makefile
+data/y-web/styles/Makefile
 src/eitd/Makefile
 src/timerd/Makefile
 src/zapit/Makefile

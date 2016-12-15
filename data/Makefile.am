@@ -9,7 +9,8 @@ SUBDIRS = \
 	neutrino-scripts \
 	pictures \
 	scripts \
-	themes
+	themes \
+	y-web
 
 if BOXTYPE_TRIPLE
 SUBDIRS += lcd
