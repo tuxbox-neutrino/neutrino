@@ -1325,10 +1325,9 @@ void CMenuWidget::paintItems()
 	if(total_pages>1)
 	{
 		int item_height=height-(item_start_y-y);
-		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_SCROLLBAR_PASSIVE_PLUS_0, RADIUS_MIN);
-		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_MIN);
-		/* background of menu items, paint every time because different items can have
-		 * different height and this might leave artifacts otherwise after changing pages */
+		paintScrollBar(x+ width, item_start_y, 15, item_height, total_pages, current_page);
+// 		/* background of menu items, paint every time because different items can have
+// 		 * different height and this might leave artifacts otherwise after changing pages */
 		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	}
 
