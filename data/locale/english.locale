@@ -2371,8 +2371,8 @@ timerlist.repeat.wednesday We
 timerlist.repeat.weekdays on weekdays
 timerlist.repeat.weekly weekly
 timerlist.repeatcount repeats
-timerlist.repeatcount.help1 amount of timer repeats
-timerlist.repeatcount.help2 0 for unlimited repeats
+timerlist.repeatcount.hint_1 Amount of timer repeats
+timerlist.repeatcount.hint_2 0 for unlimited repeats
 timerlist.save Save timer
 timerlist.standby Action
 timerlist.standby.off Leave standby
