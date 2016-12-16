@@ -375,9 +375,9 @@ void CComponentsForm::paintCCItems()
 
 	//init and handle scrollbar
 	getPageCount();
-	int y_sb = this_y+1;
+	int y_sb = this_y;
 	int x_sb = this_x + width - w_sb;
-	int h_sb = height-2;
+	int h_sb = height;
 	if (sb == NULL){
 		sb = new CComponentsScrollBar(x_sb, y_sb, w_sb, h_sb);
 	}else{
