@@ -44,7 +44,7 @@ Helpbox::Helpbox(	const string& Title,
 						CC_SHADOW_ON)
 {
 	page = 0;
-	hbox_y = 1;
+	hbox_y = 0;
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 	ccw_footer->setButtonLabel(NEUTRINO_ICON_BUTTON_HOME, LOCALE_MESSAGEBOX_BACK);
 
