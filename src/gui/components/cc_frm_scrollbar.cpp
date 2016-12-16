@@ -76,11 +76,13 @@ void CComponentsScrollBar::initVarSbForm(const int& count)
 	cc_item_type 	= CC_ITEMTYPE_FRM_SCROLLBAR;
 	fr_thickness	= 0;
 
-	append_x_offset = 0;
-	append_y_offset = 2;
+	append_x_offset = OFFSET_INNER_MIN;
+	append_y_offset = OFFSET_INNER_MIN;
 
-	sb_up_obj 	= sb_down_obj = NULL;
+	sb_up_obj 	= NULL;
+	sb_down_obj	= NULL;
 	sb_segments_obj = NULL;
+
 	setCorner(RADIUS_MIN, CORNER_ALL);
 
 	sb_up_icon	= frameBuffer->getIconPath(NEUTRINO_ICON_BUTTON_UP) ;
@@ -130,19 +132,19 @@ void CComponentsScrollBar::initBottomNaviIcon()
 void CComponentsScrollBar::initSegments()
 {
 	//init dimensions for segments
-	int w_seg = width - 4*fr_thickness;
-//never read 	int h_seg = height - (sb_segments_count-1)*append_y_offset;
+	int w_seg = width - 2*fr_thickness - 2*append_x_offset;
+	if (w_seg < 0)
+		w_seg = 0;
 
 	//calculate height of segment container
-	int h_seg_obj = height - 2*sb_up_obj->getHeight() - 3*append_y_offset;
-	if(h_seg_obj < 0)
+	int h_seg_obj = height - 2*fr_thickness - 2*sb_up_obj->getHeight()  - 2*append_y_offset;
+	if (h_seg_obj < 0)
 		h_seg_obj = 0;
 
 	//init segment container
 	if (sb_segments_obj == NULL){
 		sb_segments_obj = new CComponentsFrmChain(CC_CENTERED, CC_APPEND, w_seg, h_seg_obj, NULL, CC_DIR_Y, this, false);
-		sb_segments_obj->setFrameThickness(0/*,0*/);
-		sb_segments_obj->setAppendOffset(0, 3);
+		sb_segments_obj->setFrameThickness(0);
 	}else
 		sb_segments_obj->setDimensionsAll(CC_CENTERED, CC_APPEND, w_seg, h_seg_obj);
 
@@ -153,9 +155,9 @@ void CComponentsScrollBar::initSegments()
 	sb_segments_obj->clear();
 
 	//set y position of 1st segment and set height of segments
-	int y_seg = 1+ append_y_offset;
+	int y_seg = append_y_offset;
 	int h_seg = sb_segments_obj->getHeight()/sb_segments_count - append_y_offset;
-	if(h_seg < 0)
+	if (h_seg < 0)
 		h_seg = 0;
 
 	//create and add segments to segment container
