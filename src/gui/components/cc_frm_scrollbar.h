@@ -78,7 +78,7 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		CComponentsScrollBar(	const int &x_pos,
 					const int &y_pos,
 					const int &w 		= 15,
-					const int &h 		= 40,
+					const int &h 		= 0,
 					const int& count 	= 1,
 					CComponentsForm *parent = NULL,
 					int shadow_mode 	= CC_SHADOW_OFF,
