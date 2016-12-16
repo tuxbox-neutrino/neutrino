@@ -610,8 +610,20 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->sorting.direction = (MB_DIRECTION)configfile.getInt32("mb_sorting_direction", MB_DIRECTION_UP);
 
 	settings->filter.item = (MB_INFO_ITEM)configfile.getInt32("mb_filter_item", MB_INFO_MAX_NUMBER);
-	settings->filter.optionString = configfile.getString("mb_filter_optionString", "");
+	settings->filter.optionString = configfile.getString("mb_filter_optionString", g_Locale->getText(LOCALE_OPTIONS_OFF));
 	settings->filter.optionVar = configfile.getInt32("mb_filter_optionVar", 0);
+
+	if (settings->filter.item == MB_INFO_FILEPATH)
+	{
+		struct stat info;
+		if (!(stat(settings->filter.optionString.c_str(), &info) == 0 && S_ISDIR(info.st_mode)))
+		{
+			//reset filter if directory not exists
+			settings->filter.item = MB_INFO_MAX_NUMBER;
+			settings->filter.optionString = g_Locale->getText(LOCALE_OPTIONS_OFF);
+			settings->filter.optionVar = 0;
+		}
+	}
 
 	settings->parentalLockAge = (MI_PARENTAL_LOCKAGE)configfile.getInt32("mb_parentalLockAge", MI_PARENTAL_OVER18);
 	settings->parentalLock = (MB_PARENTAL_LOCK)configfile.getInt32("mb_parentalLock", MB_PARENTAL_LOCK_ACTIVE);
