@@ -317,6 +317,17 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		 *
 		 * @return bool			returns true if effect is successful started
 		 *
+		 * @param[in] CComponentsTimer*	pointer to timer object, Note: This object must be created and distroy outside
+		 * 				of this methode.
+		 * @see				overloaded version of paintBlink()
+		*/
+		virtual bool paintBlink(CComponentsTimer* Timer);
+
+		/**paint item with blink effect
+		 * This should work with all cc item types.
+		 *
+		 * @return bool			returns true if effect is successful started
+		 *
 		 * @param[in] interval		optional, interval time as int, default =  1
 		 * @param[in] is_nano		optional, time mode as bool, default = false means as seconds, true means nano seconds.
 		 *

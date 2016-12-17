@@ -738,18 +738,21 @@ void CCDraw::paintTrigger()
 		hide();
 }
 
+bool CCDraw::paintBlink(CComponentsTimer* Timer)
+{
+	if (Timer){
+		Timer->OnTimer.connect(cc_draw_trigger_slot);
+		return Timer->isRun();
+	}
+	return false;
+}
+
 bool CCDraw::paintBlink(const int& interval, bool is_nano)
 {
-	if (cc_draw_timer == NULL){
+	if (cc_draw_timer == NULL)
 		cc_draw_timer = new CComponentsTimer(interval, is_nano);
-		if (cc_draw_timer->OnTimer.empty()){
-			cc_draw_timer->OnTimer.connect(cc_draw_trigger_slot);
-		}
-	}
-	if (cc_draw_timer)
-		return cc_draw_timer->isRun();
 
-	return false;
+	return paintBlink(cc_draw_timer);
 }
 
 bool CCDraw::cancelBlink(bool keep_on_screen)
