@@ -68,6 +68,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		fb_pixel_t cch_col_text;
 		///property: caption font, see also setCaptionFont()
 		Font* cch_font;
+		///reset font
+		void resetFont();
 
 		///property: internal y-position for all items
 		int cch_items_y;
