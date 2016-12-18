@@ -2451,6 +2451,7 @@ usermenu.title_blue Features
 usermenu.title_green Audio
 usermenu.title_red Event-List
 usermenu.title_yellow Video
+usermenus.head User menus
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode
 videomenu.analog_auto AUTO
