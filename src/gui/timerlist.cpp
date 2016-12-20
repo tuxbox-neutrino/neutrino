@@ -281,6 +281,7 @@ CTimerList::CTimerList()
 	timerNew_message = "";
 	timerNew_pluginName = "";
 	httpConnectTimeout = 3;
+	changed = false;
 
 	/* most probable default */
 	saved_dispmode = (int)CVFD::MODE_TVRADIO;
