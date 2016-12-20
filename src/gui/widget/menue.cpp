@@ -1194,7 +1194,7 @@ void CMenuWidget::calcSize()
 	//scrollbar width
 	sb_width=0;
 	if(total_pages > 1)
-		sb_width=15;
+		sb_width=SCROLLBAR_WIDTH;
 
 	full_width = /*ConnectLineBox_Width+*/width+sb_width+OFFSET_SHADOW;
 	full_height = height+RADIUS_LARGE+OFFSET_SHADOW*2 /*+hint_height+OFFSET_INTER*/;
@@ -1325,9 +1325,9 @@ void CMenuWidget::paintItems()
 	if(total_pages>1)
 	{
 		int item_height=height-(item_start_y-y);
-		paintScrollBar(x+ width, item_start_y, 15, item_height, total_pages, current_page);
-// 		/* background of menu items, paint every time because different items can have
-// 		 * different height and this might leave artifacts otherwise after changing pages */
+		paintScrollBar(x+ width, item_start_y, sb_width, item_height, total_pages, current_page);
+		/* background of menu items, paint every time because different items can have
+		 * different height and this might leave artifacts otherwise after changing pages */
 		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	}
 
