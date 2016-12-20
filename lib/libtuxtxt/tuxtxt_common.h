@@ -309,7 +309,7 @@ void tuxtxt_decode_adip() /* additional information table */
 #endif
 	} /* next adip page i */
 
-	while (!tuxtxt_cache.adippg[tuxtxt_cache.maxadippg] && (tuxtxt_cache.maxadippg >= 0)) /* and shrink table */
+	while ((tuxtxt_cache.maxadippg >= 0) && !tuxtxt_cache.adippg[tuxtxt_cache.maxadippg]) /* and shrink table */
 		tuxtxt_cache.maxadippg--;
 }
 /******************************************************************************
