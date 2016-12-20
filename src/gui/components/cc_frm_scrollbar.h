@@ -24,6 +24,8 @@
 #ifndef __CC_FORM_SCROLLBAR_H__
 #define __CC_FORM_SCROLLBAR_H__
 
+#include <global.h>
+
 #include "cc_frm_chain.h"
 #include "cc_item_picture.h"
 
@@ -77,7 +79,7 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		*/
 		CComponentsScrollBar(	const int &x_pos,
 					const int &y_pos,
-					const int &w 		= 15,
+					const int &w 		= SCROLLBAR_WIDTH,
 					const int &h 		= 0,
 					const int& count 	= 1,
 					CComponentsForm *parent = NULL,

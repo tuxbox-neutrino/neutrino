@@ -25,7 +25,6 @@
 #include <config.h>
 #endif
 
-#include <global.h>
 #include <neutrino.h>
 #include "cc_frm_scrollbar.h"
 #include "system/debug.h"
