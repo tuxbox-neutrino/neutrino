@@ -300,10 +300,7 @@ void CVolumeHelper::initInfoClock(Font* font)
 		else
 			clock_font = font;
 	}
-	else {
-		if (font != NULL)
-			clock_font = font;
-	}
+
 	digit_offset = (clock_font)->getDigitOffset();
 	digit_h      = (clock_font)->getDigitHeight();
 	int t1       = (clock_font)->getMaxDigitWidth();
