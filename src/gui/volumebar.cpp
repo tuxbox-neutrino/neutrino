@@ -34,6 +34,7 @@
 #include <neutrino.h>
 #include <gui/infoclock.h>
 #include <driver/neutrinofonts.h>
+#include <system/debug.h>
 
 using namespace std;
 
@@ -260,7 +261,21 @@ CVolumeHelper::CVolumeHelper()
 
 	frameBuffer = CFrameBuffer::getInstance();
 
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CVolumeHelper::resetFont));
+
 	Init();
+}
+
+void CVolumeHelper::resetFont()
+{
+	if (vb_font){
+		vb_font		= NULL;
+		dprintf(DEBUG_INFO, "\033[33m[CVolumeHelper][%s - %d] reset vb font \033[0m\n", __func__, __LINE__);
+	}
+	if (clock_font){
+		clock_font	= NULL;
+		dprintf(DEBUG_INFO, "\033[33m[CVolumeHelper][%s - %d] reset clock font \033[0m\n", __func__, __LINE__);
+	}
 }
 
 void CVolumeHelper::Init(Font* font)
