@@ -265,6 +265,8 @@ Example:
 	curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, (long)connectTimeout);
 	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, 1L);
 	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
+	/* enable all supported built-in compressions */
+	curl_easy_setopt(curl_handle, CURLOPT_ACCEPT_ENCODING, "");
 
 	if (!userAgent.empty())
 		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
