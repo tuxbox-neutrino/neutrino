@@ -53,8 +53,7 @@ class CStringInput : public CMenuTarget
 
 		uint32_t smstimer;
 
-		std::string  head;
-		neutrino_locale_t name;
+		std::string  title;
 		neutrino_locale_t hint_1, hint_2;
 		std::string iconfile;
 		const char * validchars;

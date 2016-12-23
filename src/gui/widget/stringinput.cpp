@@ -47,8 +47,7 @@
 
 CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
-        name =  Name;
-	head = g_Locale->getText(Name);
+	title = g_Locale->getText(Name);
         valueString = Value;
 	lower_bound = -1;
 	upper_bound = -1;
@@ -65,8 +64,7 @@ CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int
 
 CStringInput::CStringInput(const std::string &Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
-	name = NONEXISTANT_LOCALE;
-        head = Name;
+        title = Name;
         valueString = Value;
 	lower_bound = -1;
 	upper_bound = -1;
@@ -115,7 +113,7 @@ void CStringInput::init()
 
 	width = std::max(size*input_w + 2*offset, (int) frameBuffer->getScreenWidth() / 100 * 45);
 
-	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(head);
+	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(title);
 
 	if (!(iconfile.empty()))
 	{
@@ -497,7 +495,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
 			if ((*valueString != oldval) &&
-			     (ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
+			     (ShowMsg(title, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}
@@ -542,7 +540,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
         if ( (observ) && (msg==CRCInput::RC_ok) )
         {
-                observ->changeNotify(name, (void *) valueString->c_str());
+                observ->changeNotify(title, (void *) valueString->c_str());
         }
 	return res;
 }
@@ -563,7 +561,7 @@ void CStringInput::paint(bool sms)
 	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + OFFSET_SHADOW, width, height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
 	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, sms ? 0 : RADIUS_LARGE, CORNER_BOTTOM);
 
-	CComponentsHeader header(x, y, width, hheight, head, iconfile);
+	CComponentsHeader header(x, y, width, hheight, title, iconfile);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	int tmp_y = y+ hheight+ offset+ input_h+ offset;
@@ -861,7 +859,7 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 
 	if ( (observ) && (msg==CRCInput::RC_ok) )
 	{
-		observ->changeNotify(name, (void *) valueString->c_str());
+		observ->changeNotify(title, (void *) valueString->c_str());
 	}
 
 	return res;
