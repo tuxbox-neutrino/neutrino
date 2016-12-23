@@ -392,6 +392,17 @@ int ShowMsg(	const std::string & Title,
 						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
+int ShowMsg(	const std::string & Title,
+						const neutrino_locale_t Text,
+						const CMsgBox::msg_result_t Default,
+						const uint32_t ShowButtons,
+						const char * const Icon = NULL,
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
+
 void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
 void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
 void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
