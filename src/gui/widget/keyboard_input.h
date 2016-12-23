@@ -92,8 +92,7 @@ class CKeyboardInput : public CMenuTarget
 		std::string (*keyboard)[KEY_COLUMNS];
 		CInputString * inputString;
 
-		std::string  head;
-		neutrino_locale_t name;
+		std::string  title;
 		neutrino_locale_t hint_1, hint_2;
 		std::string hintText_1, hintText_2;
 		std::string iconfile;
