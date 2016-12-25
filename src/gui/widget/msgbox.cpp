@@ -81,8 +81,6 @@ CMsgBox::CMsgBox(	const char* Text,
 
 void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t& Default_result)
 {
-	dprintf(DEBUG_NORMAL, "[CMsgBox]   [%s - %d] \n", __func__, __LINE__);
-
 	initTimeOut();
 
 	//enable footer and add its height
