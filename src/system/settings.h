@@ -162,6 +162,13 @@ struct SNeutrinoTheme
 	unsigned char shadow_red;
 	unsigned char shadow_green;
 	unsigned char shadow_blue;
+
+	unsigned char progressbar_active_red;
+	unsigned char progressbar_active_green;
+	unsigned char progressbar_active_blue;
+	unsigned char progressbar_passive_red;
+	unsigned char progressbar_passive_green;
+	unsigned char progressbar_passive_blue;
 };
 
 struct timer_remotebox_item

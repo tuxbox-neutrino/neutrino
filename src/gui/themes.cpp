@@ -334,6 +334,14 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "shadow_red", t.shadow_red );
 	configfile.setInt32( "shadow_green", t.shadow_green );
 	configfile.setInt32( "shadow_blue", t.shadow_blue );
+
+	// progressbar
+	configfile.setInt32( "progressbar_active_red", t.progressbar_active_red );
+	configfile.setInt32( "progressbar_active_green", t.progressbar_active_green );
+	configfile.setInt32( "progressbar_active_blue", t.progressbar_active_blue );
+	configfile.setInt32( "progressbar_passive_red", t.progressbar_passive_red );
+	configfile.setInt32( "progressbar_passive_green", t.progressbar_passive_green );
+	configfile.setInt32( "progressbar_passive_blue", t.progressbar_passive_blue );
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -438,6 +446,14 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.shadow_red = configfile.getInt32( "shadow_red", 8 );
 	t.shadow_green = configfile.getInt32( "shadow_green", 8);
 	t.shadow_blue = configfile.getInt32( "shadow_blue", 8 );
+
+	// progressbar
+	t.progressbar_active_red = configfile.getInt32( "progressbar_active_red", 98 );
+	t.progressbar_active_green = configfile.getInt32( "progressbar_active_green", 98 );
+	t.progressbar_active_blue = configfile.getInt32( "progressbar_active_blue", 98 );
+	t.progressbar_passive_red = configfile.getInt32( "progressbar_passive_red", 60 );
+	t.progressbar_passive_green = configfile.getInt32( "progressbar_passive_green", 60 );
+	t.progressbar_passive_blue = configfile.getInt32( "progressbar_passive_blue", 60 );
 }
 
 void CThemes::move_userDir()

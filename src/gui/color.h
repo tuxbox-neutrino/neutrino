@@ -37,6 +37,7 @@
 
 #define COL_MAXFREE			254-8*16 - 1
 #define COL_NEUTRINO_TEXT		254-8*16 // 32 values?
+#define COL_PROGRESSBAR			254-8*12
 #define COL_MENUFOOT			254-8*11
 #define COL_INFOBAR_CASYSTEM		254-8*10
 #define COL_COLORED_EVENTS_CHANNELLIST	254-8*9
@@ -75,6 +76,7 @@
 #define COL_MENUCONTENTINACTIVE_PLUS_0  (COL_MENUCONTENTINACTIVE + 0)
 #define COL_MENUFOOT_PLUS_0             (COL_MENUFOOT + 0)
 #define COL_BACKGROUND_PLUS_0           (COL_BACKGROUND + 0)
+#define COL_PROGRESSBAR_PASSIVE_PLUS_0  (COL_PROGRESSBAR + 0)
 #else
 #define COL_SHADOW_PLUS_0               (CFrameBuffer::getInstance()->realcolor[(COL_SHADOW + 0)])
 #define COL_INFOBAR_PLUS_0              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 0)])
@@ -99,6 +101,7 @@
 #define COL_MENUCONTENTINACTIVE_PLUS_0  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTINACTIVE + 0)])
 #define COL_MENUFOOT_PLUS_0             (CFrameBuffer::getInstance()->realcolor[(COL_MENUFOOT + 0)])
 #define COL_BACKGROUND_PLUS_0           (CFrameBuffer::getInstance()->realcolor[(COL_BACKGROUND + 0)])
+#define COL_PROGRESSBAR_PASSIVE_PLUS_0  (CFrameBuffer::getInstance()->realcolor[(COL_PROGRESSBAR + 0)])
 
 // text colors
 #define COL_COLORED_EVENTS_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 0)])
@@ -117,6 +120,7 @@
 #define COL_MENUCONTENTSELECTED_TEXT_PLUS_2	(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 13)])
 #define COL_MENUCONTENTINACTIVE_TEXT		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 14)])
 #define COL_INFOCLOCK_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 15)])
+#define COL_PROGRESSBAR_ACTIVE_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 16)])
 #endif
 
 // some wrappers to get more readability
@@ -130,10 +134,12 @@
 #define COL_SCROLLBAR_PASSIVE		COL_MENUCONTENT_PLUS_2
 #define COL_SCROLLBAR_PASSIVE_PLUS_0	COL_SCROLLBAR_PASSIVE
 
+/*
 #define COL_PROGRESSBAR_ACTIVE		COL_MENUCONTENT_PLUS_7
 #define COL_PROGRESSBAR_ACTIVE_PLUS_0	COL_PROGRESSBAR_ACTIVE
 #define COL_PROGRESSBAR_PASSIVE		COL_MENUCONTENT_PLUS_1
 #define COL_PROGRESSBAR_PASSIVE_PLUS_0	COL_PROGRESSBAR_PASSIVE
+*/
 
 int convertSetupColor2RGB(unsigned char r, unsigned char g, unsigned char b);
 int convertSetupAlpha2Alpha(unsigned char alpha);

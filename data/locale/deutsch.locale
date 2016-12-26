@@ -328,6 +328,8 @@ colormenu.font_ttx Teletext Schriftart
 colormenu.menucolors Farben
 colormenu.osd_preset Monitor Auswahl
 colormenu.osd_resolution OSD-Auflösung
+colormenu.progressbar_active Farbe des aktiven Teil
+colormenu.progressbar_passive Hintergrundfarbe
 colormenu.shadow_color Schattenfarbe
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
@@ -1280,9 +1282,11 @@ menu.hint_power_leds Konfiguriert das Verhalten der LEDs an der Power-Taste
 menu.hint_pref_lang Wählen Sie ihre bevorzugte Tonspur und EPG-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_pref_subs Wählen Sie ihre bevorzugte Untertitel-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_progressbar Wählen Sie die Optionen für die Fortschrittsbalken-Anzeige
+menu.hint_progressbar_active Ändern Sie die Farbe für den aktiven Teil der Fortschrittsbalken-Anzeige
 menu.hint_progressbar_color Erscheinungsbild der Fortschrittsbalken auswählen
 menu.hint_progressbar_gradient Fügt dem Fortschrittsbalken einen vertikalen Helligkeitsverlauf hinzu.
 menu.hint_progressbar_infobar_position Wählt die Optionen des Fortschrittsbalkens in der Infobar
+menu.hint_progressbar_passive Ändern Sie die Farbe für den Hintergrund der Fortschrittsbalken-Anzeige
 menu.hint_progressbar_preview Mit der OK-Taste können Sie den Stand des Fortschrittsbalkens ändern
 menu.hint_progressbar_timescale_green Hier können Sie den grünen Farbanteil bunter Fortschrittsbalken anpassen
 menu.hint_progressbar_timescale_invert Wählen Sie den Farbverlauf

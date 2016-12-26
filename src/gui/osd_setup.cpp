@@ -791,6 +791,12 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	CColorChooser* chShadowColor = new CColorChooser(LOCALE_COLORMENU_SHADOW_COLOR, &t.shadow_red, &t.shadow_green, &t.shadow_blue,
 			&t.shadow_alpha, colorSetupNotifier);
 
+	// progress bar colors
+	CColorChooser* chProgressbar_passive = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_PASSIVE, &t.progressbar_passive_red, &t.progressbar_passive_green, &t.progressbar_passive_blue,
+			NULL, colorSetupNotifier);
+	CColorChooser* chProgressbar_active = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, &t.progressbar_active_red, &t.progressbar_active_green, &t.progressbar_active_blue,
+			NULL, colorSetupNotifier);
+
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
 	CMenuOptionChooser *oj;
@@ -961,6 +967,19 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_SHADOW_COLOR, true, NULL, chShadowColor );
 	mf->setHint("", LOCALE_MENU_HINT_COLORS_SHADOW);
+	menu_colors->addItem(mf);
+
+	// progressbar
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_PROGRESSBAR));
+
+	// progressbar passive
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_PROGRESSBAR_PASSIVE, true, NULL, chProgressbar_passive );
+	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_PASSIVE);
+	menu_colors->addItem(mf);
+
+	// progressbar aktive
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, true, NULL, chProgressbar_active );
+	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_ACTIVE);
 	menu_colors->addItem(mf);
 }
 

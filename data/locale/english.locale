@@ -328,6 +328,8 @@ colormenu.font_ttx Select Teletext font
 colormenu.menucolors Colors
 colormenu.osd_preset TV preset
 colormenu.osd_resolution OSD resolution
+colormenu.progressbar_active Active part color
+colormenu.progressbar_passive Background
 colormenu.shadow_color Shadow Color
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
@@ -1280,9 +1282,11 @@ menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
 menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
 menu.hint_progressbar Select the options for the progressbar
+menu.hint_progressbar_active Change color of active progress bar part
 menu.hint_progressbar_color Change appearance of progress bars
 menu.hint_progressbar_gradient Add a vertical brightness gradient to progress bars
 menu.hint_progressbar_infobar_position Selects the options of progressbar in the infobar
+menu.hint_progressbar_passive Change color of passive progress bar part
 menu.hint_progressbar_preview Use OK to change the current progressbar state
 menu.hint_progressbar_timescale_green Choose the green portion of colored progressbars
 menu.hint_progressbar_timescale_invert Select your preferred color gradient
