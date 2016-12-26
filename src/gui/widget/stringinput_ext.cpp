@@ -267,7 +267,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
-			if (trim (*valueString) != oldval){
+			if (trim (*valueString) != trim(oldval)){
 				int erg = ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbNo | CMsgBox::mbYes | CMsgBox::mbCancel);
 				 if(erg==CMsgBox::mbrYes){
 					*valueString = oldval;
