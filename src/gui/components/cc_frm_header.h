@@ -67,7 +67,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		///property: caption text color, see also setCaptionColor()
 		fb_pixel_t cch_col_text;
 		///property: caption font, see also setCaptionFont()
-		Font* cch_font;
+		Font* cch_font, *l_font, *s_font;
 		///reset font
 		void resetFont();
 
