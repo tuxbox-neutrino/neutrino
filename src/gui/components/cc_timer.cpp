@@ -107,22 +107,22 @@ void CComponentsTimer::initThread()
 
 void CComponentsTimer::stopThread()
 {
+	//ensure disconnecting possible slots
+	while (!sl_stop_timer.empty())
+		sl_stop_timer.disconnect();
+
 	if(tm_thread) {
 		int thres = pthread_cancel(tm_thread);
 		if (thres != 0)
-			dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_cancel\033[0m\n", __func__, __LINE__);
+			dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_cancel, [%d]\033[0m\n", __func__, __LINE__, thres);
 
 		thres = pthread_join(tm_thread, NULL);
 
 		if (thres != 0)
-			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_join\033[0m\n", __func__, __LINE__);
+			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_join, [%d]\033[0m\n", __func__, __LINE__, thres);
 
-		if (thres == 0){
+		if (thres == 0)
 			tm_thread = 0;
-			//ensure disconnect of unused slot
-			while (!sl_stop_timer.empty())
-				sl_stop_timer.disconnect();
-		}
 	}
 }
 
