@@ -2727,37 +2727,24 @@ bool CMovieBrowser::onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& handl
 
 void CMovieBrowser::updateDir(void)
 {
-	struct stat info;
-
 	m_dir.clear();
-
 #if 0
 	// check if there is a movie dir and if we should use it
 	if (g_settings.network_nfs_moviedir[0] != 0)
 	{
-		if (!(stat(g_settings.network_nfs_moviedir.c_str(), &info) == 0 && S_ISDIR(info.st_mode)))
-			m_settings.storageDirMovieUsed = false;
-
 		std::string name = g_settings.network_nfs_moviedir;
 		addDir(name,&m_settings.storageDirMovieUsed);
 	}
 #endif
-
 	// check if there is a record dir and if we should use it
 	if (!g_settings.network_nfs_recordingdir.empty())
 	{
-		if (!(stat(g_settings.network_nfs_recordingdir.c_str(), &info) == 0 && S_ISDIR(info.st_mode)))
-			m_settings.storageDirRecUsed = false;
-
 		addDir(g_settings.network_nfs_recordingdir, &m_settings.storageDirRecUsed);
 		cHddStat::getInstance()->statOnce();
 	}
 
 	for (int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		if (!(stat(m_settings.storageDir[i].c_str(), &info) == 0 && S_ISDIR(info.st_mode)))
-			m_settings.storageDirUsed[i] = false;
-
 		if (!m_settings.storageDir[i].empty())
 			addDir(m_settings.storageDir[i],&m_settings.storageDirUsed[i]);
 	}
