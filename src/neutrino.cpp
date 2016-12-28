@@ -339,6 +339,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
 
+	//theme/color options
+	CThemes::getTheme(configfile);
+
 	g_settings.easymenu = configfile.getInt32("easymenu", 0);
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 	/* if file present and no config file found, force easy mode */
@@ -487,15 +490,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.infobar_buttons_usertitle = configfile.getBool("infobar_buttons_usertitle", false );
-	g_settings.progressbar_gradient = configfile.getBool("progressbar_gradient", true );
-	g_settings.progressbar_design =  configfile.getInt32("progressbar_design", CProgressBar::PB_COLOR);
-	bool pb_color = configfile.getBool("progressbar_color", true );
-	if (!pb_color)
-		g_settings.progressbar_design = CProgressBar::PB_MONO;
-	g_settings.progressbar_timescale_red = configfile.getInt32("progressbar_timescale_red", 0);
-	g_settings.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
-	g_settings.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);
-	g_settings.progressbar_timescale_invert = configfile.getBool("progressbar_timescale_invert", false);
 	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 1));
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 1 ); // below channel name
@@ -574,8 +568,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
 
-	//theme/color options
-	CThemes::getTheme(configfile);
 	g_settings.osd_colorsettings_advanced_mode = configfile.getBool("osd_colorsettings_advanced_mode", false);
 
 	//personalize
@@ -720,7 +712,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 0);
 	g_settings.eventlist_epgplus = configfile.getInt32("eventlist_epgplus", 1);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
-	g_settings.channellist_progressbar_design = configfile.getInt32("channellist_progressbar_design", g_settings.progressbar_design);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
@@ -962,6 +953,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 void CNeutrinoApp::upgradeSetup(const char * fname)
 {
+	dprintf(DEBUG_NORMAL, "upgrade/cleanup %s\n", fname);
+
 	if (g_settings.version_pseudo < "20160226110000")
 	{
 		if (g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->items == "7")
@@ -970,12 +963,35 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 			configfile.setString("usermenu_tv_yellow", g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->items);
 		}
 	}
+	if (g_settings.version_pseudo < "20162912080000")
+	{
+		//convert and remove obsolete progressbar_* keys
+
+		g_settings.theme.progressbar_design = configfile.getInt32("progressbar_design", CProgressBar::PB_COLOR);
+		bool pb_color = configfile.getBool("progressbar_color", true );
+		if (!pb_color)
+			g_settings.theme.progressbar_design = CProgressBar::PB_MONO;
+		g_settings.theme.progressbar_design_channellist = configfile.getInt32("channellist_progressbar_design", g_settings.theme.progressbar_design);
+		g_settings.theme.progressbar_gradient = configfile.getBool("progressbar_gradient", true );
+		g_settings.theme.progressbar_timescale_red = configfile.getInt32("progressbar_timescale_red", 0);
+		g_settings.theme.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
+		g_settings.theme.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);
+		g_settings.theme.progressbar_timescale_invert = configfile.getBool("progressbar_timescale_invert", false);
+
+		configfile.deleteKey("progressbar_design");
+		configfile.deleteKey("channellist_progressbar_design");
+		configfile.deleteKey("progressbar_color");
+		configfile.deleteKey("progressbar_gradient");
+		configfile.deleteKey("progressbar_timescale_red");
+		configfile.deleteKey("progressbar_timescale_green");
+		configfile.deleteKey("progressbar_timescale_yellow");
+		configfile.deleteKey("progressbar_timescale_invert");
+	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
 
-	if (configfile.getModifiedFlag())
-		configfile.saveConfig(fname);
+	saveSetup(NEUTRINO_SETTINGS_FILE);
 }
 
 /**************************************************************************************
@@ -988,6 +1004,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
 	}
+
+	//theme/color options
+	CThemes::setTheme(configfile);
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );
@@ -1092,12 +1111,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setBool("infobar_buttons_usertitle", g_settings.infobar_buttons_usertitle);
-	configfile.setBool("progressbar_gradient", g_settings.progressbar_gradient);
-	configfile.setInt32("progressbar_design", g_settings.progressbar_design);
-	configfile.setInt32("progressbar_timescale_red", g_settings.progressbar_timescale_red);
-	configfile.setInt32("progressbar_timescale_green", g_settings.progressbar_timescale_green);
-	configfile.setInt32("progressbar_timescale_yellow", g_settings.progressbar_timescale_yellow);
-	configfile.setInt32("progressbar_timescale_invert", g_settings.progressbar_timescale_invert);
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
@@ -1167,8 +1180,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//widget settings
 	configfile.setBool("widget_fade"          , g_settings.widget_fade          );
 
-	//theme/color options
-	CThemes::setTheme(configfile);
 	configfile.setBool("osd_colorsettings_advanced_mode", g_settings.osd_colorsettings_advanced_mode);
 
 	//personalize
@@ -1276,7 +1287,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("eventlist_epgplus", g_settings.eventlist_epgplus);
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
-	configfile.setInt32("channellist_progressbar_design", g_settings.channellist_progressbar_design);
 	configfile.setInt32("channellist_foot", g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);

@@ -84,10 +84,10 @@ int CProgressbarSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	printf("[neutrino] init progressbar menu setup...\n");
 
 	if (actionKey == "reset") {
-		g_settings.progressbar_timescale_red = 0;
-		g_settings.progressbar_timescale_green = 100;
-		g_settings.progressbar_timescale_yellow = 70;
-		g_settings.progressbar_timescale_invert = false;
+		g_settings.theme.progressbar_timescale_red = 0;
+		g_settings.theme.progressbar_timescale_green = 100;
+		g_settings.theme.progressbar_timescale_yellow = 70;
+		g_settings.theme.progressbar_timescale_invert = false;
 		return menu_return::RETURN_REPAINT;
 	}
 
@@ -105,12 +105,12 @@ int CProgressbarSetup::showMenu()
 
 	// general progress bar design
 	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_LONG,
-			&g_settings.progressbar_design, PROGRESSBAR_COLOR_OPTIONS + 1, PROGRESSBAR_COLOR_OPTION_COUNT - 1, true, this);
+			&g_settings.theme.progressbar_design, PROGRESSBAR_COLOR_OPTIONS + 1, PROGRESSBAR_COLOR_OPTION_COUNT - 1, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
 	m.addItem(mc);
 
 	// progress bar gradient
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_GRADIENT, &g_settings.progressbar_gradient, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_GRADIENT, &g_settings.theme.progressbar_gradient, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_GRADIENT);
 	m.addItem(mc);
 
@@ -122,25 +122,25 @@ int CProgressbarSetup::showMenu()
 
 	CMenuOptionNumberChooser *nc;
 
-	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_RED, &g_settings.progressbar_timescale_red, true, 0, 100, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_RED, &g_settings.theme.progressbar_timescale_red, true, 0, 100, this);
 	nc->setNumericInput(true);
 	nc->setNumberFormat("%d %%");
 	nc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_TIMESCALE_RED);
 	m.addItem(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_YELLOW, &g_settings.progressbar_timescale_yellow, true, 0, 100, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_YELLOW, &g_settings.theme.progressbar_timescale_yellow, true, 0, 100, this);
 	nc->setNumericInput(true);
 	nc->setNumberFormat("%d %%");
 	nc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_TIMESCALE_YELLOW);
 	m.addItem(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_GREEN, &g_settings.progressbar_timescale_green, true, 0, 100, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_GREEN, &g_settings.theme.progressbar_timescale_green, true, 0, 100, this);
 	nc->setNumericInput(true);
 	nc->setNumberFormat("%d %%");
 	nc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_TIMESCALE_GREEN);
 	m.addItem(nc);
 
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_INVERT, &g_settings.progressbar_timescale_invert, PROGRESSBAR_TIMESCALE_INVERT_OPTIONS, PROGRESSBAR_TIMESCALE_INVERT_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_TIMESCALE_INVERT, &g_settings.theme.progressbar_timescale_invert, PROGRESSBAR_TIMESCALE_INVERT_OPTIONS, PROGRESSBAR_TIMESCALE_INVERT_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_TIMESCALE_INVERT);
 	m.addItem(mc);
 
@@ -156,14 +156,14 @@ int CProgressbarSetup::showMenu()
 	// extended channel list (progressbars)
 	m.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_CHANNELS));
 
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_progressbar_design, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.theme.progressbar_design_channellist, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
 	m.addItem(mc);
 
 	mb = new CMenuProgressbar(LOCALE_MISCSETTINGS_PROGRESSBAR_PREVIEW);
 	mb->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_PREVIEW);
 	mb->getScale()->setType(CProgressBar::PB_TIMESCALE);
-	mb->getScale()->setDesign(g_settings.channellist_progressbar_design);
+	mb->getScale()->setDesign(g_settings.theme.progressbar_design_channellist);
 	mb->getScale()->doPaintBg(false);
 	m.addItem(mb);
 

@@ -321,6 +321,14 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "clock_Digit_red", t.clock_Digit_red );
 	configfile.setInt32( "clock_Digit_green", t.clock_Digit_green );
 	configfile.setInt32( "clock_Digit_blue", t.clock_Digit_blue );
+
+	configfile.setInt32( "progressbar_design", t.progressbar_design);
+	configfile.setInt32( "progressbar_design_channellist", t.progressbar_design_channellist);
+	configfile.setInt32( "progressbar_gradient", t.progressbar_gradient);
+	configfile.setInt32( "progressbar_timescale_red", t.progressbar_timescale_red);
+	configfile.setInt32( "progressbar_timescale_green", t.progressbar_timescale_green);
+	configfile.setInt32( "progressbar_timescale_yellow", t.progressbar_timescale_yellow);
+	configfile.setInt32( "progressbar_timescale_invert", t.progressbar_timescale_invert);
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -412,6 +420,14 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.clock_Digit_red = configfile.getInt32( "clock_Digit_red", t.menu_Content_Text_red );
 	t.clock_Digit_green = configfile.getInt32( "clock_Digit_green", t.menu_Content_Text_green );
 	t.clock_Digit_blue = configfile.getInt32( "clock_Digit_blue", t.menu_Content_Text_blue );
+
+	t.progressbar_design = configfile.getInt32("progressbar_design", CProgressBar::PB_COLOR);
+	t.progressbar_design_channellist = configfile.getInt32("progressbar_design_channellist", t.progressbar_design);
+	t.progressbar_gradient = configfile.getInt32("progressbar_gradient", 1);
+	t.progressbar_timescale_red = configfile.getInt32("progressbar_timescale_red", 0);
+	t.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
+	t.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);
+	t.progressbar_timescale_invert = configfile.getInt32("progressbar_timescale_invert", 0);
 }
 
 void CThemes::move_userDir()

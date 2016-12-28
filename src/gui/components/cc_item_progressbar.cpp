@@ -72,8 +72,8 @@ CProgressBar::CProgressBar(	const int x_pos,
 	pb_active_col	= active_col;
 	pb_passive_col 	= passive_col;
 
-	pb_design		= &g_settings.progressbar_design;
-	pb_gradient		= &g_settings.progressbar_gradient;
+	pb_design		= &g_settings.theme.progressbar_design;
+	pb_gradient		= &g_settings.theme.progressbar_gradient;
 	pb_type			= PB_REDLEFT;
 
 	pb_last_width 		= -1;
@@ -440,7 +440,7 @@ void CProgressBar::paintProgress(bool do_save_bg)
 		return;
 	}
 	if (pb_type == PB_TIMESCALE)
-		setRgb(g_settings.progressbar_timescale_red, g_settings.progressbar_timescale_green, g_settings.progressbar_timescale_yellow);
+		setRgb(g_settings.theme.progressbar_timescale_red, g_settings.theme.progressbar_timescale_green, g_settings.theme.progressbar_timescale_yellow);
 
 	if (!pb_red && !pb_yellow && !pb_green)
 		pb_green = 1;
@@ -462,7 +462,7 @@ void CProgressBar::paintProgress(bool do_save_bg)
 		paintInit(do_save_bg); 
 
 	//progress
-	bool pb_invert = (pb_type == PB_REDRIGHT) || ((pb_type == PB_TIMESCALE) && g_settings.progressbar_timescale_invert);
+	bool pb_invert = (pb_type == PB_REDRIGHT) || ((pb_type == PB_TIMESCALE) && g_settings.theme.progressbar_timescale_invert);
 
 	if (cc_allow_paint){
 		if (!is_painted || (pb_active_width != pb_last_width)) {

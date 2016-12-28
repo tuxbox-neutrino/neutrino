@@ -143,6 +143,14 @@ struct SNeutrinoTheme
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
 	unsigned char clock_Digit_blue;
+
+	int progressbar_design;
+	int progressbar_design_channellist;
+	int progressbar_gradient;
+	int progressbar_timescale_red;
+	int progressbar_timescale_green;
+	int progressbar_timescale_yellow;
+	int progressbar_timescale_invert;
 };
 
 struct timer_remotebox_item
@@ -195,12 +203,6 @@ struct SNeutrinoSettings
 	int infobar_show;
 	int infobar_show_channellogo;
 	int infobar_progressbar;
-	int progressbar_design;
-	int progressbar_gradient;
-	int progressbar_timescale_red;
-	int progressbar_timescale_green;
-	int progressbar_timescale_yellow;
-	int progressbar_timescale_invert;
 	int infobar_casystem_display;
 	int infobar_casystem_dotmatrix;
 	int infobar_casystem_frame;
@@ -588,7 +590,6 @@ struct SNeutrinoSettings
 	int eventlist_epgplus;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
-	int channellist_progressbar_design;
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;

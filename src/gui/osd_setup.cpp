@@ -1205,7 +1205,7 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	menu_chanlist->addItem(mc);
 
 	// extended channel list
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_progressbar_design, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.theme.progressbar_design_channellist, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
 	menu_chanlist->addItem(mc);
 
