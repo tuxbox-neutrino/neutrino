@@ -293,7 +293,7 @@ _err:
 
 bool CServiceScan::ReadFstVersion(int num)
 {
-	if(num >= OPERATOR_MAX) {
+	if(num >= OPERATOR_MAX || num < 0) {
 		printf("[fast scan] invalid operator %d\n", num);
 		return false;
 	}
