@@ -231,11 +231,10 @@ void CComponentsHeader::initIcon()
 		cch_icon_obj->doPaintBg(false);
 
 		//set corner mode of icon item
-		int cc_icon_corner_type = corner_type;
+		int cc_icon_corner_type = CORNER_LEFT;
 		if (corner_type == CORNER_TOP_LEFT || corner_type == CORNER_TOP)
 			cc_icon_corner_type = CORNER_TOP_LEFT;
-		else
-			cc_icon_corner_type = CORNER_LEFT;
+
 		cch_icon_obj->setCorner(corner_rad-fr_thickness, cc_icon_corner_type);
 
 		//global set width of icon object
@@ -335,11 +334,10 @@ void CComponentsHeader::initButtons()
 		cch_btn_obj->addIcon(v_cch_btn);
 
 		//set corner mode of button item
-		int cc_btn_corner_type = corner_type;
+		int cc_btn_corner_type = CORNER_RIGHT;
 		if (corner_type == CORNER_TOP_RIGHT || corner_type == CORNER_TOP)
 			cc_btn_corner_type = CORNER_TOP_RIGHT;
-		else
-			cc_btn_corner_type = CORNER_RIGHT;
+
 		cch_btn_obj->setCorner(corner_rad-fr_thickness, cc_btn_corner_type);
 
 		//global adapt height
@@ -412,11 +410,10 @@ void CComponentsHeader::initClock()
 		cch_cl_obj->setClockFormat(cch_cl_format, cch_cl_sec_format);
 
 		//set corner mode of button item
-		int cc_btn_corner_type = corner_type;
+		int cc_btn_corner_type = CORNER_RIGHT;
 		if (corner_type == CORNER_TOP_RIGHT || corner_type == CORNER_TOP)
 			cc_btn_corner_type = CORNER_TOP_RIGHT;
-		else
-			cc_btn_corner_type = CORNER_RIGHT;
+
 		cch_cl_obj->setCorner(corner_rad-fr_thickness, cc_btn_corner_type);
 
 		//global adapt height
