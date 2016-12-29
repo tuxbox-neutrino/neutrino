@@ -739,6 +739,7 @@ const char * locale_real_names[] =
 	"fontmenu.scaling_y",
 	"fontmenu.scaling_y_hint2",
 	"fontmenu.sizes",
+	"fontsize.button_text",
 	"fontsize.channel_num_zap",
 	"fontsize.channellist",
 	"fontsize.channellist_descr",
