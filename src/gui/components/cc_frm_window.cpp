@@ -145,7 +145,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_right_sidebar= NULL;	
 	ccw_body	= NULL;
 	ccw_footer	= NULL;
-	ccw_button_font	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
+	ccw_button_font	= g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
 
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
