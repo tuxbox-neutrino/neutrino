@@ -68,6 +68,12 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	//init footer width
 	width 	= w == 0 ? frameBuffer->getScreenWidth(true) : w;
 
+	//init default fonts
+	initDefaultFonts();
+
+	//init default button text font
+	ccf_btn_font	= g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
+
 	//init footer height
 	initCaptionFont();
 	height 		= max(h, cch_font->getHeight());
@@ -88,7 +94,6 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	corner_type	= CORNER_BOTTOM;
 
 	ccf_enable_button_bg	= false /*g_settings.theme.Button_gradient*/; //TODO: not implemented at the moment
-	ccf_btn_font	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 	chain		= NULL;
 
 	addContextButton(buttons);
@@ -425,4 +430,10 @@ void CComponentsFooter::enableButtonShadow(int mode, const int& shadow_width, bo
 			chain->getCCItem(i)->setYPos(y_btn);
 		}
 	}
+}
+
+void CComponentsFooter::initDefaultFonts()
+{
+	l_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	s_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 }

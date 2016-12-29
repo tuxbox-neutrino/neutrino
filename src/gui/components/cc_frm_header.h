@@ -102,6 +102,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 
 		///init font object and recalculates height if required
 		void initCaptionFont();
+		///init default fonts for size modes
+		virtual void initDefaultFonts();
 		///sub: init icon object
 		void initIcon();
 		///sub: init caption object

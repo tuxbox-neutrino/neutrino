@@ -84,6 +84,9 @@ class CComponentsFooter : public CComponentsHeader
 		///property: set font for label caption, see also setButtonFont()
 		Font* ccf_btn_font;
 
+		///init default fonts for size modes
+		virtual void initDefaultFonts();
+
 		///container for button objects
 		CComponentsFrmChain *chain;
 
