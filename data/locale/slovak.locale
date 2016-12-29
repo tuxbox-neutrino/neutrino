@@ -712,6 +712,7 @@ fontmenu.scaling_x_hint2 Vodorovne (v %) min 50 / max 200
 fontmenu.scaling_y Zvislo (v %)
 fontmenu.scaling_y_hint2 Zvislo (v %) min 50 / max 200
 fontmenu.sizes Veľkosti písma
+fontsize.button_text Button text
 fontsize.channel_num_zap Priamy výber
 fontsize.channellist Zoznam kanálov
 fontsize.channellist_descr Popis

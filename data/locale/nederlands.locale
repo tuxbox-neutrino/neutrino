@@ -665,6 +665,7 @@ fontmenu.scaling_x_hint2 Horizontaal (in %) min 50 / max 200
 fontmenu.scaling_y Verticaal (in %)
 fontmenu.scaling_y_hint2 Verticaal (in %) min 50 / max 200
 fontmenu.sizes Lettertype grootte
+fontsize.button_text Button text
 fontsize.channel_num_zap directe selectie
 fontsize.channellist Kanalenlijst
 fontsize.channellist_descr Omschrijving
