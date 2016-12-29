@@ -819,7 +819,9 @@ void CTimerManager::cancelShutdownOnWakeup()
 {
 	pthread_mutex_lock(&tm_eventsMutex);
 	if (shutdown_eventID > -1) {
+		pthread_mutex_unlock(&tm_eventsMutex);
 		removeEvent(shutdown_eventID);
+		pthread_mutex_lock(&tm_eventsMutex);
 		shutdown_eventID = -1;
 	}
 	wakeup = 0;
