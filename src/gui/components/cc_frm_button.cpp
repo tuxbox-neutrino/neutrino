@@ -33,7 +33,6 @@
 #include <system/debug.h>
 #include "cc_frm_button.h"
 
-
 using namespace std;
 
 CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -121,7 +120,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_btn_icon_obj	= NULL;
 	cc_btn_text_obj = NULL;
 	cc_btn_dy_font  = CNeutrinoFonts::getInstance();
-	cc_btn_font	= NULL;
+	cc_btn_font	= g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
 	cc_btn_icon	= icon_name;
 	cc_btn_text	= caption;
 	cc_directKey	= CRCInput::RC_nokey;
@@ -194,8 +193,12 @@ void CComponentsButton::initCaption()
 		int x_cap = w_frame;
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
+		/* use system defined font as default if not defined */
+		if (cc_btn_font == NULL)
+			cc_btn_font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
+
 		int w_cap = width - w_frame - append_x_offset - x_cap - w_frame;
-		int h_cap = (height*85/100) - 2*w_frame;
+		int h_cap = min(height - 2*w_frame, cc_btn_font->getHeight());
 		/*NOTE:
 			paint of centered text in y direction without y_offset
 			looks unlovely displaced in y direction especially besides small icons and inside small areas,
@@ -208,17 +211,12 @@ void CComponentsButton::initCaption()
 
 		//text and font
 		Font* def_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
-		if (cc_btn_font == NULL){
-			/* use dynamic font as default font if no font defined */
+		/* If button dimension too small, use dynamic font, this ignores possible defined font
+		 * Otherwise definied font will be used. Button dimensions are calculated from parent container (e.g. footer...).
+		 * These dimensions must be enough to display complete content like possible icon and without truncated text.
+		*/
+		if ((cc_btn_font->getHeight()- 2*w_frame) > h_cap && (cc_btn_font->getRenderWidth(cc_btn_text)- 2*w_frame) > w_cap)
 			cc_btn_font = def_font;
-		}else{ 
-			/* if button dimension too small, use dynamic font as default font size, this ignores possible defined font
-			 * Otherwise definied font will be used.
-			*/
-			if (cc_btn_font->getHeight() > h_cap){
-				cc_btn_font = def_font;
-			}
-		}
 
 		cc_btn_text_obj->setText(cc_btn_text, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_text_obj->forceTextPaint(); //here required;
