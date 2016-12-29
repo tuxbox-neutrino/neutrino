@@ -1981,7 +1981,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			if (frameBuffer->paintIcon(record_icon, icon_x_right - icon_w, ypos, fheight))
 			{
 				offset_right += icon_w + OFFSET_INNER_MID;
-				icon_x_right -= icon_w + OFFSET_INNER_MID;
 			}
 		}
 

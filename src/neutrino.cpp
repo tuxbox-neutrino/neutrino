@@ -1497,9 +1497,6 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	RADIObouquetList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_PROVS));
 	RADIOfavList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_FAVS));
 
-	uint32_t i;
-	i = 1;
-
 	int tvi = 0, ri = 0;
 
 	ZapitChannelList zapitList, webtvList;
@@ -1627,7 +1624,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	/* Favorites and providers bouquets */
 	tvi = ri = 0;
 	if(g_bouquetManager){
-		for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
+		for (uint32_t i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
 			CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 			if (!b->bHidden) {
 				if (b->getTvChannels(zapitList) || (g_settings.show_empty_favorites && b->bUser)) {
@@ -2033,7 +2030,7 @@ TIMER_START();
 	if (loadLocale_ret == CLocaleManager::NO_SUCH_LOCALE)
 	{
 		g_settings.language = "english";
-		loadLocale_ret = g_Locale->loadLocale(g_settings.language.c_str());
+		g_Locale->loadLocale(g_settings.language.c_str());
 		show_startwizard = true;
 	}
 
@@ -2772,7 +2769,7 @@ void CNeutrinoApp::zapTo(t_channel_id channel_id)
 {
 	bool recordingStatus = CRecordManager::getInstance()->RecordingStatus(channel_id);
 	if (!recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||
-			(recordingStatus && channelList->SameTP(channel_id))) {
+			(recordingStatus && channelList && channelList->SameTP(channel_id))) {
 
 		dvbsub_stop();
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
@@ -2807,7 +2804,8 @@ void CNeutrinoApp::standbyToStandby(void)
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		if (standby_channel_id && (live_channel_id != standby_channel_id)) {
 			live_channel_id = standby_channel_id;
-			channelList->zapTo_ChannelID(live_channel_id);
+			if(channelList)
+				channelList->zapTo_ChannelID(live_channel_id);
 		}
 		g_Zapit->setStandby(true);
 		g_Sectionsd->setPauseScanning(true);
@@ -3221,7 +3219,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
 		if (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID()){
 			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||
-					(recordingstatus && channelList->SameTP(eventinfo->channel_id)) ) {
+					(recordingstatus && channelList && channelList->SameTP(eventinfo->channel_id)) ) {
 				bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
 				dvbsub_stop();
@@ -3232,7 +3230,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				else if (isTVMode && (mode != mode_tv) && (mode != mode_webtv)) {
 					tvMode(true);
 				}
-				channelList->zapTo_ChannelID(eventinfo->channel_id);
+
+				if(channelList)
+					channelList->zapTo_ChannelID(eventinfo->channel_id);
 			}
 		}
 		delete[] (unsigned char*) data;
@@ -4762,7 +4762,7 @@ bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 		if(!has_channel && old_mode == LIST_MODE_SAT)
 			new_mode = LIST_MODE_ALL;
 
-		has_channel = TVallList->adjustToChannelID(channel_id);
+		TVallList->adjustToChannelID(channel_id);
 	}
 	else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
 		has_channel = RADIOfavList->adjustToChannelID(channel_id);
@@ -4789,7 +4789,7 @@ bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 		if(!has_channel && old_mode == LIST_MODE_SAT)
 			new_mode = LIST_MODE_ALL;
 
-		has_channel = RADIOallList->adjustToChannelID(channel_id);
+		RADIOallList->adjustToChannelID(channel_id);
 	}
 	if(old_mode != new_mode)
 		CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
