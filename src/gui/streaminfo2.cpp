@@ -626,20 +626,43 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	snprintf(buf, sizeof(buf), "%s:", g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE));
 	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_MENUCONTENT_TEXT);
 
-	if(type == AUDIO_FMT_MPEG) {
-		const int max_mode = 4;
-		const char *mpegmodes[max_mode] = { "stereo", "joint_st", "dual_ch", "single_ch" };
-		snprintf(buf, sizeof(buf), "MPEG %s (%d)", (mode > max_mode) ?"unk":mpegmodes[mode], freq);
-	} else if (type == AUDIO_FMT_DOLBY_DIGITAL || type == AUDIO_FMT_DD_PLUS) {
-		const int max_mode = 8;
-		const char *ddmodes[max_mode] = { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
+	if (type == AUDIO_FMT_MPEG)
+	{
+		const char *mpegmodes[] =
+		{
+			"stereo",
+			"joint_st",
+			"dual_ch",
+			"single_ch"
+		};
+		int max_mode = sizeof(mpegmodes) / sizeof(mpegmodes[0]);
+		snprintf(buf, sizeof(buf), "MPEG %s (%d)",
+			 (mode > max_mode) ? "unk" : mpegmodes[mode],
+			 freq);
+	}
+	else if (type == AUDIO_FMT_DOLBY_DIGITAL || type == AUDIO_FMT_DD_PLUS)
+	{
+		const char *ddmodes[] =
+		{
+			"CH1/CH2",
+			"C",
+			"L/R",
+			"L/C/R",
+			"L/R/S",
+			"L/C/R/S",
+			"L/R/SL/SR",
+			"L/C/R/SL/SR"
+		};
+		int max_mode = sizeof(ddmodes) / sizeof(ddmodes[0]);
 		snprintf(buf, sizeof(buf), "%s %s (%d)",
 			 (type == AUDIO_FMT_DOLBY_DIGITAL) ? "DD" : "DD+",
-			 (mode > max_mode) ?"unk": ddmodes[mode],
+			 (mode > max_mode) ? "unk" : ddmodes[mode],
 			 freq);
-	} else if (type == AUDIO_FMT_AAC || type == AUDIO_FMT_AAC_PLUS) {
-		const int max_mode = 10;
-		const char *aacmodes[max_mode] = {
+	}
+	else if (type == AUDIO_FMT_AAC || type == AUDIO_FMT_AAC_PLUS)
+	{
+		const char *aacmodes[] =
+		{
 			"N/S",
 			"Mono",
 			"L/R",
@@ -651,11 +674,17 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			"L/R/SL/SR",
 			"Dual-Mono"
 		};
+		int max_mode = sizeof(aacmodes) / sizeof(aacmodes[0]);
 		snprintf(buf, sizeof(buf), "%s %s (%d)",
 			 (type == AUDIO_FMT_AAC) ? "AAC" : "AAC+",
-			 (mode > max_mode) ?"unk":aacmodes[mode], freq);
-	} else {
-		snprintf(buf, sizeof(buf), "%s (%d)", g_Locale->getText(LOCALE_STREAMINFO_AUDIOTYPE_UNKNOWN), freq);
+			 (mode > max_mode) ? "unk" : aacmodes[mode],
+			 freq);
+	}
+	else
+	{
+		snprintf(buf, sizeof(buf), "%s (%d)",
+			 g_Locale->getText(LOCALE_STREAMINFO_AUDIOTYPE_UNKNOWN),
+			 freq);
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
 
@@ -717,6 +746,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		int fontW = g_Font[font_small]->getWidth();
 		spaceoffset = 7 * fontW;
 		box_width2 = box_width-(spaceoffset+xpos);
+
 		//onid
 		ypos+= sheight;
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", channel->getOriginalNetworkId(), channel->getOriginalNetworkId());
