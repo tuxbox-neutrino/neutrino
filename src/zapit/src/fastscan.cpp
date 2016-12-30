@@ -77,7 +77,7 @@ diseq_test_param_t diseqc_test[] = {
 
 bool CServiceScan::TestDiseqcConfig(int num)
 {
-	if(num >= OPERATOR_MAX) {
+	if(num >= OPERATOR_MAX || num < 0) {
 		INFO("[fast scan] invalid operator %d", num);
 		return false;
 	}
@@ -218,7 +218,7 @@ bool CServiceScan::ScanFast()
 {
 	fast_scan_type_t * fast_type = (fast_scan_type_t *) scan_arg;
 	fs_operator_t num = fast_type->op;
-	if(num >= OPERATOR_MAX) {
+	if(num >= OPERATOR_MAX || num < 0) {
 		INFO("[fast scan] invalid operator %d", num);
 		return false;
 	}
@@ -231,7 +231,7 @@ bool CServiceScan::ScanFast()
 bool CServiceScan::ScanFast(int num, bool reload)
 {
 	fast_scan_operator_t *op;
-	if(num >= OPERATOR_MAX) {
+	if(num >= OPERATOR_MAX || num < 0) {
 		INFO("[fast scan] invalid operator %d", num);
 		goto _err;
 	}
