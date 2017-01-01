@@ -35,6 +35,7 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 	int bit_depth, color_type, interlace_type, number_passes, pass, int_bpp;
 	png_byte * fbptr;
 	FILE     * fh;
+	bool updateInfo_alreadyRead = false;
 
 	if(!(fh=fopen(name,"rb")))
 		return(FH_ERROR_FILE);
@@ -63,18 +64,49 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 	png_init_io(png_ptr,fh);
 	png_read_info(png_ptr, info_ptr);
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
-	if (alpha)
+	if (alpha) // 24bit or gray scale PNGs with alpha-channel
 	{
 		*bpp = png_get_channels(png_ptr, info_ptr);
-		if ((*bpp != 4) || !(color_type & PNG_COLOR_MASK_ALPHA))
-		{
+		if ((*bpp == 2) && (color_type == PNG_COLOR_TYPE_GRAY_ALPHA)) {
+			if (bit_depth < 8) {
+				/* Extract multiple pixels with bit depths of 1, 2, and 4
+				   from a single byte into separate bytes
+				   (useful for paletted and grayscale images). */
+				png_set_packing(png_ptr);
+				/* Expand grayscale images to the full 8 bits
+				   from 1, 2, or 4 bits/pixel */
+#if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR <= 2 && PNG_LIBPNG_VER_RELEASE < 9
+				png_set_gray_1_2_4_to_8(png_ptr);
+#else
+				png_set_expand_gray_1_2_4_to_8(png_ptr);
+#endif
+			}
+			/* Expand the grayscale to 24-bit RGB if necessary. */
+			png_set_gray_to_rgb(png_ptr);
+			/* Update the users info structure */
+			png_read_update_info(png_ptr, info_ptr);
+			updateInfo_alreadyRead = true;
+			*bpp = png_get_channels(png_ptr, info_ptr);
+			if (*bpp != 4) {
+				/* No 4 channels found
+				   load PNG without alpha channel */
+				png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+				fclose(fh);
+				return fh_png_load(name, buffer, xp, yp);
+			}
+		}
+		else if ((*bpp != 4) || !(color_type & PNG_COLOR_MASK_ALPHA)) {
+			/* No 4 channels & not an alpha channel found
+			   load PNG without alpha channel */
 			png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 			fclose(fh);
 			return fh_png_load(name, buffer, xp, yp);
 		}
-		// 24bit PNGs with alpha-channel
 		int_bpp = 4;
-//		png_set_swap_alpha(png_ptr);
+
+		/* Expand paletted or RGB images with transparency
+		   to full alpha channels so the data will
+		   be available as RGBA quartets. */
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
 			png_set_tRNS_to_alpha(png_ptr);
 	}else // All other PNGs
@@ -105,7 +137,9 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 	if (bit_depth == 16)
 		png_set_strip_16(png_ptr);
 	number_passes = png_set_interlace_handling(png_ptr);
-	png_read_update_info(png_ptr,info_ptr);
+	/* Update the users info structure */
+	if (!updateInfo_alreadyRead)
+		png_read_update_info(png_ptr,info_ptr);
 	unsigned long rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 	if (width * int_bpp != rowbytes)
 	{
