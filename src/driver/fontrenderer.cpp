@@ -287,10 +287,14 @@ return 0;
 	ascender=tM;
 	descender=tg-hg; //this is a negative value!
 	int halflinegap= -(descender>>1); // |descender/2| - we use descender as linegap, half at top, half at bottom
-	upper = halflinegap+ascender+3;   // we add 3 at top
-	lower = -descender+halflinegap+1; // we add 1 at bottom
+
+	//hack: Use additional percentage height offset, font types could have different heights, static values seems not really senseful.
+	upper = halflinegap+ascender+hg/7;   // we add 1/7 of glyph height at top
+	lower = -descender+halflinegap-hg/10;  // we add 1/10 of glyph height at bottom
+
 	height=upper+lower;               // this is total height == distance of lines
-	DigitHeight = ascender+2;
+
+	DigitHeight = ascender+2; //Is this static value really ok?
 	DigitOffset = -descender+halflinegap;
 	// hack end
 
