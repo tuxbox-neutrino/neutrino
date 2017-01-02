@@ -147,7 +147,7 @@ void CInfoViewerBB::getBBIconInfo()
 	initBBOffset();
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
-	bbIconMinX 		= g_InfoViewer->BoxEndX - 8; //should be 10px, but 2px will be reduced for each icon
+	bbIconMinX 		= g_InfoViewer->BoxEndX - OFFSET_INNER_MID;
 	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
 
 	for (int i = 0; i < CInfoViewerBB::ICON_MAX; i++) {
@@ -190,7 +190,9 @@ void CInfoViewerBB::getBBIconInfo()
 			break;
 		}
 		if (iconView) {
-			bbIconMinX -= w + 2;
+			if (i > 0)
+				bbIconMinX -= OFFSET_INNER_MIN;
+			bbIconMinX -= w;
 			bbIconInfo[i].x = bbIconMinX;
 			bbIconInfo[i].h = h;
 		}
@@ -202,7 +204,7 @@ void CInfoViewerBB::getBBIconInfo()
 			bbIconMaxH = std::max(bbIconMaxH, bbIconInfo[i].h);
 	}
 	if (g_settings.infobar_show_sysfs_hdd)
-		bbIconMinX -= hddwidth + 2;
+		bbIconMinX -= hddwidth + OFFSET_INNER_MIN;
 }
 
 void CInfoViewerBB::getBBButtonInfo()
