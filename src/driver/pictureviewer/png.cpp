@@ -35,7 +35,7 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 	int bit_depth, color_type, interlace_type, number_passes, pass, int_bpp;
 	png_byte * fbptr;
 	FILE     * fh;
-	bool updateInfo_alreadyRead = false;
+	bool updateInfo_alreadyRead;
 
 	if(!(fh=fopen(name,"rb")))
 		return(FH_ERROR_FILE);
@@ -64,6 +64,7 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 	png_init_io(png_ptr,fh);
 	png_read_info(png_ptr, info_ptr);
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
+	updateInfo_alreadyRead = false;
 	if (alpha) // 24bit or gray scale PNGs with alpha-channel
 	{
 		*bpp = png_get_channels(png_ptr, info_ptr);
