@@ -723,7 +723,6 @@ bool CTimerManager::shutdown()
 	time_t nextAnnounceTime=0;
 	bool status=false;
 	timer_is_rec = false;
-
 	dprintf("stopping timermanager thread ...\n");
 
 	dprintf("Waiting for timermanager thread to terminate ...\n");
@@ -737,7 +736,8 @@ bool CTimerManager::shutdown()
 		saveEventsToConfig();
 		dprintf("shutdown: saved config\n");
 	}
-	if (pthread_mutex_trylock(&tm_eventsMutex) == EBUSY)
+	int rc = pthread_mutex_trylock(&tm_eventsMutex);
+	if (rc == EBUSY)
 	{
 		dprintf("error: mutex is still LOCKED\n");
 		return false;
@@ -771,8 +771,8 @@ bool CTimerManager::shutdown()
 		timer_minutes = (nextAnnounceTime - 3*60)/60;
 	}
 	dprintf("shutdown: timeset: %d timer_minutes %ld\n", timeset, timer_minutes);
-
-	pthread_mutex_unlock(&tm_eventsMutex);
+	if(rc == 0)
+		pthread_mutex_unlock(&tm_eventsMutex);
 	return status;
 }
 //------------------------------------------------------------
