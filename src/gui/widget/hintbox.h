@@ -290,6 +290,12 @@ class CHintBox : public CComponentsWindow
 				Font* font_text = NULL,
 				const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
 				const int& style = CComponentsText::FONT_STYLE_REGULAR);
+		void setMsgText(const neutrino_locale_t& locale,
+				const uint& hint_id = 0,
+				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
+				Font* font_text = NULL,
+				const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
+				const int& style = CComponentsText::FONT_STYLE_REGULAR);
 };
 
 /**

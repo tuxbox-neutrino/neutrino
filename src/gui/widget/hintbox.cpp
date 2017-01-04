@@ -330,6 +330,11 @@ void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const in
 		obj_text->setText(Text, mode, font, color_text, style);
 }
 
+void CHintBox::setMsgText(const neutrino_locale_t& locale, const uint& hint_id, const int& mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+{
+	setMsgText(g_Locale->getText(locale), hint_id, mode, font_text, color_text, style);
+}
+
 void CHintBox::ReSize()
 {
 	int h = (ccw_head ? ccw_head->getHeight() : 0);
