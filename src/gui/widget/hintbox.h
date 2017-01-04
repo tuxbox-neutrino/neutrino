@@ -32,7 +32,7 @@
 
 #include <gui/components/cc.h>
 
-#define HINTBOX_MIN_WIDTH 420
+#define HINTBOX_MIN_WIDTH 320
 #define HINTBOX_MIN_HEIGHT 125
 #define HINTBOX_MAX_HEIGHT 520
 #define HINTBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_POPUP_MESSAGES]
