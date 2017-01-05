@@ -215,7 +215,7 @@ void CComponentsButton::initCaption()
 		 * Otherwise definied font will be used. Button dimensions are calculated from parent container (e.g. footer...).
 		 * These dimensions must be enough to display complete content like possible icon and without truncated text.
 		*/
-		if ((cc_btn_font->getHeight()- 2*w_frame) > h_cap && (cc_btn_font->getRenderWidth(cc_btn_text)- 2*w_frame) > w_cap)
+		if ((cc_btn_font->getHeight()- 2*w_frame) > (height - 2*w_frame) && (cc_btn_font->getRenderWidth(cc_btn_text)- 2*w_frame) > w_cap)
 			cc_btn_font = def_font;
 
 		cc_btn_text_obj->setText(cc_btn_text, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
