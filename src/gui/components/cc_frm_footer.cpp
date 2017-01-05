@@ -137,11 +137,14 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	 * With this container we can work inside footer as primary container (in this context '=this') and the parent for the button label container (chain object).
 	 * Button label container (chain object) itself is concurrent to the parent object for button objects.
 	*/
+	int dist = height/2-cch_offset;
+	int h_chain = ccf_btn_font->getHeight() > height+dist ? height-dist : ccf_btn_font->getHeight()+dist;
 	int x_chain = width/2 - w_chain/2;
+	int y_chain = height/2 - h_chain/2;
 	if (cch_icon_obj)
 		 x_chain = cch_offset+cch_icon_obj->getWidth()+cch_offset;
 	if (chain == NULL){
-		chain = new CComponentsFrmChain(x_chain, 0, w_chain, height, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
+		chain = new CComponentsFrmChain(x_chain, y_chain, w_chain, h_chain, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
 		chain->setAppendOffset(0, 0);
 		chain->setCorner(this->corner_rad, this->corner_type);
 		chain->doPaintBg(false);
@@ -172,7 +175,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	 * with default width to chain object.
 	*/
 	vector<CComponentsItem*> v_btns;
-	int h_btn = /*(ccf_enable_button_bg ? */(height*85/100)-2*fr_thickness-OFFSET_INNER_SMALL/* : height)*/-ccf_button_shadow_width;
+	int h_btn = /*(ccf_enable_button_bg ? */chain->getHeight()-2*fr_thickness/*-OFFSET_INNER_SMALL*//* : height)*/-ccf_button_shadow_width;
 	for (size_t i= 0; i< label_count; i++){
 		string txt 		= content[i].text;
 		string icon_name 	= string(content[i].button);
@@ -426,7 +429,8 @@ void CComponentsFooter::enableButtonShadow(int mode, const int& shadow_width, bo
 	if (chain){
 		for(size_t i=0; i<chain->size(); i++){
 			chain->getCCItem(i)->enableShadow(ccf_enable_button_shadow, ccf_button_shadow_width, ccf_button_shadow_force_paint);
-			int y_btn = ccf_enable_button_shadow == CC_SHADOW_OFF ? CC_CENTERED : chain->getHeight()/2 - chain->getCCItem(i)->getHeight()/2 - ccf_button_shadow_width;
+			//int y_btn = ccf_enable_button_shadow == CC_SHADOW_OFF ? CC_CENTERED : chain->getHeight()/2 - chain->getCCItem(i)->getHeight()/2 - ccf_button_shadow_width;
+			int y_btn = chain->getHeight()/2 - chain->getCCItem(i)->getHeight()/2;
 			chain->getCCItem(i)->setYPos(y_btn);
 		}
 	}
