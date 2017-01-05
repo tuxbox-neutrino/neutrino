@@ -461,7 +461,7 @@ extra.key_timeshift Časový posun
 extra.key_unlock Odblokovanie
 extra.ladirection Umiestnenie zem.šírky
 extra.latitude Zem.šírka [N/S]
-extra.loadconfig Obnoviť nastavenia z...
+extra.loadconfig Obnoviť nastavenia z ...
 extra.loadkeys Obnoviť nastavenia kláves z ...
 extra.lodirection Umiestnenie zem.dľžky
 extra.longitude Zem.dľžka [E/W]
@@ -473,7 +473,7 @@ extra.rotor_swap Vymeniť východ/západ motoru
 extra.rounded_corners Vzhľad rohov
 extra.rounded_corners_off hranatý
 extra.rounded_corners_on zaoblený
-extra.saveconfig Uložiť nastavenia do...
+extra.saveconfig Uložiť nastavenia do ...
 extra.savekeys Uložiť nastavenia kláves do ...
 extra.scrambled_message Správa o kódovaní
 extra.show_mute_icon Ikona umlčania pri hlasitosti 0
@@ -703,7 +703,7 @@ fontmenu.eventlist Programový sprievodca
 fontmenu.head Nastavenie písma
 fontmenu.infobar Informačná lišta
 fontmenu.menu Menu
-fontmenu.messages Messages
+fontmenu.messages Správy
 fontmenu.moviebrowser Prehliadač filmov
 fontmenu.other Iné
 fontmenu.scaling Faktor zoomu globálneho fontu
@@ -712,7 +712,6 @@ fontmenu.scaling_x_hint2 Vodorovne (v %) min 50 / max 200
 fontmenu.scaling_y Zvislo (v %)
 fontmenu.scaling_y_hint2 Zvislo (v %) min 50 / max 200
 fontmenu.sizes Veľkosti písma
-fontsize.button_text Button text
 fontsize.channel_num_zap Priamy výber
 fontsize.channellist Zoznam kanálov
 fontsize.channellist_descr Popis
@@ -738,7 +737,7 @@ fontsize.menu_foot Päta (vo všetkých grafických elementoch)
 fontsize.menu_hint Popis menu
 fontsize.menu_info Informačné menu
 fontsize.menu_title Titulok menu
-fontsize.message_text Messagwe Text
+fontsize.message_text Text správy
 fontsize.moviebrowser_head Hlavičky
 fontsize.moviebrowser_info Informačné okno
 fontsize.moviebrowser_list Zoznam položiek
@@ -787,7 +786,7 @@ hdd_statfs_recording len pri nahrávaní
 hdd_umount Odpojenie
 hdd_umount_warn Chyba odpájania disku!
 hdd_umounted Zariadenie odstránené
-help_box_title Help
+help_box_title Pomoc
 imageinfo.api API:
 imageinfo.creator Vytvoril:
 imageinfo.date Dátum:
@@ -1040,7 +1039,8 @@ menu.hint_epg_extendedcache Maximálny čas ukladania\npopisov doplňujúcich ud
 menu.hint_epg_fonts Zmena veľkosti písma okna EPG podrobností
 menu.hint_epg_max_events Maximálny počet uložených udalostí. Po dosiahnutí hranice\nEPG cache odstráni nasledujúce udalosti
 menu.hint_epg_old_events Hodiny po skončení udalosti, kedy sa označí\nako staré a odstráni sa z uložených
-menu.hint_epg_read Načíta uložené EPG údaje po zavedení z externého zariadenia
+menu.hint_epg_read Po reštarte načíta uložené EPG údaje z externého zariadenia
+menu.hint_epg_read_frequently Načíta uložené EPG údaje v častejších intervaloch z externého zariadenia
 menu.hint_epg_save Uloženie EPG na disk alebo usb\pre načítanie po spustení
 menu.hint_epg_save_frequently Ukladanie EPG v pravidelných intervaloch na externé zariadenie
 menu.hint_epg_save_mode Ukladať EPG iba pre kanály uložené v obľúbených buketoch
@@ -1186,7 +1186,7 @@ menu.hint_menu_fonts Zmena veľkosti písma menu
 menu.hint_menu_hints Zobrazí túto nápovedu. Taktiež môžno kedykoľvek zmeniť použitím tlačidla ´HELP´.
 menu.hint_menu_pos Výber umiestnenia menu
 menu.hint_menus Konfigurácia volieb ponuky
-menu.hint_message_fonts Change message text font sizes
+menu.hint_message_fonts Zmena veľkosti písma správy
 menu.hint_misc_cec HDMI-CEC voľby
 menu.hint_misc_channellist HD/Nové/Odstránené zoznamy kanálov, cyklické prepnutie
 menu.hint_misc_energy Použitie pohotovostného režimu, oneskorené vypnutie\nčasovače neaktivity
@@ -1407,14 +1407,14 @@ menu.hint_selected_text Zmena farby textu označenej položky
 menu.hint_service Nastavenie tuneru, vyhľadanie služieb,\núprava buketov, aktualizácia software
 menu.hint_service_scan Automatické / manuálne vyhľadávanie staníc, FastScan, Test signálu
 menu.hint_settings Konfigurácia system, sieť, zvuk, obraz, OSD a iné
-menu.hint_shoutcast_dev_id Vložte vaše SHOUTcast údaje. Neuvedením údajov sa vypne podpora SHOUTcast.
-menu.hint_shoutcast_enabled Povoliť alebo zakázať podporu SHOUTcast
+menu.hint_shoutcast_dev_id Vložte vaše SHOUTcast ID. Prázdne pole vypne podporu pre SHOUTcast.
+menu.hint_shoutcast_enabled Povolí alebo zakáže podporu pre SHOUTcast.
 menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosťi bude 0
-menu.hint_shutdown Vypnutie prijímača - bez potvrdzovania
-menu.hint_shutdown_count Čas prepnutia prijímača z pohotovostného režimu do stavu vypnutia
-menu.hint_shutdown_menu Prepne prijímač do pohotovostného režimu alebo ho vypne, nastaví časovač vypnutia
-menu.hint_shutdown_rcdelay Aktivuje vypnutie prijímača, ak je tlačidlo zapnutia\nstlačené viac ako 1 sekundu
-menu.hint_shutdown_real Aktivuje pohotovostný režim\nAk je zakázané, tlačidlo zapnutia vypne prístroj
+menu.hint_shutdown Vypne prijímač do hlbokého spánku.\nBez potvrdzovania
+menu.hint_shutdown_count Čas prepnutia prijímača z pohotovostného režimu do hlbokého spánku
+menu.hint_shutdown_menu Uvedie prijímač do pohotovostného režimu alebo hlbokého spánku, nastavte časovač spánku
+menu.hint_shutdown_rcdelay Povolí hlboký spánok v prípade stlačenia\ntlačidla napájania dlhšie ako 1 sekunda
+menu.hint_shutdown_real Povolí pohotovostný režim\nAk je zakázané, tlačidlo napájania uvedie prijímač do hlbokého spánku
 menu.hint_sleeptimer Nastavenie časovača pre prechod prijímača do pohotovostného režimu
 menu.hint_sleeptimer_min Prednastavené nastavenia pre časovač vypnutia
 menu.hint_sms_channel Ak povolené, číselné klávesy v zozname kanálov budú použité pre vyhľadávanie kanálu v štýle SMS
@@ -1434,7 +1434,8 @@ menu.hint_subchannel_pos Pozícia menu výberu sub-kanálov
 menu.hint_sw_update Aktualizácia software
 menu.hint_theme Výber prednastavených farebných vzhľadov\nUloženie alebo nahranie vzhľadu zo súborov
 menu.hint_timeouts Konfigurácia času zmiznutia GUI okien\nv sekundách
-menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
+menu.hint_timeouts_static_messages Čas pre špecifické správy so zásahom užívateľa
+menu.hint_timer_followscreenings Pre nastavenie časovača zobraziť výber s nasledujúcim vysielaním
 menu.hint_timers Pridanie/Odstránenie/Upravenie plánovaného\nnahrávania, pripomienky atď.
 menu.hint_timezone Výber časového pásma
 menu.hint_tmdb_api_key Vložte váš TMDb API kľúč. Neuvedením údajov sa vypne podpora TMDb
@@ -1515,6 +1516,7 @@ miscsettings.epg_old_events Odstrániť neaktuálne EPG (hod.)
 miscsettings.epg_old_events_hint1 Ako dlho zapisovať EPG údaje po skončení?
 miscsettings.epg_old_events_hint2 Nastavenie v hodinách.
 miscsettings.epg_read Obnoviť EPG po reštarte
+miscsettings.epg_read_frequently Časté obnovovanie EPG
 miscsettings.epg_save Uložiť EPG pred vypnutím
 miscsettings.epg_save_frequently Periodické ukladanie EPG
 miscsettings.epg_save_mode Iba obľúbené
@@ -1669,6 +1671,7 @@ moviebrowser.edit_book_type_info1 Zadanie novej dĺžky skoku
 moviebrowser.edit_book_type_info2 <0 vzad , >0 vpred, 0: nikde
 moviebrowser.edit_serie Zadanie názvu série
 moviebrowser.error_no_movies Nenájdené filmy
+moviebrowser.filter_off Filter vyp
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Prepnúť okno
 moviebrowser.foot_options Voľby
@@ -1753,7 +1756,7 @@ moviebrowser.menu_truncate Skrátiť film
 moviebrowser.option_browser Možnosti prehliadača
 moviebrowser.reload_at_start Načítanie informácie o filme pri štarte
 moviebrowser.remount_at_start Pripojiť pri štarte
-moviebrowser.scan_for_movies Hľadať filmy ...
+moviebrowser.scan_for_movies Prehľadávanie nahrávok ...
 moviebrowser.serie_auto_create Automaticky doplniť seriály
 moviebrowser.serie_head Seriály
 moviebrowser.serie_name Zmena názvu
@@ -1825,24 +1828,27 @@ movieplayer.bookmarkname_hint2
 movieplayer.chapters Kapitoly
 movieplayer.fileplayback Prehliadač súborov
 movieplayer.head Prehrávač filmov
+movieplayer.help_additional Ak chcete nájsť viac definovateľných kláves, vojdite do\n"Hlavné menuu" > "Nastavenia" > "Nastavenie kláves" > "Upraviť..." > "Prehrávač filmov".\n\nPočas prehrávania filmu sú niektoré položky hlavného menu deaktivované.
+movieplayer.help_button_1 1 minúta späť
+movieplayer.help_button_2 Skok na začiatok filmu
+movieplayer.help_button_3 1 minúta vpred
+movieplayer.help_button_4 3 minúty späť
+movieplayer.help_button_5 Skok na stred filmu
+movieplayer.help_button_6 3 minúty vpred
+movieplayer.help_button_7 10 minút späť
+movieplayer.help_button_8 Skok na koniec filmu
+movieplayer.help_button_9 10 minút vpred
+movieplayer.help_button_backward Zrýchlene späť
+movieplayer.help_button_forward Zrýchlene vpred
+movieplayer.help_button_menu Otvoriť hlavné menu
+movieplayer.help_button_pause Pozastaviť / Pokračovať
+movieplayer.help_button_stop Zastaviť
 movieplayer.plugin Doplnky Prhrávača filmov
 movieplayer.starting Spúšťa sa prehrávanie...
 movieplayer.titles Tituly
 movieplayer.toomanybookmarks Veľa záložiek.\nJe potrebné vymazať jednu najprv.
-movieplayer.tshelp1 Zastavenie
-movieplayer.tshelp10 asi 10 min dozadu
-movieplayer.tshelp11 asi 10 min dopredu
-movieplayer.tshelp12 Nápoveda: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.tshelp2 Výbrer zvukovej stopy
-movieplayer.tshelp3 Prerušenie/Pokračovanie
-movieplayer.tshelp4 Vytvoriť záložku
-movieplayer.tshelp5 Zobraziť čas
-movieplayer.tshelp6 asi 1 min dozadu
-movieplayer.tshelp7 asi 1 min dopredu
-movieplayer.tshelp8 asi 5 min dozadu
-movieplayer.tshelp9 asi 5 min dopredu
 movieplayer.tsplayback Prehrať TS
-movieplayer.ytplayback YouTube prehrávač
+movieplayer.ytplayback YouTube video prehrávač
 mpkey.audio Zvuková stopa
 mpkey.bookmark Uložiť záložku
 mpkey.forward Dopredu
@@ -2386,6 +2392,7 @@ timerlist.type.zapto Prepnutie
 timerlist.weekdays V dňoch týždňa
 timerlist.weekdays.hint_1 Po Ut St Št Pi So Ne
 timerlist.weekdays.hint_2 'X'=plánované '-' neplánované
+timersettings.followscreenings Ukázať výber vysielania
 timersettings.record_safety_time_after Korekcia času ukončenia nahrávania
 timersettings.record_safety_time_after.hint_1 Čas v min. (00=vypnuté), ktorý bude pripočítaný
 timersettings.record_safety_time_after.hint_2 po ukončení daného plánu
@@ -2403,8 +2410,8 @@ timing.infobar_movieplayer Stavový riadok (filmový mód)
 timing.infobar_radio Stavový riadok (rádio mód)
 timing.menu Ponuka
 timing.numericzap Prepínanie číslami
-timing.popup_messages Popup messages
-timing.static_messages Interactive messages
+timing.popup_messages Vyskakovacie správy
+timing.static_messages Interaktívne správy
 timing.volumebar Ukazateľ hlasitosti
 tmdb.api_key TMDb API kľúč
 tmdb.enabled TMDb podpora
@@ -2444,6 +2451,7 @@ usermenu.title_blue Možnosti
 usermenu.title_green Zvuk
 usermenu.title_red Udalosti
 usermenu.title_yellow Obraz
+usermenus.head Užívateľské menu
 video_mode_ok Pracuje tento video režim správne?
 videomenu.43mode Zobrazenie formátu 4:3
 videomenu.analog_auto AUTO
