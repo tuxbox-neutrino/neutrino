@@ -88,9 +88,8 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		bool stopClock();
 		///switch between primary and secondary format
 		void toggleFormat();
-
-		///return pointer of font object
-		Font* getClockFont();
+		///init internal font
+		void initClockFont(int dx, int dy);
 
 	public:
 
@@ -121,6 +120,9 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		*/
 		void setClockFont(Font * font, const int& style = -1);
 
+		///return pointer of font object
+		Font* getClockFont();
+
 		///set text color
 		virtual void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;}
 
@@ -132,6 +134,8 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		///use string expession: "%H:%M" = 12:22, "%H:%M:%S" = 12:22:12
 		///set current time format string, 1st parameter set the default format, 2nd parameter sets an alternatively format for use as blink effect
 		virtual void setClockFormat(const char* prformat_str, const char* secformat_str = NULL);
+		///get current time format string,
+		std::string getClockFormat(){return cl_format;}
 
 		///start and paint ticking clock
 		virtual bool Start();

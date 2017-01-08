@@ -73,17 +73,12 @@ void CInfoClock::initCCLockItems()
 		setClockFormat("%H:%M", "%H %M");
 
 	//set height, NOTE: height is strictly bound to settings
-	if (g_settings.infoClockFontSize != height){
-		height = g_settings.infoClockFontSize;
-		int dx = 0;
-		int dy = height;
-		setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
-	}
+	height = g_settings.infoClockFontSize;
+	initClockFont(0, height);
 
 	// set corner radius depending on clock height
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
 
-	CComponentsFrmClock::initCCLockItems();
 	CVolumeHelper::getInstance()->refresh(cl_font);
 	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
 }

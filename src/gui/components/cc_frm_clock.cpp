@@ -75,11 +75,8 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	//init default font
 	cl_font 	= font;
 	cl_font_style	= font_style;
-	if (cl_font == NULL){
-		int dx = 0;
-		int dy = 30;
-		setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
-	}
+	if (cl_font == NULL)
+		initClockFont(0, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight());
 
 	//init general clock dimensions
 	height 		= cl_font->getHeight();
@@ -112,6 +109,11 @@ CComponentsFrmClock::~CComponentsFrmClock()
 {
 	if (cl_timer)
 		delete cl_timer;
+}
+
+void CComponentsFrmClock::initClockFont(int dx, int dy)
+{
+	setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
 }
 
 
@@ -380,15 +382,13 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)
 {
-	if (cl_font != font)
-		cl_font = font;
-
-	if (style != -1)
-		cl_font_style = style;
-
-// 	setHeight(cl_font->getHeight());
-// 	setWidth(cl_font->getRenderWidth(cl_format_str));
-	initCCLockItems();
+	if (cl_font != font || (cl_font != font)){
+		if (cl_font != font)
+			cl_font = font;
+		if (style != -1)
+			cl_font_style = style;
+		//initCCLockItems();
+	}
 }
 
 Font* CComponentsFrmClock::getClockFont()
