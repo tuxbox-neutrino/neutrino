@@ -293,13 +293,13 @@ void CVolumeHelper::Init(Font* font)
 
 void CVolumeHelper::initInfoClock(Font* font)
 {
-	if (clock_font == NULL){
-		if (font == NULL) {
-			clock_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-		}
-		else
-			clock_font = font;
+	if (font == NULL) {
+		int dx = 0;
+		int dy = g_settings.infoClockFontSize;
+		clock_font = *CNeutrinoFonts::getInstance()->getDynFont(dx, dy, g_settings.infoClockSeconds ? "%H:%M:%S" : "%H:%M");
 	}
+	else
+		clock_font = font;
 
 	digit_offset = (clock_font)->getDigitOffset();
 	digit_h      = (clock_font)->getDigitHeight();
