@@ -387,8 +387,8 @@ void CComponentsFrmClock::setClockFont(Font *font, const int& style)
 			cl_font = font;
 		if (style != -1)
 			cl_font_style = style;
-		//initCCLockItems();
 	}
+	initCCLockItems();
 }
 
 Font* CComponentsFrmClock::getClockFont()
