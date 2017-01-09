@@ -1042,6 +1042,7 @@ menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cach
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
 menu.hint_epg_read Read saved EPG data after boot from an external device
 menu.hint_epg_read_frequently Read cached EPG data in frequently intervals from an external device
+menu.hint_epg_read_now Read saved EPG data from an external device
 menu.hint_epg_save Save cached EPG data to an external device
 menu.hint_epg_save_frequently Save cached EPG data in frequently intervals to an external device
 menu.hint_epg_save_mode Cache EPG only for channels present in favorite bouquets
@@ -1518,6 +1519,7 @@ miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they ti
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_read Restore EPG on boot
 miscsettings.epg_read_frequently Restore EPG frequently
+miscsettings.epg_read_now Restore EPG now
 miscsettings.epg_save Save EPG on shutdown
 miscsettings.epg_save_frequently Save EPG frequently
 miscsettings.epg_save_mode Favorites only

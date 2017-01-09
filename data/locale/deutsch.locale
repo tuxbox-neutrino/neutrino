@@ -1042,6 +1042,7 @@ menu.hint_epg_max_events Maxiale Anzahl der Events im Zwischenspeicher
 menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden) verworfen
 menu.hint_epg_read Liest nach einem Neustart die EPG-Daten von einem externen Datenträger wieder ein
 menu.hint_epg_read_frequently Liest die EPG-Daten in regelmäßigen Abständen von einem externen Datenträger
+menu.hint_epg_read_now Liest die EPG-Daten von einem externen Datenträger ein
 menu.hint_epg_save Speichert die EPG-Daten beim Herunterfahren auf einem externen Datenträger
 menu.hint_epg_save_frequently Speichert die EPG-Daten in regelmäßigen Abständen auf einem externen Datenträger
 menu.hint_epg_save_mode Speichert die EPG-Daten nur für Sender, die in die Favoriten aufgenommen sind
@@ -1518,6 +1519,7 @@ miscsettings.epg_old_events_hint1 Wie lange abgelaufene EPG-Daten aufheben?
 miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_read Gespeicherte EPG-Daten einlesen
 miscsettings.epg_read_frequently EPG regelmäßig einlesen
+miscsettings.epg_read_now Gespeichterte EPG-Daten jetzt einlesen
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_frequently EPG regelmäßig speichern
 miscsettings.epg_save_mode Nur Favoriten
