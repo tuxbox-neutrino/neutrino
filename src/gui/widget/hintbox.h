@@ -60,6 +60,7 @@ class CHintBox : public CComponentsWindow
 		int y_hint_obj;
 		int h_hint_obj;
 		int w_indentation;
+		bool enable_txt_scroll;
 
 		Font* hb_font;
 

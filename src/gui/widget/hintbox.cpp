@@ -134,6 +134,8 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 
 	hb_font		= MSG_FONT;
 
+	enable_txt_scroll = false;
+
 	//enable shadow
 	shadow = CC_SHADOW_ON;
 
@@ -219,10 +221,14 @@ int CHintBox::exec()
 		}
 		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))
 		{
-			if (msg == CRCInput::RC_up)
-				this->scroll_up();
+			if (enable_txt_scroll){
+				if (msg == CRCInput::RC_up)
+					this->scroll_up();
+				else
+					this->scroll_down();
+			}
 			else
-				this->scroll_down();
+				res = messages_return::cancel_all;
 		}
 		else if (CNeutrinoApp::getInstance()->listModeKey(msg)){
 			// do nothing //TODO: if passed rc messages are ignored rc messaages: has no effect here too!!
@@ -274,6 +280,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	if (h_lines > h_hint_obj){
 		txt_mode = text_mode | CTextBox::SCROLL;
 		ccw_buttons = ccw_buttons | CComponentsHeader::CC_BTN_UP | CComponentsHeader::CC_BTN_DOWN;
+		enable_txt_scroll = true;
 	}
 
 	/* define y start position of infobox inside body */
