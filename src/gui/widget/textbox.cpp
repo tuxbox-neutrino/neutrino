@@ -601,12 +601,13 @@ void CTextBox::refreshText(void)
 	bool has_changed = hasChanged(&ax, &ay, &dx, &dy);
 
 	//clean up possible screen on any changes
-	if (has_changed && m_bgpixbuf){
+	if (has_changed || m_bgpixbuf){
 		/*TODO/FIXME: in some cases could be required, that we must restore old saved screen. eg. if a text without bg was painted
 		 * and another text should be painted as next on the same position like current text, but new text will be overpaint and is
 		 * not visible. It's currently solvable only with appropriate order of text items
 		*/
-		frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
+		if (m_bgpixbuf)
+			frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
 		clearScreenBuffer();
 	}
 
