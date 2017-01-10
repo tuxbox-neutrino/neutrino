@@ -712,6 +712,7 @@ fontmenu.scaling_x_hint2 Vodorovne (v %) min 50 / max 200
 fontmenu.scaling_y Zvislo (v %)
 fontmenu.scaling_y_hint2 Zvislo (v %) min 50 / max 200
 fontmenu.sizes Veľkosti písma
+fontsize.button_text Text tlačidla
 fontsize.channel_num_zap Priamy výber
 fontsize.channellist Zoznam kanálov
 fontsize.channellist_descr Popis
@@ -1041,6 +1042,7 @@ menu.hint_epg_max_events Maximálny počet uložených udalostí. Po dosiahnutí
 menu.hint_epg_old_events Hodiny po skončení udalosti, kedy sa označí\nako staré a odstráni sa z uložených
 menu.hint_epg_read Po reštarte načíta uložené EPG údaje z externého zariadenia
 menu.hint_epg_read_frequently Načíta uložené EPG údaje v častejších intervaloch z externého zariadenia
+menu.hint_epg_read_now Načítať uložené EPG údaje z externého zariadenia
 menu.hint_epg_save Uloženie EPG na disk alebo usb\pre načítanie po spustení
 menu.hint_epg_save_frequently Ukladanie EPG v pravidelných intervaloch na externé zariadenie
 menu.hint_epg_save_mode Ukladať EPG iba pre kanály uložené v obľúbených buketoch
@@ -1517,6 +1519,7 @@ miscsettings.epg_old_events_hint1 Ako dlho zapisovať EPG údaje po skončení?
 miscsettings.epg_old_events_hint2 Nastavenie v hodinách.
 miscsettings.epg_read Obnoviť EPG po reštarte
 miscsettings.epg_read_frequently Časté obnovovanie EPG
+miscsettings.epg_read_now Obnoviť EPG
 miscsettings.epg_save Uložiť EPG pred vypnutím
 miscsettings.epg_save_frequently Periodické ukladanie EPG
 miscsettings.epg_save_mode Iba obľúbené
