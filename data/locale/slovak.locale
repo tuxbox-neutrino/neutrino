@@ -2375,7 +2375,7 @@ timerlist.repeat.weekdays v dňoch týždňa
 timerlist.repeat.weekly týždenne
 timerlist.repeatcount Opakovanie
 timerlist.repeatcount.hint_1 Počet opakovaní časovača
-timerlist.repeatcount.hint_1 0 pre neobmedzené opakovania
+timerlist.repeatcount.hint_2 0 pre neobmedzené opakovania
 timerlist.save Uložiť plán
 timerlist.standby Akcia
 timerlist.standby.off Opustiť pohotovostný režim
