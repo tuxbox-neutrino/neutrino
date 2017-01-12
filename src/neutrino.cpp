@@ -736,8 +736,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
 	g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
 
-	g_settings.screen_width = configfile.getInt32("screen_width", 0);
-	g_settings.screen_height = configfile.getInt32("screen_height", 0);
+	g_settings.screen_width = frameBuffer->getScreenWidth(true);
+	g_settings.screen_height = frameBuffer->getScreenHeight(true);
 
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
 	g_settings.window_size = configfile.getInt32("window_size", 100);
@@ -906,17 +906,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		erg = 2;
 	}
 
-	/* in case FB resolution changed */
-	if((g_settings.screen_width && g_settings.screen_width != (int) frameBuffer->getScreenWidth(true))
-			|| (g_settings.screen_height && g_settings.screen_height != (int) frameBuffer->getScreenHeight(true))) {
-		g_settings.screen_StartX = g_settings.screen_preset ? DEFAULT_X_START_HD : DEFAULT_X_START_SD;
-		g_settings.screen_StartY = g_settings.screen_preset ? DEFAULT_Y_START_HD : DEFAULT_Y_START_SD;
-		g_settings.screen_EndX = g_settings.screen_preset ? DEFAULT_X_END_HD : DEFAULT_X_END_SD;
-		g_settings.screen_EndY = g_settings.screen_preset ? DEFAULT_Y_END_HD : DEFAULT_Y_END_SD;
-
-		g_settings.screen_width = frameBuffer->getScreenWidth(true);
-		g_settings.screen_height = frameBuffer->getScreenHeight(true);
-	}
 #ifdef BOXMODEL_APOLLO
 	g_settings.brightness = configfile.getInt32("brightness", 0);
 	g_settings.contrast = configfile.getInt32("contrast", 0);
@@ -997,6 +986,13 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 
 		configfile.deleteKey("screen_xres");
 		configfile.deleteKey("screen_yres");
+	}
+	if (g_settings.version_pseudo < "20170209181002")
+	{
+		//remove screen_width/height keys
+
+		configfile.deleteKey("screen_width");
+		configfile.deleteKey("screen_height");
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
@@ -1317,8 +1313,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "screen_EndX_crt", g_settings.screen_EndX_crt );
 	configfile.setInt32( "screen_EndY_crt", g_settings.screen_EndY_crt );
 	configfile.setInt32( "screen_preset", g_settings.screen_preset );
-	configfile.setInt32( "screen_width", g_settings.screen_width);
-	configfile.setInt32( "screen_height", g_settings.screen_height);
 
 	//Software-update
 	configfile.setInt32 ("softupdate_mode"          , g_settings.softupdate_mode          );
