@@ -721,8 +721,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_show_numbers = configfile.getInt32("channellist_show_numbers", 1);
 
 	//screen configuration
-	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
-	g_settings.screen_yres = configfile.getInt32("screen_yres", 100);
 	g_settings.screen_StartX_crt = configfile.getInt32( "screen_StartX_crt", DEFAULT_X_START_SD);
 	g_settings.screen_StartY_crt = configfile.getInt32( "screen_StartY_crt", DEFAULT_Y_START_SD );
 	g_settings.screen_EndX_crt = configfile.getInt32( "screen_EndX_crt", DEFAULT_X_END_SD);
@@ -782,6 +780,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.font_file = configfile.getString("font_file", FONTDIR"/neutrino.ttf");
 	g_settings.ttx_font_file = configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf");
 	ttx_font_file = g_settings.ttx_font_file.c_str();
+
+	g_settings.font_scaling_x = configfile.getInt32("font_scaling_x", 100);
+	g_settings.font_scaling_y = configfile.getInt32("font_scaling_y", 100);
 
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
 	g_settings.update_dir_opkg = configfile.getString("update_dir_opkg", g_settings.update_dir);
@@ -986,6 +987,16 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		configfile.deleteKey("progressbar_timescale_green");
 		configfile.deleteKey("progressbar_timescale_yellow");
 		configfile.deleteKey("progressbar_timescale_invert");
+	}
+	if (g_settings.version_pseudo < "20170209181001")
+	{
+		//convert screen_x/yres keys to font_scaling_x/y
+
+		g_settings.font_scaling_x = configfile.getInt32("screen_xres", 100);
+		g_settings.font_scaling_y = configfile.getInt32("screen_yres", 100);
+
+		configfile.deleteKey("screen_xres");
+		configfile.deleteKey("screen_yres");
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
@@ -1297,8 +1308,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_show_numbers", g_settings.channellist_show_numbers);
 
 	//screen configuration
-	configfile.setInt32( "screen_xres", g_settings.screen_xres);
-	configfile.setInt32( "screen_yres", g_settings.screen_yres);
 	configfile.setInt32( "screen_StartX_lcd", g_settings.screen_StartX_lcd );
 	configfile.setInt32( "screen_StartY_lcd", g_settings.screen_StartY_lcd );
 	configfile.setInt32( "screen_EndX_lcd", g_settings.screen_EndX_lcd );
@@ -1337,6 +1346,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setString("font_file", g_settings.font_file);
 	configfile.setString("ttx_font_file", g_settings.ttx_font_file);
+
+	configfile.setInt32( "font_scaling_x", g_settings.font_scaling_x);
+	configfile.setInt32( "font_scaling_y", g_settings.font_scaling_y);
 
 	//parentallock
 	configfile.setInt32( "parentallock_prompt", g_settings.parentallock_prompt );

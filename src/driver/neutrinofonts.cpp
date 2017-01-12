@@ -142,7 +142,7 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 	if (initRenderClass) {
 		if (g_fontRenderer != NULL)
 			delete g_fontRenderer;
-		g_fontRenderer = new FBFontRenderClass(72 * g_settings.screen_xres / 100, 72 * g_settings.screen_yres / 100);
+		g_fontRenderer = new FBFontRenderClass(72 * g_settings.font_scaling_x / 100, 72 * g_settings.font_scaling_y / 100);
 
 		old_fontDescr.size_offset = fontDescr.size_offset;
 		old_fontDescr.filename = fontDescr.filename;
