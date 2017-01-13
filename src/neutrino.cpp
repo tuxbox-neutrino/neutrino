@@ -739,6 +739,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_width = frameBuffer->getScreenWidth(true);
 	g_settings.screen_height = frameBuffer->getScreenHeight(true);
 
+	// avoid configuration mismatch
+	if (g_settings.screen_EndX > g_settings.screen_width)
+		g_settings.screen_EndX = g_settings.screen_width;
+	if (g_settings.screen_EndY > g_settings.screen_height)
+		g_settings.screen_EndY = g_settings.screen_height;
+
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
 	g_settings.window_size = configfile.getInt32("window_size", 100);
 	g_settings.window_width = configfile.getInt32("window_width", g_settings.window_size);
