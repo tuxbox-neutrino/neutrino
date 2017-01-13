@@ -1082,9 +1082,9 @@ void CMoviePlayerGui::stopPlayBack(void)
 		cond.broadcast();
 		pthread_join(bgThread, NULL);
 		bgThread = 0;
+		livestreamInfo1.clear();
+		livestreamInfo2.clear();
 	}
-	livestreamInfo1.clear();
-	livestreamInfo2.clear();
 	printf("%s: stopped\n", __func__);
 }
 
