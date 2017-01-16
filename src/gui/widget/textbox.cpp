@@ -573,7 +573,6 @@ void CTextBox::reInitToCompareVar(int* x, int* y, int* dx, int* dy)
 	m_old_nBgRadius = m_nBgRadius;
 	m_old_nBgRadiusType = m_nBgRadiusType;
 	m_old_nMode = m_nMode;
-	m_old_cText = m_cText;
 }
 
 void CTextBox::refreshText(void)
