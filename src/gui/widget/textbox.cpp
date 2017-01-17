@@ -789,23 +789,26 @@ void CTextBox::refresh(void)
 bool CTextBox::setText(const std::string* newText, int max_width, bool force_repaint)
 {
 	//TRACE("[CTextBox]->SetText \r\n");
-	bool result = false;
 	m_nMaxTextWidth = max_width;
 	//reset text to force repaint the text, managed in hasChanged()
 	if (force_repaint)
 		m_old_cText = "";
 //printf("setText: _max_width %d max_width %d\n", _max_width, max_width);
-	if (newText != NULL)
-	{
+	if (newText){
 		m_cText = *newText;
-		//m_cText = *newText + "\n"; //FIXME test
-		reSizeMainFrameHeight(m_cFrame.iHeight);
-		//refresh text line array
-		refreshTextLineArray();
-		refresh();
-		result = true;
-	}
-	return(result);
+		if (m_old_cText != m_cText){
+			//m_cText = *newText + "\n"; //FIXME test
+			reSizeMainFrameHeight(m_cFrame.iHeight);
+			//refresh text line array
+			refreshTextLineArray();
+			refresh();
+			return true;
+		}
+		return false;
+	}else
+		return false;
+
+	return true;
 }
 
 void CTextBox::paint (void)
