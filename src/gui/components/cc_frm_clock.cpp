@@ -30,7 +30,7 @@
 
 #include "cc_frm_clock.h"
 #include <time.h>
-
+#include <sigc++/bind.h>
 #include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
@@ -98,7 +98,10 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	initParent(parent);
 
 	//init slot for running clock
-	cl_sl = sigc::mem_fun0(*this, &CComponentsFrmClock::ShowTime);
+	cl_sl_show = sigc::mem_fun0(*this, &CComponentsFrmClock::ShowTime);
+
+	//init slot to ensure paint segments after painted background
+	cl_sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsFrmClock::forceSegemnentsPaint), true);
 
 	//run clock already if required
 	if (activ)
@@ -297,6 +300,11 @@ void CComponentsFrmClock::initCCLockItems()
 		x_lbl += v_cc_items[i-1]->getWidth();
 		v_cc_items[i]->setPos(x_lbl, y_lbl);
 	}
+
+	//init slot to handle repaint of segments if background was repainted
+	OnAfterPaintBg.clear();
+	if (paint_bg)
+		OnAfterPaintBg.connect(cl_sl_repaint);
 }
 
 
@@ -321,7 +329,7 @@ bool CComponentsFrmClock::startClock()
 		cl_timer = new CComponentsTimer(0);
 		if (cl_timer->OnTimer.empty()){
 			dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
-			cl_timer->OnTimer.connect(cl_sl);
+			cl_timer->OnTimer.connect(cl_sl_show);
 		}
 	}
 	cl_timer->setTimerInterval(cl_interval);
@@ -338,6 +346,7 @@ bool CComponentsFrmClock::stopClock()
 	if (cl_timer){
 		if (cl_timer->stopTimer()){
 			dprintf(DEBUG_INFO, "[CComponentsFrmClock]    [%s]  stopping clock...\n", __func__);
+			clear();
 			delete cl_timer;
 			cl_timer = NULL;
 			return true;
@@ -374,10 +383,6 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 	//paint form contents
 	CComponentsForm::paint(do_save_bg);
-#if 0 //has no effect
-	if (may_blit)
-		frameBuffer->blit();
-#endif
 }
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)
@@ -449,4 +454,10 @@ bool CComponentsFrmClock::enableColBodyGradient(const int& enable_mode, const fb
 		return true;
 	}
 	return false;
+}
+
+void CComponentsFrmClock::forceSegemnentsPaint(bool force)
+{
+	for (size_t i = 0; i < v_cc_items.size(); i++)
+		static_cast <CComponentsLabel*>(v_cc_items[i])->forceTextPaint(force);
 }

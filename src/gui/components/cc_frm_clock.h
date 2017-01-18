@@ -52,7 +52,10 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 
 	protected:
 		///slot for timer event, reserved for ShowTime()
-		sigc::slot0<void> cl_sl;
+		sigc::slot0<void> cl_sl_show;
+
+		///slot for background paint event, reserved for initCCLockItems()
+		sigc::slot0<void> cl_sl_repaint;
 
 		///refresh interval in seconds
 		int cl_interval;
@@ -90,6 +93,8 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		void toggleFormat();
 		///init internal font
 		void initClockFont(int dx, int dy);
+		///force repaint of all segments
+		void forceSegemnentsPaint(bool force);
 
 	public:
 
