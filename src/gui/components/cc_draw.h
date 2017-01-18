@@ -353,10 +353,12 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		*/
 		bool cancelBlink(bool keep_on_screen = false);
 
-		///signal on before paint fb layers, called inside paintFbItems()
+		///signal on before paint fb layers, called before paint fb layers inside paintFbItems()
 		sigc::signal<void> OnBeforePaintLayers;
-		///signal on after paint fb layers, called inside paintFbItems()
+		///signal on after paint fb layers, called after paint fb layers inside paintFbItems()
 		sigc::signal<void> OnAfterPaintLayers;
+		///signal on after paint background, called after paint of background box inside paintFbItems()
+		sigc::signal<void> OnAfterPaintBg;
 
 		/*!
 		 Removes current item from screen and

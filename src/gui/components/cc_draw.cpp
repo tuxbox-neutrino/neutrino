@@ -630,6 +630,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 						}
 					}
 					is_painted = v_fbdata[i].is_painted = true;
+					OnAfterPaintBg();
 				}
 			}
 		}
