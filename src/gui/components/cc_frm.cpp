@@ -335,7 +335,8 @@ void CComponentsForm::exchangeCCItem(CComponentsItem* item_a, CComponentsItem* i
 void CComponentsForm::paintForm(bool do_save_bg)
 {
 	//paint body
-	paintInit(do_save_bg);
+	if (!is_painted)
+		paintInit(do_save_bg);
 
 	//paint
 	paintCCItems();

@@ -629,15 +629,31 @@ void CCDraw::paintFbItems(bool do_save_bg)
 								fbdata.pixbuf = getScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
 						}
 					}
-					is_painted = v_fbdata[i].is_painted = true;
+					v_fbdata[i].is_painted = true;
 					OnAfterPaintBg();
 				}
 			}
 		}
 	}
+
+	//set is_painted attribut. if any layer was painted set it to true;
+	is_painted = isPainted();
+
 	//pick up signal if filled
 	OnAfterPaintLayers();
 }
+
+ bool CCDraw::isPainted()
+ {
+	if (firstPaint)
+		return false;
+
+	for(size_t i=0; i< v_fbdata.size(); i++)
+		if (v_fbdata[i].is_painted)
+			return true;
+
+	return false;
+ }
 
 void CCDraw::hide()
 {
@@ -653,8 +669,8 @@ void CCDraw::hide()
 			}
 		}
 	}
-	is_painted = false;
 	firstPaint = true;
+	is_painted = isPainted();
 	OnAfterHide();
 }
 
@@ -700,7 +716,7 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 
 	if (fblayer_type == CC_FBDATA_TYPES){
 		firstPaint = true;
-		is_painted = false;
+		is_painted = isPainted();
 	}
 }
 

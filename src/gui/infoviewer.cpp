@@ -252,6 +252,7 @@ void CInfoViewer::initClock()
 	}
 
 	CInfoClock::getInstance()->disableInfoClock();
+	clock->clear();
 	clock->enableColBodyGradient(gradient_top, COL_INFOBAR_PLUS_0);
 	clock->doPaintBg(!gradient_top);
 	clock->enableTboxSaveScreen(gradient_top);

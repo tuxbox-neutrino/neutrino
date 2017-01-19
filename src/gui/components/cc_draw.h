@@ -114,7 +114,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///status: true=component was painted for 1st time
 		bool firstPaint;
 		///status: true=component was rendered
-		bool is_painted;
+// 		bool is_painted;
 		///mode: true=activate rendering of basic elements (frame, shadow and body)
 		bool paint_bg;
 		///mode: true=activate rendering of frame
@@ -268,7 +268,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		virtual void disablePaintCache(){enablePaintCache(false);}
 
 		///returns paint mode, true=item was painted
-		virtual bool isPainted(){return is_painted;}
+		virtual bool isPainted();
 		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form, returns true, if mode has changed, also cleans screnn buffer
 		virtual bool doPaintBg(bool do_paint);
 		///allows paint frame around body, default true , NOTE: ignored if frame width = 0
