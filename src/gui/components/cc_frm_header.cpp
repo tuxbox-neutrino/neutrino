@@ -146,6 +146,8 @@ CComponentsHeader::~CComponentsHeader()
 
 void CComponentsHeader::setCaption(const std::string& caption, const int& align_mode, const fb_pixel_t& text_color)
 {
+	if (cch_cl_obj)
+		cch_cl_obj->Stop();
 	cch_text		= caption;
 	cch_caption_align 	= align_mode;
 	cch_col_text 		= text_color;
@@ -153,8 +155,6 @@ void CComponentsHeader::setCaption(const std::string& caption, const int& align_
 
 void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const int& align_mode, const fb_pixel_t& text_color)
 {
-	if (cch_cl_obj)
-		cch_cl_obj->Stop();
 	setCaption(string(g_Locale->getText(caption_locale)), align_mode, text_color);
 }
 
