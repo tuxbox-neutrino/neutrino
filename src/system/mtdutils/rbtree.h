@@ -136,9 +136,15 @@ static inline void rb_set_color(struct rb_node *rb, int color)
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #endif
 
+#if __cplusplus < 201103
 #define container_of(ptr, type, member) ({                      \
         const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
         (type *)( (char *)__mptr - offsetof(type,member) );})
+#else
+#define container_of(ptr, type, member) ({                      \
+        const __typeof__( ((type *)0)->member ) *__mptr = (ptr);    \
+        (type *)( (char *)__mptr - offsetof(type,member) );})
+#endif
 
 #define	rb_entry(ptr, type, member) container_of(ptr, type, member)
 

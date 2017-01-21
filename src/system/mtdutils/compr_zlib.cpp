@@ -44,6 +44,9 @@
 #include "common.h"
 #include "compr.h"
 
+#if __cplusplus >= 201103
+#include "algorithm"
+#endif
 /* Plan: call deflate() with avail_in == *sourcelen,
    avail_out = *dstlen - 12 and flush == Z_FINISH.
    If it doesn't manage to finish,	call it again with
@@ -76,7 +79,11 @@ static int jffs2_zlib_compress(unsigned char *data_in, unsigned char *cpage_out,
 
 	while (strm.total_out < *dstlen - STREAM_END_SPACE && strm.total_in < *sourcelen) {
 		strm.avail_out = *dstlen - (strm.total_out + STREAM_END_SPACE);
+#if __cplusplus < 201103
 		strm.avail_in = min((unsigned)(*sourcelen-strm.total_in), strm.avail_out);
+#else
+		strm.avail_in = std::min((unsigned)(*sourcelen-strm.total_in), strm.avail_out);
+#endif
 		ret = deflate(&strm, Z_PARTIAL_FLUSH);
 		if (ret != Z_OK) {
 			deflateEnd(&strm);

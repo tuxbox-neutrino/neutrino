@@ -66,6 +66,9 @@
 #include <crc32.h>
 #include <inttypes.h>
 
+#if __cplusplus >= 201103
+#include <algorithm>
+#endif
 #include <string>
 
 #include "rbtree.h"
@@ -755,7 +758,11 @@ void CMkfsJFFS2::pad_block_if_less_than(int req)
 void CMkfsJFFS2::padblock(void)
 {
 	while (out_ofs % erase_block_size) {
+#if __cplusplus < 201103
 		full_write(out_fd, ffbuf, min(sizeof(ffbuf),
+#else
+		full_write(out_fd, ffbuf, std::min(sizeof(ffbuf),
+#endif
 					      (size_t)(erase_block_size - (out_ofs % erase_block_size))));
 	}
 }
@@ -868,7 +875,11 @@ void CMkfsJFFS2::create_target_filesystem(struct filesystem_entry *root)
 			}
 		} else {
 			while (out_ofs < pad_fs_size) {
+#if __cplusplus < 201103
 				full_write(out_fd, ffbuf, min(sizeof(ffbuf), (size_t)(pad_fs_size - out_ofs)));
+#else
+				full_write(out_fd, ffbuf, std::min(sizeof(ffbuf), (size_t)(pad_fs_size - out_ofs)));
+#endif
 			}
 
 		}
