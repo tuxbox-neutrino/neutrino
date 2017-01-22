@@ -2305,28 +2305,31 @@ const std::string convertLatin1UTF8(const std::string &string)
 int isUTF8(const std::string &string)
 {
 	unsigned int len=string.size();
+	unsigned char c;
 
 	for (unsigned int i=0; i < len;)
 	{
 		int trailing = 0;
-		if (string[i] >> 7 == 0)		// 0xxxxxxx
+		c = string[i] & 0xFF;
+
+		if (c >> 7 == 0)		// 0xxxxxxx
 		{
 			i++;
 			continue;
 		}
-		if (string[i] >> 5 == 6)		// 110xxxxx 10xxxxxx
+		if (c >> 5 == 6)		// 110xxxxx 10xxxxxx
 		{
 			if (++i >= len)
 				return 0;
 			trailing = 1;
 		}
-		else if (string[i] >> 4 == 14)		// 1110xxxx 10xxxxxx 10xxxxxx
+		else if (c >> 4 == 14)		// 1110xxxx 10xxxxxx 10xxxxxx
 		{
 			if (++i >= len)
 				return 0;
 			trailing = 2;
 		}
-		else if ((string[i] >> 3) == 30)	// 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+		else if (c >> 3 == 30)		// 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 		{
 			if (++i >= len)
 				return 0;
@@ -2335,7 +2338,7 @@ int isUTF8(const std::string &string)
 			return 0;
 
 		while (trailing) {
-			if (i >= len || string[i] >> 6 != 2)
+			if (i >= len || (string[i] & 0xFF) >> 6 != 2)
 				return 0;
 			trailing--;
 			i++;
