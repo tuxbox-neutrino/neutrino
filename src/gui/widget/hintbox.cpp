@@ -219,16 +219,13 @@ int CHintBox::exec()
 		{
 			res = messages_return::cancel_all;
 		}
-		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))
+		else if (enable_txt_scroll && (msg == CRCInput::RC_up || msg == CRCInput::RC_down))
 		{
-			if (enable_txt_scroll){
-				if (msg == CRCInput::RC_up)
-					this->scroll_up();
-				else
-					this->scroll_down();
-			}
+			/* if ! enable_txt_scroll, fall through to last else branch instead */
+			if (msg == CRCInput::RC_up)
+				this->scroll_up();
 			else
-				res = messages_return::cancel_all;
+				this->scroll_down();
 		}
 		else if (CNeutrinoApp::getInstance()->listModeKey(msg)){
 			// do nothing //TODO: if passed rc messages are ignored rc messaages: has no effect here too!!
