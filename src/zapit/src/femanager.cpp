@@ -318,6 +318,7 @@ bool CFEManager::loadSettings()
 			satconfig.use_usals = 0;
 			satconfig.input = 0;
 			satconfig.configured = 0;
+			satconfig.delsys = UNKNOWN_DS;
 
 			satmap.insert(satellite_pair_t(position, satconfig));
 

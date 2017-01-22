@@ -47,38 +47,14 @@
 
 CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
-        name =  Name;
-	head = g_Locale->getText(Name);
-        valueString = Value;
-	lower_bound = -1;
-	upper_bound = -1;
-        size = Size;
-
-        hint_1 = Hint_1;
-        hint_2 = Hint_2;
-        validchars = Valid_Chars;
-        iconfile = Icon ? Icon : "";
-
-        observ = Observ;
-        init();
+	name = Name;
+	init(g_Locale->getText(name), Value, Size, Hint_1, Hint_2, Valid_Chars, Observ, Icon);
 }
 
 CStringInput::CStringInput(const std::string &Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
 	name = NONEXISTANT_LOCALE;
-        head = Name;
-        valueString = Value;
-	lower_bound = -1;
-	upper_bound = -1;
-        size =  Size;
-
-        hint_1 = Hint_1;
-        hint_2 = Hint_2;
-        validchars = Valid_Chars;
-        iconfile = Icon ? Icon : "";
-
-        observ = Observ;
-        init();
+        init(Name, Value, Size, Hint_1, Hint_2, Valid_Chars, Observ, Icon);
 }
 
 CStringInput::~CStringInput()
@@ -99,9 +75,22 @@ const struct button_label CStringInputSMSButtons[CStringInputSMSButtonsCount] =
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_STRINGINPUT_CLEAR }
 };
 
-void CStringInput::init()
+void CStringInput::init(const std::string &Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
 	frameBuffer = CFrameBuffer::getInstance();
+
+        head = Name;
+        valueString = Value;
+	lower_bound = -1;
+	upper_bound = -1;
+        size =  Size;
+
+        hint_1 = Hint_1;
+        hint_2 = Hint_2;
+        validchars = Valid_Chars;
+        iconfile = Icon ? Icon : "";
+
+        observ = Observ;
 
 #ifdef DEBUG_STRINGINPUT
 	printf("HEAD: %s (len: %d)\n", head, strlen(head));
@@ -496,8 +485,9 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
-			if ((*valueString != oldval) &&
-			     (ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
+			string tmp_name = name == NONEXISTANT_LOCALE ? head : g_Locale->getText(name);
+			if ((trim (*valueString) != trim(oldval)) &&
+			     (ShowMsg(tmp_name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}

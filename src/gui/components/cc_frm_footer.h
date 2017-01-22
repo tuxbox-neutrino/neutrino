@@ -84,6 +84,9 @@ class CComponentsFooter : public CComponentsHeader
 		///property: set font for label caption, see also setButtonFont()
 		Font* ccf_btn_font;
 
+		///init default fonts for size modes
+		virtual void initDefaultFonts();
+
 		///container for button objects
 		CComponentsFrmChain *chain;
 
@@ -201,7 +204,7 @@ class CComponentsFooter : public CComponentsHeader
 					const struct button_label * const content,
 					const int& label_width = 0,
 					const int& context_buttons = 0,
-					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT],
+					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT],
 					bool do_save_bg = CC_SAVE_SCREEN_NO
 				);
 

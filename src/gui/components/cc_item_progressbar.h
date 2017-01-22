@@ -152,10 +152,10 @@ class CProgressBar : public CComponentsItem
 
 		void setType(pb_type_t type);
 
-		//set design (overides g_settings.progressbar_design)
+		//set design (overides g_settings.theme.progressbar_design)
 		void setDesign(int &design) { pb_design = &design; }
 
-		//set gradient (overides g_settings.progressbar_gradient)
+		//set gradient (overides g_settings.theme.progressbar_gradient)
 		void setGradient(int &gradient) { pb_gradient = &gradient; }
 };
 

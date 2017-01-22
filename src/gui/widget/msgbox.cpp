@@ -81,8 +81,6 @@ CMsgBox::CMsgBox(	const char* Text,
 
 void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t& Default_result)
 {
-	dprintf(DEBUG_NORMAL, "[CMsgBox]   [%s - %d] \n", __func__, __LINE__);
-
 	initTimeOut();
 
 	//enable footer and add its height
@@ -114,7 +112,7 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 
 void CMsgBox::initTimeOut()
 {
-	timeout		= -1;
+	timeout		= NO_TIMEOUT;
 	enable_timeout_result = false;
 }
 
@@ -238,7 +236,9 @@ int CMsgBox::exec()
 	ccw_footer->getSelectedButtonObject()->setButtonAlias(mb_show_button);
 	int selected = ccw_footer->getSelectedButton();
 	if (timeout == NO_TIMEOUT)
-		timeout = MSGBOX_DEFAULT_TIMEOUT;
+		timeout = 0;
+	if (timeout == DEFAULT_TIMEOUT)
+		timeout = g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES];
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
@@ -526,14 +526,30 @@ int ShowMsg(	const std::string & Title,
 	return (result);
 }
 
+int ShowMsg(	const std::string & Title,
+			const neutrino_locale_t Text,
+			const CMsgBox::msg_result_t Default,
+			const uint32_t ShowButtons,
+			const char * const Icon,
+			const int Width,
+			const int Timeout,
+			bool returnDefaultOnTimeout,
+			const int& Text_mode,
+			fb_pixel_t color_frame)
+{
+	int result = ShowMsg2UTF(Title.c_str(), g_Locale->getText(Text), Default, ShowButtons, Icon, Width, Timeout, returnDefaultOnTimeout, Text_mode, color_frame);
+
+	return (result);
+}
+
 void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode)
 {
-	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, -1, false, Text_mode, COL_RED);
+	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, NO_TIMEOUT, false, Text_mode, COL_RED);
 }
 
 void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode)
 {
-	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, -1, false, Text_mode, COL_RED);
+	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, NO_TIMEOUT, false, Text_mode, COL_RED);
 }
 
 void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode)
@@ -543,12 +559,12 @@ void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode)
 
 void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Text_mode, fb_pixel_t color_frame)
 {
-	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, -1, false, Text_mode, color_frame);
+	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, NO_TIMEOUT, false, Text_mode, color_frame);
 }
 
 void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Text_mode, fb_pixel_t color_frame)
 {
-	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, -1, false, Text_mode, color_frame);
+	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, NO_TIMEOUT, false, Text_mode, color_frame);
 }
 
 void DisplayInfoMessage(const char * const InfoMsg, const int& Text_mode, fb_pixel_t color_frame)

@@ -32,11 +32,12 @@
 
 #include <gui/components/cc.h>
 
-#define HINTBOX_MIN_WIDTH 420
+#define HINTBOX_MIN_WIDTH 320
 #define HINTBOX_MIN_HEIGHT 125
 #define HINTBOX_MAX_HEIGHT 520
 #define HINTBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_POPUP_MESSAGES]
-#define NO_TIMEOUT -1
+#define NO_TIMEOUT 0
+#define DEFAULT_TIMEOUT -1
 //frame around hint container as indent
 #define W_FRAME std::max(HINTBOX_MIN_WIDTH, HINTBOX_MIN_HEIGHT) * 2/100
 //frame color around hint/message box
@@ -59,6 +60,7 @@ class CHintBox : public CComponentsWindow
 		int y_hint_obj;
 		int h_hint_obj;
 		int w_indentation;
+		bool enable_txt_scroll;
 
 		Font* hb_font;
 
@@ -179,7 +181,9 @@ class CHintBox : public CComponentsWindow
 		int exec();
 
 		/**
-		* Defines timeout, timeout is enabled if parameter1 > -1
+		* Defines timeout for message window.
+		* Timeout is enabled with parameter1 = DEFAULT_TIMEOUT (-1) or any other value > 0
+		* To disable timeout use NO_TIMEOUT (0)
 		* @param[in]	Timeout as int as seconds
 		*/
 		virtual void setTimeOut(const int& Timeout){timeout = Timeout;}
@@ -282,6 +286,12 @@ class CHintBox : public CComponentsWindow
 		*		FONT_STYLE_ITALIC
 		*/
 		void setMsgText(const std::string& Text,
+				const uint& hint_id = 0,
+				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
+				Font* font_text = NULL,
+				const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
+				const int& style = CComponentsText::FONT_STYLE_REGULAR);
+		void setMsgText(const neutrino_locale_t& locale,
 				const uint& hint_id = 0,
 				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
 				Font* font_text = NULL,

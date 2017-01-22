@@ -353,6 +353,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
 
+	//theme/color options
+	CThemes::getTheme(configfile);
+
 	g_settings.easymenu = configfile.getInt32("easymenu", 0);
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 	/* if file present and no config file found, force easy mode */
@@ -510,12 +513,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos", 4); // subchan display in infobar
 	g_settings.infobar_buttons_usertitle = configfile.getBool("infobar_buttons_usertitle", false );
-	g_settings.progressbar_gradient = configfile.getBool("progressbar_gradient", false);
-	g_settings.progressbar_design =  configfile.getInt32("progressbar_design", CProgressBar::PB_MONO);
-	g_settings.progressbar_timescale_red = configfile.getInt32("progressbar_timescale_red", 0);
-	g_settings.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
-	g_settings.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);
-	g_settings.progressbar_timescale_invert = configfile.getBool("progressbar_timescale_invert", false);
 	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 1));
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 1 ); // below channel name
@@ -594,8 +591,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
 
-	//theme/color options
-	CThemes::getTheme(configfile);
 	g_settings.osd_colorsettings_advanced_mode = configfile.getBool("osd_colorsettings_advanced_mode", false);
 
 	//personalize
@@ -740,7 +735,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 0);
 	g_settings.eventlist_epgplus = configfile.getInt32("eventlist_epgplus", 1);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
-	g_settings.channellist_progressbar_design = configfile.getInt32("channellist_progressbar_design", g_settings.progressbar_design);
 	g_settings.channellist_foot = configfile.getInt32("channellist_foot", 0); //default transponder data
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 0);
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
@@ -992,6 +986,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 void CNeutrinoApp::upgradeSetup(const char * fname)
 {
+	dprintf(DEBUG_NORMAL, "upgrade/cleanup %s\n", fname);
+
 	if (g_settings.version_pseudo < "20160226110000")
 	{
 		if (g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->items == "7")
@@ -1000,12 +996,35 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 			configfile.setString("usermenu_tv_yellow", g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->items);
 		}
 	}
+	if (g_settings.version_pseudo < "20162912080000")
+	{
+		//convert and remove obsolete progressbar_* keys
+
+		g_settings.theme.progressbar_design = configfile.getInt32("progressbar_design", CProgressBar::PB_MONO);
+		bool pb_color = configfile.getBool("progressbar_color", true );
+		if (!pb_color)
+			g_settings.theme.progressbar_design = CProgressBar::PB_MONO;
+		g_settings.theme.progressbar_design_channellist = configfile.getInt32("channellist_progressbar_design", g_settings.theme.progressbar_design);
+		g_settings.theme.progressbar_gradient = configfile.getBool("progressbar_gradient", false);
+		g_settings.theme.progressbar_timescale_red = configfile.getInt32("progressbar_timescale_red", 0);
+		g_settings.theme.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
+		g_settings.theme.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);
+		g_settings.theme.progressbar_timescale_invert = configfile.getBool("progressbar_timescale_invert", false);
+
+		configfile.deleteKey("progressbar_design");
+		configfile.deleteKey("channellist_progressbar_design");
+		configfile.deleteKey("progressbar_color");
+		configfile.deleteKey("progressbar_gradient");
+		configfile.deleteKey("progressbar_timescale_red");
+		configfile.deleteKey("progressbar_timescale_green");
+		configfile.deleteKey("progressbar_timescale_yellow");
+		configfile.deleteKey("progressbar_timescale_invert");
+	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
 
-	if (configfile.getModifiedFlag())
-		configfile.saveConfig(fname);
+	saveSetup(NEUTRINO_SETTINGS_FILE);
 }
 
 /**************************************************************************************
@@ -1018,6 +1037,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
 	}
+
+	//theme/color options
+	CThemes::setTheme(configfile);
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );
@@ -1122,12 +1144,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setBool("infobar_buttons_usertitle", g_settings.infobar_buttons_usertitle);
-	configfile.setBool("progressbar_gradient", g_settings.progressbar_gradient);
-	configfile.setInt32("progressbar_design", g_settings.progressbar_design);
-	configfile.setInt32("progressbar_timescale_red", g_settings.progressbar_timescale_red);
-	configfile.setInt32("progressbar_timescale_green", g_settings.progressbar_timescale_green);
-	configfile.setInt32("progressbar_timescale_yellow", g_settings.progressbar_timescale_yellow);
-	configfile.setInt32("progressbar_timescale_invert", g_settings.progressbar_timescale_invert);
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
@@ -1197,8 +1213,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//widget settings
 	configfile.setBool("widget_fade"          , g_settings.widget_fade          );
 
-	//theme/color options
-	CThemes::setTheme(configfile);
 	configfile.setBool("osd_colorsettings_advanced_mode", g_settings.osd_colorsettings_advanced_mode);
 
 	//personalize
@@ -1306,7 +1320,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("eventlist_epgplus", g_settings.eventlist_epgplus);
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
-	configfile.setInt32("channellist_progressbar_design", g_settings.channellist_progressbar_design);
 	configfile.setInt32("channellist_foot", g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
@@ -1517,9 +1530,6 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	RADIObouquetList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_PROVS));
 	RADIOfavList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_FAVS));
 
-	uint32_t i;
-	i = 1;
-
 	int tvi = 0, ri = 0;
 
 	ZapitChannelList zapitList, webtvList;
@@ -1647,7 +1657,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	/* Favorites and providers bouquets */
 	tvi = ri = 0;
 	if(g_bouquetManager){
-		for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
+		for (uint32_t i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
 			CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 			if (!b->bHidden) {
 				if (b->getTvChannels(zapitList) || (g_settings.show_empty_favorites && b->bUser)) {
@@ -2074,7 +2084,7 @@ TIMER_START();
 	if (loadLocale_ret == CLocaleManager::NO_SUCH_LOCALE)
 	{
 		g_settings.language = "english";
-		loadLocale_ret = g_Locale->loadLocale(g_settings.language.c_str());
+		g_Locale->loadLocale(g_settings.language.c_str());
 		show_startwizard = true;
 	}
 
@@ -2257,7 +2267,6 @@ TIMER_START();
 		startwizard.exec(NULL, "");
 	}
 
-	InitZapper();
 	if(loadSettingsErg) {
 		hintBox->hide();
 		dprintf(DEBUG_INFO, "config file or options missing\n");
@@ -2266,6 +2275,8 @@ TIMER_START();
 		configfile.setModifiedFlag(true);
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 	}
+
+	InitZapper();
 
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
@@ -2825,7 +2836,7 @@ void CNeutrinoApp::zapTo(t_channel_id channel_id)
 {
 	bool recordingStatus = CRecordManager::getInstance()->RecordingStatus(channel_id);
 	if (!recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||
-			(recordingStatus && channelList->SameTP(channel_id))) {
+			(recordingStatus && channelList && channelList->SameTP(channel_id))) {
 
 		dvbsub_stop();
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
@@ -2860,7 +2871,8 @@ void CNeutrinoApp::standbyToStandby(void)
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		if (standby_channel_id && (live_channel_id != standby_channel_id)) {
 			live_channel_id = standby_channel_id;
-			channelList->zapTo_ChannelID(live_channel_id);
+			if(channelList)
+				channelList->zapTo_ChannelID(live_channel_id);
 		}
 		g_Zapit->setStandby(true);
 		g_Sectionsd->setPauseScanning(true);
@@ -3278,7 +3290,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
 		if (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID()){
 			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||
-					(recordingstatus && channelList->SameTP(eventinfo->channel_id)) ) {
+					(recordingstatus && channelList && channelList->SameTP(eventinfo->channel_id)) ) {
 				bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
 				dvbsub_stop();
@@ -3289,7 +3301,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				else if (isTVMode && (mode != mode_tv) && (mode != mode_webtv)) {
 					tvMode(true);
 				}
-				channelList->zapTo_ChannelID(eventinfo->channel_id);
+
+				if(channelList)
+					channelList->zapTo_ChannelID(eventinfo->channel_id);
 			}
 		}
 		delete[] (unsigned char*) data;
@@ -3343,9 +3357,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
 		if(data) {//INACTIVITY SLEEPTIMER
-			skipShutdownTimer =
-				(ShowMsg(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,
-				      CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30, true) == CMsgBox::mbrYes);//FIXME
+			int msgbox = ShowMsg(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,
+				      CMsgBox::mbrCancel, CMsgBox::mbCancel, NULL, 450, 60);
+			skipShutdownTimer = !(msgbox & CMsgBox::mbrTimeout);
 			if(skipShutdownTimer) {
 				printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skiping\n");
 				skipShutdownTimer = false;
@@ -3417,7 +3431,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != mode_scart && mode != mode_standby) {
-			int timeout = NO_TIMEOUT;
+			int timeout = DEFAULT_TIMEOUT;
 			std::string text = (char*)data;
 			std::string::size_type pos;
 
@@ -3459,6 +3473,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if (msg == NeutrinoMessages::LOCK_RC)
 	{
 		CRCLock::getInstance()->exec(NULL, CRCLock::NO_USER_INPUT);
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::LOCK_RC_EXTERN || msg == NeutrinoMessages::UNLOCK_RC_EXTERN)
+	{
+		printf("CNeutrinoApp::handleMsg: RC is %s now\n", msg == NeutrinoMessages::LOCK_RC_EXTERN ? "LOCKED" : "UNLOCKED");
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
@@ -3580,7 +3599,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 	if(CRecordManager::getInstance()->RecordingStatus() || cYTCache::getInstance()->isActive()) {
 		do_shutdown =
 			(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECORDING_QUERY, CMsgBox::mbrNo,
-					CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30, true) == CMsgBox::mbrYes);
+					CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT, true) == CMsgBox::mbrYes);
 	}
 
 	if(do_shutdown) {
@@ -4901,7 +4920,7 @@ bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 		if(!has_channel && old_mode == LIST_MODE_SAT)
 			new_mode = LIST_MODE_ALL;
 
-		has_channel = TVallList->adjustToChannelID(channel_id);
+		TVallList->adjustToChannelID(channel_id);
 	}
 	else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
 		has_channel = RADIOfavList->adjustToChannelID(channel_id);
@@ -4928,7 +4947,7 @@ bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 		if(!has_channel && old_mode == LIST_MODE_SAT)
 			new_mode = LIST_MODE_ALL;
 
-		has_channel = RADIOallList->adjustToChannelID(channel_id);
+		RADIOallList->adjustToChannelID(channel_id);
 	}
 	if(old_mode != new_mode)
 		CNeutrinoApp::getInstance()->SetChannelMode(new_mode);

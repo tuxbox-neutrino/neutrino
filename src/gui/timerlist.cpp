@@ -281,6 +281,7 @@ CTimerList::CTimerList()
 	timerNew_message = "";
 	timerNew_pluginName = "";
 	httpConnectTimeout = 3;
+	changed = false;
 
 	/* most probable default */
 	saved_dispmode = (int)CVFD::MODE_TVRADIO;
@@ -653,7 +654,6 @@ struct button_label TimerListButtons[] =
 	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
 	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_TIMERLIST_MODIFY },
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, NONEXISTANT_LOCALE     },
-	{ NEUTRINO_ICON_BUTTON_MENU_SMALL, NONEXISTANT_LOCALE     },
 	{ NEUTRINO_ICON_BUTTON_PLAY	, NONEXISTANT_LOCALE      }
 };
 // int to match the type in paintButtons
@@ -992,7 +992,7 @@ int CTimerList::show()
 						if (!epgdata.title.empty())
 							title = "(" + epgdata.title + ")\n";
 						snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
-						if (ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30, false) == CMsgBox::mbrNo)
+						if (ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1, CMsgBox::mbrNo, CMsgBox::mbYesNo, NULL, 450) & CMsgBox::mbrNo)
 						{
 							killTimer = false;
 							update = false;
@@ -1379,16 +1379,18 @@ void CTimerList::paintHead()
 
 void CTimerList::paintFoot()
 {
-	CTimerd::responseGetTimer* timer=&timerlist[selected];
-	if (timer != NULL)
+	if(!timerlist.empty() )
 	{
+		CTimerd::responseGetTimer* timer=&timerlist[selected];
+		if (timer != NULL)
+		{
 		//replace info button with dummy if timer is not type REC or ZAP
-		if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX || timer->eventType == CTimerd::TIMER_ZAPTO)
-			TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
-		else
-			TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+			if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX || timer->eventType == CTimerd::TIMER_ZAPTO)
+				TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
+			else
+				TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+		}
 	}
-
 	//shadow
 	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + height - footerHeight, width, footerHeight + OFFSET_SHADOW, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
@@ -1591,7 +1593,7 @@ int CTimerList::modifyTimer()
 	timer->eventRepeat = (CTimerd::CTimerEventRepeat)(((int)timer->eventRepeat) & 0x1FF);
 	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, &m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, ((int)timer->eventRepeat) >= (int)CTimerd::TIMERREPEAT_WEEKDAYS, m_weekdaysStr, &timerSettings_weekdays );
-	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int*)&timer->repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
+	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int*)&timer->repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HINT_1, LOCALE_TIMERLIST_REPEATCOUNT_HINT_2);
 
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, timer->eventRepeat != (int)CTimerd::TIMERREPEAT_ONCE ,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
 
@@ -1701,7 +1703,7 @@ int CTimerList::newTimer()
 	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, &m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, false, m_weekdaysStr, &timerSettings_weekdays);
 
-	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int*)&timerNew.repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
+	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int*)&timerNew.repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HINT_1, LOCALE_TIMERLIST_REPEATCOUNT_HINT_2);
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, false,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
 
 	CTimerListRepeatNotifier notifier((int *)&timerNew.eventRepeat,m4,m5, &m_weekdaysStr);

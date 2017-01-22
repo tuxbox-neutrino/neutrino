@@ -25,7 +25,6 @@
 #include <config.h>
 #endif
 
-#include <global.h>
 #include <neutrino.h>
 #include "cc_frm_scrollbar.h"
 #include "system/debug.h"
@@ -76,13 +75,16 @@ void CComponentsScrollBar::initVarSbForm(const int& count)
 	cc_item_type 	= CC_ITEMTYPE_FRM_SCROLLBAR;
 	fr_thickness	= 0;
 
-	append_x_offset = 0;
-	append_y_offset = 2;
+	append_x_offset = OFFSET_INNER_MIN;
+	append_y_offset = OFFSET_INNER_MIN;
 
-	sb_up_obj 	= sb_down_obj = NULL;
+	sb_up_obj 	= NULL;
+	sb_down_obj	= NULL;
 	sb_segments_obj = NULL;
 
-	sb_up_icon	= frameBuffer->getIconPath(NEUTRINO_ICON_BUTTON_TOP) ;
+	setCorner(RADIUS_MIN, CORNER_ALL);
+
+	sb_up_icon	= frameBuffer->getIconPath(NEUTRINO_ICON_BUTTON_UP) ;
 	sb_down_icon	= frameBuffer->getIconPath(NEUTRINO_ICON_BUTTON_DOWN);
 
 	sb_segments_count = count;
@@ -110,40 +112,38 @@ void CComponentsScrollBar::initTopNaviIcon()
 {
 	//initialize icon object
 	if (sb_up_obj == NULL){
-		sb_up_obj = new CComponentsPicture(CC_CENTERED, fr_thickness, sb_up_icon, this);
+		sb_up_obj = new CComponentsPicture(CC_CENTERED, fr_thickness, width-2*fr_thickness, width-2*fr_thickness, sb_up_icon, this);
 		sb_up_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 		sb_up_obj->doPaintBg(false);
 	}
-	sb_up_obj->setWidth(width-2*fr_thickness);
 }
 
 void CComponentsScrollBar::initBottomNaviIcon()
 {
 	//initialize icon object
 	if (sb_down_obj == NULL){
-		sb_down_obj = new CComponentsPicture(CC_CENTERED, CC_APPEND, sb_down_icon, this);
+		sb_down_obj = new CComponentsPicture(CC_CENTERED, height - width-2*fr_thickness, width-2*fr_thickness, 0, sb_down_icon, this);
 		sb_down_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 		sb_down_obj->doPaintBg(false);
 	}
-	sb_down_obj->setWidth(width-2*fr_thickness);
 }
 
 void CComponentsScrollBar::initSegments()
 {
 	//init dimensions for segments
-	int w_seg = width - 4*fr_thickness;
-//never read 	int h_seg = height - (sb_segments_count-1)*append_y_offset;
+	int w_seg = width - 2*fr_thickness - 2*append_x_offset;
+	if (w_seg < 0)
+		w_seg = 0;
 
 	//calculate height of segment container
-	int h_seg_obj = height - 2*sb_up_obj->getHeight() - 3*append_y_offset;
-	if(h_seg_obj < 0)
+	int h_seg_obj = height - 2*fr_thickness - 2*sb_up_obj->getHeight()  - 2*append_y_offset;
+	if (h_seg_obj < 0)
 		h_seg_obj = 0;
 
 	//init segment container
 	if (sb_segments_obj == NULL){
 		sb_segments_obj = new CComponentsFrmChain(CC_CENTERED, CC_APPEND, w_seg, h_seg_obj, NULL, CC_DIR_Y, this, false);
-		sb_segments_obj->setFrameThickness(0/*,0*/);
-		sb_segments_obj->setAppendOffset(0, 3);
+		sb_segments_obj->setFrameThickness(0);
 	}else
 		sb_segments_obj->setDimensionsAll(CC_CENTERED, CC_APPEND, w_seg, h_seg_obj);
 
@@ -154,9 +154,9 @@ void CComponentsScrollBar::initSegments()
 	sb_segments_obj->clear();
 
 	//set y position of 1st segment and set height of segments
-	int y_seg = 1+ append_y_offset;
+	int y_seg = append_y_offset;
 	int h_seg = sb_segments_obj->getHeight()/sb_segments_count - append_y_offset;
-	if(h_seg < 0)
+	if (h_seg < 0)
 		h_seg = 0;
 
 	//create and add segments to segment container
@@ -188,4 +188,21 @@ void CComponentsScrollBar::initSegments()
 	//set corner types
 	sb_segments_obj->front()->setCorner(RADIUS_MIN, CORNER_TOP);
 	sb_segments_obj->back()->setCorner(RADIUS_MIN, CORNER_BOTTOM);
+}
+
+
+void paintScrollBar(	const int &x_pos,
+			const int &y_pos,
+			const int &w,
+			const int &h,
+			const int& count,
+			const int& current_num,
+			int shadow_mode,
+			fb_pixel_t color_frame,
+			fb_pixel_t color_body,
+			fb_pixel_t color_shadow)
+{
+	CComponentsScrollBar scrollbar(x_pos, y_pos, w, h, count, NULL, shadow_mode, color_frame, color_body, color_shadow);
+	scrollbar.setMarkID(current_num);
+	scrollbar.paint0();
 }

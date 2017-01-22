@@ -255,8 +255,8 @@ void CVFD::setBacklight(bool on_off)
 
 void CVFD::setled(bool on_off)
 {
-  if(g_settings.led_rec_mode == 0)
-	return;
+	if(g_settings.led_rec_mode == 0)
+		return;
 
 	int led1 = -1, led2 = -1;
 	if(on_off){//on

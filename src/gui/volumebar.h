@@ -108,6 +108,7 @@ class CVolumeHelper
 		Font* clock_font;
 		CFrameBuffer *frameBuffer;
 
+		void resetFont();
 		void Init(Font* font=NULL);
 		void initVolBarSize();
 		void initMuteIcon();

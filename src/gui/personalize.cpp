@@ -387,7 +387,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	{
 		pMenu->addItem(GenericMenuSeparatorLine);
 		uMenu = new CMenuWidget(LOCALE_PERSONALIZE_HEAD, NEUTRINO_ICON_PERSONALIZE, width, MN_WIDGET_ID_PERSONALIZE_USERMENU);
-		pMenu->addItem(new CMenuForwarder(LOCALE_USERMENU_HEAD, true, NULL, uMenu, NULL, CRCInput::RC_green));
+		pMenu->addItem(new CMenuForwarder(LOCALE_USERMENUS_HEAD, true, NULL, uMenu, NULL, CRCInput::RC_green));
 
 		ShowUserMenu();
 	}
@@ -490,7 +490,7 @@ void CPersonalizeGui::ShowUserMenu()
 {
 	int uMenu_shortcut = 1;
 
-	uMenu->addIntroItems(LOCALE_USERMENU_HEAD);
+	uMenu->addIntroItems(LOCALE_USERMENUS_HEAD);
 
 	uMenu->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_USERMENU_SHOW_CANCEL, &g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 

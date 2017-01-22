@@ -147,6 +147,14 @@ struct SNeutrinoTheme
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
 	unsigned char clock_Digit_blue;
+
+	int progressbar_design;
+	int progressbar_design_channellist;
+	int progressbar_gradient;
+	int progressbar_timescale_red;
+	int progressbar_timescale_green;
+	int progressbar_timescale_yellow;
+	int progressbar_timescale_invert;
 };
 
 struct timer_remotebox_item
@@ -199,12 +207,6 @@ struct SNeutrinoSettings
 	int infobar_show;
 	int infobar_show_channellogo;
 	int infobar_progressbar;
-	int progressbar_design;
-	int progressbar_gradient;
-	int progressbar_timescale_red;
-	int progressbar_timescale_green;
-	int progressbar_timescale_yellow;
-	int progressbar_timescale_invert;
 	int infobar_casystem_display;
 	int infobar_casystem_dotmatrix;
 	int infobar_casystem_frame;
@@ -592,7 +594,6 @@ struct SNeutrinoSettings
 	int eventlist_epgplus;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
-	int channellist_progressbar_design;
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
@@ -691,6 +692,7 @@ struct SNeutrinoSettings
 		FONT_TYPE_MOVIEBROWSER_INFO,
 		FONT_TYPE_SUBTITLES,
 		FONT_TYPE_MESSAGE_TEXT,
+		FONT_TYPE_BUTTON_TEXT,
 		FONT_TYPE_COUNT
 	};
 
@@ -790,15 +792,18 @@ struct SNeutrinoSettings
 	// USERMENU
 	typedef enum
 	{
-		BUTTON_RED = 0,  // Do not change ordering of members, add new item just before BUTTON_MAX!!!
+		// Do not change ordering of members, add new item just before BUTTON_MAX!!!
+		BUTTON_RED = 0,
 		BUTTON_GREEN = 1,
 		BUTTON_YELLOW = 2,
 		BUTTON_BLUE = 3,
-		BUTTON_MAX   // MUST be always the last in the list
+		BUTTON_MAX // MUST be always the last in the list
 	} USER_BUTTON;
+
 	typedef enum
 	{
-		ITEM_NONE = 0, // Do not change ordering of members, add new item just before ITEM_MAX!!!
+		// Do not change ordering of members, add new item just before ITEM_MAX!!!
+		ITEM_NONE = 0,
 		ITEM_BAR = 1,
 		ITEM_EPG_LIST = 2,
 		ITEM_EPG_SUPER = 3,
@@ -824,18 +829,16 @@ struct SNeutrinoSettings
 		ITEM_FILEPLAY = 23,
 		ITEM_TOOLS = 24,
 		ITEM_LUA = 25,
-
 		ITEM_HDDMENU = 26,
 		ITEM_AUDIOPLAY = 27,
 		ITEM_INETPLAY = 28,
 		ITEM_NETSETTINGS = 29,
 		ITEM_SWUPDATE = 30,
-
 		ITEM_LIVESTREAM_RESOLUTION = 31,
 		ITEM_ADZAP = 32,
-
-		ITEM_MAX   // MUST be always the last in the list
+		ITEM_MAX // MUST be always the last in the list
 	} USER_ITEM;
+
 	typedef struct {
 		unsigned int key;
 		std::string items;
@@ -910,12 +913,15 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define RADIUS_NONE	0
 
 // offsets
-#define OFFSET_SHADOW	6
-#define OFFSET_INTER	6
+#define OFFSET_SHADOW		6
+#define OFFSET_INTER		6
 #define OFFSET_INNER_LARGE	20
 #define OFFSET_INNER_MID	10
 #define OFFSET_INNER_SMALL	5
 #define OFFSET_INNER_MIN	2
+#define OFFSET_INNER_NONE	0
+
+#define SCROLLBAR_WIDTH		OFFSET_INNER_MID + 2*OFFSET_INNER_MIN
 
 struct SglobalInfo
 {

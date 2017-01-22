@@ -60,11 +60,17 @@ static inline void list_del(struct list_head *entry)
 #define list_entry(ptr, type, member) \
 	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
 
+#if __cplusplus < 201103
 #define list_for_each_entry(pos, head, member)                          \
 	for (pos = list_entry((head)->next, typeof(*pos), member);      \
 			&pos->member != (head);                                    \
 			pos = list_entry(pos->member.next, typeof(*pos), member))
-
+#else
+#define list_for_each_entry(pos, head, member)                          \
+	for (pos = list_entry((head)->next, __typeof__(*pos), member);      \
+			&pos->member != (head);                                    \
+			pos = list_entry(pos->member.next, __typeof__(*pos), member))
+#endif
 
 /* Available compressors are on this_ list */
 static LIST_HEAD(jffs2_compressor_list);

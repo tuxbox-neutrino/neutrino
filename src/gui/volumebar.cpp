@@ -34,6 +34,7 @@
 #include <neutrino.h>
 #include <gui/infoclock.h>
 #include <driver/neutrinofonts.h>
+#include <system/debug.h>
 
 using namespace std;
 
@@ -260,7 +261,21 @@ CVolumeHelper::CVolumeHelper()
 
 	frameBuffer = CFrameBuffer::getInstance();
 
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CVolumeHelper::resetFont));
+
 	Init();
+}
+
+void CVolumeHelper::resetFont()
+{
+	if (vb_font){
+		vb_font		= NULL;
+		dprintf(DEBUG_INFO, "\033[33m[CVolumeHelper][%s - %d] reset vb font \033[0m\n", __func__, __LINE__);
+	}
+	if (clock_font){
+		clock_font	= NULL;
+		dprintf(DEBUG_INFO, "\033[33m[CVolumeHelper][%s - %d] reset clock font \033[0m\n", __func__, __LINE__);
+	}
 }
 
 void CVolumeHelper::Init(Font* font)
@@ -278,17 +293,14 @@ void CVolumeHelper::Init(Font* font)
 
 void CVolumeHelper::initInfoClock(Font* font)
 {
-	if (clock_font == NULL){
-		if (font == NULL) {
-			clock_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-		}
-		else
-			clock_font = font;
+	if (font == NULL) {
+		int dx = 0;
+		int dy = g_settings.infoClockFontSize;
+		clock_font = *CNeutrinoFonts::getInstance()->getDynFont(dx, dy, g_settings.infoClockSeconds ? "%H:%M:%S" : "%H:%M");
 	}
-	else {
-		if (font != NULL)
-			clock_font = font;
-	}
+	else
+		clock_font = font;
+
 	digit_offset = (clock_font)->getDigitOffset();
 	digit_h      = (clock_font)->getDigitHeight();
 	int t1       = (clock_font)->getMaxDigitWidth();

@@ -93,12 +93,12 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 
 	//init header width
 	width 	= width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
+	height 	= height_old = h;
 
-	//init header default height
-	height 	= height_old = max(h, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
-
-	cch_size_mode	= CC_HEADER_SIZE_LARGE;
-	initCaptionFont();	//sets cch_font and calculate height if required;
+	cch_font		= NULL;
+	initDefaultFonts();
+	cch_size_mode		= CC_HEADER_SIZE_LARGE;
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CComponentsHeader::resetFont));
 
 	shadow		= shadow_mode;
 	col_frame = col_frame_old 	= color_frame;
@@ -160,27 +160,36 @@ void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const int& 
 
 void CComponentsHeader::setCaptionFont(Font* font)
 {
-	initCaptionFont(font); //cch_font = font
+	cch_font = font;
 }
 
-void CComponentsHeader::initCaptionFont(Font* font)
+void CComponentsHeader::resetFont()
 {
-	Font *l_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-	Font *s_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	if (cch_font){
+		dprintf(DEBUG_DEBUG, "\033[33m[CComponentsHeader][%s - %d] reset header font \033[0m\n", __func__, __LINE__);
+		cch_font = NULL;
+	}
+	initDefaultFonts();
+}
 
-	if (font == NULL){
+void CComponentsHeader::initDefaultFonts()
+{
+	l_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	s_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+}
+
+void CComponentsHeader::initCaptionFont()
+{
+	if (cch_font == NULL){
 		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? l_font : s_font);
-
 		//select matching height
 		if (cch_size_mode == CC_HEADER_SIZE_LARGE)
 			height	= std::max(height, l_font->getHeight());
 		else
 			height	= std::min(height, s_font->getHeight());
 	}
-	else{
-		cch_font = font;
+	else
 		height = std::max(height, cch_font->getHeight());
-	}
 }
 
 void CComponentsHeader::setIcon(const char* icon_name)
@@ -227,11 +236,10 @@ void CComponentsHeader::initIcon()
 		cch_icon_obj->doPaintBg(false);
 
 		//set corner mode of icon item
-		int cc_icon_corner_type = corner_type;
+		int cc_icon_corner_type = CORNER_LEFT;
 		if (corner_type == CORNER_TOP_LEFT || corner_type == CORNER_TOP)
 			cc_icon_corner_type = CORNER_TOP_LEFT;
-		else
-			cc_icon_corner_type = CORNER_LEFT;
+
 		cch_icon_obj->setCorner(corner_rad-fr_thickness, cc_icon_corner_type);
 
 		//global set width of icon object
@@ -275,14 +283,14 @@ void CComponentsHeader::addContextButton(const int& buttons)
 		addContextButton(NEUTRINO_ICON_BUTTON_OKAY);
 	if (buttons & CC_BTN_MUTE)
 		addContextButton(NEUTRINO_ICON_BUTTON_MUTE);
-	if (buttons & CC_BTN_TOP)
-		addContextButton(NEUTRINO_ICON_BUTTON_TOP);
+	if (buttons & CC_BTN_UP)
+		addContextButton(NEUTRINO_ICON_BUTTON_UP);
 	if (buttons & CC_BTN_DOWN)
 		addContextButton(NEUTRINO_ICON_BUTTON_DOWN);
-	if (buttons & CC_BTN_RIGHT)
-		addContextButton(NEUTRINO_ICON_BUTTON_RIGHT);
 	if (buttons & CC_BTN_LEFT)
 		addContextButton(NEUTRINO_ICON_BUTTON_LEFT);
+	if (buttons & CC_BTN_RIGHT)
+		addContextButton(NEUTRINO_ICON_BUTTON_RIGHT);
 	if (buttons & CC_BTN_FORWARD)
 		addContextButton(NEUTRINO_ICON_BUTTON_FORWARD);
 	if (buttons & CC_BTN_BACKWARD)
@@ -331,11 +339,10 @@ void CComponentsHeader::initButtons()
 		cch_btn_obj->addIcon(v_cch_btn);
 
 		//set corner mode of button item
-		int cc_btn_corner_type = corner_type;
+		int cc_btn_corner_type = CORNER_RIGHT;
 		if (corner_type == CORNER_TOP_RIGHT || corner_type == CORNER_TOP)
 			cc_btn_corner_type = CORNER_TOP_RIGHT;
-		else
-			cc_btn_corner_type = CORNER_RIGHT;
+
 		cch_btn_obj->setCorner(corner_rad-fr_thickness, cc_btn_corner_type);
 
 		//global adapt height
@@ -408,11 +415,10 @@ void CComponentsHeader::initClock()
 		cch_cl_obj->setClockFormat(cch_cl_format, cch_cl_sec_format);
 
 		//set corner mode of button item
-		int cc_btn_corner_type = corner_type;
+		int cc_btn_corner_type = CORNER_RIGHT;
 		if (corner_type == CORNER_TOP_RIGHT || corner_type == CORNER_TOP)
 			cc_btn_corner_type = CORNER_TOP_RIGHT;
-		else
-			cc_btn_corner_type = CORNER_RIGHT;
+
 		cch_cl_obj->setCorner(corner_rad-fr_thickness, cc_btn_corner_type);
 
 		//global adapt height
@@ -513,11 +519,11 @@ void CComponentsHeader::initCaption()
 
 void CComponentsHeader::initCCItems()
 {
-	//set basic properties
-	Init(x, y, width, height, col_frame, col_body, col_shadow);
-
 	//set size
 	initCaptionFont();
+
+	//set basic properties
+	Init(x, y, width, height, col_frame, col_body, col_shadow);
 
 	//init icon
 	initIcon();

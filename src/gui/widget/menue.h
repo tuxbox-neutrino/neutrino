@@ -88,6 +88,10 @@ class CChangeObserver
 		{
 			return false;
 		}
+		virtual bool changeNotify(const std::string & /*OptionName*/, void * /*Data*/)
+		{
+			return false;
+		}
 		virtual bool changeNotify(lua_State * /*L*/, const std::string & /*luaId*/, const std::string & /*luaAction*/, void * /*Data*/)
 		{
 			return false;

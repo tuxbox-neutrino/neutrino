@@ -163,6 +163,7 @@ class CMovieBrowser : public CMenuTarget
 		CBox m_cBoxFrameFootRel;
 		CBox m_cBoxFrameTitleRel;
 
+		CComponentsHeader *m_header;
 		CComponentsDetailLine *m_detailsLine;
 		CComponentsChannelLogo *m_channelLogo;
 		CComponentsPicture *m_movieCover;

@@ -375,9 +375,9 @@ void CComponentsForm::paintCCItems()
 
 	//init and handle scrollbar
 	getPageCount();
-	int y_sb = this_y+1;
+	int y_sb = this_y;
 	int x_sb = this_x + width - w_sb;
-	int h_sb = height-2;
+	int h_sb = height;
 	if (sb == NULL){
 		sb = new CComponentsScrollBar(x_sb, y_sb, w_sb, h_sb);
 	}else{
@@ -636,9 +636,9 @@ void CComponentsForm::ScrollPage(int direction, bool do_paint)
 	int target_page_id = (int)page_count - 1;
 	int target_page = (int)cur_page;
 	
-	if (direction == SCROLL_P_DOWN)
+	if (direction == SCROLL_P_UP)
 		target_page = target_page+1 > target_page_id ? 0 : target_page+1;	
-	else if	(direction == SCROLL_P_UP)
+	else if	(direction == SCROLL_P_DOWN)
 		target_page = target_page-1 < 0 ? target_page_id : target_page-1;
 
 	if (do_paint)

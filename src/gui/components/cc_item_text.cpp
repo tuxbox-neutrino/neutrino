@@ -92,10 +92,7 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 	width 		= width_old 	= w;
 	height		= height_old 	= h;
 
-	/* we need a minimal borderwith of 1px because the edge-smoothing
-	(or fontrenderer?) otherwise will paint single pixels outside the
-	defined area. e.g. 'j' is leaving such residues */
-	ct_text_Hborder	= 1;
+	ct_text_Hborder	= 0;
 	ct_text_Vborder	= 0;
 
 	shadow		= shadow_mode;

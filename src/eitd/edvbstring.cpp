@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <map>
 #include <set>
+#include <string.h>
 
 #include "SIutils.hpp"
 #include "debug.h"
@@ -2105,6 +2106,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 
 //dprintf("recode:::: tsidonid %X table %d two-char %d len %d\n", tsidonid, table, twochar, len);
 	unsigned char res[2048];
+	memset(res,0,sizeof(res));
 	while (i < len)
 	{
 		unsigned long code=0;
@@ -2267,6 +2269,7 @@ const std::string convertLatin1UTF8(const std::string &string)
 	unsigned int t=0, i=0, len=string.size();
 
 	unsigned char res[2048];
+	memset(res,0,sizeof(res));
 
 	while (i < len)
 	{

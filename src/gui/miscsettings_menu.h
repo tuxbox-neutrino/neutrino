@@ -36,7 +36,7 @@
 //#define CPU_FREQ
 
 class CMiscMenue : public CMenuTarget, CChangeObserver
-{	
+{
 	private:
 		CFanControlNotifier *fanNotifier;
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
@@ -51,6 +51,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CMenuOptionChooser * youtube_onoff;
 		CMenuOptionChooser * shoutcast_onoff;
 		CMenuForwarder * epg_dir;
+		CMenuForwarder * epg_read_now;
 		int width;
 		std::string epg_cache;
 		std::string epg_extendedcache;

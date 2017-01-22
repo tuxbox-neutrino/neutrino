@@ -33,10 +33,9 @@
 #endif
 
 #include "hintbox.h"
-#include <gui/widget/drawable.h>
 
 #define MSGBOX_MIN_WIDTH HINTBOX_MIN_WIDTH
-#define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT + 75
+#define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT
 
 #define MSGBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]
 #define DEFAULT_MSGBOX_TEXT_MODE (CMsgBox::CENTER | CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH)
@@ -56,14 +55,14 @@ class CMsgBox : public CHintBox
 		/* enum definition */
 		enum msg_result_t
 		{
-			mbrYes    = 0,
-			mbrNo     = 1,
-			mbrCancel = 2,
-			mbrBack   = 3,
-			mbrOk     = 4,
-			mbrTimeout = 5,
+			mbrYes    	= 0x01,
+			mbrNo     	= 0x02,
+			mbrCancel 	= 0x04,
+			mbrBack   	= 0x08,
+			mbrOk     	= 0x10,
+			mbrTimeout 	= 0x20,
 
-			mbrNone = -1
+			mbrNone 	= 0x00
 		};
 		enum button_define_t
 		{
@@ -171,7 +170,7 @@ class CMsgBox : public CHintBox
 			const int& Width = MSGBOX_MIN_WIDTH,
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
-			const msg_result_t& Default_result = mbrCancel,
+			const msg_result_t& Default_result = mbrNone,
 			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
 		/**CMsgBox Constructor
@@ -225,7 +224,7 @@ class CMsgBox : public CHintBox
 			const int& Width = MSGBOX_MIN_WIDTH,
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
-			const msg_result_t& Default_result = mbrCancel,
+			const msg_result_t& Default_result = mbrNone,
 			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
 // 		~CMsgBox(); //inherited
@@ -384,6 +383,17 @@ int ShowMsg(	const neutrino_locale_t Title,
 
 int ShowMsg(	const std::string & Title,
 						const std::string & Text,
+						const CMsgBox::msg_result_t Default,
+						const uint32_t ShowButtons,
+						const char * const Icon = NULL,
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
+
+int ShowMsg(	const std::string & Title,
+						const neutrino_locale_t Text,
 						const CMsgBox::msg_result_t Default,
 						const uint32_t ShowButtons,
 						const char * const Icon = NULL,

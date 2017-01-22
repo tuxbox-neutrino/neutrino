@@ -33,7 +33,6 @@
 #include <system/debug.h>
 #include "cc_frm_button.h"
 
-
 using namespace std;
 
 CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -44,7 +43,7 @@ CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const
 					int shadow_mode,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_btn_capt_locale = NONEXISTANT_LOCALE;
+	cc_btn_text_locale = NONEXISTANT_LOCALE;
 	initVarButton(x_pos, y_pos, w, h,  caption, icon_name, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow);
 }
 
@@ -56,8 +55,8 @@ CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const
 					int shadow_mode,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_btn_capt_locale = caption_locale;
-	initVarButton(x_pos, y_pos, w, h, g_Locale->getText(cc_btn_capt_locale), icon_name, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow);
+	cc_btn_text_locale = caption_locale;
+	initVarButton(x_pos, y_pos, w, h, g_Locale->getText(cc_btn_text_locale), icon_name, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow);
 }
 
 CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -81,8 +80,8 @@ CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	string _icon_name = icon_name == NULL ? "" : string(icon_name);
-	cc_btn_capt_locale = caption_locale;
-	initVarButton(x_pos, y_pos, w, h,  g_Locale->getText(cc_btn_capt_locale), _icon_name, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow);
+	cc_btn_text_locale = caption_locale;
+	initVarButton(x_pos, y_pos, w, h,  g_Locale->getText(cc_btn_text_locale), _icon_name, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow);
 }
 
 void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -116,14 +115,14 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	append_y_offset = 0;
 	corner_rad	= RADIUS_SMALL;
 	
-	cc_btn_capt_col		= cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_MENUFOOT_TEXT;
-	cc_btn_capt_disable_col = cc_body_gradient_enable ? COL_BUTTON_TEXT_DISABLED : COL_MENUCONTENTINACTIVE_TEXT;
+	cc_btn_text_col		= cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_MENUFOOT_TEXT;
+	cc_btn_text_disable_col = cc_body_gradient_enable ? COL_BUTTON_TEXT_DISABLED : COL_MENUCONTENTINACTIVE_TEXT;
 	cc_btn_icon_obj	= NULL;
-	cc_btn_capt_obj = NULL;
+	cc_btn_text_obj = NULL;
 	cc_btn_dy_font  = CNeutrinoFonts::getInstance();
 	cc_btn_font	= NULL;
 	cc_btn_icon	= icon_name;
-	cc_btn_capt	= caption;
+	cc_btn_text	= caption;
 	cc_directKey	= CRCInput::RC_nokey;
 	cc_directKeyAlt = cc_directKey;
 	cc_btn_result	= -1;
@@ -172,30 +171,35 @@ void CComponentsButton::initIcon()
 void CComponentsButton::initCaption()
 {
 	//init label as caption object and add to container
-	if (!cc_btn_capt.empty()){
-		if (cc_btn_capt_obj == NULL){
-			cc_btn_capt_obj = new CComponentsLabel();
-			cc_btn_capt_obj->doPaintBg(false);
-			cc_btn_capt_obj->doPaintTextBoxBg(false);
-			cc_btn_capt_obj->enableTboxSaveScreen(cc_txt_save_screen);
-			addCCItem(cc_btn_capt_obj);
+	if (!cc_btn_text.empty()){
+		if (cc_btn_text_obj == NULL){
+			cc_btn_text_obj = new CComponentsLabel();
+			cc_btn_text_obj->doPaintBg(false);
+			cc_btn_text_obj->doPaintTextBoxBg(false);
+			cc_btn_text_obj->enableTboxSaveScreen(cc_txt_save_screen);
+			addCCItem(cc_btn_text_obj);
 		}
 	}else{
-		if (cc_btn_capt_obj){
-			delete cc_btn_capt_obj;
-			cc_btn_capt_obj = NULL;
+		if (cc_btn_text_obj){
+			delete cc_btn_text_obj;
+			cc_btn_text_obj = NULL;
 		}
 	}
 
 	//set basic properties
 	int w_frame = fr_thickness;
-	if (cc_btn_capt_obj){
+	int reduce = 2*w_frame;
+	if (cc_btn_text_obj){
 		//position and size
 		int x_cap = w_frame;
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
-		int w_cap = width - w_frame - append_x_offset - x_cap - w_frame;
-		int h_cap = (height*85/100) - 2*w_frame;
+		/* use system defined font as default if not defined */
+		if (cc_btn_font == NULL)
+			cc_btn_font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
+
+		int w_cap = min(width - append_x_offset - x_cap - reduce, cc_btn_font->getRenderWidth(cc_btn_text));
+		int h_cap = min(height - reduce, cc_btn_font->getHeight());
 		/*NOTE:
 			paint of centered text in y direction without y_offset
 			looks unlovely displaced in y direction especially besides small icons and inside small areas,
@@ -204,42 +208,41 @@ void CComponentsButton::initCaption()
 		*/
 		int y_cap = height/2 - h_cap/2;
 
-		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
+		cc_btn_text_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
 
 		//text and font
-		Font* def_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
-		if (cc_btn_font == NULL){
-			/* use dynamic font as default font if no font defined */
-			cc_btn_font = def_font;
-		}else{ 
-			/* if button dimension too small, use dynamic font as default font size, this ignores possible defined font
-			 * Otherwise definied font will be used.
-			*/
-			if (cc_btn_font->getHeight() > h_cap){
-				cc_btn_font = def_font;
-			}
-		}
+		/* If button dimension too small, use dynamic font, this ignores possible defined font
+		 * Otherwise definied font will be used. Button dimensions are calculated from parent container (e.g. footer...).
+		 * These dimensions must be enough to display complete content like possible icon and without truncated text.
+		*/
+		Font *tmp_font = cc_btn_font;
+		if ((tmp_font->getHeight()-reduce) > (height-reduce) && (tmp_font->getRenderWidth(cc_btn_text)-reduce) > width-reduce)
+			tmp_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
+		if ((cc_btn_font->getHeight()-reduce) > (height-reduce))
+			tmp_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
 
-		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
-		cc_btn_capt_obj->forceTextPaint(); //here required;
-		cc_btn_capt_obj->getCTextBoxObject()->setTextBorderWidth(0,0);
+		cc_btn_font = tmp_font;
+
+		cc_btn_text_obj->setText(cc_btn_text, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
+		cc_btn_text_obj->forceTextPaint(); //here required;
+		cc_btn_text_obj->getCTextBoxObject()->setTextBorderWidth(0,0);
 
 		//set color
-		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? cc_btn_capt_col : cc_btn_capt_disable_col);
+		cc_btn_text_obj->setTextColor(this->cc_item_enabled ? cc_btn_text_col : cc_btn_text_disable_col);
 
 		//corner of text item
-		cc_btn_capt_obj->setCorner(corner_rad-w_frame, corner_type);
+		cc_btn_text_obj->setCorner(corner_rad-w_frame, corner_type);
 	}
 
 	//handle common position of icon and text inside container required for alignment
 	int w_required 	= w_frame + append_x_offset;
 	w_required 	+= cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() + append_x_offset : 0;
-	w_required 	+= cc_btn_font ? cc_btn_font->getRenderWidth(cc_btn_capt) : 0;
+	w_required 	+= cc_btn_font ? cc_btn_font->getRenderWidth(cc_btn_text) : 0;
 	w_required 	+= append_x_offset + w_frame;
 
 	//dynamic width
 	if (w_required > width){
-		dprintf(DEBUG_INFO, "[CComponentsButton]   [%s - %d] width of button (%s) will be changed: defined width=%d, required width=%d\n", __func__, __LINE__, cc_btn_capt.c_str(), width, w_required);
+		dprintf(DEBUG_INFO, "[CComponentsButton]   [%s - %d] width of button (%s) will be changed: defined width=%d, required width=%d\n", __func__, __LINE__, cc_btn_text.c_str(), width, w_required);
 		width = max(w_required, width);
 	}
 
@@ -256,22 +259,22 @@ void CComponentsButton::initCaption()
 		int y_icon = height/2 - cc_btn_icon_obj->getHeight()/2;
 		cc_btn_icon_obj->setYPos(y_icon);
 	}
-	if (cc_btn_capt_obj){
-		cc_btn_capt_obj->setXPos(x_icon + w_icon + append_x_offset);
-		cc_btn_capt_obj->setWidth(width - cc_btn_capt_obj->getXPos());
+	if (cc_btn_text_obj){
+		cc_btn_text_obj->setXPos(x_icon + w_icon + append_x_offset);
+		cc_btn_text_obj->setWidth(width - cc_btn_text_obj->getXPos());
 	}
 }
 
 void CComponentsButton::setCaption(const std::string& text)
 {
-	cc_btn_capt = text;
+	cc_btn_text = text;
 	initCCBtnItems();
 }
 
 void CComponentsButton::setCaption(const neutrino_locale_t locale_text)
 {
-	cc_btn_capt_locale = locale_text;
-	setCaption(g_Locale->getText(cc_btn_capt_locale));
+	cc_btn_text_locale = locale_text;
+	setCaption(g_Locale->getText(cc_btn_text_locale));
 }
 
 void CComponentsButton::initCCBtnItems()

@@ -712,6 +712,7 @@ fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertikal (in %)
 fontmenu.scaling_y_hint2 Vertikal (in %) min 50 / max 200
 fontmenu.sizes Schriftgrößen
+fontsize.button_text Schaltflächen-Text
 fontsize.channel_num_zap Direktauswahl
 fontsize.channellist Kanalliste
 fontsize.channellist_descr Beschreibung
@@ -1041,6 +1042,7 @@ menu.hint_epg_max_events Maxiale Anzahl der Events im Zwischenspeicher
 menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden) verworfen
 menu.hint_epg_read Liest nach einem Neustart die EPG-Daten von einem externen Datenträger wieder ein
 menu.hint_epg_read_frequently Liest die EPG-Daten in regelmäßigen Abständen von einem externen Datenträger
+menu.hint_epg_read_now Liest die EPG-Daten von einem externen Datenträger ein
 menu.hint_epg_save Speichert die EPG-Daten beim Herunterfahren auf einem externen Datenträger
 menu.hint_epg_save_frequently Speichert die EPG-Daten in regelmäßigen Abständen auf einem externen Datenträger
 menu.hint_epg_save_mode Speichert die EPG-Daten nur für Sender, die in die Favoriten aufgenommen sind
@@ -1517,6 +1519,7 @@ miscsettings.epg_old_events_hint1 Wie lange abgelaufene EPG-Daten aufheben?
 miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_read Gespeicherte EPG-Daten einlesen
 miscsettings.epg_read_frequently EPG regelmäßig einlesen
+miscsettings.epg_read_now Gespeichterte EPG-Daten jetzt einlesen
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_frequently EPG regelmäßig speichern
 miscsettings.epg_save_mode Nur Favoriten
@@ -1685,7 +1688,7 @@ moviebrowser.head_recordlist Zuletzt aufgenommen:
 moviebrowser.help_button_blue Filminfos neu laden
 moviebrowser.help_button_green Filterfenster einblenden
 moviebrowser.help_button_left Ansicht ändern
-moviebrowser.help_button_menu Hauptmenü öffnen
+moviebrowser.help_button_menu Filminfos und Einstellungen
 moviebrowser.help_button_mute Filme löschen
 moviebrowser.help_button_okay Filme abspielen
 moviebrowser.help_button_play Filme markieren
@@ -1828,22 +1831,25 @@ movieplayer.bookmarkname_hint2
 movieplayer.chapters Kapitel
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
+movieplayer.help_additional Weitere benutzerdefinierte Tastenbelegungen sind unter "Hauptmenü" > "Einstellungen" > "Tasten" > "Bearbeiten" > "Movieplayer" zu finden.\n\nWährend der Wiedergabe von Filmen sind im Hauptmenü einige Menüpunkte deaktiviert.
+movieplayer.help_button_1 1 Minute zurück
+movieplayer.help_button_2 Zum Filmanfang springen
+movieplayer.help_button_3 1 Minute vor
+movieplayer.help_button_4 3 Minuten zurück
+movieplayer.help_button_5 Zur Filmmitte springen
+movieplayer.help_button_6 3 Minuten vor
+movieplayer.help_button_7 10 Minuten zurück
+movieplayer.help_button_8 Zum Filmende springen
+movieplayer.help_button_9 10 Minuten vor
+movieplayer.help_button_backward Schneller Rücklauf
+movieplayer.help_button_forward Schneller Vorlauf
+movieplayer.help_button_menu Hauptmenü öffnen
+movieplayer.help_button_pause Pause / Weiter
+movieplayer.help_button_stop Stopp
 movieplayer.plugin Movieplayer-Plugin
 movieplayer.starting Wiedergabe starten ...
 movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
-movieplayer.tshelp1 Stopp
-movieplayer.tshelp10 ca. 10 Minuten zurück
-movieplayer.tshelp11 ca. 10 Minuten vor
-movieplayer.tshelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.tshelp2 Auswahl der Tonspur
-movieplayer.tshelp3 Pause/Weiter
-movieplayer.tshelp4 Bookmark setzen
-movieplayer.tshelp5 Zeit einblenden
-movieplayer.tshelp6 ca. 1 Minute zurück
-movieplayer.tshelp7 ca. 1 Minute vor
-movieplayer.tshelp8 ca. 5 Minuten zurück
-movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback TS Abspielen
 movieplayer.ytplayback YouTube-Feed Wiedergabe
 mpkey.audio Tonspuren
@@ -2368,8 +2374,8 @@ timerlist.repeat.wednesday Mi
 timerlist.repeat.weekdays An Wochentagen
 timerlist.repeat.weekly wöchentlich
 timerlist.repeatcount Wiederholungen
-timerlist.repeatcount.help1 Anzahl der Timerausführungen
-timerlist.repeatcount.help2 0 für unbegrenzte Anzahl
+timerlist.repeatcount.hint_1 Anzahl der Timerausführungen
+timerlist.repeatcount.hint_2 0 für unbegrenzte Anzahl
 timerlist.save Timer speichern
 timerlist.standby Aktion
 timerlist.standby.off Aufwachen aus Standby
@@ -2448,6 +2454,7 @@ usermenu.title_blue Erweiterungen
 usermenu.title_green Tonwahl
 usermenu.title_red EPG
 usermenu.title_yellow Bildoptionen
+usermenus.head Benutzermenüs
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
 videomenu.analog_auto AUTO

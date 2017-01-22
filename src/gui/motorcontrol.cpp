@@ -542,7 +542,7 @@ void CMotorControl::paintMenu()
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_9,
 			installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_CALC_POSITIONS) : g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DECREASE));
 
-	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_TOP, g_Locale->getText(LOCALE_MOTORCONTROL_POS_INCREASE));
+	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_UP, g_Locale->getText(LOCALE_MOTORCONTROL_POS_INCREASE));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_DOWN, g_Locale->getText(LOCALE_MOTORCONTROL_POS_DECREASE));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_BLUE, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DRIVE));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_INFO_SMALL, g_Locale->getText(LOCALE_MOTORCONTROL_NETWORK));

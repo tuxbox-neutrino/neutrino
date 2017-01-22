@@ -282,8 +282,9 @@ class CRCInput
 		{
 			return fd_rc[0];
 		}
-		void stopInput();
-		void restartInput();
+		void stopInput(const bool ext = false);
+		void restartInput(const bool ext = false);
+		bool isLocked(void);
 
 		uint64_t repeat_block;
 		uint64_t repeat_block_generic;

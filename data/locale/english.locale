@@ -712,6 +712,7 @@ fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertical (in %)
 fontmenu.scaling_y_hint2 Vertical (in %) min 50 / max 200
 fontmenu.sizes Font sizes
+fontsize.button_text Button text
 fontsize.channel_num_zap direct selection
 fontsize.channellist Channellist
 fontsize.channellist_descr Description
@@ -1041,6 +1042,7 @@ menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cach
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
 menu.hint_epg_read Read saved EPG data after boot from an external device
 menu.hint_epg_read_frequently Read cached EPG data in frequently intervals from an external device
+menu.hint_epg_read_now Read saved EPG data from an external device
 menu.hint_epg_save Save cached EPG data to an external device
 menu.hint_epg_save_frequently Save cached EPG data in frequently intervals to an external device
 menu.hint_epg_save_mode Cache EPG only for channels present in favorite bouquets
@@ -1517,6 +1519,7 @@ miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they ti
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_read Restore EPG on boot
 miscsettings.epg_read_frequently Restore EPG frequently
+miscsettings.epg_read_now Restore EPG now
 miscsettings.epg_save Save EPG on shutdown
 miscsettings.epg_save_frequently Save EPG frequently
 miscsettings.epg_save_mode Favorites only
@@ -1685,7 +1688,7 @@ moviebrowser.head_recordlist Last recorded:
 moviebrowser.help_button_blue Reload movie informations
 moviebrowser.help_button_green Show filter selection
 moviebrowser.help_button_left Change view
-moviebrowser.help_button_menu Open main menu
+moviebrowser.help_button_menu Movie infos and settings
 moviebrowser.help_button_mute Delete movies
 moviebrowser.help_button_okay Play movies
 moviebrowser.help_button_play Mark movies
@@ -1828,22 +1831,25 @@ movieplayer.bookmarkname_hint2
 movieplayer.chapters Chapters
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
+movieplayer.help_additional To find more user definable key bindings, see "Mainmenu" > "Settings" > "Keys" > "Edit" > "Movieplayer".\n\nWhile movie playback some menuitems in mainmenu are deactivated.
+movieplayer.help_button_1 1 minute backward
+movieplayer.help_button_2 Jump to movie's start
+movieplayer.help_button_3 1 minute forward
+movieplayer.help_button_4 3 minutes backward
+movieplayer.help_button_5 Jump to movie's middle
+movieplayer.help_button_6 3 minutes forward
+movieplayer.help_button_7 10 minutes backward
+movieplayer.help_button_8 Jump to movie's end
+movieplayer.help_button_9 10 minutes forward
+movieplayer.help_button_backward Fast rewind
+movieplayer.help_button_forward Fast forward
+movieplayer.help_button_menu Open main menu
+movieplayer.help_button_pause Pause / Continue
+movieplayer.help_button_stop Stop
 movieplayer.plugin Movieplayer plugin
 movieplayer.starting Starting playback ...
 movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
-movieplayer.tshelp1 Stop
-movieplayer.tshelp10 approx. 10 minutes back
-movieplayer.tshelp11 skip approx. 10 minutes
-movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.tshelp2 Select audio track
-movieplayer.tshelp3 Pause/Continue
-movieplayer.tshelp4 Create bookmark
-movieplayer.tshelp5 Show progress
-movieplayer.tshelp6 approx. 1 minute back
-movieplayer.tshelp7 skip approx. 1 minute
-movieplayer.tshelp8 approx. 5 minutes back
-movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
 movieplayer.ytplayback YouTube videoplayer
 mpkey.audio Audiotracks
@@ -2368,8 +2374,8 @@ timerlist.repeat.wednesday We
 timerlist.repeat.weekdays on weekdays
 timerlist.repeat.weekly weekly
 timerlist.repeatcount repeats
-timerlist.repeatcount.help1 amount of timer repeats
-timerlist.repeatcount.help2 0 for unlimited repeats
+timerlist.repeatcount.hint_1 Amount of timer repeats
+timerlist.repeatcount.hint_2 0 for unlimited repeats
 timerlist.save Save timer
 timerlist.standby Action
 timerlist.standby.off Leave standby
@@ -2448,6 +2454,7 @@ usermenu.title_blue Features
 usermenu.title_green Audio
 usermenu.title_red Event-List
 usermenu.title_yellow Video
+usermenus.head User menus
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode
 videomenu.analog_auto AUTO

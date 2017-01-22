@@ -263,6 +263,9 @@ CMovieBrowser::~CMovieBrowser()
 
 	if (m_movieCover)
 		delete m_movieCover;
+
+	if (m_header)
+		delete m_header;
 }
 
 void CMovieBrowser::clearListLines()
@@ -330,6 +333,7 @@ void CMovieBrowser::init(void)
 	m_pcInfo1 = NULL;
 	m_pcInfo2 = NULL;
 	m_pcFilter = NULL;
+	m_header = NULL;
 	m_windowFocus = MB_FOCUS_BROWSER;
 
 	m_textTitle = g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD);
@@ -606,8 +610,20 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->sorting.direction = (MB_DIRECTION)configfile.getInt32("mb_sorting_direction", MB_DIRECTION_UP);
 
 	settings->filter.item = (MB_INFO_ITEM)configfile.getInt32("mb_filter_item", MB_INFO_MAX_NUMBER);
-	settings->filter.optionString = configfile.getString("mb_filter_optionString", "");
+	settings->filter.optionString = configfile.getString("mb_filter_optionString", g_Locale->getText(LOCALE_OPTIONS_OFF));
 	settings->filter.optionVar = configfile.getInt32("mb_filter_optionVar", 0);
+
+	if (settings->filter.item == MB_INFO_FILEPATH)
+	{
+		struct stat info;
+		if (!(stat(settings->filter.optionString.c_str(), &info) == 0 && S_ISDIR(info.st_mode)))
+		{
+			//reset filter if directory not exists
+			settings->filter.item = MB_INFO_MAX_NUMBER;
+			settings->filter.optionString = g_Locale->getText(LOCALE_OPTIONS_OFF);
+			settings->filter.optionVar = 0;
+		}
+	}
 
 	settings->parentalLockAge = (MI_PARENTAL_LOCKAGE)configfile.getInt32("mb_parentalLockAge", MI_PARENTAL_OVER18);
 	settings->parentalLock = (MB_PARENTAL_LOCK)configfile.getInt32("mb_parentalLock", MB_PARENTAL_LOCK_ACTIVE);
@@ -1069,10 +1085,11 @@ int CMovieBrowser::exec(const char* path)
 void CMovieBrowser::hide(void)
 {
 	//TRACE("[mb]->%s\n", __func__);
-	if (m_channelLogo)
-	{
-		delete m_channelLogo;
-		m_channelLogo = NULL;
+	if (m_channelLogo){
+		delete m_channelLogo; m_channelLogo = NULL;
+	}
+	if (m_header)	{
+		delete m_header; m_header = NULL;
 	}
 	old_EpgId = 0;
 	framebuffer->paintBackground();
@@ -1313,7 +1330,7 @@ void CMovieBrowser::refreshChannelLogo(void)
 
 		int x = m_cBoxFrame.iX + m_cBoxFrameTitleRel.iX + m_cBoxFrameTitleRel.iWidth - m_channelLogo->getWidth() - OFFSET_INNER_MID;
 		int y = m_cBoxFrame.iY + m_cBoxFrameTitleRel.iY + (m_cBoxFrameTitleRel.iHeight - m_channelLogo->getHeight())/2;
-		m_channelLogo->setXPos(x - pb_hdd_offset);
+		m_channelLogo->setXPos(x - pb_hdd_offset - m_header->getContextBtnObject()->getWidth());
 		m_channelLogo->setYPos(y);
 		m_channelLogo->hide();
 		m_channelLogo->paint();
@@ -1543,7 +1560,7 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 		tmp_blocks_percent_used = blocks_percent_used;
 		const short pbw = 100;
 		const short border = m_cBoxFrameTitleRel.iHeight/4;
-		CProgressBar pb(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw, m_cBoxFrameTitleRel.iHeight/2);
+		CProgressBar pb(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - m_header->getContextBtnObject()->getWidth() - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw, m_cBoxFrameTitleRel.iHeight/2);
 		pb.setType(CProgressBar::PB_REDRIGHT);
 		pb.setValues(blocks_percent_used, 100);
 		pb.paint(false);
@@ -1830,9 +1847,11 @@ void CMovieBrowser::refreshTitle(void)
 	int w = m_cBoxFrameTitleRel.iWidth;
 	int h = m_cBoxFrameTitleRel.iHeight;
 
-	CComponentsHeader header(x, y, w, h, title.c_str(), icon);
-	header.paint(CC_SAVE_SCREEN_NO);
-	newHeader = header.isPainted();
+	if (!m_header){
+		m_header = new CComponentsHeader(x, y, w, h, title.c_str(), icon, CComponentsHeader::CC_BTN_HELP);
+	}
+	m_header->paint(CC_SAVE_SCREEN_NO);
+	newHeader = m_header->isPainted();
 
 	info_hdd_level(true);
 }
@@ -2067,7 +2086,11 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			onDelete();
 		}
 	}
-	else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
+	else if (msg == CRCInput::RC_help)
+	{
+		showHelp();
+	}
+	else if (msg == CRCInput::RC_info)
 	{
 		if (m_movieSelectionHandler != NULL)
 		{
@@ -3136,10 +3159,8 @@ void CMovieBrowser::loadAllMovieInfo(void)
 void CMovieBrowser::showHelp(void)
 {
 	CMovieHelp help;
-	help.exec(NULL,NULL);
+	help.exec();
 }
-
-
 
 #define MAX_STRING 30
 int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
@@ -3402,7 +3423,6 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 
 	/********************************************************************/
 	/**  main menu ******************************************************/
-	CMovieHelp* movieHelp = new CMovieHelp();
 	CNFSSmallMenu* nfs =    new CNFSSmallMenu();
 
 	if (!calledExternally) {
@@ -3416,9 +3436,6 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &dirMenu,    NULL,                                  CRCInput::RC_2));
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES,       true, NULL, this,        "reload_movie_info",                   CRCInput::RC_3));
 		//mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_NFS_HEAD,       true, NULL, nfs,         NULL,                                  CRCInput::RC_setup));
-		mainMenu.addItem(GenericMenuSeparatorLine);
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_HELP_HEAD,        true, NULL, movieHelp,   NULL,                                  CRCInput::RC_help));
-		//mainMenu.addItem(GenericMenuSeparator);
 
 		mainMenu.exec(NULL, " ");
 	} else
@@ -3490,7 +3507,6 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	for (i = 0; i < MB_MAX_DIRS; i++)
 		delete notifier[i];
 
-	delete movieHelp;
 	delete nfs;
 
 	return(true);

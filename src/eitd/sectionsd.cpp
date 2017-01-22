@@ -1226,7 +1226,7 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 
 	writeLockMessaging();
 	data[dataLength] = '\0';
-	epg_dir = (std::string)data + "/";
+	static std::string epg_dir_tmp = (std::string)data + "/";
 	unlockMessaging();
 
 
@@ -1234,7 +1234,7 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)epg_dir.c_str() ))
+	if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)epg_dir_tmp.c_str() ))
 	{
 		perror("sectionsd: pthread_create()");
 	}

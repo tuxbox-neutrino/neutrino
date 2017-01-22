@@ -162,7 +162,8 @@ size_t moviebrowser_font_items = sizeof(moviebrowser_font_sizes)/sizeof(moviebro
 const SNeutrinoSettings::FONT_TYPES other_font_sizes[] =
 {
 	SNeutrinoSettings::FONT_TYPE_SUBTITLES,
-	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
+	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM,
+	SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT
 };
 size_t other_font_items = sizeof(other_font_sizes)/sizeof(other_font_sizes[0]);
 
@@ -181,7 +182,7 @@ font_sizes_groups font_sizes_groups[] =
 	{LOCALE_FONTMENU_EPG        , epg_font_items        , epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
 	{LOCALE_FONTMENU_INFOBAR    , infobar_font_items    , infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
 	{LOCALE_FONTMENU_MOVIEBROWSER,moviebrowser_font_items,moviebrowser_font_sizes,"fontsize.dmbr", LOCALE_MENU_HINT_MOVIEBROWSER_FONTS },
-	{LOCALE_FONTMENU_MESSAGES   , msgtext_font_items    , msgtext_font_sizes    , "fontsize.msg",  LOCALE_MENU_HINT_MESSAGE_FONTS },
+	{LOCALE_FONTMENU_MESSAGES   , msgtext_font_items    , msgtext_font_sizes    , "fontsize.dmsg",  LOCALE_MENU_HINT_MESSAGE_FONTS },
 	{LOCALE_FONTMENU_OTHER      , other_font_items      , other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_OTHER_FONTS }
 };
 #define FONT_GROUP_COUNT (sizeof(font_sizes_groups)/sizeof(font_sizes_groups[0]))
@@ -216,7 +217,8 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_MOVIEBROWSER_LIST  ,  17, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
 	{LOCALE_FONTSIZE_MOVIEBROWSER_INFO  ,  17, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
 	{LOCALE_FONTSIZE_SUBTITLES          ,  25, CNeutrinoFonts::FONT_STYLE_BOLD   , 0},
-	{LOCALE_FONTSIZE_MESSAGE_TEXT       ,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1}
+	{LOCALE_FONTSIZE_MESSAGE_TEXT       ,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_BUTTON_TEXT        ,  14, CNeutrinoFonts::FONT_STYLE_REGULAR, 0}
 };
 
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -1021,7 +1023,7 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 	nf += g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 	{
-		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 180);
+		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 240);
 		ch->setNumberFormat(nf);
 		ch->setHint("", timing_setting[i].hint);
 		menu_timeout->addItem(ch);
@@ -1220,7 +1222,7 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	menu_chanlist->addItem(mc);
 
 	// extended channel list
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_progressbar_design, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.theme.progressbar_design_channellist, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
 	menu_chanlist->addItem(mc);
 

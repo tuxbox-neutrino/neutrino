@@ -55,7 +55,7 @@
 #include <zapit/zapit.h>
 #include <zapit/scan.h>
 #include <zapit/femanager.h>
-
+#include <driver/record.h>
 #include <gui/buildinfo.h>
 #include <gui/widget/buttons.h>
 #include <system/helpers.h>
@@ -90,6 +90,7 @@ CTestMenu::CTestMenu()
 	clock = clock_r = NULL;
 	text_ext = NULL;
 	scrollbar = NULL;
+	timer = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -845,7 +846,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "msgbox_test_yes_no")
 	{
-		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 500, -1);
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
 		msg_txt += to_string(msgRet);
@@ -868,7 +869,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "msgbox_test_all"){
-		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbAll, NULL, 700, -1);
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbAll, NULL, 700);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
 		msg_txt += to_string(msgRet);
@@ -876,7 +877,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "msgbox_test_yes_no_cancel"){
-		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel, NULL, 500, -1);
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
 		msg_txt += to_string(msgRet);
@@ -884,7 +885,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "msgbox_test_ok_cancel"){
-		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbOk | CMsgBox::mbCancel, NULL, 500, -1);
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbOk | CMsgBox::mbCancel, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
 		msg_txt += to_string(msgRet);
@@ -892,7 +893,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "msgbox_test_no_yes"){
-		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbNoYes, NULL, 500, -1);
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbNoYes, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
 		msg_txt += to_string(msgRet);
@@ -900,7 +901,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "msgbox_test_ok"){
-		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key! ...", CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 500, -1);
+		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key! ...", CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
 		msg_txt += to_string(msgRet);
@@ -940,9 +941,95 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
+	else if (actionKey == "show_records"){
+		showRecords();
+		return res;
+	}
 	
 	
 	return showTestMenu();
+}
+
+void CTestMenu::showRecords()
+{
+	CRecordManager * crm	= CRecordManager::getInstance();
+
+	const int box_posX = 30;
+	const int box_posY = 300;
+	if (!timer)
+		timer = new CComponentsTimer(1);
+
+	if (crm->RecordingStatus())
+	{
+		CComponentsForm *recordsbox = new CComponentsForm();
+		recordsbox->setWidth(0);
+		recordsbox->doPaintBg(false);
+		recordsbox->setCornerType(CORNER_NONE);
+		//recordsbox->setColorBody(COL_BACKGROUND_PLUS_0);
+
+		recmap_t recmap = crm->GetRecordMap();
+		std::vector<CComponentsPicture*> images;
+		CComponentsForm *recline = NULL;
+		CComponentsText *rec_name = NULL;
+		int y_recline = 0;
+		int h_recline = 0;
+		int w_recbox = 0;
+		int w_shadow = OFFSET_SHADOW/2;
+
+		for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
+		{
+			CRecordInstance * inst = it->second;
+
+			recline = new CComponentsForm(0, y_recline, 0);
+			recline->doPaintBg(true);
+			recline->setColorBody(COL_INFOBAR_PLUS_0);
+			recline->enableShadow(CC_SHADOW_ON, w_shadow);
+			recline->setCorner(CORNER_RADIUS_MID);
+			recordsbox->addCCItem(recline);
+
+			CComponentsPicture *iconf = new CComponentsPicture(OFFSET_INNER_MID, CC_CENTERED, NEUTRINO_ICON_REC, recline, CC_SHADOW_OFF, COL_RED, COL_INFOBAR_PLUS_0);
+			iconf->setCornerType(CORNER_NONE);
+			iconf->doPaintBg(true);
+			iconf->SetTransparent(CFrameBuffer::TM_BLACK);
+			images.push_back(iconf);
+			h_recline = iconf->getHeight();
+			y_recline += h_recline + w_shadow;
+			recline->setHeight(h_recline);
+
+			std::string records_msg = inst->GetEpgTitle();
+
+			rec_name = new CComponentsText(iconf->getWidth()+2*OFFSET_INNER_MID, CC_CENTERED, 0, 0, records_msg, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
+			rec_name->doPaintBg(false);
+			rec_name->setTextColor(COL_INFOBAR_TEXT);
+
+			recline->setHeight(std::max(rec_name->getHeight(), iconf->getHeight()));
+			recline->setWidth(OFFSET_INNER_MIN+iconf->getWidth()+OFFSET_INNER_MID+rec_name->getWidth()+OFFSET_INNER_MID);
+			w_recbox = (std::max(recline->getWidth(), recordsbox->getWidth()));
+
+			recline->addCCItem(rec_name);
+
+			recordsbox->setWidth(std::max(recordsbox->getWidth(), recline->getWidth()));
+			y_recline += h_recline;
+		}
+
+		int h_rbox = 0;
+		for(size_t i = 0; i< recordsbox->size(); i++)
+			h_rbox += recordsbox->getCCItem(i)->getHeight()+w_shadow;
+
+		recordsbox->setDimensionsAll(box_posX, box_posY, w_recbox+w_shadow, h_rbox);
+		recordsbox->paint0();
+
+		for(size_t j = 0; j< images.size(); j++){
+			images[j]->kill();
+			images[j]->paintBlink(timer);
+		}
+
+		ShowHint("Testmenu: Records", "Record test ...", 200, 30, NULL, NEUTRINO_ICON_HINT_RECORDING, CComponentsHeader::CC_BTN_EXIT);
+		recordsbox->kill();
+		delete recordsbox; recordsbox = NULL;
+	}
+	else
+		ShowHint("Testmenu: Records", "No records ...", 200, 30, NULL, NEUTRINO_ICON_HINT_RECORDING, CComponentsHeader::CC_BTN_EXIT);
 }
 
 /* shows entries for proxy settings */
@@ -1016,6 +1103,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Text-Extended", true, NULL, this, "text_ext"));
 	widget->addItem(new CMenuForwarder("Blinking Extended Text", true, NULL, this, "blinking_text_ext"));
 	widget->addItem(new CMenuForwarder("Scrollbar", true, NULL, this, "scrollbar"));
+	widget->addItem(new CMenuForwarder("Record", true, NULL, this, "show_records"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)

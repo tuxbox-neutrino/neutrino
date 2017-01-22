@@ -59,7 +59,6 @@ const struct usermenu_props_t usermenu[USERMENU_ITEMS_COUNT] =
 	{LOCALE_USERMENU_BUTTON_BLUE	, SNeutrinoSettings::BUTTON_BLUE	, CRCInput::RC_blue	,NEUTRINO_ICON_BUTTON_BLUE	,LOCALE_USERMENU_TITLE_BLUE	}
 };
 
-
 class CUserMenuSetup : public CMenuTarget
 {	
 	private:
@@ -86,6 +85,5 @@ class CUserMenuSetup : public CMenuTarget
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		static neutrino_locale_t getLocale(unsigned int i);
 };
-
 
 #endif

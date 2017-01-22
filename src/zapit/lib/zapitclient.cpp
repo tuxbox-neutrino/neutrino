@@ -635,6 +635,19 @@ void CZapitClient::getVolume(unsigned int *left, unsigned int *right)
 
         close_connection();
 }
+
+void CZapitClient::lockRc(const bool b)
+{
+	CZapitMessages::commandBoolean msg;
+	//VALGRIND_PARANOIA;
+
+	msg.truefalse = b;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	send(CZapitMessages::CMD_LOCKRC, (char*)&msg, sizeof(msg));
+
+	close_connection();
+}
 #if 0 
 //never used
 delivery_system_t CZapitClient::getDeliverySystem(void)

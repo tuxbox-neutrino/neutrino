@@ -54,12 +54,14 @@ class CTestMenu : public CMenuTarget
 		CComponentsChannelLogo* chnl_pic;
 		CComponentsExtTextForm* text_ext;
 		CComponentsScrollBar* scrollbar;
+		CComponentsTimer *timer;
 		int width, selected;
 
 		int showTestMenu();
 		void showHWTests(CMenuWidget *widget);
 		void showCCTests(CMenuWidget *widget);
 		void showMsgTests(CMenuWidget *widget);
+		void showRecords();
 	public:	
 		CTestMenu();
 		~CTestMenu();

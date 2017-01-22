@@ -665,6 +665,7 @@ fontmenu.scaling_x_hint2 Horizontaal (in %) min 50 / max 200
 fontmenu.scaling_y Verticaal (in %)
 fontmenu.scaling_y_hint2 Verticaal (in %) min 50 / max 200
 fontmenu.sizes Lettertype grootte
+fontsize.button_text Button text
 fontsize.channel_num_zap directe selectie
 fontsize.channellist Kanalenlijst
 fontsize.channellist_descr Omschrijving
@@ -2201,9 +2202,9 @@ timing.infobar_movieplayer Infobalk (film modus)
 timing.infobar_radio Infobalk (radio modus)
 timing.menu Menu
 timing.numericzap Numeriek Zap
-timing.volumebar Volume balk
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
+timing.volumebar Volume balk
 tmdb.read_data Zoeken TMDB data...
 unicable.lnb Invoer Unicable
 unicable.qrg Unicable Frequentie

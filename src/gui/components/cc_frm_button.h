@@ -50,7 +50,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///object: picture object
 		CComponentsPictureScalable *cc_btn_icon_obj;
 		///object: label object
-		CComponentsLabel *cc_btn_capt_obj;
+		CComponentsLabel *cc_btn_text_obj;
 
 		///initialize all required attributes and objects
 		void initVarButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -63,9 +63,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
 
 		///property: button text as string, see also setCaption() and getCaptionString()
-		std::string cc_btn_capt;
+		std::string cc_btn_text;
 		///property: button text as locale, see also setCaption() and getCaptionLocale()
-		neutrino_locale_t cc_btn_capt_locale;
+		neutrino_locale_t cc_btn_text_locale;
 
 		///property: icon name, only icons supported, to find in gui/widget/icons.h
 		std::string cc_btn_icon;
@@ -80,9 +80,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		int 	cc_btn_alias;
 
 		///property: text color
-		fb_pixel_t cc_btn_capt_col;
+		fb_pixel_t cc_btn_text_col;
 		///property: text color for disabled button
-		fb_pixel_t cc_btn_capt_disable_col;
+		fb_pixel_t cc_btn_text_disable_col;
 		///object: text font
 		Font* cc_btn_font;
 		///object: dynamic font object handler
@@ -135,7 +135,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///set text color
-		inline virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_capt_col = caption_color;};
+		inline virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_text_col = caption_color;};
 
 		/**Member to modify background behavior of embeded caption object.
 		* @param[in]  mode
@@ -164,9 +164,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		virtual void setCaption(const neutrino_locale_t locale_text);
 
 		///get caption, type as std::string
-		inline virtual std::string getCaptionString(){return cc_btn_capt;};
+		inline virtual std::string getCaptionString(){return cc_btn_text;};
 		///get loacalized caption id, type = neutrino_locale_t
-		inline virtual neutrino_locale_t getCaptionLocale(){return cc_btn_capt_locale;};
+		inline virtual neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;};
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
 		virtual void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
