@@ -2169,7 +2169,7 @@ void CInfoViewer::killTitle()
 			clock->kill();
 #endif
 		body->kill();
-#if 0 //not really required to kill epg infos, body does this
+
 		if (txt_cur_event)
 			txt_cur_event->kill();
 		if (txt_cur_event_rest)
@@ -2182,7 +2182,7 @@ void CInfoViewer::killTitle()
 			txt_next_event->kill();
 		if (txt_next_in)
 			txt_next_in->kill();
-#endif
+
 		if (timescale)
 			if (g_settings.infobar_progressbar == SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT)
 				timescale->kill();
