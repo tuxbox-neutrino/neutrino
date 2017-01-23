@@ -274,7 +274,8 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 void CComponentsText::paintText(bool do_save_bg)
 {
 	initCCText();
-	paintInit(do_save_bg);
+	if (!is_painted)
+		paintInit(do_save_bg);
 
 	if (ct_text_sent && cc_allow_paint)
 		ct_textbox->paint();
@@ -291,8 +292,20 @@ void CComponentsText::hide()
 {
 	if (ct_textbox)
 		ct_textbox->hide();
-	ct_old_text = "";
-	CComponents::hide();
+
+	ct_old_text.clear();
+	CCDraw::hide();
+	ct_force_text_paint = true;
+}
+
+void CComponentsText::kill()
+{
+	if (ct_textbox)
+		ct_textbox->hide();
+
+	ct_old_text.clear();
+	CCDraw::kill();
+	ct_force_text_paint = true;
 }
 
 void CComponentsText::setXPos(const int& xpos)

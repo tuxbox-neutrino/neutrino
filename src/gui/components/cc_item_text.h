@@ -138,6 +138,8 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		///default members to paint a text box and hide painted text
 		///hide textbox
 		void hide();
+		///remove textbox from screen
+		void kill();
 		///paint text box, parameter do_save_bg: default = true, causes fill of backckrond pixel buffer
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
