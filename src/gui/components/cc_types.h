@@ -147,14 +147,6 @@ enum
 	CC_ALONG_Y 		= 2
 };
 
-enum
-{
-	CC_ITEMBOX_ICON,
-	CC_ITEMBOX_PICTURE,
-	CC_ITEMBOX_TEXT,
-	CC_ITEMBOX_CLOCK
-};
-
 typedef struct cc_element_data_t
 {
 	int		type;
