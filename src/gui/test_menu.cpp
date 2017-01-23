@@ -560,7 +560,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "text_ext"){
 		if (text_ext == NULL)
 			text_ext = new CComponentsExtTextForm();
-		text_ext->setDimensionsAll(10, 20, 300, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight());
+		text_ext->setDimensionsAll(10, 20, 300, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight()+2*2);
 		text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
 		text_ext->setFrameThickness(2);
 // 		text_ext->setLabelWidthPercent(15/*%*/);
@@ -577,15 +577,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			text_ext->setDimensionsAll(10, 20, 300, 48);
 			text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
 			text_ext->setFrameThickness(2);
-	// 		text_ext->setLabelWidthPercent(15/*%*/);
-			text_ext->paint0();
-			static_cast<CComponentsText*>(text_ext->getCCItem(1))->kill();
 		}
 
-		if (static_cast<CComponentsText*>(text_ext->getCCItem(1))-> paintBlink(500000, true)){
+		if (text_ext->paintBlink(500000, true)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text is running ...", 700, 10);
 		}
-		if (text_ext->getTextObject()->cancelBlink()){
+		if (text_ext->cancelBlink()){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text stopped ...", 700, 2);
 		}
 		return res;
