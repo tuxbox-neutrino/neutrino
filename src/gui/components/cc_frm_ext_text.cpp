@@ -29,6 +29,8 @@
 #include <neutrino.h>
 #include "cc_frm_ext_text.h"
 
+#include <sigc++/bind.h>
+
 #define DEF_HEIGHT 27
 #define DEF_LABEL_WIDTH_PERCENT 30
 
@@ -112,56 +114,60 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	}
 	ccx_label_align = ccx_text_align = CTextBox::NO_AUTO_LINEBREAK;
 
+	//init slot to ensure paint text items after painted background
+	sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsExtTextForm::forceItemsPaint), true);
+
 	initParent(parent);
 
 }
 
 void CComponentsExtTextForm::initLabel()
 {
-	//initialize label object
 	if (ccx_label_obj == NULL){
-		ccx_label_obj = new CComponentsLabel();
-		ccx_label_obj->doPaintBg(!cc_txt_save_screen);
-		ccx_label_obj->doPaintTextBoxBg(false);
-		ccx_label_obj->enableTboxSaveScreen(cc_txt_save_screen);
-	}	
+		//create ccx_label_obj and add to collection
+		ccx_label_obj = new CComponentsLabel(this);
+		ccx_label_obj->doPaintBg(false);
+	}
 
-	//add label object
-	if (!ccx_label_obj->isAdded())
-		addCCItem(ccx_label_obj);
-
-	//set properties
+	//set label properties
 	if (ccx_label_obj){
-		ccx_label_width = (ccx_percent_label_w * width/100);
+		//assign general properties
 		y_text = height/2 - height-2*fr_thickness;
-		ccx_label_obj->setText(ccx_label_text, ccx_label_align, ccx_font);
-		ccx_label_obj->setTextColor(ccx_label_color);
 		ccx_label_obj->setDimensionsAll(0, y_text, ccx_label_width-2*fr_thickness, height-2*fr_thickness);
-		ccx_label_obj->setCorner(this->corner_rad, CORNER_LEFT);
+		ccx_label_obj->setColorBody(col_body);
+		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
+			ccx_label_obj->getCTextBoxObject()->clearScreenBuffer();
+		ccx_label_obj->setTextColor(ccx_label_color);
+		ccx_label_obj->setText(ccx_label_text, ccx_label_align, ccx_font);
+		ccx_label_obj->enableTboxSaveScreen(cc_body_gradient_enable || cc_txt_save_screen);
+
+		//corner of label item
+		ccx_label_obj->setCorner(corner_rad-fr_thickness, CORNER_LEFT);
 	}
 }
 
 void CComponentsExtTextForm::initText()
 {
-	//initialize text object
+	//set text properties
 	if (ccx_text_obj == NULL){
-		ccx_text_obj = new CComponentsText();
-		ccx_text_obj->doPaintBg(!cc_txt_save_screen);
-		ccx_text_obj->doPaintTextBoxBg(false);
-		ccx_text_obj->enableTboxSaveScreen(cc_txt_save_screen);
+		//create ccx_text_obj and add to collection
+		ccx_text_obj = new CComponentsText(this);
+		ccx_text_obj->doPaintBg(false);
 	}
 
-	//add text object
-	if (!ccx_text_obj->isAdded())
-		addCCItem(ccx_text_obj);
-
-	//set properties
 	if (ccx_text_obj){
-		ccx_text_width = width-ccx_label_obj->getWidth();
-		ccx_text_obj->setText(ccx_text, ccx_text_align, ccx_font);
-		ccx_text_obj->setTextColor(ccx_text_color);
+		//assign general properties
+		y_text = height/2 - height-2*fr_thickness;
 		ccx_text_obj->setDimensionsAll(ccx_label_obj->getWidth(), y_text, ccx_text_width-2*fr_thickness, height-2*fr_thickness);
-		ccx_text_obj->setCorner(this->corner_rad, CORNER_RIGHT);
+		ccx_text_obj->setColorBody(col_body);
+		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
+			ccx_text_obj->getCTextBoxObject()->clearScreenBuffer();
+		ccx_text_obj->setTextColor(ccx_text_color);
+		ccx_text_obj->setText(ccx_text, ccx_text_align, ccx_font);;
+		ccx_text_obj->enableTboxSaveScreen(cc_body_gradient_enable || cc_txt_save_screen);
+
+		//corner of text item
+		ccx_text_obj->setCorner(corner_rad-fr_thickness, CORNER_RIGHT);
 	}
 }
 
@@ -216,6 +222,11 @@ void CComponentsExtTextForm::initCCTextItems()
 {
 	initLabel();
 	initText();
+
+	if(!OnAfterPaintBg.empty())
+		OnAfterPaintBg.clear();
+	//init slot to handle repaint of text if background was repainted
+	OnAfterPaintBg.connect(sl_repaint);
 }
 
 void CComponentsExtTextForm::setLabelWidthPercent(const uint8_t& percent_val)
