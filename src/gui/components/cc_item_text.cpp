@@ -78,7 +78,7 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 					int shadow_mode,
 					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_item_type 	= CC_ITEMBOX_TEXT;
+	cc_item_type 	= CC_ITEMTYPE_TEXT;
 	ct_font 	= font_text;
 	ct_textbox	= NULL;
 	ct_text 	= text;
