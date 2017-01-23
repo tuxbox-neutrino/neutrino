@@ -732,10 +732,10 @@ void CCDraw::enableShadow(int mode, const int& shadow_width, bool force_paint)
 
 void CCDraw::paintTrigger()
 {
-	if (!is_painted)
-		paint1();
-	else
+	if (is_painted)
 		hide();
+	else
+		paint();
 }
 
 bool CCDraw::paintBlink(CComponentsTimer* Timer)
