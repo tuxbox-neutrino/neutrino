@@ -180,7 +180,7 @@ void CComponentsText::initCCText()
 	//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
 	//this is managed by CTextBox object itself
 	ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
-	
+
 	//set current text status, needed by textChanged()
 	if (ct_text_sent){
 		ct_old_text 	= ct_text;
@@ -273,11 +273,12 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 
 void CComponentsText::paintText(bool do_save_bg)
 {
-	paintInit(do_save_bg);
 	initCCText();
+	paintInit(do_save_bg);
 
 	if (ct_text_sent && cc_allow_paint)
 		ct_textbox->paint();
+
 	ct_text_sent = false;
 }
 
