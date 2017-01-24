@@ -159,6 +159,7 @@ void CTextBox::initVar(void)
 	m_pcFontText  		= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
 	m_nFontTextHeight 	= getFontTextHeight();
 	m_nMaxTextWidth		= 0;
+	m_bg_painted		= false;
 
 	m_nNrOfPages 		= 1;
 	m_nNrOfLines 		= 0;
@@ -648,6 +649,7 @@ void CTextBox::refreshText(void)
 			//TRACE("[CTextBox] %s paint bg %d\r\n", __FUNCTION__, __LINE__);
 			//paint full background only on new text, otherwise paint required background
 			frameBuffer->paintBoxRel(ax, ay, dx, dy, m_textBackgroundColor, m_nBgRadius, BgRadiusType);
+			m_bg_painted = true;
 		}
 	}
 	else{
@@ -716,7 +718,8 @@ void CTextBox::refreshText(void)
 		frameBuffer->paintBoxRel(tx, ty-th, tw, th, COL_RED, m_nBgRadius, m_nBgRadiusType);
 #endif
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
-		m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, m_renderMode | ((m_utf8_encoded) ? Font::IS_UTF8 : 0));
+		if (m_bg_painted || m_old_cText != m_cText)
+			m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, m_renderMode | ((m_utf8_encoded) ? Font::IS_UTF8 : 0));
 		m_old_cText = m_cText;
 		y += m_nFontTextHeight;
 	}
