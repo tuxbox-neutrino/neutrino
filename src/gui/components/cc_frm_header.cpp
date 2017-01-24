@@ -577,3 +577,14 @@ bool CComponentsHeader::enableColBodyGradient(const int& enable_mode, const fb_p
 	return CComponentsForm::enableColBodyGradient(enable_mode, sec_color, dir);
 }
 
+void CComponentsHeader::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type /*fbdata_type*/, bool disable_clock)
+{
+	if (disable_clock)
+		disableClock();
+
+	int rad = corner_radius;
+	if (corner_radius == -1)
+		rad = corner_rad;
+
+	CComponentsForm::kill(bg_color, rad, fblayer_type);
+}
