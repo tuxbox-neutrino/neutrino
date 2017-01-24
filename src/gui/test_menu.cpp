@@ -733,6 +733,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
 		}
 
+		iconform->kill();
+		delete iconform;
+		iconform = NULL;
 		return res;
 	}
 	else if (actionKey == "window"){
