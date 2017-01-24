@@ -877,7 +877,9 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	}
 	else {
 		header->removeCCItem(midLogo); //remove/destroy logo object, if it is not available
-		CComponentsText *midText = new CComponentsText(CC_CENTERED, CC_CENTERED, mid_width, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		int w_midText = g_Font[font_mid]->getRenderWidth(_channelname);
+		CComponentsText *midText = new CComponentsText(0, CC_CENTERED, w_midText, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		midText->setXPos(full_width/2 - midText->getWidth()/2);
 		midText->doPaintBg(false);
 	}
 
@@ -892,6 +894,8 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 		rText->doPaintBg(false);
 	}
 
+	if (header->isPainted()) //clean up background of header for new captions
+		header->kill(header->getColorBody());
 	header->paint(CC_SAVE_SCREEN_NO);
 }
 
