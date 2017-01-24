@@ -2168,7 +2168,9 @@ void CChannelList::paintHead()
 	else
 		logo_off = 10;
 
-	header->paint(CC_SAVE_SCREEN_NO); //TODO: paint title only, currently paint() does paint all enabled header items at once and causes flicker effects in unchanged items (e.g. clock)
+	if (header->isPainted()) //clean up background of header for new contents
+		header->kill(header->getColorBody(), -1, CC_FBDATA_TYPES, false);
+	header->paint0();
 }
 
 CComponentsHeader* CChannelList::getHeaderObject()
