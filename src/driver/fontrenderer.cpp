@@ -3,6 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
         Copyright (C) 2003 thegoodguy
+        Copyright (C) 2013-2017 M. Liebmann (micha-bbg)
 
 	License: GPL
 
@@ -240,6 +241,9 @@ Font::Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const 
 	scaler.y_res   = render->yres;
 
 	setSize(isize);
+	fg_red = 0, fg_green = 0, fg_blue = 0;
+	memset((void*)colors, '\0', sizeof(colors));
+	useFullBG = false;
 }
 
 FT_Error Font::getGlyphBitmap(FT_ULong glyph_index, FTC_SBit *sbit)
@@ -383,42 +387,55 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 	return unicode_value;
 }
 
-#define F_MUL 0x7FFF
-
-void Font::paintFontPixel(fb_pixel_t *td, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, int faktor, uint8_t index)
+void Font::paintFontPixel(fb_pixel_t *td, uint8_t src)
 {
-	fb_pixel_t bg_col = *td;
-	if (bg_col == (fb_pixel_t)0)
-		bg_col = 0xE0808080;
-	uint8_t bg_trans =  (bg_col & 0xFF000000) >> 24;
-	int korr_r = ((bg_col & 0x00FF0000) >> 16) - fg_red;
-	int korr_g = ((bg_col & 0x0000FF00) >>  8) - fg_green;
-	int korr_b =  (bg_col & 0x000000FF)        - fg_blue;
-
-	*td =   ((g_settings.contrast_fonts && (index > 128)) ? 0xFF000000 : (((bg_trans == 0) ? 0xFF : bg_trans) << 24) & 0xFF000000) |
-		(((fg_red   + ((korr_r*faktor)/F_MUL)) << 16) & 0x00FF0000) |
-		(((fg_green + ((korr_g*faktor)/F_MUL)) <<  8) & 0x0000FF00) |
-		 ((fg_blue  + ((korr_b*faktor)/F_MUL))        & 0x000000FF);
+#define DST_BLUE  0x80
+#define DST_GREEN 0x80
+#define DST_RED   0x80
+#define DST_TRANS 0x80
+	if (useFullBG) {
+		uint8_t *dst = (uint8_t *)td;
+		if (*td == (fb_pixel_t)0) {
+			*dst = DST_BLUE  + ((fg_blue  - DST_BLUE)  * src) / 256;
+			dst++;
+			*dst = DST_GREEN + ((fg_green - DST_GREEN) * src) / 256;
+			dst++;
+			*dst = DST_RED   + ((fg_red   - DST_RED)   * src) / 256;
+			dst++;
+			*dst = (uint8_t)int_min(255, DST_TRANS + src);
+		}
+		else {
+			*dst = *dst + ((fg_blue  - *dst) * src) / 256;
+			dst++;
+			*dst = *dst + ((fg_green - *dst) * src) / 256;
+			dst++;
+			*dst = *dst + ((fg_red   - *dst) * src) / 256;
+			dst++;
+			*dst = (uint8_t)int_min(0xFF, *dst + src);
+		}
+	}
+	else
+		*td = colors[src];
 }
 
 void Font::RenderString(int x, int y, const int width, const char *text, const fb_pixel_t color, const int boxheight, const unsigned int flags)
 {
-	const bool utf8_encoded = flags & IS_UTF8;
-	const bool useFullBg = flags & FULLBG;
-/*
-	useFullBg (default = false)
-
-	useFullBg = false
-	fetch bgcolor from framebuffer, using lower left edge of the font
-
-	useFullBg = true
-	fetch bgcolor from framebuffer, using the respective real font position
-	- font rendering slower
-	- e.g. required for font rendering on images
-*/
-
 	if (!frameBuffer->getActive())
 		return;
+
+	const bool utf8_encoded = flags & IS_UTF8;
+	useFullBG               = flags & FULLBG;
+/*
+	useFullBg = false
+	 fetch bgcolor from framebuffer, using lower left edge of the font
+	  - default render mode
+	  - font rendering faster
+
+	useFullBg = true
+	 fetch bgcolor from framebuffer, using the respective real fontpixel position
+	  - better quality at font rendering on images or background with color gradient
+	  - font rendering slower
+*/
 
 	frameBuffer->checkFbArea(x, y-height, width, height, true);
 
@@ -477,56 +494,34 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 
 	int lastindex=0; // 0 == missing glyph (never has kerning values)
 	FT_Vector kerning;
-	int pen1=-1; // "pen" positions for kerning, pen2 is "x"
-	static fb_pixel_t old_bgcolor    = 0, old_fgcolor = 0;
-	static uint8_t bg_trans          = 0, fg_red = 0, fg_green = 0, fg_blue = 0;
-	static bool olduseFullBg         = false;
-	static fb_pixel_t colors[256]    = {0};
-	static int faktor[256]           = {0};
-	static bool fontRecsInit         = false;
-	fb_pixel_t bg_color              = 1;
-	fb_pixel_t fg_color              = color;
+	int pen1 = -1; // "pen" positions for kerning, pen2 is "x"
 
-	if (!useFullBg) {
-		/* the GXA seems to do it's job asynchonously, so we need to wait until
-		   it's ready, otherwise the font will sometimes "be overwritten" with
-		   background color or bgcolor will be wrong */
-		frameBuffer->waitForIdle("Font::RenderString 1");
+	fg_red     = (color & 0x00FF0000) >> 16;
+	fg_green   = (color & 0x0000FF00) >>  8;
+	fg_blue    = color  & 0x000000FF;
+	fb_pixel_t bg_color = 0;
+
+	/* the GXA seems to do it's job asynchonously, so we need to wait until
+	   it's ready, otherwise the font will sometimes "be overwritten" with
+	   background color or bgcolor will be wrong */
+	frameBuffer->waitForIdle("Font::RenderString 1");
+	if (!useFullBG) {
 		/* fetch bgcolor from framebuffer, using lower left edge of the font... */
 		bg_color = *(frameBuffer->getFrameBufferPointer() + x +
 				y * frameBuffer->getStride() / sizeof(fb_pixel_t));
-	}
-	else
-		bg_color = 0;
 
-	if ((old_fgcolor != fg_color) || (old_bgcolor != bg_color) || (olduseFullBg != useFullBg) || !fontRecsInit) {
-		old_bgcolor  = bg_color;
-		old_fgcolor  = fg_color;
-		olduseFullBg = useFullBg;
-		fontRecsInit = true;
+		if (bg_color == (fb_pixel_t)0)
+			bg_color = 0x80808080;
 
-		bg_trans   =  (bg_color & 0xFF000000) >> 24;
-		fg_red     =  (fg_color & 0x00FF0000) >> 16;
-		fg_green   =  (fg_color & 0x0000FF00) >>  8;
-		fg_blue    =   fg_color & 0x000000FF;
-
-		int korr_r=0, korr_g=0, korr_b=0;
-		if (!useFullBg) {
-			korr_r = ((bg_color & 0x00FF0000) >> 16) - fg_red;
-			korr_g = ((bg_color & 0x0000FF00) >>  8) - fg_green;
-			korr_b =  (bg_color & 0x000000FF)        - fg_blue;
-		}
-
-		for (int i = 0; i <= 0xFF; i++) {
-			int _faktor = ((0xFF - i) * F_MUL) / 0xFF;
-
-			if (useFullBg)
-				faktor[i]   = _faktor;
-			else
-				colors[i] =  ((g_settings.contrast_fonts && (i > 128)) ? 0xFF000000 : (((bg_trans == 0) ? 0xFF : bg_trans) << 24) & 0xFF000000) |
-					     (((fg_red   + ((korr_r*_faktor)/F_MUL)) << 16) & 0x00FF0000) |
-					     (((fg_green + ((korr_g*_faktor)/F_MUL)) <<  8) & 0x0000FF00) |
-					      ((fg_blue  + ((korr_b*_faktor)/F_MUL))        & 0x000000FF);
+		uint8_t bg_trans = (bg_color & 0xFF000000) >> 24;
+		uint8_t bg_red   = (bg_color & 0x00FF0000) >> 16;
+		uint8_t bg_green = (bg_color & 0x0000FF00) >>  8;
+		uint8_t bg_blue  =  bg_color & 0x000000FF;
+		for (int i = 0; i < 256; i++) {
+			colors[i] = (((int_min(0xFF, bg_trans + i))           << 24) & 0xFF000000) |
+				    (((bg_red  +((fg_red  -bg_red)  * i)/256) << 16) & 0x00FF0000) |
+				    (((bg_green+((fg_green-bg_green)* i)/256) <<  8) & 0x0000FF00) |
+				     ((bg_blue +((fg_blue -bg_blue) * i)/256)        & 0x000000FF);
 		}
 	}
 
@@ -596,12 +591,8 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 				for (ax = 0; ax < w + spread_by; ax++) {
 					if (stylemodifier != Font::Embolden) {
 						/* do not paint the backgroundcolor (*s = 0) */
-						if(*s != 0) {
-							if (useFullBg)
-								paintFontPixel(td, fg_red, fg_green, fg_blue, faktor[*s], *s);
-							else
-								*td = colors[*s];
-						}
+						if (*s != 0)
+							paintFontPixel(td, *s);
 					}
 					else {
 						int lcolor = -1;
@@ -611,12 +602,8 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 							if (lcolor < *(s - i))
 								lcolor = *(s - i);
 						/* do not paint the backgroundcolor (lcolor = 0) */
-						if(lcolor != 0) {
-							if (useFullBg)
-								paintFontPixel(td, fg_red, fg_green, fg_blue, faktor[lcolor], (uint8_t)lcolor);
-							else
-								*td = colors[lcolor];
-						}
+						if (lcolor != 0)
+							paintFontPixel(td, (uint8_t)lcolor);
 					}
 					td++; s++;
 				}

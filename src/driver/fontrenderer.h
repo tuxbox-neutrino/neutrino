@@ -3,6 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
         Copyright (C) 2003 thegoodguy
+        Copyright (C) 2013-2017 M. Liebmann (micha-bbg)
 
 	License: GPL
 
@@ -54,8 +55,12 @@ class Font
 	int height,DigitHeight,DigitOffset,ascender,descender,upper,lower;
 	int fontwidth;
 	int maxdigitwidth;
+	uint8_t fg_red, fg_green, fg_blue;
+	fb_pixel_t colors[256];
+	bool useFullBG;
 
-	inline void paintFontPixel(fb_pixel_t *td, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, int faktor, uint8_t index);
+	inline int int_min(int a, int b) { return (a < b) ? a : b; }
+	inline void paintFontPixel(fb_pixel_t *td, uint8_t src);
 
  public:
 	enum fontmodifier
