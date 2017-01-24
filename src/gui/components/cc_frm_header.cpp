@@ -30,6 +30,9 @@
 #include <neutrino.h>
 #include "cc_frm_header.h"
 #include <system/debug.h>
+
+#include <sigc++/bind.h>
+
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
@@ -132,6 +135,9 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_cl_format		= "%H:%M";
 	cch_cl_sec_format 	= cch_cl_format;
 	cch_cl_enable_run	= false;
+
+	//init slot to ensure paint segments after painted background
+	sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsHeader::forceItemsPaint), true);
 
 	addContextButton(buttons);
 	initCCItems();
@@ -517,6 +523,11 @@ void CComponentsHeader::initCaption()
 		*/
 		//height = max(height, cch_text_obj->getHeight());
 	}
+
+	if(!OnAfterPaintBg.empty())
+		OnAfterPaintBg.clear();
+	//init slot to handle repaint of text if background was repainted
+	OnAfterPaintBg.connect(sl_repaint);
 }
 
 void CComponentsHeader::initCCItems()
@@ -539,12 +550,12 @@ void CComponentsHeader::initCCItems()
 	//init text
 	initCaption();
 }
-	
+
 void CComponentsHeader::paint(bool do_save_bg)
 {
 	//prepare items
 	initCCItems();
-	
+
 	//paint form contents
 	CComponentsForm::paint(do_save_bg);
 

@@ -101,7 +101,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	cl_sl_show = sigc::mem_fun0(*this, &CComponentsFrmClock::ShowTime);
 
 	//init slot to ensure paint segments after painted background
-	cl_sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsFrmClock::forceSegemnentsPaint), true);
+	sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsFrmClock::forceItemsPaint), true);
 
 	//run clock already if required
 	if (activ)
@@ -301,10 +301,10 @@ void CComponentsFrmClock::initCCLockItems()
 		v_cc_items[i]->setPos(x_lbl, y_lbl);
 	}
 
+	if(!OnAfterPaintBg.empty())
+		OnAfterPaintBg.clear();
 	//init slot to handle repaint of segments if background was repainted
-	OnAfterPaintBg.clear();
-	if (paint_bg)
-		OnAfterPaintBg.connect(cl_sl_repaint);
+	OnAfterPaintBg.connect(sl_repaint);
 }
 
 
@@ -330,6 +330,7 @@ bool CComponentsFrmClock::startClock()
 		if (cl_timer->OnTimer.empty()){
 			dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
 			cl_timer->OnTimer.connect(cl_sl_show);
+			force_paint_bg = true;
 		}
 	}
 	cl_timer->setTimerInterval(cl_interval);
@@ -381,8 +382,12 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 	//prepare items before paint
 	initCCLockItems();
 
+	if (!is_painted)
+		force_paint_bg = false;
+
 	//paint form contents
 	CComponentsForm::paint(do_save_bg);
+
 }
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)
@@ -454,10 +459,4 @@ bool CComponentsFrmClock::enableColBodyGradient(const int& enable_mode, const fb
 		return true;
 	}
 	return false;
-}
-
-void CComponentsFrmClock::forceSegemnentsPaint(bool force)
-{
-	for (size_t i = 0; i < v_cc_items.size(); i++)
-		static_cast <CComponentsLabel*>(v_cc_items[i])->forceTextPaint(force);
 }
