@@ -720,9 +720,9 @@ void CTextBox::refreshText(void)
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
 		if (m_bg_painted || m_old_cText != m_cText)
 			m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, m_renderMode | ((m_utf8_encoded) ? Font::IS_UTF8 : 0));
-		m_old_cText = m_cText;
 		y += m_nFontTextHeight;
 	}
+	m_old_cText = m_cText;
 }
 
 void CTextBox::scrollPageDown(const int pages)
