@@ -114,7 +114,9 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///status: true=component was painted for 1st time
 		bool firstPaint;
 		///status: true=component was rendered
-// 		bool is_painted;
+		bool is_painted;
+		///status: true= value is_painted would be ignored
+		bool force_paint_bg;
 		///mode: true=activate rendering of basic elements (frame, shadow and body)
 		bool paint_bg;
 		///mode: true=activate rendering of frame

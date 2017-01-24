@@ -57,6 +57,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	cc_save_bg		= false;
 	firstPaint		= true;
 	is_painted		= false;
+	force_paint_bg	= false;
 	paint_bg 		= true;
 	cc_allow_paint		= true;
 	cc_enable_frame		= true;
@@ -546,7 +547,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 				v_fbdata[i].is_painted = true;
 			}
 		}
-		if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && ((!is_painted || !fbdata.is_painted)|| shadow_force)) {
+		if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && ((!is_painted || !fbdata.is_painted)|| shadow_force || force_paint_bg)) {
 			if (fbdata.enabled) {
 				/* here we paint the shadow around the body
 					* on 1st step we check for already cached screen buffer, if true
@@ -637,23 +638,28 @@ void CCDraw::paintFbItems(bool do_save_bg)
 	}
 
 	//set is_painted attribut. if any layer was painted set it to true;
-	is_painted = isPainted();
+	if (force_paint_bg){
+		is_painted = false;
+	}else{
+		for(size_t i=0; i< v_fbdata.size(); i++){
+			if (v_fbdata[i].is_painted){
+				is_painted = true;
+				break;
+			}
+		}
+	}
+
+	//reset is painted ignore flag to default value
+	force_paint_bg = false;
 
 	//pick up signal if filled
 	OnAfterPaintLayers();
 }
 
- bool CCDraw::isPainted()
- {
-	if (firstPaint)
-		return false;
-
-	for(size_t i=0; i< v_fbdata.size(); i++)
-		if (v_fbdata[i].is_painted)
-			return true;
-
-	return false;
- }
+bool CCDraw::isPainted()
+{
+	return is_painted;
+}
 
 void CCDraw::hide()
 {
@@ -670,7 +676,7 @@ void CCDraw::hide()
 		}
 	}
 	firstPaint = true;
-	is_painted = isPainted();
+	is_painted = false;
 	OnAfterHide();
 }
 
@@ -716,7 +722,7 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 
 	if (fblayer_type == CC_FBDATA_TYPES){
 		firstPaint = true;
-		is_painted = isPainted();
+		is_painted = false;
 	}
 }
 
