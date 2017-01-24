@@ -973,11 +973,6 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 	mfTtxFontFile->setHint("", LOCALE_MENU_HINT_FONT_TTX);
 	fontSettings->addItem(mfTtxFontFile);
 
-	// contrast fonts
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_COLORMENU_CONTRAST_FONTS, &g_settings.contrast_fonts, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_yellow);
-	mc->setHint("", LOCALE_MENU_HINT_CONTRAST_FONTS);
-	fontSettings->addItem(mc);
-
 	fontSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_FONTMENU_SIZES));
 
 	//submenu font scaling
@@ -1325,9 +1320,7 @@ void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 
 bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 {
-	if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_CONTRAST_FONTS))
-		return true;
-	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_POS)) {
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_POS)) {
 		submenu_menus->hide();
 		return true;
 	}

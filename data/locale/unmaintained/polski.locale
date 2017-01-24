@@ -281,7 +281,6 @@ colorchooser.green Zielony
 colorchooser.red Czerwony
 colormenu.background Kolor tła
 colormenu.clock_textcolor Kolor zegara
-colormenu.contrast_fonts Kontrast fontów
 colormenu.fade Zanikanie menu
 colormenu.font Font OSD
 colormenu.font_ttx Font teletekstu
@@ -946,7 +945,6 @@ menu.hint_color_gradient Switches color gradients for various menu items on/off
 menu.hint_colors Configure GUI colors
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
-menu.hint_contrast_fonts Make fonts contrast (do not blend with background)
 menu.hint_dboxinfo Information about box cpu and storage
 menu.hint_delete_channels Remove all channels
 menu.hint_delete_removed Delete the channels in the 'Removed channels' boquet
