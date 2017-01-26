@@ -773,7 +773,7 @@ bool CStreamStream::Open()
 		return false;
 
 	std::string pretty_name, livestreamInfo1, livestreamInfo2, headers;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getChannelID(), channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers)) {
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}

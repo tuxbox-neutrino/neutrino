@@ -2095,7 +2095,7 @@ bool CStreamRec::Open(CZapitChannel * channel)
 		return false;
 
 	std::string pretty_name,headers;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getChannelID(), channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2,headers)) {
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2,headers)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}

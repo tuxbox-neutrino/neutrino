@@ -933,10 +933,9 @@ bool CMoviePlayerGui::selectLivestream(std::vector<livestream_info_t> &streamLis
 	return false;
 }
 
-bool CMoviePlayerGui::getLiveUrl(const t_channel_id chan, const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header)
+bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header)
 {
-	static t_channel_id oldChan = 0;
-	static std::vector<livestream_info_t> liveStreamList;
+	std::vector<livestream_info_t> liveStreamList;
 	livestream_info_t info;
 
 	if (script.empty()) {
@@ -950,22 +949,15 @@ bool CMoviePlayerGui::getLiveUrl(const t_channel_id chan, const std::string &url
 
 	size_t pos = _script.find(".lua");
 	if (!file_exists(_script.c_str()) || (pos == std::string::npos) || (_script.length()-pos != 4)) {
-		liveStreamList.clear();
 		printf(">>>>> [%s:%s:%d] script error\n", __file__, __func__, __LINE__);
 		return false;
 	}
-	if ((oldChan != chan) || liveStreamList.empty()) {
-		liveStreamList.clear();
-		if (!luaGetUrl(_script, url, liveStreamList)) {
-			liveStreamList.clear();
-			printf(">>>>> [%s:%s:%d] lua script error\n", __file__, __func__, __LINE__);
-			return false;
-		}
-		oldChan = chan;
+	if (!luaGetUrl(_script, url, liveStreamList)) {
+		printf(">>>>> [%s:%s:%d] lua script error\n", __file__, __func__, __LINE__);
+		return false;
 	}
 
 	if (!selectLivestream(liveStreamList, g_settings.livestreamResolution, &info)) {
-		liveStreamList.clear();
 		printf(">>>>> [%s:%s:%d] error selectLivestream\n", __file__, __func__, __LINE__);
 		return false;
 	}
@@ -1034,7 +1026,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	std::string realUrl;
 	std::string _pretty_name = name;
 	cookie_header.clear();
-	if (!getLiveUrl(chan, file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2, cookie_header)) {
+	if (!getLiveUrl(file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2, cookie_header)) {
 		return false;
 	}
 
