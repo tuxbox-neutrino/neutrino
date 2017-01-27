@@ -214,6 +214,7 @@ void CVolumeBar::initVolumeBarDigit()
 	vb_digit->setDimensionsAll(vb_digit_x, 0, vb_digit_w, height);
 	vb_digit->setTextColor(COL_MENUCONTENT_TEXT);
 	vb_digit->setCorner(cornerRad(), CORNER_RIGHT);
+	vb_digit->doPaintTextBoxBg(true);
 	initVolumeBarDigitValue();
 
 	//add digit label to container
