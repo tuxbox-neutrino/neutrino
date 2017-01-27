@@ -285,6 +285,7 @@ void CComponentsText::paintText(bool do_save_bg)
 
 void CComponentsText::paint(bool do_save_bg)
 {
+	OnBeforePaint();
 	paintText(do_save_bg);
 }
 
