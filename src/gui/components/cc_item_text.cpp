@@ -298,13 +298,14 @@ void CComponentsText::hide()
 	ct_force_text_paint = true;
 }
 
-void CComponentsText::kill()
+void CComponentsText::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type)
 {
 	if (ct_textbox)
 		ct_textbox->hide();
 
 	ct_old_text.clear();
-	CCDraw::kill();
+	force_paint_bg = true;
+	CCDraw::kill(bg_color, corner_radius, fblayer_type);
 	ct_force_text_paint = true;
 }
 

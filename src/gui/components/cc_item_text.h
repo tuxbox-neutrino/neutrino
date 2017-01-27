@@ -139,7 +139,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		///hide textbox
 		void hide();
 		///remove textbox from screen
-		void kill();
+		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = CC_FBDATA_TYPES);
 		///paint text box, parameter do_save_bg: default = true, causes fill of backckrond pixel buffer
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
