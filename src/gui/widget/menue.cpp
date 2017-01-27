@@ -1075,6 +1075,8 @@ void CMenuWidget::hide()
 			header->kill();
 		if (info_box)
 			info_box->kill();
+		if (details_line)
+			details_line->hide();
 		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height + fbutton_height);
 		//paintHint(-1);
 	}
