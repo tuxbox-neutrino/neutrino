@@ -789,6 +789,8 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 		}
 	}
 
+	waitpid(pid, NULL, 0); /* beware of the zombie apocalypse! */
+
 	fclose(f);
 }
 
