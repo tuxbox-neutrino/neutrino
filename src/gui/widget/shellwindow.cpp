@@ -197,7 +197,7 @@ void CShellWindow::exec()
 						now = time_monotonic_ms();
 						if (lines.size() > lines_max)
 							lines.pop_front();
-						if (((lines_read >= lines_max) && (lastPaint + 100 < now)) || (lastPaint + 250 < now)) {
+						if (((lines_read >= lines_max) && (lastPaint + 100 < now)) || (lastPaint + 500 < now)) {
 							txt = lines2txt(lines);
 							textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 							if (!textBox->isPainted())
@@ -213,7 +213,7 @@ void CShellWindow::exec()
 				ok = false;
 
 			now = time_monotonic_ms();
-			if (!ok || (r < 1 && dirty && lastPaint + 250 < now)) {
+			if (!ok || (r < 1 && dirty && lastPaint + 500 < now)) {
 				txt = lines2txt(lines);
 				textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 				if (!textBox->isPainted())
