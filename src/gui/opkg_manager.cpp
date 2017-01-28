@@ -11,7 +11,7 @@
 	Adaptions:
 	Copyright (C) 2013 martii
 	gitorious.org/neutrino-mp/martiis-neutrino-mp
-	Copyright (C) 2015-2016 Stefan Seyfried
+	Copyright (C) 2015-2017 Stefan Seyfried
 
 	License: GPL
 
@@ -79,6 +79,11 @@
 #define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf.borken"
 #endif
 
+/* script to call instead of "opkg upgrade"
+ * opkg fails to gracefully self-upgrade, and additionally has some ordering issues
+ */
+#define SYSTEM_UPDATE "system-update"
+
 using namespace std;
 
 enum
@@ -97,7 +102,7 @@ enum
 	OM_MAX
 };
 
-static const string pkg_types[OM_MAX] =
+static string pkg_types[OM_MAX] =
 {
 	OPKG_CL " list ",
 	OPKG_CL " list-installed ",
@@ -620,6 +625,11 @@ bool COPKGManager::hasOpkgSupport()
 	if (find_executable(OPKG_CL).empty()) {
 		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d]" OPKG_CL " executable not found\n", __func__, __LINE__);
 		return false;
+	}
+
+	if (! find_executable(SYSTEM_UPDATE).empty()) {
+		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] " SYSTEM_UPDATE " script found\n", __func__, __LINE__);
+		pkg_types[OM_UPGRADE] = SYSTEM_UPDATE;
 	}
 
 #if 0
