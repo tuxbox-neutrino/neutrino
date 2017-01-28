@@ -224,11 +224,6 @@ void CVolumeBar::initVolumeBarDigit()
 //refresh and paint digit
 void CVolumeBar::paintVolumeBarDigit()
 {
-	// digits
-	CTextBox* ctb = vb_digit->getCTextBoxObject();
-	if (ctb)
-		ctb->setFontUseDigitHeight();
-
 	// paint digit
 	vb_digit->paint(CC_SAVE_SCREEN_NO);
 }
