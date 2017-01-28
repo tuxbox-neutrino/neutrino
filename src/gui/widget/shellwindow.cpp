@@ -7,7 +7,7 @@
 	Implementation:
 	Copyright (C) 2013 martii
 	gitorious.org/neutrino-mp/martiis-neutrino-mp
-	Copyright (C) 2015 Stefan Seyfried
+	Copyright (C) 2015-2017 Stefan Seyfried
 
 	License: GPL
 
@@ -35,6 +35,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <sys/wait.h>
+#include <driver/abstime.h>
 #include <driver/framebuffer.h>
 #include <gui/widget/textbox.h>
 #include <stdio.h>
@@ -103,22 +104,19 @@ void CShellWindow::exec()
 		fds.events = POLLIN | POLLHUP | POLLERR;
 		fcntl(fds.fd, F_SETFL, fcntl(fds.fd, F_GETFL, 0) | O_NONBLOCK);
 
-		struct timeval tv;
-		gettimeofday(&tv,NULL);
-		uint64_t lastPaint = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
+		time_t lastPaint = time_monotonic_ms();
 		bool ok = true, nlseen = false, dirty = false, incomplete = false;
 		char output[1024];
 		std::string txt = "";
 		std::string line = "";
 
 		do {
-			uint64_t now;
+			time_t now;
 			fds.revents = 0;
 			int r = poll(&fds, 1, 300);
 			if (r > 0) {
 				if (!feof(f)) {
-					gettimeofday(&tv,NULL);
-					now = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
+					now = time_monotonic_ms();
 
 					unsigned int lines_read = 0;
 					while (fgets(output, sizeof(output), f)) {
@@ -178,7 +176,7 @@ void CShellWindow::exec()
 							first = false;
 							txt += *it;
 						}
-						if (((lines_read == lines_max) && (lastPaint + 100000 < now)) || (lastPaint + 250000 < now)) {
+						if (((lines_read >= lines_max) && (lastPaint + 100 < now)) || (lastPaint + 250 < now)) {
 							textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 							if (!textBox->isPainted())
 								if (mode & VERBOSE) textBox->paint();
@@ -192,9 +190,8 @@ void CShellWindow::exec()
 			} else if (r < 0)
 				ok = false;
 
-			gettimeofday(&tv,NULL);
-			now = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-			if (!ok || (r < 1 && dirty && lastPaint + 250000 < now)) {
+			now = time_monotonic_ms();
+			if (!ok || (r < 1 && dirty && lastPaint + 250 < now)) {
 				textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 				if (!textBox->isPainted())
 					if (mode & VERBOSE) textBox->paint();
