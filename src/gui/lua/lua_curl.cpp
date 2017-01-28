@@ -267,7 +267,7 @@ Example:
 	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
 	/* enable all supported built-in compressions */
 	curl_easy_setopt(curl_handle, CURLOPT_ACCEPT_ENCODING, "");
-
+	curl_easy_setopt(curl_handle, CURLOPT_COOKIE, "");
 	if (!userAgent.empty())
 		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
