@@ -82,6 +82,16 @@ static int read_line(int fd, struct pollfd *fds, char *b, size_t sz)
 	return i;
 }
 
+static std::string lines2txt(list<std::string> &lines)
+{
+	std::string txt = "";
+	for (std::list<std::string>::const_iterator it = lines.begin(), end = lines.end(); it != end; ++it) {
+		txt += *it;
+		txt += '\n';
+	}
+	return txt;
+}
+
 void CShellWindow::exec()
 {
 	std::string cmd;
@@ -187,15 +197,8 @@ void CShellWindow::exec()
 						now = time_monotonic_ms();
 						if (lines.size() > lines_max)
 							lines.pop_front();
-						txt = "";
-						bool first = true;
-						for (std::list<std::string>::const_iterator it = lines.begin(), end = lines.end(); it != end; ++it) {
-							if (!first)
-								txt += '\n';
-							first = false;
-							txt += *it;
-						}
 						if (((lines_read >= lines_max) && (lastPaint + 100 < now)) || (lastPaint + 250 < now)) {
+							txt = lines2txt(lines);
 							textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 							if (!textBox->isPainted())
 								if (mode & VERBOSE) textBox->paint();
@@ -211,6 +214,7 @@ void CShellWindow::exec()
 
 			now = time_monotonic_ms();
 			if (!ok || (r < 1 && dirty && lastPaint + 250 < now)) {
+				txt = lines2txt(lines);
 				textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 				if (!textBox->isPainted())
 					if (mode & VERBOSE) textBox->paint();
@@ -220,6 +224,7 @@ void CShellWindow::exec()
 		} while(ok);
 
 		if (mode & VERBOSE) {
+			txt = lines2txt(lines);
 			txt += "\n...ready";
 			textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 		}
