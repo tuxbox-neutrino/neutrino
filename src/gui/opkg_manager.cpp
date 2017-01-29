@@ -923,13 +923,13 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 		//download error:
 		if (line.find("opkg_download:") != string::npos){
 			*res = OM_DOWNLOAD_ERR;
-			*ok = false;
+			//*ok = false;
 			return;
 		}
 		//not enough space
 		if (line.find("No space left on device") != string::npos){
 			*res = OM_OUT_OF_SPACE_ERR;
-			*ok = false;
+			//*ok = false;
 			return;
 		}
 		//deps
@@ -942,7 +942,7 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 		if (*ok){
 			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  ERROR: unhandled error %s\n", __func__, __LINE__, line.c_str());
 			*res = OM_UNKNOWN_ERR;
-			*ok = false;
+			//*ok = false;
 			return;
 		}
 
