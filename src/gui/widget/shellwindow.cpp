@@ -64,6 +64,24 @@ void CShellWindow::setCommand(const std::string &Command, const int Mode, int* R
 		exec();
 }
 
+static int read_line(int fd, struct pollfd *fds, char *b, size_t sz)
+{
+	int ret;
+	size_t i = 0;
+	while ((ret = read(fd, b + i, 1)) > 0) {
+		i++;
+		if (b[i - 1] == '\n')
+			break;
+		if (i >= sz)
+			break;
+		fds->revents = 0;
+		if (poll(fds, 1, 300) < 1)
+			break;
+	}
+	b[i] = 0;
+	return i;
+}
+
 void CShellWindow::exec()
 {
 	std::string cmd;
@@ -81,11 +99,11 @@ void CShellWindow::exec()
 	else {
 		pid_t pid = 0;
 		cmd = command + " 2>&1";
-		FILE *f = my_popen(pid, cmd.c_str(), "r");
-		if (!f) {
+		int f = run_pty(pid, cmd.c_str());
+		if (f < 0) {
 			if (res)
 				*res = -1;
-			dprintf(DEBUG_NORMAL, "[CShellWindow] [%s:%d]  Error! my_popen errno: %d command: %s\n", __func__, __LINE__, errno, cmd.c_str());
+			dprintf(DEBUG_NORMAL, "[CShellWindow] [%s:%d]  Error! run_pty errno: %d command: %s\n", __func__, __LINE__, errno, cmd.c_str());
 			return;
 		}
 
@@ -100,7 +118,7 @@ void CShellWindow::exec()
 			textBox->enableSaveScreen(false);
 		}
 		struct pollfd fds;
-		fds.fd = fileno(f);
+		fds.fd = f;
 		fds.events = POLLIN | POLLHUP | POLLERR;
 		fcntl(fds.fd, F_SETFL, fcntl(fds.fd, F_GETFL, 0) | O_NONBLOCK);
 
@@ -115,11 +133,9 @@ void CShellWindow::exec()
 			fds.revents = 0;
 			int r = poll(&fds, 1, 300);
 			if (r > 0) {
-				if (!feof(f)) {
-					now = time_monotonic_ms();
-
+				if (fds.revents & POLLIN) {
 					unsigned int lines_read = 0;
-					while (fgets(output, sizeof(output), f)) {
+					while (read_line(f, &fds, output, sizeof(output)-1)) {
 						char *outputp = output;
 						dirty = true;
 
@@ -131,7 +147,9 @@ void CShellWindow::exec()
 									*outputp = 0;
 									break;
 								case '\r':
+#if 0
 									outputp = output;
+#endif
 									break;
 								case '\n':
 									lines_read++;
@@ -166,6 +184,7 @@ void CShellWindow::exec()
 						else
 							dprintf(DEBUG_NORMAL, "[CShellWindow] [%s:%d] res=NULL ok=%d\n", __func__, __LINE__, ok);
 
+						now = time_monotonic_ms();
 						if (lines.size() > lines_max)
 							lines.pop_front();
 						txt = "";
@@ -205,7 +224,7 @@ void CShellWindow::exec()
 			textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 		}
 
-		fclose(f);
+		close(f);
 		int s;
 		errno = 0;
 		int r = waitpid(pid, &s, 0);
