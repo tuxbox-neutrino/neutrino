@@ -896,9 +896,12 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 	if (pos2 != string::npos)
 		has_err = true;
 
+	dprintf(DEBUG_NORMAL, "[COPKGManager:%d] %s\n", __LINE__, line.c_str());
 	//check for collected errors and set res value
 	if (has_err){
+		/* all lines printed already
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  result: %s\n", __func__, __LINE__, line.c_str());
+		 */
 
 		/*duplicate option cache: option is defined in OPKG_CL_CONFIG_OPTIONS,
 		 * NOTE: if found first cache option in the opkg.conf file, this will be preferred and it's not really an error!
@@ -940,7 +943,7 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 		}
 		//unknown error
 		if (*ok){
-			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  ERROR: unhandled error %s\n", __func__, __LINE__, line.c_str());
+			dprintf(DEBUG_DEBUG, "[COPKGManager] [%s - %d]  ERROR: unhandled error %s\n", __func__, __LINE__, line.c_str());
 			*res = OM_UNKNOWN_ERR;
 			//*ok = false;
 			return;
