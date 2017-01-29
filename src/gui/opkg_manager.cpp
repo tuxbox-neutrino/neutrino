@@ -933,6 +933,13 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 			*ok = false;
 			return;
 		}
+		/* hack */
+		if (line.find("system-update: err_reset") != string::npos) {
+			*res = OM_SUCCESS;
+			*ok = true;
+			has_err = false;
+			return;
+		}
 		//unknown error
 		if (*ok){
 			dprintf(DEBUG_DEBUG, "[COPKGManager] [%s - %d]  ERROR: unhandled error %s\n", __func__, __LINE__, line.c_str());
