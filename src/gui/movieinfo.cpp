@@ -497,6 +497,7 @@ void MI_MOVIE_INFO::clear(void)
 	timePlay.tm_year = 100;
 	timePlay.tm_mday = 0;
 	timePlay.tm_mon = 1;
+	timePlay.tm_isdst = -1;
 
 	file.Name = "";
 	file.Url = "";
