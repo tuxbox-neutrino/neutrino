@@ -679,11 +679,14 @@ void CTextBox::refreshText(void)
 	if (m_nMode & TOP)
 		// move to top of frame
 		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * m_nLinesPerPage) >> 1);
-	else if (m_nMode & BOTTOM)
+	else if (m_nMode & BOTTOM) {
+		/* if BOTTOM && !SCROLL, show the last lines if more than one page worth of text is in cLineArray */
+		if (!(m_nMode & SCROLL) && (m_nNrOfLines > m_nLinesPerPage))
+			m_nCurrentLine = m_nNrOfLines - m_nLinesPerPage;
 		// move to bottom of frame
 		y += m_cFrameTextRel.iHeight - (lines > 1 ? (lines - 1)*m_nFontTextHeight : 0) - text_Vborder_width;
 		//m_nFontTextHeight + text_Vborder_width /*- ((m_cFrameTextRel.iHeight + m_nFontTextHeight*/ * m_nLinesPerPage/*) >> 1)*/;
-	else
+	} else
 		// fit into mid of frame space
 		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * lines) >> 1);
 
