@@ -954,10 +954,13 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 			return;
 		}
 
+#if 0
+		/* never reached */
 		if (!has_err){
 			*ok = true;
 			*res = OM_SUCCESS;
 		}
+#endif
 	}
 
 	*res = _res;
