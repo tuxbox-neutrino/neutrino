@@ -4,7 +4,7 @@
 	License: GPL
 
 	(C) 2012-2013 the neutrino-hd developers
-	(C) 2012-2015 Stefan Seyfried
+	(C) 2012-2017 Stefan Seyfried
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pty.h>	/* forkpty*/
 #include <inttypes.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -220,6 +221,22 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	}
 	return(fp);
 }
+
+int run_pty(pid_t &pid, const char *cmdstring)
+{
+	int master = -1;
+	if ((pid = forkpty(&master, NULL, NULL, NULL)) < 0)
+		return -1;
+	else if (pid == 0) {
+		int maxfd = getdtablesize();
+		for(int i = 3; i < maxfd; i++)
+			close(i);
+		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
+		exit(0);
+	}
+	return master;
+}
+
 #if 0
 int mkdirhier(const char *pathname, mode_t mode)
 {

@@ -123,6 +123,7 @@ neutrino_LDADD = \
 	$(PUGIXML_LIBS) \
 	-ldvbsi++ \
 	-ljpeg \
+	-lutil \
 	-lOpenThreads \
 	-lrt -lpthread
 
