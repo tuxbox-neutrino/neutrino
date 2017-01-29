@@ -51,7 +51,7 @@ void CVolumeBar::initVarVolumeBar()
 {
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 	corner_rad 	= CORNER_RADIUS_MID;
-	vb_item_offset 	= 4;
+	vb_item_offset 	= OFFSET_INNER_SMALL;
 	height 		= g_settings.volume_size; //default height
 
 	//assume volume value as pointer to global setting
@@ -94,7 +94,7 @@ void CVolumeBar::initVolumeBarSize()
 	vb_pbh 		= height-4*vb_item_offset;
 
 	//result for width
-	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset;
+	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset + corner_rad/2;
 
 	//adapt x-pos
 	vb_pbx 		= vb_item_offset + vb_icon_w + vb_item_offset;
