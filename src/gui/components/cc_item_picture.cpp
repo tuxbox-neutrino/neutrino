@@ -387,6 +387,7 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& channelName, bool allow_scale)
 {
 	channel_name = "";
+	channel_id = 0;
 	alt_pic_name = "";
 	setChannel(channelId, channelName);
 	do_scale = allow_scale;
