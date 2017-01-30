@@ -32,9 +32,11 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/volumebar.h>
+#include <gui/movieplayer.h>
 #include <gui/infoclock.h>
+#include <gui/timeosd.h>
 
-
+extern CTimeOSD *FileTimeOSD;
 
 CInfoClock::CInfoClock():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
 {
@@ -122,6 +124,23 @@ bool CInfoClock::enableInfoClock(bool enable)
 				ret = StopInfoClock();
 		}
 	}
+
+	if (enable) {
+		if (FileTimeOSD->getRestore()) {
+			FileTimeOSD->setMode(FileTimeOSD->getTmpMode());
+			FileTimeOSD->update(CMoviePlayerGui::getInstance().GetPosition(),
+					      CMoviePlayerGui::getInstance().GetDuration());
+		}
+	}
+	else {
+		if (FileTimeOSD->getMode() != CTimeOSD::MODE_HIDE) {
+			FileTimeOSD->setTmpMode();
+			FileTimeOSD->setRestore();
+			if (FileTimeOSD->getRestore())
+				FileTimeOSD->kill();
+		}
+	}
+
 	return ret;
 }
 

@@ -178,7 +178,7 @@ Example:
 	CLuaCurl *D = CurlCheckData(L, 1);
 	if (!D) return 0;
 
-	char errMsg[1024];
+	char errMsg[1024]={0};
 	CURL *curl_handle = curl_easy_init();
 	if (!curl_handle) {
 		memset(errMsg, '\0', sizeof(errMsg));
@@ -267,7 +267,7 @@ Example:
 	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
 	/* enable all supported built-in compressions */
 	curl_easy_setopt(curl_handle, CURLOPT_ACCEPT_ENCODING, "");
-
+	curl_easy_setopt(curl_handle, CURLOPT_COOKIE, "");
 	if (!userAgent.empty())
 		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
@@ -309,7 +309,7 @@ Example:
 #endif
 	}
 
-	char cerror[CURL_ERROR_SIZE];
+	char cerror[CURL_ERROR_SIZE]={0};
 	curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, cerror);
 
 	printf("\n[curl:download] download %s => %s\n", url.c_str(), (toFile)?outputfile.c_str():"return string");
@@ -330,7 +330,7 @@ Example:
 		CURLcode res1 = curl_easy_getinfo(curl_handle, CURLINFO_EFFECTIVE_URL, &deffektive);
 		CURLcode res2 = curl_easy_getinfo(curl_handle, CURLINFO_REDIRECT_URL, &dredirect);
 
-		char msg1[1024];
+		char msg1[1024]={0};
 		memset(msg1, '\0', sizeof(msg1));
 		snprintf(msg1, sizeof(msg1)-1, "\n[curl:download] O.K. size: %.0f bytes, time: %.02f sec.", dsize, dtime);
 		msg = msg1;

@@ -33,8 +33,11 @@
 
 #include <neutrino.h>
 #include <gui/infoclock.h>
+#include <gui/timeosd.h>
 #include <driver/neutrinofonts.h>
 #include <system/debug.h>
+
+extern CTimeOSD *FileTimeOSD;
 
 using namespace std;
 
@@ -134,7 +137,7 @@ void CVolumeBar::initVolumeBarPosition()
 			break;
 		}
 		case VOLUMEBAR_POS_TOP_LEFT:
-			if (CMoviePlayerGui::getInstance().osdTimeVisible())
+			if (FileTimeOSD->IsVisible())
 				y = clock_y + clock_height + v_spacer + OFFSET_SHADOW;
 			break;
 		case VOLUMEBAR_POS_BOTTOM_LEFT:

@@ -49,6 +49,7 @@
 #include <gui/audiomute.h>
 #include <gui/color_custom.h>
 #include <gui/infoclock.h>
+#include <gui/timeosd.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
 #include <gui/widget/stringinput.h>
@@ -69,6 +70,7 @@ extern CRemoteControl * g_RemoteControl;
 
 extern const char * locale_real_names[];
 extern std::string ttx_font_file;
+extern CTimeOSD *FileTimeOSD;
 
 COsdSetup::COsdSetup(int wizard_mode)
 {
@@ -1301,19 +1303,19 @@ void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 {
 	menu_infoclock->addIntroItems(LOCALE_MISCSETTINGS_INFOCLOCK);
 
-	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOCLOCK, &g_settings.mode_clock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_red);
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOCLOCK, &g_settings.mode_clock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_red);
 	mc->setHint("", LOCALE_MENU_HINT_CLOCK_MODE);
 	menu_infoclock->addItem(mc);
 
 	menu_infoclock->addItem(GenericMenuSeparatorLine);
 
 	// size of info clock
-	CMenuOptionNumberChooser* mn = new CMenuOptionNumberChooser(LOCALE_CLOCK_SIZE_HEIGHT, &g_settings.infoClockFontSize, true, 30, 120);
+	CMenuOptionNumberChooser* mn = new CMenuOptionNumberChooser(LOCALE_CLOCK_SIZE_HEIGHT, &g_settings.infoClockFontSize, true, 30, 120, this);
 	mn->setHint("", LOCALE_MENU_HINT_CLOCK_SIZE);
 	menu_infoclock->addItem(mn);
 
 	// clock with seconds
-	mc = new CMenuOptionChooser(LOCALE_CLOCK_SECONDS, &g_settings.infoClockSeconds, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc = new CMenuOptionChooser(LOCALE_CLOCK_SECONDS, &g_settings.infoClockSeconds, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_CLOCK_SECONDS);
 	menu_infoclock->addItem(mc);
 
@@ -1405,6 +1407,12 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_DIGITS)) {
 		CVolumeHelper::getInstance()->refresh();
 		return false;
+	}
+	else if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_INFOCLOCK)) ||
+		 (ARE_LOCALES_EQUAL(OptionName, LOCALE_CLOCK_SIZE_HEIGHT)) ||
+		 (ARE_LOCALES_EQUAL(OptionName, LOCALE_CLOCK_SECONDS))) {
+		CInfoClock::getInstance()->ClearDisplay();
+		FileTimeOSD->Init();
 	}
 	return false;
 }

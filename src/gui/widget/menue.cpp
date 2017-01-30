@@ -550,6 +550,7 @@ CMenuWidget::CMenuWidget()
 	info_box	= NULL;
 	header 		= NULL;
 	nextShortcut	= 1;
+	x = y		= 0;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
@@ -624,6 +625,7 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	nextShortcut	= 1;
 	saveScreen_width = 0;
 	saveScreen_height = 0;
+	x = y		= 0;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -1451,6 +1453,8 @@ void CMenuWidget::paintHint(int pos)
 		if (info_box) {
 			savescreen ? info_box->hide() : info_box->kill();
 			hint_painted = info_box->isPainted();
+			if (details_line)
+				details_line->hide();
 		}
 		return;
 	}

@@ -21,7 +21,7 @@ update_file()
 		fi
 		echo "update $FILE_IMAGE"
 		rm -f $FILE_IMAGE
-		cp $FILE_NEW $FILE_IMAGE
+		cp -d $FILE_NEW $FILE_IMAGE
 	fi
 }
 

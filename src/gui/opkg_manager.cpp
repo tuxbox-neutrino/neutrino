@@ -221,7 +221,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		{
 			string pkg_name = fileBrowser.getSelectedFile()->Name;
 			if (!installPackage(pkg_name))
-				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), "", pkg_name);
+				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pkg_name);
 				/* errno is never set properly, the string is totally useless.
 				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_name);
 				 */
@@ -239,7 +239,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 			/* errno is never set properly, the string is totally useless.
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), strerror(errno), actionKey);
 			 */
-			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), "", actionKey);
+			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), NULL, actionKey);
 		} else
 			installed = true;
 		refreshMenu();
@@ -1016,7 +1016,7 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 					break;
 				}
 				default:
-					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), "", pkg_types[OM_INSTALL] + opts + pkg_name);
+					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pkg_types[OM_INSTALL] + opts + pkg_name);
 					/* errno / strerror considered useless here
 					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + opts + pkg_name);
 					 */
