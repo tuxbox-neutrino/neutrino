@@ -88,8 +88,6 @@ CComponentsDetailLine::~CComponentsDetailLine()
 //paint details line with current parameters
 void CComponentsDetailLine::paint(bool do_save_bg)
 {
-	cc_save_bg = do_save_bg;
-
 	hide();
 	if (hasChanges())
 		clearFbData();
