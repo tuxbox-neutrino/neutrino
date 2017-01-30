@@ -32,12 +32,16 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/volumebar.h>
+#include <gui/infoclock.h>
 #include <gui/timeosd.h>
 #include "screensaver.h"
 
 
 CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
 {
+	m_mode    = MODE_HIDE;
+	tmp_mode  = MODE_HIDE;
+	m_restore = false;
 	Init();
 }
 
@@ -45,7 +49,6 @@ void CTimeOSD::Init()
 {
 	paint_bg = g_settings.infoClockBackground;
 	m_time_show = time(0);
-	m_mode = MODE_HIDE;
 
 	//use current theme colors
 	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
@@ -59,13 +62,7 @@ void CTimeOSD::Init()
 		setColorBody(COL_BACKGROUND_PLUS_0);
 	}
 
-	//set height, NOTE: height is strictly bound to settings
-	if (g_settings.infoClockFontSize != height){
-		height = g_settings.infoClockFontSize;
-		int dx = 0;
-		int dy = height;
-		setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
-	}
+	setClockFont(CInfoClock::getInstance()->getClockFont());
 
 	// set corner radius depending on clock height
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
@@ -83,6 +80,14 @@ CTimeOSD::~CTimeOSD()
 	clear();
 }
 #endif
+
+CTimeOSD* CTimeOSD::getInstance()
+{
+	static CTimeOSD* timeOSD = NULL;
+	if(!timeOSD)
+		timeOSD = new CTimeOSD();
+	return timeOSD;
+}
 
 void CTimeOSD::initTimeString()
 {

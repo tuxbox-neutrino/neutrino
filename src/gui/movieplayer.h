@@ -118,7 +118,6 @@ class CMoviePlayerGui : public CMenuTarget
 	int startposition;
 	int position;
 	int duration;
-	CTimeOSD FileTime;
 
 	unsigned short numpida;
 	unsigned short vpid;
@@ -189,9 +188,6 @@ class CMoviePlayerGui : public CMenuTarget
 	static CMoviePlayerGui* instance_mp;
 	static CMoviePlayerGui* instance_bg;
 
-	CTimeOSD::mode m_mode;
-	bool m_restore;
-
 	void Init(void);
 	void PlayFile();
 	bool PlayFileStart();
@@ -242,7 +238,6 @@ class CMoviePlayerGui : public CMenuTarget
 
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
-	bool osdTimeVisible() { return FileTime.IsVisible(); };
 	std::string CurrentAudioName() { return currentaudioname; };
 	int GetSpeed() { return speed; }
 	int GetPosition() { return position; }
