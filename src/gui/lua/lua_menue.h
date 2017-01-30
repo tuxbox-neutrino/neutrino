@@ -62,7 +62,7 @@ class CLuaMenuForwarder : public CMenuTarget
 		std::string luaId;
 		CLuaMenuForwarder(lua_State *L, std::string _luaAction, std::string _luaId);
 		~CLuaMenuForwarder();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget* parent=NULL, const std::string & actionKey="");
 };
 
 class CLuaMenuFilebrowser : public CLuaMenuForwarder
@@ -74,7 +74,7 @@ class CLuaMenuFilebrowser : public CLuaMenuForwarder
 		void Init(std::string *_value, bool _dirMode);
 	public:
 		CLuaMenuFilebrowser(lua_State *_L, std::string _luaAction, std::string _luaId, std::string *_value, bool _dirMode);
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget* parent=NULL, const std::string & actionKey="");
 		void addFilter(std::string s) { filter.push_back(s); };
 };
 
@@ -91,7 +91,7 @@ class CLuaMenuStringinput : public CLuaMenuForwarder
 		void Init(const char *_name, std::string *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
 	public:
 		CLuaMenuStringinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget* parent=NULL, const std::string & actionKey="");
 };
 
 class CLuaMenuKeyboardinput : public CLuaMenuForwarder
@@ -106,7 +106,7 @@ class CLuaMenuKeyboardinput : public CLuaMenuForwarder
 		void Init(const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2);
 	public:
 		CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2);
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget* parent=NULL, const std::string & actionKey="");
 };
 
 class CLuaInstMenu
