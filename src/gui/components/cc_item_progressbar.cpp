@@ -217,7 +217,7 @@ CProgressBarCache *CProgressBarCache::pbcLookup(int dy, int dx, int active_col, 
 	if (it != pbCache.end())
 		return *it;
 
-	static CProgressBarCache *pbc = new CProgressBarCache(dy, dx, active_col, passive_col, design, enable_invert, enable_gradient, R, G, Y);
+	CProgressBarCache *pbc = new CProgressBarCache(dy, dx, active_col, passive_col, design, enable_invert, enable_gradient, R, G, Y);
 	pbCache.push_back(pbc);
 	return pbc;
 }
