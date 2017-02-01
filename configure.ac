@@ -98,19 +98,7 @@ AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
-TUXBOX_APPS_LIB_PKGCONFIG(FREETYPE,freetype2)
-CPPFLAGS+=" $(freetype-config --cflags)"
-AC_MSG_CHECKING([whether FreeType version is 2.5.0 or higher])
-	AC_TRY_CPP([
-		#include <ft2build.h>
-		#include FT_FREETYPE_H
-		#if FREETYPE_MAJOR < 2 || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 5)
-		#error Freetype version too low.
-		#endif
-		],
-		[AC_MSG_RESULT(yes)],
-		[AC_MSG_ERROR([Need FreeType library version 2.5.0 or higher])
-	])
+PKG_CHECK_MODULES([FREETYPE], [freetype2 >= 2.5.0], echo "freetype2 >= 2.5.0 found")
 
 # fallback to curl-config (which is ugly for cross-compilation)
 if test -z "$CURL_LIBS" -a -z "$CURL_CFLAGS"; then
@@ -119,6 +107,18 @@ fi
 # fallback to freetype-config (which is ugly for cross-compilation)
 if test -z "$FREETYPE_LIBS" -a -z "$FREETYPE_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
+	CPPFLAGS+="$FREETYPE_CFLAGS"
+	AC_MSG_CHECKING([whether FreeType version is 2.5.0 or higher])
+		AC_TRY_CPP([
+			#include <ft2build.h>
+			#include FT_FREETYPE_H
+			#if FREETYPE_MAJOR < 2 || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 5)
+			#error Freetype version too low.
+			#endif
+			],
+			[AC_MSG_RESULT(yes)],
+			[AC_MSG_ERROR([Need FreeType library version 2.5.0 or higher])
+		])
 fi
 
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
