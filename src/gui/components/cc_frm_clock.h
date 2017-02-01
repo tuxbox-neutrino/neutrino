@@ -52,7 +52,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 
 	protected:
 		///slot for timer event, reserved for ShowTime()
-		sigc::slot0<void> cl_sl;
+		sigc::slot0<void> cl_sl_show;
 
 		///refresh interval in seconds
 		int cl_interval;

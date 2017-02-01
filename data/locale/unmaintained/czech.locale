@@ -281,7 +281,6 @@ colorchooser.green Zelený
 colorchooser.red Červený
 colormenu.background Pozadí
 colormenu.clock_textcolor Barva číslic
-colormenu.contrast_fonts Kontrast písma
 colormenu.fade Mizící menu
 colormenu.font Výběr písma
 colormenu.font_ttx Výběr teletextového písma
@@ -946,7 +945,6 @@ menu.hint_color_gradient Přepne barevné přechody pro různé položky nabídk
 menu.hint_colors Konfigurace barev GUI
 menu.hint_content_back Změna barvy podkladu GUI okna
 menu.hint_content_textcolor Změna barvy textu GUI okna
-menu.hint_contrast_fonts Zvýraznění kontrastu pisma (neúčinné u podkladu)
 menu.hint_dboxinfo Informace o procesoru a úložišti
 menu.hint_delete_channels Odstranění všech kanálů
 menu.hint_delete_removed Vymazání kanálů v buketu "Odstraněné kanály"

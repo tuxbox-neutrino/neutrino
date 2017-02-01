@@ -253,6 +253,7 @@ void CInfoViewer::initClock()
 	}
 
 	CInfoClock::getInstance()->disableInfoClock();
+	clock->clear();
 	clock->enableColBodyGradient(gradient_top, COL_INFOBAR_PLUS_0);
 	clock->doPaintBg(!gradient_top);
 	clock->enableTboxSaveScreen(gradient_top);
@@ -599,11 +600,12 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if (!zap_mode)
 		infoViewerBB->paintshowButtonBar();
 
+	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 	int ChannelLogoMode = 0;
 	if (g_settings.infobar_show_channellogo > 1)
 		ChannelLogoMode = showChannelLogo(current_channel_id, 0);
 	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + header_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 ,ChannelName, COL_INFOBAR_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + header_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 ,ChannelName, COL_INFOBAR_TEXT, 0, renderFlag);
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
@@ -659,7 +661,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if (speed) {
 		int sh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
 		int sy = BoxStartY + ChanHeight/2 - sh/2 + sh;
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(icon_x, sy, ChanHeight, runningRest, COL_INFOBAR_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(icon_x, sy, ChanHeight, runningRest, COL_INFOBAR_TEXT, 0, renderFlag);
 		icon_x += speedw;
 	}
 	frameBuffer->paintIcon(playicon, icon_x, icon_y);
@@ -704,6 +706,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 {
 	if(!calledFromNumZap && !(zap_mode & IV_MODE_DEFAULT))
 		resetSwitchMode();
+	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 
 	std::string Channel = channel->getName();
 	t_satellite_position satellitePosition = channel->getSatellitePosition();
@@ -812,7 +815,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 				}
 			}
 			int h_sfont = g_SignalFont->getHeight();
-			g_SignalFont->RenderString (BoxStartX + numbox_offset + ((ChanWidth - satNameWidth) / 2) , numbox->getYPos() + h_sfont, satNameWidth, satname_tmp, COL_INFOBAR_TEXT);
+			g_SignalFont->RenderString (BoxStartX + numbox_offset + ((ChanWidth - satNameWidth) / 2) , numbox->getYPos() + h_sfont, satNameWidth, satname_tmp, COL_INFOBAR_TEXT, 0, renderFlag);
 		}
 
 		/* TODO: the logic will get much easier once we decouple channellogo and signal bars */
@@ -831,14 +834,14 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 											y_tmp,
 											ChanWidth - 2*numbox_offset,
 											strChanNum,
-											col_NumBoxText);
+											col_NumBoxText, 0, renderFlag);
 		}
 		if (ChannelLogoMode == 1 || ( g_settings.infobar_show_channellogo == 3 && !logo_ok) || g_settings.infobar_show_channellogo == 6 ) /* channel number besides channel name */
 		{
 			ChanNumWidth = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum);
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
 				ChanNameX + 5, ChanNameY + header_height,
-				ChanNumWidth, strChanNum, col_NumBoxText);
+				ChanNumWidth, strChanNum, col_NumBoxText, 0, renderFlag);
 		}
 	}
 
@@ -850,7 +853,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
 				ChanNameX + 10 + ChanNumWidth, ChanNameY + header_height,
 				BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 - ChanNumWidth,
-				ChannelName, color /*COL_INFOBAR_TEXT*/);
+				ChannelName, color /*COL_INFOBAR_TEXT*/, 0, renderFlag);
 			//provider name
 			if(g_settings.infobar_show_channeldesc && channel->pname){
 				std::string prov_name = channel->pname;
@@ -867,7 +870,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
 					ChanNameX + 10 + ChanNumWidth + chname_width, tmpY,
 					BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 - ChanNumWidth - chname_width,
-					prov_name, color /*COL_INFOBAR_TEXT*/);
+					prov_name, color /*COL_INFOBAR_TEXT*/, 0, renderFlag);
 			}
 
 		}
@@ -1631,6 +1634,7 @@ void CInfoViewer::showSNR ()
 {
 	if (! is_visible)
 		return;
+	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 	/* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
 	   TODO: decouple this  */
 	if (!fileplay && !IS_WEBTV(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 )) {
@@ -1653,7 +1657,7 @@ void CInfoViewer::showSNR ()
 			int freqWidth = g_SignalFont->getRenderWidth(freq);
 			if (freqWidth > (ChanWidth - numbox_offset*2))
 				freqWidth = ChanWidth - numbox_offset*2;
-			g_SignalFont->RenderString(BoxStartX + numbox_offset + ((ChanWidth - freqWidth) / 2), y_numbox + y_freq - 3, ChanWidth - 2*numbox_offset, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT);
+			g_SignalFont->RenderString(BoxStartX + numbox_offset + ((ChanWidth - freqWidth) / 2), y_numbox + y_freq - 3, ChanWidth - 2*numbox_offset, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT, 0, renderFlag);
 			SDT_freq_update = false;
 		}
 		if (sigbox == NULL){
@@ -2169,7 +2173,7 @@ void CInfoViewer::killTitle()
 			clock->kill();
 #endif
 		body->kill();
-#if 0 //not really required to kill epg infos, body does this
+
 		if (txt_cur_event)
 			txt_cur_event->kill();
 		if (txt_cur_event_rest)
@@ -2182,7 +2186,7 @@ void CInfoViewer::killTitle()
 			txt_next_event->kill();
 		if (txt_next_in)
 			txt_next_in->kill();
-#endif
+
 		if (timescale)
 			if (g_settings.infobar_progressbar == SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT)
 				timescale->kill();

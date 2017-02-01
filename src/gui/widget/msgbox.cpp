@@ -542,32 +542,32 @@ int ShowMsg(	const std::string & Title,
 	return (result);
 }
 
-void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode)
+void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int &Timeout , const int& Text_mode)
 {
-	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, NO_TIMEOUT, false, Text_mode, COL_RED);
+	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, Timeout, false, Text_mode, COL_RED);
 }
 
-void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode)
+void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int &Timeout , const int& Text_mode)
 {
-	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, NO_TIMEOUT, false, Text_mode, COL_RED);
+	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, Timeout, false, Text_mode, COL_RED);
 }
 
-void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode)
+void DisplayErrorMessage(const char * const ErrorMsg, const int &Timeout, const int& Text_mode)
 {
-	DisplayErrorMessage(ErrorMsg, LOCALE_MESSAGEBOX_ERROR, Text_mode);
+	DisplayErrorMessage(ErrorMsg, LOCALE_MESSAGEBOX_ERROR, Timeout, Text_mode);
 }
 
-void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Text_mode, fb_pixel_t color_frame)
+void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Timeout, const int& Text_mode, fb_pixel_t color_frame)
 {
-	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, NO_TIMEOUT, false, Text_mode, color_frame);
+	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, Timeout, false, Text_mode, color_frame);
 }
 
-void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Text_mode, fb_pixel_t color_frame)
+void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Timeout, const int& Text_mode, fb_pixel_t color_frame)
 {
-	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, NO_TIMEOUT, false, Text_mode, color_frame);
+	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, Timeout, false, Text_mode, color_frame);
 }
 
-void DisplayInfoMessage(const char * const InfoMsg, const int& Text_mode, fb_pixel_t color_frame)
+void DisplayInfoMessage(const char * const InfoMsg, const int& Timeout, const int& Text_mode, fb_pixel_t color_frame)
 {
-	DisplayInfoMessage(InfoMsg, LOCALE_MESSAGEBOX_INFO, Text_mode, color_frame);
+	DisplayInfoMessage(InfoMsg, LOCALE_MESSAGEBOX_INFO, Timeout, Text_mode, color_frame);
 }

@@ -159,6 +159,7 @@ void CTextBox::initVar(void)
 	m_pcFontText  		= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
 	m_nFontTextHeight 	= getFontTextHeight();
 	m_nMaxTextWidth		= 0;
+	m_bg_painted		= false;
 
 	m_nNrOfPages 		= 1;
 	m_nNrOfLines 		= 0;
@@ -573,7 +574,6 @@ void CTextBox::reInitToCompareVar(int* x, int* y, int* dx, int* dy)
 	m_old_nBgRadius = m_nBgRadius;
 	m_old_nBgRadiusType = m_nBgRadiusType;
 	m_old_nMode = m_nMode;
-	m_old_cText = m_cText;
 }
 
 void CTextBox::refreshText(void)
@@ -601,12 +601,13 @@ void CTextBox::refreshText(void)
 	bool has_changed = hasChanged(&ax, &ay, &dx, &dy);
 
 	//clean up possible screen on any changes
-	if (has_changed && m_bgpixbuf){
+	if (has_changed || m_bgpixbuf){
 		/*TODO/FIXME: in some cases could be required, that we must restore old saved screen. eg. if a text without bg was painted
 		 * and another text should be painted as next on the same position like current text, but new text will be overpaint and is
 		 * not visible. It's currently solvable only with appropriate order of text items
 		*/
-		frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
+		if (m_bgpixbuf)
+			frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
 		clearScreenBuffer();
 	}
 
@@ -648,6 +649,7 @@ void CTextBox::refreshText(void)
 			//TRACE("[CTextBox] %s paint bg %d\r\n", __FUNCTION__, __LINE__);
 			//paint full background only on new text, otherwise paint required background
 			frameBuffer->paintBoxRel(ax, ay, dx, dy, m_textBackgroundColor, m_nBgRadius, BgRadiusType);
+			m_bg_painted = true;
 		}
 	}
 	else{
@@ -716,10 +718,11 @@ void CTextBox::refreshText(void)
 		frameBuffer->paintBoxRel(tx, ty-th, tw, th, COL_RED, m_nBgRadius, m_nBgRadiusType);
 #endif
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
-		m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, (m_renderMode | m_utf8_encoded) ? Font::IS_UTF8 : 0);
-		m_old_cText = m_cText;
+		if (m_bg_painted || m_old_cText != m_cText)
+			m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, m_renderMode | ((m_utf8_encoded) ? Font::IS_UTF8 : 0));
 		y += m_nFontTextHeight;
 	}
+	m_old_cText = m_cText;
 }
 
 void CTextBox::scrollPageDown(const int pages)
@@ -786,23 +789,26 @@ void CTextBox::refresh(void)
 bool CTextBox::setText(const std::string* newText, int max_width, bool force_repaint)
 {
 	//TRACE("[CTextBox]->SetText \r\n");
-	bool result = false;
 	m_nMaxTextWidth = max_width;
 	//reset text to force repaint the text, managed in hasChanged()
 	if (force_repaint)
 		m_old_cText = "";
 //printf("setText: _max_width %d max_width %d\n", _max_width, max_width);
-	if (newText != NULL)
-	{
+	if (newText){
 		m_cText = *newText;
-		//m_cText = *newText + "\n"; //FIXME test
-		reSizeMainFrameHeight(m_cFrame.iHeight);
-		//refresh text line array
-		refreshTextLineArray();
-		refresh();
-		result = true;
-	}
-	return(result);
+		if (m_old_cText != m_cText){
+			//m_cText = *newText + "\n"; //FIXME test
+			reSizeMainFrameHeight(m_cFrame.iHeight);
+			//refresh text line array
+			refreshTextLineArray();
+			refresh();
+			return true;
+		}
+		return false;
+	}else
+		return false;
+
+	return true;
 }
 
 void CTextBox::paint (void)

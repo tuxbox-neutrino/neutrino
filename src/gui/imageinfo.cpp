@@ -169,7 +169,8 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			btn_red->setCaption(new_btn_cap);
 			
 			//paint items
-			cc_sub_caption->paint(false);
+			cc_sub_caption->hide();
+			cc_sub_caption->paint();
 			cc_lic->paint(false);
 			btn_red->kill();
 			btn_red->paint(false);

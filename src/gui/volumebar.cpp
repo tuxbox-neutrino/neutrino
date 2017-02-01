@@ -50,8 +50,8 @@ CVolumeBar::CVolumeBar()
 void CVolumeBar::initVarVolumeBar()
 {
 	col_body 	= COL_MENUCONTENT_PLUS_0;
-
-	vb_item_offset 	= 4;
+	corner_rad 	= CORNER_RADIUS_MID;
+	vb_item_offset 	= OFFSET_INNER_SMALL;
 	height 		= g_settings.volume_size; //default height
 
 	//assume volume value as pointer to global setting
@@ -87,14 +87,14 @@ void CVolumeBar::initVolumeBarSize()
 	cvh->getDimensions(&x, &y, &sw, &sh, &vb_icon_w, &vb_digit_w);
 	cvh->getVolBarDimensions(&y, &height);
 
-	vb_digit_w += cornerRad()/2;
+	//vb_digit_w += corner_rad/2;
 
 	//scale
 	vb_pbw 		= 200;
 	vb_pbh 		= height-4*vb_item_offset;
 
 	//result for width
-	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset;
+	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset + corner_rad/2;
 
 	//adapt x-pos
 	vb_pbx 		= vb_item_offset + vb_icon_w + vb_item_offset;
@@ -177,57 +177,54 @@ void CVolumeBar::initVolumeBarItems()
 //init current icon object
 void CVolumeBar::initVolumeBarIcon()
 {
-	vb_icon = new CComponentsPicture(vb_icon_x, CC_CENTERED, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
+	if (!vb_icon){
+		vb_icon = new CComponentsPicture(vb_icon_x, CC_CENTERED, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
+		//add icon to container
+		addCCItem(vb_icon);
+	}
 
+	vb_icon->setDimensionsAll(vb_icon_x, CC_CENTERED, vb_icon_w, height);
 	vb_icon->setColorBody(col_body);
-	vb_icon->setCorner(cornerRad(), CORNER_LEFT);
-
-	//add icon to container
-	addCCItem(vb_icon);
+	vb_icon->setCorner(corner_rad, CORNER_LEFT);
 }
 
 //create new scale
 void CVolumeBar::initVolumeBarScale()
 {
-	vb_pb = new CProgressBar();
+	if (!vb_pb){
+		vb_pb = new CProgressBar();
+		//add progressbar to container
+		addCCItem(vb_pb);
+	}
 
 	vb_pb->setType(CProgressBar::PB_REDRIGHT);
 	vb_pb->setRgb(85, 75, 100);
 	vb_pb->setFrameThickness(2);
 	vb_pb->setProgress(vb_pbx, vb_pby, vb_pbw, vb_pbh, *vb_vol, 100);
-
-	//add progressbar to container
-	addCCItem(vb_pb);
 }
 
 //set digit text with current volume value
 void CVolumeBar::initVolumeBarDigitValue()
 {
+	vb_digit->kill(col_body);
 	vb_digit->setText(*vb_vol ,vb_digit_mode, *(CVolumeHelper::getInstance()->vb_font));
 }
 
 //create digit
 void CVolumeBar::initVolumeBarDigit()
 {
-	vb_digit = new CComponentsLabel();
+	if (!vb_digit)
+		vb_digit = new CComponentsLabel(this);
 
 	vb_digit->setDimensionsAll(vb_digit_x, 0, vb_digit_w, height);
 	vb_digit->setTextColor(COL_MENUCONTENT_TEXT);
-	vb_digit->setCorner(cornerRad(), CORNER_RIGHT);
+	vb_digit->setCorner(corner_rad, CORNER_RIGHT);
 	initVolumeBarDigitValue();
-
-	//add digit label to container
-	addCCItem(vb_digit);
 }
 
 //refresh and paint digit
 void CVolumeBar::paintVolumeBarDigit()
 {
-	// digits
-	CTextBox* ctb = vb_digit->getCTextBoxObject();
-	if (ctb)
-		ctb->setFontUseDigitHeight();
-
 	// paint digit
 	vb_digit->paint(CC_SAVE_SCREEN_NO);
 }
@@ -249,6 +246,18 @@ void CVolumeBar::paintVolScale()
 {
 	vb_pb->setValue(*vb_vol);
 	vb_pb->paint(CC_SAVE_SCREEN_NO);
+}
+
+void CVolumeBar::paint(bool do_save_bg)
+{
+	//prepare items
+	initVolumeBarItems();
+
+	//paint form contents
+	if (!is_painted)
+		CComponentsForm::paint(do_save_bg);
+	else
+		repaintVolScale();
 }
 
 

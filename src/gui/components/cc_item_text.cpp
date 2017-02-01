@@ -78,7 +78,7 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 					int shadow_mode,
 					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_item_type 	= CC_ITEMBOX_TEXT;
+	cc_item_type 	= CC_ITEMTYPE_TEXT;
 	ct_font 	= font_text;
 	ct_textbox	= NULL;
 	ct_text 	= text;
@@ -180,7 +180,7 @@ void CComponentsText::initCCText()
 	//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
 	//this is managed by CTextBox object itself
 	ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
-	
+
 	//set current text status, needed by textChanged()
 	if (ct_text_sent){
 		ct_old_text 	= ct_text;
@@ -273,16 +273,19 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 
 void CComponentsText::paintText(bool do_save_bg)
 {
-	paintInit(do_save_bg);
 	initCCText();
+	if (!is_painted)
+		paintInit(do_save_bg);
 
 	if (ct_text_sent && cc_allow_paint)
 		ct_textbox->paint();
+
 	ct_text_sent = false;
 }
 
 void CComponentsText::paint(bool do_save_bg)
 {
+	OnBeforePaint();
 	paintText(do_save_bg);
 }
 
@@ -290,8 +293,21 @@ void CComponentsText::hide()
 {
 	if (ct_textbox)
 		ct_textbox->hide();
-	ct_old_text = "";
-	CComponents::hide();
+
+	ct_old_text.clear();
+	CCDraw::hide();
+	ct_force_text_paint = true;
+}
+
+void CComponentsText::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type)
+{
+	if (ct_textbox)
+		ct_textbox->hide();
+
+	ct_old_text.clear();
+	force_paint_bg = true;
+	CCDraw::kill(bg_color, corner_radius, fblayer_type);
+	ct_force_text_paint = true;
 }
 
 void CComponentsText::setXPos(const int& xpos)

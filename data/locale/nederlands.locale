@@ -289,7 +289,6 @@ colormenu.advanced_mode_off Toon standaard opties
 colormenu.advanced_mode_on Toon geavanceerde zoekopties
 colormenu.background Achtergrond
 colormenu.clock_textcolor Digit kleur
-colormenu.contrast_fonts Contrast lettertype
 colormenu.fade Menu's vervagen
 colormenu.font Selecteer lettertype gebruikersinterface
 colormenu.font_ttx Selecteer lettertype teletekst
@@ -953,7 +952,6 @@ menu.hint_colored_events_textcolor Wijzig programma kleur voor gekleurde program
 menu.hint_colors Configureer GUI-kleuren
 menu.hint_content_back Wijzig venster achtergrond kleur
 menu.hint_content_textcolor Wijzig venster tekst kleur
-menu.hint_contrast_fonts Lettertype contrast (Niet overgaan in achtergrond)
 menu.hint_dboxinfo Informatie over STB CPU en opslag
 menu.hint_delete_channels Verplaats alle kanalen
 menu.hint_delete_removed Verwijder de zenders in de 'Verwijderde zenders' bouquet

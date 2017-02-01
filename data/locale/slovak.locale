@@ -319,7 +319,6 @@ colormenu.advanced_mode_off Predvolené hodnoty
 colormenu.advanced_mode_on Rozšírené voľby
 colormenu.background Pozadie
 colormenu.clock_textcolor Farba číslic
-colormenu.contrast_fonts Kontrast písma
 colormenu.fade Miznúce menu
 colormenu.font Výber písma
 colormenu.font_ttx Výber teletextového písma
@@ -1030,7 +1029,6 @@ menu.hint_colored_events_textcolor Zmena farby pre farebné udalosti v zozname k
 menu.hint_colors Konfigurácia farieb GUI
 menu.hint_content_back Zmena farby podkladu GUI okna
 menu.hint_content_textcolor Zmena farby textu GUI okna
-menu.hint_contrast_fonts Zvýraznenie kontrastu pisma (neúčinné pri podklade)
 menu.hint_dboxinfo Informácia o procesore a úložisku
 menu.hint_delete_channels Odstránenie všetkých kanálov
 menu.hint_delete_removed Vymazanie kanálov v bukete "Odstránené kanaly"

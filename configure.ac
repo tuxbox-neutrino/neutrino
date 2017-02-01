@@ -1,4 +1,4 @@
-AC_INIT(Neutrino-MP,3.4.0)
+AC_INIT(Neutrino-MP,3.4.1)
 AM_INIT_AUTOMAKE([1.0.1 nostdinc])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -99,6 +99,19 @@ AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
 TUXBOX_APPS_LIB_PKGCONFIG(FREETYPE,freetype2)
+CPPFLAGS+=" $(freetype-config --cflags)"
+AC_MSG_CHECKING([whether FreeType version is 2.5.0 or higher])
+	AC_TRY_CPP([
+		#include <ft2build.h>
+		#include FT_FREETYPE_H
+		#if FREETYPE_MAJOR < 2 || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 5)
+		#error Freetype version too low.
+		#endif
+		],
+		[AC_MSG_RESULT(yes)],
+		[AC_MSG_ERROR([Need FreeType library version 2.5.0 or higher])
+	])
+
 # fallback to curl-config (which is ugly for cross-compilation)
 if test -z "$CURL_LIBS" -a -z "$CURL_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)

@@ -600,8 +600,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++)//settings.h, settings.cpp
 		g_settings.personalize[i] = configfile.getInt32( personalize_settings[i].personalize_settings_name, personalize_settings[i].personalize_default_val );
 
-	g_settings.contrast_fonts = configfile.getInt32("contrast_fonts", 0);
-
 	//network
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 		std::string i_str(to_string(i));
@@ -1222,7 +1220,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++) //settings.h, settings.cpp
 		configfile.setInt32(personalize_settings[i].personalize_settings_name, g_settings.personalize[i]);
 
-	configfile.setInt32( "contrast_fonts", g_settings.contrast_fonts );
 	//network
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 		sprintf(cfg_key, "network_nfs_ip_%d", i);

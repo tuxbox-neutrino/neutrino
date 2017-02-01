@@ -30,6 +30,9 @@
 #include <neutrino.h>
 #include "cc_frm_header.h"
 #include <system/debug.h>
+
+#include <sigc++/bind.h>
+
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
@@ -133,6 +136,9 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_cl_sec_format 	= cch_cl_format;
 	cch_cl_enable_run	= false;
 
+	//init slot to ensure paint segments after painted background
+	sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsHeader::forceItemsPaint), true);
+
 	addContextButton(buttons);
 	initCCItems();
 	initParent(parent);
@@ -146,6 +152,8 @@ CComponentsHeader::~CComponentsHeader()
 
 void CComponentsHeader::setCaption(const std::string& caption, const int& align_mode, const fb_pixel_t& text_color)
 {
+	if (cch_cl_obj)
+		cch_cl_obj->Stop();
 	cch_text		= caption;
 	cch_caption_align 	= align_mode;
 	cch_col_text 		= text_color;
@@ -153,8 +161,6 @@ void CComponentsHeader::setCaption(const std::string& caption, const int& align_
 
 void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const int& align_mode, const fb_pixel_t& text_color)
 {
-	if (cch_cl_obj)
-		cch_cl_obj->Stop();
 	setCaption(string(g_Locale->getText(caption_locale)), align_mode, text_color);
 }
 
@@ -362,10 +368,12 @@ void CComponentsHeader::enableClock(bool enable, const char* format, const char*
 {
 	cch_cl_enable	= enable;
 	cch_cl_format 	= format;
+	if (cch_cl_obj && cch_cl_enable)
+		cch_cl_obj->clear();
 	if (sec_format_str)
 		cch_cl_sec_format = sec_format_str;
 	cch_cl_enable_run 	= run;
-	if (!enable){
+	if (!cch_cl_enable){
 		if (cch_cl_obj){
 			cch_cl_enable_run = false;
 			removeCCItem(cch_cl_obj);
@@ -515,6 +523,11 @@ void CComponentsHeader::initCaption()
 		*/
 		//height = max(height, cch_text_obj->getHeight());
 	}
+
+	if(!OnAfterPaintBg.empty())
+		OnAfterPaintBg.clear();
+	//init slot to handle repaint of text if background was repainted
+	OnAfterPaintBg.connect(sl_repaint);
 }
 
 void CComponentsHeader::initCCItems()
@@ -537,14 +550,14 @@ void CComponentsHeader::initCCItems()
 	//init text
 	initCaption();
 }
-	
+
 void CComponentsHeader::paint(bool do_save_bg)
 {
 	//prepare items
 	initCCItems();
-	
+
 	//paint form contents
-	paintForm(do_save_bg);
+	CComponentsForm::paint(do_save_bg);
 
 	//start clock if enabled
 	if (cch_cl_obj){
@@ -564,3 +577,14 @@ bool CComponentsHeader::enableColBodyGradient(const int& enable_mode, const fb_p
 	return CComponentsForm::enableColBodyGradient(enable_mode, sec_color, dir);
 }
 
+void CComponentsHeader::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type /*fbdata_type*/, bool disable_clock)
+{
+	if (disable_clock)
+		disableClock();
+
+	int rad = corner_radius;
+	if (corner_radius == -1)
+		rad = corner_rad;
+
+	CComponentsForm::kill(bg_color, rad, fblayer_type);
+}

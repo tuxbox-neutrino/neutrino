@@ -182,7 +182,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 		if (volscale) {
 			if(vol != g_settings.current_volume) {
 				vol = g_settings.current_volume;
-				volscale->repaintVolScale();
+				volscale->paint();
 			}
 		}
 

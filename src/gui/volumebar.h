@@ -72,9 +72,6 @@ class CVolumeBar : public CComponentsForm
 		void paintVolScale();
 		void paintVolumeBarDigit();
 
-//		inline int cornerRad() { return (g_settings.rounded_corners) ? height/2 : 0; }
-		inline int cornerRad() { return (g_settings.rounded_corners) ? CORNER_RADIUS_SMALL : 0; }
-
 	public:
 
 		enum
@@ -92,6 +89,7 @@ class CVolumeBar : public CComponentsForm
 // 		~CVolumeBar(); inherited from CComponentsForm
 
 		void repaintVolScale();
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 

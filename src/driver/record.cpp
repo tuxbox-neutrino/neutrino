@@ -1327,7 +1327,7 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_OVERFLOW));
 					} else if (g_settings.recording_slow_warning && warn_display) {
 						warn_display = false;
-						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_SLOW));
+						ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_STREAMING_SLOW, 700, 60, NEUTRINO_ICON_ERROR, NULL, CComponentsHeader::CC_BTN_EXIT);
 					}
 				}
 				return messages_return::handled;

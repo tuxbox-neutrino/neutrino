@@ -37,9 +37,13 @@
 
 using namespace std;
 
-CBuildInfo::CBuildInfo() : CComponentsWindow(0, 0, 700, 500, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
+CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, 700, 500, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
 {
 	initVarBuildInfo();
+	if (show)
+		exec(NULL, "");
+	else
+		InitInfoItems();
 }
 
 //init all var members
@@ -49,7 +53,6 @@ void CBuildInfo::initVarBuildInfo()
 
 	font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT];
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
-	InitInfoItems();
 
 
 	shadow = true;
@@ -62,7 +65,9 @@ int CBuildInfo::exec(CMenuTarget* parent, const string & /*actionKey*/)
 
 	if (parent)
 		parent->hide();
-		
+
+	InitInfoItems();
+
 	//exit if no informations available
 	if (!HasData()){
 		return res;

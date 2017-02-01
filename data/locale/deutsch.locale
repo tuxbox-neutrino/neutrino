@@ -319,7 +319,6 @@ colormenu.advanced_mode_off Standard-Optionen
 colormenu.advanced_mode_on Erweiterte Optionen
 colormenu.background Hintergrundfarbe
 colormenu.clock_textcolor Ziffernfarbe
-colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
 colormenu.font_ttx Teletext Schriftart
@@ -1030,7 +1029,6 @@ menu.hint_colored_events_textcolor Ändern Sie die Farbe für farbige Events in 
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
-menu.hint_contrast_fonts Wählen Sie einen höheren Schriftkontrast
 menu.hint_dboxinfo Informationen über CPU und Arbeitsspeicher der Box
 menu.hint_delete_channels Löschen aller Kanäle
 menu.hint_delete_removed Lösche das Bouquet 'Gelöschte Kanäle'

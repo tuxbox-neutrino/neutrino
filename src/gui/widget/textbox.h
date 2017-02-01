@@ -122,6 +122,7 @@ class CTextBox : public sigc::trackable
 		fb_pixel_t m_old_textBackgroundColor, m_old_textColor;
 
 		bool m_showTextFrame;
+		bool m_bg_painted;
 
 		CBox m_cFrame;
 		CBox m_cFrameTextRel;
