@@ -403,10 +403,10 @@ int ShowMsg(	const std::string & Title,
 						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
-void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
-void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
-void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const int& Timeout = NO_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Timeout = NO_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Timeout = NO_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const int& Timeout = DEFAULT_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Timeout = DEFAULT_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Timeout = DEFAULT_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
 #endif
