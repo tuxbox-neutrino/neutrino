@@ -113,6 +113,8 @@ class CComponentsSignals : public sigc::trackable
 
 		///signal on before paint()
 		sigc::signal<void> OnBeforePaint;
+		///signal on before repaint, means: paint() is already done and item paint() is called again
+		sigc::signal<void> OnBeforeRePaint;
 		///signal on after paint()
 		sigc::signal<void> OnAfterPaint;
 
