@@ -101,7 +101,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	cl_sl_show = sigc::mem_fun0(*this, &CComponentsFrmClock::ShowTime);
 
 	//init slot to ensure paint segments after painted background
-	sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsFrmClock::forceItemsPaint), true);
+	sl_items_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsFrmClock::forceItemsPaint), true);
 
 	//run clock already if required
 	if (activ)
@@ -304,7 +304,7 @@ void CComponentsFrmClock::initCCLockItems()
 	if(!OnAfterPaintBg.empty())
 		OnAfterPaintBg.clear();
 	//init slot to handle repaint of segments if background was repainted
-	OnAfterPaintBg.connect(sl_repaint);
+	OnAfterPaintBg.connect(sl_items_repaint);
 }
 
 

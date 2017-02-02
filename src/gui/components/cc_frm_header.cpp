@@ -136,8 +136,13 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_cl_sec_format 	= cch_cl_format;
 	cch_cl_enable_run	= false;
 
-	//init slot to ensure paint segments after painted background
-	sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsHeader::forceItemsPaint), true);
+	//init slot to ensure paint items after painted background
+	sl_items_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsHeader::forceItemsPaint), true);
+	OnAfterPaintBg.connect(sl_items_repaint);
+
+	//init slot before re paint of header, paint() is already done
+	sl_form_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsHeader::kill), col_body, -1, CC_FBDATA_TYPES, false);
+	OnBeforeRePaint.connect(sl_form_repaint);
 
 	addContextButton(buttons);
 	initCCItems();
@@ -523,11 +528,6 @@ void CComponentsHeader::initCaption()
 		*/
 		//height = max(height, cch_text_obj->getHeight());
 	}
-
-	if(!OnAfterPaintBg.empty())
-		OnAfterPaintBg.clear();
-	//init slot to handle repaint of text if background was repainted
-	OnAfterPaintBg.connect(sl_repaint);
 }
 
 void CComponentsHeader::initCCItems()

@@ -115,7 +115,7 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	ccx_label_align = ccx_text_align = CTextBox::NO_AUTO_LINEBREAK;
 
 	//init slot to ensure paint text items after painted background
-	sl_repaint = sigc::bind<0>(sigc::mem_fun1(*this, &CComponentsExtTextForm::forceItemsPaint), true);
+	sl_items_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsExtTextForm::forceItemsPaint), true);
 
 	initParent(parent);
 
@@ -226,7 +226,7 @@ void CComponentsExtTextForm::initCCTextItems()
 	if(!OnAfterPaintBg.empty())
 		OnAfterPaintBg.clear();
 	//init slot to handle repaint of text if background was repainted
-	OnAfterPaintBg.connect(sl_repaint);
+	OnAfterPaintBg.connect(sl_items_repaint);
 }
 
 void CComponentsExtTextForm::setLabelWidthPercent(const uint8_t& percent_val)
