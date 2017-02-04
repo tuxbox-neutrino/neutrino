@@ -409,11 +409,6 @@ CFrameBuffer::~CFrameBuffer()
 	}
 
 #if 0
-#ifdef RETURN_FROM_GRAPHICS_MODE
-	if (-1 == ioctl(tty,KDSETMODE, kd_mode))
-		perror("ioctl KDSETMODE");
-#endif
-
 	if (-1 == ioctl(tty,VT_SETMODE, &vt_mode))
 		perror("ioctl VT_SETMODE");
 
