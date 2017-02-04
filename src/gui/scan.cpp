@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2011-2012 Stefan Seyfried
+	Copyright (C) 2011-2013,2015,2017 Stefan Seyfried
 
 	License: GPL
 
@@ -169,6 +169,13 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	bool test = actionKey == "test";
 	bool manual = (actionKey == "manual") || test;
 	bool fast = (actionKey == "fast");
+#if !ENABLE_FASTSCAN
+	if (fast) {
+		/* popup message? But this *should* be impossible to happen anyway */
+		fprintf(stderr, "CScanTs::exec: fastscan disabled at build-time!\n");
+		return menu_return::RETURN_REPAINT;
+	}
+#endif
 
 	if (CFrontend::isSat(delsys))
 		pname = scansettings.satName;
@@ -299,8 +306,10 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
+#if ENABLE_FASTSCAN
 		CServiceScan::getInstance()->QuietFastScan(false);
 		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
+#endif
 	}
 	else
 		success = g_Zapit->startScan(scan_flags);

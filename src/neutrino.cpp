@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 							 and some other guys
 
-	Copyright (C) 2006-2016 Stefan Seyfried
+	Copyright (C) 2006-2017 Stefan Seyfried
 
 	Copyright (C) 2011 CoolStream International Ltd
 
@@ -4852,6 +4852,7 @@ void CNeutrinoApp::Cleanup()
 #endif
 }
 
+#if ENABLE_FASTSCAN
 void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 {
 	if (scansettings.fst_update) {
@@ -4883,6 +4884,11 @@ void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 		}
 	}
 }
+#else
+void CNeutrinoApp::CheckFastScan(bool, bool)
+{
+}
+#endif
 
 bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 {
