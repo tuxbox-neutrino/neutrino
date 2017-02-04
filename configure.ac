@@ -153,10 +153,6 @@ AC_ARG_ENABLE(keyboard-no-rc,
          [  --enable-keyboard-no-rc             enable keyboard control, disable rc control],
          [AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL,1,[enable keyboard control, disable rc control])])
 
-AC_ARG_ENABLE(restore-prev-mode,
-         [  --enable-restore-prev-mode          enable return from graphics mode],
-         [AC_DEFINE(RETURN_FROM_GRAPHICS_MODE,1,[enable return from graphics mode])])
-
 AC_ARG_ENABLE(mdev,
 	[  --enable-mdev disable broken neutrino mount hack, use with mdev],
 	[AC_DEFINE(ASSUME_MDEV,1,[disable broken neutrino mount hack, use with mdev])])
