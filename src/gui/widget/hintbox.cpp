@@ -34,6 +34,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "hintbox.h"
+#include <driver/fontrenderer.h>
 #include <system/debug.h>
 
 #define MSG_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT]

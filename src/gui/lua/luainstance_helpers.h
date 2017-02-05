@@ -46,6 +46,8 @@
 #define lua_unboxpointer(L, i) \
 	(*(void **)(lua_touserdata(L, i)))
 
+class Font;
+
 typedef std::pair<lua_Integer, Font*> fontmap_pair_t;
 typedef std::map<lua_Integer, Font*> fontmap_t;
 typedef fontmap_t::iterator fontmap_iterator_t;

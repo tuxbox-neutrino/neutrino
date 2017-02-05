@@ -35,7 +35,6 @@
 
 #include <string>
 
-#include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <system/localize.h>
 

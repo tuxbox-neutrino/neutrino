@@ -30,6 +30,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_signalbars.h"
+#include <driver/fontrenderer.h>
 #include <sstream>
 
 #define SB_MIN_HEIGHT 12

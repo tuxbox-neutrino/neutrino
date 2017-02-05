@@ -47,6 +47,7 @@
 #include <driver/fade.h>
 #include <driver/display.h>
 #include <driver/radiotext.h>
+#include <driver/fontrenderer.h>
 
 #include <gui/color.h>
 #include <gui/color_custom.h>

@@ -32,6 +32,7 @@
 #include <neutrino.h>
 
 #include <gui/widget/icons.h>
+#include <driver/fontrenderer.h>
 
 CListBox::CListBox(const char * const Caption)
 {

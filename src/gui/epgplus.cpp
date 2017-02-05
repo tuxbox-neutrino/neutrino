@@ -51,6 +51,7 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 #include <driver/fade.h>
+#include <driver/fontrenderer.h>
 #include <zapit/satconfig.h>
 #include <zapit/getservices.h>
 #include <eitd/sectionsd.h>

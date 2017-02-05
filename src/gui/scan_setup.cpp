@@ -51,6 +51,7 @@
 
 #include <driver/screen_max.h>
 #include <driver/framebuffer.h>
+#include <driver/fontrenderer.h>
 #include <driver/record.h>
 #include <system/debug.h>
 #include <system/helpers.h>

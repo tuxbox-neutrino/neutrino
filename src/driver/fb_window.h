@@ -21,8 +21,7 @@
 
 #ifndef __fb_window_h__
 #define __fb_window_h__
-
-#include <driver/fontrenderer.h>
+#include <inttypes.h>
 
 class CFrameBuffer;
 class CFBWindow
@@ -47,7 +46,7 @@ class CFBWindow
 	void paintVLineRel(int _x, int _y, int _dy, const color_t _col);
 	void paintHLineRel(int _x, int _dx, int _y, const color_t _col);
 	bool paintIcon(const char * const _filename, const int _x, const int _y, const int _h = 0, const color_t _offset = 1);
-	void RenderString(const font_t _font, const int _x, const int _y, const int _width, const char * const _text, const color_t _color, const int _boxheight = 0, const unsigned int _flags = Font::IS_UTF8);
+	void RenderString(const font_t _font, const int _x, const int _y, const int _width, const char * const _text, const color_t _color, const int _boxheight = 0, const unsigned int _flags = 1 /*Font::IS_UTF8*/);
 
 	fb_pixel_t* saveScreen(const int _x, const int _y, const int _dx, const int _dy);
 	void restoreScreen(const int _x, const int _y, const int _dx, const int _dy, fb_pixel_t* buf, bool delBuf);

@@ -33,6 +33,7 @@
 #include <neutrino.h>
 
 #include <driver/rcinput.h>
+#include <driver/fontrenderer.h>
 
 #include <sys/utsname.h>
 #include <string>

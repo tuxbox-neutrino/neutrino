@@ -29,6 +29,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/widget/helpbox.h>
+#include <driver/fontrenderer.h>
 
 using namespace std;
 

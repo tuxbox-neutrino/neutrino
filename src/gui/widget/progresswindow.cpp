@@ -32,6 +32,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <driver/fontrenderer.h>
 #include <driver/display.h>
 
 CProgressWindow::CProgressWindow(CComponentsForm *parent) 
