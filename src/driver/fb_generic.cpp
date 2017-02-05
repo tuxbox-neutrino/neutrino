@@ -950,7 +950,7 @@ _display:
 	checkFbArea(x, yy, width, height, true);
 	if (paintBg)
 		paintBoxRel(x, yy, width, height, colBg);
-	blit2FB(data, width, height, x, yy, 0, 0, true);
+	blit2FB(data, width, height, x, yy);
 	checkFbArea(x, yy, width, height, false);
 	return true;
 }
