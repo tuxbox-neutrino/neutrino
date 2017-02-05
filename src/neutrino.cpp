@@ -227,14 +227,14 @@ CNeutrinoApp::CNeutrinoApp()
 : configfile('\t')
 {
 	standby_pressed_at.tv_sec = 0;
-
-	frameBuffer = CFrameBuffer::getInstance();
-	frameBuffer->setIconBasePath(ICONSDIR);
 #if HAVE_TRIPLEDRAGON || USE_STB_HAL
 	/* this needs to happen before the framebuffer is set up */
 	init_td_api();
 	// shutdown_td_api();
 #endif
+
+	frameBuffer = CFrameBuffer::getInstance();
+	frameBuffer->setIconBasePath(ICONSDIR);
 	SetupFrameBuffer();
 
 	mode 			= mode_unknown;
