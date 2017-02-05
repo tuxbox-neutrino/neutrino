@@ -126,6 +126,9 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #if HAVE_COOL_HARDWARE
 		frameBuffer = new CFbAccelCS();
 #endif
+#if HAVE_GENERIC_HARDWARE
+		frameBuffer = new CFbAccelGLFB();
+#endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();
 		printf("[neutrino] %s Instance created\n", frameBuffer->fb_name);

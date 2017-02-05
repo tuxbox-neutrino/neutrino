@@ -68,6 +68,7 @@ libneutrino_driver_a_SOURCES += \
 endif
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
+	fb_accel_glfb.cpp \
 	simple_display.cpp
 endif
 if USE_STB_HAL
