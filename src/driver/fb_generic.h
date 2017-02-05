@@ -21,7 +21,6 @@
 	Boston, MA  02110-1301, USA.
 */
 
-
 #ifndef __framebuffer__
 #define __framebuffer__
 #include <config.h>
@@ -73,7 +72,7 @@ typedef struct gradientData_t
 /** Ausfuehrung als Singleton */
 class CFrameBuffer : public sigc::trackable
 {
-	private:
+	protected:
 
 		CFrameBuffer();
 		OpenThreads::Mutex mutex;
@@ -165,22 +164,23 @@ class CFrameBuffer : public sigc::trackable
 
 		fb_pixel_t realcolor[256];
 
-		~CFrameBuffer();
+		virtual ~CFrameBuffer();
 
 		static CFrameBuffer* getInstance();
 #ifdef USE_NEVIS_GXA
 		void setupGXA(void);
 #endif
 
-		void init(const char * const fbDevice = "/dev/fb/0");
-		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
+		virtual void init(const char * const fbDevice = "/dev/fb0");
+		virtual int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 
 
 		int getFileHandle() const; //only used for plugins (games) !!
 		t_fb_var_screeninfo *getScreenInfo();
 
 		fb_pixel_t * getFrameBufferPointer() const; // pointer to framebuffer
-		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
+		virtual fb_pixel_t * getBackBufferPointer() const;  // pointer to backbuffer
+		virtual unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
 		unsigned int getScreenHeight(bool real = false);
 		unsigned int getScreenWidthRel(bool force_small = false);
@@ -192,8 +192,8 @@ class CFrameBuffer : public sigc::trackable
 		void setActive(bool enable);                     // is framebuffer active?
 
 		void setTransparency( int tr = 0 );
-		void setBlendMode(uint8_t mode = 1);
-		void setBlendLevel(int level);
+		virtual void setBlendMode(uint8_t mode = 1);
+		virtual void setBlendLevel(int level);
 
 		//Palette stuff
 		void setAlphaFade(int in, int num, int tr);
@@ -206,12 +206,12 @@ class CFrameBuffer : public sigc::trackable
 			{
 				*dest = realcolor[color];
 			};
-		void paintPixel(int x, int y, const fb_pixel_t col);
+		virtual void paintPixel(int x, int y, const fb_pixel_t col);
 
 		fb_pixel_t* paintBoxRel2Buf(const int dx, const int dy, const int w_align, const int offs_align, const fb_pixel_t col, fb_pixel_t* buf = NULL, int radius = 0, int type = CORNER_ALL);
 		fb_pixel_t* paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, gradientData_t *gradientData, int radius = 0, int type = CORNER_ALL);
 
-		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
+		virtual void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col) { paintBoxRel(xa, ya, xb - xa, yb - ya, col); }
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col, int radius, int type) { paintBoxRel(xa, ya, xb - xa, yb - ya, col, radius, type); }
 
@@ -219,10 +219,10 @@ class CFrameBuffer : public sigc::trackable
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
 
 		inline void paintVLine(int x, int ya, int yb, const fb_pixel_t col) { paintVLineRel(x, ya, yb - ya, col); }
-		void paintVLineRel(int x, int y, int dy, const fb_pixel_t col);
+		virtual void paintVLineRel(int x, int y, int dy, const fb_pixel_t col);
 
 		inline void paintHLine(int xa, int xb, int y, const fb_pixel_t col) { paintHLineRel(xa, xb - xa, y, col); }
-		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col);
+		virtual void paintHLineRel(int x, int dx, int y, const fb_pixel_t col);
 
 		void setIconBasePath(const std::string & iconPath);
 		std::string getIconBasePath(){return iconBasePath;};
@@ -264,17 +264,14 @@ class CFrameBuffer : public sigc::trackable
 		bool Lock(void);
 		void Unlock(void);
 		bool Locked(void) { return locked; };
-#ifdef USE_NEVIS_GXA
-		void add_gxa_sync_marker(void);
-		void waitForIdle(const char* func=NULL);
-#else
-		inline void waitForIdle(const char*) {};
-#endif
+		virtual void waitForIdle(const char* func=NULL);
 		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
-		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
+		virtual void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
+
+		virtual void mark(int x, int y, int dx, int dy);
 
 		enum
 			{

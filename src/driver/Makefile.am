@@ -27,9 +27,9 @@ libneutrino_driver_a_SOURCES = \
 	colorgradient.cpp \
 	fade.cpp \
 	fb_window.cpp \
+	fb_generic.cpp \
 	file.cpp \
 	fontrenderer.cpp \
-	framebuffer.cpp \
 	genpsi.cpp \
 	moviecut.cpp \
 	neutrinofonts.cpp \

@@ -168,6 +168,10 @@ void CFrameBuffer::waitForIdle(const char* func)
 			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%u)!\n", count);
 	}
 }
+#else
+void CFrameBuffer::waitForIdle(const char *)
+{
+}
 #endif /* USE_NEVIS_GXA */
 
 /*******************************************************************************/
@@ -483,6 +487,12 @@ fb_pixel_t * CFrameBuffer::getFrameBufferPointer() const
 		return lfb;
 	else
 		return (fb_pixel_t *) virtual_fb;
+}
+
+/* dummy if not implemented in CFbAccel */
+fb_pixel_t * CFrameBuffer::getBackBufferPointer() const
+{
+	return getFrameBufferPointer();
 }
 
 bool CFrameBuffer::getActive() const
@@ -2197,4 +2207,9 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 	}
 
 	return true;
+}
+
+/* dummy, can be implemented in CFbAccel */
+void CFrameBuffer::mark(int , int , int , int )
+{
 }
