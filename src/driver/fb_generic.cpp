@@ -5,7 +5,7 @@
 		      2003 thegoodguy
 
 	mute icon handling from tuxbox project
-	Copyright (C) 2009 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
+	Copyright (C) 2009-2012,2017 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
 	mute icon & info clock handling
 	Copyright (C) 2013 M. Liebmann (micha-bbg)
 
@@ -52,9 +52,6 @@
 #include <global.h>
 #include <video.h>
 #include <cs_api.h>
-#ifdef HAVE_COOL_HARDWARE
-#include <cnxtfb.h>
-#endif
 
 extern cVideo * videoDecoder;
 
@@ -63,116 +60,9 @@ extern CPictureViewer * g_PicViewer;
 
 #define BACKGROUNDIMAGEWIDTH 720
 
-#ifdef BOXMODEL_APOLLO
-#ifndef FB_HW_ACCELERATION
-#define FB_HW_ACCELERATION
-#endif
-#endif
-#if defined(FB_HW_ACCELERATION) && defined(USE_NEVIS_GXA)
-#error
-#endif
-//#undef USE_NEVIS_GXA //FIXME
-/*******************************************************************************/
-#ifdef USE_NEVIS_GXA
-
-#ifdef GXA_FG_COLOR_REG
-#undef GXA_FG_COLOR_REG
-#endif
-#ifdef GXA_BG_COLOR_REG
-#undef GXA_BG_COLOR_REG
-#endif
-#ifdef GXA_LINE_CONTROL_REG
-#undef GXA_LINE_CONTROL_REG
-#endif
-#ifdef GXA_DEPTH_REG
-#undef GXA_DEPTH_REG
-#endif
-#ifdef GXA_CONTENT_ID_REG
-#undef GXA_CONTENT_ID_REG
-#endif
-
-#define GXA_POINT(x, y)	 (((y) & 0x0FFF) << 16) | ((x) & 0x0FFF)
-#define GXA_SRC_BMP_SEL(x)	  (x << 8)
-#define GXA_DST_BMP_SEL(x)	  (x << 5)
-#define GXA_PARAM_COUNT(x)	  (x << 2)
-
-#define GXA_CMD_REG		0x001C
-#define GXA_FG_COLOR_REG	0x0020
-#define GXA_BG_COLOR_REG	0x0024
-#define GXA_LINE_CONTROL_REG	0x0038
-#define GXA_BMP2_TYPE_REG	   0x0050
-#define GXA_BMP2_ADDR_REG	   0x0054
-#define GXA_DEPTH_REG		0x00F4
-#define GXA_CONTENT_ID_REG	  0x0144
-#define GXA_BLT_CONTROL_REG     0x0034
-
-#define GXA_CMD_BLT		 0x00010800
-#define GXA_CMD_NOT_ALPHA	   0x00011000
-#define GXA_CMD_NOT_TEXT	0x00018000
-#define GXA_CMD_QMARK		0x00001000
-
-#define GXA_BMP1_TYPE_REG	  0x0048
-#define GXA_BMP1_ADDR_REG	  0x004C
-#define GXA_BMP7_TYPE_REG         0x0078
-
-#define GXA_BLEND_CFG_REG	   0x003C
-#define GXA_CFG_REG		 0x0030
-#define GXA_CFG2_REG		0x00FC
-/*
-static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int offset)
-{
-	return *(volatile unsigned int *)(base_addr + offset);
-}
-*/
-
-static unsigned int _mark = 0;
-
-static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, unsigned int value)
-{
-	while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000)
-	{};
-	*(volatile unsigned int *)(base_addr + offset) = value;
-}
-
-/* this adds a tagged marker into the GXA queue. Once this comes out
-   of the other end of the queue, all commands before it are finished */
-void CFrameBuffer::add_gxa_sync_marker(void)
-{
-	unsigned int cmd = GXA_CMD_QMARK | GXA_PARAM_COUNT(1);
-	// TODO: locking?
-	_mark++;
-	_mark &= 0x0000001F; /* bit 0x20 crashes the kernel, if set */
-	_write_gxa(gxa_base, cmd, _mark);
-	//fprintf(stderr, "%s: wrote %02x\n", __FUNCTION__, _mark);
-}
-
-/* wait until the current marker comes out of the GXA command queue */
-void CFrameBuffer::waitForIdle(const char* func)
-{
-	unsigned int cfg, count = 0;
-	do {
-		cfg = *(volatile unsigned int *)(gxa_base + GXA_CMD_REG);
-		cfg >>= 24;	/* the token is stored in bits 31...24 */
-		if (cfg == _mark)
-			break;
-		/* usleep is too coarse, because of CONFIG_HZ=100 in kernel
-		   so use sched_yield to at least give other threads a chance to run */
-		sched_yield();
-		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
-	} while(++count < 2048); /* don't deadlock here if there is an error */
-
-	if (count > 512) /* more than 100 are unlikely, */{
-		if (func != NULL)
-			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%04u) [%s]!\n", count, func);
-		else
-			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%u)!\n", count);
-	}
-}
-#else
 void CFrameBuffer::waitForIdle(const char *)
 {
 }
-#endif /* USE_NEVIS_GXA */
 
 /*******************************************************************************/
 
@@ -237,21 +127,6 @@ CFrameBuffer* CFrameBuffer::getInstance()
 	return frameBuffer;
 }
 
-#ifdef USE_NEVIS_GXA
-void CFrameBuffer::setupGXA(void)
-{
-	// We (re)store the GXA regs here in case DFB override them and was not
-	// able to restore them.
-	_write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
-	_write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
-	_write_gxa(gxa_base, GXA_BLEND_CFG_REG, 0x00089064);
-	// TODO check mono-flip, bit 8
-	_write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
-	_write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
-	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);
-	_write_gxa(gxa_base, GXA_BMP7_TYPE_REG, (3 << 16) | screeninfo.xres | (1 << 27));
-}
-#endif
 void CFrameBuffer::init(const char * const fbDevice)
 {
 	int tr = 0xFF;
@@ -285,27 +160,6 @@ void CFrameBuffer::init(const char * const fbDevice)
 		goto nolfb;
 	}
 
-#ifdef USE_NEVIS_GXA
-	/* Open /dev/mem for HW-register access */
-	devmem_fd = open("/dev/mem", O_RDWR | O_SYNC);
-	if (devmem_fd < 0) {
-		perror("Unable to open /dev/mem");
-		goto nolfb;
-	}
-
-	/* mmap the GXA's base address */
-	gxa_base = (volatile unsigned char*) mmap(0, 0x00040000, PROT_READ | PROT_WRITE, MAP_SHARED, devmem_fd, 0xE0600000);
-	if (gxa_base == (void*) -1){
-		perror("Unable to mmap /dev/mem");
-		goto nolfb;
-	}
-
-	/* tell the GXA where the framebuffer to draw on starts */
-	smem_start = (unsigned int) fix.smem_start;
-	printf("smem_start %x\n", smem_start);
-
-	setupGXA();
-#endif
 	cache_size = 0;
 
 	/* Windows Colors */
@@ -552,13 +406,7 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 
 	stride = _fix.line_length;
 	printf("FB: %dx%dx%d line length %d. %s accelerator.\n", xRes, yRes, bpp, stride,
-#if defined(USE_NEVIS_GXA)
-		"Using nevis GXA"
-#elif defined(FB_HW_ACCELERATION)
-		"Using fb hw graphics"
-#else
 		"Not using graphics"
-#endif
 	);
 
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
@@ -574,29 +422,12 @@ void CFrameBuffer::setTransparency( int /*tr*/ )
 {
 }
 #endif
-void CFrameBuffer::setBlendMode(uint8_t mode)
+void CFrameBuffer::setBlendMode(uint8_t /*mode*/)
 {
-#ifdef HAVE_COOL_HARDWARE
-	if (ioctl(fd, FBIO_SETBLENDMODE, mode))
-		printf("FBIO_SETBLENDMODE failed.\n");
-#endif
 }
 
-void CFrameBuffer::setBlendLevel(int level)
+void CFrameBuffer::setBlendLevel(int /*level*/)
 {
-#ifdef HAVE_COOL_HARDWARE
-	//printf("CFrameBuffer::setBlendLevel %d\n", level);
-	unsigned char value = 0xFF;
-	if((level >= 0) && (level <= 100))
-		value = convertSetupAlpha2Alpha(level);
-
-	if (ioctl(fd, FBIO_SETOPACITY, value))
-		printf("FBIO_SETOPACITY failed.\n");
-#ifndef BOXMODEL_APOLLO
-	   if(level == 100) // TODO: sucks.
-		   usleep(20000);
-#endif
-#endif
 }
 
 #if 0 
@@ -832,18 +663,6 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 
 	checkFbArea(x, y, dx, dy, true);
 
-#if defined(FB_HW_ACCELERATION)
-	fb_fillrect fillrect;
-	fillrect.color	= col;
-	fillrect.rop	= ROP_COPY;
-#elif defined(USE_NEVIS_GXA)
-	if (!fb_no_check)
-		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	/* solid fill with background color */
-	unsigned int cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(7) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-#endif
-
 	if (type && radius) {
 		setCornerFlags(type);
 		radius = limitRadius(dx, dy, radius);
@@ -853,23 +672,6 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 			int ofl, ofr;
 			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type)) {
 				//printf("3: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
-#if defined(FB_HW_ACCELERATION) || defined(USE_NEVIS_GXA)
-				int rect_height_mult = ((type & CORNER_TOP) && (type & CORNER_BOTTOM)) ? 2 : 1;
-#if defined(FB_HW_ACCELERATION)
-				fillrect.dx	= x;
-				fillrect.dy	= y + line;
-				fillrect.width	= dx;
-				fillrect.height	= dy - (radius * rect_height_mult);
-
-				ioctl(fd, FBIO_FILL_RECT, &fillrect);
-#elif defined(USE_NEVIS_GXA)
-				_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
-				_write_gxa(gxa_base, cmd, GXA_POINT(x, y + line));               /* destination x/y */
-				_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy - (radius * rect_height_mult))); /* width/height */
-#endif
-				line += dy - (radius * rect_height_mult);
-				continue;
-#endif
 			}
 
 			if (dx-ofr-ofl < 1) {
@@ -882,33 +684,10 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 				line++;
 				continue;
 			}
-#ifdef USE_NEVIS_GXA
-			_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
-			_write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));               /* destination x/y */
-			_write_gxa(gxa_base, cmd, GXA_POINT(dx-ofl-ofr,   1));                      /* width/height */
-#else
 			paintHLineRelInternal(x+ofl, dx-ofl-ofr, y+line, col);
-#endif
 			line++;
 		}
 	} else {
-#if defined(FB_HW_ACCELERATION)
-		/* FIXME small size faster to do by software */
-		if (dx > 10 || dy > 10) {
-			fillrect.dx	= x;
-			fillrect.dy	= y;
-			fillrect.width	= dx;
-			fillrect.height	= dy;
-			ioctl(fd, FBIO_FILL_RECT, &fillrect);
-			checkFbArea(x, y, dx, dy, false);
-			return;
-		}
-#endif
-#if defined(USE_NEVIS_GXA)
-		_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
-		_write_gxa(gxa_base, cmd, GXA_POINT(x,  y));   /* destination x/y */
-		_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy));  /* width/height */
-#else
 		int swidth = stride / sizeof(fb_pixel_t);
 		fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
 		int line = 0;
@@ -919,46 +698,18 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 			fbp += swidth;
 			line++;
 		}
-#endif
 	}
-#ifdef USE_NEVIS_GXA
-	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor); //FIXME needed ?
-	/* the GXA seems to do asynchronous rendering, so we add a sync marker
-	 * to which the fontrenderer code can synchronize
-	 */
-	add_gxa_sync_marker();
-#endif
 	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col)
 {
-
-#if defined(FB_HW_ACCELERATION)
-	fb_fillrect fillrect;
-	fillrect.dx = x;
-	fillrect.dy = y;
-	fillrect.width = 1;
-	fillrect.height = dy;
-	fillrect.color = col;
-	fillrect.rop = ROP_COPY;
-	ioctl(fd, FBIO_FILL_RECT, &fillrect);
-#elif defined(USE_NEVIS_GXA)
-	/* draw a single vertical line from point x/y with hight dx */
-	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-	_write_gxa(gxa_base, cmd, GXA_POINT(x, y + dy));		/* end point */
-	_write_gxa(gxa_base, cmd, GXA_POINT(x, y));			/* start point */
-#else /* USE_NEVIS_GXA */
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 
 	for(int count=0;count<dy;count++) {
 		*(fb_pixel_t *)pos = col;
 		pos += stride;
 	}
-#endif /* USE_NEVIS_GXA */
 }
 
 void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
@@ -966,42 +717,15 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 	if (!getActive())
 		return;
 
-#if defined(USE_NEVIS_GXA)
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-#endif
 	paintVLineRelInternal(x, y, dy, col);
 }
 
 void CFrameBuffer::paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col)
 {
-#if defined(FB_HW_ACCELERATION)
-	if (dx >= 10) {
-		fb_fillrect fillrect;
-		fillrect.dx = x;
-		fillrect.dy = y;
-		fillrect.width = dx;
-		fillrect.height = 1;
-		fillrect.color = col;
-		fillrect.rop = ROP_COPY;
-		ioctl(fd, FBIO_FILL_RECT, &fillrect);
-		return;
-	}
-#endif
-#if defined(USE_NEVIS_GXA)
-	/* draw a single horizontal line from point x/y with width dx */
-	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-	_write_gxa(gxa_base, cmd, GXA_POINT(x + dx, y));		/* end point */
-	_write_gxa(gxa_base, cmd, GXA_POINT(x, y));			/* start point */
-#else /* USE_NEVIS_GXA */
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
-
 	fb_pixel_t * dest = (fb_pixel_t *)pos;
 	for (int i = 0; i < dx; i++)
 		*(dest++) = col;
-#endif /* USE_NEVIS_GXA */
 }
 
 void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
@@ -1009,9 +733,6 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 	if (!getActive())
 		return;
 
-#if defined(USE_NEVIS_GXA)
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-#endif
 	paintHLineRelInternal(x, dx, y, col);
 }
 
@@ -1268,15 +989,11 @@ void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 	if (!getActive())
 		return;
 
-	#ifdef USE_NEVIS_GXA
-	paintHLineRel(x, 1, y, col);
-	#else
 	fb_pixel_t * pos = getFrameBufferPointer();
 	pos += (stride / sizeof(fb_pixel_t)) * y;
 	pos += x;
 
 	*pos = col;
-	#endif
 }
 
 void CFrameBuffer::paintShortHLineRelInternal(const int& x, const int& dx, const int& y, const fb_pixel_t& col)
@@ -1953,53 +1670,6 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	xc = (width > xRes) ? xRes : width;
 	yc = (height > yRes) ? yRes : height;
 
-#if defined(FB_HW_ACCELERATION)
-	if(!(width%4)) {
-		fb_image image;
-		image.dx = xoff;
-		image.dy = yoff;
-		image.width = xc;
-		image.height = yc;
-		image.cmap.len = 0;
-		image.depth = 32;
-#if 1
-		image.data = (const char*)fbbuff;
-		ioctl(fd, FBIO_IMAGE_BLT, &image);
-#else
-		for (int count = 0; count < yc; count++ ) {
-			fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
-			fb_pixel_t *pixpos = &data[(count + yp) * width];
-			image.data = (const char*) pixpos; //fbbuff +(count + yp)*width;
-			image.dy = yoff+count;
-			image.height = 1;
-			ioctl(fd, FBIO_IMAGE_BLT, &image);
-		}
-#endif
-		//printf("\033[34m>>>>\033[0m [%s:%s:%d] FB_HW_ACCELERATION (image) x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
-		return;
-	}
-	
-#elif defined(USE_NEVIS_GXA)
-	u32 cmd;
-	void * uKva;
-
-	uKva = cs_phys_addr(fbbuff);
-	//printf("CFrameBuffer::blit2FB: data %x Kva %x\n", (int) fbbuff, (int) uKva);
-
-	if(uKva != NULL) {
-		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-		cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
-
-		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
-		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
-
-		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff));   /* destination pos */
-		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));   /* source width, FIXME real or adjusted xc, yc ? */
-		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp));   /* source pos */
-
-		return;
-	}
-#endif
 	fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
 
 	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + xoff * sizeof(fb_pixel_t) + stride * yoff;
@@ -2037,37 +1707,6 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 	uint32_t xc = (width > xRes) ? (uint32_t)xRes : width;
 	uint32_t yc = (height > yRes) ? (uint32_t)yRes : height;
 
-#if defined(FB_HW_ACCELERATION)
-	if (!(width%4)) {
-		fb_image image;
-		image.dx = xoff;
-		image.dy = yoff;
-		image.width = xc;
-		image.height = yc;
-		image.cmap.len = 0;
-		image.depth = 32;
-		image.data = (const char*)boxBuf;
-		ioctl(fd, FBIO_IMAGE_BLT, &image);
-		//printf("\033[33m>>>>\033[0m [%s:%s:%d] FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
-		return;
-	}
-	printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
-#elif defined(USE_NEVIS_GXA)
-	void* uKva = cs_phys_addr((void*)boxBuf);
-	if(uKva != NULL) {
-		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-		u32 cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
-		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
-		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
-		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff));
-		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));
-		_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));
-		//printf("\033[33m>>>>\033[0m [%s:%s:%d] USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
-		add_gxa_sync_marker();
-		return;
-	}
-	printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use USE_NEVIS_GXA x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
-#endif
 	uint32_t swidth = stride / sizeof(fb_pixel_t);
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * yoff);
 	fb_pixel_t* data = (fb_pixel_t*)boxBuf;
