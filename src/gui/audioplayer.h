@@ -34,7 +34,6 @@
 #define __audioplayergui__
 
 
-#include <driver/framebuffer.h>
 #include <driver/audiofile.h>
 #include <gui/filebrowser.h>
 #include <gui/components/cc.h>
@@ -53,6 +52,7 @@ typedef std::set<long> CPosList;
 typedef std::map<unsigned char, CPosList> CTitle2Pos;
 typedef std::pair<unsigned char, CPosList> CTitle2PosItem;
 
+class CFrameBuffer;
 class CAudiofileExt : public CAudiofile
 {
 public:

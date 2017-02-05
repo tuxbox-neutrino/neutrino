@@ -28,11 +28,11 @@
 
 #include "menue.h"
 
-#include <driver/framebuffer.h>
 #include <system/localize.h>
 
 #include <string>
 
+class CFrameBuffer;
 class CStringInput : public CMenuTarget
 {
 	protected:

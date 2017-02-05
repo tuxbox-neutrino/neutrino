@@ -23,8 +23,9 @@
 #ifndef __CCOLORGRADIENT__
 #define __CCOLORGRADIENT__
 
-#include <driver/framebuffer.h>
+#include <inttypes.h>
 
+class CFrameBuffer;
 class CColorGradient
 {
 	private:

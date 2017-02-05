@@ -38,12 +38,10 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/listhelpers.h>
 
-#include <driver/framebuffer.h>
-
 #include <string>
 #include <vector>
 
-
+class CFrameBuffer;
 class CTimerdClient;
 class CTimerList : public CMenuTarget, public CListHelpers
 {

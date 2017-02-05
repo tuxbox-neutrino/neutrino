@@ -38,7 +38,6 @@
 #endif
 
 #include <driver/file.h>
-#include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 
@@ -58,6 +57,7 @@
 bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str, bool allow_tmp = false);
 bool chooserDir(char *setting_dir, bool test_dir, const char *action_str, size_t str_leng, bool allow_tmp = false);
 
+class CFrameBuffer;
 /**
  * Converts input of numeric keys to SMS style char input.
  */

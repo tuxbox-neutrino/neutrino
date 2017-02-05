@@ -33,7 +33,6 @@
 	Boston, MA  02110-1301, USA.
 */
 
-#include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/listhelpers.h>
 #include <gui/components/cc.h>
@@ -65,6 +64,7 @@ enum {
 	CHANLIST_NO_RESTORE = -4
 };
 
+class CFrameBuffer;
 class CBouquet;
 
 class CChannelList : public CListHelpers

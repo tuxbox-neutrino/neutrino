@@ -32,7 +32,6 @@
 #ifndef __bouqueteditor_bouquets__
 #define __bouqueteditor_bouquets__
 
-#include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
 
 #include <zapit/client/zapitclient.h>
@@ -42,6 +41,7 @@
 #include <gui/widget/listhelpers.h>
 #include <string>
 
+class CFrameBuffer;
 /* class for handling when bouquets changed.                  */
 /* This class should be a temporarily work around             */
 /* and should be replaced by standard neutrino event handlers */

@@ -23,8 +23,8 @@
 #define __fb_window_h__
 
 #include <driver/fontrenderer.h>
-#include <driver/framebuffer.h>
 
+class CFrameBuffer;
 class CFBWindow
 {
  public:

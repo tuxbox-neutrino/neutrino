@@ -29,6 +29,7 @@
 #include "cc_signals.h"
 #include "cc_timer.h"
 #include <driver/colorgradient.h>
+#include <driver/framebuffer.h>
 #include <driver/fade.h>
 #include <gui/color.h>
 

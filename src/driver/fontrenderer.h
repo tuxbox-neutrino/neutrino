@@ -28,6 +28,7 @@
 
 #include <pthread.h>
 #include <string>
+#include <inttypes.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -36,9 +37,7 @@
 #include FT_CACHE_IMAGE_H
 #include FT_CACHE_SMALL_BITMAPS_H
 
-#include "framebuffer.h"
-
-
+class CFrameBuffer;
 class FBFontRenderClass;
 class Font
 {

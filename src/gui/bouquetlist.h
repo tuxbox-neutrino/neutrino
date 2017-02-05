@@ -36,12 +36,12 @@
 #include <gui/channellist.h>
 #include <gui/widget/listhelpers.h>
 
-#include <driver/framebuffer.h>
 #include <zapit/bouquets.h>
 
 #include <string>
 #include <vector>
 
+class CFrameBuffer;
 
 typedef enum bouquetSwitchMode
 {

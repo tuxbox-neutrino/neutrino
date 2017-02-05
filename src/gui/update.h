@@ -38,7 +38,6 @@
 
 #include <gui/widget/progresswindow.h>
 
-#include <driver/framebuffer.h>
 #ifdef BOXMODEL_APOLLO
 #include <system/mtdutils/mkfs.jffs2.h>
 #endif

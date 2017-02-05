@@ -2,9 +2,9 @@
 #define __PIP_SETUP_H_
 
 #include <gui/widget/menue.h>
-#include <driver/framebuffer.h>
 #include <string>
 
+class CFrameBuffer;
 class CPipSetup : public CMenuTarget
 {
 	private:

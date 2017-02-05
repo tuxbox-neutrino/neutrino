@@ -26,6 +26,7 @@
 #include <global.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
+#include <driver/framebuffer.h>
 #include <unistd.h>
 
 #if HAVE_COOL_HARDWARE

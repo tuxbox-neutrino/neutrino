@@ -33,9 +33,6 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
-
 #include <string>
 
 class CPictureViewerSetup : public CMenuTarget

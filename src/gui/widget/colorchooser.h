@@ -33,12 +33,12 @@
 #ifndef __colorchooser__
 #define __colorchooser__
 
-#include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <gui/widget/menue.h>
 
 #include <string>
 
+class CFrameBuffer;
 class CColorChooser : public CMenuTarget
 {
 	private:

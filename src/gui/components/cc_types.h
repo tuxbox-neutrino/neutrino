@@ -26,12 +26,12 @@
 #ifndef __CC_TYPES__
 #define __CC_TYPES__
 
-#include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <gui/color_custom.h>
 
+struct gradientData_t;
 class CComponentsForm;
 class CComponentsScrollBar;
 

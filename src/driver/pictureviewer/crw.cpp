@@ -1,3 +1,4 @@
+#include <config.h>
 #include "pv_config.h"
 #include <cstring>
 #include <cstdlib>

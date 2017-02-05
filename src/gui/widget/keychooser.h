@@ -35,14 +35,13 @@
 
 #include <string>
 
-#include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <system/localize.h>
 
 #include "menue.h"
 
-
+class CFrameBuffer;
 class CKeyChooserItem;
 class CKeyChooserItemNoKey;
 class CKeyChooser : public CMenuWidget

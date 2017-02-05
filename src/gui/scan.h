@@ -34,11 +34,11 @@
 
 #include <gui/widget/menue.h>
 #include <gui/components/cc.h>
-#include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <string>
 #include <system/settings.h>
 
+class CFrameBuffer;
 class CScanTs : public CMenuTarget
 {
 	private:

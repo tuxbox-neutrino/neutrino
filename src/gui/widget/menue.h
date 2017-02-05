@@ -36,12 +36,10 @@
 #ifndef __MENU__
 #define __MENU__
 
-#include <driver/framebuffer.h>
 #include <driver/rcinput.h>
 #include <system/localize.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/color.h>
 #include <gui/plugins.h>
 #include <gui/components/cc.h>
 #include <string>
@@ -58,6 +56,8 @@ extern "C" {
 
 typedef int mn_widget_id_t;
 typedef int menu_item_disable_cond_t;
+
+class CFrameBuffer;
 class CMenuWidget;
 struct menu_return
 {

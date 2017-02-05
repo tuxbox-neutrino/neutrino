@@ -32,7 +32,6 @@
 #ifndef __plugins__
 #define __plugins__
 
-#include <driver/framebuffer.h>
 #include <system/localize.h>
 
 #include <plugin.h>
@@ -40,6 +39,7 @@
 #include <string>
 #include <vector>
 
+class CFrameBuffer;
 class CPlugins
 {
 

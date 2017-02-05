@@ -35,11 +35,9 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
 #include <string>
 
-
+class CFrameBuffer;
 class CScreenSetup : public CMenuTarget
 {
  private:

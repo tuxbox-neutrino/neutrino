@@ -33,7 +33,6 @@
 #ifndef __bouqueteditor_channels__
 #define __bouqueteditor_channels__
 
-#include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/listhelpers.h>
 #include <gui/components/cc.h>
@@ -43,6 +42,7 @@
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 
+class CFrameBuffer;
 class CBEChannelWidget : public CMenuTarget, public CListHelpers
 {
 

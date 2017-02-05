@@ -28,10 +28,9 @@
 #include "menue.h"
 #include "listhelpers.h"
 
-#include <driver/framebuffer.h>
-
 #include <string>
 
+class CFrameBuffer;
 class CListBox : public CMenuTarget, public CListHelpers
 {
 	protected:
