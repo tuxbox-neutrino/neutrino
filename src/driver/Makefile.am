@@ -26,6 +26,7 @@ libneutrino_driver_a_SOURCES = \
 	audioplay.cpp \
 	colorgradient.cpp \
 	fade.cpp \
+	fb_accel.cpp \
 	fb_window.cpp \
 	fb_generic.cpp \
 	file.cpp \
@@ -54,5 +55,11 @@ libneutrino_driver_a_SOURCES += \
 	newclock.cpp \
 	lcdd.cpp
 endif
+
+#if BOXTYPE_SPARK
+#libneutrino_driver_a_SOURCES += \
+#	fb_accel_sti.cpp \
+#	simple_display.cpp
+#endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp

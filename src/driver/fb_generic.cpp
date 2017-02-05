@@ -30,7 +30,8 @@
 #include <config.h>
 #endif
 
-#include <driver/framebuffer.h>
+#include <driver/fb_generic.h>
+#include <driver/fb_accel.h>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -118,8 +119,12 @@ CFrameBuffer* CFrameBuffer::getInstance()
 {
 	static CFrameBuffer* frameBuffer = NULL;
 
-	if(!frameBuffer) {
-		frameBuffer = new CFrameBuffer();
+	if (!frameBuffer) {
+#if HAVE_SPARK_HARDWARE
+		frameBuffer = new CFbAccelSTi();
+#endif
+		if (!frameBuffer)
+			frameBuffer = new CFrameBuffer();
 		printf("[neutrino] %s Instance created\n", frameBuffer->fb_name);
 	}
 	return frameBuffer;
@@ -715,6 +720,7 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 		return;
 
 	paintVLineRelInternal(x, y, dy, col);
+	mark(x, y, x, y + dy);
 }
 
 void CFrameBuffer::paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col)
@@ -731,6 +737,7 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 		return;
 
 	paintHLineRelInternal(x, dx, y, col);
+	mark(x, y, x + dx, y);
 }
 
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
@@ -1245,6 +1252,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 			paintPixel (x, y, col);
 		}
 	}
+	mark(xa, ya, xb, yb);
 }
 #if 0
 //never used
@@ -1533,6 +1541,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		fbpos += stride;
 		bkpos += dx;
 	}
+	mark(x, y, x + dx, y + dy);
 	checkFbArea(x, y, dx, dy, false);
 }
 #if 0
