@@ -121,8 +121,6 @@ CFrameBuffer* CFrameBuffer::getInstance()
 	if(!frameBuffer) {
 		frameBuffer = new CFrameBuffer();
 		printf("[neutrino] %s Instance created\n", frameBuffer->fb_name);
-	} else {
-		//printf("[neutrino] frameBuffer Instace requested\n");
 	}
 	return frameBuffer;
 }
@@ -132,7 +130,6 @@ void CFrameBuffer::init(const char * const fbDevice)
 	int tr = 0xFF;
 
 	fd = open(fbDevice, O_RDWR);
-	if(!fd) fd = open(fbDevice, O_RDWR);
 
 	if (fd<0) {
 		perror(fbDevice);
@@ -152,7 +149,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 	}
 
 	available=fix.smem_len;
-	printf("%dk video mem\n", available/1024);
+	printf("[fb_generic] %dk video mem\n", available/1024);
 	lbb = lfb = (fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
 
 	if (!lfb) {
@@ -1168,8 +1165,6 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 {
 	if (!getActive())
 		return;
-
-//printf("%s(%d, %d, %d, %d, %.8X)\n", __FUNCTION__, xa, ya, xb, yb, col);
 
 	int dx = abs (xa - xb);
 	int dy = abs (ya - yb);
