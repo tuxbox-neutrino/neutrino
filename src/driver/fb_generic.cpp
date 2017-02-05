@@ -123,6 +123,9 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #if HAVE_SPARK_HARDWARE
 		frameBuffer = new CFbAccelSTi();
 #endif
+#if HAVE_COOL_HARDWARE
+		frameBuffer = new CFbAccelCS();
+#endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();
 		printf("[neutrino] %s Instance created\n", frameBuffer->fb_name);
