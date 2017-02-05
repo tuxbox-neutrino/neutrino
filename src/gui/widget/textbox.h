@@ -60,7 +60,6 @@
 #include <vector>
 
 #include <driver/fb_window.h>
-#include <gui/color.h>
 #include <sigc++/signal.h>
 #define TRACE  printf
 #define TRACE_1 printf

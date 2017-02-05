@@ -40,7 +40,6 @@
 #include <driver/file.h>
 #include <driver/rcinput.h>
 
-#include <gui/color.h>
 #include <gui/infoviewer.h>
 
 #include <gui/widget/menue.h>

@@ -30,6 +30,7 @@
 #endif
 
 
+#include <gui/color.h>
 #include "shellwindow.h"
 
 #include <global.h>

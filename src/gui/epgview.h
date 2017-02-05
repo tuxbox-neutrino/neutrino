@@ -36,7 +36,6 @@
 #include <driver/rcinput.h>
 #include <system/settings.h>
 
-#include <gui/color.h>
 #include <gui/movieinfo.h>
 #include "widget/menue.h"
 
