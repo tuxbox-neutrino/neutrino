@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_item_text.h"
+#include <driver/fontrenderer.h>
 #include <sstream>
 #include <fstream>
 #include <errno.h>

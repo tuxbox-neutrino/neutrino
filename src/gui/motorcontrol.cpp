@@ -42,6 +42,7 @@
 #include <system/settings.h>
 #include <driver/screen_max.h>
 #include <driver/neutrinofonts.h>
+#include <driver/fontrenderer.h>
 #include <zapit/satconfig.h>
 #include <zapit/zapit.h>
 #include <zapit/scannit.h>

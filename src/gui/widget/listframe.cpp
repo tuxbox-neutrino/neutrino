@@ -54,6 +54,7 @@
 #include <stdlib.h>
 #include "listframe.h"
 #include <gui/widget/icons.h>
+#include <driver/fontrenderer.h>
 
 #define	SCROLL_FRAME_WIDTH 10
 

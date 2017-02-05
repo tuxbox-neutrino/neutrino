@@ -39,6 +39,7 @@
 #include <driver/record.h>
 #include <driver/volume.h>
 #include <driver/display.h>
+#include <driver/fontrenderer.h>
 
 #include <gui/color.h>
 

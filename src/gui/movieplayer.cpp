@@ -53,6 +53,7 @@
 #include <driver/abstime.h>
 #include <driver/record.h>
 #include <driver/volume.h>
+#include <driver/fontrenderer.h>
 #include <eitd/edvbstring.h>
 #include <system/helpers.h>
 

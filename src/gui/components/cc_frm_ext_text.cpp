@@ -28,6 +28,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_ext_text.h"
+#include <driver/fontrenderer.h>
 
 #include <sigc++/bind.h>
 

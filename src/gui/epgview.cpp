@@ -52,6 +52,7 @@
 #include <gui/pictureviewer.h>
 #include <gui/tmdb.h>
 #include <driver/record.h>
+#include <driver/fontrenderer.h>
 
 #include <zapit/bouquets.h>
 #include <zapit/getservices.h>

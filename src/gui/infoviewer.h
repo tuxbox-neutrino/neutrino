@@ -36,7 +36,6 @@
 #include <sectionsdclient/sectionsdclient.h>
 
 #include <driver/rcinput.h>
-#include <driver/fontrenderer.h>
 #include <system/settings.h>
 #include <string>
 #include <zapit/channel.h>

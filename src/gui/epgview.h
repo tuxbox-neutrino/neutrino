@@ -34,7 +34,6 @@
 #define __epgview__
 
 #include <driver/rcinput.h>
-#include <driver/fontrenderer.h>
 #include <system/settings.h>
 
 #include <gui/color.h>

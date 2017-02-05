@@ -36,6 +36,7 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 #include <driver/display.h>
+#include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <system/debug.h>
 #include <gui/color_custom.h>

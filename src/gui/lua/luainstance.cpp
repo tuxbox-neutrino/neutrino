@@ -34,6 +34,7 @@
 #include <gui/movieplayer.h>
 #include <driver/neutrinofonts.h>
 #include <driver/pictureviewer/pictureviewer.h>
+#include <driver/fontrenderer.h>
 #include <neutrino.h>
 #include <video_cs.h>
 

@@ -40,6 +40,7 @@
 
 #include <gui/color.h>
 #include <driver/screen_max.h>
+#include <driver/fontrenderer.h>
 
 
 class CKeyValue : public CMenuSeparator

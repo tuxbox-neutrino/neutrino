@@ -32,6 +32,7 @@
 #include <gui/color_custom.h>
 #include <system/debug.h>
 #include "cc_frm_button.h"
+#include <driver/fontrenderer.h>
 
 using namespace std;
 

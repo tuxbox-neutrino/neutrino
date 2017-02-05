@@ -35,6 +35,7 @@
 #include <gui/infoclock.h>
 #include <gui/timeosd.h>
 #include <driver/neutrinofonts.h>
+#include <driver/fontrenderer.h>
 #include <system/debug.h>
 
 extern CTimeOSD *FileTimeOSD;

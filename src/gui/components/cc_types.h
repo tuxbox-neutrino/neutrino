@@ -27,11 +27,11 @@
 #define __CC_TYPES__
 
 #include <system/localize.h>
-#include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <gui/color_custom.h>
 
 struct gradientData_t;
+class Font;
 class CComponentsForm;
 class CComponentsScrollBar;
 

@@ -29,6 +29,7 @@
 #include <gui/color_custom.h>
 #include "cc_frm_footer.h"
 #include <system/debug.h>
+#include <driver/fontrenderer.h>
 
 using namespace std;
 
