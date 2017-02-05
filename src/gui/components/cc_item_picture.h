@@ -34,7 +34,6 @@
 #include "cc_base.h"
 #include "cc_item.h"
 #include <string>
-#include <driver/pictureviewer/pictureviewer.h>
 
 #define NO_SCALE false
 #define SCALE true

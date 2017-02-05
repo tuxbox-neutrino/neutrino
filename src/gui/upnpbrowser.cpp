@@ -40,6 +40,7 @@
 #include <driver/audiometadata.h>
 #include <driver/screen_max.h>
 #include <driver/display.h>
+#include <driver/pictureviewer/pictureviewer.h>
 
 #include <gui/audiomute.h>
 #include <gui/color.h>

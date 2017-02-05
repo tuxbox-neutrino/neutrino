@@ -24,7 +24,6 @@
 #define __upnpplayergui__
 
 #include <driver/audiofile.h>
-#include <driver/pictureviewer/pictureviewer.h>
 #include <gui/filebrowser.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/listhelpers.h>
