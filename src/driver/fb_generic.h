@@ -21,8 +21,6 @@
 	Boston, MA  02110-1301, USA.
 */
 
-#include "fb_generic.h"
-#if 0
 
 #ifndef __framebuffer__
 #define __framebuffer__
@@ -331,5 +329,4 @@ class CFrameBuffer : public sigc::trackable
 		sigc::signal<void> OnAfterSetPallette;
 };
 
-#endif
 #endif
