@@ -52,6 +52,7 @@
 #include <global.h>
 
 #include <stdlib.h>
+#include <gui/color.h>
 #include "listframe.h"
 #include <gui/widget/icons.h>
 #include <driver/fontrenderer.h>

@@ -59,6 +59,7 @@
 
 #include <global.h>
 #include <system/debug.h>
+#include <gui/color.h>
 #include "textbox.h"
 #include <gui/widget/icons.h>
 #include <driver/fontrenderer.h>

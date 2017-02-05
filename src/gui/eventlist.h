@@ -34,7 +34,6 @@
 #include <system/settings.h>
 #include <gui/components/cc.h>
 
-#include "color.h"
 #include "infoviewer.h"
 
 #include "widget/menue.h"
