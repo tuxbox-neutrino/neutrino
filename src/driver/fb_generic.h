@@ -21,8 +21,6 @@
 	Boston, MA  02110-1301, USA.
 */
 
-#include "fb_generic.h"
-#if 0
 
 #ifndef __framebuffer__
 #define __framebuffer__
@@ -184,12 +182,12 @@ class CFrameBuffer : public sigc::trackable
 		fb_pixel_t * getFrameBufferPointer() const; // pointer to framebuffer
 		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
-		unsigned int getScreenHeight(bool real = false); 
+		unsigned int getScreenHeight(bool real = false);
 		unsigned int getScreenWidthRel(bool force_small = false);
 		unsigned int getScreenHeightRel(bool force_small = false);
 		unsigned int getScreenX();
 		unsigned int getScreenY();
-		
+
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
 
@@ -232,7 +230,7 @@ class CFrameBuffer : public sigc::trackable
 
 		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */
-		bool paintIcon (const std::string & filename, const int x, const int y, 
+		bool paintIcon (const std::string & filename, const int x, const int y,
 				const int h = 0, const unsigned char offset = 1, bool paint = true, bool paintBg = false, const fb_pixel_t colBg = 0);
 		bool paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset = 0);
 		void loadPal   (const std::string & filename, const unsigned char offset = 0, const unsigned char endidx = 255);
@@ -278,7 +276,7 @@ class CFrameBuffer : public sigc::trackable
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 
-		enum 
+		enum
 			{
 				TM_EMPTY  = 0,
 				TM_NONE   = 1,
@@ -331,5 +329,4 @@ class CFrameBuffer : public sigc::trackable
 		sigc::signal<void> OnAfterSetPallette;
 };
 
-#endif
 #endif
