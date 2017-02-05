@@ -4,7 +4,6 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 		      2003 thegoodguy
 
-	mute icon handling from tuxbox project
 	Copyright (C) 2009-2012,2017 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
 	mute icon & info clock handling
 	Copyright (C) 2013 M. Liebmann (micha-bbg)
@@ -79,6 +78,7 @@ inline unsigned int make16color(uint16_t r, uint16_t g, uint16_t b, uint16_t t,
 CFrameBuffer::CFrameBuffer()
 : active ( true )
 {
+	fb_name = "generic framebuffer";
 	iconBasePath = "";
 	available  = 0;
 	cmap.start = 0;
@@ -120,7 +120,7 @@ CFrameBuffer* CFrameBuffer::getInstance()
 
 	if(!frameBuffer) {
 		frameBuffer = new CFrameBuffer();
-		printf("[neutrino] frameBuffer Instance created\n");
+		printf("[neutrino] %s Instance created\n", frameBuffer->fb_name);
 	} else {
 		//printf("[neutrino] frameBuffer Instace requested\n");
 	}

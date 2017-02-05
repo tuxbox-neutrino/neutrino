@@ -317,6 +317,7 @@ class CFrameBuffer : public sigc::trackable
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
 		void blit(void) {}
 		sigc::signal<void> OnAfterSetPallette;
+		const char *fb_name;
 };
 
 #endif
