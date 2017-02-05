@@ -134,4 +134,25 @@ class CFbAccelCSApollo
 		void setBlendLevel(int);
 };
 
+class CFbAccelGLFB
+	: public OpenThreads::Thread, public CFbAccel
+{
+	private:
+		void run(void);
+		void blit(void);
+		void _blit(void);
+		bool blit_thread;
+		bool blit_pending;
+		OpenThreads::Condition blit_cond;
+		OpenThreads::Mutex blit_mutex;
+		fb_pixel_t *backbuffer;
+	public:
+		CFbAccelGLFB();
+		~CFbAccelGLFB();
+		void init(const char * const);
+		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
+		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
+		fb_pixel_t * getBackBufferPointer() const;
+};
+
 #endif

@@ -69,4 +69,10 @@ endif
 #	simple_display.cpp
 #endif
 
+if BOXTYPE_GENERIC
+libneutrino_driver_a_SOURCES += \
+	fb_accel_glfb.cpp \
+	simple_display.cpp
+endif
+
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp
