@@ -33,7 +33,6 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/shellwindow.h>
-#include <driver/framebuffer.h>
 #include <configfile.h>
 #include <string>
 #include <vector>

@@ -22,8 +22,8 @@
 
 #include <gui/movieinfo.h>
 #include <gui/components/cc.h>
-#include <driver/framebuffer.h>
 
+class CFrameBuffer;
 class CMovieCut
 {
 	private:

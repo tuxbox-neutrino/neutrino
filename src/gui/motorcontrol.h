@@ -35,7 +35,6 @@
 
 #include <gui/widget/menue.h>
 #include <gui/components/cc.h>
-#include <driver/framebuffer.h>
 #include <string>
 #include <zapit/femanager.h>
 
@@ -44,6 +43,7 @@
 #define STEP_MODE_ON 2 
 #define STEP_MODE_TIMED 3       
 
+class CFrameBuffer;
 class CMotorControl : public CMenuTarget
 {
 	private:

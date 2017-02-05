@@ -34,13 +34,12 @@
 #include <gui/components/cc.h>
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
 #include <system/setting_helpers.h>
 #include <system/settings.h>
 
 #include <string>
 
+class CFrameBuffer;
 class COsdSetup : public CMenuTarget, public CChangeObserver
 {	
 	private:

@@ -25,7 +25,6 @@
 #endif
 
 #include <driver/lcdd.h>
-#include <driver/framebuffer.h>
 
 #include <global.h>
 #include <neutrino.h>

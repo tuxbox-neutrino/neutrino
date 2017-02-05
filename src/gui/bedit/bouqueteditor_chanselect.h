@@ -32,7 +32,6 @@
 #ifndef __bouqueteditor_chanselect__
 #define __bouqueteditor_chanselect__
 
-#include <driver/framebuffer.h>
 #include <gui/widget/listbox.h>
 #include <gui/components/cc.h>
 #include <zapit/client/zapitclient.h>

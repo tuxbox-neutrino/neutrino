@@ -39,12 +39,12 @@
 #include <string>
 #include <vector>
 
-#include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
 
 #define MAXBOOKMARKS 10
 #define BOOKMARKFILE CONFIGDIR "/bookmarks"
 
+class CFramebuffer;
 class CBookmark
 {
  private:

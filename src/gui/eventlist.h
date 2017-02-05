@@ -30,7 +30,6 @@
 #include <timerdclient/timerdtypes.h>
 #include <sectionsdclient/sectionsdclient.h>
 
-#include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <system/settings.h>
@@ -44,7 +43,7 @@
 
 #include <string>
 
-
+class CFramebuffer;
 class CEventList : public CListHelpers
 {
 	// Eventfinder start

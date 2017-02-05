@@ -26,7 +26,6 @@
 
 #include "menue.h"
 
-#include <driver/framebuffer.h>
 #include <system/localize.h>
 
 #include <string>
@@ -41,6 +40,7 @@ struct keyboard_layout
         std::string (*keys)[KEY_ROWS][KEY_COLUMNS];
 };
 
+class CFrameBuffer;
 class CInputString
 {
 	private:

@@ -33,6 +33,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
 
 #include <system/debug.h>

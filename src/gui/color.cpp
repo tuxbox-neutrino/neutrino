@@ -37,6 +37,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <driver/framebuffer.h>
+
 #ifndef FLT_EPSILON
 #define FLT_EPSILON 1E-5
 #endif

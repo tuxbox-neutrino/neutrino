@@ -22,8 +22,9 @@
 #ifndef __fade_f__
 #define __fade_f__
 
-#include <driver/framebuffer.h>
+#include <inttypes.h>
 
+class CFrameBuffer;
 class COSDFader
 {
 	private:

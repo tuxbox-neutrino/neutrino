@@ -21,6 +21,7 @@
 #ifndef _LUAINSTANCEHELPERS_H
 #define _LUAINSTANCEHELPERS_H
 
+#include <map>
 
 //#define LUA_DEBUG printf
 #define LUA_DEBUG(...)

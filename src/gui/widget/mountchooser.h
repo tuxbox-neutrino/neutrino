@@ -33,7 +33,6 @@
 #ifndef __mountchooser__
 #define __mountchooser__
 
-#include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <gui/widget/menue.h>
 

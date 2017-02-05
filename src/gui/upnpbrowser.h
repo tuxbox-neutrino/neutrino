@@ -23,7 +23,6 @@
 #ifndef __upnpplayergui__
 #define __upnpplayergui__
 
-#include <driver/framebuffer.h>
 #include <driver/audiofile.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/filebrowser.h>
@@ -58,6 +57,7 @@ struct UPnPEntry
 	int		type;
 };
 
+class CFrameBuffer;
 class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 {
 	public:

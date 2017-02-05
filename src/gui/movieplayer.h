@@ -34,7 +34,6 @@
 
 #include <config.h>
 #include <configfile.h>
-#include <driver/framebuffer.h>
 #include <gui/filebrowser.h>
 #include <gui/bookmarkmanager.h>
 #include <gui/widget/menue.h>
@@ -59,6 +58,7 @@ extern "C" {
 #include <lualib.h>
 }
 
+class CFrameBuffer;
 class CMoviePlayerGui : public CMenuTarget
 {
  public:

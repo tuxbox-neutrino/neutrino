@@ -31,10 +31,9 @@
 #define __video_setup__
 
 #include <gui/widget/menue.h>
-#include <driver/framebuffer.h>
-
 #include <string>
 
+class CFrameBuffer;
 class CVideoSettings : public CMenuWidget, CChangeObserver
 {
 	private:

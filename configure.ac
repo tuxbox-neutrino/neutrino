@@ -290,6 +290,9 @@ HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2 -I$(top_srcdir)/src/zapit/inclu
 fi
 fi
 
+# hack, so that framebuffer.h does not need to be included everywhere...
+AC_DEFINE(fb_pixel_t, uint32_t, [hack, so that framebuffer.h does not need to be included everywhere...])
+
 # hack to define a short filename also for out-of-tree build
 if test `dirname $0` = `pwd` || test "$0" = ./configure; then
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__=__FILE__'

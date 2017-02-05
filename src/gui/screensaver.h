@@ -25,11 +25,11 @@
 #ifndef __CSCREENSAVER_H__
 #define __CSCREENSAVER_H__
 
-#include <driver/framebuffer.h>
 #include <vector>
 #include <string>
 #include <gui/components/cc.h>
 
+class CFrameBuffer;
 class CScreenSaver : public sigc::trackable
 {
 	private:
