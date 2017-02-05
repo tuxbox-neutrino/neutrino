@@ -47,6 +47,7 @@ libneutrino_driver_a_SOURCES = \
 
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
+	fb_accel_cs_nevis.cpp \
 	vfd.cpp
 endif
 
