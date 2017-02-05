@@ -105,6 +105,7 @@ class CFrameBuffer : public sigc::trackable
 
 		int             fd, tty;
 		fb_pixel_t *    lfb;
+		fb_pixel_t *    lbb;
 		int		available;
 		fb_pixel_t *    background;
 		fb_pixel_t *    backupBackground;

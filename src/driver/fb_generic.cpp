@@ -153,7 +153,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	available=fix.smem_len;
 	printf("%dk video mem\n", available/1024);
-	lfb=(fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
+	lbb = lfb = (fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
 
 	if (!lfb) {
 		perror("mmap");
@@ -237,7 +237,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 nolfb:
 	printf("framebuffer not available.\n");
-	lfb=0;
+	lbb = lfb = NULL;
 }
 
 
@@ -338,7 +338,7 @@ unsigned int CFrameBuffer::getScreenY()
 fb_pixel_t * CFrameBuffer::getFrameBufferPointer() const
 {
 	if (active || (virtual_fb == NULL))
-		return lfb;
+		return lbb;
 	else
 		return (fb_pixel_t *) virtual_fb;
 }
