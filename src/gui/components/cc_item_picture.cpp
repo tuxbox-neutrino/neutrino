@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <system/debug.h>
 #include <system/helpers.h>
+#include <driver/pictureviewer/pictureviewer.h>
 
 extern CPictureViewer * g_PicViewer;
 

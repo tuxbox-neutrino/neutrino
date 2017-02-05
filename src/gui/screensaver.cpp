@@ -43,6 +43,7 @@
 #include <gui/color_custom.h>
 #include <gui/infoclock.h>
 #include <zapit/zapit.h>
+#include <driver/pictureviewer/pictureviewer.h>
 
 #include <video.h>
 extern cVideo * videoDecoder;

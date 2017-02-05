@@ -30,6 +30,7 @@
 #include <gui/components/cc.h>
 
 class CFrameBuffer;
+class CPictureViewer;
 class CScreenSaver : public sigc::trackable
 {
 	private:
