@@ -274,6 +274,12 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 
 void CComponentsText::paintText(bool do_save_bg)
 {
+	if (cc_parent){
+		if(!cc_parent->OnAfterPaintBg.empty())
+			cc_parent->OnAfterPaintBg.clear();
+		//init slot to handle repaint of text if background was repainted
+		cc_parent->OnAfterPaintBg.connect(sigc::bind(sigc::mem_fun(*this, &CComponentsText::forceTextPaint), true));
+	}
 	initCCText();
 	if (!is_painted)
 		paintInit(do_save_bg);
