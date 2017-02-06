@@ -703,16 +703,19 @@ void CTimerList::updateEvents(void)
 void CTimerList::RemoteBoxSelect()
 {
 	int select = 0;
-	CMenuWidget *m = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
-	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
-		m->addItem(new CMenuForwarder(it->rbname, true, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str()));
+	if (g_settings.timer_remotebox_ip.size() > 1) {
+		CMenuWidget *m = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
+		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-	m->enableSaveScreen(true);
-	m->exec(NULL, "");
+		for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
+			m->addItem(new CMenuForwarder(it->rbname, true, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str()));
 
-	delete selector;
+		m->enableSaveScreen(true);
+		m->exec(NULL, "");
+
+		delete selector;
+	}
 
 	std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
 	std::advance(it,select);
