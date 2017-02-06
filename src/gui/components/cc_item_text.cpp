@@ -35,6 +35,7 @@
 #include <fstream>
 #include <errno.h>
 #include <system/debug.h>
+
 using namespace std;
 
 //sub class CComponentsText from CComponentsItem

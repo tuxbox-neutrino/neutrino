@@ -31,7 +31,6 @@
 #include "cc_frm_header.h"
 #include <system/debug.h>
 
-#include <sigc++/bind.h>
 
 using namespace std;
 

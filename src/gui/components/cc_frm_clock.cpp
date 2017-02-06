@@ -30,7 +30,7 @@
 
 #include "cc_frm_clock.h"
 #include <time.h>
-#include <sigc++/bind.h>
+
 #include <unistd.h>
 #include <errno.h>
 #include <ctype.h>

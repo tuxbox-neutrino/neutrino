@@ -29,7 +29,6 @@
 #include <neutrino.h>
 #include "cc_frm_ext_text.h"
 
-#include <sigc++/bind.h>
 
 #define DEF_HEIGHT 27
 #define DEF_LABEL_WIDTH_PERCENT 30

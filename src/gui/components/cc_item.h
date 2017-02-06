@@ -27,9 +27,11 @@
 #include "cc_types.h"
 #include "cc_base.h"
 #include "cc_draw.h"
+#include "cc_signals.h"
 #include <vector>
 #include <string>
 #include <driver/colorgradient.h>
+
 
 class CComponentsItem : public CComponents
 {
