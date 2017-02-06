@@ -63,6 +63,7 @@ extern "C" {
 #define TSHIFT_MODE_REWIND	3
 
 class CFrontend;
+class CZapitChannel;
 
 //FIXME
 enum record_error_msg_t

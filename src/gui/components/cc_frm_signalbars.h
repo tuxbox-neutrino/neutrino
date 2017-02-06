@@ -36,7 +36,6 @@
 #include <gui/components/cc_item_progressbar.h>
 #include <gui/components/cc_item_text.h>
 #include <gui/components/cc_text_screen.h>
-#include <zapit/include/zapit/frontend_c.h>
 #include <driver/neutrinofonts.h>
 
 /// Basic class for signalbars
@@ -48,6 +47,7 @@ CSignalBar() and their sub classes based up CComponentsForm() and are usable lik
 CSignalBar() is intended to show signal rate.
 */
 
+class CFrontend;
 class CSignalBar : public CComponentsForm, public CCTextScreen
 {
 	public:
