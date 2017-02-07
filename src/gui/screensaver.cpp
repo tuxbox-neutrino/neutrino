@@ -143,10 +143,12 @@ void CScreenSaver::Stop()
 	m_frameBuffer->paintBackground(); //clear entire screen
 
 	CAudioMute::getInstance()->enableMuteIcon(status_mute);
-	if (!OnAfterStop.empty())
+	if (!OnAfterStop.empty()){
 		OnAfterStop();
-	else
+	}else{
+		CInfoClock::getInstance()->ClearDisplay(); //provokes reinit
 		CInfoClock::getInstance()->enableInfoClock();
+	}
 }
 
 void* CScreenSaver::ScreenSaverPrg(void* arg)
