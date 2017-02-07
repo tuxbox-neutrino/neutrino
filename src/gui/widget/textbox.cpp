@@ -657,6 +657,7 @@ void CTextBox::refreshText(void)
 			if (allow_paint_bg){
 				//TRACE("[CTextBox] %s restore bg %d\r\n", __FUNCTION__, __LINE__);
 				frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
+				m_bg_painted = true;
 			}
 		}
 	}
@@ -718,7 +719,7 @@ void CTextBox::refreshText(void)
 		frameBuffer->paintBoxRel(tx, ty-th, tw, th, COL_RED, m_nBgRadius, m_nBgRadiusType);
 #endif
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
-		if (m_bg_painted || m_old_cText != m_cText)
+		if (m_bg_painted || (m_old_cText != m_cText))
 			m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, m_renderMode | ((m_utf8_encoded) ? Font::IS_UTF8 : 0));
 		y += m_nFontTextHeight;
 	}
