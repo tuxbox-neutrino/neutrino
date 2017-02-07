@@ -124,7 +124,11 @@ CFrameBuffer* CFrameBuffer::getInstance()
 		frameBuffer = new CFbAccelSTi();
 #endif
 #if HAVE_COOL_HARDWARE
+#ifdef BOXMODEL_APOLLO
+		frameBuffer = new CFbAccelCSApollo();
+#else
 		frameBuffer = new CFbAccelCSNevis();
+#endif
 #endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();

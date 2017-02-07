@@ -34,8 +34,10 @@
 #endif
 
 #if HAVE_COOL_HARDWARE
+#ifndef BOXMODEL_APOLLO
 /* not needed -- if you don't want acceleration, don't call CFbAccel ;) */
 #define USE_NEVIS_GXA 1
+#endif
 #endif
 
 class CFbAccel
@@ -111,6 +113,25 @@ class CFbAccelCSNevis
 		void setBlendLevel(int);
 		void add_gxa_sync_marker(void);
 		void setupGXA(void);
+};
+
+class CFbAccelCSApollo
+	: public CFbAccel
+{
+	private:
+		fb_pixel_t *backbuffer;
+
+	public:
+		CFbAccelCSApollo();
+//		~CFbAccelCSApollo();
+		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
+
+		void paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col);
+		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
+		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
+		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
+		void setBlendMode(uint8_t);
+		void setBlendLevel(int);
 };
 
 #endif

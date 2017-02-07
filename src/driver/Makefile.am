@@ -46,9 +46,15 @@ libneutrino_driver_a_SOURCES = \
 	volume.cpp
 
 if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+libneutrino_driver_a_SOURCES += \
+	fb_accel_cs_apollo.cpp \
+	vfd.cpp
+else
 libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_nevis.cpp \
 	vfd.cpp
+endif
 endif
 
 if BOXTYPE_TRIPLE
