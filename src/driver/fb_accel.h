@@ -110,15 +110,15 @@ class CFbAccelCSHD1
 		void setupGXA(void);
 };
 
-class CFbAccelCSApollo
+class CFbAccelCSHD2
 	: public CFbAccel
 {
 	private:
 		fb_pixel_t *backbuffer;
 
 	public:
-		CFbAccelCSApollo();
-//		~CFbAccelCSApollo();
+		CFbAccelCSHD2();
+//		~CFbAccelCSHD2();
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col);
 		void paintVLineRel(int x, int y, int dy, const fb_pixel_t col);

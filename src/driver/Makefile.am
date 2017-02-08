@@ -48,7 +48,7 @@ libneutrino_driver_a_SOURCES = \
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
 libneutrino_driver_a_SOURCES += \
-	fb_accel_cs_apollo.cpp \
+	fb_accel_cs_hd2.cpp \
 	vfd.cpp
 else
 libneutrino_driver_a_SOURCES += \

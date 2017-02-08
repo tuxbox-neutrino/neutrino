@@ -45,18 +45,18 @@
 
 #define LOGTAG "[fb_accel_apollo] "
 
-CFbAccelCSApollo::CFbAccelCSApollo()
+CFbAccelCSHD2::CFbAccelCSHD2()
 {
 	fb_name = "Coolstream APOLLO framebuffer";
 }
 
 /*
-CFbAccelCSApollo::~CFbAccelCSApollo()
+CFbAccelCSHD2::~CFbAccelCSHD2()
 {
 }
 */
 
-void CFbAccelCSApollo::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
+void CFbAccelCSHD2::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 {
 	if (!getActive())
 		return;
@@ -75,7 +75,7 @@ void CFbAccelCSApollo::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 	CFrameBuffer::paintHLineRelInternal(x, dx, y, col);
 }
 
-void CFbAccelCSApollo::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
+void CFbAccelCSHD2::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 {
 	if (!getActive())
 		return;
@@ -90,17 +90,17 @@ void CFbAccelCSApollo::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 	ioctl(fd, FBIO_FILL_RECT, &fillrect);
 }
 
-void CFbAccelCSApollo::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius, int type)
+void CFbAccelCSHD2::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius, int type)
 {
 	if (!getActive())
 		return;
 
 	if (dx == 0 || dy == 0) {
-		dprintf(DEBUG_DEBUG, "[CFbAccelCSApollo] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx, y+dy);
+		dprintf(DEBUG_DEBUG, "[CFbAccelCSHD2] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx, y+dy);
 		return;
 	}
 	if (radius < 0)
-		dprintf(DEBUG_NORMAL, "[CFbAccelCSApollo] [%s - %d]: WARNING! radius < 0 [%d] FIXME\n", __func__, __LINE__, radius);
+		dprintf(DEBUG_NORMAL, "[CFbAccelCSHD2] [%s - %d]: WARNING! radius < 0 [%d] FIXME\n", __func__, __LINE__, radius);
 
 	checkFbArea(x, y, dx, dy, true);
 
@@ -129,9 +129,9 @@ void CFbAccelCSApollo::paintBoxRel(const int x, const int y, const int dx, const
 
 			if (dx-ofr-ofl < 1) {
 				if (dx-ofr-ofl == 0){
-					dprintf(DEBUG_INFO, "[CFbAccelCSApollo] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
+					dprintf(DEBUG_INFO, "[CFbAccelCSHD2] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
 				}else{
-					dprintf(DEBUG_INFO, "[CFbAccelCSApollo] [%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n",
+					dprintf(DEBUG_INFO, "[CFbAccelCSHD2] [%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n",
 						__func__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
 				}
 				line++;
@@ -160,7 +160,7 @@ void CFbAccelCSApollo::paintBoxRel(const int x, const int y, const int dx, const
 	checkFbArea(x, y, dx, dy, false);
 }
 
-void CFbAccelCSApollo::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
+void CFbAccelCSHD2::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
 	int  xc, yc;
 	xc = (width > xRes) ? xRes : width;
@@ -181,7 +181,7 @@ void CFbAccelCSApollo::blit2FB(void *fbbuff, uint32_t width, uint32_t height, ui
 	CFrameBuffer::blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
 }
 
-void CFbAccelCSApollo::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
+void CFbAccelCSHD2::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
 {
 	if(width <1 || height <1 || !boxBuf )
 		return;
@@ -204,7 +204,7 @@ void CFbAccelCSApollo::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint
 	CFrameBuffer::blitBox2FB(boxBuf, width, height, xoff, yoff);
 }
 
-int CFbAccelCSApollo::setMode(unsigned int, unsigned int, unsigned int)
+int CFbAccelCSHD2::setMode(unsigned int, unsigned int, unsigned int)
 {
 	fb_fix_screeninfo _fix;
 
@@ -230,13 +230,13 @@ int CFbAccelCSApollo::setMode(unsigned int, unsigned int, unsigned int)
 	return 0; /* dont fail because of this */
 }
 
-void CFbAccelCSApollo::setBlendMode(uint8_t mode)
+void CFbAccelCSHD2::setBlendMode(uint8_t mode)
 {
 	if (ioctl(fd, FBIO_SETBLENDMODE, mode))
 		printf("FBIO_SETBLENDMODE failed.\n");
 }
 
-void CFbAccelCSApollo::setBlendLevel(int level)
+void CFbAccelCSHD2::setBlendLevel(int level)
 {
 	unsigned char value = 0xFF;
 	if (level >= 0 && level <= 100)
