@@ -207,6 +207,8 @@ void CFbAccelCSNevis::paintPixel(const int x, const int y, const fb_pixel_t col)
 
 void CFbAccelCSNevis::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 {
+	if (!getActive())
+		return;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	/* draw a single vertical line from point xa/ya to xb/yb */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
@@ -247,7 +249,6 @@ void CFbAccelCSNevis::paintBoxRel(const int x, const int y, const int dx, const 
 		while (line < dy) {
 			int ofl, ofr;
 			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type)) {
-				//printf("3: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
 				int rect_height_mult = ((type & CORNER_TOP) && (type & CORNER_BOTTOM)) ? 2 : 1;
 				_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
 				_write_gxa(gxa_base, cmd, GXA_POINT(x, y + line));               /* destination x/y */
@@ -293,7 +294,6 @@ void CFbAccelCSNevis::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uin
 	void *uKva;
 
 	uKva = cs_phys_addr(fbbuff);
-	//printf("CFbAccelCSNevis::blit2FB: data %x Kva %x\n", (int) fbbuff, (int) uKva);
 
 	if (uKva != NULL) {
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
@@ -305,11 +305,9 @@ void CFbAccelCSNevis::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uin
 		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff)); /* destination pos */
 		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));     /* source width, FIXME real or adjusted xc, yc ? */
 		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp));     /* source pos */
-//printf(">>>>>[%s:%d] Use HW accel\n", __func__, __LINE__);
 		return;
 	}
 	CFrameBuffer::blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
-//printf(">>>>>[%s:%d] NO HW accel\n", __func__, __LINE__);
 }
 
 void CFbAccelCSNevis::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
@@ -330,11 +328,9 @@ void CFbAccelCSNevis::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint3
 		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));
 		_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));
 		add_gxa_sync_marker();
-//printf(">>>>>[%s:%d] Use HW accel\n", __func__, __LINE__);
 		return;
 	}
 	CFrameBuffer::blitBox2FB(boxBuf, width, height, xoff, yoff);
-//printf(">>>>>[%s:%d] NO HW accel\n", __func__, __LINE__);
 }
 
 void CFbAccelCSNevis::setupGXA()
