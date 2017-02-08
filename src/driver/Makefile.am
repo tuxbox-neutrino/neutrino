@@ -52,7 +52,7 @@ libneutrino_driver_a_SOURCES += \
 	vfd.cpp
 else
 libneutrino_driver_a_SOURCES += \
-	fb_accel_cs_nevis.cpp \
+	fb_accel_cs_hd1.cpp \
 	vfd.cpp
 endif
 endif

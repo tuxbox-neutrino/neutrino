@@ -127,7 +127,7 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #ifdef BOXMODEL_APOLLO
 		frameBuffer = new CFbAccelCSApollo();
 #else
-		frameBuffer = new CFbAccelCSNevis();
+		frameBuffer = new CFbAccelCSHD1();
 #endif
 #endif
 #if HAVE_GENERIC_HARDWARE

@@ -78,7 +78,7 @@ class CFbAccelSTi
 		void setBlendLevel(int);
 };
 
-class CFbAccelCSNevis
+class CFbAccelCSHD1
 	: public CFbAccel
 {
 	private:
@@ -90,8 +90,8 @@ class CFbAccelCSNevis
 		void run(void);
 		fb_pixel_t *backbuffer;
 	public:
-		CFbAccelCSNevis();
-		~CFbAccelCSNevis();
+		CFbAccelCSHD1();
+		~CFbAccelCSHD1();
 		void init(const char * const);
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 		void paintPixel(int x, int y, const fb_pixel_t col);
