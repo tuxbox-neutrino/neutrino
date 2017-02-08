@@ -214,7 +214,7 @@ class CFrameBuffer : public sigc::trackable
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col, int radius, int type) { paintBoxRel(xa, ya, xb - xa, yb - ya, col, radius, type); }
 
 		void paintBoxFrame(const int x, const int y, const int dx, const int dy, const int px, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
-		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
+		virtual void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
 
 		inline void paintVLine(int x, int ya, int yb, const fb_pixel_t col) { paintVLineRel(x, ya, yb - ya, col); }
 		virtual void paintVLineRel(int x, int y, int dy, const fb_pixel_t col);
