@@ -88,6 +88,7 @@ class CYourClass : sigc::trackable //<- not forget, requierd by destructor!
 #define __CC_SIGNALS_H__
 
 #include <sigc++/signal.h>
+#include <sigc++/bind.h>
 #include <driver/rcinput.h>
 
 class CComponentsSignals : public sigc::trackable

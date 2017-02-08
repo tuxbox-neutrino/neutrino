@@ -196,7 +196,6 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 
 		///force paint of text even if text was changed or not
 		virtual void forceTextPaint(bool force_text_paint = true){ct_force_text_paint = force_text_paint;};
-
 		///gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
 		virtual CTextBox* getCTextBoxObject() { return ct_textbox; };
 
