@@ -113,7 +113,7 @@ class CFrameBuffer : public sigc::trackable
 		std::string     backgroundFilename;
 		bool            useBackgroundPaint;
 		unsigned int	xRes, yRes, stride, bpp;
-		t_fb_var_screeninfo screeninfo, oldscreen;
+		t_fb_var_screeninfo screeninfo;
 		fb_cmap cmap;
 		__u16 red[256], green[256], blue[256], trans[256];
 
