@@ -425,7 +425,13 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 		return;
 
 	const bool utf8_encoded = flags & IS_UTF8;
+#if HAVE_TRIPLEDRAGON
+	/* the TD Framebufffer is ARGB; the others are BGRA. The fullbg code does not handle that
+	 * the quick workaround is to just disable the fullbg flag */
+	useFullBG               = false;
+#else
 	useFullBG               = flags & FULLBG;
+#endif
 /*
 	useFullBg = false
 	 fetch bgcolor from framebuffer, using lower left edge of the font
