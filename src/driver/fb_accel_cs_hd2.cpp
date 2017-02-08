@@ -22,26 +22,7 @@
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <driver/fb_generic.h>
-#include <driver/fb_accel.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <memory.h>
-#include <limits.h>
-#include <gui/color.h>
-#include <system/debug.h>
-
-#include <cs_api.h>
-#include <cnxtfb.h>
+#include "fb_accel_cs_hdx_inc.h"
 
 #define LOGTAG "[fb_accel_cs_hd2] "
 
