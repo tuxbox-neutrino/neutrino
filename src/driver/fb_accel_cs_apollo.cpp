@@ -56,8 +56,11 @@ CFbAccelCSApollo::~CFbAccelCSApollo()
 }
 */
 
-void CFbAccelCSApollo::paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col)
+void CFbAccelCSApollo::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 {
+	if (!getActive())
+		return;
+
 	if (dx >= 10) {
 		fb_fillrect fillrect;
 		fillrect.dx = x;
@@ -69,16 +72,26 @@ void CFbAccelCSApollo::paintHLineRelInternal(int x, int dx, int y, const fb_pixe
 		ioctl(fd, FBIO_FILL_RECT, &fillrect);
 		return;
 	}
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
-	fb_pixel_t * dest = (fb_pixel_t *)pos;
-	for (int i = 0; i < dx; i++)
-		*(dest++) = col;
+	CFrameBuffer::paintHLineRelInternal(x, dx, y, col);
+}
+
+void CFbAccelCSApollo::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
+{
+	if (!getActive())
+		return;
+
+	fb_fillrect fillrect;
+	fillrect.dx = x;
+	fillrect.dy = y;
+	fillrect.width = 1;
+	fillrect.height = dy;
+	fillrect.color = col;
+	fillrect.rop = ROP_COPY;
+	ioctl(fd, FBIO_FILL_RECT, &fillrect);
 }
 
 void CFbAccelCSApollo::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius, int type)
 {
-	/* draw a filled rectangle (with additional round corners) */
-
 	if (!getActive())
 		return;
 
@@ -103,7 +116,6 @@ void CFbAccelCSApollo::paintBoxRel(const int x, const int y, const int dx, const
 		while (line < dy) {
 			int ofl, ofr;
 			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type)) {
-				//printf("3: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
 				int rect_height_mult = ((type & CORNER_TOP) && (type & CORNER_BOTTOM)) ? 2 : 1;
 				fillrect.dx	= x;
 				fillrect.dy	= y + line;
@@ -125,7 +137,7 @@ void CFbAccelCSApollo::paintBoxRel(const int x, const int y, const int dx, const
 				line++;
 				continue;
 			}
-			paintHLineRelInternal(x+ofl, dx-ofl-ofr, y+line, col);
+			paintHLineRel(x+ofl, dx-ofl-ofr, y+line, col);
 			line++;
 		}
 	} else {
@@ -139,13 +151,9 @@ void CFbAccelCSApollo::paintBoxRel(const int x, const int y, const int dx, const
 			checkFbArea(x, y, dx, dy, false);
 			return;
 		}
-		int swidth = stride / sizeof(fb_pixel_t);
-		fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
 		int line = 0;
 		while (line < dy) {
-			for (int pos = x; pos < x + dx; pos++)
-				*(fbp + pos) = col;
-			fbp += swidth;
+			CFrameBuffer::paintHLineRelInternal(x, dx, y+line, col);
 			line++;
 		}
 	}
@@ -168,11 +176,9 @@ void CFbAccelCSApollo::blit2FB(void *fbbuff, uint32_t width, uint32_t height, ui
 		image.depth = 32;
 		image.data = (const char*)fbbuff;
 		ioctl(fd, FBIO_IMAGE_BLT, &image);
-//printf(">>>>>[%s:%d] Use HW accel\n", __func__, __LINE__);
 		return;
 	}
 	CFrameBuffer::blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
-//printf(">>>>>[%s:%d] NO HW accel\n", __func__, __LINE__);
 }
 
 void CFbAccelCSApollo::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
@@ -193,11 +199,9 @@ void CFbAccelCSApollo::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint
 		image.depth = 32;
 		image.data = (const char*)boxBuf;
 		ioctl(fd, FBIO_IMAGE_BLT, &image);
-//printf("\033[33m>>>>\033[0m [%s:%s:%d] FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
 		return;
 	}
 	CFrameBuffer::blitBox2FB(boxBuf, width, height, xoff, yoff);
-//printf("\033[31m>>>>\033[0m [%s:%s:%d] Not use FB_HW_ACCELERATION x: %d, y: %d, w: %d, h: %d\n", __file__, __func__, __LINE__, xoff, yoff, xc, yc);
 }
 
 int CFbAccelCSApollo::setMode(unsigned int, unsigned int, unsigned int)

@@ -120,8 +120,8 @@ class CFbAccelCSApollo
 		CFbAccelCSApollo();
 //		~CFbAccelCSApollo();
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
-
-		void paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col);
+		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col);
+		void paintVLineRel(int x, int y, int dy, const fb_pixel_t col);
 		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
