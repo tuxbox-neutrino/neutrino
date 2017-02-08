@@ -140,7 +140,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 {
 	int tr = 0xFF;
 
-	fd = open(fbDevice, O_RDWR);
+	fd = open(fbDevice, O_RDWR|O_CLOEXEC);
 
 	if (fd<0) {
 		perror(fbDevice);
@@ -160,9 +160,8 @@ void CFrameBuffer::init(const char * const fbDevice)
 	}
 
 	available=fix.smem_len;
-	printf("[fb_generic] %dk video mem\n", available/1024);
+	printf("[fb_generic] [%s] framebuffer %dk video mem\n", fix.id, available/1024);
 	lbb = lfb = (fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
-
 	if (!lfb) {
 		perror("mmap");
 		goto nolfb;
