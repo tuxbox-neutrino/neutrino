@@ -33,13 +33,6 @@
 #define PARTIAL_BLIT 1
 #endif
 
-#if HAVE_COOL_HARDWARE
-#ifndef BOXMODEL_APOLLO
-/* not needed -- if you don't want acceleration, don't call CFbAccel ;) */
-#define USE_NEVIS_GXA 1
-#endif
-#endif
-
 class CFbAccel
 	: public CFrameBuffer
 {
