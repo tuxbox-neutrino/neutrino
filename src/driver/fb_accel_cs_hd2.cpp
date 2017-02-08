@@ -1,6 +1,6 @@
 /*
 	Framebuffer acceleration hardware abstraction functions.
-	The hardware dependent acceleration functions for coolstream apollo graphic chips
+	The hardware dependent acceleration functions for coolstream hd2 graphic chips
 	are represented in this class.
 
 	(C) 2017 M. Liebmann
@@ -43,11 +43,11 @@
 #include <cs_api.h>
 #include <cnxtfb.h>
 
-#define LOGTAG "[fb_accel_apollo] "
+#define LOGTAG "[fb_accel_cs_hd2] "
 
 CFbAccelCSHD2::CFbAccelCSHD2()
 {
-	fb_name = "Coolstream APOLLO framebuffer";
+	fb_name = "Coolstream HD2 framebuffer";
 }
 
 /*
@@ -218,7 +218,7 @@ int CFbAccelCSHD2::setMode(unsigned int, unsigned int, unsigned int)
 	xRes = screeninfo.xres;
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
-	printf(LOGTAG "%dx%dx%d line length %d. using apollo graphics accelerator.\n", xRes, yRes, bpp, stride);
+	printf(LOGTAG "%dx%dx%d line length %d. using hd2 graphics accelerator.\n", xRes, yRes, bpp, stride);
 	int needmem = stride * yRes * 2;
 	if (available >= needmem)
 	{

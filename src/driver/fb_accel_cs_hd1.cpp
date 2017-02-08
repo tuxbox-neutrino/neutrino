@@ -78,7 +78,7 @@
 #define GXA_CFG_REG             0x0030
 #define GXA_CFG2_REG            0x00FC
 
-#define LOGTAG "[fb_accel_gxa] "
+#define LOGTAG "[fb_accel_cs_hd1] "
 /*
 static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int offset)
 {
@@ -126,7 +126,7 @@ void CFbAccelCSHD1::waitForIdle(const char *func)
 
 CFbAccelCSHD1::CFbAccelCSHD1()
 {
-	fb_name = "Coolstream NEVIS GXA framebuffer";
+	fb_name = "Coolstream HD1 framebuffer";
 }
 
 void CFbAccelCSHD1::init(const char * const)
@@ -363,7 +363,7 @@ int CFbAccelCSHD1::setMode(unsigned int, unsigned int, unsigned int)
 	xRes = screeninfo.xres;
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
-	printf(LOGTAG "%dx%dx%d line length %d. using nevis gxa graphics accelerator.\n", xRes, yRes, bpp, stride);
+	printf(LOGTAG "%dx%dx%d line length %d. using hd1 graphics accelerator.\n", xRes, yRes, bpp, stride);
 	int needmem = stride * yRes * 2;
 	if (available >= needmem)
 	{
