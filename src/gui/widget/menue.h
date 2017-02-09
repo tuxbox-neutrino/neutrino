@@ -544,7 +544,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		bool			washidden;
 		int			nextShortcut;
 
-		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
+		void Init(const std::string &NameString, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();
 		void checkHints();
 		void calcSize();

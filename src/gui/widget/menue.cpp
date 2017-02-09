@@ -534,47 +534,57 @@ CMenuGlobal* CMenuGlobal::getInstance()
 
 CMenuWidget::CMenuWidget()
 {
-	nameString 	= "";
-	iconfile 	= "";
-	selected 	= -1;
+	Init("", "", 0, 0);
+}
+
+CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
+{
+	Init(g_Locale->getText(Name), Icon, mwidth, w_index);
+}
+
+CMenuWidget::CMenuWidget(const std::string &Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
+{
+	Init(Name, Icon, mwidth, w_index);
+}
+
+void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, const int mwidth, const mn_widget_id_t &w_index)
+{
+	//pos
+	x = y		= 0;
+
+	//caption and icon
+	nameString 	= NameString;
+	iconfile 	= Icon;
+
+	//basic attributes
 	iconOffset 	= 0;
 	offx = offy 	= 0;
 	from_wizard 	= SNeutrinoSettings::WIZARD_OFF;
 	fade 		= true;
 	sb_width	= 0;
 	savescreen	= false;
-	background	= NULL;
 	preselected 	= -1;
+	nextShortcut	= 1;
+	current_page	= 0;
+	has_hints	= false;
+	brief_hints	= BRIEF_HINT_NO;
+	hint_painted	= false;
+	hint_height	= 0;
+	fbutton_count	= 0;
+	fbutton_labels	= NULL;
+	fbutton_width	= 0;
+	fbutton_height	= 0;
+	saveScreen_width = 0;
+	saveScreen_height = 0;
+
+	//objects
+	background	= NULL;
 	details_line	= NULL;
 	info_box	= NULL;
 	header 		= NULL;
-	nextShortcut	= 1;
-	x = y		= 0;
-}
+	frameBuffer 	= CFrameBuffer::getInstance();
+	mglobal 	= CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
 
-CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
-{
-	nameString = g_Locale->getText(Name);
-	preselected 	= -1;
-	Init(Icon, mwidth, w_index);
-}
-
-CMenuWidget::CMenuWidget(const std::string &Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
-{
-	nameString = Name;
-	preselected 	= -1;
-	Init(Icon, mwidth, w_index);
-}
-
-void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widget_id_t &w_index)
-{
-	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
-	frameBuffer = CFrameBuffer::getInstance();
-	iconfile = Icon;
-	details_line = NULL;
-
-	info_box = NULL;
-	header	= NULL;
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
 		//error
@@ -589,40 +599,18 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	//overwrite preselected value with global select value
 	selected = (widget_index == NO_WIDGET_ID ? preselected : mglobal->v_selected[widget_index]);
 
-	
+	//dimension
 	min_width = 0;
 	width = 0; /* is set in paint() */
-	
-	if (mwidth > 100) 
-	{
+	if (mwidth > 100){
 		/* warn about abuse until we found all offenders... */
 		fprintf(stderr, "Warning: %s (%s) (%s) mwidth over 100%%: %d\n", __FUNCTION__, nameString.c_str(), Icon.c_str(), mwidth);
 	}
-	else 
-	{
+	else{
 		min_width = frameBuffer->getScreenWidth(true) * mwidth / 100;
 		if(min_width > (int) frameBuffer->getScreenWidth())
 			min_width = frameBuffer->getScreenWidth();
 	}
-
-	current_page	= 0;
-	offx = offy 	= 0;
-	from_wizard 	= SNeutrinoSettings::WIZARD_OFF;
-	fade 		= true;
-	savescreen	= false;
-	background	= NULL;
-	has_hints	= false;
-	brief_hints	= BRIEF_HINT_NO;
-	hint_painted	= false;
-	hint_height	= 0;
-	fbutton_count	= 0;
-	fbutton_labels	= NULL;
-	fbutton_width	= 0;
-	fbutton_height	= 0;
-	nextShortcut	= 1;
-	saveScreen_width = 0;
-	saveScreen_height = 0;
-	x = y		= 0;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
