@@ -280,7 +280,7 @@ CTimerList::CTimerList()
 	Timer = new CTimerdClient();
 	timerNew_message = "";
 	timerNew_pluginName = "";
-	httpConnectTimeout = 3;
+	httpConnectTimeout = 300; // ms
 	changed = false;
 
 	/* most probable default */
