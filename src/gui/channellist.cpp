@@ -2661,7 +2661,7 @@ void CChannelList::deleteChannel(bool ask)
 	if (!bouquet || !bouquet->zapitBouquet)
 		return;
 
-	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMsgBox::mbrYes, CMsgBox::mbNoYes)!=CMsgBox::mbrYes)
+	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)!=CMsgBox::mbrYes)
 		return;
 
 	bouquet->zapitBouquet->removeService((*chanlist)[selected]->getChannelID());

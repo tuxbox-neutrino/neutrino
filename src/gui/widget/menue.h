@@ -504,7 +504,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		unsigned int saveScreen_x;
 	protected:
 		std::string		nameString;
-		neutrino_locale_t	name;
+
 		CFrameBuffer		*frameBuffer;
 		std::vector<CMenuItem*>	items;
 		std::vector<int>	page_start;
@@ -544,7 +544,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		bool			washidden;
 		int			nextShortcut;
 
-		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
+		void Init(const std::string &NameString, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();
 		void checkHints();
 		void calcSize();
