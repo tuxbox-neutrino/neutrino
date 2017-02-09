@@ -534,8 +534,7 @@ CMenuGlobal* CMenuGlobal::getInstance()
 
 CMenuWidget::CMenuWidget()
 {
-	nameString 	= g_Locale->getText(NONEXISTANT_LOCALE);
-	name 		= NONEXISTANT_LOCALE;
+	nameString 	= "";
 	iconfile 	= "";
 	selected 	= -1;
 	iconOffset 	= 0;
@@ -555,7 +554,6 @@ CMenuWidget::CMenuWidget()
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
 {
-	name = Name;
 	nameString = g_Locale->getText(Name);
 	preselected 	= -1;
 	Init(Icon, mwidth, w_index);
@@ -563,7 +561,6 @@ CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon,
 
 CMenuWidget::CMenuWidget(const std::string &Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
 {
-	name = NONEXISTANT_LOCALE;
 	nameString = Name;
 	preselected 	= -1;
 	Init(Icon, mwidth, w_index);
@@ -729,8 +726,6 @@ CMenuItem* CMenuWidget::getItem(const uint& item_id)
 
 const char *CMenuWidget::getName()
 {
-	if (name != NONEXISTANT_LOCALE)
-		return g_Locale->getText(name);
 	return nameString.c_str();
 }
 

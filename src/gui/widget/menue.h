@@ -504,7 +504,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		unsigned int saveScreen_x;
 	protected:
 		std::string		nameString;
-		neutrino_locale_t	name;
+
 		CFrameBuffer		*frameBuffer;
 		std::vector<CMenuItem*>	items;
 		std::vector<int>	page_start;
