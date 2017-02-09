@@ -150,10 +150,6 @@ CFbAccelCSHD1::~CFbAccelCSHD1()
 		munmap((void *)gxa_base, 0x40000);
 	if (devmem_fd != -1)
 		close(devmem_fd);
-	if (lfb)
-		munmap(lfb, available);
-	if (fd > -1)
-		close(fd);
 }
 
 void CFbAccelCSHD1::setColor(fb_pixel_t col)
@@ -344,7 +340,7 @@ int CFbAccelCSHD1::setMode(unsigned int, unsigned int, unsigned int)
 	xRes = screeninfo.xres;
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
-	printf(LOGTAG "%dx%dx%d line length %d. using hd1 graphics accelerator.\n", xRes, yRes, bpp, stride);
+	printf(LOGTAG "%dx%dx%d line length %d. using %s graphics accelerator.\n", xRes, yRes, bpp, stride, _fix.id);
 	int needmem = stride * yRes * 2;
 	if (available >= needmem)
 	{
