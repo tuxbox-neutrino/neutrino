@@ -33,8 +33,8 @@
 #include <driver/fontrenderer.h>
 #include <driver/display.h>
 
-CProgressWindow::CProgressWindow(CComponentsForm *parent) 
-: CComponentsWindow(0, 0, 700, 200, string(), NEUTRINO_ICON_INFO, parent, CC_SHADOW_ON)
+CProgressWindow::CProgressWindow(CComponentsForm *parent, const int &dx, const int &dy)
+: CComponentsWindow(0, 0, dx, dy, string(), NEUTRINO_ICON_INFO, parent, CC_SHADOW_ON)
 {
 	Init();
 }
@@ -48,7 +48,7 @@ void CProgressWindow::Init()
 
 	int x_item = 10;
 	int y_item = 10;
-	setWidthP(75);
+
 	int w_item = width-2*x_item;
 	int h_item = 14;
 	int h_pbar = 20;
@@ -86,7 +86,7 @@ void CProgressWindow::Init()
 	y_item += 2*h_pbar;
 
 	h_height = ccw_head->getHeight();
-	height = y_item + h_height;
+	height = max(height, y_item + h_height);
 
 	setCenterPos();
 }
@@ -121,7 +121,7 @@ void CProgressWindow::fitItems()
 	}
 }
 
-void CProgressWindow::showStatus(const unsigned int prog)
+void CProgressWindow::showStatus(const unsigned int prog, const unsigned int max)
 {
 	if (global_progress == prog)
 		return;
@@ -132,17 +132,17 @@ void CProgressWindow::showStatus(const unsigned int prog)
 		global_bar->setHeight(g_height + g_height/2);
 	}
 
-	showGlobalStatus(prog);
+	showGlobalStatus(prog, max);
 }
 
-void CProgressWindow::showGlobalStatus(const unsigned int prog)
+void CProgressWindow::showGlobalStatus(const unsigned int prog, const unsigned int max)
 {
 	if (global_progress == prog)
 		return;
 
 	global_bar->allowPaint(true);
 	global_progress = prog;
-	global_bar->setValues(prog, 100);
+	global_bar->setValues(prog, (int)max);
 	global_bar->paint(false);
 
 #ifdef VFD_UPDATE
@@ -150,14 +150,14 @@ void CProgressWindow::showGlobalStatus(const unsigned int prog)
 #endif // VFD_UPDATE
 }
 
-void CProgressWindow::showLocalStatus(const unsigned int prog)
+void CProgressWindow::showLocalStatus(const unsigned int prog, const unsigned int max)
 {
 	if (local_progress == prog)
 		return;
 
 	local_bar->allowPaint(true);
 	local_progress = prog;
-	local_bar->setValues(prog, 100);
+	local_bar->setValues(prog, (int)max);
 	local_bar->paint(false);
 
 #ifdef VFD_UPDATE

@@ -43,16 +43,16 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 
 	public:
 
-		CProgressWindow(CComponentsForm *parent = NULL);
+		CProgressWindow(CComponentsForm *parent = NULL, const int &dx = 700, const int &dy = 200);
 		void setTitle(const neutrino_locale_t title);
 		virtual void hide();
 
 		virtual int exec( CMenuTarget* parent, const std::string & actionKey );
 
-		void showStatus(const unsigned int prog);
-		void showGlobalStatus(const unsigned int prog);
+		void showStatus(const unsigned int prog, const unsigned int max = 100);
+		void showGlobalStatus(const unsigned int prog, const unsigned int max = 100);
 		unsigned int getGlobalStatus(void);
-		void showLocalStatus(const unsigned int prog);
+		void showLocalStatus(const unsigned int prog, const unsigned int max = 100);
 		void showStatusMessageUTF(const std::string & text); // UTF-8
 		void paint(bool do_save_bg = true);
 		void setTitle(const std::string & title);
