@@ -38,21 +38,36 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		unsigned int local_progress;
 		int w_bar_frame;
 		int h_height;
-		void Init();
+		void Init(	sigc::signal<void, size_t, size_t, std::string> *statusSignal,
+				sigc::signal<void,size_t, size_t, std::string> *localSignal,
+				sigc::signal<void, size_t, size_t, std::string> *globalSignal);
 		void fitItems();
 
 	public:
 
-		CProgressWindow(CComponentsForm *parent = NULL, const int &dx = 700, const int &dy = 200);
+		CProgressWindow(CComponentsForm *parent = NULL,
+				const int &dx = 700,
+				const int &dy = 200,
+				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
+				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
+
+		CProgressWindow(const neutrino_locale_t title,
+				const int &dx = 700,
+				const int &dy = 200,
+				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
+				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
+
 		void setTitle(const neutrino_locale_t title);
 		virtual void hide();
 
 		virtual int exec( CMenuTarget* parent, const std::string & actionKey );
 
-		void showStatus(const unsigned int prog, const unsigned int max = 100);
-		void showGlobalStatus(const unsigned int prog, const unsigned int max = 100);
+		void showStatus(const unsigned int prog, const unsigned int max = 100, const std::string &statusText = std::string());
+		void showLocalStatus(const unsigned int prog, const unsigned int max = 100, const std::string &statusText = std::string());
+		void showGlobalStatus(const unsigned int prog, const unsigned int max = 100, const std::string &statusText = std::string());
 		unsigned int getGlobalStatus(void);
-		void showLocalStatus(const unsigned int prog, const unsigned int max = 100);
 		void showStatusMessageUTF(const std::string & text); // UTF-8
 		void paint(bool do_save_bg = true);
 		void setTitle(const std::string & title);
