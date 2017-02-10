@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014 Thilo Graf 'dbt'
+	Copyright (C) 2014-2017 Thilo Graf 'dbt'
 
 	License: GPL
 
