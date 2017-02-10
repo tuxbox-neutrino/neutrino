@@ -32,13 +32,15 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/display.h>
+using namespace sigc;
+using namespace std;
 
 CProgressWindow::CProgressWindow(CComponentsForm *parent,
 				 const int &dx,
 				 const int &dy,
-				 sigc::signal<void, size_t, size_t, std::string> *statusSignal,
-				 sigc::signal<void, size_t, size_t, std::string> *localSignal,
-				 sigc::signal<void, size_t, size_t, std::string> *globalSignal)
+				 signal<void, size_t, size_t, string> *statusSignal,
+				 signal<void, size_t, size_t, string> *localSignal,
+				 signal<void, size_t, size_t, string> *globalSignal)
 				: CComponentsWindow(0, 0, dx, dy, string(), NEUTRINO_ICON_INFO, parent, CC_SHADOW_ON)
 {
 	Init(statusSignal, localSignal, globalSignal);
@@ -47,24 +49,24 @@ CProgressWindow::CProgressWindow(CComponentsForm *parent,
 CProgressWindow::CProgressWindow(const neutrino_locale_t title,
 				 const int &dx,
 				 const int &dy,
-				 sigc::signal<void, size_t, size_t, std::string> *statusSignal,
-				 sigc::signal<void, size_t, size_t, std::string> *localSignal,
-				 sigc::signal<void, size_t, size_t, std::string> *globalSignal)
+				 signal<void, size_t, size_t, string> *statusSignal,
+				 signal<void, size_t, size_t, string> *localSignal,
+				 signal<void, size_t, size_t, string> *globalSignal)
 				: CComponentsWindow(0, 0, dx, dy, g_Locale->getText(title), NEUTRINO_ICON_INFO, NULL, CC_SHADOW_ON)
 {
 	Init(statusSignal, localSignal, globalSignal);
 }
 
-void CProgressWindow::Init(	sigc::signal<void, size_t, size_t, std::string> *statusSignal,
-				sigc::signal<void,size_t, size_t, std::string> *localSignal,
-				sigc::signal<void, size_t, size_t, std::string> *globalSignal)
+void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
+				signal<void,size_t, size_t, string> *localSignal,
+				signal<void, size_t, size_t, string> *globalSignal)
 {
 	if (statusSignal)
-		*statusSignal->connect(sigc::mem_fun(*this, &CProgressWindow::showStatus));
+		*statusSignal->connect(mem_fun(*this, &CProgressWindow::showStatus));
 	if (localSignal)
-		*localSignal->connect(sigc::mem_fun(*this, &CProgressWindow::showLocalStatus));
+		*localSignal->connect(mem_fun(*this, &CProgressWindow::showLocalStatus));
 	if (globalSignal)
-		*globalSignal->connect(sigc::mem_fun(*this, &CProgressWindow::showGlobalStatus));
+		*globalSignal->connect(mem_fun(*this, &CProgressWindow::showGlobalStatus));
 
 	global_progress = local_progress = 100;
 
@@ -126,7 +128,7 @@ void CProgressWindow::setTitle(const neutrino_locale_t title)
 #endif // VFD_UPDATE
 }
 
-void CProgressWindow::setTitle(const std::string & title)
+void CProgressWindow::setTitle(const string & title)
 {
 	setWindowCaption(title);
 
@@ -147,7 +149,7 @@ void CProgressWindow::fitItems()
 	}
 }
 
-void CProgressWindow::showStatus(const unsigned int prog, const unsigned int max, const std::string &statusText)
+void CProgressWindow::showStatus(const unsigned int prog, const unsigned int max, const string &statusText)
 {
 	if (global_progress == prog)
 		return;
@@ -161,7 +163,7 @@ void CProgressWindow::showStatus(const unsigned int prog, const unsigned int max
 	showGlobalStatus(prog, max, statusText);
 }
 
-void CProgressWindow::showGlobalStatus(const unsigned int prog, const unsigned int max, const std::string &statusText)
+void CProgressWindow::showGlobalStatus(const unsigned int prog, const unsigned int max, const string &statusText)
 {
 	if (global_progress == prog)
 		return;
@@ -178,7 +180,7 @@ void CProgressWindow::showGlobalStatus(const unsigned int prog, const unsigned i
 #endif // VFD_UPDATE
 }
 
-void CProgressWindow::showLocalStatus(const unsigned int prog, const unsigned int max, const std::string &statusText)
+void CProgressWindow::showLocalStatus(const unsigned int prog, const unsigned int max, const string &statusText)
 {
 	if (local_progress == prog)
 		return;
@@ -197,7 +199,7 @@ void CProgressWindow::showLocalStatus(const unsigned int prog, const unsigned in
 #endif // VFD_UPDATE
 }
 
-void CProgressWindow::showStatusMessageUTF(const std::string & text)
+void CProgressWindow::showStatusMessageUTF(const string & text)
 {
 	string txt = text;
 	int w_txt = status_txt->getWidth();
@@ -222,7 +224,7 @@ void CProgressWindow::hide()
 	CComponentsWindow::hide();
 }
 
-int CProgressWindow::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
+int CProgressWindow::exec(CMenuTarget* parent, const string & /*actionKey*/)
 {
 	if(parent)
 	{
