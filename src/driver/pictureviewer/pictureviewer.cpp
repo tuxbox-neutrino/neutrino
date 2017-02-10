@@ -12,6 +12,7 @@
 #include <curl/curl.h>
 #include <errno.h>
 #include <cs_api.h>
+#include <sys/sysinfo.h>
 
 #ifdef FBV_SUPPORT_GIF
 extern int fh_gif_getsize (const char *, int *, int *, int, int);
@@ -168,7 +169,11 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			free (m_NextPic_Buffer);
 			m_NextPic_Buffer = NULL;
 		}
-		m_NextPic_Buffer = (unsigned char *) malloc (x * y * 3);
+		size_t bufsize = x * y * 3;
+		if (!checkfreemem(bufsize)){
+			return false;
+		}
+		m_NextPic_Buffer = (unsigned char *) malloc (bufsize);
 		if (m_NextPic_Buffer == NULL) {
 			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc, %s\n", __func__, __LINE__, strerror(errno));
 			return false;
@@ -443,7 +448,12 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 		free (m_busy_buffer);
 		m_busy_buffer = NULL;
 	}
-	m_busy_buffer = (unsigned char *) malloc (width * width * cpp);
+	size_t bufsize = width * width * cpp;
+	if (!checkfreemem(bufsize)){
+		cs_free_uncached (fb_buffer);
+		return;
+	}
+	m_busy_buffer = (unsigned char *) malloc (bufsize);
 	if (m_busy_buffer == NULL) {
 		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc\n", __func__, __LINE__);
 		cs_free_uncached (fb_buffer);
@@ -658,9 +668,13 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		mode_str = "getIcon";
 
   	fh = fh_getsize(name.c_str(), &x, &y, INT_MAX, INT_MAX);
+	size_t bufsize = x * y * 4;
+	if (!checkfreemem(bufsize))
+		return NULL;
+
   	if (fh)
   	{
-		buffer = (unsigned char *) malloc(x * y * 4);
+		buffer = (unsigned char *) malloc(bufsize);//x * y * 4
 		if (buffer == NULL)
 		{
 			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode %s: Error: malloc\n", __func__, __LINE__, mode_str.c_str());
@@ -681,6 +695,7 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 			if((GetImage) && (*width < 1 || *height < 1)){
 				dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode: %s, file: %s (Pos: %d %d, Dim: %d x %d)\n", __func__, __LINE__, mode_str.c_str(), name.c_str(), x, y, *width, *height);
 				free(buffer);
+				buffer = NULL;
 				return NULL;
 			}
 			// resize only getImage
@@ -703,9 +718,11 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		}else{
 			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode %s: Error decoding file %s\n", __func__, __LINE__, mode_str.c_str(), name.c_str());
 			free(buffer);
+			buffer = NULL;
 			return NULL;
 		}
 		free(buffer);
+		buffer = NULL;
   	}else
 		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode: %s, file: %s Error: %s, buffer = %p (Pos: %d %d, Dim: %d x %d)\n", __func__, __LINE__, mode_str.c_str(), name.c_str(), strerror(errno), buffer, x, y, *width, *height);
 	return ret;
@@ -726,12 +743,15 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 	unsigned char * cr;
 	if(dst == NULL)
 	{
-		cr = (unsigned char*) malloc(dx * dy * ((alpha) ? 4 : 3));
-
+		size_t bufsize = dx * dy * ((alpha) ? 4 : 3);
+		if (!checkfreemem(bufsize)){
+			return orgin;
+		}
+		cr = (unsigned char*) malloc(bufsize);
 		if(cr == NULL)
 		{
 			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Resize Error: malloc\n", __func__, __LINE__);
-			return(orgin);
+			return orgin;
 		}
 	}else
 		cr = dst;
@@ -818,6 +838,7 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 		}
 	}
 	free(orgin);
+	orgin = NULL;
 	return(cr);
 }
 
@@ -829,4 +850,15 @@ unsigned char * CPictureViewer::Resize(unsigned char *orgin, int ox, int oy, int
 unsigned char * CPictureViewer::ResizeA(unsigned char *orgin, int ox, int oy, int dx, int dy)
 {
 	return int_Resize(orgin, ox, oy, dx, dy, COLOR, NULL, true);
+}
+
+bool CPictureViewer::checkfreemem(size_t bufsize)
+{
+	struct sysinfo info;
+	sysinfo( &info );
+	if(bufsize + 4096 > (size_t)info.freeram + (size_t)info.freeswap){
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Out of memory\n", __func__, __LINE__);
+		return false;
+	}
+	return true;
 }

@@ -112,6 +112,7 @@ class CPictureViewer
 	void add_format(int (*picsize)(const char *,int *,int*,int,int),int (*picread)(const char *,unsigned char **,int*,int*), int (*id)(const char*));
 	unsigned char * int_Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst, bool alpha);
 	fb_pixel_t * int_getImage(const std::string & name, int *width, int *height, bool GetImage);
+	bool checkfreemem(size_t bufsize);
 };
 
 
