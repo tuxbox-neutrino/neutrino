@@ -2874,7 +2874,7 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 	CFileList flist;
 	if (readDir(dirname, &flist) == true)
 	{
-		for (unsigned int i = 0; i < flist.size(); i++)
+		for (size_t i = 0; i < flist.size(); i++)
 		{
 			if (S_ISDIR(flist[i].Mode)) {
 				if (m_settings.ts_only || !CFileBrowser::checkBD(flist[i])) {
@@ -2885,6 +2885,7 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 			} else {
 				result |= addFile(flist[i], dirItNr);
 			}
+			OnLoadFile(i, flist.size(), g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
 		}
 		//result = true;
 	}
@@ -3123,7 +3124,8 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 {
 	TRACE("[mb] loadMovies: \n");
 
-	CHintBox loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_HEAD, g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+	CProgressWindow loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_HEAD, 500, 150, &OnLoadFile);
+	loadBox.enableShadow();
 	loadBox.paint();
 
 	if (show_mode == MB_SHOW_YT) {

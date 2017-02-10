@@ -362,6 +362,7 @@ class CMovieBrowser : public CMenuTarget
 		void clearSelection();
 		bool supportedExtension(CFile &file);
 		bool addFile(CFile &file, int dirItNr);
+		sigc::signal<void, size_t, size_t, std::string> OnLoadFile;
 };
 
 // I tried a lot to use the menu.cpp as ListBox selection, and I got three solution which are all garbage.
