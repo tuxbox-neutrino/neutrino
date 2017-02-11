@@ -28,7 +28,6 @@
 #define __EVENTLIST_HPP__
 
 #include <timerdclient/timerdtypes.h>
-#include <sectionsdclient/sectionsdclient.h>
 
 #include <driver/rcinput.h>
 #include <system/settings.h>
