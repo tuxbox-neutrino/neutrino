@@ -99,9 +99,10 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 	if (!text.empty()){
 		int x_text = w_picon + (picon ? OFFSET_INNER_MID : 0);
 		CComponentsText * txt = new CComponentsText(x_text, 0, line->getWidth()-x_text, 0, text, text_mode, font);
+		txt->doPaintBg(false);
+		txt->forceTextPaint();
 #if 0 //"contrast agent", if you want to see where the text items are drawn.
 		txt->setColorBody(COL_RED);
-		txt->doPaintBg(true);
 #endif
 		int lines = txt->getCTextBoxObject()->getLines();
 		txt_height = std::max(lines*font->getHeight(), h_line);

@@ -40,7 +40,8 @@
 // constructor
 CAudioMetaData::CAudioMetaData()
 {
-    clear();
+	cover_temporary = false;
+	clear();
 }
 
 // destructor

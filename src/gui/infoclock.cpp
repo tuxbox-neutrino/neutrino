@@ -126,19 +126,22 @@ bool CInfoClock::enableInfoClock(bool enable)
 		}
 	}
 
-	if (enable) {
-		if (FileTimeOSD->getRestore()) {
-			FileTimeOSD->setMode(FileTimeOSD->getTmpMode());
-			FileTimeOSD->update(CMoviePlayerGui::getInstance().GetPosition(),
-					      CMoviePlayerGui::getInstance().GetDuration());
+	if (!FileTimeOSD->getMpTimeForced()) {
+		if (enable) {
+			if (FileTimeOSD->getRestore()) {
+				FileTimeOSD->setRestore(false);
+				FileTimeOSD->setMode(FileTimeOSD->getTmpMode());
+				FileTimeOSD->update(CMoviePlayerGui::getInstance().GetPosition(),
+						      CMoviePlayerGui::getInstance().GetDuration());
+			}
 		}
-	}
-	else {
-		if (FileTimeOSD->getMode() != CTimeOSD::MODE_HIDE) {
-			FileTimeOSD->setTmpMode();
-			FileTimeOSD->setRestore();
-			if (FileTimeOSD->getRestore())
-				FileTimeOSD->kill();
+		else {
+			if (FileTimeOSD->getMode() != CTimeOSD::MODE_HIDE) {
+				FileTimeOSD->setTmpMode();
+				FileTimeOSD->setRestore(true);
+				if (FileTimeOSD->getRestore())
+					FileTimeOSD->kill();
+			}
 		}
 	}
 

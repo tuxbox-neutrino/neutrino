@@ -2173,9 +2173,7 @@ void CChannelList::paintHead()
 	else
 		logo_off = 10;
 
-	if (header->isPainted()) //clean up background of header for new contents
-		header->kill(header->getColorBody(), -1, CC_FBDATA_TYPES, false);
-	header->paint0();
+	header->paint(CC_SAVE_SCREEN_NO);
 }
 
 CComponentsHeader* CChannelList::getHeaderObject()
@@ -2667,7 +2665,7 @@ void CChannelList::deleteChannel(bool ask)
 	if (!bouquet || !bouquet->zapitBouquet)
 		return;
 
-	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMsgBox::mbrYes, CMsgBox::mbNoYes)!=CMsgBox::mbrYes)
+	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)!=CMsgBox::mbrYes)
 		return;
 
 	bouquet->zapitBouquet->removeService((*chanlist)[selected]->getChannelID());

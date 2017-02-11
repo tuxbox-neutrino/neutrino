@@ -280,7 +280,7 @@ CTimerList::CTimerList()
 	Timer = new CTimerdClient();
 	timerNew_message = "";
 	timerNew_pluginName = "";
-	httpConnectTimeout = 3;
+	httpConnectTimeout = 300; // ms
 	changed = false;
 
 	/* most probable default */
@@ -439,14 +439,16 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if ((strcmp(key, "send_remotetimer") == 0) && RemoteBoxChanExists(timerlist[selected].channel_id))
 	{
+		int pre,post;
+		Timer->getRecordingSafety(pre,post);
 		CHTTPTool httpTool;
 		std::string r_url;
 		r_url = "http://";
 		r_url += RemoteBoxConnectUrl(timerlist[selected].remotebox_name);
 		r_url += "/control/timer?action=new";
-		r_url += "&alarm=" + to_string((int)timerlist[selected].alarmTime + timerlist[selected].rem_pre);
-		r_url += "&stop=" + to_string((int)timerlist[selected].stopTime - timerlist[selected].rem_post);
-		r_url += "&announce=" + to_string((int)timerlist[selected].announceTime);
+		r_url += "&alarm=" + to_string((int)timerlist[selected].alarmTime + pre);
+		r_url += "&stop=" + to_string((int)timerlist[selected].stopTime - post);
+		r_url += "&announce=" + to_string((int)timerlist[selected].announceTime + pre);
 		r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 		r_url += "&aj=on";
 		r_url += "&rs=on";
@@ -458,13 +460,11 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if ((strcmp(key, "fetch_remotetimer") == 0) && LocalBoxChanExists(timerlist[selected].channel_id))
 	{
-		int pre,post;
-		Timer->getRecordingSafety(pre,post);
 		std::string remotebox_name = timerlist[selected].remotebox_name;
 		std::string eventID = to_string((int)timerlist[selected].eventID);
 
-		int res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + pre,
-				   timerlist[selected].stopTime - post, 0, 0, timerlist[selected].announceTime,
+		int res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + timerlist[selected].rem_pre,
+				   timerlist[selected].stopTime - timerlist[selected].rem_post, 0, 0, timerlist[selected].announceTime + timerlist[selected].rem_pre,
 				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",false);
 
 		if (res == -1)
@@ -473,8 +473,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 
 			if (forceAdd)
 			{
-				res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + pre,
-				   timerlist[selected].stopTime - post, 0, 0, timerlist[selected].announceTime,
+				res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + timerlist[selected].rem_pre,
+				   timerlist[selected].stopTime - timerlist[selected].rem_post, 0, 0, timerlist[selected].announceTime + timerlist[selected].rem_pre,
 				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",true);
 			}
 		}
@@ -704,16 +704,19 @@ void CTimerList::updateEvents(void)
 void CTimerList::RemoteBoxSelect()
 {
 	int select = 0;
-	CMenuWidget *m = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
-	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
-		m->addItem(new CMenuForwarder(it->rbname, true, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str()));
+	if (g_settings.timer_remotebox_ip.size() > 1) {
+		CMenuWidget *m = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
+		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-	m->enableSaveScreen(true);
-	m->exec(NULL, "");
+		for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
+			m->addItem(new CMenuForwarder(it->rbname, it->online, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str()));
 
-	delete selector;
+		m->enableSaveScreen(true);
+		m->exec(NULL, "");
+
+		delete selector;
+	}
 
 	std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
 	std::advance(it,select);
@@ -802,7 +805,10 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 		{
 			printf("Failed to parse JSON\n");
 			printf("%s\n", reader.getFormattedErrorMessages().c_str());
-		}
+			it->online = false;
+		} else
+			it->online = true;
+
 		Json::Value delays = root["data"]["timer"][0];
 
 		rem_pre  = atoi(delays["config"].get("pre_delay","0").asString());

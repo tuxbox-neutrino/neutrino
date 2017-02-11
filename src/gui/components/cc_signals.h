@@ -88,6 +88,7 @@ class CYourClass : sigc::trackable //<- not forget, requierd by destructor!
 #define __CC_SIGNALS_H__
 
 #include <sigc++/signal.h>
+#include <sigc++/bind.h>
 #include <driver/rcinput.h>
 
 class CComponentsSignals : public sigc::trackable
@@ -113,6 +114,8 @@ class CComponentsSignals : public sigc::trackable
 
 		///signal on before paint()
 		sigc::signal<void> OnBeforePaint;
+		///signal on before repaint, means: paint() is already done and item paint() is called again
+		sigc::signal<void> OnBeforeRePaint;
 		///signal on after paint()
 		sigc::signal<void> OnAfterPaint;
 

@@ -42,6 +42,7 @@ CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1
 	m_mode    = MODE_HIDE;
 	tmp_mode  = MODE_HIDE;
 	m_restore = false;
+	mp_time_forced = false;
 	Init();
 }
 
