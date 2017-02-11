@@ -77,7 +77,7 @@ int CPluginList::run()
 	g_PluginList->startPlugin(number);
 	if (!g_PluginList->getScriptOutput().empty()) {
 		hide();
-		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL, 320, g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]);
 	}
 	return menu_return::RETURN_REPAINT;
 }
