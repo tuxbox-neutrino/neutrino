@@ -82,6 +82,7 @@ CFrameBuffer::CFrameBuffer()
 	fb_name = "generic framebuffer";
 	iconBasePath = "";
 	available  = 0;
+	cache_size = 0;
 	cmap.start = 0;
 	cmap.len = 256;
 	cmap.red = red;
@@ -93,6 +94,7 @@ CFrameBuffer::CFrameBuffer()
 	background = NULL;
 	backupBackground = NULL;
 	backgroundFilename = "";
+	locked = false;
 	fd  = 0;
 	tty = 0;
 	m_transparent_default = CFrameBuffer::TM_BLACK; // TM_BLACK: Transparency when black content ('pseudo' transparency)
@@ -168,8 +170,6 @@ void CFrameBuffer::init(const char * const fbDevice)
 		goto nolfb;
 	}
 
-	cache_size = 0;
-
 	/* Windows Colors */
 	paletteSetColor(0x1, 0x010101, tr);
 	paletteSetColor(0x2, 0x800000, tr);
@@ -230,13 +230,14 @@ CFrameBuffer::~CFrameBuffer()
 
 	if (lfb)
 		munmap(lfb, available);
+	lfb = NULL;
 
 	if (virtual_fb){
 		delete[] virtual_fb;
 		virtual_fb = NULL;
 	}
 	close(fd);
-	close(tty);
+	fd = -1;
 
 	v_fbarea.clear();
 }
