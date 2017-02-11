@@ -38,21 +38,11 @@ libzapit_a_SOURCES += \
 endif
 
 bin_PROGRAMS = pzapit
-sbin_PROGRAMS = udpstreampes
 
 pzapit_SOURCES = \
 	pzapit.cpp
 
 pzapit_LDADD = \
-	$(top_builddir)/src/zapit/lib/libzapitclient.a \
-	$(top_builddir)/lib/connection/libtuxbox-connection.a \
-	-lOpenThreads \
-	-lpthread
-
-udpstreampes_SOURCES = \
-	udpstreampes.cpp
-
-udpstreampes_LDADD = \
 	$(top_builddir)/src/zapit/lib/libzapitclient.a \
 	$(top_builddir)/lib/connection/libtuxbox-connection.a \
 	-lOpenThreads \
