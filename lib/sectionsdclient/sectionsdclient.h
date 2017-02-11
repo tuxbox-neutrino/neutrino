@@ -163,7 +163,6 @@ class CSectionsdClient : private CBasicClient
 
 	typedef struct
 	{
-		int scanMode;
 		int epg_cache;
 		int epg_old_events;
 		int epg_max_events;
