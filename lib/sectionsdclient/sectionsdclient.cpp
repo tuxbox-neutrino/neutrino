@@ -199,7 +199,6 @@ void CSectionsdClient::setConfig(const epg_config config)
 	char* pData = new char[sizeof(sectionsd::commandSetConfig) + config.network_ntpserver.length() + 1 + config.epg_dir.length() + 1];
 	msg = (sectionsd::commandSetConfig *)pData;
 
-	msg->scanMode		= config.scanMode;
 	msg->epg_cache		= config.epg_cache;
 	msg->epg_old_events	= config.epg_old_events;
 	msg->epg_max_events	= config.epg_max_events;
