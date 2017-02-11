@@ -33,8 +33,6 @@
 #ifndef __infoview_bb__
 #define __infoview_bb__
 
-#include <sectionsdclient/sectionsdclient.h>
-
 #include <driver/rcinput.h>
 #include <driver/fade.h>
 #include <system/settings.h>

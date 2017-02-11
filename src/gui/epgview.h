@@ -39,8 +39,6 @@
 #include <gui/movieinfo.h>
 #include "widget/menue.h"
 
-#include <sectionsdclient/sectionsdclient.h>
-
 #include <vector>
 #include <string>
 
