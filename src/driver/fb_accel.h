@@ -169,6 +169,8 @@ class CFbAccelTD
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
 		void waitForIdle(const char *func = NULL);
+		void setBlendMode(uint8_t);
+		void setBlendLevel(int);
 };
 
 #endif

@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <sys/ioctl.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <memory.h>
@@ -143,6 +144,7 @@ void CFbAccelTD::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t
 void CFbAccelTD::init(const char *)
 {
 	CFrameBuffer::init();
+	fcntl(fd, F_SETFD, FD_CLOEXEC);
 	if (lfb == NULL) {
 		printf(LOGTAG "CFrameBuffer::init() failed.\n");
 		return; /* too bad... */
@@ -173,4 +175,30 @@ int CFbAccelTD::setMode(unsigned int, unsigned int, unsigned int)
 	fprintf(stderr, LOGTAG " not enough FB memory (have %d, need %d)\n", available, needmem);
 	backbuffer = lfb; /* will not work well, but avoid crashes */
 	return 0;
+}
+
+void CFbAccelTD::setBlendMode(uint8_t mode)
+{
+	Stb04GFXOsdControl g;
+	ioctl(gfxfd, STB04GFX_OSD_GETCONTROL, &g);
+	g.use_global_alpha = (mode == 2); /* 1 == pixel alpha, 2 == global alpha */
+	ioctl(gfxfd, STB04GFX_OSD_SETCONTROL, &g);
+}
+
+void CFbAccelTD::setBlendLevel(int level)
+{
+	/* this is bypassing directfb, but faster and easier */
+	Stb04GFXOsdControl g;
+	ioctl(gfxfd, STB04GFX_OSD_GETCONTROL, &g);
+	if (g.use_global_alpha == 0)
+		return;
+
+	if (level < 0 || level > 100)
+		return;
+
+	/* this is the same as convertSetupAlpha2Alpha(), but non-float */
+	g.global_alpha = 255 - (255 * level / 100);
+	ioctl(gfxfd, STB04GFX_OSD_SETCONTROL, &g);
+	if (level == 100) // sucks
+		usleep(20000);
 }
