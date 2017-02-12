@@ -369,9 +369,11 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	bp = &cbuf[0];
 
 	/* read one line */
-	while (bp - &cbuf[0] < (int) sizeof(cbuf)) {
+	while (bp - &cbuf[0] < (int) sizeof(cbuf) - 1) {
 		unsigned char c;
 		int res = read(fd, &c, 1);
+		if (res == 0)
+			break;
 		if (res < 0) {
 			perror("read");
 			return false;
@@ -379,11 +381,10 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		if ((*bp++ = c) == '\n')
 			break;
 	}
+	*bp = 0;
 
-	*bp++ = 0;
+	printf("CStreamManager::Parse: got %d bytes '%s'", (int)(bp-&cbuf[0]), cbuf);
 	bp = &cbuf[0];
-
-	printf("CStreamManager::Parse: got %s\n", cbuf);
 
 	/* send response to http client */
 	if (!strncmp(cbuf, "GET /", 5)) {
