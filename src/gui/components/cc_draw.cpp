@@ -775,6 +775,7 @@ bool CCDraw::paintBlink(const int& interval, bool is_nano)
 {
 	if (cc_draw_timer == NULL)
 		cc_draw_timer = new CComponentsTimer(interval, is_nano);
+	cc_draw_timer->setThreadName(__func__);
 
 	return paintBlink(cc_draw_timer);
 }

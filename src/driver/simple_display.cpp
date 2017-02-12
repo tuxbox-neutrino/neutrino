@@ -45,6 +45,8 @@
 #define DISPLAY_DEV "/dev/null"
 #endif
 
+#include <system/set_threadname.h>
+
 static char volume = 0;
 //static char percent = 0;
 static bool power = true;
@@ -149,6 +151,7 @@ void CLCD::wake_up()
 
 void* CLCD::TimeThread(void *)
 {
+	set_threadname("n:boxdisplay"); /* to not confuse with TV display */
 	while (CLCD::getInstance()->thread_running) {
 		sleep(1);
 		CLCD::getInstance()->showTime();

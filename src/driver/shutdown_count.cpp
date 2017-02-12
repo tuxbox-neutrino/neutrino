@@ -37,6 +37,7 @@
 #include <sys/timeb.h>
 #include <time.h>
 #include <unistd.h>
+#include <system/set_threadname.h>
 
 
 SHTDCNT::SHTDCNT()
@@ -68,6 +69,7 @@ SHTDCNT* SHTDCNT::getInstance()
 
 void* SHTDCNT::TimeThread(void *)
 {
+	set_threadname("n:shtdcnt");
 	while(1)
 	{
 		sleep(1);

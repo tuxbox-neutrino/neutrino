@@ -47,6 +47,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <system/set_threadname.h>
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
@@ -154,6 +155,7 @@ void CLCD::wake_up() {
 #ifndef BOXMODEL_DM500
 void* CLCD::TimeThread(void *p)
 {
+	set_threadname("lcd:time");
 	((CLCD *)p)->thread_started = true;
 	while (((CLCD *)p)->thread_started)
 	{

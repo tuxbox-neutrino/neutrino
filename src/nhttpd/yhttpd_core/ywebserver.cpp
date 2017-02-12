@@ -118,7 +118,7 @@ CWebserver::~CWebserver() {
 #define MAX_TIMEOUTS_TO_CLOSE 10
 #define MAX_TIMEOUTS_TO_TEST 100
 bool CWebserver::run(void) {
-	set_threadname(__func__);
+	set_threadname("ywebsrv::run");
 	if (!listenSocket.listen(port, HTTPD_MAX_CONNECTIONS)) {
 		if (port != 80) {
 			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d Abort.\n", port);

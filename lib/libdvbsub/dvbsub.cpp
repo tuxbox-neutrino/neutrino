@@ -15,6 +15,7 @@
 #include "PacketQueue.hpp"
 #include "helpers.hpp"
 #include "dvbsubtitle.h"
+#include <system/set_threadname.h>
 
 #define Log2File	printf
 #define RECVBUFFER_STEPSIZE 1024
@@ -244,6 +245,7 @@ static void* reader_thread(void * /*arg*/)
 	uint16_t packlen;
 	uint8_t* buf;
 	bool bad_startcode = false;
+	set_threadname("dvbsub:reader");
 
         dmx = new cDemux(0);
 #if HAVE_TRIPLEDRAGON
@@ -347,7 +349,7 @@ static void* dvbsub_thread(void* /*arg*/)
 {
 	struct timespec restartWait;
 	struct timeval now;
-
+	set_threadname("dvbsub:main");
 	sub_debug.print(Debug::VERBOSE, "%s started\n", __FUNCTION__);
 	if (!dvbSubtitleConverter)
 		dvbSubtitleConverter = new cDvbSubtitleConverter;

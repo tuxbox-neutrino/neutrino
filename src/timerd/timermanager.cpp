@@ -42,7 +42,7 @@
 
 #include "debug.h"
 #include "timermanager.h"
-
+#include <system/set_threadname.h>
 
 extern bool timeset;
 time_t timer_minutes;
@@ -89,6 +89,7 @@ void* CTimerManager::timerThread(void *arg)
 	pthread_mutex_t dummy_mutex = PTHREAD_MUTEX_INITIALIZER;
 	pthread_cond_t dummy_cond = PTHREAD_COND_INITIALIZER;
 	struct timespec wait;
+	set_threadname("n:timermanager");
 
 	CTimerManager *timerManager = (CTimerManager*) arg;
 
