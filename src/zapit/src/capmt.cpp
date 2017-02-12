@@ -281,7 +281,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if (channel_map.size() > 1)
 		list = CCam::CAPMT_ADD;
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	int ci_use_count = 0;
 	for (it = channel_map.begin(); it != channel_map.end(); ++it)
 	{
@@ -338,7 +338,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 void CCamManager::SetCITuner(int tuner)
 {
 	tunerno = tuner;
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	if (tunerno >= 0)
 		cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
 #endif

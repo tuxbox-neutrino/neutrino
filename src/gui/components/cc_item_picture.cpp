@@ -221,7 +221,7 @@ void CComponentsPicture::initCCItem()
 	{
 		float h_ratio = float(height)*100/(float)dy;
 		width = int(h_ratio*(float)dx/100);
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 		if (do_scale && (width > 10 || height > 10))
 			width = GetWidth4FB_HW_ACC(x+fr_thickness, width-2*fr_thickness)+2*fr_thickness;
 #endif

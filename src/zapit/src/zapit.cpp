@@ -584,7 +584,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		StopPip();
 #endif
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	if (CCamManager::getInstance()->GetCITuner() < 0)
 		cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)live_fe->getNumber());
 #endif
@@ -2362,7 +2362,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	/* FIXME until proper demux management */
 	int dnum = 1;
 #endif
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	videoDecoder = cVideo::GetDecoder(0);
 	audioDecoder = cAudio::GetDecoder(0);
 

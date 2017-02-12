@@ -1788,7 +1788,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 		case 6: /*DTS*/
 			if (apidtitle.find("DTS") == std::string::npos)
 				apidtitle.append(" (DTS)");
-#ifndef BOXMODEL_APOLLO
+#ifndef BOXMODEL_CS_HD2
 			enabled = false;
 #endif
 			break;

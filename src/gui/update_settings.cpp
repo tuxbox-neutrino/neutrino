@@ -131,7 +131,7 @@ int CUpdateSettings::initMenu()
 	CMenuOptionChooser *name_backup = new CMenuOptionChooser(LOCALE_FLASHUPDATE_NAMEMODE2, &g_settings.softupdate_name_mode_backup, SOFTUPDATE_NAME_MODE2_OPTIONS, SOFTUPDATE_NAME_MODE2_OPTION_COUNT, true);
 //	name_backup->setHint("", LOCALE_MENU_HINT_XXX);
 
-#ifndef BOXMODEL_APOLLO
+#ifndef BOXMODEL_CS_HD2
 	CMenuOptionChooser *apply_settings = new CMenuOptionChooser(LOCALE_FLASHUPDATE_MENU_APPLY_SETTINGS, &g_settings.apply_settings, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, OnOffNotifier);
 //	apply_settings->setHint("", LOCALE_MENU_HINT_XXX);
 
@@ -152,7 +152,7 @@ int CUpdateSettings::initMenu()
 	w_upsettings.addItem(fw_update_dir);
 	w_upsettings.addItem(fw_url);
 	w_upsettings.addItem(name_backup);
-#ifndef BOXMODEL_APOLLO
+#ifndef BOXMODEL_CS_HD2
 	w_upsettings.addItem(GenericMenuSeparatorLine);
 	w_upsettings.addItem(apply_settings);
 	w_upsettings.addItem(name_apply);

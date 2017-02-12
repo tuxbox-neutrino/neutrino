@@ -177,7 +177,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	std::string flashfile;
 
 	bool skipCopy = false;
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	if (strcmp(dn, "/tmp") != 0) {
 		uint64_t btotal = 0, bused = 0;
 		long bsize = 0;
@@ -680,7 +680,7 @@ int CMTDInfo::getMTDEraseSize( const std::string & filename )
 
 std::string CMTDInfo::findMTDsystem()
 {
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	std::string sysfs = "root0";
 #else
 	std::string sysfs = "systemFS";

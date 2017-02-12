@@ -124,7 +124,7 @@ int CSoftwareUpdate::showSoftwareUpdate()
 #endif
 	}
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
 	if (g_settings.easymenu)
