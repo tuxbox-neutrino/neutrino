@@ -184,7 +184,7 @@ class CFrameBuffer : public sigc::trackable
 
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
-#if HAVE_COOL_HARDWARE && BOXMODEL_NEVIS
+#ifdef BOXMODEL_CS_HD1
 		virtual void setupGXA() {};
 		virtual void add_gxa_sync_marker() {};
 #endif
