@@ -126,7 +126,12 @@ CFrameBuffer* CFrameBuffer::getInstance()
 		frameBuffer = new CFbAccelSTi();
 #endif
 #if HAVE_COOL_HARDWARE
-		frameBuffer = new CFbAccelCS();
+#ifdef BOXMODEL_CS_HD1
+		frameBuffer = new CFbAccelCSHD1();
+#endif
+#ifdef BOXMODEL_CS_HD2
+		frameBuffer = new CFbAccelCSHD2();
+#endif
 #endif
 #if HAVE_GENERIC_HARDWARE
 		frameBuffer = new CFbAccelGLFB();
@@ -347,7 +352,7 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	}
 	return 0;
 }
-#if 0 
+#if 0
 //never used
 void CFrameBuffer::setTransparency( int /*tr*/ )
 {
@@ -361,7 +366,7 @@ void CFrameBuffer::setBlendLevel(int /*level*/)
 {
 }
 
-#if 0 
+#if 0
 //never used
 void CFrameBuffer::setAlphaFade(int in, int num, int tr)
 {
@@ -507,7 +512,7 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 	int w_align;
 	int offs_align;
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	if (_dx%4 != 0) {
 		w_align = GetWidth4FB_HW_ACC(x, _dx, true);
 		if (w_align < _dx)
@@ -1190,7 +1195,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 	}
 	mark(xa, ya, xb, yb);
 }
-#if 0 
+#if 0
 //never used
 void CFrameBuffer::setBackgroundColor(const fb_pixel_t color)
 {
@@ -1538,9 +1543,9 @@ void * CFrameBuffer::int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, 
 
 	if (alpha) {
 		for(i = 0; i < count ; i++)
-			fbbuff[i] = ((rgbbuff[i*4+3] << 24) & 0xFF000000) | 
-				    ((rgbbuff[i*4]   << 16) & 0x00FF0000) | 
-				    ((rgbbuff[i*4+1] <<  8) & 0x0000FF00) | 
+			fbbuff[i] = ((rgbbuff[i*4+3] << 24) & 0xFF000000) |
+				    ((rgbbuff[i*4]   << 16) & 0x00FF0000) |
+				    ((rgbbuff[i*4+1] <<  8) & 0x0000FF00) |
 				    ((rgbbuff[i*4+2])       & 0x000000FF);
 	} else {
 		switch (m_transparent) {

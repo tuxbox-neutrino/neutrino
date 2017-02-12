@@ -32,7 +32,7 @@
 
 #include <cs_frontpanel.h>
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 #ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
 #include <cs_ir_generic.h>
 #endif

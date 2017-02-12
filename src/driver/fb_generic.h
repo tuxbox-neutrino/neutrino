@@ -122,6 +122,7 @@ class CFrameBuffer : public sigc::trackable
 		int 	kd_mode;
 		struct	vt_mode vt_mode;
 		bool	active;
+		bool fb_no_check;
 		static	void switch_signal (int);
 		fb_fix_screeninfo fix;
 		bool locked;
@@ -175,14 +176,18 @@ class CFrameBuffer : public sigc::trackable
 		virtual fb_pixel_t * getBackBufferPointer() const;  // pointer to backbuffer
 		virtual unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
-		unsigned int getScreenHeight(bool real = false); 
+		unsigned int getScreenHeight(bool real = false);
 		unsigned int getScreenWidthRel(bool force_small = false);
 		unsigned int getScreenHeightRel(bool force_small = false);
 		unsigned int getScreenX();
 		unsigned int getScreenY();
-		
+
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
+#ifdef BOXMODEL_CS_HD1
+		virtual void setupGXA() {};
+		virtual void add_gxa_sync_marker() {};
+#endif
 
 		void setTransparency( int tr = 0 );
 		virtual void setBlendMode(uint8_t mode = 1);
@@ -223,7 +228,7 @@ class CFrameBuffer : public sigc::trackable
 
 		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */
-		bool paintIcon (const std::string & filename, const int x, const int y, 
+		bool paintIcon (const std::string & filename, const int x, const int y,
 				const int h = 0, const unsigned char offset = 1, bool paint = true, bool paintBg = false, const fb_pixel_t colBg = 0);
 		bool paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset = 0);
 		void loadPal   (const std::string & filename, const unsigned char offset = 0, const unsigned char endidx = 255);
@@ -266,7 +271,7 @@ class CFrameBuffer : public sigc::trackable
 
 		virtual void mark(int x, int y, int dx, int dy);
 
-		enum 
+		enum
 			{
 				TM_EMPTY  = 0,
 				TM_NONE   = 1,
@@ -296,7 +301,6 @@ class CFrameBuffer : public sigc::trackable
 		typedef std::vector<fb_area_t> v_fbarea_t;
 		typedef v_fbarea_t::iterator fbarea_iterator_t;
 		v_fbarea_t v_fbarea;
-		bool fb_no_check;
 		bool do_paint_mute_icon;
 
 		bool _checkFbArea(int _x, int _y, int _dx, int _dy, bool prev);

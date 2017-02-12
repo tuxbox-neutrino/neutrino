@@ -478,13 +478,25 @@ AC_ARG_WITH(boxtype,
 	esac], [BOXTYPE="coolstream"])
 
 AC_ARG_WITH(boxmodel,
-	[  --with-boxmodel         valid for coolstream: nevis, apollo
+	[  --with-boxmodel         valid for coolstream: hd1, hd2
                           valid for dreambox: dm500, dm500plus, dm600pvr, dm56x0, dm7000, dm7020, dm7025
                           valid for ipbox: ip200, ip250, ip350, ip400],
 	[case "${withval}" in
-		nevis|apollo)
+		hd1|hd2)
 			if test "$BOXTYPE" = "coolstream"; then
 				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+			;;
+		nevis|apollo)
+			if test "$BOXTYPE" = "coolstream"; then
+				if test "$withval" = "nevis"; then
+					BOXMODEL="hd1"
+				fi
+				if test "$withval" = "apollo"; then
+					BOXMODEL="hd2"
+				fi
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
@@ -513,7 +525,7 @@ AC_ARG_WITH(boxmodel,
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 			;;
-	esac], [BOXMODEL="nevis"]
+	esac], [BOXMODEL="hd1"]
 	[if test "$BOXTYPE" = "dreambox" -o "$BOXTYPE" = "ipbox" && test -z "$BOXMODEL"; then
 		AC_MSG_ERROR([Dreambox/IPBox needs --with-boxmodel])
 	fi])
@@ -530,8 +542,8 @@ AM_CONDITIONAL(BOXTYPE_COOL, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_SPARK, test "$BOXTYPE" = "spark")
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
 
-AM_CONDITIONAL(BOXMODEL_NEVIS,test "$BOXMODEL" = "nevis")
-AM_CONDITIONAL(BOXMODEL_APOLLO,test "$BOXMODEL" = "apollo")
+AM_CONDITIONAL(BOXMODEL_CS_HD1,test "$BOXMODEL" = "hd1")
+AM_CONDITIONAL(BOXMODEL_CS_HD2,test "$BOXMODEL" = "hd2")
 
 AM_CONDITIONAL(BOXMODEL_DM500,test "$BOXMODEL" = "dm500")
 AM_CONDITIONAL(BOXMODEL_DM500PLUS,test "$BOXMODEL" = "dm500plus")
@@ -565,10 +577,10 @@ elif test "$BOXTYPE" = "generic"; then
 fi
 
 # TODO: do we need more defines?
-if test "$BOXMODEL" = "nevis"; then
-	AC_DEFINE(BOXMODEL_NEVIS, 1, [coolstream hd1/neo/neo2/zee])
-elif test "$BOXMODEL" = "apollo"; then
-	AC_DEFINE(BOXMODEL_APOLLO, 1, [coolstream tank])
+if test "$BOXMODEL" = "hd1"; then
+	AC_DEFINE(BOXMODEL_CS_HD1, 1, [coolstream hd1/neo/neo2/zee])
+elif test "$BOXMODEL" = "hd2"; then
+	AC_DEFINE(BOXMODEL_CS_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee²/link])
 elif test "$BOXMODEL" = "dm500"; then
 	AC_DEFINE(BOXMODEL_DM500, 1, [dreambox 500])
 elif test "$BOXMODEL" = "ip200"; then

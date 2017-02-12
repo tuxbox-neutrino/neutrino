@@ -46,7 +46,7 @@
 #include <string>
 #include <list>
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
 #else
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
@@ -177,7 +177,7 @@ struct SNeutrinoSettings
 	int analog_mode1;
 	int analog_mode2;
 	int video_43mode;
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	int brightness;
 	int contrast;
 	int saturation;
@@ -623,8 +623,6 @@ struct SNeutrinoSettings
 	int screen_preset;
 	int screen_width;
 	int screen_height;
-	int screen_xres;
-	int screen_yres;
 
 	//Software-update
 	int softupdate_mode;
@@ -782,8 +780,12 @@ struct SNeutrinoSettings
 	int	zap_cycle;
 	int	sms_channel;
 	int	sms_movie;
+
 	std::string	font_file;
 	std::string	ttx_font_file;
+
+	int font_scaling_x;
+	int font_scaling_y;
 
 	int		livestreamResolution;
 	std::string	livestreamScriptPath;

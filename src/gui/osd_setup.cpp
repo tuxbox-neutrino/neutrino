@@ -269,26 +269,26 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "font_scaling") {
-		int xre = g_settings.screen_xres;
-		int yre = g_settings.screen_yres;
+		int fs_x = g_settings.font_scaling_x;
+		int fs_y = g_settings.font_scaling_y;
 
 		CMenuWidget fontscale(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_FONTSCALE);
 		fontscale.addIntroItems(LOCALE_FONTMENU_SCALING);
 
-		CMenuOptionNumberChooser* mc = new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_X, &g_settings.screen_xres, true, 50, 200, this);
+		CMenuOptionNumberChooser* mc = new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_X, &g_settings.font_scaling_x, true, 50, 200, this);
 		mc->setNumericInput(true);
 		mc->setNumberFormat("%d%%");
 		fontscale.addItem(mc);
 
-		mc = new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_Y, &g_settings.screen_yres, true, 50, 200, this);
+		mc = new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_Y, &g_settings.font_scaling_y, true, 50, 200, this);
 		mc->setNumericInput(true);
 		mc->setNumberFormat("%d%%");
 		fontscale.addItem(mc);
 
 		res = fontscale.exec(NULL, "");
 
-		if (xre != g_settings.screen_xres || yre != g_settings.screen_yres) {
-			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", g_settings.screen_xres, g_settings.screen_yres);
+		if (fs_x != g_settings.font_scaling_x || fs_y != g_settings.font_scaling_y) {
+			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", g_settings.font_scaling_x, g_settings.font_scaling_y);
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST | CNeutrinoFonts::FONTSETUP_DYN_FONT);
 			if (CNeutrinoApp::getInstance()->channelList)
 				CNeutrinoApp::getInstance()->channelList->ResetModules(); //force re init of all modules

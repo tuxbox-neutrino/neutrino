@@ -78,7 +78,7 @@ bool CScreenShot::GetData()
 	bool res = false;
 
 	mutex.lock();
-#ifdef USE_NEVIS_GXA
+#ifdef BOXMODEL_CS_HD1
 	CFrameBuffer::getInstance()->setActive(false);
 #endif
 	if (videoDecoder->getBlank()) 
@@ -87,7 +87,7 @@ bool CScreenShot::GetData()
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
 
-#ifdef USE_NEVIS_GXA
+#ifdef BOXMODEL_CS_HD1
 	/* sort of hack. GXA used to transfer/convert live image to RGB,
 	 * so setup GXA back */
 	CFrameBuffer::getInstance()->setupGXA();
@@ -216,7 +216,7 @@ bool CScreenShot::SavePng()
 	png_set_compression_level(png_ptr, Z_BEST_SPEED);
 
 	png_set_bgr(png_ptr);
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	png_set_invert_alpha(png_ptr);
 #endif
 	png_write_info(png_ptr, info_ptr);

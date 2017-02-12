@@ -38,7 +38,7 @@
 
 #include <gui/widget/progresswindow.h>
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 #include <system/mtdutils/mkfs.jffs2.h>
 #endif
 
@@ -80,13 +80,13 @@ class CFlashExpert : public CProgressWindow
 		int showFileSelector(const std::string & actionkey);
 
 		bool checkSize(int mtd, std::string &backupFile);
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 		bool readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_devtable_t &v_devtable);
 		void readmtdJFFS2(std::string &filename, std::string title="", std::string path="/", bool makeDevTable=true);
 #endif
 
 	public:
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 		bool forceOtherFilename;
 		std::string otherFilename;
 		int createimage_other;
@@ -99,7 +99,7 @@ class CFlashExpert : public CProgressWindow
 
 };
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 class CFlashExpertSetup : public CMenuTarget
 {
 	private:
@@ -114,6 +114,6 @@ class CFlashExpertSetup : public CMenuTarget
 
 		int exec(CMenuTarget* parent, const std::string &actionKey);
 };
-#endif // BOXMODEL_APOLLO
+#endif // BOXMODEL_CS_HD2
 
 #endif

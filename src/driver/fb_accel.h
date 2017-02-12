@@ -32,10 +32,6 @@
 #if HAVE_SPARK_HARDWARE
 #define PARTIAL_BLIT 1
 #endif
-#if HAVE_COOL_HARDWARE
-/* not needed -- if you don't want acceleration, don't call CFbAccel ;) */
-#define USE_NEVIS_GXA 1
-#endif
 
 class CFbAccel
 	: public CFrameBuffer
@@ -82,7 +78,7 @@ class CFbAccelSTi
 		void setBlendLevel(int);
 };
 
-class CFbAccelCS
+class CFbAccelCSHD1
 	: public CFbAccel
 {
 	private:
@@ -90,22 +86,45 @@ class CFbAccelCS
 		int		  devmem_fd;	/* to access the GXA register we use /dev/mem */
 		unsigned int	  smem_start;	/* as aquired from the fbdev, the framebuffers physical start address */
 		volatile uint8_t *gxa_base;	/* base address for the GXA's register access */
-		void add_gxa_sync_marker(void);
-		void setupGXA(void);
 		void setColor(fb_pixel_t col);
 		void run(void);
 		fb_pixel_t *backbuffer;
 	public:
-		CFbAccelCS();
-		~CFbAccelCS();
+		CFbAccelCSHD1();
+		~CFbAccelCSHD1();
 		void init(const char * const);
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 		void paintPixel(int x, int y, const fb_pixel_t col);
 		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
-		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
+		inline void paintHLineRel(int x, int dx, int y, const fb_pixel_t col) { paintLine(x, y, x+dx, y, col); };
+		inline void paintVLineRel(int x, int y, int dy, const fb_pixel_t col) { paintLine(x, y, x, y+dy, col); };
+		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
+		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
+		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 		void waitForIdle(const char *func = NULL);
 		fb_pixel_t * getBackBufferPointer() const;
+		void setBlendMode(uint8_t);
+		void setBlendLevel(int);
+		void add_gxa_sync_marker(void);
+		void setupGXA(void);
+};
+
+class CFbAccelCSHD2
+	: public CFbAccel
+{
+	private:
+		fb_pixel_t *backbuffer;
+
+	public:
+		CFbAccelCSHD2();
+//		~CFbAccelCSHD2();
+		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
+		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col);
+		void paintVLineRel(int x, int y, int dy, const fb_pixel_t col);
+		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
+		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
+		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 		void setBlendMode(uint8_t);
 		void setBlendLevel(int);
 };

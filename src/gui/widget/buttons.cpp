@@ -33,7 +33,6 @@
 #include <driver/fontrenderer.h>
 
 
-
 /* paintButtons usage,
    use this function for painting icons with captions in horizontal or vertical direction.
    Icons automatically use the available maxwidth.
