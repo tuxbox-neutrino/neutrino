@@ -33,11 +33,13 @@
 #include <errno.h>
 #include <system/helpers.h>
 #include <system/debug.h>
+#include <system/set_threadname.h>
 
 using namespace std;
 
 CComponentsTimer::CComponentsTimer(const int& interval, bool is_nano)
 {
+	name			= "unnamed";
 	tm_thread 		= 0;
 	tm_interval 		= interval;
 	tm_enable_nano		= is_nano;
@@ -56,7 +58,8 @@ CComponentsTimer::~CComponentsTimer()
 void CComponentsTimer::runSharedTimerAction()
 {
 	//start loop
-
+	string tn = "cc:"+name;
+	set_threadname(tn.c_str());
 	while(tm_enable && tm_interval > 0) {
 		tm_mutex.lock();
 		OnTimer();
