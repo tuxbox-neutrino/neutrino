@@ -188,8 +188,10 @@ void CHintBox::enableTimeOutBar(bool enable)
 		timeout_pb = new CProgressBar();
 		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
 		timeout_pb->setValues(0, 100*timeout);
-		if (!timeout_pb_timer)
+		if (!timeout_pb_timer) {
 			timeout_pb_timer = new CComponentsTimer(1, true);
+			timeout_pb_timer->setThreadName("hb:tmoutbar");
+		}
 		timeout_pb_timer->OnTimer.connect(sigc::mem_fun0(this, &CHintBox::showTimeOutBar));
 		timeout_pb_timer->startTimer();
 	}
@@ -200,7 +202,6 @@ int CHintBox::exec()
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
 	int res = messages_return::none;
-
 	if (timeout == NO_TIMEOUT || timeout == DEFAULT_TIMEOUT)
 		timeout = HINTBOX_DEFAULT_TIMEOUT;
 

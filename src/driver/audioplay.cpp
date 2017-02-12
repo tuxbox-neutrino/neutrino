@@ -43,6 +43,7 @@
 #include <driver/audioplay.h>
 #include <driver/netfile.h>
 #include <eitd/edvbstring.h> // UTF8
+#include <system/set_threadname.h>
 
 void CAudioPlayer::stop()
 {
@@ -88,6 +89,7 @@ CAudioPlayer* CAudioPlayer::getInstance()
 void* CAudioPlayer::PlayThread( void* /*dummy*/ )
 {
 	int soundfd = -1;
+	set_threadname("audio:play");
 	g_RCInput->close_click();
 	/* Decode stdin to stdout. */
 	CBaseDec::RetCode Status =

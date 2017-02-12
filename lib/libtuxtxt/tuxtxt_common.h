@@ -12,6 +12,7 @@
 #endif
 
 #include <zapit/include/dmx.h>
+#include <system/set_threadname.h>
 
 tuxtxt_cache_struct tuxtxt_cache;
 static pthread_mutex_t tuxtxt_cache_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -587,6 +588,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 	unsigned char pagedata[9][23*40];
 	tstPageinfo *pageinfo_thread;
 
+	set_threadname("tuxtxt:cache");
 	printf("TuxTxt running thread...(%04x)\n",tuxtxt_cache.vtxtpid);
 	tuxtxt_cache.receiving = 1;
 	nice(3);
