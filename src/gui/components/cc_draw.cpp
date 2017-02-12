@@ -25,6 +25,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_draw.h"
+#include "cc_timer.h"
 #include <cs_api.h>
 
 #include <system/debug.h>

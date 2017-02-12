@@ -34,13 +34,13 @@
 #include <driver/neutrinofonts.h>
 #include "cc_base.h"
 #include "cc_frm.h"
-#include "cc_timer.h"
 #include "cc_text_screen.h"
 //! Sub class of CComponents. Show clock with digits on screen. 
 /*!
 Usable as simple fixed display or as ticking clock.
 */
 
+class CComponentsTimer;
 class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 {
 	private:
