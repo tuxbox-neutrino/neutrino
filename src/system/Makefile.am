@@ -1,4 +1,4 @@
-if BOXMODEL_APOLLO
+if BOXMODEL_CS_HD2
 SUBDIRS = mtdutils
 endif
 

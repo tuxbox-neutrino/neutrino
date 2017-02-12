@@ -245,7 +245,7 @@ if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 fi
 HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream -I$(top_srcdir)/src/zapit/include/private'
 
-if test "$BOXMODEL" = "apollo"; then
+if test "$BOXMODEL" = "hd2"; then
 if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
 fi
