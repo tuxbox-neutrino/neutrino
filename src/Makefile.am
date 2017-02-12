@@ -61,7 +61,7 @@ neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
 AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
-if BOXMODEL_APOLLO
+if BOXMODEL_CS_HD2
 MTDUTILSLIBS = \
 	system/mtdutils/libneutrino_system_mtdutils.a \
 	system/mtdutils/lib/libneutrino_system_mtdutils_lib.a
@@ -145,14 +145,14 @@ if BOXTYPE_COOL
 neutrino_LDADD += -lcoolstream-mt -lca-sc
 if ENABLE_TMSDK 
 else
-if BOXMODEL_APOLLO
+if BOXMODEL_CS_HD2
 neutrino_LDADD += -lca-ci -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager-cst -ltmpvrIndexStorage -llnxscsUsr
 else
 neutrino_LDADD += -lnxp
 endif
 endif
 
-if BOXMODEL_APOLLO
+if BOXMODEL_CS_HD2
 neutrino_LDADD += -liconv
 endif
 

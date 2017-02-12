@@ -308,7 +308,7 @@ void CFrontend::getFEInfo(void)
 		switch (info.type) {
 		case FE_QPSK:
 			deliverySystemMask |= DVB_S;
-#ifndef BOXMODEL_NEVIS
+#ifndef BOXMODEL_CS_HD1
 			if (info.caps & FE_CAN_2G_MODULATION)
 #endif
 				deliverySystemMask |= DVB_S2;

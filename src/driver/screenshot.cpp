@@ -218,7 +218,7 @@ bool CScreenShot::SavePng()
 	png_set_compression_level(png_ptr, Z_BEST_SPEED);
 
 	png_set_bgr(png_ptr);
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	png_set_invert_alpha(png_ptr);
 #endif
 	png_write_info(png_ptr, info_ptr);

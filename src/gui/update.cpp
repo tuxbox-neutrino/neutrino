@@ -90,7 +90,7 @@ extern int allow_flash;
 #define FILEBROWSER_UPDATE_FILTER      "img"
 
 #define MTD_OF_WHOLE_IMAGE             0
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd0"
 #else
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
@@ -321,7 +321,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	newVersion = versions[selected];
 	file_md5 = md5s[selected];
 	fileType = fileTypes[selected];
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	if(fileType < '3') {
 		int esize = CMTDInfo::getInstance()->getMTDEraseSize(sysfs);
 		printf("[update] erase size is %x\n", esize);
@@ -556,7 +556,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 	if(fileType < '3') {
 		//flash it...
-#ifndef BOXMODEL_APOLLO
+#ifndef BOXMODEL_CS_HD2
 		if (g_settings.apply_settings) {
 			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) == CMsgBox::mbrYes)
 				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE)) {
@@ -624,7 +624,7 @@ CFlashExpert::CFlashExpert()
 {
 	selectedMTD = -1;
 	width = 40;
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	forceOtherFilename = false;
 	otherFilename = "";
 	createimage_other = 0;
@@ -641,7 +641,7 @@ CFlashExpert* CFlashExpert::getInstance()
 
 bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 {
-#ifndef BOXMODEL_APOLLO
+#ifndef BOXMODEL_CS_HD2
 	if (mtd < 0) return false;
 #endif
 	char errMsg[1024] = {0};
@@ -655,7 +655,7 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	uint64_t btotal = 0, bused = 0;
 	long bsize = 0;
 	uint64_t backupRequiredSize = 0;
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	if (mtd == -1) { // check disk space for image creation
 		if (!get_fs_usage("/", btotal, bused, &bsize)) {
 			snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_VOLUME_ERROR), "root0");
@@ -691,7 +691,7 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	return true;
 }
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 bool CFlashExpert::readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_devtable_t &v_devtable)
 {
 	FILE *fd = fopen(devtableFile.c_str(), "r");
@@ -775,7 +775,7 @@ void CFlashExpert::readmtd(int preadmtd)
 	netGetHostname(hostName);
 	std::string timeStr  = getNowTimeStr("_%Y%m%d_%H%M");
 	std::string tankStr  = "";
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	int eSize = CMTDInfo::getInstance()->getMTDEraseSize(CMTDInfo::getInstance()->findMTDsystem());
 	if (preadmtd == 0) {
 		if (createimage_other == 0) {
@@ -793,7 +793,7 @@ void CFlashExpert::readmtd(int preadmtd)
 	else
 		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + tankStr + ".img";
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	std::string title  = " (" + CMTDInfo::getInstance()->getMTDName(preadmtd) + ")";
 	std::string mountp = getJFFS2MountPoint(preadmtd);
 	if (preadmtd == 0) {
@@ -817,7 +817,7 @@ void CFlashExpert::readmtd(int preadmtd)
 	}
 
 	bool skipCheck = false;
-#ifndef BOXMODEL_APOLLO
+#ifndef BOXMODEL_CS_HD2
 	if ((std::string)g_settings.update_dir == "/tmp")
 		skipCheck = true;
 #else
@@ -845,7 +845,7 @@ void CFlashExpert::readmtd(int preadmtd)
 		sprintf(message, g_Locale->getText(LOCALE_FLASHUPDATE_SAVESUCCESS), filename.c_str());
 		sleep(1);
 		hide();
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 		if (!forceOtherFilename)
 			ShowHint(LOCALE_MESSAGEBOX_INFO, message);
 #else
@@ -907,7 +907,7 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 	for(int lx=0;lx<mtdInfo->getMTDCount();lx++) {
 		char sActionKey[20];
 		bool enabled = true;
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 		// disable write uboot / uldr / env
 		if ((actionkey == "writemtd") && (lx == mtdInfo->findMTDNumberFromName("u-boot") || 
 			                          lx == mtdInfo->findMTDNumberFromName("uldr") ||
@@ -930,7 +930,7 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
 		mtdselector->addItem(new CMenuForwarder(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
-#ifndef BOXMODEL_APOLLO
+#ifndef BOXMODEL_CS_HD2
 	if (actionkey == "writemtd")
 		mtdselector->addItem(new CMenuForwarder("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
 #endif
@@ -1019,7 +1019,7 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 	return res;
 }
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 CFlashExpertSetup::CFlashExpertSetup()
 {
 	width = 40;
@@ -1187,4 +1187,4 @@ g_settings.flashupdate_createimage_add_spare = 0;
 	cfe->createimage_other = 0;
 	return res;
 }
-#endif // BOXMODEL_APOLLO
+#endif // BOXMODEL_CS_HD2
