@@ -141,6 +141,11 @@ void CServiceScan::CleanAllMaps()
 
 bool CServiceScan::tuneFrequency(FrontendParameters *feparams, t_satellite_position satellitePosition)
 {
+	if (! frontend->supportsDelivery(feparams->delsys)) {
+		printf("[scan] [fe%d] does not support delivery system %d, skipping\n",
+			frontend->getNumber(), feparams->delsys);
+		return false;
+	}
 	frontend->setInput(satellitePosition, feparams->frequency, feparams->polarization);
 	int ret = frontend->driveToSatellitePosition(satellitePosition, false); //true);
 	if(ret > 0) {
