@@ -27,7 +27,6 @@
 
 #include "cc_types.h"
 #include "cc_signals.h"
-#include "cc_timer.h"
 #include <driver/colorgradient.h>
 #include <driver/framebuffer.h>
 #include <driver/fade.h>
@@ -38,6 +37,7 @@
 Basic paint attributes and member functions for component classes
 */
 
+class CComponentsTimer;
 class CCDraw : public COSDFader, public CComponentsSignals
 {
 	protected:

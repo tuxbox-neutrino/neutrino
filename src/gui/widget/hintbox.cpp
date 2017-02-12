@@ -34,6 +34,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "hintbox.h"
+#include <gui/components/cc_timer.h>
 #include <driver/fontrenderer.h>
 #include <system/debug.h>
 
