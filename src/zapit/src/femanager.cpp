@@ -115,7 +115,7 @@ bool CFEManager::Init()
 	for (unsigned i = 0; i < MAX_DMX_UNITS; i++)
 		dmap.push_back(CFeDmx(i));
 
-	INFO("found %d frontends, %d demuxes\n", (int)femap.size(), (int)dmap.size());
+	INFO("found %d frontends, %d demuxes", (int)femap.size(), (int)dmap.size());
 	if (femap.empty())
 		return false;
 
@@ -463,7 +463,7 @@ void CFEManager::linkFrontends(bool init)
 	for(unsigned i = 0; i < MAX_DMX_UNITS; i++) {
 		if (demuxes[i] == 0) {
 			unused_demux = i;
-			INFO("pip demux: %d\n", unused_demux);
+			INFO("pip demux: %d", unused_demux);
 			break;
 		}
 	}

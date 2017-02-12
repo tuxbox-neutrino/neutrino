@@ -91,7 +91,7 @@ void CEpgScan::ConfigureEIT()
 			count++;
 		}
 	}
-	INFO("added %d channels to EIT white list\n", count);
+	INFO("added %d channels to EIT white list", count);
 }
 
 void CEpgScan::Clear()
