@@ -63,6 +63,9 @@ class CComponentsTimer : public sigc::trackable
 		///flag to control thread state
 		bool tm_enable;
 
+		///name for the thread
+		std::string name;
+
 		///mutex for timer
 		OpenThreads::Mutex tm_mutex;
 		///slot for restart signals
@@ -119,6 +122,13 @@ class CComponentsTimer : public sigc::trackable
 		* 	tm_interval
 		*/
 		void setTimerInterval(const int& interval, bool is_nano = false);
+
+		/**set thread name
+		* @param[in] thread name
+		* @return
+		* 	void
+		*/
+		void setThreadName(const std::string& n) { name = n; };
 
 		/**Provides a signal handler to receive any function or methode.
 		* Use this in your class where ever you need time controled actions.
