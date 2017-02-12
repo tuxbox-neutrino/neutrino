@@ -46,6 +46,7 @@
 #include <eventserver.h>
 #include <driver/abstime.h>
 #include <system/helpers.h>
+#include <system/set_threadname.h>
 #include <OpenThreads/ScopedLock>
 
 #include "eitd.h"
