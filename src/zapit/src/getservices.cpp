@@ -1109,7 +1109,11 @@ bool CServiceManager::CopyCurrentServices(transponder_id_t tpid)
 			updated = true;
 			printf("CServiceManager::CopyCurrentServices: [%s] add\n", cI->second.getName().c_str());
 		} else {
-			if(cI->second.scrambled != aI->second.scrambled || cI->second.getName() != aI->second.getName()) {
+			if (cI->second.getName() != aI->second.getName()
+#ifdef UPDATE_CHANNELS_ON_SCRAMBLED_CHANGE
+					|| cI->second.scrambled != aI->second.scrambled
+#endif
+				) {
 				aI->second.setName(cI->second.getName());
 				aI->second.scrambled = cI->second.scrambled;
 				aI->second.flags = CZapitChannel::UPDATED;
@@ -1217,7 +1221,11 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		if(ccI == allchans.end()) {
 			WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "add");
 		} else {
-			if(strcmp(cI->second.getRealname().c_str(), ccI->second.getRealname().c_str()) || cI->second.scrambled != ccI->second.scrambled) {
+			if (strcmp(cI->second.getRealname().c_str(), ccI->second.getRealname().c_str())
+#ifdef UPDATE_CHANNELS_ON_SCRAMBLED_CHANGE
+				|| cI->second.scrambled != ccI->second.scrambled
+#endif
+				) {
 				cI->second.number = ccI->second.number;
 				WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "replace");
 			}
