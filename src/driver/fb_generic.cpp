@@ -744,6 +744,12 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	width  = (header.width_hi  << 8) | header.width_lo;
 	height = (header.height_hi << 8) | header.height_lo;
 
+	if (width > 768) {
+		/* this is not going to happen, but check anyway */
+		printf("%s: icon %s too wide (%d)\n", __func__, filename.c_str(), (int)width);
+		close(lfd);
+		return false;
+	}
 	unsigned char pixbuf[768];
 
 	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
@@ -764,6 +770,7 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 		d += stride;
 	}
 	close(lfd);
+	mark(x, y, x + width, y + height);
 	return true;
 }
 
