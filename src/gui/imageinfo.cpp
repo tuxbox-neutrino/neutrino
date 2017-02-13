@@ -414,6 +414,7 @@ void CImageInfo::InitInfoText(const std::string& text)
 	//add a caption for info contents
 	Font * caption_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
 	int caption_height = caption_font->getHeight();
+	y_tmp = max(y_tmp, cc_tv->getYPos()+cc_tv->getHeight());
 	if (cc_sub_caption == NULL)
 		cc_sub_caption = new CComponentsLabel(cc_info->getXPos(), y_tmp, cc_info->getWidth(), caption_height,
 						     g_Locale->getText(LOCALE_IMAGEINFO_LICENSE), CTextBox::AUTO_WIDTH, item_font);
