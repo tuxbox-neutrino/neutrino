@@ -4895,11 +4895,7 @@ bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 }
 
 /*
- * commit 523b273a changed the names of config file entries:
- *	casystem_display	=> infobar_casystem_display
- *	casystem_dotmatrix	=> infobar_casystem_dotmatrix
- *	casystem_frame		=> infobar_casystem_frame
- * convert these, so that users do not need to set up their system again
+ * convert config keys, so that users do not need to set up their system again
 */
 struct __key_rename {
 	const char *from;
@@ -4910,6 +4906,14 @@ static struct __key_rename key_rename[] = {
 	{ "casystem_display",	"infobar_casystem_display" },
 	{ "casystem_dotmatrix",	"infobar_casystem_dotmatrix"},
 	{ "casystem_frame",	"infobar_casystem_frame" },
+	{ "screen_StartX_crt",	"screen_StartX_crt_0" },
+	{ "screen_StartY_crt",	"screen_StartY_crt_0" },
+	{ "screen_EndX_crt",	"screen_EndX_crt_0" },
+	{ "screen_EndY_crt",	"screen_EndY_crt_0" },
+	{ "screen_StartX_lcd",	"screen_StartX_lcd_0" },
+	{ "screen_StartY_lcd",	"screen_StartY_lcd_0" },
+	{ "screen_EndX_lcd",	"screen_EndX_lcd_0" },
+	{ "screen_EndY_lcd",	"screen_EndY_lcd_0" },
 	{ NULL, NULL }
 };
 
@@ -4932,9 +4936,8 @@ void CNeutrinoApp::migrateConfig(const char *fname)
 		/* only set new key to old value if the new key does not yet exist */
 		if (configfile.getInt32(to, magic) == magic)
 			configfile.setInt32(to, tmp);
-		/* always remove old key*/
+		/* always remove old key */
 		configfile.deleteKey(from);
 	}
 	/* more complex migration, including converting values etc. could be done here */
 }
-
