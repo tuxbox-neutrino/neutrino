@@ -185,6 +185,8 @@ class CFrameBuffer : public sigc::trackable
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
 		virtual void setupGXA() { return; };             // reinitialize stuff
+		virtual bool needAlign4Blit() { return false; };
+		virtual uint32_t getWidth4FB_HW_ACC(const uint32_t x, const uint32_t w, const bool max=true);
 
 		void setTransparency( int tr = 0 );
 		virtual void setBlendMode(uint8_t mode = 1);

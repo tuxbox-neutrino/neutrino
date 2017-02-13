@@ -48,7 +48,6 @@
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
-#include <system/helpers.h>
 #include <global.h>
 #include <video.h>
 #include <cs_api.h>
@@ -514,7 +513,7 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 
 #ifdef BOXMODEL_CS_HD2
 	if (_dx%4 != 0) {
-		w_align = GetWidth4FB_HW_ACC(x, _dx, true);
+		w_align = getWidth4FB_HW_ACC(x, _dx, true);
 		if (w_align < _dx)
 			_dx = w_align;
 		offs_align = w_align - _dx;
@@ -1769,4 +1768,9 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 /* dummy, can be implemented in CFbAccel */
 void CFrameBuffer::mark(int , int , int , int )
 {
+}
+
+uint32_t CFrameBuffer::getWidth4FB_HW_ACC(const uint32_t /*x*/, const uint32_t w, const bool /*max*/)
+{
+	return w;
 }
