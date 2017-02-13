@@ -321,10 +321,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		erg = 1;
 	} else {
 		/* try to detect bad / broken config file */
-		if (!configfile.getInt32("screen_EndX_crt", 0) ||
-				!configfile.getInt32("screen_EndY_crt", 0) ||
-				!configfile.getInt32("screen_EndX_lcd", 0) ||
-				!configfile.getInt32("screen_EndY_lcd", 0)) {
+		if (!configfile.getInt32("screen_EndX_crt_0", 0) ||
+				!configfile.getInt32("screen_EndY_crt_0", 0) ||
+				!configfile.getInt32("screen_EndX_lcd_0", 0) ||
+				!configfile.getInt32("screen_EndY_lcd_0", 0)) {
 			printf("[neutrino] config file %s is broken, using defaults\n", fname);
 			configfile.clear();
 		} else {
