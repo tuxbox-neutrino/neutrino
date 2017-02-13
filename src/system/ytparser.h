@@ -27,7 +27,7 @@
 #include <string>
 #include <map>
 #include <xmltree/xmlinterface.h>
-
+#include <sigc++/sigc++.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 
@@ -155,6 +155,8 @@ class cYTFeedParser
 		void SetMaxResults(int count) { max_results = count; }
 		void SetConcurrentDownloads(int count) { concurrent_downloads = count; }
 		void SetThumbnailDir(std::string &_thumbnail_dir);
+
+		sigc::signal<void, size_t, size_t, std::string> OnLoadVideoInfo;
 };
 
 #endif
