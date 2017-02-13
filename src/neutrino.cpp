@@ -1815,7 +1815,10 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 void CNeutrinoApp::SetupFrameBuffer()
 {
 	frameBuffer->init();
-	if(frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t))) {
+	/* Parameters only valid for hd2 hardware and new fb drivers,
+	   all other hardware ignores these parameters */
+//	if (frameBuffer->setMode(1280, 720, 8 * sizeof(fb_pixel_t)) == -1) {
+	if (frameBuffer->setMode(1920, 1080, 8 * sizeof(fb_pixel_t)) == -1) {
 		dprintf(DEBUG_NORMAL, "Error while setting framebuffer mode\n");
 		exit(-1);
 	}
