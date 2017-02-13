@@ -22,6 +22,14 @@ if test "$DEBUG" = "yes"; then
 	AC_DEFINE(DEBUG,1,[Enable debug messages])
 fi
 
+AC_ARG_ENABLE(reschange,
+       AS_HELP_STRING(--enable-reschange,enable change the osd resolution (default for hd2)))
+
+AM_CONDITIONAL(ENABLE_RESCHANGE,test "$enable_reschange" = "yes")
+if test "$enable_reschange" = "yes"; then
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION,1,[enable change the osd resolution])
+fi
+
 AC_ARG_ENABLE(tmsdk,
         AS_HELP_STRING(--enable-tmsdk,         compile inside sdk),
         ,[enable_tmsdk=no])
@@ -559,6 +567,7 @@ if test "$BOXMODEL" = "hd1"; then
 	AC_DEFINE(BOXMODEL_CS_HD1, 1, [coolstream hd1/neo/neo2/zee])
 elif test "$BOXMODEL" = "hd2"; then
 	AC_DEFINE(BOXMODEL_CS_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee²/link])
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION,1,[enable change the osd resolution])
 elif test "$BOXMODEL" = "dm500"; then
 	AC_DEFINE(BOXMODEL_DM500, 1, [dreambox 500])
 elif test "$BOXMODEL" = "ip200"; then
