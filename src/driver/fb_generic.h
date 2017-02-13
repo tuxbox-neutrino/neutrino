@@ -39,6 +39,13 @@
 
 typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 
+typedef struct osd_resolution_t
+{
+	uint32_t yRes;
+	uint32_t xRes;
+	uint32_t bpp;
+} osd_resolution_struct_t;
+
 typedef struct gradientData_t
 {
 	fb_pixel_t* gradientBuf;
@@ -271,6 +278,9 @@ class CFrameBuffer : public sigc::trackable
 
 		virtual void mark(int x, int y, int dx, int dy);
 		virtual int scaleFont(int size) { return size; };
+		virtual bool fullHdAvailable() { return false; };
+		virtual void setOsdResolutions();
+		std::vector<osd_resolution_t> osd_resolutions;
 
 		enum
 			{

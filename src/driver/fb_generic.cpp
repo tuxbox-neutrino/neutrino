@@ -350,8 +350,21 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
 		printf("screen unblanking failed\n");
 	}
+
 	return 0;
 }
+
+void CFrameBuffer::setOsdResolutions()
+{
+	/* FIXME: Infos available in driver? */
+	osd_resolution_t res;
+	osd_resolutions.clear();
+	res.xRes = 1280;
+	res.yRes = 720;
+	res.bpp  = 32;
+	osd_resolutions.push_back(res);
+}
+
 #if 0
 //never used
 void CFrameBuffer::setTransparency( int /*tr*/ )

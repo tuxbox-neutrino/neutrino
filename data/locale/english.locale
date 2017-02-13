@@ -322,10 +322,9 @@ colormenu.clock_textcolor Digit color
 colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font
-colormenu.hd_preset LCD
 colormenu.menucolors Colors
 colormenu.osd_preset TV preset
-colormenu.sd_preset CRT
+colormenu.osd_resolution OSD resolution
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
 colormenu.timing Timeouts
@@ -1244,6 +1243,7 @@ menu.hint_opkg_upgrade Updates all installed packages to the most recent version
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
+menu.hint_osd_resolution Change OSD resolution
 menu.hint_osd_timing After this time the OSD will be faded out
 menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code

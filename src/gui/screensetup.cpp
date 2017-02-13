@@ -37,6 +37,7 @@
 
 #include <gui/color.h>
 #include <gui/infoviewer.h>
+#include <gui/osd_setup.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/icons.h>
 
@@ -109,27 +110,61 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 
 		switch ( msg )
 		{
-			case CRCInput::RC_ok:
+			case CRCInput::RC_ok: {
 				// abspeichern
 				g_settings.screen_StartX = x_coord[0];
 				g_settings.screen_EndX = x_coord[1];
 				g_settings.screen_StartY = y_coord[0];
 				g_settings.screen_EndY = y_coord[1];
-				if(g_settings.screen_preset) {
-					g_settings.screen_StartX_lcd = g_settings.screen_StartX;
-					g_settings.screen_StartY_lcd = g_settings.screen_StartY;
-					g_settings.screen_EndX_lcd = g_settings.screen_EndX;
-					g_settings.screen_EndY_lcd = g_settings.screen_EndY;
-				} else {
-					g_settings.screen_StartX_crt = g_settings.screen_StartX;
-					g_settings.screen_StartY_crt = g_settings.screen_StartY;
-					g_settings.screen_EndX_crt = g_settings.screen_EndX;
-					g_settings.screen_EndY_crt = g_settings.screen_EndY;
+				switch (g_settings.osd_resolution) {
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+					case 1:
+					    {
+						switch (g_settings.screen_preset) {
+							case COsdSetup::PRESET_CRT:
+								g_settings.screen_StartX_crt_1 = g_settings.screen_StartX;
+								g_settings.screen_StartY_crt_1 = g_settings.screen_StartY;
+								g_settings.screen_EndX_crt_1   = g_settings.screen_EndX;
+								g_settings.screen_EndY_crt_1   = g_settings.screen_EndY;
+								break;
+							case COsdSetup::PRESET_LCD:
+							default:
+								g_settings.screen_StartX_lcd_1 = g_settings.screen_StartX;
+								g_settings.screen_StartY_lcd_1 = g_settings.screen_StartY;
+								g_settings.screen_EndX_lcd_1   = g_settings.screen_EndX;
+								g_settings.screen_EndY_lcd_1   = g_settings.screen_EndY;
+								break;
+						}
+					    }
+					break;
+#endif
+					case 0:
+					default:
+					    {
+						switch (g_settings.screen_preset) {
+							case COsdSetup::PRESET_CRT:
+								g_settings.screen_StartX_crt_0 = g_settings.screen_StartX;
+								g_settings.screen_StartY_crt_0 = g_settings.screen_StartY;
+								g_settings.screen_EndX_crt_0   = g_settings.screen_EndX;
+								g_settings.screen_EndY_crt_0   = g_settings.screen_EndY;
+								break;
+							case COsdSetup::PRESET_LCD:
+							default:
+								g_settings.screen_StartX_lcd_0 = g_settings.screen_StartX;
+								g_settings.screen_StartY_lcd_0 = g_settings.screen_StartY;
+								g_settings.screen_EndX_lcd_0   = g_settings.screen_EndX;
+								g_settings.screen_EndY_lcd_0   = g_settings.screen_EndY;
+								break;
+						}
+					    }
+					break;
 				}
+
 				if (g_InfoViewer) /* recalc infobar position */
 					g_InfoViewer->start();
 				loop = false;
 				break;
+			}
 
 			case CRCInput::RC_home:
 				if ( ( ( g_settings.screen_StartX != x_coord[0] ) ||

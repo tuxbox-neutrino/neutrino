@@ -325,9 +325,25 @@ void CFbAccelCSHD1::setupGXA()
 	add_gxa_sync_marker();
 }
 
-/* wrong name... */
+void CFbAccelCSHD1::setOsdResolutions()
+{
+	/* FIXME: Infos available in driver? */
+	osd_resolution_t res;
+	osd_resolutions.clear();
+	res.xRes = 1280;
+	res.yRes = 720;
+	res.bpp  = 32;
+	osd_resolutions.push_back(res);
+}
+
 int CFbAccelCSHD1::setMode(unsigned int, unsigned int, unsigned int)
 {
+	if (!available&&!active)
+		return -1;
+
+	if (osd_resolutions.empty())
+		setOsdResolutions();
+
 	fb_fix_screeninfo _fix;
 
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix) < 0) {

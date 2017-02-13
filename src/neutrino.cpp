@@ -225,6 +225,7 @@ CNeutrinoApp::CNeutrinoApp()
 : configfile('\t')
 {
 	standby_pressed_at.tv_sec = 0;
+	osd_resolution_tmp        = -1;
 
 	frameBuffer = CFrameBuffer::getInstance();
 	frameBuffer->setIconBasePath(ICONSDIR);
@@ -305,15 +306,6 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
-#define DEFAULT_X_START_SD	60
-#define DEFAULT_Y_START_SD	20
-#define DEFAULT_X_END_SD	1220
-#define DEFAULT_Y_END_SD	560
-
-#define DEFAULT_X_START_HD	40   //5
-#define DEFAULT_Y_START_HD	25   //5
-#define DEFAULT_X_END_HD	1235 //1275
-#define DEFAULT_Y_END_HD	690  //715
 
 std::string ttx_font_file = "";
 
@@ -721,29 +713,31 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_show_numbers = configfile.getInt32("channellist_show_numbers", 1);
 
 	//screen configuration
-	g_settings.screen_StartX_crt = configfile.getInt32( "screen_StartX_crt", DEFAULT_X_START_SD);
-	g_settings.screen_StartY_crt = configfile.getInt32( "screen_StartY_crt", DEFAULT_Y_START_SD );
-	g_settings.screen_EndX_crt = configfile.getInt32( "screen_EndX_crt", DEFAULT_X_END_SD);
-	g_settings.screen_EndY_crt = configfile.getInt32( "screen_EndY_crt", DEFAULT_Y_END_SD);
-	g_settings.screen_StartX_lcd = configfile.getInt32( "screen_StartX_lcd", DEFAULT_X_START_HD);
-	g_settings.screen_StartY_lcd = configfile.getInt32( "screen_StartY_lcd", DEFAULT_Y_START_HD );
-	g_settings.screen_EndX_lcd = configfile.getInt32( "screen_EndX_lcd", DEFAULT_X_END_HD);
-	g_settings.screen_EndY_lcd = configfile.getInt32( "screen_EndY_lcd", DEFAULT_Y_END_HD);
-	g_settings.screen_preset = configfile.getInt32( "screen_preset", 1);
-
-	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
-	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
-	g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
-	g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
-
-	g_settings.screen_width = frameBuffer->getScreenWidth(true);
-	g_settings.screen_height = frameBuffer->getScreenHeight(true);
+	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", 0) : osd_resolution_tmp;
+	g_settings.screen_StartX_crt_0 = configfile.getInt32("screen_StartX_crt_0",   80);
+	g_settings.screen_StartY_crt_0 = configfile.getInt32("screen_StartY_crt_0",   45);
+	g_settings.screen_EndX_crt_0   = configfile.getInt32("screen_EndX_crt_0"  , 1199);
+	g_settings.screen_EndY_crt_0   = configfile.getInt32("screen_EndY_crt_0"  ,  674);
+	g_settings.screen_StartX_lcd_0 = configfile.getInt32("screen_StartX_lcd_0",   40);
+	g_settings.screen_StartY_lcd_0 = configfile.getInt32("screen_StartY_lcd_0",   22);
+	g_settings.screen_EndX_lcd_0   = configfile.getInt32("screen_EndX_lcd_0"  , 1193);
+	g_settings.screen_EndY_lcd_0   = configfile.getInt32("screen_EndY_lcd_0"  ,  697);
+	g_settings.screen_StartX_crt_1 = configfile.getInt32("screen_StartX_crt_1",   80);
+	g_settings.screen_StartY_crt_1 = configfile.getInt32("screen_StartY_crt_1",   45);
+	g_settings.screen_EndX_crt_1   = configfile.getInt32("screen_EndX_crt_1"  , 1839);
+	g_settings.screen_EndY_crt_1   = configfile.getInt32("screen_EndY_crt_1"  , 1034);
+	g_settings.screen_StartX_lcd_1 = configfile.getInt32("screen_StartX_lcd_1",   40);
+	g_settings.screen_StartY_lcd_1 = configfile.getInt32("screen_StartY_lcd_1",   22);
+	g_settings.screen_EndX_lcd_1   = configfile.getInt32("screen_EndX_lcd_1"  , 1879);
+	g_settings.screen_EndY_lcd_1   = configfile.getInt32("screen_EndY_lcd_1"  , 1057);
+	g_settings.screen_preset       = configfile.getInt32("screen_preset", COsdSetup::PRESET_LCD);
+	setScreenSettings();
 
 	// avoid configuration mismatch
-	if (g_settings.screen_EndX > g_settings.screen_width)
-		g_settings.screen_EndX = g_settings.screen_width;
-	if (g_settings.screen_EndY > g_settings.screen_height)
-		g_settings.screen_EndY = g_settings.screen_height;
+	if (g_settings.screen_EndX >= g_settings.screen_width)
+		g_settings.screen_EndX = g_settings.screen_width - 1;
+	if (g_settings.screen_EndY >= g_settings.screen_height)
+		g_settings.screen_EndY = g_settings.screen_height - 1;
 
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
 	g_settings.window_size = configfile.getInt32("window_size", 100);
@@ -945,6 +939,56 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	if(erg)
 		configfile.setModifiedFlag(true);
 	return erg;
+}
+
+void CNeutrinoApp::setScreenSettings()
+{
+	g_settings.screen_width = frameBuffer->getScreenWidth(true);
+	g_settings.screen_height = frameBuffer->getScreenHeight(true);
+
+	switch (g_settings.osd_resolution) {
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+		case 1:
+		    {
+			switch (g_settings.screen_preset) {
+				case COsdSetup::PRESET_CRT:
+					g_settings.screen_StartX = g_settings.screen_StartX_crt_1;
+					g_settings.screen_StartY = g_settings.screen_StartY_crt_1;
+					g_settings.screen_EndX   = g_settings.screen_EndX_crt_1;
+					g_settings.screen_EndY   = g_settings.screen_EndY_crt_1;
+					break;
+				case COsdSetup::PRESET_LCD:
+				default:
+					g_settings.screen_StartX = g_settings.screen_StartX_lcd_1;
+					g_settings.screen_StartY = g_settings.screen_StartY_lcd_1;
+					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_1;
+					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_1;
+					break;
+			}
+		    }
+		break;
+#endif
+		case 0:
+		default:
+		    {
+			switch (g_settings.screen_preset) {
+				case COsdSetup::PRESET_CRT:
+					g_settings.screen_StartX = g_settings.screen_StartX_crt_0;
+					g_settings.screen_StartY = g_settings.screen_StartY_crt_0;
+					g_settings.screen_EndX   = g_settings.screen_EndX_crt_0;
+					g_settings.screen_EndY   = g_settings.screen_EndY_crt_0;
+					break;
+				case COsdSetup::PRESET_LCD:
+				default:
+					g_settings.screen_StartX = g_settings.screen_StartX_lcd_0;
+					g_settings.screen_StartY = g_settings.screen_StartY_lcd_0;
+					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_0;
+					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_0;
+					break;
+			}
+		    }
+		break;
+	}
 }
 
 void CNeutrinoApp::upgradeSetup(const char * fname)
@@ -1310,15 +1354,24 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_show_numbers", g_settings.channellist_show_numbers);
 
 	//screen configuration
-	configfile.setInt32( "screen_StartX_lcd", g_settings.screen_StartX_lcd );
-	configfile.setInt32( "screen_StartY_lcd", g_settings.screen_StartY_lcd );
-	configfile.setInt32( "screen_EndX_lcd", g_settings.screen_EndX_lcd );
-	configfile.setInt32( "screen_EndY_lcd", g_settings.screen_EndY_lcd );
-	configfile.setInt32( "screen_StartX_crt", g_settings.screen_StartX_crt );
-	configfile.setInt32( "screen_StartY_crt", g_settings.screen_StartY_crt );
-	configfile.setInt32( "screen_EndX_crt", g_settings.screen_EndX_crt );
-	configfile.setInt32( "screen_EndY_crt", g_settings.screen_EndY_crt );
-	configfile.setInt32( "screen_preset", g_settings.screen_preset );
+	configfile.setInt32("osd_resolution"     , g_settings.osd_resolution);
+	configfile.setInt32("screen_StartX_lcd_0", g_settings.screen_StartX_lcd_0);
+	configfile.setInt32("screen_StartY_lcd_0", g_settings.screen_StartY_lcd_0);
+	configfile.setInt32("screen_EndX_lcd_0"  , g_settings.screen_EndX_lcd_0);
+	configfile.setInt32("screen_EndY_lcd_0"  , g_settings.screen_EndY_lcd_0);
+	configfile.setInt32("screen_StartX_crt_0", g_settings.screen_StartX_crt_0);
+	configfile.setInt32("screen_StartY_crt_0", g_settings.screen_StartY_crt_0);
+	configfile.setInt32("screen_EndX_crt_0"  , g_settings.screen_EndX_crt_0);
+	configfile.setInt32("screen_EndY_crt_0"  , g_settings.screen_EndY_crt_0);
+	configfile.setInt32("screen_StartX_lcd_1", g_settings.screen_StartX_lcd_1);
+	configfile.setInt32("screen_StartY_lcd_1", g_settings.screen_StartY_lcd_1);
+	configfile.setInt32("screen_EndX_lcd_1"  , g_settings.screen_EndX_lcd_1);
+	configfile.setInt32("screen_EndY_lcd_1"  , g_settings.screen_EndY_lcd_1);
+	configfile.setInt32("screen_StartX_crt_1", g_settings.screen_StartX_crt_1);
+	configfile.setInt32("screen_StartY_crt_1", g_settings.screen_StartY_crt_1);
+	configfile.setInt32("screen_EndX_crt_1"  , g_settings.screen_EndX_crt_1);
+	configfile.setInt32("screen_EndY_crt_1"  , g_settings.screen_EndY_crt_1);
+	configfile.setInt32("screen_preset"      , g_settings.screen_preset);
 
 	//Software-update
 	configfile.setInt32 ("softupdate_mode"          , g_settings.softupdate_mode          );
@@ -1815,10 +1868,37 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 void CNeutrinoApp::SetupFrameBuffer()
 {
 	frameBuffer->init();
-	/* Parameters only valid for hd2 hardware and new fb drivers,
-	   all other hardware ignores these parameters */
-//	if (frameBuffer->setMode(1280, 720, 8 * sizeof(fb_pixel_t)) == -1) {
-	if (frameBuffer->setMode(1920, 1080, 8 * sizeof(fb_pixel_t)) == -1) {
+	int setFbMode = 0;
+	osd_resolution_tmp = -1;
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+	frameBuffer->setOsdResolutions();
+	if (frameBuffer->osd_resolutions.empty()) {
+		dprintf(DEBUG_NORMAL, "Error while setting framebuffer mode\n");
+		exit(-1);
+	}
+
+	uint32_t ort;
+	configfile.loadConfig(NEUTRINO_SETTINGS_FILE);
+	ort = configfile.getInt32("osd_resolution", 0);
+
+	size_t resCount = frameBuffer->osd_resolutions.size();
+
+	if (ort > (resCount - 1))
+		osd_resolution_tmp = ort = 0;
+
+	if (resCount == 1)
+		ort = 0;
+
+	setFbMode = frameBuffer->setMode(frameBuffer->osd_resolutions[ort].xRes,
+					 frameBuffer->osd_resolutions[ort].yRes,
+					 frameBuffer->osd_resolutions[ort].bpp);
+
+#else
+	/* all other hardware ignores setMode parameters */
+	setFbMode = frameBuffer->setMode(0, 0, 0);
+#endif
+
+	if (setFbMode == -1) {
 		dprintf(DEBUG_NORMAL, "Error while setting framebuffer mode\n");
 		exit(-1);
 	}

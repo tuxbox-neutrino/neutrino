@@ -322,10 +322,9 @@ colormenu.clock_textcolor Ziffernfarbe
 colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
 colormenu.font_ttx Teletext Schriftart
-colormenu.hd_preset LCD
 colormenu.menucolors Farben
 colormenu.osd_preset Monitor Auswahl
-colormenu.sd_preset CRT
+colormenu.osd_resolution OSD-Auflösung
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
 colormenu.timing Timeouts
@@ -1244,6 +1243,7 @@ menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste ve
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs usw.
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
+menu.hint_osd_resolution Wählen Sie eine OSD Auflösung
 menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
 menu.hint_other_fonts Ändern Sie andere Schriftgrößen
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird

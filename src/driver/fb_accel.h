@@ -108,6 +108,7 @@ class CFbAccelCSHD1
 		void setBlendLevel(int);
 		void add_gxa_sync_marker(void);
 		void setupGXA(void);
+		void setOsdResolutions();
 };
 
 class CFbAccelCSHD2
@@ -128,6 +129,8 @@ class CFbAccelCSHD2
 		void setBlendMode(uint8_t);
 		void setBlendLevel(int);
 		int scaleFont(int size);
+		bool fullHdAvailable();
+		void setOsdResolutions();
 };
 
 class CFbAccelGLFB

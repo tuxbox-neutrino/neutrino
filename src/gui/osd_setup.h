@@ -96,6 +96,12 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 			INFOBAR_LOGO_FRAMED,
 			INFOBAR_LOGO_SHADED
 		};
+
+		enum
+		{
+			PRESET_CRT,
+			PRESET_LCD
+		};
 		
 		COsdSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~COsdSetup();
