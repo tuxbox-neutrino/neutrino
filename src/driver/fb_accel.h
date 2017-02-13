@@ -127,6 +127,7 @@ class CFbAccelCSHD2
 		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 		void setBlendMode(uint8_t);
 		void setBlendLevel(int);
+		int scaleFont(int size);
 };
 
 class CFbAccelGLFB

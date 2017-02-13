@@ -264,3 +264,11 @@ void CFbAccelCSHD2::setBlendLevel(int level)
 	if (level == 100) // TODO: sucks.
 		usleep(20000);
 }
+
+int CFbAccelCSHD2::scaleFont(int size)
+{
+	if (screeninfo.xres == 1920)
+		size += size/2;
+
+	return size;
+}
