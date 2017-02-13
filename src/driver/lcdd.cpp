@@ -714,12 +714,13 @@ void CLCD::showVolume(const char vol, const bool perform_update)
 	wake_up();
 }
 
-void CLCD::showPercentOver(const unsigned char perc, const bool perform_update, const MODES m)
+void CLCD::showPercentOver(const unsigned char perc, const bool perform_update, const MODES /*m*/)
 {
+/*
 	if (mode != m)
 		printf("CLCD::showPercentOver: mode (%d) != m (%d), please report\n", (int)mode, (int)m);
 		// return;
-
+*/
 	int left, top, width, height = 5;
 	bool draw = true;
 	percentOver = perc;
