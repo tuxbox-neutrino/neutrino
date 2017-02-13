@@ -184,10 +184,7 @@ class CFrameBuffer : public sigc::trackable
 
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
-#ifdef BOXMODEL_CS_HD1
-		virtual void setupGXA() {};
-		virtual void add_gxa_sync_marker() {};
-#endif
+		virtual void setupGXA() { return; };             // reinitialize stuff
 
 		void setTransparency( int tr = 0 );
 		virtual void setBlendMode(uint8_t mode = 1);
