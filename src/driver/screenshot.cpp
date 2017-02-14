@@ -61,6 +61,7 @@ CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 	fd = NULL;
 	xres = 0;
 	yres = 0;
+	extra_osd = false;
 	get_video = g_settings.screenshot_video;
 	get_osd = g_settings.screenshot_mode;
 	scale_to_video = g_settings.screenshot_scale;
@@ -70,18 +71,90 @@ CScreenShot::~CScreenShot()
 {
 }
 
+#ifdef BOXMODEL_CS_HD2
+
+bool CScreenShot::mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData)
+{
+	uint8_t* d = (uint8_t *)pixel_data;
+	fb_pixel_t* d2;
+
+	for (uint32_t count = 0; count < dy; count++ ) {
+		fb_pixel_t *pixpos = (fb_pixel_t*)&osdData[count*dx];
+		d2 = (fb_pixel_t*)d;
+		for (uint32_t count2 = 0; count2 < dx; count2++ ) {
+			//don't paint backgroundcolor (*pixpos = 0x00000000)
+			if (*pixpos) {
+				fb_pixel_t pix = *pixpos;
+				if ((pix & 0xff000000) == 0xff000000)
+					*d2 = (pix & 0x00ffffff);
+				else {
+					uint8_t *in = (uint8_t *)(pixpos);
+					uint8_t *out = (uint8_t *)d2;
+					int a = in[3];
+					*out = (*out + ((*in - *out) * a) / 256);
+					in++; out++;
+					*out = (*out + ((*in - *out) * a) / 256);
+					in++; out++;
+					*out = (*out + ((*in - *out) * a) / 256);
+				}
+			}
+			d2++;
+			pixpos++;
+		}
+		d += dx*sizeof(fb_pixel_t);
+	}
+	return true;
+}
+#endif
+
 /* try to get video frame data in ARGB format, restore GXA state */
 bool CScreenShot::GetData()
 {
+#ifdef BOXMODEL_CS_HD2
+	/* Workaround for broken osd screenshot with new fb driver and 1280x720 resolution */
+	CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
+	fb_pixel_t* screenBuf = NULL;
+	uint32_t _xres = 0, _yres = 0;
+	if (frameBuffer->fullHdAvailable() && (frameBuffer->getScreenWidth(true) == 1280)) {
+		_xres = xres = 1280;
+		_yres = yres = 720;
+		get_osd      = false;
+		extra_osd    = true;
+		screenBuf    = new fb_pixel_t[_xres*_yres*sizeof(fb_pixel_t)];
+		if (screenBuf == NULL) {
+			printf("[%s:%s:%d] memory error\n", __path_file__, __func__, __LINE__);
+			return false;
+		}
+		printf("\n[%s:%s:%d] Read osd screen...", __path_file__, __func__, __LINE__);
+		frameBuffer->SaveScreen(0, 0, _xres, _yres, screenBuf);
+		printf(" done.\n");
+	}
+#endif
+
 	static OpenThreads::Mutex mutex;
 	bool res = false;
 
 	mutex.lock();
+
 #ifdef BOXMODEL_CS_HD1
 	CFrameBuffer::getInstance()->setActive(false);
 #endif
 	if (videoDecoder->getBlank()) 
 		get_video = false;
+
+#ifdef BOXMODEL_CS_HD2
+	if (extra_osd && !get_video) {
+		uint32_t memSize = xres * yres * sizeof(fb_pixel_t) * 2;
+		pixel_data = (uint8_t*)cs_malloc_uncached(memSize);
+		if (pixel_data == NULL) {
+			printf("[%s:%s:%d] memory error\n", __path_file__, __func__, __LINE__);
+			return false;
+		}
+		memset(pixel_data, 0, memSize);
+		res = true;
+	}
+	else
+#endif
 #if 1 // to enable after libcs/drivers update
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
@@ -99,6 +172,14 @@ bool CScreenShot::GetData()
 		return false;
 	}
 
+#ifdef BOXMODEL_CS_HD2
+	if (extra_osd && screenBuf) {
+		printf("[%s:%s:%d] Merge osd screen to screenshot...", __path_file__, __func__, __LINE__);
+		mergeOsdScreen(_xres, _yres, screenBuf);
+		delete[] screenBuf;
+		printf(" done.\n \n");
+	}
+#endif
 	printf("CScreenShot::GetData: data: %p %d x %d\n", pixel_data, xres, yres);
 	return true;
 }
