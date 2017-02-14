@@ -202,3 +202,8 @@ void CFbAccelTD::setBlendLevel(int level)
 	if (level == 100) // sucks
 		usleep(20000);
 }
+
+fb_pixel_t *CFbAccelTD::getBackBufferPointer() const
+{
+	return backbuffer;
+}
