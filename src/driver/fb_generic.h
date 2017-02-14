@@ -191,10 +191,10 @@ class CFrameBuffer : public sigc::trackable
 
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
-#ifdef BOXMODEL_CS_HD1
-		virtual void setupGXA() {};
-		virtual void add_gxa_sync_marker() {};
-#endif
+		virtual void setupGXA() { return; };             // reinitialize stuff
+		virtual void add_gxa_sync_marker() { return; };
+		virtual bool needAlign4Blit() { return false; };
+		virtual uint32_t getWidth4FB_HW_ACC(const uint32_t x, const uint32_t w, const bool max=true);
 
 		void setTransparency( int tr = 0 );
 		virtual void setBlendMode(uint8_t mode = 1);
@@ -274,7 +274,7 @@ class CFrameBuffer : public sigc::trackable
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
 		virtual void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
-		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
+		virtual void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 
 		virtual void mark(int x, int y, int dx, int dy);
 		virtual int scaleFont(int size) { return size; };

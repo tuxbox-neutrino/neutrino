@@ -2448,7 +2448,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 
 			int xoff = (double) sub->rects[i]->x * xc;
 			int yoff = (double) sub->rects[i]->y * yc;
-			int nw = GetWidth4FB_HW_ACC(xoff, (double) sub->rects[i]->w * xc);
+			int nw = frameBuffer->getWidth4FB_HW_ACC(xoff, (double) sub->rects[i]->w * xc);
 			int nh = (double) sub->rects[i]->h * yc;
 
 			printf("Draw: #%d at %d,%d size %dx%d colors %d (x=%d y=%d w=%d h=%d) \n", i+1,

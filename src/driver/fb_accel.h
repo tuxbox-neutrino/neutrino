@@ -131,6 +131,8 @@ class CFbAccelCSHD2
 		int scaleFont(int size);
 		bool fullHdAvailable();
 		void setOsdResolutions();
+		uint32_t getWidth4FB_HW_ACC(const uint32_t x, const uint32_t w, const bool max=true);
+		bool needAlign4Blit() { return true; };
 };
 
 class CFbAccelGLFB
