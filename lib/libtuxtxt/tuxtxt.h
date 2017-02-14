@@ -247,10 +247,11 @@ const char *ObjectType[] =
 #define NoServicesFound 3
 
 /* framebuffer stuff */
-static unsigned char *lfb = 0;
-static unsigned char *lbb = 0;
+static fb_pixel_t *lfb = 0;
+static fb_pixel_t *lbb = 0;
 struct fb_var_screeninfo var_screeninfo;
 struct fb_fix_screeninfo fix_screeninfo;
+int stride;
 
 /* freetype stuff */
 FT_Library      library;
@@ -1248,33 +1249,8 @@ const unsigned short defaultcolors[] =	/* 0x0bgr */
 	0x420, 0x210, 0x420, 0x000, 0x000
 };
 
-#if !HAVE_TRIPLEDRAGON
-/* 32bit colortable */
-unsigned char bgra[][5] = { 
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF",
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF",
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF",
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF",
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF",
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF",
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF",
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xFF",
-"\0\0\0\xFF", "\0\0\0\xFF", "\0\0\0\xC0", "\0\0\0\x00",
-"\0\0\0\x33" };
-#else
-/* actually "ARGB" */
-unsigned char bgra[][5] = {
-"\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0",
-"\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0",
-"\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0",
-"\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0",
-"\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0",
-"\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0",
-"\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0",
-"\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0", "\xFF\0\0\0",
-"\xFF\0\0\0", "\xFF\0\0\0", "\xC0\0\0\0", "\x00\0\0\0",
-"\x33\0\0\0" };
-#endif
+/* filled in setcolors() */
+fb_pixel_t bgra[SIZECOLTABLE];
 
 /* old 8bit color table */
 unsigned short rd0[] = {0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0x00<<8, 0x00<<8, 0x00<<8, 0,      0      };
