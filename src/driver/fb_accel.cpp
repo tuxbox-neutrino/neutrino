@@ -82,7 +82,6 @@ void CFbAccel::paintBoxRel(const int x, const int y, const int dx, const int dy,
 void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
 {
 	int line = 0;
-	int swidth = stride / sizeof(fb_pixel_t);
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
 	int pos;
 	while (line < dy)
