@@ -126,6 +126,7 @@ class CFbAccelCSHD2
 		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
+		fb_pixel_t * getBackBufferPointer() const;
 		void setBlendMode(uint8_t);
 		void setBlendLevel(int);
 		int scaleFont(int size);
@@ -175,6 +176,7 @@ class CFbAccelTD
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
 		void waitForIdle(const char *func = NULL);
+		fb_pixel_t * getBackBufferPointer() const;
 		void setBlendMode(uint8_t);
 		void setBlendLevel(int);
 };

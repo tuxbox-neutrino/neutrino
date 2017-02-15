@@ -267,6 +267,11 @@ max res 1920x1080
 	return 0; /* dont fail because of this */
 }
 
+fb_pixel_t * CFbAccelCSHD2::getBackBufferPointer() const
+{
+	return backbuffer;
+}
+
 void CFbAccelCSHD2::setBlendMode(uint8_t mode)
 {
 	if (ioctl(fd, FBIO_SETBLENDMODE, mode))
