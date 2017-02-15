@@ -315,11 +315,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	int erg = 0;
 
 	configfile.clear();
-	//settings laden - und dabei Defaults setzen!
-	if(!configfile.loadConfig(fname)) {
-		//file existiert nicht
+	// load settings; setup defaults
+	if (!configfile.loadConfig(fname))
+	{
+		// file doesn't exist
 		erg = 1;
-	} else {
+	}
+	else
+	{
 #if 0
 		/* try to detect bad / broken config file */
 		if (!configfile.getInt32("screen_EndX_crt_0", 0) ||
