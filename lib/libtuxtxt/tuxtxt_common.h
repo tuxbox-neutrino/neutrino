@@ -1,4 +1,6 @@
-
+/* tuxtxt_common.h
+ * for license info see the other tuxtxt files
+ */
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -16,6 +18,7 @@
 
 tuxtxt_cache_struct tuxtxt_cache;
 static pthread_mutex_t tuxtxt_cache_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t tuxtxt_cache_biglock = PTHREAD_MUTEX_INITIALIZER;
 int tuxtxt_get_zipsize(int p,int sp)
 {
     tstCachedPage* pg = tuxtxt_cache.astCachetable[p][sp];
@@ -351,6 +354,7 @@ int tuxtxt_GetSubPage(int page, int subpage, int offset)
 
 void tuxtxt_clear_cache(void)
 {
+	pthread_mutex_lock(&tuxtxt_cache_biglock);
 	pthread_mutex_lock(&tuxtxt_cache_lock);
 	int clear_page, clear_subpage, d26;
 	tuxtxt_cache.maxadippg  = -1;
@@ -414,6 +418,7 @@ void tuxtxt_clear_cache(void)
 	printf("TuxTxt cache cleared\n");
 #endif
 	pthread_mutex_unlock(&tuxtxt_cache_lock);
+	pthread_mutex_unlock(&tuxtxt_cache_biglock);
 }
 /******************************************************************************
  * init_demuxer                                                               *
@@ -541,6 +546,7 @@ void tuxtxt_allocate_cache(int magazine)
 	// Lock here as we have a possible race here with
 	// tuxtxt_clear_cache(). We should not be allocating and
 	// freeing at the same time.
+	// *** this is probably worked around by tuxtxt_cacehe_biglock now *** --seife
 	pthread_mutex_lock(&tuxtxt_cache_lock);
 
 	/* check cachetable and allocate memory if needed */
@@ -614,6 +620,13 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 			continue;
 		}
 
+		/* this "big hammer lock" is a hack: it avoids a crash if
+		 * tuxtxt_clear_cache() is called while the cache thread is in the
+		 * middle of the following loop, leading to tuxtxt_cache.current_page[]
+		 * etc. being set to -1 and tuxtxt_cache.astCachetable[] etc. being set
+		 * to NULL
+		 * it probably also avoids the possible race in tuxtxt_allocate_cache() */
+		pthread_mutex_lock(&tuxtxt_cache_biglock);
 		/* analyze it */
 		for (line = 0; line < readcnt/0x2e /*4*/; line++)
 		{
@@ -1055,6 +1068,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 				printf("line %d row %X %X, continue\n", line, vtx_rowbyte[0], vtx_rowbyte[1]);
 #endif
 		}
+		pthread_mutex_unlock(&tuxtxt_cache_biglock);
 	}
 
 	pthread_exit(NULL);

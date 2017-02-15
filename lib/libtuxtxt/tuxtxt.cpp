@@ -11,6 +11,8 @@
  * 									      *
  *		ported 2009 to HD1 by Coolstream LTD 			      *
  *                                                                            *
+ *	    TD, SPARK and AZbox port (C) 2010-2013 Stefan Seyfried	      *
+ *                                                                            *
  ******************************************************************************/
 
 #include "teletext.h"
@@ -19,12 +21,19 @@
 #include <dmx.h>
 #include <video.h>
 #include <sys/stat.h>
+#include <global.h>
 #include <system/set_threadname.h>
 
 /* same as in rcinput.h... */
 #define KEY_TTTV	KEY_FN_1
 #define KEY_TTZOOM	KEY_FN_2
 #define KEY_REVEAL	KEY_FN_D
+
+#ifdef HAVE_SPARK_HARDWARE
+#define MARK_FB(a, b, c, d) if (p == lfb) CFrameBuffer::getInstance()->mark(a, b, (a) + (c), (b) + (d))
+#else
+#define MARK_FB(a, b, c, d)
+#endif
 
 extern cVideo * videoDecoder;
 
@@ -36,11 +45,24 @@ static int sub_pid, sub_page;
 static bool use_gui;
 static int cfg_national_subset;
 
+static int screen_x, screen_y, screen_w, screen_h;
+
 //#define USE_FBPAN // FBIOPAN_DISPLAY seems to be working in current driver
+
+unsigned char *getFBp(int *y)
+{
+	if (*y < (int)var_screeninfo.yres)
+		return lfb;
+
+	*y -= var_screeninfo.yres;
+	return lbb;
+}
 
 void FillRect(int x, int y, int w, int h, int color)
 {
-	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length;
+	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, w, h);
+	p += x*4 + y * fix_screeninfo.line_length;
 #if !HAVE_TRIPLEDRAGON
 	unsigned int col = bgra[color][3] << 24 | bgra[color][2] << 16 | bgra[color][1] << 8 | bgra[color][0];
 #else
@@ -54,6 +76,7 @@ void FillRect(int x, int y, int w, int h, int color)
 			p += fix_screeninfo.line_length;
 		}
 }
+
 
 void FillBorder(int color)
 {
@@ -180,6 +203,9 @@ int toptext_getnext(int startpage, int up, int findgroup)
 	nextgrp = nextblk = 0;
 	current = startpage;
 
+	if (startpage == 0)
+		return 0;
+
 	do {
 		if (up)
 			tuxtxt_next_dec(&current);
@@ -220,6 +246,13 @@ void RenderClearMenuLineBB(char *p, tstPageAttr *attrcol, tstPageAttr *attr)
 #if 0
 	RenderCharBB(' ', attr); /* separator */
 #endif
+	/* the fontwidth_topmenusmall is not correctly calculated: the navigation
+	 * indicator ' ' is not considered and thus the font is slightly too wide.
+	 * Shift the topmenu to the left instead of using a smaller font, since
+	 * the worst that can happen is that the indicator is partly obscured and
+	 * that looks better than empty space on the right of the topmenu.
+	 */
+	PosX = screen_x + screen_w - TOPMENUCHARS * fontwidth_topmenusmall;
 	for(col = 0; col < TOPMENUCHARS; col++)
 	{
 		RenderCharBB(*p++, attr);
@@ -242,7 +275,8 @@ void ClearFB(int /*color*/)
 //never used
 void ClearB(int color)
 {
-	FillRect(0,0,var_screeninfo.xres,var_screeninfo.yres*2,color);
+	FillRect(0,                   0, var_screeninfo.xres, var_screeninfo.yres, color); /* framebuffer */
+	FillRect(0, var_screeninfo.yres, var_screeninfo.xres, var_screeninfo.yres, color); /* backbuffer */
 }
 #endif
 int  GetCurFontWidth()
@@ -250,6 +284,7 @@ int  GetCurFontWidth()
 	int mx = (displaywidth)%(40-nofirst); // # of unused pixels
 	int abx = (mx == 0 ? displaywidth+1 : (displaywidth)/(mx+1));// distance between 'inserted' pixels
 	int nx= abx+1-((PosX-sx) % (abx+1)); // # of pixels to next insert
+
 	return fontwidth+(((PosX+fontwidth+1-sx) <= displaywidth && nx <= fontwidth+1) ? 1 : 0);
 }
 
@@ -1535,7 +1570,7 @@ static void* reader_thread(void * /*arg*/)
 void tuxtx_pause_subtitle(bool pause)
 {
 	if(!pause) {
-		printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
+		//printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
 		ttx_paused = 0;
 		if(!reader_running && sub_pid && sub_page)
 			tuxtx_main(0, sub_pid, sub_page);
@@ -1572,8 +1607,8 @@ void tuxtx_set_pid(int pid, int page, const char * cc)
 	sub_page = page;
 
 	cfg_national_subset = GetNationalSubset(cc);
-	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 #if 0
+	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 	ttx_paused = 1;
 	if(sub_pid && sub_page)
 		tuxtx_main(0, sub_pid, sub_page);
@@ -1597,7 +1632,7 @@ int tuxtx_subtitle_running(int *pid, int *page, int *running)
 	return ret;
 }
 
-int tuxtx_main(int _rc, int pid, int page, int source)
+int tuxtx_main(int /*_rc*/, int pid, int page, int source)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
@@ -1621,14 +1656,18 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 	printf("TuxTxt %s\n", versioninfo);
 	printf("for 32bpp framebuffer\n");
 
+	fb = -1;
+#ifdef USE_FBPAN
         if ((fb=open("/dev/fb/0", O_RDWR)) == -1)
         {
                 perror("TuxTxt <open /dev/fb/0>");
                 return 0;
         }
+#endif
 
-	rc = _rc;
-	lfb = (unsigned char *) CFrameBuffer::getInstance()->getFrameBufferPointer();
+	CFrameBuffer *fbp = CFrameBuffer::getInstance();
+	lfb = (unsigned char *)fbp->getFrameBufferPointer();
+	lbb = (unsigned char *)fbp->getBackBufferPointer();
 
 	tuxtxt_cache.vtxtpid = pid;
 
@@ -1637,8 +1676,7 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 	else
 		printf("[tuxtxt] using PID %x page %d\n", tuxtxt_cache.vtxtpid, tuxtxt_cache.page);
 
-	fcntl(rc, F_SETFL, fcntl(rc, F_GETFL) | O_EXCL | O_NONBLOCK);
-
+#if 0 /* just get it from the framebuffer class */
 	/* get fixed screeninfo */
 	if (ioctl(fb, FBIOGET_FSCREENINFO, &fix_screeninfo) == -1)
 	{
@@ -1652,7 +1690,12 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 		perror("TuxTxt <FBIOGET_VSCREENINFO>");
 		return 0;
 	}
-
+#else
+	struct fb_var_screeninfo *var;
+	var = fbp->getScreenInfo();
+	memcpy(&var_screeninfo, var, sizeof(struct fb_var_screeninfo));
+	fix_screeninfo.line_length = var_screeninfo.xres * sizeof(fb_pixel_t);
+#endif
 	/* set variable screeninfo for double buffering */
 	var_screeninfo.yoffset      = 0;
 #if 0
@@ -1661,10 +1704,15 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 	ex = x + w - 10;
 	ey = y + h - 10;
 #endif
-	int x = CFrameBuffer::getInstance()->getScreenX();
-	int y = CFrameBuffer::getInstance()->getScreenY();
-	int w = CFrameBuffer::getInstance()->getScreenWidth();
-	int h = CFrameBuffer::getInstance()->getScreenHeight();
+	screen_x = fbp->getScreenX();
+	screen_y = fbp->getScreenY();
+	screen_w = fbp->getScreenWidth();
+	screen_h = fbp->getScreenHeight();
+
+	int x = screen_x;
+	int y = screen_y;
+	int w = screen_w;
+	int h = screen_h;
 
 	int tx = 0;
 	if (!screen_mode1)
@@ -1725,6 +1773,7 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 					SwitchTranspMode();
 					break;		/* and evaluate key */
 
+				case RC_TTTV:
 				case RC_MUTE:		/* regular toggle to transparent */
 				case RC_TEXT:
 					break;
@@ -1797,20 +1846,25 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 			case RC_7:
 			case RC_8:
 			case RC_9:
-				PageInput(RCCode - RC_0);
+				PageInput(CRCInput::getNumericValue(RCCode));
 				break;
 			case RC_RED:	 ColorKey(prev_100);		break;
 			case RC_GREEN:	 ColorKey(prev_10);		break;
 			case RC_YELLOW: ColorKey(next_10);		break;
 			case RC_BLUE:	 ColorKey(next_100);		break;
+			case RC_TTZOOM:
 			case RC_PLUS:	 SwitchZoomMode();		break;
+			case RC_SPLIT:
 			case RC_MINUS:	 SwitchScreenMode(-1);prevscreenmode = screenmode; break;
+			case RC_TTTV:
 			case RC_MUTE:	 SwitchTranspMode();	break;
 			case RC_TEXT:
 				if(transpmode == 1)
 					RCCode = RC_HOME;
 				SwitchTranspMode();
 				break;
+			case RC_TTREVEAL:
+			case RC_INFO:
 			case RC_HELP:	 SwitchHintMode();		break;
 			case RC_DBOX:	 ConfigMenu(0);			break;
 			case RC_HOME:
@@ -1827,7 +1881,8 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 	/* exit */
 	CleanUp();
 
-	close(fb);
+	if (fb >= 0)
+		close(fb);
 
 #if 1
 	if ( initialized )
@@ -1863,10 +1918,10 @@ FT_Error MyFaceRequester(FTC_FaceID face_id, FT_Library plibrary, FT_Pointer /*r
  ******************************************************************************/
 extern std::string ttx_font_file;
 static bool ft_init_done = false;
+static int oldfontheight = 0;
 int Init(int source)
 {
 	int error, i;
-	unsigned char magazine;
 	static std::string font_file;
 
 	/* init data */
@@ -1874,12 +1929,13 @@ int Init(int source)
 	//page_atrb[32] = transp<<4 | transp;
 	inputcounter  = 2;
 
+#if TUXTXT_CFG_STANDALONE
+	unsigned char magazine;
 	for (magazine = 1; magazine < 9; magazine++)
 	{
 		tuxtxt_cache.current_page  [magazine] = -1;
 		tuxtxt_cache.current_subpage [magazine] = -1;
 	}
-#if TUXTXT_CFG_STANDALONE
 	/* init data */
 	memset(&tuxtxt_cache.astCachetable, 0, sizeof(tuxtxt_cache.astCachetable));
 	memset(&tuxtxt_cache.subpagetable, 0xFF, sizeof(tuxtxt_cache.subpagetable));
@@ -2029,7 +2085,7 @@ int Init(int source)
 	fontwidth_topmenumain = (TV43STARTX-sx) / 40;
 	fontwidth_topmenusmall = (TVENDX - TOPMENUSTARTX) / TOPMENUCHARS;
 	//fontwidth_small = (TV169FULLSTARTX-sx)  / 40;
-	fontwidth_small = (CFrameBuffer::getInstance()->getScreenWidth()/2) / 40;
+	fontwidth_small = (screen_w / 2) / 40;
 	ymosaic[0] = 0; /* y-offsets for 2*3 mosaic */
 	ymosaic[1] = (fontheight + 1) / 3;
 	ymosaic[2] = (fontheight * 2 + 1) / 3;
@@ -2071,7 +2127,7 @@ int Init(int source)
 		}
 	}
 #endif
-	if(!ft_init_done || font_file != ttx_font_file) {
+	if(!ft_init_done || font_file != ttx_font_file || fontheight != oldfontheight) {
 		printf("TuxTxt: init fontlibrary\n");
 		if(ft_init_done) {
 			FTC_Manager_Done(manager);
@@ -2121,6 +2177,7 @@ int Init(int source)
 		}
 		font_file = ttx_font_file;
 		ft_init_done = true;
+		oldfontheight = fontheight;
 
 		ascender = (usettf ? fontheight * face->ascender / face->units_per_EM : 16);
 	}
@@ -2193,7 +2250,6 @@ int Init(int source)
 #else
 	tuxtxt_start(tuxtxt_cache.vtxtpid, source);
 #endif
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 	gethotlist();
 
 	if(use_gui)
@@ -2787,7 +2843,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 
 void ConfigMenu(int Init)
 {
-	int val, menuitem = M_Start;
+	int menuitem = M_Start;
 	int current_pid = 0;
 	int hotindex;
 	int oldscreenmode, oldtrans = 0;
@@ -2841,23 +2897,18 @@ void ConfigMenu(int Init)
 	clearbbcolor = black;
 	Menu_Init(menu, current_pid, menuitem, hotindex);
 
-	/* set blocking mode */
-	val = fcntl(rc, F_GETFL);
-	fcntl(rc, F_SETFL, val &~ O_NONBLOCK);
-
 	/* loop */
 	do {
 		if (GetRCCode() == 1)
 		{
+			int rc_num = -1;
 
-			if (
-#if (RC_1 > 0)
-				RCCode >= RC_1 && /* generates a warning... */
-#endif
-				RCCode <= RC_1+M_MaxDirect) /* direct access */
+			if (CRCInput::isNumeric(RCCode))
+				rc_num = CRCInput::getNumericValue(RCCode) -1; /* valid: 1 to M_MaxDirect */
+			if (rc_num >= 0 && rc_num <= M_MaxDirect) /* direct access */
 			{
 				Menu_HighlightLine(menu, MenuLine[menuitem], 0);
-				menuitem = RCCode-RC_1;
+				menuitem = rc_num;
 				Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 
 				if (menuitem != M_PID) /* just select */
@@ -3318,7 +3369,6 @@ void ConfigMenu(int Init)
 						current_service = current_pid;
 //						RenderMessage(ShowServiceName);
 
-						fcntl(rc, F_SETFL, O_NONBLOCK);
 						RCCode = -1;
 						if (oldscreenmode)
 							SwitchScreenMode(oldscreenmode); /* restore divided screen */
@@ -3379,8 +3429,6 @@ void ConfigMenu(int Init)
 
 	ClearBB(transp);
 	CopyBB2FB();
-	/* reset to nonblocking mode */
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 	tuxtxt_cache.pageupdate = 1;
 	RCCode = -1;
 	if (oldscreenmode)
@@ -3595,7 +3643,7 @@ void ColorKey(int target)
 
 void PageCatching()
 {
-	int val, byte;
+	int byte;
 	int oldzoommode = zoommode;
 
 	pagecatching = 1;
@@ -3624,10 +3672,6 @@ void PageCatching()
 		tuxtxt_cache.pageupdate = 1;
 		return;
 	}
-
-	/* set blocking mode */
-	val = fcntl(rc, F_GETFL);
-	fcntl(rc, F_SETFL, val &~ O_NONBLOCK);
 
 	/* loop */
 	do {
@@ -3667,7 +3711,6 @@ void PageCatching()
 		case RC_HOME:
 		case RC_HELP:
 		case RC_MUTE:
-			fcntl(rc, F_SETFL, O_NONBLOCK);
 			tuxtxt_cache.pageupdate = 1;
 			pagecatching = 0;
 			RCCode = -1;
@@ -3691,9 +3734,6 @@ void PageCatching()
 		tuxtxt_cache.subpage = subp;
 	else
 		tuxtxt_cache.subpage = 0;
-
-	/* reset to nonblocking mode */
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 }
 
 /******************************************************************************
@@ -3925,9 +3965,9 @@ void SwitchScreenMode(int newscreenmode)
 
 		if (screenmode==1) /* split with topmenu */
 		{
-			int x = CFrameBuffer::getInstance()->getScreenX();
-			int w = CFrameBuffer::getInstance()->getScreenWidth();
-			int h = CFrameBuffer::getInstance()->getScreenHeight();
+			int x = screen_x;
+			int w = screen_w;
+			int h = screen_h;
 			fw = fontwidth_topmenumain;
 
 			tx = 0; /* split means we start at the left edge */
@@ -3954,18 +3994,20 @@ void SwitchScreenMode(int newscreenmode)
 		}
 		else /* 2: split with full height tv picture */
 		{
-			StartX = CFrameBuffer::getInstance()->getScreenX();
+			StartX = screen_x;
 			fw = fontwidth_small;
 			tx = TV169FULLSTARTX;
 			ty = TV169FULLSTARTY;
 			tw = TV169FULLWIDTH;
 			th = TV169FULLHEIGHT;
-			displaywidth = CFrameBuffer::getInstance()->getScreenWidth()/2;
+			displaywidth = screen_w / 2;
 		}
 
 		setfontwidth(fw);
 
-		videoDecoder->Pig(tx, ty, tw, th, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
+		CFrameBuffer *f = CFrameBuffer::getInstance();
+		videoDecoder->Pig(tx, ty, tw, th,
+				  f->getScreenWidth(true), f->getScreenHeight(true));
 #if 0
 		int sm = 0;
 		ioctl(pig, VIDIOC_OVERLAY, &sm);
@@ -3987,8 +4029,8 @@ void SwitchScreenMode(int newscreenmode)
 #endif
 		videoDecoder->Pig(-1, -1, -1, -1);
 
-		int x = CFrameBuffer::getInstance()->getScreenX();
-		int w = CFrameBuffer::getInstance()->getScreenWidth();
+		int x = screen_x;
+		int w = screen_w;
 		//int h = CFrameBuffer::getInstance()->getScreenHeight();
 		int tx = 0;
 		/* see comment above on the TTX window dimensions */
@@ -4131,7 +4173,9 @@ void RenderDRCS( //FIX ME
 
 void DrawVLine(int x, int y, int l, int color)
 {
-	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length;
+	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, 0, l);
+	p += x*4 + y * fix_screeninfo.line_length;
 
 	for ( ; l > 0 ; l--)
 	{
@@ -4143,11 +4187,13 @@ void DrawVLine(int x, int y, int l, int color)
 void DrawHLine(int x, int y, int l, int color)
 {
 	int ltmp;
+	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, l, 0);
 	if (l > 0)
 	{
 		for (ltmp=0; ltmp <= l; ltmp++)
 		{
-			memmove(lfb + x*4 + ltmp*4 + y * fix_screeninfo.line_length, bgra[color], 4);
+			memmove(p + x*4 + ltmp*4 + y * fix_screeninfo.line_length, bgra[color], 4);
 		}
 	}
 }
@@ -4163,7 +4209,10 @@ void FillRectMosaicSeparated(int x, int y, int w, int h, int fgcolor, int bgcolo
 
 void FillTrapez(int x0, int y0, int l0, int xoffset1, int h, int l1, int color)
 {
-	unsigned char *p = lfb + x0*4 + y0 * fix_screeninfo.line_length;
+	unsigned char *p = getFBp(&y0);
+	MARK_FB(x0, y0, l0, h);
+	p += x0 * 4 + y0 * fix_screeninfo.line_length;
+
 	int xoffset, l;
 	int yoffset;
 	int ltmp;
@@ -4185,7 +4234,10 @@ void FillTrapez(int x0, int y0, int l0, int xoffset1, int h, int l1, int color)
 void FlipHorz(int x, int y, int w, int h)
 {
 	unsigned char *buf= new unsigned char[w*4];
-	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length;
+	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, w, h);
+	p += x * 4 + y * fix_screeninfo.line_length;
+
 	int w1,h1;
 	if(buf != NULL){
 		for (h1 = 0 ; h1 < h ; h1++)
@@ -4203,7 +4255,11 @@ void FlipHorz(int x, int y, int w, int h)
 void FlipVert(int x, int y, int w, int h)
 {
 	unsigned char *buf= new unsigned char[w*4];
-	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length, *p1, *p2;
+	unsigned char *p1, *p2;
+	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, w, h);
+	p += x*4 + y * fix_screeninfo.line_length;
+
 	int h1;
 	if(buf != NULL){
 		for (h1 = 0 ; h1 < h/2 ; h1++)
@@ -4464,7 +4520,11 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 			else if (*aShapes[Char - 0x20] == S_ADT)
 			{
 				int x,y,f,c;
-				unsigned char* p = lfb + PosX*4 + (PosY+yoffset)* fix_screeninfo.line_length;
+				y = yoffset;
+				unsigned char *p = getFBp(&y);
+				MARK_FB(PosX, PosY, curfontwidth, fontheight);
+				p += PosX * 4 + PosY * fix_screeninfo.line_length;
+
 				for (y=0; y<fontheight;y++)
 				{
 					for (f=0; f<factor; f++)
@@ -4508,8 +4568,10 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 				return;
 			}
 			axdrcs[12] = curfontwidth; /* adjust last x-offset according to position, FIXME: double width */
+			int y = yoffset;
+			unsigned char *q = getFBp(&y);
 			RenderDRCS(p,
-					lfb + PosX*4 + (yoffset + PosY) * fix_screeninfo.line_length,
+					q + PosX * 4 + PosY * fix_screeninfo.line_length,
 					axdrcs, fgcolor, bgcolor);
 		}
 		else
@@ -4784,8 +4846,10 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 	if (ascender - sbit->top + TTFShiftY + sbit->height > fontheight)
 		sbit->height = fontheight - ascender + sbit->top - TTFShiftY; /* limit char height to defined/calculated fontheight */
 
+	int y = yoffset;
+	p = getFBp(&y);
+	p += PosX * 4 + (PosY + Row) * fix_screeninfo.line_length; /* running pointer into framebuffer */
 
-	p = lfb + PosX*4 + (yoffset + PosY + Row) * fix_screeninfo.line_length; /* running pointer into framebuffer */
 	for (Row = sbit->height; Row; Row--) /* row counts up, but down may be a little faster :) */
 	{
 		int pixtodo = (usettf ? sbit->width : curfontwidth);
@@ -5117,8 +5181,8 @@ void DoFlashing(int startrow)
 		}
 		PosY += fontheight*factor;
 	}
-
 }
+
 void RenderPage()
 {
 	int row, col, byte, startrow = 0;;
@@ -5189,7 +5253,7 @@ void RenderPage()
 		fontwidth_topmenumain = (TV43STARTX-sx) / (40-nofirst);
 		fontwidth_topmenusmall = (TVENDX - TOPMENUSTARTX) / TOPMENUCHARS;
 		//fontwidth_small = (TV169FULLSTARTX-sx)  / (40-nofirst);
-		fontwidth_small = (CFrameBuffer::getInstance()->getScreenWidth()/2)  / (40-nofirst);
+		fontwidth_small = (screen_w / 2)  / (40 - nofirst);
 		switch(screenmode)
 		{
 			case 0:
@@ -5197,7 +5261,7 @@ void RenderPage()
 				displaywidth = ex - sx;
 				break;
 			case 2: setfontwidth(fontwidth_small);
-				displaywidth = CFrameBuffer::getInstance()->getScreenWidth() / 2;
+				displaywidth = screen_w / 2;
 				break;
 		}
 		if (transpmode || (boxed && !screenmode))
@@ -5440,7 +5504,7 @@ void CreateLine25()
 		showlink(3, next_100);
 	}
 
-	if (//tuxtxt_cache.bttok &&
+	if (tuxtxt_cache.bttok &&
 		 screenmode == 1) /* TOP-Info present, divided screen -> create TOP overview */
 	{
 		char line[TOPMENUCHARS];
@@ -5550,6 +5614,9 @@ void CopyBB2FB()
 {
 	unsigned char *src, *dst, *topsrc;
 	int fillcolor, i, screenwidth, swtmp;
+#ifdef HAVE_SPARK_HARDWARE
+	CFrameBuffer *f = CFrameBuffer::getInstance();
+#endif
 
 	/* line 25 */
 	if (!pagecatching && use_gui)
@@ -5570,12 +5637,16 @@ void CopyBB2FB()
 		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
 			perror("TuxTxt <FBIOPAN_DISPLAY>");
 #else
-		memmove(lfb, lfb+fix_screeninfo.line_length * var_screeninfo.yres, fix_screeninfo.line_length*var_screeninfo.yres);
+#ifdef HAVE_SPARK_HARDWARE
+		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
+#else
+		memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
+#endif
 #endif
 
 		/* adapt background of backbuffer if changed */
-		if (StartX > 0 && *lfb != *(lfb + fix_screeninfo.line_length * var_screeninfo.yres)) {
-			FillBorder(*(lfb + fix_screeninfo.line_length * var_screeninfo.yoffset));
+		if (StartX > 0 && *lfb != *lbb) {
+			FillBorder(*lbb);
 //			 ClearBB(*(lfb + var_screeninfo.xres * var_screeninfo.yoffset));
 		}
 
@@ -5587,8 +5658,11 @@ void CopyBB2FB()
 		return;
 	}
 
-	src = dst = topsrc = lfb + StartY*fix_screeninfo.line_length;
+	src = topsrc = lbb + StartY * fix_screeninfo.line_length;
+	dst =          lfb + StartY * fix_screeninfo.line_length;
 
+#ifdef USE_FBPAN
+	#error USE_FBPAN code is not working right now.
 	if (var_screeninfo.yoffset)
 		dst += fix_screeninfo.line_length * var_screeninfo.yres;
 	else
@@ -5596,6 +5670,7 @@ void CopyBB2FB()
 		src += fix_screeninfo.line_length * var_screeninfo.yres;
 		topsrc += fix_screeninfo.line_length * var_screeninfo.yres;
 	}
+#endif
 	/* copy line25 in normal height */
 	if (!pagecatching )
 		memmove(dst+(24*fontheight)*fix_screeninfo.line_length, src + (24*fontheight)*fix_screeninfo.line_length, fix_screeninfo.line_length*fontheight);
@@ -5611,9 +5686,15 @@ void CopyBB2FB()
 	/* copy topmenu in normal height (since PIG also keeps dimensions) */
 	if (screenmode == 1)
 	{
-		unsigned char *topdst = dst;
-
 		screenwidth = ( TV43STARTX ) * 4;
+#ifdef HAVE_SPARK_HARDWARE
+		int cx = var_screeninfo.xres - TV43STARTX;	/* x start */
+		int cw = TV43STARTX;				/* width */
+		int cy = StartY;
+		int ch = 24*fontheight;
+		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, true);
+#else
+		unsigned char *topdst = dst;
 		size_t width = ex * sizeof(fb_pixel_t) - screenwidth;
 
 		topsrc += screenwidth;
@@ -5624,6 +5705,7 @@ void CopyBB2FB()
 			topdst += fix_screeninfo.line_length;
 			topsrc += fix_screeninfo.line_length;
 		}
+#endif
 	}
 	else if (screenmode == 2)
 		screenwidth = ( TV169FULLSTARTX ) * 4;
@@ -5654,6 +5736,9 @@ void CopyBB2FB()
 			memmove(dst + fix_screeninfo.line_length*(fontheight+i)+swtmp*4, bgra[fillcolor], 4);
 		}
 	}
+#ifdef HAVE_SPARK_HARDWARE
+	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
+#endif
 }
 
 /******************************************************************************
@@ -6343,6 +6428,21 @@ void DecodePage()
 /******************************************************************************
  * GetRCCode                                                                  *
  ******************************************************************************/
+int GetRCCode()
+{
+	neutrino_msg_t msg;
+	neutrino_msg_data_t data;
+	g_RCInput->getMsg_ms(&msg, &data, 40);
+	RCCode = -1;
+
+	if (msg <= CRCInput::RC_MaxRC) {
+		RCCode = msg;
+		return 1;
+	}
+	return 0;
+}
+
+#if 0
 #if 1
 int GetRCCode()
 {
@@ -6416,7 +6516,7 @@ printf("[tuxtxt] new key, code %X\n", RCCode);
 	}
 
 	RCCode = -1;
-	usleep(1000000/100);
+	usleep(1000000/25);
 
 	return 0;
 }
@@ -6480,6 +6580,7 @@ int GetRCCode()
 	}
 	return 1;
 }
+#endif
 #endif
 /* Local Variables: */
 /* indent-tabs-mode:t */

@@ -12,6 +12,8 @@
  *              ported 2006 to Dreambox 7025 / 32Bit framebuffer              *
  *                   by Seddi <seddi@i-have-a-dreambox.com>                   *
  *                                                                            *
+ *                                                                            *
+ *      ported to Tripledragon, SPARK and AZbox 2010-2013 Stefan Seyfried     *
  ******************************************************************************/
 
 #define TUXTXT_CFG_STANDALONE 0  // 1:plugin only 0:use library
@@ -41,6 +43,8 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_H
 #include FT_CACHE_SMALL_BITMAPS_H
+
+#include <driver/rcinput.h>
 
 /* devices */
 
@@ -82,20 +86,19 @@ int tv_pip_y;
 #define fontwidth_small_lcd 8
 
 #define TV43STARTX (ex)
-#define TVENDX (CFrameBuffer::getInstance()->getScreenX() + CFrameBuffer::getInstance()->getScreenWidth()) //ex
+#define TVENDX (screen_x + screen_w) //ex
 // #define TVENDY (StartY + 25*fontheight)
 // #define TV43WIDTH  (TVENDX - TV43STARTX)
 // #define TV43HEIGHT (TV43WIDTH *9/16)
 // #define TV43STARTY (TVENDY - TV43HEIGHT)
 
 //#define TV169FULLSTARTX (sx+ 8*40) //(sx +(ex +1 - sx)/2)
-#define TV169FULLSTARTX (CFrameBuffer::getInstance()->getScreenX() + CFrameBuffer::getInstance()->getScreenWidth()/2)
+#define TV169FULLSTARTX (screen_x + screen_w / 2)
 #define TV169FULLSTARTY sy
 //#define TV169FULLWIDTH  (ex - sx)/2
-#define TV169FULLWIDTH  (CFrameBuffer::getInstance()->getScreenWidth()/2)
+#define TV169FULLWIDTH  (screen_w / 2)
 #define TV169FULLHEIGHT (ey - sy)
-
-#define TOPMENUSTARTX TV43STARTX+2
+#define TOPMENUSTARTX (TV43STARTX+2)
 //#define TOPMENUENDX TVENDX
 #define TOPMENUSTARTY StartY
 #define TOPMENUENDY TV43STARTY
@@ -105,7 +108,7 @@ int tv_pip_y;
 #define TOPMENUINDENTGRP 1
 #define TOPMENUINDENTDEF 2
 #define TOPMENUSPC 0
-#define TOPMENUCHARS (TOPMENUINDENTDEF+12+TOPMENUSPC+4)
+#define TOPMENUCHARS (TOPMENUINDENTDEF+12+TOPMENUSPC+3)
 
 #define FLOFSIZE 4
 
@@ -143,6 +146,7 @@ int tv_pip_y;
 #define hold_mosaic         0x1E
 #define release_mosaic      0x1F
 
+#if 0
 /* rc codes */
 #define RC_0        0x00
 #define RC_1        0x01
@@ -171,6 +175,48 @@ int tv_pip_y;
 #define RC_DBOX     0x18
 #define RC_TEXT     0x19
 #define RC_HOME     0x1F
+#else
+#define RC_0        CRCInput::RC_0
+#define RC_1        CRCInput::RC_1
+#define RC_2        CRCInput::RC_2
+#define RC_3        CRCInput::RC_3
+#define RC_4        CRCInput::RC_4
+#define RC_5        CRCInput::RC_5
+#define RC_6        CRCInput::RC_6
+#define RC_7        CRCInput::RC_7
+#define RC_8        CRCInput::RC_8
+#define RC_9        CRCInput::RC_9
+#define RC_RIGHT    CRCInput::RC_right
+#define RC_LEFT     CRCInput::RC_left
+#define RC_UP       CRCInput::RC_up
+#define RC_DOWN     CRCInput::RC_down
+#define RC_OK       CRCInput::RC_ok
+#define RC_MUTE     CRCInput::RC_spkr
+#define RC_STANDBY  CRCInput::RC_standby
+#define RC_GREEN    CRCInput::RC_green
+#define RC_YELLOW   CRCInput::RC_yellow
+#define RC_RED      CRCInput::RC_red
+#define RC_BLUE     CRCInput::RC_blue
+#define RC_PLUS     CRCInput::RC_plus
+#define RC_MINUS    CRCInput::RC_minus
+#define RC_HELP     CRCInput::RC_help
+#define RC_INFO     CRCInput::RC_info
+#define RC_DBOX     CRCInput::RC_setup
+#define RC_HOME     CRCInput::RC_home
+#define RC_TTTV     CRCInput::RC_tttv
+#define RC_TTZOOM   CRCInput::RC_ttzoom
+#define RC_TTREVEAL CRCInput::RC_ttreveal
+#if HAVE_TRIPLEDRAGON
+/* td has more keys so use ttx key for switching split mode... */
+#define RC_SPLIT    CRCInput::RC_text
+/* rc_text is now unused */
+#define RC_TEXT    (CRCInput::RC_MaxRC + 1)
+#else
+/* ...while other receivers use the vol- key for that, so rc_split is unused */
+#define RC_SPLIT   (CRCInput::RC_MaxRC + 1)
+#define RC_TEXT     CRCInput::RC_text
+#endif
+#endif
 
 typedef enum /* object type */
 {
@@ -202,6 +248,7 @@ const char *ObjectType[] =
 
 /* framebuffer stuff */
 static unsigned char *lfb = 0;
+static unsigned char *lbb = 0;
 struct fb_var_screeninfo var_screeninfo;
 struct fb_fix_screeninfo fix_screeninfo;
 
@@ -545,7 +592,7 @@ char versioninfo[16];
 int hotlist[10];
 int maxhotlist;
 
-int pig, rc, fb, lcd;
+int pig, fb, lcd;
 int sx, ex, sy, ey;
 int PosX, PosY, StartX, StartY;
 int lastpage;
@@ -577,7 +624,7 @@ int  subtitledelay, delaystarted;
 FILE *conf;
 
 
-unsigned short RCCode;
+neutrino_msg_t RCCode;
 
 struct _pid_table
 {
@@ -702,11 +749,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד      Bildschirmformat      הי"
                 "ד3  Standard-Modus 16:9      הי"
                 "ד                            הי"
-                "ד5        Helligkeit         הי"
+                "ד4        Helligkeit         הי"
                 "דם                          מהי"
-                "ד6       Transparenz         הי"
+                "ד5       Transparenz         הי"
                 "דם                          מהי"
-                "ד7  nationaler Zeichensatz   הי"
+                "ד6  nationaler Zeichensatz   הי"
                 "דautomatische Erkennung      הי"
                 "דם                          מהי"
                 "דם Sprache/Language deutsch מהי"
@@ -729,11 +776,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד        Screen format       הי"
                 "ד3 Standard mode 16:9        הי"
                 "ד                            הי"
-                "ד5        Brightness         הי"
+                "ד4        Brightness         הי"
                 "דם                          מהי"
-                "ד6       Transparency        הי"
+                "ד5       Transparency        הי"
                 "דם                          מהי"
-                "ד7   national characterset   הי"
+                "ד6   national characterset   הי"
                 "ד automatic recognition      הי"
                 "דם                          מהי"
                 "דם Sprache/language english מהי"
@@ -756,11 +803,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד      Format de l'#cran     הי"
                 "ד3 Mode standard 16:9        הי"
                 "ד                            הי"
-                "ד5          Clarte           הי"
+                "ד4          Clarte           הי"
                 "דם                          מהי"
-                "ד6       Transparence        הי"
+                "ד5       Transparence        הי"
                 "דם                          מהי"
-                "ד7     police nationale      הי"
+                "ד6     police nationale      הי"
                 "דreconn. automatique         הי"
                 "דם                          מהי"
                 "דם Sprache/language francaisמהי"
@@ -783,11 +830,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד     Beeldschermformaat     הי"
                 "ד3   Standaardmode 16:9      הי"
                 "ד                            הי"
-                "ד5        Helderheid         הי"
+                "ד4        Helderheid         הי"
                 "דם                          מהי"
-                "ד6       Transparantie       הי"
+                "ד5       Transparantie       הי"
                 "דם                          מהי"
-                "ד7    nationale tekenset     הי"
+                "ד6    nationale tekenset     הי"
                 "דautomatische herkenning     הי"
                 "דם                          מהי"
                 "דם Sprache/Language nederl. מהי"
@@ -810,11 +857,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד       Loqv^ oh|mgr         הי"
                 "ד3 Tq|por pq|tupor   16:9    הי"
                 "ד                            הי"
-                "ד5       Kalpq|tgta          הי"
+                "ד4       Kalpq|tgta          הי"
                 "דם                          מהי"
-                "ד6       Diav\\meia           הי"
+                "ד5       Diav\\meia           הי"
                 "דם                          מהי"
-                "ד7    Ehmij^ tuposeiq\\       הי"
+                "ד6    Ehmij^ tuposeiq\\       הי"
                 "דaut|latg amacm~qisg         הי"
                 "דם                          מהי"
                 "דם Ck~ssa/Language ekkgmij\\ מהי"
@@ -837,11 +884,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד      Formato schermo       הי"
                 "ד3  Modo standard 16:9       הי"
                 "ד                            הי"
-                "ד5        Luminosit{         הי"
+                "ד4        Luminosit{         הי"
                 "דם                          מהי"
-                "ד6        Trasparenza        הי"
+                "ד5        Trasparenza        הי"
                 "דם                          מהי"
-                "ד7   nazionalita'caratteri   הי"
+                "ד6   nazionalita'caratteri   הי"
                 "ד riconoscimento automatico  הי"
                 "דם                          מהי"
                 "דם Lingua/Language Italiana מהי"
@@ -864,11 +911,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד       Format obrazu        הי"
                 "ד3 Tryb standard 16:9        הי"
                 "ד                            הי"
-                "ד5          Jasno|^          הי"
+                "ד4          Jasno|^          הי"
                 "דם                          מהי"
-                "ד6      Prze~roczysto|^      הי"
+                "ד5      Prze~roczysto|^      הי"
                 "דם                          מהי"
-                "ד7 Znaki charakterystyczne   הי"
+                "ד6 Znaki charakterystyczne   הי"
                 "ד automatyczne rozpozn.      הי"
                 "דם                          מהי"
                 "דם  J`zyk/Language   polski מהי"
@@ -891,11 +938,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד        TV- format          הי"
                 "ד3 Standard l{ge 16:9        הי"
                 "ד                            הי"
-                "ד5        Ljusstyrka         הי"
+                "ד4        Ljusstyrka         הי"
                 "דם                          מהי"
-                "ד6     Genomskinlighet       הי"
+                "ד5     Genomskinlighet       הי"
                 "דם                          מהי"
-                "ד7nationell teckenupps{ttningהי"
+                "ד6nationell teckenupps{ttningהי"
                 "ד automatisk igenk{nning     הי"
                 "דם                          מהי"
                 "דם Sprache/language svenska מהי"
@@ -918,11 +965,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד         N{ytt|tila         הי"
                 "ד3 Vakiotila     16:9        הי"
                 "ד                            הי"
-                "ד5         Kirkkaus          הי"
+                "ד4         Kirkkaus          הי"
                 "דם                          מהי"
-                "ד6       L{pin{kyvyys        הי"
+                "ד5       L{pin{kyvyys        הי"
                 "דם                          מהי"
-                "ד7   kansallinen merkist|    הי"
+                "ד6   kansallinen merkist|    הי"
                 "ד automaattinen tunnistus    הי"
                 "דם                          מהי"
                 "דם Kieli            suomi   מהי"
@@ -945,11 +992,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד       formato ecran        הי"
                 "ד3 Standard mode 16:9        הי"
                 "ד                            הי"
-                "ד5          Brilho           הי"
+                "ד4          Brilho           הי"
                 "דם                          מהי"
-                "ד6      Transparencia        הי"
+                "ד5      Transparencia        הי"
                 "דם                          מהי"
-                "ד7  Caracteres nacionaist    הי"
+                "ד6  Caracteres nacionaist    הי"
                 "דreconhecimento utomatico    הי"
                 "דם                          מהי"
                 "דם Lingua      Portuguesa   מהי"
@@ -972,11 +1019,11 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד       Format kartinki      הי"
                 "ד3 Stand. revim  16:9        הי"
                 "ד                            הי"
-                "ד5          Qrkostx          הי"
+                "ד4          Qrkostx          הי"
                 "דם                          מהי"
-                "ד6       Prozra~nostx        הי"
+                "ד5       Prozra~nostx        הי"
                 "דם                          מהי"
-                "ד7  Ispolxzuem&j alfawit     הי"
+                "ד6  Ispolxzuem&j alfawit     הי"
                 "ד      awtoopredelenie       הי"
                 "דם                          מהי"
                 "דם  Qz&k:         Russkij   מהי"
