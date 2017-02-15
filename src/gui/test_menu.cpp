@@ -50,6 +50,7 @@
 #include <xmlinterface.h>
 
 #include <gui/widget/msgbox.h>
+#include <gui/widget/progresswindow.h>
 #include <gui/scan.h>
 #include <gui/scan_setup.h>
 #include <zapit/zapit.h>
@@ -836,6 +837,26 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
+	else if (actionKey == "progress_window"){
+		CProgressWindow progress0("Progress Single Test");
+		progress0.paint();
+		size_t max = 10;
+		for(size_t i = 0; i< max; i++){
+			progress0.showStatus(i, max, to_string(i));
+			sleep(1);
+		}
+		progress0.hide();
+
+		CProgressWindow progress1("Progress Local/Global Test");
+		progress1.paint();
+		for(size_t i = 0; i< max; i++){
+			progress1.showLocalStatus(i, max, to_string(i));
+			progress1.showGlobalStatus(i, max, to_string(i));
+			sleep(1);
+		}
+		progress1.hide();
+		return menu_return::RETURN_REPAINT;
+	}
 	else if (actionKey == "hintbox_test")
 	{
 		ShowHint("Testmenu: Hintbox popup test", "Test for HintBox,\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
@@ -1080,6 +1101,7 @@ int CTestMenu::showTestMenu()
 void CTestMenu::showCCTests(CMenuWidget *widget)
 {
 	widget->addIntroItems();
+	widget->addItem(new CMenuForwarder("Progress Window", true, NULL, this, "progress_window"));
 	widget->addItem(new CMenuForwarder("Running Clock", true, NULL, this, "running_clock"));
 	widget->addItem(new CMenuForwarder("Clock", true, NULL, this, "clock"));
 	widget->addItem(new CMenuForwarder("Button", true, NULL, this, "button"));
