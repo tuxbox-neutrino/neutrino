@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014 Thilo Graf 'dbt'
+	Copyright (C) 2014-2017 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -38,24 +38,189 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		unsigned int local_progress;
 		int w_bar_frame;
 		int h_height;
-		void Init();
+		void Init(	sigc::signal<void, size_t, size_t, std::string> *statusSignal,
+				sigc::signal<void,size_t, size_t, std::string> *localSignal,
+				sigc::signal<void, size_t, size_t, std::string> *globalSignal);
 		void fitItems();
 
 	public:
+		/**CProgressWindow Constructor
+		* @param[in]	parent
+		* 	@li 	optional: expects type CComponentsForm * as possible parent object, default = NULL
+		* @param[in]	dx
+		* 	@li 	optional: expects type const &int, width of window, default = 0, auto size with declared default values
+		* @param[in]	dy
+		* 	@li 	optional: expects type const &int, height of window, default = 0, auto size with declared default values
+		* @param[in]	status_Signal
+		* 	@li 	optional: expects type sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
+		* 		current changing values.
+		* @param[in]	localSignal
+		* 	@li 	optional: expects type sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
+		* 		current changing local values.
+		* @param[in]	globalSignal
+		* 	@li 	optional: expects type sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
+		* 		current changing global values.
+		*
+		* @example
+		* 		void CFooClass::DoCount{
+		* 			//Usage with classic init inside method:
+		*
+		* 			//Create a CProgressWindow object
+		* 			CProgressWindow progress;
+		*
+		* 			//set possible properties, eg. like here we dont't need a header
+		* 			status.showHeader(false);
+		*
+		* 			//paint window
+		* 			status.paint();
+		*
+		* 			//set possible properties, like current status text
+		* 			status.showStatusMessageUTF("test progress");
+		*
+		* 			//set current progress, call functions, methods or use a while, next loop or what ever
+		* 			status.showStatus(25)
+		*
+		* 			//finally remove window from screen
+		* 			status.hide();
+		* 		}
+		*
+		* 			//That's it. Until now these steps are a classical way inside neutrino, but you can use proress window with signals too.
+		* 			//Working with signals have the advantage that the implementation could be more compactly, because
+		* 			//complex constructions within the classes are usually unnecessary,
+		* 			//beacuse of the signals can be installed where they directly take the required values. See next example:
+		*
+		* 		class CFooClass
+		* 		{
+		* 			//Usage with signals:
+		* 			//declare a signal eg. in header file
+		* 			private:
+		* 				//other members...
+		* 				sigc::signal<void, size_t, size_t, std::string> OnProgress;
+		* 				//other members...
+		* 			public:
+		* 				//other members...
+		* 				void DoAnything();
+		* 				//other members...
+		* 		};
+		*
+		* 		//add the OnProgress signal into a counter methode
+		* 		void CFooClass::DoCount{
+		* 			size_t max = 10
+		* 			for (size_t i = 0; i < max; i++){
+		* 				OnProgress(i, max, "Test");
+		* 			}
+		* 		}
+		*
+		* 		void CFooClass::DoAnything{
+		* 			//inside of methode which calls the progress define a CProgressWindow object and the counter method:
+		* 			//...any code
+		* 			CProgressWindow progress(NULL, 500, 150, &OnProgress);
+		* 			//paint window
+		* 			progress.paint(); // paint()
+		*
+		* 			//...
+		*
+		* 			DoCount();
+		*
+		* 			//...
+		*
+		* 			//finally remove window from screen
+		* 			progress.hide();
+		* 		}
+		* @note
+		* 		Don't use status_Signal at same time with localSignal and globalSignal. In This case please set status_Signal = NULL
+		*/
+		CProgressWindow(CComponentsForm *parent = NULL,
+				const int &dx = 700,
+				const int &dy = 200,
+				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
+				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
 
-		CProgressWindow(CComponentsForm *parent = NULL);
+		/**CProgressWindow Constructor
+		* @param[in]	title
+		* 	@li 	expects type neutrino_locale_t as window title
+		*
+		* @see		For other arguments and examples, see related constructor(s)
+		*/
+		CProgressWindow(const neutrino_locale_t title,
+				const int &dx = 700,
+				const int &dy = 200,
+				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
+				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
+
+		/**Sets titel of window
+		* @param[in]	title
+		* 	@li 	expects type neutrino_locale_t as window title
+		*/
 		void setTitle(const neutrino_locale_t title);
+
+		/**Sets titel of window
+		* @param[in]	title
+		* 	@li 	expects type std::string as window title
+		*/
+		void setTitle(const std::string & title);
+
+		/**
+		* Remove window from screen, restores background.
+		*/
 		virtual void hide();
 
+		/**
+		* Executes the exec contents. In this case it will paint the window and remove possible parents from screen
+		* @param[in]	parent
+		* 	@li 	optional: expects type CMenuTarget*
+		* @param[in]	actionKey
+		* 	@li 	optional: without effect
+		* @return	int = menu_return::RETURN_REPAINT
+		*/
 		virtual int exec( CMenuTarget* parent, const std::string & actionKey );
 
-		void showStatus(const unsigned int prog);
-		void showGlobalStatus(const unsigned int prog);
+		/**
+		* Sets current progress value and show progress in window.
+		* @param[in]	prog
+		* 	@li 	expects type unsigned int, describes current progress value
+		* @param[in]	max
+		* 	@li 	optional: expects type unsigned int, describes maximal progress value, default = 100
+		* @param[in]	statusText
+		* 	@li 	optional: expects type std::string, describes current status text, default = empty
+		*/
+		void showStatus(const unsigned int prog, const unsigned int max = 100, const std::string &statusText = std::string());
+
+		/**
+		* Sets current local progressbar value and show progress in window.
+		* @note		For other arguments take a look to related method showStatus()
+		* @see		showStatus()
+		*/
+		void showLocalStatus(const unsigned int prog, const unsigned int max = 100, const std::string &statusText = std::string());
+
+		/**
+		* Sets current global progressbar value and show progress in window.
+		* @note		For other arguments take a look to related method showStatus()
+		* @see		showStatus()
+		*/
+		void showGlobalStatus(const unsigned int prog, const unsigned int max = 100, const std::string &statusText = std::string());
+
+		/**
+		* Gets current progress value
+		* @return	unsigned int
+		*/
 		unsigned int getGlobalStatus(void);
-		void showLocalStatus(const unsigned int prog);
+
+		/**
+		* Sets current progress value and show progress in window.
+		* @param[in]	text
+		* 	@li 	expects type std::string, describes current status text
+		*/
 		void showStatusMessageUTF(const std::string & text); // UTF-8
+
+		/**
+		* Paint window
+		* @param[in]	do_save_bg
+		* 	@li 	optional: expects type bool, sets background save mode
+		*/
 		void paint(bool do_save_bg = true);
-		void setTitle(const std::string & title);
 };
 
 

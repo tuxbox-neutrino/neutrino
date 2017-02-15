@@ -60,6 +60,7 @@
 #include <gui/buildinfo.h>
 #include <gui/widget/buttons.h>
 #include <system/helpers.h>
+#include <gui/components/cc_timer.h>
 
 #if HAVE_COOL_HARDWARE
 extern int cs_test_card(int unit, char * str);
