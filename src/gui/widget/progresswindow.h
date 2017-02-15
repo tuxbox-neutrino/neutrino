@@ -150,6 +150,19 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
 
+		/**CProgressWindow Constructor
+		* @param[in]	title
+		* 	@li 	expects type std::string as window title
+		*
+		* @see		For other arguments and examples, see related constructor(s)
+		*/
+		CProgressWindow(const std::string &title,
+				const int &dx = 700,
+				const int &dy = 200,
+				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
+				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
+
 		/**Sets titel of window
 		* @param[in]	title
 		* 	@li 	expects type neutrino_locale_t as window title

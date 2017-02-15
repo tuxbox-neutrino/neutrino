@@ -57,6 +57,17 @@ CProgressWindow::CProgressWindow(const neutrino_locale_t title,
 	Init(statusSignal, localSignal, globalSignal);
 }
 
+CProgressWindow::CProgressWindow(const std::string &title,
+				 const int &dx,
+				 const int &dy,
+				 signal<void, size_t, size_t, string> *statusSignal,
+				 signal<void, size_t, size_t, string> *localSignal,
+				 signal<void, size_t, size_t, string> *globalSignal)
+				: CComponentsWindow(0, 0, dx, dy, title, NEUTRINO_ICON_INFO, NULL, CC_SHADOW_ON)
+{
+	Init(statusSignal, localSignal, globalSignal);
+}
+
 void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 				signal<void,size_t, size_t, string> *localSignal,
 				signal<void, size_t, size_t, string> *globalSignal)
