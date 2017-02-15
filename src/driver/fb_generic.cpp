@@ -340,6 +340,7 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	}
 
 	stride = _fix.line_length;
+	swidth = stride / sizeof(fb_pixel_t);
 	printf("FB: %dx%dx%d line length %d. %s accelerator.\n", xRes, yRes, bpp, stride,
 		"Not using graphics"
 	);
@@ -623,7 +624,6 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 			line++;
 		}
 	} else {
-		int swidth = stride / sizeof(fb_pixel_t);
 		fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
 		int line = 0;
 		while (line < dy) {
@@ -934,7 +934,7 @@ void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 		return;
 
 	fb_pixel_t * pos = getFrameBufferPointer();
-	pos += (stride / sizeof(fb_pixel_t)) * y;
+	pos += swidth * y;
 	pos += x;
 
 	*pos = col;
@@ -1680,7 +1680,6 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 	uint32_t xc = (width > xRes) ? (uint32_t)xRes : width;
 	uint32_t yc = (height > yRes) ? (uint32_t)yRes : height;
 
-	uint32_t swidth = stride / sizeof(fb_pixel_t);
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * yoff);
 	fb_pixel_t* data = (fb_pixel_t*)boxBuf;
 

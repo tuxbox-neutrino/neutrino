@@ -54,6 +54,7 @@ void CFbAccelGLFB::init(const char *)
 	}
 	screeninfo = glfb->getScreenInfo();
 	stride = 4 * screeninfo.xres;
+	swidth = screeninfo.xres;
 	available = glfb->getOSDBuffer()->size(); /* allocated in glfb constructor */
 	lbb = lfb = reinterpret_cast<fb_pixel_t*>(glfb->getOSDBuffer()->data());
 
@@ -135,7 +136,7 @@ int CFbAccelGLFB::setMode(unsigned int, unsigned int, unsigned int)
 	int needmem = stride * yRes * 2;
 	if (available >= needmem)
 	{
-		backbuffer = lfb + stride / sizeof(fb_pixel_t) * yRes;
+		backbuffer = lfb + swidth * yRes;
 		return 0;
 	}
 	fprintf(stderr, LOGTAG " not enough FB memory (have %d, need %d)\n", available, needmem);

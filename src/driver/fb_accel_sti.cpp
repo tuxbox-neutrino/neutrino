@@ -512,6 +512,7 @@ int CFbAccelSTi::setMode(unsigned int, unsigned int, unsigned int)
 	yRes = screeninfo.yres = screeninfo.yres_virtual = DEFAULT_YRES;
 	bpp  = screeninfo.bits_per_pixel = DEFAULT_BPP;
 	stride = screeninfo.xres * screeninfo.bits_per_pixel / 8;
+	swidth = screeninfo.xres;
 	return 0;
 }
 
