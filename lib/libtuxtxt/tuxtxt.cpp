@@ -5621,7 +5621,17 @@ void CopyBB2FB()
 #ifdef HAVE_SPARK_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
 #else
-		memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
+		if ((uint32_t)stride > var_screeninfo.xres) {
+			fb_pixel_t *lfb_ = lfb;
+			fb_pixel_t *lbb_ = lbb;
+			for (uint32_t i1 = 0; i1 < var_screeninfo.yres; i1++) {
+				memcpy(lfb_, lbb_, var_screeninfo.xres * sizeof(fb_pixel_t));
+				lfb_ += stride;
+				lbb_ += stride;
+			}
+		}
+		else
+			memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
 #endif
 #endif
 
