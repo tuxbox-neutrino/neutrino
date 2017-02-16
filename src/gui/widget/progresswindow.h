@@ -28,6 +28,9 @@
 #include <gui/components/cc.h>
 #include "menue.h"
 
+#define PW_MIN_WIDTH  700
+#define PW_MIN_HEIGHT  100
+
 class CProgressWindow : public CComponentsWindow, public CMenuTarget
 {
 	private:
@@ -36,11 +39,13 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 
 		unsigned int global_progress;
 		unsigned int local_progress;
-		int w_bar_frame;
 		int h_height;
 		void Init(	sigc::signal<void, size_t, size_t, std::string> *statusSignal,
 				sigc::signal<void,size_t, size_t, std::string> *localSignal,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal);
+
+		CProgressBar* InitProgressItem();
+		void initStatus(const unsigned int prog, const unsigned int max, const std::string &statusText, CProgressBar *pBar);
 		void fitItems();
 
 	public:
@@ -131,8 +136,8 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* 		Don't use status_Signal at same time with localSignal and globalSignal. In This case please set status_Signal = NULL
 		*/
 		CProgressWindow(CComponentsForm *parent = NULL,
-				const int &dx = 700,
-				const int &dy = 200,
+				const int &dx = PW_MIN_WIDTH,
+				const int &dy = PW_MIN_HEIGHT,
 				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
 				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
@@ -144,8 +149,8 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* @see		For other arguments and examples, see related constructor(s)
 		*/
 		CProgressWindow(const neutrino_locale_t title,
-				const int &dx = 700,
-				const int &dy = 200,
+				const int &dx = PW_MIN_WIDTH,
+				const int &dy = PW_MIN_HEIGHT,
 				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
 				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
@@ -157,8 +162,8 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* @see		For other arguments and examples, see related constructor(s)
 		*/
 		CProgressWindow(const std::string &title,
-				const int &dx = 700,
-				const int &dy = 200,
+				const int &dx = PW_MIN_WIDTH,
+				const int &dy = PW_MIN_HEIGHT,
 				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
 				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
