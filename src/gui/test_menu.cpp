@@ -838,23 +838,50 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "progress_window"){
-		CProgressWindow progress0("Progress Single Test");
-		progress0.paint();
-		size_t max = 10;
+		//classical
+		CProgressWindow pw0("Progress Single Test");
+		pw0.paint();
+		size_t max = 3;
 		for(size_t i = 0; i< max; i++){
-			progress0.showStatus(i, max, to_string(i));
+			pw0.showStatus(i, max, to_string(i));
 			sleep(1);
 		}
-		progress0.hide();
+		pw0.hide();
 
-		CProgressWindow progress1("Progress Local/Global Test");
-		progress1.paint();
+		CProgressWindow pw1("Progress Local/Global Test");
+		pw1.paint();
 		for(size_t i = 0; i< max; i++){
-			progress1.showLocalStatus(i, max, to_string(i));
-			progress1.showGlobalStatus(i, max, to_string(i));
+			pw1.showGlobalStatus(i, max, to_string(i));
+			for(size_t j = 0; j< max; j++){
+				pw1.showLocalStatus(j, max, to_string(j));
+				sleep(1);
+			}
+		}
+		pw1.hide();
+
+		//with signals
+		sigc::signal<void, size_t, size_t, std::string> OnProgress0, OnProgress1;
+		CProgressWindow pw2("Progress Single Test -> single Signal", 700, 200, &OnProgress0);
+		pw2.paint();
+
+		for(size_t i = 0; i< max; i++){
+			OnProgress0(i, max, to_string(i));
 			sleep(1);
 		}
-		progress1.hide();
+		pw2.hide();
+
+		CProgressWindow pw3("Progress Single Test -> dub Signal", 700, 200, NULL, &OnProgress0, &OnProgress1);
+		pw3.paint();
+
+		for(size_t i = 0; i< max; i++){
+			OnProgress1(i, max, to_string(i));
+				for(size_t j = 0; j< max; j++){
+					OnProgress0(j, max, to_string(j));
+					sleep(1);
+				}
+		}
+		pw3.hide();
+
 		return menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "hintbox_test")
