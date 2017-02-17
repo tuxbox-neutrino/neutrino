@@ -69,7 +69,7 @@ CProgressWindow::CProgressWindow(const std::string &title,
 }
 
 void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
-				signal<void,size_t, size_t, string> *localSignal,
+				signal<void, size_t, size_t, string> *localSignal,
 				signal<void, size_t, size_t, string> *globalSignal)
 {
 	if (statusSignal)
