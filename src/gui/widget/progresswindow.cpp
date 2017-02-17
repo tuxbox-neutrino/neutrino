@@ -128,36 +128,6 @@ CProgressBar* CProgressWindow::InitProgressItem()
 	return pBar;
 }
 
-void CProgressWindow::setTitle(const neutrino_locale_t title)
-{
-	setWindowCaption(title);
-
-#ifdef VFD_UPDATE
-	CVFD::getInstance()->showProgressBar2(-1,NULL,-1,g_Locale->getText(ccw_caption)); // set global text in VFD
-#endif // VFD_UPDATE
-}
-
-void CProgressWindow::setTitle(const string & title)
-{
-	setWindowCaption(title);
-
-#ifdef VFD_UPDATE
-	CVFD::getInstance()->showProgressBar2(-1,NULL,-1,g_Locale->getText(ccw_caption)); // set global text in VFD
-#endif // VFD_UPDATE
-}
-
-//if header is disabled we need new position for body items
-void CProgressWindow::fitItems()
-{
-	if (ccw_show_header)
-		return;
-
-	for(size_t i=0; i<ccw_body->size() ;i++){
-		int y_item = ccw_body->getCCItem(i)->getYPos() + h_height - OFFSET_INNER_MID;
-		ccw_body->getCCItem(i)->setYPos(y_item);
-	}
-}
-
 void CProgressWindow::initStatus(const unsigned int prog, const unsigned int max, const string &statusText, CProgressBar *pBar)
 {
 	pBar->allowPaint(true);
@@ -238,4 +208,34 @@ void CProgressWindow::paint(bool do_save_bg)
 {
 	fitItems();
 	CComponentsWindow::paint(do_save_bg);
+}
+
+void CProgressWindow::setTitle(const neutrino_locale_t title)
+{
+	setWindowCaption(title);
+
+#ifdef VFD_UPDATE
+	CVFD::getInstance()->showProgressBar2(-1,NULL,-1,g_Locale->getText(ccw_caption)); // set global text in VFD
+#endif // VFD_UPDATE
+}
+
+void CProgressWindow::setTitle(const string & title)
+{
+	setWindowCaption(title);
+
+#ifdef VFD_UPDATE
+	CVFD::getInstance()->showProgressBar2(-1,NULL,-1,g_Locale->getText(ccw_caption)); // set global text in VFD
+#endif // VFD_UPDATE
+}
+
+//if header is disabled we need new position for body items
+void CProgressWindow::fitItems()
+{
+	if (ccw_show_header)
+		return;
+
+	for(size_t i=0; i<ccw_body->size() ;i++){
+		int y_item = ccw_body->getCCItem(i)->getYPos() + h_height - OFFSET_INNER_MID;
+		ccw_body->getCCItem(i)->setYPos(y_item);
+	}
 }
