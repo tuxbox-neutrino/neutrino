@@ -118,17 +118,24 @@ CMoviePlayerGui::CMoviePlayerGui()
 
 CMoviePlayerGui::~CMoviePlayerGui()
 {
-	//playback->Close();
 	if (this == instance_mp)
 		stopPlayBack();
-	delete moviebrowser;
-	moviebrowser = NULL;
-	delete filebrowser;
-	filebrowser = NULL;
-	delete bookmarkmanager;
-	bookmarkmanager = NULL;
-	delete playback;
-	playback = NULL;
+	if(moviebrowser){
+		delete moviebrowser;
+		moviebrowser = NULL;
+	}
+	if(filebrowser){
+		delete filebrowser;
+		filebrowser = NULL;
+	}
+	if(bookmarkmanager){
+		delete bookmarkmanager;
+		bookmarkmanager = NULL;
+	}
+	if(playback){
+		delete playback;
+		playback = NULL;
+	}
 	if (this == instance_mp) {
 		delete instance_bg;
 		instance_bg = NULL;
