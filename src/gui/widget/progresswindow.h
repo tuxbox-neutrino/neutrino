@@ -44,7 +44,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 				sigc::signal<void,size_t, size_t, std::string> *localSignal,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal);
 
-		CProgressBar* InitProgressItem();
+		CProgressBar* getProgressItem();
 		void initStatus(const unsigned int prog, const unsigned int max, const std::string &statusText, CProgressBar *pBar);
 		void fitItems();
 

@@ -92,10 +92,10 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 	addWindowItem(status_txt);
 
 	//create local_bar object
-	local_bar = InitProgressItem();
+	local_bar = getProgressItem();
 
 	//create global_bar object
-	global_bar = InitProgressItem();
+	global_bar = getProgressItem();
 
 	//set window height
 	h_height = ccw_head->getHeight();
@@ -107,7 +107,7 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 	setCenterPos();
 }
 
-CProgressBar* CProgressWindow::InitProgressItem()
+CProgressBar* CProgressWindow::getProgressItem()
 {
 	CProgressBar *pBar = new CProgressBar();
 	pBar->allowPaint(false);
