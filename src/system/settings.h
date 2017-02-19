@@ -906,10 +906,10 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define DEFAULT_LCD_AUTODIMM			0x00
 #define DEFAULT_LCD_SHOW_VOLUME			0x01
 
-#define CORNER_RADIUS_LARGE	11
-#define CORNER_RADIUS_MID	7
-#define CORNER_RADIUS_SMALL	5
-#define CORNER_RADIUS_MIN	3
+#define CORNER_RADIUS_LARGE	CFrameBuffer::getInstance()->scale2Res(11)
+#define CORNER_RADIUS_MID	CFrameBuffer::getInstance()->scale2Res(7)
+#define CORNER_RADIUS_SMALL	CFrameBuffer::getInstance()->scale2Res(5)
+#define CORNER_RADIUS_MIN	CFrameBuffer::getInstance()->scale2Res(3)
 #define CORNER_RADIUS_NONE	0
 
 #define RADIUS_LARGE	(g_settings.rounded_corners ? CORNER_RADIUS_LARGE : 0)
@@ -919,12 +919,12 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define RADIUS_NONE	0
 
 // offsets
-#define OFFSET_SHADOW		6
-#define OFFSET_INTER		6
-#define OFFSET_INNER_LARGE	20
-#define OFFSET_INNER_MID	10
-#define OFFSET_INNER_SMALL	5
-#define OFFSET_INNER_MIN	2
+#define OFFSET_SHADOW		CFrameBuffer::getInstance()->scale2Res(6)
+#define OFFSET_INTER		CFrameBuffer::getInstance()->scale2Res(6)
+#define OFFSET_INNER_LARGE	CFrameBuffer::getInstance()->scale2Res(20)
+#define OFFSET_INNER_MID	CFrameBuffer::getInstance()->scale2Res(10)
+#define OFFSET_INNER_SMALL	CFrameBuffer::getInstance()->scale2Res(5)
+#define OFFSET_INNER_MIN	CFrameBuffer::getInstance()->scale2Res(2)
 #define OFFSET_INNER_NONE	0
 
 #define SCROLLBAR_WIDTH		OFFSET_INNER_MID + 2*OFFSET_INNER_MIN
