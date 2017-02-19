@@ -1,8 +1,6 @@
 /* tuxtxt_common.h
  * for license info see the other tuxtxt files
  */
-#include <sys/ioctl.h>
-#include <fcntl.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1132,15 +1130,6 @@ int tuxtxt_stop_thread()
 		delete dmx;
 		dmx = NULL;
 	}
-#if 0
-	if (tuxtxt_cache.dmx != -1)
-	{
-		//ioctl(tuxtxt_cache.dmx, DMX_STOP);
-
-//        close(tuxtxt_cache.dmx);
-  	}
-//	tuxtxt_cache.dmx = -1;
-#endif
 #if 1//TUXTXT_DEBUG
 	printf("TuxTxt stopped service %x\n", tuxtxt_cache.vtxtpid);
 #endif

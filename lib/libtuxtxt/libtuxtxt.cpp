@@ -10,9 +10,7 @@
  ******************************************************************************/
 
 #define TUXTXT_DEBUG 0
-
-#include <sys/ioctl.h>
-#include <fcntl.h>
+#include <pthread.h>
 
 #include "tuxtxt_def.h"
 #include "tuxtxt_common.h"
