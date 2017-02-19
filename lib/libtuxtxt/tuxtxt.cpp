@@ -47,8 +47,6 @@ static int cfg_national_subset;
 
 static int screen_x, screen_y, screen_w, screen_h;
 
-//#define USE_FBPAN // FBIOPAN_DISPLAY seems to be working in current driver
-
 fb_pixel_t *getFBp(int *y)
 {
 	if (*y < (int)var_screeninfo.yres)
@@ -1519,18 +1517,6 @@ void eval_l25()
 /******************************************************************************
  * main loop                                                                  *
  ******************************************************************************/
-static void cleanup_fb_pan()
-{
-#ifdef USE_FBPAN
-	if (var_screeninfo.yoffset)
-	{
-		var_screeninfo.yoffset = 0;
-		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
-			perror("TuxTxt <FBIOPAN_DISPLAY>");
-	}
-#endif
-}
-
 static void* reader_thread(void * /*arg*/)
 {
 	printf("TuxTxt subtitle thread started\n");
@@ -1549,7 +1535,6 @@ static void* reader_thread(void * /*arg*/)
 	}
 	if(!ttx_paused)
 		CleanUp();
-	cleanup_fb_pan();
 	tuxtxt_close();
 	printf("TuxTxt subtitle thread stopped\n");
 	pthread_exit(NULL);
@@ -1571,7 +1556,6 @@ void tuxtx_pause_subtitle(bool pause)
 		while(!ttx_paused)
 			usleep(10);
 		printf("TuxTxt subtitle paused\n");
-		cleanup_fb_pan();
 	}
 }
 
@@ -1644,15 +1628,6 @@ int tuxtx_main(int pid, int page, int source)
 	printf("TuxTxt %s\n", versioninfo);
 	printf("for 32bpp framebuffer\n");
 
-	fb = -1;
-#ifdef USE_FBPAN
-        if ((fb=open("/dev/fb/0", O_RDWR)) == -1)
-        {
-                perror("TuxTxt <open /dev/fb/0>");
-                return 0;
-        }
-#endif
-
 	CFrameBuffer *fbp = CFrameBuffer::getInstance();
 	lfb = fbp->getFrameBufferPointer();
 	lbb = fbp->getBackBufferPointer();
@@ -1664,28 +1639,12 @@ int tuxtx_main(int pid, int page, int source)
 	else
 		printf("[tuxtxt] using PID %x page %d\n", tuxtxt_cache.vtxtpid, tuxtxt_cache.page);
 
-#if 0 /* just get it from the framebuffer class */
-	/* get fixed screeninfo */
-	if (ioctl(fb, FBIOGET_FSCREENINFO, &fix_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOGET_FSCREENINFO>");
-		return 0;
-	}
-
-	/* get variable screeninfo */
-	if (ioctl(fb, FBIOGET_VSCREENINFO, &var_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOGET_VSCREENINFO>");
-		return 0;
-	}
-#else
 	struct fb_var_screeninfo *var;
 	var = fbp->getScreenInfo();
 	/* this is actually the length of the screen in pixels */
 	stride = fbp->getStride() / sizeof(fb_pixel_t);
 	memcpy(&var_screeninfo, var, sizeof(struct fb_var_screeninfo));
 	fix_screeninfo.line_length = var_screeninfo.xres * sizeof(fb_pixel_t);
-#endif
 	/* set variable screeninfo for double buffering */
 	var_screeninfo.yoffset      = 0;
 #if 0
@@ -1870,9 +1829,6 @@ int tuxtx_main(int pid, int page, int source)
 
 	/* exit */
 	CleanUp();
-
-	if (fb >= 0)
-		close(fb);
 
 #if 1
 	if ( initialized )
@@ -2266,7 +2222,6 @@ void CleanUp()
 	/* hide and close pig */
 	if (screenmode)
 		SwitchScreenMode(0); /* turn off divided screen */
-	//close(pig);
 
 #if TUXTXT_CFG_STANDALONE
 	tuxtxt_stop_thread();
@@ -2278,9 +2233,6 @@ void CleanUp()
 	//tuxtxt_stop();
 #endif
 
-#ifdef USE_FBPAN
-	cleanup_fb_pan();
-#endif
 	//memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
 	//CFrameBuffer::getInstance()->paintBackground();
 	ClearFB(transp);
@@ -3998,25 +3950,9 @@ void SwitchScreenMode(int newscreenmode)
 		CFrameBuffer *f = CFrameBuffer::getInstance();
 		videoDecoder->Pig(tx, ty, tw, th,
 				  f->getScreenWidth(true), f->getScreenHeight(true));
-#if 0
-		int sm = 0;
-		ioctl(pig, VIDIOC_OVERLAY, &sm);
-		sm = 1;
-		ioctl(pig, VIDIOC_G_FMT, &format);
-		format.type = V4L2_BUF_TYPE_VIDEO_OVERLAY;
-		format.fmt.win.w.left   = tx;
-		format.fmt.win.w.top    = ty;
-		format.fmt.win.w.width  = tw;
-		format.fmt.win.w.height = th;
-		ioctl(pig, VIDIOC_S_FMT, &format);
-		ioctl(pig, VIDIOC_OVERLAY, &sm);
-#endif
 	}
 	else /* not split */
 	{
-#if 0
-		ioctl(pig, VIDIOC_OVERLAY, &screenmode);
-#endif
 		videoDecoder->Pig(-1, -1, -1, -1);
 
 		int x = screen_x;
@@ -5386,14 +5322,7 @@ void showlink(int column, int linkpage)
 	int oldfontwidth = fontwidth;
 	int yoffset;
 
-#ifdef USE_FBPAN
-	if (var_screeninfo.yoffset)
-		yoffset = 0;
-	else
-		yoffset = var_screeninfo.yres;
-#else
 	yoffset = var_screeninfo.yres; //NEW
-#endif
 
 	int abx = ((displaywidth)%(40-nofirst) == 0 ? displaywidth+1 : (displaywidth)/(((displaywidth)%(40-nofirst)))+1);// distance between 'inserted' pixels
 	int width = displaywidth /4;
@@ -5606,25 +5535,12 @@ void CopyBB2FB()
 	/* copy backbuffer to framebuffer */
 	if (!zoommode)
 	{
-#ifdef USE_FBPAN
-		/* if yoffset != 0, we had active page 1, and activate 0 */
-		/* else active was page 0, activate page 1 */
-		if (var_screeninfo.yoffset)
-			var_screeninfo.yoffset = 0;
-		else
-			var_screeninfo.yoffset = var_screeninfo.yres;
-
-		//FIXME check zoom mode code
-		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
-			perror("TuxTxt <FBIOPAN_DISPLAY>");
-#else
 #ifdef HAVE_SPARK_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
 #elif defined BOXMODEL_CS_HD2
 		f->fbCopyArea(var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, var_screeninfo.yres);
 #else
 		memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
-#endif
 #endif
 
 		/* adapt background of backbuffer if changed */
@@ -5644,16 +5560,6 @@ void CopyBB2FB()
 	src = topsrc = lbb + StartY * stride;
 	dst =          lfb + StartY * stride;
 
-#ifdef USE_FBPAN
-	#error USE_FBPAN code is not working right now.
-	if (var_screeninfo.yoffset)
-		dst += fix_screeninfo.line_length * var_screeninfo.yres;
-	else
-	{
-		src += fix_screeninfo.line_length * var_screeninfo.yres;
-		topsrc += fix_screeninfo.line_length * var_screeninfo.yres;
-	}
-#endif
 	/* copy line25 in normal height */
 	if (!pagecatching )
 		memmove(dst + (24 * fontheight) * stride, src + (24 * fontheight) * stride, stride * fontheight);
