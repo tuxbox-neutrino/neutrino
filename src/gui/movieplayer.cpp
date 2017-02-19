@@ -1595,7 +1595,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			else {
 				if (g_settings.cacheTXT)
 					tuxtxt_stop();
-				tuxtx_main(g_RCInput->getFileHandle(), g_RemoteControl->current_PIDs.PIDs.vtxtpid, 0, 2);
+				tuxtx_main(g_RemoteControl->current_PIDs.PIDs.vtxtpid, 0, 2);
 				frameBuffer->paintBackground();
 			}
 			if (restore)
