@@ -100,6 +100,7 @@ class CFbAccelCSHD1
 		inline void paintHLineRel(int x, int dx, int y, const fb_pixel_t col) { paintLine(x, y, x+dx, y, col); };
 		inline void paintVLineRel(int x, int y, int dy, const fb_pixel_t col) { paintLine(x, y, x, y+dy, col); };
 		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
+		void fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, uint32_t dst_y, uint32_t src_x, uint32_t src_y);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 		void waitForIdle(const char *func = NULL);
@@ -124,6 +125,7 @@ class CFbAccelCSHD2
 		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col);
 		void paintVLineRel(int x, int y, int dy, const fb_pixel_t col);
 		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
+		void fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, uint32_t dst_y, uint32_t src_x, uint32_t src_y);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 		fb_pixel_t * getBackBufferPointer() const;
