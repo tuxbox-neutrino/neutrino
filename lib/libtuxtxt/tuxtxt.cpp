@@ -1561,7 +1561,7 @@ void tuxtx_pause_subtitle(bool pause)
 		//printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
 		ttx_paused = 0;
 		if(!reader_running && sub_pid && sub_page)
-			tuxtx_main(0, sub_pid, sub_page);
+			tuxtx_main(sub_pid, sub_page);
 	}
 	else {
 		if(!reader_running)
@@ -1599,7 +1599,7 @@ void tuxtx_set_pid(int pid, int page, const char * cc)
 	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 	ttx_paused = 1;
 	if(sub_pid && sub_page)
-		tuxtx_main(0, sub_pid, sub_page);
+		tuxtx_main(sub_pid, sub_page);
 #endif
 }
 
@@ -1620,7 +1620,7 @@ int tuxtx_subtitle_running(int *pid, int *page, int *running)
 	return ret;
 }
 
-int tuxtx_main(int /*_rc*/, int pid, int page, int source)
+int tuxtx_main(int pid, int page, int source)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 

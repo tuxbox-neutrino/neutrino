@@ -2602,7 +2602,7 @@ void CNeutrinoApp::RealRun()
 				StopSubtitles();
 				tuxtx_stop_subtitle();
 
-				tuxtx_main(g_RCInput->getFileHandle(), g_RemoteControl->current_PIDs.PIDs.vtxtpid);
+				tuxtx_main(g_RemoteControl->current_PIDs.PIDs.vtxtpid);
 
 				frameBuffer->paintBackground();
 				//if(!g_settings.cacheTXT)
