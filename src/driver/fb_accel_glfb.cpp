@@ -37,6 +37,7 @@ extern GLFramebuffer *glfb;
 
 #include <driver/abstime.h>
 #include <system/set_threadname.h>
+#include <gui/color.h>
 
 #define LOGTAG "[fb_glfb] "
 
@@ -62,6 +63,33 @@ void CFbAccelGLFB::init(const char *)
 	setMode(720, 576, 8 * sizeof(fb_pixel_t));
 
 	blit_thread = false;
+
+	/* Windows Colors */
+	int tr = 0xff;
+	paletteSetColor(0x1, 0x010101, tr);
+	paletteSetColor(0x2, 0x800000, tr);
+	paletteSetColor(0x3, 0x008000, tr);
+	paletteSetColor(0x4, 0x808000, tr);
+	paletteSetColor(0x5, 0x000080, tr);
+	paletteSetColor(0x6, 0x800080, tr);
+	paletteSetColor(0x7, 0x008080, tr);
+	paletteSetColor(0x8, 0xA0A0A0, tr);
+	paletteSetColor(0x9, 0x505050, tr);
+	paletteSetColor(0xA, 0xFF0000, tr);
+	paletteSetColor(0xB, 0x00FF00, tr);
+	paletteSetColor(0xC, 0xFFFF00, tr);
+	paletteSetColor(0xD, 0x0000FF, tr);
+	paletteSetColor(0xE, 0xFF00FF, tr);
+	paletteSetColor(0xF, 0x00FFFF, tr);
+	paletteSetColor(0x10, 0xFFFFFF, tr);
+	paletteSetColor(0x11, 0x000000, tr);
+	paletteSetColor(COL_BACKGROUND, 0x000000, 0x0);
+
+	paletteSet();
+
+	useBackground(false);
+	m_transparent = m_transparent_default;
+
 	/* start the autoblit-thread (run() function) */
 	OpenThreads::Thread::start();
 };
