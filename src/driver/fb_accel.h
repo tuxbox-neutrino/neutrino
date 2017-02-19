@@ -129,7 +129,7 @@ class CFbAccelCSHD2
 		fb_pixel_t * getBackBufferPointer() const;
 		void setBlendMode(uint8_t);
 		void setBlendLevel(int);
-		int scaleFont(int size);
+		int scale2Res(int size);
 		bool fullHdAvailable();
 		void setOsdResolutions();
 		uint32_t getWidth4FB_HW_ACC(const uint32_t x, const uint32_t w, const bool max=true);

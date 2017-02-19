@@ -77,7 +77,7 @@ void CInfoClock::initCCLockItems()
 	//set height, NOTE: height is strictly bound to settings
 	height = g_settings.infoClockFontSize;
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
-	height = CFrameBuffer::getInstance()->scaleFont(height);
+	height = CFrameBuffer::getInstance()->scale2Res(height);
 #endif
 	initClockFont(0, height);
 

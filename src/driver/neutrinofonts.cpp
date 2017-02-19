@@ -180,7 +180,7 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++) {
 		if (g_Font[i]) delete g_Font[i];
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
-		fontSize = CFrameBuffer::getInstance()->scaleFont(CNeutrinoApp::getInstance()->getConfigFile()->getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize)) + neutrino_font[i].size_offset * fontDescr.size_offset;
+		fontSize = CFrameBuffer::getInstance()->scale2Res(CNeutrinoApp::getInstance()->getConfigFile()->getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize)) + neutrino_font[i].size_offset * fontDescr.size_offset;
 #else
 		fontSize = CNeutrinoApp::getInstance()->getConfigFile()->getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize) + neutrino_font[i].size_offset * fontDescr.size_offset;
 #endif
@@ -188,7 +188,7 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 	}
 	if (g_SignalFont) delete g_SignalFont;
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
-	fontSize = CFrameBuffer::getInstance()->scaleFont(signal_font.defaultsize) + signal_font.size_offset * fontDescr.size_offset;
+	fontSize = CFrameBuffer::getInstance()->scale2Res(signal_font.defaultsize) + signal_font.size_offset * fontDescr.size_offset;
 #else
 	fontSize = signal_font.defaultsize + signal_font.size_offset * fontDescr.size_offset;
 #endif

@@ -277,7 +277,7 @@ class CFrameBuffer : public sigc::trackable
 		virtual void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 
 		virtual void mark(int x, int y, int dx, int dy);
-		virtual int scaleFont(int size) { return size; };
+		virtual int scale2Res(int size) { return size; };
 		virtual bool fullHdAvailable() { return false; };
 		virtual void setOsdResolutions();
 		std::vector<osd_resolution_t> osd_resolutions;

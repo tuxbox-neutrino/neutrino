@@ -290,8 +290,13 @@ void CFbAccelCSHD2::setBlendLevel(int level)
 		usleep(20000);
 }
 
-int CFbAccelCSHD2::scaleFont(int size)
+int CFbAccelCSHD2::scale2Res(int size)
 {
+	/*
+	   The historic resolution 1280x720 is default for some values/sizes.
+	   So let's scale these values to other resolutions.
+	*/
+
 	if (screeninfo.xres == 1920)
 		size += size/2;
 

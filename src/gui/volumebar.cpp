@@ -55,7 +55,7 @@ void CVolumeBar::initVarVolumeBar()
 	vb_item_offset 	= OFFSET_INNER_SMALL;
 	height 		= g_settings.volume_size; //default height
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
-	height          = CFrameBuffer::getInstance()->scaleFont(height);
+	height          = CFrameBuffer::getInstance()->scale2Res(height);
 #endif
 
 	//assume volume value as pointer to global setting
@@ -96,7 +96,7 @@ void CVolumeBar::initVolumeBarSize()
 	//scale
 	vb_pbw 		= 200;
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
-	vb_pbw 		= CFrameBuffer::getInstance()->scaleFont(vb_pbw);
+	vb_pbw 		= CFrameBuffer::getInstance()->scale2Res(vb_pbw);
 #endif
 	vb_pbh 		= height-4*vb_item_offset;
 
@@ -370,7 +370,7 @@ void CVolumeHelper::initVolBarSize()
 	g_settings.volume_size	= max(g_settings.volume_size, icon_height);
 	vol_height		= g_settings.volume_size;
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
-	vol_height		= CFrameBuffer::getInstance()->scaleFont(vol_height);
+	vol_height		= CFrameBuffer::getInstance()->scale2Res(vol_height);
 #endif
 
 	if (g_settings.volume_digits) {
