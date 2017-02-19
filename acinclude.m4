@@ -3,7 +3,6 @@ AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
 
 AC_GNU_SOURCE
-AC_SYS_LARGEFILE
 
 AC_ARG_WITH(target,
 	[  --with-target=TARGET    target for compilation [[native,cdk]]],
@@ -75,6 +74,7 @@ fi
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
+AC_SYS_LARGEFILE
 
 check_path () {
 	return $(perl -e "if(\"$1\"=~m#^/usr/(local/)?bin#){print \"0\"}else{print \"1\";}")
