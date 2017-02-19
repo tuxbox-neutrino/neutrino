@@ -297,8 +297,10 @@ int CFbAccelCSHD2::scale2Res(int size)
 	   So let's scale these values to other resolutions.
 	*/
 
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
 	if (screeninfo.xres == 1920)
 		size += size/2;
+#endif
 
 	return size;
 }

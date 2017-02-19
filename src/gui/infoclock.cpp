@@ -75,10 +75,7 @@ void CInfoClock::initCCLockItems()
 		setClockFormat("%H:%M", "%H %M");
 
 	//set height, NOTE: height is strictly bound to settings
-	height = g_settings.infoClockFontSize;
-#ifdef ENABLE_CHANGE_OSD_RESOLUTION
-	height = CFrameBuffer::getInstance()->scale2Res(height);
-#endif
+	height = CFrameBuffer::getInstance()->scale2Res(g_settings.infoClockFontSize);
 	initClockFont(0, height);
 
 	// set corner radius depending on clock height
