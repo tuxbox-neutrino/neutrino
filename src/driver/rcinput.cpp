@@ -1788,8 +1788,18 @@ void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 		printf("[rcinput:%s] indev is empty!\n", __func__);
 		return;
 	}
-	//fixme?: for now fd_rc[] is hardcoded to 0 since only fd_rc[0] is used at the moment
-	ioctl_ret = ::ioctl(indev[0].fd, IOC_IR_SET_PRI_PROTOCOL, ir_protocol);
+	int fd = -1;
+	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
+		if ((*it).path == "/dev/input/nevis_ir") {
+			fd = (*it).fd;
+			break;
+		}
+	}
+	if (fd == -1) {
+		printf("[rcinput:%s] no nevis_ir input device found??\n", __func__);
+		return;
+	}
+	ioctl_ret = ::ioctl(fd, IOC_IR_SET_PRI_PROTOCOL, ir_protocol);
 	if(ioctl_ret < 0)
 		perror("IOC_IR_SET_PRI_PROTOCOL");
 	else
@@ -1799,7 +1809,7 @@ void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 	if(ir_address > 0)
 	{
 		//fixme?: for now fd_rc[] is hardcoded to 0 since only fd_rc[0] is used at the moment
-		ioctl_ret = ::ioctl(indev[0].fd, IOC_IR_SET_PRI_ADDRESS, ir_address);
+		ioctl_ret = ::ioctl(fd, IOC_IR_SET_PRI_ADDRESS, ir_address);
 		if(ioctl_ret < 0)
 			perror("IOC_IR_SET_PRI_ADDRESS");
 		else
