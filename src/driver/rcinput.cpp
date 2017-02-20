@@ -1801,6 +1801,41 @@ void CRCInput::play_click()
 {
 }
 
+void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
+{
+	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
+		int fd = (*it).fd;
+		std::string path = (*it).path;
+		if (path == "/tmp/neutrino.input")
+			continue; /* setting repeat rate does not work here */
+#ifdef HAVE_COOL_HARDWARE
+		/* this is ugly, but the driver does not support anything advanced... */
+		if (path == "/dev/input/nevis_ir") {
+			d_printf("[rcinput:%s] %s(fd %d) using proprietary ioctl\n", __func__, path.c_str(), fd);
+			ioctl(fd, IOC_IR_SET_F_DELAY, start_ms);
+			ioctl(fd, IOC_IR_SET_X_DELAY, repeat_ms);
+			continue;
+		}
+#endif
+		d_printf("[rcinput:%s] %s(fd %d) writing EV_REP (%d->%d)\n",
+				__func__, path.c_str(), fd, start_ms, repeat_ms);
+		/* if we have a good input device, we don't need the private ioctl above */
+		struct input_event ie;
+		memset(&ie, 0, sizeof(ie));
+		ie.type = EV_REP;
+		/* increase by 10 ms to trick the repeat checker code in the
+		 * rcinput loop into accepting the key event... */
+		ie.value = start_ms + 10;
+		ie.code = REP_DELAY;
+		if (write(fd, &ie, sizeof(ie)) == -1)
+			printf("[rcinput:%s] %s(fd %d) write %s: %m\n", __func__, path.c_str(), fd, "REP_DELAY");
+
+		ie.value = repeat_ms + 10;
+		ie.code = REP_PERIOD;
+		if (write(fd, &ie, sizeof(ie)) == -1)
+			printf("[rcinput:%s] %s(fd %d) write %s: %m\n", __func__, path.c_str(), fd, "REP_PERIOD");
+	}
+}
 
 #ifdef IOC_IR_SET_PRI_PROTOCOL
 // hint: ir_protocol_t and other useful things are defined in cs_ir_generic.h

@@ -341,6 +341,7 @@ class CRCInput
 		void reset_dsp(int rate);
 
 		void setLongPressAny(bool b) { longPressAny = b; };
+		void setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms);
 };
 
 
