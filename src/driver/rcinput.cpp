@@ -143,7 +143,6 @@ CRCInput::CRCInput()
 		perror("[neutrino] listen failed...\n");
 		exit( -1 );
 	}
-	clickfd = -1;
 	repeat_block = repeat_block_generic = 0;
 	checkdev();
 	open();
@@ -283,7 +282,6 @@ void CRCInput::open(bool recheck)
 	//+++++++++++++++++++++++++++++++++++++++
 #endif /* KEYBOARD_INSTEAD_OF_REMOTE_CONTROL */
 
-	open_click();
 	calculateMaxFd();
 }
 
@@ -344,7 +342,6 @@ CRCInput::~CRCInput()
 
 	if(fd_event)
 		::close(fd_event);
-	close_click();
 }
 
 /**************************************************************************
@@ -1416,8 +1413,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 
 							*msg = trkey;
 							*data = 0; /* <- button pressed */
-							if(g_settings.key_click)
-								play_click();
 							return;
 						}
 					} /*if keyok */
@@ -1720,27 +1715,6 @@ int CRCInput::translate(int code)
 		return code;
 
 	return (int)RC_nokey;
-}
-
-void CRCInput::close_click()
-{
-}
-
-void CRCInput::open_click()
-{
-}
-#if 0 
-//never used
-void CRCInput::reset_dsp(int /*rate*/)
-{
-}
-
-void CRCInput::set_dsp()
-{
-}
-#endif
-void CRCInput::play_click()
-{
 }
 
 void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)

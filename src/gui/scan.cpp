@@ -287,7 +287,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	success = false;
 
 	if(!manual) {
-		g_RCInput->close_click();
                 if (my_system(NEUTRINO_SCAN_START_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_START_SCRIPT " failed");
 	}
@@ -356,7 +355,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(!manual) {
                 if (my_system(NEUTRINO_SCAN_STOP_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_STOP_SCRIPT " failed");
-		g_RCInput->open_click();
 	}
 	if(!test) {
 		CComponentsHeaderLocalized header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
