@@ -285,12 +285,6 @@ class CRCInput
 		};
 		void set_rc_hw(void);
 
-		inline int getFileHandle(void) /* used for plugins (i.e. games) only */
-		{
-			if (indev.empty())
-				return -1;
-			return indev[0].fd;
-		}
 		void stopInput(const bool ext = false);
 		void restartInput(const bool ext = false);
 		bool isLocked(void);
