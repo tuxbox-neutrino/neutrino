@@ -164,10 +164,8 @@ class CRCInput
 		int		fd_event;
 
 		int		fd_max;
-		int		clickfd;
 		__u16 rc_last_key;
 		OpenThreads::Mutex mutex;
-		void set_dsp();
 
 		void open(bool recheck = false);
 		bool checkpath(in_dev id);
@@ -329,10 +327,6 @@ class CRCInput
 		void clearRCMsg();
 
 		int messageLoop( bool anyKeyCancels = false, int timeout= -1 );
-		void open_click();
-		void close_click();
-		void play_click();
-		void reset_dsp(int rate);
 
 		void setLongPressAny(bool b) { longPressAny = b; };
 		void setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms);
