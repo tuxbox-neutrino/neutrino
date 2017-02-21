@@ -47,8 +47,6 @@ static int cfg_national_subset;
 
 static int screen_x, screen_y, screen_w, screen_h;
 
-//#define USE_FBPAN // FBIOPAN_DISPLAY seems to be working in current driver
-
 fb_pixel_t *getFBp(int *y)
 {
 	if (*y < (int)var_screeninfo.yres)
@@ -1519,18 +1517,6 @@ void eval_l25()
 /******************************************************************************
  * main loop                                                                  *
  ******************************************************************************/
-static void cleanup_fb_pan()
-{
-#ifdef USE_FBPAN
-	if (var_screeninfo.yoffset)
-	{
-		var_screeninfo.yoffset = 0;
-		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
-			perror("TuxTxt <FBIOPAN_DISPLAY>");
-	}
-#endif
-}
-
 static void* reader_thread(void * /*arg*/)
 {
 	printf("TuxTxt subtitle thread started\n");
@@ -1549,7 +1535,6 @@ static void* reader_thread(void * /*arg*/)
 	}
 	if(!ttx_paused)
 		CleanUp();
-	cleanup_fb_pan();
 	tuxtxt_close();
 	printf("TuxTxt subtitle thread stopped\n");
 	pthread_exit(NULL);
@@ -1561,7 +1546,7 @@ void tuxtx_pause_subtitle(bool pause)
 		//printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
 		ttx_paused = 0;
 		if(!reader_running && sub_pid && sub_page)
-			tuxtx_main(0, sub_pid, sub_page);
+			tuxtx_main(sub_pid, sub_page);
 	}
 	else {
 		if(!reader_running)
@@ -1571,7 +1556,6 @@ void tuxtx_pause_subtitle(bool pause)
 		while(!ttx_paused)
 			usleep(10);
 		printf("TuxTxt subtitle paused\n");
-		cleanup_fb_pan();
 	}
 }
 
@@ -1599,7 +1583,7 @@ void tuxtx_set_pid(int pid, int page, const char * cc)
 	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 	ttx_paused = 1;
 	if(sub_pid && sub_page)
-		tuxtx_main(0, sub_pid, sub_page);
+		tuxtx_main(sub_pid, sub_page);
 #endif
 }
 
@@ -1620,7 +1604,7 @@ int tuxtx_subtitle_running(int *pid, int *page, int *running)
 	return ret;
 }
 
-int tuxtx_main(int /*_rc*/, int pid, int page, int source)
+int tuxtx_main(int pid, int page, int source)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
@@ -1644,15 +1628,6 @@ int tuxtx_main(int /*_rc*/, int pid, int page, int source)
 	printf("TuxTxt %s\n", versioninfo);
 	printf("for 32bpp framebuffer\n");
 
-	fb = -1;
-#ifdef USE_FBPAN
-        if ((fb=open("/dev/fb/0", O_RDWR)) == -1)
-        {
-                perror("TuxTxt <open /dev/fb/0>");
-                return 0;
-        }
-#endif
-
 	CFrameBuffer *fbp = CFrameBuffer::getInstance();
 	lfb = fbp->getFrameBufferPointer();
 	lbb = fbp->getBackBufferPointer();
@@ -1664,28 +1639,12 @@ int tuxtx_main(int /*_rc*/, int pid, int page, int source)
 	else
 		printf("[tuxtxt] using PID %x page %d\n", tuxtxt_cache.vtxtpid, tuxtxt_cache.page);
 
-#if 0 /* just get it from the framebuffer class */
-	/* get fixed screeninfo */
-	if (ioctl(fb, FBIOGET_FSCREENINFO, &fix_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOGET_FSCREENINFO>");
-		return 0;
-	}
-
-	/* get variable screeninfo */
-	if (ioctl(fb, FBIOGET_VSCREENINFO, &var_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOGET_VSCREENINFO>");
-		return 0;
-	}
-#else
 	struct fb_var_screeninfo *var;
 	var = fbp->getScreenInfo();
 	/* this is actually the length of the screen in pixels */
 	stride = fbp->getStride() / sizeof(fb_pixel_t);
 	memcpy(&var_screeninfo, var, sizeof(struct fb_var_screeninfo));
 	fix_screeninfo.line_length = var_screeninfo.xres * sizeof(fb_pixel_t);
-#endif
 	/* set variable screeninfo for double buffering */
 	var_screeninfo.yoffset      = 0;
 #if 0
@@ -1870,9 +1829,6 @@ int tuxtx_main(int /*_rc*/, int pid, int page, int source)
 
 	/* exit */
 	CleanUp();
-
-	if (fb >= 0)
-		close(fb);
 
 #if 1
 	if ( initialized )
@@ -2266,7 +2222,6 @@ void CleanUp()
 	/* hide and close pig */
 	if (screenmode)
 		SwitchScreenMode(0); /* turn off divided screen */
-	//close(pig);
 
 #if TUXTXT_CFG_STANDALONE
 	tuxtxt_stop_thread();
@@ -2278,9 +2233,6 @@ void CleanUp()
 	//tuxtxt_stop();
 #endif
 
-#ifdef USE_FBPAN
-	cleanup_fb_pan();
-#endif
 	//memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
 	//CFrameBuffer::getInstance()->paintBackground();
 	ClearFB(transp);
@@ -3998,25 +3950,9 @@ void SwitchScreenMode(int newscreenmode)
 		CFrameBuffer *f = CFrameBuffer::getInstance();
 		videoDecoder->Pig(tx, ty, tw, th,
 				  f->getScreenWidth(true), f->getScreenHeight(true));
-#if 0
-		int sm = 0;
-		ioctl(pig, VIDIOC_OVERLAY, &sm);
-		sm = 1;
-		ioctl(pig, VIDIOC_G_FMT, &format);
-		format.type = V4L2_BUF_TYPE_VIDEO_OVERLAY;
-		format.fmt.win.w.left   = tx;
-		format.fmt.win.w.top    = ty;
-		format.fmt.win.w.width  = tw;
-		format.fmt.win.w.height = th;
-		ioctl(pig, VIDIOC_S_FMT, &format);
-		ioctl(pig, VIDIOC_OVERLAY, &sm);
-#endif
 	}
 	else /* not split */
 	{
-#if 0
-		ioctl(pig, VIDIOC_OVERLAY, &screenmode);
-#endif
 		videoDecoder->Pig(-1, -1, -1, -1);
 
 		int x = screen_x;
@@ -5386,14 +5322,7 @@ void showlink(int column, int linkpage)
 	int oldfontwidth = fontwidth;
 	int yoffset;
 
-#ifdef USE_FBPAN
-	if (var_screeninfo.yoffset)
-		yoffset = 0;
-	else
-		yoffset = var_screeninfo.yres;
-#else
 	yoffset = var_screeninfo.yres; //NEW
-#endif
 
 	int abx = ((displaywidth)%(40-nofirst) == 0 ? displaywidth+1 : (displaywidth)/(((displaywidth)%(40-nofirst)))+1);// distance between 'inserted' pixels
 	int width = displaywidth /4;
@@ -5606,18 +5535,6 @@ void CopyBB2FB()
 	/* copy backbuffer to framebuffer */
 	if (!zoommode)
 	{
-#ifdef USE_FBPAN
-		/* if yoffset != 0, we had active page 1, and activate 0 */
-		/* else active was page 0, activate page 1 */
-		if (var_screeninfo.yoffset)
-			var_screeninfo.yoffset = 0;
-		else
-			var_screeninfo.yoffset = var_screeninfo.yres;
-
-		//FIXME check zoom mode code
-		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
-			perror("TuxTxt <FBIOPAN_DISPLAY>");
-#else
 #ifdef HAVE_SPARK_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
 #elif defined BOXMODEL_CS_HD2
@@ -5634,7 +5551,6 @@ void CopyBB2FB()
 		}
 		else
 			memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
-#endif
 #endif
 
 		/* adapt background of backbuffer if changed */
@@ -5654,16 +5570,6 @@ void CopyBB2FB()
 	src = topsrc = lbb + StartY * stride;
 	dst =          lfb + StartY * stride;
 
-#ifdef USE_FBPAN
-	#error USE_FBPAN code is not working right now.
-	if (var_screeninfo.yoffset)
-		dst += fix_screeninfo.line_length * var_screeninfo.yres;
-	else
-	{
-		src += fix_screeninfo.line_length * var_screeninfo.yres;
-		topsrc += fix_screeninfo.line_length * var_screeninfo.yres;
-	}
-#endif
 	/* copy line25 in normal height */
 	if (!pagecatching )
 		memmove(dst + (24 * fontheight) * stride, src + (24 * fontheight) * stride, stride * fontheight);
@@ -6435,146 +6341,6 @@ int GetRCCode()
 	return 0;
 }
 
-#if 0
-#if 1
-int GetRCCode()
-{
-	struct input_event ev;
-	static __u16 rc_last_key = KEY_RESERVED;
-
-	int val = fcntl(rc, F_GETFL);
-	if(!(val & O_NONBLOCK))
-		printf("[tuxtxt] GetRCCode in blocking mode.\n");
-
-	/* get code */
-	if (read(rc, &ev, sizeof(ev)) == sizeof(ev))
-	{
-		if (ev.value)
-		{
-			if (ev.code != rc_last_key ||
-			    ev.code == KEY_DOWN || ev.code == KEY_UP ||  /* allow direction keys */
-			    ev.code == KEY_LEFT || ev.code == KEY_RIGHT) /* to autorepeat...     */
-			{
-				rc_last_key = ev.code;
-				switch (ev.code)
-				{
-				case KEY_UP:		RCCode = RC_UP;		break;
-				case KEY_DOWN:		RCCode = RC_DOWN;	break;
-				case KEY_LEFT:		RCCode = RC_LEFT;	break;
-				case KEY_RIGHT:		RCCode = RC_RIGHT;	break;
-				case KEY_OK:		RCCode = RC_OK;		break;
-				case KEY_0:		RCCode = RC_0;		break;
-				case KEY_1:		RCCode = RC_1;		break;
-				case KEY_2:		RCCode = RC_2;		break;
-				case KEY_3:		RCCode = RC_3;		break;
-				case KEY_4:		RCCode = RC_4;		break;
-				case KEY_5:		RCCode = RC_5;		break;
-				case KEY_6:		RCCode = RC_6;		break;
-				case KEY_7:		RCCode = RC_7;		break;
-				case KEY_8:		RCCode = RC_8;		break;
-				case KEY_9:		RCCode = RC_9;		break;
-				case KEY_RED:		RCCode = RC_RED;	break;
-				case KEY_GREEN:		RCCode = RC_GREEN;	break;
-				case KEY_YELLOW:	RCCode = RC_YELLOW;	break;
-				case KEY_BLUE:		RCCode = RC_BLUE;	break;
-				case KEY_VOLUMEUP:	RCCode = RC_PLUS;	break;
-				case KEY_VOLUMEDOWN:	RCCode = RC_MINUS;	break;
-				case KEY_MUTE:		RCCode = RC_MUTE;	break;
-#if !HAVE_TRIPLEDRAGON
-				/* on CS, change transparent mode with TEXT key */
-				case KEY_TEXT:		RCCode = RC_TEXT;	break;
-#else
-				/* on TD, cycle split screen mode with TTX key
-				 * - the TD has a special key for transparent mode */
-				case KEY_TEXT:		RCCode = RC_MINUS;	break;
-#endif
-				case KEY_TTTV:		RCCode = RC_MUTE;	break;
-				case KEY_TTZOOM:	RCCode = RC_PLUS;	break;
-				case KEY_REVEAL:	RCCode = RC_HELP;	break;
-				//case KEY_HELP:		RCCode = RC_HELP;	break;
-				case KEY_INFO:		RCCode = RC_HELP;	break;
-				case KEY_MENU:		RCCode = RC_DBOX;	break;
-				case KEY_EXIT:		RCCode = RC_HOME;	break;
-				case KEY_POWER:		RCCode = RC_STANDBY;	break;
-				}
-printf("[tuxtxt] new key, code %X\n", RCCode);
-				return 1;
-			}
-		}
-		else
-		{
-			RCCode = -1;
-			rc_last_key = KEY_RESERVED;
-		}
-	}
-
-	RCCode = -1;
-	usleep(1000000/25);
-
-	return 0;
-}
-#else
-/* this is obsolete and can soon be removed */
-int GetRCCode()
-{
-	static unsigned short LastKey = -1;
-	int count;
-	if ((count = read(rc, &RCCode, 2)) != 2)
-	{
-		RCCode = -1;
-		usleep(1000000/100);
-		return 0;
-	}
-
-	fprintf(stderr, "rccode: %04x\n", RCCode);
-	if (RCCode == LastKey &&
-	    RCCode != 0x18 && RCCode != 0x19 && /* allow direction keys */
-	    RCCode != 0x1b && RCCode != 0x1c)   /* to autorepeat...     */
-	{
-		RCCode = -1;
-		return 1;
-	}
-
-	LastKey = RCCode;
-	if ((RCCode & 0xFF00) == 0x0000)
-	{
-		switch (RCCode)
-		{
-		case 0x18:	RCCode = RC_UP;		break;
-		case 0x1c:	RCCode = RC_DOWN;	break;
-		case 0x19:	RCCode = RC_LEFT;	break;
-		case 0x1b:	RCCode = RC_RIGHT;	break;
-		case 0x1a:	RCCode = RC_OK;		break;
-		case 0x0e:	RCCode = RC_0;		break;
-		case 0x02:	RCCode = RC_1;		break;
-		case 0x03:	RCCode = RC_2;		break;
-		case 0x04:	RCCode = RC_3;		break;
-		case 0x05:	RCCode = RC_4;		break;
-		case 0x06:	RCCode = RC_5;		break;
-		case 0x07:	RCCode = RC_6;		break;
-		case 0x09:	RCCode = RC_7;		break;
-		case 0x0a:	RCCode = RC_8;		break;
-		case 0x0b:	RCCode = RC_9;		break;
-		case 0x1f:	RCCode = RC_RED;	break;
-		case 0x20:	RCCode = RC_GREEN;	break;
-		case 0x21:	RCCode = RC_YELLOW;	break;
-		case 0x22:	RCCode = RC_BLUE;	break;
-		case 0x29:	RCCode = RC_PLUS;	break; // [=X=] key -> double height
-		case 0x27:	RCCode = RC_MINUS;	break; // [txt] key -> split mode
-		case 0x11:	RCCode = RC_MUTE;	break;
-		case 0x28:	RCCode = RC_MUTE;	break; // [ /=] key
-		case 0x14:	RCCode = RC_HELP;	break;
-		case 0x2a:	RCCode = RC_HELP;	break; // [==?] key
-		case 0x12:	RCCode = RC_DBOX;	break;
-		case 0x15:	RCCode = RC_HOME;	break;
-		case 0x01:	RCCode = RC_STANDBY;	break;
-		}
-		return 1;
-	}
-	return 1;
-}
-#endif
-#endif
 /* Local Variables: */
 /* indent-tabs-mode:t */
 /* tab-width:3 */

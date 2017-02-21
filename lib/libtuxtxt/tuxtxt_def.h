@@ -92,7 +92,6 @@ typedef struct
 	short flofpages[0x900][FLOFSIZE];
 	unsigned char adip[0x900][13];
 	unsigned char subpagetable[0x900];
-	int dmx;
 	int vtxtpid;
 	int cached_pages, page, subpage, pageupdate,page_receiving, current_page[9], current_subpage[9];
 	int receiving, thread_starting, zap_subpage_manual;

@@ -21,7 +21,6 @@
 
 #include <config.h>
 
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,11 +30,6 @@
 #include <ctype.h>
 
 #include <linux/fb.h>
-
-#include <linux/input.h>
-
-#include <sys/ioctl.h>
-#include <sys/mman.h>
 
 #include "tuxtxt_def.h"
 
@@ -146,36 +140,6 @@ int tv_pip_y;
 #define hold_mosaic         0x1E
 #define release_mosaic      0x1F
 
-#if 0
-/* rc codes */
-#define RC_0        0x00
-#define RC_1        0x01
-#define RC_2        0x02
-#define RC_3        0x03
-#define RC_4        0x04
-#define RC_5        0x05
-#define RC_6        0x06
-#define RC_7        0x07
-#define RC_8        0x08
-#define RC_9        0x09
-#define RC_RIGHT    0x0A
-#define RC_LEFT     0x0B
-#define RC_UP       0x0C
-#define RC_DOWN     0x0D
-#define RC_OK       0x0E
-#define RC_MUTE     0x0F
-#define RC_STANDBY  0x10
-#define RC_GREEN    0x11
-#define RC_YELLOW   0x12
-#define RC_RED      0x13
-#define RC_BLUE     0x14
-#define RC_PLUS     0x15
-#define RC_MINUS    0x16
-#define RC_HELP     0x17
-#define RC_DBOX     0x18
-#define RC_TEXT     0x19
-#define RC_HOME     0x1F
-#else
 #define RC_0        CRCInput::RC_0
 #define RC_1        CRCInput::RC_1
 #define RC_2        CRCInput::RC_2
@@ -215,7 +179,6 @@ int tv_pip_y;
 /* ...while other receivers use the vol- key for that, so rc_split is unused */
 #define RC_SPLIT   (CRCInput::RC_MaxRC + 1)
 #define RC_TEXT     CRCInput::RC_text
-#endif
 #endif
 
 typedef enum /* object type */
@@ -593,7 +556,7 @@ char versioninfo[16];
 int hotlist[10];
 int maxhotlist;
 
-int pig, fb, lcd;
+int lcd;
 int sx, ex, sy, ey;
 int PosX, PosY, StartX, StartY;
 int lastpage;

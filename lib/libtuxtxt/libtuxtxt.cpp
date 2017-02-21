@@ -10,9 +10,7 @@
  ******************************************************************************/
 
 #define TUXTXT_DEBUG 0
-
-#include <sys/ioctl.h>
-#include <fcntl.h>
+#include <pthread.h>
 
 #include "tuxtxt_def.h"
 #include "tuxtxt_common.h"
@@ -36,7 +34,6 @@ int tuxtxt_init()
 	tuxtxt_cache.thread_starting = 0;
 	tuxtxt_cache.vtxtpid = -1;
 	tuxtxt_cache.thread_id = 0;
-	tuxtxt_cache.dmx = -1;
 	/* not sure if this is correct here... */
 	tuxtxt_cache.page = 0x100;
 	return 1;//tuxtxt_init_demuxer();
@@ -82,11 +79,6 @@ void tuxtxt_close()
 	printf ("libtuxtxt: cleaning up\n");
 #endif
 	tuxtxt_stop();
-#if 0
-	if (tuxtxt_cache.dmx != -1)
-		close(tuxtxt_cache.dmx);
-#endif
-	tuxtxt_cache.dmx = -1;
 	tuxtxt_clear_cache();
 	tuxtxt_initialized=0;
 }

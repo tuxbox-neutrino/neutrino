@@ -362,7 +362,7 @@ printf("CSubtitleChangeExec::exec: TTX, pid %x page %x lang %s\n", pid, page, pt
 		tuxtx_stop_subtitle();
 		tuxtx_set_pid(pid, page, ptr);
 		dvbsub_stop();
-		tuxtx_main(g_RCInput->getFileHandle(), pid, page);
+		tuxtx_main(pid, page);
 	}
         return menu_return::RETURN_EXIT;
 }

@@ -262,6 +262,7 @@ int CFbAccelCSHD2::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int 
 		return -1;
 	}
 	stride = _fix.line_length;
+	swidth = stride / sizeof(fb_pixel_t);
 	if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0)
 		printf(LOGTAG "screen unblanking failed\n");
 	xRes = screeninfo.xres;
@@ -281,7 +282,7 @@ max res 1920x1080
 	int needmem = stride * yRes * 2;
 	if (available >= needmem)
 	{
-		backbuffer = lfb + stride / sizeof(fb_pixel_t) * yRes;
+		backbuffer = lfb + swidth * yRes;
 		return 0;
 	}
 	fprintf(stderr, LOGTAG "not enough FB memory (have %d, need %d)\n", available, needmem);
