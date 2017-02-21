@@ -1617,9 +1617,9 @@ void CFrameBuffer::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, u
 		return;
 	}
 
-	dst_p = toBuf + dst_y*stride/sizeof(fb_pixel_t);
-	src_p = fromBuf + src_y*stride/sizeof(fb_pixel_t);
-	if ((w_ == xRes) && (stride == (xRes*sizeof(fb_pixel_t)))) {	/* copy full width */
+	dst_p = toBuf + dst_y*swidth;
+	src_p = fromBuf + src_y*swidth;
+	if ((w_ == xRes) && (swidth == xRes)) {		/* copy full width */
 	//printf(">>>>> [%s:%d] copy full width - dst_p: %p, src_p: %p\n", __func__, __LINE__, dst_p, src_p);
 		memcpy(dst_p, src_p, w_*h_*sizeof(fb_pixel_t));
 	}
@@ -1628,8 +1628,8 @@ void CFrameBuffer::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, u
 		uint32_t wMem = w_*sizeof(fb_pixel_t);
 		for (i = 0; i < h_; i++) {
 			memcpy(dst_p+dst_x, src_p+src_x, wMem);
-			dst_p += stride/sizeof(fb_pixel_t);
-			src_p += stride/sizeof(fb_pixel_t);
+			dst_p += swidth;
+			src_p += swidth;
 		}
 	}
 }
