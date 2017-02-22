@@ -1344,7 +1344,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				uint32_t trkey = translate(ev.code);
-				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
+				d_printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 				if (trkey == RC_nokey)
 					continue;
 
