@@ -1822,7 +1822,11 @@ void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 	}
 	int fd = -1;
 	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
-		if ((*it).path == "/dev/input/nevis_ir") {
+		if (((*it).path == "/dev/input/nevis_ir")
+#ifdef BOXMODEL_CS_HD2
+		    || ((*it).path == "/dev/input/input0")
+#endif
+		){
 			fd = (*it).fd;
 			break;
 		}
