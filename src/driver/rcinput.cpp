@@ -205,12 +205,23 @@ void CRCInput::open(bool recheck)
 
 	while ((dentry = readdir(dir)) != NULL)
 	{
-		if (dentry->d_type != DT_CHR) {
+		id.path = "/dev/input/" + std::string(dentry->d_name);
+		/* hack: on hd2, the device is called "/dev/cs_ir",
+		   there are links in /dev/input: pointing to it nevis_ir and event0 (WTF???)
+		   so if nevis_ir points to cs_ir, accept it, even though it is a symlink...
+		   the rest of the code then uses coolstream specific parts if path == "nevis_ir"
+		   a better solution would be to simply mknod /dev/input/nevis_ir c 240 0, creating
+		   a second instance of /dev/cs_ir named /dv/input/nevis_ir (or to fix the driver
+		   to actually create a real input device */
+		if (dentry->d_type == DT_LNK &&
+		    id.path == "/dev/input/nevis_ir") {
+			if (readLink(id.path) != "/dev/cs_ir")
+				continue;
+		} else if (dentry->d_type != DT_CHR) {
 			d_printf("[rcinput:%s] skipping '%s'\n", __func__, dentry->d_name);
 			continue;
 		}
 		d_printf("[rcinput:%s] considering '%s'\n", __func__, dentry->d_name);
-		id.path = "/dev/input/" + std::string(dentry->d_name);
 		if (checkpath(id))
 			continue;
 		id.fd = ::open(id.path.c_str(), O_RDWR|O_NONBLOCK|O_CLOEXEC);
