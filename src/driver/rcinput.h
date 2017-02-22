@@ -171,7 +171,7 @@ class CRCInput
 		bool checkpath(in_dev id);
 		bool checkdev();
 #ifdef BOXMODEL_CS_HD2
-		bool checkLnkDev(std::string lnk);
+		bool checkdev_lnk(std::string lnk);
 #endif
 		void close();
 		int translate(int code);
