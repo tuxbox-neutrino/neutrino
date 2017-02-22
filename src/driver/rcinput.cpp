@@ -1382,9 +1382,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				uint32_t trkey = translate(ev.code);
-#ifdef _DEBUG
-				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
-#endif
+				d_printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 				if (trkey == RC_nokey)
 					continue;
 
@@ -1418,9 +1416,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				if (ev.value) {
-#ifdef RCDEBUG
-					printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
-#endif
+					d_printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
 					bool keyok = true;
 #if 0
 					uint64_t now_pressed;
