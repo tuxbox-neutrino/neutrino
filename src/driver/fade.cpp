@@ -55,11 +55,7 @@ void COSDFader::StartFadeIn()
 	fadeIn = true;
 	fadeOut = false;
 	fadeValue = 100;
-#ifdef BOXMODEL_CS_HD2
-	frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_UNIFORM_ALPHA); // Global alpha multiplied with pixel alpha
-#else
 	frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-#endif
 
 	frameBuffer->setBlendLevel(fadeValue);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_CS_HD2))
@@ -79,11 +75,7 @@ bool COSDFader::StartFadeOut()
 	if ((!fadeOut) && g_settings.widget_fade) {
 		fadeOut = true;
 		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
-#ifdef BOXMODEL_CS_HD2
-		frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_UNIFORM_ALPHA); // Global alpha multiplied with pixel alpha
-#else
 		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-#endif
 		ret = true;
 	}
 	return ret;
@@ -93,11 +85,7 @@ void COSDFader::StopFade()
 {
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
-#ifdef BOXMODEL_CS_HD2
-		frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
-#else
 		frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
-#endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_CS_HD2))
 		usleep(60000);
 #endif
@@ -124,11 +112,7 @@ bool COSDFader::FadeDone()
 			fadeValue = max_alpha;
 			g_RCInput->killTimer (fadeTimer);
 			fadeIn = false;
-#ifdef BOXMODEL_CS_HD2
-			frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
-#else
 			frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
-#endif
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_CS_HD2))
 			usleep(60000);
 #endif
