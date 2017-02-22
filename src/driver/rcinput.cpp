@@ -1775,7 +1775,7 @@ void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 		std::string path = (*it).path;
 		if (path == "/tmp/neutrino.input")
 			continue; /* setting repeat rate does not work here */
-#ifdef HAVE_COOL_HARDWARE
+#ifdef BOXMODEL_CS_HD1
 		/* this is ugly, but the driver does not support anything advanced... */
 		if (path == "/dev/input/nevis_ir") {
 			d_printf("[rcinput:%s] %s(fd %d) using proprietary ioctl\n", __func__, path.c_str(), fd);
