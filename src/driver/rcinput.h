@@ -115,8 +115,8 @@
 */
 
 
-typedef uint32_t neutrino_msg_t;
-typedef uint32_t neutrino_msg_data_t;
+typedef unsigned long neutrino_msg_t;
+typedef unsigned long neutrino_msg_data_t;
 
 #define NEUTRINO_UDS_NAME "/tmp/neutrino.sock"
 
@@ -147,7 +147,11 @@ class CRCInput
 		int 		fd_pipe_high_priority[2];
 		int 		fd_pipe_low_priority[2];
 		int         	fd_gamerc;
+#ifdef HAVE_SPARK_HARDWARE
+#define NUMBER_OF_EVENT_DEVICES 2
+#else
 #define NUMBER_OF_EVENT_DEVICES 1
+#endif
 		int         	fd_rc[NUMBER_OF_EVENT_DEVICES];
 		int		fd_keyb;
 		int		fd_event;

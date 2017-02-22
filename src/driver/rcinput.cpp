@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
                       2003 thegoodguy
 
-	Copyright (C) 2008-2012 Stefan Seyfried
+	Copyright (C) 2008-2014,2016 Stefan Seyfried
 	Copyright (C) 2013-2014 martii
 
 	License: GPL
@@ -65,7 +65,17 @@
 
 #define ENABLE_REPEAT_CHECK
 
+#if HAVE_SPARK_HARDWARE
+/* this relies on event0 being the AOTOM frontpanel driver device
+ * TODO: what if another input device is present? */
+const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
+#elif HAVE_GENERIC_HARDWARE
+/* the FIFO created by libstb-hal */
+const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/tmp/neutrino.input"};
+#else
+//const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir"};
+#endif
 typedef struct input_event t_input_event;
 
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
@@ -535,7 +545,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	//static __u16 rc_last_key =  KEY_MAX;
 	static __u16 rc_last_repeat_key =  KEY_MAX;
 
-	struct timeval tv;
 	struct timeval tvselect;
 	uint64_t InitialTimeout = Timeout;
 	int64_t targetTimeout;
@@ -559,7 +568,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	uint64_t getKeyBegin = time_monotonic_us();
 
 	while(1) {
-		/* we later check for ev.type = EV_SYN which is 0x00, so set something invalid here... */
 		timer_id = 0;
 		if ( !timers.empty() )
 		{
@@ -1228,7 +1236,11 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 
 		for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++) {
 			if ((fd_rc[i] != -1) && (FD_ISSET(fd_rc[i], &rfds))) {
+				uint64_t now_pressed = 0;
 				t_input_event ev;
+				memset(&ev, 0, sizeof(ev));
+				/* we later check for ev.type = EV_SYN = 0x00, so set something invalid here... */
+				ev.type = EV_MAX;
 				int ret = read(fd_rc[i], &ev, sizeof(t_input_event));
 				if (ret != sizeof(t_input_event)) {
 					if (errno == ENODEV) {
@@ -1240,6 +1252,22 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
+				if (ev.value) {
+					/* try to compensate for possible changes in wall clock
+					 * kernel ev.time default uses CLOCK_REALTIME, as does gettimeofday().
+					 * so subtract gettimeofday() from ev.time and then add
+					 * CLOCK_MONOTONIC, which is supposed to not change with settimeofday.
+					 * Everything would be much easier if we could use the post-kernel 3.4
+					 * EVIOCSCLOCKID ioctl :-) */
+					struct timespec t1;
+					now_pressed = ev.time.tv_usec + ev.time.tv_sec * 1000000ULL;
+					if (!clock_gettime(CLOCK_MONOTONIC, &t1)) {
+						struct timeval t2;
+						gettimeofday(&t2, NULL);
+						now_pressed += t1.tv_sec * 1000000ULL + t1.tv_nsec / 1000;
+						now_pressed -= (t2.tv_usec + t2.tv_sec * 1000000ULL);
+					}
+				}
 				SHTDCNT::getInstance()->resetSleepTimer();
 				if (ev.value && firstKey) {
 					firstKey = false;
@@ -1247,8 +1275,8 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				uint32_t trkey = translate(ev.code);
-#ifdef DEBUG
-				printf("%d key: %04x value %d, translate: %04x -%s-\n", ev.value, ev.code, ev.value, trkey, getKeyName(trkey).c_str());
+#ifdef _DEBUG
+				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 #endif
 				if (trkey == RC_nokey)
 					continue;
@@ -1286,15 +1314,22 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 #ifdef RCDEBUG
 					printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
 #endif
-					uint64_t now_pressed;
 					bool keyok = true;
-
+#if 0
+					uint64_t now_pressed;
 					tv = ev.time;
 					now_pressed = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
+#endif
 					if (trkey == rc_last_key) {
 						/* only allow selected keys to be repeated */
 						if (mayRepeat(trkey, bAllowRepeatLR) ||
-						    (g_settings.shutdown_real_rcdelay && ((trkey == RC_standby) && (cs_get_revision() > 7))) )
+						    (g_settings.shutdown_real_rcdelay &&
+						    ((trkey == RC_standby) &&
+#if HAVE_COOL_HARDWARE
+						    (cs_get_revision() > 7))))
+#else
+						    (g_info.hw_caps->can_shutdown))))
+#endif
 						{
 #ifdef ENABLE_REPEAT_CHECK
 							if (rc_last_repeat_key != trkey) {
@@ -1613,6 +1648,16 @@ int CRCInput::translate(int code)
 			return RC_up;
 		case 0x101: // FIXME -- needed?
 			return RC_down;
+#ifdef HAVE_AZBOX_HARDWARE
+		case KEY_HOME:
+			return RC_favorites;
+		case KEY_TV:
+			return RC_stop;
+		case KEY_RADIO:
+			return RC_record;
+		case KEY_PLAY:
+			return RC_pause;
+#endif
 		default:
 			break;
 	}
