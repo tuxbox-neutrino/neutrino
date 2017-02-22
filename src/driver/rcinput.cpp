@@ -174,49 +174,9 @@ bool CRCInput::checkdev()
 	return true; /* need to check anyway... */
 }
 
-#ifdef BOXMODEL_CS_HD2
-bool CRCInput::checkdev_lnk(std::string lnk)
-{
-	static struct stat info;
-	if (lstat(lnk.c_str(), &info) != -1) {
-		if (S_ISLNK(info.st_mode)) {
-			std::string tmp = readLink(lnk);
-			if (!tmp.empty()) {
-				if (lstat(tmp.c_str(), &info) != -1) {
-					if (S_ISCHR(info.st_mode))
-						return true;
-				}
-			}
-		}
-	}
-	return false;
-}
-#endif
-
 bool CRCInput::checkpath(in_dev id)
 {
 	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
-#ifdef BOXMODEL_CS_HD2
-		if ((id.type == DT_LNK) || ((*it).type == DT_LNK)) {
-			std::string check1, check2;
-			if (id.type == DT_LNK)
-				check1 = readLink(id.path);
-			else
-				check1 = id.path;
-
-			if ((*it).type == DT_LNK)
-				check2 = readLink((*it).path);
-			else
-				check2 = (*it).path;
-
-			if ((!check1.empty()) && (!check2.empty()) && (check1 == check2)) {
-				printf("[rcinput:%s] skipping already opened %s => %s\n", __func__, id.path.c_str(), check1.c_str());
-				return true;
-			}
-			else
-				return false;
-		}
-#endif
 		if ((*it).path == id.path) {
 			printf("[rcinput:%s] skipping already opened %s\n", __func__, id.path.c_str());
 			return true;
@@ -245,21 +205,10 @@ void CRCInput::open(bool recheck)
 
 	while ((dentry = readdir(dir)) != NULL)
 	{
-		if ((dentry->d_type != DT_CHR)
-#ifdef BOXMODEL_CS_HD2
-		&& (dentry->d_type != DT_LNK)
-#endif
-		) {
+		if (dentry->d_type != DT_CHR) {
 			d_printf("[rcinput:%s] skipping '%s'\n", __func__, dentry->d_name);
 			continue;
 		}
-#ifdef BOXMODEL_CS_HD2
-		if ((dentry->d_type == DT_LNK) && (!checkdev_lnk("/dev/input/" + std::string(dentry->d_name)))) {
-			d_printf("[rcinput:%s] skipping '%s'\n", __func__, dentry->d_name);
-			continue;
-		}
-		id.type = dentry->d_type;
-#endif
 		d_printf("[rcinput:%s] considering '%s'\n", __func__, dentry->d_name);
 		id.path = "/dev/input/" + std::string(dentry->d_name);
 		if (checkpath(id))
