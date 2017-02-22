@@ -219,7 +219,7 @@ int main (int argc, char **argv){
 #if defined (EVENTDEV)
 	evd=open (EVENTDEV,O_RDWR);
 	if (evd<0){
-		perror ("opening event0 failed");
+		perror ("opening " EVENTDEV " failed");
 		return 1;
 	}
 #else
