@@ -174,6 +174,25 @@ bool CRCInput::checkdev()
 	return true; /* need to check anyway... */
 }
 
+#ifdef BOXMODEL_CS_HD2
+bool CRCInput::checkdev_lnk(std::string lnk)
+{
+	static struct stat info;
+	if (lstat(lnk.c_str(), &info) != -1) {
+		if (S_ISLNK(info.st_mode)) {
+			std::string tmp = readLink(lnk);
+			if (!tmp.empty()) {
+				if (lstat(tmp.c_str(), &info) != -1) {
+					if (S_ISCHR(info.st_mode))
+						return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+#endif
+
 bool CRCInput::checkpath(in_dev id)
 {
 	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
@@ -206,25 +225,6 @@ bool CRCInput::checkpath(in_dev id)
 	return false;
 }
 
-#ifdef BOXMODEL_CS_HD2
-bool CRCInput::checkLnkDev(std::string lnk)
-{
-	static struct stat info;
-	if (lstat(lnk.c_str(), &info) != -1) {
-		if (S_ISLNK(info.st_mode)) {
-			std::string tmp = readLink(lnk);
-			if (!tmp.empty()) {
-				if (lstat(tmp.c_str(), &info) != -1) {
-					if (S_ISCHR(info.st_mode))
-						return true;
-				}
-			}
-		}
-	}
-	return false;
-}
-#endif
-
 /* if recheck == true, only not already opened devices are opened, if not, close then (re)open all */
 void CRCInput::open(bool recheck)
 {
@@ -249,13 +249,12 @@ void CRCInput::open(bool recheck)
 #ifdef BOXMODEL_CS_HD2
 		&& (dentry->d_type != DT_LNK)
 #endif
-
 		) {
 			d_printf("[rcinput:%s] skipping '%s'\n", __func__, dentry->d_name);
 			continue;
 		}
 #ifdef BOXMODEL_CS_HD2
-		if ((dentry->d_type == DT_LNK) && (!checkLnkDev("/dev/input/" + std::string(dentry->d_name)))) {
+		if ((dentry->d_type == DT_LNK) && (!checkdev_lnk("/dev/input/" + std::string(dentry->d_name)))) {
 			d_printf("[rcinput:%s] skipping '%s'\n", __func__, dentry->d_name);
 			continue;
 		}
@@ -574,8 +573,6 @@ int CRCInput::checkTimers()
 //printf("checkTimers: return %d\n", _id);
 	return _id;
 }
-
-
 
 int64_t CRCInput::calcTimeoutEnd(const int timeout_in_seconds)
 {
@@ -1385,9 +1382,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				uint32_t trkey = translate(ev.code);
-#ifdef _DEBUG
-				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
-#endif
+				d_printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 				if (trkey == RC_nokey)
 					continue;
 
@@ -1421,9 +1416,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				if (ev.value) {
-#ifdef RCDEBUG
-					printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
-#endif
+					d_printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
 					bool keyok = true;
 #if 0
 					uint64_t now_pressed;
@@ -1433,13 +1426,13 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					if (trkey == rc_last_key) {
 						/* only allow selected keys to be repeated */
 						if (mayRepeat(trkey, bAllowRepeatLR) ||
-						    (g_settings.shutdown_real_rcdelay &&
-						    ((trkey == RC_standby) &&
+						    (g_settings.shutdown_real_rcdelay && ((trkey == RC_standby) &&
 #if HAVE_COOL_HARDWARE
-						    (cs_get_revision() > 7))))
+						    (cs_get_revision() > 7)
 #else
-						    (g_info.hw_caps->can_shutdown))))
+						    (g_info.hw_caps->can_shutdown)
 #endif
+						)))
 						{
 #ifdef ENABLE_REPEAT_CHECK
 							if (rc_last_repeat_key != trkey) {
@@ -1782,7 +1775,7 @@ void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 		std::string path = (*it).path;
 		if (path == "/tmp/neutrino.input")
 			continue; /* setting repeat rate does not work here */
-#ifdef HAVE_COOL_HARDWARE
+#ifdef BOXMODEL_CS_HD1
 		/* this is ugly, but the driver does not support anything advanced... */
 		if (path == "/dev/input/nevis_ir") {
 			d_printf("[rcinput:%s] %s(fd %d) using proprietary ioctl\n", __func__, path.c_str(), fd);
