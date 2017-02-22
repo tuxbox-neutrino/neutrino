@@ -278,7 +278,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	success = false;
 
 	if(!manual) {
-		g_RCInput->close_click();
                 if (my_system(NEUTRINO_SCAN_START_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_START_SCRIPT " failed");
 	}
@@ -344,7 +343,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(!manual) {
                 if (my_system(NEUTRINO_SCAN_STOP_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_STOP_SCRIPT " failed");
-		g_RCInput->open_click();
 	}
 	if(!test) {
 		CComponentsHeaderLocalized header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
@@ -386,7 +384,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_NUM_TRANSPONDERS:
-			sprintf(buffer, "%u", data);
+			sprintf(buffer, "%ld", data);
 			paintLine(xpos2, ypos_transponder, w - (8*fw), buffer);
 			total = data;
 			snprintf(str, sizeof(buffer), "scan: %d/%d", done, total);
@@ -426,22 +424,22 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_NUM_CHANNELS:
-			sprintf(buffer, " = %u", data);
+			sprintf(buffer, " = %ld", data);
 			paintLine(xpos1 + 3 * (6*fw), ypos_service_numbers + mheight, width - 3 * (6*fw) - 10, buffer);
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_FOUND_TV_CHAN:
-			sprintf(buffer, "%u", data);
+			sprintf(buffer, "%ld", data);
 			paintLine(xpos1, ypos_service_numbers + mheight, (6*fw), buffer);
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_FOUND_RADIO_CHAN:
-			sprintf(buffer, "%u", data);
+			sprintf(buffer, "%ld", data);
 			paintLine(xpos1 + (6*fw), ypos_service_numbers + mheight, (6*fw), buffer);
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_FOUND_DATA_CHAN:
-			sprintf(buffer, "%u", data);
+			sprintf(buffer, "%ld", data);
 			paintLine(xpos1 + 2 * (6*fw), ypos_service_numbers + mheight, (6*fw), buffer);
 			break;
 

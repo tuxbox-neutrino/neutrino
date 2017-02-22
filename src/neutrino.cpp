@@ -2492,7 +2492,7 @@ void CNeutrinoApp::RealRun()
 				m_idletime = time(NULL);
 				if (m_screensaver)
 				{
-					printf("[neutrino] CSreenSaver stop; msg: %X\n", msg);
+					printf("[neutrino] CScreenSaver stop; msg: %lX\n", msg);
 					screensaver(false);
 
 					frameBuffer->stopFrame();
@@ -3509,7 +3509,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
-		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %d rezap %d\n", data & mode_mask, (data & norezap) != norezap);
+		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %d rezap %d\n", (int)(data & mode_mask), (data & norezap) != norezap);
 		if((data & mode_mask)== mode_radio) {
 			if( mode != mode_radio ) {
 				radioMode((data & norezap) != norezap);
@@ -4474,7 +4474,6 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	/* options */
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
-	g_settings.key_click = tconfig.getInt32( "key_click", 1 );
 	g_settings.repeat_blocker = tconfig.getInt32("repeat_blocker", 150);
 	g_settings.repeat_genericblocker = tconfig.getInt32("repeat_genericblocker", 100);
 	g_settings.longkeypress_duration = tconfig.getInt32("longkeypress_duration", LONGKEYPRESS_OFF);
@@ -4557,7 +4556,6 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_pic_size_active", g_settings.key_pic_size_active );
 
 	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
-	tconfig.setInt32( "key_click", g_settings.key_click );
 	tconfig.setInt32( "repeat_blocker", g_settings.repeat_blocker );
 	tconfig.setInt32( "repeat_genericblocker", g_settings.repeat_genericblocker );
 	tconfig.setInt32( "longkeypress_duration", g_settings.longkeypress_duration );

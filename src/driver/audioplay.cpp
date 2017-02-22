@@ -90,7 +90,6 @@ void* CAudioPlayer::PlayThread( void* /*dummy*/ )
 {
 	int soundfd = -1;
 	set_threadname("audio:play");
-	g_RCInput->close_click();
 	/* Decode stdin to stdout. */
 	CBaseDec::RetCode Status =
 		CBaseDec::DecoderBase( &getInstance()->m_Audiofile, soundfd,
@@ -108,8 +107,6 @@ void* CAudioPlayer::PlayThread( void* /*dummy*/ )
 				( Status == CBaseDec::INTERNAL_ERR ) ? "INTERNAL_ERR" :
 				"unknown" );
 	}
-
-	g_RCInput->open_click();
 
 	getInstance()->state = CBaseDec::STOP;
 	pthread_exit(0);
