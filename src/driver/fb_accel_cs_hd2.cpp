@@ -241,7 +241,10 @@ fb_pixel_t * CFbAccelCSHD2::getBackBufferPointer() const
 
 void CFbAccelCSHD2::setBlendMode(uint8_t mode)
 {
-	if (ioctl(fd, FBIO_SETBLENDMODE, mode))
+	uint8_t arg = CNXTFB_BLEND_MODE_PER_PIXEL;
+	if (mode == 2)
+		arg = CNXTFB_BLEND_MODE_UNIFORM_ALPHA;
+	if (ioctl(fd, FBIO_SETBLENDMODE, arg))
 		printf("FBIO_SETBLENDMODE failed.\n");
 }
 
