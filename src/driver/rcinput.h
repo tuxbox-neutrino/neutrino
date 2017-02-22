@@ -145,6 +145,9 @@ class CRCInput
 		{
 			int fd;
 			std::string path;
+#ifdef BOXMODEL_CS_HD2
+			int type;
+#endif
 		};
 
 		uint32_t               timerid;
@@ -167,6 +170,9 @@ class CRCInput
 		void open(bool recheck = false);
 		bool checkpath(in_dev id);
 		bool checkdev();
+#ifdef BOXMODEL_CS_HD2
+		bool checkLnkDev(std::string lnk);
+#endif
 		void close();
 		int translate(int code);
 		void calculateMaxFd(void);

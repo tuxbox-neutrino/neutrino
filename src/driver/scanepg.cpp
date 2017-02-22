@@ -160,7 +160,7 @@ bool CEpgScan::AddSelected()
 
 void CEpgScan::AddTransponders()
 {
-	if(bouquetList->Bouquets.empty())
+	if(!bouquetList || bouquetList->Bouquets.empty())
 		return;
 
 	if (current_mode != g_settings.epg_scan) {

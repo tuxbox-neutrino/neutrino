@@ -2466,7 +2466,7 @@ void CNeutrinoApp::RealRun()
 				m_idletime = time(NULL);
 				if (m_screensaver)
 				{
-					printf("[neutrino] CSreenSaver stop; msg: %lX\n", msg);
+					printf("[neutrino] CScreenSaver stop; msg: %lX\n", msg);
 					screensaver(false);
 
 					frameBuffer->stopFrame();

@@ -1578,6 +1578,62 @@ void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, uns
 	return int_convertRGB2FB(rgbbuff, x, y, 0, true);
 }
 
+void CFrameBuffer::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, uint32_t dst_y, uint32_t src_x, uint32_t src_y)
+{
+	uint32_t  w_, h_, i;
+	fb_pixel_t *fromBuf = NULL, *toBuf = NULL;
+	fb_pixel_t *dst_p, *src_p;
+	fb_pixel_t * fbp = getFrameBufferPointer();
+	fb_pixel_t * bbp = getBackBufferPointer();
+	w_ = (width > xRes) ? xRes : width;
+	h_ = (height > yRes) ? yRes : height;
+
+	if ((src_y < yRes) && (dst_y < yRes)) {		/* copy within framebuffer */
+		fromBuf = fbp;
+		toBuf   = fbp;
+	}
+	else if ((src_y >= yRes) && (dst_y >= yRes)) {	/* copy within backbuffer */
+		fromBuf = bbp;
+		toBuf   = bbp;
+		dst_y  -= yRes;
+		src_y  -= yRes;
+	}
+	else if (src_y >= yRes) {			/* copy backbuffer => framebuffer */
+		fromBuf = bbp;
+		toBuf   = fbp;
+		src_y  -= yRes;
+	}
+	else if (dst_y >= yRes) {			/* copy framebuffer => backbuffer */
+		fromBuf = fbp;
+		toBuf   = bbp;
+		dst_y  -= yRes;
+	}
+	if ((fromBuf == NULL) || (toBuf == NULL)) {
+	//printf(">>>>> [%s:%d] buff = NULL\n", __func__, __LINE__);
+		return;
+	}
+	if ((src_x == dst_x) && (src_y == dst_y) && (fromBuf == toBuf)) {	/* self copy? */
+	//printf(">>>>> [%s:%d] self copy?\n", __func__, __LINE__);
+		return;
+	}
+
+	dst_p = toBuf + dst_y*swidth;
+	src_p = fromBuf + src_y*swidth;
+	if ((w_ == xRes) && (swidth == xRes)) {		/* copy full width */
+	//printf(">>>>> [%s:%d] copy full width - dst_p: %p, src_p: %p\n", __func__, __LINE__, dst_p, src_p);
+		memcpy(dst_p, src_p, w_*h_*sizeof(fb_pixel_t));
+	}
+	else {						/* copy all other */
+	//printf(">>>>> [%s:%d] copy all other - dst_p: %p, src_p: %p\n", __func__, __LINE__, dst_p, src_p);
+		uint32_t wMem = w_*sizeof(fb_pixel_t);
+		for (i = 0; i < h_; i++) {
+			memcpy(dst_p+dst_x, src_p+src_x, wMem);
+			dst_p += swidth;
+			src_p += swidth;
+		}
+	}
+}
+
 void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool /*transp*/)
 {
 	int  xc, yc;
