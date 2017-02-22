@@ -885,8 +885,8 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 #if 0
 	int evd = open(EVENTDEV, O_RDWR);
 	if (evd < 0) {
+		perror("opening " EVENTDEV " failed");
 		hh->SendError();
-		perror("opening event0 failed");
 		return;
 	}
 	if (rc_send(evd, sendcode, KEY_PRESSED) < 0) {
@@ -897,8 +897,8 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 	}
 	if (rc_send(evd, sendcode, KEY_RELEASED) < 0) {
 		perror("writing 'KEY_RELEASED' event failed");
-		close(evd);
 		hh->SendError();
+		close(evd);
 		return;
 	}
 	close(evd);

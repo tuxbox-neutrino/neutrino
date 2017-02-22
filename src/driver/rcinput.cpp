@@ -1344,9 +1344,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				uint32_t trkey = translate(ev.code);
-#ifdef _DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
-#endif
 				if (trkey == RC_nokey)
 					continue;
 
@@ -1380,9 +1378,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				if (ev.value) {
-#ifdef RCDEBUG
-					printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
-#endif
+					d_printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
 					bool keyok = true;
 #if 0
 					uint64_t now_pressed;
@@ -1735,7 +1731,7 @@ void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 		std::string path = (*it).path;
 		if (path == "/tmp/neutrino.input")
 			continue; /* setting repeat rate does not work here */
-#ifdef HAVE_COOL_HARDWARE
+#ifdef BOXMODEL_CS_HD1
 		/* this is ugly, but the driver does not support anything advanced... */
 		if (path == "/dev/input/nevis_ir") {
 			d_printf("[rcinput:%s] %s(fd %d) using proprietary ioctl\n", __func__, path.c_str(), fd);
