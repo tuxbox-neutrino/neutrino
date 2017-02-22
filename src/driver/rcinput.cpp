@@ -209,10 +209,11 @@ void CRCInput::open(bool recheck)
 		/* hack: on hd2, the device is called "/dev/cs_ir",
 		   there are links in /dev/input: pointing to it nevis_ir and event0 (WTF???)
 		   so if nevis_ir points to cs_ir, accept it, even though it is a symlink...
-		   the rest of the code then uses coolstream specific parts if path == "nevis_ir"
 		   a better solution would be to simply mknod /dev/input/nevis_ir c 240 0, creating
-		   a second instance of /dev/cs_ir named /dv/input/nevis_ir (or to fix the driver
-		   to actually create a real input device */
+		   a second instance of /dev/cs_ir named /dev/input/nevis_ir (or to fix the driver
+		   to actually create a real event0 device via udev)
+		   Note: i'm deliberately not using event0, because this might be replaced by a "real"
+		   event0 device if e.g. an USB keyboard is plugged in*/
 		if (dentry->d_type == DT_LNK &&
 		    id.path == "/dev/input/nevis_ir") {
 			if (readLink(id.path) != "/dev/cs_ir")
