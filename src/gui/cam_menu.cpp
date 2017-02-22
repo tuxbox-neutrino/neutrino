@@ -502,7 +502,7 @@ int CCAMMenuHandler::doMenu(int slot, CA_SLOT_TYPE slotType)
 				g_Locale->getText(slotType == CA_SLOT_TYPE_CI ? LOCALE_CI_WAITING : LOCALE_SC_WAITING));
 
 			g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
-			printf("CCAMMenuHandler::doMenu: msg %x data %x\n", msg, data);
+			printf("CCAMMenuHandler::doMenu: msg %lx data %lx\n", msg, data);
 			if (msg == CRCInput::RC_timeout) {
 				printf("CCAMMenuHandler::doMenu: menu timeout\n");
 				hideHintBox();

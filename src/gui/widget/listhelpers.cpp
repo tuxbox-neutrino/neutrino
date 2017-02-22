@@ -33,7 +33,7 @@ static int upDownKey(int size, neutrino_msg_t msg, int lines, int sel)
 		return -1;
 
 	if (msg >= CRCInput::RC_MaxRC) {
-		printf("CListHelpers:%s: invalid key? 0x%X\n", __func__, msg);
+		printf("CListHelpers:%s: invalid key? 0x%lx\n", __func__, msg);
 		return -1;
 	}
 	int key = (int)msg;
@@ -46,7 +46,7 @@ static int upDownKey(int size, neutrino_msg_t msg, int lines, int sel)
 	else if (msg == CRCInput::RC_down)
 		step = 1;
 	else {
-		printf("CListHelpers:%s: invalid key? 0x%X\n", __func__, msg);
+		printf("CListHelpers:%s: invalid key? 0x%lx\n", __func__, msg);
 		return -1;
 	}
 	// printf("CListHelpers:%s: key 0x%04lx lines %d size %d sel %d\n", __func__, msg, lines, size, sel);

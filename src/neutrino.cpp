@@ -2404,7 +2404,7 @@ void CNeutrinoApp::RealRun()
 				m_idletime = time(NULL);
 				if (m_screensaver)
 				{
-					printf("[neutrino] CSreenSaver stop; msg: %X\n", msg);
+					printf("[neutrino] CScreenSaver stop; msg: %lX\n", msg);
 					screensaver(false);
 
 					frameBuffer->stopFrame();
@@ -3421,7 +3421,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
-		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %d rezap %d\n", data & mode_mask, (data & norezap) != norezap);
+		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %d rezap %d\n", (int)(data & mode_mask), (data & norezap) != norezap);
 		if((data & mode_mask)== mode_radio) {
 			if( mode != mode_radio ) {
 				radioMode((data & norezap) != norezap);
