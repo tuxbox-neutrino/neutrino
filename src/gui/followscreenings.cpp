@@ -152,10 +152,13 @@ void CFollowScreenings::show()
 
 	getFollowScreenings();
 
-	if (followlist.size() == 1) {
+	if (followlist.size() == 1)
+	{
 		snprintf(actionstr, sizeof(actionstr), "%lu", followlist.front().startTime);
 		exec(NULL, actionstr);
-	} else {
+	}
+	else if (followlist.size() > 1)
+	{
 		CMenuWidget m(LOCALE_EPGVIEWER_SELECT_SCREENING, NEUTRINO_ICON_SETTINGS);
 		const char *icon = NEUTRINO_ICON_BUTTON_RED;
 		neutrino_msg_t directKey = CRCInput::RC_red;
