@@ -3608,7 +3608,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000)) {
-		INFO("###################################### DELETED msg %x data %x\n", msg, data);
+		INFO("###################################### DELETED msg %lX data %lX\n", msg, data);
 		delete [] (unsigned char*) data;
 		return messages_return::handled;
 	}

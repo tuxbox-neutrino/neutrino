@@ -174,49 +174,9 @@ bool CRCInput::checkdev()
 	return true; /* need to check anyway... */
 }
 
-#ifdef BOXMODEL_CS_HD2
-bool CRCInput::checkdev_lnk(std::string lnk)
-{
-	static struct stat info;
-	if (lstat(lnk.c_str(), &info) != -1) {
-		if (S_ISLNK(info.st_mode)) {
-			std::string tmp = readLink(lnk);
-			if (!tmp.empty()) {
-				if (lstat(tmp.c_str(), &info) != -1) {
-					if (S_ISCHR(info.st_mode))
-						return true;
-				}
-			}
-		}
-	}
-	return false;
-}
-#endif
-
 bool CRCInput::checkpath(in_dev id)
 {
 	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
-#ifdef BOXMODEL_CS_HD2
-		if ((id.type == DT_LNK) || ((*it).type == DT_LNK)) {
-			std::string check1, check2;
-			if (id.type == DT_LNK)
-				check1 = readLink(id.path);
-			else
-				check1 = id.path;
-
-			if ((*it).type == DT_LNK)
-				check2 = readLink((*it).path);
-			else
-				check2 = (*it).path;
-
-			if ((!check1.empty()) && (!check2.empty()) && (check1 == check2)) {
-				printf("[rcinput:%s] skipping already opened %s => %s\n", __func__, id.path.c_str(), check1.c_str());
-				return true;
-			}
-			else
-				return false;
-		}
-#endif
 		if ((*it).path == id.path) {
 			printf("[rcinput:%s] skipping already opened %s\n", __func__, id.path.c_str());
 			return true;
@@ -245,23 +205,24 @@ void CRCInput::open(bool recheck)
 
 	while ((dentry = readdir(dir)) != NULL)
 	{
-		if ((dentry->d_type != DT_CHR)
-#ifdef BOXMODEL_CS_HD2
-		&& (dentry->d_type != DT_LNK)
-#endif
-		) {
-			d_printf("[rcinput:%s] skipping '%s'\n", __func__, dentry->d_name);
-			continue;
-		}
-#ifdef BOXMODEL_CS_HD2
-		if ((dentry->d_type == DT_LNK) && (!checkdev_lnk("/dev/input/" + std::string(dentry->d_name)))) {
-			d_printf("[rcinput:%s] skipping '%s'\n", __func__, dentry->d_name);
-			continue;
-		}
-		id.type = dentry->d_type;
-#endif
-		d_printf("[rcinput:%s] considering '%s'\n", __func__, dentry->d_name);
 		id.path = "/dev/input/" + std::string(dentry->d_name);
+		/* hack: on hd2, the device is called "/dev/cs_ir",
+		   there are links in /dev/input: pointing to it nevis_ir and event0 (WTF???)
+		   so if nevis_ir points to cs_ir, accept it, even though it is a symlink...
+		   a better solution would be to simply mknod /dev/input/nevis_ir c 240 0, creating
+		   a second instance of /dev/cs_ir named /dev/input/nevis_ir (or to fix the driver
+		   to actually create a real event0 device via udev)
+		   Note: i'm deliberately not using event0, because this might be replaced by a "real"
+		   event0 device if e.g. an USB keyboard is plugged in*/
+		if (dentry->d_type == DT_LNK &&
+		    id.path == "/dev/input/nevis_ir") {
+			if (readLink(id.path) != "/dev/cs_ir")
+				continue;
+		} else if (dentry->d_type != DT_CHR) {
+			d_printf("[rcinput:%s] skipping '%s'\n", __func__, dentry->d_name);
+			continue;
+		}
+		d_printf("[rcinput:%s] considering '%s'\n", __func__, dentry->d_name);
 		if (checkpath(id))
 			continue;
 		id.fd = ::open(id.path.c_str(), O_RDWR|O_NONBLOCK|O_CLOEXEC);
@@ -1382,7 +1343,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 
 				uint32_t trkey = translate(ev.code);
-				d_printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
+				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 				if (trkey == RC_nokey)
 					continue;
 
@@ -1815,11 +1776,7 @@ void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 	}
 	int fd = -1;
 	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
-		if (((*it).path == "/dev/input/nevis_ir")
-#ifdef BOXMODEL_CS_HD2
-		    || ((*it).path == "/dev/input/input0")
-#endif
-		){
+		if ((*it).path == "/dev/input/nevis_ir") {
 			fd = (*it).fd;
 			break;
 		}
