@@ -79,7 +79,7 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 	if (globalSignal)
 		*globalSignal->connect(mem_fun(*this, &CProgressWindow::showGlobalStatus));
 
-	global_progress = local_progress = 100;
+	global_progress = local_progress = 0;
 
 	showFooter(false);
 
@@ -144,7 +144,9 @@ void CProgressWindow::showStatus(const unsigned int prog, const unsigned int max
 
 void CProgressWindow::showGlobalStatus(const unsigned int prog, const unsigned int max, const string &statusText)
 {
-	if (global_progress == prog)
+	if (!local_bar->isPainted())
+		showLocalStatus(0, 0, statusText); // ensure first paint of local bar on painted global bar at same time
+	if (global_progress == prog && global_bar->isPainted())
 		return;
 	global_progress = prog;
 	initStatus(prog, max, statusText, global_bar);
@@ -156,7 +158,7 @@ void CProgressWindow::showGlobalStatus(const unsigned int prog, const unsigned i
 
 void CProgressWindow::showLocalStatus(const unsigned int prog, const unsigned int max, const string &statusText)
 {
-	if (local_progress == prog)
+	if (local_progress == prog && local_bar->isPainted())
 		return;
 	local_progress = prog;
 	initStatus(prog, max, statusText, local_bar);
