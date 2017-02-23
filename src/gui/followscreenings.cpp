@@ -145,6 +145,9 @@ void CFollowScreenings::updateRightIcon(int ix, time_t start, unsigned int durat
 
 void CFollowScreenings::show()
 {
+	if (channel_id == 0)
+		return;
+
 	char actionstr[32];
 
 	getFollowScreenings();
@@ -177,4 +180,3 @@ void CFollowScreenings::show()
 		m.exec(NULL, "");
 	}
 }
-
