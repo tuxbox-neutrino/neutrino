@@ -315,7 +315,7 @@ int CMsgBox::exec()
 				result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
 				loop = false;
 			}
-			else if (msg == NeutrinoMessages::RECORD_START) {
+			else if (msg == NeutrinoMessages::RECORD_START || msg == NeutrinoMessages::RECORD_STOP) {
 				CNeutrinoApp::getInstance()->handleMsg(msg, data);
 			}
 			//***ignore***
