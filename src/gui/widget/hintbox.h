@@ -32,9 +32,10 @@
 
 #include <gui/components/cc.h>
 
-#define HINTBOX_MIN_WIDTH 320
-#define HINTBOX_MIN_HEIGHT 125
-#define HINTBOX_MAX_HEIGHT 520
+#define HINTBOX_MIN_WIDTH	CFrameBuffer::getInstance()->scale2Res(320)
+#define HINTBOX_MIN_HEIGHT	CFrameBuffer::getInstance()->scale2Res(125)
+#define HINTBOX_MAX_HEIGHT	CFrameBuffer::getInstance()->scale2Res(520)
+
 #define HINTBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_POPUP_MESSAGES]
 #define NO_TIMEOUT 0
 #define DEFAULT_TIMEOUT -1
