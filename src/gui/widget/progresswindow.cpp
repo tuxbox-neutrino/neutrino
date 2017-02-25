@@ -123,8 +123,6 @@ CProgressBar* CProgressWindow::getProgressItem()
 	pBar->setColorFrame(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	addWindowItem(pBar);
 
-	ccw_body->setHeight(y_tmp+OFFSET_INNER_MID);
-
 	return pBar;
 }
 

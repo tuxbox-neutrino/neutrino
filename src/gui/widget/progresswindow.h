@@ -28,8 +28,8 @@
 #include <gui/components/cc.h>
 #include "menue.h"
 
-#define PW_MIN_WIDTH  700
-#define PW_MIN_HEIGHT  100
+#define PW_MIN_WIDTH  50 //%
+#define PW_MIN_HEIGHT  25 //%
 
 class CProgressWindow : public CComponentsWindow, public CMenuTarget
 {
