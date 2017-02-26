@@ -1616,6 +1616,7 @@ int CTimerList::modifyTimer()
 		if (!strlen(timer->recordingDir))
 			strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timer->recordingDir)-1);
 		timer_recordingDir = timer->recordingDir;
+		strncpy(t_old.recordingDir, timer->recordingDir, sizeof(t_old.recordingDir)-1);
 
 		bool recDirEnabled = (g_settings.recording_type == RECORDING_FILE); // obsolete?
 		CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer_recordingDir, this, "rec_dir1", CRCInput::RC_green);
