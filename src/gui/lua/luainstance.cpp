@@ -568,6 +568,7 @@ void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 		{ "saveScreen",             CLuaInstance::saveScreen },
 		{ "restoreScreen",          CLuaInstance::restoreScreen },
 		{ "deleteSavedScreen",      CLuaInstance::deleteSavedScreen },
+		{ "scale2Res",              CLuaInstance::scale2Res },
 
 		/*
 		   lua_misc.cpp
@@ -1181,6 +1182,24 @@ int CLuaInstance::deleteSavedScreen(lua_State *L)
 		}
 	}
 	return 0;
+}
+
+int CLuaInstance::scale2Res(lua_State *L)
+{
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin) return 0;
+
+	int value, ret;
+	value = luaL_checkint(L, 2);
+
+/* Remove this when pu/fb-setmode branch is merged to master */
+#ifdef SCALE2RES_DEFINED
+	ret = CFrameBuffer::getInstance()->scale2Res(value);
+#else
+	ret = value;
+#endif
+	lua_pushinteger(L, ret);
+	return 1;
 }
 
 /* --------------------------------------------------------------- */
