@@ -40,7 +40,7 @@
 #define NO_TIMEOUT 0
 #define DEFAULT_TIMEOUT -1
 //frame around hint container as indent
-#define W_FRAME std::max(HINTBOX_MIN_WIDTH, HINTBOX_MIN_HEIGHT) * 2/100
+#define W_FRAME OFFSET_INNER_MID
 //frame color around hint/message box
 #define HINTBOX_DEFAULT_FRAME_COLOR COL_FRAME
 #define TIMEOUT_BAR_HEIGHT  OFFSET_SHADOW/2
