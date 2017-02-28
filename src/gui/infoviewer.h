@@ -173,8 +173,8 @@ class CInfoViewer
 
 	void	start();
 	void	showEpgInfo();
-	void	showTitle(CZapitChannel * channel, const bool calledFromNumZap = false, int epgpos = 0);
-	void	showTitle(t_channel_id channel_id, const bool calledFromNumZap = false, int epgpos = 0);
+	void	showTitle(CZapitChannel * channel, const bool calledFromNumZap = false, int epgpos = 0, bool forcePaintButtonBar = false);
+	void	showTitle(t_channel_id channel_id, const bool calledFromNumZap = false, int epgpos = 0, bool forcePaintButtonBar = false);
 	void lookAheadEPG(const int ChanNum, const std::string & Channel, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false); //alpha: fix for nvod subchannel update
 	void	killTitle();
 	CSectionsdClient::CurrentNextInfo getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info);

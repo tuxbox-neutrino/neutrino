@@ -458,7 +458,7 @@ void CInfoViewerBB::showBBIcons(const int modus, const std::string & icon)
 	}
 }
 
-void CInfoViewerBB::paintshowButtonBar()
+void CInfoViewerBB::paintshowButtonBar(bool noTimer/*=false*/)
 {
 	if (!is_visible)
 		return;
@@ -466,7 +466,9 @@ void CInfoViewerBB::paintshowButtonBar()
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		tmp_bbButtonInfoText[i] = "";
 	}
-	g_InfoViewer->sec_timer_id = g_RCInput->addTimer(1*1000*1000, false);
+
+	if (!noTimer)
+		g_InfoViewer->sec_timer_id = g_RCInput->addTimer(1*1000*1000, false);
 
 	if (g_settings.infobar_casystem_display < 2)
 		paint_ca_bar();
