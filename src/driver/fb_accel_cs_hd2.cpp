@@ -215,11 +215,13 @@ void CFbAccelCSHD2::setOsdResolutions()
 	res.xRes = 1280;
 	res.yRes = 720;
 	res.bpp  = 32;
+	res.mode = OSDMODE_720;
 	osd_resolutions.push_back(res);
 	if (fullHdAvailable()) {
 		res.xRes = 1920;
 		res.yRes = 1080;
 		res.bpp  = 32;
+		res.mode = OSDMODE_1080;
 		osd_resolutions.push_back(res);
 	}
 }

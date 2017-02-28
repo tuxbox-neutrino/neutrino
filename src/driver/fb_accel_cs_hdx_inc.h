@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <gui/color.h>
+#include <gui/osd_helpers.h>
 #include <system/debug.h>
 
 #include <cs_api.h>

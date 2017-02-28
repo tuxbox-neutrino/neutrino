@@ -44,6 +44,7 @@ typedef struct osd_resolution_t
 	uint32_t yRes;
 	uint32_t xRes;
 	uint32_t bpp;
+	uint32_t mode;
 } osd_resolution_struct_t;
 
 typedef struct gradientData_t
@@ -284,6 +285,7 @@ class CFrameBuffer : public sigc::trackable
 		virtual bool fullHdAvailable() { return false; };
 		virtual void setOsdResolutions();
 		std::vector<osd_resolution_t> osd_resolutions;
+		size_t getIndexOsdResolution(uint32_t mode);
 
 		enum
 			{
