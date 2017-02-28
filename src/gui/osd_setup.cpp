@@ -39,6 +39,7 @@
 #include <neutrino_menue.h>
 
 #include "osd_setup.h"
+#include "osd_helpers.h"
 #include "themes.h"
 #include "screensetup.h"
 #include "osdlang_setup.h"
@@ -1389,6 +1390,12 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_RESOLUTION))
 	{
+		if (frameBuffer->osd_resolutions.empty())
+			return true;
+		osd_menu->hide();
+		uint32_t osd_mode = (uint32_t)*(int*)data;
+		COsdHelpers::getInstance()->changeOsdResolution(osd_mode, osd_mode);
+#if 0
 		if (frameBuffer->fullHdAvailable()) {
 			if (frameBuffer->osd_resolutions.empty())
 				return true;
@@ -1418,6 +1425,7 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 					g_InfoViewer->ResetModules();
 			}
 		}
+#endif
 		return true;
 	}
 #endif
