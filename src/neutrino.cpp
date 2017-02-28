@@ -81,6 +81,7 @@
 #include "gui/infoviewer.h"
 #include "gui/mediaplayer.h"
 #include "gui/movieplayer.h"
+#include "gui/osd_helpers.h"
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
 #include "gui/pictureviewer.h"
@@ -226,6 +227,7 @@ CNeutrinoApp::CNeutrinoApp()
 {
 	standby_pressed_at.tv_sec = 0;
 	osd_resolution_tmp        = -1;
+	frameBufferInitialized    = false;
 
 	frameBuffer = CFrameBuffer::getInstance();
 	frameBuffer->setIconBasePath(ICONSDIR);
@@ -719,6 +721,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//screen configuration
 	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", 0) : osd_resolution_tmp;
+	COsdHelpers::getInstance()->g_settings_osd_resolution_save = g_settings.osd_resolution;
 	g_settings.screen_StartX_crt_0 = configfile.getInt32("screen_StartX_crt_0",   80);
 	g_settings.screen_StartY_crt_0 = configfile.getInt32("screen_StartY_crt_0",   45);
 	g_settings.screen_EndX_crt_0   = configfile.getInt32("screen_EndX_crt_0"  , 1280 - g_settings.screen_StartX_crt_0 - 1);
@@ -1359,7 +1362,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_show_numbers", g_settings.channellist_show_numbers);
 
 	//screen configuration
-	configfile.setInt32("osd_resolution"     , g_settings.osd_resolution);
+	configfile.setInt32("osd_resolution"     , COsdHelpers::getInstance()->g_settings_osd_resolution_save);
 	configfile.setInt32("screen_StartX_lcd_0", g_settings.screen_StartX_lcd_0);
 	configfile.setInt32("screen_StartY_lcd_0", g_settings.screen_StartY_lcd_0);
 	configfile.setInt32("screen_EndX_lcd_0"  , g_settings.screen_EndX_lcd_0);
@@ -1870,6 +1873,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 /**************************************************************************************
 *          CNeutrinoApp -  setup the framebuffer                                      *
 **************************************************************************************/
+
 void CNeutrinoApp::SetupFrameBuffer()
 {
 	frameBuffer->init();
@@ -1898,6 +1902,10 @@ void CNeutrinoApp::SetupFrameBuffer()
 					 frameBuffer->osd_resolutions[ort].yRes,
 					 frameBuffer->osd_resolutions[ort].bpp);
 
+/*
+	setFbMode = 0;
+	COsdHelpers::getInstance()->changeOsdResolution(0, true);
+*/
 #else
 	/* all other hardware ignores setMode parameters */
 	setFbMode = frameBuffer->setMode(0, 0, 0);
@@ -1908,6 +1916,7 @@ void CNeutrinoApp::SetupFrameBuffer()
 		exit(-1);
 	}
 	frameBuffer->Clear();
+	frameBufferInitialized = true;
 }
 
 /**************************************************************************************
@@ -2121,6 +2130,9 @@ int CNeutrinoApp::run(int argc, char **argv)
 TIMER_START();
 	cs_api_init();
 	cs_register_messenger(CSSendMessage);
+#ifdef BOXMODEL_CS_HD2
+	cs_new_auto_videosystem();
+#endif
 
 	g_Locale        = new CLocaleManager;
 
@@ -2178,6 +2190,8 @@ TIMER_START();
 	ZapStart_arg.ci_clock = g_settings.ci_clock;
 	ZapStart_arg.volume = g_settings.current_volume;
 	ZapStart_arg.webtv_xml = &g_settings.webtv_xml;
+
+	ZapStart_arg.osd_resolution = g_settings.osd_resolution;
 
 	CCamManager::getInstance()->SetCITuner(g_settings.ci_tuner);
 	/* create decoders, read channels */
@@ -2968,6 +2982,24 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	if (mode == mode_webtv && msg == NeutrinoMessages::EVT_SUBT_MESSAGE) {
 		CMoviePlayerGui::getInstance(true).showSubtitle(data);
+		return messages_return::handled;
+	}
+	if (msg == NeutrinoMessages::EVT_AUTO_SET_VIDEOSYSTEM) {
+		printf(">>>>>[CNeutrinoApp::%s:%d] Receive EVT_AUTO_SET_VIDEOSYSTEM message\n", __func__, __LINE__);
+		COsdHelpers *coh = COsdHelpers::getInstance();
+		int videoSystem = (int)data;
+		if (coh->getVideoSystem() == videoSystem)
+			return messages_return::handled;
+
+		if (!frameBufferInitialized) {
+			coh->resetOsdResolution(videoSystem);
+			videoDecoder->SetVideoSystem(videoSystem, false);
+			return messages_return::handled;
+		}
+
+		coh->resetOsdResolution(videoSystem);
+		videoDecoder->SetVideoSystem(videoSystem, false);
+		coh->changeOsdResolution(0, true, true);
 		return messages_return::handled;
 	}
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {

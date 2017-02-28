@@ -49,6 +49,7 @@ enum CS_LOG_MODULE {
 // Initialization
 void cs_api_init(void);
 void cs_api_exit(void);
+void cs_new_auto_videosystem();
 
 // Memory helpers
 void *cs_malloc_uncached(size_t size);

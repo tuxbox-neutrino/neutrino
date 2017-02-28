@@ -109,6 +109,7 @@ private:
 	bool				channelList_painted;
 	int				first_mode_found;
 	int				osd_resolution_tmp;
+	bool				frameBufferInitialized;
 
 	void SDT_ReloadChannels();
 	void setupNetwork( bool force= false );

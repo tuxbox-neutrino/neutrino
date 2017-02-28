@@ -190,6 +190,7 @@ private:
 	analog_mode_t		analog_mode_scart;
 	fp_icon			mode_icon;
 	cDemux			*demux;
+	int			current_video_system;
 	//
 	int SelectAutoFormat();
 	void ScalePic();
@@ -244,6 +245,7 @@ public:
 	int Flush(void);
 
 	/* set video_system */
+	int GetVideoSystem();
 	int SetVideoSystem(int video_system, bool remember = true);
 	int SetStreamType(VIDEO_FORMAT type);
 	void SetSyncMode(AVSYNC_TYPE mode);

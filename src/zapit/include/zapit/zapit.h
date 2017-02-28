@@ -42,6 +42,7 @@ typedef struct ZAPIT_start_arg
         t_channel_id startchannelradio_id;
         int uselastchannel;
         int video_mode;
+        uint32_t osd_resolution;
 	int volume;
         int ci_clock;
 	std::list<std::string> *webtv_xml;
