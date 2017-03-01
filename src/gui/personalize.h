@@ -61,7 +61,7 @@
 #include <system/setting_helpers.h>
 
 class CPlugins;
-extern CPlugins       * g_PluginList;    /* neutrino.cpp */
+extern CPlugins       * g_Plugins;    /* neutrino.cpp */
 
 //helper class to enable/disable some items in usermenu setup
 class CUserMenuNotifier : public CChangeObserver

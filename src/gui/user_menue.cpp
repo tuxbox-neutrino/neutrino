@@ -84,7 +84,7 @@
 
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl;	/* neutrino.cpp */
-extern CPlugins * g_PluginList;			/* neutrino.cpp */
+extern CPlugins * g_Plugins;			/* neutrino.cpp */
 extern cVideo * videoDecoder;
 #if !HAVE_SPARK_HARDWARE
 extern CCAMMenuHandler * g_CamHandler;
@@ -326,33 +326,33 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_PLUGIN_TYPES:
 		{
-			unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
+			unsigned int number_of_plugins = (unsigned int) g_Plugins->getNumberOfPlugins();
 			if (!number_of_plugins)
 				continue;
 			for (unsigned int count = 0; count < number_of_plugins; count++)
 			{
 #if 0
-				bool show = g_PluginList->getType(count) == CPlugins::P_TYPE_TOOL ||
-					g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
+				bool show = g_Plugins->getType(count) == CPlugins::P_TYPE_TOOL ||
+					g_Plugins->getType(count) == CPlugins::P_TYPE_LUA;
 #endif
 				bool show = false;
 				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_GAMES])
-					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_GAME;
+					show = show || g_Plugins->getType(count) == CPlugins::P_TYPE_GAME;
 				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_TOOLS])
-					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_TOOL;
+					show = show || g_Plugins->getType(count) == CPlugins::P_TYPE_TOOL;
 				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_SCRIPTS])
-					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_SCRIPT;
+					show = show || g_Plugins->getType(count) == CPlugins::P_TYPE_SCRIPT;
 				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA])
-					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
+					show = show || g_Plugins->getType(count) == CPlugins::P_TYPE_LUA;
 
-				if (show && !g_PluginList->isHidden(count) && (g_PluginList->getIntegration(count) == CPlugins::I_TYPE_DISABLED))
+				if (show && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == CPlugins::I_TYPE_DISABLED))
 				{
 					menu_items++;
-					neutrino_msg_t d_key = g_PluginList->getKey(count);
-					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
+					neutrino_msg_t d_key = g_Plugins->getKey(count);
+					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_Plugins->getKey(count));
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
-					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
+					menu_item = new CMenuForwarder(g_Plugins->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
+					menu_item->setHint(g_Plugins->getHintIcon(count), g_Plugins->getDescription(count));
 
 					menu->addItem(menu_item, false);
 				}
@@ -393,14 +393,14 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_GAMES:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_GAMES, g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME), NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME), "-1", key, icon );
+			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_GAMES, g_Plugins->hasPlugin(CPlugins::P_TYPE_GAME), NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME), "-1", key, icon );
 			menu_item->setHint(NEUTRINO_ICON_HINT_GAMES, LOCALE_MENU_HINT_GAMES);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_SCRIPTS:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_SCRIPTS, g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT), NULL, new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT), "-1", key, icon );
+			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_SCRIPTS, g_Plugins->hasPlugin(CPlugins::P_TYPE_SCRIPT), NULL, new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT), "-1", key, icon );
 			menu_item->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 			break;
 		}
@@ -421,14 +421,14 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_TOOLS:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_TOOLS, g_PluginList->hasPlugin(CPlugins::P_TYPE_TOOL), NULL, new CPluginList(LOCALE_MAINMENU_TOOLS,CPlugins::P_TYPE_TOOL), "-1", key, icon );
+			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_TOOLS, g_Plugins->hasPlugin(CPlugins::P_TYPE_TOOL), NULL, new CPluginList(LOCALE_MAINMENU_TOOLS,CPlugins::P_TYPE_TOOL), "-1", key, icon );
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_LUA:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_LUA, g_PluginList->hasPlugin(CPlugins::P_TYPE_LUA), NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA), "-1", key, icon );
+			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_LUA, g_Plugins->hasPlugin(CPlugins::P_TYPE_LUA), NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA), "-1", key, icon );
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
@@ -485,17 +485,17 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case -1: // plugin
 		{
-			int number_of_plugins = g_PluginList->getNumberOfPlugins();
+			int number_of_plugins = g_Plugins->getNumberOfPlugins();
 			if (!number_of_plugins)
 				continue;
 			int count = 0;
 			for(; count < number_of_plugins; count++) {
-				const char *pname = g_PluginList->getFileName(count);
-				if (pname && (std::string(pname) == *it) && !g_PluginList->isHidden(count)) {
-					neutrino_msg_t d_key = g_PluginList->getKey(count);
+				const char *pname = g_Plugins->getFileName(count);
+				if (pname && (std::string(pname) == *it) && !g_Plugins->isHidden(count)) {
+					neutrino_msg_t d_key = g_Plugins->getKey(count);
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
-					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
+					menu_item = new CMenuForwarder(g_Plugins->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
+					menu_item->setHint(g_Plugins->getHintIcon(count), g_Plugins->getDescription(count));
 					break;
 				}
 			}
@@ -553,10 +553,10 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 				if(loc != NONEXISTANT_LOCALE || text)
 					return_title = true;
 				else {
-					int nop = g_PluginList->getNumberOfPlugins();
+					int nop = g_Plugins->getNumberOfPlugins();
 					for(int count = 0; count < nop; count++) {
-						if (std::string(g_PluginList->getFileName(count)) == *it) {
-							text = g_PluginList->getName(count);
+						if (std::string(g_Plugins->getFileName(count)) == *it) {
+							text = g_Plugins->getName(count);
 							active = true;
 							break;
 						}

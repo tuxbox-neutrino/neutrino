@@ -390,7 +390,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 		ShowUserMenu();
 	}
 	CMenuWidget* plMenu = NULL;
-	int pcount = g_PluginList->getNumberOfPlugins();
+	int pcount = g_Plugins->getNumberOfPlugins();
 	std::string pldesc[pcount];
 	int pltype[pcount];
 	if (show_pluginmenu)
@@ -418,31 +418,31 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 			if (pltype[i] & CPlugins::P_TYPE_DISABLED) {
 				if (!g_settings.plugins_disabled.empty())
 					g_settings.plugins_disabled += ",";
-				g_settings.plugins_disabled +=  g_PluginList->getFileName(i);
-				g_PluginList->setType(i, CPlugins::P_TYPE_DISABLED);
+				g_settings.plugins_disabled +=  g_Plugins->getFileName(i);
+				g_Plugins->setType(i, CPlugins::P_TYPE_DISABLED);
 			} else if (pltype[i] & CPlugins::P_TYPE_GAME) {
 				if (!g_settings.plugins_game.empty())
 					g_settings.plugins_game += ",";
-				g_settings.plugins_game +=  g_PluginList->getFileName(i);
-				g_PluginList->setType(i, CPlugins::P_TYPE_GAME);
+				g_settings.plugins_game +=  g_Plugins->getFileName(i);
+				g_Plugins->setType(i, CPlugins::P_TYPE_GAME);
 			} else if (pltype[i] & CPlugins::P_TYPE_TOOL) {
 				if (!g_settings.plugins_tool.empty())
 					g_settings.plugins_tool += ",";
-				g_settings.plugins_tool +=  g_PluginList->getFileName(i);
-				g_PluginList->setType(i, CPlugins::P_TYPE_TOOL);
+				g_settings.plugins_tool +=  g_Plugins->getFileName(i);
+				g_Plugins->setType(i, CPlugins::P_TYPE_TOOL);
 			} else if (pltype[i] & CPlugins::P_TYPE_SCRIPT) {
 				if (!g_settings.plugins_script.empty())
 					g_settings.plugins_script += ",";
-				g_settings.plugins_script +=  g_PluginList->getFileName(i);
-				g_PluginList->setType(i, CPlugins::P_TYPE_SCRIPT);
+				g_settings.plugins_script +=  g_Plugins->getFileName(i);
+				g_Plugins->setType(i, CPlugins::P_TYPE_SCRIPT);
 			} else if (pltype[i] & CPlugins::P_TYPE_LUA) {
 				if (!g_settings.plugins_lua.empty())
 					g_settings.plugins_lua += ",";
-				g_settings.plugins_lua +=  g_PluginList->getFileName(i);
-				g_PluginList->setType(i, CPlugins::P_TYPE_LUA);
+				g_settings.plugins_lua +=  g_Plugins->getFileName(i);
+				g_Plugins->setType(i, CPlugins::P_TYPE_LUA);
 			}
 		}
-		g_PluginList->loadPlugins();
+		g_Plugins->loadPlugins();
 	}
 
 	if (show_usermenu)
@@ -571,18 +571,18 @@ void CPersonalizeGui::ShowPluginMenu(CMenuWidget* p_widget, std::string da[], in
 	p_widget->addIntroItems(LOCALE_PERSONALIZE_PLUGINS);
 
 	uint  d_key = 1;
-	int pcount = g_PluginList->getNumberOfPlugins();
+	int pcount = g_Plugins->getNumberOfPlugins();
 	for (int i = 0; i < pcount; i++)
 	{
-		ia[i] = g_PluginList->getType(i);
-		da[i] = g_PluginList->getName(i);
+		ia[i] = g_Plugins->getType(i);
+		da[i] = g_Plugins->getName(i);
 		if (da[i].empty())
 			continue;
-		std::string pluginDesc = g_PluginList->getDescription(i);
+		std::string pluginDesc = g_Plugins->getDescription(i);
 		if (!pluginDesc.empty())
 			da[i] += " (" + pluginDesc + ")";
 		p_widget->addItem(new CMenuOptionChooser(da[i].c_str(), &ia[i], PERSONALIZE_PLUGINTYPE_OPTIONS, PERSONALIZE_PLUGINTYPE_MAX,
-					!g_PluginList->isHidden(i), NULL, getShortcut(d_key++)));
+					!g_Plugins->isHidden(i), NULL, getShortcut(d_key++)));
 	}
 }
 
