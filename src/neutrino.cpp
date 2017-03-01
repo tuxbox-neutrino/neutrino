@@ -468,6 +468,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	if (timer_remotebox_itemcount) {
 		for (int i = 0; i < timer_remotebox_itemcount; i++) {
 			timer_remotebox_item timer_rb;
+			memset(&timer_rb, 0, sizeof(struct timer_remotebox_item));
 			std::string k;
 			k = "timer_remotebox_ip_" + to_string(i);
 			timer_rb.rbaddress = configfile.getString(k, "");
@@ -4237,9 +4238,10 @@ void stop_daemons(bool stopall, bool for_flash)
 	if(!for_flash && !stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
-
-	delete InfoClock;
-	delete FileTimeOSD;
+	if(InfoClock)
+		delete InfoClock;
+	if(FileTimeOSD)
+		delete FileTimeOSD;
 	delete &CMoviePlayerGui::getInstance();
 
 	CZapit::getInstance()->Stop();
