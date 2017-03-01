@@ -175,7 +175,7 @@ bool CFlashUpdate::checkOnlineVersion()
 #ifdef DEBUG
 				printf("[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
 #endif
-				if(versionInfo.snapshot < '3' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime())) {
+				if(versionInfo.snapshot <= '2' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime())) {
 					newfound = true;
 					printf("[update] found new image\n");
 					break;
@@ -273,9 +273,9 @@ bool CFlashUpdate::selectHttpImage(void)
 #ifdef DEBUG
 				printf("[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
 #endif
-				if(versionInfo.snapshot < '3' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
+				if(versionInfo.snapshot <= '2' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
 					newfound = 1;
-				if(!allow_flash && (versionInfo.snapshot < '3'))
+				if(!allow_flash && (versionInfo.snapshot <= '2'))
 					enabled = false;
 				fileTypes[i] = versionInfo.snapshot;
 				//std::string description = versionInfo.getType();
@@ -325,7 +325,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	file_md5 = md5s[selected];
 	fileType = fileTypes[selected];
 #ifdef BOXMODEL_CS_HD2
-	if(fileType < '3') {
+	if(fileType <= '2') {
 		int esize = CMTDInfo::getInstance()->getMTDEraseSize(sysfs);
 		printf("[update] erase size is %x\n", esize);
 		if (esize == 0x40000) {
@@ -387,7 +387,7 @@ printf("[update] mode is %d\n", softupdate_mode);
 		versionInfo = new CFlashVersionInfo(newVersion);//Memory leak: versionInfo
 		sprintf(msg, g_Locale->getText(msg_body), versionInfo->getDate(), versionInfo->getTime(), versionInfo->getReleaseCycle(), versionInfo->getType());
 
-		if(fileType < '3')
+		if(fileType <= '2')
 		{
 			if ((strncmp(RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
 		    (ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_WRONGBASE), CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes))
@@ -545,7 +545,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	if(softupdate_mode==1) { //internet-update
-		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, (fileType < '3') ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes) // UTF-8
+		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, (fileType <= '2') ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes) // UTF-8
 		{
 			hide();
 			return menu_return::RETURN_REPAINT;
@@ -557,7 +557,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #ifdef DEBUG
 	printf("[update] flash/install filename %s type %c\n", filename.c_str(), fileType);
 #endif
-	if(fileType < '3') {
+	if(fileType <= '2') {
 		//flash it...
 #ifndef BOXMODEL_CS_HD2
 		if (g_settings.apply_settings) {
