@@ -20,29 +20,27 @@ function sLog_clear()
 	}
 	sLog_line_number =  0;
 }
-function sLog_addRow(_body, _date, _rec, _zapit, _start, _end, _title)
+function sLog_addRow(_body, _date, _rec, _zap, _start, _end, _title)
 {
 	sLog_line_number++;
 	var mycurrent_row = y_add_row_to_table(_body, ((sLog_line_number % 2) ==0)?"a":"b" );
 
 	y_add_html_cell_to_row(mycurrent_row, "rec", _rec);
-	y_add_html_cell_to_row(mycurrent_row, "zap", _zapit);
+	y_add_html_cell_to_row(mycurrent_row, "zap", _zap);
 	y_add_html_cell_to_row(mycurrent_row, "date", _date);
 	y_add_html_cell_to_row(mycurrent_row, "starttime", _start);
 	y_add_html_cell_to_row(mycurrent_row, "endtime", _end);
 	y_add_html_cell_to_row(mycurrent_row, "epgtitle", _title);
 }
-function set_timer(_channel_id, _start, _stop)
+function set_timer_rec(_channel_id, _start, _stop)
 {
-	var rec = "/control/timer?action=new&type=5&alarm="+_start+"&stop="+_stop+"&announce="+_start+"&channel_id="+_channel_id+"&rs=1";
-	var res = loadSyncURL(rec);
-	alert("{=L:epg.set_timer=}");
+	var res = dbox_set_timer_rec(_channel_id, _start, _stop);
+	alert("{=L:epg.set_timer_rec=}");
 }
-function set_zapit(_channel_id, _start)
+function set_timer_zap(_channel_id, _start)
 {
-	var rec = "/control/timer?action=new&type=3&alarm="+_start+"&channel_id="+_channel_id;
-	var res = loadSyncURL(rec);
-	alert("{=L:epg.zap_to=}");
+	var res = dbox_set_timer_zap(_channel_id, _start);
+	alert("{=L:epg.set_timer_zap=}");
 }
 function show_info(_index)
 {
@@ -102,10 +100,10 @@ function _show_epg()
 				var epg_obj= new Array(_desc, _info1, _info2, _start, _start_t, _stop.toString(), "{=channel=}");
 				epg_data.push(epg_obj);
 
-				var _rec 	= "<a title=\"record\" href=\"javascript:set_timer('{=channel=}',"+_start+","+_stop+");\"><img src=\"images/record.png\"/></a>";
-				var _zapit 	= "<a title=\"zapping\" href=\"javascript:set_zapit('{=channel=}',"+_start+");\"><img src=\"images/zap.png\"/></a>";
-				var _tit 	= "<span onmouseover=\"show_info('"+epg_data_index+"')\">"+_desc+"</span>";
-				sLog_addRow(sLog_body, _date, _rec, _zapit, _start_t, _stop_t, _tit);
+				var _rec = "<a title=\"record\" href=\"javascript:set_timer_rec('{=channel=}',"+_start+","+_stop+");\"><img src=\"images/record.png\"/></a>";
+				var _zap = "<a title=\"zapping\" href=\"javascript:set_timer_zap('{=channel=}',"+_start+");\"><img src=\"images/zap.png\"/></a>";
+				var _title = "<span onmouseover=\"show_info('"+epg_data_index+"')\">"+_desc+"</span>";
+				sLog_addRow(sLog_body, _date, _rec, _zap, _start_t, _stop_t, _title);
 				epg_data_index++;
 			}
 		}

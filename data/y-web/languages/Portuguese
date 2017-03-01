@@ -191,8 +191,8 @@ epg.hover_for_details=mover para programa para ver detalhes
 epg.refresh=buscar ou actualizar a EPG
 epg.past_hours=últimas horas
 epg.next_hours=próximas horas
-epg.set_timer=Ajustar o programador para gravação. Realizado.
-epg.zap_to=Coloque o canal para mudar. Realizado.
+epg.set_timer_rec=Ajustar o programador para gravação. Realizado.
+epg.set_timer_zap=Coloque o canal para mudar. Realizado.
 
 
 ========EPG Streaminfo

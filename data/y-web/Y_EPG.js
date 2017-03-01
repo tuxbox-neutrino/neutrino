@@ -30,12 +30,11 @@ function epg_plus_calc_dimensions(){
 function epg_zapto(){
 	dbox_zapto($('d_channel_id').innerHTML);
 }
-function epg_set_timer(){
-	dbox_set_timer($("d_channel_id").innerHTML, $("d_start").innerHTML, $("d_stop").innerHTML);
+function epg_set_timer_rec(){
+	dbox_set_timer_rec($("d_channel_id").innerHTML, $("d_start").innerHTML, $("d_stop").innerHTML);
 }
-function set_zapit(){
-	var rec = "/control/timer?action=new&type=3&alarm="+$("d_start").innerHTML+"&channel_id="+$("d_channel_id").innerHTML;
-	var res = loadSyncURL(rec);
+function epg_set_timer_zap(){
+	dbox_set_timer_zap($("d_channel_id").innerHTML, $("d_start").innerHTML);
 }
 function build_epg_clear(){
 	var ep = $("epg_plus");

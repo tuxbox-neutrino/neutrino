@@ -187,8 +187,8 @@ epg.hover_for_details=Przełącz, aby uzyskać więcej informacji
 epg.refresh=Aktualizacja EPG
 epg.past_hours=Poprzednie
 epg.next_hours=Następne
-epg.set_timer=Ustawianie timera
-epg.zap_to=Przełączanie kanału
+epg.set_timer_rec=Ustawianie timera
+epg.set_timer_zap=Przełączanie kanału
 
 # ========= EPG Stream Informacje
 epg.si.streaminfo=Informacje Stream

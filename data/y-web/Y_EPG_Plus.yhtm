@@ -59,8 +59,8 @@ function epg_imdb(){
 		<tr>
 			<td colspan="3">
 				<br/>
-				<button ytype="record" title="{=L:epg.set_timer=}" onclick="epg_set_timer();show_obj('epg_info',false);">{=L:record=}</button>
-				<button ytype="zap" title="{=L:epg.zap_to=}" onclick="set_zapit();show_obj('epg_info',false);">{=L:zap=}</button>
+				<button ytype="record" title="{=L:epg.set_timer_rec=}" onclick="epg_set_timer_rec();show_obj('epg_info',false);">{=L:record=}</button>
+				<button ytype="zap" title="{=L:epg.set_timer_zap=}" onclick="epg_set_timer_zap();show_obj('epg_info',false);">{=L:zap=}</button>
 			</td>
 		</tr>
 	</table>

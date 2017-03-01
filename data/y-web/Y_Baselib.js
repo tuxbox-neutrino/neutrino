@@ -412,9 +412,14 @@ function dbox_popup(_msg)
 {
 	return loadSyncURL("/control/message?popup="+_msg);
 }
-function dbox_set_timer(_channel_id, _start, _stop)
+function dbox_set_timer_rec(_channel_id, _start, _stop)
 {
 	var _url = "/control/timer?action=new&type=5&alarm="+_start+"&stop="+_stop+"&announce="+_start+"&channel_id="+_channel_id+"&rs=1";
+	return loadSyncURL(_url);
+}
+function dbox_set_timer_zap(_channel_id, _start)
+{
+	var _url = "/control/timer?action=new&type=3&alarm="+_start+"&channel_id="+_channel_id;
 	return loadSyncURL(_url);
 }
 function dbox_zapto(_channel_id)
