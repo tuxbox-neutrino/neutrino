@@ -80,6 +80,8 @@
 
 extern int allow_flash;
 
+//#define DRYRUN
+
 //#define gTmpPath "/var/update/"
 #define gTmpPath "/tmp/"
 #define gUserAgent "neutrino/softupdater 1.0"
@@ -560,7 +562,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 #endif
 
-#ifdef DEBUG1
+#ifdef DRYRUN
 		if(1) {
 #else
 		if(!ft.program(filename, 80, 100)) {
@@ -596,10 +598,8 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	else // not image, install
 	{
 		const char install_sh[] = "/bin/install.sh";
-#ifdef DEBUG1
 		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir.c_str(), filename.c_str() );
-#else
-		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir.c_str(), filename.c_str() );
+#ifndef DRYRUN
 		my_system(3, install_sh, g_settings.update_dir.c_str(), filename.c_str());
 #endif
 		showGlobalStatus(100);
