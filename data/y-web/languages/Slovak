@@ -185,8 +185,8 @@ epg.hover_for_details=Presun ukazovateľa na stanicu pre získanie podrobností
 epg.refresh=obnovovanie EPG
 epg.past_hours=predchádzajúce hodiny
 epg.next_hours=nasledujúce hodiny
-epg.set_timer=Nastavenie časovaca. Vykonané.
-epg.zap_to=Prepnutie na kanál. Vykonané.
+epg.set_timer_rec=Nastavenie časovaca. Vykonané.
+epg.set_timer_zap=Prepnutie na kanál. Vykonané.
 
 ======= EPG Streaminfo
 epg.si.streaminfo=Informácie streamu

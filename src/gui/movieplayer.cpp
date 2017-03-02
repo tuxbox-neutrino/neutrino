@@ -1384,7 +1384,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		}
 
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
-			g_PluginList->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
+			g_Plugins->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;

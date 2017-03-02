@@ -681,6 +681,15 @@ flashupdate.selectimage Verfügbare Images/Files
 flashupdate.settings Update-Einstellungen
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
+flashupdate.type_addon Erweiterung
+flashupdate.type_beta Beta
+flashupdate.type_internal Intern
+flashupdate.type_locale Sprachdatei
+flashupdate.type_release Release
+flashupdate.type_settings Einstellungen
+flashupdate.type_text Text
+flashupdate.type_unknown Unbekannt
+flashupdate.type_update Aktualisierung
 flashupdate.update_with_settings_del_skipped Ordner [%s] kann nicht gelöscht werden. Eintrag wird übersprungen.
 flashupdate.update_with_settings_error Error Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nDer Vorgang wird abgebrochen!
 flashupdate.update_with_settings_processed Image wird bearbeitet ...

@@ -202,7 +202,7 @@ CBouquetList   * RADIOwebList;
 
 CBouquetList   * AllFavBouquetList;
 
-CPlugins       * g_PluginList;
+CPlugins       * g_Plugins;
 CRemoteControl * g_RemoteControl;
 CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
@@ -467,6 +467,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	if (timer_remotebox_itemcount) {
 		for (int i = 0; i < timer_remotebox_itemcount; i++) {
 			timer_remotebox_item timer_rb;
+			timer_rb.online = false;
+			timer_rb.port = 0;
 			std::string k;
 			k = "timer_remotebox_ip_" + to_string(i);
 			timer_rb.rbaddress = configfile.getString(k, "");
@@ -2288,10 +2290,10 @@ TIMER_START();
 #endif
 
 	CFSMounter::automount();
-	g_PluginList = new CPlugins;
-	g_PluginList->setPluginDir(PLUGINDIR);
+	g_Plugins = new CPlugins;
+	g_Plugins->setPluginDir(PLUGINDIR);
 	//load Pluginlist before main menu (only show script menu if at least one script is available
-	g_PluginList->loadPlugins();
+	g_Plugins->loadPlugins();
 
 	// setup recording device
 	setupRecordingDevice();
@@ -2467,9 +2469,9 @@ void CNeutrinoApp::RealRun()
 #ifdef ENABLE_LUA
 	CLuaServer *luaServer = CLuaServer::getInstance();
 #endif
-	g_PluginList->startPlugin("startup");
-	if (!g_PluginList->getScriptOutput().empty()) {
-		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
+	g_Plugins->startPlugin("startup");
+	if (!g_Plugins->getScriptOutput().empty()) {
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
 	}
 	g_RCInput->clearRCMsg();
 
@@ -3605,9 +3607,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 	}
 	else if (msg == NeutrinoMessages::EVT_START_PLUGIN) {
-		g_PluginList->startPlugin((const char *)data);
-		if (!g_PluginList->getScriptOutput().empty()) {
-			ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMsgBox::mbrBack,CMsgBox::mbBack,NEUTRINO_ICON_SHELL);
+		g_Plugins->startPlugin((const char *)data);
+		if (!g_Plugins->getScriptOutput().empty()) {
+			ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack,CMsgBox::mbBack,NEUTRINO_ICON_SHELL);
 		}
 
 		delete[] (unsigned char*) data;
@@ -4199,7 +4201,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_GETPLUGINS_HINT));
 		hintBox.paint();
 
-		g_PluginList->loadPlugins();
+		g_Plugins->loadPlugins();
 
 		hintBox.hide();
 	}
@@ -4357,9 +4359,10 @@ void stop_daemons(bool stopall, bool for_flash)
 	if(!for_flash && !stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
-
-	delete InfoClock;
-	delete FileTimeOSD;
+	if(InfoClock)
+		delete InfoClock;
+	if(FileTimeOSD)
+		delete FileTimeOSD;
 	delete &CMoviePlayerGui::getInstance();
 
 	CZapit::getInstance()->Stop();
@@ -4770,7 +4773,7 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 12\n");fflush(stdout);
 	delete g_PicViewer; g_PicViewer = NULL;
 	printf("cleanup 13\n");fflush(stdout);
-	delete g_PluginList; g_PluginList = NULL;
+	delete g_Plugins; g_Plugins = NULL;
 	printf("cleanup 16\n");fflush(stdout);
 	delete g_CamHandler; g_CamHandler = NULL;
 	printf("cleanup 17\n");fflush(stdout);

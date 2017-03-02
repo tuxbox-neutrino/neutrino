@@ -206,8 +206,8 @@ epg.hover_for_details=move to program for more details
 epg.refresh=get or refresh EPG
 epg.past_hours=past hours
 epg.next_hours=next hours
-epg.set_timer=Set timer for recording. Done.
-epg.zap_to=Set switch to channel. Done.
+epg.set_timer_rec=Set timer for recording. Done.
+epg.set_timer_zap=Set switch to channel. Done.
 
 ========EPG Streaminfo
 epg.si.streaminfo=Streaminfo

@@ -681,6 +681,15 @@ flashupdate.selectimage Available Images/Files
 flashupdate.settings Update settings
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
+flashupdate.type_addon Addon
+flashupdate.type_beta Beta
+flashupdate.type_internal Internal
+flashupdate.type_locale Locale
+flashupdate.type_release Release
+flashupdate.type_settings Settings
+flashupdate.type_text Text
+flashupdate.type_unknown Unknown
+flashupdate.type_update Update
 flashupdate.update_with_settings_del_skipped Folder [%s] can not be deleted. Entry is skipped.
 flashupdate.update_with_settings_error Flash Error!\n \nNew Image only has %ld KB (out of %ld KB) left. Not\nenough space to complete this operation.\n \nCanceling operation!
 flashupdate.update_with_settings_processed Image is being processed ...
