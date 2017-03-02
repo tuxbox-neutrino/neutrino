@@ -273,6 +273,19 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+	/* offsets, exported as e.g. OFFSET['SHADOW'] */
+	table_key offsets[] =
+	{
+		{ "SHADOW",		OFFSET_SHADOW },
+		{ "INTER",		OFFSET_INTER },
+		{ "INNER_LARGE",	OFFSET_INNER_LARGE },
+		{ "INNER_MID",		OFFSET_INNER_MID },
+		{ "INNER_SMALL",	OFFSET_INNER_SMALL },
+		{ "INNER_MIN",		OFFSET_INNER_MIN },
+		{ "INNER_NONE",		OFFSET_INNER_NONE },
+		{ NULL, 0 }
+	};
+
 	/* screen offsets, exported as e.g. SCREEN['END_Y'] */
 	lua_Integer xRes = (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth(true);
 	lua_Integer yRes = (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight(true);
@@ -375,6 +388,7 @@ static void set_lua_variables(lua_State *L)
 		{ "SCREEN",	screenopts },
 		{ "FONT",	fontlist },
 		{ "CORNER",	corners },
+		{ "OFFSET",	offsets },
 		{ "MENU_RETURN", menureturn },
 		{ "APIVERSION",  apiversion },
 		{ "PLAYSTATE",   playstate },
