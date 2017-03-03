@@ -3126,7 +3126,7 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 {
 	TRACE("[mb] loadMovies: \n");
 
-	CProgressWindow loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES, 50/*%*/, 25/*%*/, NULL, show_mode == MB_SHOW_YT ? &ytparser.OnLoadVideoInfo : &OnLoadFile, &OnLoadDir);
+	CProgressWindow loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES, CCW_PERCENATL 50, CCW_PERCENATL 10, NULL, show_mode == MB_SHOW_YT ? &ytparser.OnLoadVideoInfo : &OnLoadFile, &OnLoadDir);
 	loadBox.enableShadow();
 	loadBox.paint();
 
