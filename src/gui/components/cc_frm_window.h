@@ -29,6 +29,8 @@
 #include "cc_frm_header.h"
 #include "cc_frm_footer.h"
 
+#define CCW_PERCENATL - //placeholder for negative sign '-', used for discret dimensions parameters
+
 //! Sub class of CComponentsForm. Shows a window with prepared items.
 /*!
 CComponentsWindow provides prepared items like header, footer and a container for
@@ -135,6 +137,7 @@ class CComponentsWindow : public CComponentsForm
 			CC_WINDOW_RIGHT_SIDEBAR = 2
 		};
 
+
 		/**simple constructor for CComponentsWindow, this shows a window over full screen
 		* @param[in]	parent
 		* 	@li 	optional: expects type CComponentsForm * as possible parent object, default = NULL
@@ -148,9 +151,9 @@ class CComponentsWindow : public CComponentsForm
 		* @param[in]	y_pos
 		* 	@li 	expects type const &int, defines y position on screen
 		* @param[in]	w
-		* 	@li 	expects type const &int, width of window, Note: value = 0 uses full screen, value > 0 to 100 interpreted as percent value of screen, value > 100 use native lines count on screen
+		* 	@li 	expects type const &int, width of window, Note: value = 0 uses full screen
 		* @param[in]	h
-		* 	@li 	expects type const &int, height of window, Note: value = 0 uses full screen, value > 0 to 100 interpreted as percent value of screen, value > 100 use native lines count on screen
+		* 	@li 	expects type const &int, height of window, Note: value = 0 uses full screen
 		* @param[in]	caption
 		* 	@li 	optional: expects type const std::string&, defines title of window header
 		* @param[in]	iconname
@@ -158,16 +161,24 @@ class CComponentsWindow : public CComponentsForm
 		* @param[in]	parent
 		* 	@li 	optional: expects type CComponentsForm * as possible parent object, default = NULL
 		* @param[in]	shadow_mode
-		* 	@li 	optional: expects type int as mode, default = CC_SHADOW_OFF
-		* 		possible values are
-		* 		CC_SHADOW_ON = (CC_SHADOW_RIGHT | CC_SHADOW_BOTTOM | CC_SHADOW_CORNER_BOTTOM_LEFT | CC_SHADOW_CORNER_BOTTOM_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT)
-		* @see		cc_types.h
+		* 	@li 	optional: expects type int as mode, default = CC_SHADOW_OFF \n
+		* 		possible values are \n
+		* 		CC_SHADOW_ON = (CC_SHADOW_RIGHT | CC_SHADOW_BOTTOM | CC_SHADOW_CORNER_BOTTOM_LEFT | CC_SHADOW_CORNER_BOTTOM_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT) \n
+		* 		Take a look into cc_types.h
 		* @param[in]	color_frame
 		* 	@li 	optional: expects type fb_pixel_t, defines frame color, default = COL_FRAME_PLUS_0
 		* @param[in]	color_body
 		* 	@li 	optional: expects type fb_pixel_t, defines color color, default = COL_MENUCONTENT_PLUS_0
 		* @param[in]	color_shadow
 		* 	@li 	optional: expects type fb_pixel_t, defines shadow color, default = COL_SHADOW_PLUS_0
+		*
+		* @note		Discret dimensions parameters: values < 0 to -100 will be interpreted as percent values related to screen.
+		* 		For better readability please use placeholder 'CCW_PERCENATL' as negative sign '-' \n
+		* 		Example: \n
+		* 		this inits a window with position x100 y100 on screen with dimensions 700px x 800px \n
+		* 		CComponentsWindow win(100, 100, 700, 800, "Test window");\n
+		*		this inits a window with position x100 y100 on screen with 50% of screen size assigned with discret percental screen dimensions \n
+		* 		CComponentsWindow win(100, 100, CCW_PERCENATL 50, CCW_PERCENATL 50, "Test window");
 		*/
 		CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption = "",

@@ -169,13 +169,13 @@ void CComponentsWindow::initWindowSize()
 	if (cc_parent)
 		return;
 
-	if (width > 0 && width <= 100) //percentage conversion TODO: behavior inside parent
-		width = frameBuffer->getScreenWidth()*width/100;
+	if (width < 0 && width >= -100) //percentage conversion TODO: behavior inside parent
+		width = frameBuffer->getScreenWidth()*abs(width)/100;
 	if (width == 0 || (unsigned)width > frameBuffer->getScreenWidth())
 		width = frameBuffer->getScreenWidth();
 
-	if (height > 0 && height <= 100) //percentage conversion TODO: behavior inside parent
-		height = frameBuffer->getScreenHeight()*height/100;
+	if (height < 0 && height >= -100) //percentage conversion TODO: behavior inside parent
+		height = frameBuffer->getScreenHeight()*abs(height)/100;
 	if (height == 0 || (unsigned)height > frameBuffer->getScreenHeight())
 		height = frameBuffer->getScreenHeight();
 }
