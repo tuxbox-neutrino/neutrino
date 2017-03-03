@@ -49,7 +49,6 @@
 #include <nhttpd/yconfig.h>
 
 #define VERSION_FILE TARGET_PREFIX "/.version"
-#define Y_VERSION_FILE DATADIR "/neutrino/httpd/Y_Version.txt"
 
 using namespace std;
 
