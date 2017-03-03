@@ -63,7 +63,7 @@ class CImageInfo : public CMenuTarget
 		std::string getLicenseText();
 		void ShowWindow();
 		void ScrollLic(bool scrollDown);
-		std::string getYApi();
+		std::string getYWebVersion();
 
 		CComponentsWindowMax  	*cc_win;
 		CComponentsForm  	*cc_info;
