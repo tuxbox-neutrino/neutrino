@@ -270,6 +270,7 @@ static void set_lua_variables(lua_State *L)
 		{ "RADIUS_MID",		RADIUS_MID },
 		{ "RADIUS_SMALL",	RADIUS_SMALL },
 		{ "RADIUS_MIN",		RADIUS_MIN },
+		{ "RADIUS_NONE",	RADIUS_NONE },
 		{ NULL, 0 }
 	};
 
@@ -343,7 +344,8 @@ static void set_lua_variables(lua_State *L)
 		{ "STYLE_ITALIC",	(lua_Integer)CNeutrinoFonts::FONT_STYLE_ITALIC },
 		{ "MAX",		(lua_Integer)CNeutrinoFonts::DYNFONTEXT_MAX },
 		{ "MAXIMUM_FONTS",	(lua_Integer)CLuaInstance::DYNFONT_MAXIMUM_FONTS },
-		{ "TO_WIDE",		(lua_Integer)CLuaInstance::DYNFONT_TO_WIDE },
+		{ "TO_WIDE",		(lua_Integer)CLuaInstance::DYNFONT_TOO_WIDE }, // just here to stay backward compatible
+		{ "TOO_WIDE",		(lua_Integer)CLuaInstance::DYNFONT_TOO_WIDE },
 		{ "TOO_HIGH",		(lua_Integer)CLuaInstance::DYNFONT_TOO_HIGH },
 		{ NULL, 0 }
 	};
@@ -1050,7 +1052,7 @@ int CLuaInstance::getDynFont(lua_State *L)
 	dx = luaL_checkint(L, 2);
 	if (dx > (lua_Integer)CFrameBuffer::getInstance()->getScreenWidth(true)) {
 		lua_pushnil(L);
-		lua_pushinteger(L, DYNFONT_TO_WIDE);
+		lua_pushinteger(L, DYNFONT_TOO_WIDE);
 		return 2;
 	}
 	dy = luaL_checkint(L, 3);
