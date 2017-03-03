@@ -861,7 +861,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		//with signals
 		sigc::signal<void, size_t, size_t, std::string> OnProgress0, OnProgress1;
-		CProgressWindow pw2("Progress Single Test -> single Signal", 700, 200, &OnProgress0);
+		CProgressWindow pw2("Progress Single Test -> single Signal", CCW_PERCENATL 50, CCW_PERCENATL 30, &OnProgress0);
 		pw2.paint();
 
 		for(size_t i = 0; i< max; i++){
@@ -870,7 +870,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		pw2.hide();
 
-		CProgressWindow pw3("Progress Single Test -> dub Signal", 700, 200, NULL, &OnProgress0, &OnProgress1);
+		OnProgress0.clear();
+		OnProgress1.clear();
+		CProgressWindow pw3("Progress Single Test -> dub Signal", CCW_PERCENATL 50, CCW_PERCENATL 20, NULL, &OnProgress0, &OnProgress1);
 		pw3.paint();
 
 		for(size_t i = 0; i< max; i++){
