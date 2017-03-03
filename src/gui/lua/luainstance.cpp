@@ -344,6 +344,7 @@ static void set_lua_variables(lua_State *L)
 		{ "STYLE_ITALIC",	(lua_Integer)CNeutrinoFonts::FONT_STYLE_ITALIC },
 		{ "MAX",		(lua_Integer)CNeutrinoFonts::DYNFONTEXT_MAX },
 		{ "MAXIMUM_FONTS",	(lua_Integer)CLuaInstance::DYNFONT_MAXIMUM_FONTS },
+		{ "TO_WIDE",		(lua_Integer)CLuaInstance::DYNFONT_TOO_WIDE }, // just here to stay backward compatible
 		{ "TOO_WIDE",		(lua_Integer)CLuaInstance::DYNFONT_TOO_WIDE },
 		{ "TOO_HIGH",		(lua_Integer)CLuaInstance::DYNFONT_TOO_HIGH },
 		{ NULL, 0 }
