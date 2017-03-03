@@ -99,8 +99,7 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 
 	//set window height
 	h_height = ccw_head->getHeight();
-	ccw_body->setHeight((OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight())*ccw_body->size());
-
+	ccw_body->setHeight(ccw_body->back()->getYPos()+ ccw_body->back()->getHeight()+ OFFSET_INNER_MID);
 	height = max(height, ccw_body->getHeight() + h_height);
 
 	//set position on screen
@@ -112,8 +111,8 @@ CProgressBar* CProgressWindow::getProgressItem()
 	CProgressBar *pBar = new CProgressBar();
 	pBar->allowPaint(false);
 	int y_tmp = 0;
-	for(size_t i = 0; i< ccw_body->size(); i++){
-		y_tmp += ccw_body->getCCItem(i)->getHeight();
+	for(size_t i = ccw_body->size()-1; i< ccw_body->size(); i++){
+		y_tmp += ccw_body->getCCItem(i)->getYPos() + ccw_body->getCCItem(i)->getHeight();
 		y_tmp += OFFSET_INNER_MID;
 	}
 	pBar->setDimensionsAll(OFFSET_INNER_MID, y_tmp, width-2*OFFSET_INNER_MID, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
