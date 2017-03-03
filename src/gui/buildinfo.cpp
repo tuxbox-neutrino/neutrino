@@ -35,7 +35,7 @@
 
 using namespace std;
 
-CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, 90/*%*/, 90/*%*/, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
+CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, CCW_PERCENATL 90, CCW_PERCENATL 90, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
 {
 	initVarBuildInfo();
 	if (show)
