@@ -451,9 +451,13 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			break;
 		case CRCInput::RC_plus:
 		case CRCInput::RC_minus:
+			CVolume::getInstance()->setVolume(msg);
+			break;
 		case CRCInput::RC_left:
 		case CRCInput::RC_right:
-			CVolume::getInstance()->setVolume(msg);
+			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+				CVolume::getInstance()->setVolume(msg);
+			}
 			break;
 		default:
 			break;
