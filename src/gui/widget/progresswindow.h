@@ -28,8 +28,8 @@
 #include <gui/components/cc.h>
 #include "menue.h"
 
-#define PW_MIN_WIDTH  CCW_PERCENATL 50 //%
-#define PW_MIN_HEIGHT CCW_PERCENATL 20 //%
+#define PW_MIN_WIDTH  CCW_PERCENT 50
+#define PW_MIN_HEIGHT CCW_PERCENT 20
 
 class CProgressWindow : public CComponentsWindow, public CMenuTarget
 {

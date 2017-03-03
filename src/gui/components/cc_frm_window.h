@@ -29,7 +29,7 @@
 #include "cc_frm_header.h"
 #include "cc_frm_footer.h"
 
-#define CCW_PERCENATL - //placeholder for negative sign '-', used for discret dimensions parameters
+#define CCW_PERCENT - //placeholder for negative sign '-', used for discret dimensions parameters
 
 //! Sub class of CComponentsForm. Shows a window with prepared items.
 /*!
@@ -173,12 +173,12 @@ class CComponentsWindow : public CComponentsForm
 		* 	@li 	optional: expects type fb_pixel_t, defines shadow color, default = COL_SHADOW_PLUS_0
 		*
 		* @note		Discret dimensions parameters: values < 0 to -100 will be interpreted as percent values related to screen.
-		* 		For better readability please use placeholder 'CCW_PERCENATL' as negative sign '-' \n
+		* 		For better readability please use placeholder 'CCW_PERCENT' as negative sign '-' \n
 		* 		Example: \n
 		* 		this inits a window with position x100 y100 on screen with dimensions 700px x 800px \n
 		* 		CComponentsWindow win(100, 100, 700, 800, "Test window");\n
 		*		this inits a window with position x100 y100 on screen with 50% of screen size assigned with discret percental screen dimensions \n
-		* 		CComponentsWindow win(100, 100, CCW_PERCENATL 50, CCW_PERCENATL 50, "Test window");
+		* 		CComponentsWindow win(100, 100, CCW_PERCENT 50, CCW_PERCENT 50, "Test window");
 		*/
 		CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption = "",
