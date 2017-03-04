@@ -40,6 +40,8 @@
 #include <driver/abstime.h>
 #include <linux/dvb/version.h>
 
+#include <hardware_caps.h>
+
 extern transponder_list_t transponders;
 extern int zapit_debug;
 
@@ -327,9 +329,7 @@ void CFrontend::getFEInfo(void)
 		switch (info.type) {
 		case FE_QPSK:
 			deliverySystemMask |= DVB_S;
-#ifndef BOXMODEL_CS_HD1
-			if (info.caps & FE_CAN_2G_MODULATION)
-#endif
+			if (info.caps & FE_CAN_2G_MODULATION || get_hwcaps()->force_tuner_2G)
 				deliverySystemMask |= DVB_S2;
 			break;
 		case FE_OFDM:
