@@ -47,6 +47,8 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 		
 		int width, selected;
 		int showVideoSetup();
+		std::vector<CMenuOptionChooser::keyval_ext> videomenu_43mode_options;
+		void Init43ModeOptions();
 
 public:
 		CVideoSettings(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);

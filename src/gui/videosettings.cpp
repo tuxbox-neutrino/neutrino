@@ -85,11 +85,12 @@ CVideoSettings::CVideoSettings(int wizard_mode)
 	prev_video_mode = g_settings.video_Mode;
 
 	setupVideoSystem(false);
+	Init43ModeOptions();
 }
 
 CVideoSettings::~CVideoSettings()
 {
-
+	videomenu_43mode_options.clear();
 }
 
 int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
@@ -110,9 +111,7 @@ int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 const CMenuOptionChooser::keyval VIDEOMENU_43MODE_OPTIONS[] =
 {
 	{ DISPLAY_AR_MODE_PANSCAN, LOCALE_VIDEOMENU_PANSCAN },
-#ifndef BOXMODEL_CS_HD2
 	{ DISPLAY_AR_MODE_PANSCAN2, LOCALE_VIDEOMENU_PANSCAN2 },
-#endif
 	{ DISPLAY_AR_MODE_LETTERBOX, LOCALE_VIDEOMENU_LETTERBOX },
 	{ DISPLAY_AR_MODE_NONE, LOCALE_VIDEOMENU_FULLSCREEN }
 	//{ 2, LOCALE_VIDEOMENU_AUTO } // whatever is this auto mode, it seems its totally broken
@@ -290,18 +289,12 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 };
 #endif
 
-#if HAVE_TRIPLEDRAGON
-#define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 2
-#else
 #define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 3//2
-#endif
 const CMenuOptionChooser::keyval VIDEOMENU_VIDEOFORMAT_OPTIONS[VIDEOMENU_VIDEOFORMAT_OPTION_COUNT] =
 {
 	{ DISPLAY_AR_4_3, LOCALE_VIDEOMENU_VIDEOFORMAT_43         },
 	{ DISPLAY_AR_16_9, LOCALE_VIDEOMENU_VIDEOFORMAT_169        },
-#if !HAVE_TRIPLEDRAGON
 	{ DISPLAY_AR_14_9, LOCALE_VIDEOMENU_VIDEOFORMAT_149        }
-#endif
 };
 
 #define VIDEOMENU_DBDR_OPTION_COUNT 3
@@ -361,11 +354,11 @@ int CVideoSettings::showVideoSetup()
 #endif
 
 	//4:3 mode
-	CMenuOptionChooser * vs_43mode_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_43MODE, &g_settings.video_43mode, VIDEOMENU_43MODE_OPTIONS, VIDEOMENU_43MODE_OPTION_COUNT, true, this);
+	CMenuOptionChooser * vs_43mode_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_43MODE, &g_settings.video_43mode, videomenu_43mode_options, true, this);
 	vs_43mode_ch->setHint("", LOCALE_MENU_HINT_VIDEO_43MODE);
 
 	//display format
-	CMenuOptionChooser * vs_dispformat_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOFORMAT, &g_settings.video_Format, VIDEOMENU_VIDEOFORMAT_OPTIONS, VIDEOMENU_VIDEOFORMAT_OPTION_COUNT, true, this);
+	CMenuOptionChooser * vs_dispformat_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOFORMAT, &g_settings.video_Format, VIDEOMENU_VIDEOFORMAT_OPTIONS, g_info.hw_caps->can_ar_14_9 ? VIDEOMENU_VIDEOFORMAT_OPTION_COUNT : VIDEOMENU_VIDEOFORMAT_OPTION_COUNT -1, true, this); /* works only if 14:9 is last! */
 	vs_dispformat_ch->setHint("", LOCALE_MENU_HINT_VIDEO_FORMAT);
 
 	//video system
@@ -623,20 +616,20 @@ void CVideoSettings::next43Mode(void)
 {
 	printf("[neutrino VideoSettings] %s setting 43Mode...\n", __FUNCTION__);
 	neutrino_locale_t text;
-	int curmode = 0;
+	unsigned int curmode = 0;
 
-	for (int i = 0; i < (int) VIDEOMENU_43MODE_OPTION_COUNT; i++) {
-		if (VIDEOMENU_43MODE_OPTIONS[i].key == g_settings.video_43mode) {
+	for (unsigned int i = 0; i < videomenu_43mode_options.size(); i++) {
+		if (videomenu_43mode_options[i].key == g_settings.video_43mode) {
 			curmode = i;
 			break;
 		}
 	}
 	curmode++;
-	if (curmode >= (int) VIDEOMENU_43MODE_OPTION_COUNT)
+	if (curmode >= videomenu_43mode_options.size())
 		curmode = 0;
 
-	text =  VIDEOMENU_43MODE_OPTIONS[curmode].value;
-	g_settings.video_43mode = VIDEOMENU_43MODE_OPTIONS[curmode].key;
+	text = videomenu_43mode_options[curmode].value;
+	g_settings.video_43mode = videomenu_43mode_options[curmode].key;
 	videoDecoder->setAspectRatio(-1, g_settings.video_43mode);
 #ifdef ENABLE_PIP
 	pipDecoder->setAspectRatio(-1, g_settings.video_43mode);
@@ -659,7 +652,8 @@ void CVideoSettings::SwitchFormat()
 	curmode++;
 	if (curmode >= VIDEOMENU_VIDEOFORMAT_OPTION_COUNT)
 		curmode = 0;
-
+	if (VIDEOMENU_VIDEOFORMAT_OPTIONS[curmode].key == DISPLAY_AR_14_9 && g_info.hw_caps->can_ar_14_9 == 0)
+		curmode = 0;
 	text =  VIDEOMENU_VIDEOFORMAT_OPTIONS[curmode].value;
 	g_settings.video_Format = VIDEOMENU_VIDEOFORMAT_OPTIONS[curmode].key;
 
@@ -729,4 +723,18 @@ void CVideoSettings::nextMode(void)
 	}
 	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName(), g_RemoteControl->getCurrentChannelNumber());
 	//ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
+}
+
+void CVideoSettings::Init43ModeOptions()
+{
+	videomenu_43mode_options.clear();
+	for (unsigned int i = 0; i < VIDEOMENU_43MODE_OPTION_COUNT; i++)
+	{
+		if (VIDEOMENU_43MODE_OPTIONS[i].key == DISPLAY_AR_MODE_PANSCAN2 &&
+		    g_info.hw_caps->can_ps_14_9 == 0)
+			continue;
+		CMenuOptionChooser::keyval_ext o;
+		o = VIDEOMENU_43MODE_OPTIONS[i];
+		videomenu_43mode_options.push_back(o);
+	}
 }
