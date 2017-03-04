@@ -29,6 +29,9 @@ hw_caps_t *get_hwcaps(void) {
 	caps.display_xres = 12;
 	caps.display_yres = 0;
 	caps.can_set_display_brightness = 1;
+	caps.can_ar_14_9 = 1;
+	caps.can_ps_14_9 = 1;
+	caps.force_tuner_2G = 0;
 	strcpy(caps.boxvendor, "Coolstream");
 	/* list of boxnames from neutrinoyparser.cpp */
 	strcpy(caps.boxarch, "Nevis");
@@ -36,9 +39,11 @@ hw_caps_t *get_hwcaps(void) {
 	case 6:
 	case 7: // Black Stallion Edition
 		strcpy(caps.boxname, "HD1");
+		caps.force_tuner_2G = 1;
 		break;
 	case 8:
 		strcpy(caps.boxname, "Neo");
+		caps.force_tuner_2G = 1;
 		break;
 	case 9:
 		strcpy(caps.boxname, "Tank");
@@ -46,6 +51,7 @@ hw_caps_t *get_hwcaps(void) {
 		break;
 	case 10:
 		strcpy(caps.boxname, "Zee");
+		caps.force_tuner_2G = 1;
 		break;
 	case 11:
 		strcpy(caps.boxname, "Trinity");
