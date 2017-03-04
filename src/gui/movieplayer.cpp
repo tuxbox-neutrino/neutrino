@@ -1314,8 +1314,11 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	bool update_lcd = true;
 	int eof = 0;
 	int lastpos = 0;
+	int eof2 = 0;
+	int position_tmp = 0;
 	bool at_eof = !(playstate >= CMoviePlayerGui::PLAY);;
 	keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL;
+
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
 		if (update_lcd) {
@@ -1352,6 +1355,20 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				}
 #endif
 				/* in case ffmpeg report incorrect values */
+				if((playstate == CMoviePlayerGui::PLAY) && (speed == 1)){
+					if(position_tmp != position){
+						position_tmp = position ;
+						eof2 = 0;
+					}else{
+						if (++eof2 > 6) {
+							at_eof = true;
+							break;
+						}
+					}
+				}
+				else{
+					eof2 = 0;
+				}
 				int posdiff = duration - position;
 				if ((posdiff >= 0) && (posdiff < 2000) && timeshift == TSHIFT_MODE_OFF)
 				{
@@ -1399,7 +1416,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		}
 
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
-			g_PluginList->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
+			g_Plugins->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;

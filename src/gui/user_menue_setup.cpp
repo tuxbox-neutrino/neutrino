@@ -121,10 +121,10 @@ CUserMenuSetup::CUserMenuSetup(neutrino_locale_t menue_title, int menue_button)
 		vals[keys[loc]] = loc;
 	}
 
-	int number_of_plugins = g_PluginList->getNumberOfPlugins();
+	int number_of_plugins = g_Plugins->getNumberOfPlugins();
 	for (int count = 0; count < number_of_plugins; count++) {
-		const char *loc = g_PluginList->getName(count);
-		const char *key = g_PluginList->getFileName(count);
+		const char *loc = g_Plugins->getName(count);
+		const char *key = g_Plugins->getFileName(count);
 		if (loc && *loc && key && *key) {
 			options.push_back(loc);
 			keys[loc] = key;

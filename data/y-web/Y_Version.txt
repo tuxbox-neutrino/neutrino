@@ -1,4 +1,4 @@
-version=2.9.0.39
-date=26.08.2016
+version=2.9.0.40
+date=01.03.2017
 type=Release
 info=Port Tuxbox-Neutrino

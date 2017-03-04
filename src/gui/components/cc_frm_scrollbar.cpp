@@ -165,9 +165,6 @@ void CComponentsScrollBar::initSegments()
 		y_seg += h_seg + append_y_offset;
 
 		int id = sb_segments_obj->getCCItemId(item);
-		if (sb_mark_id > id){
-			dprintf(DEBUG_NORMAL, "[CComponentsScrollBar] %s: sb_mark_id out of range current=%d allowed=%d\n", __func__, sb_mark_id, id);
-		}
 
 		//set color for marked id
 		if (sb_mark_id == id){

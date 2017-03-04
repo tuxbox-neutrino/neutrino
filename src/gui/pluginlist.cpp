@@ -61,7 +61,7 @@
 
 #include "plugins.h"
 
-extern CPlugins       * g_PluginList;    /* neutrino.cpp */
+extern CPlugins       * g_Plugins;    /* neutrino.cpp */
 
 CPluginList::CPluginList(const neutrino_locale_t Title, const uint32_t listtype)
 {
@@ -74,10 +74,10 @@ CPluginList::CPluginList(const neutrino_locale_t Title, const uint32_t listtype)
 
 int CPluginList::run()
 {
-	g_PluginList->startPlugin(number);
-	if (!g_PluginList->getScriptOutput().empty()) {
+	g_Plugins->startPlugin(number);
+	if (!g_Plugins->getScriptOutput().empty()) {
 		hide();
-		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL, 320, g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]);
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL, 320, g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]);
 	}
 	return menu_return::RETURN_REPAINT;
 }
@@ -108,14 +108,14 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 	m.setSelected(selected);
 	m.addIntroItems();
 
-	int nop = g_PluginList->getNumberOfPlugins();
+	int nop = g_Plugins->getNumberOfPlugins();
 
 	for(int count = 0; count < nop; count++) {
-		if ((g_PluginList->getType(count) & pluginlisttype) && !g_PluginList->isHidden(count) && (g_PluginList->getIntegration(count) == CPlugins::I_TYPE_DISABLED)) {
-			neutrino_msg_t d_key = g_PluginList->getKey(count);
+		if ((g_Plugins->getType(count) & pluginlisttype) && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == CPlugins::I_TYPE_DISABLED)) {
+			neutrino_msg_t d_key = g_Plugins->getKey(count);
 			keyhelper.get(&key, &dummy, d_key);
-			CMenuForwarder *f = new CMenuForwarder(std::string(g_PluginList->getName(count)), true, NULL, this, to_string(count).c_str(), key);
-			f->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
+			CMenuForwarder *f = new CMenuForwarder(std::string(g_Plugins->getName(count)), true, NULL, this, to_string(count).c_str(), key);
+			f->setHint(g_Plugins->getHintIcon(count), g_Plugins->getDescription(count));
 			m.addItem(f);
 		}
 	}
@@ -134,7 +134,7 @@ CPluginChooser::CPluginChooser(const neutrino_locale_t Name, const uint32_t list
 int CPluginChooser::run()
 {
 	if (number > -1)
-		*selectedFilePtr = g_PluginList->getFileName(number);
+		*selectedFilePtr = g_Plugins->getFileName(number);
 	return menu_return::RETURN_EXIT;
 }
 
@@ -165,12 +165,12 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 		return menu_return::RETURN_EXIT;
 	}
 	else if (sel >= 0)
-		g_PluginList->startPlugin(sel);
+		g_Plugins->startPlugin(sel);
 
-	if (!g_PluginList->getScriptOutput().empty())
-		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
+	if (!g_Plugins->getScriptOutput().empty())
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
 
-	if (g_PluginList->getIntegration(sel) == CPlugins::I_TYPE_DISABLED)
+	if (g_Plugins->getIntegration(sel) == CPlugins::I_TYPE_DISABLED)
 		return menu_return::RETURN_EXIT;
 
 	return menu_return::RETURN_REPAINT;

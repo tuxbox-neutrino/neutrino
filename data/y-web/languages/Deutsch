@@ -203,8 +203,8 @@ epg.hover_for_details=F&uuml;r Details: Maus &uuml;ber die entsprechende Sendung
 epg.refresh=EPG Daten aktualisieren
 epg.past_hours=Stunden zur&uuml;ck
 epg.next_hours=Stunden vor
-epg.set_timer=Timer f&uuml;r Aufnahme gesetzt
-epg.zap_to=Umschalt-Timer gesetzt
+epg.set_timer_rec=Aufnahme-Timer gesetzt
+epg.set_timer_zap=Umschalt-Timer gesetzt
 
 ========EPG Streaminfo
 epg.si.streaminfo=Streaminfo

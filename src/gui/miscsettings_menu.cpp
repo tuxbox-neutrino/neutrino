@@ -59,7 +59,7 @@
 
 #include <sectionsdclient/sectionsdclient.h>
 
-extern CPlugins       * g_PluginList;
+extern CPlugins       * g_Plugins;
 extern cVideo *videoDecoder;
 
 CMiscMenue::CMiscMenue()
@@ -98,7 +98,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		const char *action_str = "plugin";
 		if(chooserDir(g_settings.plugin_hdd_dir, false, action_str))
-			g_PluginList->loadPlugins();
+			g_Plugins->loadPlugins();
 
 		return menu_return::RETURN_REPAINT;
 	}
@@ -110,13 +110,13 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		MoviePluginSelector.addItem(GenericMenuSeparatorLine);
 		char id[5];
 		int enabled_count = 0;
-		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++)
+		for(unsigned int count=0;count < (unsigned int) g_Plugins->getNumberOfPlugins();count++)
 		{
-			if (!g_PluginList->isHidden(count))
+			if (!g_Plugins->isHidden(count))
 			{
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new CMoviePluginChangeExec(), id, CRCInput::convertDigitToKey(count)));
+				MoviePluginSelector.addItem(new CMenuForwarder(g_Plugins->getName(count), true, NULL, new CMoviePluginChangeExec(), id, CRCInput::convertDigitToKey(count)));
 			}
 		}
 

@@ -677,6 +677,7 @@ void CVideoSettings::nextMode(void)
 	int curmode = 0;
 	int i;
 	bool disp_cur = 1;
+	int res = messages_return::none;
 
 	for (i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
 		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key == g_settings.video_Mode) {
@@ -688,7 +689,9 @@ void CVideoSettings::nextMode(void)
 
 	while(1) {
 		CVFD::getInstance()->ShowText(text);
-		int res = ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
+
+		if (res != messages_return::cancel_info) // avoid unnecessary display of messageboxes, when user is trying to press repeated format button
+			res = ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 
 		if(disp_cur && res != messages_return::handled)
 			break;

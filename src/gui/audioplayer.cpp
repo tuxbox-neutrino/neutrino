@@ -1602,7 +1602,7 @@ void CAudioPlayerGui::paintFoot()
 	if (m_screensaver)
 		return;
 
-	const struct button_label ScondLineButtons[3] =
+	const struct button_label SecondLineButtons[3] =
 	{
 		{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_AUDIOPLAYER_PLAY        },
 		{ NEUTRINO_ICON_BUTTON_HELP , LOCALE_AUDIOPLAYER_KEYLEVEL        },
@@ -1621,7 +1621,7 @@ void CAudioPlayerGui::paintFoot()
 
 	int bwidth = m_width - (2*c_rad_mid);
 	if (!m_playlist.empty())
-		::paintButtons(m_x + c_rad_mid, top+m_buttonHeight, bwidth, 3, ScondLineButtons, bwidth, m_buttonHeight);
+		::paintButtons(m_x + c_rad_mid, top+m_buttonHeight, bwidth, 3, SecondLineButtons, bwidth, m_buttonHeight);
 
 	if (m_key_level == 0)
 	{

@@ -2091,7 +2091,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				pb.paint();
 			}
 			//name
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_SMALL + numwidth + OFFSET_INNER_MID + prg_offset, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - 15 - prg_offset, nameAndDescription, color);
 		}
 		if (!firstpaint && curr == selected)
 			updateVfd();

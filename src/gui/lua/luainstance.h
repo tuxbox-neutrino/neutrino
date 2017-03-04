@@ -46,7 +46,7 @@ public:
 	enum {
 		DYNFONT_NO_ERROR      = 0,
 		DYNFONT_MAXIMUM_FONTS = 1,
-		DYNFONT_TO_WIDE       = 2,
+		DYNFONT_TOO_WIDE      = 2,
 		DYNFONT_TOO_HIGH      = 3
 	};
 
@@ -73,6 +73,7 @@ public:
 	static int saveScreen(lua_State *L);
 	static int restoreScreen(lua_State *L);
 	static int deleteSavedScreen(lua_State *L);
+	static int scale2Res(lua_State *L);
 
 private:
 	lua_State* lua;

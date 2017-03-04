@@ -1028,21 +1028,21 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut, bool enabled)
 {
 	bool separatorline = false;
-	unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
+	unsigned int number_of_plugins = (unsigned int) g_Plugins->getNumberOfPlugins();
 	unsigned int sc = shortcut;
 	for (unsigned int count = 0; count < number_of_plugins; count++)
 	{
-		if ((g_PluginList->getIntegration(count) == integration) && !g_PluginList->isHidden(count))
+		if ((g_Plugins->getIntegration(count) == integration) && !g_Plugins->isHidden(count))
 		{
 			if (!separatorline)
 			{
 				addItem(GenericMenuSeparatorLine);
 				separatorline = true;
 			}
-			printf("[neutrino] integratePlugins: add %s\n", g_PluginList->getName(count));
+			printf("[neutrino] integratePlugins: add %s\n", g_Plugins->getName(count));
 			neutrino_msg_t dk = (shortcut != CRCInput::RC_nokey) ? CRCInput::convertDigitToKey(sc++) : CRCInput::RC_nokey;
-			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), enabled, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
-			fw_plugin->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
+			CMenuForwarder *fw_plugin = new CMenuForwarder(g_Plugins->getName(count), enabled, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
+			fw_plugin->setHint(g_Plugins->getHintIcon(count), g_Plugins->getDescription(count));
 			addItem(fw_plugin);
 		}
 	}
