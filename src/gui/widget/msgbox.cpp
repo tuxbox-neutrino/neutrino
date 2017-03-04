@@ -279,14 +279,11 @@ int CMsgBox::exec()
 		//***navi buttons for button selection***
 		else if(msg == CRCInput::RC_right || msg == CRCInput::RC_left)
 		{
-			if (msg == CRCInput::RC_right) {
+			if (msg == CRCInput::RC_right)
 				ccw_footer->setSelectedButton(selected+1);
-				mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
-			}
-			if (msg == CRCInput::RC_left) {
+			else
 				ccw_footer->setSelectedButton(selected-1);
-				mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
-			}
+			mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
 			selected = ccw_footer->getSelectedButton();
 
 			//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
