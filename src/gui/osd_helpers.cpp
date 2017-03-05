@@ -181,3 +181,44 @@ uint32_t COsdHelpers::getOsdResolution()
 	}
 	return 0;
 }
+
+#define DEBUGINFO_SETVIDEOSYSTEM
+
+int COsdHelpers::setVideoSystem(int newSystem, bool remember/* = true*/)
+{
+	if ((newSystem < 0) || (newSystem > VIDEO_STD_MAX))
+		return -1;
+
+	if (newSystem == getVideoSystem())
+		return 0;
+
+#ifdef DEBUGINFO_SETVIDEOSYSTEM
+	int fd = CFrameBuffer::getInstance()->getFileHandle();
+	fb_var_screeninfo var;
+	fb_fix_screeninfo fix;
+
+	ioctl(fd, FBIOGET_VSCREENINFO, &var);
+	ioctl(fd, FBIOGET_FSCREENINFO, &fix);
+	printf(">>>>>[%s - %s:%d] before SetVideoSystem:\n"
+				"                var.xres        : %4d, var.yres    : %4d, var.yres_virtual: %4d\n"
+				"                fix.line_length : %4d, fix.smem_len: %d Byte\n",
+				__path_file__, __func__, __LINE__,
+				var.xres, var.yres, var.yres_virtual,
+				fix.line_length, fix.smem_len);
+#endif
+
+	int ret = videoDecoder->SetVideoSystem(newSystem, remember);
+
+#ifdef DEBUGINFO_SETVIDEOSYSTEM
+	ioctl(fd, FBIOGET_VSCREENINFO, &var);
+	ioctl(fd, FBIOGET_FSCREENINFO, &fix);
+	printf(">>>>>[%s - %s:%d] after SetVideoSystem:\n"
+				"                var.xres        : %4d, var.yres    : %4d, var.yres_virtual: %4d\n"
+				"                fix.line_length : %4d, fix.smem_len: %d Byte\n",
+				__path_file__, __func__, __LINE__,
+				var.xres, var.yres, var.yres_virtual,
+				fix.line_length, fix.smem_len);
+#endif
+
+	return ret;
+}

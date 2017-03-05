@@ -23,6 +23,7 @@ class COsdHelpers
 		int  isVideoSystem1080(int res);
 		int  getVideoSystem();
 		uint32_t getOsdResolution();
+		int setVideoSystem(int newSystem, bool remember = true);
 };
 
 

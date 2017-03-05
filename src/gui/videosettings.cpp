@@ -414,7 +414,7 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 {
 	printf("[neutrino VideoSettings] %s setup videosystem...\n", __FUNCTION__);
 	COsdHelpers::getInstance()->resetOsdResolution(g_settings.video_Mode);
-	videoDecoder->SetVideoSystem(g_settings.video_Mode); //FIXME
+	COsdHelpers::getInstance()->setVideoSystem(g_settings.video_Mode); //FIXME
 	COsdHelpers::getInstance()->changeOsdResolution(0, true, true);
 
 	if (do_ask)
@@ -426,7 +426,7 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 			{
 				g_settings.video_Mode = prev_video_mode;
 				COsdHelpers::getInstance()->resetOsdResolution(g_settings.video_Mode);
-				videoDecoder->SetVideoSystem(g_settings.video_Mode);
+				COsdHelpers::getInstance()->setVideoSystem(g_settings.video_Mode);
 				COsdHelpers::getInstance()->changeOsdResolution(0, true, true);
 			}
 			else
@@ -612,7 +612,7 @@ void CVideoSettings::nextMode(void)
 			g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
 			//CVFD::getInstance()->ShowText(text);
 			COsdHelpers::getInstance()->resetOsdResolution(g_settings.video_Mode);
-			videoDecoder->SetVideoSystem(g_settings.video_Mode);
+			COsdHelpers::getInstance()->setVideoSystem(g_settings.video_Mode);
 			COsdHelpers::getInstance()->changeOsdResolution(0, true, true);
 			//return;
 			disp_cur = 1;
