@@ -413,9 +413,8 @@ void CVideoSettings::setVideoSettings()
 void CVideoSettings::setupVideoSystem(bool do_ask)
 {
 	printf("[neutrino VideoSettings] %s setup videosystem...\n", __FUNCTION__);
-	COsdHelpers::getInstance()->resetOsdResolution(g_settings.video_Mode);
 	COsdHelpers::getInstance()->setVideoSystem(g_settings.video_Mode); //FIXME
-	COsdHelpers::getInstance()->changeOsdResolution(0, true, true);
+	COsdHelpers::getInstance()->changeOsdResolution(0, true, false);
 
 	if (do_ask)
 	{
@@ -425,9 +424,8 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEO_MODE_OK), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO) != CMsgBox::mbrYes)
 			{
 				g_settings.video_Mode = prev_video_mode;
-				COsdHelpers::getInstance()->resetOsdResolution(g_settings.video_Mode);
 				COsdHelpers::getInstance()->setVideoSystem(g_settings.video_Mode);
-				COsdHelpers::getInstance()->changeOsdResolution(0, true, true);
+				COsdHelpers::getInstance()->changeOsdResolution(0, true, false);
 			}
 			else
 				prev_video_mode = g_settings.video_Mode;
@@ -611,9 +609,8 @@ void CVideoSettings::nextMode(void)
 		else if(res == messages_return::cancel_info) {
 			g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
 			//CVFD::getInstance()->ShowText(text);
-			COsdHelpers::getInstance()->resetOsdResolution(g_settings.video_Mode);
 			COsdHelpers::getInstance()->setVideoSystem(g_settings.video_Mode);
-			COsdHelpers::getInstance()->changeOsdResolution(0, true, true);
+			COsdHelpers::getInstance()->changeOsdResolution(0, true, false);
 			//return;
 			disp_cur = 1;
 		}

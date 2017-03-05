@@ -62,7 +62,13 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 		modeNew = OSDMODE_720;
 	idx = frameBuffer->getIndexOsdResolution(modeNew);
 	resetOsd = (modeNew != getOsdResolution()) ? true : false;
-
+#if 1
+	printf(">>>>>[%s:%d] osd mode: %s => %s, automode: %s, forceOsdReset: %s\n", __func__, __LINE__,
+		(g_settings.osd_resolution == OSDMODE_720)?"OSDMODE_720":"OSDMODE_1080",
+		(modeNew == OSDMODE_720)?"OSDMODE_720":"OSDMODE_1080",
+		(automode)?"true":"false",
+		(forceOsdReset)?"true":"false");
+#endif
 	if (forceOsdReset)
 		resetOsd = true;
 
@@ -111,24 +117,11 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 		}
 	}
 }
-
-void COsdHelpers::resetOsdResolution(int newSystem)
-{
-	int videoSystem = getVideoSystem();
-	if ((isVideoSystem1080(videoSystem)) && (!isVideoSystem1080(newSystem))) {
-		CFrameBuffer::getInstance()->setMode(1280, 720, 32);
-	}
-}
 #else
 void COsdHelpers::changeOsdResolution(uint32_t, bool, bool)
 {
 }
-
-void COsdHelpers::resetOsdResolution(int)
-{
-}
 #endif
-
 
 int COsdHelpers::isVideoSystem1080(int res)
 {

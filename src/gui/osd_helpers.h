@@ -19,7 +19,6 @@ class COsdHelpers
 		int g_settings_osd_resolution_save;
 
 		void changeOsdResolution(uint32_t mode, bool automode=false, bool forceOsdReset=false);
-		void resetOsdResolution(int newSystem);
 		int  isVideoSystem1080(int res);
 		int  getVideoSystem();
 		uint32_t getOsdResolution();
