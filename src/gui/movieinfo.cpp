@@ -546,6 +546,7 @@ void MI_MOVIE_INFO::clear(void)
 
 	marked = false;
 	delAsk = true;
+	source = UNKNOWN;
 }
 
 bool CMovieInfo::loadFile(CFile &file, std::string &buffer)

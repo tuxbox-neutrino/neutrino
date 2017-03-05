@@ -70,7 +70,7 @@ std::string cYTCache::getName(MI_MOVIE_INFO *mi, std::string ext)
 		case MI_MOVIE_INFO::NK:
 			return g_settings.downloadcache_dir + "/nk-" + mi->ytid + "." + ext;
 		default:
-			return "";
+			return g_settings.downloadcache_dir + "/error-" + mi->ytid + "." + ext;;
 	}
 }
 

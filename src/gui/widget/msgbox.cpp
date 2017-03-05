@@ -103,7 +103,8 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 	//set result
 	if (Default_result != mbrNone)
 		result = default_result = Default_result;
-
+	else
+		result = mbrNone;
 	//add and initialize footer buttons with required buttons and basic properties
 	if (ShowButtons > -1)
 		mb_show_button = ShowButtons;
@@ -275,53 +276,45 @@ int CMsgBox::exec()
 		{
 			scroll_down();
 		}
-		else if (msg){
-			//***navi buttons for button selection***
-			if(msg==CRCInput::RC_right || msg==CRCInput::RC_left)
-			{
-				if(msg==CRCInput::RC_right){
-					ccw_footer->setSelectedButton(selected+1);
-					mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
-				}
-				if(msg==CRCInput::RC_left){
-					ccw_footer->setSelectedButton(selected-1);
-					mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
-				}
-				selected = ccw_footer->getSelectedButton();
+		//***navi buttons for button selection***
+		else if(msg == CRCInput::RC_right || msg == CRCInput::RC_left)
+		{
+			if (msg == CRCInput::RC_right)
+				ccw_footer->setSelectedButton(selected+1);
+			else
+				ccw_footer->setSelectedButton(selected-1);
+			mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
+			selected = ccw_footer->getSelectedButton();
 
-				//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
-				if (ccw_footer->getButtonChainObject()->size()>1)
-					refreshFoot();
+			//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
+			if (ccw_footer->getButtonChainObject()->size()>1)
+				refreshFoot();
 
-				//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
-				if (timeout > 0){
-					timeout_pb->setValues(0, timeout);
-					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
-				}
+			//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
+			if (timeout > 0) {
+				timeout_pb->setValues(0, timeout);
+				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+			}
+			dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
+		}
+
+		//***action buttons without preselection***
+		for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++){
+			CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
+			if (msg == btn_action->getButtonDirectKey() || msg == btn_action->getButtonDirectKeyA()){
+				result = (msg_result_t)btn_action->getButtonResult();
 				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
-			}
-
-			//***action buttons without preselection***
-			for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++){
-				CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
-				if (msg == btn_action->getButtonDirectKey() || msg == btn_action->getButtonDirectKeyA()){
-					result = (msg_result_t)btn_action->getButtonResult();
-					dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
-					loop = false;
-				}
-			}
-			//***action button ok with preselected button***
-			if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
-				result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
 				loop = false;
 			}
-			else if (msg == NeutrinoMessages::RECORD_START || msg == NeutrinoMessages::RECORD_STOP) {
-				CNeutrinoApp::getInstance()->handleMsg(msg, data);
-			}
-			//***ignore***
-			else if (CNeutrinoApp::getInstance()->listModeKey(msg)){
-				// do nothing //TODO: if passed rc messages are ignored rc messaages: has no effect here too!!
-			}
+		}
+		//***action button ok with preselected button***
+		if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
+			result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
+			loop = false;
+		}
+		//***ignore***
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)){
+			// do nothing //TODO: if passed rc messages are ignored rc messaages: has no effect here too!!
 		}
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 		{
