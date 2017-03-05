@@ -103,7 +103,8 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 	//set result
 	if (Default_result != mbrNone)
 		result = default_result = Default_result;
-
+	else
+		result = mbrNone;
 	//add and initialize footer buttons with required buttons and basic properties
 	if (ShowButtons > -1)
 		mb_show_button = ShowButtons;
