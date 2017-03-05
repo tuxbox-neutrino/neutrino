@@ -235,8 +235,10 @@ int CFbAccelCSHD2::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int 
 		setOsdResolutions();
 
 	if (fullHdAvailable()) {
-		screeninfo.xres_virtual=screeninfo.xres=nxRes;
-		screeninfo.yres_virtual=screeninfo.yres=nyRes;
+		screeninfo.xres=nxRes;
+		screeninfo.yres=nyRes;
+		screeninfo.xres_virtual=nxRes;
+		screeninfo.yres_virtual=nyRes*2;
 		screeninfo.height=0;
 		screeninfo.width=0;
 		screeninfo.xoffset=screeninfo.yoffset=0;
