@@ -516,7 +516,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	if (IS_WEBTV(newchannel->getChannelID()) && !newchannel->getUrl().empty()) {
 		dvbsub_stop();
-		if (current_channel->getChannelID() == newchannel->getChannelID() && !newchannel->getScriptName().empty()){
+		if (current_channel && current_channel->getChannelID() == newchannel->getChannelID() && !newchannel->getScriptName().empty()){
 			INFO("[zapit] stop rezap to channel %s id %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID());
 			return true;
 		}

@@ -49,7 +49,6 @@
 #include <nhttpd/yconfig.h>
 
 #define VERSION_FILE TARGET_PREFIX "/.version"
-#define Y_VERSION_FILE DATADIR "/neutrino/httpd/Y_Version.txt"
 
 using namespace std;
 
@@ -310,7 +309,7 @@ void CImageInfo::InitInfoData()
 	s_api	+= ", ";
 #endif
 	s_api	+= "yWeb ";
-	s_api	+= getYApi();
+	s_api	+= getYWebVersion();
 	s_api	+= ", ";
 	s_api	+= HTTPD_NAME;
 	s_api	+= + " ";
@@ -462,12 +461,9 @@ void CImageInfo::hide()
 	}
 }
 
-string CImageInfo::getYApi()
+string CImageInfo::getYWebVersion()
 {
-	string ret;
-	config.loadConfig(Y_VERSION_FILE);
-	ret = config.getString("version", "n/a");
-	config.loadConfig(VERSION_FILE);
-	return ret;
+	CConfigFile yV('=', false);
+	yV.loadConfig(PRIVATE_HTTPDDIR "/Y_Version.txt");
+	return yV.getString("version", "n/a");
 }
-
