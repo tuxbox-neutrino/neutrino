@@ -5234,7 +5234,7 @@ void RenderPage()
 			{
 				page_atrb[32].fg = yellow;
 				page_atrb[32].bg = menu1;
-				int showpage = tuxtxt_cache.page_receiving;
+				int showpage = tuxtxt_cache.page_receiving < 0 ? 0 : tuxtxt_cache.page_receiving;
 				int showsubpage = tuxtxt_cache.subpagetable[showpage];
 				if (showsubpage!=0xff)
 				{
