@@ -626,6 +626,7 @@ struct SNeutrinoSettings
 	int screen_EndX_lcd_1;
 	int screen_EndY_lcd_1;
 	int osd_resolution;
+	int osd_resolution_force;
 	int screen_preset;
 	int screen_width;
 	int screen_height;

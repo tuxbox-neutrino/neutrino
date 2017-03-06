@@ -325,6 +325,10 @@ colormenu.font_ttx Select Teletext font
 colormenu.menucolors Colors
 colormenu.osd_preset TV preset
 colormenu.osd_resolution OSD resolution
+colormenu.osd_resolution_force Force OSD resolution
+colormenu.osd_resolution_force_all in all modes
+colormenu.osd_resolution_force_hd in HD modes
+colormenu.osd_resolution_force_never never
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
 colormenu.timing Timeouts
@@ -1253,6 +1257,7 @@ menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
 menu.hint_osd_resolution Change OSD resolution
+menu.hint_osd_resolution_force Forces the given OSD resolution, even when the videosystem is auto-changed
 menu.hint_osd_timing After this time the OSD will be faded out
 menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code

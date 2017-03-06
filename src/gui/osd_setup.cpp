@@ -397,6 +397,14 @@ const CMenuOptionChooser::keyval_ext OSD_PRESET_OPTIONS[] =
 	{ COsdSetup::PRESET_LCD, NONEXISTANT_LOCALE, "LCD" }
 };
 
+const CMenuOptionChooser::keyval OSD_RESOLUTION_FORCE_OPTIONS[]=
+{
+	{ COsdHelpers::FORCE_NEVER, LOCALE_COLORMENU_OSD_RESOLUTION_FORCE_NEVER },
+	{ COsdHelpers::FORCE_HD,    LOCALE_COLORMENU_OSD_RESOLUTION_FORCE_HD },
+	{ COsdHelpers::FORCE_ALL,   LOCALE_COLORMENU_OSD_RESOLUTION_FORCE_ALL }
+};
+int OSD_RESOLUTION_FORCE_OPTIONS_COUNT = sizeof(OSD_RESOLUTION_FORCE_OPTIONS)/sizeof(OSD_RESOLUTION_FORCE_OPTIONS[0]);
+
 #define INFOBAR_CASYSTEM_MODE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval INFOBAR_CASYSTEM_MODE_OPTIONS[INFOBAR_CASYSTEM_MODE_OPTION_COUNT] =
 {
@@ -662,11 +670,17 @@ int COsdSetup::showOsdSetup()
 	}
 	int videoSystem = COsdHelpers::getInstance()->getVideoSystem();
 	bool enable = ((resCount > 1) &&
-			COsdHelpers::getInstance()->isVideoSystem1080(videoSystem) &&
+			COsdHelpers::getInstance()->allow_OSDMODE_1080(videoSystem) &&
 			(g_settings.video_Mode != VIDEO_STD_AUTO));
 	CMenuOptionChooser * osd_res = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_RESOLUTION, &g_settings.osd_resolution, kext, resCount, enable, this);
 	osd_res->setHint("", LOCALE_MENU_HINT_OSD_RESOLUTION);
 	osd_menu->addItem(osd_res);
+
+	// force resolution in auto-mode
+	enable = (g_settings.video_Mode == VIDEO_STD_AUTO);
+	CMenuOptionChooser * osd_res_force = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_RESOLUTION_FORCE, &g_settings.osd_resolution_force, OSD_RESOLUTION_FORCE_OPTIONS, OSD_RESOLUTION_FORCE_OPTIONS_COUNT, enable, this);
+	osd_res_force->setHint("", LOCALE_MENU_HINT_OSD_RESOLUTION_FORCE);
+	osd_menu->addItem(osd_res_force);
 #endif
 
 	//monitor
