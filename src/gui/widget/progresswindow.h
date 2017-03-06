@@ -89,10 +89,10 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* 			status.hide();
 		* 		}
 		*
-		* 			//That's it. Until now these steps are a classical way inside neutrino, but you can use proress window with signals too.
-		* 			//Working with signals have the advantage that the implementation could be more compactly, because
-		* 			//complex constructions within the classes are usually unnecessary,
-		* 			//beacuse of the signals can be installed where they directly take the required values. See next example:
+		* 		//That's it. Until now these steps are a classical way inside neutrino, but you can use proress window with signals too.
+		* 		//Working with signals have the advantage that the implementation could be more compactly, because
+		* 		//complex constructions within the classes are usually unnecessary,
+		* 		//beacuse of the signals can be installed where they directly catching the required values. See next example:
 		*
 		* 		class CFooClass
 		* 		{
@@ -101,6 +101,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* 			private:
 		* 				//other members...
 		* 				sigc::signal<void, size_t, size_t, std::string> OnProgress;
+		* 				void DoCount();
 		* 				//other members...
 		* 			public:
 		* 				//other members...
@@ -132,8 +133,53 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* 			//finally remove window from screen
 		* 			progress.hide();
 		* 		}
+		*
+		* 		//Another and a recommended way to implement signals is to inherit prepared signals with
+		* 		//class CProgressSignals. This class contains prepared signals for implemantation and disconnetion of slots
+		* 		//is performed automatically.
+		* 		//See next example:
+		* 		class CFooClass : public CProgressSignals
+		* 		{
+		* 			private:
+		* 				//other members...
+		* 				void DoCount();
+		* 				//other members...
+		* 			public:
+		* 				//other members...
+		* 				void DoAnything();
+		* 				//other members...
+		* 		};
+		*
+		* 		//add the OnGlobalProgress and OnLocalProgress signals into a counter methode
+		* 		void CFooClass::DoCount();{
+		* 			size_t max = 10;
+		* 			for (size_t i = 0; i < max; i++){
+		* 				OnGlobalProgress(i, max, "Test"); //visualize global progress
+		* 				for (size_t j = 0; j < max; j++){
+		* 					OnLocalProgress(ij, max, "Test"); // visualize local progress
+		* 				}
+		* 			}
+		* 		}
+		*
+		* 		void CFooClass::DoAnything{
+		* 			//inside of methode which calls the progress define a CProgressWindow object and the counter method:
+		* 			//...any code
+		* 			CProgressWindow progress(NULL, 500, 150, NULL, &OnLocalProgress, &OnGlobalProgress);
+		* 			progress.paint(); // paint window
+		*
+		* 			//...
+		*
+		* 			void DoCount();
+		*
+		* 			//...
+		*
+		* 			//finally remove window from screen
+		* 			progress.hide();
+		* 		}
+		*
 		* @note
-		* 		Don't use status_Signal at same time with localSignal and globalSignal. In This case please set status_Signal = NULL
+		* 		Don't use status_Signal at same time with localSignal and globalSignal. \n
+		* 		In This case please set prameter 'status_Signal' = NULL
 		*/
 		CProgressWindow(CComponentsForm *parent = NULL,
 				const int &dx = PW_MIN_WIDTH,
@@ -241,5 +287,25 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		void paint(bool do_save_bg = true);
 };
 
+class CProgressSignals : public sigc::trackable
+{
+	public:
+		/**CProgressSignals Constructor:
+		* Additional class for inherited signal implemantations into classes with used CProgressWindow instances.
+		*/
+		CProgressSignals()
+		{
+			//obligatory init of signals. Not really required but just to be safe.
+			OnProgress.clear();
+			OnLocalProgress.clear();
+			OnGlobalProgress.clear();
+		};
+
+		/**
+		* For general usage for implementations of signals for classes which are using CProgressBar() window instances based on inheritance.
+		* @see Take a look into examples to find in progressbar.h
+		*/
+		sigc::signal<void, size_t, size_t, std::string> OnProgress, OnLocalProgress, OnGlobalProgress;
+};
 
 #endif
