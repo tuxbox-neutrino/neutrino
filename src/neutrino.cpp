@@ -2036,6 +2036,8 @@ TIMER_START();
 	cs_api_init();
 	cs_register_messenger(CSSendMessage);
 
+	g_info.hw_caps = get_hwcaps();
+
 	g_Locale        = new CLocaleManager;
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);

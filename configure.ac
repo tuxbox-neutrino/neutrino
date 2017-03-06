@@ -250,6 +250,7 @@ if test -e ${srcdir}/lib/libcoolstream2/cs_frontpanel.h; then
 fi
 HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2 -I$(top_srcdir)/src/zapit/include/private'
 fi
+HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
 fi
 
 # hack, so that framebuffer.h does not need to be included everywhere...
@@ -313,6 +314,7 @@ data/y-web/scripts/Makefile
 data/y-web/styles/Makefile
 lib/Makefile
 lib/connection/Makefile
+lib/hardware/coolstream/Makefile
 lib/jsoncpp/Makefile
 lib/libconfigfile/Makefile
 lib/libdvbsub/Makefile

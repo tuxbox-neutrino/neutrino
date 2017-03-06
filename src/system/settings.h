@@ -39,6 +39,8 @@
 #include <zapit/client/zapittools.h>
 #include <eitd/edvbstring.h> // UTF8
 
+#include <hardware_caps.h>
+
 #include <string>
 #include <list>
 
@@ -924,6 +926,7 @@ struct SglobalInfo
 	unsigned char     box_Type;
 	delivery_system_t delivery_system;
 	bool has_fan;
+	hw_caps_t *hw_caps;
 };
 
 const int RECORDING_OFF    = 0;
