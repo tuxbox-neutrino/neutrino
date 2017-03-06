@@ -2766,7 +2766,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 	for (i=0; i < size;i++)
 	{
 		if (*m_dir[i].used == true){
-			OnLoadDir(i+1, size, m_dir[i].name);
+			OnLoadDir(i, size, m_dir[i].name);
 			loadTsFileNamesFromDir(m_dir[i].name);
 		}
 	}
