@@ -2136,6 +2136,8 @@ TIMER_START();
 	cs_new_auto_videosystem();
 #endif
 
+	g_info.hw_caps = get_hwcaps();
+
 	g_Locale        = new CLocaleManager;
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
