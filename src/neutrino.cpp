@@ -4827,7 +4827,11 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 6\n");fflush(stdout);
 	delete CVFD::getInstance();
 #ifdef __UCLIBC__
+#if (__UCLIBC_MAJOR__ >= 1) && (__UCLIBC_MINOR__ >= 0) && (__UCLIBC_SUBLEVEL__ >= 10)
+	malloc_stats();
+#else
 	malloc_stats(NULL);
+#endif
 #else
 	malloc_stats();
 #endif
