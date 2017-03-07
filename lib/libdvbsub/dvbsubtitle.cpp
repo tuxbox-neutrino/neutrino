@@ -68,8 +68,13 @@ cDvbSubtitleBitmaps::~cDvbSubtitleBitmaps()
     if(sub.rects) {
 	    for (i = 0; i < Count(); i++)
 	    {
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 5, 0)
 		    av_freep(&sub.rects[i]->pict.data[0]);
 		    av_freep(&sub.rects[i]->pict.data[1]);
+#else
+		    av_freep(&sub.rects[i]->data[0]);
+		    av_freep(&sub.rects[i]->data[1]);
+#endif
 		    av_freep(&sub.rects[i]);
 	    }
 
@@ -122,7 +127,11 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 	int xf = int(xc * (double) 720);
 
 	for (i = 0; i < Count(); i++) {
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 5, 0)
 		uint32_t * colors = (uint32_t *) sub.rects[i]->pict.data[1];
+#else
+		uint32_t * colors = (uint32_t *) sub.rects[i]->data[1];
+#endif
 		int width = sub.rects[i]->w;
 		int height = sub.rects[i]->h;
 		int xoff, yoff;
@@ -142,9 +151,11 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 
 		dbgconverter("cDvbSubtitleBitmaps::Draw: #%d at %d,%d size %dx%d colors %d (x=%d y=%d w=%d h=%d) \n", i+1, 
 				sub.rects[i]->x, sub.rects[i]->y, sub.rects[i]->w, sub.rects[i]->h, sub.rects[i]->nb_colors, xoff, yoff, nw, nh);
-
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 5, 0)
 		fb_pixel_t * newdata = simple_resize32 (sub.rects[i]->pict.data[0], colors, sub.rects[i]->nb_colors, width, height, nw, nh);
-
+#else
+		fb_pixel_t * newdata = simple_resize32 (sub.rects[i]->data[0], colors, sub.rects[i]->nb_colors, width, height, nw, nh);
+#endif
 		fb_pixel_t * ptr = newdata;
 		for (int y2 = 0; y2 < nh; y2++) {
 			int y = (yoff + y2) * stride;
