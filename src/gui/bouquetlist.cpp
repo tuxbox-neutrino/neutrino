@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2009,2011,2013,2015-2016 Stefan Seyfried
+	Copyright (C) 2009,2011,2013,2015-2017 Stefan Seyfried
 
 	License: GPL
 
@@ -580,7 +580,7 @@ int CBouquetList::show(bool bShowChannelList)
 			g_RCInput->postMsg(msg, data);
 			loop = false;
 			res = CHANLIST_CANCEL_ALL;
-		} else if (msg > CRCInput::RC_MaxRC) {
+		} else {
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 				loop = false;
 				res = CHANLIST_CANCEL_ALL;
