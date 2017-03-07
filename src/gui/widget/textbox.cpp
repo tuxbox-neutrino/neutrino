@@ -299,9 +299,9 @@ void CTextBox::initFramesRel(void)
 
 	if(m_nMode & SCROLL)
 	{
-		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLL_FRAME_WIDTH;
-		m_cFrameScrollRel.iY		= m_cFrameTextRel.iY + m_nBgRadius;
 		m_cFrameScrollRel.iWidth	= SCROLL_FRAME_WIDTH;
+		m_cFrameScrollRel.iX		= m_cFrame.iWidth - m_cFrameScrollRel.iWidth;
+		m_cFrameScrollRel.iY		= m_cFrameTextRel.iY + m_nBgRadius;
 		m_cFrameScrollRel.iHeight	= m_cFrameTextRel.iHeight - 2*m_nBgRadius;
 	}
 	else
@@ -708,7 +708,7 @@ void CTextBox::refreshText(void)
 			if (m_nMode & CENTER)
 				x_center /= 2;
 			if (m_nMode & SCROLL)
-				x_center -= SCROLL_FRAME_WIDTH;
+				x_center -= m_cFrameScrollRel.iWidth;
 		}
 		x_center = std::max(x_center, 0);
 

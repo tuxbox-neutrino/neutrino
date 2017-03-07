@@ -73,7 +73,11 @@ class CStreamStream : public CStreamInstance
 	private:
 		AVFormatContext *ifcx;
 		AVFormatContext *ofcx;
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
 		AVBitStreamFilterContext *bsfc;
+#else
+		AVBSFContext *bsfc;
+#endif
 		AVIOContext *avio_ctx;
 
 		bool stopped;

@@ -143,7 +143,7 @@ endif
 
 if BOXTYPE_COOL
 neutrino_LDADD += \
-	$(top_builddir)/lib/libcoolstream/libhwcaps.a
+	$(top_builddir)/lib/hardware/coolstream/libhwcaps.a
 neutrino_LDADD += -lcoolstream-mt -lca-sc
 if ENABLE_TMSDK 
 else

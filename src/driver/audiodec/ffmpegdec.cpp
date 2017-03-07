@@ -47,6 +47,11 @@ extern "C" {
 #define av_frame_unref	avcodec_get_frame_defaults
 #define av_frame_free	avcodec_free_frame
 #endif
+
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57, 8, 0 ))
+#define av_packet_unref	av_free_packet
+#endif
+
 #include <OpenThreads/ScopedLock>
 
 #include <driver/netfile.h>
@@ -218,9 +223,16 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		Status=DATA_ERR;
 		return Status;
 	}
-
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
 	AVCodecContext *c = avc->streams[best_stream]->codec;
-
+#else
+	AVCodecContext *c = avcodec_alloc_context3(codec);
+        if(avcodec_parameters_to_context(c,avc->streams[best_stream]->codecpar) < 0){
+		DeInit();
+		Status=DATA_ERR;
+		return Status;
+        }
+#endif
 	mutex.lock();
 	int r = avcodec_open2(c, codec, NULL);
 	mutex.unlock();
@@ -322,9 +334,10 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 					Status=DATA_ERR;
 					break;
 				}
-			} else
+			} else{
 				av_frame_unref(frame);
-
+			}
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57,37,100)
 			int len = avcodec_decode_audio4(c, frame, &got_frame, &packet);
 			if (len < 0) {
 				// skip frame
@@ -336,6 +349,27 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 				mutex.unlock();
 				continue;
 			}
+			packet.size -= len;
+			packet.data += len;
+#else
+			int ret = avcodec_send_packet(c, &packet);
+			if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF){
+				break;
+			}
+			if (ret >= 0){
+				packet.size = 0;
+			}
+			ret = avcodec_receive_frame(c, frame);
+			if (ret < 0){
+				if (ret != AVERROR(EAGAIN) && ret != AVERROR_EOF){
+					break;
+				}
+				else{
+					continue;
+				}
+			}
+			got_frame = 1;
+#endif
 			if (got_frame && *state!=PAUSE) {
 				int out_samples;
 				outsamples = av_rescale_rnd(swr_get_delay(swr, c->sample_rate) + frame->nb_samples,
@@ -364,8 +398,6 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 				if (!start_pts)
 					start_pts = pts;
 			}
-			packet.size -= len;
-			packet.data += len;
 		}
 		if (time_played && avc->streams[best_stream]->time_base.den)
 			*time_played = (pts - start_pts) * avc->streams[best_stream]->time_base.num / avc->streams[best_stream]->time_base.den;
@@ -424,7 +456,11 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 		if (!is_stream) {
 			GetMeta(avc->metadata);
 			for(unsigned int i = 0; i < avc->nb_streams; i++) {
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
 				if (avc->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
+#else
+				if (avc->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+#endif
 					GetMeta(avc->streams[i]->metadata);
 			}
 		}
@@ -441,12 +477,17 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 			DeInit();
 			return false;
 		}
-
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
 		if (!codec)
 			codec = avcodec_find_decoder(avc->streams[best_stream]->codec->codec_id);
 		samplerate = avc->streams[best_stream]->codec->sample_rate;
 		mChannels = av_get_channel_layout_nb_channels(avc->streams[best_stream]->codec->channel_layout);
-
+#else
+		if (!codec)
+			codec = avcodec_find_decoder(avc->streams[best_stream]->codecpar->codec_id);
+		samplerate = avc->streams[best_stream]->codecpar->sample_rate;
+		mChannels = av_get_channel_layout_nb_channels(avc->streams[best_stream]->codecpar->channel_layout);
+#endif
 		std::stringstream ss;
 
 		if (codec && codec->long_name != NULL)
@@ -466,8 +507,13 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 		printf("CFfmpegDec: format %s (%s) duration %ld\n", avc->iformat->name, type_info.c_str(), total_time);
 
 		for(unsigned int i = 0; i < avc->nb_streams; i++) {
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
 			if (avc->streams[i]->codec->bit_rate > 0)
 				bitrate += avc->streams[i]->codec->bit_rate;
+#else
+			if (avc->streams[i]->codecpar->bit_rate > 0)
+				bitrate += avc->streams[i]->codecpar->bit_rate;
+#endif
 			if (save_cover && (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
 				mkdir(COVERDIR, 0755);
 				std::string cover(COVERDIR);

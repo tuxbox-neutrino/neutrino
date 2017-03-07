@@ -20,5 +20,5 @@ endif
 
 if BOXTYPE_COOL
 SUBDIRS += \
-	libcoolstream
+	hardware/coolstream
 endif
