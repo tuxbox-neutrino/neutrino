@@ -55,15 +55,7 @@
 #include "xmlutil.h"
 #include "debug.h"
 
-#ifdef __UCLIBC__
-#if (__UCLIBC_MAJOR__ >= 1) && (__UCLIBC_MINOR__ >= 0) && (__UCLIBC_SUBLEVEL__ >= 10)
-#define MALLOC_STATS(a) malloc_stats()
-#else
-#define MALLOC_STATS(a) malloc_stats(a)
-#endif
-#else
-#define MALLOC_STATS(a) malloc_stats()
-#endif
+#include <compatibility.h>
 
 //#define ENABLE_SDT //FIXME
 
@@ -1077,7 +1069,7 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		);
 	printf("%s\n", stati);
-	MALLOC_STATS(NULL);
+	comp_malloc_stats(NULL);
 	return ;
 }
 
@@ -1206,7 +1198,7 @@ static void FreeMemory()
 
 	unlockEvents();
 
-	MALLOC_STATS(NULL);
+	comp_malloc_stats(NULL);
 	xprintf("[sectionsd] free memory done\n");
 	//wakeupAll(); //FIXME should we re-start eit here ?
 }
@@ -2056,7 +2048,7 @@ static void print_meminfo(void)
 	if (!sections_debug)
 		return;
 
-	MALLOC_STATS(NULL);
+	comp_malloc_stats(NULL);
 }
 
 //---------------------------------------------------------------------
