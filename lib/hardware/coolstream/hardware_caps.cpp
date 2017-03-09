@@ -18,6 +18,7 @@ hw_caps_t *get_hwcaps(void) {
 	if (initialized)
 		return &caps;
 	int rev = cs_get_revision();
+	int chip = cs_get_chip_type();
 	caps.has_fan = (rev < 8);
 	caps.has_HDMI = 1;
 	caps.has_SCART = (rev != 10);
@@ -54,11 +55,27 @@ hw_caps_t *get_hwcaps(void) {
 		caps.force_tuner_2G = 1;
 		break;
 	case 11:
-		strcpy(caps.boxname, "Trinity");
-		strcpy(caps.boxarch, "Shiner");
+		if (chip == 33904 /*0x8470*/)
+		{
+			strcpy(caps.boxname, "Trinity");
+			strcpy(caps.boxarch, "Shiner");
+		}
+		else
+		{
+			strcpy(caps.boxname, "Trinity V2");
+			strcpy(caps.boxarch, "Kronos");
+		}
 		break;
 	case 12:
 		strcpy(caps.boxname, "Zee2");
+		strcpy(caps.boxarch, "Kronos");
+		break;
+	case 13:
+		strcpy(caps.boxname, "Link");
+		strcpy(caps.boxarch, "Kronos");
+		break;
+	case 14:
+		strcpy(caps.boxname, "Trinity Duo");
 		strcpy(caps.boxarch, "Kronos");
 		break;
 	default:
@@ -69,4 +86,3 @@ hw_caps_t *get_hwcaps(void) {
 	initialized = 1;
 	return &caps;
 }
-
