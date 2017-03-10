@@ -838,103 +838,21 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 //-------------------------------------------------------------------------
 std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
-	unsigned int system_rev = cs_get_revision();
-	std::string boxname = "CST ";
+	std::string boxvendor(g_info.hw_caps->boxvendor);
+	std::string boxname(g_info.hw_caps->boxname);
 
-#if HAVE_TRIPLEDRAGON
-	boxname = "Armas ";
-#endif
+	/* workaround for Neo2 */
+	if ((boxname.compare("Neo") == 0) && (CFEManager::getInstance()->getFrontendCount() > 1))
+		boxname += " Twin";
 
-	switch(system_rev)
-	{
-		case 1:
-			if( boxname == "Armas ")
-				boxname += "TripleDragon";
-			break;
-#ifdef BOXMODEL_CS_HD1
-		case 6:
-			boxname += "HD1";
-			break;
-		case 7:
-			boxname += "BSE";
-			break;
-		case 8:
-			boxname += "Neo";
-			if (CFEManager::getInstance()->getFrontendCount() > 1)
-				boxname += " Twin";
-			break;
-		case 10:
-			boxname += "Zee";
-			break;
-#endif
-#ifdef BOXMODEL_CS_HD2
-		case 9:
-			boxname += "Tank";
-			break;
-		case 11:
-			boxname += "Trinity";
-			if (cs_get_chip_type() != 33904 /*0x8470*/)
-				boxname += " V2";
-			break;
-		case 12:
-			boxname += "Zee2";
-			break;
-		case 13:
-			boxname += "Link";
-			break;
-		case 14:
-			boxname += "Trinity Duo";
-			break;
-#endif
-		default:
-			char buffer[10];
-			snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
-			boxname += "Unknown nr. ";
-			boxname += buffer;
-			break;
-	}
-
-	return boxname;
+	return boxvendor + " " + boxname;
 }
 //-------------------------------------------------------------------------
 // y-func : get boxmodel
 //-------------------------------------------------------------------------
 std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
 {
-	unsigned int system_rev = cs_get_revision();
-	std::string boxmodel = "Unknown";
-
-	switch(system_rev)
-	{
-#ifdef BOXMODEL_CS_HD1
-		case 6:
-		case 7:
-		case 8:
-		case 10:
-			boxmodel = "Nevis";
-			break;
-#endif
-#ifdef BOXMODEL_CS_HD2
-		case 9:
-			boxmodel = "Apollo";
-			break;
-		case 11:
-			if (cs_get_chip_type() == 33904 /*0x8470*/)
-				boxmodel = "Shiner";
-			else
-				boxmodel = "Kronos";
-			break;
-		case 12:
-		case 13:
-		case 14:
-			boxmodel = "Kronos";
-			break;
-#endif
-		default:
-			break;
-	}
-
-	return boxmodel;
+	return g_info.hw_caps->boxarch;
 }
 //-------------------------------------------------------------------------
 // y-func : get stream info
