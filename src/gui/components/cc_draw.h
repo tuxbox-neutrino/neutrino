@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2015, Thilo Graf 'dbt'
+	Copyright (C) 2012-2017, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -78,6 +78,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		fb_pixel_t col_frame, col_frame_old;
 		///internal property: color for shadow clean up
 		fb_pixel_t col_shadow_clean;
+		///property: background image, see also setBodyBGImage()
+		std::string cc_body_image, cc_body_image_old;
 
 		 ///property: frame thickness, see also setFrameThickness()
 		int fr_thickness, fr_thickness_old;
@@ -407,8 +409,32 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		*/
 		virtual void killShadow(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1);
 
-		virtual void enableGradientBgCleanUp(bool enable = true) { cc_gradient_bg_cleanup = enable; };
-		virtual void disableGradientBgCleanUp(){ enableGradientBgCleanUp(false); };
+		virtual void enableGradientBgCleanUp(bool enable = true) { cc_gradient_bg_cleanup = enable; }
+		virtual void disableGradientBgCleanUp(){ enableGradientBgCleanUp(false); }
+
+		/**Sets an image path for body background, returns true if new image was applied.
+		 *
+		 * @return bool
+		 *
+		 * @param[in] image_path	Path to image.
+		 *
+		 * @see
+		 * 	cc_body_image
+		 * 	setBodyBGImageName()
+		*/
+		virtual bool setBodyBGImage(const std::string& image_path);
+
+		/**Sets an image name for body background, returns true if new image was applied.
+		 *
+		 * @return bool
+		 *
+		 * @param[in] image_name	Basename of image.
+		 *
+		 * @see
+		 * 	cc_body_image
+		 * 	setBodyBGImage()
+		*/
+		virtual bool setBodyBGImageName(const std::string& image_name);
 };
 
 #endif
