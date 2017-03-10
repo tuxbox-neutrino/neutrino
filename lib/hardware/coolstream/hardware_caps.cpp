@@ -55,7 +55,7 @@ hw_caps_t *get_hwcaps(void) {
 		caps.force_tuner_2G = 1;
 		break;
 	case 11:
-		if (chip == 33904 /*0x8470*/)
+		if (chip == CS_CHIP_SHINER)
 		{
 			strcpy(caps.boxname, "Trinity");
 			strcpy(caps.boxarch, "Shiner");
