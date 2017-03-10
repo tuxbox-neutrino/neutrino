@@ -786,18 +786,18 @@ void CControlAPI::MessageCGI(CyhookHandler *hh)
 void CControlAPI::InfoCGI(CyhookHandler *hh)
 {
 	if (hh->ParamList.empty())
-		hh->Write("Neutrino HD\n");
+		hh->Write("Tuxbox-Neutrino\n");
 	else
 	{
 		if (hh->ParamList["1"] == "streaminfo")		// print streaminfo
 			SendStreamInfo(hh);
 		else if (hh->ParamList["1"] == "version")	// send version file
 			hh->SendFile(TARGET_PREFIX "/.version");
-		else if (hh->ParamList["1"] == "httpdversion")	// print httpd version typ (only ffor comptibility)
+		else if (hh->ParamList["1"] == "httpdversion")	// print httpd version typ (just for compatibility)
 			hh->Write("3");
 		else if (hh->ParamList["1"] == "nhttpd_version")// print nhttpd version
 			hh->printf("%s\n", HTTPD_VERSION);
-		else if (hh->ParamList["1"] == "hwinfo")// print hwinfo
+		else if (hh->ParamList["1"] == "hwinfo")	// print hwinfo
 			HWInfoCGI(hh);
 		else
 			hh->SendError();
