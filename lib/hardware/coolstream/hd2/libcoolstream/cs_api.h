@@ -26,6 +26,7 @@ typedef void (*cs_messenger) (unsigned int msg, unsigned int data);
 #define CS_CHIP_KRONOS_S		0x7540
 #define CS_CHIP_KRONOS_C		0x7550
 #define CS_CHIP_KRONOS_IP		0x7530
+#define CS_CHIP_NEVIS			0x0000	/* workaround for nonexistant nevis chiptype */
 
 enum CS_LOG_MODULE {
 	CS_LOG_CI	= 0,
@@ -49,6 +50,7 @@ enum CS_LOG_MODULE {
 // Initialization
 void cs_api_init(void);
 void cs_api_exit(void);
+/* Preliminary function (for compatibility with older neutrino sources) */
 void cs_new_auto_videosystem();
 
 // Memory helpers
@@ -89,5 +91,26 @@ bool cs_box_has_ci(void);
 
 unsigned int cs_get_chip_id(void);
 unsigned int cs_get_chip_rev_id(void);
+
+// library version functions
+typedef struct cs_libversion_t
+{
+    int    vMajor;
+    int    vMinor;
+    int    vPatch;
+    char   vStr[16];
+    char   vGit[41];
+    char   vGitDescribe[64];
+    time_t vGitTime;
+} cs_libversion_struct_t;
+
+void cs_get_lib_version(cs_libversion_t *ver);
+
+/* return value:
+   -------------
+   1 Library version newer than given version
+   0 library version equals given version
+  -1 Library version older than given version */
+int  cs_compare_lib_versions(int Major, int Minor, int Patch);
 
 #endif //__CS_API_H_
