@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014, Thilo Graf 'dbt'
+	Copyright (C) 2012-2017, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -30,25 +30,17 @@
 #include <gui/widget/buttons.h> //for compatibility with 'button_label' type
 
 //for 'button_label' type with string
-typedef struct button_label_s
+typedef struct button_label_cc
 {
 	const char *		button;
 	std::string 		text;
+	neutrino_locale_t 	locale;
 	neutrino_msg_t 		directKey;
 	neutrino_msg_t 		directKeyAlt;
 	int 			btn_result;
 	int 			btn_alias;
-} button_label_s_struct;
-
-typedef struct button_label_l
-{
-	const char *      	button;
-	neutrino_locale_t 	locale;
-	neutrino_msg_t		directKey;
-	neutrino_msg_t 		directKeyAlt;
-	int 			btn_result;
-	int 			btn_alias;
-} button_label_l_struct;
+	button_label_cc(): text(std::string()), locale(NONEXISTANT_LOCALE){}
+} button_label_cc_struct;
 
 /*!
 CComponentsFooter, sub class of CComponentsHeader provides prepared container for footer
@@ -101,13 +93,9 @@ class CComponentsFooter : public CComponentsHeader
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///add button labels with string label type as content, count as size_t, chain_width as int, label width as int
-		void setButtonLabels(const struct button_label_s * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
-		///add button labels with locale label type as content, count as size_t, chain_width as int, label width as int
-		void setButtonLabels(const struct button_label_l * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
-		///add button labels with locale label type as content, parameter 1 as vector, chain_width as int, label width as int
-		void setButtonLabels(const std::vector<button_label_l> &v_content, const int& chain_width, const int& label_width);
+		void setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
 		///add button labels with string label type as content, parameter 1 as vector, chain_width as int, label width as int
-		void setButtonLabels(const std::vector<button_label_s> &v_content, const int& chain_width, const int& label_width);
+		void setButtonLabels(const std::vector<button_label_cc> &v_content, const int& chain_width, const int& label_width);
 
 		///enable/disable button frame in icon color, predefined for red, green, yellow and blue
 		inline void enableButtonFrameColor(bool enable = true){btn_auto_frame_col = enable;}

@@ -7,7 +7,7 @@
 	Günther@tuxbox.berlios.org
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2016 Thilo Graf 'dbt'
+	Copyright (C) 2014-2017 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -117,8 +117,8 @@ void CMsgBox::initTimeOut()
 
 void CMsgBox::initButtons()
 {
-	button_label_s btn;
-	vector<button_label_s> v_buttons;
+	button_label_cc btn;
+	vector<button_label_cc> v_buttons;
 
 	//evaluate combinations
 	if (mb_show_button & mbAll)
