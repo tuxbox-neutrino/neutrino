@@ -18,6 +18,7 @@ hw_caps_t *get_hwcaps(void) {
 	if (initialized)
 		return &caps;
 	int rev = cs_get_revision();
+	int chip = cs_get_chip_type();
 	caps.has_fan = (rev < 8);
 	caps.has_HDMI = 1;
 	caps.has_SCART = (rev != 10);
@@ -53,9 +54,8 @@ hw_caps_t *get_hwcaps(void) {
 		strcpy(caps.boxname, "Zee");
 		caps.force_tuner_2G = 1;
 		break;
-#ifdef BOXMODEL_CS_HD2
 	case 11:
-		if (cs_get_chip_type() == CS_CHIP_SHINER)
+		if (chip == 33904 /*0x8470*/)
 		{
 			strcpy(caps.boxname, "Trinity");
 			strcpy(caps.boxarch, "Shiner");
@@ -78,7 +78,6 @@ hw_caps_t *get_hwcaps(void) {
 		strcpy(caps.boxname, "Trinity Duo");
 		strcpy(caps.boxarch, "Kronos");
 		break;
-#endif
 	default:
 		strcpy(caps.boxname, "UNKNOWN_BOX");
 		strcpy(caps.boxarch, "Unknown");
