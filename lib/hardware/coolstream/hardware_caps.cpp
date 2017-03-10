@@ -34,7 +34,6 @@ hw_caps_t *get_hwcaps(void) {
 	caps.can_ps_14_9 = 1;
 	caps.force_tuner_2G = 0;
 	strcpy(caps.boxvendor, "Coolstream");
-	/* list of boxnames from neutrinoyparser.cpp */
 	strcpy(caps.boxarch, "Nevis");
 	switch (rev) {
 	case 6:
@@ -42,7 +41,7 @@ hw_caps_t *get_hwcaps(void) {
 		strcpy(caps.boxname, "HD1");
 		caps.force_tuner_2G = 1;
 		break;
-	case 8:
+	case 8: // TODO: Neo2 - Twin
 		strcpy(caps.boxname, "Neo");
 		caps.force_tuner_2G = 1;
 		break;
