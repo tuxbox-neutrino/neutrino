@@ -152,6 +152,12 @@ typedef enum
    VIDEO_CONTROL_MAX = VIDEO_CONTROL_SHARPNESS
 } VIDEO_CONTROL;
 
+typedef struct cs_vs_format_t
+{
+	char formatHD[16];
+	char formatSD[16];
+} cs_vs_format_struct_t;
+
 class cDemux;
 class cAudio;
 
@@ -190,6 +196,7 @@ private:
 	analog_mode_t		analog_mode_scart;
 	fp_icon			mode_icon;
 	cDemux			*demux;
+	int			current_video_system;
 	//
 	int SelectAutoFormat();
 	void ScalePic();
@@ -242,6 +249,11 @@ public:
 	int LipsyncAdjust();
 	int64_t GetPTS(void);
 	int Flush(void);
+
+	/* get video system infos */
+	int GetVideoSystem();
+	/* when system = -1 then use current video system */
+	void GetVideoSystemFormatName(cs_vs_format_t* format, int system = -1);
 
 	/* set video_system */
 	int SetVideoSystem(int video_system, bool remember = true);
