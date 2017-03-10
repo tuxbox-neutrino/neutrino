@@ -806,14 +806,11 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 
 void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 {
-	std::string boxname = NeutrinoAPI->NeutrinoYParser->func_get_boxtype(hh, "");
-	std::string boxmodel = NeutrinoAPI->NeutrinoYParser->func_get_boxmodel(hh, "");
-
 	static CNetAdapter netadapter; 
 	std::string eth_id = netadapter.getMacAddr();
 	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
 
-	hh->printf("%s (%s)\nMAC:%s\n", boxname.c_str(), boxmodel.c_str(), eth_id.c_str());
+	hh->printf("%s %s (%s)\nMAC:%s\n", g_info.hw_caps->boxvendor, g_info.hw_caps->boxname, g_info.hw_caps->boxarch, eth_id.c_str());
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::ShutdownCGI(CyhookHandler *hh)
