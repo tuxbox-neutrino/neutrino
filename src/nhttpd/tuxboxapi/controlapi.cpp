@@ -786,7 +786,7 @@ void CControlAPI::MessageCGI(CyhookHandler *hh)
 void CControlAPI::InfoCGI(CyhookHandler *hh)
 {
 	if (hh->ParamList.empty())
-		hh->Write("Tuxbox-Neutrino\n");
+		hh->Write(PACKAGE_NAME " " PACKAGE_VERSION "\n");
 	else
 	{
 		if (hh->ParamList["1"] == "streaminfo")		// print streaminfo
