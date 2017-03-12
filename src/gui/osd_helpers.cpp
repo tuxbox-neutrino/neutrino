@@ -61,8 +61,11 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 
 	if ((g_settings.video_Mode == VIDEO_STD_AUTO) &&
 	    (g_settings.enabled_auto_modes[videoSystem] == 1) &&
-	    (!allow_OSDMODE_1080(videoSystem)))
+	    (!isVideoSystem1080(videoSystem)))
 		modeNew = OSDMODE_720;
+
+//	if (!isVideoSystem1080(videoSystem))
+//		modeNew = OSDMODE_720;
 
 	idx = frameBuffer->getIndexOsdResolution(modeNew);
 	resetOsd = (modeNew != getOsdResolution()) ? true : false;
@@ -127,28 +130,28 @@ void COsdHelpers::changeOsdResolution(uint32_t, bool, bool)
 }
 #endif
 
-bool COsdHelpers::allow_OSDMODE_1080(int res)
+int COsdHelpers::isVideoSystem1080(int res)
 {
-	if (g_settings.osd_resolution_force == FORCE_ALL || (
-		   (res == VIDEO_STD_1080I50)
-		|| (res == VIDEO_STD_1080I60)
-		|| (res == VIDEO_STD_1080P24)
-		|| (res == VIDEO_STD_1080P25)
-		|| (res == VIDEO_STD_1080P30)
-#ifdef BOXMODEL_CS_HD2
-		|| (res == VIDEO_STD_1080P50)
-		|| (res == VIDEO_STD_1080P60)
-		|| (res == VIDEO_STD_1080P2397)
-		|| (res == VIDEO_STD_1080P2997)
-#endif
-	))
+	if ((res == VIDEO_STD_1080I60) ||
+	    (res == VIDEO_STD_1080I50) ||
+	    (res == VIDEO_STD_1080P30) ||
+	    (res == VIDEO_STD_1080P24) ||
+	    (res == VIDEO_STD_1080P25))
 		return true;
 
-	if (g_settings.osd_resolution_force == FORCE_HD && (
-		   (res == VIDEO_STD_720P50)
-		|| (res == VIDEO_STD_720P60)
-	))
+#ifdef BOXMODEL_CS_HD2
+	if ((res == VIDEO_STD_1080P50) ||
+	    (res == VIDEO_STD_1080P60) ||
+	    (res == VIDEO_STD_1080P2397) ||
+	    (res == VIDEO_STD_1080P2997))
 		return true;
+#endif
+
+#if 0
+	/* for testing only */
+	if (res == VIDEO_STD_720P50)
+		return true;
+#endif
 
 	return false;
 }

@@ -726,7 +726,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//screen configuration
 	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", 0) : osd_resolution_tmp;
 	COsdHelpers::getInstance()->g_settings_osd_resolution_save = g_settings.osd_resolution;
-	g_settings.osd_resolution_force = configfile.getInt32("osd_resolution_force", COsdHelpers::FORCE_NEVER);
 	g_settings.screen_StartX_crt_0 = configfile.getInt32("screen_StartX_crt_0",   80);
 	g_settings.screen_StartY_crt_0 = configfile.getInt32("screen_StartY_crt_0",   45);
 	g_settings.screen_EndX_crt_0   = configfile.getInt32("screen_EndX_crt_0"  , 1280 - g_settings.screen_StartX_crt_0 - 1);
@@ -1368,7 +1367,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//screen configuration
 	configfile.setInt32("osd_resolution"     , COsdHelpers::getInstance()->g_settings_osd_resolution_save);
-	configfile.setInt32("osd_resolution_force", g_settings.osd_resolution_force);
 	configfile.setInt32("screen_StartX_lcd_0", g_settings.screen_StartX_lcd_0);
 	configfile.setInt32("screen_StartY_lcd_0", g_settings.screen_StartY_lcd_0);
 	configfile.setInt32("screen_EndX_lcd_0"  , g_settings.screen_EndX_lcd_0);

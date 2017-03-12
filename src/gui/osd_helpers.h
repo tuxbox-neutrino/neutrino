@@ -19,16 +19,10 @@ class COsdHelpers
 		int g_settings_osd_resolution_save;
 
 		void changeOsdResolution(uint32_t mode, bool automode=false, bool forceOsdReset=false);
-		bool allow_OSDMODE_1080(int res);
+		int  isVideoSystem1080(int res);
 		int  getVideoSystem();
 		uint32_t getOsdResolution();
 		int setVideoSystem(int newSystem, bool remember = true);
-
-		enum {
-			FORCE_NEVER = 0,
-			FORCE_HD,
-			FORCE_ALL
-		};
 };
 
 
