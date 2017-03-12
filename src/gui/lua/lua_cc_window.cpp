@@ -139,27 +139,27 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	else {
 		CComponentsFooter* footer = (*udata)->w->getFooterObject();
 		if (footer) {
-			vector<button_label_s> buttons;
+			vector<button_label_cc> buttons;
 			if (!btnRed.empty()) {
-				button_label_s btnSred;
+				button_label_cc btnSred;
 				btnSred.button 		= NEUTRINO_ICON_BUTTON_RED;
 				btnSred.text 		= btnRed;
 				buttons.push_back(btnSred);
 			}
 			if (!btnGreen.empty()) {
-				button_label_s btnSgreen;
+				button_label_cc btnSgreen;
 				btnSgreen.button 	= NEUTRINO_ICON_BUTTON_GREEN;
 				btnSgreen.text		= btnGreen;
 				buttons.push_back(btnSgreen);
 			}
 			if (!btnYellow.empty()) {
-				button_label_s btnSyellow;
+				button_label_cc btnSyellow;
 				btnSyellow.button 	= NEUTRINO_ICON_BUTTON_YELLOW;
 				btnSyellow.text 	= btnYellow;
 				buttons.push_back(btnSyellow);
 			}
 			if (!btnBlue.empty()) {
-				button_label_s btnSblue;
+				button_label_cc btnSblue;
 				btnSblue.button 	= NEUTRINO_ICON_BUTTON_BLUE;
 				btnSblue.text 		= btnBlue;
 				buttons.push_back(btnSblue);

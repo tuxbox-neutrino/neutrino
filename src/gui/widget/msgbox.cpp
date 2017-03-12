@@ -7,7 +7,7 @@
 	Günther@tuxbox.berlios.org
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2016 Thilo Graf 'dbt'
+	Copyright (C) 2014-2017 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -101,10 +101,8 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 	shadow = CC_SHADOW_ON;
 
 	//set result
-	if (Default_result != mbrNone)
-		result = default_result = Default_result;
-	else
-		result = mbrNone;
+	result = default_result = Default_result;
+
 	//add and initialize footer buttons with required buttons and basic properties
 	if (ShowButtons > -1)
 		mb_show_button = ShowButtons;
@@ -119,8 +117,8 @@ void CMsgBox::initTimeOut()
 
 void CMsgBox::initButtons()
 {
-	button_label_s btn;
-	vector<button_label_s> v_buttons;
+	button_label_cc btn;
+	vector<button_label_cc> v_buttons;
 
 	//evaluate combinations
 	if (mb_show_button & mbAll)

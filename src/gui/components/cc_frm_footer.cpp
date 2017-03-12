@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013-2014, Thilo Graf 'dbt'
+	Copyright (C) 2013-2017, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -102,7 +102,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	initParent(parent);
 }
 
-void CComponentsFooter::setButtonLabels(const struct button_label_s * const content, const size_t& label_count, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
 	/* clean up before init*/
 	if (chain)
@@ -178,7 +178,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	vector<CComponentsItem*> v_btns;
 	int h_btn = /*(ccf_enable_button_bg ? */chain->getHeight()-2*fr_thickness/*-OFFSET_INNER_SMALL*//* : height)*/-ccf_button_shadow_width;
 	for (size_t i= 0; i< label_count; i++){
-		string txt 		= content[i].text;
+		string txt 		= content[i].locale == NONEXISTANT_LOCALE ? content[i].text : g_Locale->getText(content[i].locale);
 		string icon_name 	= string(content[i].button);
 
 		//ignore item, if no text and icon are defined;
@@ -244,26 +244,10 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	}
 }
 
-void CComponentsFooter::setButtonLabels(const struct button_label_l * const content, const size_t& label_count, const int& chain_width, const int& label_width)
-{
-	button_label_s buttons[label_count];
-	
-	for (size_t i= 0; i< label_count; i++){
-		buttons[i].button = content[i].button;
-		buttons[i].text = content[i].locale != NONEXISTANT_LOCALE ? g_Locale->getText(content[i].locale) : "";
-		buttons[i].directKey = content[i].directKey;
-		buttons[i].directKeyAlt = content[i].directKeyAlt;
-		buttons[i].btn_result = content[i].btn_result;
-		buttons[i].btn_alias = content[i].btn_alias;
-	}
-
-	setButtonLabels(buttons, label_count, chain_width, label_width);
-}
-
 void CComponentsFooter::setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
 	//conversion for compatibility with older paintButtons() methode, find in /gui/widget/buttons.h
-	button_label_l buttons[label_count];
+	button_label_cc buttons[label_count];
 	for (size_t i = 0; i< label_count; i++){
 		buttons[i].button = content[i].button;
 		buttons[i].locale = content[i].locale;
@@ -276,31 +260,15 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabels(const vector<button_label_l> &v_content, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content, const int& chain_width, const int& label_width)
 {
 	size_t label_count = v_content.size();
-	button_label_l buttons[label_count];
-
-	for (size_t i= 0; i< label_count; i++){
-		buttons[i].button = v_content[i].button;
-		buttons[i].locale = v_content[i].locale;
-		buttons[i].directKey = v_content[i].directKey;
-		buttons[i].directKeyAlt = v_content[i].directKeyAlt;
-		buttons[i].btn_result = v_content[i].btn_result;
-		buttons[i].btn_alias = v_content[i].btn_alias;
-	}
-
-	setButtonLabels(buttons, label_count, chain_width, label_width);
-}
-
-void CComponentsFooter::setButtonLabels(const vector<button_label_s> &v_content, const int& chain_width, const int& label_width)
-{
-	size_t label_count = v_content.size();
-	button_label_s buttons[label_count];
+	button_label_cc buttons[label_count];
 
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = v_content[i].button;
 		buttons[i].text = v_content[i].text;
+		buttons[i].locale = v_content[i].locale;
 		buttons[i].directKey = v_content[i].directKey;
 		buttons[i].directKeyAlt = v_content[i].directKeyAlt;
 		buttons[i].btn_result = v_content[i].btn_result;
@@ -319,7 +287,7 @@ void CComponentsFooter::setButtonLabel(	const char *button_icon,
 					const int& alias_value,
 					const neutrino_msg_t& directKeyAlt)
 {
-	button_label_s button[1];
+	button_label_cc button[1];
 
 	button[0].button = button_icon;
 	button[0].text = text;
