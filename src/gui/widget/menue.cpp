@@ -600,6 +600,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	selected = (widget_index == NO_WIDGET_ID ? preselected : mglobal->v_selected[widget_index]);
 
 	//dimension
+	mwidth_save = mwidth;
 	min_width = 0;
 	width = 0; /* is set in paint() */
 	if (mwidth > 100){
@@ -1096,6 +1097,13 @@ void CMenuWidget::checkHints()
 
 void CMenuWidget::calcSize()
 {
+	// recalc min_width
+	min_width = 0;
+	int mwidth = std::min(mwidth_save, 100);
+	min_width = frameBuffer->getScreenWidth(true) * mwidth / 100;
+	if (min_width > (int)frameBuffer->getScreenWidth())
+		min_width = frameBuffer->getScreenWidth();
+
 	width = min_width;
 
 	int wi, hi;
