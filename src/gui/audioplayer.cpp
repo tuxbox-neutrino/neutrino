@@ -270,8 +270,8 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_height = m_theight + m_info_height + m_title_height + 2*m_buttonHeight + m_listmaxshow * m_fheight; // recalc height
 
 	m_x = getScreenStartX( m_width );
-	if (m_x < ConnectLineBox_Width)
-		m_x = ConnectLineBox_Width;
+	if (m_x < DETAILSLINE_WIDTH)
+		m_x = DETAILSLINE_WIDTH;
 	m_y = getScreenStartY( m_height );
 
 	m_idletime=time(NULL);
@@ -1467,8 +1467,8 @@ void CAudioPlayerGui::hide()
 	//	printf("hide(){\n");
 	if (m_visible)
 	{
-		m_frameBuffer->paintBackgroundBoxRel(m_x - ConnectLineBox_Width, m_y + m_title_height,
-						     m_width + ConnectLineBox_Width, m_height - m_title_height);
+		m_frameBuffer->paintBackgroundBoxRel(m_x - DETAILSLINE_WIDTH, m_y + m_title_height,
+						     m_width + DETAILSLINE_WIDTH, m_height - m_title_height);
 		clearItemID3DetailsLine();
 		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_title_height);
 		m_visible = false;
@@ -1788,7 +1788,7 @@ void CAudioPlayerGui::clearItemID3DetailsLine ()
 
 void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 {
-	int xpos  = m_x - ConnectLineBox_Width;
+	int xpos  = m_x - DETAILSLINE_WIDTH;
 	int ypos1 = m_y + m_title_height + m_theight + pos*m_fheight;
 	int ypos2 = m_y + (m_height - m_info_height) + OFFSET_INTER;
 	int ypos1a = ypos1 + (m_fheight / 2);
@@ -1806,7 +1806,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	{
 		//details line
 		if (dline == NULL)
-			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, m_fheight/2, m_info_height-RADIUS_LARGE*2);
+			dline = new CComponentsDetailsLine(xpos, ypos1a, ypos2a, m_fheight/2, m_info_height-RADIUS_LARGE*2);
 		dline->paint(false);
 
 		// paint id3 infobox

@@ -1183,13 +1183,13 @@ void CMenuWidget::calcSize()
 	if(total_pages > 1)
 		sb_width=SCROLLBAR_WIDTH;
 
-	full_width = /*ConnectLineBox_Width+*/width+sb_width+OFFSET_SHADOW;
+	full_width = /*DETAILSLINE_WIDTH+*/width+sb_width+OFFSET_SHADOW;
 	full_height = height+RADIUS_LARGE+OFFSET_SHADOW*2 /*+hint_height+OFFSET_INTER*/;
-	/* + ConnectLineBox_Width for the hintbox connection line
+	/* + DETAILSLINE_WIDTH for the hintbox connection line
 	 * + center_offset for symmetry
 	 * + 20 for setMenuPos calculates 10 pixels border left and right */
-	int center_offset = (g_settings.menu_pos == MENU_POS_CENTER) ? ConnectLineBox_Width : 0;
-	int max_possible = (int)frameBuffer->getScreenWidth() - ConnectLineBox_Width - center_offset - 20;
+	int center_offset = (g_settings.menu_pos == MENU_POS_CENTER) ? DETAILSLINE_WIDTH : 0;
+	int max_possible = (int)frameBuffer->getScreenWidth() - DETAILSLINE_WIDTH - center_offset - 20;
 	if (full_width > max_possible)
 	{
 		width = max_possible - sb_width - OFFSET_SHADOW;
@@ -1269,13 +1269,13 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 		case MENU_POS_CENTER:
 			x = offx + scr_x + ((scr_w - menu_width ) >> 1 );
 			y = offy + scr_y + ((scr_h - real_h) >> 1 );
-			x += ConnectLineBox_Width;
+			x += DETAILSLINE_WIDTH;
 			break;
 			
 		case MENU_POS_TOP_LEFT: 
 			y = offy + scr_y + 10;
 			x = offx + scr_x + 10;
-			x += ConnectLineBox_Width;
+			x += DETAILSLINE_WIDTH;
 			break;
 			
 		case MENU_POS_TOP_RIGHT: 
@@ -1286,7 +1286,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 		case MENU_POS_BOTTOM_LEFT: 
 			y = /*offy +*/ scr_y + scr_h - real_h - 10;
 			x = offx + scr_x + 10;
-			x += ConnectLineBox_Width;
+			x += DETAILSLINE_WIDTH;
 			break;
 			
 		case MENU_POS_BOTTOM_RIGHT: 
@@ -1386,14 +1386,14 @@ void CMenuWidget::saveScreen()
 	saveScreen_x = x;
 	background = new fb_pixel_t [saveScreen_height * saveScreen_width];
 	if(background)
-		frameBuffer->SaveScreen(saveScreen_x /*-ConnectLineBox_Width*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
+		frameBuffer->SaveScreen(saveScreen_x /*-DETAILSLINE_WIDTH*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
 }
 
 void CMenuWidget::restoreScreen()
 {
 	if(background) {
 		if(savescreen)
-			frameBuffer->RestoreScreen(saveScreen_x /*-ConnectLineBox_Width*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
+			frameBuffer->RestoreScreen(saveScreen_x /*-DETAILSLINE_WIDTH*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
 	}
 }
 
@@ -1450,7 +1450,7 @@ void CMenuWidget::paintHint(int pos)
 	
 	int iheight = item->getHeight();
 	int rad = RADIUS_LARGE;
-	int xpos  = x - ConnectLineBox_Width;
+	int xpos  = x - DETAILSLINE_WIDTH;
 	int ypos2 = y + height + fbutton_height + rad + OFFSET_SHADOW + OFFSET_INTER;
 	int iwidth = width+sb_width;
 	
@@ -1463,7 +1463,7 @@ void CMenuWidget::paintHint(int pos)
 	
 	//init details line
 	if (details_line == NULL)
-		details_line = new CComponentsDetailLine();
+		details_line = new CComponentsDetailsLine();
 
 	details_line->setXPos(xpos);
 	details_line->setYPos(ypos1a);

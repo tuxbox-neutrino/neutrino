@@ -49,7 +49,7 @@ class CBEChannelSelectWidget : public CListBox
 		enum{SORT_ALPHA,SORT_FREQ,SORT_SAT,SORT_CH_NUMBER, SORT_END};
 		CZapitClient::channelsMode mode;
 		bool isChannelInBouquet( int index);
-		CComponentsDetailLine *dline;
+		CComponentsDetailsLine *dline;
 		CComponentsInfoBox *ibox;
 		CComponentsFooter footer;
 		uint	getItemCount();

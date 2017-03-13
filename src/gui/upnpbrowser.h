@@ -97,7 +97,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	time_t         m_time_played;
 	bool           m_playing_entry_is_shown;
 	time_t         timeout;
-	CComponentsDetailLine * dline;
+	CComponentsDetailsLine * dline;
 	CComponentsFooter footer;
 	CComponentsInfoBox topbox, infobox, timebox;
 	CComponentsPicture *image;

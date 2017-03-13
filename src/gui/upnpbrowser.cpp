@@ -146,8 +146,8 @@ void CUpnpBrowserGui::Init()
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
 
 	m_x=getScreenStartX(m_width);
-	if (m_x < ConnectLineBox_Width) // shouldn't happen
-		m_x = ConnectLineBox_Width;
+	if (m_x < DETAILSLINE_WIDTH) // shouldn't happen
+		m_x = DETAILSLINE_WIDTH;
 	m_y=getScreenStartY(m_height);
 
 	// calc positions
@@ -1235,14 +1235,14 @@ void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 	if (pos < 0)
 		return;
 
-	int xpos  = m_x - ConnectLineBox_Width;
+	int xpos  = m_x - DETAILSLINE_WIDTH;
 	int ypos1 = m_item_y + pos*m_item_height;
 	int ypos2 = infobox.getYPos() + infobox.getHeight() - infobox.getHeight()/2;
 
 	int ypos1a = ypos1 + (m_item_height/2);
 
 	if (!dline)
-		dline = new CComponentsDetailLine();
+		dline = new CComponentsDetailsLine();
 	dline->setDimensionsAll(xpos, ypos1a, ypos2, m_item_height/2, infobox.getHeight() - RADIUS_LARGE*2);
 	dline->paint();
 }

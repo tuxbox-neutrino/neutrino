@@ -35,15 +35,15 @@
 
 using namespace std;
 
-//sub class CComponentsDetailLine from CComponents
-CComponentsDetailLine::CComponentsDetailLine(	const int& x_pos, const int& y_pos_top,
+//sub class CComponentsDetailsLine from CComponents
+CComponentsDetailsLine::CComponentsDetailsLine(	const int& x_pos, const int& y_pos_top,
 						const int& y_pos_down, const int& h_mark_top_, const int& h_mark_down_,
 						fb_pixel_t color_line, fb_pixel_t color_shadow)
 {
 	initVarDline(x_pos, y_pos_top, y_pos_down, h_mark_top_, h_mark_down_, color_line, color_shadow);
 }
 
-void CComponentsDetailLine::initVarDline(	const int& x_pos, const int& y_pos_top,
+void CComponentsDetailsLine::initVarDline(	const int& x_pos, const int& y_pos_top,
 						const int& y_pos_down, const int& h_mark_top_, const int& h_mark_down_,
 						fb_pixel_t color_line, fb_pixel_t color_shadow)
 {
@@ -53,20 +53,20 @@ void CComponentsDetailLine::initVarDline(	const int& x_pos, const int& y_pos_top
 	col_shadow	= color_shadow;
 	col_body	= color_line;
 
-	//CComponentsDetailLine
+	//CComponentsDetailsLine
 	y_down 		= y_pos_down;
 	h_mark_top 	= h_mark_top_;
 	h_mark_down 	= h_mark_down_;
 
 	shadow_w	= 1;
 
-	//CComponentsDetailLine
+	//CComponentsDetailsLine
 	thickness 	= 4; /* MUST be an even value! */
 
 	cc_body_gradient_enable = false;
 }
 
-CComponentsDetailLine::~CComponentsDetailLine()
+CComponentsDetailsLine::~CComponentsDetailsLine()
 {
 }
 
@@ -86,7 +86,7 @@ CComponentsDetailLine::~CComponentsDetailLine()
 
 
 //paint details line with current parameters
-void CComponentsDetailLine::paint(bool do_save_bg)
+void CComponentsDetailsLine::paint(bool do_save_bg)
 {
 	hide();
 	if (hasChanges())
@@ -139,7 +139,7 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 //synchronize colors for details line
 //This is usefull if the system colors are changed during runtime
 //so you can ensure correct applied system colors in relevant objects with unchanged instances.
-void CComponentsDetailLine::syncSysColors()
+void CComponentsDetailsLine::syncSysColors()
 {
 	col_body 	= COL_FRAME_PLUS_0;
 	col_shadow 	= COL_SHADOW_PLUS_0;

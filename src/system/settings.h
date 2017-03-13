@@ -921,6 +921,8 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 
 #define SCROLLBAR_WIDTH		OFFSET_INNER_MID + 2*OFFSET_INNER_MIN
 
+#define DETAILSLINE_WIDTH	16 // TODO: scale2Res() ?
+
 struct SglobalInfo
 {
 	unsigned char     box_Type;

@@ -48,7 +48,7 @@ class CBEChannelWidget : public CMenuTarget, public CListHelpers
 
 	private:
 		CFrameBuffer	*frameBuffer;
-		CComponentsDetailLine *dline;
+		CComponentsDetailsLine *dline;
 		CComponentsInfoBox *ibox;
 		CComponentsFooter footer;
 		enum state_

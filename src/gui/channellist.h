@@ -104,7 +104,7 @@ private:
 	ZapitChannelList	*chanlist;
 	CBouquet		*bouquet;
 	CZapProtection* 	zapProtection;
-	CComponentsDetailLine 	*dline;
+	CComponentsDetailsLine 	*dline;
 
 	int			full_width;
 	int			width;

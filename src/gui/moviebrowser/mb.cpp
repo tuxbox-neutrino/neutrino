@@ -1530,12 +1530,12 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 		int hheight = m_pcBrowser->getHeaderListHeight();
 		int theight = m_pcBrowser->getTitleHeight();
 
-		int xpos  = m_cBoxFrameBrowserList.iX - ConnectLineBox_Width;
+		int xpos  = m_cBoxFrameBrowserList.iX - DETAILSLINE_WIDTH;
 		int ypos1 = m_cBoxFrameBrowserList.iY + hheight + theight + OFFSET_INNER_MID + pos*fheight + (fheight/2);
 		int ypos2 = m_cBoxFrameInfo1.iY + (m_cBoxFrameInfo1.iHeight/2);
 
 		if (m_detailsLine == NULL)
-			m_detailsLine = new CComponentsDetailLine();
+			m_detailsLine = new CComponentsDetailsLine();
 
 		m_detailsLine->setDimensionsAll(xpos, ypos1, ypos2, fheight/2, m_cBoxFrameInfo1.iHeight-2*RADIUS_LARGE);
 		m_detailsLine->paint(true);

@@ -202,8 +202,8 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 	height = theight+footerHeight+listmaxshow*iheight; // recalc height
 
 	x = getScreenStartX(width);
-	if (x < ConnectLineBox_Width)
-		x = ConnectLineBox_Width;
+	if (x < DETAILSLINE_WIDTH)
+		x = DETAILSLINE_WIDTH;
 	y = getScreenStartY(height + info_height);
 
 	bouquetChannels = mode == CZapitClient::MODE_TV ? &(bouquet->tvChannels) : &(bouquet->radioChannels);
@@ -288,7 +288,7 @@ void CBEChannelSelectWidget::paintDetails(int index)
 
 void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
-	int xpos  = x - ConnectLineBox_Width;
+	int xpos  = x - DETAILSLINE_WIDTH;
 	int ypos1 = y + theight+0 + pos*iheight;
 	int ypos2 = y + height + OFFSET_INTER;
 	int ypos1a = ypos1 + (fheight/2);
@@ -301,7 +301,7 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
-			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2, info_height-RADIUS_LARGE*2);
+			dline = new CComponentsDetailsLine(xpos, ypos1a, ypos2a, fheight/2, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
 
 		//infobox
