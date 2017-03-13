@@ -29,18 +29,6 @@
 #include <global.h>
 #include <gui/widget/buttons.h> //for compatibility with 'button_label' type
 
-//for 'button_label' type with string
-typedef struct button_label_cc
-{
-	const char *		button;
-	std::string 		text;
-	neutrino_locale_t 	locale;
-	neutrino_msg_t 		directKey;
-	neutrino_msg_t 		directKeyAlt;
-	int 			btn_result;
-	int 			btn_alias;
-	button_label_cc(): text(std::string()), locale(NONEXISTANT_LOCALE){}
-} button_label_cc_struct;
 
 /*!
 CComponentsFooter, sub class of CComponentsHeader provides prepared container for footer
