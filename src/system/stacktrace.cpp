@@ -176,5 +176,14 @@ void install_crash_handler()
 	void *trace[16];
 	backtrace(trace, 16);
 }
+#else
+void print_stacktrace(FILE *out = stderr, unsigned int max_frames = 63)
+{
+	(void) out;
+	(void) max_frames;
+}
 
+void install_crash_handler()
+{
+}
 #endif
