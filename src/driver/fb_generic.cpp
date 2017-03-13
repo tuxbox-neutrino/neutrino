@@ -276,8 +276,8 @@ unsigned int CFrameBuffer::getScreenHeight(bool real)
 unsigned int CFrameBuffer::getScreenWidthRel(bool force_small)
 {
 	int percent = force_small ? WINDOW_SIZE_MIN_FORCED : g_settings.window_width;
-	// always reduce a possible detailline
-	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * percent / 100;
+	// always reduce a possible detailsline
+	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*DETAILSLINE_WIDTH) * percent / 100;
 }
 
 unsigned int CFrameBuffer::getScreenHeightRel(bool force_small)

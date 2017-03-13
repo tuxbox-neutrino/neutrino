@@ -70,7 +70,6 @@ typedef struct gradientData_t
 #define WINDOW_SIZE_MAX		100 // %
 #define WINDOW_SIZE_MIN		50 // %
 #define WINDOW_SIZE_MIN_FORCED	80 // %
-#define ConnectLineBox_Width	16 // px
 
 /** Ausfuehrung als Singleton */
 class CFrameBuffer : public sigc::trackable
