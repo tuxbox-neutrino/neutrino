@@ -29,7 +29,7 @@
 
 #include <gui/widget/buttons.h>
 #include <system/settings.h>
-#include <driver/stacktrace.h>
+#include <system/stacktrace.h>
 #include <driver/fontrenderer.h>
 
 
