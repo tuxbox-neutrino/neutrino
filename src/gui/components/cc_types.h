@@ -187,7 +187,8 @@ typedef struct button_label_cc
 	int 			btn_result;
 	int 			btn_alias;
 	std::string 		bg_image;
-	button_label_cc(): text(std::string()), locale(NONEXISTANT_LOCALE){}
+	std::string 		hint;
+	button_label_cc(): button(NULL), text(std::string()), locale(NONEXISTANT_LOCALE){}
 } button_label_cc_struct;
 
 #define CC_WIDTH_MIN		16
