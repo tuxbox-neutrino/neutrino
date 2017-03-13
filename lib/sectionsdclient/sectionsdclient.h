@@ -150,7 +150,16 @@ class CSectionsdClient : private CBasicClient
 	};
 
 	struct CurrentNextInfo : public responseGetCurrentNextInfoChannelID
-	{};
+	{
+		CurrentNextInfo() {
+			current_uniqueKey = 0;
+			current_name = "";
+			current_fsk = 0x0;
+			next_uniqueKey = 0;
+			next_name = "";
+			flags = 0x0;
+		}
+	};
 
 	typedef struct
 	{

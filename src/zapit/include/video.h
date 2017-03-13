@@ -2,7 +2,7 @@
 #include <cs_api.h>
 #include <video_cs.h>
 #endif
-#if HAVE_TRIPLEDRAGON
+#if USE_STB_HAL
 #include <init_td.h>
-#include <video_td.h>
+#include <video_hal.h>
 #endif

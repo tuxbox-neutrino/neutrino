@@ -164,14 +164,14 @@ void CBEChannelWidget::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
 
 	int sbc= ((Channels->size()- 1)/ listmaxshow)+ 1;
+	int sbs= (selected/listmaxshow);
 	if (sbc < 1)
 		sbc = 1;
-
 	int sbh= (sb- 4)/ sbc;
-	int sbs= (selected/listmaxshow);
 
-	if (sbh)
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_SCROLLBAR_ACTIVE_PLUS_0);
+	if (sbh == 0)
+		return;
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * sbh, 11, sbh, COL_SCROLLBAR_ACTIVE_PLUS_0);
 }
 
 void CBEChannelWidget::paintHead()
@@ -276,7 +276,7 @@ void CBEChannelWidget::clearItem2DetailsLine()
 void CBEChannelWidget::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight);
- 	clearItem2DetailsLine ();
+	clearItem2DetailsLine ();
 }
 
 void CBEChannelWidget::updateSelection(unsigned int newpos)

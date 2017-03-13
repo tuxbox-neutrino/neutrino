@@ -364,7 +364,7 @@ bool CServiceScan::ReadFst(unsigned short pid, unsigned short operator_id, bool 
 	} while(!one_section && (sectotal < last));
 
 	delete dmx;
-	printf("[FST] %d sections\n", fst_sections.size());
+	printf("[FST] %zd sections\n", fst_sections.size());
 	return !fst_sections.empty();
 }
 
@@ -808,7 +808,7 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
         if (feparams->symbol_rate >= 50000000)
                 feparams->symbol_rate /= 10;
 
-        feparams->frequency = (int) 1000 * (int) round ((double) feparams->frequency / (double) 1000);
+        feparams->frequency = 1000 * ((feparams->frequency + 500) / 1000);
 
 #ifdef SCAN_DEBUG
 	printf("[FNT] new TP: sat %d delsys %d freq %d SR %d fec %d pol %d\n",

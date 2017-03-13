@@ -4,6 +4,8 @@
   Copyright (C) 2001 Steffen Hehn 'McClean'
   Homepage: http://dbox.cyberphoria.org/
 
+  Copyright (C) 2007-2012 Stefan Seyfried
+
   Kommentar:
 
   Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -47,7 +49,7 @@
 #ifdef BOXMODEL_CS_HD2
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
 #else
-#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 12
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
 #endif
 
 struct SNeutrinoTheme
@@ -704,7 +706,7 @@ struct SNeutrinoSettings
 		LCD_SHOW_VOLUME        ,
 		LCD_AUTODIMM           ,
 		LCD_DEEPSTANDBY_BRIGHTNESS,
-#if HAVE_TRIPLEDRAGON
+#if HAVE_TRIPLEDRAGON || USE_STB_HAL
 		LCD_EPGMODE            ,
 #endif
 		LCD_SETTING_COUNT
@@ -873,7 +875,7 @@ typedef struct time_settings_t
 
 const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_COUNT] =
 {
-	{ 0,	LOCALE_TIMING_MENU,			LOCALE_MENU_HINT_OSD_TIMING},//TODO: add hint locales
+	{ 240,	LOCALE_TIMING_MENU,			LOCALE_MENU_HINT_OSD_TIMING},//TODO: add hint locales
 	{ 60,	LOCALE_TIMING_CHANLIST,			LOCALE_MENU_HINT_OSD_TIMING},
 	{ 240,	LOCALE_TIMING_EPG,			LOCALE_MENU_HINT_OSD_TIMING},
 	{ 6,	LOCALE_TIMING_INFOBAR,			LOCALE_MENU_HINT_OSD_TIMING},
@@ -926,7 +928,6 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 struct SglobalInfo
 {
 	unsigned char     box_Type;
-	delivery_system_t delivery_system;
 	bool has_fan;
 	hw_caps_t *hw_caps;
 };

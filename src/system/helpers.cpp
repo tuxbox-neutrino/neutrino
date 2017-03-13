@@ -31,11 +31,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pty.h>	/* forkpty*/
+#include <sys/ioctl.h>
 #include <inttypes.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/vfs.h>    /* or <sys/statfs.h> */
+#include <sys/time.h>	/* gettimeofday */
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -303,7 +305,7 @@ int check_dir(const char * dir, bool allow_tmp)
 				ret = 0;	// ok
 		}
 		if(ret == -1)
-			printf("Wrong Filessystem Type: 0x%" PRIx32"\n",s.f_type);
+			printf("Wrong Filessystem Type: 0x%llx\n", (unsigned long long)s.f_type);
 	}
 	return ret;
 }
@@ -555,7 +557,6 @@ std::string& htmlEntityDecode(std::string& text)
 CFileHelpers::CFileHelpers()
 {
 	FileBufMaxSize	= 0xFFFF;
-	doCopyFlag	= true;
 	ConsoleQuiet	= false;
 	clearDebugInfo();
 }
@@ -741,8 +742,6 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 
 bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*=0*/)
 {
-	doCopyFlag = true;
-
 	/*
 	set mode for Dst
 	----------------
@@ -778,69 +777,28 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 	uint32_t block;
 	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
 	lseek64(fd1, 0, SEEK_SET);
-	if (fsizeSrc64 > 0x7FFFFFF0) { // > 2GB
-		uint32_t FileBufSize = FileBufMaxSize;
-		FileBuf = initFileBuf(FileBuf, FileBufSize);
-		off64_t fsize64 = fsizeSrc64;
-		block = FileBufSize;
-		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
-		while(fsize64 > 0) {
-			if(fsize64 < (off64_t)FileBufSize)
-				block = (uint32_t)fsize64;
-			read(fd1, FileBuf, block);
-			write(fd2, FileBuf, block);
-			fsize64 -= block;
-			if (!doCopyFlag)
-				break;
-		}
-		if (doCopyFlag) {
-			lseek64(fd2, 0, SEEK_SET);
-			off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
-			if (fsizeSrc64 != fsizeDst64){
-				close(fd1);
-				close(fd2);
-				FileBuf = deleteFileBuf(FileBuf);
-				return false;
-			}
-		}
+	off64_t fsize64 = fsizeSrc64;
+	uint32_t FileBufSize = (fsizeSrc64 < (off_t)FileBufMaxSize) ? (uint32_t)fsizeSrc64 : FileBufMaxSize;
+	FileBuf = initFileBuf(FileBuf, FileBufSize);
+	block = FileBufSize;
+	//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __func__, fsizeSrc64, fsizeSrc64);
+	while (fsize64 > 0) {
+		if (fsize64 < (off64_t)FileBufSize)
+			block = (uint32_t)fsize64;
+		read(fd1, FileBuf, block);	/* FIXME: short read??? */
+		write(fd2, FileBuf, block);	/* FIXME: short write?? */
+		fsize64 -= block;
 	}
-	else { // < 2GB
-		off_t fsizeSrc = lseek(fd1, 0, SEEK_END);
-		uint32_t FileBufSize = (fsizeSrc < (off_t)FileBufMaxSize) ? fsizeSrc : FileBufMaxSize;
-		FileBuf = initFileBuf(FileBuf, FileBufSize);
-		lseek(fd1, 0, SEEK_SET);
-		off_t fsize = fsizeSrc;
-		block = FileBufSize;
-		//printf("#####[%s] fsizeSrc: %ld 0x%08lX - normal file\n", __FUNCTION__, fsizeSrc, fsizeSrc);
-		while(fsize > 0) {
-			if(fsize < (off_t)FileBufSize)
-				block = (uint32_t)fsize;
-			read(fd1, FileBuf, block);
-			write(fd2, FileBuf, block);
-			fsize -= block;
-			if (!doCopyFlag)
-				break;
-		}
-		if (doCopyFlag) {
-			lseek(fd2, 0, SEEK_SET);
-			off_t fsizeDst = lseek(fd2, 0, SEEK_END);
-			if (fsizeSrc != fsizeDst){
-				close(fd1);
-				close(fd2);
-				FileBuf = deleteFileBuf(FileBuf);
-				return false;
-			}
-		}
-	}
-	close(fd1);
-	close(fd2);
-
-	if (!doCopyFlag) {
-		sync();
-		unlink(Dst);
+	lseek64(fd2, 0, SEEK_SET);
+	off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
+	if (fsizeSrc64 != fsizeDst64) {
+		close(fd1);
+		close(fd2);
 		FileBuf = deleteFileBuf(FileBuf);
 		return false;
 	}
+	close(fd1);
+	close(fd2);
 
 	FileBuf = deleteFileBuf(FileBuf);
 	return true;
@@ -908,8 +866,11 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 			// is file
 			else if (S_ISREG(FileInfo.st_mode)) {
 				std::string save = "";
+				(void)backupMode; /* squelch unused parameter warning */
+#if ENABLE_EXTUPDATE
 				if (backupMode && (CExtUpdate::getInstance()->isBlacklistEntry(srcPath)))
 					save = ".save";
+#endif
 				copyFile(srcPath, (dstPath + save).c_str()); /* mode is set by copyFile */
 			}
 		}

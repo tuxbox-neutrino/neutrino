@@ -33,6 +33,8 @@
 #include <gui/widget/msgbox.h>
 #include <system/helpers.h>
 
+#include <local_build_config.h>
+
 using namespace std;
 
 CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, 700, 500, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)

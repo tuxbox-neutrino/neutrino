@@ -45,6 +45,7 @@
 #include <video.h>
 #include <cs_api.h>
 #include <driver/screenshot.h>
+#include <system/set_threadname.h>
 
 extern "C" {
 #include <jpeglib.h>
@@ -82,7 +83,7 @@ bool CScreenShot::GetData()
 #endif
 	if (videoDecoder->getBlank()) 
 		get_video = false;
-#if 1 // to enable after libcs/drivers update
+#ifdef SCREENSHOT
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
 
@@ -90,7 +91,7 @@ bool CScreenShot::GetData()
 	/* sort of hack. GXA used to transfer/convert live image to RGB,
 	 * so setup GXA back */
 	CFrameBuffer::getInstance()->setupGXA();
-	CFrameBuffer::getInstance()->add_gxa_sync_marker();
+	//CFrameBuffer::getInstance()->add_gxa_sync_marker();
 	CFrameBuffer::getInstance()->setActive(true);
 #endif
 	mutex.unlock();
@@ -106,6 +107,7 @@ bool CScreenShot::GetData()
 /* start ::run in new thread to save file in selected format */
 bool CScreenShot::Start()
 {
+	set_threadname("n:screenshot");
 	bool ret = false;
 	if(GetData())
 		ret = (start() == 0);
@@ -192,11 +194,7 @@ bool CScreenShot::SavePng()
 
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)NULL, (png_error_ptr)NULL, (png_error_ptr)NULL);
 	info_ptr = png_create_info_struct(png_ptr);
-#if (PNG_LIBPNG_VER < 10500)
-	if (setjmp(png_ptr->jmpbuf))
-#else
 	if (setjmp(png_jmpbuf(png_ptr)))
-#endif
 	{
 		printf("CScreenShot::SavePng: %s save error\n", filename.c_str());
 		png_destroy_write_struct(&png_ptr, &info_ptr);

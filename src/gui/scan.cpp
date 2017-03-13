@@ -2,9 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
-
-	Copyright (C) 2011-2012 Stefan Seyfried
+	Copyright (C) 2011-2013,2015,2017 Stefan Seyfried
 
 	License: GPL
 
@@ -19,8 +17,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -107,7 +104,8 @@ void CScanTs::prev_next_TP( bool up)
 			}
 		}
 	} else {
-		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); --tI ) {
+		for (tI = select_transponders.end(); tI != select_transponders.begin();) {
+			--tI;
 			if(tI->second.feparams.frequency < TP.feparams.frequency) {
 				next_tp = true;
 				break;
@@ -125,7 +123,7 @@ void CScanTs::testFunc()
 {
 	int w = x + width - xpos2;
 	char buffer[128];
-	char *f, *s, *m, *f2;
+	const char *f, *s, *m, *f2;
 
 	if (CFrontend::isSat(delsys)) {
 		CFrontend::getDelSys(TP.feparams.delsys, TP.feparams.fec_inner, TP.feparams.modulation, f, s, m);
@@ -142,6 +140,7 @@ void CScanTs::testFunc()
 	printf("CScanTs::testFunc: %s\n", buffer);
 	paintLine(xpos2, ypos_cur_satellite, w - 95, pname.c_str());
 	paintLine(xpos2, ypos_frequency, w, buffer);
+	paintRadar();
 	success = g_Zapit->tune_TP(TP);
 }
 
@@ -171,6 +170,13 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	bool test = actionKey == "test";
 	bool manual = (actionKey == "manual") || test;
 	bool fast = (actionKey == "fast");
+#if !ENABLE_FASTSCAN
+	if (fast) {
+		/* popup message? But this *should* be impossible to happen anyway */
+		fprintf(stderr, "CScanTs::exec: fastscan disabled at build-time!\n");
+		return menu_return::RETURN_REPAINT;
+	}
+#endif
 
 	if (CFrontend::isSat(delsys))
 		pname = scansettings.satName;
@@ -187,10 +193,13 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
 	width       = w_max(fw * 42, 0);
+	int tmp = (BAR_WIDTH + 4 + 7 * fw) * 2 + fw + 40; /* that's from the crazy calculation in showSNR() */
+	if (width < tmp)
+		width = w_max(tmp, 0);
 	height      = h_max(hheight + (12 * mheight), 0); //9 lines
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
-	xpos_radar = x + 36 * fw;
+	xpos_radar = x + width - 20 - 64; /* TODO: don't assume radar is 64x64... */
 	ypos_radar = y + hheight + (mheight >> 1);
 	xpos1 = x + 10;
 
@@ -290,14 +299,17 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	tuned = -1;
 	paint(test);
+
 	/* go */
 	if(test) {
 		testFunc();
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
+#if ENABLE_FASTSCAN
 		CServiceScan::getInstance()->QuietFastScan(false);
 		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
+#endif
 	}
 	else
 		success = g_Zapit->startScan(scan_flags);
@@ -372,7 +384,10 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	return menu_return::RETURN_REPAINT;
 }
 
-int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
+/* this is not type "int", because it does not return a code indicating success but
+ * instead returns altered "msg". This is different ot all other "handleMsg" functions
+ * and should probably be fixed somewhen... */
+neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 {
 	int w = x + width - xpos2;
 //printf("CScanTs::handleMsg: x %d xpos2 %d width %d w %d\n", x, xpos2, width, w);
@@ -403,7 +418,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCYP:
 			{
 				FrontendParameters *feparams = (FrontendParameters*) data;
-				char * f, *s, *m;
+				const char *f, *s, *m;
 
 				CFrontend::getDelSys(feparams->delsys, feparams->fec_inner, feparams->modulation,  f, s, m);
 				uint32_t freq = feparams->frequency/1000;

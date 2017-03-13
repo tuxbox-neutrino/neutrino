@@ -3,6 +3,7 @@
 
 	Copyright (C) 2002 Bjoern Kalkbrenner <terminar@cyberphoria.org>
    (C) 2002,2003,2004 Zwen <Zwen@tuxbox.org>
+	Copyright (C) 2010-2011 Stefan Seyfried
 
 	libmad MP3 low-level core
 	Homepage: http://www.cyberphoria.org/
@@ -71,8 +72,8 @@ void sanalyzer_render_freq(short data[1024]);
    finish_file function. */
 extern "C"
 {
-void id3_tag_addref(struct id3_tag *);
-void id3_tag_delref(struct id3_tag *);
+//void id3_tag_addref(struct id3_tag *);
+void my_id3_tag_delref(struct id3_tag *);
 struct filetag {
 	struct id3_tag *tag;
 	unsigned long location;
@@ -283,8 +284,7 @@ void CMP3Dec::CreateInfo(CAudioMetaData* m, int FrameNumber)
 	if ( !m->hasInfoOrXingTag )
 	{
 		m->total_time = m->avg_bitrate != 0 ?
-			static_cast<int>( round( static_cast<double>( m->filesize )
-									 / m->avg_bitrate ) )
+			static_cast<int>(m->filesize / m->avg_bitrate)
 			: 0;
 	}
 
@@ -897,7 +897,9 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 		}
 	}
 	audioDecoder->StopClip();
+#ifdef SPECTRUM
 	CVFD::getInstance ()->Unlock ();
+#endif
 	/* Accounting report if no error occured. */
 	if(Status==OK)
 	{
@@ -1141,8 +1143,7 @@ bool CMP3Dec::GetMP3Info( FILE* input, const bool nice,
 		{
 			meta->vbr = true;
 			meta->avg_bitrate = meta->total_time != 0
-				? static_cast<int>( round( static_cast<double>(meta->filesize)
-										   / meta->total_time ) )
+				? static_cast<int>(meta->filesize / meta->total_time)
 				: 0;
 		}
 		else /* we do not know wether the file is vbr or not */
@@ -1443,7 +1444,7 @@ void id3_finish_file(struct id3_file* file)
 		free(file->path);
 
 	if (file->primary) {
-		id3_tag_delref(file->primary);
+		my_id3_tag_delref(file->primary);
 		id3_tag_delete(file->primary);
 	}
 
@@ -1452,7 +1453,7 @@ void id3_finish_file(struct id3_file* file)
 
 		tag = file->tags[i].tag;
 		if (tag) {
-			id3_tag_delref(tag);
+			my_id3_tag_delref(tag);
 			id3_tag_delete(tag);
 		}
 	}
@@ -1463,3 +1464,10 @@ void id3_finish_file(struct id3_file* file)
 	free(file);
 }
 
+/* copy of id3_tag_delref, since a properly built libid3tag does
+ * not export this (it's not part of the public API... */
+void my_id3_tag_delref(struct id3_tag *tag)
+{
+	assert(tag && tag->refcount > 0);
+	--tag->refcount;
+}

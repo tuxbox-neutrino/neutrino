@@ -9,6 +9,7 @@
 	Copyright (C) 2011 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2011-2015 Stefan Seyfried
 	Copyright (C) 2011-2014 CoolStream International Ltd
 
 	License: GPL
@@ -159,7 +160,11 @@ const CMenuOptionChooser::keyval CABLESETUP_SCANTP_FEC[CABLESETUP_SCANTP_FEC_COU
 };
 #endif
 
+#if _HAVE_DVB57
 #define TERRSETUP_SCANTP_FEC_COUNT	9
+#else
+#define TERRSETUP_SCANTP_FEC_COUNT	8
+#endif
 const CMenuOptionChooser::keyval TERRSETUP_SCANTP_FEC[TERRSETUP_SCANTP_FEC_COUNT] =
 {
 	// DVB-T
@@ -170,37 +175,51 @@ const CMenuOptionChooser::keyval TERRSETUP_SCANTP_FEC[TERRSETUP_SCANTP_FEC_COUNT
 	{ FEC_7_8,  LOCALE_EXTRA_FEC_7_8  },
 	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO },
 	// DTMB ie
+#if _HAVE_DVB57
 	{ FEC_2_5,  LOCALE_EXTRA_FEC_2_5  }, 
+#endif
 	{ FEC_3_5,  LOCALE_EXTRA_FEC_3_5  }, 
 	{ FEC_4_5,  LOCALE_EXTRA_FEC_4_5  }, 
 
 };
 
+#if _HAVE_DVB57
 #define TERRSETUP_SCANTP_BW_COUNT	7
+#else
+#define TERRSETUP_SCANTP_BW_COUNT	4
+#endif
 const CMenuOptionChooser::keyval TERRSETUP_SCANTP_BW[TERRSETUP_SCANTP_BW_COUNT] =
 {
 	{ BANDWIDTH_8_MHZ,     LOCALE_EXTRA_TP_BANDWIDTH_8MHZ     },
 	{ BANDWIDTH_7_MHZ,     LOCALE_EXTRA_TP_BANDWIDTH_7MHZ     },
 	{ BANDWIDTH_6_MHZ,     LOCALE_EXTRA_TP_BANDWIDTH_6MHZ     },
+#if _HAVE_DVB57
 	{ BANDWIDTH_5_MHZ,     LOCALE_EXTRA_TP_BANDWIDTH_5MHZ     },
 	{ BANDWIDTH_10_MHZ,    LOCALE_EXTRA_TP_BANDWIDTH_10MHZ    },
 	{ BANDWIDTH_1_712_MHZ, LOCALE_EXTRA_TP_BANDWIDTH_1_712MHZ },
+#endif
 	{ BANDWIDTH_AUTO,      LOCALE_EXTRA_TP_BANDWIDTH_AUTO     }
 };
 
+#if _HAVE_DVB57
 #define TERRSETUP_SCANTP_GI_COUNT	11
+#else
+#define TERRSETUP_SCANTP_GI_COUNT	5
+#endif
 const CMenuOptionChooser::keyval TERRSETUP_SCANTP_GI[TERRSETUP_SCANTP_GI_COUNT] =
 {
 	{ GUARD_INTERVAL_1_4,    LOCALE_EXTRA_TP_GI_1_4    },
 	{ GUARD_INTERVAL_1_8,    LOCALE_EXTRA_TP_GI_1_8    },
 	{ GUARD_INTERVAL_1_16,   LOCALE_EXTRA_TP_GI_1_16   },
 	{ GUARD_INTERVAL_1_32,   LOCALE_EXTRA_TP_GI_1_32   },
+#if _HAVE_DVB57
 	{ GUARD_INTERVAL_1_128,  LOCALE_EXTRA_TP_GI_1_128  },
 	{ GUARD_INTERVAL_19_128, LOCALE_EXTRA_TP_GI_19_128 },
 	{ GUARD_INTERVAL_19_256, LOCALE_EXTRA_TP_GI_19_256 },
 	{ GUARD_INTERVAL_PN420,  LOCALE_EXTRA_TP_GI_PN420  },
 	{ GUARD_INTERVAL_PN595,  LOCALE_EXTRA_TP_GI_PN595  },
 	{ GUARD_INTERVAL_PN945,  LOCALE_EXTRA_TP_GI_PN945  },
+#endif
 	{ GUARD_INTERVAL_AUTO,   LOCALE_EXTRA_TP_GI_AUTO   }
 };
 
@@ -214,17 +233,25 @@ const CMenuOptionChooser::keyval TERRSETUP_SCANTP_HIERARCHY[TERRSETUP_SCANTP_HIE
 	{ HIERARCHY_AUTO, LOCALE_EXTRA_TP_HIERARCHY_AUTO }
 };
 
+#if _HAVE_DVB57
 #define TERRSETUP_SCANTP_TRANSMIT_MODE_COUNT	9
+#else
+#define TERRSETUP_SCANTP_TRANSMIT_MODE_COUNT	4
+#endif
 const CMenuOptionChooser::keyval TERRSETUP_SCANTP_TRANSMIT_MODE[TERRSETUP_SCANTP_TRANSMIT_MODE_COUNT] =
 {
+#if _HAVE_DVB57
 	{ TRANSMISSION_MODE_1K,    LOCALE_EXTRA_TP_TRANSMIT_MODE_1K    },
+#endif
 	{ TRANSMISSION_MODE_2K,    LOCALE_EXTRA_TP_TRANSMIT_MODE_2K    },
 	{ TRANSMISSION_MODE_4K,    LOCALE_EXTRA_TP_TRANSMIT_MODE_4K    },
 	{ TRANSMISSION_MODE_8K,    LOCALE_EXTRA_TP_TRANSMIT_MODE_8K    },
+#if _HAVE_DVB57
 	{ TRANSMISSION_MODE_16K,   LOCALE_EXTRA_TP_TRANSMIT_MODE_16K   },
 	{ TRANSMISSION_MODE_32K,   LOCALE_EXTRA_TP_TRANSMIT_MODE_32K   },
 	{ TRANSMISSION_MODE_C1,    LOCALE_EXTRA_TP_TRANSMIT_MODE_C1    },
 	{ TRANSMISSION_MODE_C3780, LOCALE_EXTRA_TP_TRANSMIT_MODE_C3780 },
+#endif
 	{ TRANSMISSION_MODE_AUTO,  LOCALE_EXTRA_TP_TRANSMIT_MODE_AUTO  }
 };
 
@@ -247,14 +274,20 @@ const CMenuOptionChooser::keyval CABLESETUP_SCANTP_MOD[CABLESETUP_SCANTP_MOD_COU
 	{ QAM_AUTO, LOCALE_EXTRA_TP_MOD_AUTO }
 };
 
+#if _HAVE_DVB57
 #define TERRSETUP_SCANTP_MOD_COUNT 6
+#else
+#define TERRSETUP_SCANTP_MOD_COUNT 5
+#endif
 const CMenuOptionChooser::keyval TERRSETUP_SCANTP_MOD[TERRSETUP_SCANTP_MOD_COUNT] =
 {
 	{ QPSK,     LOCALE_EXTRA_TP_MOD_4    },
 	{ QAM_16,   LOCALE_EXTRA_TP_MOD_16   },
 	{ QAM_32,   LOCALE_EXTRA_TP_MOD_32   },
 	{ QAM_64,   LOCALE_EXTRA_TP_MOD_64   },
+#if _HAVE_DVB57
 	{ QAM_4_NR, LOCALE_EXTRA_TP_MOD_4_NR },
+#endif
 	{ QAM_AUTO, LOCALE_EXTRA_TP_MOD_AUTO }
 };
 
@@ -1299,14 +1332,16 @@ int CScanSetup::showScanMenuSatFind()
 //init tempsat menu
 void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satconfig)
 {
+	bool unicable = (dmode == DISEQC_UNICABLE);
 	temp_sat->addIntroItems();
+
 	CMenuOptionNumberChooser	*diseqc = NULL;
-	CMenuOptionNumberChooser	*comm = NULL;
+	CMenuOptionNumberChooser	*comm   = NULL;
 	CMenuOptionNumberChooser	*uncomm = NULL;
 	CMenuOptionNumberChooser	*unilnb = NULL;
-	CMenuOptionNumberChooser	*motor = NULL;
-	CMenuOptionChooser		*usals = NULL;
-	bool unicable = (dmode == DISEQC_UNICABLE);
+	CMenuOptionNumberChooser	*motor  = NULL;
+	CMenuOptionChooser		*usals  = NULL;
+	CMenuForwarder			*mf;
 
 	if (!unicable) {
 		diseqc	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQC_INPUT, &satconfig.diseqc, ((dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED)), -1, 15, this, CRCInput::RC_nokey, NULL, 1, -1, LOCALE_OPTIONS_OFF);
@@ -1317,7 +1352,7 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 		uncomm->setHint("", LOCALE_MENU_HINT_SCAN_UNCOMMITED);
 		motor 	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_MOTOR_POS, &satconfig.motor_position, true /*dmode == DISEQC_ADVANCED*/, 0, 64, this, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 		motor->setHint("", LOCALE_MENU_HINT_SCAN_MOTORPOS);
-		usals 	= new CMenuOptionChooser(LOCALE_EXTRA_USE_GOTOXX,  &satconfig.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true /*dmode == DISEQC_ADVANCED*/);
+		usals	= new CMenuOptionChooser(LOCALE_EXTRA_USE_GOTOXX,  &satconfig.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true /*dmode == DISEQC_ADVANCED*/);
 		usals->setHint("", LOCALE_MENU_HINT_SCAN_USEUSALS);
 	} else {
 		if (satconfig.diseqc < 0)
@@ -1339,7 +1374,7 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 		temp_sat->addItem(unilnb);
 	}
 
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFL, true, lofL->getValue(), lofL);
+	mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFL, true, lofL->getValue(), lofL);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_LOFL);
 	temp_sat->addItem(mf);
 	mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFH, true, lofH->getValue(), lofH);

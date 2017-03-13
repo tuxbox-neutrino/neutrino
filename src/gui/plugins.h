@@ -50,7 +50,8 @@ class CPlugins
 		P_TYPE_GAME     = 0x2,
 		P_TYPE_TOOL     = 0x4,
 		P_TYPE_SCRIPT   = 0x8,
-		P_TYPE_LUA      = 0x10
+		P_TYPE_LUA      = 0x10,
+		P_TYPE_NO_GAME  = P_TYPE_TOOL|P_TYPE_SCRIPT|P_TYPE_LUA
 	}
 	p_type_t;
 

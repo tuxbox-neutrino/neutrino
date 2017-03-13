@@ -42,6 +42,7 @@
 
 #include <driver/display.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 #include <system/helpers.h>
 
 #include <sys/vfs.h>

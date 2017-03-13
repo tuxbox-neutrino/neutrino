@@ -492,9 +492,18 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
         }
 	if(found) {
 		printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-		std::string cmd = "cp /usr/share/zoneinfo/" + zone + " /etc/localtime";
-		printf("exec %s\n", cmd.c_str());
-		my_system(3,"/bin/sh", "-c", cmd.c_str());
+		std::string cmd = "/usr/share/zoneinfo/" + zone;
+		printf("symlink %s to /etc/localtime\n", cmd.c_str());
+		if (unlink("/etc/localtime"))
+			perror("unlink failed");
+		if (symlink(cmd.c_str(), "/etc/localtime"))
+			perror("symlink failed");
+		/* for yocto tzdata compatibility */
+		FILE *f = fopen("/etc/timezone", "w");
+		if (f) {
+			fprintf(f, "%s\n", zone.c_str());
+			fclose(f);
+		}
 #if 0
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);
@@ -563,6 +572,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	return ret;
 }
 
+#if HAVE_COOL_HARDWARE
 void CFanControlNotifier::setSpeed(unsigned int speed)
 {
 	printf("FAN Speed %d\n", speed);
@@ -585,6 +595,16 @@ bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 	setSpeed(speed);
 	return false;
 }
+#else
+void CFanControlNotifier::setSpeed(unsigned int)
+{
+}
+
+bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void *)
+{
+	return false;
+}
+#endif
 
 bool CCpuFreqNotifier::changeNotify(const neutrino_locale_t, void * data)
 {
@@ -604,14 +624,23 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 	int i;
 	int modes[VIDEO_STD_MAX+1];
 
-	memset(modes, 0, sizeof(int)*VIDEO_STD_MAX+1);
+	memset(modes, 0, sizeof(modes));
 
-	for(i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+	for(i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
+		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key < 0) /* not available on this platform */
+			continue;
+		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key >= VIDEO_STD_MAX) {
+			/* this must not happen */
+			printf("CAutoModeNotifier::changeNotify VIDEOMODE_OPTIONS[%d].key = %d (>= %d)\n",
+					i, VIDEOMENU_VIDEOMODE_OPTIONS[i].key, VIDEO_STD_MAX);
+			continue;
+		}
 #ifdef BOXMODEL_CS_HD2
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_auto_modes[i];
 #else
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];
 #endif
+	}
 	videoDecoder->SetAutoModes(modes);
 	return false;
 }

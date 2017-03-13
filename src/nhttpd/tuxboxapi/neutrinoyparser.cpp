@@ -676,7 +676,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 	if(para == "apid")
 		idx_as_id=false;
 	else if(!para.empty() && ("channel="== para.substr(0,8))){
-		if (sscanf(para.c_str(), "channel=%llx:audio=%i:", &current_channel_id,&selected_apid) == 2) {
+		if (sscanf(para.c_str(), "channel=%" SCNx64 ":audio=%i:", &current_channel_id,&selected_apid) == 2) {
 			if(current_channel_id != 0 && CZapit::getInstance()->GetCurrentChannelID() != current_channel_id){
 				channel = CServiceManager::getInstance()->FindChannel(current_channel_id);
 			}

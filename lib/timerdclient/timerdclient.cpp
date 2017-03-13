@@ -28,6 +28,12 @@
 #include <timerdclient/timerdmsg.h>
 #include <timerdclient/timerdclient.h>
 
+#ifdef PEDANTIC_VALGRIND_SETUP
+#define VALGRIND_PARANOIA(x) memset(&x, 0, sizeof(x))
+#else
+#define VALGRIND_PARANOIA(x) {}
+#endif
+
 unsigned char   CTimerdClient::getVersion   () const
 {
 	return CTimerdMsg::ACTVERSION;
@@ -43,6 +49,7 @@ const          char * CTimerdClient::getSocketName() const
 void CTimerdClient::registerEvent(unsigned int eventID, unsigned int clientID, const char * const udsName)
 {
 	CEventServer::commandRegisterEvent msg2;
+	VALGRIND_PARANOIA(msg2);
 
 	msg2.eventID = eventID;
 	msg2.clientID = clientID;
@@ -58,6 +65,7 @@ void CTimerdClient::registerEvent(unsigned int eventID, unsigned int clientID, c
 void CTimerdClient::unRegisterEvent(unsigned int eventID, unsigned int clientID)
 {
 	CEventServer::commandUnRegisterEvent msg2;
+	VALGRIND_PARANOIA(msg2);
 
 	msg2.eventID = eventID;
 	msg2.clientID = clientID;
@@ -165,6 +173,7 @@ bool CTimerdClient::modifyTimerEvent(int eventid, time_t announcetime, time_t al
 	// set new time values for event eventid
 
 	CTimerdMsg::commandModifyTimer msgModifyTimer;
+	VALGRIND_PARANOIA(msgModifyTimer);
 	msgModifyTimer.eventID = eventid;
 	msgModifyTimer.announceTime = announcetime;
 	msgModifyTimer.alarmTime = alarmtime;
@@ -203,6 +212,7 @@ bool CTimerdClient::rescheduleTimerEvent(int eventid, time_t diff)
 bool CTimerdClient::rescheduleTimerEvent(int eventid, time_t announcediff, time_t alarmdiff, time_t stopdiff)
 {
 	CTimerdMsg::commandModifyTimer msgModifyTimer;
+	VALGRIND_PARANOIA(msgModifyTimer);
 	msgModifyTimer.eventID = eventid;
 	msgModifyTimer.announceTime = announcediff;
 	msgModifyTimer.alarmTime = alarmdiff;
@@ -298,6 +308,9 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 	CTimerd::TransferEventInfo tei; 
 	CTimerd::TransferRecordingInfo tri;
 	CTimerdMsg::commandAddTimer msgAddTimer;
+	VALGRIND_PARANOIA(tei);
+	VALGRIND_PARANOIA(tri);
+	VALGRIND_PARANOIA(msgAddTimer);
 	msgAddTimer.alarmTime  = alarmtime;
 	msgAddTimer.announceTime = announcetime;
 	msgAddTimer.stopTime   = stoptime;
@@ -368,6 +381,8 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 void CTimerdClient::removeTimerEvent( int evId)
 {
 	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
+	VALGRIND_PARANOIA(msgRemoveTimer);
+
 	msgRemoveTimer.eventID  = evId;
 
 	send(CTimerdMsg::CMD_REMOVETIMER, (char*) &msgRemoveTimer, sizeof(msgRemoveTimer));
@@ -436,6 +451,7 @@ bool CTimerdClient::shutdown()
 void CTimerdClient::modifyTimerAPid(int eventid, unsigned char apids)
 {
 	CTimerdMsg::commandSetAPid data;
+	VALGRIND_PARANOIA(data);
 	data.eventID=eventid;
 	data.apids = apids;
 	send(CTimerdMsg::CMD_SETAPID, (char*) &data, sizeof(data)); 
@@ -446,6 +462,7 @@ void CTimerdClient::modifyTimerAPid(int eventid, unsigned char apids)
 void CTimerdClient::setRecordingSafety(int pre, int post)
 {
 	CTimerdMsg::commandRecordingSafety data;
+	VALGRIND_PARANOIA(data);
 	data.pre = pre;
 	data.post = post;
 	send(CTimerdMsg::CMD_SETRECSAFETY, (char*) &data, sizeof(data)); 
@@ -518,6 +535,7 @@ void CTimerdClient::setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, std::string
 void CTimerdClient::stopTimerEvent( int evId)
 {
 	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
+	VALGRIND_PARANOIA(msgRemoveTimer);
 
 	msgRemoveTimer.eventID  = evId;
 

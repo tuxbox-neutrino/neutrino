@@ -4,6 +4,7 @@
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
  * Copyright (C) 2011 CoolStream International Ltd
+ * Copyright (C) 2009,2010,2012,2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,8 +113,6 @@ class CFrontend
 		/* current adapter where this frontend is on */
 		int adapter;
 		bool locked;
-		/* tuning finished flag */
-		bool tuned;
 		/* information about the used frontend type */
 		struct dvb_frontend_info info;
 		/* current 22kHz tone mode */
@@ -181,6 +180,9 @@ class CFrontend
 
 		friend class CFEManager;
 	public:
+		/* tuning finished flag */
+		bool tuned;
+
 		~CFrontend(void);
 
 		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, delivery_system_t delsys);
@@ -205,7 +207,7 @@ class CFrontend
 		uint16_t			getSignalStrength(void) const;
 		fe_status_t			getStatus(void) const;
 		uint32_t			getUncorrectedBlocks(void) const;
-		void				getDelSys(int f, int m, char * &fec, char * &sys, char * &mod);
+		void				getDelSys(int f, int m, const char * &fec, const char * &sys, const char * &mod);
 		void				getFEInfo(void);
 
 		int32_t				getCurrentSatellitePosition() { return currentSatellitePosition; }
@@ -270,7 +272,7 @@ class CFrontend
 		satellite_map_t &		getSatellites() { return satellites; }
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
 		int				getNumber() { return fenumber; };
-		static void			getDelSys(delivery_system_t delsys, int f, int m, char * &fec, char * &sys, char * &mod);
+		static void			getDelSys(delivery_system_t delsys, int f, int m, const char * &fec, const char * &sys, const char * &mod);
 		fe_work_mode_t			getMode() { return femode; }
 		void				setMode(int mode) {femode = (fe_work_mode_t) mode; }
 		int				getMaster() { return masterkey; }

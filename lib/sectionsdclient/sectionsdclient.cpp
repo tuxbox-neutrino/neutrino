@@ -28,6 +28,11 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <sectionsdclient/sectionsdMsg.h>
 
+#ifdef PEDANTIC_VALGRIND_SETUP
+#define VALGRIND_PARANOIA(x) memset(&x, 0, sizeof(x))
+#else
+#define VALGRIND_PARANOIA(x) {}
+#endif
 
 unsigned char   CSectionsdClient::getVersion   () const
 {
@@ -59,6 +64,7 @@ int CSectionsdClient::readResponse(char* data,unsigned int size)
 bool CSectionsdClient::send(const unsigned char command, const char* data, const unsigned int size)
 {
 	sectionsd::msgRequestHeader msgHead;
+	VALGRIND_PARANOIA(msgHead);
 
 	msgHead.version    = getVersion();
 	msgHead.command    = command;
@@ -78,6 +84,7 @@ bool CSectionsdClient::send(const unsigned char command, const char* data, const
 void CSectionsdClient::registerEvent(const unsigned int eventID, const unsigned int clientID, const char * const udsName)
 {
 	CEventServer::commandRegisterEvent msg2;
+	VALGRIND_PARANOIA(msg2);
 
 	msg2.eventID = eventID;
 	msg2.clientID = clientID;
@@ -92,6 +99,7 @@ void CSectionsdClient::registerEvent(const unsigned int eventID, const unsigned 
 void CSectionsdClient::unRegisterEvent(const unsigned int eventID, const unsigned int clientID)
 {
 	CEventServer::commandUnRegisterEvent msg2;
+	VALGRIND_PARANOIA(msg2);
 
 	msg2.eventID = eventID;
 	msg2.clientID = clientID;
@@ -150,6 +158,7 @@ bool CSectionsdClient::getIsScanningActive()
 void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bool requestEvent, int dnum)
 {
 	sectionsd::commandSetServiceChanged msg;
+	VALGRIND_PARANOIA(msg);
 
 	msg.channel_id   = channel_id;
 	msg.requestEvent = requestEvent;

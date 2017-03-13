@@ -68,9 +68,6 @@ typedef struct Zapit_config {
         /* FE specific */
         int highVoltage;
         int motorRotationSpeed;
-        int uni_scr;
-	int uni_qrg;       /* the unicable frequency in MHz */
-	int uni_lnb;       /* the input (0/1) of a twin-position switch */
 } t_zapit_config;
 
 
@@ -202,7 +199,7 @@ class CZapit : public OpenThreads::Thread
 		void LoadVolumeMap();
 		void SaveChannelPids(CZapitChannel* channel);
 		virtual void ConfigFrontend();
-		bool StopPlayBack(bool send_pmt);
+		bool StopPlayBack(bool send_pmt, bool blank = true);
 		virtual void leaveStandby();
 
 		static CZapit * zapit;

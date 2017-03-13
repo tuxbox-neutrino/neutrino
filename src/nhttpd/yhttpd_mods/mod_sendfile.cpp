@@ -46,6 +46,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <inttypes.h>
 #include <system/helpers.h>
 // yhttpd
 #include <yconfig.h>
@@ -118,8 +119,8 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 				hh->RangeEnd = hh->ContentLength - 1;
 				const char *range = (hh->HeaderList["Range"].empty()) ? NULL : hh->HeaderList["Range"].c_str();
 				if ((range &&
-				     (2 != sscanf(range, "bytes=%lld-%lld", &hh->RangeStart, &hh->RangeEnd)) &&
-				     (1 != sscanf(range, "bytes=%lld-", &hh->RangeStart)))
+				     (2 != sscanf(range, "bytes=%" PRId64 "-%" PRId64, &hh->RangeStart, &hh->RangeEnd)) &&
+				     (1 != sscanf(range, "bytes=%" PRId64 "-", &hh->RangeStart)))
 				 || (hh->RangeStart > hh->RangeEnd)
 				 || (hh->RangeEnd > hh->ContentLength - 1)) {
 					hh->SetError(HTTP_REQUEST_RANGE_NOT_SATISFIABLE);

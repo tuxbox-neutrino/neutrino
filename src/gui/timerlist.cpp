@@ -656,7 +656,8 @@ struct button_label TimerListButtons[] =
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, NONEXISTANT_LOCALE     },
 	{ NEUTRINO_ICON_BUTTON_PLAY	, NONEXISTANT_LOCALE      }
 };
-size_t TimerListButtonsCount = sizeof(TimerListButtons)/sizeof(TimerListButtons[0]);
+// int to match the type in paintButtons
+int TimerListButtonsCount = sizeof(TimerListButtons)/sizeof(TimerListButtons[0]);
 
 #define RemoteBoxFooterButtonCount 3
 static const struct button_label RemoteBoxFooterButtons[RemoteBoxFooterButtonCount] = {

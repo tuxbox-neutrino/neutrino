@@ -342,7 +342,7 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.menu_Head_Text_green = configfile.getInt32( "menu_Head_Text_green", 0x46 );
 	t.menu_Head_Text_blue = configfile.getInt32( "menu_Head_Text_blue", 0x00 );
 
-	t.menu_Head_gradient = configfile.getInt32( "menu_Head_gradient", CC_COLGRAD_LIGHT_2_DARK);
+	t.menu_Head_gradient = configfile.getInt32("menu_Head_gradient", CC_COLGRAD_OFF); /* no bling */
 	t.menu_Head_gradient_direction = configfile.getInt32( "menu_Head_gradient_direction", CFrameBuffer::gradientVertical);
 	t.menu_Separator_gradient_enable = configfile.getInt32( "menu_Separator_gradient_enable", 0);
 
@@ -415,7 +415,7 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.colored_events_blue = configfile.getInt32( "colored_events_blue", 0 );
 	t.colored_events_channellist = configfile.getInt32( "colored_events_channellist", 0 );
 
-	t.colored_events_infobar = configfile.getInt32( "colored_events_infobar", 2 );
+	t.colored_events_infobar = configfile.getInt32("colored_events_infobar", 0); /* no bling bling */
 	t.clock_Digit_alpha = configfile.getInt32( "clock_Digit_alpha", t.menu_Content_Text_alpha );
 	t.clock_Digit_red = configfile.getInt32( "clock_Digit_red", t.menu_Content_Text_red );
 	t.clock_Digit_green = configfile.getInt32( "clock_Digit_green", t.menu_Content_Text_green );

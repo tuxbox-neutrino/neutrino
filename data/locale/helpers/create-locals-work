@@ -6,46 +6,56 @@
 # to, after manual editing, replace the outdated locale file.
 
 # Written by Barf on 2005-12-10.
+# reorganized by Stefan Seyfried 2016-01-03, following changes:
+#  * use strict, use warnings to find errors easier
+#  * make it work with the above pragmas
+#  * tolerance against empty locales in english.locale
 
-$masterfilename = "english.locale";
+use warnings;
+use strict;
+
+my $masterfilename = "english.locale";
 
 $#ARGV == 0 || die("Usage: create-locals-work file.locale.");
 
-$no_errors = 0;
-$last_was_ok = 1;
-$localefilename = @ARGV[0];
-$outfilename = $localefilename . "-work";
+my $no_errors = 0;
+my $last_was_ok = 1;
+my $localefilename = $ARGV[0];
+my $outfilename = $localefilename . "-work";
 
-open(masterfile, $masterfilename) || die("Could not open master file");
-open(localefile, $localefilename) || die("Could not open locale file");
-open(outfile, ">" . $outfilename) || die("Could not open output file");
+open(MASTER, $masterfilename) || die("Could not open master file $masterfilename");
+open(LOCALE, $localefilename) || die("Could not open locale file $localefilename");
+open(OUT, ">" . $outfilename) || die("Could not open output file $outfilename");
 
-%master = {};
-%locale = {};
+my %master;
+my %locale;
 
-while (<masterfile>) {
+my $line;
+while ($line = <MASTER>) {
     # master hash
-    $line = $_;
-    ($key) = /([^ ]+)/;
-    ($junk, $text) = /([^ ]+)[ ]+([^\n]+)/;
-    $master{$key} = $text;
+    chomp $line;
+    $line =~ s/^\s+//; # strip whitespace from start of line
+    my ($key, $text) = split /\s+/, $line, 2;
+    $master{$key} = $text ? $text : "";
 }
+close(MASTER);
 
-while (<localefile>) {
+while ($line = <LOCALE>) {
     # locale hash
-    $line = $_;
-    ($key) = /([^ ]+)/;
-    ($junk, $text) = /([^ ]+)[ ]+([^\n]+)/;
-    $locale{$key} = $text;
+    chomp $line;
+    $line =~ s/^\s+//;
+    my ($key, $text) = split /\s+/, $line, 2;
+    $locale{$key} = $text ? $text : "";
 }
+close(LOCALE);
 
-foreach $term (sort keys %master) {
+foreach my $term (sort keys %master) {
     if (exists $locale{$term}) {
-        print outfile $term,  " ", $locale{$term}, "\n";
+        print OUT $term." ".$locale{$term}."\n";
     } else {
         # not found
         $no_errors++;
-        print outfile $term,  " TRANSLATE ", $master{$term}, "\n";
+        print OUT $term." TRANSLATE ".$master{$term}."\n";
     }
 }
 

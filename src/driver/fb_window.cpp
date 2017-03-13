@@ -4,6 +4,7 @@
  * abstract fb_window class - d-box2 linux project
  *
  * (C) 2003 by thegoodguy <thegoodguy@berlios.de>
+ * (C) 2009-2012 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

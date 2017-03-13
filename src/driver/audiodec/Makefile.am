@@ -25,7 +25,6 @@ ASOURCES = cdrdec.cpp \
 	mp3dec.cpp \
 	oggdec.cpp \
 	tag.c \
-	vis.cpp \
 	wavdec.cpp
 endif
 

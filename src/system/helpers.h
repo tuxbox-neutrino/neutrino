@@ -99,7 +99,6 @@ class CFileHelpers
 		CFileHelpers();
 		~CFileHelpers();
 		static CFileHelpers* getInstance();
-		bool doCopyFlag;
 
 		void clearDebugInfo();
 		void readDebugInfo(helpersDebugInfo* di);

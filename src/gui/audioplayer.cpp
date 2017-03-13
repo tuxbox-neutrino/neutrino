@@ -5,6 +5,7 @@
 
   (C) 2002-2008 the tuxbox project contributors
   (C) 2008 Novell, Inc. Author: Stefan Seyfried
+  (C) 2011-2013 Stefan Seyfried
 
   Homepage: http://dbox.cyberphoria.org/
 
@@ -29,8 +30,7 @@
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -47,6 +47,7 @@
 #include <driver/rcinput.h>
 #include <driver/audioplay.h>
 #include <driver/audiometadata.h>
+#include <driver/display.h>
 
 #include <daemonc/remotecontrol.h>
 

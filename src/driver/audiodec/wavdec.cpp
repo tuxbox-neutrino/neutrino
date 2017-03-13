@@ -2,6 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2004 Zwen
+	Copyright (C) 2010-2011 Stefan Seyfried
 
 	Homepage: http://www.dbox2.info/
 
@@ -118,8 +119,8 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int /*OutputFd*/, State* state, CAu
 	unsigned int oldSecsToSkip = *secondsToSkip;
 	int jumppos=0;
 	int bytes;
-	int bytes_to_play = (int) (1.0 * MSECS_TO_PLAY / 1000 * meta_data->bitrate / 8);
-	int bytes_to_skip = (int) (1.0 * actSecsToSkip * meta_data->bitrate / 8);
+	int bytes_to_play = MSECS_TO_PLAY * meta_data->bitrate / 8000;
+	int bytes_to_skip = actSecsToSkip * meta_data->bitrate / 8;
 	int buffersize = MAX_OUTPUT_SAMPLES * mChannels * mBitsPerSample / 8;
 	buffer = (char*) malloc (buffersize);
 	do
@@ -132,7 +133,7 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int /*OutputFd*/, State* state, CAu
 			if (oldSecsToSkip != *secondsToSkip)
 			{
 				actSecsToSkip = (*secondsToSkip != 0) ? *secondsToSkip : MSECS_TO_SKIP / 1000;
-				bytes_to_skip = (int) (1.0 * actSecsToSkip * meta_data->bitrate / 8);
+				bytes_to_skip = actSecsToSkip * meta_data->bitrate / 8;
 				oldSecsToSkip = *secondsToSkip;
 			}
 			//printf("skipping %d secs and %d bytes\n",actSecsToSkip,bytes_to_skip);

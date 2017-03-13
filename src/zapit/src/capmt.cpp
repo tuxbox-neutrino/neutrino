@@ -3,7 +3,7 @@
  *             thegoodguy         <thegoodguy@berlios.de>
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
- * Copyright (C) 2012 Stefan Seyfried
+ * Copyright (C) 2012-2014 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ bool CCam::makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list, co
         int len;
         unsigned char * buffer = channel->getRawPmt(len);
 
-	INFO("cam %x source %d camask %d list %02x buffer", (int) this, source_demux, camask, list);
+	DBG("cam %p source %d camask %d list %02x buffer\n", this, source_demux, camask, list);
 
 	if(!buffer)
 		return false;
@@ -228,15 +228,33 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
 
 	/* FIXME until proper demux management */
+#if ! HAVE_COOL_HARDWARE
+	CFrontend *dfe = CFEManager::getInstance()->allocateFE(channel);
+	int fenum = -1;
+	if (dfe)
+		fenum = dfe->getNumber();
+#endif
 	switch(mode) {
 		case PLAY:
+#if HAVE_COOL_HARDWARE
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
+#else
+			source = cDemux::GetSource(0);
+			demux = cDemux::GetSource(0);
+			INFO("PLAY: fe_num %d dmx_src %d", fenum, cDemux::GetSource(0));
+#endif
 			break;
 		case STREAM:
 		case RECORD:
+#if HAVE_COOL_HARDWARE
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
+#else
+			source = cDemux::GetSource(channel->getRecordDemux());
+			demux = source;
+			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d dmx_src %d", mode, fenum, channel->getRecordDemux(), demux);
+#endif
 			break;
 		case PIP:
 			source = channel->getRecordDemux();
@@ -257,6 +275,14 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
 
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
+
+	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
+	if (mode == RECORD && start == false && source != cDemux::GetSource(0)) {
+		INFO("MODE!=record(%d) start=false, src %d getsrc %d", mode, source, cDemux::GetSource(0));
+		cam->sendMessage(NULL, 0, false);
+		cam->sendCaPmt(channel->getChannelID(), NULL, 0, CA_SLOT_TYPE_ALL);
+	}
+
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);
 		cam->setSource(source);

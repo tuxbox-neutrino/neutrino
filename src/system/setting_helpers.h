@@ -50,7 +50,7 @@ class CGenericMenuActivate
 		void Clear()			{ items.clear(); }
 		void Activate(bool enable)
 		{
-			for(std::vector<CMenuItem*>::iterator it = items.begin(); it != items.end(); it++)
+			for(std::vector<CMenuItem*>::iterator it = items.begin(); it != items.end(); ++it)
 				(*it)->setActive(enable);
 		}
 };

@@ -35,8 +35,8 @@
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
 #endif
-#if HAVE_TRIPLEDRAGON
-#include <record_td.h>
+#if USE_STB_HAL
+#include <record_hal.h>
 #endif
 
 #include <OpenThreads/Mutex>
@@ -50,7 +50,12 @@ extern "C" {
 
 #define REC_MAX_APIDS 10
 #define FILENAMEBUFFERSIZE 1024
+#if HAVE_TRIPLEDRAGON
+/* I'm not able to get it to work with more than 1 recording at a time :-( */
+#define RECORD_MAX_COUNT 1
+#else
 #define RECORD_MAX_COUNT 8
+#endif
 
 #define TSHIFT_MODE_OFF		0
 #define TSHIFT_MODE_ON		1

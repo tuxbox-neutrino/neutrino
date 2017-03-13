@@ -26,6 +26,7 @@
 #include <config.h>
 #endif
 
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -34,10 +35,12 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/swap.h>
+#include <sys/vfs.h>
+#include <sys/wait.h>
 #include <dirent.h>
 #include <dlfcn.h>
 #include <sys/mount.h>
-#include <sys/wait.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -124,10 +127,18 @@ CHDDMenuHandler* CHDDMenuHandler::getInstance()
 
 int CHDDMenuHandler::filterDevName(const char * name)
 {
-	if ((name[0] == 's' && (name[1] == 'd' || name[1] == 'r')) ||
+	if (((name[0] == 's' || name[0] == 'h') && (name[1] == 'd' || name[1] == 'r')) ||
 		!strncmp(name, "mmcblk", 6))
 		return 1;
 	return 0;
+}
+
+static string readlink(const char *path)
+{
+	char link[PATH_MAX + 1];
+	if (realpath(path, link))
+		return string(link);
+	return "";
 }
 
 bool CHDDMenuHandler::is_mounted(const char *dev)
@@ -139,14 +150,25 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 	else
 		snprintf(devpath, sizeof(devpath), "/dev/%s", dev);
 
-	int devpathlen = strlen(devpath);
 	char buffer[255];
+	string realdev = readlink(devpath);
+	realdev = trim(realdev);
 	FILE *f = fopen("/proc/mounts", "r");
 	if(f) {
-		while (!res && fgets(buffer, sizeof(buffer), f))
-			if (!strncmp(buffer, devpath, devpathlen)
-					&& (buffer[devpathlen] == ' ' || buffer[devpathlen] == '\t'))
+		while (!res && fgets(buffer, sizeof(buffer), f)) {
+			if (buffer[0] != '/')
+				continue; /* only "real" devices are interesting */
+			char *p = strchr(buffer, ' ');
+			if (p)
+				*p = 0; /* terminate at first space, kernel-user ABI is fixed */
+			if (!strcmp(buffer, devpath)) /* default '/dev/sda1' mount */
 				res = true;
+			else {	/* now the case of '/dev/disk/by-label/myharddrive' mounts */
+				string realmount = readlink(buffer);
+				if (realdev == trim(realmount))
+					res = true;
+			}
+		}
 		fclose(f);
 	}
 	printf("CHDDMenuHandler::is_mounted: dev [%s] is %s\n", devpath, res ? "mounted" : "not mounted");
@@ -156,7 +178,10 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 void CHDDMenuHandler::getBlkIds()
 {
 	pid_t pid;
-	std::string pcmd = BLKID_BIN + (std::string)" -s TYPE";
+	std::string blkid = find_executable("blkid");
+	if (blkid.empty())
+		return;
+	std::string pcmd = blkid + (std::string)" -s TYPE";
 
 	FILE* f = my_popen(pid, pcmd.c_str(), "r");
 	if (!f) {
@@ -217,9 +242,36 @@ std::string CHDDMenuHandler::getFmtType(std::string name, std::string part)
 	return ret;
 }
 
+void CHDDMenuHandler::check_kernel_fs()
+{
+	char line[128]; /* /proc/filesystems lines are shorter */
+	kernel_fs_list.clear();
+	FILE *f = fopen("/proc/filesystems", "r");
+	if (! f) {
+		fprintf(stderr, "CHDDMenuHandler::%s: opening /proc/filesystems failed: %m\n", __func__);
+		return;
+	}
+	while (fgets(line, sizeof(line), f)) {
+		size_t l = strlen(line);
+		if (l > 0)
+			line[l - 1] = 0; /* remove \n */
+		char *tab = strchr(line, '\t');
+		if (! tab)	/* should not happen in any kernel I have seen */
+			continue;
+		tab++;
+		kernel_fs_list.insert(string(tab));
+	}
+	fclose(f);
+}
+
 void CHDDMenuHandler::check_dev_tools()
 {
 	for (unsigned i = 0; i < FS_MAX; i++) {
+		if (kernel_fs_list.find(devtools[i].fmt) == kernel_fs_list.end()) {
+			printf("%s: filesystem '%s' not supported by kernel\n",
+				__func__, devtools[i].fmt.c_str());
+			continue;
+		}
 		if (!access(devtools[i].fsck.c_str(), X_OK))
 			devtools[i].fsck_supported = true;
 		if (!access(devtools[i].mkfs.c_str(), X_OK))
@@ -366,7 +418,7 @@ void CHDDMenuHandler::setRecordPath(std::string &dev)
 		return;
 	}
 	/* don't annoy if the recordingdir is a symlink pointing to the 'right' location */
-	string readl = backtick("readlink -f " + g_settings.network_nfs_recordingdir);
+	string readl = readlink(g_settings.network_nfs_recordingdir.c_str());
 	readl = trim(readl);
 	if (newpath.compare(readl) == 0) {
 		printf("CHDDMenuHandler::%s: recordingdir is a symlink to %s\n",
@@ -594,8 +646,14 @@ bool CHDDMenuHandler::scanDevices()
 		perror("CHDDMenuHandler::scanDevices: scandir(\"/sys/block\") failed");
 		return false;
 	}
+
+	int drive_mask = 0xfff0;
 	if (stat("/", &s) != -1)
-		root_dev = (s.st_dev & 0x0ffc0); /* hda = 0x0300, hdb = 0x0340 */
+	{
+		if ((s.st_dev & drive_mask) == 0x0300) /* hda, hdb,... has max 63 partitions */
+			drive_mask = 0xffc0; /* hda: 0x0300, hdb: 0x0340, sda: 0x0800, sdb: 0x0810 */
+		root_dev = (s.st_dev & drive_mask);
+	}
 	printf("HDD: root_dev: 0x%04x\n", root_dev);
 
 	for(int i = 0; i < n;i++) {
@@ -604,6 +662,7 @@ bool CHDDMenuHandler::scanDevices()
 		char model[128] = { 0 };
 		int64_t bytes = 0;
 		int64_t megabytes;
+		bool oldkernel = false;
 		bool isroot = false;
 
 		printf("HDD: checking /sys/block/%s\n", namelist[i]->d_name);
@@ -615,7 +674,7 @@ bool CHDDMenuHandler::scanDevices()
 
 			int ret = fstat(fd, &s);
 			if (ret != -1) {
-				if ((int)(s.st_rdev & 0x0ffc0) == root_dev) {
+				if ((int)(s.st_rdev & drive_mask) == root_dev) {
 					isroot = true;
 					/* dev_t is different sized on different architectures :-( */
 					printf("-> root device is on this disk 0x%04x, skipping\n", (int)s.st_rdev);
@@ -640,9 +699,16 @@ bool CHDDMenuHandler::scanDevices()
 		if (f) {
 			fscanf(f, "%s", vendor);
 			fclose(f);
+		} else {
+			oldkernel = true;
+			strcpy(vendor, "");
 		}
 
-		snprintf(str, sizeof(str), "/sys/block/%s/device/model", namelist[i]->d_name);
+		/* the Tripledragon only has kernel 2.6.12 available.... :-( */
+		if (oldkernel)
+			snprintf(str, sizeof(str), "/proc/ide/%s/model", namelist[i]->d_name);
+		else
+			snprintf(str, sizeof(str), "/sys/block/%s/device/model", namelist[i]->d_name);
 		f = fopen(str, "r");
 		if(!f) {
 			printf("Cant open %s\n", str);
@@ -692,6 +758,7 @@ int CHDDMenuHandler::doMenu()
 	show_menu = false;
 	in_menu = true;
 
+	check_kernel_fs();
 	check_dev_tools();
 
 _show_menu:
@@ -739,9 +806,11 @@ _show_menu:
 	}
 
 	if (!hdd_list.empty()) {
-		struct stat rec_st;
+		struct stat rec_st, root_st, dev_st;
 		memset(&rec_st, 0, sizeof(rec_st));
+		memset(&root_st, 0, sizeof(root_st));
 		stat(g_settings.network_nfs_recordingdir.c_str(), &rec_st);
+		stat("/", &root_st);
 
 		sort(hdd_list.begin(), hdd_list.end(), cmp_hdd_by_name());
 		mount = g_Locale->getText(LOCALE_HDD_MOUNT);
@@ -757,6 +826,13 @@ _show_menu:
 			}
 			std::string key = "m" + it->devname;
 			bool enabled = !rec_icon || !CNeutrinoApp::getInstance()->recordingstatus;
+			/* do not allow to unmount the rootfs, and skip filesystems without kernel support */
+			memset(&dev_st, 0, sizeof(dev_st));
+			if (stat(("/dev/" + it->devname).c_str(), &dev_st) != -1
+			    && dev_st.st_rdev == root_st.st_dev)
+				enabled = false;
+			else if (kernel_fs_list.find(it->fmt) == kernel_fs_list.end())
+				enabled = false;
 			it->cmf = new CMenuForwarder(it->desc, enabled, it->mounted ? umount : mount , this,
 					key.c_str(), CRCInput::convertDigitToKey(shortcut++), NULL, rec_icon);
 			hddmenu->addItem(it->cmf);
@@ -776,6 +852,133 @@ _show_menu:
 	return ret;
 }
 
+#if 0
+static int dev_umount(char *dev)
+{
+	char buffer[255];
+	FILE *f = fopen("/proc/mounts", "r");
+	if(f == NULL)
+		return -1;
+	while (fgets (buffer, 255, f) != NULL) {
+		char *p = buffer + strlen(dev);
+		if (strstr(buffer, dev) == buffer && *p == ' ') {
+			p++;
+			char *q = strchr(p, ' ');
+			if (q == NULL)
+				continue;
+			*q = 0x0;
+			fclose(f);
+			printf("dev_umount %s: umounting %s\n", dev, p);
+			return umount(p);
+		}
+	}
+#ifndef ASSUME_MDEV
+	/* with mdev, we hopefully don't have to umount anything here... */
+	printf("dev_umount %s: not found\n", dev);
+#endif
+	errno = ENOENT;
+	fclose(f);
+	return -1;
+}
+
+/* unmounts all partitions of a given block device, dev can be /dev/sda, sda or sda4 */
+static int umount_all(const char *dev)
+{
+	char buffer[255];
+	int i;
+	char *d = strdupa(dev);
+	char *p = d + strlen(d) - 1;
+	while (isdigit(*p))
+		p--;
+	*++p = 0x0;
+	if (strstr(d, "/dev/") == d)
+		d += strlen("/dev/");
+	printf("HDD: %s dev = '%s' d = '%s'\n", __func__, dev, d);
+	for (i = 1; i < 16; i++)
+	{
+		sprintf(buffer, "/dev/%s%d", d, i);
+		// printf("checking for '%s'\n", buffer);
+		if (access(buffer, R_OK))
+			continue;	/* device does not exist? */
+#ifdef ASSUME_MDEV
+		/* we can't use a 'remove' uevent, as that would also remove the device node
+		 * which we certainly need for formatting :-) */
+		if (! access("/etc/mdev/mdev-mount.sh", X_OK)) {
+			sprintf(buffer, "MDEV=%s%d ACTION=remove /etc/mdev/mdev-mount.sh block", d, i);
+			printf("-> running '%s'\n", buffer);
+			my_system(3, "/bin/sh", "-c", buffer);
+		}
+#endif
+		sprintf(buffer, "/dev/%s%d", d, i);
+		/* just to make sure */
+		swapoff(buffer);
+		if (dev_umount(buffer) && errno != ENOENT)
+			fprintf(stderr, "could not umount %s: %m\n", buffer);
+	}
+	return 0;
+}
+
+/* triggers a uevent for all partitions of a given blockdev, dev can be /dev/sda, sda or sda4 */
+static int mount_all(const char *dev)
+{
+	char buffer[255];
+	int i, ret = -1;
+	char *d = strdupa(dev);
+	char *p = d + strlen(d) - 1;
+	while (isdigit(*p))
+		p--;
+	if (strstr(d, "/dev/") == d)
+		d += strlen("/dev/");
+	*++p = 0x0;
+	printf("HDD: %s dev = '%s' d = '%s'\n", __func__, dev, d);
+	for (i = 1; i < 16; i++)
+	{
+#ifdef ASSUME_MDEV
+		sprintf(buffer, "/sys/block/%s/%s%d/uevent", d, d, i);
+		if (!access(buffer, W_OK)) {
+			FILE *f = fopen(buffer, "w");
+			if (!f)
+				fprintf(stderr, "HDD: %s could not open %s: %m\n", __func__, buffer);
+			else {
+				printf("-> triggering add uevent in %s\n", buffer);
+				fprintf(f, "add\n");
+				fclose(f);
+				ret = 0;
+			}
+		}
+#endif
+	}
+	return ret;
+}
+
+#ifdef ASSUME_MDEV
+static void waitfordev(const char *src, int maxwait)
+{
+	int waitcount = 0;
+	/* wait for the device to show up... */
+	while (access(src, W_OK)) {
+		if (!waitcount)
+			printf("CHDDFmtExec: waiting for %s", src);
+		else
+			printf(".");
+		fflush(stdout);
+		waitcount++;
+		if (waitcount > maxwait) {
+			fprintf(stderr, "CHDDFmtExec: device %s did not appear!\n", src);
+			break;
+		}
+		sleep(1);
+	}
+	if (waitcount && waitcount <= maxwait)
+		printf("\n");
+}
+#else
+static void waitfordev(const char *, int)
+{
+}
+#endif
+#endif
+
 void CHDDMenuHandler::showError(neutrino_locale_t err)
 {
 	ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(err), CMsgBox::mbrOk, CMsgBox::mbOk);
@@ -788,6 +991,7 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	int res;
 	FILE * f;
 	CProgressWindow * progress;
+	std::string fdisk, sfdisk, tune2fs;
 
 	printf("CHDDMenuHandler::formatDevice: dev %s hdd_fs %d\n", dev.c_str(), g_settings.hdd_fs);
 
@@ -823,27 +1027,34 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 		goto _return;
 	}
 
-#ifdef ASSUME_MDEV
-	creat("/tmp/.nomdevmount", 00660);
-#else
+#ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
 	if(f) {
 		fprintf(f, "none\n");
 		fclose(f);
 	}
 #endif
+	creat("/tmp/.nomdevmount", 00660);
 
 	progress = new CProgressWindow();
 	progress->setTitle(LOCALE_HDD_FORMAT);
 	progress->exec(NULL,"");
 	progress->showGlobalStatus(0);
 
-	if (access("/sbin/sfdisk", X_OK) == 0) {
-		snprintf(cmd, sizeof(cmd), "/sbin/sfdisk -f -uM %s", devname.c_str());
+	fdisk   = find_executable("fdisk");
+	sfdisk  = find_executable("sfdisk");
+	tune2fs = find_executable("tune2fs");
+	if (! sfdisk.empty()) {
+		snprintf(cmd, sizeof(cmd), "%s -f -uM %s", sfdisk.c_str(), devname.c_str());
 		strcpy(cmd2, "0,\n;\n;\n;\ny\n");
+	} else if (! fdisk.empty()) {
+		snprintf(cmd, sizeof(cmd), "%s -u %s", fdisk.c_str(), devname.c_str());
+		strcpy(cmd2, "o\nn\np\n1\n2048\n\nw\n");
 	} else {
-		snprintf(cmd, sizeof(cmd), "/sbin/fdisk %s", devname.c_str());
-		strcpy(cmd2, "o\nn\np\n1\n\n\nw\n");
+		/* cannot do anything */
+		fprintf(stderr, "CHDDFmtExec: neither fdisk nor sfdisk found in $PATH :-(\n");
+		showError(LOCALE_HDD_FORMAT_FAILED);
+		goto _remount;
 	}
 	progress->showStatusMessageUTF(cmd);
 
@@ -953,20 +1164,19 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	}
 	sleep(2);
 
-	if (devtool->fmt.substr(0, 3) == "ext") {
+	if (devtool->fmt.substr(0, 3) == "ext" && ! tune2fs.empty()) {
 		std::string d = "/dev/" + devpart;
-		printf("CHDDMenuHandler::formatDevice: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", d.c_str());
-		my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", d.c_str());
+		printf("CHDDMenuHandler::formatDevice: executing %s %s %s\n", tune2fs.c_str(), "-r 0 -c 0 -i 0", d.c_str());
+		my_system(8, tune2fs.c_str(), "-r", "0", "-c", "0", "-i", "0", d.c_str());
 	}
 	show_menu = true;
 
 _remount:
+	unlink("/tmp/.nomdevmount");
 	progress->hide();
 	delete progress;
 
-#ifdef ASSUME_MDEV
-	unlink("/tmp/.nomdevmount");
-#else
+#ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
 	if(f) {
 		fprintf(f, "/sbin/hotplug\n");
@@ -990,7 +1200,40 @@ _remount:
 			safe_mkdir(cmd);
 			snprintf(cmd, sizeof(cmd), "%s/plugins", dst.c_str());
 			safe_mkdir(cmd);
-			sync();
+			// sync();
+#if HAVE_TRIPLEDRAGON
+		/* on the tripledragon, we mount via fstab, so we need to add an
+		   fstab entry for dst */
+		FILE *g;
+		char *line = NULL;
+		unlink("/etc/fstab.new");
+		g = fopen("/etc/fstab.new", "w");
+		f = fopen("/etc/fstab", "r");
+		if (!g)
+			perror("open /etc/fstab.new");
+		else {
+			if (f) {
+				int ret;
+				while (true) {
+					size_t dummy;
+					ret = getline(&line, &dummy, f);
+					if (ret < 0)
+						break;
+					/* remove lines that start with the same disk we formatted
+					   devname is /dev/xda" */
+					if (strncmp(line, devname.c_str(), devname.length()) != 0)
+						fprintf(g, "%s", line);
+				}
+				free(line);
+				fclose(f);
+			}
+			/* now add our new entry */
+			fprintf(g, "%s %s auto defaults 0 0\n", partname.c_str(), dst.c_str());
+			fclose(g);
+			rename("/etc/fstab", "/etc/fstab.old");
+			rename("/etc/fstab.new", "/etc/fstab");
+		}
+#endif
 		}
 	}
 _return:

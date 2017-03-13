@@ -10,6 +10,7 @@
 	Copyright (C) 2010 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2010, 2012-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -63,6 +64,7 @@
 #include <zapit/femanager.h>
 #include <system/debug.h>
 #include <system/helpers.h>
+#include "cs_api.h"
 
 extern CRemoteControl * g_RemoteControl;
 
@@ -625,12 +627,14 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_INFOCLOCK_SETUP);
 	osd_menu->addItem(mf);
 
+#ifdef SCREENSHOT
 	//screenshot
 	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
 	showOsdScreenShotSetup(&osd_menu_screenshot);
 	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
 	osd_menu->addItem(mf);
+#endif
 
 	//screensaver
 	CMenuWidget osd_menu_screensaver(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSAVER);
@@ -642,9 +646,12 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
 	//monitor
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
-	osd_menu->addItem(mc);
+	CMenuOptionChooser *mc;
+	if (cs_get_revision() != 1) { /* 1 == Tripledragon */
+		mc = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this);
+		mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
+		osd_menu->addItem(mc);
+	}
 
 	// round corners
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
@@ -1043,6 +1050,14 @@ const CMenuOptionChooser::keyval PROGRESSBAR_INFOBAR_POSITION_OPTIONS[PROGRESSBA
 	{ 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_2 },
 	{ 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_3 }
 };
+#define LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT 4
+const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS[LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT]=
+{
+   { 0 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_0 },
+   { 1 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_1 },
+   { 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_2 },
+   { 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_3 }
+};
 
 //menus
 void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
@@ -1436,6 +1451,7 @@ int COsdSetup::showContextChanlistMenu(CChannelList *parent_channellist)
 	return res;
 }
 
+#ifdef SCREENSHOT
 //screenshot
 #define SCREENSHOT_FMT_OPTION_COUNT 3
 const CMenuOptionChooser::keyval_ext SCREENSHOT_FMT_OPTIONS[SCREENSHOT_FMT_OPTION_COUNT] =
@@ -1485,6 +1501,7 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_COVER);
 	menu_screenshot->addItem(mc);
 }
+#endif
 
 #define SCREENSAVER_MODE_OPTION_COUNT 3
 const CMenuOptionChooser::keyval SCREENSAVER_MODE_OPTIONS[SCREENSAVER_MODE_OPTION_COUNT] =

@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-
+	Copyright (C) 2008-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -26,46 +26,43 @@
 #ifndef __lcdd__
 #define __lcdd__
 
-#ifndef LCD_UPDATE
-#define LCD_UPDATE 1
-#endif
-
 #define LCDDIR_VAR "/var/share/tuxbox/neutrino/lcdd"
 
 typedef enum
 {
-	VFD_ICON_BAR8       = 0x00000004,
-	VFD_ICON_BAR7       = 0x00000008,
-	VFD_ICON_BAR6       = 0x00000010,
-	VFD_ICON_BAR5       = 0x00000020,
-	VFD_ICON_BAR4       = 0x00000040,
-	VFD_ICON_BAR3       = 0x00000080,
-	VFD_ICON_BAR2       = 0x00000100,
-	VFD_ICON_BAR1       = 0x00000200,
-	VFD_ICON_FRAME      = 0x00000400,
-	VFD_ICON_HDD        = 0x00000800,
-	VFD_ICON_MUTE       = 0x00001000,
-	VFD_ICON_DOLBY      = 0x00002000,
-	VFD_ICON_POWER      = 0x00004000,
-	VFD_ICON_TIMESHIFT  = 0x00008000,
-	VFD_ICON_SIGNAL     = 0x00010000,
-	VFD_ICON_TV         = 0x00020000,
-	VFD_ICON_RADIO      = 0x00040000,
-	VFD_ICON_HD         = 0x01000001,
-	VFD_ICON_1080P      = 0x02000001,
-	VFD_ICON_1080I      = 0x03000001,
-	VFD_ICON_720P       = 0x04000001,
-	VFD_ICON_480P       = 0x05000001,
-	VFD_ICON_480I       = 0x06000001,
-	VFD_ICON_USB        = 0x07000001,
-	VFD_ICON_MP3        = 0x08000001,
-	VFD_ICON_PLAY       = 0x09000001,
-	VFD_ICON_COL1       = 0x09000002,
-	VFD_ICON_PAUSE      = 0x0A000001,
-	VFD_ICON_CAM1       = 0x0B000001,
-	VFD_ICON_COL2       = 0x0B000002,
-	VFD_ICON_CAM2       = 0x0C000001
-} vfd_icon;
+	FP_ICON_BAR8       = 0x00000004,
+	FP_ICON_BAR7       = 0x00000008,
+	FP_ICON_BAR6       = 0x00000010,
+	FP_ICON_BAR5       = 0x00000020,
+	FP_ICON_BAR4       = 0x00000040,
+	FP_ICON_BAR3       = 0x00000080,
+	FP_ICON_BAR2       = 0x00000100,
+	FP_ICON_BAR1       = 0x00000200,
+	FP_ICON_FRAME      = 0x00000400,
+	FP_ICON_HDD        = 0x00000800,
+	FP_ICON_MUTE       = 0x00001000,
+	FP_ICON_DOLBY      = 0x00002000,
+	FP_ICON_POWER      = 0x00004000,
+	FP_ICON_TIMESHIFT  = 0x00008000,
+	FP_ICON_SIGNAL     = 0x00010000,
+	FP_ICON_TV         = 0x00020000,
+	FP_ICON_RADIO      = 0x00040000,
+	FP_ICON_HD         = 0x01000001,
+	FP_ICON_1080P      = 0x02000001,
+	FP_ICON_1080I      = 0x03000001,
+	FP_ICON_720P       = 0x04000001,
+	FP_ICON_480P       = 0x05000001,
+	FP_ICON_480I       = 0x06000001,
+	FP_ICON_USB        = 0x07000001,
+	FP_ICON_MP3        = 0x08000001,
+	FP_ICON_PLAY       = 0x09000001,
+	FP_ICON_COL1       = 0x09000002,
+	FP_ICON_PAUSE      = 0x0A000001,
+	FP_ICON_CAM1       = 0x0B000001,
+	FP_ICON_COL2       = 0x0B000002,
+	FP_ICON_CAM2       = 0x0C000001
+} fp_icon;
+#define CVFD CLCD
 
 #ifdef LCD_UPDATE
 #ifdef HAVE_CONFIG_H
@@ -81,11 +78,13 @@ typedef enum
 #include <pthread.h>
 #include <string>
 
+#ifdef HAVE_TRIPLEDRAGON
 #include <lcddisplay/fontrenderer.h>
 
 
 class CLCDPainter;
 class LcdFontRenderClass;
+#endif
 class CLCD
 {
 	public:
@@ -117,7 +116,7 @@ class CLCD
 
 
 	private:
-
+#ifdef HAVE_TRIPLEDRAGON
 		class FontsDef
 		{
 			public:
@@ -149,6 +148,7 @@ class CLCD
 		bool				movie_centered;
 		bool				movie_is_ac3;
 		pthread_t			thrTime;
+		bool				thread_started;
 		int                             last_toggle_state_power;
 		int				clearClock;
 		unsigned int                    timeout_cnt;
@@ -164,12 +164,22 @@ class CLCD
 		void setlcdparameter(int dimm, int contrast, int power, int inverse, int bias);
 		void displayUpdate();
 		void showTextScreen(const std::string & big, const std::string & small, int showmode, bool perform_wakeup, bool centered = false);
-
+#else
+		CLCD();
+		std::string	menutitle;
+		std::string	servicename;
+		MODES		mode;
+		void setled(int red, int green);
+		static void	*TimeThread(void *);
+		pthread_t	thrTime;
+		bool		thread_running;
+#endif
 	public:
 		bool has_lcd;
 		void wake_up();
 		void setled(void) { return; };
 		void setlcdparameter(void);
+		void setBacklight(bool) { return; };
 
 		static CLCD* getInstance();
 		void init(const char * fontfile, const char * fontname,
@@ -180,12 +190,12 @@ class CLCD
 		MODES getMode() { return mode; };
 		void setHddUsage(int perc);
 
-		void showServicename(const std::string name, const bool perform_wakeup = true); // UTF-8
+		void showServicename(const std::string name, const bool clear_epg = false);
 		void setEPGTitle(const std::string title);
 		void setMovieInfo(const AUDIOMODES playmode, const std::string big, const std::string small, const bool centered = false);
 		void setMovieAudio(const bool is_ac3);
 		std::string getMenutitle() { return menutitle; };
-		void showTime();
+		void showTime(bool force = false);
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);
 		void showVolume(const char vol, const bool perform_update = true);
@@ -193,7 +203,7 @@ class CLCD
 		void showMenuText(const int position, const char * text, const int highlight = -1, const bool utf_encoded = false);
 		void showAudioTrack(const std::string & artist, const std::string & title, const std::string & album);
 		void showAudioPlayMode(AUDIOMODES m=AUDIO_MODE_PLAY);
-		void showAudioProgress(const char perc, bool isMuted);
+		void showAudioProgress(const char perc);
 		void setBrightness(int);
 		int getBrightness();
 
@@ -224,8 +234,9 @@ class CLCD
 		void Lock();
 		void Unlock();
 		void Clear();
-		void ShowIcon(vfd_icon icon, bool show);
-		void ShowText(const char *s) { showServicename(std::string(s)); };
+		void ShowIcon(fp_icon icon, bool show);
+		void ShowText(const char *s) { showServicename(std::string(s), true); };
+		~CLCD();
 #ifdef LCD_UPDATE
 	private:
 		CFileList* m_fileList;

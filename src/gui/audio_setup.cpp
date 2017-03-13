@@ -116,11 +116,17 @@ const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTIO
 	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
 };
 
+#ifdef HAVE_SPARK_HARDWARE
+#define AUDIOMENU_HDMI_DD_OPTION_COUNT 2
+#else
 #define AUDIOMENU_HDMI_DD_OPTION_COUNT 3
+#endif
 const CMenuOptionChooser::keyval AUDIOMENU_HDMI_DD_OPTIONS[AUDIOMENU_HDMI_DD_OPTION_COUNT] =
 {
 	{ HDMI_ENCODED_OFF,		LOCALE_OPTIONS_OFF		},
+#ifndef HAVE_SPARK_HARDWARE
 	{ HDMI_ENCODED_AUTO,		LOCALE_AUDIOMENU_HDMI_DD_AUTO	},
+#endif
 	{ HDMI_ENCODED_FORCED,		LOCALE_AUDIOMENU_HDMI_DD_FORCE	}
 };
 
@@ -148,8 +154,11 @@ int CAudioSetup::showAudioSetup()
 	as_oj_ddsubchn->setHint("", LOCALE_MENU_HINT_AUDIO_DD);
 
 	//dd via hdmi
-	CMenuOptionChooser * as_oj_dd_hdmi 	= new CMenuOptionChooser(LOCALE_AUDIOMENU_HDMI_DD, &g_settings.hdmi_dd, AUDIOMENU_HDMI_DD_OPTIONS, AUDIOMENU_HDMI_DD_OPTION_COUNT, true, audioSetupNotifier);
-	as_oj_dd_hdmi->setHint("", LOCALE_MENU_HINT_AUDIO_HDMI_DD);
+	CMenuOptionChooser *as_oj_dd_hdmi = NULL;
+	if (g_info.hw_caps->has_HDMI) {
+		as_oj_dd_hdmi = new CMenuOptionChooser(LOCALE_AUDIOMENU_HDMI_DD, &g_settings.hdmi_dd, AUDIOMENU_HDMI_DD_OPTIONS, AUDIOMENU_HDMI_DD_OPTION_COUNT, true, audioSetupNotifier);
+		as_oj_dd_hdmi->setHint("", LOCALE_MENU_HINT_AUDIO_HDMI_DD);
+	}
 
 	//dd via spdif
 	CMenuOptionChooser * as_oj_dd_spdif 	= new CMenuOptionChooser(LOCALE_AUDIOMENU_SPDIF_DD, &g_settings.spdif_dd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier);
@@ -173,6 +182,8 @@ int CAudioSetup::showAudioSetup()
 		//CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
 	}
 
+#if HAVE_COOL_HARDWARE
+	/* only coolstream has SRS stuff, so only compile it there */
 	//SRS
 	//SRS algo
 	CMenuOptionChooser * as_oj_algo 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_ALGO, &g_settings.srs_algo, AUDIOMENU_SRS_OPTIONS, AUDIOMENU_SRS_OPTION_COUNT, g_settings.srs_enable, audioSetupNotifier);
@@ -190,6 +201,7 @@ int CAudioSetup::showAudioSetup()
 	CTruVolumeNotifier truevolSetupNotifier(as_oj_algo, as_oj_noise, as_oj_volrev);
 	CMenuOptionChooser * as_oj_srsonoff 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_IQ, &g_settings.srs_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &truevolSetupNotifier);
 	as_oj_srsonoff->setHint("", LOCALE_MENU_HINT_AUDIO_SRS);
+#endif
 
 	// ac3,pcm and clear volume adjustment
 	CMenuOptionNumberChooser *adj_ac3 = NULL, *adj_pcm = NULL;
@@ -214,7 +226,8 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_analogmode);
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------------------------
-	audioSettings->addItem(as_oj_dd_hdmi);
+	if (g_info.hw_caps->has_HDMI)
+		audioSettings->addItem(as_oj_dd_hdmi);
 	audioSettings->addItem(as_oj_dd_spdif);
 	audioSettings->addItem(as_oj_ddsubchn);
 	//---------------------------------------------------------
@@ -226,6 +239,8 @@ int CAudioSetup::showAudioSetup()
 		//audioSettings->addItem(as_clockrec);
 	}
 	//---------------------------------------------------------
+#if HAVE_COOL_HARDWARE
+	/* only coolstream has SRS stuff, so only compile it there */
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	audioSettings->addItem(as_oj_srsonoff);
 	audioSettings->addItem(as_oj_algo);
@@ -233,6 +248,7 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_noise);
 #endif
 	audioSettings->addItem(as_oj_volrev);
+#endif
 #if 0
 	audioSettings->addItem(mf);
 #endif

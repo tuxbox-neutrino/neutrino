@@ -5,13 +5,7 @@
 							 and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2009-2014 Stefan Seyfried
 
 	License: GPL
 
@@ -135,8 +129,6 @@ void CNeutrinoApp::InitMenuMain()
 {
 	dprintf(DEBUG_DEBUG, "init mainmenue\n");
 
-	unsigned int system_rev = cs_get_revision();
-
 	// Dynamic renumbering
 	personalize.setShortcut();
 
@@ -200,6 +192,7 @@ void CNeutrinoApp::InitMenuMain()
 		mf->setHint(NEUTRINO_ICON_HINT_GAMES, LOCALE_MENU_HINT_GAMES);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_GAMES]);
 
+#if 0
 		//tools
 		bool show_tools = g_Plugins->hasPlugin(CPlugins::P_TYPE_TOOL);
 		mf = new CMenuForwarder(LOCALE_MAINMENU_TOOLS, show_tools, NULL, new CPluginList(LOCALE_MAINMENU_TOOLS,CPlugins::P_TYPE_TOOL));
@@ -217,6 +210,12 @@ void CNeutrinoApp::InitMenuMain()
 		mf = new CMenuForwarder(LOCALE_MAINMENU_LUA, show_lua, NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA));
 		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_LUA);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_LUA]);
+#else
+		bool show_plugins = g_Plugins->hasPlugin(CPlugins::P_TYPE_NO_GAME);
+		mf = new CMenuForwarder(LOCALE_MAINMENU_LUA, show_plugins, NULL, new CPluginList(LOCALE_MAINMENU_LUA, CPlugins::P_TYPE_NO_GAME));
+		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_LUA);
+		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_LUA]);
+#endif
 	}
 
 	//separator
@@ -252,7 +251,7 @@ void CNeutrinoApp::InitMenuMain()
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_REBOOT]);
 
 		//shutdown
-		if(system_rev >= 8) {
+		if (g_info.hw_caps->can_shutdown) {
 			mf = new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN, true, NULL, this, "shutdown", CRCInput::RC_standby);
 			mf->setHint(NEUTRINO_ICON_HINT_SHUTDOWN, LOCALE_MENU_HINT_SHUTDOWN);
 			personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SHUTDOWN]);
@@ -298,7 +297,7 @@ void CNeutrinoApp::InitMenuMain()
 		personalize.addItem(MENU_SHUTDOWN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_REBOOT]);
 
 		//shutdown
-		if(system_rev >= 8) {
+		if (g_info.hw_caps->can_shutdown) {
 			mf = new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN, true, NULL, this, "shutdown", CRCInput::RC_blue);
 			mf->setHint(NEUTRINO_ICON_HINT_SHUTDOWN, LOCALE_MENU_HINT_SHUTDOWN);
 			personalize.addItem(MENU_SHUTDOWN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SHUTDOWN]);
@@ -490,11 +489,15 @@ void CNeutrinoApp::InitMenuService()
 	}
 
 	//bouquet edit
+	// TODO: this needs a neutrino restart after changing parentallock_prompt to activate :-(
 	if (!g_settings.easymenu) {
-		mf = new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_blue);
+		CLockedMenuForwarder *lf;
+		lf = new CLockedMenuForwarder(LOCALE_BOUQUETEDITOR_NAME, g_settings.parentallock_pincode, g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED, true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_blue);
 
-		mf->setHint(NEUTRINO_ICON_HINT_BEDIT, LOCALE_MENU_HINT_BEDIT);
-		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT]);
+		/* does not work with CLockedMenuForwarder yet?
+		lf->setHint(NEUTRINO_ICON_HINT_BEDIT, LOCALE_MENU_HINT_BEDIT);
+		 */
+		personalize.addItem(MENU_SERVICE, lf, &g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT]);
 	}
 
 	//channel reset

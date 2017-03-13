@@ -17,8 +17,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -294,7 +293,7 @@ bool CRecordInstance::Stop(bool remove_event)
 	}
 
 	time_t end_time = time(0);
-	recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
+	recMovieInfo->length = (end_time - start_time + 30) / 60;
 
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
 	if ((!(autoshift && g_settings.auto_timeshift)) && g_settings.recording_startstop_msg)

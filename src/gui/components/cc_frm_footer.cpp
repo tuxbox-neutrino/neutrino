@@ -183,7 +183,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 
 		//ignore item, if no text and icon are defined;
 		if (txt.empty() && icon_name.empty()){
-			dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  ignore item [%d], no icon and text defined!\n", __func__, __LINE__, i);
+			dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  ignore item [%zu], no icon and text defined!\n", __func__, __LINE__, i);
 			continue;
 		}
 
@@ -219,7 +219,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			btn->setButtonFont(NULL);
 		}
 			
-		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%u]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, chain->getWidth());
+		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%zu]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, chain->getWidth());
 	}
 
 	/* add generated button objects to chain object.

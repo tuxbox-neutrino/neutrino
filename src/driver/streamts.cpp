@@ -56,6 +56,7 @@
 #include <driver/streamts.h>
 #include <driver/record.h>
 #include <driver/genpsi.h>
+#include <system/set_threadname.h>
 #include <gui/movieplayer.h>
 #include <cs_api.h>
 
@@ -77,7 +78,7 @@
 
 CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t &_pids)
 {
-	printf("CStreamInstance:: new channel %llx fd %d\n", chid, clientfd);
+	printf("CStreamInstance:: new channel %" PRIx64 " fd %d\n", chid, clientfd);
 	fds.insert(clientfd);
 	pids = _pids;
 	channel_id = chid;
@@ -103,7 +104,7 @@ bool CStreamInstance::Start()
 		return false;
 	}
 	running = true;
-	printf("CStreamInstance::Start: %llx\n", channel_id);
+	printf("CStreamInstance::Start: %" PRIx64 "\n", channel_id);
 	return (OpenThreads::Thread::start() == 0);
 }
 
@@ -112,7 +113,7 @@ bool CStreamInstance::Stop()
 	if (!running)
 		return false;
 
-	printf("CStreamInstance::Stop: %llx\n", channel_id);
+	printf("CStreamInstance::Stop: %" PRIx64 "\n", channel_id);
 	running = false;
 	return (OpenThreads::Thread::join() == 0);
 }
@@ -139,7 +140,7 @@ bool CStreamInstance::Send(ssize_t r, unsigned char * _buf)
 			}
 		} while ((count > 0) && (i-- > 0));
 		if (count)
-			printf("send err, fd %d: (%d from %d)\n", *it, r-count, r);
+			printf("send err, fd %d: (%zd from %zd)\n", *it, r-count, r);
 	}
 	return true;
 }
@@ -155,7 +156,7 @@ void CStreamInstance::AddClient(int clientfd)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	fds.insert(clientfd);
-	printf("CStreamInstance::AddClient: %d (count %d)\n", clientfd, fds.size());
+	printf("CStreamInstance::AddClient: %d (count %d)\n", clientfd, (int)fds.size());
 }
 
 void CStreamInstance::RemoveClient(int clientfd)
@@ -163,7 +164,7 @@ void CStreamInstance::RemoveClient(int clientfd)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	fds.erase(clientfd);
 	close(clientfd);
-	printf("CStreamInstance::RemoveClient: %d (count %d)\n", clientfd, fds.size());
+	printf("CStreamInstance::RemoveClient: %d (count %d)\n", clientfd, (int)fds.size());
 }
 
 bool CStreamInstance::Open()
@@ -181,6 +182,7 @@ bool CStreamInstance::Open()
 void CStreamInstance::run()
 {
 	printf("CStreamInstance::run: %" PRIx64 "\n", channel_id);
+	set_threadname("n:streaminstance");
 
 	/* pids here cannot be empty */
 	stream_pids_t::iterator it = pids.begin();
@@ -207,7 +209,7 @@ void CStreamInstance::run()
 
 	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
-	printf("CStreamInstance::run: exiting %llx (%d fds)\n", channel_id, fds.size());
+	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
 
 	Close();
 	delete dmx;
@@ -293,7 +295,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 
 	t_channel_id chid = channel->getChannelID();
 	if (CRecordManager::getInstance()->RecordingStatus(chid)) {
-		printf("CStreamManager::FindFrontend: channel %llx recorded, aborting..\n", chid);
+		printf("CStreamManager::%s: channel %" PRIx64 " recorded, aborting..\n", __func__, chid);
 		return frontend;
 	}
 
@@ -416,7 +418,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 #else
 	t_channel_id tmpid;
 	bp = &cbuf[5];
-	if (sscanf(bp, "id=%llx", &tmpid) == 1) {
+	if (sscanf(bp, "id=%" SCNx64, &tmpid) == 1) {
 		channel = CServiceManager::getInstance()->FindChannel(tmpid);
 		chid = tmpid;
 	}
@@ -424,7 +426,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	if (!channel)
 		return false;
 
-	printf("CStreamManager::Parse: channel_id %llx [%s]\n", chid, channel->getName().c_str());
+	printf("CStreamManager::Parse: channel_id %" PRIx64 " [%s]\n", chid, channel->getName().c_str());
 	if (IS_WEBTV(chid))
 		return true;
 
@@ -442,7 +444,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids)
 {
 	if (pids.empty()) {
-		printf("CStreamManager::AddPids: no pids in url, using channel %llx pids\n", channel->getChannelID());
+		printf("CStreamManager::AddPids: no pids in url, using channel %" PRIx64 " pids\n", channel->getChannelID());
 		if (channel->getVideoPid())
 			pids.insert(channel->getVideoPid());
 		for (int i = 0; i <  channel->getAudioChannelCount(); i++)
@@ -556,6 +558,7 @@ void CStreamManager::run()
 	int poll_timeout = -1;
 
 	printf("Starting STREAM thread keeper, tid %ld\n", syscall(__NR_gettid));
+	set_threadname("n:streammanager");
 
 	while (running) {
 		mutex.lock();
