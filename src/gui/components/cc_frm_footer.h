@@ -39,6 +39,7 @@ typedef struct button_label_cc
 	neutrino_msg_t 		directKeyAlt;
 	int 			btn_result;
 	int 			btn_alias;
+	std::string 		bg_image;
 	button_label_cc(): text(std::string()), locale(NONEXISTANT_LOCALE){}
 } button_label_cc_struct;
 
