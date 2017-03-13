@@ -1116,7 +1116,7 @@ void CMenuWidget::calcSize()
 			else
 				wi = 0;
 		}
-		int tmpw = items[i]->getWidth() + 2*OFFSET_INNER_MID; /* 10 pixels to the left and right of the text */
+		int tmpw = items[i]->getWidth() + 2*OFFSET_INNER_MID + wi; /* 10 pixels to the left and right of the text */
 		if (tmpw > width)
 			width = tmpw;
 	}
