@@ -3,6 +3,7 @@ Makefile
 autom4te.cache
 *.in
 aclocal.m4
+compile
 config.*
 configure
 depcomp
