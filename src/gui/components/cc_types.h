@@ -191,8 +191,8 @@ typedef struct button_label_cc
 	button_label_cc(): button(NULL), text(std::string()), locale(NONEXISTANT_LOCALE){}
 } button_label_cc_struct;
 
-#define CC_WIDTH_MIN		16
-#define CC_HEIGHT_MIN		16
+#define CC_WIDTH_MIN		CFrameBuffer::getInstance()->scale2Res(16)
+#define CC_HEIGHT_MIN		CC_WIDTH_MIN
 
 #define CC_SHADOW_OFF 			0x0
 #define CC_SHADOW_RIGHT 		0x2
