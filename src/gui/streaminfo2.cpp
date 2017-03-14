@@ -626,7 +626,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	*/
 	audioDecoder->getAudioInfo(type, layer, freq, lbitrate, mode);
 
-	if (type == AUDIO_FMT_MPEG)
+	if (type == AUDIO_FMT_MPEG || type == AUDIO_FMT_MP3)
 	{
 		const char *mpegmodes[] =
 		{
@@ -636,7 +636,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			"single_ch"
 		};
 		int max_mode = sizeof(mpegmodes) / sizeof(mpegmodes[0]);
-		snprintf(buf, sizeof(buf), "MPEG %s (%d)",
+		snprintf(buf, sizeof(buf), "%s %s (%d)",type == AUDIO_FMT_MPEG ? "MPEG":"MP3",
 			 (mode > max_mode) ? "unk" : mpegmodes[mode],
 			 freq);
 	}
