@@ -158,6 +158,7 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 					::TIMING_MENU]);
 
+		int val = (*value[selected]);
 		switch ( msg ) {
 			case CRCInput::RC_down:
 				{
@@ -190,12 +191,12 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 				}
 			case CRCInput::RC_right:
 				{
-					if ((*value[selected]) < 100)
+					if (val < 100)
 					{
-						if ((*value[selected]) < 98)
-							(*value[selected]) += 2;
+						if (val < 98)
+							val += 2;
 						else
-							(*value[selected]) = 100;
+							val = 100;
 
 						paintSlider(x + 10, y + hheight + mheight * selected, value[selected], colorchooser_names[selected], iconnames[selected], true);
 						setColor();
@@ -204,12 +205,12 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 				}
 			case CRCInput::RC_left:
 				{
-					if ((*value[selected]) > 0)
+					if (val > 0)
 					{
-						if ((*value[selected]) > 2)
-							(*value[selected]) -= 2;
+						if (val > 2)
+							val -= 2;
 						else
-							(*value[selected]) = 0;
+							val = 0;
 
 						paintSlider(x + 10, y + hheight + mheight * selected, value[selected], colorchooser_names[selected], iconnames[selected], true);
 						setColor();

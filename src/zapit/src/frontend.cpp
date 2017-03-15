@@ -1874,8 +1874,6 @@ void CFrontend::sendDiseqcStandby(uint32_t ms)
 		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
 		return;
 	}
-	if (config.diseqcType == DISEQC_UNICABLE)
-		sendEN50494TuningCommand(0, 0, 0, 2);
 	/* en50494 switches don't seem to be hurt by this */
 	// Send power off to 'all' equipment
 	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x02, ms);

@@ -1334,7 +1334,6 @@ int CScanSetup::showScanMenuSatFind()
 //init tempsat menu
 void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satconfig)
 {
-	bool unicable = (dmode == DISEQC_UNICABLE ? true : dmode == DISEQC_UNICABLE2);
 	temp_sat->addIntroItems();
 
 	CMenuOptionNumberChooser	*diseqc = NULL;
@@ -1344,6 +1343,7 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 	CMenuOptionNumberChooser	*motor  = NULL;
 	CMenuOptionChooser		*usals  = NULL;
 	CMenuForwarder			*mf;
+	bool unicable = (dmode == DISEQC_UNICABLE ? true : dmode == DISEQC_UNICABLE2);
 
 	if (!unicable) {
 		diseqc	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQC_INPUT, &satconfig.diseqc, ((dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED)), -1, 15, this, CRCInput::RC_nokey, NULL, 1, -1, LOCALE_OPTIONS_OFF);

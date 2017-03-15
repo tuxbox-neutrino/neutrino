@@ -906,7 +906,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	// USERMENU -> in system/settings.h
 	//-------------------------------------------
-
+	for(unsigned int i=0; i<g_settings.usermenu.size();++i){
+		delete g_settings.usermenu[i];
+		g_settings.usermenu[i] = NULL;
+	}
 	g_settings.usermenu.clear();
 	if (configfile.getString("usermenu_key_red", "").empty() ||
 			configfile.getString("usermenu_key_green", "").empty() ||
@@ -4847,6 +4850,10 @@ void CNeutrinoApp::Cleanup()
 	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++) {
 		delete g_Font[i];
 		g_Font[i] = NULL;
+	}
+	for(unsigned int i=0; i<g_settings.usermenu.size();++i){
+		delete g_settings.usermenu[i];
+		g_settings.usermenu[i] = NULL;
 	}
 	printf("cleanup 2\n");fflush(stdout);
 	delete g_SignalFont; g_SignalFont = NULL;
