@@ -1171,6 +1171,12 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 							currentVoltage == SEC_VOLTAGE_18,
 							!!config.uni_lnb);
 
+	if (config.diseqcType == DISEQC_UNICABLE2)
+		cmdseq.props[FREQUENCY].u.data = sendEN50607TuningCommand(feparams->frequency,
+							currentToneMode == SEC_TONE_ON,
+							currentVoltage == SEC_VOLTAGE_18,
+							config.uni_lnb);
+
 	cmdseq.num	+= nrOfProps;
 
 	return true;
@@ -1324,6 +1330,9 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType, bool force)
 	case DISEQC_UNICABLE:
 		INFO("fe%d: DISEQC_UNICABLE", fenumber);
 		break;
+	case DISEQC_UNICABLE2:
+		INFO("fe%d: DISEQC_UNICABLE2", fenumber);
+		break;
 #if 0
 	case DISEQC_2_0:
 		INFO("DISEQC_2_0");
@@ -1340,7 +1349,7 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType, bool force)
 		return;
 	}
 
-	if (newDiseqcType == DISEQC_UNICABLE) {
+	if (newDiseqcType == DISEQC_UNICABLE || newDiseqcType == DISEQC_UNICABLE2) {
 		secSetTone(SEC_TONE_OFF, 0);
 		secSetVoltage(SEC_VOLTAGE_13, 0);
 	}
@@ -1451,7 +1460,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 	config.uni_lnb = sit->second.diseqc;
 
 	setLnbOffsets(sit->second.lnbOffsetLow, sit->second.lnbOffsetHigh, sit->second.lnbSwitch);
-	if (config.diseqcType == DISEQC_UNICABLE)
+	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2)
 		return;
 
 
@@ -1501,6 +1510,39 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 	}
 
 	WARN("ooops. t > 1024? (%d) or uni_scr out of range? (%d)", t, config.uni_scr);
+	return 0;
+}
+
+uint32_t CFrontend::sendEN50607TuningCommand(const uint32_t frequency, const int high_band, const int horizontal, const int bank)
+{
+	uint32_t bpf = config.uni_qrg;
+	struct dvb_diseqc_master_cmd cmd = { {0x70, 0x00, 0x00, 0x00, 0x00, 0x00}, 4 };
+
+	unsigned int t = frequency / 1000 - 100;
+	if (t < 0x800 && config.uni_scr >= 0 && config.uni_scr < 32)
+	{
+		uint32_t ret = bpf * 1000;
+		INFO("[unicable-JESS] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, config.uni_scr, bank, ret);
+		if (!slave && info.type == FE_QPSK)
+		{
+			cmd.msg[1] = ((config.uni_scr & 0x1F) << 3)	|	/* user band adress ( 0 to 31) */
+			/* max. possible tuning word = 0x7FF */
+				((t >> 8) & 0x07);				/* highest 3 bits of t (MSB) */
+			cmd.msg[2] = t & 0xFF;					/* tuning word (LSB) */
+			cmd.msg[3] = (0 << 4)				|	/* no uncommited switch */
+			/* I really don't know if the combines of option and position bits are right here,
+			because I can'test it, assuming here 4 sat positions */
+				((bank & 0x03) << 2)			|	/* input 0/1/2/3 */
+				(horizontal << 1)			|	/* horizontal == 0x02 */
+				high_band;					/* high_band  == 0x01 */
+			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
+			usleep(15 * 1000);					/* en50494 says: >4ms and < 22 ms */
+			sendDiseqcCommand(&cmd, 50);				/* en50494 says: >2ms and < 60 ms */
+			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
+		}
+		return ret;
+	}
+	WARN("ooops. t > 2047? (%d) or uni_scr out of range? (%d)", t, config.uni_scr);
 	return 0;
 }
 
@@ -1749,6 +1791,32 @@ void CFrontend::sendDiseqcReset(uint32_t ms)
 void CFrontend::sendDiseqcStandby(uint32_t ms)
 {
 	printf("[fe%d] diseqc standby\n", fenumber);
+	if (config.diseqcType > DISEQC_ADVANCED)
+	{
+		/* use ODU_Power_OFF command for unicable or jess here
+		to set the used UB frequency of the frontend to standby */
+		struct dvb_diseqc_master_cmd cmd = {{0}, 6};
+		printf("[fe%d] standby scr: %d\n", fenumber, config.uni_scr);
+		if (config.diseqcType == DISEQC_UNICABLE)
+		{
+			cmd.msg[0] = 0xe0;
+			cmd.msg[1] = 0x10;
+			cmd.msg[2] = 0x5a;
+			cmd.msg[3] = ((config.uni_scr & 0x07) << 5);
+			cmd.msg_len = 5;
+		}
+		if (config.diseqcType == DISEQC_UNICABLE2)
+		{
+			cmd.msg[0] = 0x70;
+			cmd.msg[1] = ((config.uni_scr & 0x1F) << 3);
+			cmd.msg_len = 4;
+		}
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
+		usleep(15 * 1000);
+		sendDiseqcCommand(&cmd, ms);
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
+		return;
+	}
 	// Send power off to 'all' equipment
 	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x02, ms);
 }
