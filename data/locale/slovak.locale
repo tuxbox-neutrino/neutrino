@@ -682,6 +682,15 @@ flashupdate.selectimage Dostupné verzie / súbory
 flashupdate.settings Aktualizácia nastavení
 flashupdate.titlereadflash Načítavanie pamäte FLASH
 flashupdate.titlewriteflash Zapisovanie pamäte FLASH
+flashupdate.type_addon Doplnok
+flashupdate.type_beta Beta
+flashupdate.type_internal Interná
+flashupdate.type_locale Jazyk
+flashupdate.type_release Release
+flashupdate.type_settings Nastavenia
+flashupdate.type_text Text
+flashupdate.type_unknown Neznáma
+flashupdate.type_update Aktualizácia
 flashupdate.update_with_settings_del_skipped Zložka [%s] nebola vymazaná. Zadanie je preskočené.
 flashupdate.update_with_settings_error Chyba FLASH pamäte!\n \nNový IMAGE má len %ld KB (ostáva %ld KB) do konca. \nnedostatok miesta pre dokončenie operácie.\n \nOperácia prerušená!
 flashupdate.update_with_settings_processed IMAGE sa spracováva...
