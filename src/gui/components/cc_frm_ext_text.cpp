@@ -86,8 +86,7 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	width = w;
 	//init ccx_label_width and ccx_text_width
 	//default ccx_label_width = 30% of form width
-	ccx_percent_label_w = DEF_LABEL_WIDTH_PERCENT;
-	ccx_label_width = ccx_percent_label_w * width/100;
+	ccx_label_width = DEF_LABEL_WIDTH_PERCENT * width/100;
 	ccx_text_width	= width-ccx_label_width;
 
 	height = h;
@@ -223,7 +222,8 @@ void CComponentsExtTextForm::initCCTextItems()
 
 void CComponentsExtTextForm::setLabelWidthPercent(const uint8_t& percent_val)
 {
-	ccx_percent_label_w = (int)percent_val;
+	ccx_label_width = (int)percent_val * width/100;
+	ccx_text_width	= width-ccx_label_width;
 	initCCTextItems();
 }
 
