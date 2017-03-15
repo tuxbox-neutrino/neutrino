@@ -2277,7 +2277,7 @@ servicemenu.imageinfo Image info
 servicemenu.reload Reload channel lists
 servicemenu.reload_hint Reloading channel lists,\nplease be patient.
 servicemenu.restart Soft restart
-servicemenu.restart_hint Restarting, please wait
+servicemenu.restart_hint Restarting, please wait ...
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Servicescan
 servicemenu.update Software Update
