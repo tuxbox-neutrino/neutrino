@@ -90,7 +90,7 @@ const CMenuOptionChooser::keyval SCANTS_ZAPIT_SCANTYPE[SCANTS_ZAPIT_SCANTYPE_COU
 	{  CServiceScan::SCAN_ALL	, LOCALE_ZAPIT_SCANTYPE_ALL     }
 };
 
-#define SATSETUP_DISEQC_OPTION_COUNT 6
+#define SATSETUP_DISEQC_OPTION_COUNT 7
 const CMenuOptionChooser::keyval SATSETUP_DISEQC_OPTIONS[SATSETUP_DISEQC_OPTION_COUNT] =
 {
 	{ NO_DISEQC,		LOCALE_SATSETUP_NODISEQC },
@@ -99,7 +99,8 @@ const CMenuOptionChooser::keyval SATSETUP_DISEQC_OPTIONS[SATSETUP_DISEQC_OPTION_
 	{ DISEQC_1_1,		LOCALE_SATSETUP_DISEQC11 },
 	/*{ DISEQC_1_2,	LOCALE_SATSETUP_DISEQC12 },*/
 	{ DISEQC_ADVANCED,	LOCALE_SATSETUP_DISEQC_ADVANCED },
-	{ DISEQC_UNICABLE,	LOCALE_SATSETUP_UNICABLE }
+	{ DISEQC_UNICABLE,	LOCALE_SATSETUP_UNICABLE },
+	{ DISEQC_UNICABLE2,	LOCALE_SATSETUP_UNICABLE2 }
 //	{ SMATV_REMOTE_TUNING,	LOCALE_SATSETUP_SMATVREMOTE }
 };
 
@@ -878,7 +879,8 @@ void CScanSetup::setDiseqcOptions(int number)
 			mfe_config.diseqcType == DISEQC_1_0 ? LOCALE_SATSETUP_DISEQC10 :
 			mfe_config.diseqcType == DISEQC_1_1 ? LOCALE_SATSETUP_DISEQC11 :
 			mfe_config.diseqcType == DISEQC_ADVANCED ? LOCALE_SATSETUP_DISEQC_ADVANCED :
-			LOCALE_SATSETUP_UNICABLE);
+			mfe_config.diseqcType == DISEQC_UNICABLE ? LOCALE_SATSETUP_UNICABLE :
+			LOCALE_SATSETUP_UNICABLE2);
 
 		if (mode == CFrontend::FE_MODE_LINK_TWIN && mfe_config.diseqcType != DISEQC_UNICABLE) {
 			count++;
@@ -1023,7 +1025,7 @@ int CScanSetup::showFrontendSetup(int number)
 		fsatSetup->setHint("", LOCALE_MENU_HINT_SCAN_SATSETUP);
 		setupMenu->addItem(fsatSetup);
 
-		uniSetup	= new CMenuForwarder(LOCALE_SATSETUP_UNI_SETTINGS, (dmode == DISEQC_UNICABLE), NULL, this, "unisetup", CRCInput::convertDigitToKey(shortcut++));
+		uniSetup	= new CMenuForwarder(LOCALE_SATSETUP_UNI_SETTINGS, (dmode == DISEQC_UNICABLE ? true : dmode == DISEQC_UNICABLE2), NULL, this, "unisetup", CRCInput::convertDigitToKey(shortcut++));
 		setupMenu->addItem(uniSetup);
 
 		CMenuWidget * rotorMenu = new CMenuWidget(LOCALE_SATSETUP_EXTENDED_MOTOR, NEUTRINO_ICON_SETTINGS, width);
@@ -1091,7 +1093,7 @@ int CScanSetup::showUnicableSetup()
 	int unicable_scr = fe_config.uni_scr;
 	int unicable_qrg = fe_config.uni_qrg;
 
-	CMenuOptionNumberChooser *uniscr = new CMenuOptionNumberChooser(LOCALE_UNICABLE_SCR, &unicable_scr, true, 0, 7);
+	CMenuOptionNumberChooser *uniscr = new CMenuOptionNumberChooser(LOCALE_UNICABLE_SCR, &unicable_scr, true, 0, dmode == DISEQC_UNICABLE ? 7 : 31);
 	CIntInput		 *uniqrg = new CIntInput(LOCALE_UNICABLE_QRG, &unicable_qrg, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 
 	CMenuWidget *uni_setup = new CMenuWidget(LOCALE_SATSETUP_UNI_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
@@ -1332,7 +1334,7 @@ int CScanSetup::showScanMenuSatFind()
 //init tempsat menu
 void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satconfig)
 {
-	bool unicable = (dmode == DISEQC_UNICABLE);
+	bool unicable = (dmode == DISEQC_UNICABLE ? true : dmode == DISEQC_UNICABLE2);
 	temp_sat->addIntroItems();
 
 	CMenuOptionNumberChooser	*diseqc = NULL;
@@ -1357,7 +1359,7 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 	} else {
 		if (satconfig.diseqc < 0)
 			satconfig.diseqc = 0;
-		unilnb = new CMenuOptionNumberChooser(LOCALE_UNICABLE_LNB, &satconfig.diseqc, true, 0, 1);
+		unilnb = new CMenuOptionNumberChooser(LOCALE_UNICABLE_LNB, &satconfig.diseqc, true, 0, dmode == DISEQC_UNICABLE ? 1 : 3);
 	}
 
 	CIntInput* lofL = new CIntInput(LOCALE_SATSETUP_LOFL, (int*) &satconfig.lnbOffsetLow, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
@@ -1833,7 +1835,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		fe->setDiseqcType((diseqc_t) dmode);
 		fe->setTsidOnid(0);
 
-		uniSetup->setActive(dmode == DISEQC_UNICABLE);
+		uniSetup->setActive(dmode == DISEQC_UNICABLE ? true : dmode == DISEQC_UNICABLE2);
 		bool enable = (dmode < DISEQC_ADVANCED) && (dmode != NO_DISEQC);
 		ojDiseqcRepeats->setActive(enable && !CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
 		dorder->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && dmode == DISEQC_ADVANCED);
@@ -1855,7 +1857,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 				linkfe->setActive(CFrontend::linked(femode));
 			/* leave diseqc type enabled for TWIN in case user need different unicable setup */
 			dtype->setActive(femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
-			uniSetup->setActive(dmode == DISEQC_UNICABLE && femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
+			uniSetup->setActive(dmode == DISEQC_UNICABLE ? true : dmode == DISEQC_UNICABLE2 && femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
 			dorder->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && dmode == DISEQC_ADVANCED);
 			fsatSelect->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
 			fsatSetup->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);

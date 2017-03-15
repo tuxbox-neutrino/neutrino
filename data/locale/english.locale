@@ -2199,6 +2199,7 @@ satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommited input
 satsetup.uni_settings Unicable Settings
 satsetup.unicable Unicable
+satsetup.unicable2 Unicable 2 (Jess)
 satsetup.usals_repeat USALS command repeat
 satsetup.use_bat Use BAT
 satsetup.use_fta_flag just free Channels

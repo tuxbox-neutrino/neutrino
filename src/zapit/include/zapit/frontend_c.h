@@ -167,6 +167,7 @@ class CFrontend
 		void				sendDiseqcReset(uint32_t ms = 40);
 		void				sendDiseqcSmatvRemoteTuningCommand(const uint32_t frequency);
 		uint32_t			sendEN50494TuningCommand(const uint32_t frequency, const int high_band, const int horizontal, const int bank);
+		uint32_t			sendEN50607TuningCommand(const uint32_t frequency, const int high_band, const int horizontal, const int bank);
 		void				sendDiseqcZeroByteCommand(const uint8_t frm, const uint8_t addr, const uint8_t cmd, uint32_t ms = 15);
 		void				sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms);
 		int				setFrontend(const FrontendParameters *feparams, bool nowait = false);
