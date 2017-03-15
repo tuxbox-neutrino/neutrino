@@ -268,7 +268,7 @@ bool CScreenShot::SaveJpg()
 		int xres2 = xres1+2;
 		for (int x = 0; x < xres; x++) {
 			int x2 = x*3;
-			memcpy(pixel_data + x2 + xres1, pixel_data + x*4 + y*xres*4, 3);
+			memmove(pixel_data + x2 + xres1, pixel_data + x*4 + y*xres*4, 3);
 			SWAP(pixel_data[x2 + xres1], pixel_data[x2 + xres2]);
 		}
 	}
