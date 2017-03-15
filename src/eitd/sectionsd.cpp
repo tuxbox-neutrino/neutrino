@@ -1416,11 +1416,12 @@ bool CTimeThread::setSystemTime(time_t tim, bool force)
 
 	tv.tv_sec = tim;
 	tv.tv_usec = 0;
+	errno=0;
 	if (settimeofday(&tv, NULL) == 0)
 		return true;
 
 	perror("[sectionsd] settimeofday");
-	return false;
+	return errno==EPERM;
 }
 
 void CTimeThread::addFilters()
