@@ -371,7 +371,7 @@ void CFEManager::saveSettings(bool write)
 void CFEManager::copySettings(CFrontend * from, CFrontend * to)
 {
 	INFO("Copy settings fe %d -> fe %d", from->fenumber, to->fenumber);
-	if (to->config.diseqcType != DISEQC_UNICABLE || to->getMode() == CFrontend::FE_MODE_LINK_LOOP)
+	if (to->config.diseqcType != DISEQC_UNICABLE || to->config.diseqcType != DISEQC_UNICABLE2 || to->getMode() == CFrontend::FE_MODE_LINK_LOOP)
 		to->config.diseqcType = from->config.diseqcType;
 
 	to->config.diseqcRepeats = from->config.diseqcRepeats;
