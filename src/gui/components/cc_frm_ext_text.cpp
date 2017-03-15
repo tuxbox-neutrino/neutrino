@@ -31,7 +31,8 @@
 #include <driver/fontrenderer.h>
 
 
-#define DEF_HEIGHT 27
+#define DEF_HEIGHT CFrameBuffer::getInstance()->scale2Res(27)
+#define DEF_WIDTH CFrameBuffer::getInstance()->scale2Res(300)
 #define DEF_LABEL_WIDTH_PERCENT 30
 
 using namespace std;
@@ -39,7 +40,7 @@ using namespace std;
 CComponentsExtTextForm::CComponentsExtTextForm(CComponentsForm* parent)
 {
 	Font* t_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
-	initVarExtTextForm(0, 0, 300, t_font->getHeight(), "", "", t_font, parent, CC_SHADOW_OFF, COL_MENUCONTENTINACTIVE_TEXT, COL_MENUCONTENT_TEXT, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
+	initVarExtTextForm(0, 0, DEF_WIDTH, t_font->getHeight(), "", "", t_font, parent, CC_SHADOW_OFF, COL_MENUCONTENTINACTIVE_TEXT, COL_MENUCONTENT_TEXT, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 	initCCTextItems();
 }
 
