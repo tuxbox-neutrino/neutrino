@@ -69,7 +69,7 @@ void CImageInfo::Init(void)
 	cc_sub_caption	= NULL;
 	b_info 		= NULL;
 	btn_red		= NULL;
-	item_offset	= 10;
+	item_offset	= OFFSET_INNER_MID;
 	item_font 	= NULL;
 	item_height 	= 0;
 	y_tmp 		= 0;
