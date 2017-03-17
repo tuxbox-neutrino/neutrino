@@ -2,6 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
+	Copyright (C) 2017 M. Liebmann (micha-bbg)
 
 	parts based on AiO Screengrabber (C) Seddi seddi@ihad.tv
 
@@ -61,6 +62,9 @@ CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 	fd = NULL;
 	xres = 0;
 	yres = 0;
+	scs_thread = 0;
+	pthread_mutex_init(&thread_mutex, NULL);
+	pthread_mutex_init(&getData_mutex, NULL);
 	get_video = g_settings.screenshot_video;
 	get_osd = g_settings.screenshot_mode;
 	scale_to_video = g_settings.screenshot_scale;
@@ -68,20 +72,23 @@ CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 
 CScreenShot::~CScreenShot()
 {
+	pthread_mutex_destroy(&thread_mutex);
+	pthread_mutex_destroy(&getData_mutex);
+//	printf("[CScreenShot::%s:%d] thread: %p\n", __func__, __LINE__, this);
 }
 
 /* try to get video frame data in ARGB format, restore GXA state */
 bool CScreenShot::GetData()
 {
-	static OpenThreads::Mutex mutex;
 	bool res = false;
+	pthread_mutex_lock(&getData_mutex);
 
-	mutex.lock();
 #ifdef BOXMODEL_CS_HD1
 	CFrameBuffer::getInstance()->setActive(false);
 #endif
 	if (videoDecoder->getBlank()) 
 		get_video = false;
+
 #if 1 // to enable after libcs/drivers update
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
@@ -93,48 +100,84 @@ bool CScreenShot::GetData()
 	CFrameBuffer::getInstance()->add_gxa_sync_marker();
 	CFrameBuffer::getInstance()->setActive(true);
 #endif
-	mutex.unlock();
+	pthread_mutex_unlock(&getData_mutex);
 	if (!res) {
-		printf("CScreenShot::Start: GetScreenImage failed\n");
+		printf("[CScreenShot::%s:%d] GetScreenImage failed\n", __func__, __LINE__);
 		return false;
 	}
 
-	printf("CScreenShot::GetData: data: %p %d x %d\n", pixel_data, xres, yres);
+	printf("[CScreenShot::%s:%d] data: %p %d x %d\n", __func__, __LINE__, pixel_data, xres, yres);
 	return true;
+}
+
+bool CScreenShot::startThread()
+{
+	if (!scs_thread) {
+		void *ptr = static_cast<void*>(this);
+		int res = pthread_create(&scs_thread, NULL, initThread, ptr);
+		if (res != 0) {
+			printf("[CScreenShot::%s:%d] ERROR! pthread_create\n", __func__, __LINE__);
+			return false;
+		}
+		pthread_detach(scs_thread);
+		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
+	}
+	return true;
+}
+
+void* CScreenShot::initThread(void *arg)
+{
+	CScreenShot *scs = static_cast<CScreenShot*>(arg);
+	pthread_cleanup_push(cleanupThread, scs);
+//	printf("[CScreenShot::%s:%d] thread: %p\n", __func__, __LINE__, scs);
+
+	scs->runThread();
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
+	pthread_exit(0);
+
+	pthread_cleanup_pop(0);
+	return 0;
+}
+
+/* thread function to save data asynchroniosly. delete itself after saving */
+void CScreenShot::runThread()
+{
+	pthread_mutex_lock(&thread_mutex);
+	printf("[CScreenShot::%s:%d] save to %s format %d\n", __func__, __LINE__, filename.c_str(), format);
+
+	bool ret = SaveFile();
+
+	printf("[CScreenShot::%s:%d] %s finished: %d\n", __func__, __LINE__, filename.c_str(), ret);
+	pthread_mutex_unlock(&thread_mutex);
+}
+
+void CScreenShot::cleanupThread(void *arg)
+{
+	CScreenShot *scs = static_cast<CScreenShot*>(arg);
+//	printf("[CScreenShot::%s:%d] thread: %p\n", __func__, __LINE__, scs);
+	delete scs;
 }
 
 /* start ::run in new thread to save file in selected format */
 bool CScreenShot::Start()
 {
 	bool ret = false;
-	if(GetData())
-		ret = (start() == 0);
+	if (GetData())
+		ret = startThread();
 	else
 		delete this;
 	return ret;
-}
-
-/* thread function to save data asynchroniosly. delete itself after saving */
-void CScreenShot::run()
-{
-	printf("CScreenShot::run save to %s format %d\n", filename.c_str(), format);
-	detach();
-	setCancelModeDisable();
-	setSchedulePriority(THREAD_PRIORITY_MIN);
-	bool ret = SaveFile();
-	printf("CScreenShot::run: %s finished: %d\n", filename.c_str(), ret);
-	delete this;
 }
 
 /* save file in sync mode, return true if save ok, or false */
 bool CScreenShot::StartSync()
 {
 	bool ret = false;
-	printf("CScreenShot::StartSync save to %s format %d\n", filename.c_str(), format);
-	if(GetData())
+	printf("[CScreenShot::%s:%d] save to %s format %d\n", __func__, __LINE__, filename.c_str(), format);
+	if (GetData())
 		ret = SaveFile();
-
-	printf("CScreenShot::StartSync: %s finished: %d\n", filename.c_str(), ret);
+	printf("[CScreenShot::%s:%d] %s finished: %d\n", __func__, __LINE__, filename.c_str(), ret);
 	return ret;
 }
 
@@ -228,7 +271,7 @@ bool CScreenShot::SavePng()
 
 	free(row_pointers);
 	fclose(fd);
-	TIMER_STOP(filename.c_str());
+	TIMER_STOP(("[CScreenShot::SavePng] " + filename).c_str());
 	return true;
 }
 
@@ -309,7 +352,7 @@ bool CScreenShot::SaveJpg()
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
 	fclose(fd);
-	TIMER_STOP(filename.c_str());
+	TIMER_STOP(("[CScreenShot::SaveJpg] " + filename).c_str());
 	return true;
 }
 
@@ -342,7 +385,7 @@ bool CScreenShot::SaveBmp()
 		fwrite(pixel_data+(y*xres*4),xres*4,1,fd);
 	}
 	fclose(fd);
-	TIMER_STOP(filename.c_str());
+	TIMER_STOP(("[CScreenShot::SaveBmp] " + filename).c_str());
 	return true;
 
 }
