@@ -21,11 +21,6 @@ if test "$DEBUG" = "yes"; then
 	AC_DEFINE(DEBUG,1,[Enable debug messages])
 fi
 
-AC_ARG_ENABLE(tmsdk,
-        AS_HELP_STRING(--enable-tmsdk,         compile inside sdk),
-        ,[enable_tmsdk=no])
-AM_CONDITIONAL(ENABLE_TMSDK,test "$enable_tmsdk" = "yes")
-
 AC_MSG_CHECKING(target)
 
 if test "$TARGET" = "native"; then
