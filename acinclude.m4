@@ -29,11 +29,6 @@ if test "$enable_reschange" = "yes"; then
 	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION,1,[enable change the osd resolution])
 fi
 
-AC_ARG_ENABLE(tmsdk,
-        AS_HELP_STRING(--enable-tmsdk,         compile inside sdk),
-        ,[enable_tmsdk=no])
-AM_CONDITIONAL(ENABLE_TMSDK,test "$enable_tmsdk" = "yes")
-
 AC_MSG_CHECKING(target)
 
 if test "$TARGET" = "native"; then

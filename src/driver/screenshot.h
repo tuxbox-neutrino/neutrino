@@ -2,6 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
+	Copyright (C) 2017 M. Liebmann (micha-bbg)
 
 	License: GPLv2
 
@@ -22,9 +23,9 @@
 #ifndef __screenshot_h_
 #define __screenshot_h_
 
-#include <OpenThreads/Thread>
+#include <pthread.h>
 
-class CScreenShot : public OpenThreads::Thread
+class CScreenShot
 {
 	public:
 		typedef enum {
@@ -44,6 +45,9 @@ class CScreenShot : public OpenThreads::Thread
 		bool get_video;
 		bool scale_to_video;
 		FILE *fd;
+		pthread_t  scs_thread;
+		pthread_mutex_t thread_mutex;
+		pthread_mutex_t getData_mutex;
 
 		bool GetData();
 		bool OpenFile();
@@ -52,7 +56,12 @@ class CScreenShot : public OpenThreads::Thread
 		bool SavePng();
 		bool SaveJpg();
 		bool SaveBmp();
-		void run();
+
+		bool startThread();
+		static void* initThread(void *arg);
+		void runThread();
+		static void cleanupThread(void *arg);
+
 #ifdef BOXMODEL_CS_HD2
 		bool mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData);
 #endif
