@@ -456,12 +456,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdd_noise = configfile.getInt32( "hdd_noise", 254);
 	g_settings.hdd_statfs_mode = configfile.getInt32( "hdd_statfs_mode", SNeutrinoSettings::HDD_STATFS_RECORDING);
 
-	g_settings.shutdown_real         = configfile.getBool("shutdown_real"        , false );
+	g_settings.shutdown_real = false;
+	if (g_info.hw_caps->can_shutdown)
+		g_settings.shutdown_real = configfile.getBool("shutdown_real"        , false );
 	g_settings.shutdown_real_rcdelay = configfile.getBool("shutdown_real_rcdelay", false );
 	g_settings.shutdown_count = configfile.getInt32("shutdown_count", 0);
 
 	g_settings.shutdown_min = 0;
-	if(cs_get_revision() > 7)
+	if (g_info.hw_caps->can_shutdown)
 		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
 	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 
@@ -2268,7 +2270,7 @@ TIMER_STOP("################################## after all #######################
 	}
 	RealRun();
 
-	ExitRun(true, (cs_get_revision() > 7));
+	ExitRun(true, g_info.hw_caps->can_shutdown);
 
 	return 0;
 }
@@ -3321,7 +3323,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				return messages_return::handled;
 			}
 		}
-		if(g_settings.shutdown_real)
+		if (g_settings.shutdown_real)
 			g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
 		else
 			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
@@ -3366,7 +3368,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
-			ExitRun(true, (cs_get_revision() > 7));
+			ExitRun(true, g_info.hw_caps->can_shutdown);
 		}
 		else {
 			skipShutdownTimer=false;
@@ -3541,6 +3543,7 @@ extern bool timer_is_rec;//timermanager.cpp
 
 void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 {
+	printf("[neutrino] %s retcode: %d can_shutdown: %d\n", __func__, retcode, g_info.hw_caps->can_shutdown);
 	bool do_shutdown = true;
 
 	CRecordManager::getInstance()->StopAutoRecord();
@@ -3555,7 +3558,6 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			SDT_ReloadChannels();
 			//SDTreloadChannels = false;
 		}
-
 
 		dprintf(DEBUG_INFO, "exit\n");
 		StopSubtitles();

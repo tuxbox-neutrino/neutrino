@@ -55,7 +55,6 @@
 #include <zapit/femanager.h>
 #include <eitd/sectionsd.h>
 
-#include <cs_api.h>
 #include <video.h>
 
 #include <sectionsdclient/sectionsdclient.h>
@@ -245,7 +244,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	misc_menue.addItem(mf);
 
 	//energy, shutdown
-	if(cs_get_revision() > 7)
+	if(g_info.hw_caps->can_shutdown)
 	{
 		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, this, "energy", CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_MISC_ENERGY);
