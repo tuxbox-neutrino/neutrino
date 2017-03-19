@@ -2270,7 +2270,7 @@ TIMER_STOP("################################## after all #######################
 	}
 	RealRun();
 
-	ExitRun(true, g_info.hw_caps->can_shutdown);
+	ExitRun(g_info.hw_caps->can_shutdown);
 
 	return 0;
 }
@@ -3368,7 +3368,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
-			ExitRun(true, g_info.hw_caps->can_shutdown);
+			ExitRun(g_info.hw_caps->can_shutdown);
 		}
 		else {
 			skipShutdownTimer=false;
@@ -3378,7 +3378,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if( msg == NeutrinoMessages::REBOOT ) {
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
-		ExitRun(true);
+		ExitRun();
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != mode_scart && mode != mode_standby) {
@@ -3541,9 +3541,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 extern time_t timer_minutes;//timermanager.cpp
 extern bool timer_is_rec;//timermanager.cpp
 
-void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
+void CNeutrinoApp::ExitRun(int can_shutdown)
 {
-	printf("[neutrino] %s retcode: %d can_shutdown: %d\n", __func__, retcode, g_info.hw_caps->can_shutdown);
+	printf("[neutrino] %s can_shutdown: %d\n", __func__, g_info.hw_caps->can_shutdown);
+
 	bool do_shutdown = true;
 
 	CRecordManager::getInstance()->StopAutoRecord();
@@ -3576,16 +3577,16 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		}
 
 		/* on shutdown force load new fst */
-		if (retcode)
+		if (can_shutdown)
 			CheckFastScan(true, false);
 
 		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 
-		stop_daemons(true /*retcode*/);//need here for timer_is_rec before saveSetup
+		stop_daemons(true /*can_shutdown*/);//need here for timer_is_rec before saveSetup
 		g_settings.shutdown_timer_record_type = timer_is_rec;
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 
-		if(retcode) {
+		if (can_shutdown) {
 			puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
 			if (my_system(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT) != 0)
 				perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
@@ -3665,8 +3666,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
 			stop_video();
 			Cleanup();
-			//_exit(retcode);
-			exit(retcode);
+			//_exit(can_shutdown);
+			exit(can_shutdown);
 		}
 	}
 }
@@ -4029,13 +4030,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMsgBox::mbrBack, CMsgBox::mbBack);
 	}
 	else if(actionKey=="shutdown") {
-		ExitRun(true, 1);
+		ExitRun(1);
 	}
 	else if(actionKey=="reboot")
 	{
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
-		ExitRun(true);
+		ExitRun();
 		unlink("/tmp/.reboot");
 		returnval = menu_return::RETURN_NONE;
 	}
