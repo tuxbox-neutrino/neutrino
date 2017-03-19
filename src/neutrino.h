@@ -121,7 +121,7 @@ private:
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
-	void ExitRun(const bool write_si = true, int retcode = 0);
+	void ExitRun(int can_shutdown = 0);
 	void RealRun();
 	void InitZapper();
 	void InitTimerdClient();

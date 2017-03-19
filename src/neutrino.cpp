@@ -455,12 +455,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdd_noise = configfile.getInt32( "hdd_noise", 254);
 	g_settings.hdd_statfs_mode = configfile.getInt32( "hdd_statfs_mode", SNeutrinoSettings::HDD_STATFS_RECORDING);
 
-	g_settings.shutdown_real         = configfile.getBool("shutdown_real"        , false );
+	g_settings.shutdown_real = false;
+	if (g_info.hw_caps->can_shutdown)
+		g_settings.shutdown_real = configfile.getBool("shutdown_real"        , false );
 	g_settings.shutdown_real_rcdelay = configfile.getBool("shutdown_real_rcdelay", false );
 	g_settings.shutdown_count = configfile.getInt32("shutdown_count", 0);
 
 	g_settings.shutdown_min = 0;
-	if(cs_get_revision() > 7)
+	if (g_info.hw_caps->can_shutdown)
 		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
 	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 
@@ -2370,7 +2372,7 @@ TIMER_STOP("################################## after all #######################
 	}
 	RealRun();
 
-	ExitRun(true, (cs_get_revision() > 7));
+	ExitRun(g_info.hw_caps->can_shutdown);
 
 	return 0;
 }
@@ -3439,7 +3441,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				return messages_return::handled;
 			}
 		}
-		if(g_settings.shutdown_real)
+		if (g_settings.shutdown_real)
 			g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
 		else
 			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
@@ -3484,7 +3486,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
-			ExitRun(true, (cs_get_revision() > 7));
+			ExitRun(g_info.hw_caps->can_shutdown);
 		}
 		else {
 			skipShutdownTimer=false;
@@ -3494,7 +3496,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if( msg == NeutrinoMessages::REBOOT ) {
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
-		ExitRun(true);
+		ExitRun();
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != mode_scart && mode != mode_standby) {
@@ -3657,133 +3659,140 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 extern time_t timer_minutes;//timermanager.cpp
 extern bool timer_is_rec;//timermanager.cpp
 
-void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
+void CNeutrinoApp::ExitRun(int can_shutdown)
 {
-	bool do_shutdown = true;
+	printf("[neutrino] %s can_shutdown: %d\n", __func__, can_shutdown);
 
+	bool do_shutdown = true;
 	CRecordManager::getInstance()->StopAutoRecord();
-	if(CRecordManager::getInstance()->RecordingStatus() || cYTCache::getInstance()->isActive()) {
+	if(CRecordManager::getInstance()->RecordingStatus() || cYTCache::getInstance()->isActive())
+	{
 		do_shutdown =
 			(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECORDING_QUERY, CMsgBox::mbrNo,
 					CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT, true) == CMsgBox::mbrYes);
 	}
+	if (!do_shutdown)
+		return;
 
-	if(do_shutdown) {
-		if(SDTreloadChannels){
-			SDT_ReloadChannels();
-			//SDTreloadChannels = false;
+	if (SDTreloadChannels)
+		SDT_ReloadChannels();
+
+	dprintf(DEBUG_INFO, "exit\n");
+	StopSubtitles();
+	stopPlayBack();
+
+	frameBuffer->paintBackground();
+	frameBuffer->showFrame("shutdown.jpg");
+
+	delete cHddStat::getInstance();
+	delete CRecordManager::getInstance();
+
+	CEpgScan::getInstance()->Stop();
+	if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/)
+	{
+		g_Sectionsd->setPauseScanning(true);
+		saveEpg(true);// true CVFD::MODE_SHUTDOWN
+	}
+
+	/* on shutdown force load new fst */
+	if (can_shutdown)
+		CheckFastScan(true, false);
+
+	CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
+
+	stop_daemons(true /*can_shutdown*/); //need here for timer_is_rec before saveSetup
+	g_settings.shutdown_timer_record_type = timer_is_rec;
+	saveSetup(NEUTRINO_SETTINGS_FILE);
+
+	if (can_shutdown)
+	{
+		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
+		if (my_system(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT) != 0)
+			perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
+
+		printf("entering off state\n");
+		mode = mode_off;
+		//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
+
+		fp_standby_data_t standby;
+		time_t mtime = time(NULL);
+		struct tm *tmtime = localtime(&mtime);
+		time_t fp_timer = 0;
+
+		if (timer_minutes)
+		{
+			fp_timer = timer_minutes - mtime/60;
+			if (fp_timer < 1)
+				fp_timer = 1;
 		}
-
-
-		dprintf(DEBUG_INFO, "exit\n");
-		StopSubtitles();
-		stopPlayBack();
-
-		frameBuffer->paintBackground();
-		frameBuffer->showFrame("shutdown.jpg");
-
-		delete cHddStat::getInstance();
-		delete CRecordManager::getInstance();
-
-		CEpgScan::getInstance()->Stop();
-		if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/) {
-			g_Sectionsd->setPauseScanning(true);
-			saveEpg(true);// true CVFD::MODE_SHUTDOWN
+		printf("now: %ld, timer %ld, FP timer %ldmin\n", mtime/60, timer_minutes, fp_timer);fflush(stdout);
+		int leds = 0x40;
+		switch (g_settings.led_deep_mode)
+		{
+			case 0:
+				leds = 0x0; //off  leds
+				break;
+			case 1:
+				leds = 0x60; //on led1 & 2
+				break;
+			case 2:
+				leds = 0x20; //led1 on , 2 off
+				break;
+			case 3:
+				leds = 0x40; //led2 off, 2 on
+				break;
+			default:
+				break;
 		}
+		if (leds && g_settings.led_blink && fp_timer)
+			leds |= 0x80;
 
-		/* on shutdown force load new fst */
-		if (retcode)
-			CheckFastScan(true, false);
+		standby.brightness          = cs_get_revision() == 10 ? 0 : g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
+		standby.flags               = leds;
+		standby.current_hour        = tmtime->tm_hour;
+		standby.current_minute      = tmtime->tm_min;
+		standby.timer_minutes_hi    = fp_timer >> 8;;
+		standby.timer_minutes_lo    = fp_timer & 0xFF;
 
-		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
+		my_system("/etc/init.d/rcK");
+		sync();
+		CFSMounter::umount(); // unreachable NFS server
+		my_system(2,"/bin/umount", "-a");
+		sleep(1);
 
-		stop_daemons(true /*retcode*/);//need here for timer_is_rec before saveSetup
-		g_settings.shutdown_timer_record_type = timer_is_rec;
-		saveSetup(NEUTRINO_SETTINGS_FILE);
+		stop_video();
 
-		if(retcode) {
-			puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
-			if (my_system(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT) != 0)
-				perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
-
-			printf("entering off state\n");
-			mode = mode_off;
-			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
-
+		int fd = open("/dev/display", O_RDONLY);
+		if (fd < 0)
+		{
+			perror("/dev/display");
+			reboot(LINUX_REBOOT_CMD_RESTART);
+		}
+		else
+		{
+			if (ioctl(fd, IOC_FP_STANDBY, (fp_standby_data_t *)  &standby))
 			{
-				fp_standby_data_t standby;
-				time_t mtime = time(NULL);
-				struct tm *tmtime = localtime(&mtime);
-				time_t fp_timer = 0;
-
-				if(timer_minutes) {
-					fp_timer = timer_minutes - mtime/60;
-					if(fp_timer < 1)
-						fp_timer = 1;
-				}
-				printf("now: %ld, timer %ld, FP timer %ldmin\n", mtime/60, timer_minutes, fp_timer);fflush(stdout);
-				int leds = 0x40;
-				switch(g_settings.led_deep_mode){
-					case 0:
-						leds = 0x0;//off  leds
-						break;
-					case 1:
-						leds = 0x60;//on led1 & 2
-						break;
-					case 2:
-						leds = 0x20;//led1 on , 2 off
-						break;
-					case 3:
-						leds = 0x40;//led2 off, 2 on
-						break;
-					default:
-						break;
-				}
-				if(leds && g_settings.led_blink && fp_timer)
-					leds |= 0x80;
-
-				standby.brightness          = cs_get_revision() == 10 ? 0 : g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
-				standby.flags               = leds;
-				standby.current_hour        = tmtime->tm_hour;
-				standby.current_minute      = tmtime->tm_min;
-				standby.timer_minutes_hi    = fp_timer >> 8;;
-				standby.timer_minutes_lo    = fp_timer & 0xFF;
-
-				my_system("/etc/init.d/rcK");
-				sync();
-				CFSMounter::umount(); // unreachable NFS server
-				my_system(2,"/bin/umount", "-a");
-				sleep(1);
-
-				stop_video();
-
-				int fd = open("/dev/display", O_RDONLY);
-				if (fd < 0) {
-					perror("/dev/display");
-					reboot(LINUX_REBOOT_CMD_RESTART);
-				} else {
-
-					if (ioctl(fd, IOC_FP_STANDBY, (fp_standby_data_t *)  &standby)) {
-						perror("IOC_FP_STANDBY");
-						reboot(LINUX_REBOOT_CMD_RESTART);
-					} else {
-						while(true) sleep(1);
-					}
-				}
+				perror("IOC_FP_STANDBY");
+				reboot(LINUX_REBOOT_CMD_RESTART);
 			}
-		} else {
-			delete g_RCInput;
-			my_system("/etc/init.d/rcK");
-			//fan speed
-			if (g_info.hw_caps->has_fan) {
-				CFanControlNotifier::setSpeed(0);
+			else
+			{
+				while (true)
+					sleep(1);
 			}
-			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
-			stop_video();
-			Cleanup();
-			//_exit(retcode);
-			exit(retcode);
 		}
+	}
+	else
+	{
+		delete g_RCInput;
+		my_system("/etc/init.d/rcK");
+		//fan speed
+		if (g_info.hw_caps->has_fan)
+			CFanControlNotifier::setSpeed(0);
+		stop_video();
+		Cleanup();
+		//_exit(0);
+		exit(0);
 	}
 }
 
@@ -4145,13 +4154,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMsgBox::mbrBack, CMsgBox::mbBack);
 	}
 	else if(actionKey=="shutdown") {
-		ExitRun(true, 1);
+		ExitRun(1);
 	}
 	else if(actionKey=="reboot")
 	{
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
-		ExitRun(true);
+		ExitRun();
 		unlink("/tmp/.reboot");
 		returnval = menu_return::RETURN_NONE;
 	}
