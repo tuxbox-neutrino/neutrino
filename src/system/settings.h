@@ -925,7 +925,6 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 
 struct SglobalInfo
 {
-	delivery_system_t delivery_system;
 	hw_caps_t *hw_caps;
 };
 
