@@ -927,7 +927,6 @@ struct SglobalInfo
 {
 	unsigned char     box_Type;
 	delivery_system_t delivery_system;
-	bool has_fan;
 	hw_caps_t *hw_caps;
 };
 
