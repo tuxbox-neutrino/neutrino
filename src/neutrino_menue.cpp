@@ -135,8 +135,6 @@ void CNeutrinoApp::InitMenuMain()
 {
 	dprintf(DEBUG_DEBUG, "init mainmenue\n");
 
-	unsigned int system_rev = cs_get_revision();
-
 	// Dynamic renumbering
 	personalize.setShortcut();
 
