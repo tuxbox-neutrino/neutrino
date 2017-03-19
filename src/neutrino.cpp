@@ -2255,13 +2255,9 @@ TIMER_START();
 
 	cpuFreq = new cCpuFreqManager();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-#if HAVE_COOL_HARDWARE
-	/* only SAT-hd1 before rev 8 has fan */
-	g_info.has_fan = (cs_get_revision()  < 8 && CFEManager::getInstance()->getFE(0)->hasSat());
-#endif
-	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
+
 	//fan speed
-	if (g_info.has_fan)
+	if (g_info.hw_caps->has_fan)
 		CFanControlNotifier::setSpeed(g_settings.fan_speed);
 
 	dvbsub_init();
@@ -3779,7 +3775,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			delete g_RCInput;
 			my_system("/etc/init.d/rcK");
 			//fan speed
-			if (g_info.has_fan) {
+			if (g_info.hw_caps->has_fan) {
 				CFanControlNotifier::setSpeed(0);
 			}
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
@@ -3987,7 +3983,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 
 		//fan speed
-		if (g_info.has_fan)
+		if (g_info.hw_caps->has_fan)
 			CFanControlNotifier::setSpeed(1);
 
 		frameBuffer->setActive(false);
@@ -4016,7 +4012,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 		frameBuffer->setActive(true);
 		//fan speed
-		if (g_info.has_fan)
+		if (g_info.hw_caps->has_fan)
 			CFanControlNotifier::setSpeed(g_settings.fan_speed);
 
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");

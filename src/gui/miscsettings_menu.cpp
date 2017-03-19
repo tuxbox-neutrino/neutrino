@@ -326,7 +326,7 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	ms_general->addItem(mc);
 
 	//fan speed
-	if (g_info.has_fan)
+	if (g_info.hw_caps->has_fan)
 	{
 		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 		mn->setHint("", LOCALE_MENU_HINT_FAN_SPEED);
