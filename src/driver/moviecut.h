@@ -20,7 +20,7 @@
 #ifndef __MOVIE_CUT__
 #define __MOVIE_CUT__
 
-#include <gui/movieinfo.h>
+#include <driver/movieinfo.h>
 #include <gui/components/cc.h>
 
 class CFrameBuffer;

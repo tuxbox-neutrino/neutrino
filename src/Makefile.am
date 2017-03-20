@@ -81,7 +81,7 @@ neutrino_LDADD = \
 	gui/widget/libneutrino_gui_widget2.a \
 	driver/pictureviewer/libneutrino_pictureviewer.a \
 	$(MTDUTILSLIBS) \
-	gui/movieinfo.o \
+	driver/movieinfo.o \
 	gui/moviebrowser/mb.o \
 	gui/libneutrino_gui2.a \
 	gui/components/libneutrino_gui_components.a \

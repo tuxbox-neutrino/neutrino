@@ -124,8 +124,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_btn_font	= NULL;
 	cc_btn_icon	= icon_name;
 	cc_btn_text	= caption;
-	cc_directKey	= CRCInput::RC_nokey;
-	cc_directKeyAlt = cc_directKey;
+	cc_directKeys.push_back(CRCInput::RC_nokey);
 	cc_btn_result	= -1;
 	cc_btn_alias	= -1;
 

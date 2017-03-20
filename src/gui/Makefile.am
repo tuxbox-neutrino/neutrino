@@ -68,7 +68,6 @@ libneutrino_gui_a_SOURCES = \
 	mediaplayer.cpp \
 	mediaplayer_setup.cpp \
 	miscsettings_menu.cpp \
-	movieinfo.cpp \
 	movieplayer.cpp \
 	network_service.cpp \
 	network_setup.cpp \
