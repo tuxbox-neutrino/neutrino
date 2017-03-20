@@ -30,7 +30,7 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 
-#include <gui/movieinfo.h>
+#include <driver/movieinfo.h>
 
 class cYTCache
 {

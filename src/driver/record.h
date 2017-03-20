@@ -30,7 +30,7 @@
 #include <timerdclient/timerdtypes.h>
 
 #include <neutrinoMessages.h>
-#include <gui/movieinfo.h>
+#include <driver/movieinfo.h>
 
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
