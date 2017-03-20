@@ -839,14 +839,16 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
 	std::string boxvendor(g_info.hw_caps->boxvendor);
-	/* stay compatible with present code in Y_Blocks.txt */
+	/*
+	   I don't know the current legal situation.
+	   So better let's change the vendor's name to CST.
+
+	   After change this, you'll have to align code in Y_Blocks.txt
+	*/
 	if (boxvendor.compare("Coolstream") == 0)
 		boxvendor = "CST";
 
 	std::string boxname(g_info.hw_caps->boxname);
-	/* workaround for Neo2 */
-	if ((boxname.compare("Neo") == 0) && (CFEManager::getInstance()->getFrontendCount() > 1))
-		boxname += " Twin";
 
 	return boxvendor + " " + boxname;
 }

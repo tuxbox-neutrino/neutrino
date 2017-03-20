@@ -269,10 +269,12 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 		if (text.empty()) tmpText = "x";
 		_width = dynFont->getRenderWidth(tmpText);
 		if ((_height > dy) || (_width > dx)) {
-			if (dynFlag)
+			if (dynFlag){
 				dynSize--;
-			else
-				printf("##### [%s] Specified size (dx=%d, dy=%d) too small, use minimal font size.\n", __FUNCTION__, dx, dy);
+			}else{
+				if (debug)
+					printf("##### [%s] Specified size (dx=%d, dy=%d) too small, use minimal font size.\n", __FUNCTION__, dx, dy);
+			}
 			break;
 		}
 		else if ((_height < dy) || (_width < dx)) {

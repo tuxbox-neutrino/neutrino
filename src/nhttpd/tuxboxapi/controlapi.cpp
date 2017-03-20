@@ -812,7 +812,15 @@ void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 	std::string eth_id = netadapter.getMacAddr();
 	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
 
-	hh->printf("%s %s (%s)\nMAC:%s\n", g_info.hw_caps->boxvendor, g_info.hw_caps->boxname, g_info.hw_caps->boxarch, eth_id.c_str());
+	std::string boxvendor(g_info.hw_caps->boxvendor);
+	/*
+	   I don't know the current legal situation.
+	   So better let's change the vendor's name to CST.
+	*/
+	if (boxvendor.compare("Coolstream") == 0)
+		boxvendor = "CST";
+
+	hh->printf("%s %s (%s)\nMAC:%s\n", boxvendor.c_str(), g_info.hw_caps->boxname, g_info.hw_caps->boxarch, eth_id.c_str());
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::ShutdownCGI(CyhookHandler *hh)
