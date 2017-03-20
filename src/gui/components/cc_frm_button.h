@@ -70,9 +70,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///property: icon name, only icons supported, to find in gui/widget/icons.h
 		std::string cc_btn_icon;
 
-		///property: assigned event message value, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonDirectKey(), getButtonDirectKey()
-		neutrino_msg_t 	cc_directKey;
-		///property: assigned an alternate event message value, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonDirectKeyAlt(), getButtonDirectKeyAlt()
+		///property: container for all assigned event message values, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonDirectKey(), hasButtonDirectKey()
+		std::vector<neutrino_msg_t>cc_directKeys;
+		///property: assigned an alternate event message value, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonDirectKeyAlt(), hasButtonDirectKeyAlt()
 		neutrino_msg_t 	cc_directKeyAlt;
 		///property: assigned return value, see also setButtonResult(), getButtonResult(), default value = -1 (not defined)
 		int 	cc_btn_result;
@@ -135,7 +135,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///set text color
-		inline virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_text_col = caption_color;};
+		void setButtonTextColor(fb_pixel_t caption_color){cc_btn_text_col = caption_color;};
 
 		/**Member to modify background behavior of embeded caption object.
 		* @param[in]  mode
@@ -159,42 +159,80 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		};
 
 		///set caption: parameter as string
-		virtual void setCaption(const std::string& text);
+		void setCaption(const std::string& text);
 		///set caption: parameter as locale
-		virtual void setCaption(const neutrino_locale_t locale_text);
+		void setCaption(const neutrino_locale_t locale_text);
 
 		///get caption, type as std::string
-		inline virtual std::string getCaptionString(){return cc_btn_text;};
+		std::string getCaptionString(){return cc_btn_text;};
 		///get loacalized caption id, type = neutrino_locale_t
-		inline virtual neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;};
+		neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;};
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
-		virtual void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
+		void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
 
 		///reinitialize items
-		virtual void Refresh(){initCCBtnItems();};
+		void Refresh(){initCCBtnItems();};
 
 		///paint button object
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
-		///assigns an event msg value to button object, parameter1 as neutrino_msg_t, see driver/rcinput.h for possible values
-		inline virtual void setButtonDirectKey(const neutrino_msg_t& msg){cc_directKey = msg;};
-		///assigns an alternate event msg value to button object, parameter1 as neutrino_msg_t, see driver/rcinput.h for possible values
-		inline virtual void setButtonDirectKeyA(const neutrino_msg_t& msg){cc_directKeyAlt = msg;};
-		///returns an event msg value to button object, see driver/rcinput.h for possible values
-		inline virtual neutrino_msg_t getButtonDirectKey(){return cc_directKey;};
-		///returns an alternate event msg value to button object, but returns the primary direct key if no key was defined, see driver/rcinput.h for possible values
-		inline virtual neutrino_msg_t getButtonDirectKeyA(){return cc_directKeyAlt != CRCInput::RC_nokey ? cc_directKeyAlt : cc_directKey ;};
+		/**
+		* Assigns a single event msg value to button object
+		* @param[in]	neutrino_msg_t
+		* 	@li 	excepts type msg_result_t
+		* @note		This method adds only one message key value into the cc_directKeys container, \n
+		* 		Already existant keys will be removed. When more than one key value is required, \n
+		* 		use setButtonDirectKeys().
+		* @see		setButtonDirectKeys(), driver/rcinput.h for possible values
+		*/
+
+		void setButtonDirectKey(const neutrino_msg_t& msg){cc_directKeys.clear(); cc_directKeys.push_back(msg);}
+		/**
+		* Assigns a container with any event msg values to button object
+		* @param[in]	v_directKeys
+		* 	@li 	excepts type std::vector<neutrino_msg_t>
+		* @note		This method adds any message key values into the cc_directKeys container, \n
+		* 		Already existant keys will be removed. When only one key value is required, \n
+		* 		use setButtonDirectKey().
+		* @see		driver/rcinput.h for possible values
+		*/
+		void setButtonDirectKeys(const std::vector<neutrino_msg_t> &v_directKeys){cc_directKeys = v_directKeys;}
+
+		/**
+		* Returns current primary event msg value of button object.
+		* @return	neutrino_msg_t
+		* @note		This method returns only the first existant message value from  cc_directKeys container \n
+		* 		Other existant keys ar ignored. If a certain value is required, \n
+		* 		use hasButtonDirectKey().
+		* @see		bool hasButtonDirectKey(), driver/rcinput.h for possible values
+		*/
+		neutrino_msg_t getButtonDirectKey(){return cc_directKeys[0];}
+
+		/**
+		* Returns true if filtered event msg value of button object is found in cc_directKeys container.
+		* @return	bool
+		* @param[in]	msg
+		* 	@li 	exepts type neutrino_msg_t as filter for searched message
+		* @see		neutrino_msg_t getButtonDirectKey(), driver/rcinput.h for possible values
+		*/
+		bool hasButtonDirectKey(const neutrino_msg_t& msg)
+		{
+			for (size_t i= 0; i< cc_directKeys.size(); i++)
+				if (cc_directKeys[i] == msg)
+					return true;
+			return false;
+		}
 
 		///assigns an return value to button object, parameter1 as int
-		inline virtual void setButtonResult(const int& result_value){cc_btn_result = result_value;};
+		void setButtonResult(const int& result_value){cc_btn_result = result_value;}
 		///returns current result value of button object
-		inline virtual int getButtonResult(){return cc_btn_result;};
+		int getButtonResult(){return cc_btn_result;}
 
 		///assigns an alias value to button object, parameter1 as int, e.g. previous known as mbYes, mbNo... from message boxes 
-		inline virtual void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;};
+		void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;}
 		///returns an alias value from button object, see also cc_btn_alias
-		inline virtual int getButtonAlias(){return cc_btn_alias;};
+		int getButtonAlias(){return cc_btn_alias;}
 };
 
 //! Sub class of CComponentsButton.
