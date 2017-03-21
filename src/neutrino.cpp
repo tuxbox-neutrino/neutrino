@@ -3602,6 +3602,7 @@ extern bool timer_is_rec;//timermanager.cpp
 
 void CNeutrinoApp::ExitRun(int can_shutdown)
 {
+	/* can_shutdown is actually our exit code */
 	printf("[neutrino] %s can_shutdown: %d\n", __func__, can_shutdown);
 
 	bool do_shutdown = true;
@@ -3615,7 +3616,7 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	if (!do_shutdown)
 		return;
 
-	if(SDTreloadChannels)
+	if (SDTreloadChannels)
 		SDT_ReloadChannels();
 
 	dprintf(DEBUG_INFO, "exit\n");
@@ -3641,7 +3642,7 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 
 	CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 
-	stop_daemons(true /*can_shoutdown*/); //need here for timer_is_rec before saveSetup
+	stop_daemons(true /*can_shutdown*/); //need here for timer_is_rec before saveSetup
 	g_settings.shutdown_timer_record_type = timer_is_rec;
 	saveSetup(NEUTRINO_SETTINGS_FILE);
 
@@ -3729,70 +3730,76 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	}
 	else
 	{
-#endif
-			int leds = 0;
-			int bright = 0;
-#if HAVE_COOL_HARDWARE
-			if (can_shutdown) {
-				leds = 0x40;
-				switch (g_settings.led_deep_mode){
-					case 0:
-						leds = 0x0;//off  leds
-						break;
-					case 1:
-						leds = 0x60;//on led1 & 2
-						break;
-					case 2:
-						leds = 0x20;//led1 on , 2 off
-						break;
-					case 3:
-						leds = 0x40;//led2 off, 2 on
-						break;
-					default:
-						break;
-				}
-				if (leds && g_settings.led_blink && timer_minutes)
-					leds |= 0x80;
-			}
-			if (cs_get_revision() != 10)
-				bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
-#endif
-			if (timer_minutes || leds)
-			{
-				FILE *f = fopen("/tmp/.timer", "w");
-				if (f)
-				{
-					fprintf(stderr, "timer_wakeup: %ld\n", timer_minutes * 60);
-					fprintf(f, "%ld\n", timer_minutes * 60);
-					fprintf(f, "%d\n", leds);
-					fprintf(f, "%d\n", bright);
-					fclose(f);
-				}
-				else
-					perror("fopen /tmp/.timer");
-			}
-
-			delete g_RCInput;
-			g_RCInput = NULL;
-			//fan speed
-			if (g_info.hw_caps->has_fan) {
-				CFanControlNotifier::setSpeed(0);
-			}
-			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
-			delete CVFD::getInstance();
-			delete SHTDCNT::getInstance();
-			stop_video();
-
-			printf("[neutrino] This is the end. exiting with code %d\n", can_shutdown);
-			Cleanup();
-#ifdef __sh__
-			/* the sh4 gcc seems to dislike someting about openthreads... */
-			_exit(can_shutdown);
-#else
-			exit(can_shutdown);
-#endif
-#if 0
+		delete g_RCInput;
+		my_system("/etc/init.d/rcK");
+		//fan speed
+		if (g_info.hw_caps->has_fan)
+			CFanControlNotifier::setSpeed(0);
+		stop_video();
+		Cleanup();
+		//_exit(0);
+		exit(0);
 	}
+#endif
+	int leds = 0;
+	int bright = 0;
+#if HAVE_COOL_HARDWARE
+	if (can_shutdown) {
+		leds = 0x40;
+		switch (g_settings.led_deep_mode){
+			case 0:
+				leds = 0x0;//off  leds
+				break;
+			case 1:
+				leds = 0x60;//on led1 & 2
+				break;
+			case 2:
+				leds = 0x20;//led1 on , 2 off
+				break;
+			case 3:
+				leds = 0x40;//led2 off, 2 on
+				break;
+			default:
+				break;
+		}
+		if (leds && g_settings.led_blink && timer_minutes)
+			leds |= 0x80;
+	}
+	if (cs_get_revision() != 10)
+		bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
+#endif
+	if (timer_minutes || leds)
+	{
+		FILE *f = fopen("/tmp/.timer", "w");
+		if (f)
+		{
+			fprintf(stderr, "timer_wakeup: %ld\n", timer_minutes * 60);
+			fprintf(f, "%ld\n", timer_minutes * 60);
+			fprintf(f, "%d\n", leds);
+			fprintf(f, "%d\n", bright);
+			fclose(f);
+		}
+		else
+			perror("fopen /tmp/.timer");
+	}
+
+	delete g_RCInput;
+	g_RCInput = NULL;
+	//fan speed
+	if (g_info.hw_caps->has_fan)
+		CFanControlNotifier::setSpeed(0);
+	//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
+	delete CVFD::getInstance();
+	delete SHTDCNT::getInstance();
+	stop_video();
+
+	printf("[neutrino] This is the end. exiting with code %d\n", can_shutdown);
+	Cleanup();
+#ifdef __sh__
+	/* the sh4 gcc seems to dislike someting about openthreads... */
+	_exit(can_shutdown);
+#else
+	exit(can_shutdown);
 #endif
 }
 
