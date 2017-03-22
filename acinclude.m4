@@ -317,13 +317,6 @@ AC_ARG_WITH(boxmodel,
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
 			;;
-		raspi)
-			if test "$BOXTYPE" = "generic"; then
-				BOXMODEL="$withval"
-			else
-				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
-			fi
-			;;
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 			;;
