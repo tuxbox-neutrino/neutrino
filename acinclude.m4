@@ -10,7 +10,7 @@ AC_ARG_WITH(target,
 
 AC_ARG_WITH(targetprefix,
 	[  --with-targetprefix=PATH  prefix relative to target root (only applicable in cdk mode)],
-	[TARGET_PREFIX="$withval"],[TARGET_PREFIX="NONE"])
+	[TARGET_PREFIX="$withval"],[TARGET_PREFIX=""])
 
 AC_ARG_WITH(debug,
 	[  --without-debug         disable debugging code],
@@ -127,6 +127,8 @@ if test "$TARGET" = "cdk"; then
 	targetlocalstatedir="\${TARGET_PREFIX}/var"
 	targetlibdir="\${TARGET_PREFIX}/lib"
 	targetmntdir="\${TARGET_PREFIX}/mnt"
+else
+	mntdir="/mnt" # hack
 fi
 
 TUXBOX_APPS_DIRECTORY_ONE(configdir,CONFIGDIR,localstatedir,/var,/tuxbox/config,
@@ -241,8 +243,13 @@ _TUXBOX_APPS_LIB_CONFIG($1,$2,WARN)
 ])
 
 AC_DEFUN([TUXBOX_APPS_PKGCONFIG],[
-AC_PATH_PROG(PKG_CONFIG, pkg-config,no)
-if test "$PKG_CONFIG" = "no" ; then
+m4_pattern_forbid([^_?PKG_[A-Z_]+$])
+m4_pattern_allow([^PKG_CONFIG(_PATH)?$])
+AC_ARG_VAR([PKG_CONFIG], [path to pkg-config utility])dnl
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+fi
+if test x"$PKG_CONFIG" = x"" ; then
 	AC_MSG_ERROR([could not find pkg-config]);
 fi
 ])
@@ -311,6 +318,10 @@ AC_ARG_WITH(boxmodel,
 		raspi)
 			if test "$BOXTYPE" = "generic"; then
 				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+			;;
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 			;;
