@@ -47,6 +47,9 @@ enum CS_LOG_MODULE {
 void cs_api_init(void);
 void cs_api_exit(void);
 
+/* Dummy for compatibility with HD2 */
+#define cs_new_auto_videosystem();
+
 // Memory helpers
 void *cs_malloc_uncached(size_t size);
 void cs_free_uncached(void *ptr);
