@@ -42,11 +42,10 @@ elif test "$TARGET" = "cdk"; then
 	AC_MSG_RESULT(cdk)
 
 	if test "$CC" = "" -a "$CXX" = ""; then
-		CC=powerpc-tuxbox-linux-gnu-gcc CXX=powerpc-tuxbox-linux-gnu-g++
+		AC_MSG_ERROR([you need to specify variables CC or CXX in cdk])
 	fi
-	if test "$CFLAGS" = "" -a "$CXXFLAGS" = ""; then
-		CFLAGS="-Wall -Os -mcpu=823 -pipe $DEBUG_CFLAGS"
-		CXXFLAGS="-Wall -Os -mcpu=823 -pipe $DEBUG_CFLAGS"
+	if test "$CFLAGS" = "" -o "$CXXFLAGS" = ""; then
+		AC_MSG_ERROR([you need to specify variables CFLAGS and CXXFLAGS in cdk])
 	fi
 	if test "$prefix" = "NONE"; then
 		AC_MSG_ERROR([invalid prefix, you need to specify one in cdk mode])
@@ -57,10 +56,6 @@ elif test "$TARGET" = "cdk"; then
 	if test "$TARGET_PREFIX" = "NONE"; then
 		AC_MSG_ERROR([invalid targetprefix, you need to specify one in cdk mode])
 		TARGET_PREFIX=""
-	fi
-	if test "$host_alias" = ""; then
-		cross_compiling=yes
-		host_alias=powerpc-tuxbox-linux-gnu
 	fi
 else
 	AC_MSG_RESULT(none)
@@ -326,9 +321,7 @@ AC_ARG_WITH(boxmodel,
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 			;;
 	esac], [test "$BOXTYPE" = "coolstream" && BOXMODEL="hd1" || true]
-	[if test "$BOXTYPE" = "dreambox" -o "$BOXTYPE" = "ipbox" && test -z "$BOXMODEL"; then
-		AC_MSG_ERROR([Dreambox/IPBox needs --with-boxmodel])
-	fi])
+	)
 
 AC_SUBST(BOXTYPE)
 AC_SUBST(BOXMODEL)
@@ -360,7 +353,7 @@ fi
 if test "$BOXMODEL" = "hd1"; then
 	AC_DEFINE(BOXMODEL_CS_HD1, 1, [coolstream hd1/neo/neo2/zee])
 elif test "$BOXMODEL" = "hd2"; then
-	AC_DEFINE(BOXMODEL_CS_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee²/link])
+	AC_DEFINE(BOXMODEL_CS_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee2/link])
 elif test "$BOXMODEL" = "raspi"; then
 	AC_DEFINE(BOXMODEL_RASPI, 1, [Raspberry pi])
 fi
@@ -387,4 +380,3 @@ AC_DEFUN([AC_PROG_EGREP],
  EGREP=$ac_cv_prog_egrep
  AC_SUBST([EGREP])
 ])
-
