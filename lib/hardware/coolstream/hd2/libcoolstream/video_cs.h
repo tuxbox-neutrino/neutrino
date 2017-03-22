@@ -9,6 +9,7 @@
 #ifndef __VIDEO_CS_H_
 #define __VIDEO_CS_H_
 
+#include <stdint.h>
 #include <cs_frontpanel.h>
 #include <control.h>
 
@@ -158,6 +159,13 @@ typedef struct cs_vs_format_t
 	char formatSD[16];
 } cs_vs_format_struct_t;
 
+enum {
+	CS_FBCOPY_BB2FB  = 0,
+	CS_FBCOPY_FB2FB  = 1,
+	CS_FBCOPY_MEM2FB = 2,
+	CS_FBCOPY_FB2MEM = 3
+};
+
 class cDemux;
 class cAudio;
 
@@ -205,6 +213,10 @@ public:
 	/* constructor & destructor */
 	cVideo(int mode, void * hChannel, void * hBuffer);
 	~cVideo(void);
+
+	/* Important!
+	   Call this function when osd resolution has been changed */
+	void updateOsdScreenInfo();
 
 	void * GetVPP(void);
 	void * GetTVEnc();
@@ -282,6 +294,8 @@ public:
 	int  StartVBI(unsigned short pid);
 	int  StopVBI(void);
 	bool GetScreenImage(unsigned char * &data, int &xres, int &yres, bool get_video = true, bool get_osd = false, bool scale_to_video = false);
+	int  fbCopy(uint32_t *mem_p, int width, int height, int dst_x, int dst_y, int src_x, int src_y, int mode);
+	int  fbFill(int sx, int sy, int width, int height, fb_pixel_t col, int mode=0);
 	void SetDemux(cDemux *Demux);
 	static cVideo *GetDecoder(unsigned int Unit);
 	bool SyncSTC(void);
