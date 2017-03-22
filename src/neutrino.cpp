@@ -2168,10 +2168,6 @@ TIMER_START();
 
 	g_RCInput = new CRCInput();
 
-	/* later on, we'll crash anyway, so tell about it. */
-	if (! zapit_init)
-		DisplayErrorMessage("Zapit initialization failed. This is a fatal error, sorry.");
-
 	InitZapitClient();
 	g_Zapit->setStandby(false);
 
@@ -2230,6 +2226,10 @@ TIMER_START();
 
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
+
+	/* later on, we'll crash anyway, so tell about it. */
+	if (! zapit_init)
+		DisplayErrorMessage("Zapit initialization failed. This is a fatal error, sorry.");
 
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);

@@ -192,8 +192,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		CComponentsButton *btn = new CComponentsButton(0, y_btn, w_btn, h_btn, txt, icon_name, NULL, false, true, ccf_enable_button_shadow);
 
 		btn->doPaintBg(ccf_enable_button_bg);
-		btn->setButtonDirectKey(content[i].directKey);
-		btn->setButtonDirectKeyA(content[i].directKeyAlt);
+		btn->setButtonDirectKeys(content[i].directKeys);
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);
 		btn->setButtonFont(ccf_btn_font);
@@ -253,7 +252,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 		buttons[i].locale = content[i].locale;
 		//NOTE: here are used default values, because old button label struct don't know about this,
 		//if it possible, don't use this methode!
-		buttons[i].directKey = buttons[i].directKeyAlt = CRCInput::RC_nokey;
+		buttons[i].directKeys.push_back(CRCInput::RC_nokey);
 		buttons[i].btn_result = -1;
 		buttons[i].btn_alias = -1;
 	}
@@ -269,8 +268,7 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content
 		buttons[i].button = v_content[i].button;
 		buttons[i].text = v_content[i].text;
 		buttons[i].locale = v_content[i].locale;
-		buttons[i].directKey = v_content[i].directKey;
-		buttons[i].directKeyAlt = v_content[i].directKeyAlt;
+		buttons[i].directKeys = v_content[i].directKeys;
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
@@ -284,15 +282,13 @@ void CComponentsFooter::setButtonLabel(	const char *button_icon,
 					const int& label_width,
 					const neutrino_msg_t& msg,
 					const int& result_value,
-					const int& alias_value,
-					const neutrino_msg_t& directKeyAlt)
+					const int& alias_value)
 {
 	button_label_cc button[1];
 
 	button[0].button = button_icon;
 	button[0].text = text;
-	button[0].directKey = msg;
-	button[0].directKeyAlt = directKeyAlt;
+	button[0].directKeys.push_back(msg);
 	button[0].btn_result = result_value;
 	button[0].btn_alias = alias_value;
 
@@ -305,12 +301,11 @@ void CComponentsFooter::setButtonLabel(	const char *button_icon,
 					const int& label_width,
 					const neutrino_msg_t& msg,
 					const int& result_value,
-					const int& alias_value,
-					const neutrino_msg_t& directKeyAlt)
+					const int& alias_value)
 {
 	string txt = locale != NONEXISTANT_LOCALE ? g_Locale->getText(locale) : "";
 
-	setButtonLabel(button_icon, txt, chain_width, label_width, msg, result_value, alias_value, directKeyAlt);
+	setButtonLabel(button_icon, txt, chain_width, label_width, msg, result_value, alias_value);
 }
 
 void CComponentsFooter::enableButtonBg(bool enable)

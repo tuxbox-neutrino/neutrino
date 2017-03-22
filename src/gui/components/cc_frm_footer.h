@@ -99,8 +99,7 @@ class CComponentsFooter : public CComponentsHeader
 					const int& label_width = 0,
 					const neutrino_msg_t& msg = CRCInput::RC_nokey,
 					const int& result_value = -1,
-					const int& alias_value = -1,
-					const neutrino_msg_t& directKeyAlt = CRCInput::RC_nokey);
+					const int& alias_value = -1);
 		///add single button label with locale label type as content, chain_width as int, label width as int
 		void setButtonLabel(	const char *button_icon,
 					const neutrino_locale_t& locale,
@@ -108,8 +107,7 @@ class CComponentsFooter : public CComponentsHeader
 					const int& label_width = 0,
 					const neutrino_msg_t& msg = CRCInput::RC_nokey,
 					const int& result_value = -1,
-					const int& alias_value = -1,
-					const neutrino_msg_t& directKeyAlt = CRCInput::RC_nokey);
+					const int& alias_value = -1);
 		
 		///enables background of buttons, parameter bool show, default= true
 		void enableButtonBg(bool enable = true);
