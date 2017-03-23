@@ -170,7 +170,8 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			m_NextPic_Buffer = NULL;
 		}
 		size_t bufsize = x * y * 3;
-		if (!checkfreemem(bufsize)){
+		size_t resizeBuf = (m_endx - m_startx) * (m_endy - m_starty)*3;
+		if (!checkfreemem(bufsize + resizeBuf)){
 			return false;
 		}
 		m_NextPic_Buffer = (unsigned char *) malloc (bufsize);
@@ -856,8 +857,8 @@ bool CPictureViewer::checkfreemem(size_t bufsize)
 {
 	struct sysinfo info;
 	sysinfo( &info );
-	if(bufsize*2 + 4096 > (size_t)info.freeram + (size_t)info.freeswap){
-		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Out of memory\n", __func__, __LINE__);
+	if(bufsize + 4096 > (size_t)info.freeram + (size_t)info.freeswap){
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Out of memory: need %zu > free %zu\n", __func__, __LINE__,bufsize,(size_t)info.freeram + (size_t)info.freeswap);
 		return false;
 	}
 	return true;
