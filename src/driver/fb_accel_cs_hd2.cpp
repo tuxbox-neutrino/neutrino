@@ -234,29 +234,35 @@ int CFbAccelCSHD2::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int 
 	if (osd_resolutions.empty())
 		setOsdResolutions();
 
-	if (fullHdAvailable()) {
-		screeninfo.xres=nxRes;
-		screeninfo.yres=nyRes;
-		screeninfo.xres_virtual=nxRes;
-		screeninfo.yres_virtual=nyRes*2;
-		screeninfo.height=0;
-		screeninfo.width=0;
-		screeninfo.xoffset=screeninfo.yoffset=0;
-		screeninfo.bits_per_pixel=nbpp;
+	unsigned int nxRes_ = nxRes;
+	unsigned int nyRes_ = nyRes;
+	unsigned int nbpp_  = nbpp;
+	if (!fullHdAvailable()) {
+		nxRes_ = 1280;
+		nyRes_ = 720;
+		nbpp_  = 32;
+	}
+	screeninfo.xres=nxRes_;
+	screeninfo.yres=nyRes_;
+	screeninfo.xres_virtual=nxRes_;
+	screeninfo.yres_virtual=nyRes_*2;
+	screeninfo.height=0;
+	screeninfo.width=0;
+	screeninfo.xoffset=screeninfo.yoffset=0;
+	screeninfo.bits_per_pixel=nbpp_;
 
-		if (ioctl(fd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
-			perror(LOGTAG "FBIOPUT_VSCREENINFO");
+	if (ioctl(fd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
+		perror(LOGTAG "FBIOPUT_VSCREENINFO");
 
-		printf(LOGTAG "SetMode: %dbits, red %d:%d green %d:%d blue %d:%d transp %d:%d\n",
-		screeninfo.bits_per_pixel, screeninfo.red.length, screeninfo.red.offset, screeninfo.green.length, screeninfo.green.offset, screeninfo.blue.length, screeninfo.blue.offset, screeninfo.transp.length, screeninfo.transp.offset);
-		if ((screeninfo.xres != nxRes) ||
-		    (screeninfo.yres != nyRes) ||
-		    (screeninfo.bits_per_pixel != nbpp)) {
-			printf(LOGTAG "SetMode failed: wanted: %dx%dx%d, got %dx%dx%d\n",
-				   nxRes, nyRes, nbpp,
-				   screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
-			return -1;
-		}
+	printf(LOGTAG "SetMode: %dbits, red %d:%d green %d:%d blue %d:%d transp %d:%d\n",
+	screeninfo.bits_per_pixel, screeninfo.red.length, screeninfo.red.offset, screeninfo.green.length, screeninfo.green.offset, screeninfo.blue.length, screeninfo.blue.offset, screeninfo.transp.length, screeninfo.transp.offset);
+	if ((screeninfo.xres != nxRes_) ||
+	    (screeninfo.yres != nyRes_) ||
+	    (screeninfo.bits_per_pixel != nbpp_)) {
+		printf(LOGTAG "SetMode failed: wanted: %dx%dx%d, got %dx%dx%d\n",
+			   nxRes_, nyRes_, nbpp_,
+			   screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
+		return -1;
 	}
 
 	fb_fix_screeninfo _fix;
@@ -337,8 +343,10 @@ int CFbAccelCSHD2::scale2Res(int size)
 
 bool CFbAccelCSHD2::fullHdAvailable()
 {
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
 	if (available >= 16588800) /* new fb driver with maxres 1920x1080(*8) */
 		return true;
+#endif
 	return false;
 }
 

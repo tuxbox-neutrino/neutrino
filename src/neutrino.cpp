@@ -2139,7 +2139,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 TIMER_START();
 	cs_api_init();
 	cs_register_messenger(CSSendMessage);
-#ifdef BOXMODEL_CS_HD2
+#if defined(HAVE_COOL_HARDWARE) && defined(ENABLE_CHANGE_OSD_RESOLUTION)
 	cs_new_auto_videosystem();
 #endif
 
