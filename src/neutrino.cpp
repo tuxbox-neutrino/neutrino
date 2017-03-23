@@ -2995,16 +2995,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		printf(">>>>>[CNeutrinoApp::%s:%d] Receive EVT_AUTO_SET_VIDEOSYSTEM message\n", __func__, __LINE__);
 		COsdHelpers *coh = COsdHelpers::getInstance();
 		int videoSystem = (int)data;
-		if (coh->getVideoSystem() == videoSystem)
-			return messages_return::handled;
-
-		if (!frameBufferInitialized) {
+		if (coh->getVideoSystem() != videoSystem) {
 			coh->setVideoSystem(videoSystem, false);
-			return messages_return::handled;
+			if (frameBufferInitialized)
+				coh->changeOsdResolution(0, true, false);
 		}
-
-		coh->setVideoSystem(videoSystem, false);
-		coh->changeOsdResolution(0, true, false);
 		return messages_return::handled;
 	}
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
