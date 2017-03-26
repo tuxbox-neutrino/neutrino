@@ -581,7 +581,7 @@ void CUpnpBrowserGui::selectDevice()
 #endif
 		else
 		{
-printf("msg: %x\n", (int) msg);
+			//printf("msg: %x\n", (int) msg);
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 				loop = false;
 		}
