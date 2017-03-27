@@ -124,6 +124,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	void paintItem2DetailsLine(int pos);
 
 	void updateTimes(const bool force = false);
+	void updateMode();
 	void playAudio(std::string name, int type);
 	void stopAudio();
 	void showPicture(std::string name);

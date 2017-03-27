@@ -733,6 +733,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 
 	while (loop) {
 		updateTimes();
+		updateMode();
 
 		if (refresh) {
 			printf("selectItem: refresh, timeout = %d\n", (int) timeout);
@@ -1268,14 +1269,21 @@ void CUpnpBrowserGui::updateTimes(const bool force)
 	}
 }
 
+void CUpnpBrowserGui::updateMode()
+{
+	/* switch back to mode_upnp if audio has stopped automatically */
+	if ((CAudioPlayer::getInstance()->getState() == CBaseDec::STOP) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_audio))
+	{
+		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_upnp | NeutrinoMessages::norezap);
+	}
+}
+
 void CUpnpBrowserGui::playAudio(std::string name, int type)
 {
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_audio);
 
 	CAudiofile mp3(name, (CFile::FileType) type);
 	CAudioPlayer::getInstance()->play(&mp3, g_settings.audioplayer_highprio == 1);
-
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_upnp | NeutrinoMessages::norezap);
 }
 
 void CUpnpBrowserGui::stopAudio()
@@ -1284,6 +1292,8 @@ void CUpnpBrowserGui::stopAudio()
 	{
 		CAudioPlayer::getInstance()->stop();
 	}
+
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_upnp | NeutrinoMessages::norezap);
 }
 
 void CUpnpBrowserGui::showPicture(std::string name)
