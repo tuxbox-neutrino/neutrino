@@ -2319,8 +2319,10 @@ streaminfo.framerate Bildrate
 streaminfo.framerate_unknown unbekannt
 streaminfo.head Tech. Information
 streaminfo.not_available nicht verfügbar
+streaminfo.osd_resolution OSD Auflösung
 streaminfo.resolution Auflösung
 streaminfo.signal Empfangssignal
+streaminfo.videosystem Videosystem
 streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart der GUI Abhilfe.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
 streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.

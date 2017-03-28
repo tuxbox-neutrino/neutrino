@@ -2319,8 +2319,10 @@ streaminfo.framerate Framerate
 streaminfo.framerate_unknown unknown
 streaminfo.head Stream-Information
 streaminfo.not_available not available
+streaminfo.osd_resolution OSD Resolution
 streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
+streaminfo.videosystem Videosystem
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart GUI.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
 streaming.overflow Record buffer overflow, consider to stop some records
