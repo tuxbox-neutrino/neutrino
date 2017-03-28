@@ -5524,7 +5524,7 @@ void CopyBB2FB()
 {
 	fb_pixel_t *src, *dst, *topsrc;
 	int fillcolor, i, screenwidth, swtmp;
-#if defined(HAVE_SPARK_HARDWARE) || defined(BOXMODEL_CS_HD2)
+#if defined(HAVE_SPARK_HARDWARE) || defined(HAVE_COOL_HARDWARE)
 	CFrameBuffer *f = CFrameBuffer::getInstance();
 #endif
 
@@ -5537,7 +5537,7 @@ void CopyBB2FB()
 	{
 #ifdef HAVE_SPARK_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
-#elif defined BOXMODEL_CS_HD2
+#elif defined(HAVE_COOL_HARDWARE)
 		f->fbCopyArea(var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, var_screeninfo.yres);
 #else
 		if ((uint32_t)stride > var_screeninfo.xres) {
@@ -5586,7 +5586,7 @@ void CopyBB2FB()
 	if (screenmode == 1)
 	{
 		screenwidth = ( TV43STARTX );
-#if defined(HAVE_SPARK_HARDWARE) || defined(BOXMODEL_CS_HD2)
+#if defined(HAVE_SPARK_HARDWARE)
 		int cx = var_screeninfo.xres - TV43STARTX;	/* x start */
 		int cw = TV43STARTX;				/* width */
 		int cy = StartY;
@@ -5594,8 +5594,6 @@ void CopyBB2FB()
 #endif
 #ifdef HAVE_SPARK_HARDWARE
 		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, true);
-#elif defined BOXMODEL_CS_HD2
-		f->fbCopyArea(cw, ch, cx, cy, cx, cy+var_screeninfo.yres);
 #else
 		fb_pixel_t *topdst = dst;
 		size_t width = (ex - screenwidth) * sizeof(fb_pixel_t);
