@@ -2995,7 +2995,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		printf(">>>>>[CNeutrinoApp::%s:%d] Receive EVT_AUTO_SET_VIDEOSYSTEM message\n", __func__, __LINE__);
 		COsdHelpers *coh = COsdHelpers::getInstance();
 		int videoSystem = (int)data;
-		if (coh->getVideoSystem() != videoSystem) {
+		if ((videoSystem != -1) /* -1 => not enabled for automode */ &&
+		    (coh->getVideoSystem() != videoSystem)) {
 			coh->setVideoSystem(videoSystem, false);
 			if (frameBufferInitialized)
 				coh->changeOsdResolution(0, true, false);
