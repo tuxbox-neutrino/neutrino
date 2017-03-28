@@ -28,7 +28,9 @@
 
 CFbAccelCSHD2::CFbAccelCSHD2()
 {
-	fb_name = "Coolstream HD2 framebuffer";
+	fb_name  = "Coolstream HD2 framebuffer";
+	IsApollo = false;
+	sysRev   = -1;
 }
 
 /*
@@ -143,11 +145,22 @@ void CFbAccelCSHD2::paintBoxRel(const int x, const int y, const int dx, const in
 
 void CFbAccelCSHD2::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, uint32_t dst_y, uint32_t src_x, uint32_t src_y)
 {
+	if ((width == 0) || (height == 0))
+		return;
+
 	uint32_t  w_, h_;
 	w_ = (width > xRes) ? xRes : width;
 	h_ = (height > yRes) ? yRes : height;
 
-	if(!(w_%4)) {
+	if (sysRev < 0) {
+		sysRev = cs_get_revision();
+		IsApollo = (sysRev == 9);
+	}
+
+	if(!(w_ % 4) && !IsApollo) {
+		/* workaround for bad fb driver */
+		w_ -= 1;
+		h_ -= 1;
 		fb_copyarea area;
 		area.dx     = dst_x;
 		area.dy     = dst_y;
@@ -156,11 +169,18 @@ void CFbAccelCSHD2::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, 
 		area.sx     = src_x;
 		area.sy     = src_y;
 		ioctl(fd, FBIO_COPY_AREA, &area);
-		//printf("\033[33m>>>>\033[0m [CFbAccelCSHD2::%s:%d] fb_copyarea w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func__, __LINE__, w_, h_, dst_x, dst_y, src_x, src_y);
-		return;
+//		printf("\033[33m>>>>\033[0m%s fb_copyarea w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func_ext__, w_, h_, dst_x, dst_y, src_x, src_y);
 	}
-	//printf("\033[31m>>>>\033[0m [CFbAccelCSHD2::%s:%d] sw blit w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func__, __LINE__, w_, h_, dst_x, dst_y, src_x, src_y);
-	CFrameBuffer::fbCopyArea(width, height, dst_x, dst_y, src_x, src_y);
+	else {
+		int mode = CS_FBCOPY_FB2FB;
+		uint32_t src_y_ = src_y;
+		if (src_y >= yRes) {
+			mode = CS_FBCOPY_BB2FB;
+			src_y_ -= yRes;
+		}
+		fbCopy(NULL, w_, h_, dst_x, dst_y, src_x, src_y_, mode);
+//		printf("\033[31m>>>>\033[0m%s fbCopy w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func_ext__, w_, h_, dst_x, dst_y, src_x, src_y);
+	}
 }
 
 void CFbAccelCSHD2::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
