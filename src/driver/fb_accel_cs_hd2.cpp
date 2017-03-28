@@ -289,6 +289,9 @@ max res 1920x1080
 	stride		7680
 */
 
+	if (videoDecoder != NULL)
+		videoDecoder->updateOsdScreenInfo();
+
 	int needmem = stride * yRes * 2;
 	if (available >= needmem)
 	{

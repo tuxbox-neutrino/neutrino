@@ -370,6 +370,10 @@ int CFbAccelCSHD1::setMode(unsigned int, unsigned int, unsigned int)
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
 	printf(LOGTAG "%dx%dx%d line length %d. using %s graphics accelerator.\n", xRes, yRes, bpp, stride, _fix.id);
+
+	if (videoDecoder != NULL)
+		videoDecoder->updateOsdScreenInfo();
+
 	int needmem = stride * yRes * 2;
 	if (available >= needmem)
 	{

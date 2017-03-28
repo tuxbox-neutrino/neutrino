@@ -36,4 +36,7 @@
 #include <system/debug.h>
 
 #include <cs_api.h>
+#include <video_cs.h>
 #include <cnxtfb.h>
+
+extern cVideo * videoDecoder;
