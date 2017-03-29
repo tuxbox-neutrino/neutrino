@@ -1170,7 +1170,7 @@ menu.hint_key_volumedown Assign button to decrease volume
 menu.hint_key_volumeup Assign button to increase volume
 menu.hint_keys Remote control repeat rate\nEdit key bindings
 menu.hint_lang_pref Configure preferred audio, EPG\nand subtitle languages
-menu.hint_language OSD language, timezone\nPreffered audio and subtitles languages
+menu.hint_language OSD language, timezone\nPrefered audio and subtitles languages
 menu.hint_last_radio Start box on selected channel\nif last mode is Radio
 menu.hint_last_tv Start box on selected channel\nif last mode is TV
 menu.hint_last_use Start box on last used channel
@@ -2319,7 +2319,7 @@ streaminfo.framerate Framerate
 streaminfo.framerate_unknown unknown
 streaminfo.head Stream-Information
 streaminfo.not_available not available
-streaminfo.osd_resolution OSD Resolution
+streaminfo.osd_resolution OSD resolution
 streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
 streaminfo.videosystem Videosystem
