@@ -233,6 +233,13 @@ if test "$enable_testing" = "yes"; then
 	AC_DEFINE(ENABLE_TESTING,1,[include devel code parts for neutrino tests - not recommended for general users!])
 fi
 
+AC_ARG_ENABLE([fribidi],
+	AS_HELP_STRING([--enable-fribidi], [enable fribidi support])
+)
+AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
+AS_IF([test "$enable_fribidi" = "yes"],
+	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support])
+)
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
