@@ -51,6 +51,7 @@
 #include "lua_menue.h"
 #include "lua_messagebox.h"
 #include "lua_misc.h"
+#include "lua_progresswindow.h"
 #include "lua_stringinput.h"
 #include "lua_threads.h"
 #include "lua_video.h"
@@ -673,6 +674,8 @@ void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 	CLuaInstStringInput::getInstance()->StringInputRegister(L);
 	CLuaInstMisc::getInstance()->LuaMiscRegister(L);
 	CLuaInstVideo::getInstance()->LuaVideoRegister(L);
+	CLuaInstProgressWindow::getInstance()->ProgressWindowRegister(L);
+
 	if (!fromThreads)
 		CLLThread::getInstance()->LuaThreadsRegister(L);
 }
