@@ -39,6 +39,10 @@
 #include <system/debug.h>
 #include <global.h>
 
+#ifdef ENABLE_FRIBIDI
+#include <fribidi/fribidi.h>
+#endif
+
 FT_Error FBFontRenderClass::myFTC_Face_Requester(FTC_FaceID  face_id,
         FT_Library  /*library*/,
         FT_Pointer  request_data,
@@ -388,6 +392,49 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 	return unicode_value;
 }
 
+#ifdef ENABLE_FRIBIDI
+static std::string fribidi_shape_char(const char * text)
+{
+	if(text && *text)
+	{
+		int len = strlen(text);
+		char * rtl_text = NULL;
+		int rtl_len = 0;
+
+		fribidi_set_mirroring(true);
+		fribidi_set_reorder_nsm(false);
+
+		// init to utf-8
+		FriBidiCharSet fribidi_charset = FRIBIDI_CHAR_SET_UTF8;
+
+		// tell bidi that we need bidirectional
+		FriBidiCharType fribidi_chartype = FRIBIDI_TYPE_L;
+
+		// our buffer
+		FriBidiChar *logical = (FriBidiChar *)alloca(sizeof(FriBidiChar)*(len + 1));
+		FriBidiChar *visual = (FriBidiChar *)alloca(sizeof(FriBidiChar)*(len + 1));
+
+		// convert from the selected charset to Unicode
+		rtl_len = fribidi_charset_to_unicode(fribidi_charset, const_cast<char *>(text), len, logical);
+		//printf("len: %d rtl_len: %d\n", len, rtl_len);
+
+		// logical to visual
+		if (fribidi_log2vis(logical, rtl_len, &fribidi_chartype, visual, NULL, NULL, NULL))
+		{
+			// removes bidirectional marks
+			fribidi_remove_bidi_marks(visual, rtl_len, NULL, NULL, NULL);
+
+			rtl_text = (char *)alloca(sizeof(char)*(rtl_len * 4 + 1));
+			fribidi_unicode_to_charset(fribidi_charset, visual, rtl_len, rtl_text);
+
+			return std::string(rtl_text);
+		}
+	}
+
+	return std::string(text);
+}
+#endif
+
 void Font::paintFontPixel(fb_pixel_t *td, uint8_t src)
 {
 #define DST_BLUE  0x80
@@ -447,6 +494,11 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	frameBuffer->checkFbArea(x, y-height, width, height, true);
 
 	pthread_mutex_lock( &renderer->render_mutex );
+
+#ifdef ENABLE_FRIBIDI
+	std::string Text = fribidi_shape_char(text);
+	text = Text.c_str();
+#endif
 
 	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
 	if (err != 0)
@@ -637,6 +689,11 @@ void Font::RenderString(int x, int y, const int width, const std::string & text,
 int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 {
 	pthread_mutex_lock( &renderer->render_mutex );
+
+#ifdef ENABLE_FRIBIDI
+	std::string Text = fribidi_shape_char(text);
+	text = Text.c_str();
+#endif
 
 	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
 	if (err != 0)
