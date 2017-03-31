@@ -12,7 +12,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
-	-I$(top_srcdir)/lib/jsoncpp/include \
+	-I$(top_srcdir)/lib/jsoncpp \
 	@SIGC_CFLAGS@ \
 	@CURL_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
@@ -37,6 +37,7 @@ libneutrino_gui_lua_a_SOURCES = \
 	lua_menue.cpp \
 	lua_messagebox.cpp \
 	lua_misc.cpp \
+	lua_progresswindow.cpp \
 	lua_stringinput.cpp \
 	lua_threads.cpp \
 	lua_threads_copy.cpp \

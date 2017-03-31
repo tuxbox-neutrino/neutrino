@@ -51,6 +51,7 @@
 #include "lua_menue.h"
 #include "lua_messagebox.h"
 #include "lua_misc.h"
+#include "lua_progresswindow.h"
 #include "lua_stringinput.h"
 #include "lua_threads.h"
 #include "lua_video.h"
@@ -383,22 +384,35 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+	/*
+	 * possible text allignment modes usable for window header caption
+	 * API: >= v1.71
+	*/
+	table_key text_alignment[] =
+	{
+		{ "DEFAULT",		(lua_Integer)CTextBox::NO_AUTO_LINEBREAK},
+		{ "CENTER",		(lua_Integer)CTextBox::CENTER},
+		{ "RIGHT",		(lua_Integer)CTextBox::RIGHT},
+		{ NULL, 0 }
+	};
+
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
 	{
-		{ "RC",		keyname },
-		{ "SCREEN",	screenopts },
-		{ "FONT",	fontlist },
-		{ "CORNER",	corners },
-		{ "OFFSET",	offsets },
-		{ "MENU_RETURN", menureturn },
-		{ "APIVERSION",  apiversion },
-		{ "PLAYSTATE",   playstate },
-		{ "CC",          ccomponents },
-		{ "DYNFONT",     dynfont },
-		{ "CURL",        curl_status },
-		{ "NMODE",       neutrino_mode },
-		{ "POSTMSG",     post_msg },
+		{ "RC",			keyname },
+		{ "SCREEN",		screenopts },
+		{ "FONT",		fontlist },
+		{ "CORNER",		corners },
+		{ "OFFSET",		offsets },
+		{ "MENU_RETURN", 	menureturn },
+		{ "APIVERSION",  	apiversion },
+		{ "PLAYSTATE",   	playstate },
+		{ "CC",          	ccomponents },
+		{ "DYNFONT",     	dynfont },
+		{ "CURL",        	curl_status },
+		{ "NMODE",       	neutrino_mode },
+		{ "POSTMSG",     	post_msg },
+		{ "TEXT_ALIGNMENT",	text_alignment },
 		{ NULL, NULL }
 	};
 
@@ -660,6 +674,8 @@ void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 	CLuaInstStringInput::getInstance()->StringInputRegister(L);
 	CLuaInstMisc::getInstance()->LuaMiscRegister(L);
 	CLuaInstVideo::getInstance()->LuaVideoRegister(L);
+	CLuaInstProgressWindow::getInstance()->ProgressWindowRegister(L);
+
 	if (!fromThreads)
 		CLLThread::getInstance()->LuaThreadsRegister(L);
 }

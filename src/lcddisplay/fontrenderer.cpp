@@ -35,6 +35,10 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#ifdef ENABLE_FRIBIDI
+#include <fribidi/fribidi.h>
+#endif
+
 FT_Error LcdFontRenderClass::myFTC_Face_Requester(FTC_FaceID  face_id,
                             FT_Library  /*library*/,
                             FT_Pointer  request_data,
@@ -230,10 +234,19 @@ extern int UTF8ToUnicode(const char * &text, const bool utf8_encoded); // return
 }
 #endif
 
+#ifdef ENABLE_FRIBIDI
+std::string fribidi_shape_char(const char * text);
+#endif
+
 void LcdFont::RenderString(int x, int y, const int width, const char * text, const int color, const int selected, const bool utf8_encoded)
 {
 	int err;
 	pthread_mutex_lock(&renderer->render_mutex);
+
+#ifdef ENABLE_FRIBIDI
+	std::string Text = fribidi_shape_char(text);
+	text = Text.c_str();
+#endif
 
 	FTC_ScalerRec scaler;
 
@@ -316,6 +329,12 @@ int LcdFont::getRenderWidth(const std::string &text, const bool utf8_encoded)
 int LcdFont::getRenderWidth(const char * text, const bool utf8_encoded)
 {
 	pthread_mutex_lock(&renderer->render_mutex);
+
+#ifdef ENABLE_FRIBIDI
+	std::string Text = fribidi_shape_char(text);
+	text = Text.c_str();
+#endif
+
 	FT_Error err;
 	FTC_ScalerRec scaler;
 	scaler.face_id = font.face_id;
