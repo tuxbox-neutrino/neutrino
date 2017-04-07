@@ -87,6 +87,9 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	//set default text background behavior
 	cc_txt_save_screen = false;
 
+	//enable refresh of all segments on each interval as default
+	cl_force_repaint = true;
+
 	//set default running clock properties
 	cl_interval	= interval_seconds;
 	cl_timer 	= NULL;
@@ -255,7 +258,7 @@ void CComponentsFrmClock::initCCLockItems()
 		//set size, text, color of current item
 		lbl->setDimensionsAll(x_tmp, y_tmp, w_tmp, h_tmp);
 		lbl->setColorAll(col_frame, col_body, col_shadow);
-		lbl->forceTextPaint(false);
+		lbl->forceTextPaint(cl_force_repaint);
 		lbl->setText(stmp, CTextBox::CENTER, cl_font, cl_col_text, cl_font_style);
 
 		//init background behavior of segment
