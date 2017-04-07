@@ -497,16 +497,6 @@ void CCDraw::paintFbItems(bool do_save_bg)
 				break;
 			}
 
-			dprintf(DEBUG_DEBUG, "[CCDraw]\n\t[%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
-			__func__,
-			__LINE__,
-			firstPaint,
-			v_fbdata[i].fbdata_type,
-			v_fbdata[i].x,
-			v_fbdata[i].y,
-			v_fbdata[i].dx,
-			v_fbdata[i].dy);
-
 			/* Here we save the background of current box before paint.
 			* Only the reserved fbdata type CC_FBDATA_TYPE_BGSCREEN is here required and is used for this.
 			* This pixel buffer is required for the hide() method that will
@@ -524,20 +514,15 @@ void CCDraw::paintFbItems(bool do_save_bg)
 	for(size_t i=0; i< v_fbdata.size(); i++){
 		cc_fbdata_t& fbdata = v_fbdata[i];
 
-		// Don't paint on dimension or position error dx or dy are 0.
-		if (!CheckFbData(fbdata, __func__, __LINE__)){
-			continue;
-		}
 		int fbtype = fbdata.fbdata_type;
 
-			dprintf(DEBUG_DEBUG, "[CCDraw]\n\t[%s - %d], fbdata_[%d]\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
-			__func__,
-			__LINE__,
-			(int)i,
-			fbdata.x,
-			fbdata.y,
-			fbdata.dx,
-			fbdata.dy);
+		//ignore bg screen layer
+		if (fbtype == CC_FBDATA_TYPE_BGSCREEN)
+			continue;
+
+		// Don't paint on dimension or position error dx or dy are 0.
+		if (!CheckFbData(fbdata, __func__, __LINE__))
+			continue;
 
 		/* Paint all fb relevant basic parts (shadow, frame and body)
 		 * with all specified properties, paint_bg must be enabled.
@@ -548,12 +533,14 @@ void CCDraw::paintFbItems(bool do_save_bg)
 					frameBuffer->paintBoxFrame(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, fbdata.frame_thickness, fbdata.color, fbdata.r, fbdata.rtype);
 					v_fbdata[i].is_painted = true;
 				}
+				continue;
 			}
 		}
 		if (paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_BACKGROUND){
 				frameBuffer->paintBackgroundBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
 				v_fbdata[i].is_painted = true;
+				continue;
 			}
 		}
 		if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX && ((!is_painted || !fbdata.is_painted)|| shadow_force || force_paint_bg)) {
@@ -575,6 +562,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 						fbdata.pixbuf = getScreen(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
 					fbdata.is_painted = true;
 				}
+				continue;
 			}
 		}
 		if (paint_bg){
