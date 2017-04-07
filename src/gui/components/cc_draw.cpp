@@ -49,7 +49,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 
 	fr_thickness = fr_thickness_old		= 0;
 
-	corner_type = corner_type_old		= CORNER_ALL;
+	corner_type = corner_type_old		= CORNER_NONE;
 	corner_rad = corner_rad_old		= 0;
 
 	shadow			= CC_SHADOW_OFF;
@@ -552,7 +552,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 		}
 		if (paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_BACKGROUND){
-				frameBuffer->paintBackgroundBoxRel(x, y, fbdata.dx, fbdata.dy);
+				frameBuffer->paintBackgroundBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
 				v_fbdata[i].is_painted = true;
 			}
 		}
