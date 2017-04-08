@@ -756,6 +756,7 @@ const char * locale_real_names[] =
 	"fontsize.epg_info1",
 	"fontsize.epg_info2",
 	"fontsize.epg_title",
+	"fontsize.epgplus_item",
 	"fontsize.eventlist_datetime",
 	"fontsize.eventlist_event",
 	"fontsize.eventlist_itemlarge",

@@ -674,6 +674,7 @@ struct SNeutrinoSettings
 		FONT_TYPE_EPG_INFO1,
 		FONT_TYPE_EPG_INFO2,
 		FONT_TYPE_EPG_DATE,
+		FONT_TYPE_EPGPLUS_ITEM,
 		FONT_TYPE_EVENTLIST_TITLE,
 		FONT_TYPE_EVENTLIST_ITEMLARGE,
 		FONT_TYPE_EVENTLIST_ITEMSMALL,
@@ -931,6 +932,8 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define SCROLLBAR_WIDTH		OFFSET_INNER_MID + 2*OFFSET_INNER_MIN
 
 #define DETAILSLINE_WIDTH	CFrameBuffer::getInstance()->scale2Res(16)
+
+#define BIGFONT_FACTOR		1.5
 
 struct SglobalInfo
 {
