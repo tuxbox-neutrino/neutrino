@@ -61,19 +61,12 @@
 
 extern CBouquetList *bouquetList;
 
-Font * fonts[EpgPlus::NumberOfFontSettings];
 int sizes[EpgPlus::NumberOfSizeSettings];
 
 time_t EpgPlus::duration = 0;
 
 int EpgPlus::sliderWidth = 0;
 int EpgPlus::channelsTableWidth = 0;
-
-static EpgPlus::FontSetting fontSettingTable[] =
-{
-	{ EpgPlus::EPGPlus_channelentry_font,		"Bold",		18 },
-	{ EpgPlus::EPGPlus_channelevententry_font,	"Regular",	18 }
-};
 
 /* negative size means "screen width in percent" */
 static EpgPlus::SizeSetting sizeSettingTable[] =
@@ -267,7 +260,8 @@ EpgPlus::ChannelEventEntry::ChannelEventEntry(const CChannelEvent * pchannelEven
 
 void EpgPlus::ChannelEventEntry::init()
 {
-	font = fonts[EPGPlus_channelevententry_font];
+	//TODO: re-implement bigfont handling
+	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM];
 	separationLineHeight = sizes[EPGPlus_separationline_height];
 }
 
@@ -350,7 +344,8 @@ EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, 
 
 void EpgPlus::ChannelEntry::init()
 {
-	font = fonts[EPGPlus_channelentry_font];
+	//TODO: re-implement bigfont handling
+	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM];
 	separationLineHeight = sizes[EPGPlus_separationline_height];
 }
 
@@ -689,26 +684,6 @@ void EpgPlus::init()
 	usableScreenWidth = frameBuffer->getScreenWidthRel();
 	usableScreenHeight = frameBuffer->getScreenHeightRel();
 
-	std::string font_file = g_settings.font_file;
-	for (size_t i = 0; i < NumberOfFontSettings; ++i)
-	{
-		int size = fontSettingTable[i].size;
-		if (bigfont && (fontSettingTable[i].settingID == EpgPlus::EPGPlus_channelentry_font ||
-				fontSettingTable[i].settingID == EpgPlus::EPGPlus_channelevententry_font))
-		{
-			size = (int)(size * BIGFONT_FACTOR); /* increase font size for channel name and event title */
-		}
-		/* Activate next line when pu/fb-setmode branch is merged to master */
-		//size = frameBuffer->scale2Res(size);
-		std::string family = g_fontRenderer->getFamily(font_file.c_str());
-		Font *font = g_fontRenderer->getFont(family.c_str(), fontSettingTable[i].style, size);
-
-		if (font == NULL)
-			font = g_fontRenderer->getFont(family.c_str(), "Regular", size);
-
-		fonts[i] = font;
-	}
-
 	for (size_t i = 0; i < NumberOfSizeSettings; ++i)
 	{
 		int size = sizeSettingTable[i].size;
@@ -786,11 +761,6 @@ void EpgPlus::free()
 	delete this->header;
 	delete this->timeLine;
 	delete this->footer;
-	int i;
-	for (i = 0; i < NumberOfFontSettings; ++i)
-	{
-		delete fonts[i];
-	}
 }
 
 int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouquetList *pbouquetList)

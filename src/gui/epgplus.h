@@ -40,25 +40,11 @@ class EpgPlus
 {
 	//// types, inner classes
 	public:
-		enum FontSettingID
-		{
-			EPGPlus_channelentry_font = 0,
-			EPGPlus_channelevententry_font,
-			NumberOfFontSettings
-		};
-
 		enum SizeSettingID
 		{
 			EPGPlus_channelentry_width = 0,
 			EPGPlus_separationline_height,
 			NumberOfSizeSettings
-		};
-
-		struct FontSetting
-		{
-			FontSettingID	settingID;
-			const char*	style;
-			int		size;
 		};
 
 		struct SizeSetting
