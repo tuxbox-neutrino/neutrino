@@ -67,16 +67,6 @@ int sizes[EpgPlus::NumberOfSizeSettings];
 
 time_t EpgPlus::duration = 0;
 
-int EpgPlus::horGap1Height = 0;
-int EpgPlus::horGap2Height = 0;
-int EpgPlus::verGap1Width = 0;
-int EpgPlus::verGap2Width = 0;
-
-int EpgPlus::horGap1Color = 0;
-int EpgPlus::horGap2Color = 0;
-int EpgPlus::verGap1Color = 0;
-int EpgPlus::verGap2Color = 0;
-
 int EpgPlus::sliderWidth = 0;
 int EpgPlus::channelsTableWidth = 0;
 
@@ -98,11 +88,7 @@ static EpgPlus::SizeSetting sizeSettingTable[] =
 {
 	{EpgPlus::EPGPlus_channelentry_width, -15 }, /* 15 percent of screen width */
 	{EpgPlus::EPGPlus_channelentry_separationlineheight, 2},
-	{EpgPlus::EPGPlus_slider_width, 15},
-	{EpgPlus::EPGPlus_horgap1_height, 4},
-	{EpgPlus::EPGPlus_horgap2_height, 4},
-	{EpgPlus::EPGPlus_vergap1_width, 4},
-	{EpgPlus::EPGPlus_vergap2_width, 4},
+	{EpgPlus::EPGPlus_slider_width, 15}
 };
 
 static bool bigfont = false;
@@ -636,7 +622,6 @@ void EpgPlus::createChannelEntries(int selectedChannelEntryIndex)
 					if (lastEndTime < It->startTime)
 					{
 						// there is a gap between last end time and new start time => fill it with a new event entry
-
 						CChannelEvent channelEvent;
 						channelEvent.startTime = lastEndTime;
 						channelEvent.duration = It->startTime - channelEvent.startTime;
@@ -725,11 +710,6 @@ void EpgPlus::init()
 	channelsTableWidth = sizes[EPGPlus_channelentry_width];
 	sliderWidth = sizes[EPGPlus_slider_width];
 
-	horGap1Height = sizes[EPGPlus_horgap1_height];
-	horGap2Height = sizes[EPGPlus_horgap2_height];
-	verGap1Width = sizes[EPGPlus_vergap1_width];
-	verGap2Width = sizes[EPGPlus_vergap2_width];
-
 	int headerHeight = Header::getUsedHeight();
 	int timeLineHeight = TimeLine::getUsedHeight();
 	this->entryHeight = ChannelEntry::getUsedHeight();
@@ -744,9 +724,9 @@ void EpgPlus::init()
 	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //TODO get height from buttons/*std::max(icol_h+8, fonts[EPGPlus_footer_fontbuttons]->getHeight());*/
 	int footerHeight = Footer::getUsedHeight() + buttonHeight;
 
-	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - horGap1Height - horGap2Height - footerHeight) / this->entryHeight;
+	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - footerHeight) / this->entryHeight;
 
-	this->usableScreenHeight = headerHeight + timeLineHeight + horGap1Height + this->maxNumberOfDisplayableEntries * this->entryHeight + horGap2Height + footerHeight;	// recalc deltaY
+	this->usableScreenHeight = headerHeight + timeLineHeight + this->maxNumberOfDisplayableEntries * this->entryHeight + footerHeight; // recalc deltaY
 	this->usableScreenX = getScreenStartX(this->usableScreenWidth);
 	this->usableScreenY = getScreenStartY(this->usableScreenHeight);
 
@@ -758,38 +738,22 @@ void EpgPlus::init()
 	this->timeLineY = this->usableScreenY + headerHeight;
 	this->timeLineWidth = this->usableScreenWidth;
 
-	this->horGap1X = this->usableScreenX;
-	this->horGap1Y = this->timeLineY + timeLineHeight;
-	this->horGap1Width = this->usableScreenWidth;
-
 	this->footerX = usableScreenX;
 	this->footerY = this->usableScreenY + this->usableScreenHeight - footerHeight;
 	this->footerWidth = this->usableScreenWidth;
 
-	this->horGap2X = this->usableScreenX;
-	this->horGap2Y = this->footerY - horGap2Height;
-	this->horGap2Width = this->usableScreenWidth;
-
 	this->channelsTableX = this->usableScreenX;
-	this->channelsTableY = this->timeLineY + timeLineHeight + horGap1Height;
+	this->channelsTableY = this->timeLineY + timeLineHeight;
 	this->channelsTableHeight = this->maxNumberOfDisplayableEntries * entryHeight;
 
-	this->verGap1X = this->channelsTableX + channelsTableWidth;
-	this->verGap1Y = this->channelsTableY;
-	this->verGap1Height = this->channelsTableHeight;
-
-	this->eventsTableX = this->channelsTableX + channelsTableWidth + verGap1Width;
+	this->eventsTableX = this->channelsTableX + channelsTableWidth;
 	this->eventsTableY = this->channelsTableY;
-	this->eventsTableWidth = this->usableScreenWidth - this->channelsTableWidth - this->sliderWidth - verGap1Width - verGap2Width;
+	this->eventsTableWidth = this->usableScreenWidth - this->channelsTableWidth - this->sliderWidth;
 	this->eventsTableHeight = this->channelsTableHeight;
 
 	this->sliderX = this->usableScreenX + this->usableScreenWidth - this->sliderWidth;
 	this->sliderY = this->eventsTableY;
 	this->sliderHeight = this->channelsTableHeight;
-
-	this->verGap2X = this->sliderX - verGap2Width;
-	this->verGap2Y = this->channelsTableY;
-	this->verGap2Height = this->channelsTableHeight;
 
 	this->channelListStartIndex = 0;
 	this->startTime = 0;
@@ -1336,12 +1300,6 @@ void EpgPlus::paint()
 	// clear
 	//this->frameBuffer->paintBackgroundBoxRel(this->channelsTableX, this->channelsTableY, this->usableScreenWidth, this->channelsTableHeight);
 	this->frameBuffer->paintBoxRel(this->channelsTableX, this->channelsTableY, this->usableScreenWidth, this->channelsTableHeight, COL_MENUCONTENT_PLUS_0);
-
-	// paint the gaps
-	this->frameBuffer->paintBoxRel(this->horGap1X, this->horGap1Y, this->horGap1Width, horGap1Height, horGap1Color);
-	this->frameBuffer->paintBoxRel(this->horGap2X, this->horGap2Y, this->horGap2Width, horGap2Height, horGap2Color);
-	this->frameBuffer->paintBoxRel(this->verGap1X, this->verGap1Y, verGap1Width, this->verGap1Height, verGap1Color);
-	this->frameBuffer->paintBoxRel(this->verGap2X, this->verGap2Y, verGap2Width, this->verGap2Height, verGap2Color);
 
 	// paint the time line
 	timeLine->paint(this->startTime, this->duration);

@@ -58,10 +58,6 @@ class EpgPlus
 			EPGPlus_channelentry_width = 0,
 			EPGPlus_channelentry_separationlineheight,
 			EPGPlus_slider_width,
-			EPGPlus_horgap1_height,
-			EPGPlus_horgap2_height,
-			EPGPlus_vergap1_width,
-			EPGPlus_vergap2_width,
 			NumberOfSizeSettings
 		};
 
@@ -487,29 +483,6 @@ class EpgPlus
 		int		footerX;
 		int		footerY;
 		int		footerWidth;
-
-		int		horGap1X;
-		int		horGap1Y;
-		int		horGap1Width;
-		int		horGap2X;
-		int		horGap2Y;
-		int		horGap2Width;
-		int		verGap1X;
-		int		verGap1Y;
-		int		verGap1Height;
-		int		verGap2X;
-		int		verGap2Y;
-		int		verGap2Height;
-
-		static int	horGap1Height;
-		static int	horGap2Height;
-		static int	verGap1Width;
-		static int	verGap2Width;
-
-		static int	horGap1Color;
-		static int	horGap2Color;
-		static int	verGap1Color;
-		static int	verGap2Color;
 
 		bool		refreshAll;
 		bool		refreshFooterButtons;
