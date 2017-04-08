@@ -670,7 +670,7 @@ void EpgPlus::init()
 		if (bigfont && (fontSettingTable[i].settingID == EpgPlus::EPGPlus_channelentry_font ||
 				fontSettingTable[i].settingID == EpgPlus::EPGPlus_channelevententry_font))
 		{
-			size = size * 3 / 2; /* increase font size for channel name and event title */
+			size = (int)(size * BIGFONT_FACTOR); /* increase font size for channel name and event title */
 		}
 		std::string family = g_fontRenderer->getFamily(FileName.c_str());
 		Font *font = g_fontRenderer->getFont(family.c_str(), fontSettingTable[i].style, size);
