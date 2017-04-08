@@ -711,13 +711,6 @@ void EpgPlus::init()
 	int timeLineHeight = TimeLine::getUsedHeight();
 	this->entryHeight = ChannelEntry::getUsedHeight();
 
-	int icol_w, icol_h, h2;
-
-	CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &h2);
-	//if (icol_h < h2)
-	//	icol_h = h2;
-
 	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //TODO get height from buttons
 	int footerHeight = Footer::getUsedHeight() + buttonHeight;
 
