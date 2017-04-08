@@ -42,9 +42,6 @@
 #include <vector>
 #include <string>
 
-
-#define BIG_FONT_FAKTOR 1.5
-
 class CFrameBuffer;
 class CEpgData
 {

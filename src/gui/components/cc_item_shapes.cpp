@@ -74,6 +74,9 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam,
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos;
+
+	corner_type = corner_type_old		= CORNER_ALL;
+
 	//width = height	= d = diam;
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;

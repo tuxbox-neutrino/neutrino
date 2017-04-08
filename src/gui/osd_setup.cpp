@@ -139,7 +139,8 @@ const SNeutrinoSettings::FONT_TYPES epg_font_sizes[] =
 	SNeutrinoSettings::FONT_TYPE_EPG_TITLE,
 	SNeutrinoSettings::FONT_TYPE_EPG_INFO1,
 	SNeutrinoSettings::FONT_TYPE_EPG_INFO2,
-	SNeutrinoSettings::FONT_TYPE_EPG_DATE
+	SNeutrinoSettings::FONT_TYPE_EPG_DATE,
+	SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM
 };
 size_t epg_font_items = sizeof(epg_font_sizes)/sizeof(epg_font_sizes[0]);
 
@@ -199,6 +200,7 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_EPG_INFO1          ,  17, CNeutrinoFonts::FONT_STYLE_ITALIC , 2},
 	{LOCALE_FONTSIZE_EPG_INFO2          ,  17, CNeutrinoFonts::FONT_STYLE_REGULAR, 2},
 	{LOCALE_FONTSIZE_EPG_DATE           ,  15, CNeutrinoFonts::FONT_STYLE_REGULAR, 2},
+	{LOCALE_FONTSIZE_EPGPLUS_ITEM       ,  18, CNeutrinoFonts::FONT_STYLE_REGULAR, 2},
 	{LOCALE_FONTSIZE_EVENTLIST_TITLE    ,  30, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
 	{LOCALE_FONTSIZE_EVENTLIST_ITEMLARGE,  20, CNeutrinoFonts::FONT_STYLE_BOLD   , 1},
 	{LOCALE_FONTSIZE_EVENTLIST_ITEMSMALL,  14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
