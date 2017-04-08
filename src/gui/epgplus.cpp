@@ -838,9 +838,9 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 				else
 					loop = false;
 			}
-			else if (msg == CRCInput::RC_epg)
+			else if (msg == CRCInput::RC_help)
 			{
-				//fprintf(stderr, "RC_Epg, bigfont = %d\n", bigfont);
+				//fprintf(stderr, "RC_help, bigfont = %d\n", bigfont);
 				hide();
 				bigfont = !bigfont;
 				free();
@@ -1156,7 +1156,7 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 					}
 				}
 			} 
-			else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
+			else if (msg == CRCInput::RC_info)
 			{
 				TCChannelEventEntries::const_iterator It = this->getSelectedEvent();
 
