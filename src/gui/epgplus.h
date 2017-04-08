@@ -49,7 +49,7 @@ class EpgPlus
 		enum SizeSettingID
 		{
 			EPGPlus_channelentry_width = 0,
-			EPGPlus_channelentry_separationlineheight,
+			EPGPlus_separationline_height,
 			NumberOfSizeSettings
 		};
 
@@ -147,6 +147,7 @@ class EpgPlus
 				int x;
 				int y;
 				int width;
+				static int separationLineHeight;
 
 				static Font* font;
 

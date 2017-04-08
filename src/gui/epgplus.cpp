@@ -80,7 +80,7 @@ static EpgPlus::FontSetting fontSettingTable[] =
 static EpgPlus::SizeSetting sizeSettingTable[] =
 {
 	{ EpgPlus::EPGPlus_channelentry_width, -15 }, /* 15 percent of screen width */
-	{ EpgPlus::EPGPlus_channelentry_separationlineheight, 1 }
+	{ EpgPlus::EPGPlus_separationline_height, 1 }
 };
 
 static bool bigfont = false;
@@ -119,6 +119,7 @@ int EpgPlus::Header::getUsedHeight()
 }
 
 Font *EpgPlus::TimeLine::font = NULL;
+int EpgPlus::TimeLine::separationLineHeight = 0;
 
 EpgPlus::TimeLine::TimeLine(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int pstartX, int pdurationX)
 {
@@ -133,6 +134,7 @@ EpgPlus::TimeLine::TimeLine(CFrameBuffer * pframeBuffer, int px, int py, int pwi
 void EpgPlus::TimeLine::init()
 {
 	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE];
+	separationLineHeight = sizes[EPGPlus_separationline_height];
 }
 
 EpgPlus::TimeLine::~TimeLine()
@@ -227,6 +229,13 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 		this->font->RenderString(px + pwidth - textWidth, this->y + this->font->getHeight() + this->font->getHeight(),
 						textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT);
 	}
+
+	// paint the separation line
+	if (separationLineHeight > 0)
+	{
+		this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight() + this->font->getHeight(),
+					this->width, this->separationLineHeight, COL_MENUCONTENTDARK_PLUS_0);
+	}
 }
 
 void EpgPlus::TimeLine::clearMark()
@@ -237,7 +246,7 @@ void EpgPlus::TimeLine::clearMark()
 
 int EpgPlus::TimeLine::getUsedHeight()
 {
-	return 2*font->getHeight();
+	return 2*font->getHeight() + separationLineHeight;
 }
 
 Font *EpgPlus::ChannelEventEntry::font = NULL;
@@ -260,7 +269,7 @@ EpgPlus::ChannelEventEntry::ChannelEventEntry(const CChannelEvent * pchannelEven
 void EpgPlus::ChannelEventEntry::init()
 {
 	font = fonts[EPGPlus_channelevententry_font];
-	separationLineHeight = sizes[EPGPlus_channelentry_separationlineheight];
+	separationLineHeight = sizes[EPGPlus_separationline_height];
 }
 
 EpgPlus::ChannelEventEntry::~ChannelEventEntry()
@@ -341,7 +350,7 @@ EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, 
 void EpgPlus::ChannelEntry::init()
 {
 	font = fonts[EPGPlus_channelentry_font];
-	separationLineHeight = sizes[EPGPlus_channelentry_separationlineheight];
+	separationLineHeight = sizes[EPGPlus_separationline_height];
 }
 
 EpgPlus::ChannelEntry::~ChannelEntry()
