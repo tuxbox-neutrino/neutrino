@@ -515,17 +515,18 @@ void EpgPlus::Footer::paintEventDetails(const std::string & description, const s
 
 struct button_label buttonLabels[] =
 {
-	{NEUTRINO_ICON_BUTTON_RED, LOCALE_EPGPLUS_ACTIONS},
-	{NEUTRINO_ICON_BUTTON_GREEN, LOCALE_EPGPLUS_PREV_BOUQUET /*LOCALE_EPGPLUS_PAGE_UP*/},
-	{NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_EPGPLUS_NEXT_BOUQUET /*LOCALE_EPGPLUS_PAGE_DOWN*/},
-	{NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EPGPLUS_OPTIONS},
-	{NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_EPGMENU_EVENTINFO}
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_EPGPLUS_ACTIONS },
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_EPGPLUS_PREV_BOUQUET },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_EPGPLUS_NEXT_BOUQUET },
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EPGPLUS_OPTIONS },
+	{ NEUTRINO_ICON_BUTTON_INFO_SMALL,LOCALE_EPGMENU_EVENTINFO }
 };
 
 void EpgPlus::Footer::paintButtons(button_label * pbuttonLabels, int numberOfButtons)
 {
 	int buttonWidth = (this->width);
-	::paintButtons(this->x, this->buttonY, buttonWidth, numberOfButtons, pbuttonLabels, buttonWidth, buttonHeight);
+	CComponentsFooter _footer;
+	_footer.paintButtons(this->x, this->buttonY, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels, buttonWidth/numberOfButtons);
 }
 
 EpgPlus::EpgPlus()
@@ -710,7 +711,7 @@ void EpgPlus::init()
 	int timeLineHeight = TimeLine::getUsedHeight();
 	this->entryHeight = ChannelEntry::getUsedHeight();
 
-	int buttonHeight = ::paintButtons(0, 0, 0, sizeof(buttonLabels)/sizeof(button_label), buttonLabels, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
+	int buttonHeight = headerHeight;
 
 	int footerHeight = Footer::getUsedHeight();
 
