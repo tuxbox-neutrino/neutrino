@@ -155,10 +155,10 @@ void EpgPlus::TimeLine::paint(time_t _startTime, int pduration)
 
 	// display date of begin
 	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(),
-					toggleColor ? COL_MENUCONTENT_PLUS_2 : COL_MENUCONTENT_PLUS_1);
+					COL_MENUCONTENT_PLUS_0);
 
 	this->font->RenderString(this->x + OFFSET_INNER_MID, this->y + this->font->getHeight(),
-					this->width, EpgPlus::getTimeString(_startTime, "%d-%b") , COL_MENUCONTENT_TEXT);
+					this->width, EpgPlus::getTimeString(_startTime, "%d-%b"), COL_MENUCONTENT_TEXT);
 
 	// paint ticks
 	for (int i = 0; i < numberOfTicks; ++i, xPos += tickDist, tickTime += pduration / numberOfTicks)
@@ -168,7 +168,7 @@ void EpgPlus::TimeLine::paint(time_t _startTime, int pduration)
 			xWidth = this->x + width - xPos;
 
 		this->frameBuffer->paintBoxRel(xPos, this->y, xWidth, this->font->getHeight(),
-						toggleColor ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENT_PLUS_2);
+						toggleColor ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENT_PLUS_1);
 
 		std::string timeStr = EpgPlus::getTimeString(tickTime, "%H");
 
@@ -284,7 +284,7 @@ bool EpgPlus::ChannelEventEntry::isSelected(time_t _selectedTime) const
 void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 {
 	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(),
-					this->channelEvent.description.empty()? COL_MENUCONTENT_PLUS_0 : (pisSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : (toggleColor ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENT_PLUS_2)));
+					this->channelEvent.description.empty()? COL_MENUCONTENT_PLUS_0 : (pisSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : (toggleColor ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENT_PLUS_1)));
 
 	this->font->RenderString(this->x + OFFSET_INNER_SMALL, this->y + this->font->getHeight(),
 					this->width - 2*OFFSET_INNER_SMALL > 0 ? this->width - 2*OFFSET_INNER_MIN : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
