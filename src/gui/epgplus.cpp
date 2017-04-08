@@ -425,14 +425,6 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 		toggleColor = !toggleColor;
 	}
 
-	// kill detailsline
-	if (detailsLine)
-	{
-		detailsLine->kill();
-		delete detailsLine;
-		detailsLine = NULL;
-	}
-
 	// paint detailsline
 	if (isSelected)
 	{
@@ -441,9 +433,9 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 		int yPosBottom	= this->footer->y + this->footer->getUsedHeight()/2;
 
 		if (detailsLine == NULL)
-		{
-			detailsLine = new CComponentsDetailsLine(xPos, yPosTop, yPosBottom, this->font->getHeight()/2, this->footer->getUsedHeight() - RADIUS_LARGE*2);
-		}
+			detailsLine = new CComponentsDetailsLine();
+
+		detailsLine->setDimensionsAll(xPos, yPosTop, yPosBottom, this->font->getHeight()/2, this->footer->getUsedHeight() - RADIUS_LARGE*2);
 		detailsLine->paint(false);
 	}
 }
@@ -1273,7 +1265,7 @@ EpgPlus::TCChannelEventEntries::const_iterator EpgPlus::getSelectedEvent() const
 
 void EpgPlus::hide()
 {
-	this->frameBuffer->paintBackgroundBoxRel(this->usableScreenX, this->usableScreenY, this->usableScreenWidth, this->usableScreenHeight);
+	this->frameBuffer->paintBackgroundBoxRel(this->usableScreenX - DETAILSLINE_WIDTH, this->usableScreenY, DETAILSLINE_WIDTH + this->usableScreenWidth, this->usableScreenHeight);
 }
 
 void EpgPlus::paintChannelEntry(int position)
