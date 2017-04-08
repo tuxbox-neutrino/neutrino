@@ -79,8 +79,8 @@ static EpgPlus::FontSetting fontSettingTable[] =
 /* negative size means "screen width in percent" */
 static EpgPlus::SizeSetting sizeSettingTable[] =
 {
-	{EpgPlus::EPGPlus_channelentry_width, -15 }, /* 15 percent of screen width */
-	{EpgPlus::EPGPlus_channelentry_separationlineheight, 2}
+	{ EpgPlus::EPGPlus_channelentry_width, -15 }, /* 15 percent of screen width */
+	{ EpgPlus::EPGPlus_channelentry_separationlineheight, 1 }
 };
 
 static bool bigfont = false;
@@ -193,7 +193,7 @@ void EpgPlus::TimeLine::paintGrid()
 	for (int i = 0; i < numberOfTicks; ++i, xPos += tickDist)
 	{
 		// display a line for the tick
-		this->frameBuffer->paintVLineRel(xPos, this->y, this->font->getHeight(), COL_MENUCONTENT_PLUS_5);
+		this->frameBuffer->paintVLineRel(xPos, this->y, this->font->getHeight(), COL_MENUCONTENTDARK_PLUS_0);
 	}
 }
 
@@ -284,7 +284,7 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 	if (separationLineHeight > 0)
 	{
 		this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight(),
-					this->width, this->separationLineHeight, COL_MENUCONTENT_PLUS_5);
+					this->width, this->separationLineHeight, COL_MENUCONTENTDARK_PLUS_0);
 	}
 
 	if (pisSelected) {
@@ -397,7 +397,7 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 	if (separationLineHeight > 0)
 	{
 		this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight(),
-						this->width, this->separationLineHeight, COL_MENUCONTENT_PLUS_5);
+						this->width, this->separationLineHeight, COL_MENUCONTENTDARK_PLUS_0);
 	}
 
 	bool toggleColor = false;
