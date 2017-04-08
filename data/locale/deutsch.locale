@@ -730,6 +730,7 @@ fontsize.epg_date EPG Datum
 fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Titel
+fontsize.epgplus_item EPG-Plus Listeneintrag
 fontsize.eventlist_datetime Datum/Zeit
 fontsize.eventlist_event Event Info
 fontsize.eventlist_itemlarge Groß
