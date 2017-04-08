@@ -72,7 +72,6 @@ int EpgPlus::channelsTableWidth = 0;
 
 static EpgPlus::FontSetting fontSettingTable[] =
 {
-	{ EpgPlus::EPGPlus_header_font,				"Regular",	27 },
 	{ EpgPlus::EPGPlus_timeline_fonttime,			"Bold",		16 },
 	{ EpgPlus::EPGPlus_timeline_fontdate,			"Bold",		14 },
 	{ EpgPlus::EPGPlus_channelentry_font,			"Bold",		16 },
@@ -110,20 +109,20 @@ EpgPlus::Header::~Header()
 
 void EpgPlus::Header::init()
 {
-	font = fonts[EPGPlus_header_font];
+	font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 }
 
 void EpgPlus::Header::paint(const char * Name)
 {
 	std::string head = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
 
-	CComponentsHeader _header(this->x, this->y, this->width, this->font->getHeight()+4, head);
+	CComponentsHeader _header(this->x, this->y, this->width, this->font->getHeight(), head);
 	_header.paint(CC_SAVE_SCREEN_NO);
 }
 
 int EpgPlus::Header::getUsedHeight()
 {
-	return font->getHeight() + 8 ;
+	return font->getHeight();
 }
 
 Font *EpgPlus::TimeLine::fontTime = NULL;

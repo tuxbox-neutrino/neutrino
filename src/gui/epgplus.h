@@ -41,8 +41,7 @@ class EpgPlus
 	public:
 		enum FontSettingID
 		{
-			EPGPlus_header_font = 0,
-			EPGPlus_timeline_fonttime,
+			EPGPlus_timeline_fonttime = 0,
 			EPGPlus_timeline_fontdate,
 			EPGPlus_channelentry_font,
 			EPGPlus_channelevententry_font,
