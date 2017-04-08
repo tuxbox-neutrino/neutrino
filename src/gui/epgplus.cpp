@@ -365,6 +365,7 @@ EpgPlus::ChannelEntry::~ChannelEntry()
 
 	if (this->detailsLine)
 	{
+		this->detailsLine->kill();
 		delete this->detailsLine;
 		this->detailsLine = NULL;
 	}
