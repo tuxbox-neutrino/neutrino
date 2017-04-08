@@ -1034,7 +1034,7 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 					this->paintChannelEntry(this->selectedChannelEntry->index - this->channelListStartIndex);
 				}
 			} 
-			else if (msg == (neutrino_msg_t) CRCInput::RC_red)
+			else if (msg == CRCInput::RC_red)
 			{
 				CMenuWidget menuWidgetActions(LOCALE_EPGPLUS_ACTIONS, NEUTRINO_ICON_FEATURES);
 				menuWidgetActions.enableFade(false);
@@ -1050,7 +1050,7 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 
 				this->refreshAll = true;
 			} 
-			else if (msg == (neutrino_msg_t) CRCInput::RC_blue)
+			else if (msg == CRCInput::RC_blue)
 			{
 				CMenuWidget menuWidgetOptions(LOCALE_EPGPLUS_OPTIONS, NEUTRINO_ICON_FEATURES);
 				menuWidgetOptions.enableFade(false);
