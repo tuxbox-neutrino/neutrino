@@ -72,8 +72,8 @@ int EpgPlus::channelsTableWidth = 0;
 
 static EpgPlus::FontSetting fontSettingTable[] =
 {
-	{ EpgPlus::EPGPlus_channelentry_font,			"Bold",		16 },
-	{ EpgPlus::EPGPlus_channelevententry_font,		"Regular",	16 }
+	{ EpgPlus::EPGPlus_channelentry_font,		"Bold",		18 },
+	{ EpgPlus::EPGPlus_channelevententry_font,	"Regular",	18 }
 };
 
 /* negative size means "screen width in percent" */
@@ -662,7 +662,7 @@ void EpgPlus::init()
 #endif
 	usableScreenWidth = frameBuffer->getScreenWidthRel();
 	usableScreenHeight = frameBuffer->getScreenHeightRel();
-	std::string FileName = std::string (g_settings.font_file);
+	std::string font_file = g_settings.font_file;
 	for (size_t i = 0; i < NumberOfFontSettings; ++i)
 	{
 		int size = fontSettingTable[i].size;
@@ -671,7 +671,9 @@ void EpgPlus::init()
 		{
 			size = (int)(size * BIGFONT_FACTOR); /* increase font size for channel name and event title */
 		}
-		std::string family = g_fontRenderer->getFamily(FileName.c_str());
+		/* Activate next line when pu/fb-setmode branch is merged to master */
+		//size = frameBuffer->scale2Res(size);
+		std::string family = g_fontRenderer->getFamily(font_file.c_str());
 		Font *font = g_fontRenderer->getFont(family.c_str(), fontSettingTable[i].style, size);
 
 		if (font == NULL)
