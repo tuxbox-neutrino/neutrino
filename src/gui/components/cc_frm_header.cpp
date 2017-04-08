@@ -136,13 +136,17 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_cl_sec_format 	= cch_cl_format;
 	cch_cl_enable_run	= false;
 
-	//init slot before re paint of header, paint() is already done
-	sl_form_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsHeader::kill), col_body, -1, CC_FBDATA_TYPES, false);
-	OnBeforeRePaint.connect(sl_form_repaint);
-
 	addContextButton(buttons);
 	initCCItems();
 	initParent(parent);
+
+	//init repaint slot before re paint of body, if paint() is already done
+	initRepaintSlot();
+}
+
+void CComponentsHeader::initRepaintSlot(){
+	sl_form_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsHeader::kill), cc_parent ? col_body : 0, -1, CC_FBDATA_TYPES, false);
+	OnBeforeRePaint.connect(sl_form_repaint);
 }
 
 CComponentsHeader::~CComponentsHeader()

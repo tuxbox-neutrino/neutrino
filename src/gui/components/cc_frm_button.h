@@ -72,8 +72,6 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 
 		///property: container for all assigned event message values, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonDirectKey(), hasButtonDirectKey()
 		std::vector<neutrino_msg_t>cc_directKeys;
-		///property: assigned an alternate event message value, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonDirectKeyAlt(), hasButtonDirectKeyAlt()
-		neutrino_msg_t 	cc_directKeyAlt;
 		///property: assigned return value, see also setButtonResult(), getButtonResult(), default value = -1 (not defined)
 		int 	cc_btn_result;
 		///property: assigned alias value, see also setButtonAlias(), getButtonAlias(), default value = -1 (not defined)

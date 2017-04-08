@@ -70,6 +70,9 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		///text color
 		int cl_col_text;
 
+		///refresh mode
+		bool cl_force_repaint;
+
 		///current time format
 		std::string cl_format;
 		///primary time format
@@ -151,7 +154,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		///returns true, if clock is running
 		virtual bool isRun() const {return cl_timer ? true : false;};
 		///set refresh interval in seconds, default value=1 (=1 sec)
-		virtual void setClockInterval(const int& seconds){cl_interval = seconds;};
+		virtual void setClockInterval(const int& seconds){cl_interval = seconds;}
 
 		///show clock on screen
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
@@ -162,6 +165,11 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 
 		///reinitialize clock contents
 		virtual void refresh() { initCCLockItems(); }
+
+		///enables force to repaint of all segments on each interval, Note: repaint of all segemts is default enabled.
+		void enableForceSegmentPaint(bool enable = true){cl_force_repaint = enable;}
+		///disables repaint of all segments on each interval, repaint happens only on changed segment value
+		void disableForceSegmentPaint(){enableForceSegmentPaint(false);}
 
 		/**Member to modify background behavior of embeded segment objects
 		* @param[in]  mode

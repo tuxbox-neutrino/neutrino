@@ -112,6 +112,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		void initButtons();
 		///sub: init clock object
 		void initClock();
+		///int repaint slot
+		void initRepaintSlot();
 
 	public:
 		enum

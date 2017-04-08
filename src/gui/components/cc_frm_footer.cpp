@@ -63,11 +63,11 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 {
 	cc_item_type 	= CC_ITEMTYPE_FOOTER;
 
-	x		= x_pos;
-	y		= y_pos;
+	x	= x_old = x_pos;
+	y	= y_old = y_pos;
 
 	//init footer width
-	width 	= w == 0 ? frameBuffer->getScreenWidth(true) : w;
+	width =	width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
 
 	//init default fonts
 	initDefaultFonts();
@@ -77,15 +77,15 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 	//init footer height
 	initCaptionFont();
-	height 		= max(h, cch_font->getHeight());
+	height = height_old		= max(h, cch_font->getHeight());
 
 	shadow		= shadow_mode;
 	ccf_enable_button_shadow 	= false ;
 	ccf_button_shadow_width  	= shadow ? OFFSET_SHADOW/2 : 0;
 	ccf_button_shadow_force_paint 	= false;
-	col_frame	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
+	col_frame = col_frame_old	= color_frame;
+	col_body = col_body_old		= color_body;
+	col_shadow = col_shadow_old	= color_shadow;
 	cc_body_gradient_enable		= cc_body_gradient_enable_old = CC_COLGRAD_OFF/*g_settings.theme.menu_ButtonBar_gradient*/; //TODO: not complete implemented at the moment
 	cc_body_gradient_direction	= CFrameBuffer::gradientVertical;
 	cc_body_gradient_mode		= CColorGradient::gradientDark2Light;
@@ -100,6 +100,9 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	addContextButton(buttons);
 	initCCItems();
 	initParent(parent);
+
+	//init repaint slot before re paint of body, if paint() is already done
+	initRepaintSlot();
 }
 
 void CComponentsFooter::setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width, const int& label_width)

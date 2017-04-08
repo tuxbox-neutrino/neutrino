@@ -89,11 +89,16 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		//set current needed corner main box radius
 		int box_rad = corner_type ? corner_rad : 0;
 
-		//and ensure max main box radius < dimensions
-		if (2*box_rad > dy)
-			box_rad -= max(0, 2*box_rad-dy);
-		if (2*box_rad > dx)
-			box_rad -= max(0, 2*box_rad-dy);
+		//and ensure max main box radius < dimensions, avoids possible fb artefacts on screen
+		int box_rad2 = box_rad/2;
+		if(box_rad2 > dy || box_rad2 > dx){
+			int tmp_rad = box_rad;
+			if (box_rad2 > dx)
+				tmp_rad = (box_rad2-dx)*2;
+			if (box_rad2 > dy)
+				tmp_rad = (box_rad2-dy)*2;
+			box_rad = tmp_rad;
+		}
 
 		//Workaround: ensure radius values >= 0, framebuffer methode paintBoxRel() gets confused
 		box_rad = max(box_rad, 0);
@@ -113,13 +118,12 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		int sh_cdy = box_rad+sw+th; //height
 
 		//adapt shadow corner dimensions if body dimensions are too small, use an offset if required
-		int /*sh_cdx_size_offset,*/ sh_cdy_size_offset = 0;
+		int /*sh_cdx_size_offset = 0,*/ sh_cdy_size_offset = 0;
 		if (sh_cdy*2 > dy)
 			sh_cdy_size_offset = sh_cdy*2-dy;
-#if 0
-		if (sh_cdx*2 > dx)
-			sh_cdx_size_offset = sh_cdx*2-dx;
-#endif
+// 		if (sh_cdx*2 > dx)
+// 			sh_cdx_size_offset = sh_cdx*2-dx;
+
 		//handle shadow positions
 		//...corner bottom right
 		int sh_cbr_x = ix+dx-sh_cdx+sw;
