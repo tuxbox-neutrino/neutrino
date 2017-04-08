@@ -72,7 +72,7 @@ int EpgPlus::channelsTableWidth = 0;
 static EpgPlus::SizeSetting sizeSettingTable[] =
 {
 	{ EpgPlus::EPGPlus_channelentry_width, -15 }, /* 15 percent of screen width */
-	{ EpgPlus::EPGPlus_separationline_height, 1 }
+	{ EpgPlus::EPGPlus_separationline_thickness, 1 }
 };
 
 static bool bigfont = false;
@@ -111,7 +111,7 @@ int EpgPlus::Header::getUsedHeight()
 }
 
 Font *EpgPlus::TimeLine::font = NULL;
-int EpgPlus::TimeLine::separationLineHeight = 0;
+int EpgPlus::TimeLine::separationLineThickness = 0;
 
 EpgPlus::TimeLine::TimeLine(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int pstartX, int pdurationX)
 {
@@ -126,7 +126,7 @@ EpgPlus::TimeLine::TimeLine(CFrameBuffer * pframeBuffer, int px, int py, int pwi
 void EpgPlus::TimeLine::init()
 {
 	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE];
-	separationLineHeight = sizes[EPGPlus_separationline_height];
+	separationLineThickness = sizes[EPGPlus_separationline_thickness];
 }
 
 EpgPlus::TimeLine::~TimeLine()
@@ -223,10 +223,10 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	}
 
 	// paint the separation line
-	if (separationLineHeight > 0)
+	if (separationLineThickness > 0)
 	{
 		this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight() + this->font->getHeight(),
-					this->width, this->separationLineHeight, COL_MENUCONTENTDARK_PLUS_0);
+					this->width, this->separationLineThickness, COL_MENUCONTENTDARK_PLUS_0);
 	}
 }
 
@@ -238,11 +238,11 @@ void EpgPlus::TimeLine::clearMark()
 
 int EpgPlus::TimeLine::getUsedHeight()
 {
-	return 2*font->getHeight() + separationLineHeight;
+	return 2*font->getHeight() + separationLineThickness;
 }
 
 Font *EpgPlus::ChannelEventEntry::font = NULL;
-int EpgPlus::ChannelEventEntry::separationLineHeight = 0;
+int EpgPlus::ChannelEventEntry::separationLineThickness = 0;
 
 EpgPlus::ChannelEventEntry::ChannelEventEntry(const CChannelEvent * pchannelEvent, CFrameBuffer * pframeBuffer, TimeLine * ptimeLine, Footer * pfooter, int px, int py, int pwidth)
 {
@@ -262,7 +262,7 @@ void EpgPlus::ChannelEventEntry::init()
 {
 	//TODO: re-implement bigfont handling
 	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM];
-	separationLineHeight = sizes[EPGPlus_separationline_height];
+	separationLineThickness = sizes[EPGPlus_separationline_thickness];
 }
 
 EpgPlus::ChannelEventEntry::~ChannelEventEntry()
@@ -280,13 +280,18 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 					this->channelEvent.description.empty()? COL_MENUCONTENT_PLUS_0 : (pisSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : (toggleColor ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENT_PLUS_1)));
 
 	this->font->RenderString(this->x + OFFSET_INNER_SMALL, this->y + this->font->getHeight(),
-					this->width - 2*OFFSET_INNER_SMALL > 0 ? this->width - 2*OFFSET_INNER_MIN : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
+					this->width - 2*OFFSET_INNER_SMALL > 0 ? this->width - 2*OFFSET_INNER_SMALL : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
 
-	// paint the separation line
-	if (separationLineHeight > 0)
+	// paint the separation lines
+	if (separationLineThickness > 0)
 	{
+		// left side
+		this->frameBuffer->paintBoxRel(this->x, this->y,
+					this->separationLineThickness, this->font->getHeight(), COL_MENUCONTENTDARK_PLUS_0);
+
+		// bottom
 		this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight(),
-					this->width, this->separationLineHeight, COL_MENUCONTENTDARK_PLUS_0);
+					this->width, this->separationLineThickness, COL_MENUCONTENTDARK_PLUS_0);
 	}
 
 	if (pisSelected) {
@@ -310,11 +315,11 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 
 int EpgPlus::ChannelEventEntry::getUsedHeight()
 {
-	return font->getHeight() + separationLineHeight;
+	return font->getHeight() + separationLineThickness;
 }
 
 Font *EpgPlus::ChannelEntry::font = NULL;
-int EpgPlus::ChannelEntry::separationLineHeight = 0;
+int EpgPlus::ChannelEntry::separationLineThickness = 0;
 
 EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, CFrameBuffer * pframeBuffer, Footer * pfooter, CBouquetList * pbouquetList, int px, int py, int pwidth)
 {
@@ -346,7 +351,7 @@ void EpgPlus::ChannelEntry::init()
 {
 	//TODO: re-implement bigfont handling
 	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM];
-	separationLineHeight = sizes[EPGPlus_separationline_height];
+	separationLineThickness = sizes[EPGPlus_separationline_thickness];
 }
 
 EpgPlus::ChannelEntry::~ChannelEntry()
@@ -405,10 +410,10 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 		}
 	}
 	// paint the separation line
-	if (separationLineHeight > 0)
+	if (separationLineThickness > 0)
 	{
 		this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight(),
-						this->width, this->separationLineHeight, COL_MENUCONTENTDARK_PLUS_0);
+						this->width, this->separationLineThickness, COL_MENUCONTENTDARK_PLUS_0);
 	}
 
 	bool toggleColor = false;
@@ -446,7 +451,7 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 
 int EpgPlus::ChannelEntry::getUsedHeight()
 {
-	return font->getHeight() + separationLineHeight;
+	return font->getHeight() + separationLineThickness;
 }
 
 Font *EpgPlus::Footer::fontBouquetChannelName = NULL;
