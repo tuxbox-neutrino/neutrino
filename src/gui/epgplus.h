@@ -425,6 +425,7 @@ class EpgPlus
 		static time_t	duration;
 
 		int		entryHeight;
+		static int	entryFontSize;
 
 		TViewMode	currentViewMode;
 		TSwapMode	currentSwapMode;

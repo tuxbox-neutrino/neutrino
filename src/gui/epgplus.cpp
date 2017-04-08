@@ -67,6 +67,7 @@ time_t EpgPlus::duration = 0;
 
 int EpgPlus::sliderWidth = 0;
 int EpgPlus::channelsTableWidth = 0;
+int EpgPlus::entryFontSize = 0;
 
 /* negative size means "screen width in percent" */
 static EpgPlus::SizeSetting sizeSettingTable[] =
@@ -260,7 +261,6 @@ EpgPlus::ChannelEventEntry::ChannelEventEntry(const CChannelEvent * pchannelEven
 
 void EpgPlus::ChannelEventEntry::init()
 {
-	//TODO: re-implement bigfont handling
 	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM];
 	separationLineThickness = sizes[EPGPlus_separationline_thickness];
 }
@@ -349,7 +349,6 @@ EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, 
 
 void EpgPlus::ChannelEntry::init()
 {
-	//TODO: re-implement bigfont handling
 	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM];
 	separationLineThickness = sizes[EPGPlus_separationline_thickness];
 }
@@ -697,6 +696,15 @@ void EpgPlus::init()
 			size = usableScreenWidth * size / -100;
 		sizes[i] = size;
 	}
+
+	if (entryFontSize == 0)
+		entryFontSize = g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM]->getSize();
+
+	// reset possible bigfont
+	g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM]->setSize(entryFontSize);
+
+	if (bigfont)
+		g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM]->setSize((int)(entryFontSize * BIGFONT_FACTOR));
 
 	Header::init();
 	TimeLine::init();
@@ -1242,6 +1250,9 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 		delete *It;
 	}
 	this->displayedChannelEntries.clear();
+
+	// reset possible bigfont
+	g_Font[SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM]->setSize(entryFontSize);
 
 	return res;
 }
