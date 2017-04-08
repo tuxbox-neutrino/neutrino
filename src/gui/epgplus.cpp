@@ -60,8 +60,6 @@
 #include <algorithm>
 #include <sstream>
 
-#define COL_MENUCONTENT_P1	COL_MENUCONTENT_TEXT_PLUS_1
-#define COL_MENUCONTENT_P2	COL_MENUCONTENT_TEXT_PLUS_2
 extern CBouquetList *bouquetList;
 
 Font * fonts[EpgPlus::NumberOfFontSettings];
@@ -199,12 +197,12 @@ void EpgPlus::TimeLine::paint(time_t _startTime, int pduration)
 		int textWidth = this->fontTime->getRenderWidth(timeStr);
 
 		this->fontTime->RenderString(xPos - textWidth - 4, this->y + this->fontTime->getHeight(),
-						textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2);
+						textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 		timeStr = EpgPlus::getTimeString(tickTime, "%M");
 		textWidth = this->fontTime->getRenderWidth(timeStr);
 		this->fontTime->RenderString(xPos + 4, this->y + this->fontTime->getHeight(),
-						textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2);
+						textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 		toggleColor = !toggleColor;
 	}
@@ -304,7 +302,7 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 					this->channelEvent.description.empty()? COL_MENUCONTENT_PLUS_0 : (pisSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : (toggleColor ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENT_PLUS_2)));
 
 	this->font->RenderString(this->x + 2, this->y + this->font->getHeight(),
-					this->width - 4 > 0 ? this->width - 4 : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : (toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2));
+					this->width - 4 > 0 ? this->width - 4 : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
 
 	// paint the separation line
 	if (separationLineHeight > 0)
