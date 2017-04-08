@@ -43,9 +43,6 @@ class EpgPlus
 		{
 			EPGPlus_channelentry_font = 0,
 			EPGPlus_channelevententry_font,
-			EPGPlus_footer_fontbouquetchannelname,
-			EPGPlus_footer_fonteventdescription,
-			EPGPlus_footer_fonteventshortdescription,
 			NumberOfFontSettings
 		};
 
@@ -280,8 +277,7 @@ class EpgPlus
 
 				static Font* fontBouquetChannelName;
 				static Font* fontEventDescription;
-				static Font* fontEventShortDescription;
-				static Font* fontButtons;
+				static Font* fontEventInfo1;
 
 				static int color;
 

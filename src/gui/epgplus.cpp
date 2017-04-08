@@ -73,10 +73,7 @@ int EpgPlus::channelsTableWidth = 0;
 static EpgPlus::FontSetting fontSettingTable[] =
 {
 	{ EpgPlus::EPGPlus_channelentry_font,			"Bold",		16 },
-	{ EpgPlus::EPGPlus_channelevententry_font,		"Regular",	16 },
-	{ EpgPlus::EPGPlus_footer_fontbouquetchannelname,	"Bold",		24 },
-	{ EpgPlus::EPGPlus_footer_fonteventdescription,		"Regular",	16 },
-	{ EpgPlus::EPGPlus_footer_fonteventshortdescription,	"Regular",	16 }
+	{ EpgPlus::EPGPlus_channelevententry_font,		"Regular",	16 }
 };
 
 /* negative size means "screen width in percent" */
@@ -422,7 +419,7 @@ int EpgPlus::ChannelEntry::getUsedHeight()
 
 Font *EpgPlus::Footer::fontBouquetChannelName = NULL;
 Font *EpgPlus::Footer::fontEventDescription = NULL;
-Font *EpgPlus::Footer::fontEventShortDescription = NULL;
+Font *EpgPlus::Footer::fontEventInfo1 = NULL;
 int EpgPlus::Footer::color = 0;
 
 EpgPlus::Footer::Footer(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int /*height*/)
@@ -440,9 +437,9 @@ EpgPlus::Footer::~Footer()
 
 void EpgPlus::Footer::init()
 {
-	fontBouquetChannelName = fonts[EPGPlus_footer_fontbouquetchannelname];
-	fontEventDescription = fonts[EPGPlus_footer_fonteventdescription];
-	fontEventShortDescription = fonts[EPGPlus_footer_fonteventshortdescription];
+	fontBouquetChannelName = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL];
+	fontEventDescription = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE];
+	fontEventInfo1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT];
 }
 
 void EpgPlus::Footer::setBouquetChannelName(const std::string & newBouquetName, const std::string & newChannelName)
@@ -453,10 +450,10 @@ void EpgPlus::Footer::setBouquetChannelName(const std::string & newBouquetName, 
 
 int EpgPlus::Footer::getUsedHeight()
 {
-	return fontBouquetChannelName->getHeight() + fontEventDescription->getHeight() + fontEventShortDescription->getHeight();
+	return fontBouquetChannelName->getHeight() + fontEventDescription->getHeight() + fontEventInfo1->getHeight();
 }
 
-void EpgPlus::Footer::paintEventDetails(const std::string & description, const std::string & shortDescription)
+void EpgPlus::Footer::paintEventDetails(const std::string & description, const std::string & info1)
 {
 	int yPos = this->y;
 
@@ -468,7 +465,7 @@ void EpgPlus::Footer::paintEventDetails(const std::string & description, const s
 	yPos += height;
 
 	// display new text
-	this->fontBouquetChannelName->RenderString(this->x + 10, yPos, this->width - 20, this->currentBouquetName + " : " + this->currentChannelName, COL_MENUHEAD_TEXT);
+	this->fontBouquetChannelName->RenderString(this->x + 10, yPos, this->width - 20, this->currentBouquetName + ": " + this->currentChannelName, COL_MENUHEAD_TEXT);
 
 	height = this->fontEventDescription->getHeight();
 
@@ -480,7 +477,7 @@ void EpgPlus::Footer::paintEventDetails(const std::string & description, const s
 	// display new text
 	this->fontEventDescription->RenderString(this->x + 10, yPos, this->width - 20, description, COL_MENUHEAD_TEXT);
 
-	height = this->fontEventShortDescription->getHeight();
+	height = this->fontEventInfo1->getHeight();
 
 	// clear the region
 	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENT_PLUS_0);
@@ -488,7 +485,7 @@ void EpgPlus::Footer::paintEventDetails(const std::string & description, const s
 	yPos += height;
 
 	// display new text
-	this->fontEventShortDescription->RenderString(this->x + 10, yPos, this->width - 20, shortDescription, COL_MENUHEAD_TEXT);
+	this->fontEventInfo1->RenderString(this->x + 10, yPos, this->width - 20, info1, COL_MENUHEAD_TEXT);
 }
 
 struct button_label buttonLabels[] =
