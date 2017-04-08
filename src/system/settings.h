@@ -923,6 +923,8 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 
 #define DETAILSLINE_WIDTH	16 // TODO: scale2Res() ?
 
+#define BIGFONT_FACTOR		1.5
+
 struct SglobalInfo
 {
 	hw_caps_t *hw_caps;
