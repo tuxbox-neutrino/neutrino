@@ -468,8 +468,8 @@ void EpgPlus::Footer::paintEventDetails(const std::string & description, const s
 	int frame_thickness = 2;
 
 	// clear the whole footer
-	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, this->getUsedHeight(), COL_MENUCONTENTDARK_PLUS_0);
-	this->frameBuffer->paintBoxFrame(this->x, yPos, this->width, this->getUsedHeight(), frame_thickness, COL_FRAME_PLUS_0);
+	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, this->getUsedHeight(), COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);
+	this->frameBuffer->paintBoxFrame(this->x, yPos, this->width, this->getUsedHeight(), frame_thickness, COL_FRAME_PLUS_0, RADIUS_LARGE);
 
 	// display bouquet and channel name
 	yPos += OFFSET_INNER_SMALL + this->fontBouquetChannelName->getHeight();
