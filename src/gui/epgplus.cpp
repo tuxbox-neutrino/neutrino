@@ -425,6 +425,14 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 		toggleColor = !toggleColor;
 	}
 
+	// kill detailsline
+	if (detailsLine)
+	{
+		detailsLine->kill();
+		delete detailsLine;
+		detailsLine = NULL;
+	}
+
 	// paint detailsline
 	if (isSelected)
 	{
