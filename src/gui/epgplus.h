@@ -273,6 +273,8 @@ class EpgPlus
 				int x;
 				int y;
 				int width;
+
+				int buttonY;
 				int buttonHeight;
 
 				static Font* fontBouquetChannelName;
@@ -451,6 +453,8 @@ class EpgPlus
 		int		timeLineX;
 		int		timeLineY;
 		int		timeLineWidth;
+
+		int		bodyHeight;
 
 		int		channelsTableX;
 		int		channelsTableY;

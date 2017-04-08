@@ -429,13 +429,15 @@ Font *EpgPlus::Footer::fontBouquetChannelName = NULL;
 Font *EpgPlus::Footer::fontEventDescription = NULL;
 Font *EpgPlus::Footer::fontEventInfo1 = NULL;
 
-EpgPlus::Footer::Footer(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int /*height*/)
+EpgPlus::Footer::Footer(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int pbuttonHeight)
 {
 	this->frameBuffer = pframeBuffer;
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
-	this->buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //TODO get height from buttons
+
+	this->buttonHeight = pbuttonHeight;
+	this->buttonY = this->y - OFFSET_INTER - this->buttonHeight;
 }
 
 EpgPlus::Footer::~Footer()
@@ -507,7 +509,7 @@ struct button_label buttonLabels[] =
 void EpgPlus::Footer::paintButtons(button_label * pbuttonLabels, int numberOfButtons)
 {
 	int buttonWidth = (this->width);
-	::paintButtons(this->x, this->y + this->getUsedHeight(), buttonWidth, numberOfButtons, pbuttonLabels, buttonWidth, buttonHeight);
+	::paintButtons(this->x, this->buttonY, buttonWidth, numberOfButtons, pbuttonLabels, buttonWidth, buttonHeight);
 }
 
 EpgPlus::EpgPlus()
@@ -670,6 +672,7 @@ void EpgPlus::init()
 #endif
 	usableScreenWidth = frameBuffer->getScreenWidthRel();
 	usableScreenHeight = frameBuffer->getScreenHeightRel();
+
 	std::string font_file = g_settings.font_file;
 	for (size_t i = 0; i < NumberOfFontSettings; ++i)
 	{
@@ -711,12 +714,14 @@ void EpgPlus::init()
 	int timeLineHeight = TimeLine::getUsedHeight();
 	this->entryHeight = ChannelEntry::getUsedHeight();
 
-	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //TODO get height from buttons
-	int footerHeight = Footer::getUsedHeight() + buttonHeight;
+	int buttonHeight = ::paintButtons(0, 0, 0, sizeof(buttonLabels)/sizeof(button_label), buttonLabels, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
 
-	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - footerHeight) / this->entryHeight;
+	int footerHeight = Footer::getUsedHeight();
 
-	this->usableScreenHeight = headerHeight + timeLineHeight + this->maxNumberOfDisplayableEntries * this->entryHeight + footerHeight; // recalc deltaY
+	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - buttonHeight - OFFSET_INTER - footerHeight) / this->entryHeight;
+	this->bodyHeight = this->maxNumberOfDisplayableEntries * entryHeight;
+
+	this->usableScreenHeight = headerHeight + timeLineHeight + this->bodyHeight + buttonHeight + OFFSET_INTER + footerHeight; // recalc deltaY
 	this->usableScreenX = getScreenStartX(this->usableScreenWidth);
 	this->usableScreenY = getScreenStartY(this->usableScreenHeight);
 
@@ -734,16 +739,16 @@ void EpgPlus::init()
 
 	this->channelsTableX = this->usableScreenX;
 	this->channelsTableY = this->timeLineY + timeLineHeight;
-	this->channelsTableHeight = this->maxNumberOfDisplayableEntries * entryHeight;
+	this->channelsTableHeight = this->bodyHeight;
 
 	this->eventsTableX = this->channelsTableX + channelsTableWidth;
 	this->eventsTableY = this->channelsTableY;
 	this->eventsTableWidth = this->usableScreenWidth - this->channelsTableWidth - this->sliderWidth;
-	this->eventsTableHeight = this->channelsTableHeight;
+	this->eventsTableHeight = this->bodyHeight;
 
 	this->sliderX = this->usableScreenX + this->usableScreenWidth - this->sliderWidth;
 	this->sliderY = this->eventsTableY;
-	this->sliderHeight = this->channelsTableHeight;
+	this->sliderHeight = this->bodyHeight;
 
 	this->channelListStartIndex = 0;
 	this->startTime = 0;
