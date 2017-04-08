@@ -48,7 +48,6 @@ class EpgPlus
 			EPGPlus_footer_fontbouquetchannelname,
 			EPGPlus_footer_fonteventdescription,
 			EPGPlus_footer_fonteventshortdescription,
-			EPGPlus_footer_fontbuttons,
 			NumberOfFontSettings
 		};
 

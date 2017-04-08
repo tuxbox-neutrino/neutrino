@@ -78,8 +78,7 @@ static EpgPlus::FontSetting fontSettingTable[] =
 	{ EpgPlus::EPGPlus_channelevententry_font,		"Regular",	16 },
 	{ EpgPlus::EPGPlus_footer_fontbouquetchannelname,	"Bold",		24 },
 	{ EpgPlus::EPGPlus_footer_fonteventdescription,		"Regular",	16 },
-	{ EpgPlus::EPGPlus_footer_fonteventshortdescription,	"Regular",	16 },
-	{ EpgPlus::EPGPlus_footer_fontbuttons,			"Regular",	16 },
+	{ EpgPlus::EPGPlus_footer_fonteventshortdescription,	"Regular",	16 }
 };
 
 /* negative size means "screen width in percent" */
@@ -428,7 +427,6 @@ int EpgPlus::ChannelEntry::getUsedHeight()
 Font *EpgPlus::Footer::fontBouquetChannelName = NULL;
 Font *EpgPlus::Footer::fontEventDescription = NULL;
 Font *EpgPlus::Footer::fontEventShortDescription = NULL;
-Font *EpgPlus::Footer::fontButtons = NULL;
 int EpgPlus::Footer::color = 0;
 
 EpgPlus::Footer::Footer(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int /*height*/)
@@ -449,7 +447,6 @@ void EpgPlus::Footer::init()
 	fontBouquetChannelName = fonts[EPGPlus_footer_fontbouquetchannelname];
 	fontEventDescription = fonts[EPGPlus_footer_fonteventdescription];
 	fontEventShortDescription = fonts[EPGPlus_footer_fonteventshortdescription];
-	fontButtons = fonts[EPGPlus_footer_fontbuttons];
 }
 
 void EpgPlus::Footer::setBouquetChannelName(const std::string & newBouquetName, const std::string & newChannelName)
@@ -460,7 +457,7 @@ void EpgPlus::Footer::setBouquetChannelName(const std::string & newBouquetName, 
 
 int EpgPlus::Footer::getUsedHeight()
 {
-	return fontBouquetChannelName->getHeight() + fontEventDescription->getHeight() + fontEventShortDescription->getHeight() /* + fontButtons->getHeight()*/;
+	return fontBouquetChannelName->getHeight() + fontEventDescription->getHeight() + fontEventShortDescription->getHeight();
 }
 
 void EpgPlus::Footer::paintEventDetails(const std::string & description, const std::string & shortDescription)
@@ -510,8 +507,7 @@ struct button_label buttonLabels[] =
 void EpgPlus::Footer::paintButtons(button_label * pbuttonLabels, int numberOfButtons)
 {
 	int buttonWidth = (this->width);
-	int yPos = this->y + this->getUsedHeight();
-	::paintButtons(this->x, yPos, buttonWidth, numberOfButtons, pbuttonLabels, buttonWidth, buttonHeight);
+	::paintButtons(this->x, this->y + this->getUsedHeight(), buttonWidth, numberOfButtons, pbuttonLabels, buttonWidth, buttonHeight);
 }
 
 EpgPlus::EpgPlus()
@@ -720,7 +716,7 @@ void EpgPlus::init()
 	//if (icol_h < h2)
 	//	icol_h = h2;
 
-	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //TODO get height from buttons/*std::max(icol_h+8, fonts[EPGPlus_footer_fontbuttons]->getHeight());*/
+	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8; //TODO get height from buttons
 	int footerHeight = Footer::getUsedHeight() + buttonHeight;
 
 	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - footerHeight) / this->entryHeight;
