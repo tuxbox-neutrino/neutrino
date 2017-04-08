@@ -278,8 +278,6 @@ class EpgPlus
 				static Font* fontEventDescription;
 				static Font* fontEventInfo1;
 
-				static int color;
-
 				std::string currentBouquetName;
 				std::string currentChannelName;
 		};
@@ -467,8 +465,6 @@ class EpgPlus
 		int		sliderY;
 		static int	sliderWidth;
 		int		sliderHeight;
-		static int	sliderBackColor;
-		static int	sliderKnobColor;
 
 		int		footerX;
 		int		footerY;

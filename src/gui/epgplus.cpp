@@ -419,7 +419,6 @@ int EpgPlus::ChannelEntry::getUsedHeight()
 Font *EpgPlus::Footer::fontBouquetChannelName = NULL;
 Font *EpgPlus::Footer::fontEventDescription = NULL;
 Font *EpgPlus::Footer::fontEventInfo1 = NULL;
-int EpgPlus::Footer::color = 0;
 
 EpgPlus::Footer::Footer(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int /*height*/)
 {
@@ -459,32 +458,32 @@ void EpgPlus::Footer::paintEventDetails(const std::string & description, const s
 	int height = this->fontBouquetChannelName->getHeight();
 
 	// clear the region
-	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENT_PLUS_0);
+	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENTDARK_PLUS_0);
 
 	yPos += height;
 
 	// display new text
-	this->fontBouquetChannelName->RenderString(this->x + 10, yPos, this->width - 20, this->currentBouquetName + ": " + this->currentChannelName, COL_MENUHEAD_TEXT);
+	this->fontBouquetChannelName->RenderString(this->x + 10, yPos, this->width - 20, this->currentBouquetName + ": " + this->currentChannelName, COL_MENUCONTENT_TEXT);
 
 	height = this->fontEventDescription->getHeight();
 
 	// clear the region
-	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENT_PLUS_0);
+	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENTDARK_PLUS_0);
 
 	yPos += height;
 
 	// display new text
-	this->fontEventDescription->RenderString(this->x + 10, yPos, this->width - 20, description, COL_MENUHEAD_TEXT);
+	this->fontEventDescription->RenderString(this->x + 10, yPos, this->width - 20, description, COL_MENUCONTENT_TEXT);
 
 	height = this->fontEventInfo1->getHeight();
 
 	// clear the region
-	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENT_PLUS_0);
+	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENTDARK_PLUS_0);
 
 	yPos += height;
 
 	// display new text
-	this->fontEventInfo1->RenderString(this->x + 10, yPos, this->width - 20, info1, COL_MENUHEAD_TEXT);
+	this->fontEventInfo1->RenderString(this->x + 10, yPos, this->width - 20, info1, COL_MENUCONTENT_TEXT);
 }
 
 struct button_label buttonLabels[] =
