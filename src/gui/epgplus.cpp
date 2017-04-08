@@ -80,8 +80,7 @@ static EpgPlus::FontSetting fontSettingTable[] =
 static EpgPlus::SizeSetting sizeSettingTable[] =
 {
 	{EpgPlus::EPGPlus_channelentry_width, -15 }, /* 15 percent of screen width */
-	{EpgPlus::EPGPlus_channelentry_separationlineheight, 2},
-	{EpgPlus::EPGPlus_slider_width, 15}
+	{EpgPlus::EPGPlus_channelentry_separationlineheight, 2}
 };
 
 static bool bigfont = false;
@@ -696,7 +695,7 @@ void EpgPlus::init()
 	Footer::init();
 
 	channelsTableWidth = sizes[EPGPlus_channelentry_width];
-	sliderWidth = sizes[EPGPlus_slider_width];
+	sliderWidth = SCROLLBAR_WIDTH;
 
 	int headerHeight = Header::getUsedHeight();
 	int timeLineHeight = TimeLine::getUsedHeight();
@@ -1306,14 +1305,10 @@ void EpgPlus::paint()
 	this->timeLine->paintGrid();
 
 	// paint slider
-	this->frameBuffer->paintBoxRel(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, COL_MENUCONTENT_PLUS_0);
+	int total_pages = ((this->channelList->getSize() - 1) / this->maxNumberOfDisplayableEntries) + 1;
+	int current_page = this->selectedChannelEntry == NULL ? 0 : (this->selectedChannelEntry->index / this->maxNumberOfDisplayableEntries);
 
-	int tmp = ((this->channelList->getSize() - 1) / this->maxNumberOfDisplayableEntries) + 1;
-	float sliderKnobHeight = float((sliderHeight - 4) / tmp);
-	int sliderKnobPosition = this->selectedChannelEntry == NULL ? 0 : (this->selectedChannelEntry->index / this->maxNumberOfDisplayableEntries);
-
-	this->frameBuffer->paintBoxRel(this->sliderX + 2, this->sliderY + (int(sliderKnobPosition * sliderKnobHeight)),
-					this->sliderWidth - 4, int (sliderKnobHeight) , COL_SCROLLBAR_ACTIVE_PLUS_0);
+	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page);
 }
 
 // -- EPG+ Menue Handler Class

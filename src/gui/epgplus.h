@@ -50,7 +50,6 @@ class EpgPlus
 		{
 			EPGPlus_channelentry_width = 0,
 			EPGPlus_channelentry_separationlineheight,
-			EPGPlus_slider_width,
 			NumberOfSizeSettings
 		};
 
