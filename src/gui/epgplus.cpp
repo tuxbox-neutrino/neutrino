@@ -72,8 +72,6 @@ int EpgPlus::channelsTableWidth = 0;
 
 static EpgPlus::FontSetting fontSettingTable[] =
 {
-	{ EpgPlus::EPGPlus_timeline_fonttime,			"Bold",		16 },
-	{ EpgPlus::EPGPlus_timeline_fontdate,			"Bold",		14 },
 	{ EpgPlus::EPGPlus_channelentry_font,			"Bold",		16 },
 	{ EpgPlus::EPGPlus_channelevententry_font,		"Regular",	16 },
 	{ EpgPlus::EPGPlus_footer_fontbouquetchannelname,	"Bold",		24 },
@@ -124,8 +122,7 @@ int EpgPlus::Header::getUsedHeight()
 	return font->getHeight();
 }
 
-Font *EpgPlus::TimeLine::fontTime = NULL;
-Font *EpgPlus::TimeLine::fontDate = NULL;
+Font *EpgPlus::TimeLine::font = NULL;
 
 EpgPlus::TimeLine::TimeLine(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int pstartX, int pdurationX)
 {
@@ -139,8 +136,7 @@ EpgPlus::TimeLine::TimeLine(CFrameBuffer * pframeBuffer, int px, int py, int pwi
 
 void EpgPlus::TimeLine::init()
 {
-	fontTime = fonts[EPGPlus_timeline_fonttime];
-	fontDate = fonts[EPGPlus_timeline_fontdate];
+	font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE];
 }
 
 EpgPlus::TimeLine::~TimeLine()
@@ -160,10 +156,10 @@ void EpgPlus::TimeLine::paint(time_t _startTime, int pduration)
 	bool toggleColor = false;
 
 	// display date of begin
-	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->fontTime->getHeight(),
+	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(),
 					toggleColor ? COL_MENUCONTENT_PLUS_2 : COL_MENUCONTENT_PLUS_1);
 
-	this->fontDate->RenderString(this->x + 4, this->y + this->fontDate->getHeight(),
+	this->font->RenderString(this->x + 4, this->y + this->font->getHeight(),
 					this->width, EpgPlus::getTimeString(_startTime, "%d-%b") , COL_MENUCONTENT_TEXT);
 
 	// paint ticks
@@ -173,19 +169,19 @@ void EpgPlus::TimeLine::paint(time_t _startTime, int pduration)
 		if (xPos + xWidth > this->x + width)
 			xWidth = this->x + width - xPos;
 
-		this->frameBuffer->paintBoxRel(xPos, this->y, xWidth, this->fontTime->getHeight(),
+		this->frameBuffer->paintBoxRel(xPos, this->y, xWidth, this->font->getHeight(),
 						toggleColor ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENT_PLUS_2);
 
 		std::string timeStr = EpgPlus::getTimeString(tickTime, "%H");
 
-		int textWidth = this->fontTime->getRenderWidth(timeStr);
+		int textWidth = this->font->getRenderWidth(timeStr);
 
-		this->fontTime->RenderString(xPos - textWidth - 4, this->y + this->fontTime->getHeight(),
+		this->font->RenderString(xPos - textWidth - 4, this->y + this->font->getHeight(),
 						textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 		timeStr = EpgPlus::getTimeString(tickTime, "%M");
-		textWidth = this->fontTime->getRenderWidth(timeStr);
-		this->fontTime->RenderString(xPos + 4, this->y + this->fontTime->getHeight(),
+		textWidth = this->font->getRenderWidth(timeStr);
+		this->font->RenderString(xPos + 4, this->y + this->font->getHeight(),
 						textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 		toggleColor = !toggleColor;
@@ -201,7 +197,7 @@ void EpgPlus::TimeLine::paintGrid()
 	for (int i = 0; i < numberOfTicks; ++i, xPos += tickDist)
 	{
 		// display a line for the tick
-		this->frameBuffer->paintVLineRel(xPos, this->y, this->fontTime->getHeight(), COL_MENUCONTENT_PLUS_5);
+		this->frameBuffer->paintVLineRel(xPos, this->y, this->font->getHeight(), COL_MENUCONTENT_PLUS_5);
 	}
 }
 
@@ -211,41 +207,41 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	this->clearMark();
 
 	// paint new mark
-	this->frameBuffer->paintBoxRel(px, this->y + this->fontTime->getHeight(),
-					pwidth, this->fontTime->getHeight() , COL_MENUCONTENTSELECTED_PLUS_0);
+	this->frameBuffer->paintBoxRel(px, this->y + this->font->getHeight(),
+					pwidth, this->font->getHeight() , COL_MENUCONTENTSELECTED_PLUS_0);
 
 	// display start time before mark
 	std::string timeStr = EpgPlus::getTimeString(_startTime, "%H:%M");
-	int textWidth = this->fontTime->getRenderWidth(timeStr);
+	int textWidth = this->font->getRenderWidth(timeStr);
 
-	this->fontTime->RenderString(px - textWidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight(),
+	this->font->RenderString(px - textWidth, this->y + this->font->getHeight() + this->font->getHeight(),
 					textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 	// display end time after mark
 	timeStr = EpgPlus::getTimeString(_startTime + pduration, "%H:%M");
-	textWidth = fontTime->getRenderWidth(timeStr);
+	textWidth = font->getRenderWidth(timeStr);
 
 	if (px + pwidth + textWidth < this->x + this->width)
 	{
-		this->fontTime->RenderString(px + pwidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight(),
+		this->font->RenderString(px + pwidth, this->y + this->font->getHeight() + this->font->getHeight(),
 						textWidth, timeStr, COL_MENUCONTENT_TEXT);
 	}
 	else if (textWidth < pwidth - 10)
 	{
-		this->fontTime->RenderString(px + pwidth - textWidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight(),
+		this->font->RenderString(px + pwidth - textWidth, this->y + this->font->getHeight() + this->font->getHeight(),
 						textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT);
 	}
 }
 
 void EpgPlus::TimeLine::clearMark()
 {
-	this->frameBuffer->paintBoxRel(this->x, this->y + this->fontTime->getHeight(),
-					this->width, this->fontTime->getHeight() , COL_MENUCONTENT_PLUS_0);
+	this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight(),
+					this->width, this->font->getHeight() , COL_MENUCONTENT_PLUS_0);
 }
 
 int EpgPlus::TimeLine::getUsedHeight()
 {
-	return std::max(fontDate->getHeight(), fontTime->getHeight()) + fontTime->getHeight();
+	return 2*font->getHeight();
 }
 
 Font *EpgPlus::ChannelEventEntry::font = NULL;

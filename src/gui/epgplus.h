@@ -41,9 +41,7 @@ class EpgPlus
 	public:
 		enum FontSettingID
 		{
-			EPGPlus_timeline_fonttime = 0,
-			EPGPlus_timeline_fontdate,
-			EPGPlus_channelentry_font,
+			EPGPlus_channelentry_font = 0,
 			EPGPlus_channelevententry_font,
 			EPGPlus_footer_fontbouquetchannelname,
 			EPGPlus_footer_fonteventdescription,
@@ -154,8 +152,7 @@ class EpgPlus
 				int y;
 				int width;
 
-				static Font* fontTime;
-				static Font* fontDate;
+				static Font* font;
 
 				int startX;
 				int durationX;
