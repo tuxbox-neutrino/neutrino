@@ -118,11 +118,11 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		int sh_cdy = box_rad+sw+th; //height
 
 		//adapt shadow corner dimensions if body dimensions are too small, use an offset if required
-		int sh_cdx_size_offset, sh_cdy_size_offset = 0;
+		int /*sh_cdx_size_offset = 0,*/ sh_cdy_size_offset = 0;
 		if (sh_cdy*2 > dy)
 			sh_cdy_size_offset = sh_cdy*2-dy;
-		if (sh_cdx*2 > dx)
-			sh_cdx_size_offset = sh_cdx*2-dx;
+// 		if (sh_cdx*2 > dx)
+// 			sh_cdx_size_offset = sh_cdx*2-dx;
 
 		//handle shadow positions
 		//...corner bottom right
