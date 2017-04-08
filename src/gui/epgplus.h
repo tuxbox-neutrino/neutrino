@@ -25,6 +25,7 @@
 #ifndef __epgplus__
 #define __epgplus__
 
+#include <gui/components/cc.h>
 #include "widget/menue.h"
 
 #include <string>
@@ -238,6 +239,7 @@ class EpgPlus
 				static Font* font;
 
 				TCChannelEventEntries channelEventEntries;
+				CComponentsDetailsLine *detailsLine;
 		};
 
 		typedef std::vector<ChannelEntry*> TChannelEntries;

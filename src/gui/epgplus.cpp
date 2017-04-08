@@ -40,7 +40,6 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
 
-#include <gui/components/cc.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
@@ -345,6 +344,8 @@ EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, 
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
+
+	this->detailsLine = NULL;
 }
 
 void EpgPlus::ChannelEntry::init()
@@ -362,6 +363,12 @@ EpgPlus::ChannelEntry::~ChannelEntry()
 		delete *It;
 	}
 	this->channelEventEntries.clear();
+
+	if (this->detailsLine)
+	{
+		delete this->detailsLine;
+		this->detailsLine = NULL;
+	}
 }
 
 void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
@@ -417,6 +424,28 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 		(*It)->paint(isSelected && (*It)->isSelected(_selectedTime), toggleColor);
 
 		toggleColor = !toggleColor;
+	}
+
+	// kill detailsline
+	if (detailsLine)
+	{
+		detailsLine->kill();
+		delete detailsLine;
+		detailsLine = NULL;
+	}
+
+	// paint detailsline
+	if (isSelected)
+	{
+		int xPos	= this->x - DETAILSLINE_WIDTH;
+		int yPosTop	= this->y + this->font->getHeight()/2;
+		int yPosBottom	= this->footer->y + this->footer->getUsedHeight()/2;
+
+		if (detailsLine == NULL)
+		{
+			detailsLine = new CComponentsDetailsLine(xPos, yPosTop, yPosBottom, this->font->getHeight()/2, this->footer->getUsedHeight() - RADIUS_LARGE*2);
+		}
+		detailsLine->paint(false);
 	}
 }
 
