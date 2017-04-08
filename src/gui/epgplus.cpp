@@ -459,41 +459,28 @@ void EpgPlus::Footer::setBouquetChannelName(const std::string & newBouquetName, 
 
 int EpgPlus::Footer::getUsedHeight()
 {
-	return fontBouquetChannelName->getHeight() + fontEventDescription->getHeight() + fontEventInfo1->getHeight();
+	return fontBouquetChannelName->getHeight() + fontEventDescription->getHeight() + fontEventInfo1->getHeight() + 2*OFFSET_INNER_SMALL;
 }
 
 void EpgPlus::Footer::paintEventDetails(const std::string & description, const std::string & info1)
 {
 	int yPos = this->y;
+	int frame_thickness = 2;
 
-	int height = this->fontBouquetChannelName->getHeight();
+	// clear the whole footer
+	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, this->getUsedHeight(), COL_MENUCONTENTDARK_PLUS_0);
+	this->frameBuffer->paintBoxFrame(this->x, yPos, this->width, this->getUsedHeight(), frame_thickness, COL_FRAME_PLUS_0);
 
-	// clear the region
-	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENTDARK_PLUS_0);
-
-	yPos += height;
-
-	// display new text
+	// display bouquet and channel name
+	yPos += OFFSET_INNER_SMALL + this->fontBouquetChannelName->getHeight();
 	this->fontBouquetChannelName->RenderString(this->x + OFFSET_INNER_MID, yPos, this->width - 2*OFFSET_INNER_MID, this->currentBouquetName + ": " + this->currentChannelName, COL_MENUCONTENT_TEXT);
 
-	height = this->fontEventDescription->getHeight();
-
-	// clear the region
-	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENTDARK_PLUS_0);
-
-	yPos += height;
-
-	// display new text
+	// display event's descrition
+	yPos += this->fontEventDescription->getHeight();
 	this->fontEventDescription->RenderString(this->x + OFFSET_INNER_MID, yPos, this->width - 2*OFFSET_INNER_MID, description, COL_MENUCONTENT_TEXT);
 
-	height = this->fontEventInfo1->getHeight();
-
-	// clear the region
-	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, height, COL_MENUCONTENTDARK_PLUS_0);
-
-	yPos += height;
-
-	// display new text
+	// display event's info1
+	yPos += this->fontEventInfo1->getHeight();
 	this->fontEventInfo1->RenderString(this->x + OFFSET_INNER_MID, yPos, this->width - 2*OFFSET_INNER_MID, info1, COL_MENUCONTENT_TEXT);
 }
 
