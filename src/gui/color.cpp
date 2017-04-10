@@ -231,7 +231,7 @@ void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv)
 	hsv->v = f_V;
 }
 
-void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected, bool marked, bool switch_background)
+void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected, bool marked, bool toggle_background, bool toggle_enlighten)
 {
 	if (selected && marked)
 	{
@@ -255,6 +255,6 @@ void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected, bool marked, boo
 	}
 
 	// default
-	t = switch_background ? COL_MENUCONTENTDARK_TEXT   : COL_MENUCONTENT_TEXT;
-	b = switch_background ? COL_MENUCONTENTDARK_PLUS_0 : COL_MENUCONTENT_PLUS_0;
+	t = toggle_background ? (toggle_enlighten ? COL_MENUCONTENT_TEXT   : COL_MENUCONTENTDARK_TEXT)   : COL_MENUCONTENT_TEXT;
+	b = toggle_background ? (toggle_enlighten ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENTDARK_PLUS_0) : COL_MENUCONTENT_PLUS_0;
 }
