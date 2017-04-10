@@ -87,10 +87,16 @@ EpgPlus::Header::Header(CFrameBuffer * pframeBuffer, int px, int py, int pwidth)
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
+	this->header = NULL;
 }
 
 EpgPlus::Header::~Header()
 {
+	if (this->header)
+	{
+		delete this->header;
+		this->header = NULL;
+	}
 }
 
 void EpgPlus::Header::init()
@@ -100,10 +106,19 @@ void EpgPlus::Header::init()
 
 void EpgPlus::Header::paint(const char * Name)
 {
-	std::string head = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
+	std::string headerCaption = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
 
-	CComponentsHeader _header(this->x, this->y, this->width, this->font->getHeight(), head);
-	_header.paint(CC_SAVE_SCREEN_NO);
+	if (this->header == NULL)
+		this->header = new CComponentsHeader();
+
+	if (this->header)
+	{
+		this->header->setDimensionsAll(this->x, this->y, this->width, this->font->getHeight());
+		this->header->setCaption(headerCaption, CTextBox::NO_AUTO_LINEBREAK);
+		this->header->setContextButton(CComponentsHeader::CC_BTN_HELP);
+		this->header->enableClock(true, "%H:%M", "%H %M", true);
+		this->header->paint(CC_SAVE_SCREEN_NO);
+	}
 }
 
 int EpgPlus::Header::getUsedHeight()
