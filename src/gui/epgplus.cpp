@@ -268,6 +268,13 @@ void EpgPlus::TimeLine::clearMark()
 {
 	this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight(),
 					this->width, this->font->getHeight() , COL_MENUCONTENT_PLUS_0);
+
+	// paint the separation line
+	if (separationLineThickness > 0)
+	{
+		this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight() + this->font->getHeight(),
+					this->width, this->separationLineThickness, COL_MENUCONTENTDARK_PLUS_0);
+	}
 }
 
 int EpgPlus::TimeLine::getUsedHeight()
@@ -333,7 +340,8 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 					this->width, this->separationLineThickness, COL_MENUCONTENTDARK_PLUS_0);
 	}
 
-	if (pisSelected) {
+	if (pisSelected)
+	{
 		if (this->channelEvent.description.empty())
 		{	// dummy channel event
 			this->timeLine->clearMark();
