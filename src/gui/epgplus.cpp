@@ -198,7 +198,17 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	this->clearMark();
 
 	// paint new mark
-	this->frameBuffer->paintBoxRel(px, this->y + this->font->getHeight(),
+	time_t azeit;
+	time(&azeit);
+	if ((azeit > _startTime) && (azeit < _startTime + pduration))
+	{
+		CProgressBar pbbar = CProgressBar(px,this->y + this->font->getHeight(),pwidth,this->font->getHeight());
+		pbbar.setValues((azeit - _startTime),pduration);
+		pbbar.setActiveColor(COL_MENUCONTENTSELECTED_PLUS_0);
+		pbbar.paint();
+	}
+	else
+		this->frameBuffer->paintBoxRel(px, this->y + this->font->getHeight(),
 					pwidth, this->font->getHeight() , COL_MENUCONTENTSELECTED_PLUS_0);
 
 	// display start time before mark
