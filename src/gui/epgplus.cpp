@@ -307,11 +307,18 @@ bool EpgPlus::ChannelEventEntry::isSelected(time_t _selectedTime) const
 
 void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 {
-	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(),
-					this->channelEvent.description.empty()? COL_MENUCONTENT_PLUS_0 : (pisSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : (toggleColor ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENT_PLUS_1)));
+	if (this->channelEvent.description.empty())
+		pisSelected = false;
+
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, pisSelected, false, toggleColor);
+
+	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(), bgcolor);
 
 	this->font->RenderString(this->x + OFFSET_INNER_SMALL, this->y + this->font->getHeight(),
-					this->width - 2*OFFSET_INNER_SMALL > 0 ? this->width - 2*OFFSET_INNER_SMALL : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
+					this->width - 2*OFFSET_INNER_SMALL > 0 ? this->width - 2*OFFSET_INNER_SMALL : 0, this->channelEvent.description, color);
 
 	// paint the separation lines
 	if (separationLineThickness > 0)
@@ -407,11 +414,15 @@ EpgPlus::ChannelEntry::~ChannelEntry()
 
 void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 {
-	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(),
-					isSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : COL_MENUCONTENT_PLUS_0);
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, isSelected);
+
+	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(), bgcolor);
 
 	this->font->RenderString(this->x + OFFSET_INNER_MID, this->y + this->font->getHeight(),
-					this->width - 2*OFFSET_INNER_MID, this->displayName, isSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
+					this->width - 2*OFFSET_INNER_MID, this->displayName, color);
 
 	if (isSelected)
 	{
