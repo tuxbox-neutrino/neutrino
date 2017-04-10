@@ -87,15 +87,15 @@ EpgPlus::Header::Header(CFrameBuffer * pframeBuffer __attribute__((unused)), int
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
-	this->header = NULL;
+	this->head = NULL;
 }
 
 EpgPlus::Header::~Header()
 {
-	if (this->header)
+	if (this->head)
 	{
-		delete this->header;
-		this->header = NULL;
+		delete this->head;
+		this->head = NULL;
 	}
 }
 
@@ -106,18 +106,18 @@ void EpgPlus::Header::init()
 
 void EpgPlus::Header::paint(const char * Name)
 {
-	std::string headerCaption = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
+	std::string caption = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
 
-	if (this->header == NULL)
-		this->header = new CComponentsHeader();
+	if (this->head == NULL)
+		this->head = new CComponentsHeader();
 
-	if (this->header)
+	if (this->head)
 	{
-		this->header->setDimensionsAll(this->x, this->y, this->width, this->font->getHeight());
-		this->header->setCaption(headerCaption, CTextBox::NO_AUTO_LINEBREAK);
-		this->header->setContextButton(CComponentsHeader::CC_BTN_HELP);
-		this->header->enableClock(true, "%H:%M", "%H %M", true);
-		this->header->paint(CC_SAVE_SCREEN_NO);
+		this->head->setDimensionsAll(this->x, this->y, this->width, this->font->getHeight());
+		this->head->setCaption(caption, CTextBox::NO_AUTO_LINEBREAK);
+		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP);
+		this->head->enableClock(true, "%H:%M", "%H %M", true);
+		this->head->paint(CC_SAVE_SCREEN_NO);
 	}
 }
 
@@ -1321,6 +1321,10 @@ EpgPlus::TCChannelEventEntries::const_iterator EpgPlus::getSelectedEvent() const
 
 void EpgPlus::hide()
 {
+	if (this->header->head)
+	{
+		this->header->head->kill();
+	}
 	this->frameBuffer->paintBackgroundBoxRel(this->usableScreenX - DETAILSLINE_WIDTH, this->usableScreenY, DETAILSLINE_WIDTH + this->usableScreenWidth, this->usableScreenHeight);
 }
 
