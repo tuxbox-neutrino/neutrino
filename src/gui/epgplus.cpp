@@ -417,9 +417,11 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
+	int radius = isSelected ? RADIUS_MID : RADIUS_NONE;
+
 	getItemColors(color, bgcolor, isSelected);
 
-	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(), bgcolor);
+	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(), bgcolor, radius, CORNER_LEFT);
 
 	this->font->RenderString(this->x + OFFSET_INNER_MID, this->y + this->font->getHeight(),
 					this->width - 2*OFFSET_INNER_MID, this->displayName, color);
