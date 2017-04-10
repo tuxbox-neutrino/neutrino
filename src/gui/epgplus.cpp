@@ -81,16 +81,22 @@ static int current_bouquet;
 
 Font *EpgPlus::Header::font = NULL;
 
-EpgPlus::Header::Header(CFrameBuffer * pframeBuffer, int px, int py, int pwidth)
+EpgPlus::Header::Header(CFrameBuffer * pframeBuffer __attribute__((unused)), int px, int py, int pwidth)
 {
-	this->frameBuffer = pframeBuffer;
+	//this->frameBuffer = pframeBuffer;
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
+	this->header = NULL;
 }
 
 EpgPlus::Header::~Header()
 {
+	if (this->header)
+	{
+		delete this->header;
+		this->header = NULL;
+	}
 }
 
 void EpgPlus::Header::init()
@@ -100,10 +106,19 @@ void EpgPlus::Header::init()
 
 void EpgPlus::Header::paint(const char * Name)
 {
-	std::string head = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
+	std::string headerCaption = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
 
-	CComponentsHeader _header(this->x, this->y, this->width, this->font->getHeight(), head);
-	_header.paint(CC_SAVE_SCREEN_NO);
+	if (this->header == NULL)
+		this->header = new CComponentsHeader();
+
+	if (this->header)
+	{
+		this->header->setDimensionsAll(this->x, this->y, this->width, this->font->getHeight());
+		this->header->setCaption(headerCaption, CTextBox::NO_AUTO_LINEBREAK);
+		this->header->setContextButton(CComponentsHeader::CC_BTN_HELP);
+		this->header->enableClock(true, "%H:%M", "%H %M", true);
+		this->header->paint(CC_SAVE_SCREEN_NO);
+	}
 }
 
 int EpgPlus::Header::getUsedHeight()
@@ -198,8 +213,20 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	this->clearMark();
 
 	// paint new mark
-	this->frameBuffer->paintBoxRel(px, this->y + this->font->getHeight(),
-					pwidth, this->font->getHeight() , COL_MENUCONTENTSELECTED_PLUS_0);
+	CProgressBar pbbar = CProgressBar(px, this->y + this->font->getHeight(), pwidth, this->font->getHeight());
+	pbbar.setActiveColor(COL_MENUCONTENTSELECTED_PLUS_0);
+
+	time_t currentTime;
+	time(&currentTime);
+	if ((currentTime > _startTime) && (currentTime < _startTime + pduration))
+	{
+		pbbar.setValues((currentTime - _startTime), pduration);
+	}
+	else
+	{
+		pbbar.setValues(0, pduration);
+	}
+	pbbar.paint();
 
 	// display start time before mark
 	std::string timeStr = EpgPlus::getTimeString(_startTime, "%H:%M");
@@ -208,20 +235,24 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	this->font->RenderString(px - textWidth - OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
 					textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
-	// display end time after mark
+	// display end time
 	timeStr = EpgPlus::getTimeString(_startTime + pduration, "%H:%M");
 	textWidth = font->getRenderWidth(timeStr);
+	int textX = 0;
 
-	if (px + pwidth + textWidth < this->x + this->width)
+	if (px + pwidth + textWidth + OFFSET_INNER_MIN < this->x + this->width)
 	{
-		this->font->RenderString(px + pwidth + OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
-						textWidth, timeStr, COL_MENUCONTENT_TEXT);
+		// display end time after mark
+		textX = px + pwidth + OFFSET_INNER_MIN;
 	}
-	else if (textWidth < pwidth - OFFSET_INNER_MID)
+	else if (textWidth < pwidth - 2*OFFSET_INNER_MIN)
 	{
-		this->font->RenderString(px + pwidth - textWidth - OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
-						textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT);
+		// display end time before mark
+		textX = px + pwidth - textWidth - OFFSET_INNER_MIN;
 	}
+
+	if (textX)
+		this->font->RenderString(textX, this->y + this->font->getHeight() + this->font->getHeight(), textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 	// paint the separation line
 	if (separationLineThickness > 0)
@@ -329,7 +360,10 @@ EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, 
 	{
 		std::stringstream pdisplayName;
 		//pdisplayName << pindex + 1 << " " << pchannel->getName();
-		pdisplayName << pchannel->number << " " << pchannel->getName();
+		if (g_settings.channellist_show_numbers)
+			pdisplayName << pchannel->number << " " << pchannel->getName();
+		else
+			pdisplayName << pchannel->getName();
 
 		this->displayName = pdisplayName.str();
 	}
@@ -365,6 +399,7 @@ EpgPlus::ChannelEntry::~ChannelEntry()
 
 	if (this->detailsLine)
 	{
+		this->detailsLine->kill();
 		delete this->detailsLine;
 		this->detailsLine = NULL;
 	}
@@ -423,6 +458,14 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 		(*It)->paint(isSelected && (*It)->isSelected(_selectedTime), toggleColor);
 
 		toggleColor = !toggleColor;
+	}
+
+	// kill detailsline
+	if (detailsLine)
+	{
+		detailsLine->kill();
+		delete detailsLine;
+		detailsLine = NULL;
 	}
 
 	// paint detailsline
@@ -571,7 +614,7 @@ void EpgPlus::createChannelEntries(int selectedChannelEntryIndex)
 
 			CZapitChannel * channel = (*this->channelList)[i];
 
-			ChannelEntry *channelEntry = new ChannelEntry(channel, i, this->frameBuffer, this->footer, this->bouquetList, this->channelsTableX + 2, yPosChannelEntry, this->channelsTableWidth);
+			ChannelEntry *channelEntry = new ChannelEntry(channel, i, this->frameBuffer, this->footer, this->bouquetList, this->channelsTableX, yPosChannelEntry, this->channelsTableWidth);
 			//printf("Going to get getEventsServiceKey for %llx\n", (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
 			CChannelEventList channelEventList;
 			CEitManager::getInstance()->getEventsServiceKey(channel->getEpgID(), channelEventList);
