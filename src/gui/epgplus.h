@@ -95,6 +95,7 @@ class EpgPlus
 				int width;
 
 				static Font* font;
+				CComponentsHeader *header;
 		};
 
 
