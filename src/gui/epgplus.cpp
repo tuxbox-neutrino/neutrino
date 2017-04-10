@@ -220,20 +220,24 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	this->font->RenderString(px - textWidth - OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
 					textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
-	// display end time after mark
+	// display end time
 	timeStr = EpgPlus::getTimeString(_startTime + pduration, "%H:%M");
 	textWidth = font->getRenderWidth(timeStr);
+	int textX = 0;
 
-	if (px + pwidth + textWidth < this->x + this->width)
+	if (px + pwidth + textWidth + OFFSET_INNER_MIN < this->x + this->width)
 	{
-		this->font->RenderString(px + pwidth + OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
-						textWidth, timeStr, COL_MENUCONTENT_TEXT);
+		// display end time after mark
+		textX = px + pwidth + OFFSET_INNER_MIN;
 	}
-	else if (textWidth < pwidth - OFFSET_INNER_MID)
+	else if (textWidth < pwidth - 2*OFFSET_INNER_MIN)
 	{
-		this->font->RenderString(px + pwidth - textWidth - OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
-						textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT);
+		// display end time before mark
+		textX = px + pwidth - textWidth - OFFSET_INNER_MIN;
 	}
+
+	if (textX)
+		this->font->RenderString(textX, this->y + this->font->getHeight() + this->font->getHeight(), textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 	// paint the separation line
 	if (separationLineThickness > 0)
