@@ -314,7 +314,7 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	getItemColors(color, bgcolor, selected, false, toggleColor);
+	getItemColors(color, bgcolor, selected, false, toggleColor, true /* toggle enlighten */);
 
 	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(), bgcolor);
 
