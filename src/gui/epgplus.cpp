@@ -309,13 +309,12 @@ bool EpgPlus::ChannelEventEntry::isSelected(time_t _selectedTime) const
 
 void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 {
-	if (this->channelEvent.description.empty())
-		pisSelected = false;
+	bool selected = this->channelEvent.description.empty() ? false : pisSelected;
 
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
-	getItemColors(color, bgcolor, pisSelected, false, toggleColor);
+	getItemColors(color, bgcolor, selected, false, toggleColor);
 
 	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(), bgcolor);
 
