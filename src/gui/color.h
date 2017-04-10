@@ -161,6 +161,6 @@ uint8_t SysColor2Hsv(fb_pixel_t color, HsvColor *hsv);
 void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb);
 void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv);
 
-void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected = false, bool marked = false, bool switch_background = false);
+void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected = false, bool marked = false, bool toggle_background = false, bool toggle_enlighten = false);
 
 #endif
