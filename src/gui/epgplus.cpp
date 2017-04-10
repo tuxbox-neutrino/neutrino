@@ -81,9 +81,9 @@ static int current_bouquet;
 
 Font *EpgPlus::Header::font = NULL;
 
-EpgPlus::Header::Header(CFrameBuffer * pframeBuffer, int px, int py, int pwidth)
+EpgPlus::Header::Header(CFrameBuffer * pframeBuffer __attribute__((unused)), int px, int py, int pwidth)
 {
-	this->frameBuffer = pframeBuffer;
+	//this->frameBuffer = pframeBuffer;
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
