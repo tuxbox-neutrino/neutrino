@@ -68,6 +68,7 @@
 #else
 #include <gui/widget/msgbox.h>
 #endif
+#include <system/helpers.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
 
@@ -1276,7 +1277,7 @@ int CChannelList::numericZap(int key)
 		}
 		return res;
 	}
-	size_t  maxchansize = MaxChanNr().size();
+	size_t maxchansize = MaxChanNr().size();
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getMaxDigitWidth();
 	int sx = maxchansize * fw + (fw/2);
 	int sy = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight() + 6;
@@ -2288,19 +2289,14 @@ bool CChannelList::SameTP(CZapitChannel * channel)
 	return iscurrent;
 }
 
-std::string  CChannelList::MaxChanNr()
+std::string CChannelList::MaxChanNr()
 {
-	zapit_list_it_t chan_it;
-	std::stringstream ss;
-	std::string maxchansize;
-	int chan_nr_max = 1;
-	unsigned int nr = 0;
-	for (chan_it=(*chanlist).begin(); chan_it!=(*chanlist).end(); ++chan_it) {
-		chan_nr_max = std::max(chan_nr_max, (*chanlist)[nr++]->number);
+	int n = 1;
+	for (zapit_list_it_t it = (*chanlist).begin(); it != (*chanlist).end(); ++it)
+	{
+		n = std::max(n, (*it)->number);
 	}
-	ss << chan_nr_max;
-	ss >> maxchansize;
-	return maxchansize;
+	return to_string(n);
 }
 
 void CChannelList::paintPig (int _x, int _y, int w, int h)
