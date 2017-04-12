@@ -125,7 +125,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	dline = NULL;
 	cc_minitv = NULL;
 	logo_off = 0;
-	pig_on_win = false;
+	minitv_is_active = false;
 	CChannelLogo = NULL;
 	headerNew = true;
 	bouquet = NULL;
@@ -484,9 +484,9 @@ void CChannelList::calcSize()
 		fheight = 1; /* avoid div-by-zero crash on invalid font */
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+6;
 
-	pig_on_win = ( (g_settings.channellist_additional == 2) /* with miniTV */ && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
+	minitv_is_active = ( (g_settings.channellist_additional == 2) && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
 	// calculate width
-	full_width = pig_on_win ? (frameBuffer->getScreenWidth()-2*DETAILSLINE_WIDTH) : frameBuffer->getScreenWidthRel();
+	full_width = minitv_is_active ? (frameBuffer->getScreenWidth()-2*DETAILSLINE_WIDTH) : frameBuffer->getScreenWidthRel();
 
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
@@ -498,7 +498,7 @@ void CChannelList::calcSize()
 		info_height = 2*fheight + fdescrheight + 2*OFFSET_INNER_SMALL;
 	else
 		info_height = 0;
-	height = pig_on_win ?  frameBuffer->getScreenHeight(): frameBuffer->getScreenHeightRel();
+	height = minitv_is_active ? frameBuffer->getScreenHeight() : frameBuffer->getScreenHeightRel();
 	height = height - OFFSET_INTER - info_height;
 
 	// calculate x position
@@ -522,7 +522,7 @@ void CChannelList::calcSize()
 	// calculate width/height of right info_zone and pip-box
 	infozone_width = full_width - width;
 	pig_width = infozone_width;
-	if ( pig_on_win /* with miniTV */ )
+	if (minitv_is_active)
 		pig_height = (pig_width * 9) / 16;
 	else
 		pig_height = 0;
@@ -2210,7 +2210,7 @@ void CChannelList::paintBody()
 	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
 
-	if (pig_on_win) // with miniTV
+	if (minitv_is_active)
 		paintPig(x+width, y+theight, pig_width, pig_height);
 
 	// paint background for main box
@@ -2301,7 +2301,7 @@ std::string CChannelList::MaxChanNr()
 	return to_string(n);
 }
 
-void CChannelList::paintPig (int _x, int _y, int w, int h)
+void CChannelList::paintPig(int _x, int _y, int w, int h)
 {
 	//init minitv object with basic properties
 	if (cc_minitv == NULL){
