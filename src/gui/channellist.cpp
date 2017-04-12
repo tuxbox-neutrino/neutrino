@@ -495,7 +495,7 @@ void CChannelList::calcSize()
 
 	// calculate height (the infobox below mainbox is handled outside height)
 	if (g_settings.channellist_show_infobox)
-		info_height = 2*fheight + fdescrheight + 10;
+		info_height = 2*fheight + fdescrheight + 2*OFFSET_INNER_SMALL;
 	else
 		info_height = 0;
 	height = pig_on_win ?  frameBuffer->getScreenHeight(): frameBuffer->getScreenHeightRel();
