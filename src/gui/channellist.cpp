@@ -68,6 +68,7 @@
 #else
 #include <gui/widget/msgbox.h>
 #endif
+#include <system/helpers.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
 
@@ -1276,7 +1277,7 @@ int CChannelList::numericZap(int key)
 		}
 		return res;
 	}
-	size_t  maxchansize = MaxChanNr().size();
+	size_t maxchansize = MaxChanNr().size();
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getMaxDigitWidth();
 	int sx = maxchansize * fw + (fw/2);
 	int sy = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight() + 6;
@@ -1899,10 +1900,10 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		int prg_offset = 0;
 		int title_offset = 0;
 		int rec_mode;
-		if(g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF)
+		if (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF)
 		{
 			prg_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00:00");
-			title_offset = OFFSET_INNER_SMALL;
+			title_offset = OFFSET_INNER_MID;
 		}
 
 		snprintf(tmp, sizeof(tmp), "%d", this->historyMode ? pos : chan->number);
@@ -1993,16 +1994,16 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		if (curr == selected && move_state == beMoving)
 		{
 			frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_SMALL + numwidth - icon_w, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
 		}
 		else if (edit_state && chan->bLocked)
 		{
 			frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icon_w, &icon_h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_SMALL + numwidth - icon_w, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
 		}
 		else if (g_settings.channellist_show_numbers)
 		{
-			int numpos = x + OFFSET_INNER_SMALL + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
+			int numpos = x + OFFSET_INNER_MID + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth + 5, tmp, color, fheight);
 		}
 		else if (!edit_state)
@@ -2016,9 +2017,9 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		else
 			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
 
-		int pb_space = prg_offset - title_offset;
+		int pb_width = prg_offset;
 		int pb_height = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getDigitHeight();
-		CProgressBar pb(x + OFFSET_INNER_SMALL + numwidth + title_offset, ypos + (fheight-pb_height)/2, pb_space + 2, pb_height, COL_MENUCONTENT_PLUS_0);
+		CProgressBar pb(x + OFFSET_INNER_MID + numwidth + title_offset, ypos + (fheight-pb_height)/2, pb_width, pb_height, COL_MENUCONTENT_PLUS_0);
 		pb.setType(CProgressBar::PB_TIMESCALE);
 		pb.setDesign(g_settings.theme.progressbar_design_channellist);
 		pb.setCornerType(0);
@@ -2031,28 +2032,28 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		}
 		pb.setFrameThickness(pb_frame);
 		pb.doPaintBg(false);
-		int pb_max = pb_space - 4;
 
 		if (!(p_event->description.empty()))
 		{
-			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l,g_settings.channellist_epgtext_align_right ? "  ":" - ");
+			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l, g_settings.channellist_epgtext_align_right ? "  " : " - ");
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription);
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description);
 
-			int max_desc_len = width - numwidth - prg_offset - ch_name_len - 15 - 2*OFFSET_INNER_MID - offset_right; // 15 = scrollbar
+			int max_desc_len = width - numwidth - prg_offset - ch_name_len - 15 - 3*OFFSET_INNER_MID - offset_right; // 15 = scrollbar
 
 			if (max_desc_len < 0)
 				max_desc_len = 0;
 			if ((int) ch_desc_len > max_desc_len)
 				ch_desc_len = max_desc_len;
 
-			if(g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF) {
+			if (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF)
+			{
 				if(displayNext)
 				{
 					struct tm *pStartZeit = localtime(&p_event->startTime);
 
 					snprintf(tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
-					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_SMALL + numwidth + 6, ypos + fheight, width - numwidth - 15 - prg_offset - 2*OFFSET_INNER_MID, tmp, ecolor, fheight);
+					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 15 - prg_offset - 2*OFFSET_INNER_MID, tmp, ecolor, fheight);
 				}
 				else
 				{
@@ -2062,32 +2063,34 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 					if (((jetzt - p_event->startTime + 30) / 60) < 0 )
 						runningPercent= 0;
 					else
-						runningPercent=(jetzt-p_event->startTime) * pb_max / p_event->duration;
+						runningPercent=(jetzt-p_event->startTime) * pb_width / p_event->duration;
 
-					pb.setValues(runningPercent, pb_max);
+					pb.setValues(runningPercent, pb_width);
 					pb.paint();
 				}
 			}
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_SMALL + numwidth + OFFSET_INNER_MID + prg_offset, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - 15 - prg_offset, nameAndDescription, color);
-			if (g_settings.channellist_epgtext_align_right) {
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - 15 - prg_offset, nameAndDescription, color);
+			if (g_settings.channellist_epgtext_align_right)
+			{
 				// align right
 				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - 15 - offset_right - ch_desc_len, ypos + fheight, ch_desc_len, p_event->description, ecolor);
 			}
-			else {
+			else
+			{
 				// align left
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_SMALL + numwidth + OFFSET_INNER_MID + ch_name_len + OFFSET_INNER_SMALL + prg_offset, ypos + fheight, ch_desc_len, p_event->description, ecolor);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + ch_name_len, ypos + fheight, ch_desc_len, p_event->description, ecolor);
 			}
 		}
 		else
 		{
 			if (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF)
 			{
-				pb.setValues(0, pb_max);
+				pb.setValues(0, pb_width);
 				pb.paint();
 			}
 			//name
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_SMALL + numwidth + OFFSET_INNER_MID + prg_offset, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - 15 - prg_offset, nameAndDescription, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - 15 - prg_offset, nameAndDescription, color);
 		}
 		if (!firstpaint && curr == selected)
 			updateVfd();
@@ -2156,7 +2159,7 @@ void CChannelList::paintHead()
 				if (!header->getContextBtnObject()->empty())
 					header->removeContextButtons();
 			header->enableClock(true, "%H:%M", "%H %M", true);
-			logo_off = header->getClockObject()->getWidth() + 10;
+			logo_off = header->getClockObject()->getWidth() + OFFSET_INNER_MID;
 
 			header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 		}else{
@@ -2167,7 +2170,7 @@ void CChannelList::paintHead()
 		}
 	}
 	else
-		logo_off = 10;
+		logo_off = OFFSET_INNER_MID;
 
 	header->paint(CC_SAVE_SCREEN_NO);
 }
@@ -2288,19 +2291,14 @@ bool CChannelList::SameTP(CZapitChannel * channel)
 	return iscurrent;
 }
 
-std::string  CChannelList::MaxChanNr()
+std::string CChannelList::MaxChanNr()
 {
-	zapit_list_it_t chan_it;
-	std::stringstream ss;
-	std::string maxchansize;
-	int chan_nr_max = 1;
-	unsigned int nr = 0;
-	for (chan_it=(*chanlist).begin(); chan_it!=(*chanlist).end(); ++chan_it) {
-		chan_nr_max = std::max(chan_nr_max, (*chanlist)[nr++]->number);
+	int n = 1;
+	for (zapit_list_it_t it = (*chanlist).begin(); it != (*chanlist).end(); ++it)
+	{
+		n = std::max(n, (*it)->number);
 	}
-	ss << chan_nr_max;
-	ss >> maxchansize;
-	return maxchansize;
+	return to_string(n);
 }
 
 void CChannelList::paintPig (int _x, int _y, int w, int h)
@@ -2386,7 +2384,7 @@ void CChannelList::paint_events(CChannelEventList &evtlist)
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
 	char startTime[10];
-	int eventStartTimeWidth = 4 * g_Font[eventFont]->getMaxDigitWidth() + g_Font[eventFont]->getRenderWidth(":") + 5; // use a fixed value
+	int eventStartTimeWidth = 4 * g_Font[eventFont]->getMaxDigitWidth() + g_Font[eventFont]->getRenderWidth(":") + OFFSET_INNER_SMALL; // use a fixed value
 	int startTimeWidth = 0;
 	CChannelEventList::iterator e;
 	time_t azeit;
@@ -2435,9 +2433,9 @@ void CChannelList::paint_events(CChannelEventList &evtlist)
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
 				//printf("%s %s\n", startTime, e->description.c_str());
 				startTimeWidth = eventStartTimeWidth;
-				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, color);
+				g_Font[eventFont]->RenderString(x+ width+ OFFSET_INNER_MID, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, color);
 			}
-			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, color);
+			g_Font[eventFont]->RenderString(x+ width+ OFFSET_INNER_MID +startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 2*OFFSET_INNER_MID, e->description, color);
 		}
 		else
 		{
