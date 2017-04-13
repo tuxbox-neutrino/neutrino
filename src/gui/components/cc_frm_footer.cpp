@@ -111,6 +111,9 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	if (chain)
 		chain->clear();
 
+	if (label_count == 0)
+		return;
+
 	/* set general available full basic space for button chain,
 	 * in this case this is footer width
 	*/
@@ -372,7 +375,6 @@ void CComponentsFooter::paintButtons(const int& x_pos,
 	this->setButtonFont(font);
 	this->setContextButton(context_buttons);
 	this->setButtonLabels(content, label_count, 0, label_width);
-
 	this->paint(do_save_bg);
 }
 
