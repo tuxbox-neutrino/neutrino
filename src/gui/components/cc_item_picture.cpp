@@ -416,6 +416,8 @@ void CComponentsChannelLogo::setAltLogo(const char* picture_name)
 void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::string& channelName)
 {
 	need_init = true;
+	string image = pic_name;
+
 	if (channelId || !channelName.empty()){
 		if ((channel_id == channelId) && (channel_name == channelName))
 			need_init = false;
@@ -426,16 +428,16 @@ void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::st
 
 	int dummy;
 
-	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, pic_name, &dummy, &dummy);
+	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, image, &dummy, &dummy);
 
 	if (!has_logo)//no logo was found, use altrenate icon or logo
-		pic_name = alt_pic_name;
+		image = alt_pic_name;
 
 	//if logo or alternate image still not available, set has logo to false
-	has_logo = !pic_name.empty();
+	has_logo = !image.empty();
 
 	//refresh object
-	initCCItem();
+	setPicture(image);
 
 	//set has_logo to false if no dimensions were detected
 	if (width && height)
