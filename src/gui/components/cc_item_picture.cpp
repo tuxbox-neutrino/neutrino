@@ -148,6 +148,24 @@ void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
 	initCCItem();
 }
 
+void CComponentsPicture::setXPos(const int& xpos)
+{
+	CComponentsItem::setXPos(xpos);
+	if (xpos == x)
+		return;
+	need_init = true;
+	initCCItem();
+}
+
+void CComponentsPicture::setYPos(const int& ypos)
+{
+	CComponentsItem::setYPos(ypos);
+	if (ypos == y)
+		return;
+	need_init = true;
+	initCCItem();
+}
+
 void CComponentsPicture::initCCItem()
 {
 	if (pic_name.empty() || !need_init){
