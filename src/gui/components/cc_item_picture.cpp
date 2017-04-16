@@ -74,8 +74,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	//CComponents
 	x =	x_old	= x_pos;
 	y =	y_old	= y_pos;
-	width	= dx = dxc = w;
-	height	= dy = dyc = h;
+	width	= width_old = dx = dxc = w;
+	height	= height_old = dy = dyc = h;
 	pic_name = pic_name_old = image_name;
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
