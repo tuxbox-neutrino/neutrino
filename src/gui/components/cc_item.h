@@ -134,6 +134,11 @@ class CComponentsItem : public CComponents
 		///returns current number of page location of current item, see: cc_page_number
 		virtual u_int8_t getPageNumber(){return cc_page_number;};
 
+		///set screen x-position, parameter as int
+		virtual void setXPos(const int& xpos);
+		///set screen y-position, parameter as int
+		virtual void setYPos(const int& ypos);
+
 		///set screen x-position, parameter as uint8_t, percent x value related to current width of parent form or screen
 		virtual void setXPosP(const uint8_t& xpos_percent);
 		///set screen y-position, parameter as uint8_t, percent y value related to current height of parent form or screen

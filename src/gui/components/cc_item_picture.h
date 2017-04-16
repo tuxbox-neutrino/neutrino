@@ -162,6 +162,11 @@ class CComponentsPicture : public CComponentsItem
 		///set height of object and image related to current screen size, see also CComponentsItem::setHeightP(), parameter as uint8_t
 		virtual void setHeightP(const uint8_t& h_percent){CComponentsItem::setHeightP(h_percent), do_scale = true; need_init = hasChanges(); initCCItem();}
 
+		///set screen x-position, parameter as int
+		virtual void setXPos(const int& xpos);
+		///set screen y-position, parameter as int
+		virtual void setYPos(const int& ypos);
+
 		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.
 		virtual inline bool isPicPainted(){return is_image_painted;};
 

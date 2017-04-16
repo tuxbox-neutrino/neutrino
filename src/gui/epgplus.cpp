@@ -803,6 +803,8 @@ void EpgPlus::init()
 
 	this->usableScreenHeight = headerHeight + timeLineHeight + this->bodyHeight + buttonHeight + OFFSET_INTER + footerHeight; // recalc deltaY
 	this->usableScreenX = getScreenStartX(this->usableScreenWidth);
+	if (this->usableScreenX < DETAILSLINE_WIDTH)
+		this->usableScreenX = DETAILSLINE_WIDTH;
 	this->usableScreenY = getScreenStartY(this->usableScreenHeight);
 
 	this->headerX = this->usableScreenX;
