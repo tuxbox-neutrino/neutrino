@@ -261,6 +261,20 @@ bool CComponentsItem::isAdded()
 	return false;
 }
 
+void CComponentsItem::setXPos(const int& xpos)
+{
+	CCDraw::setXPos(xpos);
+	if (cc_parent)
+		cc_xr = cc_parent->getXPos() + x;
+}
+
+void CComponentsItem::setYPos(const int& ypos)
+{
+	CCDraw::setYPos(ypos);
+	if (cc_parent)
+		cc_yr = cc_parent->getYPos() + y;
+}
+
 void CComponentsItem::setXPosP(const uint8_t& xpos_percent)
 {
 	int x_tmp  = cc_parent ? xpos_percent*cc_parent->getWidth() : xpos_percent*frameBuffer->getScreenWidth();
