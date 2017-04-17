@@ -68,7 +68,7 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 	page_count	= 1;
 	cur_page	= 0;
 	sb 		= NULL;
-	w_sb		= 15;
+	w_sb		= SCROLLBAR_WIDTH;
 
 	page_scroll_mode = PG_SCROLL_M_UP_DOWN_KEY;
 
@@ -375,6 +375,7 @@ void CComponentsForm::paintCCItems()
 	if (cc_parent){
 		this_x = auto_x = cc_xr;
 		this_y = auto_y = cc_yr;
+		w_parent_frame = cc_parent->getFrameThickness();
 	}
 
 	//init and handle scrollbar
@@ -482,7 +483,7 @@ void CComponentsForm::paintCCItems()
 		//Is it too wide or too high, it will be shortened and displayed in the log.
 		//This should be avoid!
 		//checkwidth and adapt if required
-		int right_frm = (cc_parent ? cc_xr : x) + this_w - 2*fr_thickness;
+		int right_frm = (cc_parent ? cc_xr : x) + this_w/* - 2*fr_thickness*/;
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;

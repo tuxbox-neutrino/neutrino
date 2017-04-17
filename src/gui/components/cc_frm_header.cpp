@@ -413,7 +413,6 @@ void CComponentsHeader::initClock()
 
 	//set clock form properties
 	if (cch_cl_obj){
-		cch_cl_obj->setYPos(cch_items_y);
 		cch_cl_obj->setHeight(height);
 
 		//disallow paint of clock, if disabled and exit method
@@ -475,7 +474,7 @@ void CComponentsHeader::initCaption()
 		int clock_w = cch_cl_enable ? cch_cl_obj->getWidth() : 0;
 
 		//set x position of clock
-		cch_cl_obj->setXPos(width - buttons_w - clock_w - cch_offset);
+		cch_cl_obj->setXPos(width - buttons_w - clock_w);
 
 		//set required width of caption object
 		cc_text_w -= (clock_w + cch_offset);

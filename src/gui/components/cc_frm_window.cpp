@@ -205,7 +205,7 @@ void CComponentsWindow::initHeader()
 	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
 		ccw_head->setWidth(width-2*fr_thickness);
-		ccw_head->setPos(0, 0);
+		ccw_head->setPos(fr_thickness, fr_thickness);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode, ccw_col_head_text);
 		ccw_head->setContextButton(ccw_buttons);
@@ -223,8 +223,8 @@ void CComponentsWindow::initFooter()
 	if (ccw_footer){
 		if (ccw_h_footer)
 			ccw_footer->setHeight(ccw_h_footer);
-		ccw_footer->setPos(0, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
-		ccw_footer->setWidth(width-2*fr_thickness);
+		ccw_footer->setPos(cc_xr + fr_thickness, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
+		ccw_footer->setWidth(width/*-2*fr_thickness*/);
 		ccw_footer->enableShadow(false/*shadow*/);
 		ccw_footer->setCorner(corner_rad-fr_thickness, CORNER_BOTTOM);
 		ccw_footer->setButtonFont(ccw_button_font);
