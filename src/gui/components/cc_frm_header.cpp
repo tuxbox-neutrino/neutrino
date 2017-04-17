@@ -413,7 +413,6 @@ void CComponentsHeader::initClock()
 
 	//set clock form properties
 	if (cch_cl_obj){
-		cch_cl_obj->setYPos(cch_items_y);
 		cch_cl_obj->setHeight(height);
 
 		//disallow paint of clock, if disabled and exit method
