@@ -59,8 +59,8 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 {
 	cc_item_type 	= CC_ITEMTYPE_FRM_CLOCK;
 
-	x 		= x_pos;
-	y 		= y_pos;
+	x = cc_xr = x_old = x_pos;
+	y = cc_yr = y_old = y_pos;
 
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
@@ -84,8 +84,8 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 		initClockFont(0, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight());
 
 	//init general clock dimensions
-	height 		= cl_font->getHeight();
-	width 		= cl_font->getRenderWidth(cl_format_str);
+	height 	= height_old= cl_font->getHeight();
+	width 	= width_old = cl_font->getRenderWidth(cl_format_str);
 
 	//set default text background behavior
 	cc_txt_save_screen = false;
@@ -429,9 +429,9 @@ void CComponentsFrmClock::setHeight(const int& h)
 	int f_height = cl_font->getHeight();
 	if (h != f_height){
 		dprintf(DEBUG_DEBUG, "\033[33m[CComponentsFrmClock]\t[%s - %d], font height is different than current height [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, h, f_height);
-		CCDraw::setHeight(f_height);
+		CComponentsItem::setHeight(f_height);
 	}else
-		CCDraw::setHeight(h);
+		CComponentsItem::setHeight(h);
 	initCCLockItems();
 }
 
@@ -443,9 +443,9 @@ void CComponentsFrmClock::setWidth(const int& w)
 	int f_width = cl_font->getRenderWidth(cl_format_str);
 	if (w != f_width){
 		dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock]\t[%s - %d], font width is different than current width [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, w, f_width);
-		CCDraw::setWidth(f_width);
+		CComponentsItem::setWidth(f_width);
 	}else
-		CCDraw::setWidth(w);
+		CComponentsItem::setWidth(w);
 	initCCLockItems();
 }
 
