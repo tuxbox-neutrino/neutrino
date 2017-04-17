@@ -330,7 +330,7 @@ void CSignalBox::initSignalItems()
 	sbar->setScaleHeight(scale_h);
 	sbar->enableTboxSaveScreen(cc_txt_save_screen);
 
-	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : 1, sbar_w, sbar_h);
+	snrbar->setDimensionsAll(vertical ? sbar_x : sbar->getXPos() + sbar->getWidth() + append_x_offset, vertical ? sbar->getYPos() + sbar->getHeight() + append_y_offset : 1, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
 	snrbar->setTextColor(sbx_caption_color);
 	snrbar->setActiveColor(sbx_active_color);
