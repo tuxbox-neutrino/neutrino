@@ -475,7 +475,7 @@ void CComponentsHeader::initCaption()
 		int clock_w = cch_cl_enable ? cch_cl_obj->getWidth() : 0;
 
 		//set x position of clock
-		cch_cl_obj->setXPos(width - buttons_w - clock_w - cch_offset);
+		cch_cl_obj->setXPos(width - buttons_w - clock_w);
 
 		//set required width of caption object
 		cc_text_w -= (clock_w + cch_offset);
