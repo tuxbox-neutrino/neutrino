@@ -68,7 +68,7 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 	page_count	= 1;
 	cur_page	= 0;
 	sb 		= NULL;
-	w_sb		= 15;
+	w_sb		= SCROLLBAR_WIDTH;
 
 	page_scroll_mode = PG_SCROLL_M_UP_DOWN_KEY;
 
