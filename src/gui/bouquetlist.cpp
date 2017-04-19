@@ -3,6 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2009,2011,2013,2015-2017 Stefan Seyfried
+	Copyright (C) 2017 Sven Hoefer
 
 	License: GPL
 
@@ -68,7 +69,6 @@ CBouquetList::CBouquetList(const char * const Name)
 		name = g_Locale->getText(LOCALE_BOUQUETLIST_HEAD);
 	else
 		name = Name;
-
 }
 
 CBouquetList::~CBouquetList()
@@ -412,7 +412,8 @@ int CBouquetList::show(bool bShowChannelList)
 	int h_max_icon = 0;
 	favonly = !bShowChannelList;
 
-	for(unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);count++){
+	for (unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]); count++)
+	{
 		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(CBouquetListButtons[count].locale));
 		w_max_text = std::max(w_max_text, w_text);
 		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
@@ -420,25 +421,31 @@ int CBouquetList::show(bool bShowChannelList)
 		h_max_icon = std::max(h_max_icon, icol_h);
 	}
 
-	int need_width =  sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0])*(w_max_icon  + w_max_text + 20);
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "");
-	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
+	item_height = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 
-	width  = w_max (need_width, 20);
-	height = h_max (16 * fheight, 40);
+	/*
+	   We align width to needed footer space,
+	   but this manual calculation isn't a good idea.
+	   It would be better to get the needed width from
+	   CComponententsFooter class.
+	*/
+	width  = (sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]))*(w_max_icon + w_max_text + 2*OFFSET_INNER_MID);
+	height = 16*item_height;
 
-	footerHeight = std::max(h_max_icon+8, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+8);
-	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	listmaxshow = (height - theight - footerHeight)/fheight;
-	height      = theight + footerHeight + listmaxshow * fheight; // recalc height
+	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	footer_height = header_height;
+	listmaxshow = (height - header_height - footer_height)/item_height;
+	height      = header_height + footer_height + listmaxshow*item_height; // recalc height
 
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
+	x = getScreenStartX(width);
+	y = getScreenStartY(height);
 
 	int lmaxpos= 1;
 	int i= Bouquets.size();
 	while ((i= i/10)!=0)
 		lmaxpos++;
+
+	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "");
 
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
@@ -472,7 +479,7 @@ int CBouquetList::show(bool bShowChannelList)
 		{
 			selected = oldselected;
 			if(fader.StartFadeOut()) {
-				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				timeoutEnd = CRCInput::calcTimeoutEnd(1);
 				msg = 0;
 			} else
 				loop=false;
@@ -564,7 +571,7 @@ int CBouquetList::show(bool bShowChannelList)
 						pos = 1;
 					}
 				} else {
-					chn = chn * 10 + CRCInput::getNumericValue(msg);
+					chn = chn*10 + CRCInput::getNumericValue(msg);
 					pos++;
 				}
 
@@ -592,6 +599,7 @@ int CBouquetList::show(bool bShowChannelList)
 	fader.StopFade();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+
 	if (save_bouquets) {
 		save_bouquets = false;
 #if 0
@@ -603,7 +611,8 @@ int CBouquetList::show(bool bShowChannelList)
 		if (g_settings.epg_scan == CEpgScan::SCAN_SEL)
 			CEpgScan::getInstance()->Start();
 	}
-	if(zapOnExit)
+
+	if (zapOnExit)
 		return (selected);
 
 	return (res);
@@ -611,13 +620,13 @@ int CBouquetList::show(bool bShowChannelList)
 
 void CBouquetList::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height+10);
+	frameBuffer->paintBackgroundBoxRel(x, y, width, height);
 	CInfoClock::getInstance()->enableInfoClock(!CInfoClock::getInstance()->isBlocked());
 }
 
 void CBouquetList::paintItem(int pos)
 {
-	int ypos = y+ theight+0 + pos*fheight;
+	int ypos = y + header_height + pos*item_height;
 	bool iscurrent = true;
 	int npos = liststart + pos;
 	const char * lname = NULL;
@@ -634,8 +643,8 @@ void CBouquetList::paintItem(int pos)
 		i_radius = RADIUS_LARGE;
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, bgcolor, i_radius);
 
 	if (npos < (int) Bouquets.size())
 		lname = (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bFav) ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : Bouquets[npos]->channelList->getName();
@@ -658,33 +667,33 @@ void CBouquetList::paintItem(int pos)
 		}
 	}
 
-	if(npos < (int) Bouquets.size()) {
-		char tmp[10];
-		sprintf((char*) tmp, "%d", npos+ 1);
+	if (npos < (int) Bouquets.size()) {
+		char num[10];
+		sprintf((char*) num, "%d", npos + 1);
 		int iw = 0, ih = 0;
 		if ((g_settings.epg_scan == CEpgScan::SCAN_SEL) &&
 				Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bScanEpg) {
 			frameBuffer->getIconSize(NEUTRINO_ICON_EPG, &iw, &ih);
 			if (iw && ih) {
-				int icon_x = (x+width-2) - RADIUS_LARGE/2 - iw;
-				frameBuffer->paintIcon(NEUTRINO_ICON_EPG, icon_x - iw, ypos, fheight);
-				iw = iw + 4 + RADIUS_LARGE/2;
+				int icon_x = x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - iw;
+				frameBuffer->paintIcon(NEUTRINO_ICON_EPG, icon_x, ypos, item_height);
+				iw = iw + OFFSET_INNER_MID;
 			}
 		}
 		if (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bUseCI) {
-			int iw2;
-			frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED2, &iw2, &ih);
+			int iw2 = 0;
+			frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &iw2, &ih);
 			if (iw2 && ih) {
-				int icon_x = (x+width-2) - RADIUS_LARGE/2 - iw - iw2 - 2;
-				frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED2, icon_x - iw2, ypos, fheight);
-				iw = iw + iw2 + 4 + RADIUS_LARGE/2;
+				int icon_x = x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - iw - iw2;
+				frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, icon_x, ypos, item_height);
+				iw = iw + iw2 + OFFSET_INNER_MID;
 			}
 		}
 
-		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
+		int numpos = x + OFFSET_INNER_MID + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(num);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + item_height, numwidth + OFFSET_INNER_SMALL, num, color, item_height);
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15 - iw, lname, color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + item_height, width - numwidth - 2*OFFSET_INNER_MID - iw - SCROLLBAR_WIDTH, lname, color);
 		//CVFD::getInstance()->showMenuText(0, bouq->channelList->getName(), -1, true);
 	}
 }
@@ -692,7 +701,7 @@ void CBouquetList::paintItem(int pos)
 void CBouquetList::paintHead()
 {
 	std::string icon("");
-	CComponentsHeader header(x, y, width, theight, name, icon, CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT | CComponentsHeader::CC_BTN_MENU);
+	CComponentsHeader header(x, y, width, header_height, name, icon, CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT | CComponentsHeader::CC_BTN_MENU);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -712,33 +721,32 @@ void CBouquetList::paint()
                 _lastnum /= 10;
         }
 
-	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - footerHeight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, y + header_height, width, height - header_height - footer_height, COL_MENUCONTENT_PLUS_0);
 
-	int numbuttons = sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
-#if 0
-	if (favonly) /* this actually shows favorites and providers button, but both are active anyway */
-		numbuttons = 2;
+	int numButtons = sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
 
-	::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
-#endif
 	if (favonly)
-		frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
-	else 
-		::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
-
-	if(!Bouquets.empty())
 	{
-		for(unsigned int count=0;count<listmaxshow;count++) {
+		// show an empty footer
+		frameBuffer->paintBoxRel(x, y + height - footer_height, width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	}
+	else
+	{
+		CComponentsFooter footer;
+		footer.paintButtons(x, y + height - footer_height, width, footer_height, numButtons, CBouquetListButtons);
+	}
+
+	if (!Bouquets.empty())
+	{
+		for (unsigned int count = 0; count < listmaxshow; count++)
+		{
 			paintItem(count);
 		}
 	}
 
-	int ypos = y+ theight;
-	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
-	int listmaxshow_tmp = listmaxshow ? listmaxshow : 1;//avoid division by zero
-	int sbc= ((bsize - 1)/ listmaxshow_tmp)+ 1; /* bsize is > 0, so sbc is also > 0 */
-	int sbs= (selected/listmaxshow_tmp);
+	int _listmaxshow = listmaxshow ? listmaxshow : 1; //avoid division by zero
+	int total_pages = ((bsize - 1) / _listmaxshow) + 1;
+	int current_page = selected / _listmaxshow;
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
 }

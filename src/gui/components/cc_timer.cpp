@@ -64,7 +64,7 @@ void CComponentsTimer::runSharedTimerAction()
 		tm_mutex.lock();
 		OnTimer();
 		if (!tm_enable_nano)
-			mySleep(tm_interval);
+			sleep(tm_interval);
 		else
 			usleep((useconds_t)tm_interval);
 		tm_mutex.unlock();

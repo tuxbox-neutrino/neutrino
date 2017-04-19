@@ -34,7 +34,7 @@
 #include <zapit/include/zapit/frontend_c.h>
 #include <sstream>
 
-#define SB_MIN_HEIGHT 12
+#define SB_MIN_HEIGHT OFFSET_INNER_MID
 #define REF_PERCENT_TXT "100% "
 
 using namespace std;
@@ -55,8 +55,8 @@ void CSignalBar::initVarSigBar(const int& xpos, const int& ypos, const int& w, c
 
 	corner_rad 	= 0;
 	corner_type 	= 0;
-	append_x_offset = 2;
-	append_y_offset = 2;
+	append_x_offset = OFFSET_INNER_MIN;
+	append_y_offset = OFFSET_INNER_MIN;
 
 	sb_scale_height = -1;
 	dy_font 	= CNeutrinoFonts::getInstance();
@@ -330,7 +330,7 @@ void CSignalBox::initSignalItems()
 	sbar->setScaleHeight(scale_h);
 	sbar->enableTboxSaveScreen(cc_txt_save_screen);
 
-	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : 1, sbar_w, sbar_h);
+	snrbar->setDimensionsAll(vertical ? sbar_x : sbar->getXPos() + sbar->getWidth() + append_x_offset, vertical ? sbar->getYPos() + sbar->getHeight() + append_y_offset : 1, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
 	snrbar->setTextColor(sbx_caption_color);
 	snrbar->setActiveColor(sbx_active_color);

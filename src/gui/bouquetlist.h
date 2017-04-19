@@ -87,9 +87,9 @@ class CBouquetList : public CListHelpers
 		unsigned int		liststart;
 		unsigned int		listmaxshow;
 		unsigned int		numwidth;
-		int			fheight; // Fonthoehe Bouquetlist-Inhalt
-		int			theight; // Fonthoehe Bouquetlist-Titel
-		int			footerHeight;
+		int			item_height;
+		int			header_height;
+		int			footer_height;
 
 		int		width;
 		int		height;

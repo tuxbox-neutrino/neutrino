@@ -74,8 +74,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	//CComponents
 	x =	x_old	= x_pos;
 	y =	y_old	= y_pos;
-	width	= dx = dxc = w;
-	height	= dy = dyc = h;
+	width	= width_old = dx = dxc = w;
+	height	= height_old = dy = dyc = h;
 	pic_name = pic_name_old = image_name;
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
@@ -145,6 +145,24 @@ void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
 	need_init = true;
 	do_scale = true;
 	keep_dx_aspect = keep_aspect;
+	initCCItem();
+}
+
+void CComponentsPicture::setXPos(const int& xpos)
+{
+	CComponentsItem::setXPos(xpos);
+	if (xpos == x)
+		return;
+	need_init = true;
+	initCCItem();
+}
+
+void CComponentsPicture::setYPos(const int& ypos)
+{
+	CComponentsItem::setYPos(ypos);
+	if (ypos == y)
+		return;
+	need_init = true;
 	initCCItem();
 }
 
@@ -385,6 +403,7 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 
 void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& channelName, bool allow_scale)
 {
+	cc_item_type 	= CC_ITEMTYPE_CHANNEL_LOGO;
 	channel_name = "";
 	channel_id = 0;
 	alt_pic_name = "";
@@ -415,6 +434,8 @@ void CComponentsChannelLogo::setAltLogo(const char* picture_name)
 void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::string& channelName)
 {
 	need_init = true;
+	string image = pic_name;
+
 	if (channelId || !channelName.empty()){
 		if ((channel_id == channelId) && (channel_name == channelName))
 			need_init = false;
@@ -425,16 +446,16 @@ void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::st
 
 	int dummy;
 
-	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, pic_name, &dummy, &dummy);
+	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, image, &dummy, &dummy);
 
 	if (!has_logo)//no logo was found, use altrenate icon or logo
-		pic_name = alt_pic_name;
+		image = alt_pic_name;
 
 	//if logo or alternate image still not available, set has logo to false
-	has_logo = !pic_name.empty();
+	has_logo = !image.empty();
 
 	//refresh object
-	initCCItem();
+	setPicture(image);
 
 	//set has_logo to false if no dimensions were detected
 	if (width && height)
