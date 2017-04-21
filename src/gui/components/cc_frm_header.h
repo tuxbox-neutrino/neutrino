@@ -326,7 +326,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		/**Methode to get channel logo object for direct access to its properties and methodes
 		* @return  	CComponentsChannelLogoScalable*
 		*/
-		CComponentsChannelLogoScalable* getLogoObject(){return cch_logo_obj;}
+		CComponentsChannelLogoScalable* getChannelLogoObject(){return cch_logo_obj;}
 };
 
 //! Sub class of CComponentsHeader.

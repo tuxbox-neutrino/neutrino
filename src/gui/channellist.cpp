@@ -1682,10 +1682,10 @@ void CChannelList::showChannelLogo()
 		return;
 	if(g_settings.channellist_show_channellogo){
 		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
-		header->getLogoObject()->hide();
-		header->getLogoObject()->clearSavedScreen();
-		header->getLogoObject()->allowPaint(true);
-		header->getLogoObject()->paint();
+		header->getChannelLogoObject()->hide();
+		header->getChannelLogoObject()->clearSavedScreen();
+		header->getChannelLogoObject()->allowPaint(true);
+		header->getChannelLogoObject()->paint();
 	}
 }
 
@@ -2155,9 +2155,9 @@ void CChannelList::paintHead()
 
 	if(g_settings.channellist_show_channellogo){
 		//ensure to have clean background
-		header->getLogoObject()->hide();
+		header->getChannelLogoObject()->hide();
 		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
-		header->getLogoObject()->allowPaint(false);
+		header->getChannelLogoObject()->allowPaint(false);
 	}
 	header->paint(CC_SAVE_SCREEN_NO);
 	showChannelLogo();
