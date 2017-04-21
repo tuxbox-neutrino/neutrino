@@ -183,8 +183,12 @@ void CComponentsScrollBar::initSegments()
 	}
 
 	//set corner types
-	sb_segments_obj->front()->setCorner(RADIUS_MIN, CORNER_TOP);
-	sb_segments_obj->back()->setCorner(RADIUS_MIN, CORNER_BOTTOM);
+	if (sb_segments_obj->size() == 1){
+		sb_segments_obj->front()->setCorner(RADIUS_MIN, CORNER_ALL);
+	}else{
+		sb_segments_obj->front()->setCorner(RADIUS_MIN, CORNER_TOP);
+		sb_segments_obj->back()->setCorner(RADIUS_MIN, CORNER_BOTTOM);
+	}
 }
 
 
