@@ -1676,35 +1676,16 @@ void CChannelList::paintAdditionals(int index)
 	}
 }
 
-void CChannelList::showChannelLogo() //TODO: move into an own handler, eg. header, channel logo should be paint inside header object
+void CChannelList::showChannelLogo()
 {
 	if ((*chanlist).empty())
 		return;
 	if(g_settings.channellist_show_channellogo){
-		int logo_w_max = full_width / 4;
-		int logo_h_max = theight - 2*OFFSET_INNER_MIN;
-		if (CChannelLogo) {
-			if (headerNew)
-				CChannelLogo->clearSavedScreen();
-			else
-				CChannelLogo->hide();
-			delete CChannelLogo;
-		}
-		CChannelLogo = new CComponentsChannelLogoScalable(0, 0, (*chanlist)[selected]->getName(), (*chanlist)[selected]->getChannelID());
-
-		if (CChannelLogo->hasLogo()){
-			CChannelLogo->setWidth(min(CChannelLogo->getWidth(), logo_w_max), true);
-			if (CChannelLogo->getHeight() > logo_h_max)
-				CChannelLogo->setHeight(logo_h_max, true);
-			CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
-			CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
-			CChannelLogo->paint();
-		} else {
-			CChannelLogo->hide();
-			delete CChannelLogo;
-			CChannelLogo = NULL;
-		}
-		headerNew = false;
+		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
+		header->getLogoObject()->hide();
+		header->getLogoObject()->clearSavedScreen();
+		header->getLogoObject()->allowPaint(true);
+		header->getLogoObject()->paint();
 	}
 }
 
@@ -2172,7 +2153,14 @@ void CChannelList::paintHead()
 	else
 		logo_off = OFFSET_INNER_MID;
 
+	if(g_settings.channellist_show_channellogo){
+		//ensure to have clean background
+		header->getLogoObject()->hide();
+		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
+		header->getLogoObject()->allowPaint(false);
+	}
 	header->paint(CC_SAVE_SCREEN_NO);
+	showChannelLogo();
 }
 
 CComponentsHeader* CChannelList::getHeaderObject()
