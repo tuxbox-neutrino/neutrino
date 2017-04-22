@@ -84,6 +84,8 @@ class EpgPlus
 
 				void paint(const char * Name = NULL);
 
+				void paintChannelLogo(const CZapitChannel * Channel = NULL);
+
 				static int getUsedHeight();
 
 			//// attributes
@@ -192,6 +194,7 @@ class EpgPlus
 				ChannelEntry(const CZapitChannel* channel,
 					int index,
 					CFrameBuffer* frameBuffer,
+					Header* header,
 					Footer* footer,
 					CBouquetList* bouquetList,
 					int x,
@@ -216,6 +219,7 @@ class EpgPlus
 				int index;
 
 				CFrameBuffer* frameBuffer;
+				Header* header;
 				Footer* footer;
 				CBouquetList* bouquetList;
 
