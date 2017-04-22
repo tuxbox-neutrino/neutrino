@@ -79,11 +79,11 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		 * usual paraemters:
 		 * @param[in] parent		optional, exepts type pointer to a parent CComponentsForm object, default NULL
 		 * @param[in] shadow_mode	optional, exepts type int defined by shadow mode enums, default CC_SHADOW_OFF
-		 * @param[in] color_frame	optional, exepts type fb_pixel_t, default COL_SCROLLBAR
-		 * @param[in] color_body	optional, exepts type fb_pixel_t, default COL_SCROLLBAR
+		 * @param[in] color_frame	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
+		 * @param[in] color_body	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
 		 * @param[in] color_shadow	optional, exepts type fb_pixel_t, default COL_SHADOW_PLUS_0
-		 * @param[in] color_select	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_ACTIVE
-		 * @param[in] color_passive	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PASSIVE
+		 * @param[in] color_select	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
+		 * @param[in] color_passive	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
 		*/
 		CComponentsScrollBar(	const int &x_pos,
 					const int &y_pos,
@@ -92,11 +92,11 @@ class CComponentsScrollBar : public CComponentsFrmChain
 					const int& count 	= 1,
 					CComponentsForm *parent = NULL,
 					int shadow_mode 	= CC_SHADOW_OFF,
-					fb_pixel_t color_frame 	= COL_SCROLLBAR,
-					fb_pixel_t color_body 	= COL_SCROLLBAR,
+					fb_pixel_t color_frame 	= COL_SCROLLBAR_PLUS_0,
+					fb_pixel_t color_body 	= COL_SCROLLBAR_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
-					fb_pixel_t color_select = COL_SCROLLBAR_ACTIVE,
-					fb_pixel_t color_passive = COL_SCROLLBAR_PASSIVE);
+					fb_pixel_t color_select = COL_SCROLLBAR_ACTIVE_PLUS_0,
+					fb_pixel_t color_passive = COL_SCROLLBAR_PASSIVE_PLUS_0);
 // 		~CComponentsScrollBar(); //inherited from CComponentsForm
 
 		/**Set current page number
@@ -158,11 +158,11 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		* usual paraemters:
 		* @param[in] parent		optional, exepts type pointer to a parent CComponentsForm object, default NULL
 		* @param[in] shadow_mode	optional, exepts type int defined by shadow mode enums, default CC_SHADOW_OFF
-		* @param[in] color_frame	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
-		* @param[in] color_body		optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
+		* @param[in] color_frame	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
+		* @param[in] color_body		optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
 		* @param[in] color_shadow	optional, exepts type fb_pixel_t, default COL_SHADOW_PLUS_0
-		* @param[in] color_select	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_ACTIVE
-		* @param[in] color_passive	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PASSIVE
+		* @param[in] color_select	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
+		* @param[in] color_passive	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
 		*/
 void paintScrollBar(	const int &x_pos,
 			const int &y_pos,
@@ -171,10 +171,10 @@ void paintScrollBar(	const int &x_pos,
 			const int& count,
 			const int& current_num,
 			int shadow_mode 	= CC_SHADOW_OFF,
-			fb_pixel_t color_frame 	= COL_SCROLLBAR,
-			fb_pixel_t color_body 	= COL_SCROLLBAR,
+			fb_pixel_t color_frame 	= COL_SCROLLBAR_PLUS_0,
+			fb_pixel_t color_body 	= COL_SCROLLBAR_PLUS_0,
 			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
-			fb_pixel_t color_select = COL_SCROLLBAR_ACTIVE,
-			fb_pixel_t color_passive = COL_SCROLLBAR_PASSIVE);
+			fb_pixel_t color_select = COL_SCROLLBAR_ACTIVE_PLUS_0,
+			fb_pixel_t color_passive = COL_SCROLLBAR_PASSIVE_PLUS_0);
 
 #endif
