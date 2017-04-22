@@ -115,11 +115,35 @@ void EpgPlus::Header::paint(const char * Name)
 
 	if (this->head)
 	{
+		if (g_settings.channellist_show_channellogo)
+		{
+			// ensure to have clean background
+			this->head->getChannelLogoObject()->hide();
+			this->head->getChannelLogoObject()->allowPaint(false);
+		}
 		this->head->setDimensionsAll(this->x, this->y, this->width, this->font->getHeight());
 		this->head->setCaption(caption, CTextBox::NO_AUTO_LINEBREAK);
 		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP);
 		this->head->enableClock(true, "%H:%M", "%H %M", true);
 		this->head->paint(CC_SAVE_SCREEN_NO);
+	}
+}
+
+void EpgPlus::Header::paintChannelLogo(const CZapitChannel * Channel)
+{
+	if (!g_settings.channellist_show_channellogo)
+		return;
+
+	if (this->head)
+	{
+		this->head->getChannelLogoObject()->hide();
+		this->head->getChannelLogoObject()->clearSavedScreen();
+		if (Channel)
+		{
+			this->head->setChannelLogo(Channel->getChannelID(), Channel->getName());
+		}
+		this->head->getChannelLogoObject()->allowPaint(true);
+		this->head->getChannelLogoObject()->paint();
 	}
 }
 
@@ -368,7 +392,7 @@ int EpgPlus::ChannelEventEntry::getUsedHeight()
 Font *EpgPlus::ChannelEntry::font = NULL;
 int EpgPlus::ChannelEntry::separationLineThickness = 0;
 
-EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, CFrameBuffer * pframeBuffer, Footer * pfooter, CBouquetList * pbouquetList, int px, int py, int pwidth)
+EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, CFrameBuffer * pframeBuffer, Header * pheader, Footer * pfooter, CBouquetList * pbouquetList, int px, int py, int pwidth)
 {
 	this->channel = pchannel;
 
@@ -383,6 +407,7 @@ EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, 
 	this->index = pindex;
 
 	this->frameBuffer = pframeBuffer;
+	this->header = pheader;
 	this->footer = pfooter;
 	this->bouquetList = pbouquetList;
 
@@ -510,6 +535,8 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 
 		detailsLine->setDimensionsAll(xPos, yPosTop, yPosBottom, this->font->getHeight()/2, this->footer->getUsedHeight() - RADIUS_LARGE*2);
 		detailsLine->paint(false);
+
+		this->header->paintChannelLogo(this->channel);
 	}
 }
 
@@ -644,7 +671,7 @@ void EpgPlus::createChannelEntries(int selectedChannelEntryIndex)
 
 			CZapitChannel * channel = (*this->channelList)[i];
 
-			ChannelEntry *channelEntry = new ChannelEntry(channel, i, this->frameBuffer, this->footer, this->bouquetList, this->channelsTableX, yPosChannelEntry, this->channelsTableWidth);
+			ChannelEntry *channelEntry = new ChannelEntry(channel, i, this->frameBuffer, this->header, this->footer, this->bouquetList, this->channelsTableX, yPosChannelEntry, this->channelsTableWidth);
 			//printf("Going to get getEventsServiceKey for %llx\n", (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
 			CChannelEventList channelEventList;
 			CEitManager::getInstance()->getEventsServiceKey(channel->getEpgID(), channelEventList);
