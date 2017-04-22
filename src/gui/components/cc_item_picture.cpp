@@ -128,9 +128,9 @@ void CComponentsPicture::setPicture(const char* picture_name)
 
 void CComponentsPicture::setWidth(const int& w, bool keep_aspect)
 {
-	CComponentsItem::setWidth(w);
 	if (w == width && keep_aspect == keep_dy_aspect)
 		return;
+	CComponentsItem::setWidth(w);
 	need_init = true;
 	do_scale = true;
 	keep_dy_aspect = keep_aspect;
@@ -139,9 +139,9 @@ void CComponentsPicture::setWidth(const int& w, bool keep_aspect)
 
 void CComponentsPicture::setHeight(const int& h, bool keep_aspect)
 {
-	CComponentsItem::setHeight(h);
 	if (h == height && keep_aspect == keep_dx_aspect)
 		return;
+	CComponentsItem::setHeight(h);
 	need_init = true;
 	do_scale = true;
 	keep_dx_aspect = keep_aspect;

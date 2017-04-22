@@ -31,6 +31,9 @@
 #include "cc_frm_header.h"
 #include <system/debug.h>
 #include <driver/fontrenderer.h>
+#include <driver/pictureviewer/pictureviewer.h>
+
+extern CPictureViewer * g_PicViewer;
 
 
 using namespace std;
@@ -91,8 +94,8 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
 	clear();
 	cc_txt_save_screen	= false;
-	x	= x_old = x_pos;
-	y	= y_old = y_pos;
+	x = cc_xr = x_old 	= x_pos;
+	y = cc_yr = y_old 	= y_pos;
 
 	//init header width
 	width 	= width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
@@ -121,6 +124,11 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_text_obj		= NULL;
 	cch_btn_obj		= NULL;
 	cch_cl_obj		= NULL;
+	cch_logo_obj		= NULL;
+	cch_logo.Id		= 0;
+	cch_logo.Name		= "";
+	cch_logo.dy_max		= -1;
+	cch_logo.Align		= CC_LOGO_RIGHT;
 	cch_col_text		= COL_MENUHEAD_TEXT;
 	cch_caption_align	= CTextBox::NO_AUTO_LINEBREAK;
 	cch_items_y 		= CC_CENTERED;
@@ -261,6 +269,49 @@ void CComponentsHeader::initIcon()
 
 //		//re-assign height of icon object, for the case of changed height
 // 		cch_icon_obj->setHeight(height);
+	}
+}
+
+void CComponentsHeader::initLogo()
+{
+	cch_logo.dy_max = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_SMALL : cch_logo.dy_max;
+
+	if(!cch_logo_obj)
+		cch_logo_obj = new CComponentsChannelLogoScalable(width/2, height/2 - cch_logo.dy_max/2, cch_logo.Name, cch_logo.Id, this);
+	else
+		cch_logo_obj->setChannel(cch_logo.Id, cch_logo.Name);
+
+	if (cch_logo_obj->hasLogo()){
+		cch_logo_obj->setHeight(cch_logo.dy_max, true);
+
+		// set id of logo item depends of neighbor items
+		int logo_id = getCCItemId(cch_logo_obj);
+		int next_id = logo_id + 1;
+		int prev_id = logo_id - 1;
+
+		//right end
+		int x_logo_right = getCCItem(next_id) ? getCCItem(next_id)->getXPos() - cch_logo_obj->getWidth() : width - cch_logo_obj->getWidth()-OFFSET_INNER_MID;
+		//left end
+		int x_logo_left = getCCItem(prev_id) ? getCCItem(prev_id)->getXPos() + getCCItem(prev_id)->getWidth() : 0;
+
+		//calculate available space
+		int logo_space = x_logo_right + cch_logo_obj->getWidth() - x_logo_left;
+
+		//reduce logo width if logo space too small
+		int w_logo = min(cch_logo_obj->getWidth(), logo_space);
+		cch_logo_obj->setWidth(w_logo, true);
+
+		//set final logo position
+		int x_logo = 0;
+		if (cch_logo.Align == CC_LOGO_RIGHT)
+			x_logo = x_logo_right;
+		if (cch_logo.Align == CC_LOGO_LEFT)
+			x_logo = x_logo_left;
+		if (cch_logo.Align == CC_LOGO_CENTER)
+			x_logo = x_logo_left + logo_space/2 - cch_logo_obj->getWidth()/2;
+
+		cch_logo_obj->setXPos(x_logo);
+		cch_logo_obj->setYPos(height/2 - cch_logo_obj->getHeight()/2);
 	}
 }
 
@@ -505,6 +556,9 @@ void CComponentsHeader::initCaption()
 		if (cch_caption_align == CTextBox::CENTER)
 			cch_text_x = CC_CENTERED;
 
+		//recalc caption width
+		cc_text_w = min(cc_text_w, cch_font->getRenderWidth(cch_text)+ OFFSET_INNER_MID);
+
 		//assign general properties
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, cc_text_w, height);
 		cch_text_obj->setColorBody(col_body);
@@ -548,6 +602,9 @@ void CComponentsHeader::initCCItems()
 
 	//init text
 	initCaption();
+
+	//init logo
+	initLogo();
 }
 
 void CComponentsHeader::paint(bool do_save_bg)
