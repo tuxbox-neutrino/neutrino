@@ -941,6 +941,7 @@ void CUpnpBrowserGui::paintDeviceInfo()
 	tmp += m_devices[m_selecteddevice].modelurl;
 
 	topbox.setDimensionsAll(m_x, m_y, m_width, m_topbox_height);
+	topbox.setCorner(RADIUS_LARGE);
 	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
 	topbox.paint0();
 }
@@ -991,7 +992,7 @@ void CUpnpBrowserGui::paintDevices()
 		header.addContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 	else
 		header.removeContextButtons();
-	//header.enableShadow();
+	header.setCorner(RADIUS_LARGE, CORNER_TOP);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	// Items
@@ -1012,6 +1013,7 @@ void CUpnpBrowserGui::paintDevices()
 	m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + OFFSET_SHADOW, OFFSET_SHADOW, sb, COL_SHADOW_PLUS_0);
 
 	// Foot
+	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
 	footer.paintButtons(m_x, m_footer_y, m_width, m_footer_height, 1, &RescanButton, m_width/2);
 
 	paintItem2DetailsLine(-1); // clear it
@@ -1148,6 +1150,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 		}
 	}
 
+	topbox.setCorner(RADIUS_LARGE);
 	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
 	topbox.paint0();
 }
@@ -1197,7 +1200,9 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 	char tmp_time[] = "000:00";
 	int timebox_width = timebox.getFont()->getRenderWidth(tmp_time) + OFFSET_INNER_MID*2;
 	infobox.setDimensionsAll(m_x, m_infobox_y, m_width - OFFSET_SHADOW - OFFSET_INTER - timebox_width, m_infobox_height);
+	infobox.setCorner(RADIUS_LARGE);
 	timebox.setDimensionsAll(m_x + m_width - timebox_width, infobox.getYPos(), timebox_width, m_infobox_height);
+	timebox.setCorner(RADIUS_LARGE);
 
 	printf("paintDetails: use_playing %d shown %d\n", use_playing, m_playing_entry_is_shown);
 	if ((!use_playing) && entry->isdir){

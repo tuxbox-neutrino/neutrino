@@ -274,7 +274,7 @@ void CComponentsHeader::initIcon()
 
 void CComponentsHeader::initLogo()
 {
-	cch_logo.dy_max = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_SMALL : cch_logo.dy_max;
+	cch_logo.dy_max = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_MIN : cch_logo.dy_max;
 
 	if(!cch_logo_obj)
 		cch_logo_obj = new CComponentsChannelLogoScalable(width/2, height/2 - cch_logo.dy_max/2, cch_logo.Name, cch_logo.Id, this);
@@ -307,8 +307,15 @@ void CComponentsHeader::initLogo()
 			x_logo = x_logo_right;
 		if (cch_logo.Align == CC_LOGO_LEFT)
 			x_logo = x_logo_left;
-		if (cch_logo.Align == CC_LOGO_CENTER)
-			x_logo = x_logo_left + logo_space/2 - cch_logo_obj->getWidth()/2;
+		if (cch_logo.Align == CC_LOGO_CENTER){
+			x_logo = width/2 - cch_logo_obj->getWidth()/2;
+			//fallback if previous item and logo are overlapping
+			if (getCCItem(prev_id)){
+				int x_tmp = x_logo_left + logo_space/2 - cch_logo_obj->getWidth()/2;
+				if (x_logo <= x_logo_left)
+					x_logo = x_tmp;
+			}
+		}
 
 		cch_logo_obj->setXPos(x_logo);
 		cch_logo_obj->setYPos(height/2 - cch_logo_obj->getHeight()/2);
