@@ -274,7 +274,7 @@ void CComponentsHeader::initIcon()
 
 void CComponentsHeader::initLogo()
 {
-	cch_logo.dy_max = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_SMALL : cch_logo.dy_max;
+	cch_logo.dy_max = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_MIN : cch_logo.dy_max;
 
 	if(!cch_logo_obj)
 		cch_logo_obj = new CComponentsChannelLogoScalable(width/2, height/2 - cch_logo.dy_max/2, cch_logo.Name, cch_logo.Id, this);
