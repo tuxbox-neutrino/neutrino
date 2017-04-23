@@ -96,7 +96,6 @@ extern bool autoshift;
 static CComponentsPIP	*cc_minitv = NULL;
 extern CBouquetManager *g_bouquetManager;
 extern int old_b_id;
-static CComponentsChannelLogoScalable* CChannelLogo = NULL;
 static CComponentsHeader *header = NULL;
 extern bool timeset;
 
@@ -126,7 +125,6 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	cc_minitv = NULL;
 	logo_off = 0;
 	minitv_is_active = false;
-	CChannelLogo = NULL;
 	headerNew = true;
 	bouquet = NULL;
 	chanlist = &channels;
@@ -955,11 +953,6 @@ void CChannelList::hide()
 	}
 	if(header)
 		header->kill();
-	if (CChannelLogo){
-		CChannelLogo->kill();
-		delete CChannelLogo;
-		CChannelLogo = NULL;
-	}
 
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + OFFSET_INTER + info_height);
 	clearItem2DetailsLine();
@@ -2130,11 +2123,6 @@ void CChannelList::paintHead()
 
 	header->setCaption(header_txt, CTextBox::NO_AUTO_LINEBREAK, header_txt_col);
 
-	if (header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0)){
-		if (CChannelLogo)
-			CChannelLogo->clearFbData();
-	}
-
 	if (timeset) {
 		if(!edit_state){
 			if (header->getContextBtnObject())
@@ -2180,10 +2168,6 @@ void CChannelList::ResetModules()
 	if (cc_minitv){
 		delete 	cc_minitv;
 		cc_minitv = NULL;
-	}
-	if (CChannelLogo) {
-		delete CChannelLogo;
-		CChannelLogo = NULL;
 	}
 }
 
