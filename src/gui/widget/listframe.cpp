@@ -385,7 +385,7 @@ void CListFrame::refreshScroll(void)
 	if (m_nNrOfPages > 1)
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, COL_SCROLLBAR_PASSIVE_PLUS_0, RADIUS_MIN);
+				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, COL_SCROLLBAR_PLUS_0, RADIUS_MIN);
 		unsigned int marker_size = (m_cFrameScrollRel.iHeight - 2*OFFSET_INNER_MIN) / m_nNrOfPages;
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + OFFSET_INNER_MIN+m_cFrame.iX,
 				m_cFrameScrollRel.iY + OFFSET_INNER_MIN + m_nCurrentPage * marker_size +m_cFrame.iY,

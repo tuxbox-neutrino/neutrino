@@ -1000,7 +1000,7 @@ void CUpnpBrowserGui::paintDevices()
 		paintDevice(count);
 
 	int sb = m_item_height * m_listmaxshow;
-	m_frameBuffer->paintBoxRel(m_x + m_width - 15, m_item_y, 15, sb, COL_SCROLLBAR_PASSIVE_PLUS_0);
+	m_frameBuffer->paintBoxRel(m_x + m_width - 15, m_item_y, 15, sb, COL_SCROLLBAR_PLUS_0);
 	unsigned int tmp_max = m_listmaxshow;
 	if(!tmp_max)
 		tmp_max = 1;
@@ -1179,7 +1179,7 @@ void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int sel
 		paintItem(entry, count, selected);
 
 	int sb = m_item_height * m_listmaxshow;
-	m_frameBuffer->paintBoxRel(m_x + m_width - 15, m_item_y, 15, sb, COL_SCROLLBAR_PASSIVE_PLUS_0);
+	m_frameBuffer->paintBoxRel(m_x + m_width - 15, m_item_y, 15, sb, COL_SCROLLBAR_PLUS_0);
 	unsigned int tmp = m_listmaxshow ? m_listmaxshow : 1;//avoid division by zero
 	int sbc = ((max + offset - 1) / tmp) + 1;
 	int sbs = ((selected + offset) / tmp);
