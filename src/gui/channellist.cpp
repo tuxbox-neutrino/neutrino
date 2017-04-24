@@ -96,7 +96,6 @@ extern bool autoshift;
 static CComponentsPIP	*cc_minitv = NULL;
 extern CBouquetManager *g_bouquetManager;
 extern int old_b_id;
-static CComponentsChannelLogoScalable* CChannelLogo = NULL;
 static CComponentsHeader *header = NULL;
 extern bool timeset;
 
@@ -126,7 +125,6 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	cc_minitv = NULL;
 	logo_off = 0;
 	minitv_is_active = false;
-	CChannelLogo = NULL;
 	headerNew = true;
 	bouquet = NULL;
 	chanlist = &channels;
@@ -959,11 +957,6 @@ void CChannelList::hide()
 	}
 	if(header)
 		header->kill();
-	if (CChannelLogo){
-		CChannelLogo->kill();
-		delete CChannelLogo;
-		CChannelLogo = NULL;
-	}
 
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + OFFSET_INTER + info_height);
 	clearItem2DetailsLine();
@@ -2123,6 +2116,7 @@ void CChannelList::paintHead()
 	}
 
 	header->setDimensionsAll(x, y, full_width, theight);
+	header->setCorner(RADIUS_LARGE, CORNER_TOP);
 
 	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
 		header->setIcon(NEUTRINO_ICON_LOCK);
@@ -2132,11 +2126,6 @@ void CChannelList::paintHead()
 	header->setColorBody(COL_MENUHEAD_PLUS_0);
 
 	header->setCaption(header_txt, CTextBox::NO_AUTO_LINEBREAK, header_txt_col);
-
-	if (header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0)){
-		if (CChannelLogo)
-			CChannelLogo->clearFbData();
-	}
 
 	if (timeset) {
 		if(!edit_state){
@@ -2184,10 +2173,6 @@ void CChannelList::ResetModules()
 		delete 	cc_minitv;
 		cc_minitv = NULL;
 	}
-	if (CChannelLogo) {
-		delete CChannelLogo;
-		CChannelLogo = NULL;
-	}
 }
 
 void CChannelList::paintBody()
@@ -2222,7 +2207,7 @@ void CChannelList::paintBody()
 
 	const int ypos = y+ theight;
 	const int sb = height - theight - footerHeight; // paint scrollbar over full height of main box
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
 	unsigned int listmaxshow_tmp = listmaxshow ? listmaxshow : 1;//avoid division by zero
 	int sbc= (((*chanlist).size()- 1)/ listmaxshow_tmp)+ 1;
 	const int sbs= (selected/listmaxshow_tmp);

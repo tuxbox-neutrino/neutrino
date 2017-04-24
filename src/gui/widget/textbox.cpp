@@ -527,7 +527,7 @@ void CTextBox::refreshScroll(void)
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
 				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
-				COL_SCROLLBAR_PASSIVE_PLUS_0, RADIUS_MIN);
+				COL_SCROLLBAR_PLUS_0, RADIUS_MIN);
 		unsigned int marker_size = (m_cFrameScrollRel.iHeight - 2*SCROLL_MARKER_BORDER) / m_nNrOfPages;
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + SCROLL_MARKER_BORDER + m_cFrame.iX,
 				m_cFrameScrollRel.iY + SCROLL_MARKER_BORDER + m_nCurrentPage * marker_size + m_cFrame.iY,

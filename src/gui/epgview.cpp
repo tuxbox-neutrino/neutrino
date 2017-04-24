@@ -327,7 +327,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	int sbs= (startPos+ 1)/ medlinecount;
 	if (sbc < 1)
 		sbc = 1;
-	frameBuffer->paintBoxRel(sx+ ox- 15, ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0); // scrollbar bg
+	frameBuffer->paintBoxRel(sx+ ox- 15, ypos, 15, sb,  COL_SCROLLBAR_PLUS_0); // scrollbar bg
 	frameBuffer->paintBoxRel(sx+ ox- 13, ypos+ 2+ sbs*(sb-4)/sbc , 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0); // scrollbar
 }
 
