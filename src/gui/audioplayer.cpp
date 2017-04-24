@@ -1766,7 +1766,7 @@ void CAudioPlayerGui::paint()
 
 		int ypos = m_y + m_title_height + m_theight;
 		int sb = m_fheight * m_listmaxshow;
-		m_frameBuffer->paintBoxRel(m_x + m_width - 15, ypos, 15, sb, COL_SCROLLBAR_PASSIVE_PLUS_0);
+		m_frameBuffer->paintBoxRel(m_x + m_width - 15, ypos, 15, sb, COL_SCROLLBAR_PLUS_0);
 
 		int sbc = ((m_playlist.size() - 1) / tmp_max) + 1;
 		int sbs = (m_selected / tmp_max);

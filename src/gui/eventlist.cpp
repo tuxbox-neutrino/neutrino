@@ -920,7 +920,7 @@ void CEventList::paint(t_channel_id channel_id)
 
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
 
 	int sbc= ((evtlist.size()- 1)/ listmaxshow)+ 1;
 	int sbs= (selected/listmaxshow);

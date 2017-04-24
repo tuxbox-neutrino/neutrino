@@ -1454,7 +1454,7 @@ void CFileBrowser::paint()
 	//scrollbar
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
+	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
 
 	int sbc= ((filelist.size()- 1)/ listmaxshow)+ 1;
 	int sbs= (selected/listmaxshow);
