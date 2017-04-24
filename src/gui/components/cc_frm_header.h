@@ -32,6 +32,8 @@
 #include "cc_frm_clock.h"
 #include <driver/colorgradient.h>
 
+#define DEFAULT_LOGO_ALIGN CComponentsHeader::CC_LOGO_CENTER
+
 //! Sub class of CComponentsForm. Shows a header with prepared items.
 /*!
 CComponentsHeader provides prepared items like icon, caption and context button icons, mostly for usage in menues or simple windows
@@ -320,7 +322,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		*/
 		void setChannelLogo(	const uint64_t& channelId,
 					const std::string& channelName,
-					cc_logo_alignment_t alignment = CC_LOGO_CENTER,
+					cc_logo_alignment_t alignment = DEFAULT_LOGO_ALIGN,
 					const int& dy = -1)
 					{cch_logo.Id = channelId; cch_logo.Name = channelName, cch_logo.Align = alignment, cch_logo.dy_max = dy; initCCItems();}
 		/**Methode to get channel logo object for direct access to its properties and methodes
