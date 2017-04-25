@@ -281,6 +281,14 @@ void CComponentsHeader::initLogo()
 	else
 		cch_logo_obj->setChannel(cch_logo.Id, cch_logo.Name);
 
+	//ensure logo is not larger than original size if in auto mode
+	if (cch_logo.dy_max == -1){
+		int dx_orig = 0, dy_orig = 0 ;
+		cch_logo_obj->getRealSize(&dx_orig, &dy_orig);
+		if (cch_logo.dy_max > dy_orig)
+			cch_logo.dy_max = dy_orig;
+	}
+
 	if (cch_logo_obj->hasLogo()){
 		cch_logo_obj->setHeight(cch_logo.dy_max, true);
 

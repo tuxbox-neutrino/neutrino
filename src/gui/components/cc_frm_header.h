@@ -319,6 +319,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		* 		CC_LOGO_RIGHT \n
 		* @param[in]  	dy
 		* 		@li optional logo height, default = -1 (auto)
+		* @note 	In auto mode, logo use full height minus inner offset but not larger than original logo height.
 		*/
 		void setChannelLogo(	const uint64_t& channelId,
 					const std::string& channelName,
