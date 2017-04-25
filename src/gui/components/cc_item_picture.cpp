@@ -76,6 +76,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	y =	y_old	= y_pos;
 	width	= width_old = dx = dxc = w;
 	height	= height_old = dy = dyc = h;
+	dx_orig = dy_orig = 0;
 	pic_name = pic_name_old = image_name;
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
@@ -201,6 +202,9 @@ void CComponentsPicture::initCCItem()
 			if (height == 0)
 				height = dy_tmp;
 		}
+		dx_orig = width;
+		dy_orig = height;
+
 		/* leave init methode here if we in no scale mode
 		 * otherwise goto next step!
 		*/
@@ -211,8 +215,12 @@ void CComponentsPicture::initCCItem()
 		 * check internal dimension values (dx/dy) and ensure that values are >0
 		 * real image size
 		*/
-		if  ((dx != width || dy != height) || (dx == 0 || dy == 0))
-			g_PicViewer->getSize(pic_name.c_str(), &dx, &dy);
+		g_PicViewer->getSize(pic_name.c_str(), &dx_orig, &dy_orig);
+		if  ((dx != width || dy != height) || (dx == 0 || dy == 0)){
+			dx = dx_orig;
+			dy = dy_orig;
+			//g_PicViewer->getSize(pic_name.c_str(), &dx, &dy);
+		}
 	}
 
 	/* on next step check item dimensions (width/height) for 0 values
@@ -269,11 +277,11 @@ void CComponentsPicture::initPosition(int *x_position, int *y_position)
 }
 
 
-// void CComponentsPicture::getSize(int* width_image, int *height_image)
-// {
-// 	*width_image = width;
-// 	*height_image = height;
-// }
+void CComponentsPicture::getRealSize(int* dx_original, int *dy_original)
+{
+	*dx_original = dx_orig; 
+	*dy_original = dy_orig;
+}
 
 int CComponentsPicture::getWidth()
 {
