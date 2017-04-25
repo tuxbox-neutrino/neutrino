@@ -54,9 +54,10 @@ class CComponentsPicture : public CComponentsItem
 		///screen cache content for painted image
 		fb_pixel_t *image_cache;
 
-		///current original image dimensions
+		///current image dimensions
 		int dx, dy;
-
+		///original image dimensions
+		int dx_orig, dy_orig;
 		///cached image dimensions
 		int dxc, dyc;
 
@@ -146,8 +147,8 @@ class CComponentsPicture : public CComponentsItem
 		///returns current assigned image name
 		std::string getPictureName(){return pic_name;}
 
-// 		///handle image size
-// 		void getSize(int* width_image, int *height_image);
+		///get original image size
+		void getRealSize(int* dx_orig, int *dy_orig);
 		///return width of item
 		int getWidth();
 		///return height of item

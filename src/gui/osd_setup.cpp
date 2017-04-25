@@ -316,6 +316,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				memset(window_size_value, 0, sizeof(window_size_value));
 				snprintf(window_size_value, sizeof(window_size_value), "%d / %d", g_settings.window_width, g_settings.window_height);
 				mfWindowSize->setOption(window_size_value);
+				CNeutrinoApp::getInstance()->channelList->ResetModules();
 				break;
 			} else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
 				g_settings.window_width = old_window_width;

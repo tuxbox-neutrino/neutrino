@@ -128,7 +128,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_logo.Id		= 0;
 	cch_logo.Name		= "";
 	cch_logo.dy_max		= -1;
-	cch_logo.Align		= CC_LOGO_RIGHT;
+	cch_logo.Align		= DEFAULT_LOGO_ALIGN;
 	cch_col_text		= COL_MENUHEAD_TEXT;
 	cch_caption_align	= CTextBox::NO_AUTO_LINEBREAK;
 	cch_items_y 		= CC_CENTERED;
@@ -280,6 +280,14 @@ void CComponentsHeader::initLogo()
 		cch_logo_obj = new CComponentsChannelLogoScalable(width/2, height/2 - cch_logo.dy_max/2, cch_logo.Name, cch_logo.Id, this);
 	else
 		cch_logo_obj->setChannel(cch_logo.Id, cch_logo.Name);
+
+	//ensure logo is not larger than original size if in auto mode
+	if (cch_logo.dy_max == -1){
+		int dx_orig = 0, dy_orig = 0 ;
+		cch_logo_obj->getRealSize(&dx_orig, &dy_orig);
+		if (cch_logo.dy_max > dy_orig)
+			cch_logo.dy_max = dy_orig;
+	}
 
 	if (cch_logo_obj->hasLogo()){
 		cch_logo_obj->setHeight(cch_logo.dy_max, true);
