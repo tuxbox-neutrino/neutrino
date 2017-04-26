@@ -294,12 +294,15 @@ void CComponentsHeader::initLogo()
 
 		// set id of logo item depends of neighbor items
 		int logo_id = getCCItemId(cch_logo_obj);
-		int next_id = logo_id + 1;
 		int prev_id = logo_id - 1;
 
 		//right end
-		int x_logo_right = getCCItem(next_id) ? getCCItem(next_id)->getXPos() - cch_logo_obj->getWidth() : width - cch_logo_obj->getWidth()-OFFSET_INNER_MID;
-		x_logo_right -= cch_cl_enable ? cch_cl_obj->getWidth() : 0;
+		int x_logo_right = width - cch_logo_obj->getWidth();
+		if (cch_btn_obj)
+			x_logo_right -= cch_btn_obj->getWidth();
+		if (cch_cl_obj)
+			x_logo_right -= cch_cl_obj->getWidth();
+
 		//left end
 		int x_logo_left = getCCItem(prev_id) ? getCCItem(prev_id)->getXPos() + getCCItem(prev_id)->getWidth() : 0;
 
