@@ -299,6 +299,7 @@ void CComponentsHeader::initLogo()
 
 		//right end
 		int x_logo_right = getCCItem(next_id) ? getCCItem(next_id)->getXPos() - cch_logo_obj->getWidth() : width - cch_logo_obj->getWidth()-OFFSET_INNER_MID;
+		x_logo_right -= cch_cl_enable ? cch_cl_obj->getWidth() : 0;
 		//left end
 		int x_logo_left = getCCItem(prev_id) ? getCCItem(prev_id)->getXPos() + getCCItem(prev_id)->getWidth() : 0;
 
