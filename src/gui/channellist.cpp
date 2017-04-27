@@ -2148,6 +2148,8 @@ void CChannelList::paintHead()
 		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
 		header->getChannelLogoObject()->allowPaint(false);
 	}
+	else
+		header->setChannelLogo(0, string());
 	header->paint(CC_SAVE_SCREEN_NO);
 	showChannelLogo();
 }
