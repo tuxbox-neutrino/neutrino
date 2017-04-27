@@ -112,7 +112,6 @@ private:
 	int			info_height; // the infobox below mainbox is handled outside height
 	int			x;
 	int			y;
-	int			logo_off;
 	int			pig_width;
 	int			pig_height;
 	int			infozone_width;
