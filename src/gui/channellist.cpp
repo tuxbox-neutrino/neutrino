@@ -123,7 +123,6 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
 	cc_minitv = NULL;
-	logo_off = 0;
 	minitv_is_active = false;
 	headerNew = true;
 	bouquet = NULL;
@@ -2133,7 +2132,6 @@ void CChannelList::paintHead()
 				if (!header->getContextBtnObject()->empty())
 					header->removeContextButtons();
 			header->enableClock(true, "%H:%M", "%H %M", true);
-			logo_off = header->getClockObject()->getWidth() + OFFSET_INNER_MID;
 
 			header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 		}else{
@@ -2143,8 +2141,6 @@ void CChannelList::paintHead()
 			}
 		}
 	}
-	else
-		logo_off = OFFSET_INNER_MID;
 
 	if(g_settings.channellist_show_channellogo){
 		//ensure to have clean background
@@ -2152,6 +2148,8 @@ void CChannelList::paintHead()
 		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
 		header->getChannelLogoObject()->allowPaint(false);
 	}
+	else
+		header->setChannelLogo(0, string());
 	header->paint(CC_SAVE_SCREEN_NO);
 	showChannelLogo();
 }

@@ -274,10 +274,10 @@ void CComponentsHeader::initIcon()
 
 void CComponentsHeader::initLogo()
 {
-	cch_logo.dy_max = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_MIN : cch_logo.dy_max;
+	int h_logo = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_MIN : cch_logo.dy_max;
 
 	if(!cch_logo_obj)
-		cch_logo_obj = new CComponentsChannelLogoScalable(width/2, height/2 - cch_logo.dy_max/2, cch_logo.Name, cch_logo.Id, this);
+		cch_logo_obj = new CComponentsChannelLogoScalable(width/2, height/2 - h_logo/2, cch_logo.Name, cch_logo.Id, this);
 	else
 		cch_logo_obj->setChannel(cch_logo.Id, cch_logo.Name);
 
@@ -285,20 +285,24 @@ void CComponentsHeader::initLogo()
 	if (cch_logo.dy_max == -1){
 		int dx_orig = 0, dy_orig = 0 ;
 		cch_logo_obj->getRealSize(&dx_orig, &dy_orig);
-		if (cch_logo.dy_max > dy_orig)
-			cch_logo.dy_max = dy_orig;
+		if (h_logo > dy_orig)
+			h_logo = dy_orig;
 	}
 
 	if (cch_logo_obj->hasLogo()){
-		cch_logo_obj->setHeight(cch_logo.dy_max, true);
+		cch_logo_obj->setHeight(h_logo, true);
 
 		// set id of logo item depends of neighbor items
 		int logo_id = getCCItemId(cch_logo_obj);
-		int next_id = logo_id + 1;
 		int prev_id = logo_id - 1;
 
 		//right end
-		int x_logo_right = getCCItem(next_id) ? getCCItem(next_id)->getXPos() - cch_logo_obj->getWidth() : width - cch_logo_obj->getWidth()-OFFSET_INNER_MID;
+		int x_logo_right = width - cch_logo_obj->getWidth();
+		if (cch_btn_obj)
+			x_logo_right -= cch_btn_obj->getWidth();
+		if (cch_cl_obj)
+			x_logo_right -= cch_cl_obj->getWidth();
+
 		//left end
 		int x_logo_left = getCCItem(prev_id) ? getCCItem(prev_id)->getXPos() + getCCItem(prev_id)->getWidth() : 0;
 

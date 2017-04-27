@@ -532,6 +532,12 @@ void CComponentsForm::killCCItems(const fb_pixel_t& bg_color, bool ignore_parent
 		v_cc_items[i]->kill(bg_color, ignore_parent);
 }
 
+void CComponentsForm::hideCCItems()
+{
+	for(size_t i=0; i<v_cc_items.size(); i++)
+		v_cc_items[i]->hide();
+}
+
 void CComponentsForm::setPageCount(const u_int8_t& pageCount)
 {
 	u_int8_t new_val = pageCount;
