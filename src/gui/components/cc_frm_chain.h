@@ -55,6 +55,10 @@ class CComponentsFrmChain : public CComponentsForm
 					fb_pixel_t& color_frame,
 					fb_pixel_t& color_body,
 					fb_pixel_t& color_shadow);
+
+		int chn_l_offset, chn_r_offset;
+		int chn_t_offset, chn_b_offset;
+
 	protected:
 		///property: mode for arrangement direction of items, see also setDirection(), getDirection()
 		int chn_direction;
@@ -75,7 +79,26 @@ class CComponentsFrmChain : public CComponentsForm
 		///defines mode for arrangement direction of items, see also chn_direction
 		virtual void setDirection(int direction);
 		///gets the mode of arrangment direction
-		virtual int getDirection(){return chn_direction;};
+		virtual int getDirection(){return chn_direction;}
+
+		/**Members to set border offsets
+		* @param[in] 	offset
+		* 	@li 	expects type int as offset value
+		* @return
+		*	void
+		*/
+		void setLeftOffset(const int& offset){chn_l_offset = offset;}
+		void setRightOffset(const int& offset){chn_r_offset = offset;}
+		void setTopOffset(const int& offset){chn_t_offset = offset;}
+		void setBottomOffset(const int& offset){chn_b_offset = offset;}
+
+		void setBorderOffsets(const int& left_offset, const int& right_offset, const int& top_offset, const int& bottom_offset)
+		{
+			setLeftOffset(left_offset);
+			setRightOffset(right_offset);
+			setTopOffset(top_offset);
+			setBottomOffset(bottom_offset);
+		}
 };
 
 #endif

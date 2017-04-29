@@ -299,7 +299,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///hides item, arg: no_restore see hideCCItem()
-		void hide(){disableClock(); CComponents::hide();}
+		void hide(){disableClock(); CComponentsForm::hide();}
 		///erase current screen without restore of background, it's similar to paintBackgroundBoxRel() from CFrameBuffer
 		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = CC_FBDATA_TYPES, bool disable_clock = true);
 

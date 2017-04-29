@@ -81,6 +81,16 @@ class CComponentsForm : public CComponentsItem
 		///NOTE: Items always have parent bindings to "this" and use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
 		virtual void killCCItems(const fb_pixel_t& bg_color, bool ignore_parent);
 
+		/**
+		 Removes possible contained items and finally removes
+		 current form from screen and
+		 restores last displayed background before form was painted.
+		*/
+		void hide(){hideCCItems(); CCDraw::hide();}
+
+		///restore background for all items inside form,
+		void hideCCItems();
+
 		///add an item to form collection, returns id
 		virtual int addCCItem(CComponentsItem* cc_Item);
 		///add items from a vector to form collection, returns size/count of items
