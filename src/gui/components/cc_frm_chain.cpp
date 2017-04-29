@@ -27,6 +27,25 @@
 
 using namespace std;
 
+
+/* general chain form shema
+
+		   x/y
+		 /
+		+---------------------------------------width----------------------------------------+
+		|                                    chn_t_offset                                    |
+		|            +--------+               +--------+               +--------+            |
+		|chn_l_offset| item   |append_x_offset| item   |append_x_offset| item   |chn_r_offset|
+		|            +--------+               +--------+               +--------+            |
+		|                                   append_y_offset                                  |height
+		|            +--------+               +--------+               +--------+            |
+		|            | item   |               | item   |               | item   |            |
+		|            +--------+               +--------+               +--------+            |
+		|                                    chn_b_offset                                    |
+		+------------------------------------------------------------------------------------+
+*/
+
+
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsFrmChain
 CComponentsFrmChain::CComponentsFrmChain(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -59,11 +78,14 @@ void CComponentsFrmChain::initVarChain(	const int& x_pos, const int& y_pos, cons
 	width 		= w;
 	height 		= h;
 
+	chn_l_offset = chn_r_offset = 0;
+	chn_t_offset = chn_b_offset = 0;
+
 	shadow		= shadow_mode;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	
+
 	chn_direction	= direction;
 
 	if (v_items)
@@ -86,23 +108,65 @@ void CComponentsFrmChain::initChainItems()
 		return;
 
 	//set new values
-	int w_tmp = append_x_offset;
-	int h_tmp = append_y_offset;
+	int w_tmp = 0, h_tmp = 0;
+	int w_item = 0, h_item = 0;
+	size_t i_count = v_cc_items.size();
 
-	for (size_t i= 0; i< v_cc_items.size(); i++){
-		int x_item = v_cc_items[i]->getXPos();
-		int y_item = v_cc_items[i]->getYPos();
+
+	for (size_t i= 0; i< i_count; i++){
+// 		x_item = v_cc_items[i]->getXPos();
+// 		y_item = v_cc_items[i]->getYPos();
+		w_item = v_cc_items[i]->getWidth();
+		h_item = v_cc_items[i]->getHeight();
 
 		if (chn_direction & CC_DIR_X){
-			w_tmp += v_cc_items[i]->getWidth();
-			w_tmp += append_x_offset;
-			v_cc_items[i]->setPos(max(CC_APPEND, x_item), max(CC_CENTERED, y_item));
+			if (i == 0){
+				v_cc_items[i]->setXPos(chn_l_offset);
+				w_tmp += chn_l_offset;
+				w_tmp += w_item;
+				if (i_count == 1)
+					w_tmp += chn_r_offset;
+			}
+
+			if (i_count > 1){
+				if (i == i_count-1){
+					w_tmp += w_item;
+					w_tmp += append_x_offset;
+					v_cc_items[i]->setXPos(w_tmp - v_cc_items[i]->getWidth());
+					w_tmp += chn_r_offset;
+				}
+			}
+
+			if (i != 0 && i != i_count-1){
+				w_tmp += w_item;
+				w_tmp += append_x_offset;
+				v_cc_items[i]->setXPos(w_tmp - v_cc_items[i]->getWidth());
+			}
 		}
 
 		if (chn_direction & CC_DIR_Y){
-			h_tmp += v_cc_items[i]->getHeight();
-			h_tmp += append_y_offset;
-			v_cc_items[i]->setPos(max(CC_CENTERED, x_item), max(CC_APPEND, y_item));
+			if (i == 0){
+				v_cc_items[i]->setYPos(chn_t_offset);
+				h_tmp += chn_t_offset;
+				h_tmp += h_item;
+				if (i_count == 1)
+					h_tmp += chn_b_offset;
+			}
+
+			if (i_count > 1){
+				if (i == i_count-1){
+					h_tmp += h_item;
+					h_tmp += append_y_offset;
+					v_cc_items[i]->setYPos(h_tmp - v_cc_items[i]->getHeight());
+					h_tmp += chn_b_offset;
+				}
+			}
+
+			if (i != 0 && i != i_count-1){
+				h_tmp += h_item;
+				h_tmp += append_y_offset;
+				v_cc_items[i]->setYPos(h_tmp - v_cc_items[i]->getHeight());
+			}
 		}
 	}
 	width 	= max (w_tmp, width);

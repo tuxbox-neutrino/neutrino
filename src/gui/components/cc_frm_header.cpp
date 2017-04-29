@@ -414,8 +414,9 @@ void CComponentsHeader::initButtons()
 	//set button form properties
 	if (cch_btn_obj){
 		cch_btn_obj->setYPos(cch_items_y);
-		cch_btn_obj->doPaintBg(false);
+		cch_btn_obj->doPaintBg(false);;
 		cch_btn_obj->setAppendOffset(cch_buttons_space, 0);
+		cch_btn_obj->setRightOffset(cch_buttons_space);
 		cch_btn_obj->removeAllIcons();
 		cch_btn_obj->addIcon(v_cch_btn);
 

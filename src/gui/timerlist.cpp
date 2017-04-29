@@ -1379,7 +1379,7 @@ void CTimerList::paintItem(int pos)
 void CTimerList::paintHead()
 {
 	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
-	header.enableClock(true, "%d.%m.%Y  %H:%M");
+	header.enableClock(true, " %d.%m.%Y  %H:%M ");
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
