@@ -518,7 +518,7 @@ void CComponentsForm::paintCCItems()
 
 		//finally paint current item, but only required contents of page
 		if (cc_item->getPageNumber() == cur_page)
-			cc_item->paint(CC_SAVE_SCREEN_NO);
+			cc_item->paint(cc_item->SaveBg());
 
 		//restore defined old visibility mode of item after paint
 		cc_item->allowPaint(item_visible);
