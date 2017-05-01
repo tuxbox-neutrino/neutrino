@@ -284,6 +284,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		virtual void enableSaveBg(bool save_bg = true);
 		///disable background buffering, does the same like enableSaveBg(false), NOTE: cleans existant pixbuffer content!
 		virtual void disableSaveBg(){enableSaveBg(false);}
+		///returns background buffering mode. Mode is assigned with paint() or enableSaveBg()/disableSaveBg())
+		bool SaveBg(){return cc_save_bg;}
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
