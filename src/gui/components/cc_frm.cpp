@@ -185,12 +185,11 @@ void CComponentsForm::clear()
 		return;
 
 	for(size_t i=0; i<v_cc_items.size(); i++) {
-		if (v_cc_items[i]){
-
-		dprintf(DEBUG_DEBUG, "[CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __func__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i]->getItemType());
-
-			delete v_cc_items[i];
-			v_cc_items[i] = NULL;
+		CComponentsItem *item = v_cc_items[i];
+		if (item){
+			dprintf(DEBUG_DEBUG, "[CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\taddress = %p\n", __func__, (int)i+1, (int)v_cc_items.size(), item->getItemType(), item);
+			delete item;
+			item = NULL;
 		}
 	}
 	v_cc_items.clear();
@@ -518,7 +517,7 @@ void CComponentsForm::paintCCItems()
 
 		//finally paint current item, but only required contents of page
 		if (cc_item->getPageNumber() == cur_page)
-			cc_item->paint(CC_SAVE_SCREEN_NO);
+			cc_item->paint(cc_item->SaveBg());
 
 		//restore defined old visibility mode of item after paint
 		cc_item->allowPaint(item_visible);
