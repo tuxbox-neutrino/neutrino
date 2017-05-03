@@ -896,9 +896,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		rText->setXPos(x_pos - OFFSET_INNER_MID - rText->getWidth());
 		rpic->doPaintBg(false);
 		rText->doPaintBg(false);
-
-		Bottombox->paint(false);
 	}
+
+	Bottombox->paint(false);
+
 	showProgressBar();
 
 	// show Timer Event Buttons
