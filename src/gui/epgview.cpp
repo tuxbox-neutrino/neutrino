@@ -869,7 +869,9 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// small bottom box
 	CComponentsFrmChain *Bottombox = new CComponentsFrmChain(sx, sy+oy-botboxheight, ox, botboxheight);
-	Bottombox->setColorBody(COL_MENUHEAD_PLUS_0);
+	Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
+	Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
+	Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
 
 	if (!mp_info)
 	{

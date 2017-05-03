@@ -886,7 +886,9 @@ void CEventList::paintBottomBox(std::string _channelname_prev, std::string _chan
 	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
 	CComponentsFrmChain *Bottombox = new CComponentsFrmChain(x, by, full_width, botboxheight);
-	Bottombox->setColorBody(COL_MENUHEAD_PLUS_0);
+	Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
+	Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
+	Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
 
 	if (!_channelname_prev.empty()) {
 		CComponentsPictureScalable *lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT,Bottombox);
