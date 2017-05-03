@@ -120,12 +120,15 @@ CEventList::CEventList()
 	oldEventID = -1;
 	bgRightBoxPaint = false;
 	header = NULL;
+	pb = NULL;
 }
 
 CEventList::~CEventList()
 {
 	delete header;
 	header = NULL;
+	delete pb;
+	pb = NULL;
 }
 
 void CEventList::UpdateTimerList(void)
