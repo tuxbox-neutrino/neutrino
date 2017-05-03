@@ -684,6 +684,8 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 
 void CEventList::hide()
 {
+	if (header)
+		header->getClockObject()->kill();
 	frameBuffer->paintBackgroundBoxRel(x,y, full_width,height);
 }
 
