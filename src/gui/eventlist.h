@@ -105,6 +105,7 @@ class CEventList : public CListHelpers
 	CComponentsText	*cc_infozone;
 	CComponentsHeader *header;
 	CProgressBar *pb;
+	CComponentsFrmChain *Bottombox;
 	const char *	unit_short_minute;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
@@ -127,6 +128,7 @@ class CEventList : public CListHelpers
 		CEventList();
 		~CEventList();
 		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = "", const CChannelEventList &followlist = CChannelEventList ()); // UTF-8
+		void ResetModules();
 };
 
 class CEventListHandler : public CMenuTarget

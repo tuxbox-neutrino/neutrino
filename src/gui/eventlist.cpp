@@ -121,14 +121,25 @@ CEventList::CEventList()
 	bgRightBoxPaint = false;
 	header = NULL;
 	pb = NULL;
+	Bottombox = NULL;
 }
 
 CEventList::~CEventList()
 {
-	delete header;
-	header = NULL;
-	delete pb;
-	pb = NULL;
+	ResetModules();
+}
+
+void CEventList::ResetModules()
+{
+	if (header){
+		delete header; header = NULL;
+	}
+	if (Bottombox){
+		delete Bottombox; Bottombox = NULL;
+	}
+	if (pb){
+		delete pb; pb = NULL;
+	}
 }
 
 void CEventList::UpdateTimerList(void)
@@ -687,8 +698,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 
 void CEventList::hide()
 {
-	if (header)
-		header->getClockObject()->kill();
+	ResetModules();
 	frameBuffer->paintBackgroundBoxRel(x,y, full_width,height);
 }
 
@@ -860,20 +870,19 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	if (header == NULL){
 		header = new CComponentsHeader();
 		header->getTextObject()->enableTboxSaveScreen(g_settings.theme.menu_Head_gradient);//enable screen save for title text if color gradient is in use
+		header->enableClock(true, "%H:%M", "%H %M", true);
+		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+		header->setDimensionsAll(x, y, full_width, theight);
 	}
+	//header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 
-	header->setDimensionsAll(x, y, full_width, theight);
-	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-	header->setCorner(RADIUS_LARGE, CORNER_TOP);
-
-	header->enableClock(true, "%H:%M", "%H.%M", true);
-	header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-
-	header->getChannelLogoObject()->hide();
+	if (header->isPainted())
+		header->getChannelLogoObject()->hide();
 	header->setChannelLogo(_channel_id,_channelname);
 	header->setCaption(_channelname,CTextBox::CENTER);
 
 	header->paint(CC_SAVE_SCREEN_NO);
+
 	paintBottomBox(_channelname_prev, _channelname_next);
 }
 
@@ -885,26 +894,38 @@ void CEventList::paintBottomBox(std::string _channelname_prev, std::string _chan
 	int mid_width = full_width * 40 / 100; // 40%
 	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
-	CComponentsFrmChain *Bottombox = new CComponentsFrmChain(x, by, full_width, botboxheight);
-	Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
-	Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
-	Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
+	if (!Bottombox){
+		Bottombox = new CComponentsFrmChain(x, by, full_width, botboxheight);
+		Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
+		Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
+		Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
+	}else{
+		if (Bottombox->isPainted())
+			Bottombox->hideCCItems();
+		Bottombox->clear();
+	}
 
 	if (!_channelname_prev.empty()) {
 		CComponentsPictureScalable *lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT,Bottombox);
-		CComponentsText *lText = new CComponentsText(x_off + lpic->getWidth() + OFFSET_INNER_MID, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		lpic->doPaintBg(false);
+		lpic->enableSaveBg();
+
+		CComponentsText *lText = new CComponentsText(x_off + lpic->getWidth() + OFFSET_INNER_MID, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		lText->doPaintBg(false);
+		lText->enableSaveBg();
 	}
 
 	if (!_channelname_next.empty()) {
 		CComponentsPictureScalable *rpic = new CComponentsPictureScalable(0,CC_CENTERED,NEUTRINO_ICON_BUTTON_RIGHT,Bottombox);
 		int x_pos = full_width - rpic->getWidth() - OFFSET_INNER_MID;
+		rpic->doPaintBg(false);
 		rpic->setXPos(x_pos);
+		rpic->enableSaveBg();
+
 		CComponentsText *rText = new CComponentsText(0, CC_CENTERED, side_width, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		rText->setXPos(x_pos - OFFSET_INNER_MID - rText->getWidth());
-		rpic->doPaintBg(false);
 		rText->doPaintBg(false);
+		rText->enableSaveBg();
 	}
 
 	Bottombox->paint(false);
