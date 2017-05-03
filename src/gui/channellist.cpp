@@ -439,8 +439,9 @@ int CChannelList::doChannelMenu(void)
 				previous_channellist_additional = g_settings.channellist_additional;
 				COsdSetup osd_setup;
 				osd_setup.showContextChanlistMenu(this);
-				//FIXME check font/options changed ?
 				hide();
+				ResetModules();
+				//FIXME check font/options changed ?
 				calcSize();
 				ret = -1;
 			}
@@ -955,7 +956,11 @@ void CChannelList::hide()
 		header->kill();
 
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + OFFSET_INTER + info_height);
-	clearItem2DetailsLine();
+
+	//remove details line
+	if (dline)
+		dline->kill();
+
 	CInfoClock::getInstance()->enableInfoClock(!CInfoClock::getInstance()->isBlocked());
 }
 
@@ -1637,12 +1642,6 @@ void CChannelList::clearItem2DetailsLine()
 
 void CChannelList::paintItem2DetailsLine (int pos)
 {
-	if (dline){
-		dline->kill(); //kill details line
-		delete dline;
-		dline = NULL;
-	}
-
 	if (!g_settings.channellist_show_infobox)
 		return;
 
@@ -1652,9 +1651,15 @@ void CChannelList::paintItem2DetailsLine (int pos)
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) {
-		if (dline == NULL)
+		if (!dline){
 			dline = new CComponentsDetailsLine(xpos, ypos1, ypos2, fheight/2, info_height-RADIUS_LARGE*2);
-		dline->paint(false);
+		}else{
+			dline->setPos(xpos, ypos1);
+			dline->setYPosDown(ypos2);
+			dline->setHMarkTop(fheight/2);
+			dline->setHMarkDown(info_height-RADIUS_LARGE*2);
+		}
+		dline->paint();
 	}
 }
 
