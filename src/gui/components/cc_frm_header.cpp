@@ -144,8 +144,6 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_cl_sec_format 	= cch_cl_format;
 	cch_cl_enable_run	= false;
 
-	cch_text_max_w	= width;
-
 	addContextButton(buttons);
 	initCCItems();
 	initParent(parent);
@@ -564,7 +562,6 @@ void CComponentsHeader::initCaption()
 		cch_cl_obj->allowPaint(cch_cl_enable);
 	}
 
-	cc_text_w = min(cc_text_w,cch_text_max_w);
 
 	//create cch_text_obj and add to collection
 	if (cch_text_obj == NULL){
