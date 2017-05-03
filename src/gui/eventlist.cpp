@@ -857,13 +857,10 @@ void CEventList::paintDescription(int index)
 
 void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
 {
-	if (header) {
-		header->kill();
-		delete header;
-		header = NULL;
+	if (header == NULL){
+		header = new CComponentsHeader();
+		header->getTextObject()->enableTboxSaveScreen(g_settings.theme.menu_Head_gradient);//enable screen save for title text if color gradient is in use
 	}
-
-	header = new CComponentsHeader();
 
 	header->setDimensionsAll(x, y, full_width, theight);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
