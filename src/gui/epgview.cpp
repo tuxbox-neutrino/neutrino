@@ -121,17 +121,22 @@ void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUse
 
 CEpgData::CEpgData()
 {
-	bigFonts = false;
-	frameBuffer = CFrameBuffer::getInstance();
-	tmdb_active = false;
-	mp_movie_info = NULL;
-	header     = NULL;
+	bigFonts 	= false;
+	frameBuffer 	= CFrameBuffer::getInstance();
+	tmdb_active 	= false;
+	mp_movie_info 	= NULL;
+	header     	= NULL;
+	Bottombox 	= NULL;
+	lpic		= NULL;
+	rpic		= NULL;
+	lText 		= NULL;
+	rText		= NULL;
+	pb		= NULL;
 }
 
 CEpgData::~CEpgData()
 {
-	delete header;
-	header = NULL;
+	ResetModules();
 }
 
 void CEpgData::start()
@@ -841,40 +846,39 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// show the epg
 	// header + logo
-	if (header) {
-		header->kill();
-		delete header;
-		header = NULL;
-	}
-
-	header = new CComponentsHeader(sx, sy, ox, toph);
-	header->setCorner(RADIUS_LARGE, CORNER_TOP);
-	header->setDimensionsAll(sx, sy, ox, toph);
-	header->setColorBody(COL_MENUHEAD_PLUS_0);
-	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-
-	header->enableClock(true, "%H:%M", "%H.%M", true);
-	header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-
-	header->getChannelLogoObject()->hide();
-	header->setChannelLogo(channel_id, channel_name);
+	if (!header){
+		header = new CComponentsHeader(sx, sy, ox, toph);
+		header->setColorBody(COL_MENUHEAD_PLUS_0);
+		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+		header->enableClock(true, "%H:%M", "%H %M", true);
+	}else
+		header->setDimensionsAll(sx, sy, ox, toph);
 
 	header->setCaption(epgData.title);
 
+	if (header->isPainted())
+		header->hideCCItems();
+
+	// set channel logo
+	header->setChannelLogo(channel_id, channel_name);
+
+	//paint head
 	header->paint(CC_SAVE_SCREEN_NO);
 
 	int showPos = 0;
 	textCount = epgText.size();
 	showText(showPos, sy + toph);
 
-	// small bottom box
-	CComponentsFrmChain *Bottombox = new CComponentsFrmChain(sx, sy+oy-botboxheight, ox, botboxheight);
-	Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
-	Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
-	Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
+	// small bottom box with left/right navigation
+	if (!Bottombox){
+		Bottombox = new CComponentsFrmChain(sx, sy+oy-botboxheight, ox, botboxheight);
+		Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
+		Bottombox->setCornerType(CORNER_NONE);
+		Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
+		Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
+	}
 
-	if (!mp_info)
-	{
+	if (!mp_info){
 		std::string fromto = epg_start + " - " + epg_end;
 		int x_off = OFFSET_INNER_MID;
 		int mid_width = ox * 40 / 100; // 40%
@@ -882,26 +886,52 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 		GetPrevNextEPGData(epgData.eventID, &epgData.epg_times.startzeit);
 
-		CComponentsPictureScalable *lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT);
-		CComponentsText *lText = new CComponentsText(x_off + lpic->getWidth() + OFFSET_INNER_MID, CC_CENTERED, side_width, toph, fromto, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
-		if ((prev_id) && (!call_fromfollowlist))
+		// init left arrow
+		if (!lpic){
+			lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT);
+			lpic->doPaintBg(false);
 			Bottombox->addCCItem(lpic);
-		lpic->doPaintBg(false);
-		lText->doPaintBg(false);
+			lpic->enableSaveBg();
+		}
+		lpic->allowPaint(prev_id && !call_fromfollowlist);
 
-		CComponentsPictureScalable *rpic = new CComponentsPictureScalable(0,CC_CENTERED,NEUTRINO_ICON_BUTTON_RIGHT,Bottombox);
-		int x_pos = ox - rpic->getWidth() - OFFSET_INNER_MID;
-		if ((next_id) && (!call_fromfollowlist))
+		// init right arrow
+		if (!rpic){
+			rpic = new CComponentsPictureScalable(0,CC_CENTERED,NEUTRINO_ICON_BUTTON_RIGHT);
+
+			rpic->doPaintBg(false);
 			Bottombox->addCCItem(rpic);
-		rpic->setXPos(x_pos);
-		CComponentsText *rText = new CComponentsText(0, CC_CENTERED, side_width, toph, epg_date, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
-		rText->setXPos(x_pos - OFFSET_INNER_MID - rText->getWidth());
-		rpic->doPaintBg(false);
-		rText->doPaintBg(false);
+			rpic->enableSaveBg();
+			int x_pos = ox - rpic->getWidth() - x_off;
+			rpic->setXPos(x_pos);
+		}
+		rpic->allowPaint(next_id && !call_fromfollowlist);
+
+		// init text left "from to"
+		if (!lText){
+			lText = new CComponentsText(x_off + lpic->getWidth() + x_off, CC_CENTERED, side_width, toph, "", CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], CComponentsText::FONT_STYLE_REGULAR, NULL, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+			lText->doPaintBg(false);
+			Bottombox->addCCItem(lText);
+			lText->enableSaveBg();
+		}
+		lText->setText(fromto, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], COL_MENUHEAD_TEXT, CComponentsText::FONT_STYLE_REGULAR);
+
+		// init text right "follow"
+		if (!rText){
+			rText = new CComponentsText(0, CC_CENTERED, side_width, toph, "", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+			rText->doPaintBg(false);
+			rText->enableSaveBg();
+		}
+		rText->setText(epg_date, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]);
+		rText->setXPos(rpic->getXPos() - x_off - rText->getWidth());
 	}
 
-	Bottombox->paint(false);
+	//ensure clean background
+	if(Bottombox->isPainted())
+		Bottombox->hideCCItems();
 
+	//paint bottombox contents
+	Bottombox->paint(false);
 	showProgressBar();
 
 	// show Timer Event Buttons
@@ -1214,6 +1244,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			}
 			case CRCInput::RC_help:
 				bigFonts = bigFonts ? false : true;
+				ResetModules();
 				frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
 				showTimerEventBar (false);
 				start();
@@ -1289,11 +1320,7 @@ void CEpgData::hide()
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() / BIGFONT_FACTOR));
 	}
 
-	if (header) {
-		header->kill();
-		delete header;
-		header = NULL;
-	}
+	ResetModules();
 
 	frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
 	showTimerEventBar (false);
@@ -1437,18 +1464,21 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 
 void CEpgData::showProgressBar()
 {
+	int w = 104;
+	int x = sx + (ox - w)/2;
+	int h = botboxheight - 12;
+	int y = sy + oy - botboxheight + (botboxheight - h)/2;
+	if (!pb){
+		pb = new CProgressBar(x, y, w, h);
+		pb->setType(CProgressBar::PB_TIMESCALE);
+	}
 	//show progressbar
 	if (epg_done != -1)
 	{
-		int w = 104;
-		int x = sx + (ox - w)/2;
-		int h = botboxheight - 12;
-		int y = sy + oy - botboxheight + (botboxheight - h)/2;
-
-		CProgressBar pb(x, y, w, h);
-		pb.setType(CProgressBar::PB_TIMESCALE);
-		pb.setValues(epg_done, 100);
-		pb.paint(false);
+		pb->setValues(epg_done, 100);
+		pb->paint(true);
+	}else{
+		pb->hide();
 	}
 }
 
@@ -1520,6 +1550,22 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 			::paintButtons(x, y, w, c, EpgButtons[fscr ? 0 : 1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
 		else
 			::paintButtons(x, y, w, c, &EpgButtons[fscr ? 0 : 1][1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 0);
+	}
+}
+
+void CEpgData::ResetModules()
+{
+	if (header){
+		delete header; header = NULL;
+	}
+	if (Bottombox){
+		delete Bottombox; Bottombox = NULL;
+		// bottom box items are destroyed but explicit reset of bottom box items here required
+		lpic = rpic = NULL;
+		lText = rText = NULL;
+	}
+	if (pb){
+		delete pb; pb = NULL;
 	}
 }
 
