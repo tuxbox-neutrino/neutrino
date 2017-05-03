@@ -50,7 +50,7 @@ class CEpgData
 		CChannelEventList	evtlist;
 		CChannelEventList	followlist;
 		CEPGData		epgData;
-		CComponentsShapeSquare* header;
+		CComponentsHeader* header;
 		std::string 		epg_date;
 		std::string 		epg_start;
 		std::string 		epg_end;

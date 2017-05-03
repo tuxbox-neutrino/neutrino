@@ -291,8 +291,10 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	fwidth1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth("DDD, :,  ") + 4 * g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getMaxDigitWidth();
 	//fwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth("[ ] ") + 3 * g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getMaxDigitWidth() + g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(unit_short_minute);
 
-	listmaxshow = (height-theight-iheight-0)/fheight;
-	height = theight+iheight+0+listmaxshow*fheight; // recalc height
+	botboxheight = fheight1+2*OFFSET_INNER_MIN;
+
+	listmaxshow = (height-theight-iheight-botboxheight-0)/fheight;
+	height = theight+iheight+botboxheight+0+listmaxshow*fheight; // recalc height
 	y = getScreenStartY(height);
 
 	// calculate width of right info_zone
@@ -804,6 +806,9 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		
 		// paint 2nd line text
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x + iw + OFFSET_INNER_MID, ypos + fheight, width - iw - 2*OFFSET_INNER_MID, evtlist[currpos].description, color);
+
+		if (i_radius)
+			showProgressBar(currpos);
 	}
 }
 
@@ -847,57 +852,90 @@ void CEventList::paintDescription(int index)
 
 void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
 {
-	int font_mid = SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE;
-	int font_lr  = SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE;
+	if (header) {
+		header->kill();
+		delete header;
+		header = NULL;
+	}
 
-	if (!header)
-		header = new CComponentsFrmChain();
+	header = new CComponentsHeader();
 
 	header->setDimensionsAll(x, y, full_width, theight);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 	header->setCorner(RADIUS_LARGE, CORNER_TOP);
-	header->clear();
 
+	header->enableClock(true, "%H:%M", "%H.%M", true);
+	header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+
+	header->getChannelLogoObject()->hide();
+	header->setChannelLogo(_channel_id,_channelname);
+	header->setCaption(_channelname,CTextBox::CENTER);
+
+	header->paint(CC_SAVE_SCREEN_NO);
+	paintBottomBox(_channelname_prev, _channelname_next);
+}
+
+void CEventList::paintBottomBox(std::string _channelname_prev, std::string _channelname_next)
+{
+	int by = y + height - iheight - botboxheight;
+	int font_lr  = SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE;
 	int x_off = OFFSET_INNER_MID;
 	int mid_width = full_width * 40 / 100; // 40%
-	int max_height = theight - 2*OFFSET_INNER_MIN;
 	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
-	//create an logo object
-	CComponentsChannelLogoScalable* midLogo = new CComponentsChannelLogoScalable(0, 0, _channelname, _channel_id, header);
-	if (midLogo->hasLogo())
-	{
-		midLogo->setWidth(min(midLogo->getWidth(), mid_width), true);
-		if (midLogo->getHeight() > max_height)
-			midLogo->setHeight(max_height, true);
-
-		midLogo->setPos(CC_CENTERED, CC_CENTERED);
-
-		// recalc widths
-		side_width = ((full_width - midLogo->getWidth()) / 2) - (4 * x_off);
-	}
-	else {
-		header->removeCCItem(midLogo); //remove/destroy logo object, if it is not available
-		int w_midText = g_Font[font_mid]->getRenderWidth(_channelname);
-		CComponentsText *midText = new CComponentsText(0, CC_CENTERED, w_midText, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
-		midText->setXPos(full_width/2 - midText->getWidth()/2);
-		midText->doPaintBg(false);
-	}
+	CComponentsFrmChain *Bottombox = new CComponentsFrmChain(x, by, full_width, botboxheight);
+	Bottombox->setColorBody(COL_MENUHEAD_PLUS_0);
 
 	if (!_channelname_prev.empty()) {
-		CComponentsText *lText = new CComponentsText(x_off, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		CComponentsPictureScalable *lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT,Bottombox);
+		CComponentsText *lText = new CComponentsText(x_off + lpic->getWidth() + OFFSET_INNER_MID, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		lpic->doPaintBg(false);
 		lText->doPaintBg(false);
 	}
 
 	if (!_channelname_next.empty()) {
-		int x_pos = full_width - side_width - x_off;
-		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, side_width, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		CComponentsPictureScalable *rpic = new CComponentsPictureScalable(0,CC_CENTERED,NEUTRINO_ICON_BUTTON_RIGHT,Bottombox);
+		int x_pos = full_width - rpic->getWidth() - OFFSET_INNER_MID;
+		rpic->setXPos(x_pos);
+		CComponentsText *rText = new CComponentsText(0, CC_CENTERED, side_width, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		rText->setXPos(x_pos - OFFSET_INNER_MID - rText->getWidth());
+		rpic->doPaintBg(false);
 		rText->doPaintBg(false);
 	}
 
-	if (header->isPainted()) //clean up background of header for new captions
-		header->kill(header->getColorBody());
-	header->paint(CC_SAVE_SCREEN_NO);
+	Bottombox->paint(false);
+}
+
+void CEventList::showProgressBar(int pos)
+{
+	int epg_done= -1;
+	if ((( time(NULL)- evtlist[pos].startTime )>= 0 ) && (evtlist[pos].duration > 0))
+	{
+		unsigned nProcentagePassed = ((time(NULL) - evtlist[pos].startTime) * 100 / evtlist[pos].duration);
+		if (nProcentagePassed<= 100)
+			epg_done= nProcentagePassed;
+	}
+
+	int pbw = 104;
+	int pbx = x + (full_width - pbw)/2;
+	int pbh = botboxheight - 12;
+	int pby = y + height -iheight - botboxheight + (botboxheight - pbh)/2;
+
+	//show progressbar
+	if (epg_done != -1)
+	{
+		CProgressBar pb(pbx, pby, pbw, pbh);
+		pb.setType(CProgressBar::PB_TIMESCALE);
+		pb.setValues(epg_done, 100);
+		pb.paint(false);
+	}
+	else
+	{
+		CComponentsShapeSquare pb(pbx, pby, pbw, pbh);
+		pb.setColorBody(COL_MENUHEAD_PLUS_0);
+		pb.paint(false);
+	}
+
 }
 
 void CEventList::paint(t_channel_id channel_id)
@@ -998,7 +1036,6 @@ void CEventList::showFunctionBar(t_channel_id channel_id)
 		buttons[btn_cnt].locale = LOCALE_EPGMENU_EVENTINFO;
 		btn_cnt++;
 	}
-
 	::paintButtons(bx, by, bw, btn_cnt, buttons, bw, bh);
 }
 
