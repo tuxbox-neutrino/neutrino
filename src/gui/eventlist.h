@@ -104,6 +104,7 @@ class CEventList : public CListHelpers
 	event_id_t 	item_event_ID;
 	CComponentsText	*cc_infozone;
 	CComponentsHeader *header;
+	CProgressBar *pb;
 	const char *	unit_short_minute;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);

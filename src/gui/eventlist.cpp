@@ -920,24 +920,27 @@ void CEventList::showProgressBar(int pos)
 			epg_done= nProcentagePassed;
 	}
 
+	if (!pb)
+	{
 	int pbw = 104;
 	int pbx = x + (full_width - pbw)/2;
 	int pbh = botboxheight - 12;
 	int pby = y + height -iheight - botboxheight + (botboxheight - pbh)/2;
 
+		pb = new CProgressBar(pbx, pby, pbw, pbh);
+		pb->setType(CProgressBar::PB_TIMESCALE);
+		pb->doPaintBg(false);
+	}
+
 	//show progressbar
-	if (epg_done != -1)
+	if (epg_done > 0)
 	{
-		CProgressBar pb(pbx, pby, pbw, pbh);
-		pb.setType(CProgressBar::PB_TIMESCALE);
-		pb.setValues(epg_done, 100);
-		pb.paint(false);
+		pb->setValues(epg_done, 100);
+		pb->paint(true);
 	}
 	else
 	{
-		CComponentsShapeSquare pb(pbx, pby, pbw, pbh);
-		pb.setColorBody(COL_MENUHEAD_PLUS_0);
-		pb.paint(false);
+		pb->hide();
 	}
 
 }
