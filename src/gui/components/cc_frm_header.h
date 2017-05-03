@@ -106,8 +106,6 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		int cch_icon_w;
 		///property: internal width for clock object
 		int cch_clock_w;
-		///property: internal max width for text object
-		int cch_text_max_w;
 		///property: internal x-position for caption object
 		int cch_text_x;
 		///property: internal offset of context button icons within context button object
@@ -193,8 +191,6 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		virtual Font* getCaptionFont(){return cch_font;}
 		///set text color for caption
 		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;}
-		///set max width for caption
-		virtual void setCaptionMaxWidth(int max_width){cch_text_max_w = max_width;}
 
 		enum
 		{
