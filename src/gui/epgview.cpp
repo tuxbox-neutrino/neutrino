@@ -132,6 +132,7 @@ CEpgData::CEpgData()
 	lText 		= NULL;
 	rText		= NULL;
 	pb		= NULL;
+	font_title	= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE];
 }
 
 CEpgData::~CEpgData()
@@ -144,7 +145,7 @@ void CEpgData::start()
 	ox = frameBuffer->getScreenWidthRel(bigFonts ? false /* big */ : true /* small */);
 	oy = frameBuffer->getScreenHeightRel(bigFonts ? false /* big */ : true /* small */);
 
-	topheight    = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
+	topheight    = font_title->getHeight();
 	topboxheight = topheight + 6;
 	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 6;
 	buttonheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 6;
@@ -848,6 +849,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	// header + logo
 	if (!header){
 		header = new CComponentsHeader(sx, sy, ox, toph);
+		header->setCaptionFont(font_title);
 		header->setColorBody(COL_MENUHEAD_PLUS_0);
 		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 		header->enableClock(true, "%H:%M", "%H %M", true);

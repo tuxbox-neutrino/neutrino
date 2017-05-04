@@ -55,6 +55,7 @@ class CEpgData
 		CComponentsPictureScalable *lpic, *rpic;
 		CComponentsText 	*lText, *rText;
 		CProgressBar 		*pb;
+		Font			*font_title;
 		std::string 		epg_date;
 		std::string 		epg_start;
 		std::string 		epg_end;
