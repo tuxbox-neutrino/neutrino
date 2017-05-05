@@ -121,17 +121,23 @@ void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUse
 
 CEpgData::CEpgData()
 {
-	bigFonts = false;
-	frameBuffer = CFrameBuffer::getInstance();
-	tmdb_active = false;
-	mp_movie_info = NULL;
-	header     = NULL;
+	bigFonts 	= false;
+	frameBuffer 	= CFrameBuffer::getInstance();
+	tmdb_active 	= false;
+	mp_movie_info 	= NULL;
+	header     	= NULL;
+	Bottombox 	= NULL;
+	lpic		= NULL;
+	rpic		= NULL;
+	lText 		= NULL;
+	rText		= NULL;
+	pb		= NULL;
+	font_title	= NULL;
 }
 
 CEpgData::~CEpgData()
 {
-	delete header;
-	header = NULL;
+	ResetModules();
 }
 
 void CEpgData::start()
@@ -139,7 +145,8 @@ void CEpgData::start()
 	ox = frameBuffer->getScreenWidthRel(bigFonts ? false /* big */ : true /* small */);
 	oy = frameBuffer->getScreenHeightRel(bigFonts ? false /* big */ : true /* small */);
 
-	topheight    = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
+	font_title   = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE];
+	topheight    = font_title->getHeight();
 	topboxheight = topheight + 6;
 	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 6;
 	buttonheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 6;
@@ -712,45 +719,15 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	const int pic_h = 39;
 	toph = std::max(toph, pic_h);
 
-	// Calculate offset for the title when logo appears.
-	int pic_offx = 0;
 	std::string lname;
-	int logo_w = 0;
-	int logo_h = 0;
-	int logo_w_max = ox / 4;
-	int logo_h_max = toph - 2*OFFSET_INNER_MIN;
 	std::string channel_name;
 	if (mp_info)
 		channel_name = mp_movie_info->channelName;
 	else
 		channel_name = g_Zapit->getChannelName(channel_id);
-	if (g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, channel_name, lname, &logo_w, &logo_h))
-	{
-		if ((logo_h > logo_h_max) || (logo_w > logo_w_max))
-			g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, logo_h_max);
-		pic_offx = logo_w + OFFSET_INNER_MID;
-	}
-
-	int pos;
-	std::string text1 = epgData.title;
-	std::string text2 = "";
-	if (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 2*OFFSET_INNER_MID)
-	{
-		do
-		{
-			pos = text1.find_last_of("[ .]+");
-			if (pos != -1)
-				text1 = text1.substr(0, pos);
-		} while ((pos != -1) && (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 2*OFFSET_INNER_MID));
-		if (epgData.title.length() > text1.length()) // shold never be false in this place
-			text2 = epgData.title.substr(text1.length()+ 1, uint(-1) );
-	}
 
 	if (!topboxheight)
 		start();
-
-	if (!text2.empty())
-		toph = 2 * topboxheight;
 
 	sb = oy - toph - botboxheight;
 
@@ -878,62 +855,95 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 
-	//show the epg
+	// show the epg
 	// header + logo
-	int header_h = std::max(toph, logo_h);
 	if (!header){
-		header = new CComponentsShapeSquare(sx, sy, ox, header_h);
-		header->setCorner(RADIUS_LARGE, CORNER_TOP);
-	}
-	header->setDimensionsAll(sx, sy, ox, header_h);
-	header->setColorBody(COL_MENUHEAD_PLUS_0);
-	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+		header = new CComponentsHeader(sx, sy, ox, toph);
+		header->setColorBody(COL_MENUHEAD_PLUS_0);
+		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+		header->enableClock(true, "%H:%M", "%H %M", true);
+	}else
+		header->setDimensionsAll(sx, sy, ox, toph);
 
-	CComponentsPicture* headerPic  = NULL; //NOTE: class CComponentsChannelLogo is preferred for channel logos
-	if (pic_offx > 0) {
-		headerPic = new CComponentsPicture(sx + OFFSET_INNER_MID, sy + (header_h-logo_h)/2, logo_w, logo_h, lname);
-		headerPic->doPaintBg(false);
-	}
-	std::string textAll = (!text2.empty()) ? text1 + "\n" + text2 : text1;
-	CComponentsText headerText(sx + OFFSET_INNER_MID + pic_offx, sy, ox - 2*OFFSET_INNER_MID - pic_offx, header_h, textAll, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);
-	headerText.doPaintBg(false);
-	headerText.setTextColor(COL_MENUHEAD_TEXT);
+	header->setCaptionFont(font_title);
+	header->setCaption(epgData.title);
+
+	if (header->isPainted())
+		header->hideCCItems();
+
+	// set channel logo
+	header->setChannelLogo(channel_id, channel_name);
+
+	//paint head
 	header->paint(CC_SAVE_SCREEN_NO);
-	headerText.paint(CC_SAVE_SCREEN_NO);
-	if (headerPic)
-		headerPic->paint(CC_SAVE_SCREEN_NO);
 
 	int showPos = 0;
 	textCount = epgText.size();
 	showText(showPos, sy + toph);
 
-	// small bottom box
-	frameBuffer->paintBoxRel(sx, sy+oy-botboxheight, ox, botboxheight, COL_MENUHEAD_PLUS_0);
-	if (!mp_info)
-	{
-		static int iw = 0, ih = 0, io = 0;
-		if (!iw && !ih)
-			frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_LEFT, &iw, &ih);
-		if (!io && iw)
-			io = iw + OFFSET_INNER_MID;
+	// small bottom box with left/right navigation
+	if (!Bottombox){
+		Bottombox = new CComponentsFrmChain(sx, sy+oy-botboxheight, ox, botboxheight);
+		Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
+		Bottombox->setCornerType(CORNER_NONE);
+		Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
+		Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
+	}
 
+	if (!mp_info){
 		std::string fromto = epg_start + " - " + epg_end;
-
-		int widthl = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getRenderWidth(fromto);
-		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+OFFSET_INNER_MID+io, sy+oy-3, widthl, fromto, COL_MENUHEAD_TEXT);
-		int widthr = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getRenderWidth(epg_date);
-		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ox-OFFSET_INNER_MID-io-widthr, sy+oy-3, widthr, epg_date, COL_MENUHEAD_TEXT);
+		int x_off = OFFSET_INNER_MID;
+		int mid_width = ox * 40 / 100; // 40%
+		int side_width = ((ox - mid_width) / 2) - (2 * x_off);
 
 		GetPrevNextEPGData(epgData.eventID, &epgData.epg_times.startzeit);
-		if (!call_fromfollowlist)
-		{
-			int iy = sy + oy - botboxheight + (botboxheight - iw)/2;
-			if (prev_id)
-				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_LEFT, sx + OFFSET_INNER_MID, iy);
-			if (next_id)
-				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, sx + ox - iw - OFFSET_INNER_MID, iy);
+
+		// init left arrow
+		if (!lpic){
+			lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT);
+			lpic->doPaintBg(false);
+			Bottombox->addCCItem(lpic);
+			lpic->enableSaveBg();
 		}
+		lpic->allowPaint(prev_id && !call_fromfollowlist);
+
+		// init right arrow
+		if (!rpic){
+			rpic = new CComponentsPictureScalable(0,CC_CENTERED,NEUTRINO_ICON_BUTTON_RIGHT);
+
+			rpic->doPaintBg(false);
+			Bottombox->addCCItem(rpic);
+			rpic->enableSaveBg();
+			int x_pos = ox - rpic->getWidth() - x_off;
+			rpic->setXPos(x_pos);
+		}
+		rpic->allowPaint(next_id && !call_fromfollowlist);
+
+		// init text left "from to"
+		if (!lText){
+			lText = new CComponentsText(x_off + lpic->getWidth() + x_off, CC_CENTERED, side_width, toph, "", CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], CComponentsText::FONT_STYLE_REGULAR, NULL, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+			lText->doPaintBg(false);
+			Bottombox->addCCItem(lText);
+			lText->enableSaveBg();
+		}
+		lText->setText(fromto, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], COL_MENUHEAD_TEXT, CComponentsText::FONT_STYLE_REGULAR);
+
+		// init text right "follow"
+		if (!rText){
+			rText = new CComponentsText(0, CC_CENTERED, side_width, toph, "", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+			rText->doPaintBg(false);
+			rText->enableSaveBg();
+		}
+		rText->setText(epg_date, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]);
+		rText->setXPos(rpic->getXPos() - x_off - rText->getWidth());
 	}
+
+	//ensure clean background
+	if(Bottombox->isPainted())
+		Bottombox->hideCCItems();
+
+	//paint bottombox contents
+	Bottombox->paint(false);
 	showProgressBar();
 
 	// show Timer Event Buttons
@@ -1246,6 +1256,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			}
 			case CRCInput::RC_help:
 				bigFonts = bigFonts ? false : true;
+				ResetModules();
 				frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
 				showTimerEventBar (false);
 				start();
@@ -1309,8 +1320,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		if(epgTextSwitchClear)
 			epgTextSwitch.clear();
 	}
-	if (headerPic)
-		delete headerPic;
 	return res;
 }
 
@@ -1322,6 +1331,8 @@ void CEpgData::hide()
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() / BIGFONT_FACTOR));
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() / BIGFONT_FACTOR));
 	}
+
+	ResetModules();
 
 	frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
 	showTimerEventBar (false);
@@ -1465,18 +1476,21 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 
 void CEpgData::showProgressBar()
 {
+	int w = 104;
+	int x = sx + (ox - w)/2;
+	int h = botboxheight - 12;
+	int y = sy + oy - botboxheight + (botboxheight - h)/2;
+	if (!pb){
+		pb = new CProgressBar(x, y, w, h);
+		pb->setType(CProgressBar::PB_TIMESCALE);
+	}
 	//show progressbar
 	if (epg_done != -1)
 	{
-		int w = 104;
-		int x = sx + (ox - w)/2;
-		int h = botboxheight - 12;
-		int y = sy + oy - botboxheight + (botboxheight - h)/2;
-
-		CProgressBar pb(x, y, w, h);
-		pb.setType(CProgressBar::PB_TIMESCALE);
-		pb.setValues(epg_done, 100);
-		pb.paint(false);
+		pb->setValues(epg_done, 100);
+		pb->paint(true);
+	}else{
+		pb->hide();
 	}
 }
 
@@ -1548,6 +1562,22 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 			::paintButtons(x, y, w, c, EpgButtons[fscr ? 0 : 1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
 		else
 			::paintButtons(x, y, w, c, &EpgButtons[fscr ? 0 : 1][1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 0);
+	}
+}
+
+void CEpgData::ResetModules()
+{
+	if (header){
+		delete header; header = NULL;
+	}
+	if (Bottombox){
+		delete Bottombox; Bottombox = NULL;
+		// bottom box items are destroyed but explicit reset of bottom box items here required
+		lpic = rpic = NULL;
+		lText = rText = NULL;
+	}
+	if (pb){
+		delete pb; pb = NULL;
 	}
 }
 
