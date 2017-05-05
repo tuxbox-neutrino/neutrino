@@ -38,7 +38,7 @@
 
 #include <driver/movieinfo.h>
 #include "widget/menue.h"
-
+#include "widget/navibar.h"
 #include <vector>
 #include <string>
 
@@ -51,7 +51,7 @@ class CEpgData
 		CChannelEventList	followlist;
 		CEPGData		epgData;
 		CComponentsHeader	*header;
-		CComponentsFrmChain 	*Bottombox;
+		CNaviBar 		*Bottombox;
 		CComponentsPictureScalable *lpic, *rpic;
 		CComponentsText 	*lText, *rText;
 		CProgressBar 		*pb;
