@@ -32,7 +32,7 @@
 #include <driver/rcinput.h>
 #include <system/settings.h>
 #include <gui/components/cc.h>
-
+#include <gui/widget/navibar.h>
 #include "infoviewer.h"
 
 #include "widget/menue.h"
@@ -104,8 +104,8 @@ class CEventList : public CListHelpers
 	event_id_t 	item_event_ID;
 	CComponentsText	*cc_infozone;
 	CComponentsHeader *header;
-	CProgressBar *pb;
-	CComponentsFrmChain *Bottombox;
+	CProgressBar 	*pb;
+	CNaviBar 	*Bottombox;
 	const char *	unit_short_minute;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);

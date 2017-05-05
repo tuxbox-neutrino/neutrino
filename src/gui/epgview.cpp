@@ -132,7 +132,7 @@ CEpgData::CEpgData()
 	lText 		= NULL;
 	rText		= NULL;
 	pb		= NULL;
-	font_title	= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE];
+	font_title	= NULL;
 }
 
 CEpgData::~CEpgData()
@@ -145,6 +145,7 @@ void CEpgData::start()
 	ox = frameBuffer->getScreenWidthRel(bigFonts ? false /* big */ : true /* small */);
 	oy = frameBuffer->getScreenHeightRel(bigFonts ? false /* big */ : true /* small */);
 
+	font_title   = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE];
 	topheight    = font_title->getHeight();
 	topboxheight = topheight + 6;
 	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 6;
@@ -849,13 +850,13 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	// header + logo
 	if (!header){
 		header = new CComponentsHeader(sx, sy, ox, toph);
-		header->setCaptionFont(font_title);
 		header->setColorBody(COL_MENUHEAD_PLUS_0);
 		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 		header->enableClock(true, "%H:%M", "%H %M", true);
 	}else
 		header->setDimensionsAll(sx, sy, ox, toph);
 
+	header->setCaptionFont(font_title);
 	header->setCaption(epgData.title);
 
 	if (header->isPainted())
@@ -872,65 +873,17 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	showText(showPos, sy + toph);
 
 	// small bottom box with left/right navigation
-	if (!Bottombox){
-		Bottombox = new CComponentsFrmChain(sx, sy+oy-botboxheight, ox, botboxheight);
-		Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
-		Bottombox->setCornerType(CORNER_NONE);
-		Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
-		Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
-	}
+	if (!Bottombox)
+		Bottombox = new CNaviBar(sx, sy+oy-botboxheight, ox, botboxheight);
 
 	if (!mp_info){
 		std::string fromto = epg_start + " - " + epg_end;
-		int x_off = OFFSET_INNER_MID;
-		int mid_width = ox * 40 / 100; // 40%
-		int side_width = ((ox - mid_width) / 2) - (2 * x_off);
 
 		GetPrevNextEPGData(epgData.eventID, &epgData.epg_times.startzeit);
 
-		// init left arrow
-		if (!lpic){
-			lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT);
-			lpic->doPaintBg(false);
-			Bottombox->addCCItem(lpic);
-			lpic->enableSaveBg();
-		}
-		lpic->allowPaint(prev_id && !call_fromfollowlist);
-
-		// init right arrow
-		if (!rpic){
-			rpic = new CComponentsPictureScalable(0,CC_CENTERED,NEUTRINO_ICON_BUTTON_RIGHT);
-
-			rpic->doPaintBg(false);
-			Bottombox->addCCItem(rpic);
-			rpic->enableSaveBg();
-			int x_pos = ox - rpic->getWidth() - x_off;
-			rpic->setXPos(x_pos);
-		}
-		rpic->allowPaint(next_id && !call_fromfollowlist);
-
-		// init text left "from to"
-		if (!lText){
-			lText = new CComponentsText(x_off + lpic->getWidth() + x_off, CC_CENTERED, side_width, toph, "", CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], CComponentsText::FONT_STYLE_REGULAR, NULL, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
-			lText->doPaintBg(false);
-			Bottombox->addCCItem(lText);
-			lText->enableSaveBg();
-		}
-		lText->setText(fromto, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], COL_MENUHEAD_TEXT, CComponentsText::FONT_STYLE_REGULAR);
-
-		// init text right "follow"
-		if (!rText){
-			rText = new CComponentsText(0, CC_CENTERED, side_width, toph, "", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
-			rText->doPaintBg(false);
-			rText->enableSaveBg();
-		}
-		rText->setText(epg_date, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]);
-		rText->setXPos(rpic->getXPos() - x_off - rText->getWidth());
+		Bottombox->enableArrows(prev_id && !call_fromfollowlist, next_id && !call_fromfollowlist);
+		Bottombox->setText(fromto, epg_date);
 	}
-
-	//ensure clean background
-	if(Bottombox->isPainted())
-		Bottombox->hideCCItems();
 
 	//paint bottombox contents
 	Bottombox->paint(false);

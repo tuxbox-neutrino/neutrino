@@ -889,44 +889,14 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 void CEventList::paintBottomBox(std::string _channelname_prev, std::string _channelname_next)
 {
 	int by = y + height - iheight - botboxheight;
-	int font_lr  = SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE;
-	int x_off = OFFSET_INNER_MID;
-	int mid_width = full_width * 40 / 100; // 40%
-	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
 	if (!Bottombox){
-		Bottombox = new CComponentsFrmChain(x, by, full_width, botboxheight);
-		Bottombox->setColorBody(COL_MENUFOOT_PLUS_0);
-		Bottombox->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom,COL_MENUFOOT_PLUS_0,g_settings.theme.infobar_gradient_bottom_direction);
-		Bottombox->set2ndColor(COL_MENUCONTENT_PLUS_0);
-	}else{
-		if (Bottombox->isPainted())
-			Bottombox->hideCCItems();
-		Bottombox->clear();
+		Bottombox = new CNaviBar(x, by, full_width, botboxheight);
+		Bottombox->setFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
 	}
 
-	if (!_channelname_prev.empty()) {
-		CComponentsPictureScalable *lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT,Bottombox);
-		lpic->doPaintBg(false);
-		lpic->enableSaveBg();
-
-		CComponentsText *lText = new CComponentsText(x_off + lpic->getWidth() + OFFSET_INNER_MID, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
-		lText->doPaintBg(false);
-		lText->enableSaveBg();
-	}
-
-	if (!_channelname_next.empty()) {
-		CComponentsPictureScalable *rpic = new CComponentsPictureScalable(0,CC_CENTERED,NEUTRINO_ICON_BUTTON_RIGHT,Bottombox);
-		int x_pos = full_width - rpic->getWidth() - OFFSET_INNER_MID;
-		rpic->doPaintBg(false);
-		rpic->setXPos(x_pos);
-		rpic->enableSaveBg();
-
-		CComponentsText *rText = new CComponentsText(0, CC_CENTERED, side_width, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, Bottombox, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
-		rText->setXPos(x_pos - OFFSET_INNER_MID - rText->getWidth());
-		rText->doPaintBg(false);
-		rText->enableSaveBg();
-	}
+	Bottombox->enableArrows(!_channelname_prev.empty(), !_channelname_next.empty());
+	Bottombox->setText(_channelname_prev, _channelname_next);
 
 	Bottombox->paint(false);
 }
