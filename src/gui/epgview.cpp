@@ -127,10 +127,6 @@ CEpgData::CEpgData()
 	mp_movie_info 	= NULL;
 	header     	= NULL;
 	Bottombox 	= NULL;
-	lpic		= NULL;
-	rpic		= NULL;
-	lText 		= NULL;
-	rText		= NULL;
 	pb		= NULL;
 	font_title	= NULL;
 }
@@ -1515,9 +1511,6 @@ void CEpgData::ResetModules()
 	}
 	if (Bottombox){
 		delete Bottombox; Bottombox = NULL;
-		// bottom box items are destroyed but explicit reset of bottom box items here required
-		lpic = rpic = NULL;
-		lText = rText = NULL;
 	}
 	if (pb){
 		delete pb; pb = NULL;
