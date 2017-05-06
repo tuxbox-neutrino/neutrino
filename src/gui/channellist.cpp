@@ -122,7 +122,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
-	cc_minitv = NULL;
+
 	minitv_is_active = false;
 	headerNew = true;
 	bouquet = NULL;
