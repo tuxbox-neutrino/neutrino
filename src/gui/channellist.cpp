@@ -2158,13 +2158,17 @@ void CChannelList::paintHead()
 
 CComponentsHeader* CChannelList::getHeaderObject()
 {
-	return header;
+	if (header)
+		return header;
+	return NULL;
 }
 
 void CChannelList::ResetModules()
 {
-	delete header;
-	header = NULL;
+	if (header){
+		delete header;
+		header = NULL;
+	}
 	if(dline){
 		delete dline;
 		dline = NULL;
