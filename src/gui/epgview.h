@@ -52,8 +52,6 @@ class CEpgData
 		CEPGData		epgData;
 		CComponentsHeader	*header;
 		CNaviBar 		*Bottombox;
-		CComponentsPictureScalable *lpic, *rpic;
-		CComponentsText 	*lText, *rText;
 		CProgressBar 		*pb;
 		Font			*font_title;
 		std::string 		epg_date;
