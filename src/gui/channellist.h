@@ -67,7 +67,7 @@ enum {
 class CFrameBuffer;
 class CBouquet;
 
-class CChannelList : public CListHelpers
+class CChannelList : public CListHelpers, public sigc::trackable
 {
 private:
 	enum state_

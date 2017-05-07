@@ -119,7 +119,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 	fdescrheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight();
 
-	previous_channellist_additional = -1;
+	previous_channellist_additional = g_settings.channellist_additional;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
 
@@ -298,7 +298,7 @@ int CChannelList::doChannelMenu(void)
 	int shortcut = 0;
 	static int old_selected = 0;
 	char cnt[5];
-	bool unlocked = true;
+
 	int ret = 0;
 
 	if(g_settings.minimode)
@@ -360,7 +360,8 @@ int CChannelList::doChannelMenu(void)
 		CBouquetList *blist = tvmode ? TVfavList : RADIOfavList;
 		bool fav_found = true;
 		switch(select) {
-		case 0: // edit mode
+		case 0: {// edit mode
+			bool unlocked = true;
 			if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED) {
 				int pl_z = g_settings.parentallock_zaptime * 60;
 				if (g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT] == CPersonalizeGui::PERSONALIZE_MODE_PIN) {
@@ -385,7 +386,7 @@ int CChannelList::doChannelMenu(void)
 				editMode(true);
 			ret = -1;
 			break;
-		case 1: // add to
+		}case 1: // add to
 			if (!addChannelToBouquet())
 				return -1;
 			ret = 1;
@@ -484,7 +485,7 @@ void CChannelList::calcSize()
 		fheight = 1; /* avoid div-by-zero crash on invalid font */
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+6;
 
-	minitv_is_active = ( (g_settings.channellist_additional == 2) && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
+	minitv_is_active = ( (g_settings.channellist_additional == SNeutrinoSettings::CHANNELLIST_ADDITIONAL_MODE_MINITV) && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
 	// calculate width
 	full_width = minitv_is_active ? (frameBuffer->getScreenWidth()-2*DETAILSLINE_WIDTH) : frameBuffer->getScreenWidthRel();
 
@@ -947,7 +948,7 @@ int CChannelList::show()
 void CChannelList::hide()
 {
 	paint_events(-2); // cancel paint_events thread
-	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
+	if ((g_settings.channellist_additional == SNeutrinoSettings::CHANNELLIST_ADDITIONAL_MODE_MINITV) || (previous_channellist_additional == SNeutrinoSettings::CHANNELLIST_ADDITIONAL_MODE_MINITV)) // with miniTV
 	{
 		if (cc_minitv){
 			delete cc_minitv; cc_minitv = NULL;
