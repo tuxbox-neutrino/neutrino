@@ -298,7 +298,7 @@ int CChannelList::doChannelMenu(void)
 	int shortcut = 0;
 	static int old_selected = 0;
 	char cnt[5];
-	bool unlocked = true;
+
 	int ret = 0;
 
 	if(g_settings.minimode)
@@ -360,7 +360,8 @@ int CChannelList::doChannelMenu(void)
 		CBouquetList *blist = tvmode ? TVfavList : RADIOfavList;
 		bool fav_found = true;
 		switch(select) {
-		case 0: // edit mode
+		case 0: {// edit mode
+			bool unlocked = true;
 			if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED) {
 				int pl_z = g_settings.parentallock_zaptime * 60;
 				if (g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT] == CPersonalizeGui::PERSONALIZE_MODE_PIN) {
@@ -385,7 +386,7 @@ int CChannelList::doChannelMenu(void)
 				editMode(true);
 			ret = -1;
 			break;
-		case 1: // add to
+		}case 1: // add to
 			if (!addChannelToBouquet())
 				return -1;
 			ret = 1;
