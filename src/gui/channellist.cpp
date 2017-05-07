@@ -133,6 +133,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 
 	paint_events_index = -2;
 	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
 }
 
 CChannelList::~CChannelList()
