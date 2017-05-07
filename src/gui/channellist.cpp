@@ -122,7 +122,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
-	cc_minitv = NULL;
+
 	minitv_is_active = false;
 	headerNew = true;
 	bouquet = NULL;
@@ -133,6 +133,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 
 	paint_events_index = -2;
 	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
 }
 
 CChannelList::~CChannelList()
@@ -948,9 +949,9 @@ void CChannelList::hide()
 	paint_events(-2); // cancel paint_events thread
 	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
 	{
-		if (cc_minitv)
-			delete cc_minitv;
-		cc_minitv = NULL;
+		if (cc_minitv){
+			delete cc_minitv; cc_minitv = NULL;
+		}
 	}
 	if(header)
 		header->kill();
@@ -2158,13 +2159,17 @@ void CChannelList::paintHead()
 
 CComponentsHeader* CChannelList::getHeaderObject()
 {
-	return header;
+	if (header)
+		return header;
+	return NULL;
 }
 
 void CChannelList::ResetModules()
 {
-	delete header;
-	header = NULL;
+	if (header){
+		delete header;
+		header = NULL;
+	}
 	if(dline){
 		delete dline;
 		dline = NULL;
