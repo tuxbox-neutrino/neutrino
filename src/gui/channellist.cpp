@@ -949,9 +949,9 @@ void CChannelList::hide()
 	paint_events(-2); // cancel paint_events thread
 	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
 	{
-		if (cc_minitv)
-			delete cc_minitv;
-		cc_minitv = NULL;
+		if (cc_minitv){
+			delete cc_minitv; cc_minitv = NULL;
+		}
 	}
 	if(header)
 		header->kill();
