@@ -116,7 +116,8 @@ class CEventList : public CListHelpers
 	void showProgressBar(int pos);
 	void hide();
 	void showFunctionBar(t_channel_id channel_id);
-	
+	void getPrvNextChannelName(t_channel_id &channel_id,std::string &next_channel_name,std::string &prev_channel_name,std::string &current_channel_name, neutrino_msg_t msg);
+
 	int timerPre;
 	int timerPost;
 	void UpdateTimerList(void);
