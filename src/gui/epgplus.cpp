@@ -243,6 +243,7 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	// paint new mark
 	CProgressBar pbbar = CProgressBar(px, this->y + this->font->getHeight(), pwidth, this->font->getHeight());
 	pbbar.setActiveColor(COL_MENUCONTENTSELECTED_PLUS_0);
+	pbbar.setType(CProgressBar::PB_TIMESCALE);
 
 	time_t currentTime;
 	time(&currentTime);
