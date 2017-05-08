@@ -263,9 +263,10 @@ void CEventList::readEvents(const t_channel_id channel_id)
 	return;
 }
 
-void CEventList::getPrvNextChannelName(t_channel_id &channel_id,std::string &next_channel_name,std::string &prev_channel_name,std::string &current_channel_name, neutrino_msg_t msg){
-	t_bouquet_id current_bouquet_id= bouquetList->getActiveBouquetNumber();
-	t_channel_id	channel_id_tmp = channel_id;
+void CEventList::getChannelNames(t_channel_id &channel_id, std::string &current_channel_name, std::string &prev_channel_name, std::string &next_channel_name, neutrino_msg_t msg)
+{
+	t_bouquet_id current_bouquet_id = bouquetList->getActiveBouquetNumber();
+	t_channel_id channel_id_tmp = channel_id;
 	const unsigned int channel_nr = bouquetList->Bouquets[current_bouquet_id]->channelList->getSize();
 	if(channel_nr < 2){
 		channel_id = 0;
@@ -592,7 +593,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			// maybe remove RC_rewind and RC_forward in the future?
 			std::string next_channel_name, prev_channel_name, current_channel_name;
 			t_channel_id _channel_id = channel_id;
-			getPrvNextChannelName(_channel_id, next_channel_name, prev_channel_name, current_channel_name, msg);
+			getChannelNames(_channel_id, current_channel_name, prev_channel_name, next_channel_name, msg);
 			if(_channel_id){
 				bgRightBoxPaint = false;
 				loop = false;
@@ -892,7 +893,7 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	header->paint(CC_SAVE_SCREEN_NO);
 
 	if(_channelname_prev.empty() && _channelname_next.empty()){
-		getPrvNextChannelName(_channel_id, _channelname_next, _channelname_prev, _channelname,0);
+		getChannelNames(_channel_id, _channelname, _channelname_prev, _channelname_next, 0);
 	}
 
 	paintBottomBox(_channelname_prev, _channelname_next);
