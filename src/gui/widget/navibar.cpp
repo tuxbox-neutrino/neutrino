@@ -31,8 +31,8 @@
 using namespace std;
 
 
-CNaviBar::CNaviBar(	const int& x,
-			const int& y,
+CNaviBar::CNaviBar(	const int& x_pos,
+			const int& y_pos,
 			const int& dx,
 			const int& dy,
 			CComponentsForm* parent,
@@ -40,7 +40,7 @@ CNaviBar::CNaviBar(	const int& x,
 			fb_pixel_t& color_frame,
 			fb_pixel_t& color_body,
 			fb_pixel_t& color_shadow)
-			: CComponentsFrmChain(	x, y, dx, dy,
+			: CComponentsFrmChain(	x_pos, y_pos, dx, dy,
 						NULL,
 						CC_DIR_X,
 						parent,
