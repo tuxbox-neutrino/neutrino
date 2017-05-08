@@ -378,7 +378,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	UpdateTimerList();
 
 	bool dont_hide = false;
-	if(channelname_prev.empty() && channelname_prev.empty()){
+	if(channelname_prev.empty() && channelname_next.empty()){
 		std::string nextChannelName,prevChannelName,tmp;
 		t_channel_id tmp_channel_id = channel_id;
 		getPrvNextChannelName(tmp_channel_id, nextChannelName, prevChannelName, tmp,0);
