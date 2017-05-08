@@ -378,14 +378,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	UpdateTimerList();
 
 	bool dont_hide = false;
-	if(channelname_prev.empty() && channelname_next.empty()){
-		std::string nextChannelName,prevChannelName,tmp;
-		t_channel_id tmp_channel_id = channel_id;
-		getPrvNextChannelName(tmp_channel_id, nextChannelName, prevChannelName, tmp,0);
-		paintHead(channel_id, channelname, prevChannelName, nextChannelName);
-	}else{
-		paintHead(channel_id, channelname, channelname_prev, channelname_next);
-	}
+	paintHead(channel_id, channelname, channelname_prev, channelname_next);
 	paint(channel_id);
 	showFunctionBar(channel_id);
 
@@ -897,6 +890,10 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	header->setCaption(_channelname,CTextBox::CENTER);
 
 	header->paint(CC_SAVE_SCREEN_NO);
+
+	if(_channelname_prev.empty() && _channelname_next.empty()){
+		getPrvNextChannelName(_channel_id, _channelname_next, _channelname_prev, _channelname,0);
+	}
 
 	paintBottomBox(_channelname_prev, _channelname_next);
 }
