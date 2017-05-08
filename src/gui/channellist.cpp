@@ -360,96 +360,100 @@ int CChannelList::doChannelMenu(void)
 		CBouquetList *blist = tvmode ? TVfavList : RADIOfavList;
 		bool fav_found = true;
 		switch(select) {
-		case 0: {// edit mode
-			bool unlocked = true;
-			if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED) {
-				int pl_z = g_settings.parentallock_zaptime * 60;
-				if (g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT] == CPersonalizeGui::PERSONALIZE_MODE_PIN) {
-					unlocked = false;
-				} else if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked) {
-					/* on locked bouquet, enough to check any channel */
-					unlocked = ((*chanlist)[selected]->last_unlocked_time + pl_z > time_monotonic());
+			case 0: // edit mode
+				{
+					bool unlocked = true;
+					if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED) {
+						int pl_z = g_settings.parentallock_zaptime * 60;
+
+						if (g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT] == CPersonalizeGui::PERSONALIZE_MODE_PIN) {
+							unlocked = false;
+						} else if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked) {
+							/* on locked bouquet, enough to check any channel */
+							unlocked = ((*chanlist)[selected]->last_unlocked_time + pl_z > time_monotonic());
+						} else {
+							/* check all locked channels for last_unlocked_time, overwrite only if already unlocked */
+							for (unsigned int j = 0 ; j < (*chanlist).size(); j++) {
+								if ((*chanlist)[j]->bLocked)
+									unlocked = unlocked && ((*chanlist)[j]->last_unlocked_time + pl_z > time_monotonic());
+							}
+						}
+						if (!unlocked) {
+							CZapProtection *zp = new CZapProtection(g_settings.parentallock_pincode, 0x100);
+							unlocked = zp->check();
+							delete zp;
+						}
+					}
+					if (unlocked)
+						editMode(true);
+
+					ret = -1;
+					break;
+				}
+			case 1: // add to
+				if (!addChannelToBouquet())
+					return -1;
+				ret = 1;
+				break;
+			case 2: // add to my favorites
+				for (unsigned n = 0; n < AllFavBouquetList->Bouquets.size(); n++) {
+					if (AllFavBouquetList->Bouquets[n]->zapitBouquet && AllFavBouquetList->Bouquets[n]->zapitBouquet->bFav) {
+						CZapitChannel *ch = AllFavBouquetList->Bouquets[n]->zapitBouquet->getChannelByChannelID(channel_id);
+						if (ch == NULL) {
+							AllFavBouquetList->Bouquets[n]->zapitBouquet->addService((*chanlist)[selected]);
+							fav_found = false;
+						}
+						break;
+					}
+				}
+				for (unsigned n = 0; n < blist->Bouquets.size() && !fav_found; n++) {
+					if (blist->Bouquets[n]->zapitBouquet && blist->Bouquets[n]->zapitBouquet->bFav) {
+						blist->Bouquets[n]->zapitBouquet->getChannels(blist->Bouquets[n]->channelList->channels, tvmode);
+						saveChanges();
+						fav_found = true;
+						break;
+					}
+				}
+				if (!fav_found) {
+					CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+					CNeutrinoApp::getInstance()->MarkChannelsInit();
+				}
+				ret = 1;
+				break;
+			case 3: // reset new
+			case 4: // reset all new
+				if (select == 3) {
+					(*chanlist)[selected]->flags = CZapitChannel::UPDATED;
 				} else {
-					/* check all locked channels for last_unlocked_time, overwrite only if already unlocked */
-					for (unsigned int j = 0 ; j < (*chanlist).size(); j++) {
-						if ((*chanlist)[j]->bLocked)
-							unlocked = unlocked && ((*chanlist)[j]->last_unlocked_time + pl_z > time_monotonic());
-					}
+					for (unsigned int j = 0 ; j < (*chanlist).size(); j++)
+						(*chanlist)[j]->flags = CZapitChannel::UPDATED;
 				}
-				if (!unlocked) {
-					CZapProtection *zp = new CZapProtection(g_settings.parentallock_pincode, 0x100);
-					unlocked = zp->check();
-					delete zp;
+				CNeutrinoApp::getInstance()->MarkChannelsChanged();
+				/* if make_new_list == ON, signal to re-init services */
+				if(g_settings.make_new_list)
+					CNeutrinoApp::getInstance()->MarkChannelsInit();
+				break;
+			case 5: // clear channel history
+				{
+					CNeutrinoApp::getInstance()->channelList->getLastChannels().clear();
+					printf("%s:%d lastChList cleared\n", __FUNCTION__, __LINE__);
+					ret = -2; // exit channellist
 				}
-			}
-			if (unlocked)
-				editMode(true);
-			ret = -1;
-			break;
-		}case 1: // add to
-			if (!addChannelToBouquet())
-				return -1;
-			ret = 1;
-			break;
-		case 2: // add to my favorites
-			for (unsigned n = 0; n < AllFavBouquetList->Bouquets.size(); n++) {
-				if (AllFavBouquetList->Bouquets[n]->zapitBouquet && AllFavBouquetList->Bouquets[n]->zapitBouquet->bFav) {
-					CZapitChannel *ch = AllFavBouquetList->Bouquets[n]->zapitBouquet->getChannelByChannelID(channel_id);
-					if (ch == NULL) {
-						AllFavBouquetList->Bouquets[n]->zapitBouquet->addService((*chanlist)[selected]);
-						fav_found = false;
-					}
-					break;
+				break;
+			case 6: // settings
+				{
+					previous_channellist_additional = g_settings.channellist_additional;
+					COsdSetup osd_setup;
+					osd_setup.showContextChanlistMenu(this);
+					hide();
+					ResetModules();
+					//FIXME check font/options changed ?
+					calcSize();
+					ret = -1;
 				}
-			}
-			for (unsigned n = 0; n < blist->Bouquets.size() && !fav_found; n++) {
-				if (blist->Bouquets[n]->zapitBouquet && blist->Bouquets[n]->zapitBouquet->bFav) {
-					blist->Bouquets[n]->zapitBouquet->getChannels(blist->Bouquets[n]->channelList->channels, tvmode);
-					saveChanges();
-					fav_found = true;
-					break;
-				}
-			}
-			if (!fav_found) {
-				CNeutrinoApp::getInstance()->MarkFavoritesChanged();
-				CNeutrinoApp::getInstance()->MarkChannelsInit();
-			}
-			ret = 1;
-			break;
-		case 3: // reset new
-		case 4: // reset all new
-			if (select == 3) {
-				(*chanlist)[selected]->flags = CZapitChannel::UPDATED;
-			} else {
-				for (unsigned int j = 0 ; j < (*chanlist).size(); j++)
-					(*chanlist)[j]->flags = CZapitChannel::UPDATED;
-			}
-			CNeutrinoApp::getInstance()->MarkChannelsChanged();
-			/* if make_new_list == ON, signal to re-init services */
-			if(g_settings.make_new_list)
-				CNeutrinoApp::getInstance()->MarkChannelsInit();
-			break;
-		case 5: // clear channel history
-			{
-				CNeutrinoApp::getInstance()->channelList->getLastChannels().clear();
-				printf("%s:%d lastChList cleared\n", __FUNCTION__, __LINE__);
-				ret = -2; // exit channellist
-			}
-			break;
-		case 6: // settings
-			{
-				previous_channellist_additional = g_settings.channellist_additional;
-				COsdSetup osd_setup;
-				osd_setup.showContextChanlistMenu(this);
-				hide();
-				ResetModules();
-				//FIXME check font/options changed ?
-				calcSize();
-				ret = -1;
-			}
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
 		}
 	}
 	return ret;

@@ -53,9 +53,9 @@ class CNaviBar : public CComponentsFrmChain
 
 	public:
 		/**CNaviBar Constructor
-		* @param[in]	x
+		* @param[in]	x_pos
 		* 	@li 	expects type int, x position
-		* @param[in]	y
+		* @param[in]	y_ypos
 		* 	@li 	expects type int, y position
 		* @param[in]	dx
 		* 	@li 	expects type int, width
@@ -74,8 +74,8 @@ class CNaviBar : public CComponentsFrmChain
 		*
 		* 	@see	class CComponentsFrmChain()
 		*/
-		CNaviBar(	const int& x,
-				const int& y,
+		CNaviBar(	const int& x_pos,
+				const int& y_pos,
 				const int& dx,
 				const int& dy,
 				CComponentsForm* parent = NULL,
