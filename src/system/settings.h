@@ -590,6 +590,13 @@ struct SNeutrinoSettings
 	int window_height;
 	int eventlist_additional;
 	int eventlist_epgplus;
+
+	enum CHANNELLIST_ADDITIONAL_MODES
+	{
+		CHANNELLIST_ADDITIONAL_MODE_OFF		= 0,
+		CHANNELLIST_ADDITIONAL_MODE_EPG 	= 1,
+		CHANNELLIST_ADDITIONAL_MODE_MINITV	= 2
+	};
 	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_foot;
