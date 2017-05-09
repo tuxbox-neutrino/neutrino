@@ -2,24 +2,24 @@ AUDIOSelectMenue.head Audio Selection
 EPGMenu.epgplus Eventlist overview
 EPGMenu.eventinfo Details current program
 EPGMenu.eventlist Eventlist current programm
-EPGMenu.head EPG - Program Information
-EPGMenu.streaminfo technical information
+EPGMenu.head EPG - Program information
+EPGMenu.streaminfo Technical information
 EPGPlus.actions Actions
 EPGPlus.bybouquet_mode by bouquet
 EPGPlus.bypage_mode by page
-EPGPlus.head Eventlist Overview (EPG Plus)
-EPGPlus.next_bouquet next bouquet
-EPGPlus.options options
-EPGPlus.page_down page down
-EPGPlus.page_up page up
-EPGPlus.prev_bouquet prev bouquet
+EPGPlus.head Eventlist overview (EPG Plus)
+EPGPlus.next_bouquet Next bouquet
+EPGPlus.options Options
+EPGPlus.page_down Page down
+EPGPlus.page_up Page up
+EPGPlus.prev_bouquet Prev bouquet
 EPGPlus.record Record
 EPGPlus.refresh_epg Refresh
 EPGPlus.remind Schedule
-EPGPlus.scroll_mode Scroll Mode
-EPGPlus.stretch_mode Stretch Mode
-EPGPlus.swap_mode swap mode
-EPGPlus.view_mode view mode
+EPGPlus.scroll_mode Scroll mode
+EPGPlus.stretch_mode Stretch mode
+EPGPlus.swap_mode Swap mode
+EPGPlus.view_mode View mode
 GENRE.ALL off
 GENRE.ARTS Arts
 GENRE.ARTS.0 arts/culture
