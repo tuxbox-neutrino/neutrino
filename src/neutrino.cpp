@@ -457,8 +457,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdd_statfs_mode = configfile.getInt32( "hdd_statfs_mode", SNeutrinoSettings::HDD_STATFS_RECORDING);
 
 	/*
-	   hw_caps uses CFEManager and CFEManager needs g_settings.
-	   So g_settings cannot use hw_caps.
+	   hw_caps needs CFEManager and CFEManager needs g_settings.
+	   So loadSetup() cannot use hw_caps to init g_settings.
 
 	   For this reason we need this workaround.
 	*/
