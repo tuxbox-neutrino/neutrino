@@ -89,12 +89,13 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "icon", icon);
 
-	bool has_shadow = false;
+	int has_shadow = CC_SHADOW_OFF;
 	if (!tableLookup(L, "has_shadow", has_shadow)) {
 		tmp1 = "false";
 		if (tableLookup(L, "has_shadow", tmp1))
 			paramBoolDeprecated(L, tmp1.c_str());
-		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+		if ((tmp1 == "true" || tmp1 == "1" || tmp1 == "yes"))
+			has_shadow = CC_SHADOW_ON;
 	}
 
 	tableLookup(L, "color_frame" , color_frame);
@@ -126,7 +127,7 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 
 	CLuaCCWindow **udata = (CLuaCCWindow **) lua_newuserdata(L, sizeof(CLuaCCWindow *));
 	*udata = new CLuaCCWindow();
-	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), 0, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), NULL, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 	/* Ignore percent conversion of width and height
 	   to remain compatible with the Lua API */
 	(*udata)->w->setWidth(dx);
