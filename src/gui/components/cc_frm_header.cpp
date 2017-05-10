@@ -581,7 +581,7 @@ void CComponentsHeader::initCaption()
 
 		//set alignment of text item in dependency from text alignment
 		if (cch_caption_align == CTextBox::CENTER)
-			cch_text_x = CC_CENTERED;
+			cch_text_x = width/2 - cc_text_w/2;
 
 		//assign general properties
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, cc_text_w, height);
