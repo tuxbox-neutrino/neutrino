@@ -576,12 +576,12 @@ void CComponentsHeader::initCaption()
 
 	//set header text properties
 	if (cch_text_obj){
+		//recalc caption width
+		cc_text_w = min(cc_text_w, cch_font->getRenderWidth(cch_text)/*+ OFFSET_INNER_MID*/);
+
 		//set alignment of text item in dependency from text alignment
 		if (cch_caption_align == CTextBox::CENTER)
 			cch_text_x = CC_CENTERED;
-
-		//recalc caption width
-		cc_text_w = min(cc_text_w, cch_font->getRenderWidth(cch_text)+ OFFSET_INNER_MID);
 
 		//assign general properties
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, cc_text_w, height);
@@ -589,7 +589,7 @@ void CComponentsHeader::initCaption()
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
 			cch_text_obj->getCTextBoxObject()->clearScreenBuffer();
 		cch_text_obj->setTextColor(cch_col_text);
-		cch_text_obj->setText(cch_text, cch_caption_align, cch_font);
+		cch_text_obj->setText(cch_text, cch_caption_align, cch_font, cch_col_text);
 		cch_text_obj->enableTboxSaveScreen(cc_body_gradient_enable || cc_txt_save_screen);
 
 		//corner of text item
