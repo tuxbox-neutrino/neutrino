@@ -263,6 +263,39 @@ void CEventList::readEvents(const t_channel_id channel_id)
 	return;
 }
 
+void CEventList::getChannelNames(t_channel_id &channel_id, std::string &current_channel_name, std::string &prev_channel_name, std::string &next_channel_name, neutrino_msg_t msg)
+{
+	t_bouquet_id current_bouquet_id = bouquetList->getActiveBouquetNumber();
+	t_channel_id channel_id_tmp = channel_id;
+	const unsigned int channel_nr = bouquetList->Bouquets[current_bouquet_id]->channelList->getSize();
+	if(channel_nr < 2){
+		channel_id = 0;
+		return;
+	}
+	unsigned int tmp_channel = 0;
+	for(unsigned int channel = 0; channel < channel_nr; channel++)
+	{
+		channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
+		if(channel_id_tmp == channel_id){
+			if ( msg==CRCInput::RC_right || msg==CRCInput::RC_forward ) {
+				channel = (channel+1) %channel_nr;
+			}else if ( msg==CRCInput::RC_left || msg==CRCInput::RC_rewind ){ //RC_rewind
+				channel = (channel == 0) ? channel_nr -1 : channel - 1;
+			}
+			channel_id = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
+			current_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id);
+
+			tmp_channel = (channel == 0) ? channel_nr - 1 : channel - 1;
+			channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->getChannelID();
+			prev_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id_tmp);
+
+			tmp_channel = (channel+1) %channel_nr;
+			channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->getChannelID();
+			next_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id_tmp);
+			break;
+		}
+	}
+}
 
 int CEventList::exec(const t_channel_id channel_id, const std::string& channelname, const std::string& channelname_prev, const std::string& channelname_next,const CChannelEventList &followlist) // UTF-8
 {
@@ -558,39 +591,15 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 		}
 		else if ( msg==CRCInput::RC_left || msg==CRCInput::RC_right || msg==CRCInput::RC_rewind || msg==CRCInput::RC_forward ) {
 			// maybe remove RC_rewind and RC_forward in the future?
-			bgRightBoxPaint = false;
-		  	t_bouquet_id current_bouquet_id= bouquetList->getActiveBouquetNumber();
-			t_channel_id	channel_id_tmp, _channel_id = channel_id;
-			const unsigned int channel_nr = bouquetList->Bouquets[current_bouquet_id]->channelList->getSize();
-			std::string next_channel_name;
-			std::string prev_channel_name ;
-			std::string current_channel_name;
-			unsigned int tmp_channel = 0;
-			for(unsigned int channel = 0; channel < channel_nr; channel++)
-			{
-				channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
-				if(channel_id_tmp == channel_id){
-					if ( msg==CRCInput::RC_right || msg==CRCInput::RC_forward ) {
-						channel = (channel+1) %channel_nr;
-					}else { //RC_rewind
-						channel = (channel == 0) ? channel_nr -1 : channel - 1;
-					}
-					_channel_id = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
-					current_channel_name = CServiceManager::getInstance()->GetServiceName(_channel_id);
-
-					tmp_channel = (channel == 0) ? channel_nr - 1 : channel - 1;
-					channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->getChannelID();
-					prev_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id_tmp);
-
-					tmp_channel = (channel+1) %channel_nr;
-					channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->getChannelID();
-					next_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id_tmp);
-					break;
-				}
+			std::string next_channel_name, prev_channel_name, current_channel_name;
+			t_channel_id _channel_id = channel_id;
+			getChannelNames(_channel_id, current_channel_name, prev_channel_name, next_channel_name, msg);
+			if(_channel_id){
+				bgRightBoxPaint = false;
+				loop = false;
+				dont_hide = true;
+				exec(_channel_id, current_channel_name, prev_channel_name, next_channel_name);
 			}
-			loop = false;
-			dont_hide = true;
-			exec(_channel_id, current_channel_name, prev_channel_name, next_channel_name);
 		}
 		else if (msg == CRCInput::RC_0) {
 			hide();
@@ -882,6 +891,10 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	header->setCaption(_channelname,CTextBox::CENTER);
 
 	header->paint(CC_SAVE_SCREEN_NO);
+
+	if(_channelname_prev.empty() && _channelname_next.empty()){
+		getChannelNames(_channel_id, _channelname, _channelname_prev, _channelname_next, 0);
+	}
 
 	paintBottomBox(_channelname_prev, _channelname_next);
 }

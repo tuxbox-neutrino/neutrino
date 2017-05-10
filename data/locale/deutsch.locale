@@ -1,5 +1,5 @@
 AUDIOSelectMenue.head Auswahl der Tonspur
-EPGMenu.epgplus Vorschauübersicht
+EPGMenu.epgplus Vorschau-Übersicht
 EPGMenu.eventinfo Info zur Sendung
 EPGMenu.eventlist Vorschau aktuelles Programm
 EPGMenu.head EPG - Programminformation
@@ -7,7 +7,7 @@ EPGMenu.streaminfo Technische Information
 EPGPlus.actions Aktionen
 EPGPlus.bybouquet_mode bouquetweise
 EPGPlus.bypage_mode seitenweise
-EPGPlus.head Vorschau Übersicht (EPG Plus)
+EPGPlus.head Vorschau-Übersicht (EPG Plus)
 EPGPlus.next_bouquet Bouquet vor
 EPGPlus.options Optionen
 EPGPlus.page_down Seite zurück
@@ -19,7 +19,7 @@ EPGPlus.remind Vormerken
 EPGPlus.scroll_mode Scroll-Modus
 EPGPlus.stretch_mode Stretch-Modus
 EPGPlus.swap_mode Blättern
-EPGPlus.view_mode Modus
+EPGPlus.view_mode Ansicht
 GENRE.ALL aus
 GENRE.ARTS Kultur
 GENRE.ARTS.0 Kunst/Kultur
