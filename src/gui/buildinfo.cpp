@@ -55,7 +55,7 @@ void CBuildInfo::initVarBuildInfo()
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 
 
-	shadow = true;
+	shadow = CC_SHADOW_ON;
 }
 
 

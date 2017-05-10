@@ -302,13 +302,23 @@ void CComponentsHeader::initLogo()
 
 		//right end
 		int x_logo_right = width - cch_logo_obj->getWidth();
-		if (cch_btn_obj)
-			x_logo_right -= cch_btn_obj->getWidth();
-		if (cch_cl_obj)
-			x_logo_right -= cch_cl_obj->getWidth();
+		if (cch_caption_align != CTextBox::RIGHT){
+			if (cch_btn_obj)
+				x_logo_right -= cch_btn_obj->getWidth();
+			if (cch_cl_obj)
+				x_logo_right -= cch_cl_obj->getWidth();
+		}else{
+			if (cch_icon_obj)
+				x_logo_right += cch_icon_obj->getWidth();
+		}
 
 		//left end
-		int x_logo_left = getCCItem(prev_id) ? getCCItem(prev_id)->getXPos() + getCCItem(prev_id)->getWidth() : 0;
+		int x_logo_left = cch_offset;
+		if (cch_caption_align != CTextBox::RIGHT)
+			x_logo_left = getCCItem(prev_id) ? getCCItem(prev_id)->getXPos() + getCCItem(prev_id)->getWidth() : 0;
+		else
+			if (cch_icon_obj)
+				x_logo_left += cch_icon_obj->getWidth();
 
 		//calculate available space
 		int logo_space = x_logo_right + cch_logo_obj->getWidth() - x_logo_left;
@@ -319,17 +329,30 @@ void CComponentsHeader::initLogo()
 
 		//set final logo position
 		int x_logo = 0;
-		if (cch_logo.Align == CC_LOGO_RIGHT)
-			x_logo = x_logo_right;
+		if (cch_logo.Align == CC_LOGO_RIGHT){
+			if (cch_caption_align == CTextBox::RIGHT)
+				if (cch_text_obj)
+					x_logo = cch_text_obj->getXPos() - cch_logo_obj->getWidth();
+			else
+				x_logo = x_logo_right;
+		}
 		if (cch_logo.Align == CC_LOGO_LEFT)
 			x_logo = x_logo_left;
 		if (cch_logo.Align == CC_LOGO_CENTER){
 			x_logo = width/2 - cch_logo_obj->getWidth()/2;
-			//fallback if previous item and logo are overlapping
-			if (getCCItem(prev_id)){
-				int x_tmp = x_logo_left + logo_space/2 - cch_logo_obj->getWidth()/2;
-				if (x_logo <= x_logo_left)
-					x_logo = x_tmp;
+			//fallback if adjacent item and logo are overlapping
+			if (cch_caption_align != CTextBox::RIGHT){
+				if (getCCItem(prev_id)){
+					int x_tmp = x_logo_left + logo_space/2 - cch_logo_obj->getWidth()/2;
+					if (x_logo <= x_logo_left)
+						x_logo = x_tmp;
+				}
+			}else{
+				if (cch_text_obj){
+					if (x_logo + cch_logo_obj->getWidth() >= cch_text_obj->getXPos()){
+						x_logo = (x_logo_left + cch_text_obj->getXPos())/2 - cch_logo_obj->getWidth()/2;
+					}
+				}
 			}
 		}
 
@@ -576,20 +599,26 @@ void CComponentsHeader::initCaption()
 
 	//set header text properties
 	if (cch_text_obj){
-		//set alignment of text item in dependency from text alignment
-		if (cch_caption_align == CTextBox::CENTER)
-			cch_text_x = CC_CENTERED;
+		int w_free = cc_text_w;
 
 		//recalc caption width
 		cc_text_w = min(cc_text_w, cch_font->getRenderWidth(cch_text)+ OFFSET_INNER_MID);
+
+		//set alignment of text item in dependency from text alignment
+		if (cch_caption_align == CTextBox::CENTER)
+			cch_text_x = width/2 - cc_text_w/2;
+
+		if (cch_caption_align == CTextBox::RIGHT){
+			cch_text_x += w_free;
+			cch_text_x -= max(cc_text_w, cch_font->getRenderWidth(cch_text)+ OFFSET_INNER_MID);
+		}
 
 		//assign general properties
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, cc_text_w, height);
 		cch_text_obj->setColorBody(col_body);
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
 			cch_text_obj->getCTextBoxObject()->clearScreenBuffer();
-		cch_text_obj->setTextColor(cch_col_text);
-		cch_text_obj->setText(cch_text, cch_caption_align, cch_font);
+		cch_text_obj->setText(cch_text, cch_caption_align, cch_font, cch_col_text);
 		cch_text_obj->enableTboxSaveScreen(cc_body_gradient_enable || cc_txt_save_screen);
 
 		//corner of text item
