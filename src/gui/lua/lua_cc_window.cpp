@@ -224,7 +224,7 @@ int CLuaInstCCWindow::CCWindowSetCaption(lua_State *L)
 	lua_Integer alignment = (lua_Integer)CTextBox::NO_AUTO_LINEBREAK;
 	tableLookup(L, "alignment", alignment);
 
-	D->w->setWindowCaption(name, alignment | (lua_Integer)CTextBox::NO_AUTO_LINEBREAK);
+	D->w->setWindowCaption(name, alignment);
 	return 0;
 }
 
