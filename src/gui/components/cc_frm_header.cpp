@@ -588,7 +588,6 @@ void CComponentsHeader::initCaption()
 		cch_text_obj->setColorBody(col_body);
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
 			cch_text_obj->getCTextBoxObject()->clearScreenBuffer();
-		cch_text_obj->setTextColor(cch_col_text);
 		cch_text_obj->setText(cch_text, cch_caption_align, cch_font, cch_col_text);
 		cch_text_obj->enableTboxSaveScreen(cc_body_gradient_enable || cc_txt_save_screen);
 
