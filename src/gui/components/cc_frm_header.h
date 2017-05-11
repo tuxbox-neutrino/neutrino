@@ -32,25 +32,29 @@
 #include "cc_frm_clock.h"
 #include <driver/colorgradient.h>
 
-#define DEFAULT_LOGO_ALIGN CComponentsHeader::CC_LOGO_CENTER
+#define DEFAULT_LOGO_ALIGN CCHeaderTypes::CC_LOGO_CENTER
+#define DEFAULT_TITLE_ALIGN CCHeaderTypes::CC_TITLE_LEFT
 
-//! Sub class of CComponentsForm. Shows a header with prepared items.
-/*!
-CComponentsHeader provides prepared items like icon, caption and context button icons, mostly for usage in menues or simple windows
-*/
-
-class CComponentsHeader : public CComponentsForm, public CCTextScreen
+class CCHeaderTypes
 {
 	public:
 		///logo position options
 		typedef enum
 		{
-			CC_LOGO_RIGHT 	,
-			CC_LOGO_LEFT 	,
-			CC_LOGO_CENTER
+			CC_LOGO_RIGHT 	= 0x01,
+			CC_LOGO_LEFT 	= 0x02,
+			CC_LOGO_CENTER  = 0x04
 		}cc_logo_alignment_t;
 
-	private:
+		///title position options
+		typedef enum
+		{	/*for compatibilty use CTextBox enums values*/
+			CC_TITLE_LEFT 	= 0x400,
+			CC_TITLE_CENTER	= 0x40 ,
+			CC_TITLE_RIGHT	= 0x80
+		}cc_title_alignment_t;
+
+	protected:
 		///required logo data type
 		typedef struct cch_logo_t
 		{
@@ -60,7 +64,17 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 			int32_t	dy_max;
 			cc_logo_alignment_t Align;
 		} cch_logo_struct_t;
+};
 
+
+//! Sub class of CComponentsForm. Shows a header with prepared items.
+/*!
+CComponentsHeader provides prepared items like icon, caption and context button icons, mostly for usage in menues or simple windows
+*/
+
+class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderTypes
+{
+	private:
 		///member: init genaral variables, parameters for mostly used properties
 		void initVarHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
@@ -116,8 +130,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		std::vector<std::string> v_cch_btn;
 		///property: size of header, possible values are CC_HEADER_SIZE_LARGE, CC_HEADER_SIZE_SMALL
 		int cch_size_mode;
-		///property: alignment of caption within header, see also setCaptionAlignment(), possible values are CTextBox::CENTER, default = CTextBox::NO_AUTO_LINEBREAK (left)
-		int cch_caption_align;
+		///property: alignment of caption within header, see also setCaptionAlignment()
+		cc_title_alignment_t cch_caption_align;
 		///property: enable/disable of clock, see also enableClock()
 		bool cch_cl_enable;
 		///property: clock format
@@ -167,12 +181,12 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen
 		virtual ~CComponentsHeader();
 
 		///set caption text, parameters: string, int align_mode (default left) 
-		virtual void setCaption(const std::string& caption, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
+		virtual void setCaption(const std::string& caption, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
 		///set caption text, parameters: loacle, int align_mode (default left)
-		virtual void setCaption(neutrino_locale_t caption_locale, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
+		virtual void setCaption(neutrino_locale_t caption_locale, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
 
-		///set alignment of caption within header, possible paramters are CTextBox::CENTER, CTextBox::NO_AUTO_LINEBREAK
-		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;}
+		///set alignment of caption within header, possible paramters are CComponentsHeader::CC_TITLE_LEFT, CComponentsHeader::CC_TITLE_RIGHT, CComponentsHeader::CC_TITLE_CENTER
+		virtual void setCaptionAlignment(const cc_title_alignment_t& align_mode){cch_caption_align = align_mode;}
 
 		/**Set text font for title.
 		 * Internal default font is g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] and

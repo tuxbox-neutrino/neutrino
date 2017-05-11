@@ -743,11 +743,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "window"){
 		if (window == NULL){
 			window = new CComponentsWindow();
-			window->setWindowCaption("|........HEADER........|", CTextBox::CENTER);
+			window->setWindowCaption("|........HEADER........|", CCHeaderTypes::CC_TITLE_CENTER);
 			window->setDimensionsAll(50, 50, 500, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
 			window->enableShadow();
-			window->getFooterObject()->setCaption("|........FOOTER........|", CTextBox::CENTER);
+			window->getFooterObject()->setCaption("|........FOOTER........|", CCHeaderTypes::CC_TITLE_CENTER);
 
 			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
 			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);

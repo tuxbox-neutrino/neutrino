@@ -130,7 +130,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_logo.dy_max		= -1;
 	cch_logo.Align		= DEFAULT_LOGO_ALIGN;
 	cch_col_text		= COL_MENUHEAD_TEXT;
-	cch_caption_align	= CTextBox::NO_AUTO_LINEBREAK;
+	cch_caption_align	= DEFAULT_TITLE_ALIGN;
 	cch_items_y 		= CC_CENTERED;
 	cch_offset		= OFFSET_INNER_MID;
 	cch_icon_x 		= cch_offset;
@@ -163,7 +163,7 @@ CComponentsHeader::~CComponentsHeader()
 	v_cch_btn.clear();
 }
 
-void CComponentsHeader::setCaption(const std::string& caption, const int& align_mode, const fb_pixel_t& text_color)
+void CComponentsHeader::setCaption(const std::string& caption, const cc_title_alignment_t& align_mode, const fb_pixel_t& text_color)
 {
 	if (cch_cl_obj)
 		cch_cl_obj->Stop();
@@ -172,7 +172,7 @@ void CComponentsHeader::setCaption(const std::string& caption, const int& align_
 	cch_col_text 		= text_color;
 }
 
-void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const int& align_mode, const fb_pixel_t& text_color)
+void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const cc_title_alignment_t& align_mode, const fb_pixel_t& text_color)
 {
 	setCaption(string(g_Locale->getText(caption_locale)), align_mode, text_color);
 }
@@ -302,7 +302,7 @@ void CComponentsHeader::initLogo()
 
 		//right end
 		int x_logo_right = width - cch_logo_obj->getWidth();
-		if (cch_caption_align != CTextBox::RIGHT){
+		if (!(cch_caption_align & CC_TITLE_RIGHT)){
 			if (cch_btn_obj)
 				x_logo_right -= cch_btn_obj->getWidth();
 			if (cch_cl_obj)
@@ -314,7 +314,7 @@ void CComponentsHeader::initLogo()
 
 		//left end
 		int x_logo_left = cch_offset;
-		if (cch_caption_align != CTextBox::RIGHT)
+		if (!(cch_caption_align & CC_TITLE_RIGHT))
 			x_logo_left = getCCItem(prev_id) ? getCCItem(prev_id)->getXPos() + getCCItem(prev_id)->getWidth() : 0;
 		else
 			if (cch_icon_obj)
@@ -329,19 +329,19 @@ void CComponentsHeader::initLogo()
 
 		//set final logo position
 		int x_logo = 0;
-		if (cch_logo.Align == CC_LOGO_RIGHT){
-			if (cch_caption_align == CTextBox::RIGHT){
+		if (cch_logo.Align & CC_LOGO_RIGHT){
+			if (cch_caption_align & CC_TITLE_RIGHT){
 				if (cch_text_obj)
 					x_logo = cch_text_obj->getXPos() - cch_logo_obj->getWidth();
 			}else
 				x_logo = x_logo_right;
 		}
-		if (cch_logo.Align == CC_LOGO_LEFT)
+		if (cch_logo.Align & CC_LOGO_LEFT)
 			x_logo = x_logo_left;
-		if (cch_logo.Align == CC_LOGO_CENTER){
+		if (cch_logo.Align & CC_LOGO_CENTER){
 			x_logo = width/2 - cch_logo_obj->getWidth()/2;
 			//fallback if adjacent item and logo are overlapping
-			if (cch_caption_align != CTextBox::RIGHT){
+			if (!(cch_caption_align & CC_TITLE_RIGHT)){
 				if (getCCItem(prev_id)){
 					int x_tmp = x_logo_left + logo_space/2 - cch_logo_obj->getWidth()/2;
 					if (x_logo <= x_logo_left)
@@ -605,10 +605,10 @@ void CComponentsHeader::initCaption()
 		cc_text_w = min(cc_text_w, cch_font->getRenderWidth(cch_text)+ OFFSET_INNER_MID);
 
 		//set alignment of text item in dependency from text alignment
-		if (cch_caption_align == CTextBox::CENTER)
+		if (cch_caption_align & CC_TITLE_CENTER)
 			cch_text_x = width/2 - cc_text_w/2;
 
-		if (cch_caption_align == CTextBox::RIGHT){
+		if (cch_caption_align & CC_TITLE_RIGHT){
 			cch_text_x += w_free;
 			cch_text_x -= max(cc_text_w, cch_font->getRenderWidth(cch_text)+ OFFSET_INNER_MID);
 		}
