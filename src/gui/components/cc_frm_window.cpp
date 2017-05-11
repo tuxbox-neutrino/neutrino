@@ -150,7 +150,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
 	ccw_show_header	= true;
-	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
+	ccw_align_mode	= DEFAULT_TITLE_ALIGN;
 	ccw_show_l_sideber = false;
 	ccw_show_r_sideber = false;
 	ccw_w_sidebar	= 40;
@@ -191,7 +191,7 @@ void CComponentsWindow::initWindowPos()
 		y = frameBuffer->getScreenY();
 }
 
-void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
+void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const cc_title_alignment_t& align_mode)
 {
 	ccw_caption = g_Locale->getText(locale_text);
 	ccw_align_mode = align_mode;

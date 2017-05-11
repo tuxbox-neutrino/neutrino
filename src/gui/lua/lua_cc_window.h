@@ -29,7 +29,7 @@ class CLuaCCWindow
 		~CLuaCCWindow() { delete w; }
 };
 
-class CLuaInstCCWindow
+class CLuaInstCCWindow : CCHeaderTypes
 {
 	public:
 		CLuaInstCCWindow() {};

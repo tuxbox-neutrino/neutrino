@@ -54,7 +54,7 @@ items like text, labels, pictures ...
 
 */
 
-class CComponentsWindow : public CComponentsForm
+class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 {
 	protected:
 		///object: header object, to get access to header properties see also getHeaderObject()
@@ -70,7 +70,7 @@ class CComponentsWindow : public CComponentsForm
 		///property: caption in header, see also getHeaderObject()
 		std::string ccw_caption;
 		///property: alignment mode for header caption
-		int ccw_align_mode;
+		cc_title_alignment_t ccw_align_mode;
 		///property: icon name in header, see also getHeaderObject()
 		std::string ccw_icon_name;
 		///property: assigned default icon buttons in header, see also getHeaderObject()
@@ -241,20 +241,20 @@ class CComponentsWindow : public CComponentsForm
 		* @param[in]	text
 		* 	@li 	expects type const std::string&, defines title of window header
 		* @param[in]	align_mode
-		* 	@li 	optional: expects type const int&, defines allignment of title text
+		* 	@li 	optional: expects type const cc_title_alignment_t&, defines allignment of title text
 		* @see		CTextBox for alignment modes
 		*/
-		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;}
+		void setWindowCaption(const std::string& text, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN){ccw_caption = text; ccw_align_mode = align_mode;}
 
 		/**
 		* sets title text in header
 		* @param[in]	text
 		* 	@li 	expects type neutrino_locale_t
 		* @param[in]	align_mode
-		* 	@li 	optional: expects type const int&, defines allignment of title text
+		* 	@li 	optional: expects type const cc_title_alignment_t&, defines allignment of title text
 		* @see		CTextBox for alignment modes
 		*/
-		void setWindowCaption(neutrino_locale_t locale_text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
+		void setWindowCaption(neutrino_locale_t locale_text, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN);
 
 		/**
 		* Sets header text color
@@ -273,10 +273,10 @@ class CComponentsWindow : public CComponentsForm
 		/**
 		* sets title text alignment
 		* @param[in]	align_mode
-		* 	@li 	expects type const int&
+		* 	@li 	expects type const cc_title_alignment_t&
 		* @see		CTextBox for alignment modes
 		*/
-		void setWindowCaptionAlignment(const int& align_mode){ccw_align_mode = align_mode;};
+		void setWindowCaptionAlignment(const cc_title_alignment_t& align_mode){ccw_align_mode = align_mode;};
 
 		/**
 		* Sets icon name of window header.
