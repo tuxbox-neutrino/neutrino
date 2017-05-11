@@ -2136,7 +2136,7 @@ void CChannelList::paintHead()
 	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);
 	header->setColorBody(COL_MENUHEAD_PLUS_0);
 
-	header->setCaption(header_txt, CTextBox::NO_AUTO_LINEBREAK, header_txt_col);
+	header->setCaption(header_txt, DEFAULT_TITLE_ALIGN, header_txt_col);
 
 	if (timeset) {
 		if(!edit_state){

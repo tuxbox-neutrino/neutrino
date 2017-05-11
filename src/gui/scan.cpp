@@ -522,7 +522,7 @@ void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 void CScanTs::paint(bool fortest)
 {
 	CComponentsHeaderLocalized header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD);
-	header.setCaptionAlignment(CTextBox::CENTER);
+	header.setCaptionAlignment(CCHeaderTypes::CC_TITLE_CENTER);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);

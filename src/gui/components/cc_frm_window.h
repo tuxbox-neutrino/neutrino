@@ -52,7 +52,7 @@ items like text, labels, pictures ...
 
 */
 
-class CComponentsWindow : public CComponentsForm
+class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 {
 	protected:
 		///object: header object, to get access to header properties see also getHeaderObject()
@@ -68,7 +68,7 @@ class CComponentsWindow : public CComponentsForm
 		///property: caption in header, see also getHeaderObject()
 		std::string ccw_caption;
 		///property: alignment mode for header caption
-		int ccw_align_mode;
+		cc_title_alignment_t ccw_align_mode;
 		///property: icon name in header, see also getHeaderObject()
 		std::string ccw_icon_name;
 		///property: assigned default icon buttons in header, see also getHeaderObject()
@@ -168,15 +168,17 @@ class CComponentsWindow : public CComponentsForm
 		void enableSidebar(const int& sidbar_type = CC_WINDOW_LEFT_SIDEBAR | CC_WINDOW_RIGHT_SIDEBAR);
 
 		///set caption in header with string, see also getHeaderObject()
-		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;}
+		void setWindowCaption(const std::string& text, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN){ccw_caption = text; ccw_align_mode = align_mode;}
 		///set header text color
+
 		void setWindowHeaderTextColor(const fb_pixel_t& color){ccw_col_head_text = color;}
 		///set background to header
 		void setWindowHeaderColor(const fb_pixel_t& color){ccw_col_head = color;}
+
 		///set caption in header from locales, see also getHeaderObject()
-		void setWindowCaption(neutrino_locale_t locale_text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
+		void setWindowCaption(neutrino_locale_t locale_text, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN);
 		///set caption alignment, see CTextBox for possible modes
-		void setWindowCaptionAlignment(const int& align_mode){ccw_align_mode = align_mode;};
+		void setWindowCaptionAlignment(const cc_title_alignment_t& align_mode){ccw_align_mode = align_mode;};
 
 		///set icon name in header, see also getHeaderObject()
 		void setWindowIcon(const std::string& iconname){ccw_icon_name = iconname; initHeader();};

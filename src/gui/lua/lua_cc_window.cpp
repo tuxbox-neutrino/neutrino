@@ -221,10 +221,10 @@ int CLuaInstCCWindow::CCWindowSetCaption(lua_State *L)
 	std::string name = "";
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 
-	lua_Integer alignment = (lua_Integer)CTextBox::NO_AUTO_LINEBREAK;
+	lua_Integer alignment = (lua_Integer)DEFAULT_TITLE_ALIGN;
 	tableLookup(L, "alignment", alignment);
 
-	D->w->setWindowCaption(name, alignment);
+	D->w->setWindowCaption(name, (cc_title_alignment_t)alignment);
 	return 0;
 }
 
