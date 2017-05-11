@@ -330,10 +330,10 @@ void CComponentsHeader::initLogo()
 		//set final logo position
 		int x_logo = 0;
 		if (cch_logo.Align == CC_LOGO_RIGHT){
-			if (cch_caption_align == CTextBox::RIGHT)
+			if (cch_caption_align == CTextBox::RIGHT){
 				if (cch_text_obj)
 					x_logo = cch_text_obj->getXPos() - cch_logo_obj->getWidth();
-			else
+			}else
 				x_logo = x_logo_right;
 		}
 		if (cch_logo.Align == CC_LOGO_LEFT)
