@@ -162,6 +162,8 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 
 	if (!Text.empty())
 		addHintItem(Text, text_mode, Picon, COL_MENUCONTENT_TEXT, hb_font);
+	else
+		ReSize();
 }
 
 CHintBox::~CHintBox()
@@ -186,6 +188,7 @@ void CHintBox::enableTimeOutBar(bool enable)
 		timeout_pb->setValues(timeout_pb->getValue()+1, 100*timeout);
 	}else{
 		timeout_pb = new CProgressBar();
+		timeout_pb->setType(CProgressBar::PB_TIMESCALE);
 		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
 		timeout_pb->setValues(0, 100*timeout);
 		if (!timeout_pb_timer) {
@@ -312,13 +315,8 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	info_box->setPicture(Picon);
 	info_box->doPaintBg(false);
 
-	/* recalculate new hintbox height */
+	/* recalculate new hintbox dimensions and position*/
 	ReSize();
-
-	/* set hint box position general to center and refresh window */
-	setCenterPos(CC_ALONG_X);
-	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 2),
-	Refresh();
 }
 
 void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const int& mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
@@ -350,6 +348,10 @@ void CHintBox::ReSize()
 		h += item->getHeight();
 	}
 	height = min(HINTBOX_MAX_HEIGHT, max(HINTBOX_MIN_HEIGHT, max(height,h)));
+
+	/* set hint box position general to center and refresh window */
+	setCenterPos(CC_ALONG_X);
+	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 2),
 	Refresh();
 }
 
