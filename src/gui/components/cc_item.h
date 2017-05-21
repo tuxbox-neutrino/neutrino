@@ -110,7 +110,7 @@ class CComponentsItem : public CComponents
 		///set select mode
 		virtual void setSelected(bool selected,
 					const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
-					const fb_pixel_t& frame_col = COL_SHADOW_PLUS_0,
+					const fb_pixel_t& frame_col = COL_FRAME_PLUS_0,
 					const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
 					const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
 					const int& frame_w = 3,
