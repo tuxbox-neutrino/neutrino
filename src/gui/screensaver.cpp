@@ -164,7 +164,7 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 
 	if (g_settings.screensaver_timeout)
 	{
-		while(1)
+		while(PScreenSaver)
 		{
 			PScreenSaver->paint();
 			sleep(g_settings.screensaver_timeout);
