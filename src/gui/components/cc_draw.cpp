@@ -374,15 +374,16 @@ bool CCDraw::clearFbGradientData()
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].gradient_data){
 			if (v_fbdata[i].gradient_data->gradientBuf){
+				dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up gradientBuf   \t %p...\033[0m\n", __func__, __LINE__, v_fbdata[i].gradient_data->gradientBuf);
 				free(v_fbdata[i].gradient_data->gradientBuf);
 				v_fbdata[i].gradient_data->gradientBuf = NULL;
-				dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up gradientBuf...\033[0m\n", __func__, __LINE__);
 			}
 			if (v_fbdata[i].gradient_data->boxBuf){
+				dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up boxBuf     \t %p...\033[0m\n", __func__, __LINE__, v_fbdata[i].gradient_data->boxBuf);
 				cs_free_uncached(v_fbdata[i].gradient_data->boxBuf);
 				v_fbdata[i].gradient_data->boxBuf = NULL;
-				dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up boxBuf...\033[0m\n", __func__, __LINE__);
 			}
+			dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up gradient data \t %p...\033[0m\n", __func__, __LINE__, v_fbdata[i].gradient_data);
 			delete v_fbdata[i].gradient_data;
 			v_fbdata[i].gradient_data = NULL;
 			ret = true;

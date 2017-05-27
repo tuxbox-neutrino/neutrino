@@ -325,12 +325,14 @@ bool CComponentsFrmClock::startClock()
 	if (cl_timer == NULL){
 		cl_timer = new CComponentsTimer(0);
 		cl_timer->setThreadName("frmClock");
-		if (cl_timer->OnTimer.empty()){
-			dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
-			cl_timer->OnTimer.connect(cl_sl_show);
-			force_paint_bg = true;
-		}
 	}
+
+	if (cl_timer->OnTimer.empty()){
+		dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
+		cl_timer->OnTimer.connect(cl_sl_show);
+		force_paint_bg = true;
+	}
+
 	cl_timer->setTimerInterval(cl_interval);
 
 	if (cl_timer->startTimer())
@@ -390,7 +392,7 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)
 {
-	if (cl_font != font || (cl_font != font)){
+	if (cl_font != font || cl_font_style != style){
 		if (cl_font != font)
 			cl_font = font;
 		if (style != -1)
