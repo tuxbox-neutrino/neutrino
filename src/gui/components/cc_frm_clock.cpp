@@ -390,7 +390,7 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)
 {
-	if (cl_font != font || (cl_font != font)){
+	if (cl_font != font || cl_font_style != style){
 		if (cl_font != font)
 			cl_font = font;
 		if (style != -1)
