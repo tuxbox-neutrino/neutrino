@@ -112,7 +112,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
 	fr_thickness 	= 0; //TODO: parts of the GUI still don't use framed buttons
-	append_x_offset = 6;
+	append_x_offset = OFFSET_INTER;
 	append_y_offset = 0;
 	corner_rad	= RADIUS_SMALL;
 	
