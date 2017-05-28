@@ -1684,13 +1684,15 @@ void CChannelList::showChannelLogo()
 {
 	if ((*chanlist).empty())
 		return;
+
 	if(g_settings.channellist_show_channellogo){
 		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
 		header->getChannelLogoObject()->hide();
 		header->getChannelLogoObject()->clearSavedScreen();
-		header->getChannelLogoObject()->allowPaint(true);
 		header->getChannelLogoObject()->paint();
 	}
+	else
+		header->setChannelLogo(0, string());
 }
 
 #define NUM_LIST_BUTTONS_SORT 9
@@ -2150,16 +2152,7 @@ void CChannelList::paintHead()
 		}
 	}
 
-	if(g_settings.channellist_show_channellogo){
-		//ensure to have clean background
-		header->getChannelLogoObject()->hide();
-		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
-		header->getChannelLogoObject()->allowPaint(false);
-	}
-	else
-		header->setChannelLogo(0, string());
 	header->paint(CC_SAVE_SCREEN_NO);
-	showChannelLogo();
 }
 
 CComponentsHeader* CChannelList::getHeaderObject()
