@@ -232,8 +232,10 @@ void CComponentsHeader::initIcon()
 	//init cch_icon_obj only if an icon available
 	if (cch_icon_name.empty()) {
 		cch_icon_w = 0;
-		if (cch_icon_obj)
+		if (cch_icon_obj){
 			removeCCItem(cch_icon_obj);
+			cch_icon_obj = NULL;
+		}
 		return;
 	}
 

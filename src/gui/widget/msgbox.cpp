@@ -335,7 +335,7 @@ int CMsgBox::exec()
 
 void CMsgBox::refreshFoot(void)
 {
-	ccw_footer->paint(false);
+	ccw_footer->getButtonChainObject()->paint();
 }
 
 

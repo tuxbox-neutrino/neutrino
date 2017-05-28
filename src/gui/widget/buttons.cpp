@@ -103,8 +103,8 @@ int paintButtons(	const button_label_ext * const content,
 	int w_footer = footerwidth;
 	int h_footer = 0;
 	
-	int w_space 	= 10; //minimal space between buttons
-	int h_space	= 4; //minimal space between caption and/or icon and border
+	int w_space 	= OFFSET_INNER_MID; //minimal space between buttons
+	int h_space	= OFFSET_INNER_SMALL; //minimal space between caption and/or icon and border
 	int x_icon 	= x_footer + w_space;
 	int x_caption 	= 0;
 	
@@ -312,8 +312,8 @@ int paintButtons(       const int &x,
 	int w_footer = footerwidth;
 	int h_footer = 0;
 
-	int w_space     = 10; //minimal space between buttons
-	int h_space     = 4; //minimal space between caption and/or icon and border
+	int w_space     = OFFSET_INNER_MID; //minimal space between buttons
+	int h_space     = OFFSET_INNER_SMALL; //minimal space between caption and/or icon and border
 	int x_icon      = x_footer + w_space;
 	int x_caption   = 0;
 
