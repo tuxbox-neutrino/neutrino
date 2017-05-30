@@ -62,6 +62,7 @@ class CFollowScreenings : public CMenuTarget
 		{
 			FOLLOWSCREENINGS_OFF	= 0,
 			FOLLOWSCREENINGS_ON	= 1,
+			FOLLOWSCREENINGS_ALWAYS	= 2
 		};
 
                 CFollowScreenings(const t_channel_id Channel_id, time_t Starttime, time_t Stoptime, const std::string &Title, uint64_t EpgID=0,

@@ -177,9 +177,9 @@ const CMenuOptionChooser::keyval END_OF_RECORDING[END_OF_RECORDING_COUNT] =
 
 const CMenuOptionChooser::keyval timer_followscreenings_options[] =
 {
-	{0, LOCALE_OPTIONS_OFF},
-	{1, LOCALE_OPTIONS_ON},
-	{2, LOCALE_OPTIONS_ALWAYS}
+	{CFollowScreenings::FOLLOWSCREENINGS_OFF    , LOCALE_OPTIONS_OFF   },
+	{CFollowScreenings::FOLLOWSCREENINGS_ON     , LOCALE_OPTIONS_ON    },
+	{CFollowScreenings::FOLLOWSCREENINGS_ALWAYS , LOCALE_OPTIONS_ALWAYS}
 };
 size_t timer_followscreenings_options_count = sizeof(timer_followscreenings_options)/sizeof(CMenuOptionChooser::keyval);
 
