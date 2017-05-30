@@ -1326,7 +1326,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
 #endif
 				/* in case ffmpeg report incorrect values */
-				if(file_prozent > 96 && (playstate == CMoviePlayerGui::PLAY) && (speed == 1)){
+				if(file_prozent > 89 && (playstate == CMoviePlayerGui::PLAY) && (speed == 1)){
 					if(position_tmp != position){
 						position_tmp = position ;
 						eof2 = 0;
