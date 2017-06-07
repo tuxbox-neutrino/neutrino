@@ -45,18 +45,18 @@ const char * const file_extension_list[] =
 	"aac",   "asf",  "avi",  "bin",  "bmp",  "cdr",  "crw",
 	"dts",   "flac", "flv",  "gif",  "imu",  "ipk",  "iso",  "jpeg", "jpg",
 	"m2a",   "m3u",  "m3u8", "m4a",  "mkv",  "mp2",  "mp3",
-	"mpa",   "ogg",  "opk",  "pls",  "png",  "sh",
-	"txt",   "url",  "wav",  "xml"
+	"mp4",   "mpa",  "mpeg", "mpg",  "ogg",  "opk",  "pls",  "png",  "sh",
+	"ts",    "txt",  "url",  "vob",  "wav",  "xml"
 };
 /* ATTENTION: the array file_extension_list MUST BE SORTED ASCENDING (cf. sort, man bsearch) - otherwise bsearch will not work correctly! */
 
 const CFile::FileType file_type_list[] =
 {
-	CFile::FILE_AAC      , CFile::FILE_ASF      , CFile::FILE_AVI      , CFile::FILE_BIN_PACKAGE  ,CFile::FILE_PICTURE      , CFile::FILE_CDR   , CFile::FILE_PICTURE  ,
-	CFile::FILE_WAV      , CFile::FILE_FLAC     , CFile::FILE_FLV      , CFile::FILE_PICTURE    , CFile::STREAM_PICTURE    , CFile::FILE_PKG_PACKAGE ,CFile::FILE_ISO    , CFile::FILE_PICTURE  , CFile::FILE_PICTURE  ,
-	CFile::FILE_MP3      , CFile::FILE_PLAYLIST , CFile::FILE_PLAYLIST  , CFile::FILE_AAC        , CFile::FILE_MKV          , CFile::FILE_MP3         , CFile::FILE_MP3   ,
-	CFile::FILE_MP3      , CFile::FILE_OGG      , CFile::FILE_PKG_PACKAGE, CFile::FILE_PLAYLIST     ,  CFile::FILE_PICTURE    , CFile::FILE_TEXT  ,
-	CFile::FILE_TEXT     , CFile::STREAM_AUDIO  , CFile::FILE_WAV        , CFile::FILE_XML
+	CFile::FILE_AAC      , CFile::FILE_ASF      , CFile::FILE_AVI      , CFile::FILE_BIN_PACKAGE , CFile::FILE_PICTURE   , CFile::FILE_CDR         , CFile::FILE_PICTURE  ,
+	CFile::FILE_WAV      , CFile::FILE_FLAC     , CFile::FILE_MPG      , CFile::FILE_PICTURE     , CFile::STREAM_PICTURE , CFile::FILE_PKG_PACKAGE , CFile::FILE_ISO      , CFile::FILE_PICTURE  , CFile::FILE_PICTURE  ,
+	CFile::FILE_MP3      , CFile::FILE_PLAYLIST , CFile::FILE_PLAYLIST , CFile::FILE_AAC         , CFile::FILE_MKV       , CFile::FILE_MP3         , CFile::FILE_MP3      ,
+	CFile::FILE_MPG      , CFile::FILE_MP3      , CFile::FILE_MPG      , CFile::FILE_MPG         , CFile::FILE_OGG       , CFile::FILE_PKG_PACKAGE , CFile::FILE_PLAYLIST , CFile::FILE_PICTURE  , CFile::FILE_TEXT     ,
+	CFile::FILE_TS       , CFile::FILE_TEXT     , CFile::STREAM_AUDIO  , CFile::FILE_VOB         , CFile::FILE_WAV       , CFile::FILE_XML
 };
 
 int mycasecmp(const void * a, const void * b)
