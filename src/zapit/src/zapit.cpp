@@ -70,6 +70,7 @@
 #endif
 
 #include <driver/abstime.h>
+#include <system/set_threadname.h>
 #include <libdvbsub/dvbsub.h>
 #include <OpenThreads/ScopedLock>
 #include <libtuxtxt/teletext.h>
@@ -2489,6 +2490,7 @@ static bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 void CZapit::run()
 {
+	set_threadname("zap:main");
 	printf("[zapit] starting... tid %ld\n", syscall(__NR_gettid));
 
 	abort_zapit = 0;
@@ -2661,6 +2663,7 @@ void CZapitSdtMonitor::run()
 	t_satellite_position            satellitePosition = 0;
 	freq_id_t                       freq = 0;
 	transponder_id_t 		tpid = 0;
+	set_threadname("zap:sdtmonitor");
 
 	//tstart = time(0);
 	sdt_tp.clear();

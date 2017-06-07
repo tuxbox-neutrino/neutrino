@@ -46,6 +46,7 @@
 #include <video.h>
 #include <cs_api.h>
 #include <driver/screenshot.h>
+#include <system/set_threadname.h>
 
 extern "C" {
 #include <jpeglib.h>
@@ -162,6 +163,7 @@ void CScreenShot::cleanupThread(void *arg)
 /* start ::run in new thread to save file in selected format */
 bool CScreenShot::Start()
 {
+	set_threadname("n:screenshot");
 	bool ret = false;
 	if (GetData())
 		ret = startThread();

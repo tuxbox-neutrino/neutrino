@@ -29,6 +29,7 @@
 #include <dvbsi++/private_data_specifier_descriptor.h>
 #include <math.h>
 #include <eitd/edvbstring.h>
+#include <system/set_threadname.h>
 
 //#define DEBUG_NIT
 //#define DEBUG_NIT_UNUSED
@@ -65,6 +66,7 @@ bool CNit::Stop()
 
 void CNit::run()
 {
+	set_threadname("zap:nit");
 	if(Parse())
 		printf("[scan] NIT finished.\n");
 	else

@@ -56,6 +56,8 @@
 #include <driver/streamts.h>
 #include <driver/record.h>
 #include <driver/genpsi.h>
+#include <system/set_threadname.h>
+
 #include <gui/movieplayer.h>
 #include <cs_api.h>
 
@@ -181,6 +183,7 @@ bool CStreamInstance::Open()
 void CStreamInstance::run()
 {
 	printf("CStreamInstance::run: %" PRIx64 "\n", channel_id);
+	set_threadname("n:streaminstance");
 
 	/* pids here cannot be empty */
 	stream_pids_t::iterator it = pids.begin();
@@ -556,6 +559,7 @@ void CStreamManager::run()
 	int poll_timeout = -1;
 
 	printf("Starting STREAM thread keeper, tid %ld\n", syscall(__NR_gettid));
+	set_threadname("n:streammanager");
 
 	while (running) {
 		mutex.lock();
