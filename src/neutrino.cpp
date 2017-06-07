@@ -77,6 +77,7 @@
 #include "gui/eventlist.h"
 #include "gui/favorites.h"
 #include "gui/filebrowser.h"
+#include "gui/followscreenings.h"
 #include "gui/hdd_menu.h"
 #include "gui/infoviewer.h"
 #include "gui/mediaplayer.h"
@@ -500,7 +501,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			g_settings.timer_remotebox_ip.push_back(timer_rb);
 		}
 	}
-	g_settings.timer_followscreenings = configfile.getInt32( "timer_followscreenings", 1 );
+	g_settings.timer_followscreenings = configfile.getInt32( "timer_followscreenings", CFollowScreenings::FOLLOWSCREENINGS_ON );
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
