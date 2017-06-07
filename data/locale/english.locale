@@ -593,11 +593,11 @@ filebrowser.prevpage Prev. Page
 filebrowser.scan Scaning folder
 filebrowser.select Select
 filebrowser.showrights Show file rights
-filebrowser.sort.date (date)
-filebrowser.sort.name (name)
-filebrowser.sort.namedirsfirst (name, dir first)
-filebrowser.sort.size (Size)
-filebrowser.sort.type (type)
+filebrowser.sort.date Date
+filebrowser.sort.name Name
+filebrowser.sort.namedirsfirst Name, dirs first
+filebrowser.sort.size Size
+filebrowser.sort.type Type
 filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
