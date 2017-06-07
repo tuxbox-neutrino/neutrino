@@ -53,7 +53,7 @@ void CVolumeBar::initVarVolumeBar()
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 	corner_rad 	= CORNER_RADIUS_MID;
 	vb_item_offset 	= OFFSET_INNER_SMALL;
-	height 		= g_settings.volume_size; //default height
+	height          = CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
 
 	//assume volume value as pointer to global setting
 	vb_vol		= &g_settings.current_volume;
@@ -91,7 +91,7 @@ void CVolumeBar::initVolumeBarSize()
 	//vb_digit_w += corner_rad/2;
 
 	//scale
-	vb_pbw 		= 200;
+	vb_pbw 		= CFrameBuffer::getInstance()->scale2Res(200);
 	vb_pbh 		= height-4*vb_item_offset;
 
 	//result for width
@@ -362,7 +362,7 @@ void CVolumeHelper::initVolBarSize()
 	icon_height		+= 2;
 	icon_width		+= 8;
 	g_settings.volume_size	= max(g_settings.volume_size, icon_height);
-	vol_height		= g_settings.volume_size;
+	vol_height		= CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
 
 	if (g_settings.volume_digits) {
 		CNeutrinoFonts *cnf = CNeutrinoFonts::getInstance();

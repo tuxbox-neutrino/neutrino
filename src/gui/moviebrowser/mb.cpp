@@ -2755,7 +2755,7 @@ void CMovieBrowser::updateDir(void)
 void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 {
 	//TRACE("[mb]->loadAllTsFileNamesFromStorage \n");
-	int i,size;
+	size_t i,size;
 
 	m_movieSelectionHandler = NULL;
 	m_dirNames.clear();
@@ -2766,8 +2766,10 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 	size = m_dir.size();
 	for (i=0; i < size;i++)
 	{
-		if (*m_dir[i].used == true)
+		if (*m_dir[i].used == true){
+			OnGlobalProgress(i, size, m_dir[i].name);
 			loadTsFileNamesFromDir(m_dir[i].name);
+		}
 	}
 
 	TRACE("[mb] Dir%d, Files:%d\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size());
@@ -2875,7 +2877,8 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 	CFileList flist;
 	if (readDir(dirname, &flist) == true)
 	{
-		for (size_t i = 0; i < flist.size(); i++)
+		size_t count = flist.size();
+		for (size_t i = 0; i < count; i++)
 		{
 			if (S_ISDIR(flist[i].Mode)) {
 				if (m_settings.ts_only || !CFileBrowser::checkBD(flist[i])) {
@@ -2886,7 +2889,8 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 			} else {
 				result |= addFile(flist[i], dirItNr);
 			}
-			OnLoadFile(i, flist.size(), g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+			if (result)
+				OnLocalProgress(i, count, dirname );
 		}
 		//result = true;
 	}
@@ -3125,7 +3129,10 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 {
 	TRACE("[mb] loadMovies: \n");
 
-	CProgressWindow loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_HEAD, 500, 150, show_mode == MB_SHOW_YT ? &ytparser.OnLoadVideoInfo : &OnLoadFile);
+	struct timeval t1, t2;
+	gettimeofday(&t1, NULL);
+
+	CProgressWindow loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES, CCW_PERCENT 50, CCW_PERCENT 10, NULL, show_mode == MB_SHOW_YT ? &ytparser.OnProgress : &OnLocalProgress, &OnGlobalProgress);
 	loadBox.enableShadow();
 	loadBox.paint();
 
@@ -3139,6 +3146,11 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 			autoFindSerie();
 	}
 	m_file_info_stale = false;
+
+	gettimeofday(&t2, NULL);
+	uint64_t duration = ((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL;
+	if (duration)
+		fprintf(stderr, "\033[33m[CMovieBrowser] %s: %" PRIu64 " ms to scan movies \033[0m\n",__func__, duration);
 
 	loadBox.hide();
 

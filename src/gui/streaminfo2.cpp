@@ -527,18 +527,20 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	if(!channel)
 		return;
 
-	int array[6]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
+	int array[]= {g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_VIDEOSYSTEM)),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_OSD_RESOLUTION)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_ARATIO)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_SCANTS_FREQDATA))};
 
-	for(i=0 ; i<6; i++) {
+	for(i=0 ; i<(int)(sizeof(array)/sizeof(array[0])); i++) {
 		if(spaceoffset < array[i])
 			spaceoffset = array[i];
 	}
-	spaceoffset += g_Font[font_info]->getRenderWidth(" ");
+	spaceoffset += g_Font[font_info]->getRenderWidth("  ");
 
 	average_bitrate_offset = spaceoffset;
 	int box_width2 = box_width-(spaceoffset+xpos);
@@ -557,7 +559,30 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	snprintf(buf, sizeof(buf), "%dx%d", xres, yres);
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
 
-	//audio rate
+#if HAVE_COOL_HARDWARE
+	//Video SYSTEM
+	ypos += iheight;
+	snprintf(buf, sizeof(buf), "%s:", g_Locale->getText (LOCALE_STREAMINFO_VIDEOSYSTEM));
+	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_MENUCONTENT_TEXT);
+	cs_vs_format_t vsfn;
+	videoDecoder->GetVideoSystemFormatName(&vsfn);
+#ifdef BOXMODEL_CS_HD1
+	snprintf(buf, sizeof(buf), "HDMI: %s%s", vsfn.format,
+#else
+	snprintf(buf, sizeof(buf), "HDMI: %s, Scart/Cinch: %s%s", vsfn.formatHD, vsfn.formatSD,
+#endif
+					(g_settings.video_Mode == VIDEO_STD_AUTO)?" (AUTO)":"");
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
+#endif
+
+	//OSD RESOLUTION
+	ypos += iheight;
+	snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_STREAMINFO_OSD_RESOLUTION));
+	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_MENUCONTENT_TEXT);
+	snprintf(buf, sizeof(buf), "%dx%d", frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
+
+	//Aspect Ratio
 	ypos += iheight;
 	snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_STREAMINFO_ARATIO));
 	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_MENUCONTENT_TEXT);

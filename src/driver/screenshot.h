@@ -40,6 +40,7 @@ class CScreenShot
 		unsigned char * pixel_data;
 		int xres;
 		int yres;
+		bool extra_osd;
 		bool get_osd;
 		bool get_video;
 		bool scale_to_video;
@@ -60,6 +61,10 @@ class CScreenShot
 		static void* initThread(void *arg);
 		void runThread();
 		static void cleanupThread(void *arg);
+
+#ifdef BOXMODEL_CS_HD2
+		bool mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData);
+#endif
 
 	public:
 		CScreenShot(const std::string fname = "", screenshot_format_t fmt = CScreenShot::FORMAT_JPG);

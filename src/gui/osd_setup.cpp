@@ -39,6 +39,7 @@
 #include <neutrino_menue.h>
 
 #include "osd_setup.h"
+#include "osd_helpers.h"
 #include "themes.h"
 #include "screensetup.h"
 #include "osdlang_setup.h"
@@ -392,12 +393,11 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	return res;
 }
 
-
 #define OSD_PRESET_OPTIONS_COUNT 2
-const CMenuOptionChooser::keyval OSD_PRESET_OPTIONS[OSD_PRESET_OPTIONS_COUNT] =
+const CMenuOptionChooser::keyval_ext OSD_PRESET_OPTIONS[] =
 {
-	{ 0, LOCALE_COLORMENU_SD_PRESET },
-	{ 1, LOCALE_COLORMENU_HD_PRESET }
+	{ COsdSetup::PRESET_CRT, NONEXISTANT_LOCALE, "CRT" },
+	{ COsdSetup::PRESET_LCD, NONEXISTANT_LOCALE, "LCD" }
 };
 
 #define INFOBAR_CASYSTEM_MODE_OPTION_COUNT 4
@@ -644,10 +644,40 @@ int COsdSetup::showOsdSetup()
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+	// osd resolution
+	size_t resCount = frameBuffer->osd_resolutions.size();
+	struct CMenuOptionChooser::keyval_ext kext[resCount];
+	char valname[resCount][255];
+	if (resCount > 0) {
+		for (size_t i = 0; i < resCount; i++) {
+			kext[i].key = i;
+			kext[i].value = NONEXISTANT_LOCALE;
+			snprintf(valname[i], sizeof(valname[resCount]), "%dx%d", frameBuffer->osd_resolutions[i].xRes, frameBuffer->osd_resolutions[i].yRes);
+			kext[i].valname = valname[i];
+		}
+	}
+	else {
+		kext[0].key = 0;
+		kext[0].value = NONEXISTANT_LOCALE;
+		kext[0].valname = "-";
+		resCount = 1;
+	}
+	int videoSystem = COsdHelpers::getInstance()->getVideoSystem();
+	bool enable = ((resCount > 1) &&
+			COsdHelpers::getInstance()->isVideoSystem1080(videoSystem) &&
+			(g_settings.video_Mode != VIDEO_STD_AUTO));
+	CMenuOptionChooser * osd_res = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_RESOLUTION, &g_settings.osd_resolution, kext, resCount, enable, this);
+	osd_res->setHint("", LOCALE_MENU_HINT_OSD_RESOLUTION);
+	osd_menu->addItem(osd_res);
+#endif
+
 	//monitor
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
 	osd_menu->addItem(mc);
+
+	osd_menu->addItem(GenericMenuSeparatorLine);
 
 	// round corners
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
@@ -1357,16 +1387,56 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		int preset = * (int *) data;
 		printf("preset %d (setting %d)\n", preset, g_settings.screen_preset);
 
-		g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
-		g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
-		g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
-		g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
+		CNeutrinoApp::getInstance()->setScreenSettings();
 		osd_menu->hide();
 		if (g_InfoViewer == NULL)
 			g_InfoViewer = new CInfoViewer;
 		g_InfoViewer->changePB();
 		return true;
 	}
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_RESOLUTION))
+	{
+		if (frameBuffer->osd_resolutions.empty())
+			return true;
+		osd_menu->hide();
+		uint32_t osd_mode = (uint32_t)*(int*)data;
+		COsdHelpers::getInstance()->g_settings_osd_resolution_save = osd_mode;
+		COsdHelpers::getInstance()->changeOsdResolution(osd_mode);
+#if 0
+		if (frameBuffer->fullHdAvailable()) {
+			if (frameBuffer->osd_resolutions.empty())
+				return true;
+
+			size_t index = (size_t)*(int*)data;
+			size_t resCount = frameBuffer->osd_resolutions.size();
+			if (index >= resCount)
+				index = 0;
+
+			uint32_t resW = frameBuffer->osd_resolutions[index].xRes;
+			uint32_t resH = frameBuffer->osd_resolutions[index].yRes;
+			uint32_t bpp  = frameBuffer->osd_resolutions[index].bpp;
+			int switchFB = frameBuffer->setMode(resW, resH, bpp);
+
+			if (switchFB == 0) {
+//printf("\n>>>>>[%s:%d] New res: %dx%dx%d\n \n", __func__, __LINE__, resW, resH, bpp);
+				osd_menu->hide();
+				frameBuffer->Clear();
+				CNeutrinoApp::getInstance()->setScreenSettings();
+				CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT);
+				CVolumeHelper::getInstance()->refresh();
+				CInfoClock::getInstance()->ClearDisplay();
+				FileTimeOSD->Init();
+				if (CNeutrinoApp::getInstance()->channelList)
+					CNeutrinoApp::getInstance()->channelList->ResetModules();
+				if (g_InfoViewer)
+					g_InfoViewer->ResetModules();
+			}
+		}
+#endif
+		return true;
+	}
+#endif
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_ROUNDED_CORNERS)) {
 		osd_menu->hide();
 		g_settings.rounded_corners = * (int*) data;

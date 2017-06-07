@@ -46,6 +46,7 @@
 
 #include <gui/audiomute.h>
 #include <gui/color.h>
+#include <gui/osd_helpers.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
 #include <global.h>
@@ -350,8 +351,34 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
 		printf("screen unblanking failed\n");
 	}
+
 	return 0;
 }
+
+void CFrameBuffer::setOsdResolutions()
+{
+	/* FIXME: Infos available in driver? */
+	osd_resolution_t res;
+	osd_resolutions.clear();
+	res.xRes = 1280;
+	res.yRes = 720;
+	res.bpp  = 32;
+	res.mode = OSDMODE_720;
+	osd_resolutions.push_back(res);
+}
+
+size_t CFrameBuffer::getIndexOsdResolution(uint32_t mode)
+{
+	if (osd_resolutions.size() == 1)
+		return 0;
+
+	for (size_t i = 0; i < osd_resolutions.size(); i++) {
+		if (osd_resolutions[i].mode == mode)
+			return i;
+	}
+	return 0;
+}
+
 #if 0
 //never used
 void CFrameBuffer::setTransparency( int /*tr*/ )

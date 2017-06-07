@@ -69,7 +69,7 @@ void CImageInfo::Init(void)
 	cc_sub_caption	= NULL;
 	b_info 		= NULL;
 	btn_red		= NULL;
-	item_offset	= 10;
+	item_offset	= OFFSET_INNER_MID;
 	item_font 	= NULL;
 	item_height 	= 0;
 	y_tmp 		= 0;
@@ -355,7 +355,7 @@ void CImageInfo::InitInfos()
 	y_tmp = 0;
 	for (size_t i=0; i<v_info.size(); i++) {
 		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
-		item->setLabelWidthPercent(20);
+		item->setLabelWidthPercent(15);
 
 		if (!item_font){
 			item_font = item->getFont();

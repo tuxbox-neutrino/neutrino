@@ -141,7 +141,7 @@ class CInfoViewerBB
 		void showIcon_Tuner(void);
 		void showIcon_DD(void);
 		void showBBButtons(bool paintFooter = false);
-		void paintshowButtonBar();
+		void paintshowButtonBar(bool noTimer = false);
 		void getBBButtonInfo(void);
 		void reset_allScala(void);
 		void initBBOffset(void);

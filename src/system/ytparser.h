@@ -30,6 +30,7 @@
 #include <sigc++/sigc++.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
+#include <gui/widget/progresswindow.h>
 
 class cYTVideoUrl
 {
@@ -68,7 +69,7 @@ class cYTVideoInfo
 
 typedef std::vector<cYTVideoInfo> yt_video_list_t;
 
-class cYTFeedParser
+class cYTFeedParser : public CProgressSignals
 {
 	private:
 		std::string error;
@@ -155,8 +156,6 @@ class cYTFeedParser
 		void SetMaxResults(int count) { max_results = count; }
 		void SetConcurrentDownloads(int count) { concurrent_downloads = count; }
 		void SetThumbnailDir(std::string &_thumbnail_dir);
-
-		sigc::signal<void, size_t, size_t, std::string> OnLoadVideoInfo;
 };
 
 #endif

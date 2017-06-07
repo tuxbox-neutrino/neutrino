@@ -68,14 +68,14 @@
 #endif
 #include <sstream>
 
-#define	SCROLL_FRAME_WIDTH	10
-#define	SCROLL_MARKER_BORDER	 2
+#define	SCROLL_FRAME_WIDTH	SCROLLBAR_WIDTH
+#define	SCROLL_MARKER_BORDER	OFFSET_INNER_MIN
 
-#define MAX_WINDOW_WIDTH  (g_settings.screen_EndX - g_settings.screen_StartX - 40)
-#define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - 40)
+#define MAX_WINDOW_WIDTH  (g_settings.screen_EndX - g_settings.screen_StartX - CFrameBuffer::getInstance()->scale2Res(40))
+#define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - CFrameBuffer::getInstance()->scale2Res(40))
 
 #define MIN_WINDOW_WIDTH  ((g_settings.screen_EndX - g_settings.screen_StartX)>>1)
-#define MIN_WINDOW_HEIGHT 40
+#define MIN_WINDOW_HEIGHT CFrameBuffer::getInstance()->scale2Res(40)
 
 CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 		   const CBox* position, CFBWindow::color_t textBackgroundColor)

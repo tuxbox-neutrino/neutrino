@@ -108,6 +108,8 @@ private:
 	bool				channelList_allowed;
 	bool				channelList_painted;
 	int				first_mode_found;
+	int				osd_resolution_tmp;
+	bool				frameBufferInitialized;
 
 	void SDT_ReloadChannels();
 	void setupNetwork( bool force= false );
@@ -162,6 +164,7 @@ public:
 
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
+	void setScreenSettings();
 	void upgradeSetup(const char * fname);
 	void loadKeys(const char * fname = NULL);
 	void saveKeys(const char * fname = NULL);
