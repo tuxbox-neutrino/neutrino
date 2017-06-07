@@ -261,7 +261,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
 	int iw, ih;
-	m_frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &iw, &ih);
+	m_frameBuffer->getIconSize(NEUTRINO_ICON_AUDIO, &iw, &ih);
 	m_theight = std::max(m_theight, ih+4);
 
 	m_title_height = m_fheight*2 + 20 + m_sheight + 4;
@@ -1536,7 +1536,7 @@ void CAudioPlayerGui::paintHead()
 	if (!m_show_playlist || m_screensaver)
 		return;
 
-	CComponentsHeaderLocalized header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_MP3);
+	CComponentsHeaderLocalized header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_AUDIO);
 	header.setCorner(RADIUS_MID, CORNER_TOP);
 
 	if (m_inetmode)
