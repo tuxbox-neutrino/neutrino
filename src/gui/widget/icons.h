@@ -101,6 +101,7 @@
 #define NEUTRINO_ICON_LOCK_PASSIVE	"lock_passive"
 #define NEUTRINO_ICON_HIDDEN		"hidden"
 #define NEUTRINO_ICON_MOUNTED		"mounted"
+#define NEUTRINO_ICON_MOVIE		"movie"
 #define NEUTRINO_ICON_MP3		"mp3"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
 #define NEUTRINO_ICON_MOVIEPLAYER	"icon_movieplayer"
