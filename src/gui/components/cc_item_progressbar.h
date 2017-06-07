@@ -157,9 +157,6 @@ class CProgressBar : public CComponentsItem
 
 		//set gradient (overides g_settings.theme.progressbar_gradient)
 		void setGradient(int &gradient) { pb_gradient = &gradient; }
-
-		void setXPos(const int& xpos){CCDraw::setXPos(xpos);}
-		void setYPos(const int& ypos){CCDraw::setYPos(ypos);}
 };
 
 #endif /* __CC_PROGRESSBAR_H__ */

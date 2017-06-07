@@ -28,7 +28,9 @@
 
 CFbAccelCSHD2::CFbAccelCSHD2()
 {
-	fb_name = "Coolstream HD2 framebuffer";
+	fb_name  = "Coolstream HD2 framebuffer";
+	IsApollo = false;
+	sysRev   = -1;
 }
 
 /*
@@ -143,11 +145,22 @@ void CFbAccelCSHD2::paintBoxRel(const int x, const int y, const int dx, const in
 
 void CFbAccelCSHD2::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, uint32_t dst_y, uint32_t src_x, uint32_t src_y)
 {
+	if ((width == 0) || (height == 0))
+		return;
+
 	uint32_t  w_, h_;
 	w_ = (width > xRes) ? xRes : width;
 	h_ = (height > yRes) ? yRes : height;
 
-	if(!(w_%4)) {
+	if (sysRev < 0) {
+		sysRev = cs_get_revision();
+		IsApollo = (sysRev == 9);
+	}
+
+	if(!(w_ % 4) && !IsApollo) {
+		/* workaround for bad fb driver */
+		w_ -= 1;
+		h_ -= 1;
 		fb_copyarea area;
 		area.dx     = dst_x;
 		area.dy     = dst_y;
@@ -156,11 +169,18 @@ void CFbAccelCSHD2::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, 
 		area.sx     = src_x;
 		area.sy     = src_y;
 		ioctl(fd, FBIO_COPY_AREA, &area);
-		//printf("\033[33m>>>>\033[0m [CFbAccelCSHD2::%s:%d] fb_copyarea w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func__, __LINE__, w_, h_, dst_x, dst_y, src_x, src_y);
-		return;
+//		printf("\033[33m>>>>\033[0m%s fb_copyarea w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func_ext__, w_, h_, dst_x, dst_y, src_x, src_y);
 	}
-	//printf("\033[31m>>>>\033[0m [CFbAccelCSHD2::%s:%d] sw blit w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func__, __LINE__, w_, h_, dst_x, dst_y, src_x, src_y);
-	CFrameBuffer::fbCopyArea(width, height, dst_x, dst_y, src_x, src_y);
+	else {
+		int mode = CS_FBCOPY_FB2FB;
+		uint32_t src_y_ = src_y;
+		if (src_y >= yRes) {
+			mode = CS_FBCOPY_BB2FB;
+			src_y_ -= yRes;
+		}
+		fbCopy(NULL, w_, h_, dst_x, dst_y, src_x, src_y_, mode);
+//		printf("\033[31m>>>>\033[0m%s fbCopy w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func_ext__, w_, h_, dst_x, dst_y, src_x, src_y);
+	}
 }
 
 void CFbAccelCSHD2::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
@@ -207,22 +227,91 @@ void CFbAccelCSHD2::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_
 	CFrameBuffer::blitBox2FB(boxBuf, width, height, xoff, yoff);
 }
 
-int CFbAccelCSHD2::setMode(unsigned int, unsigned int, unsigned int)
+void CFbAccelCSHD2::setOsdResolutions()
 {
+	/* FIXME: Infos available in driver? */
+	osd_resolution_t res;
+	osd_resolutions.clear();
+	res.xRes = 1280;
+	res.yRes = 720;
+	res.bpp  = 32;
+	res.mode = OSDMODE_720;
+	osd_resolutions.push_back(res);
+	if (fullHdAvailable()) {
+		res.xRes = 1920;
+		res.yRes = 1080;
+		res.bpp  = 32;
+		res.mode = OSDMODE_1080;
+		osd_resolutions.push_back(res);
+	}
+}
+
+int CFbAccelCSHD2::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int nbpp)
+{
+	if (!available&&!active)
+		return -1;
+
+	if (osd_resolutions.empty())
+		setOsdResolutions();
+
+	unsigned int nxRes_ = nxRes;
+	unsigned int nyRes_ = nyRes;
+	unsigned int nbpp_  = nbpp;
+	if (!fullHdAvailable()) {
+		nxRes_ = 1280;
+		nyRes_ = 720;
+		nbpp_  = 32;
+	}
+	screeninfo.xres=nxRes_;
+	screeninfo.yres=nyRes_;
+	screeninfo.xres_virtual=nxRes_;
+	screeninfo.yres_virtual=nyRes_*2;
+	screeninfo.height=0;
+	screeninfo.width=0;
+	screeninfo.xoffset=screeninfo.yoffset=0;
+	screeninfo.bits_per_pixel=nbpp_;
+
+	if (ioctl(fd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
+		perror(LOGTAG "FBIOPUT_VSCREENINFO");
+
+	printf(LOGTAG "SetMode: %dbits, red %d:%d green %d:%d blue %d:%d transp %d:%d\n",
+	screeninfo.bits_per_pixel, screeninfo.red.length, screeninfo.red.offset, screeninfo.green.length, screeninfo.green.offset, screeninfo.blue.length, screeninfo.blue.offset, screeninfo.transp.length, screeninfo.transp.offset);
+	if ((screeninfo.xres != nxRes_) ||
+	    (screeninfo.yres != nyRes_) ||
+	    (screeninfo.bits_per_pixel != nbpp_)) {
+		printf(LOGTAG "SetMode failed: wanted: %dx%dx%d, got %dx%dx%d\n",
+			   nxRes_, nyRes_, nbpp_,
+			   screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
+		return -1;
+	}
+
 	fb_fix_screeninfo _fix;
 
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix) < 0) {
-		perror("FBIOGET_FSCREENINFO");
+		perror(LOGTAG "FBIOGET_FSCREENINFO");
 		return -1;
 	}
 	stride = _fix.line_length;
 	swidth = stride / sizeof(fb_pixel_t);
 	if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0)
-		printf("screen unblanking failed\n");
+		printf(LOGTAG "screen unblanking failed\n");
 	xRes = screeninfo.xres;
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
-	printf(LOGTAG "%dx%dx%d line length %d. using hd2 graphics accelerator.\n", xRes, yRes, bpp, stride);
+	printf(LOGTAG "%dx%dx%d line length %d. using %s graphics accelerator.\n", xRes, yRes, bpp, stride, _fix.id);
+
+/*
+max res 1280x720
+	available	14745600
+	stride		5120
+max res 1920x1080
+	available	16588800
+	stride		7680
+*/
+
+	if (videoDecoder != NULL)
+		videoDecoder->updateOsdScreenInfo();
+
 	int needmem = stride * yRes * 2;
 	if (available >= needmem)
 	{
@@ -258,6 +347,30 @@ void CFbAccelCSHD2::setBlendLevel(int level)
 		printf("FBIO_SETOPACITY failed.\n");
 	if (level == 100) // TODO: sucks.
 		usleep(20000);
+}
+
+int CFbAccelCSHD2::scale2Res(int size)
+{
+	/*
+	   The historic resolution 1280x720 is default for some values/sizes.
+	   So let's scale these values to other resolutions.
+	*/
+
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+	if (screeninfo.xres == 1920)
+		size += size/2;
+#endif
+
+	return size;
+}
+
+bool CFbAccelCSHD2::fullHdAvailable()
+{
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+	if (available >= 16588800) /* new fb driver with maxres 1920x1080(*8) */
+		return true;
+#endif
+	return false;
 }
 
 /* align for hw blit */

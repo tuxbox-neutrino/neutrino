@@ -49,8 +49,6 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 		int ccx_text_width;
 		///property: font type of both items (label and text), see also setLabelAndText()
 		Font* ccx_font;
-		///property: percentage val of label width related to full width, causes fit of text automatically into the available remaining size of item, see also setLabelWidthPercent()
-		uint8_t ccx_percent_label_w;
 		///centered y position of label and text
 		int y_text;
 

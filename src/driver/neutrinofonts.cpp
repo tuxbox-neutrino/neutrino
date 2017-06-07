@@ -176,12 +176,15 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		fontStyle[2] = "Italic";
 	}
 
+	int fontSize;
 	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++) {
 		if (g_Font[i]) delete g_Font[i];
-		g_Font[i] = g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[neutrino_font[i].style].c_str(), CNeutrinoApp::getInstance()->getConfigFile()->getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize) + neutrino_font[i].size_offset * fontDescr.size_offset);
+		fontSize = CFrameBuffer::getInstance()->scale2Res(CNeutrinoApp::getInstance()->getConfigFile()->getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize)) + neutrino_font[i].size_offset * fontDescr.size_offset;
+		g_Font[i] = g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[neutrino_font[i].style].c_str(), fontSize);
 	}
 	if (g_SignalFont) delete g_SignalFont;
-	g_SignalFont = g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[signal_font.style].c_str(), signal_font.defaultsize + signal_font.size_offset * fontDescr.size_offset);
+	fontSize = CFrameBuffer::getInstance()->scale2Res(signal_font.defaultsize) + signal_font.size_offset * fontDescr.size_offset;
+	g_SignalFont = g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[signal_font.style].c_str(), fontSize);
 }
 
 void CNeutrinoFonts::refreshDynFonts()
@@ -242,7 +245,7 @@ int CNeutrinoFonts::getFontHeight(Font* fnt)
 int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 {
 	int dynSize	= dy/1.6;
-	if (dx == 0) dx = 1280;
+	if (dx == 0) dx = CFrameBuffer::getInstance()->getScreenWidth(true);
 
 	if (!vDynSize.empty()) {
 		for (size_t i = 0; i < vDynSize.size(); i++) {

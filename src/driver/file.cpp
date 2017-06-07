@@ -34,43 +34,65 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <sys/stat.h>
 #include <driver/file.h>
 #include <cstring>
 #include <cstdlib>
 
-/* ATTENTION: the array file_extension_list MUST BE SORTED ASCENDING (cf. sort, man bsearch) - otherwise bsearch will not work correctly! */
-const char * const file_extension_list[] =
-{
-	"aac",   "asf",  "avi",  "bin",  "bmp",  "cdr",  "crw",
-	"dts",   "flac", "flv",  "gif",  "imu",  "ipk",  "iso",  "jpeg", "jpg",
-	"m2a",   "m3u",  "m3u8", "m4a",  "mkv",  "mp2",  "mp3",
-	"mpa",   "ogg",  "opk",  "pls",  "png",  "sh",
-	"txt",   "url",  "wav",  "xml"
+struct file_ext_s {
+	const char *ext;
+	const CFile::FileType type;
 };
-/* ATTENTION: the array file_extension_list MUST BE SORTED ASCENDING (cf. sort, man bsearch) - otherwise bsearch will not work correctly! */
 
-const CFile::FileType file_type_list[] =
+// ATTENTION: the array MUST BE SORTED ASCENDING (cf. sort, man bsearch) - otherwise bsearch will not work correctly!
+static const file_ext_s file_ext[] =
 {
-	CFile::FILE_AAC      , CFile::FILE_ASF      , CFile::FILE_AVI      , CFile::FILE_BIN_PACKAGE  ,CFile::FILE_PICTURE      , CFile::FILE_CDR   , CFile::FILE_PICTURE  ,
-	CFile::FILE_WAV      , CFile::FILE_FLAC     , CFile::FILE_FLV      , CFile::FILE_PICTURE    , CFile::STREAM_PICTURE    , CFile::FILE_PKG_PACKAGE ,CFile::FILE_ISO    , CFile::FILE_PICTURE  , CFile::FILE_PICTURE  ,
-	CFile::FILE_MP3      , CFile::FILE_PLAYLIST , CFile::FILE_PLAYLIST  , CFile::FILE_AAC        , CFile::FILE_MKV          , CFile::FILE_MP3         , CFile::FILE_MP3   ,
-	CFile::FILE_MP3      , CFile::FILE_OGG      , CFile::FILE_PKG_PACKAGE, CFile::FILE_PLAYLIST     ,  CFile::FILE_PICTURE    , CFile::FILE_TEXT  ,
-	CFile::FILE_TEXT     , CFile::STREAM_AUDIO  , CFile::FILE_WAV        , CFile::FILE_XML
+	{ "aac",	CFile::FILE_AAC		},
+	{ "asf",	CFile::FILE_ASF		},
+	{ "avi",	CFile::FILE_AVI		},
+	{ "bin",	CFile::FILE_BIN_PACKAGE	},
+	{ "bmp",	CFile::FILE_PICTURE	},
+	{ "cdr",	CFile::FILE_CDR		},
+	{ "crw",	CFile::FILE_PICTURE	},
+	{ "dts",	CFile::FILE_WAV		},
+	{ "flac",	CFile::FILE_FLAC	},
+	{ "flv",	CFile::FILE_MPG		},
+	{ "gif",	CFile::FILE_PICTURE	},
+	{ "imu",	CFile::STREAM_PICTURE	},
+	{ "ipk",	CFile::FILE_PKG_PACKAGE	},
+	{ "iso",	CFile::FILE_ISO		},
+	{ "jpeg",	CFile::FILE_PICTURE	},
+	{ "jpg",	CFile::FILE_PICTURE	},
+	{ "m2a",	CFile::FILE_MP3		},
+	{ "m3u",	CFile::FILE_PLAYLIST	},
+	{ "m3u8",	CFile::FILE_PLAYLIST	},
+	{ "m4a",	CFile::FILE_AAC		},
+	{ "mkv",	CFile::FILE_MKV		},
+	{ "mp2",	CFile::FILE_MP3		},
+	{ "mp3",	CFile::FILE_MP3		},
+	{ "mp4",	CFile::FILE_MPG		},
+	{ "mpa",	CFile::FILE_MP3		},
+	{ "mpeg",	CFile::FILE_MPG		},
+	{ "mpg",	CFile::FILE_MPG		},
+	{ "ogg",	CFile::FILE_OGG		},
+	{ "opk",	CFile::FILE_PKG_PACKAGE	},
+	{ "pls",	CFile::FILE_PLAYLIST	},
+	{ "png",	CFile::FILE_PICTURE	},
+	{ "sh", 	CFile::FILE_TEXT	},
+	{ "ts", 	CFile::FILE_TS		},
+	{ "txt",	CFile::FILE_TEXT	},
+	{ "url",	CFile::STREAM_AUDIO	},
+	{ "vob",	CFile::FILE_VOB		},
+	{ "wav",	CFile::FILE_WAV		},
+	{ "xml",	CFile::FILE_XML		}
 };
 
 int mycasecmp(const void * a, const void * b)
 {
-	return strcasecmp(*(const char * *)a, *(const char * *)b);
+	return strcasecmp(((file_ext_s *)a)->ext, ((file_ext_s *)b)->ext);
 }
 
-//------------------------------------------------------------------------
-//------------------------------------------------------------------------
-
-CFile::CFile()
-  : Size( 0 ), Mode( 0 ), Marked( false ), Time( 0 )
+CFile::CFile() : Size( 0 ), Mode( 0 ), Marked( false ), Time( 0 )
 {
-	Type = -1;
 }
 
 CFile::FileType CFile::getType(void) const
@@ -78,23 +100,16 @@ CFile::FileType CFile::getType(void) const
 	if(S_ISDIR(Mode))
 		return FILE_DIR;
 
-	if (Type < 0) {
-		Type = (int) FILE_UNKNOWN;
-		std::string::size_type ext_pos = Name.rfind('.');
+	std::string::size_type ext_pos = Name.rfind('.');
 
-		if (ext_pos != std::string::npos) {
-			const char * key = &(Name.c_str()[ext_pos + 1]);
-
-			void * result = ::bsearch(&key, file_extension_list, sizeof(file_extension_list) / sizeof(const char *), sizeof(const char *), mycasecmp);
-
-			if (result != NULL)
-				Type = (int) file_type_list[(const char * *)result - (const char * *)&file_extension_list];
-		}
+	if (ext_pos != std::string::npos) {
+		const char * key = &(Name.c_str()[ext_pos + 1]);
+		void * result = ::bsearch(&key, file_ext, sizeof(file_ext) / sizeof(file_ext_s), sizeof(file_ext_s), mycasecmp);
+		if (result)
+			return ((file_ext_s *)result)->type;
 	}
-	return (CFile::FileType) Type;
+	return FILE_UNKNOWN;
 }
-
-//------------------------------------------------------------------------
 
 std::string CFile::getFileName(void) const  // return name.extension or folder name without trailing /
 {
@@ -102,8 +117,6 @@ std::string CFile::getFileName(void) const  // return name.extension or folder n
 
 	return (namepos == std::string::npos) ? Name : Name.substr(namepos + 1);
 }
-
-//------------------------------------------------------------------------
 
 std::string CFile::getPath(void) const      // return complete path including trailing /
 {

@@ -67,7 +67,7 @@ CChannelEventList *CFollowScreenings::getFollowScreenings(void)
 				continue;
 			followlist.push_back(*e);
 
-			if (followlist.size() == 1 && !g_settings.timer_followscreenings)
+			if (followlist.size() == 1 && g_settings.timer_followscreenings == FOLLOWSCREENINGS_OFF)
 				break;
 		}
 	}

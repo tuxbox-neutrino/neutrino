@@ -21,6 +21,14 @@ if test "$DEBUG" = "yes"; then
 	AC_DEFINE(DEBUG,1,[Enable debug messages])
 fi
 
+AC_ARG_ENABLE(reschange,
+       AS_HELP_STRING(--enable-reschange,enable change the osd resolution (default for hd2)))
+
+AM_CONDITIONAL(ENABLE_RESCHANGE,test "$enable_reschange" = "yes")
+if test "$enable_reschange" = "yes"; then
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION,1,[enable change the osd resolution])
+fi
+
 AC_MSG_CHECKING(target)
 
 if test "$TARGET" = "native"; then
@@ -354,6 +362,7 @@ if test "$BOXMODEL" = "hd1"; then
 	AC_DEFINE(BOXMODEL_CS_HD1, 1, [coolstream hd1/neo/neo2/zee])
 elif test "$BOXMODEL" = "hd2"; then
 	AC_DEFINE(BOXMODEL_CS_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee2/link])
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION,1,[enable change the osd resolution])
 elif test "$BOXMODEL" = "raspi"; then
 	AC_DEFINE(BOXMODEL_RASPI, 1, [Raspberry pi])
 fi

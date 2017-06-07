@@ -41,6 +41,7 @@
 #include <gui/epgview.h>
 #include <gui/eventlist.h>
 #include <gui/movieplayer.h>
+#include <gui/osd_helpers.h>
 #include <gui/infoviewer.h>
 #include <gui/timeosd.h>
 #include <gui/widget/helpbox.h>
@@ -157,6 +158,8 @@ void CMoviePlayerGui::Init(void)
 {
 	playing = false;
 	stopped = true;
+	currentVideoSystem = -1;
+	currentOsdResolution = 0;
 
 	frameBuffer = CFrameBuffer::getInstance();
 
@@ -242,6 +245,12 @@ void CMoviePlayerGui::cutNeutrino()
 	if (playing)
 		return;
 
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+	COsdHelpers *coh     = COsdHelpers::getInstance();
+	currentVideoSystem   = coh->getVideoSystem();
+	currentOsdResolution = coh->getOsdResolution();
+#endif
+
 	playing = true;
 	/* set g_InfoViewer update timer to 1 sec, should be reset to default from restoreNeutrino->set neutrino mode  */
 	if (!isWebTV)
@@ -273,6 +282,19 @@ void CMoviePlayerGui::restoreNeutrino()
 	printf("%s: playing %d isUPNP %d\n", __func__, playing, isUPNP);
 	if (!playing)
 		return;
+
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+	if ((currentVideoSystem > -1) &&
+	    (g_settings.video_Mode == VIDEO_STD_AUTO) &&
+	    (g_settings.enabled_auto_modes[currentVideoSystem] == 1)) {
+		COsdHelpers *coh = COsdHelpers::getInstance();
+		if (currentVideoSystem != coh->getVideoSystem()) {
+			coh->setVideoSystem(currentVideoSystem, false);
+			coh->changeOsdResolution(currentOsdResolution, false, true);
+		}
+		currentVideoSystem = -1;
+	}
+#endif
 
 	playing = false;
 #ifdef HAVE_AZBOX_HARDWARE
@@ -1358,7 +1380,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				}
 #endif
 				/* in case ffmpeg report incorrect values */
-				if(file_prozent > 96 && (playstate == CMoviePlayerGui::PLAY) && (speed == 1)){
+				if(file_prozent > 89 && (playstate == CMoviePlayerGui::PLAY) && (speed == 1)){
 					if(position_tmp != position){
 						position_tmp = position ;
 						eof2 = 0;

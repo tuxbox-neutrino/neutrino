@@ -1,6 +1,6 @@
 /*
 	Framebuffer acceleration hardware abstraction functions.
-	The hardware dependent acceleration functions for coolstream hdx graphic chips
+	The common functions for coolstream hd1/hd2 graphic chips
 	are represented in this class.
 
 	(C) 2017 M. Liebmann
@@ -23,6 +23,8 @@
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef FB_ACCEL_CS_HDX_INC_H
+#define FB_ACCEL_CS_HDX_INC_H
 
 #include <driver/fb_generic.h>
 #include <driver/fb_accel.h>
@@ -31,8 +33,16 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <gui/color.h>
-#include <system/debug.h>
+#include <OpenThreads/Mutex>
 
+#include <gui/color.h>
+#include <gui/osd_helpers.h>
+#include <system/debug.h>
 #include <cs_api.h>
+#include <video_cs.h>
+#include <helpers_cs.h>
 #include <cnxtfb.h>
+
+extern cVideo * videoDecoder;
+
+#endif // FB_ACCEL_CS_HDX_INC_H

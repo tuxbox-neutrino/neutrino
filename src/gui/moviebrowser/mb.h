@@ -57,6 +57,7 @@
 #include <driver/file.h>
 #include <driver/fb_window.h>
 #include <system/ytparser.h>
+#include <gui/widget/progresswindow.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
 #define MOVIEBROWSER_SETTINGS_FILE          CONFIGDIR "/moviebrowser.conf"
@@ -133,7 +134,7 @@ class CYTCacheSelectorTarget : public CMenuTarget
 };
 
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see
-class CMovieBrowser : public CMenuTarget
+class CMovieBrowser : public CMenuTarget, public CProgressSignals
 {
 	friend class CYTCacheSelectorTarget;
 
@@ -362,7 +363,6 @@ class CMovieBrowser : public CMenuTarget
 		void clearSelection();
 		bool supportedExtension(CFile &file);
 		bool addFile(CFile &file, int dirItNr);
-		sigc::signal<void, size_t, size_t, std::string> OnLoadFile;
 };
 
 // I tried a lot to use the menu.cpp as ListBox selection, and I got three solution which are all garbage.

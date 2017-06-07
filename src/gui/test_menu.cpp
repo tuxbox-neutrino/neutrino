@@ -51,6 +51,7 @@
 #include <xmlinterface.h>
 
 #include <gui/widget/msgbox.h>
+#include <gui/widget/progresswindow.h>
 #include <gui/scan.h>
 #include <gui/scan_setup.h>
 #include <zapit/zapit.h>
@@ -841,6 +842,55 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
+	else if (actionKey == "progress_window"){
+		//classical
+		CProgressWindow pw0("Progress Single Test");
+		pw0.paint();
+		size_t max = 3;
+		for(size_t i = 0; i< max; i++){
+			pw0.showStatus(i, max, to_string(i));
+			sleep(1);
+		}
+		pw0.hide();
+
+		CProgressWindow pw1("Progress Local/Global Test");
+		pw1.paint();
+		for(size_t i = 0; i< max; i++){
+			pw1.showGlobalStatus(i, max, to_string(i));
+			for(size_t j = 0; j< max; j++){
+				pw1.showLocalStatus(j, max, to_string(j));
+				sleep(1);
+			}
+		}
+		pw1.hide();
+
+		//with signals
+		sigc::signal<void, size_t, size_t, std::string> OnProgress0, OnProgress1;
+		CProgressWindow pw2("Progress Single Test -> single Signal", CCW_PERCENT 50, CCW_PERCENT 30, &OnProgress0);
+		pw2.paint();
+
+		for(size_t i = 0; i< max; i++){
+			OnProgress0(i, max, to_string(i));
+			sleep(1);
+		}
+		pw2.hide();
+
+		OnProgress0.clear();
+		OnProgress1.clear();
+		CProgressWindow pw3("Progress Single Test -> dub Signal", CCW_PERCENT 50, CCW_PERCENT 20, NULL, &OnProgress0, &OnProgress1);
+		pw3.paint();
+
+		for(size_t i = 0; i< max; i++){
+			OnProgress1(i, max, to_string(i));
+				for(size_t j = 0; j< max; j++){
+					OnProgress0(j, max, to_string(j));
+					sleep(1);
+				}
+		}
+		pw3.hide();
+
+		return menu_return::RETURN_REPAINT;
+	}
 	else if (actionKey == "hintbox_test")
 	{
 		ShowHint("Testmenu: Hintbox popup test", "Test for HintBox,\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
@@ -1085,6 +1135,7 @@ int CTestMenu::showTestMenu()
 void CTestMenu::showCCTests(CMenuWidget *widget)
 {
 	widget->addIntroItems();
+	widget->addItem(new CMenuForwarder("Progress Window", true, NULL, this, "progress_window"));
 	widget->addItem(new CMenuForwarder("Running Clock", true, NULL, this, "running_clock"));
 	widget->addItem(new CMenuForwarder("Clock", true, NULL, this, "clock"));
 	widget->addItem(new CMenuForwarder("Button", true, NULL, this, "button"));

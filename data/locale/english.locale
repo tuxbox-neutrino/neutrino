@@ -322,10 +322,9 @@ colormenu.clock_textcolor Digit color
 colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font
-colormenu.hd_preset LCD
 colormenu.menucolors Colors
 colormenu.osd_preset TV preset
-colormenu.sd_preset CRT
+colormenu.osd_resolution OSD resolution
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
 colormenu.timing Timeouts
@@ -593,11 +592,11 @@ filebrowser.prevpage Prev. Page
 filebrowser.scan Scaning folder
 filebrowser.select Select
 filebrowser.showrights Show file rights
-filebrowser.sort.date (date)
-filebrowser.sort.name (name)
-filebrowser.sort.namedirsfirst (name, dir first)
-filebrowser.sort.size (Size)
-filebrowser.sort.type (type)
+filebrowser.sort.date Date
+filebrowser.sort.name Name
+filebrowser.sort.namedirsfirst Name, dirs first
+filebrowser.sort.size Size
+filebrowser.sort.type Type
 filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
@@ -1172,7 +1171,7 @@ menu.hint_key_volumedown Assign button to decrease volume
 menu.hint_key_volumeup Assign button to increase volume
 menu.hint_keys Remote control repeat rate\nEdit key bindings
 menu.hint_lang_pref Configure preferred audio, EPG\nand subtitle languages
-menu.hint_language OSD language, timezone\nPreffered audio and subtitles languages
+menu.hint_language OSD language, timezone\nPrefered audio and subtitles languages
 menu.hint_last_radio Start box on selected channel\nif last mode is Radio
 menu.hint_last_tv Start box on selected channel\nif last mode is TV
 menu.hint_last_use Start box on last used channel
@@ -1254,6 +1253,7 @@ menu.hint_opkg_upgrade Updates all installed packages to the most recent version
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
+menu.hint_osd_resolution Change OSD resolution
 menu.hint_osd_timing After this time the OSD will be faded out
 menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code
@@ -2320,9 +2320,11 @@ streaminfo.framerate Framerate
 streaminfo.framerate_unknown unknown
 streaminfo.head Stream-Information
 streaminfo.not_available not available
+streaminfo.osd_resolution OSD resolution
 streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
-streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino.
+streaminfo.videosystem Videosystem
+streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart GUI.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
 streaming.overflow Record buffer overflow, consider to stop some records
 streaming.slow System/hdd too slow, consider to stop some records

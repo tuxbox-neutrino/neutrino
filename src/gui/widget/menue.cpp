@@ -600,6 +600,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	selected = (widget_index == NO_WIDGET_ID ? preselected : mglobal->v_selected[widget_index]);
 
 	//dimension
+	mwidth_save = mwidth;
 	min_width = 0;
 	width = 0; /* is set in paint() */
 	if (mwidth > 100){
@@ -1095,6 +1096,13 @@ void CMenuWidget::checkHints()
 
 void CMenuWidget::calcSize()
 {
+	// recalc min_width
+	min_width = 0;
+	int mwidth = std::min(mwidth_save, 100);
+	min_width = frameBuffer->getScreenWidth(true) * mwidth / 100;
+	if (min_width > (int)frameBuffer->getScreenWidth())
+		min_width = frameBuffer->getScreenWidth();
+
 	width = min_width;
 
 	int wi, hi;
@@ -1103,35 +1111,35 @@ void CMenuWidget::calcSize()
 		if (items[i]->iconName_Info_right) {
 			frameBuffer->getIconSize(items[i]->iconName_Info_right, &wi, &hi);
 			if ((wi > 0) && (hi > 0))
-				wi += 10;
+				wi += OFFSET_INNER_MID;
 			else
 				wi = 0;
 		}
-		int tmpw = items[i]->getWidth() + 10 + 10 + wi; /* 10 pixels to the left and right of the text */
+		int tmpw = items[i]->getWidth() + 2*OFFSET_INNER_MID + wi; /* 10 pixels to the left and right of the text */
 		if (tmpw > width)
 			width = tmpw;
 	}
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
-		hint_height = 60; //TODO: rework calculation of hint_height
+		hint_height = frameBuffer->scale2Res(60); //TODO: rework calculation of hint_height
 		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
-		int h_tmp = 16 + 2*fheight;
+		int h_tmp = OFFSET_INNER_LARGE + 2*fheight;
 		/* assuming all hint icons has the same size ! */
 		int iw, ih;
 		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &iw, &ih);
-		h_tmp = std::max(h_tmp, ih+10);
+		h_tmp = std::max(h_tmp, ih+OFFSET_INNER_MID);
 		hint_height = std::max(h_tmp, hint_height);
 	}
 	/* set the max height to 9/10 of usable screen height
 	   debatable, if the callers need a possibility to set this */
 	height = (frameBuffer->getScreenHeight() - fbutton_height - hint_height) / 20 * 18; /* make sure its a multiple of 2 */
 
-	if(height > ((int)frameBuffer->getScreenHeight() - 10))
-		height = frameBuffer->getScreenHeight() - 10;
+	if(height > ((int)frameBuffer->getScreenHeight() - OFFSET_INNER_MID))
+		height = frameBuffer->getScreenHeight() - OFFSET_INNER_MID;
 
 	int neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(getName());
-	if (neededWidth > width-48) {
-		width= neededWidth+ 49;
+	if (neededWidth > width - frameBuffer->scale2Res(48)) {
+		width = neededWidth + frameBuffer->scale2Res(48)+1;
 	}
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 
@@ -1165,7 +1173,7 @@ void CMenuWidget::calcSize()
 				iconOffset = w;
 		}
 
-	iconOffset += 10;
+	iconOffset += OFFSET_INNER_MID;
 	width += iconOffset;
 
 	if (fbutton_count)

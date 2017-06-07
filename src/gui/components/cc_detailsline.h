@@ -40,8 +40,8 @@ Not usable as CCItem!
 class CComponentsDetailsLine : public CComponents
 {
 	private:
-		///property: line thickness
-		int thickness;
+		///property: line width
+		int dl_w;
 		///property: lowest y position
 		int y_down;
 		///property: height of top marker
@@ -73,6 +73,8 @@ class CComponentsDetailsLine : public CComponents
 		///set all positions and dimensions of details line at once
 		void setDimensionsAll(const int& x_pos,const int& y_pos, const int& y_pos_down, const int& h_mark_top_ , const int& h_mark_down_)
 					{setXPos(x_pos); setYPos(y_pos); setYPosDown(y_pos_down); setHMarkTop(h_mark_top_); setHMarkDown(h_mark_down_);}
+		///property: set line thickness
+		void setLineWidth(const int& w){dl_w = w;}
 
 		///paint all to screen
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);

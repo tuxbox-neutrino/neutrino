@@ -78,17 +78,41 @@ class CFbAccelSTi
 		void setBlendLevel(int);
 };
 
-class CFbAccelCSHD1
+class CFbAccelCSHDx
 	: public CFbAccel
 {
 	private:
+
+	protected:
+		OpenThreads::Mutex mutex;
+
+		int fbCopy(uint32_t *mem_p, int width, int height, int dst_x, int dst_y, int src_x, int src_y, int mode);
+		int fbFill(int sx, int sy, int width, int height, fb_pixel_t color, int mode=0);
+
+	public:
+		CFbAccelCSHDx();
+//		~CFbAccelCSHDx();
+
+#if 0
+		/* TODO: Run this functions with hardware acceleration */
+		void SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp);
+		void RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp);
+		void Clear();
+#endif
+};
+
+class CFbAccelCSHD1
+	: public CFbAccelCSHDx
+{
+	private:
 		fb_pixel_t lastcol;
+		fb_pixel_t *backbuffer;
 		int		  devmem_fd;	/* to access the GXA register we use /dev/mem */
 		unsigned int	  smem_start;	/* as aquired from the fbdev, the framebuffers physical start address */
 		volatile uint8_t *gxa_base;	/* base address for the GXA's register access */
+
 		void setColor(fb_pixel_t col);
-		void run(void);
-		fb_pixel_t *backbuffer;
+
 	public:
 		CFbAccelCSHD1();
 		~CFbAccelCSHD1();
@@ -109,13 +133,16 @@ class CFbAccelCSHD1
 		void setBlendLevel(int);
 		void add_gxa_sync_marker(void);
 		void setupGXA(void);
+		void setOsdResolutions();
 };
 
 class CFbAccelCSHD2
-	: public CFbAccel
+	: public CFbAccelCSHDx
 {
 	private:
 		fb_pixel_t *backbuffer;
+		int sysRev;
+		bool IsApollo;
 
 	public:
 		CFbAccelCSHD2();
@@ -130,6 +157,9 @@ class CFbAccelCSHD2
 		fb_pixel_t * getBackBufferPointer() const;
 		void setBlendMode(uint8_t);
 		void setBlendLevel(int);
+		int scale2Res(int size);
+		bool fullHdAvailable();
+		void setOsdResolutions();
 		uint32_t getWidth4FB_HW_ACC(const uint32_t x, const uint32_t w, const bool max=true);
 		bool needAlign4Blit() { return true; };
 };

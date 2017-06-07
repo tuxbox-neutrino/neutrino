@@ -269,19 +269,18 @@ void CFileBrowser::fontInit()
 	height = frameBuffer->getScreenHeightRel();
 	x = getScreenStartX(width);
 
-	theight = fnt_title->getHeight();
-	fheight = fnt_item->getHeight();
-	if (fheight == 0)
-		fheight = 1; /* avoid div by zero on invalid font */
-	//foheight = fnt_foot->getHeight()+6; //initial height value for buttonbar; TODO get value from buttonbar
-	foheight = paintFoot(false);
-	skwidth = 26;
+	header_height = fnt_title->getHeight();
+	item_height = fnt_item->getHeight();
+	if (item_height == 0)
+		item_height = 1; /* avoid div by zero on invalid font */
+	footer_height = paintFoot(false);
+	smskey_width = fnt_foot->getRenderWidth("M") + OFFSET_INNER_MID;
 
 	liststart = 0;
-	listmaxshow = std::max(1,(int)(height - theight - foheight)/fheight);
+	listmaxshow = std::max(1,(int)(height - header_height - footer_height)/item_height);
 
 	//recalc height
-	height = theight + listmaxshow * fheight + foheight;
+	height = header_height + listmaxshow * item_height + footer_height;
 	y = getScreenStartY(height);
 }
 
@@ -1168,8 +1167,8 @@ void CFileBrowser::hide()
 
 void CFileBrowser::paintItem(unsigned int pos)
 {
-	int colwidth1, colwidth2, colwidth3;
-	int ypos = y+ theight+0 + pos*fheight;
+	int col1_width, col2_width, col3_width;
+	int ypos = y + header_height + pos*item_height;
 	CFile * actual_file = NULL;
 	std::string fileicon;
 	unsigned int currpos = liststart + pos;
@@ -1177,7 +1176,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 	if (currpos >= filelist.size())
 	{
 		// just paint an empty line
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
+		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, COL_MENUCONTENT_PLUS_0);
 		return;
 	}
 
@@ -1197,15 +1196,15 @@ void CFileBrowser::paintItem(unsigned int pos)
 		i_radius = RADIUS_LARGE;
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, bgcolor, i_radius);
 
 	if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
-		colwidth2 = 0;
+		col2_width = 0;
 	else
-		colwidth2 = fnt_item->getRenderWidth("rwxrwxrwx");
-	colwidth3 = fnt_item->getRenderWidth("222.222G");
-	colwidth1 = width - 35 - colwidth2 - colwidth3 - 10;
+		col2_width = fnt_item->getRenderWidth("rwxrwxrwx");
+	col3_width = fnt_item->getRenderWidth("222.222G");
+	col1_width = width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - col3_width - OFFSET_INNER_MID - col2_width - OFFSET_INNER_MID;
 
 	if ( !actual_file->Name.empty() )
 	{
@@ -1220,6 +1219,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_WAV:
 			case CFile::FILE_FLAC:
 			case CFile::FILE_AAC:
+			case CFile::FILE_PLAYLIST:
 				fileicon = NEUTRINO_ICON_MP3;
 				break;
 
@@ -1228,13 +1228,31 @@ void CFileBrowser::paintItem(unsigned int pos)
 				break;
 
 			case CFile::FILE_PICTURE:
+				fileicon = NEUTRINO_ICON_PICTURE;
+				break;
+
+			case CFile::FILE_AVI:
+			case CFile::FILE_ASF:
+			case CFile::FILE_MKV:
+			case CFile::FILE_VOB:
+			case CFile::FILE_MPG:
+			case CFile::FILE_TS:
+				fileicon = NEUTRINO_ICON_MOVIE;
+				break;
+
 			case CFile::FILE_TEXT:
 			default:
 				fileicon = NEUTRINO_ICON_FILE;
 		}
-		frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
 
-		fnt_item->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color);
+		int icon_w = 0;
+		int icon_h = 0;
+		frameBuffer->getIconSize(NEUTRINO_ICON_FILE, &icon_w, &icon_h);
+
+		frameBuffer->paintIcon(fileicon, x + OFFSET_INNER_MID, ypos, item_height);
+
+		int col1_offset = OFFSET_INNER_MID + icon_w + OFFSET_INNER_MID;
+		fnt_item->RenderString(x + col1_offset, ypos + item_height, col1_width - col1_offset, FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color);
 
 		if( S_ISREG(actual_file->Mode) )
 		{
@@ -1247,13 +1265,13 @@ void CFileBrowser::paintItem(unsigned int pos)
 
 				modestring[9] = 0;
 
-				fnt_item->RenderString(x + width - 25 - colwidth3 - colwidth2 , ypos+ fheight, colwidth2, modestring, color);
+				fnt_item->RenderString(x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - col3_width - OFFSET_INNER_MID - col2_width , ypos + item_height, col2_width, modestring, color);
 			}
 
 #define GIGABYTE 1073741824LL
 #define MEGABYTE 1048576LL
 #define KILOBYTE 1024LL
-			char tmpstr[256];
+			char sizestring[256];
 			const char *unit = "";
 			int64_t factor = 0;
 			if (actual_file->Size >= GIGABYTE)
@@ -1275,14 +1293,14 @@ void CFileBrowser::paintItem(unsigned int pos)
 			{
 				int a = actual_file->Size / factor;
 				int b = (actual_file->Size - a * factor) * 1000 / factor;
-				snprintf(tmpstr, sizeof(tmpstr), "%d.%03d%s", a, b, unit);
+				snprintf(sizestring, sizeof(sizestring), "%d.%03d%s", a, b, unit);
 			}
 			else
-				snprintf(tmpstr,sizeof(tmpstr),"%d", (int)actual_file->Size);
+				snprintf(sizestring,sizeof(sizestring),"%d", (int)actual_file->Size);
 
 			/* right align file size */
-			int sz_w = fnt_item->getRenderWidth(tmpstr);
-			fnt_item->RenderString(x + width - sz_w - 25, ypos+ fheight, sz_w, tmpstr, color);
+			int sz_w = fnt_item->getRenderWidth(sizestring);
+			fnt_item->RenderString(x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - sz_w, ypos + item_height, sz_w, sizestring, color);
 		}
 
 		if(actual_file->isDir())
@@ -1293,7 +1311,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 			strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&rawtime));
 			/* right align directory time */
 			int time_w = fnt_item->getRenderWidth(timestring);
-			fnt_item->RenderString(x + width - time_w - 25, ypos+ fheight, time_w, timestring, color);
+			fnt_item->RenderString(x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - time_w, ypos + item_height, time_w, timestring, color);
 		}
 	}
 }
@@ -1318,16 +1336,16 @@ void CFileBrowser::paintHead()
 
 	/* too long? Leave out the "Filebrowser" or "Shoutcast" prefix
 	 * the allocated space is sufficient since it is surely shorter than before */
-	if (fnt_title->getRenderWidth(l_name) > width - 11)
+	if (fnt_title->getRenderWidth(l_name) > width - 2*OFFSET_INNER_MID)
 		l = sprintf(l_name, "%s", FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
 	if (l_name[l - 1] == '/')
 		l_name[--l] = '\0';
 
 	/* still too long? the last part is probably more interesting than the first part... */
-	while ((fnt_title->getRenderWidth(&l_name[i]) > width - 20) && (i < l))
+	while ((fnt_title->getRenderWidth(&l_name[i]) > width - 2*OFFSET_INNER_MID) && (i < l))
 		i++;
 
-	CComponentsHeader header(x, y, width, theight, &l_name[i]);
+	CComponentsHeader header(x, y, width, header_height, &l_name[i]);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	free(l_name);
@@ -1361,17 +1379,12 @@ bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str,
 	return false;
 }
 
-const struct button_label FileBrowserFilterButton[2] =
-{
-	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_FILEBROWSER_FILTER_INACTIVE },
-	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_FILEBROWSER_FILTER_ACTIVE   },
-};
-
 int CFileBrowser::paintFoot(bool show)
 {
-	int cnt,res;
+	int cnt, res;
 
 	std::string sort_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT);
+	sort_text += " ";
 	sort_text += g_Locale->getText(sortByNames[g_settings.filebrowser_sortmethod]);
 
 	int sort_text_len = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT));
@@ -1381,65 +1394,72 @@ int CFileBrowser::paintFoot(bool show)
 
 	sort_text_len += len;
 
-	neutrino_locale_t f_loc = LOCALE_FILEBROWSER_FILTER_INACTIVE;
+	neutrino_locale_t locale_filebrowser_filter = LOCALE_FILEBROWSER_FILTER_INACTIVE;
 	if (Filter != NULL && use_filter)
-		f_loc = LOCALE_FILEBROWSER_FILTER_ACTIVE;
+		locale_filebrowser_filter = LOCALE_FILEBROWSER_FILTER_ACTIVE;
 
-	button_label_ext footerButtons_pm[] = {
+	button_label_ext buttons_playlistmode[] = {
 		{ NEUTRINO_ICON_BUTTON_RED,		LOCALE_FILEBROWSER_DELETE,	NULL,			0,		false },
-		{ NEUTRINO_ICON_BUTTON_GREEN,		LOCALE_FILEBROWSER_ADD,	NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_GREEN,		LOCALE_FILEBROWSER_ADD,		NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_YELLOW,		NONEXISTANT_LOCALE,		sort_text.c_str(),	sort_text_len,	false },
-		{ NEUTRINO_ICON_BUTTON_BLUE,		LOCALE_AUDIOPLAYER_SHUFFLE,				NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_BLUE,		LOCALE_AUDIOPLAYER_SHUFFLE,	NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_OKAY,		LOCALE_FILEBROWSER_SELECT,	NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_PLAY,		LOCALE_FILEBROWSER_MARK,	NULL,			0,		false },
 	};
 
-	button_label_ext footerButtons[] = {
+	button_label_ext buttons_filelistmode[] = {
 		{ NEUTRINO_ICON_BUTTON_RED,		NONEXISTANT_LOCALE,		sort_text.c_str(),	sort_text_len,	false },
 		{ NEUTRINO_ICON_BUTTON_OKAY,		LOCALE_FILEBROWSER_SELECT,	NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL,	LOCALE_FILEBROWSER_DELETE,	NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_PLAY,		LOCALE_FILEBROWSER_MARK,	NULL,			0,		false },
-		{ NEUTRINO_ICON_BUTTON_BLUE,		f_loc,				NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_BLUE,		locale_filebrowser_filter,	NULL,			0,		false },
 	};
 
 	if (playlistmode) {
-		cnt = sizeof(footerButtons_pm) / sizeof(button_label_ext);
+		cnt = sizeof(buttons_playlistmode)/sizeof(button_label_ext);
 		if (!show)
-			return paintButtons(footerButtons_pm, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
+			return paintButtons(buttons_playlistmode, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
 	} else {
-		cnt = sizeof(footerButtons) / sizeof(button_label_ext);
+		cnt = sizeof(buttons_filelistmode)/sizeof(button_label_ext);
 		if (!show)
-			return paintButtons(footerButtons, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
+			return paintButtons(buttons_filelistmode, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
 	}
 
-	int fowidth = width - skwidth;
+	int footer_width = width - smskey_width;
 
-
-	if (filelist.empty()) {
-		frameBuffer->paintBoxRel(x, y + height - foheight, width, foheight, COL_MENUFOOT_PLUS_0, RADIUS_MID, CORNER_BOTTOM);
-		return foheight;
+	if (filelist.empty())
+	{
+		// show an empty footer
+		frameBuffer->paintBoxRel(x, y + height - footer_height, width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+		return footer_height;
 	}
+
+	/*
+	   We can't use CComponentsFooter because
+	   CComponentsFooter can't handle button_label_ext
+	*/
 	if (playlistmode)
-		res = paintButtons(footerButtons_pm, Filter ? cnt : cnt - 1, x, y + height - foheight, width, foheight, fowidth);
+		res = paintButtons(buttons_playlistmode, cnt, x, y + height - footer_height, width, footer_height, footer_width);
 	else
-		res = paintButtons(footerButtons, Filter ? cnt : cnt - 1, x, y + height - foheight, width, foheight, fowidth);
+		res = paintButtons(buttons_filelistmode, cnt, x, y + height - footer_height, width, footer_height, footer_width);
+
 	paintSMSKey();
 	return res;
 }
 
 void CFileBrowser::paintSMSKey()
 {
-	int skheight = fnt_foot->getHeight();
+	int smskey_height = fnt_foot->getHeight();
 
 	//background
-	frameBuffer->paintBoxRel(x + width - skwidth, y + height - foheight, skwidth, foheight, COL_MENUFOOT_PLUS_0, RADIUS_MID, CORNER_BOTTOM_RIGHT);
+	frameBuffer->paintBoxRel(x + width - smskey_width, y + height - footer_height, smskey_width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM_RIGHT);
 
 	if(m_SMSKeyInput.getOldKey()!=0)
 	{
 		char cKey[2] = {m_SMSKeyInput.getOldKey(), 0};
 		cKey[0] = toupper(cKey[0]);
 		int len = fnt_foot->getRenderWidth(cKey);
-		fnt_foot->RenderString(x + width - skwidth, y + height - foheight + foheight/2 + skheight/2, len, cKey, COL_MENUHEAD_TEXT);
+		fnt_foot->RenderString(x + width - smskey_width, y + height - footer_height + footer_height/2 + smskey_height/2, len, cKey, COL_MENUHEAD_TEXT);
 	}
 }
 
@@ -1453,16 +1473,10 @@ void CFileBrowser::paint()
 		paintItem(count);
 
 	//scrollbar
-	int ypos = y+ theight;
-	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
+	int total_pages = ((filelist.size() - 1) / listmaxshow) + 1;
+	int current_page = (selected / listmaxshow);
 
-	int sbc= ((filelist.size()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
-	if (sbc < 1)
-		sbc = 1;
-
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_SMALL);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
 }
 
 void CFileBrowser::SMSInput(const neutrino_msg_t msg)

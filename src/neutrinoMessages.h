@@ -123,6 +123,7 @@ struct NeutrinoMessages {
 		/* NEVER CHANGE THIS */
 		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
 		EVT_SUBT_MESSAGE                         = CRCInput::RC_Events + 61, /* data = subtitles pointer */
+		EVT_AUTO_SET_VIDEOSYSTEM                 = CRCInput::RC_Events + 62, /* data = new video system */
 		/* END */
 
 		EVT_CURRENTEPG                           = CRCInput::RC_WithData +  1,
