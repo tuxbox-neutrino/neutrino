@@ -855,7 +855,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//Filebrowser
 	g_settings.filebrowser_showrights =  configfile.getInt32("filebrowser_showrights", 1);
-	g_settings.filebrowser_sortmethod = configfile.getInt32("filebrowser_sortmethod", 0);
+	g_settings.filebrowser_sortmethod = configfile.getInt32("filebrowser_sortmethod", 1);
 	if ((g_settings.filebrowser_sortmethod < 0) || (g_settings.filebrowser_sortmethod >= FILEBROWSER_NUMBER_OF_SORT_VARIANTS))
 		g_settings.filebrowser_sortmethod = 0;
 	g_settings.filebrowser_denydirectoryleave = configfile.getBool("filebrowser_denydirectoryleave", false);
