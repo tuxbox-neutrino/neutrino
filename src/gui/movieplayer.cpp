@@ -923,7 +923,7 @@ bool CMoviePlayerGui::selectLivestream(std::vector<livestream_info_t> &streamLis
 #endif
 
 	bool resIO = false;
-	while (1) {
+	while (!streamList.empty()) {
 		size_t i;
 		for (i = 0; i < streamList.size(); ++i) {
 			_info = &(streamList[i]);
