@@ -860,7 +860,7 @@ static size_t getCachedMemSize(void)
 	size_t cached = 0;
 	if (procmeminfo) {
 		char buf[80] = {0}, a[80] = {0};
-		size_t v = 0;
+		long long unsigned int v = 0;
 		while (fgets(buf, sizeof(buf), procmeminfo)) {
 			char unit[10];
 			*unit = 0;
