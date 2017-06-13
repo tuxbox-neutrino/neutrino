@@ -860,12 +860,12 @@ static size_t getCachedMemSize(void)
 	size_t cached = 0;
 	if (procmeminfo) {
 		char buf[80] = {0}, a[80] = {0};
-		long long unsigned int v = 0;
+		size_t v = 0;
 		while (fgets(buf, sizeof(buf), procmeminfo)) {
 			char unit[10];
 			*unit = 0;
-			if ((3 == sscanf(buf, "%[^:]: %llu %s", a, &v, unit))
-			 || (2 == sscanf(buf, "%[^:]: %llu", a, &v))) {
+			if ((3 == sscanf(buf, "%[^:]: %zu %s", a, &v, unit))
+			 || (2 == sscanf(buf, "%[^:]: %zu", a, &v))) {
 				if (*unit == 'k')
 					v <<= 10;
 				if (!strcasecmp(a, "Cached")){
