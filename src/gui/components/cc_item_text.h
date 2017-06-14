@@ -95,8 +95,6 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		///destroy current CTextBox and CBox objects
 		void clearCCText();
 
-		///initialize all required attributes for text and send to the CTextBox object
-		void initCCText();
 		///init internal CBox object required by CTextBox object
 		void initCBox();
 
@@ -163,6 +161,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 
 		///send option to CTextBox object to paint background box behind text or not
 		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
+
+		///initialize all required attributes for text and send to the CTextBox object
+		void initCCText();
 
 		///set text as string also possible with overloades members for loacales, const char and text file, returns true if text was changed
 		virtual bool setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
