@@ -302,7 +302,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		}
 
 		///returns the clock object
-		virtual CComponentsFrmClock* getClockObject(){return cch_cl_obj;}
+		CComponentsFrmClock* getClockObject(){return cch_cl_obj;}
 
 		///enable display of clock, parameter bool enable, const char* format, bool run
 		virtual void enableClock(bool enable = true, const char* format = "%H:%M", const char* sec_format_str = NULL, bool run = false);
