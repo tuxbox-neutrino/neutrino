@@ -124,7 +124,7 @@ void CComponentsInfoBox::paintPicture()
 		pic->doPaintBg(false);
 
 	//fit icon into frame
-	pic->setYPos(y_pic+(height/2-pic->getHeight()/2));
+	pic->setYPos(y_pic+(height-2*fr_thickness)/2-pic->getHeight()/2);
 
 	//paint, but set visibility mode
 	pic->allowPaint(cc_allow_paint);
