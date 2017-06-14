@@ -42,6 +42,7 @@
 #include <driver/display.h>
 #include <driver/screen_max.h>
 #include <driver/fontrenderer.h>
+#include <system/debug.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -555,19 +556,29 @@ bool CFileBrowser::readDir_std(const std::string & dirname, CFileList* flist)
 	struct stat64 statbuf;
 	dirent64 **namelist;
 	int n;
+	std::string to_scan_dir = dirname;
 
-	n = scandir64(dirname.c_str(), &namelist, 0, alphasort64);
+	n = scandir64(to_scan_dir.c_str(), &namelist, 0, alphasort64);
 	if (n < 0)
 	{
-		perror(("Filebrowser scandir: "+dirname).c_str());
+		std::string scn_err = "Filebrowser scandir: " + to_scan_dir + " ";
+		to_scan_dir = "/media/";
+		dprintf(DEBUG_NORMAL, "\033[33m[CFileBrowser]\[%s - %d], %s failed, %s, try fallback to [%s]\033[0m\n", __func__, __LINE__, scn_err.c_str(), strerror(errno), to_scan_dir.c_str());
+		n = scandir64(to_scan_dir.c_str(), &namelist, 0, alphasort64);
+		name = to_scan_dir;
+	}
+
+	if (n < 0){ //fallback failed
+		perror(("Filebrowser scandir: "+to_scan_dir).c_str());
 		return false;
 	}
+
 	for (int i = 0; i < n; i++)
 	{
 		CFile file;
 		if(strcmp(namelist[i]->d_name,".") != 0)
 		{
-			file.Name = dirname + namelist[i]->d_name;
+			file.Name = to_scan_dir + namelist[i]->d_name;
 
 //			printf("file.Name: '%s', getFileName: '%s' getPath: '%s'\n",file.Name.c_str(),file.getFileName().c_str(),file.getPath().c_str());
 			if(stat64((file.Name).c_str(),&statbuf) != 0)
