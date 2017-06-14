@@ -2143,7 +2143,8 @@ void CChannelList::paintHead()
 					header->removeContextButtons();
 			header->enableClock(true, "%H:%M", "%H %M", true);
 
-			header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+			if (header->getClockObject())
+				header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 		}else{
 			if (header->getClockObject()){
 				header->disableClock();
