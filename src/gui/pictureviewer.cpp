@@ -749,9 +749,9 @@ void CPictureViewerGui::paint()
 	}
 
 	//scrollbar
-	int _listmaxshow = listmaxshow ? listmaxshow : 1; //avoid division by zero
-	int total_pages = playlist.size() == 0 ? 1 : ((playlist.size() - 1) / _listmaxshow) + 1;
-	int current_page = selected / _listmaxshow;
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, playlist.size(), listmaxshow, selected);
 
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
 
