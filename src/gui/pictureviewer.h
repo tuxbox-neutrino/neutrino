@@ -74,11 +74,11 @@ class CPictureViewerGui : public CMenuTarget
 		unsigned int		selected;
 		unsigned int		liststart;
 		unsigned int		listmaxshow;
-		int					fheight; // Fonthoehe Playlist-Inhalt
-		int					theight; // Fonthoehe Playlist-Titel
-		int			footerHeight;
-		int			buttons1Height;
-		int			buttons2Height;
+		int			item_height;
+		int			header_height;
+		int			footer_height;
+		int			buttons1_height;
+		int			buttons2_height;
 		bool				visible;			
 		State          m_state;
 		SortOrder      m_sort;
