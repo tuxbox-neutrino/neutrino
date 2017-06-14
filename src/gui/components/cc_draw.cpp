@@ -440,11 +440,13 @@ bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int 
 //screen area save
 fb_pixel_t* CCDraw::getScreen(int ax, int ay, int dx, int dy)
 {
+	fb_pixel_t* pixbuf = NULL;
+
 	if (dx < 1 ||  dy < 1 || dx * dy == 0)
 		return NULL;
+	else
+		pixbuf = new fb_pixel_t[dx * dy];
 
-	dprintf(DEBUG_INFO, "[CCDraw] INFO! [%s - %d], ax = %d, ay = %d, dx = %d, dy = %d\n", __func__, __LINE__, ax, ay, dx, dy);
-	fb_pixel_t* pixbuf = new fb_pixel_t[dx * dy];
 	frameBuffer->waitForIdle("CCDraw::getScreen()");
 	frameBuffer->SaveScreen(ax, ay, dx, dy, pixbuf);
 	return pixbuf;
@@ -453,8 +455,14 @@ fb_pixel_t* CCDraw::getScreen(int ax, int ay, int dx, int dy)
 cc_screen_data_t CCDraw::getScreenData(const int& ax, const int& ay, const int& dx, const int& dy)
 {
 	cc_screen_data_t res;
+	res.x = res.y = res.dx = res.dy = 0;
 	res.pixbuf = getScreen(ax, ay, dx, dy);
-	res.x = ax; res.y = ay; res.dx = dx; res.dy = dy;
+
+	if (res.pixbuf){
+		res.x = ax; res.y = ay; res.dx = dx; res.dy = dy;
+	}
+	else
+		dprintf(DEBUG_NORMAL, "\033[33m[CCDraw]\[%s - %d], Warning: initialize of screen buffer failed!\033[0m\n", __func__, __LINE__);
 
 	return res;
 }
