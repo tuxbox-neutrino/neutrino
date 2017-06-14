@@ -51,10 +51,10 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 {
 	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
 
-	x 		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	height	 	= h;
+	x 		= x_old 	= x_pos;
+	y 		= y_old 	= y_pos;
+	width 		= width_old 	= w;
+	height	 	= height_old 	= h;
 	shadow		= shadow_mode;
 	col_frame 	= color_frame;
 	cc_enable_frame	= true;
