@@ -162,8 +162,8 @@ audioplayer.artist_title Interpret, Titel
 audioplayer.building_search_index Erstelle Suchindex
 audioplayer.button_select_title_by_id Suche n. ID
 audioplayer.button_select_title_by_name Suche n. Name
-audioplayer.defdir Start-Verz.
-audioplayer.delete entfernen
+audioplayer.defdir Start-Verzeichnis
+audioplayer.delete Entfernen
 audioplayer.deleteall Alle entfernen
 audioplayer.display_order Anzeige
 audioplayer.enable_sc_metadata Aktiviere SHOUTcast Meta-Daten Parsing
@@ -2021,7 +2021,7 @@ personalize.usermenu_plugin_types Anzuzeigende Plugin-Typen wählen
 personalize.usermenu_preferred_buttons Bevorzugte Tasten zuweisen
 personalize.usermenu_show_cancel Zeige Schalter "Abbrechen"
 personalize.visible sichtbar
-pictureviewer.defdir Start-Verz.
+pictureviewer.defdir Start-Verzeichnis
 pictureviewer.head Bildbetrachter
 pictureviewer.help1 Menü-Modus
 pictureviewer.help10 Bild neu einlesen
@@ -2055,8 +2055,8 @@ pictureviewer.scaling Skalierung
 pictureviewer.show Anzeigen
 pictureviewer.slide_time Diaschau-Anzeigedauer
 pictureviewer.slideshow Diaschau
-pictureviewer.sortorder.date Sortierreihenf. ändern (Datum)
-pictureviewer.sortorder.filename Sortierreihenf. ändern (Dateiname)
+pictureviewer.sortorder.date Sortierreihenfolge: Datum
+pictureviewer.sortorder.filename Sortierreihenfolge: Dateiname
 ping.ok ist erreichbar (ping)
 ping.protocol ist nicht erreichbar (Host- oder Protokoll-Fehler)
 ping.socket ist nicht erreichbar (Socket-Fehler)
