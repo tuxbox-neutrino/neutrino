@@ -884,7 +884,7 @@ languagesetup.select Sprache
 lcd_info_line Zeige in Infozeile 
 lcd_info_line_channel Kanalname
 lcd_info_line_clock Uhrzeit
-lcdcontroler.brightness normale
+lcdcontroler.brightness Normalbetrieb
 lcdcontroler.brightnessdeepstandby Deep-Standby
 lcdcontroler.brightnessstandby Standby
 lcdmenu.dim_brightness nach Dimm-Timeout

@@ -884,9 +884,9 @@ languagesetup.select OSD Language
 lcd_info_line show in infoline
 lcd_info_line_channel Channelname
 lcd_info_line_clock clock
-lcdcontroler.brightness normal Brightness
-lcdcontroler.brightnessdeepstandby DeepStandby Brightness
-lcdcontroler.brightnessstandby Standby Brightness
+lcdcontroler.brightness Normal mode
+lcdcontroler.brightnessdeepstandby Deep standby
+lcdcontroler.brightnessstandby Standby
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD/LED Settings
