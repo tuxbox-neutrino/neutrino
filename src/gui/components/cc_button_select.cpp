@@ -24,26 +24,26 @@
 #include "config.h"
 #include "cc_button_select.h"
 
-CCButtonSelect::CCButtonSelect(CComponentsFrmChain *chain_obj)
+CCButtonSelect::CCButtonSelect()
 {
-	chain = chain_obj;
+	btn_container = NULL;
 }
 
 CComponentsFrmChain* CCButtonSelect::getButtonChainObject()
 {
-	return chain;
+	return btn_container;
 }
 
 CComponentsButton* CCButtonSelect::getSelectedButtonObject()
 {
-	CComponentsButton* ret = static_cast<CComponentsButton*>(chain->getSelectedItemObject());
+	CComponentsButton* ret = static_cast<CComponentsButton*>(btn_container->getSelectedItemObject());
 	return ret;
 }
 
 int CCButtonSelect::getSelectedButton()
 {
-	if (chain)
-		return chain->getSelectedItem();
+	if (btn_container)
+		return btn_container->getSelectedItem();
 	return -1;
 }
 
@@ -57,15 +57,15 @@ void CCButtonSelect::setSelectedButton(size_t item_id,
 			const int& frame_width,
 			const int& sel_frame_width)
 {
-	if (chain){
-		for (size_t i= 0; i< chain->size(); i++){
-			CComponentsButton *btn = static_cast<CComponentsButton*>(chain->getCCItem(i));
+	if (btn_container){
+		for (size_t i= 0; i< btn_container->size(); i++){
+			CComponentsButton *btn = static_cast<CComponentsButton*>(btn_container->getCCItem(i));
 			btn->setButtonTextColor(text_col);
 		}
 		fb_pixel_t sel_col = fr_col;
-		if (chain->size() > 1)
+		if (btn_container->size() > 1)
 			sel_col = sel_fr_col; //TODO: make it configurable
-		chain->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
+		btn_container->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
 
 		getSelectedButtonObject()->setButtonTextColor(sel_text_col);
 	}

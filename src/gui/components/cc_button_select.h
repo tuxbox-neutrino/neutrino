@@ -33,10 +33,10 @@ Class for inheritation of button select handling inside other CComponentsForm ob
 class CCButtonSelect
 {
 	protected:
-		CComponentsFrmChain *chain;
+		CComponentsFrmChain *btn_container;
 
 	public:
-		CCButtonSelect(CComponentsFrmChain *chain_obj = NULL);
+		CCButtonSelect();
 
 		///returns selected button object, return value as pointer to object, NULL means nothing is selected
 		CComponentsButton* getSelectedButtonObject();

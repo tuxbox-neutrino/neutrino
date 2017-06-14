@@ -107,8 +107,8 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 void CComponentsFooter::setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
 	/* clean up before init*/
-	if (chain)
-		chain->clear();
+	if (btn_container)
+		btn_container->clear();
 
 	if (label_count == 0)
 		return;
@@ -149,11 +149,11 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	int y_chain = height/2 - h_chain/2;
 	if (cch_icon_obj)
 		 x_chain = cch_offset+cch_icon_obj->getWidth()+cch_offset;
-	if (chain == NULL){
-		chain = new CComponentsFrmChain(x_chain, y_chain, w_chain, h_chain, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
-		chain->setAppendOffset(0, 0);
-		chain->setCorner(this->corner_rad, this->corner_type);
-		chain->doPaintBg(false);
+	if (btn_container == NULL){
+		btn_container = new CComponentsFrmChain(x_chain, y_chain, w_chain, h_chain, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
+		btn_container->setAppendOffset(0, 0);
+		btn_container->setCorner(this->corner_rad, this->corner_type);
+		btn_container->doPaintBg(false);
 	}
 
 	/* Calculate usable width of button labels inside button object container
@@ -165,11 +165,11 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	 * button objects itself.
 	*/
 	int w_offset = int((label_count-1)*cch_offset);
-	int w_btn = chain->getWidth()/label_count - w_offset;
+	int w_btn = btn_container->getWidth()/label_count - w_offset;
 	if (label_width){
 		int w_label = label_width;
 		int w_defined = int(label_width*label_count);
-		int w_max = chain->getWidth() - w_offset;
+		int w_max = btn_container->getWidth() - w_offset;
 		while (w_defined > w_max){
 			w_label--;
 			w_defined = int(w_label*label_count) - w_offset;
@@ -181,7 +181,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	 * with default width to chain object.
 	*/
 	vector<CComponentsItem*> v_btns;
-	int h_btn = /*(ccf_enable_button_bg ? */chain->getHeight()-2*fr_thickness/*-OFFSET_INNER_SMALL*//* : height)*/-ccf_button_shadow_width;
+	int h_btn = /*(ccf_enable_button_bg ? */btn_container->getHeight()-2*fr_thickness/*-OFFSET_INNER_SMALL*//* : height)*/-ccf_button_shadow_width;
 	for (size_t i= 0; i< label_count; i++){
 		string txt 		= content[i].locale == NONEXISTANT_LOCALE ? content[i].text : g_Locale->getText(content[i].locale);
 		string icon_name 	= string(content[i].button);
@@ -192,7 +192,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			continue;
 		}
 
-		int y_btn = chain->getHeight()/2 - h_btn/2;
+		int y_btn = btn_container->getHeight()/2 - h_btn/2;
 		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  y_btn [%d] ccf_button_shadow_width [%d]\n", __func__, __LINE__, y_btn, ccf_button_shadow_width);
 		CComponentsButton *btn = new CComponentsButton(0, y_btn, w_btn, h_btn, txt, icon_name, NULL, false, true, ccf_enable_button_shadow);
 
@@ -223,27 +223,27 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			btn->setButtonFont(NULL);
 		}
 			
-		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%u]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, chain->getWidth());
+		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%u]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), i, btn->getWidth(), w_btn, btn_container->getWidth());
 	}
 
 	/* add generated button objects to chain object.
 	*/
 	if (!v_btns.empty()){
 		/*add all buttons into button container*/
-		chain->addCCItem(v_btns);
+		btn_container->addCCItem(v_btns);
 
 		/* set position of labels, as centered inside button container*/
 		int w_chain_used = 0;
-		for (size_t a= 0; a< chain->size(); a++)
-			w_chain_used += chain->getCCItem(a)->getWidth();
-		w_chain_used += (chain->size()-1)*cch_offset;
+		for (size_t a= 0; a< btn_container->size(); a++)
+			w_chain_used += btn_container->getCCItem(a)->getWidth();
+		w_chain_used += (btn_container->size()-1)*cch_offset;
 
-		int x_btn = chain->getWidth()/2 - w_chain_used/2;
-		chain->getCCItem(0)->setXPos(x_btn);
+		int x_btn = btn_container->getWidth()/2 - w_chain_used/2;
+		btn_container->getCCItem(0)->setXPos(x_btn);
 
-		for (size_t c= 1; c< chain->size(); c++){
-			x_btn += chain->getCCItem(c-1)->getWidth()+ cch_offset;
-			chain->getCCItem(c)->setXPos(x_btn);
+		for (size_t c= 1; c< btn_container->size(); c++){
+			x_btn += btn_container->getCCItem(c-1)->getWidth()+ cch_offset;
+			btn_container->getCCItem(c)->setXPos(x_btn);
 		}
 	}
 }
@@ -316,9 +316,9 @@ void CComponentsFooter::setButtonLabel(	const char *button_icon,
 void CComponentsFooter::enableButtonBg(bool enable)
 {
 	ccf_enable_button_bg = enable;
-	if (chain) {
-		for (size_t i= 0; i< chain->size(); i++)
-			chain->getCCItem(i)->doPaintBg(ccf_enable_button_bg);
+	if (btn_container) {
+		for (size_t i= 0; i< btn_container->size(); i++)
+			btn_container->getCCItem(i)->doPaintBg(ccf_enable_button_bg);
 	}
 }
 
@@ -357,12 +357,12 @@ void CComponentsFooter::enableButtonShadow(int mode, const int& shadow_width, bo
 	ccf_enable_button_shadow = mode;
 	ccf_button_shadow_width = shadow_width;
 	ccf_button_shadow_force_paint = force_paint;
-	if (chain){
-		for(size_t i=0; i<chain->size(); i++){
-			chain->getCCItem(i)->enableShadow(ccf_enable_button_shadow, ccf_button_shadow_width, ccf_button_shadow_force_paint);
+	if (btn_container){
+		for(size_t i=0; i<btn_container->size(); i++){
+			btn_container->getCCItem(i)->enableShadow(ccf_enable_button_shadow, ccf_button_shadow_width, ccf_button_shadow_force_paint);
 			//int y_btn = ccf_enable_button_shadow == CC_SHADOW_OFF ? CC_CENTERED : chain->getHeight()/2 - chain->getCCItem(i)->getHeight()/2 - ccf_button_shadow_width;
-			int y_btn = chain->getHeight()/2 - chain->getCCItem(i)->getHeight()/2;
-			chain->getCCItem(i)->setYPos(y_btn);
+			int y_btn = btn_container->getHeight()/2 - btn_container->getCCItem(i)->getHeight()/2;
+			btn_container->getCCItem(i)->setYPos(y_btn);
 		}
 	}
 }
