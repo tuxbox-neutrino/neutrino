@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include "cc_button_select.h"
+#include <system/debug.h>
 
 CCButtonSelect::CCButtonSelect()
 {
@@ -57,11 +58,18 @@ void CCButtonSelect::setSelectedButton(size_t item_id,
 			const int& frame_width,
 			const int& sel_frame_width)
 {
+	CComponentsButton *btn = NULL;
 	if (btn_container){
 		for (size_t i= 0; i< btn_container->size(); i++){
-			CComponentsButton *btn = static_cast<CComponentsButton*>(btn_container->getCCItem(i));
-			btn->setButtonTextColor(text_col);
+			CComponentsItem *item = btn_container->getCCItem(i);
+			if (item->getItemType() >= CC_ITEMTYPE_BUTTON && item->getItemType() <= CC_ITEMTYPE_BUTTON_BLUE){
+				btn = static_cast<CComponentsButton*>(item);
+				btn->setButtonTextColor(text_col);
+			}
 		}
+		if (!btn)
+			dprintf(DEBUG_NORMAL, "\033[33m[CCButtonSelect]\t[%s - %d], no button object found...\033[0m\n", __func__, __LINE__);
+
 		fb_pixel_t sel_col = fr_col;
 		if (btn_container->size() > 1)
 			sel_col = sel_fr_col; //TODO: make it configurable
