@@ -1031,7 +1031,7 @@ void CTestMenu::showRecords()
 			recline->doPaintBg(true);
 			recline->setColorBody(COL_INFOBAR_PLUS_0);
 			recline->enableShadow(CC_SHADOW_ON, w_shadow);
-			recline->setCorner(CORNER_RADIUS_MID);
+			recline->setCorner(RADIUS_MID);
 			recordsbox->addCCItem(recline);
 
 			CComponentsPicture *iconf = new CComponentsPicture(OFFSET_INNER_MID, CC_CENTERED, NEUTRINO_ICON_REC, recline, CC_SHADOW_OFF, COL_RED, COL_INFOBAR_PLUS_0);
