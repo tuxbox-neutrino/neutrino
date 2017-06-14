@@ -1472,8 +1472,9 @@ void CFileBrowser::paint()
 		paintItem(count);
 
 	//scrollbar
-	int total_pages = filelist.size() == 0 ? 1 : ((filelist.size() - 1) / listmaxshow) + 1;
-	int current_page = (selected / listmaxshow);
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, filelist.size(), listmaxshow, selected);
 
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
 }
