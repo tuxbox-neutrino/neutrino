@@ -78,7 +78,7 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 
 	x		= -1;
 	used		= false;
-	icon_frame_w	= 10;
+	icon_frame_w	= OFFSET_INNER_MID;
 	hint		= NONEXISTANT_LOCALE;
 	name		= NONEXISTANT_LOCALE;
 	nameString	= "";
@@ -249,7 +249,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			stringstartposOption = name_start_x;
 		if (right_bgcol) {
 			if (!*right_text)
-				stringstartposOption -= 60;
+				stringstartposOption -= CFrameBuffer::getInstance()->scale2Res(60);
 			fb_pixel_t right_frame_col, right_bg_col;
 			if (active) {
 				right_bg_col = right_bgcol;
@@ -270,7 +270,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 		}
 	}
 	if (desc_text && *desc_text)
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->RenderString(name_start_x + 10, y+ item_height, _dx- 10 - (name_start_x - x), desc_text, item_color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->RenderString(name_start_x + OFFSET_INNER_MID, y+ item_height, _dx- OFFSET_INNER_MID - (name_start_x - x), desc_text, item_color);
 }
 
 void CMenuItem::prepareItem(const bool select_mode, const int &item_height)
@@ -296,7 +296,7 @@ void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height,
 	}
 	int stringwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text);
 
-	int maxspace = dx - stringwidth - icon_frame_w - stringwidth2 - 10;
+	int maxspace = dx - stringwidth - icon_frame_w - stringwidth2 - OFFSET_INNER_MID;
 	if(maxspace < slider_lenght)
 		return ;
 
@@ -379,7 +379,7 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 
 		if (icon_w>0 && icon_h>0)
 		{
-			frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
+			frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 2*OFFSET_INNER_MID), y+ ((item_height/2- icon_h/2)) );
 		}
 	}
 }
@@ -1122,14 +1122,13 @@ void CMenuWidget::calcSize()
 	}
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
-		hint_height = frameBuffer->scale2Res(60); //TODO: rework calculation of hint_height
-		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
-		int h_tmp = OFFSET_INNER_LARGE + 2*fheight;
+		int lines = 2;
+		int text_height = 2*OFFSET_INNER_MID + lines*g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
 		/* assuming all hint icons has the same size ! */
-		int iw, ih;
-		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &iw, &ih);
-		h_tmp = std::max(h_tmp, ih+OFFSET_INNER_MID);
-		hint_height = std::max(h_tmp, hint_height);
+		int icon_width, icon_height;
+		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &icon_width, &icon_height);
+		icon_height += 2*OFFSET_INNER_MID;
+		hint_height = std::max(icon_height, text_height);
 	}
 	/* set the max height to 9/10 of usable screen height
 	   debatable, if the callers need a possibility to set this */
@@ -1197,7 +1196,7 @@ void CMenuWidget::calcSize()
 	 * + center_offset for symmetry
 	 * + 20 for setMenuPos calculates 10 pixels border left and right */
 	int center_offset = (g_settings.menu_pos == MENU_POS_CENTER) ? DETAILSLINE_WIDTH : 0;
-	int max_possible = (int)frameBuffer->getScreenWidth() - DETAILSLINE_WIDTH - center_offset - 20;
+	int max_possible = (int)frameBuffer->getScreenWidth() - DETAILSLINE_WIDTH - center_offset - 2*OFFSET_INNER_MID;
 	if (full_width > max_possible)
 	{
 		width = max_possible - sb_width - OFFSET_SHADOW;
@@ -1241,7 +1240,7 @@ void CMenuWidget::paint()
 	if (header == NULL){
 		header = new CComponentsHeader(x, y, width + sb_width, hheight, getName(), iconfile);
 		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
-		header->setOffset(10);
+		header->setOffset(OFFSET_INNER_MID);
 	}
 	header->setCaption(getName());
 	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
@@ -1281,25 +1280,25 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 			break;
 			
 		case MENU_POS_TOP_LEFT: 
-			y = offy + scr_y + 10;
-			x = offx + scr_x + 10;
+			y = offy + scr_y + OFFSET_INNER_MID;
+			x = offx + scr_x + OFFSET_INNER_MID;
 			x += DETAILSLINE_WIDTH;
 			break;
 			
 		case MENU_POS_TOP_RIGHT: 
-			y = offy + scr_y + 10;
-			x = /*offx +*/ scr_x + scr_w - menu_width - 10;
+			y = offy + scr_y + OFFSET_INNER_MID;
+			x = /*offx +*/ scr_x + scr_w - menu_width - OFFSET_INNER_MID;
 			break;
 			
 		case MENU_POS_BOTTOM_LEFT: 
-			y = /*offy +*/ scr_y + scr_h - real_h - 10;
-			x = offx + scr_x + 10;
+			y = /*offy +*/ scr_y + scr_h - real_h - OFFSET_INNER_MID;
+			x = offx + scr_x + OFFSET_INNER_MID;
 			x += DETAILSLINE_WIDTH;
 			break;
 			
 		case MENU_POS_BOTTOM_RIGHT: 
-			y = /*offy +*/ scr_y + scr_h - real_h - 10;
-			x = /*offx +*/ scr_x + scr_w - menu_width - 10;
+			y = /*offy +*/ scr_y + scr_h - real_h - OFFSET_INNER_MID;
+			x = /*offx +*/ scr_x + scr_w - menu_width - OFFSET_INNER_MID;
 			break;
 	}
 	if (x_old != x || y_old != y)
@@ -1696,11 +1695,11 @@ int CMenuOptionNumberChooser::getWidth(void)
 		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(format) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0");
 	}
 
-	width += 10; /* min 10 pixels between option name and value. enough? */
+	width += OFFSET_INNER_MID; /* min 10 pixels between option name and value. enough? */
 
 	const char *desc_text = getDescription();
 	if (*desc_text)
-		width = std::max(width, 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
+		width = std::max(width, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return width;
 }
 
@@ -2022,10 +2021,10 @@ int CMenuOptionChooser::getWidth(void)
 			width = tw + ow;
 	}
 
-	width += 10; /* min 10 pixels between option name and value. enough? */
+	width += OFFSET_INNER_MID; /* min 10 pixels between option name and value. enough? */
 	const char *desc_text = getDescription();
 	if (*desc_text)
-		width = std::max(width, 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
+		width = std::max(width, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return width;
 }
 
@@ -2215,13 +2214,13 @@ int CMenuForwarder::getWidth(void)
 		bgcol = jumpTarget->getColor();
 
 	if (!option_name.empty())
-		tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_name);
+		tw += OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_name);
 	else if (bgcol)
-		tw += 10 + 60;
+		tw += OFFSET_INNER_MID + CFrameBuffer::getInstance()->scale2Res(60);
 
 	const char *desc_text = getDescription();
 	if (*desc_text)
-		tw = std::max(tw, 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
+		tw = std::max(tw, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return tw;
 }
 
@@ -2280,7 +2279,7 @@ CMenuSeparator::CMenuSeparator(const int Type, const std::string &Text, bool IsS
 int CMenuSeparator::getHeight(void)
 {
 	if (nameString.empty() && name == NONEXISTANT_LOCALE)
-		return 10;
+		return OFFSET_INNER_MID;
 	return  g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 }
 
@@ -2288,7 +2287,7 @@ int CMenuSeparator::getWidth(void)
 {
 	int w = 0;
 	if (type & LINE)
-		w = 30; /* 15 pixel left and right */
+		w = 2*OFFSET_INNER_MID; /* offset left and right */
 	const char *l_name = getName();
 	if ((type & STRING) && *l_name)
 		w += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name);
@@ -2315,7 +2314,7 @@ int CMenuSeparator::paint(bool selected)
 	if ((type & LINE))
 	{
 		int grad = g_settings.theme.menu_Separator_gradient_enable ? CC_COLGRAD_COL_DARK_LIGHT_DARK : CC_COLGRAD_OFF;
-		paintBoxRel(x+10, y+(height>>1), dx-20, 2, COL_MENUCONTENT_PLUS_3, 0, CORNER_NONE, grad, COL_MENUCONTENT_PLUS_0, CFrameBuffer::gradientHorizontal, CColorGradient::light);
+		paintBoxRel(x+OFFSET_INNER_MID, y+(height>>1), dx-2*OFFSET_INNER_MID, 1, COL_MENUCONTENT_PLUS_1, 0, CORNER_NONE, grad, COL_MENUCONTENT_PLUS_0, CFrameBuffer::gradientHorizontal, CColorGradient::light);
 	}
 	if ((type & STRING))
 	{
@@ -2323,17 +2322,19 @@ int CMenuSeparator::paint(bool selected)
 	
 		if (*l_name)
 		{
-			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name); // UTF-8
+			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name);
+			int iconwidth, iconheight;
+			CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_BUTTON_HOME, &iconwidth, &iconheight);
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				name_start_x = x + (!(type & SUB_HEAD) ? name_start_x : 20 + 24 /*std icon_width is 24px - this should be determinated from NEUTRINO_ICON_BUTTON_HOME or so*/);
+				name_start_x = x + (!(type & SUB_HEAD) ? name_start_x : 2*OFFSET_INNER_MID + iconwidth);
 			else if (type & ALIGN_RIGHT)
-				name_start_x = x + dx - stringwidth - 20;
+				name_start_x = x + dx - stringwidth - 2*OFFSET_INNER_MID;
 			else /* ALIGN_CENTER */
 				name_start_x = x + (dx >> 1) - (stringwidth >> 1);
 			
- 			frameBuffer->paintBoxRel(name_start_x-5, y, stringwidth+10, height, item_bgcolor);
+			frameBuffer->paintBoxRel(name_start_x-OFFSET_INNER_SMALL, y, stringwidth+2*OFFSET_INNER_SMALL, height, item_bgcolor);
 			
 			paintItemCaption(selected);
 		}
@@ -2458,7 +2459,7 @@ int CMenuProgressbar::getWidth(void)
 {
 	int width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(getName());
 	if (width)
-		width += 10;
+		width += OFFSET_INNER_MID;
 	return width + scale.getWidth();
 }
 
