@@ -92,7 +92,7 @@ void CVolumeBar::initVolumeBarSize()
 
 	//scale
 	vb_pbw 		= CFrameBuffer::getInstance()->scale2Res(200);
-	vb_pbh 		= height-4*vb_item_offset;
+	vb_pbh 		= height-2*vb_item_offset;
 
 	//result for width
 	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset + corner_rad/2;
@@ -111,8 +111,6 @@ void CVolumeBar::initVolumeBarSize()
 	if (mute_dy < height)
 		mute_corrY = (height - mute_dy) / 2;
 	cvh->setMuteIconCorrY(mute_corrY);
-
-	vb_pbh 		= height-8;
 
 	vb_pby 		= height/2-vb_pbh/2;
 }
@@ -267,8 +265,8 @@ void CVolumeBar::paint(bool do_save_bg)
 
 CVolumeHelper::CVolumeHelper()
 {
-	h_spacer	= 11;
-	v_spacer	= 6;
+	h_spacer	= OFFSET_INNER_MID;
+	v_spacer	= OFFSET_INNER_SMALL;
 	vb_font		= NULL;
 	clock_font	= NULL;
 
@@ -359,8 +357,8 @@ void CVolumeHelper::initVolBarSize()
 	digit_width		= 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_width, &icon_height);
 	icon_height		= max(icon_height, 16); // if no icon available
-	icon_height		+= 2;
-	icon_width		+= 8;
+	icon_height		+= OFFSET_INNER_MIN;
+	icon_width		+= OFFSET_INNER_MID;
 	g_settings.volume_size	= max(g_settings.volume_size, icon_height);
 	vol_height		= CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
 
@@ -370,7 +368,7 @@ void CVolumeHelper::initVolBarSize()
 		int tmp_h	= vol_height;
 		digit_width	= 0;
 		vb_font		= cnf->getDynFont(digit_width, tmp_h, "100", CNeutrinoFonts::FONT_STYLE_REGULAR, CNeutrinoFonts::FONT_ID_VOLBAR);
-		digit_width	+= 6;
+		digit_width	+= OFFSET_INNER_SMALL;
 		vol_height	= max(vol_height, tmp_h);
 	}
 }
