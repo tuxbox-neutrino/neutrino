@@ -99,7 +99,7 @@ FBFontRenderClass::~FBFontRenderClass()
 	for (fontListEntry * f = font; f; f = g)
 	{
 		g = f->next;
-		delete f;
+		delete f; f = NULL;
 	}
 
 	FTC_Manager_Done(cacheManager);

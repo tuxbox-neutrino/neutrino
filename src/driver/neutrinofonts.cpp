@@ -92,14 +92,18 @@ void CNeutrinoFonts::InitDynFonts()
 CNeutrinoFonts::~CNeutrinoFonts()
 {
 	if (!v_share_fonts.empty()) {
-		for (unsigned int i = 0; i < v_share_fonts.size(); i++)
+		for (unsigned int i = 0; i < v_share_fonts.size(); i++){
 			delete v_share_fonts[i].font;
+			v_share_fonts[i].font = NULL;
+		}
 		v_share_fonts.clear();
 	}
 
 	if (!v_dyn_fonts.empty()) {
-		for (unsigned int i = 0; i < v_dyn_fonts.size(); i++)
+		for (unsigned int i = 0; i < v_dyn_fonts.size(); i++){
 			delete v_dyn_fonts[i].font;
+			v_dyn_fonts[i].font = NULL;
+		}
 		v_dyn_fonts.clear();
 	}
 	if (!vDynSize.empty()) {
@@ -402,8 +406,10 @@ void CNeutrinoFonts::deleteDynFontExtAll()
 {
 	if (!v_dyn_fonts_ext.empty()) {
 		for (size_t i = 0; i < v_dyn_fonts_ext.size(); ++i) {
-			if (v_dyn_fonts_ext[i].font != NULL)
+			if (v_dyn_fonts_ext[i].font != NULL){
 				delete v_dyn_fonts_ext[i].font;
+				v_dyn_fonts_ext[i].font = NULL;
+			}
 		}
 		v_dyn_fonts_ext.clear();
 	}
