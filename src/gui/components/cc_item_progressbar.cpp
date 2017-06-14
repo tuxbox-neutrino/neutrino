@@ -198,6 +198,7 @@ void CProgressBarCache::pbcClear()
 		if ((*it)->pbc_passive)
 			free((*it)->pbc_passive);
 		delete (*it);
+		(*it) = NULL;
 	}
 	pbCache.clear();
 }
