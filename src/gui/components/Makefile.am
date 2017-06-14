@@ -18,6 +18,7 @@ noinst_LIBRARIES = libneutrino_gui_components.a
 
 libneutrino_gui_components_a_SOURCES = \
 	cc_base.cpp \
+	cc_button_select.cpp \
 	cc_detailsline.cpp \
 	cc_draw.cpp \
 	cc_extra.cpp \

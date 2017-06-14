@@ -28,7 +28,7 @@
 #include "config.h"
 #include "cc_base.h"
 #include "cc_item.h"
-#include "cc_frm_scrollbar.h"
+
 
 class CComponentsForm : public CComponentsItem
 {

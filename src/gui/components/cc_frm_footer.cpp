@@ -35,7 +35,7 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsFooter inherit from CComponentsHeader
-CComponentsFooter::CComponentsFooter(CComponentsForm* parent)
+CComponentsFooter::CComponentsFooter(CComponentsForm* parent):CCButtonSelect()
 {
 	//CComponentsFooter
 	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0);
@@ -47,7 +47,7 @@ CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const 
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow )
+					fb_pixel_t color_shadow ):CCButtonSelect()
 {
 	//CComponentsFooter
 	initVarFooter(x_pos, y_pos, w, h, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
@@ -95,7 +95,6 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	corner_type	= CORNER_BOTTOM;
 
 	ccf_enable_button_bg	= false /*g_settings.theme.Button_gradient*/; //TODO: not implemented at the moment
-	chain		= NULL;
 
 	addContextButton(buttons);
 	initCCItems();
@@ -322,43 +321,6 @@ void CComponentsFooter::enableButtonBg(bool enable)
 			chain->getCCItem(i)->doPaintBg(ccf_enable_button_bg);
 	}
 }
-
-void CComponentsFooter::setSelectedButton(size_t item_id,
-						const fb_pixel_t& fr_col, const fb_pixel_t& sel_fr_col,
-						const fb_pixel_t& bg_col, const fb_pixel_t& sel_bg_col,
-						const fb_pixel_t& text_col, const fb_pixel_t& sel_text_col,
-						const int& frame_width,
-						const int& sel_frame_width)
-{
-	if (chain){
-		for (size_t i= 0; i< chain->size(); i++){
-			CComponentsButton *btn = static_cast<CComponentsButton*>(chain->getCCItem(i));
-			btn->setButtonTextColor(text_col);
-		}
-		fb_pixel_t sel_col = fr_col;
-		if (chain->size() > 1)
-			sel_col = sel_fr_col; //TODO: make it configurable
-		chain->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
-
-		getSelectedButtonObject()->setButtonTextColor(sel_text_col);
-	}
-}
-
-int CComponentsFooter::getSelectedButton()
-{
-	int ret = -1;
-	if (chain)
-		ret = chain->getSelectedItem();
-
-	return ret;
-}
-
-CComponentsButton* CComponentsFooter::getSelectedButtonObject()
-{
-	CComponentsButton* ret = static_cast<CComponentsButton*>(chain->getSelectedItemObject());
-	return ret;
-}
-
 
 void CComponentsFooter::paintButtons(const int& x_pos,
 				     const int& y_pos,

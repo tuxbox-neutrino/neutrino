@@ -26,6 +26,8 @@
 
 #include "cc_frm_header.h"
 #include "cc_frm_button.h"
+#include "cc_button_select.h"
+
 #include <global.h>
 #include <gui/widget/buttons.h> //for compatibility with 'button_label' type
 
@@ -39,7 +41,7 @@ to add button labels known by older button handler, to find in gui/widget/button
 functionality. Why limited ?: old parameter 'struct button_label' doesn't provide newer parameters. 
 Missing parameters are filled with default values and must be assigned afterward, if required.
 */
-class CComponentsFooter : public CComponentsHeader
+class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 {
 	private:
 		void initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -66,9 +68,6 @@ class CComponentsFooter : public CComponentsHeader
 
 		///init default fonts for size modes
 		virtual void initDefaultFonts();
-
-		///container for button objects
-		CComponentsFrmChain *chain;
 
 	public:
 		CComponentsFooter(CComponentsForm *parent = NULL);
@@ -114,40 +113,6 @@ class CComponentsFooter : public CComponentsHeader
 		///disables background of buttons
 		void disableButtonBg(){enableButtonBg(false);}
 
-		/**Select a definied button inside button chain object
-		* @param[in]	item_id
-		* 	@li 	optional: exepts type size_t
-		* @param[in]	fr_col
-		* 	@li 	optional: exepts type fb_pixel_t, as default frame color
-		* @param[in]	sel_fr_col
-		* 	@li 	optional: exepts type fb_pixel_t, as selected frame color
-		* @param[in]	bg_col
-		* 	@li 	optional: exepts type fb_pixel_t, as default background color
-		* @param[in]	sel_bg_col
-		* 	@li 	optional: exepts type fb_pixel_t, as selected background color
-		* @param[in]	text_col
-		* 	@li 	optional: exepts type fb_pixel_t, as default text color
-		* @param[in]	sel_text_col
-		* 	@li 	optional: exepts type fb_pixel_t, as selected text color
-		* @param[in]	frame_width
-		* 	@li 	optional: exepts type int, default = 1
-		* @param[in]	sel_frame_width
-		* 	@li 	optional: exepts type int, default = 2
-		*/
-		void setSelectedButton(size_t item_id,
-					const fb_pixel_t& fr_col 	= COL_MENUCONTENTSELECTED_PLUS_2,
-					const fb_pixel_t& sel_fr_col 	= COL_MENUCONTENTSELECTED_PLUS_0,
-					const fb_pixel_t& bg_col 	= COL_MENUCONTENT_PLUS_0,
-					const fb_pixel_t& sel_bg_col 	= COL_MENUCONTENTSELECTED_PLUS_0,
-					const fb_pixel_t& text_col 	= COL_MENUCONTENT_TEXT,
-					const fb_pixel_t& sel_text_col 	= COL_MENUCONTENTSELECTED_TEXT,
-					const int& frame_width 		= 1,
-					const int& sel_frame_width 	= 1);
-		///returns id of select button, return value as int, -1 = nothing is selected
-		int getSelectedButton();
-		///returns selected button object, return value as pointer to object, NULL means nothing is selected
-		CComponentsButton* getSelectedButtonObject();
-
 		/*!
 		Sets a new text to an already predefined button.
 		1st parameter 'btn_id' accepts current id of an already defined button. 2nd parameter sets the new text as std::string
@@ -163,10 +128,6 @@ class CComponentsFooter : public CComponentsHeader
 
 		///property: set font for label caption, parameter as font object, value NULL causes usage of dynamic font
 		void setButtonFont(Font* font){ccf_btn_font = font;};
-
-		///returns pointer to internal button container
-		CComponentsFrmChain* getButtonChainObject(){return chain;};
-
 
 		///this is a nearly methode similar with the older button handler find in gui/widget/buttons.h, some parameters are different, but require minimalized input
 		///this member sets some basic parameters and will paint concurrently on execute, explicit call of paint() is not required
@@ -195,5 +156,7 @@ class CComponentsFooter : public CComponentsHeader
 		///disable shadow for embedded buttons
 		void disbaleButtonShadow(){enableButtonShadow(CC_SHADOW_OFF);}
 };
+
+
 
 #endif
