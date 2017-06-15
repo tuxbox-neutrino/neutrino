@@ -66,7 +66,7 @@ CBEBouquetWidget::CBEBouquetWidget()
 
 void CBEBouquetWidget::paintItem(int pos)
 {
-	int ypos = y+ theight+0 + pos*iheight;
+	int ypos = y + theight + pos*iheight;
 	unsigned int current = liststart + pos;
 
 	bool i_selected	= current == selected;
@@ -92,8 +92,8 @@ void CBEBouquetWidget::paintItem(int pos)
 	}
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, iheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, iheight, bgcolor, i_radius);
 
 	if (current < Bouquets->size()) {
 		if ((i_selected) && (state == beMoving))
@@ -125,17 +125,10 @@ void CBEBouquetWidget::paint()
 		paintItem(count);
 	}
 
-	int ypos = y+ theight;
-	int sb = iheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
-
-	int sbc= ((Bouquets->size()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
-	if (sbc < 1)
-		sbc = 1;
-
-	//scrollbar
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0);
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, Bouquets->size(), listmaxshow, selected);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, iheight*listmaxshow, total_pages, current_page);
 }
 
 void CBEBouquetWidget::paintHead()
