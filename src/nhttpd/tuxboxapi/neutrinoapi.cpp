@@ -28,6 +28,7 @@
 #include <driver/screen_max.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <system/httptool.h>
+#include <system/helpers.h>
 #include <gui/color.h>
 #include <gui/widget/icons.h>
 #include <gui/movieplayer.h>
