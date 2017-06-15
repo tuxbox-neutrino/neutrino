@@ -73,6 +73,7 @@ private:
 
 	// CGI functions for ExecuteCGI
 	void TimerCGI(CyhookHandler *hh);
+	void TimerSendCGI(CyhookHandler *hh);
 	void SetModeCGI(CyhookHandler *hh);
 	void GetModeCGI(CyhookHandler *hh);
 	void ExecCGI(CyhookHandler *hh);
