@@ -145,6 +145,8 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		void disableVisualize(){enableVisualize(false);}
 };
 
+void getScrollBarData(int *total_pages, int *current_page, int total_items, int items_per_page, int selected_item);
+
 		/**Small and easy to apply scrollbar paint methode without expilcit object declaration
 		* @return 			void
 		*

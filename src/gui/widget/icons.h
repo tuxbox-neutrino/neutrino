@@ -179,6 +179,7 @@
 #define NEUTRINO_ICON_STAR_ON		"star-on"
 #define NEUTRINO_ICON_STAR_OFF		"star-off"
 #define NEUTRINO_ICON_TMDB		"tmdb"
+#define NEUTRINO_ICON_PICTUREVIEWER	"pictureviewer"
 
 #define DUMMY_ICON			"dummy"
 

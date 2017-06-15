@@ -854,12 +854,38 @@ unsigned char * CPictureViewer::ResizeA(unsigned char *orgin, int ox, int oy, in
 	return int_Resize(orgin, ox, oy, dx, dy, COLOR, NULL, true);
 }
 
+static size_t getCachedMemSize(void)
+{
+	FILE *procmeminfo = fopen("/proc/meminfo", "r");
+	size_t cached = 0;
+	if (procmeminfo) {
+		char buf[80] = {0}, a[80] = {0};
+		size_t v = 0;
+		while (fgets(buf, sizeof(buf), procmeminfo)) {
+			char unit[10];
+			*unit = 0;
+			if ((3 == sscanf(buf, "%[^:]: %zu %s", a, &v, unit))
+			 || (2 == sscanf(buf, "%[^:]: %zu", a, &v))) {
+				if (*unit == 'k')
+					v <<= 10;
+				if (!strcasecmp(a, "Cached")){
+					cached = v;
+					break;
+				}
+			}
+		}
+		fclose(procmeminfo);
+	}
+	return cached;
+}
+
 bool CPictureViewer::checkfreemem(size_t bufsize)
 {
 	struct sysinfo info;
 	sysinfo( &info );
-	if(bufsize + 4096 > (size_t)info.freeram + (size_t)info.freeswap){
-		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Out of memory: need %zu > free %zu\n", __func__, __LINE__,bufsize,(size_t)info.freeram + (size_t)info.freeswap);
+	size_t cached = getCachedMemSize();
+	if(bufsize + sysconf(_SC_PAGESIZE) > (size_t)info.freeram + (size_t)info.freeswap + (size_t)info.bufferram + cached){
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Out of memory: need %zu > free %zu\n", __func__, __LINE__,bufsize,(size_t)info.freeram + (size_t)info.freeswap + (size_t)info.bufferram + cached);
 		return false;
 	}
 	return true;

@@ -34,6 +34,7 @@ struct gradientData_t;
 class Font;
 class CComponentsForm;
 class CComponentsScrollBar;
+class CCButtonSelect;
 
 ///cc item types
 typedef enum

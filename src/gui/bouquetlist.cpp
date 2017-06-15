@@ -711,7 +711,6 @@ void CBouquetList::paint()
 	CInfoClock::getInstance()->disableInfoClock();
 	liststart = (selected/listmaxshow)*listmaxshow;
 	int lastnum =  liststart + listmaxshow;
-	int bsize = Bouquets.empty() ? 1 : Bouquets.size();
 
 	numwidth = 0;
 	int maxDigitWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getMaxDigitWidth();
@@ -744,9 +743,9 @@ void CBouquetList::paint()
 		}
 	}
 
-	int _listmaxshow = listmaxshow ? listmaxshow : 1; //avoid division by zero
-	int total_pages = ((bsize - 1) / _listmaxshow) + 1;
-	int current_page = selected / _listmaxshow;
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, Bouquets.size(), listmaxshow, selected);
 
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
 }

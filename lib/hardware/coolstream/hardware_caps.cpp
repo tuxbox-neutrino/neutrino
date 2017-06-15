@@ -79,6 +79,7 @@ hw_caps_t *get_hwcaps(void) {
 			strcpy(caps.boxname, "Trinity V2");
 			strcpy(caps.boxarch, "Kronos");
 		}
+		caps.can_set_display_brightness = 0;
 		break;
 	case 12:
 		strcpy(caps.boxname, "Zee2");
@@ -91,6 +92,7 @@ hw_caps_t *get_hwcaps(void) {
 	case 14:
 		strcpy(caps.boxname, "Trinity Duo");
 		strcpy(caps.boxarch, "Kronos");
+		caps.can_set_display_brightness = 0;
 		break;
 	default:
 		strcpy(caps.boxname, "UNKNOWN_BOX");

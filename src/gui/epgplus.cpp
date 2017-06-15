@@ -1429,8 +1429,12 @@ void EpgPlus::paint()
 	this->timeLine->paintGrid();
 
 	// paint slider
-	int total_pages = ((this->channelList->getSize() - 1) / this->maxNumberOfDisplayableEntries) + 1;
-	int current_page = this->selectedChannelEntry == NULL ? 0 : (this->selectedChannelEntry->index / this->maxNumberOfDisplayableEntries);
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page,
+		this->channelList->getSize(),
+		this->maxNumberOfDisplayableEntries,
+		this->selectedChannelEntry == NULL ? 0 : this->selectedChannelEntry->index);
 
 	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page);
 }

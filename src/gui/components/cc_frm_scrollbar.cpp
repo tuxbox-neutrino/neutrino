@@ -220,6 +220,16 @@ void CComponentsScrollBar::initSegments()
 	}
 }
 
+void getScrollBarData(int *total_pages, int *current_page, int total_items, int items_per_page, int selected_item)
+{
+	// avoid divison by zero and fix wrong values
+	total_items	= std::max(total_items, 1);
+	items_per_page	= std::max(items_per_page, 1);
+	selected_item	= std::max(selected_item, 0);
+
+	*total_pages	= ((total_items - 1) / items_per_page) + 1;
+	*current_page	= selected_item / items_per_page;
+}
 
 void paintScrollBar(	const int &x_pos,
 			const int &y_pos,

@@ -229,6 +229,7 @@ int CLuaInstCCText::CCTextGetLines(lua_State *L)
 	}
 	else {
 		CTextBox* ctb = D->ct->getCTextBoxObject();
+		D->ct->initCCText();
 		if (ctb)
 			lines = (lua_Integer)ctb->getLines();
 	}

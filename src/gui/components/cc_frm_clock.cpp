@@ -112,8 +112,9 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 
 CComponentsFrmClock::~CComponentsFrmClock()
 {
-	if (cl_timer)
-		delete cl_timer;
+	if (cl_timer){
+		delete cl_timer; cl_timer = NULL;
+	}
 }
 
 void CComponentsFrmClock::initClockFont(int dx, int dy)

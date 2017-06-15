@@ -900,6 +900,16 @@ int CTextBox::getLines(const std::string& text)
 	return count;
 }
 
+int CTextBox::getLines()
+{
+	if (m_cText.empty())
+		return 0;
+
+	refreshTextLineArray();
+
+	return m_nNrOfLines;
+}
+
 int CTextBox::getMaxLineWidth(const std::string& text, Font* font)
 {
 	std::string txt = text;

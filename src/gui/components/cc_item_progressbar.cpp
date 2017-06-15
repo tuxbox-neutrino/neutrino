@@ -57,10 +57,10 @@ CProgressBar::CProgressBar(	const int x_pos,
 	cc_item_type 	= CC_ITEMTYPE_PROGRESSBAR;
 
 	//CComponents
-	x 		= x_pos;
-	y 		= y_pos;
-	width		= w;
-	height		= h;
+	x 		= x_old 	= x_pos;
+	y 		= y_old 	= y_pos;
+	width		= width_old 	= w;
+	height		= height_old 	= h;
 
 	col_frame 	= color_frame;
 	col_body	= color_body;
@@ -198,6 +198,7 @@ void CProgressBarCache::pbcClear()
 		if ((*it)->pbc_passive)
 			free((*it)->pbc_passive);
 		delete (*it);
+		(*it) = NULL;
 	}
 	pbCache.clear();
 }

@@ -159,46 +159,46 @@ audioplayer.add_ic Icecast
 audioplayer.add_loc Local radio list
 audioplayer.add_sc SHOUTcast
 audioplayer.artist_title Artist, Title
-audioplayer.building_search_index building search index
-audioplayer.button_select_title_by_id search by ID
-audioplayer.button_select_title_by_name search by name
-audioplayer.defdir start dir.
+audioplayer.building_search_index Building search index
+audioplayer.button_select_title_by_id Search by ID
+audioplayer.button_select_title_by_name Search by name
+audioplayer.defdir Start directory
 audioplayer.delete Remove
-audioplayer.deleteall remove all
-audioplayer.display_order display order
-audioplayer.enable_sc_metadata enable SHOUTcast meta data parsing
-audioplayer.fastforward fast forw.
-audioplayer.follow auto select current
+audioplayer.deleteall Remove all
+audioplayer.display_order Display order
+audioplayer.enable_sc_metadata Enable SHOUTcast meta data parsing
+audioplayer.fastforward Fast forward
+audioplayer.follow Auto select current
 audioplayer.head Audio Playlist
 audioplayer.highprio High decode priority
-audioplayer.jump_backwards jump backwards
+audioplayer.jump_backwards Jump backwards
 audioplayer.jump_dialog_hint1 Please enter jump target
 audioplayer.jump_dialog_hint2 (relative, in seconds)
 audioplayer.jump_dialog_title Enter jump target
-audioplayer.jump_forwards jump forwards
-audioplayer.keylevel key level
+audioplayer.jump_forwards Jump forwards
+audioplayer.keylevel Key level
 audioplayer.load_radio_stations Load internet radios
 audioplayer.name Audioplayer
-audioplayer.pause pause
+audioplayer.pause Pause
 audioplayer.play Play
-audioplayer.playing Current Track
+audioplayer.playing Current track
 audioplayer.playlist_fileerror_msg File could not be created:
 audioplayer.playlist_fileoverwrite_msg Do you want to overwrite this file:
 audioplayer.playlist_fileoverwrite_title Overwrite?
-audioplayer.playlist_name filename of the play list
+audioplayer.playlist_name Filename of the play list
 audioplayer.playlist_name_hint1 Please enter the filename of the playlist
 audioplayer.playlist_name_hint2 The extension .m3u will be added automatically
-audioplayer.reading_files reading files
-audioplayer.receiving_list Receiving list, please wait
-audioplayer.repeat_on enable repeat mode
-audioplayer.rewind rewind
-audioplayer.save_playlist save play list
-audioplayer.select_title_by_name search title by name (SMS)
-audioplayer.show_playlist Show Playlist
-audioplayer.shuffle shuffle
-audioplayer.spectrum lcd a-spectrum
+audioplayer.reading_files Reading files
+audioplayer.receiving_list Receiving list, please wait ...
+audioplayer.repeat_on Enable repeat mode
+audioplayer.rewind Rewind
+audioplayer.save_playlist Save play list
+audioplayer.select_title_by_name Search title by name (SMS)
+audioplayer.show_playlist Show playlist
+audioplayer.shuffle Shuffle
+audioplayer.spectrum LCD spectrum
 audioplayer.stop Stop
-audioplayer.title_artist Title, Artist
+audioplayer.title_artist Title, artist
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
 bookmarkmanager.rename rename
@@ -884,9 +884,9 @@ languagesetup.select OSD Language
 lcd_info_line show in infoline
 lcd_info_line_channel Channelname
 lcd_info_line_clock clock
-lcdcontroler.brightness normal Brightness
-lcdcontroler.brightnessdeepstandby DeepStandby Brightness
-lcdcontroler.brightnessstandby Standby Brightness
+lcdcontroler.brightness Normal mode
+lcdcontroler.brightnessdeepstandby Deep standby
+lcdcontroler.brightnessstandby Standby
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD/LED Settings
@@ -2021,14 +2021,14 @@ personalize.usermenu_plugin_types Choose Plugin types to show
 personalize.usermenu_preferred_buttons Assigning of preferred keys
 personalize.usermenu_show_cancel Show "Cancel"-Button
 personalize.visible Visible
-pictureviewer.defdir start dir.
+pictureviewer.defdir Start directory
 pictureviewer.head Picture viewer
 pictureviewer.help1 menu mode
 pictureviewer.help10 reread image
 pictureviewer.help11 previous image
 pictureviewer.help12 next image
-pictureviewer.help13 Zoom out
-pictureviewer.help14 Zoom in
+pictureviewer.help13 zoom out
+pictureviewer.help14 zoom in
 pictureviewer.help15 scroll up
 pictureviewer.help16 scroll left
 pictureviewer.help17 scroll right
@@ -2051,12 +2051,12 @@ pictureviewer.help9 show mode
 pictureviewer.resize.color_average advanced
 pictureviewer.resize.none none
 pictureviewer.resize.simple simple
-pictureviewer.scaling scaling
-pictureviewer.show show
-pictureviewer.slide_time slideshow display time
-pictureviewer.slideshow slideshow
-pictureviewer.sortorder.date change sort order (date)
-pictureviewer.sortorder.filename change sort order (filename)
+pictureviewer.scaling Scaling
+pictureviewer.show Show
+pictureviewer.slide_time Slideshow display time
+pictureviewer.slideshow Slideshow
+pictureviewer.sortorder.date Sort order: Date
+pictureviewer.sortorder.filename Sort order: Filename
 ping.ok is reachable (ping)
 ping.protocol is unreachable (host or protocol error)
 ping.socket is unreachable (socket error)

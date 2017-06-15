@@ -127,12 +127,16 @@ int CVfdSetup::showSetup()
 		vfds->addItem(mf);
 	}
 
-	if (CVFD::getInstance()->has_lcd) {
+	if (g_info.hw_caps->can_set_display_brightness)
+	{
 		//vfd brightness menu
 		mf = new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, this, "brightness", CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_VFD_BRIGHTNESS_SETUP);
 		vfds->addItem(mf);
+	}
 
+	if (CVFD::getInstance()->has_lcd)
+	{
 		if (cs_get_revision() == 9) // Tank only
 		{
 			//backlight menu

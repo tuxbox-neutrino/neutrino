@@ -164,7 +164,7 @@ class CTextBox : public sigc::trackable
 		int text_Hborder_width;
 		int text_Vborder_width;
 		bool m_FontUseDigitHeight;
-		
+
 	public:
 		/* Constructor */
 		CTextBox();
@@ -199,28 +199,30 @@ class CTextBox : public sigc::trackable
 		void	enableUTF8(bool enable = true){m_utf8_encoded = enable;}
 		void	disableUTF8(bool enable = false){enableUTF8(enable);}
 
-		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
-		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
+		bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
+		CBox	getWindowsPos(void)		{return(m_cFrame);};
 
-		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
-		inline  int     getPages(void)			{return(m_nNrOfPages);};
-		inline	int	getBackGroundRadius(void)	{return(m_nBgRadius);};
+		int     getLinesPerPage(void)		{return m_nLinesPerPage;};
+		int     getPages(void)			{return(m_nNrOfPages);};
+		int	getBackGroundRadius(void)	{return(m_nBgRadius);};
 
 		/**
 		* Returns count of lines of a passed text.
 		* @param[in]	text
-		* 	@li 	exepts type std::string
+		* 	@li 	expects type std::string
 		* 	@return	count of lines as int
 		* 	@see	getLines()
 		*/
-		static int 	getLines(const std::string& text);
+		static int getLines(const std::string& text);
 
 		/**
-		* Returns count of evaluated lines from an existent CTextBox instance.
+		* Returns count of calculated lines from an existing CTextBox instance.
 		* 	@return	count of lines as int
 		* 	@see	static version getLines()
+		* 	@note	Real count of lines will be only returned if CTextBox object is initialized with a valid CBox instance, \n
+		* 		otherwise count of 0 lines will be returned!
 		*/
-		int     	getLines(){return(m_nNrOfLines);}
+		int     getLines();
 
 		/**
 		* Returns width of largest line from passed text
