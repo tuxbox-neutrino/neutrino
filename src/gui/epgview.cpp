@@ -199,7 +199,7 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 
 			// check the wordwidth - add to this line if size ok
 			int aktWordWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(aktWord);
-			if ((aktWordWidth+aktWidth)<(ox - 2*OFFSET_INNER_MID - 15 - (has_cover ? ((ox/4)+OFFSET_INNER_MID) : 0)))
+			if ((aktWordWidth+aktWidth)<(ox - 2*OFFSET_INNER_MID - SCROLLBAR_WIDTH - (has_cover ? ((ox/4)+OFFSET_INNER_MID) : 0)))
 			{//space ok, add
 				aktWidth += aktWordWidth;
 				aktLine += aktWord;
@@ -270,12 +270,12 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 		max_wday_w = std::max(max_wday_w, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getWeekday(i))) + " "));
 	}
 	int offs = fullClear ? 0 : cover_offset;
-	frameBuffer->paintBoxRel(sx+offs, y, ox-15-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
+	frameBuffer->paintBoxRel(sx+offs, y, ox-SCROLLBAR_WIDTH-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 
 	if (has_cover) {
 		if (!g_PicViewer->DisplayImage(cover ,sx+OFFSET_INNER_MID ,y+OFFSET_INNER_MID+((sb-cover_height)/2), cover_width, cover_height, CFrameBuffer::TM_NONE)) {
 			cover_offset = 0;
-			frameBuffer->paintBoxRel(sx, y, ox-15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
+			frameBuffer->paintBoxRel(sx, y, ox-SCROLLBAR_WIDTH, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
 	}
 	int logo_offset = 0;
@@ -312,7 +312,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 					offset += digi;
 					break;
 				}
-				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+offset, y+medlineheight, ox- 15- 15, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE_TEXT: COL_MENUCONTENT_TEXT);
+				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+offset, y+medlineheight, ox - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - offset, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE_TEXT: COL_MENUCONTENT_TEXT);
 				count++;
 				pos1 = epgText[i].first.find_first_not_of(tok, pos2);
 				pos2 = epgText[i].first.find_first_of(tok, pos1);
@@ -321,17 +321,14 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			count = 0;
 		}
 		else{
-			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+cover_offset, y+medlineheight, ox-15-15-cover_offset, epgText[i].first, COL_MENUCONTENT_TEXT);
+			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+cover_offset, y+medlineheight, ox - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - cover_offset, epgText[i].first, COL_MENUCONTENT_TEXT);
 		}
 	}
 
-
-	int sbc = ((textSize - 1)/ medlinecount) + 1;
-	int sbs= (startPos+ 1)/ medlinecount;
-	if (sbc < 1)
-		sbc = 1;
-	frameBuffer->paintBoxRel(sx+ ox- 15, ypos, 15, sb,  COL_SCROLLBAR_PLUS_0); // scrollbar bg
-	frameBuffer->paintBoxRel(sx+ ox- 13, ypos+ 2+ sbs*(sb-4)/sbc , 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0); // scrollbar
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, textSize, medlinecount, startPos + 1);
+	paintScrollBar(sx + ox - SCROLLBAR_WIDTH, ypos, SCROLLBAR_WIDTH, sb, total_pages, current_page);
 }
 
 #define GENRE_MOVIE_COUNT 9
