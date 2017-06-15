@@ -753,8 +753,8 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		i_radius = RADIUS_LARGE;
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, fheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, fheight, bgcolor, i_radius);
 
 	if(currpos<evtlist.size())
 	{
@@ -792,9 +792,9 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 			char beginnt[100];
 			snprintf(beginnt, sizeof(beginnt), "%s %d %s", g_Locale->getText(LOCALE_WORD_IN), seit, unit_short_minute);
 			int w = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(beginnt);
-			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x + width - 15 - 2*OFFSET_INNER_MID - fwidth2 - w, ypos + OFFSET_INNER_MIN + fheight2, w, beginnt, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - fwidth2 - w, ypos + OFFSET_INNER_MIN + fheight2, w, beginnt, color);
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x + width - 15 - OFFSET_INNER_MID - fwidth2, ypos + OFFSET_INNER_MIN + fheight2, fwidth2, duration_str, color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - fwidth2, ypos + OFFSET_INNER_MIN + fheight2, fwidth2, duration_str, color);
 		
 		// 2nd line
 		// set status icons
@@ -967,17 +967,10 @@ void CEventList::paint(t_channel_id channel_id)
 	// paint content for right box
 	paintDescription(selected);
 
-	int ypos = y+ theight;
-	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
-
-	int sbc= ((evtlist.size()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
-	if (sbc < 1)
-		sbc = 1;
-
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0);
-
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, evtlist.size(), listmaxshow, selected);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, fheight*listmaxshow, total_pages, current_page);
 }
 
 void CEventList::showFunctionBar(t_channel_id channel_id)
