@@ -61,6 +61,7 @@
 #include <system/debug.h>
 #include <gui/color.h>
 #include "textbox.h"
+#include <gui/components/cc.h>
 #include <gui/widget/icons.h>
 #include <driver/fontrenderer.h>
 #ifdef VISUAL_DEBUG
@@ -525,14 +526,9 @@ void CTextBox::refreshScroll(void)
 
 	if (m_nNrOfPages > 1)
 	{
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
+		paintScrollBar(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
 				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
-				COL_SCROLLBAR_PLUS_0, RADIUS_MIN);
-		unsigned int marker_size = (m_cFrameScrollRel.iHeight - 2*SCROLL_MARKER_BORDER) / m_nNrOfPages;
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + SCROLL_MARKER_BORDER + m_cFrame.iX,
-				m_cFrameScrollRel.iY + SCROLL_MARKER_BORDER + m_nCurrentPage * marker_size + m_cFrame.iY,
-				m_cFrameScrollRel.iWidth - 2*SCROLL_MARKER_BORDER,
-				marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_MIN);
+				m_nNrOfPages, m_nCurrentPage);
 		m_has_scrolled = true;
 	}
 	else
