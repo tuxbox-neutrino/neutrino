@@ -1412,9 +1412,9 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 
 void CEpgData::showProgressBar()
 {
-	int w = 104;
+	int w = ox/10;
 	int x = sx + (ox - w)/2;
-	int h = botboxheight - 12;
+	int h = botboxheight - 2*OFFSET_INNER_SMALL;
 	int y = sy + oy - botboxheight + (botboxheight - h)/2;
 	if (!pb){
 		pb = new CProgressBar(x, y, w, h);
