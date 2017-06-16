@@ -1882,7 +1882,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		color = COL_MENUCONTENTINACTIVE_TEXT;
 
 	if (!firstpaint || i_selected || getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber())
-		  frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, i_radius);
+		  frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, fheight, bgcolor, i_radius);
 
 	if(curr < (*chanlist).size()) {
 		char nameAndDescription[255];
@@ -1936,7 +1936,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		int icon_w = 0;
 		int icon_h = 0;
 		int offset_right = OFFSET_INNER_MID;
-		int icon_x_right = x + width - 15 - offset_right;
+		int icon_x_right = x + width - SCROLLBAR_WIDTH - offset_right;
 
 		if (scramble_icon)
 		{
@@ -2030,7 +2030,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription);
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description);
 
-			int max_desc_len = width - numwidth - prg_offset - ch_name_len - 15 - 3*OFFSET_INNER_MID - offset_right; // 15 = scrollbar
+			int max_desc_len = width - numwidth - prg_offset - ch_name_len - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - offset_right;
 
 			if (max_desc_len < 0)
 				max_desc_len = 0;
@@ -2044,7 +2044,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 					struct tm *pStartZeit = localtime(&p_event->startTime);
 
 					snprintf(tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
-					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 15 - prg_offset - 2*OFFSET_INNER_MID, tmp, ecolor, fheight);
+					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + fheight, width - numwidth - SCROLLBAR_WIDTH - prg_offset - 2*OFFSET_INNER_MID, tmp, ecolor, fheight);
 				}
 				else
 				{
@@ -2061,11 +2061,11 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				}
 			}
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - 15 - prg_offset, nameAndDescription, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - SCROLLBAR_WIDTH - prg_offset, nameAndDescription, color);
 			if (g_settings.channellist_epgtext_align_right)
 			{
 				// align right
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - 15 - offset_right - ch_desc_len, ypos + fheight, ch_desc_len, p_event->description, ecolor);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - SCROLLBAR_WIDTH - offset_right - ch_desc_len, ypos + fheight, ch_desc_len, p_event->description, ecolor);
 			}
 			else
 			{
@@ -2081,7 +2081,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				pb.paint();
 			}
 			//name
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - 15 - prg_offset, nameAndDescription, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - SCROLLBAR_WIDTH - prg_offset, nameAndDescription, color);
 		}
 		if (!firstpaint && curr == selected)
 			updateVfd();
@@ -2213,16 +2213,11 @@ void CChannelList::paintBody()
 	for(unsigned int count = 0; count < listmaxshow; count++)
 		paintItem(count, true);
 
-	const int ypos = y+ theight;
-	const int sb = height - theight - footerHeight; // paint scrollbar over full height of main box
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
-	unsigned int listmaxshow_tmp = listmaxshow ? listmaxshow : 1;//avoid division by zero
-	int sbc= (((*chanlist).size()- 1)/ listmaxshow_tmp)+ 1;
-	const int sbs= (selected/listmaxshow_tmp);
-	if (sbc < 1)
-		sbc = 1;
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, (*chanlist).size(), listmaxshow, selected);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, height - theight - footerHeight, total_pages, current_page);
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0);
 	showChannelLogo();
 	if ((*chanlist).empty())
 		paintButtonBar(false);

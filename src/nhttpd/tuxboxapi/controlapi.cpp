@@ -211,6 +211,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"crypt",		&CControlAPI::CryptCGI,			"text/plain"},
 	// timer
 	{"timer",		&CControlAPI::TimerCGI,			"text/plain"},
+	{"sendalltimers",		&CControlAPI::TimerSendCGI,			"text/plain"},
 	// bouquet editing
 	{"setbouquet",		&CControlAPI::setBouquetCGI,		"text/plain"},
 	{"savebouquet",		&CControlAPI::saveBouquetCGI,		"text/plain"},
@@ -337,7 +338,34 @@ void CControlAPI::TimerCGI(CyhookHandler *hh)
 		hh->SendError();
 }
 
+void CControlAPI::TimerSendCGI(CyhookHandler *hh)
+{
+	hh->outStart();
+
+	if (NeutrinoAPI->Timerd->isTimerdAvailable())
+	{
+		if (!hh->ParamList.empty())
+		{
+			bool force = (hh->ParamList["force"] == "1") || (hh->ParamList["force"] == "true");
+			if(!hh->ParamList["ip"].empty())
+			{
+				NeutrinoAPI->SendAllTimers(hh->ParamList["ip"],force);
+				hh->SendOk();
+			}
+			else if(!hh->ParamList["name"].empty())
+			{
+				NeutrinoAPI->SendAllTimers(NeutrinoAPI->GetRemoteBoxIP(decodeString(hh->ParamList["name"])),force);
+				hh->SendOk();
+			}
+			else
+				hh->SendError();
+		}
+	}
+	else
+		hh->SendError();
+}
 //-----------------------------------------------------------------------------
+
 void CControlAPI::SetModeCGI(CyhookHandler *hh)
 {
 	if (!(hh->ParamList.empty()))

@@ -54,10 +54,9 @@
 #include <stdlib.h>
 #include <gui/color.h>
 #include "listframe.h"
+#include <gui/components/cc.h>
 #include <gui/widget/icons.h>
 #include <driver/fontrenderer.h>
-
-#define	SCROLL_FRAME_WIDTH 10
 
 #define MAX_WINDOW_WIDTH  (frameBuffer->getScreenWidth() - 40)
 #define MAX_WINDOW_HEIGHT (frameBuffer->getScreenHeight() - 40)
@@ -270,9 +269,9 @@ void CListFrame::initFramesRel(void)
 
 	if(m_nMode & SCROLL)
 	{
-		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLL_FRAME_WIDTH;
+		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLLBAR_WIDTH;
 		m_cFrameScrollRel.iY		= m_cFrameTitleRel.iHeight;
-		m_cFrameScrollRel.iWidth	= SCROLL_FRAME_WIDTH;
+		m_cFrameScrollRel.iWidth	= SCROLLBAR_WIDTH;
 		m_cFrameScrollRel.iHeight	= m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight - m_nBgRadius;
 	}
 	else
@@ -384,13 +383,9 @@ void CListFrame::refreshScroll(void)
 
 	if (m_nNrOfPages > 1)
 	{
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, COL_SCROLLBAR_PLUS_0, RADIUS_MIN);
-		unsigned int marker_size = (m_cFrameScrollRel.iHeight - 2*OFFSET_INNER_MIN) / m_nNrOfPages;
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + OFFSET_INNER_MIN+m_cFrame.iX,
-				m_cFrameScrollRel.iY + OFFSET_INNER_MIN + m_nCurrentPage * marker_size +m_cFrame.iY,
-				m_cFrameScrollRel.iWidth - (2*OFFSET_INNER_MIN),
-				marker_size, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_MIN);
+		paintScrollBar(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
+				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
+				m_nNrOfPages, m_nCurrentPage);
 	}
 }
 

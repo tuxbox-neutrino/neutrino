@@ -315,7 +315,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		///hides item, arg: no_restore see hideCCItem()
 		void hide(){disableClock(); CComponentsForm::hide();}
 		///erase current screen without restore of background, it's similar to paintBackgroundBoxRel() from CFrameBuffer
-		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = CC_FBDATA_TYPES, bool disable_clock = true);
+		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = ~CC_FBDATA_TYPES, bool disable_clock = true);
 
 		///set color gradient on/off, returns true if gradient mode was changed
 		virtual bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/, const int& direction = -1);

@@ -729,14 +729,21 @@ void CCDraw::hide()
 //erase or paint over rendered objects
 void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type /*fbdata_type*/)
 {
+	int layers = fblayer_type;
+
+	if (fblayer_type & ~CC_FBDATA_TYPES)
+		layers = CC_FBDATA_TYPES;
+
 	for(size_t i =0; i< v_fbdata.size() ;i++){
-		if (fblayer_type == CC_FBDATA_TYPES || v_fbdata[i].fbdata_type & fblayer_type){
-#if 0
-		if (bg_color != COL_BACKGROUND_PLUS_0)
-#endif
-			int r =  v_fbdata[i].r;
-			if (corner_radius > -1)
-				r = corner_radius;
+		if (v_fbdata[i].fbdata_type & layers){
+
+			int r = 0;
+
+			if (corner_radius > -1){
+				r = v_fbdata[i].r;
+				if (corner_radius != v_fbdata[i].r)
+					r = corner_radius;
+			}
 
 			if (v_fbdata[i].dx > 0 && v_fbdata[i].dy > 0){
 				frameBuffer->paintBoxRel(v_fbdata[i].x,
@@ -745,31 +752,28 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 							v_fbdata[i].dy,
 							bg_color,
 							r,
-							corner_type);
+							v_fbdata[i].rtype);
+
+				if (v_fbdata[i].fbdata_type & CC_FBDATA_TYPE_FRAME){
+					if (v_fbdata[i].frame_thickness)
+							frameBuffer->paintBoxFrame(v_fbdata[i].x,
+										v_fbdata[i].y,
+										v_fbdata[i].dx,
+										v_fbdata[i].dy,
+										v_fbdata[i].frame_thickness,
+										bg_color,
+										v_fbdata[i].r,
+										v_fbdata[i].rtype);
+					}
 			}else
 				dprintf(DEBUG_DEBUG, "\033[33m[CCDraw][%s - %d], WARNING! render with bad dimensions [dx = %d dy = %d]\033[0m\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy );
 
-			if (v_fbdata[i].frame_thickness)
-					frameBuffer->paintBoxFrame(v_fbdata[i].x,
-								   v_fbdata[i].y,
-								   v_fbdata[i].dx,
-								   v_fbdata[i].dy,
-								   v_fbdata[i].frame_thickness,
-								   bg_color,
-								   r,
-								   corner_type);
 			v_fbdata[i].is_painted = false;
-#if 0
-		else
-			frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
-#endif
 		}
 	}
 
-	if (fblayer_type == CC_FBDATA_TYPES){
-		firstPaint = true;
-		is_painted = false;
-	}
+	firstPaint = true;
+	is_painted = false;
 }
 
 void CCDraw::killShadow(const fb_pixel_t& bg_color, const int& corner_radius)

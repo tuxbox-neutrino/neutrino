@@ -67,16 +67,10 @@ void CListBox::paint()
 		paintItem(count);
 	}
 
-	int ypos = y+ theight;
-	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
-
-	int sbc= ((getItemCount()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
-	if (sbc < 1)
-		sbc = 1;
-
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0);
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, getItemCount(), listmaxshow, selected);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, fheight*listmaxshow, total_pages, current_page);
 }
 
 void CListBox::paintHead()
@@ -109,8 +103,9 @@ void CListBox::hide()
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+ButtonHeight);
 }
 
-unsigned int	CListBox::getItemCount()
+unsigned int CListBox::getItemCount()
 {
+	// WTF? Why a fixed value?
 	return 10;
 }
 
@@ -128,8 +123,8 @@ void CListBox::paintItem(unsigned int /*itemNr*/, int paintNr, bool pselected)
 
 	getItemColors(color, bgcolor, pselected);
 
-	frameBuffer->paintBoxRel(x,ypos, width- 15, getItemHeight(), bgcolor);
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 10, ypos+ fheight, width-20, "demo", color);
+	frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, getItemHeight(), bgcolor);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID, ypos + fheight, width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID, "demo", color);
 }
 
 void CListBox::updateSelection(unsigned int newpos)

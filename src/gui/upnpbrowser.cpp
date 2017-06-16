@@ -966,8 +966,8 @@ void CUpnpBrowserGui::paintDevice(unsigned int _pos)
 	}
 
 	if (i_radius)
-		m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_item_height, COL_MENUCONTENT_PLUS_0);
-	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_item_height, bgcolor, i_radius);
+		m_frameBuffer->paintBoxRel(m_x, ypos, m_width - SCROLLBAR_WIDTH, m_item_height, COL_MENUCONTENT_PLUS_0);
+	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - SCROLLBAR_WIDTH, m_item_height, bgcolor, i_radius);
 
 	if (pos >= m_devices.size())
 		return;
@@ -976,8 +976,8 @@ void CUpnpBrowserGui::paintDevice(unsigned int _pos)
 	std::string name = m_devices[pos].friendlyname;
 
 	int w = g_Font[font_item]->getRenderWidth(name);
-	g_Font[font_item]->RenderString(m_x + OFFSET_INNER_MID, ypos + m_item_height, m_width - 15 - OFFSET_INNER_MID - w, num, color, m_item_height);
-	g_Font[font_item]->RenderString(m_x + m_width - 15 - OFFSET_INNER_MID - w, ypos + m_item_height, w, name, color, m_item_height);
+	g_Font[font_item]->RenderString(m_x + OFFSET_INNER_MID, ypos + m_item_height, m_width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, num, color, m_item_height);
+	g_Font[font_item]->RenderString(m_x + m_width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, ypos + m_item_height, w, name, color, m_item_height);
 }
 
 void CUpnpBrowserGui::paintDevices()
@@ -999,18 +999,14 @@ void CUpnpBrowserGui::paintDevices()
 	for (unsigned int count=0; count<m_listmaxshow; count++)
 		paintDevice(count);
 
-	int sb = m_item_height * m_listmaxshow;
-	m_frameBuffer->paintBoxRel(m_x + m_width - 15, m_item_y, 15, sb, COL_SCROLLBAR_PLUS_0);
-	unsigned int tmp_max = m_listmaxshow;
-	if(!tmp_max)
-		tmp_max = 1;
-	int sbc = ((m_devices.size() - 1) / tmp_max) + 1;
-	int sbs = ((m_selecteddevice) / tmp_max);
-
-	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0);
+	// scrollbar
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, m_devices.size(), m_listmaxshow, m_selecteddevice);
+	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page);
 
 	//shadow
-	m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + OFFSET_SHADOW, OFFSET_SHADOW, sb, COL_SHADOW_PLUS_0);
+	m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + OFFSET_SHADOW, OFFSET_SHADOW, m_item_height*m_listmaxshow, COL_SHADOW_PLUS_0);
 
 	// Foot
 	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
@@ -1035,8 +1031,8 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entries, unsigned int po
 		i_radius = RADIUS_LARGE;
 
 	if (i_radius)
-		m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_item_height, COL_MENUCONTENT_PLUS_0);
-	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_item_height, bgcolor, i_radius);
+		m_frameBuffer->paintBoxRel(m_x, ypos, m_width - SCROLLBAR_WIDTH, m_item_height, COL_MENUCONTENT_PLUS_0);
+	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - SCROLLBAR_WIDTH, m_item_height, bgcolor, i_radius);
 
 	if (pos >= (*entries).size())
 		return;
@@ -1088,8 +1084,8 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entries, unsigned int po
 		icon_o = icon_w + OFFSET_INNER_MID;
 		m_frameBuffer->paintIcon(fileicon, m_x + OFFSET_INNER_MID, ypos + (m_item_height - icon_h)/2);
 	}
-	g_Font[font_item]->RenderString(m_x + OFFSET_INNER_MID + icon_o, ypos + m_item_height, m_width - 15 - OFFSET_INNER_MID - w, name, color, m_item_height);
-	g_Font[font_item]->RenderString(m_x + m_width - 15 - OFFSET_INNER_MID - w, ypos + m_item_height, w, info, color, m_item_height);
+	g_Font[font_item]->RenderString(m_x + OFFSET_INNER_MID + icon_o, ypos + m_item_height, m_width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, name, color, m_item_height);
+	g_Font[font_item]->RenderString(m_x + m_width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, ypos + m_item_height, w, info, color, m_item_height);
 }
 
 void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
@@ -1178,16 +1174,11 @@ void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int sel
 	for (unsigned int count=0; count<m_listmaxshow; count++)
 		paintItem(entry, count, selected);
 
-	int sb = m_item_height * m_listmaxshow;
-	m_frameBuffer->paintBoxRel(m_x + m_width - 15, m_item_y, 15, sb, COL_SCROLLBAR_PLUS_0);
-	unsigned int tmp = m_listmaxshow ? m_listmaxshow : 1;//avoid division by zero
-	int sbc = ((max + offset - 1) / tmp) + 1;
-	int sbs = ((selected + offset) / tmp);
-
-	int sbh = 0;
-	if ((sbc > 0) && (sbc > sb-4))
-		sbh = 2;
-	m_frameBuffer->paintBoxRel(m_x + m_width - 13, m_item_y + 2 + sbs*((sb-4)/sbc+sbh), 11, (sb-4)/sbc + sbh, COL_SCROLLBAR_ACTIVE_PLUS_0);
+	//scrollbar
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, max + offset, m_listmaxshow, selected + offset);
+	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page);
 
 	// Foot buttons
 	size_t numbuttons = sizeof(BrowseButtons)/sizeof(BrowseButtons[0]);

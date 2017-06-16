@@ -129,8 +129,8 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 	}
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, iheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, iheight, bgcolor, i_radius);
 
 	if(itemNr < getItemCount())
 	{
@@ -141,9 +141,9 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 2*OFFSET_INNER_MID + 2*iconoffset, ypos + iheight - (iheight-fheight)/2, width - 3*OFFSET_INNER_MID - 2*iconoffset, Channels[itemNr]->getName(), color);
 		if(Channels[itemNr]->scrambled)
-			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x + width - 15 - OFFSET_INNER_MID - iconoffset, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - iconoffset, ypos, fheight);
 		else if (!Channels[itemNr]->getUrl().empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x + width - 15 - OFFSET_INNER_MID - iconoffset, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - iconoffset, ypos, fheight);
 	}
 }
 

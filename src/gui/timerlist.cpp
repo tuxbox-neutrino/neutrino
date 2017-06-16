@@ -1135,7 +1135,7 @@ void CTimerList::paintItem(int pos)
 	int real_width=width;
 	if (timerlist.size() > listmaxshow)
 	{
-		real_width-=15; //scrollbar
+		real_width -= SCROLLBAR_WIDTH; //scrollbar
 	}
 
 	unsigned int currpos = liststart + pos;
@@ -1426,15 +1426,10 @@ void CTimerList::paint()
 
 	if (timerlist.size()>listmaxshow)
 	{
-		int ypos = y+ theight;
-		int sb = 2*fheight* listmaxshow;
-		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb, COL_SCROLLBAR_PLUS_0);
-		unsigned int tmp_max = listmaxshow;
-		if (!tmp_max)
-			tmp_max = 1;
-		int sbc = ((timerlist.size()- 1)/ tmp_max)+ 1;
-
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ page_nr * (sb-4)/sbc, 11, (sb-4)/sbc, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_SMALL);
+		int total_pages;
+		int current_page;
+		getScrollBarData(&total_pages, &current_page, timerlist.size(), listmaxshow, selected);
+		paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, 2*fheight*listmaxshow, total_pages, current_page);
 	}
 
 	paintFoot();

@@ -121,8 +121,8 @@ void CBEChannelWidget::paintItem(int pos)
 	}
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x, ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos, width- 15, iheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, iheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, iheight, bgcolor, i_radius);
 
 	if ((current == selected) && (state == beMoving)) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID, ypos, iheight);
@@ -131,13 +131,12 @@ void CBEChannelWidget::paintItem(int pos)
 		if ((*Channels)[current]->bLocked) {
 			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_MID + iconoffset, ypos, iheight);
 		}
-		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, (*Channels)[current]->getName(), color);
 		//FIXME numwidth ? we not show chan numbers
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 2*OFFSET_INNER_MID + 2*iconoffset, ypos + iheight - (iheight-fheight)/2, width - 3*OFFSET_INNER_MID - 2*iconoffset, (*Channels)[current]->getName(), color);
 		if((*Channels)[current]->scrambled)
-			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x + width - 15 - OFFSET_INNER_MID - iconoffset, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - iconoffset, ypos, fheight);
 		else if (!(*Channels)[current]->getUrl().empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x + width - 15 - OFFSET_INNER_MID - iconoffset, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - iconoffset, ypos, fheight);
 	}
 }
 
@@ -159,19 +158,10 @@ void CBEChannelWidget::paint()
 		paintItem(count);
 	}
 
-	int ypos = y+ theight;
-	int sb = iheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
-
-	int sbc= ((Channels->size()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
-	if (sbc < 1)
-		sbc = 1;
-	int sbh= (sb- 4)/ sbc;
-
-	if (sbh == 0)
-		return;
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * sbh, 11, sbh, COL_SCROLLBAR_ACTIVE_PLUS_0);
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, Channels->size(), listmaxshow, selected);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, iheight*listmaxshow, total_pages, current_page);
 }
 
 void CBEChannelWidget::paintHead()
