@@ -258,7 +258,7 @@ void CComponentsHeader::initIcon()
 
 		//set corner mode of icon item
 		int cc_icon_corner_type = CORNER_LEFT;
-		if (corner_type == CORNER_TOP_LEFT || corner_type == CORNER_TOP)
+		if (corner_type & CORNER_TOP_LEFT || corner_type & CORNER_TOP)
 			cc_icon_corner_type = CORNER_TOP_LEFT;
 
 		cch_icon_obj->setCorner(corner_rad-fr_thickness, cc_icon_corner_type);
