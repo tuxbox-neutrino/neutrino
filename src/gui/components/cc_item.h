@@ -100,7 +100,7 @@ class CComponentsItem : public CComponents
 		 * 	gui/color.h
 		 * 	driver/framebuffer.h
 		*/
-		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false, const int& fblayer_type = CC_FBDATA_TYPES);
+		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false, const int& fblayer_type = ~CC_FBDATA_TYPES);
 
 		///get the current item type, see attribute cc_item_type above
 		virtual int getItemType();
