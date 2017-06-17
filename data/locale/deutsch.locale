@@ -160,8 +160,8 @@ audioplayer.add_loc Lokale Radioliste
 audioplayer.add_sc SHOUTcast
 audioplayer.artist_title Interpret, Titel
 audioplayer.building_search_index Erstelle Suchindex
-audioplayer.button_select_title_by_id Suche n. ID
-audioplayer.button_select_title_by_name Suche n. Name
+audioplayer.button_select_title_by_id Suche nach ID
+audioplayer.button_select_title_by_name Suche nach Name
 audioplayer.defdir Start-Verzeichnis
 audioplayer.delete Entfernen
 audioplayer.deleteall Alle entfernen
