@@ -1703,104 +1703,52 @@ int CMenuOptionNumberChooser::getWidth(void)
 	return width;
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options,
-		const bool Active, CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval * const Options, const size_t Number_Of_Options,
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= "";
-	name		= OptionName;
-	optionValue	= OptionValue;
-	number_of_options = Number_Of_Options;
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
-	for (unsigned int i = 0; i < number_of_options; i++)
-	{
-		struct keyval_ext opt;
-		opt = Options[i];
-		options.push_back(opt);
-	}
+	init("", OptionName, OptionValue, Options, NULL, NULL, Number_Of_Options, Observ, Pulldown, OptionsSort);
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const std::string &OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options,
-		const bool Active, CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const std::string &OptionName, int * const OptionValue, const struct keyval * const Options, const size_t Number_Of_Options,
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= OptionName;
-	name		= NONEXISTANT_LOCALE;
-	optionValue	= OptionValue;
-	number_of_options = Number_Of_Options;
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
-	for (unsigned int i = 0; i < number_of_options; i++)
-	{
-		struct keyval_ext opt;
-		opt = Options[i];
-		options.push_back(opt);
-	}
+	init(OptionName, NONEXISTANT_LOCALE, OptionValue, Options, NULL, NULL, Number_Of_Options, Observ, Pulldown, OptionsSort);
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval_ext * const Options,
-		const unsigned Number_Of_Options, const bool Active, CChangeObserver * const Observ,
-		const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval_ext * const Options, const size_t Number_Of_Options, 
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= "";
-	name		= OptionName;
-	optionValue	= OptionValue;
-	number_of_options = Number_Of_Options;
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
-	for (unsigned int i = 0; i < number_of_options; i++)
-		options.push_back(Options[i]);
+	init("", OptionName, OptionValue, NULL, Options,  NULL, Number_Of_Options, Observ, Pulldown, OptionsSort);
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const std::string &OptionName, int * const OptionValue, const struct keyval_ext * const Options,
-		const unsigned Number_Of_Options, const bool Active, CChangeObserver * const Observ,
-		const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const std::string &OptionName, int * const OptionValue, const struct keyval_ext * const Options, const size_t Number_Of_Options,
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= OptionName;
-	name		= NONEXISTANT_LOCALE;
-	optionValue	= OptionValue;
-	number_of_options = Number_Of_Options;
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
-	for (unsigned int i = 0; i < number_of_options; i++)
-		options.push_back(Options[i]);
+	init(OptionName, NONEXISTANT_LOCALE, OptionValue, NULL, Options, NULL, Number_Of_Options, Observ, Pulldown, OptionsSort);
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, std::vector<keyval_ext> &Options,
-		const bool Active, CChangeObserver * const Observ,
-		const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const neutrino_locale_t OptionName, int * const OptionValue, std::vector<keyval_ext> &Options,
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= "";
-	name		= OptionName;
-	optionValue	= OptionValue;
-	options		= Options;
-	number_of_options = options.size();
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
+	init("", OptionName, OptionValue, NULL, NULL, &Options, Options.size(), Observ, Pulldown, OptionsSort);
 }
 
 CMenuOptionChooser::CMenuOptionChooser(const std::string &OptionName, int * const OptionValue, std::vector<keyval_ext> &Options,
 				       const bool Active, CChangeObserver * const Observ,
 				       const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= OptionName;
-	name		= NONEXISTANT_LOCALE;
-	optionValue	= OptionValue;
-	options		= Options;
-	number_of_options = options.size();
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
+	init(OptionName, NONEXISTANT_LOCALE, OptionValue, NULL, NULL, &Options, Options.size(), Observ, Pulldown, OptionsSort);
 }
 
 CMenuOptionChooser::~CMenuOptionChooser()
@@ -1808,26 +1756,48 @@ CMenuOptionChooser::~CMenuOptionChooser()
 	clearChooserOptions();
 }
 
-void CMenuOptionChooser::initVarOptionChooser(  const std::string &OptionName,
-		const neutrino_locale_t Name,
-		int * const OptionValue,
-		const bool Active,
-		CChangeObserver * const Observ,
-		neutrino_msg_t DirectKey,
-		const char * IconName,
-		bool Pulldown,
-		bool OptionsSort)
+void CMenuOptionChooser::init(  const std::string &OptionName,
+				const neutrino_locale_t Name,
+				int * const OptionValue,
+				const struct keyval * const Options,
+				const struct keyval_ext * const OptionsExt,
+				std::vector<keyval_ext> * v_Options,
+				const size_t Number_Of_Options,
+				CChangeObserver * const Observ,
+				bool Pulldown,
+				bool OptionsSort)
 {
 	height                  = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	nameString              = OptionName;
 	name                    = Name;
 	optionValue             = OptionValue;
-	active                  = Active;
+	number_of_options 	= Number_Of_Options;
 	observ                  = Observ;
-	directKey               = DirectKey;
-	iconName                = IconName;
 	pulldown                = Pulldown;
 	optionsSort             = OptionsSort;
+
+	if (Options || OptionsExt)
+	{
+		if (Options)
+		{
+			for (unsigned int i = 0; i < number_of_options; i++)
+			{
+				struct keyval_ext opt;
+				opt = Options[i];
+				options.push_back(opt);
+			}
+		}
+
+		if (OptionsExt)
+		{
+			for (unsigned int i = 0; i < number_of_options; i++)
+				options.push_back(OptionsExt[i]);
+		}
+	}
+	else{
+		if (v_Options)
+			options = *v_Options;
+	}
 }
 
 void CMenuOptionChooser::clearChooserOptions()
