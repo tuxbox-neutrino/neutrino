@@ -2231,18 +2231,20 @@ int CMenuForwarder::paint(bool selected)
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
 {
-	type		= Type;
-	name		= Text;
-	nameString	= "";
+	init(Type, Text, "");
 }
 
 CMenuSeparator::CMenuSeparator(const int Type, const std::string &Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
 {
-	type		= Type;
-	name		= NONEXISTANT_LOCALE;
-	nameString	= Text;
+	init(Type, NONEXISTANT_LOCALE, Text);
 }
 
+void CMenuSeparator::init(const int& Type, const neutrino_locale_t& lText, const std::string &sText)
+{
+	type		= Type;
+	name		= lText;
+	nameString	= sText;
+}
 
 int CMenuSeparator::getHeight(void)
 {

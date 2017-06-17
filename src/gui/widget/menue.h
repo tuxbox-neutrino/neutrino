@@ -202,6 +202,9 @@ class CMenuItem : public  CComponentsSignals
 class CMenuSeparator : public CMenuItem
 {
 		int type;
+		void init(	const int& Type,
+				const neutrino_locale_t& lText,
+				const std::string& sText);
 
 	public:
 
