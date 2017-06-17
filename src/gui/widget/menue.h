@@ -453,6 +453,11 @@ class CMenuOptionStringChooser : public CMenuItem
 		std::vector<std::string> options;
 		CChangeObserver *	observ;
 		bool			pulldown;
+		void init(      const std::string &OptionName,
+				const neutrino_locale_t Name,
+				std::string* pOptionValue,
+				CChangeObserver * const Observ,
+				bool Pulldown );
 
 	public:
 		CMenuOptionStringChooser(const neutrino_locale_t Name, std::string* OptionValue, bool Active = false,

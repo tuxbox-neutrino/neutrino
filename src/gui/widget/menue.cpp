@@ -2000,24 +2000,29 @@ int CMenuOptionChooser::getWidth(void)
 
 //-------------------------------------------------------------------------------------------------------------------------------
 
-CMenuOptionStringChooser::CMenuOptionStringChooser(const neutrino_locale_t OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ,
-	const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown)
-	: CMenuItem(Active, DirectKey, IconName)
+CMenuOptionStringChooser::CMenuOptionStringChooser(	const neutrino_locale_t OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ,
+							const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown)
+								: CMenuItem(Active, DirectKey, IconName)
 {
-	nameString	= "";
-	name		= OptionName;
-	optionValuePtr	= OptionValue ? OptionValue : &optionValue;
-	observ		= Observ;
-	pulldown	= Pulldown;
+	init("", OptionName, OptionValue, Observ, Pulldown);
 }
 
-CMenuOptionStringChooser::CMenuOptionStringChooser(const std::string &OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ,
-	const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown)
-	: CMenuItem(Active, DirectKey, IconName)
+CMenuOptionStringChooser::CMenuOptionStringChooser(	const std::string &OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ,
+							const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown)
+								: CMenuItem(Active, DirectKey, IconName)
+{
+	init(OptionName, NONEXISTANT_LOCALE, OptionValue, Observ, Pulldown);
+}
+
+void CMenuOptionStringChooser::init(	const std::string &OptionName,
+					const neutrino_locale_t Name,
+					std::string* pOptionValue,
+					CChangeObserver * const Observ,
+					bool Pulldown)
 {
 	nameString	= OptionName;
-	name		= NONEXISTANT_LOCALE;
-	optionValuePtr	= OptionValue ? OptionValue : &optionValue;
+	name		= Name;
+	optionValuePtr	= pOptionValue ? pOptionValue : &optionValue;
 	observ		= Observ;
 	pulldown	= Pulldown;
 }
