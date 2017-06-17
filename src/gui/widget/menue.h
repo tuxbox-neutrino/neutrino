@@ -231,6 +231,12 @@ class CMenuSeparator : public CMenuItem
 class CMenuForwarder : public CMenuItem
 {
 	std::string		actionKey;
+	void init(	const std::string &OptionName,
+			const neutrino_locale_t Name,
+			const std::string &sOption,
+			const char * const cOption,
+			CMenuTarget* Target,
+			const char * const ActionKey);
 
  protected:
 	std::string	 	option_string;

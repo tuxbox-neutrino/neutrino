@@ -2127,48 +2127,52 @@ int CMenuOptionStringChooser::paint( bool selected )
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey,
-	neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-	: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
+CMenuForwarder::CMenuForwarder(	const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey,
+					neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+					: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
 {
-	option_string_ptr = &Option;
-	name = Text;
-	nameString = "";
-	jumpTarget = Target;
-	actionKey = ActionKey ? ActionKey : "";
+	init("", Text, Option, NULL, Target, ActionKey);
 }
 
-CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey,
-	neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-	: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
+CMenuForwarder::CMenuForwarder(	const std::string& Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey,
+					neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+					: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
 {
-	option_string_ptr = &Option;
-	name = NONEXISTANT_LOCALE;
+	init(Text, NONEXISTANT_LOCALE, Option, NULL, Target, ActionKey);
+}
+
+CMenuForwarder::CMenuForwarder(	const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey,
+					neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+					: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
+{
+	init("", Text, "", Option, Target, ActionKey);
+}
+
+CMenuForwarder::CMenuForwarder(	const std::string& Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey,
+					neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+					: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
+{
+	init(Text, NONEXISTANT_LOCALE, "", Option, Target, ActionKey);
+}
+
+void CMenuForwarder::init(	const std::string &Text,
+				const neutrino_locale_t Name,
+				const std::string &sOption,
+				const char * const cOption,
+				CMenuTarget* Target,
+				const char * const ActionKey)
+{
 	nameString = Text;
-	jumpTarget = Target;
-	actionKey = ActionKey ? ActionKey : "";
-}
+	name = Name;
 
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey,
-	neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-	: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
-{
-	option_string = Option ? Option : "";
-	option_string_ptr = &option_string;
-	name = Text;
-	nameString = "";
-	jumpTarget = Target;
-	actionKey = ActionKey ? ActionKey : "";
-}
+	if (sOption.empty())
+	{
+		option_string = cOption ? cOption : "";
+		option_string_ptr = &option_string;
+	}
+	else
+		option_string_ptr = &sOption;
 
-CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey,
-	neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-	: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
-{
-	option_string = Option ? Option : "";
-	option_string_ptr = &option_string;
-	name = NONEXISTANT_LOCALE;
-	nameString = Text;
 	jumpTarget = Target;
 	actionKey = ActionKey ? ActionKey : "";
 }
