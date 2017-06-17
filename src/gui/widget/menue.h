@@ -325,6 +325,17 @@ private:
 	std::string		numberFormat;
 	std::string		(*numberFormatFunction)(int num);
 
+	void			init(	const neutrino_locale_t& lName,
+					const std::string &sName,
+					int* const Option_Value,
+					const int& min_value,
+					const int& max_value,
+					const int& print_offset,
+					const int& special_value,
+					const neutrino_locale_t& special_value_name,
+					CChangeObserver * const Observ,
+					bool sliderOn);
+
  public:
 	CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active,
 				 const int min_value, const int max_value, CChangeObserver * const Observ = NULL,

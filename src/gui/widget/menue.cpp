@@ -1525,61 +1525,50 @@ void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const in
 
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t Name, int * const OptionValue, const bool Active,
-	const int min_value, const int max_value,
-	CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName,
-	const int print_offset, const int special_value, const neutrino_locale_t special_value_name, bool sliderOn)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionNumberChooser::CMenuOptionNumberChooser(	const neutrino_locale_t Name, int * const OptionValue, const bool Active,
+							const int min_value, const int max_value,
+							CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName,
+							const int print_offset, const int special_value, const neutrino_locale_t special_value_name, bool sliderOn)
+								: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	name		= Name;
-	optionValue	= OptionValue;
-
-	lower_bound	= min_value;
-	upper_bound	= max_value;
-
-	display_offset	= print_offset;
-
-	localized_value	= special_value;
-	localized_value_name = special_value_name;
-	
-	display_offset	= print_offset;
-	nameString	= "";
-	numberFormat	= "%d";
-	numberFormatFunction = NULL;
-	observ		= Observ;
-	slider_on	= sliderOn;
-
-	numeric_input	= false;
-
-	directKeyOK	= false;
+	init(Name, "", OptionValue, min_value, max_value, print_offset, special_value, special_value_name, Observ, sliderOn);
 }
 
-CMenuOptionNumberChooser::CMenuOptionNumberChooser(const std::string &Name, int * const OptionValue, const bool Active,
-	const int min_value, const int max_value,
-	CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName,
-	const int print_offset, const int special_value, const neutrino_locale_t special_value_name, bool sliderOn)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionNumberChooser::CMenuOptionNumberChooser(	const std::string &Name, int * const OptionValue, const bool Active,
+							const int min_value, const int max_value,
+							CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName,
+							const int print_offset, const int special_value, const neutrino_locale_t special_value_name, bool sliderOn)
+								: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	name		= NONEXISTANT_LOCALE;
-	optionValue	= OptionValue;
+	init(NONEXISTANT_LOCALE, Name, OptionValue, min_value, max_value, print_offset, special_value, special_value_name, Observ, sliderOn);
+}
 
-	lower_bound	= min_value;
-	upper_bound	= max_value;
+void CMenuOptionNumberChooser::init(	const neutrino_locale_t& lName,
+					const std::string &sName,
+					int* const Option_Value,
+					const int& min_value,
+					const int& max_value,
+					const int& print_offset,
+					const int& special_value,
+					const neutrino_locale_t& special_value_name,
+					CChangeObserver * const Observ,
+					bool sliderOn)
+{
+	name			= lName;
+	nameString		= sName;
+	optionValue		= Option_Value;
+	lower_bound		= min_value;
+	upper_bound		= max_value;
+	display_offset		= print_offset;
+	localized_value		= special_value;
+	localized_value_name 	= special_value_name;
+	observ			= Observ;
+	slider_on		= sliderOn;
 
-	display_offset	= print_offset;
-
-	localized_value	= special_value;
-	localized_value_name = special_value_name;
-	
-	nameString	= Name;
-	numberFormat	= "%d";
-	numberFormatFunction = NULL;
-	observ = Observ;
-	slider_on = sliderOn;
-
-	numeric_input	= false;
-
-	directKeyOK	= false;
+	numberFormat		= "%d";
+	numberFormatFunction 	= NULL;
+	directKeyOK		= false;
+	numeric_input		= false;
 }
 
 int CMenuOptionNumberChooser::exec(CMenuTarget*)
