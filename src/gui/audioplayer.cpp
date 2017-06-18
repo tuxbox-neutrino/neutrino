@@ -1577,9 +1577,12 @@ void CAudioPlayerGui::paintItem(int pos)
 		std::string tmp = sNr;
 		getFileInfoToDisplay(tmp, m_playlist[currpos]);
 
-		char dura[9];
+		char dura[9] = {0};
 		if (m_inetmode)
-			snprintf(dura, 8, "%ldk", m_playlist[currpos].MetaData.total_time);
+		{
+			if (m_playlist[currpos].MetaData.total_time != 0)
+				snprintf(dura, 8, "%ldk", m_playlist[currpos].MetaData.total_time);
+		}
 		else
 			snprintf(dura, 8, "%ld:%02ld", m_playlist[currpos].MetaData.total_time / 60, m_playlist[currpos].MetaData.total_time % 60);
 
@@ -2070,7 +2073,7 @@ void CAudioPlayerGui::updateMetaData()
 			paintCover();
 	}
 	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
-	updateLcd = true;
+		updateLcd = true;
 
 	//printf("CAudioPlayerGui::updateMetaData: updateLcd %d\n", updateLcd);
 	if (updateLcd)
