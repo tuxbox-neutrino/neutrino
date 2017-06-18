@@ -1730,13 +1730,13 @@ void CAudioPlayerGui::paintTitleBox()
 		else if (g_settings.audioplayer_display == TITLE_ARTIST)
 		{
 			tmp = m_curr_audiofile.MetaData.title;
-			tmp += " / ";
+			tmp += " - ";
 			tmp += m_curr_audiofile.MetaData.artist;
 		}
 		else //if (g_settings.audioplayer_display == ARTIST_TITLE)
 		{
 			tmp = m_curr_audiofile.MetaData.artist;
-			tmp += " / ";
+			tmp += " - ";
 			tmp += m_curr_audiofile.MetaData.title;
 		}
 		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
