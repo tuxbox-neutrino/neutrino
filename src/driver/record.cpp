@@ -1943,7 +1943,7 @@ void CStreamRec::FillMovieInfo(CZapitChannel * /*channel*/, APIDList & /*apid_li
 
 	for (unsigned i = 0; i < ofcx->nb_streams; i++) {
 		AVStream *st = ofcx->streams[i];
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
 		AVCodecContext * codec = st->codec;
 #else
 		AVCodecParameters * codec = st->codecpar;
@@ -2176,7 +2176,7 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	stream_index = -1;
 	int stid = 0x200;
 	for (unsigned i = 0; i < ifcx->nb_streams; i++) {
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
 		AVCodecContext * iccx = ifcx->streams[i]->codec;
 		AVStream *ost = avformat_new_stream(ofcx, iccx->codec);
 		avcodec_copy_context(ost->codec, iccx);
@@ -2232,7 +2232,7 @@ void CStreamRec::run()
 			break;
 		if (pkt.stream_index < 0)
 			continue;
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
 		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
 #else
 		AVCodecParameters *codec = ifcx->streams[pkt.stream_index]->codecpar;
