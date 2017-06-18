@@ -1524,61 +1524,50 @@ void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const in
 
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t Name, int * const OptionValue, const bool Active,
-	const int min_value, const int max_value,
-	CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName,
-	const int print_offset, const int special_value, const neutrino_locale_t special_value_name, bool sliderOn)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionNumberChooser::CMenuOptionNumberChooser(	const neutrino_locale_t Name, int * const OptionValue, const bool Active,
+							const int min_value, const int max_value,
+							CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName,
+							const int print_offset, const int special_value, const neutrino_locale_t special_value_name, bool sliderOn)
+								: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	name		= Name;
-	optionValue	= OptionValue;
-
-	lower_bound	= min_value;
-	upper_bound	= max_value;
-
-	display_offset	= print_offset;
-
-	localized_value	= special_value;
-	localized_value_name = special_value_name;
-	
-	display_offset	= print_offset;
-	nameString	= "";
-	numberFormat	= "%d";
-	numberFormatFunction = NULL;
-	observ		= Observ;
-	slider_on	= sliderOn;
-
-	numeric_input	= false;
-
-	directKeyOK	= false;
+	init(Name, "", OptionValue, min_value, max_value, print_offset, special_value, special_value_name, Observ, sliderOn);
 }
 
-CMenuOptionNumberChooser::CMenuOptionNumberChooser(const std::string &Name, int * const OptionValue, const bool Active,
-	const int min_value, const int max_value,
-	CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName,
-	const int print_offset, const int special_value, const neutrino_locale_t special_value_name, bool sliderOn)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionNumberChooser::CMenuOptionNumberChooser(	const std::string &Name, int * const OptionValue, const bool Active,
+							const int min_value, const int max_value,
+							CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName,
+							const int print_offset, const int special_value, const neutrino_locale_t special_value_name, bool sliderOn)
+								: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	name		= NONEXISTANT_LOCALE;
-	optionValue	= OptionValue;
+	init(NONEXISTANT_LOCALE, Name, OptionValue, min_value, max_value, print_offset, special_value, special_value_name, Observ, sliderOn);
+}
 
-	lower_bound	= min_value;
-	upper_bound	= max_value;
+void CMenuOptionNumberChooser::init(	const neutrino_locale_t& lName,
+					const std::string &sName,
+					int* const Option_Value,
+					const int& min_value,
+					const int& max_value,
+					const int& print_offset,
+					const int& special_value,
+					const neutrino_locale_t& special_value_name,
+					CChangeObserver * const Observ,
+					bool sliderOn)
+{
+	name			= lName;
+	nameString		= sName;
+	optionValue		= Option_Value;
+	lower_bound		= min_value;
+	upper_bound		= max_value;
+	display_offset		= print_offset;
+	localized_value		= special_value;
+	localized_value_name 	= special_value_name;
+	observ			= Observ;
+	slider_on		= sliderOn;
 
-	display_offset	= print_offset;
-
-	localized_value	= special_value;
-	localized_value_name = special_value_name;
-	
-	nameString	= Name;
-	numberFormat	= "%d";
-	numberFormatFunction = NULL;
-	observ = Observ;
-	slider_on = sliderOn;
-
-	numeric_input	= false;
-
-	directKeyOK	= false;
+	numberFormat		= "%d";
+	numberFormatFunction 	= NULL;
+	directKeyOK		= false;
+	numeric_input		= false;
 }
 
 int CMenuOptionNumberChooser::exec(CMenuTarget*)
@@ -1702,104 +1691,52 @@ int CMenuOptionNumberChooser::getWidth(void)
 	return width;
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options,
-		const bool Active, CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval * const Options, const size_t Number_Of_Options,
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= "";
-	name		= OptionName;
-	optionValue	= OptionValue;
-	number_of_options = Number_Of_Options;
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
-	for (unsigned int i = 0; i < number_of_options; i++)
-	{
-		struct keyval_ext opt;
-		opt = Options[i];
-		options.push_back(opt);
-	}
+	init("", OptionName, OptionValue, Options, NULL, NULL, Number_Of_Options, Observ, Pulldown, OptionsSort);
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const std::string &OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options,
-		const bool Active, CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const std::string &OptionName, int * const OptionValue, const struct keyval * const Options, const size_t Number_Of_Options,
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= OptionName;
-	name		= NONEXISTANT_LOCALE;
-	optionValue	= OptionValue;
-	number_of_options = Number_Of_Options;
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
-	for (unsigned int i = 0; i < number_of_options; i++)
-	{
-		struct keyval_ext opt;
-		opt = Options[i];
-		options.push_back(opt);
-	}
+	init(OptionName, NONEXISTANT_LOCALE, OptionValue, Options, NULL, NULL, Number_Of_Options, Observ, Pulldown, OptionsSort);
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval_ext * const Options,
-		const unsigned Number_Of_Options, const bool Active, CChangeObserver * const Observ,
-		const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval_ext * const Options, const size_t Number_Of_Options, 
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= "";
-	name		= OptionName;
-	optionValue	= OptionValue;
-	number_of_options = Number_Of_Options;
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
-	for (unsigned int i = 0; i < number_of_options; i++)
-		options.push_back(Options[i]);
+	init("", OptionName, OptionValue, NULL, Options,  NULL, Number_Of_Options, Observ, Pulldown, OptionsSort);
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const std::string &OptionName, int * const OptionValue, const struct keyval_ext * const Options,
-		const unsigned Number_Of_Options, const bool Active, CChangeObserver * const Observ,
-		const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const std::string &OptionName, int * const OptionValue, const struct keyval_ext * const Options, const size_t Number_Of_Options,
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= OptionName;
-	name		= NONEXISTANT_LOCALE;
-	optionValue	= OptionValue;
-	number_of_options = Number_Of_Options;
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
-	for (unsigned int i = 0; i < number_of_options; i++)
-		options.push_back(Options[i]);
+	init(OptionName, NONEXISTANT_LOCALE, OptionValue, NULL, Options, NULL, Number_Of_Options, Observ, Pulldown, OptionsSort);
 }
 
-CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, std::vector<keyval_ext> &Options,
-		const bool Active, CChangeObserver * const Observ,
-		const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+CMenuOptionChooser::CMenuOptionChooser(	const neutrino_locale_t OptionName, int * const OptionValue, std::vector<keyval_ext> &Options,
+					const bool Active, CChangeObserver * const Observ,
+					const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= "";
-	name		= OptionName;
-	optionValue	= OptionValue;
-	options		= Options;
-	number_of_options = options.size();
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
+	init("", OptionName, OptionValue, NULL, NULL, &Options, Options.size(), Observ, Pulldown, OptionsSort);
 }
 
 CMenuOptionChooser::CMenuOptionChooser(const std::string &OptionName, int * const OptionValue, std::vector<keyval_ext> &Options,
 				       const bool Active, CChangeObserver * const Observ,
 				       const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown, bool OptionsSort)
-	: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
+						: CAbstractMenuOptionChooser(Active, DirectKey, IconName)
 {
-	nameString	= OptionName;
-	name		= NONEXISTANT_LOCALE;
-	optionValue	= OptionValue;
-	options		= Options;
-	number_of_options = options.size();
-	observ		= Observ;
-	pulldown	= Pulldown;
-	optionsSort	= OptionsSort;
+	init(OptionName, NONEXISTANT_LOCALE, OptionValue, NULL, NULL, &Options, Options.size(), Observ, Pulldown, OptionsSort);
 }
 
 CMenuOptionChooser::~CMenuOptionChooser()
@@ -1807,26 +1744,48 @@ CMenuOptionChooser::~CMenuOptionChooser()
 	clearChooserOptions();
 }
 
-void CMenuOptionChooser::initVarOptionChooser(  const std::string &OptionName,
-		const neutrino_locale_t Name,
-		int * const OptionValue,
-		const bool Active,
-		CChangeObserver * const Observ,
-		neutrino_msg_t DirectKey,
-		const char * IconName,
-		bool Pulldown,
-		bool OptionsSort)
+void CMenuOptionChooser::init(  const std::string &OptionName,
+				const neutrino_locale_t Name,
+				int * const OptionValue,
+				const struct keyval * const Options,
+				const struct keyval_ext * const OptionsExt,
+				std::vector<keyval_ext> * v_Options,
+				const size_t Number_Of_Options,
+				CChangeObserver * const Observ,
+				bool Pulldown,
+				bool OptionsSort)
 {
 	height                  = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	nameString              = OptionName;
 	name                    = Name;
 	optionValue             = OptionValue;
-	active                  = Active;
+	number_of_options 	= Number_Of_Options;
 	observ                  = Observ;
-	directKey               = DirectKey;
-	iconName                = IconName;
 	pulldown                = Pulldown;
 	optionsSort             = OptionsSort;
+
+	if (Options || OptionsExt)
+	{
+		if (Options)
+		{
+			for (unsigned int i = 0; i < number_of_options; i++)
+			{
+				struct keyval_ext opt;
+				opt = Options[i];
+				options.push_back(opt);
+			}
+		}
+
+		if (OptionsExt)
+		{
+			for (unsigned int i = 0; i < number_of_options; i++)
+				options.push_back(OptionsExt[i]);
+		}
+	}
+	else{
+		if (v_Options)
+			options = *v_Options;
+	}
 }
 
 void CMenuOptionChooser::clearChooserOptions()
@@ -2029,24 +1988,29 @@ int CMenuOptionChooser::getWidth(void)
 
 //-------------------------------------------------------------------------------------------------------------------------------
 
-CMenuOptionStringChooser::CMenuOptionStringChooser(const neutrino_locale_t OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ,
-	const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown)
-	: CMenuItem(Active, DirectKey, IconName)
+CMenuOptionStringChooser::CMenuOptionStringChooser(	const neutrino_locale_t OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ,
+							const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown)
+								: CMenuItem(Active, DirectKey, IconName)
 {
-	nameString	= "";
-	name		= OptionName;
-	optionValuePtr	= OptionValue ? OptionValue : &optionValue;
-	observ		= Observ;
-	pulldown	= Pulldown;
+	init("", OptionName, OptionValue, Observ, Pulldown);
 }
 
-CMenuOptionStringChooser::CMenuOptionStringChooser(const std::string &OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ,
-	const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown)
-	: CMenuItem(Active, DirectKey, IconName)
+CMenuOptionStringChooser::CMenuOptionStringChooser(	const std::string &OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ,
+							const neutrino_msg_t DirectKey, const char * const IconName, bool Pulldown)
+								: CMenuItem(Active, DirectKey, IconName)
+{
+	init(OptionName, NONEXISTANT_LOCALE, OptionValue, Observ, Pulldown);
+}
+
+void CMenuOptionStringChooser::init(	const std::string &OptionName,
+					const neutrino_locale_t Name,
+					std::string* pOptionValue,
+					CChangeObserver * const Observ,
+					bool Pulldown)
 {
 	nameString	= OptionName;
-	name		= NONEXISTANT_LOCALE;
-	optionValuePtr	= OptionValue ? OptionValue : &optionValue;
+	name		= Name;
+	optionValuePtr	= pOptionValue ? pOptionValue : &optionValue;
 	observ		= Observ;
 	pulldown	= Pulldown;
 }
@@ -2151,48 +2115,52 @@ int CMenuOptionStringChooser::paint( bool selected )
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey,
-	neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-	: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
+CMenuForwarder::CMenuForwarder(	const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey,
+					neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+					: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
 {
-	option_string_ptr = &Option;
-	name = Text;
-	nameString = "";
-	jumpTarget = Target;
-	actionKey = ActionKey ? ActionKey : "";
+	init("", Text, Option, NULL, Target, ActionKey);
 }
 
-CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey,
-	neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-	: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
+CMenuForwarder::CMenuForwarder(	const std::string& Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey,
+					neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+					: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
 {
-	option_string_ptr = &Option;
-	name = NONEXISTANT_LOCALE;
+	init(Text, NONEXISTANT_LOCALE, Option, NULL, Target, ActionKey);
+}
+
+CMenuForwarder::CMenuForwarder(	const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey,
+					neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+					: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
+{
+	init("", Text, "", Option, Target, ActionKey);
+}
+
+CMenuForwarder::CMenuForwarder(	const std::string& Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey,
+					neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+					: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
+{
+	init(Text, NONEXISTANT_LOCALE, "", Option, Target, ActionKey);
+}
+
+void CMenuForwarder::init(	const std::string &Text,
+				const neutrino_locale_t Name,
+				const std::string &sOption,
+				const char * const cOption,
+				CMenuTarget* Target,
+				const char * const ActionKey)
+{
 	nameString = Text;
-	jumpTarget = Target;
-	actionKey = ActionKey ? ActionKey : "";
-}
+	name = Name;
 
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey,
-	neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-	: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
-{
-	option_string = Option ? Option : "";
-	option_string_ptr = &option_string;
-	name = Text;
-	nameString = "";
-	jumpTarget = Target;
-	actionKey = ActionKey ? ActionKey : "";
-}
+	if (sOption.empty())
+	{
+		option_string = cOption ? cOption : "";
+		option_string_ptr = &option_string;
+	}
+	else
+		option_string_ptr = &sOption;
 
-CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey,
-	neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-	: CMenuItem(Active, DirectKey, IconName, IconName_Info_right, IsStatic)
-{
-	option_string = Option ? Option : "";
-	option_string_ptr = &option_string;
-	name = NONEXISTANT_LOCALE;
-	nameString = Text;
 	jumpTarget = Target;
 	actionKey = ActionKey ? ActionKey : "";
 }
@@ -2262,18 +2230,20 @@ int CMenuForwarder::paint(bool selected)
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
 {
-	type		= Type;
-	name		= Text;
-	nameString	= "";
+	init(Type, Text, "");
 }
 
 CMenuSeparator::CMenuSeparator(const int Type, const std::string &Text, bool IsStatic) : CMenuItem(false, CRCInput::RC_nokey, NULL, NULL, IsStatic)
 {
-	type		= Type;
-	name		= NONEXISTANT_LOCALE;
-	nameString	= Text;
+	init(Type, NONEXISTANT_LOCALE, Text);
 }
 
+void CMenuSeparator::init(const int& Type, const neutrino_locale_t& lText, const std::string &sText)
+{
+	type		= Type;
+	name		= lText;
+	nameString	= sText;
+}
 
 int CMenuSeparator::getHeight(void)
 {

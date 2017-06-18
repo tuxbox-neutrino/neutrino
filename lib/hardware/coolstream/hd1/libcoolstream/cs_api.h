@@ -82,7 +82,7 @@ int cs_get_tsp_config(unsigned int port, tsrouter_tsp_config_t *tsp_config);
 unsigned long long cs_get_serial(void);
 unsigned int cs_get_revision(void);
 /* Dummy function for compatibility with hd2 */
-//unsigned int cs_get_chip_type(void);
+unsigned int cs_get_chip_type(void);
 
 
 // library version functions
