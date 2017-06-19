@@ -942,7 +942,7 @@ void CUpnpBrowserGui::paintDeviceInfo()
 
 	topbox.setDimensionsAll(m_x, m_y, m_width, m_topbox_height);
 	topbox.setCorner(RADIUS_LARGE);
-	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
+	topbox.setText(tmp, CTextBox::AUTO_WIDTH | CTextBox::CENTER);
 	topbox.paint0();
 }
 
@@ -1144,7 +1144,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	}
 
 	topbox.setCorner(RADIUS_LARGE);
-	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
+	topbox.setText(tmp, CTextBox::AUTO_WIDTH | CTextBox::CENTER);
 	topbox.paint0();
 }
 
