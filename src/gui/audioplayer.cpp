@@ -297,8 +297,8 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_info_height = 2*OFFSET_INNER_SMALL + 2*g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
 	m_button_height = ::paintButtons(AudioPlayerButtons[0], 4, 0, 0, 0, 0, 0, false, NULL, NULL);
 
-	m_listmaxshow = (m_height - m_title_height - OFFSET_INTER - m_header_height - 2*m_button_height - OFFSET_INTER - m_info_height) / (m_item_height);
-	m_height = m_title_height + OFFSET_INTER + m_header_height + m_listmaxshow*m_item_height + 2*m_button_height + OFFSET_INTER + m_info_height; // recalc height
+	m_listmaxshow = (m_height - m_title_height - OFFSET_SHADOW - OFFSET_INTER - m_header_height - 2*m_button_height - OFFSET_SHADOW - OFFSET_INTER - m_info_height - OFFSET_SHADOW) / (m_item_height);
+	m_height = m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + m_listmaxshow*m_item_height + 2*m_button_height + OFFSET_SHADOW + OFFSET_INTER + m_info_height + OFFSET_SHADOW; // recalc height
 
 	m_x = getScreenStartX(m_width);
 	if (m_x < DETAILSLINE_WIDTH)
@@ -1547,7 +1547,7 @@ void CAudioPlayerGui::paintItem(int pos)
 	if (!m_show_playlist)
 		return;
 
-	int ypos = m_y + m_title_height + OFFSET_INTER + m_header_height + pos*m_item_height;
+	int ypos = m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + pos*m_item_height;
 	unsigned int currpos = m_liststart + pos;
 
 	bool i_selected	= currpos == m_selected;
@@ -1602,7 +1602,8 @@ void CAudioPlayerGui::paintHead()
 	if (!m_show_playlist || m_screensaver)
 		return;
 
-	CComponentsHeaderLocalized header(m_x, m_y + m_title_height + OFFSET_INTER, m_width, m_header_height, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_AUDIO);
+	CComponentsHeaderLocalized header(m_x, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER, m_width, m_header_height, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_AUDIO);
+	header.enableShadow( CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	header.setCorner(RADIUS_MID, CORNER_TOP);
 
 	if (m_inetmode)
@@ -1628,7 +1629,10 @@ void CAudioPlayerGui::paintFoot()
 		{ NEUTRINO_ICON_BUTTON_INFO,	LOCALE_PICTUREVIEWER_HEAD	}
 	};
 
-	int button_y = m_y + m_height - m_info_height - OFFSET_INTER - 2*m_button_height;
+	int button_y = m_y + m_height - OFFSET_SHADOW - m_info_height - OFFSET_INTER - OFFSET_SHADOW - 2*m_button_height;
+
+	// shadow
+	m_frameBuffer->paintBoxRel(m_x + OFFSET_SHADOW, button_y + OFFSET_SHADOW, m_width, 2*m_button_height, COL_SHADOW_PLUS_0, RADIUS_MID, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
 
 	m_frameBuffer->paintBoxRel(m_x, button_y, m_width, 2*m_button_height, COL_MENUFOOT_PLUS_0, RADIUS_MID, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
 
@@ -1696,6 +1700,9 @@ void CAudioPlayerGui::paintTitleBox()
 		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_title_height);
 	else
 	{
+		// shadow
+		m_frameBuffer->paintBoxRel(m_x + OFFSET_SHADOW, m_y + OFFSET_SHADOW, m_width, m_title_height, COL_SHADOW_PLUS_0, RADIUS_MID);
+
 		m_frameBuffer->paintBoxRel(m_x, m_y, m_width, m_title_height, COL_MENUHEAD_PLUS_0, RADIUS_MID);
 		m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height, OFFSET_INNER_MIN, COL_FRAME_PLUS_0, RADIUS_MID);
 
@@ -1770,12 +1777,15 @@ void CAudioPlayerGui::paint()
 		for (unsigned int count=0; count<m_listmaxshow; count++)
 			paintItem(count);
 
-		//scrollbar
+		// scrollbar
 		int total_pages;
 		int current_page;
 		getScrollBarData(&total_pages, &current_page, m_playlist.size(), m_listmaxshow, m_selected);
 
-		paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_y + m_title_height + OFFSET_INTER + m_header_height, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page);
+		paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page);
+
+		// shadow
+		m_frameBuffer->paintBoxRel(m_x + m_width, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + OFFSET_SHADOW, OFFSET_SHADOW, m_item_height*m_listmaxshow, COL_SHADOW_PLUS_0);
 	}
 
 	paintTitleBox();
@@ -1791,8 +1801,8 @@ void CAudioPlayerGui::clearDetailsLine()
 void CAudioPlayerGui::paintDetailsLine(int pos)
 {
 	int xpos = m_x - DETAILSLINE_WIDTH;
-	int ypos1 = m_y + m_title_height + OFFSET_INTER + m_header_height + pos*m_item_height;
-	int ypos2 = m_y + (m_height - m_info_height);
+	int ypos1 = m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + pos*m_item_height;
+	int ypos2 = m_y + (m_height - OFFSET_SHADOW - m_info_height);
 	int ypos1a = ypos1 + (m_item_height / 2);
 	int ypos2a = ypos2 + (m_info_height / 2);
 
@@ -1819,6 +1829,7 @@ void CAudioPlayerGui::paintDetailsLine(int pos)
 			m_infobox->setCorner(RADIUS_LARGE);
 			m_infobox->setColorFrame(COL_FRAME_PLUS_0);
 			m_infobox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+			m_infobox->enableShadow(CC_SHADOW_ON, -1, true);
 			m_infobox->forceTextPaint(false);
 		}
 
