@@ -1537,7 +1537,7 @@ void CAudioPlayerGui::hide()
 	if (m_visible)
 	{
 		clearDetailsLine();
-		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_height);
+		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width + OFFSET_SHADOW, m_height + OFFSET_SHADOW);
 		m_visible = false;
 	}
 }
