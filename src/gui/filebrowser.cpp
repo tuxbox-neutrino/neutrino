@@ -277,10 +277,10 @@ void CFileBrowser::fontInit()
 	smskey_width = fnt_foot->getRenderWidth("M") + OFFSET_INNER_MID;
 
 	liststart = 0;
-	listmaxshow = std::max(1,(int)(height - header_height - footer_height)/item_height);
+	listmaxshow = std::max(1,(int)(height - header_height - footer_height - OFFSET_SHADOW)/item_height);
 
 	//recalc height
-	height = header_height + listmaxshow * item_height + footer_height;
+	height = header_height + listmaxshow*item_height + footer_height + OFFSET_SHADOW;
 	y = getScreenStartY(height);
 }
 
@@ -1172,7 +1172,7 @@ void CFileBrowser::addRecursiveDir(CFileList * re_filelist, std::string rpath, b
 
 void CFileBrowser::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 }
 
 void CFileBrowser::paintItem(unsigned int pos)
@@ -1356,6 +1356,7 @@ void CFileBrowser::paintHead()
 		i++;
 
 	CComponentsHeader header(x, y, width, header_height, &l_name[i]);
+	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	free(l_name);
@@ -1435,12 +1436,16 @@ int CFileBrowser::paintFoot(bool show)
 			return paintButtons(buttons_filelistmode, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
 	}
 
+	int footer_y = y + height - OFFSET_SHADOW - footer_height;
 	int footer_width = width - smskey_width;
+
+	// shadow
+	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, footer_y + OFFSET_SHADOW, width, footer_height, COL_SHADOW_PLUS_0, RADIUS_MID, CORNER_BOTTOM);
 
 	if (filelist.empty())
 	{
 		// show an empty footer
-		frameBuffer->paintBoxRel(x, y + height - footer_height, width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+		frameBuffer->paintBoxRel(x, footer_y, width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 		return footer_height;
 	}
 
@@ -1449,9 +1454,9 @@ int CFileBrowser::paintFoot(bool show)
 	   CComponentsFooter can't handle button_label_ext
 	*/
 	if (playlistmode)
-		res = paintButtons(buttons_playlistmode, cnt, x, y + height - footer_height, width, footer_height, footer_width);
+		res = paintButtons(buttons_playlistmode, cnt, x, footer_y, width, footer_height, footer_width);
 	else
-		res = paintButtons(buttons_filelistmode, cnt, x, y + height - footer_height, width, footer_height, footer_width);
+		res = paintButtons(buttons_filelistmode, cnt, x, footer_y, width, footer_height, footer_width);
 
 	paintSMSKey();
 	return res;
@@ -1460,16 +1465,17 @@ int CFileBrowser::paintFoot(bool show)
 void CFileBrowser::paintSMSKey()
 {
 	int smskey_height = fnt_foot->getHeight();
+	int smskey_y = y + height - OFFSET_SHADOW - footer_height;
 
 	//background
-	frameBuffer->paintBoxRel(x + width - smskey_width, y + height - footer_height, smskey_width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM_RIGHT);
+	frameBuffer->paintBoxRel(x + width - smskey_width, smskey_y, smskey_width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM_RIGHT);
 
 	if(m_SMSKeyInput.getOldKey()!=0)
 	{
 		char cKey[2] = {m_SMSKeyInput.getOldKey(), 0};
 		cKey[0] = toupper(cKey[0]);
 		int len = fnt_foot->getRenderWidth(cKey);
-		fnt_foot->RenderString(x + width - smskey_width, y + height - footer_height + footer_height/2 + smskey_height/2, len, cKey, COL_MENUHEAD_TEXT);
+		fnt_foot->RenderString(x + width - smskey_width, smskey_y + footer_height/2 + smskey_height/2, len, cKey, COL_MENUHEAD_TEXT);
 	}
 }
 
@@ -1488,6 +1494,9 @@ void CFileBrowser::paint()
 	getScrollBarData(&total_pages, &current_page, filelist.size(), listmaxshow, selected);
 
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
+
+	// shadow
+	frameBuffer->paintBoxRel(x + width, y + header_height + OFFSET_SHADOW, OFFSET_SHADOW, item_height*listmaxshow, COL_SHADOW_PLUS_0);
 }
 
 void CFileBrowser::SMSInput(const neutrino_msg_t msg)
