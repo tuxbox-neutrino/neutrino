@@ -1782,10 +1782,7 @@ void CAudioPlayerGui::paint()
 		int current_page;
 		getScrollBarData(&total_pages, &current_page, m_playlist.size(), m_listmaxshow, m_selected);
 
-		paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page);
-
-		// shadow
-		m_frameBuffer->paintBoxRel(m_x + m_width, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + OFFSET_SHADOW, OFFSET_SHADOW, m_item_height*m_listmaxshow, COL_SHADOW_PLUS_0);
+		paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 	}
 
 	paintTitleBox();

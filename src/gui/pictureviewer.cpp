@@ -758,11 +758,7 @@ void CPictureViewerGui::paint()
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, playlist.size(), listmaxshow, selected);
-
-	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
-
-	// shadow
-	frameBuffer->paintBoxRel(x + width, y + header_height + OFFSET_SHADOW, OFFSET_SHADOW, item_height*listmaxshow, COL_SHADOW_PLUS_0);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 
 	paintFoot();
 	paintInfo();
