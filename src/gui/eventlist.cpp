@@ -110,18 +110,17 @@ CEventList::CEventList()
 	m_search_fsk = 1;
 	full_width = width = 0;
 	height = 0;
-	
 	x = y = 0;
 	
-	cc_infozone = NULL;
+	infozone = NULL;
 	infozone_text = "";
 	item_event_ID = 0;
 	oldIndex = -1;
 	oldEventID = -1;
-	bgRightBoxPaint = false;
+	infozone_background = false;
 	header = NULL;
 	pb = NULL;
-	Bottombox = NULL;
+	navibar = NULL;
 }
 
 CEventList::~CEventList()
@@ -134,8 +133,8 @@ void CEventList::ResetModules()
 	if (header){
 		delete header; header = NULL;
 	}
-	if (Bottombox){
-		delete Bottombox; Bottombox = NULL;
+	if (navibar){
+		delete navibar; navibar = NULL;
 	}
 	if (pb){
 		delete pb; pb = NULL;
@@ -318,38 +317,33 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 		width = full_width;
 	height = frameBuffer->getScreenHeightRel();
 
-	// Calculate iheight (we assume the red button is the largest one?)
-	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, LOCALE_EVENTLISTBAR_RECORDEVENT } };
-	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
-
-	// Calculate theight
-	theight = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
+	// Calculate header_height
+	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	footer_height = header_height;
 	const int pic_h = 39;
-	theight = std::max(theight, pic_h);
+	header_height = std::max(header_height, pic_h);
 
-	fheight1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->getHeight();
+	largefont_height = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->getHeight();
 	{
 		int h1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getHeight();
 		int h2 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getHeight();
-		fheight2 = std::max( h1, h2 );
+		smallfont_height = std::max(h1, h2);
 	}
 	unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
-	fheight = fheight1 + fheight2 + OFFSET_INNER_MIN;
-	fwidth1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth("DDD, :,  ") + 4 * g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getMaxDigitWidth();
-	//fwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth("[ ] ") + 3 * g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getMaxDigitWidth() + g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(unit_short_minute);
+	item_height = smallfont_height + OFFSET_INNER_MIN + largefont_height;
 
-	botboxheight = fheight1+2*OFFSET_INNER_MIN;
+	navibar_height = largefont_height+2*OFFSET_INNER_MIN;
 
-	listmaxshow = (height-theight-iheight-botboxheight-0)/fheight;
-	height = theight+iheight+botboxheight+0+listmaxshow*fheight; // recalc height
+	listmaxshow = (height - header_height - footer_height - OFFSET_SHADOW - navibar_height)/item_height;
+	height = header_height + footer_height + OFFSET_SHADOW + navibar_height + listmaxshow*item_height; // recalc height
 	y = getScreenStartY(height);
 
 	// calculate width of right info_zone
 	infozone_width = full_width - width;
 
 	// init right info_zone
-	if ((g_settings.eventlist_additional) && (cc_infozone == NULL))
-		cc_infozone = new CComponentsText(x+width+OFFSET_INNER_MID, y+theight, infozone_width-2*OFFSET_INNER_MID, listmaxshow*fheight);
+	if ((g_settings.eventlist_additional) && (infozone == NULL))
+		infozone = new CComponentsText(x+width+OFFSET_INNER_MID, y + header_height, infozone_width-2*OFFSET_INNER_MID, listmaxshow*item_height);
 
 	int res = menu_return::RETURN_REPAINT;
 	//printf("CEventList::exec: channel_id %llx\n", channel_id);
@@ -381,7 +375,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	bool dont_hide = false;
 	paintHead(channel_id, channelname, channelname_prev, channelname_next);
 	paint(channel_id);
-	showFunctionBar(channel_id);
+	paintFoot(channel_id);
 
 	int oldselected = selected;
 
@@ -428,7 +422,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			else
 				paintItem(selected - liststart, channel_id);
 
-			showFunctionBar(channel_id);
+			paintFoot(channel_id);
 		}
 		//sort
 		else if (!showfollow && (msg == (neutrino_msg_t)g_settings.key_channelList_sort))
@@ -486,7 +480,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					timerlist.clear();
 					g_Timerd->getTimerList (timerlist);
 					paint(evtlist[selected].channelID);
-					showFunctionBar(evtlist[selected].channelID);
+					paintFoot(evtlist[selected].channelID);
 					continue;
 				}
 				std::string recDir = g_settings.network_nfs_recordingdir;
@@ -541,7 +535,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);
 				paint(used_id);
-				showFunctionBar(used_id);
+				paintFoot(used_id);
 			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_channelList_addremind )//add/remove zapto timer event
@@ -553,7 +547,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);
 				paint(evtlist[selected].channelID);
-				showFunctionBar(evtlist[selected].channelID);
+				paintFoot(evtlist[selected].channelID);
 				continue;
 			}
 			
@@ -565,7 +559,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			timerlist.clear();
 			g_Timerd->getTimerList (timerlist);
 			paint(evtlist[selected].channelID );
-			showFunctionBar(evtlist[selected].channelID );
+			paintFoot(evtlist[selected].channelID );
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel)
@@ -576,7 +570,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				paintHead(channel_id, channelname);
 				readEvents(epg_id);
 				paint(channel_id);
-				showFunctionBar(channel_id);
+				paintFoot(channel_id);
 			} else {
 				selected = oldselected;
 				if(fader.StartFadeOut()) {
@@ -595,7 +589,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			t_channel_id _channel_id = channel_id;
 			getChannelNames(_channel_id, current_channel_name, prev_channel_name, next_channel_name, msg);
 			if(_channel_id){
-				bgRightBoxPaint = false;
+				infozone_background = false;
 				loop = false;
 				dont_hide = true;
 				exec(_channel_id, current_channel_name, prev_channel_name, next_channel_name);
@@ -613,9 +607,9 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			paintHead(channel_id, channelname);
 			oldIndex = -1;
 			oldEventID = -1;
-			bgRightBoxPaint = false;
+			infozone_background = false;
 			paint(channel_id);
-			showFunctionBar(channel_id);
+			paintFoot(channel_id);
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
 		else if (msg == CRCInput::RC_epg)
@@ -656,9 +650,9 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					paintHead(channel_id, in_search ? search_head_name : channelname);
 					oldIndex = -1;
 					oldEventID = -1;
-					bgRightBoxPaint = false;
+					infozone_background = false;
 					paint(channel_id);
-					showFunctionBar(channel_id);
+					paintFoot(channel_id);
 					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 				}
 			}
@@ -667,7 +661,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 		{
 			oldIndex = -1;
 			oldEventID = -1;
-			bgRightBoxPaint = false;
+			infozone_background = false;
 			in_search = findEvents(channel_id, channelname);
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
@@ -691,12 +685,12 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 		}
 	}
 
-	if (cc_infozone)
-		delete cc_infozone;
-	cc_infozone = NULL;
+	if (infozone)
+		delete infozone;
+	infozone = NULL;
 	oldIndex = -1;
 	oldEventID = -1;
-	bgRightBoxPaint = false;
+	infozone_background = false;
 
 	if(!dont_hide){
 		hide();
@@ -708,7 +702,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 void CEventList::hide()
 {
 	ResetModules();
-	frameBuffer->paintBackgroundBoxRel(x,y, full_width,height);
+	frameBuffer->paintBackgroundBoxRel(x, y, full_width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 }
 
 CTimerd::CTimerEventTypes CEventList::isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID)
@@ -737,7 +731,7 @@ CTimerd::CTimerEventTypes CEventList::isScheduled(t_channel_id channel_id, CChan
 
 void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 {
-	int ypos = y+ theight + pos*fheight;
+	int ypos = y + header_height + pos*item_height;
 	unsigned int currpos = liststart + pos;
 
 	bool i_selected	= currpos == selected;
@@ -753,27 +747,27 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		i_radius = RADIUS_LARGE;
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, fheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, fheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, bgcolor, i_radius);
 
 	if(currpos<evtlist.size())
 	{
-		std::string datetime1_str, datetime2_str, duration_str;
+		std::string datetime_str, duration_str;
 		if ( evtlist[currpos].eventID != 0 )
 		{
 			char tmpstr[256];
 			struct tm *tmStartZeit = localtime(&evtlist[currpos].startTime);
 
-			datetime1_str = g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
-			datetime1_str += strftime(", %H:%M", tmStartZeit);
-			datetime1_str += strftime(", %d", tmStartZeit);
-			datetime1_str += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
+			datetime_str = g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
+			datetime_str += strftime(", %H:%M", tmStartZeit);
+			datetime_str += strftime(", %d", tmStartZeit);
+			datetime_str += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
 
 			if ( m_showChannel ) // show the channel if we made a event search only (which could be made through all channels ).
 			{
 				t_channel_id channel = evtlist[currpos].channelID;
-				datetime1_str += "      ";
-				datetime1_str += CServiceManager::getInstance()->GetServiceName(channel);
+				datetime_str += "      ";
+				datetime_str += CServiceManager::getInstance()->GetServiceName(channel);
 			}
 
 			snprintf(tmpstr,sizeof(tmpstr), "[%d %s]", evtlist[currpos].duration / 60, unit_short_minute);
@@ -781,10 +775,10 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		}
 
 		// 1st line
-		int fwidth1a=g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth(datetime1_str);
-		fwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(duration_str);
+		int datetime_width = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth(datetime_str);
+		int duration_width = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(duration_str);
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->RenderString(x + OFFSET_INNER_SMALL, ypos + OFFSET_INNER_MIN + fheight2, fwidth1a, datetime1_str, color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->RenderString(x + OFFSET_INNER_SMALL, ypos + OFFSET_INNER_MIN + smallfont_height, datetime_width, datetime_str, color);
 
 		int seit = ( evtlist[currpos].startTime - time(NULL) ) / 60;
 		if ( (seit> 0) && (seit<100) && (!duration_str.empty()) )
@@ -792,9 +786,9 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 			char beginnt[100];
 			snprintf(beginnt, sizeof(beginnt), "%s %d %s", g_Locale->getText(LOCALE_WORD_IN), seit, unit_short_minute);
 			int w = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(beginnt);
-			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - fwidth2 - w, ypos + OFFSET_INNER_MIN + fheight2, w, beginnt, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - duration_width - w, ypos + OFFSET_INNER_MIN + smallfont_height, w, beginnt, color);
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - fwidth2, ypos + OFFSET_INNER_MIN + fheight2, fwidth2, duration_str, color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - duration_width, ypos + OFFSET_INNER_MIN + smallfont_height, duration_width, duration_str, color);
 		
 		// 2nd line
 		// set status icons
@@ -811,7 +805,7 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		int iw = 0, ih = 0;
 		if(icontype != 0) {
 			frameBuffer->getIconSize(icontype, &iw, &ih);
-			frameBuffer->paintIcon(icontype, x + OFFSET_INNER_MID, ypos + OFFSET_INNER_MIN + fheight2, fheight1);
+			frameBuffer->paintIcon(icontype, x + OFFSET_INNER_MID, ypos + OFFSET_INNER_MIN + smallfont_height, largefont_height);
 			iw += OFFSET_INNER_MID;
 		}
 		
@@ -824,15 +818,14 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		{	
 			//paint_warning = true;
 			frameBuffer->getIconSize(NEUTRINO_ICON_IMPORTANT, &i2w, &i2h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_IMPORTANT, x + iw + OFFSET_INNER_MID, ypos + OFFSET_INNER_MIN + fheight2, fheight1);
+			frameBuffer->paintIcon(NEUTRINO_ICON_IMPORTANT, x + iw + OFFSET_INNER_MID, ypos + OFFSET_INNER_MIN + smallfont_height, largefont_height);
 			iw += i2w + OFFSET_INNER_MID;
 		}
 		
 		// paint 2nd line text
-		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x + iw + OFFSET_INNER_MID, ypos + fheight, width - iw - 2*OFFSET_INNER_MID, evtlist[currpos].description, color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x + iw + OFFSET_INNER_MID, ypos + item_height, width - iw - 2*OFFSET_INNER_MID, evtlist[currpos].description, color);
 
-		if (i_radius)
-			showProgressBar(currpos);
+		showProgressBar(currpos);
 	}
 }
 
@@ -858,6 +851,13 @@ void CEventList::paintDescription(int index)
 	else
 		CEitManager::getInstance()->getActualEPGServiceKey(evtlist[index].channelID, &epgData );
 
+	infozone_text = "";
+	if (!epgData.info1.empty() && !epgData.info2.empty() && (epgData.info2.find(epgData.info1) != 0)) {
+		infozone_text += epgData.info1;
+		infozone_text += "\n";
+		infozone_text += epgData.info2;
+	}
+	else
 	if(!epgData.info2.empty()){
 		infozone_text = epgData.info2;
 	}
@@ -867,11 +867,12 @@ void CEventList::paintDescription(int index)
 	else
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
-	cc_infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT]);
-	cc_infozone->doPaintBg(false);
-	cc_infozone->doPaintTextBoxBg(true);
-	cc_infozone->forceTextPaint();
-	cc_infozone->paint(CC_SAVE_SCREEN_NO);
+	infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT]);
+	infozone->doPaintBg(false);
+	infozone->doPaintTextBoxBg(true);
+	//FIXME infozone->enableShadow(CC_SHADOW_RIGHT, -1, true);
+	infozone->forceTextPaint();
+	infozone->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
@@ -881,13 +882,15 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 		header->getTextObject()->enableTboxSaveScreen(g_settings.theme.menu_Head_gradient);//enable screen save for title text if color gradient is in use
 		header->enableClock(true, "%H:%M", "%H %M", true);
 		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-		header->setDimensionsAll(x, y, full_width, theight);
+		header->setDimensionsAll(x, y, full_width, header_height);
+		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	}
 	//header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 
 	if (header->isPainted())
 		header->getChannelLogoObject()->hide();
-	header->setChannelLogo(_channel_id,_channelname);
+	if (g_settings.channellist_show_channellogo)
+		header->setChannelLogo(_channel_id,_channelname);
 	header->setCaption(_channelname, CCHeaderTypes::CC_TITLE_LEFT);
 
 	header->paint(CC_SAVE_SCREEN_NO);
@@ -896,22 +899,27 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 		getChannelNames(_channel_id, _channelname, _channelname_prev, _channelname_next, 0);
 	}
 
-	paintBottomBox(_channelname_prev, _channelname_next);
+	paintNaviBar(_channelname_prev, _channelname_next);
 }
 
-void CEventList::paintBottomBox(std::string _channelname_prev, std::string _channelname_next)
+void CEventList::paintNaviBar(std::string _channelname_prev, std::string _channelname_next)
 {
-	int by = y + height - iheight - botboxheight;
+	int navibar_y = y + height - OFFSET_SHADOW - footer_height - navibar_height;
 
-	if (!Bottombox){
-		Bottombox = new CNaviBar(x, by, full_width, botboxheight);
-		Bottombox->setFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
+	if (!navibar)
+	{
+		navibar = new CNaviBar(x, navibar_y, full_width, navibar_height);
+		navibar->setFont(g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
+		//FIXME navibar->enableShadow(CC_SHADOW_RIGHT, -1, true);
 	}
 
-	Bottombox->enableArrows(!_channelname_prev.empty(), !_channelname_next.empty());
-	Bottombox->setText(_channelname_prev, _channelname_next);
+	navibar->enableArrows(!_channelname_prev.empty(), !_channelname_next.empty());
+	navibar->setText(_channelname_prev, _channelname_next);
 
-	Bottombox->paint(false);
+	navibar->paint(false);
+
+	// shadow
+	frameBuffer->paintBoxRel(x + full_width, navibar_y + OFFSET_SHADOW, OFFSET_SHADOW, navibar_height, COL_SHADOW_PLUS_0);
 }
 
 void CEventList::showProgressBar(int pos)
@@ -926,10 +934,10 @@ void CEventList::showProgressBar(int pos)
 
 	if (!pb)
 	{
-	int pbw = 104;
-	int pbx = x + (full_width - pbw)/2;
-	int pbh = botboxheight - 12;
-	int pby = y + height -iheight - botboxheight + (botboxheight - pbh)/2;
+		int pbw = full_width/10;
+		int pbx = x + (full_width - pbw)/2;
+		int pbh = navibar_height - 2*OFFSET_INNER_SMALL;
+		int pby = y + height - OFFSET_SHADOW - footer_height - navibar_height + (navibar_height - pbh)/2;
 
 		pb = new CProgressBar(pbx, pby, pbw, pbh);
 		pb->setType(CProgressBar::PB_TIMESCALE);
@@ -954,12 +962,13 @@ void CEventList::paint(t_channel_id channel_id)
 	liststart = (selected/listmaxshow)*listmaxshow;
 
 	// paint background for right box
-	if (g_settings.eventlist_additional && !bgRightBoxPaint) {
-		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,listmaxshow*fheight,COL_MENUCONTENT_PLUS_0);
-		bgRightBoxPaint = true;
+	if (g_settings.eventlist_additional && !infozone_background)
+	{
+		frameBuffer->paintBoxRel(x + width,y + header_height, infozone_width, item_height*listmaxshow, COL_MENUCONTENT_PLUS_0);
+		infozone_background = true;
 	}
 
-	for(unsigned int count=0;count<listmaxshow;count++)
+	for(unsigned int count=0; count < listmaxshow; count++)
 	{
 		paintItem(count, channel_id);
 	}
@@ -970,20 +979,18 @@ void CEventList::paint(t_channel_id channel_id)
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, evtlist.size(), listmaxshow, selected);
-	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, fheight*listmaxshow, total_pages, current_page);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
+
+	//FIXME shadow
+	frameBuffer->paintBoxRel(x + full_width, y + header_height + OFFSET_SHADOW, OFFSET_SHADOW, item_height*listmaxshow, COL_SHADOW_PLUS_0);
 }
 
-void CEventList::showFunctionBar(t_channel_id channel_id)
+void CEventList::paintFoot(t_channel_id channel_id)
 {
-	int bx = x;
-	int bw = full_width;
-	int bh = iheight;
-	int by = y + height - bh;
-
 	CColorKeyHelper keyhelper; //user_menue.h
 	neutrino_msg_t dummy = CRCInput::RC_nokey;
 	const char * icon = NULL;
-	struct button_label buttons[5];
+	struct button_label buttons[5]; //TODO dbt: add directly into footer object with setButtonLabels()
 	int btn_cnt = 0;
 
 	int tID = -1; //any value, not NULL
@@ -1040,26 +1047,38 @@ void CEventList::showFunctionBar(t_channel_id channel_id)
 		buttons[btn_cnt].locale = LOCALE_EPGMENU_EVENTINFO;
 		btn_cnt++;
 	}
-	::paintButtons(bx, by, bw, btn_cnt, buttons, bw, bh);
+
+#if 0
+	buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
+	buttons[btn_cnt].locale = LOCALE_EPGPLUS_HEAD;
+	btn_cnt++;
+
+	buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_0;
+	buttons[btn_cnt].locale = LOCALE_TIMERLIST_NAME;
+	btn_cnt++;
+#endif
+
+	CComponentsFooter footer;
+	footer.enableShadow(CC_SHADOW_ON, -1, true);
+	footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, full_width, footer_height, btn_cnt, buttons);
 }
 
 int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
-	int           res = menu_return::RETURN_EXIT_ALL;
-	if (parent) {
+	int res = menu_return::RETURN_EXIT_ALL;
+
+	if (parent)
 		parent->hide();
-	}
+
 	CEventList *e = new CEventList;
 	CChannelList  *channelList = CNeutrinoApp::getInstance()->channelList;
-	e->exec(CZapit::getInstance()->GetCurrentChannelID(), channelList->getActiveChannelName()); // UTF-8
+	e->exec(CZapit::getInstance()->GetCurrentChannelID(), channelList->getActiveChannelName());
 	delete e;
 
 	return res;
 }
 
-/************************************************************************************************/
 bool CEventList::findEvents(t_channel_id channel_id, std::string channelname)
-/************************************************************************************************/
 {
 	bool res = false;
 	int event = 0;
@@ -1070,19 +1089,19 @@ bool CEventList::findEvents(t_channel_id channel_id, std::string channelname)
 		m_search_autokeyword = m_search_keyword;
 	}
 
-	CEventFinderMenu menu(	&event,
-							&m_search_epg_item,
-							&m_search_keyword,
-							&m_search_list,
-							&m_search_channel_id,
-							&m_search_bouquet_id,
-							&m_search_genre,
-							&m_search_fsk
-						  );
+	CEventFinderMenu menu(&event,
+			&m_search_epg_item,
+			&m_search_keyword,
+			&m_search_list,
+			&m_search_channel_id,
+			&m_search_bouquet_id,
+			&m_search_genre,
+			&m_search_fsk);
+
 	hide();
 	menu.exec(NULL,"");
 	search_head_name = g_Locale->getText(LOCALE_EVENTFINDER_SEARCH);
-	if(event == 1)
+	if (event == 1)
 	{
 		res = true;
 		m_showChannel = true;   // force the event list to paint the channel name
@@ -1183,16 +1202,15 @@ bool CEventList::findEvents(t_channel_id channel_id, std::string channelname)
 		}
 
 	}
-	if(event)
+	if (event)
 		paintHead(0, search_head_name);
 	else
 		paintHead(channel_id, channelname);
 	paint();
-	showFunctionBar(channel_id);
+	paintFoot(channel_id);
 	return(res);
 }
 
-/************************************************************************************************/
 /*
 class CSearchNotifier : public CChangeObserver
 {
@@ -1208,7 +1226,7 @@ class CSearchNotifier : public CChangeObserver
 		}
 };
 */
-/************************************************************************************************
+/*
 bool CEventFinderMenuHandler::changeNotify(const neutrino_locale_t OptionName, void *Data)
 {
 	if(OptionName == )
@@ -1266,36 +1284,29 @@ const CMenuOptionChooser::keyval SEARCH_EPG_OPTIONS[SEARCH_EPG_OPTION_COUNT] =
 	{ CEventList::SEARCH_EPG_ALL,	LOCALE_EVENTFINDER_SEARCH_ALL_EPG }
 };
 
-
-
-/************************************************************************************************/
-CEventFinderMenu::CEventFinderMenu(	int* 			event,
-									int* 			search_epg_item,
-									std::string* 	search_keyword,
-									int* 			search_list,
-									t_channel_id*	search_channel_id,
-									t_bouquet_id*	search_bouquet_id,
-									int* 		search_genre,
-									int*		search_fsk
-				  )
-/************************************************************************************************/
+CEventFinderMenu::CEventFinderMenu(int*		event,
+				int* 		search_epg_item,
+				std::string* 	search_keyword,
+				int* 		search_list,
+				t_channel_id*	search_channel_id,
+				t_bouquet_id*	search_bouquet_id,
+				int* 		search_genre,
+				int*		search_fsk)
 {
-	m_event = event;
-	m_search_epg_item   = search_epg_item;
+	m_event			= event;
+	m_search_epg_item	= search_epg_item;
 	m_search_keyword	= search_keyword;
-	m_search_list       = search_list;
-	m_search_channel_id = search_channel_id;
-	m_search_bouquet_id = search_bouquet_id;
-	m_search_genre = 	search_genre;
-	m_search_fsk	=	search_fsk;
+	m_search_list		= search_list;
+	m_search_channel_id	= search_channel_id;
+	m_search_bouquet_id	= search_bouquet_id;
+	m_search_genre		= search_genre;
+	m_search_fsk		= search_fsk;
+
 	width = 40;
 	selected = -1;
 }
 
-
-/************************************************************************************************/
 int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
-/************************************************************************************************/
 {
 	int res = menu_return::RETURN_REPAINT;
 
@@ -1383,9 +1394,7 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 	return res;
 }
 
-/************************************************************************************************/
 int CEventFinderMenu::showMenu(void)
-/************************************************************************************************/
 {
 	int res = menu_return::RETURN_REPAINT;
 	m_search_channelname_mf = NULL;
@@ -1449,12 +1458,8 @@ int CEventFinderMenu::showMenu(void)
 	return(res);
 }
 
-
-/************************************************************************************************/
 bool CEventFinderMenu::changeNotify(const neutrino_locale_t OptionName, void *)
-/************************************************************************************************/
 {
-  
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_EVENTFINDER_SEARCH_WITHIN_LIST))
 	{
 		if (*m_search_list == CEventList::SEARCH_LIST_CHANNEL)

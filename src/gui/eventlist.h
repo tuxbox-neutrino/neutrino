@@ -23,7 +23,6 @@
 	Boston, MA  02110-1301, USA.
 */
 
-
 #ifndef __EVENTLIST_HPP__
 #define __EVENTLIST_HPP__
 
@@ -43,7 +42,6 @@
 class CFramebuffer;
 class CEventList : public CListHelpers
 {
-	// Eventfinder start
 	public:
 		typedef enum
 		{
@@ -53,14 +51,16 @@ class CEventList : public CListHelpers
 			SEARCH_EPG_INFO2,
 			SEARCH_EPG_GENRE,
 			SEARCH_EPG_ALL
-		}SEARCH_EPG;
+		} SEARCH_EPG;
+
 		typedef enum
 		{
 			SEARCH_LIST_NONE,
 			SEARCH_LIST_CHANNEL,
 			SEARCH_LIST_BOUQUET,
 			SEARCH_LIST_ALL
-		}SEARCH_LIST;
+		} SEARCH_LIST;
+
 	private:
 	int             m_search_epg_item;
 	std::string     m_search_keyword;
@@ -73,10 +73,8 @@ class CEventList : public CListHelpers
 	bool m_showChannel;
 	int oldIndex;
 	event_id_t oldEventID;
-	bool bgRightBoxPaint;
 
 	bool findEvents(t_channel_id channel_id, std::string channelname);
-    // Eventfinder end
 
 	CFrameBuffer	*frameBuffer;
 	CChannelEventList	evtlist;
@@ -86,36 +84,36 @@ class CEventList : public CListHelpers
 	unsigned int	current_event;
 	unsigned int	liststart;
 	unsigned int	listmaxshow;
-	int		fheight; // Fonthoehe Channellist-Inhalt
-	int		fheight1,fheight2;
-	int		fwidth1,fwidth2;
-	int		theight; // Fonthoehe Channellist-Titel
-	int		iheight; // Height info bar
+	int		item_height;
+	int		largefont_height, smallfont_height;
+	int		header_height;
+	int		footer_height;
 
 	std::string	search_head_name;
 
 	int 		full_width, width, infozone_width;
-	int			botboxheight;
+	int		navibar_height;
 	int 		height;
 	int 		x;
 	int 		y;
 	std::string	infozone_text;
+	bool		infozone_background;
 	int      	sort_mode;
 	event_id_t 	item_event_ID;
-	CComponentsText	*cc_infozone;
+	CComponentsText	*infozone;
 	CComponentsHeader *header;
 	CProgressBar 	*pb;
-	CNaviBar 	*Bottombox;
+	CNaviBar 	*navibar;
 	const char *	unit_short_minute;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
 	void paintDescription(int index);
 	void paint(t_channel_id channel_id = 0);
 	void paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev = "", std::string _channelname_next = "");
-	void paintBottomBox(std::string _channelname_prev, std::string _channelname_next);
+	void paintNaviBar(std::string _channelname_prev, std::string _channelname_next);
 	void showProgressBar(int pos);
 	void hide();
-	void showFunctionBar(t_channel_id channel_id);
+	void paintFoot(t_channel_id channel_id);
 	void getChannelNames(t_channel_id &channel_id, std::string &current_channel_name, std::string &prev_channel_name, std::string &next_channel_name, neutrino_msg_t msg);
 
 	int timerPre;
@@ -136,7 +134,6 @@ class CEventListHandler : public CMenuTarget
 {
 	public:
 		int  exec( CMenuTarget* parent,  const std::string &actionkey);
-
 };
 
 class CEventFinderMenu : public CMenuTarget, CChangeObserver
@@ -156,16 +153,16 @@ class CEventFinderMenu : public CMenuTarget, CChangeObserver
 		int 		selected;
 		int showMenu(void);
         public:
-		CEventFinderMenu( int*			event,
-				  int*			search_epg_item,
-				  std::string*  	search_keyword,
-				  int*			search_list,
-				  t_channel_id* search_channel_id,
-				  t_bouquet_id* search_bouquet_id,
-				  int* 			search_genre,
-				  int*			search_fsk
-				);
-                int  exec( CMenuTarget* parent,  const std::string &actionkey);
+		CEventFinderMenu(int*		event,
+				int*		search_epg_item,
+				std::string*	search_keyword,
+				int*		search_list,
+				t_channel_id*	search_channel_id,
+				t_bouquet_id*	search_bouquet_id,
+				int*		search_genre,
+				int*		search_fsk);
+
+                int exec( CMenuTarget* parent, const std::string &actionkey);
 		bool changeNotify(const neutrino_locale_t OptionName, void *);
 
 };
