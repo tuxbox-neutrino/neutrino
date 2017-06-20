@@ -942,7 +942,7 @@ void CUpnpBrowserGui::paintDeviceInfo()
 
 	topbox.setDimensionsAll(m_x, m_y, m_width, m_topbox_height);
 	topbox.setCorner(RADIUS_LARGE);
-	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
+	topbox.setText(tmp, CTextBox::AUTO_WIDTH | CTextBox::CENTER);
 	topbox.paint0();
 }
 
@@ -1003,10 +1003,7 @@ void CUpnpBrowserGui::paintDevices()
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, m_devices.size(), m_listmaxshow, m_selecteddevice);
-	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page);
-
-	//shadow
-	m_frameBuffer->paintBoxRel(m_x + m_width, m_item_y + OFFSET_SHADOW, OFFSET_SHADOW, m_item_height*m_listmaxshow, COL_SHADOW_PLUS_0);
+	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 
 	// Foot
 	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
@@ -1147,7 +1144,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	}
 
 	topbox.setCorner(RADIUS_LARGE);
-	topbox.setText(tmp, CTextBox::AUTO_WIDTH);
+	topbox.setText(tmp, CTextBox::AUTO_WIDTH | CTextBox::CENTER);
 	topbox.paint0();
 }
 
@@ -1178,7 +1175,7 @@ void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int sel
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, max + offset, m_listmaxshow, selected + offset);
-	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page);
+	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 
 	// Foot buttons
 	size_t numbuttons = sizeof(BrowseButtons)/sizeof(BrowseButtons[0]);

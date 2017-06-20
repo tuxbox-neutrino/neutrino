@@ -171,8 +171,8 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	buttons2_height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
 	footer_height = buttons1_height + buttons2_height;
 
-	listmaxshow = (height - header_height - footer_height)/item_height;
-	height = header_height + listmaxshow*item_height + footer_height;	// recalc height
+	listmaxshow = (height - header_height - footer_height - OFFSET_SHADOW)/item_height;
+	height = header_height + listmaxshow*item_height + footer_height + OFFSET_SHADOW; // recalc height
 
 	x=getScreenStartX(width);
 	y=getScreenStartY(height);
@@ -703,6 +703,7 @@ void CPictureViewerGui::paintItem(int pos)
 void CPictureViewerGui::paintHead()
 {
 	CComponentsHeaderLocalized header(x, y, width, header_height, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_PICTUREVIEWER, CComponentsHeaderLocalized::CC_BTN_HELP);
+	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 
 #ifdef ENABLE_GUI_MOUNT
 	header.setContextButton(NEUTRINO_ICON_BUTTON_MENU);
@@ -720,15 +721,20 @@ void CPictureViewerGui::paintFoot()
 	else
 		PictureViewerButtons2[0].locale = LOCALE_PICTUREVIEWER_SORTORDER_DATE;
 
-	frameBuffer->paintBoxRel(x, y + (height - footer_height), width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	int footer_y = y + (height - footer_height - OFFSET_SHADOW);
+
+	// shadow
+	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, footer_y + OFFSET_SHADOW, width, footer_height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+
+	frameBuffer->paintBoxRel(x, footer_y, width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (!playlist.empty())
 	{
-		::paintButtons(x, y + (height - footer_height), 0, PictureViewerButtons1Count, PictureViewerButtons1, width);
-		::paintButtons(x, y + (height - buttons2_height), 0, PictureViewerButtons2Count, PictureViewerButtons2, width);
+		::paintButtons(x, footer_y, width, PictureViewerButtons1Count, PictureViewerButtons1, width, buttons1_height);
+		::paintButtons(x, footer_y + buttons1_height, width, PictureViewerButtons2Count, PictureViewerButtons2, width, buttons2_height);
 	}
 	else
-		::paintButtons(x, y + (height - footer_height), 0, 1, &(PictureViewerButtons1[1]), width);
+		::paintButtons(x, footer_y, width, 1, &(PictureViewerButtons1[1]), width, buttons1_height);
 }
 
 //------------------------------------------------------------------------
@@ -753,8 +759,7 @@ void CPictureViewerGui::paint()
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, playlist.size(), listmaxshow, selected);
-
-	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 
 	paintFoot();
 	paintInfo();

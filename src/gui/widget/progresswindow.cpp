@@ -81,7 +81,7 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 	if (globalSignal)
 		*globalSignal->connect(mem_fun(*this, &CProgressWindow::showGlobalStatus));
 
-	global_progress = local_progress = percent_progress = 0;
+	global_progress = local_progress = 0;
 
 	showFooter(false);
 
@@ -132,16 +132,13 @@ CProgressBar* CProgressWindow::getProgressItem()
 void CProgressWindow::initStatus(const unsigned int prog, const unsigned int max, const string &statusText, CProgressBar *pBar)
 {
 	pBar->allowPaint(true);
-	unsigned int cur_perc = prog*100/(max+1);
-	if (percent_progress != cur_perc || prog == 0){
-		pBar->setValues(prog, (int)max);
-		if (!statusText.empty() && (cur_statusText != statusText)){
-			showStatusMessageUTF(statusText);
-			cur_statusText = statusText;
-		}
-		pBar->paint(false);
-		percent_progress = cur_perc;
+	pBar->setValues(prog, (int)max);
+	if (!statusText.empty() && (cur_statusText != statusText)){
+		showStatusMessageUTF(statusText);
+		cur_statusText = statusText;
 	}
+	pBar->paint(false);
+	frameBuffer->blit();
 }
 
 void CProgressWindow::showStatus(const unsigned int prog, const unsigned int max, const string &statusText)

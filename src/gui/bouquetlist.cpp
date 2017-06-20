@@ -620,7 +620,7 @@ int CBouquetList::show(bool bShowChannelList)
 
 void CBouquetList::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width, height);
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 	CInfoClock::getInstance()->enableInfoClock(!CInfoClock::getInstance()->isBlocked());
 }
 
@@ -702,6 +702,7 @@ void CBouquetList::paintHead()
 {
 	std::string icon("");
 	CComponentsHeader header(x, y, width, header_height, name, icon, CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT | CComponentsHeader::CC_BTN_MENU);
+	header.enableShadow( CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -722,18 +723,12 @@ void CBouquetList::paint()
 
 	frameBuffer->paintBoxRel(x, y + header_height, width, height - header_height - footer_height, COL_MENUCONTENT_PLUS_0);
 
-	int numButtons = sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
+	// no buttons in favonly mode
+	int numButtons = (favonly) ? 0 : sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
 
-	if (favonly)
-	{
-		// show an empty footer
-		frameBuffer->paintBoxRel(x, y + height - footer_height, width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-	}
-	else
-	{
-		CComponentsFooter footer;
-		footer.paintButtons(x, y + height - footer_height, width, footer_height, numButtons, CBouquetListButtons);
-	}
+	CComponentsFooter footer;
+	footer.enableShadow(CC_SHADOW_ON, -1, true);
+	footer.paintButtons(x, y + height - footer_height, width, footer_height, numButtons, CBouquetListButtons);
 
 	if (!Bouquets.empty())
 	{
@@ -746,6 +741,5 @@ void CBouquetList::paint()
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, Bouquets.size(), listmaxshow, selected);
-
-	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 }

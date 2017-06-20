@@ -114,6 +114,8 @@ void EpgPlus::Header::paint(const char * Name)
 		this->head = new CComponentsHeader();
 		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP);
 		this->head->enableClock(true, "%H:%M", "%H %M", true);
+		this->head->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
+
 	}
 
 	if (this->head)
@@ -220,6 +222,9 @@ void EpgPlus::TimeLine::paint(time_t _startTime, int pduration)
 
 		toggleColor = !toggleColor;
 	}
+
+	// shadow
+	this->frameBuffer->paintBoxRel(this->x + this->width, this->y + OFFSET_SHADOW, OFFSET_SHADOW, this->getUsedHeight(), COL_SHADOW_PLUS_0);
 }
 
 void EpgPlus::TimeLine::paintGrid()
@@ -560,7 +565,7 @@ EpgPlus::Footer::Footer(CFrameBuffer * pframeBuffer, int px, int py, int pwidth,
 	this->width = pwidth;
 
 	this->buttonHeight = pbuttonHeight;
-	this->buttonY = this->y - OFFSET_INTER - this->buttonHeight;
+	this->buttonY = this->y - OFFSET_INTER - OFFSET_SHADOW - this->buttonHeight;
 }
 
 EpgPlus::Footer::~Footer()
@@ -591,6 +596,7 @@ void EpgPlus::Footer::paintEventDetails(const std::string & description, const s
 	int frame_thickness = 2;
 
 	// clear the whole footer
+	this->frameBuffer->paintBoxRel(this->x + OFFSET_SHADOW, yPos + OFFSET_SHADOW, this->width, this->getUsedHeight(), COL_SHADOW_PLUS_0, RADIUS_LARGE);
 	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, this->getUsedHeight(), COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);
 	this->frameBuffer->paintBoxFrame(this->x, yPos, this->width, this->getUsedHeight(), frame_thickness, COL_FRAME_PLUS_0, RADIUS_LARGE);
 
@@ -619,8 +625,9 @@ struct button_label buttonLabels[] =
 void EpgPlus::Footer::paintButtons(button_label * pbuttonLabels, int numberOfButtons)
 {
 	int buttonWidth = (this->width);
-	CComponentsFooter _footer;
-	_footer.paintButtons(this->x, this->buttonY, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels, buttonWidth/numberOfButtons);
+	CComponentsFooter foot;
+	foot.enableShadow(CC_SHADOW_ON, -1, true);
+	foot.paintButtons(this->x, this->buttonY, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels, buttonWidth/numberOfButtons);
 }
 
 EpgPlus::EpgPlus()
@@ -828,10 +835,10 @@ void EpgPlus::init()
 
 	int footerHeight = Footer::getUsedHeight();
 
-	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - buttonHeight - OFFSET_INTER - footerHeight) / this->entryHeight;
+	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - buttonHeight - OFFSET_SHADOW - OFFSET_INTER - footerHeight - OFFSET_SHADOW) / this->entryHeight;
 	this->bodyHeight = this->maxNumberOfDisplayableEntries * entryHeight;
 
-	this->usableScreenHeight = headerHeight + timeLineHeight + this->bodyHeight + buttonHeight + OFFSET_INTER + footerHeight; // recalc deltaY
+	this->usableScreenHeight = headerHeight + timeLineHeight + this->bodyHeight + buttonHeight + OFFSET_SHADOW + OFFSET_INTER + footerHeight + OFFSET_SHADOW; // recalc deltaY
 	this->usableScreenX = getScreenStartX(this->usableScreenWidth);
 	if (this->usableScreenX < DETAILSLINE_WIDTH)
 		this->usableScreenX = DETAILSLINE_WIDTH;
@@ -846,7 +853,7 @@ void EpgPlus::init()
 	this->timeLineWidth = this->usableScreenWidth;
 
 	this->footerX = usableScreenX;
-	this->footerY = this->usableScreenY + this->usableScreenHeight - footerHeight;
+	this->footerY = this->usableScreenY + this->usableScreenHeight - OFFSET_SHADOW - footerHeight;
 	this->footerWidth = this->usableScreenWidth;
 
 	this->channelsTableX = this->usableScreenX;
@@ -1386,7 +1393,7 @@ void EpgPlus::hide()
 		delete this->header->head;
 		this->header->head = NULL;
 	}
-	this->frameBuffer->paintBackgroundBoxRel(this->usableScreenX - DETAILSLINE_WIDTH, this->usableScreenY, DETAILSLINE_WIDTH + this->usableScreenWidth, this->usableScreenHeight);
+	this->frameBuffer->paintBackgroundBoxRel(this->usableScreenX, this->usableScreenY, this->usableScreenWidth + OFFSET_SHADOW, this->usableScreenHeight + OFFSET_SHADOW);
 }
 
 void EpgPlus::paintChannelEntry(int position)
@@ -1436,7 +1443,7 @@ void EpgPlus::paint()
 		this->maxNumberOfDisplayableEntries,
 		this->selectedChannelEntry == NULL ? 0 : this->selectedChannelEntry->index);
 
-	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page);
+	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page, CC_SHADOW_ON);
 }
 
 // -- EPG+ Menue Handler Class

@@ -39,7 +39,6 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 
 		unsigned int global_progress;
 		unsigned int local_progress;
-		unsigned int percent_progress;
 		std::string cur_statusText;
 		int h_height;
 		void Init(	sigc::signal<void, size_t, size_t, std::string> *statusSignal,
