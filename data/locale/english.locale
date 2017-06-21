@@ -1669,6 +1669,7 @@ moviebrowser.cut_failed Cut failed, are there jump bookmarks and enough free spa
 moviebrowser.cutting Cutting movie, please wait ...
 moviebrowser.delete_all Delete all selected movies without any questions?
 moviebrowser.delete_info Delete files, please wait ...
+moviebrowser.delete_movie Delete movie
 moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
 moviebrowser.directories Directories

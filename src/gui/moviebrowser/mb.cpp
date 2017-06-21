@@ -3319,12 +3319,10 @@ int CMovieBrowser::showMovieCutMenu()
 	movieCutMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_CUT_HEAD);
 	CMenuForwarder *mf;
 
-#if 0
 	mf = new CMenuForwarder(m_movieSelectionHandler->epgTitle, false);
 	mf->setHint(NEUTRINO_ICON_HINT_MOVIE, NONEXISTANT_LOCALE);
 	movieCutMenu.addItem(mf);
 	movieCutMenu.addItem(GenericMenuSeparator);
-#endif
 
 	mf = new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_COPY_ONEFILE, true, NULL, this, "copy_onefile", CRCInput::RC_red);
 	mf->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MOVIEBROWSER_HINT_COPY_ONEFILE);
@@ -3451,9 +3449,11 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	if (!calledExternally) {
 		CMenuWidget mainMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 		mainMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_MAIN_HEAD);
+		mainMenu.addItem(new CMenuForwarder(m_movieSelectionHandler->epgTitle, false));
+		mainMenu.addItem(GenericMenuSeparator);
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD,     (m_movieSelectionHandler != NULL), NULL, this, "show_movie_info_menu", CRCInput::RC_red));
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_CUT_HEAD, (m_movieSelectionHandler != NULL), NULL, this, "show_movie_cut_menu",  CRCInput::RC_green));
-		mainMenu.addItem(new CMenuForwarder(LOCALE_FILEBROWSER_DELETE,         (m_movieSelectionHandler != NULL), NULL, this, "delete_movie",         CRCInput::RC_yellow));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DELETE_MOVIE,  (m_movieSelectionHandler != NULL), NULL, this, "delete_movie",         CRCInput::RC_yellow));
 		mainMenu.addItem(GenericMenuSeparatorLine);
 		mainMenu.addItem(new CMenuForwarder(LOCALE_EPGPLUS_OPTIONS,                    true, NULL, &optionsMenu,NULL,                                  CRCInput::RC_1));
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &dirMenu,    NULL,                                  CRCInput::RC_2));
