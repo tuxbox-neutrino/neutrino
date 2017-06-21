@@ -411,7 +411,7 @@ void CBookmarkManager::hide()
 //------------------------------------------------------------------------
 void CBookmarkManager::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeaderLocalized::CC_BTN_HELP);
+	CComponentsHeader header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeader::CC_BTN_HELP);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 

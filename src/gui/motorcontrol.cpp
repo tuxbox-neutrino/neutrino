@@ -455,7 +455,7 @@ void CMotorControl::paintStatus()
 
 void CMotorControl::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, hheight, LOCALE_MOTORCONTROL_HEAD);
+	CComponentsHeader header(x, y, width, hheight, LOCALE_MOTORCONTROL_HEAD);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 

@@ -1602,7 +1602,7 @@ void CAudioPlayerGui::paintHead()
 	if (!m_show_playlist || m_screensaver)
 		return;
 
-	CComponentsHeaderLocalized header(m_x, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER, m_width, m_header_height, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_AUDIO);
+	CComponentsHeader header(m_x, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER, m_width, m_header_height, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_AUDIO);
 	header.enableShadow( CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	header.setCorner(RADIUS_MID, CORNER_TOP);
 

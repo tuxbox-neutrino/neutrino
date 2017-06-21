@@ -986,7 +986,7 @@ void CUpnpBrowserGui::paintDevices()
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "Select UPnP Device");
 
 	// Head
-	CComponentsHeaderLocalized header(m_x, m_header_y, m_width, m_header_height, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
+	CComponentsHeader header(m_x, m_header_y, m_width, m_header_height, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
 	header.enableShadow( CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	if (CNeutrinoApp::getInstance()->isMuted()) //TODO: consider mute mode on runtime
 		header.addContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);

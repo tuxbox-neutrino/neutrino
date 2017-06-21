@@ -170,7 +170,17 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		CComponentsHeader(CComponentsForm *parent = NULL);
 		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const std::string& caption = std::string(),
-					const std::string& = std::string(),
+					const std::string& icon_name = std::string(),
+					const int& buttons = 0,
+					CComponentsForm *parent = NULL,
+					int shadow_mode = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+
+		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
+					neutrino_locale_t caption_locale = NONEXISTANT_LOCALE,
+					const std::string& icon_name = std::string(),
 					const int& buttons = 0,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
@@ -344,25 +354,6 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		* @return  	CComponentsChannelLogoScalable*
 		*/
 		CComponentsChannelLogoScalable* getChannelLogoObject(){return cch_logo_obj;}
-};
-
-//! Sub class of CComponentsHeader.
-/*!
-CComponentsHeaderLocalized provides prepared items like icon, caption and context button icons, mostly for usage in menues or simple windows
-Caption is defined with locales.
-*/
-class CComponentsHeaderLocalized : public CComponentsHeader
-{
-	public:
-		CComponentsHeaderLocalized(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
-						neutrino_locale_t caption_locale = NONEXISTANT_LOCALE,
-						const std::string& = "",
-						const int& buttons = 0,
-						CComponentsForm *parent = NULL,
-						int shadow_mode = CC_SHADOW_OFF,
-						fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-						fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
-						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 };
 
 #endif
