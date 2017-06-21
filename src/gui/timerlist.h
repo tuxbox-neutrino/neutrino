@@ -51,13 +51,15 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int 		y;
 		int 		width;
 		int 		height;
-		int		fheight; // fontheight content
-		int		theight; // fontheight titel
-		int		footerHeight;
+		int		font_height;
+		int		item_height;
+		int		header_height;
+		int		footer_height;
 		int		selected;
 		int		liststart;
 		unsigned int	listmaxshow;
 		bool		visible;
+		CComponentsHeader *header;
 		int		httpConnectTimeout;
 
 		CTimerdClient *Timer;

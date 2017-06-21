@@ -272,11 +272,14 @@ CTimerList::CTimerList()
 	visible = false;
 	x = y = 0;
 	width = height = 0;
-	fheight = theight = 0;
-	footerHeight = 0;
+	header_height = 0;
+	font_height = 0;
+	item_height = 0;
+	footer_height = 0;
 	selected = 0;
 	liststart = 0;
 	listmaxshow = 0;
+	header = NULL;
 	Timer = new CTimerdClient();
 	timerNew_message = "";
 	timerNew_pluginName = "";
@@ -672,27 +675,23 @@ void CTimerList::updateEvents(void)
 	RemoteBoxTimerList (timerlist);
 	sort(timerlist.begin(), timerlist.end());
 
-	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	//get footerHeight from paintButtons
-	footerHeight = ::paintButtons(TimerListButtons, TimerListButtonsCount, 0, 0, 0, 0, 0, false);
+	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	font_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	item_height = 2*font_height;
+	footer_height = header_height;
 
-	//width = w_max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth()*56, 20);
-	width = frameBuffer->getScreenWidth()*0.9;
-	height = frameBuffer->getScreenHeight() - (2*theight);	// max height
+	width = frameBuffer->getScreenWidth()/100 * 90;
+	height = frameBuffer->getScreenHeight();
 
-	listmaxshow = (height-theight)/(fheight*2);
-	height = theight+listmaxshow*fheight*2+footerHeight;	// recalc height
-
+	listmaxshow = (height - header_height - footer_height - OFFSET_SHADOW) / item_height;
 	if (timerlist.size() < listmaxshow)
-	{
-		listmaxshow=timerlist.size();
-		height = theight+listmaxshow*fheight*2+footerHeight;	// recalc height
-	}
+		listmaxshow = timerlist.size();
+
+	height = header_height + item_height*listmaxshow + footer_height + OFFSET_SHADOW; // recalc height
 
 	if (!timerlist.empty() && selected == (int)timerlist.size())
 	{
-		selected=timerlist.size()-1;
+		selected = timerlist.size() - 1;
 		liststart = (selected/listmaxshow)*listmaxshow;
 	}
 
@@ -1084,6 +1083,12 @@ void CTimerList::hide()
 {
 	if (visible)
 	{
+		if (header)
+		{
+			header->kill();
+			delete header;
+			header = NULL;
+		}
 		frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 		visible = false;
 	}
@@ -1129,12 +1134,12 @@ bool CTimerList::RemoteBoxSetup()
 
 void CTimerList::paintItem(int pos)
 {
-	int ypos = y+ theight+ pos*fheight*2;
+	int ypos = y + header_height + pos*item_height;
 
-	int real_width=width;
+	int real_width = width;
 	if (timerlist.size() > listmaxshow)
 	{
-		real_width -= SCROLLBAR_WIDTH; //scrollbar
+		real_width -= SCROLLBAR_WIDTH;
 	}
 
 	unsigned int currpos = liststart + pos;
@@ -1153,43 +1158,50 @@ void CTimerList::paintItem(int pos)
 		i_radius = RADIUS_LARGE;
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x, ypos, real_width, item_height, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, real_width, item_height, bgcolor, i_radius);
 	//shadow
-	frameBuffer->paintBoxRel(x + width, ypos, OFFSET_SHADOW, 2*fheight, COL_SHADOW_PLUS_0);
+	frameBuffer->paintBoxRel(x + width, ypos + OFFSET_SHADOW, OFFSET_SHADOW, item_height, COL_SHADOW_PLUS_0);
+
+	int line1_y = ypos + 1*font_height;
+	int line2_y = ypos + 2*font_height;
+
+	int digit_width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth();
+	int time_width = 8*digit_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(".. :"); // keep in sync with strftime-lines below
 
 	if (currpos < timerlist.size())
 	{
 		CTimerd::responseGetTimer & timer = timerlist[currpos];
 		char zAlarmTime[25] = {0};
 		struct tm *alarmTime = localtime(&(timer.alarmTime));
-		strftime(zAlarmTime,20,"%d.%m. %H:%M",alarmTime);
+		strftime(zAlarmTime, 20, "%d.%m. %H:%M", alarmTime);
 		char zStopTime[25] = {0};
 		struct tm *stopTime = localtime(&(timer.stopTime));
-		strftime(zStopTime,20,"%d.%m. %H:%M",stopTime);
-		int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, fw*12, zAlarmTime, color, fheight);
-		if (timer.stopTime != 0)
-		{
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+2*fheight, fw*12, zStopTime, color, fheight);
-		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13,ypos+fheight, (real_width-fw*13)/2-5, convertTimerRepeat2String(timer.eventRepeat), color, fheight);
+		strftime(zStopTime, 20, "%d.%m. %H:%M", stopTime);
 
+		// paint start/stop times
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, line1_y, time_width, zAlarmTime, color, font_height);
+		if (timer.stopTime != 0)
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, line2_y, time_width, zStopTime, color, font_height);
+
+		// paint timer-type
+		std::string t_type = (timer.eventType == CTimerd::TIMER_REMOTEBOX) ? std::string(convertTimerType2String(timer.eventType)) + " (" + std::string(timer.remotebox_name) + ")" : convertTimerType2String(timer.eventType);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID + time_width + OFFSET_INNER_MID, line1_y, real_width - time_width - 3*OFFSET_INNER_MID, t_type, color, font_height);
+
+		// paint repeat-type/count
+		std::string t_repeat = convertTimerRepeat2String(timer.eventRepeat);
 		if (timer.eventRepeat != CTimerd::TIMERREPEAT_ONCE)
 		{
-			char srepeatcount[25] = {0};
 			if (timer.repeatCount == 0)
-			{
-				// Unicode 8734 (hex: 221E) not available in all fonts
-				//sprintf(srepeatcount,"∞");
-				sprintf(srepeatcount,"00");
-			}
+				t_repeat += ", oo"; // Unicode 8734 (hex: 221E) not available in all fonts
 			else
-				sprintf(srepeatcount,"%ux",timer.repeatCount);
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13+(real_width-fw*23)/2,ypos+fheight, (real_width-fw*13)/2-5, srepeatcount, color, fheight);
+				t_repeat += ", " + to_string(timer.repeatCount) + "x";
 		}
-		std::string t_type = (timer.eventType == CTimerd::TIMER_REMOTEBOX) ? std::string(convertTimerType2String(timer.eventType)) + " (" + std::string(timer.remotebox_name) + ")" : convertTimerType2String(timer.eventType);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13+(real_width-fw*13)/2,ypos+fheight, (real_width-fw*13)/2-5, t_type, color, fheight);
+		int t_repeat_width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(t_repeat);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + real_width - OFFSET_INNER_MID - t_repeat_width, line1_y, t_repeat_width, t_repeat, color, font_height);
+
+		int icon_w, icon_h;
+		frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
 
 		// paint rec icon when recording in progress
 		if ((timer.eventType == CTimerd::TIMER_RECORD) && (CRecordManager::getInstance()->RecordingStatus(timer.channel_id)))
@@ -1199,23 +1211,14 @@ void CTimerList::paintItem(int pos)
 			recinfo.eventID = timer.eventID;
 			if (CRecordManager::getInstance()->IsRecording(&recinfo))
 			{
-				int icol_w, icol_h;
-				frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icol_w, &icol_h);
-				if ((icol_w > 0) && (icol_h > 0))
-				{
-					frameBuffer->paintIcon(NEUTRINO_ICON_REC, (x + real_width) - (icol_w + 8), ypos, 2*fheight);
-				}
+				if (icon_w && icon_h)
+					frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + real_width - OFFSET_INNER_MID - icon_w, line1_y, font_height);
 			}
 		}
-
-		if ((timer.eventType == CTimerd::TIMER_REMOTEBOX) && timer.eventState == CTimerd::TIMERSTATE_ISRUNNING)
+		else if ((timer.eventType == CTimerd::TIMER_REMOTEBOX) && timer.eventState == CTimerd::TIMERSTATE_ISRUNNING)
 		{
-				int icol_w, icol_h;
-				frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icol_w, &icol_h);
-				if ((icol_w > 0) && (icol_h > 0))
-				{
-					frameBuffer->paintIcon(NEUTRINO_ICON_REC, (x + real_width) - (icol_w + 8), ypos, 2*fheight);
-				}
+			if (icon_w && icon_h)
+				frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + real_width - OFFSET_INNER_MID - icon_w, line1_y, font_height);
 		}
 
 		std::string zAddData("");
@@ -1340,46 +1343,47 @@ void CTimerList::paintItem(int pos)
 		default:
 		{}
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13,ypos+2*fheight, real_width-(fw*13+5), zAddData, color, fheight);
+
+		// paint timer-name
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID + time_width + OFFSET_INNER_MID, line2_y, real_width - time_width - 3*OFFSET_INNER_MID, zAddData, color, font_height);
+
 		// LCD Display
 		if (currpos == (unsigned) selected)
 		{
-			std::string line1 = convertTimerType2String(timer.eventType); // UTF-8
-			//std::string line2 = zAlarmTime;
+			std::string line1 = convertTimerType2String(timer.eventType);
 			switch (timer.eventType)
 			{
-			case CTimerd::TIMER_RECORD :
-			//	line2+= " -";
-			//	line2+= zStopTime+6;
-			//case CTimerd::TIMER_NEXTPROGRAM :
-			case CTimerd::TIMER_ZAPTO :
-			{
-				line1 += ' ';
-				line1 += convertChannelId2String(timer.channel_id); // UTF-8
+				case CTimerd::TIMER_RECORD :
+				case CTimerd::TIMER_ZAPTO :
+				{
+					line1 += ' ';
+					line1 += convertChannelId2String(timer.channel_id);
+					break;
+				}
+				case CTimerd::TIMER_STANDBY :
+				{
+					if (timer.standby_on)
+						line1 += " ON";
+					else
+						line1 += " OFF";
+					break;
+				}
+				default:
+					;
 			}
-			break;
-			case CTimerd::TIMER_STANDBY :
-			{
-				if (timer.standby_on)
-					line1+=" ON";
-				else
-					line1+=" OFF";
-			}
-			break;
-			default:
-				;
-			}
-			CVFD::getInstance()->showMenuText(0, line1.c_str(), -1, true); // UTF-8
-			//CVFD::getInstance()->showMenuText(1, line2.c_str(), -1, true); // UTF-8
+			CVFD::getInstance()->showMenuText(0, line1.c_str(), -1, true);
 		}
 	}
 }
 
 void CTimerList::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
-	header.enableClock(true, " %d.%m.%Y  %H:%M ");
-	header.paint(CC_SAVE_SCREEN_NO);
+	if (header == NULL)
+	{
+		header = new CComponentsHeader(x, y, width, header_height, g_Locale->getText(LOCALE_TIMERLIST_NAME), NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
+		header->enableClock(true, " %d.%m.%Y, %H:%M ", " %d.%m.%Y, %H.%M ", true);
+	}
+	header->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CTimerList::paintFoot()
@@ -1389,24 +1393,25 @@ void CTimerList::paintFoot()
 		CTimerd::responseGetTimer* timer=&timerlist[selected];
 		if (timer != NULL)
 		{
-		//replace info button with dummy if timer is not type REC or ZAP
+			//replace info button with dummy if timer is not type REC or ZAP
 			if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX || timer->eventType == CTimerd::TIMER_ZAPTO)
 				TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
 			else
 				TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
 		}
 	}
-	//shadow
-	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + height - footerHeight, width, footerHeight + OFFSET_SHADOW, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	int c = TimerListButtonsCount;
 	if (g_settings.timer_remotebox_ip.size() == 0)
 		c--; // reduce play button
 
+	CComponentsFooter footer;
+	footer.enableShadow(CC_SHADOW_ON, -1, true);
+
 	if (timerlist.empty())
-		::paintButtons(x, y + height - footerHeight, width, 2, &(TimerListButtons[1]), width);
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, 2, &(TimerListButtons[1]));
 	else
-		::paintButtons(x, y + height - footerHeight, width, c, TimerListButtons, width);
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, c, TimerListButtons);
 }
 
 void CTimerList::paint()
@@ -1428,7 +1433,7 @@ void CTimerList::paint()
 		int total_pages;
 		int current_page;
 		getScrollBarData(&total_pages, &current_page, timerlist.size(), listmaxshow, selected);
-		paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, 2*fheight*listmaxshow, total_pages, current_page);
+		paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
 	}
 
 	paintFoot();
