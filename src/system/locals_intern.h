@@ -1696,6 +1696,7 @@ const char * locale_real_names[] =
 	"moviebrowser.cutting",
 	"moviebrowser.delete_all",
 	"moviebrowser.delete_info",
+	"moviebrowser.delete_movie",
 	"moviebrowser.delete_screenshot",
 	"moviebrowser.dir",
 	"moviebrowser.directories",

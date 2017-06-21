@@ -357,7 +357,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
                 	perror(NEUTRINO_SCAN_STOP_SCRIPT " failed");
 	}
 	if(!test) {
-		CComponentsHeaderLocalized header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
+		CComponentsHeader header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
 		header.paint(CC_SAVE_SCREEN_NO);
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
@@ -521,7 +521,7 @@ void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 
 void CScanTs::paint(bool fortest)
 {
-	CComponentsHeaderLocalized header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD);
+	CComponentsHeader header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD);
 	header.setCaptionAlignment(CCHeaderTypes::CC_TITLE_CENTER);
 	header.paint(CC_SAVE_SCREEN_NO);
 

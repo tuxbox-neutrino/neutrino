@@ -65,21 +65,18 @@ CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const 
 	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
 }
 
-CComponentsHeaderLocalized::CComponentsHeaderLocalized(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-							neutrino_locale_t caption_locale,
-							const std::string& icon_name,
-							const int& buttons,
-							CComponentsForm* parent,
-							int shadow_mode,
-							fb_pixel_t color_frame,
-							fb_pixel_t color_body,
-							fb_pixel_t color_shadow)
-							:CComponentsHeader(	x_pos, y_pos, w, h,
-										g_Locale->getText(caption_locale),
-										icon_name, buttons,
-										parent,
-										shadow_mode,
-										color_frame, color_body, color_shadow){};
+CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					neutrino_locale_t caption_locale,
+					const std::string& icon_name,
+					const int& buttons,
+					CComponentsForm* parent,
+					int shadow_mode,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
+{
+	initVarHeader(x_pos, y_pos, w, h, g_Locale->getText(caption_locale), icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
+};
 
 void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,

@@ -850,14 +850,15 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// show the epg
 	// header + logo
-	if (!header){
-		header = new CComponentsHeader(sx, sy, ox, toph);
+	if (!header)
+	{
+		header = new CComponentsHeader();
 		header->setColorBody(COL_MENUHEAD_PLUS_0);
 		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 		header->enableClock(true, "%H:%M", "%H %M", true);
-	}else
-		header->setDimensionsAll(sx, sy, ox, toph);
+	}
 
+	header->setDimensionsAll(sx, sy, ox, toph);
 	header->setCaptionFont(font_title);
 	header->setCaption(epgData.title);
 

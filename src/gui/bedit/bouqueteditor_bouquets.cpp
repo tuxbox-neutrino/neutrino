@@ -133,7 +133,7 @@ void CBEBouquetWidget::paint()
 
 void CBEBouquetWidget::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, "" /*no header icon*/, CComponentsHeaderLocalized::CC_BTN_EXIT);
+	CComponentsHeader header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, "" /*no header icon*/, CComponentsHeader::CC_BTN_EXIT);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 

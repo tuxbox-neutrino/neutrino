@@ -702,7 +702,7 @@ void CPictureViewerGui::paintItem(int pos)
 
 void CPictureViewerGui::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, header_height, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_PICTUREVIEWER, CComponentsHeaderLocalized::CC_BTN_HELP);
+	CComponentsHeader header(x, y, width, header_height, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_PICTUREVIEWER, CComponentsHeader::CC_BTN_HELP);
 	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 
 #ifdef ENABLE_GUI_MOUNT

@@ -1669,6 +1669,7 @@ moviebrowser.cut_failed Fehler beim Schneiden. Sind Sprungmarken und genug freie
 moviebrowser.cutting Schneide Film, bitte warten ...
 moviebrowser.delete_all Alle markierten Filme ohne weitere Nachfrage löschen?
 moviebrowser.delete_info Lösche Dateien, bitte warten ...
+moviebrowser.delete_movie Film löschen
 moviebrowser.delete_screenshot Lösche Screenshot?
 moviebrowser.dir Pfad
 moviebrowser.directories Verzeichnisse
