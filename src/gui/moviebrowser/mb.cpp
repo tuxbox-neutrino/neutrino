@@ -2479,12 +2479,19 @@ bool CMovieBrowser::onDelete(bool cursor_only)
 
 	MI_MOVIE_INFO *movieinfo;
 	movieinfo = NULL;
-	filelist_it = filelist.end();
-	if (!cursor_only && getSelectedFiles(filelist, movielist))
-		filelist_it = filelist.begin();
-	if (filelist.empty()) { //just add the m_movieSelectionHandler
+
+	if (cursor_only)
+	{
+		filelist.clear();
+		movielist.clear();
+
+		// just add the m_movieSelectionHandler
 		filelist.push_back(m_movieSelectionHandler->file);
 		movielist.push_back(m_movieSelectionHandler);
+	}
+	else
+	{
+		getSelectedFiles(filelist, movielist);
 	}
 
 	MI_MOVIE_LIST dellist;
