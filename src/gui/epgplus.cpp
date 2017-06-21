@@ -1443,7 +1443,7 @@ void EpgPlus::paint()
 		this->maxNumberOfDisplayableEntries,
 		this->selectedChannelEntry == NULL ? 0 : this->selectedChannelEntry->index);
 
-	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page, CC_SHADOW_ON);
+	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page, CC_SHADOW_RIGHT_CORNER_ALL);
 }
 
 // -- EPG+ Menue Handler Class
