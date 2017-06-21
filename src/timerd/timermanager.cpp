@@ -332,7 +332,7 @@ int CTimerManager::modifyEvent(int peventID, time_t announceTime, time_t alarmTi
 		CTimerEvent *event = events[peventID];
 		event->announceTime = announceTime;
 		event->alarmTime = alarmTime;
-		event->stopTime = stopTime;
+		event->stopTime = (event->eventType == CTimerd::TIMER_RECORD) ? stopTime : 0;
 		if(event->eventState==CTimerd::TIMERSTATE_PREANNOUNCE)
 			event->eventState = CTimerd::TIMERSTATE_SCHEDULED;
 		event->eventRepeat = evrepeat;
