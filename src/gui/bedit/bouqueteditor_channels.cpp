@@ -184,7 +184,7 @@ const struct button_label CBEChannelWidgetButtons[6] =
 void CBEChannelWidget::paintFoot()
 {
 	size_t numbuttons = sizeof(CBEChannelWidgetButtons)/sizeof(CBEChannelWidgetButtons[0]);
-	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, CBEChannelWidgetButtons, width/numbuttons-2*OFFSET_INNER_MID, 0, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]);
+	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, CBEChannelWidgetButtons, width/numbuttons-2*OFFSET_INNER_MID);
 }
 
 std::string CBEChannelWidget::getInfoText(int index)
