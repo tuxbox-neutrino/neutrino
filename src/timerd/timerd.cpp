@@ -306,7 +306,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					CBasicServer::receive_data(connfd, &recInfo, sizeof(CTimerd::TransferRecordingInfo));
 					if(recInfo.recordingSafety)
 					{
-						int pre,post;
+						int pre = 0,post = 0;
 						CTimerManager::getInstance()->getRecordingSafety(pre,post);
 						msgAddTimer.announceTime -= pre;
 						msgAddTimer.alarmTime -= pre;

@@ -442,7 +442,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if ((strcmp(key, "send_remotetimer") == 0) && RemoteBoxChanExists(timerlist[selected].channel_id))
 	{
-		int pre,post;
+		int pre = 0,post = 0;
 		Timer->getRecordingSafety(pre,post);
 		CHTTPTool httpTool;
 		std::string r_url;
