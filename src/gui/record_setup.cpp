@@ -310,7 +310,7 @@ int CRecordSetup::showRecordSetup()
 void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 {
 	//recording start/end correcture
-	int pre,post;
+	int pre = 0,post = 0;
 	g_Timerd->getRecordingSafety(pre,post);
 	g_settings.record_safety_time_before = pre/60;
 	g_settings.record_safety_time_after = post/60;

@@ -2480,7 +2480,7 @@ bool CMovieBrowser::onDelete(bool cursor_only)
 	MI_MOVIE_INFO *movieinfo;
 	movieinfo = NULL;
 
-	if (cursor_only)
+	if (cursor_only || (filelist.empty() || movielist.empty()))
 	{
 		filelist.clear();
 		movielist.clear();

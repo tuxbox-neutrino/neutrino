@@ -124,6 +124,7 @@ CProgressBar* CProgressWindow::getProgressItem()
 	pBar->setActiveColor(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	pBar->setFrameThickness(1);
 	pBar->setColorFrame(COL_PROGRESSBAR_ACTIVE_PLUS_0);
+	pBar->setType(CProgressBar::PB_TIMESCALE);
 	addWindowItem(pBar);
 
 	return pBar;

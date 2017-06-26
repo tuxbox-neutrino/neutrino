@@ -251,7 +251,7 @@ void CBEChannelSelectWidget::paintFoot()
 		break;
 	}
 
-	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, Button, width/numbuttons-20);
+	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, Button, width/numbuttons-2*OFFSET_INNER_MID);
 }
 
 std::string CBEChannelSelectWidget::getInfoText(int index)

@@ -58,6 +58,10 @@ fb_pixel_t *getFBp(int *y)
 
 void FillRect(int x, int y, int w, int h, int color)
 {
+	if(color < 0 || SIZECOLTABLE < color){
+		printf("FIXME array size %i color %i not in range\n",SIZECOLTABLE,color);
+		return;
+	}
 	fb_pixel_t *p = getFBp(&y);
 	MARK_FB(x, y, w, h);
 	p += x + y * stride;

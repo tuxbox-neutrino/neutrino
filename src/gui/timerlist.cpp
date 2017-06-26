@@ -442,7 +442,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if ((strcmp(key, "send_remotetimer") == 0) && RemoteBoxChanExists(timerlist[selected].channel_id))
 	{
-		int pre,post;
+		int pre = 0,post = 0;
 		Timer->getRecordingSafety(pre,post);
 		CHTTPTool httpTool;
 		std::string r_url;
@@ -678,7 +678,7 @@ void CTimerList::updateEvents(void)
 
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	font_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	item_height = 2*font_height;
+	item_height = 2*font_height + 1; // + 1 for separationline
 	footer_height = header_height;
 
 	width = frameBuffer->getScreenWidth()/100 * 90;
@@ -1161,6 +1161,8 @@ void CTimerList::paintItem(int pos)
 	if (i_radius)
 		frameBuffer->paintBoxRel(x, ypos, real_width, item_height, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x, ypos, real_width, item_height, bgcolor, i_radius);
+	// separationline
+	frameBuffer->paintHLineRel(x, real_width, ypos + item_height - 1, (pos + 1 == (int) listmaxshow) ? bgcolor : COL_MENUCONTENTDARK_PLUS_0);
 	//shadow
 	frameBuffer->paintBoxRel(x + width, ypos + OFFSET_SHADOW, OFFSET_SHADOW, item_height, COL_SHADOW_PLUS_0);
 

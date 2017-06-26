@@ -150,7 +150,7 @@ const struct button_label CBEBouquetWidgetButtons[6] =
 void CBEBouquetWidget::paintFoot()
 {
 	size_t numbuttons = sizeof(CBEBouquetWidgetButtons)/sizeof(CBEBouquetWidgetButtons[0]);
-	footer.paintButtons(x, y+height, width, ButtonHeight, numbuttons, CBEBouquetWidgetButtons, width/numbuttons-2*OFFSET_INNER_MID, 0, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]);
+	footer.paintButtons(x, y+height, width, ButtonHeight, numbuttons, CBEBouquetWidgetButtons, width/numbuttons-2*OFFSET_INNER_MID);
 }
 
 void CBEBouquetWidget::hide()
