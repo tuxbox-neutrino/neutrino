@@ -1161,7 +1161,7 @@ void CTimerList::paintItem(int pos)
 		frameBuffer->paintBoxRel(x, ypos, real_width, item_height, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x, ypos, real_width, item_height, bgcolor, i_radius);
 	// separationline
-	frameBuffer->paintHLineRel(x, real_width, ypos + item_height - 1, (pos + 1 == listmaxshow) ? bgcolor : COL_MENUCONTENTDARK_PLUS_0);
+	frameBuffer->paintHLineRel(x, real_width, ypos + item_height - 1, (pos + 1 == (int) listmaxshow) ? bgcolor : COL_MENUCONTENTDARK_PLUS_0);
 	//shadow
 	frameBuffer->paintBoxRel(x + width, ypos + OFFSET_SHADOW, OFFSET_SHADOW, item_height, COL_SHADOW_PLUS_0);
 
