@@ -176,7 +176,7 @@ class CAudioPlayerGui : public CMenuTarget
 		/**
 		 * Processes a loaded XML file/data of internet audiostreams or playlists
 		 */
-		void scanXmlData(xmlDocPtr answer_parser, const char *nametag, const char *urltag, const char *bitratetag = NULL, bool usechild = false);
+		void scanXmlData(xmlDocPtr answer_parser, const char *urltag, const char *nametag, const char *bitratetag = NULL, bool usechild = false);
 
 		/**
 		 * Reads the icecast directory (XML file) and calls scanXmlData
