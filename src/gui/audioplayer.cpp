@@ -2093,8 +2093,12 @@ void CAudioPlayerGui::updateMetaData()
 	if (updateMeta || updateScreen)
 	{
 		int cover_width = m_title_height + 2*OFFSET_INNER_MID;
-		m_frameBuffer->paintBoxRel(m_x + cover_width, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL, m_width - cover_width - OFFSET_INNER_MID, m_meta_height, COL_MENUHEAD_PLUS_0);
-		int xstart = ((m_width - 2*OFFSET_INNER_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(m_metainfo))/2);
+		m_frameBuffer->paintBoxRel(m_x + cover_width, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL, m_width - OFFSET_INNER_MID - cover_width, m_meta_height, COL_MENUHEAD_PLUS_0);
+
+		int w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(m_metainfo);
+		int xstart = (m_width - w)/2;
+		if (xstart < OFFSET_INNER_MID)
+			xstart = OFFSET_INNER_MID;
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL + m_meta_height, m_width - 2*xstart, m_metainfo, COL_MENUHEAD_TEXT);
 	}
 }
