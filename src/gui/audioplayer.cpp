@@ -1697,7 +1697,7 @@ void CAudioPlayerGui::paintTitleBox()
 		return;
 
 	if (m_state == CAudioPlayerGui::STOP && m_show_playlist)
-		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_title_height);
+		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width + OFFSET_SHADOW, m_title_height + OFFSET_SHADOW);
 	else
 	{
 		// shadow
