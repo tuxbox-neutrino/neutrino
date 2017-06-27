@@ -1388,9 +1388,10 @@ bool CMP3Dec::SaveCover(FILE * in, CAudioMetaData * const m)
 							data = id3_field_getbinarydata(field, &size);
 							if ( data )
 							{
+								mkdir(COVERDIR, 0755);
 								std::ostringstream cover;
-								cover.str("");
-								cover << "/tmp/cover_" << cover_count++ << ".jpg";
+								cover.str(COVERDIR);
+								cover << "/cover_" << cover_count++ << ".jpg";
 								FILE * pFile;
 								pFile = fopen ( cover.str().c_str() , "wb" );
 								if (pFile)

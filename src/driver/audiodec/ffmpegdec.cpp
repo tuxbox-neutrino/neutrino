@@ -33,15 +33,19 @@
 #include <cstring>
 #include <errno.h>
 #include <sstream>
+
+#include <global.h>
 #include <driver/audioplay.h>
 #include <zapit/include/audio.h>
 #include <eitd/edvbstring.h> // UTF8
 #include "ffmpegdec.h"
+
 extern "C" {
 #include <libavutil/opt.h>
 #include <libavutil/samplefmt.h>
 #include <libswresample/swresample.h>
 }
+
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
 #define av_frame_alloc	avcodec_alloc_frame
 #define av_frame_unref	avcodec_get_frame_defaults
@@ -62,8 +66,6 @@ extern cAudio * audioDecoder;
 //#define FFDEC_DEBUG
 
 #define ProgName "FfmpegDec"
-
-#define COVERDIR "/tmp/cover"
 
 static OpenThreads::Mutex mutex;
 
@@ -521,7 +523,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 			if (save_cover && (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
 				mkdir(COVERDIR, 0755);
 				std::string cover(COVERDIR);
-				cover += "/" + to_string(cover_count++) + ".jpg";
+				cover += "/cover_" + to_string(cover_count++) + ".jpg";
 				FILE *f = fopen(cover.c_str(), "wb");
 				if (f) {
 					AVPacket *pkt = &avc->streams[i]->attached_pic;
