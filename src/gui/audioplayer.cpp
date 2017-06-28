@@ -154,6 +154,7 @@ CAudioPlayerGui::CAudioPlayerGui(bool inetmode)
 	m_inetmode = inetmode;
 	m_detailsline = NULL;
 	m_infobox = NULL;
+	m_titlebox = NULL;
 
 	Init();
 }
@@ -209,6 +210,7 @@ CAudioPlayerGui::~CAudioPlayerGui()
 	m_title2Pos.clear();
 	delete m_detailsline;
 	delete m_infobox;
+	delete m_titlebox;
 }
 
 const struct button_label AudioPlayerButtons[][4] =
@@ -1707,15 +1709,23 @@ void CAudioPlayerGui::paintTitleBox()
 		return;
 
 	if (m_state == CAudioPlayerGui::STOP && m_show_playlist)
-		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width + OFFSET_SHADOW, m_title_height + OFFSET_SHADOW);
+	{
+		if (m_titlebox)
+		{
+			m_titlebox->kill();
+			delete m_titlebox; m_titlebox = NULL;
+		}
+	}
 	else
 	{
-		// shadow
-		m_frameBuffer->paintBoxRel(m_x + OFFSET_SHADOW, m_y + OFFSET_SHADOW, m_width, m_title_height, COL_SHADOW_PLUS_0, RADIUS_LARGE);
-
-		m_frameBuffer->paintBoxRel(m_x, m_y, m_width, m_title_height, COL_MENUHEAD_PLUS_0, RADIUS_LARGE);
-		m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height, 2, COL_FRAME_PLUS_0, RADIUS_LARGE);
-
+		// title box
+		if (!m_titlebox)
+		{
+			m_titlebox = new CComponentsShapeSquare(m_x, m_y, m_width, m_title_height, NULL, CC_SHADOW_ON);
+			m_titlebox->enableFrame(true, FRAME_MIN_WIDTH);
+			m_titlebox->setCorner(RADIUS_LARGE);
+		}
+		m_titlebox->paint(false);
 		paintCover();
 
 		// first line (Track number)
@@ -1738,7 +1748,7 @@ void CAudioPlayerGui::paintTitleBox()
 		int xstart = (m_width - w)/2;
 		if (xstart < OFFSET_INNER_MID)
 			xstart = OFFSET_INNER_MID;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 1*m_item_height, m_width - 2*OFFSET_INNER_MID, tmp, COL_MENUHEAD_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 1*m_item_height, m_width - 2*OFFSET_INNER_MID, tmp, COL_MENUHEAD_TEXT); //caption "current track"
 
 		// second line (Artist/Title...)
 		GetMetaData(m_curr_audiofile);
@@ -1763,7 +1773,7 @@ void CAudioPlayerGui::paintTitleBox()
 		xstart = (m_width - w)/2;
 		if (xstart < OFFSET_INNER_MID)
 			xstart = OFFSET_INNER_MID;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2*m_item_height, m_width - 2*OFFSET_INNER_MID, tmp, COL_MENUHEAD_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2*m_item_height, m_width - 2*OFFSET_INNER_MID, tmp, COL_MENUHEAD_TEXT); //artist - title
 
 		// reset so fields get painted always
 		m_metainfo.clear();
@@ -2103,7 +2113,7 @@ void CAudioPlayerGui::updateMetaData()
 	if (updateMeta || updateScreen)
 	{
 		int cover_width = m_title_height + 2*OFFSET_INNER_MID;
-		m_frameBuffer->paintBoxRel(m_x + cover_width, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL, m_width - OFFSET_INNER_MID - cover_width, m_meta_height, COL_MENUHEAD_PLUS_0);
+		m_frameBuffer->paintBoxRel(m_x + cover_width, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL, m_width - OFFSET_INNER_MID - cover_width, m_meta_height, m_titlebox->getColorBody());
 
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(m_metainfo);
 		int xstart = (m_width - w)/2;
@@ -2151,7 +2161,7 @@ void CAudioPlayerGui::updateTimes(const bool force)
 			if (m_inetmode)
 				w_total_time = 0;
 
-			int x_total_time = m_x + m_width - OFFSET_INNER_MID - w_total_time;
+			int x_total_time = m_x + m_width - OFFSET_INNER_MID - w_total_time - 2*m_titlebox->getFrameThickness();
 			// played time offset to align this value on the right side
 			int o_played_time = std::max(w_faked_time - w_played_time, 0);
 			int x_faked_time = m_x + m_width - OFFSET_INNER_MID - w_total_time - w_faked_time;
@@ -2160,20 +2170,20 @@ void CAudioPlayerGui::updateTimes(const bool force)
 
 			if (updateTotal && !m_inetmode)
 			{
-				m_frameBuffer->paintBoxRel(x_total_time, y_times, w_total_time + OFFSET_INNER_MID, m_item_height, COL_MENUHEAD_PLUS_0);
+				m_frameBuffer->paintBoxRel(x_total_time, y_times, w_total_time + OFFSET_INNER_MID, m_item_height, m_titlebox->getColorBody());
 				if (m_time_total > 0)
 				{
-					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_total_time, y_times + m_item_height, w_total_time, total_time, COL_MENUHEAD_TEXT);
+					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_total_time, y_times + m_item_height, w_total_time, total_time, COL_MENUHEAD_TEXT); //total time
 				}
 			}
 			if (updatePlayed || (m_state == CAudioPlayerGui::PAUSE))
 			{
-				m_frameBuffer->paintBoxRel(x_faked_time, y_times, w_faked_time, m_item_height, COL_MENUHEAD_PLUS_0);
+				m_frameBuffer->paintBoxRel(x_faked_time, y_times, w_faked_time, m_item_height, m_titlebox->getColorBody());
 				struct timeval tv;
 				gettimeofday(&tv, NULL);
 				if ((m_state != CAudioPlayerGui::PAUSE) || (tv.tv_sec & 1))
 				{
-					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_played_time, y_times + m_item_height, w_played_time, played_time, COL_MENUHEAD_TEXT);
+					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_played_time, y_times + m_item_height, w_played_time, played_time, COL_MENUHEAD_TEXT); //elapsed time
 				}
 			}
 		}

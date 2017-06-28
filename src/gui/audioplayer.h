@@ -128,6 +128,7 @@ class CAudioPlayerGui : public CMenuTarget
 		bool		m_inetmode;
 		CComponentsDetailsLine *m_detailsline;
 		CComponentsInfoBox *m_infobox;
+		CComponentsShapeSquare *m_titlebox;
 
 		SMSKeyInput	m_SMSKeyInput;
 
