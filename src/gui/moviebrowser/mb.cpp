@@ -3449,7 +3449,9 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	if (!calledExternally) {
 		CMenuWidget mainMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 		mainMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_MAIN_HEAD);
-		mainMenu.addItem(new CMenuForwarder(m_movieSelectionHandler->epgTitle, false));
+		if (m_movieSelectionHandler){
+			mainMenu.addItem(new CMenuForwarder(m_movieSelectionHandler->epgTitle, false));
+		}
 		mainMenu.addItem(GenericMenuSeparator);
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD,     (m_movieSelectionHandler != NULL), NULL, this, "show_movie_info_menu", CRCInput::RC_red));
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_CUT_HEAD, (m_movieSelectionHandler != NULL), NULL, this, "show_movie_cut_menu",  CRCInput::RC_green));
