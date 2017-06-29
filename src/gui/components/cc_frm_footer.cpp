@@ -123,8 +123,8 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	 * If already existing some items then subtract those width from footer width.
 	 * ...so we have the possible usable size for button container.
 	*/
-	if(!v_cc_items.empty()){ //FIXME: footer container seems always not empty here, so here j initialized with = 1. I dont't know where it comes from! dbt!
-		for (size_t j= 1; j< size(); j++)
+	if(!v_cc_items.empty()){
+		for (size_t j= 0; j< size(); j++)
 			w_chain -= getCCItem(j)->getWidth();
 	}
 

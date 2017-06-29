@@ -96,6 +96,8 @@ public:
 	std::string genre;
 	std::string track;
 	std::string cover;
+	std::string logo;
+	std::string url;
 	bool cover_temporary;
 	bool changed;
 };
