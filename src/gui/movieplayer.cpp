@@ -1253,6 +1253,11 @@ bool CMoviePlayerGui::SetPosition(int pos, bool absolute)
 {
 	clearSubtitle();
 	bool res = playback->SetPosition(pos, absolute);
+	if(is_file_player && res && speed == 0 && playstate == CMoviePlayerGui::PAUSE){
+		playstate = CMoviePlayerGui::PLAY;
+		speed = 1;
+		playback->SetSpeed(speed);
+	}
 	return res;
 }
 
