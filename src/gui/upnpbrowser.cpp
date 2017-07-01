@@ -1226,8 +1226,11 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 
 void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 {
-	if (pos < 0)
+	if (pos < 0){
+		if (dline)
+			dline->kill();
 		return;
+	}
 
 	int xpos  = m_x - DETAILSLINE_WIDTH;
 	int ypos1 = m_item_y + pos*m_item_height;
