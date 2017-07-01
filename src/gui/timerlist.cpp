@@ -1817,7 +1817,7 @@ int CTimerList::newTimer()
 bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTime, char * remotebox_name)
 {
 	CTimerd::TimerList overlappingTimers;
-	int pre,post;
+	int pre = 0,post = 0;
 	Timer->getRecordingSafety(pre,post);
 
 	for (CTimerd::TimerList::iterator it = timerlist.begin(); it != timerlist.end();++it)
