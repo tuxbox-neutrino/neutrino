@@ -741,5 +741,5 @@ void CBouquetList::paint()
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, Bouquets.size(), listmaxshow, selected);
-	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page, CC_SHADOW_ON);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page, CC_SHADOW_RIGHT_CORNER_ALL);
 }

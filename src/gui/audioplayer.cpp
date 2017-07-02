@@ -1723,7 +1723,7 @@ void CAudioPlayerGui::paintTitleBox()
 		if (!m_titlebox)
 		{
 			m_titlebox = new CComponentsShapeSquare(m_x, m_y, m_width, m_title_height, NULL, CC_SHADOW_ON);
-			m_titlebox->enableFrame(true, FRAME_MIN_WIDTH);
+			m_titlebox->enableFrame(true, FRAME_WIDTH_MIN);
 			m_titlebox->setCorner(RADIUS_LARGE);
 		}
 		m_titlebox->paint(false);

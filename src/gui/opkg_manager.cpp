@@ -682,9 +682,10 @@ string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
 		fseek(fd, 0, SEEK_END);
 		fgetpos(fd, &fz);
 		fseek(fd, 0, SEEK_SET);
-		if (fz.__pos == 0)
+		if (fz.__pos == 0){
+			fclose(fd);
 			return pkgDesc;
-
+		}
 		char buf[512];
 		string package, version, description;
 		while (fgets(buf, sizeof(buf), fd)) {
