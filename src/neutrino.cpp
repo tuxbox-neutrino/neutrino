@@ -608,6 +608,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.epg_scan = CEpgScan::SCAN_CURRENT;
 		g_settings.epg_scan_mode = CEpgScan::MODE_OFF;
 	}
+	g_settings.epg_scan_rescan = configfile.getInt32("epg_scan_rescan", 24);
 	g_settings.epg_save_mode = configfile.getInt32("epg_save_mode", 0);
 	//widget settings
 	g_settings.widget_fade = false;
@@ -1280,6 +1281,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("epg_read_frequently", g_settings.epg_read_frequently);
 	configfile.setInt32("epg_scan", g_settings.epg_scan);
 	configfile.setInt32("epg_scan_mode", g_settings.epg_scan_mode);
+	configfile.setInt32("epg_scan_rescan", g_settings.epg_scan_rescan);
 	configfile.setInt32("epg_save_mode", g_settings.epg_save_mode);
 	configfile.setInt32("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setInt32("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
@@ -3560,6 +3562,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			skipShutdownTimer = (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 5) == CMsgBox::mbrYes);
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
+		if(CStreamManager::getInstance()->StreamStatus())
+			skipShutdownTimer = true;
 		if(!skipShutdownTimer) {
 			ExitRun(g_info.hw_caps->can_shutdown);
 		}

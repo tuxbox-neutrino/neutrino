@@ -98,6 +98,7 @@ class CAudioPlayerGui : public CMenuTarget
 		int		m_meta_height;
 		int		m_button_height;
 		int		m_title_height;
+		int		m_cover_width;
 		int		m_info_height;
 		int		m_key_level;
 		bool		m_visible;

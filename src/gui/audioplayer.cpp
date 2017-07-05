@@ -297,6 +297,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	m_meta_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 	m_title_height = 3*OFFSET_INNER_SMALL + 2*m_item_height + m_meta_height;
+	m_cover_width = 0;
 	m_info_height = 2*OFFSET_INNER_SMALL + 2*g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
 	m_button_height = ::paintButtons(AudioPlayerButtons[0], 4, 0, 0, 0, 0, 0, false, NULL, NULL);
 
@@ -1701,7 +1702,21 @@ void CAudioPlayerGui::paintCover()
 		cover = meta.cover;
 
 	if (access(cover.c_str(), F_OK) == 0)
-		g_PicViewer->DisplayImage(cover, m_x + OFFSET_INNER_MID, m_y + OFFSET_INNER_SMALL, m_title_height - 2*OFFSET_INNER_SMALL, m_title_height - 2*OFFSET_INNER_SMALL, m_frameBuffer->TM_NONE);
+	{
+		int cover_x = m_x + OFFSET_INNER_MID;
+		int cover_y = m_y + OFFSET_INNER_SMALL;
+		m_cover_width = 0;
+		CComponentsPicture *cover_object = new CComponentsPicture(cover_x, cover_y, cover);
+		if (cover_object)
+		{
+			cover_object->doPaintBg(false);
+			cover_object->SetTransparent(CFrameBuffer::TM_BLACK);
+			cover_object->setHeight(m_title_height - 2*OFFSET_INNER_SMALL, true);
+			cover_object->paint();
+
+			m_cover_width = cover_object->getWidth() + OFFSET_INNER_MID;
+		}
+	}
 }
 
 void CAudioPlayerGui::paintTitleBox()
@@ -1743,13 +1758,11 @@ void CAudioPlayerGui::paintTitleBox()
 			tmp += sNr ;
 		}
 
-		// FIXME - there's no cover-check; so we maybe paint over the cover
-
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 		int xstart = (m_width - w)/2;
-		if (xstart < OFFSET_INNER_MID)
-			xstart = OFFSET_INNER_MID;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 1*m_item_height, m_width - 2*OFFSET_INNER_MID, tmp, COL_MENUHEAD_TEXT); //caption "current track"
+		if (xstart < OFFSET_INNER_MID + m_cover_width)
+			xstart = OFFSET_INNER_MID + m_cover_width;
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 1*m_item_height, m_width - OFFSET_INNER_MID - xstart, tmp, COL_MENUHEAD_TEXT); //caption "current track"
 
 		// second line (Artist/Title...)
 		GetMetaData(m_curr_audiofile);
@@ -1772,9 +1785,9 @@ void CAudioPlayerGui::paintTitleBox()
 		}
 		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 		xstart = (m_width - w)/2;
-		if (xstart < OFFSET_INNER_MID)
-			xstart = OFFSET_INNER_MID;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2*m_item_height, m_width - 2*OFFSET_INNER_MID, tmp, COL_MENUHEAD_TEXT); //artist - title
+		if (xstart < OFFSET_INNER_MID + m_cover_width)
+			xstart = OFFSET_INNER_MID + m_cover_width;
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2*m_item_height, m_width - OFFSET_INNER_MID - xstart, tmp, COL_MENUHEAD_TEXT); //artist - title
 
 		// reset so fields get painted always
 		m_metainfo.clear();
@@ -2113,8 +2126,7 @@ void CAudioPlayerGui::updateMetaData()
 
 	if (updateMeta || updateScreen)
 	{
-		int cover_width = m_title_height + 2*OFFSET_INNER_MID;
-		m_frameBuffer->paintBoxRel(m_x + cover_width, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL, m_width - OFFSET_INNER_MID - cover_width, m_meta_height, m_titlebox->getColorBody());
+		m_frameBuffer->paintBoxRel(m_x + OFFSET_INNER_MID + m_cover_width, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL, m_width - 2*OFFSET_INNER_MID - m_cover_width, m_meta_height, m_titlebox->getColorBody());
 
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(m_metainfo);
 		int xstart = (m_width - w)/2;

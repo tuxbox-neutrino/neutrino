@@ -39,7 +39,7 @@
 #include <driver/record.h>
 #include <driver/streamts.h>
 
-#define EPG_RESCAN_TIME (24*60*60)
+//#define EPG_RESCAN_TIME (24*60*60)
 
 extern CBouquetList * bouquetList;
 extern CBouquetList * TVfavList;
@@ -322,8 +322,9 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 void CEpgScan::AddTimer()
 {
 	if (rescan_timer == 0)
-		rescan_timer = g_RCInput->addTimer(EPG_RESCAN_TIME*1000ULL*1000ULL, true);
+		rescan_timer = g_RCInput->addTimer((g_settings.epg_scan_rescan*60*60)*1000ULL*1000ULL, true);
 	INFO("rescan timer id %d", rescan_timer);
+	INFO("rescan time is %d*60*60", g_settings.epg_scan_rescan);
 }
 
 void CEpgScan::EnterStandby()
