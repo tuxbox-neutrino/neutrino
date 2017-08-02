@@ -948,6 +948,8 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 
 #define DETAILSLINE_WIDTH	CFrameBuffer::getInstance()->scale2Res(16)
 
+#define SIDEBAR_WIDTH		CFrameBuffer::getInstance()->scale2Res(40)
+
 #define BIGFONT_FACTOR		1.5
 
 struct SglobalInfo
