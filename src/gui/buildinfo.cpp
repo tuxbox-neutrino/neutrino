@@ -35,13 +35,13 @@
 
 using namespace std;
 
-CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, CCW_PERCENT 90, CCW_PERCENT 90, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
+CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, CCW_PERCENT 85, CCW_PERCENT 85, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
 {
 	initVarBuildInfo();
 	if (show)
 		exec(NULL, "");
 	else
-		InitInfoItems();
+		GetData();
 }
 
 //init all var members
@@ -51,7 +51,6 @@ void CBuildInfo::initVarBuildInfo()
 
 	font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT];
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
-
 
 	shadow = CC_SHADOW_ON;
 }
@@ -64,12 +63,12 @@ int CBuildInfo::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	if (parent)
 		parent->hide();
 
-	InitInfoItems();
-
 	//exit if no informations available
-	if (!HasData()){
+	if (!GetData()){
 		return res;
 	}
+
+	InitInfoItems();
 
 	//paint window
 	if (!is_painted)
@@ -117,7 +116,7 @@ void CBuildInfo::setFontType(Font* font_text)
 	InitInfoItems();
 }
 
-bool CBuildInfo::HasData()
+bool CBuildInfo::GetData()
 {
 	v_info.clear();
 
@@ -166,7 +165,7 @@ bool CBuildInfo::HasData()
 void CBuildInfo::InitInfoItems()
 {
 	//get and checkup required informations
-	if (!HasData())
+	if (!GetData())
 		return;
 
 	//ensure a clean body
