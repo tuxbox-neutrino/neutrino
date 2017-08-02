@@ -668,6 +668,7 @@ int COsdSetup::showOsdSetup()
 			COsdHelpers::getInstance()->isVideoSystem1080(videoSystem) &&
 			(g_settings.video_Mode != VIDEO_STD_AUTO));
 	CMenuOptionChooser * osd_res = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_RESOLUTION, &g_settings.osd_resolution, kext, resCount, enable, this);
+	osd_res->OnAfterChangeOption.connect(sigc::mem_fun(frameBuffer->getInstance(), &CFrameBuffer::clearIconCache));
 	osd_res->setHint("", LOCALE_MENU_HINT_OSD_RESOLUTION);
 	osd_menu->addItem(osd_res);
 #endif
