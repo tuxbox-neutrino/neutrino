@@ -325,6 +325,7 @@ colormenu.font_ttx Select Teletext font
 colormenu.menucolors Colors
 colormenu.osd_preset TV preset
 colormenu.osd_resolution OSD resolution
+colormenu.shadow_color Shadow Color
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
 colormenu.timing Timeouts
@@ -1036,6 +1037,7 @@ menu.hint_color_gradient_separator_enable Disable/enable color gradient for menu
 menu.hint_colored_events Use different color for current or next event
 menu.hint_colored_events_textcolor Change color for colored events in channellist and infobar
 menu.hint_colors Configure GUI colors
+menu.hint_colors_shadow Setup for shadow color.
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
 menu.hint_dboxinfo Information about box cpu and storage

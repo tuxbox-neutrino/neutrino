@@ -765,6 +765,8 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 			&t.menu_Foot_alpha, colorSetupNotifier);
 	CColorChooser* chFootTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.menu_Foot_Text_red, &t.menu_Foot_Text_green, &t.menu_Foot_Text_blue,
 			NULL, colorSetupNotifier);
+	CColorChooser* chShadowColor = new CColorChooser(LOCALE_COLORMENU_SHADOW_COLOR, &t.shadow_red, &t.shadow_green, &t.shadow_blue,
+			&t.menu_Head_alpha, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
@@ -930,6 +932,13 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj = new CMenuOptionChooser(LOCALE_MISCSETTINGS_COLORED_EVENTS_INFOBAR, &t.colored_events_infobar, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true);
 	oj->setHint("", LOCALE_MENU_HINT_COLORED_EVENTS);
 	menu_colors->addItem(oj);
+
+	// shadow
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_SHADOW_COLOR, true, NULL, chShadowColor );
+	mf->setHint("", LOCALE_MENU_HINT_COLORS_SHADOW);
+	menu_colors->addItem(mf);
 }
 
 /* for font size setup */

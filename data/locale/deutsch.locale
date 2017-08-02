@@ -325,6 +325,7 @@ colormenu.font_ttx Teletext Schriftart
 colormenu.menucolors Farben
 colormenu.osd_preset Monitor Auswahl
 colormenu.osd_resolution OSD-Auflösung
+colormenu.shadow_color Schattenfarbe
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
 colormenu.timing Timeouts
@@ -1036,6 +1037,7 @@ menu.hint_color_gradient_separator_enable Farbverlauf für Menü-Trennlinien akt
 menu.hint_colored_events Definiert, ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
 menu.hint_colored_events_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_colors Konfigurieren Sie die Menü-Farben
+menu.hint_colors_shadow Einstellen der Schattenfarbe
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
 menu.hint_dboxinfo Informationen über CPU und Arbeitsspeicher der Box

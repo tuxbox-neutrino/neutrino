@@ -153,6 +153,11 @@ struct SNeutrinoTheme
 	int progressbar_timescale_green;
 	int progressbar_timescale_yellow;
 	int progressbar_timescale_invert;
+
+	unsigned char shadow_alpha;
+	unsigned char shadow_red;
+	unsigned char shadow_green;
+	unsigned char shadow_blue;
 };
 
 struct timer_remotebox_item
