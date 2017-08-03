@@ -146,6 +146,17 @@ class CComponentsItem : public CComponents
 		///set x and y position as percent value related to current parent form or screen dimensions at once
 		virtual void setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent);
 
+		///sets real x position on screen. Use this, if item is added to a parent form
+		virtual void setRealXPos(const int& xr){cc_xr = xr;}
+		///sets real y position on screen. Use this, if item is added to a parent form
+		virtual void setRealYPos(const int& yr){cc_yr = yr;}
+		///sets real x and y position on screen at once. Use this, if item is added to a parent form
+		virtual void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;}
+		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
+		virtual int getRealXPos(){return cc_parent ? cc_xr : x;}
+		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
+		virtual int getRealYPos(){return cc_parent ? cc_yr : y;}
+
 		///do center item on screen or within a parent form, parameter along_mode assigns direction of centering
 		virtual void setCenterPos(int along_mode = CC_ALONG_X | CC_ALONG_Y);
 
