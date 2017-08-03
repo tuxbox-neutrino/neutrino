@@ -35,8 +35,8 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 {
 	frameBuffer 		= CFrameBuffer::getInstance();
 
-	x = cc_xr = x_old	= 0;
-	y = cc_yr = y_old	= 0;
+	x = cc_xr = cc_xr_old = x_old	= 0;
+	y = cc_yr = cc_yr_old = y_old	= 0;
 	height	= height_old	= CC_HEIGHT_MIN;
 	width	= width_old	= CC_WIDTH_MIN;
 
@@ -95,14 +95,16 @@ CCDraw::~CCDraw()
 inline bool CCDraw::applyPosChanges()
 {
 	bool ret = false;
-	if (x != x_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], Pos changes x %d != x_old %d...\033[0m\n", __func__, __LINE__, x, x_old);
+	if (x != x_old || cc_xr != cc_xr_old){
+		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], Pos changes x %d != x_old %d... [cc_xr = %d cc_xr_old = %d]\033[0m\n", __func__, __LINE__, x, x_old, cc_xr, cc_xr_old);
 		x_old = x;
+		cc_xr_old = cc_xr;
 		ret = true;
 	}
-	if (y != y_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], Pos changes y %d != y_old %d...\033[0m\n", __func__, __LINE__, y, y_old);
+	if (y != y_old || cc_yr != cc_yr_old){
+		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], Pos changes y %d != y_old %d... [cc_yr = %d cc_yr_old = %d]\033[0m\n", __func__, __LINE__, y, y_old, cc_yr, cc_yr_old);
 		y_old = y;
+		cc_yr_old = cc_yr;
 		ret = true;
 	}
 
