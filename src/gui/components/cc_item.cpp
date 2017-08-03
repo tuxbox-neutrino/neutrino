@@ -265,14 +265,14 @@ void CComponentsItem::setXPos(const int& xpos)
 {
 	CCDraw::setXPos(xpos);
 	if (cc_parent)
-		cc_xr = cc_parent->getXPos() + x;
+		cc_xr = cc_parent->getRealXPos() + x;
 }
 
 void CComponentsItem::setYPos(const int& ypos)
 {
 	CCDraw::setYPos(ypos);
 	if (cc_parent)
-		cc_yr = cc_parent->getYPos() + y;
+		cc_yr = cc_parent->getRealYPos() + y;
 }
 
 void CComponentsItem::setXPosP(const uint8_t& xpos_percent)
