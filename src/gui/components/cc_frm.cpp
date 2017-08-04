@@ -257,6 +257,16 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 	return NULL;
 }
 
+CComponentsItem* CComponentsForm::getPrevCCItem(CComponentsItem* current_cc_item)
+{
+	return getCCItem(getCCItemId(current_cc_item) - 1);
+}
+
+CComponentsItem* CComponentsForm::getNextCCItem(CComponentsItem* current_cc_item)
+{
+	return getCCItem(getCCItemId(current_cc_item) + 1);
+}
+
 void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item)
 {
 	if (!v_cc_items.empty()){

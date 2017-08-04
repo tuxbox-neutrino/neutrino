@@ -106,8 +106,39 @@ class CComponentsForm : public CComponentsItem
 		virtual void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
 		virtual void exchangeCCItem(const uint& item_id_a, const uint& item_id_b);
 		virtual void exchangeCCItem(CComponentsItem* item_a, CComponentsItem* item_b);
-		virtual int getCCItemId(CComponentsItem* cc_Item);
-		virtual CComponentsItem* getCCItem(const uint& cc_item_id);
+
+		/**Function to get current item id from passed item.
+		* @param[in]  cc_Item
+		* 	@li CComponentsItem*
+		* @return
+		*	int, in case of not found item returns -1
+		*/
+		int getCCItemId(CComponentsItem* cc_Item);
+
+		/**Function to get current item from item collection.
+		* @param[in]  cc_item_id
+		* 	@li item id as unsigned int
+		* @return
+		*	CComponentsItem*, in case of not found item returns NULL
+		*/
+		CComponentsItem* getCCItem(const uint& cc_item_id);
+
+		/**Function to get previous item from item collection.
+		* @param[in]  current_cc_item
+		* 	@li CComponentsItem*
+		* @return
+		*	CComponentsItem*, in case of not found item returns NULL
+		*/
+		CComponentsItem* getPrevCCItem(CComponentsItem* current_cc_item);
+
+		/**Function to get next item from item collection.
+		* @param[in]  current_cc_item
+		* 	@li CComponentsItem*
+		* @return
+		*	CComponentsItem*, in case of not found item returns NULL
+		*/
+		CComponentsItem* getNextCCItem(CComponentsItem* current_cc_item);
+
 		virtual void paintCCItems();
 
 		///clean up and deallocate existant items from v_cc_items at once
