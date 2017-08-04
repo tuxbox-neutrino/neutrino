@@ -183,6 +183,31 @@ class CComponentsForm : public CComponentsItem
 		virtual void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
 		///returns id of selected item, return value as int, returns -1: if is nothing selected
 		virtual int getSelectedItem();
+
+		/**Function to get consumed  space of items inside form in y direction.
+		* @return
+		*	int, used lines
+		*/
+		int getUsedDY();
+
+		/**Function to get consumed  space of items inside form in x direction.
+		* @return
+		*	int, used lines
+		*/
+		int getUsedDX();
+
+		/**Function to get free usable space of items inside form in y direction.
+		* @return
+		*	int, free lines
+		*/
+		int getFreeDY(){return height - getUsedDY();}
+
+		/**Function to get free usable space of items inside form in x direction.
+		* @return
+		*	int, free lines
+		*/
+		int getFreeDX(){return width - getUsedDX();}
+
 		///returns pointer to selected item, return value as CComponentsItem*, returns NULL: if is nothing selected
 		virtual CComponentsItem* getSelectedItemObject();
 		///select a definied item, parameter1 as size_t

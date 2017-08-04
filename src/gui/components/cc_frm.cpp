@@ -695,3 +695,21 @@ bool CComponentsForm::enableColBodyGradient(const int& enable_mode, const fb_pix
 	}
 	return false;
 }
+
+int CComponentsForm::getUsedDY()
+{
+	int y_res = 0;
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+		y_res  = max(v_cc_items[i]->getYPos() + v_cc_items[i]->getHeight(), y_res);
+
+	return y_res;
+}
+
+int CComponentsForm::getUsedDX()
+{
+	int x_res = 0;
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+		x_res  = max(v_cc_items[i]->getXPos() + v_cc_items[i]->getWidth(), x_res);
+
+	return x_res;
+}
