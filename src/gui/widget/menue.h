@@ -78,6 +78,9 @@ enum
 	DCOND_MODE_TV 		= 2,
 	DCOND_MODE_RADIO  	= 4,
 	DCOND_MODE_TS 		= 8
+#if ENABLE_UPNP
+	,DCOND_MODE_UPNP	= 16
+#endif
 }/*menu_item_disable_cond_t*/;
 
 class CChangeObserver
