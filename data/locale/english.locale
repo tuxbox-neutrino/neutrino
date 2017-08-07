@@ -233,52 +233,52 @@ buildinfo.creator Creator
 buildinfo.kernel Kernel version
 buildinfo.menu Build information
 cablesetup.provider cable provider
-channellist.additional Additional informations
-channellist.additional_off off
-channellist.additional_on on
-channellist.additional_on_minitv on (with MiniTV)
-channellist.current_tp Current transponder
+channellist.additional Additional Informations
+channellist.additional_off Off
+channellist.additional_on On
+channellist.additional_on_minitv On (with MiniTV)
+channellist.current_tp Current Transponder
 channellist.edit Edit
-channellist.epgtext_align_left left
-channellist.epgtext_align_right right
-channellist.extended Show event progress
+channellist.epgtext_align_left Left
+channellist.epgtext_align_right Right
+channellist.extended Show Event Progress
 channellist.extended_colored with colored progressbar
 channellist.extended_simple with simple progressbar
-channellist.favs Favoriten
+channellist.favs Favorites
 channellist.foot Channel Information
 channellist.foot_freq Sat/Freq Info
-channellist.foot_next next Event
-channellist.foot_off off
-channellist.foot_sort_alpha sorted[alpha]
-channellist.foot_sort_chnum sorted[number]
-channellist.foot_sort_freq sorted[freq]
-channellist.foot_sort_sat sorted[sat]
+channellist.foot_next Next Event
+channellist.foot_off Off
+channellist.foot_sort_alpha Sorted[Alpha]
+channellist.foot_sort_chnum Sorted[Number]
+channellist.foot_sort_freq Sorted[Freq]
+channellist.foot_sort_sat Sorted[Sat]
 channellist.head All Services
 channellist.history History
-channellist.history_clear Clear history
-channellist.keep_numbers Persistent channel numbers
+channellist.history_clear Clear History
+channellist.keep_numbers Persistent Channel Numbers
 channellist.make_hdlist Create list of HD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
 channellist.make_webtvlist Create list of WebTV channels
-channellist.new_zap_mode Quickzap in list
-channellist.new_zap_mode_active active
-channellist.new_zap_mode_allow allow
-channellist.new_zap_mode_off off
+channellist.new_zap_mode Quickzap in List
+channellist.new_zap_mode_active Active
+channellist.new_zap_mode_allow Allow
+channellist.new_zap_mode_off Off
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
-channellist.numeric_adjust Numeric zap adjust
+channellist.numeric_adjust Numeric Zap Adjust
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
 channellist.remember Last used
 channellist.reset_all Reset 'new' flag for all channels
 channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
-channellist.show_channellogo Show channel logos
-channellist.show_channelnumber Show channel numbers
-channellist.show_empty_favs Show empty favorites bouquets
-channellist.show_infobox Show bottom infobox
-channellist.since since
-channellist.start starts
+channellist.show_channellogo Show Channel Logos
+channellist.show_channelnumber Show Channel Numbers
+channellist.show_empty_favs Show empty Favorites Bouquets
+channellist.show_infobox Show Bottom Infobox
+channellist.since Since
+channellist.start Starts
 ci.clock CI clock (Mhz)
 ci.empty No CAM in slot
 ci.ignore_msg Ignore CA messages
