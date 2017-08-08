@@ -62,9 +62,9 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///property: y-position on screen, to alter setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
 		int y, y_old;
 		///property: contains real x-position on screen
-		int cc_xr;
+		int cc_xr, cc_xr_old;
 		///property: contains real y-position on screen
-		int cc_yr;
+		int cc_yr, cc_yr_old;
 		///property: height-dimension on screen, to alter with setHeight() or setDimensionsAll()
 		int height, height_old;
 		///property: width-dimension on screen, to alter with setWidth() or setDimensionsAll()
@@ -184,17 +184,6 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///to set the real screen position, look at setRealPos()
 		virtual void setPos(const int& xpos, const int& ypos){setXPos(xpos); setYPos(ypos);}
 
-		///sets real x position on screen. Use this, if item is added to a parent form
-		virtual void setRealXPos(const int& xr){cc_xr = xr;}
-		///sets real y position on screen. Use this, if item is added to a parent form
-		virtual void setRealYPos(const int& yr){cc_yr = yr;}
-		///sets real x and y position on screen at once. Use this, if item is added to a parent form
-		virtual void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;}
-		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
-		virtual int getRealXPos(){return cc_xr;}
-		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
-		virtual int getRealYPos(){return cc_yr;}
-		
 		///set height of component on screen
 		virtual void setHeight(const int& h);
 		///set width of component on screen

@@ -179,9 +179,9 @@ void CColorSetupNotifier::setPalette()
 	                              8, convertSetupAlpha2Alpha(t.infobar_alpha) );
 
 	frameBuffer->paletteGenFade(COL_SHADOW,
-	                              convertSetupColor2RGB(int(t.infobar_red*0.4), int(t.infobar_green*0.4), int(t.infobar_blue*0.4)),
-	                              convertSetupColor2RGB(t.infobar_Text_red, t.infobar_Text_green, t.infobar_Text_blue),
-	                              8, convertSetupAlpha2Alpha(t.infobar_alpha) );
+	                              convertSetupColor2RGB(int(t.shadow_red), int(t.shadow_green), int(t.shadow_blue)),
+	                              convertSetupColor2RGB(t.shadow_red, t.shadow_green, t.shadow_blue),
+	                              8, convertSetupAlpha2Alpha(t.shadow_alpha) );
 
 	frameBuffer->paletteGenFade(COL_INFOBAR_CASYSTEM,
 	                              convertSetupColor2RGB(t.infobar_casystem_red, t.infobar_casystem_green, t.infobar_casystem_blue),

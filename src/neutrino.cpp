@@ -4254,13 +4254,19 @@ void CNeutrinoApp::radioMode( bool rezap)
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
 	}
-	mode = mode_radio;
+
 #ifdef ENABLE_PIP
 	pipDecoder->Pig(g_settings.pip_radio_x, g_settings.pip_radio_y,
 			g_settings.pip_radio_width, g_settings.pip_radio_height,
 			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 #endif
 	CRecordManager::getInstance()->StopAutoRecord();
+
+	if (mode != mode_webtv) {
+		frameBuffer->useBackground(false);
+		frameBuffer->paintBackground();
+	}
+	mode = mode_radio;
 
 	g_RemoteControl->radioMode();
 	SetChannelMode(g_settings.channel_mode_radio);

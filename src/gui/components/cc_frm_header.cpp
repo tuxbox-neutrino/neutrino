@@ -273,6 +273,7 @@ void CComponentsHeader::initIcon()
 
 void CComponentsHeader::initLogo()
 {
+	// init logo with required height and logo
 	int h_logo = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_MIN : cch_logo.dy_max;
 
 	if(!cch_logo_obj)
@@ -291,70 +292,71 @@ void CComponentsHeader::initLogo()
 			h_logo = dy_orig;
 	}
 
-	//cch_logo_obj->setWidth(1, true);
+	// manage logo position
 	if (cch_logo_obj->hasLogo()){
 		cch_logo_obj->setHeight(h_logo, true);
 
-		// set id of logo item depends of neighbor items
+		/* Detect next and previous items,
+		 * current item is logo item.
+		*/
 		int logo_id = getCCItemId(cch_logo_obj);
-		int prev_id = logo_id - 1;
+		CComponentsItem *prev_item = getCCItem((cch_caption_align & CC_TITLE_RIGHT) ? logo_id - 2 : logo_id - 1);
+		CComponentsItem *next_item = getCCItem((cch_caption_align & CC_TITLE_RIGHT) ? logo_id - 1 : logo_id + 1);
 
-		//right end
-		int x_logo_right = width - cch_logo_obj->getWidth();
-		if (!(cch_caption_align & CC_TITLE_RIGHT)){
-			if (cch_btn_obj)
-				x_logo_right -= cch_btn_obj->getWidth();
-			if (cch_cl_obj)
-				x_logo_right -= cch_cl_obj->getWidth();
-		}else{
-			if (cch_icon_obj)
-				x_logo_right += cch_icon_obj->getWidth();
+		/*
+		 * FIXME: Workaround to fix next item in case of wrong order of items.
+		*/
+		if (next_item){
+			if (next_item->getItemType() == CC_ITEMTYPE_FRM_ICONFORM)
+				next_item = cch_cl_obj;
 		}
 
-		//left end
-		int x_logo_left = cch_offset;
-		if (!(cch_caption_align & CC_TITLE_RIGHT))
-			x_logo_left = getCCItem(prev_id) ? getCCItem(prev_id)->getXPos() + getCCItem(prev_id)->getWidth() : 0;
-		else
-			if (cch_icon_obj)
-				x_logo_left += cch_icon_obj->getWidth();
+		/*
+		 * Adjust usable space for logo.
+		*/
+		int x_logo_left = prev_item ? prev_item->getXPos() + prev_item->getWidth() : cch_offset;
+		int x_logo_right = next_item ? next_item->getXPos() : width - cch_offset;
+		int logo_space = x_logo_right - x_logo_left;
 
-		//calculate available space
-		int logo_space = x_logo_right + cch_logo_obj->getWidth() - x_logo_left;
-
-		//reduce logo width if logo space too small
+		/*
+		 * Reduce logo width if logo space too small
+		 * and adjust logo new width if required.
+		*/
 		int w_logo = min(cch_logo_obj->getWidth(), logo_space);
 		cch_logo_obj->setWidth(w_logo, true);
 
-		//set final logo position
-		int x_logo = 0;
-		if (cch_logo.Align & CC_LOGO_RIGHT){
-			if (cch_caption_align & CC_TITLE_RIGHT){
-				if (cch_text_obj)
-					x_logo = cch_text_obj->getXPos() - cch_logo_obj->getWidth();
-			}else
-				x_logo = x_logo_right;
-		}
+		/*
+		 * Adjust logo x position depends of align parameters.
+		*/
+		int x_logo = x_logo_left;
+		if (cch_logo.Align & CC_LOGO_RIGHT)
+			x_logo = x_logo_right - w_logo;
+
 		if (cch_logo.Align & CC_LOGO_LEFT)
 			x_logo = x_logo_left;
+
 		if (cch_logo.Align & CC_LOGO_CENTER){
-			x_logo = width/2 - cch_logo_obj->getWidth()/2;
-			//fallback if adjacent item and logo are overlapping
-			if (!(cch_caption_align & CC_TITLE_RIGHT)){
-				if (getCCItem(prev_id)){
-					int x_tmp = x_logo_left + logo_space/2 - cch_logo_obj->getWidth()/2;
-					if (x_logo <= x_logo_left)
-						x_logo = x_tmp;
-				}
-			}else{
-				if (cch_text_obj){
-					if (x_logo + cch_logo_obj->getWidth() >= cch_text_obj->getXPos()){
-						x_logo = (x_logo_left + cch_text_obj->getXPos())/2 - cch_logo_obj->getWidth()/2;
-					}
-				}
+			x_logo = logo_space/2 - w_logo/2;
+			/*
+			* We are using centered mode as default,
+			* but we must notice possible overlapp
+			* with previous or next item.
+			*/
+			if (cch_caption_align & CC_TITLE_LEFT){
+				int left_tag = prev_item->getXPos() + prev_item->getWidth();
+				if (x_logo <= left_tag)
+					x_logo = left_tag + logo_space/2 - w_logo/2;
+			}
+
+			if (cch_caption_align & CC_TITLE_RIGHT){
+				if (x_logo + w_logo >= next_item->getXPos())
+					x_logo = next_item->getXPos() - logo_space/2 - w_logo/2;
 			}
 		}
 
+		/*
+		 * Finally set logo x position
+		*/
 		cch_logo_obj->setXPos(x_logo);
 		cch_logo_obj->setYPos(height/2 - cch_logo_obj->getHeight()/2);
 	}
@@ -505,6 +507,7 @@ void CComponentsHeader::initClock()
 	if (cch_cl_obj == NULL){
 		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init clock...\n", __func__, __LINE__);
 		cch_cl_obj = new CComponentsFrmClock(0, cch_items_y, cch_font, cch_cl_format, NULL, false, 1, this);
+		cch_cl_obj->disableForceSegmentPaint();
 		cch_cl_obj->doPaintBg(false);
 	}
 
@@ -547,7 +550,7 @@ void CComponentsHeader::initCaption()
 	}
 
 	//calc width of text object in header
-	cc_text_w = width-cch_text_x-cch_offset;
+	cc_text_w = width-cch_text_x/*-cch_offset*/;
 
 	//context buttons
 	int buttons_w = 0;
@@ -601,15 +604,15 @@ void CComponentsHeader::initCaption()
 		int w_free = cc_text_w;
 
 		//recalc caption width
-		cc_text_w = min(cc_text_w, cch_font->getRenderWidth(cch_text)+ OFFSET_INNER_MID);
+		cc_text_w = min(cc_text_w, cch_font->getRenderWidth(cch_text)) + cch_offset;
 
 		//set alignment of text item in dependency from text alignment
 		if (cch_caption_align & CC_TITLE_CENTER)
 			cch_text_x = width/2 - cc_text_w/2;
 
-		if (cch_caption_align & CC_TITLE_RIGHT){
+		if (cch_caption_align & CC_TITLE_RIGHT){ //FIXME: does not work correct with some conditions, but still not used at the moment
 			cch_text_x += w_free;
-			cch_text_x -= max(cc_text_w, cch_font->getRenderWidth(cch_text)+ OFFSET_INNER_MID);
+			cch_text_x -= max(cc_text_w, cch_font->getRenderWidth(cch_text));
 		}
 
 		//assign general properties

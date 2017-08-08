@@ -51,7 +51,7 @@ CMenuSeparator CGenericMenuSeparator(0, NONEXISTANT_LOCALE, true);
 CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE, NONEXISTANT_LOCALE, true);
 CMenuForwarder CGenericMenuBack(LOCALE_MENU_BACK, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_LEFT, NULL, true);
 CMenuForwarder CGenericMenuCancel(LOCALE_MENU_CANCEL, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME, NULL, true);
-CMenuForwarder CGenericMenuNext(LOCALE_MENU_NEXT, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME, NULL, true);
+CMenuForwarder CGenericMenuNext(LOCALE_MENU_NEXT, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_RIGHT, NULL, true);
 CMenuSeparator * const GenericMenuSeparator = &CGenericMenuSeparator;
 CMenuSeparator * const GenericMenuSeparatorLine = &CGenericMenuSeparatorLine;
 CMenuForwarder * const GenericMenuBack = &CGenericMenuBack;
@@ -131,7 +131,13 @@ bool CMenuItem::initModeCondition(const int& stb_mode)
 void CMenuItem::disableByCondition(const menu_item_disable_cond_t& condition)
 {
 	int stb_mode = CNeutrinoApp::getInstance()->getMode();
-
+#if ENABLE_UPNP
+	if (condition & DCOND_MODE_UPNP){
+		if (stb_mode == CNeutrinoApp::mode_upnp)
+			if (initModeCondition(stb_mode))
+				return;
+	}
+#endif
 	if (condition & DCOND_MODE_TS){
 		if (stb_mode == CNeutrinoApp::mode_ts)
 			if (initModeCondition(stb_mode))

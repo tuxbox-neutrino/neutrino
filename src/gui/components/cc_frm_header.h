@@ -32,7 +32,7 @@
 #include "cc_frm_clock.h"
 #include <driver/colorgradient.h>
 
-#define DEFAULT_LOGO_ALIGN CCHeaderTypes::CC_LOGO_CENTER
+#define DEFAULT_LOGO_ALIGN CCHeaderTypes::CC_LOGO_RIGHT
 #define DEFAULT_TITLE_ALIGN CCHeaderTypes::CC_TITLE_LEFT
 
 class CCHeaderTypes

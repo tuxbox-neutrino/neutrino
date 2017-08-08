@@ -257,6 +257,16 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 	return NULL;
 }
 
+CComponentsItem* CComponentsForm::getPrevCCItem(CComponentsItem* current_cc_item)
+{
+	return getCCItem(getCCItemId(current_cc_item) - 1);
+}
+
+CComponentsItem* CComponentsForm::getNextCCItem(CComponentsItem* current_cc_item)
+{
+	return getCCItem(getCCItemId(current_cc_item) + 1);
+}
+
 void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item)
 {
 	if (!v_cc_items.empty()){
@@ -684,4 +694,22 @@ bool CComponentsForm::enableColBodyGradient(const int& enable_mode, const fb_pix
 		return true;
 	}
 	return false;
+}
+
+int CComponentsForm::getUsedDY()
+{
+	int y_res = 0;
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+		y_res  = max(v_cc_items[i]->getYPos() + v_cc_items[i]->getHeight(), y_res);
+
+	return y_res;
+}
+
+int CComponentsForm::getUsedDX()
+{
+	int x_res = 0;
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+		x_res  = max(v_cc_items[i]->getXPos() + v_cc_items[i]->getWidth(), x_res);
+
+	return x_res;
 }
