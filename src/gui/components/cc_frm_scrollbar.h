@@ -49,7 +49,7 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		fb_pixel_t sb_segment_col, sb_segment_col_sel;
 
 		///count of segments
-		int sb_segments_count;
+		u_int32_t sb_segments_count;
 
 		///mark id
 		int sb_mark_id;
