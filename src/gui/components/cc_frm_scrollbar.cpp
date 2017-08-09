@@ -178,7 +178,7 @@ void CComponentsScrollBar::initSegments()
 	fb_pixel_t passive_col = sb_visual_enable ? sb_segment_col : col_body;
 
 	//create and add segments to segment container
-	for(u_int32_t i=0; i<sb_segments_count; i++){
+	for(uint32_t i=0; i<sb_segments_count; i++){
 		CComponentsShapeSquare *item = new CComponentsShapeSquare(0, y_seg, w_seg, h_seg, sb_segments_obj, false);
 		y_seg += h_seg + append_y_offset;
 
