@@ -147,14 +147,10 @@ void CComponentsScrollBar::initBottomNaviIcon()
 void CComponentsScrollBar::initSegments()
 {
 	//init dimensions for segments
-	int w_seg = width - 2*fr_thickness - 2*append_x_offset;
-	if (w_seg < 0)
-		w_seg = 0;
+	int w_seg = max(0, width - 2*fr_thickness - 2*append_x_offset);
 
 	//calculate height of segment container
-	int h_seg_obj = height - 2*fr_thickness - 2*sb_up_obj->getHeight()  - 2*append_y_offset;
-	if (h_seg_obj < 0)
-		h_seg_obj = 0;
+	int h_seg_obj = max(0, height - 2*fr_thickness - 2*sb_up_obj->getHeight()  - 2*append_y_offset);
 
 	//init segment container
 	if (sb_segments_obj == NULL){
@@ -169,30 +165,41 @@ void CComponentsScrollBar::initSegments()
 	//clean up segment container before add new segments
 	sb_segments_obj->clear();
 
+	//hold segment count in this scope
+	uint32_t tmp_segments = sb_segments_count;
+
 	//set y position of 1st segment and set height of segments
 	int y_seg = append_y_offset;
-	int h_seg = sb_segments_obj->getHeight()/sb_segments_count - append_y_offset;
-	if (h_seg < 0)
-		h_seg = 0;
+	int h_seg = max(0, int(sb_segments_obj->getHeight()/tmp_segments - append_y_offset));
+
+	//reduce required segment count and create a moderate segment height for better visibility of slider if we have very much segments.
+	uint32_t tmp_quot = 1;
+	if (h_seg == 0){
+		h_seg = w_seg - append_y_offset;
+		tmp_segments = max(1, sb_segments_obj->getHeight() / (h_seg+append_y_offset));
+		tmp_quot = uint32_t((float)sb_segments_count/(float)tmp_segments + 0.5);
+	}
 
 	fb_pixel_t passive_col = sb_visual_enable ? sb_segment_col : col_body;
 
 	//create and add segments to segment container
-	for(u_int8_t i=0; i<sb_segments_count; i++){
+	for(uint32_t i=0; i<tmp_segments; i++){
 		CComponentsShapeSquare *item = new CComponentsShapeSquare(0, y_seg, w_seg, h_seg, sb_segments_obj, false);
 		y_seg += h_seg + append_y_offset;
 
 		int id = sb_segments_obj->getCCItemId(item);
 
 		//set color for marked id
-		if (sb_mark_id == id){
+		if ((tmp_segments == sb_segments_count && sb_mark_id == id) || (tmp_segments != sb_segments_count && int(sb_mark_id/tmp_quot) == id))
+		{
 			item->setColorBody(sb_segment_col_sel);
 #if 0
 			item->enableColBodyGradient(CC_COLGRAD_COL_A_2_COL_B);
 			item->setColBodyGradient(CColorGradient::gradientDark2Light2Dark, CFrameBuffer::gradientHorizontal);
 #endif
 		}
-		else{
+		else
+		{
 			item->setColorBody(passive_col);
 #if 0
 			item->disableColBodyGradient();
@@ -203,19 +210,19 @@ void CComponentsScrollBar::initSegments()
 		if (passive_col == col_body){
 			item->setCorner(RADIUS_MIN, CORNER_ALL);
 			continue;
-		}else if (sb_segments_count == 1){
+		}else if (tmp_segments == 1){
 			item->setCorner(RADIUS_MIN, CORNER_ALL);
 			break;
 		}else if(i == 0){
 			item->setCorner(RADIUS_MIN, CORNER_TOP);
 			continue;
-		}else if(i == sb_segments_count - 1){
+		}else if(i == tmp_segments - 1){
 			item->setCorner(RADIUS_MIN, CORNER_BOTTOM);
 			break;
-		}else if((i > 0 && i < sb_segments_count - 1)){
-			item->setCorner(RADIUS_MIN, CORNER_NONE);
+		}else if((i > 0 && i < tmp_segments - 1)){
+			item->setCorner(RADIUS_NONE, CORNER_NONE);
 		}else{
-			item->setCorner(RADIUS_MIN, CORNER_NONE);
+			item->setCorner(RADIUS_NONE, CORNER_NONE);
 		}
 	}
 }
