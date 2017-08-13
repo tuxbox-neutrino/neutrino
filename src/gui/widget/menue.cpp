@@ -1268,10 +1268,9 @@ void CMenuWidget::paint()
 	header->enableGradientBgCleanUp(savescreen);
 	header->paint(CC_SAVE_SCREEN_NO);
 
-	// paint body and footer shadow
-	frameBuffer->paintBoxRel(x+OFFSET_SHADOW, y + hheight + OFFSET_SHADOW, width + scrollbar_width, height - hheight + (fbutton_count ? footer_height : 0), COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	// paint body background
-	frameBuffer->paintBoxRel(x, y + hheight, width + scrollbar_width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, (fbutton_count ? CORNER_NONE : CORNER_BOTTOM));
+	PaintBoxRel(x, y+hheight, width + scrollbar_width, height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE,
+				(fbutton_count ? CORNER_NONE : CORNER_BOTTOM), footer && fbutton_count ? CC_SHADOW_RIGHT_CORNER_ALL : CC_SHADOW_ON);
 
 	item_start_y = y+hheight;
 	paintItems();
@@ -1538,7 +1537,7 @@ void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const in
 
 	if (fbutton_count){
 		if (!footer)
-			footer = new CComponentsFooter(x, y + height, width + scrollbar_width);
+			footer = new CComponentsFooter(x, y + height, width + scrollbar_width, 0, 0, NULL, CC_SHADOW_ON);
 		footer->setWidth(width + scrollbar_width);
 		footer->setButtonLabels(fbutton_labels, fbutton_count, 0, width/fbutton_count);
 		footer_height = footer->getHeight();
