@@ -525,6 +525,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		CComponentsInfoBox	*info_box;
 		int			hint_height;
 		CComponentsHeader 	*header;
+		CComponentsFooter 	*footer;
 		unsigned int saveScreen_width ;
 		unsigned int saveScreen_height;
 		unsigned int saveScreen_y;
@@ -558,8 +559,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		bool			brief_hints;
 		bool			hint_painted; // is hint painted
 
-		int			fbutton_width;
-		int			fbutton_height;
+		int			footer_width;
+		int			footer_height;
 		int			fbutton_count;
 		const struct button_label	*fbutton_labels;
 

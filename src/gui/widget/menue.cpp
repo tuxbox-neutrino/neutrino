@@ -572,8 +572,8 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	hint_height	= 0;
 	fbutton_count	= 0;
 	fbutton_labels	= NULL;
-	fbutton_width	= 0;
-	fbutton_height	= 0;
+	footer_width	= 0;
+	footer_height	= 0;
 	saveScreen_width = 0;
 	saveScreen_height = 0;
 
@@ -582,6 +582,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	details_line	= NULL;
 	info_box	= NULL;
 	header 		= NULL;
+	footer		= NULL;
 	frameBuffer 	= CFrameBuffer::getInstance();
 	mglobal 	= CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
 
@@ -642,6 +643,11 @@ void CMenuWidget::ResetModules()
 		info_box->kill();
 		delete info_box;
 		info_box = NULL;
+	}
+	if (footer){
+		footer->kill();
+		delete footer;
+		footer = NULL;
 	}
 }
 
@@ -1061,7 +1067,7 @@ void CMenuWidget::hide()
 			info_box->kill();
 		if (details_line)
 			details_line->hide();
-		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height);
+		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height + footer_height);
 		//paintHint(-1);
 	}
 	paintHint(-1);
@@ -1132,7 +1138,7 @@ void CMenuWidget::calcSize()
 	}
 	/* set the max height to 9/10 of usable screen height
 	   debatable, if the callers need a possibility to set this */
-	height = (frameBuffer->getScreenHeight() - hint_height) / 20 * 18; /* make sure its a multiple of 2 */
+	height = (frameBuffer->getScreenHeight() - footer_height - hint_height) / 20 * 18; /* make sure its a multiple of 2 */
 
 	if (height > ((int)frameBuffer->getScreenHeight() - 2*OFFSET_INNER_MID))
 		height = frameBuffer->getScreenHeight() - 2*OFFSET_INNER_MID;
@@ -1177,7 +1183,7 @@ void CMenuWidget::calcSize()
 	width += iconOffset;
 
 	if (fbutton_count)
-		width = std::max(width, fbutton_width);
+		width = std::max(width, footer_width);
 
 	if (width > (int)frameBuffer->getScreenWidth())
 		width = frameBuffer->getScreenWidth();
@@ -1197,7 +1203,7 @@ void CMenuWidget::calcSize()
 		scrollbar_width = SCROLLBAR_WIDTH;
 
 	full_width = width + scrollbar_width + OFFSET_SHADOW;
-	full_height = height + fbutton_height + OFFSET_SHADOW + OFFSET_INTER; // hintbox is handled separately
+	full_height = height + footer_height + OFFSET_SHADOW/* + OFFSET_INTER*/; // hintbox is handled separately
 
 	/* + DETAILSLINE_WIDTH for the hintbox connection line
 	 * + center_offset for symmetry
@@ -1241,6 +1247,12 @@ void CMenuWidget::paint()
 	calcSize();
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, nameString.c_str()*/);
 
+	/* prepare footer:
+	 * We must prepare footer, to get current footer dimensions,
+	 * otherwise footer will paint on wrong position
+	*/
+	setFooter(fbutton_labels, fbutton_count);
+
 	OnBeforePaint();
 
 	// paint head
@@ -1257,15 +1269,17 @@ void CMenuWidget::paint()
 	header->paint(CC_SAVE_SCREEN_NO);
 
 	// paint body and footer shadow
-	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, y + hheight + OFFSET_SHADOW, width + scrollbar_width, height - hheight + fbutton_height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x+OFFSET_SHADOW, y + hheight + OFFSET_SHADOW, width + scrollbar_width, height - hheight + (fbutton_count ? footer_height : 0), COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	// paint body background
 	frameBuffer->paintBoxRel(x, y + hheight, width + scrollbar_width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, (fbutton_count ? CORNER_NONE : CORNER_BOTTOM));
 
 	item_start_y = y+hheight;
 	paintItems();
 	washidden = false;
-	if (fbutton_count)
-		::paintButtons(x, y + height, width + scrollbar_width, fbutton_count, fbutton_labels, width, fbutton_height);
+
+	// Finally paint footer if buttons are defined.
+	if (footer && fbutton_count)
+		footer->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CMenuWidget::setMenuPos(const int& menu_width)
@@ -1274,7 +1288,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int scr_y = frameBuffer->getScreenY();
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
-	int real_h = full_height + hint_height;
+	int real_h = full_height + footer_height + hint_height;
 	int x_old = x;
 	int y_old = y;
 	//configured positions 
@@ -1394,7 +1408,7 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
-	saveScreen_height = full_height;
+	saveScreen_height = full_height+footer_height;
 	saveScreen_width = full_width;
 	saveScreen_y = y;
 	saveScreen_x = x;
@@ -1461,10 +1475,10 @@ void CMenuWidget::paintHint(int pos)
 	
 	if (item->hint == NONEXISTANT_LOCALE && item->hintText.empty())
 		item->hintText = " ";
-	
+
 	int iheight = item->getHeight();
 	int xpos  = x - DETAILSLINE_WIDTH;
-	int ypos2 = y + full_height;
+	int ypos2 = y + height + footer_height + OFFSET_SHADOW + OFFSET_INTER;
 	int iwidth = width + scrollbar_width;
 	
 	//init details line and infobox dimensions
@@ -1522,10 +1536,21 @@ void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const in
 	fbutton_count = _fbutton_count;
 	fbutton_labels = _fbutton_labels;
 
-	fbutton_width = 0;
-	fbutton_height = 0;
-	if (fbutton_count)
-		paintButtons(fbutton_labels, fbutton_count, 0, 0, 0, 0, 0, false, &fbutton_width, &fbutton_height);
+	if (fbutton_count){
+		if (!footer)
+			footer = new CComponentsFooter(x, y + height, width + scrollbar_width);
+		footer->setWidth(width + scrollbar_width);
+		footer->setButtonLabels(fbutton_labels, fbutton_count, 0, width/fbutton_count);
+		footer_height = footer->getHeight();
+		footer_width = footer->getWidth();
+	}else{
+		if (footer){
+			delete footer; footer = NULL;
+		}
+		footer_width = 0;
+		footer_height = 0;
+	}
+
 	if (repaint)
 		paint();
 }
