@@ -2239,6 +2239,20 @@ TIMER_START();
 
 	CheckFastScan();
 
+	// dirty part of hw_caps - specify some details after zapit start
+	if (strcmp(g_info.hw_caps->boxname, "HD1") == 0)
+	{
+		// only SAT-HD1 has fan
+		if (!CFEManager::getInstance()->getFE(0)->hasSat())
+			g_info.hw_caps->has_fan = 0;
+	}
+	if (strcmp(g_info.hw_caps->boxname, "Neo") == 0)
+	{
+		// detecting Neo Twin by counting frontends
+		if (CFEManager::getInstance()->getFrontendCount() > 1)
+			strcpy(g_info.hw_caps->boxname, "Neo Twin");
+	}
+
 	//timer start
 	timer_wakeup = false;//init
 	wake_up( timer_wakeup );

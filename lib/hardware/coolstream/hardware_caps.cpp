@@ -11,8 +11,6 @@
 #include <string.h>
 #include "hardware_caps.h"
 
-#include <zapit/femanager.h>
-
 static int initialized = 0;
 static hw_caps_t caps;
 
@@ -21,7 +19,7 @@ hw_caps_t *get_hwcaps(void) {
 		return &caps;
 	int rev = cs_get_revision();
 	int chip = cs_get_chip_type();
-	caps.has_fan = (rev < 8 && CFEManager::getInstance()->getFE(0)->hasSat()); // only SAT-HD1 before rev 8 has fan
+	caps.has_fan = (rev < 8); // see dirty part of hw_caps in neutrino.cpp
 	caps.has_HDMI = 1;
 	caps.has_SCART = (rev != 10);
 	caps.has_SCART_input = 0;
@@ -44,14 +42,7 @@ hw_caps_t *get_hwcaps(void) {
 		caps.force_tuner_2G = 1;
 		break;
 	case 8:
-		if (CFEManager::getInstance()->getFrontendCount() < 2)
-		{
-			strcpy(caps.boxname, "Neo");
-		}
-		else
-		{
-			strcpy(caps.boxname, "Neo Twin");
-		}
+		strcpy(caps.boxname, "Neo"); // see dirty part of hw_caps in neutrino.cpp
 		strcpy(caps.boxarch, "Nevis");
 		caps.force_tuner_2G = 1;
 		break;
