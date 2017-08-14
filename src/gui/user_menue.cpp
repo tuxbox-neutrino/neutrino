@@ -185,7 +185,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		menu->addItem(GenericMenuSeparator);
 
 	bool _mode_ts    = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_ts;
-	bool _mode_upnp  = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_upnp;
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) &&
 				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
@@ -251,7 +250,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_AUDIO_SELECT:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuDForwarder(LOCALE_AUDIOSELECTMENUE_HEAD, !_mode_ts && !_mode_upnp, NULL, new CAudioSelectMenuHandler, "-1", key,icon);
+			menu_item = new CMenuDForwarder(LOCALE_AUDIOSELECTMENUE_HEAD, !_mode_ts, NULL, new CAudioSelectMenuHandler, "-1", key,icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
@@ -287,7 +286,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_settings.recording_type == RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, !_mode_ts && !_mode_upnp, NULL, neutrino, "tsmoviebrowser", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, !_mode_ts, NULL, neutrino, "tsmoviebrowser", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_MB, LOCALE_MENU_HINT_MB);
 			break;
 		}
@@ -409,14 +408,14 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_YOUTUBE:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, !_mode_ts && !_mode_upnp, NULL, neutrino, "ytplayback", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, !_mode_ts, NULL, neutrino, "ytplayback", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_FILEPLAY:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, !_mode_ts && !_mode_upnp, NULL, neutrino, "fileplayback", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, !_mode_ts, NULL, neutrino, "fileplayback", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
 			break;
 		}
@@ -444,14 +443,14 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_AUDIOPLAY:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, !_mode_ts && !_mode_upnp, NULL, neutrino, "audioplayer", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, neutrino, "audioplayer", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_APLAY, LOCALE_MENU_HINT_APLAY);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_INETPLAY:
 		{
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_INETRADIO_NAME, !_mode_ts && !_mode_upnp, NULL, neutrino, "inetplayer", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, neutrino, "inetplayer", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_INET_RADIO, LOCALE_MENU_HINT_INET_RADIO);
 			break;
 		}
