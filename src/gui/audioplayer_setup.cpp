@@ -80,6 +80,15 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
+	if(actionKey == "streamripperdir")
+	{
+		CFileBrowser b;
+		b.Dir_Mode=true;
+		if (b.exec(g_settings.network_nfs_streamripperdir.c_str()))
+			g_settings.network_nfs_streamripperdir = b.getSelectedFile()->Name;
+		return res;
+	}
+
 	res = showAudioPlayerSetup();
 
 	return res;
@@ -134,6 +143,10 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 #endif
 	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_DEFDIR, true, g_settings.network_nfs_audioplayerdir, this, "audioplayerdir");
 	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_DEFDIR);
+	audioplayerSetup->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_STREAMRIPPER_DIR, true, g_settings.network_nfs_streamripperdir, this, "streamripperdir");
+	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_STREAMRIPPER_DIR);
 	audioplayerSetup->addItem(mf);
 
 	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);

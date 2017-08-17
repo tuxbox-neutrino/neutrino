@@ -200,6 +200,9 @@ audioplayer.select_title_by_name Search title by name (SMS)
 audioplayer.show_playlist Show playlist
 audioplayer.shuffle Shuffle
 audioplayer.spectrum LCD spectrum
+audioplayer.streamripper_dir Streamripper directory
+audioplayer.streamripper_start Start streamripper
+audioplayer.streamripper_stop Stop streamripper
 audioplayer.stop Stop
 audioplayer.title_artist Title, artist
 bookmarkmanager.delete delete
@@ -1033,6 +1036,7 @@ menu.hint_audioplayer_order Change playlist sort order
 menu.hint_audioplayer_playlist Show playlist items
 menu.hint_audioplayer_repeat Enable playlist repeat when end of list reached
 menu.hint_audioplayer_sc_metadata Enable streaming audio metadata parsing
+menu.hint_audioplayer_streamripper_dir Default streamripper target directory
 menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language

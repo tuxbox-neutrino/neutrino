@@ -481,6 +481,7 @@ struct SNeutrinoSettings
 		std::string password;
 	} network_nfs[NETWORK_NFS_NR_OF_ENTRIES];
 	std::string network_nfs_audioplayerdir;
+	std::string network_nfs_streamripperdir;
 	std::string network_nfs_picturedir;
 	std::string network_nfs_moviedir;
 	std::string network_nfs_recordingdir;
@@ -806,6 +807,7 @@ struct SNeutrinoSettings
 	int   audioplayer_repeat_on;
 	int   audioplayer_show_playlist;
 	int   audioplayer_enable_sc_metadata;
+	int   audioplayer_cover_as_screensaver;
 
 	//Filebrowser
 	int filebrowser_showrights;

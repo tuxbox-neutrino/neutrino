@@ -111,6 +111,8 @@ class CAudioPlayerGui : public CMenuTarget
 		bool		m_playlistHasChanged;
 		std::string	m_cover;
 		bool		m_stationlogo;
+		bool		m_streamripper_available;
+		bool		m_streamripper_active;
 
 		CAudioPlayList	m_playlist;
 		CAudioPlayList	m_radiolist;
