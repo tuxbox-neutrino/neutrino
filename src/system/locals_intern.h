@@ -201,6 +201,7 @@ const char * locale_real_names[] =
 	"audioplayer.follow",
 	"audioplayer.head",
 	"audioplayer.highprio",
+	"audioplayer.internetradio.name",
 	"audioplayer.jump_backwards",
 	"audioplayer.jump_dialog_hint1",
 	"audioplayer.jump_dialog_hint2",

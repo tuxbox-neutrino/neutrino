@@ -89,7 +89,7 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	CMenuForwarder *mf;
 
 	CAudioPlayerSetup asetup;
-	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_red);
+	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_INTERNETRADIO_NAME, true, NULL, &asetup, "", CRCInput::RC_red);
 	mf->setHint(NEUTRINO_ICON_HINT_APLAY, LOCALE_MENU_HINT_APLAY_SETUP);
 	mediaSetup->addItem(mf);
 

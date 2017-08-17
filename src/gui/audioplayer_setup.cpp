@@ -111,7 +111,7 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 
 	CMenuWidget* audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_AUDIOSETUP);
 
-	audioplayerSetup->addIntroItems(LOCALE_AUDIOPLAYER_NAME);
+	audioplayerSetup->addIntroItems(LOCALE_AUDIOPLAYER_INTERNETRADIO_NAME);
 
 	// display order
 	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_DISPLAY_ORDER, &g_settings.audioplayer_display, AUDIOPLAYER_DISPLAY_ORDER_OPTIONS, AUDIOPLAYER_DISPLAY_ORDER_OPTION_COUNT, true);
