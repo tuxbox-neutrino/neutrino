@@ -201,10 +201,10 @@ audioplayer.select_title_by_name Search title by name (SMS)
 audioplayer.show_playlist Show playlist
 audioplayer.shuffle Shuffle
 audioplayer.spectrum LCD spectrum
+audioplayer.stop Stop
 audioplayer.streamripper_dir Streamripper directory
 audioplayer.streamripper_start Start streamripper
 audioplayer.streamripper_stop Stop streamripper
-audioplayer.stop Stop
 audioplayer.title_artist Title, artist
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
