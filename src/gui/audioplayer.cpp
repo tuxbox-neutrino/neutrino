@@ -371,6 +371,13 @@ int CAudioPlayerGui::show()
 				playNext();
 		}
 
+		if (m_streamripper_active && !getpidof("streamripper"))
+		{
+			printf("streamripper should but doesn't work.\n");
+			m_streamripper_active = false;
+			update = true;
+		}
+
 		if (update)
 		{
 			if (clear_before_update)
