@@ -1718,6 +1718,10 @@ int CRCInput::translate(int code)
 			return RC_record;
 		case KEY_PLAY:
 			return RC_pause;
+		case KEY_CHANNELUP:
+			return RC_page_up;
+		case KEY_CHANNELDOWN:
+			return RC_page_down;
 #endif
 		default:
 			break;
