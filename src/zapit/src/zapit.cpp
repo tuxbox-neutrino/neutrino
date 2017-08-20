@@ -2266,7 +2266,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 #if HAVE_AZBOX_HARDWARE
 	/* new (> 20130917) AZbox drivers switch to radio mode if audio is started first */
 	/* start video */
-	if (have_video) {
+	if (video_pid) {
 		videoDecoder->Start(0, thisChannel->getPcrPid(), thisChannel->getVideoPid());
 		videoDemux->Start();
 	}
