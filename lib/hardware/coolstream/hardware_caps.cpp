@@ -19,7 +19,7 @@ hw_caps_t *get_hwcaps(void) {
 		return &caps;
 	int rev = cs_get_revision();
 	int chip = cs_get_chip_type();
-	caps.has_fan = (rev < 8);
+	caps.has_fan = (rev < 8); // see dirty part of hw_caps in neutrino.cpp
 	caps.has_HDMI = 1;
 	caps.has_SCART = (rev != 10);
 	caps.has_SCART_input = 0;
@@ -41,8 +41,7 @@ hw_caps_t *get_hwcaps(void) {
 		strcpy(caps.boxname, "HD1");
 		caps.force_tuner_2G = 1;
 		break;
-	case 8: // TODO: Neo2 - Twin
-		strcpy(caps.boxname, "Neo");
+		strcpy(caps.boxname, "Neo"); // see dirty part of hw_caps in neutrino.cpp
 		caps.force_tuner_2G = 1;
 		break;
 	case 9:
