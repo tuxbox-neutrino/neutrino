@@ -2298,7 +2298,7 @@ void CMoviePlayerGui::selectChapter()
 	playback->GetChapters(positions, titles);
 
 	std::vector<int> playlists; std::vector<std::string> ptitles;
-	int current;
+	int current = 0;
 	playback->GetTitles(playlists, ptitles, current);
 
 	if (positions.empty() && playlists.empty())

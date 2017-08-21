@@ -466,7 +466,7 @@ int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString)
 //-------------------------------------------------------------------------
 std::string CNeutrinoAPI::getVideoResolutionAsString(void)
 {
-	int xres, yres, framerate;
+	int xres = 0, yres = 0, framerate = 0;
 	videoDecoder->getPictureInfo(xres, yres, framerate);
 	std::stringstream out;
 	out << xres << "x" << yres;
@@ -476,7 +476,7 @@ std::string CNeutrinoAPI::getVideoResolutionAsString(void)
 //-------------------------------------------------------------------------
 std::string CNeutrinoAPI::getVideoFramerateAsString(void)
 {
-	int xres, yres, framerate;
+	int xres = 0, yres = 0, framerate = 0;
 	std::string sframerate = "{=L:unknown=}";
 	videoDecoder->getPictureInfo(xres, yres, framerate);
 	switch(framerate){
@@ -491,7 +491,7 @@ std::string CNeutrinoAPI::getVideoFramerateAsString(void)
 //-------------------------------------------------------------------------
 std::string CNeutrinoAPI::getAudioInfoAsString(void)
 {
-	int type, layer, freq, mode, lbitrate;
+	int type = 0, layer = 0, freq = 0, mode = 0, lbitrate = 0;
 	audioDecoder->getAudioInfo(type, layer, freq, lbitrate, mode);
 	std::stringstream out;
 	if(type == 0)
@@ -557,7 +557,7 @@ void CNeutrinoAPI::SendAllTimers(std::string url, bool force)
 	Timerd->getTimerList(timerlist);
 	sort(timerlist.begin(), timerlist.end());
 
-	int pre,post;
+	int pre = 0,post = 0;
 	Timerd->getRecordingSafety(pre,post);
 	CHTTPTool httpTool;
 	std::string r_url;

@@ -951,7 +951,7 @@ bool CInfoViewer::showLivestreamInfo()
 		CMoviePlayerGui::getInstance().getLivestreamInfo(&livestreamInfo1, &tmp1);
 
 		if (!(videoDecoder->getBlank())) {
-			int xres, yres, framerate;
+			int xres = 0, yres = 0, framerate = 0;
 			std::string tmp2;
 			videoDecoder->getPictureInfo(xres, yres, framerate);
 			switch (framerate) {
@@ -980,6 +980,7 @@ bool CInfoViewer::showLivestreamInfo()
 					tmp2 = "60fps";
 					break;
 				default:
+					framerate = 0;
 					tmp2 = g_Locale->getText(LOCALE_STREAMINFO_FRAMERATE_UNKNOWN);
 					break;
 			}
