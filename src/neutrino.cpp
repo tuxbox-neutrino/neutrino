@@ -492,7 +492,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.shutdown_count = configfile.getInt32("shutdown_count", 0);
 
 	g_settings.shutdown_min = 0;
-	if (g_info.hw_caps->can_shutdown || cs_get_revision() == 1)
+	if (g_info.hw_caps->can_shutdown)
 		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
 	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 
@@ -2197,7 +2197,7 @@ TIMER_START();
 	cs_new_auto_videosystem();
 #endif
 
-	g_info.hw_caps  = get_hwcaps();
+	g_info.hw_caps = get_hwcaps();
 
 	g_Locale        = new CLocaleManager;
 

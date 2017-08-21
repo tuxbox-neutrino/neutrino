@@ -39,9 +39,12 @@ hw_caps_t *get_hwcaps(void) {
 	case 6:
 	case 7: // Black Stallion Edition
 		strcpy(caps.boxname, "HD1");
+		strcpy(caps.boxarch, "Nevis");
 		caps.force_tuner_2G = 1;
 		break;
+	case 8:
 		strcpy(caps.boxname, "Neo"); // see dirty part of hw_caps in neutrino.cpp
+		strcpy(caps.boxarch, "Nevis");
 		caps.force_tuner_2G = 1;
 		break;
 	case 9:
