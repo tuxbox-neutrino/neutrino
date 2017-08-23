@@ -205,7 +205,7 @@ int paintButtons(	const button_label_ext * const content,
 	fprintf(stderr, "PB: sp %d mw %d w_t %d w_i %d w_s %d c_i %d\n",
 		spacing, maxwidth, w_text, w_icons, w_space, count_items);
 #endif
-	if (fwidth[cnt - 1] == 0) /* divisor needs to be labels+1 unless rightmost icon has a label */
+	if (cnt > 0 && fwidth[cnt - 1] == 0) /* divisor needs to be labels+1 unless rightmost icon has a label */
 		count_labels++;   /* side effect: we don't try to divide by 0 :-) */
 
 	if (maximize) {
