@@ -1504,7 +1504,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				disableOsdElements(MUTE);
 				CFileBrowser *playlist = new CFileBrowser();
 				CFile *pfile = NULL;
-				pfile = &(*filelist_it);
 				int selected = std::distance( filelist.begin(), filelist_it );
 				filelist_it = filelist.end();
 				if (playlist->playlist_manager(filelist, selected))
@@ -2331,7 +2330,7 @@ void CMoviePlayerGui::selectChapter()
 	playback->GetChapters(positions, titles);
 
 	std::vector<int> playlists; std::vector<std::string> ptitles;
-	int current;
+	int current = 0;
 	playback->GetTitles(playlists, ptitles, current);
 
 	if (positions.empty() && playlists.empty())
@@ -2484,7 +2483,6 @@ bool CMoviePlayerGui::convertSubtitle(std::string &text)
 	else {
 		memset(buf + (len - olen), 0, olen);
 		text = buf;
-		ret = true;
 	}
 
 	free(buf);

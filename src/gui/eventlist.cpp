@@ -265,7 +265,6 @@ void CEventList::readEvents(const t_channel_id channel_id)
 void CEventList::getChannelNames(t_channel_id &channel_id, std::string &current_channel_name, std::string &prev_channel_name, std::string &next_channel_name, neutrino_msg_t msg)
 {
 	t_bouquet_id current_bouquet_id = bouquetList->getActiveBouquetNumber();
-	t_channel_id channel_id_tmp = channel_id;
 	const unsigned int channel_nr = bouquetList->Bouquets[current_bouquet_id]->channelList->getSize();
 	if(channel_nr < 2){
 		channel_id = 0;
@@ -274,7 +273,7 @@ void CEventList::getChannelNames(t_channel_id &channel_id, std::string &current_
 	unsigned int tmp_channel = 0;
 	for(unsigned int channel = 0; channel < channel_nr; channel++)
 	{
-		channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
+		t_channel_id channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
 		if(channel_id_tmp == channel_id){
 			if ( msg==CRCInput::RC_right || msg==CRCInput::RC_forward ) {
 				channel = (channel+1) %channel_nr;

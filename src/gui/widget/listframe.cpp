@@ -58,10 +58,10 @@
 #include <gui/widget/icons.h>
 #include <driver/fontrenderer.h>
 
-#define MAX_WINDOW_WIDTH  (frameBuffer->getScreenWidth() - 40)
-#define MAX_WINDOW_HEIGHT (frameBuffer->getScreenHeight() - 40)
+#define MAX_WINDOW_WIDTH  (frameBuffer ? frameBuffer->getScreenWidth() - 40:0)
+#define MAX_WINDOW_HEIGHT (frameBuffer ? frameBuffer->getScreenHeight() - 40:0)
 
-#define MIN_WINDOW_WIDTH  (frameBuffer->getScreenWidth() >> 1)
+#define MIN_WINDOW_WIDTH  (frameBuffer ? frameBuffer->getScreenWidth() >> 1:0)
 #define MIN_WINDOW_HEIGHT 40
 
 #define TITLE_BACKGROUND_COLOR COL_MENUHEAD_PLUS_0
@@ -206,7 +206,7 @@ void CListFrame::reSizeMainFrameWidth(int textWidth)
 
 	int iNewWindowWidth =	textWidth  + m_cFrameScrollRel.iWidth   + 2*OFFSET_INNER_MID;
 
-	if( iNewWindowWidth > m_nMaxWidth) iNewWindowWidth = m_nMaxWidth;
+	if(iNewWindowWidth > m_nMaxWidth) iNewWindowWidth = m_nMaxWidth;
 	if((unsigned int) iNewWindowWidth < MIN_WINDOW_WIDTH) iNewWindowWidth = MIN_WINDOW_WIDTH;
 
 	m_cFrame.iWidth	= iNewWindowWidth;

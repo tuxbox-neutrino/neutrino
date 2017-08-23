@@ -278,12 +278,17 @@ void CStringInput::keyDownPressed()
 {
 	int npos = 0;
 	std::string tmp_value = *valueString;
-	for(int count=0;count<(int)strlen(validchars);count++)
+	const int validchar_len = (int)strlen(validchars);
+	for(int count=0;count<validchar_len;count++)
 		if(valueString->at(selected)==validchars[count])
 			npos = count;
 	npos--;
-	if(npos<0)
-		npos = strlen(validchars)-1;
+	if(npos<0){
+		if(validchar_len > 0)
+			npos = validchar_len-1;
+		else
+			npos = 0;
+	}
 	valueString->at(selected)=validchars[npos];
 
 	int current_value = atoi(*valueString);
