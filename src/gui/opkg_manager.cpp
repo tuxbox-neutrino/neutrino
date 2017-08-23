@@ -671,6 +671,7 @@ string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
 			return pkgDesc;
 
 		fpos_t fz;
+		fz.__pos = 0;
 		fseek(fd, 0, SEEK_END);
 		fgetpos(fd, &fz);
 		fseek(fd, 0, SEEK_SET);

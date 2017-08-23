@@ -1073,7 +1073,6 @@ void CInfoViewer::loop(bool show_dot)
 				//printf("%s:%d: imitate VZAP; RC_left/right\n", __func__, __LINE__);
 				CMoviePlayerGui::getInstance().setFromInfoviewer(true);
 				g_RCInput->postMsg (msg, data);
-				hideIt = true;
 			}
 			else
 				setSwitchMode(IV_MODE_VIRTUAL_ZAP);

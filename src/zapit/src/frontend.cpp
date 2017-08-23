@@ -603,6 +603,7 @@ uint32_t CFrontend::getRate() const
 fe_status_t CFrontend::getStatus(void) const
 {
 	struct dvb_frontend_event event;
+	event.status = FE_REINIT;
 	fop(ioctl, FE_READ_STATUS, &event.status);
 	return (fe_status_t) (event.status & FE_HAS_LOCK);
 }

@@ -704,8 +704,9 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 						tuxtxt_cache.current_subpage[magazine] = -1;
 						continue;
 					}
-
+#if 0	/* ? */
 					b1 &= 3;
+#endif
 					b3 &= 7;
 
 					if (tuxtxt_is_dec(tuxtxt_cache.page_receiving)) /* ignore other subpage bits for hex pages */

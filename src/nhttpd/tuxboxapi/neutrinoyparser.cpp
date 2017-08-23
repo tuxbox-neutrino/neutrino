@@ -1023,6 +1023,10 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	unsigned timerId=0;
 	std::string cmd, stimerid;
 	CTimerd::responseGetTimer timer;             // Timer
+	timer.alarmTime = 0;
+	timer.stopTime = 0;
+	timer.apids = 0;
+	timer.eventType = CTimerd::__TIMER_NEXTPROGRAM;//nothing
 	time_t now_t = time(NULL);
 	ySplitString(para, " ", cmd, stimerid);
 	if(cmd != "new")
