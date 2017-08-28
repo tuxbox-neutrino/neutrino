@@ -147,14 +147,15 @@ void CComponentsButton::initIcon()
 	if (pos == string::npos)
 		cc_btn_icon = frameBuffer->getIconPath(cc_btn_icon);
 
+	int y_icon = 0;
+	int h_icon = 0;
 	if (cc_btn_icon_obj == NULL){
 		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, 0, cc_btn_icon, this);
 		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
 
-	int y_icon = cc_btn_icon_obj->getYPos();
-	int h_icon = cc_btn_icon_obj->getHeight();
+	h_icon = cc_btn_icon_obj->getHeight();
 
 	//get required icon height
 	int h_max = height-2*fr_thickness;

@@ -378,7 +378,7 @@ void CComponentsForm::paintCCItems()
 	size_t items_count 	= v_cc_items.size();
 
 	//using of real x/y values to paint items if this text object is bound in a parent form
-	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = width;
+	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = 0;
 	int w_parent_frame = 0;
 	if (cc_parent){
 		this_x = auto_x = cc_xr;
@@ -441,7 +441,7 @@ void CComponentsForm::paintCCItems()
 		}
 
 		//move item x-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-		w_parent_frame = xpos <= fr_thickness ? fr_thickness : 0;
+		w_parent_frame = xpos <= fr_thickness ? fr_thickness : w_parent_frame;
 
 		//set required x-position to item:
 		//append vertical
@@ -461,7 +461,7 @@ void CComponentsForm::paintCCItems()
 		}
 
 		//move item y-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-		w_parent_frame = ypos <= fr_thickness ? fr_thickness : 0;
+		w_parent_frame = ypos <= fr_thickness ? fr_thickness : w_parent_frame;
 
 		//set required y-position to item
 		//append hor
