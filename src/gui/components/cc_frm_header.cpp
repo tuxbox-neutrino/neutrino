@@ -343,14 +343,18 @@ void CComponentsHeader::initLogo()
 			* with previous or next item.
 			*/
 			if (cch_caption_align & CC_TITLE_LEFT){
-				int left_tag = prev_item->getXPos() + prev_item->getWidth();
-				if (x_logo <= left_tag)
-					x_logo = left_tag + logo_space/2 - w_logo/2;
+				if (prev_item){
+					int left_tag = prev_item->getXPos() + prev_item->getWidth();
+					if (x_logo <= left_tag)
+						x_logo = left_tag + logo_space/2 - w_logo/2;
+				}
 			}
 
 			if (cch_caption_align & CC_TITLE_RIGHT){
-				if (x_logo + w_logo >= next_item->getXPos())
-					x_logo = next_item->getXPos() - logo_space/2 - w_logo/2;
+				if (next_item){
+					if (x_logo + w_logo >= next_item->getXPos())
+						x_logo = next_item->getXPos() - logo_space/2 - w_logo/2;
+				}
 			}
 		}
 
