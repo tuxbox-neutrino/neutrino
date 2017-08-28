@@ -70,20 +70,20 @@ class CComponentsScrollBar : public CComponentsFrmChain
 	public:
 		/**Class constructor to generate individual scrollbar objects
 		 *
-		 * @param[in] x_pos		exepts type int, x position on screen
-		 * @param[in] x_pos		exepts type int, y position on screen modes are:
-		 * @param[in] w			exepts type int, width of scrollbar object
-		 * @param[in] h			exepts type int, height of scrollbar object
-		 * @param[in] count		optional, exepts type int, count of pages, default 1
+		 * @param[in] x_pos		expects type int, x position on screen
+		 * @param[in] x_pos		expects type int, y position on screen modes are:
+		 * @param[in] w			expects type int, width of scrollbar object
+		 * @param[in] h			expects type int, height of scrollbar object
+		 * @param[in] count		optional, expects type int, count of pages, default 1
 		 *
 		 * usual paraemters:
-		 * @param[in] parent		optional, exepts type pointer to a parent CComponentsForm object, default NULL
-		 * @param[in] shadow_mode	optional, exepts type int defined by shadow mode enums, default CC_SHADOW_OFF
-		 * @param[in] color_frame	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
-		 * @param[in] color_body	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
-		 * @param[in] color_shadow	optional, exepts type fb_pixel_t, default COL_SHADOW_PLUS_0
-		 * @param[in] color_select	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
-		 * @param[in] color_passive	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
+		 * @param[in] parent		optional, expects type pointer to a parent CComponentsForm object, default NULL
+		 * @param[in] shadow_mode	optional, expects type int defined by shadow mode enums, default CC_SHADOW_OFF
+		 * @param[in] color_frame	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
+		 * @param[in] color_body	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
+		 * @param[in] color_shadow	optional, expects type fb_pixel_t, default COL_SHADOW_PLUS_0
+		 * @param[in] color_select	optional, expects type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
+		 * @param[in] color_passive	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
 		*/
 		CComponentsScrollBar(	const int &x_pos,
 					const int &y_pos,
@@ -102,7 +102,7 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		/**Set current page number
 		 * @return 			void
 		 *
-		 * @param[in] mark_id		exepts type int, this sets the current selected page number.
+		 * @param[in] mark_id		expects type int, this sets the current selected page number.
 		 *
 		 * @see				getMarkID()
 		*/
@@ -120,8 +120,8 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		 * Each segment is assigned to a page number. Starting with id 0...n
 		 * @return 			void
 		 *
-		 * @param[in] segment_count	exepts type int, sets the current count of pages.
-		 * @param[in] mark_id		optional, exepts type int, sets the current selected page number, default = 0
+		 * @param[in] segment_count	expects type int, sets the current count of pages.
+		 * @param[in] mark_id		optional, expects type int, sets the current selected page number, default = 0
 		 * @see				also setMarkID()
 		 * 				getMarkID()
 		*/
@@ -135,7 +135,7 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		int getSegmentCount(){return sb_segments_count;}
 
 		/**Enable/disable vizualized count of possible scroll items
-		 * @param[in] enable		optional, exepts type bool.
+		 * @param[in] enable		optional, expects type bool.
 		 * @note			Default mode is disabled.
 		*/
 		void enableVisualize(bool enable = true){sb_visual_enable = enable;}
@@ -150,21 +150,21 @@ void getScrollBarData(int *total_pages, int *current_page, int total_items, int 
 		/**Small and easy to apply scrollbar paint methode without expilcit object declaration
 		* @return 			void
 		*
-		* @param[in] x_pos		exepts type int, x position on screen
-		* @param[in] x_pos		exepts type int, y position on screen modes are:
-		* @param[in] w			exepts type int, width of scrollbar object
-		* @param[in] h			exepts type int, height of scrollbar object
-		* @param[in] count		exepts type int, count of pages, default 1
-		* @param[in] current_num	exepts type int, current selected page, default 0
+		* @param[in] x_pos		expects type int, x position on screen
+		* @param[in] x_pos		expects type int, y position on screen modes are:
+		* @param[in] w			expects type int, width of scrollbar object
+		* @param[in] h			expects type int, height of scrollbar object
+		* @param[in] count		expects type int, count of pages, default 1
+		* @param[in] current_num	expects type int, current selected page, default 0
 		*
 		* usual paraemters:
-		* @param[in] parent		optional, exepts type pointer to a parent CComponentsForm object, default NULL
-		* @param[in] shadow_mode	optional, exepts type int defined by shadow mode enums, default CC_SHADOW_OFF
-		* @param[in] color_frame	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
-		* @param[in] color_body		optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
-		* @param[in] color_shadow	optional, exepts type fb_pixel_t, default COL_SHADOW_PLUS_0
-		* @param[in] color_select	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
-		* @param[in] color_passive	optional, exepts type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
+		* @param[in] parent		optional, expects type pointer to a parent CComponentsForm object, default NULL
+		* @param[in] shadow_mode	optional, expects type int defined by shadow mode enums, default CC_SHADOW_OFF
+		* @param[in] color_frame	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
+		* @param[in] color_body		optional, expects type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
+		* @param[in] color_shadow	optional, expects type fb_pixel_t, default COL_SHADOW_PLUS_0
+		* @param[in] color_select	optional, expects type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
+		* @param[in] color_passive	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
 		*/
 void paintScrollBar(	const int &x_pos,
 			const int &y_pos,

@@ -204,7 +204,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		 * Height can be changed with modes by setSizeMode(), setHeight() or constructor.
 		 * @return void
 		 *
-		 * @param[in] font	exepts font object, type Font*
+		 * @param[in] font	expects font object, type Font*
 		 * @see			getCaptionFont(), setSizeMode(),
 		 * 			setCaptionColor(),
 		 * 			setCaptionAlignment(),
@@ -227,7 +227,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		 * If other size wanted then use set setCaptionFont() and setHeight()
 		 * @return void
 		 *
-		 * @param[in] size_mode	exepts type int (enums)
+		 * @param[in] size_mode	expects type int (enums)
 		 *			possible modes are:
 		 *			CC_HEADER_SIZE_LARGE
 		 * 			CC_HEADER_SIZE_SMALL
