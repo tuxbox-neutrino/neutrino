@@ -106,7 +106,7 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 		txt->setColorBody(COL_RED);
 #endif
 			int lines = txt->getCTextBoxObject()->getLines();
-			txt_height = std::max(lines*font->getHeight(), h_line);
+			txt_height = std::max(font ? lines*font->getHeight() : 0, h_line);
 			txt->setHeight(txt_height);
 
 			line->addCCItem(txt);
