@@ -248,7 +248,7 @@ void CComponentsFrmClock::initCCLockItems()
 		//extract timestring segment (char)
 		string stmp = s_time.substr(i, 1);
 
-		int w_tmp = minSepWidth;
+		int w_tmp = 0;
 		//get width of current segment
 		if (isdigit(stmp.at(0)) ) //check for digits, if true, we use digit width
 			w_tmp = cl_font->getMaxDigitWidth();
