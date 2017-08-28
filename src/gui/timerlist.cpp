@@ -1413,9 +1413,9 @@ void CTimerList::paintFoot()
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
 
 	if (timerlist.empty())
-		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, 2, &(TimerListButtons[1]));
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, 2, &(TimerListButtons[1]), width/(2+1));
 	else
-		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, c, TimerListButtons);
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, c, TimerListButtons, width/(c-1));
 }
 
 void CTimerList::paint()
