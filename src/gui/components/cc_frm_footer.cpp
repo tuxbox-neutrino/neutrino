@@ -251,7 +251,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 void CComponentsFooter::setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
 	//conversion for compatibility with older paintButtons() methode, find in /gui/widget/buttons.h
-	button_label_cc buttons[label_count];
+	button_label_cc *buttons = new button_label_cc[label_count];
 	for (size_t i = 0; i< label_count; i++){
 		buttons[i].button = content[i].button;
 		buttons[i].locale = content[i].locale;
@@ -262,12 +262,13 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 		buttons[i].btn_alias = -1;
 	}
 	setButtonLabels(buttons, label_count, chain_width, label_width);
+	delete[] buttons;
 }
 
 void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content, const int& chain_width, const int& label_width)
 {
 	size_t label_count = v_content.size();
-	button_label_cc buttons[label_count];
+	button_label_cc *buttons = new button_label_cc[label_count];
 
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = v_content[i].button;
@@ -277,8 +278,8 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
-
 	setButtonLabels(buttons, label_count, chain_width, label_width);
+	delete[] buttons;
 }
 
 void CComponentsFooter::setButtonLabel(	const char *button_icon,
