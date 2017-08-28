@@ -107,3 +107,12 @@ void CComponentsShapeCircle::paint(bool do_save_bg)
 {
 	paintInit(do_save_bg);
 }
+
+
+bool PaintBoxRel(const int& x, const int& y, const int& dx, const int& dy, const fb_pixel_t& col, int radius, int corner_type, int shadow_mode)
+{
+	CComponentsShapeSquare box(x, y, dx, dy, NULL,  shadow_mode, COL_SHADOW_PLUS_0, col);
+	box.setCorner(radius, corner_type);
+	box.paint(CC_SAVE_SCREEN_NO);
+	return box.isPainted();
+}
