@@ -299,10 +299,6 @@ int CComponentsPicture::getHeight()
 
 void CComponentsPicture::paintPicture()
 {
-	struct timeval t1, t2;
-	if (debug)
-		gettimeofday(&t1, NULL);
-
 	is_image_painted = false;
 	//initialize image position
 	int x_pic = x;
@@ -336,14 +332,6 @@ void CComponentsPicture::paintPicture()
 			dprintf(DEBUG_DEBUG, "\033[36m[CComponentsPicture] %s - %d: paint cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 			frameBuffer->RestoreScreen(x_pic, y_pic, dxc, dyc, image_cache);
 		}
-	}
-
-	//benchmark
-	if (debug){
-		gettimeofday(&t2, NULL);
-		uint64_t duration = ((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL;
-		if (duration)
-			fprintf(stderr, "\033[33m[CComponentsPicture] %s: %" PRIu64 " ms to paint image \033[0m\n",	__func__, duration);
 	}
 }
 
