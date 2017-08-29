@@ -73,4 +73,28 @@ class CComponentsShapeSquare : public CComponentsItem
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
+
+		/**Small and easy to apply box paint methode without expilcit object declaration
+		* @return 			bool, true = painted
+		*
+		* @param[in] x			expects type int, x position on screen
+		* @param[in] y			expects type int, y position on screen modes are:
+		* @param[in] dx			expects type int, width of scrollbar object
+		* @param[in] dy			expects type int, height of scrollbar object
+		* @param[in] col		expects type fb_pixel_t, as body color
+		*
+		* usual paraemters:
+		* @param[in] radius		optional, expects type int as corner radius, default = 0
+		* @param[in] corner_type	optional, expects type int as cornar type, default CORNER_ALL
+		* @param[in] shadow_mode	optional, expects type int defined by shadow mode enums, default CC_SHADOW_OFF
+		*/
+bool PaintBoxRel(const int& x,
+		 const int& y,
+		 const int& dx,
+		 const int& dy,
+		 const fb_pixel_t& col,
+		 int radius = 0,
+		 int corner_type = CORNER_ALL,
+		 int shadow_mode = CC_SHADOW_OFF);
+
 #endif

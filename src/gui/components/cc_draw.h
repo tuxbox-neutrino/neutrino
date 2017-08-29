@@ -342,7 +342,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		 *
 		 * @return bool			returns true if effect was successful canceled
 		 *
-		 * @param[in] keep_on_screen	optional, exepts bool, default = false. means: item is not repainted after canceled effect
+		 * @param[in] keep_on_screen	optional, expects bool, default = false. means: item is not repainted after canceled effect
 		 *
 		 * @see				take a look into test menu class for examples
 		 * 				NOTE: Effect must be started with paintBlink()

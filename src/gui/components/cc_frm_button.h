@@ -211,7 +211,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* Returns true if filtered event msg value of button object is found in cc_directKeys container.
 		* @return	bool
 		* @param[in]	msg
-		* 	@li 	exepts type neutrino_msg_t as filter for searched message
+		* 	@li 	expects type neutrino_msg_t as filter for searched message
 		* @see		neutrino_msg_t getButtonDirectKey(), driver/rcinput.h for possible values
 		*/
 		bool hasButtonDirectKey(const neutrino_msg_t& msg)

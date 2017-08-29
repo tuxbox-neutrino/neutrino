@@ -227,9 +227,9 @@ class CTextBox : public sigc::trackable
 		/**
 		* Returns width of largest line from passed text
 		* @param[in]	text
-		* 	@li 	exepts type std::string
+		* 	@li 	expects type std::string
 		* @param[in]	font
-		* 	@li 	exepts font type object
+		* 	@li 	expects font type object
 		* 	@return	width of largest line as int
 		* 	@see	getMaxLineWidth(void)
 		*/

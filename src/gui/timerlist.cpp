@@ -1387,7 +1387,8 @@ void CTimerList::paintHead()
 		header = new CComponentsHeader(x, y, width, header_height, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
 		header->enableClock(true, " %d.%m.%Y - %H:%M ", NULL, false);
 	}
-	header->paint(CC_SAVE_SCREEN_NO);
+	if(!header->isPainted())
+		header->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CTimerList::paintFoot()
@@ -1413,9 +1414,9 @@ void CTimerList::paintFoot()
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
 
 	if (timerlist.empty())
-		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, 2, &(TimerListButtons[1]));
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, 2, &(TimerListButtons[1]), width/(2+1));
 	else
-		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, c, TimerListButtons);
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, c, TimerListButtons, width/(c-1));
 }
 
 void CTimerList::paint()

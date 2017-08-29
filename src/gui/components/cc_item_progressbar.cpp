@@ -433,10 +433,6 @@ void CProgressBarCache::pbcApplyGradient(fb_pixel_t *b)
 
 void CProgressBar::paintProgress(bool do_save_bg)
 {
-	struct timeval t1, t2;
-	if (debug)
-		gettimeofday(&t1, NULL);
-
 	if (*pb_design == PB_OFF) {
 		paintInit(false);
 		return;
@@ -477,14 +473,6 @@ void CProgressBar::paintProgress(bool do_save_bg)
 
 	if (is_painted)
 		pb_last_width = pb_active_width;
-
-	//benchmark
-	if (debug){
-		gettimeofday(&t2, NULL);
-		uint64_t duration = ((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL;
-		if (duration)
-			fprintf(stderr, "\033[33m[CProgressBar] %s: %" PRIu64 " ms to paint progress \033[0m\n",__func__, duration);
-	}
 }
 
 

@@ -89,14 +89,14 @@ class CNaviBar : public CComponentsFrmChain
 		/**
 		* Enable or disable left icon
 		* @param[in]	enable
-		* 	@li 	exepts type bool, default = true
+		* 	@li 	expects type bool, default = true
 		*/
 		void enableLeftArrow(bool enable = true){nb_lpic_enable = enable; initCCItems();}
 
 		/**
 		* Enable or disable right icon
 		* @param[in]	enable
-		* 	@li 	exepts type bool, default = true
+		* 	@li 	expects type bool, default = true
 		*/
 		void enableRightArrow(bool enable = true){nb_rpic_enable = enable; initCCItems();}
 
@@ -115,9 +115,9 @@ class CNaviBar : public CComponentsFrmChain
 		/**
 		* Enable or disable both icons at once.
 		* @param[in]	enable_left
-		* 	@li 	exepts type bool, default = true
+		* 	@li 	expects type bool, default = true
 		* @param[in]	enable_right
-		* 	@li 	exepts type bool, default = true
+		* 	@li 	expects type bool, default = true
 		*/
 		void enableArrows(bool enable_left = true, bool enable_right = true){enableLeftArrow(enable_left); enableRightArrow(enable_right);}
 
@@ -130,37 +130,37 @@ class CNaviBar : public CComponentsFrmChain
 		/**
 		* Sets font type for texts.
 		* @param[in]	font
-		* 	@li 	exepts type Font*
+		* 	@li 	expects type Font*
 		*/
 		void setFont(Font *font) {nb_font = font; initCCItems();}
 
 		/**
 		* Sets left text.
 		* @param[in]	text
-		* 	@li 	exepts type std::string
+		* 	@li 	expects type std::string
 		*/
 		void setLeftText(const std::string& text) {nb_l_text = text; initCCItems();}
 
 		/**
 		* Sets right text
 		* @param[in]	text
-		* 	@li 	exepts type std::string
+		* 	@li 	expects type std::string
 		*/
 		void setRightText(const std::string& text) {nb_r_text = text; initCCItems();}
 
 		/**
 		* Sets left and right text at once.
 		* @param[in]	left
-		* 	@li 	exepts type std::string
+		* 	@li 	expects type std::string
 		* @param[in]	right
-		* 	@li 	exepts type std::string
+		* 	@li 	expects type std::string
 		*/
 		void setText(const std::string& left, const std::string& right) {setLeftText(left); setRightText(right);}
 
 		/**
 		* Paint bar on screen.
 		* @param[in]	do_save_bg
-		* 	@li 	optional: exepts type bool, default = CC_SAVE_SCREEN_YES.
+		* 	@li 	optional: expects type bool, default = CC_SAVE_SCREEN_YES.
 		*/
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
