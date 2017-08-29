@@ -836,7 +836,7 @@ void CRadioText::RassDecode(unsigned char *mtext, int len)
 						slidenumr = Rass_SlideFoto;
 					}
 					//
-					char *filepath = asprintf(&filepath, "%s/Rass_%d.error", DataDir, slidenumr);
+					char *filepath = NULL;
 					(filetype == 2) ? asprintf(&filepath, "%s/Rass_%d.def", DataDir, slidenumr)
 							: asprintf(&filepath, "%s/Rass_%d.mpg", DataDir, slidenumr);
 					if ((fd = fopen(filepath, "wb")) != NULL) {
@@ -881,7 +881,8 @@ void CRadioText::RassDecode(unsigned char *mtext, int len)
 					}
 					else
 						printf("ERROR vdr-radio: writing image/data-file failed '%s'", filepath);
-					free(filepath);
+					if(filepath)
+						free(filepath);
 				}
 			}
 			start = false;
