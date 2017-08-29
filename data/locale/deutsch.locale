@@ -605,7 +605,7 @@ flashupdate.apply_settings Sollen die aktuellen Einstellungen in das neue Image 
 flashupdate.autocheck Beim Start nach Updates suchen
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
-flashupdate.checkupdate_internet Online nach Updates suchen
+flashupdate.checkupdate_internet Online-Update
 flashupdate.checkupdate_local Lokales Update
 flashupdate.copy_image Kopiere Image in den Arbeitsspeicher
 flashupdate.createimage Image speichern
@@ -657,7 +657,7 @@ flashupdate.namemode2_default <Partition>+<Zeit>.img
 flashupdate.namemode2_hostname_time <Partition>+<Zeit>+<Hostname>.img
 flashupdate.new_found Updates verfügbar!
 flashupdate.new_notfound Keine Updates verfügbar!
-flashupdate.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
+flashupdate.noversion Eine Versionsüberprüfungen ist nur über das Online-Update möglich.\nWollen Sie das ausgewählte Image trotzdem installieren?
 flashupdate.programmingflash programmiere Flash
 flashupdate.proxypassword Passwort
 flashupdate.proxypassword_hint1 Geben sie das Proxy-Passwort ein

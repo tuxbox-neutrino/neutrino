@@ -605,7 +605,7 @@ flashupdate.apply_settings Import current settings into new image?
 flashupdate.autocheck Auto-check updates on boot
 flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
-flashupdate.checkupdate_internet Check for online updates
+flashupdate.checkupdate_internet Online update
 flashupdate.checkupdate_local Local update
 flashupdate.copy_image Copy Image to main memory
 flashupdate.createimage Save image
@@ -657,7 +657,7 @@ flashupdate.namemode2_default <partition>+<time>.img
 flashupdate.namemode2_hostname_time <partition>+<time>+<hostname>.img
 flashupdate.new_found New image found !
 flashupdate.new_notfound No new images found
-flashupdate.noversion Version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
+flashupdate.noversion Version check is only supported via Online update.\nAre you sure that you want to install this image?
 flashupdate.programmingflash programming flash
 flashupdate.proxypassword Password
 flashupdate.proxypassword_hint1 enter the proxyserver password
