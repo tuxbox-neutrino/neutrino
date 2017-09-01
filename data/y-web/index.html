@@ -4,6 +4,15 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>yWeb</title>
+<script type="text/javascript">
+//<![CDATA[
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("GET", "/etc/hostname", false);
+	xmlhttp.send();
+	if (xmlhttp.status == 200)
+		document.title = xmlhttp.responseText;
+//]]>
+</script>
 </head>
 <frameset cols="*,1300,*" frameborder="0" framespacing="0">
 	<frame name="top_left" src="Y_Dyn_Pages.yhtm?page=page_frame_rest" marginwidth="0" marginheight="0" frameborder="0" border="0"/>
