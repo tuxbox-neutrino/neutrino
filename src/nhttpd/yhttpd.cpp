@@ -330,29 +330,19 @@ void Cyhttpd::ReadConfig(void) {
 			CConfigFile OrgConfig = *Config;
 			Config->clear();
 
-			Config->setInt32("server.log.loglevel", OrgConfig.getInt32(
-					"LogLevel", 0));
+			Config->setInt32("server.log.loglevel", OrgConfig.getInt32("LogLevel", 0));
 			Config->setInt32("configfile.version", CONF_VERSION);
 			Config->setString("webserver.websites", "WebsiteMain");
-			Config->setBool("webserver.threading", OrgConfig.getBool("THREADS",
-					true));
-			Config->setInt32("WebsiteMain.port", OrgConfig.getInt32("Port",
-					HTTPD_STANDARD_PORT));
-			Config->setString("WebsiteMain.directory", OrgConfig.getString(
-					"PrivatDocRoot", PRIVATEDOCUMENTROOT));
+			Config->setBool("webserver.threading", OrgConfig.getBool("THREADS", true));
+			Config->setInt32("WebsiteMain.port", OrgConfig.getInt32("Port", HTTPD_STANDARD_PORT));
+			Config->setString("WebsiteMain.directory", OrgConfig.getString("PrivatDocRoot", PRIVATEDOCUMENTROOT));
 			if (!OrgConfig.getString("PublicDocRoot", "").empty())
-				Config->setString("WebsiteMain.override_directory",
-						OrgConfig.getString("PublicDocRoot",
-								PRIVATEDOCUMENTROOT));
+				Config->setString("WebsiteMain.override_directory", OrgConfig.getString("PublicDocRoot", PRIVATEDOCUMENTROOT));
 			// mod_auth
-			Config->setString("mod_auth.username", OrgConfig.getString(
-					"AuthUser", AUTHUSER));
-			Config->setString("mod_auth.password", OrgConfig.getString(
-					"AuthPassword", AUTHPASSWORD));
-			Config->setString("mod_auth.no_auth_client", OrgConfig.getString(
-					"NoAuthClient", ""));
-			Config->setString("mod_auth.authenticate", OrgConfig.getString(
-					"Authenticate", "false"));
+			Config->setString("mod_auth.username", OrgConfig.getString("AuthUser", AUTHUSER));
+			Config->setString("mod_auth.password", OrgConfig.getString("AuthPassword", AUTHPASSWORD));
+			Config->setString("mod_auth.no_auth_client", OrgConfig.getString("NoAuthClient", ""));
+			Config->setString("mod_auth.authenticate", OrgConfig.getString("Authenticate", "false"));
 
 			Config->setString("mod_sendfile.mime_types", HTTPD_SENDFILE_EXT);
 
@@ -383,29 +373,19 @@ void Cyhttpd::ReadConfig(void) {
 		CLogging::getInstance()->setDebug(true);
 
 	// get variables
-	webserver->init(Config->getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT),
-			Config->getBool("webserver.threading", true));
+	webserver->init(Config->getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT), Config->getBool("webserver.threading", true));
 	// informational use
-	ConfigList["WebsiteMain.port"] = itoa(Config->getInt32("WebsiteMain.port",
-			HTTPD_STANDARD_PORT));
-	ConfigList["webserver.threading"] = Config->getString(
-			"webserver.threading", "true");
-	ConfigList["configfile.version"] = Config->getInt32("configfile.version",
-			CONF_VERSION);
-	ConfigList["server.log.loglevel"] = itoa(Config->getInt32(
-			"server.log.loglevel", 0));
-	ConfigList["server.no_keep-alive_ips"] = Config->getString(
-			"server.no_keep-alive_ips", "");
-	webserver->conf_no_keep_alive_ips = Config->getStringVector(
-			"server.no_keep-alive_ips");
+	ConfigList["WebsiteMain.port"] = itoa(Config->getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT));
+	ConfigList["webserver.threading"] = Config->getString("webserver.threading", "true");
+	ConfigList["configfile.version"] = Config->getInt32("configfile.version", CONF_VERSION);
+	ConfigList["server.log.loglevel"] = itoa(Config->getInt32("server.log.loglevel", 0));
+	ConfigList["server.no_keep-alive_ips"] = Config->getString("server.no_keep-alive_ips", "");
+	webserver->conf_no_keep_alive_ips = Config->getStringVector("server.no_keep-alive_ips");
 
 	// MainSite
-	ConfigList["WebsiteMain.directory"] = Config->getString(
-			"WebsiteMain.directory", PRIVATEDOCUMENTROOT);
-	ConfigList["WebsiteMain.override_directory"] = Config->getString(
-			"WebsiteMain.override_directory", PUBLICDOCUMENTROOT);
-	ConfigList["WebsiteMain.hosted_directory"] = Config->getString(
-			"WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT);
+	ConfigList["WebsiteMain.directory"] = Config->getString("WebsiteMain.directory", PRIVATEDOCUMENTROOT);
+	ConfigList["WebsiteMain.override_directory"] = Config->getString("WebsiteMain.override_directory", PUBLICDOCUMENTROOT);
+	ConfigList["WebsiteMain.hosted_directory"] = Config->getString("WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT);
 
 	ConfigList["Tuxbox.DisplayLogos"] = Config->getString("Tuxbox.DisplayLogos", "true");
 	// Check location of logos
@@ -438,15 +418,12 @@ void Cyhttpd::ReadConfig(void) {
 	CySocket::initSSL();
 #endif
 	ConfigList["server.user_name"] = Config->getString("server.user_name", "");
-	ConfigList["server.group_name"]
-			= Config->getString("server.group_name", "");
+	ConfigList["server.group_name"] = Config->getString("server.group_name", "");
 	ConfigList["server.chroot"] = Config->getString("server.chroot", "");
 
 	// language
-	ConfigList["Language.directory"] = Config->getString("Language.directory",
-			HTTPD_LANGUAGEDIR);
-	ConfigList["Language.selected"] = Config->getString("Language.selected",
-			HTTPD_DEFAULT_LANGUAGE);
+	ConfigList["Language.directory"] = Config->getString("Language.directory", HTTPD_LANGUAGEDIR);
+	ConfigList["Language.selected"] = Config->getString("Language.selected", HTTPD_DEFAULT_LANGUAGE);
 	yhttpd->ReadLanguage();
 
 	// Read App specifig settings by Hook
@@ -464,7 +441,6 @@ void Cyhttpd::ReadConfig(void) {
 void Cyhttpd::ReadLanguage(void) {
 	// Init Class vars
 	CLanguage *lang = CLanguage::getInstance();
-	log_level_printf(3, "ReadLanguage:%s\n",
-			ConfigList["Language.selected"].c_str());
+	log_level_printf(3, "ReadLanguage:%s\n", ConfigList["Language.selected"].c_str());
 	lang->setLanguage(ConfigList["Language.selected"]);
 }
