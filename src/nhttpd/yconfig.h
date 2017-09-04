@@ -33,7 +33,7 @@
 #define IADDR_LOCAL 		"127.0.0.1"			// local IP
 #define HTTPD_NAME 			"yhttpd"			// Webserver name (can be overloaded)
 #define YHTTPD_NAME 		"yhttpd_core"		// Webserver name (Name of yhttpd-core!)
-#define AUTH_NAME_MSG		"yhhtpd"			// Name in Authentication Dialogue
+#define AUTH_NAME_MSG		"yhttpd"			// Name in Authentication Dialogue
 #define CONF_VERSION		4					// Version of yhttpd-conf file
 #define HTTPD_KEEPALIVE_TIMEOUT	500000			// Timeout for Keep-Alive in mircoseconds
 //=============================================================================
