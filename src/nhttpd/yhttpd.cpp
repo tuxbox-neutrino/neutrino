@@ -62,47 +62,14 @@ static CNeutrinoAPI *NeutrinoAPI;
 #endif
 
 //=============================================================================
-// Main: Main Entry, Command line passing, Webserver Instance creation & Loop
+// Main: Main Entry, Webserver thread
 //=============================================================================
-volatile sig_atomic_t Cyhttpd::sig_do_shutdown = 0;
-//-----------------------------------------------------------------------------
-// Signal Handling
-//-----------------------------------------------------------------------------
-#ifdef Y_CONFIG_BUILD_AS_DAEMON
-static void sig_catch(int msignal)
-{
-	aprintf("!!! SIGNAL !!! :%d!\n",msignal);
-	switch (msignal) {
-		//	case SIGTERM:
-		//	case SIGINT:
 
-		case SIGPIPE:
-		aprintf("got signal PIPE, nice!\n");
-		break;
-		case SIGHUP:
-		case SIGUSR1:
-		aprintf("got signal HUP/USR1, reading config\n");
-		if (yhttpd)
-		yhttpd->ReadConfig();
-		break;
-		default:
-		aprintf("No special SIGNAL-Handler:%d!\n",msignal);
-		//		log_level_printf(1, "Got SIGTERM\n");
-		Cyhttpd::sig_do_shutdown = 1;
-		yhttpd->stop_webserver();
-		delete yhttpd;
-		exit(EXIT_SUCCESS); //FIXME: return to main() some way...
-		break;
-
-	}
-}
-#endif
-
-//-----------------------------------------------------------------------------
 void yhttpd_reload_config() {
 	if (yhttpd)
 		yhttpd->ReadConfig();
 }
+
 //-----------------------------------------------------------------------------
 // Main Entry
 //-----------------------------------------------------------------------------
@@ -117,7 +84,6 @@ void thread_cleanup (void *p)
 	y = NULL;
 }
 
-#ifndef Y_CONFIG_BUILD_AS_DAEMON
 void * nhttpd_main_thread(void *) {
 	set_threadname("yweb:main_thread");
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
@@ -152,98 +118,6 @@ void * nhttpd_main_thread(void *) {
 	aprintf("Main end\n");
 	return (void *) EXIT_SUCCESS;
 }
-#endif
-#ifdef Y_CONFIG_BUILD_AS_DAEMON
-int main(int argc, char **argv)
-{
-	aprintf("Webserver %s\n", WEBSERVERNAME);
-	bool do_fork = true;
-	yhttpd = new Cyhttpd();
-	if(!yhttpd)
-	{
-		aprintf("Error initializing WebServer\n");
-		return EXIT_FAILURE;
-	}
-	for (int i = 1; i < argc; i++)
-	{
-		if ((!strncmp(argv[i], "-d", 2)) || (!strncmp(argv[i], "--debug", 7)))
-		{
-			CLogging::getInstance()->setDebug(true);
-			do_fork = false;
-		}
-		else if ((!strncmp(argv[i], "-f", 2)) || (!strncmp(argv[i], "--fork", 6)))
-		{
-			do_fork = false;
-		}
-		else if ((!strncmp(argv[i], "-h", 2)) || (!strncmp(argv[i], "--help", 6)))
-		{
-			yhttpd->usage(stdout);
-			return EXIT_SUCCESS;
-		}
-		else if ((!strncmp(argv[i], "-v", 2)) || (!strncmp(argv[i],"--version", 9)))
-		{
-			yhttpd->version(stdout);
-			return EXIT_SUCCESS;
-		}
-		else if ((!strncmp(argv[i], "-t", 2)) || (!strncmp(argv[i],"--thread-off", 12)))
-		{
-			yhttpd->flag_threading_off = true;
-		}
-		else if ((!strncmp(argv[i], "-l", 2)) )
-		{
-			if(argv[i][2] >= '0' && argv[i][2] <= '9')
-			CLogging::getInstance()->LogLevel = (argv[i][2]-'0');
-		}
-		else
-		{
-			yhttpd->usage(stderr);
-			return EXIT_FAILURE;
-		}
-	}
-	// setup signal catching (subscribing)
-	signal(SIGPIPE, sig_catch);
-	signal(SIGINT, sig_catch);
-	signal(SIGHUP, sig_catch);
-	signal(SIGUSR1, sig_catch);
-	signal(SIGTERM, sig_catch);
-	signal(SIGCLD, SIG_IGN);
-	//	signal(SIGALRM, sig_catch);
-
-	yhttpd->hooks_attach();
-	yhttpd->ReadConfig();
-	if(yhttpd->Configure())
-	{
-		// Start Webserver: fork ist if not in debug mode
-		aprintf("Webserver starting...\n");
-		if (do_fork)
-		{
-			log_level_printf(9,"do fork\n");
-			switch (fork()) {
-				case -1:
-				dperror("fork");
-				return -1;
-				case 0:
-				break;
-				default:
-				return EXIT_SUCCESS;
-			}
-
-			if (setsid() == -1)
-			{
-				dperror("Error setsid");
-				return EXIT_FAILURE;
-			}
-		}
-		dprintf("Start in Debug-Mode\n"); // non forked debugging loop
-
-		yhttpd->run();
-	}
-	delete yhttpd;
-
-	aprintf("Main end\n");
-	return EXIT_SUCCESS;
-}
-#endif
 //=============================================================================
 // Class yhttpd
 //=============================================================================
