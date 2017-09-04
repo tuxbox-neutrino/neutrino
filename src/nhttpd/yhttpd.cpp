@@ -503,7 +503,7 @@ void Cyhttpd::ReadConfig(void) {
 		if (Config->getInt32("configfile.version") < 2) {
 			Config->setString("mod_sendfile.mime_types", HTTPD_SENDFILE_EXT);
 			Config->setInt32("configfile.version", CONF_VERSION);
-			Config->setString("mod_sendfile.sendAll", "false");
+			Config->setString("mod_sendfile.sendAll", HTTPD_SENDFILE_ALL);
 			Config->saveConfig(HTTPD_CONFIGFILE);
 		}
 		// Add Defaults for Version 4
