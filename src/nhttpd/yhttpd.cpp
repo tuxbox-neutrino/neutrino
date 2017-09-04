@@ -229,20 +229,6 @@ void Cyhttpd::version(FILE *dest) {
 }
 
 //-----------------------------------------------------------------------------
-// Show Usage
-//-----------------------------------------------------------------------------
-void Cyhttpd::usage(FILE *dest) {
-	version(dest);
-	fprintf(dest, "command line parameters:\n");
-	fprintf(dest, "-d, --debug    enable debugging code (implies -f)\n");
-	fprintf(dest, "-f, --fork     do not fork\n");
-	fprintf(dest, "-h, --help     display this text and exit\n\n");
-	fprintf(dest, "-v, --version  display version and exit\n");
-	fprintf(dest, "-l<loglevel>,  set loglevel (0 .. 9)\n");
-	fprintf(dest, "-t, --thread-off  set threading off\n");
-}
-
-//-----------------------------------------------------------------------------
 // Stop WebServer
 //-----------------------------------------------------------------------------
 void Cyhttpd::stop_webserver() {

@@ -39,7 +39,6 @@ public:
 	bool Configure();
 	void stop_webserver(); 			// Remove Hooks, Stop Webserver
 	static void version(FILE *dest);// Show Webserver Version
-	static void usage(FILE *dest); 	// Show command line usage
 	// Hooks
 	void hooks_attach(); 			// Add a Hook-Class to HookList
 	void hooks_detach(); 			// Remove a Hook-Class from HookList
