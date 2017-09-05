@@ -41,7 +41,6 @@
 //-----------------------------------------------------------------------------
 // modules
 //-----------------------------------------------------------------------------
-//#define Y_CONFIG_USE_TESTHOOK y			// Add mod: "Test-Hook" (hook example)
 #define Y_CONFIG_USE_YPARSER y				// Add mod: "y-Parsing"
 #define Y_CONFIG_USE_AUTHHOOK y				// Add mod: "Authentication"
 #define Y_CONFIG_USE_WEBLOG y				// Add mod: "WebLogging"

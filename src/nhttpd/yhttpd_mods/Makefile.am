@@ -16,5 +16,9 @@ AM_CPPFLAGS += -fno-rtti -fno-exceptions -D_FILE_OFFSET_BITS=64
 noinst_LIBRARIES = libyhttpdmods.a
 
 libyhttpdmods_a_SOURCES = \
-	mod_yparser.cpp mod_testhook.cpp mod_auth.cpp mod_cache.cpp mod_sendfile.cpp mod_weblog.cpp
+	mod_auth.cpp \
+	mod_cache.cpp \
+	mod_sendfile.cpp \
+	mod_weblog.cpp \
+	mod_yparser.cpp
 
