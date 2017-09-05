@@ -109,16 +109,18 @@
 #define HTTPD_CONFIGDIR 				CONFIGDIR
 #define HTTPD_CONFIGFILE				HTTPD_CONFIGDIR"/nhttpd.conf"
 #define YWEB_CONFIGFILE					HTTPD_CONFIGDIR"/Y-Web.conf"
-#define PUBLICDOCUMENTROOT				PUBLIC_HTTPDDIR
-#define PRIVATEDOCUMENTROOT				PRIVATE_HTTPDDIR
 #define NEUTRINO_CONFIGFILE				CONFIGDIR"/neutrino.conf"
 #define MOVIEBROWSER_CONFIGFILE				CONFIGDIR"/moviebrowser.conf"
+
+#define PRIVATEDOCUMENTROOT				PRIVATE_HTTPDDIR
+#define PUBLICDOCUMENTROOT				PUBLIC_HTTPDDIR
 #define HOSTEDDOCUMENTROOT				HOSTED_HTTPDDIR
 #define HOSTEDDOCUMENTURL				"/hosted/"
 #define EXTRASDOCUMENTROOT				HOSTED_HTTPDDIR"/extras"
 #define EXTRASDOCUMENTURL				"/hosted/extras"
+
 #define ZAPITXMLPATH					CONFIGDIR"/zapit"
-#define TUXBOX_LOGOS_URL				ICONSDIR"/logo"
+#define TUXBOX_LOGOS_URL				LOGODIR
 
 //-----------------------------------------------------------------------------
 // Aggregated definitions
