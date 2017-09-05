@@ -17,16 +17,12 @@ public:
 	}
 	;
 
-	// Hooks
-	virtual THandleStatus Hook_PrepareResponse(CyhookHandler *hh);
-	virtual std::string getHookName(void) {
-		return std::string("mod_auth");
-	}
-	virtual std::string getHookVersion(void) {
-		return std::string("$Revision$");
-	}
-	virtual THandleStatus Hook_ReadConfig(CConfigFile *Config,
-			CStringList &ConfigList);
+	// virtual functions for HookHandler/Hook
+	virtual std::string	getHookName(void) {return std::string("mod_auth");}
+	virtual std::string	getHookVersion(void) {return std::string("$Revision$");}
+	virtual THandleStatus	Hook_PrepareResponse(CyhookHandler *hh);
+	virtual THandleStatus	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
+
 protected:
 	bool CheckAuth(CyhookHandler *hh);
 	std::string decodeBase64(const char *b64buffer);
