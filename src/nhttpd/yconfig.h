@@ -22,13 +22,12 @@
 // System Choice <configure!> ONE choice
 //-----------------------------------------------------------------------------
 #ifndef CONFIG_SYSTEM_BY_COMPILER 				// use Compiler directive to set CONFIG_SYSTEM
-//#define CONFIG_SYSTEM_TUXBOX	y				// Tuxbox project
-#define CONFIG_SYSTEM_TUXBOX_COOLSTREAM	y		// Tuxbox project for coolstream
+#define CONFIG_SYSTEM_TUXBOX	y				// Tuxbox project
 #endif
 //-----------------------------------------------------------------------------
 // General central Definitions <configure!>
 //-----------------------------------------------------------------------------
-#define HTTPD_VERSION 		"3.4.0"				// Webserver version  (can be overloaded)
+#define HTTPD_VERSION 		"3.4.1"				// Webserver version  (can be overloaded)
 #define YHTTPD_VERSION 		"1.3.2"				// Webserver version  (Version of yhttpd-core!)
 #define IADDR_LOCAL 		"127.0.0.1"			// local IP
 #define HTTPD_NAME 			"yhttpd"			// Webserver name (can be overloaded)
@@ -70,11 +69,12 @@
 //#undef Y_CONFIG_HAVE_SENDFILE					// Sendfile does not work for SSL, but we'll fallback to send
 //#endif
 
-#if defined(CONFIG_SYSTEM_TUXBOX) || defined(CONFIG_SYSTEM_TUXBOX_COOLSTREAM)
+#ifdef CONFIG_SYSTEM_TUXBOX
 #define Y_CONFIG_FEATURE_UPLOAD y
 #define Y_CONFIG_USE_YPARSER y
 #define Y_CONFIG_USE_AUTHHOOK y
 #endif
+
 #ifdef Y_CONFIG_FEATURE_KEEP_ALIVE
 #define HTTP_PROTOCOL "HTTP/1.1"
 #else
@@ -102,12 +102,15 @@
 #define HTTPD_SENDFILE_ALL				"true"
 #define HTTPD_LANGUAGEDIR 				"languages"
 #define HTTPD_DEFAULT_LANGUAGE 			"English"
-#define AUTHUSER						"root"
+
+#define AUTHUSER					"root"
+#define AUTHPASSWORD					"tuxbox"
 
 #define HTTPD_CONFIGDIR 				CONFIGDIR
 #define HTTPD_CONFIGFILE				HTTPD_CONFIGDIR"/nhttpd.conf"
 #define YWEB_CONFIGFILE					HTTPD_CONFIGDIR"/Y-Web.conf"
 #define PUBLICDOCUMENTROOT				PUBLIC_HTTPDDIR
+#define PRIVATEDOCUMENTROOT				PRIVATE_HTTPDDIR
 #define NEUTRINO_CONFIGFILE				CONFIGDIR"/neutrino.conf"
 #define MOVIEBROWSER_CONFIGFILE				CONFIGDIR"/moviebrowser.conf"
 #define HOSTEDDOCUMENTROOT				HOSTED_HTTPDDIR
@@ -117,16 +120,6 @@
 #define ZAPITXMLPATH					CONFIGDIR"/zapit"
 #define TUXBOX_LOGOS_URL				ICONSDIR"/logo"
 
-// switch for Box differences
-#ifdef CONFIG_SYSTEM_TUXBOX
-#define AUTHPASSWORD					"dbox2"
-#define PRIVATEDOCUMENTROOT				DATADIR "/neutrino/httpd-y"
-#endif
-
-#ifdef CONFIG_SYSTEM_TUXBOX_COOLSTREAM
-#define AUTHPASSWORD					"coolstream"
-#define PRIVATEDOCUMENTROOT				PRIVATE_HTTPDDIR
-#endif
 //-----------------------------------------------------------------------------
 // Aggregated definitions
 //-----------------------------------------------------------------------------
