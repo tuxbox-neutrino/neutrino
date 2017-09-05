@@ -102,8 +102,8 @@ function do_save2()
 		var dir = document.f.dir.value;
 		if(dir.indexOf("/") == 0)
 			dir = dir.substr(1);
-		mstr += ((mstr!="")?",":"")+"unc="+"//"+document.f.ip.value+"/"+dir;
-		mstr += "%20//"+document.f.ip.value+"/"+dir;
+		//mstr += ((mstr!="")?",":"")+"unc="+"//"+document.f.ip.value+"/"+dir;
+		mstr += "%20://"+document.f.ip.value+"/"+dir;
 	}
 	show_waitbox(false);
 	mstr = mstr.replace(/=/gi,",,");
