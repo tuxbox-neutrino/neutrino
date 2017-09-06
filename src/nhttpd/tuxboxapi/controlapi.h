@@ -153,7 +153,7 @@ public:
 	CControlAPI(CNeutrinoAPI *_NeutrinoAPI);
 
 	// virtual functions for HookHandler/Hook
-	virtual std::string	getHookName(void) {return std::string("mod_ControlAPI");}
+	virtual std::string	getHookName(void) {return std::string("controlapi");}
 	virtual std::string	getHookVersion(void) {return std::string("$Revision$");}
 	virtual THandleStatus	Hook_SendResponse(CyhookHandler *hh);
 	virtual THandleStatus	Hook_PrepareResponse(CyhookHandler *hh);
