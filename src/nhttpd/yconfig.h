@@ -91,8 +91,6 @@
 #define HTTPD_FALLBACK_PORT		8080
 #define HTTPD_MAX_CONNECTIONS		50
 #define HTTPD_REQUEST_LOG		"/tmp/httpd_log"
-#define SSL_PEMFILE			HTTPD_CONFIGDIR "/server.pem"
-#define SSL_CA_FILE			HTTPD_CONFIGDIR "/cacert.pem"
 #define LOG_FILE			"/tmp/yhhtpd.log"
 #define LOG_FORMAT			""
 #define UPLOAD_TMP_FILE			"/tmp/upload.tmp"
@@ -122,6 +120,8 @@
 #define ZAPITXMLPATH			CONFIGDIR"/zapit"
 #define TUXBOX_LOGOS_URL		LOGODIR
 
+#define SSL_PEMFILE			HTTPD_CONFIGDIR "/server.pem"
+#define SSL_CA_FILE			HTTPD_CONFIGDIR "/cacert.pem"
 //-----------------------------------------------------------------------------
 // Aggregated definitions
 //-----------------------------------------------------------------------------
