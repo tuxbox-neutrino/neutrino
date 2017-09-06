@@ -91,7 +91,7 @@
 #define HTTPD_FALLBACK_PORT		8080
 #define HTTPD_MAX_CONNECTIONS		50
 #define HTTPD_REQUEST_LOG		"/tmp/httpd_log"
-#define LOG_FILE			"/tmp/yhhtpd.log"
+#define LOG_FILE			"/tmp/yhttpd.log"
 #define LOG_FORMAT			""
 #define UPLOAD_TMP_FILE			"/tmp/upload.tmp"
 #define CACHE_DIR			"/tmp/.cache"
