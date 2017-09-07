@@ -89,7 +89,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "saveconfig")
 	{
 		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/var/tuxbox") == true)
+		if (fileBrowser.exec("/media") == true)
 		{
 			std::string fname = "neutrino.conf";
 			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname);
