@@ -245,7 +245,7 @@ int CKeybindSetup::showKeySetup()
 
 	//keysetup menu
 	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP);
-	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING, LOCALE_KEYBINDINGMENU_HEAD);
+	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING);
 
 	//keybindings menu
 	CMenuWidget bindSettings(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING);
@@ -261,12 +261,12 @@ int CKeybindSetup::showKeySetup()
 	mf->setHint("", LOCALE_MENU_HINT_KEY_BINDING);
 	keySettings->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_EXTRA_LOADKEYS, true, NULL, this, "loadkeys", CRCInput::RC_green);
-	mf->setHint("", LOCALE_MENU_HINT_KEY_LOAD);
+	mf = new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys", CRCInput::RC_green);
+	mf->setHint("", LOCALE_MENU_HINT_KEY_SAVE);
 	keySettings->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys", CRCInput::RC_yellow);
-	mf->setHint("", LOCALE_MENU_HINT_KEY_SAVE);
+	mf = new CMenuForwarder(LOCALE_EXTRA_LOADKEYS, true, NULL, this, "loadkeys", CRCInput::RC_yellow);
+	mf->setHint("", LOCALE_MENU_HINT_KEY_LOAD);
 	keySettings->addItem(mf);
 
 	keySettings->addItem(GenericMenuSeparatorLine);
