@@ -221,11 +221,11 @@ bouqueteditor.savingchanges Änderungen werden gespeichert. Bitte warten ...
 bouqueteditor.switch Kanal aufnehmen/entfernen
 bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
-bouquetname.hdtv HD Kanäle
+bouquetname.hdtv HD-Kanäle
 bouquetname.new Neue Kanäle
 bouquetname.other Unbekannter Provider
 bouquetname.removed Gelöschte Kanäle
-bouquetname.webtv WebTV Kanäle
+bouquetname.webtv WebTV-Kanäle
 buildinfo.compiled_on Build Host
 buildinfo.compiled_with Compiler Version
 buildinfo.compiler_flags Compiler Flags
@@ -459,8 +459,8 @@ extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
-extra.loadconfig Einstellungen: Laden von
-extra.loadkeys Lade Tastenbelegung von
+extra.loadconfig Einstellungen laden
+extra.loadkeys Tastenbelegungen laden
 extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
@@ -471,8 +471,8 @@ extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
-extra.saveconfig Einstellungen: Sichern als
-extra.savekeys Speichere Tastenbelegung als
+extra.saveconfig Einstellungen sichern
+extra.savekeys Tastenbelegungen sichern
 extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
 extra.sms_channel SMS-Modus bei Kanalsuche
@@ -836,8 +836,8 @@ keybindingmenu.cancel Kanalliste schließen
 keybindingmenu.channeldown Kanal runter
 keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
-keybindingmenu.edit Bearbeiten
-keybindingmenu.head Tasten-Belegungen bearbeiten
+keybindingmenu.edit Tastenbelegungen bearbeiten
+keybindingmenu.head Tastenbelegungen
 keybindingmenu.lastchannel Letzter Kanal
 keybindingmenu.longkeypress_duration Langer Tastendruck
 keybindingmenu.misc Sonstige
@@ -1157,7 +1157,7 @@ menu.hint_key_record Konfigurieren Sie die Taste für den Aufnahmestart
 menu.hint_key_repeatblock Die Verzögerung nach einem Tastendruck bis die Box reagieren soll
 menu.hint_key_repeatblockgeneric Die Verzögerung zwischen den Tastewiederholungen bis die Box reagieren soll
 menu.hint_key_right Wählen Sie die Funktion für die Tasten 'links' und 'rechts' im TV/Radio- und Movieplayer-Modus
-menu.hint_key_save Speichern Sie Ihre Tastenbelegungen in einer Datei ab
+menu.hint_key_save Speichern Sie Ihre Tastenbelegungen in einer Datei namens keys.conf ab
 menu.hint_key_screenshot Weisen Sie eine Taste zu, um Menü- und/oder TV-Screenshots zu speichern
 menu.hint_key_sort Weisen Sie eine Taste für das Sortieren in der Kanalliste zu
 menu.hint_key_special_active Deaktivieren oder aktivieren einiger Sondertasten
@@ -1323,7 +1323,7 @@ menu.hint_restore Wiederherstellen von vorher erstellten Sicherungen
 menu.hint_rotor_swap Tauschen der Rotordrehrichtung Ost/West in den Motor-Einstellungen
 menu.hint_rounded_corners Aktiviert die Darstellung abgerundeter Ecken für die Menüs
 menu.hint_save_settings Speichert ihre Einstellungen
-menu.hint_saveas Speichern der Einstellungen in eine Datei
+menu.hint_saveas Speichern der Einstellungen in einer Datei namens neutrino.conf
 menu.hint_scan_auto Automatischer Suchlauf ausgewählter Anbieter
 menu.hint_scan_autoall Automatischer Suchlauf aller ausgewählten Anbieter
 menu.hint_scan_autoall_select Suchlauf nur in ausgewählten Satelliten
@@ -2298,7 +2298,7 @@ settings.pos_higher_center höher zentriert
 settings.pos_top_center oben zentriert
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
-settings.restore Image-Einstellungen: Wiederherstellen
+settings.restore Image-Einstellungen: Wiederherstellung
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
 shoutcast.dev_id SHOUTcast Dev ID
 shoutcast.enabled SHOUTcast-Unterstützung
