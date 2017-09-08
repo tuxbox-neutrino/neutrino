@@ -345,7 +345,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA])
 					show = show || g_Plugins->getType(count) == CPlugins::P_TYPE_LUA;
 
-				if (show && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == CPlugins::I_TYPE_DISABLED))
+				if (show && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == PLUGIN_INTEGRATION_DISABLED))
 				{
 					menu_items++;
 					neutrino_msg_t d_key = g_Plugins->getKey(count);

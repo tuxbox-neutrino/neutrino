@@ -613,7 +613,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual const char *getName();
-		virtual void integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut=CRCInput::RC_nokey, bool enabled=true);
+		virtual void integratePlugins(int integration, const unsigned int shortcut=CRCInput::RC_nokey, bool enabled=true);
 		void setSelected(const int &Preselected){ selected = Preselected; };
 		void initSelectable();
 		int getSelected()const { return selected; };

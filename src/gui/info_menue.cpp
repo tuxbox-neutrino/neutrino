@@ -90,16 +90,18 @@ int CInfoMenu::showMenu()
 	mf = new CMenuForwarder(LOCALE_STREAMINFO_HEAD,        !CNeutrinoApp::getInstance()->channelList->isEmpty(), NULL, &streaminfo, NULL, CRCInput::RC_yellow);
 	mf->setHint(NEUTRINO_ICON_HINT_STREAMINFO, LOCALE_MENU_HINT_STREAMINFO);
 	info->addItem(mf);
-	
 #if 0
+	mf = new CMenuForwarder(LOCALE_HDD_INFO_HEAD, true, NULL, &hddinfo, NULL, CRCInput::RC_blue);
+	mf->setHint(NEUTRINO_ICON_HINT_HDD_INFO, LOCALE_MENU_HINT_HDD_INFO);
+	info->addItem(mf);
+
 	CBuildInfo buildinfo;
 	mf = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, &buildinfo, NULL, CRCInput::RC_blue);
 	mf->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
 	info->addItem(mf);
 #endif
-
-	//add I_TYPE_INFORMATION plugins
-	info->integratePlugins(CPlugins::I_TYPE_INFORMATION, 1);
+	//add PLUGIN_INTEGRATION_INFORMATION plugins
+	info->integratePlugins(PLUGIN_INTEGRATION_INFORMATION, 1);
 
 	int res = info->exec(NULL, "");
 	delete info;

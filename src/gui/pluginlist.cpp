@@ -4,38 +4,28 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
-
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include <plugin.h>
-
 #include <gui/pluginlist.h>
+#include <gui/plugins.h>
 #include <gui/components/cc.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/icons.h>
@@ -58,8 +48,6 @@
 
 #include <zapit/client/zapittools.h>
 #include <system/helpers.h>
-
-#include "plugins.h"
 
 extern CPlugins       * g_Plugins;    /* neutrino.cpp */
 
@@ -111,7 +99,7 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 	int nop = g_Plugins->getNumberOfPlugins();
 
 	for(int count = 0; count < nop; count++) {
-		if ((g_Plugins->getType(count) & pluginlisttype) && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == CPlugins::I_TYPE_DISABLED)) {
+		if ((g_Plugins->getType(count) & pluginlisttype) && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == PLUGIN_INTEGRATION_DISABLED)) {
 			neutrino_msg_t d_key = g_Plugins->getKey(count);
 			keyhelper.get(&key, &dummy, d_key);
 			CMenuForwarder *f = new CMenuForwarder(std::string(g_Plugins->getName(count)), true, NULL, this, to_string(count).c_str(), key);
@@ -170,7 +158,7 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (!g_Plugins->getScriptOutput().empty())
 		ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
 
-	if (g_Plugins->getIntegration(sel) == CPlugins::I_TYPE_DISABLED)
+	if (g_Plugins->getIntegration(sel) == PLUGIN_INTEGRATION_DISABLED)
 		return menu_return::RETURN_EXIT;
 
 	return menu_return::RETURN_REPAINT;
