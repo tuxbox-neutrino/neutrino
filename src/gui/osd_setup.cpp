@@ -56,7 +56,6 @@
 
 #include <driver/screen_max.h>
 #include <driver/neutrinofonts.h>
-#include <driver/screen_max.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <driver/radiotext.h>

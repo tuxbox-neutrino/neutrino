@@ -25,7 +25,6 @@
 #define __msgtypes_h__
 
 
-#include "zapittypes.h"
 #include <connection/basicmessage.h>
 #include "zapitclient.h"
 

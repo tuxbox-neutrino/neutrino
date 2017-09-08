@@ -59,7 +59,6 @@
 #include <driver/record.h>
 #include <gui/buildinfo.h>
 #include <gui/widget/buttons.h>
-#include <system/helpers.h>
 #include <gui/components/cc_timer.h>
 
 extern int cs_test_card(int unit, char * str);

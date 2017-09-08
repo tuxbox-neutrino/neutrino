@@ -74,7 +74,6 @@
 #include <libdvbsub/dvbsub.h>
 #include <OpenThreads/ScopedLock>
 #include <libtuxtxt/teletext.h>
-#include <OpenThreads/ScopedLock>
 
 #include <neutrino.h>
 #include <gui/osd_helpers.h>

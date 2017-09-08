@@ -30,7 +30,6 @@
 #include <netdb.h>		/* gethostbyname, getnetbyname */
 #include <net/ethernet.h>	/* struct ether_addr */
 #include <sys/time.h>		/* struct timeval */
-#include <unistd.h>
 
 /* This is our header selection. Try to hide the mess and the misery :-(
  * Don't look, you would go blind ;-)
@@ -41,7 +40,6 @@
 
 /* Set of headers proposed by Dr. Michael Rietz <rietz@mail.amps.de>, 27.3.2 */
 #include <net/if_arp.h>		/* For ARPHRD_ETHER */
-#include <sys/socket.h>		/* For AF_INET & struct sockaddr */
 #include <netinet/in.h>         /* For struct sockaddr_in */
 #include <netinet/if_ether.h>
 

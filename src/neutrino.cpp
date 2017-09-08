@@ -40,7 +40,6 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <sys/mount.h>
-#include <sys/types.h>
 #include <dirent.h>
 
 #include <fstream>
@@ -72,7 +71,6 @@
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
 #include "gui/cec_setup.h"
-#include "gui/channellist.h"
 #include "gui/epgview.h"
 #include "gui/eventlist.h"
 #include "gui/favorites.h"

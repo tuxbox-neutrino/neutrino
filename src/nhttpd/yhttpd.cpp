@@ -15,7 +15,6 @@
 #include <system/set_threadname.h>
 #include <system/helpers.h>
 // yhttpd
-#include "yconfig.h"
 #include <ylogging.h>
 #include <ylanguage.h>
 #include <yhook.h>

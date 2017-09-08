@@ -20,11 +20,9 @@
 
 // yhttpd
 #include <yhttpd.h>
-#include "ytypes_globals.h"
 #include "ywebserver.h"
 #include "ylogging.h"
 #include "helper.h"
-#include "ysocket.h"
 #include "yconnection.h"
 #include "yrequest.h"
 #include <system/set_threadname.h>

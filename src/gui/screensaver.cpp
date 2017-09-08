@@ -36,7 +36,6 @@
 #include <neutrino.h>
 #include <pthread.h>
 #include <algorithm>    // sort
-#include <ctype.h>
 #include "audiomute.h"
 #include "screensaver.h"
 #include <system/debug.h>
