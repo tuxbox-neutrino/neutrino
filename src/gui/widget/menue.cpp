@@ -256,7 +256,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 		}
 		if (*right_text) {
 			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + OFFSET_INNER_MID);
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height - desc_height, dx- (stringstartposOption- x),  right_text, item_color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height - desc_height, dx - stringstartposOption + x - OFFSET_INNER_MID,  right_text, item_color);
 		}
 	}
 	if (desc_text && *desc_text)
