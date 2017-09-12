@@ -98,12 +98,6 @@ int CInfoMenu::showMenu()
 	info->addItem(mf);
 #endif
 
-	if (g_settings.easymenu) {
-		mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler,  NULL, CRCInput::RC_blue);
-		mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
-		info->addItem(mf);
-	}
-
 	//add I_TYPE_INFORMATION plugins
 	info->integratePlugins(CPlugins::I_TYPE_INFORMATION, 1);
 

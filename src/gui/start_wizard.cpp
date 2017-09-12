@@ -114,7 +114,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			res = g_videoSettings->exec(NULL, "");
 			g_videoSettings->setWizardMode(SNeutrinoSettings::WIZARD_OFF);
 		}
-		if(!g_settings.easymenu && advanced && res != menu_return::RETURN_EXIT_ALL)
+		if(advanced && res != menu_return::RETURN_EXIT_ALL)
 		{
 			COsdSetup osdSettings(SNeutrinoSettings::WIZARD_ON);
 			res = osdSettings.exec(NULL, "");

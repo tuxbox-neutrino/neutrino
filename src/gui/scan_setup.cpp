@@ -729,19 +729,12 @@ int CScanSetup::showScanMenuFrontendSetup()
 		snprintf(tmp, sizeof(tmp), "config_frontend%d", i);
 
 		char name[255];
-		if (g_settings.easymenu)
-			snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
-					fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
-					: fe->hasSat() ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
-					: fe->hasTerr() ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
-					: g_Locale->getText(LOCALE_SCANTS_ACTCABLE));
-		else
-			snprintf(name, sizeof(name), "%s %d: %s %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
-					fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
-					: fe->hasSat() ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
-					: fe->hasTerr()? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
-					: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
-					fe->getName());
+		snprintf(name, sizeof(name), "%s %d: %s %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
+				fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
+				: fe->hasSat() ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+				: fe->hasTerr()? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
+				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
+				fe->getName());
 
 		neutrino_msg_t key = CRCInput::RC_nokey;
 		if (i == 0)
@@ -875,14 +868,7 @@ int CScanSetup::showFrontendSetup(int number)
 	dmode = fe_config.diseqcType;
 
 	char name[255];
-	if (g_settings.easymenu)
-		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1,
-				fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
-				: fe->hasSat() ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
-				: fe->hasTerr() ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
-				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE));
-	else
-		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, fe->getName());
+	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, fe->getName());
 
 	CMenuWidget * setupMenu = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	setupMenu->setSelected(feselected);
@@ -1481,12 +1467,9 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_FASTDISEQC);
 	fast_ScanMenu->addItem(mf);
 
-	if (1 /* !g_settings.easymenu */)
-	{
-		mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue);
-		mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
-		fast_ScanMenu->addItem(mf);
-	}
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+	fast_ScanMenu->addItem(mf);
 }
 
 int CScanSetup::showFastscanDiseqcSetup()

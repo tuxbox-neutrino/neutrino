@@ -391,12 +391,6 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	m4->setHint("", LOCALE_MENU_HINT_SLEEPTIMER_MIN);
 	ms_energy->addItem(m4);
 
-	if (g_settings.easymenu) {
-		CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
-		cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
-		ms_energy->addItem(cec_ch);
-	}
-
 	int res = ms_energy->exec(NULL, "");
 
 	g_settings.shutdown_count = atoi(shutdown_count.c_str());

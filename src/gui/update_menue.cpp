@@ -103,34 +103,29 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	CUpdateSettings update_settings;
 	CMenuWidget mtdexpert(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
 	//settings
-	if (!g_settings.easymenu) {
-		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_yellow);
-		mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_SETTINGS);
-		softUpdate.addItem(mf);
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_yellow);
+	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_SETTINGS);
+	softUpdate.addItem(mf);
 
-		softUpdate.addItem(GenericMenuSeparatorLine);
+	softUpdate.addItem(GenericMenuSeparatorLine);
 
-		//expert-functions
-		showSoftwareUpdateExpert(&mtdexpert); 
-		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_blue);
-		mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
-		softUpdate.addItem(mf);
+	//expert-functions
+	showSoftwareUpdateExpert(&mtdexpert);
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_blue);
+	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
+	softUpdate.addItem(mf);
 
 #if 0
-		//firmware update via opkg
-		mf = new CMenuDForwarder(LOCALE_OPKG_TITLE, COPKGManager::hasOpkgSupport(), NULL, new COPKGManager());
-		mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
-		softUpdate.addItem(mf);
+	//firmware update via opkg
+	mf = new CMenuDForwarder(LOCALE_OPKG_TITLE, COPKGManager::hasOpkgSupport(), NULL, new COPKGManager());
+	mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
+	softUpdate.addItem(mf);
 #endif
-	}
 
 #ifdef BOXMODEL_CS_HD2
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
-	if (g_settings.easymenu)
-		mf = new CMenuDForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::RC_yellow);
-	else
-		mf = new CMenuDForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(1));
+	mf = new CMenuDForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(1));
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CREATEIMAGE_MENU);
 	softUpdate.addItem(mf);
 #endif
