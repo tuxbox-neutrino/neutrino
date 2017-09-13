@@ -54,7 +54,6 @@
 #include "widget/shellwindow.h"
 
 #include <poll.h>
-#include <fcntl.h>
 #include <vector>
 
 #include <video.h>

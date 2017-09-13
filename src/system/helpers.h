@@ -23,7 +23,6 @@
 */
 
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <string.h>
@@ -33,9 +32,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <map>
- 
-#include <sys/stat.h>
-#include <sys/types.h>
 
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */

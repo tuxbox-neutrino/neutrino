@@ -359,33 +359,31 @@ int CNetworkSetup::showNetworkSetup()
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
 	CNetworkServiceSetup services;
 
-	if (!g_settings.easymenu) {
-		//ntp submenu
-		sectionsdConfigNotifier = new CSectionsdConfigNotifier;
-		mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow);
-		mf->setHint("", LOCALE_MENU_HINT_NET_NTP);
-		networkSettings->addItem(mf);
+	//ntp submenu
+	sectionsdConfigNotifier = new CSectionsdConfigNotifier;
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow);
+	mf->setHint("", LOCALE_MENU_HINT_NET_NTP);
+	networkSettings->addItem(mf);
 
-		showNetworkNTPSetup(&ntp);
+	showNetworkNTPSetup(&ntp);
 
 #ifdef ENABLE_GUI_MOUNT
-		//nfs mount submenu
-		mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue);
-		mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
-		networkSettings->addItem(mf);
-		showNetworkNFSMounts(&networkmounts);
+	//nfs mount submenu
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue);
+	mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
+	networkSettings->addItem(mf);
+	showNetworkNFSMounts(&networkmounts);
 #endif
 
-		//proxyserver submenu
-		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0);
-		mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
-		networkSettings->addItem(mf);
+	//proxyserver submenu
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0);
+	mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
+	networkSettings->addItem(mf);
 
-		//services
-		mf = new CMenuForwarder(LOCALE_NETWORKMENU_SERVICES, true, NULL, &services, NULL, CRCInput::RC_1);
-		mf->setHint("", LOCALE_MENU_HINT_NET_SERVICES);
-		networkSettings->addItem(mf);
-	}
+	//services
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_SERVICES, true, NULL, &services, NULL, CRCInput::RC_1);
+	mf->setHint("", LOCALE_MENU_HINT_NET_SERVICES);
+	networkSettings->addItem(mf);
 
 	int ret = 0;
 	while(true) {

@@ -267,7 +267,6 @@ struct SNeutrinoSettings
 	int ci_tuner;
 	std::string ci_pincode;
 	int radiotext_enable;
-	int easymenu;
 
 	//screen saver
 	int screensaver_delay;

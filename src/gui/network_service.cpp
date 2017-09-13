@@ -37,8 +37,6 @@
 #include <system/debug.h>
 #include <system/helpers.h>
 
-#include <unistd.h>
-
 #define TOUCH_BASE "/var/etc/."
 
 struct network_service

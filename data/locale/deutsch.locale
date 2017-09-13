@@ -942,7 +942,6 @@ mainmenu.scripts Skripte
 mainmenu.service Service
 mainmenu.settings Einstellungen
 mainmenu.shutdown Ausschalten
-mainmenu.shutdown_menu Ausschalt Optionen
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
 mainmenu.tools Werkzeuge
@@ -1424,7 +1423,6 @@ menu.hint_shoutcast_enabled Schaltet die SHOUTcast-Unterstützung ein oder aus
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
 menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus oder schalten Sie die Box komplett aus
 menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn die Box im Standby-Modus ist
-menu.hint_shutdown_menu Versetzen des Receivers in den Standby Modus, ausschalten des Receivers, setzen des Sleep Timers
 menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn die Power-Taste länger als 1 Sekunde betätigt wird
 menu.hint_shutdown_real Aktiviert den Standby-Modus. Ist diese Option deaktiviert, fährt die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann in den Standby-Modus

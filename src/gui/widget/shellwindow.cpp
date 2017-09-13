@@ -46,7 +46,6 @@
 #include <errno.h>
 #include <system/helpers.h>
 #include <gui/widget/msgbox.h>
-#include <errno.h>
 #include <system/debug.h>
 
 CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res, bool auto_exec)

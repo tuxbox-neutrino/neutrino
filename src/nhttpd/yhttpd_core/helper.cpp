@@ -16,7 +16,6 @@
 // yhttpd
 #include <yconfig.h>
 #include <tuxboxapi/controlapi.h>
-#include "ytypes_globals.h"
 #include "helper.h"
 #include "ylogging.h"
 

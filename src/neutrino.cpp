@@ -39,7 +39,6 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <sys/mount.h>
-#include <sys/types.h>
 #include <dirent.h>
 
 #include <fstream>
@@ -71,7 +70,6 @@
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
 #include "gui/cec_setup.h"
-#include "gui/channellist.h"
 #include "gui/epgview.h"
 #include "gui/eventlist.h"
 #include "gui/favorites.h"
@@ -366,14 +364,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//theme/color options
 	CThemes::getTheme(configfile);
 
-	g_settings.easymenu = configfile.getInt32("easymenu", 0);
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
-	/* if file present and no config file found, force easy mode */
-	if (erg && !access("/var/etc/.easymenu", F_OK)) {
-		g_settings.easymenu = 1;
-		g_settings.softupdate_autocheck = 1;
-	}
-	dprintf(DEBUG_NORMAL, "g_settings.easymenu %d\n", g_settings.easymenu);
 
 	// video
 #if HAVE_TRIPLEDRAGON
@@ -681,8 +672,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//recording (server + vcr)
 	g_settings.recording_type = configfile.getInt32("recording_type", RECORDING_FILE);
 	g_settings.recording_stopsectionsd         = configfile.getBool("recording_stopsectionsd"            , false );
-	g_settings.recording_audio_pids_default    = configfile.getInt32("recording_audio_pids_default",
-			g_settings.easymenu ? TIMERD_APIDS_ALL : TIMERD_APIDS_STD | TIMERD_APIDS_AC3);
+	g_settings.recording_audio_pids_default    = configfile.getInt32("recording_audio_pids_default", TIMERD_APIDS_STD | TIMERD_APIDS_AC3);
 	g_settings.recording_zap_on_announce       = configfile.getBool("recording_zap_on_announce"      , false);
 	g_settings.shutdown_timer_record_type      = configfile.getBool("shutdown_timer_record_type"      , false);
 
@@ -1113,6 +1103,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//scansettings
 	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
+	}
+	if (g_settings.version_pseudo < "20170913110000")
+	{
+		//remove easymenu
+		configfile.deleteKey("easymenu");
 	}
 
 	//theme/color options
@@ -1562,7 +1557,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infoClockFontSize", g_settings.infoClockFontSize);
 	configfile.setInt32("infoClockBackground", g_settings.infoClockBackground);
 	configfile.setInt32("infoClockSeconds", g_settings.infoClockSeconds);
-	configfile.setInt32("easymenu", g_settings.easymenu);
 
 	configfile.setInt32("livestreamResolution", g_settings.livestreamResolution);
 	configfile.setString("livestreamScriptPath", g_settings.livestreamScriptPath);
@@ -2953,12 +2947,6 @@ _repeat:
 			live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		hintBox.hide();
-	}
-	if (g_settings.easymenu) {
-		CBouquetList * blist = (mode == mode_radio) ? RADIOfavList : TVfavList;
-		t_channel_id live_channel_id = channelList->getActiveChannel_ChannelID();
-		if (blist->hasChannelID(live_channel_id))
-			SetChannelMode(LIST_MODE_FAV);
 	}
 
 	channelList_painted = false;
@@ -4462,21 +4450,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 		g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
 		return menu_return::RETURN_EXIT_ALL;
-	}
-	else if(actionKey == "easyswitch") {
-		INFO("easyswitch\n");
-		CParentalSetup pin;
-		if (pin.checkPin()) {
-			if (parent)
-				parent->hide();
-
-			std::string text = "Easy menu switched " + string(g_settings.easymenu?"OFF":"ON") + string(", when restart box.\nRestart now?");
-			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, text, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO, 0) == CMsgBox::mbrYes) {
-				g_settings.easymenu = (g_settings.easymenu == 0) ? 1 : 0;
-				INFO("change easymenu to %d\n", g_settings.easymenu);
-				g_RCInput->postMsg(NeutrinoMessages::REBOOT, 0);
-			}
-		}
 	}
 
 	return returnval;

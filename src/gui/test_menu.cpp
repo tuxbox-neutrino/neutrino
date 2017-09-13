@@ -60,7 +60,6 @@
 #include <driver/record.h>
 #include <gui/buildinfo.h>
 #include <gui/widget/buttons.h>
-#include <system/helpers.h>
 #include <gui/components/cc_timer.h>
 
 #if HAVE_COOL_HARDWARE

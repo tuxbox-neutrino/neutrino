@@ -942,7 +942,6 @@ mainmenu.scripts Scripts
 mainmenu.service Installation (service)
 mainmenu.settings System settings
 mainmenu.shutdown Shutdown (deep standby)
-mainmenu.shutdown_menu Shutdown
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
 mainmenu.tools Tools
@@ -1424,7 +1423,6 @@ menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
-menu.hint_shutdown_menu Put you receiver in sleep or deep standby mode, set sleep timer
 menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more than 1 second
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
 menu.hint_sleeptimer Set timer to put your box\nin sleep mode

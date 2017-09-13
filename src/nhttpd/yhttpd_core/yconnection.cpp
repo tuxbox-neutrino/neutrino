@@ -9,8 +9,6 @@
 #include <cstring>
 // yhttpd
 #include <yconfig.h>
-#include "ytypes_globals.h"
-#include "ywebserver.h"
 #include "yconnection.h"
 #include "helper.h"
 //=============================================================================

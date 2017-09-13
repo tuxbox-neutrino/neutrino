@@ -134,12 +134,10 @@ int CAudioSelectMenuHandler::doMenu ()
 
 	AudioSelector.addItem( oj );
 
-	if (!g_settings.easymenu) {
-		oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_OUT, &g_settings.analog_out,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
-				true, audioSetupNotifier, CRCInput::RC_green);
-		AudioSelector.addItem( oj );
-	}
+	oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_OUT, &g_settings.analog_out,
+			OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
+			true, audioSetupNotifier, CRCInput::RC_green);
+	AudioSelector.addItem( oj );
 
 	CChannelList *channelList = CNeutrinoApp::getInstance ()->channelList;
 	int curnum = channelList->getActiveChannelNumber();

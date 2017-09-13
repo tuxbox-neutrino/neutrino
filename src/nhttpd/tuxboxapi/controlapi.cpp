@@ -23,7 +23,6 @@
 #include <time.h>
 #include <locale.h>
 #include <langinfo.h>
-#include <unistd.h>
 #include <dirent.h>
 // tuxbox
 #include <global.h>
@@ -34,7 +33,6 @@
 #include <configfile.h>
 #include <system/configure_network.h>
 #include <cs_api.h>
-#include <global.h>
 #include <gui/plugins.h>//for relodplugins
 #include <neutrino.h>
 #include <driver/screenshot.h>
