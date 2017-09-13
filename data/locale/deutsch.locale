@@ -408,7 +408,6 @@ eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
 extra.add_to_bouquet dem Bouquet zufügen
-extra.audio_run_player Audiotaste startet Player
 extra.auto_delete Automatisch löschen
 extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
 extra.cache_txt Teletext zwischenspeichern

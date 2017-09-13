@@ -408,7 +408,6 @@ eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
 eventlistbar.recordevent record
 extra.add_to_bouquet Add to bouquet
-extra.audio_run_player Audio key start player
 extra.auto_delete Auto-delete
 extra.auto_timeshift Auto-record, sec (0 = disable)
 extra.cache_txt Cache teletext
