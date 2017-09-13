@@ -435,7 +435,6 @@ const char * locale_real_names[] =
 	"eventlistbar.eventsort",
 	"eventlistbar.recordevent",
 	"extra.add_to_bouquet",
-	"extra.audio_run_player",
 	"extra.auto_delete",
 	"extra.auto_timeshift",
 	"extra.cache_txt",
