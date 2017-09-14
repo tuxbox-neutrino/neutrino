@@ -33,10 +33,10 @@ public:
 	void 		AddLogEntry_ELF(CyhookHandler *hh);
 	bool 		printf(const char *fmt, ...);
 
-	// Hooks
-	virtual THandleStatus 	Hook_EndConnection(CyhookHandler *hh);
+	// virtual functions for HookHandler/Hook
 	virtual std::string 	getHookName(void) {return std::string("mod_weblog");}
 	virtual std::string 	getHookVersion(void) {return std::string("$Revision$");}
+	virtual THandleStatus 	Hook_EndConnection(CyhookHandler *hh);
 	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
 };
 #endif // __yhttpd_mod_weblog_h__

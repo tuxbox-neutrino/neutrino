@@ -357,13 +357,6 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	ms_general->addItem(md);
 }
 
-#define VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT 2
-const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT] =
-{
-	{ VIDEO_HDMI_CEC_MODE_OFF       , LOCALE_OPTIONS_OFF   },
-	{ VIDEO_HDMI_CEC_MODE_TUNER     , LOCALE_OPTIONS_ON    }
-};
-
 //energy and shutdown settings
 int CMiscMenue::showMiscSettingsMenuEnergy()
 {

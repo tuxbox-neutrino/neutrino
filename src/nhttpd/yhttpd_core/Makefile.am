@@ -17,6 +17,13 @@ AM_CPPFLAGS += -fno-rtti -fno-exceptions -D_FILE_OFFSET_BITS=64
 noinst_LIBRARIES = libyhttpd.a
 
 libyhttpd_a_SOURCES = \
-	ylogging.cpp helper.cpp ylanguage.cpp\
-	ywebserver.cpp yconnection.cpp yrequest.cpp yresponse.cpp yhook.cpp ysocket.cpp
+	helper.cpp \
+	yconnection.cpp \
+	yhook.cpp \
+	ylanguage.cpp\
+	ylogging.cpp \
+	yrequest.cpp \
+	yresponse.cpp \
+	ysocket.cpp \
+	ywebserver.cpp
 

@@ -109,7 +109,6 @@ int CParentalSetup::showParentalSetup()
 	plock->addIntroItems();
 
 	CMenuForwarder * mf;
-	CPersonalizeGui &p = CNeutrinoApp::getInstance()->getPersonalizeGui();
 
 	CMenuOptionChooser * mc;
 	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked);

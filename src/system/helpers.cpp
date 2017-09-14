@@ -52,6 +52,8 @@
 //#include <driver/framebuffer.h>
 #include <system/helpers.h>
 #include <gui/update_ext.h>
+#include <libmd5sum.h>
+#define MD5_DIGEST_LENGTH 16
 using namespace std;
 
 int mySleep(int sec) {
@@ -1232,6 +1234,112 @@ std::string Lang2ISO639_1(std::string& lang)
 		ret = "sv";
 
 	return ret;
+}
+
+// returns the pid of the first process found in /proc
+int getpidof(const char *process)
+{
+	DIR *dp;
+	struct dirent *entry;
+	struct stat statbuf;
+
+	if ((dp = opendir("/proc")) == NULL)
+	{
+		fprintf(stderr, "Cannot open directory /proc\n");
+		return -1;
+	}
+
+	while ((entry = readdir(dp)) != NULL)
+	{
+		// get information about the file/folder
+		lstat(entry->d_name, &statbuf);
+		// files under /proc which start with a digit are processes
+		if (S_ISDIR(statbuf.st_mode) && isdigit(entry->d_name[0]))
+		{
+			// 14 chars for /proc//status + 0
+			char procpath[14 + strlen(entry->d_name)];
+			char procname[50];
+			FILE *file;
+
+			sprintf(procpath, "/proc/%s/status", entry->d_name);
+
+			if (! (file = fopen(procpath, "r")) ) {
+				continue;
+			}
+
+			fscanf(file,"%*s %s", procname);
+			fclose(file);
+
+			// only 15 char available
+			if (strncmp(procname, process, 15) == 0) {
+				return atoi(entry->d_name);
+			}
+		}
+	}
+	closedir (dp);
+	return 0;
+}
+
+std::string filehash(const char *file)
+{
+#if 0
+	int fd;
+	int i;
+	unsigned long size;
+	struct stat s_stat;
+	unsigned char hash[MD5_DIGEST_LENGTH];
+	void *buff;
+	std::ostringstream os;
+ 
+	memset(hash, 0, MD5_DIGEST_LENGTH);
+
+	fd = open(file, O_RDONLY | O_NONBLOCK);
+	if (fd > 0)
+	{
+		// Get the size of the file by its file descriptor
+		fstat(fd, &s_stat);
+		size = s_stat.st_size;
+
+		buff = mmap(0, size, PROT_READ, MAP_SHARED, fd, 0);
+		MD5((const unsigned char *)buff, size, hash);
+		munmap(buff, size);
+
+		// Print the MD5 sum as hex-digits.
+		for(i = 0; i < MD5_DIGEST_LENGTH; ++i) {
+			os.width(2);
+			os.fill('0');
+			os << std::hex << static_cast<int>(hash[i]);
+		}
+		close(fd);
+	}
+	return os.str();
+#endif
+	int i;
+	unsigned char hash[MD5_DIGEST_LENGTH];
+	std::ostringstream os;
+
+	md5_file(file, 1, (unsigned char*) hash);
+	// Print the MD5 sum as hex-digits.
+	for(i = 0; i < MD5_DIGEST_LENGTH; ++i) {
+		os.width(2);
+		os.fill('0');
+		os << std::hex << static_cast<int>(hash[i]);
+	}
+	return os.str();
+}
+
+std::string get_path(const char *path)
+{
+	if(path[0] == '/' && strstr(path,"/var") == 0)
+	{
+		std::string varc = "/var";
+		varc += path;
+
+		if(file_exists(varc.c_str()))
+			return varc;
+	}
+
+	return path;
 }
 
 string readLink(string lnk)

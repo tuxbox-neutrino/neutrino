@@ -459,8 +459,8 @@ extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadconfig Settings: Load from
-extra.loadkeys Load keys from
+extra.loadconfig Load settings
+extra.loadkeys Load keybindings
 extra.lodirection LoDirection
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
@@ -471,8 +471,8 @@ extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
-extra.saveconfig Settings: Save as
-extra.savekeys Save keys as
+extra.saveconfig Save settings
+extra.savekeys Save keybindings
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
 extra.sms_channel SMS-mode channel
@@ -605,7 +605,7 @@ flashupdate.apply_settings Import current settings into new image?
 flashupdate.autocheck Auto-check updates on boot
 flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
-flashupdate.checkupdate_internet Check for online updates
+flashupdate.checkupdate_internet Online update
 flashupdate.checkupdate_local Local update
 flashupdate.copy_image Copy Image to main memory
 flashupdate.createimage Save image
@@ -657,7 +657,7 @@ flashupdate.namemode2_default <partition>+<time>.img
 flashupdate.namemode2_hostname_time <partition>+<time>+<hostname>.img
 flashupdate.new_found New image found !
 flashupdate.new_notfound No new images found
-flashupdate.noversion Version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
+flashupdate.noversion Version check is only supported via Online update.\nAre you sure that you want to install this image?
 flashupdate.programmingflash programming flash
 flashupdate.proxypassword Password
 flashupdate.proxypassword_hint1 enter the proxyserver password
@@ -836,8 +836,8 @@ keybindingmenu.cancel close channellist
 keybindingmenu.channeldown channel down
 keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
-keybindingmenu.edit Edit
-keybindingmenu.head Edit Keybindings
+keybindingmenu.edit Edit keybindings
+keybindingmenu.head Keybindings
 keybindingmenu.lastchannel Quick Zap
 keybindingmenu.longkeypress_duration Long key-press
 keybindingmenu.misc Misc
@@ -1157,7 +1157,7 @@ menu.hint_key_record Assign button to start a recording
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
 menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
 menu.hint_key_right Select function for 'left' and 'right' keys in live TV/Radio mode and movieplayer mode
-menu.hint_key_save Save keybindings to file
+menu.hint_key_save Save keybindings to a file named keys.conf
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_key_special_active Disable or enable some special keys
@@ -1323,7 +1323,7 @@ menu.hint_restore Restore files from selected backup
 menu.hint_rotor_swap Swap rotor east/west directions\nin motor control
 menu.hint_rounded_corners Draw round or rectangular windows corners 
 menu.hint_save_settings Save all settings to flash
-menu.hint_saveas Save GUI settings to file
+menu.hint_saveas Save GUI settings to a file named neutrino.conf
 menu.hint_scan_auto Auto-scan selected provider
 menu.hint_scan_autoall Scan several selected providers at once
 menu.hint_scan_autoall_select Add selected satellites to scan

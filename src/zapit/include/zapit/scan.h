@@ -78,8 +78,6 @@ class CServiceScan : public OpenThreads::Thread
 		uint32_t failed_transponders;
 		unsigned short cable_nid;
 
-		short curr_sat;
-
 		transponder_list_t scantransponders;   // list to scan
 		transponder_list_t scanedtransponders; // successfully scanned
 		transponder_list_t failedtransponders; // failed to tune

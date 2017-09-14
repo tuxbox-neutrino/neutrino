@@ -9,3 +9,6 @@ SUBDIRS = \
 	slider \
 	status \
 	various
+
+install-data-hook:
+	$(INSTALL) -d $(DESTDIR)/$(ICONSDIR)/logo

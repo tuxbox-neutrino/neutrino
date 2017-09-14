@@ -4,29 +4,20 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
-
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef __plugins__
@@ -42,7 +33,6 @@
 class CFrameBuffer;
 class CPlugins
 {
-
 	public:
 	typedef enum p_type
 	{
@@ -69,7 +59,6 @@ class CPlugins
 	i_type_t;
 
 	private:
-
 		CFrameBuffer	*frameBuffer;
 
 		struct plugin
@@ -86,16 +75,7 @@ class CPlugins
 			std::string description;         // UTF-8 encoded
 			std::string depend;
 			CPlugins::p_type_t type;
-			CPlugins::i_type_t integration;
-#if 0
-			bool fb;
-			bool rc;
-			bool lcd;
-			bool vtxtpid;
-			int posx, posy, sizex, sizey;
-			bool showpig;
-			bool needoffset;
-#endif
+			int integration;
 			bool shellwindow;
 			bool hide;
 			bool operator< (const plugin& a) const
@@ -115,8 +95,8 @@ class CPlugins
 		bool plugin_exists(const std::string & filename);
 		int find_plugin(const std::string & filename);
 		CPlugins::p_type_t getPluginType(int type);
-		CPlugins::i_type_t getPluginIntegration(int integration);
 		neutrino_msg_t getPluginKey(std::string key="auto");
+
 	public:
 		CPlugins();
 		~CPlugins();
@@ -124,11 +104,6 @@ class CPlugins
 		void loadPlugins();
 
 		void setPluginDir(const std::string & dir) { plugin_dir = dir; }
-
-#if 0
-		PluginParam * makeParam(const char * const id, const char * const value, PluginParam * const next);
-		PluginParam * makeParam(const char * const id, const int          value, PluginParam * const next);
-#endif
 
 		inline       int           getNumberOfPlugins  (void            ) const { return plugin_list.size()                    ; }
 		inline const char *        getName             (const int number) const { return plugin_list[number].name.c_str()      ; }

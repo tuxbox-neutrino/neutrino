@@ -43,7 +43,6 @@
 class CFollowScreenings : public CMenuTarget
 {
 	private:
-		CEPGData *epgData;
 		CChannelEventList *evtlist;
 		CChannelEventList followlist;
 		CTimerdClient Timer;

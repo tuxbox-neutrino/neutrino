@@ -52,8 +52,6 @@
 
 class CFile
 {
-	private:
-		mutable int Type;
 	public:
 		enum FileType
 		{

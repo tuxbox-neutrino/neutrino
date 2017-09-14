@@ -21,5 +21,7 @@ AM_CPPFLAGS += \
 noinst_LIBRARIES = libnhttpd_tuxboxapi.a
 
 libnhttpd_tuxboxapi_a_SOURCES = \
-	neutrinoapi.cpp neutrinoyparser.cpp controlapi.cpp
+	controlapi.cpp \
+	neutrinoapi.cpp \
+	neutrinoyparser.cpp
 	

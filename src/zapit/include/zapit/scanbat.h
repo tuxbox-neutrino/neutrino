@@ -38,7 +38,6 @@ class CBat : public OpenThreads::Thread
 {
 	private:
 		int dmxnum;
-		bool cable;
 
 		t_satellite_position satellitePosition;
 		freq_id_t freq_id;

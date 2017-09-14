@@ -42,7 +42,6 @@ class cDvbSubtitleBitmaps : public cListObject
 {
 	private:
 		int64_t pts;
-		int timeout;
 		AVSubtitle sub;
 	public:
 		cDvbSubtitleBitmaps(int64_t Pts);

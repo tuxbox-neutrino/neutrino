@@ -43,11 +43,11 @@ CComponentsTimer::CComponentsTimer(const int& interval, bool is_nano)
 	tm_thread 		= 0;
 	tm_interval 		= interval;
 	tm_enable_nano		= is_nano;
-
+	tm_enable 		= false;
 	sl_stop_timer 		= sigc::mem_fun(*this, &CComponentsTimer::stopTimer);
 
 	if (interval > 0)
-		startTimer();
+		tm_enable = startTimer();
 }
 
 CComponentsTimer::~CComponentsTimer()
@@ -132,12 +132,11 @@ void CComponentsTimer::stopThread()
 
 bool CComponentsTimer::startTimer()
 {
-	tm_enable = true;
 	initThread();
 	if(tm_thread)
-		return true;
+		tm_enable = true;
 
-	return false;
+	return tm_enable;
 }
 
 bool CComponentsTimer::stopTimer()

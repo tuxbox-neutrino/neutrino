@@ -51,7 +51,7 @@ CWebserver::CWebserver() {
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 #endif
-	port = 80;
+	port = HTTPD_STANDARD_PORT;
 
 }
 //-----------------------------------------------------------------------------
@@ -118,14 +118,15 @@ CWebserver::~CWebserver() {
 bool CWebserver::run(void) {
 	set_threadname("ywebsrv::run");
 	if (!listenSocket.listen(port, HTTPD_MAX_CONNECTIONS)) {
-		if (port != 80) {
-			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d Abort.\n", port);
+		if (port != HTTPD_STANDARD_PORT) {
+			// WebsiteMain.port in nhttpd.conf is changed by user
+			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d. Abort.\n", port);
 			return false;
 		}
-		fprintf(stderr, "[yhttpd] cannot bind and listen on port 80, retrying on port 8080.\n");
-		port = 8080;
+		fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d. Retrying port %d.\n", HTTPD_STANDARD_PORT, HTTPD_FALLBACK_PORT);
+		port = HTTPD_FALLBACK_PORT;
 		if (!listenSocket.listen(port, HTTPD_MAX_CONNECTIONS)) {
-			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d Abort.\n", port);
+			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d. Abort.\n", HTTPD_FALLBACK_PORT);
 			return false;
 		}
 	}

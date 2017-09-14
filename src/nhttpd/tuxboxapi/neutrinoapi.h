@@ -49,7 +49,6 @@ public:
 	//bool standby_mode;
 
 	// some constants
-	static std::string Dbox_Hersteller[4];
 	static std::string videooutput_names[5];
 	static std::string videoformat_names[5];
 	static std::string audiotype_names[5];

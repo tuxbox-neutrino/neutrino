@@ -128,8 +128,8 @@ void CRCLock::lockRC()
 			if (lockIcon == NULL)
 			{
 				lockIcon = new CComponentsPicture(
-					g_settings.screen_StartX + 10,
-					g_settings.screen_StartY + 10,
+					g_settings.screen_StartX + OFFSET_INNER_MID,
+					g_settings.screen_StartY + OFFSET_INNER_MID,
 					NEUTRINO_ICON_RCLOCK);
 				lockIcon->doPaintBg(false);
 			}
