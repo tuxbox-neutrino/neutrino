@@ -525,6 +525,61 @@ std::string& str_replace(const std::string &search, const std::string &replace, 
 	return text;
 }
 
+/*
+ * ported from:
+ * https://stackoverflow.com/questions/779875/what-is-the-function-to-replace-string-in-c
+ *
+ * You must delete the result if result is non-NULL
+ */
+const char *cstr_replace(const char *search, const char *replace, const char *text)
+{
+	const char *result;	// the return string
+	const char *ins;	// the next insert point
+	char *tmp;		// varies
+	int len_search;		// length of search (the string to remove)
+	int len_replace;	// length of replace (the string to replace search with)
+	int len_front;		// distance between search and end of last search
+	int count;		// number of replacements
+
+	// sanity checks and initialization
+	if (!text || !search)
+		return NULL;
+	len_search = strlen(search);
+	if (len_search == 0)
+		return NULL; // empty search causes infinite loop during count
+	if (!replace)
+		replace = "";
+	len_replace = strlen(replace);
+
+	// count the number of replacements needed
+	ins = text;
+	for (count = 0; (tmp = (char*)strstr(ins, search)); ++count)
+		ins = tmp + len_search;
+
+	int len_tmp = strlen(text) + (len_replace - len_search) * count + 1;
+	tmp = new char[len_tmp];
+	memset(tmp, '\0', len_tmp);
+	result = (const char*)tmp;
+
+	if (!result)
+		return NULL;
+
+	// first time through the loop, all the variable are set correctly
+	// from here on,
+	//    tmp points to the end of the result string
+	//    ins points to the next occurrence of search in text
+	//    text points to the remainder of text after "end of search"
+	while (count--) {
+		ins = strstr(text, search);
+		len_front = ins - text;
+		tmp = strncpy(tmp, text, len_front) + len_front;
+		tmp = strncpy(tmp, replace, len_replace) + len_replace;
+		text += len_front + len_search; // move to next "end of search"
+	}
+	strncpy(tmp, text, strlen(text));
+	return result;
+}
+
 std::string& htmlEntityDecode(std::string& text)
 {
 	struct decode_table {

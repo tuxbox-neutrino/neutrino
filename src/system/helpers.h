@@ -68,6 +68,7 @@ std::string cutString(const std::string str, int msgFont, const int width);
 std::string strftime(const char *format, const struct tm *tm);
 std::string strftime(const char *format, time_t when, bool gm = false);
 time_t toEpoch(std::string &date);
+const char *cstr_replace(const char *search, const char *replace, const char *text);
 std::string& str_replace(const std::string &search, const std::string &replace, std::string &text);
 std::string& htmlEntityDecode(std::string& text);
 
