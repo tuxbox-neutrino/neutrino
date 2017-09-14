@@ -129,12 +129,6 @@
 #define NEUTRINO_ICON_UPDATE		"softupdate"
 #define NEUTRINO_ICON_UPNP		"upnp"
 #define NEUTRINO_ICON_VIDEO		"video"
-#define NEUTRINO_ICON_VOLUMEBODY	"volumebody"
-#define NEUTRINO_ICON_VOLUMESLIDER2	"volumeslider2"
-#define NEUTRINO_ICON_VOLUMESLIDER2ALPHA	"volumeslider2alpha"
-#define NEUTRINO_ICON_VOLUMESLIDER2BLUE		"volumeslider2blue"
-#define NEUTRINO_ICON_VOLUMESLIDER2GREEN	"volumeslider2green"
-#define NEUTRINO_ICON_VOLUMESLIDER2RED		"volumeslider2red"
 #define NEUTRINO_ICON_VTXT		"vtxt"
 #define NEUTRINO_ICON_VTXT_GREY		"vtxt_gray"
 #define NEUTRINO_ICON_PARTITION		"partition"
@@ -182,6 +176,13 @@
 
 #define DUMMY_ICON			"dummy"
 
+/* sliders */
+#define NEUTRINO_ICON_SLIDER_BODY	"volumebody"
+#define NEUTRINO_ICON_SLIDER_INACTIVE	"volumeslider2"
+#define NEUTRINO_ICON_SLIDER_RED	"volumeslider2red"
+#define NEUTRINO_ICON_SLIDER_GREEN	"volumeslider2green"
+#define NEUTRINO_ICON_SLIDER_BLUE	"volumeslider2blue"
+#define NEUTRINO_ICON_SLIDER_ALPHA	"volumeslider2alpha"
 
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE "mute_zap_green"
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE "mute_zap_gray"

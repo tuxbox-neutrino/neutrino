@@ -289,7 +289,7 @@ void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height,
 
 	// assuming all sliders have same dimensions
 	int slider_width, dummy;
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUMESLIDER2ALPHA, &slider_width, &dummy);
+	frameBuffer->getIconSize(NEUTRINO_ICON_SLIDER_ALPHA, &slider_width, &dummy);
 
 	int bar_width = frameBuffer->scale2Res(100);
 	/*
@@ -324,7 +324,7 @@ void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height,
 	// paint bar
 	frameBuffer->paintBoxFrame(bar_x + bar_offset, y + item_height/3, bar_width, item_height/3, 1, COL_MENUCONTENT_TEXT);
 	// paint slider
-	frameBuffer->paintIcon(select_mode ? NEUTRINO_ICON_VOLUMESLIDER2ALPHA : NEUTRINO_ICON_VOLUMESLIDER2, bar_x + (optionV*bar_width / factor), y, item_height);
+	frameBuffer->paintIcon(select_mode ? NEUTRINO_ICON_SLIDER_ALPHA : NEUTRINO_ICON_SLIDER_INACTIVE, bar_x + (optionV*bar_width / factor), y, item_height);
 }
 
 void CMenuItem::paintItemButton(const bool select_mode, int item_height, const char * const icon_Name)

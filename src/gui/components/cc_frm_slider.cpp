@@ -59,8 +59,8 @@ CComponentsSlider::CComponentsSlider(	const int& x_pos, const int& y_pos, const 
 	csl_body_obj	= NULL;
 	csl_slider_obj	= NULL;
 
-	csl_body_icon	= NEUTRINO_ICON_VOLUMEBODY;
-	csl_slider_icon	 =NEUTRINO_ICON_VOLUMESLIDER2;
+	csl_body_icon	= NEUTRINO_ICON_SLIDER_BODY;
+	csl_slider_icon	 =NEUTRINO_ICON_SLIDER_INACTIVE;
 
 	initCCSlItems();
 	initParent(parent);

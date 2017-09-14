@@ -38,10 +38,10 @@
 
 static const char * const icon_names[VALUES] =
 {
-	NEUTRINO_ICON_VOLUMESLIDER2RED,
-	NEUTRINO_ICON_VOLUMESLIDER2GREEN,
-	NEUTRINO_ICON_VOLUMESLIDER2BLUE,
-	NEUTRINO_ICON_VOLUMESLIDER2ALPHA
+	NEUTRINO_ICON_SLIDER_RED,
+	NEUTRINO_ICON_SLIDER_GREEN,
+	NEUTRINO_ICON_SLIDER_BLUE,
+	NEUTRINO_ICON_SLIDER_ALPHA
 };
 
 static const neutrino_locale_t colorchooser_names[VALUES] =
@@ -71,7 +71,7 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	
 	// assuming all sliders have same dimensions
 	int dummy;
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUMESLIDER2ALPHA, &slider_width, &dummy);
+	frameBuffer->getIconSize(NEUTRINO_ICON_SLIDER_ALPHA, &slider_width, &dummy);
 
 	bar_width = frameBuffer->scale2Res(150);
 	/*
@@ -295,13 +295,13 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	frameBuffer->paintBoxRel(px + text_width + 2*OFFSET_INNER_MID, py, bar_full, item_height, COL_MENUCONTENT_PLUS_0);
 	// paint bar
 	/*
-	   NEUTRINO_ICON_VOLUMEBODY should be scaled to bar_width.
+	   NEUTRINO_ICON_SLIDER_BODY should be scaled to bar_width.
 	   So long we paint a simple frame. This is more save on higher resolutions.
 	*/
-	//frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY, px + text_width + 2*OFFSET_INNER_MID + bar_offset, py, item_height);
+	//frameBuffer->paintIcon(NEUTRINO_ICON_SLIDER_BODY, px + text_width + 2*OFFSET_INNER_MID + bar_offset, py, item_height);
 	frameBuffer->paintBoxFrame(px + text_width + 2*OFFSET_INNER_MID + bar_offset, py + item_height/3, bar_width, item_height/3, 1, COL_FRAME_PLUS_0);
 	// paint slider
-	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_VOLUMESLIDER2, px + text_width + 2*OFFSET_INNER_MID + ((*spos)*bar_width / 100), py, item_height);
+	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_SLIDER_INACTIVE, px + text_width + 2*OFFSET_INNER_MID + ((*spos)*bar_width / 100), py, item_height);
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px + OFFSET_INNER_MID, py + item_height, text_width, g_Locale->getText(text), COL_MENUCONTENT_TEXT);
 }
