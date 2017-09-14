@@ -83,7 +83,6 @@ class CStreamInfo2 : public CMenuTarget
 
 		int  doSignalStrengthLoop();
 
-		int dvrfd, dmxfd;
 		struct timeval tv, last_tv, first_tv;
 		uint64_t bit_s;
 		uint64_t abit_s;
