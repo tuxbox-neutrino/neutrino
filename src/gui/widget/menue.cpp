@@ -286,25 +286,45 @@ void CMenuItem::prepareItem(const bool select_mode, const int &item_height)
 void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height, const int &optionvalue, const int &factor, const char * left_text, const char * right_text)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	int slider_lenght = 0, h = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUMEBODY, &slider_lenght, &h);
-	if(slider_lenght == 0 || factor < optionvalue )
-		return;
-	int stringwidth = 0;
-	if (right_text != NULL) {
-		stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("U999");
-	}
-	int stringwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text);
 
-	int maxspace = dx - stringwidth - icon_frame_w - stringwidth2 - OFFSET_INNER_MID;
-	if(maxspace < slider_lenght)
+	// assuming all sliders have same dimensions
+	int slider_width, dummy;
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUMESLIDER2ALPHA, &slider_width, &dummy);
+
+	int bar_width = frameBuffer->scale2Res(100);
+	/*
+	   We have a half slider_width before and after the bar
+	   to get the middle of the slider at the point of choise
+	*/
+	int bar_offset = slider_width/2;
+	int bar_full = bar_width + slider_width;
+
+	// avoid division by zero
+	if (factor < optionvalue || factor < 1)
+		return;
+
+	int right_needed = 0;
+	if (right_text != NULL)
+	{
+		right_needed = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("U999");
+	}
+	int left_needed = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text);
+
+	int space = dx - right_needed - icon_frame_w - left_needed - OFFSET_INNER_MID;
+	if (space < bar_full)
 		return ;
 
-	int stringstartposOption = x + dx - stringwidth - slider_lenght;
+	int bar_x = x + dx - right_needed - bar_full;
+
+	// FIXME: negative optionvalues falsifies the slider on the right side
 	int optionV = (optionvalue < 0) ? 0 : optionvalue;
-	frameBuffer->paintBoxRel(stringstartposOption, y, slider_lenght, item_height, item_bgcolor);
-	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY, stringstartposOption, y+2+item_height/4);
-	frameBuffer->paintIcon(select_mode ? NEUTRINO_ICON_VOLUMESLIDER2BLUE : NEUTRINO_ICON_VOLUMESLIDER2, (stringstartposOption + (optionV * 100 / factor)), y+item_height/4);
+
+	// clear area
+	frameBuffer->paintBoxRel(bar_x, y, bar_full, item_height, item_bgcolor);
+	// paint bar
+	frameBuffer->paintBoxFrame(bar_x + bar_offset, y + item_height/3, bar_width, item_height/3, 1, COL_MENUCONTENT_TEXT);
+	// paint slider
+	frameBuffer->paintIcon(select_mode ? NEUTRINO_ICON_VOLUMESLIDER2ALPHA : NEUTRINO_ICON_VOLUMESLIDER2, bar_x + (optionV*bar_width / factor), y, item_height);
 }
 
 void CMenuItem::paintItemButton(const bool select_mode, int item_height, const char * const icon_Name)
