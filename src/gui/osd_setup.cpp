@@ -278,11 +278,13 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CMenuOptionNumberChooser* mc = new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_X, &g_settings.font_scaling_x, true, 50, 200, this);
 		mc->setNumericInput(true);
 		mc->setNumberFormat("%d%%");
+		mc->setHint("", LOCALE_FONTMENU_SCALING_X_HINT2);
 		fontscale.addItem(mc);
 
 		mc = new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_Y, &g_settings.font_scaling_y, true, 50, 200, this);
 		mc->setNumericInput(true);
 		mc->setNumberFormat("%d%%");
+		mc->setHint("", LOCALE_FONTMENU_SCALING_Y_HINT2);
 		fontscale.addItem(mc);
 
 		res = fontscale.exec(NULL, "");
