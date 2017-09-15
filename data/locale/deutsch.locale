@@ -873,8 +873,7 @@ keybindingmenu.volumedown Leiser
 keybindingmenu.volumeup Lauter
 keybindingmenu.zaphistory Zapping-History Bouquet
 keychooser.head Neue Taste einstellen
-keychooser.text1 Bitte Taste drücken
-keychooser.text2 Zum Abbrechen warten ...
+keychooser.text Neue Taste drücken.\nZum Abbrechen ein paar Sekunden warten ...
 keychoosermenu.currentkey Derzeitige Taste
 keychoosermenu.setnew Neue Taste einstellen
 keychoosermenu.setnone Keine Taste

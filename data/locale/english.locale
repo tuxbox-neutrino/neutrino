@@ -872,9 +872,8 @@ keybindingmenu.volume Volume
 keybindingmenu.volumedown Decrease
 keybindingmenu.volumeup Increase
 keybindingmenu.zaphistory Zapping History Bouquet
-keychooser.head Setup new Key
-keychooser.text1 Please press the new key
-keychooser.text2 wait a few seconds for abort
+keychooser.head Setup new key
+keychooser.text Press new key.\nWait a few seconds to abort ...
 keychoosermenu.currentkey current key
 keychoosermenu.setnew setup new key
 keychoosermenu.setnone no key
