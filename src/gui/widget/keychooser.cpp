@@ -36,8 +36,8 @@ CKeyChooser::CKeyChooser(unsigned int * const Key, const neutrino_locale_t title
 	keyName = CRCInput::getKeyName(*key);
 
 	addIntroItems();
-	addItem(new CMenuDForwarder(LOCALE_KEYCHOOSERMENU_SETNEW, true, NULL, new CKeyChooserItem(LOCALE_KEYCHOOSER_HEAD, key)));
-	addItem(new CMenuDForwarder(LOCALE_KEYCHOOSERMENU_SETNONE, true, NULL, new CKeyChooserItemNoKey(key)));
+	addItem(new CMenuDForwarder(LOCALE_KEYCHOOSERMENU_SETNEW,  true, NULL, new CKeyChooserItem(key, LOCALE_KEYCHOOSER_HEAD)));
+	addItem(new CMenuDForwarder(LOCALE_KEYCHOOSERMENU_SETNONE, true, NULL, new CKeyRemoverItem(key)));
 	addItem(GenericMenuSeparatorLine);
 	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_CURRENTKEY, false, keyName));
 }
@@ -50,12 +50,6 @@ void CKeyChooser::paint()
 {
 	keyName = CRCInput::getKeyName(*key);
 	CMenuWidget::paint();
-}
-
-CKeyChooserItem::CKeyChooserItem(const neutrino_locale_t Name, unsigned int * Key)
-{
-	name = Name;
-	key = Key;
 }
 
 int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
@@ -84,7 +78,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 
 	timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
- get_Message:
+	get_Message:
 	g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 	if (msg != CRCInput::RC_timeout)
@@ -100,4 +94,10 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	g_RCInput->setLongPressAny(false);
 	hintbox->hide();
 	return res;
+}
+
+int CKeyRemoverItem::exec(CMenuTarget* /*parent*/, const std::string &)
+{
+	*key = (unsigned int)CRCInput::RC_nokey;
+	return menu_return::RETURN_REPAINT;
 }

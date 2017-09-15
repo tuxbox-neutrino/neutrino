@@ -47,29 +47,31 @@ class CKeyChooser : public CMenuWidget
 class CKeyChooserItem : public CMenuTarget
 {
 	private:
-		neutrino_locale_t name;
 		unsigned int *key;
-	public:
-		CKeyChooserItem(const neutrino_locale_t Name, unsigned int *Key);
+		neutrino_locale_t name;
 
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+	public:
+		CKeyChooserItem(unsigned int *Key, const neutrino_locale_t Name)
+		{
+			key = Key;
+			name = Name;
+		}
+
+		int exec(CMenuTarget* parent, const std::string & /*actionKey*/);
 };
 
-class CKeyChooserItemNoKey : public CMenuTarget
+class CKeyRemoverItem : public CMenuTarget
 {
-	unsigned int *key;
+	private:
+		unsigned int *key;
+
 	public:
-		CKeyChooserItemNoKey(unsigned int *Key)
+		CKeyRemoverItem(unsigned int *Key)
 		{
 			key = Key;
 		};
 
-		int exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
-		{
-			*key = (unsigned int)CRCInput::RC_nokey;
-			return menu_return::RETURN_REPAINT;
-		}
+		int exec(CMenuTarget* parent, const std::string & /*actionKey*/);
 };
-
 
 #endif
