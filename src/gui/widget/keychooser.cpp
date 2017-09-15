@@ -36,8 +36,8 @@ CKeyChooser::CKeyChooser(unsigned int * const Key, const neutrino_locale_t title
 	keyName = CRCInput::getKeyName(*key);
 
 	addIntroItems();
-	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_SETNEW, true, NULL, new CKeyChooserItem(LOCALE_KEYCHOOSER_HEAD, key)));
-	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_SETNONE, true, NULL, new CKeyChooserItemNoKey(key)));
+	addItem(new CMenuDForwarder(LOCALE_KEYCHOOSERMENU_SETNEW, true, NULL, new CKeyChooserItem(LOCALE_KEYCHOOSER_HEAD, key)));
+	addItem(new CMenuDForwarder(LOCALE_KEYCHOOSERMENU_SETNONE, true, NULL, new CKeyChooserItemNoKey(key)));
 	addItem(GenericMenuSeparatorLine);
 	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_CURRENTKEY, false, keyName));
 }
