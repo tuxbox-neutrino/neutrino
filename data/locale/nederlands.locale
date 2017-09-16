@@ -284,9 +284,6 @@ colorchooser.alpha Alpha
 colorchooser.blue Blauw
 colorchooser.green Groen
 colorchooser.red Rood
-colorchooser.save Save
-colormenu.advanced_mode_off Toon standaard opties
-colormenu.advanced_mode_on Toon geavanceerde zoekopties
 colormenu.background Achtergrond
 colormenu.clock_textcolor Digit kleur
 colormenu.fade Menu's vervagen
@@ -373,7 +370,6 @@ eventlistbar.channelswitch Zap reservering
 eventlistbar.eventsort Sorteren
 eventlistbar.recordevent Opnemen
 extra.add_to_bouquet Toevoegen aan favorietenlijst
-extra.audio_run_player Audio key start player
 extra.auto_delete Automatisch verwijderen
 extra.auto_timeshift Automatische opname, sec (0 = uitgeschakeld)
 extra.cache_txt Cache teletekst
@@ -417,7 +413,6 @@ extra.key_pic_size 4:3 scherm gedrag
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Configureer PiP
 extra.key_pip_swap Wissel PiP/live
-extra.key_plugin One touch plugin
 extra.key_record Opname toets
 extra.key_screenshot Screenshot toets
 extra.key_switchformat Volgende resolutie
@@ -461,7 +456,6 @@ extra.tp_delsys Delivery system
 extra.tp_delsys_dss DSS
 extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
-extra.tp_delsys_dvbc2 DVB-C2
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
 extra.tp_delsys_dvbt DVB-T
@@ -525,7 +519,6 @@ extra.west West
 extra.zap_cycle Zap cyclus
 extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
 extra.zapit_hvoltage 18V voor DiSEqC motor 
-extra.zapit_make_bouquet Creëer resterende kanalen favorietenlijst
 extra.zapit_motor_speed Motor snelheid (10 = 1 graad/sec)
 extra.zapit_scanpids Scan/gebruik PIDS
 extra.zapit_sdt_changed Zenders gewijzigd, herlaad instellingen.
@@ -591,7 +584,6 @@ flashupdate.getinfofile Versie informatie verkrijgen
 flashupdate.getinfofileerror Kan versie informatie niet verkrijgen
 flashupdate.getupdatefile Updates verkrijgen
 flashupdate.getupdatefileerror Kan update niet verkrijgen
-flashupdate.globalprogress Globale voortgang:
 flashupdate.head Software Update
 flashupdate.md5check Firmware controleren
 flashupdate.md5sumerror Firmware bevat fouten
@@ -601,7 +593,6 @@ flashupdate.mkfs_create_image Maak image
 flashupdate.mkfs_preparing_files Voorbereiden bestanden en mappen
 flashupdate.mkfs_using_sumtool Gebruik sumtool
 flashupdate.msgbox Het volgende bestand is gevonden:\nDatum: %s, %s\nBaseImage: %s\nType: %s\n\nWilt u het bestand installeren?
-flashupdate.msgbox_manual De volgende firmware is gevonden:\nDatum: %s, %s\nBaseImage: %s\nImageType: %s\n\n Wilt u deze versie installeren? 
 flashupdate.mtdselector Partitie-selector
 flashupdate.namemode1 Filename instellingen bestand
 flashupdate.namemode1_default <org.name>+settings.img
@@ -640,7 +631,6 @@ flashupdate.update_with_settings_del_skipped Folder [%s] kan niet worden verwijd
 flashupdate.update_with_settings_error Foutmelding!\n \nNieuwe firmware heeft %ld KB (out of %ld KB) resterend.\n Onvoldoende \nruimte om opdracht af te ronden. Opdracht wordt geannuleerd.
 flashupdate.update_with_settings_processed Wordt verwerkt...
 flashupdate.update_with_settings_skipped Folder [%s] kan niet opgeslagen worden. Folder wordt overgeslagen.
-flashupdate.update_with_settings_successfully Instellingen succesvol overgenomen. De firmware kan worden geupdate.
 flashupdate.update_with_settings_warning Waarschuwing!\n Er is waarschijnlijk onvoldoende ruimte. Wilt u verder gaan?
 flashupdate.updatemode Update mode
 flashupdate.updatemode_internet internet
@@ -700,14 +690,12 @@ hdd_60min 60 min.
 hdd_activate Instellingen toepassen
 hdd_check Controleer bestandssysteem
 hdd_check_failed HDD controle mislukt
-hdd_check_format_bad Controle van disks met formaat %s is niet ondersteund.
 hdd_extended_settings Uitgebreide HDD-instellingen
 hdd_fast Snel
 hdd_format HDD formatteren
 hdd_format_failed Formatteren mislukt
 hdd_format_warn Begin formatteren...
 hdd_fs Bestandssysteem
-hdd_fs_unknown Onbekend
 hdd_manage Beheer hardeschijven
 hdd_middle Gemiddeld
 hdd_mount Mount
@@ -716,7 +704,6 @@ hdd_mount_ok Device Klaar voor gebruik.
 hdd_mount_umount Mount/Unmount
 hdd_noise Akoestisch beheer (AAM)
 hdd_not_found Geen HDD gevonden
-hdd_removable_device Verwijderbaar apparaat
 hdd_set_recdir Gebruik apparaat voor opname?
 hdd_settings Harde schijf/USB
 hdd_sleep Uitschakelen na...
@@ -751,7 +738,6 @@ infoviewer.nocurrent Geen informatie beschikbaar over huidige programma
 infoviewer.noepg EPG is niet beschikbaar
 infoviewer.notavailable Geen of slecht antennesignaal
 infoviewer.now Nu
-infoviewer.selecttime Tijd selectie
 infoviewer.streaminfo Mogelijkheden
 infoviewer.subchan_disp_pos Toon subkanalen
 infoviewer.subchan_infobar Volledige infobalk
@@ -759,7 +745,6 @@ infoviewer.subservice Subservices
 infoviewer.waittime Wachten op tijd...
 ipsetup.hint_1 Gebruik 0-9, of de omhoog/omlaag cursor,
 ipsetup.hint_2 "OK" toets om op te slaan, Exit om af te sluiten
-keybindingmenu.RC Tune Remote-Control
 keybindingmenu.addrecord Opname timer toevoegen
 keybindingmenu.addremind Zap timer toevoegen
 keybindingmenu.allchannels_on_ok alle kanalen
@@ -1016,7 +1001,6 @@ menu.hint_infoclock_setup Configureer info klok GUI opties
 menu.hint_keep_numbers Behoud kanaalnummers na het uitvoeren van volgende scans
 menu.hint_key_addrecord  Knop toewijzen voor het toevoegen van een opname timer
 menu.hint_key_addremind Knop toewijzen voor het toevoegen van een zap timer
-menu.hint_key_audio Aan: 'audio' toets wordt gebruikt voor het weergeven van het audio afspeelmenu.\nUit: 'audio' toets wordt gebruikt voor het weergeven van de audio selectie.
 menu.hint_key_binding Herdefinieer het gebruik van toetsen voor algemene handelingen
 menu.hint_key_bouquetdown Knop toewijzen voor het schakelen naar de vorige favorietenlijst
 menu.hint_key_bouquetup Knop toewijzen voor het schakelen naar de volgende favorietenlijst
@@ -1051,8 +1035,6 @@ menu.hint_key_pic_mode_active Deactiveer/activeer toets voor het scherm formaat
 menu.hint_key_pic_size_active Deactiveer/activeer toets voor 4:3 beeld weergave
 menu.hint_key_pip_close Toewijzen knop to stop PiP\nor start it for current zender
 menu.hint_key_pip_setup Toewijzen knop om PIP te configuren
-menu.hint_key_pip_swap Toewijzen knop om tussen PiP en live-zender te wisselen
-menu.hint_key_plugin Toewijzen knop om one touch plugin te starten
 menu.hint_key_poweroff Knop toewijzen om te schakelen tussen standby/deepstandby en ontvanger ingeschakeld.
 menu.hint_key_quickzap Configureer sneltoetsen voor \nhet snel schakelen tussen kanalen
 menu.hint_key_record Toewijzen knop om opname te starten
@@ -1435,7 +1417,6 @@ miscsettings.infobar_show_sysfs_hdd Gebruikte ruimte (sysFS & HDD)
 miscsettings.infobar_show_tuner Actieve tuner(s) weergeven
 miscsettings.infoclock Clock
 miscsettings.progressbar Voortgangsbalk
-miscsettings.progressbar_color kleur
 miscsettings.progressbar_design Design
 miscsettings.progressbar_design_0 Gekleurde punten
 miscsettings.progressbar_design_1 Gekleurde verticale lijnen
@@ -1533,7 +1514,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Geef lengte nieuwe sprong (s)
 moviebrowser.edit_book_type_info2 <0 terug , >0 voor, 0: geen
 moviebrowser.edit_serie Geef de naam van de serie op
-moviebrowser.error_no_movies geen films gevonden
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Schakel venster
 moviebrowser.foot_options Opties
@@ -1581,7 +1561,6 @@ moviebrowser.last_play_max_items Aantal lijnen laatst afgespeeld
 moviebrowser.last_record_max_items Aantal lijnen laatste opname 
 moviebrowser.load_default Laad standaard instellingen
 moviebrowser.menu_directories_head Directory's
-moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Markeerpunten
 moviebrowser.menu_main_head Instellingen
 moviebrowser.menu_nfs_head NFS instellingen
@@ -1641,7 +1620,6 @@ moviebrowser.yt_max_history Maximale zoekgeschiedenis grootte
 moviebrowser.yt_max_results Maximaal aantal resultaten
 moviebrowser.yt_most_popular Meest populair
 moviebrowser.yt_most_popular_all_time Meest populair
-moviebrowser.yt_next_results Volgende zoekresultaten
 moviebrowser.yt_orderby Sorteren op
 moviebrowser.yt_orderby.published Datum gepubiceerd
 moviebrowser.yt_orderby.rating rating
@@ -1649,8 +1627,6 @@ moviebrowser.yt_orderby.relevance relevantie
 moviebrowser.yt_orderby.viewcount weergave teller
 moviebrowser.yt_pending Lopende downloads
 moviebrowser.yt_pref_quality Gewenste kwaliteit
-moviebrowser.yt_prev_results Vorige zoekresultaten
-moviebrowser.yt_recently_featured Recent aanbevolen
 moviebrowser.yt_region Regio
 moviebrowser.yt_related Gerelateerde video's
 moviebrowser.yt_search Trefwoord
@@ -1833,7 +1809,6 @@ personalize.pinprotect Ja
 personalize.pinstatus PIN vereist
 personalize.plugins Plugins
 personalize.usermenu_plugin_types Kies zichtbare Plugin types
-personalize.usermenu_preferred_buttons Gewenste toetsen toewijzen.
 personalize.usermenu_show_cancel Annuleer toets weergeven
 personalize.visible Zichtbaar
 pictureviewer.defdir start dir.
@@ -1972,11 +1947,6 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd Enkel SD
 satsetup.fastscan_type Scantype
 satsetup.fastscan_update Auto update
-satsetup.fe_delsys_mode Delivery systeem modus
-satsetup.fe_delsys_mode_auto Auto
-satsetup.fe_delsys_mode_cable Kabel
-satsetup.fe_delsys_mode_sat Satelliet
-satsetup.fe_delsys_mode_terrestrial Terrestrial
 satsetup.fe_mode Tuner mode
 satsetup.fe_mode_independent Onafhankelijk
 satsetup.fe_mode_link_loop Doorgelust
@@ -2036,7 +2006,6 @@ scants.numberofradioservices Radio
 scants.numberoftotalservices Totaal
 scants.numberoftvservices TV
 scants.preverences_receiving_system Voorkeuren
-scants.preverences_scan Scanmodus
 scants.provider Provider:
 scants.select_tp Selecteer transponder
 scants.startnow start scan
@@ -2184,17 +2153,11 @@ timerlist.weekdays Dagen van de week
 timerlist.weekdays.hint_1 Maan Dins Woens Don Vrij Zat Zon
 timerlist.weekdays.hint_2 'X'=timer '-' geen timer
 timersettings.record_safety_time_after Opname stop tijd correctie
-timersettings.record_safety_time_after.hint_1 Correctie tijd in min. (00=uit). Deze tijd
-timersettings.record_safety_time_after.hint_2 word opgeteld bij de stop tijd van elke opname timer.
 timersettings.record_safety_time_before Opname start tijd correctie
-timersettings.record_safety_time_before.hint_1 Correctie tijd in min. (00=uit). Deze tijd
-timersettings.record_safety_time_before.hint_2 word afgetrokken van elke opname timer.
 timersettings.separator Timer instellingen
 timing.chanlist Kanalenlijst
 timing.epg EPG
 timing.filebrowser Bestanden browser
-timing.hint_1 Tijd in sec. Na deze tijd zal de
-timing.hint_2 infobalk automatisch vervagen.
 timing.infobar Infobalk
 timing.infobar_movieplayer Infobalk (film modus)
 timing.infobar_radio Infobalk (radio modus)
@@ -2231,7 +2194,6 @@ usermenu.items Menu items
 usermenu.key Knop
 usermenu.key_select Toewijzen knop
 usermenu.msg_info_is_empty U heeft geen naam voor dit menu gedefinieerd.\nDe standaard naam wordt gebruikt:\n
-usermenu.msg_warning_name U heeft meerdere items gemaakt voor dit menu,\ngeen van de items heeft een naam.\nhet wordt aanbevolen om een naam in te voeren.
 usermenu.msg_warning_no_items Geen items gedefinieerd.\n De menu naam is gereset! 
 usermenu.name Naam
 video_mode_ok Functioneert deze video modus naar behoren?
@@ -2281,8 +2243,6 @@ videomenu.sdosd SD OSD
 videomenu.sharpness Scherpheid
 videomenu.tv-scart Video
 videomenu.vcrsignal VCR Output Signaal Type
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Formaat
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

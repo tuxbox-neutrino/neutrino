@@ -314,9 +314,6 @@ colorchooser.alpha alpha
 colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
-colorchooser.save Save
-colormenu.advanced_mode_off Default options
-colormenu.advanced_mode_on Advanced options
 colormenu.background Background
 colormenu.clock_textcolor Digit color
 colormenu.fade Fade GUI
@@ -451,7 +448,6 @@ extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
-extra.key_plugin One touch plugin
 extra.key_record Record key
 extra.key_screenshot Screenshot key
 extra.key_switchformat Next resolution
@@ -496,7 +492,6 @@ extra.tp_delsys Delivery system
 extra.tp_delsys_dss DSS
 extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
-extra.tp_delsys_dvbc2 DVB-C2
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
 extra.tp_delsys_dvbt DVB-T
@@ -563,7 +558,6 @@ extra.west West
 extra.zap_cycle Zap cycle
 extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage 18V for rotor moving 
-extra.zapit_make_bouquet Make Remaining Channels list
 extra.zapit_motor_speed Motor moving speed
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
@@ -634,7 +628,6 @@ flashupdate.getinfofile getting versioninfo
 flashupdate.getinfofileerror Can't get update versioninfo!
 flashupdate.getupdatefile getting update
 flashupdate.getupdatefileerror Can't get update!
-flashupdate.globalprogress Global Progress:
 flashupdate.head Software Update
 flashupdate.install_image Flash downloaded image?
 flashupdate.install_package Install downloadad pack?
@@ -646,7 +639,6 @@ flashupdate.mkfs_create_image Create backup
 flashupdate.mkfs_preparing_files Preparing files and directories
 flashupdate.mkfs_using_sumtool Using sumtool
 flashupdate.msgbox Found the following new file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nDo you want to download and install this version now?
-flashupdate.msgbox_manual Found the following new image:\nDate: %s, %s\nBaseImage: %s\nImageType: %s\n\nDo you want to install this version now?
 flashupdate.mtdselector Partition-Selector
 flashupdate.namemode1 Filename settingsfile
 flashupdate.namemode1_default <org.name>+settings.img
@@ -694,7 +686,6 @@ flashupdate.update_with_settings_del_skipped Folder [%s] can not be deleted. Ent
 flashupdate.update_with_settings_error Flash Error!\n \nNew Image only has %ld KB (out of %ld KB) left. Not\nenough space to complete this operation.\n \nCanceling operation!
 flashupdate.update_with_settings_processed Image is being processed ...
 flashupdate.update_with_settings_skipped Folder [%s] can not be saved. Entry is skipped.
-flashupdate.update_with_settings_successfully Setting takeover successfully.\nThe image can now be flashed.
 flashupdate.update_with_settings_warning Flash Warning!\n \nNew Image only has %ld KB (out of %ld KB) left. Probably not\nenough space to complete this operation ...\n \nDo you really want to proceed?
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
@@ -768,14 +759,12 @@ hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
 hdd_check_failed HDD-check failed!
-hdd_check_format_bad Checking of disks with format %s is not supported.
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
 hdd_format Format device
 hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
 hdd_format_warn All data on device will be lost ! Continue with format ?
 hdd_fs Filesystem used to format
-hdd_fs_unknown unknown
 hdd_manage Manage device
 hdd_middle Mid
 hdd_mount Mount
@@ -784,7 +773,6 @@ hdd_mount_ok Device ready to use.
 hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
-hdd_removable_device Removable device
 hdd_set_recdir Use device for recording ?
 hdd_settings Data Storage
 hdd_sleep Switch off after
@@ -817,13 +805,11 @@ infoviewer.nocurrent No info for current program available
 infoviewer.noepg EPG not available
 infoviewer.notavailable Channel not available
 infoviewer.now now
-infoviewer.selecttime Timeselection
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subchan_infobar Full infobar
 infoviewer.waittime Waiting for time ...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
 ipsetup.hint_2 OK saves, Exit aborts
-keybindingmenu.RC Tune Remote-Control
 keybindingmenu.addrecord add record timer
 keybindingmenu.addremind add zapto timer
 keybindingmenu.allchannels_on_ok all-services
@@ -970,7 +956,6 @@ menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer
 menu.hint_adzap AdZap will switch back to the current channel when the selected time is up
 menu.hint_adzap_active AdZap is active. With a new call it will be deactivated.
-menu.hint_adzap_setup Settings for the AdZap service
 menu.hint_adzap_writedata Write data according to adzap status to /tmp/adzap.data
 menu.hint_aplay Audio player
 menu.hint_aplay_setup Change title display, start directory, screen saver and more
@@ -1113,7 +1098,6 @@ menu.hint_infoclock_setup Configure info clock GUI options
 menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
 menu.hint_key_addrecord Assign button to add record timer\nfrom event list
 menu.hint_key_addremind Assign button to add zap timer\nfrom event list
-menu.hint_key_audio On: 'audio' button start show audio-play menu\nOff: 'audio' button show Audio selection
 menu.hint_key_binding Re-define keys used for common operations
 menu.hint_key_bouquetdown Assign button to switch channel list\nto previous bouquet
 menu.hint_key_bouquetup Assign button to switch channel list\nto next bouquet
@@ -1148,8 +1132,6 @@ menu.hint_key_pic_mode_active Disable/enable key for the screen format
 menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
 menu.hint_key_pip_setup Assign button to configure PiP
-menu.hint_key_pip_swap Assign button to swap PiP and live channel
-menu.hint_key_plugin Assign button to execute the one touch plugin
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_record Assign button to start a recording
@@ -1569,7 +1551,6 @@ miscsettings.infobar_show_tuner Display active tuner
 miscsettings.infoclock Clock
 miscsettings.onlineservices Online services
 miscsettings.progressbar Progressbar
-miscsettings.progressbar_color Color
 miscsettings.progressbar_design Design
 miscsettings.progressbar_design_0 colored points
 miscsettings.progressbar_design_1 colored vertical lines
@@ -1680,7 +1661,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0: backward, >0: forward, 0: none
 moviebrowser.edit_serie Enter name of serie
-moviebrowser.error_no_movies No movies found
 moviebrowser.filter_off Filter off
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Switch window
@@ -1750,7 +1730,6 @@ moviebrowser.menu_copy_several Copy and split movie
 moviebrowser.menu_cut Cut movie
 moviebrowser.menu_cut_head Copy, cut and truncate
 moviebrowser.menu_directories_head Directories de/activate
-moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Settings
 moviebrowser.menu_nfs_head NFS settings
@@ -1817,7 +1796,6 @@ moviebrowser.yt_max_history Max search history size
 moviebrowser.yt_max_results Max results to fetch
 moviebrowser.yt_most_popular Most popular today
 moviebrowser.yt_most_popular_all_time Most popular
-moviebrowser.yt_next_results Next results
 moviebrowser.yt_orderby Order by
 moviebrowser.yt_orderby.published publishing date
 moviebrowser.yt_orderby.rating rating
@@ -1825,8 +1803,6 @@ moviebrowser.yt_orderby.relevance relevance
 moviebrowser.yt_orderby.viewcount view count
 moviebrowser.yt_pending Pending downloads
 moviebrowser.yt_pref_quality Prefered quality
-moviebrowser.yt_prev_results Previous results
-moviebrowser.yt_recently_featured Recently featured
 moviebrowser.yt_region Region
 moviebrowser.yt_related Related videos
 moviebrowser.yt_search Search keyword
@@ -2017,7 +1993,6 @@ personalize.pinprotect Yes
 personalize.pinstatus Require PIN
 personalize.plugins Plugins
 personalize.usermenu_plugin_types Choose Plugin types to show
-personalize.usermenu_preferred_buttons Assigning of preferred keys
 personalize.usermenu_show_cancel Show "Cancel"-Button
 personalize.visible Visible
 pictureviewer.defdir Start directory
@@ -2170,11 +2145,6 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd SD only
 satsetup.fastscan_type Scan type
 satsetup.fastscan_update Auto update
-satsetup.fe_delsys_mode Delivery system mode
-satsetup.fe_delsys_mode_auto Auto
-satsetup.fe_delsys_mode_cable Cable
-satsetup.fe_delsys_mode_sat Satellite
-satsetup.fe_delsys_mode_terrestrial Terrestrial
 satsetup.fe_mode Tuner mode
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
@@ -2240,7 +2210,6 @@ scants.numberofradioservices Radio
 scants.numberoftotalservices Total
 scants.numberoftvservices TV
 scants.preverences_receiving_system Preferences
-scants.preverences_scan Scanmode
 scants.provider Provider:
 scants.select_tp Select transponder
 scants.startnow start scan
@@ -2407,17 +2376,11 @@ timerlist.weekdays.hint_1 Mo Tu We Th Fr Sa Su
 timerlist.weekdays.hint_2 'X'=timer '-' no timer
 timersettings.followscreenings Show screening selection
 timersettings.record_safety_time_after Record stop time correction
-timersettings.record_safety_time_after.hint_1 Correction time in min. (00=off). This time
-timersettings.record_safety_time_after.hint_2 will added to stop time of every record timer.
 timersettings.record_safety_time_before Record start time correction
-timersettings.record_safety_time_before.hint_1 Correction time in min. (00=off). This time
-timersettings.record_safety_time_before.hint_2 will be deducted of every record timer.
 timersettings.separator Timer
 timing.chanlist Channellist
 timing.epg Epg
 timing.filebrowser Filebrowser
-timing.hint_1 Time in sec. After this time the
-timing.hint_2 infobar will be faded out.
 timing.infobar Infobar
 timing.infobar_movieplayer Infobar (movie mode)
 timing.infobar_radio Infobar (radio mode)
@@ -2457,7 +2420,6 @@ usermenu.items Menu items
 usermenu.key Key
 usermenu.key_select Assign key
 usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing default name:\n
-usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menue defined.\nIt is recommended to enter a new name!
 usermenu.msg_warning_no_items No items defined!\nThe menu name is reset!
 usermenu.name Name
 usermenu.title_blue Features
@@ -2513,8 +2475,6 @@ videomenu.sdosd SD OSD
 videomenu.sharpness Sharpness
 videomenu.tv-scart Video
 videomenu.vcrsignal VCR Output Signal Type
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Format
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

@@ -314,9 +314,6 @@ colorchooser.alpha alpha
 colorchooser.blue blau
 colorchooser.green grün
 colorchooser.red rot
-colorchooser.save Speichern
-colormenu.advanced_mode_off Standard-Optionen
-colormenu.advanced_mode_on Erweiterte Optionen
 colormenu.background Hintergrundfarbe
 colormenu.clock_textcolor Ziffernfarbe
 colormenu.fade Ein-/Ausblenden
@@ -451,7 +448,6 @@ extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
-extra.key_plugin Schnellstart-Plugin
 extra.key_record Aufnahme-Taste
 extra.key_screenshot Screenshot Taste
 extra.key_switchformat Nächste Auflösung
@@ -496,7 +492,6 @@ extra.tp_delsys Empfangssystem
 extra.tp_delsys_dss DSS
 extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
-extra.tp_delsys_dvbc2 DVB-C2
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
 extra.tp_delsys_dvbt DVB-T
@@ -563,7 +558,6 @@ extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
 extra.zapit_fe_timeout Tuning Timeout
 extra.zapit_hvoltage High (13.5/18.5) Voltage
-extra.zapit_make_bouquet Kanalliste auffüllen
 extra.zapit_motor_speed Rotor Drehzeit
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
@@ -634,7 +628,6 @@ flashupdate.getinfofile lade Versioninfo
 flashupdate.getinfofileerror Kann Aktualisierungs-Info nicht laden!
 flashupdate.getupdatefile lade Update
 flashupdate.getupdatefileerror Kann Aktualisierung nicht laden!
-flashupdate.globalprogress Gesamtstatus:
 flashupdate.head Aktualisierung
 flashupdate.install_image Heruntergeladenes Image installieren?
 flashupdate.install_package Heruntergeladenes Paket installieren?
@@ -646,7 +639,6 @@ flashupdate.mkfs_create_image Backup erstellen
 flashupdate.mkfs_preparing_files Dateien und Verzeichnisse vorbereiten
 flashupdate.mkfs_using_sumtool Benutze Sumtool
 flashupdate.msgbox Es wurde folgende neue Datei gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen und installieren?
-flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
 flashupdate.mtdselector Partitions-Auswahl
 flashupdate.namemode1 Dateiname Settingsfile
 flashupdate.namemode1_default <Org.Name>+settings.img
@@ -694,7 +686,6 @@ flashupdate.update_with_settings_del_skipped Ordner [%s] kann nicht gelöscht we
 flashupdate.update_with_settings_error Error Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nDer Vorgang wird abgebrochen!
 flashupdate.update_with_settings_processed Image wird bearbeitet ...
 flashupdate.update_with_settings_skipped Ordner [%s] kann nicht gesichert werden. Eintrag wird übersprungen.
-flashupdate.update_with_settings_successfully Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.
 flashupdate.update_with_settings_warning Warnung Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist möglicherweise zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nSoll der Vorgang trotzdem fortgesetzt werden?
 flashupdate.updatemode Updatemodus
 flashupdate.updatemode_internet Internet
@@ -768,14 +759,12 @@ hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Datenträgerprüfung fehlgeschlagen
-hdd_check_format_bad Überprüfung von Datenträgern mit Format %s wird nicht unterstützt.
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Datenträger
 hdd_format_failed Formatierung fehlgeschlagen! Stellen Sie sicher, dass der Datenträger nicht in Verwendung ist und versuchen Sie es erneut.
 hdd_format_warn Alle Daten auf dem Datenträger werden gelöscht! Formatierung starten?
 hdd_fs Dateisystem zum formatieren
-hdd_fs_unknown unbekannt
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
 hdd_mount Mount
@@ -784,7 +773,6 @@ hdd_mount_ok Laufwerk bereit
 hdd_mount_umount Mount/Unmount
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Kein Datenträger
-hdd_removable_device Wechseldatenträger
 hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach
@@ -817,13 +805,11 @@ infoviewer.nocurrent Keine Info zu laufendem Programm
 infoviewer.noepg Keine EPG-Information verfügbar
 infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar
 infoviewer.now Jetzt
-infoviewer.selecttime Startzeiten
 infoviewer.subchan_disp_pos Unterkanalanzeige
 infoviewer.subchan_infobar Infobar
 infoviewer.waittime Warte auf Uhrzeit ...
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
-keybindingmenu.RC Fernbedienung abstimmen
 keybindingmenu.addrecord Aufnahme-Timer hinzufügen
 keybindingmenu.addremind Umschalt-Timer hinzufügen
 keybindingmenu.allchannels_on_ok Kanalliste
@@ -970,7 +956,6 @@ menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
 menu.hint_adzap Der Werbezapper schaltet nach der eingestellten Zeit wieder auf den ursprünglichen Kanal zurück
 menu.hint_adzap_active Der Werbezapper ist aktiv. Mit einem erneuten Aufruf wird er deaktiviert.
-menu.hint_adzap_setup Einstellungen für den Werbezapper
 menu.hint_adzap_writedata Schreibe Daten über den Status des Werbezappers nach /tmp/adzap.data
 menu.hint_aplay Audioplayer
 menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
@@ -1113,7 +1098,6 @@ menu.hint_infoclock_setup Wählen Sie die Anzeigeoptionen für die Info Uhr
 menu.hint_keep_numbers Mit der Aktivierung werden den Sendern feste/dauerhafte Kanalnummern zugewiesen
 menu.hint_key_addrecord Weisen Sie eine Taste für das Starten und Markieren von Aufnahmen im EPG zu
 menu.hint_key_addremind Weisen Sie eine Taste für das Umschalten im EPG über den Timer zu
-menu.hint_key_audio ein: Taste 'Audio' startet das Audioplayer-Menü\naus: Taste 'Audio' startet die Auswahl der Tonspuren
 menu.hint_key_binding In diesem Menü können Einstellungen für die Tasten der Fernbedienung angepasst werden
 menu.hint_key_bouquetdown Weisen Sie eine Taste für das Zurückblättern in den Bouquets zu
 menu.hint_key_bouquetup Weisen Sie eine Taste für das Vorblättern in den Bouquets zu
@@ -1148,8 +1132,6 @@ menu.hint_key_pic_mode_active Die Taste für das Bildschirmformat deaktivieren/a
 menu.hint_key_pic_size_active Die Taste für das 4:3 Anzeigeverhalten deaktivieren/aktivieren
 menu.hint_key_pip_close Tastenzuordnung für Stop PiP oder Start mit aktuellem Kanal
 menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
-menu.hint_key_pip_swap Tastenzuordnung zum Umschalten PiP und aktuellem Kanal
-menu.hint_key_plugin Wählen Sie eine Taste für das Schnellstart-Plugin
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung
 menu.hint_key_record Konfigurieren Sie die Taste für den Aufnahmestart
@@ -1569,7 +1551,6 @@ miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.infoclock Uhr
 miscsettings.onlineservices Online-Dienste
 miscsettings.progressbar Fortschrittsbalken
-miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design
 miscsettings.progressbar_design_0 Punkte
 miscsettings.progressbar_design_1 vertikale Balken
@@ -1680,7 +1661,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Neue Sprunglänge (s)
 moviebrowser.edit_book_type_info2 <0: zurück, >0: vor, 0: kein
 moviebrowser.edit_serie Name der Serie
-moviebrowser.error_no_movies Keine Filme gefunden
 moviebrowser.filter_off Filter aus
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Fenster wechseln
@@ -1750,7 +1730,6 @@ moviebrowser.menu_copy_several Film kopieren und teilen
 moviebrowser.menu_cut Film schneiden
 moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
 moviebrowser.menu_directories_head Verzeichnisse de/aktivieren
-moviebrowser.menu_help_head Hilfe
 moviebrowser.menu_main_bookmarks Markierungen
 moviebrowser.menu_main_head Einstellungen
 moviebrowser.menu_nfs_head NFS Einstellung
@@ -1817,7 +1796,6 @@ moviebrowser.yt_max_history Max. Anzahl früherer Suchen
 moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
 moviebrowser.yt_most_popular Beliebteste Videos heute
 moviebrowser.yt_most_popular_all_time Beliebteste Videos
-moviebrowser.yt_next_results Nächste Ergebnisse
 moviebrowser.yt_orderby Sortierung nach
 moviebrowser.yt_orderby.published Veröffentlichungszeitpunkt
 moviebrowser.yt_orderby.rating Bewertung
@@ -1825,8 +1803,6 @@ moviebrowser.yt_orderby.relevance Relevanz
 moviebrowser.yt_orderby.viewcount Zahl der Views
 moviebrowser.yt_pending Anstehende Downloads
 moviebrowser.yt_pref_quality Bevorzugte Qualität
-moviebrowser.yt_prev_results Vorherige Ergebnisse
-moviebrowser.yt_recently_featured Vor kurzem empfohlen
 moviebrowser.yt_region Region
 moviebrowser.yt_related Passende Videos
 moviebrowser.yt_search Suche nach Stichwort
@@ -2017,7 +1993,6 @@ personalize.pinprotect ja
 personalize.pinstatus mit PIN
 personalize.plugins Plugins
 personalize.usermenu_plugin_types Anzuzeigende Plugin-Typen wählen
-personalize.usermenu_preferred_buttons Bevorzugte Tasten zuweisen
 personalize.usermenu_show_cancel Zeige Schalter "Abbrechen"
 personalize.visible sichtbar
 pictureviewer.defdir Start-Verzeichnis
@@ -2170,11 +2145,6 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
 satsetup.fastscan_update Auto-Update
-satsetup.fe_delsys_mode Modus des Empfangssystems
-satsetup.fe_delsys_mode_auto Auto
-satsetup.fe_delsys_mode_cable Kabel
-satsetup.fe_delsys_mode_sat Satellit
-satsetup.fe_delsys_mode_terrestrial Terrestrisch
 satsetup.fe_mode Tuner Modus
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
@@ -2240,7 +2210,6 @@ scants.numberofradioservices Radio
 scants.numberoftotalservices Alle
 scants.numberoftvservices TV
 scants.preverences_receiving_system Grundeinstellungen
-scants.preverences_scan Suchmethode
 scants.provider Anbieter
 scants.select_tp Wählen Sie einen Transponder
 scants.startnow Kanalsuche starten
@@ -2407,17 +2376,11 @@ timerlist.weekdays.hint_1 Mo Di Mi Do Fr Sa So
 timerlist.weekdays.hint_2 'X'=Timer '-' kein Timer
 timersettings.followscreenings Zeige Terminauswahl
 timersettings.record_safety_time_after Aufnahmeende-Korrektur
-timersettings.record_safety_time_after.hint_1 Korrekturzeit in Min. (00=aus), die auf die End-
-timersettings.record_safety_time_after.hint_2 zeit des jeweiligen Timers addiert wird
 timersettings.record_safety_time_before Aufnahmestart-Korrektur
-timersettings.record_safety_time_before.hint_1 Korrekturzeit in Min. (00=aus), die beim Start
-timersettings.record_safety_time_before.hint_2 des jeweiligen Timers abgezogen werden
 timersettings.separator Timer
 timing.chanlist Kanalliste
 timing.epg EPG
 timing.filebrowser Filebrowser
-timing.hint_1 Einblendzeit in Sek., die das OSD
-timing.hint_2 auf dem TV angezeigt wird
 timing.infobar Infobar
 timing.infobar_movieplayer Infobar (Filmwiedergabe)
 timing.infobar_radio Infobar (Radiobetrieb)
@@ -2457,7 +2420,6 @@ usermenu.items Menüpunkte
 usermenu.key Taste
 usermenu.key_select Taste zuweisen
 usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwende Standardname:\n
-usermenu.msg_warning_name Sie haben mehrere Menüpunkte für dieses Menü angelegt,\naber keinen neuen Namen festgelegt.\nEs ist daher empfohlen, einen neuen Namen zu vergeben!
 usermenu.msg_warning_no_items Sie haben keine Menüpunkte für dieses Menü angelegt!\nDer Menüname wird daher zurückgesetzt!
 usermenu.name Name
 usermenu.title_blue Erweiterungen
@@ -2513,8 +2475,6 @@ videomenu.sdosd SD OSD
 videomenu.sharpness Schärfe
 videomenu.tv-scart TV Scart
 videomenu.vcrsignal VCR-Ausgang Signalart
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Bildschirmformat
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

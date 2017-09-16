@@ -364,7 +364,6 @@ eventlistbar.channelswitch přepni
 eventlistbar.eventsort třídění
 eventlistbar.recordevent nahrej
 extra.add_to_bouquet Přidání do buketu
-extra.audio_run_player Stisk AUDIO spustí přehrávač
 extra.auto_delete Auto-mazání
 extra.auto_timeshift Auto-nahrávání, sec (0=vypnuté)
 extra.cache_txt Zachytávání teletextu
@@ -408,7 +407,6 @@ extra.key_pic_size Zobrazení formátu 4:3
 extra.key_pip_close Spustit/Zastavit PiP
 extra.key_pip_setup Nastavení PiP
 extra.key_pip_swap Prohodit PiP/Hlavní obraz
-extra.key_plugin Tlačítko zobrazující doplňky
 extra.key_record Tlačítko nahrávání
 extra.key_screenshot Tlačítko snímání obrazovky
 extra.key_switchformat Další rozlišení
@@ -452,7 +450,6 @@ extra.tp_delsys Odbavovací systém
 extra.tp_delsys_dss DSS
 extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
-extra.tp_delsys_dvbc2 DVB-C2
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
 extra.tp_delsys_dvbt DVB-T
@@ -519,7 +516,6 @@ extra.west Západně
 extra.zap_cycle Cyklické přepínání
 extra.zapit_fe_timeout Časový limit naladění (1 = 10 msek)
 extra.zapit_hvoltage 18V při točení motora
-extra.zapit_make_bouquet Vykonej ostatní seznamy kanálů
 extra.zapit_motor_speed Rychlost otáčení (10 = 1st/sek)
 extra.zapit_scanpids Vyhledávání s PIDy
 extra.zapit_sdt_changed Změněné kanály, načítám nastavení.
@@ -588,7 +584,6 @@ flashupdate.getinfofile Získávání informace o verzi
 flashupdate.getinfofileerror Není možné zjistit verzi
 flashupdate.getupdatefile Získávání aktualizace
 flashupdate.getupdatefileerror Není možná aktualizace
-flashupdate.globalprogress Celkový postup:
 flashupdate.head SW aktualizace
 flashupdate.md5check Kontrola IMAGE
 flashupdate.md5sumerror IMAGE má chyby
@@ -598,7 +593,6 @@ flashupdate.mkfs_create_image Vytvořit Image
 flashupdate.mkfs_preparing_files Připravit soubory a adresáře
 flashupdate.mkfs_using_sumtool Použít "sumtool"
 flashupdate.msgbox Zjištěný nový soubor: \nDatum:%s,%s \nBaseImage:%s\nTyp:%s \n\nOpravdu převzít a nainstalovat \nTento soubor?
-flashupdate.msgbox_manual Zjištěný nový soubor: \nDatum:%s,%s \nBaseImage:%s \nTyp IMAGE:%s \n\nOpravdu nainstalovat \nTento soubor?
 flashupdate.mtdselector Výběr oddílu
 flashupdate.namemode1 Název souboru nastavení
 flashupdate.namemode1_default <Org.Název>+settings.img
@@ -637,7 +631,6 @@ flashupdate.update_with_settings_del_skipped Adresář [%s] nebyl vymazán. Zad�
 flashupdate.update_with_settings_error Chyba FLASH paměti! \n\nNový IMAGE má jen% ld KB (zbývá% ld KB) do konce. \nedostatek místa pro dokončení operace. \n\nOperácia přerušena!
 flashupdate.update_with_settings_processed IMAGE se zpracovává ...
 flashupdate.update_with_settings_skipped Adresář [% s] nebyl uložen. Zadání je přeskočeno.
-flashupdate.update_with_settings_successfully Nastavení úspěšně převzaty. \nIMAGE se může nahrát.
 flashupdate.update_with_settings_warning Pozor nahrávání! \n\nNové IMAGE má jen %ld KB (zbývá%ld KB) do konce. Pravděpodobně \n je málo místa na dokončení operace ... \n\nChcete pokračovat?
 flashupdate.updatemode Způsob aktualizace
 flashupdate.updatemode_internet Internet
@@ -701,7 +694,6 @@ hdd_format Formátování HDD
 hdd_format_failed Chyba během formátování disku!
 hdd_format_warn Opravdu formátovat? Všechna data budou ztracena!
 hdd_fs Souborový systém
-hdd_fs_unknown Neznámy
 hdd_manage Správa HDD
 hdd_middle Středně
 hdd_mount Připojení
@@ -710,7 +702,6 @@ hdd_mount_ok Zařízení připravené k používaní.
 hdd_mount_umount Připojení/Odpojení
 hdd_noise Hlučnost (AAM)
 hdd_not_found Nenalezen disk
-hdd_removable_device Odstranitelné zařízení
 hdd_set_recdir Použít zařízení k nahrávání ?
 hdd_settings Nastavení HDD / USB
 hdd_sleep Čas uspání
@@ -743,7 +734,6 @@ infoviewer.nocurrent Nedostupné informace pro aktuální program
 infoviewer.noepg EPG je nedostupné
 infoviewer.notavailable Kanál (nyní) nedostupný
 infoviewer.now Nyní
-infoviewer.selecttime Časy zahájení
 infoviewer.streaminfo Infodoplňky
 infoviewer.subchan_disp_pos Zobrazení podkanálů
 infoviewer.subchan_infobar Celé info
@@ -751,7 +741,6 @@ infoviewer.subservice Doplňkové služby
 infoviewer.waittime Načítání hodin ... 
 ipsetup.hint_1 Použij 0. .. 9 nebo klávesy NAHORU / DOLŮ
 ipsetup.hint_2 OK = uložení, EXIT = zrušení
-keybindingmenu.RC Nastavení ovladače
 keybindingmenu.addrecord Přidání nahrávání
 keybindingmenu.addremind Přidání změny kanálu
 keybindingmenu.allchannels_on_ok Všechny kanály
@@ -1013,7 +1002,6 @@ menu.hint_infoclock_setup Konfigurace GUI nastavení informačních hodín
 menu.hint_keep_numbers Zachovat čísla kanálů po následujícím vyhledávání \n na úpravě buketů
 menu.hint_key_addrecord Přiřazení klávesy pro přidání nahrávání časovače \n z programového průvodce
 menu.hint_key_addremind Přiřazení klávesy pro přidání přepnutí časovače \n z programového průvodce
-menu.hint_key_audio ano: 'AUDIO' klávesu spustí zobrazení přehrávání \n ne: 'AUDIO' klávesu zobrazí výběr zvuku
 menu.hint_key_binding Předefinování kláves použitých pro příkazové operace
 menu.hint_key_bouquetdown Přidělení klávesy pro změnu seznamu kanálů \n do předchozího buketu
 menu.hint_key_bouquetup Přidělení klávesy pro změnu seznamu kanálů \ndo následujícího buketu
@@ -1048,8 +1036,6 @@ menu.hint_key_pic_mode_active Povolení/zakázání klávesy pro změnu formátu
 menu.hint_key_pic_size_active Povolení/zakázání klávesy pro změnu správneho zobrazení 4:3
 menu.hint_key_pip_close Přiřazení klávesy pro ukončení PiP \nebo spuštění PIPu na aktuálním kanálu
 menu.hint_key_pip_setup Přiřazení klávesy pro konfiguraci PiP
-menu.hint_key_pip_swap Přiřazení klávesy pro změnu PiP a živého kanálu
-menu.hint_key_plugin Přiřazení klávesy pro vykonání jednoho vyzkoušení doplnku
 menu.hint_key_poweroff Přiřazení klávesy pro změnu stavu napájení \n(připravenost / spánek <-> práce)
 menu.hint_key_quickzap Konfigurace klávesových zkratek pro rychlou \nzměnu kanálu
 menu.hint_key_record Přiřadění klávesy pro spuštění nahrávání
@@ -1435,7 +1421,6 @@ miscsettings.infobar_show_sysfs_hdd Zaplnění (sysFS & HDD)
 miscsettings.infobar_show_tuner Zobrazit aktivní tuner
 miscsettings.infoclock Informační hodiny
 miscsettings.progressbar Ukazatel
-miscsettings.progressbar_color Barva
 miscsettings.progressbar_design Vzhled
 miscsettings.progressbar_design_0 body
 miscsettings.progressbar_design_1 svislé pruhy
@@ -1542,7 +1527,6 @@ moviebrowser.edit_book_pos_info2????
 moviebrowser.edit_book_type_info1 Zadání nové délky skoku
 moviebrowser.edit_book_type_info2 <0 vzad,> 0 vpřed, 0: nikde
 moviebrowser.edit_serie Zadání názvu série
-moviebrowser.error_no_movies Nenalezeno filmy
 moviebrowser.foot_filter Filtr:
 moviebrowser.foot_focus Přepnout okno
 moviebrowser.foot_options Volby
@@ -1591,7 +1575,6 @@ moviebrowser.last_play_max_items Počet linek posledního přehrávání
 moviebrowser.last_record_max_items Počet linek posledního nahrávání
 moviebrowser.load_default Nahrát přednastavené nastavení
 moviebrowser.menu_directories_head Adresáře
-moviebrowser.menu_help_head Nápověda
 moviebrowser.menu_main_bookmarks Záložky
 moviebrowser.menu_main_head Nastavení
 moviebrowser.menu_nfs_head Nastavení NFS
@@ -1655,7 +1638,6 @@ moviebrowser.yt_max_history Maximální velikost hledání historie
 moviebrowser.yt_max_results Dosažené maximum výsledků
 moviebrowser.yt_most_popular Nejpopulárnější dnes
 moviebrowser.yt_most_popular_all_time Najpopulárnější
-moviebrowser.yt_next_results Další výsledky
 moviebrowser.yt_orderby Třídit podle
 moviebrowser.yt_orderby.published datum zveřejnění
 moviebrowser.yt_orderby.rating oblíbenost
@@ -1663,8 +1645,6 @@ moviebrowser.yt_orderby.relevance závažnost
 moviebrowser.yt_orderby.viewcount sledovanost
 moviebrowser.yt_pending Čekající stahování
 moviebrowser.yt_pref_quality Preferovaná kvalita
-moviebrowser.yt_prev_results předchozí výsledky
-moviebrowser.yt_recently_featured Nedávno doporučené
 moviebrowser.yt_region Region
 moviebrowser.yt_related Podobné videa
 moviebrowser.yt_search Hledat slovo
@@ -1841,7 +1821,6 @@ personalize.pinprotect Ano
 personalize.pinstatus vyžadují PIN
 personalize.plugins Doplňky
 personalize.usermenu_plugin_types Výběr Doplńku pro zobrazení
-personalize.usermenu_preferred_buttons Přiřazení preferovaných kláves 
 personalize.usermenu_show_cancel Zobrazit "Zrušit" kláves
 personalize.visible Viditelné
 pictureviewer.defdir Výchozí adresář
@@ -1980,11 +1959,6 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD
 satsetup.fastscan_sd jen SD
 satsetup.fastscan_type Typ prohledání
 satsetup.fastscan_update Automatická aktualizace
-satsetup.fe_delsys_mode Režim odbavovacího systému
-satsetup.fe_delsys_mode_auto Auto
-satsetup.fe_delsys_mode_cable Kabel
-satsetup.fe_delsys_mode_sat Družice
-satsetup.fe_delsys_mode_terrestrial Pozemní
 satsetup.fe_mode Mód tuneru
 satsetup.fe_mode_independent Nezávislý
 satsetup.fe_mode_link_loop Propojený
@@ -2049,7 +2023,6 @@ scants.numberofradioservices Rádio
 scants.numberoftotalservices Celkem
 scants.numberoftvservices TV
 scants.preverences_receiving_system Preference
-scants.preverences_scan Mód hledání
 scants.provider Poskytovatel:
 scants.select_tp Vyber transpondér
 scants.startnow Spustit prohledávání
@@ -2205,17 +2178,11 @@ timerlist.weekdays Ve dnech týdne
 timerlist.weekdays.hint_1 Po Út St Čt Pá So Ne
 timerlist.weekdays.hint_2 'X' = plánované '-' neplánované
 timersettings.record_safety_time_after Korekce ukončení nahrávání
-timersettings.record_safety_time_after.hint_1 Čas v min. (00 = vypnuto), který bude připočítán
-timersettings.record_safety_time_after.hint_2 po ukončení daného plánu
 timersettings.record_safety_time_before Korekce začátku nahrávání
-timersettings.record_safety_time_before.hint_1 Cassel v min. (00 = vypnuto), který bude odečten
-timersettings.record_safety_time_before.hint_2 při spuštění daného plánu
 timersettings.separator Nastavení časovače
 timing.chanlist Seznam kanálů
 timing.epg EPG
 timing.filebrowser Prohlížeč souborů
-timing.hint_1 Čas zobrazení OSD
-timing.hint_2 na obrazovce TV (v sekundách)
 timing.infobar Stavový řádek
 timing.infobar_movieplayer Stavový řádek (filmový mód)
 timing.infobar_radio Stavový řádek (rádio mód)
@@ -2249,7 +2216,6 @@ usermenu.items Položky menu
 usermenu.key Klávesa
 usermenu.key_select Přiřazená klávesa
 usermenu.msg_info_is_empty Nedefinovaný název pro toto menu! \nPoužije se přednastavený název: \n
-usermenu.msg_warning_name Máte více než jednu položku vytvořenou pro toto menu, \nale žádný definovaný nový název pro toto menu. \nMěli byste vytvořit nový název!
 usermenu.msg_warning_no_items Nedefinované žádné položky! \nResetovaný název menu!
 usermenu.name Název
 video_mode_ok Video režim pracuje správně?
@@ -2300,8 +2266,6 @@ videomenu.sdosd SD OSD
 videomenu.sharpness Ostrost
 videomenu.tv-scart TV SCART
 videomenu.vcrsignal Typ signálu VCR výstupu
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Formát obrazu
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

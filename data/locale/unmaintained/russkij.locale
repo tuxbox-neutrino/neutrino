@@ -231,7 +231,6 @@ eventlistbar.channelswitch вид сортировки
 eventlistbar.eventsort сортировать
 eventlistbar.recordevent записать
 extra.add_to_bouquet Канал в пакет
-extra.audio_run_player Audio key start player
 extra.auto_delete Auto-delete
 extra.auto_timeshift Auto-record, sec (0 = disable)
 extra.cache Cache
@@ -278,7 +277,6 @@ extra.hdd_reiser Reiserfs
 extra.hdd_settings HDD Settings
 extra.hdd_sleep Sleep time
 extra.hdd_slow Slow
-extra.key_plugin One touch plugin
 extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
@@ -330,7 +328,6 @@ extra.zapit_backup Backup channels to /tmp
 extra.zapit_delete Delete channels
 extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage High (13.5/18.5) voltage
-extra.zapit_make_bouquet Make Remaining Channels list
 extra.zapit_menu Параметры Zapit
 extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
 extra.zapit_restore Restore channels from /tmp
@@ -384,12 +381,10 @@ flashupdate.getinfofile запрос версии
 flashupdate.getinfofileerror не могу определить версию
 flashupdate.getupdatefile обновление
 flashupdate.getupdatefileerror не могу обновить
-flashupdate.globalprogress Общий прогресс:
 flashupdate.head Обновление софта
 flashupdate.md5check проверка прошивки
 flashupdate.md5sumerror прошивка без ошибок
 flashupdate.msgbox Найдена следующая новая прошивка:\nДата: %s, %s\nбазовый имидж: %s\nтип имиджа: %s\n\nХотите загрузить и установить эту версию сейчас? 
-flashupdate.msgbox_manual Найден новый файл:\nДата: %s, %s\nБазовый имидж: %s\nТип: %s\n\n Хотите загрузить и установить эту версию сейчас? 
 flashupdate.mtdselector Выбор раздела
 flashupdate.programmingflash программирование флешь
 flashupdate.proxypassword Пароль
@@ -467,14 +462,12 @@ infoviewer.motor_moving позиционирование антенны
 infoviewer.nocurrent Нет информации о текущей передаче
 infoviewer.noepg Нет доступа к программе передач
 infoviewer.notavailable Канал не доступен
-infoviewer.selecttime Время выбора
 infoviewer.streaminfo Характеристики
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subservice Дополнения
 infoviewer.waittime Попытка получить текущее время...
 ipsetup.hint_1 Используйте 0..9, или Up/Down,
 ipsetup.hint_2 OK - сохранено, LAME! - Отмена
-keybindingmenu.RC Для Кнопок: повтор-блокирование
 keybindingmenu.addrecord Добавить таймер записи
 keybindingmenu.addremind Добавить таймер переключения
 keybindingmenu.allchannels_on_ok Все сервисы
@@ -595,7 +588,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
-moviebrowser.error_no_movies No movies found
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_play Start movie
 moviebrowser.foot_sort Sort:
@@ -640,7 +632,6 @@ moviebrowser.last_play_max_items Number of lines last play
 moviebrowser.last_record_max_items Number of lines last record
 moviebrowser.load_default Load default settings
 moviebrowser.menu_directories_head Paths
-moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Settings
 moviebrowser.menu_main_movieinfo Movie info
@@ -979,18 +970,12 @@ timerlist.weekdays дни недели
 timerlist.weekdays.hint_1 Пон Втр Срд Чтв Птн Сбт Вскр
 timerlist.weekdays.hint_2 'X'=таймер '-' нет таймера
 timersettings.record_safety_time_after Коррекция остановки записи
-timersettings.record_safety_time_after.hint_1 Коррекция времени в минутах. (00=выкл). Это время
-timersettings.record_safety_time_after.hint_2 будет добавляется к каждому таймеру записи.
 timersettings.record_safety_time_before Коррекция старта записи
-timersettings.record_safety_time_before.hint_1 Коррекция времени в минутах. (00=выкл). Это время
-timersettings.record_safety_time_before.hint_2 будет отниматься от каждого таймера записи.
 timersettings.separator Настройки таймера
 timing.chanlist Список каналов
 timing.epg Epg
 timing.filebrowser Проводник по каталогам
 timing.head Время показа OSD
-timing.hint_1 Время в секундах. После этого
-timing.hint_2 инфопанель будет прозрачной.
 timing.infobar Инфопанель
 timing.menu Меню
 timing.numericzap При наборе цифрами с пульта
@@ -998,8 +983,6 @@ videomenu.csync корекция синхронизации
 videomenu.screensetup Настройки экрана
 videomenu.tv-scart TV Scart
 videomenu.vcrsignal VCR Output Signal Type
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Формат
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)

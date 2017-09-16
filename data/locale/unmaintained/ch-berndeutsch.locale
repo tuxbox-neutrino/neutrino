@@ -272,12 +272,10 @@ flashupdate.getinfofile lade Versionsinfo
 flashupdate.getinfofileerror cha s'Update nid läse
 flashupdate.getupdatefile lade Update
 flashupdate.getupdatefileerror cha s'Update nid ladä
-flashupdate.globalprogress Gsamtschtatus:
 flashupdate.head Aktualisiärig
 flashupdate.md5check Imageprüäfig
 flashupdate.md5sumerror s'Image isch fählerhaft
 flashupdate.msgbox äs isch fougendes nöis Image gfunge wordä:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWosch diä Version jetzt abelade\nu inschtaliäre?
-flashupdate.msgbox_manual äs isch äs nöis Image gfunge worde:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWosch diä Version jetzt inschtalliäre?
 flashupdate.mtdselector Partitions-Uswau
 flashupdate.programmingflash programmierä Flash
 flashupdate.proxypassword Passwort
@@ -346,14 +344,12 @@ infoviewer.motor_moving Antennäpositioniärig
 infoviewer.nocurrent Kei Infos zum loufende Programm
 infoviewer.noepg Kei EPG-Informationä verfüegbar
 infoviewer.notavailable Kanau (zur Zyt) nid verfüägbar
-infoviewer.selecttime Schtartzyte
 infoviewer.streaminfo Features
 infoviewer.subchan_disp_pos Ungerkanauazeig
 infoviewer.subservice Böudregie
 infoviewer.waittime Warte uf d'Uhrzyt...
 ipsetup.hint_1 Benutz 0..9 oder uäche/abä
 ipsetup.hint_2 OK schpicheret, Home bricht ab
-keybindingmenu.RC Färnbediänig
 keybindingmenu.addrecord Ufnahm-Timer däzuäfüege
 keybindingmenu.addrecord_head Ufnahm-Timer däzuäfüege
 keybindingmenu.addremind Umschaut-Timer däzuäfüege
@@ -736,18 +732,12 @@ timerlist.weekdays Wochetäg
 timerlist.weekdays.hint_1 Mo Di Mi Do Fr Sa So
 timerlist.weekdays.hint_2 'X'=Timer '-' kei Timer
 timersettings.record_safety_time_after Ufnahmeändi-Korrektur
-timersettings.record_safety_time_after.hint_1 Korrekturzyt i Min. (00=us), diä uf d'änd-
-timersettings.record_safety_time_after.hint_2 zyt vom jewilige Timer addiärt wird
 timersettings.record_safety_time_before Ufnahmeschtart-Korrektur
-timersettings.record_safety_time_before.hint_1 Korrekturzyt i Min. (00=us), diä bim Schtart
-timersettings.record_safety_time_before.hint_2 vom jewilige Timer abzoge wärde
 timersettings.separator Timerischtöuige
 timing.chanlist Kanaulischtä
 timing.epg EPG
 timing.filebrowser Filebrowser
 timing.head OSD Timeouts
-timing.hint_1 Ibländzyt i Sek., wiä lang s'OSD
-timing.hint_2 uf äm TV aazeiget wird
 timing.infobar Infobar
 timing.menu Menü
 timing.numericzap Umschaute mit Ziffertaschte

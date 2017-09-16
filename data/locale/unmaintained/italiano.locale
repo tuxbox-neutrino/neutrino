@@ -273,7 +273,6 @@ eventlistbar.channelswitch schedula
 eventlistbar.eventsort ordina
 eventlistbar.recordevent registra
 extra.add_to_bouquet Aggiungi a bouquet
-extra.audio_run_player Pulsante avvio audio
 extra.auto_delete Auto-cancellazione
 extra.auto_timeshift Auto-registrazione, sec (0 = disabilitato)
 extra.cache_txt Cache teletext
@@ -307,7 +306,6 @@ extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
 extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.key_list_end fine
 extra.key_list_start inizio
-extra.key_plugin One touch plugin
 extra.key_timeshift Timeshift
 extra.key_unlock Sblocca pulsante
 extra.ladirection LaDirection
@@ -349,7 +347,6 @@ extra.zap_cycle Zap cycle
 extra.zapit_backup Salva canali in /tmp
 extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage Alto voltaggio (13.5/18.5)
-extra.zapit_make_bouquet Crea lista canali visitati
 extra.zapit_menu Opzioni Zapit
 extra.zapit_motor_speed Velocita movimento motore (10 = 1deg/sec)
 extra.zapit_restore Ripristina canali da /tmp
@@ -405,12 +402,10 @@ flashupdate.getinfofile Carica Info Versione
 flashupdate.getinfofileerror impossibile caricare info versione
 flashupdate.getupdatefile carica aggiornamento
 flashupdate.getupdatefileerror impossibile caricare aggiornamento
-flashupdate.globalprogress Stato del sistema:
 flashupdate.head Aggiornamento Software
 flashupdate.md5check controllo immagine
 flashupdate.md5sumerror immagine contiene errori
 flashupdate.msgbox Sono state trovate questi file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nVuoi scaricare e installare questa versione adesso?
-flashupdate.msgbox_manual Trovata una nuova img:\nDate: %s, %s\nBaseImage: %s\nImageType: %s\n\nVuoi installare questa versione adesso?
 flashupdate.mtdselector Scelta della partizione
 flashupdate.programmingflash programmazione flash
 flashupdate.proxypassword Password
@@ -515,14 +510,12 @@ infoviewer.nocurrent Informazioni non disponibili per questo programma
 infoviewer.noepg EPG non disponibile
 infoviewer.notavailable Canale non disponibile
 infoviewer.now adesso
-infoviewer.selecttime Orario di inizio
 infoviewer.streaminfo Informazioni
 infoviewer.subchan_disp_pos Vis. sottocanale
 infoviewer.subservice Sottoservizi
 infoviewer.waittime Attesa orario...
 ipsetup.hint_1 Usare il 0..9 per Alto/Basso
 ipsetup.hint_2 OK salva, HOME indietro
-keybindingmenu.RC Telecomando
 keybindingmenu.addrecord Aggiungi-Timer di Registrazione
 keybindingmenu.addremind Aggiungi-Timer per cambio canale
 keybindingmenu.allchannels_on_ok Lista canali
@@ -693,7 +686,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Inserisci lunghezza nuovo salto (s)
 moviebrowser.edit_book_type_info2 <0 indetro , >0 avanti, 0: niente
 moviebrowser.edit_serie Inserisci nome serie
-moviebrowser.error_no_movies Nessun video trovato
 moviebrowser.foot_filter Filtro:
 moviebrowser.foot_play Avvia video
 moviebrowser.foot_sort Ordina:
@@ -737,7 +729,6 @@ moviebrowser.last_play_max_items Numero righe ultima riproduzione
 moviebrowser.last_record_max_items Numero righe ultima registrazione
 moviebrowser.load_default Carica default settings
 moviebrowser.menu_directories_head Percorsi
-moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Impostazioni
 moviebrowser.menu_nfs_head Impostazioni NFS
@@ -778,7 +769,7 @@ moviebrowser.short_size MB
 moviebrowser.short_title Titolo
 moviebrowser.start_head Inizia video da:
 moviebrowser.start_record_start Avvia video
-moviebrowser.update_if_dest_empty_only Copia solo se la destinazione è vuota
+moviebrowser.update_if_dest_empty_only Copia solo se la destinazione Ã¨ vuota
 moviebrowser.use_dir Usa directory
 moviebrowser.use_movie_dir Usa directory movies
 moviebrowser.use_rec_dir Usa directory registrazione
@@ -942,7 +933,7 @@ recordingmenu.vcr vcr
 recordingmenu.zap_on_announce messaggio quando cambi canale durante registrazione
 recordtimer.announce La registrazione parte tra pochi minuti
 repeatblocker.hint_1 Tempo minimo (in ms) per riconoscere 2 battiture
-repeatblocker.hint_2 Premi 0 to switch of the blocker (rosso è spazio)
+repeatblocker.hint_2 Premi 0 to switch of the blocker (rosso Ã¨ spazio)
 reset_all Reset di Fabbrica
 reset_channels Cancella tutti i canali
 reset_confirm Sei sicuro ?
@@ -1021,7 +1012,7 @@ settings.pos_bottom_right pulsante destra
 settings.pos_top_left alto-sinistra
 settings.pos_top_right alto-destra
 shutdown.recoding_query Voui fermare la registrazione ?
-shutdowntimer.announce Il box sarà spento in 1 min.\nAnnulla Spegnimento ?
+shutdowntimer.announce Il box sarÃ  spento in 1 min.\nAnnulla Spegnimento ?
 sleeptimerbox.announce Sleeptimer in 1 min
 sleeptimerbox.hint1 Orario di spegnimento in min. (000=off)
 sleeptimerbox.hint2 Il box si spegne trascorso questo tempo.
@@ -1036,8 +1027,8 @@ streaminfo.head Informazioni Stream
 streaminfo.not_available non disponibili
 streaminfo.resolution Risoluzione
 streaminfo.signal segnale ricevuto
-streaming.busy Una o più registrazioni sono attive.\nSe nessuna registrazione e attiva, riavvia Neutrino.
-streaming.dir_not_writable La cartella di registrazione non è disponibile.\nRegistrazione fallita.
+streaming.busy Una o piÃ¹ registrazioni sono attive.\nSe nessuna registrazione e attiva, riavvia Neutrino.
+streaming.dir_not_writable La cartella di registrazione non Ã¨ disponibile.\nRegistrazione fallita.
 streaming.write_error Registrazione annullata,\npoiche un errore si e presentato durante il processo di scrittura.
 stringinput.caps caps / no caps
 stringinput.clear cancella tutto
@@ -1109,18 +1100,12 @@ timerlist.weekdays Giorni della settimana
 timerlist.weekdays.hint_1 LU MA ME GI VE SA DO
 timerlist.weekdays.hint_2 'X'=timer '-' nessun timer
 timersettings.record_safety_time_after Correzione fine registrazione
-timersettings.record_safety_time_after.hint_1 Correzione in min. (00=off).
-timersettings.record_safety_time_after.hint_2 che vengono aggiunti.
 timersettings.record_safety_time_before Correzione inizio registrazione
-timersettings.record_safety_time_before.hint_1 Correzione in min. (00=off).
-timersettings.record_safety_time_before.hint_2 Che vengono tolti al Timer.
 timersettings.separator Impostazioni Timer
 timing.chanlist Lista canali
 timing.epg Epg
 timing.filebrowser Filebrowser
 timing.head OSD Timeouts
-timing.hint_1 Tempo in sec in cui OSD appare
-timing.hint_2 sullo schermo.
 timing.infobar Infobar
 timing.menu Menu
 timing.numericzap Numeric Zap
@@ -1156,8 +1141,6 @@ videomenu.panscan Pan&Scan
 videomenu.screensetup Impostazioni Margine Video
 videomenu.tv-scart Video
 videomenu.vcrsignal VCR Tipo segnale in uscita
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Formato
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

@@ -229,12 +229,10 @@ flashupdate.getinfofile čita se informacija o verziji
 flashupdate.getinfofileerror nemože se dobiti informacija o verziji
 flashupdate.getupdatefile učitaje se najnoviji softver
 flashupdate.getupdatefileerror nemože se dobiti najnoviji softver
-flashupdate.globalprogress glavni status:
 flashupdate.head obnavljanje
 flashupdate.md5check provjera imidža
 flashupdate.md5sumerror imidž ima greške
 flashupdate.msgbox Nađen je novi imidž:\nDatum: %s, %s\nOsnovni imidž: %s\nvrsta imidža: %s\n\nHoćete li ovu verziju sada preuzeti\nsa interneta i instalirati?
-flashupdate.msgbox_manual Nađen je novi imidž:\nDatum: %s, %s\nOsnovni imidž: %s\nVrsta imidža: %s\n\nHoćete li ovu verziju sada instalirati?
 flashupdate.mtdselector izbor particije
 flashupdate.programmingflash programira se fleš
 flashupdate.proxypassword lozinka
@@ -303,13 +301,11 @@ infoviewer.motor_moving namješćenje antene
 infoviewer.nocurrent nema informacije o ovom programu
 infoviewer.noepg nema epg informacije
 infoviewer.notavailable kanal (trenutačno) nije pristupan
-infoviewer.selecttime početak
 infoviewer.streaminfo osobine
 infoviewer.subservice režija slike
 infoviewer.waittime čeka se na vrijeme ...
 ipsetup.hint_1 upotrijebite 0..9 ili gore/dole
 ipsetup.hint_2 ok memoriše, home prekida
-keybindingmenu.RC daljinska
 keybindingmenu.addrecord dodati vremenski brojač za snimanje
 keybindingmenu.addrecord_head dodati vremenski brojač za snimanje
 keybindingmenu.addremind dodati vremenski brojač za prebaciti
@@ -620,18 +616,12 @@ timerlist.weekdays dani
 timerlist.weekdays.hint_1 pon uto sri čet pet sub ned
 timerlist.weekdays.hint_2 'X'=vremenski brojač '-' nema vremenskog brojača
 timersettings.record_safety_time_after ispravljanje kraja snimanja
-timersettings.record_safety_time_after.hint_1 vrijeme u minutama koje se odbija od
-timersettings.record_safety_time_after.hint_2 kraja vremeskog brojača (00=ugašeno)
 timersettings.record_safety_time_before ispraviti početak snimanja
-timersettings.record_safety_time_before.hint_1 vrijeme u minutama koje se odbija od
-timersettings.record_safety_time_before.hint_2  početka vremeskog brojača (00=ugašeno)
 timersettings.separator namješćenje vremenskog brojača
 timing.chanlist lista kanala
 timing.epg epg
 timing.filebrowser pretraživač datoteka
 timing.head osd tajm-auti
-timing.hint_1 vrijeme u sekundama u kojemu
-timing.hint_2 će biti pokazana informativna traka
 timing.infobar infromativna traka
 timing.menu izbor
 videomenu.csync namjescenje sinkronizacije
