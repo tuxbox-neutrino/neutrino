@@ -229,12 +229,10 @@ flashupdate.getinfofile lade Versioninfo
 flashupdate.getinfofileerror ka Info nidd lade
 flashupdate.getupdatefile lade Öpdate
 flashupdate.getupdatefileerror ka Öpdate nidd lade
-flashupdate.globalprogress G'samtstatus:
 flashupdate.head Aktualisierig
 flashupdate.md5check Imagepruefig
 flashupdate.md5sumerror Des Image isch fehlerhaft
 flashupdate.msgbox S'het folgendi neui Images:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWillsch die neui Version jetz abelade\nund installiere?
-flashupdate.msgbox_manual S'het s'folgend neu Image:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWillsch die neui Version jetz installiere?
 flashupdate.mtdselector Partitions-Usswahl
 flashupdate.programmingflash programmier grad s'Fläsh
 flashupdate.proxypassword Passwort
@@ -303,13 +301,11 @@ infoviewer.motor_moving Antennepositionierig
 infoviewer.nocurrent Kei Info zuem laufende Programm
 infoviewer.noepg Kei EPG-Information verfuigbar
 infoviewer.notavailable Kanal (zur Zit) nidd verfieegbar
-infoviewer.selecttime Startzite
 infoviewer.streaminfo Fiitschrs
 infoviewer.subservice Bildregie
 infoviewer.waittime Wart' uff'd Uhrzeit...
 ipsetup.hint_1 Nimm  0..9 odder abe/uffe
 ipsetup.hint_2 OK speichert, Home bricht ab
-keybindingmenu.RC Fernbedienig
 keybindingmenu.addrecord Uffnahme-Timer d'züfüge
 keybindingmenu.addrecord_head Uffnahme-Timer d'züfüge
 keybindingmenu.addremind Umschald-Timer d'züfüge
@@ -620,18 +616,12 @@ timerlist.weekdays Wuchedaag
 timerlist.weekdays.hint_1 Mä Ts Mi Du Fr Sa Su
 timerlist.weekdays.hint_2 'X'=Timer '-' kei Timer
 timersettings.record_safety_time_after Uffnahmeänd-Korrekdur
-timersettings.record_safety_time_after.hint_1 Korrekdurzit in Min. (00=aus), die uff'd End-
-timersettings.record_safety_time_after.hint_2 zit vom jewilige Timer dezuezellt wird
 timersettings.record_safety_time_before Uffnahmestart-Korrekdur
-timersettings.record_safety_time_before.hint_1 Korregdurzit in Min. (00=aus), die bim Start
-timersettings.record_safety_time_before.hint_2 vom jewilige Timer abzoge wärde
 timersettings.separator Timeriischdellige
 timing.chanlist Kanallischde
 timing.epg Epg
 timing.filebrowser Filebrowser
 timing.head OSD Timeouts
-timing.hint_1 Iinbländzit in Sek., di's OSD
-timing.hint_2 uffem TV a'zeigt wird
 timing.infobar Infobar
 timing.menu Menu
 videomenu.csync Sync.-Korrektur

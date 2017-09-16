@@ -228,12 +228,10 @@ flashupdate.getinfofile hoi grod de Versionsinfo
 flashupdate.getinfofileerror find nix
 flashupdate.getupdatefile Update werd glon
 flashupdate.getupdatefileerror kon des Update ned lon
-flashupdate.globalprogress Ois:
 flashupdate.head Aktualisiern
 flashupdate.md5check Image obchecken
 flashupdate.md5sumerror Des Image is hi
 flashupdate.msgbox Des Image hob i gfundn:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWoins des Image runterlon \nund installiern?
-flashupdate.msgbox_manual A neas Image hob i gfundn:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWoins des instaliern?
 flashupdate.mtdselector Partition auswähn
 flashupdate.programmingflash programmier des Flash
 flashupdate.proxypassword Passwort
@@ -300,13 +298,11 @@ infoviewer.motor_moving Antennenpositionierung
 infoviewer.nocurrent Koa Information zum Programm
 infoviewer.noepg Koa EPG do
 infoviewer.notavailable Senda grod ned do
-infoviewer.selecttime Ofangszeitn
 infoviewer.streaminfo Spuizeig
 infoviewer.subservice Bildregie
 infoviewer.waittime Wart no aufd Uhrzeit...
 ipsetup.hint_1 Nemmas 0...9 oda auffi oda obe
 ipsetup.hint_2 Mit OK speichan, mit HOME obbrecha
-keybindingmenu.RC Fernbedienung
 keybindingmenu.addrecord neie Aufnahm
 keybindingmenu.addrecord_head neie Aufnahm
 keybindingmenu.addremind neia Umschoittermin	
@@ -606,18 +602,12 @@ timerlist.weekdays Wochentog
 timerlist.weekdays.hint_1 Mo Die Mi Do Fr Sa So
 timerlist.weekdays.hint_2 'X'=Timer '-' koa Timer
 timersettings.record_safety_time_after Aufnahmeend Korretua
-timersettings.record_safety_time_after.hint_1 Korrekturzeid in Minutn (00=aus), de aufd
-timersettings.record_safety_time_after.hint_2 Endzeid vom jeweilign Timer aufigrechent werd
 timersettings.record_safety_time_before Aufnemma - Korrekturzeid
-timersettings.record_safety_time_before.hint_1 De Zeid in Minutn (00=aus) werd beim Startn
-timersettings.record_safety_time_before.hint_2 vom Timer obzogn
 timersettings.separator Timer Eistellunga
 timing.chanlist Kanalliste
 timing.epg Epg
 timing.filebrowser Filebrausa
 timing.head OSD Timeouts
-timing.hint_1 Einblendzeit in Sek., die das OSD
-timing.hint_2 auf dem TV angezeigt wird
 timing.infobar Infobar
 timing.menu Menu
 videomenu.csync Sync.-Korrigiern

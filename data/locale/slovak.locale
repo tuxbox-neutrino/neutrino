@@ -314,9 +314,6 @@ colorchooser.alpha Priehľadnosť
 colorchooser.blue Modrý
 colorchooser.green Zelený
 colorchooser.red Červený
-colorchooser.save Uložiť
-colormenu.advanced_mode_off Predvolené hodnoty
-colormenu.advanced_mode_on Rozšírené voľby
 colormenu.background Pozadie
 colormenu.clock_textcolor Farba číslic
 colormenu.fade Miznúce menu
@@ -408,7 +405,6 @@ eventlistbar.channelswitch Prepnúť
 eventlistbar.eventsort Triediť
 eventlistbar.recordevent Nahrať
 extra.add_to_bouquet Pridať do buketu
-extra.audio_run_player Stlačenie AUDIO spustí prehrávač
 extra.auto_delete Automatické mazanie
 extra.auto_timeshift Automatické nahrávanie, sekundy (0 = vypnuté)
 extra.cache_txt Vyrovnávacia pamäť teletextu
@@ -452,7 +448,6 @@ extra.key_pic_size Zobrazenie formátu 4:3
 extra.key_pip_close Spustiť / Zastaviť PiP
 extra.key_pip_setup Nastavenie PiP
 extra.key_pip_swap Prehodiť PiP/Hlavný obraz
-extra.key_plugin Tlačidlo zobrazujúce doplnky
 extra.key_record Tlačidlo nahrávania
 extra.key_screenshot Tlačidlo zosnímania obrazovky
 extra.key_switchformat Ďaľšie rozlíšenie
@@ -497,7 +492,6 @@ extra.tp_delsys Systém príjmu
 extra.tp_delsys_dss DSS
 extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
-extra.tp_delsys_dvbc2 DVB-C2
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
 extra.tp_delsys_dvbt DVB-T
@@ -564,7 +558,6 @@ extra.west Západne
 extra.zap_cycle Cyklické prepínanie
 extra.zapit_fe_timeout Časový limit naladenia (1 = 10 msek)
 extra.zapit_hvoltage 18V pri točení motora
-extra.zapit_make_bouquet Vykonaj ostatné zoznamy kanálov
 extra.zapit_motor_speed Rýchlosť točenia (10 = 1st/sek)
 extra.zapit_scanpids Vyhľadať a použiť PIDy (Packet Identifier)
 extra.zapit_sdt_changed Kanály zmenené, načítavanie nastavenia...
@@ -635,7 +628,6 @@ flashupdate.getinfofile Získavanie informácie o verzii
 flashupdate.getinfofileerror Nie je možné zistiť verziu aktualizácie!
 flashupdate.getupdatefile Získavanie aktualizácie
 flashupdate.getupdatefileerror Aktualizácia nie je možná!
-flashupdate.globalprogress Celkový postup:
 flashupdate.head Aktualizácia softvéru
 flashupdate.install_image Aktualizovať stiahnutý softvér?
 flashupdate.install_package Nainštalovať stiahnutý balík?
@@ -647,7 +639,6 @@ flashupdate.mkfs_create_image Vytvoriť zálohu
 flashupdate.mkfs_preparing_files Pripraviť súbory a zložky
 flashupdate.mkfs_using_sumtool Použiť "sumtool"
 flashupdate.msgbox Nájdená nová verzia:\nDátum: %s, %s\nZákladný Image: %s\nTyp: %s\n\nChcete stiahnúť a nainštalovať\ntúto verziu?
-flashupdate.msgbox_manual Nájdená nová verzia:\nDátum: %s, %s\nZákladný Image: %s\nTyp Image: %s\n\nChcete nainštalovať\ntúto verziu?
 flashupdate.mtdselector Výber partície
 flashupdate.namemode1 Názov súboru nastavení
 flashupdate.namemode1_default <Org.Názov>+settings.img
@@ -695,7 +686,6 @@ flashupdate.update_with_settings_del_skipped Zložka [%s] nebola vymazaná. Zada
 flashupdate.update_with_settings_error Chyba FLASH pamäte!\n \nNový IMAGE má len %ld KB (ostáva %ld KB) do konca. \nnedostatok miesta pre dokončenie operácie.\n \nOperácia prerušená!
 flashupdate.update_with_settings_processed IMAGE sa spracováva...
 flashupdate.update_with_settings_skipped Zložka [%s] nebola uložená. Zadanie je prerušené.
-flashupdate.update_with_settings_successfully Nastavenie úspešne prevzaté.\nIMAGE sa môže nahrať.
 flashupdate.update_with_settings_warning Varovanie flash pamäte!\n \nNový IMAGE má len %ld KB (ostáva %ld KB) do konca. Pravdepodobne \n je málo miesta na dokončenie operácie...\n \nSkutočne chcete pokračovať?
 flashupdate.updatemode Spôsob aktualizácie
 flashupdate.updatemode_internet Internet
@@ -768,14 +758,12 @@ hdd_60min 60 minút
 hdd_activate Použiť nastavenia
 hdd_check Kontrola súborového systému
 hdd_check_failed Chyba kontroly disku!
-hdd_check_format_bad Kontrola diskov s formátom %s nie je podporovaná.
 hdd_extended_settings Rozšírené nastavenie disku
 hdd_fast Rýchlo
 hdd_format Formátovanie HDD
 hdd_format_failed Chyba formátovania disku!
 hdd_format_warn Naozaj formátovať? Všetky dáta budú stratené!
 hdd_fs Súborový systém
-hdd_fs_unknown neznámy
 hdd_manage Spravovanie HDD
 hdd_middle Stredne
 hdd_mount Pripojenie
@@ -784,7 +772,6 @@ hdd_mount_ok Zariadenie pripravené k používaniu.
 hdd_mount_umount Pripojenie/Odpojenie
 hdd_noise Hlučnosť (AAM)
 hdd_not_found Disk nenájdený
-hdd_removable_device Odstrániteľné zariadenie
 hdd_set_recdir Použiť zariadenie k nahrávaniu?
 hdd_settings Nastavenie HDD / USB
 hdd_sleep Čas uspania / vypnutia
@@ -817,13 +804,11 @@ infoviewer.nocurrent Nedostupné informácie pre aktuálny program
 infoviewer.noepg EPG je nedostupné
 infoviewer.notavailable Kanál (teraz) nedostupný
 infoviewer.now Teraz
-infoviewer.selecttime Časy začatia
 infoviewer.subchan_disp_pos Zobrazenie podkanálov
 infoviewer.subchan_infobar Infolišta
 infoviewer.waittime Načítavanie času...
 ipsetup.hint_1 Použi 0...9 alebo klávesy NAHOR/NADOL
 ipsetup.hint_2 OK = uloženie, EXIT = zrušenie
-keybindingmenu.RC Nastavenie ovládača
 keybindingmenu.addrecord Pridať časovač nahrávania
 keybindingmenu.addremind Pridať časovač prepnutia
 keybindingmenu.allchannels_on_ok Všetky kanály
@@ -972,7 +957,6 @@ menu.cancel Zrušiť
 menu.hint_a_pic Nastavenie prehrávača hudby, prehliadača obrázkov, WebTV, TS, YouTube
 menu.hint_adzap Automatické prepnutie prepne späť na aktuálny kanál ak uplynie zvolený čas
 menu.hint_adzap_active Automatické prepnutie je aktívne. Novým prepnutím bude deaktivované.
-menu.hint_adzap_setup Nastavenia služby automatického prepnutia
 menu.hint_adzap_writedata Zapísanie dát na základe stavu funkcie automatického prepnutia do zložky /tmp/adzap.data
 menu.hint_aplay Prehrávanie zvukových súborov
 menu.hint_aplay_setup Zmena zobrazenia titulu, predvolená zložka, šetrič obrazovky a ďaľšie
@@ -1114,7 +1098,6 @@ menu.hint_infoclock_setup Konfigurácia GUI nastavení informačných hodín
 menu.hint_keep_numbers Zachovať čísla kanálov po nasledujúcom vyhľadávaní\na úprave buketov
 menu.hint_key_addrecord Priradenie klávesy pre pridanie nahrávania časovača\nz programového sprievodcu
 menu.hint_key_addremind Priradenie klávesy pre pridanie prepnutia časovača\nz programového sprievodcu
-menu.hint_key_audio áno: 'AUDIO' kláves spustí zobrazenie prehrávania \nnie: 'AUDIO' kláves zobrazí výber zvuku
 menu.hint_key_binding Predefinovanie kláves použitých pre príkazové operácie
 menu.hint_key_bouquetdown Pridelenie klávesy pre zmenu zoznamu kanálov\ndo predchádzajúceho buketu
 menu.hint_key_bouquetup Pridelenie klávesy pre zmenu zoznamu kanálov\ndo nasledujúceho buketu
@@ -1149,8 +1132,6 @@ menu.hint_key_pic_mode_active Povolenie/zakázanie klávesy pre zmenu formátu o
 menu.hint_key_pic_size_active Povolenie/zakázanie klávesy pre zmenu správneho zobrazenia 4:3
 menu.hint_key_pip_close Priradenie klávesy pre ukončenie  PiP\nalebo spustenia ho na aktuálnom kanály
 menu.hint_key_pip_setup Priradenie klávesy pre konfiguráciu PiP
-menu.hint_key_pip_swap Priradenie klávesy pre zmenu PiP a živého kanálu
-menu.hint_key_plugin Priradenie klávesy pre vykonanie jedného vyskúšania doplnku
 menu.hint_key_poweroff Priradenie klávesy pre zmenu stavu napájania\n (pohotovostný režim/vypnutie <-> práca)
 menu.hint_key_quickzap Konfigurácia klávesových skratiek pre rýchlu\nzmenu kanálu
 menu.hint_key_record Priradenie klávesy pre spustenie nahrávania
@@ -1570,7 +1551,6 @@ miscsettings.infobar_show_tuner Zobraziť aktívny tuner
 miscsettings.infoclock Informačné hodiny
 miscsettings.onlineservices Online služby
 miscsettings.progressbar Ukazateľ
-miscsettings.progressbar_color Farba
 miscsettings.progressbar_design Vzhľad
 miscsettings.progressbar_design_0 body
 miscsettings.progressbar_design_1 zvyslé pruhy
@@ -1680,7 +1660,6 @@ moviebrowser.edit_book_pos_info2 ????
 moviebrowser.edit_book_type_info1 Zadanie novej dĺžky skoku
 moviebrowser.edit_book_type_info2 <0 vzad , >0 vpred, 0: nikde
 moviebrowser.edit_serie Zadanie názvu série
-moviebrowser.error_no_movies Nenájdené filmy
 moviebrowser.filter_off Filter vyp
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Prepnúť okno
@@ -1750,7 +1729,6 @@ moviebrowser.menu_copy_several Kopírovať a rozdeliť film
 moviebrowser.menu_cut Vystrihnúť film
 moviebrowser.menu_cut_head Kopírovať, vystrihnúť a skrátiť
 moviebrowser.menu_directories_head Zložky
-moviebrowser.menu_help_head Nápoveda
 moviebrowser.menu_main_bookmarks Záložky
 moviebrowser.menu_main_head Nastavenia
 moviebrowser.menu_nfs_head Nastavenia NFS
@@ -1817,7 +1795,6 @@ moviebrowser.yt_max_history Maximálna veľkosť hľadania histórie
 moviebrowser.yt_max_results Maximálny počet výsledkov
 moviebrowser.yt_most_popular Najpopulárnejšie dnes
 moviebrowser.yt_most_popular_all_time Najpopulárnejšie
-moviebrowser.yt_next_results Ďalšie výsledky
 moviebrowser.yt_orderby Triediť podľa
 moviebrowser.yt_orderby.published dátum zverejnenia
 moviebrowser.yt_orderby.rating obľúbenosť
@@ -1825,8 +1802,6 @@ moviebrowser.yt_orderby.relevance závažnosť
 moviebrowser.yt_orderby.viewcount sledovanosť
 moviebrowser.yt_pending Čakajúce sťahovania
 moviebrowser.yt_pref_quality Preferovaná kvalita
-moviebrowser.yt_prev_results Predchádzájúce výsledky
-moviebrowser.yt_recently_featured Nedávno odporúčané
 moviebrowser.yt_region Región
 moviebrowser.yt_related Podobné videá
 moviebrowser.yt_search Hľadať slovo
@@ -2017,7 +1992,6 @@ personalize.pinprotect Áno
 personalize.pinstatus -vyžaduje sa PIN
 personalize.plugins Doplnky
 personalize.usermenu_plugin_types Výber Doplnku pre zobrazenie
-personalize.usermenu_preferred_buttons Priradenie preferovaných kláves
 personalize.usermenu_show_cancel Zobraziť klávesu "Zrušiť"
 personalize.visible Viditeľné
 pictureviewer.defdir Predvolená zložka
@@ -2170,11 +2144,6 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd len SD
 satsetup.fastscan_type Typ prehľadávania
 satsetup.fastscan_update Automatická aktualizácia
-satsetup.fe_delsys_mode Režim odbavovacieho systému
-satsetup.fe_delsys_mode_auto Auto
-satsetup.fe_delsys_mode_cable Kábel
-satsetup.fe_delsys_mode_sat Družica
-satsetup.fe_delsys_mode_terrestrial Pozemne
 satsetup.fe_mode Mód tuneru
 satsetup.fe_mode_independent Nezávislý
 satsetup.fe_mode_link_loop Prepojený [loop]
@@ -2239,7 +2208,6 @@ scants.numberofradioservices Rádio
 scants.numberoftotalservices Celkom
 scants.numberoftvservices TV
 scants.preverences_receiving_system Nastavenia
-scants.preverences_scan Mód hľadania
 scants.provider Poskytovateľ:
 scants.select_tp Výber transpondéru
 scants.startnow Spustiť prehľadávanie
@@ -2404,17 +2372,11 @@ timerlist.weekdays.hint_1 Po Ut St Št Pi So Ne
 timerlist.weekdays.hint_2 'X'=plánované '-' neplánované
 timersettings.followscreenings Ukázať výber vysielania
 timersettings.record_safety_time_after Korekcia času ukončenia nahrávania
-timersettings.record_safety_time_after.hint_1 Čas v min. (00=vypnuté), ktorý bude pripočítaný
-timersettings.record_safety_time_after.hint_2 po ukončení daného plánu
 timersettings.record_safety_time_before Korekcia času začiatku nahrávania
-timersettings.record_safety_time_before.hint_1 Čass v min. (00=vypnuté), ktorý bude odpočítaný
-timersettings.record_safety_time_before.hint_2 pri spustení daného plánu
 timersettings.separator Nastavenie časovača
 timing.chanlist Zoznam kanálov
 timing.epg EPG
 timing.filebrowser Prehliadač súborov
-timing.hint_1 Čas zobrazenia OSD
-timing.hint_2 na obrazovke TV (v sekundách)
 timing.infobar Stavový riadok
 timing.infobar_movieplayer Stavový riadok (filmový mód)
 timing.infobar_radio Stavový riadok (rádio mód)
@@ -2454,7 +2416,6 @@ usermenu.items Položky menu
 usermenu.key Klávesa
 usermenu.key_select Priradená klávesa
 usermenu.msg_info_is_empty Nenadefinovaný názov pre toto menu!\nPoužije sa prednastavený názov:\n
-usermenu.msg_warning_name Máte viac ako jednu položku vytvorenú pre toto menu,\nale žiadny definovaný nový názov pro toto menu.\nDoporučujem vytvoriť nový názov!
 usermenu.msg_warning_no_items Nedefinované žiadne položky!\nZresetovaný názov menu!
 usermenu.name Názov
 usermenu.title_blue Možnosti
@@ -2510,8 +2471,6 @@ videomenu.sdosd SD OSD
 videomenu.sharpness Ostrosť
 videomenu.tv-scart TV SCART
 videomenu.vcrsignal Typ signálu VCR výstupu
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Formát obrazu
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

@@ -283,7 +283,6 @@ eventlistbar.channelswitch Emlékeztető
 eventlistbar.eventsort Rendezés
 eventlistbar.recordevent Felvétel
 extra.add_to_bouquet Másolás csomagba
-extra.audio_run_player Audio gomb indítja a zenelejátszót
 extra.auto automatikus
 extra.auto_delete Automatikus törlés
 extra.auto_timeshift Automatikus felvétel, mp (0 = ki)
@@ -353,7 +352,6 @@ extra.hdd_sleep Elalvási idő
 extra.hdd_slow lassú
 extra.key_list_end Vége
 extra.key_list_start Eleje
-extra.key_plugin One touch plugin
 extra.key_timeshift Időeltolás
 extra.key_unlock Távvezérlő nyitás
 extra.ladirection Pozíció
@@ -407,7 +405,6 @@ extra.zapit_backup Backup channels to /tmp
 extra.zapit_delete Delete channels
 extra.zapit_fe_timeout Hangolásra várakozás (1 = 100 msec)
 extra.zapit_hvoltage Emelt fejfeszültség forgatáskor
-extra.zapit_make_bouquet Csomagokon kívüli csatornák
 extra.zapit_menu Zapit beállítások
 extra.zapit_motor_speed Motor sebessége
 extra.zapit_restore Restore channels from /tmp
@@ -462,12 +459,10 @@ flashupdate.getinfofile verzióinformáció lekérdezése
 flashupdate.getinfofileerror verzióinformáció lekérdezése sikertelen
 flashupdate.getupdatefile frissítés letöltése
 flashupdate.getupdatefileerror a letöltés sikertelen
-flashupdate.globalprogress Teljes folyamat
 flashupdate.head Szoftverfrissítés
 flashupdate.md5check image ellenőrzése
 flashupdate.md5sumerror az image hibás
 flashupdate.msgbox A következő image elérhető:\ndátum: %s, %s\nalap image: %s\nimage típus: %s\n\nKívánja letölteni és installálni ezt a verziót?
-flashupdate.msgbox_manual A következő image elérhető:\ndátum: %s, %s\nalap image: %s\nimage típus: %s\n\nKívánja installálni ezt a verziót?
 flashupdate.mtdselector Partíció kiválasztása
 flashupdate.programmingflash Flash programozása
 flashupdate.proxypassword Jelszó
@@ -572,14 +567,12 @@ infoviewer.nocurrent Nincs elérhető információ a műsorról
 infoviewer.noepg Műsorinformáció nem elérhető
 infoviewer.notavailable Csatorna nem elérhető
 infoviewer.now Most
-infoviewer.selecttime Időpont
 infoviewer.streaminfo Extrák
 infoviewer.subchan_disp_pos Alcsatorna kijelző
 infoviewer.subservice Alcsatornák
 infoviewer.waittime Várakozás az időre...
 ipsetup.hint_1 0..9, vagy fel/le,
 ipsetup.hint_2 OK: mentés, LAME/EXIT: mégsem
-keybindingmenu.RC Ismétlésgátló
 keybindingmenu.addrecord Felvételre kijelöl
 keybindingmenu.addremind Emlékeztető
 keybindingmenu.allchannels_on_ok minden csatorna
@@ -752,7 +745,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
-moviebrowser.error_no_movies No movies found
 moviebrowser.foot_filter Szűrés: 
 moviebrowser.foot_play Lejátszás
 moviebrowser.foot_sort Rendezés: 
@@ -797,7 +789,6 @@ moviebrowser.last_play_max_items Lejátszás előzmények
 moviebrowser.last_record_max_items Felvétel előzmények
 moviebrowser.load_default Alapértelmezett értékek
 moviebrowser.menu_directories_head Útvonalak
-moviebrowser.menu_help_head Segítség
 moviebrowser.menu_main_bookmarks Könyvjelzők
 moviebrowser.menu_main_head Beállítások
 moviebrowser.menu_main_movieinfo Movie info
@@ -1186,18 +1177,12 @@ timerlist.weekdays A hét napjai
 timerlist.weekdays.hint_1 H K SZ CS P SZ V
 timerlist.weekdays.hint_2 igen:X, nem:-
 timersettings.record_safety_time_after Vége időpont korrekció
-timersettings.record_safety_time_after.hint_1 korrigálás ideje percben (00=ki)
-timersettings.record_safety_time_after.hint_2 ez az idő hozzáadódik a vége időponthoz
 timersettings.record_safety_time_before Kezdési időpont korrekció
-timersettings.record_safety_time_before.hint_1 korrigálás ideje percben (00=ki)
-timersettings.record_safety_time_before.hint_2 ez az idő levonódik a kezdési időpontból
 timersettings.separator Időzítő beállítások
 timing.chanlist Csatornalista
 timing.epg Műsorújság
 timing.filebrowser Fájlböngésző
 timing.head OSD időtartam
-timing.hint_1 Time in sec. After this time the
-timing.hint_2 infobar will be faded out.
 timing.infobar Infósor
 timing.menu Menü
 timing.numericzap Számszerinti csatornaváltás
@@ -1237,8 +1222,6 @@ videomenu.panscan2 14:9 panscan
 videomenu.screensetup Képernyő pozícionálás
 videomenu.tv-scart Kimenetek
 videomenu.vcrsignal VCR Output Signal Type
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Formátum
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

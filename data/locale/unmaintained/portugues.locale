@@ -234,7 +234,6 @@ extra.add_to_bouquet Adicionar ao Bouquet
 extra.algo Algo pids
 extra.all Todas
 extra.all_keys Todas as Chaves
-extra.audio_run_player Audio key start player
 extra.auto Auto
 extra.auto_delete Auto-delete
 extra.auto_timeshift Auto-record, sec (0 = disable)
@@ -303,7 +302,6 @@ extra.hdd_sleep Desligar HDD em
 extra.hdd_slow Lento
 extra.key_list_end final
 extra.key_list_start início
-extra.key_plugin One touch plugin
 extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.keyfolder Key dir
@@ -381,7 +379,6 @@ extra.zapit_backup Backup channels to /tmp
 extra.zapit_delete Delete channels
 extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage High (13.5/18.5) voltage
-extra.zapit_make_bouquet Realizar lista com canais restantes
 extra.zapit_menu Zapit options
 extra.zapit_motor_speed Velocidade do movimento do motor (10 = 1deg/sec)
 extra.zapit_restore Restore channels from /tmp
@@ -435,12 +432,10 @@ flashupdate.getinfofile recolhendo informação sobre a versão
 flashupdate.getinfofileerror não é possível verificar informação sobre a versão
 flashupdate.getupdatefile recebendo a actualização
 flashupdate.getupdatefileerror não é possível realizar a actualização
-flashupdate.globalprogress Progresso:
 flashupdate.head Actualização de Software
 flashupdate.md5check verificando a integridade da imagem
 flashupdate.md5sumerror imagem contem erros!
 flashupdate.msgbox Encontrada a seguinte nova file:\nData: %s, %s\nBaseada na imagem: %s\nTipo: %s\n\nDeseja realizar download e instalar esta versão agora?
-flashupdate.msgbox_manual Encontrada a seguinte nova imagem:\nData: %s, %s\nImagem de base: %s\nTipo de imagem: %s\n\nDeseja instalar esta versão agora?
 flashupdate.mtdselector Partition-Selector
 flashupdate.programmingflash a programar a flash
 flashupdate.proxypassword Password
@@ -518,14 +513,12 @@ infoviewer.motor_moving Movendo a antena
 infoviewer.nocurrent Sem informação disponível para o seguinte programa
 infoviewer.noepg EPG não disponível
 infoviewer.notavailable Canal não disponível
-infoviewer.selecttime Timeselection
 infoviewer.streaminfo Características
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subservice Sub serviços
 infoviewer.waittime Esperando pela hora...
 ipsetup.hint_1 Use 0..9, ou use Cima/Baixo,
 ipsetup.hint_2 OK guardar, HOME cancelar
-keybindingmenu.RC Intervalo de repetição para a mesma tecla
 keybindingmenu.addrecord adicionar programação de gravação
 keybindingmenu.addremind adicionar programação de evento
 keybindingmenu.allchannels_on_ok todos os serviços
@@ -646,7 +639,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
-moviebrowser.error_no_movies No movies found
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_play Start movie
 moviebrowser.foot_sort Sort:
@@ -691,7 +683,6 @@ moviebrowser.last_play_max_items Number of lines last play
 moviebrowser.last_record_max_items Number of lines last record
 moviebrowser.load_default Load default settings
 moviebrowser.menu_directories_head Paths
-moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Settings
 moviebrowser.menu_main_movieinfo Movie info
@@ -1030,18 +1021,12 @@ timerlist.weekdays Dias da Semana
 timerlist.weekdays.hint_1 Seg Ter Qua Qui Sex Sáb Dom
 timerlist.weekdays.hint_2 'X'=tempo '-' no timer
 timersettings.record_safety_time_after Correcção da hora para final de gravação
-timersettings.record_safety_time_after.hint_1 Correcção da duração em min. (00=off). Este tempo
-timersettings.record_safety_time_after.hint_2 será adicionado ao tempo de parar gravação para todas as programações.
 timersettings.record_safety_time_before Correcção da hora de início de gravação
-timersettings.record_safety_time_before.hint_1 Correcção da hora de início de gravação em min. (00=off). Este tempo
-timersettings.record_safety_time_before.hint_2 será incrementado ao início de todas as gravações programadas.
 timersettings.separator Ajustamentos da programação de gravações
 timing.chanlist Lista de Canais
 timing.epg Epg
 timing.filebrowser Modo Ficheiros
 timing.head Duração de OSD
-timing.hint_1 Time in sec. Após
-timing.hint_2 a barra de informação irá desaparecer
 timing.infobar Barra de informação
 timing.menu Menu
 timing.numericzap Numeric Zap
@@ -1049,8 +1034,6 @@ videomenu.csync Correcção sincronismo
 videomenu.screensetup Configurar o ecrã
 videomenu.tv-scart TV Scart
 videomenu.vcrsignal VCR Output Signal Type
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Formato
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)

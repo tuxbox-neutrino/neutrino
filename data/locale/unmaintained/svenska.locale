@@ -283,12 +283,10 @@ flashupdate.getinfofile hämtar versionsinfo
 flashupdate.getinfofileerror kan inte hämta versionsinfo
 flashupdate.getupdatefile hämtar uppdatering
 flashupdate.getupdatefileerror kan inte hämta uppdatering
-flashupdate.globalprogress Global progress:
 flashupdate.head Uppdatering av mjukvara
 flashupdate.md5check undersöker image
 flashupdate.md5sumerror image innehåller fel
 flashupdate.msgbox Hittade följande ny image:\nDatum: %s, %s\nBasimage: %s\nImagetyp: %s\n\nVill du hämta och installera denna version nu?
-flashupdate.msgbox_manual Hittade följande ny image:\nDatum: %s, %s\nBasimage: %s\nImagetyp: %s\n\nVill du installera denna version nu?
 flashupdate.mtdselector Partitionsväljare
 flashupdate.programmingflash programmerar flash
 flashupdate.proxypassword Lösenord
@@ -368,14 +366,12 @@ infoviewer.motor_moving Antennposition
 infoviewer.nocurrent Ingen info för nuvarande program tillgänglig
 infoviewer.noepg EPG inte tillgänglig
 infoviewer.notavailable Kanal inte tillgänglig
-infoviewer.selecttime Tidsval
 infoviewer.streaminfo Innehåller
 infoviewer.subchan_disp_pos Underkanal visning
 infoviewer.subservice Underkanaler
 infoviewer.waittime Väntar på tid...
 ipsetup.hint_1 Använd 0..9, eller använd Up/Ned,
 ipsetup.hint_2 OK sparar, Home avbryter
-keybindingmenu.RC Blockera knapprepetering
 keybindingmenu.addrecord lägg till inspelningstimer
 keybindingmenu.addrecord_head lägg till inspelningstimer
 keybindingmenu.addremind lägg till zaptotimer
@@ -784,18 +780,12 @@ timerlist.weekdays Dagar i veckan
 timerlist.weekdays.hint_1 Må Ti On To Fr Lö Sö
 timerlist.weekdays.hint_2 'X'=timer '-' ingen timer
 timersettings.record_safety_time_after Justera stopptid för inspelning
-timersettings.record_safety_time_after.hint_1 Justeringstid i min. (00=av). Denna tid
-timersettings.record_safety_time_after.hint_2 kommer att läggas på stopptiden för varje inspelningstimer.
 timersettings.record_safety_time_before Justering av starttid för inspelning
-timersettings.record_safety_time_before.hint_1 Justeringstid i min. (00=av). Denna tid
-timersettings.record_safety_time_before.hint_2 kommer att dras av för varje inspelningstimer.
 timersettings.separator Timerinställningar
 timing.chanlist Kanallista
 timing.epg Epg
 timing.filebrowser Filväljaren
 timing.head OSD Timeouter
-timing.hint_1 Tid i sek. Efter denna tid kommer
-timing.hint_2 Infobalken att försvinna sakta.
 timing.infobar Infobalk
 timing.infobar_radio Infobalk/Radio
 timing.menu Meny

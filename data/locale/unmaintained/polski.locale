@@ -364,7 +364,6 @@ eventlistbar.channelswitch Przełącz
 eventlistbar.eventsort Sortuj
 eventlistbar.recordevent Nagraj
 extra.add_to_bouquet Dodaj do bukietu
-extra.audio_run_player Przycisk audio rozpoczyna odtwarzanie
 extra.auto_delete Kasowanie plików tymczasowych
 extra.auto_timeshift Timeshift po (s, 0-wył)
 extra.cache_txt Buforowanie teletekstu
@@ -408,7 +407,6 @@ extra.key_pic_size Tryb 4:3
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Konfiguracja PiP
 extra.key_pip_swap Swap PiP/live
-extra.key_plugin Przycisk wywołujący plugin
 extra.key_record Nagrywanie
 extra.key_screenshot Zrzut ekranu
 extra.key_switchformat Następna rozdzielczość
@@ -452,7 +450,6 @@ extra.tp_delsys System odbierania
 extra.tp_delsys_dss DSS
 extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
-extra.tp_delsys_dvbc2 DVB-C2
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
 extra.tp_delsys_dvbt DVB-T
@@ -519,7 +516,6 @@ extra.west Zachód
 extra.zap_cycle Wyłącz historię programów
 extra.zapit_fe_timeout Przekroczony czas
 extra.zapit_hvoltage Podwyższone napięcie (13.5/18.5)
-extra.zapit_make_bouquet Wykonaj pozostałe listy kanałów
 extra.zapit_motor_speed Prędkość obrotnicy (10=1°/sec)
 extra.zapit_scanpids PID
 extra.zapit_sdt_changed Zmieniono kanały, przeładuj ustawienia.
@@ -588,7 +584,6 @@ flashupdate.getinfofile Pobieranie listy aktualizacji
 flashupdate.getinfofileerror Nie można pobrać listy aktualizacji
 flashupdate.getupdatefile Pobieranie aktualizacji
 flashupdate.getupdatefileerror Nie można pobrać aktualizacji
-flashupdate.globalprogress Postęp całkowity
 flashupdate.head Aktualizacja
 flashupdate.md5check Sprawdzanie sumy kontrolnej
 flashupdate.md5sumerror Nieprawidłowa suma kontrolna
@@ -598,7 +593,6 @@ flashupdate.mkfs_create_image Tworzenie image
 flashupdate.mkfs_preparing_files Przygotowanie plików i katalogów
 flashupdate.mkfs_using_sumtool Używaj narzędzia do sumy
 flashupdate.msgbox Dane wybranej aktualizacji:\nData: %s, %s\nWymagana wersja oprogramowania: %s\nTyp: %s\n\nPobrać i zainstalować wybraną aktualizację?
-flashupdate.msgbox_manual Dane wybranej aktualizacji:\nData: %s, %s\nWymagana wersja oprogramowania: %s\nTyp: %s\n\nZainstalować wybraną aktualizację?
 flashupdate.mtdselector Wybór partycji
 flashupdate.namemode1 Nazwa pliku z ustawieniami
 flashupdate.namemode1_default <org.name>+settings.img
@@ -637,7 +631,6 @@ flashupdate.update_with_settings_del_skipped Folder [%s] nie może być usunięt
 flashupdate.update_with_settings_error Błąd zapisu!\n \nNowe image ma %ld KB (out of %ld KB). Nie\nma wystarczająco dużo miejsca, aby zakończyć tę operację.\n \nOperacja anulowana!
 flashupdate.update_with_settings_processed Trwa przetwarzanie image...
 flashupdate.update_with_settings_skipped Folder [%s] nie może być zapisany. Wpis zostanie pominięty.
-flashupdate.update_with_settings_successfully Ustawienia zakończone powodzeniem.\nMożliwy zapis image.
 flashupdate.update_with_settings_warning Ostrzeżenie przed zapisem!\n \nNowe image ma %ld KB (out of %ld KB). Prawdopodobnie nie\nma wystarczająco dużo miejsca, aby zakończyć tę operację...\n \nCzy na pewno chcesz kontynuować?
 flashupdate.updatemode Rodzaj aktualizacji
 flashupdate.updatemode_internet automatyczna (Internet)
@@ -694,14 +687,12 @@ hdd_60min po 60 min.
 hdd_activate Aktywacja ustawień
 hdd_check Test systemu plików
 hdd_check_failed Błąd, sprawdzanie dysku nie powiodło się!
-hdd_check_format_bad Sprawdzanie dysków w formacie %s nie jest obsługiwane.
 hdd_extended_settings Ustawienia dysku
 hdd_fast minimalne
 hdd_format Tworzenie systemu plików (ext3)
 hdd_format_failed Błąd podczas tworzenia systemu plików!
 hdd_format_warn Na pewno utworzyć nowy system plików?\nWszystkie dane zostaną utracone!
 hdd_fs System plików
-hdd_fs_unknown nieznany
 hdd_manage Zarządzanie
 hdd_middle średnie
 hdd_mount Zamontuj
@@ -710,7 +701,6 @@ hdd_mount_ok Urządzenie gotowe do użycia
 hdd_mount_umount Zamontuj/odmontuj dyski
 hdd_noise Wyciszenie
 hdd_not_found Brak dysku twardego
-hdd_removable_device Przenośna pamięć flash
 hdd_set_recdir Użyć tego urządzenia do nagrań?
 hdd_settings Dysk twardy
 hdd_sleep Stan gotowości
@@ -743,7 +733,6 @@ infoviewer.nocurrent Brak informacji o bieżącym programie
 infoviewer.noepg Informacje EPG są niedostępne
 infoviewer.notavailable Kanał (obecnie) niedostępny.
 infoviewer.now Obecnie
-infoviewer.selecttime Czasy rozpoczęcia
 infoviewer.streaminfo Funkcje
 infoviewer.subchan_disp_pos Wyświetlanie podkanałów
 infoviewer.subchan_infobar Pełny pasek informacyjny
@@ -751,7 +740,6 @@ infoviewer.subservice Podkanały
 infoviewer.waittime Trwa odczytywanie godziny...
 ipsetup.hint_1 Wpisz 0-9 lub naciśnij przycisk góra/dół
 ipsetup.hint_2 OK - zapis, Exit - anuluj
-keybindingmenu.RC Ustawienia pilota
 keybindingmenu.addrecord Dodaj nagrywanie
 keybindingmenu.addremind Dodaj zmianę kanału
 keybindingmenu.allchannels_on_ok lista kanałów
@@ -1014,7 +1002,6 @@ menu.hint_infoclock_setup Configure info clock GUI options
 menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
 menu.hint_key_addrecord Assign button to add record timer\nfrom event list
 menu.hint_key_addremind Assign button to add zap timer\nfrom event list
-menu.hint_key_audio On: 'audio' button start show audio-play menu\nOff: 'audio' button show Audio selection
 menu.hint_key_binding Re-define keys used for common operations
 menu.hint_key_bouquetdown Assign button to switch channel list\nto previous bouquet
 menu.hint_key_bouquetup Assign button to switch channel list\nto next bouquet
@@ -1049,8 +1036,6 @@ menu.hint_key_pic_mode_active Disable/enable key for the screen format
 menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
 menu.hint_key_pip_setup Assign button to configure PiP
-menu.hint_key_pip_swap Assign button to swap PiP and live channel
-menu.hint_key_plugin Assign button to execute the one touch plugin
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_record Assign button to start a recording
@@ -1437,7 +1422,6 @@ miscsettings.infobar_show_sysfs_hdd Pokaż wykorzystanie pamięci i HDD
 miscsettings.infobar_show_tuner Pokaż aktywny tuner
 miscsettings.infoclock Zegar
 miscsettings.progressbar Pasek postępu
-miscsettings.progressbar_color Kolor
 miscsettings.progressbar_design Wygląd
 miscsettings.progressbar_design_0 punkty
 miscsettings.progressbar_design_1 paski pionowe
@@ -1544,7 +1528,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Wprowadź nową długość skoku
 moviebrowser.edit_book_type_info2 <0 w tył , >0 w przód, 0: brak
 moviebrowser.edit_serie Wprowadź nazwę serii
-moviebrowser.error_no_movies Nie znaleziono filmów
 moviebrowser.foot_filter Filtruj:
 moviebrowser.foot_focus Okno przełączania
 moviebrowser.foot_options Opcje
@@ -1593,7 +1576,6 @@ moviebrowser.last_play_max_items Liczba linii ostatniego odtwarzania
 moviebrowser.last_record_max_items Liczba linii ostatniego nagrania
 moviebrowser.load_default Ładuj ustawienia domyślne
 moviebrowser.menu_directories_head Katalogi
-moviebrowser.menu_help_head Pomoc
 moviebrowser.menu_main_bookmarks Zakładki
 moviebrowser.menu_main_head Ustawienia
 moviebrowser.menu_nfs_head Ustawienia NFS
@@ -1657,7 +1639,6 @@ moviebrowser.yt_max_history Maksymalny rozmiar historii wyszukiwania
 moviebrowser.yt_max_results Maksymalna ilość wyników do pobrania
 moviebrowser.yt_most_popular Najbardziej popularne dziś
 moviebrowser.yt_most_popular_all_time Najbardziej popularne
-moviebrowser.yt_next_results Następne wyniki
 moviebrowser.yt_orderby Sortuj
 moviebrowser.yt_orderby.published data publikacji
 moviebrowser.yt_orderby.rating ocena
@@ -1665,8 +1646,6 @@ moviebrowser.yt_orderby.relevance dostosowanie
 moviebrowser.yt_orderby.viewcount ilość oglądań
 moviebrowser.yt_pending Oczekiwanie na pobranie
 moviebrowser.yt_pref_quality Preferowana jakość
-moviebrowser.yt_prev_results Poprzednie wyniki
-moviebrowser.yt_recently_featured Ostatnio wyróżnione
 moviebrowser.yt_region Region
 moviebrowser.yt_related Podobne filmy
 moviebrowser.yt_search Szukaj wg słowa kluczowego
@@ -1843,7 +1822,6 @@ personalize.pinprotect Tak
 personalize.pinstatus Wymagany PIN
 personalize.plugins Pluginy
 personalize.usermenu_plugin_types Wybór typów pluginów
-personalize.usermenu_preferred_buttons Przyporządkowanie preferowanych przycisków
 personalize.usermenu_show_cancel Pokaż klawisz "Cancel"
 personalize.visible widać
 pictureviewer.defdir Katalog startowy
@@ -1982,11 +1960,6 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd tylko kanały SD
 satsetup.fastscan_type Wyszukaj
 satsetup.fastscan_update Auto update
-satsetup.fe_delsys_mode Tryb
-satsetup.fe_delsys_mode_auto Automatycznie
-satsetup.fe_delsys_mode_cable Kablówka
-satsetup.fe_delsys_mode_sat Satelita
-satsetup.fe_delsys_mode_terrestrial Naziemna
 satsetup.fe_mode Ustawienia tunera
 satsetup.fe_mode_independent Niezależny
 satsetup.fe_mode_link_loop W pętli
@@ -2051,7 +2024,6 @@ scants.numberofradioservices Radio
 scants.numberoftotalservices Ogółem
 scants.numberoftvservices TV
 scants.preverences_receiving_system Preferencje
-scants.preverences_scan Typ skanowania
 scants.provider Dostawca:
 scants.select_tp Wybierz transponder
 scants.startnow Wyszukiwanie
@@ -2207,17 +2179,11 @@ timerlist.weekdays Dni tygodnia
 timerlist.weekdays.hint_1 Pn Wt Sr Cz Pt So Ni
 timerlist.weekdays.hint_2 X aby zaznaczyć dzień.
 timersettings.record_safety_time_after Korekta zakończenia nagrania
-timersettings.record_safety_time_after.hint_1 Czas w min (00-wył), który zostanie
-timersettings.record_safety_time_after.hint_2 dodany do czasu zakończenia nagrania
 timersettings.record_safety_time_before Korekta rozpoczęcia nagrania
-timersettings.record_safety_time_before.hint_1 Czas w min (00-wył), który zostanie
-timersettings.record_safety_time_before.hint_2 odjęty od czasu rozpoczęcia nagrania
 timersettings.separator Korekta czasu nagrania
 timing.chanlist Lista kanałów
 timing.epg EPG
 timing.filebrowser Przeglądarka plików
-timing.hint_1 Czas wyświetlania OSD
-timing.hint_2 na ekranie TV (s)
 timing.infobar Belka informacyjna
 timing.infobar_movieplayer Belka informacyjna (wideo)
 timing.infobar_radio Belka informacyjna (radio)
@@ -2251,7 +2217,6 @@ usermenu.items Pozycje menu
 usermenu.key Klawisz
 usermenu.key_select Przypisz klawisz
 usermenu.msg_info_is_empty Brak zdefiniowanej nazwy dla tego menu!\nUżyj nazwy domyślnej:\n
-usermenu.msg_warning_name To menu ma więcej składników,\nale nie ma dla niego zdefiniowanej nazwy.\nZaleca się podanie nowej nazwy!
 usermenu.msg_warning_no_items Brak zdefiniowanych składników!\nKasowanie nazwy menu!
 usermenu.name Nazwa
 video_mode_ok Czy ten tryb wideo działa poprawnie?
@@ -2302,8 +2267,6 @@ videomenu.sdosd SD OSD
 videomenu.sharpness Ostrość
 videomenu.tv-scart Opcje wyświetlania obrazu
 videomenu.vcrsignal VCR Output Signal Type
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Proporcje obrazu
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

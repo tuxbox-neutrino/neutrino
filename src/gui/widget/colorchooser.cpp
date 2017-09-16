@@ -271,7 +271,7 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 
 void CColorChooser::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width, height);
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 }
 
 void CColorChooser::paint()

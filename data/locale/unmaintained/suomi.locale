@@ -283,12 +283,10 @@ flashupdate.getinfofile Versiotiedot
 flashupdate.getinfofileerror Versiotietoja ei voitu lukea
 flashupdate.getupdatefile Päivityksen haku
 flashupdate.getupdatefileerror Päivityksen hakeminen epäonnistui
-flashupdate.globalprogress Kokonaiskesto:
 flashupdate.head Ohjelmistopäivitys
 flashupdate.md5check Ohjelmiston tarkastus
 flashupdate.md5sumerror Virheellinen ohjelmisto
 flashupdate.msgbox Uusi ohjelmistoversio löydetty:\nPvm: %s, %s\nOhjelmistopohja: %s\nTyyppi: %s\n\nHaluatko asentaa tämän ohjelmistoversion?
-flashupdate.msgbox_manual Uusi ohjelmistoversio löydetty:\nPvm: %s, %s\nOhjelmistopohja: %s\nTyyppi: %s\n\nHaluatko asentaa tämän ohjelmistoversion?
 flashupdate.mtdselector Valitse osio
 flashupdate.programmingflash Flash-muistin kirjoitus
 flashupdate.proxypassword Salasana
@@ -368,14 +366,12 @@ infoviewer.motor_moving Moottori kääntyy..
 infoviewer.nocurrent Ohjelmasta ei ole tietoja saatavilla
 infoviewer.noepg EPG ei ole käytettävissä
 infoviewer.notavailable Kanava ei ole käytettävissä
-infoviewer.selecttime Aikavalinta
 infoviewer.streaminfo Lisätoim.
 infoviewer.subchan_disp_pos Alikanavan näyttö
 infoviewer.subservice Subservices
 infoviewer.waittime Waiting for time...
 ipsetup.hint_1 Käytä 0..9, tai Nuoli ylös/alas,
 ipsetup.hint_2 OK tallentaa, Home keskeyttää
-keybindingmenu.RC Kaukosäätimen näppäintoisto
 keybindingmenu.addrecord - Ajastintallennus
 keybindingmenu.addrecord_head Ajastintallennuksen näppäin
 keybindingmenu.addremind - Kanavanvaihtoajastus
@@ -503,7 +499,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
-moviebrowser.error_no_movies No movies found
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_play Start movie
 moviebrowser.foot_sort Sort:
@@ -543,7 +538,6 @@ moviebrowser.info_size File size (MB)
 moviebrowser.info_title Titel
 moviebrowser.info_videoformat Picture
 moviebrowser.menu_directories_head Paths
-moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Settings
 moviebrowser.menu_main_movieinfo Movie info
@@ -880,18 +874,12 @@ timerlist.weekdays 'X'=ajastus '-' ei ajastusta
 timerlist.weekdays.hint_1 Ma Ti Ke To Pe La Su
 timerlist.weekdays.hint_2 'X'=ajastus '-' ei ajastusta
 timersettings.record_safety_time_after Ajastuksen pidennys
-timersettings.record_safety_time_after.hint_1 Pidennysaika minuutteina (00=pois). Jokaista
-timersettings.record_safety_time_after.hint_2 tallennusta jatketaan tämän verran yliajalle.
 timersettings.record_safety_time_before Ajastuksen ennakko
-timersettings.record_safety_time_before.hint_1 Ennakkoaika minuutteina (00=pois). Jokainen
-timersettings.record_safety_time_before.hint_2 tallennus aloitetaan tämän verran etuajassa.
 timersettings.separator Ajastusasetukset
 timing.chanlist Kanavalista
 timing.epg EPG ohjelmaopas
 timing.filebrowser Tiedostoselain
 timing.head OSD-ajoitukset
-timing.hint_1 Aika sekunteina. Infopalkkia/valikkoa
-timing.hint_2 näytetään tämä aika.
 timing.infobar Infopalkki
 timing.menu Valikko
 timing.numericzap Kanavan valinta numerolla
