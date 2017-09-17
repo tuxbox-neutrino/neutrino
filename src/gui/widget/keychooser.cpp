@@ -67,9 +67,9 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	// 10 seconds to choose a new key
 	int timeout = 10;
 
-	CHintBox * hintbox = new CHintBox(name, LOCALE_KEYCHOOSER_TEXT, HINTBOX_MIN_WIDTH, NEUTRINO_ICON_SETTINGS, NEUTRINO_ICON_HINT_KEYS);
-	//hintbox->setTimeOut(timeout);
-	hintbox->paint();
+	CHintBox hintbox(name, LOCALE_KEYCHOOSER_TEXT, HINTBOX_MIN_WIDTH, NEUTRINO_ICON_SETTINGS, NEUTRINO_ICON_HINT_KEYS);
+	//hintbox.setTimeOut(timeout);
+	hintbox.paint();
 
 	CFrameBuffer::getInstance()->blit();
 
@@ -92,7 +92,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	}
 
 	g_RCInput->setLongPressAny(false);
-	hintbox->hide();
+	hintbox.hide();
 	return res;
 }
 
