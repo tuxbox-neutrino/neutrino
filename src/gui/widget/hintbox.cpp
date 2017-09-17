@@ -268,7 +268,8 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	/* pre define required info height depends of lines and minimal needed height*/
 	int line_breaks = CTextBox::getLines(Text);
 	int h_font = item_font->getHeight();
-	int h_lines = h_font * line_breaks;
+	int h_lines = h_font;
+	h_lines += h_font * line_breaks;
 
 	/* get required height depends of possible lines and max height */
 	h_hint_obj = min(HINTBOX_MAX_HEIGHT - (ccw_head ? ccw_head->getHeight() : 0), h_lines + 2*w_indentation);
