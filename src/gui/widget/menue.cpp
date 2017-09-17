@@ -69,10 +69,7 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	else
 		setIconName();
 
-	if (IconName_Info_right && *IconName_Info_right)
-		iconName_Info_right = IconName_Info_right;
-	else
-		iconName_Info_right = NULL;
+	setInfoIconRight(IconName_Info_right);
 
 	hintIcon	= NULL;
 
@@ -154,6 +151,13 @@ void CMenuItem::disableByCondition(const menu_item_disable_cond_t& condition)
 		if (!isSelectable())
 			parent_widget->initSelectable();
 	}
+}
+
+void CMenuItem::setInfoIconRight(const char * const IconName_Info_right){
+	if (IconName_Info_right && *IconName_Info_right)
+		iconName_Info_right = IconName_Info_right;
+	else
+		iconName_Info_right = NULL;
 }
 
 void CMenuItem::setMarked(const bool Marked)

@@ -197,6 +197,8 @@ class CMenuItem : public  CComponentsSignals
 		void activateNotify(void);
 		virtual void disableByCondition(const menu_item_disable_cond_t& condition);
 		void setParentWidget(CMenuWidget* parent){parent_widget = parent;}
+		void setInfoIconRight(const char * const IconName_Info_right);
+		const char* getInfoIconRight(){return iconName_Info_right;}
 };
 
 class CMenuSeparator : public CMenuItem
@@ -689,7 +691,6 @@ class CLockedMenuForwarder : public CMenuForwarder, public CPINProtection
 					: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right) ,CPINProtection(_validPIN)
 					{
 						Ask = ask;
-						
 						//if we in ask mode then show NEUTRINO_ICON_SCRAMBLED as default info icon or no icon, 
 						//but use always an info icon if defined in parameter 'IconName_Info_right'
 						if (IconName_Info_right || ask)
