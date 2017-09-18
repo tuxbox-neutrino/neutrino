@@ -1516,6 +1516,7 @@ int COsdSetup::showContextChanlistMenu(CChannelList *parent_channellist)
 
 	int res = menu_chanlist->exec(NULL, "");
 	cselected = menu_chanlist->getSelected();
+	delete channellistNotifier;
 	delete menu_chanlist;
 	return res;
 }
