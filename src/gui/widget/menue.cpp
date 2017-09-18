@@ -97,8 +97,8 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 	dx		= DX;
 	offx		= OFFX;
 	name_start_x	= x + offx + icon_frame_w;
-	item_color	= COL_MENUCONTENT_TEXT;
-	item_bgcolor	= COL_MENUCONTENT_PLUS_0;
+
+	getItemColors(item_color, item_bgcolor);
 }
 
 void CMenuItem::setActive(const bool Active)
@@ -184,25 +184,12 @@ void CMenuItem::setItemButton(const char * const icon_Name, const bool is_select
 
 void CMenuItem::initItemColors(const bool select_mode)
 {
-	if (select_mode)
-	{
-		item_color   = COL_MENUCONTENTSELECTED_TEXT;
-		item_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	else if (!active || inert)
+	getItemColors(item_color, item_bgcolor, select_mode, marked);
+
+	if (!active || inert)
 	{
 		item_color   = COL_MENUCONTENTINACTIVE_TEXT;
 		item_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
-	}
-	else if (marked)
-	{
-		item_color   = COL_MENUCONTENT_TEXT;
-		item_bgcolor = COL_MENUCONTENT_PLUS_1;
-	}
-	else
-	{
-		item_color   = COL_MENUCONTENT_TEXT;
-		item_bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 }
 
