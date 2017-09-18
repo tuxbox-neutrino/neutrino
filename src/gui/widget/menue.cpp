@@ -1082,16 +1082,17 @@ void CMenuWidget::integratePlugins(int integration, const unsigned int shortcut,
 
 void CMenuWidget::hide()
 {
-	if(savescreen && background)
+	if(savescreen && background) {
+		ResetModules();
 		restoreScreen();//FIXME
-	else {
+	} else {
 		if (header)
 			header->kill();
 		if (info_box)
 			info_box->kill();
 		if (details_line)
 			details_line->hide();
-		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height + footer_height);
+		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height/* + footer_height*/);	// full_height includes footer_height : see calcSize
 		//paintHint(-1);
 	}
 	paintHint(-1);
@@ -1311,7 +1312,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int scr_y = frameBuffer->getScreenY();
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
-	int real_h = full_height + footer_height + hint_height;
+	int real_h = full_height/* + footer_height*/ + hint_height;		// full_height includes footer_height : see calcSize
 	int x_old = x;
 	int y_old = y;
 	//configured positions 
@@ -1431,7 +1432,7 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
-	saveScreen_height = full_height+footer_height;
+	saveScreen_height = full_height/* + footer_height*/;	// full_height includes footer_height : see calcSize
 	saveScreen_width = full_width;
 	saveScreen_y = y;
 	saveScreen_x = x;
@@ -1464,7 +1465,7 @@ void CMenuWidget::enableSaveScreen(bool enable)
 void CMenuWidget::paintHint(int pos)
 {
 	if (!g_settings.show_menu_hints){
-		ResetModules(); //ensure clean up on changed setting
+		//ResetModules(); //ensure clean up on changed setting
 		return;
 	}
 
