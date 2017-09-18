@@ -3952,6 +3952,7 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 				//printf("Msg %x timeout %d EVT_SI_FINISHED %x\n", msg, CRCInput::RC_timeout, NeutrinoMessages::EVT_SI_FINISHED);
 				CVFD::getInstance()->Clear();
 				CVFD::getInstance()->setMode(cvfd_mode ? CVFD::MODE_SHUTDOWN : CVFD::MODE_STANDBY);// true CVFD::MODE_SHUTDOWN  , false CVFD::MODE_STANDBY
+				delete [] (unsigned char*) data;
 				break;
 			} else if (!cvfd_mode){
 				printf("wait for epg saving, Msg %x \n", (int) msg);
