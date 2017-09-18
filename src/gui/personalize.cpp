@@ -929,12 +929,13 @@ void CPersonalizeGui::addPersonalizedItems()
 					use_pin = true;
 
 				//set pinmode for personalize menu or for settings manager menu and if any item is pin protected
-				if (in_pinmode && !use_pin)
+				if ((in_pinmode && !use_pin)){
 					if (v_item[i].personalize_mode == &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS] || v_item[i].personalize_mode == &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER])
 					{
 						use_pin = true;
 						lock_icon = NEUTRINO_ICON_LOCK_PASSIVE;
 					}
+				}
 
 				//convert item to locked forwarder and use generated pin mode for usage as ask parameter
 				v_item[i].menuItem = new CLockedMenuForwarder(fw->getTextLocale(),
@@ -942,6 +943,15 @@ void CPersonalizeGui::addPersonalizedItems()
 						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey(), d_key, NULL, lock_icon);
 				v_item[i].menuItem->hintIcon = fw->hintIcon;
 				v_item[i].menuItem->hint = fw->hint;
+
+				/*
+				 * assign of visualized lock mode with lock icons for 'personalize menu' itself,
+				 * required menu item is identified with relatetd locale that is used inside the settings menu
+				*/
+				if (fw->getTextLocale() == LOCALE_PERSONALIZE_HEAD){
+					lock_icon = g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS] ? NEUTRINO_ICON_LOCK : (in_pinmode ? NEUTRINO_ICON_LOCK_PASSIVE : NULL);
+					v_item[i].menuItem->setInfoIconRight(lock_icon);
+				}
 
 				//assign slot for items, causes disable/enable by condition eg: receiver mode
 				if (v_item[i].condition != DCOND_MODE_NONE ){
