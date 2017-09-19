@@ -87,9 +87,6 @@ void* CComponentsTimer::initThreadAction(void *arg)
 //start up running timer with own thread, return true on succses
 void CComponentsTimer::initThread()
 {
-	if (!tm_enable)
-		return;
-
 	if(!tm_thread) {
 		void *ptr = static_cast<void*>(this);
 
