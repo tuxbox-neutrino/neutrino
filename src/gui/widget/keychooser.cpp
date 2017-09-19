@@ -68,7 +68,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	int timeout = 10;
 
 	CHintBox hintbox(name, LOCALE_KEYCHOOSER_TEXT, HINTBOX_MIN_WIDTH, NEUTRINO_ICON_SETTINGS, NEUTRINO_ICON_HINT_KEYS);
-	//hintbox.setTimeOut(timeout);
+	hintbox.setTimeOut(timeout);
 	hintbox.paint();
 
 	CFrameBuffer::getInstance()->blit();
@@ -79,6 +79,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	get_Message:
+	hintbox.enableTimeOutBar();
 	g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 	if (msg != CRCInput::RC_timeout)
@@ -92,6 +93,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	}
 
 	g_RCInput->setLongPressAny(false);
+	hintbox.disableTimeOutBar();
 	hintbox.hide();
 	return res;
 }

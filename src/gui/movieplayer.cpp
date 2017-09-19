@@ -60,6 +60,7 @@
 #include <driver/fontrenderer.h>
 #include <eitd/edvbstring.h>
 #include <system/helpers.h>
+#include <system/helpers-json.h>
 
 #include <src/mymenu.h>
 
@@ -842,12 +843,12 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 		return false;
 	}
 
+	string errMsg = "";
 	Json::Value root;
-	Json::Reader reader;
-	bool parsedSuccess = reader.parse(result_string, root, false);
-	if (!parsedSuccess) {
+	bool ok = parseJsonFromString(result_string, &root, &errMsg);
+	if (!ok) {
 		printf("Failed to parse JSON\n");
-		printf("%s\n", reader.getFormattedErrorMessages().c_str());
+		printf("%s\n", errMsg.c_str());
 		if (box != NULL) {
 			box->hide();
 			delete box;
