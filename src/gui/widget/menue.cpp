@@ -251,7 +251,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 				right_frame_col = COL_MENUCONTENTINACTIVE_TEXT;
 			}
 			CComponentsShapeSquare col(stringstartposOption, y + OFFSET_INNER_SMALL, dx - stringstartposOption + x - OFFSET_INNER_MID, item_height - 2*OFFSET_INNER_SMALL, NULL, false, right_frame_col, right_bg_col);
-			col.setFrameThickness(3);
+			col.setFrameThickness(FRAME_WIDTH_MIN);
 			col.setCorner(RADIUS_SMALL);
 			col.paint(false);
 		}
@@ -1517,7 +1517,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box = new CComponentsInfoBox();
 
 	info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
-	info_box->setFrameThickness(2);
+	info_box->setFrameThickness(FRAME_WIDTH_MIN);
 	info_box->removeLineBreaks(str);
 	info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
 	info_box->setCorner(rad);

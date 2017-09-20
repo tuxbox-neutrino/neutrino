@@ -117,7 +117,7 @@ void CColorChooser::setColor()
 	else
 	{
 		CComponentsShapeSquare preview(preview_x, preview_y, preview_w, preview_h, NULL, false, COL_FRAME_PLUS_0, col);
-		preview.setFrameThickness(1);
+		preview.setFrameThickness(FRAME_WIDTH_MIN);
 		preview.setCorner(RADIUS_SMALL);
 		preview.paint(false);
 	}

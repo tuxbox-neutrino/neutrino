@@ -155,7 +155,7 @@ void CComponentsScrollBar::initSegments()
 	//init segment container
 	if (sb_segments_obj == NULL){
 		sb_segments_obj = new CComponentsFrmChain(CC_CENTERED, CC_APPEND, w_seg, h_seg_obj, NULL, CC_DIR_Y, this, false);
-		sb_segments_obj->setFrameThickness(0);
+		sb_segments_obj->setFrameThickness(FRAME_WIDTH_NONE);
 	}else
 		sb_segments_obj->setDimensionsAll(CC_CENTERED, CC_APPEND, w_seg, h_seg_obj);
 

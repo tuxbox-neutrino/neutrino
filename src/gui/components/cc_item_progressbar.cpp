@@ -450,7 +450,7 @@ void CProgressBar::paintProgress(bool do_save_bg)
 	pb_green /= sum;
 
 	if (*pb_gradient)
-		setFrameThickness(0);
+		setFrameThickness(FRAME_WIDTH_NONE);
 
 	initDimensions();
 

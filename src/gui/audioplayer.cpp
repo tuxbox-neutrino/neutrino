@@ -1855,7 +1855,7 @@ void CAudioPlayerGui::paintDetailsLine(int pos)
 		if (m_infobox == NULL)
 		{
 			m_infobox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height);
-			m_infobox->setFrameThickness(2);
+			m_infobox->setFrameThickness(FRAME_WIDTH_MIN);
 			m_infobox->setCorner(RADIUS_LARGE);
 			m_infobox->setColorFrame(COL_FRAME_PLUS_0);
 			m_infobox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);

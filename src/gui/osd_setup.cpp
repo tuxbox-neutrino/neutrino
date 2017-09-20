@@ -1629,7 +1629,7 @@ void COsdSetup::paintWindowSize(int w, int h)
 {
 	if (win_demo == NULL) {
 		win_demo = new CComponentsShapeSquare(0, 0, 0, 0);
-		win_demo->setFrameThickness(8);
+		win_demo->setFrameThickness(OFFSET_INNER_MID);
 		win_demo->disableShadow();
 		win_demo->setColorBody(COL_BACKGROUND);
 		win_demo->setColorFrame(COL_RED);

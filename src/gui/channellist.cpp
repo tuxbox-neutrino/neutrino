@@ -2011,11 +2011,11 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		pb.setDesign(g_settings.theme.progressbar_design_channellist);
 		pb.setCornerType(0);
 		pb.setStatusColors(COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1);
-		int pb_frame = 0;
+		int pb_frame = FRAME_WIDTH_NONE;
 		if (g_settings.theme.progressbar_design_channellist == CProgressBar::PB_MONO && !g_settings.theme.progressbar_gradient)
 		{
 			// add small frame to mono progressbars w/o gradient for a better visibility
-			pb_frame = 1;
+			pb_frame = FRAME_WIDTH_MIN;
 		}
 		pb.setFrameThickness(pb_frame);
 		pb.doPaintBg(false);
@@ -2283,7 +2283,7 @@ void CChannelList::paintPig(int _x, int _y, int w, int h)
 	if (cc_minitv == NULL){
 		cc_minitv = new CComponentsPIP (0, 0);
 		cc_minitv->setPicture(NEUTRINO_ICON_AUDIOPLAY);
-		cc_minitv->setFrameThickness(5);
+		cc_minitv->setFrameThickness(OFFSET_INNER_SMALL);
 	}
 	//set changeable minitv properties
 	cc_minitv->setDimensionsAll(_x, _y, w, h);

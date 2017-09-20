@@ -246,7 +246,7 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 			ibox->hide();
 
 		ibox->setDimensionsAll(x, ypos2, width, info_height);
-		ibox->setFrameThickness(2);
+		ibox->setFrameThickness(FRAME_WIDTH_MIN);
 #if 0
 		ibox->paint(false,true);
 #endif
