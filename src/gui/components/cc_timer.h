@@ -65,7 +65,7 @@ class CComponentsTimer : public sigc::trackable
 
 		///name for the thread
 		std::string name;
-
+		std::string tn;
 		///mutex for timer
 		OpenThreads::Mutex tm_mutex;
 		///slot for restart signals
