@@ -58,7 +58,7 @@ CComponentsTimer::~CComponentsTimer()
 void CComponentsTimer::runSharedTimerAction()
 {
 	//start loop
-	string tn = "cc:"+name;
+	tn = "cc:"+name;
 	set_threadname(tn.c_str());
 	while(tm_enable && tm_interval > 0) {
 		tm_mutex.lock();
