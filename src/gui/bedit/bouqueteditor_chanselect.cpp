@@ -307,7 +307,7 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 		//infobox
 		if (ibox){
 			ibox->setDimensionsAll(x, ypos2, width, info_height);
-			ibox->setFrameThickness(2);
+			ibox->setFrameThickness(FRAME_WIDTH_MIN);
 			ibox->setCorner(RADIUS_LARGE);
 			ibox->disableShadow();
 		}

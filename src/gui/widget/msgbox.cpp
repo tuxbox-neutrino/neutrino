@@ -416,7 +416,7 @@ int ShowMsg2UTF(	const char * const Title,
 			Text_mode);
 
 	if (color_frame != HINTBOX_DEFAULT_FRAME_COLOR){
-		msgBox.setFrameThickness(4);
+		msgBox.setFrameThickness(OFFSET_INNER_SMALL);
 		msgBox.setColorFrame(color_frame);
 	}
 

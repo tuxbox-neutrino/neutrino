@@ -10,13 +10,13 @@ The JsonCpp library's source code, including accompanying documentation,
 tests and demonstration applications, are licensed under the following
 conditions...
 
-The author (Baptiste Lepilleur) explicitly disclaims copyright in all 
+Baptiste Lepilleur and The JsonCpp Authors explicitly disclaim copyright in all
 jurisdictions which recognize such a disclaimer. In such jurisdictions, 
 this software is released into the Public Domain.
 
 In jurisdictions which do not recognize Public Domain property (e.g. Germany as of
-2010), this software is Copyright (c) 2007-2010 by Baptiste Lepilleur, and is
-released under the terms of the MIT License (see below).
+2010), this software is Copyright (c) 2007-2010 by Baptiste Lepilleur and
+The JsonCpp Authors, and is released under the terms of the MIT License (see below).
 
 In jurisdictions which recognize Public Domain property, the user of this 
 software may choose to accept it either as 1) Public Domain, 2) under the 
@@ -31,7 +31,7 @@ described in clear, concise terms at:
 The full text of the MIT License follows:
 
 ========================================================================
-Copyright (c) 2007-2010 Baptiste Lepilleur
+Copyright (c) 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -87,10 +87,10 @@ license you like.
 #ifndef JSON_VERSION_H_INCLUDED
 # define JSON_VERSION_H_INCLUDED
 
-# define JSONCPP_VERSION_STRING "1.8.0"
+# define JSONCPP_VERSION_STRING "1.8.3"
 # define JSONCPP_VERSION_MAJOR 1
 # define JSONCPP_VERSION_MINOR 8
-# define JSONCPP_VERSION_PATCH 0
+# define JSONCPP_VERSION_PATCH 3
 # define JSONCPP_VERSION_QUALIFIER
 # define JSONCPP_VERSION_HEXA ((JSONCPP_VERSION_MAJOR << 24) | (JSONCPP_VERSION_MINOR << 16) | (JSONCPP_VERSION_PATCH << 8))
 
@@ -116,7 +116,7 @@ license you like.
 // Beginning of content of file: include/json/config.h
 // //////////////////////////////////////////////////////////////////////
 
-// Copyright 2007-2010 Baptiste Lepilleur
+// Copyright 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
@@ -126,6 +126,12 @@ license you like.
 #include <stddef.h>
 #include <string> //typedef String
 #include <stdint.h> //typedef int64_t, uint64_t
+
+/* own assert() which does not abort... */
+#define assert(x) do { \
+       if (x) \
+               fprintf(stderr, "JSONCPP:%s:%d assert(%s) failed\n", __func__, __LINE__, #x); \
+} while (0)
 
 /// If defined, indicates that json library is embedded in CppTL library.
 //# define JSON_IN_CPPTL 1
@@ -238,6 +244,9 @@ license you like.
 #endif
 
 #ifdef __clang__
+#  if __has_extension(attribute_deprecated_with_message)
+#    define JSONCPP_DEPRECATED(message)  __attribute__ ((deprecated(message)))
+#  endif
 #elif defined __GNUC__ // not clang (gcc comes later since clang emulates gcc)
 #  if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
 #    define JSONCPP_DEPRECATED(message)  __attribute__ ((deprecated(message)))
@@ -314,7 +323,7 @@ typedef UInt64 LargestUInt;
 // Beginning of content of file: include/json/forwards.h
 // //////////////////////////////////////////////////////////////////////
 
-// Copyright 2007-2010 Baptiste Lepilleur
+// Copyright 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
@@ -365,7 +374,7 @@ class ValueConstIterator;
 // Beginning of content of file: include/json/features.h
 // //////////////////////////////////////////////////////////////////////
 
-// Copyright 2007-2010 Baptiste Lepilleur
+// Copyright 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
@@ -440,7 +449,7 @@ public:
 // Beginning of content of file: include/json/value.h
 // //////////////////////////////////////////////////////////////////////
 
-// Copyright 2007-2010 Baptiste Lepilleur
+// Copyright 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
@@ -465,7 +474,7 @@ public:
 #endif
 
 //Conditional NORETURN attribute on the throw functions would:
-// a) suppress false positives from static code analysis 
+// a) suppress false positives from static code analysis
 // b) possibly improve optimization opportunities.
 #if !defined(JSONCPP_NORETURN)
 #  if defined(_MSC_VER)
@@ -506,7 +515,7 @@ protected:
 /** Exceptions which the user cannot easily avoid.
  *
  * E.g. out-of-memory (when we use malloc), stack-overflow, malicious input
- * 
+ *
  * \remark derived from Json::Exception
  */
 class JSON_API RuntimeError : public Exception {
@@ -517,7 +526,7 @@ public:
 /** Exceptions thrown by JSON_ASSERT/JSON_FAIL macros.
  *
  * These are precondition-violations (user bugs) and internal errors (our bugs).
- * 
+ *
  * \remark derived from Json::Exception
  */
 class JSON_API LogicError : public Exception {
@@ -632,6 +641,9 @@ public:
   typedef Json::LargestUInt LargestUInt;
   typedef Json::ArrayIndex ArrayIndex;
 
+  // Required for boost integration, e. g. BOOST_TEST
+  typedef std::string value_type;
+
   static const Value& null;  ///< We regret this reference to a global instance; prefer the simpler Value().
   static const Value& nullRef;  ///< just a kludge for binary-compatibility; same as null
   static Value const& nullSingleton(); ///< Prefer this to null or nullRef.
@@ -675,7 +687,12 @@ private:
     CZString(CZString&& other);
 #endif
     ~CZString();
-    CZString& operator=(CZString other);
+    CZString& operator=(const CZString& other);
+
+#if JSON_HAS_RVALUE_REFERENCES
+    CZString& operator=(CZString&& other);
+#endif
+
     bool operator<(CZString const& other) const;
     bool operator==(CZString const& other) const;
     ArrayIndex index() const;
@@ -765,10 +782,16 @@ Json::Value obj_value(Json::objectValue); // {}
   /// Deep copy, then swap(other).
   /// \note Over-write existing comments. To preserve comments, use #swapPayload().
   Value& operator=(Value other);
+
   /// Swap everything.
   void swap(Value& other);
   /// Swap values but leave comments and source offsets in place.
   void swapPayload(Value& other);
+
+  /// copy everything.
+  void copy(const Value& other);
+  /// copy values but leave comments and source offsets in place.
+  void copyPayload(const Value& other);
 
   ValueType type() const;
 
@@ -880,6 +903,10 @@ Json::Value obj_value(Json::objectValue); // {}
   /// Equivalent to jsonvalue[jsonvalue.size()] = value;
   Value& append(const Value& value);
 
+#if JSON_HAS_RVALUE_REFERENCES
+  Value& append(Value&& value);
+#endif
+
   /// Access an object value by name, create a null member if it does not exist.
   /// \note Because of our implementation, keys are limited to 2^30 -1 chars.
   ///  Exceeding that will cause an exception.
@@ -945,10 +972,12 @@ Json::Value obj_value(Json::objectValue); // {}
   /// \pre type() is objectValue or nullValue
   /// \post type() is unchanged
   /// \deprecated
+  JSONCPP_DEPRECATED("")
   Value removeMember(const char* key);
   /// Same as removeMember(const char*)
   /// \param key may contain embedded nulls.
   /// \deprecated
+  JSONCPP_DEPRECATED("")
   Value removeMember(const JSONCPP_STRING& key);
   /// Same as removeMember(const char* begin, const char* end, Value* removed),
   /// but 'key' is null-terminated.
@@ -1324,7 +1353,7 @@ inline void swap(Json::Value& a, Json::Value& b) { a.swap(b); }
 // Beginning of content of file: include/json/reader.h
 // //////////////////////////////////////////////////////////////////////
 
-// Copyright 2007-2010 Baptiste Lepilleur
+// Copyright 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
@@ -1358,7 +1387,7 @@ namespace Json {
  *
  * \deprecated Use CharReader and CharReaderBuilder.
  */
-class JSON_API Reader {
+class JSONCPP_DEPRECATED("Use CharReader and CharReaderBuilder instead") JSON_API Reader {
 public:
   typedef char Char;
   typedef const Char* Location;
@@ -1556,6 +1585,9 @@ private:
   void addComment(Location begin, Location end, CommentPlacement placement);
   void skipCommentTokens(Token& token);
 
+  static bool containsNewLine(Location begin, Location end);
+  static JSONCPP_STRING normalizeEOL(Location begin, Location end);
+
   typedef std::stack<Value*> Nodes;
   Nodes nodes_;
   Errors errors_;
@@ -1746,7 +1778,7 @@ JSON_API JSONCPP_ISTREAM& operator>>(JSONCPP_ISTREAM&, Value&);
 // Beginning of content of file: include/json/writer.h
 // //////////////////////////////////////////////////////////////////////
 
-// Copyright 2007-2010 Baptiste Lepilleur
+// Copyright 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
@@ -1763,7 +1795,7 @@ JSON_API JSONCPP_ISTREAM& operator>>(JSONCPP_ISTREAM&, Value&);
 
 // Disable warning C4251: <data member>: <type> needs to have dll-interface to
 // be used by...
-#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
+#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING) && defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
@@ -1888,7 +1920,7 @@ public:
 /** \brief Abstract class for writers.
  * \deprecated Use StreamWriter. (And really, this is an implementation detail.)
  */
-class JSON_API Writer {
+class JSONCPP_DEPRECATED("Use StreamWriter instead") JSON_API Writer {
 public:
   virtual ~Writer();
 
@@ -1904,8 +1936,11 @@ public:
  * \sa Reader, Value
  * \deprecated Use StreamWriterBuilder.
  */
-class JSON_API FastWriter : public Writer {
-
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996) // Deriving from deprecated class
+#endif
+class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API FastWriter : public Writer {
 public:
   FastWriter();
   ~FastWriter() JSONCPP_OVERRIDE {}
@@ -1932,6 +1967,9 @@ private:
   bool dropNullPlaceholders_;
   bool omitEndingLineFeed_;
 };
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 /** \brief Writes a Value in <a HREF="http://www.json.org">JSON</a> format in a
  *human friendly way.
@@ -1957,7 +1995,11 @@ private:
  * \sa Reader, Value, Value::setComment()
  * \deprecated Use StreamWriterBuilder.
  */
-class JSON_API StyledWriter : public Writer {
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996) // Deriving from deprecated class
+#endif
+class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API StyledWriter : public Writer {
 public:
   StyledWriter();
   ~StyledWriter() JSONCPP_OVERRIDE {}
@@ -1992,6 +2034,9 @@ private:
   unsigned int indentSize_;
   bool addChildValues_;
 };
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 /** \brief Writes a Value in <a HREF="http://www.json.org">JSON</a> format in a
  human friendly way,
@@ -2015,12 +2060,18 @@ private:
  * If the Value have comments then they are outputed according to their
  #CommentPlacement.
  *
- * \param indentation Each level will be indented by this amount extra.
  * \sa Reader, Value, Value::setComment()
  * \deprecated Use StreamWriterBuilder.
  */
-class JSON_API StyledStreamWriter {
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996) // Deriving from deprecated class
+#endif
+class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API StyledStreamWriter {
 public:
+/**
+ * \param indentation Each level will be indented by this amount extra.
+ */
   StyledStreamWriter(JSONCPP_STRING indentation = "\t");
   ~StyledStreamWriter() {}
 
@@ -2057,6 +2108,9 @@ private:
   bool addChildValues_ : 1;
   bool indented_ : 1;
 };
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #if defined(JSON_HAS_INT64)
 JSONCPP_STRING JSON_API valueToString(Int value);
@@ -2095,7 +2149,7 @@ JSON_API JSONCPP_OSTREAM& operator<<(JSONCPP_OSTREAM&, const Value& root);
 // Beginning of content of file: include/json/assertions.h
 // //////////////////////////////////////////////////////////////////////
 
-// Copyright 2007-2010 Baptiste Lepilleur
+// Copyright 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE

@@ -122,7 +122,7 @@ CProgressBar* CProgressWindow::getProgressItem()
 	pBar->setDimensionsAll(OFFSET_INNER_MID, y_tmp, width-2*OFFSET_INNER_MID, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
 	pBar->setColorBody(col_body);
 	pBar->setActiveColor(COL_PROGRESSBAR_ACTIVE_PLUS_0);
-	pBar->setFrameThickness(1);
+	pBar->setFrameThickness(FRAME_WIDTH_MIN);
 	pBar->setColorFrame(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	pBar->setType(CProgressBar::PB_TIMESCALE);
 	addWindowItem(pBar);

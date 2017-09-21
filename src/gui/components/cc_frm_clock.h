@@ -58,7 +58,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		int cl_interval;
 
 		///raw time chars
-		char cl_timestr[20];
+		char cl_timestr[32];
 
 		///handle paint clock within thread and is not similar to cc_allow_paint
 		bool paintClock;

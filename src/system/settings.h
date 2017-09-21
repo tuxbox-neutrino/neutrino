@@ -946,6 +946,7 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define SCROLLBAR_WIDTH		(OFFSET_INNER_MID + 2*OFFSET_INNER_MIN)
 
 #define FRAME_WIDTH_MIN		CFrameBuffer::getInstance()->scale2Res(2)
+#define FRAME_WIDTH_NONE	0
 
 #define DETAILSLINE_WIDTH	CFrameBuffer::getInstance()->scale2Res(16)
 

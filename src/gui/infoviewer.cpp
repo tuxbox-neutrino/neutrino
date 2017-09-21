@@ -345,7 +345,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 		{
 			if (rec == NULL){ //TODO: full refactoring of this icon handler
 				rec = new CComponentsShapeSquare(box_x, box_y , box_w, box_h, NULL, CC_SHADOW_ON, COL_RED, COL_INFOBAR_PLUS_0);
-				rec->setFrameThickness(2);
+				rec->setFrameThickness(FRAME_WIDTH_NONE);
 				rec->setShadowWidth(OFFSET_SHADOW/2);
 				rec->setCorner(RADIUS_MIN, CORNER_ALL);
 			}
