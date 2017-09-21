@@ -34,29 +34,16 @@ class CFrameBuffer;
 class CPlugins
 {
 	public:
-	typedef enum p_type
-	{
-		P_TYPE_DISABLED = 0x1,
-		P_TYPE_GAME     = 0x2,
-		P_TYPE_TOOL     = 0x4,
-		P_TYPE_SCRIPT   = 0x8,
-		P_TYPE_LUA      = 0x10,
-		P_TYPE_NO_GAME  = P_TYPE_TOOL|P_TYPE_SCRIPT|P_TYPE_LUA
-	}
-	p_type_t;
-
-	typedef enum i_type
-	{
-		I_TYPE_DISABLED		= 0x1,
-		/*
-		I_TYPE_MAIN		= 0x2,
-		*/
-		I_TYPE_MULTIMEDIA	= 0x4,
-		I_TYPE_SETTING		= 0x8,
-		I_TYPE_SERVICE		= 0x10,
-		I_TYPE_INFORMATION	= 0x20
-	}
-	i_type_t;
+		typedef enum p_type
+		{
+			P_TYPE_DISABLED = 0x1,
+			P_TYPE_GAME     = 0x2,
+			P_TYPE_TOOL     = 0x4,
+			P_TYPE_SCRIPT   = 0x8,
+			P_TYPE_LUA      = 0x10,
+			P_TYPE_NO_GAME  = P_TYPE_TOOL|P_TYPE_SCRIPT|P_TYPE_LUA
+		}
+		p_type_t;
 
 	private:
 		CFrameBuffer	*frameBuffer;
