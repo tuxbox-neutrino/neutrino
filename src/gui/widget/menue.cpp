@@ -928,16 +928,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 			}
 			case (CRCInput::RC_left):
-				{
-					if(hasItem() && selected > -1 && (int)items.size() > selected) {
-						CMenuItem* itemX = items[selected];
-						if (!itemX->isMenueOptionChooser()) {
-							if (g_settings.menu_left_exit)
-								msg = CRCInput::RC_timeout;
-							break;
-						}
-					}
+				if (hasItem() && selected > -1 && (int)items.size() > selected) {
+					CMenuItem* itemX = items[selected];
+					if (!itemX->isMenueOptionChooser() && g_settings.menu_left_exit)
+						msg = CRCInput::RC_timeout;
 				}
+				break;
 			case (CRCInput::RC_right):
 			case (CRCInput::RC_ok):
 				{
