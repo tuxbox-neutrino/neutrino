@@ -801,7 +801,7 @@ int CAudioPlayerGui::show()
 					smsKey = m_SMSKeyInput.handleMsg(msg);
 					//printf(" new key: %c", smsKey);
 					/* show a hint box with current char (too slow at the moment?)*/
-					char selectedKey[1];
+					char selectedKey[2];
 					sprintf(selectedKey,"%c",smsKey);
 					int x1=(g_settings.screen_EndX- g_settings.screen_StartX)/2 + g_settings.screen_StartX-50;
 					int y1=(g_settings.screen_EndY- g_settings.screen_StartY)/2 + g_settings.screen_StartY;
