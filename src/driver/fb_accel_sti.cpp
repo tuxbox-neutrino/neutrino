@@ -37,6 +37,7 @@
 #include <math.h>
 #include <limits.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #include <linux/kd.h>
 
@@ -331,7 +332,7 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 void CFbAccelSTi::run()
 {
 	printf(LOGTAG "::run start\n");
-	time_t last_blit = 0;
+	int64_t last_blit = INT64_MAX; /* blit at first iteration */
 	blit_pending = false;
 	blit_thread = true;
 	set_threadname("stifb::autoblit");
@@ -340,11 +341,12 @@ void CFbAccelSTi::run()
 		blit_cond.wait(&blit_mutex, blit_pending ? BLIT_INTERVAL_MIN : BLIT_INTERVAL_MAX);
 		blit_mutex.unlock();
 
-		time_t now = time_monotonic_ms();
-		if (now - last_blit < BLIT_INTERVAL_MIN)
+		int64_t now = time_monotonic_ms();
+		int64_t diff = now - last_blit;
+		if (diff < BLIT_INTERVAL_MIN)
 		{
 			blit_pending = true;
-			//printf(LOGTAG "::run: skipped, time %ld\n", now - last_blit);
+			//printf(LOGTAG "::run: skipped, time %" PRId64 "\n", diff);
 		}
 		else
 		{
@@ -372,9 +374,9 @@ void CFbAccelSTi::blit()
 void CFbAccelSTi::_blit()
 {
 #if 0
-	static time_t last = 0;
-	time_t now = time_monotonic_ms();
-	printf("%s %ld\n", __func__, now - last);
+	static int64_t last = 0;
+	int64_t now = time_monotonic_ms();
+	printf("%s %" PRId64 "\n", __func__, now - last);
 	last = now;
 #endif
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);

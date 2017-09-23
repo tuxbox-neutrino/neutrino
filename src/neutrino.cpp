@@ -2119,10 +2119,10 @@ void CNeutrinoApp::InitSectiondClient()
 #if 0
 	/* TODO: check if still needed */
 	/* wait for sectionsd to be able to process our registration */
-	time_t t = time_monotonic_ms();
+	int64_t t = time_monotonic_ms();
 	while (! sectionsd_isReady())
 		sleep(0);
-	dprintf(DEBUG_NORMAL, "had to wait %ld ms for sectionsd to start up\n", time_monotonic_ms() - t);
+	dprintf(DEBUG_NORMAL, "had to wait %" PRId64 " ms for sectionsd to start up\n", time_monotonic_ms() - t);
 #endif
 	g_Sectionsd = new CSectionsdClient;
 	struct timespec t;
@@ -2376,10 +2376,10 @@ TIMER_START();
 	InitSectiondClient();
 
 	/* wait until timerd is ready... */
-	time_t timerd_wait = time_monotonic_ms();
+	int64_t timerd_wait = time_monotonic_ms();
 	while (timerd_signal >= 0)
 		usleep(100);
-	dprintf(DEBUG_NORMAL, "had to wait %ld ms for timerd start...\n", time_monotonic_ms() - timerd_wait);
+	dprintf(DEBUG_NORMAL, "had to wait %" PRId64 " ms for timerd start...\n", time_monotonic_ms() - timerd_wait);
 	InitTimerdClient();
 
 	// volume

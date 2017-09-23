@@ -1035,7 +1035,7 @@ int CStreamInfo2::update_rate ()
                 usleep(timeout * 1000);
                 b_len = mp->GetReadCount();
         } else {
-		time_t start = time_monotonic_ms();
+		int64_t start = time_monotonic_ms();
 		/* always sample for ~100ms */
 		while (time_monotonic_ms() - start < timeout)
 		{
@@ -1043,7 +1043,7 @@ int CStreamInfo2::update_rate ()
 			if (ret >= 0)
 				b_len += ret;
 		}
-		//printf("ts: read %d time %d\n", b_len, time_monotonic_ms() - start);
+		//printf("ts: read %d time %" PRId64 "\n", b_len, time_monotonic_ms() - start);
 	}
 	//printf("ts: read %d\n", b_len);
 

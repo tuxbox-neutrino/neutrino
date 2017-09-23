@@ -2,7 +2,7 @@
 #include <stdio.h> /* for perror */
 #include <time.h>
 
-time_t time_monotonic_ms(void)
+int64_t time_monotonic_ms(void)
 {
 	struct timespec t;
 	time_t ret;
@@ -11,7 +11,7 @@ time_t time_monotonic_ms(void)
 		perror("time_monotonic_ms clock_gettime");
 		return -1;
 	}
-	ret = ((t.tv_sec + 604800)& 0x01FFFFF) * 1000; /* avoid overflow */
+	ret = (t.tv_sec + 604800) * (int64_t)1000; /* avoid overflow */
 	ret += t.tv_nsec / 1000000;
 	return ret;
 }

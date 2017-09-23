@@ -486,12 +486,12 @@ void *insertEventsfromFile(void * data)
 	std::string epg_dir = (char *) data;
 	indexname = epg_dir + "index.xml";
 
-	time_t now = time_monotonic_ms();
+	int64_t now = time_monotonic_ms();
 	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
 
 	if (index_parser == NULL) {
 		readEventsFromDir(epg_dir, ev_count);
-		printf("[sectionsd] Reading Information finished after %ld milliseconds (%d events)\n",
+		printf("[sectionsd] Reading Information finished after %" PRId64 " milliseconds (%d events)\n",
 				time_monotonic_ms()-now, ev_count);
 		reader_ready = true;
 		pthread_exit(NULL);
@@ -515,7 +515,7 @@ void *insertEventsfromFile(void * data)
 
 	xmlFreeDoc(index_parser);
 	printdate_ms(stdout);
-	printf("[sectionsd] Reading Information finished after %ld milliseconds (%d events)\n",
+	printf("[sectionsd] Reading Information finished after %" PRId64 " milliseconds (%d events)\n",
 			time_monotonic_ms()-now, ev_count);
 
 	reader_ready = true;

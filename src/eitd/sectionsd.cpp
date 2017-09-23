@@ -154,7 +154,7 @@ CSdtThread threadSDT;
 #endif
 
 #ifdef DEBUG_EVENT_LOCK
-static time_t lockstart = 0;
+static int64_t lockstart = 0;
 #endif
 
 static int sectionsd_stop = 0;
@@ -209,9 +209,9 @@ inline void unlockEvents(void)
 {
 #ifdef DEBUG_EVENT_LOCK
 	if (lockstart) {
-		time_t tmp = time_monotonic_ms() - lockstart;
+		int64_t tmp = time_monotonic_ms() - lockstart;
 		if (tmp > 50)
-			xprintf("locked ms %d\n", tmp);
+			xprintf("locked ms %" PRId64 "\n", tmp);
 		lockstart = 0;
 	}
 #endif
@@ -1486,12 +1486,12 @@ void CTimeThread::run()
 			 * shutdown" hack on with libcoolstream... :-( */
 			rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
 #else
-			time_t start = time_monotonic_ms();
+			int64_t start = time_monotonic_ms();
 			/* speed up shutdown by looping around Read() */
 			do {
 				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
 			} while (running && rc == 0
-				 && (time_monotonic_ms() - start) < (time_t)timeoutInMSeconds);
+				 && (time_monotonic_ms() - start) < (int64_t)timeoutInMSeconds);
 #endif
 			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
 				name.c_str(), current_service, rc, messaging_neutrino_sets_time);

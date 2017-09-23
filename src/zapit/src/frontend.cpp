@@ -131,15 +131,16 @@ static const struct dtv_property dvbt_cmdargs[] = {
 #define diff(x,y)	(max(x,y) - min(x,y))
 
 #define FE_TIMER_INIT()					\
-	unsigned int timer_start;			\
-	static unsigned int tmin = 2000, tmax = 0;	\
-	unsigned int timer_msec = 0;
+	int64_t timer_start;				\
+	static uint32_t tmin = 2000, tmax = 0;		\
+	uint32_t timer_msec = 0;
 
 #define FE_TIMER_START()				\
 	timer_start = time_monotonic_ms();
 
 #define FE_TIMER_STOP(label)				\
-	timer_msec = time_monotonic_ms() - timer_start; \
+	timer_msec = (uint32_t)(time_monotonic_ms() -	\
+			timer_start);			\
 	if(tmin > timer_msec) tmin = timer_msec;	\
 	if(tmax < timer_msec) tmax = timer_msec;	\
 	printf("[fe%d] %s: %u msec (min %u max %u)\n",	\
@@ -704,7 +705,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 		if (pfd.revents & (POLLIN | POLLPRI)) {
 			//FE_TIMER_STOP("poll has event after");
-			timer_msec = time_monotonic_ms() - timer_start; /* FE_TIMER_STOP does this :( */
+			timer_msec = (uint32_t)(time_monotonic_ms() - timer_start); /* FE_TIMER_STOP does this :( */
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
 
 			ret = ioctl(fd, FE_GET_EVENT, &event);
