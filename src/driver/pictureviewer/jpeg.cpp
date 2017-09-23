@@ -72,7 +72,7 @@ int fh_jpeg_load(const char *filename,unsigned char **buffer,int* x,int* y)
 	struct jpeg_decompress_struct *ciptr;
 	struct r_jpeg_error_mgr emgr;
 	unsigned char *bp;
-	int px,py,c;
+	int px,py,c, ix;
 	FILE *fh;
 	JSAMPLE *lb;
 
@@ -94,21 +94,22 @@ int fh_jpeg_load(const char *filename,unsigned char **buffer,int* x,int* y)
 	jpeg_read_header(ciptr,TRUE);
 	ciptr->out_color_space=JCS_RGB;
 	ciptr->dct_method=JDCT_FASTEST;
-	if(*x==(int)ciptr->image_width)
+	ix = (int)ciptr->image_width;
+	if(*x == ix)
 		ciptr->scale_denom=1;
 #if __cplusplus < 201103
-	else if(abs(*x*2 - ciptr->image_width) < 2)
+	else if (abs(*x*2 - ix) < 2)
 		ciptr->scale_denom=2;
-	else if(abs(*x*4 - ciptr->image_width) < 4)
+	else if (abs(*x*4 - ix) < 4)
 		ciptr->scale_denom=4;
-	else if(abs(*x*8 - ciptr->image_width) < 8)
+	else if (abs(*x*8 - ix) < 8)
 		ciptr->scale_denom=8;
 #else
-	else if(std::abs(*x*2 - ciptr->image_width) < 2)
+	else if (std::abs(*x*2 - ix) < 2)
 		ciptr->scale_denom=2;
-	else if(std::abs(*x*4 - ciptr->image_width) < 4)
+	else if (std::abs(*x*4 - ix) < 4)
 		ciptr->scale_denom=4;
-	else if(std::abs(*x*8 - ciptr->image_width) < 8)
+	else if (std::abs(*x*8 - ix) < 8)
 		ciptr->scale_denom=8;
 #endif
 	else
