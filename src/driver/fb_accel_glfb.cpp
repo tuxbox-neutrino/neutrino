@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include <glfb.h>
 extern GLFramebuffer *glfb;
@@ -115,18 +116,18 @@ void CFbAccelGLFB::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 void CFbAccelGLFB::run()
 {
 	printf(LOGTAG "run start\n");
-	time_t last_blit = 0;
+	int64_t last_blit = INT64_MAX;
 	blit_pending = false;
 	blit_thread = true;
 	blit_mutex.lock();
 	set_threadname("glfb::autoblit");
 	while (blit_thread) {
 		blit_cond.wait(&blit_mutex, blit_pending ? BLIT_INTERVAL_MIN : BLIT_INTERVAL_MAX);
-		time_t now = time_monotonic_ms();
+		int64_t now = time_monotonic_ms();
 		if (now - last_blit < BLIT_INTERVAL_MIN)
 		{
 			blit_pending = true;
-			//printf(LOGTAG "run: skipped, time %ld\n", now - last_blit);
+			//printf(LOGTAG "run: skipped, time %" PRId64 "\n", now - last_blit);
 		}
 		else
 		{

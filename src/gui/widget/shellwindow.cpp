@@ -133,14 +133,14 @@ void CShellWindow::exec()
 		fds.events = POLLIN | POLLHUP | POLLERR;
 		fcntl(fds.fd, F_SETFL, fcntl(fds.fd, F_GETFL, 0) | O_NONBLOCK);
 
-		time_t lastPaint = time_monotonic_ms();
+		int64_t lastPaint = time_monotonic_ms();
 		bool ok = true, nlseen = false, dirty = false, incomplete = false;
 		char output[1024];
 		std::string txt = "";
 		std::string line = "";
 
 		do {
-			time_t now;
+			int64_t now;
 			fds.revents = 0;
 			int r = poll(&fds, 1, 300);
 			if (r > 0) {

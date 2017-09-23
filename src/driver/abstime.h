@@ -6,8 +6,8 @@
 extern "C"
 {
 #endif
-extern time_t time_monotonic_ms(void);
-extern time_t time_monotonic(void);
+time_t time_monotonic(void);
+int64_t time_monotonic_ms(void);
 uint64_t time_monotonic_us(void);
 #ifdef __cplusplus
 }
