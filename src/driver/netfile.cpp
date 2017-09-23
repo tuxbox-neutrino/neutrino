@@ -1027,6 +1027,7 @@ FILE *f_open(const char *filename, const char *acctype)
 			/* create the correct url from the station number */
 			CRLFCut(url.host);
 			sprintf(url.url, "http://classic.shoutcast.com/sbin/shoutcast-playlist.pls?rn=%s&file=filename.pls", url.host);
+			/* fall through */
 
 		case MODE_PLS:	{
 			char *ptr2, /*buf[4096], use local buf from function */ servers[25][1024];

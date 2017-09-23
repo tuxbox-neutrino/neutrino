@@ -283,7 +283,7 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 	case HTTP_MOVED_PERMANENTLY:
 		// Status HTTP_*_TEMPORARILY (redirection)
 		result += string_printf("Location: %s\r\n", NewURL.c_str());
-		// NO break HERE !!!
+		// fall through
 
 	default:
 		time_t timer = time(0);

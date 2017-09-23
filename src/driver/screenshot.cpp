@@ -274,6 +274,7 @@ bool CScreenShot::SaveFile()
 		break;
 	default:
 		printf("CScreenShot::SaveFile unsupported format %d, using jpeg\n", format);
+		/* fall through */
 	case FORMAT_JPG:
 		ret = SaveJpg();
 		break;
@@ -517,6 +518,7 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 		break;
 	default:
 		printf("CScreenShot::MakeFileName unsupported format %d, using jpeg\n", format);
+		/* fall through */
 	case FORMAT_JPG:
 		strcat(fname, ".jpg");
 		break;

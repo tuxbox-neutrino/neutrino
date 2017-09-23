@@ -289,6 +289,7 @@ if (i < 0) { fprintf(stderr, "RT %s: i < 0 (%d)\n", __FUNCTION__, i); break; }
 							switch (val) {
 								case 0x0a:			// RT
 									have_radiotext = true;
+									/* fall through */
 								case 0x46:			// RTplus-Tags
 								case 0xda:			// RASS
 								case 0x07:			// PTY

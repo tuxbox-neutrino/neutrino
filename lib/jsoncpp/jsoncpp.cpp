@@ -1455,6 +1455,7 @@ bool OurReader::readToken(Token& token) {
     ok = readStringSingleQuote();
     break;
     } // else continue
+    /* is a break missing here? or is this correct? */
   case '/':
     token.type_ = tokenComment;
     ok = readComment();
