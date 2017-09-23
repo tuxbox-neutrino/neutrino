@@ -108,6 +108,8 @@ int CSubChannelSelectMenu::getNVODMenu(CMenuWidget* menu)
 		}
 
 		count++;
+		if (count > 9999)
+			break;
 	}
 
 	if ( g_RemoteControl->are_subchannels ) {
