@@ -96,9 +96,6 @@ void CComponentsDetailsLine::paint(bool do_save_bg)
 
 		int sw = shadow_w;
 
-		// reduce two times the shadow width, to avoid shadow overlaps
-		h_mark_down -= 2*sw;
-
 		int y_mark_top = y-h_mark_top/2;
 		int y_mark_down = y_down-h_mark_down/2;
 		int dx_c = dl_w%2; //correction for odd values
