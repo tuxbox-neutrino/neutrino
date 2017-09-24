@@ -1108,7 +1108,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						printf("timerd not available\n");
 				}
 				break;
-			case CRCInput::RC_info:
+			case CRCInput::RC_help:
 			{
 				if (g_settings.tmdb_enabled)
 				{
@@ -1191,7 +1191,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				}
 				break;
 			}
-			case CRCInput::RC_help:
+			case CRCInput::RC_info:
 				bigFonts = bigFonts ? false : true;
 				ResetModules();
 				frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
