@@ -1,24 +1,24 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
+	neutrino bouquet editor - bouquets editor
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2009,2011,2013,2016 Stefan Seyfried
+	Copyright (C) 2017 Sven Hoefer
 
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -27,46 +27,49 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "bouqueteditor_channels.h"
-#include "bouqueteditor_bouquets.h"
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/components/cc.h>
-
 #include <gui/widget/hintbox.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
-#include <gui/widget/keyboard_input.h>
 #include <zapit/client/zapittools.h>
+
+#include "bouqueteditor_bouquets.h"
+#include "bouqueteditor_channels.h"
 
 extern CBouquetManager *g_bouquetManager;
 
 CBEBouquetWidget::CBEBouquetWidget()
 {
-	frameBuffer = CFrameBuffer::getInstance();
-	iconoffset = 0;
 	origPosition = 0;
 	newPosition = 0;
-	listmaxshow = 0;
 	bouquetsChanged = 0;
-	width = 0;
-	height = 0;
-	x = 0;
-	y = 0;
 	selected = 0;
 	liststart = 0;
 	state = beDefault;
 	Bouquets = NULL;
-	iheight = 0;
-	ButtonHeight = footer.getHeight();
-	fheight = 0;
-	theight = 0;
+
+	int iw, ih;
+	action_icon_width = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, &action_icon_width, &ih);
+
+	status_icon_width = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_HIDDEN, &iw, &ih);
+	status_icon_width = std::max(status_icon_width, iw);
+	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &iw, &ih);
+	status_icon_width = std::max(status_icon_width, iw);
+	frameBuffer->getIconSize(NEUTRINO_ICON_AUDIO, &iw, &ih);
+	status_icon_width = std::max(status_icon_width, iw);
+	frameBuffer->getIconSize(NEUTRINO_ICON_VIDEO, &iw, &ih);
+	status_icon_width = std::max(status_icon_width, iw);
 }
 
 void CBEBouquetWidget::paintItem(int pos)
 {
-	int ypos = y + theight + pos*iheight;
+	int ypos = y + header_height + pos*item_height;
 	unsigned int current = liststart + pos;
 
 	bool i_selected	= current == selected;
@@ -84,79 +87,91 @@ void CBEBouquetWidget::paintItem(int pos)
 	else
 	{
 		bool has_channels = true;
-		if(current < Bouquets->size())
-			has_channels = (!(*Bouquets)[current]->tvChannels.empty() ) || (!(*Bouquets)[current]->radioChannels.empty());
+		if (current < Bouquets->size())
+			has_channels = (!(*Bouquets)[current]->tvChannels.empty()) || (!(*Bouquets)[current]->radioChannels.empty());
 
 		if (!has_channels)
 			color = COL_MENUCONTENTINACTIVE_TEXT;
 	}
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, iheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, iheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, item_height, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, item_height, bgcolor, i_radius);
 
-	if (current < Bouquets->size()) {
+	if (current < Bouquets->size())
+	{
 		if ((i_selected) && (state == beMoving))
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID, ypos, item_height);
+		else
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, x + OFFSET_INNER_MID, ypos, item_height);
+
+		int text_offset = 2*OFFSET_INNER_MID + action_icon_width;
+		item_font->RenderString(x + text_offset, ypos + item_height, width - text_offset - SCROLLBAR_WIDTH - 5*OFFSET_INNER_MID - 4*status_icon_width, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
 
 		if ((*Bouquets)[current]->bHidden)
-			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + OFFSET_INNER_MID + iconoffset, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
 
 		if ((*Bouquets)[current]->bLocked != g_settings.parentallock_defaultlocked)
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_MID + 2*iconoffset, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - 2*status_icon_width, ypos, item_height);
 
-		if (!(*Bouquets)[current]->tvChannels.empty() ) {
-			frameBuffer->paintIcon(NEUTRINO_ICON_VIDEO, x + OFFSET_INNER_MID + 3*iconoffset, ypos, iheight);
-		}
+		if (!(*Bouquets)[current]->radioChannels.empty())
+			frameBuffer->paintIcon(NEUTRINO_ICON_AUDIO, x + width - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - 3*status_icon_width, ypos, item_height);
 
-		if (!(*Bouquets)[current]->radioChannels.empty()) {
-			frameBuffer->paintIcon(NEUTRINO_ICON_AUDIO, x + OFFSET_INNER_MID + 4*iconoffset, ypos, iheight);
-		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 2*OFFSET_INNER_MID + 5*iconoffset, ypos + iheight - (iheight-fheight)/2, width - 3*OFFSET_INNER_MID - 5*iconoffset, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
+		if (!(*Bouquets)[current]->tvChannels.empty())
+			frameBuffer->paintIcon(NEUTRINO_ICON_VIDEO, x + width - SCROLLBAR_WIDTH - 4*OFFSET_INNER_MID - 4*status_icon_width, ypos, item_height);
 	}
 }
 
-void CBEBouquetWidget::paint()
+void CBEBouquetWidget::paintItems()
 {
-	liststart = (selected/listmaxshow)*listmaxshow;
+	liststart = (selected/items_count)*items_count;
 
-	for(unsigned int count=0;count<listmaxshow;count++)
-	{
+	for(unsigned int count = 0; count < items_count; count++)
 		paintItem(count);
-	}
 
 	int total_pages;
 	int current_page;
-	getScrollBarData(&total_pages, &current_page, Bouquets->size(), listmaxshow, selected);
-	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + theight, SCROLLBAR_WIDTH, iheight*listmaxshow, total_pages, current_page);
+	getScrollBarData(&total_pages, &current_page, Bouquets->size(), items_count, selected);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, body_height, total_pages, current_page);
+}
+
+void CBEBouquetWidget::paintBody()
+{
+	PaintBoxRel(x, y + header_height, width, body_height, COL_MENUCONTENT_PLUS_0, RADIUS_NONE, CORNER_NONE, CC_SHADOW_ON);
 }
 
 void CBEBouquetWidget::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, "" /*no header icon*/, CComponentsHeader::CC_BTN_EXIT);
+	header.setCaption(LOCALE_BOUQUETLIST_HEAD);
+	header.setIcon(NEUTRINO_ICON_SETTINGS);
+	header.setDimensionsAll(x, y, width, header_height);
+	header.setCorner(RADIUS_LARGE, CORNER_TOP);
+	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
-const struct button_label CBEBouquetWidgetButtons[6] =
+const struct button_label CBEBouquetWidgetButtons[] =
 {
-	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_BOUQUETEDITOR_DELETE },
-	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_BOUQUETEDITOR_ADD    },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE  },
-	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_BOUQUETEDITOR_RENAME},
-        { NEUTRINO_ICON_BUTTON_PAUSE  , LOCALE_BOUQUETEDITOR_HIDE   },
-        { NEUTRINO_ICON_BUTTON_STOP  , LOCALE_BOUQUETEDITOR_LOCK     }
+	{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_BOUQUETEDITOR_DELETE	},
+	{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_BOUQUETEDITOR_ADD	},
+	{ NEUTRINO_ICON_BUTTON_YELLOW,	LOCALE_BOUQUETEDITOR_MOVE	},
+	{ NEUTRINO_ICON_BUTTON_BLUE,	LOCALE_BOUQUETEDITOR_RENAME	},
+	{ NEUTRINO_ICON_BUTTON_PAUSE,	LOCALE_BOUQUETEDITOR_HIDE	},
+	{ NEUTRINO_ICON_BUTTON_STOP,	LOCALE_BOUQUETEDITOR_LOCK	}
 };
 
 void CBEBouquetWidget::paintFoot()
 {
 	size_t numbuttons = sizeof(CBEBouquetWidgetButtons)/sizeof(CBEBouquetWidgetButtons[0]);
-	footer.paintButtons(x, y+height, width, ButtonHeight, numbuttons, CBEBouquetWidgetButtons, width/numbuttons-2*OFFSET_INNER_MID);
+
+	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
+	footer.enableShadow(CC_SHADOW_ON, -1, true);
+	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEBouquetWidgetButtons);
 }
 
 void CBEBouquetWidget::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
-	footer.kill();
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 }
 
 void CBEBouquetWidget::updateSelection(unsigned int newpos)
@@ -167,16 +182,22 @@ void CBEBouquetWidget::updateSelection(unsigned int newpos)
 	unsigned int prev_selected = selected;
 	selected = newpos;
 
-	if (state == beDefault) {
+	if (state == beDefault)
+	{
 		unsigned int oldliststart = liststart;
-		liststart = (selected/listmaxshow)*listmaxshow;
-		if(oldliststart!=liststart) {
-			paint();
-		} else {
+		liststart = (selected/items_count)*items_count;
+		if (oldliststart != liststart)
+		{
+			paintItems();
+		}
+		else
+		{
 			paintItem(prev_selected - liststart);
 			paintItem(selected - liststart);
 		}
-	} else {
+	}
+	else
+	{
 		internalMoveBouquet(prev_selected, selected);
 	}
 }
@@ -191,58 +212,26 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	if (parent)
 		parent->hide();
 
-	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
-
-	int icol_w, icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icol_w, &icol_h);
-	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
-	iconoffset = std::max(iconoffset, icol_w);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icol_w, &icol_h);
-	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
-	iconoffset = std::max(iconoffset, icol_w);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_HIDDEN, &icol_w, &icol_h);
-	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
-	iconoffset = std::max(iconoffset, icol_w);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_VIDEO, &icol_w, &icol_h);
-	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
-	iconoffset = std::max(iconoffset, icol_w);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_AUDIO, &icol_w, &icol_h);
-	iheight = std::max(fheight, icol_h + OFFSET_INNER_MIN);
-	iconoffset = std::max(iconoffset, icol_w);
-
-	width  = frameBuffer->getScreenWidthRel();
-	height = frameBuffer->getScreenHeightRel() - ButtonHeight;
-
-	listmaxshow = (height-theight)/iheight;
-	height = theight+listmaxshow*iheight; // recalc height
-
-        x = getScreenStartX(width);
-        y = getScreenStartY(height + ButtonHeight);
-
 	Bouquets = &g_bouquetManager->Bouquets;
+
 	paintHead();
-	paint();
+	paintBody();
 	paintFoot();
+	paintItems();
 
 	bouquetsChanged = false;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-	bool loop=true;
+	bool loop = true;
 	while (loop)
 	{
-		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
-		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
+		if (msg <= CRCInput::RC_MaxRC)
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-		if ((msg == CRCInput::RC_timeout) ||
-		    (msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
+		if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
 		{
 			if (state == beDefault)
 			{
@@ -250,21 +239,28 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				{
 					int result = ShowMsg(LOCALE_BOUQUETEDITOR_NAME, LOCALE_BOUQUETEDITOR_SAVECHANGES, CMsgBox::mbrYes, CMsgBox::mbYesNoCancel, NULL, 600);
 
-					switch( result )
+					switch(result)
 					{
-						case CMsgBox::mbrYes :
+						case CMsgBox::mbrYes:
+						{
 							loop=false;
 							saveChanges();
-						break;
-						case CMsgBox::mbrNo :
+							break;
+						}
+						case CMsgBox::mbrNo:
+						{
 							loop=false;
 							discardChanges();
-						break;
-						case CMsgBox::mbrCancel :
+							break;
+						}
+						case CMsgBox::mbrCancel:
+						{
 							paintHead();
-							paint();
+							paintBody();
 							paintFoot();
-						break;
+							paintItems();
+							break;
+						}
 					}
 				}
 				else
@@ -280,36 +276,38 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		else if (msg == CRCInput::RC_up || msg == (neutrino_msg_t)g_settings.key_pageup ||
 			 msg == CRCInput::RC_down || msg == (neutrino_msg_t)g_settings.key_pagedown)
 		{
-			int new_selected = UpDownKey(*Bouquets, msg, listmaxshow, selected);
+			int new_selected = UpDownKey(*Bouquets, msg, items_count, selected);
 			updateSelection(new_selected);
 		}
-		else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end) {
-			if (!(Bouquets->empty())) {
+		else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end)
+		{
+			if (!(Bouquets->empty()))
+			{
 				int new_selected = msg == (neutrino_msg_t) g_settings.key_list_start ? 0 : Bouquets->size() - 1;
 				updateSelection(new_selected);
 			}
 		}
-		else if(msg==CRCInput::RC_red)
+		else if (msg == CRCInput::RC_red)
 		{
 			if (state == beDefault)
 				deleteBouquet();
 		}
-		else if(msg==CRCInput::RC_green)
+		else if (msg == CRCInput::RC_green)
 		{
 			if (state == beDefault)
 				addBouquet();
 		}
-		else if(msg==CRCInput::RC_yellow)
+		else if (msg == CRCInput::RC_yellow)
 		{
 			if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 			{
-				liststart = (selected/listmaxshow)*listmaxshow;
+				liststart = (selected/items_count)*items_count;
 				if (state == beDefault)
 					beginMoveBouquet();
 				paintItem(selected - liststart);
 			}
 		}
-		else if(msg==CRCInput::RC_blue)
+		else if (msg == CRCInput::RC_blue)
 		{
 			if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 			{
@@ -317,8 +315,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 						renameBouquet();
 			}
 		}
-
-		else if(msg==CRCInput::RC_pause)
+		else if (msg == CRCInput::RC_pause)
 		{
 			if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 			{
@@ -326,7 +323,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 						switchHideBouquet();
 			}
 		}
-		else if(msg==CRCInput::RC_stop)
+		else if (msg == CRCInput::RC_stop)
 		{
 			if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 			{
@@ -334,30 +331,35 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 						switchLockBouquet();
 			}
 		}
-		else if(msg==CRCInput::RC_ok)
+		else if (msg == CRCInput::RC_ok)
 		{
 			if (state == beDefault)
 			{
 				if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 				{
 					std::string ChannelWidgetCaption=(*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name;
-					if (!(*Bouquets)[selected]->tvChannels.empty() ) {
-						ChannelWidgetCaption = ChannelWidgetCaption+ "  =>  TV";
+#if 0
+					if (!(*Bouquets)[selected]->tvChannels.empty())
+					{
+						ChannelWidgetCaption = ChannelWidgetCaption + " => TV";
 						if (!(*Bouquets)[selected]->radioChannels.empty())
-							ChannelWidgetCaption = ChannelWidgetCaption+ "/Radio";
+							ChannelWidgetCaption = ChannelWidgetCaption + " / Radio";
 					}
-					else if (!(*Bouquets)[selected]->radioChannels.empty()) {
-						ChannelWidgetCaption = ChannelWidgetCaption+ "  =>     Radio";
+					else if (!(*Bouquets)[selected]->radioChannels.empty())
+					{
+						ChannelWidgetCaption = ChannelWidgetCaption + " => Radio";
 					}
+#endif
 
 					CBEChannelWidget* channelWidget = new CBEChannelWidget(ChannelWidgetCaption, selected);
-					channelWidget->exec( this, "");
+					channelWidget->exec(this, "");
 					if (channelWidget->hasChanged())
 						bouquetsChanged = true;
 					delete channelWidget;
 					paintHead();
-					paint();
+					paintBody();
 					paintFoot();
+					paintItems();
 				}
 			}
 			else if (state == beMoving)
@@ -365,13 +367,13 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				finishMoveBouquet();
 			}
 		}
-		else if( CRCInput::isNumeric(msg) )
+		else if (CRCInput::isNumeric(msg))
 		{
 			if (state == beDefault)
 			{
 				//kein pushback - wenn man versehentlich wo draufkommt is die edit-arbeit umsonst
 				//selected = oldselected;
-				//g_RCInput->postMsg( msg, data );
+				//g_RCInput->postMsg(msg, data);
 				//loop=false;
 			}
 			else if (state == beMoving)
@@ -385,7 +387,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		}
 		else
 		{
-			CNeutrinoApp::getInstance()->handleMsg( msg, data );
+			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 	}
 	hide();
@@ -405,13 +407,13 @@ void CBEBouquetWidget::deleteBouquet()
 	if (selected >= Bouquets->size())
 		selected = Bouquets->empty() ? 0 : (Bouquets->size() - 1);
 	bouquetsChanged = true;
-	paint();
+	paintItems();
 }
 
 void CBEBouquetWidget::addBouquet()
 {
 	std::string newName = inputName("", LOCALE_BOUQUETEDITOR_BOUQUETNAME);
-	if (!(newName.empty()))
+	if (!newName.empty())
 	{
 		g_bouquetManager->addBouquet(newName, true);
 		Bouquets = &g_bouquetManager->Bouquets;
@@ -419,8 +421,9 @@ void CBEBouquetWidget::addBouquet()
 		bouquetsChanged = true;
 	}
 	paintHead();
-	paint();
+	paintBody();
 	paintFoot();
+	paintItems();
 }
 
 void CBEBouquetWidget::beginMoveBouquet()
@@ -438,27 +441,29 @@ void CBEBouquetWidget::finishMoveBouquet()
 		Bouquets = &g_bouquetManager->Bouquets;
 		bouquetsChanged = bouquetsChanged | true;
 	}
-	paint();
+	paintItems();
 }
 
 void CBEBouquetWidget::cancelMoveBouquet()
 {
 	state = beDefault;
-	internalMoveBouquet( newPosition, origPosition);
+	internalMoveBouquet(newPosition, origPosition);
 	bouquetsChanged = bouquetsChanged | false;
 }
 
-void CBEBouquetWidget::internalMoveBouquet( unsigned int fromPosition, unsigned int toPosition)
+void CBEBouquetWidget::internalMoveBouquet(unsigned int fromPosition, unsigned int toPosition)
 {
-	if ( (int) toPosition == -1 ) return;
-	if ( toPosition == Bouquets->size()) return;
+	if ((int) toPosition == -1)
+		return;
+	if (toPosition == Bouquets->size())
+		return;
 
 	g_bouquetManager->moveBouquet(fromPosition, toPosition);
 	Bouquets = &g_bouquetManager->Bouquets;
 	//bouquetsChanged = true;
 	selected = toPosition;
 	newPosition = toPosition;
-	paint();
+	paintItems();
 }
 
 void CBEBouquetWidget::renameBouquet()
@@ -474,22 +479,23 @@ void CBEBouquetWidget::renameBouquet()
 		bouquetsChanged = true;
 	}
 	paintHead();
-	paint();
+	paintBody();
 	paintFoot();
+	paintItems();
 }
 
 void CBEBouquetWidget::switchHideBouquet()
 {
 	bouquetsChanged = true;
 	(*Bouquets)[selected]->bHidden = !(*Bouquets)[selected]->bHidden;
-	paint();
+	paintItems();
 }
 
 void CBEBouquetWidget::switchLockBouquet()
 {
 	bouquetsChanged = true;
 	g_bouquetManager->setBouquetLock((*Bouquets)[selected], !(*Bouquets)[selected]->bLocked);
-	paint();
+	paintItems();
 }
 
 std::string CBEBouquetWidget::inputName(const char * const defaultName, const neutrino_locale_t caption)
