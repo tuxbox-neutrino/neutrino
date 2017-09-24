@@ -116,7 +116,7 @@ void CFbAccelGLFB::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 void CFbAccelGLFB::run()
 {
 	printf(LOGTAG "run start\n");
-	int64_t last_blit = INT64_MAX;
+	int64_t last_blit = 0;
 	blit_pending = false;
 	blit_thread = true;
 	blit_mutex.lock();
