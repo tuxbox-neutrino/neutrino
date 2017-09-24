@@ -2,7 +2,7 @@
 |	Neutrino-GUI  -   DBoxII-Project
 |
 |	Copyright (C) 2004 by Sanaia <sanaia at freenet dot de>
-|	Copyright (C) 2010-2013 Stefan Seyfried
+|	Copyright (C) 2010-2013, 2017 Stefan Seyfried
 |
 |	netfile - remote file access mapper
 |
@@ -140,6 +140,9 @@ known bugs:
 	#undef fseek
 #endif
 
+/* somewhat safe, 0-terminated sprintf and strcpy */
+#define SPRINTF(a, b...) snprintf(a, sizeof(a)-1, b)
+#define STRCPY(a, b)     { strncpy(a, b, sizeof(a)-1);     a[sizeof(a)-1] = 0; }
 
 
 
@@ -178,7 +181,7 @@ magic_t known_magic[] =
 char err_txt[2048];			/* human readable error message */
 char redirect_url[2048];		/* new url if we've been redirected (HTTP 301/302) */
 static int debug = 0;			/* print debugging output or not */
-static char logfile[255];		/* redirect errors from stderr */
+static char logfile[256];		/* redirect errors from stderr */
 static int retry_num = 2 /*10*/;		/* number of retries for failed connections */
 static int enable_metadata = 0;	/* allow shoutcast meta data streaming */
 static int got_opts = 0;		/* is set to 1 if getOpts() was executed */
@@ -250,7 +253,7 @@ void getOpts()
 
 	if((ptr = strstr(buf, "logfile=")))
 	{
-		strcpy(logfile, strchr(ptr, '=') + 1);
+		STRCPY(logfile, strchr(ptr, '=') + 1);
 		CRLFCut(logfile);
 		freopen(logfile, "w", stderr);
 	}
@@ -288,7 +291,7 @@ int ConnectToServer(char *hostname, int port)
 
 	if(fd == -1)
 	{
-		strcpy(err_txt, strerror(errno));
+		STRCPY(err_txt, strerror(errno));
 		return -1;
 	}
 
@@ -305,7 +308,7 @@ int ConnectToServer(char *hostname, int port)
 	{
 		if(errno != EINPROGRESS) {
 			close(fd);
-			strcpy(err_txt, strerror(errno));
+			STRCPY(err_txt, strerror(errno));
 			dprintf(stderr, "error connecting to %s: %s\n", hostname, err_txt);
 			return -1;
 		}
@@ -318,7 +321,7 @@ int ConnectToServer(char *hostname, int port)
 
 	int ret = poll(&pfd, 1, 5000);
 	if(ret != 1) {
-		strcpy(err_txt, strerror(errno));
+		STRCPY(err_txt, strerror(errno));
 		dprintf(stderr, "error connecting to %s: %s\n", hostname, err_txt);
 		close(fd);
 		return -1;
@@ -339,7 +342,7 @@ int ConnectToServer(char *hostname, int port)
 
 int request_file(URL *url)
 {
-	char str[255], *ptr;
+	char str[256], *ptr;
 	int slot;
 	ID3 id3;
 	memset(&id3, 0, sizeof(ID3));
@@ -386,18 +389,18 @@ int request_file(URL *url)
 
 				if (url->logindata[0])
 				{
-					sprintf(str, "Authorization: Basic %s\r\n", url->logindata);
+					SPRINTF(str, "Authorization: Basic %s\r\n", url->logindata);
 					dprintf(stderr, "> %s", str);
 					send(url->fd, str, strlen(str), 0);
 				}
 
-				snprintf(str, sizeof(str)-1, "Accept: */*\r\n");
+				strcpy(str, "Accept: */*\r\n");
 				dprintf(stderr, "> %s", str);
 				send(url->fd, str, strlen(str), 0);
 
 				if(enable_metadata)
 				{
-					snprintf(str, sizeof(str)-1, "Icy-MetaData: 1\r\n");
+					strcpy(str, "Icy-MetaData: 1\r\n");
 					dprintf(stderr, "> %s", str);
 					send(url->fd, str, strlen(str), 0);
 				}
@@ -464,32 +467,32 @@ int request_file(URL *url)
 			int meta_int;
 			CSTATE tmp;
 
-			sprintf(str, "GET %s HTTP/1.0\r\n", url->file);
+			SPRINTF(str, "GET %s HTTP/1.0\r\n", url->file);
 			dprintf(stderr, "> %s", str);
 			send(url->fd, str, strlen(str), 0);
-			sprintf(str, "Host: %s\r\n", url->host);
+			SPRINTF(str, "Host: %s\r\n", url->host);
 			dprintf(stderr, "> %s", str);
 			send(url->fd, str, strlen(str), 0);
 
 			if(enable_metadata)
 			{
-				sprintf(str, "icy-metadata: 1\r\n");
+				strcpy(str, "icy-metadata: 1\r\n");
 				dprintf(stderr, "> %s", str);
 				send(url->fd, str, strlen(str), 0);
 			}
 
-			sprintf(str, "User-Agent: %s\r\n", "RealPlayer/4.0");
+			SPRINTF(str, "User-Agent: %s\r\n", "RealPlayer/4.0");
 			dprintf(stderr, "> %s", str);
 			send(url->fd, str, strlen(str), 0);
 
 			if (url->logindata[0])
 			{
-				sprintf(str, "Authorization: Basic %s\r\n", url->logindata);
+				SPRINTF(str, "Authorization: Basic %s\r\n", url->logindata);
 				dprintf(stderr, "> %s", str);
 				send(url->fd, str, strlen(str), 0);
 			}
 
-			sprintf(str, "\r\n"); /* end of headers to send */
+			strcpy(str, "\r\n"); /* end of headers to send */
 			dprintf(stderr, "> %s", str);
 			send(url->fd, str, strlen(str), 0);
 
@@ -623,14 +626,14 @@ int parse_response(URL *url, void * /*opt*/, CSTATE *state)
 		case 301:	/* 'file moved' error */
 		case 302:	/* 'file not found' error */
 				errno = ENOENT;
-				strcpy(err_txt, ptr);
+				STRCPY(err_txt, ptr);
 				getHeaderStr("Location", redirect_url);
 				return -1 * response;
 				break;
 
 		case 404:	/* 'file not found' error */
 				errno = ENOENT;
-				strcpy(err_txt, ptr);
+				STRCPY(err_txt, ptr);
 				return -1;
 				break;
 
@@ -831,7 +834,7 @@ FILE *f_open(const char *filename, const char *acctype)
 			if(ptr)
 				*ptr = 0;
 
-			sprintf(url.url, "%s", buf);
+			STRCPY(url.url, buf);
 		}
 		else
 			return NULL;
@@ -907,7 +910,7 @@ FILE *f_open(const char *filename, const char *acctype)
 							/* no free cache slot ? return an error */
 							if(i == CACHEENTMAX)
 							{
-								sprintf(err_txt, "no more free cache slots. Too many open files.\n");
+								strcpy(err_txt, "no more free cache slots. Too many open files.\n");
 								return NULL;
 							}
 
@@ -993,9 +996,9 @@ FILE *f_open(const char *filename, const char *acctype)
 
 				/* create either a shoutcast or an icecast query */
 				if(url.access_mode == MODE_SCAST)
-					sprintf(buf2, "http://classic.shoutcast.com/directory/?orderby=listeners&s=%s", url.host);
+					SPRINTF(buf2, "http://classic.shoutcast.com/directory/?orderby=listeners&s=%s", url.host);
 				else
-					sprintf(buf2, "http://www.icecast.org/streamlist.php?search=%s", url.host);
+					SPRINTF(buf2, "http://www.icecast.org/streamlist.php?search=%s", url.host);
 
 				//findme
 				// ICECAST: it ain't that simple. Icecast doesn't work yet */
@@ -1004,7 +1007,7 @@ FILE *f_open(const char *filename, const char *acctype)
 
 				if(!_fd)
 				{
-					sprintf(err_txt, "%s database query failed\nfailed action: %s",
+					SPRINTF(err_txt, "%s database query failed\nfailed action: %s",
 						((url.access_mode == MODE_SCAST) ? "shoutcast" : "icecast"), buf2);
 					return NULL;
 				}
@@ -1016,17 +1019,17 @@ FILE *f_open(const char *filename, const char *acctype)
 
 				if(!ptr)
 				{
-					sprintf(err_txt, "failed to find station number");
+					strcpy(err_txt, "failed to find station number");
 					dprintf(stderr, "%s\n", buf2);
 					return NULL;
 				}
 
-				sprintf(url.host, "%d", atoi(ptr + 3));
+				SPRINTF(url.host, "%d", atoi(ptr + 3));
 			}
 
 			/* create the correct url from the station number */
 			CRLFCut(url.host);
-			sprintf(url.url, "http://classic.shoutcast.com/sbin/shoutcast-playlist.pls?rn=%s&file=filename.pls", url.host);
+			SPRINTF(url.url, "http://classic.shoutcast.com/sbin/shoutcast-playlist.pls?rn=%s&file=filename.pls", url.host);
 			/* fall through */
 
 		case MODE_PLS:	{
@@ -1062,7 +1065,7 @@ FILE *f_open(const char *filename, const char *acctype)
 			if(!ptr)
 			{
 				dprintf(stderr, "Ups! Playlist doesn't seem to contain any URL !\nbuffer:%s\n", buf);
-				sprintf(err_txt, "Ups! Playlist doesn't seem to contain any URL !");
+				strcpy(err_txt, "Ups! Playlist doesn't seem to contain any URL !");
 				return NULL;
 			}
 
@@ -1089,7 +1092,7 @@ FILE *f_open(const char *filename, const char *acctype)
 					const char* const chptr = strstr(servers[i], "://");
 					if(chptr)
 					{
-						sprintf(url.url, "icy%s", chptr);
+						snprintf(url.url, sizeof(url.url)-1, "icy%s", chptr);
 						fd = f_open(url.url, "r");
 					}
 				}
