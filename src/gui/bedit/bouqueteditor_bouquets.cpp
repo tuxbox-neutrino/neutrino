@@ -304,6 +304,8 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				liststart = (selected/items_count)*items_count;
 				if (state == beDefault)
 					beginMoveBouquet();
+				else if (state == beMoving)
+					finishMoveBouquet();
 				paintItem(selected - liststart);
 			}
 		}
@@ -312,7 +314,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 			{
 				if (state == beDefault)
-						renameBouquet();
+					renameBouquet();
 			}
 		}
 		else if (msg == CRCInput::RC_pause)
@@ -320,7 +322,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 			{
 				if (state == beDefault)
-						switchHideBouquet();
+					switchHideBouquet();
 			}
 		}
 		else if (msg == CRCInput::RC_stop)
@@ -328,7 +330,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 			{
 				if (state == beDefault)
-						switchLockBouquet();
+					switchLockBouquet();
 			}
 		}
 		else if (msg == CRCInput::RC_ok)
