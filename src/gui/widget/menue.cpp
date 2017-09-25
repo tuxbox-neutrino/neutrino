@@ -1140,11 +1140,11 @@ void CMenuWidget::calcSize()
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
 		int lines = 2;
-		int text_height = 2*OFFSET_INNER_MID + lines*g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
+		int text_height = 2*OFFSET_INNER_SMALL + lines*g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
 		/* assuming all hint icons has the same size ! */
 		int icon_width, icon_height;
 		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &icon_width, &icon_height);
-		icon_height += 2*OFFSET_INNER_MID;
+		icon_height += 2*OFFSET_INNER_SMALL;
 		hint_height = std::max(icon_height, text_height);
 	}
 	/* set the max height to 9/10 of usable screen height
@@ -1202,11 +1202,12 @@ void CMenuWidget::calcSize()
 	// shrink menu if less items
 	height = std::min(height, hheight + maxItemHeight);
 	/*
-	   Always add a bottom offset.
+	   Always add a bottom separator offset.
 	   Most menus has an upper offset too,
 	   which is added with the intro-items
 	*/
-	height += OFFSET_INNER_MID;
+	CMenuItem *separator = new CMenuSeparator();
+	height += separator->getHeight();
 	
 	//scrollbar width
 	scrollbar_width=0;
