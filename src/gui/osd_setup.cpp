@@ -1059,6 +1059,8 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 	{
 		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 240);
 		ch->setNumberFormat(nf);
+		ch->setLocalizedValue(0);
+		ch->setLocalizedValueName(LOCALE_OPTIONS_OFF);
 		ch->setHint("", timing_setting[i].hint);
 		menu_timeout->addItem(ch);
 	}
