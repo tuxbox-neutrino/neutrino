@@ -1305,7 +1305,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 			}
 		}
 
-		for (std::vector<in_dev>::iterator i = indev.begin(); i != indev.end(); ++i) {
+		/* iterate backwards or the vector will be corrupted by the indev.erase(i) */
+		std::vector<in_dev>::iterator i = indev.end();
+		while (i != indev.begin()) {
+			--i;
 			if (((*i).fd != -1) && (FD_ISSET((*i).fd, &rfds))) {
 				uint64_t now_pressed = 0;
 				t_input_event ev;
@@ -1317,7 +1320,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					if (errno == ENODEV) {
 						/* hot-unplugged? */
 						::close((*i).fd);
-						indev.erase(i);
+						i = indev.erase(i);
 					}
 					continue;
 				}
