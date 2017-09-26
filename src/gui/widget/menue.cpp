@@ -1077,7 +1077,7 @@ void CMenuWidget::hide()
 			info_box->kill();
 		if (details_line)
 			details_line->hide();
-		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height/* + footer_height*/);	// full_height includes footer_height : see calcSize
+		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height); // full_height includes footer_height : see calcSize
 		//paintHint(-1);
 	}
 	paintHint(-1);
@@ -1215,7 +1215,7 @@ void CMenuWidget::calcSize()
 		scrollbar_width = SCROLLBAR_WIDTH;
 
 	full_width = width + scrollbar_width + OFFSET_SHADOW;
-	full_height = height + footer_height + OFFSET_SHADOW/* + OFFSET_INTER*/; // hintbox is handled separately
+	full_height = height + footer_height + OFFSET_SHADOW; // hintbox is handled separately
 
 	/* + DETAILSLINE_WIDTH for the hintbox connection line
 	 * + center_offset for symmetry
@@ -1299,7 +1299,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int scr_y = frameBuffer->getScreenY();
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
-	int real_h = full_height/* + footer_height*/ + hint_height;		// full_height includes footer_height : see calcSize
+	int real_h = full_height + OFFSET_INTER + hint_height + OFFSET_SHADOW; // full_height includes footer_height : see calcSize
 	int x_old = x;
 	int y_old = y;
 	//configured positions 
@@ -1419,7 +1419,7 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
-	saveScreen_height = full_height/* + footer_height*/;	// full_height includes footer_height : see calcSize
+	saveScreen_height = full_height + OFFSET_INTER + hint_height + OFFSET_SHADOW; // full_height includes footer_height : see calcSize
 	saveScreen_width = full_width;
 	saveScreen_y = y;
 	saveScreen_x = x;
