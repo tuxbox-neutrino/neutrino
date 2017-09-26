@@ -173,6 +173,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 							( g_settings.screen_EndY != y_coord[1] ) ) &&
 						(ShowMsg(LOCALE_VIDEOMENU_SCREENSETUP, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel))
 					break;
+				/* falls through */
 
 			case CRCInput::RC_timeout:
 				loop = false;

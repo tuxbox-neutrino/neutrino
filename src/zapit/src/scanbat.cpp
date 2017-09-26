@@ -82,7 +82,7 @@ bool CBat::Read()
 	int secdone[255];
 	int sectotal = -1;
 
-	memset(secdone, 0, 255);
+	memset(secdone, 0, sizeof(secdone));
 
 	cDemux * dmx = new cDemux(dmxnum);
 	dmx->Open(DMX_PSI_CHANNEL);

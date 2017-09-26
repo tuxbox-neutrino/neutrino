@@ -68,7 +68,7 @@ bool CSdt::Read()
 	int sectotal = -1;
 	bool cable_hack_done = false;
 
-	memset(secdone, 0, 255);
+	memset(secdone, 0, sizeof(secdone));
 	cDemux * dmx = new cDemux(dmxnum);
 	dmx->Open(DMX_PSI_CHANNEL);
 

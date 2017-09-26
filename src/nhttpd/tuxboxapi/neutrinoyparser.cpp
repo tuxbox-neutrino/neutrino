@@ -794,7 +794,7 @@ std::string  CNeutrinoYParser::func_unmount_get_list(CyhookHandler *, std::strin
 		in >> ymount >> ylocal_dir >> yfstype;
 		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		yfstype = trim(yfstype);
-		if( (yfstype == "nfs") << (yfstype == "ftp") || (yfstype == "lufsd") )
+		if( (yfstype == "nfs") || (yfstype == "ftp") || (yfstype == "lufsd") )
 		{
 			mounts=ylocal_dir +" on "+ ymount + " ("+yfstype+")";
 			ysel = ((j==0) ? "checked=\"checked\"" : "");

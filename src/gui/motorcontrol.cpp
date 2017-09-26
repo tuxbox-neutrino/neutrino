@@ -350,7 +350,9 @@ void CMotorControl::motorStep(bool west)
 		case STEP_MODE_AUTO:
 			moving = 1;
 			paintStatus();
+			/* fall through */
 		default:
+			/* what is STEP_MODE_OFF supposed to do? */
 			g_Zapit->sendMotorCommand(0xE0, 0x31, cmd, 1, 40, 0);
 	}
 }

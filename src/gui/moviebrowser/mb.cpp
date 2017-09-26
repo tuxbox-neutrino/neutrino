@@ -2482,8 +2482,8 @@ bool CMovieBrowser::onDelete(bool cursor_only)
 
 	getSelectedFiles(filelist, movielist);
 
-	printf("CMovieBrowser::onDelete(%s) filelist  size: %d\n", cursor_only ? "true" : "false", filelist.size());
-	printf("CMovieBrowser::onDelete(%s) movielist size: %d\n", cursor_only ? "true" : "false", movielist.size());
+	printf("CMovieBrowser::onDelete(%s) filelist  size: %zd\n", cursor_only ? "true" : "false", filelist.size());
+	printf("CMovieBrowser::onDelete(%s) movielist size: %zd\n", cursor_only ? "true" : "false", movielist.size());
 
 	if (cursor_only || (filelist.empty() || movielist.empty()))
 	{
@@ -2498,8 +2498,8 @@ bool CMovieBrowser::onDelete(bool cursor_only)
 		filelist.push_back(m_movieSelectionHandler->file);
 		movielist.push_back(m_movieSelectionHandler);
 
-		printf("CMovieBrowser::onDelete(%s) filelist  size: %d\n", cursor_only ? "true" : "false", filelist.size());
-		printf("CMovieBrowser::onDelete(%s) movielist size: %d\n", cursor_only ? "true" : "false", movielist.size());
+		printf("CMovieBrowser::onDelete(%s) filelist  size: %zd\n", cursor_only ? "true" : "false", filelist.size());
+		printf("CMovieBrowser::onDelete(%s) movielist size: %zd\n", cursor_only ? "true" : "false", movielist.size());
 	}
 
 	MI_MOVIE_LIST dellist;

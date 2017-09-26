@@ -53,12 +53,14 @@ void CComponentsDetailsLine::initVarDline(	const int& x_pos, const int& y_pos_to
 	col_shadow	= color_shadow;
 	col_body	= color_line;
 
+	shadow_w	= 1;
+
 	//CComponentsDetailsLine
 	y_down 		= y_pos_down;
-	h_mark_top 	= h_mark_top_;
-	h_mark_down 	= h_mark_down_;
 
-	shadow_w	= 1;
+	// reduce two times the shadow width, to avoid shadow overlaps
+	h_mark_top 	= h_mark_top_ - 2*shadow_w;
+	h_mark_down 	= h_mark_down_ - 2*shadow_w;
 
 	//CComponentsDetailsLine
 	dl_w 	= CFrameBuffer::getInstance()->scale2Res(3);
@@ -95,9 +97,6 @@ void CComponentsDetailsLine::paint(bool do_save_bg)
 	if (v_fbdata.empty()){
 
 		int sw = shadow_w;
-
-		// reduce two times the shadow width, to avoid shadow overlaps
-		h_mark_down -= 2*sw;
 
 		int y_mark_top = y-h_mark_top/2;
 		int y_mark_down = y_down-h_mark_down/2;

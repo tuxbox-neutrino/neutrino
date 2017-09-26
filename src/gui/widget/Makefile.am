@@ -10,6 +10,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a

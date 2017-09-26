@@ -119,6 +119,7 @@ int CLLThread::llthread_copy_value(llthread_copy_state *state, int depth, int id
 			lua_pushcfunction(state->to_L, fn);
 			break;
 		}
+		/* else fall through */
 	case LUA_TUSERDATA:
 	case LUA_TTHREAD:
 	default:

@@ -1066,6 +1066,8 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 	{
 		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 240);
 		ch->setNumberFormat(nf);
+		ch->setLocalizedValue(0);
+		ch->setLocalizedValueName(LOCALE_OPTIONS_OFF);
 		ch->setHint("", timing_setting[i].hint);
 		menu_timeout->addItem(ch);
 	}
@@ -1245,7 +1247,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 }
 
 //channellist
-void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist, bool hint_paint)
+void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 {
 	CMenuOptionChooser * mc;
 
@@ -1254,45 +1256,38 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist, bool hint_paint
 
 	// channellist additional
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_ADDITIONAL, &g_settings.channellist_additional, CHANNELLIST_ADDITIONAL_OPTIONS, CHANNELLIST_ADDITIONAL_OPTION_COUNT, true);
-	if(hint_paint)
-		mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_ADDITIONAL);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_ADDITIONAL);
 	menu_chanlist->addItem(mc);
 
 	// epg align
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true);
-	if(hint_paint)
-		mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EPG_ALIGN);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EPG_ALIGN);
 	menu_chanlist->addItem(mc);
 
 	// extended channel list
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.theme.progressbar_design_channellist, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
-	if(hint_paint)
-		mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
 	menu_chanlist->addItem(mc);
 
 	// show infobox
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_INFOBOX, &g_settings.channellist_show_infobox, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, channellistNotifier);
-	if(hint_paint)
-		mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_INFOBOX);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_INFOBOX);
 	menu_chanlist->addItem(mc);
 
 	// foot
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, g_settings.channellist_show_infobox);
-	if(hint_paint)
-		mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_FOOT);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_FOOT);
 	menu_chanlist->addItem(mc);
 	channellistNotifier->addItem(mc);
 
 	//show channel logo
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	if(hint_paint)
-		mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELLOGO);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELLOGO);
 	menu_chanlist->addItem(mc);
 
 	//show numbers
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELNUMBER, &g_settings.channellist_show_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	if(hint_paint)
-		mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELNUMBER);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELNUMBER);
 	menu_chanlist->addItem(mc);
 }
 
@@ -1515,7 +1510,7 @@ int COsdSetup::showContextChanlistMenu(CChannelList *parent_channellist)
 	menu_chanlist->enableFade(false);
 	menu_chanlist->setSelected(cselected);
 
-	showOsdChanlistSetup(menu_chanlist, false);
+	showOsdChanlistSetup(menu_chanlist);
 	menu_chanlist->addItem(new CMenuSeparator(CMenuSeparator::LINE));
 
 	CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
@@ -1533,7 +1528,7 @@ int COsdSetup::showContextChanlistMenu(CChannelList *parent_channellist)
 	fontSettingsSubMenu->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, font_sizes_groups[i].actionkey));
 
 	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, NULL, CRCInput::RC_red);
-// 	mf->setHint("", LOCALE_MENU_HINT_FONTS);//FIXME menu restoreScreen
+	mf->setHint("", LOCALE_MENU_HINT_FONTS);
 	menu_chanlist->addItem(mf);
 
 	int res = menu_chanlist->exec(NULL, "");

@@ -361,6 +361,8 @@ private:
 	void setNumberFormat(std::string format) { numberFormat = format; }
 	void setNumberFormat(std::string (*fun)(int)) { numberFormatFunction = fun; }
 	void setNumericInput(bool _numeric_input) { numeric_input = _numeric_input; }
+	void setLocalizedValue(int special_value) { localized_value = special_value; }
+	void setLocalizedValueName(neutrino_locale_t special_value_name) { localized_value_name = special_value_name; }
 };
 
 class CMenuOptionChooserOptions

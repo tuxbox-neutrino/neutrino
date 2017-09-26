@@ -712,6 +712,7 @@ void CServiceScan::ChannelFound(uint8_t service_type, std::string providerName, 
 		case ST_NVOD_REFERENCE_SERVICE:
 		case ST_NVOD_TIME_SHIFTED_SERVICE:
 			CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) serviceName.c_str(), serviceName.length() + 1);
+			/* fall through */
 		case ST_DATA_BROADCAST_SERVICE:
 		case ST_RCS_MAP:
 		case ST_RCS_FLS:

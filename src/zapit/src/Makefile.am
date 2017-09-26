@@ -12,6 +12,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/xmltree \
 	@FREETYPE_CFLAGS@ \
 	@SIGC_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libzapit.a

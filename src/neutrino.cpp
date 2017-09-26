@@ -1824,6 +1824,7 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 			break;
 		default:
 			newmode = LIST_MODE_PROV;
+			/* fall through */
 		case LIST_MODE_PROV:
 			if(mode == mode_radio)
 				bouquetList = RADIObouquetList;

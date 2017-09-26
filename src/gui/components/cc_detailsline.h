@@ -67,9 +67,9 @@ class CComponentsDetailsLine : public CComponents
 		///set property: lowest y position
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
 		///set property: height of top marker
-		void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_;};
+		void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_ - 2*shadow_w;};
 		///property: height of bottom marker
-		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
+		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_ - 2*shadow_w;};
 		///set all positions and dimensions of details line at once
 		void setDimensionsAll(const int& x_pos,const int& y_pos, const int& y_pos_down, const int& h_mark_top_ , const int& h_mark_down_)
 					{setXPos(x_pos); setYPos(y_pos); setYPosDown(y_pos_down); setHMarkTop(h_mark_top_); setHMarkDown(h_mark_down_);}

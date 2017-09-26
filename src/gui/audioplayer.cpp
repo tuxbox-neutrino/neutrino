@@ -4,6 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2002-2008 the tuxbox project contributors
 	Copyright (C) 2008 Novell, Inc. Author: Stefan Seyfried
+	Copyright (C) 2011-2013,2015,2017 Stefan Seyfried
 	Copyright (C) 2017 Sven Hoefer
 
 	License: GPL
@@ -802,7 +803,7 @@ int CAudioPlayerGui::show()
 					smsKey = m_SMSKeyInput.handleMsg(msg);
 					//printf(" new key: %c", smsKey);
 					/* show a hint box with current char (too slow at the moment?)*/
-					char selectedKey[1];
+					char selectedKey[2];
 					sprintf(selectedKey,"%c",smsKey);
 					int x1=(g_settings.screen_EndX- g_settings.screen_StartX)/2 + g_settings.screen_StartX-50;
 					int y1=(g_settings.screen_EndY- g_settings.screen_StartY)/2 + g_settings.screen_StartY;
@@ -1077,9 +1078,13 @@ void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, cons
 				if (line[0] != '#')
 				{
 					//printf("chunk: line = %s\n", line);
-					ptr = strstr(line, "http://");
-					if (ptr != NULL)
-					{
+					const char *schemes[] = {"http://", "https://", NULL };
+					const char **scheme = schemes;
+					while (*scheme) {
+						ptr = strstr(line, *scheme);
+						scheme++;
+						if (ptr == NULL)
+							continue;
 						char *tmp;
 						// strip \n and \r characters from url
 						tmp = strchr(line, '\r');
@@ -1089,6 +1094,7 @@ void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, cons
 						if (tmp != NULL)
 							*tmp = '\0';
 						addUrl2Playlist(ptr, name, tim);
+						break;
 					}
 				}
 			}

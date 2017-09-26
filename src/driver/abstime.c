@@ -5,7 +5,7 @@
 int64_t time_monotonic_ms(void)
 {
 	struct timespec t;
-	time_t ret;
+	int64_t ret;
 	if (clock_gettime(CLOCK_MONOTONIC, &t))
 	{
 		perror("time_monotonic_ms clock_gettime");

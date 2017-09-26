@@ -799,6 +799,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				switch ( rv ) {
 					case menu_return::RETURN_EXIT_ALL:
 						retval = menu_return::RETURN_EXIT_ALL;
+						/* fall through */
 					case menu_return::RETURN_EXIT:
 						msg = CRCInput::RC_timeout;
 						break;
@@ -889,6 +890,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						break;
 					case CRCInput::RC_up:
 						dir = -1;
+						/* fall through */
 					default: /* fallthrough or RC_down => dir = 1 */
 						pos += dir;
 						if (pos < 0 || pos >= (int)items.size())
@@ -925,16 +927,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 			}
 			case (CRCInput::RC_left):
-				{
-					if(hasItem() && selected > -1 && (int)items.size() > selected) {
-						CMenuItem* itemX = items[selected];
-						if (!itemX->isMenueOptionChooser()) {
-							if (g_settings.menu_left_exit)
-								msg = CRCInput::RC_timeout;
-							break;
-						}
-					}
+				if (hasItem() && selected > -1 && (int)items.size() > selected) {
+					CMenuItem* itemX = items[selected];
+					if (!itemX->isMenueOptionChooser() && g_settings.menu_left_exit)
+						msg = CRCInput::RC_timeout;
 				}
+				break;
 			case (CRCInput::RC_right):
 			case (CRCInput::RC_ok):
 				{
@@ -949,6 +947,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						switch ( rv ) {
 							case menu_return::RETURN_EXIT_ALL:
 								retval = menu_return::RETURN_EXIT_ALL;
+								/* fall through */
 							case menu_return::RETURN_EXIT:
 								msg = CRCInput::RC_timeout;
 								break;
@@ -1140,11 +1139,11 @@ void CMenuWidget::calcSize()
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
 		int lines = 2;
-		int text_height = 2*OFFSET_INNER_MID + lines*g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
+		int text_height = 2*OFFSET_INNER_SMALL + lines*g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
 		/* assuming all hint icons has the same size ! */
 		int icon_width, icon_height;
 		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &icon_width, &icon_height);
-		icon_height += 2*OFFSET_INNER_MID;
+		icon_height += 2*OFFSET_INNER_SMALL;
 		hint_height = std::max(icon_height, text_height);
 	}
 	/* set the max height to 9/10 of usable screen height
@@ -1202,11 +1201,12 @@ void CMenuWidget::calcSize()
 	// shrink menu if less items
 	height = std::min(height, hheight + maxItemHeight);
 	/*
-	   Always add a bottom offset.
+	   Always add a bottom separator offset.
 	   Most menus has an upper offset too,
 	   which is added with the intro-items
 	*/
-	height += OFFSET_INNER_MID;
+	CMenuItem *separator = new CMenuSeparator();
+	height += separator->getHeight();
 	
 	//scrollbar width
 	scrollbar_width=0;

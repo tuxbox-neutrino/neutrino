@@ -11,6 +11,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/xmltree \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_gui_bedit.a
@@ -18,5 +19,5 @@ noinst_LIBRARIES = libneutrino_gui_bedit.a
 libneutrino_gui_bedit_a_SOURCES = \
 	bouqueteditor_bouquets.cpp \
 	bouqueteditor_channels.cpp \
-	bouqueteditor_chanselect.cpp
-
+	bouqueteditor_chanselect.cpp \
+	bouqueteditor_globals.cpp

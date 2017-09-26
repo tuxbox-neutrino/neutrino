@@ -518,6 +518,7 @@ bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::stri
 			default:
 				//trailer = "&time=today";
 				curfeed = "&chart=mostPopular";
+				break;
 			case MOST_POPULAR_ALL_TIME:
 				curfeed = "&chart=mostPopular";
 				break;
