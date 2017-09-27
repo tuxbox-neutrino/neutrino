@@ -356,6 +356,8 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		{
 			if (state == beDefault)
 				addChannel();
+
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
 		}
 		else if (msg == CRCInput::RC_yellow)
 		{

@@ -362,6 +362,8 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 					paintBody();
 					paintFoot();
 					paintItems();
+
+					timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
 				}
 			}
 			else if (state == beMoving)
