@@ -56,6 +56,8 @@ class CBEGlobals
 
 		int action_icon_width;
 		int status_icon_width;
+
+		int timeout;
 };
 
 #endif
