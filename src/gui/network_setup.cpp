@@ -787,7 +787,7 @@ void CNetworkSetup::testNetworkSettings()
 		}
 	}
 
-	ShowMsg(LOCALE_NETWORKMENU_TEST, text, CMsgBox::mbrBack, CMsgBox::mbBack, NULL, MSGBOX_MIN_WIDTH, NO_TIMEOUT, false, CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH); // UTF-8
+	ShowMsg(LOCALE_NETWORKMENU_TEST, text, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_NETWORK, MSGBOX_MIN_WIDTH, NO_TIMEOUT, false, CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH);
 }
 
 int CNetworkSetup::showWlanList()
