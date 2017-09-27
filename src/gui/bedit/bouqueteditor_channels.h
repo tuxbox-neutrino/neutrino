@@ -89,6 +89,7 @@ class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		ZapitChannelList * Channels;
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool hasChanged();
+		unsigned int getBouquet() { return bouquet; };
 };
 
 #endif

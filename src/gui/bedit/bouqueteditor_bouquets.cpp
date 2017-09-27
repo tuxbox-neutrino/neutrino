@@ -355,6 +355,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 					CBEChannelWidget* channelWidget = new CBEChannelWidget(ChannelWidgetCaption, selected);
 					channelWidget->exec(this, "");
+					selected = channelWidget->getBouquet();
 					if (channelWidget->hasChanged())
 						bouquetsChanged = true;
 					delete channelWidget;
