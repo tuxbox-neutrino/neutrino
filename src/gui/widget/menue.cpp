@@ -1304,7 +1304,10 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int scr_y = frameBuffer->getScreenY();
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
-	int real_h = full_height + OFFSET_INTER + hint_height + OFFSET_SHADOW; // full_height includes footer_height : see calcSize
+	int hint_h = 0;
+	if (hint_height)
+		hint_h = OFFSET_INTER + hint_height + OFFSET_SHADOW;
+	int real_h = full_height + hint_h; // full_height includes footer_height : see calcSize
 	int x_old = x;
 	int y_old = y;
 	//configured positions 
@@ -1424,20 +1427,23 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
-	saveScreen_height = full_height + OFFSET_INTER + hint_height + OFFSET_SHADOW; // full_height includes footer_height : see calcSize
+	int hint_h = 0;
+	if (hint_height)
+		hint_h = OFFSET_INTER + hint_height + OFFSET_SHADOW;
+	saveScreen_height = full_height + hint_h; // full_height includes footer_height : see calcSize
 	saveScreen_width = full_width;
 	saveScreen_y = y;
 	saveScreen_x = x;
 	background = new fb_pixel_t [saveScreen_height * saveScreen_width];
 	if(background)
-		frameBuffer->SaveScreen(saveScreen_x /*-DETAILSLINE_WIDTH*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
+		frameBuffer->SaveScreen(saveScreen_x, saveScreen_y, saveScreen_width, saveScreen_height, background);
 }
 
 void CMenuWidget::restoreScreen()
 {
 	if(background) {
 		if(savescreen)
-			frameBuffer->RestoreScreen(saveScreen_x /*-DETAILSLINE_WIDTH*/, saveScreen_y, saveScreen_width, saveScreen_height, background);
+			frameBuffer->RestoreScreen(saveScreen_x, saveScreen_y, saveScreen_width, saveScreen_height, background);
 	}
 }
 
