@@ -53,6 +53,8 @@ CBEGlobals::CBEGlobals()
 
         x = getScreenStartX(width);
         y = getScreenStartY(height);
+
+	timeout = g_settings.timing[SNeutrinoSettings::TIMING_MENU];
 }
 
 CBEGlobals::~CBEGlobals()
