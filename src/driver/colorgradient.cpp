@@ -64,15 +64,15 @@ fb_pixel_t* CColorGradient::gradientColorToTransparent(fb_pixel_t col, fb_pixel_
 {
 	if (bSize < 1)
 		return gradientBuf;
-
+	unsigned long _bSize = (unsigned long) bSize;
 	if (gradientBuf == NULL) {
-		gradientBuf = (fb_pixel_t*) malloc(bSize * sizeof(fb_pixel_t));
+		gradientBuf = (fb_pixel_t*) malloc(_bSize * sizeof(fb_pixel_t));
 		if (gradientBuf == NULL) {
 			dprintf(DEBUG_NORMAL, "[%s:%d] malloc error\n", __func__, __LINE__);
 			return NULL;
 		}
 	}
-	memset((void*)gradientBuf, '\0', bSize * sizeof(fb_pixel_t));
+	memset((void*)gradientBuf, '\0', _bSize * sizeof(fb_pixel_t));
 
 	int start_box = 0;
 	int end_box = bSize;
@@ -87,7 +87,7 @@ fb_pixel_t* CColorGradient::gradientColorToTransparent(fb_pixel_t col, fb_pixel_
 		uint8_t g  = (uint8_t)((col & 0x0000FF00) >>  8);
 		uint8_t b  = (uint8_t) (col & 0x000000FF);
 
-		gradientBuf[i] = ((tr << 24) & 0xFF000000) |
+		gradientBuf[i] = ((unsigned int)(tr << 24) & 0xFF000000) |
 			         ((r  << 16) & 0x00FF0000) |
 			         ((g  <<  8) & 0x0000FF00) |
 			         ( b         & 0x000000FF);
@@ -99,15 +99,15 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 {
 	if (bSize < 1)
 		return gradientBuf;
-
+	unsigned long _bSize = (unsigned long) bSize;
 	if (gradientBuf == NULL) {
-		gradientBuf = (fb_pixel_t*) malloc(bSize * sizeof(fb_pixel_t));
+		gradientBuf = (fb_pixel_t*) malloc(_bSize * sizeof(fb_pixel_t));
 		if (gradientBuf == NULL) {
 			dprintf(DEBUG_NORMAL, "[%s:%d] malloc error\n", __func__, __LINE__);
 			return NULL;
 		}
 	}
-	memset((void*)gradientBuf, '\0', bSize * sizeof(fb_pixel_t));
+	memset((void*)gradientBuf, '\0', _bSize * sizeof(fb_pixel_t));
 
 	HsvColor hsv;
 	uint8_t min_v=0, max_v=0, col_s=0;
@@ -180,26 +180,22 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 
 fb_pixel_t* CColorGradient::gradientColorToColor(fb_pixel_t start_col,fb_pixel_t end_col, fb_pixel_t *gradientBuf, int bSize, int mode, int /*intensity*/)
 {
+	unsigned long _bSize = (unsigned long) bSize;
 	if (gradientBuf == NULL) {
-		gradientBuf = (fb_pixel_t*) malloc(bSize * sizeof(fb_pixel_t));
+		gradientBuf = (fb_pixel_t*) malloc(_bSize * sizeof(fb_pixel_t));
 		if (gradientBuf == NULL) {
 			dprintf(DEBUG_NORMAL, "[%s:%d] malloc error\n", __func__, __LINE__);
 			return NULL;
 		}
 	}
-	memset((void*)gradientBuf, '\0', bSize * sizeof(fb_pixel_t));
+	memset((void*)gradientBuf, '\0', _bSize * sizeof(fb_pixel_t));
 
 	int start_box = 0;
 	int end_box = bSize;
 
-	fb_pixel_t temp_col = end_col;
-	end_col =  start_col;
-	start_col = temp_col;
-
+	std::swap(start_col,end_col);
 	if (mode == gradientDark2Light){
-		temp_col = start_col;
-		start_col = end_col;
-		end_col = temp_col;
+		std::swap(start_col,end_col);
 	}
 
 	uint8_t start_tr = (uint8_t)((start_col & 0xFF000000) >> 24);
@@ -226,7 +222,7 @@ fb_pixel_t* CColorGradient::gradientColorToColor(fb_pixel_t start_col,fb_pixel_t
 		uint8_t g  = limitChar((int)((float)start_g + gStep*(float)i));
 		uint8_t b  = limitChar((int)((float)start_b + bStep*(float)i));
 
-		gradientBuf[i] = ((tr << 24) & 0xFF000000) |
+		gradientBuf[i] = ((unsigned int)(tr << 24) & 0xFF000000) |
 			         ((r  << 16) & 0x00FF0000) |
 			         ((g  <<  8) & 0x0000FF00) |
 			         ( b         & 0x000000FF);
