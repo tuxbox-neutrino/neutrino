@@ -95,7 +95,7 @@ void CBEChannelWidget::paintItem(int pos)
 
 	if (i_selected)
 	{
-		if (current < Channels->size())
+		if (current < Channels->size() || Channels->empty())
 			paintDetails(pos, current);
 
 		i_radius = RADIUS_LARGE;
@@ -239,6 +239,9 @@ void CBEChannelWidget::hide()
 std::string CBEChannelWidget::getInfoText(int index)
 {
 	std::string res = "";
+
+	if (Channels->empty())
+		return res;
 
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName((*Channels)[index]->getSatellitePosition());
 	if (IS_WEBTV((*Channels)[index]->getChannelID()))
