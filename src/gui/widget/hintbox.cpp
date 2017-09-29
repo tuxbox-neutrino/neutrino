@@ -208,7 +208,7 @@ int CHintBox::exec()
 	if (timeout == NO_TIMEOUT || timeout == DEFAULT_TIMEOUT)
 		timeout = HINTBOX_DEFAULT_TIMEOUT;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	if (timeout > 0)
 		enableTimeOutBar();

@@ -897,13 +897,13 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		bool epgTextSwitchClear = true;
 
 		int timeout = g_settings.timing[SNeutrinoSettings::TIMING_EPG];
-		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 		while (loop)
 		{
 			g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 			if ( msg <= CRCInput::RC_MaxRC )
-				timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 			scrollCount = medlinecount;
 
@@ -1046,7 +1046,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								bigFonts = g_settings.bigFonts;
 								show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
 								showPos=0;
-								timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+								timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 							} else
 							{
 								printf("no network devices available\n");
@@ -1077,7 +1077,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								epgData.epg_times.startzeit + epgData.epg_times.dauer,
 								epgData.title, epgData.eventID, TIMERD_APIDS_CONF, true, recDir, &evtlist);
 							m.exec(NULL, "");
-							timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+							timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 						}
 						else if (doRecord)
 						{
@@ -1098,11 +1098,11 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 												      epgData.epg_times.startzeit - (ANNOUNCETIME + 120 ),
 												      TIMERD_APIDS_CONF, true, epgData.epg_times.startzeit - (ANNOUNCETIME + 120) > time(NULL), recDir, true);
 									ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
-									timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+									timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 								}
 							} else {
 								ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
-								timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+								timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 							}
 						}
 					}
@@ -1162,7 +1162,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							     epgData.eventID, epgData.epg_times.startzeit, 0);
 						ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 
-						timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+						timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 					}
 					else
 						printf("timerd not available\n");
@@ -1220,7 +1220,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			case CRCInput::RC_ok:
 			case CRCInput::RC_timeout:
 				if(fader.StartFadeOut()) {
-					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					timeoutEnd = CRCInput::calcTimeoutEnd(1);
 					msg = 0;
 				} else
 					loop = false;
@@ -1228,7 +1228,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			default:
 				if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel) {
 					if(fader.StartFadeOut()) {
-						timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+						timeoutEnd = CRCInput::calcTimeoutEnd(1);
 						msg = 0;
 					} else
 						loop = false;

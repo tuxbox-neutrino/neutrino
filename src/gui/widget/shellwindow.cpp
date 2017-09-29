@@ -283,7 +283,7 @@ void CShellWindow::showResult()
 
 			neutrino_msg_t msg;
 			neutrino_msg_data_t data;
-			uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+			uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 			if (!exit)
 			{

@@ -638,7 +638,7 @@ bool CFileBrowser::exec(const char * const dirname)
 	unsigned int oldselected = selected;
 
 	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER];
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	bool loop=true;
 	while (loop)
@@ -647,7 +647,7 @@ bool CFileBrowser::exec(const char * const dirname)
 		neutrino_msg_t msg_repeatok = msg & ~CRCInput::RC_Repeat;
 
 		if (msg <= CRCInput::RC_MaxRC)
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 		if(!CRCInput::isNumeric(msg))
 		{
@@ -949,7 +949,7 @@ bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing)
 	paintFoot();
 
 	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER];
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	bool loop=true;
 	while (loop)
@@ -959,7 +959,7 @@ bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing)
 		neutrino_msg_t msg_repeatok = msg & ~CRCInput::RC_Repeat;
 
 		if (msg <= CRCInput::RC_MaxRC)
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 		if(!CRCInput::isNumeric(msg))
 		{

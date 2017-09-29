@@ -110,8 +110,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	bool doLoop = true;
 
 	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_MENU];
-
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout == 0 ? 0xFFFF : timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 	uint32_t updateTimer = g_RCInput->addTimer(5*1000*1000, false);
 
 	while (doLoop)
@@ -129,7 +128,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 				( msg == CRCInput::RC_home ) ||
 				( msg == CRCInput::RC_ok ) ) {
 			if(fader.StartFadeOut()) {
-				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				timeoutEnd = CRCInput::calcTimeoutEnd(1);
 				msg = 0;
 			} else
 				doLoop = false;
@@ -157,7 +156,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 				if ((msg <= CRCInput::RC_MaxRC) &&
 						(data == 0))                     /* <- button pressed */
 				{
-					timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 				}
 			}
 		}

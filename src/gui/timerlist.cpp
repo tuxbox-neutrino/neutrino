@@ -857,7 +857,7 @@ int CTimerList::show()
 
 	int res = menu_return::RETURN_REPAINT;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	bool update=true;
@@ -883,7 +883,7 @@ int CTimerList::show()
 		}
 			
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer()))
 		{
@@ -899,7 +899,7 @@ int CTimerList::show()
 		{	//Exit after timeout or cancel key
 			if (fader.StartFadeOut())
 			{
-				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				timeoutEnd = CRCInput::calcTimeoutEnd(1);
 				msg = 0;
 			}
 			else

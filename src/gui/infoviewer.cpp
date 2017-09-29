@@ -924,18 +924,16 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 	//define timeouts
 	switch (mode)
 	{
-		case NeutrinoMessages::mode_tv:
-		case NeutrinoMessages::mode_webtv:
-				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + timeout_ext);
-				break;
 		case NeutrinoMessages::mode_radio:
-				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
 				break;
 		case NeutrinoMessages::mode_ts:
-				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] + timeout_ext);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] + timeout_ext);
 				break;
+		case NeutrinoMessages::mode_tv:
+		case NeutrinoMessages::mode_webtv:
 		default:
-				timeoutEnd = CRCInput::calcTimeoutEnd(6 + timeout_ext); 
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + timeout_ext);
 				break;
 	}
 }
@@ -1063,7 +1061,7 @@ void CInfoViewer::loop(bool show_dot)
 				}
 			}
 			if(fader.StartFadeOut())
-				timeoutEnd = CRCInput::calcTimeoutEnd (1);
+				timeoutEnd = CRCInput::calcTimeoutEnd(1);
 			else
 				res = messages_return::cancel_info;
 		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
@@ -1260,7 +1258,7 @@ void CInfoViewer::showSubchan ()
 			} else
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + dy - 2, dx - 20, text, COL_MENUCONTENT_TEXT);
 
-			uint64_t timeoutEnd_tmp = CRCInput::calcTimeoutEnd (2);
+			uint64_t timeoutEnd_tmp = CRCInput::calcTimeoutEnd(2);
 			int res = messages_return::none;
 
 			neutrino_msg_t msg;
