@@ -928,46 +928,39 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 			}
 			case (CRCInput::RC_left):
-				{
-					if(hasItem() && selected > -1 && (int)items.size() > selected) {
-						CMenuItem* itemX = items[selected];
-						if (!itemX->isMenueOptionChooser()) {
-							if (g_settings.menu_left_exit)
-								msg = CRCInput::RC_timeout;
-							break;
-						}
-					}
-				}
 			case (CRCInput::RC_right):
 			case (CRCInput::RC_ok):
-				{
-					if(hasItem() && selected > -1 && (int)items.size() > selected) {
-						//exec this item...
-						CMenuItem* item = items[selected];
-						if (!item->isSelectable())
-							break;
-						item->msg = msg;
-						fader.StopFade();
-						int rv = item->exec( this );
-						switch ( rv ) {
-							case menu_return::RETURN_EXIT_ALL:
-								retval = menu_return::RETURN_EXIT_ALL;
-								/* fall through */
-							case menu_return::RETURN_EXIT:
-								msg = CRCInput::RC_timeout;
-								break;
-							case menu_return::RETURN_REPAINT:
-							case menu_return::RETURN_EXIT_REPAINT:
-								if (fade && washidden)
-									fader.StartFadeIn();
-								checkHints();
-								pos = selected;
-								paint();
-								break;
-						}
-					} else
+				if (hasItem() && selected > -1 && (int)items.size() > selected) {
+					//exec this item...
+					CMenuItem* item = items[selected];
+					if (msg == CRCInput::RC_left && g_settings.menu_left_exit &&
+						!item->isMenueOptionChooser()) {
 						msg = CRCInput::RC_timeout;
-				}
+						break;
+					}
+					if (!item->isSelectable())
+						break;
+					item->msg = msg;
+					fader.StopFade();
+					int rv = item->exec( this );
+					switch ( rv ) {
+						case menu_return::RETURN_EXIT_ALL:
+							retval = menu_return::RETURN_EXIT_ALL;
+							/* fall through */
+						case menu_return::RETURN_EXIT:
+							msg = CRCInput::RC_timeout;
+							break;
+						case menu_return::RETURN_REPAINT:
+						case menu_return::RETURN_EXIT_REPAINT:
+							if (fade && washidden)
+								fader.StartFadeIn();
+							checkHints();
+							pos = selected;
+							paint();
+							break;
+					}
+				} else
+					msg = CRCInput::RC_timeout;
 				break;
 
 			case (CRCInput::RC_home):
