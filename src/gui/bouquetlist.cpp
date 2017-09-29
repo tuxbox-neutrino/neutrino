@@ -461,14 +461,14 @@ int CBouquetList::show(bool bShowChannelList)
 	int pos= lmaxpos;
 
 	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST];
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	bool loop=true;
 	while (loop) {
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
 			if(fader.FadeDone())

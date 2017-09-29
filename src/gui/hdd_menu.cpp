@@ -1328,7 +1328,7 @@ int CHDDMenuHandler::checkDevice(std::string dev)
 	progress->showGlobalStatus(100);
 	progress->showStatusMessageUTF(buf);
 
-	timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 	loop = true;
 	while (loop)
 	{

@@ -407,7 +407,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	paint();
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	while (loop)
@@ -422,7 +422,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
 
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if ((msg == NeutrinoMessages::EVT_TIMER) && (data == smstimer))
 			msg = CRCInput::RC_right;
@@ -493,7 +493,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 			string tmp_name = name == NONEXISTANT_LOCALE ? head : g_Locale->getText(name);
 			if ((trim (*valueString) != trim(oldval)) &&
 			     (ShowMsg(tmp_name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}
 

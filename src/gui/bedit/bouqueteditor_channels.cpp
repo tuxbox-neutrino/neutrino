@@ -317,7 +317,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 	channelsChanged = false;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	bool loop = true;
 	while (loop)
@@ -325,7 +325,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 		if (msg <= CRCInput::RC_MaxRC)
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 		if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
 		{
@@ -362,7 +362,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			if (state == beDefault)
 				addChannel();
 
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout == 0 ? 0xFFFF : timeout);
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 		}
 		else if (msg == CRCInput::RC_yellow)
 		{

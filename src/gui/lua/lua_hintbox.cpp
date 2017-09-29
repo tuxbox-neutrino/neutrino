@@ -138,7 +138,7 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 		timeout = 5; /// default timeout 5 sec
 	//timeout = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR];
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	int res = messages_return::none;
 
