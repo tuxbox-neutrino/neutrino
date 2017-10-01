@@ -490,7 +490,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
-			string tmp_name = name == NONEXISTANT_LOCALE ? head : g_Locale->getText(name);
+			std::string tmp_name = name == NONEXISTANT_LOCALE ? head : g_Locale->getText(name);
 			if ((trim (*valueString) != trim(oldval)) &&
 			     (ShowMsg(tmp_name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);

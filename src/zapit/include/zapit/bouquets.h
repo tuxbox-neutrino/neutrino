@@ -18,12 +18,10 @@
 
 #include "channel.h"
 
-using namespace std;
-
-typedef map<t_channel_id, CZapitChannel> tallchans;
+typedef std::map<t_channel_id, CZapitChannel> tallchans;
 typedef tallchans::iterator tallchans_iterator;
 
-typedef vector<CZapitChannel*> ZapitChannelList;
+typedef std::vector<CZapitChannel*> ZapitChannelList;
 typedef ZapitChannelList::iterator zapit_list_it_t;
 
 #define DEFAULT_BQ_ID	0
@@ -83,7 +81,7 @@ class CZapitBouquet
 	bool getChannels(ZapitChannelList &list, bool tv, int flags = CZapitChannel::PRESENT);
 };
 
-typedef vector<CZapitBouquet *> BouquetList;
+typedef std::vector<CZapitBouquet *> BouquetList;
 
 class CBouquetManager
 {
@@ -168,7 +166,7 @@ class CBouquetManager
  * For instance all countless variants of the letter a have to be regarded as the same letter.
  */
 
-struct CmpBouquetByChName: public binary_function <const CZapitBouquet * const, const CZapitBouquet * const, bool>
+struct CmpBouquetByChName: public std::binary_function <const CZapitBouquet * const, const CZapitBouquet * const, bool>
 {
 	static bool comparetolower(const char a, const char b)
 		{

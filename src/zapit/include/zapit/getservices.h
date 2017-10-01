@@ -40,7 +40,7 @@ extern transponder_list_t transponders;
 
 typedef std::map <t_satellite_position, transponder_list_t> sat_transponder_map_t;
 
-typedef map<t_channel_id, CZapitChannel> channel_map_t;
+typedef std::map<t_channel_id, CZapitChannel> channel_map_t;
 typedef channel_map_t::iterator channel_map_iterator_t;
 typedef std::pair<t_channel_id, CZapitChannel> channel_pair_t;
 typedef std::pair<channel_map_iterator_t,bool> channel_insert_res_t;

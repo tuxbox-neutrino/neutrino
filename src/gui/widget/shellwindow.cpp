@@ -83,7 +83,7 @@ static int read_line(int fd, struct pollfd *fds, char *b, size_t sz)
 	return i;
 }
 
-static std::string lines2txt(list<std::string> &lines)
+static std::string lines2txt(std::list<std::string> &lines)
 {
 	std::string txt = "";
 	for (std::list<std::string>::const_iterator it = lines.begin(), end = lines.end(); it != end; ++it) {
@@ -122,7 +122,7 @@ void CShellWindow::exec()
 		int h_shell = frameBuffer->getScreenHeight();
 		int w_shell = frameBuffer->getScreenWidth();
 		unsigned int lines_max = h_shell / font->getHeight();
-		list<std::string> lines;
+		std::list<std::string> lines;
 		CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenY(), w_shell, h_shell);
 		if (textBox == NULL){
 			textBox = new CTextBox(cmd.c_str(), font, CTextBox::BOTTOM, &textBoxPosition);

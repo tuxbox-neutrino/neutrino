@@ -1308,7 +1308,7 @@ void COsdSetup::showOsdVolumeSetup(CMenuWidget *menu_volume)
 
 	// volume size
 	int vMin = CVolumeHelper::getInstance()->getVolIconHeight();
-	g_settings.volume_size = max(g_settings.volume_size, vMin);
+	g_settings.volume_size = std::max(g_settings.volume_size, vMin);
 	CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_VOLUME_SIZE, &g_settings.volume_size, true, vMin, 50);
 	nc->setHint("", LOCALE_MENU_HINT_VOLUME_SIZE);
 	menu_volume->addItem(nc);

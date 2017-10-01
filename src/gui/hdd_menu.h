@@ -28,8 +28,6 @@
 #include "widget/menue.h"
 #include <gui/widget/hintbox.h>
 
-using namespace std;
-
 struct devtool_s {
 	std::string fmt;
 	std::string fsck;
@@ -64,7 +62,7 @@ class CHDDMenuHandler : public CMenuTarget
 			bool mounted;
 		};
 		std::vector<hdd_s> hdd_list;
-		struct cmp_hdd_by_name: public binary_function <const struct hdd_s, const struct hdd_s, bool>
+		struct cmp_hdd_by_name: public std::binary_function <const struct hdd_s, const struct hdd_s, bool>
 		{
 			bool operator() (const struct hdd_s &c1, const struct hdd_s &c2)
 			{

@@ -739,7 +739,7 @@ bool CTimerList::RemoteBoxChanExists(t_channel_id channel_id)
 	r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id);
 	r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 
-	string errMsg = "";
+	std::string errMsg = "";
 	Json::Value root;
 	bool ok = parseJsonFromString(r_url, &root, &errMsg);
 	if (!ok) {
@@ -796,7 +796,7 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] timers:%s\n",r_url.c_str());
 
-		string errMsg = "";
+		std::string errMsg = "";
 		Json::Value root;
 		bool ok = parseJsonFromString(r_url, &root, &errMsg);
 		if (!ok) {
@@ -1285,7 +1285,7 @@ void CTimerList::paintItem(int pos)
 			r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer.channel_id);
 			r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 
-			string errMsg = "";
+			std::string errMsg = "";
 			Json::Value root;
 			bool ok = parseJsonFromString(r_url, &root, &errMsg);
 			if (!ok) {

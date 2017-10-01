@@ -1068,7 +1068,7 @@ void CControlAPI::LogolistCGI(CyhookHandler *hh)
 			if (g_PicViewer->GetLogoName(channel->getChannelID(), NeutrinoAPI->GetServiceName(channel->getChannelID()), logo_used, NULL, NULL))
 			{
 				realpath(logo_used.c_str(), _real);
-				logo_real = string(_real);
+				logo_real = std::string(_real);
 				if (strcmp(logo_used.c_str(), logo_real.c_str()) == 0)
 					logo_real.clear();
 			}

@@ -542,7 +542,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	int j = CServiceManager::getInstance()->GetMaxNumber(true);
 	/* FIXME temp debug */
 	printf("############## CBouquetManager::makeRemainingChannelsBouquet: numbers start at: tv %d radio %d ############\n", i, j);
-	for (vector<CZapitBouquet*>::const_iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
+	for (std::vector<CZapitBouquet*>::const_iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
 		renumChannels((*it)->tvChannels, i, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 		renumChannels((*it)->radioChannels, j, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 	}

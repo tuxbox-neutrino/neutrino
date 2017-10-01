@@ -363,7 +363,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 	if(!followlist.empty()){
-		insert_iterator <std::vector<CChannelEvent> >ii(evtlist,evtlist.begin());
+		std::insert_iterator <std::vector<CChannelEvent> >ii(evtlist,evtlist.begin());
 		copy(followlist.begin(), followlist.end(), ii);
 		showfollow = true;
 	}else{

@@ -39,7 +39,7 @@ class CScreenSaver : public sigc::trackable
 		CComponentsFrmClock *scr_clock;
 		pthread_t	thrScreenSaver;
 		static void*	ScreenSaverPrg(void *arg);
-		vector<string> 	v_bg_files;
+		std::vector<std::string> v_bg_files;
 		unsigned int 	index;
 		t_channel_id	pip_channel_id;
 		bool		status_mute;

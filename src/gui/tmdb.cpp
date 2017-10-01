@@ -198,7 +198,7 @@ bool cTmdb::GetMovieDetails(std::string lang)
 	if (!getUrl(url, answer))
 		return false;
 
-	string errMsg = "";
+	std::string errMsg = "";
 	Json::Value root;
 	bool ok = parseJsonFromString(answer, &root, &errMsg);
 	if (!ok) {

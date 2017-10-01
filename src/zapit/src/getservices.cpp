@@ -418,7 +418,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
 		transponder t(tid, feparams);
 
-		pair<map<transponder_id_t, transponder>::iterator,bool> ret;
+		std::pair<std::map<transponder_id_t, transponder>::iterator,bool> ret;
 		ret = transponders.insert(transponder_pair_t(tid, t));
 		if (ret.second == false)
 			t.dump("[zapit] duplicate in all transponders:");
@@ -1379,7 +1379,7 @@ bool CServiceManager::GetTransponder(transponder_id_t tid, transponder &t)
 
 void CServiceManager::UpdateSatTransponders(t_satellite_position satellitePosition)
 {
-	pair<map<transponder_id_t, transponder>::iterator,bool> ret;
+	std::pair<std::map<transponder_id_t, transponder>::iterator,bool> ret;
 	transponder_list_t & stransponders = satelliteTransponders[satellitePosition];
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
 		for (stiterator stI = stransponders.begin(); stI != stransponders.end(); ++stI) {

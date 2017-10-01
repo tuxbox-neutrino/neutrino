@@ -585,7 +585,7 @@ std::string  CNeutrinoYParser::func_get_logo_name(CyhookHandler *hh, std::string
 		std::string fileType[] = { ".png", ".jpg" , ".gif" };
 
 		std::string channelIdShort = channelId.substr(channelId.length() - 12);
-		channelIdShort = channelIdShort.erase(0, min(channelIdShort.find_first_not_of('0'), channelIdShort.size()-1));
+		channelIdShort = channelIdShort.erase(0, std::min(channelIdShort.find_first_not_of('0'), channelIdShort.size()-1));
 
 		std::string channelName = "";
 		t_channel_id chId = 0;

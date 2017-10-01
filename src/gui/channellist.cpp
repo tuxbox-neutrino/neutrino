@@ -1693,7 +1693,7 @@ void CChannelList::showChannelLogo()
 		header->getChannelLogoObject()->paint();
 	}
 	else
-		header->setChannelLogo(0, string());
+		header->setChannelLogo(0, std::string());
 }
 
 #define NUM_LIST_BUTTONS_SORT 9
@@ -2131,7 +2131,7 @@ void CChannelList::paintHead()
 	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
 		header->setIcon(NEUTRINO_ICON_LOCK);
 
-	string header_txt 		= !edit_state ? name : string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
+	std::string header_txt 		= !edit_state ? name : std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
 	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);
 	header->setColorBody(COL_MENUHEAD_PLUS_0);
 

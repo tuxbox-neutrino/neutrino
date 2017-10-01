@@ -29,8 +29,6 @@
 #include <ca_cs.h>
 
 
-using namespace std;
-
 class CCAMMenuHandler : public CMenuTarget, public CChangeObserver
 {
 	private:
