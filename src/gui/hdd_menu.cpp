@@ -133,11 +133,11 @@ int CHDDMenuHandler::filterDevName(const char * name)
 	return 0;
 }
 
-static string readlink(const char *path)
+static std::string readlink(const char *path)
 {
 	char link[PATH_MAX + 1];
 	if (realpath(path, link))
-		return string(link);
+		return std::string(link);
 	return "";
 }
 
@@ -151,7 +151,7 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 		snprintf(devpath, sizeof(devpath), "/dev/%s", dev);
 
 	char buffer[255];
-	string realdev = readlink(devpath);
+	std::string realdev = readlink(devpath);
 	realdev = trim(realdev);
 	FILE *f = fopen("/proc/mounts", "r");
 	if(f) {
@@ -164,7 +164,7 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 			if (!strcmp(buffer, devpath)) /* default '/dev/sda1' mount */
 				res = true;
 			else {	/* now the case of '/dev/disk/by-label/myharddrive' mounts */
-				string realmount = readlink(buffer);
+				std::string realmount = readlink(buffer);
 				if (realdev == trim(realmount))
 					res = true;
 			}
@@ -259,7 +259,7 @@ void CHDDMenuHandler::check_kernel_fs()
 		if (! tab)	/* should not happen in any kernel I have seen */
 			continue;
 		tab++;
-		kernel_fs_list.insert(string(tab));
+		kernel_fs_list.insert(std::string(tab));
 	}
 	fclose(f);
 }

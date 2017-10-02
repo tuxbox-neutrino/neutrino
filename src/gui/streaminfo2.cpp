@@ -150,8 +150,8 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	const int delay = 15;
 	int sw = g_Font[font_info]->getRenderWidth("99999");
 	maxb = minb = lastb = tmp_rate = 0;
-	string br_str = string(g_Locale->getText(LOCALE_STREAMINFO_BITRATE)) + ":";
-	string avg_str = "(" + string(g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE)) + ")";
+	std::string br_str = std::string(g_Locale->getText(LOCALE_STREAMINFO_BITRATE)) + ":";
+	std::string avg_str = "(" + std::string(g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE)) + ")";
 	int offset = g_Font[font_info]->getRenderWidth(avg_str);
 	int dheight = g_Font[font_info]->getHeight ();
 	int dx1 = x + 10;
