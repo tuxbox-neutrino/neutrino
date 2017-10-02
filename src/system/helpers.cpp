@@ -1416,8 +1416,16 @@ string readFile(string file)
 	if (tmpData.is_open()) {
 		tmpData.seekg(0, tmpData.end);
 		int length = tmpData.tellg();
+		if (length > 0xffff) { /* longer than 64k? better read in chunks! */
+			cerr << __func__ << ": file " << file << " too big (" << length << " bytes)" << endl;
+			return "";
+		}
 		tmpData.seekg(0, tmpData.beg);
 		char* buffer = new char[length+1];
+		if (! buffer) {
+			cerr << __func__ << ": allocating " << (length + 1) << " bytes for buffer failed" << endl;
+			return "";
+		}
 		tmpData.read(buffer, length);
 		tmpData.close();
 		buffer[length] = '\0';

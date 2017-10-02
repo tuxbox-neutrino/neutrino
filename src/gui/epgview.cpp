@@ -300,7 +300,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 		if(epgText[i].second){
 			std::string::size_type pos1 = epgText[i].first.find_first_not_of(tok, 0);
 			std::string::size_type pos2 = epgText[i].first.find_first_of(tok, pos1);
-			while( pos2 != string::npos || pos1 != string::npos ){
+			while( pos2 != std::string::npos || pos1 != std::string::npos ){
 				switch(count){
 					case 1:
 					offset += max_wday_w;

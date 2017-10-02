@@ -514,7 +514,7 @@ std::string CNeutrinoAPI::getCryptInfoAsString(void)
                         for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
                                 int caid = (*it) & 0xFF00;
                                 if(caid == caids[i])
-					out << casys[i] << hex << (*it) << "\n";
+					out << casys[i] << std::hex << (*it) << "\n";
                         }
 
 		}

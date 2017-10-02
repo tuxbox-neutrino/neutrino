@@ -1279,10 +1279,10 @@ std::string CMovieBrowser::getScreenshotName(std::string movie, bool is_dir)
 	else
 		found = movie.find_last_of(".");
 
-	if (found == string::npos)
+	if (found == std::string::npos)
 		return "";
 
-	vector<std::string>::iterator it = PicExts.begin();
+	std::vector<std::string>::iterator it = PicExts.begin();
 	while (it < PicExts.end()) {
 		ret = movie;
 		ext = *it;
@@ -1325,7 +1325,7 @@ void CMovieBrowser::refreshChannelLogo(void)
 	if (m_channelLogo && m_channelLogo->hasLogo())
 	{
 		// TODO: move into an own handler, eg. header, so channel logo should be paint in header object
-		m_channelLogo->setWidth(min(m_channelLogo->getWidth(), w_logo_max), true);
+		m_channelLogo->setWidth(std::min(m_channelLogo->getWidth(), w_logo_max), true);
 		if (m_channelLogo->getHeight() > h_logo_max)
 			m_channelLogo->setHeight(h_logo_max, true);
 
@@ -2846,7 +2846,7 @@ bool CMovieBrowser::addFile(CFile &file, int dirItNr)
 
 	movieInfo.file = file;
 	if(!m_movieInfo.loadMovieInfo(&movieInfo)) {
-		movieInfo.channelName = string(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD));
+		movieInfo.channelName = std::string(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD));
 		movieInfo.epgTitle = file.getFileName();
 	}
 	movieInfo.dirItNr = dirItNr;

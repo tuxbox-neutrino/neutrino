@@ -140,7 +140,7 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	else {
 		CComponentsFooter* footer = (*udata)->w->getFooterObject();
 		if (footer) {
-			vector<button_label_cc> buttons;
+			std::vector<button_label_cc> buttons;
 			if (!btnRed.empty()) {
 				button_label_cc btnSred;
 				btnSred.button 		= NEUTRINO_ICON_BUTTON_RED;

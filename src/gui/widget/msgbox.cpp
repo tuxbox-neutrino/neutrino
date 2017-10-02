@@ -41,6 +41,8 @@
 #define MIN_WINDOW_WIDTH  (MAX_WINDOW_WIDTH>>1)
 #define MIN_WINDOW_HEIGHT 40
 
+using namespace std; /* TODO: remove all std:: prefixes in this file */
+
 CMsgBox::CMsgBox(	const char* Text,
 			const char* Title,
 			const char* Icon,

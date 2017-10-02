@@ -72,7 +72,7 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 	RetCode Status = OK;
 	FILE* fp;
 
-	if(( in->FileType == CFile::STREAM_AUDIO ) && (in->Filename.find(".flv") != string::npos))
+	if ((in->FileType == CFile::STREAM_AUDIO) && (in->Filename.find(".flv") != std::string::npos))
 	{
 		fp = fopen( in->Filename.c_str(), "rc" );
 	}

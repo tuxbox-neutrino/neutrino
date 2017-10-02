@@ -48,8 +48,8 @@ CMountChooser::CMountChooser(const neutrino_locale_t Name, const std::string & I
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
 		if (!g_settings.network_nfs[i].local_dir.empty() &&
-		    (g_settings.network_nfs[i].mount_options1.find("rw") != string::npos ||
-		     g_settings.network_nfs[i].mount_options2.find("rw") != string::npos))
+		    (g_settings.network_nfs[i].mount_options1.find("rw") != std::string::npos ||
+		     g_settings.network_nfs[i].mount_options2.find("rw") != std::string::npos))
 		{
 			std::string s = g_settings.network_nfs[i].local_dir + " (" + g_settings.network_nfs[i].ip + ":" + g_settings.network_nfs[i].dir + ")";
 			snprintf(indexStr,sizeof(indexStr),"%d",i);

@@ -55,7 +55,7 @@ CMovieInfo::~CMovieInfo()
 bool CMovieInfo::convertTs2XmlName(std::string& filename)
 {
 	size_t lastdot = filename.find_last_of(".");
-	if (lastdot != string::npos) {
+	if (lastdot != std::string::npos) {
 		filename.erase(lastdot + 1);
 		filename.append("xml");
 		return true;

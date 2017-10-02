@@ -1197,7 +1197,7 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 		timebox.kill();
 		m_playing_entry_is_shown = false;
 	}else{
-		string text = "";
+		std::string text = "";
 		if (use_playing){
 			if (!m_playing_entry_is_shown){
 				m_playing_entry_is_shown = true;

@@ -418,7 +418,7 @@ void CHDDMenuHandler::setRecordPath(std::string &dev)
 		return;
 	}
 	/* don't annoy if the recordingdir is a symlink pointing to the 'right' location */
-	string readl = readlink(g_settings.network_nfs_recordingdir.c_str());
+	std::string readl = readlink(g_settings.network_nfs_recordingdir.c_str());
 	readl = trim(readl);
 	if (newpath.compare(readl) == 0) {
 		printf("CHDDMenuHandler::%s: recordingdir is a symlink to %s\n",

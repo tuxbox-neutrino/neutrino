@@ -738,7 +738,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 	int endx = g_InfoViewer->BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
 	int px = 0;
-	static map<int, std::pair<int,const char*> > icon_map;
+	static std::map<int, std::pair<int,const char*> > icon_map;
 	const int icon_space = 10, icon_number = 10;
 
 	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0};
@@ -748,7 +748,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 	if (!init_flag) {
 		init_flag = true;
 		int icon_sizeH = 0, index = 0;
-		map<int, std::pair<int,const char*> >::const_iterator it;
+		std::map<int, std::pair<int,const char*> >::const_iterator it;
 
 		icon_map[0x0E00] = std::make_pair(index++,"powervu");
 		icon_map[0x4A00] = std::make_pair(index++,"d");

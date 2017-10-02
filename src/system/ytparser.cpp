@@ -289,7 +289,7 @@ std::string cYTFeedParser::getXmlData(xmlNodePtr node)
 
 bool cYTFeedParser::parseFeedJSON(std::string &answer)
 {
-	string errMsg = "";
+	std::string errMsg = "";
 	Json::Value root;
 
 	std::ostringstream ss;
@@ -384,7 +384,7 @@ bool cYTFeedParser::parseFeedDetailsJSON(cYTVideoInfo* vinfo)
 	if (!getUrl(url, answer))
 		return false;
 
-	string errMsg = "";
+	std::string errMsg = "";
 	Json::Value root;
 	bool parsedSuccess = parseJsonFromString(answer, &root, &errMsg);
 	if (!parsedSuccess) {

@@ -107,7 +107,7 @@ void CProgressBar::initDimensions()
 	pb_y = (cc_parent ? cc_yr : y) + fr_thickness;
 
 	// width for active bar with current value
-	pb_active_width = max(0, pb_last_width);
+	pb_active_width = std::max(0, pb_last_width);
 	if (pb_max_value)
 		pb_active_width = (width - 2*fr_thickness) * pb_value / pb_max_value;
 

@@ -531,7 +531,7 @@ bool CExtUpdate::readConfig(const std::string & line)
 
 bool CExtUpdate::isBlacklistEntry(const std::string & file)
 {
-	for(vector<std::string>::iterator it = blackList.begin(); it != blackList.end(); ++it) {
+	for(std::vector<std::string>::iterator it = blackList.begin(); it != blackList.end(); ++it) {
 		if (*it == file) {
 			DBG_MSG("BlacklistEntry %s\n", (*it).c_str());
 			WRITE_UPDATE_LOG("BlacklistEntry: %s\n", (*it).c_str());
@@ -559,7 +559,7 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 {
 	char buf[PATH_MAX];
 	static struct stat FileInfo;
-	vector<std::string>::iterator it;
+	std::vector<std::string>::iterator it;
 	
 	f1 = fopen(backupList.c_str(), "r");
 	if (f1 == NULL) {

@@ -23,9 +23,7 @@
 
 #include <json/json.h>
 
-using namespace std;
-
-bool parseJsonFromFile(string& jFile, Json::Value *root, string *errMsg);
-bool parseJsonFromString(string& jData, Json::Value *root, string *errMsg);
+bool parseJsonFromFile(std::string& jFile, Json::Value *root, std::string *errMsg);
+bool parseJsonFromString(std::string& jData, Json::Value *root, std::string *errMsg);
 
 #endif

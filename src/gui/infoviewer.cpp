@@ -201,11 +201,11 @@ void CInfoViewer::start ()
 		      2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 25;
 	infoViewerBB->Init();
 
-	ChanWidth = max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10);
+	ChanWidth = std::max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10);
 
 	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
 	ChanHeight += g_SignalFont->getHeight()/2;
-	ChanHeight = max(75, ChanHeight);
+	ChanHeight = std::max(75, ChanHeight);
 	numbox_offset = 3;
 
 	BoxStartX = g_settings.screen_StartX + 10;
@@ -217,7 +217,7 @@ void CInfoViewer::start ()
 	ChanInfoX = BoxStartX + (ChanWidth / 3);
 
 	initClock();
-	time_height = max(ChanHeight / 2, clock->getHeight());
+	time_height = std::max(ChanHeight / 2, clock->getHeight());
 	time_width = clock->getWidth();
 }
 
@@ -2116,8 +2116,8 @@ void CInfoViewer::showInfoFile()
 	}
 
 	//get text from file and set it to info object, exit and delete object if failed
-	string old_txt = infobar_txt->getText();
-	string new_txt = infobar_txt->getTextFromFile(infobar_file);
+	std::string old_txt = infobar_txt->getText();
+	std::string new_txt = infobar_txt->getTextFromFile(infobar_file);
 	bool has_text = infobar_txt->setText(new_txt, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]);
 	if (new_txt.empty()){
 		killInfobarText();
