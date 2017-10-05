@@ -139,6 +139,9 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #if HAVE_TRIPLEDRAGON
 		frameBuffer = new CFbAccelTD();
 #endif
+#if HAVE_ARM_HARDWARE
+		frameBuffer = new CFbAccelARM();
+#endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();
 		printf("[neutrino] %s Instance created\n", frameBuffer->fb_name);
