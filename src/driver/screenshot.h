@@ -44,6 +44,7 @@ class CScreenShot
 		bool get_osd;
 		bool get_video;
 		bool scale_to_video;
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		FILE *fd;
 		pthread_t  scs_thread;
 		pthread_mutex_t thread_mutex;
@@ -61,6 +62,7 @@ class CScreenShot
 		static void* initThread(void *arg);
 		void runThread();
 		static void cleanupThread(void *arg);
+#endif
 
 #ifdef BOXMODEL_CS_HD2
 		bool mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData);
@@ -75,7 +77,11 @@ class CScreenShot
 		void EnableVideo(bool enable) { get_video = enable; }
 		void EnableOSD(bool enable) { get_osd = enable; }
 		void ScaleToVideo(bool enable) { scale_to_video = enable; }
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		bool Start(const std::string custom_cmd = "");
+#else
 		bool Start();
+#endif
 		bool StartSync();
 };
 

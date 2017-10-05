@@ -386,8 +386,11 @@ bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 					}
 				}
 			}
-			//printf("MOVIE INFO: apid %d type %d name %s selected %d\n", audio_pids.AudioPid, audio_pids.atype, audio_pids.AudioPidName.c_str(), audio_pids.selected);
-			movie_info->audioPids.push_back(audio_pids);
+			//printf("MOVIE INFO: apid %d type %d name %s selected %d\n", audio_pids.AudioPid, audio_pids.atype, audio_pids.epgAudioPidName.c_str(), audio_pids.selected);
+			unsigned int j, asize = movie_info->audioPids.size();
+			for (j = 0; j < asize && audio_pids.AudioPid != movie_info->audioPids[j].AudioPid; j++);
+			if (j == asize)
+				movie_info->audioPids.push_back(audio_pids);
 		}
 		/* parse bookmarks */
 		GET_XML_DATA_INT(text, pos, MI_XML_TAG_BOOKMARK_START, movie_info->bookmarks.start)
@@ -486,6 +489,57 @@ bool CMovieInfo::addNewBookmark(MI_MOVIE_INFO * movie_info, MI_BOOKMARK & new_bo
 	return (result);
 }
 
+
+void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
+{
+	//TRACE("[mi]->clearMovieInfo \r\n");
+	tm timePlay;
+	timePlay.tm_hour = 0;
+	timePlay.tm_min = 0;
+	timePlay.tm_sec = 0;
+	timePlay.tm_year = 100;
+	timePlay.tm_mday = 0;
+	timePlay.tm_mon = 1;
+
+	movie_info->file.Name = "";
+	movie_info->file.Size = 0;	// Megabytes
+	movie_info->file.Time = mktime(&timePlay);
+	movie_info->dateOfLastPlay = mktime(&timePlay);	// (date, month, year)
+	movie_info->dirItNr = 0;	//
+	movie_info->genreMajor = 0;	//genreMajor;
+	movie_info->genreMinor = 0;	//genreMinor;
+	movie_info->length = 0;	// (minutes)
+	movie_info->quality = 0;	// (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
+	movie_info->productionDate = 0;	// (Year)  years since 1900
+	movie_info->parentalLockAge = 0;	// MI_PARENTAL_LOCKAGE (0,6,12,16,18)
+
+	movie_info->channelId = 0;
+	movie_info->epgId = 0;
+	movie_info->mode = 0;
+	movie_info->VideoPid = 0;
+	movie_info->VideoType = 0;
+	movie_info->VtxtPid = 0;
+
+	movie_info->audioPids.clear();
+
+	movie_info->productionCountry = "";
+	movie_info->epgTitle = "";
+	movie_info->epgInfo1 = "";	//epgInfo1
+	movie_info->epgInfo2 = "";	//epgInfo2
+	movie_info->channelName = "";
+	movie_info->serieName = "";	// (name e.g. 'StarWars)
+	movie_info->bookmarks.end = 0;
+	movie_info->bookmarks.start = 0;
+	movie_info->bookmarks.lastPlayStop = 0;
+	for (int i = 0; i < MI_MOVIE_BOOK_USER_MAX; i++) {
+		movie_info->bookmarks.user[i].pos = 0;
+		movie_info->bookmarks.user[i].length = 0;
+		movie_info->bookmarks.user[i].name = "";
+	}
+	movie_info->tfile.clear();
+	movie_info->ytdate.clear();
+	movie_info->ytid.clear();
+}
 
 void MI_MOVIE_INFO::clear(void)
 {

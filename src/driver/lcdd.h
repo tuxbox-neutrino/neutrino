@@ -60,9 +60,50 @@ typedef enum
 	FP_ICON_PAUSE      = 0x0A000001,
 	FP_ICON_CAM1       = 0x0B000001,
 	FP_ICON_COL2       = 0x0B000002,
-	FP_ICON_CAM2       = 0x0C000001
+	FP_ICON_CAM2       = 0x0C000001,
+	FP_ICON_CLOCK,
+	FP_ICON_FR,
+	FP_ICON_FF,
+	FP_ICON_DD,
+	FP_ICON_LOCK
 } fp_icon;
 #define CVFD CLCD
+
+typedef enum
+{
+	SPARK_PLAY_FASTBACKWARD = 1,
+	SPARK_PLAY = 3,
+	SPARK_PLAY_FASTFORWARD = 5,
+	SPARK_PAUSE = 6,
+	SPARK_REC1 = 7,
+	SPARK_MUTE = 8,
+	SPARK_CYCLE = 9,
+	SPARK_DD = 10,
+	SPARK_CA = 11,
+	SPARK_CI= 12,
+	SPARK_USB = 13,
+	SPARK_DOUBLESCREEN = 14,
+	SPARK_HDD_A8 = 16,
+	SPARK_HDD_A7 = 17,
+	SPARK_HDD_A6 = 18,
+	SPARK_HDD_A5 = 19,
+	SPARK_HDD_A4 = 20,
+	SPARK_HDD_A3 = 21,
+	SPARK_HDD_FULL = 22,
+	SPARK_HDD_A2 = 23,
+	SPARK_HDD_A1 = 24,
+	SPARK_MP3 = 25,
+	SPARK_AC3 = 26,
+	SPARK_TVMODE_LOG = 27,
+	SPARK_AUDIO = 28,
+	SPARK_HDD = 30,
+	SPARK_CLOCK = 33,
+	SPARK_TER = 37,
+	SPARK_SAT = 42,
+	SPARK_TIMESHIFT = 43,
+	SPARK_CAB = 45,
+	SPARK_ALL = 46
+} spark_icon;
 
 #ifdef LCD_UPDATE
 #ifdef HAVE_CONFIG_H
@@ -116,6 +157,7 @@ class CLCD
 
 
 	private:
+
 #ifdef HAVE_TRIPLEDRAGON
 		class FontsDef
 		{
@@ -173,7 +215,14 @@ class CLCD
 		static void	*TimeThread(void *);
 		pthread_t	thrTime;
 		bool		thread_running;
+		int			last_toggle_state_power;
+		int			brightness;
+		unsigned int	timeout_cnt;
+		unsigned int	switch_name_time_cnt;
+		void		setlcdparameter(int dimm, int power);
+		void		count_down();
 #endif
+
 	public:
 		bool has_lcd;
 		void wake_up();
@@ -191,6 +240,7 @@ class CLCD
 		void setHddUsage(int perc);
 
 		void showServicename(const std::string name, const bool clear_epg = false);
+		std::string getServicename(void) { return servicename; }
 		void setEPGTitle(const std::string title);
 		void setMovieInfo(const AUDIOMODES playmode, const std::string big, const std::string small, const bool centered = false);
 		void setMovieAudio(const bool is_ac3);
@@ -203,7 +253,7 @@ class CLCD
 		void showMenuText(const int position, const char * text, const int highlight = -1, const bool utf_encoded = false);
 		void showAudioTrack(const std::string & artist, const std::string & title, const std::string & album);
 		void showAudioPlayMode(AUDIOMODES m=AUDIO_MODE_PLAY);
-		void showAudioProgress(const char perc);
+		void showAudioProgress(const char perc, bool isMuted = false);
 		void setBrightness(int);
 		int getBrightness();
 
@@ -225,7 +275,7 @@ class CLCD
 		int getAutoDimm();
 		void setBrightnessDeepStandby(int) { return ; };
 		int getBrightnessDeepStandby() { return 0; };
-
+		void repaintIcons() { return; };
 		void setMuted(bool);
 
 		void resume();
@@ -234,6 +284,10 @@ class CLCD
 		void Lock();
 		void Unlock();
 		void Clear();
+		void SetIcons(int icon, bool show);
+		void UpdateIcons();
+		void ShowDiskLevel();
+		void Reset() {};
 		void ShowIcon(fp_icon icon, bool show);
 		void ShowText(const char *s) { showServicename(std::string(s), true); };
 		~CLCD();

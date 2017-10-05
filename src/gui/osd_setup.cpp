@@ -66,6 +66,13 @@
 #include <system/helpers.h>
 #include "cs_api.h"
 
+#if HAVE_COOL_HARDWARE
+#include <video_cs.h>
+#endif
+#if USE_STB_HAL
+#include <video_hal.h>
+#endif
+
 extern CRemoteControl * g_RemoteControl;
 
 extern const char * locale_real_names[];

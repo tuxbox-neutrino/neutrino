@@ -177,6 +177,7 @@ class CMovieInfo
 		bool encodeMovieInfoXml(std::string *extMessage, MI_MOVIE_INFO *movie_info);	// encode the movie_info structure to xml string
 		bool saveMovieInfo(MI_MOVIE_INFO &movie_info, CFile *file = NULL );		// encode the movie_info structure to xml and save it to the given .xml filename. If there is no filename, the filename (ts) from movie_info is converted to xml and used instead
 		bool addNewBookmark(MI_MOVIE_INFO *movie_info, MI_BOOKMARK &new_bookmark);	// add a new bookmark to the given movie info. If there is no space false is returned
+		void clearMovieInfo(MI_MOVIE_INFO *movie_info); // clear infos completly
 
 	private: // Functions
 		bool parseXmlTree(std::string &text, MI_MOVIE_INFO *movie_info);

@@ -56,15 +56,13 @@ class LcdFont
 
         FT_Error getGlyphBitmap(FT_ULong glyph_index, FTC_SBit *sbit);
 
- public:
-	void RenderString(int x, int y, int width, const char *text, int color,
-			  int selected = 0, const bool utf8_encoded = true);
+        public:
+                void RenderString(int x, int y, int width, const char *text, int color, int selected=0, const bool utf8_encoded = false);
 
-	int getRenderWidth(const char *text, const bool utf8_encoded = true);
-	int getRenderWidth(const std::string &text, const bool utf8_encoded = true);
+                int getRenderWidth(const char *text, const bool utf8_encoded = false);
 
-	LcdFont(CLCDDisplay *fb, LcdFontRenderClass *render, FTC_FaceID faceid, int isize);
-	~LcdFont(){}
+                LcdFont(CLCDDisplay *fb, LcdFontRenderClass *render, FTC_FaceID faceid, int isize);
+                ~LcdFont(){}
 };
 
 

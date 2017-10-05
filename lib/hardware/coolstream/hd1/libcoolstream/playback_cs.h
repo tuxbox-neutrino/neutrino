@@ -66,6 +66,7 @@ public:
 	bool IsEnabled(void) const { return enabled; }
 	void FindAllPids(playback_audio_pid_info_t *audiopids, uint16_t size, uint16_t *numpida);
 	void FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint16_t *numpida, std::string *language);
+	void FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint32_t *numpida, std::string *language){FindAllPids(apids, ac3flags, (uint16_t*) numpida, language);}
 	void FindAllSubs(uint16_t *pids, unsigned short *supported, uint16_t *numpida, std::string *language);
 	bool SelectSubtitles(int pid, std::string charset = "");
 	void GetChapters(std::vector<int> &positions, std::vector<std::string> &titles);
@@ -73,6 +74,14 @@ public:
 	void GetTitles(std::vector<int> &playlists, std::vector<std::string> &titles, int &current);
 	void SetTitle(int title);
 	uint64_t GetReadCount(void);
+	void FindAllTeletextsubtitlePids(int *, unsigned int *numpids, std::string *, int *, int *){*numpids = 0;}
+	void FindAllSubtitlePids(int * /*pids*/, unsigned int *numpids, std::string * /*language*/){*numpids = 0;}
+	int GetSubtitlePid(void){return 0;}
+	bool SetTeletextPid(int /*pid*/){return true;}
+	int GetAPid(){return 0;}
+	void GetMetadata(std::vector<std::string> /*&keys*/, std::vector<std::string> /*&values*/){};
+}
+}
 };
 
 #endif // __PLAYBACK_CS_H_

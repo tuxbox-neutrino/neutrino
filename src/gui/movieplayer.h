@@ -42,6 +42,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/timeosd.h>
 #include <driver/record.h>
+#include <zapit/channel.h>
 #include <playback.h>
 
 #include <stdio.h>
@@ -99,7 +100,7 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string livestreamInfo2;
 
 	CFrameBuffer * frameBuffer;
-	int            m_LastMode;	
+	int            m_LastMode;
 
 	std::string	file_name;
 	std::string	pretty_name;
@@ -121,13 +122,18 @@ class CMoviePlayerGui : public CMenuTarget
 	int currentVideoSystem;
 	uint32_t currentOsdResolution;
 
-	unsigned short numpida;
-	unsigned short vpid;
-	unsigned short vtype;
-	std::string    language[MAX_PLAYBACK_PIDS];
-	unsigned short apids[MAX_PLAYBACK_PIDS];
-	unsigned short ac3flags[MAX_PLAYBACK_PIDS];
-	unsigned short currentapid, currentac3;
+	unsigned int numpida;
+	int vpid;
+	int vtype;
+	std::string    language[REC_MAX_APIDS];
+#if HAVE_COOL_HARDWARE
+	uint16_t apids[REC_MAX_APIDS];
+	unsigned short ac3flags[REC_MAX_APIDS];
+#else
+	int apids[REC_MAX_APIDS];
+	unsigned int ac3flags[REC_MAX_APIDS];
+#endif
+	int currentapid, currentac3;
 	repeat_mode_enum repeat_mode;
 
 	/* screensaver */
@@ -135,16 +141,37 @@ class CMoviePlayerGui : public CMenuTarget
 	bool		m_screensaver;
 	void		screensaver(bool on);
 
+	// subtitle data
+	unsigned int numpids;
+#ifndef REC_MAX_SPIDS
+#define REC_MAX_SPIDS 20 // whatever
+#endif
+	std::string slanguage[REC_MAX_SPIDS];
+	int spids[REC_MAX_SPIDS];
+
+	// teletext subtitle data
+	unsigned int numpidt;
+#ifndef REC_MAX_TPIDS
+#define REC_MAX_TPIDS 50 // not pids, actually -- a pid may cover multiple subtitle pages
+#endif
+	std::string tlanguage[REC_MAX_TPIDS];
+	int tpids[REC_MAX_TPIDS];
+	int tmag[REC_MAX_TPIDS];
+	int tpage[REC_MAX_TPIDS];
+	std::string currentttxsub;
+
+#if 0
 	/* subtitles vars */
 	unsigned short numsubs;
-	std::string    slanguage[MAX_PLAYBACK_PIDS];
-	unsigned short spids[MAX_PLAYBACK_PIDS];
-	unsigned short sub_supported[MAX_PLAYBACK_PIDS];
+	std::string    slanguage[REC_MAX_APIDS];
+	unsigned short spids[REC_MAX_APIDS];
+	unsigned short sub_supported[REC_MAX_APIDS];
 	int currentspid;
 	int min_x, min_y, max_x, max_y;
 	int64_t end_time;
 	bool ext_subs;
 	bool lock_subs;
+#endif
 	uint64_t last_read;
 
 	/* playback from MB */
@@ -155,10 +182,12 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isYT;
 	bool showStartingHint;
 	static CMovieBrowser* moviebrowser;
-	MI_MOVIE_INFO * p_movie_info;
 	MI_MOVIE_INFO movie_info;
 	P_MI_MOVIE_LIST milist;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CFrameBuffer::Mode3D old3dmode;
+#endif
 
 	/* playback from file */
 	bool is_file_player;
@@ -210,8 +239,11 @@ class CMoviePlayerGui : public CMenuTarget
 	bool SelectFile();
 	void updateLcd();
 
+#if 0
+	void selectSubtitle();
 	bool convertSubtitle(std::string &text);
 	void selectChapter();
+#endif
 	void selectAutoLang();
 	void parsePlaylist(CFile *file);
 	bool mountIso(CFile *file);
@@ -238,25 +270,44 @@ class CMoviePlayerGui : public CMenuTarget
 
 	static CMoviePlayerGui& getInstance(bool background = false);
 
+	MI_MOVIE_INFO * p_movie_info;
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
 	std::string CurrentAudioName() { return currentaudioname; };
 	int GetSpeed() { return speed; }
 	int GetPosition() { return position; }
 	int GetDuration() { return duration; }
+	int getState() { return playstate; }
 	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
+	cPlayback *getPlayback() { return playback; }
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }
+	unsigned int getAPID(void);
+	unsigned int getAPID(unsigned int i);
+	void getAPID(int &apid, unsigned int &is_ac3);
+	bool getAPID(unsigned int i, int &apid, unsigned int &is_ac3);
+	bool setAPID(unsigned int i);
+	unsigned int getAPIDCount(void);
+	std::string getAPIDDesc(unsigned int i);
+	unsigned int getSubtitleCount(void);
+	CZapitAbsSub* getChannelSub(unsigned int i, CZapitAbsSub **s);
+	int getCurrentSubPid(CZapitAbsSub::ZapitSubtitleType st);
+	void setCurrentTTXSub(const char *s) { currentttxsub = s; }
+	t_channel_id getChannelId(void);
 	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
 	void stopPlayBack(void);
+	void StopSubtitles(bool enable_glcd_mirroring);
+	void StartSubtitles(bool show = true);
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);
-	void selectAudioPid();
+	void selectAudioPid(void);
 	bool SetPosition(int pos, bool absolute = false);
+#if 0
 	void selectSubtitle();
 	void showSubtitle(neutrino_msg_data_t data);
 	void clearSubtitle(bool lock = false);
+#endif
 	int getKeyPressed() { return keyPressed; };
 	size_t GetReadCount();
 	std::string GetFile() { return pretty_name; }

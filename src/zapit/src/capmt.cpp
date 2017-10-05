@@ -142,11 +142,19 @@ bool CCam::setCaPmt(bool update)
 	return sendMessage((char *)cabuf, calen, update);
 }
 
+#if ! HAVE_COOL_HARDWARE
+bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type, unsigned char scrambled, casys_map_t camap, int mode, bool enable)
+{
+	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
+			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawpmt ? rawlen : 0, (CA_SLOT_TYPE) type, scrambled, camap, mode, enable);
+}
+#else
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type)
 {
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
 			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawpmt ? rawlen : 0, (CA_SLOT_TYPE) type);
 }
+#endif
 
 int CCam::makeMask(int demux, bool add)
 {

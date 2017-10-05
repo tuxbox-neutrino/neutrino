@@ -154,7 +154,7 @@ struct video_status {
 
 
 struct video_still_picture {
-	char __user *iFrame;        /* pointer to a single iframe in memory */
+	char *iFrame;        /* pointer to a single iframe in memory */
 	__s32 size;
 };
 
@@ -187,7 +187,7 @@ typedef struct video_spu {
 
 typedef struct video_spu_palette {      /* SPU Palette information */
 	int length;
-	__u8 __user *palette;
+	__u8 *palette;
 } video_spu_palette_t;
 
 

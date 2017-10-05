@@ -55,7 +55,8 @@ class CZapitAbsSub
     std::string ISO639_language_code;
     enum ZapitSubtitleType {
         TTX,
-        DVB
+        DVB,
+        SUB
     };
     ZapitSubtitleType thisSubType;
 };

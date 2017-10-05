@@ -51,8 +51,6 @@
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
-/* we get edvbstring.h included via from src/system/settings.h */
-#if 0
 /* from edvbstring.cpp */
 static bool isUTF8(const std::string &string)
 {
@@ -84,7 +82,6 @@ static bool isUTF8(const std::string &string)
 	}
 	return true; // can be UTF8 (or pure ASCII, at least no non-UTF-8 8bit characters)
 }
-#endif
 
 CLCD::CLCD()
 {
@@ -145,9 +142,8 @@ void CLCD::count_down() {
 }
 
 void CLCD::wake_up() {
-	int tmp = atoi(g_settings.lcd_setting_dim_time.c_str());
-	if (tmp > 0) {
-		timeout_cnt = (unsigned int)tmp;
+	if (atoi(g_settings.lcd_setting_dim_time) > 0) {
+		timeout_cnt = atoi(g_settings.lcd_setting_dim_time);
 		setlcdparameter();
 	}
 }
@@ -155,8 +151,8 @@ void CLCD::wake_up() {
 #ifndef BOXMODEL_DM500
 void* CLCD::TimeThread(void *p)
 {
-	set_threadname("lcd:time");
 	((CLCD *)p)->thread_started = true;
+	set_threadname("lcd:time");
 	while (((CLCD *)p)->thread_started)
 	{
 		sleep(1);
@@ -392,7 +388,7 @@ void CLCD::setlcdparameter(int /*dimm*/, const int contrast, const int /*power*/
 void CLCD::setlcdparameter(void)
 {
 	last_toggle_state_power = g_settings.lcd_setting[SNeutrinoSettings::LCD_POWER];
-	int dim_time = atoi(g_settings.lcd_setting_dim_time.c_str());
+	int dim_time = atoi(g_settings.lcd_setting_dim_time);
 	int dim_brightness = g_settings.lcd_setting_dim_brightness;
 	bool timeouted = (dim_time > 0) && (timeout_cnt == 0);
 	int brightness, power = 0;
@@ -716,13 +712,11 @@ void CLCD::showVolume(const char vol, const bool perform_update)
 	wake_up();
 }
 
-void CLCD::showPercentOver(const unsigned char perc, const bool perform_update, const MODES /*m*/)
+void CLCD::showPercentOver(const unsigned char perc, const bool perform_update, const MODES m)
 {
-/*
 	if (mode != m)
-		printf("CLCD::showPercentOver: mode (%d) != m (%d), please report\n", (int)mode, (int)m);
-		// return;
-*/
+		return;
+
 	int left, top, width, height = 5;
 	bool draw = true;
 	percentOver = perc;
@@ -905,14 +899,13 @@ void CLCD::showAudioPlayMode(AUDIOMODES m)
 	displayUpdate();
 }
 
-void CLCD::showAudioProgress(const char perc) //, bool isMuted)
+void CLCD::showAudioProgress(const char perc, bool isMuted)
 {
 	if (mode == MODE_AUDIO)
 	{
 		display.draw_fill_rect (11,53,73,61, CLCDDisplay::PIXEL_OFF);
 		int dp = perc * 61 / 100 + 12;
 		display.draw_fill_rect (11,54,dp,60, CLCDDisplay::PIXEL_ON);
-#if 0
 		if(isMuted)
 		{
 			if(dp > 12)
@@ -923,7 +916,6 @@ void CLCD::showAudioProgress(const char perc) //, bool isMuted)
 			else
 				display.draw_line (12,55,72,59, CLCDDisplay::PIXEL_ON);
 		}
-#endif
 		displayUpdate();
 	}
 }
