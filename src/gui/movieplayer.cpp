@@ -288,6 +288,11 @@ void CMoviePlayerGui::cutNeutrino()
 #endif
 	g_Zapit->lockPlayBack();
 
+#ifdef HAVE_ARM_HARDWARE
+	videoDecoder->closeDevice();
+	audioDecoder->closeDevice();
+#endif
+
 #ifdef HAVE_AZBOX_HARDWARE
 	/* we need sectionsd to get idle and zapit to release the demuxes
 	 * and decoders so that the external player can do its work
@@ -331,6 +336,11 @@ void CMoviePlayerGui::restoreNeutrino()
 
 	if (isUPNP)
 		return;
+
+#ifdef HAVE_ARM_HARDWARE
+	videoDecoder->openDevice();
+	audioDecoder->openDevice();
+#endif
 
 	g_Zapit->unlockPlayBack();
 	//CZapit::getInstance()->EnablePlayback(true);
