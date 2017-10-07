@@ -127,8 +127,11 @@ CHDDMenuHandler* CHDDMenuHandler::getInstance()
 
 int CHDDMenuHandler::filterDevName(const char * name)
 {
-	if (((name[0] == 's' || name[0] == 'h') && (name[1] == 'd' || name[1] == 'r')) ||
-		!strncmp(name, "mmcblk", 6))
+	if (((name[0] == 's' || name[0] == 'h') && (name[1] == 'd' || name[1] == 'r'))
+#if !HAVE_ARM_HARDWARE
+		|| !strncmp(name, "mmcblk", 6)
+#endif
+	)
 		return 1;
 	return 0;
 }
@@ -210,6 +213,10 @@ void CHDDMenuHandler::getBlkIds()
 
 		hdd_s hdd;
 		hdd.devname = std::string(buff + 5);
+#if HAVE_ARM_HARDWARE
+		if (strncmp(hdd.devname.c_str(), "mmcblk", 6) == 0)
+			continue;
+#endif
 		hdd.mounted = is_mounted(buff + 5);
 		hdd.fmt = ret;
 		hdd.desc = hdd.devname + " (" + hdd.fmt + ")";
