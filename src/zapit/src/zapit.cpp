@@ -2281,8 +2281,8 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 #if ! HAVE_AZBOX_HARDWARE
 	/* start video */
 	if (video_pid) {
-		videoDecoder->Start(0, pcr_pid, video_pid);
 		videoDemux->Start();
+		videoDecoder->Start(0, pcr_pid, video_pid);
 	}
 #endif
 #ifdef USE_VBI
