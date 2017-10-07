@@ -632,6 +632,7 @@ void CUpnpBrowserGui::playnext(void)
 					playAudio((*entries)[0].resources[preferred].url, (*entries)[0].type);
 				}
 				else if (mime.substr(0,6) == "video/") {
+					m_frameBuffer->Clear();
 					playVideo((*entries)[0].title, (*entries)[0].resources[preferred].url);
 					m_folderplay = false; // FIXME else no way to stop in video folder
 				}
