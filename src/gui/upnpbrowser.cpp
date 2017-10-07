@@ -1226,8 +1226,11 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 {
 	if (pos < 0){
-		if (dline)
+		if (dline){
 			dline->kill();
+			infobox.kill();
+			timebox.kill();
+		}
 		return;
 	}
 
