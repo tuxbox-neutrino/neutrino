@@ -96,6 +96,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	time_t         m_time_played;
 	bool           m_playing_entry_is_shown;
 	time_t         timeout;
+	int	       video_key_msg;
 	CComponentsDetailsLine * dline;
 	CComponentsFooter footer;
 	CComponentsInfoBox topbox, infobox, timebox;

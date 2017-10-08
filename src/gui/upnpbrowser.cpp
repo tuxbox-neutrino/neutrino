@@ -155,6 +155,8 @@ void CUpnpBrowserGui::Init()
 	m_item_y = m_header_y + m_header_height;
 	m_footer_y = m_item_y + (m_listmaxshow * m_item_height);
 	m_infobox_y = m_footer_y + m_footer_height + OFFSET_SHADOW + OFFSET_INTER;
+	video_key_msg = CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL;
+
 }
 
 CUpnpBrowserGui::~CUpnpBrowserGui()
@@ -633,8 +635,8 @@ void CUpnpBrowserGui::playnext(void)
 				}
 				else if (mime.substr(0,6) == "video/") {
 					m_frameBuffer->Clear();
+					m_folderplay = true;
 					playVideo((*entries)[0].title, (*entries)[0].resources[preferred].url);
-					m_folderplay = false; // FIXME else no way to stop in video folder
 				}
 				else if (mime.substr(0,6) == "image/") {
 					if (m_folderplay)
@@ -727,6 +729,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 	unsigned int liststart = 0;
 	unsigned int selected = 0;
 	unsigned int total = 0;
+	video_key_msg = CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL;
 
 	printf("selectItem: [%s]\n", id.c_str());
 	if (!getItems(id, liststart, entries, total))
@@ -858,19 +861,23 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			m_folderplay = false;
 			stopAudio();
 		}
-		else if (m_folderplay && msg == (neutrino_msg_t) CRCInput::RC_stop) {
+		else if (m_folderplay && (msg == (neutrino_msg_t) CRCInput::RC_stop
+			|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP
+			|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL)){
 			timeout = 0;
 			m_folderplay = false;
 			m_frameBuffer->Clear();
 			refresh = true;
 		}
-		else if (m_folderplay && msg == (neutrino_msg_t) CRCInput::RC_prev) {
+		else if (m_folderplay && (msg == (neutrino_msg_t) CRCInput::RC_prev)
+			|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV){
 			timeout = 0;
 			m_playid -= 2;
 			if (m_playid < 0)
 				m_playid = 0;
 		}
-		else if (m_folderplay && msg == (neutrino_msg_t) CRCInput::RC_next) {
+		else if (m_folderplay && (msg == (neutrino_msg_t) CRCInput::RC_next
+			|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT)){
 			timeout = 0;
 			stopAudio();
 		}
@@ -1322,6 +1329,7 @@ void CUpnpBrowserGui::playVideo(std::string name, std::string url)
 	m_frameBuffer->stopFrame();
 	CMoviePlayerGui::getInstance().SetFile(name, url);
 	CMoviePlayerGui::getInstance().exec(NULL, "upnp");
+	video_key_msg = CMoviePlayerGui::getInstance().getKeyPressed();
 
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_upnp | NeutrinoMessages::norezap);
 }
