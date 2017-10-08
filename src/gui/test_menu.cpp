@@ -1126,9 +1126,12 @@ int CTestMenu::showTestMenu()
 	w_test.setFooter(footerButtons, 2);
 	w_test.addKey(CRCInput::RC_red, this, "footer_key");
 	w_test.addKey(CRCInput::RC_green, this, "footer_key");
-
+	int res = w_test.exec(NULL, "");
+	delete w_hw;
+	delete w_cc;
+	delete w_msg;
 	//exit
-	return w_test.exec(NULL, "");;
+	return res;
 }
 
 void CTestMenu::showCCTests(CMenuWidget *widget)
