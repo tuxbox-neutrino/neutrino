@@ -869,8 +869,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			m_frameBuffer->Clear();
 			refresh = true;
 		}
-		else if (m_folderplay && (msg == (neutrino_msg_t) CRCInput::RC_prev)
-			|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV){
+		else if (m_folderplay && ((msg == (neutrino_msg_t) CRCInput::RC_prev) || video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV)){
 			timeout = 0;
 			m_playid -= 2;
 			if (m_playid < 0)
