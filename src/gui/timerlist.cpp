@@ -1097,7 +1097,7 @@ void CTimerList::hide()
 bool CTimerList::RemoteBoxSetup()
 {
 	bool ret = false;
-	remboxmenu = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
+	remboxmenu = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER, 50);
 	remboxmenu->addKey(CRCInput::RC_red, this, "del_ip");
 	remboxmenu->addKey(CRCInput::RC_green, this, "add_ip");
 
