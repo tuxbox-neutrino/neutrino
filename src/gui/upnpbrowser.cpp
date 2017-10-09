@@ -295,15 +295,13 @@ bool CUpnpBrowserGui::getResults(std::string id, unsigned int start, unsigned in
 std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 {
 	xmlNodePtr   root, node, snode;
-	std::vector<UPnPEntry> *entries;
-
 	xmlDocPtr parser = parseXml(result.c_str(),"UTF-8");
 	root = xmlDocGetRootElement(parser);
 	if (!root) {
 		xmlFreeDoc(parser);
 		return NULL;
 	}
-	entries = new std::vector<UPnPEntry>;
+	std::vector<UPnPEntry> *entries = new std::vector<UPnPEntry>;
 
 	for (node=xmlChildrenNode(root); node; node=xmlNextNode(node))
 	{
@@ -643,9 +641,18 @@ void CUpnpBrowserGui::playnext(void)
 						timeout = time(NULL) + g_settings.picviewer_slide_time;
 					showPicture((*entries)[0].resources[preferred].url);
 				}
+				delete entries;
+				entries = NULL;
 				return;
+			}else{
+				delete entries;
+				entries = NULL;
 			}
 		} else {
+			if(entries){
+				delete entries;
+				entries = NULL;
+			}
 			neutrino_msg_t      msg;
 			neutrino_msg_data_t data;
 			g_RCInput->getMsg(&msg, &data, 10); // 1 sec timeout to update play/stop state display
@@ -657,7 +664,10 @@ void CUpnpBrowserGui::playnext(void)
 			}
 		}
 	}
-	delete entries;
+	if(entries){
+		delete entries;
+		entries = NULL;
+	}
 	m_frameBuffer->Clear();
 }
 
@@ -689,9 +699,13 @@ bool CUpnpBrowserGui::getItems(std::string id, unsigned int index, std::vector<U
 			rfound=true;
 		}
 	}
-	if (!entries || !nfound || !tfound || !rfound || returned != entries->size() || returned == 0)
+	if (!entries || !nfound || !tfound || !rfound || returned != entries->size() || returned == 0){
+		if(entries){
+			delete entries;
+			entries = NULL;
+		}
 		return false;
-
+	}
 	return true;
 }
 
@@ -922,6 +936,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 #endif
 
 	delete entries;
+	entries = NULL;
 	timeout = 0;
 
 	return endall;
