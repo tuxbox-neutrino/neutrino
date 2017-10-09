@@ -643,6 +643,7 @@ void CUpnpBrowserGui::playnext(void)
 						timeout = time(NULL) + g_settings.picviewer_slide_time;
 					showPicture((*entries)[0].resources[preferred].url);
 				}
+				delete entries;
 				return;
 			}
 		} else {
