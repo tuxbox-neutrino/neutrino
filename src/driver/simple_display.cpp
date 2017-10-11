@@ -363,7 +363,11 @@ void CLCD::showTime(bool force)
 #endif
 			close(fd);
 #endif
+#if HAVE_ARM_HARDWARE
+			if (mode == MODE_STANDBY || ( g_settings.lcd_info_line && (MODE_TVRADIO == mode)))
+#else
 			if (ret < 0 && servicename.empty())
+#endif
 			{
 				if (g_info.hw_caps->display_xres < 5)
 					sprintf(timestr, "%02d%02d", hour, minute);
