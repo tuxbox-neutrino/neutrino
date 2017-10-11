@@ -429,6 +429,10 @@ void CLCD::showVolume(const char vol, const bool update)
 			SetIcons(SPARK_MUTE, 0);
 		sprintf(s, vol_fmt[type], volume);
 	}
+#if HAVE_ARM_HARDWARE
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+		sprintf(s,"%.*s", volume*g_info.hw_caps->display_xres/100, "================");
+#endif
 	display(s);
 	vol_active = true;
 }
