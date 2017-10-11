@@ -56,6 +56,7 @@ install_DATA =	accept.png \
 		rc_cst_v6.png \
 		rc_dbox_nokia_old.png \
 		rc_dbox_philips.png \
+		rc_hd51.png \
 		record.png \
 		reload.png \
 		remove.png \
