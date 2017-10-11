@@ -264,6 +264,9 @@ void CLCD::showServicename(std::string name, bool)
 	strncpy(display_text, name.c_str(), sizeof(display_text) - 1);
 	display_text[sizeof(display_text) - 1] = '\0';
 	upd_display = true;
+#if HAVE_ARM_HARDWARE
+	wake_up();
+#endif
 }
 
 #if HAVE_SPARK_HARDWARE
@@ -434,6 +437,9 @@ void CLCD::showVolume(const char vol, const bool update)
 		sprintf(s,"%.*s", volume*g_info.hw_caps->display_xres/100, "================");
 #endif
 	display(s);
+#if HAVE_ARM_HARDWARE
+	wake_up();
+#endif
 	vol_active = true;
 }
 
@@ -450,6 +456,9 @@ void CLCD::showMenuText(const int, const char *text, const int, const bool)
 	strncpy(display_text, tmp.c_str(), sizeof(display_text) - 1);
 	display_text[sizeof(display_text) - 1] = '\0';
 	upd_display = true;
+#if HAVE_ARM_HARDWARE
+	wake_up();
+#endif
 }
 
 void CLCD::showAudioTrack(const std::string &, const std::string & title, const std::string &)
@@ -457,6 +466,9 @@ void CLCD::showAudioTrack(const std::string &, const std::string & title, const 
 	if (mode != MODE_AUDIO)
 		return;
 	ShowText(title.c_str());
+#if HAVE_ARM_HARDWARE
+	wake_up();
+#endif
 }
 
 void CLCD::showAudioPlayMode(AUDIOMODES)
@@ -502,6 +514,9 @@ void CLCD::setMode(const MODES m, const char * const)
 		showclock = true;
 		showTime();
 	}
+#if HAVE_ARM_HARDWARE
+	wake_up();
+#endif
 }
 
 void CLCD::setBrightness(int dimm)
