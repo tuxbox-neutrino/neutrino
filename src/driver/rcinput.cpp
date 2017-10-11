@@ -1708,6 +1708,14 @@ int CRCInput::translate(int code)
 			return RC_up;
 		case 0x101: // FIXME -- needed?
 			return RC_down;
+		case KEY_PLAYPAUSE:
+			return RC_play;
+		case KEY_PROGRAM:
+			return RC_timer;
+		case KEY_NEXTSONG:
+			return RC_next;
+		case KEY_PREVIOUSSONG:
+			return RC_prev;
 #ifdef HAVE_AZBOX_HARDWARE
 		case KEY_HOME:
 			return RC_favorites;
