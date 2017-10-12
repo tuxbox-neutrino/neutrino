@@ -85,12 +85,7 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 	fb_pixel_t  *cr,*l;
 	int i,j,k,ip;
 
-	cr = (fb_pixel_t *) malloc(dx*dy*sizeof(fb_pixel_t));
-
-	if(cr == NULL) {
-		printf("Error: malloc\n");
-		return NULL;
-	}
+	cr = CFrameBuffer::getInstance()->getBackBufferPointer();
 	l = cr;
 
 	for(j = 0; j < dy; j++, l += dx)
@@ -109,8 +104,6 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 {
 	int i;
-	int stride = CFrameBuffer::getInstance()->getScreenWidth(true);
-	uint32_t *sublfb = CFrameBuffer::getInstance()->getFrameBufferPointer();
 	int sw = CFrameBuffer::getInstance()->getScreenWidth(true);
 	int sh = CFrameBuffer::getInstance()->getScreenHeight(true);
 
@@ -145,13 +138,7 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 		fb_pixel_t * newdata = simple_resize32 (sub.rects[i]->data[0], colors, sub.rects[i]->nb_colors, width, height, nw, nh);
 #endif
 
-		fb_pixel_t * ptr = newdata;
-		for (int y2 = 0; y2 < nh; y2++) {
-			int y = (yoff + y2) * stride;
-			for (int x2 = 0; x2 < nw; x2++)
-				*(sublfb + xoff + x2 + y) = *ptr++;
-		}
-		free(newdata);
+		CFrameBuffer::getInstance()->blit2FB(newdata, nw, nh, xoff, yoff, 0, 0);
 
 		if(min_x > xoff)
 			min_x = xoff;
@@ -217,12 +204,12 @@ cDvbSubtitleConverter::~cDvbSubtitleConverter()
 
 void cDvbSubtitleConverter::Lock(void)
 {
-  pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex);
 }
 
 void cDvbSubtitleConverter::Unlock(void)
 {
-  pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex);
 }
 
 void cDvbSubtitleConverter::Pause(bool pause)
