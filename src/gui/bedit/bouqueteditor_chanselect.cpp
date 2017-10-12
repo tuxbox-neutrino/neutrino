@@ -171,8 +171,7 @@ void CBEChannelSelectWidget::paintFoot()
 
 	const short numbuttons = sizeof(CBEChannelSelectButtons)/sizeof(CBEChannelSelectButtons[0]);
 
-	footer.enableShadow(CC_SHADOW_ON, -1, true);
-	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEChannelSelectButtons);
+	CBEGlobals::paintFoot(numbuttons, CBEChannelSelectButtons);
 }
 
 std::string CBEChannelSelectWidget::getInfoText(int index)

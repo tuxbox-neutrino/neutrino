@@ -128,3 +128,10 @@ void CBEGlobals::killDetails()
 	if (ibox)
 		ibox->kill();
 }
+
+void CBEGlobals::paintFoot(const size_t& label_count, const struct button_label * const content)
+{
+	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
+	footer.enableShadow(CC_SHADOW_ON, -1, true);
+	footer.paintButtons(x, y + header_height + body_height, width, footer_height, label_count, content);
+}

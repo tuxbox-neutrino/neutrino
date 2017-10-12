@@ -166,8 +166,7 @@ void CBEChannelWidget::paintFoot()
 {
 	size_t numbuttons = sizeof(CBEChannelWidgetButtons)/sizeof(CBEChannelWidgetButtons[0]);
 
-	footer.enableShadow(CC_SHADOW_ON, -1, true);
-	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEChannelWidgetButtons);
+	CBEGlobals::paintFoot(numbuttons, CBEChannelWidgetButtons);
 }
 
 std::string CBEChannelWidget::getInfoText(int index)

@@ -57,6 +57,7 @@ class CBEGlobals
 		int* timeout_ptr;
 
 		void paintBody();
+		void paintFoot(const size_t& label_count, const struct button_label * const content);
 
 		virtual std::string getInfoText(int index) = 0;
 		void paintDetails(int pos, int current);
