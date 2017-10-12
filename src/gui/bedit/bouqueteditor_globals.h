@@ -54,7 +54,7 @@ class CBEGlobals
 		int status_icon_width;
 
 		unsigned int items_count;
-		int timeout;
+		int* timeout_ptr;
 
 		void paintBody();
 
