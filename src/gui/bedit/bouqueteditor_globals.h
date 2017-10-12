@@ -31,14 +31,8 @@ class CBEGlobals
 	protected:
 		CComponentsDetailsLine *dline;
 		CComponentsInfoBox *ibox;
-
-		virtual std::string getInfoText(int index) = 0;
-		void paintDetails(int pos, int current);
-		void killDetails();
-
-	public:
-		CBEGlobals();
-		virtual ~CBEGlobals();
+		CComponentsHeader header;
+		CComponentsFooter footer;
 
 		CFrameBuffer *frameBuffer;
 
@@ -53,18 +47,22 @@ class CBEGlobals
 		int footer_height;
 		int info_height;
 
-		CComponentsHeader header;
-		CComponentsFooter footer;
-
-		unsigned int items_count;
-
 		Font *item_font;
 		Font *info_font;
 
 		int action_icon_width;
 		int status_icon_width;
 
+		unsigned int items_count;
 		int timeout;
+
+		virtual std::string getInfoText(int index) = 0;
+		void paintDetails(int pos, int current);
+		void killDetails();
+
+	public:
+		CBEGlobals();
+		virtual ~CBEGlobals();
 
 		void hide();
 };
