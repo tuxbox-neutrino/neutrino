@@ -25,7 +25,6 @@
 #include <driver/fontrenderer.h>
 #include <gui/components/cc.h>
 
-class CFrameBuffer;
 
 class CBEGlobals
 {

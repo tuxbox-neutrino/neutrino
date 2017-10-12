@@ -30,7 +30,6 @@
 
 #include "bouqueteditor_globals.h"
 
-class CFrameBuffer;
 
 CBEGlobals::CBEGlobals()
 {
