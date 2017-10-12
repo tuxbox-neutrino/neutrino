@@ -175,16 +175,6 @@ void CBEChannelWidget::paintFoot()
 	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEChannelWidgetButtons);
 }
 
-void CBEChannelWidget::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
-
-	if (dline)
-		dline->kill();
-	if (ibox)
-		ibox->kill();
-}
-
 std::string CBEChannelWidget::getInfoText(int index)
 {
 	std::string res = "";
@@ -434,7 +424,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 	}
-	hide();
+	CBEGlobals::hide();
 	return res;
 }
 

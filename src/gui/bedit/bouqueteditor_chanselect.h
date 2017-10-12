@@ -62,7 +62,7 @@ class CBEChannelSelectWidget : public CBEGlobals, public CMenuTarget, public CLi
 		void paintItems();
 		void paintFoot();
 
-		void hide();
+
 		void updateSelection(unsigned int newpos);
 
 		void sortChannels();
@@ -77,6 +77,7 @@ class CBEChannelSelectWidget : public CBEGlobals, public CMenuTarget, public CLi
 		ZapitChannelList Channels;
 		ZapitChannelList * bouquetChannels;
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void hide(){CBEGlobals::hide();}
 		bool hasChanged();
 };
 

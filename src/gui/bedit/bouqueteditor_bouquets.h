@@ -68,7 +68,7 @@ class CBEBouquetWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();
-		void hide();
+
 		void updateSelection(unsigned int newpos);
 
 		void deleteBouquet();
@@ -93,6 +93,7 @@ class CBEBouquetWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		//CZapitClient::BouquetList Bouquets;
 		BouquetList * Bouquets;
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void hide(){CBEGlobals::hide();}
 };
 
 #endif

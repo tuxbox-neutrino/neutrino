@@ -180,16 +180,6 @@ void CBEChannelSelectWidget::paintFoot()
 	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEChannelSelectButtons);
 }
 
-void CBEChannelSelectWidget::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
-
-	if (dline)
-		dline->kill();
-	if (ibox)
-		ibox->kill();
-}
-
 std::string CBEChannelSelectWidget::getInfoText(int index)
 {
 	std::string res = "";

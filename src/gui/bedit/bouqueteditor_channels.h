@@ -62,7 +62,7 @@ class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		void paintItems();
 		void paintFoot();
 
-		void hide();
+
 		void updateSelection(unsigned int newpos);
 
 		void deleteChannel();
@@ -85,6 +85,7 @@ class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		//CZapitClient::BouquetChannelList	Channels;
 		ZapitChannelList * Channels;
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void hide(){CBEGlobals::hide();}
 		bool hasChanged();
 		unsigned int getBouquet() { return bouquet; };
 };

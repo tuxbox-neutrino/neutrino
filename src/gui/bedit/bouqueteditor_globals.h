@@ -34,6 +34,7 @@ class CBEGlobals
 
 		virtual std::string getInfoText(int index) = 0;
 		void paintDetails(int pos, int current);
+		void killDetails();
 
 	public:
 		CBEGlobals();
@@ -64,6 +65,8 @@ class CBEGlobals
 		int status_icon_width;
 
 		int timeout;
+
+		void hide();
 };
 
 #endif

@@ -169,11 +169,6 @@ void CBEBouquetWidget::paintFoot()
 	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEBouquetWidgetButtons);
 }
 
-void CBEBouquetWidget::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
-}
-
 void CBEBouquetWidget::updateSelection(unsigned int newpos)
 {
 	if (newpos == selected || newpos == (unsigned int)-1)

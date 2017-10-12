@@ -109,4 +109,17 @@ void CBEGlobals::paintDetails(int pos, int current)
 	}
 }
 
+void CBEGlobals::hide()
+{
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 
+	killDetails();
+}
+
+void CBEGlobals::killDetails()
+{
+	if (dline)
+		dline->kill();
+	if (ibox)
+		ibox->kill();
+}
