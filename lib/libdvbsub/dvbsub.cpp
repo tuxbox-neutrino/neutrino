@@ -103,8 +103,8 @@ int dvbsub_start(int pid)
 			pid_change_req = 1;
 		}
 	}
-printf("[dvb-sub] ***************************************** start, stopped %d pid %x\n", dvbsub_stopped, dvbsub_pid);
 #if 0
+printf("[dvb-sub] ***************************************** start, stopped %d pid %x\n", dvbsub_stopped, dvbsub_pid);
 	while(!dvbsub_stopped)
 		usleep(10);
 #endif
@@ -244,11 +244,15 @@ static void* reader_thread(void * /*arg*/)
 	int len;
 	uint16_t packlen;
 	uint8_t* buf;
+	bool bad_startcode = false;
 	set_threadname("dvbsub:reader");
 
         dmx = new cDemux(0);
+#if HAVE_TRIPLEDRAGON
+	dmx->Open(DMX_PES_CHANNEL, NULL, 16*1024);
+#else
         dmx->Open(DMX_PES_CHANNEL, NULL, 64*1024);
-
+#endif
 	while (reader_running) {
 		if(dvbsub_stopped /*dvbsub_paused*/) {
 			sub_debug.print(Debug::VERBOSE, "%s stopped\n", __FUNCTION__);
@@ -283,9 +287,13 @@ static void* reader_thread(void * /*arg*/)
 			continue;
 
 		if(memcmp(tmp, "\x00\x00\x01\xbd", 4)) {
-			sub_debug.print(Debug::VERBOSE, "[subtitles] bad start code: %02x%02x%02x%02x\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+			if (!bad_startcode) {
+				sub_debug.print(Debug::VERBOSE, "[subtitles] bad start code: %02x%02x%02x%02x\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+				bad_startcode = true;
+			}
 			continue;
 		}
+		bad_startcode = false;
 		count = 6;
 
 		packlen =  getbits(tmp, 4*8, 16) + 6;
@@ -372,7 +380,7 @@ static void* dvbsub_thread(void* /*arg*/)
 		if(packet_queue.size() == 0) {
 			continue;
 		}
-		sub_debug.print(Debug::VERBOSE, "PES: Wakeup, queue size %d\n\n", packet_queue.size());
+		sub_debug.print(Debug::VERBOSE, "PES: Wakeup, queue size %d\n", packet_queue.size());
 		if(dvbsub_stopped /*dvbsub_paused*/) {
 			clear_queue();
 			continue;
