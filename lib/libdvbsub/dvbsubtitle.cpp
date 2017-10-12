@@ -163,7 +163,12 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 				yoff = ystart;
 		}
 #endif
-		int h2 = (width == 1280) ? 720 : 576;
+		int h2 = 576;
+		switch (width)
+		{
+			case 1280:	h2 = 720;  break;
+			case 1920:	h2 = 1080; break;
+		}
 		xoff = sub.rects[i]->x * sw / width;
 		yoff = sub.rects[i]->y * sh / h2;
 		int nw = width * sw / width;
