@@ -2321,6 +2321,7 @@ timerlist.bouquetselect choose bouquet
 timerlist.channel Channel
 timerlist.channelselect choose channel
 timerlist.delete Delete
+timerlist.info Info
 timerlist.menumodify Modify timer
 timerlist.menunew New timer
 timerlist.message Message
@@ -2356,6 +2357,7 @@ timerlist.repeatcount repeats
 timerlist.repeatcount.hint_1 Amount of timer repeats
 timerlist.repeatcount.hint_2 0 for unlimited repeats
 timerlist.save Save timer
+timerlist.send.timer Send Timer
 timerlist.standby Action
 timerlist.standby.off Leave standby
 timerlist.standby.on Enter standby
