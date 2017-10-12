@@ -37,9 +37,6 @@
 class CBEChannelSelectWidget : public CBEGlobals, public CMenuTarget, public CListHelpers
 {
 	private:
-		CComponentsDetailsLine *dline;
-		CComponentsInfoBox *ibox;
-
 		enum {
 			SORT_ALPHA,
 			SORT_FREQ,
@@ -64,7 +61,7 @@ class CBEChannelSelectWidget : public CBEGlobals, public CMenuTarget, public CLi
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();
-		void paintDetails(int pos, int current);
+
 		void hide();
 		void updateSelection(unsigned int newpos);
 

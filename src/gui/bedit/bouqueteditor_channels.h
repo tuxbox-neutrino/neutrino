@@ -38,9 +38,6 @@
 class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelpers
 {
 	private:
-		CComponentsDetailsLine *dline;
-		CComponentsInfoBox *ibox;
-
 		enum state_
 		{
 			beDefault,
@@ -64,7 +61,7 @@ class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();
-		void paintDetails(int pos, int current);
+
 		void hide();
 		void updateSelection(unsigned int newpos);
 

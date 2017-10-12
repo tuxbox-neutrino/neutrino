@@ -28,9 +28,16 @@
 
 class CBEGlobals
 {
+	protected:
+		CComponentsDetailsLine *dline;
+		CComponentsInfoBox *ibox;
+
+		virtual std::string getInfoText(int index) = 0;
+		void paintDetails(int pos, int current);
+
 	public:
 		CBEGlobals();
-		~CBEGlobals();
+		virtual ~CBEGlobals();
 
 		CFrameBuffer *frameBuffer;
 

@@ -55,8 +55,7 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	caption = Caption;
 	bouquet = Bouquet;
 	mode = CZapitClient::MODE_TV;
-	dline = NULL;
-	ibox = NULL;
+
 	Channels = NULL;
 
 	int iw, ih;
@@ -76,8 +75,6 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 
 CBEChannelWidget::~CBEChannelWidget()
 {
-	delete dline;
-	delete ibox;
 }
 
 void CBEChannelWidget::paintItem(int pos)
@@ -176,54 +173,6 @@ void CBEChannelWidget::paintFoot()
 
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
 	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEChannelWidgetButtons);
-}
-
-void CBEChannelWidget::paintDetails(int pos, int current)
-{
-	int xpos  = x - DETAILSLINE_WIDTH;
-	int ypos1 = y + header_height + pos*item_height;
-	int ypos2 = y + height - info_height - OFFSET_SHADOW;
-	int ypos1a = ypos1 + (item_height/2);
-	int ypos2a = ypos2 + (info_height/2);
-	
-	if (dline)
-		dline->kill();
-
-	if (pos >= 0)
-	{
-		if (dline == NULL)
-			dline = new CComponentsDetailsLine();
-
-		if (dline)
-		{
-			dline->setDimensionsAll(xpos, ypos1a, ypos2a, item_height/2, info_height - RADIUS_LARGE*2);
-			dline->paint(CC_SAVE_SCREEN_NO);
-		}
-		
-		if (ibox == NULL)
-		{
-			ibox = new CComponentsInfoBox();
-
-			if (ibox)
-			{
-				ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
-				ibox->setTextColor(COL_MENUCONTENTDARK_TEXT);
-				ibox->setFrameThickness(FRAME_WIDTH_MIN);
-				ibox->setCorner(RADIUS_LARGE);
-				ibox->enableShadow(CC_SHADOW_ON);
-			}
-		}
-
-		if (ibox)
-		{
-			if (ibox->isPainted())
-				ibox->hide();
-
-			ibox->setDimensionsAll(x, ypos2, width, info_height);
-			ibox->setText(getInfoText(current), CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, info_font);
-			ibox->paint(CC_SAVE_SCREEN_NO);
-		}
-	}
 }
 
 void CBEChannelWidget::hide()

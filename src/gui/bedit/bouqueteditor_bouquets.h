@@ -85,6 +85,7 @@ class CBEBouquetWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		void discardChanges();
 
 		std::string inputName(const char* const defaultName, const neutrino_locale_t caption);
+		std::string getInfoText(int /*index*/){};
 
 	public:
 		CBEBouquetWidget();

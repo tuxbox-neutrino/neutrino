@@ -54,8 +54,59 @@ CBEGlobals::CBEGlobals()
         y = getScreenStartY(height);
 
 	timeout = g_settings.timing[SNeutrinoSettings::TIMING_MENU];
+
+	dline = NULL;
+	ibox = NULL;
 }
 
 CBEGlobals::~CBEGlobals()
 {
+	delete dline;
+	delete ibox;
 }
+
+void CBEGlobals::paintDetails(int pos, int current)
+{
+	int xpos  = x - DETAILSLINE_WIDTH;
+	int ypos1 = y + header_height + pos*item_height;
+	int ypos2 = y + height - info_height - OFFSET_SHADOW;
+	int ypos1a = ypos1 + (item_height/2);
+	int ypos2a = ypos2 + (info_height/2);
+
+	if (pos >= 0)
+	{
+		if (dline == NULL)
+			dline = new CComponentsDetailsLine();
+		dline->setDimensionsAll(xpos, ypos1a, ypos2a, item_height/2, info_height - RADIUS_LARGE*2);
+
+		dline->paint();
+
+		if (ibox == NULL)
+			ibox = new CComponentsInfoBox();
+		ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+		ibox->setTextColor(COL_MENUCONTENTDARK_TEXT);
+		ibox->setFrameThickness(FRAME_WIDTH_MIN);
+		ibox->setCorner(RADIUS_LARGE);
+		ibox->enableShadow();
+		ibox->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_MENUFOOT_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);// COL_MENUFOOT_PLUS_0 is default footer color
+		ibox->setDimensionsAll(x, ypos2, width, info_height);
+		ibox->setText(getInfoText(current), CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, info_font);
+
+		ibox->paint();
+	}
+	else
+	{
+		if (dline)
+		{
+			if (dline->isPainted())
+				dline->hide();
+		}
+		if (ibox)
+		{
+			if (ibox->isPainted())
+				ibox->hide();
+		}
+	}
+}
+
+
