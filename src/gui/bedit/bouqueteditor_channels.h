@@ -57,7 +57,7 @@ class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		unsigned int bouquet;
 
 		void paintHead();
-		void paintBody();
+
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();

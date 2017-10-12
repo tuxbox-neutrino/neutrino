@@ -64,7 +64,7 @@ class CBEBouquetWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		bool bouquetsChanged;
 
 		void paintHead();
-		void paintBody();
+
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();

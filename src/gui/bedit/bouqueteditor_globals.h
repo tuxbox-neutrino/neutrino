@@ -56,6 +56,8 @@ class CBEGlobals
 		unsigned int items_count;
 		int timeout;
 
+		void paintBody();
+
 		virtual std::string getInfoText(int index) = 0;
 		void paintDetails(int pos, int current);
 		void killDetails();

@@ -109,6 +109,11 @@ void CBEGlobals::paintDetails(int pos, int current)
 	}
 }
 
+void CBEGlobals::paintBody()
+{
+	PaintBoxRel(x, y + header_height, width, body_height, COL_MENUCONTENT_PLUS_0, RADIUS_NONE, CORNER_NONE, CC_SHADOW_ON);
+}
+
 void CBEGlobals::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);

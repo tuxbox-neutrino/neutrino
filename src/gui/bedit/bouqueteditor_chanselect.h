@@ -57,7 +57,7 @@ class CBEChannelSelectWidget : public CBEGlobals, public CMenuTarget, public CLi
 		std::string caption;
 
 		void paintHead();
-		void paintBody();
+
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();

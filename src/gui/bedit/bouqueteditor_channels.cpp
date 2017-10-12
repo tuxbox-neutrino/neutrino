@@ -140,11 +140,6 @@ void CBEChannelWidget::paintItems()
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, body_height, total_pages, current_page);
 }
 
-void CBEChannelWidget::paintBody()
-{
-	PaintBoxRel(x, y + header_height, width, body_height, COL_MENUCONTENT_PLUS_0, RADIUS_NONE, CORNER_NONE, CC_SHADOW_ON);
-}
-
 void CBEChannelWidget::paintHead()
 {
 	header.setCaption(caption + (mode == CZapitClient::MODE_TV ? " - TV" : " - Radio"));
