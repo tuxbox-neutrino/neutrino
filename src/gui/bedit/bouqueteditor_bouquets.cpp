@@ -196,6 +196,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		parent->hide();
 
 	Bouquets = &g_bouquetManager->Bouquets;
+	init();
 
 	paintHead();
 	paintBody();
@@ -379,6 +380,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		}
 	}
 	hide();
+	ResetModules();
 	return res;
 }
 

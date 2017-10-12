@@ -34,16 +34,33 @@
 CBEGlobals::CBEGlobals()
 {
 	frameBuffer = CFrameBuffer::getInstance();
+	timeout_ptr = &g_settings.timing[SNeutrinoSettings::TIMING_MENU];
 
+	header 	= NULL;
+	footer 	= NULL;
+	dline 	= NULL;
+	ibox 	= NULL;
+
+	init();
+}
+
+void CBEGlobals::init()
+{
 	item_font = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST];
 	info_font = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR];
 
 	width  = frameBuffer->getScreenWidthRel();
 	height = frameBuffer->getScreenHeightRel();
 
-	header_height = header.getHeight();
+	if (!header)
+		header = new CComponentsHeader();
+	header_height = header->getHeight();
 	item_height = item_font->getHeight();
-	footer_height = footer.getHeight();
+
+	if (!footer)
+		footer = new CComponentsFooter();
+	footer_height = footer->getHeight();
+
 	info_height = 2*info_font->getHeight() + 2*OFFSET_INNER_SMALL;
 
 	items_count = (height - header_height - footer_height - OFFSET_INTER - info_height - 2*OFFSET_SHADOW) / item_height;
@@ -52,17 +69,27 @@ CBEGlobals::CBEGlobals()
 
         x = getScreenStartX(width);
         y = getScreenStartY(height);
-
-	timeout_ptr = &g_settings.timing[SNeutrinoSettings::TIMING_MENU];
-
-	dline = NULL;
-	ibox = NULL;
 }
 
 CBEGlobals::~CBEGlobals()
 {
-	delete dline;
-	delete ibox;
+	ResetModules();
+}
+
+void CBEGlobals::ResetModules()
+{
+	if (dline){
+		delete dline; dline = NULL;
+	}
+	if (ibox){
+		delete ibox; ibox = NULL;
+	}
+	if (header){
+		delete header; header = NULL;
+	}
+	if (footer){
+		delete footer; footer = NULL;
+	}
 }
 
 void CBEGlobals::paintDetails(int pos, int current)
@@ -131,17 +158,21 @@ void CBEGlobals::killDetails()
 
 void CBEGlobals::paintFoot(const size_t& label_count, const struct button_label * const content)
 {
-	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
-	footer.enableShadow(CC_SHADOW_ON, -1, true);
-	footer.paintButtons(x, y + header_height + body_height, width, footer_height, label_count, content);
+	if (!footer)
+		footer = new CComponentsFooter();
+	footer->setCorner(RADIUS_LARGE, CORNER_BOTTOM);
+	footer->enableShadow(CC_SHADOW_ON, -1, true);
+	footer->paintButtons(x, y + header_height + body_height, width, footer_height, label_count, content);
 }
 
 void CBEGlobals::paintHead(const std::string& Caption, const char* Icon)
 {
-	header.setCaption(Caption);
-	header.setIcon(Icon);
-	header.setDimensionsAll(x, y, width, header_height);
-	header.setCorner(RADIUS_LARGE, CORNER_TOP);
-	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
-	header.paint(CC_SAVE_SCREEN_NO);
+	if (!header)
+		header = new CComponentsHeader();
+	header->setCaption(Caption);
+	header->setIcon(Icon);
+	header->setDimensionsAll(x, y, width, header_height);
+	header->setCorner(RADIUS_LARGE, CORNER_TOP);
+	header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
+	header->paint(CC_SAVE_SCREEN_NO);
 }

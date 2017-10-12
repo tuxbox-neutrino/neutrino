@@ -70,7 +70,6 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
 
-	header.addContextButton(CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT);
 }
 
 CBEChannelWidget::~CBEChannelWidget()
@@ -142,6 +141,8 @@ void CBEChannelWidget::paintItems()
 
 void CBEChannelWidget::paintHead()
 {
+	if (!header->isPainted())
+		header->addContextButton(CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT);
 	CBEGlobals::paintHead(caption + (mode == CZapitClient::MODE_TV ? " - TV" : " - Radio"),
 					mode == CZapitClient::MODE_TV ? NEUTRINO_ICON_VIDEO : NEUTRINO_ICON_AUDIO);
 }

@@ -31,8 +31,8 @@ class CBEGlobals
 	protected:
 		CComponentsDetailsLine *dline;
 		CComponentsInfoBox *ibox;
-		CComponentsHeader header;
-		CComponentsFooter footer;
+		CComponentsHeader *header;
+		CComponentsFooter *footer;
 
 		CFrameBuffer *frameBuffer;
 
@@ -56,6 +56,8 @@ class CBEGlobals
 		unsigned int items_count;
 		int* timeout_ptr;
 
+		void init();
+
 		void paintHead(const std::string& Caption, const char* Icon);
 		void paintBody();
 		void paintFoot(const size_t& label_count, const struct button_label * const content);
@@ -69,6 +71,7 @@ class CBEGlobals
 		virtual ~CBEGlobals();
 
 		void hide();
+		void ResetModules();
 };
 
 #endif
