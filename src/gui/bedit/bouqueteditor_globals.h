@@ -56,6 +56,7 @@ class CBEGlobals
 		unsigned int items_count;
 		int* timeout_ptr;
 
+		void paintHead(const std::string& Caption, const char* Icon);
 		void paintBody();
 		void paintFoot(const size_t& label_count, const struct button_label * const content);
 

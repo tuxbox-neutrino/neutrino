@@ -137,12 +137,7 @@ void CBEBouquetWidget::paintItems()
 
 void CBEBouquetWidget::paintHead()
 {
-	header.setCaption(LOCALE_BOUQUETLIST_HEAD);
-	header.setIcon(NEUTRINO_ICON_SETTINGS);
-	header.setDimensionsAll(x, y, width, header_height);
-	header.setCorner(RADIUS_LARGE, CORNER_TOP);
-	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
-	header.paint(CC_SAVE_SCREEN_NO);
+	CBEGlobals::paintHead(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), NEUTRINO_ICON_SETTINGS);
 }
 
 const struct button_label CBEBouquetWidgetButtons[] =

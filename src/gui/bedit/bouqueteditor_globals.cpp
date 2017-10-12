@@ -135,3 +135,13 @@ void CBEGlobals::paintFoot(const size_t& label_count, const struct button_label 
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
 	footer.paintButtons(x, y + header_height + body_height, width, footer_height, label_count, content);
 }
+
+void CBEGlobals::paintHead(const std::string& Caption, const char* Icon)
+{
+	header.setCaption(Caption);
+	header.setIcon(Icon);
+	header.setDimensionsAll(x, y, width, header_height);
+	header.setCorner(RADIUS_LARGE, CORNER_TOP);
+	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
+	header.paint(CC_SAVE_SCREEN_NO);
+}

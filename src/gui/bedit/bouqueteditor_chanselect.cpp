@@ -126,13 +126,8 @@ void CBEChannelSelectWidget::paintItems()
 
 void CBEChannelSelectWidget::paintHead()
 {
-	header.setCaption(caption + (mode == CZapitClient::MODE_TV ? " - TV" : " - Radio"));
-	header.setIcon(NULL); // trick the cc-header
-	header.setIcon(mode == CZapitClient::MODE_TV ? NEUTRINO_ICON_VIDEO : NEUTRINO_ICON_AUDIO);
-	header.setDimensionsAll(x, y, width, header_height);
-	header.setCorner(RADIUS_LARGE, CORNER_TOP);
-	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
-	header.paint(CC_SAVE_SCREEN_NO);
+	CBEGlobals::paintHead(caption + (mode == CZapitClient::MODE_TV ? " - TV" : " - Radio"),
+				mode == CZapitClient::MODE_TV ? NEUTRINO_ICON_VIDEO : NEUTRINO_ICON_AUDIO);
 }
 
 struct button_label CBEChannelSelectButtons[] =
