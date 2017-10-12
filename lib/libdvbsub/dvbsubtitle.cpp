@@ -36,8 +36,6 @@ static bool DebugConverter = true;
 
 #define dbgconverter(a...) if (DebugConverter) sub_debug.print(Debug::VERBOSE, a)
 
-// --- cDvbSubtitleBitmaps ---------------------------------------------------
-
 class cDvbSubtitleBitmaps : public cListObject 
 {
 	private:
@@ -87,16 +85,12 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 	fb_pixel_t  *cr,*l;
 	int i,j,k,ip;
 
-#ifndef HAVE_SPARK_HARDWARE
 	cr = (fb_pixel_t *) malloc(dx*dy*sizeof(fb_pixel_t));
 
 	if(cr == NULL) {
 		printf("Error: malloc\n");
 		return NULL;
 	}
-#else
-	cr = CFrameBuffer::getInstance()->getBackBufferPointer();
-#endif
 	l = cr;
 
 	for(j = 0; j < dy; j++, l += dx)
@@ -115,29 +109,10 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 {
 	int i;
-#ifndef HAVE_SPARK_HARDWARE
 	int stride = CFrameBuffer::getInstance()->getScreenWidth(true);
-#if 0
-	int wd = CFrameBuffer::getInstance()->getScreenWidth();
-	int xstart = CFrameBuffer::getInstance()->getScreenX();
-	int yend = CFrameBuffer::getInstance()->getScreenY() + CFrameBuffer::getInstance()->getScreenHeight();
-	int ystart = CFrameBuffer::getInstance()->getScreenY();
-#endif
 	uint32_t *sublfb = CFrameBuffer::getInstance()->getFrameBufferPointer();
-#endif
-
-#if 0
-	dbgconverter("cDvbSubtitleBitmaps::Draw: %d bitmaps, x= %d, width= %d yend=%d stride %d\n", Count(), xstart, wd, yend, stride);
-#endif
-
 	int sw = CFrameBuffer::getInstance()->getScreenWidth(true);
 	int sh = CFrameBuffer::getInstance()->getScreenHeight(true);
-#if 0
-	double xc = (double) CFrameBuffer::getInstance()->getScreenWidth(true)/(double) 720;
-	double yc = (double) CFrameBuffer::getInstance()->getScreenHeight(true)/(double) 576;
-	xc = yc; //FIXME should we scale also to full width ?
-	int xf = int(xc * (double) 720);
-#endif
 
 	for (i = 0; i < Count(); i++) {
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 5, 0)
@@ -149,26 +124,13 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 		int height = sub.rects[i]->h;
 		int xoff, yoff;
 
-#if 0
-		int nw = int(width == 1280 ? ((double) width / xc) : ((double) width * xc));
-		int nh = int((double) height * yc);
-
-		int xdiff = (wd > xf) ? ((wd - xf) / 2) : 0;
-		xoff = int(sub.rects[i]->x*xc + xstart + xdiff);
-		if(sub.rects[i]->y < 576/2) {
-			yoff = int(ystart + sub.rects[i]->y*yc);
-		} else {
-			yoff = int(yend - ((width == 1280 ? 704:576) - (double) (sub.rects[i]->y + height))*yc - nh);
-			if(yoff < ystart)
-				yoff = ystart;
-		}
-#endif
 		int h2 = 576;
 		switch (width)
 		{
 			case 1280:	h2 = 720;  break;
 			case 1920:	h2 = 1080; break;
 		}
+
 		xoff = sub.rects[i]->x * sw / width;
 		yoff = sub.rects[i]->y * sh / h2;
 		int nw = width * sw / width;
@@ -183,10 +145,6 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 		fb_pixel_t * newdata = simple_resize32 (sub.rects[i]->data[0], colors, sub.rects[i]->nb_colors, width, height, nw, nh);
 #endif
 
-#ifdef HAVE_SPARK_HARDWARE
-		// CFrameBuffer::getInstance()->waitForIdle();
-		CFrameBuffer::getInstance()->blit2FB(newdata, nw, nh, xoff, yoff, 0, 0);
-#else
 		fb_pixel_t * ptr = newdata;
 		for (int y2 = 0; y2 < nh; y2++) {
 			int y = (yoff + y2) * stride;
@@ -194,7 +152,6 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 				*(sublfb + xoff + x2 + y) = *ptr++;
 		}
 		free(newdata);
-#endif
 
 		if(min_x > xoff)
 			min_x = xoff;
@@ -212,7 +169,6 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 }
 
 static int screen_w, screen_h, screen_x, screen_y;
-// --- cDvbSubtitleConverter -------------------------------------------------
 
 cDvbSubtitleConverter::cDvbSubtitleConverter(void)
 {
@@ -279,9 +235,7 @@ void cDvbSubtitleConverter::Pause(bool pause)
 		Clear();
 		running = false;
 		Unlock();
-		//Reset();
 	} else {
-		//Reset();
 		running = true;
 	}
 }
@@ -296,7 +250,6 @@ void cDvbSubtitleConverter::Clear(void)
 		min_y = screen_h;
 		max_x = screen_x;
 		max_y = screen_h;
-		//CFrameBuffer::getInstance()->paintBackground();
 	}
 }
 
@@ -330,7 +283,6 @@ int cDvbSubtitleConverter::Convert(const uchar *Data, int Length, int64_t pts)
 	avpkt.size = Length;
 
 	dbgconverter("cDvbSubtitleConverter::Convert: sub %x pkt %x pts %lld\n", sub, &avpkt, pts);
-	//avctx->sub_id = (anc_page << 16) | comp_page; //FIXME not patched ffmpeg needs this !
 
 	avcodec_decode_subtitle2(avctx, sub, &got_subtitle, &avpkt);
 	dbgconverter("cDvbSubtitleConverter::Convert: pts %lld subs ? %s, %d bitmaps\n", pts, got_subtitle? "yes" : "no", sub->num_rects);
