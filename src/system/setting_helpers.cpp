@@ -49,11 +49,13 @@
 
 #include <config.h>
 
+#include <playback.h>
 #include <global.h>
 #include <neutrino.h>
 #include <gui/widget/stringinput.h>
 #include <gui/infoclock.h>
 #include <gui/infoviewer.h>
+#include <gui/movieplayer.h>
 #include <driver/display.h>
 #include <driver/volume.h>
 #include <system/helpers.h>
@@ -338,9 +340,19 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 int CSubtitleChangeExec::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
 printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
+
+	CMoviePlayerGui *mp = &CMoviePlayerGui::getInstance();
+	bool is_mp = mp->Playing();
+
 	if(actionKey == "off") {
 		tuxtx_stop_subtitle();
-		dvbsub_stop();
+		if (!is_mp && dvbsub_getpid() > 0)
+			dvbsub_stop();
+		if (is_mp && playback) {
+			playback->SetSubtitlePid(0);
+			playback->SetTeletextPid(0);
+			mp->setCurrentTTXSub("");
+		}
 		return menu_return::RETURN_EXIT;
 	}
 	if(!strncmp(actionKey.c_str(), "DVB", 3)) {
@@ -349,7 +361,7 @@ printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
 		tuxtx_stop_subtitle();
 		dvbsub_pause();
 		dvbsub_start(pid);
-	} else {
+	} else if (!strncmp(actionKey.c_str(), "TTX", 3)) {
 		char const * ptr = strchr(actionKey.c_str(), ':');
 		ptr++;
 		int pid = atoi(ptr);
@@ -362,7 +374,29 @@ printf("CSubtitleChangeExec::exec: TTX, pid %x page %x lang %s\n", pid, page, pt
 		tuxtx_stop_subtitle();
 		tuxtx_set_pid(pid, page, ptr);
 		dvbsub_stop();
-		tuxtx_main(pid, page);
+		if (is_mp) {
+			playback->SetSubtitlePid(0);
+			playback->SetTeletextPid(pid);
+			tuxtx_set_pid(pid, page, ptr);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			tuxtx_main(pid, page, 0, true);
+#else
+			tuxtx_main(pid, page, 0);
+#endif
+			mp->setCurrentTTXSub(actionKey.c_str());
+		} else {
+			tuxtx_set_pid(pid, page, ptr);
+			tuxtx_main(pid, page);
+		}
+	} else if (is_mp && !strncmp(actionKey.c_str(), "SUB", 3)) {
+		tuxtx_stop_subtitle();
+		dvbsub_stop();
+		playback->SetSubtitlePid(0);
+		playback->SetTeletextPid(0);
+		mp->setCurrentTTXSub("");
+		char const * pidptr = strchr(actionKey.c_str(), ':');
+		int pid = atoi(pidptr+1);
+		playback->SetSubtitlePid(pid);
 	}
         return menu_return::RETURN_EXIT;
 }

@@ -1,4 +1,5 @@
 AUDIOSelectMenue.head Tonoptionen
+AUDIOSelectMenue.volume Tonspur und Lautstärkeanpassung
 EPGMenu.epgplus EPG-Zeitlinen (EPG-Plus)
 EPGMenu.eventinfo Info zur Sendung
 EPGMenu.eventlist Vorschau aktuelles Programm

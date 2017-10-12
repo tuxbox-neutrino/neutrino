@@ -4329,6 +4329,15 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		InfoClock->switchClockOnOff();
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
+	else if (actionKey=="tonbug")
+	{
+		CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
+		if (chan)
+		{
+			CZapit::getInstance()->ChangeAudioPid(chan->getAudioChannelIndex());
+			returnval = menu_return::RETURN_EXIT_ALL;
+		}
+	}
 	else if (actionKey=="tv_radio_switch")//used in mainmenu
 	{
 		switchTvRadioMode();
