@@ -77,6 +77,12 @@ function do_check(){
 	=}
 
 	/*programs*/
+	{=var-set:grab={=find-exec:grab=}=}
+	{=if-empty:{=var-get:grab=}~
+		sLog_addRow(sLog_body, "red", "Programs: grab is not installed. OSD Screenshot is disabled. ", "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: grab is installed at: {=var-get:grab=}. OSD Screenshot is enabled.", "ok");
+	=}
 	{=var-set:fbshot={=find-exec:fbshot=}=}
 	{=if-empty:{=var-get:fbshot=}~
 		sLog_addRow(sLog_body, "red", "Programs: fbshot is not installed. OSD Screenshot is disabled. ", "failed");

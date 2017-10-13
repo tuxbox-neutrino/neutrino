@@ -1,3 +1,4 @@
+{=var-set:grab={=find-exec:grab=}=}
 {=var-set:fbshot={=find-exec:fbshot=}=}
 
 {=include-block:Y_Blocks.txt;head=}
@@ -43,8 +44,10 @@ function do_snapshot() {
 		filename = id("filename").value;
 	}
 
-	if ("{=var-get:fbshot=}" != "" && enableVideo == 0)
-		dbox_exec_tools("fbshot fb /tmp/"+filename+".png");
+	if ("{=var-get:grab=}" != "" && enableVideo == 0)
+		dbox_exec_tools("fbshot grab -p -o /tmp/"+filename+".png");
+	else if ("{=var-get:fbshot=}" != "" && enableVideo == 0)
+		dbox_exec_tools("fbshot fbshot /tmp/"+filename+".png");
 	else
 		loadSyncURL("/control/screenshot?name="+filename+"&osd="+enableOSD+"&video="+enableVideo);
 
