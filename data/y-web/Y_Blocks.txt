@@ -944,7 +944,7 @@ start-block~rc_hd51
 <map name="rc" id="rc">
 <area shape="rect" coords="20,43,49,72" href="javascript:rcsim('KEY_POWER')" />
 <area shape="rect" coords="121,44,148,72" href="javascript:rcsim('KEY_MUTE')" />
-<!-- area shape="rect" coords="21,80,49,101" alt="sleep" / -->
+<area shape="rect" coords="21,80,49,101" href="javascript:rcsim('KEY_SLEEP')"/>
 <area shape="rect" coords="55,80,81,100" href="javascript:rcsim('KEY_TV')" />
 <area shape="rect" coords="88,80,114,98" href="javascript:rcsim('KEY_RADIO')" />
 <area shape="rect" coords="122,81,146,98" href="javascript:rcsim('KEY_HELP')" />
@@ -973,8 +973,8 @@ start-block~rc_hd51
 <area shape="rect" coords="121,397,146,415" href="javascript:rcsim('KEY_EPG')" />
 <area shape="rect" coords="22,427,52,456" href="javascript:rcsim('KEY_VOLUMEUP')" />
 <area shape="rect" coords="23,456,52,493" href="javascript:rcsim('KEY_VOLUMEDOWN')" />
-<area shape="rect" coords="119,428,145,462" href="javascript:rcsim('KEY_UP')" />
-<area shape="rect" coords="119,464,146,493" href="javascript:rcsim('KEY_DOWN')" />
+<area shape="rect" coords="119,428,145,462" href="javascript:rcsim('KEY_PAGEUP')" />
+<area shape="rect" coords="119,464,146,493" href="javascript:rcsim('KEY_PAGEDOWN')" />
 <area shape="rect" coords="70,343,98,372" href="javascript:rcsim('KEY_OK')" />
 <area shape="rect" coords="70,468,99,489" href="javascript:rcsim('KEY_FAVORITES')" />
 <!-- area shape="rect" coords="68,430,101,453" alt="context" / -->
@@ -987,9 +987,9 @@ start-block~rc_hd51
 <area shape="rect" coords="24,565,57,584" href="javascript:rcsim('KEY_STOP')" />
 <area shape="rect" coords="115,566,142,584" href="javascript:rcsim('KEY_PLAY')" />
 <area shape="rect" coords="68,566,101,585" href="javascript:rcsim('KEY_PAUSE')" />
-<area shape="poly" coords="58,321,86,312,113,324,110,324,96,338,66,337,67,337,58,324,58,323,59,323,60,322" href="javascript:rcsim('KEY_PAGEUP')" />
+<area shape="poly" coords="58,321,86,312,113,324,110,324,96,338,66,337,67,337,58,324,58,323,59,323,60,322" href="javascript:rcsim('KEY_UP')" />
 <area shape="poly" coords="107,344,122,333,129,362,117,383,105,376,108,346" href="javascript:rcsim('KEY_RIGHT')" />
-<area shape="poly" coords="70,378,100,384,111,396,75,404,56,389,68,377" href="javascript:rcsim('KEY_PAGEDOWN')" />
+<area shape="poly" coords="70,378,100,384,111,396,75,404,56,389,68,377" href="javascript:rcsim('KEY_DOWN')" />
 <area shape="poly" coords="47,330,63,351,65,373,46,385,35,355" href="javascript:rcsim('KEY_LEFT')" />
 </map>
 end-block~rc_hd51
