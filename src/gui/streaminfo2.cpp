@@ -655,6 +655,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	   ddmode is always 1 ("CH1/CH2").
 	*/
 	audioDecoder->getAudioInfo(type, layer, freq, lbitrate, mode);
+	std::string desc = "N/A";
+	if (!g_RemoteControl->current_PIDs.APIDs.empty())
+		desc = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].desc;
 
 	if (type == AUDIO_FMT_MPEG)
 	{
@@ -666,9 +669,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			"single_ch"
 		};
 		int max_mode = sizeof(mpegmodes) / sizeof(mpegmodes[0]);
-		snprintf(buf, sizeof(buf), "MPEG %s (%d)",
+		snprintf(buf, sizeof(buf), "MPEG %s (%d) (%s)",
 			 (mode > max_mode) ? "unk" : mpegmodes[mode],
-			 freq);
+			 freq, desc.c_str());
 	}
 	else if (type == AUDIO_FMT_DOLBY_DIGITAL || type == AUDIO_FMT_DD_PLUS)
 	{
@@ -684,10 +687,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			"L/C/R/SL/SR"
 		};
 		int max_mode = sizeof(ddmodes) / sizeof(ddmodes[0]);
-		snprintf(buf, sizeof(buf), "%s %s (%d)",
+		snprintf(buf, sizeof(buf), "%s %s (%d) (%s)",
 			 (type == AUDIO_FMT_DOLBY_DIGITAL) ? "DD" : "DD+",
 			 (mode > max_mode) ? "unk" : ddmodes[mode],
-			 freq);
+			 freq, desc.c_str());
 	}
 	else if (type == AUDIO_FMT_AAC || type == AUDIO_FMT_AAC_PLUS)
 	{
@@ -705,16 +708,16 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			"Dual-Mono"
 		};
 		int max_mode = sizeof(aacmodes) / sizeof(aacmodes[0]);
-		snprintf(buf, sizeof(buf), "%s %s (%d)",
+		snprintf(buf, sizeof(buf), "%s %s (%d) (%s)",
 			 (type == AUDIO_FMT_AAC) ? "AAC" : "AAC+",
 			 (mode > max_mode) ? "unk" : aacmodes[mode],
-			 freq);
+			 freq, desc.c_str());
 	}
 	else
 	{
-		snprintf(buf, sizeof(buf), "%s (%d)",
+		snprintf(buf, sizeof(buf), "%s (%d) (%s)",
 			 g_Locale->getText(LOCALE_STREAMINFO_AUDIOTYPE_UNKNOWN),
-			 freq);
+			 freq, desc.c_str());
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
 
