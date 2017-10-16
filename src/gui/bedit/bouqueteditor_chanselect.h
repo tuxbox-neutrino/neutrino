@@ -37,9 +37,6 @@
 class CBEChannelSelectWidget : public CBEGlobals, public CMenuTarget, public CListHelpers
 {
 	private:
-		CComponentsDetailsLine *dline;
-		CComponentsInfoBox *ibox;
-
 		enum {
 			SORT_ALPHA,
 			SORT_FREQ,
@@ -60,12 +57,12 @@ class CBEChannelSelectWidget : public CBEGlobals, public CMenuTarget, public CLi
 		std::string caption;
 
 		void paintHead();
-		void paintBody();
+
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();
-		void paintDetails(int pos, int current);
-		void hide();
+
+
 		void updateSelection(unsigned int newpos);
 
 		void sortChannels();
@@ -80,6 +77,7 @@ class CBEChannelSelectWidget : public CBEGlobals, public CMenuTarget, public CLi
 		ZapitChannelList Channels;
 		ZapitChannelList * bouquetChannels;
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void hide(){CBEGlobals::hide();}
 		bool hasChanged();
 };
 

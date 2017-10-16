@@ -89,7 +89,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	cc_body_gradient_enable		= cc_body_gradient_enable_old = CC_COLGRAD_OFF/*g_settings.theme.menu_ButtonBar_gradient*/; //TODO: not complete implemented at the moment
 	cc_body_gradient_direction	= CFrameBuffer::gradientVertical;
 	cc_body_gradient_mode		= CColorGradient::gradientDark2Light;
-	btn_auto_frame_col	= false;
+	btn_auto_frame_col		= false; //TODO: currently global disabled
 
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;
@@ -106,103 +106,132 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 void CComponentsFooter::setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
-	/* clean up before init*/
+	/* clean up before init */
 	if (btn_container)
 		btn_container->clear();
 
 	if (label_count == 0)
 		return;
 
-	/* set general available full basic space for button chain,
-	 * in this case this is footer width
-	*/
-	int w_chain = width - 2*cch_offset;
+	/* global increments */
+	size_t i = 0;
+	size_t l_count = label_count;
 
-	/* calculate current available space for button container depends
-	 * of already enbedded footer objects.
-	 * If already existing some items then subtract those width from footer width.
-	 * ...so we have the possible usable size for button container.
+	/*
+	* Evaluate parameter 'chain_width':
+	* 
+	* Set usable basic space for button container,
+	* Default width this is footer width minus offset left and right of button container (btn_container).
+	*/
+	int w_container = max(0, width - 2*cch_offset);
+	/*
+	* Calculate current available space for button container depends of already embedded footer objects.
+	* If already existing some items then subtract those width from footer width.
+	* ...so we have the maximal possible usable size for button container.
 	*/
 	if(!v_cc_items.empty()){
-		for (size_t j= 0; j< size(); j++)
-			w_chain -= getCCItem(j)->getWidth();
+		for (i = 0; i< size(); i++){
+			if (getCCItem(i) != btn_container) // avoid to point on button container itself!
+				w_container -= getCCItem(i)->getWidth();
+		}
+		w_container = max(0, w_container);
 	}
-
-	/* On defined parameter chain_width
-	 * calculate current available space for button container depends
-	 * of passed chain with parameter
-	 * Consider that chain_width is not too large.
+	/*
+	* On defined parameter chain_width (means width of button container),
+	* compare and if required recalculate current available space for button container depends of passed chain with parameter.
+	* Consider that chain_width is not too large. In this case parameter chain_width will be ignored.
 	*/
-	if (chain_width > 0 && chain_width <= w_chain){
-		if (chain_width <= w_chain){
-			w_chain = chain_width;
+	if (chain_width){
+		if (chain_width <= w_container){
+			w_container = chain_width;
+		}else{
+			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFooter]\t[%s - %d], NOTE: parameter chain_width is too large, defined value = %d, fallback to maximal value = %d => \033[0m\n",
+				__func__, __LINE__, chain_width, w_container);
 		}
 	}
 
-	/* initialize button container (chain object): this contains all passed (as interleaved) button label items,
-	 * With this container we can work inside footer as primary container (in this context '=this') and the parent for the button label container (chain object).
-	 * Button label container (chain object) itself is concurrent to the parent object for button objects.
+	/*
+	 * Evaluate parameter 'label_width':
+	 * 
+	 * button label width is auto generated, if no label width is defined.
+	 * If is parameter label_width too large, we use maximal possible value.
+	*/
+	int w_tmp = w_container - cch_offset * ((int)l_count-1);
+	int w_btn = w_tmp / (int)l_count;
+	if (label_width && (label_width <= w_btn))
+		w_btn = label_width;
+	w_container = min(w_container, (w_btn * (int)l_count) + cch_offset * ((int)l_count-1));
+
+	/*
+	 * Initialize button container: this object contains all passed button label items,
+	 * Button container represents the parent for button labels and is working as single child object inside footer.
 	*/
 	int dist = height/2-cch_offset;
-	int h_chain = ccf_btn_font->getHeight() > height+dist ? height-dist : ccf_btn_font->getHeight()+dist;
-	int x_chain = width/2 - w_chain/2;
-	int y_chain = height/2 - h_chain/2;
+	int h_container = ccf_btn_font->getHeight() > height+dist ? height-dist : ccf_btn_font->getHeight()+dist;
+	int x_container = width/2 - w_container/2; //FIXME: only centered position, other items will be overpainted
+	int y_container = height/2 - h_container/2;
 	if (cch_icon_obj)
-		 x_chain = cch_offset+cch_icon_obj->getWidth()+cch_offset;
+		 x_container = cch_offset+cch_icon_obj->getWidth()+cch_offset;
 	if (btn_container == NULL){
-		btn_container = new CComponentsFrmChain(x_chain, y_chain, w_chain, h_chain, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
+		btn_container = new CComponentsFrmChain(x_container, y_container, w_container, h_container, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
 		btn_container->setAppendOffset(0, 0);
-		btn_container->setCorner(this->corner_rad, this->corner_type);
+		//btn_container->setCorner(this->corner_rad, this->corner_type);
 		btn_container->doPaintBg(false);
 	}
 
-	/* Calculate usable width of button labels inside button object container
-	 * related to available width of chain object and passed
-	 * label_width parameter.
-	 * Parameter is used as minimal value and will be reduced
-	 * if it is too large.
-	 * Too small label_width parameter will be compensated by
-	 * button objects itself.
+	/*
+	 * Reassign current available container width after initialized button labels.
 	*/
-	int w_offset = int((label_count-1)*cch_offset);
-	int w_btn = btn_container->getWidth()/label_count - w_offset;
-	if (label_width){
-		int w_label = label_width;
-		int w_defined = int(label_width*label_count);
-		int w_max = btn_container->getWidth() - w_offset;
-		while (w_defined > w_max){
-			w_label--;
-			w_defined = int(w_label*label_count) - w_offset;
-		}
-		w_btn = w_label;
-	}
+	w_container = btn_container->getWidth();
 
-	/* generate button objects passed from button label content
-	 * with default width to chain object.
+	/*
+	 * Primary x postion of buttons inside button container is fix,
+	 * height and y position of button labels are calculated by button container
+	 * dimensions and have a fix value.
 	*/
-	vector<CComponentsItem*> v_btns;
-	int h_btn = /*(ccf_enable_button_bg ? */btn_container->getHeight()-2*fr_thickness/*-OFFSET_INNER_SMALL*//* : height)*/-ccf_button_shadow_width;
-	for (size_t i= 0; i< label_count; i++){
+	int x_btn = 0;
+	int h_btn = btn_container->getHeight()- 2*fr_thickness - ccf_button_shadow_width;
+	int y_btn = btn_container->getHeight()/2 - h_btn/2;
+
+	/*
+	 * Init button label objects
+	*/
+	for (i = 0; i < l_count; i++){
+		/*
+		 * init button label face values
+		*/
 		string txt 		= content[i].locale == NONEXISTANT_LOCALE ? content[i].text : g_Locale->getText(content[i].locale);
 		string icon_name 	= string(content[i].button);
 
-		//ignore item, if no text and icon are defined;
+		/*
+		 * Ignore item, if no text and no icon is defined.
+		*/
 		if (txt.empty() && icon_name.empty()){
-			dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  ignore item [%zu], no icon and text defined!\n", __func__, __LINE__, i);
+			//l_count -= 1;
+			dprintf(DEBUG_NORMAL, "[CComponentsFooter]\t[%s - %d]\tignore item [%d], no icon and text defined!\n", __func__, __LINE__, i);
 			continue;
 		}
 
-		int y_btn = btn_container->getHeight()/2 - h_btn/2;
-		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  y_btn [%d] ccf_button_shadow_width [%d]\n", __func__, __LINE__, y_btn, ccf_button_shadow_width);
-		CComponentsButton *btn = new CComponentsButton(0, y_btn, w_btn, h_btn, txt, icon_name, NULL, false, true, ccf_enable_button_shadow);
-
+		/*
+		 * Create all button label objects and add to button container
+		 * Set properties, like position, font, key values, coler etc...
+		*/
+		CComponentsButton *btn = new CComponentsButton(x_btn, y_btn, w_btn, h_btn, txt, icon_name, btn_container, false, true, ccf_enable_button_shadow);
+		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(ccf_enable_button_bg);
+		
+		x_btn += btn_container->getCCItem(i)->getWidth();
+		x_btn += cch_offset;
+
 		btn->setButtonDirectKeys(content[i].directKeys);
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);
-		btn->setButtonFont(ccf_btn_font);
 
-		//set button frames to icon color, predefined for available color buttons
+		btn->doPaintBg(true);
+
+		/*
+		 * Set button frames to icon color, predefined for available color buttons
+		*/
 		if (btn_auto_frame_col){
 			fb_pixel_t f_col = btn->getColorFrame();
 			if (icon_name == NEUTRINO_ICON_BUTTON_RED)
@@ -215,35 +244,47 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 				f_col = COL_DARK_BLUE;
 			btn->setColorFrame(f_col);
 		}
-
-		v_btns.push_back(btn);
-
-		if (w_btn < btn->getWidth()){
-			btn->setWidth(w_btn);
-			btn->setButtonFont(NULL);
-		}
-			
-		dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  button %s [%u]  btn->getWidth() = %d w_btn = %d,  (chain->getWidth() = %d)\n", __func__, __LINE__,  txt.c_str(), (uint32_t)i, btn->getWidth(), w_btn, btn_container->getWidth());
 	}
 
-	/* add generated button objects to chain object.
+	/*
+	 * Get the current required space for button labels after adding of all buttons.
+	 * This is required to check possible changed dimensions after init and
+	 * could be required if user has changed settings like font scale, font size or similar setting while runtime or
+	 * reserved size of footer is too small. It is recommended to allocate enough space from the outset.
 	*/
-	if (!v_btns.empty()){
-		/*add all buttons into button container*/
-		btn_container->addCCItem(v_btns);
+	int w_cont_used = 0;
+	size_t c_btns = btn_container->size();
+	for (i = 0; i < c_btns; i++){
+		w_cont_used += btn_container->getCCItem(i)->getWidth();	
+	}
+	w_cont_used += cch_offset * (l_count -1);
+	
+	if (w_cont_used > w_container){
+		/*
+		* recalculate width of labels
+		*/
+		int w_used_tmp = w_cont_used;
+		int w_btn_tmp = w_btn;
+		if (w_used_tmp >= w_container){
+			//w_btn_tmp = w_btn;
+			for (i = 0; i < c_btns; i++){
+				w_btn_tmp -= c_btns;
+				btn_container->getCCItem(i)->setWidth(w_btn_tmp); // value = 0 forces recalculation, refresh is required
+				static_cast<CComponentsButton*>(btn_container->getCCItem(i))->Refresh();
+				w_used_tmp -= max(0, btn_container->getCCItem(i)->getWidth());
+				dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFooter]\t[%s - %d] item %d -> w_used_tmp [%d] :: w_btn_tmp [%d] w_container = %d\033[0m\n", __func__, __LINE__, (int)i, w_used_tmp, w_btn_tmp, w_container);
+			}
+		}
 
-		/* set position of labels, as centered inside button container*/
-		int w_chain_used = 0;
-		for (size_t a= 0; a< btn_container->size(); a++)
-			w_chain_used += btn_container->getCCItem(a)->getWidth();
-		w_chain_used += (btn_container->size()-1)*cch_offset;
-
-		int x_btn = btn_container->getWidth()/2 - w_chain_used/2;
-		btn_container->getCCItem(0)->setXPos(x_btn);
-
-		for (size_t c= 1; c< btn_container->size(); c++){
-			x_btn += btn_container->getCCItem(c-1)->getWidth()+ cch_offset;
-			btn_container->getCCItem(c)->setXPos(x_btn);
+		/*
+		* Trim position of labels, after possible changed width of button labels
+		*/
+		x_btn = 0;
+		btn_container->front()->setXPos(x_btn);
+		for (i = 1; i < c_btns; i++){
+			x_btn += btn_container->getCCItem(i-1)->getWidth() + cch_offset;;
+			if (i < c_btns)
+				btn_container->getCCItem(i)->setXPos(x_btn);
 		}
 	}
 }

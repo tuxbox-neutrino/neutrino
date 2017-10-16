@@ -657,8 +657,8 @@ struct button_label TimerListButtons[] =
 	{ NEUTRINO_ICON_BUTTON_GREEN 	, LOCALE_TIMERLIST_NEW    },
 	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
 	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_TIMERLIST_MODIFY },
-	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, NONEXISTANT_LOCALE     },
-	{ NEUTRINO_ICON_BUTTON_PLAY	, NONEXISTANT_LOCALE      }
+	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_TIMERLIST_INFO  },
+	{ NEUTRINO_ICON_BUTTON_PLAY	, LOCALE_TIMERLIST_SEND_TIMER }
 };
 // int to match the type in paintButtons
 int TimerListButtonsCount = sizeof(TimerListButtons)/sizeof(TimerListButtons[0]);
@@ -1412,9 +1412,9 @@ void CTimerList::paintFoot()
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
 
 	if (timerlist.empty())
-		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, 2, &(TimerListButtons[1]), width/(2+1));
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, 2, &(TimerListButtons[1]));
 	else
-		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, c, TimerListButtons, width/(c-1));
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, width, footer_height, c, TimerListButtons);
 }
 
 void CTimerList::paint()

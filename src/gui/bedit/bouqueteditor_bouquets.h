@@ -64,11 +64,11 @@ class CBEBouquetWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		bool bouquetsChanged;
 
 		void paintHead();
-		void paintBody();
+
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();
-		void hide();
+
 		void updateSelection(unsigned int newpos);
 
 		void deleteBouquet();
@@ -85,6 +85,7 @@ class CBEBouquetWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		void discardChanges();
 
 		std::string inputName(const char* const defaultName, const neutrino_locale_t caption);
+		std::string getInfoText(int /*index*/) { return ""; };
 
 	public:
 		CBEBouquetWidget();
@@ -92,6 +93,7 @@ class CBEBouquetWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		//CZapitClient::BouquetList Bouquets;
 		BouquetList * Bouquets;
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void hide(){CBEGlobals::hide();}
 };
 
 #endif

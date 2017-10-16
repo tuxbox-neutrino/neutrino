@@ -25,13 +25,14 @@
 #include <driver/fontrenderer.h>
 #include <gui/components/cc.h>
 
-class CFrameBuffer;
 
 class CBEGlobals
 {
-	public:
-		CBEGlobals();
-		~CBEGlobals();
+	protected:
+		CComponentsDetailsLine *dline;
+		CComponentsInfoBox *ibox;
+		CComponentsHeader *header;
+		CComponentsFooter *footer;
 
 		CFrameBuffer *frameBuffer;
 
@@ -46,18 +47,31 @@ class CBEGlobals
 		int footer_height;
 		int info_height;
 
-		CComponentsHeader header;
-		CComponentsFooter footer;
-
-		unsigned int items_count;
-
 		Font *item_font;
 		Font *info_font;
 
 		int action_icon_width;
 		int status_icon_width;
 
-		int timeout;
+		unsigned int items_count;
+		int* timeout_ptr;
+
+		void init();
+
+		void paintHead(const std::string& Caption, const char* Icon);
+		void paintBody();
+		void paintFoot(const size_t& label_count, const struct button_label * const content);
+
+		virtual std::string getInfoText(int index) = 0;
+		void paintDetails(int pos, int current);
+		void killDetails();
+
+	public:
+		CBEGlobals();
+		virtual ~CBEGlobals();
+
+		void hide();
+		void ResetModules();
 };
 
 #endif

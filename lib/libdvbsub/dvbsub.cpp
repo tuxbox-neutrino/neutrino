@@ -50,7 +50,7 @@ static void clear_queue();
 int dvbsub_init() {
 	int trc;
 
-	sub_debug.set_level(2);
+	sub_debug.set_level(3);
 
 	reader_running = true;
 	dvbsub_stopped = 1;
@@ -103,11 +103,7 @@ int dvbsub_start(int pid)
 			pid_change_req = 1;
 		}
 	}
-#if 0
-printf("[dvb-sub] ***************************************** start, stopped %d pid %x\n", dvbsub_stopped, dvbsub_pid);
-	while(!dvbsub_stopped)
-		usleep(10);
-#endif
+
 	if(dvbsub_pid > 0) {
 		dvbsub_stopped = 0;
 		dvbsub_paused = false;
@@ -248,11 +244,8 @@ static void* reader_thread(void * /*arg*/)
 	set_threadname("dvbsub:reader");
 
         dmx = new cDemux(0);
-#if HAVE_TRIPLEDRAGON
-	dmx->Open(DMX_PES_CHANNEL, NULL, 16*1024);
-#else
         dmx->Open(DMX_PES_CHANNEL, NULL, 64*1024);
-#endif
+
 	while (reader_running) {
 		if(dvbsub_stopped /*dvbsub_paused*/) {
 			sub_debug.print(Debug::VERBOSE, "%s stopped\n", __FUNCTION__);
@@ -310,17 +303,6 @@ static void* reader_thread(void * /*arg*/)
 				count += len;
 			}
 		}
-#if 0
-		for(int i = 6; i < packlen - 4; i++) {
-			if(!memcmp(&buf[i], "\x00\x00\x01\xbd", 4)) {
-				int plen =  getbits(&buf[i], 4*8, 16) + 6;
-				sub_debug.print(Debug::VERBOSE, "[subtitles] ******************* PES header at %d ?! *******************\n", i);
-				sub_debug.print(Debug::VERBOSE, "[subtitles] start code: %02x%02x%02x%02x len %d\n", buf[i+0], buf[i+1], buf[i+2], buf[i+3], plen);
-				free(buf);
-				continue;
-			}
-		}
-#endif
 
 		if(!dvbsub_stopped /*!dvbsub_paused*/) {
 			sub_debug.print(Debug::VERBOSE, "[subtitles] *** new packet, len %d buf 0x%x pts-stc diff %lld ***\n", count, buf, get_pts_stc_delta(get_pts(buf)));
@@ -400,11 +382,6 @@ static void* dvbsub_thread(void* /*arg*/)
 		dataoffset = packet[8] + 8 + 1;
 		if (packet[dataoffset] != 0x20) {
 			sub_debug.print(Debug::VERBOSE, "Not a dvb subtitle packet, discard it (len %d)\n", packlen);
-#if 0
-			for(int i = 0; i < packlen; i++)
-				printf("%02X ", packet[i]);
-			printf("\n");
-#endif
 			goto next_round;
 		}
 

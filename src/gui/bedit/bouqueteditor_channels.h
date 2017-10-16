@@ -38,9 +38,6 @@
 class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelpers
 {
 	private:
-		CComponentsDetailsLine *dline;
-		CComponentsInfoBox *ibox;
-
 		enum state_
 		{
 			beDefault,
@@ -60,12 +57,12 @@ class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		unsigned int bouquet;
 
 		void paintHead();
-		void paintBody();
+
 		void paintItem(int pos);
 		void paintItems();
 		void paintFoot();
-		void paintDetails(int pos, int current);
-		void hide();
+
+
 		void updateSelection(unsigned int newpos);
 
 		void deleteChannel();
@@ -88,6 +85,7 @@ class CBEChannelWidget : public CBEGlobals, public CMenuTarget, public CListHelp
 		//CZapitClient::BouquetChannelList	Channels;
 		ZapitChannelList * Channels;
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void hide(){CBEGlobals::hide();}
 		bool hasChanged();
 		unsigned int getBouquet() { return bouquet; };
 };

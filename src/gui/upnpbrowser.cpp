@@ -553,6 +553,7 @@ void CUpnpBrowserGui::selectDevice()
 		{
 			m_folderplay = false;
 			selectItem("0");
+			m_frameBuffer->Clear();
 			refresh=true;
 		}
 		else if (msg == CRCInput::RC_blue)

@@ -135,19 +135,9 @@ void CBEBouquetWidget::paintItems()
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, body_height, total_pages, current_page);
 }
 
-void CBEBouquetWidget::paintBody()
-{
-	PaintBoxRel(x, y + header_height, width, body_height, COL_MENUCONTENT_PLUS_0, RADIUS_NONE, CORNER_NONE, CC_SHADOW_ON);
-}
-
 void CBEBouquetWidget::paintHead()
 {
-	header.setCaption(LOCALE_BOUQUETLIST_HEAD);
-	header.setIcon(NEUTRINO_ICON_SETTINGS);
-	header.setDimensionsAll(x, y, width, header_height);
-	header.setCorner(RADIUS_LARGE, CORNER_TOP);
-	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
-	header.paint(CC_SAVE_SCREEN_NO);
+	CBEGlobals::paintHead(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), NEUTRINO_ICON_SETTINGS);
 }
 
 const struct button_label CBEBouquetWidgetButtons[] =
@@ -164,14 +154,7 @@ void CBEBouquetWidget::paintFoot()
 {
 	size_t numbuttons = sizeof(CBEBouquetWidgetButtons)/sizeof(CBEBouquetWidgetButtons[0]);
 
-	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
-	footer.enableShadow(CC_SHADOW_ON, -1, true);
-	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEBouquetWidgetButtons);
-}
-
-void CBEBouquetWidget::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
+	CBEGlobals::paintFoot(numbuttons, CBEBouquetWidgetButtons);
 }
 
 void CBEBouquetWidget::updateSelection(unsigned int newpos)
@@ -213,6 +196,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		parent->hide();
 
 	Bouquets = &g_bouquetManager->Bouquets;
+	init();
 
 	paintHead();
 	paintBody();
@@ -221,7 +205,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 	bouquetsChanged = false;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(*timeout_ptr);
 
 	bool loop = true;
 	while (loop)
@@ -229,7 +213,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 		if (msg <= CRCInput::RC_MaxRC)
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+			timeoutEnd = CRCInput::calcTimeoutEnd(*timeout_ptr);
 
 		if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
 		{
@@ -364,7 +348,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 					paintFoot();
 					paintItems();
 
-					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+					timeoutEnd = CRCInput::calcTimeoutEnd(*timeout_ptr);
 				}
 			}
 			else if (state == beMoving)
@@ -396,6 +380,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		}
 	}
 	hide();
+	ResetModules();
 	return res;
 }
 

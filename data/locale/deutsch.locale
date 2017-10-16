@@ -2321,6 +2321,7 @@ timerlist.bouquetselect Bouquet wählen
 timerlist.channel Kanal
 timerlist.channelselect Kanal wählen
 timerlist.delete Löschen
+timerlist.info Info
 timerlist.menumodify Timer bearbeiten
 timerlist.menunew Neuer Timer
 timerlist.message Nachricht
@@ -2356,6 +2357,7 @@ timerlist.repeatcount Wiederholungen
 timerlist.repeatcount.hint_1 Anzahl der Timerausführungen
 timerlist.repeatcount.hint_2 0 für unbegrenzte Anzahl
 timerlist.save Timer speichern
+timerlist.send.timer Sende Timer
 timerlist.standby Aktion
 timerlist.standby.off Aufwachen aus Standby
 timerlist.standby.on In Standby gehen

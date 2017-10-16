@@ -48,8 +48,6 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, CZap
 	liststart = 0;
 	channellist_sort_mode = SORT_ALPHA;
 	bouquetChannels = NULL;
-	dline = NULL;
-	ibox = NULL;
 
 	int iw, ih;
 	action_icon_width = 0;
@@ -64,8 +62,6 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, CZap
 
 CBEChannelSelectWidget::~CBEChannelSelectWidget()
 {
-	delete dline;
-	delete ibox;
 }
 
 void CBEChannelSelectWidget::paintItem(int pos)
@@ -128,20 +124,10 @@ void CBEChannelSelectWidget::paintItems()
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, body_height, total_pages, current_page);
 }
 
-void CBEChannelSelectWidget::paintBody()
-{
-	PaintBoxRel(x, y + header_height, width, body_height, COL_MENUCONTENT_PLUS_0, RADIUS_NONE, CORNER_NONE, CC_SHADOW_ON);
-}
-
 void CBEChannelSelectWidget::paintHead()
 {
-	header.setCaption(caption + (mode == CZapitClient::MODE_TV ? " - TV" : " - Radio"));
-	header.setIcon(NULL); // trick the cc-header
-	header.setIcon(mode == CZapitClient::MODE_TV ? NEUTRINO_ICON_VIDEO : NEUTRINO_ICON_AUDIO);
-	header.setDimensionsAll(x, y, width, header_height);
-	header.setCorner(RADIUS_LARGE, CORNER_TOP);
-	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
-	header.paint(CC_SAVE_SCREEN_NO);
+	CBEGlobals::paintHead(caption + (mode == CZapitClient::MODE_TV ? " - TV" : " - Radio"),
+				mode == CZapitClient::MODE_TV ? NEUTRINO_ICON_VIDEO : NEUTRINO_ICON_AUDIO);
 }
 
 struct button_label CBEChannelSelectButtons[] =
@@ -180,66 +166,7 @@ void CBEChannelSelectWidget::paintFoot()
 
 	const short numbuttons = sizeof(CBEChannelSelectButtons)/sizeof(CBEChannelSelectButtons[0]);
 
-	footer.enableShadow(CC_SHADOW_ON, -1, true);
-	footer.paintButtons(x, y + header_height + body_height, width, footer_height, numbuttons, CBEChannelSelectButtons);
-}
-
-void CBEChannelSelectWidget::paintDetails(int pos, int current)
-{
-	int xpos  = x - DETAILSLINE_WIDTH;
-	int ypos1 = y + header_height + pos*item_height;
-	int ypos2 = y + height - info_height - OFFSET_SHADOW;
-	int ypos1a = ypos1 + (item_height/2);
-	int ypos2a = ypos2 + (info_height/2);
-
-	if (dline)
-		dline->kill();
-
-	if (pos >= 0)
-	{
-		if (dline == NULL)
-			dline = new CComponentsDetailsLine();
-
-		if (dline)
-		{
-			dline->setDimensionsAll(xpos, ypos1a, ypos2a, item_height/2, info_height - RADIUS_LARGE*2);
-			dline->paint(CC_SAVE_SCREEN_NO);
-		}
-
-		if (ibox == NULL)
-		{
-			ibox = new CComponentsInfoBox();
-
-			if (ibox)
-			{
-				ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
-				ibox->setTextColor(COL_MENUCONTENTDARK_TEXT);
-				ibox->setFrameThickness(FRAME_WIDTH_MIN);
-				ibox->setCorner(RADIUS_LARGE);
-				ibox->enableShadow(CC_SHADOW_ON);
-			}
-		}
-
-		if (ibox)
-		{
-			if (ibox->isPainted())
-				ibox->hide();
-
-			ibox->setDimensionsAll(x, ypos2, width, info_height);
-			ibox->setText(getInfoText(current), CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, info_font);
-			ibox->paint(CC_SAVE_SCREEN_NO);
-		}
-	}
-}
-
-void CBEChannelSelectWidget::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
-
-	if (dline)
-		dline->kill();
-	if (ibox)
-		ibox->kill();
+	CBEGlobals::paintFoot(numbuttons, CBEChannelSelectButtons);
 }
 
 std::string CBEChannelSelectWidget::getInfoText(int index)
@@ -318,7 +245,7 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & /*acti
 	paintFoot();
 	paintItems();
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(*timeout_ptr);
 
 	channelChanged = false;
 	bool loop = true;
@@ -327,7 +254,7 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & /*acti
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 		if (msg <= CRCInput::RC_MaxRC)
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+			timeoutEnd = CRCInput::calcTimeoutEnd(*timeout_ptr);
 
 		if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t)g_settings.key_channelList_cancel) || (msg == CRCInput::RC_home))
 		{
