@@ -15,9 +15,23 @@ function goUrl(_url){
 	}
 	$("out").update(res);
 }
+function set_btn_standby(){
+	var res = trim(loadSyncURL("/control/standby"));
+	var color = "red";
+	switch(res){
+		case "off": color = "green"; break;
+	}
+	$("btn_standby").setStyle({borderColor: color});
+}
 function standby(_standby){
 	var _cec = (document.getElementById('checkCEC').checked == true) ? "on" : "off";
 	goUrl("/control/standby?"+_standby+"&cec="+_cec);
+}
+function init() {
+	set_btn_standby();
+}
+function get_data() {
+	set_btn_standby();
 }
 //]]>
 </script>
@@ -38,7 +52,7 @@ function standby(_standby){
 			<td>
 			<input type="button" value="{=L:on=}" onclick='standby("on");'/>
 			<input type="button" value="{=L:off=}" onclick='standby("off");'/>
-			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/standby");'/>
+			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/standby");' id="btn_standby"/>
 			CEC: <input id="checkCEC" name="checkCEC" type="checkbox" checked="checked"/>
 			</td>
 		</tr>
@@ -91,5 +105,10 @@ function standby(_standby){
 		<div id="out"></div>
 	</div>
 </div>
+<script type="text/javascript">
+//<![CDATA[
+	init();
+	window.setInterval("get_data();",5000);
+//]]>
 </body>
 </html>
