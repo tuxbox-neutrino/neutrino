@@ -1029,7 +1029,7 @@ void CUpnpBrowserGui::paintDevices()
 
 	// Foot
 	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
-	footer.paintButtons(m_x, m_footer_y, m_width, m_footer_height, 1, &RescanButton, m_width/2);
+	footer.paintButtons(m_x, m_footer_y, m_width, m_footer_height, 1, &RescanButton);
 
 	paintItem2DetailsLine(-1); // clear it
 }
