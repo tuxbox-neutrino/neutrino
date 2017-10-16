@@ -2226,6 +2226,8 @@ TIMER_START();
 	g_videoSettings = new CVideoSettings;
 	g_videoSettings->setVideoSettings();
 
+	frameBuffer->showFrame(LOGODIR "/logo.jpg");
+
 	g_RCInput = new CRCInput();
 
 	InitZapitClient();
