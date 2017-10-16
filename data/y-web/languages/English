@@ -152,6 +152,7 @@ bc.screenshot.delete=Delete screenshot
 bc.screenshot.zoom=Zoom screenshot
 bc.screenshot.wait_text=Create screenshot
 bc.screenshot.checkenable=OSD and/or TV must be enabled!
+bc.screenshot.reload_desc=Reload interval in seconds
 
 ========= Boxcontrol - Others
 bc.channels=Channels

@@ -8,6 +8,8 @@
 //<![CDATA[
 var enableOSD;
 var enableVideo;
+var interval;
+
 function checkEnable() {
 	enableOSD	= (document.getElementById('checkOSD').checked == true)		? 1 : 0;
 	enableVideo	= (document.getElementById('checkVideo').checked == true)	? 1 : 0;
@@ -90,6 +92,13 @@ function do_switchrc_txt(){
 	else
 		$('switchrc').update("{=L:bc.control.remote=} {=L:hide=}");
 }
+
+function do_reload(){
+	if (document.getElementById("checkReload").checked)
+		interval = setInterval(do_snapshot, document.getElementById("inputReload").value + "000");
+	else
+		clearInterval(interval);
+}
 //]]>
 </script>
 </head>
@@ -107,7 +116,8 @@ function do_switchrc_txt(){
 			</div>
 			<div class="right">
 				<form onsubmit="do_snapshot(); return false">
-				{=L:filename=}: <input type="text" value="screenshot" id="filename" size="16" />
+				Reload: <input id="checkReload" name="checkReload" type="checkbox" /> <input type="number" value="15" id="inputReload" min="1" max="180" title="{=L:bc.screenshot.reload_desc=}" disabled />
+				{=L:filename=}: <input type="text" value="screenshot" id="filename" size="10" />
 				OSD: <input id="checkOSD" name="checkOSD" type="checkbox" {=if-empty:{=osd=}~~checked="checked"=} />
 				TV: <input id="checkVideo" name="checkVideo" type="checkbox" {=if-empty:{=video=}~~checked="checked"=} />
 				</form>
@@ -119,7 +129,6 @@ function do_switchrc_txt(){
 				{=L:bc.screenshot.wait_text=}
 		</div>
 		</div>
-
 		<table cellpadding="0" class="screenshot">
 		<tr>
 			<td id="remote" {=if-empty:{=noremote=}~~style="display: none"=}>
@@ -132,5 +141,16 @@ function do_switchrc_txt(){
 		</table>
 	</div>
 </div>
+<script>
+document.getElementById('checkReload').onclick = function() {
+	if (this.checked ) {
+		intervall = setInterval(do_snapshot, document.getElementById("inputReload").value + "000");
+		document.getElementById("inputReload").disabled = false;
+	} else {
+		clearInterval(intervall);
+		document.getElementById("inputReload").disabled = true;
+	}
+};
+</script>
 </body>
 </html>
