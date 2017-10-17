@@ -36,8 +36,9 @@
 #include <memory.h>
 #include <math.h>
 #include <limits.h>
-
+#include <errno.h>
 #include <inttypes.h>
+
 #include <linux/kd.h>
 
 #include <stdlib.h>
@@ -334,10 +335,12 @@ void CFbAccelSTi::run()
 	int64_t last_blit = 0;
 	blit_pending = false;
 	blit_thread = true;
-	blit_mutex.lock();
 	set_threadname("stifb::autoblit");
 	while (blit_thread) {
+		blit_mutex.lock();
 		blit_cond.wait(&blit_mutex, blit_pending ? BLIT_INTERVAL_MIN : BLIT_INTERVAL_MAX);
+		blit_mutex.unlock();
+
 		int64_t now = time_monotonic_ms();
 		int64_t diff = now - last_blit;
 		if (diff < BLIT_INTERVAL_MIN)
@@ -348,20 +351,22 @@ void CFbAccelSTi::run()
 		else
 		{
 			blit_pending = false;
-			blit_mutex.unlock();
 			_blit();
-			blit_mutex.lock();
 			last_blit = now;
 		}
 	}
-	blit_mutex.unlock();
 	printf(LOGTAG "::run end\n");
 }
 
 void CFbAccelSTi::blit()
 {
 	//printf(LOGTAG "::blit\n");
-	blit_mutex.lock();
+	int status = blit_mutex.trylock();
+	if (status) {
+		printf(LOGTAG "::blit trylock failed: %d (%s)\n", status,
+				(status > 0) ? strerror(status) : strerror(errno));
+		return;
+	}
 	blit_cond.signal();
 	blit_mutex.unlock();
 }

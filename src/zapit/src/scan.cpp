@@ -120,9 +120,11 @@ void CServiceScan::run()
 			fst_version = 0;
 			ScanTransponder();
 			break;
+#if 0
 		case SCAN_FAST:
 			ScanFast();
 			break;
+#endif
 		default:
 			break;
 	}
@@ -155,8 +157,22 @@ bool CServiceScan::tuneFrequency(FrontendParameters *feparams, t_satellite_posit
 				return false;
 		}
 	}
-
-	return frontend->tuneFrequency(feparams, false);
+	/* for unicable, retry tuning two times before assuming it failed */
+	int retry = (frontend->getDiseqcType() == DISEQC_UNICABLE) * 2 + 1;
+	do {
+		ret = frontend->tuneFrequency(feparams, false);
+		if (ret)
+			return true;
+		if (abort_scan)
+			break;
+		retry--;
+		if (retry) {
+			int rand_us = (rand() * 1000000LL / RAND_MAX);
+			printf("[scan] SCR retrying tune, retry=%d after %dms\n", retry, rand_us/1000);
+			usleep(rand_us);
+		}
+	} while (retry > 0);
+	return false;
 }
 
 bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams,  bool fromnit)
@@ -533,7 +549,7 @@ void CServiceScan::SaveServices()
 
 bool CServiceScan::ScanProviders()
 {
-	flags = (int) scan_arg;
+	flags = *((int *)scan_arg);
 	scanBouquetManager = new CBouquetManager();
 
 	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
@@ -668,8 +684,10 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 void CServiceScan::SendTransponderInfo(transponder &t)
 {
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
+#if 0
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
+#endif
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &t.feparams, sizeof(FrontendParameters));
 }
 

@@ -120,6 +120,7 @@ class CVFD
 		void setMode(const MODES m, const char * const title = "");
 
 		void showServicename(const std::string & name, int number = -1); // UTF-8
+		void setEPGTitle(const std::string) { return; };
 		void showTime(bool force = false);
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);

@@ -36,6 +36,7 @@
 #include <linux/input.h>
 #include <error.h>
 
+#if 0
 /* if you want use HAVE_XX_HARDWARE, better include config.h :-) */
 #include "config.h"
 
@@ -43,6 +44,8 @@
 #define EVENTDEV "/dev/input/event0"
 #elif defined (HAVE_COOL_HARDWARE)
 #define EVENTDEV "/dev/input/input0"
+#else
+#endif
 #else
 /* dreambox and tripledragon do not use a "normal" input device, so we cannot
    (ab-)use the event repeating function of it. use the neutrino socket instead. */

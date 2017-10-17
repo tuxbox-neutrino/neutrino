@@ -62,6 +62,7 @@ class CHDDMenuHandler : public CMenuTarget
 			bool mounted;
 		};
 		std::vector<hdd_s> hdd_list;
+		std::set<std::string> kernel_fs_list;
 		struct cmp_hdd_by_name: public std::binary_function <const struct hdd_s, const struct hdd_s, bool>
 		{
 			bool operator() (const struct hdd_s &c1, const struct hdd_s &c2)
@@ -82,6 +83,7 @@ class CHDDMenuHandler : public CMenuTarget
 		bool add_dev(std::string dev, std::string part);
 		bool waitfordev(std::string dev, int maxwait);
 		void check_dev_tools();
+		void check_kernel_fs();
 		devtool_s * get_dev_tool(std::string fmt);
 
 		int showDeviceMenu(std::string dev);

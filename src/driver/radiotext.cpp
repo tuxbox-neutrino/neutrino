@@ -2376,7 +2376,13 @@ void CRadioText::run()
 	uint current_pid = 0;
 
 	printf("CRadioText::run: ###################### Starting thread ######################\n");
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || HAVE_GENERIC_HARDWARE
+	int buflen = 0;
+	unsigned char *buf = NULL;
+	audioDemux = new cDemux(0); // live demux
+#else
 	audioDemux = new cDemux(1);
+#endif
 	audioDemux->Open(DMX_PES_CHANNEL,0,128*1024);
 
 	while(running) {
@@ -2401,11 +2407,41 @@ void CRadioText::run()
 		}
 		mutex.unlock();
 		if (pid) {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || HAVE_GENERIC_HARDWARE
+			int n;
+			unsigned char tmp[6];
+
+			n = audioDemux->Read(tmp, 6, 500);
+			if (n != 6) {
+				usleep(10000); /* save CPU if nothing read */
+				continue;
+			}
+			if (memcmp(tmp, "\000\000\001\300", 4))
+				continue;
+			int packlen = ((tmp[4] << 8) | tmp[5]) + 6;
+
+			if (buflen < packlen) {
+				if (buf)
+					free(buf);
+				buf = (unsigned char *) calloc(1, packlen);
+				buflen = packlen;
+			}
+			if (!buf)
+				break;
+			memcpy(buf, tmp, 6);
+
+			while ((n < packlen) && running) {
+				int len = audioDemux->Read(buf + n, packlen - n, 500);
+				if (len < 0)
+					break;
+				n += len;
+			}
+#else
 			int n;
 			unsigned char buf[0x1FFFF];
 
 			n = audioDemux->Read(buf, sizeof(buf), 500 /*5000*/);
-
+#endif
 			if (n > 0) {
 				//printf("."); fflush(stdout);
 				mutex.lock();
@@ -2414,6 +2450,10 @@ void CRadioText::run()
 			}
 		}
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE || HAVE_GENERIC_HARDWARE
+	if (buf)
+		free(buf);
+#endif
 	delete audioDemux;
 	audioDemux = NULL;
 	printf("CRadioText::run: ###################### exit ######################\n");

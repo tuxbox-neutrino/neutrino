@@ -68,16 +68,23 @@ libneutrino_driver_a_SOURCES += \
 	lcdd.cpp
 endif
 
-#if BOXTYPE_SPARK
-#libneutrino_driver_a_SOURCES += \
-#	fb_accel_sti.cpp \
-#	simple_display.cpp
-#endif
-
+if BOXTYPE_SPARK
+libneutrino_driver_a_SOURCES += \
+	fb_accel_sti.cpp \
+	simple_display.cpp
+endif
+if BOXTYPE_AZBOX
+libneutrino_driver_a_SOURCES += \
+	simple_display.cpp
+endif
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
 	fb_accel_glfb.cpp \
 	simple_display.cpp
+endif
+if USE_STB_HAL
+AM_CPPFLAGS += \
+	@DIRECTFB_CFLAGS@
 endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp

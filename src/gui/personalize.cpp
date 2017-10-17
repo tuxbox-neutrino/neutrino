@@ -9,6 +9,8 @@
         Reworked by dbt (Thilo Graf)
         Copyright (C) 2010, 2011 dbt
 
+        Copyright (C) 2014 Stefan Seyfried
+
         Comment:
 
         This is the customization menu, as originally showcased in

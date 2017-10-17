@@ -3,6 +3,7 @@
 
   Movieplayer (c) 2003, 2004 by gagga
   Based on code by Dirch, obi and the Metzler Bros. Thanks.
+  (C) 2010-2014 Stefan Seyfried
 
   Copyright (C) 2011 CoolStream International Ltd
 
@@ -80,6 +81,12 @@
 #include <algorithm>
 #include <iconv.h>
 #include <system/stacktrace.h>
+
+#ifndef HAVE_COOL_HARDWARE
+#define LCD_MODE CVFD::MODE_MOVIE
+#else
+#define LCD_MODE CVFD::MODE_MENU_UTF8
+#endif
 
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
@@ -164,22 +171,31 @@ void CMoviePlayerGui::Init(void)
 		bookmarkmanager = new CBookmarkManager();
 
 	tsfilefilter.addFilter("ts");
+#if HAVE_TRIPLEDRAGON
+	tsfilefilter.addFilter("vdr");
+#else
 	tsfilefilter.addFilter("avi");
 	tsfilefilter.addFilter("mkv");
 	tsfilefilter.addFilter("wav");
 	tsfilefilter.addFilter("asf");
 	tsfilefilter.addFilter("aiff");
+	tsfilefilter.addFilter("mp4");
+	tsfilefilter.addFilter("mov");
+#endif
 	tsfilefilter.addFilter("mpg");
 	tsfilefilter.addFilter("mpeg");
 	tsfilefilter.addFilter("m2p");
 	tsfilefilter.addFilter("mpv");
 	tsfilefilter.addFilter("vob");
 	tsfilefilter.addFilter("m2ts");
-	tsfilefilter.addFilter("mp4");
-	tsfilefilter.addFilter("mov");
 	tsfilefilter.addFilter("m3u");
 	tsfilefilter.addFilter("m3u8");
 	tsfilefilter.addFilter("pls");
+	tsfilefilter.addFilter("vdr");
+#ifdef HAVE_SPARK_HARDWARE
+	tsfilefilter.addFilter("flv");
+	tsfilefilter.addFilter("wmv");
+#endif
 	tsfilefilter.addFilter("iso");
 
 	if (g_settings.network_nfs_moviedir.empty())
@@ -245,6 +261,14 @@ void CMoviePlayerGui::cutNeutrino()
 
 	g_Zapit->lockPlayBack();
 
+#ifdef HAVE_AZBOX_HARDWARE
+	/* we need sectionsd to get idle and zapit to release the demuxes
+	 * and decoders so that the external player can do its work
+	 * TODO: what about timeshift? */
+	g_Sectionsd->setServiceChanged(0, false);
+	g_Zapit->setStandby(true);
+#endif
+
 	m_LastMode = (CNeutrinoApp::getInstance()->getMode() /*| NeutrinoMessages::norezap*/);
 	if (isWebTV)
 		m_LastMode |= NeutrinoMessages::norezap;
@@ -273,6 +297,10 @@ void CMoviePlayerGui::restoreNeutrino()
 #endif
 
 	playing = false;
+#ifdef HAVE_AZBOX_HARDWARE
+	g_Zapit->setStandby(false);
+	CZapit::getInstance()->SetVolume(CZapit::getInstance()->GetVolume());
+#endif
 
 	if (isUPNP)
 		return;
@@ -427,7 +455,7 @@ void CMoviePlayerGui::updateLcd()
 			break;
 	}
 	lcd += name;
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+	CVFD::getInstance()->setMode(LCD_MODE);
 	CVFD::getInstance()->showMenuText(0, lcd.c_str(), -1, true);
 }
 
@@ -1315,6 +1343,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	bool first_start = true;
 	bool update_lcd = true;
 	int eof = 0;
+	int lastpos = 0;
 	int eof2 = 0;
 	int position_tmp = 0;
 	bool at_eof = !(playstate >= CMoviePlayerGui::PLAY);;
@@ -1350,7 +1379,10 @@ void CMoviePlayerGui::PlayFileLoop(void)
 					update_lcd = true;
 				}
 #ifdef DEBUG
-				printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
+				if (msg < CRCInput::RC_Events || eof > 0 || position - lastpos >= 10000) {
+					lastpos = position;
+					printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
+				}
 #endif
 				/* in case ffmpeg report incorrect values */
 				if(file_prozent > 89 && (playstate == CMoviePlayerGui::PLAY) && (speed == 1)){
@@ -1842,9 +1874,10 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 			apidtitle.append(" (AAC)");
 			break;
 		case 6: /*DTS*/
+			apidtitle.append(" (DTS)");
 			if (apidtitle.find("DTS") == std::string::npos)
 				apidtitle.append(" (DTS)");
-#ifndef BOXMODEL_CS_HD2
+#if ! defined(HAVE_SPARK_HARDWARE) && ! defined (BOXMODEL_CS_HD2)
 			enabled = false;
 #endif
 			break;
@@ -2018,7 +2051,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 	}
 	else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 		// if we have a movie information, try to save the stop position
-		printf("CMoviePlayerGui::handleMovieBrowser: stop, isMovieBrowser %d p_movie_info %x\n", isMovieBrowser, (int) p_movie_info);
+		printf("CMoviePlayerGui::handleMovieBrowser: stop, isMovieBrowser %d p_movie_info %p\n", isMovieBrowser, p_movie_info);
 		if (isMovieBrowser && p_movie_info) {
 			timeb current_time;
 			ftime(&current_time);
@@ -2759,6 +2792,7 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 	if (autoshot && (autoshot_done || !g_settings.auto_cover))
 		return;
 
+#ifdef SCREENSHOT
 	bool cover = autoshot || g_settings.screenshot_cover || forcover;
 	char ending[(sizeof(int)*2) + 6] = ".jpg";
 	if (!cover)
@@ -2809,6 +2843,9 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 		}
 	}
 	sc->Start();
+#else
+	(void)forcover;
+#endif
 	if (autoshot)
 		autoshot_done = true;
 }

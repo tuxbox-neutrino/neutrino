@@ -5,6 +5,8 @@
 	Implementation of CComponent Window class.
 	Copyright (C) 2014-2017 Thilo Graf 'dbt'
 
+	Copyright (C) 2009-2013 Stefan Seyfried
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or

@@ -248,7 +248,7 @@ int CComponentsForm::genIndex()
 CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 {
 	if (cc_item_id >= size()){
-		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: parameter cc_item_id = %u, out of range (size = %" PRIx32")...\n", __func__, __LINE__, cc_item_id, size());
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: parameter cc_item_id = %u, out of range (size = %zx)...\n", __func__, __LINE__, cc_item_id, size());
 		return NULL;
 	}
 
@@ -575,7 +575,7 @@ void CComponentsForm::setSelectedItem(int item_id, const fb_pixel_t& sel_frame_c
 	int id = item_id;
 
 	if (id > (int)(count-1) || id < 0 || (count == 0)){
-		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid parameter item_id = %u, available items = %u, allowed values are: 0...%u! \n", 	__func__, 
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid parameter item_id = %u, available items = %zu, allowed values are: 0...%zu! \n", 	__func__,
 																				__LINE__, 
 																				item_id, 
 																				count, 

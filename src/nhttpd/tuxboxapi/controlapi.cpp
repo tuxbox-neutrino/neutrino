@@ -185,7 +185,9 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"reloadsetup",		&CControlAPI::ReloadNeutrinoSetupCGI,	""},
 	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,		""},
 	{"reloadchannels",	&CControlAPI::ReloadChannelsCGI,	""},
+#ifdef SCREENSHOT
 	{"screenshot",		&CControlAPI::ScreenshotCGI,		""},
+#endif
 	// boxcontrol - devices
 	{"volume",		&CControlAPI::VolumeCGI,		"text/plain"},
 	{"lcd",			&CControlAPI::LCDAction,		"text/plain"},
@@ -911,6 +913,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 	if (!hh->ParamList["repeat"].empty())
 		repeat = atoi(hh->ParamList["repeat"].c_str());
 #endif
+#if 0
 	int evd = open(EVENTDEV, O_RDWR);
 	if (evd < 0) {
 		perror("opening " EVENTDEV " failed");
@@ -930,6 +933,9 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 		return;
 	}
 	close(evd);
+#endif
+	/* 0 == KEY_PRESSED in rcinput.cpp */
+	g_RCInput->postMsg((neutrino_msg_t) sendcode, 0);
 	hh->SendOk();
 }
 //-----------------------------------------------------------------------------
@@ -1993,7 +1999,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 	else if (!hh->ParamList["eventid"].empty()) {
 		//special epg query
 		uint64_t epgid = 0;
-		sscanf(hh->ParamList["eventid"].c_str(), "%llu", &epgid);
+		sscanf(hh->ParamList["eventid"].c_str(), "%" SCNu64 "", &epgid);
 		CShortEPGData epg;
 		if (CEitManager::getInstance()->getEPGidShort(epgid, &epg)) {
 			hh->WriteLn(epg.title);
@@ -2005,7 +2011,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		if (!hh->ParamList["starttime"].empty()) {
 			uint64_t epgid = 0;
 			time_t starttime = 0;
-			sscanf(hh->ParamList["fskid"].c_str(), "%llu", &epgid);
+			sscanf(hh->ParamList["fskid"].c_str(), "%" SCNu64 "", &epgid);
 			sscanf(hh->ParamList["starttime"].c_str(), "%lu", &starttime);
 			CEPGData longepg;
 			if (CEitManager::getInstance()->getEPGid(epgid, starttime, &longepg)) {
@@ -2067,6 +2073,7 @@ void CControlAPI::ReloadChannelsCGI(CyhookHandler *hh)
 	hh->SendOk();
 }
 
+#ifdef SCREENSHOT
 void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 {
 	bool enableOSD = true;
@@ -2096,6 +2103,7 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 		delete screenshot;
 	}
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void CControlAPI::ZaptoCGI(CyhookHandler *hh)

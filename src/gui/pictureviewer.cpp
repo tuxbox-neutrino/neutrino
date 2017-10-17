@@ -64,6 +64,7 @@
 #include <gui/pictureviewer_help.h>
 #include <gui/widget/stringinput.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 
 
 #include <system/settings.h>

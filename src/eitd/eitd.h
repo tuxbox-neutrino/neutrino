@@ -296,7 +296,7 @@ class CTimeThread : public CSectionThread
 		OpenThreads::Condition time_cond;
 
 		void sendTimeEvent(bool dvb, time_t tim = 0);
-		void setSystemTime(time_t tim);
+		bool setSystemTime(time_t tim, bool force = false);
 		void run();
 	public:
 		CTimeThread();

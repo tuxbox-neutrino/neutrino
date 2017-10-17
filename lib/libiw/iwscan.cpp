@@ -19,6 +19,11 @@
         Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+/* something is fishy with ppc compilers: if vector gets included later from
+ * iwscan.h it blows up in the c++config.h libstdc++ header...
+ * probably caused by the redefinition of the "inline" keyword in iwlib.h. */
+#include <vector>
+
 #include <sys/time.h>
 extern "C" {
 #include "iwlib.h"              /* Header */

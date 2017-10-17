@@ -248,6 +248,7 @@ void CProgressBarCache::pbcPaint(int x, int y, int pbc_active_width, int pbc_pas
 		ap += pbc_passive_width;
 		p += off;
 	}
+	frameBuffer->mark(x, y, x + pbc_width, y + pbc_height);
 }
 
 void CProgressBarCache::pbcPaintBoxRel(int x, int y, int dx, int dy, fb_pixel_t *pixbuf, fb_pixel_t col) const

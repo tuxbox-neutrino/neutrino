@@ -40,6 +40,10 @@ else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
 
+bin_PROGRAMS = neutrino
+
+neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
+
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
 else
@@ -55,10 +59,6 @@ ADEC_LIBS = @MAD_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS)
 endif
-
-bin_PROGRAMS = neutrino rcsim
-
-neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
 AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
@@ -166,8 +166,46 @@ bin_PROGRAMS += drivertool
 drivertool_SOURCES = drivertool.c
 bin_PROGRAMS += dt
 dt_SOURCES = dt.c
+endif
 bin_PROGRAMS += rcsim
 rcsim_SOURCES = rcsim.c rcsim.h
 bin_PROGRAMS += mdev_helper
 mdev_helper_SOURCES = mdev_helper.cpp
+
+if USE_STB_HAL
+neutrino_LDADD += \
+	-lstb-hal
+neutrino_LDFLAGS = \
+	$(STB_HAL_LIB)
+endif
+
+if BOXTYPE_TRIPLE
+neutrino_LDADD += \
+	$(top_builddir)/src/lcddisplay/liblcddisplay.a
+endif
+
+neutrino_LDADD += \
+	@AVFORMAT_LIBS@ \
+	@AVUTIL_LIBS@ \
+	@AVCODEC_LIBS@
+
+if BOXMODEL_RASPI
+neutrino_LDADD += \
+	-L/opt/vc/lib/ -lbcm_host -lvcos -lvchiq_arm -lpthread -lrt
+endif
+
+if BOXTYPE_COOL
+bin_PROGRAMS += uncooloff
+uncooloff_SOURCES = uncooloff.c
+# if BOXMODEL_CS_HD2
+# else
+# noinst_PROGRAMS = uncoolinit
+# uncoolinit_SOURCES = uncoolinit.cpp
+# uncoolinit_LDADD = \
+# 	@AVFORMAT_LIBS@ \
+# 	@AVCODEC_LIBS@ \
+# 	@BLURAY_LIBS@ \
+# 	-lcoolstream-mt -lca-sc -lnxp \
+# 	-lOpenThreads -lrt
+# endif
 endif

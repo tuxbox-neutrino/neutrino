@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2012 Stefan Seyfried
+	Copyright (C) 2012-2016 Stefan Seyfried
 
 	License: GPLv2
 
@@ -47,9 +47,7 @@ static int unused_demux;
 #define FEDEBUG(fmt, args...)					\
         do {							\
                 if (fedebug)					\
-                        fprintf(stdout, "[%s:%s:%d] " fmt "\n",	\
-                                __file__, __func__,		\
-                                __LINE__ , ## args);		\
+			INFO(fmt, ##args);			\
         } while (0)
 
 CFeDmx::CFeDmx(int i)
@@ -116,6 +114,16 @@ bool CFEManager::Init()
 		dmap.push_back(CFeDmx(i));
 
 	INFO("found %d frontends, %d demuxes", (int)femap.size(), (int)dmap.size());
+	/* for testing without a frontend, export SIMULATE_FE=1 */
+	if (femap.empty() && getenv("SIMULATE_FE")) {
+		INFO("SIMULATE_FE is set, adding dummy frontend for testing");
+		fe = new CFrontend(0, -1);
+		fekey = MAKE_FE_KEY(0, 0);
+		femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
+		fe->Open();
+		livefe = fe;
+		have_sat = true;
+	}
 	if (femap.empty())
 		return false;
 
@@ -239,8 +247,9 @@ bool CFEManager::loadSettings()
 		fe_config.diseqcRepeats		= getConfigValue(fe, "diseqcRepeats", 0);
 		fe_config.motorRotationSpeed	= getConfigValue(fe, "motorRotationSpeed", 18);
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
-		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", -1);
+		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", 0);
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
+		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
 		fe_config.rotor_swap		= getConfigValue(fe, "rotor_swap", 0);
@@ -340,6 +349,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
 		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
+		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "diseqc_order", fe_config.diseqc_order);
 		setConfigValue(fe, "use_usals", fe_config.use_usals);
 		setConfigValue(fe, "rotor_swap", fe_config.rotor_swap);
@@ -456,10 +466,14 @@ void CFEManager::linkFrontends(bool init)
 		}
 		if (init && femode != CFrontend::FE_MODE_UNUSED)
 			fe->Init();
-		if (femode != CFrontend::FE_MODE_UNUSED) {
+		if (femode != CFrontend::FE_MODE_UNUSED)
+		{
 			enabled_count++;
 			if ((fe->fenumber + 1) < (int) MAX_DMX_UNITS)
 				demuxes[fe->fenumber + 1] = 1;
+		}
+		else {	/* unused -> no need to keep open */
+			fe->Close();
 		}
 	}
 	for(unsigned i = 0; i < MAX_DMX_UNITS; i++) {
@@ -475,7 +489,7 @@ void CFEManager::Open()
 {
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
-		if(!fe->Locked())
+		if (!fe->Locked() && fe->getMode() != CFrontend::FE_MODE_UNUSED)
 			fe->Open(true);
 	}
 }
@@ -494,8 +508,15 @@ void CFEManager::Close()
 
 CFrontend * CFEManager::getFE(int index)
 {
-	if((unsigned int) index < femap.size())
-		return femap[index];
+	int i = 0;
+	/* the naive approach of just returning "femap[index]" does not work, since
+	 * the first frontend (index = 0) does not necessary live on adapter0/frontend0 */
+	for (fe_map_iterator_t it = femap.begin(); it != femap.end(); it++)
+	{
+		if (index == i)
+			return it->second;
+		i++;
+	}
 	INFO("Frontend #%d not found", index);
 	return NULL;
 }
@@ -645,7 +666,6 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
-	fedebug = 1;
 	if (forrecord)
 		fedebug = 1;
 	CFrontend * frontend = getFrontend(channel);
@@ -662,7 +682,10 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 #else
 		channel->setRecordDemux(frontend->fenumber+1);
 		channel->setPipDemux(frontend->fenumber+1);
+#if HAVE_COOL_HARDWARE
+		/* I don't know if this check is necessary on cs, but it hurts on other hardware */
 		if(femap.size() > 1)
+#endif
 			cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
 #ifdef ENABLE_PIP
 		/* FIXME until proper demux management */
@@ -680,7 +703,9 @@ void CFEManager::setLiveFE(CFrontend * fe)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	livefe = fe; 
+#if HAVE_COOL_HARDWARE
 	if(femap.size() > 1)
+#endif
 		cDemux::SetSource(0, livefe->fenumber);
 }
 

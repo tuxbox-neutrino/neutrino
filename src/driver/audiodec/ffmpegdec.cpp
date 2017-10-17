@@ -257,11 +257,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 
 	mSampleRate = samplerate;
 	mChannels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
-#if __BYTE_ORDER == __LITTLE_ENDIAN
 	audioDecoder->PrepareClipPlay(mChannels, mSampleRate, 16, 1);
-#else
-	audioDecoder->PrepareClipPlay(mChannels, mSampleRate, 16, 0);
-#endif
 
 	AVFrame *frame = NULL;
 	AVPacket rpacket;

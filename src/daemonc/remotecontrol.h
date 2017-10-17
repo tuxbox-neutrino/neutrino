@@ -71,7 +71,7 @@ typedef std::vector<CSubService> CSubServiceListSorted;
 
 class CRemoteControl
 {
-	//unsigned int            current_programm_timer;
+//	unsigned int            current_programm_timer;
 	uint64_t		zap_completion_timeout;
 	std::string             current_channel_name;
 	int			current_channel_num;

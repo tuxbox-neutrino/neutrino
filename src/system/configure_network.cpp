@@ -2,6 +2,7 @@
  * $port: configure_network.cpp,v 1.7 2009/11/20 22:44:19 tuxbox-cvs Exp $
  *
  * (C) 2003 by thegoodguy <thegoodguy@berlios.de>
+ * (C) 2011 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,9 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <config.h>
 #include <cstdio>               /* perror... */

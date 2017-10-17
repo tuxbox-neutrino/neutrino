@@ -104,7 +104,7 @@ CVFD::CVFD()
 	support_numbers	= true;
 #endif
 
-	text[0] = 0;
+	text.clear();
 	clearClock = 0;
 	mode = MODE_TVRADIO;
 	switch_name_time_cnt = 0;
@@ -436,7 +436,7 @@ void CVFD::showVolume(const char vol, const bool force_update)
 	if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] == 1) {
 		wake_up();
 		ShowIcon(FP_ICON_FRAME, true);
-		int pp = (int) round((double) vol * (double) 8 / (double) 100);
+		int pp = (vol * 8 + 50) / 100;
 		if(pp > 8) pp = 8;
 
 		if(force_update || oldpp != pp) {
@@ -477,7 +477,7 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 		if(perc == 255)
 			pp = 0;
 		else
-			pp = (int) round((double) perc * (double) 8 / (double) 100);
+			pp = (perc * 8 + 50) / 100;
 		if(pp > 8) pp = 8;
 
 		if(pp != ppold) {
@@ -769,7 +769,7 @@ void CVFD::Clear()
 	if(ret < 0)
 		perror("IOC_FP_SET_TEXT");
 	else
-		text[0] = 0;
+		text.clear();
 }
 
 void CVFD::ShowIcon(fp_icon icon, bool show)
@@ -787,13 +787,17 @@ void CVFD::ShowText(const char * str)
 		return;
 
 	char flags[2] = { FP_FLAG_ALIGN_LEFT, 0 };
+	if (! str) {
+		printf("CVFD::ShowText: str is NULL!\n");
+		return;
+	}
 
-	if (g_settings.lcd_scroll)
+	if (g_settings.lcd_scroll && ((int)strlen(str) > g_info.hw_caps->display_xres))
 		flags[0] |= FP_FLAG_SCROLL_ON | FP_FLAG_SCROLL_SIO | FP_FLAG_SCROLL_DELAY;
 
 	std::string txt = std::string(flags) + str;
 	txt = trim(txt);
-	printf("CVFD::ShowText: [%s]\n", txt.c_str() + 1);
+	printf("CVFD::ShowText: [0x%02x][%s]\n", flags[0], txt.c_str() + 1);
 
 	size_t len = txt.length();
 	if (txt == text || len > 255)

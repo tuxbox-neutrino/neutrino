@@ -2245,8 +2245,8 @@ servicemenu.head Service
 servicemenu.imageinfo Imageinfo
 servicemenu.reload Kanallisten neu laden
 servicemenu.reload_hint Kanallisten werden neu geladen,\nbitte warten ...
-servicemenu.restart GUI neu starten
-servicemenu.restart_hint GUI wird neu gestartet ...
+servicemenu.restart Neutrino neu starten
+servicemenu.restart_hint Neutrino wird neu gestartet ...
 servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
 servicemenu.update Software-Aktualisierung

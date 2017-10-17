@@ -448,8 +448,8 @@ CBaseDec::RetCode CFlacDec::Decoder(FILE *in, const int /*OutputFd*/, State* con
 //	State oldstate=*state;
 	int jumppos=0;
 	int actSecsToSkip = (*secondsToSkip != 0) ? *secondsToSkip : MSECS_TO_SKIP / 1000;
-	int bytes_to_skip = (int) (1.0 * actSecsToSkip * meta_data->bitrate / 8);
-	int bytes_to_play = (int) (1.0 * MSECS_TO_PLAY / 1000 * meta_data->bitrate / 8);
+	int bytes_to_skip = actSecsToSkip * meta_data->bitrate / 8;
+	int bytes_to_play = MSECS_TO_PLAY * meta_data->bitrate / 8000;
 	unsigned int oldSecsToSkip = *secondsToSkip;
 	FLAC__uint64 position;
 
@@ -463,7 +463,7 @@ CBaseDec::RetCode CFlacDec::Decoder(FILE *in, const int /*OutputFd*/, State* con
 			if (oldSecsToSkip != *secondsToSkip)
 			{
 				actSecsToSkip = (*secondsToSkip != 0) ? *secondsToSkip : MSECS_TO_SKIP / 1000;
-				bytes_to_skip = (int) (1.0 * actSecsToSkip * meta_data->bitrate / 8);
+				bytes_to_skip = actSecsToSkip * meta_data->bitrate / 8;
 				oldSecsToSkip = *secondsToSkip;
 			}
 			printf("skipping %d secs and %d bytes\n",actSecsToSkip,bytes_to_skip);

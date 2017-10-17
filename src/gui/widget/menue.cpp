@@ -811,7 +811,6 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						paint();
 						break;
 				}
-				frameBuffer->blit();
 				continue;
 			}
 			for (unsigned int i= 0; i< items.size(); i++) {
@@ -2378,6 +2377,7 @@ bool CZapProtection::check()
 	hint = NONEXISTANT_LOCALE;
 	int res;
 	std::string cPIN;
+	char systemstr[128];
 	do
 	{
 		cPIN = "";
@@ -2386,10 +2386,11 @@ bool CZapProtection::check()
 
 		res = PINInput->exec(getParent(), "");
 		delete PINInput;
-		if (!access(CONFIGDIR "/pinentered.sh", X_OK)) {
-			std::string systemstr = CONFIGDIR "/pinentered.sh " + cPIN;
-			system(systemstr.c_str());
-		}
+		cPIN[4] = 0;
+		strcpy(systemstr, CONFIGDIR "/pinentered.sh ");
+		strcat(systemstr, cPIN.c_str());
+		system(systemstr);
+
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
 	} while ( (cPIN != *validPIN) && !cPIN.empty() &&
 		  ( res == menu_return::RETURN_REPAINT ) &&

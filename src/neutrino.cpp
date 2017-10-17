@@ -3,9 +3,8 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 							 and some other guys
-	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2006-2016 Stefan Seyfried
+	Copyright (C) 2006-2017 Stefan Seyfried
 
 	Copyright (C) 2011 CoolStream International Ltd
 
@@ -22,8 +21,8 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #ifdef HAVE_CONFIG_H
@@ -227,6 +226,11 @@ CNeutrinoApp::CNeutrinoApp()
 : configfile('\t')
 {
 	standby_pressed_at.tv_sec = 0;
+#if HAVE_TRIPLEDRAGON || USE_STB_HAL
+	/* this needs to happen before the framebuffer is set up */
+	init_td_api();
+	// shutdown_td_api();
+#endif
 	osd_resolution_tmp        = -1;
 	frameBufferInitialized    = false;
 
@@ -291,7 +295,7 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 	{"lcd_show_volume"      , DEFAULT_LCD_SHOW_VOLUME      },
 	{"lcd_autodimm"         , DEFAULT_LCD_AUTODIMM         },
 	{"lcd_deepbrightness"   , DEFAULT_VFD_STANDBYBRIGHTNESS }
-#if HAVE_TRIPLEDRAGON
+#if HAVE_TRIPLEDRAGON || USE_STB_HAL
 	,{ "lcd_epgmode"        , 0 /*DEFAULT_LCD_EPGMODE*/ }
 #endif
 };
@@ -309,6 +313,22 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
+#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE
+#define DEFAULT_X_START_SD	32
+#define DEFAULT_Y_START_SD	26
+#define DEFAULT_X_END_SD	694
+#define DEFAULT_Y_END_SD	570
+#else
+#define DEFAULT_X_START_SD	60
+#define DEFAULT_Y_START_SD	20
+#define DEFAULT_X_END_SD	1220
+#define DEFAULT_Y_END_SD	560
+#endif
+
+#define DEFAULT_X_START_HD	40   //5
+#define DEFAULT_Y_START_HD	25   //5
+#define DEFAULT_X_END_HD	1235 //1275
+#define DEFAULT_Y_END_HD	690  //715
 
 std::string ttx_font_file = "";
 
@@ -347,7 +367,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
 	// video
-	g_settings.video_Mode = configfile.getInt32("video_Mode", VIDEO_STD_1080I50); // VIDEO_STD_720P50
+#if HAVE_TRIPLEDRAGON
+	int vid_Mode_default = VIDEO_STD_PAL;
+#else
+	int vid_Mode_default = VIDEO_STD_720P50;
+	if (getenv("NEUTRINO_DEFAULT_SCART") != NULL)
+		vid_Mode_default = VIDEO_STD_PAL;
+#endif
+	g_settings.video_Mode = configfile.getInt32("video_Mode", vid_Mode_default);
 #ifdef ANALOG_MODE
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_MODE(BOTH,SD,RGB)); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", (int)ANALOG_MODE(CINCH,SD,YPRPB)); // default YPBPR
@@ -370,10 +397,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.audio_volume_percent_ac3 = configfile.getInt32("audio_volume_percent_ac3", 100);
 	g_settings.audio_volume_percent_pcm = configfile.getInt32("audio_volume_percent_pcm", 100);
 
-	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
-	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
-	g_settings.channel_mode_initial = configfile.getInt32("channel_mode_initial", -1);
-	g_settings.channel_mode_initial_radio = configfile.getInt32("channel_mode_initial_radio", -1);
+	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_FAV);
+	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_FAV);
+	g_settings.channel_mode_initial = configfile.getInt32("channel_mode_initial", LIST_MODE_FAV);
+	g_settings.channel_mode_initial_radio = configfile.getInt32("channel_mode_initial_radio", LIST_MODE_FAV);
 	if (g_settings.channel_mode_initial > -1)
 		g_settings.channel_mode = g_settings.channel_mode_initial;
 	if (g_settings.channel_mode_initial_radio > -1)
@@ -397,8 +424,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		sprintf(cfg_key, "enabled_video_mode_%d", i);
 		g_settings.enabled_video_modes[i] = configfile.getInt32(cfg_key, 0);
 	}
+#if VIDEOMENU_VIDEOMODE_OPTION_COUNT > 3
 	g_settings.enabled_video_modes[3] = 1; // 720p 50Hz
 	g_settings.enabled_video_modes[4] = 1; // 1080i 50Hz
+#endif
 
 	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
 		sprintf(cfg_key, "enabled_auto_mode_%d", i);
@@ -420,7 +449,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.standby_cpufreq = 50;
 #endif
 
-	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 1);
+	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 0);
 	g_settings.make_webtv_list = configfile.getInt32("make_webtv_list", 1);
 	g_settings.make_new_list = configfile.getInt32("make_new_list", 1);
 	g_settings.make_removed_list = configfile.getInt32("make_removed_list", 1);
@@ -487,16 +516,16 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
-	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
+	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos", 4); // subchan display in infobar
 	g_settings.infobar_buttons_usertitle = configfile.getBool("infobar_buttons_usertitle", false );
 	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 1));
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 1 ); // below channel name
-	g_settings.infobar_casystem_display = configfile.getInt32("infobar_casystem_display", 1 );//discreet ca mode default
+	g_settings.infobar_casystem_display = configfile.getInt32("infobar_casystem_display", 2); //mini ca mode default
 	g_settings.infobar_casystem_dotmatrix = configfile.getInt32("infobar_casystem_dotmatrix", 0 );
 	g_settings.infobar_casystem_frame = configfile.getInt32("infobar_casystem_frame", 1 );
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
-	g_settings.volume_pos = configfile.getInt32("volume_pos", CVolumeBar::VOLUMEBAR_POS_TOP_RIGHT );
+	g_settings.volume_pos = configfile.getInt32("volume_pos", CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER);
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
 	g_settings.volume_size = configfile.getInt32("volume_size", 26 );
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
@@ -522,7 +551,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.pref_subs[i] = configfile.getString(cfg_key, "none");
 	}
 	g_settings.subs_charset = configfile.getString("subs_charset", "CP1252");
-	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 0 );
+	g_settings.zap_cycle = configfile.getInt32("zap_cycle", 1); /* stay in bouquet by default */
 
 	//screen saver
 	g_settings.screensaver_delay = configfile.getInt32("screensaver_delay", 1);
@@ -705,12 +734,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
 	g_settings.zapto_pre_time = configfile.getInt32( "zapto_pre_time",  0);
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
-	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 2); //default minitv
+	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1); //default no minitv
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 0);
 	g_settings.eventlist_epgplus = configfile.getInt32("eventlist_epgplus", 1);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
-	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
-	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
+	g_settings.channellist_foot = configfile.getInt32("channellist_foot", 0); //default transponder data
+	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 0);
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
 	g_settings.channellist_numeric_adjust  = configfile.getInt32("channellist_numeric_adjust", 0);
 	g_settings.channellist_show_channellogo = configfile.getInt32("channellist_show_channellogo", 1);
@@ -745,7 +774,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	if (g_settings.screen_EndY >= g_settings.screen_height)
 		g_settings.screen_EndY = g_settings.screen_height - 1;
 
-	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
+	g_settings.bigFonts = configfile.getInt32("bigFonts", 1);
 	g_settings.window_size = configfile.getInt32("window_size", 100);
 	g_settings.window_width = configfile.getInt32("window_width", g_settings.window_size);
 	g_settings.window_height = configfile.getInt32("window_height", g_settings.window_size);
@@ -757,8 +786,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.softupdate_mode = configfile.getInt32( "softupdate_mode", 1 );
 	g_settings.apply_kernel = configfile.getBool("apply_kernel" , false);
 	g_settings.apply_settings = configfile.getBool("apply_settings" , false);
+#if ENABLE_EXTUPDATE
 	g_settings.softupdate_name_mode_apply = configfile.getInt32( "softupdate_name_mode_apply", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
 	g_settings.softupdate_name_mode_backup = configfile.getInt32( "softupdate_name_mode_backup", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
+#else
+	g_settings.softupdate_name_mode_apply = 0;
+	g_settings.softupdate_name_mode_backup = 0; /* unused, but still initialize it */
+#endif
 
 	g_settings.flashupdate_createimage_add_var    = configfile.getInt32( "flashupdate_createimage_add_var",    1);
 	g_settings.flashupdate_createimage_add_root1  = configfile.getInt32( "flashupdate_createimage_add_root1",  0);
@@ -1016,12 +1050,12 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	{
 		//convert and remove obsolete progressbar_* keys
 
-		g_settings.theme.progressbar_design = configfile.getInt32("progressbar_design", CProgressBar::PB_COLOR);
+		g_settings.theme.progressbar_design = configfile.getInt32("progressbar_design", CProgressBar::PB_MONO);
 		bool pb_color = configfile.getBool("progressbar_color", true );
 		if (!pb_color)
 			g_settings.theme.progressbar_design = CProgressBar::PB_MONO;
 		g_settings.theme.progressbar_design_channellist = configfile.getInt32("channellist_progressbar_design", g_settings.theme.progressbar_design);
-		g_settings.theme.progressbar_gradient = configfile.getBool("progressbar_gradient", true );
+		g_settings.theme.progressbar_gradient = configfile.getBool("progressbar_gradient", false);
 		g_settings.theme.progressbar_timescale_red = configfile.getInt32("progressbar_timescale_red", 0);
 		g_settings.theme.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
 		g_settings.theme.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);
@@ -1801,7 +1835,7 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 	INFO("newmode %d sort old %d new %d", newmode, sortmode[newmode], g_settings.channellist_sort_mode);
 	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < CChannelList::SORT_MAX) {
 		sortmode[newmode] = g_settings.channellist_sort_mode;
-		INFO("sorting, mode %d, %d bouquets\n", g_settings.channellist_sort_mode, (int)bouquetList->Bouquets.size());
+		INFO("sorting, mode %d, %d bouquets", g_settings.channellist_sort_mode, (int)bouquetList->Bouquets.size());
 		for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
 			if(g_settings.channellist_sort_mode == CChannelList::SORT_ALPHA)
 				bouquetList->Bouquets[i]->channelList->SortAlpha();
@@ -2083,6 +2117,14 @@ void CNeutrinoApp::InitZapitClient()
 
 void CNeutrinoApp::InitSectiondClient()
 {
+#if 0
+	/* TODO: check if still needed */
+	/* wait for sectionsd to be able to process our registration */
+	int64_t t = time_monotonic_ms();
+	while (! sectionsd_isReady())
+		sleep(0);
+	dprintf(DEBUG_NORMAL, "had to wait %" PRId64 " ms for sectionsd to start up\n", time_monotonic_ms() - t);
+#endif
 	g_Sectionsd = new CSectionsdClient;
 	struct timespec t;
 	if (clock_gettime(CLOCK_MONOTONIC, &t)) {
@@ -2098,7 +2140,7 @@ void CNeutrinoApp::InitSectiondClient()
 #include <cs_frontpanel.h>
 #endif
 
-void wake_up( bool &wakeup)
+void wake_up(bool &wakeup)
 {
 #if HAVE_COOL_HARDWARE
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
@@ -2120,13 +2162,18 @@ void wake_up( bool &wakeup)
 		close(fd);
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
+#endif
+	/* not platform specific - this is created by the init process */
+	if (access("/tmp/.timer_wakeup", F_OK) == 0) {
+		wakeup = 1;
+		unlink("/tmp/.timer_wakeup");
+	}
+
 	if(!wakeup){
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT ".");
 		if (my_system(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT " failed");
 	}
-#endif
-
 }
 
 int CNeutrinoApp::run(int argc, char **argv)
@@ -2250,10 +2297,9 @@ TIMER_START();
 	}
 
 	//timer start
+	long timerd_signal = 0;
 	timer_wakeup = false;//init
 	wake_up( timer_wakeup );
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) (timer_wakeup && g_settings.shutdown_timer_record_type));
-	timerd_thread_started = true;
 
 	init_cec_setting = true;
 	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
@@ -2264,6 +2310,10 @@ TIMER_START();
 	}
 	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type);
 	g_settings.shutdown_timer_record_type = false;
+
+	timerd_signal = (timer_wakeup && g_settings.shutdown_timer_record_type);
+	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *)&timerd_signal);
+	timerd_thread_started = true;
 
 	powerManager = new cPowerManager;
 	powerManager->Open();
@@ -2328,6 +2378,11 @@ TIMER_START();
 
 	InitSectiondClient();
 
+	/* wait until timerd is ready... */
+	int64_t timerd_wait = time_monotonic_ms();
+	while (timerd_signal >= 0)
+		usleep(100);
+	dprintf(DEBUG_NORMAL, "had to wait %" PRId64 " ms for timerd start...\n", time_monotonic_ms() - timerd_wait);
 	InitTimerdClient();
 
 	// volume
@@ -2363,13 +2418,13 @@ TIMER_START();
 	hdd->exec(NULL, "");
 	delete hdd;
 
+	hintBox->hide(); // InitZapper also displays a hintbox
+	delete hintBox;
+
 	cCA::GetInstance()->Ready(true);
 	//InitZapper();
 
 	SHTDCNT::getInstance()->init();
-
-	hintBox->hide();
-	delete hintBox;
 
 	cSysLoad::getInstance();
 	cHddStat::getInstance();
@@ -2605,6 +2660,7 @@ void CNeutrinoApp::RealRun()
 				numericZap( msg );
 				InfoClock->enableInfoClock(true);
 			}
+#ifdef SCREENSHOT
 			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 				for(int i = 0; i < g_settings.screenshot_count; i++) {
 					CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
@@ -2612,6 +2668,7 @@ void CNeutrinoApp::RealRun()
 					sc->Start();
 				}
 			}
+#endif
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
 				numericZap( msg );
@@ -2758,6 +2815,8 @@ void CNeutrinoApp::RealRun()
 				CTimerList Timerlist;
 				Timerlist.exec(NULL, "");
 			}
+			else if (msg == CRCInput::RC_aux)
+				scartMode(true);
 			else {
 				if (msg == CRCInput::RC_home)
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -2768,7 +2827,7 @@ void CNeutrinoApp::RealRun()
 		}
 		else {
 			// mode == mode_scart
-			if( msg == CRCInput::RC_home ) {
+			if (msg == CRCInput::RC_home || msg == CRCInput::RC_aux) {
 				if( mode == mode_scart ) {
 					// Scart-Mode verlassen
 					scartMode( false );
@@ -2973,7 +3032,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 	if(msg == NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *) data;
-		printf("EVT_WEBTV_ZAP_COMPLETE: %llx\n", chid);
+		printf("EVT_WEBTV_ZAP_COMPLETE: %" PRIx64 "\n", chid);
 		if (mode == mode_standby) {
 			delete [] (unsigned char*) data;
 		} else {
@@ -3048,7 +3107,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 	res = res | g_RemoteControl->handleMsg(msg, data);
 	res = res | g_InfoViewer->handleMsg(msg, data);
-	res = res | channelList->handleMsg(msg, data);
+	if (channelList) /* can be not yet ready during startup */
+		res = res | channelList->handleMsg(msg, data);
+	// else fprintf(stderr, "channelList = NULL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 	res = res | CRecordManager::getInstance()->handleMsg(msg, data);
 	res = res | CEpgScan::getInstance()->handleMsg(msg, data);
 	res = res | CHDDMenuHandler::getInstance()->handleMsg(msg, data);
@@ -3220,6 +3281,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		delete sleepTimer;
 		return messages_return::handled;
 	}
+#ifdef SCREENSHOT
 	else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 		//video+osd scaled to osd size
 		CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
@@ -3227,6 +3289,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
 		sc->Start();
 	}
+#endif
 
 	/* ================================== MESSAGES ================================================ */
 	else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
@@ -3649,7 +3712,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000)) {
-		INFO("###################################### DELETED msg %lX data %lX\n", msg, data);
+		INFO("###################################### DELETED msg %lx data %lx\n", msg, data);
 		delete [] (unsigned char*) data;
 		return messages_return::handled;
 	}
@@ -3661,6 +3724,7 @@ extern bool timer_is_rec;//timermanager.cpp
 
 void CNeutrinoApp::ExitRun(int can_shutdown)
 {
+	/* can_shutdown is actually our exit code */
 	printf("[neutrino] %s can_shutdown: %d\n", __func__, can_shutdown);
 
 	bool do_shutdown = true;
@@ -3704,16 +3768,20 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	g_settings.shutdown_timer_record_type = timer_is_rec;
 	saveSetup(NEUTRINO_SETTINGS_FILE);
 
+#if 0
 	if (can_shutdown)
 	{
+#endif
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
 		if (my_system(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
 
 		printf("entering off state\n");
+		printf("timer_minutes: %ld\n", timer_minutes);
 		mode = mode_off;
 		//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
+#if 0
 		fp_standby_data_t standby;
 		time_t mtime = time(NULL);
 		struct tm *tmtime = localtime(&mtime);
@@ -3794,6 +3862,67 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 		//_exit(0);
 		exit(0);
 	}
+#endif
+	int leds = 0;
+	int bright = 0;
+#if HAVE_COOL_HARDWARE
+	if (can_shutdown) {
+		leds = 0x40;
+		switch (g_settings.led_deep_mode){
+			case 0:
+				leds = 0x0;//off  leds
+				break;
+			case 1:
+				leds = 0x60;//on led1 & 2
+				break;
+			case 2:
+				leds = 0x20;//led1 on , 2 off
+				break;
+			case 3:
+				leds = 0x40;//led2 off, 2 on
+				break;
+			default:
+				break;
+		}
+		if (leds && g_settings.led_blink && timer_minutes)
+			leds |= 0x80;
+	}
+	if (cs_get_revision() != 10)
+		bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
+#endif
+	if (timer_minutes || leds)
+	{
+		FILE *f = fopen("/tmp/.timer", "w");
+		if (f)
+		{
+			fprintf(stderr, "timer_wakeup: %ld\n", timer_minutes * 60);
+			fprintf(f, "%ld\n", timer_minutes * 60);
+			fprintf(f, "%d\n", leds);
+			fprintf(f, "%d\n", bright);
+			fclose(f);
+		}
+		else
+			perror("fopen /tmp/.timer");
+	}
+
+	delete g_RCInput;
+	g_RCInput = NULL;
+	//fan speed
+	if (g_info.hw_caps->has_fan)
+		CFanControlNotifier::setSpeed(0);
+	//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
+	delete CVFD::getInstance();
+	delete SHTDCNT::getInstance();
+	stop_video();
+
+	printf("[neutrino] This is the end. exiting with code %d\n", can_shutdown);
+	Cleanup();
+#ifdef __sh__
+	/* the sh4 gcc seems to dislike someting about openthreads... */
+	_exit(can_shutdown);
+#else
+	exit(can_shutdown);
+#endif
 }
 
 void CNeutrinoApp::saveEpg(bool cvfd_mode)
@@ -3895,13 +4024,22 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 		frameBuffer->paintBackground();
 
 		//g_Controld->setScartMode( 1 );
+#if HAVE_TRIPLEDRAGON
+		/* would this hurt on Coolstream? */
+		videoDecoder->Stop(true);
+		videoDecoder->Standby(true);
+#endif
 		CVFD::getInstance()->setMode(CVFD::MODE_SCART);
 		lastMode = mode;
 		mode = mode_scart;
 	} else {
 		// SCART AUS
 		//g_Controld->setScartMode( 0 );
-
+#if HAVE_TRIPLEDRAGON
+		/* could actually go into radioMode() and tvMode()? */
+		videoDecoder->Standby(false);
+		videoDecoder->Start();
+#endif
 		mode = mode_unknown;
 		//re-set mode
 		if( lastMode == mode_radio ) {
@@ -3927,6 +4065,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	lockStandbyCall = true;
 
 	if( bOnOff ) {
+		CVFD::getInstance()->ShowText("standby...        ");
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
 		}
@@ -4004,9 +4143,13 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	} else {
 		// Active standby off
 		powerManager->SetStandby(false, false);
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		CVFD::getInstance()->ShowText("resume...        ");
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		videoDecoder->Standby(false);
 		CEpgScan::getInstance()->Stop();
+		CSectionsdClient::CurrentNextInfo dummy;
+		g_InfoViewer->getEPG(0, dummy);
 		g_RCInput->killTimer(fst_timer);
 
 		if(init_cec_setting){
@@ -4057,6 +4200,12 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(!recordingstatus) { //only switch to standby_channel_id when not recording
 			live_channel_id = standby_channel_id;
 		}
+#if 0
+		/* todo: check parental pin */
+		videoDecoder->Standby(false);
+		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
+		channelList->zapTo_ChannelID(live_channel_id);
+#endif
 		channelList->zapTo_ChannelID(live_channel_id, true); /* force re-zap */
 
 		g_Sectionsd->setPauseScanning(false);
@@ -4265,11 +4414,12 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete hint;
 
 			stop_daemons(true);
+			delete CVFD::getInstance();
+			delete SHTDCNT::getInstance();
 			stop_video();
 			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
 			delete g_Timerd;
 			delete g_Zapit; //do we really need this?
-			delete CVFD::getInstance();
 
 			for(int i = 3; i < 256; i++)
 				close(i);
@@ -4418,9 +4568,14 @@ void sighandler (int signum)
 		delete CRecordManager::getInstance();
 		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
+		delete CVFD::getInstance();
+		delete SHTDCNT::getInstance();
 		stop_video();
-		//_exit(0);
+#ifdef __sh__
+		_exit(0);
+#else
 		exit(0);
+#endif
 	default:
 		break;
 	}
@@ -4515,7 +4670,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	/* options */
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
-	g_settings.repeat_blocker = tconfig.getInt32("repeat_blocker", 150);
+	g_settings.repeat_blocker = tconfig.getInt32("repeat_blocker", 450);
 	g_settings.repeat_genericblocker = tconfig.getInt32("repeat_genericblocker", 100);
 	g_settings.longkeypress_duration = tconfig.getInt32("longkeypress_duration", LONGKEYPRESS_OFF);
 
@@ -4619,7 +4774,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 
 void CNeutrinoApp::StopSubtitles()
 {
-	printf("[neutrino] %s\n", __FUNCTION__);
+	//printf("[neutrino] %s\n", __FUNCTION__);
 	int ttx, dvbpid, ttxpid, ttxpage;
 
 	dvbpid = dvbsub_getpid();
@@ -4637,7 +4792,7 @@ void CNeutrinoApp::StopSubtitles()
 
 void CNeutrinoApp::StartSubtitles(bool show)
 {
-	printf("%s: %s\n", __FUNCTION__, show ? "Show" : "Not show");
+	//printf("%s: %s\n", __FUNCTION__, show ? "Show" : "Not show");
 	if(!show)
 		return;
 	dvbsub_start(0);
@@ -4785,8 +4940,11 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 18\n");fflush(stdout);
 	delete g_EpgData; g_EpgData = NULL;
 	printf("cleanup 19\n");fflush(stdout);
+#if 0
+	/* crashes in destructor???? very strange */
 	delete g_InfoViewer; g_InfoViewer = NULL;
 	printf("cleanup 11\n");fflush(stdout);
+#endif
 	delete g_EventList; g_EventList = NULL;
 	printf("cleanup 12\n");fflush(stdout);
 	delete g_Locale; g_Locale = NULL;
@@ -4829,12 +4987,13 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 5\n");fflush(stdout);
 	delete CEitManager::getInstance();
 	printf("cleanup 6\n");fflush(stdout);
-	delete CVFD::getInstance();
+	//delete CVFD::getInstance();
 
 	comp_malloc_stats(NULL);
 #endif
 }
 
+#if ENABLE_FASTSCAN
 void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 {
 	if (scansettings.fst_update) {
@@ -4866,6 +5025,11 @@ void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 		}
 	}
 }
+#else
+void CNeutrinoApp::CheckFastScan(bool, bool)
+{
+}
+#endif
 
 bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 {

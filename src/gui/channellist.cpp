@@ -496,7 +496,11 @@ void CChannelList::calcSize()
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
 	else
+	{
+		/* don't use 100% of screen if additional info / minitv is not used */
+		full_width = full_width * 76 / 99; /* same width as the old code with my settings :-) */
 		width = full_width;
+	}
 
 	// calculate height (the infobox below mainbox is handled outside height)
 	if (g_settings.channellist_show_infobox)
@@ -1421,8 +1425,8 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		}
 		sl = cactive;
 		channel = bouquetList->Bouquets[bactive]->channelList->getChannelFromIndex(cactive);
-		printf("CChannelList::getPrevNextChannel: selected %u total %d active bouquet %d total %d channel %x (%s)\n",
-				cactive, (*chanlist).size(), bactive, bsize, (int) channel, channel ? channel->getName().c_str(): "");
+		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d channel %p (%s)\n",
+				(int)cactive, (int)(*chanlist).size(), bactive, bsize, channel, channel ? channel->getName().c_str(): "");
 	} else {
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
 			if(sl == 0)

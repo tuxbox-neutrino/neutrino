@@ -21,6 +21,17 @@ Contributor(s):
 #ifndef XmlTok_INCLUDED
 #define XmlTok_INCLUDED 1
 
+/* ugly: prefix all functions to avoid clashing with "real" libexpat
+ * or similar pulled in by other libs e.g. on PC */
+#define XmlParseXmlDecl			NEUTRINO_MP_XmlParseXmlDecl
+#define XmlInitEncoding			NEUTRINO_MP_XmlInitEncoding
+#define XmlGetUtf8InternalEncoding	NEUTRINO_MP_XmlGetUtf8InternalEncoding
+#define XmlGetUtf16InternalEncoding	NEUTRINO_MP_XmlGetUtf16InternalEncoding
+#define XmlUtf8Encode			NEUTRINO_MP_XmlUtf8Encode
+#define XmlUtf16Encode			NEUTRINO_MP_XmlUtf16Encode
+#define XmlSizeOfUnknownEncoding	NEUTRINO_MP_XmlSizeOfUnknownEncoding
+#define XmlInitUnknownEncoding		NEUTRINO_MP_XmlInitUnknownEncoding
+
 #ifdef __cplusplus
 extern "C" {
 #endif

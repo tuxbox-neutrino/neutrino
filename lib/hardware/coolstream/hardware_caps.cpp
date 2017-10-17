@@ -34,6 +34,7 @@ hw_caps_t *get_hwcaps(void) {
 	caps.can_ps_14_9 = 1;
 	caps.force_tuner_2G = 0;
 	strcpy(caps.boxvendor, "Coolstream");
+	strcpy(caps.boxarch, "Nevis");
 	switch (rev) {
 	case 6:
 	case 7: // Black Stallion Edition
@@ -52,7 +53,6 @@ hw_caps_t *get_hwcaps(void) {
 		break;
 	case 10:
 		strcpy(caps.boxname, "Zee");
-		strcpy(caps.boxarch, "Nevis");
 		caps.force_tuner_2G = 1;
 		break;
 	case 11:

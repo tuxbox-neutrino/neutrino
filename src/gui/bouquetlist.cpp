@@ -45,6 +45,7 @@
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
+#include <driver/display.h>
 #include <driver/scanepg.h>
 
 #include <daemonc/remotecontrol.h>

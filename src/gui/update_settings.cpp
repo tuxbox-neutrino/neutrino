@@ -60,6 +60,7 @@ CUpdateSettings::~CUpdateSettings()
 #endif
 }
 
+#if ENABLE_EXTUPDATE
 #define SOFTUPDATE_NAME_MODE1_OPTION_COUNT 3
 const CMenuOptionChooser::keyval SOFTUPDATE_NAME_MODE1_OPTIONS[SOFTUPDATE_NAME_MODE1_OPTION_COUNT] =
 {
@@ -74,6 +75,7 @@ const CMenuOptionChooser::keyval SOFTUPDATE_NAME_MODE2_OPTIONS[SOFTUPDATE_NAME_M
 	{ CExtUpdate::SOFTUPDATE_NAME_DEFAULT,       LOCALE_FLASHUPDATE_NAMEMODE2_DEFAULT       },
 	{ CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME, LOCALE_FLASHUPDATE_NAMEMODE2_HOSTNAME_TIME }
 };
+#endif
 
 int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 {
@@ -121,6 +123,7 @@ int CUpdateSettings::initMenu()
 //	fw_url->setHint("", LOCALE_MENU_HINT_XXX);
 	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red);
 //	fw_update_dir->setHint("", LOCALE_MENU_HINT_XXX);
+#if ENABLE_EXTUPDATE
 	CMenuOptionChooser *name_backup = new CMenuOptionChooser(LOCALE_FLASHUPDATE_NAMEMODE2, &g_settings.softupdate_name_mode_backup, SOFTUPDATE_NAME_MODE2_OPTIONS, SOFTUPDATE_NAME_MODE2_OPTION_COUNT, true);
 //	name_backup->setHint("", LOCALE_MENU_HINT_XXX);
 
@@ -131,6 +134,7 @@ int CUpdateSettings::initMenu()
 	CMenuOptionChooser *name_apply = new CMenuOptionChooser(LOCALE_FLASHUPDATE_NAMEMODE1, &g_settings.softupdate_name_mode_apply, SOFTUPDATE_NAME_MODE1_OPTIONS, SOFTUPDATE_NAME_MODE1_OPTION_COUNT, g_settings.apply_settings);
 //	name_apply->setHint("", LOCALE_MENU_HINT_XXX);
 	OnOffNotifier->addItem(name_apply);
+#endif
 #endif
 
 #if 0
@@ -144,11 +148,13 @@ int CUpdateSettings::initMenu()
 
 	w_upsettings.addItem(fw_update_dir);
 	w_upsettings.addItem(fw_url);
+#if ENABLE_EXTUPDATE
 	w_upsettings.addItem(name_backup);
 #ifndef BOXMODEL_CS_HD2
 	w_upsettings.addItem(GenericMenuSeparatorLine);
 	w_upsettings.addItem(apply_settings);
 	w_upsettings.addItem(name_apply);
+#endif
 #endif
 	w_upsettings.addItem(autocheck);
 

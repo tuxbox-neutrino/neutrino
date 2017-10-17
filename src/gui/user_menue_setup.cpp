@@ -11,6 +11,7 @@
 	Copyright (C) 2010 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2014 Stefan Seyfried
 
 	License: GPL
 

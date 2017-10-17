@@ -33,12 +33,16 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#include <config.h>
+#if 0
+/* this is already done by AC_SYS_LARGEFILE */
 #include <features.h> /* make sure off_t has size 8
 						 in __USE_FILE_OFFSET64 mode */
 
 #ifndef __USE_FILE_OFFSET64
-#define __USE_FILE_OFFSET64
+#error not using 64 bit file offsets
 #endif /* __USE_FILE__OFFSET64 */
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -37,6 +37,7 @@
 #include <system/settings.h>
 #include <driver/display.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <gui/components/cc.h>
 #include <gui/widget/msgbox.h>
@@ -252,8 +253,8 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 	int res = -1;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
-	uint32_t msg;
-	uint32_t data;
+	neutrino_msg_t msg;
+	neutrino_msg_data_t data;
 
 	bool loop=true;
 	bool update=true;

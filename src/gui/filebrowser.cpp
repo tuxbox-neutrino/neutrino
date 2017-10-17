@@ -41,6 +41,7 @@
 #include <neutrino.h>
 #include <driver/display.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <system/debug.h>
 
@@ -62,7 +63,7 @@
 #include <xmltree/xmlinterface.h>
 
 #ifndef __USE_FILE_OFFSET64
-#error not using 64 bit file offsets
+//#error not using 64 bit file offsets
 #endif
 
 #define SMSKEY_TIMEOUT 2000

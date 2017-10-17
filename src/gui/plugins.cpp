@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2011-2014 Stefan Seyfried
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or
@@ -118,7 +120,7 @@ void CPlugins::scanDir(const char *dir)
 					new_plugin.pluginfile.append(".sh");
 				else if (new_plugin.type == CPlugins::P_TYPE_LUA)
 					new_plugin.pluginfile.append(".lua");
-				else
+				else // CPlugins::P_TYPE_GAME or CPlugins::P_TYPE_TOOL
 					new_plugin.pluginfile.append(".so");
 				// We do not check if new_plugin.pluginfile exists since .cfg in
 				// PLUGINDIR_VAR can overwrite settings in read only dir
@@ -127,7 +129,6 @@ void CPlugins::scanDir(const char *dir)
 				// already exists in the list.
 				// This behavior is used to make sure plugins can be disabled
 				// by creating a .cfg in PLUGINDIR_VAR (PLUGINDIR often is read only).
-
 				if (!plugin_exists(new_plugin.filename))
 				{
 					plugin_list.push_back(new_plugin);
@@ -364,7 +365,7 @@ void CPlugins::startLuaPlugin(int number)
 	lua->runScript(script);
 	delete lua;
 #endif
-#if HAVE_SPARK_HARDWARE
+#if 0
 	frameBuffer->ClearFB();
 #endif
 	videoDecoder->Pig(-1, -1, -1, -1);
@@ -377,25 +378,25 @@ void CPlugins::startPlugin(int number)
 	delScriptOutput();
 	/* export neutrino settings to the environment */
 	char tmp[32];
-#if HAVE_SPARK_HARDWARE
+#if 0
 	sprintf(tmp, "%d", g_settings.screen_StartX_int);
 #else
 	sprintf(tmp, "%d", g_settings.screen_StartX);
 #endif
 	setenv("SCREEN_OFF_X", tmp, 1);
-#if HAVE_SPARK_HARDWARE
+#if 0
 	sprintf(tmp, "%d", g_settings.screen_StartY_int);
 #else
 	sprintf(tmp, "%d", g_settings.screen_StartY);
 #endif
 	setenv("SCREEN_OFF_Y", tmp, 1);
-#if HAVE_SPARK_HARDWARE
+#if 0
 	sprintf(tmp, "%d", g_settings.screen_EndX_int);
 #else
 	sprintf(tmp, "%d", g_settings.screen_EndX);
 #endif
 	setenv("SCREEN_END_X", tmp, 1);
-#if HAVE_SPARK_HARDWARE
+#if 0
 	sprintf(tmp, "%d", g_settings.screen_EndY_int);
 #else
 	sprintf(tmp, "%d", g_settings.screen_EndY);
@@ -437,7 +438,7 @@ void CPlugins::startPlugin(int number)
 	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->Unlock();
-#if HAVE_SPARK_HARDWARE
+#if 0
 	frameBuffer->ClearFB();
 #endif
 	videoDecoder->Pig(-1, -1, -1, -1);
@@ -451,7 +452,7 @@ bool CPlugins::hasPlugin(CPlugins::p_type_t type)
 	for (std::vector<plugin>::iterator it=plugin_list.begin();
 			it!=plugin_list.end(); ++it)
 	{
-		if (it->type == type && !it->hide)
+		if ((it->type & type) && !it->hide)
 			return true;
 	}
 	return false;

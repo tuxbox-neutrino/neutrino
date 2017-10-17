@@ -1409,7 +1409,7 @@ menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_sleeptimer_min Default setting for sleeptimer
 menu.hint_sms_channel If enabled, numeric buttons in channel list used to search channel in SMS style
 menu.hint_sms_movie If enabled, numeric buttons in moviebrowser used to search movie in SMS style
-menu.hint_soft_restart Restart GUI without reboot
+menu.hint_soft_restart Restart Neutrino without reboot
 menu.hint_softupdate_check Check online update, download and flash firmware
 menu.hint_softupdate_check_local Select and flash firmware from local file
 menu.hint_softupdate_createimage_menu Backup of current software, including all settings
@@ -2246,7 +2246,7 @@ servicemenu.imageinfo Image info
 servicemenu.reload Reload channel lists
 servicemenu.reload_hint Reloading channel lists,\nplease be patient.
 servicemenu.restart Soft restart
-servicemenu.restart_hint Restarting, please wait
+servicemenu.restart_hint Restarting, please wait ...
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Servicescan
 servicemenu.update Software Update

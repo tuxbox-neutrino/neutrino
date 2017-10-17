@@ -107,6 +107,7 @@ class CServiceScan : public OpenThreads::Thread
 		uint32_t tune_tp_index;
 
 		unsigned char fst_version;
+#if ENABLE_FASTSCAN
 		bool quiet_fastscan;
 		void InitFastscanLnb(int id);
 		bool FastscanTune(int id);
@@ -118,7 +119,7 @@ class CServiceScan : public OpenThreads::Thread
 		void process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, t_satellite_position * satellitePosition);
 		bool ScanFast();
 		void ReportFastScan(FrontendParameters &feparams, t_satellite_position satellitePosition);
-
+#endif
 		void run();
 
 		CFrontend * frontend;
@@ -149,12 +150,14 @@ class CServiceScan : public OpenThreads::Thread
 		bool isFtaOnly() { return flags & SCAN_FTA; }
 		int GetFlags() { return flags; }
 		bool SatHaveChannels() { return satHaveChannels; }
+#if ENABLE_FASTSCAN
 		/* fast-scan */
 		bool TestDiseqcConfig(int num);
 		bool ReadFstVersion(int num);
 		unsigned char GetFstVersion() { return fst_version; }
 		void QuietFastScan(bool enable) { quiet_fastscan = enable; }
 		bool ScanFast(int num, bool reload = true);
+#endif
 };
 
 #endif /* __scan_h__ */

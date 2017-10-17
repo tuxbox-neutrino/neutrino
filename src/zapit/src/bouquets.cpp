@@ -7,7 +7,7 @@
  *             rasc       <rasc@berlios.de>,
  *             thegoodguy <thegoodguy@berlios.de>
  *
- * (C) 2009, 2011, 2013 Stefan Seyfried
+ * (C) 2009, 2011-2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -32,8 +32,8 @@
 #if HAVE_COOL_HARDWARE
 #include <dmx_cs.h>
 #endif
-#if HAVE_TRIPLEDRAGON
-#include <dmx_td.h>
+#if USE_STB_HAL
+#include <dmx_hal.h>
 #endif
 
 #include <zapit/types.h>
@@ -68,7 +68,16 @@ protected:
 	bool		seen_section;
 
 	inline bool isOpen(void) {
+#if HAVE_TRIPLEDRAGON
+		/* unfortunately, this is a bit complicated on TD :-( */
+		if (dmx == NULL)
+			return false;
+		if (dmx->getBuffer() != NULL) /* getBuffer() is a dummy to indicate that demux is running */
+			return true;
+		return false;
+#else
 		return (dmx != NULL);
+#endif
 	}
 
 	int immediate_start(void); /* mutex must be locked before and unlocked after this method */
