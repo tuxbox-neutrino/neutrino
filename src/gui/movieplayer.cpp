@@ -2520,7 +2520,6 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 #endif
 
 			frameBuffer->blit2FB(newdata, nw, nh, xoff, yoff);
-			free(newdata);
 
 			min_x = std::min(min_x, xoff);
 			max_x = std::max(max_x, xoff + nw);
