@@ -116,11 +116,14 @@ function do_reload(){
 			</div>
 			<div class="right">
 				<form onsubmit="do_snapshot(); return false">
-				Reload: <input id="checkReload" name="checkReload" type="checkbox" /> <input type="number" value="15" id="inputReload" min="1" max="180" title="{=L:bc.screenshot.reload_desc=}" disabled />
 				{=L:filename=}: <input type="text" value="screenshot" id="filename" size="10" />
 				OSD: <input id="checkOSD" name="checkOSD" type="checkbox" {=if-empty:{=osd=}~~checked="checked"=} />
 				TV: <input id="checkVideo" name="checkVideo" type="checkbox" {=if-empty:{=video=}~~checked="checked"=} />
 				</form>
+			</div>
+			<div class="clear"></div>
+			<div class="right">
+				Reload: <input type="number" value="15" id="inputReload" min="1" max="180" title="{=L:bc.screenshot.reload_desc=}" disabled /> <input id="checkReload" name="checkReload" type="checkbox" />
 			</div>
 			<div class="clear"></div>
 		</div>
@@ -144,10 +147,10 @@ function do_reload(){
 <script>
 document.getElementById('checkReload').onclick = function() {
 	if (this.checked ) {
-		intervall = setInterval(do_snapshot, document.getElementById("inputReload").value + "000");
+		interval = setInterval(do_snapshot, document.getElementById("inputReload").value + "000");
 		document.getElementById("inputReload").disabled = false;
 	} else {
-		clearInterval(intervall);
+		clearInterval(interval);
 		document.getElementById("inputReload").disabled = true;
 	}
 };

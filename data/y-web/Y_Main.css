@@ -966,6 +966,9 @@ a.timer {
 #screenshot_header {
 	height: 30px;
 }
+table.screenshot {
+	clear: both;
+}
 td#remote,
 td.shot {
 	vertical-align: top;
