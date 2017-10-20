@@ -140,6 +140,7 @@ class CServiceManager
 		bool GetAllRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllHDChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllUHDChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllWebTVChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position, int flags = CZapitChannel::PRESENT);
 		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid, int flags = CZapitChannel::PRESENT);

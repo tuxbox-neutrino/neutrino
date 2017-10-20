@@ -226,6 +226,7 @@ bouquetname.hdtv HD channels
 bouquetname.new New channels
 bouquetname.other Unknown provider
 bouquetname.removed Removed channels
+bouquetname.uhdtv UHD channels
 bouquetname.webtv WebTV channels
 buildinfo.compiled_on Build Host
 buildinfo.compiled_with Compiler version
@@ -258,7 +259,7 @@ channellist.head All Services
 channellist.history History
 channellist.history_clear Clear History
 channellist.keep_numbers Persistent Channel Numbers
-channellist.make_hdlist Create list of HD channels
+channellist.make_hdlist Create lists of HD and UHD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
 channellist.make_webtvlist Create list of WebTV channels
@@ -1165,7 +1166,7 @@ menu.hint_leds_tv Working LEDs state
 menu.hint_load Load GUI settings from file
 menu.hint_longkeypress_duration A key press will be considered as "long key press" if it's pressed longer than the specified time.
 menu.hint_lua Run Lua Plugins
-menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
+menu.hint_make_hdlist Auto-create HD and UHD channel lists based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
 menu.hint_make_removedlist Create list of recently removed channels
 menu.hint_make_webtvlist Auto-create WebTV channel list based on\nchannel type and name

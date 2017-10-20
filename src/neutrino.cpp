@@ -1696,6 +1696,12 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				TVallList->Bouquets.push_back(hdBouquet);
 				printf("[neutrino] got %d HD channels\n", (int)zapitList.size()); fflush(stdout);
 			}
+			if (CServiceManager::getInstance()->GetAllUHDChannels(zapitList)) {
+				CBouquet* uhdBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_UHDTV), false, true);
+				uhdBouquet->channelList->SetChannelList(&zapitList);
+				TVallList->Bouquets.push_back(uhdBouquet);
+				printf("[neutrino] got %d UHD channels\n", (int)zapitList.size()); fflush(stdout);
+			}
 		}
 		/* new channels */
 		if (g_settings.make_new_list) {
