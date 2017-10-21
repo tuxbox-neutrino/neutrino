@@ -758,8 +758,8 @@ hdd_5min 5 min.
 hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
-hdd_check_failed HDD-check failed!
-hdd_extended_settings Extended HDD-Settings
+hdd_check_failed Filesystem-check failed!
+hdd_extended_settings Extended Settings
 hdd_fast Fast
 hdd_format Format device
 hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
@@ -781,7 +781,7 @@ hdd_statfs Fill level query
 hdd_statfs_always always
 hdd_statfs_recording while recording only
 hdd_umount Unmount
-hdd_umount_warn unmount device
+hdd_umount_warn Unmount device
 hdd_umounted Device removed
 help_box_title Help
 imageinfo.api API:

@@ -759,7 +759,7 @@ hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Datenträgerprüfung fehlgeschlagen
-hdd_extended_settings Erweiterte Festplatteneinstellungen
+hdd_extended_settings Erweiterte Einstellungen
 hdd_fast Schnell
 hdd_format Formatiere Datenträger
 hdd_format_failed Formatierung fehlgeschlagen! Stellen Sie sicher, dass der Datenträger nicht in Verwendung ist und versuchen Sie es erneut.
@@ -768,21 +768,21 @@ hdd_fs Dateisystem zum formatieren
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
 hdd_mount Mount
-hdd_mount_failed Fehler! Überprüfen Sie ihre Laufwerkseinstellungen.
-hdd_mount_ok Laufwerk bereit
+hdd_mount_failed Fehler! Bitte Datenträgereinstellungen überprüfen?
+hdd_mount_ok Datenträger bereit
 hdd_mount_umount Mount/Unmount
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Kein Datenträger
 hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
-hdd_settings Laufwerke
+hdd_settings Datenträger
 hdd_sleep Ausschalten nach
 hdd_slow Langsam
 hdd_statfs Füllstandsabfrage
 hdd_statfs_always immer
 hdd_statfs_recording nur während Aufnahme
 hdd_umount Aushängen
-hdd_umount_warn Laufwerk aushängen
-hdd_umounted Laufwerk entfernt
+hdd_umount_warn Datenträger aushängen
+hdd_umounted Gerät entfernt
 help_box_title Hilfe
 imageinfo.api API:
 imageinfo.creator Ersteller:
