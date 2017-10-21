@@ -49,11 +49,11 @@ function do_snapshot() {
 	if ("{=var-get:grab=}" != "")
 	{
 		if (enableOSD == 1 && enableVideo == 1)
-			dbox_exec_tools("fbshot grab -p /tmp/"+filename+".png");
+			dbox_exec_tools("fbshot grab -q -p /tmp/"+filename+".png");
 		else if (enableOSD == 1)
-			dbox_exec_tools("fbshot grab -p -o /tmp/"+filename+".png");
+			dbox_exec_tools("fbshot grab -q -p -o /tmp/"+filename+".png");
 		else if (enableVideo == 1)
-			dbox_exec_tools("fbshot grab -p -v /tmp/"+filename+".png");
+			dbox_exec_tools("fbshot grab -q -p -v /tmp/"+filename+".png");
 	}
 	else if ("{=var-get:fbshot=}" != "" && enableVideo == 0)
 		dbox_exec_tools("fbshot fbshot /tmp/"+filename+".png");
