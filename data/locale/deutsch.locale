@@ -1745,7 +1745,7 @@ moviebrowser.menu_truncate Film kürzen
 moviebrowser.option_browser Anzeigeoptionen
 moviebrowser.reload_at_start Filminfos neu laden bei Start
 moviebrowser.remount_at_start Filmdepot verbinden bei Start
-moviebrowser.scan_for_movies Suche Filme ...
+moviebrowser.scan_for_movies Suche Aufnahmen ...
 moviebrowser.serie_auto_create Serien automatisch zuordnen
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Name ändern

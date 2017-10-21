@@ -1745,7 +1745,7 @@ moviebrowser.menu_truncate Truncate movie
 moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
 moviebrowser.remount_at_start Remount at start
-moviebrowser.scan_for_movies Scan for Movies ...
+moviebrowser.scan_for_movies Scan for recordings...
 moviebrowser.serie_auto_create Serie auto create
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Change name
