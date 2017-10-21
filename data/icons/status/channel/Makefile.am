@@ -16,6 +16,7 @@ install_DATA = \
 	res_1280.png \
 	res_1440.png \
 	res_1920.png \
+	res_2160.png \
 	res_288.png \
 	res_352.png \
 	res_382.png \
@@ -27,6 +28,7 @@ install_DATA = \
 	res_720.png \
 	res_hd.png \
 	res_sd.png \
+	res_uhd.png \
 	subt.png \
 	subt_gray.png \
 	tuner_1.png \
