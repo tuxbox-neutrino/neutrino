@@ -2037,7 +2037,7 @@ ping.socket is unreachable (socket error)
 ping.unreachable is unreachable
 pinprotection.head Enter PIN code
 pinprotection.wrongcode PIN-Code was wrong! Try again.
-plugins.hdd_dir Plugin HDD dir.
+plugins.hdd_dir Plugin external directory.
 plugins.no_plugin No plugin
 plugins.result plugin output
 plugintype.disabled Disabled

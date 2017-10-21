@@ -2037,7 +2037,7 @@ ping.socket ist nicht erreichbar (Socket-Fehler)
 ping.unreachable ist nicht erreichbar (unerreichbar)
 pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
-plugins.hdd_dir Externes Plugin-Verz.
+plugins.hdd_dir Externes Plugin-Verzeichnis
 plugins.no_plugin Kein Plugin
 plugins.result Pluginausgabe
 plugintype.disabled Deaktiviert
