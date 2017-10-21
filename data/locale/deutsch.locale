@@ -2109,9 +2109,9 @@ reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
 reset_removed Entferne gelöschte Kanäle
 reset_settings Einstellungen auf Standardwerte
-satsetup.auto_scan Automatisch einen gewählten %s
-satsetup.auto_scan_all Automatisch alle Satelliten
-satsetup.cable Kabel-Scan
+satsetup.auto_scan Automatische Suche (%s)
+satsetup.auto_scan_all Automatische Suche (alle Satelliten)
+satsetup.cable Kabel-Suchlauf
 satsetup.cable_nid Netzwerk ID
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
