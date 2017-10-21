@@ -1086,7 +1086,7 @@ menu.hint_infobar_dd Show DD icon
 menu.hint_infobar_filesys Show flash and HDD used space levels
 menu.hint_infobar_fonts Change infobar font sizes
 menu.hint_infobar_logo Logo, channelnumber and signal display; Options in [brackets] will be displayed in small infobox
-menu.hint_infobar_logo_dir Select directory to search for channels logo
+menu.hint_infobar_logo_dir Set folder for channel logos.
 menu.hint_infobar_on_epg Show infobar on current EPG event change
 menu.hint_infobar_radiotext Show radiotext window
 menu.hint_infobar_res Show channel resolution icons

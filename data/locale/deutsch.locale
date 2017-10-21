@@ -1086,7 +1086,7 @@ menu.hint_infobar_dd Zeigt ein Dolby Digital Icon bei Verfügbarkeit
 menu.hint_infobar_filesys Zeigen den vom Flash- und einer HDD verwendeten Speicherplatz
 menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
 menu.hint_infobar_logo Logo-, Kanalnummer- und Signal-Anzeige; Optionen in [Klammern] erscheinen in der kleinen Infobox
-menu.hint_infobar_logo_dir Wählen Sie das Verzeichnis für die Senderlogos
+menu.hint_infobar_logo_dir Verzeichnis für Senderlogos festlegen.
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
 menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
 menu.hint_infobar_res Zeige die gesendete Auflösung in Symbolen
