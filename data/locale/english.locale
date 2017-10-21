@@ -336,7 +336,7 @@ colorthememenu.head Select theme
 colorthememenu.head2 Load themes
 colorthememenu.menu_hints Hint box
 colorthememenu.name Theme name
-colorthememenu.neutrino_theme Neutrino Theme
+colorthememenu.neutrino_theme Reset Theme
 colorthememenu.question Use selected theme?
 colorthememenu.save Save current theme
 colorthememenu.select1 User Theme
