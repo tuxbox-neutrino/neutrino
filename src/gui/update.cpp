@@ -411,7 +411,7 @@ bool CFlashUpdate::checkVersion4Update()
 		if (allow_flash)
 			UpdatesFilter.addFilter(FILEBROWSER_UPDATE_FILTER);
 
-		std::string filters[] = {"bin", "txt", "opk", "ipk"};
+		std::string filters[] = {"bin", "txt", "opk", "ipk", "tgz"};
 		for(size_t i=0; i<sizeof(filters)/sizeof(filters[0]) ;i++)
 			UpdatesFilter.addFilter(filters[i]);
 
@@ -455,6 +455,13 @@ bool CFlashUpdate::checkVersion4Update()
 				DisplayInfoMessage(g_Locale->getText(LOCALE_MESSAGEBOX_FEATURE_NOT_SUPPORTED));
 			//!always leave here!
 			return false;
+		}
+		//tgz package install:
+		else if (file_selected->getType() == CFile::FILE_TGZ_PACKAGE){
+			fileType = 'Z';
+			printf("[update] auto file type: %d (%d) %c\n", file_selected->getType(), CFile::FILE_TGZ_PACKAGE, fileType);
+			//!always leave here!
+			return true;
 		}
 		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
@@ -596,6 +603,18 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMsgBox::mbrBack, CMsgBox::mbBack);
 			free(buffer);
 		}
+	}
+	else if (fileType == 'Z')
+	{
+		showGlobalStatus(100);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, "Start ofgwrite");
+		hide();
+
+		const char ofgwrite_tgz[] = "/bin/ofgwrite_tgz";
+		printf("[update] calling %s %s %s\n", ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str() );
+#ifndef DRYRUN
+		my_system(3, ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str());
+#endif
 	}
 	else // not image, install
 	{

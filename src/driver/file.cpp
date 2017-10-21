@@ -78,6 +78,7 @@ static const file_ext_s file_ext[] =
 	{ "pls",	CFile::FILE_PLAYLIST	},
 	{ "png",	CFile::FILE_PICTURE	},
 	{ "sh", 	CFile::FILE_TEXT	},
+	{ "tgz",	CFile::FILE_TGZ_PACKAGE	},
 	{ "ts", 	CFile::FILE_TS		},
 	{ "txt",	CFile::FILE_TEXT	},
 	{ "url",	CFile::STREAM_AUDIO	},
