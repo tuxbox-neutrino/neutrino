@@ -649,7 +649,7 @@ flashupdate.namemode2_default <Partition>+<Zeit>.img
 flashupdate.namemode2_hostname_time <Partition>+<Zeit>+<Hostname>.img
 flashupdate.new_found Updates verfügbar!
 flashupdate.new_notfound Keine Updates verfügbar!
-flashupdate.noversion Eine Versionsüberprüfungen ist nur über das Online-Update möglich.\nWollen Sie das ausgewählte Image trotzdem installieren?
+flashupdate.noversion Die Versionsüberprüfung ist nur bei Online-Aktualisierungen möglich.\nTrotzdem fortfahren?
 flashupdate.programmingflash programmiere Flash
 flashupdate.proxypassword Passwort
 flashupdate.proxypassword_hint1 Geben sie das Proxy-Passwort ein
