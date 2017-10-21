@@ -1075,7 +1075,7 @@ menu.hint_inact_timer Shutdown box after inactivity
 menu.hint_inactive_back Change inactive item background color
 menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inet_radio Internet radio
-menu.hint_info Information about image, box cpu and storage,\nstream information
+menu.hint_info Show system informations.
 menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_buttons_usertitle Forces userdefined titles for the color keys
 menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-systems

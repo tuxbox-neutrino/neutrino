@@ -1075,7 +1075,7 @@ menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten.\nDie Box
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
-menu.hint_info Informationen über das Image, CPU, Arbeitsspeicher und Stream usw.
+menu.hint_info Systeminformationen anzeigen.
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_buttons_usertitle Erzwingt die benutzerdefinierten Titel der Farbtasten
 menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gesperrt, Diskret: alle Aktiven CA-Systeme
