@@ -52,9 +52,12 @@ CLuaCurl *CLuaInstCurl::CurlCheckData(lua_State *L, int n)
 void CLuaInstCurl::LuaCurlRegister(lua_State *L)
 {
 	luaL_Reg meth[] = {
-		{ "new",      CLuaInstCurl::CurlNew },
-		{ "download", CLuaInstCurl::CurlDownload },
-		{ "__gc",     CLuaInstCurl::CurlDelete },
+		{ "new",	CLuaInstCurl::CurlNew },
+		{ "download",	CLuaInstCurl::CurlDownload },
+		{ "encodeUri",	CLuaInstCurl::CurlEncodeUri },
+		{ "decodeUri",	CLuaInstCurl::CurlDecodeUri },
+		{ "setUriData",	CLuaInstCurl::CurlSetUriData },
+		{ "__gc",	CLuaInstCurl::CurlDelete },
 		{ NULL, NULL }
 	};
 
@@ -372,6 +375,108 @@ Example:
 	lua_pushinteger(L, LUA_CURL_OK);
 	lua_pushstring(L, retString.c_str());
 	return 2;
+}
+
+std::string CLuaInstCurl::CurlUriInternal(std::string data, bool decode)
+{
+	std::string retString = "";
+	CURL *curl_handle = curl_easy_init();
+	if (curl_handle) {
+		int outlength;
+		char *pfTmp;
+		if (decode)
+			pfTmp = curl_easy_unescape(curl_handle, data.c_str(), data.length(), &outlength);
+		else
+			pfTmp = curl_easy_escape(curl_handle, data.c_str(), data.length());
+		if (pfTmp) {
+			retString = static_cast<std::string>(pfTmp);
+			curl_free(pfTmp);
+		}
+		curl_easy_cleanup(curl_handle);
+	}
+	return retString;
+}
+
+int CLuaInstCurl::CurlEncodeUri(lua_State *L)
+{
+	CLuaCurl *D = CurlCheckData(L, 1);
+	if (!D) {
+		lua_pushnil(L);
+		return 1;
+	}
+	const char *data = luaL_checkstring(L, 2);
+	if (!data) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	std::string retString = CurlUriInternal(static_cast<std::string>(data), false);
+
+	if (retString.empty())
+		lua_pushnil(L);
+	else
+		lua_pushstring(L, retString.c_str());
+
+	return 1;
+}
+
+int CLuaInstCurl::CurlDecodeUri(lua_State *L)
+{
+	CLuaCurl *D = CurlCheckData(L, 1);
+	if (!D) {
+		lua_pushnil(L);
+		return 1;
+	}
+	const char *data = luaL_checkstring(L, 2);
+	if (!data) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	std::string retString = CurlUriInternal(static_cast<std::string>(data), true);
+
+	if (retString.empty())
+		lua_pushnil(L);
+	else
+		lua_pushstring(L, retString.c_str());
+
+	return 1;
+}
+
+int CLuaInstCurl::CurlSetUriData(lua_State *L)
+{
+	CLuaCurl *D = CurlCheckData(L, 1);
+	if (!D) {
+		lua_pushnil(L);
+		return 1;
+	}
+	int numargs = lua_gettop(L);
+	if (numargs < 3) {
+		printf("CLuaInstVideo::%s: not enough arguments (%d, expected at least 2)\n", __func__, numargs-1);
+		lua_pushnil(L);
+		return 1;
+	}
+
+	const char *key;
+	const char *data;
+	std::string retString = "";
+	for (int i = 2; i < numargs; i += 2) {
+		key = luaL_checkstring(L, i);
+		data = luaL_checkstring(L, i+1);
+		if (key && data && (strlen(key) > 0)) {
+			if (i > 2)
+				retString += "&";
+			retString += static_cast<std::string>(key) + "=";
+			retString += CurlUriInternal(static_cast<std::string>(data), false);
+		}
+	}
+
+	if (retString.empty())
+		lua_pushnil(L);
+	else
+		lua_pushstring(L, retString.c_str());
+
+	return 1;
 }
 
 int CLuaInstCurl::CurlDelete(lua_State *L)
