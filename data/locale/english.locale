@@ -671,7 +671,7 @@ flashupdate.readflashmtd Read one partition
 flashupdate.ready ready
 flashupdate.reallyflashmtd Do you really want to flash?\n\nIf a error occurs or the image is not\nvalid, the box will not boot after flashing.\n\nImagename: %s\nTarget: %s
 flashupdate.savesuccess The image was successfully saved \nunder %s.
-flashupdate.selectimage Available Images/Files
+flashupdate.selectimage Available images and updates
 flashupdate.settings Update settings
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash

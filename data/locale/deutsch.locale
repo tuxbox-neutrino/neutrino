@@ -671,7 +671,7 @@ flashupdate.readflashmtd einzelne Partition auslesen
 flashupdate.ready fertig
 flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\nFalls ein Fehler auftritt oder das Image nicht\nfunktionfähig ist, wird Ihre Box nicht mehr booten.\n\nImagename: %s\nZiel: %s
 flashupdate.savesuccess Das Image wurde erfolgreich unter dem\nDateinamen %s gespeichert.
-flashupdate.selectimage Verfügbare Images/Files
+flashupdate.selectimage Verfügbare Images und Updates
 flashupdate.settings Update-Einstellungen
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
