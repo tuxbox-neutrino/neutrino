@@ -328,6 +328,13 @@ bool CFlashUpdate::selectHttpImage(void)
 		}
 	}
 #endif
+#if HAVE_ARM_HARDWARE
+	if ((fileType <= '2') && (filename.substr(filename.find_last_of(".") + 1) == "tgz"))
+	{
+		// manipulate fileType for tgz-packages
+		fileType = 'Z';
+	}
+#endif
 #ifdef DEBUG
 	printf("[update] filename %s type %c newVersion %s md5 %s\n", filename.c_str(), fileType, newVersion.c_str(), file_md5.c_str());
 #endif
@@ -411,9 +418,13 @@ bool CFlashUpdate::checkVersion4Update()
 		if (allow_flash)
 			UpdatesFilter.addFilter(FILEBROWSER_UPDATE_FILTER);
 
-		std::string filters[] = {"bin", "txt", "opk", "ipk", "tgz"};
+		std::string filters[] = {"bin", "txt", "opk", "ipk"};
 		for(size_t i=0; i<sizeof(filters)/sizeof(filters[0]) ;i++)
 			UpdatesFilter.addFilter(filters[i]);
+
+#if HAVE_ARM_HARDWARE
+		UpdatesFilter.addFilter("tgz");
+#endif
 
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
@@ -456,13 +467,14 @@ bool CFlashUpdate::checkVersion4Update()
 			//!always leave here!
 			return false;
 		}
+#if HAVE_ARM_HARDWARE
 		//tgz package install:
 		else if (file_selected->getType() == CFile::FILE_TGZ_PACKAGE){
 			fileType = 'Z';
-			printf("[update] auto file type: %d (%d) %c\n", file_selected->getType(), CFile::FILE_TGZ_PACKAGE, fileType);
 			//!always leave here!
 			return true;
 		}
+#endif
 		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
 		if(ptr) {
@@ -604,6 +616,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			free(buffer);
 		}
 	}
+#if HAVE_ARM_HARDWARE
 	else if (fileType == 'Z')
 	{
 		showGlobalStatus(100);
@@ -616,6 +629,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		my_system(3, ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str());
 #endif
 	}
+#endif
 	else // not image, install
 	{
 		const char install_sh[] = "/bin/install.sh";
