@@ -308,6 +308,9 @@ int CChannelList::doChannelMenu(void)
 	menu->enableFade(false);
 	menu->enableSaveScreen(true);
 
+	// we don't show introitems, so we add a separator for a smoother view
+	menu->addItem(GenericMenuSeparator);
+
 	//ensure stop info clock before paint context menu
 	CInfoClock::getInstance()->block();
 
