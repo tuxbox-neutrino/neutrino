@@ -628,6 +628,12 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #ifndef DRYRUN
 		my_system(3, ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str());
 #endif
+		/*
+		   ofgwrite is killing Neutrino.
+		   So we stay here and wait for our end. This avoids osd flickering.
+		*/
+		while (true)
+			sleep(1);
 	}
 #endif
 	else // not image, install
