@@ -605,7 +605,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 			continue;
 
 		/* read packet */
-		ssize_t readcnt;
+		ssize_t readcnt = 0;
 
 		readcnt = dmx->Read(pes_packet, sizeof (pes_packet), 1000);
 		//if (readcnt != sizeof(pes_packet))
