@@ -79,8 +79,6 @@ int CSoftwareUpdate::showSoftwareUpdate()
 
 	softUpdate.addIntroItems(LOCALE_SERVICEMENU_UPDATE);
 
-	//flashing
-	CFlashUpdate flash;
 	unsigned int inetkey = CRCInput::RC_red;
 	if (COPKGManager::hasOpkgSupport()) {
 		//firmware update via opkg
@@ -90,35 +88,33 @@ int CSoftwareUpdate::showSoftwareUpdate()
 		inetkey = CRCInput::convertDigitToKey(1);
 	}
 
+	CFlashUpdate flash;
+	//online update
 	if (file_exists(g_settings.softupdate_url_file.c_str())) {
 		update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET, true, NULL, &flash, "inet", inetkey);
 		update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK);
 		softUpdate.addItem(update_item);
 	}
 
+	//local update
 	update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL, true, NULL, &flash, "local", CRCInput::RC_green);
 	update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK_LOCAL);
 	softUpdate.addItem(update_item);
 
-	CUpdateSettings update_settings;
-	CMenuWidget mtdexpert(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
 	//settings
+	CUpdateSettings update_settings;
 	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_SETTINGS);
 	softUpdate.addItem(mf);
 
+#if !HAVE_ARM_HARDWARE
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
 	//expert-functions
+	CMenuWidget mtdexpert(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
 	showSoftwareUpdateExpert(&mtdexpert);
 	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
-	softUpdate.addItem(mf);
-
-#if 0
-	//firmware update via opkg
-	mf = new CMenuDForwarder(LOCALE_OPKG_TITLE, COPKGManager::hasOpkgSupport(), NULL, new COPKGManager());
-	mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
 	softUpdate.addItem(mf);
 #endif
 
