@@ -603,6 +603,7 @@ flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
 flashupdate.checkupdate_internet Online update
 flashupdate.checkupdate_local Local update
+flashupdate.choose_partition Choose partition
 flashupdate.copy_image Copy Image to main memory
 flashupdate.createimage Save image
 flashupdate.createimage_add_env Add 'env' to image
@@ -673,6 +674,8 @@ flashupdate.reallyflashmtd Do you really want to flash?\n\nIf a error occurs or 
 flashupdate.savesuccess The image was successfully saved \nunder %s.
 flashupdate.selectimage Available images and updates
 flashupdate.settings Update settings
+flashupdate.start_ofgwrite Starting ofgwrite ...
+flashupdate.start_selected_partition Start chosen partition?
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.type_addon Addon

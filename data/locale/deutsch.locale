@@ -603,6 +603,7 @@ flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online-Update
 flashupdate.checkupdate_local Lokales Update
+flashupdate.choose_partition Partition wählen
 flashupdate.copy_image Kopiere Image in den Arbeitsspeicher
 flashupdate.createimage Image speichern
 flashupdate.createimage_add_env 'env' hinzufügen
@@ -673,6 +674,8 @@ flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\
 flashupdate.savesuccess Das Image wurde erfolgreich unter dem\nDateinamen %s gespeichert.
 flashupdate.selectimage Verfügbare Images und Updates
 flashupdate.settings Update-Einstellungen
+flashupdate.start_ofgwrite Starte ofgwrite ...
+flashupdate.start_selected_partition Starte ausgewählte Partition?
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
 flashupdate.type_addon Erweiterung
