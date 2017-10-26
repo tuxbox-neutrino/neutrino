@@ -848,6 +848,7 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		break;
 	case DVB_C:
 	case DVB_T:
+	case DVB_T2:
 	case DTMB:
 		switch(delsys) {
 		case DVB_C:
