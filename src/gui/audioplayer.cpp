@@ -442,7 +442,24 @@ int CAudioPlayerGui::show()
 			else
 				loop=false;
 		}
-		else if (msg == CRCInput::RC_left)
+#if 0 		//add RC_favorites for internetradio
+		else if ((msg == CRCInput::RC_favorites) && (m_inetmode))
+		{
+			if (m_key_level == 0)
+			{
+				// clear playlist and load RADIO_FAVORITES_XML_FILE
+				if (access(RADIO_FAVORITES_XML_FILE, F_OK) == 0)
+				{
+					if (!m_playlist.empty())
+						clearPlaylist();
+					scanXmlFile(RADIO_FAVORITES_XML_FILE);
+					clear_before_update = true;
+					update = true;
+				}
+			}
+		}
+#endif
+		else if (msg == CRCInput::RC_left || msg == CRCInput::RC_previoussong)
 		{
 			if (m_key_level == 1)
 			{
@@ -469,7 +486,7 @@ int CAudioPlayerGui::show()
 			}
 
 		}
-		else if (msg == CRCInput::RC_right)
+		else if (msg == CRCInput::RC_right || msg == CRCInput::RC_nextsong)
 		{
 			if (m_key_level == 1)
 			{
