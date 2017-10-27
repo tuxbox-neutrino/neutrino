@@ -1669,6 +1669,12 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "pos";
 			case RC_sleep:
 				return "sleep";
+			case RC_nextsong:
+				return "next song";
+			case RC_previoussong:
+				return "previous song";
+			case RC_bookmarks:
+				return "bookmarks";
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
 				return "unknown";
@@ -1712,10 +1718,14 @@ int CRCInput::translate(int code)
 			return RC_play;
 		case KEY_PROGRAM:
 			return RC_timer;
-		case KEY_NEXTSONG:
-			return RC_next;
-		case KEY_PREVIOUSSONG:
-			return RC_prev;
+		case KEY_CHANNELUP:
+			return RC_page_up;
+		case KEY_CHANNELDOWN:
+			return RC_page_down;
+#ifdef HAVE_ARM_HARDWARE
+		case KEY_VIDEO:
+			return RC_favorites;
+#endif
 #ifdef HAVE_AZBOX_HARDWARE
 		case KEY_HOME:
 			return RC_favorites;
@@ -1725,10 +1735,6 @@ int CRCInput::translate(int code)
 			return RC_record;
 		case KEY_PLAY:
 			return RC_pause;
-		case KEY_CHANNELUP:
-			return RC_page_up;
-		case KEY_CHANNELDOWN:
-			return RC_page_down;
 #endif
 		default:
 			break;

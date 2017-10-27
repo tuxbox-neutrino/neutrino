@@ -249,6 +249,9 @@ class CRCInput
 			RC_sub		= KEY_SUBTITLE,
 			RC_pos		= KEY_MOVE,
 			RC_sleep	= KEY_SLEEP,
+			RC_nextsong	= KEY_NEXTSONG,
+			RC_previoussong	= KEY_PREVIOUSSONG,
+			RC_bookmarks	= KEY_BOOKMARKS,
 
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,
