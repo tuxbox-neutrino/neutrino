@@ -718,12 +718,23 @@ void CScreenShot::cleanupThread(void *arg)
 	delete scs;
 }
 
-//	printf("[CScreenShot::%s:%d] thread: %p\n", __func__, __LINE__, scs);
-delete scs;
-}
 
+
+#if HAVE_COOL_HARDWARE
 /* start ::run in new thread to save file in selected format */
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+bool CScreenShot::Start()
+{
+	set_threadname("n:screenshot");
+	bool ret = false;
+	if (GetData())
+		ret = startThread();
+	else
+		delete this;
+	return ret;
+	}
+
+#else
+/* start ::run in new thread to save file in selected format */
 bool CScreenShot::Start(const std::string custom_cmd)
 {
 	std::string cmd = "/bin/grab ";
@@ -762,19 +773,6 @@ bool CScreenShot::Start(const std::string custom_cmd)
 	system(cmd.c_str());
 	return true;
 }
-#else
-
-/* start ::run in new thread to save file in selected format */
-bool CScreenShot::Start()
-{
-	set_threadname("n:screenshot");
-	bool ret = false;
-	if (GetData())
-		ret = startThread();
-	else
-		delete this;
-	return ret;
-	}
 #endif
 
 /* save file in sync mode, return true if save ok, or false */

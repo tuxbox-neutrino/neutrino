@@ -3520,7 +3520,7 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 			sc->SetSize(w, h);
 		}
 	}
-#if ! HAVE_COOL_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	sc->Start("-r 320 -j 75");
 #else
 	sc->Start();

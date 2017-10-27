@@ -81,8 +81,7 @@ public:
 	bool SetTeletextPid(int /*pid*/){return true;}
 	int GetAPid(){return 0;}
 	void GetMetadata(std::vector<std::string> /*&keys*/, std::vector<std::string> /*&values*/){};
-}
-}
+
 };
 
 #endif // __PLAYBACK_CS_H_
