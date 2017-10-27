@@ -605,6 +605,7 @@ flashupdate.checkupdate_internet Online-Update
 flashupdate.checkupdate_local Lokales Update
 flashupdate.choose_partition Partition wählen
 flashupdate.copy_image Kopiere Image in den Arbeitsspeicher
+flashupdate.copy_settings Einstellungen ins neue Image übernehmen?
 flashupdate.createimage Image speichern
 flashupdate.createimage_add_env 'env' hinzufügen
 flashupdate.createimage_add_kernel 'kernel' hinzufügen

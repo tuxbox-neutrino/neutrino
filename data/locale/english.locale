@@ -605,6 +605,7 @@ flashupdate.checkupdate_internet Online update
 flashupdate.checkupdate_local Local update
 flashupdate.choose_partition Choose partition
 flashupdate.copy_image Copy Image to main memory
+flashupdate.copy_settings Copy settings to new image?
 flashupdate.createimage Save image
 flashupdate.createimage_add_env Add 'env' to image
 flashupdate.createimage_add_kernel Add 'kernel' to image

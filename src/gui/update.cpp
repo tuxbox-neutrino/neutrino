@@ -621,6 +621,21 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		showGlobalStatus(100);
 
+		// create settings package
+		int copy_settings = ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_COPY_SETTINGS, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE);
+		if (copy_settings == CMsgBox::mbrYes)
+		{
+			CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_SETTINGS_BACKUP);
+			hintBox.paint();
+			/*
+			   Settings tarball is created in /tmp directory.
+			   ofgwrite will copy this tarball to new rootfs.
+			   It's untared at first start of new image.
+			*/
+			my_system(3, "/bin/backup.sh", "/tmp", "backup_flash.tar.gz");
+			hintBox.hide();
+		}
+
 		// get active partition
 		char c[2] = {0};
 		FILE *f;
