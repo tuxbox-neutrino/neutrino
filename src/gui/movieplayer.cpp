@@ -2556,14 +2556,20 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 
 void CMoviePlayerGui::UpdatePosition()
 {
-	while (!playback->GetPosition(position, duration)) {
-		if (duration > 100)
-			file_prozent = (unsigned char) (position / (duration / 100));
-		FileTimeOSD->update(position, duration);
-#ifdef DEBUG
-		printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
-#endif
+	int cnt = 0;
+	do
+	{
+		usleep(10000);
+		cnt++;
 	}
+	while ((!playback->GetPosition(position, duration)) || (cnt <= 5));
+
+	if (duration > 100)
+		file_prozent = (unsigned char) (position / (duration / 100));
+	FileTimeOSD->update(position, duration);
+#ifdef DEBUG
+	printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
+#endif
 }
 
 void CMoviePlayerGui::showHelp()
