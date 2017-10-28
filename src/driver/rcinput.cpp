@@ -1735,6 +1735,8 @@ int CRCInput::translate(int code)
 #ifdef HAVE_ARM_HARDWARE
 		case KEY_VIDEO:
 			return RC_favorites;
+		case KEY_FASTFORWARD:
+			return RC_forward;
 #endif
 #ifdef HAVE_AZBOX_HARDWARE
 		case KEY_HOME:
