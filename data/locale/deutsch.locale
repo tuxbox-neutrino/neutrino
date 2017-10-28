@@ -2403,7 +2403,8 @@ timing.chanlist Kanalliste
 timing.epg EPG
 timing.filebrowser Filebrowser
 timing.infobar Infobar
-timing.infobar_movieplayer Infobar (Filmwiedergabe)
+timing.infobar_media_audio Infobar (Mediaplayer Audio)
+timing.infobar_media_video Infobar (Mediaplayer Video)
 timing.infobar_radio Infobar (Radiobetrieb)
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten

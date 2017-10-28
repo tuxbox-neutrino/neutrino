@@ -2403,7 +2403,8 @@ timing.chanlist Channellist
 timing.epg Epg
 timing.filebrowser Filebrowser
 timing.infobar Infobar
-timing.infobar_movieplayer Infobar (movie mode)
+timing.infobar_media_audio Infobar (Mediaplayer audio)
+timing.infobar_media_video Infobar (Mediaplayer video)
 timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap

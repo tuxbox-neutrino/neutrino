@@ -5170,6 +5170,7 @@ static struct __key_rename key_rename[] = {
 	{ "screen_StartY_lcd",	"screen_StartY_lcd_0" },
 	{ "screen_EndX_lcd",	"screen_EndX_lcd_0" },
 	{ "screen_EndY_lcd",	"screen_EndY_lcd_0" },
+	{ "timing.infobar_movieplayer",	"timing.infobar_media_video" },
 	{ NULL, NULL }
 };
 
