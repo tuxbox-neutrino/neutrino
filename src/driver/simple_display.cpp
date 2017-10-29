@@ -692,14 +692,14 @@ void CLCD::count_down() {
 	}
 }
 
-void CLCD::setlcdparameter(int dimm, const int power)
+void CLCD::setlcdparameter(int dimm, const int _power)
 {
 	if(dimm < 0)
 		dimm = 0;
 	else if(dimm > 15)
 		dimm = 15;
 
-	if(!power)
+	if(!_power)
 		dimm = 0;
 
 	if(brightness == dimm)

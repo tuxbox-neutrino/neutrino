@@ -219,7 +219,7 @@ class CLCD
 		int			brightness;
 		unsigned int	timeout_cnt;
 		unsigned int	switch_name_time_cnt;
-		void		setlcdparameter(int dimm, int power);
+		void		setlcdparameter(int dimm, int _power);
 		void		count_down();
 #endif
 
