@@ -348,8 +348,8 @@ void CLCD::showTime(bool force)
 		if (force || last_display || (hour != t->tm_hour) || (minute != t->tm_min)) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
-			int ret = -1;
 #if HAVE_SPARK_HARDWARE
+			int ret = -1;
 			now += t->tm_gmtoff;
 			int fd = dev_open();
 #if 0 /* VFDSETTIME is broken and too complicated anyway -> use VFDSETTIME2 */
