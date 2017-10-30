@@ -929,7 +929,7 @@ bool CFileBrowser::exec(const char * const dirname)
 	return res;
 }
 
-bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing, bool is_audio_player)
+bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing, bool is_audio_playing)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
@@ -1066,7 +1066,7 @@ bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing, b
 			addfiles->Hide_records = true;
 			addfiles->Multi_Select = true;
 			addfiles->Dirs_Selectable = true;
-			addfiles->exec(is_audio_player ? g_settings.network_nfs_audioplayerdir.c_str() : g_settings.network_nfs_moviedir.c_str());
+			addfiles->exec(is_audio_playing ? g_settings.network_nfs_audioplayerdir.c_str() : g_settings.network_nfs_moviedir.c_str());
 			CFileList tmplist = addfiles->getSelectedFiles();
 			filelist.insert( filelist.end(), tmplist.begin(), tmplist.end() );
 			tmplist.clear();
