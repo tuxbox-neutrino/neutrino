@@ -1634,15 +1634,17 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #else
 				CVFD::getInstance()->showPercentOver(file_prozent);
 #endif
-#if HAVE_DUCKBOX_HARDWARE
-				ss = position/1000;
-				hh = ss/3600;
-				ss -= hh * 3600;
-				mm = ss/60;
-				ss -= mm * 60;
-				std::string Value = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
-				CVFD::getInstance()->ShowText(Value.c_str());
-#endif
+				if (g_info.hw_caps->display_xres > 8)
+				{
+					ss = position/1000;
+					hh = ss/3600;
+					ss -= hh * 3600;
+					mm = ss/60;
+					ss -= mm * 60;
+					std::string Value = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
+					CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+					CVFD::getInstance()->showMenuText(0, Value.c_str(), -1, true);
+				}
 
 				playback->GetSpeed(speed);
 				/* at BOF lib set speed 1, check it */
