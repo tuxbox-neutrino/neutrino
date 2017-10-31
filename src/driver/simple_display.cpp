@@ -24,7 +24,7 @@
 #include <config.h>
 #endif
 
-#include <driver/lcdd.h>
+#include <driver/simple_display.h>
 #include <driver/framebuffer.h>
 #include <system/set_threadname.h>
 
