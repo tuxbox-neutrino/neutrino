@@ -836,6 +836,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	if (mp_info && !extMovieInfo.empty())
 		processTextToArray(extMovieInfo);
 
+#if 0
 	/* neat for debugging duplicate event issues etc. */
 	char *epgid;
 	if (asprintf(&epgid, "EPG ID:%04X.%02X", (int)((epgData.eventID)&0x0FFFF), epgData.table_id) >= 0)
@@ -844,6 +845,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		processTextToArray(epgid);
 		free(epgid);
 	}
+#endif
 
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
