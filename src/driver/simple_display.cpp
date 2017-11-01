@@ -623,10 +623,17 @@ void CLCD::togglePower(void)
 		Clear();
 	else
 		showTime(true);
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
+
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+	{
 		last_toggle_state_power = 1 - last_toggle_state_power;
-		setlcdparameter((mode == MODE_STANDBY) ? g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS] : (mode == MODE_SHUTDOWN) ? g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS] : g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS],
-				last_toggle_state_power);
+
+		if (mode == MODE_STANDBY)
+			setlcdparameter(g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS], last_toggle_state_power);
+		else if (mode == MODE_SHUTDOWN)
+			setlcdparameter(g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS], last_toggle_state_power);
+		else
+			setlcdparameter(g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS], last_toggle_state_power);
 	}
 }
 
