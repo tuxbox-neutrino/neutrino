@@ -127,7 +127,7 @@ int CVfdSetup::showSetup()
 		vfds->addItem(mf);
 	}
 
-	if (g_info.hw_caps->can_set_display_brightness)
+	if (g_info.hw_caps->display_can_set_brightness)
 	{
 		//vfd brightness menu
 		mf = new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, this, "brightness", CRCInput::RC_green);
