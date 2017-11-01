@@ -203,12 +203,14 @@ int CVfdSetup::showBrightnessSetup()
 	nc->setActivateObserver(this);
 	mn_widget->addItem(nc);
 
-	if(cs_get_revision() > 7) {
+	if (g_info.hw_caps->display_can_deepstandby)
+	{
 		nc = new CMenuOptionNumberChooser(LOCALE_LCDCONTROLER_BRIGHTNESSDEEPSTANDBY, &brightnessdeepstandby, true, 0, 15, this, CRCInput::RC_nokey, NULL, 0, 0, NONEXISTANT_LOCALE, true);
 		nc->setHint("", LOCALE_MENU_HINT_VFD_BRIGHTNESSDEEPSTANDBY);
 		nc->setActivateObserver(this);
 		mn_widget->addItem(nc);
 	}
+
 	nc = new CMenuOptionNumberChooser(LOCALE_LCDMENU_DIM_BRIGHTNESS, &g_settings.lcd_setting_dim_brightness, vfd_enabled, -1, 15, NULL, CRCInput::RC_nokey, NULL, 0, -1, LOCALE_OPTIONS_OFF, true);
 	nc->setHint("", LOCALE_MENU_HINT_VFD_BRIGHTNESSDIM);
 	nc->setActivateObserver(this);

@@ -29,6 +29,7 @@ hw_caps_t *get_hwcaps(void) {
 	caps.display_type = HW_DISPLAY_LINE_TEXT;
 	caps.display_xres = 12;
 	caps.display_yres = 0;
+	caps.display_can_deepstandby = (rev > 7);
 	caps.can_set_display_brightness = 1;
 	caps.can_ar_14_9 = 1;
 	caps.can_ps_14_9 = 1;

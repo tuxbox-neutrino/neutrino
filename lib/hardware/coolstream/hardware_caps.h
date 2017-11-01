@@ -33,6 +33,7 @@ typedef struct hw_caps
 	display_type_t display_type;
 	int display_xres;	/* x resolution or chars per line */
 	int display_yres;
+	int display_can_deepstandby;
 	int can_set_display_brightness;
 	char boxvendor[64];
 	char boxname[64];
