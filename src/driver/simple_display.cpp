@@ -403,8 +403,17 @@ void CLCD::showTime(bool force)
 			setled(red, green);
 }
 
-void CLCD::showRCLock(int)
+void CVFD::showRCLock(int duration)
 {
+	if (g_info.hw_caps->display_type != HW_DISPLAY_LINE_TEXT || !g_settings.lcd_notify_rclock)
+	{
+		sleep(duration);
+		return;
+	}
+
+	display(g_Locale->getText(LOCALE_RCLOCK_LOCKED));
+	sleep(duration);
+	display(display_text);
 }
 
 /* update is default true, the mute code sets it to false
