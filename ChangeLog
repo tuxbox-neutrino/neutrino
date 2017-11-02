@@ -1,3 +1,254 @@
+2017-11-02  Thilo Graf  <dbt@novatux.de>
+
+	update version to 3.6.1
+	start up AX/Mut@nt hd51 support
+
+2017-11-02  GetAway  <get-away@t-online.de>
+
+	menue.cpp: dont use one-time init of a variable that could be changed on runtime
+
+2017-11-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- rename can_set_display_brightness => display_can_set_brightness
+
+2017-11-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- vfd-setup: use new display_can_deepstandby member from libstb-hal
+
+	Build was broken with original cherry-pick. hw_caps_t was incomplete.
+
+2017-11-01  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- simple_display: more readability in togglePower() function
+
+	- simple_display: fix showRCLock() function
+
+	- epgview: disable epgid debug code
+
+2017-11-01  TangoCash  <eric@loxat.de>
+
+	- movieplayer: add progress to vfd
+
+2017-11-01  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- introduce simple_display.h; just a cleaned copy of lcdd.h
+
+2017-11-01  Striper  <gandharva@gmx.de>
+
+	- CMovieBrowser::info_hdd_level(): fix miscalculation
+
+2017-11-01  TangoCash  <eric@loxat.de>
+
+	fix hevc record
+
+2017-10-31  TangoCash  <eric@loxat.de>
+
+	add support for H265
+
+2017-10-30  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- acinclude: move default PUBLIC_HTTPDDIR from /var/httpd to /var/tuxbox/httpd
+
+	- audioplayer: allow RC_previoussong and RC_nextsong
+
+2017-10-29  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- rcinput: add some new keys ...
+	and translate KEY_VIDEO (list-key) to RC_favorites for ARM_HARDWARE
+
+	- update: ask for copy settings to new image
+
+	- update_menue: hide expert functions for ARM_HARDWARE
+
+	- update: allow ofgwrite to flash another partition
+
+	- zapit: add missing "case DVB_T2" to getDelSys()
+
+	- channellist: add separator item to menu for a smoother view
+
+	- update: fix osd flickering
+
+	- hdd-menu: hide mmcblk devices from hdd-menu
+
+2017-10-29  Thilo Graf  <dbt@novatux.de>
+
+	CLCD: fix possible compile error
+	error: declaration of 'power' shadows a global declaration [-Werror=shadow]
+
+	CLCD: fix possible compile error
+	error: unused variable 'ret' [-Werror=unused-variable]
+
+	CScreenShot: fix build
+	Some lines were wrong picked
+
+2017-10-29  TangoCash  <eric@loxat.de>
+
+	small zapit fix
+
+2017-10-29  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- locale: minor changes in update-locales
+
+	- update: allow online-update for AX/Mutant; add some beautiful ifdef's
+	#ifdefs not really beautiful but sometimes inevitable
+
+2017-10-29  J. Krieg  <bellum07@googlemail.com>
+
+	cables.xml: update Unitymedia BW (former Kabel BW) - rearrangement channels, October 2017
+
+2017-10-29  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- update: allow tgz-tarballs for update via ofgwrite
+
+	- yWeb: silent screenshots
+
+2017-10-29  TangoCash  <eric@loxat.de>
+
+	modify uhd channel detection to catch channels broadcasting not in DVB specs
+
+2017-10-29  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- deutsch.locale: small spelling fixes
+
+2017-10-29  TangoCash  <eric@loxat.de>
+
+	modify autocreate HD _and_ UHD channels as seperate lists
+
+	- zapit: detect uhd-channels
+
+2017-10-29  Striper  <gandharva@gmx.de>
+
+	- fix typo
+
+2017-10-29  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- yWeb: fix 9eb1060cbb14f6a29ed289b52c0214ffc67503e0
+
+	- yWeb: enable auto-reload of screenshots
+
+	- yWeb: signalize standby-mode in status-button's color; thx to fred_feuerstein
+
+	let playback handle devices
+
+	- yWeb: fix grab-handling
+
+	- yWeb: fix manual selection of remote control
+
+	- yWeb: add Mutant HD51 remote control; thx to fred_feuerstein
+
+	- yWeb: improve rc_hd51.png
+
+	- yWeb: fix up/down <-> pageup/pagedown keys; enable sleep key
+
+	- yWeb: enable grab to do screenshots
+
+2017-10-29  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- audio_select: copy full code from TangoCash
+	Just compile tested. Maybe some more alignments needed.
+
+	Additional changes on cs playback_cs.h, because broken build
+
+2017-10-29  Thilo Graf  <dbt@novatux.de>
+
+	data: add missing epglanguages.conf
+
+2017-10-29  TangoCash  <eric@loxat.de>
+
+	armbox: fix dimming vfd
+
+	armbox: show grafical volume in vfd
+
+	fix time in vfd
+
+	fix some keys
+
+	fix resolution icon in infoviewer
+
+	update webif
+
+	fix gstreamer playback
+
+	fix select osd resolution
+
+	adding 4k video settings for armbox
+
+	start implementing hardware acceleration for armbox
+	you have to compile neutrino with "--enable-reschange" to use FullHD-OSD
+
+2017-10-29  vanhofen  <vanhofen@gmx.de>
+
+	- add hd51; mostly ported from TangoCash's neutrino-mp
+
+2017-10-29  Thilo Graf  <dbt@novatux.de>
+
+	src/Makefile.am: add missing possible static dir for libcoolstream.mt
+
+	tuxtxt_common.h: add missing init to readcnt
+
+	locales: generalize image settings, rewrite welcome text
+
+	locales: use german entries for channel scan
+
+	locales: complete plugin entry for plugins.hdd_dir
+
+	locales: typo fix
+
+	locales: message for record scan generalized
+
+	locales: hint for followscreenings setup shortened
+
+	locales: hint for moviebrowser setup shortened
+
+	locales: hint for channel logo setup shortened
+
+	locales: generalize system info hint
+
+	locales: generalize channel logo option
+
+	locales: use more shorter/plausible entries for hdd setup
+
+	locales: use shorter warning message for local update
+
+	locales: use more plausible name menue entry for theme reset
+
+	locales: use more plausible entries for audio and epg plus
+
+2017-10-29  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- add UHD icons to infoviewer
+
+2017-10-29  Thilo Graf  <dbt@novatux.de>
+
+	icons/status/channel/Makefile: add entries for UHD status icons
+
+2017-10-29  Thilo Graf  <dbt@novatux.de>
+
+	neutrino: add Liberation Fonts
+
+	Based up commit from:
+	https://sourceforge.net/p/tuxbox-cvs/apps/ci/2577990c6e8effa45d04738e87c8082cf3ffe52d/
+
+2017-10-29  Thilo Graf  <dbt@novatux.de>
+
+	armbox: add configure lines for some useful options for paths and hd51 builds
+
+2017-10-24  Thilo Graf  <dbt@novatux.de>
+
+	CNetworkSetup: disable network_services menu
+	Required with yocto build
+
+2017-10-23  M. Liebmann  <git@tuxcode.de>
+
+	CLuaInstCurl: Add script functions
+	 - encodeUri
+	 - decodeUri
+	 - setUriData
+	 - Set Lua api version to 1.78
+
+	CLuaInstCurl: Fix CurlDownload() to send POST data
+	 - Set Lua api version to 1.77
+
 2017-10-17  Thilo Graf  <dbt@novatux.de>
 
 	update version to 3.6.0
