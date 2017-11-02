@@ -112,7 +112,7 @@ class CMenuItem : public  CComponentsSignals
 		void setIconName();
 		CMenuWidget* parent_widget;
 	protected:
-		int x, y, dx, offx, name_start_x, icon_frame_w;
+		int x, y, dx, offx, name_start_x;
 		bool used;
 		fb_pixel_t item_color, item_bgcolor;
 		bool initModeCondition(const int& stb_mode);

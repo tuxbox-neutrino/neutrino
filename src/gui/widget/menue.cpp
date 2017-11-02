@@ -75,7 +75,6 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 
 	x		= -1;
 	used		= false;
-	icon_frame_w	= OFFSET_INNER_MID;
 	hint		= NONEXISTANT_LOCALE;
 	name		= NONEXISTANT_LOCALE;
 	nameString	= "";
@@ -96,7 +95,7 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 	y		= Y;
 	dx		= DX;
 	offx		= OFFX;
-	name_start_x	= x + offx + icon_frame_w;
+	name_start_x	= x + offx + OFFSET_INNER_MID;
 
 	getItemColors(item_color, item_bgcolor);
 }
@@ -219,7 +218,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 	if (iconName_Info_right) {
 		CFrameBuffer::getInstance()->getIconSize(iconName_Info_right, &icon_w, &icon_h);
 		if (icon_w)
-			_dx -= icon_frame_w + icon_w;
+			_dx -= OFFSET_INNER_MID + icon_w;
 	}
 
 	int desc_height = 0;
@@ -235,7 +234,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text);
 		int stringstartposOption;
 		if (*left_text)
-			stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text) + icon_frame_w, x + dx - stringwidth - icon_frame_w); //+ offx
+			stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text) + OFFSET_INNER_MID, x + dx - stringwidth - OFFSET_INNER_MID); //+ offx
 		else
 			stringstartposOption = name_start_x;
 		if (right_bgcol) {
@@ -256,7 +255,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			col.paint(false);
 		}
 		if (*right_text) {
-			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + icon_frame_w);
+			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + OFFSET_INNER_MID);
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height - desc_height, dx- (stringstartposOption- x),  right_text, item_color);
 		}
 	}
@@ -301,7 +300,7 @@ void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height,
 	}
 	int left_needed = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text);
 
-	int space = dx - right_needed - icon_frame_w - left_needed - OFFSET_INNER_MID;
+	int space = dx - right_needed - OFFSET_INNER_MID - left_needed - OFFSET_INNER_MID;
 	if (space < bar_full)
 		return ;
 
@@ -345,8 +344,8 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 			icon_name = icon_Name;
 	}
 	
-	int icon_start_x = x+icon_frame_w; //start of icon space
-	int icon_space_x = name_start_x - icon_frame_w - icon_start_x; //size of space where to paint icon
+	int icon_start_x = x+OFFSET_INNER_MID; //start of icon space
+	int icon_space_x = name_start_x - OFFSET_INNER_MID - icon_start_x; //size of space where to paint icon
 	int icon_space_mid = icon_start_x + icon_space_x/2;
 
 	//get data of number icon and paint
@@ -2455,7 +2454,7 @@ int CMenuProgressbar::paint(bool selected)
 	//progress bar
 	int pb_x;
 	if (*left_text)
-		pb_x = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text) + icon_frame_w, x + dx - scale.getWidth() - icon_frame_w);
+		pb_x = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text) + OFFSET_INNER_MID, x + dx - scale.getWidth() - OFFSET_INNER_MID);
 	else
 		pb_x = name_start_x;
 
