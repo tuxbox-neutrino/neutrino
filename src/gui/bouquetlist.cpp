@@ -510,8 +510,8 @@ int CBouquetList::show(bool bShowChannelList)
 				return CHANLIST_CHANGE_MODE;
 			}
 		} else if(msg == CRCInput::RC_www) {
-			if(!favonly && bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_WEBTV) {
-				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_WEBTV);
+			if(!favonly && bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_WEB) {
+				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_WEB);
 				hide();
 				return CHANLIST_CHANGE_MODE;
 			}

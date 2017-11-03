@@ -717,7 +717,7 @@ int CChannelList::show()
 		}
 		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
 			if (!edit_state) {
-				//FIXME: what about LIST_MODE_WEBTV?
+				//FIXME: what about LIST_MODE_WEB?
 				int newmode = msg == CRCInput::RC_sat ? LIST_MODE_SAT : LIST_MODE_FAV;
 				CNeutrinoApp::getInstance()->SetChannelMode(newmode);
 				res = CHANLIST_CHANGE_MODE;
