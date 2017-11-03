@@ -80,7 +80,7 @@ static int proc_put(const char *path, bool state)
 	return ret;
 }
 #else
-static int proc_put(const char *path, bool state) {}
+static int proc_put(const char *path, bool state) {return 0;}
 #endif
 
 static char volume = 0;
@@ -348,8 +348,8 @@ void CLCD::showTime(bool force)
 		if (force || last_display || (hour != t->tm_hour) || (minute != t->tm_min)) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
-#if HAVE_SPARK_HARDWARE
 			int ret = -1;
+#if HAVE_SPARK_HARDWARE
 			now += t->tm_gmtoff;
 			int fd = dev_open();
 #if 0 /* VFDSETTIME is broken and too complicated anyway -> use VFDSETTIME2 */
