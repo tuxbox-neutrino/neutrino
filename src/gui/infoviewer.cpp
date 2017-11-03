@@ -795,7 +795,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 		if (g_settings.infobar_sat_display) {
 			// TODO split into WebTV/WebRadio
-			std::string name = (IS_WEBTV(current_channel_id))? "Web-Channel" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
+			std::string name = (IS_WEBCHAN(current_channel_id))? "Web-Channel" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 			int satNameWidth = g_SignalFont->getRenderWidth (name);
 			std::string satname_tmp = name;
 			if (satNameWidth > (ChanWidth - numbox_offset*2)) {
@@ -882,7 +882,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if (fileplay) {
 		show_Data ();
 #if 0
-	} else if (IS_WEBTV(new_channel_id)) {
+	} else if (IS_WEBCHAN(new_channel_id)) {
 		if (channel) {
 			const char *current = channel->getDesc().c_str();
 			const char *next = channel->getUrl().c_str();
@@ -1491,7 +1491,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
  					int duration = CMoviePlayerGui::getInstance().GetDuration();
 					snprintf(runningRest, sizeof(runningRest), "%d / %d %s", (curr_pos + 30000) / 60000, (duration - curr_pos + 30000) / 60000, unit_short_minute);
 					display_Info(NULL, NULL, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
-				} else if (!IS_WEBTV(current_channel_id)) {
+				} else if (!IS_WEBCHAN(current_channel_id)) {
 					show_Data(false);
 				}
 			}
@@ -1597,7 +1597,7 @@ void CInfoViewer::sendNoEpg(const t_channel_id for_channel_id)
 void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
 	/* to clear the oldinfo for channels without epg, call getEPG() with for_channel_id = 0 */
-	if (for_channel_id == 0 || IS_WEBTV(for_channel_id))
+	if (for_channel_id == 0 || IS_WEBCHAN(for_channel_id))
 	{
 		oldinfo.current_uniqueKey = 0;
 		return;
@@ -1638,7 +1638,7 @@ void CInfoViewer::showSNR ()
 	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 	/* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
 	   TODO: decouple this  */
-	if (!fileplay && !IS_WEBTV(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 )) {
+	if (!fileplay && !IS_WEBCHAN(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 )) {
 		int y_freq = 2*g_SignalFont->getHeight();
 		if (!g_settings.infobar_sat_display)
 			y_freq -= g_SignalFont->getHeight()/2; //half line up to center freq vertically

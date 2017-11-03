@@ -1012,7 +1012,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
-	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF /* || IS_WEBTV(eventinfo->channel_id) */)
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF /* || IS_WEBCHAN(eventinfo->channel_id) */)
 		return false;
 
 #if 1 // FIXME test
@@ -1031,7 +1031,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 		newdir = Directory;
 
 	mutex.lock();
-	if (IS_WEBTV(eventinfo->channel_id)) {
+	if (IS_WEBCHAN(eventinfo->channel_id)) {
 		inst = new CStreamRec(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid, StreamSubtitlePids);
 		error_msg = inst->Record();
 		if(error_msg == RECORD_OK) {
@@ -1669,7 +1669,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 
 		/* if allocateFE was successful, full zapTo_serviceID 
 		 * needed, if record frontend same as live, and its on different TP */
-		bool found = (live_fe != frontend) || IS_WEBTV(live_channel_id) || SAME_TRANSPONDER(live_channel_id, channel_id);
+		bool found = (live_fe != frontend) || IS_WEBCHAN(live_channel_id) || SAME_TRANSPONDER(live_channel_id, channel_id);
 
 		/* stop all streams on that fe, if we going to change transponder */
 		if (!frontend->sameTsidOnid(channel->getTransponderId()))

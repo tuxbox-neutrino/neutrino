@@ -201,7 +201,7 @@ int CWebTVResolution::Show()
 				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 	if (oldRes != g_settings.livestreamResolution && _mode_webtv) {
 		CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
-		if (cc && IS_WEBTV(cc->getChannelID())) {
+		if (cc && IS_WEBCHAN(cc->getChannelID())) {
 			CMoviePlayerGui::getInstance().stopPlayBack();
 			CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName());
 		}

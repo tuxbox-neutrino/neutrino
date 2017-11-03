@@ -540,7 +540,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	average_bitrate_offset = spaceoffset;
 	int box_width2 = box_width-(spaceoffset+xpos);
 
-	if((channel->getVideoPid() || IS_WEBTV(channel->getChannelID())) && !(videoDecoder->getBlank())){
+	if((channel->getVideoPid() || IS_WEBCHAN(channel->getChannelID())) && !(videoDecoder->getBlank())){
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
 		 if (yres == 1088)
 		 	yres = 1080;
@@ -748,7 +748,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_MENUCONTENT_TEXT);
 
 		// TODO: split info WebTV/WebRadio
-		snprintf(buf, sizeof(buf), "%s", IS_WEBTV(channel->getChannelID()) ? "Web-Channel" :
+		snprintf(buf, sizeof(buf), "%s", IS_WEBCHAN(channel->getChannelID()) ? "Web-Channel" :
 				CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition()).c_str());
 		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
 

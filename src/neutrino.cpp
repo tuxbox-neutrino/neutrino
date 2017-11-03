@@ -2049,7 +2049,7 @@ void CNeutrinoApp::InitZapper()
 		tuxtxt_init();
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	if(channelList->getSize() && live_channel_id  && !IS_WEBTV(live_channel_id))
+	if(channelList->getSize() && live_channel_id  && !IS_WEBCHAN(live_channel_id))
 		g_Sectionsd->setServiceChanged(live_channel_id, false);
 }
 
@@ -3699,7 +3699,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				mode=mode_webradio;
 			if ((data & norezap) != norezap) {
 				CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
-				if (cc && IS_WEBTV(cc->getChannelID())) {
+				if (cc && IS_WEBCHAN(cc->getChannelID())) {
 					CMoviePlayerGui::getInstance().stopPlayBack();
 					if (!CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName()))
 						g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);

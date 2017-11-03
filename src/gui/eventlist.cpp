@@ -522,7 +522,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 						doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes);
 					}
 				}
-				t_channel_id used_id = IS_WEBTV(channel_id) ? channel_id : evtlist[selected].channelID;
+				t_channel_id used_id = IS_WEBCHAN(channel_id) ? channel_id : evtlist[selected].channelID;
 				if (!recDir.empty() && doRecord) //add/remove recording timer events and check/warn for conflicts
 				{
 					CFollowScreenings m(used_id,
@@ -551,7 +551,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				continue;
 			}
 			
-			g_Timerd->addZaptoTimerEvent(IS_WEBTV(channel_id) ? channel_id : evtlist[selected].channelID,
+			g_Timerd->addZaptoTimerEvent(IS_WEBCHAN(channel_id) ? channel_id : evtlist[selected].channelID,
 					evtlist[selected].startTime - (g_settings.zapto_pre_time * 60),
 					evtlist[selected].startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);

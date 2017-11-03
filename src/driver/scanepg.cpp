@@ -113,7 +113,7 @@ void CEpgScan::AddBouquet(CChannelList * clist)
 {
 	for (unsigned i = 0; i < clist->Size(); i++) {
 		CZapitChannel * chan = clist->getChannelFromIndex(i);
-		if (!IS_WEBTV(chan->getChannelID()) && scanned.find(chan->getTransponderId()) == scanned.end())
+		if (!IS_WEBCHAN(chan->getChannelID()) && scanned.find(chan->getTransponderId()) == scanned.end())
 			scanmap.insert(eit_scanmap_pair_t(chan->getTransponderId(), chan->getChannelID()));
 	}
 }
@@ -207,7 +207,7 @@ void CEpgScan::AddTransponders()
 
 bool CEpgScan::CheckMode()
 {
-	bool webtv = IS_WEBTV(CZapit::getInstance()->GetCurrentChannelID());
+	bool webtv = IS_WEBCHAN(CZapit::getInstance()->GetCurrentChannelID());
 	if ((g_settings.epg_scan_mode == CEpgScan::MODE_OFF)
 			|| (standby && !(g_settings.epg_scan_mode & MODE_STANDBY))
 			|| (!standby && !(g_settings.epg_scan_mode & MODE_LIVE))
@@ -275,7 +275,7 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		INFO("EVT_ZAP_COMPLETE, scan map size: %zd\n", scanmap.size());
 #if 0
 		t_channel_id chid = *(t_channel_id *)data;
-		if (IS_WEBTV(chid))
+		if (IS_WEBCHAN(chid))
 			Next();
 #endif
 		return messages_return::handled;
@@ -368,7 +368,7 @@ void CEpgScan::Next()
 	CFrontend *pip_fe = NULL;
 #endif
 	if (!standby) {
-		bool webtv = IS_WEBTV(CZapit::getInstance()->GetCurrentChannelID());
+		bool webtv = IS_WEBCHAN(CZapit::getInstance()->GetCurrentChannelID());
 		if (!webtv) {
 			llocked = true;
 			live_fe = CZapit::getInstance()->GetLiveFrontend();

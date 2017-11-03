@@ -311,7 +311,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	CFEManager::getInstance()->Lock();
 
 	bool unlock = false;
-	if (!IS_WEBTV(live_channel_id)) {
+	if (!IS_WEBCHAN(live_channel_id)) {
 		unlock = true;
 		CFEManager::getInstance()->lockFrontend(live_fe);
 	}
@@ -334,7 +334,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	CFEManager::getInstance()->Unlock();
 
 	if (frontend) {
-		bool found = (live_fe != frontend) || IS_WEBTV(live_channel_id) || SAME_TRANSPONDER(live_channel_id, chid);
+		bool found = (live_fe != frontend) || IS_WEBCHAN(live_channel_id) || SAME_TRANSPONDER(live_channel_id, chid);
 		bool ret = false;
 		if (found)
 			ret = zapit.zapTo_record(chid) > 0;
@@ -430,7 +430,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		return false;
 
 	printf("CStreamManager::Parse: channel_id %" PRIx64 " [%s]\n", chid, channel->getName().c_str());
-	if (IS_WEBTV(chid))
+	if (IS_WEBCHAN(chid))
 		return true;
 
 	frontend = FindFrontend(channel);
@@ -515,7 +515,7 @@ bool CStreamManager::AddClient(int connfd)
 			it->second->AddClient(connfd);
 		} else {
 			CStreamInstance * stream;
-			if (IS_WEBTV(channel_id)) {
+			if (IS_WEBCHAN(channel_id)) {
 				stream = new CStreamStream(connfd, channel_id, pids);
 			} else {
 				stream = new CStreamInstance(connfd, channel_id, pids);

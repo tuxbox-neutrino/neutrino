@@ -1462,7 +1462,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 			int i;
 			int towait = (timeshift == TSHIFT_MODE_ON) ? TIMESHIFT_SECONDS+1 : TIMESHIFT_SECONDS;
 			int cnt = 500;
-			if (IS_WEBTV(movie_info.channelId)) {
+			if (IS_WEBCHAN(movie_info.channelId)) {
 				videoDecoder->setBlank(false);
 				cnt = 200;
 				towait = 20;

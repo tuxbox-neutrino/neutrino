@@ -184,7 +184,7 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_TUNER:
-			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBTV(g_InfoViewer->get_current_channel_id()))
+			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(g_InfoViewer->get_current_channel_id()))
 				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 			break;
 		default:
@@ -562,7 +562,7 @@ void CInfoViewerBB::showIcon_16_9()
 
 	if ((g_InfoViewer->aspectRatio == 0) || ( g_RemoteControl->current_PIDs.PIDs.vpid == 0 ) || (g_InfoViewer->aspectRatio != videoDecoder->getAspectRatio())) {
 		if (g_InfoViewer->chanready &&
-		   (g_RemoteControl->current_PIDs.PIDs.vpid > 0 || IS_WEBTV(g_InfoViewer->get_current_channel_id())))
+		   (g_RemoteControl->current_PIDs.PIDs.vpid > 0 || IS_WEBCHAN(g_InfoViewer->get_current_channel_id())))
 			g_InfoViewer->aspectRatio = videoDecoder->getAspectRatio();
 		else
 			g_InfoViewer->aspectRatio = 0;

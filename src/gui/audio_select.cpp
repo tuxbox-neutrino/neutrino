@@ -61,7 +61,7 @@ CAudioSelectMenuHandler::CAudioSelectMenuHandler()
 	AudioSelector = NULL;
 	width = 40;
 	mp = &CMoviePlayerGui::getInstance();
-	if (IS_WEBTV(g_Zapit->getCurrentServiceID()))
+	if (IS_WEBCHAN(g_Zapit->getCurrentServiceID()))
 		mp = &CMoviePlayerGui::getInstance(true);
 }
 

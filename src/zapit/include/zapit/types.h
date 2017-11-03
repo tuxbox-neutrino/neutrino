@@ -80,7 +80,7 @@ static inline t_channel_id create_channel_id64(t_service_id service_id, t_origin
 }
 #define CREATE_CHANNEL_ID64 create_channel_id64(service_id, original_network_id, transport_stream_id, satellitePosition, freq)
 
-static inline bool IS_WEBTV(t_channel_id cid)
+static inline bool IS_WEBCHAN(t_channel_id cid)
 {
 	return (cid & 0xFFFFFFFF00000000) == 0xFFFFFFFF00000000;
 }
