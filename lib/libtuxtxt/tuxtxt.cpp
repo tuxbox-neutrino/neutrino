@@ -29,7 +29,7 @@
 #define KEY_TTZOOM	KEY_FN_2
 #define KEY_REVEAL	KEY_FN_D
 
-#ifdef HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #define MARK_FB(a, b, c, d) if (p == lfb) CFrameBuffer::getInstance()->mark(a, b, (a) + (c), (b) + (d))
 #else
 #define MARK_FB(a, b, c, d)
@@ -5595,7 +5595,7 @@ void CopyBB2FB()
 {
 	fb_pixel_t *src, *dst, *topsrc;
 	int fillcolor, i, screenwidth, swtmp;
-#if defined(HAVE_SPARK_HARDWARE) || defined(HAVE_COOL_HARDWARE) || defined(HAVE_DUCKBOX_HARDWARE)
+#if HAVE_SPARK_HARDWARE || HAVE_COOL_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	CFrameBuffer *f = CFrameBuffer::getInstance();
 #endif
 
@@ -5606,9 +5606,9 @@ void CopyBB2FB()
 	/* copy backbuffer to framebuffer */
 	if (!zoommode)
 	{
-#ifdef HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
-#elif defined(HAVE_COOL_HARDWARE)
+#elif HAVE_COOL_HARDWARE
 		f->fbCopyArea(var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, var_screeninfo.yres);
 #else
 		if ((uint32_t)stride > var_screeninfo.xres) {
@@ -5660,7 +5660,7 @@ void CopyBB2FB()
 	if (screenmode == 1)
 	{
 		screenwidth = ( TV43STARTX );
-#if defined(HAVE_SPARK_HARDWARE) || defined(HAVE_DUCKBOX_HARDWARE)
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		int cx = var_screeninfo.xres - TV43STARTX;	/* x start */
 		int cw = TV43STARTX;				/* width */
 		int cy = StartY;
@@ -5705,7 +5705,7 @@ void CopyBB2FB()
 		for (swtmp=0; swtmp<= screenwidth;swtmp++)
 			*(dst + stride * (fontheight + i) + swtmp) =  bgra[fillcolor];
 	}
-#ifdef HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
 	f->blit();
 #endif
