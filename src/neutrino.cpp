@@ -1794,10 +1794,12 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 void CNeutrinoApp::SetChannelMode(int newmode)
 {
-	printf("CNeutrinoApp::SetChannelMode %d [%s]\n", newmode, mode == mode_radio ? "radio" : "tv");
+	bool isRadioMode = (mode == mode_radio || mode == mode_webradio);
+
+	printf("CNeutrinoApp::SetChannelMode %d [%s]\n", newmode, isRadioMode ? "radio" : "tv");
 	int *sortmode;
 
-	if(mode == mode_radio) {
+	if (isRadioMode) {
 		channelList = RADIOchannelList;
 		g_settings.channel_mode_radio = newmode;
 		sortmode = radiosort;
@@ -1809,25 +1811,25 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 
 	switch(newmode) {
 		case LIST_MODE_FAV:
-			if(mode == mode_radio)
+			if (isRadioMode)
 				bouquetList = RADIOfavList;
 			else
 				bouquetList = TVfavList;
 			break;
 		case LIST_MODE_SAT:
-			if(mode == mode_radio)
+			if (isRadioMode)
 				bouquetList = RADIOsatList;
 			else
 				bouquetList = TVsatList;
 			break;
 		case LIST_MODE_WEBTV:
-			if(mode == mode_radio)
+			if (isRadioMode)
 				bouquetList = RADIOwebList;
 			else
 				bouquetList = TVwebList;
 			break;
 		case LIST_MODE_ALL:
-			if(mode == mode_radio)
+			if (isRadioMode)
 				bouquetList = RADIOallList;
 			else
 				bouquetList = TVallList;
@@ -1836,7 +1838,7 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 			newmode = LIST_MODE_PROV;
 			/* fall through */
 		case LIST_MODE_PROV:
-			if(mode == mode_radio)
+			if (isRadioMode)
 				bouquetList = RADIObouquetList;
 			else
 				bouquetList = TVbouquetList;
