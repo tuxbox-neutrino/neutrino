@@ -300,7 +300,8 @@ void CMoviePlayerGui::cutNeutrino()
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
 	if (isWebChannel)
 	{
-		new_mode = (m_LastMode == NeutrinoMessages::mode_radio) ? NeutrinoMessages::mode_webradio : NeutrinoMessages::mode_webtv;
+		bool isRadioMode = (m_LastMode == NeutrinoMessages::mode_radio || m_LastMode == NeutrinoMessages::mode_webradio);
+		new_mode = (isRadioMode) ? NeutrinoMessages::mode_webradio : NeutrinoMessages::mode_webtv;
 		m_LastMode |= NeutrinoMessages::norezap;
 	}
 	else
