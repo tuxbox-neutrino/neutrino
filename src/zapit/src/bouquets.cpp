@@ -273,7 +273,7 @@ void CBouquetManager::saveBouquets(void)
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
 			DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]->bUser);
-			if(!Bouquets[i]->bUser && !Bouquets[i]->bWebtv) {
+			if(!Bouquets[i]->bUser && (!Bouquets[i]->bWebtv || !Bouquets[i]->bWebradio)) {
 				writeBouquet(bouq_fd, i,false);
 			}
 		}
@@ -508,6 +508,7 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 	}
 
 	loadWebtv();
+	loadWebradio();
 	parseBouquetsXml(UBOUQUETS_XML, true);
 	renumServices();
 	CServiceManager::getInstance()->SetCIFilter();
@@ -810,13 +811,23 @@ CZapitBouquet* CBouquetManager::addBouquetIfNotExist(const std::string &name)
 
 void CBouquetManager::loadWebtv()
 {
-	std::list<std::string> *webtv_xml = CZapit::getInstance()->GetWebTVXML();
-	if (!webtv_xml)
+	loadWebchannels(MODE_WEBTV);
+}
+
+void CBouquetManager::loadWebradio()
+{
+	loadWebchannels(MODE_WEBRADIO);
+}
+
+void CBouquetManager::loadWebchannels(int mode)
+{
+	std::list<std::string> *webchannels_xml = (mode == MODE_WEBTV) ? CZapit::getInstance()->GetWebTVXML() : CZapit::getInstance()->GetWebRadioXML();
+	if (!webchannels_xml)
 		return;
 
-	for (std::list<std::string>::iterator it = webtv_xml->begin(); it != webtv_xml->end(); ++it) {
+	for (std::list<std::string>::iterator it = webchannels_xml->begin(); it != webchannels_xml->end(); ++it) {
 		if (!access((*it).c_str(), R_OK)) {
-			INFO("Loading webtv from %s ...", (*it).c_str());
+			INFO("Loading %s from %s ...", (mode == MODE_WEBTV) ? "webtv" : "webradio", (*it).c_str());
 			xmlDocPtr parser = parseXmlFile((*it).c_str());
 			if (parser == NULL)
 				continue;
@@ -827,11 +838,14 @@ void CBouquetManager::loadWebtv()
 				CZapitBouquet* pbouquet = NULL;
 				const char *prov = xmlGetAttribute(l0, "name");
 				if (!prov)
-					prov = "WebTV";
+					prov = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
 				pbouquet = addBouquetIfNotExist(prov);
-				pbouquet->bWebtv = true;
+				if (mode == MODE_WEBTV)
+					pbouquet->bWebtv = true;
+				else
+					pbouquet->bWebradio = true;
 
-				while ((xmlGetNextOccurence(l1, "webtv"))) {
+				while ((xmlGetNextOccurence(l1, (mode == MODE_WEBTV) ? "webtv" : "webradio"))) {
 					const char *title = xmlGetAttribute(l1, "title");
 					const char *url = xmlGetAttribute(l1, "url");
 					const char *desc = xmlGetAttribute(l1, "description");
@@ -846,11 +860,14 @@ void CBouquetManager::loadWebtv()
 					if (genre) {
 						std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
 						gbouquet = addBouquetIfNotExist(bname);
-						gbouquet->bWebtv = true;
+						if (mode == MODE_WEBTV)
+							gbouquet->bWebtv = true;
+						else
+							gbouquet->bWebradio = true;
 					}
 					if (title && url) {
 						t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
-						CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script);
+						CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 						CServiceManager::getInstance()->AddChannel(channel);
 						channel->flags = CZapitChannel::UPDATED;
 						if (gbouquet)

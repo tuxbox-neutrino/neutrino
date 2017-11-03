@@ -178,7 +178,7 @@ std::string CBEChannelSelectWidget::getInfoText(int index)
 
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName(Channels[index]->getSatellitePosition());
 	if (IS_WEBTV(Channels[index]->getChannelID()))
-		satname = "WebTV";
+		satname = "Web-Channel"; // TODO split into WebTV/WebRadio
 	transponder t;
 	CServiceManager::getInstance()->GetTransponder(Channels[index]->getTransponderId(), t);
 	std::string desc = t.description();

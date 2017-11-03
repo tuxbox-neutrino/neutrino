@@ -380,6 +380,7 @@ static void set_lua_variables(lua_State *L)
 		{ "TS",			(lua_Integer)CNeutrinoApp::mode_ts },
 		{ "OFF",		(lua_Integer)CNeutrinoApp::mode_off },
 		{ "WEBTV",		(lua_Integer)CNeutrinoApp::mode_webtv },
+		{ "WEBRADIO",		(lua_Integer)CNeutrinoApp::mode_webradio },
 		{ "MASK",		(lua_Integer)CNeutrinoApp::mode_mask },
 		{ "NOREZAP",		(lua_Integer)CNeutrinoApp::norezap },
 		{ NULL, 0 }

@@ -227,6 +227,7 @@ bouquetname.new Neue Kanäle
 bouquetname.other Unbekannter Provider
 bouquetname.removed Gelöschte Kanäle
 bouquetname.uhdtv UHD-Kanäle
+bouquetname.webradio WebRadio-Kanäle
 bouquetname.webtv WebTV-Kanäle
 buildinfo.compiled_on Build Host
 buildinfo.compiled_with Compiler Version

@@ -794,7 +794,8 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		//fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
 		if (g_settings.infobar_sat_display) {
-			std::string name = (IS_WEBTV(current_channel_id))? "WebTV" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
+			// TODO split into WebTV/WebRadio
+			std::string name = (IS_WEBTV(current_channel_id))? "Web-Channel" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 			int satNameWidth = g_SignalFont->getRenderWidth (name);
 			std::string satname_tmp = name;
 			if (satNameWidth > (ChanWidth - numbox_offset*2)) {

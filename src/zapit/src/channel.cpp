@@ -58,8 +58,8 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_
 	Init();
 }
 
-// For WebTV ...
-CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid, const char* script_name)
+// For WebTV/WebRadio ...
+CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid, const char* script_name, int mode)
 {
 	if (!p_name || !p_url)
 		return;
@@ -71,7 +71,10 @@ CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, cons
 	service_id = 0;
 	transport_stream_id = 0;
 	original_network_id = 0;
-	serviceType = ST_DIGITAL_TELEVISION_SERVICE;
+	if (mode == MODE_WEBTV)
+		serviceType = ST_DIGITAL_TELEVISION_SERVICE;
+	else
+		serviceType = ST_DIGITAL_RADIO_SOUND_SERVICE;
 	satellitePosition = 0;
 	freq = 0;
 	epg_id = epgid;

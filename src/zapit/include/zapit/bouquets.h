@@ -43,6 +43,7 @@ class CZapitBouquet
 	bool        bOther;
 	int         bScanEpg;
 	bool        bWebtv; // dont save
+	bool        bWebradio; // dont save
 	int         bUseCI;
 	t_satellite_position satellitePosition;
 
@@ -59,6 +60,7 @@ class CZapitBouquet
 		bOther = DEFAULT_BQ_OTHER;
 		bScanEpg = DEFAULT_BQ_SCANEPG;
 		bWebtv = false;
+		bWebradio = false;
 		bUseCI = false;
 	}
 
@@ -148,6 +150,8 @@ class CBouquetManager
 		void setBouquetLock(const unsigned int id, bool state);
 		void setBouquetLock(CZapitBouquet* bouquet, bool state);
 		void loadWebtv();
+		void loadWebradio();
+		void loadWebchannels(int mode);
 		//bouquet writeChannelsNames selection options
 		enum{
 			BWN_NEVER,

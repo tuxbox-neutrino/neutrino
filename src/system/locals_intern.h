@@ -254,6 +254,7 @@ const char * locale_real_names[] =
 	"bouquetname.other",
 	"bouquetname.removed",
 	"bouquetname.uhdtv",
+	"bouquetname.webradio",
 	"bouquetname.webtv",
 	"buildinfo.compiled_on",
 	"buildinfo.compiled_with",

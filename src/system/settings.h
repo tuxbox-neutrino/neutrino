@@ -255,6 +255,7 @@ struct SNeutrinoSettings
 	int standby_cpufreq;
 	int make_hd_list;
 	int make_webtv_list;
+	int make_webradio_list;
 	int make_new_list;
 	int make_removed_list;
 	int keep_channel_numbers;
@@ -315,6 +316,7 @@ struct SNeutrinoSettings
 	std::string ifname;
 
 	std::list<std::string> webtv_xml;
+	std::list<std::string> webradio_xml;
 
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h

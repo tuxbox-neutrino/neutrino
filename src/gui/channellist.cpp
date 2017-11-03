@@ -325,7 +325,7 @@ int CChannelList::doChannelMenu(void)
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	bool empty = (*chanlist).empty();
-	bool allow_edit = (bouquet && bouquet->zapitBouquet && !bouquet->zapitBouquet->bOther && !bouquet->zapitBouquet->bWebtv);
+	bool allow_edit = (bouquet && bouquet->zapitBouquet && !bouquet->zapitBouquet->bOther && (!bouquet->zapitBouquet->bWebtv && !bouquet->zapitBouquet->bWebradio));
 	bool got_history = (CNeutrinoApp::getInstance()->channelList->getLastChannels().size() > 1);
 
 	int i = 0;
