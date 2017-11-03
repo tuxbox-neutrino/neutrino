@@ -397,7 +397,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		moviebrowser->setMode(MB_SHOW_RECORDS);
 		wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 	}
-#if 0
+#if HAVE_COOL_HARDWARE
 	else if (actionKey == "ytplayback") {
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_YT);
@@ -727,7 +727,7 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 				printf("CMoviePlayerGui::prepareFile: file %s start %d\n", file_name.c_str(), startposition);
 			}
 		}
-#if 0
+#if HAVE_COOL_HARDWARE
 		if (isYT) {
 			file_name = file->Url;
 			is_file_player = true;
