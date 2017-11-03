@@ -277,7 +277,7 @@ void CMoviePlayerGui::cutNeutrino()
 
 	playing = true;
 	/* set g_InfoViewer update timer to 1 sec, should be reset to default from restoreNeutrino->set neutrino mode  */
-	if (!isWebTV)
+	if (!isWebChannel)
 		g_InfoViewer->setUpdateTimer(1000 * 1000);
 
 	if (isUPNP)
@@ -298,7 +298,7 @@ void CMoviePlayerGui::cutNeutrino()
 
 	int new_mode = NeutrinoMessages::mode_unknown;
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
-	if (isWebTV)
+	if (isWebChannel)
 	{
 		new_mode = (m_LastMode == NeutrinoMessages::mode_radio) ? NeutrinoMessages::mode_webradio : NeutrinoMessages::mode_webtv;
 		m_LastMode |= NeutrinoMessages::norezap;
@@ -663,7 +663,7 @@ void CMoviePlayerGui::ClearFlags()
 	isHTTP = false;
 	isLuaPlay = false;
 	isUPNP = false;
-	isWebTV = false;
+	isWebChannel = false;
 	isYT = false;
 	is_file_player = false;
 	timeshift = TSHIFT_MODE_OFF;
@@ -866,11 +866,11 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 			caller->playback->RequestAbort();
 		}
 #if 0
-		else if (caller->isWebTV) {
+		else if (caller->isWebChannel) {
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 #endif
-		else if (caller->isWebTV && ((msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down))) {
+		else if (caller->isWebChannel && ((msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down))) {
 			caller->playback->RequestAbort();
 			g_RCInput->postMsg(msg, data);
 		}
@@ -1261,7 +1261,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->ClearFlags();
 	instance_bg->ClearQueue();
 
-	instance_bg->isWebTV = true;
+	instance_bg->isWebChannel = true;
 	instance_bg->is_file_player = true;
 	instance_bg->isHTTP = true;
 	instance_bg->file_name = realUrl;
@@ -1363,7 +1363,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	handleMovieBrowser(CRCInput::RC_nokey, position);
 
 	cutNeutrino();
-	if (isWebTV)
+	if (isWebChannel)
 		videoDecoder->setBlank(true);
 
 #if 0
@@ -1808,7 +1808,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			fromInfoviewer = false;
 			playstate = CMoviePlayerGui::STOPPED;
 			filelist_it = vzap_it;
-		} else if (timeshift == TSHIFT_MODE_OFF && !isWebTV /* && !isYT */ && (msg == (neutrino_msg_t) g_settings.mpkey_next_repeat_mode)) {
+		} else if (timeshift == TSHIFT_MODE_OFF && !isWebChannel /* && !isYT */ && (msg == (neutrino_msg_t) g_settings.mpkey_next_repeat_mode)) {
 			repeat_mode = (repeat_mode_enum)((int)repeat_mode + 1);
 			if (repeat_mode > (int) REPEAT_ALL)
 				repeat_mode = REPEAT_OFF;
@@ -3394,7 +3394,7 @@ void CMoviePlayerGui::selectAutoLang()
 		}
 	}
 #if 0
-	if (isWebTV && g_settings.auto_subs && numsubs > 0) {
+	if (isWebChannel && g_settings.auto_subs && numsubs > 0) {
 		for(int i = 0; i < 3; i++) {
 			if(g_settings.pref_subs[i].empty() || g_settings.pref_subs[i] == "none")
 				continue;

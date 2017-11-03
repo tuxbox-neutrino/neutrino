@@ -178,7 +178,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isMovieBrowser;
 	bool isHTTP;
 	bool isUPNP;
-	bool isWebTV;
+	bool isWebChannel;
 	bool isYT;
 	bool showStartingHint;
 	static CMovieBrowser* moviebrowser;
