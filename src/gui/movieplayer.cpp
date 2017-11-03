@@ -1735,7 +1735,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			g_Plugins->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
 #if 0
 		} else if ((msg == (neutrino_msg_t) g_settings.mpkey_stop) || msg == CRCInput::RC_home) {
-#endif		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
+#endif
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
 			ClearQueue();
@@ -1973,12 +1974,13 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			SetPosition(duration/2, true);
 		} else if (msg == CRCInput::RC_8) {	// goto end
 			SetPosition(duration - 60 * 1000, true);
-#if 0
+#if HAVE_COOL_HARDWARE
 		} else if (msg == CRCInput::RC_page_up) {
 			SetPosition(10 * 1000);
 		} else if (msg == CRCInput::RC_page_down) {
 			SetPosition(-10 * 1000);
-
+#endif
+#if 0
 		//- bisectional jumps
 		} else if (msg == CRCInput::RC_page_up || msg == CRCInput::RC_page_down) {
 			int direction = (msg == CRCInput::RC_page_up) ? 1 : -1;
