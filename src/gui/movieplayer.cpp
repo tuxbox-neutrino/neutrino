@@ -296,12 +296,19 @@ void CMoviePlayerGui::cutNeutrino()
 	g_Zapit->setStandby(true);
 #endif
 
-	m_LastMode = (CNeutrinoApp::getInstance()->getMode() /*| NeutrinoMessages::norezap*/);
+	int new_mode = NeutrinoMessages::mode_unknown;
+	m_LastMode = CNeutrinoApp::getInstance()->getMode();
 	if (isWebTV)
+	{
+		new_mode = (m_LastMode == NeutrinoMessages::mode_radio) ? NeutrinoMessages::mode_webradio : NeutrinoMessages::mode_webtv;
 		m_LastMode |= NeutrinoMessages::norezap;
+	}
+	else
+	{
+		new_mode = NeutrinoMessages::mode_ts;
+	}
 	printf("%s: save mode %x\n", __func__, m_LastMode);fflush(stdout);
-	int new_mode = NeutrinoMessages::norezap | (isWebTV ? NeutrinoMessages::mode_webtv : NeutrinoMessages::mode_ts);
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, new_mode);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::norezap | new_mode);
 }
 
 void CMoviePlayerGui::restoreNeutrino()
