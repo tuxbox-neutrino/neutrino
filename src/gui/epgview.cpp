@@ -952,7 +952,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				}
 				break;
 			case NeutrinoMessages::EVT_CURRENTNEXT_EPG:
-				if (/*!id && */ ((*(t_channel_id *) data) == (channel_id & 0xFFFFFFFFFFFFULL))) {
+				if (/*!id && */ (*(t_channel_id *) data) == (channel_id & 0xFFFFFFFFFFFFULL)) {
 					show(channel_id,0,NULL,false);
 					showPos=0;
 				}

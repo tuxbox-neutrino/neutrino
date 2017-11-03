@@ -207,7 +207,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	//handle frame color for slected/not selected item
 	if (fr_thickness) {
 		for(size_t j =0; j< v_fbdata.size() ;j++) {
-			if ((v_fbdata[j].fbdata_type == CC_FBDATA_TYPE_FRAME)){
+			if (v_fbdata[j].fbdata_type == CC_FBDATA_TYPE_FRAME){
 				v_fbdata[j].color = col_frame_cur;
 				v_fbdata[j].frame_thickness = th;
 			}
