@@ -207,11 +207,11 @@ void CEpgScan::AddTransponders()
 
 bool CEpgScan::CheckMode()
 {
-	bool webtv = IS_WEBCHAN(CZapit::getInstance()->GetCurrentChannelID());
+	bool webchan = IS_WEBCHAN(CZapit::getInstance()->GetCurrentChannelID());
 	if ((g_settings.epg_scan_mode == CEpgScan::MODE_OFF)
 			|| (standby && !(g_settings.epg_scan_mode & MODE_STANDBY))
 			|| (!standby && !(g_settings.epg_scan_mode & MODE_LIVE))
-			|| (!standby && !webtv && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
+			|| (!standby && !webchan && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
 		return false;
 	}
 	return true;
@@ -368,8 +368,8 @@ void CEpgScan::Next()
 	CFrontend *pip_fe = NULL;
 #endif
 	if (!standby) {
-		bool webtv = IS_WEBCHAN(CZapit::getInstance()->GetCurrentChannelID());
-		if (!webtv) {
+		bool webchan = IS_WEBCHAN(CZapit::getInstance()->GetCurrentChannelID());
+		if (!webchan) {
 			llocked = true;
 			live_fe = CZapit::getInstance()->GetLiveFrontend();
 			CFEManager::getInstance()->lockFrontend(live_fe);
