@@ -2376,7 +2376,6 @@ bool CZapProtection::check()
 	hint = NONEXISTANT_LOCALE;
 	int res;
 	std::string cPIN;
-	char systemstr[128];
 	do
 	{
 		cPIN = "";
@@ -2386,9 +2385,6 @@ bool CZapProtection::check()
 		res = PINInput->exec(getParent(), "");
 		delete PINInput;
 		cPIN[4] = 0;
-		strcpy(systemstr, CONFIGDIR "/pinentered.sh ");
-		strcat(systemstr, cPIN.c_str());
-		system(systemstr);
 
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
 	} while ( (cPIN != *validPIN) && !cPIN.empty() &&
