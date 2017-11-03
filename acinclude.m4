@@ -323,8 +323,8 @@ AC_ARG_WITH(boxtype,
 
 AC_ARG_WITH(boxmodel,
 	[  --with-boxmodel         valid for coolstream: hd1, hd2
-			valid for armbox: hd51
-			valid for generic: raspi],
+                          valid for armbox: hd51
+                          valid for generic: raspi],
 	[case "${withval}" in
 		hd1|hd2)
 			if test "$BOXTYPE" = "coolstream"; then
