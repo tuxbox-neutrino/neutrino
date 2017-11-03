@@ -535,7 +535,8 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		lock_channel_id = live_channel_id;
 
 		current_channel = newchannel;
-		lastChannelTV = channel_id;
+		if (newchannel->getServiceType() == ST_DIGITAL_TELEVISION_SERVICE)
+			lastChannelTV = channel_id;
 		SendEvent(CZapitClient::EVT_WEBTV_ZAP_COMPLETE, &live_channel_id, sizeof(t_channel_id));
 		return true;
 	}
