@@ -1,12 +1,16 @@
 /* tuxtxt_common.h
  * for license info see the other tuxtxt files
  */
+#include <sys/ioctl.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <semaphore.h>
+#include <time.h>
 #if TUXTXT_COMPRESS == 1
 #include <zlib.h>
 #endif
@@ -567,9 +571,101 @@ void tuxtxt_allocate_cache(int magazine)
 	pthread_mutex_unlock(&tuxtxt_cache_lock);
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+/******************************************************************************
+ * Handling of packets injected by libeplayer3                                *
+ ******************************************************************************/
+
+struct injected_page
+{
+	uint8_t *data;
+	int size;
+	injected_page() : data(NULL){};
+};
+
+#define INJECT_QUEUE_LIMIT 64
+static struct injected_page inject_queue[INJECT_QUEUE_LIMIT];
+static int inject_queue_index_read = 0;
+static int inject_queue_index_write = 0;
+static pthread_mutex_t inject_mutex = PTHREAD_MUTEX_INITIALIZER;
+static sem_t inject_sem;
+static int last_injected_pid = -1;
+
+static void clear_inject_queue(void)
+{
+	pthread_mutex_lock(&inject_mutex);
+	while (!sem_trywait(&inject_sem)) {
+		if (inject_queue[inject_queue_index_read].data) {
+			free(inject_queue[inject_queue_index_read].data);
+			inject_queue[inject_queue_index_read].data = NULL;
+		}
+		inject_queue_index_read++;
+		inject_queue_index_read %= INJECT_QUEUE_LIMIT;
+	}
+	pthread_mutex_unlock(&inject_mutex);
+}
+
+void teletext_write(int pid, uint8_t *data, int size)
+{
+	if (last_injected_pid != pid) {
+		clear_inject_queue();
+		last_injected_pid = pid;
+	}
+	bool do_sem_post = true;
+	pthread_mutex_lock(&inject_mutex);
+	if (inject_queue[inject_queue_index_write].data && inject_queue[inject_queue_index_write].size != size) {
+		free(inject_queue[inject_queue_index_write].data);
+		do_sem_post = false;
+	}
+	if (!inject_queue[inject_queue_index_write].data) {
+		inject_queue[inject_queue_index_write].data = (uint8_t *) malloc(size);
+		inject_queue[inject_queue_index_write].size = size;
+	}
+	if (inject_queue[inject_queue_index_write].data) {
+		memcpy(inject_queue[inject_queue_index_write].data, data, size);
+		inject_queue_index_write++;
+		inject_queue_index_write %= INJECT_QUEUE_LIMIT;
+		if (do_sem_post)
+			sem_post(&inject_sem);
+	}
+	pthread_mutex_unlock(&inject_mutex);
+}
+
+static bool read_injected_packet(unsigned char * &packet, int &size, int timeout_in_ms)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	ts.tv_nsec += timeout_in_ms * 1000000;
+	if (ts.tv_nsec > 999999999) {
+		ts.tv_sec++;
+		ts.tv_nsec -= 1000000000;
+	}
+	bool res = !sem_timedwait(&inject_sem, &ts);
+	if (res) {
+		pthread_mutex_lock(&inject_mutex);
+		packet = inject_queue[inject_queue_index_read].data;
+		if (packet) {
+			size = inject_queue[inject_queue_index_read].size;
+			inject_queue[inject_queue_index_read].data = NULL;
+			inject_queue_index_read++;
+			inject_queue_index_read %= INJECT_QUEUE_LIMIT;
+		}
+		else
+			res = false;
+		pthread_mutex_unlock(&inject_mutex);
+	} else
+		packet = NULL;
+
+	return res;
+}
+#endif
+
 /******************************************************************************
  * CacheThread                                                                *
  ******************************************************************************/
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+extern bool isTtxEplayer;
+#endif
 static int stop_cache = 0;
 void *tuxtxt_CacheThread(void * /*arg*/)
 {
@@ -582,7 +678,11 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		0x20,0xa0,0x60,0xe0,
 		0x10,0x90,0x50,0xd0,
 		0x30,0xb0,0x70,0xf0 };
-	unsigned char pes_packet[184*20];
+	unsigned char pes_packet_dmx[184*20];
+	unsigned char *pes_packet_ptr = NULL;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	unsigned char *pes_packet_eplayer3 = NULL;
+#endif
 	unsigned char vtxt_row[42];
 	int line, byte/*, bit*/;
 	int b1, b2, b3, b4;
@@ -592,6 +692,9 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 	unsigned char pagedata[9][23*40];
 	tstPageinfo *pageinfo_thread;
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	sem_init(&inject_sem, 0, 0);
+#endif
 	set_threadname("tuxtxt:cache");
 	printf("TuxTxt running thread...(%04x)\n",tuxtxt_cache.vtxtpid);
 	tuxtxt_cache.receiving = 1;
@@ -607,15 +710,30 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		/* read packet */
 		ssize_t readcnt = 0;
 
-		readcnt = dmx->Read(pes_packet, sizeof (pes_packet), 1000);
-		//if (readcnt != sizeof(pes_packet))
-		if ((readcnt <= 0) || (readcnt % 184))
-		{
-#if TUXTXT_DEBUG
-			if(readcnt > 0)
-				printf ("TuxTxt: readerror: %d\n", readcnt);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		if (isTtxEplayer) {
+			pes_packet_ptr = NULL;
+			if (pes_packet_eplayer3) {
+				free(pes_packet_eplayer3);
+				pes_packet_eplayer3 = NULL;
+			}
+			if (!read_injected_packet(pes_packet_eplayer3, readcnt, 1000))
+				continue;
+			pes_packet_ptr = pes_packet_eplayer3;
+		}
+		else
 #endif
-			continue;
+		{
+			readcnt = dmx->Read(pes_packet_dmx, sizeof(pes_packet_dmx), 1000);
+			pes_packet_ptr = pes_packet_dmx;
+			if ((readcnt <= 0) || (readcnt % 184))
+			{
+#if TUXTXT_DEBUG
+				if(readcnt > 0)
+					printf ("TuxTxt: readerror: %d\n", readcnt);
+#endif
+				continue;
+			}
 		}
 
 		/* this "big hammer lock" is a hack: it avoids a crash if
@@ -628,7 +746,8 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		/* analyze it */
 		for (line = 0; line < readcnt/0x2e /*4*/; line++)
 		{
-			unsigned char *vtx_rowbyte = &pes_packet[line*0x2e];
+			unsigned char *vtx_rowbyte = pes_packet_ptr;
+			pes_packet_ptr += 0x2e;
 			if ((vtx_rowbyte[1] == 0x2C) && (vtx_rowbyte[0] == 0x02 || vtx_rowbyte[0] == 0x03))
 			{
 				/* clear rowbuffer */
@@ -1069,6 +1188,10 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		}
 		pthread_mutex_unlock(&tuxtxt_cache_biglock);
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (pes_packet_eplayer3)
+		free(pes_packet_eplayer3);
+#endif
 
 	pthread_exit(NULL);
 }
@@ -1082,10 +1205,16 @@ int tuxtxt_start_thread(int source)
 		return 0;
 
 	tuxtxt_cache.thread_starting = 1;
-	tuxtxt_init_demuxer(source);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (!isTtxEplayer) {
+#endif
+		tuxtxt_init_demuxer(source);
 
-	dmx->pesFilter(tuxtxt_cache.vtxtpid);
-	dmx->Start();
+		dmx->pesFilter(tuxtxt_cache.vtxtpid);
+		dmx->Start();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	}
+#endif
 	stop_cache = 0;
 
 	/* create decode-thread */
@@ -1131,6 +1260,9 @@ int tuxtxt_stop_thread()
 		delete dmx;
 		dmx = NULL;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	clear_inject_queue();
+#endif
 #if 1//TUXTXT_DEBUG
 	printf("TuxTxt stopped service %x\n", tuxtxt_cache.vtxtpid);
 #endif

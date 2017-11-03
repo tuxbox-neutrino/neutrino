@@ -29,7 +29,7 @@
 #define KEY_TTZOOM	KEY_FN_2
 #define KEY_REVEAL	KEY_FN_D
 
-#ifdef HAVE_SPARK_HARDWARE
+#ifdef HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #define MARK_FB(a, b, c, d) if (p == lfb) CFrameBuffer::getInstance()->mark(a, b, (a) + (c), (b) + (d))
 #else
 #define MARK_FB(a, b, c, d)
@@ -44,6 +44,9 @@ static int ttx_req_pause;
 static int sub_pid, sub_page;
 static bool use_gui;
 static int cfg_national_subset;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+bool isTtxEplayer = false;
+#endif
 
 static int screen_x, screen_y, screen_w, screen_h;
 
@@ -1550,7 +1553,11 @@ void tuxtx_pause_subtitle(bool pause)
 		//printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
 		ttx_paused = 0;
 		if(!reader_running && sub_pid && sub_page)
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+			tuxtx_main(sub_pid, sub_page, 0, isTtxEplayer);
+#else
 			tuxtx_main(sub_pid, sub_page);
+#endif
 	}
 	else {
 		if(!reader_running)
@@ -1608,10 +1615,21 @@ int tuxtx_subtitle_running(int *pid, int *page, int *running)
 	return ret;
 }
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+int tuxtx_main(int pid, int page, int source, bool isEplayer)
+#else
 int tuxtx_main(int pid, int page, int source)
+#endif
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (isTtxEplayer != isEplayer) {
+		tuxtxt_stop();
+		tuxtxt_clear_cache();
+		isTtxEplayer = isEplayer;
+	}
+#endif
 	use_gui = 1;
 	boxed = 0;
 //printf("to init tuxtxt\n");fflush(stdout);
@@ -1635,6 +1653,9 @@ int tuxtx_main(int pid, int page, int source)
 	CFrameBuffer *fbp = CFrameBuffer::getInstance();
 	lfb = fbp->getFrameBufferPointer();
 	lbb = fbp->getBackBufferPointer();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	fb_pixel_t old_border_color = fbp->getBorderColor();
+#endif
 
 	tuxtxt_cache.vtxtpid = pid;
 
@@ -1827,6 +1848,9 @@ int tuxtx_main(int pid, int page, int source)
 
 		/* update page or timestring and lcd */
 		RenderPage();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		fbp->blit();
+#endif
 	} while ((RCCode != RC_HOME) && (RCCode != RC_STANDBY));
 	/* if transparent mode was selected, remember the original mode */
 	screenmode = prevscreenmode;
@@ -1837,6 +1861,9 @@ int tuxtx_main(int pid, int page, int source)
 #if 1
 	if ( initialized )
 		tuxtxt_close();
+#endif
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	fbp->setBorderColor(old_border_color);
 #endif
 
  	printf("Tuxtxt: plugin ended\n");
@@ -2292,6 +2319,10 @@ void CleanUp()
  ******************************************************************************/
 int GetTeletextPIDs()
 {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (isTtxEplayer)
+		return 0;
+#endif
 	int pat_scan, pmt_scan, sdt_scan, desc_scan, pid_test, byte, diff, first_sdt_sec;
 
 	unsigned char bufPAT[1024];
@@ -2301,22 +2332,21 @@ int GetTeletextPIDs()
 	/* show infobar */
 	RenderMessage(ShowInfoBar);
 
-        unsigned char filter[DMX_FILTER_SIZE];
-        unsigned char mask[DMX_FILTER_SIZE];
+	unsigned char filter[DMX_FILTER_SIZE] = { 0 };
+	unsigned char mask[DMX_FILTER_SIZE] = { 0 };
 	int res;
 
-        cDemux * dmx = new cDemux(1);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	cDemux * dmx = new cDemux(0); // live demux
+#else
+	cDemux * dmx = new cDemux(1);
+#endif
 	dmx->Open(DMX_PSI_CHANNEL);
 
-        memset(filter, 0x00, DMX_FILTER_SIZE);
-        memset(mask, 0x00, DMX_FILTER_SIZE);
+	mask[0] = 0xFF;
+	mask[4] = 0xFF;
 
-        //filter[0] = 0x00;
-        //mask[0] = 0xFF;
-        mask[0] = 0xFF;
-        mask[4] = 0xFF;
-
-        dmx->sectionFilter(0, filter, mask, 1);
+	dmx->sectionFilter(0, filter, mask, 1);
 	res = dmx->Read(bufPAT, sizeof(bufPAT));
 	dmx->Stop();
 	if(res <= 0) {
@@ -2785,6 +2815,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 	national_subset = national_subset_bak;
 	Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 	Menu_UpdateHotlist(menu, hotindex, menuitem);
+	CFrameBuffer::getInstance()->blit();
 }
 
 void ConfigMenu(int Init)
@@ -3370,6 +3401,9 @@ void ConfigMenu(int Init)
 				break;
 			}
 		}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		CopyBB2FB();
+#endif
 		UpdateLCD(); /* update number of cached pages */
 	} while ((RCCode != RC_HOME) && (RCCode != RC_DBOX) && (RCCode != RC_MUTE));
 
@@ -3662,6 +3696,9 @@ void PageCatching()
 			RCCode = -1;
 			return;
 		}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		CopyBB2FB();
+#endif
 		UpdateLCD();
 	} while (RCCode != RC_OK);
 
@@ -3816,12 +3853,16 @@ void RenderCatchedPage()
 	if (zoommode == 1 && catch_row > 11)
 	{
 		zoommode = 2;
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		CopyBB2FB();
+#endif
 	}
 	else if (zoommode == 2 && catch_row < 12)
 	{
 		zoommode = 1;
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 		CopyBB2FB();
+#endif
 	}
 	SetPosX(catch_col);
 
@@ -3844,6 +3885,9 @@ void RenderCatchedPage()
 	RenderCharFB(page_char[catch_row*40 + catch_col    ], &a0);
 	RenderCharFB(page_char[catch_row*40 + catch_col + 1], &a1);
 	RenderCharFB(page_char[catch_row*40 + catch_col + 2], &a2);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CopyBB2FB();
+#endif
 }
 
 /******************************************************************************
@@ -3952,8 +3996,17 @@ void SwitchScreenMode(int newscreenmode)
 		setfontwidth(fw);
 
 		CFrameBuffer *f = CFrameBuffer::getInstance();
-		videoDecoder->Pig(tx, ty, tw, th,
-				  f->getScreenWidth(true), f->getScreenHeight(true));
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		if (!boxed && (f->get3DMode() == CFrameBuffer::Mode3D_off))
+			videoDecoder->Pig(tx, ty, tw, th,
+				f->getScreenWidth(true), f->getScreenHeight(true),
+				g_settings.screen_StartX_int,
+				g_settings.screen_StartY_int,
+				g_settings.screen_EndX_int,
+				g_settings.screen_EndY_int);
+#else
+		videoDecoder->Pig(tx, ty, tw, th, f->getScreenWidth(true), f->getScreenHeight(true));
+#endif
 	}
 	else /* not split */
 	{
@@ -4840,7 +4893,12 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 
 void RenderCharFB(int Char, tstPageAttr *Attribute)
 {
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if (zoommode != 2)
+		RenderCharBB(Char, Attribute);
+#else
 	RenderChar(Char, Attribute, zoommode, var_screeninfo.yoffset);
+#endif
 }
 
 /******************************************************************************
@@ -4993,6 +5051,9 @@ void RenderMessage(int Message)
 	for (byte = 0; byte < 38; byte++)
 		RenderCharFB(message_6[byte], &atrtable[imenuatr + 2]);
 	national_subset = national_subset_back;
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CFrameBuffer::getInstance()->blit();
+#endif
 }
 
 /******************************************************************************
@@ -5102,6 +5163,9 @@ void DoFlashing(int startrow)
 		}
 		PosY += fontheight*factor;
 	}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	CopyBB2FB();
+#endif
 }
 
 void RenderPage()
@@ -5311,6 +5375,9 @@ void RenderPage()
 		RenderCharFB(ns[0],&atrtable[ATR_WB]);
 		RenderCharFB(ns[1],&atrtable[ATR_WB]);
 		RenderCharFB(ns[2],&atrtable[ATR_WB]);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		CopyBB2FB();
+#endif
 
 		tuxtxt_cache.pageupdate=0;
 	}
@@ -5528,7 +5595,7 @@ void CopyBB2FB()
 {
 	fb_pixel_t *src, *dst, *topsrc;
 	int fillcolor, i, screenwidth, swtmp;
-#if defined(HAVE_SPARK_HARDWARE) || defined(HAVE_COOL_HARDWARE)
+#if defined(HAVE_SPARK_HARDWARE) || defined(HAVE_COOL_HARDWARE) || defined(HAVE_DUCKBOX_HARDWARE)
 	CFrameBuffer *f = CFrameBuffer::getInstance();
 #endif
 
@@ -5539,7 +5606,7 @@ void CopyBB2FB()
 	/* copy backbuffer to framebuffer */
 	if (!zoommode)
 	{
-#ifdef HAVE_SPARK_HARDWARE
+#ifdef HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
 #elif defined(HAVE_COOL_HARDWARE)
 		f->fbCopyArea(var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, var_screeninfo.yres);
@@ -5562,6 +5629,9 @@ void CopyBB2FB()
 			FillBorder(*lbb, true);
 //			 ClearBB(*(lfb + var_screeninfo.xres * var_screeninfo.yoffset));
 		}
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		f->blit();
+#endif
 
 		if (clearbbcolor >= 0)
 		{
@@ -5590,13 +5660,11 @@ void CopyBB2FB()
 	if (screenmode == 1)
 	{
 		screenwidth = ( TV43STARTX );
-#if defined(HAVE_SPARK_HARDWARE)
+#if defined(HAVE_SPARK_HARDWARE) || defined(HAVE_DUCKBOX_HARDWARE)
 		int cx = var_screeninfo.xres - TV43STARTX;	/* x start */
 		int cw = TV43STARTX;				/* width */
 		int cy = StartY;
 		int ch = 24*fontheight;
-#endif
-#ifdef HAVE_SPARK_HARDWARE
 		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, true);
 #else
 		fb_pixel_t *topdst = dst;
@@ -5637,8 +5705,9 @@ void CopyBB2FB()
 		for (swtmp=0; swtmp<= screenwidth;swtmp++)
 			*(dst + stride * (fontheight + i) + swtmp) =  bgra[fillcolor];
 	}
-#ifdef HAVE_SPARK_HARDWARE
+#ifdef HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
+	f->blit();
 #endif
 }
 
@@ -6271,8 +6340,6 @@ void DecodePage()
 		int o = 0;
 		char bitmask ;
 
-
-
 		for (r = 0; r < 25; r++)
 		{
 			for (c = 0; c < 40; c++)
@@ -6342,11 +6409,3 @@ int GetRCCode()
 	}
 	return 0;
 }
-
-/* Local Variables: */
-/* indent-tabs-mode:t */
-/* tab-width:3 */
-/* c-basic-offset:3 */
-/* comment-column:0 */
-/* fill-column:120 */
-/* End: */
