@@ -923,6 +923,7 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 	switch (mode)
 	{
 		case NeutrinoMessages::mode_radio:
+		case NeutrinoMessages::mode_webradio:
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
 				break;
 		case NeutrinoMessages::mode_ts:
