@@ -940,8 +940,8 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 bool CInfoViewer::showLivestreamInfo()
 {
 	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv &&
-	    cc->getEpgID() == 0 && !cc->getScriptName().empty()) {
+	bool web_mode = (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio);
+	if (web_mode && cc->getEpgID() == 0 && !cc->getScriptName().empty()) {
 		std::string livestreamInfo1 = "";
 		std::string livestreamInfo2 = "";
 		std::string tmp1            = "";
