@@ -987,7 +987,7 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 #if 0
 			printf("CMoviePlayerGui::bgPlayThread: position %d duration %d (%d)\n", mp->position, mp->duration, mp->duration-mp->position);
 #endif
-			if (pos == mp->position)
+			if (pos == mp->position && mp->duration > 0)
 				eof++;
 			else
 				eof = 0;
