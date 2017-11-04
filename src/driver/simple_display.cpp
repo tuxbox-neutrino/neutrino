@@ -348,7 +348,9 @@ void CLCD::showTime(bool force)
 		if (force || last_display || (hour != t->tm_hour) || (minute != t->tm_min)) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
+#if !HAVE_SPARK_HARDWARE && !HAVE_ARM_HARDWARE
 			int ret = -1;
+#endif
 #if HAVE_SPARK_HARDWARE
 			now += t->tm_gmtoff;
 			int fd = dev_open();
