@@ -1229,9 +1229,9 @@ void CMenuWidget::calcSize()
 
 void CMenuWidget::initSelectable()
 {
-	int pos = 0;
+	int pos = 0, npos = 0;
 	if (selected > 0 && selected < (int)items.size())
-		pos = selected;
+		npos = pos = selected;
 	else
 		selected = -1;
 
@@ -1240,7 +1240,15 @@ void CMenuWidget::initSelectable()
 			break;
 		pos++;
 	}
-	selected = pos;
+	if (pos == (int)items.size()) {
+		pos = npos;
+		while (pos > 1) {
+			if (items[pos]->isSelectable())
+				break;
+			pos--;
+		}
+	}
+	selected = (pos == 0) ? -1 : pos;
 }
 
 void CMenuWidget::paint()
