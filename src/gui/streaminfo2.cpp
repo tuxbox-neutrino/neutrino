@@ -116,7 +116,7 @@ int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
 	if (parent)
 		parent->hide ();
 
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
 		mp = &CMoviePlayerGui::getInstance(true);
 	else
 		mp = &CMoviePlayerGui::getInstance();
@@ -304,8 +304,8 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	tname += ": ";
 	if (mp)
 	{
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
-			tname += g_Locale->getText(LOCALE_WEBTV_HEAD);
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+			tname += "Web-Channel"; // TODO split into WebTV/WebRadio
 		else
 			tname += g_Locale->getText(LOCALE_MAINMENU_MOVIEPLAYER);
 	}
@@ -719,7 +719,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	if (mp) {
 		//channel
 		ypos += iheight;
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) {
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio) {
 			snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_TIMERLIST_CHANNEL));//swiped locale
 			g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_MENUCONTENT_TEXT);
 			snprintf(buf, sizeof(buf), "%s", channel->getName().c_str());
