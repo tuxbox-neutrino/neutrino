@@ -540,7 +540,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	average_bitrate_offset = spaceoffset;
 	int box_width2 = box_width-(spaceoffset+xpos);
 
-	if((channel->getVideoPid() || IS_WEBCHAN(channel->getChannelID())) && !(videoDecoder->getBlank())){
+	if((channel->getVideoPid() || (IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)) && !(videoDecoder->getBlank())){
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
 		 if (yres == 1088)
 		 	yres = 1080;
@@ -730,6 +730,17 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf(buf, sizeof(buf), "%s", mp->GetFile().c_str());
 			g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
 		}
+
+		// paint labels
+		int fontW = g_Font[font_small]->getWidth();
+		spaceoffset = 7 * fontW;
+		box_width2 = box_width-(spaceoffset+xpos);
+
+		//channellogo
+		ypos+= sheight;
+		sprintf(buf, "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
+		g_Font[font_small]->RenderString(xpos, ypos, box_width, "Logo:" , COL_INFOBAR_TEXT);
+		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
 
 		scaling = 27000;
 	} else {
