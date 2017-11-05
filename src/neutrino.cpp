@@ -4457,15 +4457,15 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if(actionKey=="ytplayback" || actionKey=="tsmoviebrowser" || actionKey=="fileplayback") {
 		frameBuffer->Clear();
-		if(mode == NeutrinoMessages::mode_radio )
+		if (mode == NeutrinoMessages::mode_radio || mode == NeutrinoMessages::mode_webradio)
 			frameBuffer->stopFrame();
-		int _mode = mode;
+		int prev_mode = mode;
 		// FIXME CMediaPlayerMenu::getInstance()->exec(NULL, actionKey); ??
 		CMoviePlayerGui::getInstance().exec(NULL, actionKey);
-		if(_mode == NeutrinoMessages::mode_radio )
+		if (prev_mode == NeutrinoMessages::mode_radio || prev_mode == NeutrinoMessages::mode_webradio)
 			frameBuffer->showFrame("radiomode.jpg");
 #if 0
-		else if (_mode == mode_webtv)
+		else if (prev_mode == mode_webtv)
 			tvMode(true);
 #endif
 		return menu_return::RETURN_EXIT_ALL;
