@@ -149,22 +149,22 @@ void CInfoViewerBB::getBBIconInfo()
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= g_InfoViewer->BoxEndX - OFFSET_INNER_MID;
-	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
+	bool isRadioMode	= (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio);
 
 	for (int i = 0; i < CInfoViewerBB::ICON_MAX; i++) {
 		int w = 0, h = 0;
 		bool iconView = false;
 		switch (i) {
 		case CInfoViewerBB::ICON_SUBT:  //no radio
-			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
+			if (!isRadioMode)
 				iconView = checkBBIcon(NEUTRINO_ICON_SUBT, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_VTXT:  //no radio
-			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
+			if (!isRadioMode)
 				iconView = checkBBIcon(NEUTRINO_ICON_VTXT, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_RT:
-			if ((neutrino->getMode() == NeutrinoMessages::mode_radio) && g_settings.radiotext_enable)
+			if (!isRadioMode && g_settings.radiotext_enable)
 				iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_DD:
@@ -172,11 +172,11 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_DD, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_16_9:  //no radio
-			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
+			if (!isRadioMode)
 				iconView = checkBBIcon(NEUTRINO_ICON_16_9, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_RES:  //no radio
-			if ((g_settings.infobar_show_res < 2) && (neutrino->getMode() != NeutrinoMessages::mode_radio))
+			if (!isRadioMode && g_settings.infobar_show_res < 2)
 				iconView = checkBBIcon(NEUTRINO_ICON_RESOLUTION_1280, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_CA:
@@ -575,7 +575,7 @@ void CInfoViewerBB::showIcon_Resolution()
 {
 	if ((!is_visible) || (g_settings.infobar_show_res == 2)) //show resolution icon is off
 		return;
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
 		return;
 	const char *icon_name = NULL;
 #if 0
