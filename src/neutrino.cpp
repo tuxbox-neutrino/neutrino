@@ -4264,7 +4264,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		   check PIN and not zap, so we should be fine here
 		 */
 		mode = mode_unknown;
-		if( lastMode == mode_radio ) {
+		if (lastMode == mode_radio || lastMode == mode_webradio) {
 			radioMode( false );
 		} else {
 			/* for standby -> tv mode from radio mode in case of record */
@@ -4322,7 +4322,12 @@ void CNeutrinoApp::radioMode( bool rezap)
 #endif
 	CRecordManager::getInstance()->StopAutoRecord();
 
-	if (mode != mode_webtv) {
+	if (mode != mode_webtv && mode != mode_webradio) {
+		/*
+		  FIXME:
+		  frameBuffer->paintBackground() is clearing display.
+		  What if any gui-element (e.g. infoviewer) is active?
+		*/
 		frameBuffer->useBackground(false);
 		frameBuffer->paintBackground();
 	}
