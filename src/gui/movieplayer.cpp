@@ -460,7 +460,9 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 			break;
 		}
 		do {
+#if ! HAVE_COOL_HARDWARE
 			is_file_player = true;
+#endif
 			PlayFile();
 		}
 		while (repeat_mode || filelist_it != filelist.end());
