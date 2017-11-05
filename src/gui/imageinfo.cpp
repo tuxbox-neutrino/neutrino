@@ -47,6 +47,7 @@
 #include <gui/lua/lua_api_version.h>
 #endif
 #include <nhttpd/yconfig.h>
+#include <ctype.h>
 
 #define VERSION_FILE TARGET_PREFIX "/.version"
 
@@ -276,27 +277,29 @@ void CImageInfo::InitInfoData()
 	const char * builddate = config.getString("builddate", "n/a").c_str();
 #endif
 
-	std::string version_string;
+	string version_string = config.getString("version", "");
 #ifdef IMAGE_VERSION
 	version_string = IMAGE_VERSION;
 #else
-	std::string _version = config.getString("version", "U000000000000000").c_str();
-	static CFlashVersionInfo versionInfo(_version.c_str());
-
-	version_string = versionInfo.getReleaseCycle();
-	version_string += " ";
-	version_string += versionInfo.getType();
-	version_string += " (";
-	version_string += versionInfo.getDate();
-	version_string += ")";
+	if (isdigit(version_string[0])){
+		static CFlashVersionInfo versionInfo(version_string.c_str());
+		version_string = versionInfo.getReleaseCycle();
+		version_string += " ";
+		version_string += versionInfo.getType();
+		version_string += " (";
+		version_string += versionInfo.getDate();
+		version_string += ")";
+	}else
+		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str());
 #endif
-
 	struct utsname uts_info;
 
 	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", PACKAGE_NAME)};
 	v_info.push_back(imagename);
-	image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
-	v_info.push_back(version);
+	if (!version_string.empty()){
+		image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
+		v_info.push_back(version);
+	}
 #ifdef VCS
 	image_info_t vcs	= {LOCALE_IMAGEINFO_VCS,	VCS};
 	v_info.push_back(vcs);
