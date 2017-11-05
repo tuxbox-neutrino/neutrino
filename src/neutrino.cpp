@@ -2839,7 +2839,12 @@ void CNeutrinoApp::RealRun()
 			else if( ( msg == CRCInput::RC_help ) || ( msg == CRCInput::RC_info) ||
 						( msg == NeutrinoMessages::SHOW_INFOBAR ) )
 			{
-				bool show_info = ((msg != NeutrinoMessages::SHOW_INFOBAR) || (g_InfoViewer->is_visible || g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] != 0));
+				bool enabled_by_timing = (
+					   ((mode == mode_tv    || mode == mode_webtv)    && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]       != 0)
+					|| ((mode == mode_radio || mode == mode_webradio) && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] != 0)
+				);
+				bool show_info = ((msg != NeutrinoMessages::SHOW_INFOBAR) || (g_InfoViewer->is_visible || enabled_by_timing));
+
 			         // turn on LCD display
 				CVFD::getInstance()->wake_up();
 
