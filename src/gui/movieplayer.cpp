@@ -298,6 +298,7 @@ void CMoviePlayerGui::cutNeutrino()
 
 	int new_mode = NeutrinoMessages::mode_unknown;
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
+	printf("%s: old mode %d\n", __func__, m_LastMode);fflush(stdout);
 	if (isWebChannel)
 	{
 		bool isRadioMode = (m_LastMode == NeutrinoMessages::mode_radio || m_LastMode == NeutrinoMessages::mode_webradio);
@@ -308,6 +309,7 @@ void CMoviePlayerGui::cutNeutrino()
 	{
 		new_mode = NeutrinoMessages::mode_ts;
 	}
+	printf("%s: new mode %d\n", __func__, new_mode);fflush(stdout);
 	printf("%s: save mode %x\n", __func__, m_LastMode);fflush(stdout);
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::norezap | new_mode);
 }
