@@ -4,7 +4,7 @@ EPGMenu.epgplus EPG-Timelines (EPG-Plus)
 EPGMenu.eventinfo Details current program
 EPGMenu.eventlist Eventlist current programm
 EPGMenu.head EPG - Program information
-EPGMenu.streaminfo Technical information
+EPGMenu.streaminfo Technical informations
 EPGPlus.actions Actions
 EPGPlus.bybouquet_mode by bouquet
 EPGPlus.bypage_mode by page
@@ -2285,7 +2285,7 @@ sleeptimerbox.hint2 The STB will shutdown after this time.
 sleeptimerbox.hint3 The STB will shutdown, if remote not used.
 sleeptimerbox.title Sleeptimer
 sleeptimerbox.title2 Inactivity shutdown timer
-streaminfo.aratio Aspect Ratio
+streaminfo.aratio Aspect ratio
 streaminfo.aratio_unknown unknown
 streaminfo.audiotype Audiotype
 streaminfo.audiotype_unknown unknown
@@ -2294,7 +2294,7 @@ streaminfo.bitrate Bitrate
 streaminfo.casystems Conditional access systems
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown unknown
-streaminfo.head Stream-Information
+streaminfo.head Technical informations
 streaminfo.not_available not available
 streaminfo.osd_resolution OSD resolution
 streaminfo.resolution Resolution
