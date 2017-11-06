@@ -952,6 +952,14 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		}
 	}
 
+	// osd resolution
+	r.key = g_Locale->getText(LOCALE_STREAMINFO_OSD_RESOLUTION);
+	r.key += ": ";
+	snprintf(buf, sizeof(buf), "%dx%d", frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	r.val = buf;
+	r.col = COL_MENUCONTENT_TEXT;
+	v.push_back(r);
+
 	// aspect ratio
 	r.key = g_Locale->getText (LOCALE_STREAMINFO_ARATIO);
 	r.key += ": ";
