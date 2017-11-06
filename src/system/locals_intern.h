@@ -2318,6 +2318,7 @@ const char * locale_real_names[] =
 	"streaminfo.audiotype_unknown",
 	"streaminfo.average_bitrate",
 	"streaminfo.bitrate",
+	"streaminfo.casystems",
 	"streaminfo.framerate",
 	"streaminfo.framerate_unknown",
 	"streaminfo.head",
