@@ -1105,7 +1105,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 					details.clear();
 				snprintf(buf, sizeof(buf), "0x%04X (%i)%s", i, i, details.c_str());
 				r.val = buf;
-				r.col = (li == g_RemoteControl->current_PIDs.PIDs.selected_apid) ? COL_MENUHEAD_TEXT : COL_MENUCONTENT_TEXT;
+				r.col = (li == g_RemoteControl->current_PIDs.PIDs.selected_apid) ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
 				v.push_back(r);
 			}
 		}
@@ -1181,14 +1181,16 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		it->f->RenderString (xpos, ypos, spaceoffset, it->key, COL_MENUCONTENT_TEXT);
 		std::string text = it->val.c_str();
 		it->f->RenderString (xpos + spaceoffset, ypos, box_width - spaceoffset, text, it->col);
-		ypos += it->f->getHeight();
+		if (it < v.end() - 1)
+			ypos += it->f->getHeight();
 	}
 
+	ypos += iheight;
 	if (box_h == 0)
 		box_h = ypos - ypos1;
 	yypos = ypos;
 	if (!mp)
-		paintCASystem(xpos,ypos);
+		paintCASystem(xpos, ypos);
 }
 
 #define NUM_CAIDS 11
@@ -1282,17 +1284,19 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 		}
 	}
 
-	off+=4;
-	bool cryptsysteme = true;
+	off += OFFSET_INNER_SMALL;
+	bool cryptsystems = true;
 	for (int ca_id = 0; ca_id < NUM_CAIDS; ca_id++)
 	{
 		if (caids[ca_id] == true)
 		{
-			if(cryptsysteme)
+			if(cryptsystems)
 			{
 				ypos += iheight;
-				g_Font[font_info]->RenderString(xpos , ypos, box_width, g_Locale->getText(LOCALE_STREAMINFO_CASYSTEMS), COL_MENUCONTENT_TEXT);
-				cryptsysteme = false;
+				std::string casys_locale(g_Locale->getText(LOCALE_STREAMINFO_CASYSTEMS));
+				casys_locale += ":";
+				g_Font[font_info]->RenderString(xpos , ypos, box_width, casys_locale, COL_MENUCONTENT_TEXT);
+				cryptsystems = false;
 			}
 			ypos += sheight;
 			int width_txt = 0, index = 0;
@@ -1304,13 +1308,14 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				int col = COL_MENUCONTENT_TEXT;
 				if (index > 0)
 				{
+					col = COL_MENUCONTENTINACTIVE_TEXT;
 					int id;
 					if (1 == sscanf(casys[ca_id].substr(last_pos, pos - last_pos).c_str(), "%X", &id) && acaid == id)
-						col = COL_MENUHEAD_TEXT;
+						col = COL_MENUCONTENT_TEXT;
 				}
 				g_Font[font_small]->RenderString(xpos + width_txt, ypos, box_width, casys[ca_id].substr(last_pos, pos - last_pos), col);
 				if (index == 0)
-					width_txt = off;
+					width_txt = spaceoffset;
 				else
 					width_txt += g_Font[font_small]->getRenderWidth(casys[ca_id].substr(last_pos, pos - last_pos))+10;
 				index++;
