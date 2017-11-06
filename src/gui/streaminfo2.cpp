@@ -419,7 +419,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		{
 			if (cnt < 12)
 				cnt++;
-			int dx1 = x + 10;
+			int dx1 = x + OFFSET_INNER_MID;
 
 			if (!mp && delay_counter > delay + 1)
 			{
@@ -586,16 +586,16 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	else
 		tname += to_string(1 + frontend->getNumber()) + ": " + frontend->getName();
 
-	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-_x-10, tname /*tuner_name.c_str()*/, COL_MENUCONTENT_TEXT);
+	g_Font[font_small]->RenderString(_x, _y + iheight, width - _x - OFFSET_INNER_MID, tname /*tuner_name.c_str()*/, COL_MENUCONTENT_TEXT);
 
 	sigBox_x = _x;
-	sigBox_y = _y+iheight+15;
+	sigBox_y = _y + iheight + OFFSET_INNER_MID;
 	sigBox_w = w;
-	sigBox_h = h-iheight*3;
-	frameBuffer->paintBoxRel(sigBox_x,sigBox_y,sigBox_w+2,sigBox_h, COL_BLACK);
-	sig_text_y = sigBox_y + sigBox_h;
+	sigBox_h = h - iheight - OFFSET_INNER_MID;
+	frameBuffer->paintBoxRel(sigBox_x, sigBox_y, sigBox_w, sigBox_h, COL_BLACK);
+	sig_text_y = sigBox_y + sigBox_h + OFFSET_INNER_SMALL;
 
-	int y1 = sig_text_y + sheight+4;
+	int y1 = sig_text_y + sheight + OFFSET_INNER_SMALL;
 	int fw = g_Font[font_small]->getWidth();
 
 	int maxmin_x; // x-position of min and max
@@ -616,27 +616,27 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 		col = 1;
 	}
 
-	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight + 1) +5, fw*3, "max", COL_MENUCONTENT_TEXT);
-	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 2) +5, fw*3, "now", COL_MENUCONTENT_TEXT);
-	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3) +5, fw*3, "min", COL_MENUCONTENT_TEXT);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 1) +OFFSET_INNER_SMALL, fw*3, "max", COL_MENUCONTENT_TEXT);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 2) +OFFSET_INNER_SMALL, fw*3, "now", COL_MENUCONTENT_TEXT);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3) +OFFSET_INNER_SMALL, fw*3, "min", COL_MENUCONTENT_TEXT);
 
 	if (!mp)
 	{
 		g_Font[font_small]->RenderString(_x+xd*col, y1, fw*8, "BER [%]", COL_RED);
-		sig_text_ber_x = _x + 5 + xd * col;
+		sig_text_ber_x = _x + OFFSET_INNER_SMALL + xd * col;
 		col++;
 
 		g_Font[font_small]->RenderString(_x+xd*col, y1, fw*8, "SNR [%]", COL_LIGHT_BLUE);
-		sig_text_snr_x = _x + 5 + xd * col;
+		sig_text_snr_x = _x + OFFSET_INNER_SMALL + xd * col;
 		col++;
 
 		g_Font[font_small]->RenderString(_x+xd*col, y1, fw*8, "SIG [%]", COL_GREEN);
-		sig_text_sig_x = _x + 5 + xd * col;
+		sig_text_sig_x = _x + OFFSET_INNER_SMALL + xd * col;
 		col++;
 	}
 
 	g_Font[font_small]->RenderString(_x+xd*col, y1, fw*10, "BR [kbps]", COL_YELLOW);
-	sig_text_rate_x = _x + 5 + xd * col;
+	sig_text_rate_x = _x + OFFSET_INNER_SMALL + xd * col;
 
 	sigBox_pos = 0;
 
@@ -648,9 +648,9 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 {
 	int x_now = sigBox_pos;
-	int yt = sig_text_y + (sheight *2)+4;
+	int yt = sig_text_y + (sheight *2) + OFFSET_INNER_SMALL;
 	int yd;
-	static int old_x=0,old_y=0;
+	static int old_x=0, old_y=0;
 	sigBox_pos++;
 	sigBox_pos %= sigBox_w;
 
@@ -714,7 +714,7 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 }
 
 // -- calc y from max_range and max_y
-int CStreamInfo2::y_signal_fe (unsigned long value, unsigned long max_value, int max_y)
+int CStreamInfo2::y_signal_fe(unsigned long value, unsigned long max_value, int max_y)
 {
 	unsigned long long m;
 	unsigned long l;
@@ -740,9 +740,9 @@ void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
 	char str[30];
 	int fw = g_Font[font_small]->getWidth();
 	fw *=(fw>17)?5:6;
-	frameBuffer->paintBoxRel(_x, _y - sheight + 5, fw, sheight -1, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(_x, _y - sheight + OFFSET_INNER_SMALL, fw, sheight -1, COL_MENUCONTENT_PLUS_0);
 	sprintf(str,"%6u",value);
-	g_Font[font_small]->RenderString(_x, _y + 5, fw, str, COL_MENUCONTENT_TEXT);
+	g_Font[font_small]->RenderString(_x, _y + OFFSET_INNER_SMALL, fw, str, COL_MENUCONTENT_TEXT);
 }
 
 void CStreamInfo2::paint (int /*mode*/)
@@ -753,8 +753,8 @@ void CStreamInfo2::paint (int /*mode*/)
 	height = frameBuffer->getScreenHeight();
 	x = frameBuffer->getScreenX();
 	y = frameBuffer->getScreenY();
-	int ypos = y + 5;
-	int xpos = x + 10;
+	int ypos = y + OFFSET_INNER_SMALL;
+	int xpos = x + OFFSET_INNER_MID;
 
 	if (paint_mode == 0)
 	{
@@ -764,18 +764,19 @@ void CStreamInfo2::paint (int /*mode*/)
 
 		// paint backround, title pig, etc.
 		frameBuffer->paintBoxRel (0, 0, max_width, max_height, COL_MENUCONTENT_PLUS_0);
-		g_Font[font_head]->RenderString (xpos, ypos + hheight + 1, width, head_string, COL_MENUHEAD_TEXT);
-		ypos += hheight;
+		g_Font[font_head]->RenderString (xpos, ypos + hheight, width, head_string, COL_MENUHEAD_TEXT);
+
+		ypos += hheight + iheight;
 
 		if (pip == NULL)
-			pip = new CComponentsPIP(width-width/3-10, y+10, 33);
+			pip = new CComponentsPIP(width - width/3 - OFFSET_INNER_MID, y + OFFSET_INNER_MID, 33);
 		pip->paint(CC_SAVE_SCREEN_NO);
 
 		techinfo_xpos = xpos;
 		techinfo_ypos = ypos;
 
 		paint_techinfo (xpos, ypos);
-		paint_signal_fe_box (width - width/3 - 10, (y + 10 + height/3 + hheight), width/3, height/3 + hheight);
+		paint_signal_fe_box (width - width/3 - OFFSET_INNER_MID, (y + OFFSET_INNER_MID + height/3 + hheight), pip->getWidth(), height/3 + hheight);
 	}
 	else
 	{
@@ -807,7 +808,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	int xres = 0, yres = 0, aspectRatio = 0, framerate = -1, i = 0;
 	// paint labels
 	int ypos1 = ypos;
-	box_width = width*2/3 - 10 - xpos;
+	box_width = width*2/3 - OFFSET_INNER_MID - xpos;
 
 	yypos = ypos;
 	if (box_h > 0)
@@ -1309,7 +1310,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
  * some definition
  */
 
-static unsigned long timeval_to_ms (const struct timeval *tv)
+static unsigned long timeval_to_ms(const struct timeval *tv)
 {
 	return (tv->tv_sec * 1000) + ((tv->tv_usec + 500) / 1000);
 }
@@ -1319,7 +1320,7 @@ long delta_time_ms (struct timeval *tv, struct timeval *last_tv)
 	return timeval_to_ms (tv) - timeval_to_ms (last_tv);
 }
 
-bool CStreamInfo2::ts_setup ()
+bool CStreamInfo2::ts_setup()
 {
 	if (mp)
 	{
@@ -1394,7 +1395,7 @@ bool CStreamInfo2::ts_setup ()
 	return true;
 }
 
-bool CStreamInfo2::update_rate ()
+bool CStreamInfo2::update_rate()
 {
 
 	if (!mp && !dmx)
@@ -1469,7 +1470,7 @@ bool CStreamInfo2::update_rate ()
 	return true;
 }
 
-int CStreamInfo2::ts_close ()
+int CStreamInfo2::ts_close()
 {
 	abort_probing = true;
 	if (probe_thread)
@@ -1488,15 +1489,18 @@ int CStreamInfo2::ts_close ()
 	return 0;
 }
 
-void CStreamInfo2::showSNR ()
+void CStreamInfo2::showSNR()
 {
+	int _h = 2*iheight;
+	//int _y = sig_text_y + 4*sheight + 3*OFFSET_INNER_SMALL;
+	int _y = y + height - OFFSET_INNER_MID - _h;
+
 	if (signalbox == NULL)
 	{
-		signalbox = new CSignalBox(width - width/3 - 10, y + 10 + 2*(height/3 + hheight) + 3*sheight, width/3, 2*iheight, frontend);
+		signalbox = new CSignalBox(width - width/3 - OFFSET_INNER_MID, _y, pip->getWidth(), _h, frontend);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);
 	}
-
 	signalbox->paint(false);
 }
