@@ -973,7 +973,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		v.push_back(r);
 
 		// picon
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) {
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio) {
 			r.key = "Picon";
 			r.key += ": ";
 			snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
