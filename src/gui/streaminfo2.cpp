@@ -827,29 +827,39 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	{
 		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
 		{
+			// channel
+			r.key = g_Locale->getText (LOCALE_TIMERLIST_CHANNEL);
+			r.key += ": ";
+			r.val = channel->getName().c_str();
+			r.col = COL_MENUCONTENT_TEXT;
+			v.push_back(r);
+
 			// url
 			r.key = "URL";
+			r.key += ": ";
 			r.val = channel->getUrl();
+			r.col = COL_MENUCONTENT_TEXT;
+			v.push_back(r);
+
+			// provider
+			if (channel->pname)
+			{
+				std::string prov_name = channel->pname;
+				prov_name.erase(std::remove(prov_name.begin(), prov_name.end(), '['), prov_name.end());
+				prov_name.erase(std::remove(prov_name.begin(), prov_name.end(), ']'), prov_name.end());
+				r.key = g_Locale->getText (LOCALE_CHANNELLIST_PROVS);
+				r.key += ": ";
+				r.val = prov_name.c_str();
+				r.col = COL_MENUCONTENT_TEXT;
+				v.push_back(r);
+			}
 		}
 		else
 		{
 			// file
 			r.key = g_Locale->getText (LOCALE_MOVIEBROWSER_INFO_FILE);
-			r.val = mp->GetFile();
-		}
-		r.key += ": ";
-		r.col = COL_MENUCONTENT_TEXT;
-		v.push_back(r);
-
-		//provider
-		if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) && (channel->pname))
-		{
-			std::string prov_name = channel->pname;
-			prov_name.erase(std::remove(prov_name.begin(), prov_name.end(), '['), prov_name.end());
-			prov_name.erase(std::remove(prov_name.begin(), prov_name.end(), ']'), prov_name.end());
-			r.key = g_Locale->getText (LOCALE_CHANNELLIST_PROVS);
 			r.key += ": ";
-			r.val = prov_name.c_str();
+			r.val = mp->GetFile();
 			r.col = COL_MENUCONTENT_TEXT;
 			v.push_back(r);
 		}
@@ -865,7 +875,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.col = COL_MENUCONTENT_TEXT;
 		v.push_back(r);
 
-		//provider
+		// provider
 		if (channel->pname)
 		{
 			std::string prov_name = channel->pname;
@@ -1065,6 +1075,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 			r.val = buf;
 			r.col = COL_MENUCONTENT_TEXT;
+			r.f   = g_Font[font_small];
 			v.push_back(r);
 		}
 	}
