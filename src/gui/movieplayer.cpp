@@ -1824,11 +1824,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			g_videoSettings->next43Mode();
 		} else if (msg == (neutrino_msg_t) g_settings.key_switchformat) {
 			g_videoSettings->SwitchFormat();
-		} else if (msg == (neutrino_msg_t) CRCInput::RC_home) {
-			playstate = CMoviePlayerGui::STOPPED;
-			playback->RequestAbort();
-			filelist.clear();
-			repeat_mode = REPEAT_OFF;
 #endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (time_forced) {
