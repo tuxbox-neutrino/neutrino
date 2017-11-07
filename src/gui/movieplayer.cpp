@@ -331,10 +331,11 @@ void CMoviePlayerGui::restoreNeutrino()
 
 	if (isUPNP)
 		return;
-
+#if ! HAVE_COOL_HARDWARE
 	g_Zapit->unlockPlayBack();
-	//CZapit::getInstance()->EnablePlayback(true);
-
+#else
+	CZapit::getInstance()->EnablePlayback(true);
+#endif
 	printf("%s: restore mode %x\n", __func__, m_LastMode);fflush(stdout);
 #if 0
 	if (m_LastMode == NeutrinoMessages::mode_tv)
@@ -1809,7 +1810,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_next3dmode) {
 			frameBuffer->set3DMode((CFrameBuffer::Mode3D)(((frameBuffer->get3DMode()) + 1) % CFrameBuffer::Mode3D_SIZE));
-#endif
 		} else if (msg == (neutrino_msg_t) g_settings.key_next43mode) {
 			g_videoSettings->next43Mode();
 		} else if (msg == (neutrino_msg_t) g_settings.key_switchformat) {
@@ -1819,6 +1819,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			playback->RequestAbort();
 			filelist.clear();
 			repeat_mode = REPEAT_OFF;
+#endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (time_forced) {
 				time_forced = false;
