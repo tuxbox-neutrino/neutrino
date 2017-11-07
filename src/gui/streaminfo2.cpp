@@ -279,6 +279,7 @@ void CStreamInfo2::probeStreams()
 {
 	if (mp)
 	{
+		// not yet implemented in libcoolstream
 		AVFormatContext *avfc = mp->getPlayback()->GetAVFormatContext();
 		if (avfc)
 		{

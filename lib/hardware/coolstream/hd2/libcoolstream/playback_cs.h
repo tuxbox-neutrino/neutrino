@@ -32,6 +32,7 @@ typedef struct {
 
 #define MAX_PLAYBACK_PIDS 40
 
+struct AVFormatContext;
 class cPlayback {
 private:
 	cPlaybackData * pd;
@@ -82,6 +83,8 @@ public:
 	bool SetTeletextPid(int /*pid*/){return true;}
 	int GetAPid(){return 0;}
 	void GetMetadata(std::vector<std::string> /*&keys*/, std::vector<std::string> /*&values*/){};
+	AVFormatContext *GetAVFormatContext(){ return NULL; }
+	void ReleaseAVFormatContext() {}
 };
 
 #endif // __PLAYBACK_CS_H_
