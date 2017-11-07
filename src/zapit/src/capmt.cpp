@@ -283,14 +283,14 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
 
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
-
+#if ! HAVE_COOL_HARDWARE
 	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
 	if (mode == RECORD && start == false && source != cDemux::GetSource(0)) {
 		INFO("MODE!=record(%d) start=false, src %d getsrc %d", mode, source, cDemux::GetSource(0));
 		cam->sendMessage(NULL, 0, false);
 		cam->sendCaPmt(channel->getChannelID(), NULL, 0, CA_SLOT_TYPE_ALL);
 	}
-
+#endif
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);
 		cam->setSource(source);
