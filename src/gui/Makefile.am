@@ -95,7 +95,6 @@ libneutrino_gui_a_SOURCES = \
 	settings_manager.cpp \
 	sleeptimer.cpp \
 	start_wizard.cpp \
-	streaminfo2.cpp \
 	subchannel_select.cpp \
 	themes.cpp \
 	timeosd.cpp \
@@ -110,6 +109,14 @@ libneutrino_gui_a_SOURCES = \
 	volumebar.cpp \
 	webtv_setup.cpp \
 	zapit_setup.cpp
+
+if BOXTYPE_ARMBOX
+libneutrino_gui_a_SOURCES += \
+	streaminfo2.cpp
+else
+libneutrino_gui_a_SOURCES += \
+	streaminfo1.cpp
+endif
 
 if ENABLE_EXTUPDATE
 libneutrino_gui_a_SOURCES += \
