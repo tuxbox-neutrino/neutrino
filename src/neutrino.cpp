@@ -1671,10 +1671,12 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
 				webtvBouquet->channelList->SetChannelList(&webtvList);
 				TVallList->Bouquets.push_back(webtvBouquet);
+#if 0
 				/* "satellite" */
 				webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
 				webtvBouquet->channelList->SetChannelList(&webtvList);
 				TVsatList->Bouquets.push_back(webtvBouquet);
+#endif
 				printf("[neutrino] got %d WebTV channels\n", (int)webtvList.size()); fflush(stdout);
 			}
 		}
@@ -1685,10 +1687,12 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* webradioBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBRADIO), false, true);
 				webradioBouquet->channelList->SetChannelList(&webradioList);
 				RADIOallList->Bouquets.push_back(webradioBouquet);
+#if 0
 				/* "satellite" */
 				webradioBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBRADIO), false, true);
 				webradioBouquet->channelList->SetChannelList(&webradioList);
 				RADIOsatList->Bouquets.push_back(webradioBouquet);
+#endif
 				printf("[neutrino] got %d WebRadio channels\n", (int)webradioList.size()); fflush(stdout);
 			}
 		}
