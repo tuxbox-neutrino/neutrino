@@ -23,10 +23,6 @@
 #ifndef __screenshot_h_
 #define __screenshot_h_
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <pthread.h>
 
 class CScreenShot
@@ -48,7 +44,6 @@ class CScreenShot
 		bool get_osd;
 		bool get_video;
 		bool scale_to_video;
-#if !HAVE_SPARK_HARDWARE
 		FILE *fd;
 		pthread_t  scs_thread;
 		pthread_mutex_t thread_mutex;
@@ -66,7 +61,6 @@ class CScreenShot
 		static void* initThread(void *arg);
 		void runThread();
 		static void cleanupThread(void *arg);
-#endif
 
 #ifdef BOXMODEL_CS_HD2
 		bool mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData);
@@ -81,11 +75,7 @@ class CScreenShot
 		void EnableVideo(bool enable) { get_video = enable; }
 		void EnableOSD(bool enable) { get_osd = enable; }
 		void ScaleToVideo(bool enable) { scale_to_video = enable; }
-#if HAVE_COOL_HARDWARE
 		bool Start();
-#else
-		bool Start(const std::string custom_cmd = "");
-#endif
 		bool StartSync();
 };
 
