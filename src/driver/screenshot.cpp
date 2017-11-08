@@ -61,7 +61,7 @@ CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 	format = fmt;
 	filename = fname;
 	pixel_data = NULL;
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 	fd = NULL;
 	xres = 0;
 	yres = 0;
@@ -85,14 +85,14 @@ CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 
 CScreenShot::~CScreenShot()
 {
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 	pthread_mutex_destroy(&thread_mutex);
 	pthread_mutex_destroy(&getData_mutex);
 #endif
 //	printf("[CScreenShot::%s:%d] thread: %p\n", __func__, __LINE__, this);
 }
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 
 #ifdef BOXMODEL_CS_HD2
 
@@ -224,7 +224,7 @@ bool CScreenShot::startThread()
 }
 #endif
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 void* CScreenShot::initThread(void *arg)
 {
 	CScreenShot *scs = static_cast<CScreenShot*>(arg);
@@ -268,7 +268,7 @@ bool CScreenShot::Start()
 bool CScreenShot::Start(const std::string custom_cmd)
 {
 #endif
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	std::string cmd = "/bin/grab ";
 	if (get_osd && !get_video)
 		cmd += "-o ";
@@ -311,7 +311,7 @@ bool CScreenShot::Start(const std::string custom_cmd)
 #endif
 }
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 /* save file in sync mode, return true if save ok, or false */
 bool CScreenShot::StartSync()
 {

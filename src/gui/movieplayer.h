@@ -185,7 +185,7 @@ class CMoviePlayerGui : public CMenuTarget
 	MI_MOVIE_INFO movie_info;
 	P_MI_MOVIE_LIST milist;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	CFrameBuffer::Mode3D old3dmode;
 #endif
 

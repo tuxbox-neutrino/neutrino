@@ -70,7 +70,7 @@ CAudioSelectMenuHandler::~CAudioSelectMenuHandler()
 
 }
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 // -- this is a copy from neutrino.cpp!!
 #define AUDIOMENU_ANALOGOUT_OPTION_COUNT 3
 const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT_OPTION_COUNT] =
@@ -103,7 +103,7 @@ int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &action
 		}
 		perc_str[sel] = to_string(perc_val[sel]) + "%";
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 		int vol =  CZapit::getInstance()->GetVolume();
 		/* keep resulting volume = (vol * percent)/100 not more than 115 */
 		if (vol * perc_val[sel] > 11500)
@@ -150,7 +150,7 @@ int CAudioSelectMenuHandler::doMenu ()
 	AudioSelector->addKey(CRCInput::RC_right, this, "+");
 	AudioSelector->addKey(CRCInput::RC_left, this, "-");
 	AudioSelector->addKey(CRCInput::RC_red, this, "x");
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 	AudioSelector->addKey(CRCInput::RC_green, this, "x");
 #endif
 	AudioSelector->addKey(CRCInput::RC_yellow, this, "x");
@@ -192,7 +192,7 @@ int CAudioSelectMenuHandler::doMenu ()
 		AudioSelector->addItem(fw, sel_apid == i);
 	}
 	unsigned int shortcut_num = p_count;
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 	if (p_count)
 		AudioSelector->addItem(GenericMenuSeparatorLine);
 
@@ -298,7 +298,7 @@ int CAudioSelectMenuHandler::doMenu ()
 
 	//tonbug
 	AudioSelector->addItem(GenericMenuSeparatorLine);
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 	AudioSelector->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, CNeutrinoApp::getInstance(), "tonbug", CRCInput::convertDigitToKey(++shortcut_num)));
 #else
 	AudioSelector->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, CNeutrinoApp::getInstance(), "tonbug", CRCInput::RC_green));

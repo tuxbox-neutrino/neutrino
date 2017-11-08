@@ -571,7 +571,7 @@ void tuxtxt_allocate_cache(int magazine)
 	pthread_mutex_unlock(&tuxtxt_cache_lock);
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 /******************************************************************************
  * Handling of packets injected by libeplayer3                                *
  ******************************************************************************/
@@ -663,7 +663,7 @@ static bool read_injected_packet(unsigned char * &packet, int &size, int timeout
 /******************************************************************************
  * CacheThread                                                                *
  ******************************************************************************/
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 extern bool isTtxEplayer;
 #endif
 static int stop_cache = 0;
@@ -680,7 +680,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		0x30,0xb0,0x70,0xf0 };
 	unsigned char pes_packet_dmx[184*20];
 	unsigned char *pes_packet_ptr = NULL;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	unsigned char *pes_packet_eplayer3 = NULL;
 #endif
 	unsigned char vtxt_row[42];
@@ -692,7 +692,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 	unsigned char pagedata[9][23*40];
 	tstPageinfo *pageinfo_thread;
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	sem_init(&inject_sem, 0, 0);
 #endif
 	set_threadname("tuxtxt:cache");
@@ -710,7 +710,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		/* read packet */
 		ssize_t readcnt = 0;
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 		if (isTtxEplayer) {
 			pes_packet_ptr = NULL;
 			if (pes_packet_eplayer3) {
@@ -1188,7 +1188,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		}
 		pthread_mutex_unlock(&tuxtxt_cache_biglock);
 	}
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	if (pes_packet_eplayer3)
 		free(pes_packet_eplayer3);
 #endif
@@ -1205,14 +1205,14 @@ int tuxtxt_start_thread(int source)
 		return 0;
 
 	tuxtxt_cache.thread_starting = 1;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	if (!isTtxEplayer) {
 #endif
 		tuxtxt_init_demuxer(source);
 
 		dmx->pesFilter(tuxtxt_cache.vtxtpid);
 		dmx->Start();
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	}
 #endif
 	stop_cache = 0;
@@ -1260,7 +1260,7 @@ int tuxtxt_stop_thread()
 		delete dmx;
 		dmx = NULL;
 	}
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	clear_inject_queue();
 #endif
 #if 1//TUXTXT_DEBUG

@@ -48,7 +48,7 @@ class CScreenShot
 		bool get_osd;
 		bool get_video;
 		bool scale_to_video;
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SPARK_HARDWARE
 		FILE *fd;
 		pthread_t  scs_thread;
 		pthread_mutex_t thread_mutex;

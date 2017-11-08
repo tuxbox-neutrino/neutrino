@@ -6,7 +6,7 @@ int tuxtxt_init();
 void tuxtxt_close();
 void tuxtxt_start(int tpid, int source = 0);  // Start caching
 int  tuxtxt_stop(); // Stop caching
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
 int tuxtx_main(int pid, int page = 0, int source = 0, bool _isEplayer = false);
 #else
 int tuxtx_main(int pid, int page = 0, int source = 0);
