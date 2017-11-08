@@ -2298,7 +2298,7 @@ streaminfo.head Technical informations
 streaminfo.not_available not available
 streaminfo.osd_resolution OSD resolution
 streaminfo.resolution Resolution
-streaminfo.signal Receipt signal
+streaminfo.signal Tuner
 streaminfo.videosystem Videosystem
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart GUI.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.

@@ -2298,7 +2298,7 @@ streaminfo.head Technische Informationen
 streaminfo.not_available nicht verfügbar
 streaminfo.osd_resolution OSD-Auflösung
 streaminfo.resolution Auflösung
-streaminfo.signal Empfangssignal
+streaminfo.signal Tuner
 streaminfo.videosystem Videosystem
 streaming.busy Einer oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart der GUI Abhilfe.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
