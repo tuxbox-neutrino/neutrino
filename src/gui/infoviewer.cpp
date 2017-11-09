@@ -901,7 +901,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	showInfoFile();
 
 	// Radiotext
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
 	{
 		if ((g_settings.radiotext_enable) && (!recordModeActive) && (!calledFromNumZap))
 			showRadiotext();
