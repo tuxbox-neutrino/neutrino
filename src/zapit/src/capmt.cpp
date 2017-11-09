@@ -255,7 +255,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			break;
 		case STREAM:
 		case RECORD:
-#if HAVE_COOL_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_ARM_HARDWARE
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 #else
