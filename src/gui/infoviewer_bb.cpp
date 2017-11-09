@@ -164,7 +164,7 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_VTXT, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_RT:
-			if (!isRadioMode && g_settings.radiotext_enable)
+			if (isRadioMode && g_settings.radiotext_enable)
 				iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_DD:
