@@ -40,41 +40,41 @@ class CStreamInfo2 : public CMenuTarget
 
 		CFrameBuffer	*frameBuffer;
 		CFrontend	*frontend;
-		CComponentsPIP  *pip;
-		CMoviePlayerGui *mp;
-		COSDFader       fader;
+		CComponentsPIP	*pip;
+		CMoviePlayerGui	*mp;
+		COSDFader	fader;
 		int x;
 		int y;
 		int width;
 		int height;
 		int hheight,iheight,sheight; 	// head/info/small font height
 
-		int  max_height;	// Frambuffer 0.. max
-		int  max_width;
+		int max_height;	// Frambuffer 0.. max
+		int max_width;
 
 		int yypos;
-		int  paint_mode;
+		int paint_mode;
 
-		int  font_head;
-		int  font_info;
-		int  font_small;
+		int font_head;
+		int font_info;
+		int font_small;
 
-		int   sigBox_x;
-		int   sigBox_y;
-		int   sigBox_w;
-		int   sigBox_h;
-		int   sigBox_pos;
-		int   sig_text_y;
-		int   sig_text_ber_x;
-		int   sig_text_sig_x;
-		int   sig_text_snr_x;
-		int   sig_text_rate_x;
-		int   average_bitrate_pos;
+		int sigBox_x;
+		int sigBox_y;
+		int sigBox_w;
+		int sigBox_h;
+		int sigBox_pos;
+		int sig_text_y;
+		int sig_text_ber_x;
+		int sig_text_sig_x;
+		int sig_text_snr_x;
+		int sig_text_rate_x;
+		int average_bitrate_pos;
 
-		int   techinfo_xpos, techinfo_ypos;
-		int   box_width;
+		int techinfo_xpos, techinfo_ypos;
+		int box_width;
 
-		int   spaceoffset;
+		int spaceoffset;
 		unsigned int scaling;
 		unsigned int pmt_version;
 		int box_h,box_h2;
@@ -90,7 +90,7 @@ class CStreamInfo2 : public CMenuTarget
 
 		std::vector<std::map<std::string,std::string> > streamdata;
 
-		int  doSignalStrengthLoop();
+		int doSignalStrengthLoop();
 
 		struct timeval tv, last_tv, first_tv;
 		uint64_t bit_s;
@@ -118,7 +118,7 @@ class CStreamInfo2 : public CMenuTarget
 		void paintCASystem(int xpos, int ypos);
 		void paint_signal_fe_box(int x, int y, int w, int h);
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
-		int  y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
+		int y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
 		void SignalRenderStr (unsigned int value, int x, int y);
 		CSignalBox *signalbox;
 
