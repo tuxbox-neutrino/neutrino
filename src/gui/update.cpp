@@ -202,10 +202,12 @@ bool CFlashUpdate::selectHttpImage(void)
 	int curVer, newVer, newfound = 0;
 
 	CConfigFile _configfile('\t');
-	const char * versionString = (_configfile.loadConfig(TARGET_PREFIX "/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
+	std::string versionString = "????????????????";
+	if (_configfile.loadConfig(TARGET_PREFIX "/.version"))
+		versionString = _configfile.getString("version", "????????????????");
 
-	CFlashVersionInfo curInfo(versionString);
-	printf("current flash-version: %s (%d) date %s (%ld)\n", versionString, curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
+	CFlashVersionInfo curInfo(versionString.c_str());
+	printf("current flash-version: %s (%d) date %s (%ld)\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
 	curVer = curInfo.getVersion();
 
 	httpTool.setStatusViewer(this);
