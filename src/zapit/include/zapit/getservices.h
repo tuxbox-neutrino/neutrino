@@ -134,6 +134,8 @@ class CServiceManager
 		CZapitChannel* FindChannelFuzzy(const t_channel_id channel_id,
 						const t_satellite_position pos, const freq_id_t freq);
 
+		CZapitChannel * GetCurrentChannel(void);
+
 		std::string GetServiceName(t_channel_id channel_id);
 
 		tallchans* GetAllChannels(){ return &allchans; };
