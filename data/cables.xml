@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <cables>
-	<cable name="KMS Muenchen" satfeed="true" flags="9">
+	<cable name="KMS München" satfeed="true" flags="9">
 		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="121000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="130000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -79,7 +79,7 @@
 		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="714000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
-	<cable name="KMS Nuernberg" satfeed="true" flags="9">
+	<cable name="KMS Nürnberg" satfeed="true" flags="9">
 		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="121000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="322000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -485,7 +485,7 @@
 		<transponder frequency="802000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="810000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
-	<cable name="Goeltzschtalbruecke" satfeed="true" flags="9">
+	<cable name="Göltzschtalbrücke" satfeed="true" flags="9">
 		<transponder frequency="234000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="242000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="250000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -566,7 +566,7 @@
 		<transponder frequency="538000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="546000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
-	<cable name="Antennenverein Hohenmoelsen" satfeed="true" flags="9">
+	<cable name="Antennenverein Hohenmölsen" satfeed="true" flags="9">
 		<transponder frequency="114000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="122000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="130000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
