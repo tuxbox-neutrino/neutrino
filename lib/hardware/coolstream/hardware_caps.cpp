@@ -31,6 +31,7 @@ hw_caps_t *get_hwcaps(void) {
 	caps.display_yres = 0;
 	caps.display_can_deepstandby = (rev > 7);
 	caps.display_can_set_brightness = 1;
+	caps.display_has_statusline = 1;
 	caps.can_ar_14_9 = 1;
 	caps.can_ps_14_9 = 1;
 	caps.force_tuner_2G = 0;
@@ -68,6 +69,7 @@ hw_caps_t *get_hwcaps(void) {
 			strcpy(caps.boxarch, "Kronos");
 		}
 		caps.display_can_set_brightness = 0;
+		caps.display_has_statusline = 0;
 		break;
 	case 12:
 		strcpy(caps.boxname, "Zee2");
@@ -76,11 +78,13 @@ hw_caps_t *get_hwcaps(void) {
 	case 13:
 		strcpy(caps.boxname, "Link");
 		strcpy(caps.boxarch, "Kronos");
+		caps.display_has_statusline = 0;
 		break;
 	case 14:
 		strcpy(caps.boxname, "Trinity Duo");
 		strcpy(caps.boxarch, "Kronos");
 		caps.display_can_set_brightness = 0;
+		caps.display_has_statusline = 0;
 		break;
 	default:
 		strcpy(caps.boxname, "UNKNOWN_BOX");
