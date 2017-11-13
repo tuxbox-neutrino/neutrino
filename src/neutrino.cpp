@@ -2178,20 +2178,23 @@ void wake_up(bool &wakeup)
 		close(fd);
 	}
 #endif
-#if HAVE_ARM_HARDWARE
-	FILE *f = fopen("/proc/stb/fp/was_timer_wakeup", "r");
-	if (f)
+	/* prioritize proc filesystem */
+	if (access("/proc/stb/fp/was_timer_wakeup", F_OK) == 0)
 	{
-		unsigned int tmp;
-		if (fscanf(f, "%u", &tmp) != 1)
-			printf("[neutrino] read /proc/stb/fp/was_timer_wakeup failed: %m\n");
-		else
-			wakeup = (tmp > 0);
-		fclose(f);
+		FILE *f = fopen("/proc/stb/fp/was_timer_wakeup", "r");
+		if (f)
+		{
+			unsigned int tmp;
+			if (fscanf(f, "%u", &tmp) != 1)
+				printf("[neutrino] read /proc/stb/fp/was_timer_wakeup failed: %m\n");
+			else
+				wakeup = (tmp > 0);
+			fclose(f);
+		}
 	}
-#endif // HAVE_ARM_HARDWARE
 	/* not platform specific - this is created by the init process */
-	if (access("/tmp/.timer_wakeup", F_OK) == 0) {
+	else if (access("/tmp/.timer_wakeup", F_OK) == 0)
+	{
 		wakeup = 1;
 		unlink("/tmp/.timer_wakeup");
 	}
@@ -3949,33 +3952,38 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 #endif
 	if (timer_minutes || leds)
 	{
-#if HAVE_ARM_HARDWARE
-		FILE *f = fopen("/proc/stb/fp/wakeup_time","w");
-		if (f)
+		/* prioritize proc filesystem */
+		if (access("/proc/stb/fp/was_timer_wakeup", F_OK) == 0)
 		{
-			time_t t = timer_minutes * 60;
-			struct tm *tm = localtime(&t);
-			char date[30];
-			strftime(date, sizeof(date), "%c", tm);
-			fprintf(stderr, "timer_wakeup: %s (%ld)\n", date, timer_minutes * 60);
-			fprintf(f, "%ld\n", timer_minutes * 60);
-			fclose(f);
+			FILE *f = fopen("/proc/stb/fp/wakeup_time","w");
+			if (f)
+			{
+				time_t t = timer_minutes * 60;
+				struct tm *tm = localtime(&t);
+				char date[30];
+				strftime(date, sizeof(date), "%c", tm);
+				fprintf(stderr, "timer_wakeup: %s (%ld)\n", date, timer_minutes * 60);
+				fprintf(f, "%ld\n", timer_minutes * 60);
+				fclose(f);
+			}
+			else
+				perror("fopen /proc/stb/fp/wakeup_time");
 		}
+		/* not platform specific */
 		else
-			perror("fopen /proc/stb/fp/wakeup_time");
-#else
-		FILE *f = fopen("/tmp/.timer", "w");
-		if (f)
 		{
-			fprintf(stderr, "timer_wakeup: %ld\n", timer_minutes * 60);
-			fprintf(f, "%ld\n", timer_minutes * 60);
-			fprintf(f, "%d\n", leds);
-			fprintf(f, "%d\n", bright);
-			fclose(f);
+			FILE *f = fopen("/tmp/.timer", "w");
+			if (f)
+			{
+				fprintf(stderr, "timer_wakeup: %ld\n", timer_minutes * 60);
+				fprintf(f, "%ld\n", timer_minutes * 60);
+				fprintf(f, "%d\n", leds);
+				fprintf(f, "%d\n", bright);
+				fclose(f);
+			}
+			else
+				perror("fopen /tmp/.timer");
 		}
-		else
-			perror("fopen /tmp/.timer");
-#endif
 	}
 
 	delete g_RCInput;
