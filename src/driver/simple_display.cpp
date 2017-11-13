@@ -354,18 +354,7 @@ void CLCD::showTime(bool force)
 #if HAVE_SPARK_HARDWARE
 			now += t->tm_gmtoff;
 			int fd = dev_open();
-#if 0 /* VFDSETTIME is broken and too complicated anyway -> use VFDSETTIME2 */
-			int mjd = 40587 + now  / 86400; /* 1970-01-01 is mjd 40587 */
-			struct aotom_ioctl_data d;
-			d.u.time.time[0] = mjd >> 8;
-			d.u.time.time[1] = mjd & 0xff;
-			d.u.time.time[2] = hour;
-			d.u.time.time[3] = minute;
-			d.u.time.time[4] = t->tm_sec;
-			int ret = ioctl(fd, VFDSETTIME, &d);
-#else
 			ret = ioctl(fd, VFDSETTIME2, &now);
-#endif
 			close(fd);
 #endif
 #if HAVE_ARM_HARDWARE
