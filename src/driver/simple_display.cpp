@@ -487,6 +487,7 @@ void CLCD::setMode(const MODES m, const char * const title)
 	case MODE_SHUTDOWN:
 		showclock = false;
 		Clear();
+		proc_put("/proc/stb/lcd/show_symbols", false);
 		break;
 	case MODE_STANDBY:
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
