@@ -288,7 +288,7 @@ CTimerList::CTimerList()
 	changed = false;
 
 	/* most probable default */
-	saved_dispmode = (int)CVFD::MODE_TVRADIO;
+	saved_dispmode = (int)CVFD::getInstance()->getMode();
 }
 
 CTimerList::~CTimerList()
@@ -1422,7 +1422,6 @@ void CTimerList::paint()
 	unsigned int page_nr = (listmaxshow == 0) ? 0 : (selected / listmaxshow);
 	liststart = page_nr * listmaxshow;
 
-	saved_dispmode = (int)CVFD::getInstance()->getMode();
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_TIMERLIST_NAME));
 
 	paintHead();
