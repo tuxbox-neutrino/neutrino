@@ -28,8 +28,10 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <cmath>
+#include <fstream>
 /* zapit */
 #include <config.h>
+#include <system/helpers.h>
 #include <zapit/debug.h>
 #include <zapit/settings.h>
 #include <zapit/getservices.h>
@@ -252,6 +254,7 @@ bool CFrontend::Open(bool init)
 		}
 
 		getFEInfo();
+
 	}
 
 	currentTransponder.setTransponderId(0);
@@ -273,6 +276,30 @@ void CFrontend::getFEInfo(void)
 
 	printf("[fe%d] frontend fd %d type %d\n", fenumber, fd, info.type);
 	bool legacy = true;
+
+#if HAVE_ARM_HARDWARE
+	std::ifstream in;
+	in.open("/proc/bus/nim_sockets");
+	if (in.is_open())
+	{
+		std::string line;
+		bool found = false;
+		while (getline(in, line))
+		{
+			if (line.find("NIM Socket "+to_string(fenumber)+":") !=std::string::npos)
+				found = true;
+
+			if ((line.find("Name:") != std::string::npos) && found)
+			{
+				//printf("NIM SOCKET: %s\n",line.substr(line.find_first_of(":")+2).c_str());
+				std::string tmp = info.name;
+				sprintf(info.name,"%s (%s)",tmp.c_str(),line.substr(line.find_first_of(":")+2).c_str());
+				break;
+			}
+		}
+	in.close();
+	}
+#endif // HAVE_ARM_HARDWARE
 
 	deliverySystemMask = UNKNOWN_DS;
 
