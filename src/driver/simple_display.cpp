@@ -482,6 +482,9 @@ void CLCD::setMode(const MODES m, const char * const)
 		}
 		showTime();
 		break;
+	case MODE_MENU_UTF8:
+		showclock = false;
+		break;
 	case MODE_SHUTDOWN:
 		showclock = false;
 		Clear();
