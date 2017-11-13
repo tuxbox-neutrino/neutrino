@@ -460,7 +460,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 
-	std::string oldservicename = CVFD::getInstance()->getServicename();
 	while(!isHTTP && !isUPNP && SelectFile()) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->showServicename(file_name.c_str());
@@ -478,7 +477,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		}
 		while (repeat_mode || filelist_it != filelist.end());
 	}
-	CVFD::getInstance()->showServicename(oldservicename.c_str());
+	CVFD::getInstance()->showServicename(CVFD::getInstance()->getServicename());
 
 	bookmarkmanager->flush();
 
