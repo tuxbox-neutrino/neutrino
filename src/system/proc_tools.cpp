@@ -10,8 +10,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <ctype.h>	/* isspace */
-#include <stdio.h>	/* sscanf */
+#include <cctype>	/* isspace */
+#include <cstdio>	/* sscanf */
+#include <cstring>
 
 #include "proc_tools.h"
 
@@ -26,6 +27,11 @@ int proc_put(const char *path, const char *value, const int len)
 	if (ret2 < 0)
 		return ret2;
 	return ret;
+}
+
+int proc_put(const char *path, const char *value)
+{
+	return proc_put(path, value, strlen(value));
 }
 
 int proc_put(const char *path, bool state)

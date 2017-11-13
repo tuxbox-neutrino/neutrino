@@ -9,6 +9,7 @@
 #ifndef __PROC_TOOLS_H__
 #define __PROC_TOOLS_H__
 int proc_put(const char *path, const char *value, const int len);
+int proc_put(const char *path, const char *value);
 int proc_put(const char *path, bool state);
 int proc_get(const char *path, char *value, const int len);
 unsigned int proc_get_hex(const char *path);
