@@ -48,6 +48,7 @@
 #include <driver/display.h>
 
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <cs_api.h>
 
 
@@ -164,9 +165,22 @@ int CVfdSetup::showSetup()
 		vfds->addItem(oj);
 
 		//scroll options
-		oj = new CMenuOptionChooser(LOCALE_LCDMENU_SCROLL, &g_settings.lcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled, this);
-		oj->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
-		vfds->addItem(oj);
+		if (file_exists("/proc/stb/lcd/scroll_repeats"))
+		{
+			// allow to set scroll_repeats
+			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_LCDMENU_SCROLL_REPEATS, &g_settings.lcd_scroll, vfd_enabled, 0, 999, this);
+			nc->setLocalizedValue(0);
+			nc->setLocalizedValueName(LOCALE_OPTIONS_OFF);
+			nc->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
+			vfds->addItem(nc);
+		}
+		else
+		{
+			// simple on/off chooser
+			oj = new CMenuOptionChooser(LOCALE_LCDMENU_SCROLL, &g_settings.lcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled, this);
+			oj->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
+			vfds->addItem(oj);
+		}
 
 		//notify rc-lock
 		oj = new CMenuOptionChooser(LOCALE_LCDMENU_NOTIFY_RCLOCK, &g_settings.lcd_notify_rclock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
@@ -305,7 +319,7 @@ bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void * /* data 
 		CVFD::getInstance()->setled();
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_BACKLIGHT_TV)) {
 		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LCDMENU_SCROLL)) {
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LCDMENU_SCROLL) || ARE_LOCALES_EQUAL(OptionName, LOCALE_LCDMENU_SCROLL_REPEATS)) {
 		CVFD::getInstance()->setScrollMode(g_settings.lcd_scroll);
 	}
 

@@ -4670,6 +4670,7 @@ void sighandler (int signum)
 		delete CRecordManager::getInstance();
 		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
+		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 		delete CVFD::getInstance();
 		delete SHTDCNT::getInstance();
 		stop_video();

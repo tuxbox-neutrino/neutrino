@@ -885,6 +885,7 @@ lcdmenu.head VFD/LED Einstellungen
 lcdmenu.lcdcontroler Helligkeit
 lcdmenu.notify_rclock Benachrichtigung bei FB-Sperre
 lcdmenu.scroll Laufschrift
+lcdmenu.scroll_repeats Laufschrift und Wiederholungen
 lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt

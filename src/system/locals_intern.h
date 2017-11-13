@@ -912,6 +912,7 @@ const char * locale_real_names[] =
 	"lcdmenu.lcdcontroler",
 	"lcdmenu.notify_rclock",
 	"lcdmenu.scroll",
+	"lcdmenu.scroll_repeats",
 	"lcdmenu.statusline",
 	"lcdmenu.statusline.both",
 	"lcdmenu.statusline.playtime",

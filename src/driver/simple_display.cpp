@@ -582,15 +582,15 @@ int CLCD::getBrightnessStandby()
 		return 0;
 }
 
-void CLCD::setScrollMode(int scroll)
+void CLCD::setScrollMode(int scroll_repeats)
 {
-	printf("CLCD::%s scroll:%d\n", __func__, scroll);
-	if (scroll)
+	printf("CLCD::%s scroll_repeats:%d\n", __func__, scroll_repeats);
+	if (scroll_repeats)
 	{
 		proc_put("/proc/stb/lcd/initial_scroll_delay", "1000");
 		proc_put("/proc/stb/lcd/final_scroll_delay", "1000");
 		proc_put("/proc/stb/lcd/scroll_delay", "150");
-		proc_put("/proc/stb/lcd/scroll_repeats", "3");
+		proc_put("/proc/stb/lcd/scroll_repeats", to_string(scroll_repeats).c_str());
 	}
 	else
 	{

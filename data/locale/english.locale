@@ -885,6 +885,7 @@ lcdmenu.head VFD/LED Settings
 lcdmenu.lcdcontroler Brightness
 lcdmenu.notify_rclock Notify when RC is locked
 lcdmenu.scroll Enable text scroll
+lcdmenu.scroll_repeats Enable text scroll and repeats
 lcdmenu.statusline status line
 lcdmenu.statusline.both volume and playtime
 lcdmenu.statusline.playtime playtime

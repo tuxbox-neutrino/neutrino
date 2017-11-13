@@ -186,7 +186,7 @@ class CLCD
 		void setBrightnessDeepStandby(int) { return ; };
 		int getBrightnessDeepStandby() { return 0; };
 
-		void setScrollMode(int scoll);
+		void setScrollMode(int scroll_repeats);
 
 		void setContrast(int);
 		int getContrast();
