@@ -542,6 +542,12 @@ void CRemoteControl::processAPIDnames()
 #endif
 	if ( has_unresolved_ctags )
 	{
+		if ( current_EPGid == 0 ){
+			const CSectionsdClient::CurrentNextInfo info_CN = g_InfoViewer->getCurrentNextInfo();
+			if ((info_CN.current_uniqueKey >> 16) == (current_channel_id & 0xFFFFFFFFFFFFULL)){
+				current_EPGid = info_CN.current_uniqueKey;
+			}
+		}
 		if ( current_EPGid != 0 )
 		{
 			CSectionsdClient::ComponentTagList tags;
