@@ -145,9 +145,9 @@ int CVfdSetup::showSetup()
 			mf = new CMenuDForwarder(LOCALE_LEDCONTROLER_BACKLIGHT, true, NULL, blMenu, NULL, CRCInput::RC_yellow);
 			mf->setHint("", LOCALE_MENU_HINT_BACKLIGHT);
 			vfds->addItem(mf);
-		}
 
-		vfds->addItem(GenericMenuSeparatorLine);
+			vfds->addItem(GenericMenuSeparatorLine);
+		}
 
 		//status and info line options
 		CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_LCDMENU_STATUSLINE, &g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME], LCDMENU_STATUSLINE_OPTIONS, LCDMENU_STATUSLINE_OPTION_COUNT, vfd_enabled);
