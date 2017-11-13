@@ -37,7 +37,7 @@ libneutrino_system_a_SOURCES = \
 	localize.cpp \
 	helpers.cpp \
 	ping.cpp \
-	proc_tools.c \
+	proc_tools.cpp \
 	settings.cpp \
 	stacktrace.cpp \
 	sysload.cpp \

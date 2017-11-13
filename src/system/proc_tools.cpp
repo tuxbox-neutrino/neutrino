@@ -28,6 +28,11 @@ int proc_put(const char *path, const char *value, const int len)
 	return ret;
 }
 
+int proc_put(const char *path, bool state)
+{
+	return proc_put(path, state ? "1" : "0", 1);
+}
+
 int proc_get(const char *path, char *value, const int len)
 {
 	int ret, ret2;
