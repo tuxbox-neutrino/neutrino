@@ -465,8 +465,11 @@ void CLCD::showAudioProgress(const char, bool)
 {
 }
 
-void CLCD::setMode(const MODES m, const char * const)
+void CLCD::setMode(const MODES m, const char * const title)
 {
+	if (strlen(title))
+		ShowText(title);
+
 	mode = m;
 
 	switch (m) {
