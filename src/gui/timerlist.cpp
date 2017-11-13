@@ -48,7 +48,6 @@
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 #include <driver/record.h>
-#include <driver/display.h>
 
 #include <gui/channellist.h>
 #include <gui/color.h>
@@ -287,8 +286,7 @@ CTimerList::CTimerList()
 	httpConnectTimeout = 300; // ms
 	changed = false;
 
-	/* most probable default */
-	saved_dispmode = (int)CVFD::getInstance()->getMode();
+	saved_displaymode = CVFD::getInstance()->getMode();
 }
 
 CTimerList::~CTimerList()
@@ -631,7 +629,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 
 	int ret = show();
-	CVFD::getInstance()->setMode((CVFD::MODES)saved_dispmode);
+	CVFD::getInstance()->setMode(saved_displaymode);
 
 	return ret;
 	/*
