@@ -149,10 +149,14 @@ int CVfdSetup::showSetup()
 			vfds->addItem(GenericMenuSeparatorLine);
 		}
 
-		//status line options
-		CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_LCDMENU_STATUSLINE, &g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME], LCDMENU_STATUSLINE_OPTIONS, LCDMENU_STATUSLINE_OPTION_COUNT, vfd_enabled);
-		oj->setHint("", LOCALE_MENU_HINT_VFD_STATUSLINE);
-		vfds->addItem(oj);
+		CMenuOptionChooser* oj;
+		if (g_info.hw_caps->display_has_statusline)
+		{
+			//status line options
+			oj = new CMenuOptionChooser(LOCALE_LCDMENU_STATUSLINE, &g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME], LCDMENU_STATUSLINE_OPTIONS, LCDMENU_STATUSLINE_OPTION_COUNT, vfd_enabled);
+			oj->setHint("", LOCALE_MENU_HINT_VFD_STATUSLINE);
+			vfds->addItem(oj);
+		}
 
 		//info line options
 		oj = new CMenuOptionChooser(LOCALE_LCD_INFO_LINE, &g_settings.lcd_info_line, LCD_INFO_OPTIONS, LCD_INFO_OPTION_COUNT, vfd_enabled);
