@@ -213,7 +213,7 @@ class CLCD
 		void ShowDiskLevel();
 		void Reset() {};
 		void ShowIcon(fp_icon icon, bool show);
-		void ShowText(const char *s) { showServicename(std::string(s), true); };
+		void ShowText(const char *str, bool update_timestamp = true);
 		~CLCD();
 };
 
