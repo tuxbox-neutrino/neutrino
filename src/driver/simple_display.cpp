@@ -80,7 +80,7 @@ static int proc_put(const char *path, bool state)
 	return ret;
 }
 #else
-static int proc_put(const char *path, bool state) {return 0;}
+static int proc_put(const char *, bool) {return 0;}
 #endif
 
 static char volume = 0;
