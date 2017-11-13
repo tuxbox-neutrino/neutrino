@@ -465,7 +465,7 @@ void CLCD::setMode(const MODES m, const char * const title)
 	mode = m;
 
 	setlcdparameter();
-	proc_put("/proc/stb/lcd/show_symbols",true);
+	proc_put("/proc/stb/lcd/show_symbols", "1", 1);
 	switch (m) {
 	case MODE_TVRADIO:
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
@@ -495,7 +495,7 @@ void CLCD::setMode(const MODES m, const char * const title)
 			setled(0, 1);
 		showclock = true;
 		showTime(true);
-		proc_put("/proc/stb/lcd/show_symbols",false);
+		proc_put("/proc/stb/lcd/show_symbols", "0", 1);
 		break;
 	default:
 		showclock = true;
