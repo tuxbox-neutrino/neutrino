@@ -100,7 +100,6 @@ class CFEManager
 		bool		getSatelliteConfig(CFrontend * fe, sat_config_t &satconfig);
 
 		bool		loopCanTune(CFrontend * fe, CZapitChannel * channel);
-		CFrontend *	getFrontend(CZapitChannel * channel);
 		void		copySettings(CFrontend * from, CFrontend * to);
 
 		static CFEManager * manager;
@@ -121,6 +120,7 @@ class CFEManager
 
 		fe_mode_t	getMode() { return mode; };
 
+		CFrontend *	getFrontend(CZapitChannel * channel);
 		int		getFrontendCount() { return femap.size(); };
 		int		getEnabledCount();
 
