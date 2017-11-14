@@ -26,6 +26,7 @@
 
 #include <driver/simple_display.h>
 #include <driver/framebuffer.h>
+#include <system/helpers.h>
 #include <system/proc_tools.h>
 #include <system/set_threadname.h>
 
@@ -41,7 +42,6 @@
 #include <aotom_main.h>
 #define DISPLAY_DEV "/dev/vfd"
 #include <zapit/zapit.h>
-#include <system/helpers.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
@@ -60,7 +60,6 @@ static bool timer_icon = false;
 #if HAVE_ARM_HARDWARE
 #define DISPLAY_DEV "/dev/dbox/oled0"
 #include <zapit/zapit.h>
-#include <system/helpers.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
