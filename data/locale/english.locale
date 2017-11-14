@@ -1794,6 +1794,7 @@ messagebox.discard Discard changes?
 messagebox.error Error
 messagebox.feature_not_supported Feature is not supported. Please contact your firmware provider!
 messagebox.info Information
+messagebox.need_reboot The box must be restarted to make the changes effective.\nRestart now?
 messagebox.no No
 messagebox.ok Ok
 messagebox.yes Yes

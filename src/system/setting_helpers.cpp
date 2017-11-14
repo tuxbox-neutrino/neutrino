@@ -206,6 +206,8 @@ bool CFlagFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 		}
 		remove(flagfile.c_str());
 	}
+	if (strstr(filename, "ciplushelper"))
+		CNeutrinoApp::getInstance()->exec(NULL, "need_reboot");
 	return menu_return::RETURN_REPAINT;
 }
 

@@ -1794,6 +1794,7 @@ messagebox.discard Wollen Sie die Änderungen verwerfen?
 messagebox.error Fehler
 messagebox.feature_not_supported Funktion wird nicht unterstützt. Bitte wenden Sie sich an Ihren Firmware-Anbieter!
 messagebox.info Information
+messagebox.need_reboot Die Box muss neu gestartet werden, um die Änderungen wirksam zu machen.\nSoll jetzt neu gestartet werden?
 messagebox.no Nein
 messagebox.ok OK
 messagebox.yes Ja

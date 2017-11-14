@@ -1821,6 +1821,7 @@ const char * locale_real_names[] =
 	"messagebox.error",
 	"messagebox.feature_not_supported",
 	"messagebox.info",
+	"messagebox.need_reboot",
 	"messagebox.no",
 	"messagebox.ok",
 	"messagebox.yes",
