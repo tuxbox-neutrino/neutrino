@@ -22,7 +22,8 @@
 #ifndef __MENU_TARGET__
 #define __MENU_TARGET__
 
-
+#include <string>
+#include <driver/framebuffer.h>
 
 class CMenuTarget
 {
