@@ -399,6 +399,8 @@ void CLCD::showVolume(const char vol, const bool update)
 	if (volume > 100)
 		volume = 100;
 
+	ShowIcon(FP_ICON_MUTE, muted);
+
 	if (muted)
 	{
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
@@ -868,6 +870,9 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 			timer_icon = on;
 			SetIcons(SPARK_CLOCK, on);
 			proc_put("/proc/stb/lcd/symbol_timeshift", on);
+			break;
+		case FP_ICON_MUTE:
+			proc_put("/proc/stb/lcd/symbol_mute", on);
 			break;
 		default:
 			break;
