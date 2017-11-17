@@ -2535,6 +2535,7 @@ void CNeutrinoApp::showMainMenu()
 	int old_mode = g_settings.epg_scan_mode;
 	int old_save_mode = g_settings.epg_save_mode;
 	mainMenu->exec(NULL, "");
+	CVFD::getInstance()->UpdateIcons();
 	InfoClock->enableInfoClock(true);
 	StartSubtitles();
 	saveSetup(NEUTRINO_SETTINGS_FILE);
@@ -2853,6 +2854,7 @@ void CNeutrinoApp::RealRun()
 				//open moviebrowser via media player menu object
 				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 					CMediaPlayerMenu::getInstance()->exec(NULL, "moviebrowser");
+				CVFD::getInstance()->UpdateIcons();
 			}
 			else if( ( msg == CRCInput::RC_help ) || ( msg == CRCInput::RC_info) ||
 						( msg == NeutrinoMessages::SHOW_INFOBAR ) )
@@ -3136,6 +3138,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if(g_settings.audio_AnalogMode < 0 || g_settings.audio_AnalogMode > 2)
 			g_settings.audio_AnalogMode = 0;
 
+		CVFD::getInstance()->UpdateIcons();
 		g_RCInput->killTimer(scrambled_timer);
 		if (mode != mode_webtv) {
 			scrambled_timer = g_RCInput->addTimer(10*1000*1000, true);

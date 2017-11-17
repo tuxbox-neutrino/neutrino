@@ -155,6 +155,7 @@ class CVFD
 		void Lock();
 		void Unlock();
 		void Clear();
+		void UpdateIcons() { return; }
 		void ShowIcon(fp_icon icon, bool show);
 		void ShowText(const char *str);
 		void ShowNumber(int number);

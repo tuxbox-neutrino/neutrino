@@ -797,6 +797,7 @@ void CLCD::UpdateIcons()
 	{
 		ShowIcon(FP_ICON_HD,chan->isHD());
 		ShowIcon(FP_ICON_LOCK,!chan->camap.empty());
+		ShowIcon(FP_ICON_SCRAMBLED, chan->scrambled);
 		if (chan->getAudioChannel() != NULL)
 		{
 			ShowIcon(FP_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
@@ -873,6 +874,9 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 			break;
 		case FP_ICON_MUTE:
 			proc_put("/proc/stb/lcd/symbol_mute", on);
+			break;
+		case FP_ICON_SCRAMBLED:
+			proc_put("/proc/stb/lcd/symbol_scrambled", on);
 			break;
 		default:
 			break;
