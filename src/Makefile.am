@@ -194,6 +194,10 @@ neutrino_LDADD += \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@
 
+if BOXTYPE_ARMBOX
+neutrino_LDADD += @SWSCALE_LIBS@
+endif
+
 if BOXMODEL_RASPI
 neutrino_LDADD += \
 	-L/opt/vc/lib/ -lbcm_host -lvcos -lvchiq_arm -lpthread -lrt
