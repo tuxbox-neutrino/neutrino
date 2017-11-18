@@ -55,6 +55,8 @@ int main(int argc, char **argv)
 	fp.timer_minutes_hi	= fp_timer >> 8;;
 	fp.timer_minutes_lo	= fp_timer & 0xFF;
 
+	system("/etc/init.d/rcK");
+
 	fd = open("/dev/display", O_RDONLY);
 	if (fd < 0)
 		perror("/dev/display");
