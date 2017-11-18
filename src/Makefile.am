@@ -204,8 +204,8 @@ neutrino_LDADD += \
 endif
 
 if BOXTYPE_COOL
-bin_PROGRAMS += uncooloff
-uncooloff_SOURCES = uncooloff.c
+bin_PROGRAMS += shutdown_helper
+shutdown_helper_SOURCES = shutdown_helper.c
 # if BOXMODEL_CS_HD2
 # else
 # noinst_PROGRAMS = uncoolinit

@@ -1,5 +1,5 @@
 /*
- * uncooloff - switch off the box with a possible timer wakeup
+ * shutdown_helper - switch off the box with a possible timer wakeup
  * this is needed because the drivers do not implement a proper
  * hwclock interface :-(
  *
