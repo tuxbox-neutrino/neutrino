@@ -482,10 +482,8 @@ void CComponentsForm::paintCCItems()
 
 		//reduce corner radius, if we have a frame around parent item, ensure matching corners inside of embedded item, this avoids ugly unpainted spaces between frame and item border
 		//TODO: other constellations not considered at the moment
-		if (w_parent_frame){
-			if(xpos <= fr_thickness || ypos <= fr_thickness)
-				cc_item->setCorner(max(0, cc_item->getCornerRadius()-w_parent_frame), cc_item->getCornerType());
-		}
+		if (w_parent_frame)
+			cc_item->setCorner(max(0, cc_item->getCornerRadius()- w_parent_frame), cc_item->getCornerType());
 
 		//These steps check whether the element can be painted into the container.
 		//Is it too wide or too high, it will be shortened and displayed in the log.

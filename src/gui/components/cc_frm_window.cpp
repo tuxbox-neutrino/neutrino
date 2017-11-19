@@ -226,7 +226,7 @@ void CComponentsWindow::initFooter()
 		ccw_footer->setPos(cc_xr + fr_thickness, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
 		ccw_footer->setWidth(width/*-2*fr_thickness*/);
 		ccw_footer->enableShadow(false/*shadow*/);
-		ccw_footer->setCorner(corner_rad-fr_thickness, CORNER_BOTTOM);
+		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
 		ccw_footer->setButtonFont(ccw_button_font);
 		ccw_footer->setColorBody(ccw_col_footer);
 		ccw_footer->doPaintBg(true);
