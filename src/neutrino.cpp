@@ -3842,20 +3842,14 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	g_settings.shutdown_timer_record_type = timer_is_rec;
 	saveSetup(NEUTRINO_SETTINGS_FILE);
 
-#if 0
-	if (can_shutdown)
-	{
-#endif
-		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
-		if (my_system(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT) != 0)
-			perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
+	puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
+	if (my_system(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT) != 0)
+		perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
 
-		printf("entering off state\n");
-		printf("timer_minutes: %ld\n", timer_minutes);
-		mode = NeutrinoModes::mode_off;
-#if 0
-	}
-#endif
+	printf("entering off state\n");
+	printf("timer_minutes: %ld\n", timer_minutes);
+	mode = NeutrinoModes::mode_off;
+
 	int leds = 0;
 	int bright = 0;
 #if HAVE_COOL_HARDWARE
