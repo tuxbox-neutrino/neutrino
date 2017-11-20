@@ -3879,17 +3879,18 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 #endif
 	if (timer_minutes || leds)
 	{
+		time_t t = timer_minutes * 60;
+		struct tm *tm = localtime(&t);
+		char date[30];
+		strftime(date, sizeof(date), "%c", tm);
+		printf("timer_wakeup: %s (%ld)\n", date, timer_minutes * 60);
+
 		/* prioritize proc filesystem */
 		if (access("/proc/stb/fp/wakeup_time", F_OK) == 0)
 		{
 			FILE *f = fopen("/proc/stb/fp/wakeup_time","w");
 			if (f)
 			{
-				time_t t = timer_minutes * 60;
-				struct tm *tm = localtime(&t);
-				char date[30];
-				strftime(date, sizeof(date), "%c", tm);
-				fprintf(stderr, "timer_wakeup: %s (%ld)\n", date, timer_minutes * 60);
 				fprintf(f, "%ld\n", timer_minutes * 60);
 				fclose(f);
 			}
@@ -3902,7 +3903,6 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 			FILE *f = fopen("/tmp/.timer", "w");
 			if (f)
 			{
-				fprintf(stderr, "timer_wakeup: %ld\n", timer_minutes * 60);
 				fprintf(f, "%ld\n", timer_minutes * 60);
 				fprintf(f, "%d\n", leds);
 				fprintf(f, "%d\n", bright);
