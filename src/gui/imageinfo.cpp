@@ -281,7 +281,14 @@ void CImageInfo::InitInfoData()
 #ifdef IMAGE_VERSION
 	version_string = IMAGE_VERSION;
 #else
-	if (isdigit(version_string[0])){
+	bool is_version_code = true;
+	for (size_t i=0; i<version_string.size(); i++){
+		if (!isdigit(version_string[i])){
+			is_version_code = false;
+			break;
+		}
+	}
+	if (is_version_code && version_string.size() == 16){
 		static CFlashVersionInfo versionInfo(version_string.c_str());
 		version_string = versionInfo.getReleaseCycle();
 		version_string += " ";

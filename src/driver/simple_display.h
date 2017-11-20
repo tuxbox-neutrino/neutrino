@@ -65,6 +65,7 @@ typedef enum
 	FP_ICON_FR,
 	FP_ICON_FF,
 	FP_ICON_DD,
+	FP_ICON_SCRAMBLED,
 	FP_ICON_LOCK
 } fp_icon;
 

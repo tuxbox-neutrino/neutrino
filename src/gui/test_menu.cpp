@@ -1117,6 +1117,9 @@ int CTestMenu::showTestMenu()
 	w_test.addItem(new CMenuForwarder(w_msg->getName(), true, NULL, w_msg));
 	showMsgTests(w_msg);
 
+	//restart gui
+	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));
+
 	//footer buttons
 	static const struct button_label footerButtons[2] = {
 		{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_COLORCHOOSER_RED	},

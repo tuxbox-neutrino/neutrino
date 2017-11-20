@@ -399,6 +399,8 @@ void CLCD::showVolume(const char vol, const bool update)
 	if (volume > 100)
 		volume = 100;
 
+	ShowIcon(FP_ICON_MUTE, muted);
+
 	if (muted)
 	{
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
@@ -795,6 +797,7 @@ void CLCD::UpdateIcons()
 	{
 		ShowIcon(FP_ICON_HD,chan->isHD());
 		ShowIcon(FP_ICON_LOCK,!chan->camap.empty());
+		ShowIcon(FP_ICON_SCRAMBLED, chan->scrambled);
 		if (chan->getAudioChannel() != NULL)
 		{
 			ShowIcon(FP_ICON_DD, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::AC3);
@@ -868,6 +871,12 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 			timer_icon = on;
 			SetIcons(SPARK_CLOCK, on);
 			proc_put("/proc/stb/lcd/symbol_timeshift", on);
+			break;
+		case FP_ICON_MUTE:
+			proc_put("/proc/stb/lcd/symbol_mute", on);
+			break;
+		case FP_ICON_SCRAMBLED:
+			proc_put("/proc/stb/lcd/symbol_scrambled", on);
 			break;
 		default:
 			break;
