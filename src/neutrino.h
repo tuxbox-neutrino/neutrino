@@ -211,7 +211,7 @@ public:
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
 
-	void saveEpg(bool cvfd_mode);
+	void saveEpg(int _mode);
 	void stopDaemonsForFlash();
 	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
 	void allowChannelList(bool allow){channelList_allowed = allow;}

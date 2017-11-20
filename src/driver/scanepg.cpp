@@ -333,6 +333,9 @@ void CEpgScan::EnterStandby()
 	if (standby) {
 		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
 		CNeutrinoApp::getInstance()->standbyToStandby();
+
+		if (g_settings.epg_save && g_settings.epg_save_standby)
+			CNeutrinoApp::getInstance()->saveEpg(NeutrinoModes::mode_standby);
 	}
 }
 

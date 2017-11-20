@@ -3829,7 +3829,7 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/)
 	{
 		g_Sectionsd->setPauseScanning(true);
-		saveEpg(true);// true CVFD::MODE_SHUTDOWN
+		saveEpg(NeutrinoModes::mode_off);
 	}
 
 	/* on shutdown force load new fst */
@@ -4020,40 +4020,47 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 #endif
 }
 
-void CNeutrinoApp::saveEpg(bool cvfd_mode)
+void CNeutrinoApp::saveEpg(int _mode)
 {
 	struct stat my_stat;
-	if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0){
-		if(!cvfd_mode){//skip saveepg in standby mode, if last saveepg time < 15 Min.
+	if (stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
+	{
+		if (_mode == NeutrinoModes::mode_standby)
+		{
+			// skip save epg in standby mode, if last saveepg time < 15 Min.
 			std::string index_xml = g_settings.epg_dir.c_str();
 			index_xml += "/index.xml";
 			time_t t=0;
-			if(stat(index_xml.c_str(), &my_stat) == 0){
-				if(difftime(time(&t), my_stat.st_ctime) < 900){
+			if (stat(index_xml.c_str(), &my_stat) == 0)
+			{
+				if (difftime(time(&t), my_stat.st_ctime) < 900)
 					return;
-				}
 			}
 		}
-		printf("[neutrino] Saving EPG to %s...\n", g_settings.epg_dir.c_str());
-
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_EPG_SAVING));
 
+		printf("[neutrino] Saving EPG to %s...\n", g_settings.epg_dir.c_str());
 		g_Sectionsd->writeSI2XML(g_settings.epg_dir.c_str());
 
-		neutrino_msg_t      msg;
+		neutrino_msg_t msg;
 		neutrino_msg_data_t data;
-		while( true ) {
+		while(true)
+		{
 			g_RCInput->getMsg(&msg, &data, 1200); // 120 secs..
-			if (( msg == CRCInput::RC_timeout ) || (msg == NeutrinoMessages::EVT_SI_FINISHED)) {
+			if ((msg == CRCInput::RC_timeout) || (msg == NeutrinoMessages::EVT_SI_FINISHED))
+			{
 				//printf("Msg %x timeout %d EVT_SI_FINISHED %x\n", msg, CRCInput::RC_timeout, NeutrinoMessages::EVT_SI_FINISHED);
 				CVFD::getInstance()->Clear();
-				CVFD::getInstance()->setMode(cvfd_mode ? CVFD::MODE_SHUTDOWN : CVFD::MODE_STANDBY);// true CVFD::MODE_SHUTDOWN  , false CVFD::MODE_STANDBY
+				// do we really have to change VFD-mode here again?
+				CVFD::getInstance()->setMode((_mode == NeutrinoModes::mode_standby) ? CVFD::MODE_STANDBY : CVFD::MODE_SHUTDOWN);
 				delete [] (unsigned char*) data;
 				break;
-			} else if (!cvfd_mode){
-				printf("wait for epg saving, Msg %x \n", (int) msg);
+			}
+			else if (_mode == NeutrinoModes::mode_standby)
+			{
+				printf("wait for epg saving, msg %x \n", (int) msg);
 				handleMsg(msg, data);
 			}
 		}
@@ -4208,7 +4215,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(!CRecordManager::getInstance()->RecordingStatus() ) {
 			//only save epg when not recording
 			if(g_settings.epg_save && !fromDeepStandby && g_settings.epg_save_standby) {
-				saveEpg(false);//false CVFD::MODE_STANDBY
+				saveEpg(NeutrinoModes::mode_standby);
 			}
 		}
 
