@@ -3880,7 +3880,7 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	if (timer_minutes || leds)
 	{
 		/* prioritize proc filesystem */
-		if (access("/proc/stb/fp/was_timer_wakeup", F_OK) == 0)
+		if (access("/proc/stb/fp/wakeup_time", F_OK) == 0)
 		{
 			FILE *f = fopen("/proc/stb/fp/wakeup_time","w");
 			if (f)
