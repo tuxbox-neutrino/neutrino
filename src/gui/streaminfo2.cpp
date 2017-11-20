@@ -354,7 +354,7 @@ int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
 	if (parent)
 		parent->hide ();
 
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		mp = &CMoviePlayerGui::getInstance(true);
 	else
 		mp = &CMoviePlayerGui::getInstance();
@@ -579,7 +579,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	tname += ": ";
 	if (mp)
 	{
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 			tname += "Web-Channel"; // TODO split into WebTV/WebRadio
 		else
 			tname += g_Locale->getText(LOCALE_MAINMENU_MOVIEPLAYER);
@@ -826,7 +826,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	if (mp)
 	{
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		{
 			// channel
 			r.key = g_Locale->getText (LOCALE_TIMERLIST_CHANNEL);
@@ -929,7 +929,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		}
 
 	}
-	if (((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
+	if (((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
 	{
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
 		 if (yres == 1088)
@@ -1065,7 +1065,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		v.push_back(r);
 
 		// picon
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		{
 			r.key = "Picon";
 			r.key += ": ";

@@ -370,19 +370,19 @@ static void set_lua_variables(lua_State *L)
 
 	table_key neutrino_mode[] =
 	{
-		{ "UNKNOWN",		(lua_Integer)CNeutrinoApp::mode_unknown },
-		{ "TV",			(lua_Integer)CNeutrinoApp::mode_tv },
-		{ "RADIO",		(lua_Integer)CNeutrinoApp::mode_radio },
-		{ "SCART",		(lua_Integer)CNeutrinoApp::mode_scart },
-		{ "STANDBY",		(lua_Integer)CNeutrinoApp::mode_standby },
-		{ "AUDIO",		(lua_Integer)CNeutrinoApp::mode_audio },
-		{ "PIC",		(lua_Integer)CNeutrinoApp::mode_pic },
-		{ "TS",			(lua_Integer)CNeutrinoApp::mode_ts },
-		{ "OFF",		(lua_Integer)CNeutrinoApp::mode_off },
-		{ "WEBTV",		(lua_Integer)CNeutrinoApp::mode_webtv },
-		{ "WEBRADIO",		(lua_Integer)CNeutrinoApp::mode_webradio },
-		{ "MASK",		(lua_Integer)CNeutrinoApp::mode_mask },
-		{ "NOREZAP",		(lua_Integer)CNeutrinoApp::norezap },
+		{ "UNKNOWN",		(lua_Integer)NeutrinoModes::mode_unknown },
+		{ "TV",			(lua_Integer)NeutrinoModes::mode_tv },
+		{ "RADIO",		(lua_Integer)NeutrinoModes::mode_radio },
+		{ "SCART",		(lua_Integer)NeutrinoModes::mode_scart },
+		{ "STANDBY",		(lua_Integer)NeutrinoModes::mode_standby },
+		{ "AUDIO",		(lua_Integer)NeutrinoModes::mode_audio },
+		{ "PIC",		(lua_Integer)NeutrinoModes::mode_pic },
+		{ "TS",			(lua_Integer)NeutrinoModes::mode_ts },
+		{ "OFF",		(lua_Integer)NeutrinoModes::mode_off },
+		{ "WEBTV",		(lua_Integer)NeutrinoModes::mode_webtv },
+		{ "WEBRADIO",		(lua_Integer)NeutrinoModes::mode_webradio },
+		{ "MASK",		(lua_Integer)NeutrinoModes::mode_mask },
+		{ "NOREZAP",		(lua_Integer)NeutrinoModes::norezap },
 		{ NULL, 0 }
 	};
 

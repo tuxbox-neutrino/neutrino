@@ -379,8 +379,8 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 
 		if (hh->ParamList["1"] == "radio")	// switch to radio mode
 		{
-			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby){
-				neutrino_msg_data_t mode = NeutrinoMessages::mode_radio;
+			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby){
+				neutrino_msg_data_t mode = NeutrinoModes::mode_radio;
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::CHANGEMODE, CEventServer::INITID_HTTPD, (void *)&mode,sizeof(neutrino_msg_data_t));
 				sleep(1);
 				NeutrinoAPI->UpdateBouquets();
@@ -391,8 +391,8 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 		}
 		else if (hh->ParamList["1"] == "tv")	// switch to tv mode
 		{
-			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby){
-				neutrino_msg_data_t mode = NeutrinoMessages::mode_tv;
+			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby){
+				neutrino_msg_data_t mode = NeutrinoModes::mode_tv;
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::CHANGEMODE, CEventServer::INITID_HTTPD, (void *)&mode,sizeof(neutrino_msg_data_t));
 				sleep(1);
 				NeutrinoAPI->UpdateBouquets();
@@ -452,23 +452,23 @@ void CControlAPI::GetModeCGI(CyhookHandler *hh)
 	else
 	{
 		int mode = CNeutrinoApp::getInstance()->getMode();
-		if (mode == NeutrinoMessages::mode_tv)
+		if (mode == NeutrinoModes::mode_tv)
 			result = "tv";
-		else if (mode == NeutrinoMessages::mode_radio)
+		else if (mode == NeutrinoModes::mode_radio)
 			result = "radio";
-		else if (mode == NeutrinoMessages::mode_scart)
+		else if (mode == NeutrinoModes::mode_scart)
 			result = "scart";
-		else if (mode == NeutrinoMessages::mode_standby)
+		else if (mode == NeutrinoModes::mode_standby)
 			result = "standby";
-		else if (mode == NeutrinoMessages::mode_audio)
+		else if (mode == NeutrinoModes::mode_audio)
 			result = "audio";
-		else if (mode == NeutrinoMessages::mode_pic)
+		else if (mode == NeutrinoModes::mode_pic)
 			result = "pic";
-		else if (mode == NeutrinoMessages::mode_ts)
+		else if (mode == NeutrinoModes::mode_ts)
 			result = "ts";
-		else if (mode == NeutrinoMessages::mode_webtv)
+		else if (mode == NeutrinoModes::mode_webtv)
 			result = "webtv";
-		else if (mode == NeutrinoMessages::mode_upnp)
+		else if (mode == NeutrinoModes::mode_upnp)
 			result = "upnp";
 		else
 			result = "unknown";

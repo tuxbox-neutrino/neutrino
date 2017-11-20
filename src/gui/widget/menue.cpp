@@ -129,17 +129,17 @@ void CMenuItem::disableByCondition(const menu_item_disable_cond_t& condition)
 	int stb_mode = CNeutrinoApp::getInstance()->getMode();
 
 	if (condition & DCOND_MODE_TS){
-		if (stb_mode == CNeutrinoApp::mode_ts)
+		if (stb_mode == NeutrinoModes::mode_ts)
 			if (initModeCondition(stb_mode))
 				return;
 	}
 	if (condition & DCOND_MODE_RADIO){
-		if (stb_mode == CNeutrinoApp::mode_radio)
+		if (stb_mode == NeutrinoModes::mode_radio)
 			if (initModeCondition(stb_mode))
 				return;
 	}
 	if (condition & DCOND_MODE_TV){
-		if (stb_mode == CNeutrinoApp::mode_tv)
+		if (stb_mode == NeutrinoModes::mode_tv)
 			if (initModeCondition(stb_mode))
 				return;
 	}

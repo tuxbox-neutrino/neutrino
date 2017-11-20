@@ -96,7 +96,7 @@ void SHTDCNT::shutdown_counter()
 	static bool sleeptimer_active = true;
 	if (g_settings.shutdown_count > 0)
 	{
-		if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby) && (!CNeutrinoApp::getInstance ()->recordingstatus))
+		if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby) && (!CNeutrinoApp::getInstance ()->recordingstatus))
 		{
 			if (shutdown_cnt > 0 )
 			{

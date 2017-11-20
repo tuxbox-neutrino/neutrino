@@ -901,7 +901,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	showInfoFile();
 
 	// Radiotext
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 	{
 		if ((g_settings.radiotext_enable) && (!recordModeActive) && (!calledFromNumZap))
 			showRadiotext();
@@ -922,15 +922,15 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 	//define timeouts
 	switch (mode)
 	{
-		case NeutrinoMessages::mode_radio:
-		case NeutrinoMessages::mode_webradio:
+		case NeutrinoModes::mode_radio:
+		case NeutrinoModes::mode_webradio:
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
 				break;
-		case NeutrinoMessages::mode_ts:
+		case NeutrinoModes::mode_ts:
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] + timeout_ext);
 				break;
-		case NeutrinoMessages::mode_tv:
-		case NeutrinoMessages::mode_webtv:
+		case NeutrinoModes::mode_tv:
+		case NeutrinoModes::mode_webtv:
 		default:
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + timeout_ext);
 				break;
@@ -940,7 +940,7 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 bool CInfoViewer::showLivestreamInfo()
 {
 	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
-	bool web_mode = (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio);
+	bool web_mode = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio);
 	if (web_mode && cc->getEpgID() == 0)
 	{
 		std::string livestreamInfo1 = "";
@@ -1127,7 +1127,7 @@ void CInfoViewer::loop(bool show_dot)
 			showRecordIcon (show_dot);
 			show_dot = !show_dot;
 			showInfoFile();
-			if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
+			if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio))
 				showRadiotext();
 
 			infoViewerBB->showIcon_16_9();
@@ -1140,7 +1140,7 @@ void CInfoViewer::loop(bool show_dot)
 			CNeutrinoApp *neutrino = CNeutrinoApp::getInstance ();
 			if ((msg == (neutrino_msg_t) g_settings.key_quickzap_up) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down) || (msg == CRCInput::RC_0) || (msg == NeutrinoMessages::SHOW_INFOBAR)) {
 				hideIt = false; // default
-				if ((g_settings.radiotext_enable) && (neutrino->getMode() == NeutrinoMessages::mode_radio))
+				if ((g_settings.radiotext_enable) && (neutrino->getMode() == NeutrinoModes::mode_radio))
 					hideIt =  true;
 
 				int rec_mode = CRecordManager::getInstance()->GetRecordMode();
@@ -1557,7 +1557,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				showLivestreamInfo();
 				infoViewerBB->showBBButtons(true /*paintFooter*/); // in case button text has changed
 			}
-			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
+			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio))
 				g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
 		}
 		return messages_return::handled;
@@ -2359,7 +2359,7 @@ void CInfoViewer::showLcdPercentOver()
 {
 	if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] != 1)
 	{
-		if (fileplay || NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()) {
+		if (fileplay || NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode()) {
 			CVFD::getInstance()->showPercentOver(CMoviePlayerGui::getInstance().file_prozent);
 			return;
 		}
@@ -2391,7 +2391,7 @@ void CInfoViewer::showLcdPercentOver()
 		}
 		CLCD::getInstance()->showPercentOver(runningPercent);
 		int mode = CNeutrinoApp::getInstance()->getMode();
-		if ((mode == NeutrinoMessages::mode_radio || mode == NeutrinoMessages::mode_tv))
+		if ((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_tv))
 			CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
 	}
 }
@@ -2399,7 +2399,7 @@ void CInfoViewer::showLcdPercentOver()
 void CInfoViewer::showLcdPercentOver ()
 {
 	if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] != 1) {
-		if (fileplay || (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())) {
+		if (fileplay || (NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode())) {
 			CVFD::getInstance ()->showPercentOver (CMoviePlayerGui::getInstance().file_prozent);
 			return;
 		}

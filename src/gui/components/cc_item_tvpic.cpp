@@ -96,7 +96,7 @@ void CComponentsPIP::paint(bool do_save_bg)
 		return;
 	
 	int mode = CNeutrinoApp::getInstance()->getMode();
-	if(mode == NeutrinoMessages::mode_tv || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_ts) {
+	if(mode == NeutrinoModes::mode_tv || mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_ts) {
 		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h);
 	}
 	else{ //paint an alternate image if no tv mode available

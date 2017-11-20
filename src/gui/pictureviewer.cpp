@@ -191,7 +191,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	// remember last mode
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
 	// tell neutrino we're in pic_mode
-	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_pic );
+	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoModes::mode_pic );
 
 	if (!audioplayer) { // !!! why? !!!
 		CNeutrinoApp::getInstance()->stopPlayBack(true);
@@ -226,7 +226,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	// Restore last mode
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
-	if (m_LastMode == NeutrinoMessages::mode_ts)
+	if (m_LastMode == NeutrinoModes::mode_ts)
 		videoDecoder->setBlank(false);
 
 	// always exit all
@@ -608,7 +608,7 @@ int CPictureViewerGui::show()
 		}
 		else if (msg == NeutrinoMessages::CHANGEMODE)
 		{
-			if ((data & NeutrinoMessages::mode_mask) !=NeutrinoMessages::mode_pic)
+			if ((data & NeutrinoModes::mode_mask) !=NeutrinoModes::mode_pic)
 			{
 				loop = false;
 				m_LastMode=data;

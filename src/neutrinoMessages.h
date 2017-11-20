@@ -170,16 +170,21 @@ struct NeutrinoMessages {
 		EVT_WEBTV_ZAP_COMPLETE                   = CRCInput::RC_WithData + 28,  /* data: (t_channel_id *) */
  		EVT_SCAN_REPORT_FREQUENCYP               = CRCInput::RC_WithData + 29
 	};
+};
+
+struct NeutrinoModes
+{
 	enum
 	{
 		mode_unknown = -1,
-		mode_tv = 	1,
+		mode_tv = 1,
 		mode_radio = 2,
 		mode_scart = 3,
 		mode_standby = 4,
 		mode_audio = 5,
 		mode_pic = 6,
 		mode_ts = 7,
+		mode_off = 8,
 		mode_webtv = 9,
 		mode_upnp = 10,
 		mode_webradio = 11,
@@ -187,6 +192,5 @@ struct NeutrinoMessages {
 		norezap = 0x100
 	};
 };
-
 
 #endif

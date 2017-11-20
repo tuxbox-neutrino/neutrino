@@ -344,7 +344,7 @@ void CEpgScan::Next()
 #endif
 	next_chid = 0;
 
-	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
+	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby)
 		return;
 	if (CRecordManager::getInstance()->RecordingStatus() || CStreamManager::getInstance()->StreamStatus())
 		return;

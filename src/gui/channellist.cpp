@@ -492,7 +492,7 @@ void CChannelList::calcSize()
 		fheight = 1; /* avoid div-by-zero crash on invalid font */
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+6;
 
-	minitv_is_active = ( (g_settings.channellist_additional == SNeutrinoSettings::CHANNELLIST_ADDITIONAL_MODE_MINITV) && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
+	minitv_is_active = ( (g_settings.channellist_additional == SNeutrinoSettings::CHANNELLIST_ADDITIONAL_MODE_MINITV) && (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts) );
 	// calculate width
 	full_width = minitv_is_active ? (frameBuffer->getScreenWidth()-2*DETAILSLINE_WIDTH) : frameBuffer->getScreenWidthRel();
 
@@ -784,7 +784,7 @@ int CChannelList::show()
 			}
 		}
 		else if (!edit_state && ( msg == CRCInput::RC_spkr ) && new_zap_mode ) {
-			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) {
+			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts) {
 				switch (new_zap_mode) {
 					case 2: /* active */
 						new_zap_mode = 1; /* allow */
@@ -947,7 +947,7 @@ int CChannelList::show()
 	}
 
 
-	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
+	if(NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode())
 		return -1;
 
 	if(zapOnExit)
@@ -1203,7 +1203,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 		selected_chid = (*chanlist)[tuned]->getChannelID();
 
 	if(force || (selected_chid != channel->getChannelID())) {
-		if ((g_settings.radiotext_enable) && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio) && (g_Radiotext))
+		if ((g_settings.radiotext_enable) && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio) && (g_Radiotext))
 		{
 			// stop radiotext PES decoding before zapping
 			g_Radiotext->radiotext_stop();

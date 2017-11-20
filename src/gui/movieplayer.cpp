@@ -296,22 +296,22 @@ void CMoviePlayerGui::cutNeutrino()
 	g_Zapit->setStandby(true);
 #endif
 
-	int new_mode = NeutrinoMessages::mode_unknown;
+	int new_mode = NeutrinoModes::mode_unknown;
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
 	printf("%s: old mode %d\n", __func__, m_LastMode);fflush(stdout);
 	if (isWebChannel)
 	{
-		bool isRadioMode = (m_LastMode == NeutrinoMessages::mode_radio || m_LastMode == NeutrinoMessages::mode_webradio);
-		new_mode = (isRadioMode) ? NeutrinoMessages::mode_webradio : NeutrinoMessages::mode_webtv;
-		m_LastMode |= NeutrinoMessages::norezap;
+		bool isRadioMode = (m_LastMode == NeutrinoModes::mode_radio || m_LastMode == NeutrinoModes::mode_webradio);
+		new_mode = (isRadioMode) ? NeutrinoModes::mode_webradio : NeutrinoModes::mode_webtv;
+		m_LastMode |= NeutrinoModes::norezap;
 	}
 	else
 	{
-		new_mode = NeutrinoMessages::mode_ts;
+		new_mode = NeutrinoModes::mode_ts;
 	}
 	printf("%s: new mode %d\n", __func__, new_mode);fflush(stdout);
 	printf("%s: save mode %x\n", __func__, m_LastMode);fflush(stdout);
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::norezap | new_mode);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::norezap | new_mode);
 }
 
 void CMoviePlayerGui::restoreNeutrino()
@@ -348,14 +348,14 @@ void CMoviePlayerGui::restoreNeutrino()
 #endif
 	printf("%s: restore mode %x\n", __func__, m_LastMode);fflush(stdout);
 #if 0
-	if (m_LastMode == NeutrinoMessages::mode_tv)
+	if (m_LastMode == NeutrinoModes::mode_tv)
 		g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x200, false);
 #endif
-	if (m_LastMode != NeutrinoMessages::mode_unknown)
+	if (m_LastMode != NeutrinoModes::mode_unknown)
 		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
 
 #if 0
-	if (m_LastMode == NeutrinoMessages::mode_tv) {
+	if (m_LastMode == NeutrinoModes::mode_tv) {
 		CZapitChannel *channel = CZapit::getInstance()->GetCurrentChannel();
 		if (channel && channel->scrambled)
 			CZapit::getInstance()->Rezap();

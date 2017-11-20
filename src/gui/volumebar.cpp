@@ -124,7 +124,7 @@ void CVolumeBar::initVolumeBarPosition()
 	{
 		case VOLUMEBAR_POS_TOP_RIGHT:{
 			int x_corr 	= 0;
-			if (( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic)) {
+			if (( neutrino->getMode() != NeutrinoModes::mode_scart ) && ( neutrino->getMode() != NeutrinoModes::mode_audio) && ( neutrino->getMode() != NeutrinoModes::mode_pic)) {
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + h_spacer;
 				if (CNeutrinoApp::getInstance()->getChannellistIsVisible() == true)

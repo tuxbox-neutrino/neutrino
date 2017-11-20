@@ -26,7 +26,7 @@ CPipSetup::CPipSetup()
 {
 	frameBuffer = CFrameBuffer::getInstance();
 
-	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
+	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio) {
 		gx = &g_settings.pip_radio_x;
 		gy = &g_settings.pip_radio_y;
 		gw = &g_settings.pip_radio_width;

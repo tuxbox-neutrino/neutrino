@@ -143,24 +143,6 @@ private:
 	CNeutrinoApp();
 
 public:
-	enum
-	{
-		mode_unknown = -1,
-		mode_tv = 1,
-		mode_radio = 2,
-		mode_scart = 3,
-		mode_standby = 4,
-		mode_audio = 5,
-		mode_pic = 6,
-		mode_ts = 7,
-		mode_off = 8,
-		mode_webtv = 9,
-		mode_upnp = 10,
-		mode_webradio = 11,
-		mode_mask = 0xFF,
-		norezap = 0x100
-	};
-
 	CUserMenu usermenu;
 
 	void saveSetup(const char * fname);
@@ -202,7 +184,7 @@ public:
 	int getLastMode() {
 		return lastMode;
 	}
-	void switchTvRadioMode(const int prev_mode = mode_unknown);
+	void switchTvRadioMode(const int prev_mode = NeutrinoModes::mode_unknown);
 
 	
 	bool isMuted() {return current_muted; }

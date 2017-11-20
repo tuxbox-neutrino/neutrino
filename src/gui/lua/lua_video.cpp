@@ -282,7 +282,7 @@ int CLuaInstVideo::channelRezap(lua_State *L)
 	/* CLuaVideo *D = VideoCheckData(L, 1);
 	if (!D) return 0; */
 	CNeutrinoApp::getInstance()->channelRezap();
-	if (CNeutrinoApp::getInstance()->getMode() == CNeutrinoApp::mode_radio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio)
 		CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
 	return 0;
 }
