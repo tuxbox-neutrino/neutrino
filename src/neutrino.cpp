@@ -3877,7 +3877,7 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	if (cs_get_revision() != 10)
 		bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
 #endif
-	if (timer_minutes || leds)
+	if (timer_minutes)
 	{
 		time_t t = timer_minutes * 60;
 		struct tm *tm = localtime(&t);
@@ -3897,21 +3897,19 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 			else
 				perror("fopen /proc/stb/fp/wakeup_time");
 		}
-		/* not platform specific */
-		else
-		{
-			FILE *f = fopen("/tmp/.timer", "w");
-			if (f)
-			{
-				fprintf(f, "%ld\n", timer_minutes * 60);
-				fprintf(f, "%d\n", leds);
-				fprintf(f, "%d\n", bright);
-				fclose(f);
-			}
-			else
-				perror("fopen /tmp/.timer");
-		}
 	}
+
+	/* not platform specific */
+	FILE *f = fopen("/tmp/.timer", "w");
+	if (f)
+	{
+		fprintf(f, "%ld\n", timer_minutes ? timer_minutes * 60 : 0);
+		fprintf(f, "%d\n", leds);
+		fprintf(f, "%d\n", bright);
+		fclose(f);
+	}
+	else
+		perror("fopen /tmp/.timer");
 
 	delete g_RCInput;
 	g_RCInput = NULL;
