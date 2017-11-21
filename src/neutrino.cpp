@@ -137,6 +137,11 @@
 #include <linux/reboot.h>
 #include <sys/reboot.h>
 
+#ifdef __sh__
+/* the sh4 gcc seems to dislike someting about openthreads... */
+#define exit _exit
+#endif
+
 #include <compatibility.h>
 
 #include <lib/libdvbsub/dvbsub.h>
@@ -1929,7 +1934,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		else {
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] "
 					      "[-v | --verbose 0..3]\n");
-			exit(1);
+			exit(CNeutrinoApp::EXIT_ERROR);
 		}
 	}
 }
@@ -1947,7 +1952,7 @@ void CNeutrinoApp::SetupFrameBuffer()
 	frameBuffer->setOsdResolutions();
 	if (frameBuffer->osd_resolutions.empty()) {
 		dprintf(DEBUG_NORMAL, "Error while setting framebuffer mode\n");
-		exit(-1);
+		exit(CNeutrinoApp::EXIT_ERROR);
 	}
 
 	uint32_t ort;
@@ -1977,7 +1982,7 @@ void CNeutrinoApp::SetupFrameBuffer()
 
 	if (setFbMode == -1) {
 		dprintf(DEBUG_NORMAL, "Error while setting framebuffer mode\n");
-		exit(-1);
+		exit(CNeutrinoApp::EXIT_ERROR);
 	}
 	frameBuffer->Clear();
 	frameBufferInitialized = true;
@@ -2483,8 +2488,8 @@ TIMER_STOP("################################## after all #######################
 		hintBox->hide();
 		delete hintBox;
 	}
-	RealRun();
 
+	RealRun();
 	ExitRun(g_info.hw_caps->can_shutdown);
 
 	return 0;
@@ -3628,9 +3633,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::REBOOT ) {
-		FILE *f = fopen("/tmp/.reboot", "w");
-		fclose(f);
-		ExitRun();
+		ExitRun(CNeutrinoApp::EXIT_REBOOT);
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != NeutrinoModes::mode_scart && mode != NeutrinoModes::mode_standby) {
@@ -3796,21 +3799,34 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 extern time_t timer_minutes;//timermanager.cpp
 extern bool timer_is_rec;//timermanager.cpp
 
-void CNeutrinoApp::ExitRun(int can_shutdown)
+void CNeutrinoApp::ExitRun(int exit_code)
 {
-	/* can_shutdown is actually our exit code */
-	printf("[neutrino] %s can_shutdown: %d\n", __func__, can_shutdown);
-
-	bool do_shutdown = true;
+	bool do_exiting = true;
 	CRecordManager::getInstance()->StopAutoRecord();
 	if(CRecordManager::getInstance()->RecordingStatus() || cYTCache::getInstance()->isActive())
 	{
-		do_shutdown =
-			(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECORDING_QUERY, CMsgBox::mbrNo,
+		do_exiting = (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECORDING_QUERY, CMsgBox::mbrNo,
 					CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT, true) == CMsgBox::mbrYes);
 	}
-	if (!do_shutdown)
+	if (!do_exiting)
 		return;
+
+	/*
+	   For compatibility: /tmp/.reboot is not really needed anymore
+	   if we use the defined exit code 2 instead of this flagfile.
+	   Next block is just to avoid force changes in start scripts.
+	*/
+	if (exit_code == CNeutrinoApp::EXIT_REBOOT)
+	{
+		exit_code = CNeutrinoApp::EXIT_NORMAL;
+		FILE *f = fopen("/tmp/.reboot", "w");
+		fclose(f);
+	}
+	else
+		unlink("/tmp/.reboot");
+
+	printf("[neutrino] %s(int %d)\n", __func__, exit_code);
+	printf("[neutrino] hw_caps->can_shutdown: %d\n", g_info.hw_caps->can_shutdown);
 
 	if (SDTreloadChannels)
 		SDT_ReloadChannels();
@@ -3833,7 +3849,7 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	}
 
 	/* on shutdown force load new fst */
-	if (can_shutdown)
+	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
 		CheckFastScan(true, false);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
@@ -3847,15 +3863,17 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 		perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
 
 	printf("entering off state\n");
-	printf("timer_minutes: %ld\n", timer_minutes);
 	mode = NeutrinoModes::mode_off;
 
+	printf("timer_minutes: %ld\n", timer_minutes);
 	int leds = 0;
 	int bright = 0;
 #if HAVE_COOL_HARDWARE
-	if (can_shutdown) {
+	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
+	{
 		leds = 0x40;
-		switch (g_settings.led_deep_mode){
+		switch (g_settings.led_deep_mode)
+		{
 			case 0:
 				leds = 0x0; // leds off
 				break;
@@ -3921,14 +3939,10 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	delete SHTDCNT::getInstance();
 	stop_video();
 
-	printf("[neutrino] This is the end. exiting with code %d\n", can_shutdown);
 	Cleanup();
-#ifdef __sh__
-	/* the sh4 gcc seems to dislike someting about openthreads... */
-	_exit(can_shutdown);
-#else
-	exit(can_shutdown);
-#endif
+
+	printf("[neutrino] This is the end. Exiting with code %d\n", exit_code);
+	exit(exit_code);
 }
 
 void CNeutrinoApp::saveEpg(int _mode)
@@ -4333,15 +4347,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	if(actionKey == "help_recording") {
 		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMsgBox::mbrBack, CMsgBox::mbBack);
 	}
-	else if(actionKey=="shutdown") {
-		ExitRun(1);
+	else if(actionKey=="shutdown")
+	{
+		ExitRun(g_info.hw_caps->can_shutdown);
 	}
 	else if(actionKey=="reboot")
 	{
-		FILE *f = fopen("/tmp/.reboot", "w");
-		fclose(f);
-		ExitRun();
-		unlink("/tmp/.reboot");
+		ExitRun(CNeutrinoApp::EXIT_REBOOT);
 		returnval = menu_return::RETURN_NONE;
 	}
 	else if (actionKey=="clock_switch")
@@ -4457,7 +4469,8 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			for(int i = 3; i < 256; i++)
 				close(i);
 			execvp(global_argv[0], global_argv); // no return if successful
-			exit(1);
+
+			exit(CNeutrinoApp::EXIT_REBOOT); // should never be reached
 		}
 	}
 	else if(actionKey == "moviedir") {
@@ -4605,11 +4618,7 @@ void sighandler (int signum)
 		delete CVFD::getInstance();
 		delete SHTDCNT::getInstance();
 		stop_video();
-#ifdef __sh__
-		_exit(0);
-#else
-		exit(0);
-#endif
+		exit(CNeutrinoApp::EXIT_NORMAL);
 	default:
 		break;
 	}

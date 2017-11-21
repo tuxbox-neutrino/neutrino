@@ -60,6 +60,14 @@ class CScanSettings;
 class CNeutrinoApp : public CMenuTarget, CChangeObserver, public sigc::trackable
 {
 public:
+	enum // Neutrino's exit codes to be handled in it's start script
+	{
+		EXIT_ERROR = -1,
+		EXIT_NORMAL = 0,	// g_info.hw_caps->can_shutdown == 0
+		EXIT_SHUTDOWN = 1,	// g_info.hw_caps->can_shutdown == 1
+		EXIT_REBOOT = 2
+	};
+
 	enum
 	{
 		RECORDING_OFF    = 0,
@@ -67,8 +75,6 @@ public:
 		RECORDING_VCR    = 2,
 		RECORDING_FILE   = 3
 	};
-	
-	
 
 private:
 	CFrameBuffer * frameBuffer;
