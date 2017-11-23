@@ -1108,7 +1108,6 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 	}
 	std::string _script = script;
 
-#if 0
 	if (_script.find("/") == std::string::npos)
 	{
 		std::string _s = g_settings.livestreamScriptPath + "/" + _script;
@@ -1125,7 +1124,6 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 		}
 		_script = _s;
 	}
-#endif
 	size_t pos = _script.find(".lua");
 	if (!file_exists(_script.c_str()) || (pos == std::string::npos) || (_script.length()-pos != 4)) {
 		printf(">>>>> [%s:%s:%d] script error\n", __file__, __func__, __LINE__);
