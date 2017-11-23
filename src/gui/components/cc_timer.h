@@ -70,6 +70,9 @@ class CComponentsTimer : public sigc::trackable
 		OpenThreads::Mutex tm_mutex;
 		///slot for restart signals
 		sigc::slot0<bool> sl_stop_timer;
+
+		///sleep generated with nanosleep
+		int getSleep(long miliseconds);
 	public:
 		/**Constructor for timer class
 		*

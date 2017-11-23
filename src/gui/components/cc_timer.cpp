@@ -55,6 +55,21 @@ CComponentsTimer::~CComponentsTimer()
 	stopTimer();
 }
 
+int CComponentsTimer::getSleep(long miliseconds)
+{
+   struct timespec req, rem;
+
+	if(miliseconds > 999){
+		req.tv_sec = (time_t)(miliseconds / 1000);
+		req.tv_nsec = (miliseconds - ((long)req.tv_sec * 1000)) * 1000000;
+	}else{
+		req.tv_sec = 0;
+		req.tv_nsec = miliseconds * 1000000;
+	}
+
+	return nanosleep(&req , &rem);
+}
+
 void CComponentsTimer::runSharedTimerAction()
 {
 	//start loop
@@ -63,10 +78,18 @@ void CComponentsTimer::runSharedTimerAction()
 	while(tm_enable && tm_interval > 0) {
 		tm_mutex.lock();
 		OnTimer();
-		if (!tm_enable_nano)
+		if (!tm_enable_nano){
 			sleep(tm_interval);
-		else
-			usleep((useconds_t)tm_interval);
+		}else{
+			//behavior is different on cst hardware
+			long corr_factor = 1;
+#if ! HAVE_COOL_HARDWARE 
+			corr_factor = 10;
+#endif
+			int res = getSleep(tm_interval * corr_factor);
+			if (res != 0)
+				dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR: returns [%d] \033[0m\n", __func__, __LINE__, res);
+		}
 		tm_mutex.unlock();
 	}
 
