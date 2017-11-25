@@ -2561,22 +2561,6 @@ void CNeutrinoApp::showMainMenu()
 	}
 }
 
-void CNeutrinoApp::screensaver(bool on)
-{
-	if (on)
-	{
-		m_screensaver = true;
-		CInfoClock::getInstance()->block();
-		CScreenSaver::getInstance()->Start();
-	}
-	else
-	{
-		CScreenSaver::getInstance()->Stop();
-		m_screensaver = false;
-		m_idletime = time(NULL);
-	}
-}
-
 void CNeutrinoApp::RealRun()
 {
 	mainMenu = &personalize.getWidget(MENU_MAIN);
@@ -2599,8 +2583,7 @@ void CNeutrinoApp::RealRun()
 	}
 	g_RCInput->clearRCMsg();
 
-	m_idletime	= time(NULL);
-	m_screensaver	= false;
+	CScreenSaver::getInstance()->resetIdleTime();
 
 	while( true ) {
 #ifdef ENABLE_LUA
@@ -2611,6 +2594,9 @@ void CNeutrinoApp::RealRun()
 		if (luaServer->Block(msg, data))
 			continue;
 #endif
+
+		if (msg <= CRCInput::RC_MaxRC)
+			CScreenSaver::getInstance()->resetIdleTime();
 
 		if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
 		{
@@ -2625,25 +2611,27 @@ void CNeutrinoApp::RealRun()
 				|| msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS
 				|| msg == NeutrinoMessages::EVT_ZAP_GOTPIDS
 			);
-			if ( msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER)
+			if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER)
 			{
-				int delay = time(NULL) - m_idletime;
-				int screensaver_delay = g_settings.screensaver_delay;
-				if (screensaver_delay !=0 && delay > screensaver_delay*60 && !m_screensaver)
-					screensaver(true);
+				time_t delay = time(NULL) - CScreenSaver::getInstance()->getIdleTime();
+				if (g_settings.screensaver_delay && delay > g_settings.screensaver_delay*60 && !CScreenSaver::getInstance()->isActive())
+				{
+					CInfoClock::getInstance()->block();
+					CScreenSaver::getInstance()->Start();
+				}
 			}
 			else if (!ignored_msg)
 			{
-				m_idletime = time(NULL);
-				if (m_screensaver)
+				if (CScreenSaver::getInstance()->isActive())
 				{
 					printf("[neutrino] CScreenSaver stop; msg: %lX\n", msg);
-					screensaver(false);
+					CScreenSaver::getInstance()->Stop();
 
 					frameBuffer->stopFrame();
 					frameBuffer->showFrame("radiomode.jpg");
 
-					if (msg <= CRCInput::RC_MaxRC) {
+					if (msg <= CRCInput::RC_MaxRC)
+					{
 						// ignore first keypress - just quit the screensaver
 						g_RCInput->clearRCMsg();
 						continue;

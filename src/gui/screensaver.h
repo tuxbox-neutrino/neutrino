@@ -47,6 +47,8 @@ class CScreenSaver : public sigc::trackable
 		bool ReadDir();
 		void paint();
 
+		time_t idletime;
+
 		union u_color {
 			struct s_color {
 				uint8_t b, g, r, a;
@@ -66,11 +68,14 @@ class CScreenSaver : public sigc::trackable
 		CScreenSaver();
 		~CScreenSaver();
 		static CScreenSaver* getInstance();
-		bool IsRun();
+		bool isActive();
 		void Start();
 		void Stop();
 		sigc::signal<void> OnBeforeStart;
 		sigc::signal<void> OnAfterStop;
+
+		void resetIdleTime() { idletime = time(NULL); }
+		time_t getIdleTime() { return idletime; }
 };
 
 #endif // __CSCREENSAVER_H__
