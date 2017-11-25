@@ -2598,7 +2598,11 @@ void CNeutrinoApp::RealRun()
 		if (msg <= CRCInput::RC_MaxRC)
 			CScreenSaver::getInstance()->resetIdleTime();
 
+#if HAVE_ARM_HARDWARE
+		if (mode == NeutrinoModes::mode_radio)
+#else
 		if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
+#endif
 		{
 			bool ignored_msg = (
 				/* radio screensaver will ignore this msgs */
