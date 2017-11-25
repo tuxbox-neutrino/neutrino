@@ -136,11 +136,6 @@ class CMoviePlayerGui : public CMenuTarget
 	int currentapid, currentac3;
 	repeat_mode_enum repeat_mode;
 
-	/* screensaver */
-	int		m_idletime;
-	bool		m_screensaver;
-	void		screensaver(bool on);
-
 	// subtitle data
 	unsigned int numpids;
 #ifndef REC_MAX_SPIDS
