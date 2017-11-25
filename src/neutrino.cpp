@@ -2612,7 +2612,8 @@ void CNeutrinoApp::RealRun()
 			continue;
 #endif
 
-		if (mode == NeutrinoModes::mode_radio) {
+		if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
+		{
 			bool ignored_msg = (
 				/* radio screensaver will ignore this msgs */
 				   msg == NeutrinoMessages::EVT_CURRENTEPG
@@ -2624,7 +2625,7 @@ void CNeutrinoApp::RealRun()
 				|| msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS
 				|| msg == NeutrinoMessages::EVT_ZAP_GOTPIDS
 			);
-			if ( msg == CRCInput::RC_timeout  || msg == NeutrinoMessages::EVT_TIMER)
+			if ( msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER)
 			{
 				int delay = time(NULL) - m_idletime;
 				int screensaver_delay = g_settings.screensaver_delay;
