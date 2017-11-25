@@ -314,6 +314,13 @@ void CScreenSaver::paint()
 	}
 }
 
+bool CScreenSaver::canStart()
+{
+	if (g_settings.screensaver_delay && (time(NULL) - idletime > g_settings.screensaver_delay*60))
+		return true;
+	return false;
+}
+
 bool CScreenSaver::isActive()
 {
 	if(thrScreenSaver)

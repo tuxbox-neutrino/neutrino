@@ -1671,8 +1671,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 
 		if (playstate == CMoviePlayerGui::PAUSE && (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER))
 		{
-			time_t delay = time(NULL) - CScreenSaver::getInstance()->getIdleTime();
-			if (g_settings.screensaver_delay && delay > g_settings.screensaver_delay*60 && !CScreenSaver::getInstance()->isActive())
+			if (CScreenSaver::getInstance()->canStart() && !CScreenSaver::getInstance()->isActive())
 			{
 				videoDecoder->setBlank(true);
 				CScreenSaver::getInstance()->Start();

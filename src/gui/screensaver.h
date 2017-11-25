@@ -53,7 +53,7 @@ class CScreenSaver : public sigc::trackable
 			struct s_color {
 				uint8_t b, g, r, a;
 			} uc_color;
-		unsigned int i_color;
+			unsigned int i_color;
 		};
 
 		u_color clr;
@@ -68,6 +68,7 @@ class CScreenSaver : public sigc::trackable
 		CScreenSaver();
 		~CScreenSaver();
 		static CScreenSaver* getInstance();
+		bool canStart();
 		bool isActive();
 		void Start();
 		void Stop();
