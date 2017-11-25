@@ -1,7 +1,7 @@
 /*
- * shutdown_helper - switch off the box with a possible timer wakeup
- * this is needed because the drivers do not implement a proper
- * hwclock interface :-(
+ * shutdown_helper - send current time, wakeup time,
+ * led and bright settings to coolstream's frontpanel
+ * and switch off the box
  *
  * (C) 2013-2014 Stefan Seyfried
  *
@@ -29,7 +29,8 @@ int main(int argc, char **argv)
 	struct tm *tmnow = localtime(&now);
 	time_t fp_timer = 0;
 
-	if (argc < 3) {
+	if (argc < 3)
+	{
 		fprintf(stderr, "need timer_seconds, led and brightness values\n");
 		return 1;
 	}
@@ -38,15 +39,16 @@ int main(int argc, char **argv)
 	leds = atoi(argv[2]);
 	brightness = atoi(argv[3]);
 
-	if (timer_seconds) {
+	if (timer_seconds)
+	{
 		fp_timer = (timer_seconds - now) / 60;
-		if (fp_timer < 1) {
-			fprintf(stderr, "warning: interval less than 1 minute (%d s) correcting\n",
-					(int)(timer_seconds - now));
+		if (fp_timer < 1)
+		{
+			fprintf(stderr, "warning: interval less than 1 minute (%d s) correcting\n", (int)(timer_seconds - now));
 			fp_timer = 1;
 		}
 	}
-	fprintf(stderr, "now: %ld, timer %ld, FP timer %ldmin\n\n", now / 60, timer_seconds / 60, fp_timer);
+	fprintf(stderr, "now: %ld, timer %ld, FP timer %ldmin\n", now / 60, timer_seconds / 60, fp_timer);
 
 	fp.brightness		= brightness;
 	fp.flags		= leds;
@@ -56,15 +58,19 @@ int main(int argc, char **argv)
 	fp.timer_minutes_lo	= fp_timer & 0xFF;
 
 	fd = open("/dev/display", O_RDONLY);
-	if (fd < 0)
-		perror("/dev/display");
-	else {
-		if (ioctl(fd, IOC_FP_STANDBY, (fp_standby_data_t *) &fp))
-			perror("IOC_FP_STANDBY");
-		else {
+	if (fd >= 0)
+	{
+		if (ioctl(fd, IOC_FP_STANDBY, (fp_standby_data_t *) &fp) == 0)
+		{
+			fprintf(stderr, "halt now\n");
 			while (1)
 				sleep(1);
 		}
+		else
+			perror("IOC_FP_STANDBY");
 	}
+	else
+		perror("/dev/display");
+
 	return 1;
 }
