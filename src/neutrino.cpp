@@ -3889,39 +3889,42 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	if (cs_get_revision() != 10)
 		bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
 #endif
-	if (timer_minutes)
+	if (exit_code != CNeutrinoApp::EXIT_REBOOT)
 	{
-		time_t t = timer_minutes * 60;
-		struct tm *tm = localtime(&t);
-		char date[30];
-		strftime(date, sizeof(date), "%c", tm);
-		printf("timer_wakeup: %s (%ld)\n", date, timer_minutes * 60);
-
-		/* prioritize proc filesystem */
-		if (access("/proc/stb/fp/wakeup_time", F_OK) == 0)
+		if (timer_minutes)
 		{
-			FILE *f = fopen("/proc/stb/fp/wakeup_time","w");
-			if (f)
-			{
-				fprintf(f, "%ld\n", timer_minutes * 60);
-				fclose(f);
-			}
-			else
-				perror("fopen /proc/stb/fp/wakeup_time");
-		}
-	}
+			time_t t = timer_minutes * 60;
+			struct tm *tm = localtime(&t);
+			char date[30];
+			strftime(date, sizeof(date), "%c", tm);
+			printf("timer_wakeup: %s (%ld)\n", date, timer_minutes * 60);
 
-	/* not platform specific */
-	FILE *f = fopen("/tmp/.timer", "w");
-	if (f)
-	{
-		fprintf(f, "%ld\n", timer_minutes ? timer_minutes * 60 : 0);
-		fprintf(f, "%d\n", leds);
-		fprintf(f, "%d\n", bright);
-		fclose(f);
+			/* prioritize proc filesystem */
+			if (access("/proc/stb/fp/wakeup_time", F_OK) == 0)
+			{
+				FILE *f = fopen("/proc/stb/fp/wakeup_time","w");
+				if (f)
+				{
+					fprintf(f, "%ld\n", timer_minutes * 60);
+					fclose(f);
+				}
+				else
+					perror("fopen /proc/stb/fp/wakeup_time");
+			}
+		}
+
+		/* not platform specific */
+		FILE *f = fopen("/tmp/.timer", "w");
+		if (f)
+		{
+			fprintf(f, "%ld\n", timer_minutes ? timer_minutes * 60 : 0);
+			fprintf(f, "%d\n", leds);
+			fprintf(f, "%d\n", bright);
+			fclose(f);
+		}
+		else
+			perror("fopen /tmp/.timer");
 	}
-	else
-		perror("fopen /tmp/.timer");
 
 	delete g_RCInput;
 	g_RCInput = NULL;
