@@ -1033,11 +1033,12 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 	case FEC_NONE:
 		fec = "0";
 		break;
+	default:
+		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
+		/* fall through */
 	case FEC_AUTO:
 		fec = "AUTO";
 		break;
-	default:
-		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
 	}
 }
 
@@ -1234,11 +1235,12 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case FEC_NONE:
 		fec = FEC_NONE;
 		break;
+	default:
+		INFO("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
+		/* fall through */
 	case FEC_AUTO:
 		fec = FEC_AUTO;
 		break;
-	default:
-		INFO("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
 	}
 	switch(feparams->pilot) {
 		case ZPILOT_ON:
