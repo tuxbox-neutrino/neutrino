@@ -610,6 +610,8 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 		memset(&feparams, 0x00, sizeof(FrontendParameters));
 
 		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
+		if (feparams.frequency == 0)
+			feparams.frequency = xmlGetNumericAttribute(tps, "centre_frequency", 0);
 		feparams.inversion = INVERSION_AUTO;
 
 		if (CFrontend::isCable(delsys)) {
@@ -742,6 +744,8 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 							xmlGetNumericAttribute(tps, "guard_interval", 0);
 			feparams.hierarchy = (fe_hierarchy_t)
 							xmlGetNumericAttribute(tps, "hierarchy", 0);
+			feparams.plp_id = (uint8_t)
+							xmlGetNumericAttribute(tps, "plp_id", 0);
 			if (feparams.frequency > 1000*1000)
 				feparams.frequency /= 1000; // old transponder list
 		}

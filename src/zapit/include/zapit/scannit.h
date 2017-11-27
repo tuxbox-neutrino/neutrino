@@ -29,6 +29,7 @@
 #include <dvbsi++/satellite_delivery_system_descriptor.h>
 #include <dvbsi++/cable_delivery_system_descriptor.h>
 #include <dvbsi++/terrestrial_delivery_system_descriptor.h>
+#include <dvbsi++/t2_delivery_system_descriptor.h>
 #include <dvbsi++/service_list_descriptor.h>
 #include <dvbsi++/logical_channel_descriptor.h>
 
@@ -56,6 +57,7 @@ class CNit : public OpenThreads::Thread
 		bool ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
+		bool ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * ts, bool hd = false);
 

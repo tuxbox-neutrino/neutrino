@@ -40,6 +40,7 @@
 #include <zapit/frontend_c.h>
 #include <zapit/satconfig.h>
 #include <driver/abstime.h>
+#include <linux/dvb/frontend.h>
 #include <linux/dvb/version.h>
 
 #include <hardware_caps.h>
@@ -72,12 +73,15 @@ extern int zapit_debug;
 #define TRANSMISSION_MODE 8
 #define GUARD_INTERVAL	9
 #define HIERARCHY	10
+// DVB-T2 specific
+#define PLP_ID 11
 
 #define FE_COMMON_PROPS	2
 #define FE_DVBS_PROPS	6
 #define FE_DVBS2_PROPS	8
 #define FE_DVBC_PROPS	6
 #define FE_DVBT_PROPS 10
+#define FE_DVBT2_PROPS 11
 
 /* stolen from dvb.c from vlc */
 static const struct dtv_property dvbs_cmdargs[] = {
@@ -128,6 +132,26 @@ static const struct dtv_property dvbt_cmdargs[] = {
 	{ DTV_GUARD_INTERVAL,	{}, { GUARD_INTERVAL_AUTO}, 0},
 	{ DTV_HIERARCHY,	{}, { HIERARCHY_AUTO	}, 0},
 	{ DTV_TUNE,		{}, { 0			}, 0},
+};
+
+static const struct dtv_property dvbt2_cmdargs[] = {
+	{ DTV_CLEAR,		{0,0,0}, { 0		} ,0},
+	{ DTV_FREQUENCY,	{}, { 0			} ,0},
+	{ DTV_MODULATION,	{}, { QAM_AUTO		} ,0},
+	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
+	{ DTV_BANDWIDTH_HZ,	{}, { 8000000		} ,0},
+	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBT2		} ,0},
+	{ DTV_CODE_RATE_HP,	{}, { FEC_AUTO		} ,0},
+	{ DTV_CODE_RATE_LP,	{}, { FEC_AUTO		} ,0},
+	{ DTV_TRANSMISSION_MODE,{}, { TRANSMISSION_MODE_AUTO}, 0},
+	{ DTV_GUARD_INTERVAL,	{}, { GUARD_INTERVAL_AUTO}, 0},
+	{ DTV_HIERARCHY,	{}, { HIERARCHY_AUTO	}, 0},
+#if defined DTV_STREAM_ID
+	{ DTV_STREAM_ID,	{}, { 0			} ,0},
+#elif defined DTV_DVBT2_PLP_ID
+	{ DTV_DVBT2_PLP_ID,	{}, { 0			} ,0},
+#endif
+	{ DTV_TUNE,		{}, { 0			}, 0}
 };
 
 #define diff(x,y)	(max(x,y) - min(x,y))
@@ -302,6 +326,7 @@ void CFrontend::getFEInfo(void)
 #endif // HAVE_ARM_HARDWARE
 
 	deliverySystemMask = UNKNOWN_DS;
+	forcedSystemMask = UNKNOWN_DS;
 
 #if (DVB_API_VERSION >= 5) && (DVB_API_VERSION_MINOR >= 5)
 	dtv_property prop[1];
@@ -461,7 +486,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 	dvb_fec_t f = (dvb_fec_t) fec_inner;
 	fe_code_rate_t fec;
 
-	if (delsys == DVB_S || delsys == DVB_C || delsys == DVB_T) {
+	if (delsys == DVB_S || delsys == DVB_C || delsys == DVB_T || delsys == DVB_T2) {
 		switch (f) {
 		case fNone:
 			fec = FEC_NONE;
@@ -483,7 +508,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 			break;
 		default:
 			if (zapit_debug)
-				printf("no valid fec for DVB-%c set.. assume auto\n", (delsys == DVB_S ? 'S' : (delsys == DVB_C ? 'C' : 'T')));
+				printf("no valid fec for DVB-%c set.. assume auto\n", (delsys == DVB_S ? 'S' : (delsys == DVB_C ? 'C' : 'T/T2')));
 			/* fall through */
 		case fAuto:
 			fec = FEC_AUTO;
@@ -610,6 +635,14 @@ fe_guard_interval_t CFrontend::getGuardInterval(const uint8_t guard_interval)
 		return GUARD_INTERVAL_1_8;
 	case 0x03:
 		return GUARD_INTERVAL_1_4;
+#if defined GUARD_INTERVAL_1_128
+	case 0x05:
+		return GUARD_INTERVAL_1_128;
+	case 0x06:
+		return GUARD_INTERVAL_19_128;
+	case 0x07:
+		return GUARD_INTERVAL_19_256;
+#endif
 	default:
 		return GUARD_INTERVAL_AUTO;
 	}
@@ -624,6 +657,10 @@ fe_modulation_t CFrontend::getConstellation(const uint8_t constellation)
 		return QAM_16;
 	case 0x02:
 		return QAM_64;
+	case 0x04:
+		return QAM_128;
+	case 0x05:
+		return QAM_256;
 	default:
 		return QAM_AUTO;
 	}
@@ -638,6 +675,14 @@ fe_transmit_mode_t CFrontend::getTransmissionMode(const uint8_t transmission_mod
 		return TRANSMISSION_MODE_8K;
 	case 0x02:
 		return TRANSMISSION_MODE_4K;
+#if defined TRANSMISSION_MODE_1K
+	case 0x04:
+		return TRANSMISSION_MODE_1K;
+	case 0x05:
+		return TRANSMISSION_MODE_16K;
+	case 0x06:
+		return TRANSMISSION_MODE_32K;
+#endif
 	default:
 		return TRANSMISSION_MODE_AUTO;
 	}
@@ -780,6 +825,21 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 void CFrontend::getDelSys(int f, int m, const char *&fec, const char *&sys, const char *&mod)
 {
 	return getDelSys(getCurrentDeliverySystem(), f, m, fec, sys, mod);
+}
+
+void CFrontend::forceDelSys(int i)
+{
+	switch (i) {
+		case 1:
+			forcedSystemMask = ALL_TERR;
+			break;
+		case 2:
+			forcedSystemMask = ALL_CABLE;
+			break;
+		default:
+			forcedSystemMask = UNKNOWN_DS;
+			break;
+	}
 }
 
 void CFrontend::getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsys, fe_modulation_t &mod, fe_code_rate_t & fec)
@@ -970,11 +1030,14 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 	case FEC_2_5:
 		fec = "2/5";
 		break;
-	default:
-		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
+	case FEC_NONE:
+		fec = "0";
+		break;
 	case FEC_AUTO:
 		fec = "AUTO";
 		break;
+	default:
+		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
 	}
 }
 
@@ -1105,6 +1168,14 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	case BANDWIDTH_5_MHZ:
 		bandwidth_hz  = 5000000;
 		break;
+	case BANDWIDTH_1_712_MHZ:
+		bandwidth_hz  = 1712000;
+		break;
+	case BANDWIDTH_10_MHZ:
+		bandwidth_hz  = 10000000;
+		break;
+	case BANDWIDTH_AUTO:
+		bandwidth_hz  = 0;
 	}
 
 	return bandwidth_hz;
@@ -1160,11 +1231,14 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case FEC_2_5:
 		fec = FEC_2_5;
 		break;
-	default:
-		INFO("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
+	case FEC_NONE:
+		fec = FEC_NONE;
+		break;
 	case FEC_AUTO:
 		fec = FEC_AUTO;
 		break;
+	default:
+		INFO("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
 	}
 	switch(feparams->pilot) {
 		case ZPILOT_ON:
@@ -1211,7 +1285,6 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		nrOfProps			= FE_DVBC_PROPS;
 		break;
 	case DVB_T:
-	case DVB_T2:
 	case DTMB:
 		memcpy(cmdseq.props, dvbt_cmdargs, sizeof(dvbt_cmdargs));
 		nrOfProps				= FE_DVBT_PROPS;
@@ -1225,6 +1298,21 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		cmdseq.props[HIERARCHY].u.data		= feparams->hierarchy;
 		cmdseq.props[DELIVERY_SYSTEM].u.data	= getFEDeliverySystem(feparams->delsys);
 		cmdseq.props[BANDWIDTH].u.data		= getFEBandwidth(feparams->bandwidth);
+		break;
+	case DVB_T2:
+		memcpy(cmdseq.props, dvbt2_cmdargs, sizeof(dvbt2_cmdargs));
+		nrOfProps				= FE_DVBT2_PROPS;
+		cmdseq.props[FREQUENCY].u.data		= feparams->frequency;
+		cmdseq.props[MODULATION].u.data		= feparams->modulation;
+		cmdseq.props[INVERSION].u.data		= feparams->inversion;
+		cmdseq.props[CODE_RATE_HP].u.data	= feparams->code_rate_HP;
+		cmdseq.props[CODE_RATE_LP].u.data	= feparams->code_rate_LP;
+		cmdseq.props[TRANSMISSION_MODE].u.data	= feparams->transmission_mode;
+		cmdseq.props[GUARD_INTERVAL].u.data	= feparams->guard_interval;
+		cmdseq.props[HIERARCHY].u.data		= feparams->hierarchy;
+		cmdseq.props[DELIVERY_SYSTEM].u.data	= getFEDeliverySystem(feparams->delsys);
+		cmdseq.props[BANDWIDTH].u.data		= getFEBandwidth(feparams->bandwidth);
+		cmdseq.props[PLP_ID].u.data			= feparams->plp_id;
 		break;
 	default:
 		INFO("unknown frontend type, exiting");
@@ -1251,7 +1339,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 
 int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
-	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBT_PROPS]; // WARNING: increase when needed more space
+	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBT2_PROPS]; // WARNING: increase when needed more space
 	struct dtv_properties cmdseq;
 #ifdef PEDANTIC_VALGRIND_SETUP
 	memset(&cmdargs, 0, sizeof(cmdargs));
@@ -1332,7 +1420,7 @@ void CFrontend::secSetTone(const fe_sec_tone_mode_t toneMode, const uint32_t ms)
 
 void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 {
-	if (slave || info.type != FE_QPSK)
+	if (slave || ((info.type != FE_QPSK) && (info.type != FE_OFDM)))
 		return;
 
 	if (currentVoltage == voltage)
@@ -1697,6 +1785,7 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 		if (freq < 1000*1000)
 			feparams.frequency = freq * 1000;
 		getDelSys(feparams.delsys, feparams.fec_inner, feparams.modulation,  f, s, m);
+		secSetVoltage(SEC_VOLTAGE_OFF, 100);
 		break;
 	case DVB_T:
 	case DVB_T2:
@@ -1704,6 +1793,7 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 		if (freq < 1000*1000)
 			feparams.frequency = freq * 1000;
 		getDelSys(feparams.delsys, feparams.fec_inner, feparams.modulation,  f, s, m);
+		secSetVoltage(config.powered ? SEC_VOLTAGE_13 : SEC_VOLTAGE_OFF, 100);
 		break;
 	default:
 		printf("[fe%d] unknown delsys %d\n", fenumber, feparams.delsys);
@@ -2288,6 +2378,11 @@ bool CFrontend::isHybrid(void)
 bool CFrontend::supportsDelivery(delivery_system_t delsys)
 {
 	return (deliverySystemMask & delsys) != 0;
+}
+
+bool CFrontend::forcedDelivery(delivery_system_t delsys)
+{
+	return (forcedSystemMask & delsys) != 0;
 }
 
 delivery_system_t CFrontend::getCurrentDeliverySystem(void)

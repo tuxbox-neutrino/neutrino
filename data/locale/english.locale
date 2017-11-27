@@ -2400,6 +2400,11 @@ timing.numericzap Numeric Zap
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
 timing.volumebar Volume bar
+tunersetup.cable Cable (DVB-C)
+tunersetup.hybrid Hybrid (DVB-C/T/T2)
+tunersetup.mode Operation Mode
+tunersetup.power 5V Supply on DVB-T/T2 Channels
+tunersetup.terr Terrestrial (DVB-T/T2)
 tmdb.api_key TMDb API key
 tmdb.enabled TMDb support
 tmdb.read_data Search TMDb data ...

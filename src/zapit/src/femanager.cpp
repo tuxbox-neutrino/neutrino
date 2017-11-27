@@ -253,11 +253,16 @@ bool CFEManager::loadSettings()
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
 		fe_config.rotor_swap		= getConfigValue(fe, "rotor_swap", 0);
+		fe_config.force_mode		= getConfigValue(fe, "force_mode", 0);
+		fe_config.powered		= getConfigValue(fe, "powered", 0);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
 		/* default mode for first / next frontends */
 		int def_mode = def_modeX;
+
+		if (fe->hasCable() && fe->hasTerr())
+			fe->forceDelSys(fe_config.force_mode);
 
 		if (fe->hasSat() && fsat) {
 			fsat = false;
@@ -356,6 +361,8 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 		setConfigValue(fe, "mode", fe->getMode());
 		setConfigValue(fe, "master", fe->getMaster());
+		setConfigValue(fe, "force_mode", fe_config.force_mode);
+		setConfigValue(fe, "powered", fe_config.powered);
 
 		std::vector<int> satList;
 		satellite_map_t satellites = fe->getSatellites();
@@ -554,6 +561,8 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 		CFrontend * mfe = it->second;
 
 		if (!mfe->supportsDelivery(channel->delsys))
+			continue;
+		if (mfe->forcedDelivery(channel->delsys))
 			continue;
 		if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 			continue;

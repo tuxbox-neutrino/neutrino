@@ -341,6 +341,14 @@ const CMenuOptionChooser::keyval SATSETUP_FRONTEND_MODE[SATSETUP_FRONTEND_MODE_C
 	{ CFrontend::FE_MODE_LINK_TWIN,   LOCALE_SATSETUP_FE_MODE_LINK_TWIN   },
 };
 
+#define FRONTEND_FORCE_MODE_COUNT 3
+const CMenuOptionChooser::keyval FRONTEND_FORCE_MODE[FRONTEND_FORCE_MODE_COUNT] =
+{
+	{ 0, LOCALE_TUNERSETUP_HYBRID },
+	{ 1, LOCALE_TUNERSETUP_CABLE },
+	{ 2, LOCALE_TUNERSETUP_TERR }
+};
+
 CScanSetup::CScanSetup(int wizard_mode)
 {
 	width = 40;
@@ -359,6 +367,7 @@ CScanSetup::CScanSetup(int wizard_mode)
 	linkfe		= NULL;
 	in_menu		= false;
 	allow_start	= true;
+	tsp			= NULL;
 	if (CFEManager::getInstance()->haveCable())
 		nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int*) &scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 }
@@ -952,6 +961,19 @@ int CScanSetup::showFrontendSetup(int number)
 	setupMenu->addItem(mc);
 
 	msettings.Clear();
+
+	if (fe->hasCable() && fe->hasTerr()) {
+		mc = new CMenuOptionChooser(LOCALE_TUNERSETUP_MODE,  (int *)&fe_config.force_mode, FRONTEND_FORCE_MODE, FRONTEND_FORCE_MODE_COUNT, true, this);
+		mc->setHint("", LOCALE_MENU_HINT_SCAN_FEMODE);
+		setupMenu->addItem(mc);
+	}
+
+	if (fe->hasTerr()) {
+		tsp = new CMenuOptionChooser(LOCALE_TUNERSETUP_POWER,  (int *)&fe_config.powered, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, fe_config.force_mode != 1, this);
+		tsp->setHint("", LOCALE_MENU_HINT_SCAN_FEMODE);
+		setupMenu->addItem(tsp);
+	}
+
 	if (fe->hasSat()) {
 		/* disable all but mode option for linked frontends */
 		bool allow_moptions = !CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED;
@@ -1889,6 +1911,16 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_LOGICAL_NUMBERS)) {
 printf("[neutrino] CScanSetup::%s: logical numbers %d\n", __FUNCTION__, scansettings.scan_logical_numbers);
 		lcnhd->setActive(scansettings.scan_logical_numbers);
+	}
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_TUNERSETUP_MODE)) {
+		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
+		frontend_config_t & fe_config = fe->getConfig();
+		if (fe->hasCable() && fe->hasTerr())
+			fe->forceDelSys(fe_config.force_mode);
+		if (fe_config.force_mode == 1)
+			fe_config.powered = 0;
+		tsp->setActive(fe_config.force_mode != 1);
+		ret = menu_return::RETURN_EXIT_REPAINT;
 	}
 	return ret;
 }

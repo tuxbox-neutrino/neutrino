@@ -127,6 +127,7 @@ typedef struct {
 	enum fe_interleaving	interleaving;
 #endif
 	uint8_t			polarization;
+	uint8_t			plp_id;
 } FrontendParameters;
 
 typedef struct frontend_config {
@@ -141,6 +142,8 @@ typedef struct frontend_config {
 	int diseqc_order;
 	int use_usals;
 	int rotor_swap;
+	int force_mode;
+	int powered;
 } frontend_config_t;
 
 #endif // __FRONTEND_TYPES_H__
