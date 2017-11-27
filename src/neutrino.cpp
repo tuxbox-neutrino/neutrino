@@ -2169,8 +2169,10 @@ void CNeutrinoApp::InitSectiondClient()
 #include <cs_frontpanel.h>
 #endif
 
-void wake_up(bool &wakeup)
+bool is_wakeup()
 {
+	bool wakeup = false;
+
 #if HAVE_COOL_HARDWARE
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
 #define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
@@ -2191,6 +2193,7 @@ void wake_up(bool &wakeup)
 		close(fd);
 	}
 #endif
+
 	/* prioritize proc filesystem */
 	if (access("/proc/stb/fp/was_timer_wakeup", F_OK) == 0)
 	{
@@ -2213,11 +2216,14 @@ void wake_up(bool &wakeup)
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 
-	if(!wakeup){
+	if (!wakeup)
+	{
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT ".");
 		if (my_system(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT " failed");
 	}
+
+	return wakeup;
 }
 
 int CNeutrinoApp::run(int argc, char **argv)
@@ -2343,21 +2349,19 @@ TIMER_START();
 	}
 
 	//timer start
-	long timerd_signal = 0;
-	timer_wakeup = false;//init
-	wake_up( timer_wakeup );
+	timer_wakeup = (is_wakeup() && g_settings.shutdown_timer_record_type);
+	g_settings.shutdown_timer_record_type = false;
 
 	init_cec_setting = true;
-	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
+	if(!(timer_wakeup && g_settings.hdmi_cec_mode))
+	{
 		//init cec settings
 		CCECSetup cecsetup;
 		cecsetup.setCECSettings();
 		init_cec_setting = false;
 	}
-	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type);
-	g_settings.shutdown_timer_record_type = false;
 
-	timerd_signal = (timer_wakeup && g_settings.shutdown_timer_record_type);
+	long timerd_signal = timer_wakeup;
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *)&timerd_signal);
 	timerd_thread_started = true;
 
@@ -3897,7 +3901,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 			struct tm *tm = localtime(&t);
 			char date[30];
 			strftime(date, sizeof(date), "%c", tm);
-			printf("timer_wakeup: %s (%ld)\n", date, timer_minutes * 60);
+			printf("wakeup_time: %s (%ld)\n", date, timer_minutes * 60);
 
 			/* prioritize proc filesystem */
 			if (access("/proc/stb/fp/wakeup_time", F_OK) == 0)
