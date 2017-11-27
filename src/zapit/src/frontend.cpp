@@ -1104,11 +1104,9 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	case BANDWIDTH_6_MHZ:
 		bandwidth_hz  = 6000000;
 		break;
-#if HAVE_DVBT2
 	case BANDWIDTH_5_MHZ:
 		bandwidth_hz  = 5000000;
 		break;
-#endif
 	}
 
 	return bandwidth_hz;
@@ -1161,11 +1159,9 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case FEC_9_10:
 		fec = FEC_9_10;
 		break;
-#if HAVE_DTMB
 	case FEC_2_5:
 		fec = FEC_2_5;
 		break;
-#endif
 	default:
 		INFO("[fe%d] unknown FEC: %d", fenumber, fec_inner);
 	case FEC_AUTO:
