@@ -2403,7 +2403,7 @@ timing.volumebar Lautstärkeanzeige
 tunersetup.cable Kabel (DVB-C)
 tunersetup.hybrid Hybrid (DVB-C/T/T2)
 tunersetup.mode Betriebsmodus
-tunersetup.power 5V Versorgung bei DVB-T/T2 Kanälen
+tunersetup.power 5V-Versorgung bei DVB-T/T2 Kanälen
 tunersetup.terr Terrestrisch (DVB-T/T2)
 tmdb.api_key TMDb API Schlüssel
 tmdb.enabled TMDb-Unterstützung
