@@ -44,7 +44,6 @@
 #define NEUTRINO_ICON_BUTTON_POWER	"power"
 
 #define NEUTRINO_ICON_BUTTON_OKAY	"ok"
-#define NEUTRINO_ICON_BUTTON_OKAY_SMALL	"ok_small"
 
 #define NEUTRINO_ICON_BUTTON_0		"0"
 #define NEUTRINO_ICON_BUTTON_1		"1"
@@ -57,11 +56,9 @@
 #define NEUTRINO_ICON_BUTTON_8		"8"
 #define NEUTRINO_ICON_BUTTON_9		"9"
 
-#define NEUTRINO_ICON_BUTTON_UP	"up"
-#define NEUTRINO_ICON_BUTTON_UP_SMALL	"up_small"
+#define NEUTRINO_ICON_BUTTON_UP		"up"
 #define NEUTRINO_ICON_BUTTON_RIGHT	"right"
 #define NEUTRINO_ICON_BUTTON_DOWN	"down"
-#define NEUTRINO_ICON_BUTTON_DOWN_SMALL	"down_small"
 #define NEUTRINO_ICON_BUTTON_LEFT	"left"
 
 #define NEUTRINO_ICON_BUTTON_BACKWARD	"btn_backward"
@@ -71,9 +68,6 @@
 #define NEUTRINO_ICON_BUTTON_RECORD_ACTIVE	"btn_record_active"
 #define NEUTRINO_ICON_BUTTON_RECORD_INACTIVE	"btn_record_inactive"
 #define NEUTRINO_ICON_BUTTON_STOP	"btn_stop"
-
-#define NEUTRINO_ICON_BUTTON_PLUS	"plus"
-#define NEUTRINO_ICON_BUTTON_MINUS	"minus"
 
 #define NEUTRINO_ICON_BLUE		"icon_blue"
 #define NEUTRINO_ICON_GREEN		"icon_green"
@@ -88,7 +82,6 @@
 #define NEUTRINO_ICON_DD		"dd"
 #define NEUTRINO_ICON_DD_AVAIL		"dd_avail"
 #define NEUTRINO_ICON_DD_GREY		"dd_gray"
-#define NEUTRINO_ICON_EPGINFO		"epginfo"
 #define NEUTRINO_ICON_ERROR		"error"
 #define NEUTRINO_ICON_FEATURES		"features"
 #define NEUTRINO_ICON_GAMES		"games"
@@ -109,12 +102,10 @@
 #define NEUTRINO_ICON_PLAY_REPEAT_TRACK	"mp_play_repeat_track"
 #define NEUTRINO_ICON_REW		"mp_b-skip"
 #define NEUTRINO_ICON_FF 		"mp_f-skip"
-#define NEUTRINO_ICON_PROTECTING	"protecting"
 #define NEUTRINO_ICON_QUESTION		"question"
 #define NEUTRINO_ICON_RADIOTEXTGET	"radiotextget"
 #define NEUTRINO_ICON_RADIOTEXTWAIT	"radiotextwait"
 #define NEUTRINO_ICON_RADIOTEXTOFF	"radiotextoff"
-#define NEUTRINO_ICON_RADIOMODE		"radiomode"
 #define NEUTRINO_ICON_RECORDING		"recording"
 #define NEUTRINO_ICON_REC		"rec"
 #define NEUTRINO_ICON_REC_GRAY		"rec_gray"
@@ -131,7 +122,6 @@
 #define NEUTRINO_ICON_VIDEO		"video"
 #define NEUTRINO_ICON_VTXT		"vtxt"
 #define NEUTRINO_ICON_VTXT_GREY		"vtxt_gray"
-#define NEUTRINO_ICON_PARTITION		"partition"
 #define NEUTRINO_ICON_SUBT		"subt"
 #define NEUTRINO_ICON_SUBT_GREY		"subt_gray"
 #define NEUTRINO_ICON_AUTO_SHIFT	"ats"
@@ -175,8 +165,6 @@
 #define NEUTRINO_ICON_STAR_OFF		"star-off"
 #define NEUTRINO_ICON_TMDB		"tmdb"
 #define NEUTRINO_ICON_PICTUREVIEWER	"pictureviewer"
-
-#define DUMMY_ICON			"dummy"
 
 /* sliders */
 #define NEUTRINO_ICON_SLIDER_BODY	"slider_body"
@@ -233,10 +221,6 @@
 #define NEUTRINO_ICON_HINT_HDD		"hint_hdd"
 #define NEUTRINO_ICON_HINT_KEYS		"hint_keys"
 #define NEUTRINO_ICON_HINT_A_PIC	"hint_a_pic"
-#define NEUTRINO_ICON_HINT_RASS		"hint_rass"
-
-#define NEUTRINO_ICON_HINT_COLORS	"hint_colors"
-#define NEUTRINO_ICON_HINT_FONTS	"hint_fonts"
 
 /* service */
 #define NEUTRINO_ICON_HINT_SERVICE_SCAN	"hint_scan"
@@ -273,32 +257,8 @@
 #define NEUTRINO_ICON_CHECKMARK		"checkmark"
 #define NEUTRINO_ICON_WARNING		"warning"
 
-/* RASS */
-#define NEUTRINO_ICON_RED_0		"0-red"
-#define NEUTRINO_ICON_RED_1		"1-red"
-#define NEUTRINO_ICON_RED_2		"2-red"
-#define NEUTRINO_ICON_RED_3		"3-red"
-#define NEUTRINO_ICON_RED_4		"4-red"
-#define NEUTRINO_ICON_RED_5		"5-red"
-#define NEUTRINO_ICON_RED_6		"6-red"
-#define NEUTRINO_ICON_RED_7		"7-red"
-#define NEUTRINO_ICON_RED_8		"8-red"
-#define NEUTRINO_ICON_RED_9		"9-red"
-
-#define NEUTRINO_ICON_GREEN_0		"0-green"
-#define NEUTRINO_ICON_GREEN_1		"1-green"
-#define NEUTRINO_ICON_GREEN_2		"2-green"
-#define NEUTRINO_ICON_GREEN_3		"3-green"
-#define NEUTRINO_ICON_GREEN_4		"4-green"
-#define NEUTRINO_ICON_GREEN_5		"5-green"
-#define NEUTRINO_ICON_GREEN_6		"6-green"
-#define NEUTRINO_ICON_GREEN_7		"7-green"
-#define NEUTRINO_ICON_GREEN_8		"8-green"
-#define NEUTRINO_ICON_GREEN_9		"9-green"
-
 /* misc */
 #define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
-#define NEUTRINO_ICON_HINT_SPARK	"hint_spark"
 
 #define NEUTRINO_ICON_EPG		"epg"
 
