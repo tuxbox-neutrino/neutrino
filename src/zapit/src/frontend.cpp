@@ -508,7 +508,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 			break;
 		default:
 			if (zapit_debug)
-				printf("no valid fec for DVB-%c set.. assume auto\n", (delsys == DVB_S ? 'S' : (delsys == DVB_C ? 'C' : 'T/T2')));
+				printf("no valid fec for DVB-%s set.. assume auto\n", (delsys == DVB_S ? "S" : (delsys == DVB_C ? "C" : "T/T2")));
 			/* fall through */
 		case fAuto:
 			fec = FEC_AUTO;
