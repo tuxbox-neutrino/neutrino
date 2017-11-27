@@ -626,11 +626,6 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 					return_title = true;
 				active = true;
 				continue;
-#if 0
-			case SNeutrinoSettings::ITEM_RASS:
-				if (!(CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio && g_Radiotext && g_Radiotext->haveRASS()))
-					continue;
-#endif
 			default:
 				if(loc == NONEXISTANT_LOCALE && !text)
 					loc = CUserMenuSetup::getLocale(item);
