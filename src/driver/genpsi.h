@@ -31,12 +31,14 @@
 #define EN_TYPE_DVBSUB		0x06
 #define EN_TYPE_AUDIO_EAC3	0x07
 #define EN_TYPE_HEVC		0x08
+#define EN_TYPE_AUDIO_AAC	0x09
+#define EN_TYPE_AUDIO_AACP	0x0a
 
 class CGenPsi
 {
 	private:
 		static const unsigned int pmt_pid = 0xcc;
-		short  nba, nsub, neac3;
+		short  nba, nsub, neac3, naac, naacp;
 		uint16_t       vpid;
 		uint8_t        vtype;
 		uint16_t       pcrpid;
@@ -49,6 +51,10 @@ class CGenPsi
 		char           dvbsublang[10][3];
 		uint16_t       eac3_pid[10];
 		char           eac3_lang[10][3];
+		uint16_t       aac_pid[10];
+		char           aac_lang[10][3];
+		uint16_t       aacp_pid[10];
+		char           aacp_lang[10][3];
 		uint32_t calc_crc32psi(uint8_t *dst, const uint8_t *src, uint32_t len);
 		void build_pat(uint8_t* buffer);
 		void build_pmt(uint8_t* buffer);

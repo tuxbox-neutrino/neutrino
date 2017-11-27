@@ -39,6 +39,8 @@
 #define ES_TYPE_MPA		0x03
 #define ES_TYPE_EAC3		0x7a
 #define ES_TYPE_AC3		0x81
+#define ES_TYPE_AAC		0x0f
+#define ES_TYPE_AACP		0x11
 
 static const uint32_t crc_table[256] = {
   0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
@@ -192,6 +194,32 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *da
 			}
 			neac3++;
 			break;
+		case EN_TYPE_AUDIO_AAC:
+			aac_pid[naac] = pid;
+			if(data != NULL){
+				aac_lang[naac][0] = data[0];
+				aac_lang[naac][1] = data[1];
+				aac_lang[naac][2] = data[2];
+			}else{
+				aac_lang[naac][0] = 'u';
+				aac_lang[naac][1] = 'n';
+				aac_lang[naac][2] = 'k';
+			}
+			naac++;
+			break;
+		case EN_TYPE_AUDIO_AACP:
+			aacp_pid[naacp] = pid;
+			if(data != NULL){
+				aacp_lang[naacp][0] = data[0];
+				aacp_lang[naacp][1] = data[1];
+				aacp_lang[naacp][2] = data[2];
+			}else{
+				aacp_lang[naacp][0] = 'u';
+				aacp_lang[naacp][1] = 'n';
+				aacp_lang[naacp][2] = 'k';
+			}
+			naacp++;
+			break;
 		default:
 			break;
 	}
@@ -331,6 +359,52 @@ void CGenPsi::build_pmt(uint8_t* buffer)
 		buffer[off++] = 0x02;
 		buffer[off++] = 0x80;
 		buffer[off++] = 0xc5;
+	}
+
+	// aac audio
+	for (int index = 0; index < naac && off < (TS_DATA_LEN-18); index++)
+	{
+		buffer[off++] = ES_TYPE_AAC;
+		buffer[off++] = 0xe0 | aac_pid[index]>>8;
+		buffer[off++] = aac_pid[index]&0xff;
+		buffer[off++] = 0xf0;
+		buffer[off++] = 0x0d;
+		buffer[off++] = 0x2b; // aac descriptor
+		buffer[off++] = 0x02;
+		buffer[off++] = 0x52;
+		buffer[off++] = 0x00;
+		buffer[off++] = 0x52;
+		buffer[off++] = 0x01;
+		buffer[off++] = 0x20;
+		buffer[off++] = 0x0a; // iso639 descriptor tag
+		buffer[off++] = 0x04; // descriptor length
+		buffer[off++] = aac_lang[index][0];
+		buffer[off++] = aac_lang[index][1];
+		buffer[off++] = aac_lang[index][2];
+		buffer[off++] = 0x00; // audio type
+	}
+
+	// aacp audio
+	for (int index = 0; index < naacp && off < (TS_DATA_LEN-18); index++)
+	{
+		buffer[off++] = ES_TYPE_AACP;
+		buffer[off++] = 0xe0 | aacp_pid[index]>>8;
+		buffer[off++] = aacp_pid[index]&0xff;
+		buffer[off++] = 0xf0;
+		buffer[off++] = 0x0d;
+		buffer[off++] = 0x7C; // aacp descriptor
+		buffer[off++] = 0x02;
+		buffer[off++] = 0x52;
+		buffer[off++] = 0x00;
+		buffer[off++] = 0x52;
+		buffer[off++] = 0x01;
+		buffer[off++] = 0x20;
+		buffer[off++] = 0x0a; // iso639 descriptor tag
+		buffer[off++] = 0x04; // descriptor length
+		buffer[off++] = aacp_lang[index][0];
+		buffer[off++] = aacp_lang[index][1];
+		buffer[off++] = aacp_lang[index][2];
+		buffer[off++] = 0x00; // audio type
 	}
 
 	// Subtitle streams

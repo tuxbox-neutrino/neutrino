@@ -296,8 +296,11 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 			audio = true;
 		break;
 	case 0x0F: // AAC ADTS (MPEG2)
-	case 0x11: // AAC LATM (MPEG4)
 		audio_type = CZapitAudioChannel::AAC;
+		audio = true;
+		break;
+	case 0x11: // AAC LATM (MPEG4)
+		audio_type = CZapitAudioChannel::AACPLUS;
 		audio = true;
 		break;
 	case 0x81: // Dolby Digital
