@@ -67,8 +67,6 @@ class CInfoViewer
 	int            ButtonWidth;
 
         // dimensions of radiotext window
-        int             rt_dx;
-        int             rt_dy;
         int             rt_x;
         int             rt_y;
         int             rt_h;
