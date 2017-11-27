@@ -1395,26 +1395,6 @@ void CInfoViewer::showRadiotext()
 				}
 //				yoff = 17;
 				ii = 1;
-#if 0
-			// RDS- or Rass-Symbol, ARec-Symbol or Bitrate
-			int inloff = (ftitel->Height() + 9 - 20) / 2;
-			if (Rass_Flags[0][0]) {
-				osd->DrawBitmap(Setup.OSDWidth-51, inloff, rass, bcolor, fcolor);
-				if (ARec_Record)
-					osd->DrawBitmap(Setup.OSDWidth-107, inloff, arec, bcolor, 0xFFFC1414);	// FG=Red
-				else
-					inloff = (ftitel->Height() + 9 - ftext->Height()) / 2;
-				osd->DrawText(4, inloff, RadioAudio->bitrate, fcolor, clrTransparent, ftext, Setup.OSDWidth-59, ftext->Height(), taRight);
-			}
-			else {
-				osd->DrawBitmap(Setup.OSDWidth-84, inloff, rds, bcolor, fcolor);
-				if (ARec_Record)
-					osd->DrawBitmap(Setup.OSDWidth-140, inloff, arec, bcolor, 0xFFFC1414);	// FG=Red
-				else
-					inloff = (ftitel->Height() + 9 - ftext->Height()) / 2;
-				osd->DrawText(4, inloff, RadioAudio->bitrate, fcolor, clrTransparent, ftext, Setup.OSDWidth-92, ftext->Height(), taRight);
-			}
-#endif
 			}
 			// Body
 			if (lines) {
@@ -1439,48 +1419,7 @@ void CInfoViewer::showRadiotext()
 						g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rts_x, rts_y + (ii++)*rt_dy, rts_dx, g_Radiotext->RT_Text[i], COL_INFOBAR_TEXT, 0, RTisIsUTF);
 				}
 			}
-#if 0
-			// + RT-Plus or PS-Text = 2 rows
-			if ((S_RtOsdTags == 1 && RT_PlusShow) || S_RtOsdTags >= 2) {
-				if (!RDS_PSShow || !strstr(RTP_Title, "---") || !strstr(RTP_Artist, "---")) {
-					sprintf(stext[1], "> %s  %s", tr("Title  :"), RTP_Title);
-					sprintf(stext[2], "> %s  %s", tr("Artist :"), RTP_Artist);
-					osd->DrawText(4, 6+yoff+fheight*(ii++), stext[1], fcolor, clrTransparent, ftext, Setup.OSDWidth-4, ftext->Height());
-					osd->DrawText(4, 3+yoff+fheight*(ii++), stext[2], fcolor, clrTransparent, ftext, Setup.OSDWidth-4, ftext->Height());
-				}
-				else {
-					char *temp = "";
-					int ind = (RDS_PSIndex == 0) ? 11 : RDS_PSIndex - 1;
-					for (int i = ind+1; i < 12; i++)
-						asprintf(&temp, "%s%s ", temp, RDS_PSText[i]);
-					for (int i = 0; i <= ind; i++)
-						asprintf(&temp, "%s%s ", temp, RDS_PSText[i]);
-					snprintf(stext[1], 6*9, "%s", temp);
-					snprintf(stext[2], 6*9, "%s", temp+(6*9));
-					free(temp);
-					osd->DrawText(6, 6+yoff+fheight*ii, "[", fcolor, clrTransparent, ftext, 12, ftext->Height());
-					osd->DrawText(Setup.OSDWidth-12, 6+yoff+fheight*ii, "]", fcolor, clrTransparent, ftext, Setup.OSDWidth-6, ftext->Height());
-					osd->DrawText(16, 6+yoff+fheight*(ii++), stext[1], fcolor, clrTransparent, ftext, Setup.OSDWidth-16, ftext->Height(), taCenter);
-					osd->DrawText(6, 3+yoff+fheight*ii, "[", fcolor, clrTransparent, ftext, 12, ftext->Height());
-					osd->DrawText(Setup.OSDWidth-12, 3+yoff+fheight*ii, "]", fcolor, clrTransparent, ftext, Setup.OSDWidth-6, ftext->Height());
-					osd->DrawText(16, 3+yoff+fheight*(ii++), stext[2], fcolor, clrTransparent, ftext, Setup.OSDWidth-16, ftext->Height(), taCenter);
-				}
-			}
-#endif
 		}
-#if 0
-// framebuffer can only display raw images
-		// show mpeg-still
-		char *image;
-		if (g_Radiotext->Rass_Archiv >= 0)
-			asprintf(&image, "%s/Rass_%d.mpg", DataDir, g_Radiotext->Rass_Archiv);
-		else
-			asprintf(&image, "%s/Rass_show.mpg", DataDir);
-		frameBuffer->useBackground(frameBuffer->loadBackground(image));// set useBackground true or false
-		frameBuffer->paintBackground();
-//		RadioAudio->SetBackgroundImage(image);
-		free(image);
-#endif
 	}
 	g_Radiotext->RT_MsgShow = false;
 

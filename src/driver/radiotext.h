@@ -46,20 +46,9 @@
 #ifndef __RADIO_AUDIO_H
 #define __RADIO_AUDIO_H
 
-#if 0
-#include <vdr/player.h>
-#include <vdr/device.h>
-#include <vdr/audio.h>
-#include <vdr/osd.h>
-#include <vdr/menu.h>
-#include <vdr/receiver.h>
-#endif
-
 #include <dmx.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
-
-//#define ENABLE_RASS
 
 typedef unsigned char uchar;
 typedef unsigned int uint;
@@ -67,22 +56,6 @@ typedef unsigned int uint;
 extern const char *ConfigDir;
 extern const char *DataDir;
 extern char *ReplayFile;
-
-
-#if 0
-// RDS-Receiver for seperate Data-Pids
-class cRDSReceiver : public cReceiver {
-private:
-    int pid;
-    bool rt_start;
-    bool rt_bstuff;
-protected:
-    virtual void Receive(uchar *Data, int Length);
-public:
-    cRDSReceiver(int Pid);
-    virtual ~cRDSReceiver(void);
-};
-#endif
 
 #define RT_MEL 65
 #define tr(a) a
@@ -101,18 +74,10 @@ private:
 	int first_packets;
 
 	//Radiotext
-#if 0
-//	cDevice *rdsdevice;
-	void RadiotextCheckPES(const uchar *Data, int Length);
-	void AudioRecorderService(void);
-#endif
 	void RadioStatusMsg(void);
-	void RassDecode(uchar *Data, int Length);
 	bool DividePes(unsigned char *data, int length, int *substart, int *subend);
 
 	uint pid;
-	//pthread_t threadRT;
-	//int dmxfd;
 
 	OpenThreads::Mutex mutex;
 	OpenThreads::Mutex pidmutex;
@@ -125,7 +90,6 @@ public:
 	CRadioText(void);
 	~CRadioText(void);
 	int  PES_Receive(unsigned char *data, int len);
-	int  RassImage(int QArchiv, int QKey, bool DirUp);
 	void EnableRadioTextProcessing(const char *Titel, bool replay = false);
 	void DisableRadioTextProcessing();
 	void RadiotextDecode(uchar *Data, int Length);
@@ -156,9 +120,7 @@ public:
 	int S_RtBgTra;
 	int S_RtFgCol;
 	int S_RtDispl;
-	int S_RassText;
 	int S_RtMsgItems;
-//	uint32_t rt_color[9];
 	int S_Verbose;
 
 	// Radiotext
@@ -173,79 +135,7 @@ public:
 	int RT_OsdTOTemp;
 	char RDS_PTYN[9];
 	char *RT_Titel, *RTp_Titel;
-
-#if ENABLE_RASS
-	// Rass ...
-	int Rass_Show;			// -1=No, 0=Yes, 1=display
-	int Rass_Archiv;		// -1=Off, 0=Index, 1000-9990=Slidenr.
-	bool Rass_Flags[11][4];		// Slides+Gallery existent
-#endif
-
 };
-
-#if 0
-class cRadioTextOsd : public cOsdObject {
-private:
-    cOsd *osd;
-    cOsd *qosd;
-    cOsd *qiosd;
-    const cFont *ftitel;
-    const cFont *ftext;
-    int fheight;
-    int bheight;
-    eKeys LastKey;
-    cTimeMs osdtimer;
-    void rtp_print(void);
-    bool rtclosed;
-    bool rassclosed;
-    static cBitmap rds, arec, rass;
-    static cBitmap index, marker, page1, pages2, pages3, pages4, pageE;
-    static cBitmap no0, no1, no2, no3, no4, no5, no6, no7, no8, no9, bok;
-public:
-    cRadioTextOsd();
-    ~cRadioTextOsd();
-    virtual void Hide(void);
-    virtual void Show(void);
-    virtual void ShowText(void);
-    virtual void RTOsdClose(void);
-    int RassImage(int QArchiv, int QKey, bool DirUp);
-    virtual void RassOsd(void);
-    virtual void RassOsdTip(void);
-    virtual void RassOsdClose(void);
-    virtual void RassImgSave(char *size, int pos);
-    virtual eOSState ProcessKey(eKeys Key);
-    virtual bool IsInteractive(void) { return false; }
-};
-
-class cRTplusOsd : public cOsdMenu {
-private:
-    int bcount;
-    int helpmode;
-    const char *listtyp[7];
-    char *btext[7];
-    int rtptyp(char *btext);
-    void rtp_fileprint(void);
-public:
-    cRTplusOsd(void);
-    virtual ~cRTplusOsd();
-    virtual void Load(void);
-    virtual void Update(void);
-    virtual eOSState ProcessKey(eKeys Key);	
-};
-
-class cRTplusList : public cOsdMenu {
-private:
-    int typ;
-    bool refresh;
-public:
-    cRTplusList(int Typ = 0);
-    ~cRTplusList();
-    virtual void Load(void);
-    virtual void Update(void);
-    virtual eOSState ProcessKey(eKeys Key);	
-};
-
-#endif
 
 // Radiotext-Memory
 #define MAX_RTPC 50
