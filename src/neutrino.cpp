@@ -93,6 +93,7 @@
 #include "gui/update.h"
 #include "gui/videosettings.h"
 #include "gui/audio_select.h"
+#include "gui/webtv_setup.h"
 
 #include "gui/widget/hintbox.h"
 #include "gui/widget/icons.h"
@@ -703,6 +704,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/media/sda1/logos" );
 
+	g_settings.webtv_xml_auto = configfile.getInt32("webtv_xml_auto", 1);
 	g_settings.webtv_xml.clear();
 	int webtv_count = configfile.getInt32("webtv_xml_count", 0);
 	if (webtv_count) {
@@ -719,6 +721,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			g_settings.webtv_xml.push_back(webtv_xml);
 	}
 
+	CWebTVSetup webtvsetup;
+	webtvsetup.webtv_xml_auto();
 	g_settings.webradio_xml.clear();
 #ifndef BOXMODEL_CS_HD1
 	/*
@@ -1426,7 +1430,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString ( "plugins_lua", g_settings.plugins_lua );
 
 	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
-
+	configfile.setInt32("webtv_xml_auto", g_settings.webtv_xml_auto);
 	int webtv_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it) {
 		std::string k = "webtv_xml_" + to_string(webtv_count);

@@ -1525,6 +1525,7 @@ menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder auss
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
+menu.hint_webtv_xml_auto Lädt automatisch alle WebTV-Dateien aus %s/ und %s/
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_youtube_dev_id Geben Sie die YouTube Dev ID ein. Eine leere Eingabe schaltet die YouTube-Unterstützung aus
 menu.hint_youtube_enabled Schaltet die YouTube-Unterstützung ein oder aus
@@ -2564,9 +2565,12 @@ videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
 webtv.head WebTV
-webtv.xml WebTV-XML-Dateien
-webtv.xml.add XML-Datei hinzufügen
-webtv.xml.del XML-Datei entfernen
+webtv.xml WebTV-Dateien
+webtv.xml.add Hinzufügen
+webtv.xml.auto WebTV-Dateien automatisch laden
+webtv.xml.del Entfernen
+webtv.xml.enter Eintragen
+webtv.xml.reload Neu laden
 window_size Fenstergröße in %
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?

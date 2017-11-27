@@ -27,7 +27,7 @@
 #include <string.h>
 #include <gui/widget/menue.h>
 
-class CWebTVSetup : public CMenuTarget
+class CWebTVSetup : public CMenuTarget, CChangeObserver
 {
 	private:
 		int width;
@@ -39,6 +39,9 @@ class CWebTVSetup : public CMenuTarget
 		CWebTVSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		int Show();
+		bool changeNotify(const neutrino_locale_t OptionName, void *data);
+		void webtv_xml_auto();
+		bool webtv_xml_autodir(std::string directory);
 };
 
 class CWebTVResolution : public CMenuTarget

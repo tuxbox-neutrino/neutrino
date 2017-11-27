@@ -35,9 +35,15 @@
 #include <neutrino_menue.h>
 #include "webtv_setup.h"
 
+
+#include <dirent.h>
+#include <mymenu.h>
+#include <system/helpers.h>
+#include <zapit/settings.h>
+
 CWebTVSetup::CWebTVSetup()
 {
-	width = 55;
+	width = 75;
 	selected = -1;
 	item_offset = 0;
 	changed = false;
@@ -54,10 +60,11 @@ const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =
 };
 #define LIVESTREAM_RESOLUTION_OPTION_COUNT (sizeof(LIVESTREAM_RESOLUTION_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 
-#define CWebTVSetupFooterButtonCount 2
+#define CWebTVSetupFooterButtonCount 3
 static const struct button_label CWebTVSetupFooterButtons[CWebTVSetupFooterButtonCount] = {
 	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_WEBTV_XML_DEL },
-	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_WEBTV_XML_ADD }
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_WEBTV_XML_ADD },
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_WEBTV_XML_RELOAD }
 };
 
 int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
@@ -108,6 +115,11 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return res;
 	}
+
+	if(actionKey == "r" /* reload */) {
+		changed = true;
+		return menu_return::RETURN_EXIT_ALL;
+	}
 	if (actionKey == "script_path") {
 		const char *action_str = "ScriptPath";
 		chooserDir(g_settings.livestreamScriptPath, false, action_str);
@@ -129,6 +141,7 @@ int CWebTVSetup::Show()
 	m = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_STREAMING, width, MN_WIDGET_ID_WEBTVSETUP);
 	m->addKey(CRCInput::RC_red, this, "d");
 	m->addKey(CRCInput::RC_green, this, "a");
+	m->addKey(CRCInput::RC_blue, this, "r");
 
 	m->addIntroItems(LOCALE_WEBTV_HEAD, LOCALE_LIVESTREAM_HEAD);
 
@@ -146,29 +159,141 @@ int CWebTVSetup::Show()
 
 	m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_WEBTV_XML));
 
+	// TODO: show/hide autoloaded content when switching g_settings.webtv_xml_auto
+	char hint_text[1024];
+	snprintf(hint_text, sizeof(hint_text)-1, g_Locale->getText(LOCALE_MENU_HINT_WEBTV_XML_AUTO), WEBTVDIR, WEBTVDIR_VAR);
+	CMenuOptionChooser *oc = new CMenuOptionChooser(LOCALE_WEBTV_XML_AUTO, &g_settings.webtv_xml_auto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++));
+	oc->setHint("", hint_text);
+	m->addItem(oc);
+	m->addItem(GenericMenuSeparator);
+
 	item_offset = m->getItemsCount();
+	// show autoloaded webtv files
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it)
-		m->addItem(new CMenuForwarder(*it, true, NULL, this, "c"));
+	{
+		if (webtv_xml_autodir((*it)))
+			m->addItem(new CMenuForwarder(*it, false, "auto"));
+	}
+	if (item_offset < m->getItemsCount())
+		m->addItem(GenericMenuSeparator);
+
+	item_offset = m->getItemsCount();
+	// show users webtv files
+	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it)
+	{
+		if (!webtv_xml_autodir((*it)))
+			m->addItem(new CMenuForwarder(*it, true, NULL, this, "c"));
+	}
 
 	m->setFooter(CWebTVSetupFooterButtons, CWebTVSetupFooterButtonCount); //Why we need here an extra buttonbar?
 
 	int res = m->exec(NULL, "");
 	m->hide();
-	if (changed) {
-			g_settings.webtv_xml.clear();
-			for (int i = item_offset; i < m->getItemsCount(); i++) {
-				CMenuItem *item = m->getItem(i);
-				CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
-				g_settings.webtv_xml.push_back(f->getName());
-			}
-			g_Zapit->reinitChannels();
-			changed = false;
+
+	if (changed)
+	{
+		g_settings.webtv_xml.clear();
+		for (int i = item_offset; i < m->getItemsCount(); i++)
+		{
+			CMenuItem *item = m->getItem(i);
+			CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
+			g_settings.webtv_xml.push_back(f->getName());
+		}
+		webtv_xml_auto();
+		g_Zapit->reinitChannels();
+		changed = false;
 	}
 
 	delete m;
-
 	return res;
 }
+
+
+bool CWebTVSetup::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
+{
+	int ret = menu_return::RETURN_NONE;
+
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_WEBTV_XML_AUTO))
+	{
+		changed = true;
+		ret = menu_return::RETURN_REPAINT;
+	}
+
+	return ret;
+}
+
+
+int filefilter(const struct dirent *entry)
+{
+	int len = strlen(entry->d_name);
+	if (len > 3 && (
+		   (entry->d_name[len-3] == 'x' && entry->d_name[len-2] == 'm' && entry->d_name[len-1] == 'l')
+		|| (entry->d_name[len-3] == 'm' && entry->d_name[len-2] == '3' && entry->d_name[len-1] == 'u')
+		|| (                               entry->d_name[len-2] == 't' && entry->d_name[len-1] == 'v')
+		)
+	)
+		return 1;
+	return 0;
+}
+
+
+void CWebTVSetup::webtv_xml_auto()
+{
+	if (g_settings.webtv_xml_auto)
+	{
+		const char *dirs[] = {WEBTVDIR_VAR, WEBTVDIR};
+		struct dirent **filelist;
+		char webtv_file[1024] = {0};
+		for (int i = 0; i < 2; i++)
+		{
+			int file_count = scandir(dirs[i], &filelist, filefilter, alphasort);
+			if (file_count > -1)
+			{
+				for (int count = 0; count < file_count; count++)
+				{
+					snprintf(webtv_file, sizeof(webtv_file), "%s/%s", dirs[i], filelist[count]->d_name);
+					if (file_size(webtv_file))
+					{
+						bool found = false;
+						for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); it++)
+							found |= ((*it).find(filelist[count]->d_name) != std::string::npos);
+
+						if (!found)
+						{
+							printf("[CWebTVSetup] loading: %s\n", webtv_file);
+							g_settings.webtv_xml.push_back(webtv_file);
+						}
+						else
+						{
+							printf("[CWebTVSetup] skipping: %s\n", webtv_file);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
+bool CWebTVSetup::webtv_xml_autodir(std::string directory)
+{
+	if (
+		   (directory.empty())
+		|| (directory.find(WEBTVDIR) != std::string::npos)
+		|| (directory.find(WEBTVDIR_VAR) != std::string::npos)
+	)
+		return true;
+	return false;
+}
+
+int xml_filter(const struct dirent *entry)
+{
+	int len = strlen(entry->d_name);
+	if (len > 3 && entry->d_name[len-3] == 'x' && entry->d_name[len-2] == 'm' && entry->d_name[len-1] == 'l')
+		return 1;
+	return 0;
+}
+
 
 /* ## CWebTVResolution ############################################# */
 
