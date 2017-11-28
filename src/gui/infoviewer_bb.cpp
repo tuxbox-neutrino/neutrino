@@ -109,7 +109,10 @@ void CInfoViewerBB::Init()
 		bbButtonInfo[i].x   = -1;
 	}
 
-	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
+	// not really a CComponentsFooter but let's take its height
+	CComponentsFooter footer;
+	InfoHeightY_Info = footer.getHeight();
+
 	initBBOffset();
 
 	changePB();
