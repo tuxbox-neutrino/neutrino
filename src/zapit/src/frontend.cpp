@@ -967,13 +967,11 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 	case FEC_9_10:
 		fec = "9/10";
 		break;
-#if _HAVE_DVB57
 	case FEC_2_5:
 		fec = "2/5";
 		break;
-#endif
 	default:
-		INFO("unknown FEC: %d!", f);
+		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
 	case FEC_AUTO:
 		fec = "AUTO";
 		break;
@@ -1163,7 +1161,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		fec = FEC_2_5;
 		break;
 	default:
-		INFO("[fe%d] unknown FEC: %d", fenumber, fec_inner);
+		INFO("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
 	case FEC_AUTO:
 		fec = FEC_AUTO;
 		break;
