@@ -884,7 +884,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	{
 		if ((g_settings.radiotext_enable) && (!recordModeActive) && (!calledFromNumZap))
 			showRadiotext();
-		else
+		else if (showButtonBar)
 			infoViewerBB->showIcon_RadioText(false);
 	}
 
@@ -1319,7 +1319,8 @@ void CInfoViewer::showRadiotext()
 	if (g_Radiotext == NULL)
 		return;
 
-	infoViewerBB->showIcon_RadioText(g_Radiotext->haveRadiotext());
+	if (showButtonBar)
+		infoViewerBB->showIcon_RadioText(g_Radiotext->haveRadiotext());
 
 	char stext[3][100];
 	bool RTisUTF8 = false;
