@@ -386,27 +386,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 void CInfoViewer::paintBackground(int col_NumBox)
 {
 	int c_rad_mid = RADIUS_MID;
-#if 0	// kill left side
-	int BoxEndInfoY = BoxEndY;
-	if (showButtonBar) // add button bar and blinkenlights
-		BoxEndInfoY += infoViewerBB->InfoHeightY_Info + infoViewerBB->bottom_bar_offset;
 
-	frameBuffer->paintBackgroundBox(BoxStartX,
-					BoxStartY + ChanHeight - 6,
-					BoxStartX + ChanWidth / 3,
-					BoxEndInfoY + OFFSET_SHADOW);
-	// kill progressbar + info-line
-	frameBuffer->paintBackgroundBox(BoxStartX + ChanWidth + 40, // 40 for the recording icon!
-					BoxStartY, BoxEndX, BoxStartY + ChanHeight);
-
-	// shadow for channel name, epg data...
-	frameBuffer->paintBox(BoxEndX - c_shadow_width, ChanNameY + OFFSET_SHADOW,
-			      BoxEndX + OFFSET_SHADOW,  BoxEndInfoY + OFFSET_SHADOW,
-			      COL_SHADOW_PLUS_0, c_rad_large, CORNER_RIGHT);
-	frameBuffer->paintBox(ChanInfoX + OFFSET_SHADOW, BoxEndInfoY - c_shadow_width,
-			      BoxEndX - c_shadow_width, BoxEndInfoY + OFFSET_SHADOW,
-			      COL_SHADOW_PLUS_0, c_rad_large, CORNER_BOTTOM_LEFT);
-#endif
 	// background for channel name/logo and clock
 	paintHead();
 
@@ -1143,10 +1123,6 @@ void CInfoViewer::loop(bool show_dot)
 					hideIt =  true;
 
 				int rec_mode = CRecordManager::getInstance()->GetRecordMode();
-#if 0
-				if ((rec_mode == CRecordManager::RECMODE_REC) || (rec_mode == CRecordManager::RECMODE_REC_TSHIFT))
-					hideIt = true;
-#endif
 				/* hide, if record (not timeshift only) is running -> neutrino will show channel list */
 				if (rec_mode & CRecordManager::RECMODE_REC)
 					hideIt = true;
@@ -1188,23 +1164,6 @@ void CInfoViewer::loop(bool show_dot)
 			else
 				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
-#if 0
-		else if (CMoviePlayerGui::getInstance().start_timeshift && (msg == NeutrinoMessages::EVT_TIMER)) {
-			CMoviePlayerGui::getInstance().start_timeshift = false;
-                }
-#endif
-#if 0
-		else if (CMoviePlayerGui::getInstance().timeshift && ((msg == (neutrino_msg_t) g_settings.mpkey_rewind)  || \
-									(msg == (neutrino_msg_t) g_settings.mpkey_forward) || \
-									(msg == (neutrino_msg_t) g_settings.mpkey_pause)   || \
-									(msg == (neutrino_msg_t) g_settings.mpkey_stop)    || \
-									(msg == (neutrino_msg_t) g_settings.mpkey_play)    || \
-									(msg == (neutrino_msg_t) g_settings.mpkey_time)    || \
-									(msg == (neutrino_msg_t) g_settings.key_timeshift))) {
-			g_RCInput->postMsg (msg, data);
-			res = messages_return::cancel_info;
-                }
-#endif
 	}
 
 	if (hideIt) {
@@ -1918,26 +1877,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	} else
 		last_next_id = 0;
 
-//	int ChanInfoY = BoxStartY + ChanHeight + 15;	//+10
-
 	if (showButtonBar) {
-#if 0
-		int posy = BoxStartY + 16;
-		int height2 = 20;
-		//percent
-		if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
-//printf("CInfoViewer::show_Data: ************************************************* runningPercent %d\n", runningPercent);
-			if (!calledFromEvent || (oldrunningPercent != runningPercent)) {
-				frameBuffer->paintBoxRel(BoxEndX - 104, posy + 6, 108, 14, COL_SHADOW_PLUS_0, 1);
-				frameBuffer->paintBoxRel(BoxEndX - 108, posy + 2, 108, 14, COL_INFOBAR_PLUS_0, 1);
-				oldrunningPercent = runningPercent;
-			}
-			timescale->paint(BoxEndX - 102, posy + 2, runningPercent);
-		} else {
-			oldrunningPercent = 255;
-			frameBuffer->paintBackgroundBoxRel (BoxEndX - 108, posy, 112, height2);
-		}
-#endif
 		infoViewerBB->showBBButtons(calledFromEvent);
 	}
 
@@ -1995,73 +1935,6 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	}
 	display_Info(current, next, true, runningPercent,
 		     curr_time, curr_rest, next_time, next_dur, curr_upd, next_upd);
-
-#if 0
-	int height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight ();
-	int xStart = BoxStartX + ChanWidth;
-
-	//frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);
-
-	if ((info_CurrentNext.flags & CSectionsdClient::epgflags::not_broadcast) || ((calledFromEvent) && !(info_CurrentNext.flags & (CSectionsdClient::epgflags::has_next | CSectionsdClient::epgflags::has_current)))) {
-		// no EPG available
-		ChanInfoY += height;
-		frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (BoxStartX + ChanWidth + 20, ChanInfoY + height, BoxEndX - (BoxStartX + ChanWidth + 20), g_Locale->getText (timeset ? LOCALE_INFOVIEWER_NOEPG : LOCALE_INFOVIEWER_WAITTIME), COL_INFOBAR_TEXT);
-	} else {
-		// irgendein EPG gefunden
-		int duration1Width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth (runningRest);
-		int duration1TextPos = BoxEndX - duration1Width - LEFT_OFFSET;
-
-		int duration2Width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth (nextDuration);
-		int duration2TextPos = BoxEndX - duration2Width - LEFT_OFFSET;
-
-		if ((info_CurrentNext.flags & CSectionsdClient::epgflags::has_next) && (!(info_CurrentNext.flags & CSectionsdClient::epgflags::has_current))) {
-			// there are later events available - yet no current
-			frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (xStart, ChanInfoY + height, BoxEndX - xStart, g_Locale->getText (LOCALE_INFOVIEWER_NOCURRENT), COL_INFOBAR_TEXT);
-
-			ChanInfoY += height;
-
-			//info next
-			//frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);
-
-			if (last_next_id != info_CurrentNext.next_uniqueKey) {
-				frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (ChanInfoX + 10, ChanInfoY + height, 100, nextStart, COL_INFOBAR_TEXT);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (xStart, ChanInfoY + height, duration2TextPos - xStart - 5, info_CurrentNext.next_name, COL_INFOBAR_TEXT);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (duration2TextPos, ChanInfoY + height, duration2Width, nextDuration, COL_INFOBAR_TEXT);
-				last_next_id = info_CurrentNext.next_uniqueKey;
-			}
-		} else {
-			if (last_curr_id != info_CurrentNext.current_uniqueKey) {
-				frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (ChanInfoX + 10, ChanInfoY + height, 100, runningStart, COL_INFOBAR_TEXT);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (xStart, ChanInfoY + height, duration1TextPos - xStart - 5, info_CurrentNext.current_name, COL_INFOBAR_TEXT);
-
-				last_curr_id = info_CurrentNext.current_uniqueKey;
-			}
-			frameBuffer->paintBox (BoxEndX - 80, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);//FIXME duration1TextPos not really good
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (duration1TextPos, ChanInfoY + height, duration1Width, runningRest, COL_INFOBAR_TEXT);
-
-			ChanInfoY += height;
-
-			//info next
-			//frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);
-
-			if ((!is_nvod) && (info_CurrentNext.flags & CSectionsdClient::epgflags::has_next)) {
-				if (last_next_id != info_CurrentNext.next_uniqueKey) {
-					frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);
-					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (ChanInfoX + 10, ChanInfoY + height, 100, nextStart, COL_INFOBAR_TEXT);
-					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (xStart, ChanInfoY + height, duration2TextPos - xStart - 5, info_CurrentNext.next_name, COL_INFOBAR_TEXT);
-					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (duration2TextPos, ChanInfoY + height, duration2Width, nextDuration, COL_INFOBAR_TEXT);
-					last_next_id = info_CurrentNext.next_uniqueKey;
-				}
-			} //else
-			//frameBuffer->paintBox (ChanInfoX + 10, ChanInfoY, BoxEndX, ChanInfoY + height, COL_INFOBAR_PLUS_0);//why this...
-		}
-	}
-}
-#endif
 }
 
 void CInfoViewer::killInfobarText()
@@ -2140,11 +2013,6 @@ void CInfoViewer::killTitle()
 	{
 		is_visible = false;
 		infoViewerBB->is_visible = false;
-#if 0 //unused
-		int bottom = BoxEndY + OFFSET_SHADOW + infoViewerBB->bottom_bar_offset;
-		if (showButtonBar)
-			bottom += infoViewerBB->InfoHeightY_Info;
-#endif
 		if (infoViewerBB->getFooter())
 			infoViewerBB->getFooter()->kill();
 		if (infoViewerBB->getCABar())
@@ -2159,19 +2027,21 @@ void CInfoViewer::killTitle()
 			numbox->kill();
 		}
 
-#if 0 //not really required to kill sigbox, numbox does this
+#if 0
+		//not really required to kill sigbox, numbox does this
 		if (sigbox)
 			sigbox->kill();
 #endif
+
 		header->kill();
-#if 1 //not really required to kill clock, header does this  <--- really ????
+
 		if (clock)
 		{
 			clock->kill();
 			delete clock;
 			clock = NULL;
 		}
-#endif
+
 		body->kill();
 
 		if (txt_cur_event)
@@ -2354,11 +2224,6 @@ void CInfoViewer::showLcdPercentOver ()
 		}
 		int runningPercent = -1;
 		time_t jetzt = time (NULL);
-#if 0
-		if (!(info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) || jetzt > (int) (info_CurrentNext.current_zeit.startzeit + info_CurrentNext.current_zeit.dauer)) {
-			info_CurrentNext = getEPG (current_channel_id);
-		}
-#endif
 		if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
 			if (jetzt < info_CurrentNext.current_zeit.startzeit)
 				runningPercent = 0;
@@ -2379,14 +2244,6 @@ void CInfoViewer::showEpgInfo()   //message on event change
 		eventname = info_CurrentNext.current_name;
 		if (g_settings.infobar_show)
 			g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR , 0);
-#if 0
-		/* let's check if this is still needed */
-		else
-			/* don't show anything, but update the LCD
-			   TODO: we should not have to update the LCD from the _infoviewer_.
-				 they have nothing to do with each other */
-			showLcdPercentOver();
-#endif
 	}
 }
 
@@ -2397,27 +2254,6 @@ void CInfoViewer::setUpdateTimer(uint64_t interval)
 		lcdUpdateTimer = g_RCInput->addTimer(interval, false);
 }
 
-#if 0
-int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*actionkey*/)
-{
-	int res = menu_return::RETURN_EXIT_ALL;
-	CChannelList *channelList;
-	CInfoViewer *i;
-
-	if (parent) {
-		parent->hide ();
-	}
-
-	i = new CInfoViewer;
-
-	channelList = CNeutrinoApp::getInstance ()->channelList;
-	i->start ();
-	i->showTitle (channelList->getActiveChannelNumber (), channelList->getActiveChannelName (), channelList->getActiveSatellitePosition (), channelList->getActiveChannel_ChannelID ());	// UTF-8
-	delete i;
-
-	return res;
-}
-#endif
 
 void CInfoViewer::ResetModules()
 {

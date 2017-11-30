@@ -85,7 +85,6 @@ class CInfoViewer
         t_channel_id   current_channel_id;
         t_channel_id   current_epg_id;
 
-	//uint32_t           fadeTimer;
 	COSDFader	fader;
 
 	int time_width;
@@ -213,13 +212,4 @@ class CInfoViewer
 	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
 	void 	ResetModules();
 };
-#if 0
-class CInfoViewerHandler : public CMenuTarget
-{
-	public:
-		int  exec( CMenuTarget* parent,  const std::string &actionkey);
-		int  doMenu();
-
-};
-#endif
 #endif
