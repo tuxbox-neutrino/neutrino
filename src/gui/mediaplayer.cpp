@@ -139,7 +139,6 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	
 	bool enabled = !CMoviePlayerGui::getInstance().Playing();
 
-#if !HAVE_ARM_HARDWARE
 	//audio player
 	CMenuForwarder *fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, enabled, NULL, this, "audioplayer", CRCInput::RC_red);
 	fw_audio->setHint(NEUTRINO_ICON_HINT_APLAY, LOCALE_MENU_HINT_APLAY);
@@ -149,7 +148,6 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	CMenuForwarder *fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, enabled, NULL, this, "inetplayer", CRCInput::RC_green);
 	fw_inet->setHint(NEUTRINO_ICON_HINT_INET_RADIO, LOCALE_MENU_HINT_INET_RADIO);
 	personalize->addItem(multimedia_menu, fw_inet, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
-#endif
 
 		//init movieplayer submenu
 		CMenuWidget *movieplayer_menu = new CMenuWidget(LOCALE_MAINMENU_MOVIEPLAYER, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
