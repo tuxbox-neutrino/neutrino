@@ -113,6 +113,7 @@ void CInfoViewerBB::Init()
 	CComponentsFooter footer;
 	InfoHeightY_Info = footer.getHeight();
 
+	ca_h = 0;
 	initBBOffset();
 
 	changePB();
@@ -295,8 +296,8 @@ void CInfoViewerBB::getBBButtonInfo()
 			if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO) && !g_settings.infobar_buttons_usertitle)
 				text = CMoviePlayerGui::getInstance(false).CurrentAudioName(); // use instance_mp
 		}
-		bbButtonInfo[i].w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(text) + w + 10;
-		bbButtonInfo[i].cx = w + 5;
+		bbButtonInfo[i].w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(text) + w + OFFSET_INNER_MID;
+		bbButtonInfo[i].cx = w + OFFSET_INNER_SMALL;
 		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
 		bbButtonInfo[i].icon = icon;
@@ -306,21 +307,12 @@ void CInfoViewerBB::getBBButtonInfo()
 	}
 	// Calculate position/size of buttons
 	minX = std::min(bbIconMinX, g_InfoViewer->ChanInfoX + (((g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX) * 75) / 100));
-	int MaxBr = minX - (g_InfoViewer->ChanInfoX + 10);
-	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
+	int MaxBr = minX - (g_InfoViewer->ChanInfoX + OFFSET_INNER_MID);
+	bbButtonMaxX = g_InfoViewer->ChanInfoX + OFFSET_INNER_MID;
 	int br = 0, count = 0;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
-#if 0
-		if ((i == CInfoViewerBB::BUTTON_YELLOW) && (g_RemoteControl->subChannels.empty())) { // no subchannels
-			bbButtonInfo[i].paint = false;
-//			bbButtonInfo[i].x = -1;
-//			continue;
-		}
-		else
-#else
 		if (!bbButtonInfo[i].active)
 			bbButtonInfo[i].paint = false;
-#endif
 		else
 		{
 			count++;
@@ -333,35 +325,7 @@ void CInfoViewerBB::getBBButtonInfo()
 	}
 	if (br > MaxBr)
 		printf("[infoviewer_bb:%s#%d] width br (%d) > MaxBr (%d) count %d\n", __func__, __LINE__, br, MaxBr, count);
-#if 0
-	int Btns = 0;
-	// counting buttons
-	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
-		if (bbButtonInfo[i].x != -1) {
-			Btns++;
-		}
-	}
-	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
-
-	bbButtonInfo[CInfoViewerBB::BUTTON_RED].x = bbButtonMaxX;
-	bbButtonInfo[CInfoViewerBB::BUTTON_BLUE].x = minX - bbButtonInfo[CInfoViewerBB::BUTTON_BLUE].w;
-
-	int x1 = bbButtonInfo[CInfoViewerBB::BUTTON_RED].x + bbButtonInfo[CInfoViewerBB::BUTTON_RED].w;
-	int rest = bbButtonInfo[CInfoViewerBB::BUTTON_BLUE].x - x1;
-
-	if (Btns < 4) {
-		rest -= bbButtonInfo[CInfoViewerBB::BUTTON_GREEN].w;
-		bbButtonInfo[CInfoViewerBB::BUTTON_GREEN].x = x1 + rest / 2;
-	}
-	else {
-		rest -= bbButtonInfo[CInfoViewerBB::BUTTON_GREEN].w + bbButtonInfo[CInfoViewerBB::BUTTON_YELLOW].w;
-		rest = rest / 3;
-		bbButtonInfo[CInfoViewerBB::BUTTON_GREEN].x = x1 + rest;
-		bbButtonInfo[CInfoViewerBB::BUTTON_YELLOW].x = bbButtonInfo[CInfoViewerBB::BUTTON_GREEN].x + 
-								bbButtonInfo[CInfoViewerBB::BUTTON_GREEN].w + rest;
-	}
-#endif
-	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
+	bbButtonMaxX = g_InfoViewer->ChanInfoX + OFFSET_INNER_MID;
 	int step = MaxBr / 4;
 	if (count > 0) { /* avoid div-by-zero :-) */
 		step = MaxBr / count;
@@ -407,7 +371,7 @@ void CInfoViewerBB::showBBButtons(bool paintFooter)
 
 	if (paint) {
 		fb_pixel_t *pixbuf = NULL;
-		int buf_x = bbIconMinX - 5;
+		int buf_x = bbIconMinX - OFFSET_INNER_SMALL;
 		int buf_y = BBarY;
 		int buf_w = g_InfoViewer->BoxEndX-buf_x;
 		int buf_h = InfoHeightY_Info;
@@ -601,7 +565,7 @@ void CInfoViewerBB::showIcon_Resolution()
 			switch (yres) {
 			case 2160:
 				icon_name = NEUTRINO_ICON_RESOLUTION_2160;
-			break;
+				break;
 			case 1920:
 				icon_name = NEUTRINO_ICON_RESOLUTION_1920;
 				break;
@@ -725,7 +689,7 @@ void CInfoViewerBB::showBarSys(int percent)
 	if (is_visible){
 		sysscale->reset();
 		sysscale->doPaintBg(false);
-		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6);
+		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info/2 - OFFSET_INNER_MIN - InfoHeightY_Info/4, hddwidth, InfoHeightY_Info/4);
 		sysscale->setValues(percent, 100);
 		sysscale->paint();
 	}
@@ -737,11 +701,11 @@ void CInfoViewerBB::showBarHdd(int percent)
 		hddscale->reset();
 		hddscale->doPaintBg(false);
 		if (percent >= 0){
-			hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6);
+			hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info/2 + OFFSET_INNER_MIN, hddwidth, InfoHeightY_Info/4);
 			hddscale->setValues(percent, 100);
 			hddscale->paint();
 		}else {
-			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, COL_INFOBAR_BUTTONS_BACKGROUND);
+			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info/2 + OFFSET_INNER_MIN, hddwidth, InfoHeightY_Info/4, COL_INFOBAR_BUTTONS_BACKGROUND);
 		}
 	}
 }
@@ -749,11 +713,11 @@ void CInfoViewerBB::showBarHdd(int percent)
 void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_offset)
 {
 	char buf[20];
-	int endx = g_InfoViewer->BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
-	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
+	int endx = g_InfoViewer->BoxEndX - OFFSET_INNER_MID - (g_settings.infobar_casystem_frame ? FRAME_WIDTH_MIN + OFFSET_INNER_SMALL : 0);
+	int py = g_InfoViewer->BoxEndY + OFFSET_INNER_SMALL;
 	int px = 0;
 	static std::map<int, std::pair<int,const char*> > icon_map;
-	const int icon_space = 10, icon_number = 10;
+	const int icon_space = OFFSET_INNER_SMALL, icon_number = 10;
 
 	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0};
 	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0};
@@ -801,7 +765,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 
 	if (px) {
 		snprintf(buf, sizeof(buf), "%s_%s", icon_map[caid].second, icon);
-		if ((px >= (endx-8)) || (px <= 0))
+		if ((px >= (endx-OFFSET_INNER_MID)) || (px <= 0))
 			printf("#####[%s:%d] Error paint icon %s, px: %d,  py: %d, endx: %d, icon_offset: %d\n", 
 				__FUNCTION__, __LINE__, buf, px, py, endx, icon_offset[icon_map[caid].first]);
 		else
@@ -870,12 +834,14 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 void CInfoViewerBB::paint_ca_bar()
 {
 	initBBOffset();
-	int ca_width = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;
+	int ca_x = g_InfoViewer->ChanInfoX + OFFSET_INNER_MID;
+	int ca_y = g_InfoViewer->BoxEndY;
+	int ca_w = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - 2*OFFSET_INNER_MID;
 
 	if (g_settings.infobar_casystem_frame)
 	{
 		if (ca_bar == NULL)
-			ca_bar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX + OFFSET_INNER_MID, g_InfoViewer->BoxEndY, ca_width - 2*OFFSET_INNER_MID, bottom_bar_offset - OFFSET_INNER_MID, NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
+			ca_bar = new CComponentsShapeSquare(ca_x, ca_y, ca_w, ca_h, NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
 		ca_bar->enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2, true);
 		ca_bar->setFrameThickness(FRAME_WIDTH_MIN);
 		ca_bar->setCorner(RADIUS_SMALL, CORNER_ALL);
@@ -883,7 +849,7 @@ void CInfoViewerBB::paint_ca_bar()
 	}
 	else
 	{
-		paintBoxRel(g_InfoViewer->ChanInfoX, g_InfoViewer->BoxEndY, ca_width , bottom_bar_offset, COL_INFOBAR_CASYSTEM_PLUS_0);
+		paintBoxRel(g_InfoViewer->ChanInfoX, g_InfoViewer->BoxEndY, g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX, bottom_bar_offset, COL_INFOBAR_CASYSTEM_PLUS_0);
 	}
 #if 1
 	if (g_settings.infobar_casystem_dotmatrix)
@@ -904,7 +870,8 @@ void CInfoViewerBB::paint_ca_bar()
 
 void CInfoViewerBB::changePB()
 {
-	hddwidth = frameBuffer->getScreenWidth(true) * ((g_settings.screen_preset == 1) ? 10 : 8) / 128; /* 80(CRT)/100(LCD) pix if screen is 1280 wide */
+	hddwidth = frameBuffer->getScreenWidth(true) / 100 * 10; // 10 percent of screen width
+
 	if (!hddscale) {
 		hddscale = new CProgressBar();
 		hddscale->setType(CProgressBar::PB_REDRIGHT);
@@ -941,7 +908,18 @@ void CInfoViewerBB::ResetModules()
 
 void CInfoViewerBB::initBBOffset()
 {
-	bottom_bar_offset = (g_settings.infobar_casystem_display < 2) ? (g_settings.infobar_casystem_frame ? 36 : 22) : 0;
+	int icon_w = 0, icon_h = 0;
+	frameBuffer->getIconSize("nagra_white", &icon_w, &icon_h); // take any ca icon to get its height
+	ca_h = icon_h + 2*OFFSET_INNER_SMALL;
+
+	bottom_bar_offset = 0;
+	if (g_settings.infobar_casystem_display < 2)
+	{
+		if (g_settings.infobar_casystem_frame)
+			bottom_bar_offset = ca_h + OFFSET_SHADOW/2 + OFFSET_INNER_SMALL;
+		else
+			bottom_bar_offset = ca_h;
+	}
 }
 
 void* CInfoViewerBB::scrambledThread(void *arg)

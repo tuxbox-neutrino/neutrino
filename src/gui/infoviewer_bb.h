@@ -106,6 +106,7 @@ class CInfoViewerBB
 
 		CProgressBar *hddscale, *sysscale;
 		CComponentsShapeSquare *foot, *ca_bar;
+		int ca_h;
 		void paintFoot(int w = 0);
 		void showBBIcons(const int modus, const std::string & icon);
 		void getBBIconInfo(void);
