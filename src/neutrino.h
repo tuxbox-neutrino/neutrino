@@ -50,9 +50,6 @@
 *                                                                                     *
 **************************************************************************************/
 
-extern const unsigned char genre_sub_classes[];            /* epgview.cpp */
-extern const neutrino_locale_t * genre_sub_classes_list[]; /* epgview.cpp */
-
 class CFrameBuffer;
 class CConfigFile;
 class CScanSettings;
