@@ -94,10 +94,12 @@ void CVolume::setVolume(const neutrino_msg_t key)
 {
 	if (!g_RCInput) /* don't die... */
 		return;
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	if (mode == NeutrinoModes::mode_standby)
+		return;
+
 	neutrino_msg_t msg	= key;
 	static bool do_vol = true; /* false if volume is handled by external script */
-	int mode = CNeutrinoApp::getInstance()->getMode();
-	
 	if (msg <= CRCInput::RC_MaxRC) {
 		if(m_mode != mode) {
 			m_mode = mode;
