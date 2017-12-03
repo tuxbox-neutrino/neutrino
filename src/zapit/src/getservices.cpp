@@ -380,6 +380,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		t_original_network_id original_network_id = xmlGetNumericAttribute(node, "on", 16);
 		feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
 		feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
+		feparams.plp_id = (uint8_t) xmlGetNumericAttribute(node, "pli", 0);
 
 		const char *system = xmlGetAttribute(node, "sys");
 		if (system) {
@@ -397,7 +398,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 					feparams.delsys = DVB_C;
 				
 			} else if (CFrontend::isTerr(delsys)) {
-				feparams.delsys = DVB_T;
+				feparams.delsys = delsys;
 			}
 		}
 
@@ -426,8 +427,8 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			feparams.guard_interval = (fe_guard_interval_t) xmlGetNumericAttribute(node, "gi", 0);
 			feparams.hierarchy = (fe_hierarchy_t) xmlGetNumericAttribute(node, "hi", 0);
 
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
+			if (feparams.frequency < 1000*1000)
+				feparams.frequency = feparams.frequency*1000;
 		}
 		else if (CFrontend::isCable(delsys)) {
 			feparams.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
@@ -728,7 +729,7 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 				}
 			} else {
 				// Set some sane defaults.
-				feparams.delsys = DVB_T;
+				feparams.delsys = DVB_T2;
 			}
 
 			feparams.bandwidth = (fe_bandwidth_t) xmlGetNumericAttribute(tps, "bandwidth", 0);
@@ -746,8 +747,8 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 							xmlGetNumericAttribute(tps, "hierarchy", 0);
 			feparams.plp_id = (uint8_t)
 							xmlGetNumericAttribute(tps, "plp_id", 0);
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency /= 1000; // old transponder list
+			if (feparams.frequency < 1000*1000)
+				feparams.frequency *= 1000;
 		}
 		else	/* we'll probably crash sooner or later, so write to STDERR... */
 			fprintf(stderr, "[getservices] %s: unknown delivery system %d!\n", __func__, delsys);

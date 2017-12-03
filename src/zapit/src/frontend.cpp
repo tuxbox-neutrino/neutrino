@@ -147,9 +147,9 @@ static const struct dtv_property dvbt2_cmdargs[] = {
 	{ DTV_GUARD_INTERVAL,	{}, { GUARD_INTERVAL_AUTO}, 0},
 	{ DTV_HIERARCHY,	{}, { HIERARCHY_AUTO	}, 0},
 #if defined DTV_STREAM_ID
-	{ DTV_STREAM_ID,	{}, { 0			} ,0},
+	{ DTV_STREAM_ID,	{}, { NO_STREAM_ID_FILTER } ,0},
 #elif defined DTV_DVBT2_PLP_ID
-	{ DTV_DVBT2_PLP_ID,	{}, { 0			} ,0},
+	{ DTV_DVBT2_PLP_ID,	{}, { NO_STREAM_ID_FILTER } ,0},
 #endif
 	{ DTV_TUNE,		{}, { 0			}, 0}
 };
@@ -1802,8 +1802,8 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 		break;
 	}
 
-	printf("[fe%d] tune to %d %s %s %s %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
-			feparams.polarization & 1 ? "V/R" : "H/L", feparams.symbol_rate, feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
+	printf("[fe%d] tune to %d %s %s %s %s srate %d pli %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
+			feparams.polarization & 1 ? "V/R" : "H/L", feparams.symbol_rate, feparams.plp_id, feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	setFrontend(&feparams, nowait);
 
 	return tuned;

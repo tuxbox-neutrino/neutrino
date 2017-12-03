@@ -62,7 +62,8 @@ bool transponder::operator==(const transponder& t) const
 		//(transport_stream_id == t.transport_stream_id) &&
 		//(original_network_id == t.original_network_id) &&
 		((getFEParams()->polarization & 1) == (t.getFEParams()->polarization & 1)) &&
-		(abs((int) getFEParams()->frequency - (int)t.getFEParams()->frequency) <= 100)
+		(abs((int) getFEParams()->frequency - (int)t.getFEParams()->frequency) <= 100) &&
+		(getFEParams()->plp_id == t.getFEParams()->plp_id)
 	       );
 }
 
@@ -98,7 +99,8 @@ bool transponder::compare(const transponder& t) const
 			(getFEParams()->code_rate_LP == t.getFEParams()->code_rate_LP ||
 			 getFEParams()->code_rate_LP == FEC_AUTO || t.getFEParams()->code_rate_LP == FEC_AUTO) &&
 			(getFEParams()->modulation == t.getFEParams()->modulation ||
-			 getFEParams()->modulation == QAM_AUTO || t.getFEParams()->modulation == QAM_AUTO)
+			 getFEParams()->modulation == QAM_AUTO || t.getFEParams()->modulation == QAM_AUTO) &&
+			(getFEParams()->plp_id == t.getFEParams()->plp_id)
 		      );
 	}
 
@@ -127,7 +129,7 @@ void transponder::dumpServiceXml(FILE * fd)
 				getFEParams()->modulation,
 				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
 	} else if (CFrontend::isTerr(feparams.delsys)) {
-		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" bw=\"%u\" hp=\"%hu\" lp=\"%hu\" con=\"%u\" tm=\"%u\" gi=\"%u\" hi=\"%u\" sys=\"%hu\">\n",
+		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" bw=\"%u\" hp=\"%hu\" lp=\"%hu\" con=\"%u\" tm=\"%u\" gi=\"%u\" hi=\"%u\" pli=\"%u\" sys=\"%hu\">\n",
 				transport_stream_id, original_network_id,
 				getFEParams()->frequency,
 				getFEParams()->inversion,
@@ -138,6 +140,7 @@ void transponder::dumpServiceXml(FILE * fd)
 				getFEParams()->transmission_mode,
 				getFEParams()->guard_interval,
 				getFEParams()->hierarchy,
+				getFEParams()->plp_id,
 				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
 	}
 }
@@ -162,7 +165,7 @@ void transponder::dump(std::string label)
 				getFEParams()->modulation,
 				getFEParams()->delsys);
 	} else if (CFrontend::isTerr(feparams.delsys)) {
-		printf("%s tp-id %016" PRIx64 " freq %d bw %d coderate_HP %d coderate_LP %d const %d guard %d %d\n", label.c_str(),
+		printf("%s tp-id %016" PRIx64 " freq %d bw %d coderate_HP %d coderate_LP %d const %d guard %d pli %d delsys %d\n", label.c_str(),
 				transponder_id,
 				getFEParams()->frequency,
 				getFEParams()->bandwidth,
@@ -170,6 +173,7 @@ void transponder::dump(std::string label)
 				getFEParams()->code_rate_LP,
 				getFEParams()->modulation,
 				getFEParams()->guard_interval,
+				getFEParams()->plp_id,
 				getFEParams()->delsys);
 	}
 }
@@ -209,7 +213,7 @@ std::string transponder::description()
 	} else if (CFrontend::isTerr(feparams.delsys)) {
 		CFrontend::getDelSys(feparams.delsys, getFEParams()->code_rate_HP, getFEParams()->modulation, f, s, m);
 		CFrontend::getDelSys(feparams.delsys, getFEParams()->code_rate_LP, getFEParams()->modulation, f2, s, m);
-		snprintf(buf, sizeof(buf), "%d %d %s %s %s ", getFEParams()->frequency, CFrontend::getFEBandwidth(getFEParams()->bandwidth)/1000, f, f2, m);
+		snprintf(buf, sizeof(buf), "%d %d %s %s %s %d ", getFEParams()->frequency, CFrontend::getFEBandwidth(getFEParams()->bandwidth)/1000, f, f2, m, getFEParams()->plp_id);
 	}
 
 	return std::string(buf);
