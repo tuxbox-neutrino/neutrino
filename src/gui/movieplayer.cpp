@@ -408,7 +408,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		moviebrowser->setMode(MB_SHOW_RECORDS);
 		wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 	}
-#if HAVE_COOL_HARDWARE
+#if HAVE_COOL_HARDWARE || HAVE_GENERIC_HARDWARE
 	else if (actionKey == "ytplayback") {
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_YT);
