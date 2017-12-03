@@ -1361,6 +1361,9 @@ void CInfoViewer::showRadiotext()
 					sprintf(stext[0], g_Radiotext->RT_PTY == 0 ? "%s %s%s" : "%s (%s)%s", tr("Radiotext"), g_Radiotext->RT_PTY == 0 ? g_Radiotext->RDS_PTYN : g_Radiotext->ptynr2string(g_Radiotext->RT_PTY), ":");
 					int title_w = g_Font[rt_font]->getRenderWidth(stext[0]) + 2*OFFSET_INNER_MID;
 
+					frameBuffer->paintBoxRel(rt_x + OFFSET_SHADOW, rt_y + OFFSET_SHADOW, title_w, 2*OFFSET_INNER_SMALL + item_h, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP);
+					frameBuffer->paintBoxRel(rt_x, rt_y, title_w, 2*OFFSET_INNER_SMALL + item_h, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_TOP);
+
 					g_Font[rt_font]->RenderString(item_x, item_y, title_w, stext[0], COL_INFOBAR_TEXT, 0, RTisUTF8);
 				}
 				item = 1;
