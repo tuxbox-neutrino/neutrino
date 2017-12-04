@@ -204,7 +204,10 @@ bool CZapitChannel::isUHD()
 {
 	switch(serviceType) {
 		case 0x1f:
-			return true;
+			if (delsys == DVB_T2)
+				return false;
+			else
+				return true;
 		case ST_DIGITAL_TELEVISION_SERVICE:
 		case 0x19:
 		{
@@ -226,6 +229,11 @@ bool CZapitChannel::isUHD()
 bool CZapitChannel::isHD()
 {
 	switch(serviceType) {
+		case 0x1f:
+			if (delsys == DVB_T2)
+				return true;
+			else
+				return false;
 		case 0x11: case 0x19:
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
 			return true;
