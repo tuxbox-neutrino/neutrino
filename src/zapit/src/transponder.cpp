@@ -222,7 +222,7 @@ std::string transponder::description()
 	} else if (CFrontend::isTerr(feparams.delsys)) {
 		CFrontend::getDelSys(feparams.delsys, getFEParams()->code_rate_HP, getFEParams()->modulation, f, s, m);
 		CFrontend::getDelSys(feparams.delsys, getFEParams()->code_rate_LP, getFEParams()->modulation, f2, s, m);
-		snprintf(buf, sizeof(buf), "%d %d %s %s %s %d ", getFEParams()->frequency, CFrontend::getFEBandwidth(getFEParams()->bandwidth)/1000, f, f2, m, getFEParams()->plp_id);
+		snprintf(buf, sizeof(buf), "%d %d %s %s %s %d ", getFEParams()->frequency/1000, CFrontend::getFEBandwidth(getFEParams()->bandwidth)/1000, f, f2, m, getFEParams()->plp_id);
 	}
 
 	return std::string(buf);
