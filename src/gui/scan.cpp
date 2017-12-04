@@ -192,7 +192,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
-	width       = w_max(fw * 42, 0);
+	width       = w_max(fw * 52, 0);
 	int tmp = (BAR_WIDTH + 4 + 7 * fw) * 2 + fw + 40; /* that's from the crazy calculation in showSNR() */
 	if (width < tmp)
 		width = w_max(tmp, 0);
@@ -427,9 +427,9 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				CFrontend::getDelSys(feparams->delsys, feparams->fec_inner, feparams->modulation,  f, s, m);
 				uint32_t freq = feparams->frequency/1000;
 				if (CFrontend::isSat(feparams->delsys))
-					snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m);
+					snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s (%d/%d/%s)", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m, feparams->plp_id, feparams->pls_code, transponder::getPLSMode(feparams->pls_mode).c_str());
 				else
-					snprintf(buffer,sizeof(buffer), "%u %d %s %s", freq, feparams->symbol_rate/1000, s, m);
+					snprintf(buffer,sizeof(buffer), "%u %d %s %s %d", freq, feparams->symbol_rate/1000, s, m, feparams->plp_id);
 				paintLine(xpos2, ypos_frequency, w - (7*fw), buffer);
 			}
 			break;
