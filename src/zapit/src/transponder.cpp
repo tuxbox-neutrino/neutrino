@@ -215,7 +215,7 @@ std::string transponder::description()
 
 	if (CFrontend::isSat(feparams.delsys)) {
 		CFrontend::getDelSys(feparams.delsys, getFEParams()->fec_inner, getFEParams()->modulation,  f, s, m);
-		snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", getFEParams()->frequency/1000, pol(getFEParams()->polarization), getFEParams()->symbol_rate/1000, f, s, m);
+		snprintf(buf, sizeof(buf), "%d %c %d %s %s %s (%d/%d/%s)", getFEParams()->frequency/1000, pol(getFEParams()->polarization), getFEParams()->symbol_rate/1000, f, s, m, getFEParams()->plp_id, getFEParams()->pls_code, getPLSMode(getFEParams()->pls_mode).c_str());
 	} else if (CFrontend::isCable(feparams.delsys)) {
 		CFrontend::getDelSys(feparams.delsys, getFEParams()->fec_inner, getFEParams()->modulation, f, s, m);
 		snprintf(buf, sizeof(buf), "%d %d %s %s %s ", getFEParams()->frequency/1000, getFEParams()->symbol_rate/1000, f, s, m);
@@ -226,4 +226,20 @@ std::string transponder::description()
 	}
 
 	return std::string(buf);
+}
+
+std::string transponder::getPLSMode(const uint8_t pls_mode)
+{
+	switch (pls_mode) {
+	case 0x00:
+		return "Root";
+	case 0x01:
+		return "Gold";
+	case 0x02:
+		return "Combo";
+	case 0x03:
+		return "Unknown";
+	default:
+		return "Root";
+	}
 }
