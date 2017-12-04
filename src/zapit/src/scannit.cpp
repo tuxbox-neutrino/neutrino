@@ -335,7 +335,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	feparams.pilot = ZPILOT_AUTO;
 	feparams.plp_id = 0;
 	feparams.pls_code = 1;
-	feparmas.pls_mode = 0;
+	feparams.pls_mode = PLS_Root;
 
 	switch (modulation_system) {
 	case 0: // DVB-S
