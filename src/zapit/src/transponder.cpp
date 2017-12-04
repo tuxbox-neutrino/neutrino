@@ -56,7 +56,10 @@ bool transponder::operator==(const transponder& t) const
 			//(transport_stream_id == t.transport_stream_id) &&
 			//(original_network_id == t.original_network_id) &&
 			((getFEParams()->polarization & 1) == (t.getFEParams()->polarization & 1)) &&
-			(abs((int) getFEParams()->frequency - (int)t.getFEParams()->frequency) <= 3000)
+			(abs((int) getFEParams()->frequency - (int)t.getFEParams()->frequency) <= 3000) &&
+			(getFEParams()->plp_id == t.getFEParams()->plp_id) &&
+			(getFEParams()->pls_mode == t.getFEParams()->pls_mode) &&
+			(getFEParams()->pls_code == t.getFEParams()->pls_code)
 	       );
 	return ((satellitePosition == t.satellitePosition) &&
 		//(transport_stream_id == t.transport_stream_id) &&
@@ -88,7 +91,10 @@ bool transponder::compare(const transponder& t) const
 				(getFEParams()->delsys == t.getFEParams()->delsys) &&
 				(getFEParams()->modulation == t.getFEParams()->modulation) &&
 				(getFEParams()->fec_inner == t.getFEParams()->fec_inner ||
-				 getFEParams()->fec_inner == FEC_AUTO || t.getFEParams()->fec_inner == FEC_AUTO)
+				 getFEParams()->fec_inner == FEC_AUTO || t.getFEParams()->fec_inner == FEC_AUTO) &&
+				(getFEParams()->plp_id == t.getFEParams()->plp_id) &&
+				(getFEParams()->pls_mode == t.getFEParams()->pls_mode) &&
+				(getFEParams()->pls_code == t.getFEParams()->pls_code)
 		      );
 	}
 	else if (CFrontend::isTerr(feparams.delsys)) {
@@ -119,7 +125,7 @@ void transponder::dumpServiceXml(FILE * fd)
 				getFEParams()->modulation,
 				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
 	} else if (CFrontend::isSat(feparams.delsys)) {
-		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\" mod=\"%hu\" sys=\"%hu\">\n",
+		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\" mod=\"%hu\" pli=\"%u\" plc=\"%u\" plm=\"%u\" sys=\"%hu\">\n",
 				transport_stream_id, original_network_id,
 				getFEParams()->frequency,
 				getFEParams()->inversion,
@@ -127,6 +133,9 @@ void transponder::dumpServiceXml(FILE * fd)
 				getFEParams()->fec_inner,
 				getFEParams()->polarization,
 				getFEParams()->modulation,
+				getFEParams()->plp_id,
+				getFEParams()->pls_code,
+				getFEParams()->pls_mode,
 				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
 	} else if (CFrontend::isTerr(feparams.delsys)) {
 		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" bw=\"%u\" hp=\"%hu\" lp=\"%hu\" con=\"%u\" tm=\"%u\" gi=\"%u\" hi=\"%u\" pli=\"%u\" sys=\"%hu\">\n",

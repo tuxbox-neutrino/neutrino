@@ -233,6 +233,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.delsys = (delivery_system_t)scansettings.sat_TP_delsys;
 			TP.feparams.modulation = (fe_modulation_t) scansettings.sat_TP_mod;
 			TP.feparams.pilot = (zapit_pilot_t) scansettings.sat_TP_pilot;
+			TP.feparams.plp_id = atoi(scansettings.sat_TP_pli.c_str());
+			TP.feparams.pls_code = atoi(scansettings.sat_TP_plc.c_str());
+			TP.feparams.pls_mode = (fe_pls_mode_t) scansettings.sat_TP_plm;
 		} else if (CFrontend::isTerr(delsys)) {
 			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
 			TP.feparams.frequency = atoi(scansettings.terrestrial_TP_freq.c_str());
@@ -248,6 +251,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.guard_interval	= (fe_guard_interval_t)scansettings.terrestrial_TP_guard;
 			TP.feparams.hierarchy		= (fe_hierarchy_t)scansettings.terrestrial_TP_hierarchy;
 			TP.feparams.delsys		= (delivery_system_t)scansettings.terrestrial_TP_delsys;
+			TP.feparams.plp_id = atoi(scansettings.terrestrial_TP_pli.c_str());
 		} else if (CFrontend::isCable(delsys)) {
 			TP.feparams.frequency	= atoi(scansettings.cable_TP_freq.c_str());
 			TP.feparams.symbol_rate	= atoi(scansettings.cable_TP_rate.c_str());

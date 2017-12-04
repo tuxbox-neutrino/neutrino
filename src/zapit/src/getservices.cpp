@@ -415,6 +415,11 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 			/* TODO: add xml tag ? */
 			feparams.pilot = ZPILOT_AUTO;
+			feparams.plp_id = xmlGetNumericAttribute(node, "pli", 0);
+			feparams.pls_mode = (fe_pls_mode_t) xmlGetNumericAttribute(node, "plm", 0);
+			feparams.pls_code = xmlGetNumericAttribute(node, "plc", 0);
+			if (feparams.pls_code == 0)
+				feparams.pls_code = 1;
 		}
 		else if (CFrontend::isTerr(delsys)) {
 			//<TS id="0001" on="7ffd" frq="650000" inv="2" bw="3" hp="9" lp="9" con="6" tm="2" gi="0" hi="4" sys="6">
@@ -615,6 +620,10 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 			feparams.frequency = xmlGetNumericAttribute(tps, "centre_frequency", 0);
 		feparams.inversion = INVERSION_AUTO;
 
+		feparams.plp_id = NO_STREAM_ID_FILTER;
+		feparams.pls_mode = PLS_Root;
+		feparams.pls_code = 1;
+
 		if (CFrontend::isCable(delsys)) {
 			const char *system = xmlGetAttribute(tps, "system");
 			if (system) {
@@ -706,6 +715,11 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 #endif
 			feparams.fec_inner = (fe_code_rate_t) xml_fec;
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+			feparams.plp_id = xmlGetNumericAttribute(tps, "is_id", 0);
+			feparams.pls_mode = (fe_pls_mode_t) xmlGetNumericAttribute(tps, "pls_mode", 0);
+			feparams.pls_code = xmlGetNumericAttribute(tps, "pls_code", 0);
+			if (feparams.pls_code == 0)
+				feparams.pls_code = 1;
 		}
 		else if (CFrontend::isTerr(delsys)) {
 			const char *system = xmlGetAttribute(tps, "system");

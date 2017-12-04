@@ -1001,6 +1001,9 @@ class CScanSettings
 		int		sat_TP_delsys;
 		int		sat_TP_mod;
 		int		sat_TP_pilot;
+		std::string	sat_TP_pli;
+		std::string	sat_TP_plc;
+		int		sat_TP_plm;
 
 		std::string	cableName;
 		int		cable_TP_mod;
@@ -1019,6 +1022,7 @@ class CScanSettings
 		int		terrestrial_TP_hierarchy;
 		int		terrestrial_TP_transmit_mode;
 		int		terrestrial_TP_delsys;
+		std::string	terrestrial_TP_pli;
 
 		CScanSettings();
 

@@ -536,6 +536,13 @@ extra.tp_mod_auto QAM/AUTO
 extra.tp_pilot Pilot
 extra.tp_pilot_auto Auto (HW)
 extra.tp_pilot_auto_sw Auto (SW)
+extra.tp_plc PLM Code
+extra.tp_pli Stream ID
+extra.tp_plm PLS Modus
+extra.tp_plm_combo Combo
+extra.tp_plm_gold Gold
+extra.tp_plm_root Root (Standard)
+extra.tp_plm_unk Unbekannt
 extra.tp_pol Polarisation
 extra.tp_pol_h H
 extra.tp_pol_l L

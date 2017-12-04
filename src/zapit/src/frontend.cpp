@@ -66,6 +66,7 @@ extern int zapit_debug;
 // DVB-S/S2 specific
 #define PILOTS		7
 #define ROLLOFF		8
+#define MIS			9
 // DVB-T specific
 #define BANDWIDTH	4
 #define CODE_RATE_HP	6
@@ -78,7 +79,7 @@ extern int zapit_debug;
 
 #define FE_COMMON_PROPS	2
 #define FE_DVBS_PROPS	6
-#define FE_DVBS2_PROPS	8
+#define FE_DVBS2_PROPS	9
 #define FE_DVBC_PROPS	6
 #define FE_DVBT_PROPS 10
 #define FE_DVBT2_PROPS 11
@@ -105,7 +106,8 @@ static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
 	{ DTV_PILOT,		{}, { PILOT_AUTO	} ,0},
 	{ DTV_ROLLOFF,		{}, { ROLLOFF_AUTO	} ,0},
-	{ DTV_TUNE,		{}, { 0			} ,0 },
+	{ DTV_STREAM_ID,	{}, { NO_STREAM_ID_FILTER } ,0},
+	{ DTV_TUNE,		{}, { 0			} ,0 }
 };
 
 static const struct dtv_property dvbc_cmdargs[] = {
@@ -243,6 +245,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	memset(&info, 0, sizeof(info));
 
 	deliverySystemMask = UNKNOWN_DS;
+	isMultistream = false;
 }
 
 CFrontend::~CFrontend(void)
@@ -356,12 +359,14 @@ void CFrontend::getFEInfo(void)
 				break;
 			case SYS_DVBT2:
 				deliverySystemMask |= DVB_T2;
+				isMultistream = info.caps & FE_CAN_MULTISTREAM;
 				break;
 			case SYS_DVBS:
 				deliverySystemMask |= DVB_S;
 				break;
 			case SYS_DVBS2:
 				deliverySystemMask |= DVB_S2;
+				isMultistream = info.caps & FE_CAN_MULTISTREAM;
 				break;
 			case SYS_DTMB:
 				deliverySystemMask |= DTMB;
@@ -685,6 +690,22 @@ fe_transmit_mode_t CFrontend::getTransmissionMode(const uint8_t transmission_mod
 #endif
 	default:
 		return TRANSMISSION_MODE_AUTO;
+	}
+}
+
+fe_pls_mode_t CFrontend::getPLSMode(const uint8_t pls_mode)
+{
+	switch (pls_mode) {
+	case 0x00:
+		return PLS_Root;
+	case 0x01:
+		return PLS_Gold;
+	case 0x02:
+		return PLS_Combo;
+	case 0x03:
+		return PLS_Unknown;
+	default:
+		return PLS_Root;
 	}
 }
 
@@ -1269,6 +1290,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			cmdseq.props[MODULATION].u.data	= feparams->modulation;
 			cmdseq.props[ROLLOFF].u.data	= feparams->rolloff;
 			cmdseq.props[PILOTS].u.data	= pilot;
+			cmdseq.props[MIS].u.data = feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26);
 			if (zapit_debug) printf("[fe%d] tuner pilot %d (feparams %d)\n", fenumber, pilot, feparams->pilot);
 		} else {
 			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
@@ -1802,8 +1824,8 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 		break;
 	}
 
-	printf("[fe%d] tune to %d %s %s %s %s srate %d pli %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
-			feparams.polarization & 1 ? "V/R" : "H/L", feparams.symbol_rate, feparams.plp_id, feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
+	printf("[fe%d] tune to %d %s %s %s %s srate %d pli %d plc %d plm %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
+			feparams.polarization & 1 ? "V/R" : "H/L", feparams.symbol_rate, feparams.plp_id, feparams.pls_code, feparams.pls_mode, feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	setFrontend(&feparams, nowait);
 
 	return tuned;
