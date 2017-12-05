@@ -7,10 +7,10 @@
 	{=var-set:help_url=Help-Info-Hilfe=}{=var-set:menu={=L:info.help=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<ul>
-		<li><a href="http://wiki.tuxbox.org/Neutrino:yWeb" class="exlink" title="yWeb Help from Tuxbox Wiki" target="_blank">Tuxbox-Wiki Help</a></li>
+		<li><a href="http://wiki.tuxbox.org/wiki/Neutrino-HD" class="exlink" title="User guide for Neutrino" target="_blank">Tuxbox-Wiki Neutrino Help</a></li>
+		<li><a href="http://wiki.tuxbox.org/wiki/Neutrino:yWeb" class="exlink" title="yWeb Help from Tuxbox Wiki" target="_blank">Tuxbox-Wiki yWeb Help</a></li>
 		<li><a href="http://forum.tuxbox.org/forum" class="exlink" title="Tuxbox Dicussion Forum" target="_blank">Tuxbox Forum</a></li>
-		<li><a href="http://www.cstworld.net" class="exlink" title="CST User Forum" target="_blank">CST User Forum</a></li>
-		<li><a href="https://dbox2world.net/board/329-development/" class="exlink" title="CST Dev Forum" target="_blank">CST Developer Forum</a></li>
+		<li><a href="http://tuxbox-neutrino.org" class="exlink" title="Tuxbox-Neutrino developers" target="_blank">Sources</a></li>
 	</ul>
 	</div>
 </div>
