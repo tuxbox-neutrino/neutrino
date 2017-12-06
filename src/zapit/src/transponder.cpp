@@ -50,24 +50,33 @@ transponder::transponder()
 
 bool transponder::operator==(const transponder& t) const
 {
-	if (!CFrontend::isTerr(feparams.delsys))
+	if (CFrontend::isSat(feparams.delsys))
 		return (
-			(satellitePosition == t.satellitePosition) &&
-			//(transport_stream_id == t.transport_stream_id) &&
-			//(original_network_id == t.original_network_id) &&
-			((getFEParams()->polarization & 1) == (t.getFEParams()->polarization & 1)) &&
-			(abs((int) getFEParams()->frequency - (int)t.getFEParams()->frequency) <= 3000) &&
-			(getFEParams()->plp_id == t.getFEParams()->plp_id) &&
-			(getFEParams()->pls_mode == t.getFEParams()->pls_mode) &&
-			(getFEParams()->pls_code == t.getFEParams()->pls_code)
-	       );
-	return ((satellitePosition == t.satellitePosition) &&
+		(satellitePosition == t.satellitePosition) &&
+		//(transport_stream_id == t.transport_stream_id) &&
+		//(original_network_id == t.original_network_id) &&
+		((getFEParams()->polarization & 1) == (t.getFEParams()->polarization & 1)) &&
+		(abs((int) getFEParams()->frequency - (int)t.getFEParams()->frequency) <= 3000) &&
+		(getFEParams()->plp_id == t.getFEParams()->plp_id) &&
+		(getFEParams()->pls_mode == t.getFEParams()->pls_mode) &&
+		(getFEParams()->pls_code == t.getFEParams()->pls_code)
+		);
+	else if (CFrontend::isTerr(feparams.delsys))
+		return ((satellitePosition == t.satellitePosition) &&
 		//(transport_stream_id == t.transport_stream_id) &&
 		//(original_network_id == t.original_network_id) &&
 		((getFEParams()->polarization & 1) == (t.getFEParams()->polarization & 1)) &&
 		(abs((int) getFEParams()->frequency - (int)t.getFEParams()->frequency) <= 100) &&
 		(getFEParams()->plp_id == t.getFEParams()->plp_id)
-	       );
+		);
+	else
+		return (
+		(satellitePosition == t.satellitePosition) &&
+		//(transport_stream_id == t.transport_stream_id) &&
+		//(original_network_id == t.original_network_id) &&
+		((getFEParams()->polarization & 1) == (t.getFEParams()->polarization & 1)) &&
+		(abs((int) getFEParams()->frequency - (int)t.getFEParams()->frequency) <= 3000)
+		);
 }
 
 bool transponder::compare(const transponder& t) const
