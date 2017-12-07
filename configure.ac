@@ -152,18 +152,6 @@ fi
 
 TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
-#TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
-#TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
-#TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
-#TUXBOX_APPS_LIB_PKGCONFIG(LCDDISPLAY,tuxbox-lcddisplay)
-#TUXBOX_APPS_LIB_PKGCONFIG(LIRCDCLIENT,tuxbox-lircdclient)
-#TUXBOX_APPS_LIB_PKGCONFIG(NET,tuxbox-net)
-#TUXBOX_APPS_LIB_PKGCONFIG(PLUGINS,tuxbox-plugins)
-#TUXBOX_APPS_LIB_PKGCONFIG(TUXBOX,tuxbox)
-#TUXBOX_APPS_LIB_PKGCONFIG(UCODES,tuxbox-ucodes)
-#TUXBOX_APPS_LIB_PKGCONFIG(MPEGTOOLS,tuxbox-mpegtools)
-#TUXBOX_APPS_LIB_PKGCONFIG(TUXTXT,tuxbox-tuxtxt)
-
 AC_ARG_ENABLE(keyboard-no-rc,
 	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control]),
 	AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL, 1, [enable keyboard control, disable rc control]))
