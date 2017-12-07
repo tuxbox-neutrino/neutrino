@@ -166,14 +166,17 @@ TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
 TUXBOX_APPS_DIRECTORY_ONE(plugindir_var,PLUGINDIR_VAR,localstatedir,/var,/tuxbox/plugins,
 	[--with-plugindir_var=PATH     ],[where to find the plugins in /var])
 
-TUXBOX_APPS_DIRECTORY_ONE(webtvdir_var,WEBTVDIR_VAR,localstatedir,/var,/tuxbox/plugins/webtv,
-	[--with-webtvdir_var=PATH      ],[where to find the livestreamScriptPath in /var])
-
 TUXBOX_APPS_DIRECTORY_ONE(plugindir_mnt,PLUGINDIR_MNT,mntdir,/mnt,/plugins,
 	[--with-plugindir_mnt=PATH     ],[where to find the the extern plugins])
 
 TUXBOX_APPS_DIRECTORY_ONE(luaplugindir,LUAPLUGINDIR,libdir,/lib,/tuxbox/luaplugins,
 	[--with-luaplugindir=PATH      ],[where to find Lua plugins])
+
+TUXBOX_APPS_DIRECTORY_ONE(webtvdir,WEBTVDIR,datadir,/share,/tuxbox/neutrino/webtv,
+	[--with-webtvdir=PATH          ],[where to find the webtv content])
+
+TUXBOX_APPS_DIRECTORY_ONE(webtvdir_var,WEBTVDIR_VAR,localstatedir,/var,/tuxbox/webtv,
+	[--with-webtvdir_var=PATH      ],[where to find the webtv content in /var])
 
 TUXBOX_APPS_DIRECTORY_ONE(localedir,LOCALEDIR,datadir,/share, /tuxbox/neutrino/locale,
 	[--with-localedir=PATH         ],[where to find the locale])
@@ -216,10 +219,10 @@ AC_SUBST(LIBDIR)
 AC_SUBST(MNTDIR)
 AC_SUBST(PLUGINDIR)
 AC_SUBST(PLUGINDIR_VAR)
-AC_SUBST(WEBTVDIR)
-AC_SUBST(WEBTVDIR_VAR)
 AC_SUBST(PLUGINDIR_MNT)
 AC_SUBST(LUAPLUGINDIR)
+AC_SUBST(WEBTVDIR)
+AC_SUBST(WEBTVDIR_VAR)
 AC_SUBST(LOCALEDIR)
 AC_SUBST(LOCALEDIR_VAR)
 AC_SUBST(THEMESDIR)
