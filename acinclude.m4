@@ -5,36 +5,40 @@ AM_MAINTAINER_MODE
 AC_GNU_SOURCE
 
 AC_ARG_WITH(target,
-	[  --with-target=TARGET    target for compilation [[native,cdk]]],
-	[TARGET="$withval"],[TARGET="native"])
+	AS_HELP_STRING([--with-target=TARGET], [target for compilation [[native,cdk]]]),
+	[TARGET="$withval"],
+	[TARGET="native"])
 
 AC_ARG_WITH(targetprefix,
-	[  --with-targetprefix=PATH  prefix relative to target root (only applicable in cdk mode)],
-	[TARGET_PREFIX="$withval"],[TARGET_PREFIX=""])
+	AS_HELP_STRING([--with-targetprefix=PATH], [prefix relative to target root (only applicable in cdk mode)]),
+	[TARGET_PREFIX="$withval"],
+	[TARGET_PREFIX=""])
 
 AC_ARG_WITH(debug,
-	[  --without-debug         disable debugging code],
-	[DEBUG="$withval"],[DEBUG="yes"])
+	AS_HELP_STRING([--without-debug], [disable debugging code]),
+	[DEBUG="$withval"],
+	[DEBUG="yes"])
 
 if test "$DEBUG" = "yes"; then
 	DEBUG_CFLAGS="-g3 -ggdb"
-	AC_DEFINE(DEBUG,1,[Enable debug messages])
+	AC_DEFINE(DEBUG, 1, [Enable debug messages])
 fi
 
 AC_ARG_WITH(libcoolstream-static-dir,
-	[  --with-libcoolstream-static-dir=PATH  path for static libcoolstream],
-	[LIBCOOLSTREAM_STATIC_DIR="$withval"],[LIBCOOLSTREAM_STATIC_DIR=""])
+	AS_HELP_STRING([--with-libcoolstream-static-dir=PATH], [path for static libcoolstream]),
+	[LIBCOOLSTREAM_STATIC_DIR="$withval"],
+	[LIBCOOLSTREAM_STATIC_DIR=""])
 
 AC_ARG_ENABLE(libcoolstream-static,
-	AS_HELP_STRING(--enable-libcoolstream-static,[libcoolstream static linked for testing]))
-AM_CONDITIONAL(ENABLE_LIBCOOLSTREAM_STATIC,test "$enable_libcoolstream_static" = "yes")
+	AS_HELP_STRING([--enable-libcoolstream-static], [libcoolstream static linked for testing]))
+AM_CONDITIONAL(ENABLE_LIBCOOLSTREAM_STATIC, test "$enable_libcoolstream_static" = "yes")
 
 AC_ARG_ENABLE(reschange,
-       AS_HELP_STRING(--enable-reschange,enable change the osd resolution (default for hd2)))
+	AS_HELP_STRING([--enable-reschange], [enable change the osd resolution (default for hd2 and hd51)]))
 
 AM_CONDITIONAL(ENABLE_RESCHANGE,test "$enable_reschange" = "yes")
 if test "$enable_reschange" = "yes"; then
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION,1,[enable change the osd resolution])
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 fi
 
 AC_MSG_CHECKING(target)
@@ -155,7 +159,7 @@ TUXBOX_APPS_DIRECTORY_ONE(fontdir_var,FONTDIR_VAR,localstatedir,/var,/tuxbox/fon
 	[--with-fontdir_var=PATH       ],[where to find the fonts in /var])
 
 TUXBOX_APPS_DIRECTORY_ONE(gamesdir,GAMESDIR,localstatedir,/var,/tuxbox/games,
-	[--with-gamesdir=PATH          ],[where games data is stored])
+	[--with-gamesdir=PATH          ],[where to find the games])
 
 TUXBOX_APPS_DIRECTORY_ONE(libdir,LIBDIR,libdir,/lib,/tuxbox,
 	[--with-libdir=PATH            ],[where to find the internal libs])
@@ -311,14 +315,15 @@ _TUXBOX_APPS_LIB_PKGCONFIG($1,$2)
 
 AC_DEFUN([TUXBOX_BOXTYPE],[
 AC_ARG_WITH(boxtype,
-	[  --with-boxtype          valid values: tripledragon,coolstream,spark,azbox,generic,armbox],
+	AS_HELP_STRING([--with-boxtype], [valid values: tripledragon, coolstream, spark, azbox, generic, armbox]),
 	[case "${withval}" in
 		tripledragon|coolstream|spark|azbox|generic|armbox)
 			BOXTYPE="$withval"
 			;;
 		*)
 			AC_MSG_ERROR([bad value $withval for --with-boxtype]) ;;
-	esac], [BOXTYPE="coolstream"])
+	esac],
+	[BOXTYPE="coolstream"])
 
 AC_ARG_WITH(boxmodel,
 	[  --with-boxmodel         valid for coolstream: hd1, hd2
@@ -361,8 +366,8 @@ AC_ARG_WITH(boxmodel,
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 			;;
-	esac], [test "$BOXTYPE" = "coolstream" && BOXMODEL="hd1" || true]
-	)
+	esac],
+	[test "$BOXTYPE" = "coolstream" && BOXMODEL="hd1" || true])
 
 AC_SUBST(BOXTYPE)
 AC_SUBST(BOXMODEL)

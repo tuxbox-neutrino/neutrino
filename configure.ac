@@ -36,23 +36,23 @@ else
 fi
 
 AC_ARG_ENABLE(ffmpegdec,
-	AS_HELP_STRING(--enable-ffmpegdec,include ffmpeg decoder support),
+	AS_HELP_STRING([--enable-ffmpegdec], [include ffmpeg decoder support]),
 	,[enable_ffmpegdec=no])
 
 AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
 if test "$enable_ffmpegdec" = "yes"; then
-	AC_DEFINE(ENABLE_FFMPEGDEC,1,[include ffmpeg decoder support])
+	AC_DEFINE(ENABLE_FFMPEGDEC, 1, [include ffmpeg decoder support])
 fi
 
 if test x"$enable_ffmpegdec" != xyes; then
 
-AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
-	[use libvorbisidec instead of libogg/libvorbis])],
+AC_ARG_WITH(tremor,
+	AS_HELP_STRING([--with-tremor], [use libvorbisidec instead of libogg/libvorbis]),
 	[TREMOR="$withval"],
 	[TREMOR=no])
 
-AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
-	[use statically linked libvorbisidec instead of libogg/libvorbis])],
+AC_ARG_WITH(tremor-static,
+	AS_HELP_STRING([--with-tremor-static], [use statically linked libvorbisidec instead of libogg/libvorbis]),
 	[TREMOR_STATIC="$withval"],
 	[TREMOR_STATIC=no])
 
@@ -62,7 +62,7 @@ fi
 
 if test "$TREMOR" = "yes"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(VORBISIDEC,vorbisidec)
-	AC_DEFINE(USE_TREMOR,1,use libvorbisidec/tremor library)
+	AC_DEFINE(USE_TREMOR, 1, use libvorbisidec/tremor library)
 fi
 
 if test "$TREMOR_STATIC" = "yes"; then
@@ -147,7 +147,7 @@ if test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "generic" ||
    test "$BOXTYPE" = "tripledragon" ||
    test "$BOXTYPE" = "spark"; then
-	AC_DEFINE(SCREENSHOT,1,[Define to 1 if the platform supports screenshots])
+	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi
 
 TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
@@ -165,100 +165,98 @@ TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 #TUXBOX_APPS_LIB_PKGCONFIG(TUXTXT,tuxbox-tuxtxt)
 
 AC_ARG_ENABLE(keyboard-no-rc,
-         [  --enable-keyboard-no-rc             enable keyboard control, disable rc control],
-         [AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL,1,[enable keyboard control, disable rc control])])
+	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control]),
+	AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL, 1, [enable keyboard control, disable rc control]))
 
 AC_ARG_ENABLE(mdev,
-	[  --enable-mdev disable broken neutrino mount hack, use with mdev],
-	[AC_DEFINE(ASSUME_MDEV,1,[disable broken neutrino mount hack, use with mdev])])
+	AS_HELP_STRING([--enable-mdev], [disable broken neutrino mount hack, use with mdev]),
+	AC_DEFINE(ASSUME_MDEV, 1, [disable broken neutrino mount hack, use with mdev]))
 
 AC_ARG_ENABLE(freesatepg,
-	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
-	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
+	AS_HELP_STRING([--enable-freesatepg], [enable Freesat EPG code (experimental)]),
+	AC_DEFINE(ENABLE_FREESATEPG, 1, [enable Freesat EPG code]))
 
 AC_ARG_ENABLE(viasatepg,
-	[  --enable-viasatepg                  enable ViaSat EPG code (experimental)],
-	[AC_DEFINE(ENABLE_VIASATEPG,1,[enable ViaSat EPG code])])
+	AS_HELP_STRING([--enable-viasatepg], [enable ViaSat EPG code (experimental)]),
+	AC_DEFINE(ENABLE_VIASATEPG, 1, [enable ViaSat EPG code]))
 
 AC_ARG_ENABLE(fastscan,
-	[  --enable-fastscan                   enable Fastscan code)],
-	[AC_DEFINE(ENABLE_FASTSCAN,1,[enable fastscan code])])
+	AS_HELP_STRING([--enable-fastscan], [enable fastscan code]),
+	AC_DEFINE(ENABLE_FASTSCAN, 1, [enable fastscan code]))
 
 AM_CONDITIONAL(ENABLE_FASTSCAN, test "$enable_fastscan" = "yes")
 
 AC_ARG_ENABLE(giflib,
-	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
+	AS_HELP_STRING([--enable-giflib], [use giflib instead of libungif]),
 	,[enable_giflib=no])
 
-AM_CONDITIONAL(ENABLE_GIFLIB,test "$enable_giflib" = "yes")
+AM_CONDITIONAL(ENABLE_GIFLIB, test "$enable_giflib" = "yes")
 if test "$enable_giflib" = "yes"; then
-	AC_DEFINE(ENABLE_GIFLIB,1,[use giflib instead of libungif])
+	AC_DEFINE(ENABLE_GIFLIB, 1, [use giflib instead of libungif])
 fi
 
-### USE_PUGIXML
 AC_ARG_ENABLE(pugixml,
-       AS_HELP_STRING(--enable-pugixml,use pugixml instead of xmltree),
+       AS_HELP_STRING([--enable-pugixml], [use pugixml instead of xmltree]),
        ,[enable_pugixml=no])
 
-AM_CONDITIONAL(USE_PUGIXML,test "$enable_pugixml" = "yes")
+AM_CONDITIONAL(USE_PUGIXML, test "$enable_pugixml" = "yes")
 if test "$enable_pugixml" = "yes"; then
-       AC_DEFINE(USE_PUGIXML,1,[use pugixml instead of xmltree])
+       AC_DEFINE(USE_PUGIXML, 1, [use pugixml instead of xmltree])
 fi
 
-
-# FLAC - Free Lossless Audio Codec
 AC_ARG_ENABLE(flac,
-	AS_HELP_STRING(--enable-flac,include FLAC support),
+	AS_HELP_STRING([--enable-flac], [include FLAC support]),
 	,[enable_flac=no])
 
-AM_CONDITIONAL(ENABLE_FLAC,test "$enable_flac" = "yes")
+AM_CONDITIONAL(ENABLE_FLAC, test "$enable_flac" = "yes")
 if test "$enable_flac" = "yes"; then
-	AC_DEFINE(ENABLE_FLAC,1,[include FLAC support])
+	AC_DEFINE(ENABLE_FLAC, 1, [include FLAC support])
 fi
 
-# UPNP - upnp browser (borken right now)
 AC_ARG_ENABLE(upnp,
-	AS_HELP_STRING(--disable-upnp,disable UPNP support),
+	AS_HELP_STRING([--disable-upnp], [disable UPNP support]),
 	,[enable_upnp=yes])
 
-AM_CONDITIONAL(ENABLE_UPNP,test "$enable_upnp" = "yes")
+AM_CONDITIONAL(ENABLE_UPNP, test "$enable_upnp" = "yes")
 if test "$enable_upnp" = "yes"; then
-	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
+	AC_DEFINE(ENABLE_UPNP, 1, [include UPNP support])
 fi
 
 AC_ARG_ENABLE(extupdate,
-	AS_HELP_STRING(--enable-extupdate,include extended update routine),
+	AS_HELP_STRING([--enable-extupdate], [include extended update routine]),
 	,[enable_extupdate=no])
 
-AM_CONDITIONAL(ENABLE_EXTUPDATE,test "$enable_extupdate" = "yes")
+AM_CONDITIONAL(ENABLE_EXTUPDATE, test "$enable_extupdate" = "yes")
 if test "$enable_extupdate" = "yes"; then
-	AC_DEFINE(ENABLE_EXTUPDATE,1,[include extended update routine])
+	AC_DEFINE(ENABLE_EXTUPDATE, 1, [include extended update routine])
 fi
 
 AC_ARG_WITH(stb-hal-includes,
-	[  --with-stb-hal-includes=PATH  path for libstb-hal includes [[NONE]]],
-	[STB_HAL_INC="$withval"],[STB_HAL_INC=""])
+	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
+	[STB_HAL_INC="$withval"],
+	[STB_HAL_INC=""])
+
 AC_ARG_WITH(stb-hal-build,
-	[  --with-stb-hal-build=PATH   path where libstb-hal is built [[NONE]]],
-	[STB_HAL_LIB="-L$withval"],[STB_HAL_LIB=""])
+	AS_HELP_STRING([--with-stb-hal-build=PATH], [path where libstb-hal is built [[NONE]]]),
+	[STB_HAL_LIB="-L$withval"],
+	[STB_HAL_LIB=""])
 
 AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
 if test "$BOXTYPE" != coolstream; then
-	AC_DEFINE(USE_STB_HAL, 1,[use libstb-hal])
+	AC_DEFINE(USE_STB_HAL, 1, [use libstb-hal])
 	if test "$STB_HAL_INC" = ""; then
 		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
 	fi
 	HWLIB_CFLAGS="-I$STB_HAL_INC"
 fi
 
-# Lua - embeddable scripting language
 AC_ARG_ENABLE(lua,
-	AS_HELP_STRING(--disable-lua,disable Lua support),
+	AS_HELP_STRING([--disable-lua], [disable Lua support]),
 	,[enable_lua=yes])
 
-AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
+AM_CONDITIONAL(ENABLE_LUA, test "$enable_lua" = "yes")
 if test "$enable_lua" = "yes"; then
-	AC_DEFINE(ENABLE_LUA,1,[include Lua support])
+	AC_DEFINE(ENABLE_LUA, 1, [include Lua support])
 	PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
 		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
 			echo "=> lualib not found, assuming static lua in linker path..."
@@ -267,29 +265,28 @@ if test "$enable_lua" = "yes"; then
 		])
 	])
 # hack...
-AC_DEFINE(LUA_COMPAT_5_2,1,[does not really belong in config.h, but is needed for build with lua 5.3+])
+AC_DEFINE(LUA_COMPAT_5_2, 1, [does not really belong in config.h, but is needed for build with lua 5.3+])
 fi
 
 AC_ARG_ENABLE(cleanup,
-	[  --enable-cleanup                  enable cleanup on exit],
-	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
+	AS_HELP_STRING([--enable-cleanup], [enable cleanup on exit]),
+	AC_DEFINE(EXIT_CLEANUP, 1, [enable cleanup on exit]))
 
 AC_ARG_ENABLE(pip,
-	[  --enable-pip                  enable picture in picture support],
-	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
-
+	AS_HELP_STRING([--enable-pip], [enable picture in picture support]),
+	AC_DEFINE(ENABLE_PIP, 1, [enable picture in picture support]))
 
 AC_ARG_ENABLE(testing,
-       AS_HELP_STRING(--enable-testing,include devel code parts for neutrino tests))
+       AS_HELP_STRING([--enable-testing], [include dev code parts for neutrino tests]))
 
-AM_CONDITIONAL(ENABLE_TESTING,test "$enable_testing" = "yes")
+AM_CONDITIONAL(ENABLE_TESTING, test "$enable_testing" = "yes")
 if test "$enable_testing" = "yes"; then
-	AC_DEFINE(ENABLE_TESTING,1,[include devel code parts for neutrino tests - not recommended for general users!])
+	AC_DEFINE(ENABLE_TESTING, 1, [include dev code parts for neutrino tests - not recommended for general users!])
 fi
 
-AC_ARG_ENABLE([fribidi],
-	AS_HELP_STRING([--enable-fribidi], [enable fribidi support])
-)
+AC_ARG_ENABLE(fribidi,
+	AS_HELP_STRING([--enable-fribidi], [enable fribidi support]))
+
 AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
 AS_IF([test "$enable_fribidi" = "yes"],
 	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support])
@@ -297,16 +294,16 @@ AS_IF([test "$enable_fribidi" = "yes"],
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
+	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H, 1, [Define to 1 if you have the <nevis_ir.h> header file.])
 fi
 HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd1/libcoolstream'
 
 if test "$BOXMODEL" = "hd2"; then
 if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_ir_generic.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
+	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H, 1, [Define to 1 if you have the <cs_ir_generic.h> header file.])
 fi
 if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_frontpanel.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
+	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H, 1, [Define to 1 if you have the <cs_frontpanel.h> header file.])
 fi
 HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
 fi
