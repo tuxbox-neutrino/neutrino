@@ -83,7 +83,7 @@ AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_SYS_LARGEFILE
 
-check_path () {
+check_path() {
 	return $(perl -e "if(\"$1\"=~m#^/usr/(local/)?bin#){print \"0\"}else{print \"1\";}")
 }
 
@@ -323,9 +323,9 @@ AC_ARG_WITH(boxtype,
 	[BOXTYPE="coolstream"])
 
 AC_ARG_WITH(boxmodel,
-	[  --with-boxmodel         valid for coolstream: hd1, hd2
-                          valid for armbox: hd51
-                          valid for generic: raspi],
+	AS_HELP_STRING([--with-boxmodel], [valid for coolstream: hd1, hd2])
+AS_HELP_STRING([], [valid for armbox: hd51])
+AS_HELP_STRING([], [valid for generic: raspi]),
 	[case "${withval}" in
 		hd1|hd2)
 			if test "$BOXTYPE" = "coolstream"; then
