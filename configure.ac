@@ -80,16 +80,16 @@ TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
 if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
 fi
-TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
-else
-TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
+
 fi
+
+TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
+
+AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
 if test "$BOXTYPE" = "tripledragon"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
 fi
-
-AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
@@ -109,6 +109,7 @@ PKG_CHECK_MODULES([FREETYPE], [freetype2 >= 16.2.10],
 if test -z "$CURL_LIBS" -a -z "$CURL_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
 fi
+
 # fallback to freetype-config (which is ugly for cross-compilation)
 if test -z "$FREETYPE_LIBS" -a -z "$FREETYPE_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
