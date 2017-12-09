@@ -219,8 +219,9 @@ if test "$BOXTYPE" != coolstream; then
 fi
 
 AC_ARG_ENABLE(lua,
-	AS_HELP_STRING([--disable-lua], [disable Lua support @<:@default=no@:>@]),
-	,[enable_lua=yes])
+	AS_HELP_STRING([--enable-lua], [enable Lua support @<:@default=yes@:>@]),
+	[enable_lua="$enableval"],
+	[enable_lua="yes"])
 
 AM_CONDITIONAL(ENABLE_LUA, test "$enable_lua" = "yes")
 if test "$enable_lua" = "yes"; then
