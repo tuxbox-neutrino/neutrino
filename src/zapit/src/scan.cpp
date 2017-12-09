@@ -286,7 +286,9 @@ _repeat:
 		if(abort_scan)
 			return false;
 
-		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, !CFrontend::isSat(tI->second.feparams.delsys));
+		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, CFrontend::isCable(tI->second.feparams.delsys));
+		if (CFrontend::isTerr(tI->second.feparams.delsys))
+			freq = (freq_id_t) (tI->second.feparams.frequency/(1000*1000));
 
 		CNit nit(satellitePosition, freq, cable_nid);
 		if(flags & SCAN_NIT)
@@ -622,7 +624,9 @@ bool CServiceScan::ScanTransponder()
 	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
 			flags & SCAN_FTA ? "yes" : "no", scanProviders.size() == 1 ? "single" : "multi");
 
-	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.frequency, !CFrontend::isSat(TP->feparams.delsys));
+	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.frequency, CFrontend::isCable(TP->feparams.delsys));
+	if (CFrontend::isTerr(TP->feparams.delsys))
+		freq = (freq_id_t) (TP->feparams.frequency/(1000*1000));
 
 	fake_tid++; fake_nid++;
 
@@ -669,7 +673,9 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 	bool ret = false;
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
 		if (tI->second.satellitePosition == satellitePosition) {
-			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.frequency, !frontend->isSat());
+			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.frequency, frontend->isCable());
+			if (frontend->isTerr())
+				newfreq = (freq_id_t) (tI->second.feparams.frequency/(1000*1000));
 			if (freq == newfreq) {
 				memcpy(&tI->second.feparams, feparams, sizeof(FrontendParameters));
 				printf("[scan] replacing transponder parameters\n");

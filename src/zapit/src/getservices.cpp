@@ -444,7 +444,9 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
 		}
 
-		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, !CFrontend::isSat(delsys));
+		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, CFrontend::isCable(delsys));
+		if (CFrontend::isTerr(delsys))
+			freq = (freq_id_t) (feparams.frequency/(1000*1000));
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
 		transponder t(tid, feparams);
@@ -767,7 +769,10 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 		else	/* we'll probably crash sooner or later, so write to STDERR... */
 			fprintf(stderr, "[getservices] %s: unknown delivery system %d!\n", __func__, delsys);
 
-		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, !CFrontend::isSat(delsys));
+		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, CFrontend::isCable(delsys));
+		if (CFrontend::isTerr(delsys))
+			freq = (freq_id_t) (feparams.frequency/(1000*1000));
+
 		feparams.polarization &= 7;
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
