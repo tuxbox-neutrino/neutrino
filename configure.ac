@@ -37,12 +37,8 @@ fi
 
 AC_ARG_ENABLE(ffmpegdec,
 	AS_HELP_STRING([--enable-ffmpegdec], [enable ffmpeg decoder support @<:@default=no@:>@]),
-	,[enable_ffmpegdec=no])
-
+	AC_DEFINE(ENABLE_FFMPEGDEC, 1, [include ffmpeg decoder support]))
 AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
-if test "$enable_ffmpegdec" = "yes"; then
-	AC_DEFINE(ENABLE_FFMPEGDEC, 1, [include ffmpeg decoder support])
-fi
 
 if test x"$enable_ffmpegdec" != xyes; then
 
@@ -171,35 +167,22 @@ AC_ARG_ENABLE(viasatepg,
 AC_ARG_ENABLE(fastscan,
 	AS_HELP_STRING([--enable-fastscan], [enable fastscan code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FASTSCAN, 1, [enable fastscan code]))
-
 AM_CONDITIONAL(ENABLE_FASTSCAN, test "$enable_fastscan" = "yes")
 
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING([--enable-giflib], [use giflib instead of libungif @<:@default=no@:>@]),
-	,[enable_giflib=no])
-
+	AC_DEFINE(ENABLE_GIFLIB, 1, [use giflib instead of libungif]))
 AM_CONDITIONAL(ENABLE_GIFLIB, test "$enable_giflib" = "yes")
-if test "$enable_giflib" = "yes"; then
-	AC_DEFINE(ENABLE_GIFLIB, 1, [use giflib instead of libungif])
-fi
 
 AC_ARG_ENABLE(pugixml,
-       AS_HELP_STRING([--enable-pugixml], [use pugixml instead of xmltree @<:@default=no@:>@]),
-       ,[enable_pugixml=no])
-
+	AS_HELP_STRING([--enable-pugixml], [use pugixml instead of xmltree @<:@default=no@:>@]),
+	AC_DEFINE(USE_PUGIXML, 1, [use pugixml instead of xmltree]))
 AM_CONDITIONAL(USE_PUGIXML, test "$enable_pugixml" = "yes")
-if test "$enable_pugixml" = "yes"; then
-       AC_DEFINE(USE_PUGIXML, 1, [use pugixml instead of xmltree])
-fi
 
 AC_ARG_ENABLE(flac,
 	AS_HELP_STRING([--enable-flac], [enable FLAC support @<:@default=no@:>@]),
-	,[enable_flac=no])
-
+	AC_DEFINE(ENABLE_FLAC, 1, [enable FLAC support]))
 AM_CONDITIONAL(ENABLE_FLAC, test "$enable_flac" = "yes")
-if test "$enable_flac" = "yes"; then
-	AC_DEFINE(ENABLE_FLAC, 1, [enable FLAC support])
-fi
 
 AC_ARG_ENABLE(upnp,
 	AS_HELP_STRING([--disable-upnp], [disable UPNP support @<:@default=no@:>@]),
@@ -212,12 +195,8 @@ fi
 
 AC_ARG_ENABLE(extupdate,
 	AS_HELP_STRING([--enable-extupdate], [enable extended update routine @<:@default=no@:>@]),
-	,[enable_extupdate=no])
-
+	AC_DEFINE(ENABLE_EXTUPDATE, 1, [enable extended update routine]))
 AM_CONDITIONAL(ENABLE_EXTUPDATE, test "$enable_extupdate" = "yes")
-if test "$enable_extupdate" = "yes"; then
-	AC_DEFINE(ENABLE_EXTUPDATE, 1, [enable extended update routine])
-fi
 
 AC_ARG_WITH(stb-hal-includes,
 	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
@@ -265,20 +244,14 @@ AC_ARG_ENABLE(pip,
 	AC_DEFINE(ENABLE_PIP, 1, [enable picture in picture support]))
 
 AC_ARG_ENABLE(testing,
-       AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]))
-
+	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_TESTING, 1, [enable development code]))
 AM_CONDITIONAL(ENABLE_TESTING, test "$enable_testing" = "yes")
-if test "$enable_testing" = "yes"; then
-	AC_DEFINE(ENABLE_TESTING, 1, [enable development code])
-fi
 
 AC_ARG_ENABLE(fribidi,
-	AS_HELP_STRING([--enable-fribidi], [enable fribidi support @<:@default=no@:>@]))
-
+	AS_HELP_STRING([--enable-fribidi], [enable fribidi support @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support]))
 AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
-AS_IF([test "$enable_fribidi" = "yes"],
-	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support])
-)
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
