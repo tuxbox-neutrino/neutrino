@@ -81,7 +81,7 @@ if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
 fi
 
-fi
+fi # test "$enable_ffmpegdec"
 
 TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 
@@ -96,14 +96,12 @@ TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
 
 ## For the check you must use the corresponding libtool number as version number,
 ## see freetype source code docs/VERSIONS.TXT
-PKG_CHECK_MODULES([FREETYPE], [freetype2 >= 16.2.10],
-	[echo "freetype2 >= 2.5.0 found"], [
-	## If freetype is not found:
-	## Activate this line if you want to search with freetype-config instead
-	[echo "freetype2 >= 2.5.0 not found, use alternative search method with freetype-config"]
-	## Activate this line if you want to abort
-#	AC_MSG_ERROR([freetype2 >= 2.5.0 not found])
-	])
+PKG_CHECK_MODULES([FREETYPE], [freetype2 >= 16.2.10], [
+	echo "freetype2 >= 2.5.0 found"
+], [
+	echo "freetype2 >= 2.5.0 not found, use alternative search method with freetype-config"
+	#AC_MSG_ERROR([freetype2 >= 2.5.0 not found])
+])
 
 # fallback to curl-config (which is ugly for cross-compilation)
 if test -z "$CURL_LIBS" -a -z "$CURL_CFLAGS"; then
@@ -115,16 +113,17 @@ if test -z "$FREETYPE_LIBS" -a -z "$FREETYPE_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
 	CPPFLAGS+=" $FREETYPE_CFLAGS"
 	AC_MSG_CHECKING([whether FreeType version is 2.5.0 or higher])
-		AC_TRY_CPP([
-			#include <ft2build.h>
-			#include FT_FREETYPE_H
-			#if FREETYPE_MAJOR < 2 || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 5)
-			#error Freetype version too low.
-			#endif
-			],
-			[AC_MSG_RESULT(yes)],
-			[AC_MSG_ERROR([Need FreeType library version 2.5.0 or higher])
-		])
+	AC_TRY_CPP([
+		#include <ft2build.h>
+		#include FT_FREETYPE_H
+		#if FREETYPE_MAJOR < 2 || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 5)
+		#error Freetype version too low.
+		#endif
+	], [
+		AC_MSG_RESULT(yes)
+	], [
+		AC_MSG_ERROR([Need FreeType library version 2.5.0 or higher])
+	])
 fi
 
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
@@ -206,11 +205,15 @@ AC_ARG_ENABLE(lua,
 
 if test "$enable_lua" = "yes"; then
 	AC_DEFINE(ENABLE_LUA, 1, [include Lua support])
-	PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
-		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
-			echo "=> lualib not found, assuming static lua in linker path..."
+	PKG_CHECK_MODULES([LUA], [lua >= 5.2], [
+		echo "lua >= 5.2 found"
+	], [
+		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], [
+			echo "lua5.2 found"
+		], [
+			echo "lualib not found, assuming static lua in linker path..."
 			LUA_LIBS="-llua -ldl"
-			AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
+			AC_DEFINE(STATIC_LUAPOSIX, 1, [Define to 1 for static lua build.])
 		])
 	])
 	# hack...

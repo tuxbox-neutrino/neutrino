@@ -90,7 +90,8 @@ check_path() {
 ])
 
 dnl expand nested ${foo}/bar
-AC_DEFUN([TUXBOX_EXPAND_VARIABLE], [__$1="$2"
+AC_DEFUN([TUXBOX_EXPAND_VARIABLE], [
+	__$1="$2"
 	for __CNT in false false false false true; do dnl max 5 levels of indirection
 		$1=`eval echo "$__$1"`
 		echo ${$1} | grep -q '\$' || break # 'grep -q' is POSIX, exit if no $ in variable
@@ -312,9 +313,10 @@ AC_ARG_WITH(boxtype,
 	[case "${withval}" in
 		tripledragon|coolstream|spark|azbox|generic|armbox)
 			BOXTYPE="$withval"
-			;;
+		;;
 		*)
-			AC_MSG_ERROR([bad value $withval for --with-boxtype]) ;;
+			AC_MSG_ERROR([bad value $withval for --with-boxtype])
+		;;
 	esac],
 	[BOXTYPE="coolstream"])
 
@@ -329,7 +331,7 @@ AS_HELP_STRING([], [valid for generic: raspi]),
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
-			;;
+		;;
 		nevis|apollo)
 			if test "$BOXTYPE" = "coolstream"; then
 				if test "$withval" = "nevis"; then
@@ -341,24 +343,24 @@ AS_HELP_STRING([], [valid for generic: raspi]),
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
-			;;
+		;;
 		hd51)
 			if test "$BOXTYPE" = "armbox"; then
 				BOXMODEL="$withval"
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
-			;;
+		;;
 		raspi)
 			if test "$BOXTYPE" = "generic"; then
 				BOXMODEL="$withval"
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
-			;;
+		;;
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
-			;;
+		;;
 	esac],
 	[test "$BOXTYPE" = "coolstream" && BOXMODEL="hd1" || true])
 
