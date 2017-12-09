@@ -10,4 +10,5 @@
 	<webradio title="90s90s - The Beat of the 90s" urlkey="0" url="http://streams.90s90s.de/main/mp3-192/streams.90s90s.de/" description="" genre="90s90s" />
 	<webradio title="90s90s - Hits" urlkey="0" url="http://streams.90s90s.de/pop/mp3-192/streams.90s90s.de/" description="" genre="90s90s" />
 	<webradio title="90s90s - Boygroups" urlkey="0" url="http://streams.90s90s.de/boygroup/mp3-192/streams.90s90s.de/" description="" genre="90s90s" />
+	<webradio title="StompFM" urlkey="0" url="http://51.255.104.137:8057/" description="stompfm.de ... so klingt Berlin!" genre="StompFM" />
 </webradios>
