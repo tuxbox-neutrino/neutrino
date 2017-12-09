@@ -199,25 +199,6 @@ AC_ARG_ENABLE(extupdate,
 	AC_DEFINE(ENABLE_EXTUPDATE, 1, [enable extended update routine]))
 AM_CONDITIONAL(ENABLE_EXTUPDATE, test "$enable_extupdate" = "yes")
 
-AC_ARG_WITH(stb-hal-includes,
-	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
-	[STB_HAL_INC="$withval"],
-	[STB_HAL_INC=""])
-
-AC_ARG_WITH(stb-hal-build,
-	AS_HELP_STRING([--with-stb-hal-build=PATH], [path where libstb-hal is built [[NONE]]]),
-	[STB_HAL_LIB="-L$withval"],
-	[STB_HAL_LIB=""])
-
-AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
-if test "$BOXTYPE" != coolstream; then
-	AC_DEFINE(USE_STB_HAL, 1, [use libstb-hal])
-	if test "$STB_HAL_INC" = ""; then
-		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
-	fi
-	HWLIB_CFLAGS="-I$STB_HAL_INC"
-fi
-
 AC_ARG_ENABLE(lua,
 	AS_HELP_STRING([--enable-lua], [enable Lua support @<:@default=yes@:>@]),
 	[enable_lua="$enableval"],
@@ -254,6 +235,25 @@ AC_ARG_ENABLE(fribidi,
 	AS_HELP_STRING([--enable-fribidi], [enable fribidi support @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support]))
 AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
+
+AC_ARG_WITH(stb-hal-includes,
+	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
+	[STB_HAL_INC="$withval"],
+	[STB_HAL_INC=""])
+
+AC_ARG_WITH(stb-hal-build,
+	AS_HELP_STRING([--with-stb-hal-build=PATH], [path where libstb-hal is built [[NONE]]]),
+	[STB_HAL_LIB="-L$withval"],
+	[STB_HAL_LIB=""])
+
+AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
+if test "$BOXTYPE" != coolstream; then
+	AC_DEFINE(USE_STB_HAL, 1, [use libstb-hal])
+	if test "$STB_HAL_INC" = ""; then
+		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
+	fi
+	HWLIB_CFLAGS="-I$STB_HAL_INC"
+fi
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
