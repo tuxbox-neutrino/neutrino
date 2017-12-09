@@ -36,7 +36,7 @@ else
 fi
 
 AC_ARG_ENABLE(ffmpegdec,
-	AS_HELP_STRING([--enable-ffmpegdec], [include ffmpeg decoder support]),
+	AS_HELP_STRING([--enable-ffmpegdec], [enable ffmpeg decoder support @<:@default=no@:>@]),
 	,[enable_ffmpegdec=no])
 
 AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
@@ -47,12 +47,12 @@ fi
 if test x"$enable_ffmpegdec" != xyes; then
 
 AC_ARG_WITH(tremor,
-	AS_HELP_STRING([--with-tremor], [use libvorbisidec instead of libogg/libvorbis]),
+	AS_HELP_STRING([--with-tremor], [use libvorbisidec instead of libogg/libvorbis @<:@default=no@:>@]),
 	[TREMOR="$withval"],
 	[TREMOR=no])
 
 AC_ARG_WITH(tremor-static,
-	AS_HELP_STRING([--with-tremor-static], [use statically linked libvorbisidec instead of libogg/libvorbis]),
+	AS_HELP_STRING([--with-tremor-static], [use statically linked libvorbisidec instead of libogg/libvorbis @<:@default=no@:>@]),
 	[TREMOR_STATIC="$withval"],
 	[TREMOR_STATIC=no])
 
@@ -153,29 +153,29 @@ fi
 TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
 AC_ARG_ENABLE(keyboard-no-rc,
-	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control]),
+	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control @<:@default=no@:>@]),
 	AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL, 1, [enable keyboard control, disable rc control]))
 
 AC_ARG_ENABLE(mdev,
-	AS_HELP_STRING([--enable-mdev], [disable broken neutrino mount hack, use with mdev]),
-	AC_DEFINE(ASSUME_MDEV, 1, [disable broken neutrino mount hack, use with mdev]))
+	AS_HELP_STRING([--enable-mdev], [use mdev instead of broken neutrino mount hack @<:@default=no@:>@]),
+	AC_DEFINE(ASSUME_MDEV, 1, [use mdev instead of broken neutrino mount hack]))
 
 AC_ARG_ENABLE(freesatepg,
-	AS_HELP_STRING([--enable-freesatepg], [enable Freesat EPG code (experimental)]),
+	AS_HELP_STRING([--enable-freesatepg], [enable Freesat EPG code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FREESATEPG, 1, [enable Freesat EPG code]))
 
 AC_ARG_ENABLE(viasatepg,
-	AS_HELP_STRING([--enable-viasatepg], [enable ViaSat EPG code (experimental)]),
+	AS_HELP_STRING([--enable-viasatepg], [enable ViaSat EPG code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_VIASATEPG, 1, [enable ViaSat EPG code]))
 
 AC_ARG_ENABLE(fastscan,
-	AS_HELP_STRING([--enable-fastscan], [enable fastscan code]),
+	AS_HELP_STRING([--enable-fastscan], [enable fastscan code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FASTSCAN, 1, [enable fastscan code]))
 
 AM_CONDITIONAL(ENABLE_FASTSCAN, test "$enable_fastscan" = "yes")
 
 AC_ARG_ENABLE(giflib,
-	AS_HELP_STRING([--enable-giflib], [use giflib instead of libungif]),
+	AS_HELP_STRING([--enable-giflib], [use giflib instead of libungif @<:@default=no@:>@]),
 	,[enable_giflib=no])
 
 AM_CONDITIONAL(ENABLE_GIFLIB, test "$enable_giflib" = "yes")
@@ -184,7 +184,7 @@ if test "$enable_giflib" = "yes"; then
 fi
 
 AC_ARG_ENABLE(pugixml,
-       AS_HELP_STRING([--enable-pugixml], [use pugixml instead of xmltree]),
+       AS_HELP_STRING([--enable-pugixml], [use pugixml instead of xmltree @<:@default=no@:>@]),
        ,[enable_pugixml=no])
 
 AM_CONDITIONAL(USE_PUGIXML, test "$enable_pugixml" = "yes")
@@ -193,30 +193,30 @@ if test "$enable_pugixml" = "yes"; then
 fi
 
 AC_ARG_ENABLE(flac,
-	AS_HELP_STRING([--enable-flac], [include FLAC support]),
+	AS_HELP_STRING([--enable-flac], [enable FLAC support @<:@default=no@:>@]),
 	,[enable_flac=no])
 
 AM_CONDITIONAL(ENABLE_FLAC, test "$enable_flac" = "yes")
 if test "$enable_flac" = "yes"; then
-	AC_DEFINE(ENABLE_FLAC, 1, [include FLAC support])
+	AC_DEFINE(ENABLE_FLAC, 1, [enable FLAC support])
 fi
 
 AC_ARG_ENABLE(upnp,
-	AS_HELP_STRING([--disable-upnp], [disable UPNP support]),
+	AS_HELP_STRING([--disable-upnp], [disable UPNP support @<:@default=no@:>@]),
 	,[enable_upnp=yes])
 
 AM_CONDITIONAL(ENABLE_UPNP, test "$enable_upnp" = "yes")
 if test "$enable_upnp" = "yes"; then
-	AC_DEFINE(ENABLE_UPNP, 1, [include UPNP support])
+	AC_DEFINE(ENABLE_UPNP, 1, [enable UPNP support])
 fi
 
 AC_ARG_ENABLE(extupdate,
-	AS_HELP_STRING([--enable-extupdate], [include extended update routine]),
+	AS_HELP_STRING([--enable-extupdate], [enable extended update routine @<:@default=no@:>@]),
 	,[enable_extupdate=no])
 
 AM_CONDITIONAL(ENABLE_EXTUPDATE, test "$enable_extupdate" = "yes")
 if test "$enable_extupdate" = "yes"; then
-	AC_DEFINE(ENABLE_EXTUPDATE, 1, [include extended update routine])
+	AC_DEFINE(ENABLE_EXTUPDATE, 1, [enable extended update routine])
 fi
 
 AC_ARG_WITH(stb-hal-includes,
@@ -239,7 +239,7 @@ if test "$BOXTYPE" != coolstream; then
 fi
 
 AC_ARG_ENABLE(lua,
-	AS_HELP_STRING([--disable-lua], [disable Lua support]),
+	AS_HELP_STRING([--disable-lua], [disable Lua support @<:@default=no@:>@]),
 	,[enable_lua=yes])
 
 AM_CONDITIONAL(ENABLE_LUA, test "$enable_lua" = "yes")
@@ -257,23 +257,23 @@ AC_DEFINE(LUA_COMPAT_5_2, 1, [does not really belong in config.h, but is needed 
 fi
 
 AC_ARG_ENABLE(cleanup,
-	AS_HELP_STRING([--enable-cleanup], [enable cleanup on exit]),
+	AS_HELP_STRING([--enable-cleanup], [enable cleanup on exit @<:@default=no@:>@]),
 	AC_DEFINE(EXIT_CLEANUP, 1, [enable cleanup on exit]))
 
 AC_ARG_ENABLE(pip,
-	AS_HELP_STRING([--enable-pip], [enable picture in picture support]),
+	AS_HELP_STRING([--enable-pip], [enable picture in picture support @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_PIP, 1, [enable picture in picture support]))
 
 AC_ARG_ENABLE(testing,
-       AS_HELP_STRING([--enable-testing], [include dev code parts for neutrino tests]))
+       AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]))
 
 AM_CONDITIONAL(ENABLE_TESTING, test "$enable_testing" = "yes")
 if test "$enable_testing" = "yes"; then
-	AC_DEFINE(ENABLE_TESTING, 1, [include dev code parts for neutrino tests - not recommended for general users!])
+	AC_DEFINE(ENABLE_TESTING, 1, [enable development code])
 fi
 
 AC_ARG_ENABLE(fribidi,
-	AS_HELP_STRING([--enable-fribidi], [enable fribidi support]))
+	AS_HELP_STRING([--enable-fribidi], [enable fribidi support @<:@default=no@:>@]))
 
 AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
 AS_IF([test "$enable_fribidi" = "yes"],

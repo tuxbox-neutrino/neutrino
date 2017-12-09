@@ -15,13 +15,13 @@ AC_ARG_WITH(targetprefix,
 	[TARGET_PREFIX=""])
 
 AC_ARG_WITH(debug,
-	AS_HELP_STRING([--without-debug], [disable debugging code]),
+	AS_HELP_STRING([--without-debug], [disable debugging code @<:@default=no@:>@]),
 	[DEBUG="$withval"],
 	[DEBUG="yes"])
 
 if test "$DEBUG" = "yes"; then
 	DEBUG_CFLAGS="-g3 -ggdb"
-	AC_DEFINE(DEBUG, 1, [Enable debug messages])
+	AC_DEFINE(DEBUG, 1, [enable debugging code])
 fi
 
 AC_ARG_WITH(libcoolstream-static-dir,
@@ -30,16 +30,13 @@ AC_ARG_WITH(libcoolstream-static-dir,
 	[LIBCOOLSTREAM_STATIC_DIR=""])
 
 AC_ARG_ENABLE(libcoolstream-static,
-	AS_HELP_STRING([--enable-libcoolstream-static], [libcoolstream static linked for testing]))
+	AS_HELP_STRING([--enable-libcoolstream-static], [libcoolstream static linked for testing  @<:@default=no@:>@]))
 AM_CONDITIONAL(ENABLE_LIBCOOLSTREAM_STATIC, test "$enable_libcoolstream_static" = "yes")
 
 AC_ARG_ENABLE(reschange,
-	AS_HELP_STRING([--enable-reschange], [enable change the osd resolution (default for hd2 and hd51)]))
-
-AM_CONDITIONAL(ENABLE_RESCHANGE,test "$enable_reschange" = "yes")
-if test "$enable_reschange" = "yes"; then
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
-fi
+	AS_HELP_STRING([--enable-reschange], [enable change the osd resolution @<:@default for hd2 and hd51@:>@]),
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution]))
+AM_CONDITIONAL(ENABLE_RESCHANGE, test "$enable_reschange" = "yes")
 
 AC_MSG_CHECKING(target)
 
@@ -403,9 +400,9 @@ if test "$BOXMODEL" = "hd1"; then
 	AC_DEFINE(BOXMODEL_CS_HD1, 1, [coolstream hd1/neo/neo2/zee])
 elif test "$BOXMODEL" = "hd2"; then
 	AC_DEFINE(BOXMODEL_CS_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee2/link])
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION,1,[enable change the osd resolution])
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 elif test "$BOXMODEL" = "hd51"; then
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION,1,[enable change the osd resolution])
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 elif test "$BOXMODEL" = "raspi"; then
 	AC_DEFINE(BOXMODEL_RASPI, 1, [Raspberry pi])
 fi
