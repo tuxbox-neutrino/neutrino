@@ -185,8 +185,9 @@ AC_ARG_ENABLE(flac,
 AM_CONDITIONAL(ENABLE_FLAC, test "$enable_flac" = "yes")
 
 AC_ARG_ENABLE(upnp,
-	AS_HELP_STRING([--disable-upnp], [disable UPNP support @<:@default=no@:>@]),
-	,[enable_upnp=yes])
+	AS_HELP_STRING([--enable-upnp], [enable UPNP support @<:@default=yes@:>@]),
+	[enable_upnp="$enableval"],
+	[enable_upnp="yes"])
 
 AM_CONDITIONAL(ENABLE_UPNP, test "$enable_upnp" = "yes")
 if test "$enable_upnp" = "yes"; then
