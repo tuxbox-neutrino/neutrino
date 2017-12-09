@@ -38,9 +38,9 @@ fi
 AC_ARG_ENABLE(ffmpegdec,
 	AS_HELP_STRING([--enable-ffmpegdec], [enable ffmpeg decoder support @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FFMPEGDEC, 1, [include ffmpeg decoder support]))
-AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
+AM_CONDITIONAL(ENABLE_FFMPEGDEC, test "$enable_ffmpegdec" = "yes")
 
-if test x"$enable_ffmpegdec" != xyes; then
+if test "$enable_ffmpegdec" != "yes"; then
 
 AC_ARG_WITH(tremor,
 	AS_HELP_STRING([--with-tremor], [use libvorbisidec instead of libogg/libvorbis @<:@default=no@:>@]),
@@ -131,9 +131,10 @@ TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
+TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
 if test "$BOXTYPE" = "armbox"; then
-TUXBOX_APPS_LIB_PKGCONFIG(SWSCALE,libswscale)
+	TUXBOX_APPS_LIB_PKGCONFIG(SWSCALE,libswscale)
 fi
 
 if test "$BOXTYPE" = "coolstream"; then
@@ -146,8 +147,6 @@ if test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "spark"; then
 	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi
-
-TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
 AC_ARG_ENABLE(keyboard-no-rc,
 	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control @<:@default=no@:>@]),
@@ -190,10 +189,10 @@ AC_ARG_ENABLE(upnp,
 	[enable_upnp="$enableval"],
 	[enable_upnp="yes"])
 
-AM_CONDITIONAL(ENABLE_UPNP, test "$enable_upnp" = "yes")
 if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP, 1, [enable UPNP support])
 fi
+AM_CONDITIONAL(ENABLE_UPNP, test "$enable_upnp" = "yes")
 
 AC_ARG_ENABLE(extupdate,
 	AS_HELP_STRING([--enable-extupdate], [enable extended update routine @<:@default=no@:>@]),
@@ -205,7 +204,6 @@ AC_ARG_ENABLE(lua,
 	[enable_lua="$enableval"],
 	[enable_lua="yes"])
 
-AM_CONDITIONAL(ENABLE_LUA, test "$enable_lua" = "yes")
 if test "$enable_lua" = "yes"; then
 	AC_DEFINE(ENABLE_LUA, 1, [include Lua support])
 	PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
@@ -215,9 +213,10 @@ if test "$enable_lua" = "yes"; then
 			AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
 		])
 	])
-# hack...
-AC_DEFINE(LUA_COMPAT_5_2, 1, [does not really belong in config.h, but is needed for build with lua 5.3+])
+	# hack...
+	AC_DEFINE(LUA_COMPAT_5_2, 1, [does not really belong in config.h, but is needed for build with lua 5.3+])
 fi
+AM_CONDITIONAL(ENABLE_LUA, test "$enable_lua" = "yes")
 
 AC_ARG_ENABLE(cleanup,
 	AS_HELP_STRING([--enable-cleanup], [enable cleanup on exit @<:@default=no@:>@]),
@@ -247,7 +246,6 @@ AC_ARG_WITH(stb-hal-build,
 	[STB_HAL_LIB="-L$withval"],
 	[STB_HAL_LIB=""])
 
-AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
 if test "$BOXTYPE" != coolstream; then
 	AC_DEFINE(USE_STB_HAL, 1, [use libstb-hal])
 	if test "$STB_HAL_INC" = ""; then
@@ -255,24 +253,28 @@ if test "$BOXTYPE" != coolstream; then
 	fi
 	HWLIB_CFLAGS="-I$STB_HAL_INC"
 fi
+AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
 
 if test "$BOXTYPE" = "coolstream"; then
-if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H, 1, [Define to 1 if you have the <nevis_ir.h> header file.])
-fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd1/libcoolstream'
+	if test "$BOXMODEL" = "hd1"; then
+		if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
+			AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H, 1, [Define to 1 if you have the <nevis_ir.h> header file.])
+		fi
+		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd1/libcoolstream'
+	fi
 
-if test "$BOXMODEL" = "hd2"; then
-if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_ir_generic.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H, 1, [Define to 1 if you have the <cs_ir_generic.h> header file.])
-fi
-if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_frontpanel.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H, 1, [Define to 1 if you have the <cs_frontpanel.h> header file.])
-fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
-fi
-HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/src/zapit/include/private'
-HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
+	if test "$BOXMODEL" = "hd2"; then
+		if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_ir_generic.h; then
+			AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H, 1, [Define to 1 if you have the <cs_ir_generic.h> header file.])
+		fi
+		if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_frontpanel.h; then
+			AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H, 1, [Define to 1 if you have the <cs_frontpanel.h> header file.])
+		fi
+		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
+	fi
+
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/src/zapit/include/private'
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
 fi
 
 # hack, so that framebuffer.h does not need to be included everywhere...
