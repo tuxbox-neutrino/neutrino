@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2014, Thilo Graf 'dbt'
+	Copyright (C) 2012-2017, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -57,6 +57,8 @@ class CComponentsInfoBox : public CComponentsText
 		///property: path or name of displayed image
 		std::string pic_name;
 
+		int pic_height, pic_width;
+
 	public:
 		///object: internal used CTextBox object
 		CComponentsText * cctext;
@@ -74,15 +76,15 @@ class CComponentsInfoBox : public CComponentsText
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
-		
+
 		~CComponentsInfoBox();
 
 		///set property: space around fram and beetween picture and textbox
 		void setSpaceOffset(const int offset){x_offset = offset;};
 		///set property: path or name of displayed image, parameter as string
-		void setPicture(const std::string& picture_name);
+		void setPicture(const std::string& picture_name, const int& dx = -1, const int& dy = -1);
 		///set property: path or name of displayed image, parameter as const char*
-		void setPicture(const char* picture_name);
+		void setPicture(const char* picture_name, const int& dx = -1, const int& dy = -1);
 		///retur internal picture object
 		CComponentsPicture * getPictureObject(){return pic;}
 		///paint item
