@@ -727,15 +727,20 @@ bool CFEManager::canTune(CZapitChannel * channel)
 
 CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 {
+	delivery_system_t delsys = UNKNOWN_DS;
+	if (SAT_POSITION_CABLE(satellitePosition))
+		delsys = ALL_CABLE;
+	if (SAT_POSITION_TERR(satellitePosition))
+		delsys = ALL_TERR;
 	CFrontend * frontend = NULL;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
-		if (mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition)) {
+		if (mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition) && !mfe->forcedDelivery(delsys)) {
 			if (mfe->getMode() != CFrontend::FE_MODE_UNUSED) {
 				frontend = mfe;
 				break;
 			}
-		} else if (mfe->hasTerr() && SAT_POSITION_TERR(satellitePosition)) {
+		} else if (mfe->hasTerr() && SAT_POSITION_TERR(satellitePosition) && !mfe->forcedDelivery(delsys)) {
 			if (mfe->getMode() != CFrontend::FE_MODE_UNUSED) {
 				frontend = mfe;
 				break;
