@@ -622,7 +622,7 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 			feparams.frequency = xmlGetNumericAttribute(tps, "centre_frequency", 0);
 		feparams.inversion = INVERSION_AUTO;
 
-		feparams.plp_id = NO_STREAM_ID_FILTER;
+		feparams.plp_id = 0; // NO_STREAM_ID_FILTER = ~0U, seems not suitable here
 		feparams.pls_mode = PLS_Root;
 		feparams.pls_code = 1;
 
