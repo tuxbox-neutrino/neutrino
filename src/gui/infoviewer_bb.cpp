@@ -847,23 +847,29 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 void CInfoViewerBB::paint_ca_bar()
 {
 	initBBOffset();
-	int ca_x = g_InfoViewer->ChanInfoX + OFFSET_INNER_MID;
+	int ca_x = g_InfoViewer->ChanInfoX;
 	int ca_y = g_InfoViewer->BoxEndY;
-	int ca_w = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - 2*OFFSET_INNER_MID;
+	int ca_w = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;
 
 	if (g_settings.infobar_casystem_frame)
 	{
-		if (ca_bar == NULL)
-			ca_bar = new CComponentsShapeSquare(ca_x, ca_y, ca_w, ca_h, NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
-		ca_bar->enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2, true);
+		ca_x += OFFSET_INNER_MID;
+		ca_w -= 2*OFFSET_INNER_MID;
+	}
+
+	if (ca_bar == NULL)
+		ca_bar = new CComponentsShapeSquare(ca_x, ca_y, ca_w, ca_h, NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
+	//ca_bar->setColorBody(COL_INFOBAR_CASYSTEM_PLUS_0);
+	ca_bar->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom, COL_INFOBAR_BUTTONS_BACKGROUND, g_settings.theme.infobar_gradient_bottom_direction);
+	ca_bar->enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2, true);
+
+	if (g_settings.infobar_casystem_frame)
+	{
 		ca_bar->setFrameThickness(FRAME_WIDTH_MIN);
 		ca_bar->setCorner(RADIUS_SMALL, CORNER_ALL);
-		ca_bar->paint(CC_SAVE_SCREEN_NO);
 	}
-	else
-	{
-		paintBoxRel(g_InfoViewer->ChanInfoX, g_InfoViewer->BoxEndY, g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX, bottom_bar_offset, COL_INFOBAR_CASYSTEM_PLUS_0);
-	}
+
+	ca_bar->paint(CC_SAVE_SCREEN_NO);
 #if 1
 	if (g_settings.infobar_casystem_dotmatrix)
 	{
