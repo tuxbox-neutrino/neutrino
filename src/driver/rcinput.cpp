@@ -194,10 +194,8 @@ void CRCInput::open(bool recheck)
 	/* close() takes the lock, too... */
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
-	unsigned long evbit;
 	struct in_dev id;
 	DIR *dir;
-	struct dirent *dentry;
 	dir = opendir("/dev/input");
 	if (! dir) {
 		printf("[rcinput:%s] opendir failed: %m\n", __func__);
@@ -205,6 +203,8 @@ void CRCInput::open(bool recheck)
 	}
 
 #if !HAVE_GENERIC_HARDWARE
+	unsigned long evbit;
+	struct dirent *dentry;
 	while ((dentry = readdir(dir)) != NULL)
 	{
 		id.path = "/dev/input/" + std::string(dentry->d_name);
