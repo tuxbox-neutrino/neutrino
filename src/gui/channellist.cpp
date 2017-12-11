@@ -1471,7 +1471,10 @@ void CChannelList::virtual_zap_mode(bool up)
 		g_RCInput->getMsg(&msg, &data, 15*10); // 15 seconds, not user changable
 
 		if ((msg == CRCInput::RC_left) || (msg == CRCInput::RC_right)) {
-			channel = bouquetList->Bouquets[bactive]->channelList->getPrevNextChannel(msg, sl);
+			if (!bouquetList->Bouquets.empty())
+				channel = bouquetList->Bouquets[bactive]->channelList->getPrevNextChannel(msg, sl);
+			else
+				channel = CNeutrinoApp::getInstance()->channelList->getPrevNextChannel(msg, sl);
 			bactive = bouquetList->getActiveBouquetNumber();
 		}
 		else if (msg == CRCInput::RC_up || msg == CRCInput::RC_down) {
