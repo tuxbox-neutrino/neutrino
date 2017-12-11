@@ -672,24 +672,28 @@ void CInfoViewerBB::showIcon_Tuner()
 
 void CInfoViewerBB::showSysfsHdd()
 {
-	if (g_settings.infobar_show_sysfs_hdd) {
-		//sysFS info
+	if (g_settings.infobar_show_sysfs_hdd)
+	{
+		// sysfs info
 		int percent = 0;
 		uint64_t t, u;
 		if (get_fs_usage("/", t, u))
 			percent = (int)((u * 100ULL) / t);
 		showBarSys(percent);
 
+		// hdd info
 		showBarHdd(cHddStat::getInstance()->getPercent());
 	}
 }
 
 void CInfoViewerBB::showBarSys(int percent)
 {	
-	if (is_visible){
+	if (is_visible)
+	{
+		int sysscale_height = InfoHeightY_Info/4;
 		sysscale->reset();
 		sysscale->doPaintBg(false);
-		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info/2 - OFFSET_INNER_MIN - InfoHeightY_Info/4, hddwidth, InfoHeightY_Info/4);
+		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info/2 - OFFSET_INNER_MIN - sysscale_height, hddwidth, sysscale_height);
 		sysscale->setValues(percent, 100);
 		sysscale->paint();
 	}
@@ -697,15 +701,19 @@ void CInfoViewerBB::showBarSys(int percent)
 
 void CInfoViewerBB::showBarHdd(int percent)
 {
-	if (is_visible) {
+	if (is_visible)
+	{
+		int hddscale_height = InfoHeightY_Info/4;
 		hddscale->reset();
 		hddscale->doPaintBg(false);
-		if (percent >= 0){
-			hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info/2 + OFFSET_INNER_MIN, hddwidth, InfoHeightY_Info/4);
-			hddscale->setValues(percent, 100);
-			hddscale->paint();
-		}else {
-			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info/2 + OFFSET_INNER_MIN, hddwidth, InfoHeightY_Info/4, COL_INFOBAR_BUTTONS_BACKGROUND);
+		hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info/2 + OFFSET_INNER_MIN, hddwidth, hddscale_height);
+		hddscale->setValues(percent, 100);
+		hddscale->paint();
+
+		if (percent < 0)
+		{
+			// mark undetected hdd fill level strike through
+			frameBuffer->paintHLineRel(bbIconMinX, hddwidth, BBarY + InfoHeightY_Info/2 + OFFSET_INNER_MIN + hddscale_height/2, COL_INFOBAR_BUTTONS_BACKGROUND);
 		}
 	}
 }
