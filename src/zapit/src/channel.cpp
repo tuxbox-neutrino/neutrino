@@ -218,7 +218,7 @@ bool CZapitChannel::isUHD()
 			if(strstr(name.c_str(),uhd.c_str()))
 				return true;
 			uhd = "4k";
-			if(strstr(name.c_str(),uhd.c_str()))
+			if(strstr(name.c_str(),uhd.c_str())) //FIXME: this statement may fall through
 				return true;
 		}
 		default:
