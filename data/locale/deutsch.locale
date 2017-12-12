@@ -1093,7 +1093,7 @@ menu.hint_inet_radio Internetradio
 menu.hint_info Systeminformationen anzeigen.
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_buttons_usertitle Erzwingt die benutzerdefinierten Titel der Farbtasten
-menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gesperrt, Diskret: alle Aktiven CA-Systeme
+menu.hint_infobar_casys ein: zeigt alle CA-Systeme; diskret: zeigt nur aktive CA-Systeme; mini: einzelnes Symbol in der Fußleiste
 menu.hint_infobar_casys_color Ändern Sie die Hintergrundfarbe für die CA-Systemanzeige der Infobar
 menu.hint_infobar_casys_dotmatrix ein: CA-Systemanzeige mit Punktematrix im Hintergrund
 menu.hint_infobar_casys_frame ein: CA-Systemanzeige mit Rahmen
@@ -1542,8 +1542,8 @@ miscsettings.infobar_buttons_usertitle Benutzertitel für Farbtasten
 miscsettings.infobar_casystem_display CA-Systemanzeige
 miscsettings.infobar_casystem_dotmatrix CA-Anzeige mit Punktematrix
 miscsettings.infobar_casystem_frame CA-Anzeige mit Rahmen
-miscsettings.infobar_casystem_mini Mini
-miscsettings.infobar_casystem_mode Diskret
+miscsettings.infobar_casystem_mini mini
+miscsettings.infobar_casystem_mode diskret
 miscsettings.infobar_disp Logo-Anzeige
 miscsettings.infobar_disp_0 Kanalname [Kanalnummer]
 miscsettings.infobar_disp_1 Kanalnummer, Kanalname [Logo]
