@@ -1110,7 +1110,7 @@ void CInfoViewer::loop(bool show_dot)
 				showRadiotext();
 
 			infoViewerBB->showIcon_16_9();
-			//infoViewerBB->showIcon_CA_Status(0);
+			//infoViewerBB->paint_ca_icons(0);
 			infoViewerBB->showIcon_Resolution();
 		} else if ((msg == NeutrinoMessages::EVT_RECORDMODE) && 
 			   (CMoviePlayerGui::getInstance().timeshift) && (CRecordManager::getInstance()->GetRecordCount() == 1)) {
@@ -1412,9 +1412,9 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOTPIDS) {
 		if ((*(t_channel_id *) data) == current_channel_id) {
 			if (is_visible && showButtonBar) {
+				//infoViewerBB->paint_ca_icons(0);
 				infoViewerBB->showIcon_VTXT();
 				infoViewerBB->showIcon_SubT();
-				//infoViewerBB->showIcon_CA_Status(0);
 				infoViewerBB->showIcon_Resolution();
 				infoViewerBB->showIcon_Tuner();
 			}
@@ -1429,7 +1429,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		//chanready = 1;
 		showSNR ();
 		if (is_visible && showButtonBar)
-			infoViewerBB->showIcon_CA_Status(0);
+			infoViewerBB->paint_ca_icons(0);
 		//Set_CA_Status (data);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_TIMER) {
@@ -2077,7 +2077,7 @@ void CInfoViewer::killTitle()
 void CInfoViewer::Set_CA_Status (int /*Status*/)
 {
 	if (is_visible && showButtonBar)
-		infoViewerBB->showIcon_CA_Status(1);
+		infoViewerBB->paint_ca_icons(1);
 }
 #endif
 /******************************************************************************

@@ -450,15 +450,16 @@ void CInfoViewerBB::paintshowButtonBar(bool noTimer/*=false*/)
 	// Buttons
 	showBBButtons();
 
+#if 0
+	scrambledCheck(true);
+#endif
+	paint_ca_icons(0);
+
 	// Icons, starting from right
 	showIcon_SubT();
 	showIcon_VTXT();
 	showIcon_DD();
 	showIcon_16_9();
-#if 0
-	scrambledCheck(true);
-#endif
-	showIcon_CA_Status(0);
 	showIcon_Resolution();
 	showIcon_Tuner();
 	showSysfsHdd();
@@ -626,7 +627,7 @@ void CInfoViewerBB::showIcon_Resolution()
 	showBBIcons(CInfoViewerBB::ICON_RES, icon_name);
 }
 
-void CInfoViewerBB::showOne_CAIcon()
+void CInfoViewerBB::showIcon_CA()
 {
 	std::string sIcon = "";
 #if 0
@@ -718,7 +719,7 @@ void CInfoViewerBB::showBarHdd(int percent)
 	}
 }
 
-void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_offset)
+void CInfoViewerBB::paint_ca_icon(int caid, const char *icon, int &icon_space_offset)
 {
 	char buf[20];
 	int endx = g_InfoViewer->BoxEndX - OFFSET_INNER_MID - (g_settings.infobar_casystem_frame ? FRAME_WIDTH_MIN + OFFSET_INNER_SMALL : 0);
@@ -784,14 +785,15 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 	}
 }
 
-void CInfoViewerBB::showIcon_CA_Status(int notfirst)
+void CInfoViewerBB::paint_ca_icons(int notfirst)
 {
 	if (g_settings.infobar_casystem_display == 3)
 		return;
+
 	if(NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
 		if (g_settings.infobar_casystem_display == 2) {
 			fta = true;
-			showOne_CAIcon();
+			showIcon_CA();
 		}
 		return;
 	}
@@ -805,11 +807,11 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 	if(!g_InfoViewer->chanready) {
 		if (g_settings.infobar_casystem_display == 2) {
 			fta = true;
-			showOne_CAIcon();
+			showIcon_CA();
 		}
 		else if(g_settings.infobar_casystem_display == 0) {
 			for (int i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
-				paint_ca_icons(caids[i], white, icon_space_offset);
+				paint_ca_icon(caids[i], white, icon_space_offset);
 			}
 		}
 		return;
@@ -821,7 +823,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 
 	if (g_settings.infobar_casystem_display == 2) {
 		fta = channel->camap.empty();
-		showOne_CAIcon();
+		showIcon_CA();
 		return;
 	}
 
@@ -836,9 +838,9 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 					break;
 			}
 			if(g_settings.infobar_casystem_display == 0)
-				paint_ca_icons(caids[i], (found ? yellow : white), icon_space_offset);
+				paint_ca_icon(caids[i], (found ? yellow : white), icon_space_offset);
 			else if(found)
-				paint_ca_icons(caids[i], yellow, icon_space_offset);
+				paint_ca_icon(caids[i], yellow, icon_space_offset);
 		}
 	}
 }
@@ -964,7 +966,7 @@ void CInfoViewerBB::scrambledCheck(bool force)
 	}
 	
 	if ((scrambledErr != scrambledErrSave) || (scrambledNoSig != scrambledNoSigSave) || force) {
-		showIcon_CA_Status(0);
+		paint_ca_icons(0);
 		showIcon_Resolution();
 		scrambledErrSave = scrambledErr;
 		scrambledNoSigSave = scrambledNoSig;
