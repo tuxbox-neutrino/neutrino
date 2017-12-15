@@ -975,6 +975,22 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		DisplayInfoMessage("Info Test!");
 		return menu_return::RETURN_REPAINT;
 	}
+	else if (actionKey == "msgbox_alt_btn"){
+		CMsgBox msgBox("Variable buttontext...", "Msgbox Test");
+		msgBox.setShowedButtons(CMsgBox::mbNo | CMsgBox::mbYes);
+		msgBox.setButtonText(CMsgBox::mbNo, "Left Button");
+		msgBox.setButtonText(CMsgBox::mbYes, "Right Button");
+		msgBox.paint();
+		res = msgBox.exec();
+		msgBox.hide();
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgBox.getResult());
+
+		ShowHint("MsgBox test returns", msg_txt.c_str(), 700, 10, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
+
+		return res;
+	}
 	else if (actionKey == "footer_key"){
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return", 350, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
 		hintBox.setTimeOut(15);
@@ -1229,6 +1245,7 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 {
 	widget->addIntroItems();
 	widget->addItem(new CMenuForwarder("HintBox test!", true, NULL, this, "hintbox_test"));
+	widget->addItem(new CMenuForwarder("Other buttontext", true, NULL, this, "msgbox_alt_btn"));
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "MsgBox"));
 	widget->addItem(new CMenuForwarder("cancel on timeout", true, NULL, this, 	"msgbox_test_cancel_timeout"));
 	widget->addItem(new CMenuForwarder("yes no", true, NULL, this, "msgbox_test_yes_no"));
