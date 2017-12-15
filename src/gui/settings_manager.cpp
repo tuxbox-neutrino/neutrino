@@ -114,7 +114,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			{
 				CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SETTINGS_BACKUP));
 				hintBox->paint();
-				const char backup_sh[] = "/bin/backup.sh";
+				const char backup_sh[] = TARGET_PREFIX "/bin/backup.sh";
 				printf("backup: executing [%s %s]\n", backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
 				my_system(2, backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
 				hintBox->hide();
@@ -134,7 +134,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
 			if(result == CMsgBox::mbrYes)
 			{
-				const char restore_sh[] = "/bin/restore.sh";
+				const char restore_sh[] = TARGET_PREFIX "/bin/restore.sh";
 				printf("restore: executing [%s %s]\n", restore_sh, fileBrowser.getSelectedFile()->Name.c_str());
 				my_system(2, restore_sh, fileBrowser.getSelectedFile()->Name.c_str());
 			}
