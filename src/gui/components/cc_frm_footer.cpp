@@ -107,8 +107,10 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 void CComponentsFooter::setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
 	/* clean up before init */
-	if (btn_container)
-		btn_container->clear();
+	if (btn_container){
+		removeCCItem(btn_container);
+		btn_container = NULL;
+	}
 
 	if (label_count == 0)
 		return;
