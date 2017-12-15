@@ -50,11 +50,12 @@ if test "$TARGET" = "native"; then
 	if test "$prefix" = "NONE"; then
 		prefix=/usr/local
 	fi
-	TARGET_PREFIX=$prefix
 	if test "$exec_prefix" = "NONE"; then
 		exec_prefix=$prefix
 	fi
 	targetprefix=$prefix
+	TARGET_PREFIX=$prefix
+	AC_DEFINE_UNQUOTED(TARGET_PREFIX, "$TARGET_PREFIX", [The targets prefix])
 elif test "$TARGET" = "cdk"; then
 	AC_MSG_RESULT(cdk)
 
