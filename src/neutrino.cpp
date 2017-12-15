@@ -827,6 +827,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.font_scaling_x = configfile.getInt32("font_scaling_x", 100);
 	g_settings.font_scaling_y = configfile.getInt32("font_scaling_y", 100);
 
+	g_settings.backup_dir = configfile.getString("backup_dir", "/media");
+
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
 	g_settings.update_dir_opkg = configfile.getString("update_dir_opkg", g_settings.update_dir);
 
@@ -1445,6 +1447,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("softupdate_proxyserver"   , g_settings.softupdate_proxyserver   );
 	configfile.setString("softupdate_proxyusername" , g_settings.softupdate_proxyusername );
 	configfile.setString("softupdate_proxypassword" , g_settings.softupdate_proxypassword );
+
+	configfile.setString("backup_dir", g_settings.backup_dir);
 
 	configfile.setString("update_dir", g_settings.update_dir);
 	configfile.setString("update_dir_opkg", g_settings.update_dir_opkg);

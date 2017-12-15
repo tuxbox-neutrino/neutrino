@@ -75,8 +75,9 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		fileFilter.addFilter("conf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(CONFIGDIR) == true)
+		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
 		{
+			g_settings.backup_dir = fileBrowser.getCurrentDir();
 			CNeutrinoApp::getInstance()->loadSetup(fileBrowser.getSelectedFile()->Name.c_str());
 			CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier;
 			colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
@@ -89,48 +90,71 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "saveconfig")
 	{
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/media") == true)
-		{
-			std::string fname = "neutrino.conf";
-			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname);
-			sms->exec(NULL, "");
+		char msgtxt[1024];
+		snprintf(msgtxt, sizeof(msgtxt), g_Locale->getText(LOCALE_SETTINGS_BACKUP_DIR), g_settings.backup_dir.c_str());
 
-			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
-			printf("[neutrino] save settings: %s\n", sname.c_str());
-			CNeutrinoApp::getInstance()->saveSetup(sname.c_str());
-			delete sms;
+		int result = ShowMsg(LOCALE_EXTRA_SAVECONFIG, msgtxt, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo);
+		if (result == CMsgBox::mbrNo)
+		{
+			fileBrowser.Dir_Mode = true;
+			if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
+				g_settings.backup_dir = fileBrowser.getSelectedFile()->Name;
+			else
+				return res;
 		}
+
+		std::string fname = "neutrino.conf";
+		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname);
+		sms->exec(NULL, "");
+		delete sms;
+
+		std::string sname = g_settings.backup_dir + "/" + fname;
+		printf("[neutrino] save settings: %s\n", sname.c_str());
+		CNeutrinoApp::getInstance()->saveSetup(sname.c_str());
+
 		return res;
 	}
 	else if(actionKey == "backup")
 	{
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/media") == true)
+		char msgtxt[1024];
+		snprintf(msgtxt, sizeof(msgtxt), g_Locale->getText(LOCALE_SETTINGS_BACKUP_DIR), g_settings.backup_dir.c_str());
+
+		int result = ShowMsg(LOCALE_SETTINGS_BACKUP, msgtxt, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo);
+		if (result == CMsgBox::mbrNo)
 		{
-			struct statfs s;
-			int ret = ::statfs(fileBrowser.getSelectedFile()->Name.c_str(), &s);
-			if(ret == 0 && s.f_type != 0x72b6L) /*jffs2*/
-			{
-				CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SETTINGS_BACKUP));
-				hintBox->paint();
-				const char backup_sh[] = TARGET_PREFIX "/bin/backup.sh";
-				printf("backup: executing [%s %s]\n", backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
-				my_system(2, backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
-				hintBox->hide();
-				delete hintBox;
-			}
+			fileBrowser.Dir_Mode = true;
+			if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
+				g_settings.backup_dir = fileBrowser.getSelectedFile()->Name;
 			else
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_ERROR);
+				return res;
 		}
+
+		struct statfs s;
+		int ret = ::statfs(g_settings.backup_dir.c_str(), &s);
+		if (ret == 0 && s.f_type != 0x72b6L) /*jffs2*/
+		{
+			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SETTINGS_BACKUP));
+			hintBox->paint();
+
+			const char backup_sh[] = TARGET_PREFIX "/bin/backup.sh";
+			printf("backup: executing [%s %s]\n", backup_sh, g_settings.backup_dir.c_str());
+			my_system(2, backup_sh, g_settings.backup_dir.c_str());
+
+			hintBox->hide();
+			delete hintBox;
+		}
+		else
+			ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_ERROR);
+
 		return res;
 	}
 	else if(actionKey == "restore")
 	{
 		fileFilter.addFilter("tar");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/media") == true)
+		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
 		{
+			g_settings.backup_dir = fileBrowser.getCurrentDir();
 			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
 			if(result == CMsgBox::mbrYes)
 			{

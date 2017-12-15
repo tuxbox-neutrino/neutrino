@@ -2266,6 +2266,7 @@ servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
 servicemenu.update Software-Aktualisierung
 settings.backup System-Einstellungen sichern
+settings.backup_dir Nach %s sichern?\n"Nein" wählt ein anderes Verzeichnis
 settings.backup_failed Sicherung fehlgeschlagen!
 settings.help Hilfe
 settings.menu_hints Hinweise anzeigen

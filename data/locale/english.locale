@@ -2266,6 +2266,7 @@ servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Servicescan
 servicemenu.update Software Update
 settings.backup Save system settings
+settings.backup_dir Save to %s?\n"No" chooses another directory.
 settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_hints Show menu hints
