@@ -44,9 +44,9 @@
 #include <driver/screen_max.h>
 #include <driver/display.h>
 #include <system/helpers.h>
+#include <system/debug.h>
 
 #include <sys/vfs.h>
-
 
 
 CSettingsManager::CSettingsManager(int wizard_mode)
@@ -62,7 +62,7 @@ CSettingsManager::~CSettingsManager()
 
 int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-	printf("[neutrino] CSettingsManager %s: init...\n",__FUNCTION__);
+	dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] actionKey = [%s]\n", __func__, __LINE__, actionKey.c_str());
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
@@ -78,12 +78,13 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
 		{
 			g_settings.backup_dir = fileBrowser.getCurrentDir();
-			CNeutrinoApp::getInstance()->loadSetup(fileBrowser.getSelectedFile()->Name.c_str());
+			std::string new_config = fileBrowser.getSelectedFile()->Name.c_str();
+			CNeutrinoApp::getInstance()->loadSetup(new_config.c_str());
 			CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier;
 			colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_ALL);
 			CVFD::getInstance()->setlcdparameter();
-			printf("[neutrino] new settings: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+			dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] load config from %s\n", __func__, __LINE__, new_config.c_str());
 			delete colorSetupNotifier;
 		}
 		return res;
@@ -109,7 +110,8 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		delete sms;
 
 		std::string sname = g_settings.backup_dir + "/" + fname;
-		printf("[neutrino] save settings: %s\n", sname.c_str());
+		dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] save neutrino settings to %s\n", __func__, __LINE__, sname.c_str());
+
 		CNeutrinoApp::getInstance()->saveSetup(sname.c_str());
 
 		return res;
@@ -137,7 +139,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			hintBox->paint();
 
 			const char backup_sh[] = TARGET_PREFIX "/bin/backup.sh";
-			printf("backup: executing [%s %s]\n", backup_sh, g_settings.backup_dir.c_str());
+			dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] executing [%s %s]\n", __func__, __LINE__, backup_sh, g_settings.backup_dir.c_str());
 			my_system(2, backup_sh, g_settings.backup_dir.c_str());
 
 			hintBox->hide();
@@ -159,8 +161,9 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			if(result == CMsgBox::mbrYes)
 			{
 				const char restore_sh[] = TARGET_PREFIX "/bin/restore.sh";
-				printf("restore: executing [%s %s]\n", restore_sh, fileBrowser.getSelectedFile()->Name.c_str());
-				my_system(2, restore_sh, fileBrowser.getSelectedFile()->Name.c_str());
+				std::string restore_file = fileBrowser.getSelectedFile()->Name;
+				dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] executing [%s %s]\n", __func__, __LINE__, restore_sh, restore_file.c_str());
+				my_system(2, restore_sh, restore_file.c_str());
 			}
 		}
 		return res;
