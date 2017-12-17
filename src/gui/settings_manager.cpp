@@ -94,7 +94,9 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		char msgtxt[1024];
 		snprintf(msgtxt, sizeof(msgtxt), g_Locale->getText(LOCALE_SETTINGS_BACKUP_DIR), g_settings.backup_dir.c_str());
 
-		int result = ShowMsg(LOCALE_EXTRA_SAVECONFIG, msgtxt, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo);
+		int result = ShowMsg(LOCALE_EXTRA_SAVECONFIG, msgtxt, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel);
+		if (result == CMsgBox::mbrCancel)
+			return res;
 		if (result == CMsgBox::mbrNo)
 		{
 			fileBrowser.Dir_Mode = true;
@@ -121,7 +123,9 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		char msgtxt[1024];
 		snprintf(msgtxt, sizeof(msgtxt), g_Locale->getText(LOCALE_SETTINGS_BACKUP_DIR), g_settings.backup_dir.c_str());
 
-		int result = ShowMsg(LOCALE_SETTINGS_BACKUP, msgtxt, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo);
+		int result = ShowMsg(LOCALE_SETTINGS_BACKUP, msgtxt, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel);
+		if (result == CMsgBox::mbrCancel)
+			return res;
 		if (result == CMsgBox::mbrNo)
 		{
 			fileBrowser.Dir_Mode = true;
