@@ -36,6 +36,7 @@ install_DATA = \
 	hint_reload.png \
 	hint_restart.png \
 	hint_save.png \
+	hint_saveas.png \
 	hint_scan.png \
 	hint_scripts.png \
 	hint_service.png \
