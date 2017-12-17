@@ -240,7 +240,7 @@ int CNetworkSetup::showNetworkSetup()
 	backupNetworkSettings();
 
 	//menue init
-	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP);
+	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP);
 	networkSettings->setWizardMode(is_wizard);
 
 	//apply button
@@ -352,9 +352,9 @@ int CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem( m5);	//nameserver
 	//------------------------------------------------
 	sectionsdConfigNotifier = NULL;
-	CMenuWidget ntp(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_NTP);
+	CMenuWidget ntp(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP_NTP);
 #ifdef ENABLE_GUI_MOUNT
-	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
+	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
 #endif
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
 	CNetworkServiceSetup services;
@@ -805,7 +805,7 @@ int CNetworkSetup::showWlanList()
 		return res;
 	}
 
-	CMenuWidget wlist(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget wlist(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width);
 	wlist.addIntroItems(LOCALE_NETWORKMENU_SSID_SCAN); //intros
 
 	char cnt[5];
