@@ -629,7 +629,7 @@ void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int m
 bool CPictureViewer::DisplayImage(const std::string & name, int posx, int posy, int width, int height, int transp)
 {
 	if(width < 1 || height < 1){
-		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: width %i height %i \n", __func__, __LINE__, width, height);
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: image [%s] width %i height %i \n", __func__, __LINE__, name.c_str(), width, height);
 		return false;
 	}
 
