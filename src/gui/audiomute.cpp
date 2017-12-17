@@ -98,9 +98,10 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			if (!CInfoClock::getInstance()->isBlocked()){
 				CInfoClock::getInstance()->ClearDisplay();
 				this->kill();
-				clearSavedScreen();
-			}else
+			}
+			else
 				this->hide();
+			clearSavedScreen();
 			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 		}
 		frameBuffer->fbNoCheck(false);
