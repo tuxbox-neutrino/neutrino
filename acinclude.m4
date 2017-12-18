@@ -319,7 +319,7 @@ AC_ARG_WITH(boxtype,
 			AC_MSG_ERROR([bad value $withval for --with-boxtype])
 		;;
 	esac],
-	[BOXTYPE="coolstream"])
+	[BOXTYPE="generic"])
 
 AC_ARG_WITH(boxmodel,
 	AS_HELP_STRING([--with-boxmodel], [valid for coolstream: hd1, hd2])
@@ -362,8 +362,7 @@ AS_HELP_STRING([], [valid for generic: raspi]),
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 		;;
-	esac],
-	[test "$BOXTYPE" = "coolstream" && BOXMODEL="hd1" || true])
+	esac])
 
 AC_SUBST(BOXTYPE)
 AC_SUBST(BOXMODEL)
