@@ -6,11 +6,13 @@ install_DATA = \
 	hint_aplay.png \
 	hint_audio.png \
 	hint_back.png \
+	hint_backup.png \
 	hint_bedit.png \
 	hint_ci.png \
 	hint_dboxinfo.png \
 	hint_delete.png \
 	hint_extended.png \
+	hint_factory.png \
 	hint_fileplay.png \
 	hint_games.png \
 	hint_hdd.png \
@@ -19,6 +21,7 @@ install_DATA = \
 	hint_info.png \
 	hint_keys.png \
 	hint_language.png \
+	hint_load.png \
 	hint_manage.png \
 	hint_mb.png \
 	hint_media.png \
@@ -34,7 +37,9 @@ install_DATA = \
 	hint_reboot.png \
 	hint_recording.png \
 	hint_reload.png \
+	hint_reset.png \
 	hint_restart.png \
+	hint_restore.png \
 	hint_save.png \
 	hint_saveas.png \
 	hint_scan.png \
