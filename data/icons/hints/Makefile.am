@@ -10,6 +10,7 @@ install_DATA = \
 	hint_bedit.png \
 	hint_ci.png \
 	hint_dboxinfo.png \
+	hint_default.png \
 	hint_delete.png \
 	hint_extended.png \
 	hint_factory.png \

@@ -178,6 +178,7 @@
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE "mute_zap_gray"
 
 /* menu hints */
+#define NEUTRINO_ICON_HINT_DEFAULT	"hint_default"
 #define NEUTRINO_ICON_HINT_BACK		"hint_back"
 #define NEUTRINO_ICON_HINT_NEXT		"hint_next"
 /* main menu */
