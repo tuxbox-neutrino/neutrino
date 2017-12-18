@@ -899,6 +899,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			r.key = g_Locale->getText (LOCALE_CHANNELLIST_PROVS);
 		else if (CFrontend::isTerr(t.feparams.delsys))
 			r.key = g_Locale->getText (LOCALE_TERRESTRIALSETUP_AREA);
+		else
+			r.key = "Unknown:";
 
 		r.key += ": ";
 		r.val = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition()).c_str();

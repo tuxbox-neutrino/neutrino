@@ -764,6 +764,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_CHANNELLIST_PROVS));
 		else if (CFrontend::isTerr(t.feparams.delsys))
 			snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_TERRESTRIALSETUP_AREA));
+		else
+			snprintf(buf, sizeof(buf), "Unknown:");
 
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_MENUCONTENT_TEXT);
 
