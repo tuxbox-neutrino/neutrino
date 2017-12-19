@@ -161,12 +161,12 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 
 		//fileplayback video
 		CMenuForwarder *fw_fileplay_video = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK_VIDEO, true, NULL, &CMoviePlayerGui::getInstance(), "fileplayback_video", CRCInput::RC_green);
-		fw_fileplay_video->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
+		fw_fileplay_video->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY_VIDEO);
 		personalize->addItem(movieplayer_menu, fw_fileplay_video, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_FILEPLAY_VIDEO]);
 
 		//fileplayback audio
 		CMenuForwarder *fw_fileplay_audio = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK_AUDIO, true, NULL, &CMoviePlayerGui::getInstance(), "fileplayback_audio", CRCInput::RC_yellow);
-		fw_fileplay_audio->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
+		fw_fileplay_audio->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY_AUDIO);
 		personalize->addItem(movieplayer_menu, fw_fileplay_audio, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_FILEPLAY_AUDIO]);
 #if ENABLE_YOUTUBE_PLAYER
 		//ytplayback

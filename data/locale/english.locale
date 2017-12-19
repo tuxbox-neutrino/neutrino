@@ -1099,7 +1099,8 @@ menu.hint_fade Fade GUI windows
 menu.hint_fan_speed Control fan speed
 menu.hint_filebrowser_denydirectoryleave Deny filebrowser to leave initial directory
 menu.hint_filebrowser_showrights Show file permissions in file browser
-menu.hint_fileplay Play various video files
+menu.hint_fileplay_audio Play various audio files
+menu.hint_fileplay_video Play various video files
 menu.hint_filesystem_is_utf8 Filebrowser filesystem encoding
 menu.hint_font_gui Select font file to use for GUI
 menu.hint_font_scaling Set global vertical and horizontal\nGUI font scaling
