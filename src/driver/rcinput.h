@@ -252,6 +252,8 @@ class CRCInput
 			RC_nextsong	= KEY_NEXTSONG,
 			RC_previoussong	= KEY_PREVIOUSSONG,
 			RC_bookmarks	= KEY_BOOKMARKS,
+			RC_program	= KEY_PROGRAM,
+			RC_playpause	= KEY_PLAYPAUSE,
 
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,

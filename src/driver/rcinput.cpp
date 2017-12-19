@@ -1677,6 +1677,10 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "previous song";
 			case RC_bookmarks:
 				return "bookmarks";
+			case RC_program:
+				return "program";
+			case RC_playpause:
+				return "play / pause";
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
 				return "unknown";
