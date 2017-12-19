@@ -310,8 +310,12 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_green,           "6",                                    "",     "green"         },
 	{ CRCInput::RC_yellow,          "7,31",                                 "",     "yellow"        },
 	{ CRCInput::RC_blue,            "12,11,20,21,19,14,29,30,15",           "",     "blue"          },
+#if HAVE_ARM_HARDWARE
+	{ CRCInput::RC_playpause,       "9",                                    "",     "5"             },
+#else
 	{ CRCInput::RC_play,            "9",                                    "",     "5"             },
-	{ CRCInput::RC_audio,           "27",                                   "",     "6"             },
+#endif
+	{ CRCInput::RC_audio,           "27",                                    "",     "6"             },
 	{ CRCInput::RC_nokey,           "",                                     "",     ""              },
 };
 
@@ -2855,7 +2859,8 @@ void CNeutrinoApp::RealRun()
 				as.exec(NULL, "-1");
 				StartSubtitles();
 			}
-			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play ) {
+			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
+			{
 				//open moviebrowser via media player menu object
 				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 					CMediaPlayerMenu::getInstance()->exec(NULL, "moviebrowser");
@@ -4672,7 +4677,11 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig.getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig.getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
+#if HAVE_ARM_HARDWARE
+	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_nokey ); // FIXME
+#else
 	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_pause );
+#endif
 	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", (unsigned int)CRCInput::RC_nokey );
 #ifdef ENABLE_PIP
@@ -4700,9 +4709,14 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.mpkey_rewind = tconfig.getInt32( "mpkey.rewind", CRCInput::RC_rewind );
 	g_settings.mpkey_forward = tconfig.getInt32( "mpkey.forward", CRCInput::RC_forward );
-	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_pause );
 	g_settings.mpkey_stop = tconfig.getInt32( "mpkey.stop", CRCInput::RC_stop );
+#if HAVE_ARM_HARDWARE
+	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_playpause );
+	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_playpause );
+#else
 	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_play );
+	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_pause );
+#endif
 	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
 	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_timeshift );
 	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_yellow );
