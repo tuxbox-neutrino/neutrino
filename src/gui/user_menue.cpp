@@ -419,6 +419,13 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
 			break;
 		}
+		case SNeutrinoSettings::ITEM_FILEPLAY_AUDIO:
+		{
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK_AUDIO, !_mode_ts, NULL, neutrino, "fileplayback_audio", key, icon);
+			menu_item->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
+			break;
+		}
 		case SNeutrinoSettings::ITEM_TOOLS:
 		{
 			keyhelper.get(&key,&icon);
