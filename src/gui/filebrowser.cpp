@@ -714,7 +714,7 @@ bool CFileBrowser::exec(const char * const dirname)
 		if ((filelist.empty()))
 			continue;
 
-		if (msg == CRCInput::RC_yellow || msg == CRCInput::RC_play)
+		if (msg == CRCInput::RC_yellow || msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
 		{
 			if ((Multi_Select) && (selected < filelist.size()))
 			{

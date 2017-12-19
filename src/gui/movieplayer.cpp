@@ -1580,7 +1580,19 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		neutrino_msg_data_t data;
 		g_RCInput->getMsg(&msg, &data, 10);	// 1 secs..
 
+		// handle CRCInput::RC_playpause key
+		bool handle_key_play = true;
+		bool handle_key_pause = true;
+
 #if 0		//bisectional jumps
+		if (g_settings.mpkey_play == g_settings.mpkey_pause)
+		{
+			if (playstate == CMoviePlayerGui::PLAY)
+				handle_key_play = false;
+			else if (playstate == CMoviePlayerGui::PAUSE)
+				handle_key_pause = false;
+		}
+
 		if (bisection_loop > -1)
 			bisection_loop++;
 		if (bisection_loop > bisection_loop_max)
@@ -1772,7 +1784,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == (neutrino_msg_t) g_settings.key_switchformat) {
 			g_videoSettings->SwitchFormat();
 #endif
-		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play && handle_key_play) {
 			if (time_forced) {
 				time_forced = false;
 				FileTimeOSD->kill();
@@ -1816,7 +1828,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				delete playlist;
 				enableOsdElements(MUTE);
 			}
-		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause && handle_key_pause) {
 			if (time_forced) {
 				time_forced = false;
 				FileTimeOSD->kill();

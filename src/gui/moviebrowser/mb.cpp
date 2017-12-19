@@ -2236,7 +2236,7 @@ bool CMovieBrowser::onButtonPressBrowserList(neutrino_msg_t msg)
 		scrollBrowserItem(false, true);
 	else if (msg == (neutrino_msg_t)g_settings.key_pagedown)
 		scrollBrowserItem(true, true);
-	else if (msg == CRCInput::RC_play)
+	else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
 		markItem(m_pcBrowser);
 	else
 		result = false;
@@ -2260,7 +2260,7 @@ bool CMovieBrowser::onButtonPressLastPlayList(neutrino_msg_t msg)
 		m_pcLastPlay->scrollPageUp(1);
 	else if (msg == (neutrino_msg_t)g_settings.key_pagedown)
 		m_pcLastPlay->scrollPageDown(1);
-	else if (msg == CRCInput::RC_play)
+	else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
 		markItem(m_pcLastPlay);
 	else
 		result = false;
@@ -2284,7 +2284,7 @@ bool CMovieBrowser::onButtonPressLastRecordList(neutrino_msg_t msg)
 		m_pcLastRecord->scrollPageUp(1);
 	else if (msg == (neutrino_msg_t)g_settings.key_pagedown)
 		m_pcLastRecord->scrollPageDown(1);
-	else if (msg == CRCInput::RC_play)
+	else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
 		markItem(m_pcLastRecord);
 	else
 		result = false;

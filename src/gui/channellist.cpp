@@ -889,7 +889,7 @@ int CChannelList::show()
 			moveChannelToBouquet();
 		}
 #ifdef ENABLE_PIP
-		else if (!empty && ((msg == CRCInput::RC_play) || (msg == (neutrino_msg_t) g_settings.key_pip_close))) {
+		else if (!empty && ((msg == CRCInput::RC_play) || (msg == CRCInput::RC_playpause) || (msg == (neutrino_msg_t) g_settings.key_pip_close))) {
 			if(SameTP()) {
 				if (CZapit::getInstance()->GetPipChannelID() == (*chanlist)[selected]->getChannelID()) {
 					g_Zapit->stopPip();

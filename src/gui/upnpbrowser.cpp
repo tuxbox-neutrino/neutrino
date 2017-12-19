@@ -863,7 +863,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 				}
 			}
 		}
-		else if (msg == CRCInput::RC_play) {
+		else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause) {
 			if ((selected - liststart) >= (*entries).size())
 				continue;
 			m_folderplay = true;

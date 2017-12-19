@@ -582,29 +582,40 @@ int CPictureViewerGui::show()
 			// FIXME: do not accept volume-keys while decoding
 		}
 		// control keys for audioplayer
-		else if (audioplayer && msg==CRCInput::RC_pause)
+		else if (audioplayer)
 		{
 			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
-			m_audioPlayer->pause();
-		}
-		else if (audioplayer && msg==CRCInput::RC_stop)
-		{
-			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
-			m_audioPlayer->stop();
-		}
-		else if (audioplayer && msg==CRCInput::RC_play)
-		{
-			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
-			if (m_currentTitle > -1)
-				m_audioPlayer->play((unsigned int)m_currentTitle);
-		}
-		else if (audioplayer && msg==CRCInput::RC_forward)
-		{
-			m_audioPlayer->playNext();
-		}
-		else if (audioplayer && msg==CRCInput::RC_rewind)
-		{
-			m_audioPlayer->playPrev();
+
+			if (msg == CRCInput::RC_playpause)
+			{
+				// manipulate msg
+				if (m_audioPlayer->getState() == CAudioPlayerGui::PAUSE)
+					msg = CRCInput::RC_play;
+				else
+					msg = CRCInput::RC_pause;
+			}
+
+			if (msg == CRCInput::RC_play)
+			{
+				if (m_currentTitle > -1)
+					m_audioPlayer->play((unsigned int)m_currentTitle);
+			}
+			else if (msg == CRCInput::RC_pause)
+			{
+				m_audioPlayer->pause();
+			}
+			else if (msg == CRCInput::RC_stop)
+			{
+				m_audioPlayer->stop();
+			}
+			else if (msg == CRCInput::RC_forward || msg == CRCInput::RC_nextsong)
+			{
+				m_audioPlayer->playNext();
+			}
+			else if (msg == CRCInput::RC_rewind || msg == CRCInput::RC_previoussong)
+			{
+				m_audioPlayer->playPrev();
+			}
 		}
 		else if (msg == NeutrinoMessages::CHANGEMODE)
 		{

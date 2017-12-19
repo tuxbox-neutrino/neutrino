@@ -943,7 +943,7 @@ int CTimerList::show()
 			else
 				update=true;
 		}
-		else if (!timerlist.empty() && (msg == CRCInput::RC_play && g_settings.timer_remotebox_ip.size() > 0))
+		else if (!timerlist.empty() && ((msg == CRCInput::RC_play || msg == CRCInput::RC_playpause) && g_settings.timer_remotebox_ip.size() > 0))
 		{
 			if (timerlist[selected].eventType == CTimerd::TIMER_RECORD )
 			{
