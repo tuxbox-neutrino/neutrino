@@ -1304,13 +1304,8 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		pthread_create(&thrStartHint, NULL, CMoviePlayerGui::ShowStartHint, this);
 	}
 
-	if (filefilter_audio.matchFilter(file_name))
-	{
+	if (is_audio_playing)
 		frameBuffer->showFrame("mp3.jpg");
-		is_audio_playing = true;
-	}
-	else
-		is_audio_playing = false;
 
 	bool res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
 
