@@ -164,6 +164,8 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	std::string txt = g_settings.usermenu[button]->title;
 	if (button < COL_BUTTONMAX && txt.empty())
 		txt = g_Locale->getText(user_menu[button].caption);
+	if (txt.empty())
+		txt = g_Locale->getText(LOCALE_USERMENU_HEAD);
 
 	CMenuWidget *menu = new CMenuWidget(txt, (button < COL_BUTTONMAX) ? user_menu[button].menu_icon_def : "", width);
 	if (menu == NULL)
