@@ -135,6 +135,8 @@ public:
 		return false;
 	};
 	void Clear(void) { Filter.clear();};
+	size_t size(void) { return Filter.size();};
+	std::string getFilter(int i) { return Filter.at(i);};
 };
 //------------------------------------------------------------------------
 
