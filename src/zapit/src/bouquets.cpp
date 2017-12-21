@@ -859,7 +859,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						if (strcmp(epgid, "auto") == 0 && title)
 						{
 							CZapitChannel * channel = CServiceManager::getInstance()->FindChannelByPattern(title);
-							if (channel)
+							if (channel && !IS_WEBCHAN(channel->getChannelID()))
 							{
 								epg_id = channel->getChannelID();
 								INFO("* auto epg_id found for %s: " PRINTF_CHANNEL_ID_TYPE "\n", title, epg_id);
