@@ -929,6 +929,7 @@ mainmenu.games Spiele
 mainmenu.head Hauptmenü
 mainmenu.lua Plugins
 mainmenu.media Multimedia
+mainmenu.mediaplayer Mediaplayer
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd EPG auslesen
 mainmenu.pictureviewer Bildbetrachter
@@ -1827,7 +1828,8 @@ movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
 movieplayer.chapters Kapitel
-movieplayer.fileplayback Abspielen (Multiformat)
+movieplayer.fileplayback_audio Multiformat-Audiowiedergabe
+movieplayer.fileplayback_video Multiformat-Videowiedergabe
 movieplayer.head Movieplayer
 movieplayer.help_additional Weitere benutzerdefinierte Tastenbelegungen sind unter "Hauptmenü" > "Einstellungen" > "Tasten" > "Bearbeiten" > "Movieplayer" zu finden.\n\nWährend der Wiedergabe von Filmen sind im Hauptmenü einige Menüpunkte deaktiviert.
 movieplayer.help_button_1 1 Minute zurück

@@ -929,6 +929,7 @@ mainmenu.games Games
 mainmenu.head Main Menu
 mainmenu.lua Lua Plugins
 mainmenu.media Media
+mainmenu.mediaplayer Mediaplayer
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
 mainmenu.pictureviewer Picture viewer
@@ -1827,7 +1828,8 @@ movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
 movieplayer.bookmarkname_hint2 
 movieplayer.chapters Chapters
-movieplayer.fileplayback File play
+movieplayer.fileplayback_audio Multiformat Audio Player
+movieplayer.fileplayback_video Multiformat Video Player
 movieplayer.head Movieplayer
 movieplayer.help_additional To find more user definable key bindings, see "Mainmenu" > "Settings" > "Keys" > "Edit" > "Movieplayer".\n\nWhile movie playback some menuitems in mainmenu are deactivated.
 movieplayer.help_button_1 1 minute backward

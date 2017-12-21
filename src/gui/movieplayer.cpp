@@ -193,35 +193,49 @@ void CMoviePlayerGui::Init(void)
 	if (bookmarkmanager == NULL)
 		bookmarkmanager = new CBookmarkManager();
 
-	tsfilefilter.addFilter("ts");
-#if HAVE_TRIPLEDRAGON
-	tsfilefilter.addFilter("vdr");
-#else
-	tsfilefilter.addFilter("avi");
-	tsfilefilter.addFilter("mkv");
-	tsfilefilter.addFilter("wav");
-	tsfilefilter.addFilter("asf");
-	tsfilefilter.addFilter("aiff");
+	// video files
+	filefilter_video.addFilter("ts");
+#if !HAVE_TRIPLEDRAGON
+	filefilter_video.addFilter("asf");
+	filefilter_video.addFilter("avi");
+	filefilter_video.addFilter("mkv");
 #endif
-	tsfilefilter.addFilter("mpg");
-	tsfilefilter.addFilter("mpeg");
-	tsfilefilter.addFilter("m2p");
-	tsfilefilter.addFilter("mpv");
-	tsfilefilter.addFilter("vob");
-	tsfilefilter.addFilter("m2ts");
-	tsfilefilter.addFilter("mp4");
-	tsfilefilter.addFilter("mov");
-	tsfilefilter.addFilter("m3u");
-	tsfilefilter.addFilter("m3u8");
-	tsfilefilter.addFilter("pls");
-	tsfilefilter.addFilter("iso");
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	tsfilefilter.addFilter("trp");
-	tsfilefilter.addFilter("vdr");
-	tsfilefilter.addFilter("mp3");
-	tsfilefilter.addFilter("flv");
-	tsfilefilter.addFilter("wmv");
-#endif
+	filefilter_video.addFilter("flv");
+	filefilter_video.addFilter("iso");
+	filefilter_video.addFilter("m2p");
+	filefilter_video.addFilter("m2ts");
+	filefilter_video.addFilter("mov");
+	filefilter_video.addFilter("mp4");
+	filefilter_video.addFilter("mpeg");
+	filefilter_video.addFilter("mpg");
+	filefilter_video.addFilter("mpv");
+	filefilter_video.addFilter("pls");
+	filefilter_video.addFilter("trp");
+	filefilter_video.addFilter("vdr");
+	filefilter_video.addFilter("vob");
+	filefilter_video.addFilter("wmv");
+	// video playlists
+	filefilter_video.addFilter("m3u");
+	filefilter_video.addFilter("m3u8");
+
+	// audio files
+	filefilter_audio.addFilter("aac");
+	filefilter_audio.addFilter("aif");
+	filefilter_audio.addFilter("aiff");
+	filefilter_audio.addFilter("cdr");
+	filefilter_audio.addFilter("dts");
+	filefilter_audio.addFilter("flac");
+	filefilter_audio.addFilter("flv");
+	filefilter_audio.addFilter("m2a");
+	filefilter_audio.addFilter("m4a");
+	filefilter_audio.addFilter("mp2");
+	filefilter_audio.addFilter("mp3");
+	filefilter_audio.addFilter("mpa");
+	filefilter_audio.addFilter("ogg");
+	filefilter_audio.addFilter("wav");
+	// audio playlists
+	filefilter_audio.addFilter("m3u");
+	filefilter_audio.addFilter("m3u8");
 
 	if (g_settings.network_nfs_moviedir.empty())
 		Path_local = "/";
@@ -233,7 +247,7 @@ void CMoviePlayerGui::Init(void)
 	else
 		filebrowser = new CFileBrowser();
 
-	filebrowser->Filter = &tsfilefilter;
+	// filebrowser->Filter is set in exec() function
 	filebrowser->Hide_records = true;
 	filebrowser->Multi_Select = true;
 	filebrowser->Dirs_Selectable = true;
@@ -375,19 +389,23 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	if (parent)
 		parent->hide();
 
-#if 0
-	if (actionKey == "fileplayback" || actionKey == "tsmoviebrowser")
+
+	if (actionKey == "fileplayback_video" || actionKey == "fileplayback_audio" || actionKey == "tsmoviebrowser")
 	{
-		if(actionKey == "fileplayback") {
+		if (actionKey == "fileplayback_video") {
 			printf("[movieplayer] wakeup_hdd(%s) for %s\n", g_settings.network_nfs_moviedir.c_str(), actionKey.c_str());
-			wakeup_hdd(g_settings.network_nfs_moviedir.c_str(),true);
+			wakeup_hdd(g_settings.network_nfs_moviedir.c_str());
+		}
+		else if (actionKey == "fileplayback_audio") {
+			printf("[movieplayer] wakeup_hdd(%s) for %s\n", g_settings.network_nfs_audioplayerdir.c_str(), actionKey.c_str());
+			wakeup_hdd(g_settings.network_nfs_audioplayerdir.c_str());
 		}
 		else {
 			printf("[movieplayer] wakeup_hdd(%s) for %s\n", g_settings.network_nfs_recordingdir.c_str(), actionKey.c_str());
-			wakeup_hdd(g_settings.network_nfs_recordingdir.c_str(),true);
+			wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 		}
 	}
-#endif
+
 	if (!access(MOVIEPLAYER_START_SCRIPT, X_OK)) {
 		puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
 		if (my_system(MOVIEPLAYER_START_SCRIPT) != 0)
@@ -406,17 +424,24 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	if (actionKey == "tsmoviebrowser") {
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_RECORDS);
-		wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
+		//wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 	}
-#if HAVE_COOL_HARDWARE || HAVE_GENERIC_HARDWARE
 	else if (actionKey == "ytplayback") {
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_YT);
 		isYT = true;
 	}
-#endif
-	else if (actionKey == "fileplayback") {
-		wakeup_hdd(g_settings.network_nfs_moviedir.c_str());
+	else if (actionKey == "fileplayback_video") {
+		is_audio_player = false;
+		if (filebrowser)
+			filebrowser->Filter = &filefilter_video;
+		//wakeup_hdd(g_settings.network_nfs_moviedir.c_str());
+	}
+	else if (actionKey == "fileplayback_audio") {
+		is_audio_player = true;
+		if (filebrowser)
+			filebrowser->Filter = &filefilter_audio;
+		//wakeup_hdd(g_settings.network_nfs_audioplayerdir.c_str());
 	}
 	else if (actionKey == "timeshift") {
 		timeshift = TSHIFT_MODE_ON;
@@ -618,6 +643,7 @@ void CMoviePlayerGui::ClearFlags()
 	isWebChannel = false;
 	isYT = false;
 	is_file_player = false;
+	is_audio_player = false;
 	timeshift = TSHIFT_MODE_OFF;
 }
 
@@ -719,12 +745,19 @@ bool CMoviePlayerGui::SelectFile()
 	file_name.clear();
 	cookie_header.clear();
 	//reinit Path_local for webif reloadsetup
-	if (g_settings.network_nfs_moviedir.empty())
-		Path_local = "/";
+	Path_local = "/";
+	if (is_audio_player)
+	{
+		if (!g_settings.network_nfs_audioplayerdir.empty())
+			Path_local = g_settings.network_nfs_audioplayerdir;
+	}
 	else
-		Path_local = g_settings.network_nfs_moviedir;
+	{
+		if (!g_settings.network_nfs_moviedir.empty())
+			Path_local = g_settings.network_nfs_moviedir;
+	}
 
-	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
+	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d is_audio_player %d\n", isBookmark, timeshift, isMovieBrowser, is_audio_player);
 #if 0
 	wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 #endif
@@ -796,7 +829,8 @@ bool CMoviePlayerGui::SelectFile()
 		menu_ret = filebrowser->getMenuRet();
 		enableOsdElements(MUTE);
 	}
-	g_settings.network_nfs_moviedir = Path_local;
+	if (!is_audio_player)
+		g_settings.network_nfs_moviedir = Path_local;
 
 	return ret;
 }
@@ -1722,7 +1756,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			pfile = &(*filelist_it);
 			int selected = std::distance( filelist.begin(), filelist_it );
 			filelist_it = filelist.end();
-			if (playlist->playlist_manager(filelist, selected))
+			if (playlist->playlist_manager(filelist, selected, is_audio_player))
 			{
 				playstate = CMoviePlayerGui::STOPPED;
 				CFile *sfile = NULL;
@@ -1809,7 +1843,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				CFile *pfile = NULL;
 				int selected = std::distance( filelist.begin(), filelist_it );
 				filelist_it = filelist.end();
-				if (playlist->playlist_manager(filelist, selected))
+				if (playlist->playlist_manager(filelist, selected, is_audio_player))
 				{
 					playstate = CMoviePlayerGui::STOPPED;
 					CFile *sfile = NULL;
