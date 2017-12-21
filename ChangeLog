@@ -1,3 +1,894 @@
+2017-12-21  Thilo Graf  <dbt@novatux.de>
+
+	update version to 3.7.0
+	eplayer beta
+
+2017-12-21  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- user-menu: avoid empty headers in user-menu
+
+2017-12-21  TangoCash  <eric@loxat.de>
+
+	- filebrowser: add size() and getFilter() members
+
+2017-12-21  Thilo Graf  <dbt@novatux.de>
+
+	Fileplay: add separat fileplay for audio and video
+
+2017-12-19  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- user-menu: add audio fileplay item
+	 Conflicts:
+		src/gui/user_menue_setup.cpp
+		src/system/settings.h
+
+	- neutrino: add more RC_playpause handling
+	 Conflicts:
+		src/gui/movieplayer.cpp
+
+	- neutrino: add RC_playpause handling; change some key defaults for ARM_HARDWARE
+	 Conflicts:
+	    src/neutrino.cpp
+
+	- rcinput: add RC_playpause key
+	 Conflicts:
+		src/driver/rcinput.cpp
+		src/driver/rcinput.h
+
+2017-12-18  GetAway  <get-away@t-online.de>
+
+	audiomute.cpp: fix clear screen after audiomute
+
+2017-12-18  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- acinclude: configure for generic hardware by default
+
+	- streaminfo: add fallback to delivery system detection
+
+	- settings_manager: fix issue tag on reset settings item
+
+2017-12-18  Thilo Graf  <dbt@novatux.de>
+
+	Icons: use fixed language and youtube icon
+	Format was wrong.
+
+	Icons: use default hint from own icon set
+
+2017-12-18  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- icons: add default hint icon
+
+2017-12-18  Thilo Graf  <dbt@novatux.de>
+
+	Icons: add missing hint icons and fix some files with format errors
+
+2017-12-17  Thilo Graf  <dbt@novatux.de>
+
+	icons: fix assignment of settings, network and mainmenu icons
+	Assignment was confused. There are probaly more.
+
+	CSettingsManager: add cancel buttons to backup/save config messages
+	User should have this possibility because 'yes' and 'no'
+	are coming with defined effects.
+
+	CSettingsManager: use neutrino internal debug output,
+
+2017-12-17  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- settings_manager: remember last used directory
+	 Conflicts:
+		data/locale/deutsch.locale
+		data/locale/english.locale
+		src/gui/settings_manager.cpp
+
+	- settings_manager: add TARGET_PREFIX define to backup/restore calls
+
+2017-12-17  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- acinclude: fix TARGET_PREFIX define for native target
+
+	Note: TARGET_PREFIX describes inside the yocto SDK the toolchain
+	binary prefix for the target tools. Maybe this could make confuse
+	with usage of yocto SDK environment. Maybe we should rename this variable.
+	e.g EXEC_PREFIX or so ...
+
+2017-12-17  Thilo Graf  <dbt@novatux.de>
+
+	icons: add missing picon vor save as
+
+	CPictureViewer: add current image into debug line
+	It's not possible to see which file causes this error.
+
+2017-12-16  Thilo Graf  <dbt@novatux.de>
+
+	CSettingsManager: add hintbox while execute backup_sh
+
+2017-12-15  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- infoviewer_bb: small renamings to get more logic in function names
+	showOne_CAIcon()     => showIcon_CA()
+	paint_ca_icons()     => paint_ca_icon()
+	showIcon_CA_Status() => paint_ca_icons()
+
+	 Conflicts:
+		src/gui/infoviewer.cpp
+		src/gui/infoviewer_bb.cpp
+
+2017-12-15  TangoCash  <eric@loxat.de>
+
+	fix icon alignment
+	 Conflicts:
+		src/gui/infoviewer_bb.cpp
+
+2017-12-15  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- menu: fix right offset for very long right texts
+
+	- locale: small changes in infobar ca system locales
+
+	- zapit/channel: fix issue tag from 4bacd77f8bcd61c21b99a1cfc52fce6a8d46c5fd
+
+	- infoviewer_bb: add gradient to ca-bar; ...
+	use always CComponentsShapeSquare to paint ca-bar
+
+	- infoviewer_bb: always show hdd fill level for a more uniform view; ...
+	mark undetected hdd fill level with a small line over the progressbar.
+	this avoids a "whole" in footer when gradient is active
+
+2017-12-15  Thilo Graf  <dbt@novatux.de>
+
+	data: update crypt icons
+	thx OneOfNine
+
+2017-12-15  TangoCash  <eric@loxat.de>
+
+	update cryptsystems
+
+2017-12-15  Thilo Graf  <dbt@novatux.de>
+
+	CComponentsFooter: fix force re init of button container
+	clear() removes only items and their instances inside button container, but all
+	other properties (e.g. width) are not touched. Re init should avoids this.
+
+	CTestMenu: add example for variable caption inside message buttons
+
+2017-12-14  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	src/gui/screensetup.cpp reset channellist modules
+
+2017-12-11  Thilo Graf  <dbt@novatux.de>
+
+	CZapitChannel: add issue tag
+	This should be reworked
+
+2017-12-11  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- channellist: fix segfault while virtual zapping and bouquets are empty
+
+	- rcinput: fix compiler warnings about unused variables
+
+2017-12-10  TangoCash  <eric@loxat.de>
+
+	adding adapter to debug output
+
+	tryfix scan frontend selection
+
+2017-12-10  Thilo Graf  <dbt@novatux.de>
+
+	CMenuWidget: ensure use of unified data type const char*
+	This should avoid possible compiler errors for this overloaded method.
+
+	CComponentsInfoBox: add possibility for scalable picons
+
+	CServiceManager: use value 0 as init value for feparams.plp_id
+	Value of NO_STREAM_ID_FILTER = ~0U
+	This could provokate overflow errors or possible compile errors
+	related with compiler flags (e.g: -Werror=overflow)
+
+2017-12-10  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- webradio_usr.xml: add link to stompfm.de
+
+2017-12-10  TangoCash  <eric@loxat.de>
+
+	fix bouquets freq handling for DVB-T/T2
+
+2017-12-10  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- acinclude/configure: some more minor format changes
+
+	- acinclude/configure: some minor format changes; fix indentations
+
+	- configure: fix logic around libswresample
+
+	- configure: move libstb-hal block down
+
+	- acinclude: use AS_HELP_STRING() for --with-boxmodel; ...
+	i don't know any other way to get linefeeds in right-hand text
+
+	- configure: invert --disable-lua false logic to --enable-lua true
+
+	- configure: invert --disable-upnp false logic to --enable-upnp true
+
+	- acinclude: unify descriptions in TUXBOX_APPS_DIRECTORY_ONE()
+
+	- configure: unify and simplify some AC_ARG_ENABLE() calls
+
+	- acinclude/configure: show defaults
+
+2017-12-10  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	femanager.h increase max adapters to 4
+
+2017-12-08  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- acinclude: replace custom formatting in TUXBOX_APPS_DIRECTORY_ONE with AS_HELP_STRING()
+
+	- configure: cleanup from commented code
+
+	- acinclude/configure: unify usage of AS_HELP_STRING(); minor format changes
+
+	- acinclude: small resort to get the plugin-dir variables consecutively
+
+	- acinclude: remove some double code
+
+2017-12-07  TangoCash  <eric@loxat.de>
+
+	fix cable nit
+
+	This should fix possible unintended multiple scans.
+
+2017-12-06  Frankenstone  <dampf_acc@yahoo.com>
+
+	osd_setup.cpp: fix colormenu shadow
+
+	alpha was bounded to menue head alpha
+
+2017-12-06  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- zapit/scannit: fix typo in last commit
+
+	'last commit' = 7b75b1d9dbc856d4547168ef35084e45304b5e6f
+
+2017-12-06  TangoCash  <eric@loxat.de>
+
+	fix scannit
+
+	update scan infos
+
+	show PLI/PLC/PLM while scanning
+
+	add PLI/PLC/PLM to manual transponder selection
+
+	workaround for T2 resolution display
+
+	add DVB-S2X support
+
+	fix DVB-T2 transponders
+
+2017-12-06  Frankenstone  <dampf_acc@yahoo.com>
+
+	fix frontend Uni2 / JESS (thx DboxOldie)
+
+2017-12-06  Thilo Graf  <dbt@novatux.de>
+
+	localize: try to fix different path to iso tab
+
+2017-12-05  Thilo Graf  <dbt@novatux.de>
+
+	yWeb Help: remove invalid help links
+
+2017-12-04  Thilo Graf  <dbt@novatux.de>
+
+	widget/hintbox.cpp: add explicit init of var picon
+	Had some issues while compile with gcc 7.x.
+	Exact data type was expected.
+
+	cc_item_picture.h: remove virtual declaration from setPicture()
+	Is not really required.
+	Avoids possible compile/linker errors like "...no reference..." for some
+	coming changes.
+
+2017-12-04  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino.h: remove obsolete external genre_sub_classes variables
+
+2017-12-03  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix radiotext title background (merge fix)
+
+	enable yt for generic
+
+	typo
+
+	fix resource leak
+
+2017-12-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- infoviewer_bb: use OFFSET defines; ...
+	height of ca-bar now depends on height of ca-icons
+	cleanup from commented code
+
+2017-12-01  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	Revert "- media-menu: disable currently broken audioplayer for ARM_HARDWARE"
+	This reverts commit 3d91cd9e13ed76cfc3a67fc21b503a8deb407606 because it's fixed in 334ce41
+
+2017-12-01  max_10  <max_10@gmx.de>
+
+	- ffmpegdec: fix audio playback for ARM_HARDWARE
+
+2017-12-01  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- infoviewer: avoid display of radiotext icon in virtual zap mode
+
+	- infoviewer: cleanup from some unused code
+	 Conflicts:
+		src/gui/infoviewer.cpp
+
+	- infoviewer_bb: fix offset for first status-icon
+
+	- infoviewer_bb: take footer height from CComponentsFooter ...
+	to get this footer in sync with the footers of other gui elements
+
+	- usermenu: cleanup from ITEM_RASS
+
+	- infoviewer: rework radiotext element; ...
+	use OFFSET defines, larger font, fix header width
+
+	- radiotext: cleanup from tons of unused code; rass is dead
+
+	- icons: cleanup from unused icons
+	 Conflicts:
+		data/icons/buttons/orphaned/0-green.png
+		data/icons/buttons/orphaned/0-red.png
+		data/icons/buttons/orphaned/1-green.png
+		data/icons/buttons/orphaned/1-red.png
+		data/icons/buttons/orphaned/2-green.png
+		data/icons/buttons/orphaned/2-red.png
+		data/icons/buttons/orphaned/3-green.png
+		data/icons/buttons/orphaned/3-red.png
+		data/icons/buttons/orphaned/4-green.png
+		data/icons/buttons/orphaned/4-red.png
+		data/icons/buttons/orphaned/5-green.png
+		data/icons/buttons/orphaned/5-red.png
+		data/icons/buttons/orphaned/6-green.png
+		data/icons/buttons/orphaned/6-red.png
+		data/icons/buttons/orphaned/7-green.png
+		data/icons/buttons/orphaned/7-red.png
+		data/icons/buttons/orphaned/8-green.png
+		data/icons/buttons/orphaned/8-red.png
+		data/icons/buttons/orphaned/9-green.png
+		data/icons/buttons/orphaned/9-red.png
+		data/icons/buttons/orphaned/longpress.png
+		data/icons/hints/hint_rass.png
+		data/icons/hints/hint_spark.png
+		data/icons/various/rass.png
+
+	- icons.h: cleanup from unused defines
+
+	- remove unused src/driver/stacktrace.h; use src/system/stacktrace.h if needed
+	 Conflicts:
+		src/driver/stacktrace.h
+
+	- neutrino: try to fix timer_wakeup handling; ...
+	The return to deepstandby after timer-wakeups was broken.
+
+	- locale: minor changes on new tunersetup locales
+
+2017-12-01  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	disable setVolume in standby mode
+
+2017-11-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- zapit/frontend: fix compiler warning
+
+2017-11-28  TangoCash  <eric@loxat.de>
+
+	frontend: fix fall through
+
+	add DVB-T2 support, enable 5V supply
+
+2017-11-28  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	prepare for T2 patch
+
+2017-11-27  TangoCash  <eric@loxat.de>
+
+	fix AAC record and playback
+
+2017-11-27  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- zapit: remove some ifdef's; prepare for upcoming patches
+
+	- neutrino: don't write timerinfo's when exiting to reboot
+
+	- neutrino: re-disable screensaver for mode_webradio on ARM_HARDWARE
+	when screensaver is stopped the playback is stopped too
+
+	- screensaver: move more repeatedly used code to screensaver's code
+
+	- movieplayer: use members from screensaver's code
+	 Conflicts:
+		src/gui/movieplayer.cpp
+
+	- neutrino: move screensaver members to screensaver's code
+
+	- neutrino: enable screensaver for mode_webradio
+
+	- shutdown_helper: better explanation of what the tool does; ...
+	small code re-formatting
+
+2017-11-25  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- cablex.xml: add OstTelCom; thx to elstablo
+	http://www.neutrino-images.de/board/viewtopic.php?f=28&t=2125#p12037
+
+2017-11-24  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix radiotext for armbox
+
+2017-11-23  Thilo Graf  <dbt@novatux.de>
+
+	Revert "shutdown_helper: add calling '/etc/init.d/rcK'"
+	This reverts commit 6709ae0feb9544a1cc4f45a982f9f7bd0f131ec8.
+
+2017-11-23  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix webtv script path
+
+2017-11-23  Thilo Graf  <dbt@novatux.de>
+
+	CComponentsTimer: try to fix timing on non cst hardware
+	On hd51 and pc hardware was observed full visual timeout progress in message boxes.
+	Timeoout was displayed always without visible progress.
+	This should fix this.
+
+2017-11-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: deactivate compatibility code in ExitRun(); ...
+	our start script is aligned to new exit code 2
+	see https://bitbucket.org/neutrino-images/ni-buildsystem/commits/cd1328c41cb642c141b58d001dce06a96eff0a1c
+
+2017-11-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: add exit codes to handle some actions in neutrino's start script
+	EXIT_REBOOT is inactive yet; see comment in ExitRun()
+
+	 Conflicts:
+		src/neutrino.cpp
+
+2017-11-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: always write /tmp/.timer ...
+	otherwise the vfd stays blank in deepstandby, if leds are configured off
+	and no timer is set. HD2's vfd urgently needs the fp.brightness value
+	which is not written to frontpanel in this case.
+
+	- neutrino: unify console-output for different conditions in ExitRun()
+
+	- neutrino: fix file-check in ExitRun() ... was a c/p error
+
+2017-11-22  J. Krieg  <bellum07@googlemail.com>
+
+	shutdown_helper: add calling '/etc/init.d/rcK'
+	...to prevent possible file system corruption prior shutting down
+
+2017-11-22  Striper  <gandharva@gmx.de>
+
+	- rename uncooloff workaround to something less idiotic
+
+2017-11-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: more small cleanups in ExitRun()
+	 Conflicts:
+		src/neutrino.cpp
+
+	- neutrino: cleanup ExitRun() function from unused code
+	 Conflicts:
+		src/neutrino.cpp
+
+	- controlapi: add mode_webradio to GetModeCGI()
+
+	- neutrino: clearify mode handling in saveEpg() function
+	 Conflicts:
+		src/driver/scanepg.cpp
+		src/neutrino.cpp
+
+	- neutrino: unify modes handling; ...
+	remove double enum from CNeutrinoApp and move mostly used enum from NeutrinoMessages to new NeutrinoModes
+
+2017-11-22  FlatTV  <FlatTV@gmx.de>
+
+	capmt.cpp: Fix stop decoding
+	don't stop decoding if record stops, this break overlapped record on cst
+
+2017-11-20  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	Merge branch 'master' of https://github.com/tuxbox-neutrino/gui-neutrino
+
+2017-11-19  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- simple_display: show scrambled icon on scrambled channels
+
+	- simple_display: show mute icon in muted mode
+
+2017-11-19  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/components/cc_frm_window.cpp: fix too small left bottom corner
+	radius is allready calculatetd in base class src/gui/components/cc_frm.cpp
+	in member CComponentsForm::paintCCItems()
+
+	NOTE:
+	It seems the radius calculation inside framebuffer don't working correct
+	for corners on the right site on top and bottom.
+	Seen on hd51 hardware on osd-boxes with shadow
+	(e.g. infobar) or Boxes with frames e.g. on  error message windows, buttons.
+	There are pixel errors like minimal holes on osd or displaced pixels.
+	On CST hardware evreything is ok.
+
+2017-11-19  Thilo Graf  <dbt@novatux.de>
+
+	CTestMenu: add gui restart item for faster access
+
+	CImageInfo: expand fallback to get readable version string
+	Evaluation of one char could be not enough to get a right result.
+
+2017-11-17  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: fix tv/radio switch for coolstream; ...
+	the TV/Radio key returns RC_tv. So we can't use RC_radio code here.
+
+2017-11-17  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	add dependency to libswscale for armbox
+
+	add dependency to libswscale for armbox
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: don't load webradio xml on HD1 hardware; ...
+	audiostreams doesn't work
+
+	- simple_display: fix compile for GENERIC_HARDWARE
+
+2017-11-16  TangoCash  <eric@loxat.de>
+
+	armbox: read frontend real names
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- vfd-setup: allow to set scroll_repeats if possible
+
+	- neutrino: display's setScrollMode() needs to be called on every start
+
+	- simple_display: dont show symbols in shutdown mode too
+
+	- vfd: re-add by mistake removed setting "off" for statusbar
+
+	- timerlist: don't cast saved_displaymode
+
+	- movieplayer: try to fix display of servicename; ...
+	name can be changed while playing movies
+
+	- simple_display: simplify some proc_put calls
+
+	- proc_tools: add helper member to put values w/o length; ...
+	align included headers to c++
+
+	- simple_display: switch back to simplified proc_put calls
+
+	- proc_tools: c => cpp; add new helper member to write bool values
+
+	- simple_display: align f9b55ca to new proc_put calls
+
+	hd51: dont show symbols in standby
+
+	- simple_display: allow to set scroll mode
+
+	- simple_display: use proc_tools
+	 Conflicts:
+		src/driver/simple_display.cpp
+
+	- neutrino: avoid some ifdef's; prioritize proc filesystem
+
+	- system: add seife's proc_tools
+
+2017-11-16  Thilo Graf  <dbt@novatux.de>
+
+	capmt.cpp: try to fix ci handling
+	Based up:
+	https://bitbucket.org/neutrino-images/ni-neutrino-hd/commits/f3775d18142afe4341dcb3e52627cf5bd912d4a4
+	https://bitbucket.org/neutrino-images/ni-neutrino-hd/commits/600aa573688114b6d2bb3cbf95a3df2294e40998
+	by FlatTV, Striper
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- vfd-setup: hide statusline option from models w/o a statusline in vfd
+
+2017-11-16  Thilo Graf  <dbt@novatux.de>
+
+	coolstream/hardware_caps.h: fix broken cs build
+	'display_has_statusline' was missed with commit:
+	f6093052466d9da01db74315a07bf82c249838ca
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- hardware_caps: add display_has_statusline member
+
+	- vfd-setup: more readability; just cosmetics
+
+	- vfd-setup: don't show separatorline when backlight menu isn't shown
+
+	- simple_display: avoid compiler warning
+
+	- simple_display: fix compile for non-ARM_HARDWARE
+	 Conflicts:
+		src/driver/simple_display.cpp
+
+	- simple_display: add possibility to show text when changing mode
+
+	- simple_display: add missing MODE_MENU_UTF8 check in setMode()
+
+	- simple_display: rename display() to ShowText() ... as in vfd.cpp
+	 Conflicts:
+		src/driver/simple_display.cpp
+
+	- simple_display: cleanup from unused code inside ifdef mess
+
+	- timerlist: fix saved_dispmode
+
+	- cables.xml: use german umlauts for german nets; ...
+	Note: encoding is iso-8859-1
+
+	- update: fix display of installed version; ...
+	curiously it was only broken on ARM_HARDWARE
+
+	- infoviewer: fix radiotext icon for webradio
+
+	- neutrino: fix console output to signalize timer wakeups
+
+2017-11-16  Striper  <gandharva@gmx.de>
+
+	- capmt.cpp: cleanup
+	 Conflicts:
+		src/zapit/src/capmt.cpp
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- infoviewer_bb: fix wrong mode-logic for radiotext icon
+
+2017-11-16  Striper  <gandharva@gmx.de>
+
+	- shorten string
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: fix screenshot function
+
+	- screenshot: cleanup from many many unused code; ...
+	This commit reverts screenshot code to a stand before hd51 support. Screenshots for ARM_HARDWARE will be re-implemented in another way.
+
+	- cleanup from unsupported DUCKBOX_HARDWARE
+
+	- streaminfo2: cleanup from unsupported hardware ifdefs
+
+	- vfd: cleanup from unsupported hardware ifdefs; vfd.cpp/h is only used by COOL_HARDWARE
+	 Conflicts:
+		src/driver/vfd.cpp
+
+	- movieplayer: cleanup from unsupported hardware ifdefs
+
+	- re-add working streaminfo for coolstream hardware; ...
+	TODO fix streaminfo2 for coolstream; was broken since last commits
+
+2017-11-16  TangoCash  <eric@loxat.de>
+
+	- infoviewer: fix FIXME comment in 9b340752244980a59d57d3d318f70339a7f8d2e1
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: don't stop playback with RC_home; it's confusing
+	 Conflicts:
+		src/gui/movieplayer.cpp
+
+	- neutrino: don't add web-channels to sat-bouquet
+
+	- streaminfo: fix compile for coolstream; add dummies to libcs-headers
+
+	- streaminfo: some more position fixes; ...
+	use COL_MENUCONTENTINACTIVE_TEXT for inactive apids and caids
+
+	- streaminfo: add channelname for webtv/radio too; simplify code
+
+	- streaminfo: re-add osd resolution
+
+	- locale: minor changes in streaminfo locales
+
+	- streaminfo: use OFFSET defines; some position fixes
+
+2017-11-16  Thilo Graf  <dbt@novatux.de>
+
+	- streaminfo: minor re-formatations and whitespace cleanups
+	# Conflicts:
+	#	src/gui/streaminfo2.cpp
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- streaminfo: show channellogo in mode-webradio too
+
+	- streaminfo: port from TangoCash
+	 Conflicts:
+		src/gui/streaminfo2.cpp
+
+	- streaminfo: fix resolution for webradio; ...
+	add channellogo to movieplayer-info too; not nice but informative
+
+	- streaminfo: some mode_webradio fixes
+
+	- neutrino: some more mode_radio/mode_webradio fixes #2
+
+	- neutrino: some more mode_radio/mode_webradio fixes
+
+	- neutrino: respect user's infoviewer timeout settings for different modes
+
+	- infoviewer: try to get meta data from stream when epg is empty
+
+	- infoviewer_bb: fix display of icons in radio/webradio mode
+
+	- movieplayer: add some console spam to check modes
+
+	- infoviewer: try to fix showLivestreamInfo() for audiostreams
+
+2017-11-16  Striper  <gandharva@gmx.de>
+
+	- yweb: optimize png images for size
+	 Conflicts:
+		data/y-web/images/blank.png
+		data/y-web/images/cancel.png
+		data/y-web/images/colored_bar.png
+		data/y-web/images/server_add.png
+		data/y-web/images/server_delete.png
+		data/y-web/images/server_edit.png
+		data/y-web/images/server_link.png
+
+	- yweb: install only box specific remote control pictures
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- media-menu: disable currently broken audioplayer for ARM_HARDWARE
+
+	- fill webradio_usr.xml with some of my favorite streams
+
+	- zapit: save last channel for webradio too
+
+	- infoviewer: fix timeout for new mode_webradio
+
+	- try to fix tv <-> radio switch
+
+	- zapit: don't save webradio-channels as last tv channel
+
+	- movieplayer: fix for '- movieplayer: fix new mode'
+
+	- movieplayer: rename isWebTV => isWebChannel
+
+	- rename LIST_MODE_WEBTV => LIST_MODE_WEB
+
+	- scanepg: rename webtv => webchan
+
+	- rename IS_WEBTV => IS_WEBCHAN
+	 Conflicts:
+		src/zapit/src/capmt.cpp
+
+	- movieplayer: fix new mode
+
+	- fix mode in SetChannelMode()
+
+	- fix -Wlogical-op errors
+
+	- add webradio; first steps
+	 Conflicts:
+		data/Makefile.am
+		data/scripts/backup.sh
+		src/neutrino.cpp
+		src/zapit/include/zapit/zapit.h
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- tuxtxt: change some default values
+
+	This should be bounded to current loacle settings.
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- tuxtxt: fix compiler warnings; simplify ifdef's
+
+	- tuxtxt: align to mp
+
+	fix generic keyboard
+	 Conflicts:
+		src/driver/rcinput.cpp
+
+2017-11-16  Striper  <gandharva@gmx.de>
+
+	- fix compile for coolstream hardware (works on HD2)
+	 Conflicts:
+		src/driver/screenshot.cpp
+
+2017-11-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- acinclude: fix indentation
+
+2017-11-16  Thilo Graf  <dbt@novatux.de>
+
+	CServiceManager: add member GetCurrentChannel()
+	Shortcut for CZapit::getInstance()->GetCurrentChannel() inside
+	CServiceManager
+
+	widget/menue_target.h: add possible required includes
+	If this file is included as single without menue.h build could be break,
+	beecause of missing includes for some types. This should fix this.
+	In many source files still menue.h is included, so this is not noticeable.
+
+2017-11-13  TangoCash  <eric@loxat.de>
+
+	hd51: fix wakeup from standby
+
+2017-11-13  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix audio description after play movie
+
+2017-11-07  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	src/gui/movieplayer.cpp fix break record after play on cst (after hd51 merge)
+
+	src/zapit/src/capmt.cpp dont stop decoding if record stops, this break overlapped record on cst
+
+2017-11-06  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	src/gui/movieplayer.cpp fix audioselect in not filpeplayer mode (after merge)
+
+2017-11-05  GetAway  <get-away@t-online.de>
+
+	menue.cpp: add reverse search to find selectable item
+
+2017-11-05  Thilo Graf  <dbt@novatux.de>
+
+	CImageInfo: fix version string format
+	String was broken. Only artefacts were to see.
+
+	BTW: With current yocto build .version contains
+	wrong version format. This seems to be not suitable for
+	handling with flash images in context with versions checks.
+
+2017-11-05  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	disable file player mode for cst
+
+2017-11-04  Thilo Graf  <dbt@novatux.de>
+
+	simple_display.cpp: partial revert "fix generic build"
+	This reverts commit c7c52324a39c3b65e21b35d9983f26e95efa6537.
+
+	hd51 build was broken with -Werror=unused-variable
+
+2017-11-03  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	silence -Wparentheses-equality warning
+
+	fix generic build
+
+	remove pinentered script , revert 9dbdfcf5c7e813c67f44b3255881fd0fe344ad4d
+
+	fix blank screen on start (after merge)
+
+	remove unused
+
+	src/gui/movieplayer.cpp reEnable YT
+
+	src/gui/movieplayer.cpp fix page up/down jump and stop play after merge
+
 2017-11-02  Thilo Graf  <dbt@novatux.de>
 
 	update version to 3.6.1

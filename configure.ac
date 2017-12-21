@@ -1,4 +1,4 @@
-AC_INIT(Tuxbox-Neutrino,3.6.1)
+AC_INIT(Tuxbox-Neutrino,3.7.0)
 AM_INIT_AUTOMAKE([1.0.1 nostdinc])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
