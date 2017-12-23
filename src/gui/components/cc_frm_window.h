@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2016, Thilo Graf 'dbt'
+	Copyright (C) 2012-2017, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -435,6 +435,12 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		* @note 	use addExitKey() if new exec key is required
 		*/
 		virtual void removeExitKeys(){getBodyObject()->removeExitKeys();}
+
+		/**
+		* Sets an image for window background.
+		* @note 	The assigned image is assigned into body object! Main container, header and footer will be not touched.
+		*/
+		bool setBodyBGImage(const std::string& image_path);
 };
 
 class CComponentsWindowMax : public CComponentsWindow

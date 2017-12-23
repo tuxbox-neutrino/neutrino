@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Copyright (C) 2013, M. Liebmann 'micha-bbg'
-	Copyright (C) 2013-2014, Thilo Graf 'dbt'
+	Copyright (C) 2013-2017, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -40,6 +40,7 @@ using namespace std;
 CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, CCW_PERCENT 85, CCW_PERCENT 85, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
 {
 	initVarBuildInfo();
+	setBodyBGImage(DATADIR "/neutrino/icons/start.jpg");
 	if (show)
 		exec(NULL, "");
 	else

@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2016 Thilo Graf 'dbt'
+	Copyright (C) 2012-2017 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -443,4 +443,9 @@ void CComponentsWindow::paint(bool do_save_bg)
 
 	//paint form contents
 	paintForm(do_save_bg);
+}
+
+bool CComponentsWindow::setBodyBGImage(const std::string& image_path)
+{
+	return getBodyObject()->setBodyBGImage(image_path);
 }
