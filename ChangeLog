@@ -1,3 +1,31 @@
+2017-12-23  Thilo Graf  <dbt@novatux.de>
+
+	update to version 3.7.1
+	bugfixes
+
+	COPKGManager: fix path search for ../opkg/info
+	Since changed TARGET_PREFIX variable, path was wrong and causing
+	possible long timeout while opening the manager window.
+
+	.version: fix path to .version in some relevant files
+
+	CNetworkSetup: cleanup and unify debug output
+
+2017-12-23  Thilo Graf  <dbt@novatux.de>
+
+	CComponentsWindow: add method to set background image in window classes
+	- setBodyBGImage() exists as member of base class CCDraw and had
+	  no visual effect in this class, because visibility of window container is disabled.
+	  This additional member overloads the original methode and is using functionality from
+	  window body object. Example for buildinfo added.
+
+	TODO:
+	- background behavior of embedded objects must be global adapted if a background image is used
+
+2017-12-22  Thilo Graf  <dbt@novatux.de>
+
+	CImageInfo: fix path to .version file
+
 2017-12-21  Thilo Graf  <dbt@novatux.de>
 
 	update version to 3.7.0
@@ -15,7 +43,7 @@
 
 	Fileplay: add separat fileplay for audio and video
 
-2017-12-19  svenhoefer  <svenhoefer@svenhoefer.com>
+2017-12-21  svenhoefer  <svenhoefer@svenhoefer.com>
 
 	- user-menu: add audio fileplay item
 	 Conflicts:
@@ -34,10 +62,6 @@
 	 Conflicts:
 		src/driver/rcinput.cpp
 		src/driver/rcinput.h
-
-2017-12-18  GetAway  <get-away@t-online.de>
-
-	audiomute.cpp: fix clear screen after audiomute
 
 2017-12-18  svenhoefer  <svenhoefer@svenhoefer.com>
 
@@ -61,6 +85,10 @@
 2017-12-18  Thilo Graf  <dbt@novatux.de>
 
 	Icons: add missing hint icons and fix some files with format errors
+
+2017-12-18  GetAway  <get-away@t-online.de>
+
+	audiomute.cpp: fix clear screen after audiomute
 
 2017-12-17  Thilo Graf  <dbt@novatux.de>
 
