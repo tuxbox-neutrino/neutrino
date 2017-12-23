@@ -1697,10 +1697,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #if ! HAVE_COOL_HARDWARE
 			else
 			{
-				if (filelist_it == filelist.end() - 1 || filelist_it == filelist.end())
-					g_RCInput->postMsg((neutrino_msg_t) g_settings.mpkey_stop, 0);
-				else
-					g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_right, 0);
+				at_eof = true;
+				break;
 			}
 #endif
 			handleMovieBrowser(0, position);
