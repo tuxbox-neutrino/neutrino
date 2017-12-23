@@ -655,12 +655,12 @@ bool COPKGManager::hasOpkgSupport()
 string COPKGManager::getInfoDir()
 {
 	/* /opt/opkg/... is path in patched opkg, /var/lib/opkg/... is original path */
-	string dirs[] = {TARGET_PREFIX"/opt/opkg/info", TARGET_PREFIX"/var/lib/opkg/info"};
+	string dirs[] = {TARGET_PREFIX"/opt/opkg/info", TARGET_PREFIX"/var/lib/opkg/info", "/var/lib/opkg/info", "/opt/opkg/info"};
 	for (size_t i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++) {
 		if (access(dirs[i].c_str(), R_OK) == 0)
 			return dirs[i];
+		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] InfoDir [%s] not found\n", __func__, __LINE__, dirs[i].c_str());
 	}
-	dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] InfoDir not found\n", __func__, __LINE__);
 	return "";
 }
 
