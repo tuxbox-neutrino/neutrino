@@ -87,7 +87,7 @@ CNetworkSetup* CNetworkSetup::getInstance()
 
 	if(!me) {
 		me = new CNetworkSetup();
-		dprintf(DEBUG_DEBUG, "CNetworkSetup Instance created\n");
+		dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d],  Instance created\n", __func__, __LINE__);
 	}
 	return me;
 }
@@ -108,21 +108,11 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey=="networktest")
 	{
-		printf("[network setup] doing network test...\n");
-#if 0
-		testNetworkSettings(	networkConfig->address.c_str(),
-					networkConfig->netmask.c_str(),
-					networkConfig->broadcast.c_str(),
-					networkConfig->gateway.c_str(),
-					networkConfig->nameserver.c_str(),
-					networkConfig->inet_static);
-#endif
 		testNetworkSettings();
 		return res;
 	}
 	else if(actionKey=="networkshow")
 	{
-		dprintf(DEBUG_INFO, "show current network settings...\n");
 		showCurrentNetworkSettings();
 		return res;
 	}
@@ -144,7 +134,7 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
-	printf("[neutrino] init network setup...\n");
+	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], init network setup...\n", __func__, __LINE__);
 	res = showNetworkSetup();
 
 	return res;
@@ -453,9 +443,7 @@ bool CNetworkSetup::checkIntSettings()
 	};
 	for (uint i = 0; i < (sizeof(n_isettings) / sizeof(n_isettings[0])); i++)
 		if (n_isettings[i].old_network_setting != n_isettings[i].network_setting) {
-#ifdef DEBUG
-			printf("CNetworkSetup::checkIntSettings: %d %d -> %d\n", i, n_isettings[i].old_network_setting, n_isettings[i].network_setting);
-#endif
+			dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d],  %d %d -> %d\n", __func__, __LINE__, i, n_isettings[i].old_network_setting, n_isettings[i].network_setting);
 			return true;
 	}
 
@@ -483,9 +471,7 @@ bool CNetworkSetup::checkStringSettings()
 	};
 	for (uint i = 0; i < (sizeof(n_ssettings) / sizeof(n_ssettings[0])); i++)
 		if (n_ssettings[i].old_network_setting != n_ssettings[i].network_setting) {
-#ifdef DEBUG
-			printf("CNetworkSetup::checkStringSettings: %d: %s -> %s\n", i, n_ssettings[i].old_network_setting.c_str(), n_ssettings[i].network_setting.c_str());
-#endif
+			dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d],  %d: %s -> %s\n", __func__, __LINE__, i, n_ssettings[i].old_network_setting.c_str(), n_ssettings[i].network_setting.c_str());
 			return true;
 	}
 	if(CNetworkConfig::getInstance()->wireless) {
@@ -547,7 +533,7 @@ bool CNetworkSetup::checkForIP()
 		{
 			if (n_settings[i].network_settings.empty()) //no definied setting
 			{
-				printf("[network setup] empty address %s\n", g_Locale->getText(n_settings[i].addr_name));
+				dprintf(DEBUG_NORMAL, "\033[33m\[CNetworkSetup]\t[%s - %d], empty address %s\033[0m\n", __func__, __LINE__, g_Locale->getText(n_settings[i].addr_name));
 				char msg[64];
 				snprintf(msg, 64, g_Locale->getText(LOCALE_NETWORKMENU_ERROR_NO_ADDRESS), g_Locale->getText(n_settings[i].addr_name));
 				ShowMsg(LOCALE_MAINSETTINGS_NETWORK, msg, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR, width);
@@ -562,7 +548,7 @@ bool CNetworkSetup::checkForIP()
 //saves settings without apply, reboot is required
 void CNetworkSetup::saveNetworkSettings()
 {
-	printf("[network setup] saving current network settings...\n");
+	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], saving current network settings...\n", __func__, __LINE__);
 
 	prepareSettings();
 	networkConfig->commitConfig();
@@ -571,7 +557,7 @@ void CNetworkSetup::saveNetworkSettings()
 //saves settings and apply
 void CNetworkSetup::applyNetworkSettings()
 {
-	printf("[network setup] apply network settings...\n");
+	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], apply network settings...\n", __func__, __LINE__);
 
 	if (!checkForIP())
 		return;
@@ -656,7 +642,7 @@ bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * /*Data*/
 	} else if(locale == LOCALE_NETWORKMENU_SELECT_IF) {
 		networkConfig->readConfig(g_settings.ifname);
 		readNetworkSettings();
-		printf("CNetworkSetup::changeNotify: using %s, static %d\n", g_settings.ifname.c_str(), CNetworkConfig::getInstance()->inet_static);
+		dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], using %s, static %d\n", __func__, __LINE__, g_settings.ifname.c_str(), CNetworkConfig::getInstance()->inet_static);
 
 		changeNotify(LOCALE_NETWORKMENU_DHCP, &CNetworkConfig::getInstance()->inet_static);
 
@@ -670,6 +656,7 @@ bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * /*Data*/
 
 void CNetworkSetup::showCurrentNetworkSettings()
 {
+	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], show current network settings...\n", __func__, __LINE__);
 	std::string ip, mask, broadcast, router, nameserver, text;
 	netGetIP(g_settings.ifname, ip, mask, broadcast);
 	if (ip[0] == 0) {
@@ -709,6 +696,7 @@ const char * CNetworkSetup::mypinghost(std::string &host)
 
 void CNetworkSetup::testNetworkSettings()
 {
+	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], doing network test...\n", __func__, __LINE__);
 	std::string our_ip, our_mask, our_broadcast, our_gateway, our_nameserver;
 
 	std::string text, testsite, offset = "    ";
@@ -830,7 +818,7 @@ int CNetworkSetup::showWlanList()
 	res = wlist.exec(NULL, "");
 	delete selector;
 
-	printf("CNetworkSetup::showWlanList: selected: %d\n", select);
+	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], selected: %d\n", __func__, __LINE__, select);
 	if (select >= 0) {
 		network_ssid = networks[select].ssid;
 	}
