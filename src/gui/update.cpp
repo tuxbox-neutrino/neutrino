@@ -86,7 +86,7 @@ extern int allow_flash;
 #define gTmpPath "/tmp/"
 #define gUserAgent "neutrino/softupdater 1.0"
 
-#define LIST_OF_UPDATES_LOCAL_FILENAME "coolstream.list"
+#define LIST_OF_UPDATES_LOCAL_FILENAME "update.list"
 #define FILEBROWSER_UPDATE_FILTER      "img"
 
 #define MTD_OF_WHOLE_IMAGE             0
