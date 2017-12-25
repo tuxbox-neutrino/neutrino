@@ -87,14 +87,22 @@ extern int allow_flash;
 #define gUserAgent "neutrino/softupdater 1.0"
 
 #define LIST_OF_UPDATES_LOCAL_FILENAME "update.list"
-#define FILEBROWSER_UPDATE_FILTER      "img"
 
+// TODO: move this mess below to libstb-hal
+#if HAVE_ARM_HARDWARE
+#define FILEBROWSER_UPDATE_FILTER      "tgz"
+#define MTD_OF_WHOLE_IMAGE              999
+#define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
+#else
+#define FILEBROWSER_UPDATE_FILTER      "img"
 #define MTD_OF_WHOLE_IMAGE             0
 #ifdef BOXMODEL_CS_HD2
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd0"
 #else
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
 #endif
+#endif
+
 int pinghost  (const std::string &hostname, std::string *ip = NULL);
 
 CFlashUpdate::CFlashUpdate()
@@ -421,10 +429,6 @@ bool CFlashUpdate::checkVersion4Update()
 		std::string filters[] = {"bin", "txt", "opk", "ipk"};
 		for(size_t i=0; i<sizeof(filters)/sizeof(filters[0]) ;i++)
 			UpdatesFilter.addFilter(filters[i]);
-
-#if HAVE_ARM_HARDWARE
-		UpdatesFilter.addFilter("tgz");
-#endif
 
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
