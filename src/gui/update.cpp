@@ -113,7 +113,7 @@ CFlashUpdate::CFlashUpdate()
 	sysfs = CMTDInfo::getInstance()->findMTDsystem();
 	if (sysfs.empty())
 		sysfs = MTD_DEVICE_OF_UPDATE_PART;
-	printf("Mtd partition to update: %s\n", sysfs.c_str());
+	dprintf(DEBUG_NORMAL, "[update] mtd partition to update: %s\n", sysfs.c_str());
 	notify = true;
 }
 
@@ -153,12 +153,10 @@ bool CFlashUpdate::checkOnlineVersion()
 
 	CConfigFile _configfile('\t');
 	const char * versionString = (_configfile.loadConfig( "/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
-#ifdef DEBUG
-	printf("[update] file %s\n", g_settings.softupdate_url_file.c_str());
-#endif
+	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
 	CFlashVersionInfo curInfo(versionString);
 	curVer = curInfo.getVersion();
-	printf("current flash-version: %s (%d) date %s (%ld)\n", versionString, curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
+	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%ld)\n", versionString, curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
 
 	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
 	if (urlFile >> url) {
@@ -171,7 +169,7 @@ bool CFlashUpdate::checkOnlineVersion()
 			endpos    = url.find('/', startpos);
 			host = url.substr(startpos, endpos - startpos);
 		}
-		printf("[update] host %s\n", host.c_str());
+		dprintf(DEBUG_NORMAL, "[update] host %s\n", host.c_str());
 		if (host.empty() || (pinghost(host) != 1))
 			return false;
 		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, 20)) {
@@ -180,12 +178,10 @@ bool CFlashUpdate::checkOnlineVersion()
 				std::getline(in, name);
 				CFlashVersionInfo versionInfo(version);
 				newVer = versionInfo.getVersion();
-#ifdef DEBUG
-				printf("[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
-#endif
+				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
 				if(versionInfo.snapshot <= '2' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime())) {
 					newfound = true;
-					printf("[update] found new image\n");
+					dprintf(DEBUG_NORMAL, "[update] found new image\n");
 					break;
 				}
 			}
@@ -194,7 +190,6 @@ bool CFlashUpdate::checkOnlineVersion()
 	return newfound;
 }
 
-//#define DEBUG
 bool CFlashUpdate::selectHttpImage(void)
 {
 	CHTTPTool httpTool;
@@ -213,7 +208,7 @@ bool CFlashUpdate::selectHttpImage(void)
 		versionString = _configfile.getString("version", "????????????????");
 
 	CFlashVersionInfo curInfo(versionString.c_str());
-	printf("current flash-version: %s (%d) date %s (%ld)\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
+	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%ld)\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
 	curVer = curInfo.getVersion();
 
 	httpTool.setStatusViewer(this);
@@ -232,17 +227,13 @@ bool CFlashUpdate::selectHttpImage(void)
 
 	SelectionWidget.addItem(new CMenuForwarder(current, false));
 	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
-#ifdef DEBUG
-	printf("[update] file %s\n", g_settings.softupdate_url_file.c_str());
-#endif
+	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
 
 	unsigned int i = 0;
 	while (urlFile >> url)
 	{
 		std::string::size_type startpos, endpos;
-#ifdef DEBUG
-		printf("[update] url %s\n", url.c_str());
-#endif
+		dprintf(DEBUG_NORMAL, "[update] url %s\n", url.c_str());
 
 		/* extract domain name */
 		startpos = url.find("//");
@@ -275,9 +266,7 @@ bool CFlashUpdate::selectHttpImage(void)
 
 				CFlashVersionInfo versionInfo(versions[i]);
 				newVer = versionInfo.getVersion();
-#ifdef DEBUG
-				printf("[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
-#endif
+				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
 				if(versionInfo.snapshot <= '2' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
 					newfound = 1;
 				if(!allow_flash && (versionInfo.snapshot <= '2'))
@@ -330,7 +319,7 @@ bool CFlashUpdate::selectHttpImage(void)
 #ifdef BOXMODEL_CS_HD2
 	if(fileType <= '2') {
 		int esize = CMTDInfo::getInstance()->getMTDEraseSize(sysfs);
-		printf("[update] erase size is %x\n", esize);
+		dprintf(DEBUG_NORMAL, "[update] erase size is %x\n", esize);
 		if (esize == 0x40000) {
 			filename += ".256k";
 		}
@@ -343,9 +332,7 @@ bool CFlashUpdate::selectHttpImage(void)
 		fileType = 'Z';
 	}
 #endif
-#ifdef DEBUG
-	printf("[update] filename %s type %c newVersion %s md5 %s\n", filename.c_str(), fileType, newVersion.c_str(), file_md5.c_str());
-#endif
+	dprintf(DEBUG_NORMAL, "[update] filename %s type %c newVersion %s md5 %s\n", filename.c_str(), fileType, newVersion.c_str(), file_md5.c_str());
 
 	return true;
 }
@@ -364,7 +351,7 @@ bool CFlashUpdate::getUpdateImage(const std::string & version)
 	sprintf(dest_name, "%s/%s", g_settings.update_dir.c_str(), fname);
 	showStatusMessageUTF(std::string(g_Locale->getText(LOCALE_FLASHUPDATE_GETUPDATEFILE)) + ' ' + version);
 
-	printf("get update (url): %s - %s\n", filename.c_str(), dest_name);
+	dprintf(DEBUG_NORMAL, "[update] get update (url): %s - %s\n", filename.c_str(), dest_name);
 	return httpTool.downloadFile(filename, dest_name, 40 );
 }
 
@@ -373,9 +360,7 @@ bool CFlashUpdate::checkVersion4Update()
 	char msg[400];
 	CFlashVersionInfo * versionInfo;
 	neutrino_locale_t msg_body;
-#ifdef DEBUG
-	printf("[update] mode is %d\n", softupdate_mode);
-#endif
+	dprintf(DEBUG_NORMAL, "[update] mode is %d\n", softupdate_mode);
 	if(softupdate_mode==1) //internet-update
 	{
 		if(!selectHttpImage())
@@ -385,7 +370,7 @@ bool CFlashUpdate::checkVersion4Update()
 		showGlobalStatus(20);
 		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_VERSIONCHECK));
 
-		printf("internet version: %s\n", newVersion.c_str());
+		dprintf(DEBUG_NORMAL, "[update] internet version: %s\n", newVersion.c_str());
 
 		showLocalStatus(100);
 		showGlobalStatus(20);
@@ -450,7 +435,7 @@ bool CFlashUpdate::checkVersion4Update()
 			fclose(fd);
 		else {
 			hide();
-			printf("flash/package-file not found: %s\n", filename.c_str());
+			dprintf(DEBUG_NORMAL, "[update] flash/package-file not found: %s\n", filename.c_str());
 			DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE));
 			return false;
 		}
@@ -491,9 +476,7 @@ bool CFlashUpdate::checkVersion4Update()
 				return false;
 			else
 				fileType = 0;
-#ifdef DEBUG
-			printf("[update] manual file type: %s %c\n", ptr, fileType);
-#endif
+			dprintf(DEBUG_NORMAL, "[update] manual file type: %s %c\n", ptr, fileType);
 		}
 
 		strcpy(msg, g_Locale->getText(LOCALE_FLASHUPDATE_NOVERSION));
@@ -503,7 +486,7 @@ bool CFlashUpdate::checkVersion4Update()
 
 int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-	printf("CFlashUpdate::exec: [%s]\n", actionKey.c_str());
+	dprintf(DEBUG_NORMAL, "CFlashUpdate::exec: [%s]\n", actionKey.c_str());
 	if (actionKey == "local")
 		softupdate_mode = 0;
 	else
@@ -570,9 +553,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	showGlobalStatus(60);
 
-#ifdef DEBUG
-	printf("[update] flash/install filename %s type %c\n", filename.c_str(), fileType);
-#endif
+	dprintf(DEBUG_NORMAL, "[update] flash/install filename %s type %c\n", filename.c_str(), fileType);
 	if(fileType <= '2') {
 		//flash it...
 #if ENABLE_EXTUPDATE
@@ -588,10 +569,11 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 
 #ifdef DRYRUN
-		if(1) {
+		if (1)
 #else
-		if(!ft.program(filename, 80, 100)) {
+		if (!ft.program(filename, 80, 100))
 #endif
+		{
 			hide();
 			ShowHint(LOCALE_MESSAGEBOX_ERROR, ft.getErrorMessage().c_str());
 			return menu_return::RETURN_REPAINT;
@@ -649,7 +631,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			if (fseek(f, -2, SEEK_END) == 0)
 			{
 				c[0] = fgetc(f);
-				printf("[update] Current partition: %s\n", c);
+				dprintf(DEBUG_NORMAL, "[update] Current partition: %s\n", c);
 			}
 			fclose(f);
 		}
@@ -676,7 +658,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		delete selector;
 
-		printf("[update] Flash into partition %d\n", selected);
+		dprintf(DEBUG_NORMAL, "[update] Flash into partition %d\n", selected);
 
 		int restart = CMsgBox::mbNo;
 
@@ -685,14 +667,14 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		{
 			// align ofgwrite options
 			ofgwrite_options = "-m" + to_string(selected);
-			printf("[update] ofgwrite_options: %s\n", ofgwrite_options.c_str());
+			dprintf(DEBUG_NORMAL, "[update] ofgwrite_options: %s\n", ofgwrite_options.c_str());
 
 			// start selected partition?
 			restart = ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_START_SELECTED_PARTITION, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE);
 			if (restart == CMsgBox::mbrYes)
 			{
 				std::string startup_new = "/boot/STARTUP_" + to_string(selected);
-				printf("[update] Start selected partition %d (%s)\n", selected, startup_new.c_str());
+				dprintf(DEBUG_NORMAL, "[update] Start selected partition %d (%s)\n", selected, startup_new.c_str());
 #ifndef DRYRUN
 				CFileHelpers fh;
 				fh.copyFile(startup_new.c_str(), "/boot/STARTUP");
@@ -704,7 +686,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		hide();
 
 		const char ofgwrite_tgz[] = "/bin/ofgwrite_tgz";
-		printf("[update] calling %s %s %s %s\n", ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
+		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s %s\n", ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 #ifndef DRYRUN
 		my_system(4, ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 
@@ -722,7 +704,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	else // not image, install
 	{
 		const char install_sh[] = "/bin/install.sh";
-		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir.c_str(), filename.c_str() );
+		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s\n",install_sh, g_settings.update_dir.c_str(), filename.c_str() );
 #ifndef DRYRUN
 		my_system(3, install_sh, g_settings.update_dir.c_str(), filename.c_str());
 #endif
@@ -1117,7 +1099,7 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 			readmtd(iReadmtd);
 		}
 		else if(iWritemtd!=-1) {
-			printf("mtd-write\n\n");
+			dprintf(DEBUG_NORMAL, "[update] mtd-write\n\n");
 			selectedMTD = iWritemtd;
 			showFileSelector("");
 		} else {
