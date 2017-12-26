@@ -374,13 +374,9 @@ void CMoviePlayerGui::restoreNeutrino()
 	printf("%s: restoring done.\n", __func__);fflush(stdout);
 }
 
-static bool running = false;
 int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 {
 	printf("[movieplayer] actionKey=%s\n", actionKey.c_str());
-	if (running)
-		return menu_return::RETURN_EXIT_ALL;
-	running = true;
 
 	if (parent)
 		parent->hide();
@@ -477,7 +473,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		haveLuaInfoFunc = false;
 	}
 	else {
-		running = false;
 		return menu_return::RETURN_REPAINT;
 	}
 
@@ -509,8 +504,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	}
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-
-	running = false;
 
 	if (timeshift != TSHIFT_MODE_OFF){
 		timeshift = TSHIFT_MODE_OFF;
