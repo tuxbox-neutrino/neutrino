@@ -1342,7 +1342,6 @@ bool CMoviePlayerGui::PlayFileStart(void)
 #if 0
 	clearSubtitle();
 #endif
-	playback->SetTeletextPid(-1);
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 	playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
