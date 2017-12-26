@@ -1963,7 +1963,7 @@ options.serial seriell
 parentallock.bouquetmode Bouquets sind standardmässig
 parentallock.changepin PIN-Code festlegen
 parentallock.changepin_hint1 Geben Sie hier Ihren neuen PIN-Code ein!
-parentallock.changetolocked Bei vorgeperrten Bouquets
+parentallock.changetolocked Bei vorgesperrten Bouquets
 parentallock.defaultlocked gesperrt
 parentallock.defaultunlocked nicht gesperrt
 parentallock.head Jugendschutz PIN
