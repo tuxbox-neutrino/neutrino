@@ -82,10 +82,6 @@
 #include <iconv.h>
 #include <libdvbsub/dvbsub.h>
 #include <audio.h>
-#ifdef ENABLE_GRAPHLCD
-#include <driver/nglcd.h>
-bool glcd_play = false;
-#endif
 #include <gui/widget/stringinput_ext.h>
 #include <gui/screensetup.h>
 #include <gui/widget/msgbox.h>
@@ -1383,15 +1379,6 @@ bool CMoviePlayerGui::PlayFileStart(void)
 #if HAVE_SPARK_HARDWARE
 	old3dmode = frameBuffer->get3DMode();
 #endif
-#ifdef ENABLE_GRAPHLCD
-	nGLCD::MirrorOSD(false);
-	if (p_movie_info)
-		nGLCD::lockChannel(p_movie_info->channelName, p_movie_info->epgTitle);
-	else {
-		glcd_play = true;
-		nGLCD::lockChannel(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD), file_name.c_str(), file_prozent);
-	}
-#endif
 	pthread_t thrStartHint = 0;
 	if (is_file_player) {
 		showStartingHint = true;
@@ -1593,14 +1580,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #endif
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
-#ifdef ENABLE_GRAPHLCD
-		if (p_movie_info)
-			nGLCD::lockChannel(p_movie_info->channelName, p_movie_info->epgTitle, duration ? (100 * position / duration) : 0);
-		else {
-			glcd_play = true;
-			nGLCD::lockChannel(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD), file_name.c_str(), file_prozent);
-		}
-#endif
 		if (update_lcd) {
 			update_lcd = false;
 			updateLcd();
@@ -2197,12 +2176,6 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 	CScreenSetup cSS;
 	cSS.showBorder(CZapit::getInstance()->GetCurrentChannelID());
 #endif
-#ifdef ENABLE_GRAPHLCD
-	if (p_movie_info || glcd_play == true) {
-		glcd_play = false;
-		nGLCD::unlockChannel();
-	}
-#endif
 	if (iso_file) {
 		iso_file = false;
 		if (umount2(ISO_MOUNT_POINT, MNT_FORCE))
@@ -2280,10 +2253,6 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 		}
 		if (!movie_info.channelName.empty() || !movie_info.epgTitle.empty())
 			p_movie_info = &movie_info;
-#ifdef ENABLE_GRAPHLCD
-		if (p_movie_info)
-			nGLCD::lockChannel(p_movie_info->channelName, p_movie_info->epgTitle);
-#endif
 	}
 
 	if (p_movie_info) {
@@ -2806,10 +2775,6 @@ void CMoviePlayerGui::StopSubtitles(bool enable_glcd_mirroring __attribute__((un
 		tuxtx_pause_subtitle(true);
 		frameBuffer->paintBackground();
 	}
-#ifdef ENABLE_GRAPHLCD
-	if (enable_glcd_mirroring)
-		nGLCD::MirrorOSD(g_settings.glcd_mirror_osd);
-#endif
 #endif
 }
 
@@ -2847,9 +2812,6 @@ void CMoviePlayerGui::StartSubtitles(bool show __attribute__((unused)))
 {
 #if HAVE_SPARK_HARDWARE
 	printf("[CMoviePlayerGui] %s: %s\n", __FUNCTION__, show ? "Show" : "Not show");
-#ifdef ENABLE_GRAPHLCD
-	nGLCD::MirrorOSD(false);
-#endif
 
 	if(!show)
 		return;
