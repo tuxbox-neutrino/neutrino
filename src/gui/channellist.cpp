@@ -2138,8 +2138,12 @@ void CChannelList::paintHead()
 	header->setDimensionsAll(x, y, full_width, theight);
 	header->setCorner(RADIUS_LARGE, CORNER_TOP);
 
-	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
+	if ((g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED) &&
+	    bouquet && bouquet->zapitBouquet &&
+	    (bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked))
 		header->setIcon(NEUTRINO_ICON_LOCK);
+	else
+		header->setIcon(NULL);
 
 	std::string header_txt 		= !edit_state ? name : std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
 	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);
