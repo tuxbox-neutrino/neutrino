@@ -1,5 +1,5 @@
 AC_INIT(Tuxbox-Neutrino,3.7.1)
-AM_INIT_AUTOMAKE([1.0.1 nostdinc])
+AM_INIT_AUTOMAKE([nostdinc foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
 AC_DEFINE(RELEASE_CYCLE, "2.4", [Release cycle information; used in update code])

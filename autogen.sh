@@ -12,4 +12,4 @@ aclocal --force
 libtoolize --force
 autoconf --force
 autoheader  --force
-automake --add-missing --force-missing --foreign
+automake --add-missing --force-missing
