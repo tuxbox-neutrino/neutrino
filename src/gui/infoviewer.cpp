@@ -1726,10 +1726,10 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 
 	int currTimeW = 0;
 	int nextTimeW = 0;
-	if (runningRest)
-		currTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest)*2;
+	if (runningRest) /* 10 is the space between title and time, might be good if this would be scaled...  */
+		currTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest) + 10;
 	if (nextDuration)
-		nextTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(nextDuration)*2;
+		nextTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(nextDuration)+ 10;
 	int currTimeX = BoxEndX - currTimeW - 10;
 	int nextTimeX = BoxEndX - nextTimeW - 10;
 
