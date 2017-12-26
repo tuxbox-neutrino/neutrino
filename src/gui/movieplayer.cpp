@@ -2008,41 +2008,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #if 0
 			clearSubtitle();
 #endif
-#if HAVE_SPARK_HARDWARE
-		} else if (msg == CRCInput::RC_text) {
-			int pid = playback->GetFirstTeletextPid();
-			if (pid > -1) {
-				playback->SetTeletextPid(0);
-				StopSubtitles(true);
-				if (g_settings.cacheTXT)
-					tuxtxt_stop();
-				playback->SetTeletextPid(pid);
-				tuxtx_stop_subtitle();
-				tuxtx_main(pid, 0, 2, true);
-				tuxtxt_stop();
-				playback->SetTeletextPid(0);
-				if (currentttxsub != "") {
-					CSubtitleChangeExec SubtitleChanger(playback);
-					SubtitleChanger.exec(NULL, currentttxsub);
-				}
-				StartSubtitles(true);
-				frameBuffer->paintBackground();
-				//purge input queue
-				do
-					g_RCInput->getMsg(&msg, &data, 1);
-				while (msg != CRCInput::RC_timeout);
-			} else if (g_RemoteControl->current_PIDs.PIDs.vtxtpid) {
-				StopSubtitles(true);
-				// The playback stream doesn't come with teletext.
-				tuxtx_main(g_RemoteControl->current_PIDs.PIDs.vtxtpid, 0, 2);
-				frameBuffer->paintBackground();
-				StartSubtitles(true);
-				//purge input queue
-				do
-					g_RCInput->getMsg(&msg, &data, 1);
-				while (msg != CRCInput::RC_timeout);
-			}
-#endif
 		} else if (timeshift != TSHIFT_MODE_OFF && (msg == CRCInput::RC_text || msg == CRCInput::RC_epg || msg == NeutrinoMessages::SHOW_EPG)) {
 			bool restore = FileTimeOSD->IsVisible();
 			FileTimeOSD->kill();
