@@ -3092,7 +3092,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 			size_t start = 0, end = 0;
 			/* split string with \N as newline */
 			std::string delim("\\N");
-			while ((end = str.find(delim, start)) != string::npos) {
+			while ((end = str.find(delim, start)) != std::string::npos) {
 				subtext.push_back(str.substr(start, end - start));
 				start = end + 2;
 			}
