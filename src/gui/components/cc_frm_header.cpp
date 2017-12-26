@@ -552,6 +552,8 @@ void CComponentsHeader::initCaption()
 	if (!cch_icon_name.empty()){
 		cch_text_x = cch_icon_x+cch_icon_w+cch_offset;
 	}
+	else /* if a icon was present before and was removed, reinit x position */
+		cch_text_x = cch_offset;
 
 	//calc width of text object in header
 	cc_text_w = width-cch_text_x/*-cch_offset*/;
