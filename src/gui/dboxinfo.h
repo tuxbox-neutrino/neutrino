@@ -53,6 +53,7 @@ class CDBoxInfoWidget : public CMenuTarget
 		int sizeWidth; // width of mem / disk sizes
 		int percWidth;
 		int nameWidth;
+		bool upmode;   // system or neutrino uptime
 
 		void paint();
 		CComponentsHeader *header;

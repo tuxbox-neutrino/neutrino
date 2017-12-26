@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	(C) 2009-2011, 2013-2014 Stefan Seyfried
+	(C) 2009-2011, 2013-2014, 2017 Stefan Seyfried
 
 	License: GPL
 
@@ -74,6 +74,7 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	percWidth = 3 * fm->getMaxDigitWidth()
 		    + fm->getRenderWidth("%"); //100%
 	nameWidth = fontWidth * 17;
+	upmode = false;
 }
 
 CDBoxInfoWidget::~CDBoxInfoWidget()
@@ -134,6 +135,10 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			doLoop = false;
+		}
+		else if (msg == CRCInput::RC_info) {
+			upmode = !upmode;
+			paint();
 		}
 		else
 		{
@@ -388,6 +393,8 @@ void CDBoxInfoWidget::paint()
 	std::string str_now(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
 	struct sysinfo info;
 	sysinfo(&info);
+	if (upmode)
+		info.uptime = time_monotonic() - CNeutrinoApp::getInstance()->getStartTime();
 	now -= info.uptime;
 	std::string str_boot(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
 
