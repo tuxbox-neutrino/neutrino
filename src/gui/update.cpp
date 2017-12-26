@@ -1237,22 +1237,20 @@ int CFlashExpertSetup::showMenu()
 
 	CMenuOptionChooser *m2 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ULDR,   &g_settings.flashupdate_createimage_add_uldr,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
-#ifndef UBOOT_BIN
-	g_settings.flashupdate_createimage_add_u_boot = 0;
-g_settings.flashupdate_createimage_add_env = 0;
-#endif
 #ifdef UBOOT_BIN
 	CMenuOptionChooser *m3 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_U_BOOT, &g_settings.flashupdate_createimage_add_u_boot,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 	CMenuOptionChooser *m4 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ENV,    &g_settings.flashupdate_createimage_add_env,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
-#endif
-#ifndef SPARE_BIN
-g_settings.flashupdate_createimage_add_spare = 0;
+#else
+	g_settings.flashupdate_createimage_add_u_boot = 0;
+	g_settings.flashupdate_createimage_add_env = 0;
 #endif
 #ifdef SPARE_BIN
 	CMenuOptionChooser *m5 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_SPARE,  &g_settings.flashupdate_createimage_add_spare,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+#else
+	g_settings.flashupdate_createimage_add_spare = 0;
 #endif
 	CMenuOptionChooser *m6 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_KERNEL, &g_settings.flashupdate_createimage_add_kernel,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
