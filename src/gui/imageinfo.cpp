@@ -297,7 +297,7 @@ void CImageInfo::InitInfoData()
 		version_string += versionInfo.getDate();
 		version_string += ")";
 	}else
-		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str());
+		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s], internal release cycle [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str(), RELEASE_CYCLE);
 #endif
 	struct utsname uts_info;
 
