@@ -374,12 +374,18 @@ void CInfoViewer::showRecordIcon (const bool show)
 		}
 		else
 		{
-			if (rec_mode == CRecordManager::RECMODE_REC)
-				frameBuffer->paintBoxRel(rec_icon_x, icon_y, rec_icon_w, icon_h, COL_INFOBAR_PLUS_0);
-			else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
-				frameBuffer->paintBoxRel(ts_icon_x, icon_y, ts_icon_w, icon_h, COL_INFOBAR_PLUS_0);
-			else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
-				frameBuffer->paintBoxRel(ts_icon_x, icon_y, ts_icon_w + rec_icon_w + icon_space*2, icon_h, COL_INFOBAR_PLUS_0);
+			int icon_x, icon_w;
+			if (rec_mode == CRecordManager::RECMODE_REC){
+				icon_x = rec_icon_x;
+				icon_w = rec_icon_w;
+			}else if (rec_mode == CRecordManager::RECMODE_TSHIFT){
+				icon_x = ts_icon_x;
+				icon_w = ts_icon_w;
+			}else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT){
+				icon_x = ts_icon_x;
+				icon_w = ts_icon_w + rec_icon_w + icon_space*2;
+			}
+			PaintBoxRel(icon_x, icon_y, icon_w, icon_h, COL_INFOBAR_PLUS_0);
 		}
 	}
 }
