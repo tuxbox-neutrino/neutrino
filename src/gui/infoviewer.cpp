@@ -299,18 +299,19 @@ void CInfoViewer::showRecordIcon (const bool show)
 		int box_w = 0;
 		int box_h = txt_h;
 
-		int icon_space = OFFSET_SHADOW/2;
+		int icon_space = OFFSET_INTER;
 
 		int rec_icon_x = 0, rec_icon_w = 0, rec_icon_h = 0;
 		int ts_icon_x  = 0, ts_icon_w  = 0, ts_icon_h  = 0;
 
 		frameBuffer->getIconSize(rec_icon.c_str(), &rec_icon_w, &rec_icon_h);
 		frameBuffer->getIconSize(ts_icon.c_str(), &ts_icon_w, &ts_icon_h);
-		
+
 		int icon_h = std::max(rec_icon_h, ts_icon_h);
-		box_h = std::max(box_h, icon_h+icon_space*2);
-		
-		int icon_y = box_y + (box_h - icon_h)/2;
+		box_h = std::max(box_h, icon_h);
+		box_h += icon_space;
+
+		int icon_y = box_y + box_h/2 - icon_h/2;
 		int txt_y  = box_y + (box_h + txt_h)/2;
 
 		char records_msg[8];
@@ -320,13 +321,13 @@ void CInfoViewer::showRecordIcon (const bool show)
 			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
 			txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg);
 
-			box_w = rec_icon_w + txt_w + icon_space*5;
-			rec_icon_x = box_x + icon_space*2;
+			box_w = rec_icon_w + txt_w + icon_space*3;
+			rec_icon_x = box_x + icon_space;
 		}
 		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
 		{
-			box_w = ts_icon_w + icon_space*4;
-			ts_icon_x = box_x + icon_space*2;
+			box_w = ts_icon_w + icon_space*2;
+			ts_icon_x = box_x + icon_space;
 		}
 		else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
 		{
@@ -335,9 +336,9 @@ void CInfoViewer::showRecordIcon (const bool show)
 			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
 			txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg);
 
-			box_w = ts_icon_w + rec_icon_w + txt_w + icon_space*7;
-			ts_icon_x = box_x + icon_space*2;
-			rec_icon_x = ts_icon_x + ts_icon_w + icon_space*2;
+			box_w = ts_icon_w + rec_icon_w + txt_w + icon_space*5;
+			ts_icon_x = box_x + icon_space;
+			rec_icon_x = ts_icon_x + ts_icon_w + icon_space;
 		}
 		
 		if (show)
@@ -359,16 +360,16 @@ void CInfoViewer::showRecordIcon (const bool show)
 			
 			if (rec_mode == CRecordManager::RECMODE_REC)
 			{
-				frameBuffer->paintIcon(rec_icon, rec_icon_x, icon_y);
+				paintImage(rec_icon, rec_icon_x, icon_y);
 			}
 			else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
 			{
-				frameBuffer->paintIcon(ts_icon, ts_icon_x, icon_y);
+				paintImage(ts_icon, ts_icon_x, icon_y);
 			}
 			else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
 			{
-				frameBuffer->paintIcon(rec_icon, rec_icon_x, icon_y);
-				frameBuffer->paintIcon(ts_icon, ts_icon_x, icon_y);
+				paintImage(rec_icon, rec_icon_x, icon_y);
+				paintImage(ts_icon, ts_icon_x, icon_y);
 			}
 		}
 		else
