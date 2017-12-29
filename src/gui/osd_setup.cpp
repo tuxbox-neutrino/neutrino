@@ -301,8 +301,6 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (fs_x != g_settings.font_scaling_x || fs_y != g_settings.font_scaling_y) {
 			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", g_settings.font_scaling_x, g_settings.font_scaling_y);
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST | CNeutrinoFonts::FONTSETUP_DYN_FONT);
-			if (CNeutrinoApp::getInstance()->channelList)
-				CNeutrinoApp::getInstance()->channelList->ResetModules(); //force re init of all modules
 		}
 		return res;
 	}
@@ -398,6 +396,10 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 
 	res = showOsdSetup();
+
+	//ensure reset of channellist modules after any changed osd settings
+	if (CNeutrinoApp::getInstance()->channelList)
+		CNeutrinoApp::getInstance()->channelList->ResetModules();
 
 	//return menu_return::RETURN_REPAINT;
 	return res;
