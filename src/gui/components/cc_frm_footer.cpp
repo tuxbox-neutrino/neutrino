@@ -61,7 +61,8 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow )
 {
-	cc_item_type 	= CC_ITEMTYPE_FOOTER;
+	cc_item_type.id 	= CC_ITEMTYPE_FOOTER;
+	cc_item_type.name 	= "cc_footer";
 
 	x	= x_old = x_pos;
 	y	= y_old = y_pos;

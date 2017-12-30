@@ -69,7 +69,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 				bool allow_scale)
 {
 	//CComponents, CComponentsItem
-	cc_item_type 	= CC_ITEMTYPE_PICTURE;
+	cc_item_type.id 	= CC_ITEMTYPE_PICTURE;
+	cc_item_type.name 	= "cc_image_box";
 
 	//CComponents
 	x =	x_old	= x_pos;
@@ -399,7 +400,8 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 
 void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& channelName, bool allow_scale)
 {
-	cc_item_type 	= CC_ITEMTYPE_CHANNEL_LOGO;
+	cc_item_type.id 	= CC_ITEMTYPE_CHANNEL_LOGO;
+	cc_item_type.name 	= "cc_channel_logo_box";
 	channel_name = "";
 	channel_id = 0;
 	alt_pic_name = "";

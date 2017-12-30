@@ -84,7 +84,9 @@ CComponentsScrollBar::CComponentsScrollBar(	const int &x_pos, const int &y_pos, 
 
 void CComponentsScrollBar::initVarSbForm(const int& count, const fb_pixel_t& color_select, const fb_pixel_t& color_passive)
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM_SCROLLBAR;
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_SCROLLBAR;
+	cc_item_type.name 	= "cc_scrollbar";
+
 	fr_thickness	= 0;
 
 	append_x_offset = OFFSET_INNER_MIN;

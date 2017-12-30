@@ -49,7 +49,8 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
+	cc_item_type.id 	= CC_ITEMTYPE_TEXT_INFOBOX;
+	cc_item_type.name 	= "cc_info_box";
 
 	x 		= x_old 	= x_pos;
 	y 		= y_old 	= y_pos;

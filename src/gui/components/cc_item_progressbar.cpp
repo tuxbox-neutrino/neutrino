@@ -54,7 +54,8 @@ CProgressBar::CProgressBar(	const int x_pos,
 				CComponentsForm *parent)
 {
 	//CComponentsItem
-	cc_item_type 	= CC_ITEMTYPE_PROGRESSBAR;
+	cc_item_type.id 	= CC_ITEMTYPE_PROGRESSBAR;
+	cc_item_type.name	="cc_progressbar";
 
 	//CComponents
 	x 		= x_old 	= x_pos;

@@ -70,7 +70,8 @@ void CComponentsFrmChain::initVarChain(	const int& x_pos, const int& y_pos, cons
 					fb_pixel_t& color_body,
 					fb_pixel_t& color_shadow)
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM_CHAIN;
+	cc_item_type.id		= CC_ITEMTYPE_FRM_CHAIN;
+	cc_item_type.name 	= "cc_chain";
 	corner_rad	= 0;
 
 	x 		= x_pos;

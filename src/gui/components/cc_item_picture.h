@@ -209,7 +209,10 @@ class 	CComponentsPictureScalable : public CComponentsPicture
 						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 						int transparent = CFrameBuffer::TM_NONE)
 						: CComponentsPicture(x_pos, y_pos, 0, 0, image_name, parent, shadow_mode, color_frame, color_background, color_shadow, transparent)
-		{cc_item_type 	= CC_ITEMTYPE_PICTURE_SCALABLE;};
+		{
+			cc_item_type.id 	= CC_ITEMTYPE_PICTURE_SCALABLE;
+			cc_item_type.name 	= "cc_scalable_image_box";
+		};
 };
 
 class CComponentsChannelLogo : public CComponentsPicture
@@ -294,7 +297,10 @@ class 	CComponentsChannelLogoScalable : public CComponentsChannelLogo
 						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 						int transparent = CFrameBuffer::TM_BLACK)
 						: CComponentsChannelLogo(x_pos, y_pos, 0, 0, channelName, channelId, parent, shadow_mode, color_frame, color_background, color_shadow, transparent)
-		{cc_item_type 	= CC_ITEMTYPE_CHANNEL_LOGO_SCALABLE;};
+		{
+			cc_item_type.id 	= CC_ITEMTYPE_CHANNEL_LOGO_SCALABLE;
+			cc_item_type.name 	= "cc_scalable_channellogo_box";
+		};
 };
 
 #endif

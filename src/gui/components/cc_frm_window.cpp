@@ -95,7 +95,11 @@ CComponentsWindowMax::CComponentsWindowMax(	const string& caption,
 						fb_pixel_t color_body,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0, caption,
-						iconname, parent, shadow_mode, color_frame, color_body, color_shadow){};
+						iconname, parent, shadow_mode, color_frame, color_body, color_shadow)
+{
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW_MAX;
+	cc_item_type.name 	= "cc_window_max";
+}
 
 CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 						const string& iconname,
@@ -106,7 +110,11 @@ CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0,
 						locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "",
-						iconname, parent, shadow_mode, color_frame, color_body, color_shadow){};
+						iconname, parent, shadow_mode, color_frame, color_body, color_shadow)
+{
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW_MAX;
+	cc_item_type.name 	= "cc_window_max_localized";
+}
 
 void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
@@ -118,7 +126,8 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 					fb_pixel_t color_shadow)
 {
 	//CComponentsForm
-	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW;
+	cc_item_type.name 	= "cc_base_window";
 
 	//using current screen settings for default dimensions,
 	//do use full screen (from osd-settings) if default values for width/height = 0

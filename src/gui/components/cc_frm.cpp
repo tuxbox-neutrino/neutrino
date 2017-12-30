@@ -45,7 +45,8 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 					fb_pixel_t color_shadow)
 					:CComponentsItem(parent)
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM;
+	cc_item_type.id  = CC_ITEMTYPE_FRM;
+	cc_item_type.name= "cc_base_form";
 
 	Init(x_pos, y_pos, w, h, color_frame, color_body, color_shadow);
 	cc_xr 	= x;
@@ -186,7 +187,7 @@ void CComponentsForm::clear()
 
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]){
-			dprintf(DEBUG_DEBUG, "[CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\taddress = %p\n", __func__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i]->getItemType(), v_cc_items[i]);
+			dprintf(DEBUG_DEBUG, "[CComponentsForm]\t[%s-%d] delete form cc-item %d of %d address = %p \033[33m\t type = [%d] [%s]\033[0m\n", __func__, __LINE__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i], v_cc_items[i]->getItemType(), v_cc_items[i]->getItemName().c_str());
 			delete v_cc_items[i];
 			v_cc_items[i] = NULL;
 		}
@@ -198,12 +199,12 @@ void CComponentsForm::clear()
 int CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
-		dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_item_index);
+		dprintf(DEBUG_DEBUG, "[CComponentsForm]\t[%s-%d] try to add cc_Item \033[33m\t type = [%d] [%s]\033[0m to form [%s -> current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_Item->getItemName().c_str(), getItemName().c_str(), cc_item_index);
 
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
 
-		dprintf(DEBUG_DEBUG, "\tadded cc_Item [type %d] to form [current index=%d] \n", cc_Item->getItemType(), cc_item_index);
+		dprintf(DEBUG_DEBUG, "\tadded cc_Item (type = [%d] [%s]  to form [current index=%d] \n", cc_Item->getItemType(), cc_Item->getItemName().c_str(), cc_item_index);
 
 		//assign item index
 		int new_index = genIndex();
@@ -434,9 +435,9 @@ void CComponentsForm::paintCCItems()
 
 		//check item for corrupt position, skip current item if found problems
 		if (ypos > height || xpos > this_w){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined this_w=%d \ndefinied y=%d, defined height=%d \n",
-				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, this_w, ypos, height);
-			if (this->cc_item_type != CC_ITEMTYPE_FRM_CHAIN)
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m WARNING: item position is out of form size:\ndefinied x=%d, defined this_w=%d \ndefinied y=%d, defined height=%d \n",
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), xpos, this_w, ypos, height);
+			if (this->cc_item_type.id != CC_ITEMTYPE_FRM_CHAIN)
 				continue;
 		}
 
@@ -497,8 +498,8 @@ void CComponentsForm::paintCCItems()
 		right_item -= (new_w%2);
 		w_item -= (new_w%2);
 		if (right_item > right_frm){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] this_w is too large, definied width=%d, possible width=%d \n",
-				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m this_w is too large, definied width=%d, possible width=%d \n",
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
 
@@ -511,8 +512,8 @@ void CComponentsForm::paintCCItems()
 		bottom_item -= (new_h%2);
 		h_item -= (new_h%2);
 		if (bottom_item > bottom_frm){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
-			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m height is too large, definied height=%d, possible height=%d \n",
+			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
 

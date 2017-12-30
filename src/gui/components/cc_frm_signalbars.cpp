@@ -51,7 +51,8 @@ CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int
 
 void CSignalBar::initVarSigBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const std::string& sbname, CComponentsForm *parent)
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM_SIGNALBAR;
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_SIGNALBAR;
+	cc_item_type.name 	= "cc_signal_bar";
 
 	corner_rad 	= 0;
 	corner_type 	= 0;

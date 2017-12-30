@@ -53,7 +53,8 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 						int shadow_mode,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM_ICONFORM;
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_ICONFORM;
+	cc_item_type.name 	= "cc_icon_container";
 
 	x 		= x_pos;
 	y 		= y_pos;

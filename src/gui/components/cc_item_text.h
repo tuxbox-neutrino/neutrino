@@ -277,7 +277,8 @@ class CComponentsLabel : public CComponentsText
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_LABEL;
+			cc_item_type.id 	= CC_ITEMTYPE_LABEL;
+			cc_item_type.name	="cc_label_box";
 		};
 
 		CComponentsLabel(	CComponentsForm *parent,
@@ -293,7 +294,8 @@ class CComponentsLabel : public CComponentsText
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_LABEL;
+			cc_item_type.id		= CC_ITEMTYPE_LABEL;
+			cc_item_type.name	="cc_label_box";
 		};
 };
 

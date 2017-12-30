@@ -57,7 +57,8 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 					)
 
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM_CLOCK;
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_CLOCK;
+	cc_item_type.name 	= "cc_clock";
 
 	x = cc_xr = x_old = x_pos;
 	y = cc_yr = y_old = y_pos;

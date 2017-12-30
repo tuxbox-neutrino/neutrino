@@ -249,7 +249,8 @@ class CComponentsButtonRed : public CComponentsButton
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_RED;
+			cc_item_type.name 	= "cc_base_red_button";
 		};
 		CComponentsButtonRed(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -260,7 +261,8 @@ class CComponentsButtonRed : public CComponentsButton
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_RED;
+			cc_item_type.name 	= "cc_base_localized_red_button";
 		};
 };
 
@@ -280,7 +282,8 @@ class CComponentsButtonGreen : public CComponentsButton
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_GREEN;
+			cc_item_type.name 	= "cc_base_green_button";
 
 		};
 		CComponentsButtonGreen(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -292,7 +295,8 @@ class CComponentsButtonGreen : public CComponentsButton
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_GREEN;
+			cc_item_type.name 	= "cc_base_localized_green_button";
 		};
 };
 
@@ -312,7 +316,8 @@ class CComponentsButtonYellow : public CComponentsButton
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_YELLOW;
+			cc_item_type.name 	= "cc_base_yellow_button";
 		};
 		CComponentsButtonYellow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -323,7 +328,8 @@ class CComponentsButtonYellow : public CComponentsButton
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
+			cc_item_type.id		= CC_ITEMTYPE_BUTTON_YELLOW;
+			cc_item_type.name 	= "cc_base_localized_yellow_button";
 		};
 };
 
@@ -343,7 +349,8 @@ class CComponentsButtonBlue : public CComponentsButton
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
+			cc_item_type.id		= CC_ITEMTYPE_BUTTON_BLUE;
+			cc_item_type.name 	= "cc_base_blue_button";
 		};
 		CComponentsButtonBlue(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -354,7 +361,8 @@ class CComponentsButtonBlue : public CComponentsButton
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_BLUE;
+			cc_item_type.name 	= "cc_base_localized_blue_button";
 		};
 };
 

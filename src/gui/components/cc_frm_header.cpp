@@ -88,7 +88,8 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
+	cc_item_type.id		= CC_ITEMTYPE_FRM_HEADER;
+	cc_item_type.name 	= "cc_header";
 	clear();
 	cc_txt_save_screen	= false;
 	x = cc_xr = x_old 	= x_pos;

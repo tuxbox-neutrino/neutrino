@@ -44,7 +44,8 @@ using namespace std;
 //abstract sub class CComponentsItem from CComponents
 CComponentsItem::CComponentsItem(CComponentsForm* parent)
 {
-	cc_item_type 		= CC_ITEMTYPE_GENERIC;
+	cc_item_type.id		= CC_ITEMTYPE_GENERIC;
+	cc_item_type.name	= "cc_base_item";
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
@@ -213,6 +214,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 			}
 		}
 	}
+	dprintf(DEBUG_DEBUG, "\033[1;32m[CComponentsItem]\t[%s - %d], init and paint item type = %d  [%s]...\033[0m\n", __func__, __LINE__, cc_item_type.id, cc_item_type.name.c_str());
 	paintFbItems(do_save_bg);
 }
 
@@ -243,7 +245,7 @@ void CComponentsItem::syncSysColors()
 int CComponentsItem::getItemType()
 {
 	for(int i =0; i< (CC_ITEMTYPES) ;i++){
-		if (i == cc_item_type)
+		if (i == cc_item_type.id)
 			return i;
 	}
 
@@ -328,4 +330,14 @@ void CComponentsItem::setSelected(bool selected, const fb_pixel_t& sel_frame_col
 	fr_thickness = cc_item_selected ? sel_frame_w : frame_w;
 	col_body = cc_item_selected ? sel_body_col : body_col;
 	col_frame = cc_item_selected ? sel_frame_col : frame_col;
+}
+
+void CComponentsItem::setItemName(const std::string& name)
+{
+	cc_item_type.name = name;
+}
+
+std::string CComponentsItem::getItemName()
+{
+	return cc_item_type.name;
 }

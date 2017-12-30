@@ -46,7 +46,8 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 				fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
-	cc_item_type 	= CC_ITEMTYPE_PIP;
+	cc_item_type.id		= CC_ITEMTYPE_PIP;
+	cc_item_type.name	="cc_pip_box";
 
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);

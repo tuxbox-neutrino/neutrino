@@ -41,7 +41,7 @@ class CComponentsItem : public CComponents
 		///see also getIndex(), setIndex()
 		int cc_item_index;
 		///property: define of item type, see cc_types.h for possible types
-		int cc_item_type;
+		cc_type_t cc_item_type;
 		///property: default enabled
 		bool cc_item_enabled;
 		///property: default not selected
@@ -103,7 +103,12 @@ class CComponentsItem : public CComponents
 		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false, const int& fblayer_type = ~CC_FBDATA_TYPES);
 
 		///get the current item type, see attribute cc_item_type above
-		virtual int getItemType();
+		int getItemType();
+		//sets item name
+		void setItemName(const std::string& name);
+		//gets item name
+		std::string getItemName();
+
 		///syncronizes item colors with current color settings if required, NOTE: overwrites internal values!
 		virtual void syncSysColors();
 		
