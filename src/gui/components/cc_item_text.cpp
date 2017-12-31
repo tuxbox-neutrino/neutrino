@@ -208,8 +208,8 @@ bool CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 {
 	if (ct_text != stext || ct_text_mode != mode || ct_font != font_text || ct_col_text != color_text || ct_text_style != style  ){
 		if (ct_text != stext){
-			ct_text = stext;
 			ct_old_text = ct_text;
+			ct_text = stext;
 		}
 		if (ct_text_mode != mode /*|| mode != ~CTextBox::AUTO_WIDTH*/)
 			ct_text_mode = mode;
