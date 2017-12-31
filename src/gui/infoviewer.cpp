@@ -1776,11 +1776,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 				txt_curr_start = new CComponentsTextTransp(NULL, InfoX, CurrInfoY - height, info_time_width, height);
 			else
 				txt_curr_start->setDimensionsAll(InfoX, CurrInfoY - height, info_time_width, height);
-			txt_curr_start->setItemName("txt_curr_start");
-			txt_curr_start->setText(runningStart, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-			if (txt_curr_event->isPainted())
-				txt_curr_event->hide();
-			txt_curr_start->paint(CC_SAVE_SCREEN_YES);
+				txt_curr_start->setText(runningStart, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
+				if (txt_curr_start->isPainted())
+					txt_curr_start->hide();
 		}
 
 		if (runningRest){
