@@ -13,7 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#if 0
 #include <sys/mman.h>
+#endif
 #include <sys/select.h>
 #include <sys/wait.h>
 #include <termios.h>
@@ -110,7 +112,7 @@ struct color_pair_t { uint8_t fg, bg; };
 struct cell_t {
 	const struct glyph_t *glyphp;   /* pointer to glyph */
 	struct color_pair_t color_pair; /* color (fg, bg) */
-	enum char_attr attribute;       /* bold, underscore, etc... */
+	/*enum char_attr*/ int attribute;       /* bold, underscore, etc... */
 	enum glyph_width width;         /* wide char flag: WIDE, NEXT_TO_WIDE, HALF */
 	bool has_pixmap;                /* has sixel pixmap data or not */
 	/*	sixel pixmap data:
@@ -133,10 +135,11 @@ struct charset_t {
 
 struct state_t {   /* for save, restore state */
 	struct point_t cursor;
-	enum term_mode mode;
-	enum char_attr attribute;
+	/*enum term_mode*/ int mode;
+	/*enum char_attr*/ int attribute;
 };
 
+#if 0
 struct sixel_canvas_t {
 	uint8_t *pixmap;
 	struct point_t point;
@@ -145,7 +148,9 @@ struct sixel_canvas_t {
 	uint8_t color_index;
 	uint32_t color_table[COLORS];
 };
+#endif
 
+class CFrameBuffer;
 struct terminal_t {
 	int fd;                                  /* master of pseudo terminal */
 	int width, height;                       /* terminal size (pixel) */
@@ -155,18 +160,21 @@ struct terminal_t {
 	struct point_t cursor;                   /* cursor pos (x, y) */
 	bool *line_dirty;                        /* dirty flag */
 	bool *tabstop;                           /* tabstop flag */
-	enum term_mode mode;                     /* for set/reset mode */
+	/*enum term_mode*/ int mode;                     /* for set/reset mode */
 	bool wrap_occured;                       /* whether auto wrap occured or not */
 	struct state_t state;                    /* for restore */
 	struct color_pair_t color_pair;          /* color (fg, bg) */
-	enum char_attr attribute;                /* bold, underscore, etc... */
+	/*enum char_attr*/int attribute;                /* bold, underscore, etc... */
 	struct charset_t charset;                /* store UTF-8 byte stream */
 	struct esc_t esc;                        /* store escape sequence */
 	uint32_t virtual_palette[COLORS];        /* virtual color palette: always 32bpp */
 	bool palette_modified;                   /* true if palette changed by OSC 4/104 */
 	const struct glyph_t *glyph[UCS2_CHARS]; /* array of pointer to glyphs[] */
+#if 0
 	struct glyph_t drcs[DRCS_CHARS];         /* DRCS chars */
 	struct sixel_canvas_t sixel;
+#endif
+	CFrameBuffer *cfb;
 };
 
 struct parm_t { /* for parse_arg() */
