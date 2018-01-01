@@ -13,11 +13,12 @@ enum fb_visual_t {
 	YAFT_FB_VISUAL_UNKNOWN,
 };
 
+struct bitfield_t {
+	int length;
+	int offset;
+};
 struct fb_info_t {
-	struct bitfield_t {
-		int length;
-		int offset;
-	} red, green, blue;
+	struct bitfield_t red, green, blue;
 	int width, height;       /* display resolution */
 	long screen_size;        /* screen data size (byte) */
 	int line_length;         /* line length (byte) */
@@ -29,7 +30,9 @@ struct fb_info_t {
 };
 
 /* os dependent typedef/include */
-#if defined(__linux__)
+#if 1
+    #include "neutrinofb.h"
+#elif defined(__linux__)
     #include "linux.h"
 #elif defined(__FreeBSD__)
     #include "freebsd.h"
@@ -43,12 +46,13 @@ struct framebuffer_t {
 	int fd;                        /* file descriptor of framebuffer */
 	uint8_t *fp;                   /* pointer of framebuffer */
 	uint8_t *buf;                  /* copy of framebuffer */
-	uint8_t *wall;                 /* buffer for wallpaper */
+//	uint8_t *wall;                 /* buffer for wallpaper */
 	uint32_t real_palette[COLORS]; /* hardware specific color palette */
 	struct fb_info_t info;
-	cmap_t *cmap, *cmap_orig;
+//	cmap_t *cmap, *cmap_orig;
 };
 
+#if 0
 /* common framebuffer functions */
 uint8_t *load_wallpaper(uint8_t *fp, long screen_size)
 {
@@ -152,6 +156,7 @@ bool cmap_init(int fd, struct fb_info_t *info, cmap_t *cmap, int colors, int len
 
 	return true;
 }
+#endif
 
 static inline uint32_t color2pixel(struct fb_info_t *info, uint32_t color)
 {
@@ -170,7 +175,7 @@ static inline uint32_t color2pixel(struct fb_info_t *info, uint32_t color)
 			+ (b << info->blue.offset);
 }
 
-
+#if 0
 bool init_truecolor(struct fb_info_t *info, cmap_t **cmap, cmap_t **cmap_orig)
 {
 	switch(info->bits_per_pixel) {
@@ -258,6 +263,7 @@ cmap_init_err:
 	cmap_die(*cmap_orig);
 	return false;
 }
+#endif
 
 void fb_print_info(struct fb_info_t *info)
 {
@@ -307,8 +313,10 @@ bool fb_init(struct framebuffer_t *fb)
 	fb->fp   = (uint8_t *) emmap(0, fb->info.screen_size,
 				PROT_WRITE | PROT_READ, MAP_SHARED, fb->fd, 0);
 	fb->buf  = (uint8_t *) ecalloc(1, fb->info.screen_size);
+#if 0
 	fb->wall = ((env = getenv("YAFT")) && strstr(env, "wall")) ?
 				load_wallpaper(fb->fp, fb->info.screen_size): NULL;
+#endif
 
 	/* error check */
 	if (fb->fp == MAP_FAILED || !fb->buf)
@@ -321,12 +329,14 @@ bool fb_init(struct framebuffer_t *fb)
 	}
 
 	if (fb->info.visual == YAFT_FB_VISUAL_TRUECOLOR) {
+#if 0
 		if (!init_truecolor(&fb->info, &fb->cmap, &fb->cmap_orig))
 			goto fb_init_failed;
 	} else if (fb->info.visual == YAFT_FB_VISUAL_DIRECTCOLOR
 		|| fb->info.visual == YAFT_FB_VISUAL_PSEUDOCOLOR) {
 		if (!init_indexcolor(fb->fd, &fb->info, &fb->cmap, &fb->cmap_orig))
 			goto fb_init_failed;
+#endif
 	} else {
 		/* TODO: support mono visual */
 		logging(ERROR, "unsupport framebuffer visual\n");
@@ -342,7 +352,9 @@ bool fb_init(struct framebuffer_t *fb)
 fb_init_failed:
 allocate_failed:
 	free(fb->buf);
+#if 0
 	free(fb->wall);
+#endif
 	if (fb->fp != MAP_FAILED)
 		emunmap(fb->fp, fb->info.screen_size);
 set_fbinfo_failed:
@@ -352,12 +364,14 @@ set_fbinfo_failed:
 
 void fb_die(struct framebuffer_t *fb)
 {
+#if 0
 	cmap_die(fb->cmap);
 	if (fb->cmap_orig) {
 		put_cmap(fb->fd, fb->cmap_orig);
 		cmap_die(fb->cmap_orig);
 	}
 	free(fb->wall);
+#endif
 	free(fb->buf);
 	emunmap(fb->fp, fb->info.screen_size);
 	eclose(fb->fd);
@@ -432,8 +446,10 @@ static inline void draw_line(struct framebuffer_t *fb, struct terminal_t *term, 
 				/* set color palette */
 				if (cellp->glyphp->bitmap[h] & (0x01 << (bdf_padding + w)))
 					pixel = fb->real_palette[color_pair.fg];
+#if 0
 				else if (fb->wall && color_pair.bg == DEFAULT_BG) /* wallpaper */
 					memcpy(&pixel, fb->wall + pos, fb->info.bytes_per_pixel);
+#endif
 				else
 					pixel = fb->real_palette[color_pair.bg];
 
