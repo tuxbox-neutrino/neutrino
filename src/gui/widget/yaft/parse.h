@@ -1,4 +1,5 @@
 /* See LICENSE for licence details. */
+#if 0
 void (*ctrl_func[CTRL_CHARS])(struct terminal_t *term) = {
 	[BS]  = bs,
 	[HT]  = tab,
@@ -56,6 +57,7 @@ void (*csi_func[ESC_CHARS])(struct terminal_t *term, struct parm_t *) = {
 	*/
 	['`'] = curs_col,
 };
+#endif
 
 /* ctr char/esc sequence/charset function */
 void control_character(struct terminal_t *term, uint8_t ch)
@@ -71,8 +73,20 @@ void control_character(struct terminal_t *term, uint8_t ch)
 
 	logging(DEBUG, "ctl: %s\n", ctrl_char[ch]);
 
+	switch(ch) {
+	case BS:  bs(term); break;
+	case HT:  tab(term); break;
+	case LF:  nl(term); break;
+	case VT:  nl(term); break;
+	case FF:  nl(term); break;
+	case CR:  cr(term); break;
+	case ESC: enter_esc(term); break;
+	default: break;
+	}
+#if 0
 	if (ctrl_func[ch])
 		ctrl_func[ch](term);
+#endif
 }
 
 void esc_sequence(struct terminal_t *term, uint8_t ch)
@@ -81,8 +95,29 @@ void esc_sequence(struct terminal_t *term, uint8_t ch)
 
 	logging(DEBUG, "esc: ESC %s\n", term->esc.buf);
 
+#if 0
 	if (strlen(term->esc.buf) == 1 && esc_func[ch])
 		esc_func[ch](term);
+#endif
+	if (strlen(term->esc.buf) == 1)
+	{
+		switch(ch) {
+		case '7': save_state(term);	break;
+		case '8': restore_state(term);	break;
+		case 'D': nl(term);		break;
+		case 'E': crnl(term);		break;
+		case 'H': set_tabstop(term);	break;
+		case 'M': reverse_nl(term);	break;
+#if 0
+		case 'P': enter_dcs(term);	break;
+#endif
+		case 'Z': identify(term);	break;
+		case '[': enter_csi(term);	break;
+		case ']': enter_osc(term);	break;
+		case 'c': ris(term);		break;
+		default: break;
+		}
+	}
 
 	/* not reset if csi/osc/dcs seqence */
 	if (ch == '[' || ch == ']' || ch == 'P')
@@ -102,8 +137,44 @@ void csi_sequence(struct terminal_t *term, uint8_t ch)
 	reset_parm(&parm);
 	parse_arg(term->esc.buf + 1, &parm, ';', isdigit); /* skip '[' */
 
+#if 0
 	if (csi_func[ch])
 		csi_func[ch](term, &parm);
+#endif
+	switch (ch) {
+	case '@': insert_blank(term, &parm);	break;
+	case 'A': curs_up(term, &parm);		break;
+	case 'B': curs_down(term, &parm);	break;
+	case 'C': curs_forward(term, &parm);	break;
+	case 'D': curs_back(term, &parm);	break;
+	case 'E': curs_nl(term, &parm);		break;
+	case 'F': curs_pl(term, &parm);		break;
+	case 'G': curs_col(term, &parm);	break;
+	case 'H': curs_pos(term, &parm);	break;
+	case 'J': erase_display(term, &parm);	break;
+	case 'K': erase_line(term, &parm);	break;
+	case 'L': insert_line(term, &parm);	break;
+	case 'M': delete_line(term, &parm);	break;
+	case 'P': delete_char(term, &parm);	break;
+	case 'X': erase_char(term, &parm);	break;
+	case 'a': curs_forward(term, &parm);	break;
+	case 'c': device_attribute(term, &parm);break;
+	case 'd': curs_line(term, &parm);	break;
+	case 'e': curs_down(term, &parm);	break;
+	case 'f': curs_pos(term, &parm);	break;
+	case 'g': clear_tabstop(term, &parm);	break;
+	case 'h': set_mode(term, &parm);	break;
+	case 'l': reset_mode(term, &parm);	break;
+	case 'm': set_attr(term, &parm);	break;
+	case 'n': status_report(term, &parm);	break;
+	case 'r': set_margin(term, &parm);	break;
+	/* XXX: not implemented because these sequences conflict DECSLRM/DECSHTS
+	case 's': sco_save_state(term, &parm);	break;
+	case 'u': sco_restore_state(term, &parm); break;
+	*/
+	case '`': curs_col(term, &parm);	break;
+	default: break;
+	}
 
 	reset_esc(term);
 }
@@ -153,6 +224,7 @@ void osc_sequence(struct terminal_t *term, uint8_t ch)
 	reset_esc(term);
 }
 
+#if 0
 void dcs_sequence(struct terminal_t *term, uint8_t ch)
 {
 	char *cp;
@@ -183,6 +255,7 @@ void dcs_sequence(struct terminal_t *term, uint8_t ch)
 
 	reset_esc(term);
 }
+#endif
 
 void utf8_charset(struct terminal_t *term, uint8_t ch)
 {
@@ -291,9 +364,11 @@ void parse(struct terminal_t *term, uint8_t *buf, int size)
 		} else if (term->esc.state == STATE_OSC) {
 			if (push_esc(term, ch))
 				osc_sequence(term, ch);
+#if 0
 		} else if (term->esc.state == STATE_DCS) {
 			if (push_esc(term, ch))
 				dcs_sequence(term, ch);
+#endif
 		}
 	}
 }
