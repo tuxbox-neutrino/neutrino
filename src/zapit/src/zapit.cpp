@@ -2389,8 +2389,10 @@ void CZapit::leaveStandby(void)
 	}
 	standby = false;
 	if (current_channel) {
+#if !HAVE_ARM_HARDWARE
 		/* tune channel, with stopped playback to not bypass the parental PIN check */
 		ZapIt(live_channel_id, false, false);
+#endif
 		if (IS_WEBCHAN(live_channel_id)) {
 			CZapitChannel* newchannel = CServiceManager::getInstance()->FindChannel(last_channel_id);
 			CFrontend * fe = newchannel ? CFEManager::getInstance()->allocateFE(newchannel) : NULL;
