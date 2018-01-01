@@ -1,0 +1,139 @@
+## 2012-06-19
+-	version 0.1.0
+-	initial release
+
+## 2012-06-19
+-	version 0.1.1
+-	bug fix
+
+## 2012-06-20
+-	version 0.1.2
+-	bug fix
+
+## 2012-06-20
+-	version 0.1.3
+-	bug fix
+
+## 2012-06-21
+-	version 0.1.4
+-	add eat_newline_glitch (xel)
+-	remove auto_right_margin (bw)
+-	remove OSC 4 (ccc, initc)
+
+## 2012-06-24
+-	version 0.1.5
+-	change fonts format
+-	fix glyph drawing
+-	change effects of BOLD and REVERSE
+
+## 2012-06-29
+-	version 0.1.6
+-	support more than one font
+-	support glyph alias
+
+## 2012-10-06
+-	version 0.1.7
+-	support following framebuffer types:
+	-	15/16/24/32bpp true color (and maybe direct color)
+	-	8bpp pseudo color
+
+## 2012-10-17
+-	version 0.1.8
+-	add some opitons
+	-	yaft reads environment value, YAFT
+		-	wall: display wallpaper
+		-	w=N: set terminal width (pixel)
+		-	h=N: set terminal height (pixel)
+		-	x=N: set x offset
+		-	y=N: set y offset
+
+~~~
+$ export YAFT="wall w=640 h=384 x=32 y=32"; yaft
+~~~
+
+## 2012-10-18
+-	version 0.1.9
+-	add some codes related to virtual console
+-	remove all optios without "YAFT=wall"
+
+## 2012-11-09
+-	version 0.2.0
+-	support BDF
+
+~~~
+$ ./mkfont alias-file your/favorite/bdf > glyph.h
+$ make yaft
+~~~
+
+## 2012-11-30
+-	version 0.2.1
+-	bug fix
+	-	single CSI u (not following CSI s) causes Segmentation fault (reported by saitoha ([@kefir_]))
+
+[@kefir_]: http://saitoha.github.com/
+
+## 2012-12-02
+-	version 0.2.2
+-	improve UTF-8 parser (valid for [UTF-8 decoder capability and stress test])
+-	bug fix
+	-	not working glyph substitution
+
+[UTF-8 decoder capability and stress test]: http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
+
+## 2012-12-19
+-	version 0.2.3
+-	bug fix
+	-	wrong behavior of bce (ED, EL, DL, IL, ICH, DCH, ECH) (reported by IWAMOTO Kouichi ([@ttdoda]))
+
+[@ttdoda]: http://doda.teraterm.org/whoami.xhtm
+
+## 2014-03-07
+-	version 0.2.4
+-	add some parameters in conf.h
+	- ROTATE: NORMAL or CLOCKWISE or COUNTER_CLOCKWISE or UPSIDE_DOWN
+	- LAZY_DRAW (reduce drawing)
+	- BACKGROUND_DRAW (after vt switch, continue drawing)
+
+## 2014-03-24
+-	version 0.2.5
+-	remove ROTATE, LAZY_DRAW, BACKGROUND_DRAW options
+-	add some environment options
+		-	rotate: clockwise (cw), counter_clockwise (ccw), upside_down (ud)
+		-	background drawing: wallpaper (wall)
+		ex) $ YAFT="wall cw ccw ud" yaft
+		-	framebuffer device:
+		ex) $ FRAMEBUFFER="/dev/fb1" yaft
+-	add OSC4/OSC104/OSC8900 (glyph width report)
+		(ref: http://uobikiemukot.github.io/yaft/glyph_width_report.html)
+
+## 2014-05-16
+-	version 0.2.6
+-	remove rotate option
+-	support glyph width report rev.3
+	(ref: http://uobikiemukot.github.io/yaft/glyph_width_report.html)
+-	support DRCS/DRCSMMv1
+-	bug fix
+	-	never refresh cmap at vt switch (8bpp mode)
+
+## 2014-05-18
+-	version 0.2.7
+-	support xim (yaftx)
+
+## 2014-08-27
+-	version 0.2.8
+-	support sixel
+-	support copy/paste (yaftx)
+-	support NetBSD/OpenBSD wscons
+-	refer SHELL environment variable
+-	remove WALLPAPER option (use YAFT="wall" environment variable)
+-	add man page
+
+## 2015-07-26
+-	version 0.2.8
+-	rewrite framebuffer code
+	-	support direct color
+-	add some new options (conf.h)
+	VT_CONTROL     : don't handle vt-switching (vt-switching only works in linux)
+	FORCE_TEXT_MODE: need this option for switching from X to yaft
+-	various bug fixes
+	-	mkfont_bdf was broken (not affect SUBSTITUTE_WIDE/REPLACEMENT_CHAR)
