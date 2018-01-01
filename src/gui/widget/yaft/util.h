@@ -75,6 +75,7 @@ int efclose(FILE *fp)
 	return ret;
 }
 
+#if 0
 void *emmap(void *addr, size_t len, int prot, int flag, int fd, off_t offset)
 {
 	void *fp;
@@ -96,6 +97,7 @@ int emunmap(void *ptr, size_t len)
 
 	return ret;
 }
+#endif
 
 void *ecalloc(size_t nmemb, size_t size)
 {
