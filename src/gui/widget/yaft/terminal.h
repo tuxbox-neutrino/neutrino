@@ -53,7 +53,7 @@ int set_cell(struct terminal_t *term, int y, int x, const struct glyph_t *glyphp
 	}
 
 	cell.attribute  = term->attribute;
-	cell.width      = glyphp->width;
+	cell.width      = (glyph_width)glyphp->width;
 	cell.has_pixmap = false;
 
 	cellp    = &term->cells[y][x];
@@ -170,6 +170,7 @@ void set_cursor(struct terminal_t *term, int y, int x)
 	term->wrap_occured = false;
 }
 
+#if 0
 const struct glyph_t *drcs_glyph(struct terminal_t *term, uint32_t code)
 {
 	/* DRCSMMv1
@@ -188,6 +189,7 @@ const struct glyph_t *drcs_glyph(struct terminal_t *term, uint32_t code)
 	else
 		return term->glyph[SUBSTITUTE_HALF];
 }
+#endif
 
 void addch(struct terminal_t *term, uint32_t code)
 {
@@ -201,7 +203,10 @@ void addch(struct terminal_t *term, uint32_t code)
 	if (width <= 0)                                /* zero width: not support comibining character */
 		return;
 	else if (0x100000 <= code && code <= 0x10FFFD) /* unicode private area: plane 16 (DRCSMMv1) */
+#if 0
 		glyphp = drcs_glyph(term, code);
+#endif
+		glyphp = term->glyph[SUBSTITUTE_HALF];
 	else if (code >= UCS2_CHARS                    /* yaft support only UCS2 */
 		|| term->glyph[code] == NULL           /* missing glyph */
 		|| term->glyph[code]->width != width)  /* width unmatch */
@@ -234,7 +239,7 @@ bool push_esc(struct terminal_t *term, uint8_t ch)
 	if ((term->esc.bp - term->esc.buf) >= term->esc.size) { /* buffer limit */
 		logging(DEBUG, "escape sequence length >= %d, term.esc.buf reallocated\n", term->esc.size);
 		offset = term->esc.bp - term->esc.buf;
-		term->esc.buf = erealloc(term->esc.buf, term->esc.size * 2);
+		term->esc.buf = (char *)erealloc(term->esc.buf, term->esc.size * 2);
 		term->esc.bp  = term->esc.buf + offset;
 		term->esc.size *= 2;
 	}
@@ -335,7 +340,9 @@ void term_die(struct terminal_t *term)
 	free(term->line_dirty);
 	free(term->tabstop);
 	free(term->esc.buf);
+#if 0
 	free(term->sixel.pixmap);
+#endif
 
 	for (int i = 0; i < term->lines; i++)
 		free(term->cells[i]);
@@ -360,14 +367,16 @@ bool term_init(struct terminal_t *term, int width, int height)
 	term->line_dirty   = (bool *) ecalloc(term->lines, sizeof(bool));
 	term->tabstop      = (bool *) ecalloc(term->cols, sizeof(bool));
 	term->esc.buf      = (char *) ecalloc(1, term->esc.size);
+#if 0
 	term->sixel.pixmap = (uint8_t *) ecalloc(width * height, BYTES_PER_PIXEL);
+#endif
 
 	term->cells        = (struct cell_t **) ecalloc(term->lines, sizeof(struct cell_t *));
 	for (int i = 0; i < term->lines; i++)
 		term->cells[i] = (struct cell_t *) ecalloc(term->cols, sizeof(struct cell_t));
 
 	if (!term->line_dirty || !term->tabstop || !term->cells
-		|| !term->esc.buf || !term->sixel.pixmap) {
+		|| !term->esc.buf /*|| !term->sixel.pixmap*/) {
 		term_die(term);
 		return false;
 	}
