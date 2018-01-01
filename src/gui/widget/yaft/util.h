@@ -7,7 +7,7 @@ enum loglevel_t {
 	FATAL,
 };
 
-void logging(enum loglevel_t loglevel, char *format, ...)
+void logging(int loglevel, const char *format, ...)
 {
 	va_list arg;
 	static const char *loglevel2str[] = {
@@ -110,13 +110,13 @@ void *ecalloc(size_t nmemb, size_t size)
 
 void *erealloc(void *ptr, size_t size)
 {
-	void *new;
+	void *p;
 	errno = 0;
 
-	if ((new = realloc(ptr, size)) == NULL)
+	if ((p = realloc(ptr, size)) == NULL)
 		logging(ERROR, "realloc: %s\n", strerror(errno));
 
-	return new;
+	return p;
 }
 
 int eselect(int maxfd, fd_set *readfds, fd_set *writefds, fd_set *errorfds, struct timeval *tv)
