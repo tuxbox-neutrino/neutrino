@@ -1,34 +1,31 @@
-/* See LICENSE for licence details. */
-#include <linux/fb.h>
-#include <linux/vt.h>
-#include <linux/kd.h>
-
-typedef struct fb_cmap cmap_t;
+/*
+ * neutrino specific framebuffer stuff for yaft framebuffer terminal
+ * (C) 2018 Stefan Seyfried
+ * License: GPL-2.0
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * derived from yaft/fb/linux.h,
+ * original code
+ * Copyright (c) 2012 haru <uobikiemukot at gmail dot com>
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to permit
+ * persons to whom the Software is furnished to do so, subject to the
+ * following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ */
+#include <driver/framebuffer.h>
 
 enum {
 	CMAP_COLOR_LENGTH = sizeof(__u16) * BITS_PER_BYTE,
 };
-
-/* os specific ioctl */
-void alloc_cmap(cmap_t *cmap, int colors)
-{
-	cmap->start  = 0;
-	cmap->len    = colors;
-	cmap->red    = (__u16 *) ecalloc(colors, sizeof(__u16));
-	cmap->green  = (__u16 *) ecalloc(colors, sizeof(__u16));
-	cmap->blue   = (__u16 *) ecalloc(colors, sizeof(__u16));
-	cmap->transp = NULL;
-}
-
-int put_cmap(int fd, cmap_t *cmap)
-{
-	return ioctl(fd, FBIOPUTCMAP, cmap);
-}
-
-int get_cmap(int fd, cmap_t *cmap)
-{
-	return ioctl(fd, FBIOGETCMAP, cmap);
-}
 
 /* initialize struct fb_info_t */
 void set_bitfield(struct fb_var_screeninfo *vinfo,
@@ -65,11 +62,11 @@ enum fb_visual_t set_visual(__u32 visual)
 		return YAFT_FB_VISUAL_UNKNOWN;
 }
 
-bool set_fbinfo(int fd, struct fb_info_t *info)
+bool set_fbinfo(int /*fd*/, struct fb_info_t *info)
 {
 	struct fb_fix_screeninfo finfo;
 	struct fb_var_screeninfo vinfo;
-
+#if 0
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
 		logging(ERROR, "ioctl: FBIOGET_FSCREENINFO failed\n");
 		return false;
@@ -79,12 +76,20 @@ bool set_fbinfo(int fd, struct fb_info_t *info)
 		logging(ERROR, "ioctl: FBIOGET_VSCREENINFO failed\n");
 		return false;
 	}
+#endif
+	struct fb_var_screeninfo *var = info->cfb->getScreenInfo();
+	memcpy(&vinfo, var, sizeof(struct fb_var_screeninfo));
+	memset(&finfo, 0, sizeof(struct fb_fix_screeninfo));
+	finfo.line_length = info->cfb->getStride(); // * (vinfo.bits_per_pixel / 8);
+	finfo.visual = FB_VISUAL_TRUECOLOR;
+	finfo.type   = FB_TYPE_PACKED_PIXELS;
+	strcpy(finfo.id, "neutrino FB");
 
 	set_bitfield(&vinfo, &info->red, &info->green, &info->blue);
 
-	info->width  = vinfo.xres;
-	info->height = vinfo.yres;
-	info->screen_size = finfo.smem_len;
+	info->width  = info->cfb->getScreenWidth();  //vinfo.xres;
+	info->height = info->cfb->getScreenHeight(); //vinfo.yres;
+	info->screen_size = finfo.line_length * info->height; //vinfo.yres;
 	info->line_length = finfo.line_length;
 
 	info->bits_per_pixel  = vinfo.bits_per_pixel;
@@ -96,8 +101,10 @@ bool set_fbinfo(int fd, struct fb_info_t *info)
 	/* check screen [xy]offset and initialize because linux console changes these values */
 	if (vinfo.xoffset != 0 || vinfo.yoffset != 0) {
 		vinfo.xoffset = vinfo.yoffset = 0;
+#if 0
 		if (ioctl(fd, FBIOPUT_VSCREENINFO, &vinfo))
 			logging(WARN, "couldn't reset offset (x:%d y:%d)\n", vinfo.xoffset, vinfo.yoffset);
+#endif
 	}
 
 	return true;
