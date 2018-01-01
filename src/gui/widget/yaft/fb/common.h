@@ -1,5 +1,27 @@
-/* See LICENSE for licence details. */
-/* common framebuffer struct/enum */
+/*
+ * common framebuffer struct/enum
+ * for yaft framebuffer terminal
+ * (C) 2018 Stefan Seyfried
+ * License: GPL-2.0
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * original yaft code
+ * Copyright (c) 2012 haru <uobikiemukot at gmail dot com>
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to permit
+ * persons to whom the Software is furnished to do so, subject to the
+ * following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ */
+
 enum fb_type_t {
 	YAFT_FB_TYPE_PACKED_PIXELS = 0,
 	YAFT_FB_TYPE_PLANES,
@@ -17,6 +39,7 @@ struct bitfield_t {
 	int length;
 	int offset;
 };
+class CFrameBuffer;
 struct fb_info_t {
 	struct bitfield_t red, green, blue;
 	int width, height;       /* display resolution */
@@ -27,6 +50,7 @@ struct fb_info_t {
 	enum fb_type_t type;
 	enum fb_visual_t visual;
 	int reserved;            /* os specific data */
+	CFrameBuffer *cfb;
 };
 
 /* os dependent typedef/include */
@@ -171,6 +195,7 @@ static inline uint32_t color2pixel(struct fb_info_t *info, uint32_t color)
 	b = b >> (BITS_PER_RGB - info->blue.length);
 
 	return (r << info->red.offset)
+		+ (0xff << 24) /* transparency */
 			+ (g << info->green.offset)
 			+ (b << info->blue.offset);
 }
@@ -293,34 +318,42 @@ void fb_print_info(struct fb_info_t *info)
 bool fb_init(struct framebuffer_t *fb)
 {
 	extern const uint32_t color_list[COLORS]; /* defined in color.h */
+#if 0
 	extern const char *fb_path;               /* defined in conf.h */
 	const char *path;
 	char *env;
-
 	/* open framebuffer device: check FRAMEBUFFER env at first */
 	path = ((env = getenv("FRAMEBUFFER")) == NULL) ? fb_path: env;
 	if ((fb->fd = eopen(path, O_RDWR)) < 0)
 		return false;
+#endif
 
+	fb->fp = (uint8_t *)fb->info.cfb->getFrameBufferPointer();
+	int xstart = fb->info.cfb->getScreenX();
+	int ystart = fb->info.cfb->getScreenY();
 	/* os dependent initialize */
 	if (!set_fbinfo(fb->fd, &fb->info))
-		goto set_fbinfo_failed;
+		return false; //goto set_fbinfo_failed;
+
+	fb->fp += (xstart * fb->info.bytes_per_pixel + ystart * fb->info.line_length);
 
 	if (VERBOSE)
 		fb_print_info(&fb->info);
 
+#if 0
 	/* allocate memory */
 	fb->fp   = (uint8_t *) emmap(0, fb->info.screen_size,
 				PROT_WRITE | PROT_READ, MAP_SHARED, fb->fd, 0);
+#endif
 	fb->buf  = (uint8_t *) ecalloc(1, fb->info.screen_size);
 #if 0
 	fb->wall = ((env = getenv("YAFT")) && strstr(env, "wall")) ?
 				load_wallpaper(fb->fp, fb->info.screen_size): NULL;
-#endif
 
 	/* error check */
 	if (fb->fp == MAP_FAILED || !fb->buf)
 		goto allocate_failed;
+#endif
 
 	if (fb->info.type != YAFT_FB_TYPE_PACKED_PIXELS) {
 		/* TODO: support planes type */
@@ -350,15 +383,15 @@ bool fb_init(struct framebuffer_t *fb)
 	return true;
 
 fb_init_failed:
-allocate_failed:
+//allocate_failed:
 	free(fb->buf);
 #if 0
 	free(fb->wall);
-#endif
 	if (fb->fp != MAP_FAILED)
 		emunmap(fb->fp, fb->info.screen_size);
 set_fbinfo_failed:
 	eclose(fb->fd);
+#endif
 	return false;
 }
 
@@ -373,9 +406,11 @@ void fb_die(struct framebuffer_t *fb)
 	free(fb->wall);
 #endif
 	free(fb->buf);
+#if 0
 	emunmap(fb->fp, fb->info.screen_size);
 	eclose(fb->fd);
 	//fb_release(fb->fd, &fb->info); /* os specific */
+#endif
 }
 
 static inline void draw_sixel(struct framebuffer_t *fb, int line, int col, uint8_t *pixmap)
@@ -482,6 +517,7 @@ void refresh(struct framebuffer_t *fb, struct terminal_t *term)
 			fb->real_palette[i] = color2pixel(&fb->info, term->virtual_palette[i]);
 	}
 
+	logging(DEBUG,"%s: mode %x cur: %x cursor.y %d\n", __func__, term->mode, MODE_CURSOR, term->cursor.y);
 	if (term->mode & MODE_CURSOR)
 		term->line_dirty[term->cursor.y] = true;
 
