@@ -2765,11 +2765,9 @@ void CNeutrinoApp::RealRun()
 				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 					CRecordManager::getInstance()->exec(NULL, "Record");
 			}
-#if 0
 			else if ((mode == NeutrinoModes::mode_webtv) && msg == (neutrino_msg_t) g_settings.mpkey_subtitle) {
 				CMoviePlayerGui::getInstance(true).selectSubtitle();
 			}
-#endif
 			/* after sensitive key bind, check user menu */
 			else if (usermenu.showUserMenu(msg)) {
 			}
@@ -3127,12 +3125,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 		return messages_return::handled;
 	}
-#if 0
 	if (mode == NeutrinoModes::mode_webtv && msg == NeutrinoMessages::EVT_SUBT_MESSAGE) {
 		CMoviePlayerGui::getInstance(true).showSubtitle(data);
 		return messages_return::handled;
 	}
-#endif
 	if (msg == NeutrinoMessages::EVT_AUTO_SET_VIDEOSYSTEM) {
 		printf(">>>>>[CNeutrinoApp::%s:%d] Receive EVT_AUTO_SET_VIDEOSYSTEM message\n", __func__, __LINE__);
 		COsdHelpers *coh = COsdHelpers::getInstance();
@@ -4842,10 +4838,8 @@ void CNeutrinoApp::StopSubtitles()
 		tuxtx_pause_subtitle(true);
 		frameBuffer->paintBackground();
 	}
-#if 0
 	if (mode == NeutrinoModes::mode_webtv)
 		CMoviePlayerGui::getInstance(true).clearSubtitle(true);
-#endif
 }
 
 void CNeutrinoApp::StartSubtitles(bool show)
@@ -4855,10 +4849,8 @@ void CNeutrinoApp::StartSubtitles(bool show)
 		return;
 	dvbsub_start(0);
 	tuxtx_pause_subtitle(false);
-#if 0
 	if (mode == NeutrinoModes::mode_webtv)
 		CMoviePlayerGui::getInstance(true).clearSubtitle(false);
-#endif
 }
 
 void CNeutrinoApp::SelectSubtitles()
