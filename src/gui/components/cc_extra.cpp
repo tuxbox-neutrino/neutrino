@@ -101,7 +101,7 @@ bool paintTextBoxRel(	const string& text,
 	return box.isPainted();
 }
 
-bool paintImage(	const std::string& image_name,
+bool paintImage(	const std::string& Image,
 			const int& x,
 			const int& y,
 			const int& dx,
@@ -114,7 +114,8 @@ bool paintImage(	const std::string& image_name,
 			int shadow_mode,
 			const fb_pixel_t& color_shadow)
 {
-	CComponentsPicture box( x, y, dx, dy, image_name, NULL, shadow_mode, color_frame, color_body, color_shadow, transparent);
+	std::string image = (dx > 0 || dy > 0) ? CFrameBuffer::getInstance()->getIconPath(Image) : Image;
+	CComponentsPicture box( x, y, dx, dy, image, NULL, shadow_mode, color_frame, color_body, color_shadow, transparent);
 	box.doPaintBg(color_body !=0);
 	box.setCorner(radius, corner_type);
 	box.paint(CC_SAVE_SCREEN_NO);

@@ -208,8 +208,10 @@ bool paintTextBoxRel(	const std::string& text,
 			int shadow_mode = CC_SHADOW_OFF,
 			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
 
-/** 	Paint an image on screen.
-*	@param[in] std::string& 		full path or filename
+/** 	Paints an image on screen with defined position. If no dimensions are defined, this method will try to paint an image as icon without any scale.\n
+*	If an dimension is defined it will be try to scale the image.\n
+*	Default behavior is paint an icon on screen like known method paintIcon() in class CFrameBuffer.
+*	@param[in] std::string& 		full path to image file or icon filename without file extension (e.g. .png)
 *	@param[in] x 				position
 *	@param[in] y 				position
 *	@param[in] dx 				witdh, default = 0 (no scale)
@@ -261,7 +263,7 @@ bool paintTextBoxRel(	const std::string& text,
 *		@li driver/framebuffer.h
 *		@li driver/colorgradient.h
 */
-bool paintImage(	const std::string& image_name,
+bool paintImage(	const std::string& Image,
 			const int& x,
 			const int& y,
 			const int& dx = 0,
@@ -273,4 +275,5 @@ bool paintImage(	const std::string& image_name,
 			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 			int shadow_mode = CC_SHADOW_OFF,
 			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
+
 #endif
