@@ -35,11 +35,6 @@
 
 #include <global.h>
 #include <gui/widget/menue.h>
-#include <zapit/client/zapittypes.h>
-#include <playback.h>
-#if HAVE_SPARK_HARDWARE
-#include <audio.h>
-#endif
 
 #include <string>
 
@@ -108,10 +103,7 @@ class CFontSizeNotifier : public CChangeObserver
 
 class CSubtitleChangeExec : public CMenuTarget
 {
-	private:
-		cPlayback *playback;
 	public:
-		CSubtitleChangeExec(cPlayback *p = NULL) { playback = p; }
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
