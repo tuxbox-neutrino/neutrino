@@ -110,13 +110,13 @@ libneutrino_gui_a_SOURCES = \
 	webtv_setup.cpp \
 	zapit_setup.cpp
 
-if BOXTYPE_ARMBOX
-libneutrino_gui_a_SOURCES += \
-	streaminfo2.cpp
-else
+#if BOXTYPE_ARMBOX
+#libneutrino_gui_a_SOURCES += \
+#	streaminfo2.cpp
+#else
 libneutrino_gui_a_SOURCES += \
 	streaminfo1.cpp
-endif
+#endif
 
 if ENABLE_EXTUPDATE
 libneutrino_gui_a_SOURCES += \
