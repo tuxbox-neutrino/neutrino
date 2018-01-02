@@ -449,12 +449,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		isBookmark = true;
 	}
 #endif
-	else if (actionKey == "netstream") {
-		isHTTP = true;
-		p_movie_info = NULL;
-		is_file_player = true;
-		PlayFile();
-	}
 	else if (actionKey == "upnp") {
 		isUPNP = true;
 		is_file_player = true;
