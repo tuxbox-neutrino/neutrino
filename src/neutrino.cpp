@@ -4428,7 +4428,8 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 
 		hintBox.hide();
 	}
-	else if(actionKey=="ytplayback" || actionKey=="tsmoviebrowser" || actionKey=="fileplayback") {
+	else if(actionKey=="ytplayback" || actionKey=="tsmoviebrowser" || actionKey=="fileplayback_video" || actionKey=="fileplayback_audio")
+	{
 		frameBuffer->Clear();
 		if (mode == NeutrinoModes::NeutrinoModes::mode_radio || mode == NeutrinoModes::NeutrinoModes::mode_webradio)
 			frameBuffer->stopFrame();
