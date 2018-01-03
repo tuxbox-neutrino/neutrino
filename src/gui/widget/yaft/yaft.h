@@ -114,10 +114,12 @@ struct cell_t {
 	struct color_pair_t color_pair; /* color (fg, bg) */
 	/*enum char_attr*/ int attribute;       /* bold, underscore, etc... */
 	enum glyph_width width;         /* wide char flag: WIDE, NEXT_TO_WIDE, HALF */
+#if 0
 	bool has_pixmap;                /* has sixel pixmap data or not */
 	/*	sixel pixmap data:
 		must be statically allocated for copy_cell() */
 	uint8_t pixmap[BYTES_PER_PIXEL * CELL_WIDTH * CELL_HEIGHT];
+#endif
 };
 
 struct esc_t {

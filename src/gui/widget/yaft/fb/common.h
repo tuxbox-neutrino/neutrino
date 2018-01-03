@@ -413,6 +413,7 @@ void fb_die(struct framebuffer_t *fb)
 #endif
 }
 
+#if 0
 static inline void draw_sixel(struct framebuffer_t *fb, int line, int col, uint8_t *pixmap)
 {
 	int h, w, src_offset, dst_offset;
@@ -430,6 +431,7 @@ static inline void draw_sixel(struct framebuffer_t *fb, int line, int col, uint8
 		}
 	}
 }
+#endif
 
 static inline void draw_line(struct framebuffer_t *fb, struct terminal_t *term, int line)
 {
@@ -445,11 +447,13 @@ static inline void draw_line(struct framebuffer_t *fb, struct terminal_t *term, 
 		/* target cell */
 		cellp = &term->cells[line][col];
 
+#if 0
 		/* draw sixel pixmap */
 		if (cellp->has_pixmap) {
 			draw_sixel(fb, line, col, cellp->pixmap);
 			continue;
 		}
+#endif
 
 		/* copy current color_pair (maybe changed) */
 		color_pair = cellp->color_pair;

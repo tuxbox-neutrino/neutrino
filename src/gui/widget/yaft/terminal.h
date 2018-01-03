@@ -8,7 +8,9 @@ void erase_cell(struct terminal_t *term, int y, int x)
 	cellp->color_pair = term->color_pair; /* bce */
 	cellp->attribute  = ATTR_RESET;
 	cellp->width      = HALF;
+#if 0
 	cellp->has_pixmap = false;
+#endif
 
 	term->line_dirty[y] = true;
 }
@@ -54,7 +56,9 @@ int set_cell(struct terminal_t *term, int y, int x, const struct glyph_t *glyphp
 
 	cell.attribute  = term->attribute;
 	cell.width      = (glyph_width)glyphp->width;
+#if 0
 	cell.has_pixmap = false;
+#endif
 
 	cellp    = &term->cells[y][x];
 	*cellp   = cell;

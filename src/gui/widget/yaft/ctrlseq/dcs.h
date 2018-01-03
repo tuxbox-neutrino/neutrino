@@ -1,5 +1,6 @@
 /* See LICENSE for licence details. */
 /* function for dcs sequence */
+#error must no longer be included
 enum {
 	RGBMAX = 255,
 	HUEMAX = 360,
