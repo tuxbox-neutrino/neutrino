@@ -21,6 +21,10 @@
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
  */
+#ifdef DEBUG
+/* maybe on command line? */
+#undef DEBUG
+#endif
 #include "yaft.h"
 #include "conf.h"
 #include "util.h"
@@ -32,6 +36,10 @@
 #include "parse.h"
 #include "yaft_class.h"
 #include <driver/framebuffer.h>
+#ifdef DEBUG
+#warning DEBUG redefined!
+#undef DEBUG
+#endif
 
 static void sig_handler(int signo)
 {

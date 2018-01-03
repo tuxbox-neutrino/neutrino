@@ -22,6 +22,10 @@
  * in all copies or substantial portions of the Software.
  */
 #include <driver/framebuffer.h>
+#ifdef DEBUG
+/* maybe on compiler command line or in neutrino config.h */
+#undef DEBUG
+#endif
 
 enum {
 	CMAP_COLOR_LENGTH = sizeof(__u16) * BITS_PER_BYTE,
