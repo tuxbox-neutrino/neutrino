@@ -193,14 +193,12 @@ int YaFT::run(void)
 
 	/* normal exit */
 	term_die(&term);
-	fb_die(&fb);
 	return EXIT_SUCCESS;
 
 	/* error exit */
 tty_init_failed:
 	term_die(&term);
 term_init_failed:
-	fb_die(&fb);
 fb_init_failed:
 	return EXIT_FAILURE;
 }

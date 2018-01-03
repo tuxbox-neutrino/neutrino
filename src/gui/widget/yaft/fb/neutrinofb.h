@@ -80,20 +80,21 @@ bool set_fbinfo(int /*fd*/, struct fb_info_t *info)
 	struct fb_var_screeninfo *var = info->cfb->getScreenInfo();
 	memcpy(&vinfo, var, sizeof(struct fb_var_screeninfo));
 	memset(&finfo, 0, sizeof(struct fb_fix_screeninfo));
-	finfo.line_length = info->cfb->getStride(); // * (vinfo.bits_per_pixel / 8);
+	finfo.line_length = info->cfb->getScreenX(); // * (vinfo.bits_per_pixel / 8);
 	finfo.visual = FB_VISUAL_TRUECOLOR;
 	finfo.type   = FB_TYPE_PACKED_PIXELS;
 	strcpy(finfo.id, "neutrino FB");
 
 	set_bitfield(&vinfo, &info->red, &info->green, &info->blue);
 
-	info->width  = info->cfb->getScreenWidth();  //vinfo.xres;
-	info->height = info->cfb->getScreenHeight(); //vinfo.yres;
-	info->screen_size = finfo.line_length * info->height; //vinfo.yres;
-	info->line_length = finfo.line_length;
-
 	info->bits_per_pixel  = vinfo.bits_per_pixel;
 	info->bytes_per_pixel = my_ceil(info->bits_per_pixel, BITS_PER_BYTE);
+	info->width  = info->cfb->getScreenWidth();  //vinfo.xres;
+	info->height = info->cfb->getScreenHeight(); //vinfo.yres;
+	info->xstart = info->cfb->getScreenX();
+	info->ystart = info->cfb->getScreenY();
+	info->line_length = info->width * info->bytes_per_pixel;
+	info->screen_size = info->line_length * info->height; //vinfo.yres;
 
 	info->type   = set_type(finfo.type);
 	info->visual = set_visual(finfo.visual);

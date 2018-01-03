@@ -43,6 +43,7 @@ class CFrameBuffer;
 struct fb_info_t {
 	struct bitfield_t red, green, blue;
 	int width, height;       /* display resolution */
+	int xstart, ystart;      /* position of the window in the framebuffer */
 	long screen_size;        /* screen data size (byte) */
 	int line_length;         /* line length (byte) */
 	int bytes_per_pixel;
@@ -68,12 +69,16 @@ struct fb_info_t {
 
 struct framebuffer_t {
 	int fd;                        /* file descriptor of framebuffer */
-	uint8_t *fp;                   /* pointer of framebuffer */
 	uint8_t *buf;                  /* copy of framebuffer */
-//	uint8_t *wall;                 /* buffer for wallpaper */
+#if 0
+	uint8_t *fp;                   /* pointer of framebuffer */
+	uint8_t *wall;                 /* buffer for wallpaper */
+#endif
 	uint32_t real_palette[COLORS]; /* hardware specific color palette */
 	struct fb_info_t info;
-//	cmap_t *cmap, *cmap_orig;
+#if 0
+	cmap_t *cmap, *cmap_orig;
+#endif
 };
 
 #if 0
@@ -328,14 +333,10 @@ bool fb_init(struct framebuffer_t *fb)
 		return false;
 #endif
 
-	fb->fp = (uint8_t *)fb->info.cfb->getFrameBufferPointer();
-	int xstart = fb->info.cfb->getScreenX();
-	int ystart = fb->info.cfb->getScreenY();
+	fb->buf = (uint8_t *)fb->info.cfb->getBackBufferPointer();
 	/* os dependent initialize */
 	if (!set_fbinfo(fb->fd, &fb->info))
 		return false; //goto set_fbinfo_failed;
-
-	fb->fp += (xstart * fb->info.bytes_per_pixel + ystart * fb->info.line_length);
 
 	if (VERBOSE)
 		fb_print_info(&fb->info);
@@ -344,9 +345,7 @@ bool fb_init(struct framebuffer_t *fb)
 	/* allocate memory */
 	fb->fp   = (uint8_t *) emmap(0, fb->info.screen_size,
 				PROT_WRITE | PROT_READ, MAP_SHARED, fb->fd, 0);
-#endif
 	fb->buf  = (uint8_t *) ecalloc(1, fb->info.screen_size);
-#if 0
 	fb->wall = ((env = getenv("YAFT")) && strstr(env, "wall")) ?
 				load_wallpaper(fb->fp, fb->info.screen_size): NULL;
 
@@ -383,9 +382,9 @@ bool fb_init(struct framebuffer_t *fb)
 	return true;
 
 fb_init_failed:
-//allocate_failed:
-	free(fb->buf);
 #if 0
+allocate_failed:
+	free(fb->buf);
 	free(fb->wall);
 	if (fb->fp != MAP_FAILED)
 		emunmap(fb->fp, fb->info.screen_size);
@@ -395,23 +394,21 @@ set_fbinfo_failed:
 	return false;
 }
 
+#if 0
 void fb_die(struct framebuffer_t *fb)
 {
-#if 0
 	cmap_die(fb->cmap);
 	if (fb->cmap_orig) {
 		put_cmap(fb->fd, fb->cmap_orig);
 		cmap_die(fb->cmap_orig);
 	}
 	free(fb->wall);
-#endif
 	free(fb->buf);
-#if 0
 	emunmap(fb->fp, fb->info.screen_size);
 	eclose(fb->fd);
 	//fb_release(fb->fd, &fb->info); /* os specific */
-#endif
 }
+#endif
 
 #if 0
 static inline void draw_sixel(struct framebuffer_t *fb, int line, int col, uint8_t *pixmap)
@@ -435,7 +432,7 @@ static inline void draw_sixel(struct framebuffer_t *fb, int line, int col, uint8
 
 static inline void draw_line(struct framebuffer_t *fb, struct terminal_t *term, int line)
 {
-	int pos, size, bdf_padding, glyph_width, margin_right;
+	int pos, /*size,*/ bdf_padding, glyph_width, margin_right;
 	int col, w, h;
 	uint32_t pixel;
 	struct color_pair_t color_pair;
@@ -497,12 +494,12 @@ static inline void draw_line(struct framebuffer_t *fb, struct terminal_t *term, 
 			}
 		}
 	}
-
+#if 0
 	/* actual display update (bit blit) */
 	pos = (line * CELL_HEIGHT) * fb->info.line_length;
 	size = CELL_HEIGHT * fb->info.line_length;
 	memcpy(fb->fp + pos, fb->buf + pos, size);
-
+#endif
 	/* TODO: page flip
 		if fb_fix_screeninfo.ypanstep > 0, we can use hardware panning.
 		set fb_fix_screeninfo.{yres_virtual,yoffset} and call ioctl(FBIOPAN_DISPLAY)
@@ -530,4 +527,5 @@ void refresh(struct framebuffer_t *fb, struct terminal_t *term)
 			draw_line(fb, term, line);
 		}
 	}
+	fb->info.cfb->blit2FB(fb->buf, fb->info.width, fb->info.height, fb->info.xstart, fb->info.ystart, 0, 0);
 }
