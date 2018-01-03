@@ -183,12 +183,6 @@ cCpuFreqManager * cpuFreq;
 
 void stop_daemons(bool stopall = true, bool for_flash = false);
 void stop_video(void);
-// uncomment if you want to have a "test" menue entry  (rasc)
-
-//#define __EXPERIMENTAL_CODE__
-#ifdef __EXPERIMENTAL_CODE__
-#include "gui/ch_mosaic.h"
-#endif
 
 CAudioSetupNotifier	* audioSetupNotifier;
 CBouquetList   * bouquetList; // current list
