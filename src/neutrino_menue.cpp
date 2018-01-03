@@ -65,7 +65,6 @@
 #include "gui/sleeptimer.h"
 #include "gui/timerlist.h"
 #include "gui/update_menue.h"
-#include "gui/streaminfo2.h"
 #ifdef ENABLE_TESTING
 #include "gui/test_menu.h"
 #endif
