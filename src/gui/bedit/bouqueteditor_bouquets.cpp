@@ -59,11 +59,11 @@ CBEBouquetWidget::CBEBouquetWidget()
 	status_icon_width = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_HIDDEN, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
-	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK_MARKER, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
-	frameBuffer->getIconSize(NEUTRINO_ICON_AUDIO, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_RADIO_MARKER, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
-	frameBuffer->getIconSize(NEUTRINO_ICON_VIDEO, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_TV_MARKER, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
 }
 
@@ -112,13 +112,13 @@ void CBEBouquetWidget::paintItem(int pos)
 			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
 
 		if ((*Bouquets)[current]->bLocked != g_settings.parentallock_defaultlocked)
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - 2*status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK_MARKER, x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - 2*status_icon_width, ypos, item_height);
 
 		if (!(*Bouquets)[current]->radioChannels.empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_AUDIO, x + width - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - 3*status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_RADIO_MARKER, x + width - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - 3*status_icon_width, ypos, item_height);
 
 		if (!(*Bouquets)[current]->tvChannels.empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_VIDEO, x + width - SCROLLBAR_WIDTH - 4*OFFSET_INNER_MID - 4*status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_TV_MARKER, x + width - SCROLLBAR_WIDTH - 4*OFFSET_INNER_MID - 4*status_icon_width, ypos, item_height);
 	}
 }
 
