@@ -1614,31 +1614,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			playstate = CMoviePlayerGui::STOPPED;
 			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
 			ClearQueue();
-		} else if ((!filelist.empty() && msg == (neutrino_msg_t) CRCInput::RC_ok)) {
-			disableOsdElements(MUTE);
-			CFileBrowser *playlist = new CFileBrowser();
-			CFile *pfile = NULL;
-			pfile = &(*filelist_it);
-			int selected = std::distance( filelist.begin(), filelist_it );
-			filelist_it = filelist.end();
-			if (playlist->playlist_manager(filelist, selected, is_audio_player))
-			{
-				playstate = CMoviePlayerGui::STOPPED;
-				CFile *sfile = NULL;
-				for (filelist_it = filelist.begin(); filelist_it != filelist.end(); ++filelist_it)
-				{
-					pfile = &(*filelist_it);
-					sfile = playlist->getSelectedFile();
-					if ( (sfile->getFileName() == pfile->getFileName()) && (sfile->getPath() == pfile->getPath()))
-						break;
-				}
-			}
-			else {
-				if (!filelist.empty())
-					filelist_it = filelist.begin() + selected;
-			}
-			delete playlist;
-			enableOsdElements(MUTE);
 		} else if (msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
 			bool reset_vzap_it = true;
 			switch (g_settings.mode_left_right_key_tv)
