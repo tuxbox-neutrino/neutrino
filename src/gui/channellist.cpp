@@ -1918,26 +1918,26 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		//set recording icon
 		const char *record_icon = NULL;
 		if (rec_mode & CRecordManager::RECMODE_REC)
-			record_icon = NEUTRINO_ICON_REC;
+			record_icon = NEUTRINO_ICON_MARKER_RECORD;
 		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
-			record_icon = NEUTRINO_ICON_AUTO_SHIFT;
+			record_icon = NEUTRINO_ICON_MARKER_TIMESHIFT;
 
 		//set pip icon
 		const char *pip_icon = NULL;
 #ifdef ENABLE_PIP
 		if ((*chanlist)[curr]->getChannelID() == CZapit::getInstance()->GetPipChannelID())
-			pip_icon = NEUTRINO_ICON_PIP;
+			pip_icon = NEUTRINO_ICON_MARKER_PIP;
 #endif
 
 		//set webtv icon
 		const char *webtv_icon = NULL;
 		if (!chan->getUrl().empty())
-			webtv_icon = NEUTRINO_ICON_STREAMING;
+			webtv_icon = NEUTRINO_ICON_MARKER_STREAMING;
 
 		//set scramble icon
 		const char *scramble_icon = NULL;
 		if (chan->scrambled)
-			scramble_icon = NEUTRINO_ICON_SCRAMBLED;
+			scramble_icon = NEUTRINO_ICON_MARKER_SCRAMBLED;
 
 		//calculate and paint right status icons
 		int icon_w = 0;
