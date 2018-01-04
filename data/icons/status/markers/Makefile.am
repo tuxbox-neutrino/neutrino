@@ -17,4 +17,6 @@ install_DATA = \
 	marker_timeshift_gray.png \
 	marker_tv.png \
 	marker_zap.png \
+	mounted.png \
+	not_mounted.png \
 	warning.png
