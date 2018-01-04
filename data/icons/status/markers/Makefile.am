@@ -3,6 +3,7 @@ installdir = $(ICONSDIR)
 install_DATA = \
 	checkmark.png \
 	important.png \
+	marker_epg.png \
 	marker_hidden.png \
 	marker_lock.png \
 	marker_pip.png \
