@@ -93,12 +93,6 @@
 #define NEUTRINO_ICON_MOVIEPLAYER	"icon_movieplayer"
 #define NEUTRINO_ICON_YTPLAY		"icon_ytplay"
 #define NEUTRINO_ICON_NOT_MOUNTED	"not_mounted"
-#define NEUTRINO_ICON_PAUSE		"mp_pause"
-#define NEUTRINO_ICON_PLAY 		"mp_play"
-#define NEUTRINO_ICON_PLAY_REPEAT_ALL 	"mp_play_repeat_all"
-#define NEUTRINO_ICON_PLAY_REPEAT_TRACK	"mp_play_repeat_track"
-#define NEUTRINO_ICON_REW		"mp_b-skip"
-#define NEUTRINO_ICON_FF 		"mp_f-skip"
 #define NEUTRINO_ICON_QUESTION		"question"
 #define NEUTRINO_ICON_RECORDING		"recording"
 #define NEUTRINO_ICON_SETTINGS		"settings"
@@ -270,6 +264,14 @@
 #define NEUTRINO_ICON_TUNER_4		"tuner_4"
 #define NEUTRINO_ICON_VTXT		"vtxt"
 #define NEUTRINO_ICON_VTXT_GREY		"vtxt_gray"
+
+/* movieplayer */
+#define NEUTRINO_ICON_FF 		"mp_f-skip"
+#define NEUTRINO_ICON_PAUSE		"mp_pause"
+#define NEUTRINO_ICON_PLAY 		"mp_play"
+#define NEUTRINO_ICON_PLAY_REPEAT_ALL 	"mp_play_repeat_all"
+#define NEUTRINO_ICON_PLAY_REPEAT_TRACK	"mp_play_repeat_track"
+#define NEUTRINO_ICON_REW		"mp_b-skip"
 
 /* opkg manager */
 #define NEUTRINO_ICON_CHECKMARK		"checkmark"
