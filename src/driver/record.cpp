@@ -1510,9 +1510,9 @@ bool CRecordManager::ShowMenu(void)
 			inst->GetRecordString(title, duration);
 			durations.push_back(duration);
 
-			const char* mode_icon = NEUTRINO_ICON_REC;
+			const char* mode_icon = NEUTRINO_ICON_MARKER_RECORD;
 			if (inst->Timeshift())
-				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
+				mode_icon = NEUTRINO_ICON_MARKER_TIMESHIFT;
 
 			sprintf(cnt, "%d", i);
 			//define stop key if only one record is running, otherwise define shortcuts
