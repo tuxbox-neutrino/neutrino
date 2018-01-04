@@ -797,7 +797,7 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		CTimerd::CTimerEventTypes etype = isScheduled(channel_tmp, &evtlist[currpos],&timerID);
 		const char * icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : 0;
 		if(etype == CTimerd::TIMER_RECORD){
-			icontype = NEUTRINO_ICON_REC;// NEUTRINO_ICON_RECORDING_EVENT_MARKER
+			icontype = NEUTRINO_ICON_REC;// NEUTRINO_ICON_MARKER_RECORDING_EVENT
 		}else{
 			if (timerID > 0 && CRecordManager::getInstance()->CheckRecordingId_if_Timeshift(timerID))
 				icontype = NEUTRINO_ICON_AUTO_SHIFT;

@@ -57,13 +57,13 @@ CBEBouquetWidget::CBEBouquetWidget()
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, &action_icon_width, &ih);
 
 	status_icon_width = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_HIDDEN_MARKER, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_HIDDEN, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
-	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK_MARKER, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
-	frameBuffer->getIconSize(NEUTRINO_ICON_RADIO_MARKER, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_RADIO, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
-	frameBuffer->getIconSize(NEUTRINO_ICON_TV_MARKER, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_TV, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
 }
 
@@ -109,16 +109,16 @@ void CBEBouquetWidget::paintItem(int pos)
 		item_font->RenderString(x + text_offset, ypos + item_height, width - text_offset - SCROLLBAR_WIDTH - 5*OFFSET_INNER_MID - 4*status_icon_width, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
 
 		if ((*Bouquets)[current]->bHidden)
-			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN_MARKER, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_HIDDEN, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
 
 		if ((*Bouquets)[current]->bLocked != g_settings.parentallock_defaultlocked)
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK_MARKER, x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - 2*status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_LOCK, x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - 2*status_icon_width, ypos, item_height);
 
 		if (!(*Bouquets)[current]->radioChannels.empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_RADIO_MARKER, x + width - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - 3*status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_RADIO, x + width - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - 3*status_icon_width, ypos, item_height);
 
 		if (!(*Bouquets)[current]->tvChannels.empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_TV_MARKER, x + width - SCROLLBAR_WIDTH - 4*OFFSET_INNER_MID - 4*status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_TV, x + width - SCROLLBAR_WIDTH - 4*OFFSET_INNER_MID - 4*status_icon_width, ypos, item_height);
 	}
 }
 
