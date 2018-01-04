@@ -256,7 +256,7 @@
 #define NEUTRINO_ICON_MARKER_STREAMING	"marker_streaming"
 #define NEUTRINO_ICON_MARKER_TV		"marker_tv"
 #define NEUTRINO_ICON_MARKER_SCRAMBLED	"marker_scrambled"
-#define NEUTRINO_ICON_MARKER_RECORDING_EVENT	"rec_event_marker"
+#define NEUTRINO_ICON_MARKER_RECORD	"marker_record"
 
 /* plugins */
 #define NEUTRINO_ICON_HINT_PLUGIN	"hint_plugin"
