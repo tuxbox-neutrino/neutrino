@@ -91,7 +91,6 @@
 #define NEUTRINO_ICON_LOCK		"lock"
 #define NEUTRINO_ICON_LOCK_MARKER	"marker_lock"
 #define NEUTRINO_ICON_LOCK_PASSIVE	"lock_passive"
-#define NEUTRINO_ICON_HIDDEN		"hidden"
 #define NEUTRINO_ICON_HIDDEN_MARKER	"marker_hidden"
 #define NEUTRINO_ICON_MOUNTED		"mounted"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"

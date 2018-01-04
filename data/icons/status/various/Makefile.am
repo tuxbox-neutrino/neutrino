@@ -5,7 +5,6 @@ install_DATA = \
 	ats_gray.png \
 	ca.png \
 	epg.png \
-	hidden.png \
 	lock.png \
 	lock_passive.png \
 	mounted.png \
