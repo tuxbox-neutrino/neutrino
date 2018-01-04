@@ -249,7 +249,7 @@ int CComponentsForm::genIndex()
 CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 {
 	if (cc_item_id >= size()){
-		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: parameter cc_item_id = %u, out of range (size = %zx)...\n", __func__, __LINE__, cc_item_id, size());
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: inside container type = [%d] [%s] parameter cc_item_id = %u, out of range (size = %zx)...\n", __func__, __LINE__, cc_item_type.id, cc_item_type.name.c_str(), cc_item_id, size());
 		return NULL;
 	}
 
