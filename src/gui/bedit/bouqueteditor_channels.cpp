@@ -63,9 +63,9 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, &action_icon_width, &ih);
 
 	status_icon_width = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED_MARKER, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
-	frameBuffer->getIconSize(NEUTRINO_ICON_STREAMING, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_STREAMING_MARKER, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
 	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK_MARKER, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
@@ -117,9 +117,9 @@ void CBEChannelWidget::paintItem(int pos)
 		item_font->RenderString(x + text_offset, ypos + item_height, width - text_offset - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - 2*status_icon_width, (*Channels)[current]->getName(), color);
 
 		if ((*Channels)[current]->scrambled)
-			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED_MARKER, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
 		else if (!(*Channels)[current]->getUrl().empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING_MARKER, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
 
 		if ((*Channels)[current]->bLocked)
 			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK_MARKER, x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - 2*status_icon_width, ypos, item_height);
