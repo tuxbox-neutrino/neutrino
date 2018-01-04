@@ -152,8 +152,6 @@
 #define NEUTRINO_ICON_RESOLUTION_HD	"res_hd"
 #define NEUTRINO_ICON_RESOLUTION_SD	"res_sd"
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
-#define NEUTRINO_ICON_ZAP		"zap"
-#define NEUTRINO_ICON_PIP		"pip"
 #define NEUTRINO_ICON_STAR_ON		"star-on"
 #define NEUTRINO_ICON_STAR_OFF		"star-off"
 #define NEUTRINO_ICON_TMDB		"tmdb"

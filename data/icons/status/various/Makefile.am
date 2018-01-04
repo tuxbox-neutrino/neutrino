@@ -10,8 +10,6 @@ install_DATA = \
 	mounted.png \
 	mute.png \
 	not_mounted.png \
-	pip.png \
 	rclock.png \
 	rec.png \
-	rec_gray.png \
-	zap.png
+	rec_gray.png
