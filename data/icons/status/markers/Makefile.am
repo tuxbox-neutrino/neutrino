@@ -5,6 +5,7 @@ install_DATA = \
 	important.png \
 	marker_hidden.png \
 	marker_lock.png \
+	marker_pip.png \
 	marker_radio.png \
 	marker_record.png \
 	marker_scrambled.png \

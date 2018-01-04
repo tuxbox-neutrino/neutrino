@@ -252,6 +252,7 @@
 #define NEUTRINO_ICON_IMPORTANT		"important"
 #define NEUTRINO_ICON_MARKER_HIDDEN	"marker_hidden"
 #define NEUTRINO_ICON_MARKER_LOCK	"marker_lock"
+#define NEUTRINO_ICON_MARKER_PIP	"marker_pip"
 #define NEUTRINO_ICON_MARKER_RADIO	"marker_radio"
 #define NEUTRINO_ICON_MARKER_RECORD	"marker_record"
 #define NEUTRINO_ICON_MARKER_SCRAMBLED	"marker_scrambled"
