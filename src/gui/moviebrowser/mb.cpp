@@ -1818,7 +1818,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 			m_browserListLines.lineArray[row].push_back(string_item);
 		}
 		if (CRecordManager::getInstance()->getRecordInstance(m_vHandleBrowserList[handle]->file.Name) != NULL)
-			m_browserListLines.Icon.push_back(NEUTRINO_ICON_REC);
+			m_browserListLines.Icon.push_back(NEUTRINO_ICON_MARKER_RECORD);
 		else
 			m_browserListLines.Icon.push_back("");
 		m_browserListLines.marked.push_back(m_vHandleBrowserList[handle]->marked);
