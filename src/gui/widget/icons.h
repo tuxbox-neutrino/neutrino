@@ -88,7 +88,6 @@
 #define NEUTRINO_ICON_INFO		"information"
 #define NEUTRINO_ICON_KEYBINDING	"keybinding"
 #define NEUTRINO_ICON_LOCK		"lock"
-#define NEUTRINO_ICON_LOCK_PASSIVE	"lock_passive"
 #define NEUTRINO_ICON_MOUNTED		"mounted"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
 #define NEUTRINO_ICON_MOVIEPLAYER	"icon_movieplayer"
