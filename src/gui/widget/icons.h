@@ -105,8 +105,6 @@
 #define NEUTRINO_ICON_RADIOTEXTWAIT	"radiotextwait"
 #define NEUTRINO_ICON_RADIOTEXTOFF	"radiotextoff"
 #define NEUTRINO_ICON_RECORDING		"recording"
-#define NEUTRINO_ICON_REC		"rec"
-#define NEUTRINO_ICON_REC_GRAY		"rec_gray"
 #define NEUTRINO_ICON_SETTINGS		"settings"
 #define NEUTRINO_ICON_SHELL		"shell"
 #define NEUTRINO_ICON_STREAMING		"streaming"
@@ -122,8 +120,6 @@
 #define NEUTRINO_ICON_VTXT_GREY		"vtxt_gray"
 #define NEUTRINO_ICON_SUBT		"subt"
 #define NEUTRINO_ICON_SUBT_GREY		"subt_gray"
-#define NEUTRINO_ICON_AUTO_SHIFT	"ats"
-#define NEUTRINO_ICON_AUTO_SHIFT_GRAY	"ats_gray"
 #define NEUTRINO_ICON_NUMERIC_PAD	"numericpad"
 #define NEUTRINO_ICON_SCRAMBLED		"ca"
 #define NEUTRINO_ICON_SCRAMBLED2	"ca2"
@@ -262,6 +258,12 @@
 #define NEUTRINO_ICON_MARKER_TIMESHIFT_GRAY	"marker_timeshift_gray"
 #define NEUTRINO_ICON_MARKER_TV		"marker_tv"
 #define NEUTRINO_ICON_MARKER_ZAP	"marker_zap"
+
+/* infoviewer */
+#define NEUTRINO_ICON_AUTO_SHIFT	"ats"
+#define NEUTRINO_ICON_AUTO_SHIFT_GRAY	"ats_gray"
+#define NEUTRINO_ICON_REC		"rec"
+#define NEUTRINO_ICON_REC_GRAY		"rec_gray"
 
 /* plugins */
 #define NEUTRINO_ICON_HINT_PLUGIN	"hint_plugin"
