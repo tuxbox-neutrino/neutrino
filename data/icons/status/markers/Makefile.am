@@ -6,5 +6,7 @@ install_DATA = \
 	marker_hidden.png \
 	marker_lock.png \
 	marker_radio.png \
+	marker_scrambled.png \
+	marker_streaming.png \
 	marker_tv.png \
 	warning.png
