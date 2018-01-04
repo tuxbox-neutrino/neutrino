@@ -810,7 +810,7 @@ int CNetworkSetup::showWlanList()
 
 		const char * icon = NULL;
 		if (networks[i].encrypted)
-			icon = NEUTRINO_ICON_LOCK;
+			icon = NEUTRINO_ICON_MARKER_LOCK;
 		CMenuForwarder * net = new CMenuForwarder(networks[i].ssid.c_str(), true, option[i], selector, cnt, CRCInput::RC_nokey, NULL, icon);
 		net->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 		wlist.addItem(net, networks[i].ssid == network_ssid);
