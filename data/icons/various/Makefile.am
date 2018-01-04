@@ -1,6 +1,7 @@
 installdir = $(ICONSDIR)
 
 install_DATA = \
+	audioplay.png \
 	border_lr.png \
 	border_ul.png \
 	numericpad.png \

@@ -273,7 +273,7 @@
 /* misc */
 #define NEUTRINO_ICON_MUTED		"muted"
 #define NEUTRINO_ICON_RCLOCK		"rclock"
-#define NEUTRINO_ICON_AUDIOPLAY		"audioplay" // FIXME - icon is missing
+#define NEUTRINO_ICON_AUDIOPLAY		"audioplay"
 
 #define NEUTRINO_ICON_BORDER_UL		"border_ul"
 #define NEUTRINO_ICON_BORDER_LR		"border_lr"
