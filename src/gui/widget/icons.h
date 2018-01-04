@@ -255,9 +255,11 @@
 #define NEUTRINO_ICON_MARKER_PIP	"marker_pip"
 #define NEUTRINO_ICON_MARKER_RADIO	"marker_radio"
 #define NEUTRINO_ICON_MARKER_RECORD	"marker_record"
+#define NEUTRINO_ICON_MARKER_RECORD_GRAY	"marker_record_gray"
 #define NEUTRINO_ICON_MARKER_SCRAMBLED	"marker_scrambled"
 #define NEUTRINO_ICON_MARKER_STREAMING	"marker_streaming"
 #define NEUTRINO_ICON_MARKER_TIMESHIFT	"marker_timeshift"
+#define NEUTRINO_ICON_MARKER_TIMESHIFT_GRAY	"marker_timeshift_gray"
 #define NEUTRINO_ICON_MARKER_TV		"marker_tv"
 #define NEUTRINO_ICON_MARKER_ZAP	"marker_zap"
 
