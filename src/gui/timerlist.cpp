@@ -1202,7 +1202,7 @@ void CTimerList::paintItem(int pos)
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + real_width - OFFSET_INNER_MID - t_repeat_width, line1_y, t_repeat_width, t_repeat, color, font_height);
 
 		int icon_w, icon_h;
-		frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
+		frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_RECORD, &icon_w, &icon_h);
 
 		// paint rec icon when recording in progress
 		if ((timer.eventType == CTimerd::TIMER_RECORD) && (CRecordManager::getInstance()->RecordingStatus(timer.channel_id)))
@@ -1213,13 +1213,13 @@ void CTimerList::paintItem(int pos)
 			if (CRecordManager::getInstance()->IsRecording(&recinfo))
 			{
 				if (icon_w && icon_h)
-					frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + real_width - OFFSET_INNER_MID - icon_w, line1_y, font_height);
+					frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_RECORD, x + real_width - OFFSET_INNER_MID - icon_w, line1_y, font_height);
 			}
 		}
 		else if ((timer.eventType == CTimerd::TIMER_REMOTEBOX) && timer.eventState == CTimerd::TIMERSTATE_ISRUNNING)
 		{
 			if (icon_w && icon_h)
-				frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + real_width - OFFSET_INNER_MID - icon_w, line1_y, font_height);
+				frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_RECORD, x + real_width - OFFSET_INNER_MID - icon_w, line1_y, font_height);
 		}
 
 		std::string zAddData("");
@@ -1734,7 +1734,7 @@ int CTimerList::newTimer()
 			{
 				char cChannelId[3+16+1+1];
 				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->getChannelID());
-				mwtv->addItem(new CMenuForwarder(channels[j]->getName(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : (channels[j]->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING)));
+				mwtv->addItem(new CMenuForwarder(channels[j]->getName(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_MARKER_SCRAMBLED : (channels[j]->getUrl().empty() ? NULL : NEUTRINO_ICON_MARKER_STREAMING)));
 			}
 			if (!channels.empty())
 				mctv.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str() /*g_bouquetManager->Bouquets[i]->Name.c_str()*/, true, NULL, mwtv));
@@ -1745,7 +1745,7 @@ int CTimerList::newTimer()
 			{
 				char cChannelId[3+16+1+1];
 				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->getChannelID());
-				mwradio->addItem(new CMenuForwarder(channels[j]->getName(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : (channels[j]->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING)));
+				mwradio->addItem(new CMenuForwarder(channels[j]->getName(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_MARKER_SCRAMBLED : (channels[j]->getUrl().empty() ? NULL : NEUTRINO_ICON_MARKER_STREAMING)));
 			}
 			if (!channels.empty())
 				mcradio.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwradio));
