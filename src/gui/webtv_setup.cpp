@@ -122,7 +122,7 @@ int CWebTVSetup::Show()
 {
 	item_offset = 0;
 
-	m = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_MOVIEPLAYER, width, MN_WIDGET_ID_WEBTVSETUP);
+	m = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_STREAMING, width, MN_WIDGET_ID_WEBTVSETUP);
 	m->addKey(CRCInput::RC_red, this, "d");
 	m->addKey(CRCInput::RC_green, this, "a");
 
@@ -183,7 +183,7 @@ int CWebTVResolution::exec(CMenuTarget* parent, const std::string& /*actionKey*/
 
 int CWebTVResolution::Show()
 {
-	m = new CMenuWidget(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_MOVIEPLAYER, width, MN_WIDGET_ID_LIVESTREAM_RESOLUTION);
+	m = new CMenuWidget(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_STREAMING, width, MN_WIDGET_ID_LIVESTREAM_RESOLUTION);
 	m->addIntroItems(LOCALE_LIVESTREAM_HEAD);
 
 	CMenuOptionChooser *mc;
