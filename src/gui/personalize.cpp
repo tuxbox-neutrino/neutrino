@@ -933,7 +933,7 @@ void CPersonalizeGui::addPersonalizedItems()
 					if (v_item[i].personalize_mode == &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS] || v_item[i].personalize_mode == &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER])
 					{
 						use_pin = true;
-						lock_icon = NEUTRINO_ICON_LOCK_PASSIVE;
+						lock_icon = NEUTRINO_ICON_MARKER_LOCK_PASSIVE;
 					}
 				}
 
@@ -949,7 +949,7 @@ void CPersonalizeGui::addPersonalizedItems()
 				 * required menu item is identified with relatetd locale that is used inside the settings menu
 				*/
 				if (fw->getTextLocale() == LOCALE_PERSONALIZE_HEAD){
-					lock_icon = g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS] ? NEUTRINO_ICON_LOCK : (in_pinmode ? NEUTRINO_ICON_LOCK_PASSIVE : NULL);
+					lock_icon = g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS] ? NEUTRINO_ICON_MARKER_LOCK : (in_pinmode ? NEUTRINO_ICON_MARKER_LOCK_PASSIVE : NULL);
 					v_item[i].menuItem->setInfoIconRight(lock_icon);
 				}
 
