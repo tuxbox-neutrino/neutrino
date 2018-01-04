@@ -829,7 +829,7 @@ _show_menu:
 			if (it->mounted) {
 				std::string dst = MOUNT_BASE + it->devname;
 				if (!stat(dst.c_str(), &stat_buf) && rec_st.st_dev == stat_buf.st_dev)
-					rec_icon = CNeutrinoApp::getInstance()->recordingstatus ? NEUTRINO_ICON_REC : NEUTRINO_ICON_REC_GRAY;
+					rec_icon = CNeutrinoApp::getInstance()->recordingstatus ? NEUTRINO_ICON_MARKER_RECORD : NEUTRINO_ICON_MARKER_RECORD_GRAY;
 			}
 			std::string key = "m" + it->devname;
 			bool enabled = !rec_icon || !CNeutrinoApp::getInstance()->recordingstatus;
