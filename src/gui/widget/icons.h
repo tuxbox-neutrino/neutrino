@@ -69,6 +69,11 @@
 #define NEUTRINO_ICON_BUTTON_RECORD_INACTIVE	"btn_record_inactive"
 #define NEUTRINO_ICON_BUTTON_STOP	"btn_stop"
 
+#define NEUTRINO_ICON_BUTTON_LONGPRESS	"longpress"
+
+#define NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE	"mute_zap_green"
+#define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE	"mute_zap_gray"
+
 #define NEUTRINO_ICON_BLUE		"icon_blue"
 #define NEUTRINO_ICON_GREEN		"icon_green"
 #define NEUTRINO_ICON_RED		"icon_red"
@@ -164,9 +169,6 @@
 #define NEUTRINO_ICON_SLIDER_BLUE	"slider_blue"
 #define NEUTRINO_ICON_SLIDER_ALPHA	"slider_alpha"
 
-#define NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE "mute_zap_green"
-#define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE "mute_zap_gray"
-
 /* menu hints */
 #define NEUTRINO_ICON_HINT_DEFAULT	"hint_default"
 #define NEUTRINO_ICON_HINT_BACK		"hint_back"
@@ -192,6 +194,7 @@
 #define NEUTRINO_ICON_HINT_INET_RADIO	"hint_inetradio"
 #define NEUTRINO_ICON_HINT_MOVIE	"hint_movie"
 #define NEUTRINO_ICON_HINT_PICVIEW	"hint_picview"
+#define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
 
 #define NEUTRINO_ICON_HINT_MB		"hint_mb"
 #define NEUTRINO_ICON_HINT_FILEPLAY	"hint_fileplay"
@@ -234,6 +237,9 @@
 #define NEUTRINO_ICON_HINT_RESTORE	"hint_restore"
 #define NEUTRINO_ICON_HINT_FACTORY	"hint_factory"
 
+/* plugins */
+#define NEUTRINO_ICON_HINT_PLUGIN	"hint_plugin"
+
 /* filetypes */
 #define NEUTRINO_ICON_FILE		"file"
 #define NEUTRINO_ICON_FOLDER		"folder"
@@ -264,16 +270,9 @@
 #define NEUTRINO_ICON_REC		"rec"
 #define NEUTRINO_ICON_REC_GRAY		"rec_gray"
 
-/* plugins */
-#define NEUTRINO_ICON_HINT_PLUGIN	"hint_plugin"
-
 /* opkg manager */
 #define NEUTRINO_ICON_CHECKMARK		"checkmark"
 #define NEUTRINO_ICON_WARNING		"warning"
 
-/* misc */
-#define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
-
-#define NEUTRINO_ICON_BUTTON_LONGPRESS	"longpress"
 
 #endif /* __gui_widget_icons_h__ */
