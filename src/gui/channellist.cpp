@@ -1996,8 +1996,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		}
 		else if (edit_state && chan->bLocked)
 		{
-			frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icon_w, &icon_h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
+			frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
+			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_LOCK, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
 		}
 		else if (g_settings.channellist_show_numbers)
 		{
@@ -2200,7 +2200,7 @@ void CChannelList::paintBody()
 	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr());
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
 	numwidth = std::max(icon_w, (int) numwidth);
-	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icon_w, &icon_h);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
 	numwidth = std::max(icon_w, (int) numwidth);
 
 	liststart = (selected/listmaxshow)*listmaxshow;
