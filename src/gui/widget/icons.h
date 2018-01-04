@@ -102,20 +102,16 @@
 #define NEUTRINO_ICON_UPDATE		"softupdate"
 #define NEUTRINO_ICON_UPNP		"upnp"
 #define NEUTRINO_ICON_VIDEO		"video"
-#define NEUTRINO_ICON_NUMERIC_PAD	"numericpad"
 #define NEUTRINO_ICON_BOOKMARK_MANAGER	"bookmarkmanager"
-#define NEUTRINO_ICON_BORDER_UL		"border_ul"
-#define NEUTRINO_ICON_BORDER_LR		"border_lr"
 #define NEUTRINO_ICON_MAINMENU		"mainmenue"
 #define NEUTRINO_ICON_LANGUAGE		"language"
 #define NEUTRINO_ICON_NETWORK		"network"
 #define NEUTRINO_ICON_LCD		"lcd"
-#define NEUTRINO_ICON_VOLUME		"volume"
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
-#define NEUTRINO_ICON_STAR_ON		"star-on"
-#define NEUTRINO_ICON_STAR_OFF		"star-off"
-#define NEUTRINO_ICON_TMDB		"tmdb"
 #define NEUTRINO_ICON_PICTUREVIEWER	"pictureviewer"
+
+/* volumebar */
+#define NEUTRINO_ICON_VOLUME		"volume"
 
 /* sliders */
 #define NEUTRINO_ICON_SLIDER_BODY	"slider_body"
@@ -275,6 +271,18 @@
 /* misc */
 #define NEUTRINO_ICON_MUTED		"muted"
 #define NEUTRINO_ICON_RCLOCK		"rclock"
+
+#define NEUTRINO_ICON_BORDER_UL		"border_ul"
+#define NEUTRINO_ICON_BORDER_LR		"border_lr"
+#define NEUTRINO_ICON_NUMERIC_PAD	"numericpad"
+
+#define NEUTRINO_ICON_STAR_ON		"star-on"
+#define NEUTRINO_ICON_STAR_OFF		"star-off"
+#define NEUTRINO_ICON_STARS_BG		"stars_bg" //NI
+#define NEUTRINO_ICON_STARS		"stars" //NI
+
+#define NEUTRINO_ICON_IMDB		"imdb"
+#define NEUTRINO_ICON_TMDB		"tmdb"
 
 /* opkg manager */
 #define NEUTRINO_ICON_CHECKMARK		"checkmark"
