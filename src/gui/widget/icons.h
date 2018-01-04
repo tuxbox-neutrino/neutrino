@@ -86,7 +86,6 @@
 #define NEUTRINO_ICON_FEATURES		"features"
 #define NEUTRINO_ICON_GAMES		"games"
 #define NEUTRINO_ICON_INFO		"information"
-#define NEUTRINO_ICON_IMPORTANT		"important"
 #define NEUTRINO_ICON_KEYBINDING	"keybinding"
 #define NEUTRINO_ICON_LOCK		"lock"
 #define NEUTRINO_ICON_LOCK_PASSIVE	"lock_passive"
@@ -250,13 +249,14 @@
 #define NEUTRINO_ICON_PICTURE		"picture"
 
 /* markers */
-#define NEUTRINO_ICON_MARKER_LOCK	"marker_lock"
+#define NEUTRINO_ICON_IMPORTANT		"important"
 #define NEUTRINO_ICON_MARKER_HIDDEN	"marker_hidden"
+#define NEUTRINO_ICON_MARKER_LOCK	"marker_lock"
 #define NEUTRINO_ICON_MARKER_RADIO	"marker_radio"
+#define NEUTRINO_ICON_MARKER_RECORD	"marker_record"
+#define NEUTRINO_ICON_MARKER_SCRAMBLED	"marker_scrambled"
 #define NEUTRINO_ICON_MARKER_STREAMING	"marker_streaming"
 #define NEUTRINO_ICON_MARKER_TV		"marker_tv"
-#define NEUTRINO_ICON_MARKER_SCRAMBLED	"marker_scrambled"
-#define NEUTRINO_ICON_MARKER_RECORD	"marker_record"
 
 /* plugins */
 #define NEUTRINO_ICON_HINT_PLUGIN	"hint_plugin"
