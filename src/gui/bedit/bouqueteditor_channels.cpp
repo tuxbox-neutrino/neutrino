@@ -67,7 +67,7 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	status_icon_width = std::max(status_icon_width, iw);
 	frameBuffer->getIconSize(NEUTRINO_ICON_STREAMING, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
-	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK_MARKER, &iw, &ih);
 	status_icon_width = std::max(status_icon_width, iw);
 
 }
@@ -122,7 +122,7 @@ void CBEChannelWidget::paintItem(int pos)
 			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
 
 		if ((*Channels)[current]->bLocked)
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - 2*status_icon_width, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK_MARKER, x + width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - 2*status_icon_width, ypos, item_height);
 	}
 }
 
