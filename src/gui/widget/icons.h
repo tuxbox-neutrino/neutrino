@@ -111,7 +111,6 @@
 #define NEUTRINO_ICON_NETWORK		"network"
 #define NEUTRINO_ICON_LCD		"lcd"
 #define NEUTRINO_ICON_VOLUME		"volume"
-#define NEUTRINO_ICON_RCLOCK		"rclock"
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
 #define NEUTRINO_ICON_STAR_ON		"star-on"
 #define NEUTRINO_ICON_STAR_OFF		"star-off"
@@ -272,6 +271,10 @@
 #define NEUTRINO_ICON_PLAY_REPEAT_ALL 	"mp_play_repeat_all"
 #define NEUTRINO_ICON_PLAY_REPEAT_TRACK	"mp_play_repeat_track"
 #define NEUTRINO_ICON_REW		"mp_b-skip"
+
+/* misc */
+#define NEUTRINO_ICON_MUTED		"muted"
+#define NEUTRINO_ICON_RCLOCK		"rclock"
 
 /* opkg manager */
 #define NEUTRINO_ICON_CHECKMARK		"checkmark"

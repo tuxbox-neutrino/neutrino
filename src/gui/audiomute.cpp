@@ -37,7 +37,7 @@
 
 #include <driver/display.h>
 
-CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_BUTTON_MUTE)
+CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_MUTED)
 {
 	y_old			= -1;
 	paint_bg		= false;
