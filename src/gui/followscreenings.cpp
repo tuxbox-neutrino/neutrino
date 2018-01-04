@@ -110,7 +110,7 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 					//FIXME -- no error handling, but this shouldn't happen ...
 				} else {
 					if (!forwarders.empty() && followlist.size() > 1)
-						forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_REC;
+						forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_MARKER_RECORD;
 					else
 						ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG,
 							CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
@@ -133,7 +133,7 @@ void CFollowScreenings::updateRightIcon(int ix, time_t start, unsigned int durat
 	for (i = overlappingTimers.begin(); i != overlappingTimers.end(); i++)
 		if (i->eventType == CTimerd::TIMER_RECORD) {
 			if (channel_id == i->channel_id && start == i->epg_starttime) {
-				forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_REC;
+				forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_MARKER_RECORD;
 				return;
 			}
 			if (!SAME_TRANSPONDER(channel_id, i->channel_id)) {
