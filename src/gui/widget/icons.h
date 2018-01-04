@@ -247,6 +247,7 @@
 #define NEUTRINO_ICON_MARKER_EPG	"marker_epg"
 #define NEUTRINO_ICON_MARKER_HIDDEN	"marker_hidden"
 #define NEUTRINO_ICON_MARKER_LOCK	"marker_lock"
+#define NEUTRINO_ICON_MARKER_LOCK_PASSIVE	"marker_lock_passive"
 #define NEUTRINO_ICON_MARKER_PIP	"marker_pip"
 #define NEUTRINO_ICON_MARKER_RADIO	"marker_radio"
 #define NEUTRINO_ICON_MARKER_RECORD	"marker_record"

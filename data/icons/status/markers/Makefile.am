@@ -6,6 +6,7 @@ install_DATA = \
 	marker_epg.png \
 	marker_hidden.png \
 	marker_lock.png \
+	marker_lock_passive.png \
 	marker_pip.png \
 	marker_radio.png \
 	marker_record.png \
