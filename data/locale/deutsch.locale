@@ -631,7 +631,7 @@ flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Uhrzeit
 flashupdate.erasefailed Flash löschen fehlgeschlagen
 flashupdate.erasing lösche Flash
-flashupdate.experimentalimage Sie haben einen Snapshot ausgewählt, bitte beachten Sie,\ndass diese Version ungetestet ist und u.U. Ihre Box\nnach dem Update nicht mehr funktionsfähig ist.\n\nSoll diese Version wirklich installiert werden?
+flashupdate.experimentalimage Sie haben eine Betaversion oder einen Nightly Build ausgewählt.\nBitte beachten Sie, dass diese Version ungetestet ist\nund Ihre Box nach dem Update möglicherweise nicht mehr funktionsfähig ist.\n\nSoll diese Version wirklich installiert werden?
 flashupdate.expertfunctions Experten-Funktionen
 flashupdate.fileis0bytes die Dateigröße ist 0 Byte
 flashupdate.fileselector Datei-Auswahl

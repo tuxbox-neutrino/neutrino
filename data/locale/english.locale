@@ -631,7 +631,7 @@ flashupdate.currentversiondate Date
 flashupdate.currentversiontime Time
 flashupdate.erasefailed erasure of flash failed
 flashupdate.erasing erasing flash
-flashupdate.experimentalimage The image you have selected is an untested version, this means\nyour box maybe fail to boot after update.\n\nDo you really want to update to this version?
+flashupdate.experimentalimage You have selected a beta version or a nightly build.\nPlease note that this version is untested\nand your box may not work after update.\n\nDo you really want to install this version?
 flashupdate.expertfunctions Expert-functions
 flashupdate.fileis0bytes the filesize is 0 Bytes
 flashupdate.fileselector File-Selector
