@@ -454,14 +454,7 @@ bool CFlashUpdate::checkVersion4Update()
 			//!always leave here!
 			return false;
 		}
-#if HAVE_ARM_HARDWARE
-		//tgz package install:
-		else if (file_selected->getType() == CFile::FILE_TGZ_PACKAGE){
-			fileType = 'Z';
-			//!always leave here!
-			return true;
-		}
-#endif
+
 		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
 		if(ptr) {
@@ -470,6 +463,8 @@ bool CFlashUpdate::checkVersion4Update()
 				fileType = 'A';
 			else if(!strcmp(ptr, "txt"))
 				fileType = 'T';
+			else if(!strcmp(ptr, "tgz"))
+				fileType = 'Z';
 			else if(!allow_flash)
 				return false;
 			else
@@ -542,7 +537,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	if(softupdate_mode==1) { //internet-update
-		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, (fileType <= '2') ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes)
+		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, ((fileType <= '2') || (fileType == 'Z')) ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes)
 		{
 			hide();
 			return menu_return::RETURN_REPAINT;
