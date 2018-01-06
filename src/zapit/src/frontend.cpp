@@ -79,7 +79,11 @@ extern int zapit_debug;
 
 #define FE_COMMON_PROPS	2
 #define FE_DVBS_PROPS	6
-#define FE_DVBS2_PROPS	9
+#if HAVE_COOL_HARDWARE
+	#define FE_DVBS2_PROPS	8
+#else
+	#define FE_DVBS2_PROPS	9
+#endif
 #define FE_DVBC_PROPS	6
 #define FE_DVBT_PROPS 10
 #define FE_DVBT2_PROPS 11
@@ -106,7 +110,9 @@ static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
 	{ DTV_PILOT,		{}, { PILOT_AUTO	} ,0},
 	{ DTV_ROLLOFF,		{}, { ROLLOFF_AUTO	} ,0},
+#if ! HAVE_COOL_HARDWARE
 	{ DTV_STREAM_ID,	{}, { NO_STREAM_ID_FILTER } ,0},
+#endif
 	{ DTV_TUNE,		{}, { 0			} ,0 }
 };
 
