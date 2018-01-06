@@ -689,8 +689,8 @@ flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.type_addon Addon
 flashupdate.type_beta Beta
-flashupdate.type_internal Internal
 flashupdate.type_locale Locale
+flashupdate.type_nightly Nightly
 flashupdate.type_release Release
 flashupdate.type_settings Settings
 flashupdate.type_text Text

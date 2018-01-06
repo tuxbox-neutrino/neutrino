@@ -524,28 +524,28 @@ const char *CFlashVersionInfo::getReleaseCycle(void) const
 	return releaseCycle;
 }
 
-const char *CFlashVersionInfo::getType(void) const
+const char *CFlashVersionInfo::getType(bool localized) const
 {
 	switch (snapshot)
 	{
 	case '0':
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_RELEASE);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_RELEASE)	: "Release");
 	case '1':
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_BETA);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_BETA)	: "Beta");
 	case '2':
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_INTERNAL);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_NIGHTLY)	: "Nightly");
 	case 'L':
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_LOCALE);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_LOCALE)	: "Locale");
 	case 'S':
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_SETTINGS);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_SETTINGS)	: "Settings");
 	case 'A':
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_ADDON);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_ADDON)	: "Addon");
 	case 'U':
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_UPDATE);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_UPDATE)	: "Update");
 	case 'T':
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_TEXT);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_TEXT)	: "Text");
 	default:
-		return g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_UNKNOWN);
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_UNKNOWN)	: "Unknown");
 	}
 }
 

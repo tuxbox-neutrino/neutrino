@@ -91,7 +91,7 @@ class CFlashVersionInfo
 	const char *getDate(void) const;
 	const char *getTime(void) const;
 	const char *getReleaseCycle(void) const;
-	const char *getType(void) const;
+	const char *getType(bool localized = false) const;
 	int   getVersion(void) const;
 	time_t getDateTime(void) const { return datetime; };
 };
