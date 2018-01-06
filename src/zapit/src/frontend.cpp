@@ -1297,7 +1297,9 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			cmdseq.props[MODULATION].u.data	= feparams->modulation;
 			cmdseq.props[ROLLOFF].u.data	= feparams->rolloff;
 			cmdseq.props[PILOTS].u.data	= pilot;
+#if ! HAVE_COOL_HARDWARE
 			cmdseq.props[MIS].u.data = feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26);
+#endif
 			if (zapit_debug) printf("[fe%d/%d] tuner pilot %d (feparams %d)\n", adapter, fenumber, pilot, feparams->pilot);
 		} else {
 			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
