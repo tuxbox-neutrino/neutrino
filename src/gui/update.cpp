@@ -138,6 +138,18 @@ public:
 		}
 };
 
+#if 0
+void CFlashUpdate::update_php(std::string &url, const char* type)
+{
+	if (url.find("update.php") != std::string::npos)
+	{
+		url += "?revision=" + to_string(cs_get_revision());
+		url += "&chip_type=" + to_string(cs_get_chip_type());
+		url += "&image_type=" + (std::string)type;
+		printf("[update_php] url %s\n", url.c_str());
+	}
+}
+#endif
 bool CFlashUpdate::checkOnlineVersion()
 {
 	CHTTPTool httpTool;
@@ -223,13 +235,14 @@ bool CFlashUpdate::selectHttpImage(void)
 
 	snprintf(current, 200, "%s %s %s %s", curInfo.getReleaseCycle(), curInfo.getType(true), curInfo.getDate(), curInfo.getTime());
 
+
 	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE, listWidth, MN_WIDGET_ID_IMAGESELECTOR);
 
 	SelectionWidget.addItem(GenericMenuSeparator);
 	SelectionWidget.addItem(GenericMenuBack);
 	SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::LINE));
 
-	SelectionWidget.addItem(new CMenuForwarder(current, false));
+	SelectionWidget.addItem(new CMenuForwarder(current, false, g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSION_SEP)));
 	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
 	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
 
@@ -247,12 +260,16 @@ bool CFlashUpdate::selectHttpImage(void)
 		}
 		else
 		{
+// 			update_php(url, curInfo.getType());
 			startpos = url.find('/', startpos+2)+1;
 		}
 		endpos = std::string::npos;
 		updates_lists.push_back(url.substr(startpos, endpos - startpos));
 
-		SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, updates_lists.rbegin()->c_str()));
+		// don't paint separator for lists with no entry
+		// SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, updates_lists.rbegin()->c_str()));
+		bool separator = false;
+
 		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, 20))
 		{
 			std::ifstream in(gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME);
@@ -286,6 +303,14 @@ bool CFlashUpdate::selectHttpImage(void)
 
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
 
+
+				if (!separator)
+				{
+					std::string updates_list = updates_lists.rbegin()->c_str();
+					updates_list = updates_list.substr(0, updates_list.find("?", 0)); // truncate updates list
+					SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, updates_list));
+					separator = true;
+				}
 				CUpdateMenuTarget * up = new CUpdateMenuTarget(i, &selected);
 				mf = new CMenuDForwarder(descriptions[i].c_str(), enabled, names[i].c_str(), up);
 				//TODO mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, "");
