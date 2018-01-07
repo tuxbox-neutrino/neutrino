@@ -71,42 +71,6 @@ static void sig_handler(int signo)
 	child_alive = false;
 }
 
-bool tty_init(void)
-{
-	struct sigaction sigact;
-
-	memset(&sigact, 0, sizeof(struct sigaction));
-	sigact.sa_handler = sig_handler;
-	sigact.sa_flags   = SA_RESTART;
-	esigaction(SIGCHLD, &sigact, NULL);
-#if 0
-	if (VT_CONTROL) {
-		esigaction(SIGUSR1, &sigact, NULL);
-		esigaction(SIGUSR2, &sigact, NULL);
-
-		struct vt_mode vtm;
-		vtm.mode   = VT_PROCESS;
-		vtm.waitv  = 0;
-		vtm.acqsig = SIGUSR1;
-		vtm.relsig = SIGUSR2;
-		vtm.frsig  = 0;
-
-		if (ioctl(STDIN_FILENO, VT_SETMODE, &vtm))
-			logging(WARN, "ioctl: VT_SETMODE failed (maybe here is not console)\n");
-
-		if (FORCE_TEXT_MODE == false) {
-			if (ioctl(STDIN_FILENO, KDSETMODE, KD_GRAPHICS))
-				logging(WARN, "ioctl: KDSETMODE failed (maybe here is not console)\n");
-		}
-	}
-
-	etcgetattr(STDIN_FILENO, termios_orig);
-	set_rawmode(STDIN_FILENO, termios_orig);
-	ewrite(STDIN_FILENO, "\033[?25l", 6); /* make cusor invisible */
-#endif
-	return true;
-}
-
 static const char * const *yaft_argv;
 static pid_t fork_and_exec(int *master, int lines, int cols)
 {
@@ -183,10 +147,11 @@ int YaFT::run(void)
 		goto term_init_failed;
 	}
 
-	if (!tty_init()) {
-		logging(FATAL, "tty initialize failed\n");
-		goto tty_init_failed;
-	}
+	struct sigaction sigact;
+	memset(&sigact, 0, sizeof(struct sigaction));
+	sigact.sa_handler = sig_handler;
+	sigact.sa_flags   = SA_RESTART;
+	esigaction(SIGCHLD, &sigact, NULL);
 
 	/* fork and exec shell */
 	if ((childpid = fork_and_exec(&term.fd, term.lines, term.cols)) < 0) {
