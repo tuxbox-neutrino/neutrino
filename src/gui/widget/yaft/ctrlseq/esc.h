@@ -13,7 +13,8 @@ void bs(struct terminal_t *term)
 void tab(struct terminal_t *term)
 {
 	int i;
-
+	const char *c = " ";
+	term->txt.back().append(c, 1);
 	for (i = term->cursor.x + 1; i < term->cols; i++) {
 		if (term->tabstop[i]) {
 			set_cursor(term, term->cursor.y, i);
@@ -25,6 +26,9 @@ void tab(struct terminal_t *term)
 
 void nl(struct terminal_t *term)
 {
+	term->nlseen = true;
+	term->txt.push("");
+	term->lines_available++;
 	move_cursor(term, 1, 0);
 }
 

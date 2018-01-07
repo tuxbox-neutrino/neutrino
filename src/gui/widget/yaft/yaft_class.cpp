@@ -125,9 +125,15 @@ static int check_fds(fd_set *fds, struct timeval *tv, int input, int master)
 	return eselect(master + 1, fds, NULL, NULL, tv);
 }
 
-YaFT::YaFT(const char * const *argv)
+YaFT::YaFT(const char * const *argv, int *Res, sigc::signal<void, std::string*, int*, bool*>func)
 {
 	yaft_argv = argv;
+	res = Res;
+	OnShellOutputLoop = func;
+}
+
+YaFT::~YaFT(void)
+{
 }
 
 int YaFT::run(void)
@@ -138,12 +144,15 @@ int YaFT::run(void)
 	struct timeval tv;
 	struct framebuffer_t fb;
 	struct terminal_t term;
+	bool ok = true;
 	/* global */
 	extern volatile sig_atomic_t need_redraw;
 	extern volatile sig_atomic_t child_alive;
 	term.cfb = fb.info.cfb = CFrameBuffer::getInstance();
+	term.txt.push("");
+	term.lines_available = 0;
+	term.nlseen = false;
 
-	memset(&term, 0, sizeof(term));
 	/* init */
 	if (setlocale(LC_ALL, "") == NULL) /* for wcwidth() */
 		logging(WARN, "setlocale falied\n");
@@ -191,6 +200,19 @@ int YaFT::run(void)
 				if (VERBOSE)
 					ewrite(STDOUT_FILENO, buf, size);
 				parse(&term, buf, size);
+				while (term.lines_available > 0) {
+					std::string s = term.txt.front();
+					OnShellOutputLoop(&s, res, &ok);
+#if 0
+					if (res)
+						printf("[CTermWindow] [%s:%d] res=%d ok=%d\n", __func__, __LINE__, *res, ok);
+					else
+						printf("[CTermWindow] [%s:%d] res=NULL ok=%d\n", __func__, __LINE__, ok);
+#endif
+					// fprintf(stderr, "%d %s\n", term.lines_available, term.txt.front().c_str());
+					term.txt.pop();
+					term.lines_available--;
+				}
 				if (LAZY_DRAW && size == BUFSIZE)
 					continue; /* maybe more data arrives soon */
 				refresh(&fb, &term);

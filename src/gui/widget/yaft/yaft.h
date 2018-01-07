@@ -22,6 +22,9 @@
 #include <unistd.h>
 #include <wchar.h>
 
+#include <string>
+#include <queue>
+
 #include "glyph.h"
 #include "color.h"
 
@@ -177,6 +180,9 @@ struct terminal_t {
 	struct sixel_canvas_t sixel;
 #endif
 	CFrameBuffer *cfb;
+	std::queue<std::string> txt;             /* contains "sanitized" (without control chars) output text */
+	int lines_available;                     /* lines available in txt */
+	bool nlseen;
 };
 
 struct parm_t { /* for parse_arg() */

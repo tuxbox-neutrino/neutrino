@@ -150,6 +150,11 @@ void move_cursor(struct terminal_t *term, int y_offset, int x_offset)
 		scroll(term, top, bottom, y_offset);
 	}
 	term->cursor.y = y;
+
+	if (y_offset > 0 && !term->nlseen) {
+		term->txt.push("");
+		term->lines_available++;
+	}
 }
 
 /* absolute movement: never scroll */
@@ -168,6 +173,11 @@ void set_cursor(struct terminal_t *term, int y, int x)
 
 	x = (x < 0) ? 0: (x >= term->cols) ? term->cols - 1: x;
 	y = (y < top) ? top: (y > bottom) ? bottom: y;
+
+	if (term->cursor.y != y && !term->nlseen) {
+		term->txt.push("");
+		term->lines_available++;
+	}
 
 	term->cursor.x = x;
 	term->cursor.y = y;
@@ -204,6 +214,10 @@ void addch(struct terminal_t *term, uint32_t code)
 
 	width = wcwidth(code);
 
+	if (code <= 0xff) { /* non-ascii not supported */
+		char c = (char)code;
+		term->txt.back().append(&c, 1);
+	}
 	if (width <= 0)                                /* zero width: not support comibining character */
 		return;
 	else if (0x100000 <= code && code <= 0x10FFFD) /* unicode private area: plane 16 (DRCSMMv1) */

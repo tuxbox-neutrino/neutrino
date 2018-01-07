@@ -9,11 +9,16 @@
  */
 #ifndef __yaft_class__
 #define __yaft_class__
-class YaFT
+#include <sigc++/signal.h>
+
+class YaFT : public sigc::trackable
 {
+ private:
+	int *res;
  public:
-	YaFT(const char * const *argv);
+	YaFT(const char * const *argv, int *Res, sigc::signal<void, std::string*, int*, bool*>);
 	~YaFT();
 	int run();
+	sigc::signal<void, std::string*, int*, bool*> OnShellOutputLoop;
 };
 #endif
