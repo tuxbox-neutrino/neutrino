@@ -113,6 +113,7 @@ CInfoViewer::CInfoViewer ()
 	ChanWidth = 0;
 	ChanHeight = 0;
 	numbox_offset = 0;
+	numbox_maxtxtwidth = 0;
 	time_width = 0;
 	time_height = header_height = 0;
 	lastsnr = 0;
@@ -199,12 +200,13 @@ void CInfoViewer::start ()
 		      2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 25;
 	infoViewerBB->Init();
 
-	ChanWidth = std::max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10);
+	numbox_offset = OFFSET_INNER_SMALL;
+	ChanWidth = std::max(125, 4*g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 2*numbox_offset);
+	numbox_maxtxtwidth = ChanWidth - 2*numbox_offset;
 
 	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
 	ChanHeight += g_SignalFont->getHeight()/2;
 	ChanHeight = std::max(75, ChanHeight);
-	numbox_offset = 3;
 
 	BoxStartX = g_settings.screen_StartX + 10;
 	BoxEndX = g_settings.screen_EndX - 10;
@@ -790,12 +792,14 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 			std::string name = (IS_WEBCHAN(current_channel_id))? "Web-Channel" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 			int satNameWidth = g_SignalFont->getRenderWidth (name);
 			std::string satname_tmp = name;
-			if (satNameWidth > (ChanWidth - numbox_offset*2)) {
-				satNameWidth = ChanWidth - numbox_offset*2;
+			if (satNameWidth > numbox_maxtxtwidth)
+			{
+				satNameWidth = numbox_maxtxtwidth;
 				size_t pos1 = name.find("(") ;
 				size_t pos2 = name.find_last_of(")");
 				size_t pos0 = name.find(" ") ;
-				if ((pos1 != std::string::npos) && (pos2 != std::string::npos) && (pos0 != std::string::npos)) {
+				if ((pos1 != std::string::npos) && (pos2 != std::string::npos) && (pos0 != std::string::npos))
+				{
 					pos1++;
 					satname_tmp = name.substr(0, pos0 );
 
@@ -805,12 +809,12 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 					satname_tmp +=" ";
 					satname_tmp += name.substr( pos1,pos2-pos1 );
 					satNameWidth = g_SignalFont->getRenderWidth (satname_tmp);
-					if (satNameWidth > (ChanWidth - numbox_offset*2))
-						satNameWidth = ChanWidth - numbox_offset*2;
+					if (satNameWidth > numbox_maxtxtwidth)
+						satNameWidth = numbox_maxtxtwidth;
 				}
 			}
 			int h_sfont = g_SignalFont->getHeight();
-			g_SignalFont->RenderString (BoxStartX + numbox_offset + ((ChanWidth - satNameWidth) / 2) , numbox->getYPos() + h_sfont, satNameWidth, satname_tmp, COL_INFOBAR_TEXT, 0, renderFlag);
+			g_SignalFont->RenderString (BoxStartX + numbox_offset + ((numbox_maxtxtwidth - satNameWidth) / 2) , numbox->getYPos() + h_sfont, satNameWidth, satname_tmp, COL_INFOBAR_TEXT, 0, renderFlag);
 		}
 
 		/* TODO: the logic will get much easier once we decouple channellogo and signal bars */
@@ -825,9 +829,9 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 				y_tmp += h_sfont;
 			}
 			y_tmp += h_tmp/2 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/2;
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(BoxStartX + numbox_offset + (ChanWidth-g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum))/2,
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(BoxStartX + numbox_offset + (numbox_maxtxtwidth - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum))/2,
 											y_tmp,
-											ChanWidth - 2*numbox_offset,
+											numbox_maxtxtwidth, //FIXME: this value is definitely wrong here! We need to get render width from strChanNum.
 											strChanNum,
 											col_NumBoxText, 0, renderFlag);
 		}
@@ -1627,13 +1631,13 @@ void CInfoViewer::showSNR ()
 			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / 1000, frequency % 1000, polarisation.c_str());
 
 			int freqWidth = g_SignalFont->getRenderWidth(freq);
-			if (freqWidth > (ChanWidth - numbox_offset*2))
-				freqWidth = ChanWidth - numbox_offset*2;
-			g_SignalFont->RenderString(BoxStartX + numbox_offset + ((ChanWidth - freqWidth) / 2), y_numbox + y_freq - 3, ChanWidth - 2*numbox_offset, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT, 0, renderFlag);
+			if (freqWidth > numbox_maxtxtwidth)
+				freqWidth = numbox_maxtxtwidth;
+			g_SignalFont->RenderString(BoxStartX + numbox_offset + ((numbox_maxtxtwidth - freqWidth) / 2), y_numbox + y_freq - 3, freqWidth, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT, 0, renderFlag);
 			SDT_freq_update = false;
 		}
 		if (sigbox == NULL){
-			int sigbox_offset = ChanWidth *10/100;
+			int sigbox_offset = OFFSET_INNER_MID;
 			sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox+ChanHeight/2, ChanWidth - 2*sigbox_offset, ChanHeight/2, NULL, true, NULL, "S", "Q");
 			sigbox->setItemName("SIGBOX");
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
