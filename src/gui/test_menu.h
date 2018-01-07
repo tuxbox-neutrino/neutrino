@@ -62,6 +62,7 @@ class CTestMenu : public CMenuTarget
 		void showCCTests(CMenuWidget *widget);
 		void showMsgTests(CMenuWidget *widget);
 		void showRecords();
+		void handleShellOutput(std::string *line, int *, bool *);
 	public:	
 		CTestMenu();
 		~CTestMenu();

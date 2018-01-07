@@ -52,6 +52,7 @@
 
 #include <gui/widget/msgbox.h>
 #include <gui/widget/progresswindow.h>
+#include <gui/widget/termwindow.h>
 #include <gui/scan.h>
 #include <gui/scan_setup.h>
 #include <zapit/zapit.h>
@@ -115,6 +116,11 @@ CTestMenu::~CTestMenu()
 }
 
 //static int test_pos[4] = { 130, 192, 282, 360 };
+
+void CTestMenu::handleShellOutput(std::string *line, int *, bool *)
+{
+	fprintf(stderr, "%s: %s\n", __func__, line->c_str());
+}
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
@@ -975,6 +981,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		DisplayInfoMessage("Info Test!");
 		return menu_return::RETURN_REPAINT;
 	}
+	else if (actionKey == "shellwindow"){
+		sigc::slot3<void, std::string*, int *, bool *> sl_shell_output;
+		sl_shell_output = sigc::mem_fun(*this, &CTestMenu::handleShellOutput);
+		int r = 0;
+		const char *c = getenv("TEST_COMMAND");
+		std::string cmd = "/bin/ps auxwf";
+		if (c)
+			cmd = (std::string)c;
+		CTermWindow term(cmd, CTermWindow::VERBOSE | CTermWindow::ACKNOWLEDGE, &r, false);
+		term.OnShellOutputLoop.connect(sl_shell_output);
+		term.exec();
+		return menu_return::RETURN_REPAINT;
+	}
 	else if (actionKey == "msgbox_alt_btn"){
 		CMsgBox msgBox("Variable buttontext...", "Msgbox Test");
 		msgBox.setShowedButtons(CMsgBox::mbNo | CMsgBox::mbYes);
@@ -1110,6 +1129,7 @@ int CTestMenu::showTestMenu()
 	CMenuWidget w_test(rev /*"Test menu"*/, NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU);
 	w_test.addIntroItems();
 	
+	w_test.addItem(new CMenuForwarder("Shell Window Test", true, NULL, this, "shellwindow"));
 	//hardware
 	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HARDWARE);
 	w_test.addItem(new CMenuForwarder(w_hw->getName(), true, NULL, w_hw));
