@@ -23,8 +23,9 @@ enum {
 };
 
 /* TERM value */
-const char *term_name = "yaft-256color";
+const char *term_name = "linux";
 
+#if 0
 /* framubuffer device */
 #if defined(__linux__)
 	const char *fb_path = "/dev/fb0";
@@ -45,4 +46,5 @@ const char *term_name = "yaft-256color";
 	const char *shell_cmd = "/bin/csh";
 #elif defined(__ANDROID__)
 	const char *shell_cmd = "/system/bin/sh";
+#endif
 #endif
