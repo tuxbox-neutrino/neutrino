@@ -36,6 +36,7 @@
 #ifndef __MENU__
 #define __MENU__
 
+#include <sys/types.h> /* uint */
 #include <driver/neutrino_msg_t.h>
 #include <system/localize.h>
 #include <gui/widget/buttons.h>
