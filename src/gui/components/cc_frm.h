@@ -25,6 +25,7 @@
 #define __CC_FORM_H__
 
 
+#include <sys/types.h> /* crazy "u_int8_t" instead of plain uint8_t */
 #include "config.h"
 #include "cc_base.h"
 #include "cc_item.h"

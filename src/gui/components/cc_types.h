@@ -26,6 +26,7 @@
 #ifndef __CC_TYPES__
 #define __CC_TYPES__
 
+#include <stdint.h>
 #include <system/localize.h>
 #include <driver/neutrino_msg_t.h>
 #include <gui/color_custom.h>
