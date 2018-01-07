@@ -32,7 +32,6 @@
 #define __OPKG_MANAGER__
 
 #include <gui/widget/menue.h>
-#include <gui/widget/shellwindow.h>
 #include <configfile.h>
 #include <string>
 #include <vector>

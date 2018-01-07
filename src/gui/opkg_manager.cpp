@@ -34,6 +34,9 @@
 #endif
 
 #include <gui/opkg_manager.h>
+#include <gui/widget/termwindow.h>
+/* hack, so we don't have to change all code below */
+#define CShellWindow CTermWindow
 
 #include <global.h>
 #include <neutrino.h>
