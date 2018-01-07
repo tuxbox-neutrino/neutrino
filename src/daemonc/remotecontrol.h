@@ -33,7 +33,7 @@
 #ifndef __remotecontrol__
 #define __remotecontrol__
 
-#include <driver/rcinput.h> /* neutrino_msg_t, neutrino_msg_data_t */
+#include <driver/neutrino_msg_t.h>
 
 #include <zapit/client/zapitclient.h>
 

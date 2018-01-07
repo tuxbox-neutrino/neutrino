@@ -52,6 +52,8 @@
 #endif
 #endif
 
+#include <driver/neutrino_msg_t.h>
+
 #ifndef KEY_OK
 #define KEY_OK           0x160
 #endif
@@ -116,13 +118,6 @@
 	#define KEY_FN_S
 	#define KEY_FN_B
 */
-
-
-typedef unsigned long neutrino_msg_t;
-typedef unsigned long neutrino_msg_data_t;
-
-#define NEUTRINO_UDS_NAME "/tmp/neutrino.sock"
-
 
 class CRCInput
 {
@@ -275,7 +270,7 @@ class CRCInput
 			RC_zoomout	= KEY_ZOOMOUT,
 
 			RC_timeout	= 0xFFFFFFFF,
-			RC_nokey	= 0xFFFFFFFE
+			RC_nokey	= RC_NOKEY
 		};
 
 		//rc-hardware definitions

@@ -31,10 +31,10 @@
 
 #include <gui/widget/menue.h>
 #include <gui/audioplayer.h>
-#include <gui/personalize.h>
 
 #include <string>
 
+class CPersonalizeGui;
 class CMediaPlayerMenu : public CMenuTarget
 {
 	private:

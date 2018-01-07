@@ -34,7 +34,7 @@
 #include <gui/widget/icons.h>
 #include <string>
 #include <driver/neutrinofonts.h>
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 
 #define COL_BUTTON_BODY COL_MENUFOOT_PLUS_0
 #define COL_BUTTON_TEXT_ENABLED COL_MENUCONTENTSELECTED_PLUS_0

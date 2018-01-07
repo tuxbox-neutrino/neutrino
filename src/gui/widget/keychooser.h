@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 
 #include "menue.h"
 

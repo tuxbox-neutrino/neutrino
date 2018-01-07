@@ -35,6 +35,7 @@
 #include <config.h>
 #endif
 
+#include <driver/rcinput.h>
 #include "user_menue_setup.h"
 
 #include <global.h>

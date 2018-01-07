@@ -26,6 +26,7 @@
 
 #include <zapit/settings.h>
 #include <zapit/scan.h>
+#include <driver/rcinput.h>
 #include <gui/personalize.h>
 
 //enum PERSONALIZE_SETTINGS to find in settings.h

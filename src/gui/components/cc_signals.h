@@ -89,7 +89,7 @@ class CYourClass : sigc::trackable //<- not forget, requierd by destructor!
 
 #include <sigc++/signal.h>
 #include <sigc++/bind.h>
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 
 class CComponentsSignals : public sigc::trackable
 {

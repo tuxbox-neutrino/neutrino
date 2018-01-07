@@ -28,7 +28,7 @@
 
 #include <timerdclient/timerdtypes.h>
 
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 #include <system/settings.h>
 #include <gui/components/cc.h>
 #include <gui/widget/navibar.h>

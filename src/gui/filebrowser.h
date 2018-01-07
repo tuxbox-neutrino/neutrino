@@ -38,7 +38,7 @@
 #endif
 
 #include <driver/file.h>
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 
 #include <gui/infoviewer.h>
 

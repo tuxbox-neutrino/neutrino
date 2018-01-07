@@ -96,7 +96,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 					const std::string& text,
 					const int& chain_width = 0,
 					const int& label_width = 0,
-					const neutrino_msg_t& msg = CRCInput::RC_nokey,
+					const neutrino_msg_t& msg = RC_NOKEY /*CRCInput::RC_nokey*/,
 					const int& result_value = -1,
 					const int& alias_value = -1);
 		///add single button label with locale label type as content, chain_width as int, label width as int
@@ -104,7 +104,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 					const neutrino_locale_t& locale,
 					const int& chain_width = 0,
 					const int& label_width = 0,
-					const neutrino_msg_t& msg = CRCInput::RC_nokey,
+					const neutrino_msg_t& msg = RC_NOKEY /*CRCInput::RC_nokey*/,
 					const int& result_value = -1,
 					const int& alias_value = -1);
 		

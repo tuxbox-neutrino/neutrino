@@ -35,7 +35,7 @@
 
 #include <sectionsdclient/sectionsdclient.h>
 
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 #include <system/settings.h>
 #include <string>
 #include <zapit/channel.h>

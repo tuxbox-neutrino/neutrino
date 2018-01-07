@@ -43,6 +43,7 @@
 #endif
 #include <unistd.h>
 
+#include <driver/rcinput.h>
 #include "user_menue.h"
 #include "user_menue_setup.h"
 #include "subchannel_select.h"
