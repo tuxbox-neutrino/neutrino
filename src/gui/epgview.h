@@ -33,7 +33,6 @@
 #ifndef __epgview__
 #define __epgview__
 
-#include <driver/rcinput.h>
 #include <system/settings.h>
 
 #include <driver/movieinfo.h>
