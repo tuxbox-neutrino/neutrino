@@ -41,6 +41,10 @@
 #undef DEBUG
 #endif
 
+/* this will not fly with more than one instance */
+static pid_t childpid;
+static int exitcode;
+
 static void sig_handler(int signo)
 {
 	/* global */
@@ -48,10 +52,23 @@ static void sig_handler(int signo)
 
 	logging(DEBUG, "caught signal! no:%d\n", signo);
 
-	if (signo == SIGCHLD) {
-		child_alive = false;
-		wait(NULL);
+	if (signo != SIGCHLD)
+		return;
+
+	int wstatus;
+	int ret = waitpid(childpid, &wstatus, 0);
+	if (ret < 0) {
+		int e = errno;
+		logging(ERROR, "terminal: wait for %d returned %m\n", childpid);
+		if (e == ECHILD)
+			return; /* don_t reset child_alive */
 	}
+	if (WIFEXITED(wstatus))
+		exitcode = WEXITSTATUS(wstatus);
+	else if (WIFSIGNALED(wstatus))
+		exitcode = 128 + WTERMSIG(wstatus); /* simulate shell behaviour */
+	logging(WARN, "terminal: %d exited with %d\n", childpid, exitcode);
+	child_alive = false;
 }
 
 bool tty_init(void)
@@ -91,7 +108,7 @@ bool tty_init(void)
 }
 
 static const char * const *yaft_argv;
-static bool fork_and_exec(int *master, int lines, int cols)
+static pid_t fork_and_exec(int *master, int lines, int cols)
 {
 	struct winsize ws;
 	ws.ws_row = lines;
@@ -103,15 +120,13 @@ static bool fork_and_exec(int *master, int lines, int cols)
 
 	pid_t pid;
 	pid = eforkpty(master, NULL, NULL, &ws);
-	if (pid < 0)
-		return false;
-	else if (pid == 0) { /* child */
+	if (pid == 0) { /* child */
 		esetenv("TERM", term_name, 1);
 		execvp(yaft_argv[0], (char * const *)yaft_argv);
 		/* never reach here */
 		exit(EXIT_FAILURE);
 	}
-	return true;
+	return pid;
 }
 
 static int check_fds(fd_set *fds, struct timeval *tv, int input, int master)
@@ -152,6 +167,7 @@ int YaFT::run(void)
 	term.txt.push("");
 	term.lines_available = 0;
 	term.nlseen = false;
+	exitcode = 0;
 
 	/* init */
 	if (setlocale(LC_ALL, "") == NULL) /* for wcwidth() */
@@ -173,7 +189,7 @@ int YaFT::run(void)
 	}
 
 	/* fork and exec shell */
-	if (!fork_and_exec(&term.fd, term.lines, term.cols)) {
+	if ((childpid = fork_and_exec(&term.fd, term.lines, term.cols)) < 0) {
 		logging(FATAL, "forkpty failed\n");
 		goto tty_init_failed;
 	}
@@ -223,7 +239,7 @@ int YaFT::run(void)
 
 	/* normal exit */
 	term_die(&term);
-	return EXIT_SUCCESS;
+	return exitcode;
 
 	/* error exit */
 tty_init_failed:
