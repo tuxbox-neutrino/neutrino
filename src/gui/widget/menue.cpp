@@ -561,6 +561,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 {
 	//pos
 	x = y		= 0;
+	height		= 0;
 
 	//caption and icon
 	nameString 	= NameString;
