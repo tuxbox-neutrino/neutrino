@@ -104,8 +104,9 @@ static int check_fds(fd_set *fds, struct timeval *tv, int input, int master)
 	return eselect(master + 1, fds, NULL, NULL, tv);
 }
 
-YaFT::YaFT(const char * const *argv, int *Res, sigc::signal<void, std::string*, int*, bool*>func)
+YaFT::YaFT(const char * const *argv, int *Res, bool Paint, sigc::signal<void, std::string*, int*, bool*>func)
 {
+	paint = Paint;
 	yaft_argv = argv;
 	res = Res;
 	OnShellOutputLoop = func;
@@ -164,8 +165,10 @@ int YaFT::run(void)
 	while (child_alive) {
 		if (need_redraw) {
 			need_redraw = false;
-			redraw(&term);
-			refresh(&fb, &term);
+			if (paint) {
+				redraw(&term);
+				refresh(&fb, &term);
+			}
 		}
 
 		if (check_fds(&fds, &tv, STDIN_FILENO, term.fd) == -1)
@@ -194,13 +197,16 @@ int YaFT::run(void)
 					term.txt.pop();
 					term.lines_available--;
 				}
+				if (! paint)
+					continue;
 				if (LAZY_DRAW && size == BUFSIZE)
 					continue; /* maybe more data arrives soon */
 				refresh(&fb, &term);
 			}
 		}
 	}
-	refresh(&fb, &term);
+	if (paint)
+		refresh(&fb, &term);
 
 	/* normal exit */
 	term_die(&term);
