@@ -1,3 +1,5 @@
+SUBDIRS = yaft
+
 AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 AM_CPPFLAGS += \
