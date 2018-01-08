@@ -821,17 +821,19 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		if ((!logo_ok && g_settings.infobar_show_channellogo < 2) || g_settings.infobar_show_channellogo == 2 || g_settings.infobar_show_channellogo == 4) // no logo in numberbox
 		{
 			// show number in numberbox
-			int h_tmp 	= numbox->getHeight();
-			int y_tmp 	= numbox->getYPos() + 5*100/h_tmp; //5%
-			if (g_settings.infobar_sat_display){
+			int h_tmp = numbox->getHeight();
+			int y_tmp = numbox->getYPos() + OFFSET_INNER_MIN;
+			int w_tmp = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum);
+			if (g_settings.infobar_sat_display)
+			{
 				int h_sfont = g_SignalFont->getHeight();
 				h_tmp -= h_sfont;
 				y_tmp += h_sfont;
 			}
 			y_tmp += h_tmp/2 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/2;
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(BoxStartX + numbox_offset + (numbox_maxtxtwidth - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum))/2,
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(BoxStartX + numbox_offset + (numbox_maxtxtwidth - w_tmp)/2,
 											y_tmp,
-											numbox_maxtxtwidth, //FIXME: this value is definitely wrong here! We need to get render width from strChanNum.
+											w_tmp,
 											strChanNum,
 											col_NumBoxText, 0, renderFlag);
 		}
