@@ -81,9 +81,6 @@ extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
 extern cVideo * videoDecoder;
 
-
-#define LEFT_OFFSET 5
-
 event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
@@ -600,7 +597,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if (g_settings.infobar_show_channellogo > 1)
 		ChannelLogoMode = showChannelLogo(current_channel_id, 0);
 	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + OFFSET_INNER_MID, ChanNameY + header_height,BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - LEFT_OFFSET - OFFSET_INNER_MID, ChannelName, COL_INFOBAR_TEXT, 0, renderFlag);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + OFFSET_INNER_MID, ChanNameY + header_height,BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - OFFSET_INNER_MID, ChannelName, COL_INFOBAR_TEXT, 0, renderFlag);
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
@@ -856,7 +853,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 			fb_pixel_t color = COL_INFOBAR_TEXT;
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
 				ChanNameX + OFFSET_INNER_MID + ChanNumWidth + OFFSET_INNER_MID, ChanNameY + header_height,
-				BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - LEFT_OFFSET - OFFSET_INNER_MID - ChanNumWidth,
+				BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - OFFSET_INNER_MID - ChanNumWidth,
 				ChannelName, color /*COL_INFOBAR_TEXT*/, 0, renderFlag);
 			//provider name
 			if(g_settings.infobar_show_channeldesc && channel->pname){
@@ -873,7 +870,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 						+ g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitOffset());
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
 					ChanNameX + OFFSET_INNER_MID + ChanNumWidth + OFFSET_INNER_MID + chname_width, tmpY,
-					BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - LEFT_OFFSET - OFFSET_INNER_MID - ChanNumWidth - chname_width,
+					BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - OFFSET_INNER_MID - ChanNumWidth - chname_width,
 					prov_name, color /*COL_INFOBAR_TEXT*/, 0, renderFlag);
 			}
 
@@ -2124,7 +2121,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	int logo_x = 0, logo_y = 0;
 	int res = 0;
 	int start_x = ChanNameX;
-	int chan_w = BoxEndX - (start_x + 2*OFFSET_INNER_MID) - time_width - LEFT_OFFSET - OFFSET_INNER_MID;
+	int chan_w = BoxEndX - (start_x + 2*OFFSET_INNER_MID) - time_width - OFFSET_INNER_MID;
 
 	bool logo_available = g_PicViewer->GetLogoName(logo_channel_id, ChannelName, strAbsIconPath, &logo_w, &logo_h);
 
