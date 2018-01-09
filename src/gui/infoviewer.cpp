@@ -191,7 +191,7 @@ void CInfoViewer::Init()
 */
 void CInfoViewer::start ()
 {
-	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + OFFSET_INNER_SMALL; // add small offset for safety
+	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + OFFSET_INNER_MID;
 
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +
 		      2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 25;
@@ -1685,7 +1685,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 
 	int xStart = InfoX;
 	if (starttimes)
-		xStart += info_time_width + OFFSET_INNER_MID;
+		xStart += info_time_width;
 
 	int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
 	switch(g_settings.infobar_progressbar)
