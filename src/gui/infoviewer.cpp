@@ -782,12 +782,13 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	{
 		char strChanNum[10];
 		snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
-		const int channel_number_width =(g_settings.infobar_show_channellogo == 6) ? 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum) : 0;
-		ChannelLogoMode = showChannelLogo(current_channel_id,channel_number_width); // get logo mode, paint channel logo if adjusted
+		const int channel_number_width = (g_settings.infobar_show_channellogo == 6) ? g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(strChanNum) : 0;
+		ChannelLogoMode = showChannelLogo(current_channel_id, channel_number_width); // get logo mode, paint channel logo if adjusted
 		logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
 		//fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
-		if (g_settings.infobar_sat_display) {
+		if (g_settings.infobar_sat_display)
+		{
 			// TODO split into WebTV/WebRadio
 			std::string name = (IS_WEBCHAN(current_channel_id))? "Web-Channel" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 			int satNameWidth = g_SignalFont->getRenderWidth (name);
@@ -837,22 +838,24 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 											strChanNum,
 											col_NumBoxText, 0, renderFlag);
 		}
-		if (ChannelLogoMode == 1 || ( g_settings.infobar_show_channellogo == 3 && !logo_ok) || g_settings.infobar_show_channellogo == 6 ) /* channel number besides channel name */
+		if (ChannelLogoMode == 1 || (g_settings.infobar_show_channellogo == 3 && !logo_ok) || g_settings.infobar_show_channellogo == 6 ) /* channel number besides channel name */
 		{
-			ChanNumWidth = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum);
+			ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(strChanNum);
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
-				ChanNameX + 5, ChanNameY + header_height,
+				ChanNameX + OFFSET_INNER_MID, ChanNameY + header_height,
 				ChanNumWidth, strChanNum, col_NumBoxText, 0, renderFlag);
 		}
 	}
 
-	if (g_settings.infobar_show_channellogo < 5 || !logo_ok) {
-		if (ChannelLogoMode != 2) {
+	if (g_settings.infobar_show_channellogo < 5 || !logo_ok)
+	{
+		if (ChannelLogoMode != 2)
+		{
 			//FIXME good color to display inactive for zap ?
 			//fb_pixel_t color = CNeutrinoApp::getInstance ()->channelList->SameTP(new_channel_id) ? COL_INFOBAR_TEXT : COL_MENUFOOT_TEXT;
 			fb_pixel_t color = COL_INFOBAR_TEXT;
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
-				ChanNameX + OFFSET_INNER_MID + ChanNumWidth, ChanNameY + header_height,
+				ChanNameX + OFFSET_INNER_MID + ChanNumWidth + OFFSET_INNER_MID, ChanNameY + header_height,
 				BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - LEFT_OFFSET - OFFSET_INNER_MID - ChanNumWidth,
 				ChannelName, color /*COL_INFOBAR_TEXT*/, 0, renderFlag);
 			//provider name
@@ -869,7 +872,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 				int tmpY = ((ChanNameY + header_height) - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset()
 						+ g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitOffset());
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
-					ChanNameX + OFFSET_INNER_MID + ChanNumWidth + chname_width, tmpY,
+					ChanNameX + OFFSET_INNER_MID + ChanNumWidth + OFFSET_INNER_MID + chname_width, tmpY,
 					BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - LEFT_OFFSET - OFFSET_INNER_MID - ChanNumWidth - chname_width,
 					prov_name, color /*COL_INFOBAR_TEXT*/, 0, renderFlag);
 			}
@@ -2162,7 +2165,9 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 // this is too ugly...		ChannelName = "";
 		// calculate logo position
 		y_mid = ChanNameY + header_height / 2;
-		logo_x = start_x + OFFSET_INNER_MID + channel_number_width;;
+		logo_x = start_x + OFFSET_INNER_MID;
+		if (channel_number_width)
+			logo_x += channel_number_width + OFFSET_INNER_MID;
 		logo_y = y_mid - logo_h / 2;
 		if (g_settings.infobar_show_channellogo == 2)
 			res = 2;
@@ -2179,7 +2184,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 		logo_x = start_x + OFFSET_INNER_MID;
 		logo_y = y_mid - logo_h / 2;
 		// set channel name x pos right of the logo
-		ChanNameX = start_x + logo_w + OFFSET_INNER_MID;
+		ChanNameX = start_x + OFFSET_INNER_MID + logo_w + OFFSET_INNER_MID;
 		if (g_settings.infobar_show_channellogo == 3)
 			res = 3;
 		else
