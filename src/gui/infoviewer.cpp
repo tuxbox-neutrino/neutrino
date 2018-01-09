@@ -1997,11 +1997,11 @@ void CInfoViewer::showInfoFile()
 	}
 
 	//set position of info area
-	const int oOffset	= 140; // outer left/right offset
+	const int oOffset	= frameBuffer->scale2Res(140); // outer left/right offset; space for rec-Icon box
 	const int xStart	= BoxStartX + ChanWidth + oOffset;
 	const int yStart	= BoxStartY;
 	const int width		= BoxEndX - xStart - oOffset - pb_w;
-	const int height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
+	const int height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + OFFSET_INNER_MIN;
 
 	//create info object
 	if (infobar_txt == NULL){
