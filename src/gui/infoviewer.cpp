@@ -95,7 +95,7 @@ CInfoViewer::CInfoViewer ()
 {
 	sigbox = NULL;
 	header = numbox = body = rec = NULL;
-	txt_cur_start = txt_cur_event = txt_cur_event_rest = txt_next_start = txt_next_event = txt_next_in = NULL;
+	txt_cur_start = txt_cur_event = txt_cur_rest = txt_next_start = txt_next_event = txt_next_in = NULL;
 	timescale = NULL;
 	clock = NULL;
 	info_CurrentNext.current_zeit.startzeit = 0;
@@ -451,12 +451,12 @@ void CInfoViewer::paintBody()
 		body = new CComponentsShapeSquare(ChanInfoX, y_body, BoxEndX-ChanInfoX, h_body);
 		body->setItemName("body");
 	} else {
-		if (txt_cur_event && txt_cur_start && txt_cur_event_rest &&
+		if (txt_cur_event && txt_cur_start && txt_cur_rest &&
 				txt_next_event && txt_next_start && txt_next_in) {
 			if (h_body != body->getHeight() || y_body != body->getYPos()){
 				txt_cur_start->getCTextBoxObject()->clearScreenBuffer();
 				txt_cur_event->getCTextBoxObject()->clearScreenBuffer();
-				txt_cur_event_rest->getCTextBoxObject()->clearScreenBuffer();
+				txt_cur_rest->getCTextBoxObject()->clearScreenBuffer();
 				txt_next_start->getCTextBoxObject()->clearScreenBuffer();
 				txt_next_event->getCTextBoxObject()->clearScreenBuffer();
 				txt_next_in->getCTextBoxObject()->clearScreenBuffer();
@@ -1780,15 +1780,15 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		}
 
 		if (runningRest){
-			if (txt_cur_event_rest == NULL)
-				txt_cur_event_rest = new CComponentsTextTransp(NULL, currTimeX, CurrInfoY - height, currTimeW, height);
+			if (txt_cur_rest == NULL)
+				txt_cur_rest = new CComponentsTextTransp(NULL, currTimeX, CurrInfoY - height, currTimeW, height);
 			else
-				txt_cur_event_rest->setDimensionsAll(currTimeX, CurrInfoY - height, currTimeW, height);
-			txt_cur_event_rest->setItemName("txt_cur_event_rest");
-			txt_cur_event_rest->setText(runningRest, CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-			if (txt_cur_event_rest->isPainted())
-				txt_cur_event_rest->hide();
-			txt_cur_event_rest->paint(CC_SAVE_SCREEN_YES);
+				txt_cur_rest->setDimensionsAll(currTimeX, CurrInfoY - height, currTimeW, height);
+			txt_cur_rest->setItemName("txt_cur_rest");
+			txt_cur_rest->setText(runningRest, CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
+			if (txt_cur_rest->isPainted())
+				txt_cur_rest->hide();
+			txt_cur_rest->paint(CC_SAVE_SCREEN_YES);
 		}
 	}
 
@@ -2073,8 +2073,8 @@ void CInfoViewer::killTitle()
 
 		if (txt_cur_event)
 			txt_cur_event->kill();
-		if (txt_cur_event_rest)
-			txt_cur_event_rest->kill();
+		if (txt_cur_rest)
+			txt_cur_rest->kill();
 		if (txt_cur_start)
 			txt_cur_start->kill();
 		if (txt_next_start)
@@ -2294,8 +2294,8 @@ void CInfoViewer::ResetModules()
 		delete clock;		clock 		= NULL;
 	}
 	delete txt_cur_start; 		txt_cur_start 	= NULL;
-	delete txt_cur_event; 		txt_cur_event 	= NULL;
-	delete txt_cur_event_rest; 	txt_cur_event_rest = NULL;
+	delete txt_cur_event;		txt_cur_event 	= NULL;
+	delete txt_cur_rest;		txt_cur_rest	= NULL;
 	delete txt_next_start; 		txt_next_start 	= NULL;
 	delete txt_next_event; 		txt_next_event 	= NULL;
 	delete txt_next_in; 		txt_next_in 	= NULL;
