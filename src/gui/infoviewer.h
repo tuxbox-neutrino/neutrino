@@ -52,7 +52,7 @@ class CInfoViewer
 	CInfoViewerBB* infoViewerBB;
 	CComponentsFrmClock *clock;
 	CComponentsShapeSquare *header , *numbox, *body, *rec;
-	CComponentsTextTransp *txt_cur_start, *txt_cur_event, *txt_cur_rest, *txt_next_start, *txt_next_event, *txt_next_in;
+	CComponentsTextTransp *txt_curr_start, *txt_curr_event, *txt_curr_rest, *txt_next_start, *txt_next_event, *txt_next_in;
 
 	bool           gotTime;
 	bool           recordModeActive;

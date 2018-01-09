@@ -95,7 +95,7 @@ CInfoViewer::CInfoViewer ()
 {
 	sigbox = NULL;
 	header = numbox = body = rec = NULL;
-	txt_cur_start = txt_cur_event = txt_cur_rest = txt_next_start = txt_next_event = txt_next_in = NULL;
+	txt_curr_start = txt_curr_event = txt_curr_rest = txt_next_start = txt_next_event = txt_next_in = NULL;
 	timescale = NULL;
 	clock = NULL;
 	info_CurrentNext.current_zeit.startzeit = 0;
@@ -451,12 +451,12 @@ void CInfoViewer::paintBody()
 		body = new CComponentsShapeSquare(ChanInfoX, y_body, BoxEndX-ChanInfoX, h_body);
 		body->setItemName("body");
 	} else {
-		if (txt_cur_event && txt_cur_start && txt_cur_rest &&
+		if (txt_curr_event && txt_curr_start && txt_curr_rest &&
 				txt_next_event && txt_next_start && txt_next_in) {
 			if (h_body != body->getHeight() || y_body != body->getYPos()){
-				txt_cur_start->getCTextBoxObject()->clearScreenBuffer();
-				txt_cur_event->getCTextBoxObject()->clearScreenBuffer();
-				txt_cur_rest->getCTextBoxObject()->clearScreenBuffer();
+				txt_curr_start->getCTextBoxObject()->clearScreenBuffer();
+				txt_curr_event->getCTextBoxObject()->clearScreenBuffer();
+				txt_curr_rest->getCTextBoxObject()->clearScreenBuffer();
 				txt_next_start->getCTextBoxObject()->clearScreenBuffer();
 				txt_next_event->getCTextBoxObject()->clearScreenBuffer();
 				txt_next_in->getCTextBoxObject()->clearScreenBuffer();
@@ -1757,38 +1757,38 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 
 	//current event
 	if (current && update_current){
-		if (txt_cur_event == NULL)
-			txt_cur_event = new CComponentsTextTransp(NULL, xStart, CurrInfoY - height, currTimeX - xStart, height);
+		if (txt_curr_event == NULL)
+			txt_curr_event = new CComponentsTextTransp(NULL, xStart, CurrInfoY - height, currTimeX - xStart, height);
 		else
-			txt_cur_event->setDimensionsAll(xStart, CurrInfoY - height, currTimeX - xStart, height);
-		txt_cur_event->setItemName("txt_cur_event");
-		txt_cur_event->setText(current, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-		if (txt_cur_event->isPainted())
-			txt_cur_event->hide();
-		txt_cur_event->paint(CC_SAVE_SCREEN_YES);
+			txt_curr_event->setDimensionsAll(xStart, CurrInfoY - height, currTimeX - xStart, height);
+		txt_curr_event->setItemName("txt_curr_event");
+		txt_curr_event->setText(current, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
+		if (txt_curr_event->isPainted())
+			txt_curr_event->hide();
+		txt_curr_event->paint(CC_SAVE_SCREEN_YES);
 
 		if (runningStart && starttimes){
-			if (txt_cur_start == NULL)
-				txt_cur_start = new CComponentsTextTransp(NULL, InfoX, CurrInfoY - height, info_time_width, height);
+			if (txt_curr_start == NULL)
+				txt_curr_start = new CComponentsTextTransp(NULL, InfoX, CurrInfoY - height, info_time_width, height);
 			else
-				txt_cur_start->setDimensionsAll(InfoX, CurrInfoY - height, info_time_width, height);
-			txt_cur_start->setItemName("txt_cur_start");
-			txt_cur_start->setText(runningStart, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-			if (txt_cur_event->isPainted())
-				txt_cur_event->hide();
-			txt_cur_start->paint(CC_SAVE_SCREEN_YES);
+				txt_curr_start->setDimensionsAll(InfoX, CurrInfoY - height, info_time_width, height);
+			txt_curr_start->setItemName("txt_curr_start");
+			txt_curr_start->setText(runningStart, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
+			if (txt_curr_event->isPainted())
+				txt_curr_event->hide();
+			txt_curr_start->paint(CC_SAVE_SCREEN_YES);
 		}
 
 		if (runningRest){
-			if (txt_cur_rest == NULL)
-				txt_cur_rest = new CComponentsTextTransp(NULL, currTimeX, CurrInfoY - height, currTimeW, height);
+			if (txt_curr_rest == NULL)
+				txt_curr_rest = new CComponentsTextTransp(NULL, currTimeX, CurrInfoY - height, currTimeW, height);
 			else
-				txt_cur_rest->setDimensionsAll(currTimeX, CurrInfoY - height, currTimeW, height);
-			txt_cur_rest->setItemName("txt_cur_rest");
-			txt_cur_rest->setText(runningRest, CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-			if (txt_cur_rest->isPainted())
-				txt_cur_rest->hide();
-			txt_cur_rest->paint(CC_SAVE_SCREEN_YES);
+				txt_curr_rest->setDimensionsAll(currTimeX, CurrInfoY - height, currTimeW, height);
+			txt_curr_rest->setItemName("txt_curr_rest");
+			txt_curr_rest->setText(runningRest, CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
+			if (txt_curr_rest->isPainted())
+				txt_curr_rest->hide();
+			txt_curr_rest->paint(CC_SAVE_SCREEN_YES);
 		}
 	}
 
@@ -2071,12 +2071,12 @@ void CInfoViewer::killTitle()
 
 		body->kill();
 
-		if (txt_cur_event)
-			txt_cur_event->kill();
-		if (txt_cur_rest)
-			txt_cur_rest->kill();
-		if (txt_cur_start)
-			txt_cur_start->kill();
+		if (txt_curr_event)
+			txt_curr_event->kill();
+		if (txt_curr_rest)
+			txt_curr_rest->kill();
+		if (txt_curr_start)
+			txt_curr_start->kill();
 		if (txt_next_start)
 			txt_next_start->kill();
 		if (txt_next_event)
@@ -2293,9 +2293,9 @@ void CInfoViewer::ResetModules()
 	{
 		delete clock;		clock 		= NULL;
 	}
-	delete txt_cur_start; 		txt_cur_start 	= NULL;
-	delete txt_cur_event;		txt_cur_event 	= NULL;
-	delete txt_cur_rest;		txt_cur_rest	= NULL;
+	delete txt_curr_start; 		txt_curr_start 	= NULL;
+	delete txt_curr_event;		txt_curr_event 	= NULL;
+	delete txt_curr_rest;		txt_curr_rest	= NULL;
 	delete txt_next_start; 		txt_next_start 	= NULL;
 	delete txt_next_event; 		txt_next_event 	= NULL;
 	delete txt_next_in; 		txt_next_in 	= NULL;
