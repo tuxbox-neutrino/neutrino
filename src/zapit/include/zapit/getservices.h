@@ -68,7 +68,8 @@ class CServiceManager
 		int tp_count;
 		uint32_t fake_tid;
 		uint32_t fake_nid;
-		uint32_t fake_pos;
+		uint32_t fake_t_pos;
+		uint32_t fake_c_pos;
 		int newfound;
 
 		tallchans allchans;

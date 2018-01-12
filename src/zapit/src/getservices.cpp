@@ -907,12 +907,11 @@ bool CServiceManager::LoadScanXml(delivery_system_t delsys)
 				InitSatPosition(position, name, false, ALL_SAT);
 			} else if (delivery_name == "terrestrial") {
 				const char * name = xmlGetAttribute(search, "name");
-				position = fake_pos++;
-				position &= 0x0EFF;
+				position = fake_t_pos++;
 				InitSatPosition(position, name, false, ALL_TERR);
 			} else if(delivery_name == "cable") {
 				const char * name = xmlGetAttribute(search, "name");
-				position = fake_pos++;
+				position = fake_c_pos++;
 				InitSatPosition(position, name, false, ALL_CABLE, xmlGetNumericAttribute(search, "nid", 0));
 			} else {
 			}
@@ -948,7 +947,8 @@ bool CServiceManager::LoadServices(bool only_current)
 	dup_numbers = false;
 
 	fake_tid = fake_nid = 0;
-	fake_pos = 0xF00;
+	fake_t_pos = 0xE11;
+	fake_c_pos = 0xF01;
 
 	if (CFEManager::getInstance()->haveSat()) {
 		INFO("Loading satellites...");
@@ -979,12 +979,12 @@ bool CServiceManager::LoadServices(bool only_current)
 			} else if (delivery_name == "terrestrial") {
 				position = GetSatellitePosition(name);
 				if (!position)
-					position = (0x0EFF & fake_pos++);
+					position = fake_t_pos++;
 				InitSatPosition(position, name, false, ALL_TERR);
 			} else if (delivery_name == "cable") {
 				position = GetSatellitePosition(name);
 				if (!position)
-					position = fake_pos++;
+					position = fake_c_pos++;
 				InitSatPosition(position, name, false, ALL_CABLE);
 			} else {
 			}
