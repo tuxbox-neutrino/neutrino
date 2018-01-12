@@ -417,11 +417,15 @@ bool CSdt::AddToBouquet(std::string &providerName, CZapitChannel *channel)
 	case ST_NVOD_TIME_SHIFTED_SERVICE:
 		{
 			char pname[100];
-			if (!cable)
-				snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W',
+			if SAT_POSITION_CABLE(satellitePosition)
+				snprintf(pname, 100, "[C%03d.%d] %s",
+						abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
+			else if SAT_POSITION_TERR(satellitePosition)
+				snprintf(pname, 100, "[T%03d.%d] %s",
 						abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
 			else
-				snprintf(pname, 100, "%s", providerName.c_str());
+				snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W',
+						abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
 
 			int bouquetId = scanBouquetManager->existsBouquet(pname);
 			CZapitBouquet* bouquet;
