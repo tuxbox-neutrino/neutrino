@@ -164,11 +164,13 @@ bool CFlashUpdate::checkOnlineVersion()
 	std::vector<CUpdateMenuTarget*> update_t_list;
 
 	CConfigFile _configfile('\t');
-	const char * versionString = (_configfile.loadConfig( "/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
+	std::string versionString = "????????????????";
+	if (_configfile.loadConfig(TARGET_PREFIX "/.version"))
+		versionString = _configfile.getString("version", "????????????????");
 	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
-	CFlashVersionInfo curInfo(versionString);
+	CFlashVersionInfo curInfo(versionString.c_str());
 	curVer = curInfo.getVersion();
-	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%ld)\n", versionString, curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
+	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%ld)\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
 
 	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
 	if (urlFile >> url) {
