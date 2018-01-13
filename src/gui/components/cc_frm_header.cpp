@@ -302,7 +302,7 @@ void CComponentsHeader::initLogo()
 		*/
 		int logo_id = getCCItemId(cch_logo_obj);
 		CComponentsItem *prev_item = getCCItem((cch_caption_align & CC_TITLE_RIGHT) ? logo_id - 2 : logo_id - 1);
-		CComponentsItem *next_item = getCCItem((cch_caption_align & CC_TITLE_RIGHT) ? logo_id - 1 : logo_id + 1);
+		CComponentsItem *next_item = getCCItem((cch_caption_align & CC_TITLE_RIGHT) ? logo_id - 1 : min(logo_id + 1, (int)size()-1));
 
 		/*
 		 * FIXME: Workaround to fix next item in case of wrong order of items.
