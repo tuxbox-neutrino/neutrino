@@ -25,6 +25,7 @@
 /* maybe on command line? */
 #undef DEBUG
 #endif
+static int CELL_WIDTH, CELL_HEIGHT;
 #include "yaft.h"
 #include "conf.h"
 #include "util.h"

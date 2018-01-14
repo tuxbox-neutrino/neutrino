@@ -370,11 +370,22 @@ void term_die(struct terminal_t *term)
 bool term_init(struct terminal_t *term, int width, int height)
 {
 	extern const uint32_t color_list[COLORS]; /* global */
+	const glyph_t *_glyphs;
 
 	term->width  = width;
 	term->height = height;
 
-	term->cols  = term->width / CELL_WIDTH;
+	int j = 0;
+	do {
+		_glyphs = glyphs[j];
+		CELL_WIDTH = _glyphs[0].code;
+		CELL_HEIGHT = _glyphs[0].width;
+		term->cols  = term->width / CELL_WIDTH;
+		if (term->cols > 79)
+			break;
+		j++;
+	} while (glyphs[j]);
+
 	term->lines = term->height / CELL_HEIGHT;
 
 	term->esc.size = ESCSEQ_SIZE;
@@ -408,8 +419,8 @@ bool term_init(struct terminal_t *term, int width, int height)
 	for (uint32_t code = 0; code < UCS2_CHARS; code++)
 		term->glyph[code] = NULL;
 
-	for (uint32_t gi = 0; gi < sizeof(glyphs) / sizeof(struct glyph_t); gi++)
-		term->glyph[glyphs[gi].code] = &glyphs[gi];
+	for (uint32_t gi = 1; _glyphs[gi].code > 0; gi++)
+		term->glyph[_glyphs[gi].code] = &_glyphs[gi];
 
 	if (!term->glyph[DEFAULT_CHAR]
 		|| !term->glyph[SUBSTITUTE_HALF]
