@@ -69,7 +69,7 @@ struct fb_info_t {
 
 struct framebuffer_t {
 	int fd;                        /* file descriptor of framebuffer */
-	uint8_t *buf;                  /* copy of framebuffer */
+	uint32_t *buf;                 /* copy of framebuffer */
 #if 0
 	uint8_t *fp;                   /* pointer of framebuffer */
 	uint8_t *wall;                 /* buffer for wallpaper */
@@ -333,7 +333,7 @@ bool fb_init(struct framebuffer_t *fb)
 		return false;
 #endif
 
-	fb->buf = (uint8_t *)fb->info.cfb->getBackBufferPointer();
+	fb->buf = (uint32_t *)fb->info.cfb->getBackBufferPointer();
 	/* os dependent initialize */
 	if (!set_fbinfo(fb->fd, &fb->info))
 		return false; //goto set_fbinfo_failed;
@@ -476,8 +476,8 @@ static inline void draw_line(struct framebuffer_t *fb, struct terminal_t *term, 
 				color_pair.bg = color_pair.fg;
 
 			for (w = 0; w < CELL_WIDTH; w++) {
-				pos = (term->width - 1 - margin_right - w) * fb->info.bytes_per_pixel
-					+ (line * CELL_HEIGHT + h) * fb->info.line_length;
+				pos = (term->width - 1 - margin_right - w)
+					+ (line * CELL_HEIGHT + h) * fb->info.width;
 
 				/* set color palette */
 				if (cellp->glyphp->bitmap[h] & (0x01 << (bdf_padding + w)))
@@ -490,7 +490,8 @@ static inline void draw_line(struct framebuffer_t *fb, struct terminal_t *term, 
 					pixel = fb->real_palette[color_pair.bg];
 
 				/* update copy buffer only */
-				memcpy(fb->buf + pos, &pixel, fb->info.bytes_per_pixel);
+				//memcpy(fb->buf + pos, &pixel, fb->info.bytes_per_pixel);
+				fb->buf[pos] = pixel;
 			}
 		}
 	}
