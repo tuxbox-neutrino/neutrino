@@ -111,6 +111,10 @@ void CTermWindow::showResult()
 		if (!exit) {
 			do {
 				g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
+				if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout){
+					CNeutrinoApp::getInstance()->handleMsg( msg, data );
+				}
+
 			} while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
 		}
 	}
