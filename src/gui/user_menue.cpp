@@ -285,6 +285,15 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
+		case SNeutrinoSettings::ITEM_TIMESHIFT:
+		{
+			if (g_settings.recording_type == RECORDING_OFF)
+				break;
+			keyhelper.get(&key,&icon,CRCInput::RC_red);
+			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_TIMESHIFT, true, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
+			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
+			break;
+		}
 		case SNeutrinoSettings::ITEM_MOVIEPLAYER_MB:
 		{
 			if (g_settings.recording_type == RECORDING_OFF)
