@@ -2561,8 +2561,10 @@ void CMoviePlayerGui::UpdatePosition()
 	{
 		usleep(10000);
 		cnt++;
+		if (cnt > 5)
+			break;
 	}
-	while ((!playback->GetPosition(position, duration)) || (cnt <= 5));
+	while (!playback->GetPosition(position, duration));
 
 	if (duration > 100)
 		file_prozent = (unsigned char) (position / (duration / 100));
