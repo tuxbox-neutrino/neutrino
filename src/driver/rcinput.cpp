@@ -1338,6 +1338,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					now_pressed -= (t2.tv_usec + t2.tv_sec * 1000000ULL);
 				}
 				SHTDCNT::getInstance()->resetSleepTimer();
+#if HAVE_ARM_HARDWARE
+				if ((ev.code == 0 || ev.code == 1) && ev.value && firstKey)
+					continue;
+#endif
 				if (ev.value && firstKey) {
 					firstKey = false;
 					CTimerManager::getInstance()->cancelShutdownOnWakeup();
