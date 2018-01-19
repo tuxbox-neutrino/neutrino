@@ -129,7 +129,7 @@ int YaFT::run(void)
 	/* global */
 	extern volatile sig_atomic_t need_redraw;
 	extern volatile sig_atomic_t child_alive;
-	term.cfb = fb.info.cfb = CFrameBuffer::getInstance();
+	fb.info.cfb = CFrameBuffer::getInstance();
 	term.txt.push("");
 	term.lines_available = 0;
 	term.nlseen = false;

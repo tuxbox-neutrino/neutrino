@@ -155,7 +155,6 @@ struct sixel_canvas_t {
 };
 #endif
 
-class CFrameBuffer;
 struct terminal_t {
 	int fd;                                  /* master of pseudo terminal */
 	int width, height;                       /* terminal size (pixel) */
@@ -179,7 +178,6 @@ struct terminal_t {
 	struct glyph_t drcs[DRCS_CHARS];         /* DRCS chars */
 	struct sixel_canvas_t sixel;
 #endif
-	CFrameBuffer *cfb;
 	std::queue<std::string> txt;             /* contains "sanitized" (without control chars) output text */
 	int lines_available;                     /* lines available in txt */
 	bool nlseen;
