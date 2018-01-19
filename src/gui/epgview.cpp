@@ -144,7 +144,7 @@ void CEpgData::start()
 	font_title   = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE];
 	topheight    = font_title->getHeight();
 	topboxheight = topheight + 6;
-	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 6;
+	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 2*OFFSET_INNER_MIN;
 	// not really a CComponentsFooter but let's take its height
 	CComponentsFooter footer;
 	buttonheight = footer.getHeight();
