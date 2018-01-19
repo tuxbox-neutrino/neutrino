@@ -1560,28 +1560,20 @@ void CEpgData::showProgressBar()
 	}
 }
 
-//
-// -- Just display or hide TimerEventbar
-// -- 2002-05-13 rasc
-//
-
-#define EpgButtonsMax 5
-struct button_label EpgButtons[][EpgButtonsMax] =
+#define TV_BUTTONS 0
+#define MP_BUTTONS 1
+struct button_label EpgButtons[][5] =
 {
-	{ // full view
+	{
+		// TV_BUTTONS
 		{ NEUTRINO_ICON_BUTTON_RED, LOCALE_TIMERBAR_RECORDEVENT },
 		{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_IMDB_INFO },
 		{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_TIMERBAR_CHANNELSWITCH },
 		{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT },
 		{ NEUTRINO_ICON_BUTTON_0, LOCALE_TMDB_INFO }
 	},
-	{ // w/o followscreenings
-		{ NEUTRINO_ICON_BUTTON_RED, LOCALE_TIMERBAR_RECORDEVENT },
-		{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_IMDB_INFO },
-		{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_TIMERBAR_CHANNELSWITCH },
-		{ NEUTRINO_ICON_BUTTON_0, LOCALE_TMDB_INFO }
-	},
-	{ // movieplayer mode
+	{
+		// MP_BUTTONS
 		{ NEUTRINO_ICON_BUTTON_RED, LOCALE_EPG_SAVING },
 		{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_IMDB_INFO },
 		{ NEUTRINO_ICON_BUTTON_0, LOCALE_TMDB_INFO }
@@ -1604,6 +1596,9 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		return;
 	}
 
+	int UsedButtons = mp_info ? MP_BUTTONS : TV_BUTTONS;
+	int MaxButtons = mp_info ? 3 : 5; //TODO: auto-calc from struct
+
 	std::string adzap_button;
 	if (adzap)
 	{
@@ -1611,32 +1606,48 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		adzap_button += " " + to_string(g_settings.adzap_zapBackPeriod / 60) + " ";
 		adzap_button += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 	}
-	bool tmdb = g_settings.tmdb_enabled;
-	bool fscr = (has_follow_screenings && !call_fromfollowlist);
+
 
 	if (imdb_active)
 	{
-		EpgButtons[mp_info ? 2 : (fscr ? 0 : 1)][1].button = (imdb->gotPoster()) ? NEUTRINO_ICON_BUTTON_GREEN : NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
-		EpgButtons[mp_info ? 2 : (fscr ? 0 : 1)][1].locale = LOCALE_IMDB_INFO_SAVE;
+		EpgButtons[UsedButtons][1].button = (imdb->gotPoster()) ? NEUTRINO_ICON_BUTTON_GREEN : NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+		EpgButtons[UsedButtons][1].locale = LOCALE_IMDB_INFO_SAVE;
 	}
 	else
 	{
-		EpgButtons[mp_info ? 2 : (fscr ? 0 : 1)][1].button = NEUTRINO_ICON_BUTTON_GREEN;
-		EpgButtons[mp_info ? 2 : (fscr ? 0 : 1)][1].locale = LOCALE_IMDB_INFO;
+		EpgButtons[UsedButtons][1].button = NEUTRINO_ICON_BUTTON_GREEN;
+		EpgButtons[UsedButtons][1].locale = LOCALE_IMDB_INFO;
 	}
+
 	if (mp_info)
-		::paintButtons(x, y, w, tmdb ? 3 : 2, EpgButtons[2], w, h);
+	{
+		if (!g_settings.tmdb_enabled)
+		{
+			// disable tmdb button
+			EpgButtons[MP_BUTTONS][2].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+		}
+
+		::paintButtons(x, y, w, MaxButtons, EpgButtons[MP_BUTTONS], w, h);
+	}
 	else
 	{
-		int c = EpgButtonsMax;
-		if (!tmdb)
-			c--; // reduce tmdb button
+		bool fscr = (has_follow_screenings && !call_fromfollowlist);
 		if (!fscr)
-			c--; // reduce blue button
+		{
+			// disable followscreenings button
+			EpgButtons[TV_BUTTONS][3].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+		}
+
+		if (!g_settings.tmdb_enabled)
+		{
+			// disable tmdb button
+			EpgButtons[TV_BUTTONS][4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+		}
+
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-			::paintButtons(x, y, w, c, EpgButtons[fscr ? 0 : 1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 2);
-		else
-			::paintButtons(x, y, w, c, &EpgButtons[fscr ? 0 : 1][1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
+			::paintButtons(x, y, w, MaxButtons, EpgButtons[TV_BUTTONS], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 2);
+		else // don't show recording button
+			::paintButtons(x, y, w, MaxButtons, &EpgButtons[TV_BUTTONS][1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
 	}
 }
 
