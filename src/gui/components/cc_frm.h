@@ -25,7 +25,7 @@
 #define __CC_FORM_H__
 
 
-#include <sys/types.h> /* crazy "u_int8_t" instead of plain uint8_t */
+
 #include "config.h"
 #include "cc_base.h"
 #include "cc_item.h"
@@ -46,9 +46,9 @@ class CComponentsForm : public CComponentsItem
 		int append_y_offset;
 
 		///property: count of pages of form
-		u_int8_t page_count;
+		uint8_t page_count;
 		///property: id of current page, default = 0 for 1st page
-		u_int8_t cur_page;
+		uint8_t cur_page;
 		///scrollbar width
 		int w_sb;
 		///returns true, if current page is changed, see also: setCurrentPage() 
@@ -156,20 +156,20 @@ class CComponentsForm : public CComponentsItem
 		///sets alignment offset between items
 		virtual void setAppendOffset(const int &x_offset, const int& y_offset){append_x_offset = x_offset; append_y_offset = y_offset;};
 
-		///sets count of pages, parameter as u_int8_t
+		///sets count of pages, parameter as uint8_t
 		///NOTE: page numbers are primary defined in items and this values have priority!! Consider that smaller values
 		///than the current values can make problems and are not allowed, therefore smaller values than
 		///current page count are ignored!
-		virtual void setPageCount(const u_int8_t& pageCount);
+		virtual void setPageCount(const uint8_t& pageCount);
 		///returns current count of pages,
 		///NOTE: page number are primary defined in items and secondary in form variable 'page_count'. This function returns the maximal value from both!
-		virtual u_int8_t getPageCount();
+		virtual uint8_t getPageCount();
 		///sets current page
-		virtual void setCurrentPage(const u_int8_t& current_page){cur_page = current_page;};
+		virtual void setCurrentPage(const uint8_t& current_page){cur_page = current_page;};
 		///get current page
-		virtual u_int8_t getCurrentPage(){return cur_page;};
+		virtual uint8_t getCurrentPage(){return cur_page;};
 		///paint defined page number 0...n
-		virtual void paintPage(const u_int8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		virtual void paintPage(const uint8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
 		///enum page scroll modes
 		enum
 		{

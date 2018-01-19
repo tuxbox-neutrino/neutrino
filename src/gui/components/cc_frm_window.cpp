@@ -401,12 +401,12 @@ int CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
 	return -1;
 }
 
-void CComponentsWindow::setCurrentPage(const u_int8_t& current_page)
+void CComponentsWindow::setCurrentPage(const uint8_t& current_page)
 {
 	ccw_body->setCurrentPage(current_page);
 }
 
-u_int8_t CComponentsWindow::getCurrentPage()
+uint8_t CComponentsWindow::getCurrentPage()
 {
 	return ccw_body->getCurrentPage();
 }
@@ -439,7 +439,7 @@ void CComponentsWindow::paintCurPage(bool do_save_bg)
 		paint(do_save_bg);
 }
 
-void CComponentsWindow::paintPage(const u_int8_t& page_number, bool do_save_bg)
+void CComponentsWindow::paintPage(const uint8_t& page_number, bool do_save_bg)
 {
 	CComponentsWindow::setCurrentPage(page_number);
 	CComponentsWindow::paintCurPage(do_save_bg);

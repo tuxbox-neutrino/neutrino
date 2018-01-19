@@ -137,7 +137,7 @@ class CComponentsItem : public CComponents
 		///sets page location of current item, parameter as uint8_t, see: cc_page_number
 		virtual void setPageNumber(const uint8_t& on_page_number){cc_page_number = on_page_number;};
 		///returns current number of page location of current item, see: cc_page_number
-		virtual u_int8_t getPageNumber(){return cc_page_number;};
+		virtual uint8_t getPageNumber(){return cc_page_number;};
 
 		///set screen x-position, parameter as int
 		virtual void setXPos(const int& xpos);

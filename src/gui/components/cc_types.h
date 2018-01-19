@@ -31,6 +31,7 @@
 #include <driver/neutrino_msg_t.h>
 #include <gui/color_custom.h>
 #include <vector>
+#include <sys/types.h>
 
 struct gradientData_t;
 class Font;

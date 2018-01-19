@@ -34,25 +34,25 @@
 #define __MTD_FTL_USER_H__
 
 typedef struct erase_unit_header_t {
-    u_int8_t	LinkTargetTuple[5];
-    u_int8_t	DataOrgTuple[10];
-    u_int8_t	NumTransferUnits;
+    uint8_t	LinkTargetTuple[5];
+    uint8_t	DataOrgTuple[10];
+    uint8_t	NumTransferUnits;
     u_int32_t	EraseCount;
     u_int16_t	LogicalEUN;
-    u_int8_t	BlockSize;
-    u_int8_t	EraseUnitSize;
+    uint8_t	BlockSize;
+    uint8_t	EraseUnitSize;
     u_int16_t	FirstPhysicalEUN;
     u_int16_t	NumEraseUnits;
     u_int32_t	FormattedSize;
     u_int32_t	FirstVMAddress;
     u_int16_t	NumVMPages;
-    u_int8_t	Flags;
-    u_int8_t	Code;
+    uint8_t	Flags;
+    uint8_t	Code;
     u_int32_t	SerialNumber;
     u_int32_t	AltEUHOffset;
     u_int32_t	BAMOffset;
-    u_int8_t	Reserved[12];
-    u_int8_t	EndTuple[2];
+    uint8_t	Reserved[12];
+    uint8_t	EndTuple[2];
 } erase_unit_header_t;
 
 /* Flags in erase_unit_header_t */

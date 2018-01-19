@@ -371,14 +371,14 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		* 	@li 	expects type const int&
 		* @note		This is simliar to setCurrentPage() known from basic class CComponentsForm, but here it is related only for window body object.
 		*/
-		void setCurrentPage(const u_int8_t& current_page);
+		void setCurrentPage(const uint8_t& current_page);
 
 		/**
 		* Gets current page number
 		* @return	CComponentsFrmChain*
 		* @note		This simliar to getCurrentPage() known from basic class CComponentsForm, but here it is related only for window body object
 		*/
-		u_int8_t getCurrentPage();
+		uint8_t getCurrentPage();
 
 		/**
 		* Paints window body items, this paints only the current page, body = page, current page is definied in body object, see setCurrentPage()
@@ -390,11 +390,11 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		/**
 		* Paints defined page of body, parameter number 0...n
 		* @param[in]	page_number
-		* 	@li 	expects type const u_int8_t& as page number
+		* 	@li 	expects type const uint8_t& as page number
 		* @param[in]	do_save_bg
 		* 	@li 	optional: expects type bool, default = CC_SAVE_SCREEN_NO (false), sets background save mode
 		*/
-		void paintPage(const u_int8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		void paintPage(const uint8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
 
 		/**
 		* enable/disable page scroll

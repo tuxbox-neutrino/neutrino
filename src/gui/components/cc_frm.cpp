@@ -368,7 +368,7 @@ bool CComponentsForm::isPageChanged()
 	return false;
 }
 
-void CComponentsForm::paintPage(const u_int8_t& page_number, bool do_save_bg)
+void CComponentsForm::paintPage(const uint8_t& page_number, bool do_save_bg)
 {
 	cur_page = page_number;
 	paint(do_save_bg);
@@ -545,24 +545,24 @@ void CComponentsForm::hideCCItems()
 		v_cc_items[i]->hide();
 }
 
-void CComponentsForm::setPageCount(const u_int8_t& pageCount)
+void CComponentsForm::setPageCount(const uint8_t& pageCount)
 {
-	u_int8_t new_val = pageCount;
+	uint8_t new_val = pageCount;
 	if (new_val <  page_count)
 		dprintf(DEBUG_NORMAL, "[CComponentsForm] %s:  current count (= %u) of pages higher than page_count (= %u) will be set, smaller value is ignored!\n", __func__, page_count, new_val) ;
 	page_count = max(new_val, page_count);
 }
 
-u_int8_t CComponentsForm::getPageCount()
+uint8_t CComponentsForm::getPageCount()
 {
-	u_int8_t num = 0;
+	uint8_t num = 0;
 	for(size_t i=0; i<v_cc_items.size(); i++){
-		u_int8_t item_num = v_cc_items[i]->getPageNumber();
+		uint8_t item_num = v_cc_items[i]->getPageNumber();
 		num = max(item_num, num);
 	}
 
 	//convert type, possible -Wconversion warnings!
-	page_count = static_cast<u_int8_t>(num+1);
+	page_count = static_cast<uint8_t>(num+1);
 
 	return page_count;
 }
