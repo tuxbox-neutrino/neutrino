@@ -145,9 +145,9 @@ void CEpgData::start()
 	topheight    = font_title->getHeight();
 	topboxheight = topheight + 6;
 	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 6;
-	buttonheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 6;
-	if (buttonheight < 30)
-		buttonheight = 30; // the buttons and icons need space
+	// not really a CComponentsFooter but let's take its height
+	CComponentsFooter footer;
+	buttonheight = footer.getHeight();
 	oy-=buttonheight/2;
 	/* this is the text box height - and the height of the scroll bar */
 	sb = oy - topboxheight - botboxheight - buttonheight;
@@ -1471,22 +1471,17 @@ const struct button_label EpgButtons[][EpgButtonsMax] =
 
 void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 {
-	int  x, y, w, h, fh;
-        int icol_w, icol_h;
+	int x, y, w, h;
 
 	x = sx;
 	y = sy + oy;
 	w = ox;
-
-	// why we don't use buttonheight member?
-	fh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight();
-
-        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	h = std::max(fh, icol_h+4);
+	h = buttonheight;
 
 	// hide only?
-	if (! pshow) {
-		frameBuffer->paintBackgroundBoxRel(sx,y,ox,h);
+	if (!pshow)
+	{
+		frameBuffer->paintBackgroundBoxRel(x, y, w, h);
 		return;
 	}
 
