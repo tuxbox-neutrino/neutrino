@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <system/localize.h>
 #include <driver/neutrino_msg_t.h>
+#include <driver/fb_generic.h>
 #include <gui/color_custom.h>
 #include <vector>
 #include <sys/types.h>
