@@ -97,6 +97,9 @@ void CTermWindow::showResult()
 		if (show_button) {
 			int b_width = 150;
 			int b_height = 35;
+			/*
+			   we need the dimensions of yaft window to place the button correctly
+			*/
 			int xpos = frameBuffer->getScreenWidth() - b_width;
 			int ypos = frameBuffer->getScreenHeight() - b_height;
 			CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_BACK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
