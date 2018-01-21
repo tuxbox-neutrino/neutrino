@@ -499,11 +499,7 @@ void CChannelList::calcSize()
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
 	else
-	{
-		/* don't use 100% of screen if additional info / minitv is not used */
-		full_width = full_width * 76 / 99; /* same width as the old code with my settings :-) */
 		width = full_width;
-	}
 
 	// calculate height (the infobox below mainbox is handled outside height)
 	if (g_settings.channellist_show_infobox)
