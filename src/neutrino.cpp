@@ -865,16 +865,16 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.audioplayer_enable_sc_metadata = configfile.getInt32("audioplayer_enable_sc_metadata",1);
 	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id","XXXXXXXXXXXXXXXX");
 	g_settings.shoutcast_enabled = configfile.getInt32("shoutcast_enabled", 1);
-	g_settings.shoutcast_enabled = check_shoutcast_dev_id();
+	g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && check_shoutcast_dev_id();
 
 	//Movie-Player
 	g_settings.movieplayer_repeat_on = configfile.getInt32("movieplayer_repeat_on", CMoviePlayerGui::REPEAT_OFF);
 	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
-	g_settings.youtube_enabled = check_youtube_dev_id();
+	g_settings.youtube_enabled = g_settings.youtube_enabled && check_youtube_dev_id();
 	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 	g_settings.tmdb_enabled = configfile.getInt32("tmdb_enabled", 1);
-	g_settings.tmdb_enabled = check_tmdb_api_key();
+	g_settings.tmdb_enabled = g_settings.tmdb_enabled && check_tmdb_api_key();
 
 	//Filebrowser
 	g_settings.filebrowser_showrights =  configfile.getInt32("filebrowser_showrights", 1);
