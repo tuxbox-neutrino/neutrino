@@ -18,6 +18,7 @@
 #include <fstream>
 #include <map>
 #include <sstream>
+#include <iostream>
 
 // tuxbox
 #include <neutrinoMessages.h>
@@ -66,10 +67,13 @@ extern CZapitClient::SatelliteList satList;
 
 //static std::map<std::string, std::string> iso639;
 #ifndef initialize_iso639_map
+#define ISO_639_TAB DATADIR "/iso-codes/iso-639.tab"
+static const char * iso639filename = ISO_639_TAB;
+
 bool _initialize_iso639_map(void)
 {
 	std::string s, t, u, v;
-	std::ifstream in("/share/iso-codes/iso-639.tab");
+	std::ifstream in(iso639filename);
 	if (in.is_open())
 	{
 		while (in.peek() == '#')
@@ -85,7 +89,10 @@ bool _initialize_iso639_map(void)
 		return true;
 	}
  	else
+	{
+		std::cout << "[neutrinoapi.cpp] Loading " << iso639filename << " failed." << std::endl;
 		return false;
+	}
 }
 #endif
 //-----------------------------------------------------------------------------
