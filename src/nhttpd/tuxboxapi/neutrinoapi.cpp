@@ -511,13 +511,13 @@ std::string CNeutrinoAPI::getAudioInfoAsString(void)
 std::string CNeutrinoAPI::getCryptInfoAsString(void)
 {
 	std::stringstream out;
-	std::string casys[11]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
-	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
+	std::string casys[12]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","Biss:","DreCrypt:","PowerVU:","Tandberg:"};
+	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00, 0x1000 };
 
 	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(channel) {
-                for (unsigned short i = 0; i < 11; i++) {
+                for (unsigned short i = 0; i < 12; i++) {
                         for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
                                 int caid = (*it) & 0xFF00;
                                 if(caid == caids[i])
