@@ -439,7 +439,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			} else {
 				INFO("\033[33m (oldmask != newmask) || force_update) - no CI needed\033[0m");
 				//no CI needed
-				ca_map_t no_camap;
+				ca_map_t no_camap = std::set<int>();
 				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, false /*channel->scrambled*/, no_camap /*channel->camap*/, mode, start);
 			}
 		}
