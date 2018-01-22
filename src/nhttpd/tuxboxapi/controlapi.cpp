@@ -880,6 +880,36 @@ void CControlAPI::RebootCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
+unsigned int revert_translate(unsigned int code)
+{
+	switch(code)
+	{
+		case RC_play:
+			return KEY_PLAYPAUSE;
+		case RC_page_up:
+			return KEY_CHANNELUP;
+		case RC_page_down:
+			return KEY_CHANNELDOWN;
+#ifdef HAVE_ARM_HARDWARE
+		case RC_favorites:
+			return KEY_VIDEO;
+#endif
+#ifdef HAVE_AZBOX_HARDWARE
+		case RC_favorites:
+			return KEY_HOME;
+		case RC_stop:
+			return KEY_TV;
+		case RC_record:
+			return KEY_RADIO;
+		case RC_pause:
+			return KEY_PLAY;
+#endif
+		default:
+			break;
+	}
+	return code;
+
+}
 
 void dev_uinput_sync(int fd) {
         struct input_event ev;
@@ -938,6 +968,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 		hh->SendError();
 		return;
 	}
+	sendcode = revert_translate(sendcode);
 	if (rc_send(evd, sendcode, KEY_PRESSED) < 0) {
 		perror("writing 'KEY_PRESSED' event failed");
 		hh->SendError();
