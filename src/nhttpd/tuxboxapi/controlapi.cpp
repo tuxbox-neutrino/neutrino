@@ -880,6 +880,17 @@ void CControlAPI::RebootCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
+
+void dev_uinput_sync(int fd) {
+        struct input_event ev;
+
+        gettimeofday(&ev.time, NULL);
+        ev.type  = EV_SYN;
+        ev.code  = SYN_REPORT;
+        ev.value = 0;
+        write(fd, &ev, sizeof(ev));
+}
+
 int CControlAPI::rc_send(int ev, unsigned int code, unsigned int value)
 {
 	struct input_event iev;
@@ -933,12 +944,14 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 		close(evd);
 		return;
 	}
+	dev_uinput_sync(evd);
 	if (rc_send(evd, sendcode, KEY_RELEASED) < 0) {
 		perror("writing 'KEY_RELEASED' event failed");
 		hh->SendError();
 		close(evd);
 		return;
 	}
+	dev_uinput_sync(evd);
 	close(evd);
 #else
 	/* 0 == KEY_PRESSED in rcinput.cpp */
