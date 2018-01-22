@@ -1672,8 +1672,8 @@ void COsdSetup::paintWindowSize(int w, int h)
 	if (g_settings.window_height < WINDOW_SIZE_MIN)	
 		g_settings.window_height = WINDOW_SIZE_MIN;
 
-	win_demo->setWidth(frameBuffer->getScreenWidthRel());
-	win_demo->setHeight(frameBuffer->getScreenHeightRel());
+	win_demo->setWidth(frameBuffer->getWindowWidth());
+	win_demo->setHeight(frameBuffer->getWindowHeight());
 	win_demo->setXPos(getScreenStartX(win_demo->getWidth()));
 	win_demo->setYPos(getScreenStartY(win_demo->getHeight()));
 

@@ -798,8 +798,8 @@ void EpgPlus::init()
 	currentViewMode = ViewMode_Scroll;
 	currentSwapMode = SwapMode_ByPage;
 #endif
-	usableScreenWidth = frameBuffer->getScreenWidthRel();
-	usableScreenHeight = frameBuffer->getScreenHeightRel();
+	usableScreenWidth = frameBuffer->getWindowWidth();
+	usableScreenHeight = frameBuffer->getWindowHeight();
 
 	for (size_t i = 0; i < NumberOfSizeSettings; ++i)
 	{

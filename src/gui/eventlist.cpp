@@ -307,14 +307,14 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	if (ch)
 		epg_id = ch->getEpgID();
 
-	full_width = frameBuffer->getScreenWidthRel();
+	full_width = frameBuffer->getWindowWidth();
 	x = getScreenStartX(full_width);
 
 	if (g_settings.eventlist_additional)
 		width = full_width / 3 * 2;
 	else
 		width = full_width;
-	height = frameBuffer->getScreenHeightRel();
+	height = frameBuffer->getWindowHeight();
 
 	// Calculate header_height
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();

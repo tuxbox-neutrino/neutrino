@@ -266,8 +266,8 @@ void CFileBrowser::fontInit()
 	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	fnt_item  = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM];
 	fnt_foot  = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
-	width = frameBuffer->getScreenWidthRel();
-	height = frameBuffer->getScreenHeightRel();
+	width = frameBuffer->getWindowWidth();
+	height = frameBuffer->getWindowHeight();
 	x = getScreenStartX(width);
 
 	header_height = fnt_title->getHeight();

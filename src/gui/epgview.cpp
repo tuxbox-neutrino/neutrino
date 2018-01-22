@@ -138,8 +138,8 @@ CEpgData::~CEpgData()
 
 void CEpgData::start()
 {
-	ox = frameBuffer->getScreenWidthRel(bigFonts ? false /* big */ : true /* small */);
-	oy = frameBuffer->getScreenHeightRel(bigFonts ? false /* big */ : true /* small */);
+	ox = frameBuffer->getWindowWidth(bigFonts ? false /* big */ : true /* small */);
+	oy = frameBuffer->getWindowHeight(bigFonts ? false /* big */ : true /* small */);
 
 	font_title   = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE];
 	topheight    = font_title->getHeight();

@@ -111,8 +111,8 @@ void CUpnpBrowserGui::Init()
 	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);
 	timebox.enableShadow(CC_SHADOW_ON);
 
-	m_width = m_frameBuffer->getScreenWidthRel();
-	m_height = m_frameBuffer->getScreenHeightRel();
+	m_width = m_frameBuffer->getWindowWidth();
+	m_height = m_frameBuffer->getWindowHeight();
 
 	int _top_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getHeight();
 	int _title_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();

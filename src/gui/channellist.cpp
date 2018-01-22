@@ -494,7 +494,7 @@ void CChannelList::calcSize()
 
 	minitv_is_active = ( (g_settings.channellist_additional == SNeutrinoSettings::CHANNELLIST_ADDITIONAL_MODE_MINITV) && (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts) );
 	// calculate width
-	full_width = minitv_is_active ? (frameBuffer->getScreenWidth()-2*DETAILSLINE_WIDTH) : frameBuffer->getScreenWidthRel();
+	full_width = frameBuffer->getWindowWidth();
 
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
@@ -506,7 +506,7 @@ void CChannelList::calcSize()
 		info_height = 2*fheight + fdescrheight + 2*OFFSET_INNER_SMALL;
 	else
 		info_height = 0;
-	height = minitv_is_active ? frameBuffer->getScreenHeight() : frameBuffer->getScreenHeightRel();
+	height = frameBuffer->getWindowHeight();
 	height = height - OFFSET_INTER - info_height;
 
 	// calculate x position

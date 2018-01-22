@@ -160,8 +160,8 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	selected = 0;
 
-	width = frameBuffer->getScreenWidthRel();
-	height = frameBuffer->getScreenHeightRel();
+	width = frameBuffer->getWindowWidth();
+	height = frameBuffer->getWindowHeight();
 
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	item_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();

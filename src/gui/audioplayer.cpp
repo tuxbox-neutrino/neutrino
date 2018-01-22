@@ -290,8 +290,8 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	m_selected = 0;
 
-	m_width = m_frameBuffer->getScreenWidthRel();
-	m_height = m_frameBuffer->getScreenHeightRel();
+	m_width = m_frameBuffer->getWindowWidth();
+	m_height = m_frameBuffer->getWindowHeight();
 
 	m_header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	m_item_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();

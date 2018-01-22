@@ -501,8 +501,8 @@ void CMovieBrowser::initFrames(void)
 	m_pcFontTitle = TITLE_FONT;
 
 	//TRACE("[mb]->%s\n", __func__);
-	m_cBoxFrame.iWidth = 			framebuffer->getScreenWidthRel();
-	m_cBoxFrame.iHeight = 			framebuffer->getScreenHeightRel();
+	m_cBoxFrame.iWidth = 			framebuffer->getWindowWidth();
+	m_cBoxFrame.iHeight = 			framebuffer->getWindowHeight();
 	m_cBoxFrame.iX = 			getScreenStartX(m_cBoxFrame.iWidth);
 	m_cBoxFrame.iY = 			getScreenStartY(m_cBoxFrame.iHeight);
 

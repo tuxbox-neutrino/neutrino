@@ -49,8 +49,8 @@ void CBEGlobals::init()
 	item_font = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST];
 	info_font = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR];
 
-	width  = frameBuffer->getScreenWidthRel();
-	height = frameBuffer->getScreenHeightRel();
+	width  = frameBuffer->getWindowWidth();
+	height = frameBuffer->getWindowHeight();
 
 	if (!header)
 		header = new CComponentsHeader();
