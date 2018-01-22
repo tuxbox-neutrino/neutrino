@@ -250,7 +250,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileFilter fileFilter;
 		fileFilter.addFilter("ttf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(FONTDIR) == true)
+		if (fileBrowser.exec(getPathName(g_settings.font_file).c_str()) == true)
 		{
 			g_settings.font_file = fileBrowser.getSelectedFile()->Name;
 			printf("[neutrino] new font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
@@ -266,7 +266,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileFilter fileFilter;
 		fileFilter.addFilter("ttf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(FONTDIR) == true)
+		if (fileBrowser.exec(getPathName(g_settings.ttx_font_file).c_str()) == true)
 		{
 			g_settings.ttx_font_file = fileBrowser.getSelectedFile()->Name;
 			ttx_font_file = fileBrowser.getSelectedFile()->Name;
