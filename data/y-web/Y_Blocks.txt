@@ -981,7 +981,7 @@ start-block~rc_ax_hd51
 <area shape="rect" coords="70,468,99,489" href="javascript:rcsim('KEY_FAVORITES')" />
 <!-- area shape="rect" coords="68,430,101,453" alt="context" / -->
 <area shape="rect" coords="69,517,99,532" href="javascript:rcsim('KEY_RECORD')" />
-<area shape="rect" coords="67,541,100,559" href="javascript:rcsim('KEY_TIME')" />
+<area shape="rect" coords="67,541,100,559" href="javascript:rcsim('KEY_PROGRAM')" />
 <area shape="rect" coords="24,513,56,534" href="javascript:rcsim('KEY_PREVIOUS')" />
 <area shape="rect" coords="115,516,143,532" href="javascript:rcsim('KEY_NEXT')" />
 <area shape="rect" coords="25,539,54,559" href="javascript:rcsim('KEY_REWIND')" />
@@ -1043,7 +1043,7 @@ start-block~rc_mutant_hd51
 <area shape="rect" coords="18,500,41,516" href="javascript:rcsim('KEY_RECORD')" />
 <area shape="rect" coords="54,500,75,516" href="javascript:rcsim('KEY_STOP')" />
 <area shape="rect" coords="90,500,112,516" href="javascript:rcsim('KEY_PLAY')" />
-<area shape="rect" coords="124,500,148,516" href="javascript:rcsim('KEY_TIME')" />
+<area shape="rect" coords="124,500,148,516" href="javascript:rcsim('KEY_PROGRAM')" />
 <area shape="rect" coords="18,528,41,543" href="javascript:rcsim('KEY_PREVIOUS')" />
 <area shape="rect" coords="54,528,75,543" href="javascript:rcsim('KEY_REWIND')" />
 <area shape="rect" coords="90,528,112,543" href="javascript:rcsim('KEY_FORWARD')" />
