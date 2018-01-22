@@ -41,7 +41,8 @@ private:
 		}
 	} fsort;
 
-	int rc_send(int ev, unsigned int code, unsigned int value);
+	void rc_sync(int fd);
+	int rc_send(int fd, unsigned int code, unsigned int value);
 
 	// send functions for ExecuteCGI (controld api)
 	void SendEventList(CyhookHandler *hh,t_channel_id channel_id);
