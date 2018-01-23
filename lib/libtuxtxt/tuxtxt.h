@@ -70,9 +70,11 @@ extern int tuxtxt_get_zipsize(int p, int sp);
 /* fonts */
 #define TUXTXTTTF FONTDIR "/tuxtxt.ttf"
 #define TUXTXTOTB FONTDIR "/tuxtxt.otb"
+#if 0
 /* alternative fontdir */
-#define TUXTXTTTFVAR "/var/tuxtxt/tuxtxt.ttf"
-#define TUXTXTOTBVAR "/var/tuxtxt/tuxtxt.otb"
+#define TUXTXTTTFVAR FONTDIR_VAR "/tuxtxt.ttf"
+#define TUXTXTOTBVAR FONTDIR_VAR "/tuxtxt.otb"
+#endif
 
 int TTFWidthFactor16, TTFHeightFactor16, TTFShiftX, TTFShiftY; /* parameters for adapting to various TTF fonts */
 int fontheight, fontwidth, fontwidth_normal, fontwidth_small, fontwidth_topmenumain, fontwidth_topmenusmall, ascender;
