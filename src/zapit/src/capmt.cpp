@@ -405,8 +405,6 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		++it;
 		if(!channel)
 			continue;
-		if(!channel->scrambled)
-			continue;
 
 #if 0
 		if (it == channel_map.end())
@@ -423,7 +421,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			INFO("CI: configured tuner %d do not match %d, skip [%s]", tunerno, cam->getSource(), channel->getName().c_str());
 		} else if (filter_channels && !channel->bUseCI) {
 			INFO("CI: filter enabled, CI not used for [%s]", channel->getName().c_str());
-		} else {
+		} else if(channel->scrambled) {
 			useCI = true;
 			INFO("CI: use CI for [%s]", channel->getName().c_str());
 #if HAVE_COOL_HARDWARE
