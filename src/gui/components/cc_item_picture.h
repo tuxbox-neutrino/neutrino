@@ -193,28 +193,6 @@ class CComponentsPicture : public CComponentsItem
 		virtual void disableCache(){enableCache(false);}
 };
 
-class 	CComponentsPictureScalable : public CComponentsPicture
-{
-	public:
-		/*!
-		Constructor for image objects: use this for scaled images.
-		Does the same like class CComponentsPicture() with assigned value 0 for parameters w (width) and h (height).
-		*/
-		CComponentsPictureScalable( 	const int &x_pos, const int &y_pos,
-						const std::string& image_name,
-						CComponentsForm *parent = NULL,
-						int shadow_mode = CC_SHADOW_OFF,
-						fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-						fb_pixel_t color_background = 0,
-						fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
-						int transparent = CFrameBuffer::TM_NONE)
-						: CComponentsPicture(x_pos, y_pos, 0, 0, image_name, parent, shadow_mode, color_frame, color_background, color_shadow, transparent)
-		{
-			cc_item_type.id 	= CC_ITEMTYPE_PICTURE_SCALABLE;
-			cc_item_type.name 	= "cc_scalable_image_box";
-		};
-};
-
 class CComponentsChannelLogo : public CComponentsPicture
 {
 	private:
