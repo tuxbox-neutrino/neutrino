@@ -48,7 +48,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 {
 	protected:
 		///object: picture object
-		CComponentsPictureScalable *cc_btn_icon_obj;
+		CComponentsPicture *cc_btn_icon_obj;
 		///object: label object
 		CComponentsLabel *cc_btn_text_obj;
 

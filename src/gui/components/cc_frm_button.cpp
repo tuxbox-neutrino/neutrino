@@ -151,7 +151,7 @@ void CComponentsButton::initIcon()
 	int y_icon = 0;
 	int h_icon = 0;
 	if (cc_btn_icon_obj == NULL){
-		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, 0, cc_btn_icon, this);
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, 0, cc_btn_icon, this);
 		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
