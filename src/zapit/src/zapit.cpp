@@ -2623,6 +2623,16 @@ static bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	return CZapit::getInstance()->ParseCommand(rmsg, connfd);
 }
 
+bool CZapit::getUseChannelFilter()
+{
+	return CCamManager::getInstance()->getChannelFilter();
+}
+
+void CZapit::setMoviePlayer(bool enable)
+{
+	CCamManager::getInstance()->enableMoviePlayer(enable);
+}
+
 void CZapit::run()
 {
 //if HAVE_SPARK_HARDWARE
