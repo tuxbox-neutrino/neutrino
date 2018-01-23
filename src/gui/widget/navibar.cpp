@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Class for epg window navigation bar.
-	Copyright (C) 2017, Thilo Graf 'dbt'
+	Copyright (C) 2017-2018, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -68,10 +68,14 @@ void CNaviBar::initCCItems()
 	int mid_width 	= width * 40 / 100; // 40%
 	int side_width 	= ((width - mid_width) / 2) - (2 * x_off);
 	int h_text 	= height;
+	int icon_h, icon_w;
 
 	// init left arrow
 	if (!nb_lpic){
-		nb_lpic = new CComponentsPictureScalable(x_off,CC_CENTERED,NEUTRINO_ICON_BUTTON_LEFT);
+		nb_lpic = new CComponentsPicture(x_off,CC_CENTERED, CFrameBuffer::getInstance()->getIconPath(NEUTRINO_ICON_BUTTON_LEFT));
+		nb_lpic->getRealSize(&icon_h, &icon_w);
+		if ((icon_h + 2*OFFSET_INNER_MIN) > (height + 2*OFFSET_INNER_MIN))
+			nb_lpic->setHeight(height - 2*OFFSET_INNER_MIN, true);
 		nb_lpic->doPaintBg(false);
 		this->addCCItem(nb_lpic);
 		nb_lpic->enableSaveBg();
@@ -80,8 +84,10 @@ void CNaviBar::initCCItems()
 
 	// init right arrow
 	if (!nb_rpic){
-		nb_rpic = new CComponentsPictureScalable(0,CC_CENTERED,NEUTRINO_ICON_BUTTON_RIGHT);
-
+		nb_rpic = new CComponentsPicture(0,CC_CENTERED, CFrameBuffer::getInstance()->getIconPath(NEUTRINO_ICON_BUTTON_RIGHT));
+		nb_rpic->getRealSize(&icon_h, &icon_w);
+		if ((icon_h + 2*OFFSET_INNER_MIN) > (height + 2*OFFSET_INNER_MIN))
+			nb_rpic->setHeight(height - 2*OFFSET_INNER_MIN, true);
 		nb_rpic->doPaintBg(false);
 		this->addCCItem(nb_rpic);
 		nb_rpic->enableSaveBg();

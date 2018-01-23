@@ -38,7 +38,7 @@
 class CNaviBar : public CComponentsFrmChain
 {
 	private:
-		CComponentsPictureScalable 	*nb_lpic, *nb_rpic;
+		CComponentsPicture	 	*nb_lpic, *nb_rpic;
 		CComponentsText 		*nb_lText, *nb_rText;
 
 		Font				*nb_font;
