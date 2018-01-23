@@ -62,6 +62,8 @@ void load_table(char *path, enum encode_t encode)
 		sscanf(buf, "%X %X", (unsigned int *) &from, (unsigned int *) &to);
 		convert_table[from] = to;
 	}
+	if(fp)
+		efclose(fp);
 }
 
 int read_header(char *buf, struct bdf_header_t *bdf_header)
