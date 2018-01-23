@@ -281,8 +281,8 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if(cam->getSource() > 0)
 		source = cam->getSource();
 
-	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d rmode %d", channel_id, channel->getName().c_str(),
-			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update, rmode);
+	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d rmode %d mp %d", channel_id, channel->getName().c_str(),
+			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update, rmode, mp);
 
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 #if ! HAVE_COOL_HARDWARE
@@ -350,9 +350,10 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			INFO("\033[33m HACK: disabling TS\033[0m");
 			cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
 		}
-		mp = false;
 #endif
 #else
+		mp = false;
+
 		/* don't use StopCam() here: ci-cam needs the real mode stop */
 		cam->sendCaPmt(channel->getChannelID(), NULL, 0, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
 		cam->sendMessage(NULL, 0, false);
