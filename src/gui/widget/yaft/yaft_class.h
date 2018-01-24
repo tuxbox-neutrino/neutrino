@@ -9,6 +9,7 @@
  */
 #ifndef __yaft_class__
 #define __yaft_class__
+#include <string>
 #include <sigc++/signal.h>
 
 class YaFT : public sigc::trackable
