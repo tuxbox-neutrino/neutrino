@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 AM_CPPFLAGS += \
@@ -8,6 +10,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
+	-I$(srcdir) \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@LUA_CFLAGS@ \
@@ -15,28 +18,9 @@ AM_CPPFLAGS += \
 
 noinst_LIBRARIES = libneutrino_gui_terminal.a
 
-HDR = glyph.h yaft.h conf.h color.h parse.h terminal.h util.h \
-	ctrlseq/esc.h ctrlseq/csi.h ctrlseq/osc.h ctrlseq/dcs.h \
-	fb/common.h fb/linux.h fb/freebsd.h fb/netbsd.h fb/openbsd.h \
-	x/x.h
-
 libneutrino_gui_terminal_a_SOURCES = \
+	ctrlseq/esc.cpp \
+	ctrlseq/csi.cpp \
+	ctrlseq/osc.cpp \
+	yaft_priv.cpp \
 	yaft_class.cpp
-
-#	glyph.h \
-#	yaft.h \
-#	conf.h \
-#	color.h \
-#	parse.h \
-#	terminal.h \
-#	util.h \
-#	ctrlseq/esc.h \
-#	ctrlseq/csi.h \
-#	ctrlseq/osc.h \
-#	ctrlseq/dcs.h \
-#	fb/common.h \
-#	fb/linux.h \
-#	fb/freebsd.h \
-#	fb/netbsd.h \
-#	fb/openbsd.h \
-#	x/x.h
