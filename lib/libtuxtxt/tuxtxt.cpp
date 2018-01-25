@@ -50,9 +50,6 @@ bool isTtxEplayer = false;
 
 static int screen_x, screen_y, screen_w, screen_h;
 
-void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor=false);
-void FillBorder(fb_pixel_t color, bool modeFullColor=false);
-
 fb_pixel_t *getFBp(int *y)
 {
 	if (*y < (int)var_screeninfo.yres)
@@ -62,7 +59,8 @@ fb_pixel_t *getFBp(int *y)
 	return lbb;
 }
 
-void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor/*=false*/)
+void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor = false);
+void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor)
 {
 	fb_pixel_t *p = getFBp(&y);
 	MARK_FB(x, y, w, h);
@@ -78,7 +76,8 @@ void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor/*
 	}
 }
 
-void FillBorder(fb_pixel_t color, bool modeFullColor/*=false*/)
+void FillBorder(fb_pixel_t color, bool modeFullColor = false);
+void FillBorder(fb_pixel_t color, bool modeFullColor)
 {
 	int ys =  (var_screeninfo.yres-var_screeninfo.yoffset);
 	FillRect(0     , ys                     ,StartX      ,var_screeninfo.yres                       ,color, modeFullColor);
