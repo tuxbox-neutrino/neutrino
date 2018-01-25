@@ -281,7 +281,7 @@ void ClearB(fb_pixel_t color)
 }
 #endif
 
-int  GetCurFontWidth()
+int GetCurFontWidth()
 {
 	int mx = (displaywidth)%(40-nofirst); // # of unused pixels
 	int abx = (mx == 0 ? displaywidth+1 : (displaywidth)/(mx+1));// distance between 'inserted' pixels
@@ -1112,7 +1112,9 @@ void eval_l25()
 		printf("=== %03x/%02x %d/%d===\n", tuxtxt_cache.page, tuxtxt_cache.subpage,tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpage]->pageinfo.nationalvalid,tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpage]->pageinfo.national);
 #endif
 
-#if 0 //TUXTXT_DEBUG     I don't think we need this any longer because this code is unreachable (HexPages are handled before eval_l25() is called)
+#if 0
+//TUXTXT_DEBUG
+	//I don't think we need this any longer because this code is unreachable (HexPages are handled before eval_l25() is called)
 	if (pageinfo->function == FUNC_MOT) /* magazine organization table */
 	{
 		int i;
@@ -2353,17 +2355,18 @@ int GetTeletextPIDs()
 	/* show infobar */
 	RenderMessage(ShowInfoBar);
 
-	unsigned char filter[DMX_FILTER_SIZE] = { 0 };
-	unsigned char mask[DMX_FILTER_SIZE] = { 0 };
+	unsigned char filter[DMX_FILTER_SIZE];
+	unsigned char mask[DMX_FILTER_SIZE];
 	int res;
 
-#if HAVE_SPARK_HARDWARE
-	cDemux * dmx = new cDemux(0); // live demux
-#else
 	cDemux * dmx = new cDemux(1);
-#endif
 	dmx->Open(DMX_PSI_CHANNEL);
 
+	memset(filter, 0x00, DMX_FILTER_SIZE);
+	memset(mask, 0x00, DMX_FILTER_SIZE);
+
+	//filter[0] = 0x00;
+	//mask[0] = 0xFF;
 	mask[0] = 0xFF;
 	mask[4] = 0xFF;
 
@@ -2433,7 +2436,8 @@ int GetTeletextPIDs()
 							pid_table[pids_found].national_subset = NAT_DEFAULT; /* use default charset */
 						}
 
-#if 1 // TUXTXT_DEBUG
+#if 1
+// TUXTXT_DEBUG
 						printf("TuxTxt <Service #%d %04x pid %04x Country code \"%3s\" national subset %2d%s>\n",
 								pids_found,
 								pid_table[pids_found].service_id,
@@ -2557,52 +2561,52 @@ skip_pid:
  ******************************************************************************/
 int GetNationalSubset(const char *cc)
 {
-        if (memcmp(cc, "cze", 3) == 0 || memcmp(cc, "ces", 3) == 0 ||
-            memcmp(cc, "slo", 3) == 0 || memcmp(cc, "slk", 3) == 0)
-                return NAT_CZ;
-        if (memcmp(cc, "eng", 3) == 0)
-                return NAT_UK;
-        if (memcmp(cc, "est", 3) == 0)
-                return NAT_ET;
-        if (memcmp(cc, "fre", 3) == 0 || memcmp(cc, "lb", 3) == 0 || memcmp(cc, "ltz", 3) == 0 || memcmp(cc, "fra", 3) == 0)
-                return NAT_FR;
-        if (memcmp(cc, "ger", 3) == 0 || memcmp(cc, "deu", 3) == 0)
-                return NAT_DE;
-        if (memcmp(cc, "ita", 3) == 0)
-                return NAT_IT;
-        if (memcmp(cc, "lav", 3) == 0 || memcmp(cc, "lit", 3) == 0)
-                return NAT_LV;
-        if (memcmp(cc, "pol", 3) == 0)
-                return NAT_PL;
-        if (memcmp(cc, "spa", 3) == 0 || memcmp(cc, "por", 3) == 0)
-                return NAT_SP;
-        if (memcmp(cc, "rum", 3) == 0 || memcmp(cc, "ron", 3) == 0)
-                return NAT_RO;
-        if (memcmp(cc, "scc", 3) == 0 || memcmp(cc, "srp", 3) == 0 ||
-            memcmp(cc, "scr", 3) == 0 || memcmp(cc, "hrv", 3) == 0 ||
-            memcmp(cc, "slv", 3) == 0)
-                return NAT_SR;
-        if (memcmp(cc, "swe", 3) == 0 ||
-            memcmp(cc, "dan", 3) == 0 ||
-            memcmp(cc, "nor", 3) == 0 ||
-            memcmp(cc, "fin", 3) == 0 ||
-            memcmp(cc, "hun", 3) == 0)
-                return NAT_SW;
-        if (memcmp(cc, "tur", 3) == 0)
-                return NAT_TR;
-        if (memcmp(cc, "rus", 3) == 0 || memcmp(cc, "bul", 3) == 0)
+	if (memcmp(cc, "cze", 3) == 0 || memcmp(cc, "ces", 3) == 0 ||
+	    memcmp(cc, "slo", 3) == 0 || memcmp(cc, "slk", 3) == 0)
+		return NAT_CZ;
+	if (memcmp(cc, "eng", 3) == 0)
+		return NAT_UK;
+	if (memcmp(cc, "est", 3) == 0)
+		return NAT_ET;
+	if (memcmp(cc, "fre", 3) == 0 || memcmp(cc, "lb", 3) == 0 || memcmp(cc, "ltz", 3) == 0 || memcmp(cc, "fra", 3) == 0)
+		return NAT_FR;
+	if (memcmp(cc, "ger", 3) == 0 || memcmp(cc, "deu", 3) == 0)
+		return NAT_DE;
+	if (memcmp(cc, "ita", 3) == 0)
+		return NAT_IT;
+	if (memcmp(cc, "lav", 3) == 0 || memcmp(cc, "lit", 3) == 0)
+		return NAT_LV;
+	if (memcmp(cc, "pol", 3) == 0)
+		return NAT_PL;
+	if (memcmp(cc, "spa", 3) == 0 || memcmp(cc, "por", 3) == 0)
+		return NAT_SP;
+	if (memcmp(cc, "rum", 3) == 0 || memcmp(cc, "ron", 3) == 0)
+		return NAT_RO;
+	if (memcmp(cc, "scc", 3) == 0 || memcmp(cc, "srp", 3) == 0 ||
+	    memcmp(cc, "scr", 3) == 0 || memcmp(cc, "hrv", 3) == 0 ||
+	    memcmp(cc, "slv", 3) == 0)
+		return NAT_SR;
+	if (memcmp(cc, "swe", 3) == 0 ||
+	    memcmp(cc, "dan", 3) == 0 ||
+	    memcmp(cc, "nor", 3) == 0 ||
+	    memcmp(cc, "fin", 3) == 0 ||
+	    memcmp(cc, "hun", 3) == 0)
+		return NAT_SW;
+	if (memcmp(cc, "tur", 3) == 0)
+		return NAT_TR;
+	if (memcmp(cc, "rus", 3) == 0 || memcmp(cc, "bul", 3) == 0)
 		return NAT_RB;
-        if (memcmp(cc, "ser", 3) == 0 || memcmp(cc, "cro", 3) == 0)
+	if (memcmp(cc, "ser", 3) == 0 || memcmp(cc, "cro", 3) == 0)
 		return NAT_SC;
-        if (memcmp(cc, "ukr", 3) == 0)
+	if (memcmp(cc, "ukr", 3) == 0)
 		return NAT_UA;
-        if (memcmp(cc, "gre", 3) == 0)
-                return NAT_GR;
-        if (memcmp(cc, "heb", 3) == 0)
-                return NAT_HB;
-        if (memcmp(cc, "ara", 3) == 0)
-                return NAT_AR;
-        return NAT_DEFAULT;     /* use default charset */
+	if (memcmp(cc, "gre", 3) == 0)
+		return NAT_GR;
+	if (memcmp(cc, "heb", 3) == 0)
+		return NAT_HB;
+	if (memcmp(cc, "ara", 3) == 0)
+		return NAT_AR;
+	return NAT_DEFAULT; /* use default charset */
 }
 
 /******************************************************************************
@@ -3518,7 +3522,8 @@ void PageInput(int Number)
 		{
 			tuxtxt_cache.subpage = subp;
 			tuxtxt_cache.pageupdate = 1;
-#if 1 //TUXTXT_DEBUG
+#if 1
+//TUXTXT_DEBUG
 			printf("TuxTxt <DirectInput: %.3X-%.2X>\n", tuxtxt_cache.page, tuxtxt_cache.subpage);
 #endif
 		}
@@ -4049,7 +4054,8 @@ void SwitchTranspMode()
 		SwitchScreenMode(0); /* turn off divided screen */
 	}
 	/* toggle mode */
-#if 0 // transparent first
+#if 0
+	// transparent first
 	if (transpmode == 2)
 		transpmode = 0;
 	else
@@ -4782,7 +4788,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 	// add diacritical marks
 	if (Attribute->diacrit)
 	{
-		FTC_SBit        sbit_diacrit;
+		FTC_SBit sbit_diacrit;
 #if 0
 		if (national_subset_local == NAT_GR)
 			Char = G2table[2][0x20+ Attribute->diacrit];
@@ -4791,18 +4797,18 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 		else
 			Char = G2table[0][0x20+ Attribute->diacrit];
 #endif
-                if ((national_subset_local == NAT_SC) || (national_subset_local == NAT_RB) || (national_subset_local == NAT_UA))
-                        Char = G2table[1][0x20+ Attribute->diacrit];
-                else if (national_subset_local == NAT_GR)
-                        Char = G2table[2][0x20+ Attribute->diacrit];
+		if ((national_subset_local == NAT_SC) || (national_subset_local == NAT_RB) || (national_subset_local == NAT_UA))
+			Char = G2table[1][0x20+ Attribute->diacrit];
+		else if (national_subset_local == NAT_GR)
+			Char = G2table[2][0x20+ Attribute->diacrit];
 #if 0
-                else if (national_subset_local == NAT_HB)
-                        Char = G2table[3][0x20+ Attribute->diacrit];
+		else if (national_subset_local == NAT_HB)
+			Char = G2table[3][0x20+ Attribute->diacrit];
 #endif
-                else if (national_subset_local == NAT_AR)
-                        Char = G2table[3][0x20+ Attribute->diacrit];
-                else
-                        Char = G2table[0][0x20+ Attribute->diacrit];
+		else if (national_subset_local == NAT_AR)
+			Char = G2table[3][0x20+ Attribute->diacrit];
+		else
+			Char = G2table[0][0x20+ Attribute->diacrit];
 
 		if ((glyph = FT_Get_Char_Index(face, Char)))
 		{
@@ -4937,8 +4943,8 @@ void RenderMessage(int Message)
 	int national_subset_back = national_subset;
 	national_subset = menusubset[menulanguage];
 
-/*                     00000000001111111111222222222233333333334 */
-/*                     01234567890123456789012345678901234567890 */
+/*	               00000000001111111111222222222233333333334 */
+/*	               01234567890123456789012345678901234567890 */
 	char message_1[] = "אבבבבבבב www.tuxtxt.com x.xx בבבבבבבגט";
 	char message_2[] = "ד                                   הי";
 /* 	char message_3[] = "ד   suche nach Teletext-Anbietern   הי"; */
