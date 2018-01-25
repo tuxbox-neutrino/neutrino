@@ -8,8 +8,8 @@
  *                                                                            *
  *              ported 2006 to Dreambox 7025 / 32Bit framebuffer              *
  *                   by Seddi <seddi@i-have-a-dreambox.com>                   *
- * 									      *
- *		ported 2009 to HD1 by Coolstream LTD 			      *
+ *									      *
+ *		ported 2009 to HD1 by Coolstream LTD			      *
  *                                                                            *
  *	    TD, SPARK and AZbox port (C) 2010-2013 Stefan Seyfried	      *
  *                                                                            *
@@ -2262,7 +2262,7 @@ void CleanUp()
 	tuxtxt_stop_thread();
 	tuxtxt_clear_cache();
 	if (tuxtxt_cache.dmx != -1)
-    	    close(tuxtxt_cache.dmx);
+		close(tuxtxt_cache.dmx);
 	tuxtxt_cache.dmx = -1;
 #else
 	//tuxtxt_stop();
@@ -3376,7 +3376,7 @@ void ConfigMenu(int Init)
 					auto_national &= 1;
 					if (auto_national)
 					{
-					 	if (getpidsdone)
+						if (getpidsdone)
 							national_subset = pid_table[current_pid].national_subset;
 						else
 						{
@@ -4985,14 +4985,14 @@ void RenderMessage(int Message)
 /*	               01234567890123456789012345678901234567890 */
 	char message_1[] = "אבבבבבבב www.tuxtxt.com x.xx בבבבבבבגט";
 	char message_2[] = "ד                                   הי";
-/* 	char message_3[] = "ד   suche nach Teletext-Anbietern   הי"; */
+/*	char message_3[] = "ד   suche nach Teletext-Anbietern   הי"; */
 	char message_4[] = "ד                                   הי";
 	char message_5[] = "וזזזזזזזזזזזזזזזזזזזזזזזזזזזזזזזזזזזחי";
 	char message_6[] = "כללללללללללללללללללללללללללללללללללללך";
 
-/* 	char message_7[] = "ד kein Teletext auf dem Transponder הי"; */
-/* 	char message_8[] = "ד  warte auf Empfang von Seite 100  הי"; */
-/* 	char message_9[] = "ד     Seite 100 existiert nicht!    הי"; */
+/*	char message_7[] = "ד kein Teletext auf dem Transponder הי"; */
+/*	char message_8[] = "ד  warte auf Empfang von Seite 100  הי"; */
+/*	char message_9[] = "ד     Seite 100 existiert nicht!    הי"; */
 
 	memmove(&message_1[24], versioninfo, 4);
 	/* reset zoom */
@@ -5197,10 +5197,10 @@ void RenderPage()
 
 	if (transpmode[boxed] != 2 && delaystarted)
 	{
-	    struct timeval tv;
-    	    gettimeofday(&tv,NULL);
-	    if (tv.tv_sec - tv_delay.tv_sec < subtitledelay)
-		return;
+		struct timeval tv;
+		gettimeofday(&tv,NULL);
+		if (tv.tv_sec - tv_delay.tv_sec < subtitledelay)
+			return;
 	}
 
 	/* update page or timestring */
@@ -5233,7 +5233,7 @@ void RenderPage()
 			oldboxed = boxed;
 		}
 
- 		/* display first column?  */
+		/* display first column?  */
 		nofirst = show39;
 		for (row = 1; row < 24; row++)
 		{
