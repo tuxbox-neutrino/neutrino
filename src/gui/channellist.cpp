@@ -1287,11 +1287,12 @@ int CChannelList::numericZap(int key)
 	}
 	size_t maxchansize = MaxChanNr().size();
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getMaxDigitWidth();
-	int sx = maxchansize * fw + (fw/2);
-	int sy = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight() + 6;
+	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight();
+	int sx = maxchansize*fw + 2*OFFSET_INNER_MID;
+	int sy = fh + 2*OFFSET_INNER_SMALL;
 
-	int ox = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - sx)/2;
-	int oy = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - sy)/2;
+	int ox = getScreenStartX(sx);
+	int oy = getScreenStartY(sy);
 	char valstr[10];
 	int chn = CRCInput::getNumericValue(key);
 	int pos = 1;
@@ -1305,14 +1306,13 @@ int CChannelList::numericZap(int key)
 	while(1) {
 		if (lastchan != chn) {
 			snprintf(valstr, sizeof(valstr), "%d", chn);
-
 			while(strlen(valstr) < maxchansize)
 				strcat(valstr,"-");   //"_"
-			frameBuffer->paintBoxRel(ox, oy, sx, sy, COL_INFOBAR_PLUS_0);
 
+			PaintBoxRel(ox, oy, sx, sy, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_ALL, CC_SHADOW_ON);
 			for (int i = maxchansize-1; i >= 0; i--) {
 				valstr[i+ 1] = 0;
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(ox+fw/3+ i*fw, oy+sy-3, sx, &valstr[i], COL_INFOBAR_TEXT);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(ox + OFFSET_INNER_MID + i*fw, oy + OFFSET_INNER_SMALL + fh, fw, &valstr[i], COL_INFOBAR_TEXT);
 			}
 
 			showInfo(chn);
@@ -1366,7 +1366,7 @@ int CChannelList::numericZap(int key)
 		}
 	}
 
-	frameBuffer->paintBackgroundBoxRel(ox, oy, sx, sy);
+	ClearBoxRel(ox, oy, sx, sy, CC_SHADOW_ON);
 
 	CZapitChannel* chan = getChannel(chn);
 	if (doZap) {
