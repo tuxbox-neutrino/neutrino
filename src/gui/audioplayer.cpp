@@ -444,12 +444,15 @@ int CAudioPlayerGui::show()
 			}
 		}
 
-		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop)
+		if (msg == CRCInput::RC_home)
+		{
+			if (m_state == CAudioPlayerGui::STOP)
+				loop=false;
+		}
+		if (msg == CRCInput::RC_stop)
 		{
 			if (m_state != CAudioPlayerGui::STOP)
 				stop();
-			else
-				loop=false;
 		}
 #if 0 		//add RC_favorites for internetradio
 		else if ((msg == CRCInput::RC_favorites) && (m_inetmode))
