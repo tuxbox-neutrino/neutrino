@@ -93,8 +93,25 @@ bool PaintBoxRel(const int& x,
 		 const int& dx,
 		 const int& dy,
 		 const fb_pixel_t& col,
-		 int radius = 0,
+		 int radius = 0 /*RADIUS_NONE*/,
 		 int corner_type = CORNER_ALL,
+		 int shadow_mode = CC_SHADOW_OFF);
+
+		/**Small and easy to apply box clear methode
+		* @return 			void
+		*
+		* @param[in] x			expects type int, x position on screen
+		* @param[in] y			expects type int, y position on screen modes are:
+		* @param[in] dx			expects type int, width of scrollbar object
+		* @param[in] dy			expects type int, height of scrollbar object
+		*
+		* usual paraemters:
+		* @param[in] shadow_mode	optional, expects type int defined by shadow mode enums, default CC_SHADOW_OFF
+		*/
+void ClearBoxRel(const int& x,
+		 const int& y,
+		 const int& dx,
+		 const int& dy,
 		 int shadow_mode = CC_SHADOW_OFF);
 
 #endif
