@@ -4,6 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
         Copyright (C) 2003 thegoodguy
         Copyright (C) 2013-2017 M. Liebmann (micha-bbg)
+	Copyright (C) 2009-2013,2017-2018 Stefan Seyfried
 
 	License: GPL
 
@@ -466,10 +467,20 @@ void Font::paintFontPixel(fb_pixel_t *td, uint8_t src)
 		*td = colors[src];
 }
 
-void Font::RenderString(int x, int y, const int width, const char *text, const fb_pixel_t color, const int boxheight, const unsigned int flags)
+void Font::RenderString(int x, int y, const int width, const char *text, const fb_pixel_t color, const int boxheight, const unsigned int flags, fb_pixel_t *buffer, int _stride)
 {
-	if (!frameBuffer->getActive())
+	if (buffer == NULL && !frameBuffer->getActive())
 		return;
+
+	fb_pixel_t *buff;
+	int stride;
+	if (buffer) {
+		buff = buffer;
+		stride = _stride;
+	} else {
+		buff = frameBuffer->getFrameBufferPointer();
+		stride = frameBuffer->getStride();
+	}
 
 	const bool utf8_encoded = flags & IS_UTF8;
 #if HAVE_TRIPLEDRAGON
@@ -491,7 +502,8 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	  - font rendering slower
 */
 
-	frameBuffer->checkFbArea(x, y-height, width, height, true);
+	if (buffer == NULL)
+		frameBuffer->checkFbArea(x, y-height, width, height, true);
 
 	pthread_mutex_lock( &renderer->render_mutex );
 
@@ -563,11 +575,11 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	/* the GXA seems to do it's job asynchonously, so we need to wait until
 	   it's ready, otherwise the font will sometimes "be overwritten" with
 	   background color or bgcolor will be wrong */
-	frameBuffer->waitForIdle("Font::RenderString 1");
+	if (buffer != NULL)
+		frameBuffer->waitForIdle("Font::RenderString 1");
 	if (!useFullBG) {
 		/* fetch bgcolor from framebuffer, using lower left edge of the font... */
-		bg_color = *(frameBuffer->getFrameBufferPointer() + x +
-				y * frameBuffer->getStride() / sizeof(fb_pixel_t));
+		bg_color = *(buff + x + y * stride / sizeof(fb_pixel_t));
 
 		if (bg_color == (fb_pixel_t)0)
 			bg_color = 0x80808080;
@@ -636,9 +648,8 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 		if (x + glyph->xadvance + spread_by > left + width)
 			break;
 
-		int stride  = frameBuffer->getStride();
 		int ap=(x + glyph->left) * sizeof(fb_pixel_t) + stride * (y - glyph->top);
-		uint8_t * d = ((uint8_t *)frameBuffer->getFrameBufferPointer()) + ap;
+		uint8_t * d = ((uint8_t *)buff) + ap;
 		uint8_t * s = glyph->buffer;
 		int w       = glyph->width;
 		int h       = glyph->height;
@@ -678,14 +689,16 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	}
 	//printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
 	pthread_mutex_unlock( &renderer->render_mutex );
-	frameBuffer->checkFbArea(x, y-height, width, height, false);
-	/* x is the rightmost position of the last drawn character */
-	frameBuffer->mark(left, y + lower - height, x, y + lower);
+	if (buffer == NULL) {
+		frameBuffer->checkFbArea(x, y-height, width, height, false);
+		/* x is the rightmost position of the last drawn character */
+		frameBuffer->mark(left, y + lower - height, x, y + lower);
+	}
 }
 
-void Font::RenderString(int x, int y, const int width, const std::string & text, const fb_pixel_t color, const int boxheight, const unsigned int flags)
+void Font::RenderString(int x, int y, const int width, const std::string & text, const fb_pixel_t color, const int boxheight, const unsigned int flags, fb_pixel_t *buffer, int stride)
 {
-	RenderString(x, y, width, text.c_str(), color, boxheight, flags);
+	RenderString(x, y, width, text.c_str(), color, boxheight, flags, buffer, stride);
 }
 
 int Font::getRenderWidth(const char *text, const bool utf8_encoded)
