@@ -335,8 +335,6 @@ void YaFT_p::set_mode(struct parm_t *parm)
 			mode |= MODE_AMRIGHT;
 		} else if (pmode == 25) {
 			mode |= MODE_CURSOR;
-		} else if (pmode == 8901) {
-			mode |= MODE_VWBS;
 		}
 	}
 
@@ -359,8 +357,6 @@ void YaFT_p::reset_mode(struct parm_t *parm)
 			wrap_occured = false;
 		} else if (pmode == 25) {
 			mode &= ~MODE_CURSOR;
-		} else if (pmode == 8901) {
-			mode &= ~MODE_VWBS;
 		}
 	}
 

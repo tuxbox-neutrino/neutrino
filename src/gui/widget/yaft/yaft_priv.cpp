@@ -116,7 +116,6 @@ void YaFT_p::erase_cell(int y, int x)
 	cellp->glyphp     = glyph[DEFAULT_CHAR];
 	cellp->color_pair = color_pair; /* bce */
 	cellp->attribute  = ATTR_RESET;
-	cellp->width      = HALF;
 	line_dirty[y] = true;
 }
 
@@ -126,20 +125,8 @@ void YaFT_p::copy_cell(int dst_y, int dst_x, int src_y, int src_x)
 
 	dst = &cells[dst_y][dst_x];
 	src = &cells[src_y][src_x];
-
-	if (src->width == NEXT_TO_WIDE) {
-		return;
-	} else if (src->width == WIDE && dst_x == (cols - 1)) {
-		erase_cell(dst_y, dst_x);
-	} else {
-		*dst = *src;
-		if (src->width == WIDE) {
-			dst  = &cells[dst_y][dst_x + 1];
-			*dst = *src;
-			dst->width = NEXT_TO_WIDE;
-		}
-		line_dirty[dst_y] = true;
-	}
+	*dst = *src;
+	line_dirty[dst_y] = true;
 }
 
 int YaFT_p::set_cell(int y, int x, const struct glyph_t *glyphp)
@@ -161,23 +148,10 @@ int YaFT_p::set_cell(int y, int x, const struct glyph_t *glyphp)
 	}
 
 	cell.attribute  = attribute;
-	cell.width      = (glyph_width)glyphp->width;
 
 	cells[y][x] = cell;
 	line_dirty[y] = true;
-
-	if (cell.width == WIDE && x + 1 < cols) {
-		cell.width = NEXT_TO_WIDE;
-		cells[y][x + 1] = cell;
-		return WIDE;
-	}
-
-	if (cell.width == HALF /* isolated NEXT_TO_WIDE cell */
-		&& x + 1 < cols
-		&& cells[y][x + 1].width == NEXT_TO_WIDE) {
-		erase_cell(y, x + 1);
-	}
-	return HALF;
+	return 1;
 }
 
 void YaFT_p::swap_lines(int i, int j)
@@ -789,16 +763,12 @@ void YaFT_p::draw_line(int line)
 		col_pair = cellp->color_pair;
 
 		/* check wide character or not */
-		glyph_w = (cellp->width == HALF) ? CELL_WIDTH: CELL_WIDTH * 2;
+		glyph_w = CELL_WIDTH;
 		bdf_padding = my_ceil(glyph_w, BITS_PER_BYTE) * BITS_PER_BYTE - glyph_w;
-		if (cellp->width == WIDE)
-			bdf_padding += CELL_WIDTH;
 
 		/* check cursor positon */
 		if ((mode & MODE_CURSOR && line == cursor.y)
-			&& (col == cursor.x
-			|| (cellp->width == WIDE && (col + 1) == cursor.x)
-			|| (cellp->width == NEXT_TO_WIDE && (col - 1) == cursor.x))) {
+			&& col == cursor.x) {
 			col_pair.fg = DEFAULT_BG;
 			col_pair.bg = ACTIVE_CURSOR_COLOR;
 		}

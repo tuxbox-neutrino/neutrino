@@ -27,12 +27,7 @@
 /* function for control character */
 void YaFT_p::bs(void)
 {
-	if (mode & MODE_VWBS
-		&& cursor.x - 1 >= 0
-		&& cells[cursor.y][cursor.x - 1].width == NEXT_TO_WIDE)
-		move_cursor(0, -2);
-	else
-		move_cursor(0, -1);
+	move_cursor(0, -1);
 }
 
 void YaFT_p::tab(void)

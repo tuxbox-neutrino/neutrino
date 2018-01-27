@@ -123,7 +123,6 @@ class YaFT_p
 		MODE_ORIGIN  = 0x01, /* origin mode: DECOM */
 		MODE_CURSOR  = 0x02, /* cursor visible: DECTCEM */
 		MODE_AMRIGHT = 0x04, /* auto wrap: DECAWM */
-		MODE_VWBS    = 0x08, /* variable-width backspace */
 	};
 
 	struct esc_t {
@@ -132,17 +131,10 @@ class YaFT_p
 		enum esc_state state;
 	};
 
-	enum glyph_width {
-		NEXT_TO_WIDE = 0,
-		HALF,
-		WIDE,
-	};
-
 	struct cell_t {
 		const struct glyph_t *glyphp;   /* pointer to glyph */
 		struct color_pair_t color_pair; /* color (fg, bg) */
 		int attribute;                  /* bold, underscore, etc... */
-		enum glyph_width width;         /* wide char flag: WIDE, NEXT_TO_WIDE, HALF */
 	};
 
 	struct framebuffer_t {
