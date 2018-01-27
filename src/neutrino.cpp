@@ -730,7 +730,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.auto_cover = configfile.getInt32( "auto_cover",  0);
 
 	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
-	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
+	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  1);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
 	g_settings.zapto_pre_time = configfile.getInt32( "zapto_pre_time",  0);
