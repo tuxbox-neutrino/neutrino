@@ -199,7 +199,6 @@ class YaFT_p
 	void reset_charset(void);
 	void reset(void);
 	void term_die(void);
-	bool term_init(int width, int height);
 	void utf8_charset(uint8_t ch);
 	void control_character(uint8_t ch);
 	void esc_sequence(uint8_t ch);

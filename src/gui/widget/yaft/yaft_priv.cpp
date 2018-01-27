@@ -114,7 +114,57 @@ bool YaFT_p::init()
 	fb.dy_max = -1;
 	screeninfo = fb.cfb->getScreenInfo();
 
-	return term_init(fb.width, fb.height);
+	width  = fb.width;
+	height = fb.height;
+	int fw, fh;
+#define LINES 30
+#define COLS 100
+	int scalex = 64, scaley = 64;
+	/*
+	 * try to get a font size that fits about LINES x COLS into the terminal.
+	 * NOTE: this is not guaranteed to work! Terminal might be smaller or bigger
+	 */
+	for (int i = 0; i < 2; i++) {
+		delete font;
+		delete fr;
+		fr = new FBFontRenderClass(scalex, scaley);
+		fontstyle = fr->AddFont(ttx_font_file.c_str());
+		font = fr->getFont(fr->getFamily(ttx_font_file.c_str()).c_str(), fontstyle, height / LINES);
+		fw = font->getWidth();
+		fh = font->getHeight();
+		fprintf(stderr, "FONT[%d]: fw %d fh: %d sx %d sy %d w %d h %d\n", i, fw, fh, scalex, scaley, width, height);
+		scalex = 64 * width / (fw * COLS) + 1;
+		scaley = 64 * height / (fh * LINES) + 1;
+	}
+
+	CELL_WIDTH = fw;
+	CELL_HEIGHT = fh;
+	lines = height / CELL_HEIGHT;
+	cols  = width / CELL_WIDTH;
+
+	logging(NORMAL, "terminal cols:%d lines:%d\n", cols, lines);
+
+	/* allocate memory */
+	line_dirty.reserve(lines);
+	tabstop.reserve(cols);
+	esc.buf.reserve(1024);
+
+	cells.clear();
+	std::vector<cell_t> line;
+	line.resize(cols);
+	for (int i = 0; i < lines; i++)
+		cells.push_back(line);
+	line.resize(0);
+
+	/* initialize palette */
+	for (int i = 0; i < COLORS; i++)
+		virtual_palette[i] = color_list[i];
+	palette_modified = true; /* first refresh() will initialize real_palette[] */
+
+	/* reset terminal */
+	reset();
+
+	return true;
 }
 
 void YaFT_p::erase_cell(int y, int x)
@@ -384,61 +434,6 @@ void YaFT_p::term_die(void)
 	tabstop.clear();
 	esc.buf.clear();
 	cells.clear();
-}
-
-bool YaFT_p::term_init(int w, int h)
-{
-	width  = w;
-	height = h;
-	int fw, fh;
-#define LINES 30
-#define COLS 100
-	int scalex = 64, scaley = 64;
-	/*
-	 * try to get a font size that fits about LINES x COLS into the terminal.
-	 * NOTE: this is not guaranteed to work! Terminal might be smaller or bigger
-	 */
-	for (int i = 0; i < 2; i++) {
-		delete font;
-		delete fr;
-		fr = new FBFontRenderClass(scalex, scaley);
-		fontstyle = fr->AddFont(ttx_font_file.c_str());
-		font = fr->getFont(fr->getFamily(ttx_font_file.c_str()).c_str(), fontstyle, height / LINES);
-		fw = font->getWidth();
-		fh = font->getHeight();
-		fprintf(stderr, "FONT[%d]: fw %d fh: %d sx %d sy %d w %d h %d\n", i, fw, fh, scalex, scaley, width, height);
-		scalex = 64 * width / (fw * COLS) + 1;
-		scaley = 64 * height / (fh * LINES) + 1;
-	}
-
-	CELL_WIDTH = fw;
-	CELL_HEIGHT = fh;
-	lines = height / CELL_HEIGHT;
-	cols  = width / CELL_WIDTH;
-
-	logging(NORMAL, "terminal cols:%d lines:%d\n", cols, lines);
-
-	/* allocate memory */
-	line_dirty.reserve(lines);
-	tabstop.reserve(cols);
-	esc.buf.reserve(1024);
-
-	cells.clear();
-	std::vector<cell_t> line;
-	line.resize(cols);
-	for (int i = 0; i < lines; i++)
-		cells.push_back(line);
-	line.resize(0);
-
-	/* initialize palette */
-	for (int i = 0; i < COLORS; i++)
-		virtual_palette[i] = color_list[i];
-	palette_modified = true; /* first refresh() will initialize real_palette[] */
-
-	/* reset terminal */
-	reset();
-
-	return true;
 }
 
 void YaFT_p::parse(uint8_t *buf, int size)
