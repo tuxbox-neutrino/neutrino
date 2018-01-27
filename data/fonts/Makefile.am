@@ -15,3 +15,9 @@ install_DATA = \
 if BOXMODEL_CS_HD2
 install_DATA += UnDotum.ttf
 endif
+
+install-data-hook:
+	cd $(DESTDIR)$(FONTDIR); \
+		mv $(neutrino_ttf) neutrino.ttf; \
+		mv $(tuxtxt_ttf) tuxtxt.ttf; \
+		ln -sf tuxtxt.ttf shell.ttf
