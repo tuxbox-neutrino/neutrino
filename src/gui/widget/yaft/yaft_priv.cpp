@@ -124,17 +124,23 @@ bool YaFT_p::init()
 	 * try to get a font size that fits about LINES x COLS into the terminal.
 	 * NOTE: this is not guaranteed to work! Terminal might be smaller or bigger
 	 */
-	for (int i = 0; i < 2; i++) {
-		delete font;
-		delete fr;
-		fr = new FBFontRenderClass(scalex, scaley);
-		fontstyle = fr->AddFont(ttx_font_file.c_str());
-		font = fr->getFont(fr->getFamily(ttx_font_file.c_str()).c_str(), fontstyle, height / LINES);
-		fw = font->getWidth();
-		fh = font->getHeight();
-		fprintf(stderr, "FONT[%d]: fw %d fh: %d sx %d sy %d w %d h %d\n", i, fw, fh, scalex, scaley, width, height);
-		scalex = 64 * width / (fw * COLS) + 1;
-		scaley = 64 * height / (fh * LINES) + 1;
+	if (paint) {
+		for (int i = 0; i < 2; i++) {
+			delete font;
+			delete fr;
+			fr = new FBFontRenderClass(scalex, scaley);
+			fontstyle = fr->AddFont(ttx_font_file.c_str());
+			font = fr->getFont(fr->getFamily(ttx_font_file.c_str()).c_str(), fontstyle, height / LINES);
+			fw = font->getWidth();
+			fh = font->getHeight();
+			fprintf(stderr, "FONT[%d]: fw %d fh: %d sx %d sy %d w %d h %d\n", i, fw, fh, scalex, scaley, width, height);
+			scalex = 64 * width / (fw * COLS) + 1;
+			scaley = 64 * height / (fh * LINES) + 1;
+		}
+	} else {
+		/* dummy */
+		fh = height / LINES;
+		fw = width / COLS;
 	}
 
 	CELL_WIDTH = fw;
@@ -142,7 +148,7 @@ bool YaFT_p::init()
 	lines = height / CELL_HEIGHT;
 	cols  = width / CELL_WIDTH;
 
-	logging(NORMAL, "terminal cols:%d lines:%d\n", cols, lines);
+	logging(NORMAL, "terminal cols:%d lines:%d paint:%d\n", cols, lines, paint);
 
 	/* allocate memory */
 	line_dirty.reserve(lines);
@@ -150,11 +156,12 @@ bool YaFT_p::init()
 	esc.buf.reserve(1024);
 
 	cells.clear();
-	std::vector<cell_t> line;
-	line.resize(cols);
-	for (int i = 0; i < lines; i++)
-		cells.push_back(line);
-	line.resize(0);
+	if (paint) {
+		std::vector<cell_t> line;
+		line.resize(cols);
+		for (int i = 0; i < lines; i++)
+			cells.push_back(line);
+	}
 
 	/* initialize palette */
 	for (int i = 0; i < COLORS; i++)
@@ -170,6 +177,8 @@ bool YaFT_p::init()
 void YaFT_p::erase_cell(int y, int x)
 {
 	struct cell_t *cellp;
+	if (! paint)
+		return;
 
 	cellp             = &cells[y][x];
 	cellp->color_pair = color_pair; /* bce */
@@ -181,7 +190,8 @@ void YaFT_p::erase_cell(int y, int x)
 void YaFT_p::copy_cell(int dst_y, int dst_x, int src_y, int src_x)
 {
 	struct cell_t *dst, *src;
-
+	if (! paint)
+		return;
 	dst = &cells[dst_y][dst_x];
 	src = &cells[src_y][src_x];
 	*dst = *src;
@@ -192,6 +202,9 @@ int YaFT_p::set_cell(int y, int x, std::string &utf8)
 {
 	struct cell_t cell;
 	uint8_t color_tmp;
+
+	if (! paint)
+		return 1;
 
 	cell.utf8_str = utf8;
 
@@ -215,6 +228,10 @@ int YaFT_p::set_cell(int y, int x, std::string &utf8)
 
 void YaFT_p::swap_lines(int i, int j)
 {
+	/* only called from scroll(), which already checks for paint before
+	if (!paint)
+		return;
+	 */
 	std::swap(cells[i], cells[j]);
 }
 
@@ -222,7 +239,7 @@ void YaFT_p::scroll(int from, int to, int offset)
 {
 	int abs_offset, scroll_lines;
 
-	if (offset == 0 || from >= to)
+	if (offset == 0 || from >= to || paint == false)
 		return;
 
 	logging(DEBUG, "scroll from:%d to:%d offset:%d\n", from, to, offset);
@@ -254,6 +271,12 @@ void YaFT_p::move_cursor(int y_offset, int x_offset)
 {
 	int x, y, top, bottom;
 
+	if (y_offset > 0 && !nlseen)
+		txt.push("");
+
+	if (! paint)
+		return;
+
 	x = cursor.x + x_offset;
 	y = cursor.y + y_offset;
 
@@ -280,9 +303,6 @@ void YaFT_p::move_cursor(int y_offset, int x_offset)
 		scroll(top, bottom, y_offset);
 	}
 	cursor.y = y;
-
-	if (y_offset > 0 && !nlseen)
-		txt.push("");
 }
 
 /* absolute movement: never scroll */
