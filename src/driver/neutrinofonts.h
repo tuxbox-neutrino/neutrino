@@ -130,6 +130,7 @@ class CNeutrinoFonts
 
 		void SetupNeutrinoFonts(bool initRenderClass = true);
 		void SetupDynamicFonts(bool initRenderClass = true);
+		void SetupShellFont();
 		void refreshDynFonts();
 		Font **getDynFont(int &dx, int &dy, std::string text="", int style=FONT_STYLE_REGULAR, int share=FONT_ID_SHARE);
 		void setFontUseDigitHeight(bool set=true) {useDigitOffset = set;}

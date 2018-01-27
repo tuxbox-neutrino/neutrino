@@ -49,6 +49,7 @@ extern font_sizes_struct neutrino_font[];
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 
 const font_sizes_struct signal_font = {NONEXISTANT_LOCALE, 14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
+const font_sizes_struct shell_font = {NONEXISTANT_LOCALE, 18, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
 
 CNeutrinoFonts::CNeutrinoFonts()
 {
@@ -65,6 +66,7 @@ CNeutrinoFonts::CNeutrinoFonts()
 		g_Font[i] = NULL;
 
 	g_SignalFont = NULL;
+	g_ShellFont = NULL;
 
 	InitDynFonts();
 }
@@ -189,6 +191,30 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 	if (g_SignalFont) delete g_SignalFont;
 	fontSize = CFrameBuffer::getInstance()->scale2Res(signal_font.defaultsize) + signal_font.size_offset * fontDescr.size_offset;
 	g_SignalFont = g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[signal_font.style].c_str(), fontSize);
+}
+
+void CNeutrinoFonts::SetupShellFont()
+{
+	if (g_ShellFont)
+	{
+		delete g_ShellFont;
+		g_ShellFont = NULL;
+	}
+
+	std::string shell_ttf = FONTDIR_VAR "/shell.ttf";
+	if (access(shell_ttf.c_str(), F_OK) != 0)
+		shell_ttf = FONTDIR "/shell.ttf";
+	if (access(shell_ttf.c_str(), F_OK) != 0)
+		return;
+
+	if (g_shellFontRenderer != NULL)
+		delete g_shellFontRenderer;
+	g_shellFontRenderer = new FBFontRenderClass(72 * g_settings.font_scaling_x / 100, 72 * g_settings.font_scaling_y / 100);
+	g_shellFontRenderer->AddFont(shell_ttf.c_str());
+
+	std::string shell_font_name = g_shellFontRenderer->getFamily(shell_ttf.c_str());
+	int shell_font_size = CFrameBuffer::getInstance()->scale2Res(shell_font.defaultsize)/* + shell_font.size_offset * fontDescr.size_offset*/;
+	g_ShellFont = g_shellFontRenderer->getFont(shell_font_name.c_str(), fontStyle[shell_font.style].c_str(), shell_font_size);
 }
 
 void CNeutrinoFonts::refreshDynFonts()
