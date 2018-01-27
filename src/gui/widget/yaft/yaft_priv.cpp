@@ -510,7 +510,8 @@ void YaFT_p::control_character(uint8_t ch)
 	switch(ch) {
 	case BS:  bs(); break;
 	case HT:  tab(); break;
-	case LF:  nl(); break;
+	case LF:  nlseen = true;
+		  nl(); break;
 	case VT:  nl(); break;
 	case FF:  nl(); break;
 	case CR:  cr(); break;
