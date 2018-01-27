@@ -25,9 +25,9 @@
  */
 
 #include "yaft_priv.h"
-#include "glyph.h"
 #include <driver/framebuffer.h>
 #include <driver/abstime.h>
+#include <xmltree/xmlinterface.h> /* UTF8 conversion */
 
 /* parse_arg functions */
 void YaFT_p::reset_parm(parm_t *pt)
@@ -80,6 +80,7 @@ void YaFT_p::parse_arg(std::string &buf, struct parm_t *pt, int delim, int (is_v
 	logging(DEBUG, "argc:%d\n", pt->argc);
 }
 
+extern std::string ttx_font_file;
 /* constructor, Paint == false means "quiet mode, just execute
  * a command but don't display anything */
 YaFT_p::YaFT_p(bool Paint)
@@ -89,6 +90,15 @@ YaFT_p::YaFT_p(bool Paint)
 	nlseen = false;
 	paint = Paint;
 	last_paint = 0;
+	fr = NULL;
+	font = NULL;
+}
+
+YaFT_p::~YaFT_p()
+{
+	/* delete NULL is fine */
+	delete font;
+	delete fr;
 }
 
 bool YaFT_p::init()
@@ -113,9 +123,9 @@ void YaFT_p::erase_cell(int y, int x)
 	struct cell_t *cellp;
 
 	cellp             = &cells[y][x];
-	cellp->glyphp     = glyph[DEFAULT_CHAR];
 	cellp->color_pair = color_pair; /* bce */
 	cellp->attribute  = ATTR_RESET;
+	cellp->utf8_str.clear();
 	line_dirty[y] = true;
 }
 
@@ -129,12 +139,12 @@ void YaFT_p::copy_cell(int dst_y, int dst_x, int src_y, int src_x)
 	line_dirty[dst_y] = true;
 }
 
-int YaFT_p::set_cell(int y, int x, const struct glyph_t *glyphp)
+int YaFT_p::set_cell(int y, int x, std::string &utf8)
 {
-	struct cell_t cell; //, *cellp;
+	struct cell_t cell;
 	uint8_t color_tmp;
 
-	cell.glyphp = glyphp;
+	cell.utf8_str = utf8;
 
 	cell.color_pair.fg = (attribute & attr_mask[ATTR_BOLD] && color_pair.fg <= 7) ?
 		color_pair.fg + BRIGHT_INC : color_pair.fg;
@@ -257,36 +267,23 @@ void YaFT_p::set_cursor(int y, int x)
 
 void YaFT_p::addch(uint32_t code)
 {
-	int _width;
-	const struct glyph_t *glyphp;
-
 	logging(DEBUG, "addch: U+%.4X\n", code);
 
-	_width = wcwidth(code);
-
-	if (code <= 0xff) { /* non-ascii not supported */
-		char c = (char)code;
-		txt.back().push_back(c);
-	}
-	if (_width <= 0)                               /* zero width: not support comibining character */
-		return;
-	else if (0x100000 <= code && code <= 0x10FFFD) /* unicode private area: plane 16 (DRCSMMv1) */
-		glyphp = glyph[SUBSTITUTE_HALF];
-	else if (code >= UCS2_CHARS              /* yaft support only UCS2 */
-		|| glyph[code] == NULL           /* missing glyph */
-		|| glyph[code]->width != _width) /* width unmatch */
-		glyphp = (_width == 1) ? glyph[SUBSTITUTE_HALF] : glyph[SUBSTITUTE_WIDE];
-	else
-		glyphp = glyph[code];
-
-	if ((wrap_occured && cursor.x == cols - 1) /* folding */
-		|| (glyphp->width == WIDE && cursor.x == cols - 1)) {
+	if (wrap_occured && cursor.x == cols - 1) {
 		set_cursor(cursor.y, 0);
 		move_cursor(1, 0);
 	}
 	wrap_occured = false;
 
-	move_cursor(0, set_cell(cursor.y, cursor.x, glyphp));
+	std::string str = Unicode_Character_to_UTF8(code);
+	move_cursor(0, set_cell(cursor.y, cursor.x, str));
+	txt.back().append(str);
+#if 0
+	printf(stderr, "addch 0x%04x => ", code);
+	onst char *f = str.c_str();
+	hile (*f) fprintf(stderr, "0x%02x ", *f++);
+	fprintf(stderr, "\n");
+#endif
 }
 
 void YaFT_p::reset_esc(void)
@@ -396,23 +393,33 @@ void YaFT_p::term_die(void)
 
 bool YaFT_p::term_init(int w, int h)
 {
-	const glyph_t *_glyphs;
-
 	width  = w;
 	height = h;
+	int fw, fh;
+#define LINES 30
+#define COLS 100
+	int scalex = 64, scaley = 64;
+	/*
+	 * try to get a font size that fits about LINES x COLS into the terminal.
+	 * NOTE: this is not guaranteed to work! Terminal might be smaller or bigger
+	 */
+	for (int i = 0; i < 2; i++) {
+		delete font;
+		delete fr;
+		fr = new FBFontRenderClass(scalex, scaley);
+		fontstyle = fr->AddFont(ttx_font_file.c_str());
+		font = fr->getFont(fr->getFamily(ttx_font_file.c_str()).c_str(), fontstyle, height / LINES);
+		fw = font->getWidth();
+		fh = font->getHeight();
+		fprintf(stderr, "FONT[%d]: fw %d fh: %d sx %d sy %d w %d h %d\n", i, fw, fh, scalex, scaley, width, height);
+		scalex = 64 * width / (fw * COLS) + 1;
+		scaley = 64 * height / (fh * LINES) + 1;
+	}
 
-	int j = 0;
-	do {
-		_glyphs = glyphs[j];
-		CELL_WIDTH = _glyphs[0].code;
-		CELL_HEIGHT = _glyphs[0].width;
-		cols  = width / CELL_WIDTH;
-		if (cols > 79)
-			break;
-		j++;
-	} while (glyphs[j]);
-
+	CELL_WIDTH = fw;
+	CELL_HEIGHT = fh;
 	lines = height / CELL_HEIGHT;
+	cols  = width / CELL_WIDTH;
 
 	logging(NORMAL, "terminal cols:%d lines:%d\n", cols, lines);
 
@@ -432,24 +439,6 @@ bool YaFT_p::term_init(int w, int h)
 	for (int i = 0; i < COLORS; i++)
 		virtual_palette[i] = color_list[i];
 	palette_modified = true; /* first refresh() will initialize real_palette[] */
-
-	/* initialize glyph map */
-	for (uint32_t code = 0; code < UCS2_CHARS; code++)
-		glyph[code] = NULL;
-
-	for (uint32_t gi = 1; _glyphs[gi].code > 0; gi++)
-		glyph[_glyphs[gi].code] = &_glyphs[gi];
-
-	if (!glyph[DEFAULT_CHAR]
-		|| !glyph[SUBSTITUTE_HALF]
-		|| !glyph[SUBSTITUTE_WIDE]) {
-		logging(NORMAL, "couldn't find essential glyph:\
-			DEFAULT_CHAR(U+%.4X):%p SUBSTITUTE_HALF(U+%.4X):%p SUBSTITUTE_WIDE(U+%.4X):%p\n",
-			DEFAULT_CHAR, glyph[DEFAULT_CHAR],
-			SUBSTITUTE_HALF, glyph[SUBSTITUTE_HALF],
-			SUBSTITUTE_WIDE, glyph[SUBSTITUTE_WIDE]);
-		return false;
-	}
 
 	/* reset terminal */
 	reset();
@@ -732,18 +721,10 @@ int YaFT_p::sum(struct parm_t *parm)
 	return s;
 }
 
-static int my_ceil(int val, int div)
-{
-	if (div == 0)
-		return 0;
-	else
-		return (val + div - 1) / div;
-}
-
 void YaFT_p::draw_line(int line)
 {
-	int pos, bdf_padding, glyph_w, margin_right;
-	int col, w, h;
+	int pos, col, w, h;
+	Font::fontmodifier mod;
 	uint32_t pixel;
 	struct color_pair_t col_pair;
 	struct cell_t *cellp;
@@ -753,19 +734,14 @@ void YaFT_p::draw_line(int line)
 	if (fb.dy_max < (line+1) * CELL_HEIGHT - 1)
 		fb.dy_max = (line+1) * CELL_HEIGHT - 1;
 
-	//std::string s = "";
-	for (col = cols - 1; col >= 0; col--) {
-		margin_right = (cols - 1 - col) * CELL_WIDTH;
-
+	for (col = 0; col < cols; col++) {
 		/* target cell */
 		cellp = &cells[line][col];
-
+		mod = Font::Regular;
+		if (cellp->attribute & attr_mask[ATTR_BOLD])
+			mod = Font::Embolden;
 		/* copy current color_pair (maybe changed) */
 		col_pair = cellp->color_pair;
-
-		/* check wide character or not */
-		glyph_w = CELL_WIDTH;
-		bdf_padding = my_ceil(glyph_w, BITS_PER_BYTE) * BITS_PER_BYTE - glyph_w;
 
 		/* check cursor positon */
 		if ((mode & MODE_CURSOR && line == cursor.y)
@@ -774,31 +750,23 @@ void YaFT_p::draw_line(int line)
 			col_pair.bg = ACTIVE_CURSOR_COLOR;
 		}
 
+		/* clear background... */
+		pixel = fb.real_palette[col_pair.bg];
 		for (h = 0; h < CELL_HEIGHT; h++) {
+			pos = col * CELL_WIDTH + (line * CELL_HEIGHT + h) * fb.width;
 			/* if UNDERLINE attribute on, swap bg/fg */
 			if ((h == (CELL_HEIGHT - 1)) && (cellp->attribute & attr_mask[ATTR_UNDERLINE]))
-				col_pair.bg = col_pair.fg;
-
-			pos = (width - 1 - margin_right/* - w*/)
-				+ (line * CELL_HEIGHT + h) * fb.width;
-
+				pixel = fb.real_palette[col_pair.fg];
 			for (w = 0; w < CELL_WIDTH; w++) {
-				/* set color palette */
-				if (cellp->glyphp->bitmap[h] & (0x01 << (bdf_padding + w)))
-					pixel = fb.real_palette[col_pair.fg];
-				else
-					pixel = fb.real_palette[col_pair.bg];
-
-				/* update copy buffer only */
-				//memcpy(fb.buf + pos, &pixel, fb.info.bytes_per_pixel);
 				fb.buf[pos] = pixel;
-				pos--;
+				pos++;
 			}
 		}
-		//s.insert(s.begin(), cellp->glyphp->code);
+		if (cellp->utf8_str.empty())
+			continue;
+		font->RenderString(col * CELL_WIDTH, (line + 1) * CELL_HEIGHT, CELL_WIDTH, cellp->utf8_str,
+				fb.real_palette[col_pair.fg], mod, Font::IS_UTF8, fb.buf, fb.width * sizeof(fb_pixel_t));
 	}
-	//printf("draw_line: %02d ",  line);puts(s.c_str());
-
 	line_dirty[line] = ((mode & MODE_CURSOR) && cursor.y == line) ? true: false;
 }
 
