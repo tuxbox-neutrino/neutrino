@@ -1,16 +1,26 @@
 installdir = $(FONTDIR)
 
+# NOTE:
+#	pakenham.ttf is not used by neutrino.
+#	It's the default- respectively fallback-font for some classic plugins.
+#
+#	tuxtxt.otb is the non-ttf font for tuxtxt (UseTTF 0 in tuxtxt2.conf).
+#	Variables neutrino_ttf and tuxtxt_ttf describe aliases for neutrino.ttf and tuxtxt.ttf.
+
+neutrino_ttf = neutrino.ttf
+tuxtxt_ttf = DejaVuLGCSansMono-Bold.ttf
+
 install_DATA = \
+	$(neutrino_ttf) \
+	$(tuxtxt_ttf) \
 	LiberationSans-Regular.ttf \
 	md_khmurabi_10.ttf \
 	micron_bold.ttf \
 	micron_italic.ttf \
 	micron.ttf \
-	neutrino.ttf \
 	pakenham.ttf \
-	DejaVuLGCSansMono-Bold.ttf \
-	tuxtxt.ttf \
 	tuxtxt.otb
+
 
 if BOXMODEL_CS_HD2
 install_DATA += UnDotum.ttf
