@@ -4,6 +4,7 @@
  * xmlinterface for zapit - d-box2 linux project
  *
  * (C) 2002 by thegoodguy <thegoodguy@berlios.de>
+ * (C) 2009, 2018 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,6 +75,7 @@ xmlNodePtr xmlGetNextOccurence(xmlNodePtr cur, const char * s)
 #if USE_PUGIXML
 std::string to_utf8(unsigned int cp)
 {
+	static const int mask[4] = { 0, 0xc0, 0xe0, 0xf0 };
 	std::string result;
 	int count;
 	if (cp < 0x0080)
@@ -86,18 +88,16 @@ std::string to_utf8(unsigned int cp)
 		count = 4;
 	else
 		return result;
-
 	result.resize(count);
 	for (int i = count-1; i > 0; --i)
 	{
 		result[i] = (char) (0x80 | (cp & 0x3F));
 		cp >>= 6;
 	}
-	for (int i = 0; i < count; ++i)
-		cp |= (1 << (7-i));
+	cp |= mask[count-1];
 
 	result[0] = (char) cp;
-    return result;
+	return result;
 }
 #endif
 std::string Unicode_Character_to_UTF8(const int character)
