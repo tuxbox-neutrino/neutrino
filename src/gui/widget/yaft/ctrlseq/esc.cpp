@@ -108,12 +108,7 @@ void YaFT_p::enter_osc(void)
 {
 	esc.state = STATE_OSC;
 }
-#if 0
-void YaFT_p::enter_dcs(void)
-{
-	esc.state = STATE_DCS;
-}
-#endif
+
 void YaFT_p::ris(void)
 {
 	reset();

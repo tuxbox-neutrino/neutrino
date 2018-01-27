@@ -108,7 +108,6 @@ class YaFT_p
 		STATE_ESC   = 0x01, /* 0x1B, \033, ESC */
 		STATE_CSI   = 0x02, /* ESC [ */
 		STATE_OSC   = 0x04, /* ESC ] */
-		STATE_DCS   = 0x08, /* ESC P */
 	};
 
 	enum char_attr {
