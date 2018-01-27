@@ -1533,11 +1533,7 @@ void tuxtx_pause_subtitle(bool pause)
 		//printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
 		ttx_paused = 0;
 		if(!reader_running && sub_pid && sub_page)
-#if HAVE_SPARK_HARDWARE
-			tuxtx_main(sub_pid, sub_page, 0, isTtxEplayer);
-#else
 			tuxtx_main(sub_pid, sub_page);
-#endif
 	}
 	else {
 		if(!reader_running)
@@ -1595,21 +1591,10 @@ int tuxtx_subtitle_running(int *pid, int *page, int *running)
 	return ret;
 }
 
-#if HAVE_SPARK_HARDWARE
-int tuxtx_main(int pid, int page, int source, bool isEplayer)
-#else
 int tuxtx_main(int pid, int page, int source)
-#endif
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
-#if HAVE_SPARK_HARDWARE
-	if (isTtxEplayer != isEplayer) {
-		tuxtxt_stop();
-		tuxtxt_clear_cache();
-		isTtxEplayer = isEplayer;
-	}
-#endif
 	use_gui = 1;
 	boxed = 0;
 	oldboxed = boxed;
@@ -1635,9 +1620,6 @@ int tuxtx_main(int pid, int page, int source)
 	CFrameBuffer *fbp = CFrameBuffer::getInstance();
 	lfb = fbp->getFrameBufferPointer();
 	lbb = fbp->getBackBufferPointer();
-#if HAVE_SPARK_HARDWARE
-	fb_pixel_t old_border_color = fbp->getBorderColor();
-#endif
 
 	tuxtxt_cache.vtxtpid = pid;
 
@@ -1847,9 +1829,6 @@ int tuxtx_main(int pid, int page, int source)
 
 		/* update page or timestring and lcd */
 		RenderPage();
-#if HAVE_SPARK_HARDWARE
-		fbp->blit();
-#endif
 	} while ((RCCode != RC_HOME) && (RCCode != RC_STANDBY));
 	/* if transparent mode was selected, remember the original mode */
 	screenmode[boxed] = prevscreenmode[boxed];
@@ -1860,9 +1839,6 @@ int tuxtx_main(int pid, int page, int source)
 #if 1
 	if ( initialized )
 		tuxtxt_close();
-#endif
-#if HAVE_SPARK_HARDWARE
-	fbp->setBorderColor(old_border_color);
 #endif
 
 	printf("Tuxtxt: plugin ended\n");
@@ -2324,10 +2300,6 @@ void CleanUp()
  ******************************************************************************/
 int GetTeletextPIDs()
 {
-#if HAVE_SPARK_HARDWARE
-	if (isTtxEplayer)
-		return 0;
-#endif
 	int pat_scan, pmt_scan, sdt_scan, desc_scan, pid_test, byte, diff, first_sdt_sec;
 
 	unsigned char bufPAT[1024];
@@ -2483,17 +2455,17 @@ skip_pid:
 					//FIXME ??
 					for (byte = 0; byte < pid_table[pid_test].service_name_len; byte++)
 					{
-						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'?')
+						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'Ä')
 							bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] = 0x5B;
 						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'ä')
 							bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] = 0x7B;
-						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'?')
+						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'Ö')
 							bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] = 0x5C;
 						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'ö')
 							bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] = 0x7C;
-						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'?')
+						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'Ü')
 							bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] = 0x5D;
-						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'?')
+						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'ü')
 							bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] = 0x7D;
 						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'ß')
 							bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] = 0x7E;
@@ -2816,7 +2788,6 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 	national_subset = national_subset_bak;
 	Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 	Menu_UpdateHotlist(menu, hotindex, menuitem);
-	CFrameBuffer::getInstance()->blit();
 }
 
 void ConfigMenu(int Init)
@@ -3707,9 +3678,6 @@ void PageCatching()
 			RCCode = -1;
 			return;
 		}
-#if HAVE_SPARK_HARDWARE
-		CopyBB2FB();
-#endif
 		UpdateLCD();
 	} while (RCCode != RC_OK);
 
@@ -3867,16 +3835,12 @@ void RenderCatchedPage()
 	if (zoommode[boxed] == 1 && catch_row > 11)
 	{
 		zoommode[boxed] = 2;
-#if !HAVE_SPARK_HARDWARE
 		CopyBB2FB();
-#endif
 	}
 	else if (zoommode[boxed] == 2 && catch_row < 12)
 	{
 		zoommode[boxed] = 1;
-#if !HAVE_SPARK_HARDWARE
 		CopyBB2FB();
-#endif
 	}
 	SetPosX(catch_col);
 
@@ -3898,9 +3862,6 @@ void RenderCatchedPage()
 	RenderCharFB(page_char[catch_row*40 + catch_col    ], &a0);
 	RenderCharFB(page_char[catch_row*40 + catch_col + 1], &a1);
 	RenderCharFB(page_char[catch_row*40 + catch_col + 2], &a2);
-#if HAVE_SPARK_HARDWARE
-	CopyBB2FB();
-#endif
 }
 
 /******************************************************************************
@@ -5073,9 +5034,6 @@ void RenderMessage(int Message)
 	for (byte = 0; byte < 38; byte++)
 		RenderCharFB(message_6[byte], &atrtable[imenuatr + 2]);
 	national_subset = national_subset_back;
-#if HAVE_SPARK_HARDWARE
-	CFrameBuffer::getInstance()->blit();
-#endif
 }
 
 /******************************************************************************
@@ -5185,9 +5143,6 @@ void DoFlashing(int startrow)
 		}
 		PosY += fontheight*factor;
 	}
-#if HAVE_SPARK_HARDWARE
-	CopyBB2FB();
-#endif
 }
 
 void RenderPage()
@@ -5387,9 +5342,6 @@ void RenderPage()
 		RenderCharFB(ns[0],&atrtable[ATR_WB]);
 		RenderCharFB(ns[1],&atrtable[ATR_WB]);
 		RenderCharFB(ns[2],&atrtable[ATR_WB]);
-#if HAVE_SPARK_HARDWARE
-		CopyBB2FB();
-#endif
 
 		tuxtxt_cache.pageupdate=0;
 	}
@@ -5631,9 +5583,6 @@ void CopyBB2FB()
 			FillBorder(*lbb, true);
 //			ClearBB(*(lfb + var_screeninfo.xres * var_screeninfo.yoffset));
 		}
-#if HAVE_SPARK_HARDWARE
-		f->blit();
-#endif
 
 		if (clearbbcolor >= 0)
 		{
@@ -5716,7 +5665,6 @@ void CopyBB2FB()
 	}
 #if HAVE_SPARK_HARDWARE
 	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
-	f->blit();
 #endif
 }
 
