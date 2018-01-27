@@ -85,7 +85,6 @@ extern std::string ttx_font_file;
  * a command but don't display anything */
 YaFT_p::YaFT_p(bool Paint)
 {
-	lines_available = 0;
 	txt.push("");
 	nlseen = false;
 	paint = Paint;
@@ -232,10 +231,8 @@ void YaFT_p::move_cursor(int y_offset, int x_offset)
 	}
 	cursor.y = y;
 
-	if (y_offset > 0 && !nlseen) {
+	if (y_offset > 0 && !nlseen)
 		txt.push("");
-		lines_available++;
-	}
 }
 
 /* absolute movement: never scroll */
@@ -255,10 +252,8 @@ void YaFT_p::set_cursor(int y, int x)
 	x = (x < 0) ? 0: (x >= cols) ? cols - 1: x;
 	y = (y < top) ? top: (y > bottom) ? bottom: y;
 
-	if (cursor.y != y && !nlseen) {
+	if (cursor.y != y && !nlseen)
 		txt.push("");
-		lines_available++;
-	}
 
 	cursor.x = x;
 	cursor.y = y;

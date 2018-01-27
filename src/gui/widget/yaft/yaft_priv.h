@@ -179,7 +179,6 @@ class YaFT_p
 	int cols, lines;                         /* terminal size (cell) */
 	time_t last_paint;
 	std::queue<std::string> txt;             /* contains "sanitized" (without control chars) output text */
-	int lines_available;                     /* lines available in txt */
 
 	YaFT_p(bool paint = true);
 	~YaFT_p();

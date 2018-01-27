@@ -46,7 +46,6 @@ void YaFT_p::tab(void)
 void YaFT_p::nl(void)
 {
 	txt.push("");
-	lines_available++;
 	move_cursor(1, 0);
 }
 
