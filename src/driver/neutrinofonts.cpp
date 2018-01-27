@@ -215,6 +215,8 @@ void CNeutrinoFonts::SetupShellFont()
 	std::string shell_font_name = g_shellFontRenderer->getFamily(shell_ttf.c_str());
 	int shell_font_size = CFrameBuffer::getInstance()->scale2Res(shell_font.defaultsize)/* + shell_font.size_offset * fontDescr.size_offset*/;
 	g_ShellFont = g_shellFontRenderer->getFont(shell_font_name.c_str(), fontStyle[shell_font.style].c_str(), shell_font_size);
+	if (g_ShellFont)
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] shell font family: %s (%s)\n", __func__, __LINE__, shell_font_name.c_str(), shell_ttf.c_str());
 }
 
 void CNeutrinoFonts::refreshDynFonts()
