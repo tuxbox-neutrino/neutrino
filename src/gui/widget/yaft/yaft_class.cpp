@@ -77,10 +77,8 @@ static pid_t fork_and_exec(int *master, int lines, int cols)
 	ws.ws_col = cols;
 	/* XXX: this variables are UNUSED (man tty_ioctl),
 		but useful for calculating terminal cell size */
-#if 0
-	ws.ws_ypixel = CELL_HEIGHT * lines;
-	ws.ws_xpixel = CELL_WIDTH * cols;
-#endif
+	ws.ws_ypixel = 0; //CELL_HEIGHT * lines;
+	ws.ws_xpixel = 0; //CELL_WIDTH * cols;
 
 	pid_t pid;
 	pid = forkpty(master, NULL, NULL, &ws);
