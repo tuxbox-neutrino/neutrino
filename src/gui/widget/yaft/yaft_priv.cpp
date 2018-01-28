@@ -26,6 +26,7 @@
 
 #include "yaft_priv.h"
 #include <driver/framebuffer.h>
+#include <driver/neutrinofonts.h>
 #include <driver/abstime.h>
 #include <xmltree/xmlinterface.h> /* UTF8 conversion */
 
@@ -124,13 +125,16 @@ bool YaFT_p::init()
 	 * try to get a font size that fits about LINES x COLS into the terminal.
 	 * NOTE: this is not guaranteed to work! Terminal might be smaller or bigger
 	 */
+	std::string shell_ttf = CNeutrinoFonts::getInstance()->getShellTTF();
+	if (shell_ttf.empty())
+		shell_ttf = ttx_font_file;
 	if (paint) {
 		for (int i = 0; i < 2; i++) {
 			delete font;
 			delete fr;
 			fr = new FBFontRenderClass(scalex, scaley);
-			fontstyle = fr->AddFont(ttx_font_file.c_str());
-			font = fr->getFont(fr->getFamily(ttx_font_file.c_str()).c_str(), fontstyle, height / LINES);
+			fontstyle = fr->AddFont(shell_ttf.c_str());
+			font = fr->getFont(fr->getFamily(shell_ttf.c_str()).c_str(), fontstyle, height / LINES);
 			/* getWidth() does not return good values, leading to "out of box" rendering later
 			fw = font->getWidth();
 			   ... so just let's get the width of a wide glyph (it's a monospace font after all */

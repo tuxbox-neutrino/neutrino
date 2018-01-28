@@ -193,6 +193,17 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 	g_SignalFont = g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[signal_font.style].c_str(), fontSize);
 }
 
+std::string CNeutrinoFonts::getShellTTF()
+{
+	const char *shell_ttf[2] = { FONTDIR_VAR "/shell.ttf", FONTDIR "/shell.ttf" };
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		if (access(shell_ttf[i], F_OK) == 0)
+			return (std::string)shell_ttf[i];
+	}
+	return "";
+}
+
 void CNeutrinoFonts::SetupShellFont()
 {
 	if (g_ShellFont)
@@ -201,10 +212,8 @@ void CNeutrinoFonts::SetupShellFont()
 		g_ShellFont = NULL;
 	}
 
-	std::string shell_ttf = FONTDIR_VAR "/shell.ttf";
-	if (access(shell_ttf.c_str(), F_OK) != 0)
-		shell_ttf = FONTDIR "/shell.ttf";
-	if (access(shell_ttf.c_str(), F_OK) != 0)
+	std::string shell_ttf = getShellTTF();
+	if (shell_ttf.empty())
 		return;
 
 	if (g_shellFontRenderer != NULL)
