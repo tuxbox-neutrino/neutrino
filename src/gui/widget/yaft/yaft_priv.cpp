@@ -821,8 +821,7 @@ void YaFT_p::refresh()
 #if 1
 	if (fb.dy_max != -1) {
 		int blit_height = fb.dy_max - fb.dy_min;
-		uint32_t *blit_start = fb.buf + (fb.dy_min * fb.width);
-		fb.cfb->blit2FB(blit_start, fb.width, blit_height, fb.xstart, fb.ystart+fb.dy_min, 0, 0);
+		fb.cfb->blit2FB(fb.buf, fb.width, blit_height, fb.xstart, fb.ystart+fb.dy_min, 0, fb.dy_min);
 	}
 #else
 	fb.cfb->blit2FB(fb.buf, fb.width, fb.height, fb.xstart, fb.ystart, 0, 0);
