@@ -131,9 +131,13 @@ bool YaFT_p::init()
 			fr = new FBFontRenderClass(scalex, scaley);
 			fontstyle = fr->AddFont(ttx_font_file.c_str());
 			font = fr->getFont(fr->getFamily(ttx_font_file.c_str()).c_str(), fontstyle, height / LINES);
+			/* getWidth() does not return good values, leading to "out of box" rendering later
 			fw = font->getWidth();
+			   ... so just let's get the width of a wide glyph (it's a monospace font after all */
+			fw = font->getRenderWidth("@");
 			fh = font->getHeight();
-			fprintf(stderr, "FONT[%d]: fw %d fh: %d sx %d sy %d w %d h %d\n", i, fw, fh, scalex, scaley, width, height);
+			fprintf(stderr, "FONT[%d]: fw %2d(%2d) fh: %2d sx %d sy %d w %d h %d\n",
+					i, fw, font->getWidth(), fh, scalex, scaley, width, height);
 			scalex = 64 * width / (fw * COLS) + 1;
 			scaley = 64 * height / (fh * LINES) + 1;
 		}
@@ -774,7 +778,8 @@ void YaFT_p::draw_line(int line)
 		}
 		if (cellp->utf8_str.empty())
 			continue;
-		font->RenderString(col * CELL_WIDTH, (line + 1) * CELL_HEIGHT, CELL_WIDTH, cellp->utf8_str,
+		int xs = col * CELL_WIDTH;
+		font->RenderString(xs, (line + 1) * CELL_HEIGHT, width - xs, cellp->utf8_str,
 				fb.real_palette[col_pair.fg], mod, Font::IS_UTF8, fb.buf, fb.width * sizeof(fb_pixel_t));
 	}
 	line_dirty[line] = ((mode & MODE_CURSOR) && cursor.y == line) ? true: false;
