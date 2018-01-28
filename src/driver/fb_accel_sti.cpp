@@ -287,6 +287,11 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	dh = height - yp;
 
 	size_t mem_sz = width * height * sizeof(fb_pixel_t);
+	/* we can blit anything from [ backbuffer <--> backbuffer + backbuf_sz ]
+	 * if the source is outside this, then it will be memmove()d to start of backbuffer */
+	void *tmpbuff = backbuffer;
+	if ((fbbuff >= backbuffer) && (uint8_t *)fbbuff + mem_sz <= (uint8_t *)backbuffer + backbuf_sz)
+		tmpbuff = fbbuff;
 	unsigned long ulFlags = 0;
 	if (!transp) /* transp == false (default): use transparency from source alphachannel */
 		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
@@ -309,7 +314,7 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	blt_data.dst_bottom = y + dh;
 	blt_data.srcFormat  = SURF_ARGB8888;
 	blt_data.dstFormat  = SURF_ARGB8888;
-	blt_data.srcMemBase = (char *)backbuffer;
+	blt_data.srcMemBase = (char *)tmpbuff;
 	blt_data.dstMemBase = (char *)lfb;
 	blt_data.srcMemSize = mem_sz;
 	blt_data.dstMemSize = stride * yRes + lbb_off;
@@ -317,7 +322,7 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	mark(x, y, blt_data.dst_right, blt_data.dst_bottom);
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	ioctl(fd, STMFBIO_SYNC_BLITTER);
-	if (fbbuff != backbuffer)
+	if (fbbuff != tmpbuff)
 		memmove(backbuffer, fbbuff, mem_sz);
 	// icons are so small that they will still be in cache
 	msync(backbuffer, backbuf_sz, MS_SYNC);
