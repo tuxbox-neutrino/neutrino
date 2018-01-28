@@ -314,8 +314,8 @@ void YaFT_p::status_report(struct parm_t *parm)
 
 void YaFT_p::device_attribute(struct parm_t *parm)
 {
-	/* TODO: refer VT525 DA */
-	(void) parm;
+	if (parm->argc > 0 && dec2num(parm->argv[0]))
+		return; /* compatibility with linux console */
 	write(fd, "\033[?6c", 5); /* "I am a VT102" */
 }
 
