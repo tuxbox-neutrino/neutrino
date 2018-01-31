@@ -273,7 +273,7 @@ void CBouquetManager::saveBouquets(void)
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
 			DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]->bUser);
-			if(!Bouquets[i]->bUser && (!Bouquets[i]->bWebtv || !Bouquets[i]->bWebradio)) {
+			if(!Bouquets[i]->bUser && !Bouquets[i]->bWebtv && !Bouquets[i]->bWebradio) {
 				writeBouquet(bouq_fd, i,false);
 			}
 		}
