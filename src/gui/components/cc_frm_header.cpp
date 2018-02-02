@@ -309,14 +309,20 @@ void CComponentsHeader::initLogo()
 		*/
 		if (next_item){
 			if (next_item->getItemType() == CC_ITEMTYPE_FRM_ICONFORM)
-				next_item = cch_cl_obj;
+				/* either clock is present
+				 * or in chanellist edit mode
+				 * possible button */
+				if (cch_cl_obj)
+					next_item = cch_cl_obj;
+				else
+					next_item = cch_btn_obj;
 		}
 
 		/*
 		 * Adjust usable space for logo.
 		*/
 		int x_logo_left = prev_item ? prev_item->getXPos() + prev_item->getWidth() : cch_offset;
-		int x_logo_right = next_item ? next_item->getXPos() : width - cch_offset;
+		int x_logo_right = next_item ? next_item->getXPos() - OFFSET_INNER_MID : width - cch_offset;
 		int logo_space = x_logo_right - x_logo_left;
 
 		/*
