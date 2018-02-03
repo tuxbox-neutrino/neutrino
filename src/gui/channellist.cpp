@@ -1616,18 +1616,22 @@ void CChannelList::paintDetails(int index)
 	else if (IS_WEBCHAN((*chanlist)[index]->getChannelID())) {
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ OFFSET_INNER_MID, ypos_a + fheight, full_width - 3*OFFSET_INNER_MID, (*chanlist)[index]->getDesc(), colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true);
 	}
-	if (g_settings.channellist_foot == 0 && IS_WEBCHAN((*chanlist)[index]->getChannelID())) {
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ OFFSET_INNER_MID, ypos_a + 2*fheight + fdescrheight, full_width - 3*OFFSET_INNER_MID, (*chanlist)[index]->getUrl(), COL_MENUCONTENTDARK_TEXT, 0, true);
-	} else if(g_settings.channellist_foot == 0) {
-		transponder t;
-		CServiceManager::getInstance()->GetTransponder((*chanlist)[index]->getTransponderId(), t);
-
-		std::string desc = t.description();
-		if((*chanlist)[index]->pname)
-			desc = desc + " (" + std::string((*chanlist)[index]->pname) + ")";
+	if(g_settings.channellist_foot == 0) {
+		std::string desc = "";
+		if (IS_WEBCHAN((*chanlist)[index]->getChannelID())) {
+			desc = (*chanlist)[index]->getUrl();
+		}
 		else
-			desc = desc + " (" + CServiceManager::getInstance()->GetSatelliteName((*chanlist)[index]->getSatellitePosition()) + ")";
+		{
+			transponder t;
+			CServiceManager::getInstance()->GetTransponder((*chanlist)[index]->getTransponderId(), t);
 
+			desc = t.description();
+			if((*chanlist)[index]->pname)
+				desc = desc + " (" + std::string((*chanlist)[index]->pname) + ")";
+			else
+				desc = desc + " (" + CServiceManager::getInstance()->GetSatelliteName((*chanlist)[index]->getSatellitePosition()) + ")";
+		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ OFFSET_INNER_MID, ypos_a + 2*fheight +fdescrheight, full_width - 3*OFFSET_INNER_MID, desc.c_str(), COL_MENUCONTENTDARK_TEXT);
 	}
 	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
