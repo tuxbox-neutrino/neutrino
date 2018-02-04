@@ -469,7 +469,8 @@ void Font::paintFontPixel(fb_pixel_t *td, uint8_t src)
 
 void Font::RenderString(int x, int y, const int width, const char *text, const fb_pixel_t color, const int boxheight, const unsigned int flags, fb_pixel_t *buffer, int _stride)
 {
-	if (buffer == NULL && !frameBuffer->getActive())
+	bool render_to_fb = (buffer == NULL);
+	if (render_to_fb && !frameBuffer->getActive())
 		return;
 
 	fb_pixel_t *buff;
@@ -502,7 +503,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	  - font rendering slower
 */
 
-	if (buffer == NULL)
+	if (render_to_fb)
 		frameBuffer->checkFbArea(x, y-height, width, height, true);
 
 	pthread_mutex_lock( &renderer->render_mutex );
@@ -575,7 +576,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	/* the GXA seems to do it's job asynchonously, so we need to wait until
 	   it's ready, otherwise the font will sometimes "be overwritten" with
 	   background color or bgcolor will be wrong */
-	if (buffer == NULL)
+	if (render_to_fb)
 		frameBuffer->waitForIdle("Font::RenderString 1");
 	if (!useFullBG) {
 		/* fetch bgcolor from framebuffer, using lower left edge of the font... */
@@ -693,7 +694,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	}
 	//printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
 	pthread_mutex_unlock( &renderer->render_mutex );
-	if (buffer == NULL) {
+	if (render_to_fb) {
 		frameBuffer->checkFbArea(x, y-height, width, height, false);
 		/* x is the rightmost position of the last drawn character */
 		frameBuffer->mark(left, y + lower - height, x, y + lower);
