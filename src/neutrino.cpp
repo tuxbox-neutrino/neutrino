@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 							 and some other guys
 
-	Copyright (C) 2006-2017 Stefan Seyfried
+	Copyright (C) 2006-2018 Stefan Seyfried
 
 	Copyright (C) 2011 CoolStream International Ltd
 
@@ -2868,12 +2868,15 @@ void CNeutrinoApp::RealRun()
 			else if( ( msg == CRCInput::RC_help ) || ( msg == CRCInput::RC_info) ||
 						( msg == NeutrinoMessages::SHOW_INFOBAR ) )
 			{
+#if 0
 				bool enabled_by_timing = (
 					   ((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]       != 0)
 					|| ((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] != 0)
 				);
 				bool show_info = ((msg != NeutrinoMessages::SHOW_INFOBAR) || (g_InfoViewer->is_visible || enabled_by_timing));
-
+#else
+				const bool show_info = true;
+#endif
 			         // turn on LCD display
 				CVFD::getInstance()->wake_up();
 
