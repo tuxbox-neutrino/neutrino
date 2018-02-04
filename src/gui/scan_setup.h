@@ -124,6 +124,9 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		void saveScanSetup();
 
 		CScanSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
+
+		/* required to set display count of selected satellites, see: showFrontendSetup() */
+		void setOptionSatSelect(int fe_number, CMenuForwarder* menu_item);
 	public:	
 		~CScanSetup();
 

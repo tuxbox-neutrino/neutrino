@@ -1026,9 +1026,13 @@ int CScanSetup::showFrontendSetup(int number)
 			mc->setHint("", LOCALE_MENU_HINT_SCAN_SATENABLE);
 			satToSelect->addItem(mc);
 		}
+
 		fsatSelect = new CMenuDForwarder(LOCALE_SATSETUP_SELECT_SAT, allow_moptions, NULL, satToSelect, "", CRCInput::convertDigitToKey(shortcut++));
+		setOptionSatSelect(fenumber, fsatSelect);
 		fsatSelect->setHint("", LOCALE_MENU_HINT_SCAN_SATADD);
 		setupMenu->addItem(fsatSelect);
+		if (satToSelect->OnAfterHide.empty())
+			satToSelect->OnAfterHide.connect(sigc::bind(sigc::mem_fun(this, &CScanSetup::setOptionSatSelect), fenumber, fsatSelect));
 
 		fsatSetup 	= new CMenuForwarder(LOCALE_SATSETUP_SAT_SETUP, allow_moptions, NULL, this, "satsetup", CRCInput::convertDigitToKey(shortcut++));
 		fsatSetup->setHint("", LOCALE_MENU_HINT_SCAN_SATSETUP);
@@ -1996,6 +2000,19 @@ void CScanSetup::updateManualSettings()
 			}
 		}
 	}
+}
+
+void CScanSetup::setOptionSatSelect(int fe_number, CMenuForwarder* menu_item)
+{
+	satellite_map_t & satmap = CFEManager::getInstance()->getFE(fe_number)->getSatellites();
+	int count = 0;
+	for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); ++sit) {
+		if(!sit->second.configured)
+			continue;
+		count++;
+	}
+	std::string count_of = to_string(count) + char(0x2f) + to_string(satmap.size());
+	menu_item->setOption(count_of);
 }
 
 int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
