@@ -650,7 +650,8 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 		if (x + glyph->xadvance + spread_by > left + width)
 			break;
 #endif
-		int ap=(x + glyph->left) * sizeof(fb_pixel_t) + stride * (y - glyph->top);
+		int xoff    = x + glyph->left;
+		int ap      = xoff * sizeof(fb_pixel_t) + stride * (y - glyph->top);
 		uint8_t * d = ((uint8_t *)buff) + ap;
 		uint8_t * s = glyph->buffer;
 		int w       = glyph->width;
@@ -662,7 +663,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 				int ax;
 				for (ax = 0; ax < w + spread_by; ax++) {
 					/* width clip */
-					if (x + ax > left + width)
+					if (xoff  + ax >= left + width)
 						break;
 					if (stylemodifier != Font::Embolden) {
 						/* do not paint the backgroundcolor (*s = 0) */
