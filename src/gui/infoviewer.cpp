@@ -1765,7 +1765,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			txt_curr_event = new CComponentsTextTransp(NULL, xStart, CurrInfoY - height, currTimeX - xStart, height);
 		else {
 			if (txt_curr_event->isPainted())
-				txt_curr_event->hide();
+				txt_curr_event->kill();
 			txt_curr_event->setDimensionsAll(xStart, CurrInfoY - height, currTimeX - xStart, height);
 		}
 		txt_curr_event->setItemName("txt_curr_event");
@@ -1777,7 +1777,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 				txt_curr_start = new CComponentsTextTransp(NULL, InfoX, CurrInfoY - height, info_time_width, height);
 			else {
 				if (txt_curr_start->isPainted())
-					txt_curr_start->hide();
+					txt_curr_start->kill();
 				txt_curr_start->setDimensionsAll(InfoX, CurrInfoY - height, info_time_width, height);
 			}
 			txt_curr_start->setItemName("txt_curr_start");
@@ -1790,7 +1790,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 				txt_curr_rest = new CComponentsTextTransp(NULL, currTimeX, CurrInfoY - height, currTimeW, height);
 			else {
 				if (txt_curr_rest->isPainted())
-					txt_curr_rest->hide();
+					txt_curr_rest->kill();
 				txt_curr_rest->setDimensionsAll(currTimeX, CurrInfoY - height, currTimeW, height);
 			}
 			txt_curr_rest->setItemName("txt_curr_rest");
@@ -1806,7 +1806,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			txt_next_event = new CComponentsTextTransp(NULL, xStart, NextInfoY, nextTimeX - xStart, height);
 		else {
 			if (txt_next_event->isPainted())
-				txt_next_event->hide();
+				txt_next_event->kill();
 			txt_next_event->setDimensionsAll(xStart, NextInfoY, nextTimeX - xStart, height);
 		}
 		txt_next_event->setItemName("txt_next_event");
@@ -1818,7 +1818,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 				txt_next_start = new CComponentsTextTransp(NULL, InfoX, NextInfoY, info_time_width, height);
 			else {
 				if (txt_next_start->isPainted())
-					txt_next_start->hide();
+					txt_next_start->kill();
 				txt_next_start->setDimensionsAll(InfoX, NextInfoY, info_time_width, height);
 			}
 			txt_next_start->setItemName("txt_next_start");
@@ -1831,7 +1831,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 				txt_next_in = new CComponentsTextTransp(NULL, nextTimeX, NextInfoY, nextTimeW, height);
 			else {
 				if (txt_next_in->isPainted())
-					txt_next_in->hide();
+					txt_next_in->kill();
 				txt_next_in->setDimensionsAll(nextTimeX, NextInfoY, nextTimeW, height);
 			}
 			txt_next_in->setItemName("txt_next_in");
