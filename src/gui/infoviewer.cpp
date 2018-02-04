@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Bugfixes/cleanups (C) 2007-2013,2015 Stefan Seyfried
+	Bugfixes/cleanups (C) 2007-2013,2015-2018 Stefan Seyfried
 	(C) 2008 Novell, Inc. Author: Stefan Seyfried
 
 	Kommentar:
@@ -1763,35 +1763,38 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (current && update_current){
 		if (txt_curr_event == NULL)
 			txt_curr_event = new CComponentsTextTransp(NULL, xStart, CurrInfoY - height, currTimeX - xStart, height);
-		else
+		else {
+			if (txt_curr_event->isPainted())
+				txt_curr_event->hide();
 			txt_curr_event->setDimensionsAll(xStart, CurrInfoY - height, currTimeX - xStart, height);
+		}
 		txt_curr_event->setItemName("txt_curr_event");
 		txt_curr_event->setText(current, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-		if (txt_curr_event->isPainted())
-			txt_curr_event->hide();
 		txt_curr_event->paint(CC_SAVE_SCREEN_YES);
 
 		if (runningStart && starttimes){
 			if (txt_curr_start == NULL)
 				txt_curr_start = new CComponentsTextTransp(NULL, InfoX, CurrInfoY - height, info_time_width, height);
-			else
+			else {
+				if (txt_curr_start->isPainted())
+					txt_curr_start->hide();
 				txt_curr_start->setDimensionsAll(InfoX, CurrInfoY - height, info_time_width, height);
+			}
 			txt_curr_start->setItemName("txt_curr_start");
 			txt_curr_start->setText(runningStart, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-			if (txt_curr_start->isPainted())
-				txt_curr_start->hide();
 			txt_curr_start->paint(CC_SAVE_SCREEN_YES);
 		}
 
 		if (runningRest){
 			if (txt_curr_rest == NULL)
 				txt_curr_rest = new CComponentsTextTransp(NULL, currTimeX, CurrInfoY - height, currTimeW, height);
-			else
+			else {
+				if (txt_curr_rest->isPainted())
+					txt_curr_rest->hide();
 				txt_curr_rest->setDimensionsAll(currTimeX, CurrInfoY - height, currTimeW, height);
+			}
 			txt_curr_rest->setItemName("txt_curr_rest");
 			txt_curr_rest->setText(runningRest, CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-			if (txt_curr_rest->isPainted())
-				txt_curr_rest->hide();
 			txt_curr_rest->paint(CC_SAVE_SCREEN_YES);
 		}
 	}
@@ -1801,35 +1804,38 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	{
 		if (txt_next_event == NULL)
 			txt_next_event = new CComponentsTextTransp(NULL, xStart, NextInfoY, nextTimeX - xStart, height);
-		else
+		else {
+			if (txt_next_event->isPainted())
+				txt_next_event->hide();
 			txt_next_event->setDimensionsAll(xStart, NextInfoY, nextTimeX - xStart, height);
+		}
 		txt_next_event->setItemName("txt_next_event");
 		txt_next_event->setText(next, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-		if (txt_next_event->isPainted())
-			txt_next_event->hide();
 		txt_next_event->paint(CC_SAVE_SCREEN_YES);
 
 		if (nextStart && starttimes){
 			if (txt_next_start == NULL)
 				txt_next_start = new CComponentsTextTransp(NULL, InfoX, NextInfoY, info_time_width, height);
-			else
+			else {
+				if (txt_next_start->isPainted())
+					txt_next_start->hide();
 				txt_next_start->setDimensionsAll(InfoX, NextInfoY, info_time_width, height);
+			}
 			txt_next_start->setItemName("txt_next_start");
 			txt_next_start->setText(nextStart, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-			if (txt_next_start->isPainted())
-				txt_next_start->hide();
 			txt_next_start->paint(CC_SAVE_SCREEN_YES);
 		}
 
 		if (nextDuration){
 			if (txt_next_in == NULL)
 				txt_next_in = new CComponentsTextTransp(NULL, nextTimeX, NextInfoY, nextTimeW, height);
-			else
+			else {
+				if (txt_next_in->isPainted())
+					txt_next_in->hide();
 				txt_next_in->setDimensionsAll(nextTimeX, NextInfoY, nextTimeW, height);
+			}
 			txt_next_in->setItemName("txt_next_in");
 			txt_next_in->setText(nextDuration, CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
-			if (txt_next_in->isPainted())
-				txt_next_in->hide();
 			txt_next_in->paint(CC_SAVE_SCREEN_YES);
 		}
 	}
