@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
+	Copyright (C) 2012-2018 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -309,9 +309,11 @@ void CComponentsHeader::initLogo()
 		*/
 		if (next_item){
 			if (next_item->getItemType() == CC_ITEMTYPE_FRM_ICONFORM){
-				/* either clock is present
-				 * or in chanellist edit mode
-				 * possible button */
+				/*
+				 * Either clock is present or buttons are enabled,
+				 * different order of objects are required, not optimal
+				 * but works at the moment.
+				*/
 				if (cch_cl_obj)
 					next_item = cch_cl_obj;
 				else
@@ -323,7 +325,7 @@ void CComponentsHeader::initLogo()
 		 * Adjust usable space for logo.
 		*/
 		int x_logo_left = prev_item ? prev_item->getXPos() + prev_item->getWidth() : cch_offset;
-		int x_logo_right = next_item ? next_item->getXPos() - OFFSET_INNER_MID : width - cch_offset;
+		int x_logo_right = next_item ? next_item->getXPos() - cch_offset : width - cch_offset;
 		int logo_space = x_logo_right - x_logo_left;
 
 		/*
