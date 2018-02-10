@@ -744,6 +744,7 @@ fontsize.eventlist_itemlarge Groß
 fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
 fontsize.filebrowser_item Dateibrowsereinträge
+fontsize.general_window_text Allgemeiner Fenstertext
 fontsize.hint Schriftart wird initialisiert,\nbitte warten ...
 fontsize.infobar_channame Kanalname
 fontsize.infobar_info Info

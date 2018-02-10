@@ -771,6 +771,7 @@ const char * locale_real_names[] =
 	"fontsize.eventlist_itemsmall",
 	"fontsize.eventlist_title",
 	"fontsize.filebrowser_item",
+	"fontsize.general_window_text",
 	"fontsize.hint",
 	"fontsize.infobar_channame",
 	"fontsize.infobar_info",
