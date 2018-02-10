@@ -155,30 +155,44 @@ void CStreamInfo2::analyzeStream(AVFormatContext *avfc, unsigned int idx)
 			m["language"] = getISO639Description(lang->value);
 	}
 
+	AVCodecContext *avctx;
+	int ret;
+
+	avctx = avcodec_alloc_context3(NULL);
+	if (!avctx)
+		return;
+
+	ret = avcodec_parameters_to_context(avctx, st->codecpar);
+	if (ret < 0) {
+		avcodec_free_context(&avctx);
+		return;
+	}
+
 	char buf[256];
-	avcodec_string(buf, sizeof(buf), st->codec, 0);
+	avcodec_string(buf, sizeof(buf), avctx, 0);
+	avcodec_free_context(&avctx);
 	m["codec"] = buf;
 	size_t pos = m["codec"].find_first_of(":");
 	if (pos != std::string::npos)
 		m["codec"] = m["codec"].erase(0,pos+2);
-	m["codec_type"] = av_get_media_type_string(st->codec->codec_type);
+	m["codec_type"] = av_get_media_type_string(st->codecpar->codec_type);
 	m["codec_type"][0] ^= 'a' ^ 'A';
 
 	m["pid"] = to_string(st->id);
 
-	if (st->sample_aspect_ratio.num && av_cmp_q(st->sample_aspect_ratio, st->codec->sample_aspect_ratio))
+	if (st->sample_aspect_ratio.num && av_cmp_q(st->sample_aspect_ratio, st->codecpar->sample_aspect_ratio))
 	{
 		AVRational display_aspect_ratio;
 		av_reduce(&display_aspect_ratio.num, &display_aspect_ratio.den,
-			  st->codec->width * st->sample_aspect_ratio.num,
-			  st->codec->height * st->sample_aspect_ratio.den,
+			  st->codecpar->width * st->sample_aspect_ratio.num,
+			  st->codecpar->height * st->sample_aspect_ratio.den,
 			  1024 * 1024);
 		snprintf(buf, sizeof(buf), "%d:%d", st->sample_aspect_ratio.num, st->sample_aspect_ratio.den);
 		m["sar"] = buf;
 		snprintf(buf, sizeof(buf), "%d:%d", display_aspect_ratio.num, display_aspect_ratio.den);
 		m["dar"] = buf;
 	}
-	if (st->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+	if (st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
 	{
 		if (st->avg_frame_rate.den && st->avg_frame_rate.num)
 			m["fps"] = fps_str(av_q2d(st->avg_frame_rate));
@@ -188,8 +202,8 @@ void CStreamInfo2::analyzeStream(AVFormatContext *avfc, unsigned int idx)
 #endif
 		if (st->time_base.den && st->time_base.num)
 			m["tbn"] = fps_str(1 / av_q2d(st->time_base));
-		if (st->codec->time_base.den && st->codec->time_base.num)
-			m["tbc"] = fps_str(1 / av_q2d(st->codec->time_base));
+//		if (st->codec->time_base.den && st->codec->time_base.num)
+//			m["tbc"] = fps_str(1 / av_q2d(st->codec->time_base));
 	}
 
 	m["disposition"] = "";
