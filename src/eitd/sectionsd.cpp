@@ -1490,7 +1490,8 @@ void CTimeThread::run()
 			/* speed up shutdown by looping around Read() */
 			DMX::lock();
 			do {
-				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
+				if (DMX::isOpen())
+					rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
 			} while (running && rc == 0
 				 && (time_monotonic_ms() - start) < (int64_t)timeoutInMSeconds);
 			DMX::unlock();
