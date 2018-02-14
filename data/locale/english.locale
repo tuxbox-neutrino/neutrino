@@ -2411,14 +2411,14 @@ timing.numericzap Numeric Zap
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
 timing.volumebar Volume bar
+tmdb.api_key TMDb API key
+tmdb.enabled TMDb support
+tmdb.read_data Search TMDb data ...
 tunersetup.cable Cable (DVB-C)
 tunersetup.hybrid Hybrid (DVB-C/T/T2)
 tunersetup.mode Operation mode
 tunersetup.power 5V supply on DVB-T/T2 channels
 tunersetup.terr Terrestrial (DVB-T/T2)
-tmdb.api_key TMDb API key
-tmdb.enabled TMDb support
-tmdb.read_data Search TMDb data ...
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
 unicable.scr Unicable SCR
