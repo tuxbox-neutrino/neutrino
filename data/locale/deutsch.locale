@@ -152,6 +152,7 @@ audiomenu.volume_adjustment Lautstärkeanpassung pro Kanal
 audiomenu.volume_adjustment_ac3 AC3-Tonspuren
 audiomenu.volume_adjustment_clear Gespeicherte Werte löschen
 audiomenu.volume_adjustment_pcm PCM-Tonspuren
+audiomenu.volume_last_used zuletzt verwendet
 audiomenu.volume_start Einschaltlautstärke
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen

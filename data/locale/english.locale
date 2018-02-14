@@ -152,6 +152,7 @@ audiomenu.volume_adjustment Channel specific volume adjustment
 audiomenu.volume_adjustment_ac3 AC3 streams
 audiomenu.volume_adjustment_clear Clear saved values
 audiomenu.volume_adjustment_pcm PCM streams
+audiomenu.volume_last_used last used
 audiomenu.volume_start Start volume
 audiomenu.volume_step Volume step
 audioplayer.add Add

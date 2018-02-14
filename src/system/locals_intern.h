@@ -179,6 +179,7 @@ const char * locale_real_names[] =
 	"audiomenu.volume_adjustment_ac3",
 	"audiomenu.volume_adjustment_clear",
 	"audiomenu.volume_adjustment_pcm",
+	"audiomenu.volume_last_used",
 	"audiomenu.volume_start",
 	"audiomenu.volume_step",
 	"audioplayer.add",
