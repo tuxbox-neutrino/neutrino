@@ -1478,7 +1478,7 @@ void CTimeThread::run()
 
 			xprintf("%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)\n",
 				name.c_str(), current_service, isOpen());
-			int rc;
+			int rc = 0;
 #if HAVE_COOL_HARDWARE
 			/* libcoolstream does not like the repeated read if the dmx is not yet running
 			 * (e.g. during neutrino start) and causes strange openthreads errors which in
