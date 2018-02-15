@@ -1487,11 +1487,11 @@ void CTimeThread::run()
 			rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
 #else
 			int64_t start = time_monotonic_ms();
+			int timeouts = 0;
 			/* speed up shutdown by looping around Read() */
 			do {
-				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
-			} while (running && rc == 0
-				 && (time_monotonic_ms() - start) < (int64_t)timeoutInMSeconds);
+				rc = getSection(static_buf, timeoutInMSeconds /6,timeouts);
+			} while (running && rc < 1 && (time_monotonic_ms() - start) < (int64_t)timeoutInMSeconds*2);
 #endif
 			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
 				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
