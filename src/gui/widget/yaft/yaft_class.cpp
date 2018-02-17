@@ -124,7 +124,7 @@ int YaFT::run(void)
 	struct timeval tv;
 	bool ok = true;
 	bool need_redraw = false;
-	exitcode = 0;
+	exitcode = EXIT_FAILURE;
 	YaFT_p *term = new YaFT_p(paint);
 	int flags;
 	/* init */
@@ -133,17 +133,19 @@ int YaFT::run(void)
 	if (!term->init())
 		goto init_failed;
 
-	struct sigaction sigact;
+	struct sigaction sigact, oldact;
 	memset(&sigact, 0, sizeof(struct sigaction));
+	memset(&oldact, 0, sizeof(struct sigaction));
 	sigact.sa_handler = sig_handler;
 	sigact.sa_flags   = SA_RESTART;
-	sigaction(SIGCHLD, &sigact, NULL);
+	sigaction(SIGCHLD, &sigact, &oldact);
 
 	/* fork and exec shell */
 	if ((childpid = fork_and_exec(&term->fd, term->lines, term->cols)) < 0) {
 		logging(NORMAL, "forkpty failed\n");
-		goto init_failed;
+		goto exec_failed;
 	}
+	exitcode = 0;
 	child_alive = true;
 	flags = fcntl(term->fd, F_GETFL);
 	fcntl(term->fd, F_SETFL, flags | O_NONBLOCK);
@@ -205,13 +207,9 @@ int YaFT::run(void)
 		OnShellOutputLoop(&s, res, &ok);
 		term->txt.pop();
 	}
-
-	/* normal exit */
-	delete term;
-	return exitcode;
-
-	/* error exit */
+exec_failed:
+	sigaction(SIGCHLD, &oldact, NULL);
 init_failed:
 	delete term;
-	return EXIT_FAILURE;
+	return exitcode;
 }
