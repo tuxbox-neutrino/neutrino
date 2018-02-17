@@ -432,6 +432,13 @@ void CComponentsForm::paintCCItems()
 		//get current dimension of item
 		int w_item = cc_item->getWidth() - (xpos <= fr_thickness ? fr_thickness : 0);
 		int h_item = cc_item->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
+		/* this happens for example with opkg manager's "package info" screen on a SD framebuffer (704x576)
+		 * later CC_CENTERED auto_y calculation is wrong then */
+		if (cc_item->getHeight() > height) {
+			cc_item->setHeight(height);
+			// TODO: the fr_thickness is probably wrong for ypos < 0 (CC_CENTERED / CC_APPEND)
+			h_item = cc_item->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
+		}
 
 		//check item for corrupt position, skip current item if found problems
 		if (ypos > height || xpos > this_w){
@@ -468,6 +475,7 @@ void CComponentsForm::paintCCItems()
 		//append hor
 		if (ypos == CC_APPEND){
 			auto_y += append_y_offset;
+			// FIXME: ypos is probably wrong here, because it is -1
 			cc_item->setRealYPos(auto_y + ypos + w_parent_frame);
 			auto_y += h_item;
 		}
