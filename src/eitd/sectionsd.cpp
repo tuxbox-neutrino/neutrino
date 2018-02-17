@@ -56,7 +56,9 @@
 #include "debug.h"
 
 #include <compatibility.h>
-
+#if ! HAVE_COOL_HARDWARE
+#include <poll.h>
+#endif
 //#define ENABLE_SDT //FIXME
 
 //#define DEBUG_SDT_THREAD
@@ -1487,15 +1489,27 @@ void CTimeThread::run()
 			rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
 #else
 			int64_t start = time_monotonic_ms();
-			int timeouts = 0;
 			/* speed up shutdown by looping around Read() */
+			struct pollfd ufds;
+			ufds.events = POLLIN|POLLPRI|POLLERR;
+			DMX::lock();
+			ufds.fd = dmx->getFD();
+			DMX::unlock();
 			do {
-				rc = getSection(static_buf, timeoutInMSeconds /6,timeouts);
-			} while (running && rc < 1 && (time_monotonic_ms() - start) < (int64_t)timeoutInMSeconds*2);
+				ufds.revents = 0;
+				rc = ::poll(&ufds, 1, timeoutInMSeconds / 36);
+				if (running && rc == 1) {
+					DMX::lock();
+					if (ufds.fd == dmx->getFD()){
+						rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, 10);
+					}
+					DMX::unlock();
+				}
+			} while (running && rc == 0 && (time_monotonic_ms() < (int64_t)timeoutInMSeconds + start));
 #endif
 			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
 				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
-			if (rc > 0) {
+			if (rc > 3) {
 				SIsectionTIME st(static_buf);
 				if (st.is_parsed()) {
 					dvb_time = st.getTime();
