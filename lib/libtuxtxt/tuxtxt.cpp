@@ -5597,7 +5597,9 @@ void CopyBB2FB()
 
 	/* copy line25 in normal height */
 	if (!pagecatching )
-		memmove(dst + (24 * fontheight) * var_screeninfo.xres, src + (24 * fontheight) * var_screeninfo.xres, var_screeninfo.xres * fontheight * sizeof(fb_pixel_t));
+		memmove(dst + (24 * fontheight) * var_screeninfo.xres,
+			src + (24 * fontheight) * var_screeninfo.xres,
+			var_screeninfo.xres * fontheight * sizeof(fb_pixel_t));
 
 	if (transpmode[boxed])
 		fillcolor = transp;
