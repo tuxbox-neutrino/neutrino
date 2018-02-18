@@ -75,7 +75,7 @@ void CComponentsTimer::runSharedTimerAction()
 	//start loop
 	tn = "cc:"+name;
 	set_threadname(tn.c_str());
-	while(tm_enable && tm_interval > 0) {
+	while(tm_enable && tm_interval > 0 && !OnTimer.empty()) {
 		tm_mutex.lock();
 		OnTimer();
 		if (!tm_enable_nano){
