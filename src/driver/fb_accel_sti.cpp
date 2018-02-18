@@ -366,12 +366,20 @@ void CFbAccelSTi::run()
 void CFbAccelSTi::blit()
 {
 	//printf(LOGTAG "::blit\n");
+#if 0
+	/* After 99ff4857 "change time_monotonic_ms() from time_t to int64_t"
+	 * this is no longer needed. And it leads to rendering errors.
+	 * Safest would be "blit_mutex.timedlock(timeout)", but that does not
+	 * exist... */
 	int status = blit_mutex.trylock();
 	if (status) {
 		printf(LOGTAG "::blit trylock failed: %d (%s)\n", status,
 				(status > 0) ? strerror(status) : strerror(errno));
 		return;
 	}
+#else
+	blit_mutex.lock();
+#endif
 	blit_cond.signal();
 	blit_mutex.unlock();
 }
