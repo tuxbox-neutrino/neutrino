@@ -1646,11 +1646,14 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.key_quickzap_up || msg == (neutrino_msg_t) g_settings.key_quickzap_down) {
 			quickZap(msg);
-		} else if (fromInfoviewer && msg == CRCInput::RC_ok && !filelist.empty()) {
-			printf("CMoviePlayerGui::%s: start playlist movie #%d\n", __func__, (int)(vzap_it - filelist.begin()));
+		} else if (fromInfoviewer && msg == CRCInput::RC_ok) {
+			if (!filelist.empty() && (filelist_it != vzap_it))
+			{
+				printf("CMoviePlayerGui::%s: start playlist movie #%d\n", __func__, (int)(vzap_it - filelist.begin()));
+				playstate = CMoviePlayerGui::STOPPED;
+				filelist_it = vzap_it;
+			}
 			fromInfoviewer = false;
-			playstate = CMoviePlayerGui::STOPPED;
-			filelist_it = vzap_it;
 		} else if (timeshift == TSHIFT_MODE_OFF && !isWebChannel /* && !isYT */ && (msg == (neutrino_msg_t) g_settings.mpkey_next_repeat_mode)) {
 			repeat_mode = (repeat_mode_enum)((int)repeat_mode + 1);
 			if (repeat_mode > (int) REPEAT_ALL)
