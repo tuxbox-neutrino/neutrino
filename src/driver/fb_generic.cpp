@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 		      2003 thegoodguy
 
-	Copyright (C) 2009-2012,2017 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
+	Copyright (C) 2009-2012,2017-2018 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
 	mute icon & info clock handling
 	Copyright (C) 2013 M. Liebmann (micha-bbg)
 
@@ -60,6 +60,7 @@ extern CPictureViewer * g_PicViewer;
 #define ICON_CACHE_SIZE 1024*1024*2 // 2mb
 
 #define BACKGROUNDIMAGEWIDTH 720
+#define LOGTAG "[fb_generic] "
 
 void CFrameBuffer::waitForIdle(const char *)
 {
@@ -172,7 +173,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 	}
 
 	available=fix.smem_len;
-	printf("[fb_generic] [%s] framebuffer %dk video mem\n", fix.id, available/1024);
+	printf(LOGTAG "[%s] framebuffer %dk video mem\n", fix.id, available/1024);
 	lbb = lfb = (fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
 	if (!lfb) {
 		perror("mmap");
@@ -1677,22 +1678,58 @@ void CFrameBuffer::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, u
 	}
 }
 
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool /*transp*/)
+/*
+ * source surface:
+ *  |<-------width----------------------->|
+ *  |<---------xp------------>|           |
+ *  +-------------------------+-----------+----
+ *  |                         |           | ^ ^
+ *  |                         |           | | |
+ *  |                         |           | y h
+ *  |                         |           | p e
+ *  |                         |           | v i
+ *  |                         +-----------+-- g
+ *  |                         |###########|   h
+ *  |                         |###########|   t
+ *  |                         |###########|   |
+ *  |                         |###########|   v
+ *  +-------------------------+-----------+----
+ *  xoff, yoff is the offset into the *target* (framebuffer) surface.
+ *  transp == false (default): alpha blend src and dst, transp == true => just copy over src to dest
+ */
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
-	int  xc, yc;
-
+	uint32_t xc, yc;
 	xc = (width > xRes) ? xRes : width;
 	yc = (height > yRes) ? yRes : height;
+
+	if (xp >= xc || yp >= yc) {
+		printf(LOGTAG "%s: invalid parameters, xc: %u <= xp: %u or yc: %u <= yp: %u\n", __func__, xc, xp, yc, yp);
+		return;
+	}
 
 	fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
 
 	fb_pixel_t * d = getFrameBufferPointer() + xoff + swidth * yoff;
+	if (transp) {
+		fb_pixel_t *pixpos = data + yp * width;
+		int len = (xc - xp) * sizeof(fb_pixel_t);
+		if (width == xRes && swidth == xRes && xoff == 0 && xp == 0) {
+			memmove(d, pixpos, (yc - yp) * len);
+			return;
+		}
+		for (uint32_t count = 0; count < yc - yp; count++) {
+			memmove(d, pixpos + xp, len);
+			d += swidth;
+			pixpos += width;
+		}
+		return;
+	}
 	fb_pixel_t * d2;
-
-	for (int count = 0; count < yc; count++ ) {
+	for (uint32_t count = 0; count < yc - yp; count++ ) {
 		fb_pixel_t *pixpos = &data[(count + yp) * width];
 		d2 = (fb_pixel_t *) d;
-		for (int count2 = 0; count2 < xc; count2++ ) {
+		for (uint32_t count2 = 0; count2 < xc - xp; count2++ ) {
 			fb_pixel_t pix = *(pixpos + xp);
 			if ((pix & 0xff000000) == 0xff000000)
 				*d2 = pix;
