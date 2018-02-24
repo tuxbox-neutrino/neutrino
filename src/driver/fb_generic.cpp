@@ -41,6 +41,7 @@
 #include <sys/mman.h>
 #include <memory.h>
 #include <math.h>
+#include <endian.h>
 
 #include <linux/kd.h>
 
@@ -1698,7 +1699,14 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 			else {
 				uint8_t *in = (uint8_t *)(pixpos + xp);
 				uint8_t *out = (uint8_t *)d2;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 				int a = in[3];	/* TODO: big/little endian */
+#elif __BYTE_ORDER == __BIG_ENDIAN
+				int a = in[0];
+				out++; in++;
+#else
+#error neither big nor little endian???
+#endif
 				*out = (*out + ((*in - *out) * a) / 256);
 				in++; out++;
 				*out = (*out + ((*in - *out) * a) / 256);
