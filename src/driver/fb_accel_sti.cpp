@@ -3,7 +3,7 @@
 	The hardware dependent framebuffer acceleration functions for STi chips
 	are represented in this class.
 
-	(C) 2017 Stefan Seyfried
+	(C) 2017-2018 Stefan Seyfried
 
 	License: GPL
 
@@ -278,15 +278,19 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 	blit();
 }
 
+/* width / height => source surface   *
+ * xoff / yoff    => target position  *
+ * xp / yp        => offset in source */
 void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
-	int x, y, dw, dh;
+	int x, y, dw, dh, bottom;
 	x = xoff;
 	y = yoff;
 	dw = width - xp;
 	dh = height - yp;
+	bottom = height + yp;
 
-	size_t mem_sz = width * height * sizeof(fb_pixel_t);
+	size_t mem_sz = width * bottom * sizeof(fb_pixel_t);
 	/* we can blit anything from [ backbuffer <--> backbuffer + backbuf_sz ]
 	 * if the source is outside this, then it will be memmove()d to start of backbuffer */
 	void *tmpbuff = backbuffer;
@@ -307,7 +311,7 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	blt_data.src_left   = xp;
 	blt_data.src_top    = yp;
 	blt_data.src_right  = width;
-	blt_data.src_bottom = height;
+	blt_data.src_bottom = bottom;
 	blt_data.dst_left   = x;
 	blt_data.dst_top    = y;
 	blt_data.dst_right  = x + dw;
