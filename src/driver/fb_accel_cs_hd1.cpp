@@ -3,7 +3,7 @@
 	The hardware dependent acceleration functions for coolstream GXA chips
 	are represented in this class.
 
-	(C) 2017 Stefan Seyfried
+	(C) 2017-2018 Stefan Seyfried
 	Derived from old neutrino-hd framebuffer code
 
 	License: GPL
@@ -60,12 +60,12 @@
 #define GXA_CFG2_REG            0x00FC
 
 #define LOGTAG "[fb_accel_cs_hd1] "
-/*
+
 static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int offset)
 {
 	return *(volatile unsigned int *)(base_addr + offset);
 }
-*/
+
 static unsigned int _mark = 0;
 
 static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, unsigned int value)
@@ -283,24 +283,35 @@ void CFbAccelCSHD1::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, 
 
 void CFbAccelCSHD1::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
-	int  xc, yc;
+	uint32_t xc, yc;
 	xc = (width > xRes) ? xRes : width;
 	yc = (height > yRes) ? yRes : height;
 	u32 cmd;
-	void *uKva;
+	uint32_t addr = 0, bb = 0;
 
-	uKva = cs_phys_addr(fbbuff);
+	if (fbbuff == backbuffer) {
+		addr = _read_gxa(gxa_base, GXA_BMP2_ADDR_REG);
+		bb = yRes;
+	} else {
+		void *uKva = cs_phys_addr(fbbuff);
+		addr = (uint32_t)uKva;
+	}
 
-	if (uKva != NULL) {
+	if (addr != 0) {
+		//printf(LOGTAG "%s(0x%x+%d, %u %u %u %u %u %u %d)\n", __func__, addr, bb, width, height, xoff, yoff, xp, yp, transp);
+		if (xp >= xc || yp >= yc) {
+			printf(LOGTAG "%s: invalid parameters, xc: %u <= xp: %u or yc: %u <= yp: %u\n", __func__, xc, xp, yc, yp);
+			return;
+		}
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
 
 		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
-		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int)uKva);
+		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, addr);
 
 		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff)); /* destination pos */
-		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));     /* source width, FIXME real or adjusted xc, yc ? */
-		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp));     /* source pos */
+		_write_gxa(gxa_base, cmd, GXA_POINT(xc - xp, yc - yp)); /* source size */
+		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp + bb));      /* source pos */
 		return;
 	}
 	CFrameBuffer::blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
