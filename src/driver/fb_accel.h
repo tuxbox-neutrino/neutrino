@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2007-2013 Stefan Seyfried
+	Copyright (C) 2007-2013,2017-2018 Stefan Seyfried
 
 	License: GPL
 
@@ -202,7 +202,10 @@ class CFbAccelTD
 		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col) { paintLine(x, y, x + dx, y, col); };
 		void paintVLineRel(int x, int y, int dy, const fb_pixel_t col) { paintLine(x, y, x, y + dy, col); };
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
+#if 0
+		/* this is too slow, just use simple software implementation */
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
+#endif
 		void waitForIdle(const char *func = NULL);
 		fb_pixel_t * getBackBufferPointer() const;
 		void setBlendMode(uint8_t);

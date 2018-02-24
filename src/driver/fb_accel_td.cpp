@@ -103,6 +103,7 @@ void CFbAccelTD::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 	dfbdest->DrawLine(dfbdest, xa, ya, xb, yb);
 }
 
+#if 0
 void CFbAccelTD::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
 	DFBRectangle src;
@@ -146,6 +147,7 @@ void CFbAccelTD::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t
 	surf->Release(surf);
 	return;
 }
+#endif
 
 void CFbAccelTD::init(const char *)
 {
