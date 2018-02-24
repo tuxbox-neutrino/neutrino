@@ -29,6 +29,8 @@
 #define KEY_TTZOOM	KEY_FN_2
 #define KEY_REVEAL	KEY_FN_D
 
+#define MARK_FB(a, b, c, d) if (p == lfb) CFrameBuffer::getInstance()->mark(a, b, (a) + (c), (b) + (d))
+
 extern cVideo * videoDecoder;
 
 static pthread_t ttx_sub_thread;
@@ -2769,6 +2771,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 		menu[MenuLine[M_PID]*Menu_Width + 27] = '?';
 	/* render menu */
 	PosY = Menu_StartY;
+	CFrameBuffer::getInstance()->waitForIdle();
 	for (line = 0; line < Menu_Height; line++)
 	{
 		PosX = Menu_StartX;
@@ -4992,6 +4995,7 @@ void RenderMessage(int Message)
 	else
 		msg = &message_3[menulanguage][0];
 
+	CFrameBuffer::getInstance()->waitForIdle();
 	/* render infobar */
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*16;
@@ -5568,13 +5572,7 @@ void CopyBB2FB()
 	/* copy backbuffer to framebuffer */
 	if (!zoommode[boxed])
 	{
-#if HAVE_SPARK_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
-#elif HAVE_COOL_HARDWARE
-		f->fbCopyArea(var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, var_screeninfo.yres);
-#else
-		memcpy(lfb, lbb, var_screeninfo.xres*var_screeninfo.yres * sizeof(fb_pixel_t));
-#endif
 
 		/* adapt background of backbuffer if changed */
 		if (StartX > 0 && *lfb != *lbb) {
@@ -5611,28 +5609,7 @@ void CopyBB2FB()
 	if (screenmode[boxed] == 1)
 	{
 		screenwidth = TV43STARTX;
-#if HAVE_SPARK_HARDWARE
-		int cx = var_screeninfo.xres - TV43STARTX;	/* x start */
-		if (boxed)
-			cx = (screen_w - 40 * fontwidth) / 2;
-		int cw = TV43STARTX;				/* width */
-		int cy = StartY;
-		int ch = 24*fontheight;
-		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, true);
-#else
-		fb_pixel_t *topdst = dst;
-		size_t width = (ex - screenwidth) * sizeof(fb_pixel_t);
-
-		topsrc += screenwidth;
-		topdst += screenwidth;
-
-		for (i=0; i < 24*fontheight; i++)
-		{
-			memmove(topdst, topsrc, width);
-			topdst += var_screeninfo.xres;
-			topsrc += var_screeninfo.xres;
-		}
-#endif
+		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, TV43STARTX, 0, TV43STARTX, 0, true);
 	}
 	else if (screenmode[boxed] == 2)
 		screenwidth = TV169FULLSTARTX;
