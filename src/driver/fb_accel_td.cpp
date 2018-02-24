@@ -5,7 +5,7 @@
 
 	License: GPL
 
-	(C) 2017 Stefan Seyfried
+	(C) 2017-2018 Stefan Seyfried
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -132,10 +132,7 @@ void CFbAccelTD::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t
 	}
 
 	if (transp)
-	{
-		surf->SetSrcColorKey(surf, 0, 0, 0);
-		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_SRC_COLORKEY);
-	}
+		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_NOFX);
 	else
 		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_BLEND_ALPHACHANNEL);
 
