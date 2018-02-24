@@ -305,7 +305,8 @@ void CFbAccelCSHD1::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint3
 		}
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
-
+		if (transp)
+			cmd |= GXA_CMD_NOT_ALPHA;
 		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
 		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, addr);
 
@@ -314,6 +315,8 @@ void CFbAccelCSHD1::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint3
 		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp + bb));      /* source pos */
 		return;
 	}
+	printf(LOGTAG "%s(%p, %u %u %u %u %u %u %d) swrender fallback\n",
+			__func__, fbbuff, width, height, xoff, yoff, xp, yp, transp);
 	CFrameBuffer::blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
 }
 
