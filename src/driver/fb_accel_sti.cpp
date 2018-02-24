@@ -331,8 +331,14 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	// icons are so small that they will still be in cache
 	msync(backbuffer, backbuf_sz, MS_SYNC);
 
-	if (ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
+	if (ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0) {
 		perror(LOGTAG "blit2FB STMFBIO_BLT_EXTERN");
+		fprintf(stderr, "fbbuff %p tmp %p back %p width %u height %u xoff %u yoff %u xp %u yp %u dw %d dh %d\n",
+				fbbuff, tmpbuff, backbuffer, width, height, xoff, yoff, xp, yp, dw, dh);
+		fprintf(stderr, "left: %d top: %d right: %d bottom: %d off: %ld pitch: %ld mem: %ld\n",
+				blt_data.src_left, blt_data.src_top, blt_data.src_right, blt_data.src_bottom,
+				blt_data.srcOffset, blt_data.srcPitch, blt_data.srcMemSize);
+	}
 	return;
 }
 
