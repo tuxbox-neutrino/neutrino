@@ -288,9 +288,12 @@ void CFbAccelCSHD1::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint3
 	yc = (height > yRes) ? yRes : height;
 	u32 cmd;
 	uint32_t addr = 0, bb = 0;
+	fb_pixel_t *fbb = (fb_pixel_t *)fbbuff;
 
-	if (fbbuff == backbuffer) {
+	/* we could probably also copy around in the visible part of the framebuffer... */
+	if (fbbuff >= backbuffer && (fbb + width * height) < lfb + available / sizeof(fb_pixel_t)) {
 		addr = _read_gxa(gxa_base, GXA_BMP2_ADDR_REG);
+		addr += (fbb - lfb) * sizeof(fb_pixel_t);
 		bb = yRes;
 	} else {
 		void *uKva = cs_phys_addr(fbbuff);
@@ -312,11 +315,11 @@ void CFbAccelCSHD1::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint3
 
 		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff)); /* destination pos */
 		_write_gxa(gxa_base, cmd, GXA_POINT(xc - xp, yc - yp)); /* source size */
-		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp + bb));      /* source pos */
+		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp));     /* source pos */
 		return;
 	}
-	printf(LOGTAG "%s(%p, %u %u %u %u %u %u %d) swrender fallback\n",
-			__func__, fbbuff, width, height, xoff, yoff, xp, yp, transp);
+	printf(LOGTAG "%s(%p+%d, %u %u %u %u %u %u %d) swrender fallback\n",
+			__func__, fbbuff, bb, width, height, xoff, yoff, xp, yp, transp);
 	CFrameBuffer::blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
 }
 
