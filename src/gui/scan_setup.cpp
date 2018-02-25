@@ -1714,7 +1714,7 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 		pol->setHint("", LOCALE_MENU_HINT_SCAN_POL);
 		pilot = new CMenuOptionChooser(LOCALE_EXTRA_TP_PILOT, (int *)&scansettings.sat_TP_pilot, SATSETUP_SCANTP_PILOT, SATSETUP_SCANTP_PILOT_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 		pilot->setHint("", LOCALE_MENU_HINT_SCAN_PILOT);
-		CStringInput		*pli 	= new CStringInput(LOCALE_EXTRA_TP_PLI, &scansettings.sat_TP_pli, 1, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+		CStringInput		*pli 	= new CStringInput(LOCALE_EXTRA_TP_PLI, &scansettings.sat_TP_pli, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Pli 	= new CMenuDForwarder(LOCALE_EXTRA_TP_PLI, true, scansettings.sat_TP_pli, pli, "", CRCInput::convertDigitToKey(shortCut++));
 		CStringInput		*plc 	= new CStringInput(LOCALE_EXTRA_TP_PLC, &scansettings.sat_TP_plc, 6, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Plc 	= new CMenuDForwarder(LOCALE_EXTRA_TP_PLC, true, scansettings.sat_TP_plc, plc, "", CRCInput::convertDigitToKey(shortCut++));
