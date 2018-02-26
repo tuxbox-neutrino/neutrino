@@ -208,7 +208,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
 	bool SelectFile();
-	void updateLcd();
+	void updateLcd(bool display_playtime = false);
 
 	bool convertSubtitle(std::string &text);
 	void selectChapter();

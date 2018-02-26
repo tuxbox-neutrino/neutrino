@@ -491,11 +491,25 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	return menu_ret;
 }
 
-void CMoviePlayerGui::updateLcd()
+void CMoviePlayerGui::updateLcd(bool display_playtime)
 {
 	char tmp[20];
 	std::string lcd;
 	std::string name;
+
+	if (display_playtime)
+	{
+		int ss = position/1000;
+		int hh = ss/3600;
+		ss -= hh * 3600;
+		int mm = ss/60;
+		ss -= mm * 60;
+		lcd = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
+
+		CVFD::getInstance()->setMode(LCD_MODE);
+		CVFD::getInstance()->showMenuText(0, lcd.c_str(), -1, true);
+		return;
+	}
 
 	if (isMovieBrowser && p_movie_info && !p_movie_info->epgTitle.empty() && p_movie_info->epgTitle.size() && strncmp(p_movie_info->epgTitle.c_str(), "not", 3))
 		name = p_movie_info->epgTitle;
@@ -1475,9 +1489,9 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #endif
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
-		if (update_lcd) {
+		if (update_lcd || g_settings.movieplayer_display_playtime) {
 			update_lcd = false;
-			updateLcd();
+			updateLcd(g_settings.movieplayer_display_playtime);
 		}
 		if (first_start) {
 			usleep(50000);
@@ -1853,6 +1867,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == CRCInput::RC_info) {
 			if (fromInfoviewer) {
 				disableOsdElements(NO_MUTE);
+				if (g_settings.movieplayer_display_playtime)
+					updateLcd(false); // force title
 #ifdef ENABLE_LUA
 				if (isLuaPlay && haveLuaInfoFunc) {
 					int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
@@ -1881,6 +1897,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			bool restore = FileTimeOSD->IsVisible();
 			FileTimeOSD->kill();
 
+			if (g_settings.movieplayer_display_playtime)
+				updateLcd(false); // force title
 			if (msg == CRCInput::RC_epg)
 				g_EventList->exec(CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID(), CNeutrinoApp::getInstance()->channelList->getActiveChannelName());
 			else if (msg == NeutrinoMessages::SHOW_EPG)
@@ -1930,6 +1948,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			// do nothing
 		} else if (msg == (neutrino_msg_t) CRCInput::RC_setup) {
 			CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::SHOW_MAINMENU, 0);
+			update_lcd = true;
 		} else if (msg == CRCInput::RC_red || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow || msg == CRCInput::RC_blue ) {
 			//maybe move FileTimeOSD->kill to Usermenu to simplify this call
 			bool restore = FileTimeOSD->IsVisible();
@@ -2029,6 +2048,8 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 	}
 
 	if (timeshift != TSHIFT_MODE_OFF) {
+		if (g_settings.movieplayer_display_playtime)
+			updateLcd(false); // force title
 		g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannel());
 		return;
 	}
@@ -2059,7 +2080,6 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 	}
 
 	if (p_movie_info) {
-
 		if(duration <= 0)
 			UpdatePosition();
 
@@ -2079,11 +2099,15 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 		if (channelName.empty())
 			channelName = pretty_name;
 
+		if (g_settings.movieplayer_display_playtime)
+			updateLcd(false); // force title
 		g_InfoViewer->showMovieTitle(playstate, mi->epgId >>16, channelName, mi->epgTitle, mi->epgInfo1,
 			duration, position, repeat_mode, init_vzap_it ? 0 /*IV_MODE_DEFAULT*/ : 1 /*IV_MODE_VIRTUAL_ZAP*/);
 		return;
 	}
 
+	if (g_settings.movieplayer_display_playtime)
+		updateLcd(false); // force title
 	/* not moviebrowser => use the filename as title */
 	g_InfoViewer->showMovieTitle(playstate, 0, pretty_name, info_1, info_2, duration, position, repeat_mode);
 }

@@ -875,6 +875,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//Movie-Player
 	g_settings.movieplayer_repeat_on = configfile.getInt32("movieplayer_repeat_on", CMoviePlayerGui::REPEAT_OFF);
 	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+	g_settings.movieplayer_display_playtime = configfile.getInt32("movieplayer_display_playtime", 0);
 	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
 	g_settings.youtube_enabled = g_settings.youtube_enabled && check_youtube_dev_id();
 	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
@@ -1496,6 +1497,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//Movie-Player
 	configfile.setInt32( "movieplayer_repeat_on", g_settings.movieplayer_repeat_on );
+	configfile.setInt32( "movieplayer_display_playtime", g_settings.movieplayer_display_playtime );
 	configfile.setString( "youtube_dev_id", g_settings.youtube_dev_id );
 	configfile.setInt32( "youtube_enabled", g_settings.youtube_enabled );
 	configfile.setString( "tmdb_api_key", g_settings.tmdb_api_key );
