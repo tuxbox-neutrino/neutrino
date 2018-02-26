@@ -459,7 +459,7 @@ proc()
 # -----------------------------------------------------------
 wol()
 {
-	if [ -e $y_path_bin/ether-wake ]; then
+	if [ -e $y_path_sbin/ether-wake ]; then
 		msg=`ether-wake $1`
 	fi
 	msg="<b>Wake on LAN $1</b><br><br>$msg"
