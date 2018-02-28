@@ -301,7 +301,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 					renameBouquet();
 			}
 		}
-		else if (msg == CRCInput::RC_pause)
+		else if (msg == CRCInput::RC_pause || msg == CRCInput::RC_playpause)
 		{
 			if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 			{
