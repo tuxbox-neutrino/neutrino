@@ -497,7 +497,7 @@ void CMoviePlayerGui::updateLcd(bool display_playtime)
 	std::string lcd;
 	std::string name;
 
-	if (display_playtime)
+	if (display_playtime && g_info.hw_caps->display_xres >= 8)
 	{
 		int ss = position/1000;
 		int hh = ss/3600;
@@ -505,43 +505,47 @@ void CMoviePlayerGui::updateLcd(bool display_playtime)
 		int mm = ss/60;
 		ss -= mm * 60;
 		lcd = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
-
-		CVFD::getInstance()->setMode(LCD_MODE);
-		CVFD::getInstance()->showMenuText(0, lcd.c_str(), -1, true);
-		return;
 	}
-
-	if (isMovieBrowser && p_movie_info && !p_movie_info->epgTitle.empty() && p_movie_info->epgTitle.size() && strncmp(p_movie_info->epgTitle.c_str(), "not", 3))
-		name = p_movie_info->epgTitle;
 	else
-		name = pretty_name;
+	{
+		if (isMovieBrowser && p_movie_info && !p_movie_info->epgTitle.empty() && p_movie_info->epgTitle.size() && strncmp(p_movie_info->epgTitle.c_str(), "not", 3))
+			name = p_movie_info->epgTitle;
+		else
+			name = pretty_name;
 
-	switch (playstate) {
-		case CMoviePlayerGui::PAUSE:
-			if (speed < 0) {
-				sprintf(tmp, "%dx<| ", abs(speed));
+		switch (playstate)
+		{
+			case CMoviePlayerGui::PAUSE:
+				if (speed < 0)
+				{
+					sprintf(tmp, "%dx<| ", abs(speed));
+					lcd = tmp;
+				}
+				else if (speed > 0)
+				{
+					sprintf(tmp, "%dx|> ", abs(speed));
+					lcd = tmp;
+				}
+				else
+					lcd = "|| ";
+				break;
+			case CMoviePlayerGui::REW:
+				sprintf(tmp, "%dx<< ", abs(speed));
 				lcd = tmp;
-			} else if (speed > 0) {
-				sprintf(tmp, "%dx|> ", abs(speed));
+				break;
+			case CMoviePlayerGui::FF:
+				sprintf(tmp, "%dx>> ", abs(speed));
 				lcd = tmp;
-			} else
-				lcd = "|| ";
-			break;
-		case CMoviePlayerGui::REW:
-			sprintf(tmp, "%dx<< ", abs(speed));
-			lcd = tmp;
-			break;
-		case CMoviePlayerGui::FF:
-			sprintf(tmp, "%dx>> ", abs(speed));
-			lcd = tmp;
-			break;
-		case CMoviePlayerGui::PLAY:
-			lcd = "> ";
-			break;
-		default:
-			break;
+				break;
+			case CMoviePlayerGui::PLAY:
+				lcd = "> ";
+				break;
+			default:
+				break;
+		}
+		lcd += name;
 	}
-	lcd += name;
+
 	CVFD::getInstance()->setMode(LCD_MODE);
 	CVFD::getInstance()->showMenuText(0, lcd.c_str(), -1, true);
 }
