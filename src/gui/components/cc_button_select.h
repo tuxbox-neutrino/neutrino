@@ -69,7 +69,7 @@ class CCButtonSelect
 		*/
 		void setSelectedButton(size_t item_id,
 					const fb_pixel_t& sel_fr_col 	= COL_MENUCONTENTSELECTED_PLUS_0,
-					const fb_pixel_t& fr_col 	= COL_MENUCONTENTSELECTED_PLUS_2,
+					const fb_pixel_t& fr_col 	= COL_FRAME_PLUS_0,
 					const fb_pixel_t& bg_col 	= COL_MENUCONTENT_PLUS_0,
 					const fb_pixel_t& sel_bg_col 	= COL_MENUCONTENTSELECTED_PLUS_0,
 					const fb_pixel_t& text_col 	= COL_MENUCONTENT_TEXT,
