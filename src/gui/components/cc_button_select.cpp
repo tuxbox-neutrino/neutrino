@@ -48,9 +48,9 @@ int CCButtonSelect::getSelectedButton()
 	return -1;
 }
 
-void CCButtonSelect::setSelectedButton(size_t item_id,
-			const fb_pixel_t& fr_col,
+void CCButtonSelect::setSelectedButton( size_t item_id,
 			const fb_pixel_t& sel_fr_col,
+			const fb_pixel_t& fr_col,
 			const fb_pixel_t& bg_col,
 			const fb_pixel_t& sel_bg_col,
 			const fb_pixel_t& text_col,
