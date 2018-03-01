@@ -1104,7 +1104,7 @@ menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
 menu.hint_infobar_logo Logo-, Kanalnummer- und Signal-Anzeige; Optionen in [Klammern] erscheinen in der kleinen Infobox
 menu.hint_infobar_logo_dir Verzeichnis für Senderlogos festlegen.
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
-menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
+menu.hint_infobar_radiotext Wenn verfügbar, wird der Radiotext in einem separaten Fenster dargestellt
 menu.hint_infobar_res Zeige die gesendete Auflösung in Symbolen
 menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
 menu.hint_infobar_setup Wählen Sie die Anzeigeoptionen für die Infobar aus
