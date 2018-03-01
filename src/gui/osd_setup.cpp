@@ -7,7 +7,7 @@
 	and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2010 T. Graf 'dbt'
+	Copyright (C) 2010, 2018 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
 	Copyright (C) 2010, 2012-2013 Stefan Seyfried
@@ -97,7 +97,7 @@ COsdSetup::COsdSetup(int wizard_mode)
 	osd_menu_colors = NULL;
 	is_wizard = wizard_mode;
 
-	width = 40;
+	width = 50;
 	show_menu_hints = 0;
 	show_tuner_icon = 0;
 }
@@ -574,7 +574,7 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mf);
 
 	//fonts
-	CMenuWidget osd_menu_fonts(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, 50, MN_WIDGET_ID_OSDSETUP_FONT);
+	CMenuWidget osd_menu_fonts(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_FONT);
 	showOsdFontSizeSetup(&osd_menu_fonts);
 	mf = new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, &osd_menu_fonts, NULL, CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_FONTS);
