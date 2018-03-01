@@ -211,7 +211,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		*/
 		if (txt.empty() && icon_name.empty()){
 			//l_count -= 1;
-			dprintf(DEBUG_NORMAL, "[CComponentsFooter]\t[%s - %d]\tignore item [%d], no icon and text defined!\n", __func__, __LINE__, i);
+			dprintf(DEBUG_NORMAL, "[CComponentsFooter]\t[%s - %d]\tignore item [%lu], no icon and text defined!\n", __func__, __LINE__, i);
 			continue;
 		}
 
