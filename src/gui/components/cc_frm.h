@@ -30,6 +30,7 @@
 #include "cc_base.h"
 #include "cc_item.h"
 
+#define DEFAULT_SEL_FRAME_WIDTH 1
 
 class CComponentsForm : public CComponentsItem
 {
@@ -217,16 +218,16 @@ class CComponentsForm : public CComponentsItem
 						const fb_pixel_t& frame_col = COL_FRAME_PLUS_0,
 						const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
 						const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
-						const int& frame_w = 3,
-						const int& sel_frame_w = 3);
+						const int& frame_w = DEFAULT_SEL_FRAME_WIDTH,
+						const int& sel_frame_w = DEFAULT_SEL_FRAME_WIDTH);
 		///select a definied item, parameter1 as CComponentsItem*
 		virtual void setSelectedItem(	CComponentsItem* cc_item,
 						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
 						const fb_pixel_t& frame_col = COL_FRAME_PLUS_0,
 						const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
 						const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
-						const int& frame_w = 3,
-						const int& sel_frame_w = 3);
+						const int& frame_w = DEFAULT_SEL_FRAME_WIDTH,
+						const int& sel_frame_w = DEFAULT_SEL_FRAME_WIDTH);
 
 		///exec main method, see also sub exec methods
 		virtual int exec();
