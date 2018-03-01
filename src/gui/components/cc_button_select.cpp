@@ -49,14 +49,14 @@ int CCButtonSelect::getSelectedButton()
 }
 
 void CCButtonSelect::setSelectedButton( size_t item_id,
-			const fb_pixel_t& sel_fr_col,
-			const fb_pixel_t& fr_col,
-			const fb_pixel_t& bg_col,
-			const fb_pixel_t& sel_bg_col,
-			const fb_pixel_t& text_col,
-			const fb_pixel_t& sel_text_col,
-			const int& frame_width,
-			const int& sel_frame_width)
+					const fb_pixel_t& sel_fr_col,
+					const fb_pixel_t& fr_col,
+					const fb_pixel_t& sel_bg_col,
+					const fb_pixel_t& bg_col,
+					const fb_pixel_t& text_col,
+					const fb_pixel_t& sel_text_col,
+					const int& frame_width,
+					const int& sel_frame_width)
 {
 	CComponentsButton *btn = NULL;
 	if (btn_container){
