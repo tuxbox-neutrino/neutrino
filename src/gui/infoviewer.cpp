@@ -1749,9 +1749,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int currTimeW = 0;
 	int nextTimeW = 0;
 	if (runningRest)
-		currTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest) + OFFSET_INNER_MID;
+		currTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("000 / 000 min") + OFFSET_INNER_MID;
 	if (nextDuration)
-		nextTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(nextDuration) + OFFSET_INNER_MID;
+		nextTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("000 min") + OFFSET_INNER_MID;
 	int currTimeX = BoxEndX - currTimeW - OFFSET_INNER_MID;
 	int nextTimeX = BoxEndX - nextTimeW - OFFSET_INNER_MID;
 
