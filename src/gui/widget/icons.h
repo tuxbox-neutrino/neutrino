@@ -67,6 +67,7 @@
 #define NEUTRINO_ICON_BUTTON_RECORD_ACTIVE	"btn_record_active"
 #define NEUTRINO_ICON_BUTTON_RECORD_INACTIVE	"btn_record_inactive"
 #define NEUTRINO_ICON_BUTTON_STOP	"btn_stop"
+#define NEUTRINO_ICON_BUTTON_TIMER	"btn_timer"
 
 #define NEUTRINO_ICON_BUTTON_LONGPRESS	"longpress"
 
