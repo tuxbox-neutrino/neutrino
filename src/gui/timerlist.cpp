@@ -893,6 +893,7 @@ int CTimerList::show()
 			   (msg == CRCInput::RC_timeout)
 			|| (msg == CRCInput::RC_home)
 			|| (msg == CRCInput::RC_left)
+			|| (msg == CRCInput::RC_timer || msg == CRCInput::RC_program)
 			|| (msg == CRCInput::RC_ok && timerlist.empty())
 		)
 		{	//Exit after timeout or cancel key
