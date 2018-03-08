@@ -125,28 +125,4 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	selected = mediaSetup->getSelected();
 	delete mediaSetup;
 	return res;
-
-#if 0
-	CMenuWidget* mediaSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
-	mediaSetup->setSelected(selected);
-
-	// intros
-	mediaSetup->addIntroItems(LOCALE_MAINSETTINGS_MULTIMEDIA);
-
-	CPictureViewerSetup psetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_red));
-	CAudioPlayerSetup asetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_green));
-
-	CWebTVSetup wsetup;
-	CMenuForwarder *mf;
-	mf = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::RC_yellow);
-	mf->setHint(NEUTRINO_ICON_HINT_TVMODE /* FIXME */, LOCALE_MENU_HINT_WEBTV_SETUP);
-	mediaSetup->addItem(mf);
-
-	int res = mediaSetup->exec (NULL, "");
-	selected = mediaSetup->getSelected();
-	delete mediaSetup;
-	return res;
-#endif
 }
