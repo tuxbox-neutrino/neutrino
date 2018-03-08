@@ -595,7 +595,8 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				exec(_channel_id, current_channel_name, prev_channel_name, next_channel_name);
 			}
 		}
-		else if (msg == CRCInput::RC_0) {
+		else if (msg == CRCInput::RC_timer || msg == CRCInput::RC_program)
+		{
 			hide();
 
 			CTimerList *Timerlist = new CTimerList;
@@ -1053,7 +1054,7 @@ void CEventList::paintFoot(t_channel_id channel_id)
 	buttons[btn_cnt].locale = LOCALE_EPGPLUS_HEAD;
 	btn_cnt++;
 
-	buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_0;
+	buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_TIMER;
 	buttons[btn_cnt].locale = LOCALE_TIMERLIST_NAME;
 	btn_cnt++;
 #endif
