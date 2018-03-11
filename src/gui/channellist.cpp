@@ -1309,6 +1309,9 @@ int CChannelList::numericZap(int key)
 			while(strlen(valstr) < maxchansize)
 				strcat(valstr,"-");   //"_"
 
+			CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+			CVFD::getInstance()->showMenuText(0, valstr, -1, true);
+
 			PaintBoxRel(ox, oy, sx, sy, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_ALL, CC_SHADOW_ON);
 			for (int i = maxchansize-1; i >= 0; i--) {
 				valstr[i+ 1] = 0;
@@ -1367,6 +1370,7 @@ int CChannelList::numericZap(int key)
 	}
 
 	ClearBoxRel(ox, oy, sx, sy, CC_SHADOW_ON);
+	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 	CZapitChannel* chan = getChannel(chn);
 	if (doZap) {
