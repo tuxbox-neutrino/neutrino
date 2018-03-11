@@ -32,6 +32,7 @@ hw_caps_t *get_hwcaps(void) {
 	caps.display_can_deepstandby = (rev > 7);
 	caps.display_can_set_brightness = 1;
 	caps.display_has_statusline = 1;
+	caps.has_button_timer = 0;
 	caps.can_ar_14_9 = 1;
 	caps.can_ps_14_9 = 1;
 	caps.force_tuner_2G = 0;
