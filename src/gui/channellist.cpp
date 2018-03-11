@@ -1554,7 +1554,7 @@ void CChannelList::paintDetails(int index)
 		char cSeit[50] = {0}; // UTF-8
 
 		struct		tm *pStartZeit = localtime(&p_event->startTime);
-		unsigned 	seit = ( time(NULL) - p_event->startTime ) / 60;
+		unsigned	seit = (time(NULL) - p_event->startTime + 30) / 60;
 		snprintf(cSeit, sizeof(cSeit), "%s %02d:%02d",(displayNext) ? g_Locale->getText(LOCALE_CHANNELLIST_START):g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
 		if (displayNext) {
 			snprintf(cNoch, sizeof(cNoch), "(%d %s)", p_event->duration / 60, unit_short_minute);

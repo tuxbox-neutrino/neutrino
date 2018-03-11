@@ -1885,7 +1885,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
-		int seit = (abs(jetzt - info_CurrentNext.current_zeit.startzeit) + 30) / 60;
+		unsigned seit = (jetzt - info_CurrentNext.current_zeit.startzeit + 30) / 60;
 		int rest = (info_CurrentNext.current_zeit.dauer / 60) - seit;
 		runningPercent = 0;
 		if (!timeset)
