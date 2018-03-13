@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
+	Copyright (C) 2012-2018 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -70,8 +70,8 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 
 	append_y_offset = 2;
 
-	initChainItems();
 	initParent(parent);
+	addIcon(v_icons);
 }
 
 void CComponentsIconForm::addIcon(const std::string& icon_name)
