@@ -29,6 +29,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_icons.h"
+#include <system/debug.h>
 
 using namespace std;
 
@@ -96,7 +97,7 @@ void CComponentsIconForm::addIcon(std::vector<std::string> icon_name)
 void CComponentsIconForm::addIcons(const std::string& icon_name, const size_t& count)
 {
 	if (count == 0){
-		dprintf(DEBUG_<NORMAL "[CComponentsIconForm]\t[%s - %d], NOTE: no count of items defined...\n", __func__, __LINE__);
+		dprintf(DEBUG_NORMAL, "[CComponentsIconForm]\t[%s - %d], NOTE: no count of items defined...\n", __func__, __LINE__);
 		return;
 	}
 	for (size_t i = 1; i <= count; i++)
