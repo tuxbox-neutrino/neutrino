@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014, Thilo Graf 'dbt'
+	Copyright (C) 2012-2018, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -44,7 +44,7 @@ class CComponentsIconForm : public CComponentsFrmChain
 	public:
 		CComponentsIconForm(CComponentsForm *parent = NULL);
 		CComponentsIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
-					const std::vector<std::string> &v_icon_names,
+					const std::vector<std::string> &v_icon_names  = std::vector<std::string>(),
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
@@ -54,6 +54,7 @@ class CComponentsIconForm : public CComponentsFrmChain
 
 		void addIcon(const std::string& icon_name);
 		void addIcon(std::vector<std::string> icon_name);
+		void addIcons(const std::string& icon_name, const size_t& count = 1);
 		void removeIcons(){v_icons.clear();};
 		void insertIcon(const uint& icon_id, const std::string& icon_name);
 		void removeIcon(const uint& icon_id);

@@ -93,6 +93,16 @@ void CComponentsIconForm::addIcon(std::vector<std::string> icon_name)
 		addIcon(icon_name[i]);
 }
 
+void CComponentsIconForm::addIcons(const std::string& icon_name, const size_t& count)
+{
+	if (count == 0){
+		dprintf(DEBUG_<NORMAL "[CComponentsIconForm]\t[%s - %d], NOTE: no count of items defined...\n", __func__, __LINE__);
+		return;
+	}
+	for (size_t i = 1; i <= count; i++)
+		addIcon(icon_name);
+}
+
 void CComponentsIconForm::insertIcon(const uint& icon_id, const std::string& icon_name)
 {
 	//create new cc-picture item object
