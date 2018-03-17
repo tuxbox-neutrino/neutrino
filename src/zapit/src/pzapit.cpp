@@ -61,10 +61,7 @@ int usage (const char * basename)
 	std::cout << "leave standby: " << basename << " -lsb" << std::endl;
 	std::cout << "get aspect ratio: " << basename << " -var" << std::endl;
 	std::cout << "set aspect ratio: " << basename << " -var <aspectratio>" << std::endl;
-#if 0
-	//FIXME howto read aspect mode back?
 	std::cout << "get 4:3 mode: " << basename << " -vm43" << std::endl;
-#endif
 	std::cout << "set 4:3 mode: " << basename << " -vm43 <4:3mode>" << std::endl;
 	std::cout << "switch to hd 1080i mode: " << basename << " --1080" << std::endl;
 	std::cout << "switch to pal mode: " << basename << " --pal" << std::endl;
@@ -262,10 +259,7 @@ int main (int argc, char** argv)
 				sscanf(argv[++i], "%d", &m43);
 				continue;
 			}
-#if 0 
-			//FIXME howto read aspect mode back?
 			continue;
-#endif
 		}
 		else if (!strncmp(argv[i], "-sb", 3))
 		{

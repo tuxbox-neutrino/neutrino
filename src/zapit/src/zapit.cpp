@@ -1855,16 +1855,12 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	}
 
-#if 0 
-	//FIXME howto read aspect mode back?
 	case CZapitMessages::CMD_GET_MODE43: {
 		CZapitMessages::commandInt msg;
-		mode43=videoDecoder->getCroppingMode();
 		msg.val = mode43;
 		CBasicServer::send_data(connfd, &msg, sizeof(msg));
 		break;
 	}
-#endif
 
 	case CZapitMessages::CMD_GETPIDS: {
 		if (current_channel) {
