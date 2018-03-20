@@ -130,6 +130,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	move_state = beDefault;
 	edit_state = false;
 	channelsChanged = false;
+	liveBouquet = false;
 
 	paint_events_index = -2;
 	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
@@ -750,8 +751,8 @@ int CChannelList::show()
 			if (new_selected >= 0)
 				actzap = updateSelection(new_selected);
 		}
-		else if (!edit_state && (msg == (neutrino_msg_t)g_settings.key_bouquet_up ||
-					msg == (neutrino_msg_t)g_settings.key_bouquet_down)) {
+		else if (!edit_state && !liveBouquet &&
+				(msg == (neutrino_msg_t)g_settings.key_bouquet_up || msg == (neutrino_msg_t)g_settings.key_bouquet_down)) {
 			if (dline)
 				dline->kill(); //kill details line on change to next page
 			if (!bouquetList->Bouquets.empty()) {
@@ -1255,6 +1256,7 @@ int CChannelList::numericZap(int key)
 		if (this->lastChList.size() > 1)
 		{
 			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HISTORY), true, true);
+			channelList->setLiveBouquet();
 
 			for (unsigned int i = 1; i < this->lastChList.size(); ++i)
 			{
@@ -1285,6 +1287,7 @@ int CChannelList::numericZap(int key)
 	{
 		CChannelList * orgList = CNeutrinoApp::getInstance()->channelList;
 		CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
+		channelList->setLiveBouquet();
 		t_channel_id recid = (*chanlist)[selected]->getChannelID() >> 16;
 
 		for (unsigned int i = 0; i < (*orgList->chanlist).size(); i++)
