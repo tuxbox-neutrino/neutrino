@@ -214,6 +214,7 @@ public:
 	bool adjustToChannelID(const t_channel_id channel_id);
 	bool showInfo(int pos, int epgpos = 0);
 	void updateEvents(unsigned int from, unsigned int to);
+	int showLiveBouquet(int key);
 	int 	numericZap(int key);
 	int  	show();
 	int	exec();

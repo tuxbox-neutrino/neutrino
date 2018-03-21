@@ -1220,35 +1220,11 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 	}
 }
 
-/* Called only from "all" channel list */
-int CChannelList::numericZap(int key)
+int CChannelList::showLiveBouquet(int key)
 {
 	int res = -1;
 	if (showEmptyError())
 		return res;
-
-	/*
-	   TODO?
-	   Move handling of key_zaphistory and key_current_transponder
-	   into sepatate functions?
-	   These keys do not zap numeric. Pseudo bouquets are shown.
-	*/
-
-	// quickzap "0" to last seen channel
-	if (key == g_settings.key_lastchannel)
-	{
-		t_channel_id channel_id = lastChList.getlast(1);
-		if (channel_id && SameTP(channel_id))
-		{
-			lastChList.clear_storedelay(); // ignore store delay
-			int new_mode = lastChList.get_mode(channel_id);
-			if (new_mode >= 0)
-				CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
-			zapTo_ChannelID(channel_id);
-			res = 0;
-		}
-		return res;
-	}
 
 	// zap history bouquet
 	if (key == g_settings.key_zaphistory)
@@ -1306,7 +1282,33 @@ int CChannelList::numericZap(int key)
 		return res;
 	}
 
-	// real numeric zap
+	return res;
+}
+
+/* Called only from "all" channel list */
+int CChannelList::numericZap(int key)
+{
+	int res = -1;
+	if (showEmptyError())
+		return res;
+
+	// quickzap "0" to last seen channel
+	if (key == g_settings.key_lastchannel)
+	{
+		t_channel_id channel_id = lastChList.getlast(1);
+		if (channel_id && SameTP(channel_id))
+		{
+			lastChList.clear_storedelay(); // ignore store delay
+			int new_mode = lastChList.get_mode(channel_id);
+			if (new_mode >= 0)
+				CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
+			zapTo_ChannelID(channel_id);
+			res = 0;
+		}
+		return res;
+	}
+
+	// numeric zap
 	size_t maxchansize = MaxChanNr().size();
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getMaxDigitWidth();
 	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight();
