@@ -272,6 +272,7 @@ channellist.new_zap_mode_off aus
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.numeric_adjust Bei numerischem Zap Kanalliste nachführen
 channellist.provs Anbieter
+channellist.recordable_channels Aufnehmbare Sender
 channellist.recording_not_possible Aufnahme nicht möglich!
 channellist.remember Zuletzt verwendete
 channellist.reset_all Entferne Markierung "Neu" für alle Kanäle

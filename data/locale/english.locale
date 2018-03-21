@@ -272,6 +272,7 @@ channellist.new_zap_mode_off Off
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
 channellist.numeric_adjust Numeric Zap Adjust
 channellist.provs Providers
+channellist.recordable_channels Recordable channels
 channellist.recording_not_possible Recording not possible!
 channellist.remember Last used
 channellist.reset_all Reset 'new' flag for all channels

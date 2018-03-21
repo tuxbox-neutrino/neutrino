@@ -1231,8 +1231,8 @@ int CChannelList::showLiveBouquet(int key)
 	{
 		if (this->lastChList.size() > 1)
 		{
-			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HISTORY), true, true);
-			channelList->setLiveBouquet();
+			CChannelList * liveList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HISTORY), true, true);
+			liveList->setLiveBouquet();
 
 			for (unsigned int i = 1; i < this->lastChList.size(); ++i)
 			{
@@ -1241,16 +1241,16 @@ int CChannelList::showLiveBouquet(int key)
 				{
 					CZapitChannel* channel = getChannel(channel_id);
 					if (channel)
-						channelList->addChannel(channel);
+						liveList->addChannel(channel);
 				}
 			}
-			if (!channelList->isEmpty())
+			if (!liveList->isEmpty())
 			{
 				this->frameBuffer->paintBackground();
-				res = channelList->exec();
+				res = liveList->exec();
 				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			}
-			delete channelList;
+			delete liveList;
 		}
 		else
 			ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_CHANNELLIST_HISTORY_EMPTY);
@@ -1261,24 +1261,36 @@ int CChannelList::showLiveBouquet(int key)
 	// current transponder bouquet
 	if (key == g_settings.key_current_transponder)
 	{
-		CChannelList * orgList = CNeutrinoApp::getInstance()->channelList;
-		CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
-		channelList->setLiveBouquet();
-		t_channel_id recid = (*chanlist)[selected]->getChannelID() >> 16;
+		bool isRecord = (!autoshift && CNeutrinoApp::getInstance()->recordingstatus);
+		CChannelList * origList = CNeutrinoApp::getInstance()->channelList;
+		CChannelList * liveList = new CChannelList(isRecord ? g_Locale->getText(LOCALE_CHANNELLIST_RECORDABLE_CHANNELS) : g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
+		liveList->setLiveBouquet();
 
-		for (unsigned int i = 0; i < (*orgList->chanlist).size(); i++)
+		if (isRecord)
 		{
-			if (((*orgList->chanlist)[i]->getChannelID() >> 16) == recid)
-				channelList->addChannel((*orgList->chanlist)[i]);
+			for (unsigned int i = 0 ; i < (*origList->chanlist).size(); i++)
+			{
+				if (SameTP((*origList->chanlist)[i]))
+					liveList->addChannel((*origList->chanlist)[i]);
+			}
 		}
-		if (!channelList->isEmpty())
+		else
 		{
-			channelList->adjustToChannelID(orgList->getActiveChannel_ChannelID());
+			t_channel_id recid = (*chanlist)[selected]->getChannelID() >> 16;
+			for (unsigned int i = 0; i < (*origList->chanlist).size(); i++)
+			{
+				if (((*origList->chanlist)[i]->getChannelID() >> 16) == recid)
+					liveList->addChannel((*origList->chanlist)[i]);
+			}
+		}
+		if (!liveList->isEmpty())
+		{
+			liveList->adjustToChannelID(origList->getActiveChannel_ChannelID());
 			this->frameBuffer->paintBackground();
-			res = channelList->exec();
+			res = liveList->exec();
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		}
-		delete channelList;
+		delete liveList;
 		return res;
 	}
 
