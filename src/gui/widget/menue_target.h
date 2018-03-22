@@ -31,7 +31,7 @@ class CMenuTarget
 		std::string *valueString;
 		std::string valueStringTmp;
 	public:
-		CMenuTarget(){ valueString = &valueStringTmp; }
+		CMenuTarget(){ valueStringTmp = std::string(); valueString = &valueStringTmp; }
 		virtual ~CMenuTarget(){}
 		virtual void hide(){}
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey) = 0;
