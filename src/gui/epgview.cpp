@@ -303,14 +303,14 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			while( pos2 != std::string::npos || pos1 != std::string::npos ){
 				switch(count){
 					case 1:
-					offset += max_wday_w;
-					break;
+						offset += max_wday_w;
+						break;
 					case 3:
-					offset += max_mon_w;
-					break;
+						offset += max_mon_w;
+						break;
 					default:
-					offset += digi;
-					break;
+						offset += digi;
+						break;
 				}
 				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+offset, y+medlineheight, ox - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - offset, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE_TEXT: COL_MENUCONTENT_TEXT);
 				count++;
