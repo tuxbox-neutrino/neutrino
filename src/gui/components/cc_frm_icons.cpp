@@ -84,7 +84,10 @@ void CComponentsIconForm::addIcon(const std::string& icon_name)
 							icon_name,
 							this);
 	ccp->doPaintBg(false);
-
+	int dx, dy;
+	ccp->getRealSize(&dx, &dy);
+	height = max(height, dy);
+	width = max(width, dx);
 	initChainItems();
 }
 
