@@ -131,6 +131,8 @@ CInfoViewer::CInfoViewer ()
 CInfoViewer::~CInfoViewer()
 {
 	ResetModules();
+	if(timescale)
+		delete timescale;
 }
 
 void CInfoViewer::Init()
@@ -1575,6 +1577,16 @@ void CInfoViewer::sendNoEpg(const t_channel_id for_channel_id)
 	}
 }
 
+void copy_info(CSectionsdClient::CurrentNextInfo _info, CSectionsdClient::CurrentNextInfo _oldinfo)
+{
+	_oldinfo.current_uniqueKey = _info.current_uniqueKey;
+	_oldinfo.current_name = _info.current_name;
+	_oldinfo.current_fsk = _info.current_fsk;
+	_oldinfo.next_uniqueKey = _info.next_uniqueKey;
+	_oldinfo.next_name = _info.next_name;
+	_oldinfo.flags = _info.flags;
+}
+
 void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
 	/* to clear the oldinfo for channels without epg, call getEPG() with for_channel_id = 0 */
@@ -1588,7 +1600,7 @@ void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::Cu
 
 	/* of there is no EPG, send an event so that parental lock can work */
 	if (info.current_uniqueKey == 0 && info.next_uniqueKey == 0) {
-		memcpy(&oldinfo, &info, sizeof(CSectionsdClient::CurrentNextInfo));
+		copy_info(info,oldinfo);
 		sendNoEpg(for_channel_id);
 		return;
 	}
@@ -1608,7 +1620,7 @@ void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::Cu
 		else
 			msg = NeutrinoMessages::EVT_NOEPG_YET;
 		g_RCInput->postMsg(msg, (const neutrino_msg_data_t)p, false); // data is pointer to allocated memory
-		memcpy(&oldinfo, &info, sizeof(CSectionsdClient::CurrentNextInfo));
+		copy_info(info,oldinfo);
 	}
 }
 
