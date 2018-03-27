@@ -219,7 +219,7 @@ void CMsgBox::initButtons()
 	//define default selected button from default_result
 	if (v_buttons.size() > 1){
 		for (size_t i = 0; i< v_buttons.size(); i++){
-			if (v_buttons[i].btn_result == result){
+			if (v_buttons[i].btn_result == default_result){
 				ccw_footer->setSelectedButton(i);
 				break;
 			}
@@ -313,9 +313,14 @@ int CMsgBox::exec()
 				loop = false;
 			}
 		}
-		//***action button ok with preselected button***
+		//***action button 'ok' handled with selected button and its predefined result***
 		if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
 			result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
+			loop = false;
+		}
+		//***action button 'home' with general cancel result***
+		else if (msg == CRCInput::RC_home){
+			result = mbrCancel;
 			loop = false;
 		}
 		//***ignore***
