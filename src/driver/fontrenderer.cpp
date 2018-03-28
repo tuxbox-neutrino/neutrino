@@ -573,6 +573,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	fg_blue    = color  & 0x000000FF;
 	fb_pixel_t bg_color = 0;
 
+	if (y < 0)
+		y = 0;
+
 	/* the GXA seems to do it's job asynchonously, so we need to wait until
 	   it's ready, otherwise the font will sometimes "be overwritten" with
 	   background color or bgcolor will be wrong */
