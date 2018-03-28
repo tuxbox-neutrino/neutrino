@@ -153,4 +153,7 @@ inline bool file_exists(const std::string file) { return file_exists(file.c_str(
 
 std::string readFile(std::string file);
 
+std::string iso_8859_1_to_utf8(std::string &str);
+bool utf8_check_is_valid(const std::string &str);
+
 #endif
