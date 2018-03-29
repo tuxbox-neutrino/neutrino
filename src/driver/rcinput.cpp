@@ -195,14 +195,14 @@ void CRCInput::open(bool recheck)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	struct in_dev id;
+
+#if !HAVE_GENERIC_HARDWARE
 	DIR *dir;
 	dir = opendir("/dev/input");
 	if (! dir) {
 		printf("[rcinput:%s] opendir failed: %m\n", __func__);
 		return;
 	}
-
-#if !HAVE_GENERIC_HARDWARE
 	unsigned long evbit;
 	struct dirent *dentry;
 	while ((dentry = readdir(dir)) != NULL)
