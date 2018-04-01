@@ -309,7 +309,7 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 #else
 	{ CRCInput::RC_play,            "9",                                    "",     "5"             },
 #endif
-	{ CRCInput::RC_audio,           "27",                                    "",     "6"             },
+	{ CRCInput::RC_audio,           "6",                                    "",     "6"             },
 	{ CRCInput::RC_nokey,           "",                                     "",     ""              },
 };
 
