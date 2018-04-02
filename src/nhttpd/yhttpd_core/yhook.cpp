@@ -544,7 +544,9 @@ std::string CyhookHandler::outValue(std::string _content) {
 	std::string result = "";
 	switch (outType) {
 	case xml:
-		result = convert_UTF8_To_UTF8_XML(utf8_check_is_valid(_content) ? _content.c_str() : iso_8859_1_to_utf8(_content).c_str());
+		result += "<![CDATA[";
+		result += convert_UTF8_To_UTF8_XML(utf8_check_is_valid(_content) ? _content.c_str() : iso_8859_1_to_utf8(_content).c_str());
+		result += "]]>";
 		break;
 	case json:
 		result = json_convert_string(_content);
