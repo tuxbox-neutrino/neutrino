@@ -169,8 +169,7 @@ int CVfdSetup::showSetup()
 		{
 			// allow to set scroll_repeats
 			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_LCDMENU_SCROLL_REPEATS, &g_settings.lcd_scroll, vfd_enabled, 0, 999, this);
-			nc->setLocalizedValue(0);
-			nc->setLocalizedValueName(LOCALE_OPTIONS_OFF);
+			nc->setLocalizedValue(0, LOCALE_OPTIONS_OFF);
 			nc->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
 			vfds->addItem(nc);
 		}

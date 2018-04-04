@@ -323,8 +323,13 @@ private:
 
 	int			display_offset;
 
-	int			localized_value;
-	neutrino_locale_t	localized_value_name;
+	typedef struct localized_value_t
+	{
+		int			value;
+		neutrino_locale_t	value_name;
+	} localized_value_struct_t;
+	std::vector<localized_value_t> 	localized;
+
 	bool  			slider_on;
 	bool  			numeric_input;
 	CChangeObserver *	observ;
@@ -362,8 +367,7 @@ private:
 	void setNumberFormat(std::string format) { numberFormat = format; }
 	void setNumberFormat(std::string (*fun)(int)) { numberFormatFunction = fun; }
 	void setNumericInput(bool _numeric_input) { numeric_input = _numeric_input; }
-	void setLocalizedValue(int special_value) { localized_value = special_value; }
-	void setLocalizedValueName(neutrino_locale_t special_value_name) { localized_value_name = special_value_name; }
+	void setLocalizedValue(int special_value, neutrino_locale_t special_value_name) { localized.push_back({special_value, special_value_name}); }
 };
 
 class CMenuOptionChooserOptions
