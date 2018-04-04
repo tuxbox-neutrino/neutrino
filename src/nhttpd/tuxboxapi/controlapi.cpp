@@ -3218,6 +3218,7 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 	hh->ParamList["format"] = "xml";
 	hh->outStart();
 
+	bool xml_cdata = false;
 	t_channel_id channel_id;
 	std::string result = "";
 	std::string channelTag = "", channelData = "";
@@ -3240,7 +3241,7 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 				CZapitChannel * channel = chanlist[j];
 				channel_id = channel->getChannelID() & 0xFFFFFFFFFFFFULL;
 				channelTag = "channel id=\""+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id)+"\"";
-				channelData = hh->outPair("display-name", hh->outValue(channel->getName()), true);
+				channelData = hh->outPair("display-name", hh->outValue(channel->getName(), xml_cdata), true);
 				result += hh->outObject(channelTag, channelData);
 
 				eList.clear();
@@ -3268,8 +3269,8 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 						strftime(zbuffer, 21, "%Y%m%d%H%M%S +0200", mtime);
 						programmeTag += "stop=\""+std::string(zbuffer)+"\" ";
 
-						programmeData  = hh->outPair("title lang=\"de\"", hh->outValue(eventIterator->description), false);
-						programmeData += hh->outPair("desc lang=\"de\"", hh->outValue(eventIterator->text), true);
+						programmeData  = hh->outPair("title lang=\"de\"", hh->outValue(eventIterator->description, xml_cdata), false);
+						programmeData += hh->outPair("desc lang=\"de\"", hh->outValue(eventIterator->text, xml_cdata), true);
 
 						result += hh->outArrayItem(programmeTag, programmeData, false);
 					}
