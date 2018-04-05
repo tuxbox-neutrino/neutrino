@@ -38,7 +38,7 @@ Basic paint attributes and member functions for component classes
 */
 
 class CComponentsTimer;
-class CCDraw : public COSDFader, public CComponentsSignals
+class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 {
 	protected:
 		///pixel buffer handling, returns pixel buffer depends of given parameters

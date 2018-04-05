@@ -2,8 +2,8 @@
 	Based up Neutrino-GUI - Tuxbox-Project 
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	Classes for generic GUI-related components.
-	Copyright (C) 2012-2014, Thilo Graf 'dbt'
+	Types and base type class for generic GUI-related components.
+	Copyright (C) 2012-2018, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -17,10 +17,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef __CC_TYPES__
@@ -236,5 +234,24 @@ typedef struct button_label_cc
 #define CC_CENTERED		-2
 
 
+//abstract basic type class
+class CCTypes
+{
+	protected:
+		///property: define of item type, see cc_types.h for possible types
+		cc_type_t cc_item_type;
+
+	public:
+		CCTypes();
+		virtual ~CCTypes(){};
+
+		///get the current item type, see attribute cc_item_type above
+		int getItemType();
+		//sets item name
+		void setItemName(const std::string& name);
+		//gets item name
+		std::string getItemName();
+
+};
 
 #endif

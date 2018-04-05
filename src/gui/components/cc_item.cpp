@@ -44,8 +44,6 @@ using namespace std;
 //abstract sub class CComponentsItem from CComponents
 CComponentsItem::CComponentsItem(CComponentsForm* parent)
 {
-	cc_item_type.id		= CC_ITEMTYPE_GENERIC;
-	cc_item_type.name	= "cc_base_item";
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
@@ -241,19 +239,6 @@ void CComponentsItem::syncSysColors()
 	col_frame 	= COL_FRAME_PLUS_0;
 }
 
-//returns current item element type, if no available, return -1 as unknown type
-int CComponentsItem::getItemType()
-{
-	for(int i =0; i< (CC_ITEMTYPES) ;i++){
-		if (i == cc_item_type.id)
-			return i;
-	}
-
-	dprintf(DEBUG_DEBUG, "[CComponentsItem] %s: unknown item type requested...\n", __func__);
-
-	return -1;
-}
-
 //returns true if current item is added to a form
 bool CComponentsItem::isAdded()
 {
@@ -332,12 +317,4 @@ void CComponentsItem::setSelected(bool selected, const fb_pixel_t& sel_frame_col
 	col_frame = cc_item_selected ? sel_frame_col : frame_col;
 }
 
-void CComponentsItem::setItemName(const std::string& name)
-{
-	cc_item_type.name = name;
-}
 
-std::string CComponentsItem::getItemName()
-{
-	return cc_item_type.name;
-}
