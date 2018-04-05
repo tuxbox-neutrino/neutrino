@@ -367,7 +367,13 @@ private:
 	void setNumberFormat(std::string format) { numberFormat = format; }
 	void setNumberFormat(std::string (*fun)(int)) { numberFormatFunction = fun; }
 	void setNumericInput(bool _numeric_input) { numeric_input = _numeric_input; }
-	void setLocalizedValue(int special_value, neutrino_locale_t special_value_name) { localized.push_back({special_value, special_value_name}); }
+	void setLocalizedValue(int special_value, neutrino_locale_t special_value_name)
+	{
+		localized_value_t loc;
+		loc.value = special_value;
+		loc.value_name = special_value_name;
+		localized.push_back(loc);
+	}
 };
 
 class CMenuOptionChooserOptions
