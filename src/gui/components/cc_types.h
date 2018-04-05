@@ -238,7 +238,7 @@ typedef struct button_label_cc
 class CCTypes
 {
 	protected:
-		///property: define of item type, see cc_types.h for possible types
+		///property: define of item type, see above for possible types
 		cc_type_t cc_item_type;
 
 	public:

@@ -424,17 +424,23 @@ bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int 
 	if (	(fbdata.x < 0 || fbdata.y < 0) ||
 		(end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true)) 
 	   ) {
-			dprintf(DEBUG_NORMAL, "[CCDraw] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n",
+		dprintf(DEBUG_NORMAL, "[CCDraw] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n item: %s [type: %d]\n",
 				func, line,
 				fbdata.x, fbdata.y,
-				fbdata.dx, fbdata.dy);
+				fbdata.dx, fbdata.dy,
+				cc_item_type.name.c_str(),
+				cc_item_type.id
+		);
 			return false;
 		}
 		if (fbdata.dx == 0 || fbdata.dy == 0) {
-			dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! dx and/or dy = 0, tx = %d,  y = %d, dx = %d,  dy = %d\n",
+			dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! dx and/or dy = 0, tx = %d,  y = %d, dx = %d,  dy = %d\n item: %s [type: %d]\n",
 				func, line,
 				fbdata.x, fbdata.y,
-				fbdata.dx, fbdata.dy);
+				fbdata.dx, fbdata.dy,
+				cc_item_type.name.c_str(),
+				cc_item_type.id
+			);
 			return false;
 		}
 	return true;
