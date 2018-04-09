@@ -292,6 +292,7 @@ const char * locale_real_names[] =
 	"channellist.make_newlist",
 	"channellist.make_removedlist",
 	"channellist.make_webtvlist",
+	"channellist.movieplayer_zap",
 	"channellist.new_zap_mode",
 	"channellist.new_zap_mode_active",
 	"channellist.new_zap_mode_allow",

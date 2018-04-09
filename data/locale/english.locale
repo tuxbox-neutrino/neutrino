@@ -265,7 +265,8 @@ channellist.make_hdlist Create lists of HD and UHD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
 channellist.make_webtvlist Create list of WebTV channels
-channellist.new_zap_mode Quickzap in List
+channellist.movieplayer_zap Zap not possible while movie playback
+channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active Active
 channellist.new_zap_mode_allow Allow
 channellist.new_zap_mode_off Off

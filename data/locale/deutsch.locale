@@ -265,6 +265,7 @@ channellist.make_hdlist Erzeuge Bouquets mit HD- und UHD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
 channellist.make_webtvlist Erzeuge Bouquet mit WebTV-Kanälen
+channellist.movieplayer_zap Umschalten während der Film-Wiedergabe nicht möglich
 channellist.new_zap_mode Quickzap in Liste
 channellist.new_zap_mode_active aktiv
 channellist.new_zap_mode_allow erlauben

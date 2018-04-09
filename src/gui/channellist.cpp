@@ -774,6 +774,8 @@ int CChannelList::show()
 					actzap = true;
 					oldselected = selected;
 					paintBody(); // refresh zapped vs selected
+				} else if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts) {
+					ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_CHANNELLIST_MOVIEPLAYER_ZAP);
 				} else if(SameTP()) {
 					zapOnExit = true;
 					loop=false;
