@@ -17,10 +17,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -299,20 +297,36 @@ void CImageInfo::InitInfoData()
 	}else
 		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s], internal release cycle [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str(), RELEASE_CYCLE);
 #endif
-	struct utsname uts_info;
 
 	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", PACKAGE_NAME)};
-	v_info.push_back(imagename);
 	if (!version_string.empty()){
 		image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
-		v_info.push_back(version);
+		imagename.info_text += " ";
+		imagename.info_text += version_string;
+		v_info.push_back(imagename);
+	}else
+		v_info.push_back(imagename);
+
+	struct utsname uts_info;
+	if (uname(&uts_info) == 0) {
+		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
+		v_info.push_back(kernel);
 	}
+
+	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
+	v_info.push_back(date);
+
+	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")};
+	v_info.push_back(creator);
+
+	image_info_t gui	= {LOCALE_IMAGEINFO_GUI, config.getString("gui", PACKAGE_NAME)};
+	v_info.push_back(gui);
+
 #ifdef VCS
 	image_info_t vcs	= {LOCALE_IMAGEINFO_VCS,	VCS};
 	v_info.push_back(vcs);
 #endif
-	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
-	v_info.push_back(date);
+
 	string s_api;
 #ifdef ENABLE_LUA
 	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
@@ -330,12 +344,7 @@ void CImageInfo::InitInfoData()
 	s_api	+= YHTTPD_VERSION;
 	image_info_t api	= {LOCALE_IMAGEINFO_API,	s_api};
 	v_info.push_back(api);
-	if (uname(&uts_info) == 0) {
-		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
-		v_info.push_back(kernel);
-	}
-	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")};
-	v_info.push_back(creator);
+
 	image_info_t www	= {LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage", "n/a")};
 	v_info.push_back(www);
 	image_info_t doc	= {LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs", "http://wiki.neutrino-hd.de")};

@@ -806,6 +806,7 @@ imageinfo.creator Creator:
 imageinfo.date Date:
 imageinfo.dokumentation Docs:
 imageinfo.forum Forum:
+imageinfo.gui GUI:
 imageinfo.head Image info:
 imageinfo.homepage Home page:
 imageinfo.image Image:
