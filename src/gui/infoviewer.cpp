@@ -2327,3 +2327,13 @@ void CInfoViewer::ResetModules()
 	delete rec; 			rec 		= NULL;
 	infoViewerBB->ResetModules();
 }
+
+bool CInfoViewer::hasTimeout()
+{
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	bool ret = (
+		((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR]     != 0) ||
+		((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO]  != 0)
+	);
+	return ret;
+}

@@ -1410,11 +1410,7 @@ int CChannelList::numericZap(int key)
 
 	CZapitChannel* chan = getChannel(chn);
 	if (doZap) {
-		int mode = CNeutrinoApp::getInstance()->getMode();
-		if (
-			((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.timing[SNeutrinoSettings::HANDLING_INFOBAR]       == 0) ||
-			((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.timing[SNeutrinoSettings::HANDLING_INFOBAR_RADIO] == 0)
-		)
+		if (!g_InfoViewer->hasTimeout())
 			g_InfoViewer->killTitle();
 
 		if(chan && SameTP(chan)) {
@@ -1536,11 +1532,7 @@ void CChannelList::virtual_zap_mode(bool up)
 	g_InfoViewer->resetSwitchMode(); //disable virtual_zap_mode
 
 	if (doZap) {
-		int mode = CNeutrinoApp::getInstance()->getMode();
-		if (
-			((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.timing[SNeutrinoSettings::HANDLING_INFOBAR]       == 0) ||
-			((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.timing[SNeutrinoSettings::HANDLING_INFOBAR_RADIO] == 0)
-		)
+		if (!g_InfoViewer->hasTimeout())
 			g_InfoViewer->killTitle();
 
 		if(channel && SameTP(channel))

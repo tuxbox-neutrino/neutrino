@@ -212,5 +212,6 @@ class CInfoViewer
 	uint32_t getUpdateTimer(void) { return lcdUpdateTimer; }
 	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
 	void 	ResetModules();
+	bool 	hasTimeout();
 };
 #endif
