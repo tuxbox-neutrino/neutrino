@@ -270,7 +270,7 @@ channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active Active
 channellist.new_zap_mode_allow Allow
 channellist.new_zap_mode_off Off
-channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
+channellist.nonefound No channels were found!\nPlease execute a scan\n(Menu key -> Service)
 channellist.numeric_adjust Numeric Zap Adjust
 channellist.provs Providers
 channellist.recordable_channels Recordable channels
@@ -345,8 +345,8 @@ colorthememenu.name Theme name
 colorthememenu.neutrino_theme Reset Theme
 colorthememenu.question Use selected theme?
 colorthememenu.save Save current theme
-colorthememenu.select1 User Theme
-colorthememenu.select2 Standard Theme
+colorthememenu.select1 User theme
+colorthememenu.select2 Standard theme
 cpu.freq CPU frequency
 cpu.freq_default Default frequency
 cpu.freq_normal Normal frequency
@@ -596,7 +596,7 @@ filebrowser.mark Mark
 filebrowser.nextpage Next Page
 filebrowser.pm Playlist Manager
 filebrowser.prevpage Prev. Page
-filebrowser.scan Scaning folder
+filebrowser.scan Scanning folder
 filebrowser.select Select
 filebrowser.showrights Show file rights
 filebrowser.sort.date Date
@@ -721,7 +721,7 @@ fontmenu.menu Menu
 fontmenu.messages Messages
 fontmenu.moviebrowser Moviebrowser
 fontmenu.other Other
-fontmenu.scaling Global Font Zoom Factor
+fontmenu.scaling Global font zoom factor
 fontmenu.scaling_x Horizontal (in %)
 fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertical (in %)
@@ -733,10 +733,10 @@ fontsize.channellist Channellist
 fontsize.channellist_descr Description
 fontsize.channellist_event Event list
 fontsize.channellist_number Number
-fontsize.epg_date EPG Date
-fontsize.epg_info1 EPG Info 1
-fontsize.epg_info2 EPG Info 2
-fontsize.epg_title EPG Title
+fontsize.epg_date EPG date
+fontsize.epg_info1 EPG info 1
+fontsize.epg_info2 EPG info 2
+fontsize.epg_title EPG title
 fontsize.epgplus_item EPG-Plus item
 fontsize.eventlist_datetime Date and time
 fontsize.eventlist_event Event Info
@@ -746,15 +746,15 @@ fontsize.eventlist_title Title
 fontsize.filebrowser_item Filebrowser items
 fontsize.hint Initialising font,\nplease wait ...
 fontsize.infobar_channame Channel name
-fontsize.infobar_info info
+fontsize.infobar_info Info
 fontsize.infobar_number Number
 fontsize.infobar_small Small
 fontsize.menu Menu text
 fontsize.menu_foot Footer (in all GUI elements)
 fontsize.menu_hint Menu hints
-fontsize.menu_info Menu Info
-fontsize.menu_title Menu Title
-fontsize.message_text Message Text
+fontsize.menu_info Menu info
+fontsize.menu_title Menu title
+fontsize.message_text Message text
 fontsize.moviebrowser_head Headers
 fontsize.moviebrowser_info Info window
 fontsize.moviebrowser_list List items
@@ -776,11 +776,11 @@ hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
 hdd_check_failed Filesystem-check failed!
-hdd_extended_settings Extended Settings
+hdd_extended_settings Extended settings
 hdd_fast Fast
 hdd_format Format device
 hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
-hdd_format_warn All data on device will be lost ! Continue with format ?
+hdd_format_warn All data on device will be lost! Continue with formatting?
 hdd_fs Filesystem used to format
 hdd_manage Manage device
 hdd_middle Mid
@@ -791,7 +791,7 @@ hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
 hdd_set_recdir Use device for recording ?
-hdd_settings Data Storage
+hdd_settings Data storage
 hdd_sleep Switch off after
 hdd_slow Slow
 hdd_statfs Fill level query
@@ -842,18 +842,18 @@ keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
 keybindingmenu.edit Edit keybindings
 keybindingmenu.head Keybindings
-keybindingmenu.lastchannel Quick Zap
+keybindingmenu.lastchannel Quick zap
 keybindingmenu.longkeypress_duration Long key-press
 keybindingmenu.misc Misc
 keybindingmenu.mode_left_right_key_tv Left/Right key behaviour
 keybindingmenu.mode_left_right_key_tv_infobar Show Infobar
-keybindingmenu.mode_left_right_key_tv_volume Volume Control
-keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
+keybindingmenu.mode_left_right_key_tv_volume Volume control
+keybindingmenu.mode_left_right_key_tv_vzap Virtual zap
 keybindingmenu.mode_left_right_key_tv_zap Zap
 keybindingmenu.modechange Modechange
 keybindingmenu.navigation Navigation
-keybindingmenu.pagedown page down
-keybindingmenu.pageup page up
+keybindingmenu.pagedown Page down
+keybindingmenu.pageup Page up
 keybindingmenu.poweroff Power toggle
 keybindingmenu.quickzap Quickzap
 keybindingmenu.remotecontrol_hardware Hardware
@@ -864,13 +864,13 @@ keybindingmenu.remotecontrol_hardware_msg_part2 ' to '
 keybindingmenu.remotecontrol_hardware_msg_part3 ' \nIs this correct?\nPlease confirm the selection within 15 seconds by using the new remote control.\nOtherwise the selection will be reverted.
 keybindingmenu.remotecontrol_hardware_philips Philips
 keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
-keybindingmenu.repeatblock generic delay
-keybindingmenu.repeatblockgeneric repeat delay
-keybindingmenu.sort change sort order
+keybindingmenu.repeatblock Generic delay
+keybindingmenu.repeatblockgeneric Repeat delay
+keybindingmenu.sort Change sort order
 keybindingmenu.special_active Special Keys
-keybindingmenu.subchanneldown subchannel down
-keybindingmenu.subchannelup subchannel up
-keybindingmenu.tvradiomode TV/Radio-mode
+keybindingmenu.subchanneldown Subchannel down
+keybindingmenu.subchannelup Subchannel up
+keybindingmenu.tvradiomode TV/Radio mode
 keybindingmenu.video Video
 keybindingmenu.volume Volume
 keybindingmenu.volumedown Decrease
@@ -878,37 +878,37 @@ keybindingmenu.volumeup Increase
 keybindingmenu.zaphistory Channel history
 keychooser.head Setup new key
 keychooser.text Press new key.\nWait a few seconds to abort ...
-keychoosermenu.currentkey current key
-keychoosermenu.setnew setup new key
-keychoosermenu.setnone no key
+keychoosermenu.currentkey Current key
+keychoosermenu.setnew Setup new key
+keychoosermenu.setnone No key
 languagesetup.head Language and timezone
-languagesetup.osd OSD Language
-languagesetup.select OSD Language
-lcd_info_line show in infoline
+languagesetup.osd OSD language
+languagesetup.select OSD language
+lcd_info_line Show in infoline
 lcd_info_line_channel Channelname
-lcd_info_line_clock clock
+lcd_info_line_clock Clock
 lcdcontroler.brightness Normal mode
 lcdcontroler.brightnessdeepstandby Deep standby
 lcdcontroler.brightnessstandby Standby
-lcdmenu.dim_brightness Brightness after dim timeout
-lcdmenu.dim_time Dim timeout
+lcdmenu.dim_brightness Brightness after dimm timeout
+lcdmenu.dim_time Dimm timeout
 lcdmenu.head VFD/LED Settings
 lcdmenu.lcdcontroler Brightness
 lcdmenu.notify_rclock Notify when RC is locked
 lcdmenu.scroll Enable text scroll
 lcdmenu.scroll_repeats Enable text scroll and repeats
-lcdmenu.statusline status line
-lcdmenu.statusline.both volume and playtime
-lcdmenu.statusline.playtime playtime
-lcdmenu.statusline.volume volume
+lcdmenu.statusline Status line
+lcdmenu.statusline.both Volume and playtime
+lcdmenu.statusline.playtime Playtime
+lcdmenu.statusline.volume Volume
 ledcontroler.backlight Buttons backlight
 ledcontroler.backlight.tv TV mode
 ledcontroler.blink Blink in deep standby, if timer set
 ledcontroler.menu Power Button LEDs
-ledcontroler.mode.deepstandby Deep Standby
-ledcontroler.mode.record Blinke in Record
+ledcontroler.mode.deepstandby Deep standby
+ledcontroler.mode.record Blinking while record
 ledcontroler.mode.standby Standby
-ledcontroler.mode.tv TV Mode
+ledcontroler.mode.tv TV mode
 ledcontroler.off LED1 and LED2 off
 ledcontroler.on.all LED1 and LED2 on
 ledcontroler.on.led1 LED1 on
@@ -928,20 +928,20 @@ lua.versionscheck1 Your Lua API version is too old
 lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer
 mainmenu.channels Channels
-mainmenu.clearsectionsd Clear EPG Cache
+mainmenu.clearsectionsd Clear EPG cache
 mainmenu.games Games
-mainmenu.head Main Menu
+mainmenu.head Main menu
 mainmenu.lua Lua Plugins
 mainmenu.media Media
 mainmenu.mediaplayer Mediaplayer
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
 mainmenu.pictureviewer Picture viewer
-mainmenu.radiomode Radio-Mode
+mainmenu.radiomode Radio mode
 mainmenu.reboot Reboot
 mainmenu.recording Recording
-mainmenu.recording_start start
-mainmenu.recording_stop stop
+mainmenu.recording_start Start
+mainmenu.recording_stop Stop
 mainmenu.scripts Scripts
 mainmenu.service Installation (service)
 mainmenu.settings System settings
