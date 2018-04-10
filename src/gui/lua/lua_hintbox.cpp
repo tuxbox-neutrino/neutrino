@@ -136,7 +136,7 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 	neutrino_msg_data_t data;
 	if ( timeout == -1 )
 		timeout = 5; /// default timeout 5 sec
-	//timeout = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR];
+	//timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR];
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 

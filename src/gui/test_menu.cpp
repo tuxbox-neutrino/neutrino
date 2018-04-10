@@ -912,7 +912,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "msgbox_test_cancel"){
 		CMsgBox * msgBox = new CMsgBox("Testmenu: MsgBox exit test", "Please press key");
-// 		msgBox->setTimeOut(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]);
+		// msgBox->setTimeOut(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR]);
 		msgBox->paint();
 		res = msgBox->exec();
 		msgBox->hide();

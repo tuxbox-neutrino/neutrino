@@ -850,6 +850,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 		g_settings.timing[i] = configfile.getInt32(locale_real_names[timing_setting[i].name], timing_setting[i].default_timing);
 
+	for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
+		g_settings.handling_infobar[i] = configfile.getInt32(locale_real_names[handling_infobar_setting[i].name], handling_infobar_setting[i].default_timing);
+
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
 	g_settings.lcd_setting_dim_time = configfile.getString("lcd_dim_time","0");
@@ -1473,6 +1476,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//timing
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 		configfile.setInt32(locale_real_names[timing_setting[i].name], g_settings.timing[i]);
+
+	//timing/handling infobar
+	for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
+		configfile.setInt32(locale_real_names[handling_infobar_setting[i].name], g_settings.handling_infobar[i]);
 
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		configfile.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
@@ -2860,10 +2867,10 @@ void CNeutrinoApp::RealRun()
 			else if( ( msg == CRCInput::RC_help ) || ( msg == CRCInput::RC_info) ||
 						( msg == NeutrinoMessages::SHOW_INFOBAR ) )
 			{
-#if 0
+#if 1
 				bool enabled_by_timing = (
-					   ((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]       != 0)
-					|| ((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] != 0)
+					((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR]        != 0) ||
+					((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO]  != 0)
 				);
 				bool show_info = ((msg != NeutrinoMessages::SHOW_INFOBAR) || (g_InfoViewer->is_visible || enabled_by_timing));
 #else
@@ -5179,6 +5186,7 @@ static struct __key_rename key_rename[] = {
 	{ "timing.infobar_movieplayer",	"timing.infobar_media_video" },
 	{ NULL, NULL }
 };
+
 
 /* actually do the migration of the config entries */
 void CNeutrinoApp::migrateConfig(const char *fname)

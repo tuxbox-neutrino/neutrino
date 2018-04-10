@@ -331,7 +331,7 @@ colormenu.osd_resolution OSD-Auflösung
 colormenu.shadow_color Schattenfarbe
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
-colormenu.timing Timeouts
+colormenu.timing Timeouts, Anzeigeverhalten
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
@@ -1253,10 +1253,11 @@ menu.hint_opkg_feed_addresses_edit Bearbeiten von Feed-Adressen
 menu.hint_opkg_install_local_package Paket von USB-Stick, SD, Freigabe oder lokalem Ordner installieren.
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs usw.
+menu.hint_osd_behavior_infobar Infobar nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
 menu.hint_osd_resolution Wählen Sie eine OSD-Auflösung
-menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
+menu.hint_osd_timing OSD-Element nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_other_fonts Ändern Sie andere Schriftgrößen
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
@@ -1444,7 +1445,7 @@ menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, 
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
 menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
-menu.hint_timeouts Anzeigedauer für Menüs oder Infofenster, die sich automatisch schließen (0 deaktiviert)
+menu.hint_timeouts Anpassen von Timeouts und Anzeigeverhalten für Meldungen, Fenster, Menüs, Infobar usw.
 menu.hint_timeouts_static_messages Anzeigedauer für bestimmte Meldungen mit Benutzerinteraktion
 menu.hint_timer_followscreenings Zeige weitere Termine für Timerprogrammierung.
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
@@ -2409,11 +2410,13 @@ timing.chanlist Kanalliste
 timing.epg EPG
 timing.filebrowser Filebrowser
 timing.infobar Infobar
-timing.infobar_media_audio Infobar (Mediaplayer Audio)
-timing.infobar_media_video Infobar (Mediaplayer Video)
-timing.infobar_radio Infobar (Radiobetrieb)
+timing.infobar_media_audio Audiowiedergabe
+timing.infobar_media_video Videowiedergabe
+timing.infobar_radio Radio-Modus
+timing.infobar_tv TV-Modus
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
+timing.off manuell, ohne Timeout
 timing.popup_messages Popup Meldungen
 timing.static_messages Interaktive Meldungen
 timing.volumebar Lautstärkeanzeige

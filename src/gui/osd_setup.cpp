@@ -362,6 +362,9 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if(actionKey=="osd.def") {
+		for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
+			g_settings.handling_infobar[i] = handling_infobar_setting[i].default_timing;
+
 		for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 			g_settings.timing[i] = timing_setting[i].default_timing;
 		return res;
@@ -1071,13 +1074,25 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 
 	std::string nf("%d ");
 	nf += g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
+	CMenuOptionNumberChooser *ch = NULL;
 
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 	{
-		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 240);
+		ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 240);
 		ch->setNumberFormat(nf);
-		ch->setLocalizedValue(0, LOCALE_OPTIONS_OFF);
+		ch->setLocalizedValue(0, LOCALE_TIMING_OFF);
 		ch->setHint("", timing_setting[i].hint);
+		menu_timeout->addItem(ch);
+	}
+
+	menu_timeout->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_TIMING_INFOBAR));
+
+	for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
+	{
+		ch = new CMenuOptionNumberChooser(handling_infobar_setting[i].name, &g_settings.handling_infobar[i], true, 0, 240);
+		ch->setNumberFormat(nf);
+		ch->setLocalizedValue(0, LOCALE_TIMING_OFF);
+		ch->setHint("", handling_infobar_setting[i].hint);
 		menu_timeout->addItem(ch);
 	}
 

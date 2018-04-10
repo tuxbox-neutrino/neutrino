@@ -925,18 +925,18 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 	{
 		case NeutrinoModes::mode_radio:
 		case NeutrinoModes::mode_webradio:
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO] + timeout_ext);
 			break;
 		case NeutrinoModes::mode_ts:
 			if (CMoviePlayerGui::getInstance().IsAudioPlaying())
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MEDIA_AUDIO] + timeout_ext);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MEDIA_AUDIO] + timeout_ext);
 			else
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MEDIA_VIDEO] + timeout_ext);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MEDIA_VIDEO] + timeout_ext);
 			break;
 		case NeutrinoModes::mode_tv:
 		case NeutrinoModes::mode_webtv:
 		default:
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + timeout_ext);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR] + timeout_ext);
 			break;
 	}
 }

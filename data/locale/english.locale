@@ -331,7 +331,7 @@ colormenu.osd_resolution OSD resolution
 colormenu.shadow_color Shadow Color
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
-colormenu.timing Timeouts
+colormenu.timing Timeouts, display behavior
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
@@ -1253,10 +1253,11 @@ menu.hint_opkg_feed_addresses_edit Edit feed addresses
 menu.hint_opkg_install_local_package Install package from USB, SD, share or local directory.
 menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
+menu.hint_osd_behavior_infobar Show infobar depending on time set or manually on or off.
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
 menu.hint_osd_resolution Change OSD resolution
-menu.hint_osd_timing After this time the OSD will be faded out
+menu.hint_osd_timing Show OSD element depending on time set or manually on or off.
 menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
@@ -1444,7 +1445,7 @@ menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate
 menu.hint_subchannel_pos Select subchannels menu position
 menu.hint_sw_update Update software
 menu.hint_theme Select pre-defined color theme\nSave or load theme from files
-menu.hint_timeouts Configure time to hide GUI windows\nin seconds
+menu.hint_timeouts Customize display behavior and timeouts for messages, windows, menus, infobar, etc.
 menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
 menu.hint_timer_followscreenings Show selection with followscreenings for timer programming
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
@@ -2409,11 +2410,13 @@ timing.chanlist Channellist
 timing.epg Epg
 timing.filebrowser Filebrowser
 timing.infobar Infobar
-timing.infobar_media_audio Infobar (Mediaplayer audio)
-timing.infobar_media_video Infobar (Mediaplayer video)
-timing.infobar_radio Infobar (radio mode)
+timing.infobar_media_audio Audio
+timing.infobar_media_video Video
+timing.infobar_radio Radio
+timing.infobar_tv TV
 timing.menu Menu
 timing.numericzap Numeric Zap
+timing.off manual, without timeout
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
 timing.volumebar Volume bar
