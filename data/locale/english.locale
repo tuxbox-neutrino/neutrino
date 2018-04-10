@@ -2447,7 +2447,7 @@ usermenu.button_red User menu red
 usermenu.button_yellow User menu yellow
 usermenu.head User menu
 usermenu.item_adzap Adzap
-usermenu.item_bar ---- Boarder ----
+usermenu.item_bar ---- Parting line ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
 usermenu.item_plugin_types Plugin types
@@ -2546,4 +2546,4 @@ zapitsetup.info Start Channel
 zapitsetup.last_radio Radio Channel
 zapitsetup.last_tv TV Channel
 zapitsetup.last_use from last Channel
-zaptotimer.announce Zapto timer in one minute
+zaptotimer.announce Zap-to timer in one minute
