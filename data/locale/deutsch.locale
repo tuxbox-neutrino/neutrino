@@ -1471,16 +1471,16 @@ menu.hint_vfd_statusline Wählen Sie, was in der Statuszeile angezeigt werden so
 menu.hint_video Video-Ausgang, Auflösung, Format, Seitenverhältnisse usw.
 menu.hint_video_43mode Anzeige-Modus für 4:3-Inhalte auf 16:9-Fernsehern
 menu.hint_video_analog_mode Wählen Sie den Modus des Ausgangssignals für den CINCH-Anschluss
-menu.hint_video_brightness Change picture brightness
+menu.hint_video_brightness Ändert die Helligkeit
 menu.hint_video_cinch_mode Wählen Sie den Modus des Ausgangssignals für den Composite-Video-Anschluss
-menu.hint_video_contrast Change picture contrast
+menu.hint_video_contrast Ändert den Kontrast
 menu.hint_video_dbdr Verwendeter MPEG2 Filter
 menu.hint_video_format Wählen Sie das Bildschirmformat ihres Fernsehgerätes
 menu.hint_video_mode Wählen Sie den Modus des Ausgangssignals für den HDMI-Anschluss
 menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbedienung ausgewählt werden können
 menu.hint_video_modes_auto Definiert, welche Videosysteme automatisch ausgewählt werden können
 menu.hint_video_pip Bild in Bild Größe und Position
-menu.hint_video_saturation Change picture saturation
+menu.hint_video_saturation Ändert die Farbsättigung
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
 menu.hint_video_sdosd Aktivieren/Deaktivieren der OSD Anzeige am Analogausgang (Scart, Cinch)
 menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
