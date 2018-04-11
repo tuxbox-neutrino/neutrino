@@ -759,7 +759,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 {
 	menu_colors->addIntroItems(LOCALE_COLORMENU_MENUCOLORS);
 
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, CThemes::getInstance(), NULL, CRCInput::RC_red);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, CThemes::getInstance(), NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_THEME);
 	menu_colors->addItem(mf);
 
