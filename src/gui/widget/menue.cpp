@@ -72,7 +72,7 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	setInfoIconRight(IconName_Info_right);
 
 	hintIcon	= NULL;
-
+	has_option_icon	= false;
 	x		= -1;
 	used		= false;
 	hint		= NONEXISTANT_LOCALE;
@@ -256,7 +256,9 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 		}
 		if (*right_text) {
 			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + OFFSET_INNER_MID);
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height - desc_height, dx - stringstartposOption + x - OFFSET_INNER_MID,  right_text, item_color);
+			if (!has_option_icon || icon_w == 0) //don't render text if we use an 'option icon'
+				g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height - desc_height, dx - stringstartposOption + x - OFFSET_INNER_MID,  right_text, item_color);
+			has_option_icon = false;
 		}
 	}
 	if (desc_text && *desc_text)
@@ -516,6 +518,31 @@ void CMenuItem::activateNotify()
 {
 	if (actObserv)
 		actObserv->activateNotify(name);
+}
+
+void CMenuItem::handleOptionIcon(const std::string& str_option)
+{
+	std::string on = g_Locale->getText(LOCALE_OPTIONS_ON);
+	std::string off = g_Locale->getText(LOCALE_OPTIONS_OFF);
+	std::string yes = g_Locale->getText(LOCALE_MESSAGEBOX_YES);
+	std::string no = g_Locale->getText(LOCALE_MESSAGEBOX_NO);
+
+	if (str_option == on || str_option == off || str_option == yes || str_option == no){
+		if (str_option == on || str_option == yes)
+			setInfoIconRight(active ? NEUTRINO_ICON_BUTTON_OPTION_ON_ACTIVE : NEUTRINO_ICON_BUTTON_OPTION_ON_INACTIVE);
+		if (str_option == off || str_option == no)
+			setInfoIconRight(active ? NEUTRINO_ICON_BUTTON_OPTION_OFF_ACTIVE : NEUTRINO_ICON_BUTTON_OPTION_OFF_INACTIVE);
+		has_option_icon = true;
+	}else
+		setInfoIconRight(NULL);
+}
+
+const char* CMenuItem::getValName(const neutrino_locale_t& Option, const char* ValName)
+{
+	if (ValName)
+		return ValName;
+	else
+		return g_Locale->getText(Option);
 }
 
 //small helper class to manage values e.g.: handling needed but deallocated widget objects
@@ -1694,6 +1721,9 @@ int CMenuOptionNumberChooser::paint(bool selected)
 		}
 	}
 
+	//manage toggle button
+	handleOptionIcon(l_option);
+
 	//paint item
 	prepareItem(selected, height);
 
@@ -1903,7 +1933,7 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 		{
 			CMenuOptionChooserOptions* co = new CMenuOptionChooserOptions();
 			co->key     = options[i1].key;
-			co->valname = (options[i1].valname != 0) ? options[i1].valname : g_Locale->getText(options[i1].value);
+			co->valname = getValName(options[i1].value, options[i1].valname );
 			option_chooser_options_v.push_back(co);
 		}
 
@@ -1934,11 +1964,8 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 			const char * l_option;
 			if (options[count].key == (*optionValue))
 				selected = true;
+			l_option = getValName(options[count].value, options[count].valname);
 
-			if(options[count].valname != 0)
-				l_option = options[count].valname;
-			else
-				l_option = g_Locale->getText(options[count].value);
 			CMenuForwarder *mn_option = new CMenuForwarder(l_option, true, NULL, selector, to_string(count).c_str());
 			mn_option->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true /*for selected item*/);
 			menu->addItem(mn_option, selected);
@@ -1985,33 +2012,27 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 
 int CMenuOptionChooser::paint( bool selected)
 {
-	neutrino_locale_t option = NONEXISTANT_LOCALE;
 	const char * l_option = NULL;
 
 	for(unsigned int count = 0 ; count < number_of_options; count++) {
 		if (options[count].key == *optionValue) {
-			option = options[count].value;
-			if(options[count].valname != 0)
-				l_option = options[count].valname;
-			else
-				l_option = g_Locale->getText(option);
+			l_option = getValName(options[count].value, options[count].valname);
 			break;
 		}
 	}
-	
-	if(l_option == NULL) 
+
+	if(l_option == NULL)
 	{
 		*optionValue = options[0].key;
-		option = options[0].value;
-		if(options[0].valname != 0)
-			l_option = options[0].valname;
-		else
-			l_option = g_Locale->getText(option);
+		l_option = getValName(options[0].value, options[0].valname);
 	}
+
+	//manage toggle button
+	handleOptionIcon(l_option);
 
 	//paint item
 	prepareItem(selected, height);
-	
+
 	//paint item icon
 	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
 	
