@@ -349,8 +349,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
 
 	//theme/color options
-	CThemes::getTheme(configfile);
 	g_settings.theme_name = configfile.getString("theme_name","");
+	CThemes::getInstance()->getTheme(configfile);
 
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
@@ -1123,8 +1123,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	}
 
 	//theme/color options
-	configfile.getString( "theme_name",g_settings.theme_name );
-	CThemes::setTheme(configfile);
+	CThemes::getInstance()->setTheme(configfile);
+	configfile.setString( "theme_name", g_settings.theme_name );
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );

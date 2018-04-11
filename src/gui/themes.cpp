@@ -38,6 +38,7 @@
 #include <neutrino.h>
 #include "widget/menue.h"
 #include <system/helpers.h>
+#include <system/debug.h>
 #include <system/setting_helpers.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
@@ -51,7 +52,7 @@
 #include "themes.h"
 
 #define USERDIR "/var" THEMESDIR
-#define FILE_PREFIX ".theme"
+#define FILE_SUFFIX ".theme"
 static 	SNeutrinoTheme &t = g_settings.theme;
 CThemes::CThemes()
 : themefile('\t')
@@ -61,15 +62,27 @@ CThemes::CThemes()
 	hasThemeChanged = false;
 }
 
+CThemes* CThemes::getInstance()
+{
+	static CThemes* th = NULL;
+
+	if(!th) {
+		th = new CThemes();
+		dprintf(DEBUG_DEBUG, "CThemes Instance created\n");
+	}
+	return th;
+}
+
 int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
 	if( !actionKey.empty() )
 	{
-		if (actionKey=="theme_neutrino")
+		if (actionKey=="default_theme")
 		{
-			setupDefaultColors();
+			if(!applyDefaultTheme())
+				setupDefaultColors(); // fallback
 			notifier = new CColorSetupNotifier();
 			notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 			delete notifier;
@@ -80,10 +93,10 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
 			{
 				themeFile.erase(0, 3);
-				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile + FILE_PREFIX).c_str());
+				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile + FILE_SUFFIX).c_str());
 			} 
 			else
-				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_PREFIX).c_str());
+				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_SUFFIX).c_str());
 			g_settings.theme_name = themeFile;
 		}
 		return res;
@@ -157,7 +170,7 @@ int CThemes::Show()
 	themes.addIntroItems(LOCALE_COLORTHEMEMENU_HEAD2);
 	
 	//set default theme
-	themes.addItem(new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, NULL, this, "theme_neutrino", CRCInput::RC_red));
+	themes.addItem(new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, NULL, this, "default_theme", CRCInput::RC_red));
 	
 	readThemes(themes);
 
@@ -179,7 +192,7 @@ int CThemes::Show()
 	int res = themes.exec(NULL, "");
 
 	if (!file_name.empty()) {
-		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_PREFIX).c_str());
+		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_SUFFIX).c_str());
 	}
 
 	if (hasThemeChanged) {
@@ -229,6 +242,18 @@ void CThemes::saveFile(const char *themename)
 		if (!themefile.saveConfig(themename))
 			printf("[neutrino theme] %s write error\n", themename);
 	}
+}
+
+bool CThemes::applyDefaultTheme()
+{
+	g_settings.theme_name = "Neutrino-3.0";
+	std::string default_theme = THEMESDIR "/" + g_settings.theme_name + ".theme";
+	if(themefile.loadConfig(default_theme)){
+		getTheme(themefile);
+		return true;
+	}
+	dprintf(DEBUG_NORMAL, "[CThemes]\t[%s - %d], default neutrino theme [ %s ] not found\n", __func__, __LINE__, default_theme.c_str());
+	return false;
 }
 
 // setup default Colors
@@ -347,6 +372,9 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 void CThemes::getTheme(CConfigFile &configfile)
 {
+	if (g_settings.theme_name.empty())
+		applyDefaultTheme();
+
 	t.menu_Head_alpha = configfile.getInt32( "menu_Head_alpha", 0x00 );
 	t.menu_Head_red = configfile.getInt32( "menu_Head_red", 0x00 );
 	t.menu_Head_green = configfile.getInt32( "menu_Head_green", 0x0A );

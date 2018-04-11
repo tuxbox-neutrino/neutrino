@@ -45,13 +45,15 @@ class CThemes : public CMenuTarget, CChangeObserver
 		void readThemes(CMenuWidget &);
 		void rememberOldTheme(bool remember);
 		void move_userDir();
+		bool applyDefaultTheme();
 
 	public:
 		CThemes();
+		static CThemes* getInstance();
 		void setupDefaultColors();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
-		static void setTheme(CConfigFile &configfile);
-		static void getTheme(CConfigFile &configfile);
+		void setTheme(CConfigFile &configfile);
+		void getTheme(CConfigFile &configfile);
 };
 
 #endif
