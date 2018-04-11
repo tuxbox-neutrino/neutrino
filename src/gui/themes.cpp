@@ -97,6 +97,8 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_SUFFIX).c_str());
 			g_settings.theme_name = themeFile;
 		}
+		OnAfterSelectTheme();
+		CFrameBuffer::getInstance()->clearIconCache();
 		return res;
 	}
 
@@ -146,6 +148,7 @@ void CThemes::readThemes(CMenuWidget &themes)
 						oj = new CMenuForwarder(file, true, "", this, userThemeFile.c_str());
 					} else
 						oj = new CMenuForwarder(file, true, "", this, file);
+
 					themes.addItem( oj );
 				}
 				free(themelist[count]);
@@ -153,6 +156,13 @@ void CThemes::readThemes(CMenuWidget &themes)
 			free(themelist);
 		}
 	}
+
+	//on first paint exec this methode to set marker to item
+	markSelectedTheme(&themes);
+
+	//for all next menu paints markers are setted with this slot inside exec()
+	if (OnAfterSelectTheme.empty())
+		OnAfterSelectTheme.connect(sigc::bind(sigc::mem_fun(this, &CThemes::markSelectedTheme), &themes));
 }
 
 int CThemes::Show()
@@ -206,8 +216,10 @@ void CThemes::rememberOldTheme(bool remember)
 {
 	if ( remember ) {
 		oldTheme = t;
+		oldTheme_name = g_settings.theme_name;
 	} else {
 		t = oldTheme;
+		g_settings.theme_name = oldTheme_name;
 
 		changeNotify(NONEXISTANT_LOCALE, NULL);
 		hasThemeChanged = false;
@@ -510,5 +522,14 @@ void CThemes::move_userDir()
 		}
 		printf("[neutrino theme] removing %s\n", USERDIR);
 		remove(USERDIR);
+	}
+}
+
+void CThemes::markSelectedTheme(CMenuWidget *w)
+{
+	for (int i = 0; i < w->getItemsCount(); i++){
+		w->getItem(i)->setInfoIconRight(NULL);
+		if (g_settings.theme_name == w->getItem(i)->getName())
+			w->getItem(i)->setInfoIconRight(NEUTRINO_ICON_MARKER_DIALOG_OK);
 	}
 }

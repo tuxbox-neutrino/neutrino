@@ -27,14 +27,17 @@
 #include <string>
 #include <configfile.h>
 #include <system/setting_helpers.h>
+#include <sigc++/signal.h>
+#include <sigc++/bind.h>
 
-class CThemes : public CMenuTarget, CColorSetupNotifier
+class CThemes : public CMenuTarget, CColorSetupNotifier, public sigc::trackable
 {
 	private:
 		CConfigFile themefile;
 
 		int width;
 		SNeutrinoTheme oldTheme;
+		std::string oldTheme_name;
 
 		bool hasThemeChanged;
 
@@ -45,6 +48,9 @@ class CThemes : public CMenuTarget, CColorSetupNotifier
 		void rememberOldTheme(bool remember);
 		void move_userDir();
 		bool applyDefaultTheme();
+		///signal after select theme is completed
+		sigc::signal<void> OnAfterSelectTheme;
+		void markSelectedTheme(CMenuWidget *w);
 
 	public:
 		CThemes();
