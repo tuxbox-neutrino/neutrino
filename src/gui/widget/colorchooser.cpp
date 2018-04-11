@@ -75,7 +75,7 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	int dummy;
 	frameBuffer->getIconSize(NEUTRINO_ICON_SLIDER_ALPHA, &slider_width, &dummy);
 
-	bar_width = frameBuffer->scale2Res(150);
+	bar_width = frameBuffer->scale2Res(200);
 	/*
 	   We have a half slider_width before and after the bar
 	   to get the middle of the slider at the point of choise
@@ -278,7 +278,7 @@ void CColorChooser::hide()
 
 void CColorChooser::paint()
 {
-	CComponentsHeader header(x, y, width, header_height, g_Locale->getText(name));
+	CComponentsHeader header(x, y, width, header_height, g_Locale->getText(name), NEUTRINO_ICON_COLORS, CComponentsHeader::CC_BTN_EXIT);
 	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 	header.paint(CC_SAVE_SCREEN_NO);
 
