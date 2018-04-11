@@ -706,11 +706,23 @@ std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_ty
 {
 	std::string path, filetype;
 	filetype = "." + file_type;
-	path = std::string(ICONSDIR_VAR) + "/" + icon_name + filetype;
-	if (access(path.c_str(), F_OK))
-		path = iconBasePath + "/" + icon_name + filetype;
+
+	std::string dir[] = {	THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
+				THEMESDIR "/" + g_settings.theme_name + "/icons",
+				ICONSDIR_VAR,
+				iconBasePath
+	};
+
+	for(int i=0; i<4 ; i++){
+		path = std::string(dir[i]) + "/" + icon_name + filetype;
+		if (access(path.c_str(), F_OK) == 0){
+			return path;
+		}
+	}
+
 	if (icon_name.find("/", 0) != std::string::npos)
 		path = icon_name;
+
 	return path;
 }
 
