@@ -364,6 +364,7 @@ const char * locale_real_names[] =
 	"colormenusetup.menucontent_selected",
 	"colormenusetup.menufoot",
 	"colormenusetup.menuhead",
+	"colorsetup.save",
 	"colorstatusbar.text",
 	"colorthememenu.head",
 	"colorthememenu.head2",

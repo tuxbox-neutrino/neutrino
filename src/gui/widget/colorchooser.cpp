@@ -292,7 +292,7 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 
 void CColorChooser::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + header_height + OFFSET_SHADOW);
 }
 
 void CColorChooser::paint()
@@ -301,10 +301,16 @@ void CColorChooser::paint()
 	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 	header.paint(CC_SAVE_SCREEN_NO);
 
-	PaintBoxRel(x, y + header_height, width, height - header_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM, CC_SHADOW_ON);
+
+	PaintBoxRel(x, y + header_height, width, height - header_height, COL_MENUCONTENT_PLUS_0, RADIUS_NONE, CORNER_NONE, CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 
 	for (int i = 0; i < VALUES; i++)
 		paintSlider(x, y + header_height + OFFSET_INNER_SMALL + i*item_height, value[i], colorchooser_names[i], icon_names[i], (i == 0));
+
+	CComponentsFooter footer(x, y + height, width , 0, CComponentsFooter::CC_BTN_LEFT | CComponentsFooter::CC_BTN_UP | CComponentsFooter::CC_BTN_DOWN | CComponentsFooter::CC_BTN_RIGHT);
+	footer.setButtonLabel(NEUTRINO_ICON_BUTTON_OKAY, LOCALE_COLORSETUP_SAVE, width/3);
+	footer.enableShadow(CC_SHADOW_ON);
+	footer.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutrino_locale_t text, const char * const iconname, const bool selected)

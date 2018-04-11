@@ -337,6 +337,7 @@ colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
 colormenusetup.menufoot Fußleiste
 colormenusetup.menuhead Titelleiste
+colorsetup.save Speichern
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
 colorthememenu.head2 Themes laden
