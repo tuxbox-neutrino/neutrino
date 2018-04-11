@@ -58,7 +58,7 @@ CThemes::CThemes()
 : themefile('\t')
 {
 	width = 40;
-	notifier = NULL;
+
 	hasThemeChanged = false;
 }
 
@@ -83,9 +83,7 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 		{
 			if(!applyDefaultTheme())
 				setupDefaultColors(); // fallback
-			notifier = new CColorSetupNotifier();
-			notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-			delete notifier;
+			changeNotify(NONEXISTANT_LOCALE, NULL);
 		}
 		else
 		{
@@ -211,10 +209,8 @@ void CThemes::rememberOldTheme(bool remember)
 	} else {
 		t = oldTheme;
 
-		notifier = new CColorSetupNotifier;
-		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+		changeNotify(NONEXISTANT_LOCALE, NULL);
 		hasThemeChanged = false;
-		delete notifier;
 	}
 }
 
@@ -224,10 +220,8 @@ void CThemes::readFile(const char *themename)
 	{
 		getTheme(themefile);
 
-		notifier = new CColorSetupNotifier;
-		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+		changeNotify(NONEXISTANT_LOCALE, NULL);
 		hasThemeChanged = true;
-		delete notifier;
 	}
 	else
 		printf("[neutrino theme] %s not found\n", themename);

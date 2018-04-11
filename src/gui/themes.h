@@ -28,11 +28,10 @@
 #include <configfile.h>
 #include <system/setting_helpers.h>
 
-class CThemes : public CMenuTarget, CChangeObserver
+class CThemes : public CMenuTarget, CColorSetupNotifier
 {
 	private:
 		CConfigFile themefile;
-		CColorSetupNotifier *notifier;
 
 		int width;
 		SNeutrinoTheme oldTheme;
