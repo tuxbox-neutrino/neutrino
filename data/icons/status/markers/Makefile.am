@@ -1,8 +1,9 @@
 installdir = $(ICONSDIR)
 
 install_DATA = \
-	checkmark.png \
 	important.png \
+	marker_dialog_off.png \
+	marker_dialog_ok.png \
 	marker_epg.png \
 	marker_hidden.png \
 	marker_lock.png \
@@ -16,7 +17,7 @@ install_DATA = \
 	marker_timeshift.png \
 	marker_timeshift_gray.png \
 	marker_tv.png \
+	marker_update_available.png \
 	marker_zap.png \
 	mounted.png \
-	not_mounted.png \
-	warning.png
+	not_mounted.png

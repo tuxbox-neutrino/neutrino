@@ -74,6 +74,11 @@
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE	"mute_zap_green"
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE	"mute_zap_gray"
 
+#define NEUTRINO_ICON_BUTTON_OPTION_ON_ACTIVE		"btn_option_on_active"
+#define NEUTRINO_ICON_BUTTON_OPTION_ON_INACTIVE		"btn_option_on_inactive"
+#define NEUTRINO_ICON_BUTTON_OPTION_OFF_ACTIVE		"btn_option_off_active"
+#define NEUTRINO_ICON_BUTTON_OPTION_OFF_INACTIVE	"btn_option_off_inactive"
+
 /* headers */
 #define NEUTRINO_ICON_BLUE		"icon_blue"
 #define NEUTRINO_ICON_GREEN		"icon_green"
@@ -283,15 +288,15 @@
 
 #define NEUTRINO_ICON_STAR_ON		"star-on"
 #define NEUTRINO_ICON_STAR_OFF		"star-off"
-#define NEUTRINO_ICON_STARS_BG		"stars_bg" //NI
-#define NEUTRINO_ICON_STARS		"stars" //NI
+#define NEUTRINO_ICON_STARS_BG		"stars_bg"
+#define NEUTRINO_ICON_STARS		"stars"
 
 #define NEUTRINO_ICON_IMDB		"imdb"
 #define NEUTRINO_ICON_TMDB		"tmdb"
 
-/* opkg manager */
-#define NEUTRINO_ICON_CHECKMARK		"checkmark"
-#define NEUTRINO_ICON_WARNING		"warning"
-
+/* status */
+#define NEUTRINO_ICON_MARKER_DIALOG_OK		"marker_dialog_ok"
+#define NEUTRINO_ICON_MARKER_DIALOG_OFF		"marker_dialog_off"
+#define NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE	"marker_update_available.png"
 
 #endif /* __gui_widget_icons_h__ */

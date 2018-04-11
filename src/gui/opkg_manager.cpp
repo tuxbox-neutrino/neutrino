@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012-2015 T. Graf 'dbt'
+	Copyright (C) 2012-2018 T. Graf 'dbt'
 	www.dbox2-tuning.net
 
 	Adaptions:
@@ -433,10 +433,10 @@ void COPKGManager::updateMenu()
 		it->second.forwarder->iconName_Info_right = "";
 		it->second.forwarder->setActive(true);
 		if (it->second.upgradable) {
-			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_WARNING;
+			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE;
 			upgradesAvailable = true;
 		} else if (it->second.installed) {
-			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_CHECKMARK;
+			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_DIALOG_OK;
 			it->second.forwarder->setActive(expert_mode);
 		}
 	}
