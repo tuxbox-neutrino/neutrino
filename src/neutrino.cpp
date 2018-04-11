@@ -350,6 +350,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//theme/color options
 	CThemes::getTheme(configfile);
+	g_settings.theme_name = configfile.getString("theme_name","");
 
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
@@ -1122,6 +1123,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	}
 
 	//theme/color options
+	configfile.getString( "theme_name",g_settings.theme_name );
 	CThemes::setTheme(configfile);
 
 	//video

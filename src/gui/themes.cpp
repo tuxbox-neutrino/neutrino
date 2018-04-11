@@ -84,6 +84,7 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			} 
 			else
 				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_PREFIX).c_str());
+			g_settings.theme_name = themeFile;
 		}
 		return res;
 	}

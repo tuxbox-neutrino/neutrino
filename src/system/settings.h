@@ -452,6 +452,7 @@ struct SNeutrinoSettings
 
 	//theme/color options
 	SNeutrinoTheme theme;
+	std::string theme_name;
 	bool osd_colorsettings_advanced_mode;
 
 	//network
