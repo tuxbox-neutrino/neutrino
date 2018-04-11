@@ -1,5 +1,9 @@
 installdir = $(THEMESDIR)
 
+SUBDIRS = \
+	Neutrino-3.0/icons/buttons \
+	Olive-3.0/icons/buttons
+
 install_DATA = \
 	Bluemoon-3.0.theme \
 	Classic.theme \
