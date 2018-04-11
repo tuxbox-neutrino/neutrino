@@ -368,11 +368,6 @@ void CStringInput::keyPlusPressed()
 	}
 }
 
-std::string &CStringInput::getValue(void)
-{
-	return *valueString;
-}
-
 void CStringInput::forceSaveScreen(bool enable)
 {
 	force_saveScreen = enable;

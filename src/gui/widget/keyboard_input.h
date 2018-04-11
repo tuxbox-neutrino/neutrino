@@ -135,7 +135,6 @@ class CKeyboardInput : public CMenuTarget
 
 		void hide();
 		int exec( CMenuTarget* parent, const std::string & actionKey );
-		virtual std::string &getValue(void);
 
 		void forceSaveScreen(bool enable);
 };
