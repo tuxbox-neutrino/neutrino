@@ -112,7 +112,7 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 	return Show();
 }
 
-void CThemes::readThemes(CMenuWidget &themes)
+void CThemes::initThemesMenu(CMenuWidget &themes)
 {
 	struct dirent **themelist;
 	int n;
@@ -180,7 +180,7 @@ int CThemes::Show()
 	//set default theme
 	themes.addItem(new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, NULL, this, "default_theme", CRCInput::RC_red));
 	
-	readThemes(themes);
+	initThemesMenu(themes);
 
 	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);

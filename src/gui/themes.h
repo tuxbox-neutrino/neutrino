@@ -44,7 +44,7 @@ class CThemes : public CMenuTarget, CColorSetupNotifier, public sigc::trackable
 		int Show();
 		void readFile(const char *themename);
 		void saveFile(const char *themename);
-		void readThemes(CMenuWidget &);
+		void initThemesMenu(CMenuWidget &);
 		void rememberOldTheme(bool remember);
 		void move_userDir();
 		bool applyDefaultTheme();
