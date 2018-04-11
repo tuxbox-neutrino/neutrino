@@ -14,6 +14,10 @@ install_DATA = \
 	blau.png \
 	btn_backward.png \
 	btn_forward.png \
+	btn_option_off_active.png \
+	btn_option_off_inactive.png \
+	btn_option_on_active.png \
+	btn_option_on_inactive.png \
 	btn_pause.png \
 	btn_play.png \
 	btn_record_active.png \
