@@ -106,10 +106,11 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 void CColorChooser::setColor()
 {
 	fb_pixel_t col = getColor();
+	int y_prev = preview_y+((preview_h-header_height)/2);
 
 	if ((g_settings.theme.menu_Head_gradient) && ((chooser_gradient == gradient_head_body) || (chooser_gradient == gradient_head_text)))
 	{
-		CComponentsHeader header(preview_x, preview_y+((preview_h-header_height)/2), preview_w, header_height, "Head");
+		CComponentsHeader header(preview_x, y_prev, preview_w, header_height, "Head");
 		if (chooser_gradient == gradient_head_body)
 			header.setColorBody(col);
 		else if (chooser_gradient == gradient_head_text)
@@ -118,11 +119,29 @@ void CColorChooser::setColor()
 	}
 	else
 	{
-		CComponentsShapeSquare preview(preview_x, preview_y, preview_w, preview_h, NULL, false, COL_FRAME_PLUS_0, col);
+		CComponentsShapeSquare preview(preview_x, y_prev, preview_w, preview_h - header_height , NULL, false, COL_FRAME_PLUS_0, col);
 		preview.setFrameThickness(FRAME_WIDTH_MIN);
 		preview.setCorner(RADIUS_SMALL);
 		preview.paint(false);
 	}
+
+	// paint color number
+	int border_off = OFFSET_INNER_MIN + FRAME_WIDTH_MIN;
+
+	char col_num[9];
+	snprintf(col_num, sizeof(col_num), "%x", col);
+	col_num[8] = '\0';
+
+	int w_col_num = preview_w - 2*border_off;
+	int h_col_num = font->getHeight();
+
+	Font *dfont = *CNeutrinoFonts::getInstance()->getDynFont(w_col_num, h_col_num, col_num);
+
+	int x_col_num = preview_x + preview_w/2 - dfont->getRenderWidth(col_num)/2;
+	printf("[CColorChooser] selected color = hex [%s] dec [%d]\n", col_num, col);
+	PaintBoxRel(preview_x, preview_y, preview_w, h_col_num, COL_MENUCONTENT_PLUS_0);
+	paintTextBoxRel(col_num, x_col_num, preview_y + border_off, w_col_num,  h_col_num,
+			dfont, CTextBox::AUTO_WIDTH | CTextBox::CENTER, CComponentsText::FONT_STYLE_REGULAR, COL_MENUCONTENT_TEXT, COL_MENUCONTENT_PLUS_0, CORNER_RADIUS_MIN, CORNER_ALL);
 }
 
 fb_pixel_t CColorChooser::getColor()
