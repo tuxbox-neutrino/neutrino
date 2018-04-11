@@ -137,7 +137,7 @@ void CFollowScreenings::updateRightIcon(int ix, time_t start, unsigned int durat
 				return;
 			}
 			if (!SAME_TRANSPONDER(channel_id, i->channel_id)) {
-				forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_IMPORTANT;
+				forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_MARKER_WARNING;
 				return;
 			}
 		}

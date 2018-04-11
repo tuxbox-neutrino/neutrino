@@ -818,8 +818,8 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		if (conflict && item_event_ID != evtlist[currpos].eventID)
 		{	
 			//paint_warning = true;
-			frameBuffer->getIconSize(NEUTRINO_ICON_IMPORTANT, &i2w, &i2h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_IMPORTANT, x + iw + OFFSET_INNER_MID, ypos + OFFSET_INNER_MIN + smallfont_height, largefont_height);
+			frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_WARNING, &i2w, &i2h);
+			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_WARNING, x + iw + OFFSET_INNER_MID, ypos + OFFSET_INNER_MIN + smallfont_height, largefont_height);
 			iw += i2w + OFFSET_INNER_MID;
 		}
 		

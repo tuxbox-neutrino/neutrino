@@ -205,7 +205,6 @@
 #define NEUTRINO_ICON_PICTURE		"picture"
 
 /* markers */
-#define NEUTRINO_ICON_IMPORTANT		"important"
 #define NEUTRINO_ICON_MARKER_EPG	"marker_epg"
 #define NEUTRINO_ICON_MARKER_HIDDEN	"marker_hidden"
 #define NEUTRINO_ICON_MARKER_LOCK	"marker_lock"
@@ -219,6 +218,7 @@
 #define NEUTRINO_ICON_MARKER_TIMESHIFT	"marker_timeshift"
 #define NEUTRINO_ICON_MARKER_TIMESHIFT_GRAY	"marker_timeshift_gray"
 #define NEUTRINO_ICON_MARKER_TV		"marker_tv"
+#define NEUTRINO_ICON_MARKER_WARNING	"marker_warning"
 #define NEUTRINO_ICON_MARKER_ZAP	"marker_zap"
 
 #define NEUTRINO_ICON_MOUNTED		"mounted"
