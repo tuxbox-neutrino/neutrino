@@ -123,6 +123,13 @@ void CThemes::initThemesMenu(CMenuWidget &themes)
 	std::string userThemeFile = "";
 	CMenuForwarder* oj;
 
+	// only to visualize if we have a migrated theme
+	if (g_settings.theme_name.empty() || g_settings.theme_name == MIGRATE_THEME_NAME)
+	{
+		themes.addItem(new CMenuSeparator(CMenuSeparator::LINE));
+		themes.addItem(new CMenuForwarder(MIGRATE_THEME_NAME, false, "", this));
+	}
+
 	for(int p = 0;p < 2;p++)
 	{
 		n = scandir(pfade[p], &themelist, 0, alphasort);
