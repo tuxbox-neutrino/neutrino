@@ -1586,6 +1586,7 @@ miscsettings.progressbar_design_2 colored horizontal lines
 miscsettings.progressbar_design_3 colored bar
 miscsettings.progressbar_design_4 monochrome
 miscsettings.progressbar_design_long Design
+miscsettings.progressbar_global General
 miscsettings.progressbar_gradient 3D effect
 miscsettings.progressbar_infobar_position Position
 miscsettings.progressbar_infobar_position_0 standard
