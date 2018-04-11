@@ -344,6 +344,7 @@ colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
 colorthememenu.head2 Themes laden
 colorthememenu.menu_hints Hinweisfenster
+colorthememenu.misc Sonstiges
 colorthememenu.name Themename
 colorthememenu.neutrino_theme Theme zurücksetzen
 colorthememenu.question Aktuelles Theme beibehalten?

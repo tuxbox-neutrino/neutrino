@@ -344,6 +344,7 @@ colorstatusbar.text Infobar
 colorthememenu.head Select theme
 colorthememenu.head2 Load themes
 colorthememenu.menu_hints Hint box
+colorthememenu.misc Misc
 colorthememenu.name Theme name
 colorthememenu.neutrino_theme Reset Theme
 colorthememenu.question Use selected theme?

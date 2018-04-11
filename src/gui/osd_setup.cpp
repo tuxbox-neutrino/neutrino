@@ -879,13 +879,6 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT_DIRECTION);
 	menu_colors->addItem(oj);
 
-	// menue separator line gradient enable
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
-	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT_SEPARATOR_ENABLE, &t.menu_Separator_gradient_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
-	oj->OnAfterChangeOption.connect(slot_repaint);
-	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT_SEPARATOR_ENABLE);
-	menu_colors->addItem(oj);
-
 	// infoviewer color
 	CColorChooser* chInfobarcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.infobar_red,
 			&t.infobar_green, &t.infobar_blue, &t.infobar_alpha, colorSetupNotifier);
@@ -904,7 +897,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(mf);
 
 	// infoviewer gradient top
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::EMPTY));
 	oj = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_GRADIENT_TOP, &t.infobar_gradient_top, OPTIONS_COL_GRADIENT_OPTIONS, OPTIONS_COL_GRADIENT_OPTIONS_COUNT, true);
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
 	menu_colors->addItem(oj);
@@ -915,7 +908,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(oj);
 
 	// infoviewer gradient body
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::EMPTY));
 	oj = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_GRADIENT_BODY, &t.infobar_gradient_body, OPTIONS_COL_GRADIENT_OPTIONS, OPTIONS_COL_GRADIENT_OPTIONS_COUNT, true);
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
 	menu_colors->addItem(oj);
@@ -926,7 +919,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(oj);
 
 	// infoviewer gradient bottom
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::EMPTY));
 	oj = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_GRADIENT_BOTTOM, &t.infobar_gradient_bottom, OPTIONS_COL_GRADIENT_OPTIONS, OPTIONS_COL_GRADIENT_OPTIONS_COUNT, true);
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
 	menu_colors->addItem(oj);
@@ -937,7 +930,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(oj);
 
 	// ca bar
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::EMPTY));
 	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY, g_settings.infobar_casystem_display < 2, NULL, chInfobarCASystem );
 	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_COLOR);
 	menu_colors->addItem(mf);
@@ -962,13 +955,6 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj->setHint("", LOCALE_MENU_HINT_COLORED_EVENTS);
 	menu_colors->addItem(oj);
 
-	// shadow
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
-
-	mf = new CMenuDForwarder(LOCALE_COLORMENU_SHADOW_COLOR, true, NULL, chShadowColor );
-	mf->setHint("", LOCALE_MENU_HINT_COLORS_SHADOW);
-	menu_colors->addItem(mf);
-
 	// progressbar
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_PROGRESSBAR));
 
@@ -981,6 +967,19 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, true, NULL, chProgressbar_active );
 	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_ACTIVE);
 	menu_colors->addItem(mf);
+
+	// shadow
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE| CMenuSeparator::STRING, LOCALE_COLORTHEMEMENU_MISC));
+
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_SHADOW_COLOR, true, NULL, chShadowColor );
+	mf->setHint("", LOCALE_MENU_HINT_COLORS_SHADOW);
+	menu_colors->addItem(mf);
+
+	// menue separator line gradient enable
+	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT_SEPARATOR_ENABLE, &t.menu_Separator_gradient_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
+	oj->OnAfterChangeOption.connect(slot_repaint);
+	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT_SEPARATOR_ENABLE);
+	menu_colors->addItem(oj);
 }
 
 /* for font size setup */
