@@ -53,6 +53,7 @@
 
 #define USERDIR "/var" THEMESDIR
 #define FILE_SUFFIX ".theme"
+
 static 	SNeutrinoTheme &t = g_settings.theme;
 CThemes::CThemes()
 : themefile('\t')
@@ -252,13 +253,13 @@ void CThemes::saveFile(const char *themename)
 
 bool CThemes::applyDefaultTheme()
 {
-	g_settings.theme_name = "Neutrino-3.0";
+	g_settings.theme_name = DEFAULT_THEME;
 	std::string default_theme = THEMESDIR "/" + g_settings.theme_name + ".theme";
 	if(themefile.loadConfig(default_theme)){
 		getTheme(themefile);
 		return true;
 	}
-	dprintf(DEBUG_NORMAL, "[CThemes]\t[%s - %d], default neutrino theme [ %s ] not found\n", __func__, __LINE__, default_theme.c_str());
+	dprintf(DEBUG_NORMAL, "[CThemes]\t[%s - %d], No default theme found, creating migrated theme from current theme settings\n", __func__, __LINE__);
 	return false;
 }
 
@@ -378,9 +379,6 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 void CThemes::getTheme(CConfigFile &configfile)
 {
-	if (g_settings.theme_name.empty())
-		applyDefaultTheme();
-
 	t.menu_Head_alpha = configfile.getInt32( "menu_Head_alpha", 0x00 );
 	t.menu_Head_red = configfile.getInt32( "menu_Head_red", 0x00 );
 	t.menu_Head_green = configfile.getInt32( "menu_Head_green", 0x0A );
@@ -489,6 +487,9 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.progressbar_passive_red = configfile.getInt32( "progressbar_passive_red", 60 );
 	t.progressbar_passive_green = configfile.getInt32( "progressbar_passive_green", 60 );
 	t.progressbar_passive_blue = configfile.getInt32( "progressbar_passive_blue", 60 );
+
+	if (g_settings.theme_name.empty())
+		applyDefaultTheme();
 }
 
 void CThemes::move_userDir()

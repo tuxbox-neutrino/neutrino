@@ -30,6 +30,8 @@
 #include <sigc++/signal.h>
 #include <sigc++/bind.h>
 
+#define MIGRATE_THEME_NAME "Unknown-Migrated-Theme"
+
 class CThemes : public CMenuTarget, CColorSetupNotifier, public sigc::trackable
 {
 	private:
