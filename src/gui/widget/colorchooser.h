@@ -2,6 +2,7 @@
 	Based up Neutrino-GUI - Tuxbox-Project
  
 	Copyright (C) 2001 Steffen Hehn 'McClean'
+	Copyright (C) 2018 Thilo Graf
 
 	License: GPL
 
@@ -68,6 +69,7 @@ class CColorChooser : public CMenuTarget
 		CChangeObserver* observer;
 		Font	* font;
 
+		void Init();
 		void paint();
 		void setColor();
 		void paintSlider(int x, int y, unsigned char *spos, const neutrino_locale_t text, const char * const iconname, const bool selected);

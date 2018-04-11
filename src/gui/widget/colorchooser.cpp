@@ -2,6 +2,7 @@
 	Based up Neutrino-GUI - Tuxbox-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
+	Copyright (C) 2018 Thilo Graf
 
 	License: GPL
 
@@ -55,13 +56,22 @@ static const neutrino_locale_t colorchooser_names[VALUES] =
 
 CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, unsigned char *G, unsigned char *B, unsigned char* A, CChangeObserver* Observer)
 {
+	observer    = Observer;
+	name        = Name;
+
+	value[VALUE_R] = R;
+	value[VALUE_G] = G;
+	value[VALUE_B] = B;
+	value[VALUE_A] = A;
+}
+
+void CColorChooser::Init()
+{
 	frameBuffer = CFrameBuffer::getInstance();
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	font        = g_Font[SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL];
 	item_height = font->getHeight();
-	observer    = Observer;
-	name        = Name;
-	
+
 	// calculate max width of locals
 	text_width = 0;
 	for (int i = 0; i < VALUES; i++)
@@ -94,11 +104,6 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 
 	preview_x = x + text_width + bar_full + 3*OFFSET_INNER_MID;
 	preview_y = y + header_height + OFFSET_INNER_SMALL;
-
-	value[VALUE_R] = R;
-	value[VALUE_G] = G;
-	value[VALUE_B] = B;
-	value[VALUE_A] = A;
 
 	chooser_gradient = gradient_none;
 }
@@ -154,6 +159,7 @@ fb_pixel_t CColorChooser::getColor()
 
 int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 {
+	Init();
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
