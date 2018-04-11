@@ -186,7 +186,10 @@ int CThemes::Show()
 	themes.addIntroItems(LOCALE_COLORTHEMEMENU_HEAD2);
 	
 	//set default theme
-	themes.addItem(new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, NULL, this, "default_theme", CRCInput::RC_red));
+	std::string default_theme = DEFAULT_THEME;
+	CMenuForwarder* fw = new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, default_theme.c_str(), this, "default_theme", CRCInput::RC_red);
+	themes.addItem(fw);
+	fw->setHint("", LOCALE_COLORTHEMEMENU_NEUTRINO_THEME_HINT);
 	
 	initThemesMenu(themes);
 

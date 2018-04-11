@@ -347,6 +347,7 @@ colorthememenu.menu_hints Hint box
 colorthememenu.misc Misc
 colorthememenu.name Theme name
 colorthememenu.neutrino_theme Reset Theme
+colorthememenu.neutrino_theme_hint Reset to default theme.
 colorthememenu.question Use selected theme?
 colorthememenu.save Save current theme
 colorthememenu.select1 User theme

@@ -347,6 +347,7 @@ colorthememenu.menu_hints Hinweisfenster
 colorthememenu.misc Sonstiges
 colorthememenu.name Themename
 colorthememenu.neutrino_theme Theme zurücksetzen
+colorthememenu.neutrino_theme_hint Setzt auf das Standard-Theme zurück.
 colorthememenu.question Aktuelles Theme beibehalten?
 colorthememenu.save aktuelles Theme speichern
 colorthememenu.select1 Benutzer Theme
