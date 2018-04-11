@@ -329,7 +329,7 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_SLIDER_INACTIVE, px + text_width + 2*OFFSET_INNER_MID + ((*spos)*w_bar / 100), py, item_height);
 
 	// paint color name
-	font->RenderString(px + OFFSET_INNER_MID, py + item_height, text_width, g_Locale->getText(text), COL_MENUCONTENT_TEXT);
+	paintTextBoxRel(g_Locale->getText(text), px + OFFSET_INNER_MID, py, text_width,  item_height, font);
 	// paint color rate
-	font->RenderString(x_bar + w_bar + OFFSET_INNER_MID, py + item_height, w_col_rate, to_string(*spos), COL_MENUCONTENT_TEXT);
+	paintTextBoxRel(to_string(*spos), x_bar + w_bar + 2*OFFSET_INTER, py, w_col_rate,  item_height, font, CTextBox::RIGHT);
 }
