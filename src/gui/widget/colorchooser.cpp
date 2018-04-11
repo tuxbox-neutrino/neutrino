@@ -57,7 +57,8 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	item_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	font        = g_Font[SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL];
+	item_height = font->getHeight();
 	observer    = Observer;
 	name        = Name;
 	
@@ -65,7 +66,7 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	text_width = 0;
 	for (int i = 0; i < VALUES; i++)
 	{
-		int tmp_text_width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(colorchooser_names[i]));
+		int tmp_text_width = font->getRenderWidth(g_Locale->getText(colorchooser_names[i]));
 		if (tmp_text_width > text_width)
 			text_width = tmp_text_width;
 	}
@@ -300,7 +301,7 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	   So long we paint a simple frame. This is more save on higher resolutions.
 	*/
 	//frameBuffer->paintIcon(NEUTRINO_ICON_SLIDER_BODY, px + text_width + 2*OFFSET_INNER_MID + bar_offset, py, item_height);
-	int w_col_rate = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("100");
+	int w_col_rate = font->getRenderWidth("100");
 	int w_bar = bar_width - w_col_rate;
 	int x_bar = px + text_width + 2*OFFSET_INNER_MID + bar_offset;
 	frameBuffer->paintBoxFrame(x_bar, py + item_height/3, w_bar, item_height/3, 1, COL_FRAME_PLUS_0);
@@ -309,7 +310,7 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_SLIDER_INACTIVE, px + text_width + 2*OFFSET_INNER_MID + ((*spos)*w_bar / 100), py, item_height);
 
 	// paint color name
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px + OFFSET_INNER_MID, py + item_height, text_width, g_Locale->getText(text), COL_MENUCONTENT_TEXT);
+	font->RenderString(px + OFFSET_INNER_MID, py + item_height, text_width, g_Locale->getText(text), COL_MENUCONTENT_TEXT);
 	// paint color rate
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_bar + w_bar + OFFSET_INNER_MID, py + item_height, w_col_rate, to_string(*spos), COL_MENUCONTENT_TEXT);
+	font->RenderString(x_bar + w_bar + OFFSET_INNER_MID, py + item_height, w_col_rate, to_string(*spos), COL_MENUCONTENT_TEXT);
 }

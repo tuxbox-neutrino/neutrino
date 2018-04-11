@@ -66,6 +66,7 @@ class CColorChooser : public CMenuTarget
 		neutrino_locale_t name;
 
 		CChangeObserver* observer;
+		Font	* font;
 
 		void paint();
 		void setColor();
