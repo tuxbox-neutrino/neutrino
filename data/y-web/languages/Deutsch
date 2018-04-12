@@ -620,3 +620,5 @@ rc.key_trsp=Trsp
 rc.key_time=
 rc.key_picsize=Pic Size
 rc.key_picmode=Pic Mode
+rc.key_pos=Pos
+rc.key_recall=Recall
