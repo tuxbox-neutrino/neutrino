@@ -350,8 +350,8 @@ colorthememenu.neutrino_theme Theme zurücksetzen
 colorthememenu.neutrino_theme_hint Setzt auf das Standard-Theme zurück.
 colorthememenu.question Aktuelles Theme beibehalten?
 colorthememenu.save aktuelles Theme speichern
-colorthememenu.select1 Benutzer Theme
-colorthememenu.select2 Standard Theme
+colorthememenu.select1 Eigene Themes
+colorthememenu.select2 Standard-Themes
 cpu.freq CPU Frequenz
 cpu.freq_default Standard Frequenz
 cpu.freq_normal Normale Frequenz

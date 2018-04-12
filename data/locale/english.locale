@@ -350,8 +350,8 @@ colorthememenu.neutrino_theme Reset Theme
 colorthememenu.neutrino_theme_hint Reset to default theme.
 colorthememenu.question Use selected theme?
 colorthememenu.save Save current theme
-colorthememenu.select1 User theme
-colorthememenu.select2 Standard theme
+colorthememenu.select1 User themes
+colorthememenu.select2 Standard themes
 cpu.freq CPU frequency
 cpu.freq_default Default frequency
 cpu.freq_normal Normal frequency
