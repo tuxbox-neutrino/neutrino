@@ -1219,10 +1219,10 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 
 	if (dataLength > 100)
 		return ;
-
+	static std::string epg_dir_tmp = "";
 	writeLockMessaging();
 	data[dataLength] = '\0';
-	static std::string epg_dir_tmp = (std::string)data + "/";
+	epg_dir_tmp = (std::string)data + "/";
 	unlockMessaging();
 
 
