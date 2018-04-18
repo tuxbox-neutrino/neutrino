@@ -29,7 +29,7 @@ mc-
 ncurses-
 nfs-utils-
 ntp-
-opensh-
+openssh-
 openssl-
 opkg-
 pam-
@@ -42,3 +42,4 @@ systemd-
 tzdata-
 udev-
 util-linux-
+webmin-
