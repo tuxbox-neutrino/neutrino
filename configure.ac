@@ -339,6 +339,9 @@ data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile
 data/scripts/Makefile
 data/themes/Makefile
+data/themes/Grey-Blue/Makefile
+data/themes/Grey-Blue/icons/Makefile
+data/themes/Grey-Blue/icons/buttons/Makefile
 data/themes/Neutrino-3.0/Makefile
 data/themes/Neutrino-3.0/icons/Makefile
 data/themes/Neutrino-3.0/icons/buttons/Makefile
