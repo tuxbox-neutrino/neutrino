@@ -562,7 +562,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_max_events       = configfile.getInt32("epg_max_events", 30000);
 	g_settings.epg_dir              = configfile.getString("epg_dir", "/media/sda1/epg");
 	// NTP-Server for sectionsd
-	g_settings.network_ntpserver    = configfile.getString("network_ntpserver", "time.fu-berlin.de");
+	g_settings.network_ntpserver    = configfile.getString("network_ntpserver", "0.de.pool.ntp.org");
 	g_settings.network_ntprefresh   = configfile.getString("network_ntprefresh", "30" );
 	g_settings.network_ntpenable    = configfile.getBool("network_ntpenable", false);
 
