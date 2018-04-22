@@ -3147,6 +3147,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		CVFD::getInstance()->UpdateIcons();
 		g_RCInput->killTimer(scrambled_timer);
 		if (mode != NeutrinoModes::mode_webtv) {
+			g_Zapit->setMode43(g_settings.video_43mode);
+			videoDecoder->setAspectRatio(g_settings.video_Format,-1);
+
 			scrambled_timer = g_RCInput->addTimer(10*1000*1000, true);
 			SelectSubtitles();
 			//StartSubtitles(!g_InfoViewer->is_visible);

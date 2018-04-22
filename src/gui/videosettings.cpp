@@ -580,7 +580,9 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		//if(g_settings.video_Format != 1 && g_settings.video_Format != 3)
 		if (g_settings.video_Format != 1 && g_settings.video_Format != 3 && g_settings.video_Format != 2)
 			g_settings.video_Format = 3;
-		videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
+
+		g_Zapit->setMode43(g_settings.video_43mode);
+		videoDecoder->setAspectRatio(g_settings.video_Format, -1);
 #ifdef ENABLE_PIP
 		pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 #endif
@@ -643,7 +645,7 @@ void CVideoSettings::next43Mode(void)
 
 	text = videomenu_43mode_options[curmode].value;
 	g_settings.video_43mode = videomenu_43mode_options[curmode].key;
-	videoDecoder->setAspectRatio(-1, g_settings.video_43mode);
+	g_Zapit->setMode43(g_settings.video_43mode);
 #ifdef ENABLE_PIP
 	pipDecoder->setAspectRatio(-1, g_settings.video_43mode);
 #endif
