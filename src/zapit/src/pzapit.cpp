@@ -30,6 +30,7 @@
 
 int usage (const char * basename)
 {
+	std::cout << "get current TV/Radio mode: " << basename << " -gm" << std::endl;
 	std::cout << "get current channel id: " << basename << " -gi" << std::endl;
 	std::cout << "bouquet list: " << basename << " [-ra]" << std::endl;
 	std::cout << "channel list: " << basename << " [-ra] <bouquet-number>" << std::endl;
@@ -112,6 +113,7 @@ int main (int argc, char** argv)
 	bool sendMotorCommand = false;
 	bool quiet = false;
 	bool getchannel = false;
+	bool getmode = false;
 	bool aspectratio = false;
 	bool mode43 = false;
 	uint8_t motorCmdType = 0;
@@ -334,6 +336,11 @@ int main (int argc, char** argv)
 				sscanf(argv[++i], "%d", &volume);
 				continue;
 			}
+		}
+		else if (!strncmp(argv[i], "-gm", 3))
+		{
+			getmode = true;
+			continue;
 		}
 		else if (!strncmp(argv[i], "-gi", 3))
 		{
@@ -586,6 +593,20 @@ int main (int argc, char** argv)
 		//zapit.startPlayBack();
 		return 0;
 	}
+
+	if (getmode)
+	{
+		int mode = zapit.getMode(); // 1 = TV, 2 = Radio
+		std::cout << "Mode: " << mode;
+		if (mode == CZapitClient::MODE_TV)
+			std::cout << " (TV)" << std::endl;
+		else if (mode == CZapitClient::MODE_RADIO)
+			std::cout << " (Radio)" << std::endl;
+		else
+			std::cout << " (unknown!)" << std::endl;
+		return mode;
+	}
+
 	if (getchannel)
 	{
 		t_channel_id channelid = zapit.getCurrentServiceID();
