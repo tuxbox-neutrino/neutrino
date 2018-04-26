@@ -505,11 +505,18 @@ int main (int argc, char** argv)
 
 	if (mode43)
 	{
+#if HAVE_ARM_HARDWARE
+		/* hack for mix-up letterbox / panscan */
+		m43 = (m43 == 0 || m43 == 1) ? !m43 : m43;
+#endif
 		if(m43 >= 0)
 			zapit.setMode43(m43);
 		else
 		{
 			zapit.getMode43(&m43);
+#if HAVE_ARM_HARDWARE
+			m43 = (m43 == 0 || m43 == 1) ? !m43 : m43;
+#endif
 			printf("%d\n",m43);
 		}
 		return 0;
