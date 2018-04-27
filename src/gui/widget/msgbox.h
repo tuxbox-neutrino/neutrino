@@ -190,16 +190,15 @@ class CMsgBox : public CHintBox
 		* 	@li 	optional: expects type int, defines which buttons are available on screen, default value =  mbCancel
 		* 	@see	setShowedButtons()
 		* @param[in]	Default_result
-		* 	@li 	optional: expects type int, defines default result value, default value =  mbrCancel
+		* 	@li 	optional: expects type msg_result_t, defines default result value, default value =  mbrNone
 		* 		possible values are:
-		* 		mbrYes    	= 0,
-		* 		mbrNo     	= 1,
-		* 		mbrCancel 	= 2,
-		* 		mbrBack   	= 3,
-		* 		mbrOk     	= 4,
-		* 		mbrTimeout 	= 5,
-		*
-		* 		mbrNone 	= -1
+		* 		mbrYes,
+		* 		mbrNo,
+		* 		mbrCancel,
+		* 		mbrBack,
+		* 		mbrOk,
+		* 		mbrTimeout,
+		* 		mbrNone
 		* 	@see	setDefaultResult(), getResult(); getDefaultResult(), enableDefaultResultOnTimeOut()
 		* @param[in]	text_mode
 		* 	@li 	optional: expects type int, defines the text modes for embedded text lines
