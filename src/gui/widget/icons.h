@@ -289,8 +289,6 @@
 
 #define NEUTRINO_ICON_STAR_ON		"star-on"
 #define NEUTRINO_ICON_STAR_OFF		"star-off"
-#define NEUTRINO_ICON_STARS_BG		"stars_bg"
-#define NEUTRINO_ICON_STARS		"stars"
 
 #define NEUTRINO_ICON_IMDB		"imdb"
 #define NEUTRINO_ICON_TMDB		"tmdb"
