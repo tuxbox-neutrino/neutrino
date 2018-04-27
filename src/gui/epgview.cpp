@@ -241,10 +241,7 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 
 void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 {
-	// recalculate
-	medlineheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
-	medlinecount = sb / medlineheight;
-
+	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2];
 	std::string cover = "/tmp/tmdb.jpg"; //todo: maybe add a getCover()-function to tmdb class
 	int cover_max_width = ox/4; //25%
 	int cover_max_height = sb-(2*OFFSET_INNER_MID);
@@ -270,13 +267,13 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	const char tok = ' ';
 	int offset = 0, count = 0;
 	int max_mon_w = 0, max_wday_w = 0;
-	int digi = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth("29..");
+	int digi = font->getRenderWidth("29..");
 
 	for(int i = 0; i < 12;i++){
-		max_mon_w = std::max(max_mon_w, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getMonth(i))) + " "));
+		max_mon_w = std::max(max_mon_w, font->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getMonth(i))) + " "));
 		if(i > 6)
 			continue;
-		max_wday_w = std::max(max_wday_w, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getWeekday(i))) + " "));
+		max_wday_w = std::max(max_wday_w, font->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getWeekday(i))) + " "));
 	}
 	int offs = fullClear ? 0 : cover_offset;
 	frameBuffer->paintBoxRel(sx+offs, y, ox-SCROLLBAR_WIDTH-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
@@ -287,6 +284,9 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			frameBuffer->paintBoxRel(sx, y, ox-SCROLLBAR_WIDTH, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
 	}
+
+	// recalculate
+	medlineheight = font->getHeight();
 
 	// show ranking
 	if ((stars > 0 || imdb_stars > 0) && (tmdb_active || imdb_active) && startPos == 0)
@@ -307,12 +307,15 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 		rate_bar.paint();
 
 		if (imdb_active) //TODO: unify imdb and tmdb
-			paintTextBoxRel(imdb_rating, sx + 2*OFFSET_INNER_MID + cover_offset + rate_bar.getWidth(), y + OFFSET_INNER_MID, rate_bar.getHeight());
+			paintTextBoxRel(imdb_rating, sx + 2*OFFSET_INNER_MID + cover_offset + rate_bar.getWidth(), y + OFFSET_INNER_MID + rate_bar.getHeight()/2 - font->getHeight()/2, 0, rate_bar.getHeight(), font );
+
+		medlinecount = (sb - rate_bar.getHeight() - 2*OFFSET_INNER_MID) / medlineheight;
+		y = rate_bar.getYPos() + rate_bar.getHeight();
 	}
 
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
 	{
-		if(epgText[i].second){
+		if(epgText[i].second){ // screening
 			std::string::size_type pos1 = epgText[i].first.find_first_not_of(tok, 0);
 			std::string::size_type pos2 = epgText[i].first.find_first_of(tok, pos1);
 			while( pos2 != std::string::npos || pos1 != std::string::npos ){
@@ -327,7 +330,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 						offset += digi;
 						break;
 				}
-				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+offset, y+medlineheight, ox - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - offset, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE_TEXT: COL_MENUCONTENT_TEXT);
+				font->RenderString(sx+OFFSET_INNER_MID+offset, y+medlineheight, ox - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - offset, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE_TEXT: COL_MENUCONTENT_TEXT);
 				count++;
 				pos1 = epgText[i].first.find_first_not_of(tok, pos2);
 				pos2 = epgText[i].first.find_first_of(tok, pos1);
@@ -335,7 +338,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			offset = 0;
 			count = 0;
 		}
-		else{
+		else{ // epgtext
 			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+cover_offset, y+medlineheight, ox - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - cover_offset, epgText[i].first, COL_MENUCONTENT_TEXT);
 		}
 	}

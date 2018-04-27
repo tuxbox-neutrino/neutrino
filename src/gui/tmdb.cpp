@@ -275,7 +275,6 @@ bool cTmdb::GetMovieDetails(std::string lang)
 std::string cTmdb::CreateEPGText()
 {
 	std::string epgtext;
-	epgtext += "\n";
 	epgtext += "Vote: "+minfo.vote_average.substr(0,3)+"/10 Votecount: "+to_string(minfo.vote_count)+"\n";
 	epgtext += "\n";
 	epgtext += minfo.overview+"\n";
