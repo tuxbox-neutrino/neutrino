@@ -39,10 +39,12 @@
 #include <driver/movieinfo.h>
 #include "widget/menue.h"
 #include "widget/navibar.h"
+#include "gui/components/cc.h"
 #include <vector>
 #include <string>
 
 class CFrameBuffer;
+class CEPGRateBanner;
 class CEpgData
 {
 	private:
@@ -124,6 +126,39 @@ class CEPGDataHandler : public CMenuTarget
 	public:
 		int  exec( CMenuTarget* parent,  const std::string &actionkey);
 
+};
+
+class CEPGRateBanner : public CComponentsIconForm
+{
+	private:
+		void init(const std::string& quote_icon, const std::string& quote_icon_bg, const size_t& quote, const size_t& quote_max, const std::string& provider_logo)
+		{
+			cc_item_type.name 	= "epg_rate_banner";
+			append_x_offset = 5;
+			paint_bg = false;
+			addIcons(provider_logo);
+			addIcons(quote_icon, quote);
+			addIcons(quote_icon_bg, quote_max - quote);
+		}
+
+	public:
+
+	CEPGRateBanner(	const int &x_pos,
+			const int &y_pos,
+			const size_t& quote,
+			const size_t& quote_max = 10,
+			const std::string& provider_logo = "",
+			const std::string& quote_icon = NEUTRINO_ICON_STAR_ON,
+			const std::string& quote_icon_bg = NEUTRINO_ICON_STAR_OFF,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+			CComponentsForm *parent = NULL)
+			:CComponentsIconForm(x_pos, y_pos, 0, 0, std::vector<std::string>(), parent, shadow_mode, color_frame, color_body, color_shadow)
+			{
+				init(quote_icon, quote_icon_bg, quote, quote_max, provider_logo);
+			};
 };
 
 
