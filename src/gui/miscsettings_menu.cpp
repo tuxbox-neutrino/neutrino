@@ -1,9 +1,7 @@
 /*
-	$port: miscsettings_menu.cpp,v 1.3 2010/12/05 22:32:12 tuxbox-cvs Exp $
-
 	miscsettings_menu implementation - Neutrino-GUI
 
-	Copyright (C) 2010 T. Graf 'dbt'
+	Copyright (C) 2010, 2018 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
 
@@ -20,8 +18,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -564,17 +561,35 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 {
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
+	
+	CMenuForwarder *mf = NULL;
 
+	// tmdb
 	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_tmdb_api_key());
 	tmdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_ENABLED);
 	ms_oservices->addItem(tmdb_onoff);
-
+#if ENABLE_TMDB_KEY_MANAGE
 	changeNotify(LOCALE_TMDB_API_KEY, NULL);
 	CKeyboardInput tmdb_api_key_input(LOCALE_TMDB_API_KEY, &g_settings.tmdb_api_key, 32, this);
-	CMenuForwarder *mf = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
+	mf = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
 	ms_oservices->addItem(mf);
 
+	// imdb (omdb)
+	ms_oservices->addItem(GenericMenuSeparator);
+#endif
+	imdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.imdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_imdb_api_key());
+// 	imdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_ENABLED);
+	ms_oservices->addItem(imdb_onoff);
+
+	changeNotify(LOCALE_IMDB_API_KEY, NULL);
+	CKeyboardInput imdb_api_key_input(LOCALE_IMDB_API_KEY, &g_settings.imdb_api_key, 8, this);
+	mf = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, imdb_api_key_short, &imdb_api_key_input);
+// 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
+	ms_oservices->addItem(mf);
+
+
+	// youtube
 	ms_oservices->addItem(GenericMenuSeparator);
 
 	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_youtube_dev_id());
@@ -587,6 +602,8 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
 	ms_oservices->addItem(mf);
 
+
+	//shoutcast
 	ms_oservices->addItem(GenericMenuSeparator);
 
 	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_shoutcast_dev_id());
@@ -692,6 +709,15 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		else
 			tmdb_api_key_short.clear();
 		tmdb_onoff->setActive(check_tmdb_api_key());
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_IMDB_API_KEY))
+	{
+		g_settings.imdb_enabled = g_settings.imdb_enabled && check_imdb_api_key();
+		if (g_settings.imdb_enabled)
+			imdb_api_key_short = g_settings.imdb_api_key.substr(0, 8) + "...";
+		else
+			imdb_api_key_short.clear();
+		imdb_onoff->setActive(check_imdb_api_key());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_DEV_ID))
 	{
