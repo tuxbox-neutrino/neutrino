@@ -847,6 +847,8 @@ const char * locale_real_names[] =
 	"imageinfo.license",
 	"imageinfo.vcs",
 	"imageinfo.version",
+	"imdb.api_key",
+	"imdb.enabled",
 	"imdb.data_actors",
 	"imdb.data_awards",
 	"imdb.data_boxoffice",

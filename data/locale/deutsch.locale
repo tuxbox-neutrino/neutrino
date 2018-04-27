@@ -820,6 +820,8 @@ imageinfo.kernel Kernel:
 imageinfo.license Lizenz
 imageinfo.vcs Git:
 imageinfo.version Version:
+imdb.api_key IMDb API Schlüssel
+imdb.enabled IMDb-Unterstützung
 imdb.data_actors Darsteller
 imdb.data_awards Awards
 imdb.data_boxoffice Einspielergebnis
