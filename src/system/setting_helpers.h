@@ -150,14 +150,17 @@ class CAutoModeNotifier : public CChangeObserver
 		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
-//do we need a class?
-int check_api_key(const std::string& api_key_setting, const std::string& api_key_pattern)
+class CApiKey
 {
-	return ((api_key_setting != api_key_pattern) && !api_key_setting.empty());
-}
-inline int check_shoutcast_dev_id() { return check_api_key(g_settings.shoutcast_dev_id, "XXXXXXXXXXXXXXXX"); }
-inline int check_youtube_dev_id() { return check_api_key(g_settings.youtube_dev_id, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
-inline int check_tmdb_api_key() { return check_api_key(g_settings.tmdb_api_key, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
-inline int check_omdb_api_key() { return check_api_key(g_settings.omdb_api_key, "XXXXXXXX"); }
+	public:
+		static int check_api_key(const std::string& api_key_setting, const std::string& api_key_pattern)
+		{
+			return ((api_key_setting != api_key_pattern) && !api_key_setting.empty());
+		}
+		static int check_shoutcast_dev_id() { return CApiKey::check_api_key(g_settings.shoutcast_dev_id, "XXXXXXXXXXXXXXXX"); }
+		static int check_youtube_dev_id() { return CApiKey::check_api_key(g_settings.youtube_dev_id, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
+		static int check_tmdb_api_key() { return CApiKey::check_api_key(g_settings.tmdb_api_key, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
+		static int check_omdb_api_key() { return CApiKey::check_api_key(g_settings.omdb_api_key, "XXXXXXXX"); }
+};
 
 #endif

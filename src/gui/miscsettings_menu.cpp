@@ -565,7 +565,7 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuForwarder *mf = NULL;
 
 	// tmdb
-	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_tmdb_api_key());
+	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_tmdb_api_key());
 	tmdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_ENABLED);
 	ms_oservices->addItem(tmdb_onoff);
 
@@ -580,7 +580,7 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 #endif
 
 	// omdb
-	omdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_omdb_api_key());
+	omdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_omdb_api_key());
 // 	omdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_ENABLED);
 	ms_oservices->addItem(omdb_onoff);
 
@@ -595,7 +595,7 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 #endif
 
 	// youtube
-	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_youtube_dev_id());
+	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_youtube_dev_id());
 	youtube_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_ENABLED);
 	ms_oservices->addItem(youtube_onoff);
 
@@ -610,7 +610,7 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 #endif
 
 	//shoutcast
-	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_shoutcast_dev_id());
+	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_shoutcast_dev_id());
 	shoutcast_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_ENABLED);
 	ms_oservices->addItem(shoutcast_onoff);
 
@@ -709,39 +709,39 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 #endif
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TMDB_API_KEY))
 	{
-		g_settings.tmdb_enabled = g_settings.tmdb_enabled && check_tmdb_api_key();
+		g_settings.tmdb_enabled = g_settings.tmdb_enabled && CApiKey::check_tmdb_api_key();
 		if (g_settings.tmdb_enabled)
 			tmdb_api_key_short = g_settings.tmdb_api_key.substr(0, 8) + "...";
 		else
 			tmdb_api_key_short.clear();
-		tmdb_onoff->setActive(check_tmdb_api_key());
+		tmdb_onoff->setActive(CApiKey::check_tmdb_api_key());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_IMDB_API_KEY))
 	{
-		g_settings.omdb_enabled = g_settings.omdb_enabled && check_omdb_api_key();
+		g_settings.omdb_enabled = g_settings.omdb_enabled && CApiKey::check_omdb_api_key();
 		if (g_settings.omdb_enabled)
 			omdb_api_key_short = g_settings.omdb_api_key.substr(0, 8) + "...";
 		else
 			omdb_api_key_short.clear();
-		omdb_onoff->setActive(check_omdb_api_key());
+		omdb_onoff->setActive(CApiKey::check_omdb_api_key());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_DEV_ID))
 	{
-		g_settings.youtube_enabled = g_settings.youtube_enabled && check_youtube_dev_id();
+		g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
 		if (g_settings.youtube_enabled)
 			youtube_dev_id_short = g_settings.youtube_dev_id.substr(0, 8) + "...";
 		else
 			youtube_dev_id_short.clear();
-		youtube_onoff->setActive(check_youtube_dev_id());
+		youtube_onoff->setActive(CApiKey::check_youtube_dev_id());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SHOUTCAST_DEV_ID))
 	{
-		g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && check_shoutcast_dev_id();
+		g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
 		if (g_settings.shoutcast_enabled)
 			shoutcast_dev_id_short = g_settings.shoutcast_dev_id.substr(0, 8) + "...";
 		else
 			shoutcast_dev_id_short.clear();
-		shoutcast_onoff->setActive(check_shoutcast_dev_id());
+		shoutcast_onoff->setActive(CApiKey::check_shoutcast_dev_id());
 	}
 	return ret;
 }
