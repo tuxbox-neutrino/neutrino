@@ -801,12 +801,14 @@ struct SNeutrinoSettings
 	//online services
 	int   movieplayer_repeat_on;
 	int movieplayer_display_playtime;
+
+	//online services
 	std::string youtube_dev_id;
 	int youtube_enabled;
 	std::string tmdb_api_key;
 	int tmdb_enabled;
-	std::string imdb_api_key;
-	int imdb_enabled;
+	std::string omdb_api_key;
+	int omdb_enabled;
 	std::string shoutcast_dev_id;
 	int shoutcast_enabled;
 

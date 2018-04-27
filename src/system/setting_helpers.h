@@ -154,6 +154,6 @@ class CAutoModeNotifier : public CChangeObserver
 inline int check_shoutcast_dev_id() { return ((g_settings.shoutcast_dev_id != "XXXXXXXXXXXXXXXX") && !g_settings.shoutcast_dev_id.empty()); }
 inline int check_youtube_dev_id() { return ((g_settings.youtube_dev_id != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX") && !g_settings.youtube_dev_id.empty()); }
 inline int check_tmdb_api_key() { return ((g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX") && !g_settings.tmdb_api_key.empty()); }
-inline int check_imdb_api_key() { return ((g_settings.imdb_api_key != "XXXXXXXX") && !g_settings.imdb_api_key.empty()); }
+inline int check_omdb_api_key() { return ((g_settings.omdb_api_key != "XXXXXXXX") && !g_settings.omdb_api_key.empty()); }
 
 #endif

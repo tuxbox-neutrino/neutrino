@@ -579,15 +579,15 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	ms_oservices->addItem(GenericMenuSeparator);
 #endif
 
-	// imdb (omdb)
-	imdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.imdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_imdb_api_key());
-// 	imdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_ENABLED);
-	ms_oservices->addItem(imdb_onoff);
+	// omdb
+	omdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_omdb_api_key());
+// 	omdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_ENABLED);
+	ms_oservices->addItem(omdb_onoff);
 
 #if ENABLE_OMDB_KEY_MANAGE
 	changeNotify(LOCALE_IMDB_API_KEY, NULL);
-	CKeyboardInput imdb_api_key_input(LOCALE_IMDB_API_KEY, &g_settings.imdb_api_key, 8, this);
-	mf = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, imdb_api_key_short, &imdb_api_key_input);
+	CKeyboardInput omdb_api_key_input(LOCALE_IMDB_API_KEY, &g_settings.omdb_api_key, 8, this);
+	mf = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
 // 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
 	ms_oservices->addItem(mf);
 
@@ -718,12 +718,12 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_IMDB_API_KEY))
 	{
-		g_settings.imdb_enabled = g_settings.imdb_enabled && check_imdb_api_key();
-		if (g_settings.imdb_enabled)
-			imdb_api_key_short = g_settings.imdb_api_key.substr(0, 8) + "...";
+		g_settings.omdb_enabled = g_settings.omdb_enabled && check_omdb_api_key();
+		if (g_settings.omdb_enabled)
+			omdb_api_key_short = g_settings.omdb_api_key.substr(0, 8) + "...";
 		else
-			imdb_api_key_short.clear();
-		imdb_onoff->setActive(check_imdb_api_key());
+			omdb_api_key_short.clear();
+		omdb_onoff->setActive(check_omdb_api_key());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_DEV_ID))
 	{

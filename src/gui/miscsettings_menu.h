@@ -48,7 +48,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CMenuOptionChooser * epg_read_frequently;
 		CMenuOptionChooser * epg_scan;
 		CMenuOptionChooser * tmdb_onoff;
-		CMenuOptionChooser * imdb_onoff;
+		CMenuOptionChooser * omdb_onoff;
 		CMenuOptionChooser * youtube_onoff;
 		CMenuOptionChooser * shoutcast_onoff;
 		CMenuForwarder * epg_dir;
@@ -60,7 +60,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		std::string epg_max_events;
 
 		std::string tmdb_api_key_short;
-		std::string imdb_api_key_short;
+		std::string omdb_api_key_short;
 		std::string youtube_dev_id_short;
 		std::string shoutcast_dev_id_short;
 

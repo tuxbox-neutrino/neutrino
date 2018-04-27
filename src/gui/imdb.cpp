@@ -48,7 +48,7 @@ CIMDB::CIMDB()
 	imdb_url	= "http://www.omdbapi.com/?plot=full&r=json&i=";
 	imdb_outfile	= "/tmp/imdb.json";
 	omdb_apikey	= "&apikey=";
-	omdb_apikey	+= g_settings.imdb_api_key;
+	omdb_apikey	+= g_settings.omdb_api_key;
 	posterfile	= "/tmp/imdb.jpg";
 
 	acc = 0;
