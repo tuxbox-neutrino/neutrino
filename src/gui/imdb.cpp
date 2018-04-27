@@ -47,7 +47,8 @@ CIMDB::CIMDB()
 	search_error	= "IMDb: Google download failed";
 	imdb_url	= "http://www.omdbapi.com/?plot=full&r=json&i=";
 	imdb_outfile	= "/tmp/imdb.json";
-	omdb_apikey	= "";
+	omdb_apikey	= "&apikey=";
+	omdb_apikey	+= g_settings.imdb_api_key;
 	posterfile	= "/tmp/imdb.jpg";
 
 	acc = 0;
