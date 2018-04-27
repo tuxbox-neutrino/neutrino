@@ -35,7 +35,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/mountchooser.h>
-#include <gui/components/cc.h>
+
 #include <gui/timerlist.h>
 #include <zapit/zapit.h>
 #include <system/helpers.h>
@@ -287,54 +287,29 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			frameBuffer->paintBoxRel(sx, y, ox-SCROLLBAR_WIDTH, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
 	}
-	int logo_offset = 0;
-	int icon_w = 0;
-	int icon_h = 0;
-	if (tmdb_active && startPos == 0)
-	{
-		frameBuffer->getIconSize(NEUTRINO_ICON_TMDB, &icon_w, &icon_h);
-		frameBuffer->paintIcon(NEUTRINO_ICON_TMDB, sx+OFFSET_INNER_MID+cover_offset, y+(medlineheight-icon_h)/2);
-		logo_offset = icon_w + OFFSET_INNER_MID;
-	}
 
-	if (imdb_active && startPos == 0)
-	{
-		frameBuffer->getIconSize(NEUTRINO_ICON_IMDB, &icon_w, &icon_h);
-		frameBuffer->paintIcon(NEUTRINO_ICON_IMDB, sx+OFFSET_INNER_MID+cover_offset, y+(medlineheight-icon_h)/2);
-		logo_offset = icon_w + OFFSET_INNER_MID;
-	}
-
-	if (stars > 0 && startPos == 0)
-	{
-		frameBuffer->getIconSize(NEUTRINO_ICON_STAR_OFF, &icon_w, &icon_h);
-		for (int i = 0; i < 10; i++)
-			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_OFF, sx+10+cover_offset+logo_offset + i*(icon_w+3), y+(medlineheight-icon_h)/2);
-		for (int i = 0; i < stars; i++)
-			frameBuffer->paintIcon(NEUTRINO_ICON_STAR_ON, sx+10+cover_offset+logo_offset + i*(icon_w+3), y+(medlineheight-icon_h)/2);
-	}
-#if 0
+	// show ranking
 	if ((stars > 0 || imdb_stars > 0) && (tmdb_active || imdb_active) && startPos == 0)
 	{
-		if (stars <= 10)
-			stars *= 10; // recalculate stars value for starbar
+		std::string provider_logo = "";
 
-		int stars_w = 0, stars_h = 0;
-		frameBuffer->getIconSize(NEUTRINO_ICON_STARS_BG, &stars_w, &stars_h);
+		if (tmdb_active && startPos == 0)
+			provider_logo = NEUTRINO_ICON_TMDB;
+		if (imdb_active && startPos == 0)
+			provider_logo = NEUTRINO_ICON_IMDB;
 
-		//create starbar item
-		CProgressBar *cc_starbar = new CProgressBar();
-		cc_starbar->setProgress(sx+OFFSET_INNER_MID+cover_offset+logo_offset, y+(medlineheight-stars_h)/2, stars_w, medlineheight, imdb_active ? imdb_stars : stars, 100);
-		cc_starbar->setType(CProgressBar::PB_STARBAR);
-		cc_starbar->paint();
+		int max_stars = 10;
+		if (imdb_active && imdb_stars) //TODO: unify imdb and tmdb
+			stars = imdb_stars / max_stars; // recalculate stars value for starbar
 
-		if (imdb_active)
-		{
-			int _x = sx+OFFSET_INNER_MID+cover_offset+logo_offset+cc_starbar->getWidth()+OFFSET_INNER_MID;
-			int _w = ox-OFFSET_INNER_MID-cover_offset-logo_offset-cc_starbar->getWidth()-OFFSET_INNER_MID;
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(_x, y+medlineheight, _w, imdb_rating, COL_MENUCONTENT_TEXT, 0, true);
-		}
+		//create and paint ranking banner
+		CEPGRateBanner rate_bar(sx+10+cover_offset, y+OFFSET_INNER_MID, (size_t)stars, (size_t)max_stars, provider_logo);
+		rate_bar.paint();
+
+		if (imdb_active) //TODO: unify imdb and tmdb
+			paintTextBoxRel(imdb_rating, sx + 2*OFFSET_INNER_MID + cover_offset + rate_bar.getWidth(), y + OFFSET_INNER_MID, rate_bar.getHeight());
 	}
-#endif
+
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
 	{
 		if(epgText[i].second){
