@@ -820,6 +820,24 @@ imageinfo.kernel Kernel:
 imageinfo.license Lizenz
 imageinfo.vcs Git:
 imageinfo.version Version:
+imdb.data_actors Darsteller
+imdb.data_awards Awards
+imdb.data_boxoffice Einspielergebnis
+imdb.data_director Regisseur
+imdb.data_failed Keine Daten gefunden
+imdb.data_genre Genre
+imdb.data_metascore Metascore
+imdb.data_plot Handlung
+imdb.data_production Produktion
+imdb.data_rating_failed Keine Bewertung
+imdb.data_released Veröffentlicht
+imdb.data_runtime Spieldauer
+imdb.data_title Originaltitel
+imdb.data_votes Stimmen
+imdb.data_website Webseite
+imdb.data_writer Drehbuchautor
+imdb.info IMDb-Info
+imdb.info_save Bild speichern
 inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen ...
 infoviewer.epgwait Warte auf EPG-Informationen ...
@@ -1723,6 +1741,7 @@ moviebrowser.hint_movieend Filmende in 5 Sekunden\n'0' zum Weitersehen
 moviebrowser.hint_newbook_backward Neue Wiederholung gestartet.\n'%s' bestimmt die Endposition, '0' bricht ab.
 moviebrowser.hint_newbook_forward Neuer Werbesprung gestartet.\n'%s' bestimmt die Endposition, '0' bricht ab.
 moviebrowser.hint_truncate Entfernt den Filmteil hinter der Filmende-Markierung
+moviebrowser.imdb_data Lade IMDb-Daten
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
 moviebrowser.info_file Datei
@@ -2431,6 +2450,7 @@ timing.static_messages Interaktive Meldungen
 timing.volumebar Lautstärkeanzeige
 tmdb.api_key TMDb API Schlüssel
 tmdb.enabled TMDb-Unterstützung
+tmdb.info TMDb-Info
 tmdb.read_data Suche TMDb-Daten ...
 tunersetup.cable Kabel (DVB-C)
 tunersetup.hybrid Hybrid (DVB-C/T/T2)

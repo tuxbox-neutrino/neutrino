@@ -820,6 +820,24 @@ imageinfo.kernel Kernel:
 imageinfo.license License
 imageinfo.vcs Git:
 imageinfo.version Version:
+imdb.data_actors Actors
+imdb.data_awards Awards
+imdb.data_boxoffice Boxoffice
+imdb.data_director Director
+imdb.data_failed No data found
+imdb.data_genre Genre
+imdb.data_metascore Metascore
+imdb.data_plot Plot
+imdb.data_production Production
+imdb.data_rating_failed No rating
+imdb.data_released Released
+imdb.data_runtime Runtime
+imdb.data_title Original title
+imdb.data_votes Votes
+imdb.data_website Website
+imdb.data_writer Screenplay author
+imdb.info IMDb-Info
+imdb.info_save save Cover
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded ...
 infoviewer.epgwait waiting for EPG ...
@@ -1723,6 +1741,7 @@ moviebrowser.hint_movieend Film end in 5 seconds\n'0' to cancel
 moviebrowser.hint_newbook_backward New jump back started\n'%s' to define endposition, '0' to cancel
 moviebrowser.hint_newbook_forward New jump forward started\n'%s' to define endposition, '0' to cancel
 moviebrowser.hint_truncate Truncating all data beyond the end-bookmark
+moviebrowser.imdb_data Get IMDb data
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_file File
@@ -2431,6 +2450,7 @@ timing.static_messages Interactive messages
 timing.volumebar Volume bar
 tmdb.api_key TMDb API key
 tmdb.enabled TMDb support
+tmdb.info TMDb-Info
 tmdb.read_data Search TMDb data ...
 tunersetup.cable Cable (DVB-C)
 tunersetup.hybrid Hybrid (DVB-C/T/T2)
