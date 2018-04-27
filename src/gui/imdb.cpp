@@ -17,8 +17,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -35,7 +34,7 @@
 #include <system/helpers.h>
 #include <system/helpers-json.h>
 #include <eitd/sectionsd.h>
-
+#include <unistd.h>
 #include <json/json.h>
 
 #include "imdb.h"
@@ -50,6 +49,8 @@ CIMDB::CIMDB()
 	imdb_outfile	= "/tmp/imdb.json";
 	omdb_apikey	= "";
 	posterfile	= "/tmp/imdb.jpg";
+
+	acc = 0;
 }
 
 CIMDB::~CIMDB()
@@ -86,8 +87,8 @@ std::string CIMDB::utf82url(std::string s)
 std::string CIMDB::parseString(std::string search1, std::string search2, std::string str)
 {
 	std::string ret, search;
-	size_t pos_wildcard, pos_firstline, pos_search1, pos_search2;
-	pos_wildcard = pos_firstline = pos_search1 = pos_search2 = std::string::npos;
+	size_t pos_wildcard, pos_search1, pos_search2;
+	pos_wildcard = pos_search1 = pos_search2 = std::string::npos;
 
 	if((pos_wildcard = search1.find('*')) != std::string::npos)
 	{
@@ -156,12 +157,12 @@ std::string CIMDB::parseString(std::string search1, std::string search2, std::st
 
 std::string CIMDB::parseFile(std::string search1, std::string search2, const char* file, std::string firstline, int line_offset)
 {
-	int line = 0;
+
 	acc = 0;
 	std::ifstream fh;
-	std::string str, ret, search;
-	size_t pos_firstline, pos_search1, pos_search2;
-	pos_firstline = pos_search1 = pos_search2 = std::string::npos;
+	std::string str, ret;
+	size_t pos_firstline;
+	pos_firstline = std::string::npos;
 
 	if(firstline.empty())
 		pos_firstline = 0;
@@ -169,6 +170,7 @@ std::string CIMDB::parseFile(std::string search1, std::string search2, const cha
 	fh.open(file, std::ios::in);
 	if(fh.is_open())
 	{
+		int line = 0;
 		while (!fh.eof())
 		{
 			getline(fh, str);
@@ -472,4 +474,9 @@ void CIMDB::cleanup()
 		unlink(search_outfile.c_str());
 	if (access(posterfile.c_str(), F_OK) == 0)
 		unlink(posterfile.c_str());
+}
+
+bool CIMDB::gotPoster()
+{
+    return (access(posterfile.c_str(), F_OK) == 0);
 }

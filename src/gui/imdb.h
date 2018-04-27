@@ -17,17 +17,15 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
 #ifndef __imdb__
 #define __imdb__
 
-#include <unistd.h>
 
-#include <gui/components/cc.h>
+
 #include <zapit/zapit.h>
 
 class CIMDB
@@ -50,7 +48,7 @@ class CIMDB
 
 		void getIMDbData(std::string& txt);
 
-		bool gotPoster() { return (access(posterfile.c_str(), F_OK) == 0); };
+		bool gotPoster();
 
 		bool checkIMDbElement(std::string element);
 		//FIXME: what if m[element] doesn't exist?
