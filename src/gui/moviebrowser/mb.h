@@ -58,6 +58,7 @@
 #include <driver/fb_window.h>
 #include <system/ytparser.h>
 #include <gui/widget/progresswindow.h>
+#include <gui/imdb.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
 #define MOVIEBROWSER_SETTINGS_FILE          CONFIGDIR "/moviebrowser.conf"
@@ -247,6 +248,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		void loadYTitles(int mode, std::string search = "", std::string id = "");
 		bool showYTMenu(bool calledExternally = false);
 		void refreshYTMenu();
+		CIMDB *imdb;
 
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(); //P1
