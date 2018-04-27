@@ -878,19 +878,20 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.movieplayer_display_playtime = configfile.getInt32("movieplayer_display_playtime", 1);
 
 	//online services
-	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+	std::string yt_api_key = YT_DEV_KEY;
+	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id", yt_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : yt_api_key);
 	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
 	g_settings.youtube_enabled = g_settings.youtube_enabled && check_youtube_dev_id();
-
-	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+	std::string tmdb_api_key = TMDB_DEV_KEY;
+	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key", tmdb_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : tmdb_api_key);
 	g_settings.tmdb_enabled = configfile.getInt32("tmdb_enabled", 1);
 	g_settings.tmdb_enabled = g_settings.tmdb_enabled && check_tmdb_api_key();
-
-	g_settings.omdb_api_key = configfile.getString("omdb_api_key","XXXXXXXX");
+	std::string omdb_api_key = OMDB_API_KEY;
+	g_settings.omdb_api_key = configfile.getString("omdb_api_key", omdb_api_key.empty() ? "XXXXXXXX" : omdb_api_key);
 	g_settings.omdb_enabled = configfile.getInt32("omdb_enabled", 1);
 	g_settings.omdb_enabled = g_settings.omdb_enabled && check_omdb_api_key();
-
-	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id","XXXXXXXXXXXXXXXX");
+	std::string sc_api_key = SHOUTCAST_DEV_KEY;
+	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id", sc_api_key.empty() ? "XXXXXXXXXXXXXXXX" : sc_api_key);
 	g_settings.shoutcast_enabled = configfile.getInt32("shoutcast_enabled", 1);
 	g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && check_shoutcast_dev_id();
 
