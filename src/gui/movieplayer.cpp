@@ -406,11 +406,13 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		moviebrowser->setMode(MB_SHOW_RECORDS);
 		//wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 	}
+#if ENABLE_YOUTUBE_PLAYER
 	else if (actionKey == "ytplayback") {
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_YT);
 		isYT = true;
 	}
+#endif
 	else if (actionKey == "fileplayback_video") {
 		is_audio_playing = false;
 		if (filebrowser)
