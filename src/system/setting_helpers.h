@@ -151,9 +151,13 @@ class CAutoModeNotifier : public CChangeObserver
 };
 
 //do we need a class?
-inline int check_shoutcast_dev_id() { return ((g_settings.shoutcast_dev_id != "XXXXXXXXXXXXXXXX") && !g_settings.shoutcast_dev_id.empty()); }
-inline int check_youtube_dev_id() { return ((g_settings.youtube_dev_id != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX") && !g_settings.youtube_dev_id.empty()); }
-inline int check_tmdb_api_key() { return ((g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX") && !g_settings.tmdb_api_key.empty()); }
-inline int check_omdb_api_key() { return ((g_settings.omdb_api_key != "XXXXXXXX") && !g_settings.omdb_api_key.empty()); }
+int check_api_key(const std::string& api_key_setting, const std::string& api_key_pattern)
+{
+	return ((api_key_setting != api_key_pattern) && !api_key_setting.empty());
+}
+inline int check_shoutcast_dev_id() { return check_api_key(g_settings.shoutcast_dev_id, "XXXXXXXXXXXXXXXX"); }
+inline int check_youtube_dev_id() { return check_api_key(g_settings.youtube_dev_id, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
+inline int check_tmdb_api_key() { return check_api_key(g_settings.tmdb_api_key, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
+inline int check_omdb_api_key() { return check_api_key(g_settings.omdb_api_key, "XXXXXXXX"); }
 
 #endif
