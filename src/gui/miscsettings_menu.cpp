@@ -561,13 +561,14 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 {
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
-	
+
 	CMenuForwarder *mf = NULL;
 
 	// tmdb
 	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_tmdb_api_key());
 	tmdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_ENABLED);
 	ms_oservices->addItem(tmdb_onoff);
+
 #if ENABLE_TMDB_KEY_MANAGE
 	changeNotify(LOCALE_TMDB_API_KEY, NULL);
 	CKeyboardInput tmdb_api_key_input(LOCALE_TMDB_API_KEY, &g_settings.tmdb_api_key, 32, this);
@@ -575,46 +576,51 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
 	ms_oservices->addItem(mf);
 
-	// imdb (omdb)
 	ms_oservices->addItem(GenericMenuSeparator);
 #endif
+
+	// imdb (omdb)
 	imdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.imdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_imdb_api_key());
 // 	imdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_ENABLED);
 	ms_oservices->addItem(imdb_onoff);
 
+#if ENABLE_OMDB_KEY_MANAGE
 	changeNotify(LOCALE_IMDB_API_KEY, NULL);
 	CKeyboardInput imdb_api_key_input(LOCALE_IMDB_API_KEY, &g_settings.imdb_api_key, 8, this);
 	mf = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, imdb_api_key_short, &imdb_api_key_input);
 // 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
 	ms_oservices->addItem(mf);
 
+	ms_oservices->addItem(GenericMenuSeparator);
+#endif
 
 	// youtube
-	ms_oservices->addItem(GenericMenuSeparator);
-
 	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_youtube_dev_id());
 	youtube_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_ENABLED);
 	ms_oservices->addItem(youtube_onoff);
 
+#if ENABLE_YOUTUBE_KEY_MANAGE
 	changeNotify(LOCALE_YOUTUBE_DEV_ID, NULL);
 	CKeyboardInput youtube_dev_id_input(LOCALE_YOUTUBE_DEV_ID, &g_settings.youtube_dev_id, 39, this);
 	mf = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
 	ms_oservices->addItem(mf);
 
+	ms_oservices->addItem(GenericMenuSeparator);
+#endif
 
 	//shoutcast
-	ms_oservices->addItem(GenericMenuSeparator);
-
 	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_shoutcast_dev_id());
 	shoutcast_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_ENABLED);
 	ms_oservices->addItem(shoutcast_onoff);
 
+#if ENABLE_SHOUTCAST_KEY_MANAGE
 	changeNotify(LOCALE_SHOUTCAST_DEV_ID, NULL);
 	CKeyboardInput shoutcast_dev_id_input(LOCALE_SHOUTCAST_DEV_ID, &g_settings.shoutcast_dev_id, 16, this);
 	mf = new CMenuForwarder(LOCALE_SHOUTCAST_DEV_ID, true, shoutcast_dev_id_short, &shoutcast_dev_id_input);
 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_DEV_ID);
 	ms_oservices->addItem(mf);
+#endif
 
 	int res = ms_oservices->exec(NULL, "");
 	delete ms_oservices;
