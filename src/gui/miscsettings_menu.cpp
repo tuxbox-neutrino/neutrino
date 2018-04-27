@@ -562,8 +562,6 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
 
-	CMenuForwarder *mf = NULL;
-
 	// tmdb
 	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_tmdb_api_key());
 	tmdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_ENABLED);
@@ -572,9 +570,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 #if ENABLE_TMDB_KEY_MANAGE
 	changeNotify(LOCALE_TMDB_API_KEY, NULL);
 	CKeyboardInput tmdb_api_key_input(LOCALE_TMDB_API_KEY, &g_settings.tmdb_api_key, 32, this);
-	mf = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_tm = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
+	mf_tm->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
+	ms_oservices->addItem(mf_tm);
 
 	ms_oservices->addItem(GenericMenuSeparator);
 #endif
@@ -587,9 +585,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 #if ENABLE_OMDB_KEY_MANAGE
 	changeNotify(LOCALE_IMDB_API_KEY, NULL);
 	CKeyboardInput omdb_api_key_input(LOCALE_IMDB_API_KEY, &g_settings.omdb_api_key, 8, this);
-	mf = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
-// 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_om = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
+	//mf_om ->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
+	ms_oservices->addItem(mf_om);
 
 	ms_oservices->addItem(GenericMenuSeparator);
 #endif
@@ -602,9 +600,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 #if ENABLE_YOUTUBE_KEY_MANAGE
 	changeNotify(LOCALE_YOUTUBE_DEV_ID, NULL);
 	CKeyboardInput youtube_dev_id_input(LOCALE_YOUTUBE_DEV_ID, &g_settings.youtube_dev_id, 39, this);
-	mf = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_yt = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
+	mf_yt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
+	ms_oservices->addItem(mf_yt);
 
 	ms_oservices->addItem(GenericMenuSeparator);
 #endif
@@ -617,9 +615,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 #if ENABLE_SHOUTCAST_KEY_MANAGE
 	changeNotify(LOCALE_SHOUTCAST_DEV_ID, NULL);
 	CKeyboardInput shoutcast_dev_id_input(LOCALE_SHOUTCAST_DEV_ID, &g_settings.shoutcast_dev_id, 16, this);
-	mf = new CMenuForwarder(LOCALE_SHOUTCAST_DEV_ID, true, shoutcast_dev_id_short, &shoutcast_dev_id_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_DEV_ID);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_sc = new CMenuForwarder(LOCALE_SHOUTCAST_DEV_ID, true, shoutcast_dev_id_short, &shoutcast_dev_id_input);
+	mf_sc->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_DEV_ID);
+	ms_oservices->addItem(mf_sc);
 #endif
 
 	int res = ms_oservices->exec(NULL, "");
