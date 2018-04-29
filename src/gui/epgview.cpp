@@ -303,7 +303,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			stars = imdb_stars / max_stars; // recalculate stars value for starbar
 
 		//create and paint ranking banner
-		CEPGRateBanner rate_bar(sx+10+cover_offset, y+OFFSET_INNER_MID, (size_t)stars, (size_t)max_stars, provider_logo);
+		CEPGRateBanner rate_bar(sx+OFFSET_INNER_MID+cover_offset, y+OFFSET_INNER_MID, (size_t)stars, (size_t)max_stars, provider_logo);
 		rate_bar.paint();
 
 		if (imdb_active) //TODO: unify imdb and tmdb
