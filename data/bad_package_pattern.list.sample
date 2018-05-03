@@ -24,6 +24,7 @@ initscripts-
 kbd-
 kernel-
 kmod-
+krb5-
 lua-
 mc-
 ncurses-
