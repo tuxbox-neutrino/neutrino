@@ -231,11 +231,11 @@ std::string CIMDB::googleIMDb(std::string s)
 		search_char++;
 	}
 
-	std::string url = search_url + utf82url(search_string) + "%20site:www.imdb.com";
+	std::string url = search_url + utf82url(search_string) + "%20www.imdb.com";
 
 	if (httpTool.downloadFile(url, search_outfile.c_str()))
 	{
-		ret = parseFile("http://www.imdb.com/title/", ">", search_outfile.c_str());
+		ret = parseFile("https://www.imdb.com/title/", ">", search_outfile.c_str());
 
 		if(ret.empty())
 			ret = parseFile("http://www.imdb.de/title/", ">", search_outfile.c_str());
