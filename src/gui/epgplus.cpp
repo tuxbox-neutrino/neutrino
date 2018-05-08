@@ -112,7 +112,7 @@ void EpgPlus::Header::paint(const char * Name)
 	if (this->head == NULL)
 	{
 		this->head = new CComponentsHeader();
-		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP);
+		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT);
 		this->head->enableClock(true, "%H:%M", "%H %M", true);
 		this->head->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 
@@ -1315,6 +1315,11 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 						}
 					}
 				}
+			}
+			else if (msg == CRCInput::RC_home)
+			{
+				loop = false;
+				res = menu_return::RETURN_EXIT_ALL;
 			}
 			else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 			{
