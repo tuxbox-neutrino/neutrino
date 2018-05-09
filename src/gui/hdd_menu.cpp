@@ -998,7 +998,7 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	int res;
 	FILE * f;
 	CProgressWindow * progress;
-	std::string fdisk, sfdisk, tune2fs;
+	std::string fdisk, sfdisk, sgdisk, tune2fs;
 
 	printf("CHDDMenuHandler::formatDevice: dev %s hdd_fs %d\n", dev.c_str(), g_settings.hdd_fs);
 
@@ -1050,16 +1050,22 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 
 	fdisk   = find_executable("fdisk");
 	sfdisk  = find_executable("sfdisk");
+	sgdisk  = find_executable("sgdisk");
 	tune2fs = find_executable("tune2fs");
 	if (! sfdisk.empty()) {
-		snprintf(cmd, sizeof(cmd), "%s -f -uM %s", sfdisk.c_str(), devname.c_str());
-		strcpy(cmd2, "0,\n;\n;\n;\ny\n");
-	} else if (! fdisk.empty()) {
+		std::string conf = "echo 'label: gpt\n;' | ";
+		snprintf(cmd, sizeof(cmd), "%s %s -f %s", conf.c_str(), sfdisk.c_str(), devname.c_str());
+	}
+	else if (! sgdisk.empty()) {
+		snprintf(cmd, sizeof(cmd), "%s -Z -N 0 %s", sgdisk.c_str(), devname.c_str());
+	}
+	else if (! fdisk.empty()) {
 		snprintf(cmd, sizeof(cmd), "%s -u %s", fdisk.c_str(), devname.c_str());
 		strcpy(cmd2, "o\nn\np\n1\n2048\n\nw\n");
-	} else {
+	}
+	else {
 		/* cannot do anything */
-		fprintf(stderr, "CHDDFmtExec: neither fdisk nor sfdisk found in $PATH :-(\n");
+		fprintf(stderr, "CHDDFmtExec: neither fdisk, sfdisk or sgdisk found in $PATH :-(\n");
 		showError(LOCALE_HDD_FORMAT_FAILED);
 		goto _remount;
 	}
@@ -1080,7 +1086,7 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 
 	fprintf(f, "%s", cmd2);
 	res = pclose(f);
-	printf("CHDDMenuHandler::formatDevice: (s)fdisk res: %d\n", res);
+	printf("CHDDMenuHandler::formatDevice: (s(g))(f)disk res: %d\n", res);
 	if (res) {
 		showError(LOCALE_HDD_FORMAT_FAILED);
 		goto _remount;
@@ -1092,6 +1098,8 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 #endif
 
 	progress->showStatusMessageUTF(mkfscmd.c_str());
+	res = umount_all(dev);
+	printf("CHDDMenuHandler::formatDevice: umount res %d\n", res);
 	f = popen(mkfscmd.c_str(), "r");
 	if (!f) {
 		showError(LOCALE_HDD_FORMAT_FAILED);
