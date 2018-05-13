@@ -1260,6 +1260,27 @@ void CZapitClient::setAspectRatio(int ratio)
 	close_connection();
 }
 
+void CZapitClient::getOSDres(int *mosd)
+{
+	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	send(CZapitMessages::CMD_GET_OSD_RES, 0, 0);
+	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	* mosd = msg.val;
+	close_connection();
+}
+
+void CZapitClient::setOSDres(int mosd)
+{
+	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
+	msg.val = mosd;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	send(CZapitMessages::CMD_SET_OSD_RES, (char*)&msg, sizeof(msg));
+	close_connection();
+}
+
 void CZapitClient::getMode43(int *m43)
 {
 	CZapitMessages::commandInt msg;

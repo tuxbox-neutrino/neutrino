@@ -144,13 +144,15 @@ class CZapitMessages
 			CMD_GET_VOLUME			   = 104,
 			CMD_GET_AUDIO_MODE		   = 105,
 			CMD_GET_MUTE_STATUS		   = 106,
-			CMD_GET_ASPECTRATIO		   = 107,
-			CMD_SET_ASPECTRATIO		   = 108,
-			CMD_GET_MODE43			   = 109,
-			CMD_SET_MODE43			   = 110,
-			CMD_STOP_PIP			   = 111,
-			CMD_ZAPTO_EPG			   = 112,
-			CMD_LOCKRC				   = 113
+			CMD_GET_OSD_RES			   = 107,
+			CMD_SET_OSD_RES			   = 108,
+			CMD_GET_ASPECTRATIO		   = 109,
+			CMD_SET_ASPECTRATIO		   = 110,
+			CMD_GET_MODE43			   = 111,
+			CMD_SET_MODE43			   = 112,
+			CMD_STOP_PIP			   = 113,
+			CMD_ZAPTO_EPG			   = 114,
+			CMD_LOCKRC				   = 115
 		};
 
 	struct commandBoolean

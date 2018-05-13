@@ -114,6 +114,7 @@ class CZapit : public OpenThreads::Thread
 
 		int audio_mode;
 		int def_audio_mode;
+		int mosd;
 		int aspectratio;
 		int mode43;
 #if 0
