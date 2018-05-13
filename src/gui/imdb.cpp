@@ -47,8 +47,6 @@ CIMDB::CIMDB()
 	search_error	= "IMDb: Google download failed";
 	imdb_url	= "http://www.omdbapi.com/?plot=full&r=json&i=";
 	imdb_outfile	= "/tmp/imdb.json";
-	omdb_apikey	= "&apikey=";
-	omdb_apikey	+= g_settings.omdb_api_key;
 	posterfile	= "/tmp/imdb.jpg";
 
 	acc = 0;
@@ -65,6 +63,13 @@ CIMDB* CIMDB::getInstance()
 	if(!imdb)
 		imdb = new CIMDB();
 	return imdb;
+}
+
+inline std::string CIMDB::getApiKey()
+{
+	std::string 	ret = "&apikey=";
+			ret += g_settings.omdb_api_key;
+	return ret;
 }
 
 std::string CIMDB::utf82url(std::string s)
@@ -310,7 +315,7 @@ int CIMDB::getIMDb(const std::string& epgTitle)
 	if(((imdb_id.find(search_error)) != std::string::npos))
 		return ret;
 
-	std::string url = imdb_url + imdb_id + omdb_apikey;
+	std::string url = imdb_url + imdb_id + getApiKey();
 
 	if (httpTool.downloadFile(url, imdb_outfile.c_str()))
 	{

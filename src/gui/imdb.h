@@ -57,12 +57,14 @@ class CIMDB
 	private:
 		int acc;
 		std::string imdb_url;
-		std::string omdb_apikey;
+
 		std::string googleIMDb(std::string s);
 		std::string utf82url(std::string s);
 		std::string parseString(std::string search1, std::string search2, std::string str);
 		std::string parseFile(std::string search1, std::string search2, const char* file, std::string firstline="", int line_offset=0);
 		std::map<std::string, std::string> m;
+
+		std::string getApiKey();
 
 		void	initMap(std::map<std::string, std::string>& my);
 };
