@@ -150,9 +150,10 @@ class CZapitMessages
 			CMD_SET_ASPECTRATIO		   = 110,
 			CMD_GET_MODE43			   = 111,
 			CMD_SET_MODE43			   = 112,
-			CMD_STOP_PIP			   = 113,
-			CMD_ZAPTO_EPG			   = 114,
-			CMD_LOCKRC				   = 115
+			CMD_GET_VIDEO_FORMAT	   = 113,
+			CMD_STOP_PIP			   = 114,
+			CMD_ZAPTO_EPG			   = 115,
+			CMD_LOCKRC				   = 116
 		};
 
 	struct commandBoolean

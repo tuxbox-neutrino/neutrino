@@ -186,6 +186,7 @@ public:
 	int getLastMode() {
 		return lastMode;
 	}
+	int getVideoFormat() { return g_settings.video_Format; }
 	void switchTvRadioMode(const int prev_mode = NeutrinoModes::mode_unknown);
 
 	time_t getStartTime() { return neutrino_start_time; }

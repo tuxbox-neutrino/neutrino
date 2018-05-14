@@ -70,6 +70,7 @@ int usage (const char * basename)
 		<< "\t-var <aspectratio>\tset aspect ratio" << std::endl
 		<< "\t-vm43\t\t\tget 4:3 mode" << std::endl
 		<< "\t-vm43 <4:3mode>\t\tset 4:3 mode" << std::endl
+		<< "\t-vf\t\t\tget video format" << std::endl
 		<< "\t--1080\t\t\tswitch to hd 1080i mode" << std::endl
 		<< "\t--pal\t\t\tswitch to pal mode" << std::endl
 		<< "\t--720p\t\t\tswitch to hd 720p mode" << std::endl
@@ -99,10 +100,11 @@ int main (int argc, char** argv)
 	int mute = -1;
 	int volume = -1;
 	int nvod = -1;
+	int mosd = -1;
 	int arat = -1;
 	int m43 = -1;
+	int vf = -1;
 	int lockrc = -1;
-	int mosd = -1;
 	const char * channelName = NULL;
 
 	bool playback = false;
@@ -124,9 +126,10 @@ int main (int argc, char** argv)
 	bool quiet = false;
 	bool getchannel = false;
 	bool getmode = false;
+	bool osd = false;
 	bool aspectratio = false;
 	bool mode43 = false;
-	bool osd = false;
+	bool videoformat = false;
 	uint8_t motorCmdType = 0;
 	uint8_t motorCmd = 0;
 	uint8_t motorNumParameters = 0;
@@ -284,6 +287,11 @@ int main (int argc, char** argv)
 				sscanf(argv[++i], "%d", &m43);
 				continue;
 			}
+			continue;
+		}
+		else if (!strncmp(argv[i], "-vf", 3))
+		{
+			videoformat = true;
 			continue;
 		}
 		else if (!strncmp(argv[i], "-sb", 3))
@@ -556,6 +564,13 @@ int main (int argc, char** argv)
 #endif
 			printf("%d\n",m43);
 		}
+		return 0;
+	}
+
+	if (videoformat)
+	{
+		zapit.getVideoFormat(&vf);
+		printf("%d\n", vf);
 		return 0;
 	}
 

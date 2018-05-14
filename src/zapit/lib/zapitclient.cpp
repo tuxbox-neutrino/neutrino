@@ -1302,6 +1302,17 @@ void CZapitClient::setMode43(int m43)
 	close_connection();
 }
 
+void CZapitClient::getVideoFormat(int *vf)
+{
+	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	send(CZapitMessages::CMD_GET_VIDEO_FORMAT, 0, 0);
+	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	* vf = msg.val;
+	close_connection();
+}
+
 void CZapitClient::registerEvent(const unsigned int eventID, const unsigned int clientID, const char * const udsName)
 {
 	CEventServer::commandRegisterEvent msg;

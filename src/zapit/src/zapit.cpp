@@ -1879,6 +1879,13 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	}
 
+	case CZapitMessages::CMD_GET_VIDEO_FORMAT: {
+		CZapitMessages::commandInt msg;
+		msg.val = CNeutrinoApp::getInstance()->getVideoFormat();
+		CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		break;
+	}
+
 	case CZapitMessages::CMD_GETPIDS: {
 		if (current_channel) {
 			CZapitClient::responseGetOtherPIDs responseGetOtherPIDs;

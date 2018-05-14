@@ -512,6 +512,7 @@ class CZapitClient:public CBasicClient
 	void setAspectRatio(int ratio);
 	void getMode43(int *m43);
 	void setMode43(int m43);
+	void getVideoFormat(int *vf);
 
 	/****************************************/
 	/*					*/
