@@ -161,7 +161,8 @@ public:
 	void addSeparatorLine(	const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT,
 				const int& line_indent = HELPBOX_DEFAULT_LINE_INDENT);
 	///adds a simple empty separator as horizontal space, arg 'line_height' defines the space of full separator height
-	void addSeparator(	const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT);
+	void addSeparator(	const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT,
+				const int& line_indent = HELPBOX_DEFAULT_LINE_INDENT);
 
 	void addPagebreak();
 	

@@ -157,7 +157,7 @@ void Helpbox::addSeparatorLine(const int& line_height, const int& line_indent)
 	addWindowItem(line);
 }
 
-void Helpbox::addSeparator(const int& line_height)
+void Helpbox::addSeparator(const int& line_height, const int& line_indent)
 {
 	CComponentsItem *pre_item = !ccw_body->empty() ? ccw_body->back() : NULL; //get the last current item
 
@@ -170,7 +170,7 @@ void Helpbox::addSeparator(const int& line_height)
 	line->setPageNumber(page);
 
 	int w_body = ccw_body->getWidth();
-	line->setWidth(w_body - 40);
+	line->setWidth(w_body - 2*line_indent);
 	line->setColorBody(ccw_body->getColorBody());
 
 	addWindowItem(line);
