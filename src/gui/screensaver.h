@@ -30,12 +30,11 @@
 #include <gui/components/cc.h>
 
 class CFrameBuffer;
-class CPictureViewer;
+
 class CScreenSaver : public sigc::trackable
 {
 	private:
 		CFrameBuffer 	*m_frameBuffer;
-		CPictureViewer	*m_viewer;
 		CComponentsFrmClock *scr_clock;
 		pthread_t	thrScreenSaver;
 		static void*	ScreenSaverPrg(void *arg);
