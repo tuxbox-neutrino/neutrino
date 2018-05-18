@@ -881,7 +881,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	///youtube
 	g_settings.youtube_dev_id = YT_DEV_KEY;
 #if ENABLE_YOUTUBE_KEY_MANAGE
-	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id", yt_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.youtube_dev_id);
+	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id", g_settings.youtube_dev_id .empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.youtube_dev_id);
 #endif
 	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
 	g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
@@ -889,7 +889,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	///tmdb
 	g_settings.tmdb_api_key = TMDB_DEV_KEY;
 #if ENABLE_TMDB_KEY_MANAGE
-	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key", tmdb_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.tmdb_api_key);
+	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key", g_settings.tmdb_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.tmdb_api_key);
 #endif
 	g_settings.tmdb_enabled = configfile.getInt32("tmdb_enabled", 1);
 	g_settings.tmdb_enabled = g_settings.tmdb_enabled && CApiKey::check_tmdb_api_key();
@@ -897,7 +897,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	///omdb
 	g_settings.omdb_api_key = OMDB_API_KEY;
 #if ENABLE_OMDB_KEY_MANAGE
-	g_settings.omdb_api_key = configfile.getString("omdb_api_key", omdb_api_key.empty() ? "XXXXXXXX" : g_settings.omdb_api_key;
+	g_settings.omdb_api_key = configfile.getString("omdb_api_key", g_settings.omdb_api_key.empty() ? "XXXXXXXX" : g_settings.omdb_api_key);
 #endif
 	g_settings.omdb_enabled = configfile.getInt32("omdb_enabled", 1);
 	g_settings.omdb_enabled = g_settings.omdb_enabled && CApiKey::check_omdb_api_key();
@@ -905,7 +905,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	///shoutcast
 	g_settings.shoutcast_dev_id = SHOUTCAST_DEV_KEY;
 #if ENABLE_SHOUTCAST_KEY_MANAGE
-	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id", sc_api_key.empty() ? "XXXXXXXXXXXXXXXX" : g_settings.shoutcast_dev_id);
+	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id", g_settings.shoutcast_dev_id.empty() ? "XXXXXXXXXXXXXXXX" : g_settings.shoutcast_dev_id);
 #endif
 	g_settings.shoutcast_enabled = configfile.getInt32("shoutcast_enabled", 1);
 	g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
