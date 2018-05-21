@@ -266,9 +266,10 @@ void CScreenSaver::paint()
 		if (!scr_clock){
 			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", "%H:%M %S", true,
 						1, NULL, CC_SHADOW_OFF, COL_BLACK, COL_BLACK);
+			scr_clock->setCornerType(CORNER_NONE);
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 			scr_clock->disableSaveBg();
-			scr_clock->doPaintBg(true);
+			scr_clock->doPaintBg(false);
 		}
 		if (scr_clock->isPainted())
 			scr_clock->Stop();
