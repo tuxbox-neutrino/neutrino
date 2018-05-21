@@ -152,7 +152,6 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 
 	PScreenSaver->ReadDir(); //TODO kill Screensaver if false
 	PScreenSaver->m_frameBuffer->Clear();
-	PScreenSaver->m_frameBuffer->showFrame("blackscreen.jpg");
 
 	if (g_settings.screensaver_timeout)
 	{
