@@ -63,6 +63,7 @@ extern CPictureViewer * g_PicViewer;
 #include <gui/infoclock.h>
 #include <system/settings.h>
 #include <system/helpers.h>
+#include <system/httptool.h>
 #include <driver/screen_max.h>
 
 #include <algorithm>
@@ -278,6 +279,9 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	m_idletime = time(NULL);
 	m_screensaver = false;
+
+	m_cover.clear();
+	m_stationlogo = false;
 
 	if (parent)
 		parent->hide();
@@ -1701,16 +1705,45 @@ void CAudioPlayerGui::paintCover()
 {
 	const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
 
-	std::string cover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
-	if (!meta.cover.empty())
-		cover = meta.cover;
+	m_cover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
+	m_stationlogo = false;
 
-	if (access(cover.c_str(), F_OK) == 0)
+	// try cover from tag
+	if (!meta.cover.empty())
+		m_cover = meta.cover;
+	// try station logo
+	else if (!meta.logo.empty())
+	{
+		std::size_t found_url = meta.logo.find("://");
+		if (found_url != std::string::npos)
+		{
+			mkdir(COVERDIR, 0755);
+
+			std::string filename(meta.logo);
+			const size_t last_slash_idx = filename.find_last_of("/");
+			if (last_slash_idx != std::string::npos)
+				filename.erase(0, last_slash_idx + 1);
+
+			std::string fullname(COVERDIR);
+			fullname += "/" + filename;
+
+			CHTTPTool httptool;
+			if (httptool.downloadFile(meta.logo, fullname.c_str()))
+			{
+				m_cover = fullname;
+				m_stationlogo = true;
+			}
+			else
+				m_cover.clear();
+		}
+	}
+
+	if (access(m_cover.c_str(), F_OK) == 0)
 	{
 		int cover_x = m_x + OFFSET_INNER_MID;
 		int cover_y = m_y + OFFSET_INNER_SMALL;
 		m_cover_width = 0;
-		CComponentsPicture *cover_object = new CComponentsPicture(cover_x, cover_y, cover);
+		CComponentsPicture *cover_object = new CComponentsPicture(cover_x, cover_y, m_cover);
 		if (cover_object)
 		{
 			cover_object->doPaintBg(false);
@@ -1924,6 +1957,12 @@ void CAudioPlayerGui::stop()
 
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 		CAudioPlayer::getInstance()->stop();
+
+	if (m_stationlogo)
+	{
+		unlink(m_cover.c_str());
+		m_stationlogo = false;
+	}
 }
 
 void CAudioPlayerGui::pause()

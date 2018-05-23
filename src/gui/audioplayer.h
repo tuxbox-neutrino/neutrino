@@ -109,6 +109,8 @@ class CAudioPlayerGui : public CMenuTarget
 		bool		m_select_title_by_name;
 		bool		m_show_playlist;
 		bool		m_playlistHasChanged;
+		std::string	m_cover;
+		bool		m_stationlogo;
 
 		CAudioPlayList	m_playlist;
 		CAudioPlayList	m_radiolist;
