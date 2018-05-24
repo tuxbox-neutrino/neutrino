@@ -72,6 +72,7 @@ extern CPictureViewer * g_PicViewer;
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
+#include <dirent.h>
 
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -1958,11 +1959,7 @@ void CAudioPlayerGui::stop()
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 		CAudioPlayer::getInstance()->stop();
 
-	if (m_stationlogo)
-	{
-		unlink(m_cover.c_str());
-		m_stationlogo = false;
-	}
+	cleanupCovers();
 }
 
 void CAudioPlayerGui::pause()
@@ -2027,6 +2024,8 @@ void CAudioPlayerGui::play(unsigned int pos)
 	//printf("AudioPlaylist: play %d/%d\n",pos,playlist.size());
 	unsigned int old_current = m_current;
 	unsigned int old_selected = m_selected;
+
+	cleanupCovers();
 
 	m_current = pos;
 	if (g_settings.audioplayer_follow)
@@ -2785,4 +2784,29 @@ std::string CAudioPlayerGui::absPath2Rel(const std::string& fromDir,
 
 	res = res + relFilepath;
 	return res;
+}
+
+void CAudioPlayerGui::cleanupCovers()
+{
+	if (access(COVERDIR, F_OK) == 0)
+	{
+		struct dirent **coverlist;
+		int n = scandir(COVERDIR, &coverlist, 0, alphasort);
+		if (n > -1)
+		{
+			while (n--)
+			{
+				const char *coverfile = coverlist[n]->d_name;
+				if (strcmp(coverfile, ".") == 0 || strcmp(coverfile, "..") == 0)
+					continue;
+				printf("[audioplayer] removing cover %s/%s\n", COVERDIR, coverfile);
+				unlink(((std::string)COVERDIR + "/" + coverfile).c_str());
+				free(coverlist[n]);
+			}
+			free(coverlist);
+		}
+	}
+
+	m_cover.clear();
+	m_stationlogo = false;
 }

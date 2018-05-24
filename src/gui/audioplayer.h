@@ -232,6 +232,8 @@ class CAudioPlayerGui : public CMenuTarget
 		 */
 		bool askToOverwriteFile(const std::string& filename);
 
+		void cleanupCovers();
+
 		bool openFilebrowser(void);
 		bool openSCbrowser(void);
 		bool clearPlaylist(void);
