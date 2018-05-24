@@ -134,6 +134,10 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_PLAYLIST);
 	audioplayerSetup->addItem(mc);
 
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_COVER_AS_SCREENSAVER, &g_settings.audioplayer_cover_as_screensaver, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_COVER_AS_SCREENSAVER);
+	audioplayerSetup->addItem(mc);
+
 	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_HIGHPRIO, &g_settings.audioplayer_highprio, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_HIGHPRIO);
 	audioplayerSetup->addItem(mc);

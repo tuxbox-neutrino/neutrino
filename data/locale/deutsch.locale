@@ -165,6 +165,7 @@ audioplayer.artist_title Interpret, Titel
 audioplayer.building_search_index Erstelle Suchindex
 audioplayer.button_select_title_by_id Suche nach ID
 audioplayer.button_select_title_by_name Suche nach Name
+audioplayer.cover_as_screensaver Cover als Bildschirmschoner
 audioplayer.defdir Start-Verzeichnis
 audioplayer.delete Entfernen
 audioplayer.deleteall Alle entfernen
@@ -1030,6 +1031,7 @@ menu.hint_audio_srs_nmgr Schalten Sie den NoiseManager ein oder aus
 menu.hint_audio_srs_volume Legen Sie die Referenzlautstärke für SRS TruVolume fest
 menu.hint_audio_volstart Legen Sie die Einschaltlautstärke fest, die immer beim Starten eingestellt werden soll
 menu.hint_audio_volstep Beim Betätigen der Lautstärketasten wird die Lautstärke immer schrittweise nach diesem Wert geändert
+menu.hint_audioplayer_cover_as_screensaver Verwendet das Cover des Titels oder "folder.jpg" als Bildschirmschoner
 menu.hint_audioplayer_defdir Wählen Sie das Startverzeichnis für den Audioplayer
 menu.hint_audioplayer_follow Das Auswählen eines aktuellen Titels in der Wiedergabeliste zulassen
 menu.hint_audioplayer_highprio Erhöhen Sie die Priorität der Wiedergabe

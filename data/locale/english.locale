@@ -165,6 +165,7 @@ audioplayer.artist_title Artist, Title
 audioplayer.building_search_index Building search index
 audioplayer.button_select_title_by_id Search by ID
 audioplayer.button_select_title_by_name Search by name
+audioplayer.cover_as_screensaver Cover as screensaver
 audioplayer.defdir Start directory
 audioplayer.delete Remove
 audioplayer.deleteall Remove all
@@ -1030,6 +1031,7 @@ menu.hint_audio_srs_nmgr Noise manager
 menu.hint_audio_srs_volume Reference level to maintain
 menu.hint_audio_volstart Always set selected volume value on boot
 menu.hint_audio_volstep Volume +/- keys increase/decrease step
+menu.hint_audioplayer_cover_as_screensaver Use title's cover or "folder.jpg" as screensaver
 menu.hint_audioplayer_defdir Default audioplayer directory
 menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
 menu.hint_audioplayer_highprio Increase playback priority
