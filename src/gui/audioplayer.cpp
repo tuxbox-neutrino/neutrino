@@ -2009,12 +2009,6 @@ void CAudioPlayerGui::stop()
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 		CAudioPlayer::getInstance()->stop();
 
-	if (m_stationlogo)
-	{
-		unlink(m_cover.c_str());
-		m_stationlogo = false;
-	}
-
 	cleanupCovers();
 
 	if (m_streamripper_active)
