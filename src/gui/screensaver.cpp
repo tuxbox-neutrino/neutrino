@@ -150,13 +150,13 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 
 	CScreenSaver * PScreenSaver = static_cast<CScreenSaver*>(arg);
 
-	PScreenSaver->ReadDir(); //TODO kill Screensaver if false
 	PScreenSaver->m_frameBuffer->Clear();
 
 	if (g_settings.screensaver_timeout)
 	{
 		while(PScreenSaver)
 		{
+			PScreenSaver->ReadDir();
 			PScreenSaver->paint();
 			sleep(g_settings.screensaver_timeout);
 		}
@@ -248,8 +248,10 @@ bool CScreenSaver::ReadDir()
 
 	if(!v_bg_files.empty())
 		ret = true;
+#if 0
 	else
 		dprintf(DEBUG_NORMAL, "[CScreenSaver]  %s - %d : no picture found\n",  __func__, __LINE__);
+#endif
 
 	return ret;
 }
@@ -257,6 +259,14 @@ bool CScreenSaver::ReadDir()
 
 void CScreenSaver::paint()
 {
+	if (scr_clock)
+	{
+		scr_clock->Stop();
+		scr_clock->kill();
+	}
+	if (g_settings.screensaver_mode == SCR_MODE_IMAGE && v_bg_files.empty())
+		m_frameBuffer->paintBackground();
+
 	if (g_settings.screensaver_mode == SCR_MODE_IMAGE && !v_bg_files.empty()){
 
 		if( (index >= v_bg_files.size()) || (access(v_bg_files.at(index).c_str(), F_OK)) )
@@ -286,10 +296,7 @@ void CScreenSaver::paint()
 			scr_clock->disableSaveBg();
 			scr_clock->doPaintBg(false);
 		}
-		if (scr_clock->isPainted())
-			scr_clock->Stop();
 
-		scr_clock->kill();
 		scr_clock->setTextColor(clr.i_color);
 
 		//check position and size use only possible available screen size
