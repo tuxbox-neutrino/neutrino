@@ -38,6 +38,7 @@
 #include <driver/audioplay.h>
 #include <driver/audiometadata.h>
 #include <driver/display.h>
+#include <system/httptool.h>
 
 #include <daemonc/remotecontrol.h>
 
@@ -1754,6 +1755,7 @@ void CAudioPlayerGui::paintCover()
 {
 	const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
 
+	// try folder.jpg first
 	m_cover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
 	m_stationlogo = false;
 
@@ -2006,6 +2008,12 @@ void CAudioPlayerGui::stop()
 
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 		CAudioPlayer::getInstance()->stop();
+
+	if (m_stationlogo)
+	{
+		unlink(m_cover.c_str());
+		m_stationlogo = false;
+	}
 
 	cleanupCovers();
 
