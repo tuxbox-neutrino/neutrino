@@ -78,6 +78,11 @@
 
 #include <cs_api.h>
 
+#if HAVE_ARM_HARDWARE
+#include <video_cs.h>
+extern cVideo * videoDecoder;
+#endif
+
 extern int allow_flash;
 
 //#define DRYRUN
@@ -719,8 +724,13 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		   Neutrino is clearing framebuffer, so ofgwrite's gui is cleared too.
 		*/
 
-		if (restart == CMsgBox::mbrYes)
+		if (restart == CMsgBox::mbrYes){
+			if(g_settings.hdmi_cec_standby){
+				videoDecoder->SetCECAutoStandby(false);
+			}
+
 			CNeutrinoApp::getInstance()->exec(NULL, "reboot");
+		}
 #endif
 		return menu_return::RETURN_EXIT_ALL;
 	}
