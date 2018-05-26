@@ -1183,7 +1183,7 @@ void CAudioPlayerGui::readDir_ic(void)
 	{
 		xmlDocPtr answer_parser = parseXml(answer.c_str());
 		scanBox->hide();
-		scanXmlData(answer_parser, "listen_url", "server_name", "", "bitrate", true);
+		scanXmlData(answer_parser, "listen_url", "server_name", "bitrate", true);
 	}
 	else
 		scanBox->hide();
@@ -1197,7 +1197,7 @@ void CAudioPlayerGui::scanXmlFile(std::string filename)
 	scanXmlData(answer_parser, "url", "name");
 }
 
-void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *urltag, const char *nametag, const char *logotag, const char *bitratetag, bool usechild)
+void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *urltag, const char *nametag, const char *bitratetag, bool usechild)
 {
 #define IC_typetag "server_type"
 
