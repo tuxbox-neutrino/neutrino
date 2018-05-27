@@ -702,6 +702,9 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			restart = ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_START_SELECTED_PARTITION, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE);
 			if (restart == CMsgBox::mbrYes)
 			{
+				if(g_settings.hdmi_cec_standby){
+					videoDecoder->SetCECAutoStandby(false);
+				}
 				std::string startup_new = "/boot/STARTUP_" + to_string(selected);
 				dprintf(DEBUG_NORMAL, "[update] Start selected partition %d (%s)\n", selected, startup_new.c_str());
 #ifndef DRYRUN
@@ -724,13 +727,8 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		   Neutrino is clearing framebuffer, so ofgwrite's gui is cleared too.
 		*/
 
-		if (restart == CMsgBox::mbrYes){
-			if(g_settings.hdmi_cec_standby){
-				videoDecoder->SetCECAutoStandby(false);
-			}
-
+		if (restart == CMsgBox::mbrYes)
 			CNeutrinoApp::getInstance()->exec(NULL, "reboot");
-		}
 #endif
 		return menu_return::RETURN_EXIT_ALL;
 	}
