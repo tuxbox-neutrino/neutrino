@@ -2348,6 +2348,9 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			p_movie_info->dateOfLastPlay = current_time.time;
 			current_time.time = time(NULL);
 			p_movie_info->bookmarks.lastPlayStop = position / 1000;
+			if (p_movie_info->length == 0) {
+				p_movie_info->length = (float)duration / 60 / 1000 + 0.5;
+			}
 			cMovieInfo.saveMovieInfo(*p_movie_info);
 			//p_movie_info->fileInfoStale(); //TODO: we might to tell the Moviebrowser that the movie info has changed, but this could cause long reload times  when reentering the Moviebrowser
 		}
