@@ -150,12 +150,12 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	audioplayerSetup->addItem(mf);
 
 	audioplayerSetup->addItem(GenericMenuSeparatorLine);
-#if 0
+
 	// internetradio autostart first entry from favorites
 	mc = new CMenuOptionChooser(LOCALE_INETRADIO_AUTOSTART, &g_settings.inetradio_autostart, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL);
-	mc->setHint(NEUTRINO_ICON_HINT_IMAGELOGO, LOCALE_MENU_HINT_INETRADIO_AUTOSTART);
+	mc->setHint("", LOCALE_MENU_HINT_INET_RADIO_AUTOSTART);
 	audioplayerSetup->addItem(mc);
-#endif
+
 	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SC_METADATA);
 	audioplayerSetup->addItem(mc);

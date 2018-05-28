@@ -47,6 +47,9 @@
 #include <video.h>
 extern cVideo * videoDecoder;
 
+
+
+
 using namespace std;
 
 CScreenSaver::CScreenSaver()
@@ -56,6 +59,7 @@ CScreenSaver::CScreenSaver()
 
 	index 		= 0;
 	status_mute	= CAudioMute::getInstance()->getStatus();
+
 	scr_clock	= NULL;
 	clr.i_color	= COL_DARK_GRAY;
 	pip_channel_id	= 0;
@@ -93,6 +97,9 @@ void CScreenSaver::Start()
 
 	if(!CInfoClock::getInstance()->isBlocked())
 		CInfoClock::getInstance()->disableInfoClock();
+
+
+
 
 #ifdef ENABLE_PIP
 	pip_channel_id = CZapit::getInstance()->GetPipChannelID();
@@ -134,6 +141,7 @@ void CScreenSaver::Stop()
 #endif
 
 	m_frameBuffer->paintBackground(); //clear entire screen
+
 
 	CAudioMute::getInstance()->enableMuteIcon(status_mute);
 	if (!OnAfterStop.empty()){
@@ -195,6 +203,8 @@ bool CScreenSaver::ReadDir()
 	string d;
 	if (show_audiocover)
 		d = COVERDIR_TMP;
+	else
+		d = g_settings.screensaver_dir;
 	if (d.length() > 1)
 	{
 		//remove trailing slash
@@ -299,8 +309,7 @@ void CScreenSaver::paint()
 	}
 	else{
 		if (!scr_clock){
-			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", "%H:%M %S", true,
-						1, NULL, CC_SHADOW_OFF, COL_BLACK, COL_BLACK);
+			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", "%H:%M %S", true, 1, NULL, CC_SHADOW_OFF, COL_BLACK, COL_BLACK);
 			scr_clock->setCornerType(CORNER_NONE);
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 			scr_clock->disableSaveBg();

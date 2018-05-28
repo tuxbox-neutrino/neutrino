@@ -353,6 +353,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.theme_name = configfile.getString("theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_NAME : "");
 	CThemes::getInstance()->getTheme(configfile);
 
+	// internet radio
+	g_settings.inetradio_autostart = configfile.getInt32("inetradio_autostart" , 0);
+
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
 	// video
@@ -1197,6 +1200,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//theme/color options
 	CThemes::getInstance()->setTheme(configfile);
 	configfile.setString( "theme_name", g_settings.theme_name );
+
+	//internet radio
+	configfile.setInt32("inetradio_autostart" , g_settings.inetradio_autostart);
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );

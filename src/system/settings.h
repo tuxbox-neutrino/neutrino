@@ -809,6 +809,8 @@ struct SNeutrinoSettings
 	int   audioplayer_enable_sc_metadata;
 	int   audioplayer_cover_as_screensaver;
 
+	int   inetradio_autostart;
+
 	//Filebrowser
 	int filebrowser_showrights;
 	int filebrowser_sortmethod;

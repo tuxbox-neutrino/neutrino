@@ -848,6 +848,7 @@ imdb.data_website Website
 imdb.data_writer Screenplay author
 imdb.info IMDb-Info
 imdb.info_save save Cover
+inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded ...
 infoviewer.epgwait waiting for EPG ...
@@ -1136,6 +1137,7 @@ menu.hint_inact_timer Shutdown box after inactivity
 menu.hint_inactive_back Change inactive item background color
 menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inet_radio Internet radio
+menu.hint_inet_radio_autostart Start play of first entry from favorites automatically
 menu.hint_info Show system informations.
 menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_buttons_usertitle Forces userdefined titles for the color keys

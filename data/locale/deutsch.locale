@@ -848,6 +848,7 @@ imdb.data_website Webseite
 imdb.data_writer Drehbuchautor
 imdb.info IMDb-Info
 imdb.info_save Bild speichern
+inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen ...
 infoviewer.epgwait Warte auf EPG-Informationen ...
@@ -1136,6 +1137,7 @@ menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten.\nDie Box
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
+menu.hint_inet_radio_autostart Spielt automatisch den ersten Eintrag der Favoriten-Liste ab
 menu.hint_info Systeminformationen anzeigen.
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_buttons_usertitle Erzwingt die benutzerdefinierten Titel der Farbtasten
