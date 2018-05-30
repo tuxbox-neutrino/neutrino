@@ -1013,7 +1013,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	}
 	else
 	{
-		const char *arr[] = { "23.976fps", "24fps", "25fps", "29,976fps", "30fps", "50fps", "50,94fps", "60fps" };
+		const char *arr[] = { "23.976fps", "24fps", "25fps", "29,976fps", "30fps", "50fps", "59,94fps", "60fps" };
 		r.val = arr[framerate];
 	}
 	r.col = COL_MENUCONTENT_TEXT;
