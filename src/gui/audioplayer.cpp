@@ -2127,6 +2127,10 @@ void CAudioPlayerGui::play(unsigned int pos)
 	m_time_total = m_playlist[m_current].MetaData.total_time;
 	m_state = CAudioPlayerGui::PLAY;
 	m_curr_audiofile = m_playlist[m_current];
+
+	if (m_screensaver && g_settings.audioplayer_cover_as_screensaver)
+		CScreenSaver::getInstance()->forceRefresh();
+
 	// Play
 	CAudioPlayer::getInstance()->play(&m_curr_audiofile, g_settings.audioplayer_highprio == 1);
 

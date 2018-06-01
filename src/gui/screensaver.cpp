@@ -60,6 +60,7 @@ CScreenSaver::CScreenSaver()
 	clr.i_color	= COL_DARK_GRAY;
 	pip_channel_id	= 0;
 	idletime	= time(NULL);
+	force_refresh	= false;
 }
 
 CScreenSaver::~CScreenSaver()
@@ -158,11 +159,20 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 		{
 			PScreenSaver->ReadDir();
 			PScreenSaver->paint();
-			sleep(g_settings.screensaver_timeout);
+			int t = g_settings.screensaver_timeout;
+			while (t--)
+			{
+				sleep(1);
+				if (PScreenSaver->force_refresh)
+				{
+					PScreenSaver->force_refresh = false;
+					break;
+				}
+			}
 		}
 	}
 	else
-		PScreenSaver->paint(); //just paint first found picture
+		PScreenSaver->paint();
 
 	return 0;
 }
