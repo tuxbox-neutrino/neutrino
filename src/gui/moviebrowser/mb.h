@@ -223,6 +223,8 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		P_MI_MOVIE_LIST movielist;
 
 		uint64_t old_EpgId;
+		std::string old_ChannelName;
+
 		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
 		int movieInfoUpdateAllIfDestEmptyOnly;
 

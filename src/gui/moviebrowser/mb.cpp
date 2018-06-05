@@ -419,6 +419,8 @@ void CMovieBrowser::init(void)
 	m_movieCover = NULL;
 
 	old_EpgId = 0;
+	old_ChannelName.clear();
+
 	m_doRefresh = false;
 	m_doLoadMovies = false;
 
@@ -1176,6 +1178,7 @@ void CMovieBrowser::hide(void)
 		delete m_header; m_header = NULL;
 	}
 	old_EpgId = 0;
+	old_ChannelName.clear();
 	framebuffer->paintBackground();
 	if (m_pcFilter != NULL)
 		m_currentFilterSelection = m_pcFilter->getSelectedLine();
@@ -1388,7 +1391,7 @@ void CMovieBrowser::refreshChannelLogo(void)
 	if (show_mode == MB_SHOW_YT)
 		pb_hdd_offset = 0;
 
-	if (m_channelLogo && (old_EpgId != m_movieSelectionHandler->epgId >> 16))
+	if (m_channelLogo && (old_EpgId != m_movieSelectionHandler->epgId >> 16 || old_ChannelName != m_movieSelectionHandler->channelName))
 	{
 		if (newHeader)
 			m_channelLogo->clearFbData(); // reset logo screen data
@@ -1398,11 +1401,12 @@ void CMovieBrowser::refreshChannelLogo(void)
 		m_channelLogo = NULL;
 	}
 
-	if (old_EpgId != m_movieSelectionHandler->epgId >> 16)
+	if (old_EpgId != m_movieSelectionHandler->epgId >> 16 || old_ChannelName != m_movieSelectionHandler->channelName)
 	{
 		if (m_channelLogo == NULL)
 			m_channelLogo = new CComponentsChannelLogoScalable(0, 0, m_movieSelectionHandler->channelName, m_movieSelectionHandler->epgId >>16); //TODO: add logo into header as item
 		old_EpgId = m_movieSelectionHandler->epgId >> 16;
+		old_ChannelName = m_movieSelectionHandler->channelName;
 	}
 
 	if (m_channelLogo && m_channelLogo->hasLogo())
