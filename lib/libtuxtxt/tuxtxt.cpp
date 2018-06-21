@@ -56,6 +56,7 @@ fb_pixel_t *getFBp(int &y)
 void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor = false);
 void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor)
 {
+	int _y = y;
 	fb_pixel_t *p = getFBp(y);
 	p += x + y * var_screeninfo.xres;
 	if (w > 0) {
@@ -67,6 +68,8 @@ void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor)
 			p += var_screeninfo.xres;
 		}
 	}
+	if (_y == y) /* not backbuffer... */
+		fbp->mark(x, y, x+w, y+h);
 }
 
 void FillBorder(fb_pixel_t color, bool modeFullColor = false);
@@ -4912,6 +4915,8 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 	if (Attribute->underline)
 		FillRect(PosX, PosY + yoffset + (fontheight-2)* factor, curfontwidth,2*factor, fgcolor); /* underline char */
 
+	if (yoffset < (int)var_screeninfo.yres)
+		fbp->mark(PosX, PosY + yoffset, PosX + curfontwidth, PosY + yoffset + fontheight * factor);
 	PosX += curfontwidth;
 }
 
