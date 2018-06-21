@@ -42,6 +42,7 @@ static bool use_gui;
 static int cfg_national_subset;
 
 static int screen_x, screen_y, screen_w, screen_h;
+static CFrameBuffer *fbp;
 
 fb_pixel_t *getFBp(int &y)
 {
@@ -259,7 +260,7 @@ void ClearBB(fb_pixel_t color)
 void ClearFB(int /*color*/)
 {
 	//memset(lfb,0, var_screeninfo.yres*var_screeninfo.xres);
-	CFrameBuffer::getInstance()->paintBackground();
+	fbp->paintBackground();
 }
 
 #if 0 
@@ -1597,6 +1598,7 @@ int tuxtx_main(int pid, int page, int source)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
+	fbp = CFrameBuffer::getInstance();
 	use_gui = 1;
 	boxed = 0;
 	oldboxed = boxed;
@@ -1619,7 +1621,6 @@ int tuxtx_main(int pid, int page, int source)
 	printf("TuxTxt %s\n", versioninfo);
 	printf("for 32bpp framebuffer\n");
 
-	CFrameBuffer *fbp = CFrameBuffer::getInstance();
 	lfb = fbp->getFrameBufferPointer();
 	lbb = fbp->getBackBufferPointer();
 
@@ -2772,7 +2773,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 		menu[MenuLine[M_PID]*Menu_Width + 27] = '?';
 	/* render menu */
 	PosY = Menu_StartY;
-	CFrameBuffer::getInstance()->waitForIdle();
+	fbp->waitForIdle();
 	for (line = 0; line < Menu_Height; line++)
 	{
 		PosX = Menu_StartX;
@@ -3977,8 +3978,7 @@ void SwitchScreenMode(int newscreenmode)
 
 		setfontwidth(fw);
 
-		CFrameBuffer *f = CFrameBuffer::getInstance();
-		videoDecoder->Pig(tx, ty, tw, th, f->getScreenWidth(true), f->getScreenHeight(true));
+		videoDecoder->Pig(tx, ty, tw, th, fbp->getScreenWidth(true), fbp->getScreenHeight(true));
 	}
 	else /* not split */
 	{
@@ -4996,7 +4996,7 @@ void RenderMessage(int Message)
 	else
 		msg = &message_3[menulanguage][0];
 
-	CFrameBuffer::getInstance()->waitForIdle();
+	fbp->waitForIdle();
 	/* render infobar */
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*16;
@@ -5564,7 +5564,6 @@ void CopyBB2FB()
 {
 	fb_pixel_t *src, *dst, *topsrc;
 	int fillcolor, i, screenwidth;
-	CFrameBuffer *f = CFrameBuffer::getInstance();
 
 	/* line 25 */
 	if (!pagecatching && use_gui)
@@ -5573,7 +5572,7 @@ void CopyBB2FB()
 	/* copy backbuffer to framebuffer */
 	if (!zoommode[boxed])
 	{
-		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
+		fbp->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
 
 		/* adapt background of backbuffer if changed */
 		if (StartX > 0 && *lfb != *lbb) {
@@ -5610,14 +5609,14 @@ void CopyBB2FB()
 	if (screenmode[boxed] == 1)
 	{
 		screenwidth = TV43STARTX;
-		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, TV43STARTX, 0, TV43STARTX, 0, true);
+		fbp->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, TV43STARTX, 0, TV43STARTX, 0, true);
 	}
 	else if (screenmode[boxed] == 2)
 		screenwidth = TV169FULLSTARTX;
 	else
 		screenwidth = var_screeninfo.xres;
 
-	f->paintBox(0, 0, screenwidth, StartY, argb[fillcolor]);
+	fbp->paintBox(0, 0, screenwidth, StartY, argb[fillcolor]);
 
 	for (i = 12*fontheight; i; i--)
 	{
@@ -5628,8 +5627,8 @@ void CopyBB2FB()
 		src += var_screeninfo.xres;
 	}
 
-	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
-	f->paintBox(0, StartY + 25 * fontheight, screenwidth, var_screeninfo.yres, argb[fillcolor]);
+	fbp->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
+	fbp->paintBox(0, StartY + 25 * fontheight, screenwidth, var_screeninfo.yres, argb[fillcolor]);
 }
 
 /******************************************************************************
