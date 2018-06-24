@@ -1970,6 +1970,18 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			pip_icon = NEUTRINO_ICON_MARKER_PIP;
 #endif
 
+		//set resolution icon
+		const char *res_icon = NULL;
+		if (g_settings.channellist_show_res_icon)
+		{
+			if (chan->isHD())
+				res_icon = NEUTRINO_ICON_MARKER_HD;
+			else if (chan->isUHD())
+				res_icon = NEUTRINO_ICON_MARKER_UHD;
+			else
+				res_icon = NEUTRINO_ICON_MARKER_SD;
+		}
+
 		//set webtv icon
 		const char *webtv_icon = NULL;
 		if (!chan->getUrl().empty())
@@ -1985,6 +1997,16 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		int icon_h = 0;
 		int offset_right = OFFSET_INNER_MID;
 		int icon_x_right = x + width - SCROLLBAR_WIDTH - offset_right;
+
+		if (res_icon)
+		{
+			frameBuffer->getIconSize(res_icon, &icon_w, &icon_h);
+			if (frameBuffer->paintIcon(res_icon, icon_x_right - icon_w, ypos, fheight))
+			{
+				offset_right += icon_w + OFFSET_INNER_MID;
+				icon_x_right -= icon_w + OFFSET_INNER_MID;
+			}
+		}
 
 		if (scramble_icon)
 		{

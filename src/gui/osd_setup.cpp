@@ -1307,6 +1307,11 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EPG_ALIGN);
 	menu_chanlist->addItem(mc);
 
+	// show resolution icon
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_RES_ICON, &g_settings.channellist_show_res_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_RES_ICON);
+	menu_chanlist->addItem(mc);
+
 	// extended channel list
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.theme.progressbar_design_channellist, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
