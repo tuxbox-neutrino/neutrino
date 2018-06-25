@@ -2094,14 +2094,20 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		pb.setFrameThickness(pb_frame);
 		pb.doPaintBg(false);
 
-		if (!(p_event->description.empty()))
-		{
+		if (!p_event->description.empty())
 			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l, g_settings.channellist_epgtext_align_right ? "  " : " - ");
-			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription);
+		unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription);
+		int max_name_len = width - numwidth - prg_offset - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - offset_right;
+		if (max_name_len < 0)
+			max_name_len = 0;
+		if ((int) ch_name_len > max_name_len)
+			ch_name_len = max_name_len;
+
+		if (!p_event->description.empty())
+		{
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description);
 
-			int max_desc_len = width - numwidth - prg_offset - ch_name_len - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - offset_right;
-
+			int max_desc_len = max_name_len - ch_name_len;
 			if (max_desc_len < 0)
 				max_desc_len = 0;
 			if ((int) ch_desc_len > max_desc_len)
@@ -2131,7 +2137,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				}
 			}
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - SCROLLBAR_WIDTH - prg_offset, nameAndDescription, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, ch_name_len, nameAndDescription, color);
 			if (g_settings.channellist_epgtext_align_right)
 			{
 				// align right
@@ -2151,7 +2157,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				pb.paint();
 			}
 			//name
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, width - numwidth - 4*OFFSET_INNER_MID - SCROLLBAR_WIDTH - prg_offset, nameAndDescription, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, ch_name_len, nameAndDescription, color);
 		}
 		if (!firstpaint && curr == selected)
 			updateVfd();
