@@ -1757,7 +1757,10 @@ int CRCInput::translate(int code)
 
 void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 {
-	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
+	/* iterate backwards or the vector will be corrupted by the indev.erase(i) */
+	std::vector<in_dev>::iterator it = indev.end();
+	while (it != indev.begin()) {
+		--it;
 		int fd = (*it).fd;
 		std::string path = (*it).path;
 		if (path == "/tmp/neutrino.input")
@@ -1781,8 +1784,17 @@ void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 		 * rcinput loop into accepting the key event... */
 		ie.value = start_ms + 10;
 		ie.code = REP_DELAY;
-		if (write(fd, &ie, sizeof(ie)) == -1)
+		if (write(fd, &ie, sizeof(ie)) == -1) {
+			if (errno == ENODEV) {
+				printf("[rcinput:%s] %s(fd %d) ENODEV??\n", __func__, path.c_str(), fd);
+				/* hot-unplugged? */
+				::close(fd);
+				it = indev.erase(it);
+				devinput_mtime.tv_sec = 0; /* force check */
+				continue;
+			}
 			printf("[rcinput:%s] %s(fd %d) write %s: %m\n", __func__, path.c_str(), fd, "REP_DELAY");
+		}
 
 		ie.value = repeat_ms + 10;
 		ie.code = REP_PERIOD;
