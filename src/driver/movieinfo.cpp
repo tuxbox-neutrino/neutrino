@@ -278,7 +278,7 @@ static int find_next_char(char to_find, const char *text, int start_pos, int end
 bool CMovieInfo::parseXmlTree(std::string &_text, MI_MOVIE_INFO *movie_info)
 {
 	int bookmark_nr = 0;
-	movie_info->dateOfLastPlay = 0;	//100*366*24*60*60; // (date, month, year)
+	movie_info->dateOfLastPlay = 0;	// UNIX Epoch time
 	//bool result = false;
 
 	const char *text = _text.c_str();
@@ -493,18 +493,10 @@ bool CMovieInfo::addNewBookmark(MI_MOVIE_INFO * movie_info, MI_BOOKMARK & new_bo
 void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 {
 	//TRACE("[mi]->clearMovieInfo \r\n");
-	tm timePlay;
-	timePlay.tm_hour = 0;
-	timePlay.tm_min = 0;
-	timePlay.tm_sec = 0;
-	timePlay.tm_year = 100;
-	timePlay.tm_mday = 0;
-	timePlay.tm_mon = 1;
-
 	movie_info->file.Name = "";
 	movie_info->file.Size = 0;	// Megabytes
-	movie_info->file.Time = mktime(&timePlay);
-	movie_info->dateOfLastPlay = mktime(&timePlay);	// (date, month, year)
+	movie_info->file.Time = 0;
+	movie_info->dateOfLastPlay = 0;	// UNIX Epoch time
 	movie_info->dirItNr = 0;	//
 	movie_info->genreMajor = 0;	//genreMajor;
 	movie_info->genreMinor = 0;	//genreMinor;
@@ -543,20 +535,11 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 
 void MI_MOVIE_INFO::clear(void)
 {
-	tm timePlay;
-	timePlay.tm_hour = 0;
-	timePlay.tm_min = 0;
-	timePlay.tm_sec = 0;
-	timePlay.tm_year = 100;
-	timePlay.tm_mday = 0;
-	timePlay.tm_mon = 1;
-	timePlay.tm_isdst = -1;
-
 	file.Name = "";
 	file.Url = "";
 	file.Size = 0; // Megabytes
-	file.Time = mktime(&timePlay);
-	dateOfLastPlay = mktime(&timePlay);
+	file.Time = 0;
+	dateOfLastPlay = 0; // UNIX Epoch time
 	dirItNr = 0;
 	genreMajor = 0;
 	genreMinor = 0;

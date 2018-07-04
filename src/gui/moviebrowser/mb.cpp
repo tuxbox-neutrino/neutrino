@@ -3839,9 +3839,16 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			*item_string = str_tmp;
 			break;
 		case MB_INFO_PREVPLAYDATE: 			// 		= 12,
-			tm_tmp = localtime(&movie_info.dateOfLastPlay);
-			snprintf(str_tmp, sizeof(str_tmp),"%02d.%02d.%02d",tm_tmp->tm_mday,(tm_tmp->tm_mon)+ 1, tm_tmp->tm_year >= 100 ? tm_tmp->tm_year-100 : tm_tmp->tm_year);
-			*item_string = str_tmp;
+			if (movie_info.dateOfLastPlay == 0)
+			{
+				*item_string = "---";
+			}
+			else
+			{
+				tm_tmp = localtime(&movie_info.dateOfLastPlay);
+				snprintf(str_tmp, sizeof(str_tmp),"%02d.%02d.%02d",tm_tmp->tm_mday,(tm_tmp->tm_mon)+ 1, tm_tmp->tm_year >= 100 ? tm_tmp->tm_year-100 : tm_tmp->tm_year);
+				*item_string = str_tmp;
+			}
 			break;
 
 		case MB_INFO_RECORDDATE: 			// 		= 13,
