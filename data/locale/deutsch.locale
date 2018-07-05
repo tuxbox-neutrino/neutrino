@@ -1722,6 +1722,7 @@ moviebrowser.foot_play Wiedergabe
 moviebrowser.foot_refresh Neu laden
 moviebrowser.foot_sort Sortieren:
 moviebrowser.head Meine Aufnahmen
+moviebrowser.head_all_movies Alle Aufnahmen:
 moviebrowser.head_filter Filme nach Kategorie filtern:
 moviebrowser.head_playlist Zuletzt gesehen:
 moviebrowser.head_recordlist Zuletzt aufgenommen:

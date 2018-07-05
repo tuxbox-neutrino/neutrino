@@ -1749,6 +1749,7 @@ const char * locale_real_names[] =
 	"moviebrowser.foot_refresh",
 	"moviebrowser.foot_sort",
 	"moviebrowser.head",
+	"moviebrowser.head_all_movies",
 	"moviebrowser.head_filter",
 	"moviebrowser.head_playlist",
 	"moviebrowser.head_recordlist",

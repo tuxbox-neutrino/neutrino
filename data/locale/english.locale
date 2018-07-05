@@ -1722,6 +1722,7 @@ moviebrowser.foot_play Playback
 moviebrowser.foot_refresh Refresh list
 moviebrowser.foot_sort Sort:
 moviebrowser.head My recordings
+moviebrowser.head_all_movies All movies:
 moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:

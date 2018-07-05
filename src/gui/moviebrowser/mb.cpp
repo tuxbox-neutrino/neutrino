@@ -1222,8 +1222,8 @@ int CMovieBrowser::paint(void)
 	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST];
 	m_movieSelectionHandler = NULL;
 
-	m_pcBrowser = new CListFrame(&m_browserListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE,
-			&m_cBoxFrameBrowserList, NULL,
+	m_pcBrowser = new CListFrame(&m_browserListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE | CListFrame::TITLE,
+			&m_cBoxFrameBrowserList, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_ALL_MOVIES),
 			g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD]);
 	m_pcLastPlay = new CListFrame(&m_playListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE | CListFrame::TITLE,
 			&m_cBoxFrameLastPlayList, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_PLAYLIST),
@@ -1944,7 +1944,7 @@ void CMovieBrowser::refreshTitle(void)
 	int h = m_cBoxFrameTitleRel.iHeight;
 
 	if (!m_header){
-		m_header = new CComponentsHeader(x, y, w, h, title.c_str(), icon, CComponentsHeader::CC_BTN_HELP);
+		m_header = new CComponentsHeader(x, y, w, h, title.c_str(), icon, CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT | CComponentsHeader::CC_BTN_HELP);
 	}
 	m_header->paint(CC_SAVE_SCREEN_NO);
 	newHeader = m_header->isPainted();
