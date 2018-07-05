@@ -162,7 +162,8 @@ bool (* const sortBy[MB_INFO_MAX_NUMBER+1])(const MI_MOVIE_INFO* a, const MI_MOV
 	&sortBySize, 		//MB_INFO_SIZE 			= 19,
 	&sortByRating,		//MB_INFO_RATING		= 20,
 	NULL,			//MB_INFO_SPACER		= 21,
-	NULL			//MB_INFO_MAX_NUMBER		= 22
+	NULL,		 	//MB_INFO_RECORDTIME		= 22,
+	NULL			//MB_INFO_MAX_NUMBER		= 23
 };
 
 #endif /*__MB_FUNCTIONS__*/

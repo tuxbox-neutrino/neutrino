@@ -1771,6 +1771,7 @@ moviebrowser.info_prodyear Jahr
 moviebrowser.info_quality Qualität
 moviebrowser.info_rating Bewertung
 moviebrowser.info_recorddate Aufnahmedatum
+moviebrowser.info_recordtime Aufnahmezeit
 moviebrowser.info_serie Serie
 moviebrowser.info_size Dateigröße (MB)
 moviebrowser.info_spacer Abstandshalter
@@ -1821,6 +1822,7 @@ moviebrowser.short_prodyear Jahr
 moviebrowser.short_quality Qualität
 moviebrowser.short_rating Vote
 moviebrowser.short_recorddate Datum
+moviebrowser.short_recordtime Zeit
 moviebrowser.short_serie Serie
 moviebrowser.short_size Größe
 moviebrowser.short_spacer 

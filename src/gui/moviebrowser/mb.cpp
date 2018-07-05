@@ -91,7 +91,7 @@ typedef struct dirent64 dirent_struct;
 #define NUMBER_OF_MOVIES_LAST 40 // This is the number of movies shown in last recored and last played list
 #define MOVIE_SMSKEY_TIMEOUT 800
 
-#define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 22
+#define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 23
 const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_ROW_ITEM_COUNT] =
 {
 	{ MB_INFO_FILENAME,		LOCALE_MOVIEBROWSER_INFO_FILENAME },
@@ -115,7 +115,8 @@ const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_
 	{ MB_INFO_LENGTH,		LOCALE_MOVIEBROWSER_INFO_LENGTH },
 	{ MB_INFO_SIZE,			LOCALE_MOVIEBROWSER_INFO_SIZE },
 	{ MB_INFO_RATING,		LOCALE_MOVIEBROWSER_INFO_RATING },
-	{ MB_INFO_SPACER,		LOCALE_MOVIEBROWSER_INFO_SPACER }
+	{ MB_INFO_SPACER,		LOCALE_MOVIEBROWSER_INFO_SPACER },
+	{ MB_INFO_RECORDTIME,		LOCALE_MOVIEBROWSER_INFO_RECORDTIME }
 };
 
 #define MESSAGEBOX_YES_NO_OPTIONS_COUNT 2
@@ -174,6 +175,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 	LOCALE_MOVIEBROWSER_SHORT_SIZE,
 	LOCALE_MOVIEBROWSER_SHORT_RATING,
 	LOCALE_MOVIEBROWSER_SHORT_SPACER,
+	LOCALE_MOVIEBROWSER_SHORT_RECORDTIME,
 	NONEXISTANT_LOCALE
 };
 
@@ -200,6 +202,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 #define	MB_ROW_WIDTH_SIZE 		12
 #define	MB_ROW_WIDTH_RATING		5
 #define	MB_ROW_WIDTH_SPACER		1
+#define	MB_ROW_WIDTH_RECORDTIME		10
 
 const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 {
@@ -225,6 +228,7 @@ const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 	MB_ROW_WIDTH_SIZE,
 	MB_ROW_WIDTH_RATING,
 	MB_ROW_WIDTH_SPACER,
+	MB_ROW_WIDTH_RECORDTIME,
 	0 //MB_ROW_WIDTH_MAX_NUMBER
 };
 static MI_MOVIE_INFO* playing_info;
@@ -3760,45 +3764,45 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 
 	switch(item)
 	{
-		case MB_INFO_FILENAME: 				// 		= 0,
+		case MB_INFO_FILENAME: 				// = 0,
 			*item_string = movie_info.file.getFileName();
 			break;
-		case MB_INFO_FILEPATH: 				// 		= 1,
+		case MB_INFO_FILEPATH: 				// = 1,
 			if (!m_dirNames.empty())
 				*item_string = m_dirNames[movie_info.dirItNr];
 			break;
-		case MB_INFO_TITLE: 				// 		= 2,
+		case MB_INFO_TITLE: 				// = 2,
 			*item_string = movie_info.epgTitle;
 			if (strcmp("not available",movie_info.epgTitle.c_str()) == 0)
 				result = false;
 			if (movie_info.epgTitle.empty())
 				result = false;
 			break;
-		case MB_INFO_SERIE: 				// 		= 3,
+		case MB_INFO_SERIE: 				// = 3,
 			*item_string = movie_info.serieName;
 			break;
-		case MB_INFO_INFO1: 			//		= 4,
+		case MB_INFO_INFO1:				// = 4,
 			*item_string = movie_info.epgInfo1;
 			break;
-		case MB_INFO_MAJOR_GENRE: 			// 		= 5,
+		case MB_INFO_MAJOR_GENRE: 			// = 5,
 			snprintf(str_tmp, sizeof(str_tmp),"%2d",movie_info.genreMajor);
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_MINOR_GENRE: 			// 		= 6,
+		case MB_INFO_MINOR_GENRE: 			// = 6,
 			snprintf(str_tmp, sizeof(str_tmp),"%2d",movie_info.genreMinor);
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_INFO2: 					// 		= 7,
+		case MB_INFO_INFO2: 				// = 7,
 			*item_string = movie_info.epgInfo2;
 			break;
-		case MB_INFO_PARENTAL_LOCKAGE: 					// 		= 8,
+		case MB_INFO_PARENTAL_LOCKAGE: 			// = 8,
 			snprintf(str_tmp, sizeof(str_tmp),"%2d",movie_info.parentalLockAge);
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_CHANNEL: 				// 		= 9,
+		case MB_INFO_CHANNEL: 				// = 9,
 			*item_string = movie_info.channelName;
 			break;
-		case MB_INFO_BOOKMARK: 				//		= 10,
+		case MB_INFO_BOOKMARK: 				// = 10,
 			b = "";
 
 			s = false;
@@ -3835,11 +3839,11 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 
 			*item_string = b;
 			break;
-		case MB_INFO_QUALITY: 				// 		= 11,
+		case MB_INFO_QUALITY: 				// = 11,
 			snprintf(str_tmp, sizeof(str_tmp),"%d",movie_info.quality);
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_PREVPLAYDATE: 			// 		= 12,
+		case MB_INFO_PREVPLAYDATE: 			// = 12,
 			if (movie_info.dateOfLastPlay == 0)
 			{
 				*item_string = "---";
@@ -3851,8 +3855,7 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 				*item_string = str_tmp;
 			}
 			break;
-
-		case MB_INFO_RECORDDATE: 			// 		= 13,
+		case MB_INFO_RECORDDATE: 			// = 13,
 			if (show_mode == MB_SHOW_YT) {
 				*item_string = movie_info.ytdate;
 			} else {
@@ -3861,40 +3864,48 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 				*item_string = str_tmp;
 			}
 			break;
-		case MB_INFO_PRODDATE: 				// 		= 14,
+		case MB_INFO_PRODDATE: 				// = 14,
 			snprintf(str_tmp, sizeof(str_tmp),"%d",movie_info.productionDate);
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_COUNTRY: 				// 		= 15,
+		case MB_INFO_COUNTRY: 				// = 15,
 			*item_string = movie_info.productionCountry;
 			break;
-		case MB_INFO_GEOMETRIE: 			// 		= 16,
+		case MB_INFO_GEOMETRIE: 			// = 16,
 			result = false;
 			break;
-		case MB_INFO_AUDIO: 				// 		= 17,
+		case MB_INFO_AUDIO: 				// = 17,
 			// we just return the number of audiopids
 			snprintf(str_tmp, sizeof(str_tmp), "%d", (int)movie_info.audioPids.size());
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_LENGTH: 				// 		= 18,
+		case MB_INFO_LENGTH: 				// = 18,
 			snprintf(str_tmp, sizeof(str_tmp),"%dh %02dm", movie_info.length/60, movie_info.length%60);
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_SIZE: 					// 		= 19,
+		case MB_INFO_SIZE: 				// = 19,
 			snprintf(str_tmp, sizeof(str_tmp),"%4" PRIu64 "",movie_info.file.Size>>20);
 			*item_string = str_tmp;
 			break;
-		case MB_INFO_RATING: 				// 		= 20,
+		case MB_INFO_RATING: 				// = 20,
 			if (movie_info.rating)
 			{
 				snprintf(str_tmp, sizeof(str_tmp),"%d,%d",movie_info.rating/10, movie_info.rating%10);
 				*item_string = str_tmp;
 			}
 			break;
-		case MB_INFO_SPACER: 				// 		= 21,
+		case MB_INFO_SPACER: 				// = 21,
 			*item_string="";
 			break;
-		case MB_INFO_MAX_NUMBER: 			//		= 22
+		case MB_INFO_RECORDTIME: 			// = 22,
+			if (show_mode == MB_SHOW_RECORDS)
+			{
+				tm_tmp = localtime(&movie_info.file.Time);
+				snprintf(str_tmp, sizeof(str_tmp),"%02d:%02d", tm_tmp->tm_hour, tm_tmp->tm_min);
+				*item_string = str_tmp;
+			}
+			break;
+		case MB_INFO_MAX_NUMBER: 			// = 23
 		default:
 			*item_string="";
 			result = false;
