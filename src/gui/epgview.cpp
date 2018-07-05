@@ -636,16 +636,19 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 
 	extMovieInfo += "\n";
 
-	tm *date_tm = localtime(&mp_movie_info->dateOfLastPlay);
-	extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE);
+	tm *date_tm = localtime(&mp_movie_info->file.Time);
+	extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_RECORDDATE);
 	extMovieInfo += ": ";
 	extMovieInfo += strftime("%F", date_tm);
 	extMovieInfo += "\n";
 
-	date_tm = localtime(&mp_movie_info->file.Time);
-	extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_RECORDDATE);
+	date_tm = localtime(&mp_movie_info->dateOfLastPlay);
+	extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE);
 	extMovieInfo += ": ";
-	extMovieInfo += strftime("%F", date_tm);
+	if (mp_movie_info->dateOfLastPlay == 0)
+		extMovieInfo += "---";
+	else
+		extMovieInfo += strftime("%F", date_tm);
 	extMovieInfo += "\n";
 
 	extMovieInfo += "\n";
