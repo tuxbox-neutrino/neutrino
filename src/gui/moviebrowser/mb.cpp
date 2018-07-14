@@ -3668,13 +3668,13 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 
 	if (m_movieSelectionHandler->bookmarks.start != 0)
 	{
-		got_start_pos = true;
 		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, true, start_pos), true);
 		position[menu_nr++] = m_movieSelectionHandler->bookmarks.start;
 	}
 	if (m_movieSelectionHandler->bookmarks.lastPlayStop != 0)
 	{
-		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, play_pos));
+		got_start_pos = true;
+		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, play_pos), true);
 		position[menu_nr++] = m_movieSelectionHandler->bookmarks.lastPlayStop;
 	}
 
