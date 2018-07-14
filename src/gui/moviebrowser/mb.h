@@ -409,7 +409,7 @@ class CMenuWidgetSelection : public CMenuWidget
 {
 	public:
 		CMenuWidgetSelection(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30) : CMenuWidget(Name, Icon, mwidth){;};
-		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
+		int getSelectedLine(void){return no_action ? -1 : selected;};
 };
 
 class CFileChooser : public CMenuWidget
