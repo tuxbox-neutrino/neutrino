@@ -1222,8 +1222,8 @@ int CMovieBrowser::paint(void)
 	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST];
 	m_movieSelectionHandler = NULL;
 
-	m_pcBrowser = new CListFrame(&m_browserListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE | CListFrame::TITLE,
-			&m_cBoxFrameBrowserList, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_ALL_MOVIES),
+	m_pcBrowser = new CListFrame(&m_browserListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE,
+			&m_cBoxFrameBrowserList, NULL,
 			g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD]);
 	m_pcLastPlay = new CListFrame(&m_playListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE | CListFrame::TITLE,
 			&m_cBoxFrameLastPlayList, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_PLAYLIST),
