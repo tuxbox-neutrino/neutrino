@@ -4780,7 +4780,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.bouquetlist_mode = tconfig.getInt32( "bouquetlist_mode", 0 );
 	g_settings.sms_channel = tconfig.getInt32( "sms_channel", 0 );
-	g_settings.sms_movie = tconfig.getInt32( "sms_movie", 0 );
+	g_settings.sms_movie = tconfig.getInt32( "sms_movie", 1 );
 	g_settings.mode_left_right_key_tv = tconfig.getInt32( "mode_left_right_key_tv",  SNeutrinoSettings::ZAP);
 
 	g_settings.key_help = tconfig.getInt32( "key_help", CRCInput::RC_help );
