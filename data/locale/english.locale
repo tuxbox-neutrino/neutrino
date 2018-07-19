@@ -894,7 +894,8 @@ keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Generic delay
 keybindingmenu.repeatblockgeneric Repeat delay
 keybindingmenu.sort Change sort order
-keybindingmenu.special_active Special Keys
+keybindingmenu.special_active Special keys
+keybindingmenu.standbyoff_add Standby off (additional)
 keybindingmenu.subchanneldown Subchannel down
 keybindingmenu.subchannelup Subchannel up
 keybindingmenu.tvradiomode TV/Radio mode
@@ -915,7 +916,7 @@ lcd_info_line Show in infoline
 lcd_info_line_channel Channelname
 lcd_info_line_clock Clock
 lcdcontroler.brightness Normal mode
-lcdcontroler.brightnessdeepstandby Deep standby
+lcdcontroler.brightnessdeepstandby Deep-standby
 lcdcontroler.brightnessstandby Standby
 lcdmenu.dim_brightness Brightness after dimm timeout
 lcdmenu.dim_time Dimm timeout
@@ -930,9 +931,9 @@ lcdmenu.statusline.playtime Playtime
 lcdmenu.statusline.volume Volume
 ledcontroler.backlight Buttons backlight
 ledcontroler.backlight.tv TV mode
-ledcontroler.blink Blink in deep standby, if timer set
+ledcontroler.blink Blink in deep-standby, if timer set
 ledcontroler.menu Power Button LEDs
-ledcontroler.mode.deepstandby Deep standby
+ledcontroler.mode.deepstandby Deep-standby
 ledcontroler.mode.record Blinking while record
 ledcontroler.mode.standby Standby
 ledcontroler.mode.tv TV mode
@@ -972,7 +973,7 @@ mainmenu.recording_stop Stop
 mainmenu.scripts Scripts
 mainmenu.service Installation (service)
 mainmenu.settings System settings
-mainmenu.shutdown Shutdown (deep standby)
+mainmenu.shutdown Shutdown (Deep-standby)
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
 mainmenu.tools Tools
@@ -1085,7 +1086,7 @@ menu.hint_epg_read_now Read saved EPG data from an external device
 menu.hint_epg_save Save cached EPG data to an external device
 menu.hint_epg_save_frequently Save cached EPG data in frequently intervals to an external device
 menu.hint_epg_save_mode Cache EPG only for channels present in favorite bouquets
-menu.hint_epg_save_standby Save EPG on soft standby mode
+menu.hint_epg_save_standby Save EPG on soft-standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
 menu.hint_eventlist_additional Show additional informations\nin main box
@@ -1180,7 +1181,7 @@ menu.hint_key_pic_mode_active Disable/enable key for the screen format
 menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
 menu.hint_key_pip_setup Assign button to configure PiP
-menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
+menu.hint_key_poweroff Assign button to switch power state\n (standby/deep-standby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_record Assign button to start a recording
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
@@ -1190,6 +1191,7 @@ menu.hint_key_save Save keybindings to a file named keys.conf
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_key_special_active Disable or enable some special keys
+menu.hint_key_standby_add Assign additional button to leave standby mode
 menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
 menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
 menu.hint_key_timeshift Assign button to start timeshift
@@ -1205,7 +1207,7 @@ menu.hint_last_radio Start box on selected channel\nif last mode is Radio
 menu.hint_last_tv Start box on selected channel\nif last mode is TV
 menu.hint_last_use Start box on last used channel
 menu.hint_leds_blink Blinking LEDs in deep-standby
-menu.hint_leds_deepstandby LEDs state in deeps-standby mode
+menu.hint_leds_deepstandby LEDs state in deep-standby mode
 menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
@@ -1453,7 +1455,7 @@ menu.hint_settings Configure System\nNetwork, audio, video, OSD and more
 menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
 menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
-menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
+menu.hint_shutdown Put your box in deep-standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
 menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more than 1 second
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
@@ -1563,7 +1565,7 @@ miscsettings.epg_read_now Restore EPG now
 miscsettings.epg_save Save EPG on shutdown
 miscsettings.epg_save_frequently Save EPG frequently
 miscsettings.epg_save_mode Favorites only
-miscsettings.epg_save_standby Save EPG on soft standby
+miscsettings.epg_save_standby Save EPG on soft-standby
 miscsettings.epg_scan EPG scan mode
 miscsettings.epg_scan_always Always
 miscsettings.epg_scan_bouquets EPG scan bouquets
@@ -1628,7 +1630,7 @@ miscsettings.progressbar_timescale_yellow yellow
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
-miscsettings.shutdown_count_hint2 to deep standby (0 = off).
+miscsettings.shutdown_count_hint2 to deep-standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer

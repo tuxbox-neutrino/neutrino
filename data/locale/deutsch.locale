@@ -881,7 +881,7 @@ keybindingmenu.modechange Moduswechsel
 keybindingmenu.navigation Navigation
 keybindingmenu.pagedown Seite weiter
 keybindingmenu.pageup Seite zurück
-keybindingmenu.poweroff Standby EIN/AUS
+keybindingmenu.poweroff Standby ein/aus
 keybindingmenu.quickzap Schnellumschaltung
 keybindingmenu.remotecontrol_hardware Hardware
 keybindingmenu.remotecontrol_hardware_coolstream CST
@@ -895,6 +895,7 @@ keybindingmenu.repeatblock Anfangsverzögerung
 keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern
 keybindingmenu.special_active Sondertasten
+keybindingmenu.standbyoff_add Standby aus (zusätzlich)
 keybindingmenu.subchanneldown Unterkanal zurück
 keybindingmenu.subchannelup Unterkanal weiter
 keybindingmenu.tvradiomode Fernseh-/Radio-Modus
@@ -1190,6 +1191,7 @@ menu.hint_key_save Speichern Sie Ihre Tastenbelegungen in einer Datei namens key
 menu.hint_key_screenshot Weisen Sie eine Taste zu, um Menü- und/oder TV-Screenshots zu speichern
 menu.hint_key_sort Weisen Sie eine Taste für das Sortieren in der Kanalliste zu
 menu.hint_key_special_active Deaktivieren oder aktivieren einiger Sondertasten
+menu.hint_key_standbyoff_add Weisen Sie eine zusätzliche Taste zum Beenden des Standby-Modus zu
 menu.hint_key_subchanneldown Weisen Sie eine Taste für das Zurückschalten in den Unterkanälen zu
 menu.hint_key_subchannelup Weisen Sie eine Taste für das Weiterschalten in den Unterkanälen zu
 menu.hint_key_timeshift Weisen Sie eine Taste für das Starten von Timeshift zu
@@ -1469,7 +1471,7 @@ menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen bzw. in den
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
 menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfigurationsdatei festlegen
-menu.hint_standby Receiver in den Standby Modus versetzen
+menu.hint_standby Receiver in den Standby-Modus versetzen
 menu.hint_start_tostandby Aktiviert den Standby-Modus direkt nach dem Starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate usw.
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
@@ -1571,7 +1573,7 @@ miscsettings.epg_scan_bq Aktuelles Bouquet
 miscsettings.epg_scan_fav Alle Favoriten
 miscsettings.epg_scan_live Bei eingeschalteter Box
 miscsettings.epg_scan_sel Markierte Bouquets
-miscsettings.epg_scan_standby Im Standby Modus
+miscsettings.epg_scan_standby Im Standby-Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
@@ -1629,7 +1631,7 @@ miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
 miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
-miscsettings.shutdown_real Standbymodus
+miscsettings.shutdown_real Standby-Modus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sleeptimer_min Sleeptimer Vorgabe
