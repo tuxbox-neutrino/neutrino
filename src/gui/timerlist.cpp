@@ -324,8 +324,10 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		rbsetup->enableSaveScreen(true);
 		if ((rbsetup->exec(NULL,"") == true) && (!rbaddress.empty()))
 		{
-			remboxmenu->addItem(new CMenuForwarder(rbname, true, NULL, this, "cha_ip"));
 			remboxmenu->hide();
+			remboxmenu->enableSaveScreen(false);
+			remboxmenu->addItem(new CMenuForwarder(rbname, true, NULL, this, "cha_ip"));
+			remboxmenu->enableSaveScreen(true);
 			timer_remotebox_item timer_rb;
 			timer_rb.rbaddress = rbaddress;
 			if (!timer_rb.rbaddress.empty())
@@ -348,9 +350,10 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		bselected = remboxmenu->getSelected();
 		if (bselected >= item_offset)
 		{
-			remboxmenu->removeItem(bselected);
-			remboxmenu->enableSaveScreen(false);
 			remboxmenu->hide();
+			remboxmenu->enableSaveScreen(false);
+			remboxmenu->removeItem(bselected);
+			remboxmenu->enableSaveScreen(true);
 			bselected = remboxmenu->getSelected();
 			changed = true;
 		}
