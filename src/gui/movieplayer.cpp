@@ -1878,29 +1878,10 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			showHelp();
 			enableOsdElements(NO_MUTE);
 		} else if (msg == CRCInput::RC_info) {
-			if (fromInfoviewer) {
-				disableOsdElements(NO_MUTE);
-				if (g_settings.movieplayer_display_playtime)
-					updateLcd(false); // force title
-#ifdef ENABLE_LUA
-				if (isLuaPlay && haveLuaInfoFunc) {
-					int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
-					if (!videoDecoder->getBlank()) {
-						videoDecoder->getPictureInfo(xres, yres, framerate);
-						if (yres == 1088)
-							yres = 1080;
-						aspectRatio = videoDecoder->getAspectRatio();
-					}
-					CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
-				}
-				else {
-#endif
-					g_EpgData->show_mp(p_movie_info,GetPosition(),GetDuration());
-#ifdef ENABLE_LUA
-				}
-#endif
+			if (fromInfoviewer)
+			{
+				showMovieInfo();
 				fromInfoviewer = false;
-				enableOsdElements(NO_MUTE);
 			}
 			else
 				callInfoViewer();
@@ -2050,6 +2031,32 @@ void CMoviePlayerGui::set_vzap_it(bool up)
 			--vzap_it;
 	}
 	//printf("CMoviePlayerGui::%s: vzap_it: %d\n", __func__, (int)(vzap_it - filelist.begin()));
+}
+
+void CMoviePlayerGui::showMovieInfo()
+{
+	disableOsdElements(NO_MUTE);
+	if (g_settings.movieplayer_display_playtime)
+		updateLcd(false); // force title
+
+#ifdef ENABLE_LUA
+	if (isLuaPlay && haveLuaInfoFunc)
+	{
+		int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
+		if (!videoDecoder->getBlank())
+		{
+			videoDecoder->getPictureInfo(xres, yres, framerate);
+			if (yres == 1088)
+				yres = 1080;
+			aspectRatio = videoDecoder->getAspectRatio();
+		}
+		CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
+	}
+	else
+#endif
+		g_EpgData->show_mp(p_movie_info,GetPosition(),GetDuration());
+
+	enableOsdElements(NO_MUTE);
 }
 
 void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
