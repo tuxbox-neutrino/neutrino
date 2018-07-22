@@ -1707,7 +1707,7 @@ int CEPGDataHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 	if (parent)
 		parent->hide();
 
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts && !CMoviePlayerGui::getInstance().timeshift)
 	{
 		CMoviePlayerGui::getInstance().showMovieInfo();
 	}
