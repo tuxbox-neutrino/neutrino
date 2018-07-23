@@ -119,12 +119,10 @@ class CEpgData
 		void ResetModules();
 };
 
-
-
 class CEPGDataHandler : public CMenuTarget
 {
 	public:
-		int  exec( CMenuTarget* parent,  const std::string &actionkey);
+		int exec(CMenuTarget* parent,  const std::string &actionkey);
 
 };
 

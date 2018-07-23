@@ -133,7 +133,7 @@ class CEventList : public CListHelpers
 class CEventListHandler : public CMenuTarget
 {
 	public:
-		int  exec( CMenuTarget* parent,  const std::string &actionkey);
+		int exec(CMenuTarget* parent, const std::string &actionkey);
 };
 
 class CEventFinderMenu : public CMenuTarget, CChangeObserver

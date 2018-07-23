@@ -1459,38 +1459,6 @@ void EpgPlus::paint()
 	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page, CC_SHADOW_RIGHT_CORNER_ALL);
 }
 
-// -- EPG+ Menue Handler Class
-// -- to be used for calls from Menue
-// -- (2004-03-05 rasc)
-
-int CEPGplusHandler::exec(CMenuTarget * parent, const std::string & /*actionKey*/)
-{
-	int res = menu_return::RETURN_EXIT_ALL;
-	EpgPlus *e;
-	CChannelList *channelList;
-
-	if (parent)
-		parent->hide();
-
-	e = new EpgPlus;
-
-	//channelList = CNeutrinoApp::getInstance()->channelList;
-	int bnum = bouquetList->getActiveBouquetNumber();
-	current_bouquet = bnum;
-	if (!bouquetList->Bouquets.empty() && !bouquetList->Bouquets[bnum]->channelList->isEmpty())
-		channelList = bouquetList->Bouquets[bnum]->channelList;
-	else
-		channelList = CNeutrinoApp::getInstance()->channelList;
-
-	e->exec(channelList, channelList->getSelectedChannelIndex(), bouquetList);
-	delete e;
-	// FIXME
-	//printf("CEPGplusHandler::exec old bouquet %d new %d current %d\n", bnum, bouquetList->getActiveBouquetNumber(), current_bouquet);
-	bouquetList->activateBouquet(current_bouquet, false);
-
-	return res;
-}
-
 EpgPlus::MenuTargetAddReminder::MenuTargetAddReminder(EpgPlus * pepgPlus)
 {
 	this->epgPlus = pepgPlus;
@@ -1654,4 +1622,35 @@ int EpgPlus::MenuOptionChooserSwitchViewMode::exec(CMenuTarget * parent)
 	CMenuOptionChooser::exec(parent);
 
 	return menu_return::RETURN_REPAINT;
+}
+
+// -- EPG+ Menu Handler Class
+// -- to be used for calls from Menu
+
+int CEPGplusHandler::exec(CMenuTarget * parent, const std::string & /*actionKey*/)
+{
+	int res = menu_return::RETURN_EXIT_ALL;
+	EpgPlus *e;
+	CChannelList *channelList;
+
+	if (parent)
+		parent->hide();
+
+	e = new EpgPlus;
+
+	//channelList = CNeutrinoApp::getInstance()->channelList;
+	int bnum = bouquetList->getActiveBouquetNumber();
+	current_bouquet = bnum;
+	if (!bouquetList->Bouquets.empty() && !bouquetList->Bouquets[bnum]->channelList->isEmpty())
+		channelList = bouquetList->Bouquets[bnum]->channelList;
+	else
+		channelList = CNeutrinoApp::getInstance()->channelList;
+
+	e->exec(channelList, channelList->getSelectedChannelIndex(), bouquetList);
+	delete e;
+	// FIXME
+	//printf("CEPGplusHandler::exec old bouquet %d new %d current %d\n", bnum, bouquetList->getActiveBouquetNumber(), current_bouquet);
+	bouquetList->activateBouquet(current_bouquet, false);
+
+	return res;
 }
