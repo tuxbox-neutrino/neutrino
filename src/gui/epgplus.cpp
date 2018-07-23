@@ -1080,7 +1080,12 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 			else if (msg == CRCInput::RC_ok)
 			{
 				if (selectedChannelEntry)
-					CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->getChannelID());
+				{
+					if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts)
+						ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEPLAYER_ZAP);
+					else
+						CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->getChannelID());
+				}
 				current_bouquet = bouquetList->getActiveBouquetNumber();
 			} 
 			else if (CRCInput::isNumeric(msg))

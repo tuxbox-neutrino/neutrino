@@ -265,7 +265,6 @@ channellist.make_hdlist Create lists of HD and UHD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
 channellist.make_webtvlist Create list of WebTV channels
-channellist.movieplayer_zap Zap not possible while movie playback
 channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active Active
 channellist.new_zap_mode_allow Allow
@@ -1897,6 +1896,7 @@ movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tsplayback Play TS
 movieplayer.ytplayback YouTube videoplayer
+movieplayer.zap Zap not possible while movie playback
 mpkey.audio Audiotracks
 mpkey.bookmark Bookmarks
 mpkey.forward Forward
