@@ -220,14 +220,14 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_EPG_LIST:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTLIST, !_mode_ts, NULL, new CEventListHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTLIST, true, NULL, new CEventListHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_EPG_SUPER:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EPGPLUS, !_mode_ts, NULL, new CEPGplusHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EPGPLUS, true, NULL, new CEPGplusHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
