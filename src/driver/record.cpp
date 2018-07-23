@@ -1379,8 +1379,14 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
+#if 0
+			/*
+			   ShowMenu() moved to movieplayer.cpp
+			   Function is called when stop key is pressed.
+			*/
 			if(g_settings.temp_timeshift && tstarted && autoshift)
 				ShowMenu();
+#endif
 		}
 	}
 }
