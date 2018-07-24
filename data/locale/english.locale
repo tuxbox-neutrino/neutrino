@@ -2334,6 +2334,7 @@ settings.restore_warn This will replace all settings and reboot\nContinue ?
 shoutcast.dev_id SHOUTcast Dev ID
 shoutcast.enabled SHOUTcast support
 shutdown.recording_query You really want to to stop record ?
+shutdown.timeshift_query You really want to to stop timeshift ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
 sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
 sleeptimerbox.hint1 Shutdown time in minutes (000 = off)

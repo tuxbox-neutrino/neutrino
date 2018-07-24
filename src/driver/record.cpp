@@ -1590,7 +1590,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 	if(inst == NULL)
 		return false;
 
-	if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
+	if(ShowMsg(FindTimeshift() ? LOCALE_SHUTDOWN_TIMESHIFT_QUERY : LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
 				CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes) {
 		mutex.lock();
 		if (recid)
