@@ -416,8 +416,8 @@ eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
 eventlistbar.recordevent record
 extra.add_to_bouquet Add to bouquet
-extra.auto_delete Auto-delete
-extra.auto_timeshift Auto-record, sec (0 = disable)
+extra.auto_delete Automatic deletion
+extra.auto_timeshift Automatic recording
 extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet.\n
 extra.chalreadyinbq The current channel is already in selected bouquet.\n
@@ -487,7 +487,7 @@ extra.sms_movie SMS-mode movie
 extra.south South
 extra.start_tostandby Startup to standby
 extra.temp_timeshift Temporary timeshift
-extra.timeshift_pause Timeshift pause
+extra.timeshift_pause Paused recording
 extra.tp_bandwidth Bandwidth
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz
@@ -2569,6 +2569,7 @@ wizard.setup_type Installation type
 wizard.setup_type_hint Easy to setup for CanalDigitaal/TéléSAT/TV Vlaanderen providers or simple cable scan
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Neutrino is designed for set-top boxes and is maintained by the Tuxbox community and lives from the support of users and many volontary contributors./nIf you need help or have  suggestions, found bugs, please feel free to contact us.\nSupport pages or Contact and / or Web addresses can be found in the main menu under "Information".\nNext steps will guide you through initial installation of the device.\nImportant: Your set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
+word.after after
 word.from from
 word.in in
 youtube.dev_id YouTube Dev ID

@@ -416,8 +416,8 @@ eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
 extra.add_to_bouquet dem Bouquet zufügen
-extra.auto_delete Automatisch löschen
-extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
+extra.auto_delete Automatisches Löschen
+extra.auto_timeshift Automatische Aufnahme
 extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt ...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet.\n
@@ -487,7 +487,7 @@ extra.sms_movie SMS-Modus bei Filmsuche
 extra.south Süden
 extra.start_tostandby Standby nach Boxstart
 extra.temp_timeshift Temporäres Timeshift
-extra.timeshift_pause Timeshift Pause
+extra.timeshift_pause Pausierte Aufnahme
 extra.tp_bandwidth Bandbreite
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz
@@ -2568,7 +2568,8 @@ wizard.setup_easy Einfach
 wizard.setup_type Installationstyp
 wizard.setup_type_hint Wählen Sie einfache Grundeinstellungen oder erweiterte Auswahlmöglichkeiten für die Installation
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
-wizard.welcome_text Neutrino ist eine von der Tuxbox-Community entwickelte und gepflegte Benutzeroberfläche für Set-Top-Boxen und lebt von der Unterstützung der Nutzer und vielen freiwilligen beitragenden Helfern.\nSollten Sie Hilfe benötigen, Anregungen, Verbesserungsvorschläge oder Fehler bemerken,\nkönnen Sie sich gerne auf unseren Supportseiten melden oder Kontakt aufnehmen. Kontakt- bzw. Webaddressen entnehmen Sie bitte hierfür im Hauptmenü unter "Informationen". \nIn den folgenden Schritten wird Sie Neutrino durch die Ersteinrichtung führen.\nSicherheitshinweis:\n Ihre Set-Top-Box lässt sich auch per Webinterface steuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nAchten Sie bitte darauf, dass Ihr Gerät nicht von aussen zugänglich ist,\nda sonst ein unbefugter Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
+wizard.welcome_text Neutrino ist eine von der Tuxbox-Community entwickelte und gepflegte Benutzeroberfläche für Set-Top-Boxen und lebt von der Unterstützung der Nutzer und vielen freiwilligen beitragenden Helfern.\nSollten Sie Hilfe benötigen, Anregungen, Verbesserungsvorschläge haben oder Fehler bemerken,\nkönnen Sie sich gerne auf unseren Supportseiten melden oder Kontakt aufnehmen. Kontakt- bzw. Webaddressen entnehmen Sie bitte hierfür im Hauptmenü unter "Informationen". \nIn den folgenden Schritten wird Sie Neutrino durch die Ersteinrichtung führen.\nSicherheitshinweis:\n Ihre Set-Top-Box lässt sich auch per Webinterface steuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nAchten Sie bitte darauf, dass Ihr Gerät nicht von aussen zugänglich ist,\nda sonst ein unbefugter Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
+word.after nach
 word.from ab
 word.in in
 youtube.dev_id YouTube Dev ID

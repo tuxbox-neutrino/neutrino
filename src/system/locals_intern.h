@@ -2596,6 +2596,7 @@ const char * locale_real_names[] =
 	"wizard.setup_type_hint",
 	"wizard.welcome_head",
 	"wizard.welcome_text",
+	"word.after",
 	"word.from",
 	"word.in",
 	"youtube.dev_id",

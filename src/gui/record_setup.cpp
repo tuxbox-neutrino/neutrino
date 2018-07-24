@@ -390,6 +390,8 @@ void CRecordSetup::showRecordTimeShiftSetup(CMenuWidget *menu_ts)
 		menu_ts->addItem(mc);
 
 		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_EXTRA_AUTO_TIMESHIFT, &g_settings.auto_timeshift, true, 0, 300, NULL);
+		mn->setNumberFormat(g_Locale->getText(LOCALE_WORD_AFTER) + std::string(" %d ") + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND));
+		mn->setLocalizedValue(0, LOCALE_OPTIONS_OFF);
 		mn->setHint("", LOCALE_MENU_HINT_RECORD_TIMESHIFT_AUTO);
 		menu_ts->addItem(mn);
 
