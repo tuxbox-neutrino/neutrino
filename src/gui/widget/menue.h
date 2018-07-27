@@ -640,7 +640,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		int getSelectedLine(void)const {return no_action ? -1 : selected;};
 		void setWizardMode(int _from_wizard) { from_wizard = _from_wizard;};
 		void enableFade(bool _enable) { fade = _enable; };
-		void enableSaveScreen(bool enable);
+		void enableSaveScreen(bool enable = true);
+		void disableSaveScreen() {enableSaveScreen(false);}
 		void paintHint(int num);
 		void paintHint(){hint_painted = false;}
 		enum 
