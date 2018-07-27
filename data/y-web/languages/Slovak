@@ -1,7 +1,7 @@
 #	yWeb language file (Slovensky) by EnoSat
-#	language version: 1.2
-#	$Date: 2014-02-22 17:17:17 +0100 (so, 22 Februára 2014) $
-#	$Revision: 213 $
+#	language version: 1.8
+#	$Date: 2018-07-22 17:17:17 +0100 (ne, 22 Júna 2018) $
+#	$Revision: 350 $
 #========= Hlavné / Celkové nastavenie
 global.no_iframes=Váš prehliadač nepodporuje I-rámce.
 clear=vyčistiť
@@ -29,6 +29,8 @@ management=Manžment
 uninstaller=Odinštalovanie
 send=poslať
 cancel=zrušiť
+apply=použiť zmeny
+apply_desc=načítať konfiguračný súbor neutrina
 answer=Odpoveď
 reboot=reBoot
 shutdown=vypnutie
@@ -54,8 +56,25 @@ directory=Adresár
 filename=Názov súboru
 restriced_by_management_ip=obmedzené Manažmentom-IP
 automatic=automaticky
-show=ukázať
+show=zobraziť
 hide=skryť
+unknown=neznáme
+
+# ========== Dátumy
+date.su=Ne
+date.sunday=Nedeľa
+date.mo=Po
+date.monday=Pondelok
+date.tu=Ut
+date.tuesday=Utorok
+date.we=St
+date.wednesday=Streda
+date.th=Št
+date.thursday=Štvrtok
+date.fr=Pi
+date.friday=Piatok
+date.sa=So
+date.saturday=Sobota
 
 #======== Hlavná ponuka
 main.boxcontrol=Ovládanie zariadenia
@@ -68,7 +87,7 @@ main.settings=Nastavenia
 main.settings_desc=Nastavenia zariadenia, Prehliadač, Doplnky ...
 main.extensions=Rozšírenia
 main.extensions_desc=Uživatelské rozšírenia ...
-main.info=Informácia
+main.info=Informácie
 main.info_desc=Informácia o yWeb, Aktualizácie
 main.live_tv_desc=Živá TV
 main.live_tv_popup_desc=Okno Živá TV
@@ -79,17 +98,17 @@ main.version=Verzia
 #========= Ponuka ovládania boxu
 bc.menue.bouquets_desc=Prepínanie kanálov
 bc.menue.bouquets=Obľúbené
-bc.menue.control_desc=funkcie ovládania zariadenia (reBoot , Diaľkové ovládanie, SPTS, ...)
+bc.menue.control_desc=Funkcie ovládania zariadenia (reBoot , Diaľkové ovládanie, SPTS, ...)
 bc.menue.control=Ovládanie
-bc.menue.messages_desc=poslať Správu do zariadenia
+bc.menue.messages_desc=Poslať Správu do zariadenia
 bc.menue.messages=Správy
 bc.menue.remote_desc=Webovský Diaľkový ovládač
 bc.menue.remote=Ovládač
-bc.menue.lcd_screenshot_desc=vytvorí obrázok OSD zobrazenia v mierke
+bc.menue.lcd_screenshot_desc=Vytvorí obrázok OSD zobrazenia v mierke
 bc.menue.lcd_screenshot=Zosnímanie OSD obrazovky
 bc.menue.lcd_screenshot_desc_ni=lcshot nie je inštalovaný v /bin alebo /var/bin
 bc.menue.screenshot=Zosnímanie TV obrazovky
-bc.menue.screenshot_desc=vytvorí obrázok z osd a/alebo TV bez mierky
+bc.menue.screenshot_desc=Vytvorí obrázok z osd a/alebo TV bez mierky
 
 bc.menue.decrease_volume=znížiť hlasitosť
 bc.menue.increase_volume=zvýšiť hlasitosť
@@ -131,6 +150,7 @@ bc.screenshot.delete=Vymazať obrazovku
 bc.screenshot.zoom=Zoomovať obrazovku
 bc.screenshot.wait_text=Vytváram obrázok obrazovky
 bc.screenshot.checkenable=OSD a/alebo TV musí byť použitý!
+bc.screenshot.reload_desc=Interval obnovovania v sekundách
 
 ========= Ovládanie - Iné
 bc.channels=Kanály
@@ -185,8 +205,9 @@ epg.hover_for_details=Presun ukazovateľa na stanicu pre získanie podrobností
 epg.refresh=obnovovanie EPG
 epg.past_hours=predchádzajúce hodiny
 epg.next_hours=nasledujúce hodiny
-epg.set_timer_rec=Nastavenie časovaca. Vykonané.
-epg.set_timer_zap=Prepnutie na kanál. Vykonané.
+epg.set_timer_rec=Nastavené nahrávanie s časovačom
+epg.set_timer_zap=Nastavené prepnutie s časovačom
+epg.zap_to=Prepnutie na kanál. Vykonané.
 
 ======= EPG Streaminfo
 epg.si.streaminfo=Informácie streamu
@@ -213,6 +234,7 @@ set.sync_with_neutrino=Synchronizovať s Neutrinom
 
 ====== Hlavné nastavenia a Ponuka
 set.menue.webserver=Webserver
+set.menue.epg=Elektronický sprievodca (EPG)
 set.menue.timer_settings=Nastavenie tvinfo.de
 set.menue.zapit=Prepínanie
 set.menue.backup_restore=Záloha a Obnova
@@ -256,9 +278,9 @@ set.rec.start_delay=Korekcia štartu nahrávania (sekundy)
 set.rec.stop_delay=Korekcia ukončenia nahrávania (sekundy)
 set.rec.zap_delay=Korekcia zapnutia prevoľby (sekundy)
 set.rec.audio_channels=Zvukové stopy
-set.rec.audio_standard=Štandartný kanál nahrávania zvuku
-set.rec.audio_alternate=Voliteľný kanál módu nahrávania zvuku
-set.rec.audio_ac3=Nahrávanie DolbyDigital (AC3) zvuku
+set.rec.audio_standard=Nahrávanie nastavenej zvukovej stopy
+set.rec.audio_alternate=Nahrávanie voliteľných zvukových stôp
+set.rec.audio_ac3=Nahrávanie DolbyDigital (AC3) zvukovej stopy
 set.rec.channeldir=Uložiť v adresáry kanála
 set.rec.epg_end=Nahrávanie až do konca EPG
 set.rec.recordtime=Čas nahrávania v hodinách
@@ -304,12 +326,13 @@ set.nhttpd.authentication=Autorizácia
 set.nhttpd.client_without_authentication_desc=Klient bez kontroly autorizácie. Vloženie IP.
 set.nhttpd.client_without_authentication=Klient bez autorizácie
 set.nhttpd.active_after_boot=aktívne po nabootovaní
-set.nhttpd.port=Vydávateľ
+set.nhttpd.port=Port
 set.nhttpd.threading=Prepojené
 set.nhttpd.alternate_web_folder=Alternatívny web-adresár
 set.nhttpd.hosted_folder=Pripojené adresáre
 set.nhttpd.allowed_file_extensions=Povolené prípony súboru / MIME
 set.nhttpd.allow_all_file_extensions=Povoliť všetky prípony súboru
+set.nhttpd.display_logos=Zobrazenie loga
 set.nhttpd.url_of_logos_desc=Vloženie adresára s logami staníc
 set.nhttpd.url_of_logos=Adresár s logami staníc
 set.nhttpd.server=Server
@@ -335,6 +358,7 @@ set.yweb.box_color_desc=Farba názvu zariadenia vo vrchnom menu. napr. vložte 2
 set.yweb.box_color=Farba
 set.yweb.start_page=Štartovacia stránka
 set.yweb.remote=Ovládač
+set.yweb.screenshot_rc=DO v ponuke zachytenia
 
 ======== Nastavenie prehliadača obrázkov
 set.pv.pictureviewer=Prehliadač obrázkov
@@ -356,7 +380,7 @@ set.ap.select_actual_track=Voľba stopy
 set.ap.search_by_name=Hľadanie podľa názvu
 set.ap.repeat_mode=Režim opakovania
 set.ap.show_playlist=Zobrazenie zoznamu
-set.ap.screensaver=Obrazový setrič (min, 0=vypnute )
+set.ap.screensaver=Obrazový setrič (min, 0=vypnuté)
 set.ap.decode_priority=Vyššia priorita dekódovania
 set.ap.start_dir=Štartovací adresár
 set.ap.parse_shoutcast=Shoutcast Meta-Dáta
@@ -418,6 +442,8 @@ tools.command=Príkaz
 tools.cmd.enter_command=vloženie príkazu pre vykonanie
 tools.cmd.execute_command=vykonanie operačného príkazu
 tools.boot_logo=Bootovacie logo
+tools.filemgr_desc=organizácia súborov a adresárov
+tools.filemgr=Súborový manažér
 
 =========== Ponuka ŽIVÁ TV
 live.heading=ŽIVÁ TV / Časovač
@@ -509,11 +535,12 @@ live.timer_edit.apids.default=Prednastavené
 live.timer_edit.apids.standard=Štandartné
 live.timer_edit.apids.alt=Alternativné
 live.timer_edit.apids.ac3=AC3
-live.timer_edit.apids=A-pidy
 live.timer_edit.standby=Režim spánku
 live.timer_edit.plugin=Doplnok
 live.timer_edit.rec_dir=Adresár nahrávania
 live.timer_edit.description=Popis
+live.timer_edit.type=Typ
+live.timer_edit.message=Správa
 
 =========== LIVE Timer Sync
 live.timer-sync.get_timer=Načítať časovač.
@@ -544,7 +571,7 @@ info.your_version=Vaša inštalovaná verzia
 info.actual_version=Aktuálna verzia
 
 ========= Dialkové ovládanie
-rc.key_power=Spánok
+rc.key_power=Napájanie
 rc.key_mute=Umlčanie
 rc.key_1=1
 rc.key_2=2
@@ -556,7 +583,7 @@ rc.key_7=7
 rc.key_8=8
 rc.key_9=9
 rc.key_0=0
-rc.key_text=TXT
+rc.key_text=Teletext
 rc.key_favorites=Obľúbené
 rc.key_volumeup=Hlas+
 rc.key_volumedown=Hlas-
@@ -564,8 +591,8 @@ rc.key_pageup=Strana+
 rc.key_pagedown=Strana-
 rc.key_radio=TV/Radio
 rc.key_mode=Video Format
-rc.key_next=Preskočiť-
-rc.key_previous=Preskočiť+
+rc.key_next=Skok-
+rc.key_previous=Skok+
 rc.key_sleep=Uspať
 rc.key_audio=Zvuk
 rc.key_help=Pomoc
@@ -583,14 +610,107 @@ rc.key_right=Vpravo
 rc.key_setup=Ponuka
 rc.key_home=Ukončiť
 rc.key_sat=Družica
-rc.key_www=
-rc.key_rewind=Vpred
+rc.key_www=WWW
+rc.key_rewind=Dozadu
 rc.key_play=Prehrať
-rc.key_forward=Vzad
+rc.key_forward=Dopredu
 rc.key_stop=Zastaviť
 rc.key_record=Nahrať
 rc.key_pause=Pozastaviť
-rc.key_games=
-rc.key_time=
+rc.key_games=Hry
+rc.key_trsp=Trsp
+rc.key_time=Časovač
+rc_key_sub=Titulky
 rc.key_picsize=Veľkosť obrazu
 rc.key_picmode=Režim obrazu
+rc.key_pos=Pos
+rc.key_recall=Naspäť
+
+=========NI
+main.ni=NI-yWeb
+main.ni_desc=NI-yWeb rozšírenie
+
+ni.save=Uložiť
+ni.cancel=Zrušiť
+ni.edit=Upraviť
+ni.remove=Odstrániť
+ni.create=Vytvoriť
+ni.start=Spustiť
+ni.stop=Zastaviť
+ni.reset=Resetnúť
+ni.reload=Obnoviť
+ni.configure=Konfigurácia
+ni.dblclick=Vyžadovaný dvojklik
+
+ni.about.your_image=Vaše NI-Image
+ni.about.actual_image=Aktuálne NI-Image
+ni.about.image_upd_no=Nedostupná aktualizácia
+ni.about.image_upd_yes=Dostupná aktualizácia
+
+ni.camd-control=Softcamy
+ni.camd-control.title=Softcam-Ovládanie
+
+ni.camd-tools=Nástroje pre
+ni.camd-tools.line=----------------------------------
+ni.camd-tools.ecminfo=ECM-Informácie
+ni.camd-tools.countcards=Počet dostupných kariet
+ni.camd-tools.sc01info=Detaily karty zo slotu 1
+ni.camd-tools.sc02info=Detaily karty zo slotu 2
+ni.camd-tools.shareinfo=CS-Informácie
+ni.camd-tools.shareonl=Online-Share-Informácie
+ni.camd-tools.mginfo=CS-Informácie
+ni.camd-tools.cccamdinfo=CCCamd riadky
+ni.camd-tools.pidinfo=PID-Informácie
+ni.camd-tools.mgshareinfo=NewCamd riadky
+ni.camd-tools.cs2gboxinfo=Common Informácie
+ni.camd-tools.oscamversion=Common Informácie
+ni.camd-tools.ncamversion=Common Informácie
+ni.camd-tools.doscamversion=Common Informácie
+
+ni.pzapit-control=PZapit
+ni.pzapit-control.title=PZapit-Ovládanie
+ni.pzapit-control.resolution=Rozlíšenie
+ni.pzapit-control.43mode=Režim 4:3
+ni.pzapit-control.channellists=Zoznamy kanálov
+ni.pzapit-control.tuner=Tuner
+
+ni.plugin-control=Doplnky
+ni.plugin-control.title=Doplnok-Ovládanie
+ni.plugin-control.manage=Prispôsobenie Doplnkov a Služieb
+ni.plugin-control.blue=Prispôsobenie modrého tlačítka Doplnkov
+ni.plugin-control.blue-show=zobraziť
+ni.plugin-control.blue-hide=skryť
+
+ni.plugin-tools.fcm-addr=Upraviť telefónny zoznam
+ni.plugin-tools.pat-rules=Upraviť pravidlá
+ni.plugin-tools.epgscan-dat=Upraviť zoznam transpondérov
+
+ni.infoicons-control=Info ikony
+ni.infoicons-control.title=Info ikony-Ovládanie
+ni.infoicons-control.flagfile-control=Flag-Ovládanie
+ni.infoicons-control.flagfiles=Flag-Súbory
+ni.infoicons-control.static=Stále
+ni.infoicons-control.popup=Ako vyskočenie
+ni.infoicons-control.infoviewer=S infolištou
+
+ni.netfs-control=NetFS
+ni.netfs-0=fstab
+ni.netfs-1=auto.net
+ni.netfs-control.title=NetFS-Ovládanie
+ni.netfs-control.entrys=NetFS-Položky
+ni.netfs-control.restart_menu=NetFS-Ponuka sa bude reštartovať
+ni.netfs-control.mount_all=Primontovať všetko
+ni.netfs-control.umount_all=Odmontovať všetko
+ni.netfs-control.mount=Primontovať
+ni.netfs-control.umount=Odmontovať
+ni.netfs-control.type=Typ
+ni.netfs-control.ip=Vzdialená IP adresa
+ni.netfs-control.dir=Vzdialený adresár
+ni.netfs-control.user=Uživateľ
+ni.netfs-control.password=Heslo
+ni.netfs-control.options=Voľby
+ni.netfs-control.dump=Dump
+ni.netfs-control.pass=Pass
+ni.netfs-control.local_dir=Lokálny adresár
+ni.netfs-control.active=Aktívne položky
+ni.netfs-control.autofs_restart=Reštart automountera
