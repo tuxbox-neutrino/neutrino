@@ -1464,6 +1464,9 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			ShowHint(LOCALE_MAINMENU_RECORDING_STOP, g_Locale->getText(LOCALE_RECORDINGMENU_RECORD_IS_NOT_RUNNING), 450, 2);
 			return menu_return::RETURN_EXIT_ALL;
 		}
+	} else if (actionKey == "Exit")
+	{
+		return menu_return::RETURN_EXIT_ALL;
 	}
 
 	ShowMenu();
@@ -1483,6 +1486,8 @@ bool CRecordManager::ShowMenu(void)
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	CMenuWidget menu(LOCALE_MAINMENU_RECORDING, NEUTRINO_ICON_RECORDING /*, width*/);
+	if (rec_count == 0)
+		menu.addKey(CRCInput::RC_stop, this, "Exit");
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	// Record / Timeshift
