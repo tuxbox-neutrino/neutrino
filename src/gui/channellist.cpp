@@ -774,8 +774,6 @@ int CChannelList::show()
 					actzap = true;
 					oldselected = selected;
 					paintBody(); // refresh zapped vs selected
-				} else if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts) {
-					ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEPLAYER_ZAP);
 				} else if(SameTP()) {
 					zapOnExit = true;
 					loop=false;
@@ -944,10 +942,6 @@ int CChannelList::show()
 		res = bouquetList->exec(true);
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
-
-
-	if(NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode())
-		return -1;
 
 	if(zapOnExit)
 		res = selected;
@@ -1190,6 +1184,12 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 
 	if(channel == NULL)
 		return;
+
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts)
+	{
+		ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEPLAYER_ZAP);
+		return;
+	}
 
 	/* we record when we switched away from a channel, so that the parental-PIN code can
 	   check for timeout. last_unlocked_time == 0 means: the PIN was not entered

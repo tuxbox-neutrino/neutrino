@@ -1081,10 +1081,7 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 			{
 				if (selectedChannelEntry)
 				{
-					if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts)
-						ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEPLAYER_ZAP);
-					else
-						CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->getChannelID());
+					CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->getChannelID());
 				}
 				current_bouquet = bouquetList->getActiveBouquetNumber();
 			} 
