@@ -1442,7 +1442,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 		if (inst) {
 			std::string title, duration;
 			inst->GetRecordString(title, duration);
-			title += duration;
+			title += " " + duration;
 			tostart = (ShowMsg(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
 						CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT) == CMsgBox::mbrYes);
 		}
@@ -1584,7 +1584,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 
 	if(inst) {
 		inst->GetRecordString(title, duration);
-		title += duration;
+		title += " " + duration;
 	}
 	mutex.unlock();
 	if(inst == NULL)
