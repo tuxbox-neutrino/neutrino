@@ -281,7 +281,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_settings.recording_type == RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuForwarder(LOCALE_MAINMENU_RECORDING, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
@@ -290,7 +290,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_settings.recording_type == RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_TIMESHIFT, true, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, true, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
