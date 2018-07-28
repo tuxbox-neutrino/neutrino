@@ -1462,6 +1462,11 @@ void CMoviePlayerGui::quickZap(neutrino_msg_t msg)
 				}
 			}
 		}
+		else if (msg == (neutrino_msg_t) g_settings.key_quickzap_up && timeshift)
+		{
+			// zap atm not possible, but signalize it in timeshift mode to get feedback
+			CNeutrinoApp::getInstance()->channelList->quickZap(msg);
+		}
 	}
 	else if ((msg == CRCInput::RC_left) || msg == (neutrino_msg_t) g_settings.key_quickzap_down)
 	{
@@ -1479,6 +1484,11 @@ void CMoviePlayerGui::quickZap(neutrino_msg_t msg)
 				playstate = CMoviePlayerGui::STOPPED;
 				--filelist_it;
 			}
+		}
+		else if (msg == (neutrino_msg_t) g_settings.key_quickzap_down && timeshift)
+		{
+			// zap atm not possible, but signalize it in timeshift mode to get feedback
+			CNeutrinoApp::getInstance()->channelList->quickZap(msg);
 		}
 	}
 }
