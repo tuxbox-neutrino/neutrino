@@ -303,7 +303,7 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_red,             "2,3,4,13",                             "",     "red"           },
 	{ CRCInput::RC_green,           "6",                                    "",     "green"         },
 	{ CRCInput::RC_yellow,          "7,31",                                 "",     "yellow"        },
-	{ CRCInput::RC_blue,            "12,11,20,21,19,14,29,30,15",           "",     "blue"          },
+	{ CRCInput::RC_blue,            "12,11,20,21,19,14,29,30,15,35",        "",     "blue"          },
 #if HAVE_ARM_HARDWARE
 	{ CRCInput::RC_playpause,       "9",                                    "",     "5"             },
 #else
