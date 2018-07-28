@@ -1253,6 +1253,16 @@ void CMoviePlayerGui::stopPlayBack(void)
 	printf("%s: stopped\n", __func__);
 }
 
+void CMoviePlayerGui::stopTimeshift(void)
+{
+	if (timeshift && playback)
+	{
+		printf("%s: stopping timeshift...\n", __func__);
+		playback->RequestAbort();
+		timeshift = TSHIFT_MODE_OFF;
+	}
+}
+
 void CMoviePlayerGui::Pause(bool b)
 {
 	if (b && (playstate == CMoviePlayerGui::PAUSE))
