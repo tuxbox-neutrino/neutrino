@@ -48,6 +48,7 @@
 #include <ctype.h>
 
 #define VERSION_FILE "/.version"
+#define RELEASE_FILE "/etc/os-release"
 
 using namespace std;
 
@@ -74,7 +75,6 @@ void CImageInfo::Init(void)
 	y_tmp 		= 0;
 	license_txt	= "";
 	v_info.clear();
-	config.loadConfig(VERSION_FILE);
 }
 
 CImageInfo::~CImageInfo()
@@ -269,6 +269,16 @@ void CImageInfo::InitInfoData()
 {
 	v_info.clear();
 
+	image_info_t pretty_name = {LOCALE_IMAGEINFO_OS,""};
+	if (file_exists(RELEASE_FILE)){
+		config.loadConfig(RELEASE_FILE);
+		string tmpstr = config.getString("PRETTY_NAME", "");
+		pretty_name.info_text = str_replace("\"", "", tmpstr);
+		config.clear();
+	}
+
+	config.loadConfig(VERSION_FILE);
+
 #ifdef BUILT_DATE
 	const char * builddate = BUILT_DATE;
 #else
@@ -276,6 +286,7 @@ void CImageInfo::InitInfoData()
 #endif
 
 	string version_string = config.getString("version", "");
+
 #ifdef IMAGE_VERSION
 	version_string = IMAGE_VERSION;
 #else
@@ -306,6 +317,9 @@ void CImageInfo::InitInfoData()
 		v_info.push_back(imagename);
 	}else
 		v_info.push_back(imagename);
+
+	if (!pretty_name.info_text.empty())
+		v_info.push_back(pretty_name);
 
 	struct utsname uts_info;
 	if (uname(&uts_info) == 0) {

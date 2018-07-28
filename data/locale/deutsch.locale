@@ -818,6 +818,7 @@ imageinfo.homepage Homepage:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license Lizenz
+imageinfo.os System:
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API Schlüssel
