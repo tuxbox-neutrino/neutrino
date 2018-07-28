@@ -1898,7 +1898,7 @@ movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tsplayback TS Abspielen
 movieplayer.ytplayback YouTube-Feed Wiedergabe
-movieplayer.zap Umschalten während der Film-Wiedergabe nicht möglich
+movieplayer.zap Umschalten während der Film- oder Timeshift-Wiedergabe nicht möglich
 mpkey.audio Tonspuren
 mpkey.bookmark Markierungen
 mpkey.forward Vorlauf
