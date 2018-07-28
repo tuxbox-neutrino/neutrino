@@ -192,6 +192,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
 				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
+	bool timeshift = CMoviePlayerGui::getInstance().timeshift;
 	bool adzap_active = CAdZapMenu::getInstance()->isActive();
 
 	std::string itemstr_last("1");
@@ -290,7 +291,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_settings.recording_type == RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, true, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, !timeshift, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
