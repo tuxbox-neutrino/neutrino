@@ -77,10 +77,10 @@ static int exec_list(void)
 CFbAccelARM::CFbAccelARM()
 {
 	fb_name  = "armbox framebuffer";
-	fb_fd = open("/dev/fb0", O_RDWR);
+	fb_fd = open(FB_DEVICE, O_RDWR);
 	if (fb_fd < 0)
 	{
-		printf(LOGTAG "[bcm] /dev/fb0 %m");
+		printf(LOGTAG "[bcm] %s %m", FB_DEVICE);
 	}
 	if (exec_list())
 	{

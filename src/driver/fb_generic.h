@@ -76,6 +76,8 @@ typedef struct gradientData_t
 #define WINDOW_SIZE_MIN		50 // %
 #define WINDOW_SIZE_SMALL	80 // %
 
+#define FB_DEVICE		"/dev/fb0"
+
 /** Ausfuehrung als Singleton */
 class CFrameBuffer : public sigc::trackable
 {
@@ -172,7 +174,7 @@ class CFrameBuffer : public sigc::trackable
 
 		static CFrameBuffer* getInstance();
 
-		virtual void init(const char * const fbDevice = "/dev/fb0");
+		virtual void init(const char * const fbDevice = FB_DEVICE);
 		virtual int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 
 
