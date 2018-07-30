@@ -486,6 +486,8 @@
 		<transponder frequency="810000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
 	<cable name="Göltzschtalbrücke" satfeed="true" flags="9">
+		<transponder frequency="218000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="226000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="234000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="242000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="250000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -534,10 +536,11 @@
 		<transponder frequency="594000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="602000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="610000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="618000" symbol_rate="6111000" fec_inner="0" modulation="3"/>
+		<transponder frequency="618000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="626000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="634000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="642000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="650000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
 	<cable name="Antennengemeinschaft Penig" satfeed="true" flags="9">
 		<transponder frequency="129000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
