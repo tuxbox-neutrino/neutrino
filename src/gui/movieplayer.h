@@ -174,6 +174,7 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string Path_local;
 	int menu_ret;
 	bool autoshot_done;
+	bool timeshift_deletion;
 	//std::vector<livestream_info_t> liveStreamList;
 
 	/* playback from bookmark */
@@ -248,6 +249,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int getState() { return playstate; }
 	void UpdatePosition();
 	int timeshift;
+	void deleteTimeshift() { timeshift_deletion = true; }
 	int file_prozent;
 	cPlayback *getPlayback() { return playback; }
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }

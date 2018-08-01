@@ -596,6 +596,7 @@ void CMoviePlayerGui::Cleanup()
 	is_file_player = false;
 	p_movie_info = NULL;
 	autoshot_done = false;
+	timeshift_deletion = false;
 	currentaudioname = "Unk";
 }
 
@@ -2033,6 +2034,21 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 
 	stopped = true;
 	printf("%s: stopped\n", __func__);
+
+	if (timeshift_deletion && (file_name.find("_temp.ts") == file_name.size() - 8))
+	{
+		std::string file = file_name;
+		printf("%s: delete %s\n", __func__, file.c_str());
+		unlink(file.c_str());
+		CMovieInfo mi;
+		if (mi.convertTs2XmlName(file))
+		{
+			printf("%s: delete %s\n", __func__, file.c_str());
+			unlink(file.c_str());
+		}
+		timeshift_deletion = false;
+	}
+
 	if (!filelist.empty() && filelist_it != filelist.end()) {
 		pretty_name.clear();
 		prepareFile(&(*filelist_it));
