@@ -1654,7 +1654,12 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			bool timeshift_stopped = false;
 
 			if (timeshift != TSHIFT_MODE_OFF)
-				timeshift_stopped = CRecordManager::getInstance()->ShowMenu();
+			{
+				if (CRecordManager::getInstance()->Timeshift())
+					timeshift_stopped = CRecordManager::getInstance()->ShowMenu();
+				else // timeshift playback still active, but recording already stopped
+					timeshift_stopped = true;
+			}
 
 			if (timeshift == TSHIFT_MODE_OFF || timeshift_stopped)
 			{
