@@ -636,10 +636,18 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir.c_str());
 
-	if(g_settings.auto_delete) {
-		if(g_settings.timeshiftdir == g_settings.network_nfs_recordingdir) {
+	// remove old timeshift recordings
+	if (g_settings.auto_delete)
+	{
+		/*
+		   Why only remove old timeshift recordings
+		   if timeshift-dir == recording-dir?
+		*/
+		//if (g_settings.timeshiftdir == g_settings.network_nfs_recordingdir)
+		{
 			DIR *d = opendir(timeshiftDir.c_str());
-			if(d){
+			if (d)
+			{
 				while (struct dirent *e = readdir(d))
 				{
 					std::string filename = e->d_name;
@@ -654,6 +662,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			}
 		}
 	}
+
 	g_settings.record_hours = configfile.getInt32( "record_hours", 4 );
 	g_settings.timeshift_hours = configfile.getInt32( "timeshift_hours", 4 );
 	g_settings.filesystem_is_utf8              = configfile.getBool("filesystem_is_utf8"                 , true );
