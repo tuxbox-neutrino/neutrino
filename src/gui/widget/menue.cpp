@@ -42,6 +42,7 @@
 
 #include <driver/fade.h>
 #include <driver/display.h>
+#include <driver/record.h>
 #include <system/helpers.h>
 
 #include <cctype>
@@ -110,7 +111,7 @@ void CMenuItem::setActive(const bool Active)
 		paint();
 }
 
-bool CMenuItem::initModeCondition(const int& stb_mode)
+bool CMenuItem::initNeutrinoModeCondition(const int& stb_mode)
 {
 	if (CNeutrinoApp::getInstance()->getMode() == stb_mode){
 		active 	= false;
@@ -124,23 +125,50 @@ bool CMenuItem::initModeCondition(const int& stb_mode)
 	return false;
 }
 
+bool CMenuItem::initRecordModeCondition(const int& rec_mode)
+{
+	if (CRecordManager::getInstance()->GetRecordMode() & rec_mode){
+		active 	= false;
+		marked 	= false;
+		if (parent_widget)
+			if (!isSelectable())
+				parent_widget->initSelectable();
+		return true;
+	}
+	printf("\033[33m[CMenuItem] [%s - %d] missmatching rec mode condition %d\033[0m\n", __func__, __LINE__, rec_mode);
+	return false;
+}
+
 void CMenuItem::disableByCondition(const menu_item_disable_cond_t& condition)
 {
 	int stb_mode = CNeutrinoApp::getInstance()->getMode();
+	int rec_mode = CRecordManager::getInstance()->GetRecordMode();
 
+	// Neutrino modes
 	if (condition & DCOND_MODE_TS){
 		if (stb_mode == NeutrinoModes::mode_ts)
-			if (initModeCondition(stb_mode))
+			if (initNeutrinoModeCondition(stb_mode))
 				return;
 	}
 	if (condition & DCOND_MODE_RADIO){
 		if (stb_mode == NeutrinoModes::mode_radio)
-			if (initModeCondition(stb_mode))
+			if (initNeutrinoModeCondition(stb_mode))
 				return;
 	}
 	if (condition & DCOND_MODE_TV){
 		if (stb_mode == NeutrinoModes::mode_tv)
-			if (initModeCondition(stb_mode))
+			if (initNeutrinoModeCondition(stb_mode))
+				return;
+	}
+	// record modes
+	if (condition & DCOND_MODE_REC){
+		if (rec_mode & CRecordManager::RECMODE_REC)
+			if (initRecordModeCondition(CRecordManager::RECMODE_REC))
+				return;
+	}
+	if (condition & DCOND_MODE_TSHIFT){
+		if (rec_mode & CRecordManager::RECMODE_TSHIFT)
+			if (initRecordModeCondition(CRecordManager::RECMODE_TSHIFT))
 				return;
 	}
 

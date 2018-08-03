@@ -75,10 +75,13 @@ struct menu_return
 enum
 {
 	DCOND_MODE_NONE 	= 1,
-
+	// Neutrino modes
 	DCOND_MODE_TV 		= 2,
 	DCOND_MODE_RADIO  	= 4,
-	DCOND_MODE_TS 		= 8
+	DCOND_MODE_TS 		= 8,
+	// record modes
+	DCOND_MODE_REC 		= 16,
+	DCOND_MODE_TSHIFT	= 32
 }/*menu_item_disable_cond_t*/;
 
 class CChangeObserver
@@ -116,7 +119,8 @@ class CMenuItem : public  CComponentsSignals
 		int x, y, dx, offx, name_start_x;
 		bool used;
 		fb_pixel_t item_color, item_bgcolor;
-		bool initModeCondition(const int& stb_mode);
+		bool initNeutrinoModeCondition(const int& stb_mode);
+		bool initRecordModeCondition(const int& rec_mode);
 		void initItemColors(const bool select_mode);
 		lua_State	*luaState;
 		std::string	luaAction;
