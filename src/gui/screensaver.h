@@ -71,6 +71,7 @@ class CScreenSaver : public sigc::trackable
 		bool isActive();
 		void Start();
 		void Stop();
+		bool ignoredMsg(neutrino_msg_t msg);
 		sigc::signal<void> OnBeforeStart;
 		sigc::signal<void> OnAfterStop;
 

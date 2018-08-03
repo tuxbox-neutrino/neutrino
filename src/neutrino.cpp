@@ -2679,17 +2679,6 @@ void CNeutrinoApp::RealRun()
 		if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
 #endif
 		{
-			bool ignored_msg = (
-				/* radio screensaver will ignore this msgs */
-				   msg == NeutrinoMessages::EVT_CURRENTEPG
-				|| msg == NeutrinoMessages::EVT_NEXTEPG
-				|| msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG
-				|| msg == NeutrinoMessages::EVT_TIMESET
-				|| msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS
-				|| msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES
-				|| msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS
-				|| msg == NeutrinoMessages::EVT_ZAP_GOTPIDS
-			);
 			if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER)
 			{
 				if (CScreenSaver::getInstance()->canStart() && !CScreenSaver::getInstance()->isActive())
@@ -2698,7 +2687,7 @@ void CNeutrinoApp::RealRun()
 					CScreenSaver::getInstance()->Start();
 				}
 			}
-			else if (!ignored_msg)
+			else if (!CScreenSaver::getInstance()->ignoredMsg(msg))
 			{
 				if (CScreenSaver::getInstance()->isActive())
 				{
