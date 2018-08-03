@@ -1628,7 +1628,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				CScreenSaver::getInstance()->Start();
 			}
 		}
-		else
+		else if (!CScreenSaver::getInstance()->ignoredMsg(msg))
 		{
 			if (CScreenSaver::getInstance()->isActive())
 			{
