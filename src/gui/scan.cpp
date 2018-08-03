@@ -74,6 +74,7 @@ CScanTs::CScanTs(delivery_system_t DelSys)
 	delsys = DelSys;
 	signalbox = NULL;
 	memset(&TP, 0, sizeof(TP)); // valgrind
+	canceled = false;
 }
 
 CScanTs::~CScanTs()
@@ -343,8 +344,10 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			else if(msg == CRCInput::RC_home) {
 				if(manual && !scansettings.scan_nit_manual)
 					continue;
+				canceled = false;
 				if (ShowMsg(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes) {
 					g_Zapit->stopScan();
+					canceled = true;
 				}
 			}
 			else
@@ -361,7 +364,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
                 	perror(NEUTRINO_SCAN_STOP_SCRIPT " failed");
 	}
 	if(!test) {
-		CComponentsHeader header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
+		CComponentsHeader header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : (canceled ? LOCALE_SCANTS_CANCELED : LOCALE_SCANTS_FAILED));
 		header.paint(CC_SAVE_SCREEN_NO);
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
