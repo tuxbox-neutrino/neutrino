@@ -2264,6 +2264,7 @@ scants.bouquet_writenames_bouquets nur Anbieter
 scants.bouquet_writenames_ever Beide
 scants.bouquet_writenames_never Nie
 scants.bouquet_writenames_ubouquets nur Favoriten
+scants.canceled Kanalsuche abgebrochen!
 scants.channel Kanal:
 scants.failed Kanalsuche fehlgeschlagen!
 scants.finished Kanalsuche erfolgreich beendet!

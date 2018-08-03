@@ -2264,6 +2264,7 @@ scants.bouquet_writenames_bouquets providers
 scants.bouquet_writenames_ever both
 scants.bouquet_writenames_never never
 scants.bouquet_writenames_ubouquets favourites
+scants.canceled Transponderscan canceled!
 scants.channel Channel:
 scants.failed Transponderscan failed!
 scants.finished Transponderscan finished successfully!

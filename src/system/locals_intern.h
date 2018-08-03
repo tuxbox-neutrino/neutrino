@@ -2291,6 +2291,7 @@ const char * locale_real_names[] =
 	"scants.bouquet_writenames_ever",
 	"scants.bouquet_writenames_never",
 	"scants.bouquet_writenames_ubouquets",
+	"scants.canceled",
 	"scants.channel",
 	"scants.failed",
 	"scants.finished",
