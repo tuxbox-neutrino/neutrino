@@ -573,8 +573,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_save_frequently = configfile.getInt32("epg_save_frequently", 0);
 	g_settings.epg_read = configfile.getBool("epg_read", g_settings.epg_save);
 	g_settings.epg_read_frequently = configfile.getInt32("epg_read_frequently", 0);
-	g_settings.epg_scan = configfile.getInt32("epg_scan", CEpgScan::SCAN_CURRENT);
-	g_settings.epg_scan_mode = configfile.getInt32("epg_scan_mode", CEpgScan::MODE_OFF);
+	g_settings.epg_scan = configfile.getInt32("epg_scan", CEpgScan::SCAN_FAV);
+	g_settings.epg_scan_mode = configfile.getInt32("epg_scan_mode", CEpgScan::MODE_STANDBY);
 	// backward-compatible check
 	if (g_settings.epg_scan == 0) {
 		g_settings.epg_scan = CEpgScan::SCAN_CURRENT;
