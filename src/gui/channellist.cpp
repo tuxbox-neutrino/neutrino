@@ -751,7 +751,7 @@ int CChannelList::show()
 			if (new_selected >= 0)
 				actzap = updateSelection(new_selected);
 		}
-		else if (!edit_state && !liveBouquet &&
+		else if (!edit_state && /* !liveBouquet && */
 				(msg == (neutrino_msg_t)g_settings.key_bouquet_up || msg == (neutrino_msg_t)g_settings.key_bouquet_down)) {
 			if (dline)
 				dline->kill(); //kill details line on change to next page
