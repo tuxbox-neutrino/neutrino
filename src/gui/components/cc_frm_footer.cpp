@@ -204,7 +204,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		 * init button label face values
 		*/
 		string txt 		= content[i].locale == NONEXISTANT_LOCALE ? content[i].text : g_Locale->getText(content[i].locale);
-		string icon_name 	= string(content[i].button);
+		string icon_name 	= content[i].button ? string(content[i].button) : "";
 
 		/*
 		 * Ignore item, if no text and no icon is defined.
