@@ -199,19 +199,34 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 
 		/**
 		* Returns current primary event msg value of button object.
-		* @return	neutrino_msg_t
-		* @note		This method returns only the first existant message value from  cc_directKeys container \n
-		* 		Other existant keys ar ignored. If a certain value is required, \n
-		* 		use hasButtonDirectKey().
-		* @see		bool hasButtonDirectKey(), driver/rcinput.h for possible values
+		* @return	neutrino_msg_t \n
+		* 		If no key is avaliable return value = RC_NOKEY.
+		* @param[in]	id
+		* 	@li 	expects type size_t as item id from cc_directKeys container of the button object \n
+		* 		Default parameter is 0. This returns the first existant message value from  cc_directKeys container. \n
+		* 		If required use getKeySize() to get current count of avalable keys.
+		* @see		bool hasButtonDirectKey(), size_t getKeySize(), driver/rcinput.h for possible values
 		*/
-		neutrino_msg_t getButtonDirectKey()
+		neutrino_msg_t getButtonDirectKey(const size_t& id = 0)
 		{
-			for (size_t i= 0; i< cc_directKeys.size(); i++)
-				if (cc_directKeys[i] != RC_NOKEY)
-					return cc_directKeys[i];
+			for (size_t i= 0; i< cc_directKeys.size(); i++){
+				if (i == 0){
+					if (cc_directKeys[i] != RC_NOKEY)
+						return cc_directKeys[i];
+				}else{
+					if (cc_directKeys[i] == id)
+						return cc_directKeys[i];
+				}
+			}
 			return RC_NOKEY;
 		}
+
+		/**
+		 * Returns count of existant direct keys of cc_directKeys container.
+		 * @return	size_t
+		 * @see		getButtonDirectKey(), driver/rcinput.h for possible values
+		 */
+		size_t getKeySize() {return cc_directKeys.size();}
 
 		/**
 		* Returns true if defined parameter event msg value of button object is found in cc_directKeys container.
