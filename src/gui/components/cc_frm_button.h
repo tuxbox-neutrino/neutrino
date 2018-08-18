@@ -205,10 +205,16 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* 		use hasButtonDirectKey().
 		* @see		bool hasButtonDirectKey(), driver/rcinput.h for possible values
 		*/
-		neutrino_msg_t getButtonDirectKey(){return cc_directKeys[0];}
+		neutrino_msg_t getButtonDirectKey()
+		{
+			for (size_t i= 0; i< cc_directKeys.size(); i++)
+				if (cc_directKeys[i] != RC_NOKEY)
+					return cc_directKeys[i];
+			return RC_NOKEY;
+		}
 
 		/**
-		* Returns true if filtered event msg value of button object is found in cc_directKeys container.
+		* Returns true if defined parameter event msg value of button object is found in cc_directKeys container.
 		* @return	bool
 		* @param[in]	msg
 		* 	@li 	expects type neutrino_msg_t as filter for searched message

@@ -417,3 +417,10 @@ void CComponentsFooter::initDefaultFonts()
 	l_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	s_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 }
+
+CComponentsButton* CComponentsFooter::getButtonLabel(const uint& item_id)
+{
+	if (btn_container)
+		return static_cast<CComponentsButton*>(btn_container->getCCItem(item_id));
+	return NULL;
+}

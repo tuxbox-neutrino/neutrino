@@ -155,6 +155,8 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		void enableButtonShadow(int mode = CC_SHADOW_ON, const int& shadow_width = OFFSET_SHADOW/2, bool force_paint = false);
 		///disable shadow for embedded buttons
 		void disbaleButtonShadow(){enableButtonShadow(CC_SHADOW_OFF);}
+		///get button label object with defined item id
+		CComponentsButton* getButtonLabel(const uint& item_id);
 };
 
 
