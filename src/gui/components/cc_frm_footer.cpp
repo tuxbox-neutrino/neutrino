@@ -318,10 +318,12 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content
 		buttons[i].button = v_content[i].button;
 		buttons[i].text = v_content[i].text;
 		buttons[i].locale = v_content[i].locale;
-		buttons[i].directKeys = v_content[i].directKeys;
+		for (size_t j= 0; j< v_content[i].directKeys.size(); j++)
+			buttons[i].directKeys.push_back(v_content[i].directKeys[j]);
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
+
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 	delete[] buttons;
 }
