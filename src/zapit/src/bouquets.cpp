@@ -934,6 +934,7 @@ void CBouquetManager::loadWebchannels(int mode)
 				std::string desc;
 				std::string title = "";
 				std::string group = "";
+				std::string epgid = "";
 				CZapitBouquet* pbouquet = NULL;
 
 				infile.open((*it).c_str(), std::ifstream::in);
@@ -967,7 +968,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							std::string strInfoLine = strLine.substr(++iColon, --iComma - iColon);
 							desc = ReadMarkerValue(strInfoLine, TVG_INFO_NAME_MARKER);
 							group = ReadMarkerValue(strInfoLine, GROUP_NAME_MARKER);
-							INFO("Title %s / %s ...", title.c_str(), group.c_str());
+							epgid = ReadMarkerValue(strInfoLine, TVG_INFO_ID_MARKER);
 						}
 
 						pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio");
@@ -999,7 +1000,14 @@ void CBouquetManager::loadWebchannels(int mode)
 								}
 
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
-								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), epg_id, NULL, mode);
+								std::string epg_script = "";
+								if (!epgid.empty()) {
+									char buf[100];
+									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+									// keep the tvg-id for later epg injection
+									epg_script = "#" + epgid + "=" + buf;
+								}
+								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), epg_id, epg_script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
 								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
@@ -1057,8 +1065,8 @@ void CBouquetManager::loadWebchannels(int mode)
 							else
 								pbouquet->bWebradio = true;
 
-							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url.c_str());
-							CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url.c_str(), desc.c_str(), epg_id, NULL, mode);
+							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
+							CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), epg_id, NULL, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
 							channel->flags = CZapitChannel::UPDATED;
 							if (pbouquet)
