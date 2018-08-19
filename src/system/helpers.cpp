@@ -58,6 +58,11 @@
 #define MD5_DIGEST_LENGTH 16
 using namespace std;
 
+#if LIBCURL_VERSION_NUM < 0x071507
+#include <curl/types.h>
+#endif
+
+
 int mySleep(int sec) {
 	struct timeval timeout;
 
@@ -592,7 +597,7 @@ std::string& htmlEntityDecode(std::string& text)
 	{
 		{"\n", "&#x0a;"},
 		{"\n", "&#x0d;"},
-		{"Â ",  "&nbsp;"},
+		{"? ",  "&nbsp;"},
 		{"&",  "&amp;"},
 		{"<",  "&lt;"},
 		{">",  "&gt;"},
@@ -1521,3 +1526,154 @@ bool utf8_check_is_valid(const std::string &str)
 	}
 	return true;
 }
+
+// curl
+static void *myrealloc(void *ptr, size_t size)
+{
+	if(ptr)
+		return realloc(ptr, size);
+	else
+		return malloc(size);
+}
+
+size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+	size_t realsize = size * nmemb;
+	struct MemoryStruct *mem = (struct MemoryStruct *)data;
+
+	mem->memory = (char *)myrealloc(mem->memory, mem->size + realsize + 1);
+	if (mem->memory)
+	{
+		memcpy(&(mem->memory[mem->size]), ptr, realsize);
+		mem->size += realsize;
+		mem->memory[mem->size] = 0;
+	}
+	return realsize;
+}
+
+size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
+{
+        std::string* pStr = (std::string*) data;
+        pStr->append((char*) ptr, nmemb);
+
+        return size*nmemb;
+}
+
+bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsigned int timeout)
+{
+	dprintf(DEBUG_NORMAL, "getUrl: url:%s\n", url.c_str());
+
+	CURL * curl_handle = curl_easy_init();
+
+	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, &CurlWriteToString);
+	curl_easy_setopt(curl_handle, CURLOPT_FILE, (void *)&answer);
+	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, timeout);
+	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, (long)1);
+	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
+
+	if (!g_settings.softupdate_proxyserver.empty()) {
+		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if (!g_settings.softupdate_proxyusername.empty()) {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
+
+	char cerror[CURL_ERROR_SIZE];
+	curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, cerror);
+
+	CURLcode httpres = curl_easy_perform(curl_handle);
+
+	curl_easy_cleanup(curl_handle);
+
+	if (httpres != 0 || answer.empty())
+	{
+		dprintf(DEBUG_NORMAL, "getUrl: error: %s\n", cerror);
+		return false;
+	}
+
+	return true;
+}
+
+bool downloadUrl(std::string url, std::string file, std::string userAgent, unsigned int timeout)
+{
+	dprintf(DEBUG_NORMAL ,"downloadUrl: url:%s file:%s userAgent:%s\n", url.c_str(), file.c_str(), userAgent.c_str());
+
+	CURL * curl_handle = curl_easy_init();
+
+	FILE * fp = fopen(file.c_str(), "wb");
+	if (fp == NULL)
+	{
+		perror(file.c_str());
+		return false;
+	}
+	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, NULL);
+	curl_easy_setopt(curl_handle, CURLOPT_FILE, fp);
+	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, timeout);
+	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, (long)1);
+	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
+
+	if (!g_settings.softupdate_proxyserver.empty()) {
+		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if (!g_settings.softupdate_proxyusername.empty()) {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
+
+	char cerror[CURL_ERROR_SIZE];
+	curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, cerror);
+
+	CURLcode httpres = curl_easy_perform(curl_handle);
+
+	double dsize;
+	curl_easy_getinfo(curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
+	curl_easy_cleanup(curl_handle);
+	fclose(fp);
+
+	if (httpres != 0)
+	{
+		dprintf(DEBUG_NORMAL, "curl error: %s\n", cerror);
+		unlink(file.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+std::string decodeUrl(std::string url)
+{
+	CURL * curl_handle = curl_easy_init();
+
+	char * str = curl_easy_unescape(curl_handle, url.c_str(), 0, NULL);
+
+	curl_easy_cleanup(curl_handle);
+
+	if (str)
+		url = str;
+	curl_free(str);
+	return url;
+}
+
+std::string encodeUrl(std::string txt)
+{
+	CURL * curl_handle = curl_easy_init();
+
+	char * str = curl_easy_escape(curl_handle, txt.c_str(), txt.length());
+
+	curl_easy_cleanup(curl_handle);
+
+	if (str)
+		txt = str;
+	curl_free(str);
+
+	return txt;
+}
+
+//

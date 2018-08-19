@@ -68,13 +68,6 @@
 
 #define SMSKEY_TIMEOUT 2000
 
-size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
-{
-	std::string* pStr = (std::string*) data;
-	pStr->append((char*) ptr, nmemb); // do only add the correct size, do not go until end of data (chunked transfer)
-	return size*nmemb;
-}
-
 SMSKeyInput::SMSKeyInput()
 {
 	resetOldKey();

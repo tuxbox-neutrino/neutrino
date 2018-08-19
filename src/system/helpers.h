@@ -33,6 +33,9 @@
 #include <sys/types.h>
 #include <map>
 
+#include <curl/curl.h>
+#include <curl/easy.h>
+
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
@@ -156,4 +159,20 @@ std::string readFile(std::string file);
 std::string iso_8859_1_to_utf8(std::string &str);
 bool utf8_check_is_valid(const std::string &str);
 
+// curl
+struct MemoryStruct {
+	char *memory;
+	size_t size;
+};
+
+size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
+size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
+
+std::string encodeUrl(std::string txt);
+std::string decodeUrl(std::string url);
+
+bool getUrl(std::string &url, std::string &answer, const std::string userAgent = " ", unsigned int timeout = 60);
+bool downloadUrl(std::string url, std::string file, const std::string userAgent = " ", unsigned int timeout = 60);
+
+//
 #endif
