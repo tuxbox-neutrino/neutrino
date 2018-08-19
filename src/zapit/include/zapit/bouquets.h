@@ -152,6 +152,7 @@ class CBouquetManager
 		void loadWebtv();
 		void loadWebradio();
 		void loadWebchannels(int mode);
+		std::string ReadMarkerValue(std::string strLine, const char* strMarkerName);
 		//bouquet writeChannelsNames selection options
 		enum{
 			BWN_NEVER,
