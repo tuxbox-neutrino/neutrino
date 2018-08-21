@@ -992,7 +992,8 @@ void CBouquetManager::loadWebchannels(int mode)
 								CZapitBouquet* gbouquet = pbouquet;
 								if (!group.empty())
 								{
-									std::string bname = (mode == MODE_WEBTV) ? "WebTV " : "WebRadio " + group;
+									std::string bname = (mode == MODE_WEBTV) ? "[WebTV] " : "[WebRadio] ";
+									bname += group;
 									gbouquet = addBouquetIfNotExist(bname);
 									if (mode == MODE_WEBTV)
 										gbouquet->bWebtv = true;
