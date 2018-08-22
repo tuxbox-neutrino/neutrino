@@ -825,8 +825,10 @@ void CBouquetManager::loadWebchannels(int mode)
 	if (!webchannels_xml)
 		return;
 
-	for (std::list<std::string>::iterator it = webchannels_xml->begin(); it != webchannels_xml->end(); ++it) {
-		if (!access((*it).c_str(), R_OK)) {
+	for (std::list<std::string>::iterator it = webchannels_xml->begin(); it != webchannels_xml->end(); ++it)
+	{
+		if (!access((*it).c_str(), R_OK))
+		{
 			INFO("Loading %s from %s ...", (mode == MODE_WEBTV) ? "webtv" : "webradio", (*it).c_str());
 			xmlDocPtr parser = parseXmlFile((*it).c_str());
 			if (parser == NULL)
@@ -845,7 +847,8 @@ void CBouquetManager::loadWebchannels(int mode)
 				else
 					pbouquet->bWebradio = true;
 
-				while ((xmlGetNextOccurence(l1, (mode == MODE_WEBTV) ? "webtv" : "webradio"))) {
+				while ((xmlGetNextOccurence(l1, (mode == MODE_WEBTV) ? "webtv" : "webradio")))
+				{
 					const char *title = xmlGetAttribute(l1, "title");
 					const char *url = xmlGetAttribute(l1, "url");
 					const char *desc = xmlGetAttribute(l1, "description");
@@ -855,7 +858,6 @@ void CBouquetManager::loadWebchannels(int mode)
 					t_channel_id epg_id = 0;
 					if (epgid)
 					{
-						//NI
 						if (strcmp(epgid, "auto") == 0 && title)
 						{
 							CZapitChannel * channel = CServiceManager::getInstance()->FindChannelByPattern(title);
@@ -870,7 +872,8 @@ void CBouquetManager::loadWebchannels(int mode)
 					}
 
 					CZapitBouquet* gbouquet = pbouquet;
-					if (genre) {
+					if (genre)
+					{
 						std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
 						gbouquet = addBouquetIfNotExist(bname);
 						if (mode == MODE_WEBTV)
@@ -878,7 +881,8 @@ void CBouquetManager::loadWebchannels(int mode)
 						else
 							gbouquet->bWebradio = true;
 					}
-					if (title && url) {
+					if (title && url)
+					{
 						t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
 						CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 						CServiceManager::getInstance()->AddChannel(channel);
@@ -996,7 +1000,8 @@ void CBouquetManager::readEPGMapping()
 		if(epgmap)
 			epgmap = xmlChildrenNode(epgmap);
 
-		while (epgmap) {
+		while (epgmap)
+		{
 			const char *cannelid = xmlGetAttribute(epgmap, "channel_id");
 			const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
 			t_channel_id epg_id = 0;
