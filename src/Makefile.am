@@ -127,7 +127,8 @@ neutrino_LDADD = \
 	-ljpeg \
 	-lutil \
 	-lOpenThreads \
-	-lrt -lpthread
+	-lrt -lpthread \
+	-lz
 
 if ENABLE_GIFLIB
 neutrino_LDADD += -lgif

@@ -41,10 +41,12 @@
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #else  /* USE_LIBXML */
+#include "gzstream.h"
 #include "xmltok.h"
 #endif /* USE_LIBXML */
 #include <fcntl.h>
 #include <stdio.h>
+#include <zlib.h>
 
 unsigned long xmlGetNumericAttribute(const xmlNodePtr node, const char *name, const int base)
 {
@@ -230,27 +232,103 @@ xmlDocPtr parseXml(const char * data,const char* /*encoding*/)
 xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 {
 	pugi::xml_encoding enc = pugi::encoding_auto;
-	if(encoding==NULL){
-		std::ifstream in;
-		in.open(filename);
-		if (in.is_open()) {
-			std::string line;
-			getline(in, line);
-			for (std::string::iterator it = line.begin(); it != line.end(); ++ it)
-				*it = toupper(*it);
-			if (line.find("ISO-8859-1",0)!= std::string::npos){
-				enc = pugi::encoding_latin1;
+	std::string fn = filename;
+	igzstream inz;
+	std::ifstream in;
+	bool zipped = (fn.substr(fn.find_last_of(".") + 1) == "gz");
+
+	if(encoding==NULL)
+	{
+		if (zipped)
+		{
+			inz.open(filename);
+			if (inz.is_open())
+			{
+				std::string line;
+				getline(inz, line);
+				for (std::string::iterator it = line.begin(); it != line.end(); ++ it)
+					*it = toupper(*it);
+				if (line.find("ISO-8859-1",0)!= std::string::npos)
+				{
+					enc = pugi::encoding_latin1;
+				}
+				inz.close();
 			}
-			in.close();
+		}
+		else
+		{
+			in.open(filename);
+			if (in.is_open())
+			{
+				std::string line;
+				getline(in, line);
+				for (std::string::iterator it = line.begin(); it != line.end(); ++ it)
+					*it = toupper(*it);
+				if (line.find("ISO-8859-1",0)!= std::string::npos)
+				{
+					enc = pugi::encoding_latin1;
+				}
+				in.close();
+			}
 		}
 	}
-
 	pugi::xml_document* tree_parser = new pugi::xml_document();
 
-	if (!tree_parser->load_file(filename, pugi::parse_default, enc))
+
+	if (zipped)
 	{
-		delete tree_parser;
-		return NULL;
+        int fd = open(filename, O_RDONLY);
+
+		uint32_t gzsize = 0;
+		lseek(fd, -4, SEEK_END);
+		read(fd, &gzsize, 4);
+		lseek(fd, 0, SEEK_SET);
+
+		gzFile xmlgz_file = gzdopen(fd,"rb");
+
+		if (xmlgz_file == NULL)
+		{
+			delete tree_parser;
+			return NULL;
+		}
+
+		gzbuffer(xmlgz_file, 64*1024);
+
+		void* buffer = pugi::get_memory_allocation_function()(gzsize);
+
+		if (!buffer)
+			{
+				gzclose(xmlgz_file);
+				delete tree_parser;
+				return NULL;
+			}
+
+		size_t read_size = gzread(xmlgz_file,buffer,gzsize);
+
+		if (read_size != gzsize)
+		{
+			gzclose(xmlgz_file);
+			delete tree_parser;
+			return NULL;
+		}
+
+		gzclose(xmlgz_file);
+
+		const pugi::xml_parse_result result = tree_parser->load_buffer_inplace_own(buffer,gzsize, pugi::parse_default, enc);
+		if (result.status != pugi::xml_parse_status::status_ok)
+			{
+				printf("Error: Loading %s (%d)\n", filename, result.status);
+				delete tree_parser;
+				return NULL;
+			}
+	}
+	else
+	{
+		if (!tree_parser->load_file(filename, pugi::parse_default, enc))
+		{
+			delete tree_parser;
+			return NULL;
+		}
 	}
 
 	if (!tree_parser->root())
@@ -295,21 +373,39 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 	size_t done;
 	size_t length;
 	FILE* xml_file;
+	gzFile xmlgz_file;
+	std::string fn = filename;
+	bool zipped = (fn.substr(fn.find_last_of(".") + 1) == "gz");
 
-	xml_file = fopen(filename, "r");
-
-	if (xml_file == NULL)
+	if (zipped)
 	{
-		if (warning_by_nonexistence)
-			perror(filename);
-		return NULL;
+		xmlgz_file = gzopen(filename,"r");
+		if (xmlgz_file == NULL)
+		{
+			if (warning_by_nonexistence)
+				perror(filename);
+			return NULL;
+		}
+		gzbuffer(xmlgz_file, 64*1024);
 	}
-
+	else
+	{
+		xml_file = fopen(filename, "r");
+		if (xml_file == NULL)
+		{
+			if (warning_by_nonexistence)
+				perror(filename);
+			return NULL;
+		}
+	}
 	tree_parser = new XMLTreeParser(encoding);
 
 	do
 	{
-		length = fread(buffer, 1, sizeof(buffer), xml_file);
+		if (zipped)
+			length = gzread(xmlgz_file, buffer, sizeof(buffer));
+		else
+			length = fread(buffer, 1, sizeof(buffer), xml_file);
 		done = length < sizeof(buffer);
 
 		if (!tree_parser->Parse(buffer, length, done))
@@ -320,17 +416,24 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 				tree_parser->ErrorString(tree_parser->GetErrorCode()),
 				tree_parser->GetCurrentLineNumber());
 
-			fclose(xml_file);
+			if (zipped)
+				gzclose(xmlgz_file);
+			else
+				fclose(xml_file);
 			delete tree_parser;
 			return NULL;
 		}
 	}
 	while (!done);
 
-	if (posix_fadvise(fileno(xml_file), 0, 0, POSIX_FADV_DONTNEED) != 0)
-		perror("posix_fadvise FAILED!");
+	if (!zipped)
+		if (posix_fadvise(fileno(xml_file), 0, 0, POSIX_FADV_DONTNEED) != 0)
+			perror("posix_fadvise FAILED!");
 
-	fclose(xml_file);
+	if (zipped)
+		gzclose(xmlgz_file);
+	else
+		fclose(xml_file);
 
 	if (!tree_parser->RootNode())
 	{
