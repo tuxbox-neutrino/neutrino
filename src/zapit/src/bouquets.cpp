@@ -964,8 +964,9 @@ void CBouquetManager::loadWebchannels(int mode)
 						if (iColon >= 0 && iComma >= 0 && iComma > iColon)
 						{
 							iComma++;
+							iColon++;
 							title = strLine.substr(iComma);
-							std::string strInfoLine = strLine.substr(++iColon, --iComma - iColon);
+							std::string strInfoLine = strLine.substr(iColon, --iComma - iColon);
 							desc = ReadMarkerValue(strInfoLine, TVG_INFO_NAME_MARKER);
 							group = ReadMarkerValue(strInfoLine, GROUP_NAME_MARKER);
 							epgid = ReadMarkerValue(strInfoLine, TVG_INFO_ID_MARKER);
