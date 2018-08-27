@@ -597,7 +597,7 @@ std::string& htmlEntityDecode(std::string& text)
 	{
 		{"\n", "&#x0a;"},
 		{"\n", "&#x0d;"},
-		{"? ",  "&nbsp;"},
+		{" ",  "&nbsp;"},
 		{"&",  "&amp;"},
 		{"<",  "&lt;"},
 		{">",  "&gt;"},
