@@ -40,8 +40,10 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
-#else  /* USE_LIBXML */
+#elif  (defined( USE_PUGIXML ) )
 #include "gzstream.h"
+#include <stdint.h>
+#else  /* USE_LIBXML */
 #include "xmltok.h"
 #endif /* USE_LIBXML */
 #include <fcntl.h>
@@ -315,7 +317,7 @@ xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 		gzclose(xmlgz_file);
 
 		const pugi::xml_parse_result result = tree_parser->load_buffer_inplace_own(buffer,gzsize, pugi::parse_default, enc);
-		if (result.status != pugi::xml_parse_status::status_ok)
+		if (result.status != 0 /*pugi::xml_parse_status::status_ok*/)
 			{
 				printf("Error: Loading %s (%d)\n", filename, result.status);
 				delete tree_parser;
