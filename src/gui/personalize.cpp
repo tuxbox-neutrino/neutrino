@@ -986,7 +986,8 @@ void CPersonalizeGui::addPersonalizedItems()
 					}
  				}
 
-				delete fw;
+				if (fw)
+					delete fw;
 			}
 			else //handle and add separator as non personalized item and don't allow to add a separator as next but allow back button as next
 			{
