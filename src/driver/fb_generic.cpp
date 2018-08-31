@@ -704,8 +704,9 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 
 std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_type)
 {
-	std::string path, filetype;
-	filetype = "." + file_type;
+	std::string path, filetype = "";
+	if (!file_type.empty())
+		filetype = "." + file_type;
 
 	std::string dir[] = {	THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
 				THEMESDIR "/" + g_settings.theme_name + "/icons",
