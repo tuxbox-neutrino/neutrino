@@ -840,15 +840,26 @@ void CBouquetManager::loadWebchannels(int mode)
 
 	for (std::list<std::string>::iterator it = webchannels_xml->begin(); it != webchannels_xml->end(); ++it)
 	{
-		if (!access((*it).c_str(), R_OK))
+		std::string url = (*it);
+		std::string tmp_name = tmpnam (NULL);
+		std::string extension = getFileExt(url);
+		tmp_name = tmp_name + "." + extension;
+		bool remove_tmp = false;
+
+		if (url.compare(0,1,"/") == 0)
+			tmp_name = url;
+		else {
+			if (::downloadUrl(url,tmp_name))
+				remove_tmp = true;}
+
+		if (!access(tmp_name.c_str(), R_OK))
 		{
-			INFO("Loading %s from %s ...", (mode == MODE_WEBTV) ? "webtv" : "webradio", (*it).c_str());
+			INFO("Loading %s from %s ...", (mode == MODE_WEBTV) ? "webtv" : "webradio", url.c_str());
 
 			// check for extension
 			bool e2tv = false;
 			bool xml = false;
 			bool m3u = false;
-			std::string extension = getFileExt((*it));
 
 			if( strcasecmp("tv", extension.c_str()) == 0)
 				e2tv = true;
@@ -859,7 +870,7 @@ void CBouquetManager::loadWebchannels(int mode)
 
 			if (xml)
 			{
-				xmlDocPtr parser = parseXmlFile((*it).c_str());
+				xmlDocPtr parser = parseXmlFile(tmp_name.c_str());
 				if (parser == NULL)
 					continue;
 
@@ -930,14 +941,13 @@ void CBouquetManager::loadWebchannels(int mode)
 			{
 				std::ifstream infile;
 				char cLine[1024];
-				t_channel_id epg_id = 0;
 				std::string desc;
 				std::string title = "";
 				std::string group = "";
 				std::string epgid = "";
 				CZapitBouquet* pbouquet = NULL;
 
-				infile.open((*it).c_str(), std::ifstream::in);
+				infile.open(tmp_name.c_str(), std::ifstream::in);
 
 				while (infile.good())
 				{
@@ -1009,7 +1019,7 @@ void CBouquetManager::loadWebchannels(int mode)
 									// keep the tvg-id for later epg injection
 									epg_script = "#" + epgid + "=" + buf;
 								}
-								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), epg_id, epg_script.c_str(), mode);
+								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
 								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
@@ -1022,7 +1032,7 @@ void CBouquetManager::loadWebchannels(int mode)
 			}
 			else if (e2tv)
 			{
-				FILE * f = fopen((*it).c_str(), "r");
+				FILE * f = fopen(tmp_name.c_str(), "r");
 
 				std::string title;
 				std::string URL;
@@ -1080,6 +1090,8 @@ void CBouquetManager::loadWebchannels(int mode)
 				}
 			}
 		}
+		if (remove_tmp)
+			remove(tmp_name.c_str());
 	}
 }
 
