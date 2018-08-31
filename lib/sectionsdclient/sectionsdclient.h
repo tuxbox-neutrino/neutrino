@@ -200,6 +200,8 @@ class CSectionsdClient : private CBasicClient
 
 	void readSIfromXML(const char * epgxmlname);
 
+	void readSIfromIPTVXML(const char * url);
+
 	void writeSI2XML(const char * epgxmlname);
 
 	/*

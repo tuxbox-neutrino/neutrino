@@ -33,8 +33,11 @@
 #include <string>
 #include <system/helpers.h>
 
+#include <system/helpers.h>
+
 #include <xmltree/xmlinterface.h>
 #include <zapit/client/zapittools.h>
+#include <zapit/include/zapit/bouquets.h>
 
 #include <driver/abstime.h>
 
@@ -48,6 +51,7 @@ extern MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey mySIeventsOrd
 extern bool reader_ready;
 extern pthread_rwlock_t eventsLock;
 extern bool dvb_time_update;
+extern CBouquetManager *g_bouquetManager;
 
 std::string epg_filter_dir = CONFIGDIR "/zapit/epgfilter.xml";
 std::string dvbtime_filter_dir = CONFIGDIR "/zapit/dvbtimefilter.xml";
@@ -445,6 +449,112 @@ bool readEventsFromFile(std::string &epgname, int &ev_count)
 	return true;
 }
 
+bool readEventsFromHttpFile(std::string &epgname, int &ev_count)
+{
+	xmlDocPtr event_parser = NULL;
+	xmlNodePtr tv;
+	xmlNodePtr programme;
+	t_original_network_id onid = 0;
+	t_transport_stream_id tsid = 0;
+	t_service_id sid = 0;
+
+	if (!(event_parser = parseXmlFile(epgname.c_str())))
+	{
+		printf("unable to open %s for reading\n", epgname.c_str());
+		return false;
+	}
+
+	tv = xmlDocGetRootElement(event_parser);
+	programme = xmlChildrenNode(tv);
+
+	while ((programme = xmlGetNextOccurence(programme,"programme")))
+	{
+
+		const char *chan = xmlGetAttribute(programme, "channel");
+		const char *start = xmlGetAttribute(programme, "start");
+		const char *stop  = xmlGetAttribute(programme, "stop");
+
+		struct tm starttime, stoptime;
+		strptime(start, "%Y%m%d%H%M%S %z", &starttime);
+		strptime(stop, "%Y%m%d%H%M%S %z", &stoptime);
+		time_t start_time = mktime(&starttime);
+		time_t duration = mktime(&stoptime)-start_time;
+
+		t_channel_id epgid = getepgid(chan);
+		if (epgid != 0)
+		{
+			//printf("\e[1;34m%s - %d - %s 0x%012" PRIx64 "(%ld) (%ld)\e[0m\n",__func__, __LINE__,chan, epgid, start_time, duration);
+			onid = GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(epgid);
+			tsid = GET_TRANSPORT_STREAM_ID_FROM_CHANNEL_ID(epgid);
+			sid  = GET_SERVICE_ID_FROM_CHANNEL_ID(epgid);
+
+			SIevent e(onid, tsid, sid, ev_count+0x8000);
+			e.table_id = 0x50;
+			e.times.insert(SItime(start_time, duration));
+			xmlNodePtr node;
+			node = xmlChildrenNode(programme);
+			while ((node = xmlGetNextOccurence(node, "title")))
+			{
+				const char *title = xmlGetData(node);
+				if(title != NULL)
+					e.setName(std::string(ZapitTools::UTF8_to_Latin1("deu")), std::string(title));
+				node = xmlNextNode(node);
+			}
+			node = xmlChildrenNode(programme);
+			while ((node = xmlGetNextOccurence(node, "sub-title")))
+			{
+				const char *subtitle = xmlGetData(node);
+				if(subtitle != NULL)
+					e.setText(std::string(ZapitTools::UTF8_to_Latin1("deu")), std::string(subtitle));
+				node = xmlNextNode(node);
+			}
+			node = xmlChildrenNode(programme);
+			while ((node = xmlGetNextOccurence(node, "desc")))
+			{
+				const char *description = xmlGetData(node);
+				if(description != NULL)
+					e.appendExtendedText(std::string(ZapitTools::UTF8_to_Latin1("deu")), std::string(description));
+				node = xmlNextNode(node);
+			}
+			dprintf("XML DEBUG: %s channel 0x%012" PRIx64 "\n", chan, epgid);
+
+			addEvent(e, 0);
+
+			ev_count++;
+		}
+		programme = xmlNextNode(programme);
+	}
+
+	xmlFreeDoc(event_parser);
+	return true;
+}
+
+t_channel_id getepgid(std::string epg_name)
+{
+	t_channel_id epgid;
+
+	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
+
+	for (; !(cit.EndOfChannels()); cit++)
+	{
+		std::string tvg_id = (*cit)->getScriptName();
+
+		if (tvg_id.empty())
+			continue;
+
+		std::size_t found = tvg_id.find("#"+epg_name);
+  		if (found != std::string::npos)
+		{
+			tvg_id = tvg_id.substr(tvg_id.find_first_of("="));
+			sscanf(tvg_id.c_str(), "=%" SCNx64, &epgid);
+			return epgid;
+		}
+		else
+			continue;
+	}
+	return 0;
+}
+
 static int my_filter(const struct dirent *entry)
 {
 	int len = strlen(entry->d_name);
@@ -517,6 +627,45 @@ void *insertEventsfromFile(void * data)
 	printdate_ms(stdout);
 	printf("[sectionsd] Reading Information finished after %" PRId64 " milliseconds (%d events)\n",
 			time_monotonic_ms()-now, ev_count);
+
+	reader_ready = true;
+
+	pthread_exit(NULL);
+}
+
+void *insertEventsfromHttp(void * data)
+{
+	set_threadname(__func__);
+	reader_ready=false;
+	int ev_count = 0;
+	if (!data)
+	{
+		reader_ready = true;
+		pthread_exit(NULL);
+	}
+	std::string url = (char *) data;
+	std::string tmp_name = tmpnam (NULL);
+	std::string url_ext = getFileExt(url);
+	tmp_name = tmp_name + "." + url_ext;
+
+	int64_t now = time_monotonic_ms();
+
+	if (url.compare(0,1,"/") == 0)
+		readEventsFromHttpFile(url, ev_count);
+	else if (::downloadUrl(url,tmp_name))
+	{
+		readEventsFromHttpFile(tmp_name, ev_count);
+		remove(tmp_name.c_str());
+	}
+	else
+	{
+		reader_ready = true;
+		pthread_exit(NULL);
+	}
+
+	printdate_ms(stdout);
+	printf("[sectionsd] Reading Information finished after %" PRId64 " milliseconds (%d events)\n",
+	       time_monotonic_ms()-now, ev_count);
 
 	reader_ready = true;
 

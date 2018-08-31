@@ -1213,7 +1213,7 @@ static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*data
 
 static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLength)
 {
-	pthread_t thrInsert;
+	pthread_t thrInsertXML;
 
 	sendEmptyResponse(connfd, NULL, 0);
 
@@ -1230,7 +1230,33 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)epg_dir_tmp.c_str() ))
+	if (pthread_create (&thrInsertXML, &attr, insertEventsfromFile, (void *)epg_dir_tmp.c_str() ))
+	{
+		perror("sectionsd: pthread_create()");
+	}
+
+	pthread_attr_destroy(&attr);
+}
+
+static void commandReadSIfromIPTVXML(int connfd, char *data, const unsigned dataLength)
+{
+	pthread_t thrInsertIPTV;
+
+	sendEmptyResponse(connfd, NULL, 0);
+
+	if (dataLength > 100)
+		return ;
+	static std::string url_tmp = "";
+	writeLockMessaging();
+	data[dataLength] = '\0';
+	url_tmp = (std::string)data;
+	unlockMessaging();
+
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+	if (pthread_create (&thrInsertIPTV, &attr, insertEventsfromHttp, (void *)url_tmp.c_str() ))
 	{
 		perror("sectionsd: pthread_create()");
 	}
@@ -1272,6 +1298,7 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandReadSIfromXML,			"commandReadSIfromXML"			},
 	{	commandWriteSI2XML,			"commandWriteSI2XML"			},
 	{	commandSetConfig,			"commandSetConfig"			},
+	{	commandReadSIfromIPTVXML,			"commandReadSIfromIPTVXML"			},
 };
 
 bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
