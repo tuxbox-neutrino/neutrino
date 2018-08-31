@@ -1548,12 +1548,7 @@ void CFrameBuffer::Clear()
 
 void CFrameBuffer::showFrame(const std::string & filename)
 {
-	std::string picture = std::string(ICONSDIR_VAR) + "/" + filename;
-	if (access(picture.c_str(), F_OK))
-		picture = iconBasePath + "/" + filename;
-	if (filename.find("/", 0) != std::string::npos)
-		picture = filename;
-
+	std::string picture = getIconPath(filename, "");
 	videoDecoder->ShowPicture(picture.c_str());
 }
 
