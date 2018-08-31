@@ -457,6 +457,14 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 		r_url += "&aj=on";
 		r_url += "&rs=on";
+		if (timerlist[selected].eventRepeat > CTimerd::TIMERREPEAT_ONCE) {
+			r_url += "&rep=" + to_string((int)timerlist[selected].eventRepeat);
+			r_url += "&repcount=" + to_string((int)timerlist[selected].repeatCount);
+		}
+		if (timerlist[selected].eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS) {
+			Timer->setWeekdaysToStr(timerlist[selected].eventRepeat, m_weekdaysStr);
+			r_url += "&wd=" + m_weekdaysStr;
+		}
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
 		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
@@ -483,6 +491,12 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",true);
 			}
 		}
+		if (res > 0)
+			Timer->modifyTimerEvent(res, timerlist[selected].announceTime + timerlist[selected].rem_pre,
+								timerlist[selected].alarmTime + timerlist[selected].rem_pre,
+								timerlist[selected].stopTime - timerlist[selected].rem_post,
+								timerlist[selected].eventRepeat,
+								timerlist[selected].repeatCount);
 
 		CHTTPTool httpTool;
 		std::string r_url;
@@ -520,6 +534,14 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 		r_url += "&aj=on";
 		r_url += "&rs=on";
+		if (timerlist[selected].eventRepeat > CTimerd::TIMERREPEAT_ONCE) {
+			r_url += "&rep=" + to_string((int)timerlist[selected].eventRepeat);
+			r_url += "&repcount=" + to_string((int)timerlist[selected].repeatCount);
+		}
+		if (timerlist[selected].eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS) {
+			Timer->setWeekdaysToStr(timerlist[selected].eventRepeat, m_weekdaysStr);
+			r_url += "&wd=" + m_weekdaysStr;
+		}
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
 		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
