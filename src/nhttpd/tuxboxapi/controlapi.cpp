@@ -226,6 +226,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"updatebouquet",	&CControlAPI::updateBouquetCGI,		"text/plain"},
 	// xmltv
 	{"xmltv.data",		&CControlAPI::xmltvepgCGI,		"+xml"},
+	{"xmltv.xml",		&CControlAPI::xmltvepgCGI,		"+xml"},
 	{"xmltv.m3u",		&CControlAPI::xmltvm3uCGI,		""},
 	// utils
 	{"build_live_url",	&CControlAPI::build_live_url,		""},
@@ -3262,11 +3263,11 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 						programmeTag += "channel=\""+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id)+"\" ";
 						char zbuffer[25] = { 0 };
 						struct tm *mtime = localtime(&eventIterator->startTime);
-						strftime(zbuffer, 21, "%Y%m%d%H%M%S +0200", mtime);
+						strftime(zbuffer, 21, "%Y%m%d%H%M%S %z", mtime);
 						programmeTag += "start=\""+std::string(zbuffer)+"\" ";
 						long _stoptime = eventIterator->startTime + eventIterator->duration;
 						mtime = localtime(&_stoptime);
-						strftime(zbuffer, 21, "%Y%m%d%H%M%S +0200", mtime);
+						strftime(zbuffer, 21, "%Y%m%d%H%M%S %z", mtime);
 						programmeTag += "stop=\""+std::string(zbuffer)+"\" ";
 
 						programmeData  = hh->outPair("title lang=\"de\"", hh->outValue(eventIterator->description, xml_cdata), false);
@@ -3321,7 +3322,7 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
                 CZapitChannel * channel = chanlist[j];
 				std::string bouq_name = g_bouquetManager->Bouquets[i]->Name;
 				std::string chan_id_short = string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL);
-                result += "#EXTINF:-1 tvg-id=\""+chan_id_short+"\" tvg-logo=\""+NeutrinoAPI->getLogoFile(channel->getChannelID())+"\" group-title=\""+bouq_name+"\", [COLOR gold]"+channel->getName()+"[/COLOR]\n";
+                result += "#EXTINF:-1 tvg-id=\""+chan_id_short+"\" tvg-logo=\""+NeutrinoAPI->getLogoFile(channel->getChannelID())+"\" group-title=\""+bouq_name+"\", "+channel->getName()+"\n";
                 result += url+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID())+"\n";
             }
         }
