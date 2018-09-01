@@ -860,16 +860,16 @@ void CBouquetManager::loadWebchannels(int mode)
 			INFO("Loading %s from %s ...", (mode == MODE_WEBTV) ? "webtv" : "webradio", filename.c_str());
 
 			// check for extension
-			bool e2tv = false;
 			bool xml = false;
 			bool m3u = false;
+			bool e2tv = false;
 
-			if( strcasecmp("tv", extension.c_str()) == 0)
-				e2tv = true;
-			if( strcasecmp("m3u", extension.c_str()) == 0)
-				m3u = true;
-			if( strcasecmp("xml", extension.c_str()) == 0)
+			if (strcasecmp("xml", extension.c_str()) == 0)
 				xml = true;
+			if (strcasecmp("m3u", extension.c_str()) == 0)
+				m3u = true;
+			if (strcasecmp("tv", extension.c_str()) == 0)
+				e2tv = true;
 
 			if (xml)
 			{
@@ -940,7 +940,7 @@ void CBouquetManager::loadWebchannels(int mode)
 				}
 				xmlFreeDoc(parser);
 			}
-			else if(m3u)
+			else if (m3u)
 			{
 				std::ifstream infile;
 				char cLine[1024];
