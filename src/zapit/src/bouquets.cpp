@@ -842,9 +842,7 @@ void CBouquetManager::loadWebchannels(int mode)
 	{
 		std::string filename = (*it);
 		std::string extension = getFileExt(filename);
-
-		std::string tmp_name = "/tmp/.webchannel";
-		tmp_name = tmp_name + "." + extension;
+		std::string tmp_name = genTmpName(extension,8);
 		bool remove_tmp = false;
 
 		if (filename.compare(0, 1, "/") == 0)

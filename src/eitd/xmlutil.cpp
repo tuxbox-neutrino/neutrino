@@ -645,9 +645,7 @@ void *insertEventsfromXMLTV(void * data)
 	}
 	std::string url = (char *) data;
 	std::string url_ext = getFileExt(url);
-
-	std::string tmp_name = "/tmp/.xmltv";
-	tmp_name = tmp_name + "." + url_ext;
+	std::string tmp_name = genTmpName(url_ext,8);
 
 	int64_t now = time_monotonic_ms();
 
