@@ -1238,9 +1238,9 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	pthread_attr_destroy(&attr);
 }
 
-static void commandReadSIfromIPTVXML(int connfd, char *data, const unsigned dataLength)
+static void commandReadSIfromXMLTV(int connfd, char *data, const unsigned dataLength)
 {
-	pthread_t thrInsertIPTV;
+	pthread_t thrInsertXMLTV;
 
 	sendEmptyResponse(connfd, NULL, 0);
 
@@ -1256,7 +1256,7 @@ static void commandReadSIfromIPTVXML(int connfd, char *data, const unsigned data
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	if (pthread_create (&thrInsertIPTV, &attr, insertEventsfromHttp, (void *)url_tmp.c_str() ))
+	if (pthread_create (&thrInsertXMLTV, &attr, insertEventsfromXMLTV, (void *)url_tmp.c_str() ))
 	{
 		perror("sectionsd: pthread_create()");
 	}
@@ -1298,7 +1298,7 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandReadSIfromXML,			"commandReadSIfromXML"			},
 	{	commandWriteSI2XML,			"commandWriteSI2XML"			},
 	{	commandSetConfig,			"commandSetConfig"			},
-	{	commandReadSIfromIPTVXML,			"commandReadSIfromIPTVXML"			},
+	{	commandReadSIfromXMLTV,			"commandReadSIfromXMLTV"		},
 };
 
 bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)

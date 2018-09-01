@@ -67,7 +67,7 @@ struct sectionsd
 
                 setConfig,                      // commandSetConfig
 
-                readSIfromIPTVXML,              // commandReadSIfromIPTVXML
+                readSIfromXMLTV,                // commandReadSIfromXMLTV
 
                 numberOfCommands        // <- no actual command, end of command marker
         };

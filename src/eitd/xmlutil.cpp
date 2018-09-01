@@ -449,7 +449,7 @@ bool readEventsFromFile(std::string &epgname, int &ev_count)
 	return true;
 }
 
-bool readEventsFromHttpFile(std::string &epgname, int &ev_count)
+bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 {
 	xmlDocPtr event_parser = NULL;
 	xmlNodePtr tv;
@@ -633,7 +633,7 @@ void *insertEventsfromFile(void * data)
 	pthread_exit(NULL);
 }
 
-void *insertEventsfromHttp(void * data)
+void *insertEventsfromXMLTV(void * data)
 {
 	set_threadname(__func__);
 	reader_ready=false;
@@ -644,17 +644,18 @@ void *insertEventsfromHttp(void * data)
 		pthread_exit(NULL);
 	}
 	std::string url = (char *) data;
-	std::string tmp_name = tmpnam (NULL);
 	std::string url_ext = getFileExt(url);
+
+	std::string tmp_name = "/tmp/.xmltv";
 	tmp_name = tmp_name + "." + url_ext;
 
 	int64_t now = time_monotonic_ms();
 
-	if (url.compare(0,1,"/") == 0)
-		readEventsFromHttpFile(url, ev_count);
-	else if (::downloadUrl(url,tmp_name))
+	if (url.compare(0, 1, "/") == 0)
+		readEventsFromXMLTV(url, ev_count);
+	else if (::downloadUrl(url, tmp_name))
 	{
-		readEventsFromHttpFile(tmp_name, ev_count);
+		readEventsFromXMLTV(tmp_name, ev_count);
 		remove(tmp_name.c_str());
 	}
 	else

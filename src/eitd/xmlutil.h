@@ -35,9 +35,9 @@
 #include <zapit/types.h>
 
 void *insertEventsfromFile(void * data);
-void *insertEventsfromHttp(void * data);
+void *insertEventsfromXMLTV(void * data);
 bool readEventsFromFile(std::string &epgname, int &ev_count);
-bool readEventsFromHttpFile(std::string &epgname, int &ev_count);
+bool readEventsFromXMLTV(std::string &epgname, int &ev_count);
 bool readEventsFromDir(std::string &epgdir, int &ev_count);
 void writeEventsToFile(const char *epgdir);
 t_channel_id getepgid(std::string epg_name);
