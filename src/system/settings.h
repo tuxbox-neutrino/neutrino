@@ -324,7 +324,7 @@ struct SNeutrinoSettings
 
 	std::list<std::string> webtv_xml;
 	std::list<std::string> webradio_xml;
-	std::list<std::string> web_epg;
+	std::list<std::string> webepg_xml;
 
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h
