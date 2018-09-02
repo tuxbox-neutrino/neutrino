@@ -374,8 +374,8 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 	XMLTreeParser* tree_parser;
 	size_t done;
 	size_t length;
-	FILE* xml_file;
-	gzFile xmlgz_file;
+	FILE* xml_file = NULL;
+	gzFile xmlgz_file = NULL;
 	std::string fn = filename;
 	bool zipped = (fn.substr(fn.find_last_of(".") + 1) == "gz");
 
