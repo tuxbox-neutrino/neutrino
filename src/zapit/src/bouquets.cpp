@@ -1004,7 +1004,7 @@ void CBouquetManager::loadWebchannels(int mode)
 					else if (strLine[0] != '#')
 					{
 						char *url = NULL;
-						if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) || (url = strstr(cLine, "mmsh://")) )
+						if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "https://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) || (url = strstr(cLine, "rtp://")) || (url = strstr(cLine, "mmsh://")) )
 						{
 							if (url != NULL)
 							{
