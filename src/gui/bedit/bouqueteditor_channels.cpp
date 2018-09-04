@@ -370,7 +370,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			}
 
 			Channels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
-			caption = g_bouquetManager->Bouquets[bouquet]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[bouquet]->Name;
+			caption = g_bouquetManager->Bouquets[bouquet]->bName;
 
 			selected = 0;
 			paintHead();

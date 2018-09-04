@@ -106,7 +106,7 @@ void CBEBouquetWidget::paintItem(int pos)
 			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, x + OFFSET_INNER_MID, ypos, item_height);
 
 		int text_offset = 2*OFFSET_INNER_MID + action_icon_width;
-		item_font->RenderString(x + text_offset, ypos + item_height, width - text_offset - SCROLLBAR_WIDTH - 5*OFFSET_INNER_MID - 4*status_icon_width, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
+		item_font->RenderString(x + text_offset, ypos + item_height, width - text_offset - SCROLLBAR_WIDTH - 5*OFFSET_INNER_MID - 4*status_icon_width, (*Bouquets)[current]->bName, color);
 
 		if ((*Bouquets)[current]->bHidden)
 			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_HIDDEN, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
@@ -323,7 +323,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			{
 				if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 				{
-					std::string ChannelWidgetCaption=(*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name;
+					std::string ChannelWidgetCaption = (*Bouquets)[selected]->bName;
 #if 0
 					if (!(*Bouquets)[selected]->tvChannels.empty())
 					{
@@ -389,7 +389,7 @@ void CBEBouquetWidget::deleteBouquet()
 	if (selected >= Bouquets->size()) /* Bouquets->size() might be 0 */
 		return;
 
-	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)!=CMsgBox::mbrYes)
+	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bName, CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)!=CMsgBox::mbrYes)
 		return;
 
 	g_bouquetManager->deleteBouquet(selected);
@@ -465,6 +465,7 @@ void CBEBouquetWidget::renameBouquet()
 	if (newName != (*Bouquets)[selected]->Name)
 	{
 		g_bouquetManager->Bouquets[selected]->Name = newName;
+		g_bouquetManager->Bouquets[selected]->bName = newName;
 		g_bouquetManager->Bouquets[selected]->bUser = true;
 		bouquetsChanged = true;
 	}

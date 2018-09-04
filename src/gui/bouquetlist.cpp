@@ -82,15 +82,7 @@ CBouquetList::~CBouquetList()
 CBouquet* CBouquetList::addBouquet(CZapitBouquet * zapitBouquet)
 {
 	int BouquetKey= Bouquets.size();//FIXME not used ?
-	const char * bname;
-	if (zapitBouquet->bFav)
-		bname = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
-	else if (zapitBouquet->bOther)
-		bname = g_Locale->getText(LOCALE_BOUQUETNAME_OTHER);
-	else
-		bname = zapitBouquet->Name.c_str();
-
-	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked, !zapitBouquet->bUser);
+	CBouquet* tmp = new CBouquet(BouquetKey, zapitBouquet->bName.c_str(), zapitBouquet->bLocked, !zapitBouquet->bUser);
 	tmp->zapitBouquet = zapitBouquet;
 	Bouquets.push_back(tmp);
 	return tmp;
@@ -648,7 +640,7 @@ void CBouquetList::paintItem(int pos)
 	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, bgcolor, i_radius);
 
 	if (npos < (int) Bouquets.size())
-		lname = (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bFav) ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : Bouquets[npos]->channelList->getName();
+		lname = Bouquets[npos]->channelList->getName();
 
 	if (i_selected)
 	{

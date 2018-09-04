@@ -1673,9 +1673,8 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	memset(tvsort, -1, sizeof(tvsort));
 	memset(radiosort, -1, sizeof(tvsort));
 
-	const char * fav_bouquetname = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
-	if(g_bouquetManager && g_bouquetManager->existsUBouquet(fav_bouquetname, true) == -1)
-		g_bouquetManager->addBouquet(fav_bouquetname, true, true);
+	if(g_bouquetManager && g_bouquetManager->existsUBouquet(DEFAULT_BQ_NAME_FAV, true) == -1)
+		g_bouquetManager->addBouquet(DEFAULT_BQ_NAME_FAV, true, true);
 
 	if(TVbouquetList) delete TVbouquetList;
 	if(RADIObouquetList) delete RADIObouquetList;

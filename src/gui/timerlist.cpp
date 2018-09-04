@@ -1762,7 +1762,7 @@ int CTimerList::newTimer()
 				mwtv->addItem(new CMenuForwarder(channels[j]->getName(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_MARKER_SCRAMBLED : (channels[j]->getUrl().empty() ? NULL : NEUTRINO_ICON_MARKER_STREAMING)));
 			}
 			if (!channels.empty())
-				mctv.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str() /*g_bouquetManager->Bouquets[i]->Name.c_str()*/, true, NULL, mwtv));
+				mctv.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->bName.c_str(), true, NULL, mwtv));
 
 
 			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);

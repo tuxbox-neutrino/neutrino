@@ -79,10 +79,10 @@ int CFavorites::addChannelToFavorites(bool show_list)
 	else
 	{
 		// -- check if Favorite Bouquet exists: if not, create it.
-		bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
+		bouquet_id = g_bouquetManager->existsUBouquet(DEFAULT_BQ_NAME_FAV, true);
 		if (bouquet_id == -1) {
-			g_bouquetManager->addBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
-			bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
+			g_bouquetManager->addBouquet(DEFAULT_BQ_NAME_FAV, true);
+			bouquet_id = g_bouquetManager->existsUBouquet(DEFAULT_BQ_NAME_FAV, true);
 			// status |= 1;
 		}
 	}

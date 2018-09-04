@@ -30,11 +30,16 @@ typedef ZapitChannelList::iterator zapit_list_it_t;
 #define DEFAULT_BQ_OTHER    false
 #define DEFAULT_BQ_SCANEPG    false
 
+#define DEFAULT_BQ_NAME_FAV   "Favorites"
+#define DEFAULT_BQ_NAME_ALL   "All Channels"
+#define DEFAULT_BQ_NAME_OTHER "Other"
+
 class CZapitBouquet
 {
 	public:
 
 	std::string Name;
+	std::string bName; // localized bouquet name, defaults to Name
 	bq_id_t	 BqID;
 	bool        bHidden;
 	bool        bLocked;
@@ -53,6 +58,7 @@ class CZapitBouquet
 	inline CZapitBouquet(const std::string name)
 	{
 		Name = name;
+		bName = name;
 		BqID=DEFAULT_BQ_ID;
 		bHidden = DEFAULT_BQ_HIDDEN;
 		bLocked = DEFAULT_BQ_LOCKED;

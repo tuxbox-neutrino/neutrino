@@ -35,6 +35,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <global.h>
 #include <system/helpers.h>
 
 #include <zapit/bouquets.h>
@@ -426,7 +427,11 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			const char* useci = xmlGetAttribute(search, "ci");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
-			newBouquet->bFav = (strcmp(name, "favorites") == 0);
+			newBouquet->bFav = (strcmp(name, DEFAULT_BQ_NAME_FAV) == 0);
+			if (newBouquet->bFav)
+				newBouquet->bName = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
+			else
+				newBouquet->bName = name;
 			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
 			newBouquet->bUseCI = useci ? (strcmp(useci, "1") == 0) : false;
 			channel_node = xmlChildrenNode(search);
@@ -568,8 +573,9 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 
 	// TODO: use locales
 	if (remainChannels == NULL)
-		remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
+		remainChannels = addBouquet(Bouquets.empty() ? DEFAULT_BQ_NAME_ALL : DEFAULT_BQ_NAME_OTHER, false); // UTF-8 encoded
 	remainChannels->bOther = true;
+	remainChannels->bName = g_Locale->getText(LOCALE_BOUQUETNAME_OTHER);
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
 		remainChannels->addService(*it);
@@ -597,9 +603,13 @@ void CBouquetManager::renumServices()
 
 CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bool myfav, bool to_begin)
 {
-	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? "favorites" : name);
+	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? DEFAULT_BQ_NAME_FAV : name);
 	newBouquet->bUser = ub;
 	newBouquet->bFav = myfav;
+	if (newBouquet->bFav)
+		newBouquet->bName = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
+	else
+		newBouquet->bName = name;
 	newBouquet->satellitePosition = INVALID_SAT_POSITION;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
@@ -744,8 +754,9 @@ int CBouquetManager::existsUBouquet(char const * const name, bool myfav)
 			if (Bouquets[i]->bFav)
 				return (int)i;
 		}
-		//else if (Bouquets[i]->bUser && strncasecmp(Bouquets[i]->Name.c_str(), name,Bouquets[i]->Name.length())==0)
 		else if (Bouquets[i]->bUser && (Bouquets[i]->Name == name))
+			return (int)i;
+		else if (Bouquets[i]->bUser && (Bouquets[i]->bName == name))
 			return (int)i;
 	}
 	return -1;
@@ -906,7 +917,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								if (channel && !IS_WEBCHAN(channel->getChannelID()))
 								{
 									epg_id = channel->getChannelID();
-									INFO("* auto epg_id found for %s: " PRINTF_CHANNEL_ID_TYPE "\n", title, epg_id);
+									INFO("* auto epg_id found for %s: " PRINTF_CHANNEL_ID_TYPE, title, epg_id);
 								}
 							}
 							else
