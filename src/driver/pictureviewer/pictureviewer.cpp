@@ -664,6 +664,8 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 			{
 				std::string lname = dlTmpName(cc->getAlternateLogo());
 				name = lname;
+				if(width && height)
+					getSize(lname.c_str(), width, height);
 				cc->setAlternateLogo(lname);
 				return true;
 			}
