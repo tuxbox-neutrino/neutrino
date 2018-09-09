@@ -130,6 +130,7 @@ class CZapitChannel
 		/* WebTV/WebRadio */
 		std::string url;
 		std::string desc;
+		std::string altlogo;
 
 		/* pids of this channel */
 		std::vector <CZapitAbsSub* > channelSubs;
@@ -293,6 +294,8 @@ class CZapitChannel
 		bool Locked() { return (bLocked || !!bLockCount); }
 		t_channel_id getEpgID(void) const { return epg_id; }
 		void setEPGid(t_channel_id pEPGid) { epg_id = pEPGid; } //remap epg_id
+		std::string	getAlternateLogo(void) const { return altlogo; }
+		inline void	setAlternateLogo(const std::string &pLogo) { altlogo = pLogo; }
 };
 
 struct CmpChannelBySat: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
