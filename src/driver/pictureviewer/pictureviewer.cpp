@@ -536,9 +536,34 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 	snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
 	strChnId[15] = '\0';
 
+	//create E2 filenames
+	char e2filename1[255];
+	e2filename1[0] = '\0';
+	char e2filename2[255];
+	e2filename2[0] = '\0';
+
 	CZapitChannel * cc = NULL;
 	if (CNeutrinoApp::getInstance()->channelList)
 		cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+
+	if (cc)
+	{
+		//create E2 filename1
+		snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+		         (u_int) cc->getServiceType(true),
+		         (u_int) channel_id & 0xFFFF,
+		         (u_int) (channel_id >> 32) & 0xFFFF,
+		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) cc->getSatellitePosition());
+
+		//create E2 filename2
+		snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+		         (u_int) 1,
+		         (u_int) channel_id & 0xFFFF,
+		         (u_int) (channel_id >> 32) & 0xFFFF,
+		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) cc->getSatellitePosition());
+	}
 
 	for (size_t i = 0; i<(sizeof(fileType) / sizeof(fileType[0])); i++){
 		std::vector<std::string> v_path;
@@ -554,28 +579,19 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 		id_tmp_path += strChnId + fileType[i];
 		v_path.push_back(id_tmp_path);
 
-		//create E2 filenames
-		if (cc)
+		if (e2filename1[0] != '\0')
 		{
-			char fname[255];
-			snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
-			         (u_int) cc->getServiceType(true),
-			         (u_int) channel_id & 0xFFFF,
-			         (u_int) (channel_id >> 32) & 0xFFFF,
-			         (u_int) (channel_id >> 16) & 0xFFFF,
-			         (u_int) cc->getSatellitePosition());
+			//create E2 filename1
 			id_tmp_path = g_settings.logo_hdd_dir + "/";
-			id_tmp_path += std::string(fname) + fileType[i];
+			id_tmp_path += std::string(e2filename1) + fileType[i];
 			v_path.push_back(id_tmp_path);
+		}
 
-			snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
-			         (u_int) 1,
-			         (u_int) channel_id & 0xFFFF,
-			         (u_int) (channel_id >> 32) & 0xFFFF,
-			         (u_int) (channel_id >> 16) & 0xFFFF,
-			         (u_int) cc->getSatellitePosition());
+		if (e2filename2[0] != '\0')
+		{
+			//create E2 filename2
 			id_tmp_path = g_settings.logo_hdd_dir + "/";
-			id_tmp_path += std::string(fname) + fileType[i];
+			id_tmp_path += std::string(e2filename2) + fileType[i];
 			v_path.push_back(id_tmp_path);
 		}
 
@@ -589,6 +605,22 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 			id_tmp_path = LOGODIR_VAR "/";
 			id_tmp_path += strChnId + fileType[i];
 			v_path.push_back(id_tmp_path);
+
+			if (e2filename1[0] != '\0')
+			{
+				//create E2 filename1 (LOGODIR_VAR)
+				id_tmp_path = LOGODIR_VAR "/";
+				id_tmp_path += std::string(e2filename1) + fileType[i];
+				v_path.push_back(id_tmp_path);
+			}
+
+			if (e2filename2[0] != '\0')
+			{
+				//create E2 filename2 (LOGODIR_VAR)
+				id_tmp_path = LOGODIR_VAR "/";
+				id_tmp_path += std::string(e2filename2) + fileType[i];
+				v_path.push_back(id_tmp_path);
+			}
 		}
 		if(g_settings.logo_hdd_dir != LOGODIR){
 			//create filename with channel name (LOGODIR)
@@ -600,6 +632,22 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 			id_tmp_path = LOGODIR "/";
 			id_tmp_path += strChnId + fileType[i];
 			v_path.push_back(id_tmp_path);
+
+			if (e2filename1[0] != '\0')
+			{
+				//create E2 filename1 (LOGODIR)
+				id_tmp_path = LOGODIR "/";
+				id_tmp_path += std::string(e2filename1) + fileType[i];
+				v_path.push_back(id_tmp_path);
+			}
+
+			if (e2filename2[0] != '\0')
+			{
+				//create E2 filename2 (LOGODIR)
+				id_tmp_path = LOGODIR "/";
+				id_tmp_path += std::string(e2filename2) + fileType[i];
+				v_path.push_back(id_tmp_path);
+			}
 		}
 		//check if file is available, name with real name is preferred, return true on success
 		for (size_t j = 0; j < v_path.size(); j++){
