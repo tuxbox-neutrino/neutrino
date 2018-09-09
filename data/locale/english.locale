@@ -126,6 +126,7 @@ audio.srs_iq SRS TruVolume algo
 audio.srs_nmgr Noise manager
 audio.srs_volume Reference volume
 audiomenu.PCMOffset Volume Decrease PCM
+audiomenu.ac3 AC3 passthrough
 audiomenu.analog_mode Analog mode
 audiomenu.analog_out Analog output
 audiomenu.auto_lang Auto select audio
@@ -135,6 +136,7 @@ audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audiomenu.clockrec 
 audiomenu.dolbydigital Prefer Dolby Digital
+audiomenu.dts DTS passthrough
 audiomenu.hdmi_dd Encoded DD on HDMI
 audiomenu.hdmi_dd_auto auto
 audiomenu.hdmi_dd_force force
@@ -1008,12 +1010,14 @@ menu.hint_adzap_writedata Write data according to adzap status to /tmp/adzap.dat
 menu.hint_aplay Audio player
 menu.hint_aplay_setup Change title display, start directory, screen saver and more
 menu.hint_audio Audio output, DD\nSRS True volume options
+menu.hint_audio_ac3 Pass AC3 audio tracks unchanged
 menu.hint_audio_adjust_vol_ac3 Channel specific volume adjustment for AC3 streams
 menu.hint_audio_adjust_vol_clear Clear all saved values for PCM and AC3 streams
 menu.hint_audio_adjust_vol_pcm Channel specific volume adjustment for PCM streams
 menu.hint_audio_analog_mode Select audio channel to use\nstereo, mono-left, mono-right
 menu.hint_audio_avsync A/V sync
 menu.hint_audio_dd Auto-switch to DolbyDigital audio pid,\nif available
+menu.hint_audio_dts Pass DTS audio tracks unchanged
 menu.hint_audio_hdmi_dd DolbyDigital over HDMI: off - decoded\nauto  if supported by device, force
 menu.hint_audio_spdif_dd DolbyDigital over optical output
 menu.hint_audio_srs SRS TruVolume control volume jumps\nat content changes

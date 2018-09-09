@@ -126,6 +126,7 @@ audio.srs_iq SRS TruVolume Technologie
 audio.srs_nmgr Noise-Manager
 audio.srs_volume Referenzlautstärke
 audiomenu.PCMOffset Lautstärkeabsenkung PCM
+audiomenu.ac3 AC3 durchleiten
 audiomenu.analog_mode Analog Modus
 audiomenu.analog_out Analog-Ausgang
 audiomenu.auto_lang Tonwahl automatisch
@@ -135,6 +136,7 @@ audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audiomenu.clockrec 
 audiomenu.dolbydigital DD-Unterkanal automatisch
+audiomenu.dts DTS durchleiten
 audiomenu.hdmi_dd Dolby Digital über HDMI
 audiomenu.hdmi_dd_auto automatisch
 audiomenu.hdmi_dd_force erzwingen
@@ -1008,12 +1010,14 @@ menu.hint_adzap_writedata Schreibe Daten über den Status des Werbezappers nach 
 menu.hint_aplay Audioplayer
 menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen usw.
+menu.hint_audio_ac3 AC3 Tonspuren unverändert durchleiten
 menu.hint_audio_adjust_vol_ac3 Lautstärkeanpassung für AC3-Tonspuren
 menu.hint_audio_adjust_vol_clear Alle gespeicherten Werte für AC3- und PCM-Tonspuren löschen
 menu.hint_audio_adjust_vol_pcm Lautstärkeanpassung für PCM-Tonspuren
 menu.hint_audio_analog_mode Wählen Sie den Modus des Ausgangssignals für den CINCH-Anschluss
 menu.hint_audio_avsync Diese Funktion synchronisiert Bild und Ton
 menu.hint_audio_dd Ist diese Option aktiviert, wird automatisch auf Dolby Digital Ton geschalten, sobald dieser verfügbar ist
+menu.hint_audio_dts DTS Tonspuren unverändert durchleiten
 menu.hint_audio_hdmi_dd Bei aktiver Option wird über den HDMI-Ausgang der Dolby Digital Ton ausgegeben
 menu.hint_audio_spdif_dd Bei aktiver Option wird über den optischen Ausgang (S/PDIF) der Dolby Digital Ton ausgegeben
 menu.hint_audio_srs Schalten Sie SRS TruVolume ein oder aus

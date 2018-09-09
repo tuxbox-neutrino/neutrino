@@ -310,10 +310,17 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 		g_Zapit->setAudioMode(g_settings.audio_AnalogMode);
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_ANALOG_OUT)) {
 		audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
+#if HAVE_ARM_HARDWARE
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_AC3)) {
+		audioDecoder->SetHdmiDD(g_settings.ac3_pass ? true : false);
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_DTS)) {
+		audioDecoder->SetSpdifDD(g_settings.dts_pass ? true : false);
+#else
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_HDMI_DD)) {
 		audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE) g_settings.hdmi_dd);
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_SPDIF_DD)) {
 		audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
+#endif
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_AVSYNC)) {
 		videoDecoder->SetSyncMode((AVSYNC_TYPE)g_settings.avsync);
 		audioDecoder->SetSyncMode((AVSYNC_TYPE)g_settings.avsync);

@@ -401,8 +401,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.srs_algo = configfile.getInt32( "srs_algo", 1);
 	g_settings.srs_ref_volume = configfile.getInt32( "srs_ref_volume", 40);
 	g_settings.srs_nmgr_enable = configfile.getInt32( "srs_nmgr_enable", 0);
+#if HAVE_ARM_HARDWARE
+	g_settings.ac3_pass = configfile.getInt32( "ac3_pass", 0);
+	g_settings.dts_pass = configfile.getInt32( "dts_pass", 0);
+#else
 	g_settings.hdmi_dd = configfile.getInt32( "hdmi_dd", 0);
 	g_settings.spdif_dd = configfile.getInt32( "spdif_dd", 1);
+#endif // HAVE_ARM_HARDWARE
 	g_settings.analog_out = configfile.getInt32( "analog_out", 1);
 	g_settings.avsync = configfile.getInt32( "avsync", 1);
 	g_settings.clockrec = configfile.getInt32( "clockrec", 1);
@@ -1198,9 +1203,14 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "srs_algo", g_settings.srs_algo);
 	configfile.setInt32( "srs_ref_volume", g_settings.srs_ref_volume);
 	configfile.setInt32( "srs_nmgr_enable", g_settings.srs_nmgr_enable);
+#if HAVE_ARM_HARDWARE
+	configfile.setInt32( "ac3_pass", g_settings.ac3_pass);
+	configfile.setInt32( "dts_pass", g_settings.dts_pass);
+#else
 	configfile.setInt32( "hdmi_dd", g_settings.hdmi_dd);
-	configfile.setInt32( "analog_out", g_settings.analog_out);
 	configfile.setInt32( "spdif_dd", g_settings.spdif_dd);
+#endif
+	configfile.setInt32( "analog_out", g_settings.analog_out);
 	configfile.setInt32( "avsync", g_settings.avsync);
 	configfile.setInt32( "clockrec", g_settings.clockrec);
 	configfile.setInt32( "video_dbdr", g_settings.video_dbdr);
@@ -2402,8 +2412,13 @@ TIMER_START();
 	// init audio settings
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	//audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
+#if HAVE_ARM_HARDWARE
+	audioDecoder->SetHdmiDD(g_settings.ac3_pass ? true : false);
+	audioDecoder->SetSpdifDD(g_settings.dts_pass ? true : false);
+#else
 	audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE)g_settings.hdmi_dd);
 	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
+#endif
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
 	audioSetupNotifier        = new CAudioSetupNotifier;
 	// trigger a change

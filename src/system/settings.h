@@ -245,8 +245,13 @@ struct SNeutrinoSettings
 	int srs_algo;
 	int srs_ref_volume;
 	int srs_nmgr_enable;
+#if HAVE_ARM_HARDWARE
+	int ac3_pass;
+	int dts_pass;
+#else
 	int hdmi_dd;
 	int spdif_dd;
+#endif // HAVE_ARM_HARDWARE
 	int analog_out;
 	int audio_volume_percent_ac3;
 	int audio_volume_percent_pcm;
