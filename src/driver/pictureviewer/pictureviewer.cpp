@@ -4,6 +4,7 @@
 #include "pictureviewer.h"
 #include "pv_config.h"
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -579,7 +580,19 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 				name = v_path[j];
 				return true;
 			}
-		}	
+		}
+		CZapitChannel * cc = NULL;
+		if (CNeutrinoApp::getInstance()->channelList)
+			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+		if (cc) {
+			if (!cc->getAlternateLogo().empty())
+			{
+				std::string lname = dlTmpName(cc->getAlternateLogo());
+				name = lname;
+				cc->setAlternateLogo(lname);
+				return true;
+			}
+		}
 	}
 	return false;
 }
