@@ -529,12 +529,16 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 
 bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
-	std::string fileType[] = { ".png", ".jpg" , ".gif" };
+	std::string fileType[] = { ".png", ".jpg", ".gif" };
 
 	//get channel id as string
 	char strChnId[16];
 	snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
 	strChnId[15] = '\0';
+
+	CZapitChannel * cc = NULL;
+	if (CNeutrinoApp::getInstance()->channelList)
+		cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
 
 	for (size_t i = 0; i<(sizeof(fileType) / sizeof(fileType[0])); i++){
 		std::vector<std::string> v_path;
@@ -549,6 +553,31 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 		id_tmp_path = g_settings.logo_hdd_dir + "/";
 		id_tmp_path += strChnId + fileType[i];
 		v_path.push_back(id_tmp_path);
+
+		//create E2 filenames
+		if (cc)
+		{
+			char fname[255];
+			snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+			         (u_int) cc->getServiceType(true),
+			         (u_int) channel_id & 0xFFFF,
+			         (u_int) (channel_id >> 32) & 0xFFFF,
+			         (u_int) (channel_id >> 16) & 0xFFFF,
+			         (u_int) cc->getSatellitePosition());
+			id_tmp_path = g_settings.logo_hdd_dir + "/";
+			id_tmp_path += std::string(fname) + fileType[i];
+			v_path.push_back(id_tmp_path);
+
+			snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+			         (u_int) 1,
+			         (u_int) channel_id & 0xFFFF,
+			         (u_int) (channel_id >> 32) & 0xFFFF,
+			         (u_int) (channel_id >> 16) & 0xFFFF,
+			         (u_int) cc->getSatellitePosition());
+			id_tmp_path = g_settings.logo_hdd_dir + "/";
+			id_tmp_path += std::string(fname) + fileType[i];
+			v_path.push_back(id_tmp_path);
+		}
 
 		if(g_settings.logo_hdd_dir != LOGODIR_VAR){
 			//create filename with channel name (LOGODIR_VAR)
@@ -581,9 +610,7 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 				return true;
 			}
 		}
-		CZapitChannel * cc = NULL;
-		if (CNeutrinoApp::getInstance()->channelList)
-			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+
 		if (cc) {
 			if (!cc->getAlternateLogo().empty())
 			{
