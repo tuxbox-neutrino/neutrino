@@ -1546,6 +1546,17 @@ std::string genTmpName(std::string suffix,unsigned int length)
 	return Str;
 }
 
+std::string dlTmpName(std::string url)
+{
+	if (strstr(url.c_str(), "://"))
+	{
+		std::string tmpname = genTmpName(url.substr(url.find_last_of(".")+1),10);
+		if (downloadUrl(url,tmpname))
+			url = tmpname;
+	}
+	return url;
+}
+
 // curl
 static void *myrealloc(void *ptr, size_t size)
 {
