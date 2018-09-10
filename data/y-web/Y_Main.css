@@ -629,6 +629,7 @@ tr {
 .channel_logo {
 	background: #A1CCF2;
 	max-width: 175px;
+	max-height: 40px;
 }
 .aepg, .bepg, .cepg {
 	white-space: nowrap;
