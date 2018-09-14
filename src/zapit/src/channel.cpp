@@ -21,6 +21,7 @@
  */
 
 #include <cstdio>
+#include <system/helpers.h>
 #include <zapit/zapit.h>
 #include <zapit/channel.h>
 
@@ -109,6 +110,7 @@ void CZapitChannel::Init()
 	bLockCount = 0;
 	bLocked = DEFAULT_CH_LOCKED;
 	bUseCI = false;
+	thrLogo = NULL;
 	altlogo = "";
 }
 
@@ -419,4 +421,32 @@ void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 	if (bLocked!=DEFAULT_CH_LOCKED) fprintf(fd," l=\"%d\"", bLocked ? 1 : 0);
 
 	fprintf(fd, "/>\n");
+}
+
+void CZapitChannel::setThrAlternateLogo(const std::string &pLogo)
+{
+	//printf("CZapitChannel::setAlternateLogo: [%s]\n", pLogo.c_str());
+
+	altlogo = pLogo;
+
+	if(thrLogo != 0)
+	{
+		pthread_cancel(thrLogo);
+		pthread_join(thrLogo, NULL);
+		thrLogo = 0;
+	}
+
+	pthread_create(&thrLogo, NULL, LogoThread, (void *)this);
+}
+
+void* CZapitChannel::LogoThread(void* channel)
+{
+	CZapitChannel *cc = (CZapitChannel *)channel;
+	std::string lname = cc->getAlternateLogo();
+	cc->setAlternateLogo(dlTmpName(lname));
+
+	pthread_exit(0);
+
+	return NULL;
+
 }
