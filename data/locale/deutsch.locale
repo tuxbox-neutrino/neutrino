@@ -2538,7 +2538,7 @@ videomenu.dbdr_none aus
 videomenu.enabled_modes Videosysteme auf der VF-Taste
 videomenu.enabled_modes_auto Videosysteme für autom. Wahl
 videomenu.fullscreen Vollbild
-videomenu.hdmi_cec CSTLink (HDMI-CEC)
+videomenu.hdmi_cec HDMI-CEC
 videomenu.hdmi_cec_mode Receiver verwenden
 videomenu.hdmi_cec_mode_off nein
 videomenu.hdmi_cec_mode_recorder als Sat/Kabel PVR

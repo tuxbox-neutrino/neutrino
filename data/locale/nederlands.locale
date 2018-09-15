@@ -2223,7 +2223,7 @@ videomenu.dbdr_deblock de-block
 videomenu.dbdr_none Geen
 videomenu.enabled_modes Ingeschakelde video modi
 videomenu.fullscreen Volledig scherm
-videomenu.hdmi_cec CSTLink (HDMI-CEC)
+videomenu.hdmi_cec HDMI-CEC
 videomenu.hdmi_cec_mode Gebruik ontvanger
 videomenu.hdmi_cec_mode_off nee
 videomenu.hdmi_cec_mode_recorder als satelliet / kabel PVR

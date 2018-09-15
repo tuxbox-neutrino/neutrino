@@ -2538,7 +2538,7 @@ videomenu.dbdr_none none
 videomenu.enabled_modes VF key enabled modes
 videomenu.enabled_modes_auto Auto-select enabled modes
 videomenu.fullscreen Full screen
-videomenu.hdmi_cec CSTLink (HDMI-CEC)
+videomenu.hdmi_cec HDMI-CEC
 videomenu.hdmi_cec_mode Receiver to use
 videomenu.hdmi_cec_mode_off no
 videomenu.hdmi_cec_mode_recorder as Sat/Cable PVR
