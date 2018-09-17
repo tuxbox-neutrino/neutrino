@@ -331,6 +331,8 @@ bool CScreenSaver::ignoredMsg(neutrino_msg_t msg)
 		|| msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES
 		|| msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS
 		|| msg == NeutrinoMessages::EVT_ZAP_GOTPIDS
+		|| msg == NeutrinoMessages::EVT_EIT_COMPLETE
+		|| msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE
 	)
 		return true;
 	return false;
