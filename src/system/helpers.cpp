@@ -1527,32 +1527,32 @@ bool utf8_check_is_valid(const std::string &str)
 	return true;
 }
 
-std::string genTmpName(std::string suffix,unsigned int length)
+std::string randomString(unsigned int length)
 {
+	std::string random = "";
 	const char alphanum[] =
 	    "0123456789"
 	    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	    "abcdefghijklmnopqrstuvwxyz";
-	int stringLength = sizeof(alphanum) - 1;
-	std::string Str;
 	unsigned int i;
-	Str.append("/tmp/");
-	for( i = 0; i < length; ++i)
-	{
-		Str += alphanum[rand() % stringLength];
-	}
-	Str += ".";
-	Str += suffix;
-	return Str;
+	for(i = 0; i < length; ++i)
+		random += alphanum[rand() % (sizeof(alphanum) - 1)];
+	return random;
 }
 
-std::string dlTmpName(std::string url)
+std::string randomFile(std::string suffix, std::string directory, unsigned int length)
+{
+	mkdir(directory.c_str(), 0755);
+	return directory + "/" + randomString(length) + "." + suffix;
+}
+
+std::string downloadUrlToRandomFile(std::string url, std::string directory, unsigned int length)
 {
 	if (strstr(url.c_str(), "://"))
 	{
-		std::string tmpname = genTmpName(url.substr(url.find_last_of(".")+1),10);
-		if (downloadUrl(url,tmpname))
-			url = tmpname;
+		std::string file = randomFile(url.substr(url.find_last_of(".") + 1), directory, length);
+		if (downloadUrl(url, file))
+			return file;
 	}
 	return url;
 }

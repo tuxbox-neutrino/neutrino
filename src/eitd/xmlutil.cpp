@@ -644,13 +644,14 @@ void *insertEventsfromXMLTV(void * data)
 		pthread_exit(NULL);
 	}
 	std::string url = (char *) data;
-	std::string url_ext = getFileExt(url);
-	std::string tmp_name = genTmpName(url_ext,8);
+	std::string tmp_name = randomFile(getFileExt(url), "/tmp", 8);
 
 	int64_t now = time_monotonic_ms();
 
 	if (url.compare(0, 1, "/") == 0)
+	{
 		readEventsFromXMLTV(url, ev_count);
+	}
 	else if (::downloadUrl(url, tmp_name))
 	{
 		readEventsFromXMLTV(tmp_name, ev_count);

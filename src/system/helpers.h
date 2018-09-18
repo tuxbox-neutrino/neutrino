@@ -159,8 +159,9 @@ std::string readFile(std::string file);
 std::string iso_8859_1_to_utf8(std::string &str);
 bool utf8_check_is_valid(const std::string &str);
 
-std::string genTmpName(std::string suffix,unsigned int length);
-std::string dlTmpName(std::string url);
+std::string randomString(unsigned int length = 10);
+std::string randomFile(std::string suffix = "tmp", std::string directory = "/tmp", unsigned int length = 10);
+std::string downloadUrlToRandomFile(std::string url, std::string directory = "/tmp", unsigned int length = 10);
 
 // curl
 struct MemoryStruct {

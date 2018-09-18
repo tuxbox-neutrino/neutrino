@@ -659,13 +659,14 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 			}
 		}
 
-		if (cc) {
+		if (cc)
+		{
 			if (!cc->getAlternateLogo().empty())
 			{
-				std::string lname = dlTmpName(cc->getAlternateLogo());
-				name = lname;
-				if(width && height)
+				std::string lname = downloadUrlToRandomFile(cc->getAlternateLogo(), LOGODIR_TMP);
+				if (width && height)
 					getSize(lname.c_str(), width, height);
+				name = lname;
 				cc->setAlternateLogo(lname);
 				return true;
 			}
