@@ -169,7 +169,22 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 
 bool CScreenSaver::ReadDir()
 {
-	string d = g_settings.screensaver_dir;
+	bool show_audiocover = false;
+
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_audio && g_settings.audioplayer_cover_as_screensaver)
+	{
+		if (access(COVERDIR_TMP, F_OK) == 0)
+		{
+			struct dirent **coverlist;
+			int n = scandir(COVERDIR_TMP, &coverlist, 0, alphasort);
+			if (n > 2) // we always have the "." and ".." entrys
+				show_audiocover = true;
+		}
+	}
+
+	string d;
+	if (show_audiocover)
+		d = COVERDIR_TMP;
 	if (d.length() > 1)
 	{
 		//remove trailing slash

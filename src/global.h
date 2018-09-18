@@ -47,7 +47,7 @@
 #define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
 
-#define COVERDIR	"/tmp/cover"
+#define COVERDIR_TMP	"/tmp/.cover"
 
 #define LOGODIR		ICONSDIR "/logo"
 #define LOGODIR_VAR	ICONSDIR_VAR "/logo"

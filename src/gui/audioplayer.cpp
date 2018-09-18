@@ -1718,14 +1718,14 @@ void CAudioPlayerGui::paintCover()
 		std::size_t found_url = meta.logo.find("://");
 		if (found_url != std::string::npos)
 		{
-			mkdir(COVERDIR, 0755);
+			mkdir(COVERDIR_TMP, 0755);
 
 			std::string filename(meta.logo);
 			const size_t last_slash_idx = filename.find_last_of("/");
 			if (last_slash_idx != std::string::npos)
 				filename.erase(0, last_slash_idx + 1);
 
-			std::string fullname(COVERDIR);
+			std::string fullname(COVERDIR_TMP);
 			fullname += "/" + filename;
 
 			CHTTPTool httptool;
@@ -2788,10 +2788,10 @@ std::string CAudioPlayerGui::absPath2Rel(const std::string& fromDir,
 
 void CAudioPlayerGui::cleanupCovers()
 {
-	if (access(COVERDIR, F_OK) == 0)
+	if (access(COVERDIR_TMP, F_OK) == 0)
 	{
 		struct dirent **coverlist;
-		int n = scandir(COVERDIR, &coverlist, 0, alphasort);
+		int n = scandir(COVERDIR_TMP, &coverlist, 0, alphasort);
 		if (n > -1)
 		{
 			while (n--)
@@ -2799,8 +2799,8 @@ void CAudioPlayerGui::cleanupCovers()
 				const char *coverfile = coverlist[n]->d_name;
 				if (strcmp(coverfile, ".") == 0 || strcmp(coverfile, "..") == 0)
 					continue;
-				printf("[audioplayer] removing cover %s/%s\n", COVERDIR, coverfile);
-				unlink(((std::string)COVERDIR + "/" + coverfile).c_str());
+				printf("[audioplayer] removing cover %s/%s\n", COVERDIR_TMP, coverfile);
+				unlink(((std::string)COVERDIR_TMP + "/" + coverfile).c_str());
 				free(coverlist[n]);
 			}
 			free(coverlist);

@@ -522,8 +522,8 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 				bitrate += avc->streams[i]->codecpar->bit_rate;
 #endif
 			if (save_cover && (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
-				mkdir(COVERDIR, 0755);
-				std::string cover(COVERDIR);
+				mkdir(COVERDIR_TMP, 0755);
+				std::string cover(COVERDIR_TMP);
 				cover += "/cover_" + to_string(cover_count++) + ".jpg";
 				FILE *f = fopen(cover.c_str(), "wb");
 				if (f) {
