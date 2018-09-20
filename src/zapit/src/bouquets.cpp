@@ -36,6 +36,7 @@
 #include <iostream>
 
 #include <global.h>
+#include <driver/pictureviewer/pictureviewer.h>
 #include <system/helpers.h>
 #include <system/set_threadname.h>
 
@@ -55,6 +56,7 @@
 #define GROUP_NAME_MARKER       "group-title="
 
 extern CBouquetManager *g_bouquetManager;
+extern CPictureViewer *g_PicViewer;
 pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define GET_ATTR(node, name, fmt, arg)                                  \
@@ -1048,7 +1050,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								}
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
-								if (!alogo.empty())
+								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid,title,desc))
 								{
 									channel->setAlternateLogo(alogo);
 									pthread_mutex_lock (&mutex);
