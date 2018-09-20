@@ -37,6 +37,7 @@
 
 #include <global.h>
 #include <system/helpers.h>
+#include <system/set_threadname.h>
 
 #include <zapit/bouquets.h>
 #include <zapit/debug.h>
@@ -54,6 +55,7 @@
 #define GROUP_NAME_MARKER       "group-title="
 
 extern CBouquetManager *g_bouquetManager;
+pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define GET_ATTR(node, name, fmt, arg)                                  \
         do {                                                            \
@@ -527,6 +529,7 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 
 	loadWebtv();
 	loadWebradio();
+	loadLogos();
 	parseBouquetsXml(UBOUQUETS_XML, true);
 	renumServices();
 	CServiceManager::getInstance()->SetCIFilter();
@@ -1037,7 +1040,10 @@ void CBouquetManager::loadWebchannels(int mode)
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
 								if (!alogo.empty())
-									channel->setAlternateLogo(downloadUrlToRandomFile(alogo, LOGODIR_TMP));
+								{
+									channel->setAlternateLogo(alogo);
+									LogoList.push_back(channel);
+								}
 								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
 									gbouquet->addService(channel);
@@ -1110,6 +1116,37 @@ void CBouquetManager::loadWebchannels(int mode)
 		if (remove_tmp)
 			remove(tmp_name.c_str());
 	}
+}
+
+void CBouquetManager::loadLogos()
+{
+
+	if(thrLogo != 0)
+	{
+		pthread_cancel(thrLogo);
+		pthread_join(thrLogo, NULL);
+		thrLogo = 0;
+	}
+
+	if (LogoList.size() > 0)
+		pthread_create(&thrLogo, NULL, LogoThread, (void*)&LogoList);
+}
+
+void* CBouquetManager::LogoThread(void* _logolist)
+{
+	set_threadname(__func__);
+	pthread_mutex_lock (&mutex);
+	ZapitChannelList *LogoList = (ZapitChannelList *)_logolist;
+	for (ZapitChannelList::iterator it = LogoList->begin(); it != LogoList->end(); ++it)
+	{
+		CZapitChannel *cc = (*it);
+		if (cc)
+			cc->setAlternateLogo(downloadUrlToRandomFile(cc->getAlternateLogo(), LOGODIR_TMP));
+	}
+	LogoList->clear();
+	pthread_mutex_unlock(&mutex);
+	pthread_exit(0);
+	return NULL;
 }
 
 CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const bool TV)

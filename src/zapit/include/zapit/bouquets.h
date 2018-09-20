@@ -108,8 +108,12 @@ class CBouquetManager
 		std::map<t_channel_id, t_channel_id> EpgIDMapping;
 		void readEPGMapping();
 		t_channel_id reMapEpgID(t_channel_id channelid);
+		//logo downloads
+		static void* LogoThread(void* _logolist);
+		pthread_t thrLogo;
+		ZapitChannelList LogoList;
 	public:
-		CBouquetManager() { remainChannels = NULL; };
+		CBouquetManager() { remainChannels = NULL; thrLogo = 0; };
 		~CBouquetManager();
 		class ChannelIterator
 		{
@@ -157,6 +161,7 @@ class CBouquetManager
 		void setBouquetLock(CZapitBouquet* bouquet, bool state);
 		void loadWebtv();
 		void loadWebradio();
+		void loadLogos();
 		void loadWebchannels(int mode);
 		std::string ReadMarkerValue(std::string strLine, const char* strMarkerName);
 		//bouquet writeChannelsNames selection options
