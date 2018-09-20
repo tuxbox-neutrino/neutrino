@@ -112,7 +112,6 @@ void CZapitChannel::Init()
 	bLockCount = 0;
 	bLocked = DEFAULT_CH_LOCKED;
 	bUseCI = false;
-	thrLogo = 0;
 	altlogo = "";
 }
 
@@ -423,30 +422,4 @@ void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 	if (bLocked!=DEFAULT_CH_LOCKED) fprintf(fd," l=\"%d\"", bLocked ? 1 : 0);
 
 	fprintf(fd, "/>\n");
-}
-
-void CZapitChannel::setThrAlternateLogo(const std::string &pLogo)
-{
-	//printf("CZapitChannel::setAlternateLogo: [%s]\n", pLogo.c_str());
-
-	altlogo = pLogo;
-
-	if(thrLogo != 0)
-	{
-		pthread_cancel(thrLogo);
-		pthread_join(thrLogo, NULL);
-		thrLogo = 0;
-	}
-
-	pthread_create(&thrLogo, NULL, LogoThread, (void *)this);
-}
-
-void* CZapitChannel::LogoThread(void* channel)
-{
-	CZapitChannel *cc = (CZapitChannel *)channel;
-	if (cc)
-		cc->setAlternateLogo(downloadUrlToRandomFile(cc->getAlternateLogo(), LOGODIR_TMP));
-
-	pthread_exit(0);
-	return NULL;
 }

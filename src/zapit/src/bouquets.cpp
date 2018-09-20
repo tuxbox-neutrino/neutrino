@@ -1037,7 +1037,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
 								if (!alogo.empty())
-									channel->setThrAlternateLogo(alogo);
+									channel->setAlternateLogo(downloadUrlToRandomFile(alogo, LOGODIR_TMP));
 								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
 									gbouquet->addService(channel);

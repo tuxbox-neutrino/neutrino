@@ -178,8 +178,6 @@ class CZapitChannel
 
 		void				Init();
 		friend class CChannelList;
-		pthread_t			thrLogo;
-		static void* 		LogoThread(void* channel);
 
 	public:
 		typedef enum channel_flags {
@@ -298,7 +296,6 @@ class CZapitChannel
 		void setEPGid(t_channel_id pEPGid) { epg_id = pEPGid; } //remap epg_id
 		std::string	getAlternateLogo(void) const { return altlogo; }
 		inline void	setAlternateLogo(const std::string &pLogo) { altlogo = pLogo; }
-		void	setThrAlternateLogo(const std::string &pLogo);
 };
 
 struct CmpChannelBySat: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
