@@ -543,8 +543,9 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 	e2filename2[0] = '\0';
 
 	CZapitChannel * cc = NULL;
-	if (CNeutrinoApp::getInstance()->channelList)
-		cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+	if (channel_id)
+		if (CNeutrinoApp::getInstance()->channelList)
+			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
 
 	if (cc)
 	{
