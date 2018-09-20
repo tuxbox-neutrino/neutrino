@@ -31,6 +31,7 @@
 #include <driver/framebuffer.h>
 #include <gui/movieplayer.h>
 #include <gui/widget/hintbox.h>
+#include <gui/widget/keyboard_input.h>
 #include <zapit/zapit.h>
 #include <neutrino_menue.h>
 #include "webtv_setup.h"
@@ -60,10 +61,12 @@ const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =
 };
 #define LIVESTREAM_RESOLUTION_OPTION_COUNT (sizeof(LIVESTREAM_RESOLUTION_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 
-#define CWebTVSetupFooterButtonCount 3
-static const struct button_label CWebTVSetupFooterButtons[CWebTVSetupFooterButtonCount] = {
+#define CWebTVSetupFooterButtonCount 4
+static const struct button_label CWebTVSetupFooterButtons[CWebTVSetupFooterButtonCount] =
+{
 	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_WEBTV_XML_DEL },
 	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_WEBTV_XML_ADD },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_WEBTV_XML_ENTER },
 	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_WEBTV_XML_RELOAD }
 };
 
@@ -75,7 +78,7 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 		selected = m->getSelected();
 		if (selected >= item_offset) {
 			m->removeItem(selected);
-		    m->hide();
+			m->hide();
 			selected = m->getSelected();
 			changed = true;
 		}
@@ -115,7 +118,21 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return res;
 	}
+	if (actionKey == "e" /* enter */) {
+		std::string tpl = "http://xxx.xxx.xxx.xxx/control/xmltv.m3u";
+		std::string entry = tpl;
 
+		CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBTV_XML_ENTER, &entry, 50);
+		e->exec(this, "");
+		delete e;
+
+		if (entry.compare(tpl) != 0)
+		{
+			m->addItem(new CMenuForwarder(entry, true, NULL, this, "c"));
+			changed = true;
+		}
+		return res;
+	}
 	if(actionKey == "r" /* reload */) {
 		changed = true;
 		return menu_return::RETURN_EXIT_ALL;
@@ -141,6 +158,7 @@ int CWebTVSetup::Show()
 	m = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_STREAMING, width, MN_WIDGET_ID_WEBTVSETUP);
 	m->addKey(CRCInput::RC_red, this, "d");
 	m->addKey(CRCInput::RC_green, this, "a");
+	m->addKey(CRCInput::RC_yellow, this, "e");
 	m->addKey(CRCInput::RC_blue, this, "r");
 
 	m->addIntroItems(LOCALE_WEBTV_HEAD, LOCALE_LIVESTREAM_HEAD);
