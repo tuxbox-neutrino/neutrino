@@ -37,7 +37,7 @@ class CWebTVSetup : public CMenuTarget, CChangeObserver
 		CMenuWidget *m;
 	public:
 		CWebTVSetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		int Show();
 		bool changeNotify(const neutrino_locale_t OptionName, void *data);
 		void webtv_xml_auto();
@@ -52,7 +52,7 @@ class CWebTVResolution : public CMenuTarget
 	public:
 		CWebTVResolution();
 		const char *getResolutionValue();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		int Show();
 };
 
