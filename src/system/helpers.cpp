@@ -1557,6 +1557,28 @@ std::string downloadUrlToRandomFile(std::string url, std::string directory, unsi
 	return url;
 }
 
+std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_id channel_id)
+{
+
+	if (channel_id == 0)
+		return downloadUrlToRandomFile(url,directory);
+
+	if (strstr(url.c_str(), "://"))
+	{
+		//get channel id as string
+		char strChnId[16];
+		snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
+		strChnId[15] = '\0';
+
+		std::string file = directory + "/" + strChnId + url.substr(url.find_last_of("."));
+		if (file_exists(file))
+			return file;
+		if (downloadUrl(url, file))
+			return file;
+	}
+	return url;
+}
+
 // curl
 static void *myrealloc(void *ptr, size_t size)
 {

@@ -1153,7 +1153,7 @@ void* CBouquetManager::LogoThread(void* _logolist)
 	{
 		CZapitChannel *cc = (*it);
 		if (cc)
-			cc->setAlternateLogo(downloadUrlToRandomFile(cc->getAlternateLogo(), LOGODIR_TMP));
+			cc->setAlternateLogo(downloadUrlToLogo(cc->getAlternateLogo(), LOGODIR_TMP, cc->getChannelID()));
 	}
 	LogoList->clear();
 	pthread_mutex_unlock(&mutex);

@@ -36,6 +36,8 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
+typedef uint64_t t_channel_id;
+
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
@@ -162,6 +164,7 @@ bool utf8_check_is_valid(const std::string &str);
 std::string randomString(unsigned int length = 10);
 std::string randomFile(std::string suffix = "tmp", std::string directory = "/tmp", unsigned int length = 10);
 std::string downloadUrlToRandomFile(std::string url, std::string directory = "/tmp", unsigned int length = 10);
+std::string downloadUrlToLogo(std::string url, std::string directory = "/tmp", t_channel_id channel_id = 0);
 
 // curl
 struct MemoryStruct {
