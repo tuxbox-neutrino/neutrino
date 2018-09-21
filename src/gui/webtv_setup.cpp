@@ -98,12 +98,30 @@ int CWebTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		CMenuItem *item = m->getItem(selected);
 		CMenuForwarder *f = static_cast<CMenuForwarder *>(item);
 		std::string dirname(f->getName());
-		dirname = dirname.substr(0, dirname.rfind('/'));
-		if (fileBrowser.exec(dirname.c_str()))
+		if (strstr(dirname.c_str(), "://"))
 		{
-			f->setName(fileBrowser.getSelectedFile()->Name);
-			g_settings.last_webtv_dir = dirname;
-			changed = true;
+			std::string entry = dirname;
+
+			CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBTV_XML_ENTER, &entry, 50);
+			e->exec(this, "");
+			delete e;
+
+			if (entry.compare(dirname) != 0)
+			{
+				f->setName(entry);
+				changed = true;
+			}
+		}
+		else
+		{
+
+			dirname = dirname.substr(0, dirname.rfind('/'));
+			if (fileBrowser.exec(dirname.c_str()))
+			{
+				f->setName(fileBrowser.getSelectedFile()->Name);
+				g_settings.last_webtv_dir = dirname;
+				changed = true;
+			}
 		}
 		return res;
 	}
