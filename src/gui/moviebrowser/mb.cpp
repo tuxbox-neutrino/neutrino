@@ -2554,7 +2554,7 @@ bool CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 			if (
 				   mi_it->file.Name == movieinfo->file.Name
 				&& mi_it->epgTitle == movieinfo->epgTitle
-				&& mi_it->epgInfo1 == movieinfo->epgInfo1
+				&& ( mi_it->epgInfo1 == movieinfo->epgInfo1 || (mi_it->epgInfo1 == " " && movieinfo->epgInfo1.empty()) ) //FIXME if movieinfo->epgInfo1 is empty, epgInfo1 in xml have whitespace
 				&& mi_it->length == movieinfo->length
 			)
 				m_vMovieInfo.erase(mi_it--);
