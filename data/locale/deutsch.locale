@@ -1527,6 +1527,7 @@ menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_webtv_xml_auto Lädt automatisch alle WebTV-Dateien aus %s/ und %s/
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
+menu.hint_xmltv_setup Hier konfigurieren Sie XMLTV-Dateien, die EPG-Daten enthalten
 menu.hint_youtube_dev_id Geben Sie die YouTube Dev ID ein. Eine leere Eingabe schaltet die YouTube-Unterstützung aus
 menu.hint_youtube_enabled Schaltet die YouTube-Unterstützung ein oder aus
 menu.hint_ytplay Wiedergabe von ausgewählten YouTube Feeds
@@ -2584,6 +2585,12 @@ wizard.welcome_text Neutrino ist eine von der Tuxbox-Community entwickelte und g
 word.after nach
 word.from ab
 word.in in
+xmltv.head XMLTV
+xmltv.xml XMLTV-Dateien
+xmltv.xml.add Hinzufügen
+xmltv.xml.del Entfernen
+xmltv.xml.enter Eintragen
+xmltv.xml.reload Neu laden
 youtube.dev_id YouTube Dev ID
 youtube.enabled YouTube-Unterstützung
 zapit.scantype Service-Auswahl

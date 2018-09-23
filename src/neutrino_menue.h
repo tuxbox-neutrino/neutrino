@@ -107,9 +107,12 @@ enum MN_WIDGET_ID
 	//audio setup
 	MN_WIDGET_ID_AUDIOSETUP,
 
-	//web tv setup
+	//webtv setup
 	MN_WIDGET_ID_WEBTVSETUP,
 	MN_WIDGET_ID_LIVESTREAM_RESOLUTION,
+
+	//xmltv setup
+	MN_WIDGET_ID_XMLTVSETUP,
 
 	//misc settings
 	MN_WIDGET_ID_MISCSETUP,
