@@ -102,12 +102,12 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 
 	CWebTVSetup wsetup;
 	mf = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::RC_yellow);
-	mf->setHint(NEUTRINO_ICON_HINT_TVMODE /* FIXME */, LOCALE_MENU_HINT_WEBTV_SETUP);
+	mf->setHint(NEUTRINO_ICON_HINT_WEBTV, LOCALE_MENU_HINT_WEBTV_SETUP);
 	mediaSetup->addItem(mf);
 
 	CXMLTVSetup xmltvsetup;
 	mf = new CMenuForwarder(LOCALE_XMLTV_HEAD, true, NULL, &xmltvsetup, "show_menu", CRCInput::RC_blue);
-	mf->setHint(NEUTRINO_ICON_HINT_TVMODE /* FIXME */, LOCALE_MENU_HINT_XMLTV_SETUP);
+	mf->setHint(NEUTRINO_ICON_HINT_XMLTV, LOCALE_MENU_HINT_XMLTV_SETUP);
 	mediaSetup->addItem(mf);
 
 	mediaSetup->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_MOVIEPLAYER));
