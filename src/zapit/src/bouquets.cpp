@@ -1050,6 +1050,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								}
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
+								desc = "m3u_loading_logos";
 								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid,title,desc))
 								{
 									channel->setAlternateLogo(alogo);

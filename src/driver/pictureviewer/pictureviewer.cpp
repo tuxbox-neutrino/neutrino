@@ -660,7 +660,7 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 			}
 		}
 
-		if (cc)
+		if (cc && (name.compare("m3u_loading_logos") != 0))
 		{
 			if (!cc->getAlternateLogo().empty())
 			{
