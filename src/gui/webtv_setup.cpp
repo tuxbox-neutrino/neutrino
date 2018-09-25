@@ -210,34 +210,38 @@ int CWebTVSetup::Show()
 
 	m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, webradio ? LOCALE_WEBRADIO_XML : LOCALE_WEBTV_XML));
 
-	if (!webradio)
-	{
-
-	// TODO: show/hide autoloaded content when switching g_settings.webtv_xml_auto
+	// TODO: show/hide autoloaded content when switching g_settings.webradio/webtv_xml_auto
+	CMenuOptionChooser *oc;
 	char hint_text[1024];
-	snprintf(hint_text, sizeof(hint_text) - 1, g_Locale->getText(LOCALE_MENU_HINT_WEBTV_XML_AUTO), WEBTVDIR, WEBTVDIR_VAR);
-	CMenuOptionChooser *oc = new CMenuOptionChooser(LOCALE_WEBTV_XML_AUTO, &g_settings.webtv_xml_auto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++));
+	if (webradio)
+	{
+		snprintf(hint_text, sizeof(hint_text) - 1, g_Locale->getText(LOCALE_MENU_HINT_WEBRADIO_XML_AUTO), WEBRADIODIR, WEBRADIODIR_VAR);
+		oc = new CMenuOptionChooser(LOCALE_WEBRADIO_XML_AUTO, &g_settings.webradio_xml_auto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++));
+	}
+	else
+	{
+		snprintf(hint_text, sizeof(hint_text) - 1, g_Locale->getText(LOCALE_MENU_HINT_WEBTV_XML_AUTO), WEBTVDIR, WEBTVDIR_VAR);
+		oc = new CMenuOptionChooser(LOCALE_WEBTV_XML_AUTO, &g_settings.webtv_xml_auto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++));
+	}
 	oc->setHint("", hint_text);
 	m->addItem(oc);
 	m->addItem(GenericMenuSeparator);
 
 	item_offset = m->getItemsCount();
-	// show autoloaded webtv files
+	// show autoloaded webradio/webtvtv files
 	for (std::list<std::string>::iterator it = webchannels.begin(); it != webchannels.end(); ++it)
 	{
-		if (webtv_xml_autodir((*it)))
+		if (webchannels_autodir((*it)))
 			m->addItem(new CMenuForwarder(*it, false, "auto"));
 	}
 	if (item_offset < m->getItemsCount())
 		m->addItem(GenericMenuSeparator);
 
-	}
-
 	item_offset = m->getItemsCount();
-	// show users webtv files
+	// show users webradio/webtv files
 	for (std::list<std::string>::iterator it = webchannels.begin(); it != webchannels.end(); ++it)
 	{
-		if (!webtv_xml_autodir((*it)))
+		if (!webchannels_autodir((*it)))
 			m->addItem(new CMenuForwarder(*it, true, NULL, this, "c"));
 	}
 
@@ -257,7 +261,6 @@ int CWebTVSetup::Show()
 			CMenuForwarder *f = static_cast<CMenuForwarder *>(item);
 			webchannels.push_back(f->getName());
 		}
-		webtv_xml_auto();
 		if (webradio)
 		{
 			g_settings.webradio_xml.clear();
@@ -268,6 +271,7 @@ int CWebTVSetup::Show()
 			g_settings.webtv_xml.clear();
 			g_settings.webtv_xml = webchannels;
 		}
+		webchannels_auto();
 		g_Zapit->reinitChannels();
 		changed = false;
 		hint.hide();
@@ -305,41 +309,71 @@ int filefilter(const struct dirent *entry)
 	return 0;
 }
 
-
-void CWebTVSetup::webtv_xml_auto()
+// webradio wrapper for webchannels_auto()
+void CWebTVSetup::webradio_xml_auto()
 {
-	// TODO: g_settings.webradio_xml_auto?
-	if (webradio)
+	if (!g_settings.webradio_xml_auto)
 		return;
 
-	if (g_settings.webtv_xml_auto)
-	{
-		const char *dirs[] = {WEBTVDIR_VAR, WEBTVDIR};
-		struct dirent **filelist;
-		char webtv_file[1024] = {0};
-		for (int i = 0; i < 2; i++)
-		{
-			int file_count = scandir(dirs[i], &filelist, filefilter, alphasort);
-			if (file_count > -1)
-			{
-				for (int count = 0; count < file_count; count++)
-				{
-					snprintf(webtv_file, sizeof(webtv_file), "%s/%s", dirs[i], filelist[count]->d_name);
-					if (file_size(webtv_file))
-					{
-						bool found = false;
-						for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); it++)
-							found |= ((*it).find(filelist[count]->d_name) != std::string::npos);
+	webradio = true;
+	webchannels_auto();
+}
 
-						if (!found)
-						{
-							printf("[CWebTVSetup] loading: %s\n", webtv_file);
-							g_settings.webtv_xml.push_back(webtv_file);
-						}
+// webtv wrapper for webchannels_auto()
+void CWebTVSetup::webtv_xml_auto()
+{
+	if (!g_settings.webtv_xml_auto)
+		return;
+
+	webradio = false;
+	webchannels_auto();
+}
+
+void CWebTVSetup::webchannels_auto()
+{
+	std::list<std::string> webchannels;
+	const char *dirs[2];
+
+	if (webradio)
+	{
+		webchannels = g_settings.webradio_xml;
+		dirs[0] = WEBRADIODIR_VAR;
+		dirs[1] = WEBRADIODIR;
+	}
+	else
+	{
+		webchannels = g_settings.webtv_xml;
+		dirs[0] = WEBTVDIR_VAR;
+		dirs[1] = WEBTVDIR;
+	}
+
+	struct dirent **filelist;
+	char webchannel_file[1024] = {0};
+	for (int i = 0; i < 2; i++)
+	{
+		int file_count = scandir(dirs[i], &filelist, filefilter, alphasort);
+		if (file_count > -1)
+		{
+			for (int count = 0; count < file_count; count++)
+			{
+				snprintf(webchannel_file, sizeof(webchannel_file), "%s/%s", dirs[i], filelist[count]->d_name);
+				if (file_size(webchannel_file))
+				{
+					bool found = false;
+					for (std::list<std::string>::iterator it = webchannels.begin(); it != webchannels.end(); it++)
+						found |= ((*it).find(filelist[count]->d_name) != std::string::npos);
+
+					if (!found)
+					{
+						printf("[CWebTVSetup] loading: %s\n", webchannel_file);
+						if (webradio)
+							g_settings.webradio_xml.push_back(webchannel_file);
 						else
-						{
-							printf("[CWebTVSetup] skipping: %s\n", webtv_file);
-						}
+							g_settings.webtv_xml.push_back(webchannel_file);
+					}
+					else
+					{
+						printf("[CWebTVSetup] skipping: %s\n", webchannel_file);
 					}
 				}
 			}
@@ -347,14 +381,40 @@ void CWebTVSetup::webtv_xml_auto()
 	}
 }
 
+// webradio wrapper for webchannels_autodir()
+bool CWebTVSetup::webradio_xml_autodir(std::string directory)
+{
+	webradio = true;
+	return webchannels_autodir(directory);
+}
+
+// webtv wrapper for webchannels_autodir()
 bool CWebTVSetup::webtv_xml_autodir(std::string directory)
 {
-	if (
-		   (directory.empty())
-		|| (directory.find(WEBTVDIR) != std::string::npos)
-		|| (directory.find(WEBTVDIR_VAR) != std::string::npos)
-	)
-		return true;
+	webradio = false;
+	return webchannels_autodir(directory);
+}
+
+bool CWebTVSetup::webchannels_autodir(std::string directory)
+{
+	if (webradio)
+	{
+		if (
+			   (directory.empty())
+			|| (directory.find(WEBRADIODIR) != std::string::npos)
+			|| (directory.find(WEBRADIODIR_VAR) != std::string::npos)
+		)
+			return true;
+	}
+	else
+	{
+		if (
+			   (directory.empty())
+			|| (directory.find(WEBTVDIR) != std::string::npos)
+			|| (directory.find(WEBTVDIR_VAR) != std::string::npos)
+		)
+			return true;
+	}
 	return false;
 }
 

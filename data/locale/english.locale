@@ -1525,6 +1525,7 @@ menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
 menu.hint_webradio_setup WebRadio channels configured here will be available in the standard channel lists.
+menu.hint_webradio_xml_auto Auto-load all existing WebRadio files from %s/ and %s/
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_webtv_xml_auto Auto-load all existing WebTV files from %s/ and %s/
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
@@ -2568,6 +2569,7 @@ videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
 webradio.head WebRadio
 webradio.xml WebRadio files
+webradio.xml.auto Auto-load WebRadio files
 webtv.head WebTV
 webtv.xml WebTV files
 webtv.xml.add Add

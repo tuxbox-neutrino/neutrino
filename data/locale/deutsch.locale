@@ -1525,6 +1525,7 @@ menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder auss
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
+menu.hint_webradio_xml_auto Lädt automatisch alle WebRadio-Dateien aus %s/ und %s/
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_webtv_xml_auto Lädt automatisch alle WebTV-Dateien aus %s/ und %s/
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
@@ -2568,6 +2569,7 @@ videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
 webradio.head WebRadio
 webradio.xml WebRadio-Dateien
+webradio.xml.auto WebRadio-Dateien automatisch laden
 webtv.head WebTV
 webtv.xml WebTV-Dateien
 webtv.xml.add Hinzufügen

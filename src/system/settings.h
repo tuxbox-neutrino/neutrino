@@ -280,8 +280,12 @@ struct SNeutrinoSettings
 	int ci_ignore_messages;
 	int ci_save_pincode;
 	int ci_tuner;
+
+
 	std::string ci_pincode;
 	int radiotext_enable;
+	int webradio_xml_auto;
+	int webtv_xml_auto;
 
 	//screen saver
 	int screensaver_delay;
@@ -330,7 +334,7 @@ struct SNeutrinoSettings
 	std::list<std::string> webtv_xml;
 	std::list<std::string> webradio_xml;
 	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
-	int webtv_xml_auto; 
+
 
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h

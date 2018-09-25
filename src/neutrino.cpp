@@ -724,6 +724,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	CWebTVSetup webtvsetup;
 	webtvsetup.webtv_xml_auto();
+	g_settings.webradio_xml_auto = configfile.getInt32("webradio_xml_auto", 1);
 	g_settings.webradio_xml.clear();
 #ifndef BOXMODEL_CS_HD1
 	/*
@@ -745,6 +746,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		if (file_size(webradio_xml.c_str()))
 			g_settings.webradio_xml.push_back(webradio_xml);
 	}
+
+	webtvsetup.webradio_xml_auto();
 #endif
 
 	g_settings.xmltv_xml.clear();
@@ -1443,6 +1446,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString ( "plugins_lua", g_settings.plugins_lua );
 
 	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
+
+	CWebTVSetup webtvsetup;
 	configfile.setInt32("webtv_xml_auto", g_settings.webtv_xml_auto);
 	int webtv_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it) {
@@ -1452,9 +1457,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	}
 	configfile.setInt32 ( "webtv_xml_count", g_settings.webtv_xml.size());
 
+	configfile.setInt32("webradio_xml_auto", g_settings.webradio_xml_auto);
 	int webradio_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webradio_xml.begin(); it != g_settings.webradio_xml.end(); ++it) {
 		std::string k = "webradio_xml_" + to_string(webradio_count);
+		if (webtvsetup.webradio_xml_autodir((*it)))
+			continue;
 		configfile.setString(k, *it);
 		webradio_count++;
 	}

@@ -42,8 +42,15 @@ class CWebTVSetup : public CMenuTarget, CChangeObserver
 		int exec(CMenuTarget *parent, const std::string &actionKey);
 		int Show();
 		bool changeNotify(const neutrino_locale_t OptionName, void *data);
+
+		void webradio_xml_auto();
+		bool webradio_xml_autodir(std::string directory);
+
 		void webtv_xml_auto();
 		bool webtv_xml_autodir(std::string directory);
+
+		void webchannels_auto();
+		bool webchannels_autodir(std::string directory);
 };
 
 class CWebTVResolution : public CMenuTarget
