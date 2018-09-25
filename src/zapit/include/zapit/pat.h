@@ -37,6 +37,7 @@ class CPat
 	private:
 		cDemux * dmx;
 		int dmxnum;
+		t_transport_stream_id ts_id;
 		bool parsed;
 		sidpmt_map_t sidpmt;
 
@@ -45,6 +46,7 @@ class CPat
 		~CPat();
 		void Reset();
 		bool Parse();
+		t_transport_stream_id GetPatTransportStreamId(){ return ts_id;}
 		unsigned short GetPmtPid(t_service_id sid);
 		bool Parse(CZapitChannel * const channel);
 		sidpmt_map_t &getSids() { return sidpmt; };

@@ -56,7 +56,9 @@ class CSdt
 		bool AddToBouquet(std::string &providerName, CZapitChannel *channel);
 
 		bool Read();
-		bool ParseServiceDescriptor(ServiceDescription * service, ServiceDescriptor * sd);
+		bool ParseServiceDescriptor(ServiceDescription * service, ServiceDescriptor * sd, t_service_id SID = 0);
+		bool ParseServiceDescriptorPAT(t_service_id service_id);
+		bool PMTPing(unsigned short pid, unsigned short sid);
 
 	public:
 		CSdt(t_satellite_position spos, freq_id_t frq, bool curr = false, int dnum = 0);

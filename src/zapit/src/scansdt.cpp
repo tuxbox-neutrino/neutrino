@@ -61,6 +61,49 @@ CSdt::~CSdt()
 	}
 }
 
+bool CSdt::PMTPing(unsigned short pid, unsigned short sid)
+{
+	bool ret = false;
+	unsigned char filter[DMX_FILTER_SIZE];
+	unsigned char mask[DMX_FILTER_SIZE];
+	unsigned char buffer[PMT_SECTION_SIZE];
+
+	cDemux * dmx = new cDemux(dmxnum);
+	dmx->Open(DMX_PSI_CHANNEL);
+
+	memset(filter, 0x00, DMX_FILTER_SIZE);
+	memset(mask, 0x00, DMX_FILTER_SIZE);
+
+	filter[0] = 0x02;	/* table_id */
+	filter[1] = sid >> 8;
+	filter[2] = sid;
+	filter[3] = 0x01;	/* current_next_indicator */
+	filter[4] = 0x00;	/* section_number */
+	mask[0] = 0xFF;
+	mask[1] = 0xFF;
+	mask[2] = 0xFF;
+	mask[3] = 0x01;
+	mask[4] = 0xFF;
+	if (!dmx->sectionFilter(pid, filter, mask, 1)) {
+		ret = false;
+	}else{
+		if(dmx->Read(buffer, PMT_SECTION_SIZE) > 0){
+			ProgramMapSection pmt(buffer);
+			if(0x1fff==pmt.getPcrPid()){
+				ret = false;
+			}else{
+				ret = true;
+			}
+		}
+	}
+	delete dmx;
+#ifdef DEBUG_SDT
+	if(!ret)
+			printf("Ping: PMT-pid 0%x failed\n", pid);
+#endif
+	return ret;
+}
+
 /* read all sdt sections */
 bool CSdt::Read()
 {
@@ -149,14 +192,48 @@ _repeat:
 bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 {
 	ServiceDescriptionSectionIterator it;
-
+	sidpmt_map_t sidpmt;
+	t_transport_stream_id pat_tsid = 0;
 	if(current) {
 		transport_stream_id = tsid;
 		original_network_id = onid;
 	}
 	current_tp_id = CFEManager::getInstance()->getLiveFE()->getTsidOnid();
+	bool sdt_read = Read();
+	if(!sdt_read)
+		pat.Reset();
+	pat.Parse();
+	pat_tsid = pat.GetPatTransportStreamId();
 
-	if(!Read())
+	if(!sdt_read && pat_tsid==0){
+		return false;
+	}
+
+	sidpmt = pat.getSids();
+	//Update form PAT if SDT is empty
+	if(!sdt_read && !sidpmt.empty() && (pat_tsid == transport_stream_id || (transport_stream_id == 0 && pat_tsid > 1 ))){
+		bool  ret = false;
+		for (std::map<int,int>::iterator patit=sidpmt.begin(); patit!=sidpmt.end(); ++patit){
+			if(patit->first != 0 && patit->second != 0){
+				if(!PMTPing(patit->second,patit->first)){
+					patit->second=0;
+				}else{
+					transport_stream_id = pat_tsid;
+					original_network_id = onid;
+					tsid = transport_stream_id;
+					onid = original_network_id;
+#ifdef DEBUG_SDT
+					printf("UPDATE without SDT: SID 0x%02x PMT 0x%02x ONID 0x%02x\n",patit->first,patit->second,original_network_id);
+#endif
+					ParseServiceDescriptor(NULL, NULL, patit->first);
+					ret = true;
+				}
+			}
+		}
+		return ret;
+	}
+
+	if(!sdt_read)
 		return false;
 
 	bool updated = false;
@@ -187,6 +264,13 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 			DescriptorConstIterator dit;
 			for (dit = service->getDescriptors()->begin(); dit != service->getDescriptors()->end(); ++dit) {
 				Descriptor * d = *dit;
+
+				if(pat_tsid == transport_stream_id){
+					sidpmt_map_iterator_t sid_it = sidpmt.find(service->getServiceId());
+					if(sid_it != sidpmt.end())
+						sid_it->second = 0;
+				}
+
 				switch (d->getTag()) {
 				case SERVICE_DESCRIPTOR:
 					{
@@ -225,6 +309,19 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 				break;
 		}
 	}
+	if(pat_tsid == transport_stream_id){
+		for (std::map<int,int>::iterator patit=sidpmt.begin(); patit!=sidpmt.end(); ++patit){
+			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+				break;
+			if(patit->first != 0 && patit->second != 0){
+				if(PMTPing(patit->second,patit->first)){
+					ParseServiceDescriptor(NULL, NULL, patit->first);
+				}else
+					printf("SKIP SID 0x%02x PMT 0x%02x\n",patit->first,patit->second);
+			}
+		}
+	}
+
 	tsid = transport_stream_id;
 	onid = original_network_id;
 	if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
@@ -243,16 +340,20 @@ uint8_t CSdt::FixServiceType(uint8_t type)
 	return type;
 }
 
-bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescriptor * sd)
+bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescriptor * sd, t_service_id SID)
 {
-	uint8_t service_type = FixServiceType(sd->getServiceType());
-	uint8_t real_type = sd->getServiceType();
-	t_service_id service_id = service->getServiceId();
-	bool free_ca = service->getFreeCaMode();
+#ifdef DEBUG_SDT
+	if(SID)
+		printf("=================== PAT: sid %04x ===================\n",SID);
+#endif
+	uint8_t service_type = SID ? 1 : FixServiceType(sd->getServiceType());
+	uint8_t real_type = SID ? 1 : sd->getServiceType();
+	t_service_id service_id = SID ? SID : service->getServiceId();
+	bool free_ca = SID ? 1 : service->getFreeCaMode();
 
 	int tsidonid = (transport_stream_id << 16) | original_network_id;
-	std::string providerName = stringDVBUTF8(sd->getServiceProviderName(), 0, tsidonid);
-	std::string serviceName = stringDVBUTF8(sd->getServiceName(), 0, tsidonid);
+	std::string providerName = SID ? "" :  stringDVBUTF8(sd->getServiceProviderName(), 0, tsidonid);
+	std::string serviceName = SID ? "" : stringDVBUTF8(sd->getServiceName(), 0, tsidonid);
 
 #ifdef DEBUG_SDT_SERVICE
 	printf("SDT: sid %04x type %x provider [%s] service [%s] scrambled %d\n", service_id, sd->getServiceType(),
@@ -266,7 +367,8 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 
 	if (serviceName.empty() || serviceName == "."){
 		char buf_tmp[64];
-		snprintf(buf_tmp, sizeof(buf_tmp), "unknown (0x%04X_0x%04X)", transport_stream_id, service_id);
+		const char *n = SID ? "UNK (0x%04X_0x%04X)":"unknown (0x%04X_0x%04X)";
+		snprintf(buf_tmp, sizeof(buf_tmp), n, transport_stream_id, service_id);
 		serviceName = buf_tmp;
 	} else {
 		FixWhiteSpaces(serviceName);

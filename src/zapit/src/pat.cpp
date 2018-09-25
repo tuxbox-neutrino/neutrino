@@ -39,6 +39,7 @@ void CPat::Reset()
 {
 	sidpmt.clear();
 	parsed = false;
+	ts_id  = 0;
 }
 
 bool CPat::Parse()
@@ -76,6 +77,8 @@ bool CPat::Parse()
 			printf("[pat.cpp] dmx read failed\n");
 			return false;
 		}
+		/* set Transport_Stream_ID from pat */
+		ts_id = ((buffer[3] << 8) | buffer[4]);
 		/* loop over service id / program map table pid pairs */
 		for (i = 8; i < (((buffer[1] & 0x0F) << 8) | buffer[2]) + 3 - crc_len; i += 4) {
 			/* store program map table pid */
