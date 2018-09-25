@@ -286,7 +286,7 @@ bool CWebTVSetup::changeNotify(const neutrino_locale_t OptionName, void */*data*
 {
 	int ret = menu_return::RETURN_NONE;
 
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_WEBTV_XML_AUTO))
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_WEBTV_XML_AUTO) || ARE_LOCALES_EQUAL(OptionName, LOCALE_WEBRADIO_XML_AUTO))
 	{
 		changed = true;
 		ret = menu_return::RETURN_REPAINT;
@@ -312,9 +312,6 @@ int filefilter(const struct dirent *entry)
 // webradio wrapper for webchannels_auto()
 void CWebTVSetup::webradio_xml_auto()
 {
-	if (!g_settings.webradio_xml_auto)
-		return;
-
 	webradio = true;
 	webchannels_auto();
 }
@@ -322,9 +319,6 @@ void CWebTVSetup::webradio_xml_auto()
 // webtv wrapper for webchannels_auto()
 void CWebTVSetup::webtv_xml_auto()
 {
-	if (!g_settings.webtv_xml_auto)
-		return;
-
 	webradio = false;
 	webchannels_auto();
 }
@@ -336,12 +330,18 @@ void CWebTVSetup::webchannels_auto()
 
 	if (webradio)
 	{
+		if (!g_settings.webradio_xml_auto)
+			return;
+
 		webchannels = g_settings.webradio_xml;
 		dirs[0] = WEBRADIODIR_VAR;
 		dirs[1] = WEBRADIODIR;
 	}
 	else
 	{
+		if (!g_settings.webtv_xml_auto)
+			return;
+
 		webchannels = g_settings.webtv_xml;
 		dirs[0] = WEBTVDIR_VAR;
 		dirs[1] = WEBTVDIR;
