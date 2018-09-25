@@ -453,10 +453,14 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			     if (ycmd_name.compare("CONFIGDIR"))	yresult = CONFIGDIR;
 			else if (ycmd_name.compare("DATADIR"))		yresult = DATADIR;
 			else if (ycmd_name.compare("FONTDIR"))		yresult = FONTDIR;
+			else if (ycmd_name.compare("FONTDIR_VAR"))	yresult = FONTDIR_VAR;
 			else if (ycmd_name.compare("LIBDIR"))		yresult = LIBDIR;
 			else if (ycmd_name.compare("GAMESDIR"))		yresult = GAMESDIR;
 			else if (ycmd_name.compare("PLUGINDIR"))	yresult = PLUGINDIR;
 			else if (ycmd_name.compare("PLUGINDIR_VAR"))	yresult = PLUGINDIR_VAR;
+			else if (ycmd_name.compare("WEBRADIODIR"))	yresult = WEBRADIODIR;
+			else if (ycmd_name.compare("WEBRADIODIR_VAR"))	yresult = WEBRADIODIR_VAR;
+			else if (ycmd_name.compare("WEBTVDIR"))		yresult = WEBTVDIR;
 			else if (ycmd_name.compare("WEBTVDIR_VAR"))	yresult = WEBTVDIR_VAR;
 			else if (ycmd_name.compare("LUAPLUGINDIR"))	yresult = LUAPLUGINDIR;
 			else if (ycmd_name.compare("LOCALEDIR"))	yresult = LOCALEDIR;
