@@ -69,37 +69,41 @@ bool CSdt::PMTPing(unsigned short pid, unsigned short sid)
 	unsigned char buffer[PMT_SECTION_SIZE];
 
 	cDemux * dmx = new cDemux(dmxnum);
-	dmx->Open(DMX_PSI_CHANNEL);
+	bool badservice = false;
+	if(dmx){
+		dmx->Open(DMX_PSI_CHANNEL);
 
-	memset(filter, 0x00, DMX_FILTER_SIZE);
-	memset(mask, 0x00, DMX_FILTER_SIZE);
+		memset(filter, 0x00, DMX_FILTER_SIZE);
+		memset(mask, 0x00, DMX_FILTER_SIZE);
 
-	filter[0] = 0x02;	/* table_id */
-	filter[1] = sid >> 8;
-	filter[2] = sid;
-	filter[3] = 0x01;	/* current_next_indicator */
-	filter[4] = 0x00;	/* section_number */
-	mask[0] = 0xFF;
-	mask[1] = 0xFF;
-	mask[2] = 0xFF;
-	mask[3] = 0x01;
-	mask[4] = 0xFF;
-	if (!dmx->sectionFilter(pid, filter, mask, 1)) {
-		ret = false;
-	}else{
-		if(dmx->Read(buffer, PMT_SECTION_SIZE) > 0){
-			ProgramMapSection pmt(buffer);
-			if(0x1fff==pmt.getPcrPid()){
-				ret = false;
-			}else{
-				ret = true;
+		filter[0] = 0x02;	/* table_id */
+		filter[1] = sid >> 8;
+		filter[2] = sid;
+		filter[3] = 0x01;	/* current_next_indicator */
+		filter[4] = 0x00;	/* section_number */
+		mask[0] = 0xFF;
+		mask[1] = 0xFF;
+		mask[2] = 0xFF;
+		mask[3] = 0x01;
+		mask[4] = 0xFF;
+		if (!dmx->sectionFilter(pid, filter, mask, 1)) {
+			ret = false;
+		}else{
+			if(dmx->Read(buffer, PMT_SECTION_SIZE) > 0){
+				ProgramMapSection pmt(buffer);
+				if(0x1fff==pmt.getPcrPid()){
+					ret = false;
+					badservice = false;
+				}else{
+					ret = true;
+				}
 			}
 		}
+		delete dmx;
 	}
-	delete dmx;
 #ifdef DEBUG_SDT
 	if(!ret)
-			printf("Ping: PMT-pid 0%x failed\n", pid);
+			printf("Ping: PMT-pid 0%x %s\n", pid,badservice ? "not supportet stream type":"failed");
 #endif
 	return ret;
 }
