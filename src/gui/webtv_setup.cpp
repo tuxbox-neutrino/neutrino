@@ -400,8 +400,7 @@ bool CWebTVSetup::webchannels_autodir(std::string directory)
 	if (webradio)
 	{
 		if (
-			   (directory.empty())
-			|| (directory.find(WEBRADIODIR) != std::string::npos)
+			   (directory.find(WEBRADIODIR) != std::string::npos)
 			|| (directory.find(WEBRADIODIR_VAR) != std::string::npos)
 		)
 			return true;
@@ -409,8 +408,7 @@ bool CWebTVSetup::webchannels_autodir(std::string directory)
 	else
 	{
 		if (
-			   (directory.empty())
-			|| (directory.find(WEBTVDIR) != std::string::npos)
+			   (directory.find(WEBTVDIR) != std::string::npos)
 			|| (directory.find(WEBTVDIR_VAR) != std::string::npos)
 		)
 			return true;
