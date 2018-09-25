@@ -93,7 +93,7 @@ bool CSdt::PMTPing(unsigned short pid, unsigned short sid)
 				ProgramMapSection pmt(buffer);
 				if(0x1fff==pmt.getPcrPid()){
 					ret = false;
-					badservice = false;
+					badservice = true;
 				}else{
 					ret = true;
 				}
