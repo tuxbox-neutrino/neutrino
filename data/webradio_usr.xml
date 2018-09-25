@@ -1,14 +1,4 @@
 <?xml version="1.0"?>
 <webradios name="[WebRadio]">
-	<webradio title="80s80s - Main Stream" urlkey="0" url="http://streams.80s80s.de/web/mp3-192/streams.80s80s.de/" description="" genre="80s80s" />
-	<webradio title="80s80s - Bowie" urlkey="0" url="http://streams.80s80s.de/bowie/mp3-192/streams.80s80s.de/" description="" genre="80s80s" />
-	<webradio title="80s80s - Depeche Mode" urlkey="0" url="http://streams.80s80s.de/dm/mp3-192/streams.80s80s.de/" description="" genre="80s80s" />
-	<webradio title="80s80s - Love" urlkey="0" url="http://streams.80s80s.de/love/mp3-192/streams.80s80s.de/" description="" genre="80s80s" />
-	<webradio title="80s80s - Michael Jackson" urlkey="0" url="http://streams.80s80s.de/mj/mp3-192/streams.80s80s.de/" description="" genre="80s80s" />
-	<webradio title="80s80s - NDW" urlkey="0" url="http://streams.80s80s.de/ndw/mp3-192/streams.80s80s.de/" description="" genre="80s80s" />
-	<webradio title="80s80s - Prince" urlkey="0" url="http://streams.80s80s.de/100/mp3-192/streams.80s80s.de/" description="" genre="80s80s" />
-	<webradio title="90s90s - The Beat of the 90s" urlkey="0" url="http://streams.90s90s.de/main/mp3-192/streams.90s90s.de/" description="" genre="90s90s" />
-	<webradio title="90s90s - Hits" urlkey="0" url="http://streams.90s90s.de/pop/mp3-192/streams.90s90s.de/" description="" genre="90s90s" />
-	<webradio title="90s90s - Boygroups" urlkey="0" url="http://streams.90s90s.de/boygroup/mp3-192/streams.90s90s.de/" description="" genre="90s90s" />
-	<webradio title="StompFM" urlkey="0" url="http://51.255.104.137:8057/" description="stompfm.de ... so klingt Berlin!" genre="StompFM" />
+	<!-- <webradio title="Title" urlkey="0" url="http://url.to/your/favorite/webradio.m3u8" description="Description" genre="Genre" /> -->
 </webradios>
