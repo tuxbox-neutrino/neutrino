@@ -1,7 +1,8 @@
 /*
-	WebTV setup menue
+	WebTV/WebRadio Setup
 
 	Copyright (C) 2012-2013 martii
+	Copyright (C)      2018 by vanhofen
 
 	License: GPL
 
@@ -30,6 +31,7 @@
 class CWebTVSetup : public CMenuTarget, CChangeObserver
 {
 	private:
+		bool webradio;
 		int width;
 		int selected;
 		int item_offset;
