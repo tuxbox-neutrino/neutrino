@@ -1144,23 +1144,22 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	if (!entry->isdir && preferred != -1)
 		tmp += "URL: " + entry->resources[preferred].url;
 
-	static std::string lastname = "", tmpname = "";
-	if(!entry->albumArtURI.empty()){
-		if(lastname != entry->albumArtURI){
-			tmpname = lastname = entry->albumArtURI.c_str();
-			tmpname = g_PicViewer->DownloadImage(tmpname);
-			int h_image = infobox.getHeight() - OFFSET_INTER - infobox.getCornerRadius();
-			int y_image = infobox.getYPos() + infobox.getHeight()/2 - h_image/2;
-			if (!image){
-				image = new CComponentsPicture(0, y_image, tmpname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTDARK_PLUS_0);
-				image->doPaintBg(false);
-				image->SetTransparent(CFrameBuffer::TM_BLACK);
-			}
-			image->setPicture(tmpname);
-			image->setHeight(h_image, true);
-			int x_image = infobox.getXPos() + infobox.getWidth() - image->getWidth() - OFFSET_INTER - infobox.getCornerRadius();
-			image->setXPos(x_image);
+	std::string tmpname = "";
+	if(!entry->albumArtURI.empty())
+	{
+		tmpname = entry->albumArtURI.c_str();
+		tmpname = g_PicViewer->DownloadImage(tmpname);
+		int h_image = infobox.getHeight() - OFFSET_INTER - infobox.getCornerRadius();
+		int y_image = infobox.getYPos() + infobox.getHeight()/2 - h_image/2;
+		if (!image){
+			image = new CComponentsPicture(0, y_image, tmpname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTDARK_PLUS_0);
+			image->doPaintBg(false);
+			image->SetTransparent(CFrameBuffer::TM_BLACK);
 		}
+		image->setPicture(tmpname);
+		image->setHeight(h_image, true);
+		int x_image = infobox.getXPos() + infobox.getWidth() - image->getWidth() - OFFSET_INTER - infobox.getCornerRadius();
+		image->setXPos(x_image);
 	}else{
 		if (image){
 			delete image; image = NULL;
