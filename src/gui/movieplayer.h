@@ -104,6 +104,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;
+	int            m_ThisMode;
 
 	std::string	file_name;
 	std::string	pretty_name;
