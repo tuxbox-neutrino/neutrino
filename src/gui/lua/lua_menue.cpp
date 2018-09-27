@@ -451,7 +451,7 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 			mi = new CMenuOptionStringChooser(b->name.c_str(), &b->str_val, enabled, D->observ, directkey, icon, pulldown);
 		} else if (type == "stringinput") {
 			b->str_val = value;
-			std::string valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789!\"ง$%&/()=?-. ";
+			std::string valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789!\"ยง$%&/()=?-.@,_: ";
 			tableLookup(L, "valid_chars", valid_chars);
 			lua_Integer sms = 0;	tableLookup(L, "sms", sms);
 			lua_Integer size = 30;	tableLookup(L, "size", size);
