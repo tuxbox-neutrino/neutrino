@@ -1114,22 +1114,42 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 
 	if (_script.find("/") == std::string::npos)
 	{
-		bool webradio = (m_ThisMode == NeutrinoModes::mode_webradio);
-
-		std::string _s = g_settings.livestreamScriptPath + "/" + _script;
-		printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
+		std::list<std::string> paths;
+		// try livestreamScript from user's livestreamScriptPath
+		paths.push_back(g_settings.livestreamScriptPath);
 		// try livestreamScripts from webradio/webtv autoload directories
-		if (!file_exists(_s.c_str()))
+		if (m_ThisMode == NeutrinoModes::mode_webradio)
 		{
-			_s = std::string(webradio ? WEBRADIODIR_VAR : WEBTVDIR_VAR) + "/" + _script;
-			printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
+			paths.push_back(WEBRADIODIR_VAR);
+			paths.push_back(WEBRADIODIR);
 		}
-		if (!file_exists(_s.c_str()))
+		else
 		{
-			_s = std::string(webradio ? WEBRADIODIR : WEBTVDIR) + "/" + _script;
-			printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
+			paths.push_back(WEBTVDIR_VAR);
+			paths.push_back(WEBTVDIR);
 		}
-		_script = _s;
+
+		std::string _s;
+		_s.clear();
+
+		for (std::list<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
+		{
+			_s = *it + "/" + _script;
+			if (file_exists(_s.c_str()))
+				break;
+			_s.clear();
+		}
+
+		if (!_s.empty())
+		{
+			_script = _s;
+			printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _script.c_str());
+		}
+		else
+		{
+			printf(">>>>> [%s:%s:%d] script not found: %s\n", __file__, __func__, __LINE__, _script.c_str());
+			return false;
+		}
 	}
 	size_t pos = _script.find(".lua");
 	if (!file_exists(_script.c_str()) || (pos == std::string::npos) || (_script.length()-pos != 4)) {
