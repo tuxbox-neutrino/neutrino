@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zapit api="4">
+	<sat name="Astra 1KR/1L/1M/1N (19.2E)" flags="0" position="192">
+		<TS id="0434" on="0001" frq="11934000" inv="2" sr="29700000" fec="2" pol="1" mod="9" sys="1">
+			<S i="22ce" action="replace" n="MOTORSPORT TV HD"/>
+		</TS>
+	</sat>
+</zapit>

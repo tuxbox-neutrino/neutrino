@@ -23,6 +23,7 @@ config_DATA = \
 	cables.xml \
 	encoding.conf \
 	epglanguages.conf \
+	myservices.xml \
 	providermap.xml \
 	satellites.xml \
 	settingsupdate.conf \
