@@ -332,27 +332,30 @@ void CLCD::showTime(bool force)
 			ret = ioctl(fd, VFDSETTIME2, &now);
 			close(fd);
 #endif
+			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+			{
 #if HAVE_ARM_HARDWARE
-			if (mode == MODE_STANDBY || (g_settings.lcd_info_line && mode == MODE_TVRADIO))
+				if (mode == MODE_STANDBY || (g_settings.lcd_info_line && mode == MODE_TVRADIO))
 #else
-			if (ret < 0 && servicename.empty())
+				if (ret < 0 && servicename.empty())
 #endif
-			{
-				if (g_info.hw_caps->display_xres < 5)
-					sprintf(timestr, "%02d%02d", hour, minute);
-				else	/* pad with spaces on the left side to center the time string */
-					sprintf(timestr, "%*s%02d:%02d",(g_info.hw_caps->display_xres - 5)/2, "", hour, minute);
-				ShowText(timestr, false);
-			}
-			else
-			{
-				if (vol_active)
 				{
-					showServicename(servicename);
-					vol_active = false;
+					if (g_info.hw_caps->display_xres < 5)
+						sprintf(timestr, "%02d%02d", hour, minute);
+					else	/* pad with spaces on the left side to center the time string */
+						sprintf(timestr, "%*s%02d:%02d",(g_info.hw_caps->display_xres - 5)/2, "", hour, minute);
+					ShowText(timestr, false);
 				}
+				else
+				{
+					if (vol_active)
+					{
+						showServicename(servicename);
+						vol_active = false;
+					}
+				}
+				last_display = 0;
 			}
-			last_display = 0;
 		}
 	}
 
