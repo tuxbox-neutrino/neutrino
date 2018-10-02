@@ -266,7 +266,7 @@ class CFrameBuffer : public sigc::trackable
 		void RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp);
 
 		void Clear();
-		void showFrame(const std::string & filename);
+		bool showFrame(const std::string & filename);
 		void stopFrame();
 		bool loadBackgroundPic(const std::string & filename, bool show = true);
 		bool Lock(void);

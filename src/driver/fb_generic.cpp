@@ -1546,10 +1546,17 @@ void CFrameBuffer::Clear()
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
 
-void CFrameBuffer::showFrame(const std::string & filename)
+bool CFrameBuffer::showFrame(const std::string & filename)
 {
 	std::string picture = getIconPath(filename, "");
-	videoDecoder->ShowPicture(picture.c_str());
+	if (access(picture.c_str(), F_OK) == 0){
+		videoDecoder->ShowPicture(picture.c_str());
+		return true;
+	}
+	else
+		printf("[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+
+	return false;
 }
 
 void CFrameBuffer::stopFrame()
