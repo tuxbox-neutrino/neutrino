@@ -2430,6 +2430,7 @@ TIMER_START();
 	g_videoSettings->setVideoSettings();
 
 	frameBuffer->showFrame(LOGODIR "/logo.jpg");
+	bool startlogo = frameBuffer->showFrame("logo.jpg");
 
 	g_RCInput = new CRCInput();
 
@@ -2555,6 +2556,12 @@ TIMER_START();
 		hintBox->hide();
 		CStartUpWizard startwizard;
 		startwizard.exec(NULL, "");
+	}
+
+	// clean up startlogo
+	if (startlogo){
+		sleep(3);
+		frameBuffer->stopFrame();
 	}
 
 	if(loadSettingsErg) {
