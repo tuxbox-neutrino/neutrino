@@ -1425,7 +1425,6 @@
 		<transponder frequency="306000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="314000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="322000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="330000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="338000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="362000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="370000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
