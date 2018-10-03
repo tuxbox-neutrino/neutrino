@@ -93,6 +93,7 @@ printf("url is %s\n", URL.c_str());
 		}
 		curl_easy_setopt(curl, CURLOPT_URL, URL.c_str() );
 		curl_easy_setopt(curl, CURLOPT_FILE, headerfile);
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 		curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, show_progress);
 		curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, this);
 		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
@@ -101,6 +102,7 @@ printf("url is %s\n", URL.c_str());
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, connecttimeout);
 		curl_easy_setopt(curl, CURLOPT_FAILONERROR, true);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
 #ifdef DEBUG
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
 #endif
