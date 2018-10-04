@@ -320,6 +320,7 @@ struct SNeutrinoSettings
 	int epg_scan_mode;
 	int epg_scan_rescan;
 	int epg_save_mode;
+	int enable_sdt;
 
 	int epg_search_history_size;
 	int epg_search_history_max;

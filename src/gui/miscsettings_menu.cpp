@@ -560,6 +560,10 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_EMPTY_FAVS);
 	ms_chanlist->addItem(mc);
 
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_ENABLESDT, &g_settings.enable_sdt,  OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_ENABLESDT);
+	ms_chanlist->addItem(mc);
+
 	int res = ms_chanlist->exec(NULL, "");
 	delete ms_chanlist;
 	if (make_hd_list != g_settings.make_hd_list || make_webtv_list != g_settings.make_webtv_list || show_empty_favorites != g_settings.show_empty_favorites)
@@ -665,6 +669,12 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_CHANNELLIST_ENABLESDT))
+	{
+		CZapit::getInstance()->SetScanSDT(g_settings.enable_sdt);
+
+		ret = menu_return::RETURN_REPAINT;
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_SAVE))
 	{

@@ -248,7 +248,8 @@ class CZapit : public OpenThreads::Thread
 		void Abort() { abort_zapit = 1; };
 		bool Recording() { return currentMode & RECORD_MODE; };
 		bool makeRemainingChannelsBouquet() { return config.makeRemainingChannelsBouquet; };
-		bool scanSDT() { return config.scanSDT; };
+		bool GetScanSDT() { return config.scanSDT; };
+		void SetScanSDT(int _scanSDT) { config.scanSDT = _scanSDT; };
 		bool scanPids() { return config.scanPids; };
 		void scanPids(bool enable) { config.scanPids = enable; };
 

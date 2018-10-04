@@ -1556,6 +1556,7 @@ messagebox.no Nein
 messagebox.ok OK
 messagebox.yes Ja
 miscsettings.channellist Kanalliste
+miscsettings.channellist_enablesdt Transponder Hintergrundaktualisierung
 miscsettings.channellist_epgtext_align Event-Text ausrichten
 miscsettings.colored_events Sendung hervorheben
 miscsettings.colored_events_0 keine

@@ -591,6 +591,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	g_settings.epg_scan_rescan = configfile.getInt32("epg_scan_rescan", 24);
 	g_settings.epg_save_mode = configfile.getInt32("epg_save_mode", 0);
+	g_settings.enable_sdt = configfile.getInt32("enable_sdt",0);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -1372,6 +1373,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("epg_old_events"           ,g_settings.epg_old_events );
 	configfile.setInt32("epg_max_events"           ,g_settings.epg_max_events );
 	configfile.setString("epg_dir"                  ,g_settings.epg_dir);
+	configfile.setInt32("enable_sdt", g_settings.enable_sdt);
 
 	// NTP-Server for sectionsd
 	configfile.setString( "network_ntpserver", g_settings.network_ntpserver);
@@ -2633,6 +2635,8 @@ TIMER_START();
 
 	SHTDCNT::getInstance()->init();
 
+
+	CZapit::getInstance()->SetScanSDT(g_settings.enable_sdt);
 	cSysLoad::getInstance();
 	cHddStat::getInstance();
 

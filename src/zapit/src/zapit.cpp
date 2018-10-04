@@ -2878,7 +2878,7 @@ void CZapitSdtMonitor::run()
 				tpid = channel->getTransponderId();
 			}
 		}
-		if(!CZapit::getInstance()->scanSDT())
+		if(!CZapit::getInstance()->GetScanSDT())
 			continue;
 
 		tcur = time(0);
@@ -2920,7 +2920,7 @@ void CZapitSdtMonitor::run()
 			bool updated = CServiceManager::getInstance()->SaveCurrentServices(tpid);
 			CServiceManager::getInstance()->CopyCurrentServices(tpid);
 
-			if(updated && (CZapit::getInstance()->scanSDT() == 1))
+			if(updated && (CZapit::getInstance()->GetScanSDT() == 1))
 				CZapit::getInstance()->SendEvent(CZapitClient::EVT_SDT_CHANGED);
 			if(!updated)
 				printf("[sdt monitor] no changes.\n");

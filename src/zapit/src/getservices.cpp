@@ -1009,7 +1009,7 @@ bool CServiceManager::LoadServices(bool only_current)
 do_current:
 #if 0
 	DBG("Loading current..\n");
-	if (CZapit::getInstance()->scanSDT() && (parser = parseXmlFile(CURRENTSERVICES_XML))) {
+	if (CZapit::getInstance()->GetScanSDT() && (parser = parseXmlFile(CURRENTSERVICES_XML))) {
 		newfound = 0;
 		printf("[getservices] " CURRENTSERVICES_XML "  found.\n");
 		FindTransponder(xmlChildrenNode(xmlDocGetRootElement(parser)));
