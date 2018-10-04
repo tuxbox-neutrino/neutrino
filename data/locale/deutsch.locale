@@ -158,6 +158,7 @@ audiomenu.volume_last_used zuletzt verwendet
 audiomenu.volume_start Einschaltlautstärke
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
+audioplayer.add_fav Lokale Radiofavoriten
 audioplayer.add_ic Icecast
 audioplayer.add_loc Lokale Radioliste
 audioplayer.add_sc SHOUTcast

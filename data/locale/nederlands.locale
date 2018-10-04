@@ -131,6 +131,7 @@ audiomenu.volume_adjust Volumeniveau aanpassen in percentage
 audiomenu.volume_start Start volume
 audiomenu.volume_step Volume stap
 audioplayer.add Toevoegen
+audioplayer.add_fav Lokale radio-favorieten
 audioplayer.add_ic Icecast
 audioplayer.add_loc Lokale radiolijst
 audioplayer.add_sc Shoutcast
@@ -1045,6 +1046,7 @@ menu.hint_key_save Sneltoetsen opslaan als backup bestand
 menu.hint_key_screenshot Knop toewijzen voor het opslaan van gebruikers interface en/of TV screenshot.
 menu.hint_key_sort Knop toewijzen voor het veranderen van de sorteer orde van uw kanalenlijst
 menu.hint_key_special_active Uitschakelen of inschakelen van speciale toetsen
+menu.hint_key_standbyoff_add Wijs een extra knop toe \nom de standby-modus te verlaten
 menu.hint_key_subchanneldown Knop toewijzen om snel te \nschakelen naar het vorige subkanaal
 menu.hint_key_subchannelup Knop toewijzen om snel te \nschakelen naar het volgende subkanaal
 menu.hint_key_timeshift Knop toewijzen voor het starten van de timeshift functie
