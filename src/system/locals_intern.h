@@ -1851,6 +1851,7 @@ const char * locale_real_names[] =
 	"moviebrowser.reload_at_start",
 	"moviebrowser.remount_at_start",
 	"moviebrowser.scan_for_movies",
+	"moviebrowser.scan_for_videos",
 	"moviebrowser.serie_auto_create",
 	"moviebrowser.serie_head",
 	"moviebrowser.serie_name",

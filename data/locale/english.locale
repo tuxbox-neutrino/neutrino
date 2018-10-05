@@ -1824,6 +1824,7 @@ moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
 moviebrowser.remount_at_start Remount at start
 moviebrowser.scan_for_movies Scan for recordings...
+moviebrowser.scan_for_videos Scan for YT-Videos ...
 moviebrowser.serie_auto_create Serie auto create
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Change name

@@ -1578,6 +1578,7 @@ moviebrowser.option_browser Browser Opties
 moviebrowser.reload_at_start Herlaad film informatie bij het starten
 moviebrowser.remount_at_start Herkoppelen bij het starten
 moviebrowser.scan_for_movies Films scannen ...
+moviebrowser.scan_for_videos YT-Videos scannen ...
 moviebrowser.serie_auto_create Series automatisch maken
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Verander naam

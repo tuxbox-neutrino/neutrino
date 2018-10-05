@@ -324,7 +324,7 @@ bool cYTFeedParser::parseFeedJSON(std::string &answer)
 	Json::Value elements = root["items"];
 	for(unsigned int i=0; i<elements.size();++i)
 	{
-		OnProgress(i, elements.size(), g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+		OnProgress(i, elements.size(), g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_VIDEOS));
 #ifdef DEBUG_PARSER
 		printf("=========================================================\n");
 		printf("Element %d in elements\n", i);
