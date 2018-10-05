@@ -131,6 +131,7 @@ CHintBox::CHintBox(	const char * const Caption,
 
 void CHintBox::init(const std::string& Text, const int& Width, const std::string& Picon, const int& header_buttons, const int& text_mode, const int& indent)
 {
+	int _Width	= frameBuffer->scale2Res(Width);
 	timeout		= HINTBOX_DEFAULT_TIMEOUT;
 	w_indentation	= indent;
 
@@ -146,7 +147,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 		showHeader(false);
 
 	//set required window width and basic height, consider existent header instance and its caption width
-	width 		= getMaxWidth(Text, ccw_caption, hb_font, Width);
+	width 		= getMaxWidth(Text, ccw_caption, hb_font, _Width);
 	height 		= max(HINTBOX_MIN_HEIGHT, min(HINTBOX_MAX_HEIGHT, height));
 
 	ccw_buttons = header_buttons;
