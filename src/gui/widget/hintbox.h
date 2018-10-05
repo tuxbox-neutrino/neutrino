@@ -32,7 +32,7 @@
 
 #include <gui/components/cc.h>
 
-#define HINTBOX_MIN_WIDTH	CFrameBuffer::getInstance()->scale2Res(320)
+#define HINTBOX_MIN_WIDTH	320 // scaled in init
 #define HINTBOX_MIN_HEIGHT	CFrameBuffer::getInstance()->scale2Res(125)
 #define HINTBOX_MAX_HEIGHT	CFrameBuffer::getInstance()->scale2Res(520)
 
