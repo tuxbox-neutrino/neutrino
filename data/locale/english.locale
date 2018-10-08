@@ -1056,7 +1056,7 @@ menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
 menu.hint_channellist_additional Show additional informations\nin main box
-menu.hint_channellist_enablesdt The Service Description Table (SDT) program description table
+menu.hint_channellist_enablesdt Enables dynamic channel updates during operation
 menu.hint_channellist_epg_align EPG event align
 menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
