@@ -103,7 +103,7 @@ bool CSdt::PMTPing(unsigned short pid, unsigned short sid)
 	}
 #ifdef DEBUG_SDT
 	if(!ret)
-			printf("Ping: PMT-pid 0%x %s\n", pid,badservice ? "not supportet stream type":"failed");
+			printf("Ping: PMT-pid 0%x %s\n", pid,badservice ? "not supported stream type":"failed");
 #endif
 	return ret;
 }
@@ -232,6 +232,11 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 					ParseServiceDescriptor(NULL, NULL, patit->first);
 					ret = true;
 				}
+				if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid()){
+					ret = false;
+					break;
+				}
+
 			}
 		}
 		return ret;
@@ -240,6 +245,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 	if(!sdt_read)
 		return false;
 
+	bool feiled = false;
 	bool updated = false;
 	for (it = sections.begin(); it != sections.end(); ++it) {
 		ServiceDescriptionSection * sdt = *it;
@@ -309,14 +315,18 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 					break;
 				}
 			}
-			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid()){
+				feiled = true;
 				break;
+			}
 		}
 	}
 	if(pat_tsid == transport_stream_id){
 		for (std::map<int,int>::iterator patit=sidpmt.begin(); patit!=sidpmt.end(); ++patit){
-			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid()){
+				feiled = true;
 				break;
+			}
 			if(patit->first != 0 && patit->second != 0){
 				if(PMTPing(patit->second,patit->first)){
 					ParseServiceDescriptor(NULL, NULL, patit->first);
@@ -328,6 +338,9 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 
 	tsid = transport_stream_id;
 	onid = original_network_id;
+	if(feiled)
+		return false;
+
 	if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
 		return false;
 
