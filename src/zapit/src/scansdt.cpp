@@ -245,7 +245,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 	if(!sdt_read)
 		return false;
 
-	bool feiled = false;
+	bool failed = false;
 	bool updated = false;
 	for (it = sections.begin(); it != sections.end(); ++it) {
 		ServiceDescriptionSection * sdt = *it;
@@ -316,7 +316,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 				}
 			}
 			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid()){
-				feiled = true;
+				failed = true;
 				break;
 			}
 		}
@@ -324,7 +324,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 	if(pat_tsid == transport_stream_id){
 		for (std::map<int,int>::iterator patit=sidpmt.begin(); patit!=sidpmt.end(); ++patit){
 			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid()){
-				feiled = true;
+				failed = true;
 				break;
 			}
 			if(patit->first != 0 && patit->second != 0){
@@ -338,7 +338,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 
 	tsid = transport_stream_id;
 	onid = original_network_id;
-	if(feiled)
+	if(failed)
 		return false;
 
 	if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
