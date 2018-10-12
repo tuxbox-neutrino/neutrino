@@ -478,7 +478,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 
 		int res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + timerlist[selected].rem_pre,
 				   timerlist[selected].stopTime - timerlist[selected].rem_post, 0, 0, timerlist[selected].announceTime + timerlist[selected].rem_pre,
-				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",false);
+				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",false, timerlist[selected].eventRepeat, timerlist[selected].repeatCount);
 
 		if (res == -1)
 		{
@@ -488,15 +488,9 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 			{
 				res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + timerlist[selected].rem_pre,
 				   timerlist[selected].stopTime - timerlist[selected].rem_post, 0, 0, timerlist[selected].announceTime + timerlist[selected].rem_pre,
-				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",true);
+				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"", true, timerlist[selected].eventRepeat, timerlist[selected].repeatCount);
 			}
 		}
-		if (res > 0)
-			Timer->modifyTimerEvent(res, timerlist[selected].announceTime + timerlist[selected].rem_pre,
-								timerlist[selected].alarmTime + timerlist[selected].rem_pre,
-								timerlist[selected].stopTime - timerlist[selected].rem_post,
-								timerlist[selected].eventRepeat,
-								timerlist[selected].repeatCount);
 
 		CHTTPTool httpTool;
 		std::string r_url;
