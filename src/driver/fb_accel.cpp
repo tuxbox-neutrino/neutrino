@@ -72,7 +72,7 @@ void CFbAccel::paintBoxRel(const int x, const int y, const int dx, const int dy,
 			line++;
 			continue;
 		}
-		paintLine(x + ofl, y + line, x + dx - ofr, y + line, col);
+		paintHLineRelInternal(x + ofl, dx - ofl - ofr, y + line, col);
 		line++;
 	}
 	checkFbArea(x, y, dx, dy, false);
