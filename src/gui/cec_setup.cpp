@@ -96,12 +96,19 @@ int CCECSetup::showMenu()
 	cec1->setHint("", LOCALE_MENU_HINT_CEC_VIEW_ON);
 	cec2 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_STANDBY, &g_settings.hdmi_cec_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
 	cec2->setHint("", LOCALE_MENU_HINT_CEC_STANDBY);
+#if HAVE_ARM_HARDWARE
+	cec3 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VOLUME, &g_settings.hdmi_cec_volume, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
+	cec3->setHint("", LOCALE_MENU_HINT_CEC_VOLUME);
+#endif
 
 	cec->addItem(cec_ch);
 	cec->addItem(GenericMenuSeparatorLine);
 	//-------------------------------------------------------
 	cec->addItem(cec1);
 	cec->addItem(cec2);
+#if HAVE_ARM_HARDWARE
+	cec->addItem(cec3);
+#endif
 
 	int res = cec->exec(NULL, "");
 	delete cec;

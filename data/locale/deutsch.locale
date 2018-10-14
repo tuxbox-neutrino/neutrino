@@ -445,6 +445,7 @@ extra.dboxinfo_uptime Uptime
 extra.dboxinfo_use Nutzung
 extra.dboxinfo_used Benutzt
 extra.east Osten
+extra.external_volume Externe Lautstärke Regelung
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
 extra.fec_2_5 2/5
@@ -1055,6 +1056,7 @@ menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kana
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
+menu.hint_cec_volume Beim Betätigen der Lautstärketasten wird die Lautstärke an angeschlossenen Audiogerät reguliert
 menu.hint_channellist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_channellist_enablesdt Ermöglicht die dynamische Senderaktualisierung im laufenden Betrieb
 menu.hint_channellist_epg_align Legen Sie fest, wie der Text für das EPG in der Liste rechts vom Programmnamen ausgerichtet wird
@@ -1108,6 +1110,7 @@ menu.hint_eventlist_epgplus Definiert, ob EPG Plus (Vorschau-Übersicht) mit der
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
 menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
 menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal usw.
+menu.hint_external_volume Beim Betätigen der Lautstärketasten werden ensprechenden Script-Events ausgelöst.
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen.\nDie Box wird danach neu gestartet
 menu.hint_fade Bei aktivierter Funktion werden die GUI-Fenster 'weich' ein- bzw. ausgeblendet
 menu.hint_fan_speed Steuerung der Lüftergeschwindigkeit für die CPU
@@ -2562,6 +2565,7 @@ videomenu.hdmi_cec_mode_recorder als Sat/Kabel PVR
 videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
+videomenu.hdmi_cec_volume Aktiviere CEC Lautstärke Regelung
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan

@@ -229,6 +229,7 @@ struct SNeutrinoSettings
 	int volume_pos;
 	int volume_digits;
 	int volume_size;
+	int volume_external;
 	int show_mute_icon;
 	int menu_pos;
 	int show_menu_hints;
@@ -261,6 +262,7 @@ struct SNeutrinoSettings
 	int hdmi_cec_mode;
 	int hdmi_cec_view_on;
 	int hdmi_cec_standby;
+	int hdmi_cec_volume;
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;
