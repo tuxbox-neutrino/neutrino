@@ -4360,9 +4360,7 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 	}
 
 	if (reload) {
-		CHintBox loadBox(LOCALE_MOVIEPLAYER_YTPLAYBACK,	(show_mode == MB_SHOW_YT)
-			? g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_VIDEOS)
-			: g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES), 450);
+		CHintBox loadBox(LOCALE_MOVIEPLAYER_YTPLAYBACK,	LOCALE_MOVIEBROWSER_SCAN_FOR_VIDEOS, 450);
 		loadBox.paint();
 		ytparser.Cleanup();
 		loadYTitles(newmode, m_settings.ytsearch, m_settings.ytvid);
