@@ -66,7 +66,7 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "text", text);
 	tableLookup(L, "icon", icon);
-	lua_Integer timeout = -1, width = 450, return_default_on_timeout = 0, show_buttons = 0, default_button = 0;
+	lua_Integer timeout = -1, width = MSGBOX_MIN_WIDTH, return_default_on_timeout = 0, show_buttons = 0, default_button = 0;
 	tableLookup(L, "timeout", timeout);
 	tableLookup(L, "width", width);
 	tableLookup(L, "return_default_on_timeout", return_default_on_timeout);

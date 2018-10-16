@@ -86,7 +86,7 @@ int CLuaInstHintbox::HintboxNew(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "text", text);
 	tableLookup(L, "icon", icon);
-	lua_Integer width = 450;
+	lua_Integer width = HINTBOX_MIN_WIDTH;
 	tableLookup(L, "width", width);
 
 	CLuaHintbox **udata = (CLuaHintbox **) lua_newuserdata(L, sizeof(CLuaHintbox *));
