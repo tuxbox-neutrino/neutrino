@@ -30,12 +30,15 @@
 #endif
 #include <global.h>
 #include <neutrino.h>
+#include <video.h>
 #include <driver/display.h>
 #include <gui/infoclock.h>
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>
 
 #include <driver/display.h>
+
+#include <system/helpers.h>
 
 CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_MUTED)
 {
@@ -61,6 +64,11 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 	CVFD::getInstance()->setMuted(newValue);
 	neutrino->setCurrentMuted(newValue);
+#if HAVE_ARM_HARDWARE
+	if (g_settings.hdmi_cec_volume)
+		hdmi_cec::getInstance()->toggle_mute();
+	else
+#endif
 	g_Zapit->muteAudio(newValue);
 
 	if( isEvent && ( neutrino->getMode() != NeutrinoModes::mode_scart ) && ( neutrino->getMode() != NeutrinoModes::mode_pic))

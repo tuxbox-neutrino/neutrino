@@ -34,6 +34,7 @@
 #include <system/debug.h>
 /* compat header from zapit/include */
 #include <audio.h>
+#include <video.h>
 #include <system/settings.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
@@ -113,6 +114,10 @@ void CVolume::setVolume(const neutrino_msg_t key)
 
 	neutrino_msg_data_t data = 0;
 	uint64_t timeoutEnd = 0;
+#if HAVE_ARM_HARDWARE
+	if (g_settings.hdmi_cec_volume)
+		g_settings.current_volume = hdmi_cec::getInstance()->GetVolume();
+#endif
 	int vol = g_settings.current_volume;
 
 	do {
@@ -132,6 +137,15 @@ void CVolume::setVolume(const neutrino_msg_t key)
 						g_RCInput->getMsg(&tmp, &data, 0);
 					if (tmp != CRCInput::RC_timeout)
 						g_RCInput->postMsg(tmp, data);
+#if HAVE_ARM_HARDWARE
+				}
+				else if (g_settings.hdmi_cec_volume)
+				{
+					(dir > 0) ? hdmi_cec::getInstance()->vol_up() : hdmi_cec::getInstance()->vol_down();
+					do_vol = false;
+					g_settings.current_volume = hdmi_cec::getInstance()->GetVolume();
+					printf("Volume: %d\n", g_settings.current_volume);
+#endif
 				} else
 					do_vol = true;
 				if (CNeutrinoApp::getInstance()->isMuted() && (dir > 0 || g_settings.current_volume > 0)) {
