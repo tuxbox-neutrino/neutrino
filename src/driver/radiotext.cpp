@@ -396,6 +396,7 @@ fprintf(stderr, "MEC=0x%02x DSN=0x%02x PSN=0x%02x MEL=%02d STATUS=0x%02x MFL=%02
 		S_RtOsd = 1;
 		RT_Info = (RT_Info > 0) ? RT_Info : 1;
 		RadioStatusMsg();
+		OnAfterDecodeLine();
 	}
 
 	else if (RTP_TToggle > 0 && mtext[5] == 0x46 && S_RtFunc >= 2) {	// RTplus tags V2.0, only if RT
