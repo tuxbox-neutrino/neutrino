@@ -549,11 +549,16 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	average_bitrate_offset = spaceoffset;
 	int box_width2 = box_width-(spaceoffset+xpos);
 
-	if((channel->getVideoPid() || (IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv)) && !(videoDecoder->getBlank())){
-		 videoDecoder->getPictureInfo(xres, yres, framerate);
-		 if (yres == 1088)
-		 	yres = 1080;
-		 aspectRatio = videoDecoder->getAspectRatio();
+	int _mode = CNeutrinoApp::getInstance()->getMode();
+	if ((channel->getVideoPid() ||
+		(IS_WEBCHAN(channel->getChannelID()) && _mode == NeutrinoModes::mode_webtv) ||
+		_mode == NeutrinoModes::mode_ts) &&
+		!(videoDecoder->getBlank()))
+	{
+		videoDecoder->getPictureInfo(xres, yres, framerate);
+		if (yres == 1088)
+			yres = 1080;
+		aspectRatio = videoDecoder->getAspectRatio();
 	}
 
 	//Video RESOLUTION
