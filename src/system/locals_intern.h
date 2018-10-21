@@ -781,6 +781,7 @@ const char * locale_real_names[] =
 	"flashupdate.type_locale",
 	"flashupdate.type_nightly",
 	"flashupdate.type_release",
+	"flashupdate.type_selfmade",
 	"flashupdate.type_settings",
 	"flashupdate.type_text",
 	"flashupdate.type_unknown",

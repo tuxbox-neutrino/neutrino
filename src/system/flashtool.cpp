@@ -539,6 +539,8 @@ const char *CFlashVersionInfo::getType(bool localized) const
 		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_BETA)	: "Beta");
 	case '2':
 		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_NIGHTLY)	: "Nightly");
+	case '9':
+		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_SELFMADE)	: "Self-made");
 	case 'L':
 		return (localized ? g_Locale->getText(LOCALE_FLASHUPDATE_TYPE_LOCALE)	: "Locale");
 	case 'S':

@@ -754,6 +754,7 @@ flashupdate.type_beta Beta
 flashupdate.type_locale Sprachdatei
 flashupdate.type_nightly Nightly
 flashupdate.type_release Release
+flashupdate.type_selfmade Eigenbau
 flashupdate.type_settings Einstellungen
 flashupdate.type_text Text
 flashupdate.type_unknown Unbekannt
