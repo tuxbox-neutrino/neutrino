@@ -297,7 +297,7 @@ void CScreenSaver::paint()
 		}
 
 		dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
-		paintImage(v_bg_files.at(index), 0, 0, m_frameBuffer->getScreenWidth(true), m_frameBuffer->getScreenHeight(true));
+		m_frameBuffer->showFrame(v_bg_files.at(index));
 
 		if (!g_settings.screensaver_random)
 			index++;
