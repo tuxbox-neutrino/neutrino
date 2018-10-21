@@ -252,8 +252,9 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #else
 			source = cDemux::GetSource(0);
 			demux = cDemux::GetSource(0);
-			INFO("PLAY: fe_num %d dmx_src %d", frontend ? frontend->getNumber() : -1, cDemux::GetSource(0));
+//			INFO("PLAY: fe_num %d dmx_src %d", frontend ? frontend->getNumber() : -1, cDemux::GetSource(0));
 #endif
+			INFO("PLAY: fe_num %d dmx_src %d", source, demux);
 			break;
 		case STREAM:
 		case RECORD:
@@ -271,6 +272,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		case PIP:
 			source = channel->getRecordDemux();
 			demux = channel->getPipDemux();
+			INFO("PIP: fe_num %d dmx_src %d", source, demux);
 			break;
 	}
 
