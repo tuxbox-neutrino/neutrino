@@ -1257,11 +1257,11 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		footer = "</sat>";
 	}
 	else if (CFrontend::isCable(tI->second.feparams.delsys)) {
-		sprintf(satstr, "\t<%s name=\"%s\"\n", "cable", spos_it->second.name.c_str());
+		sprintf(satstr, "\t<%s name=\"%s\">\n", "cable", spos_it->second.name.c_str());
 		footer = "</cable>";
 	}
 	else if (CFrontend::isTerr(tI->second.feparams.delsys)) {
-		sprintf(satstr, "\t<%s name=\"%s\"\n", "terrestrial", spos_it->second.name.c_str());
+		sprintf(satstr, "\t<%s name=\"%s\">\n", "terrestrial", spos_it->second.name.c_str());
 		footer = "</terrestrial>";
 	}
 
