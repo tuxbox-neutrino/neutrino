@@ -153,8 +153,10 @@ void CInfoViewerBB::getBBIconInfo()
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= g_InfoViewer->BoxEndX - OFFSET_INNER_MID;
-	bool isRadioMode	= (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio);
-	bool firstIcon		= true;
+	int curMode     = CNeutrinoApp::getInstance()->getMode();
+	bool isRadioMode  = (curMode == NeutrinoModes::mode_radio || curMode == NeutrinoModes::mode_webradio);
+	bool isTSMode     = (curMode == NeutrinoModes::mode_ts);
+	bool firstIcon    = true;
 
 	for (int i = 0; i < CInfoViewerBB::ICON_MAX; i++) {
 		int w = 0, h = 0;
@@ -189,7 +191,7 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_TUNER:
-			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(g_InfoViewer->get_current_channel_id()))
+			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !isTSMode && !IS_WEBCHAN(g_InfoViewer->get_current_channel_id()))
 				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 			break;
 		default:
@@ -649,8 +651,12 @@ void CInfoViewerBB::showIcon_CA()
 
 void CInfoViewerBB::showIcon_Tuner()
 {
-	if (CFEManager::getInstance()->getEnabledCount() <= 1 || !g_settings.infobar_show_tuner)
+	if (CFEManager::getInstance()->getEnabledCount() <= 1 ||
+			!g_settings.infobar_show_tuner ||
+			NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode() ||
+			IS_WEBCHAN(g_InfoViewer->get_current_channel_id())) {
 		return;
+	}
 
 	std::string icon_name;
 	switch (CFEManager::getInstance()->getLiveFE()->getNumber()) {
