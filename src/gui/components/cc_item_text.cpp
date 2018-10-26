@@ -183,7 +183,8 @@ void CComponentsText::initCCText()
 #endif
 	//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
 	//this is managed by CTextBox object itself
-	ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
+	if (cc_allow_paint)
+		ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
 
 	//set current text status, needed by textChanged()
 	if (ct_text_sent){
