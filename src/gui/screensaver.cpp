@@ -314,6 +314,7 @@ void CScreenSaver::paint()
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 			scr_clock->disableSaveBg();
 			scr_clock->doPaintBg(false);
+			m_frameBuffer->showFrame("blackscreen.jpg");
 		}
 
 		scr_clock->setTextColor(clr.i_color);
