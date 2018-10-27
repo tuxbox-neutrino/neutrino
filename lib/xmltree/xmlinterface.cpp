@@ -270,6 +270,10 @@ xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 				{
 					enc = pugi::encoding_latin1;
 				}
+				else if ((line[0] == 0xef) && (line[1] == 0xbb) && (line[2] == 0xbf))
+				{
+					enc = pugi::encoding_utf8;
+				}
 				in.close();
 			}
 		}
@@ -306,6 +310,11 @@ xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 			}
 
 		size_t read_size = gzread(xmlgz_file,buffer,gzsize);
+
+		char utf8[3];
+		strncpy(utf8,(char *)buffer,3);
+		if ((utf8[0] == 0xef) && (utf8[1] == 0xbb) && (utf8[2] == 0xbf))
+			enc = pugi::encoding_utf8;
 
 		if (read_size != gzsize)
 		{
