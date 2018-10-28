@@ -106,8 +106,10 @@ class CBouquetManager
 		void writeBouquet(FILE * bouq_fd, uint32_t i, bool bUser);
 		//remap epg_id
 		std::map<t_channel_id, t_channel_id> EpgIDMapping;
+		std::map<t_channel_id, std::string> EpgXMLMapping;
 		void readEPGMapping();
 		t_channel_id reMapEpgID(t_channel_id channelid);
+		std::string reMapEpgXML(t_channel_id channelid);
 		//logo downloads
 		static void* LogoThread(void* _logolist);
 		pthread_t thrLogo;

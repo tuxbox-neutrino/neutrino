@@ -219,6 +219,7 @@ class CZapitChannel
 		t_transport_stream_id	getTransportStreamId(void) 	const { return transport_stream_id; }
 		t_original_network_id	getOriginalNetworkId(void) 	const { return original_network_id; }
 		std::string		getScriptName(void)		const { return script; }
+		inline void		setScriptName(const std::string &pscript) { script = pscript; }
 		unsigned char        	getServiceType(bool real=false);
 		bool			isUHD();
 		bool			isHD();

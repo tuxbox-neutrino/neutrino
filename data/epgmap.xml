@@ -16,4 +16,7 @@
 	<filter channel_id="b12003ee00011078" new_epg_id="ac423070013e2144"/> --rainews24
 
 	<filter channel_id="b4d6070800c80e26" new_epg_id="b45803fb0001283d"/> --Das Erste
+
+	<filter channel_id="aa0004210001ef10" >RTL.de</filter> --RTL HD
+	<filter channel_id="b6ba3db8013e4224" >RedlightHD.ero</filter> --Redlight HD
 </zapit>
