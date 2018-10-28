@@ -1309,6 +1309,42 @@ void CBouquetManager::readEPGMapping()
 	xmlFreeDoc(epgmap_parser);
 }
 
+void CBouquetManager::convert_E2_EPGMapping(std::string mapfile_in, std::string mapfile_out)
+{
+	FILE * outfile = NULL;
+	xmlDocPtr epgmap_parser = parseXmlFile(mapfile_in.c_str());
+
+	if (epgmap_parser != NULL)
+	{
+		outfile = fopen(mapfile_out.c_str(), "w");
+		xmlNodePtr epgmap = xmlDocGetRootElement(epgmap_parser);
+		if(epgmap)
+			epgmap = xmlChildrenNode(epgmap);
+
+		fprintf(outfile,
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+		"<zapit>\n");
+
+		while (epgmap) {
+			const char *e2_channelid = xmlGetData(epgmap);
+			const char *xmlepg = xmlGetAttribute(epgmap, "id");
+			u_int sid = 0,tsid = 0,onid = 0,sat = 0;
+			sscanf(e2_channelid,"1:0:1:%X:%X:%X:%X0000:0:0:0:", &sid, &tsid, &onid, &sat);
+			t_channel_id short_channel_id = create_channel_id(sid,onid,tsid);
+			CZapitChannel * cc = CServiceManager::getInstance()->FindChannel48(short_channel_id);
+			if (cc) {
+				if(xmlepg){
+					fprintf(outfile,"\t<filter channel_id=\"%012" PRIx64 "\" >%s</filter> --%s\n",cc->getChannelID(), xmlepg, cc->getName().c_str());
+				}
+			}
+			epgmap = xmlNextNode(epgmap);
+		}
+		fprintf(outfile, "</zapit>\n");
+		fclose(outfile);
+	}
+	xmlFreeDoc(epgmap_parser);
+}
+
 std::string CBouquetManager::ReadMarkerValue(std::string strLine, const char* strMarkerName)
 {
 	if (strLine.find(strMarkerName) != std::string::npos)
