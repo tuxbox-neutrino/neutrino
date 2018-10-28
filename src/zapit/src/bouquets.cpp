@@ -1290,7 +1290,7 @@ void CBouquetManager::readEPGMapping()
 		{
 			const char *channelid = xmlGetAttribute(epgmap, "channel_id");
 			const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
-			const char *xmlepg = xmlGetData(epgmap);
+			const char *xmlepg = xmlGetData(epgmap); // returns empty string, not NULL if nothing found
 			t_channel_id epg_id = 0;
 			t_channel_id channel_id = 0;
 			if (epgid)
@@ -1300,7 +1300,7 @@ void CBouquetManager::readEPGMapping()
 			if(channel_id && epg_id){
 				EpgIDMapping[channel_id]=epg_id;
 			}
-			if(channel_id && xmlepg){
+			if(channel_id && ((xmlepg != NULL) && (xmlepg[0] != '\0'))){
 				EpgXMLMapping[channel_id]=xmlepg;
 			}
 			epgmap = xmlNextNode(epgmap);
