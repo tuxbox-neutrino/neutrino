@@ -111,6 +111,7 @@ class CBouquetManager
 		t_channel_id reMapEpgID(t_channel_id channelid);
 		std::string reMapEpgXML(t_channel_id channelid);
 		void convert_E2_EPGMapping(std::string mapfile_in, std::string mapfile_out = "/tmp/epgmap.xml");
+		void dump_EPGMapping(std::string mapfile_out = "/tmp/epgmap.xml");
 		//logo downloads
 		static void* LogoThread(void* _logolist);
 		pthread_t thrLogo;

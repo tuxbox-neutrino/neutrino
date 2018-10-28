@@ -1357,6 +1357,33 @@ void CBouquetManager::convert_E2_EPGMapping(std::string mapfile_in, std::string 
 	xmlFreeDoc(epgmap_parser);
 }
 
+void CBouquetManager::dump_EPGMapping(std::string mapfile_out)
+{
+	FILE * outfile = NULL;
+	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
+
+	outfile = fopen(mapfile_out.c_str(), "w");
+
+	fprintf(outfile,
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	"<zapit>\n");
+
+	for (; !(cit.EndOfChannels()); cit++)
+	{
+		if ((*cit)->getChannelID() != (*cit)->getEpgID())
+			fprintf(outfile,"\t<filter channel_id=\"%012" PRIx64 "\" new_epg_id=\"%012" PRIx64 "\" /> --%s\n",(*cit)->getChannelID(), (*cit)->getEpgID(), (*cit)->getName().c_str());
+
+		std::string tvg_id = (*cit)->getScriptName();
+		if (tvg_id.empty())
+			continue;
+
+		tvg_id = tvg_id.substr(1,tvg_id.find_first_of("=")-1);
+		fprintf(outfile,"\t<filter channel_id=\"%012" PRIx64 "\" >%s</filter> --%s\n",(*cit)->getChannelID(), tvg_id.c_str(), (*cit)->getName().c_str());
+	}
+	fprintf(outfile, "</zapit>\n");
+	fclose(outfile);
+}
+
 std::string CBouquetManager::ReadMarkerValue(std::string strLine, const char* strMarkerName)
 {
 	if (strLine.find(strMarkerName) != std::string::npos)
