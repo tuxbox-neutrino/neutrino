@@ -344,7 +344,7 @@ void CComponentsForm::exchangeCCItem(CComponentsItem* item_a, CComponentsItem* i
 void CComponentsForm::paintForm(bool do_save_bg)
 {
 	//paint body
-	if (!is_painted || force_paint_bg)
+	if (!is_painted || force_paint_bg || shadow_force)
 		paintInit(do_save_bg);
 
 	//paint
