@@ -3262,11 +3262,11 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 						programmeTag  = "programme ";
 						programmeTag += "channel=\""+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id)+"\" ";
 						char zbuffer[25] = { 0 };
-						struct tm *mtime = localtime(&eventIterator->startTime);
+						struct tm *mtime = gmtime(&eventIterator->startTime);
 						strftime(zbuffer, 21, "%Y%m%d%H%M%S %z", mtime);
 						programmeTag += "start=\""+std::string(zbuffer)+"\" ";
 						long _stoptime = eventIterator->startTime + eventIterator->duration;
-						mtime = localtime(&_stoptime);
+						mtime = gmtime(&_stoptime);
 						strftime(zbuffer, 21, "%Y%m%d%H%M%S %z", mtime);
 						programmeTag += "stop=\""+std::string(zbuffer)+"\" ";
 

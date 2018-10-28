@@ -477,10 +477,18 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 		struct tm starttime, stoptime;
 		strptime(start, "%Y%m%d%H%M%S %z", &starttime);
 		strptime(stop, "%Y%m%d%H%M%S %z", &stoptime);
-		time_t start_time = mktime(&starttime);
-		time_t duration = mktime(&stoptime)-start_time;
+		time_t start_time = mktime(&starttime) + starttime.tm_gmtoff;
+		time_t duration = mktime(&stoptime) + stoptime.tm_gmtoff - start_time;
 
-		t_channel_id epgid = getepgid(chan);
+		t_channel_id epgid = 0;
+		time_t current_time;
+		time(&current_time);
+		double time_diff = difftime(current_time, start_time + duration);
+
+		// just loads events if they end is in the future
+		if (time_diff < 0)
+			epgid = getepgid(chan);
+
 		if (epgid != 0)
 		{
 			//printf("\e[1;34m%s - %d - %s 0x%012" PRIx64 "(%ld) (%ld)\e[0m\n",__func__, __LINE__,chan, epgid, start_time, duration);
