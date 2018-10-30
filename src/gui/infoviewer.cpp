@@ -1643,7 +1643,10 @@ void CInfoViewer::showSNR ()
 				polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
 
 			int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
-			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / 1000, frequency % 1000, polarisation.c_str());
+			int freqfactor = 1000;
+			if (CFrontend::isTerr(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
+				freqfactor = 1000000;
+			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / freqfactor, frequency % freqfactor, polarisation.c_str());
 
 			int freqWidth = g_SignalFont->getRenderWidth(freq);
 			if (freqWidth > numbox_maxtxtwidth)
