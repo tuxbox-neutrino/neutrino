@@ -89,12 +89,6 @@ function do_check(){
 	~
 		sLog_addRow(sLog_body, "green", "Programs: fbshot is installed at: {=var-get:fbshot=}. OSD Screenshot is enabled.", "ok");
 	=}
-	{=var-set:dboxshot={=find-exec:dboxshot=}=}
-	{=if-empty:{=var-get:dboxshot=}~
-		sLog_addRow(sLog_body, "red", "Programs: dboxshot is not installed. Remote &amp; OSD is disabled.", "failed");
-	~
-		sLog_addRow(sLog_body, "green", "Programs: dboxshot is installed at: {=var-get:dboxshot=}. Remote &amp; OSD is enabled.", "ok");
-	=}
 
 {=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 	{=var-set:fcp={=find-exec:fcp=}=}

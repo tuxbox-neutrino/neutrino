@@ -479,7 +479,7 @@ do_lcshot()
 }
 # -----------------------------------------------------------
 # osd shot
-# $1= fbshot | grab | dbox bzw. leer
+# $1= fbshot | grab
 # -----------------------------------------------------------
 do_fbshot()
 {
@@ -496,13 +496,6 @@ do_fbshot()
 			$y_path_varbin/grab $*
 		else
 			grab $*
-		fi
-	else
-		shift 1
-		if [ -e "$y_path_varbin/dboxshot" ]; then
-			$y_path_varbin/dboxshot $*
-		else
-			dboxshot $*
 		fi
 	fi
 }
