@@ -157,6 +157,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "restore")
 	{
 		fileFilter.addFilter("tar");
+		fileFilter.addFilter("gz");
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
 		{
