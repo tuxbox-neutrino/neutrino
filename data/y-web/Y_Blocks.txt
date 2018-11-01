@@ -524,7 +524,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~CST Trinity Duo~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
 		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD51~{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~Mutant HD51~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
-		{=if-equal:{=var-get:boxtype=}~VU SOLO4K~	{=include-block:Y_Blocks.txt;rc_vusolo4k=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~	{=include-block:Y_Blocks.txt;rc_vu_solo4k=}~
 
 		{=comment:fallback~=}				{=include-block:Y_Blocks.txt;rc_cst_v1=}
 		=}=}=}=}=}=}=}=}=}=}=}
@@ -542,7 +542,7 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~8~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
 	{=if-equal:{=var-get:yfbtype=}~9~	{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
 	{=if-equal:{=var-get:yfbtype=}~10~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
-	{=if-equal:{=var-get:yfbtype=}~11~	{=include-block:Y_Blocks.txt;rc_vusolo4k=}~
+	{=if-equal:{=var-get:yfbtype=}~11~	{=include-block:Y_Blocks.txt;rc_vu_solo4k=}~
 
 	{=comment:fallback~=}			{=include-block:Y_Blocks.txt;rc_cst_v1=}
 	=}=}=}=}=}=}=}=}=}=}=}=}=}
@@ -1054,9 +1054,9 @@ start-block~rc_mutant_hd51
 </map>
 end-block~rc_mutant_hd51
 
-# ------ Remote VU Solo 4K
-start-block~rc_vusolo4k
-<img src="images/rc_vusolo4k.png" usemap="#rc"/>
+# ------ Remote VU+ Solo 4K
+start-block~rc_vu_solo4k
+<img src="images/rc_vu_solo4k.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <!--<area shape="circle" coords="33,28,10" id="113" alt="v1_mute" href="javascript:rcsim('KEY_POWER_TV');">-->
 <area shape="circle" coords="105,28,10" id ="116" alt="Power" href="javascript:rcsim('KEY_POWER');">
@@ -1105,4 +1105,4 @@ start-block~rc_vusolo4k
 <area shape="circle" coords="81,422,10" id ="128" alt="stop" href="javascript:rcsim('KEY_STOP');">
 <area shape="circle" coords="104,422,10" id ="385" alt="radio" href="javascript:rcsim('KEY_RADIO');">
 </map>
-end-block~rc_vusolo4k
+end-block~rc_vu_solo4k
