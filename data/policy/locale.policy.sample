@@ -1,0 +1,6 @@
+Please modify content of this file and rename sample file.
+Filename sheme is <locale>.policy. eg 'english.policy'
+
+Files must be installed in:
+
+    $(DATADIR)/neutrino/policy

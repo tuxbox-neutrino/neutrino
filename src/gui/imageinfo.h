@@ -33,7 +33,6 @@
 
 #include <gui/widget/menue.h>
 #include <gui/components/cc.h>
-#include <gui/buildinfo.h>
 #include <configfile.h>
 
 typedef struct image_info_t
@@ -47,7 +46,7 @@ class CImageInfo : public CMenuTarget
 {
 	private:
 		int item_offset; //distance between items and to boarder
-		std::string license_txt;
+		std::string license_txt, policy_txt, build_info_txt;
 		Font* item_font;
 		int item_height;
 		int y_tmp;
@@ -61,6 +60,7 @@ class CImageInfo : public CMenuTarget
 		void InitBuildInfos();
 		void InitInfoText(const std::string& text);
 		std::string getLicenseText();
+		std::string getPolicyText();
 		void ShowWindow();
 		void ScrollLic(bool scrollDown);
 		std::string getYWebVersion();
@@ -69,9 +69,8 @@ class CImageInfo : public CMenuTarget
 		CComponentsForm  	*cc_info;
 		CComponentsPIP		*cc_tv;
 		CComponentsInfoBox 	*cc_lic;
-		CBuildInfo		*b_info;
 		CConfigFile     	config;
-		CComponentsButtonRed 	*btn_red;
+		CComponentsButton	*btn_red, *btn_green;
 		CComponentsLabel  	*cc_sub_caption;
 
 	public:
@@ -81,6 +80,7 @@ class CImageInfo : public CMenuTarget
 
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		static std::string getManifest(const std::string& directory, const std::string& language, const std::string& manifest_type);
 };
 
 #endif

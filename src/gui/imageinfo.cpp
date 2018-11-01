@@ -41,6 +41,7 @@
 #include "version.h"
 #include <gui/buildinfo.h>
 #define LICENSEDIR DATADIR "/neutrino/license/"
+#define POLICY_DIR DATADIR "/neutrino/policy/"
 #ifdef ENABLE_LUA
 #include <gui/lua/lua_api_version.h>
 #endif
@@ -67,13 +68,15 @@ void CImageInfo::Init(void)
 	cc_tv		= NULL;
 	cc_lic		= NULL;
 	cc_sub_caption	= NULL;
-	b_info 		= NULL;
 	btn_red		= NULL;
+	btn_green	= NULL;
 	item_offset	= OFFSET_INNER_MID;
 	item_font 	= NULL;
 	item_height 	= 0;
 	y_tmp 		= 0;
 	license_txt	= "";
+	policy_txt	= "";
+	InitBuildInfos();
 	v_info.clear();
 }
 
@@ -95,9 +98,8 @@ void CImageInfo::Clean()
 		cc_tv	= NULL;
 		cc_lic	= NULL;
 		cc_sub_caption = NULL;
-		delete b_info;
-		b_info 	= NULL;
 		btn_red	= NULL;
+		btn_green = NULL;
 	}
 }
 
@@ -109,6 +111,10 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	//clean up before, because we could have a current instance with already initialized contents
 	Clean();
+
+	//fill manifest texts
+	license_txt	= getLicenseText();
+	policy_txt	= getPolicyText();
 
 	//init window object, add cc-items and paint all
 	ShowWindow();
@@ -134,45 +140,34 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			else
 				break;
 		}
-
 		if(msg == CRCInput::RC_setup) {
 			res = menu_return::RETURN_EXIT_ALL;
 			fadeout = true;
 		}
-		else if (msg == CRCInput::RC_red){
-			// init temporarly vars
-			neutrino_locale_t info_cap , new_btn_cap; 
-			info_cap = new_btn_cap = NONEXISTANT_LOCALE;
-			string info_txt = "";
-			neutrino_locale_t btn_cap = btn_red->getCaptionLocale();
-
-			//toggle caption and info contents
-			if (btn_cap == LOCALE_BUILDINFO_MENU){
-				info_cap = LOCALE_BUILDINFO_MENU;
-				for (uint i=0; i<CBuildInfo::BI_TYPE_IDS; i++){
-					info_txt += g_Locale->getText(b_info->getInfo(i).caption);
-					info_txt += "\n";
-					info_txt += b_info->getInfo(i).info_text  + "\n\n";
-				}
-				new_btn_cap = LOCALE_IMAGEINFO_LICENSE;
+		else if (msg == btn_red->getButtonDirectKey()/* CRCInput::RC_red*/){
+			//toggle and assign caption and info contents
+			if (btn_red->getCaptionLocale() == LOCALE_IMAGEINFO_LICENSE){
+				cc_sub_caption->setText(LOCALE_IMAGEINFO_LICENSE, CTextBox::AUTO_WIDTH, item_font);
+				InitInfoText(license_txt);
+				btn_red->setCaption(LOCALE_BUILDINFO_MENU);
+			}else{
+				cc_sub_caption->setText(LOCALE_BUILDINFO_MENU, CTextBox::AUTO_WIDTH, item_font);
+				InitInfoText(build_info_txt);
+				btn_red->setCaption(LOCALE_IMAGEINFO_LICENSE);
 			}
-			if (btn_cap == LOCALE_IMAGEINFO_LICENSE){
-				info_cap = LOCALE_IMAGEINFO_LICENSE;
-				info_txt = getLicenseText();
-				new_btn_cap = LOCALE_BUILDINFO_MENU;
-			}
-			
-			//assign new caption and info contents
-			cc_sub_caption->setText(info_cap, CTextBox::AUTO_WIDTH, item_font);
-			InitInfoText(info_txt);
-			btn_red->setCaption(new_btn_cap);
-			
 			//paint items
 			cc_sub_caption->hide();
 			cc_sub_caption->paint();
 			cc_lic->paint(false);
 			btn_red->kill();
 			btn_red->paint(false);
+		}
+		else if (msg == btn_green->getButtonDirectKey()/* CRCInput::RC_green*/){
+				cc_sub_caption->setText(LOCALE_IMAGEINFO_POLICY, CTextBox::AUTO_WIDTH, item_font);
+				InitInfoText(policy_txt);
+				cc_sub_caption->hide();
+				cc_sub_caption->paint();
+				cc_lic->paint(false);
 		}
 		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
 			postmsg = msg;
@@ -192,7 +187,6 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 		if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout){
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
 		}
-
 	}
 
 	if (postmsg)
@@ -210,12 +204,30 @@ void CImageInfo::ShowWindow()
 		cc_win = new CComponentsWindowMax(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO, 0, CC_SHADOW_ON);
 		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 		footer = cc_win->getFooterObject();
-		int h_footer = footer->getHeight();
-		fb_pixel_t btn_col = /*g_settings.theme.Button_gradient ?  COL_BUTTON_BODY :*/ footer->getColorBody(); //TODO: Button_gradient option
-		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, h_footer-h_footer/4, LOCALE_BUILDINFO_MENU, footer, false , true, false, footer->getColorBody(), btn_col);
+
+		button_label_cc btn;
+		vector<button_label_cc> v_buttons;
+
+		btn.button = NEUTRINO_ICON_BUTTON_RED;
+		btn.locale = LOCALE_BUILDINFO_MENU;
+		btn.directKeys.push_back(CRCInput::RC_red);
+		v_buttons.push_back(btn);
+
+		btn.button = !policy_txt.empty() ? NEUTRINO_ICON_BUTTON_GREEN : NEUTRINO_ICON_BUTTON_DUMMY;
+		btn.locale = LOCALE_IMAGEINFO_POLICY;
+		btn.directKeys.clear();
+		btn.directKeys.push_back(!policy_txt.empty() ? CRCInput::RC_green : RC_NOKEY);
+		v_buttons.push_back(btn);
+
+		footer->setButtonLabels(v_buttons, 0, footer->getWidth()/v_buttons.size());
+
+		btn_red = footer->getButtonLabel(0);
 		btn_red->doPaintBg(false);
 		btn_red->setButtonTextColor(COL_MENUFOOT_TEXT);
 		btn_red->setColBodyGradient(CC_COLGRAD_OFF);
+
+		btn_green = footer->getButtonLabel(1);
+// 		btn_green->allowPaint(!policy_txt.empty());
 	}
 
 	//prepare minitv
@@ -224,11 +236,8 @@ void CImageInfo::ShowWindow()
 	//prepare infos
 	InitInfos();
 
-	//prepare build infos
-	InitBuildInfos();
-
 	//prepare info text
-	InitInfoText(getLicenseText());
+	InitInfoText(license_txt);
 
 	//paint window
 	cc_win->StartFadeIn();
@@ -260,8 +269,12 @@ void CImageInfo::InitMinitv()
 //prepare distribution infos
 void CImageInfo::InitBuildInfos()
 {
-	if (b_info == NULL)
-		b_info = new CBuildInfo();
+	CBuildInfo b_info;
+	for (uint i=0; i<CBuildInfo::BI_TYPE_IDS; i++){
+		build_info_txt += g_Locale->getText(b_info.getInfo(i).caption);
+		build_info_txt += "\n";
+		build_info_txt += b_info.getInfo(i).info_text  + "\n\n";
+	}
 }
 
 //collect required data from environment
@@ -416,23 +429,34 @@ void CImageInfo::InitInfos()
 	}
 }
 
-//get license
-string CImageInfo::getLicenseText()
+string CImageInfo::getManifest(const std::string& directory, const std::string& language, const std::string& manifest_type)
 {
-	string file = LICENSEDIR;
-	file += g_settings.language;
-	file += ".license";
+	string file = directory;
+	file += language;
+	file += "." + manifest_type;
 
 	string res = CComponentsText::getTextFromFile(file);
 
 	//assign default text, if language file is not available
 	if(res.empty()){
-		file = LICENSEDIR;
-		file += "english.license";
+		file = directory;
+		file += "english." + manifest_type;
 		res = CComponentsText::getTextFromFile(file);
 	}
 
 	return res;
+}
+
+//get license
+string CImageInfo::getLicenseText()
+{
+	return getManifest(LICENSEDIR, g_settings.language, "license");
+}
+
+//get policy
+string CImageInfo::getPolicyText()
+{
+	return getManifest(POLICY_DIR, g_settings.language, "policy");
 }
 
 //prepare info text

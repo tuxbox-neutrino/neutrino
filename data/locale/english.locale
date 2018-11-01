@@ -827,6 +827,7 @@ imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license License
 imageinfo.os System:
+imageinfo.policy Privacy Policy
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API-Key
