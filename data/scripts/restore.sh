@@ -8,7 +8,13 @@ else
 	cd /
 fi
 
-tar xf $1
+# check if $1 ends with "gz"
+if [ "$1" != "${1%gz}" ]; then
+	tar -xzf $1
+else
+	tar -xf $1
+fi
+
 sync
 sync
 reboot -f

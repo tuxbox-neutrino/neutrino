@@ -2,6 +2,7 @@
 
 DATE=$(date +%Y-%m-%d_%H-%M-%S)
 USRF="/var/tuxbox/config/tobackup.conf"
+BAKF="$1/${2:-settings_${DATE}.tar.gz}"
 
 if [ -e "${USRF}" ]; then
 # read user-files from $USRF
@@ -22,6 +23,6 @@ for i in $TOBACKUP
 
 TOBACKUP=$(echo $RES)
 
-echo Backup to $1/settings_$DATE.tar
+echo Backup to $BAKF
 
-tar -cf $1/settings_$DATE.tar $TOBACKUP 2>&1 >/dev/null
+tar -czf $BAKF $TOBACKUP 2>&1 >/dev/null
