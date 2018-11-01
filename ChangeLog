@@ -1,3 +1,2672 @@
+2018-11-01  Thilo Graf  <dbt@novatux.de>
+
+	update to version 3.8.0
+
+2018-11-01  J. Krieg  <bellum07@googlemail.com>
+
+	settings_manager.cpp: add .gz files as valid extension for filter
+
+	neutrino: adapt backup/restore scripts to ensure compatibility with ni-ofgwrite
+
+2018-11-01  Thilo Graf  <dbt@novatux.de>
+
+	Imageinfo: prepare functionality to show privacy policy
+	Note:
+	Contents of policy files are not available with this commit. This
+	should be done related to own conditions by provider himself.
+	Providers are required by law to do this for their users as well.
+
+	Files must be installed in:
+
+		installdir = $(DATADIR)/neutrino/policy
+
+	Providers should modify their buildsystem to install these files.
+	Filename sheme is
+		<locale>.policy. eg 'english.policy'
+
+	If you want to add a policy file, take a look into sample file
+		locale.policy.sample
+
+2018-10-28  Thilo Graf  <dbt@novatux.de>
+
+	cc_frm.cpp: add missing condition within paint methode
+	Shadow was unpainted with shadow_force
+
+	src/gui/screensaver.cpp: ensure hav clean background in clock mode
+
+	cc_item_text.cpp: fix missing pass through of var cc_allow_paint
+	In case of cc_allow_paint = false, text would be farther rendered
+	and this is not intended.
+
+2018-10-28  TangoCash  <eric@loxat.de>
+
+	add function to dump current epg mappings
+
+	allow epg mapping for all channels, add logic check for converter
+
+2018-10-28  TangoCash  <eric@loxat.de>
+
+	supplemental to ''add option to map xml epg to normal channels''
+	fix logic
+
+	804a6c9715d0ed5e8226e233cbb9f77f07dfcf5b
+
+2018-10-28  TangoCash  <eric@loxat.de>
+
+	add E2 to NMP EPGMapping converter
+
+	add option to map xml epg to normal channels
+
+	fix xmltv time offsets
+
+	fix xml utf8 detection
+
+2018-10-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- colors: highlight marked items a bit less
+
+	- cables.xml: update OstTelCom GmbH; thx to elstablo
+
+	- cec-setup: fix segfaults on non-ARM_HARDWARE
+
+	- zapit/getservices: fix currentservices.xml format for cable and terrestrial
+
+2018-10-28  BPanther  <bpanther_ts@hotmail.com>
+
+	fix capmt wrong debug output
+
+	fix capmt wrong debug output
+
+2018-10-28  TangoCash  <eric@loxat.de>
+
+	move external volume control to internal volume/mute handler
+
+2018-10-28  Thilo Graf  <dbt@novatux.de>
+
+	lua API: change to version 1.80
+
+2018-10-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- lua: fix hintbox/messagebox default width
+
+	- moviebrowser: remove unnecessary check from hintbox in showYTMenu() function
+
+2018-10-28  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/screensaver.cpp: use showFrame() instead paintImage()
+	showFrame now seems to work fine inside screensaver
+
+	radiotext.cpp/h: add signal to implement slots after decoding of text lines
+
+	helpers.cpp: reduce debug output in downloadUrl()
+	Usage of debug level INFO should be enough.
+
+2018-10-25  GetAway  <get-away@t-online.de>
+
+	infoviewer_bb.cpp: suppress tuner icon in ts mode
+
+2018-10-20  GetAway  <get-away@t-online.de>
+
+	streaminfo1.cpp: show resolution in TS_MODE if no channel is tuned
+
+2018-10-15  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- cec-setup: fix item mode when switching cec on/off
+
+2018-10-15  TangoCash  <eric@loxat.de>
+
+	add option to regulate audio systems volume via CEC
+	 Conflicts:
+		src/gui/cec_setup.cpp
+		src/neutrino.cpp
+		src/system/settings.h
+
+2018-10-14  TangoCash  <eric@loxat.de>
+
+	remotetimers: fix fetch from other box
+
+2018-10-14  GetAway  <get-away@t-online.de>
+
+	fb_accel.cpp: fix the fu..... gaps on arm gui
+
+2018-10-11  gixxpunk  <thomas.harfmann@gmail.com>
+
+	- update dat local (thx Janus!)
+
+2018-10-11  Frankenstone  <dampf_acc@yahoo.com>
+
+	add menu hint to commit 15d0dbd
+	- add/reenable background SDT-Scan to update channels while zapping around
+
+2018-10-08  Jacek Jendrzej  <overx300@gmail.com>
+
+	scansdt: typo
+
+	scansdt: more checks if the same TP
+
+2018-10-06  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- enable SDT-Scan by default; minor changes in english.locale
+
+2018-10-06  TangoCash  <eric@loxat.de>
+
+	add/reenable background SDT-Scan to update channels while zapping around
+
+2018-10-06  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- cables.xml: update OstTelCom GmbH; thx to elstablo
+
+2018-10-05  GetAway  <get-away@t-online.de>
+
+	 supplement to commit 72badc7; fix scale of box width
+
+	hintbox.cpp: fix scale of box width
+
+	mb.cpp: fix locale for YT
+
+2018-10-04  GetAway  <get-away@t-online.de>
+
+	- locale: fix locale
+
+2018-10-03  GetAway  <get-away@t-online.de>
+
+	httptool.cpp: fix follow location
+
+2018-10-03  Thilo Graf  <dbt@novatux.de>
+
+	src/neutrino.cpp: fix rebase error
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- data: add myservices.xml sample
+
+	- data/Makefile.am: better readability
+
+2018-10-02  Knicko  <knicko@glj.servebbs.com>
+
+	update satellites.xml
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: more readability in code to search for livestream script
+
+	- movieplayer: fix search for livestream script in webradio mode
+
+	- multimedia-setup: re-organize menu
+
+2018-10-02  Thilo Graf  <dbt@novatux.de>
+
+	audioplay: clean up, add missing code for audio/internet player functionality
+	* favorites handling
+	* auto play
+	* xml data/logo handling
+	* locales
+	* settings
+	* clean ups
+
+	taken from https://bitbucket.org/neutrino-images/ni-neutrino-hd
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- audioplayer/screensaver: refresh screensaver picture when title was changed
+
+	- screensaver: allow to switch clock <-> picture while runtime
+
+	- audioplayer: remove all covers when playback is stopped or title is changed
+
+	- radio-favorites.xml: add 80s80s DM as a sample stream
+
+	- audioplayer/screensaver: add gui switch to use covers as screensaver
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- audioplayer: don't remove station-logo immediately; ...
+	this allows the usage of station-logo as screensaver
+
+
+	# Conflicts:
+	#	src/gui/audioplayer.cpp
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- audioplayer: update gui if streamripper has stopped or crashed
+
+	- re-sort locals
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- clearify headers for ausioplayer/internetradio setup
+
+	# Conflicts:
+	#	data/locale/deutsch.locale
+	#	data/locale/english.locale
+	#	src/system/locals.h
+	#	src/system/locals_intern.h
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- audioplayer-setup: re-align some items
+	Conflicts:
+		src/gui/audioplayer_setup.cpp
+
+	- audioplayer. add streamripper control to record current stream
+
+	- webtv/webradio: cleanup user's files; add dummy sample only
+
+	- webtv/webradio-setup: fix webchannels_auto() logic
+
+	- webtv-setup: remove useless check in webchannels_autodir() function
+
+	- webradio: add possibility to auto-load webradio files
+	 Conflicts:
+		src/gui/webtv_setup.cpp
+		src/gui/webtv_setup.h
+		src/neutrino.cpp
+		src/system/settings.h
+
+	- webtv-setup: implement webradio-setup into webtv-setup code
+	 Conflicts:
+		src/gui/webtv_setup.cpp
+
+2018-10-02  TangoCash  <eric@loxat.de>
+
+	-webtv: fix segfault while reload
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- icons: add webtv and xmltv hint icons
+	 Conflicts:
+		data/icons/hints/Makefile.am
+
+	- neutrino: add xmltv-setup
+
+	- webtv-setup: move LIVESTREAM_RESOLUTION_OPTIONS to CWebTVResolution code
+
+	- webtv-setup: init filebrowser only if needed
+
+2018-10-02  TangoCash  <eric@loxat.de>
+
+	- webtv-setup: add possibility to edit webtv-file manually
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- webtv-setup: just code reformatting (using astyle)
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- webtv-setup: add possibility to enter webtv-file manually
+
+	 Conflicts:
+		src/gui/webtv_setup.cpp
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- webtv-setup: show hintbox when reloading channels
+
+2018-10-02  Thilo Graf  <dbt@novatux.de>
+
+	Add functionality for webtv
+	Taken from bitbucket.org/neutrino-images/ni-neutrino-hd
+
+	Required  build fixes:
+	    Clean cherry-pick was impossible and build was broken,
+	    because of missing parts of historie inside source repository.
+	    That forces to add many other missing code parts.
+
+2018-10-02  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	rcinput: fix corrupted iterator on input device hot-unplug
+
+2018-10-02  Thilo Graf  <dbt@novatux.de>
+
+	src/daemonc/remotecontrol.cpp: fix possible code errors
+	code should be UTF8
+
+2018-10-02  TangoCash  <eric@loxat.de>
+
+	download/cache xmltv logo only if no local logo already exists
+
+	adding caching xmltv logos
+
+	add some threadsafety
+
+	pictureviewer: fix segfault if no channelid is present
+
+	speed up starting neutrino while loading xmltv logos, the better way
+
+	Revert "speed up starting neutrino while loading xmltv logos"
+	This reverts commit 7f57c687bb658ae7cec251e241f138e4b1687fb0.
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	cleanup LOGODIR_TMP at start
+
+2018-10-02  TangoCash  <eric@loxat.de>
+
+	cleanup COVERDIR_TMP at start
+
+2018-10-02  Thilo Graf  <dbt@novatux.de>
+
+	data/inetradio: add radio-favorites.xml with sample entry
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- rename COVERDIR => COVERDIR_TMP
+
+	- audioplayer: remove all covers when playback is stopped or title is changed
+
+	- audioplayer: don't remove station-logo immediately; ...
+	this allows the usage of station-logo as screensaver
+
+	- helpers: rework new random-functions to get the code more reuseable
+	* introduceand use LOGODIR_TMP (storage dir for webchannel logos)
+
+2018-10-02  TangoCash  <eric@loxat.de>
+
+	speed up starting neutrino while loading xmltv logos
+
+2018-10-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- yweb: try to fix oversized channellogos
+
+	- cables.xml: update Unitymedia; remove obsolete Unitymedia BW
+
+	- neutrino: introduce WEBRADIODIR and WEBRADIODIR_VAR
+	 Conflicts:
+		src/neutrino.cpp
+		src/nhttpd/yhttpd_mods/mod_yparser.cpp
+
+2018-10-02  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/widget/stringinput.cpp: add missing @
+
+2018-10-02  redblue-pkt  <17146148+redblue-pkt@users.noreply.github.com>
+
+	fix segfault in standby
+
+2018-10-02  Thilo Graf  <dbt@novatux.de>
+
+	src/neutrino.cpp: fix show logo on start
+
+	src/driver/fb_generic.cpp/h: use methode showFrame() as bool function
+	Allows the evaluation of this function for conditions if needed.
+
+2018-09-28  Thilo Graf  <dbt@novatux.de>
+
+	neutrino.cpp: use dolby digital as default
+
+	src/gui/lua/lua_menue.cpp: add missing @,_:
+
+2018-09-26  GetAway  <get-away@t-online.de>
+
+	upnpbrowser.cpp: paint picture when reentry same folder
+
+2018-09-25  Jacek Jendrzej  <overx300@gmail.com>
+
+	scansdt: typo
+
+	scansdt: check dmx
+
+	scansdt: add update without SDT SID
+
+2018-09-24  GetAway  <get-away@t-online.de>
+
+	infoviewer.cpp: prevent segfault if framebuffer is ...
+	already deactivated in standby mode. (race condition)
+
+2018-09-22  Jacek Jendrzej  <overx300@gmail.com>
+
+	moviebrowser: workaround fix for delete fileinfo from gui list wit epginfo1 with whitespace
+
+2018-09-17  GetAway  <get-away@t-online.de>
+
+	screensaver.cpp: add 2 more events to filter
+
+2018-09-15  GetAway  <get-away@t-online.de>
+
+	- locale: fix CSTLink (HDMI-CEC); it's not only CST anymore
+
+2018-09-09  TangoCash  <eric@loxat.de>
+
+	fix infoviewer
+
+2018-09-09  Frankenstone  <dampf_acc@yahoo.com>
+
+	armbox: rework AC3 and DTS passtrough
+	//vanhofen: this commit includes all following fixes and a small
+	new change in setting_helpers.cpp
+
+2018-09-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- controlapi: fix xmltv.m3u output for channels without logo
+
+	- controlapi: minor changes in url creation in xmltvm3uCGI() function
+
+	- controlapi: reformat CControlAPI::xmltvm3uCGI() function; no other changes
+
+	- pictureviewer: search for e2 picons in LOGODIR_VAR and LOGODIR too
+
+2018-09-09  TangoCash  <eric@loxat.de>
+
+	adding support for E2 picons
+
+	use alternative logo if present
+
+	fix logo url, white space in xmltv.m3u
+
+	read logo marker in m3u files
+
+	adding download helping function
+
+	adding alternative logo for webchannels
+
+2018-09-06  Thilo Graf  <dbt@novatux.de>
+
+	data/bad_package_pattern.list.sample: update and resort samples
+
+2018-09-04  BPanther  <bpanther_ts@hotmail.com>
+
+	plugin integration main menu added
+
+2018-09-04  Frankenstone  <dampf_acc@yahoo.com>
+
+	movieplayer , bouquets expanded to rtp:// and https://
+
+2018-09-04  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: add localized bouquet names
+
+2018-09-02  J. Krieg  <bellum07@googlemail.com>
+
+	src/gui-neutrino/lib/xmltree/xmlinterface.cpp: fix build when compiling with -Werror
+	because with this the warning:
+	  warning: 'xmlgz_file' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  warning: 'xml_file' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	is treated as an error and the build aborts - so let's remove this warning...
+
+	Thanks to Janus for reporting this and the suggested fix
+
+2018-09-02  TangoCash  <eric@loxat.de>
+
+	implement own tmp function / satify compiler
+
+2018-09-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- miscsettings-menu: read xmltv too when user requests a re-reading of epg
+
+2018-09-01  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- rename g_settings.webepg* to g_settings.xmltv* because it is XMLTV; see http://wiki.xmltv.org
+	By courtesy of TangoCash. :)
+
+	- eitd/sectionsdclient: unify new code and call it as it is ... it is XMLTV; ...
+	fix another compiler warning: the use of `tmpnam' is dangerous
+
+	- webepg: align new keys/values to the existing keys/values
+	By courtesy of TangoCash. :)
+
+	- zapit/bouquets: minor format changes
+
+	- fix compile warnings from previous commit
+	warning: declaration of ‘url’ shadows a previous local
+	warning: the use of `tmpnam' is dangerous
+
+2018-09-01  TangoCash  <eric@loxat.de>
+
+	fix repeating remotetimers
+
+2018-09-01  TangoCash  <eric@loxat.de>
+
+	add settings for xmltv epg
+	todo:
+	GUI
+
+	for testing edit your neutrino.conf:
+
+	webtv_xml_0=http://<remoteboxip>/control/xmltv.m3u
+	webtv_xml_count=1
+	webepg_0=http://<remoteboxip>/control/xmltv.xml
+	webepg_count=1
+
+2018-09-01  TangoCash  <eric@loxat.de>
+
+	add option to read (online) xmltv epg
+
+	fixes for xmltv epg
+
+	cleanup
+
+2018-09-01  Thilo Graf  <dbt@novatux.de>
+
+	src/zapit/src/bouquets.cpp: fix possible compile error
+	error: declaration of 'url' shadows a previous local [-Werror=shadow]
+
+2018-09-01  TangoCash  <eric@loxat.de>
+
+	prepare for online webchannels lists / fix epg
+
+	fix possible segfault
+
+2018-08-31  Thilo Graf  <dbt@novatux.de>
+
+	src/driver/fb_generic.cpp: unifiy path search in showFrame()
+	This allows to use same paths for images like for icons.
+
+	Was a request, because images inside theme directories were not found.
+	Thanks bellum for this hint.
+
+2018-08-31  Thilo Graf  <dbt@novatux.de>
+
+	src/driver/fb_generic.cpp: add possibility to use images with full name
+	Keep parameter file_type empty to use filenames with file name extension.
+
+2018-08-31  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- xmlinterface: fix compiling for CST hardware
+	error was: ‘pugi::xml_parse_status’ is not a class or namespace
+
+	- add gzstream.h to fix 4bcce912b248fd21018c45dfe2c2801367e4178c
+	4bcce912b248fd21018c45dfe2c2801367e4178c = 'add reading from gzipped xml files (xxx.xml.gz)'
+
+2018-08-31  TangoCash  <eric@loxat.de>
+
+	add reading from gzipped xml files (xxx.xml.gz)
+
+2018-08-28  Thilo Graf  <dbt@novatux.de>
+
+	src/system/helpers.cpp: fix cherry pick
+	protected space was broken
+
+2018-08-23  BPanther  <bpanther_ts@hotmail.com>
+
+	more time for shutdown message
+
+2018-08-23  TangoCash  <eric@loxat.de>
+
+	small fix in bname
+
+	avoid segfault with saved tvg-id
+
+2018-08-23  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- audioplayer: remove some code; since 2588700 it's to find in helpers.cpp|h
+
+	this is a fix for: adding some curl helpers
+
+2018-08-23  TangoCash  <eric@loxat.de>
+
+	adding some curl helpers
+
+	NOTE: this pick makes build broken because of some previous declarations
+
+2018-08-23  TangoCash  <eric@loxat.de>
+
+	satisfy compiler
+
+	Possible error was:
+	operation on ‘iColon’ may be undefined, possible sequence-point error
+
+2018-08-23  TangoCash  <eric@loxat.de>
+
+	supplemental to a7be95b6ada4c7aaaafc39596ab0c36a7a42cf9e
+
+2018-08-23  TangoCash  <eric@loxat.de>
+
+	add option to load E2 & M3U iptv lists directly as webtv
+	 Conflicts:
+		src/zapit/src/bouquets.cpp
+
+
+	- fixed some line indentation errors
+	- line 967 contains possible error:
+		operation on ‘iColon’ may be undefined [-Werror=sequence-point]
+
+2018-08-23  Thilo Graf  <dbt@novatux.de>
+
+	src/zapit/src/bouquets.cpp: minor format changes
+
+2018-08-19  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- channellist: re-allow switching bouquets in zaphistory/current_transponder mode
+	see https://www.neutrino-images.de/board/viewtopic.php?f=61&t=2728
+
+	- neutrino: new defaults for epg scan; scan all favs in standby mode
+
+2018-08-18  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/components/cc_frm_footer.cpp: fix assinged vector content
+
+	cc_frm_footer.cpp: avoid possible crash if content[i].button = NULL
+	If content[i].button = NULL, conversion of content[i].button into std::string would fail.
+
+	cc_frm_button.h: expand getButtonDirectKey() for  item id
+	With this parameter it is possible to get any existing directkey
+	inside button object. For compatibility the old behavior is untouched.
+
+	src/gui/components/cc_frm_footer.cpp: add member getButtonLabel()
+	Allows to get button label object from button collection.
+
+	src/gui/components/cc_types.h: fix default key for button labels
+	First index = 0 not 1
+
+2018-08-04  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: don't wake up screensaver with ignored msgs
+
+	- screensaver: move code for ignored msgs to screensaver code
+
+2018-08-04  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- menu: add condition to enable/disable items in record mode (version 2)
+
+	Unused but useful if conditions are required to disable
+	or enable items depends of record mode.
+
+2018-08-03  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/scan.cpp/h: add more plausible caption for user canceled scan
+
+	locales: add cancel message for canceled channel scan
+
+2018-08-03  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- scan-setup: rework/unify shortcuts (thx to Janus)
+
+2018-08-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: fix display of timeshift stop dialog ...
+	... if timeshift was stopped in background while playback
+
+	- movieplayer: fix vfd message when timeshift is startet in paused mode
+
+	- neutrino: fix auto-delete code
+	* Why only remove old timeshift recordings if timeshift-dir == recording-dir?
+
+	- movieplayer/record: move timeshift deletion code to moviebrowser ...
+	... to get sure it's not deleted until playback is stopped
+
+2018-07-31  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- cables.xml: update Antennengemeinschaft Göltzschtalbrücke
+
+	- user-menu: disable timeshift item if timeshift is already running
+
+	- record-menu: allow to exit with RC_stop, when no records available
+	This allows to call and exit this menu without to move the finger on the remotecontrol
+
+	- movieplayer: signalize zap tries with key_quickzap_up/down in timeshift mode
+
+	- locale: better locale for zap tries in movieplayer
+
+	- usermenu: better locales for record/timeshift items
+
+	- record: add space between title and duration in record messages
+
+2018-07-31  Thilo Graf  <dbt@novatux.de>
+
+	neutrino.cpp: remove software update from yellow user menu
+	Yellow menu is reserved for video sub channel options and
+	livestream resolution as default.
+
+2018-07-30  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- usermenu: add timeshift item to blue usermenu; small resort to get colorkeys sorted
+	 Conflicts:
+		src/neutrino.cpp
+
+
+	 Changed according to our setup.
+
+2018-07-30  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- locale: split fileplay hints into audio and video
+
+	- channellist: move avoid-zap-in-movieplayer-mode-message ...
+	... to a global reachable place to avoid all zap tries
+
+	- movieplayer/record: stop playback of timeshift when zap to another channel
+
+2018-07-30  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/imageinfo.cpp: add entry for operating system
+
+2018-07-29  Thilo Graf  <dbt@novatux.de>
+
+	src/driver/fb_generic.h: use unified define for fb device name
+
+2018-07-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- locale: update slovak locale (thx to EnoSat)
+
+	- neutrino: fix bouquet align when zap via history or current transponder list
+
+	- record: differentiate between timeshift and record in AskToStop() function
+
+	- record: set TSHIFT_MODE_OFF when stopping timeshift
+
+	- record-setup: minor changes in timeshift-setup
+
+2018-07-28  Thilo Graf  <dbt@novatux.de>
+
+	src/driver/record.cpp: avoid possible build error 'unused-but-set-variable'
+	see commit: c074e5f43268022a9f63cb80d67b6166db3fb9e3
+
+2018-07-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer/record: try to fix timeshift stop; ...
+	Timeshift was stopped immediately when mpkey_stop was pressed.
+	After that the record/timeshift menu was shown, but is wasn't possilble
+	to return to timeshift record.
+
+	- epgplus: signalize zap tries while movie playback
+
+	- user-menu: allow SNeutrinoSettings::ITEM_EPG_SUPER and SNeutrinoSettings::ITEM_EPG_LIST in movieplayer-mode too
+	Both is available via channellist in movieplayer-mode. So we can it allow via user-menu too.
+
+2018-07-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- epgplus: move CEPGplusHandler::exec() code to end of file; ...
+	* really minor code changes in CEPGDataHandler::exec() and
+	  CEventListHandler::exec()
+
+	No binary changes, just code cosmetic.
+
+2018-07-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer/infoviewer: simplify call of showMovieInfo()
+
+	- epgview: fix CEPGDataHandler::exec() in timeshift mode
+
+	- movieplayer: remove NeutrinoMessages::SHOW_EPG handling from handleMovieBrowser() function
+	This isn't any moviebrowser function. Use showMovieInfo() instead of this.
+
+	- user-menu: enable SNeutrinoSettings::ITEM_EPG_INFO in movieplayer-mode too
+
+	- epgview: rework CEPGDataHandler::exec() to get work in movieplayer-mode too
+
+	- movieplayer: move code to display movie-info to an own public function
+
+2018-07-28  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/timerlist.cpp: use more plausible SaveScreen methods
+
+2018-07-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- timerlist: fix display of gui-rests when adding a new remotebox
+
+2018-07-28  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/widget/menue.h: add plausible alias for disableSaveScreen() method
+
+2018-07-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- moviebrowser: enable search in sms mode by default
+
+	- neutrino: add additional key to leave standby mode; unify standby locales
+	This re-adds an old feature from dbox2, but uses a more configurable way
+
+2018-07-28  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	src/gui/movieplayer.cpp: check return after playbeck start
+
+2018-07-18  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- moviebrowser: small changes in menu locales; display hintbox while saving movie info
+
+	- moviebrowser: re-add by mistake removed boolean value got_start_pos
+
+	- menu: fix return value of getSelectedLine() for RC_timeout and RC_setup
+	This fixes the bahaviour of StartPosSelectionMenu in moviebrowser.
+	When this menu was closed by its timeout or RC_setup was pressed
+	the movie starts anyway.
+
+	- moviebrowser: set focus in StartPosSelectionMenu to last play stop if it exists
+
+2018-07-18  Thilo Graf  <dbt@novatux.de>
+
+	icons: use smaller icon for scrambled channel mode
+
+2018-07-18  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- moviebrowser: party revert caa8b68b170a395e446f3898f91ba09d9d8bfb80; ...
+	unfortunately this subheader breaks the m_settings.browserAdditional feature
+
+	- moviebrowser: add subheader to main window to avoid gui-jumps; add left/right icons to header
+
+2018-07-18  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- moviebrowser: allow to display record time
+
+	include fix of broken build
+
+2018-07-18  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- moviebrowser: fix display of mp_movie_info->dateOfLastPlay
+
+	- epgview: fix display of mp_movie_info->dateOfLastPlay
+
+	- movieinfo/moviebrowser: do not use any fake date to fill dateOfLastPlay and file.Time
+
+	- keybind-setup: try to fix return value of msgbox when new rc is not confirmed
+
+	- channellist: fix display of very long channelnames
+
+2018-07-18  Thilo Graf  <dbt@novatux.de>
+
+	icons: add new resolution icons
+
+2018-07-18  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- channellist: allow to show resolution icons
+	 Conflicts:
+		data/locale/deutsch.locale
+		data/locale/english.locale
+		src/system/locals.h
+		src/system/locals_intern.h
+
+2018-07-02  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	rcinput: try harder to reacquire input device
+	During lirc package update, the input device was sometimes lost and not
+	reacquired. Try to reacquire also if setKeyRepeatDelay fails.
+
+
+	# Conflicts:
+	#	src/driver/rcinput.cpp
+
+2018-07-02  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	tuxtxt: remove unused var_screeninfo.yoffset (always 0)
+
+	tuxtxt: fix framebuffer blitting for SPARK
+
+	tuxtxt: use one global CFrameBuffer variable
+
+2018-06-07  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- moviebrowser: check for channelname too to change channellogo; ...
+	usefull for popup-channels with same id but different names
+
+2018-06-01  Thilo Graf  <dbt@novatux.de>
+
+	src/neutrino.cpp: show next event as default in channel list
+
+	src/neutrino.cpp: update nfs options
+	Read and write should be set as default and block sizes
+	should be negotiated itself.
+
+2018-05-31  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix framerate 29970 signalisatiom (by bazi98)
+
+2018-05-30  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix signalisation bitrate 599940 (by bazi98)
+
+2018-05-28  limes007  <39467727+limes007@users.noreply.github.com>
+
+	correct length in movie-info during "stop"
+
+2018-05-27  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	move for - if used kill neutrino
+
+2018-05-26  GetAway  <get-away@t-online.de>
+
+	Revert "- audioplayer: fix station logo handling for icecast"
+	This reverts commit 2e96ac3 - it is incomplete!
+
+	movieplayer.cpp: fix handle key play/pause for arm
+
+2018-05-26  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	disable CEC standby after flash (armbox1)
+
+2018-05-21  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/screensaver.cpp: ensure usage of transparent background for clock
+
+2018-05-21  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/screensaver.cpp: remove call of showFrame()
+	This should fix an issue with screen saver with movieplayer.
+
+	Call of showFrame() causes unintentional behavior on cs hardware
+	with green screens and video decoder seems to become unusable.
+
+2018-05-20  vanhofen  <vanhofen@gmx.de>
+
+	- internetradio: clear playlist before loading a new one
+
+2018-05-20  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- audioplayer: fix station logo handling for icecast
+
+2018-05-18  Thilo Graf  <dbt@novatux.de>
+
+	src/neutrino.cpp: fix possible compile error
+	missing variable
+
+	src/neutrino.cpp: use WEBTVDIR as default in neutrino settings
+	Default xmls are installed in WEBTVDIR.
+
+	src/neutrino.cpp: hide dev/api keys when keymanage is disabled
+	This should help providers maintain their keys no public.
+
+2018-05-18  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/screensaver.cpp: simplify painting images
+	Images will paint on full screen without blank frame in movie player mode.
+
+	TODO: Only with scale at the moment, but not sure if this must be changed.
+
+2018-05-17  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- helpbox: replace fixed value with a scalable one
+
+	Merged with subsequently submitted build fix.
+
+2018-05-17  Thilo Graf  <dbt@novatux.de>
+
+	Screensaver: try to fix background
+	Ensure to have blank background before paint screensaver content.
+	This should avoid possible holes with some images.
+
+2018-05-16  Markus Volk  <f_l_k@t-online.de>
+
+	[PATCH] do jpgs for osd+video grabs to improve yweb performance
+
+2018-05-14  GetAway  <get-away@t-online.de>
+
+	pzapit: add get video format
+
+2018-05-13  GetAway  <get-away@t-online.de>
+
+	pzapit: add set and get OSD resolution
+
+2018-05-13  Thilo Graf  <dbt@novatux.de>
+
+	imdb: Fix an issue on changing of imdb key during runtime.
+	Global instance allows to set the api key from settings on first
+	created instance of the imdb object only,
+	so changes on settings had no effect during runtime and
+	restart of neutrinon was required to apply ne keys.
+	This should fix this.
+
+2018-05-12  GetAway  <get-away@t-online.de>
+
+	pzapit: format help text
+
+2018-05-09  Markus Volk  <f_l_k@t-online.de>
+
+	hdd_menu.cpp: add support for sgdisk; fix sfdisk usage
+
+	- sfdisk is used primarily
+	- ensures detection of large hard drives
+	- using gpt tables with sfdisk or sgdisk
+
+	Note:
+	busybox fdisk doesn't support gpt tables and no large hard disks,
+	but fallback to old behavior should work unchanged
+	newer util versions of fdisk can do this but with different syntax.
+
+	Please test.
+
+2018-05-08  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/epgplus.cpp: add missing home handling
+	Window was not closed with exit button.
+
+2018-05-08  FlatTV  <FlatTV@gmx.de>
+
+	imdb.cpp: fix parsing google file
+
+2018-05-04  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- epgview: use OFFSET define instead of fixed value
+
+2018-05-03  Thilo Graf  <dbt@novatux.de>
+
+	icons: fix wrong icon name, update icon face
+	Icon 'marker_update_available 'was not found.
+
+	data/bad_package_pattern.list.sample: add krb5
+
+2018-04-28  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/miscsettings_menu.cpp: fix possible compile error
+	Error: Wunused variable, if ENABLE_TMDB_KEY_MANAGE is unset
+
+	src/gui/epgview.cpp: optimize text arrangement for tmdb/imdb
+
+	icons: update tmdb.png imdb.png
+
+2018-04-28  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/epgview.cpp: rework online epg database handling
+	Vizualize of TMDb starbar was partial broken, should working now and IMDb (in reality OMDb)
+	should working too. DEV/Api keys are required and are managed with
+	misc settings menue. To get reqiured keys see https://www.omdbapi.com/ and
+	for TMDb see https://www.themoviedb.org
+
+	TODO: Better encapsulating for db classes for unified data tapping.
+
+2018-04-28  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/epgview.h: add class to create star bars
+
+	src/gui/epgview.cpp: update license text
+
+	ytplayer: apply enable option for internal YouTube playback
+
+	Api keys: add class instead single functions to check api keys
+	Without class build was broken, with static versions it should working.
+
+	neutrino.cpp: add defined api keys into online service settings
+
+	setting_helpers.h: add generic function for api keys
+
+	imdb-support: renamed imdb->omdb
+	Imdb is not really used directly, that is a bit misleading
+
+	CIMDB: load api key from settings
+
+	CMiscMenue: apply api key options
+
+	CMiscMenue: adapt to new dev key definies
+
+	misc settings: add missing locals and settings variables
+
+	icons: add resized star-on.png
+	use compatible icon size related to star-off.png
+
+	icons.h: remove useless star icons
+
+	CIMDB: add imdb icon
+
+	CIMDB: clean up
+	- fix license text
+	- move unused include unistd.h into cpp file
+	- scope of the variable 'line' reduced.
+	- remove variable 'pos_firstline', its value was never used.
+	- remove unused variable: search
+	- remove variables 'pos_search1', 'pos_search2'... values never used.
+	- add member variable 'CIMDB::acc' into constructor, was not initialized
+	- move include for cc.h into cpp file
+
+2018-04-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- epgview: fix logic for followscreenings- and tmdb-button
+
+	include c/p fix
+
+2018-04-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- epgview: change and simplify button logic; ...
+	this avoids annoying "button-jumps" while navigating through events
+
+2018-04-28  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/videosettings.cpp: disable fade option for AX51/Mutant
+	Don't working at the moment.
+
+	TODO: Make it usable for AX51/Mutant
+
+2018-04-28  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/videosettings.cpp: don't show entry for vf key settings
+	Available on CS hardware
+
+	TODO: make configurable for other keys on other hardware
+
+2018-04-28  Thilo Graf  <dbt@novatux.de>
+
+	widget/menue.cpp: avoid paint of toggle buttons with more than 2 opts
+
+	src/gui/test_menu.cpp: doc corrected
+
+	src/gui/widget/msgbox.cpp: add missing handling of RC_home message
+	Required in case of usage without explicit undefined home button.
+
+	data/bad_package_pattern.list.sample: add zsh
+
+	moviebrowser: implement imdb functionality into moviebrowser
+	taken over from https://bitbucket.org/neutrino-images/ni-neutrino-hd
+
+	epgview: add imdb functionality into epgviewer
+	taken over from https://bitbucket.org/neutrino-images/ni-neutrino-hd
+
+2018-04-28  Thilo Graf  <dbt@novatux.de>
+
+	configure: add options for online services
+	Contains options to manage api keys and related gui features.
+
+	These options allows to add predefined api/dev keys. If option unused, it will be like before and
+	user can add end edit keys via gui.
+
+	Add keys with
+
+	 --with-tmdb-dev-key=[KEY]
+	 --with-omdb-api-key=[KEY]
+	 --with-youtube-dev-key=[KEY]
+	 --with-shoutcast-dev-key=[KEY]
+
+	In case of predefined keys it could be useful to avoid the gui managment for keys:
+
+	 --disable-tmdb-key-manage
+	 --disable-omdb-key-manage
+	 --disable-youtube-key-manage
+	 --disable-shoutcast-key-manage
+
+	Additional option to disable youtube player inside moviebrowser
+
+	 --disable-youtube-player
+
+2018-04-26  GetAway  <get-away@t-online.de>
+
+	pzapit: hack for HD51 mix-up letterbox<->panscan
+	videosettings.cpp: improved debug output for mode_43
+
+2018-04-22  GetAway  <get-away@t-online.de>
+
+	videosettings: fix set and get video_43mode
+
+2018-04-22  Thilo Graf  <dbt@novatux.de>
+
+	src/neutrino.cpp: change time server
+	time.fu-berlin.de not really works
+
+	data/bad_package_pattern.list.sample: fix typo, add webmin
+
+	theme Gray-Blue: add 'enable' trigger button
+
+	icons: use more different brightness for 'disable' trigger button
+
+	themes Olive3.0, Neutrino3.0: use more contrast for trigger buttons
+
+2018-04-22  GetAway  <get-away@t-online.de>
+
+	pzapit -gm: reactivate get current TV/Radio mode
+
+2018-04-16  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix epg dir, strange static behavior
+
+2018-04-14  Thilo Graf  <dbt@novatux.de>
+
+	color buttons: small changes on color
+
+2018-04-14  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- locale: small changes on themes locales
+
+	- yWeb: activate pos and recall keys on remote controls (thx to DdD)
+	 Conflicts:
+		data/y-web/Y_Blocks.txt
+		data/y-web/languages/Deutsch
+		data/y-web/languages/English
+
+	- icons: rename important.png => marker_warning.png because it doesn't signalize important stuff, but warnings
+
+2018-04-13  Thilo Graf  <dbt@novatux.de>
+
+	icons: add default icons for trigger buttons
+
+2018-04-11  Thilo Graf  <dbt@novatux.de>
+
+	Icons: change check markers, rename to dialog on/off, add update marker
+
+	themes: add some theme relevant trigger buttons
+	icons: add larger on/off buttons
+
+2018-04-11  Thilo Graf  <dbt@novatux.de>
+
+	Revert "COsdSetup: kill instance of osd_menu_colors"
+	This reverts commit 14124c7dd6dcc7274560658842ac95912d42b06e.
+
+	With this commit were crashes are to be expected. If here is an issue,
+	we should fix it with another solution.
+
+2018-04-11  Thilo Graf  <dbt@novatux.de>
+
+	menu: add optional usage of toggle buttons to visualze options
+
+2018-04-11  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/osd_setup.cpp: use CMenuForwarder instead CMenuDForwarder
+	This should avoid possible segfaults when user is calling color setup.
+	This behavior was observed if start wizard has been completed and
+	after that user wants to change color settings.
+
+	If target object is a singelton, this should not be an issue.
+
+2018-04-11  Thilo Graf  <dbt@novatux.de>
+
+	::getValue(void): remove multiple declared members
+	Already inherited from CMenuTarget
+
+	themes: add locales for theme reset
+
+	CThemes: visualize migrated theme after possible update
+	After an update this entry will be only shown if theme name is a new
+	configure option and theme name is still unknown.
+	This entry visualizes the state of current migrated theme. The old theme
+	settings will be kept.
+	If required users should save the theme as a new userdefined theme or
+	select a given theme.
+
+	CThemes: add default theme from config and migrate theme settings if needed
+
+	CThemes: rename member readThemes -> showThemesMenu
+	more plausible name
+
+	CThemes: visualize current selected or applied theme
+
+	CThemes: inherit CColorSetupNotifier into CThemes
+	Avoids explicit init of CColorSetupNotifier objects.
+
+	themes: set default theme instead static colors, but hold fallback
+
+	themes: add setting entry for theme name
+
+2018-04-11  Thilo Graf  <dbt@novatux.de>
+
+	CFrameBuffer: add more possible icon paths in order of priority
+	This gives possibility to use theme relevant icon sets.
+
+	scheme:
+		/path/to/theme/icons/file.png
+
+	example:
+		/usr/share/tuxbox/neutrino/themes/Neutrino-3.0/icons/file.png
+
+2018-04-11  Thilo Graf  <dbt@novatux.de>
+
+	Color theme setup: re sort some entries, remove some separator lines
+	Better separation of the gui and misc parts.
+
+	Progressbar setup: add missing caption for global settings
+
+2018-04-11  FlatTV  <FlatTV@gmx.de>
+
+	OSD Menu: Add progressbar color
+
+	- themes/Makefile.am unchanged, build was broken
+	- whitespace errors fixed
+	- unnecessary comments removed
+	- bump lua api version, was missed
+
+2018-04-11  Thilo Graf  <dbt@novatux.de>
+
+	colorchooser.cpp/h: add separate init method
+	If color setup having already been used and after that user has done changed some other settings  (e.g. font settings), graphical errors or crashes are possible.
+	The relocation of the initialization should prevent this.
+
+	Color setup: add button bar
+
+	CColorChooser: fine tune position of color rate
+
+	Color setup: Show color number in preview.
+
+	Color setup: align to general window composition
+	- add home context button and icon
+	- width increased
+
+	CColorChooser: use unified variable vor window font
+
+	color setup: Visualize color rate
+
+	locales/fonts: add global window font
+
+2018-04-10  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- english.locale: some more minor corrections
+
+	- deutsch.locale: Fix some english hints
+
+	- locale: minor alignments; mostly capitalization fixes in english.locale
+
+	- locale: minor changes in timing.infobar locales
+
+2018-04-10  Thilo Graf  <dbt@novatux.de>
+
+	infobar timout: add member to get current timeout modes
+	Avoids  multiple code in some source files.
+
+	infobar: rework infobar timeout behavior
+	Options were sometimes described ambiguously and previous behavior was no longer available.
+	Now the descriptions should be more plausible for current behavior.
+
+	Imageinfo: resort image and gui relevant entries
+
+2018-04-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- channellist: signalize zap tries while movie playback
+
+	Conflicts:
+		data/locale/english.locale
+
+2018-04-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- channellist: try to respect users timeout settings when hiding infobar
+
+2018-04-05  Thilo Graf  <dbt@novatux.de>
+
+	CCDraw: add debug output to identify errors in relevant item types
+
+	CCTypes: outsource type variables and methods into own inheritable class
+
+2018-04-05  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/widget/menue.h: fix possible compile error with older compliers
+	avoids possible error with extended initializer lists,
+	only available with -std=c++11 or -std=gnu++11
+
+	supplement to:
+	'CMenuOptionNumberChooser: expand localize functionality for any number'
+
+2018-04-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- nhttpd/controlapi: make CDATA attribute in xml output switchable to fix xmltv.data
+
+2018-04-04  Thilo Graf  <dbt@novatux.de>
+
+	CMenuOptionNumberChooser: expand localize functionality for any number
+
+2018-04-03  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- nhttpd: re-add CDATA attribute to xml output to keep compatibility with some plugins
+
+2018-04-03  BPanther  <bpanther_ts@hotmail.com>
+
+	fix fontrenderer segfault (thx DBoxOldie)
+
+2018-04-01  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/channellist.cpp: use channellist object on stack
+	Heap not required here.
+
+2018-04-01  Thilo Graf  <dbt@novatux.de>
+
+	src/neutrino.cpp: fix wrong default keysetup for audio key
+	Audio key has opened hdd menue instead audio menue.
+
+	Note: Reset or rework of user menue settings for audio key is required.
+
+2018-03-31  TangoCash  <eric@loxat.de>
+
+	fix webif xml encoding, part 2
+
+	fix webif xml encoding
+
+2018-03-29  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	not generic code
+
+	 src/zapit/src/capmt.cpp fix possible segfault
+
+2018-03-24  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/epgview.cpp: small indent fix
+
+	src/gui/epgview.cpp: initialize of dimensions dependently from added icons
+	... so it is possible to get usable dimension values. Useful if in parent
+	object none values or too small dimensions are defined.
+
+2018-03-24  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix copy, suppemnent to last commit
+
+	supplement to a04e899d44ad94c0f280183e254d264ce7e6c882 , memcpy don't work ok with std::string
+
+2018-03-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- channellist: re-add list of recordable channels (while recording) to key_current_transponder
+
+	- channellist: move zaphistory/current_transponder handling into sepatate function
+	 Conflicts:
+		src/neutrino.cpp
+
+	- channellist: avoid switching bouquets in zaphistory/current_transponder mode
+
+2018-03-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- channellist: simplify key_zaphistory/key_current_transponder handling
+	* Remove strange list of "zapable" channels while recording. Channellist
+	(RC_ok) has same feature ... not avalable channels are marked inactive.
+
+	* Add hint, when no zapping histoty is available to confirm user's keypress
+
+	 Conflicts:
+		data/locale/english.locale
+
+2018-03-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: simplify key_zaphistory/key_current_transponder calls
+	* allow these both keys in movieplayer too; handling has been missing there
+
+	 Conflicts:
+		src/neutrino.cpp
+
+2018-03-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- keybind-setup: sort mpkeys more consistent
+
+	- cables.xml: update OstTelCom GmbH
+
+2018-03-22  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/widget/menue_target.h: ensure init of valueStringTmp
+
+2018-03-22  Thilo Graf  <dbt@novatux.de>
+
+	CNeutrinoApp: ensure clean up of screen in standby mode
+	This should fix a possible issue with infobar artefacts in standby mode.
+
+	This issue was observed if user went to change  to standby mode and
+	infobar was still open e.g if  infobar timeout was set to 0
+	(always visible) and runtime timeout was elapsed.
+
+2018-03-22  Thilo Graf  <dbt@novatux.de>
+
+	Revert "neutrino: do not clean up infoviewer"
+	This reverts commit 596e8b5bf6721fd8ea4fa8a848c5d95a1f58261b.
+
+
+	Can't find any violations at the moment.
+
+2018-03-17  GetAway  <get-away@t-online.de>
+
+	pzapit: fix get 4:3 mode
+	0 = Pan & Scan
+	1 = Letterbox
+	2 = Vollbild
+	3 = 14:9 Pan & Scan
+
+2018-03-14  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/components/cc_frm_icons.cpp: fix typo, add missing include
+
+	data/bad_package_pattern.list.sample: add more filter entries
+
+	CComponentsIconForm: add member to add any number of identical icons
+
+	cc_frm_icons.cpp: add missing call of addIcon();
+	Parameter v_icon_names was without effect.
+
+2018-03-12  Thilo Graf  <dbt@novatux.de>
+
+	icons: fine tuning dummy icons
+
+	widget/menue.cpp: use larger version of dummy button
+
+2018-03-12  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- channellist: show choosen channelnumber on vfd while numeric zapping
+
+	- eventlist: re-add RC_0 to execute timerlist, because CST-hardware has no RC_timer key
+
+	- hardware_caps: introduce caps.has_button_timer
+
+	- channellist/infoviewer: align calculations for "since-time" of current event
+
+2018-03-11  Thilo Graf  <dbt@novatux.de>
+
+	icons: use unified background for btn_timer.png
+
+2018-03-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- timerlist: allow RC_timer or RC_program to leave timerlist
+
+2018-03-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- eventlist: use RC_timer or RC_program to execute timerlist; use new timer icon
+	 Conflicts:
+		src/gui/eventlist.cpp
+
+	Code part is still disabled
+
+2018-03-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- icons: add icon for timer button
+
+	- mediaplayer-setup: remove old commented code
+
+2018-03-05  Thilo Graf  <dbt@novatux.de>
+
+	infoviewer.cpp: use templates to get reserved width for current/next info
+	This should ensure reserved width for all contained text boxes and
+	and in case of truncated epg info this should be moderate.
+
+2018-03-02  Thilo Graf  <dbt@novatux.de>
+
+	CBouquetList/CTPSelectHandler: try to fix possible format-overflow errors
+	Compiler error: [-Werror=format-overflow=]
+
+	Fix "cc_frm_footer.cpp: fix possible compiler warning"
+	This reverts commit 885ed60ea409e147337ea79d10b8a37ad2813915.
+
+	CMiscMenue: enlarge menu width
+	better for some hints
+
+2018-03-01  Thilo Graf  <dbt@novatux.de>
+
+	CCButtonSelect: unfify bg color parameter order with related base methode
+	Order was different between setSelectedButton() and setSelectedItem()
+
+	CCButtonSelect: use pre defined frame color as default
+
+	CCButtonSelect: fix order of frame color parameters
+
+	Neutrino-3.0.theme: optimize inactive color
+
+	CComponentsForm: add define for default select frame
+
+	CUpnpBrowserGui: Ensure clean screen on leaving upnp browser.
+
+	Osd setup: use unified menu width 50%
+
+	cc_frm_footer.cpp: fix possible compiler warning
+	long unsigned int is expected
+
+2018-03-01  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- locale: change menu.hint_infobar_radiotext locale
+
+	- movieplayer: change logic in updateLcd() function
+
+	- yWeb: fix path to ether-wake binary
+
+2018-03-01  GetAway  <get-away@t-online.de>
+
+	timerlist: fix double drawing of timer list
+
+2018-03-01  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- bouqueteditor: allow hiding bouquets with RC_playpause too
+
+2018-03-01  Thilo Graf  <dbt@novatux.de>
+
+	settings: set display plackback time for movieplayer as default = on
+	User should know which movie he just started.
+
+2018-02-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: allow to display plackback time instead of movietitle on vfd
+	 Conflicts:
+		data/locale/deutsch.locale
+		data/locale/english.locale
+		src/neutrino.cpp
+		src/system/locals.h
+		src/system/locals_intern.h
+		src/system/settings.h
+
+2018-02-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: revert to good ol' vfd-handling; ...
+	show playstate in vfd and avoid mode changes
+
+
+	# Conflicts:
+	#	src/gui/movieplayer.cpp
+
+2018-02-26  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	enable screenshot for hd51
+
+2018-02-26  BPanther  <bpanther_ts@hotmail.com>
+
+	- scan-setup: allow three digits for scansettings.sat_TP_pli
+
+2018-02-26  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	remove old framebuffer code files
+	the new structure seems to be working well, so remove unused stuff
+
+	 Conflicts:
+		src/driver/framebuffer.cpp
+		src/driver/framebuffer_ng.cpp
+		src/driver/framebuffer_ng.h
+
+2018-02-26  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	fb_accel_hd1: fix blit2FB for backbuffer-to-fb case
+	For source bitmaps smaller than xRes, the offset calculation goes wrong.
+	Calcuclate an address offset instead and drop the Y offset.
+
+	tuxtxt: use demux 0
+	 Conflicts:
+		lib/libtuxtxt/tuxtxt.cpp
+
+2018-02-26  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	tuxtxt: use blit2FB instead of handmade mem copy
+	This gets rid of most hardware specific code in tuxtxt
+
+	 Conflicts:
+		lib/libtuxtxt/tuxtxt.cpp
+
+2018-02-26  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	tuxtxt: use framebuffer function for painting boxes
+	 Conflicts:
+		lib/libtuxtxt/tuxtxt.cpp
+
+	fb_accel_td: do not use directfb for blitting
+	it is in most cases slower than the naive software implementation :-(
+
+	fb_accel_td: fix transp handling in blit2FB
+
+	fb_accel_sti: add verbose error reporting to blit2FB
+
+	fb_accel_sti: fix blit2FB for source/dest offsets
+
+	fb_accel_cs_hd1: blit2FB transp handling
+	also warn if falling back to software rendering
+
+	fb_accel_cs_hd1: make blit2FB work with source/dest offsets
+
+	fb_generic: blit2FB: implement "transp" parameter
+	also try to document the calling convention of this function
+
+	fb_generic: fix blit2FB for big endian processors
+
+2018-02-20  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: fix RC_ok handling while infoviewer is displayed; ...
+	If filelist is empty or movie in filelist wasn't changed, just quit infoviewer
+	as in tv-mode. Otherwise start choosen movie.
+
+
+	# Conflicts:
+	#	src/gui/movieplayer.cpp
+
+2018-02-20  GetAway  <get-away@t-online.de>
+
+	infoviewer: fix update of runningRest
+	there was no update in movieplayer mode
+
+2018-02-20  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	yaft: revert to buffer offset calculation for blit2FB
+	the implementation of the xp/yp handling in blit2FB is different on
+	different architectures, and the semantics are unclear, so just
+	calculate a buffer offset instead and use yp=0
+
+	tuxtxt: fix display of line25 in zoom mode
+	[vanhofen: was already ok in our code; just aligning code format]
+
+	fb_accel_sti: fix render errors
+
+2018-02-20  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- yWeb: activate KEY_BOOKMARKS on hd51 remote controls; thx DdD
+
+	- settings: fix typo (personalize_mplayer_mbrowswer)
+
+2018-02-19  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	yaft: fix off-by-one in blit area calculation
+
+	fb_accel_td: fix blit2FB() for yp != 0 case
+
+	cc_frm: fix paintCCItems() y position calculation
+
+	yaft: reset signal handler after terminal exit
+
+2018-02-19  Thilo Graf  <dbt@novatux.de>
+
+	cc_timer.cpp: don't loop if slot OnTimer is empty
+	Just for safety and to save resources.
+
+2018-02-17  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	3. try ;) : copy from TangoCash sectiond
+
+2018-02-15  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	second try to fix segfault on TDT time sync
+
+	revert >try to fix segfault on TDT time sync< , this dont work ok on all transponders
+
+2018-02-15  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- sectionsd: fix compiler warning (‘rc’ may be used uninitialized)
+
+2018-02-14  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	supplement to 77ca322a17c11ed647d27f17e386b996d47120d3
+
+2018-02-14  Thilo Graf  <dbt@novatux.de>
+
+	locales: fix order
+	thx balkon
+
+	locales: more precise  setting for startup volume in audio settings
+
+2018-02-14  max_10  <max_10@gmx.de>
+
+	streaminfo2: fix ffmpeg 3.0 API
+
+2018-02-14  Thilo Graf  <dbt@novatux.de>
+
+	tuner setup: Visualize current count of selected satellites.
+
+2018-02-13  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	try to fix segfault on TDT time sync
+
+2018-02-07  Thilo Graf  <dbt@novatux.de>
+
+	CComponentsHeader: use internal offset instead OFFSET_INNER_MID
+	Internal offset is already defined.
+
+2018-02-07  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	neutrino: fix infobar display with disabled timeout
+	When the infobar timeout is disabled, the infobar was not shown for all
+	"automatic" events like "start" and "zap".
+	The purpose of disabled infobar timeout is to show the infobar all the
+	time (e.g. in radio mode), so this does not make sense. Fix it.
+
+	infoviewer: force repaint of text fields
+	next try to get rid of font artifacts:
+	* use kill() instead of hide() to force full repaint at next paint()
+	  (this is probably not the best way, but works for now)
+
+	infoviewer: try to fix infobar font artifacts
+	hiding text boxes after resizing them will probably hide the new size
+	instead of the old one, so hide first, then resize
+
+2018-02-07  max_10  <max_10@gmx.de>
+
+	update: add TARGET_PREFIX define to backup/install calls
+
+2018-02-04  Thilo Graf  <dbt@novatux.de>
+
+	CComponentsHeader: fix possible build error with dangling-else
+	error: suggest explicit braces to avoid ambiguous 'else' [-Werror=dangling-else]
+
+	see commit: 02631f14ca902f9362e12a1ac1614be1719d40f8
+
+2018-02-04  max_10  <max_10@gmx.de>
+
+	fix overpaint buttons in channellist edit mode
+
+2018-02-04  TangoCash  <eric@loxat.de>
+
+	fix channellist footer
+
+2018-02-04  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	CScanTs: make left/right borders symmetric
+
+2018-02-04  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	CScanTs: make better use of available space
+	With bigger font sizes, the the allocated space for satellite,
+	transponder and frequency was getting smaller.
+	Fix this by just keeping a safe space of 10 pixels to the radar icon.
+
+	 Conflicts:
+		src/gui/scan.cpp
+
+2018-02-04  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	CScanTs::paintLine: fix size calculation for font box
+
+	fontrender: fix width calculation of bounding box
+	some glyphs would still draw right of the allocated space,
+	fix the width calculation to avoid this
+
+	fontrenderer: use helper variable for better code readability
+
+	fontrenderer: fix inverted logic for "rendering to buffer"
+
+2018-02-01  max_10  <max_10@gmx.de>
+
+	fix no save web channels in bouquets
+
+2018-01-30  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- yaft: allow new shell.ttf in yaft-widget too
+
+2018-01-28  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	yaft: initialize unused variables for valgrind silence ;)
+
+	yaft: optimize blit2FB call for partial blit
+
+	yaft: make font rendering more reliable
+	at least with older freetype versions, font widths are not reported
+	reliably, so use a better way to determine the width and use a bigger
+	painting box for the fontrenderer so it does not skip rendering for
+	space reasons
+
+	stifb: make blit2FB more flexible wrt blit source
+
+	fontrenderer: adjust width clipping
+	instead of not even trying to draw glyphs that *might* extend past the
+	allocated space, actually draw as much as fits in the box
+
+	yaft: make "CSI ?1c" response linux console compatible
+
+	yaft: optimize for paint == false case
+
+	yaft: refactor term_init() into init() function
+
+	yaft: remove unused DCS code artifacts
+
+	yaft: remove unnecessary lines_available variable
+
+	yaft: use neutrino font renderer
+
+	yaft: improve newline detection
+
+	yaft: remove support for double-width characters
+	for our usecase (output of system commands), this is not necessary
+
+	fontrenderer: allow to render into a memory buffer
+	might be useful for offscreen font rendering
+
+	xmlinterface: fix broken to_utf8() algorithm
+
+2018-01-28  Thilo Graf  <dbt@novatux.de>
+
+	fonts: add missing variables use aliases for some font types
+
+2018-01-27  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrinofonts: add a bit debug output to new SetupShellFont() function
+
+	- fonts: use monospaced tuxtxt font as shell font for shellwindow widget
+	 Conflicts:
+		data/fonts/Makefile.am
+
+	- neutrinofonts: allow monospaced font for shellwindow widget
+	Font is initialized at runtime and uses FONTDIR_VAR "/shell.ttf" or FONTDIR "/shell.ttf"
+
+2018-01-27  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	yaft: remove unused files
+	 Conflicts:
+		src/gui/widget/yaft/tools/bdf.h
+
+	yaft: use c++ YaFT_p implementation in yaft_class
+
+	yaft: actually build yaft_priv class
+
+	yaft: convert into c++ class
+
+	yaft: remove unnecessary cfb struct member
+
+	yaft: add a second font for low-resolution displays
+	TODO: instead of statically defining the characters, freetype should be
+	used for rendering
+
+	yaft: simplify pointer arithmetics
+
+	fb_accel_td: don't crash for no reason
+
+2018-01-27  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: enable caching teletext by default
+
+2018-01-27  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/audioplayer.cpp: add missing 'else'
+	Comes in with picked commit 0d0553a639fea55e6b5232913e6113fbabc118a8
+	Original commit was noiseless deleted and its content was replaced.
+
+	lib/libtuxtxt: remove not required if's with HAVE_SPARK_HARDWARE
+	It seems this may have come from incomplete cherry-picks,
+	also some codepage conflicts should be solved.
+
+	fonts: remove non regular LiberationSans ttf's
+
+2018-01-27  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- tuxtxt: disable unused defines for alternative fonts
+
+2018-01-26  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- audioplayer: split RC_home/RC_stop handling; ...
+	now RC_home do not stop playback anymore and RC_stop do not close gui.
+
+	- channelist: small reworks in numericZap() function; use OFFSET defines
+
+	- cc_item_shapes; add ClearBoxRel() function; analogous to PaintBoxRel()
+
+	- tuxtxt2.conf: align to hardcoded values; align to our current font; install to image
+
+	- libtuxtxt: some more whitespace cleanups
+
+2018-01-26  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- libtuxtxt: ports from martii's neutrino-mp ...
+	* port screenmode handling
+	* switch from bgra to argb color handling
+	* port font rendering improvement
+
+	 Conflicts:
+		lib/libtuxtxt/tuxtxt.cpp
+
+2018-01-26  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- libtuxtxt: move overloaded members directly to the matching functions
+
+	- libtuxtxt: whitespace cleanup; leading eight spaces => tab
+	 Conflicts:
+		lib/libtuxtxt/tuxtxt.cpp
+
+2018-01-26  max_10  <max_10@gmx.de>
+
+	libtuxtxt: minor clean-up, no code change
+
+	# Conflicts:
+	#	lib/libtuxtxt/tuxtxt.cpp
+
+2018-01-25  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- libtuxtxt: cleanup unused lcd code
+
+	- neutrino: check for non-existing tuxtxt font
+
+2018-01-24  FlatTV  <FlatTV@gmx.de>
+
+	capmt.cpp: debug mp variable
+
+2018-01-24  FlatTV  <FlatTV@gmx.de>
+
+	movieplayer.cpp: move setMoviePlayer() to the right function
+
+	# Conflicts:
+	#	src/gui/movieplayer.cpp
+
+2018-01-24  FlatTV  <FlatTV@gmx.de>
+
+	capmt.cpp: useing sendCaPmt() on unscrambled channels too
+
+2018-01-24  Thilo Graf  <dbt@novatux.de>
+
+	src/zapit/src/zapit.cpp: add missing member functions
+	Avoids possible reverence compile errors.
+
+	taken from https://bitbucket.org/neutrino-images/ni-neutrino-hd
+
+2018-01-23  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/components/cc_item_picture.h: remove CComponentsPictureScalable
+	not longer required
+
+2018-01-23  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/widget/navibar.cpp/h: fix icon scale
+	Remove CComponentsPictureScalable class, is not longer required.
+	Scale for navi button icons should working now.
+
+	Note:
+	It is not sure if the setting of OFFSET_INNER_MID makes sense here,
+	because it is possible that a scaling could happen even though
+	the icon would be fit.
+
+2018-01-23  Thilo Graf  <dbt@novatux.de>
+
+	src/gui/components/cc_frm_button.cpp/h: use CComponentsPicture only
+	CComponentsPictureScalable not longer required
+
+2018-01-23  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- controlapi: fix key translation for hd51; small code alignments
+
+2018-01-23  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- yWeb: fix key code (KEY_PROGRAM) for hd51 remote controls
+
+	includes - yWeb: fix typo in 6646aed
+
+2018-01-23  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	yaft/tools/bdf.h fix resource leak
+
+	src/gui/movieplayer.cpp enable 10sek jump for hd51
+
+2018-01-23  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- rcinput: fix unknown KEY_FASTFORWARD for ARM_HARDWARE
+
+2018-01-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- epgview: use OFFSET define for navigation bar
+
+	- epgview: take footer height from CComponentsFooter ...
+	to get this footer in sync with the footers of other gui elements
+
+	- zapit/capmt: fix uninitialized ca_map_t no_camap
+
+2018-01-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- framebuffer: better name for getWindowWidth/Height() functions
+	getScreenWidth/HeightRel() was confusing because it depends on users window settings.
+	Replace names in old unused framebuffer code too.
+
+
+	 Conflicts:
+		gui/channellist.cpp
+
+2018-01-22  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- osd-setup: start browsing for fonts in same dir were active font is located
+
+	Revert "channellist: use "classic" width if minitv is unused"
+	This reverts commit 901b7cbd38852503188e3369cecfb3c4156f732f
+
+2018-01-22  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	add revert translate to webif rc
+
+	try to fix rc over webif on hd51
+
+2018-01-21  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino/miscsettings_menu: fix switching online-services
+	 Conflicts:
+		src/neutrino.cpp
+
+	- neutrinoapi: update getCryptInfoAsString()
+
+2018-01-21  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- locale: remove obsolete AUDIOSelectMenue.volume locale
+
+	additional typo fix
+
+2018-01-21  GetAway  <get-away@t-online.de>
+
+	neutrinoapi.cpp: fix path to iso tab introduced with 3c859db
+
+2018-01-21  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- shellwindow: fix position of button; use default color
+	* add comment to termwindow class; correct positioning of button isn't possible atm
+
+	- controlapi: fix control of external plugins (e.g. msgbox or shellexec)
+	We have to send the keys directyl to rc-device instead of using g_RCInput->postMsg()
+
+	- movieplayer: fix possible endless loop in UpdatePosition() function
+
+2018-01-20  max_10  <max_10@gmx.de>
+
+	armbox: fix hd51 first start rc bug
+
+2018-01-20  TangoCash  <eric@loxat.de>
+
+	movieplayer: fix updateposition loop
+
+	fixup tags
+
+2018-01-20  Thilo Graf  <dbt@novatux.de>
+
+	cc_types: add #include <driver/fb_generic.h>
+	user report: 	try to fix error: »fb_pixel_t« discribes no type
+
+	This is a bit strange because this data type
+	is global configured, see configure.ac
+
+2018-01-20  Thilo Graf  <dbt@novatux.de>
+
+	data types: use unified type name uint8_t instead u_int8_t
+
+2018-01-16  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- user_menu: add item to start timeshift immediately
+	 Conflicts:
+		src/system/settings.h
+
+2018-01-15  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	fix posible memleak
+
+2018-01-14  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	infoviewer: fix copy/paste error clearing wrong field
+
+	Fix for my broken pick: 9ad4a3c8f536dfa6c8a36e36a725128240a9a9f1
+
+2018-01-14  Thilo Graf  <dbt@novatux.de>
+
+	Revert "infoviewer: fix copy/paste error clearing wrong field"
+	This reverts commit 9ad4a3c8f536dfa6c8a36e36a725128240a9a9f1.
+
+	Current time was broken.
+
+2018-01-14  Thilo Graf  <dbt@novatux.de>
+
+	CComponentsHeader: avoid possible 'out of range' log message
+	seen during left/right scroll with channellist
+
+2018-01-13  TangoCash  <eric@loxat.de>
+
+	align bouquet names to delivery system (C/T/E/W)
+
+	moving c and t fake positions above 360 degrees
+
+2018-01-13  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- update: fix check for installed version; equivalent to d6bc4e2
+	 Conflicts:
+		src/gui/update.cpp
+
+
+	equivalent to dbf3cb899286c6ae7a6cca82b9b77fbdae6d1459
+
+2018-01-13  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	opkg_manager: use CTermWindow()
+
+	test_menu: add CTermWindow() test
+	 Conflicts:
+		src/gui/test_menu.cpp
+
+	add working termwindow class
+	CTermWindow() should be usable as drop-in replacement for CShellWindow()
+
+	configure: enable YaFT widget build
+
+	yaft: use TERM=linux, disable unused code
+
+	widget/menue: one more forgotten sys/types.h include
+
+	yaft: add "quiet" mode
+	run the command and collect the output, but do not show it on screen
+
+	yaft: inline tty_init(), was mostly disabled anyway
+
+	yaft: implement exit code handling, wait for correct child
+
+	yaft: prepare for neutrino shellwindow compatibility
+	* add sigc function to collect terminal output
+	* terminal output is collected without escape codes, "text only"
+	* if a newline is seen, each newline starts a new line,
+	* else, some cursor move escape sequences start a new line
+
+	add int type includes to cc class
+
+	menue: initialize height variable
+
+	reduce dependencies on driver/rcinput.h
+	* add new header that only contains neutrino_msg_t and friends, often this
+	  is all that's needed instead of full rcinput.h
+	* directly include rcinput.h in some cpp files instead of relying on
+	  accidental inclusion in some header
+	* add class forward declarations to avoid dragging in rcinput indirectly
+	This could use more work to further reduce the impact; maybe separating
+	the CRCinput::key_* constants from the rcinput class would be good.
+
+	remove unneeded rcinput.h include in headers
+
+	yaft: fix debug logging
+	DEBUG was defined at least in configure's config.h, so it conflicts with
+	the enum definition
+
+	yaft: use a bigger font, created from terminus24b
+
+	yaft: use the neutrino framebuffer functions to blit
+	* do not allocate a buffer but use the backbuffer of the neutrino fb
+	* use blit2FB to copy the terminal window onto the screen
+
+	yaft: disable unused dcs functions
+
+	yaft_class: first somehow working version
+
+	yaft.h: fix build with g++, add neutrino stuff
+
+	yaft/util: disable unused stuff
+
+	yaft/terminal.h: fix compile with g++, remove DRCS stuff
+
+	yaft/parse: fix compile with g++, disable unused stuff
+
+	yaft/util: fix build with g++ and warnings enabled
+
+	yaft/fb/common: add neutrino glue, disable unused stuff
+
+	yaft/fb/common: remove cmap and wallpaper stuff
+
+	yaft neutrinofb.h: add license, remove cmap stuff
+
+	copy fb/linux.h to fb/neutrinofb.h
+
+	add glyph.h
+	./mkfont_bdf table/ISO8859 fonts/milkjf_8x16.bdf > glyph.h
+
+	yaft: integrate in neutrino automake system
+	* rename original makefile
+	* copy yaft.c to yaft_class.cpp (does not yet compile of course)
+
+	import yaft from https://github.com/uobikiemukot/yaft.git commit c455d6a8
+
+	infoviewer: fix copy/paste error clearing wrong field
+	 Conflicts:
+		src/gui/infoviewer.cpp
+
+	cc_item_text: fix "text changed" detection
+
+	neutrino: always clear display when going to standby
+	...even if the display is already in standby mode...
+
+2018-01-10  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: try to fix lua-playlist playback; ...
+	there seems an issue in libstb-hal when a background-picture is
+	displayed before video playback is started.
+
+2018-01-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- infoviewer: remove fixed values from showInfoFile() function
+
+	- infoviewer: fix offset between event-time and event-name
+
+	- infoviewer: fix indentation in setInfobarTimeout()
+	 Conflicts:
+		src/gui/infoviewer.cpp
+
+	- movieplayer: align some variables names to tango's names
+	 Conflicts:
+		src/gui/infoviewer.cpp
+		src/gui/movieplayer.cpp
+
+	- multiformat audioplayer: add separate timeout for infobar
+	 Conflicts:
+		src/gui/infoviewer.cpp
+
+2018-01-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- infoviewer: rename text_cur_* => text_curr_*
+	 Conflicts:
+		src/gui/infoviewer.cpp
+
+
+	Some changes were required for this pick:
+
+	Same issues like here
+	6e3f7babf322bcac0cd36cb87f9233d30067e542
+	Build was broken because of item name setters had wrong object names.
+
+2018-01-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- infoviewer: rename txt_cur_event_rest => txt_cur_rest
+	 Conflicts:
+		src/gui/infoviewer.cpp
+
+
+	Some changes were required for this pick:
+	Build was broken because of item name setters had wrong object names.
+
+2018-01-09  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- infoviewer: remove LEFT_OFFSET define
+
+	- infoviewer: fix offset between channelnumber and channelname/channellogo
+
+	- infoviewer: use OFFSET defines
+
+	- infoviewer: fix FIXME comment from previous commit
+
+	- infoviewer: fix centering in numbox
+	 Conflicts:
+		src/gui/infoviewer.h
+
+2018-01-09  Thilo Graf  <dbt@novatux.de>
+
+	CInfoViewer: set names for some items
+	Required for debugging.
+
+2018-01-07  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- update: shorten updates lists in menu separators
+	 Conflicts:
+		src/gui/update.cpp
+		src/gui/update.h
+
+
+	Added update_php() to avoid conflicts
+
+2018-01-06  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- flashtool: add posibilty to get localized and non-localized type
+	 Conflicts:
+		src/gui/update.cpp
+
+	- update: show some usefull osd-output while updating hd51
+
+	- locale: improve experimental image warning
+
+	- update: use fileType instead of a string to check for experimental image
+
+2018-01-06  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	try to fix 'FE_SET_PROPERTY: Operation not permitted' on cst after add dvb-s2x (supplement)
+
+	try to fix 'FE_SET_PROPERTY: Operation not permitted' on cst after add dvb-s2x
+
+2018-01-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- webtv-setup: use streaming icon in header
+
+	- movieplayer: use bookmark icon for bookmark menu
+
+2018-01-05  Thilo Graf  <dbt@novatux.de>
+
+	icons: update header recording icon
+
+2018-01-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- record: use recording icon for recording menu
+
+	- icons: move mounted/not_mounted to markers; align size to other icons
+	 Conflicts:
+		data/icons/status/various/mounted.png
+		data/icons/status/various/not_mounted.png
+
+	- icons: add missing audioplay icon for minitv in channellist
+
+2018-01-05  Thilo Graf  <dbt@novatux.de>
+
+	icons: use pendant header icon for question
+
+2018-01-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- icons: add missing question icon
+
+	- icons.h: some more re-sorts to get more structure - vol.2
+
+	- icons.h: some more re-sorts to get more structure
+	 Conflicts:
+		src/gui/widget/icons.h
+
+	- icons: add mute-button icon
+
+	- icons: rename mute.png => muted.png; ...
+	This icon isn't a button. It signalizes the mute-status. So i renamed it to get the name free for the button icon.
+
+	- icons.h: sort movieplayer icons
+
+	- icons.h: sort infoviewer status icons
+
+	- icons: remove unused ca icon
+
+	- icons: add missing longpress icon
+
+	- icons.h: small re-sort
+	 Conflicts:
+		src/gui/widget/icons.h
+
+	- icons: remove unused lock_passive icon
+
+	- icons: move existing lock icon to header icons
+
+	- neutrino-menu: use new marker icons
+
+	- personalize: use new marker icons
+
+	- network-setup: use new marker icons
+
+	- channellist: use more new marker icons
+
+2018-01-05  Thilo Graf  <dbt@novatux.de>
+
+	icons: use pendant marker icon for lock passive
+
+2018-01-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- icons: add marker icon for passive locks
+
+	- zapit-setup: use new marker icons
+
+	- icon. remove unused epg icon
+
+	- bouquetlist: use new marker icons
+
+	- icons: add new epg marker icon
+
+2018-01-05  Thilo Graf  <dbt@novatux.de>
+
+	icons: use pendants marker icons for pip, timeshift, zap
+
+2018-01-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- icons: remove unused zap and pip icons
+
+	- icons.h: small re-sort
+
+	- dboxinfo: use new marker icons
+
+	- hdd_menu: use new marker icons
+
+2018-01-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- icons: add gray marker icons for timeshift and record
+
+	record icon changed
+
+2018-01-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- timerlist: use new marker icons
+
+	- moviebrowser: use new marker icons
+
+	- folowscreenings: use new marker icons
+	 Conflicts:
+		src/gui/followscreenings.cpp
+
+	- recording-menu: use new marker icons
+
+	- channellist: use new marker icons
+
+	- icons: add marker icon for pip
+
+	- eventlist: use new record/timeshift/zap marker icons
+
+	- icons: add marker icons for timeshift and zap events
+
+	- icons.h: move NEUTRINO_ICON_IMPORTANT to markers; sort markers
+
+	- icons: better names for currently unused NEUTRINO_ICON_MARKER_RECORD
+
+	- icons: rename and sort new marker icons
+
+	- bouqueteditor: use new scrabled- and streaming-marker icons
+
+2018-01-05  Thilo Graf  <dbt@novatux.de>
+
+	icons: add own markers for scrambled and streaming
+	TODO: caption of streaming marker
+
+2018-01-05  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- icons: add marker_scrambled.png and marker_streaming.png
+
+	- bouqueteditor_channels: use new NEUTRINO_ICON_LOCK_MARKER
+
+	- icons: remove obsolete hidden.png
+	 Conflicts:
+		data/icons/status/various/hidden.png
+
+2018-01-05  Thilo Graf  <dbt@novatux.de>
+
+	CBEBouquetWidget: use hidden marker instead too large NEUTRINO_ICON_HIDDEN
+
+	icons: add new marker_hidden.png
+
+2018-01-04  Thilo Graf  <dbt@novatux.de>
+
+	CComponentsForm: expand debug output to identify current used container
+
+2018-01-03  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: remove playlist handling from RC_ok; mpkey_play already handles playlist
+	 Conflicts:
+		src/gui/movieplayer.cpp
+
+	- neutrino: remove unused __EXPERIMENTAL_CODE__ stuff
+
+	- remove obsolete streaminfo includes
+
+	- user-menu: fix streaminfo include
+
+	- info-menu: fix streaminfo include
+
+2018-01-03  Thilo Graf  <dbt@novatux.de>
+
+	CBEBouquetWidget: use marker icons instead header icons
+	Header icons are too large in context with this handling inside select items.
+	Large icons causes possible overlapping images with current icon set. This
+	should avoid this.
+
+	TODO:
+	- refactoring icon and text arrangement with scaled images,
+	- tabular user guidance without window switching
+
+2018-01-03  Thilo Graf  <dbt@novatux.de>
+
+	icons: add missing tv and radio markers
+
+2018-01-03  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- libcoolstream-headers: remove obsolete dummy members
+
+2018-01-03  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: revert most code from terrible commit 09ae4c3a5101f7cd7924b35a193b1c829c2cc107
+	to get back working subtitles for COOL_HARDWARE
+
+
+	partial revert of: commit 6fe5d269af2c774ba76e84c62970b213ac58b8d5
+
+2018-01-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- gui/Makefile: compile streaminfo1 instead of streaminfo2 for ARM_HARDWARE
+
+2018-01-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	Revert "- audio_select: copy full code from TangoCash"
+
+	this reverts commit: 5fd7ec68ace4082ccdab2f27d5853bc33591dd35
+
+2018-01-02  FlatTV  <FlatTV@gmx.de>
+
+	zapit.cpp: disable "tune channel, with stopped playback to not bypass the parental PIN check" on arm hardware
+	Send capmt to socket only once after coldstart
+
+2018-01-02  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- neutrino: fix usermenu calls for fileplayback_video/audio
+	 Conflicts:
+		src/neutrino.cpp
+
+	- movieplayer: remove unused "netstream" handling
+
+2018-01-02  Thilo Graf  <dbt@novatux.de>
+
+	cc_extra.h: allign method paintImage() and update comments
+
+	icons: add new dummy icons with required dimensions
+
+2017-12-30  Thilo Graf  <dbt@novatux.de>
+
+	COsdSetup: ensure reset of channellist modules after any changed osd settings
+
+2017-12-30  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- zapit/bouquets: don't get auto-epgid from webchannels
+
+	- webtv: try to auto-add epg from existing channels (experimental)
+
+2017-12-30  Thilo Graf  <dbt@novatux.de>
+
+	CInfoViewer: reduce paint box calls for record mode
+
+	CInfoViewer: allign vizualized record mode icon
+
+	icons: add new rec icon
+	Old icon was too small, inside visualized rec mode for infoviewer
+
+	cc: expand cc-type with name
+	Required for internal operations where it is useful to have object
+	names and for better debugging.
+
+2017-12-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: remove obsolete playback->SetTeletextPid() call
+
+	- movieplayer: remove CRCInput::RC_text handling
+
+	- movieplayer: add missing std
+
+	- movieplayer: remove obsolete static bool running handling
+
+2017-12-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: remove unused 3d-code
+
+	# Conflicts:
+	#	src/gui/movieplayer.cpp
+
+2017-12-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- movieplayer: remove unused ENABLE_GRAPHLCD code
+
+2017-12-28  Stefan Seyfried  <seife@tuxbox-git.slipkontur.de>
+
+	dboxinfo: allow to show "neutrino uptime"
+
+	move automake's "foreign" switch to the proper place
+
+	cc_draw: add simple debug facility
+	not perfect, since the borders can be overdrawn afterwards
+	but still pretty useful
+
+	infoviewer: use all free space for epg title
+	this should also avoid display artifacts due to runtime
+	changes in size of running time display
+
+	infoviewer: revert useless big box for running time
+	The box is two times too big, truncating long EPG titles.
+
+	deutsch.locale: fix typo
+
+	Channellist: only show lock icon if parental lock is active
+	additionally, remove the icon on change to an unlocked bouquet
+
+	CComponentsHeader: fix text position if icon is removed
+
+2017-12-28  svenhoefer  <svenhoefer@svenhoefer.com>
+
+	- update: more logic in some ifdef's
+
+	- update: cleanup and unify debug output
+
+	- update: fix some defines for ARM_HARDWARE
+
+	- update: modify LIST_OF_UPDATES_LOCAL_FILENAME define
+
+	- update: remove unused UPDATE_LOCAL_FILENAME define
+
+2017-12-28  Thilo Graf  <dbt@novatux.de>
+
+	update: move image RELEASE_CYCLE define to configure.ac
+	It should be more sensefull to set release cycle inside environment
+	than hard coding inside neutrino code.
+	Neutrino package version is not the same like image release cycle,
+	therefore here it is separated from package info.
+
+2017-12-23  Jacek Jendrzej  <satbaby@kawaii.com>
+
+	try to fix next file play on AX
+
+	fix play stop on cst after hd51 merge
+
 2017-12-23  Thilo Graf  <dbt@novatux.de>
 
 	update to version 3.7.1
