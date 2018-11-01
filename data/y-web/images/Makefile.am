@@ -91,9 +91,13 @@ install_DATA += rc_cst_v1.jpg \
 		rc_cst_v6.png
 endif
 
-if BOXTYPE_ARMBOX
+if BOXMODEL_HD51
 install_DATA += rc_ax_hd51.png \
 		rc_mutant_hd51.png
+endif
+
+if BOXMODEL_VUSOLO4K
+install_DATA += rc_vusolo4k.png
 endif
 
 # file manager

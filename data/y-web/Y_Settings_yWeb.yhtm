@@ -42,6 +42,7 @@ function do_init(){
 		case "8":	// cst trinity duo
 		case "9":	// ax hd51
 		case "10":	// mutant hd51
+		case "11":	// vusolo4k
 			sel=(sel*1+val*1);
 			break;
 		default:
@@ -131,6 +132,7 @@ select {
 						<option value="8">CST HD-2 | Trinity Duo</option>
 						<option value="9">AX | HD51</option>
 						<option value="10">Mutant | HD51</option>
+						<option value="11">VU | Solo 4K</option>
 					</select>
 				</td>
 			</tr>

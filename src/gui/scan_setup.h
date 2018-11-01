@@ -66,7 +66,11 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CGenericMenuActivate msettings;
 
 		CMenuOptionChooser * linkfe;
+#if BOXMODEL_VUSOLO4K
+		std::string modestr[16];
+#else
 		std::string modestr[4];
+#endif
 
 		/* variables for selected frontend */
 		/* diseqc mode */
