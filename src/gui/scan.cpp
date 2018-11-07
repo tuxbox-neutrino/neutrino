@@ -445,6 +445,7 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 					CFrontend::getDelSys(feparams->delsys, feparams->code_rate_LP, feparams->modulation, f2, s, m);
 					snprintf(buffer,sizeof(buffer), "%u %d %s %s %s %d ", freq, CFrontend::getFEBandwidth(feparams->bandwidth)/1000, f, f2, m, feparams->plp_id);
 				}
+				paintLine(xpos2, ypos_frequency, w - (7*fw), buffer);
 			}
 			break;
 		/* just assume that provider etc is always below radar picture */
