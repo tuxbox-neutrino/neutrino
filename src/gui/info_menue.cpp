@@ -37,9 +37,11 @@
 #include <gui/info_menue.h>
 #include <gui/imageinfo.h>
 #include <gui/dboxinfo.h>
+#if HAVE_COOL_HARDWARE
 #include <gui/streaminfo1.h>
-//#include <gui/streaminfo2.h>
-
+#else
+#include <gui/streaminfo2.h>
+#endif
 #if 0
 #include <gui/buildinfo.h>
 #endif

@@ -2757,6 +2757,24 @@ void CMoviePlayerGui::selectChapter()
 	}
 }
 
+std::string CMoviePlayerGui::getAPIDDesc(unsigned int i)
+{
+	std::string apidtitle;
+	if (i < numpida)
+		getAudioName(apids[i], apidtitle);
+	if (apidtitle == "")
+		apidtitle = "Stream " + to_string(i);
+	return apidtitle;
+}
+
+unsigned int CMoviePlayerGui::getAPID(void)
+{
+	for (unsigned int i = 0; i < numpida; i++)
+		if (apids[i] == currentapid)
+			return i;
+	return -1;
+}
+
 void CMoviePlayerGui::selectSubtitle()
 {
 	if (!is_file_player)

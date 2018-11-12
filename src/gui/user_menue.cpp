@@ -49,8 +49,11 @@
 #include "subchannel_select.h"
 #include "favorites.h"
 #include "audio_select.h"
+#if HAVE_COOL_HARDWARE
 #include "streaminfo1.h"
-//#include "streaminfo2.h"
+#else
+#include "streaminfo2.h"
+#endif
 #include "epgplus.h"
 #include "epgview.h"
 #include "eventlist.h"
