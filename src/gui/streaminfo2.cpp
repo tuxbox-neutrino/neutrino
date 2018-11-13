@@ -820,6 +820,8 @@ struct row {
 void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 {
 	char buf[100];
+	bool has_vpid = false;
+	bool is_webchan = false;
 	int xres = 0, yres = 0, aspectRatio = 0, framerate = -1, i = 0;
 	// paint labels
 	int ypos1 = ypos;
@@ -830,7 +832,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		frameBuffer->paintBoxRel (0, ypos, box_width, box_h, COL_MENUCONTENT_PLUS_0);
 
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
-	if (!channel)
+	if (!channel && !mp)
 		return;
 
 	ypos += iheight;
@@ -946,9 +948,14 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	}
 
+	if (channel)
+	{
+		has_vpid   = channel->getVideoPid();
+		is_webchan = IS_WEBCHAN(channel->getChannelID());
+	}
 	int _mode = CNeutrinoApp::getInstance()->getMode();
-	if ((channel->getVideoPid() ||
-		(IS_WEBCHAN(channel->getChannelID()) && _mode == NeutrinoModes::mode_webtv) ||
+	if ((has_vpid ||
+		(is_webchan && _mode == NeutrinoModes::mode_webtv) ||
 		_mode == NeutrinoModes::mode_ts) &&
 		!(videoDecoder->getBlank()))
 	{

@@ -331,7 +331,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_TECHINFO:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_blue);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_STREAMINFO, !neutrino->channelList->isEmpty(), NULL, new CStreamInfo2, "-1", key, icon );
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_STREAMINFO, _mode_ts || !neutrino->channelList->isEmpty(), NULL, new CStreamInfo2, "-1", key, icon );
 			menu_item->setHint(NEUTRINO_ICON_HINT_STREAMINFO, LOCALE_MENU_HINT_STREAMINFO);
 			break;
 		}
