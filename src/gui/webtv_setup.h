@@ -29,7 +29,7 @@
 #include <gui/widget/menue.h>
 
 #define WEBTV_XML	CONFIGDIR "/webtv_usr.xml"
-#define WEBRADIO_XML	CONFIGDIR "/webradio_usr.xml"
+#define WEBRADIO_XML	WEBRADIODIR_VAR "/webradio_usr.xml"
 
 class CWebTVSetup : public CMenuTarget, CChangeObserver
 {
