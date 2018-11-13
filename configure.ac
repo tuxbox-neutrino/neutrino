@@ -349,6 +349,7 @@ data/themes/Neutrino-3.0/icons/buttons/Makefile
 data/themes/Olive-3.0/Makefile
 data/themes/Olive-3.0/icons/Makefile
 data/themes/Olive-3.0/icons/buttons/Makefile
+data/webradio/Makefile
 data/webtv/Makefile
 data/y-web/Makefile
 data/y-web/images/Makefile

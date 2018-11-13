@@ -11,6 +11,7 @@ SUBDIRS = \
 	policy \
 	scripts \
 	themes \
+	webradio \
 	webtv \
 	y-web
 
@@ -30,7 +31,6 @@ config_DATA = \
 	satellites.xml \
 	settingsupdate.conf \
 	terrestrial.xml \
-	tobackup.conf \
-	webradio_usr.xml
+	tobackup.conf
 install-data-hook:
 	$(INSTALL) -d $(DESTDIR)/$(CONFIGDIR)/zapit
