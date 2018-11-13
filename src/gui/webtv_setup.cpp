@@ -40,7 +40,6 @@
 #include <dirent.h>
 #include <mymenu.h>
 #include <system/helpers.h>
-#include <zapit/settings.h>
 
 CWebTVSetup::CWebTVSetup()
 {
