@@ -945,7 +945,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		}
 
 	}
-	if (((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
+
+	int _mode = CNeutrinoApp::getInstance()->getMode();
+	if ((channel->getVideoPid() ||
+		(IS_WEBCHAN(channel->getChannelID()) && _mode == NeutrinoModes::mode_webtv) ||
+		_mode == NeutrinoModes::mode_ts) &&
+		!(videoDecoder->getBlank()))
 	{
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
 		 if (yres == 1088)
