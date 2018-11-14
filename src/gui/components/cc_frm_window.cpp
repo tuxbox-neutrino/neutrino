@@ -180,13 +180,14 @@ void CComponentsWindow::initWindowSize()
 
 	if (width < 0 && width >= -100) //percentage conversion TODO: behavior inside parent
 		width = frameBuffer->getScreenWidth()*abs(width)/100;
-	if (width == 0 || (unsigned)width > frameBuffer->getScreenWidth())
-		width = frameBuffer->getScreenWidth();
+	if (width == 0 || (unsigned)width > frameBuffer->getScreenWidth() + 2*OFFSET_INNER_MID)
+		width = frameBuffer->getScreenWidth() - 2*OFFSET_INNER_MID;
+
 
 	if (height < 0 && height >= -100) //percentage conversion TODO: behavior inside parent
 		height = frameBuffer->getScreenHeight()*abs(height)/100;
-	if (height == 0 || (unsigned)height > frameBuffer->getScreenHeight())
-		height = frameBuffer->getScreenHeight();
+	if (height == 0 || (unsigned)height > frameBuffer->getScreenHeight() + 2*OFFSET_INNER_MID)
+		height = frameBuffer->getScreenHeight() - 2*OFFSET_INNER_MID;
 }
 
 void CComponentsWindow::initWindowPos()
@@ -195,9 +196,9 @@ void CComponentsWindow::initWindowPos()
 		return;
 
 	if (x == 0)
-		x = frameBuffer->getScreenX();
+		x = frameBuffer->getScreenX() + OFFSET_INNER_MID;
 	if (y == 0)
-		y = frameBuffer->getScreenY();
+		y = frameBuffer->getScreenY() + OFFSET_INNER_MID;
 }
 
 void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const cc_title_alignment_t& align_mode)
