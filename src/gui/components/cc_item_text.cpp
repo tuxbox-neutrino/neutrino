@@ -284,12 +284,16 @@ void CComponentsText::paintText(bool do_save_bg)
 		//init slot to handle repaint of text if background was repainted
 		cc_parent->OnAfterPaintBg.connect(sigc::bind(sigc::mem_fun(*this, &CComponentsText::forceTextPaint), true));
 	}
+
 	initCCText();
+
 	if (!is_painted)
 		paintInit(do_save_bg);
 
-	if (ct_text_sent && cc_allow_paint)
+	if (ct_text_sent && cc_allow_paint){
 		ct_textbox->paint();
+		is_painted = true;
+	}
 
 	ct_text_sent = false;
 }
