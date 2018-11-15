@@ -1092,10 +1092,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.key = r.val = "";
 		v.push_back(r);
 
-		// picon
+		// channellogo
 		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		{
-			r.key = "Picon";
+			r.key = "Logo";
 			r.key += ": ";
 			snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 			r.val = buf;
@@ -1138,8 +1138,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.key = r.val = "";
 		v.push_back(r);
 
-		// picon
-		r.key = "Picon";
+		// channellogo
+		r.key = "Logo";
 		r.key += ": ";
 		snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 		r.val = buf;
