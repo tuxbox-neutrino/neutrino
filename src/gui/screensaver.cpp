@@ -281,8 +281,12 @@ void CScreenSaver::paint()
 {
 	if (scr_clock)
 	{
-		scr_clock->Stop();
 		scr_clock->kill();
+		scr_clock->allowPaint(false);
+		if (g_settings.screensaver_mode == SCR_MODE_IMAGE){
+			delete scr_clock;
+			scr_clock = NULL;
+		}
 	}
 	if (g_settings.screensaver_mode == SCR_MODE_IMAGE && v_bg_files.empty())
 		m_frameBuffer->paintBackground();
@@ -325,6 +329,7 @@ void CScreenSaver::paint()
 		int x_random = rand() % ((g_settings.screen_EndX - w_cl - g_settings.screen_StartX) + 1) + g_settings.screen_StartX;
 		int y_random = rand() % ((g_settings.screen_EndY - h_cl - g_settings.screen_StartY) + 1) + g_settings.screen_StartY;
 		scr_clock->setPos(x_random, y_random);
+		scr_clock->allowPaint(true);
 		if (!scr_clock->isRun())
 			scr_clock->Start();
 
