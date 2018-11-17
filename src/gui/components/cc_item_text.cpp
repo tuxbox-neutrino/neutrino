@@ -166,10 +166,12 @@ void CComponentsText::initCCText()
 	ct_textbox->setWindowMaxDimensions(ct_box.iWidth, ct_box.iHeight);
 	ct_textbox->setWindowMinDimensions(ct_box.iWidth, ct_box.iHeight);
 	ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
-	ct_textbox->enableBackgroundPaint(ct_paint_textbg && !cc_txt_save_screen);
+	bool enable_bg_paint = ct_paint_textbg && !cc_txt_save_screen;
+	ct_textbox->enableBackgroundPaint(enable_bg_paint);
 	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(0/*(corner_type ? corner_rad-fr_thickness : 0), corner_type*/);
-	ct_textbox->enableSaveScreen(cc_txt_save_screen && !ct_paint_textbg);
+	bool enable_save_screen = cc_txt_save_screen && !ct_paint_textbg;
+	ct_textbox->enableSaveScreen(enable_save_screen);
 
 	//observe behavior of parent form if available
 	bool force_text_paint = ct_force_text_paint;
