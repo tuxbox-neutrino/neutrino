@@ -43,39 +43,36 @@ CComponentsText provides a interface to the embedded CTextBox object.
 class CComponentsText : public CCTextScreen, public CComponentsItem
 {
 	protected:
-		///object: CTextBox object
-		CTextBox 	* ct_textbox;
-		CBox		ct_box;
 		///object: Fontrenderer object
-		Font		* ct_font;
-		///property: font style
-		int 		ct_text_style;
-
+		Font		*ct_font;
+		///property: current text string
+		std::string 	ct_text;
 		///property: text color
 		fb_pixel_t ct_col_text;
+		///property: send to CTextBox object enableBackgroundPaint(true)
+		bool ct_paint_textbg;
 		///property: cached text color
 		fb_pixel_t ct_old_col_text;
 		///property: text display modes, see textbox.h for possible modes
 		int ct_text_mode;
+
+	private:
+		///object: CTextBox object
+		CTextBox 	* ct_textbox;
+		CBox		ct_box;
+		///property: font style
+		int 		ct_text_style;
 		///property: horizontal text border width (left and right)
 		int ct_text_Hborder;
 		///property: vertical text border width (top and buttom)
 		int ct_text_Vborder;
-		///property: current text string
-		std::string ct_text;
 		///status: cached text string, mainly required to compare with current text
 		std::string ct_old_text;
-
 		bool ct_utf8_encoded;
-
 		///status: current text string is sent to CTextBox object
 		bool ct_text_sent;
-		///property: send to CTextBox object enableBackgroundPaint(true)
-		bool ct_paint_textbg;
-
 		///property: force sending text to the CTextBox object, false= text only sended, if text was changed, see also textChanged()
 		bool ct_force_text_paint;
-
 		///helper: convert int to string
 		static std::string iToString(int int_val); //helper to convert int to string
 
