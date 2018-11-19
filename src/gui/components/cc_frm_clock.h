@@ -35,6 +35,7 @@
 #include "cc_base.h"
 #include "cc_frm.h"
 #include "cc_text_screen.h"
+#include "cc_timer.h"
 //! Sub class of CComponents. Show clock with digits on screen. 
 /*!
 Usable as simple fixed display or as ticking clock.
@@ -152,7 +153,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		virtual bool isBlocked(void) {return !paintClock;}
 
 		///returns true, if clock is running
-		virtual bool isRun() const {return cl_timer ? true : false;};
+		virtual bool isRun() const {return cl_timer ? cl_timer->isRun() : false;}
 		///set refresh interval in seconds, default value=1 (=1 sec)
 		virtual void setClockInterval(const int& seconds){cl_interval = seconds;}
 

@@ -29,7 +29,7 @@
 #include <neutrino.h>
 
 #include "cc_frm_clock.h"
-#include "cc_timer.h"
+
 #include <time.h>
 
 #include <unistd.h>
