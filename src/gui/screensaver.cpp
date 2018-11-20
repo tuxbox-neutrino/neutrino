@@ -374,6 +374,7 @@ bool CScreenSaver::ignoredMsg(neutrino_msg_t msg)
 		   msg == NeutrinoMessages::EVT_CURRENTEPG
 		|| msg == NeutrinoMessages::EVT_NEXTEPG
 		|| msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG
+		|| msg == NeutrinoMessages::EVT_NOEPG_YET
 		|| msg == NeutrinoMessages::EVT_TIMESET
 		|| msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS
 		|| msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES
