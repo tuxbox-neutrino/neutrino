@@ -332,7 +332,7 @@ void CLCD::showTime(bool force)
 			ret = ioctl(fd, VFDSETTIME2, &now);
 			close(fd);
 #endif
-			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+			if ((g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) || (g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM))
 			{
 #if HAVE_ARM_HARDWARE
 				if (mode == MODE_STANDBY || (g_settings.lcd_info_line && mode == MODE_TVRADIO))
