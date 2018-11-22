@@ -456,24 +456,26 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			else if (ycmd_name.compare("FONTDIR_VAR"))	yresult = FONTDIR_VAR;
 			else if (ycmd_name.compare("LIBDIR"))		yresult = LIBDIR;
 			else if (ycmd_name.compare("GAMESDIR"))		yresult = GAMESDIR;
+			else if (ycmd_name.compare("ICONSDIR"))		yresult = ICONSDIR;
+			else if (ycmd_name.compare("ICONSDIR_VAR"))	yresult = ICONSDIR_VAR;
+			else if (ycmd_name.compare("LOCALEDIR"))	yresult = LOCALEDIR;
+			else if (ycmd_name.compare("LOCALEDIR_VAR"))	yresult = LOCALEDIR_VAR;
 			else if (ycmd_name.compare("PLUGINDIR"))	yresult = PLUGINDIR;
 			else if (ycmd_name.compare("PLUGINDIR_VAR"))	yresult = PLUGINDIR_VAR;
+			else if (ycmd_name.compare("PLUGINDIR_MNT"))	yresult = PLUGINDIR_MNT;
+			else if (ycmd_name.compare("LUAPLUGINDIR"))	yresult = LUAPLUGINDIR;
+			else if (ycmd_name.compare("THEMESDIR"))	yresult = THEMESDIR;
+			else if (ycmd_name.compare("THEMESDIR_VAR"))	yresult = THEMESDIR_VAR;
 			else if (ycmd_name.compare("WEBRADIODIR"))	yresult = WEBRADIODIR;
 			else if (ycmd_name.compare("WEBRADIODIR_VAR"))	yresult = WEBRADIODIR_VAR;
 			else if (ycmd_name.compare("WEBTVDIR"))		yresult = WEBTVDIR;
 			else if (ycmd_name.compare("WEBTVDIR_VAR"))	yresult = WEBTVDIR_VAR;
-			else if (ycmd_name.compare("LUAPLUGINDIR"))	yresult = LUAPLUGINDIR;
-			else if (ycmd_name.compare("LOCALEDIR"))	yresult = LOCALEDIR;
-			else if (ycmd_name.compare("LOCALEDIR_VAR"))	yresult = LOCALEDIR_VAR;
-			else if (ycmd_name.compare("THEMESDIR"))	yresult = THEMESDIR;
-			else if (ycmd_name.compare("THEMESDIR_VAR"))	yresult = THEMESDIR_VAR;
-			else if (ycmd_name.compare("ICONSDIR"))		yresult = ICONSDIR;
-			else if (ycmd_name.compare("ICONSDIR_VAR"))	yresult = ICONSDIR_VAR;
 			else if (ycmd_name.compare("LOGODIR"))		yresult = LOGODIR;
 			else if (ycmd_name.compare("LOGODIR_VAR"))	yresult = LOGODIR_VAR;
 			else if (ycmd_name.compare("PRIVATE_HTTPDDIR"))	yresult = PRIVATE_HTTPDDIR;
 			else if (ycmd_name.compare("PUBLIC_HTTPDDIR"))	yresult = PUBLIC_HTTPDDIR;
 			else if (ycmd_name.compare("HOSTED_HTTPDDIR"))	yresult = HOSTED_HTTPDDIR;
+			else if (ycmd_name.compare("FLAGDIR"))		yresult = FLAGDIR;
 			else						yresult = "";
 		}
 		else if (ycmd_type == "ini-get") {
