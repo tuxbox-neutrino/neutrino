@@ -230,7 +230,7 @@ FONTTYPE typettf;
 
 const unsigned short int arrowtable[] =
 {
-	8592, 8594, 8593, 8595, 'O', 'K', 8592, 8592
+	8592, 8594, 8593, 8595, 'O', 'K', 8592, 8592, 8592, 8592
 };
 // G2 Set as defined in ETS 300 706
 const unsigned short int G2table[4][6*16] =
