@@ -2195,7 +2195,7 @@ static void *houseKeepingThread(void *)
 				pthread_attr_t attr;
 				pthread_attr_init(&attr);
 				pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-				std::string d = epg_dir + "/";
+				static std::string d = epg_dir + "/";
 
 				printf("[%s]: %s\n",__func__,d.c_str());
 
