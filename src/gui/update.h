@@ -51,6 +51,7 @@ class CFlashUpdate : public CProgressWindow
 	std::string file_md5;
 	std::string sysfs;
 	char	fileType;
+	bool	gotImage;
 	int 	width;
 	bool	notify;
 	

@@ -120,6 +120,7 @@ CFlashUpdate::CFlashUpdate()
 		sysfs = MTD_DEVICE_OF_UPDATE_PART;
 	dprintf(DEBUG_NORMAL, "[update] mtd partition to update: %s\n", sysfs.c_str());
 	notify = true;
+	gotImage = false; // NOTE: local update can't set gotImage variable!
 }
 
 
@@ -234,12 +235,6 @@ bool CFlashUpdate::selectHttpImage(void)
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILE));
 
 	char current[200];
-#if 0
-	snprintf(current, 200, "%s: %s %s %s %s %s", g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSION_SEP), curInfo.getReleaseCycle(), 
-		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONDATE), curInfo.getDate(), 
-		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONTIME), curInfo.getTime());
-#endif
-
 	snprintf(current, 200, "%s %s %s %s", curInfo.getReleaseCycle(), curInfo.getType(true), curInfo.getDate(), curInfo.getTime());
 
 
@@ -267,7 +262,7 @@ bool CFlashUpdate::selectHttpImage(void)
 		}
 		else
 		{
-// 			update_php(url, curInfo.getType());
+//			update_php(url, curInfo.getType());
 			startpos = url.find('/', startpos+2)+1;
 		}
 		endpos = std::string::npos;
@@ -310,7 +305,6 @@ bool CFlashUpdate::selectHttpImage(void)
 
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
 
-
 				if (!separator)
 				{
 					std::string updates_list = updates_lists.rbegin()->c_str();
@@ -352,8 +346,11 @@ bool CFlashUpdate::selectHttpImage(void)
 	newVersion = versions[selected];
 	file_md5 = md5s[selected];
 	fileType = fileTypes[selected];
+	gotImage = (fileType <= '9');
+
 #ifdef BOXMODEL_CS_HD2
-	if(fileType <= '2') {
+	if (gotImage)
+	{
 		int esize = CMTDInfo::getInstance()->getMTDEraseSize(sysfs);
 		dprintf(DEBUG_NORMAL, "[update] erase size is %x\n", esize);
 		if (esize == 0x40000) {
@@ -363,7 +360,7 @@ bool CFlashUpdate::selectHttpImage(void)
 #endif
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	if ((fileType <= '2') && (filename.substr(filename.find_last_of(".") + 1) == "tgz"))
+	if (gotImage && (filename.substr(filename.find_last_of(".") + 1) == "tgz"))
 	{
 		// manipulate fileType for tgz-packages
 		fileType = 'Z';
@@ -418,7 +415,7 @@ bool CFlashUpdate::checkVersion4Update()
 		versionInfo = new CFlashVersionInfo(newVersion);//Memory leak: versionInfo
 		sprintf(msg, g_Locale->getText(msg_body), versionInfo->getDate(), versionInfo->getTime(), versionInfo->getReleaseCycle(), versionInfo->getType(true));
 
-		if (fileType <= '2')
+		if (gotImage)
 		{
 			if ((strncmp(RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
 			    (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_WRONGBASE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes))
@@ -502,6 +499,8 @@ bool CFlashUpdate::checkVersion4Update()
 				fileType = 'T';
 			else if(!strcmp(ptr, "tgz"))
 				fileType = 'Z';
+			else if(!strcmp(ptr, "zip"))
+				fileType = 'Z';
 			else if(!allow_flash)
 				return false;
 			else
@@ -574,7 +573,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	if(softupdate_mode==1) { //internet-update
-		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, ((fileType <= '2') || (fileType == 'Z')) ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes)
+		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, gotImage ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes)
 		{
 			hide();
 			return menu_return::RETURN_REPAINT;
@@ -584,8 +583,9 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	showGlobalStatus(60);
 
 	dprintf(DEBUG_NORMAL, "[update] flash/install filename %s type %c\n", filename.c_str(), fileType);
-	if(fileType <= '2') {
-		//flash it...
+
+	if (fileType <= '9') // flashing image
+	{
 #if ENABLE_EXTUPDATE
 #ifndef BOXMODEL_CS_HD2
 		if (g_settings.apply_settings) {
@@ -616,21 +616,6 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_FLASHREADYREBOOT);
 		sleep(2);
 		ft.reboot();
-	}
-	else if(fileType == 'T') // display file contents
-	{
-		FILE* fd = fopen(filename.c_str(), "r");
-		if(fd) {
-			char * buffer;
-			off_t filesize = lseek(fileno(fd), 0, SEEK_END);
-			lseek(fileno(fd), 0, SEEK_SET);
-			buffer =(char *) malloc((uint32_t)filesize+1);
-			fread(buffer, (uint32_t)filesize, 1, fd);
-			fclose(fd);
-			buffer[filesize] = 0;
-			ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMsgBox::mbrBack, CMsgBox::mbBack);
-			free(buffer);
-		}
 	}
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	else if (fileType == 'Z') // flashing image with ofgwrite
@@ -769,6 +754,21 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_EXIT_ALL;
 	}
 #endif
+	else if (fileType == 'T') // not image, display file contents
+	{
+		FILE* fd = fopen(filename.c_str(), "r");
+		if(fd) {
+			char * buffer;
+			off_t filesize = lseek(fileno(fd), 0, SEEK_END);
+			lseek(fileno(fd), 0, SEEK_SET);
+			buffer = (char *) malloc((uint32_t)filesize+1);
+			fread(buffer, (uint32_t)filesize, 1, fd);
+			fclose(fd);
+			buffer[filesize] = 0;
+			ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMsgBox::mbrBack, CMsgBox::mbBack);
+			free(buffer);
+		}
+	}
 	else // not image, install
 	{
 		const char install_sh[] = TARGET_PREFIX "/bin/install.sh";
