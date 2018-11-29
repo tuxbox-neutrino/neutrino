@@ -96,6 +96,10 @@ install_DATA += rc_ax_hd51.png \
 		rc_mutant_hd51.png
 endif
 
+if BOXMODEL_BRE2ZE4K
+install_DATA += rc_wwio_bre2ze4k.png
+endif
+
 if BOXMODEL_VUSOLO4K
 install_DATA += rc_vu_solo4k.png
 endif
