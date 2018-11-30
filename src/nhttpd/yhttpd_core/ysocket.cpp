@@ -486,7 +486,8 @@ std::string CySocket::ReceiveLine() {
 		else
 			break;
 	}
-	buffer[++bytes_gotten] = '\0';
+	if (bytes_gotten < MAX_LINE_BUFFER - 1)
+		buffer[++bytes_gotten] = '\0';
 	result.assign(buffer, bytes_gotten);
 
 	return result;
