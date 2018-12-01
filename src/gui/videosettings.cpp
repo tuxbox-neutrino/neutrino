@@ -411,10 +411,11 @@ int CVideoSettings::showVideoSetup()
 			if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key != -1)
 				videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
 
-#if !HAVE_ARM_HARDWARE  //TODO: make configurable for other keys on other hardware
-		vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red);
-		vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
-#endif
+		if (g_info.hw_caps->has_button_vformat)
+		{
+			vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red);
+			vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
+		}
 
 #ifdef BOXMODEL_CS_HD2
 		automodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES_AUTO);
