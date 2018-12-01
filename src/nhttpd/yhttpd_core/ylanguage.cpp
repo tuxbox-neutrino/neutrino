@@ -9,6 +9,9 @@
 #include <cstdlib>
 #include <unistd.h>
 
+#include <fstream>
+#include <iostream>
+
 #include <system/helpers.h>
 
 // yhttpd
@@ -103,9 +106,39 @@ std::string CLanguage::getTranslation(std::string id){
 		trans=NeutrinoLanguage->getString(id,"");
 	if(trans.empty())
 		trans=DefaultLanguage->getString(id,"");
-	if (trans.empty())
+	if (trans.empty()) {
+		write_missing_trans(id);
 		trans = "# " + id + " #";
+	}
 	return trans;
+}
+void CLanguage::write_missing_trans(std::string const& entry)
+{
+std::string file = "/tmp/yweb.missing.translation";
+std::ifstream in;
+std::ofstream out;
+std::string line;
+bool found = false;
+
+	in.open(file, std::ios::in);
+	if(in.is_open())
+	{
+		while (std::getline(in, line) && !found)
+		{
+			if (line.compare(entry) == 0)
+				found = true;
+		}
+		in.close();
+	}
+	if (!found)
+	{
+		out.open(file, std::ios::out|std::ios::app);
+		if (out.is_open())
+		{
+			out << entry << std::endl;
+			out.close();
+		}
+	}
 }
 //-----------------------------------------------------------------------------
 // Find language directory

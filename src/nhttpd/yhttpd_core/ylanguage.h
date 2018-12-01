@@ -40,6 +40,7 @@ class CLanguage
 		std::string 		getLanguageDir(void);
 
 		std::string getTranslation(std::string id);
+		void write_missing_trans(std::string const& entry);
 };
 
 #endif /* __yttpd_language_h__ */
