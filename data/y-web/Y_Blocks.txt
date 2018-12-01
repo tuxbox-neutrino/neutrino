@@ -1081,7 +1081,7 @@ start-block~rc_wwio_bre2ze4k
 <area shape="rect" coords="26,247,54,283" alt="KEY_VOLUMEUP" href="javascript:rcsim('KEY_VOLUMEUP')" />
 <area shape="rect" coords="26,292,54,328" alt="KEY_VOLUMEDOWN" href="javascript:rcsim('KEY_VOLUMEDOWN')" />
 <!-- <area shape="rect" coords="68,275,91,296" alt="portal" href="" /> -->
-<area shape="rect" coords="103,247,131,283" " alt="KEY_PAGEUP" href="javascript:rcsim('KEY_PAGEUP)" />
+<area shape="rect" coords="103,247,131,283" alt="KEY_PAGEUP" href="javascript:rcsim('KEY_PAGEUP)" />
 <area shape="recr" coords="104,291,132,327" alt="KEY_PAGEDOWN" href="javascript:rcsim('KEY_PAGEDOWN')" />
 <area shape="rect" coords="14,342,38,366" alt="KEY_MENU" href="javascript:rcsim('KEY_MENU')" />
 <area shape="rect" coords="120,342,144,366" alt="KEY_HOME" href="javascript:rcsim('KEY_HOME')" />
