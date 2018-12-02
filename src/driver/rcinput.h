@@ -241,7 +241,11 @@ class CRCInput
 			RC_rewind	= KEY_REWIND,
 			RC_stop		= KEY_STOP,
 			RC_timeshift	= KEY_TIME,
+#if BOXMODEL_BRE2ZE4K
+			RC_mode		= KEY_SWITCHVIDEOMODE,
+#else
 			RC_mode		= KEY_MODE,
+#endif
 			RC_games	= KEY_GAMES,
 			RC_next		= KEY_NEXT,
 			RC_prev		= KEY_PREVIOUS,
