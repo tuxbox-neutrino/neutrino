@@ -79,7 +79,7 @@ void usage(char *n){
 	unsigned int keynum = sizeof(keyname)/sizeof(struct key);
 	unsigned int i;
 #if defined (EVENTDEV)
-	printf ("rcsim v1.1\nUsage: %s <keyname> [<time>] [<repeat>]\n"
+	printf ("rcsim v1.2\nUsage: %s <keyname> [<time>] [<repeat>]\n"
 		"    <keyname> is an excerpt of the 'KEY_FOO'-names in <driver/rcinput.h>,\n"
 		"    <time>    is how long a code is repeatedly sent,\n"
 		"              unit is seconds, default is 0 = sent only once\n"
@@ -93,14 +93,14 @@ void usage(char *n){
 		"             ; KEY_OK sent every 250ms for 2 seconds\n\n"
 		"    Keys:",n,n,n);
 #else
-	printf ("rcsim v1.1\nUsage: %s <keyname>\n\n"
+	printf ("rcsim v1.2\nUsage: %s <keyname>\n\n"
 		"    Keys:",n);
 #endif
 	for (i=0;i<keynum;){
 		if ((i % 4) == 0)
-			printf ("\n    %-16s",keyname[i++].name);
+			printf ("\n    %-20s",keyname[i++].name);
 		else
-			printf ("%-16s",keyname[i++].name);
+			printf ("%-20s",keyname[i++].name);
 	}
 	printf ("\n\n");
 }
