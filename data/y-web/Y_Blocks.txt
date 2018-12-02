@@ -1061,7 +1061,7 @@ start-block~rc_wwio_bre2ze4k
 <img src="images/rc_wwio_bre2ze4k.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <area shape="rect" coords="17,30,43,57" alt="KEY_POWER" href="javascript:rcsim('KEY_POWER')" />
-<area shape="rect" coords="90,36,113,57" alt="KEY_MODE" href="javascript:rcsim('KEY_MODE')" />
+<area shape="rect" coords="90,36,113,57" alt="KEY_SWITCHVIDEOMODE" href="javascript:rcsim('KEY_SWITCHVIDEOMODE')" />
 <area shape="rect" coords="118,35,140,57" alt="KEY_MUTE" href="javascript:rcsim('KEY_MUTE')" />
 <area shape="rect" coords="24,68,52,95" alt="KEY_1" href="javascript:rcsim('KEY_1')" />
 <area shape="rect" coords="64,67,93,94" alt="KEY_2" href="javascript:rcsim('KEY_2')" />
