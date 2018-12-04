@@ -539,10 +539,15 @@ void CKeybindSetup::showKeyBindMoviebrowserSetup(CMenuWidget *bindSettings_mbrow
 void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
 {
 	bindSettings_special->addIntroItems(LOCALE_KEYBINDINGMENU_SPECIAL_ACTIVE);
+	int nkey;
+	if (g_info.hw_caps->has_button_vformat)
+		nkey = NKEY_FORMAT_MODE;
+	else
+		nkey = NKEY_PIC_MODE;
 
-	for (int i = NKEY_FORMAT_MODE; i <= NKEY_PIC_SIZE; i++) {
-		CMenuOptionChooser * mf = new CMenuOptionChooser(key_settings[i].keydescription, key_settings[i].keyvalue_p, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-		mf->setHint("", key_settings[i].hint);
+	for (nkey; nkey <= NKEY_PIC_SIZE; nkey++) {
+		CMenuOptionChooser * mf = new CMenuOptionChooser(key_settings[nkey].keydescription, key_settings[nkey].keyvalue_p, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+		mf->setHint("", key_settings[nkey].hint);
 		bindSettings_special->addItem(mf);
 	}
 }
