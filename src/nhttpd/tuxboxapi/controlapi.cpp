@@ -885,11 +885,15 @@ unsigned int revert_translate(unsigned int code)
 {
 	switch(code)
 	{
+		case RC_home:
+			return KEY_EXIT;
 		case RC_page_up:
 			return KEY_CHANNELUP;
 		case RC_page_down:
 			return KEY_CHANNELDOWN;
 #ifdef HAVE_ARM_HARDWARE
+		case RC_mode:
+			return KEY_SWITCHVIDEOMODE;
 		case RC_play:
 		case RC_pause:
 			return KEY_PLAYPAUSE;

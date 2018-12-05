@@ -1723,6 +1723,8 @@ int CRCInput::translate(int code)
 {
 	switch(code)
 	{
+		case KEY_EXIT:
+			return RC_home;
 		case 0x100: // FIXME -- needed?
 			return RC_up;
 		case 0x101: // FIXME -- needed?
@@ -1734,6 +1736,8 @@ int CRCInput::translate(int code)
 		case KEY_CHANNELDOWN:
 			return RC_page_down;
 #ifdef HAVE_ARM_HARDWARE
+		case KEY_SWITCHVIDEOMODE:
+			return RC_mode;
 		case KEY_VIDEO:
 			return RC_favorites;
 		case KEY_FASTFORWARD:

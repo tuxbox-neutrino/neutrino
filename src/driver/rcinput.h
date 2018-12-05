@@ -202,7 +202,7 @@ class CRCInput
 			RC_plus		= KEY_VOLUMEUP,     /* /include/linux/input.h: #define KEY_VOLUMEUP		115   */
 			RC_standby	= KEY_POWER,	    /* /include/linux/input.h: #define KEY_POWER		116   */
 			RC_help		= KEY_HELP,	    /* /include/linux/input.h: #define KEY_HELP			138   */
-			RC_home		= KEY_EXIT,	    /* /include/linux/input.h: #define KEY_HOME			102   */
+			RC_home		= KEY_HOME,	    /* /include/linux/input.h: #define KEY_HOME			102   */
 			RC_setup	= KEY_MENU,	    /* /include/linux/input.h: #define KEY_SETUP		141   */
 			RC_topleft	= KEY_TOPLEFT,	
 			RC_topright	= KEY_TOPRIGHT,	
@@ -241,11 +241,8 @@ class CRCInput
 			RC_rewind	= KEY_REWIND,
 			RC_stop		= KEY_STOP,
 			RC_timeshift	= KEY_TIME,
-#if BOXMODEL_BRE2ZE4K
-			RC_mode		= KEY_SWITCHVIDEOMODE,
-#else
 			RC_mode		= KEY_MODE,
-#endif
+			RC_switchvideomode = KEY_SWITCHVIDEOMODE,
 			RC_games	= KEY_GAMES,
 			RC_next		= KEY_NEXT,
 			RC_prev		= KEY_PREVIOUS,
