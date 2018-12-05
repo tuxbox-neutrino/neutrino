@@ -545,7 +545,7 @@ void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
 	else
 		nkey = NKEY_PIC_MODE;
 
-	for (nkey; nkey <= NKEY_PIC_SIZE; nkey++) {
+	for (; nkey <= NKEY_PIC_SIZE; nkey++) {
 		CMenuOptionChooser * mf = new CMenuOptionChooser(key_settings[nkey].keydescription, key_settings[nkey].keyvalue_p, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		mf->setHint("", key_settings[nkey].hint);
 		bindSettings_special->addItem(mf);
