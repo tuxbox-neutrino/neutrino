@@ -1077,10 +1077,10 @@ start-block~rc_wwio_bre2ze4k
 <area shape="rect" coords="106,171,134,199" alt="KEY_NEXT" href="javascript:rcsim('KEY_NEXT')" />
 <area shape="rect" coords="15,211,39,236" alt="KEY_EPG" href="javascript:rcsim('KEY_EPG')" />
 <area shape="rect" coords="67,210,91,235" alt="KEY_INFO" href="javascript:rcsim('KEY_INFO')" />
-<area shape="rect" coords="120,211,144,235" alt="KEY_INFO" href="javascript:rcsim('KEY_PVR')" />
+<area shape="rect" coords="120,211,144,235" alt="KEY_PVR" href="javascript:rcsim('KEY_PVR')" />
 <area shape="rect" coords="26,247,54,283" alt="KEY_VOLUMEUP" href="javascript:rcsim('KEY_VOLUMEUP')" />
 <area shape="rect" coords="26,292,54,328" alt="KEY_VOLUMEDOWN" href="javascript:rcsim('KEY_VOLUMEDOWN')" />
-<!-- <area shape="rect" coords="68,275,91,296" alt="portal" href="" /> -->
+<area shape="rect" coords="68,275,91,296" alt="KEY_PORTAL" href="javascript:rcsim('KEY_BOOKMARKS')" />
 <area shape="rect" coords="103,247,131,283" alt="KEY_PAGEUP" href="javascript:rcsim('KEY_PAGEUP)" />
 <area shape="recr" coords="104,291,132,327" alt="KEY_PAGEDOWN" href="javascript:rcsim('KEY_PAGEDOWN')" />
 <area shape="rect" coords="14,342,38,366" alt="KEY_MENU" href="javascript:rcsim('KEY_MENU')" />
@@ -1095,9 +1095,10 @@ start-block~rc_wwio_bre2ze4k
 <area shape="rect" coords="86,478,106,499" alt="KEY_YELLOW" href="javascript:rcsim('KEY_YELLOW')" />
 <area shape="rect" coords="119,478,139,499" alt="KEY_BLUE" href="javascript:rcsim('KEY_BLUE')" />
 <area shape="rect" coords="20,507,40,528" alt="KEY_AUDIO" href="javascript:rcsim('KEY_AUDIO')" />
-<!-- <area shape="rect" coords="54,507,74,528" alt="subtitle" href="" /> -->
+<area shape="rect" coords="54,507,74,528" alt="KEY_SUBTITLE" href="javascript:rcsim('KEY_SUBTITLE')" />
 <area shape="rect" coords="87,507,107,528" alt="KEY_FAVORITES" href="javascript:rcsim('KEY_FAVORITES')" />
-<!-- <area shape="rect" coords="120,507,140,528" alt="media" href="" /> -->
+<area shape="rect" coords="120,507,140,528" alt="KEY_MEDIA" href="javascript:rcsim('KEY_MEDIA')" />
+<!-- KEY_MEDIA = currently same function as KEY_FAVORITES -->
 <area shape="rect" coords="20,537,40,558" alt="KEY_TV" href="javascript:rcsim('KEY_TV')" />
 <area shape="rect" coords="52,537,72,558" alt="KEY_RADIO" href="javascript:rcsim('KEY_RADIO')" />
 <area shape="rect" coords="86,537,106,558" alt="KEY_TEXT" href="javascript:rcsim('KEY_TEXT')" />
