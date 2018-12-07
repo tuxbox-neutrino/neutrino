@@ -400,12 +400,18 @@ bool CCDraw::clearFbGradientData()
 bool CCDraw::clearScreenBuffer()
 {
 	bool ret = false;
-	if (clearSavedScreen())
-		ret = true;
-	if (clearPaintCache())
-		ret = true;
+
+	for(size_t i =0; i< v_fbdata.size() ;i++) {
+		if (v_fbdata[i].pixbuf){
+			dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], cleanup pixbuf...\033[0m\n", __func__, __LINE__);
+			delete[] v_fbdata[i].pixbuf;
+			v_fbdata[i].pixbuf = NULL;
+			ret = true;
+		}
+	}
 	if (clearFbGradientData())
 		ret = true;
+
 	firstPaint = true;
 	return ret;
 }
