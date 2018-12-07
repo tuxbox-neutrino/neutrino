@@ -95,7 +95,7 @@ CCDraw::~CCDraw()
 	clearFbData();
 }
 
-inline bool CCDraw::applyPosChanges()
+bool CCDraw::applyPosChanges()
 {
 	bool ret = false;
 	if (x != x_old || cc_xr != cc_xr_old){
@@ -114,7 +114,7 @@ inline bool CCDraw::applyPosChanges()
 	return ret;
 }
 
-inline bool CCDraw::applyDimChanges()
+bool CCDraw::applyDimChanges()
 {
 	bool ret = false;
 	if (height != height_old){
@@ -151,7 +151,7 @@ inline bool CCDraw::applyDimChanges()
 	return ret;
 }
 
-inline bool CCDraw::applyColChanges()
+bool CCDraw::applyColChanges()
 {
 	bool ret = false;
 	if (col_body != col_body_old){
@@ -193,7 +193,7 @@ inline bool CCDraw::applyColChanges()
 	return ret;
 }
 
-inline bool CCDraw::hasChanges()
+bool CCDraw::hasChanges()
 {
 	if (applyPosChanges() || applyDimChanges() || applyColChanges())
 		return true;
@@ -201,28 +201,28 @@ inline bool CCDraw::hasChanges()
 	return false;
 }
 
-inline void CCDraw::setXPos(const int& xpos)
+void CCDraw::setXPos(const int& xpos)
 {
 	if (x == xpos)
 		return;
 	x = xpos;
 }
 
-inline void CCDraw::setYPos(const int& ypos)
+void CCDraw::setYPos(const int& ypos)
 {
 	if (y == ypos)
 		return;
 	y = ypos;
 }
 
-inline void CCDraw::setHeight(const int& h)
+void CCDraw::setHeight(const int& h)
 {
 	if (height == h)
 		return;
 	height = h;
 }
 
-inline void CCDraw::setWidth(const int& w)
+void CCDraw::setWidth(const int& w)
 {
 	if (width == w)
 		return;
@@ -262,14 +262,14 @@ bool CCDraw::enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec
 	return ret;
 }
 
-inline void CCDraw::setCornerType(const int& type)
+void CCDraw::setCornerType(const int& type)
 {
 	if (corner_type == type)
 		return;
 	corner_type = type;
 }
 
-inline void CCDraw::setCorner(const int& radius, const int& type)
+void CCDraw::setCorner(const int& radius, const int& type)
 {
 	setCornerType(type);
 	if (corner_rad == radius)
@@ -883,4 +883,24 @@ bool CCDraw::setBodyBGImage(const std::string& image_path)
 bool CCDraw::setBodyBGImageName(const std::string& image_name)
 {
 	return  setBodyBGImage(frameBuffer->getIconPath(image_name));
+}
+
+int  CCDraw::getXPos()
+{
+	return x;
+}
+
+int  CCDraw::getYPos()
+{
+	return y;
+}
+
+int  CCDraw::getHeight()
+{
+	return height;
+}
+
+int  CCDraw::getWidth()
+{
+	return width;
 }

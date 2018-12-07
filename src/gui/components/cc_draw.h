@@ -194,15 +194,15 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///return screen x-position of component
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to get the real screen position, use getRealXPos(), to find in CComponentsItem sub classes
-		int getXPos(){return x;};
+		int getXPos();
 		///return screen y-position of component
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to get the real screen position, use getRealYPos(), to find in CComponentsItem sub classes
-		int getYPos(){return y;}
+		int getYPos();
 		///return height of component
-		int getHeight(){return height;}
+		int getHeight();
 		///return width of component
-		int getWidth(){return width;}
+		int getWidth();
 
 		///return/set (pass through) width and height of component
 		void getSize(int* w, int* h){*w=width; *h=height;}
