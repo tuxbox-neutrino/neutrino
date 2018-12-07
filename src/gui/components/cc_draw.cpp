@@ -672,10 +672,11 @@ void CCDraw::paintFbItems(bool do_save_bg)
 									}
 								}else{
 									// If found gradient buffer, paint box from gradient cache.
-									dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint cached gradient)...\033[0m\n", __func__, __LINE__);
-									frameBuffer->checkFbArea(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, true);
-									frameBuffer->blitBox2FB(fbdata.gradient_data->boxBuf, fbdata.gradient_data->dx, fbdata.dy, fbdata.gradient_data->x, fbdata.y);
-									frameBuffer->checkFbArea(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, false);
+									if (frameBuffer->checkFbArea(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, true)){
+										dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint cached gradient)...\033[0m\n", __func__, __LINE__);
+										frameBuffer->blitBox2FB(fbdata.gradient_data->boxBuf, fbdata.gradient_data->dx, fbdata.dy, fbdata.gradient_data->x, fbdata.y);
+										frameBuffer->checkFbArea(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, false);
+									}
 								}
 							}else{
 								/* If is nothihng cached or no background image was defined or image paint was failed,
