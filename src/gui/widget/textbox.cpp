@@ -947,4 +947,8 @@ void CTextBox::disableBackgroundPaint()
 	enableBackgroundPaint(false);
 }
 
+void CTextBox::setTextRenderModeFullBG(bool mode)
+{
+	m_renderMode = (mode) ? 2 /*Font::FULLBG*/ : 0;
+}
 
