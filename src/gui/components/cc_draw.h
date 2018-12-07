@@ -182,14 +182,14 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///set x and y position at once
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to set the real screen position, look at setRealPos()
-		virtual void setPos(const int& xpos, const int& ypos){setXPos(xpos); setYPos(ypos);}
+		virtual void setPos(const int& xpos, const int& ypos);
 
 		///set height of component on screen
 		virtual void setHeight(const int& h);
 		///set width of component on screen
 		virtual void setWidth(const int& w);
 		///set all positions and dimensions of component at once
-		void setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h){setPos(xpos, ypos); setWidth(w); setHeight(h);}
+		void setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h);
 
 		///return screen x-position of component
 		///Note: position of bound components (items) means position related within parent form, not for screen!
@@ -278,14 +278,9 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
-		void allowPaint(bool allow) {
-			if (allow != cc_allow_paint)
-				cc_allow_paint = allow;
-			if (cc_allow_paint)
-				is_painted = false;
-		}
+		void allowPaint(bool allow);
 		///returns visibility mode
-		bool paintAllowed(){return cc_allow_paint;};
+		bool paintAllowed();
 
 		///set color gradient on/off, returns true if gradient mode was changed
 		bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/, const int& direction = 1 /*CFrameBuffer::gradientVertical*/);

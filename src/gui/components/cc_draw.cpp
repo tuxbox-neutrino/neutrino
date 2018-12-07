@@ -904,3 +904,26 @@ int  CCDraw::getWidth()
 {
 	return width;
 }
+
+void CCDraw::setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h)
+{
+	setPos(xpos, ypos); setWidth(w); setHeight(h);
+}
+
+void CCDraw::setPos(const int& xpos, const int& ypos)
+{
+	setXPos(xpos); setYPos(ypos);
+}
+
+void CCDraw::allowPaint(bool allow)
+{
+	if (allow != cc_allow_paint)
+		cc_allow_paint = allow;
+	if (cc_allow_paint)
+		is_painted = false;
+}
+
+bool CCDraw::paintAllowed()
+{
+	return cc_allow_paint;
+}
