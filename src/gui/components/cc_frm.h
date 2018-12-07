@@ -62,7 +62,7 @@ class CComponentsForm : public CComponentsItem
 		std::vector <neutrino_msg_t> v_exit_keys;
 
 		///initialize basic properties
-		virtual void Init(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+		void Init(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const fb_pixel_t& color_frame,
 					const fb_pixel_t& color_body,
 					const fb_pixel_t& color_shadow);
@@ -81,7 +81,7 @@ class CComponentsForm : public CComponentsItem
 
 		///same like CComponentsItem::kill(), but erases all embedded items inside of parent at once, this = parent
 		///NOTE: Items always have parent bindings to "this" and use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
-		virtual void killCCItems(const fb_pixel_t& bg_color, bool ignore_parent);
+		void killCCItems(const fb_pixel_t& bg_color, bool ignore_parent);
 
 		/**
 		 Removes possible contained items and finally removes
@@ -94,20 +94,20 @@ class CComponentsForm : public CComponentsItem
 		void hideCCItems();
 
 		///add an item to form collection, returns id
-		virtual int addCCItem(CComponentsItem* cc_Item);
+		int addCCItem(CComponentsItem* cc_Item);
 		///add items from a vector to form collection, returns size/count of items
-		virtual int addCCItem(const std::vector<CComponentsItem*> &cc_items);
-		virtual void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
+		int addCCItem(const std::vector<CComponentsItem*> &cc_items);
+		void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
 
 		///removes item object from container and deallocates instance
-		virtual void removeCCItem(const uint& cc_item_id);
+		void removeCCItem(const uint& cc_item_id);
 		///removes item object from container and deallocates instance
-		virtual void removeCCItem(CComponentsItem* cc_Item);
+		void removeCCItem(CComponentsItem* cc_Item);
 
-		virtual void replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item);
-		virtual void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
-		virtual void exchangeCCItem(const uint& item_id_a, const uint& item_id_b);
-		virtual void exchangeCCItem(CComponentsItem* item_a, CComponentsItem* item_b);
+		void replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item);
+		void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
+		void exchangeCCItem(const uint& item_id_a, const uint& item_id_b);
+		void exchangeCCItem(CComponentsItem* item_a, CComponentsItem* item_b);
 
 		/**Function to get current item id from passed item.
 		* @param[in]  cc_Item
@@ -141,7 +141,7 @@ class CComponentsForm : public CComponentsItem
 		*/
 		CComponentsItem* getNextCCItem(CComponentsItem* current_cc_item);
 
-		virtual void paintCCItems();
+		void paintCCItems();
 
 		///clean up and deallocate existant items from v_cc_items at once
 		virtual	void clear();
@@ -155,22 +155,22 @@ class CComponentsForm : public CComponentsItem
 		virtual	CComponentsItem* back(){return v_cc_items.back();};
 
 		///sets alignment offset between items
-		virtual void setAppendOffset(const int &x_offset, const int& y_offset){append_x_offset = x_offset; append_y_offset = y_offset;};
+		void setAppendOffset(const int &x_offset, const int& y_offset){append_x_offset = x_offset; append_y_offset = y_offset;};
 
 		///sets count of pages, parameter as uint8_t
 		///NOTE: page numbers are primary defined in items and this values have priority!! Consider that smaller values
 		///than the current values can make problems and are not allowed, therefore smaller values than
 		///current page count are ignored!
-		virtual void setPageCount(const uint8_t& pageCount);
+		void setPageCount(const uint8_t& pageCount);
 		///returns current count of pages,
 		///NOTE: page number are primary defined in items and secondary in form variable 'page_count'. This function returns the maximal value from both!
-		virtual uint8_t getPageCount();
+		uint8_t getPageCount();
 		///sets current page
-		virtual void setCurrentPage(const uint8_t& current_page){cur_page = current_page;};
+		void setCurrentPage(const uint8_t& current_page){cur_page = current_page;};
 		///get current page
-		virtual uint8_t getCurrentPage(){return cur_page;};
+		uint8_t getCurrentPage(){return cur_page;};
 		///paint defined page number 0...n
-		virtual void paintPage(const uint8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		void paintPage(const uint8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
 		///enum page scroll modes
 		enum
 		{
@@ -179,12 +179,12 @@ class CComponentsForm : public CComponentsItem
 			PG_SCROLL_M_OFF		 	= 4
 		};
 		///enable/disable page scroll, parameter1 default enabled for up/down keys
-		virtual void enablePageScroll(const int& mode = PG_SCROLL_M_UP_DOWN_KEY){page_scroll_mode = mode;};
+		void enablePageScroll(const int& mode = PG_SCROLL_M_UP_DOWN_KEY){page_scroll_mode = mode;};
 
 		///set width of scrollbar
-		virtual void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
+		void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
 		///returns id of selected item, return value as int, returns -1: if is nothing selected
-		virtual int getSelectedItem();
+		int getSelectedItem();
 
 		/**Function to get consumed  space of items inside form in y direction.
 		* @return
@@ -211,9 +211,9 @@ class CComponentsForm : public CComponentsItem
 		int getFreeDX(){return width - getUsedDX();}
 
 		///returns pointer to selected item, return value as CComponentsItem*, returns NULL: if is nothing selected
-		virtual CComponentsItem* getSelectedItemObject();
+		CComponentsItem* getSelectedItemObject();
 		///select a definied item, parameter1 as size_t
-		virtual void setSelectedItem(	int item_id,
+		void setSelectedItem(	int item_id,
 						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
 						const fb_pixel_t& frame_col = COL_FRAME_PLUS_0,
 						const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
@@ -221,7 +221,7 @@ class CComponentsForm : public CComponentsItem
 						const int& frame_w = DEFAULT_SEL_FRAME_WIDTH,
 						const int& sel_frame_w = DEFAULT_SEL_FRAME_WIDTH);
 		///select a definied item, parameter1 as CComponentsItem*
-		virtual void setSelectedItem(	CComponentsItem* cc_item,
+		void setSelectedItem(	CComponentsItem* cc_item,
 						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
 						const fb_pixel_t& frame_col = COL_FRAME_PLUS_0,
 						const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
@@ -230,12 +230,12 @@ class CComponentsForm : public CComponentsItem
 						const int& sel_frame_w = DEFAULT_SEL_FRAME_WIDTH);
 
 		///exec main method, see also sub exec methods
-		virtual int exec();
+		int exec();
 
 		///adds additional exec key to current collection, default exit keys are CRCInput::RC_home and CRCInput::RC_setup
-		virtual void addExitKey(const neutrino_msg_t& key){v_exit_keys.push_back(key);}
+		void addExitKey(const neutrino_msg_t& key){v_exit_keys.push_back(key);}
 		///remove all current exec keys from current collection, NOTE: use addExitKey() if new exec key is required
-		virtual void removeExitKeys(){v_exit_keys.clear();}
+		void removeExitKeys(){v_exit_keys.clear();}
 
 		///enum exec loop control
 		enum
@@ -245,14 +245,14 @@ class CComponentsForm : public CComponentsItem
 		};
 		///execKey() methods handle events for defined neutrino messages, see class CRCInput::, this methodes contains a signal handler named OnExecMsg, so it is possible to connect with any common function or method
 		///exec sub method for pressed keys, parameters1/2 by rev, parameter3 msg_list as vector contains a list of possible RC-messages for defined message, parameter4 force_exit default = false
-		virtual void execKey(	neutrino_msg_t& msg,
+		void execKey(	neutrino_msg_t& msg,
 					neutrino_msg_data_t& data,
 					int& res,
 					bool& cancel_exec,
 					const std::vector<neutrino_msg_t>& msg_list,
 					bool force_exit = false);
 		///exec sub method for pressed key, parameters1/2 by rev, parameter3 force_exit default = false
-		virtual bool execKey(	neutrino_msg_t& msg,
+		bool execKey(	neutrino_msg_t& msg,
 					neutrino_msg_data_t& data,
 					int& res,
 					bool& cancel_exec,
@@ -260,10 +260,10 @@ class CComponentsForm : public CComponentsItem
 					bool force_exit = false);
 
 		///exec sub method for page scroll, parameter1 neutrino_msg_t by rev
-		virtual void execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec);
+		void execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec);
 
 		///exec sub method for exit loop, parameters by rev
-		virtual void execExit(	neutrino_msg_t& msg,
+		void execExit(	neutrino_msg_t& msg,
 					neutrino_msg_data_t& data,
 					int& res, bool& cancel_exec,
 					const std::vector<neutrino_msg_t>& v_msg_list);
@@ -275,15 +275,15 @@ class CComponentsForm : public CComponentsItem
 			SCROLL_P_UP	= 1
 		};
 		///scroll page and paint current selected page, if parameter2 = true (default)
-		virtual void ScrollPage(int direction = SCROLL_P_DOWN, bool do_paint = true);
+		void ScrollPage(int direction = SCROLL_P_DOWN, bool do_paint = true);
 
-		virtual bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_colorconst, const int& direction = -1 /*CFrameBuffer::gradientVertical*/);
+		bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_colorconst, const int& direction = -1 /*CFrameBuffer::gradientVertical*/);
 		///cleans saved screen buffer include from sub items, required by hide(), returns true if any buffer was deleted
-		virtual bool clearSavedScreen();
+		bool clearSavedScreen();
 		///cleanup paint cache include from sub items, removes saved buffer contents from cached foreground layers, returns true if any buffer was removed
-		virtual bool clearPaintCache();
+		bool clearPaintCache();
 		///cleanup old gradient buffers include from sub items, returns true if any gradient buffer data was removed
-		virtual bool clearFbGradientData();
+		bool clearFbGradientData();
 
 		///slot for repaint event, reserved for actions before repaint if paint() already was done.
 		sigc::slot0<void> sl_form_repaint;

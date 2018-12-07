@@ -144,7 +144,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		///init font object and recalculates height if required
 		void initCaptionFont();
 		///init default fonts for size modes
-		virtual void initDefaultFonts();
+		void initDefaultFonts();
 		///sub: init icon object
 		void initIcon();
 		///sub: init caption object
@@ -191,12 +191,12 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		virtual ~CComponentsHeader();
 
 		///set caption text, parameters: string, int align_mode (default left) 
-		virtual void setCaption(const std::string& caption, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
+		void setCaption(const std::string& caption, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
 		///set caption text, parameters: loacle, int align_mode (default left)
-		virtual void setCaption(neutrino_locale_t caption_locale, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
+		void setCaption(neutrino_locale_t caption_locale, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN, const fb_pixel_t& text_color = COL_MENUHEAD_TEXT);
 
 		///set alignment of caption within header, possible paramters are CComponentsHeader::CC_TITLE_LEFT, CComponentsHeader::CC_TITLE_RIGHT, CComponentsHeader::CC_TITLE_CENTER
-		virtual void setCaptionAlignment(const cc_title_alignment_t& align_mode){cch_caption_align = align_mode;}
+		void setCaptionAlignment(const cc_title_alignment_t& align_mode){cch_caption_align = align_mode;}
 
 		/**Set text font for title.
 		 * Internal default font is g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] and
@@ -210,11 +210,11 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		 * 			setCaptionAlignment(),
 		 * 			setCaption()
 		*/
-		virtual void setCaptionFont(Font* font);
+		void setCaptionFont(Font* font);
 		///returns font object of title caption
-		virtual Font* getCaptionFont(){return cch_font;}
+		Font* getCaptionFont(){return cch_font;}
 		///set text color for caption
-		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;}
+		void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;}
 
 		enum
 		{
@@ -233,35 +233,35 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		 * 			CC_HEADER_SIZE_SMALL
 		 * @see			setCaption(), setHeight()
 		*/
-		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();}
+		void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();}
 
 		///set offset between items
-		virtual void setOffset(const int offset){cch_offset = offset;};
+		void setOffset(const int offset){cch_offset = offset;};
 		///set name of icon
-		virtual void setIcon(const char* icon_name);
+		void setIcon(const char* icon_name);
 		///set name of icon
-		virtual void setIcon(const std::string& icon_name);
+		void setIcon(const std::string& icon_name);
 
 		///context buttons are to find on the right part of header
 		///add a single context button icon to the header object, arg as string, icon will just add, existing icons are preserved
-		virtual void addContextButton(const std::string& button_name);
+		void addContextButton(const std::string& button_name);
 		///add a group of context button icons to the header object, arg as string vector, icons will just add, existing icons are preserved
-		virtual void addContextButton(const std::vector<std::string>& v_button_names);
+		void addContextButton(const std::vector<std::string>& v_button_names);
 		///add a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
 		///icons will just add, existing  icons are preserved
-		virtual void addContextButton(const int& buttons);
+		void addContextButton(const int& buttons);
 		///remove context buttons from context button object
-		virtual void removeContextButtons();
+		void removeContextButtons();
 		///sets a single context button icon to the header object, arg as string, existing buttons are removed
-		virtual void setContextButton(const std::string& button_name){removeContextButtons(); addContextButton(button_name);};
+		void setContextButton(const std::string& button_name){removeContextButtons(); addContextButton(button_name);};
 		///sets a group of context button icons to the header object, arg as string vector, existing buttons are removed
-		virtual void setContextButton(const std::vector<std::string>& v_button_names){removeContextButtons(); addContextButton(v_button_names);};
+		void setContextButton(const std::vector<std::string>& v_button_names){removeContextButtons(); addContextButton(v_button_names);};
 		///sets a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
 		///existing buttons are removed
-		virtual void setContextButton(const int& buttons){removeContextButtons(); addContextButton(buttons);};
+		void setContextButton(const int& buttons){removeContextButtons(); addContextButton(buttons);};
 
 		///gets the embedded context button object, so it's possible to get access directly to its methods and properties
-		virtual CComponentsIconForm* getContextBtnObject() { return cch_btn_obj;};
+		CComponentsIconForm* getContextBtnObject() { return cch_btn_obj;};
 
 		enum
 		{
@@ -287,12 +287,12 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		};
 
 		///set offset between icons within context button object
-		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;}
+		void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;}
 
 		///init all items within header object
-		virtual void initCCItems();
+		void initCCItems();
 		///returns the text object
-		virtual CComponentsText* getTextObject(){return cch_text_obj;}
+		CComponentsText* getTextObject(){return cch_text_obj;}
 
 		/**Member to modify background behavior of embeded title
 		* @param[in]  mode
@@ -315,12 +315,12 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		CComponentsFrmClock* getClockObject(){return cch_cl_obj;}
 
 		///enable display of clock, parameter bool enable, const char* format, bool run
-		virtual void enableClock(bool enable = true, const char* format = "%H:%M", const char* sec_format_str = NULL, bool run = false);
+		void enableClock(bool enable = true, const char* format = "%H:%M", const char* sec_format_str = NULL, bool run = false);
 		///disable clock, without parameter
-		virtual void disableClock();
+		void disableClock();
 
 		///paint header
-		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///hides item, arg: no_restore see hideCCItem()
 		void hide(){disableClock(); CComponentsForm::hide();}
@@ -328,7 +328,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = ~CC_FBDATA_TYPES, bool disable_clock = true);
 
 		///set color gradient on/off, returns true if gradient mode was changed
-		virtual bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/, const int& direction = -1);
+		bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/, const int& direction = -1);
 
 		/**Methode to set channel logo into header body via id and/or channel name
 		* @param[in]  	channelId

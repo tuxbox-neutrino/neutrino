@@ -145,7 +145,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* 	CTextBox::enableSaveScreen()
 		* 	disableTboxSaveScreen()
 		*/
-		virtual void enableTboxSaveScreen(bool mode)
+		void enableTboxSaveScreen(bool mode)
 		{
 			if (cc_txt_save_screen == mode)
 				return;
