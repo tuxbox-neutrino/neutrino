@@ -936,3 +936,15 @@ int CTextBox::getMaxLineWidth(const std::string& text, Font* font)
 
 	return len;
 }
+
+void CTextBox::enableBackgroundPaint(bool mode)
+{
+	m_nPaintBackground = mode;
+}
+
+void CTextBox::disableBackgroundPaint()
+{
+	enableBackgroundPaint(false);
+}
+
+
