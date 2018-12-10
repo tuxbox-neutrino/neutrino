@@ -118,5 +118,7 @@ void CNaviBar::initCCItems()
 void CNaviBar::paint(bool do_save_bg)
 {
 	hideCCItems();
+	nb_lText->hide();
+	nb_rText->hide();
 	CComponentsFrmChain::paint(do_save_bg);
 }
