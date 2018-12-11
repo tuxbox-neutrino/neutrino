@@ -1301,7 +1301,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				tmdb_active = false; // reset tmdb
 				imdb_active = false; // reset imdb
 				showTimerEventBar (false);
-				start();
 //				textypos = sy;
 //printf("bigFonts %d\n", bigFonts);
 				if (bigFonts)
@@ -1314,6 +1313,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() / BIGFONT_FACTOR));
 				}
 				g_settings.bigFonts = bigFonts;
+				start();
 				if (mp_info)
 					show(mp_movie_info->epgId >> 16, 0, 0, false, false, true);
 				else
