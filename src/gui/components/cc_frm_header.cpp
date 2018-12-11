@@ -566,7 +566,7 @@ void CComponentsHeader::initCaption()
 		cch_text_x = cch_offset;
 
 	//calc width of text object in header
-	cc_text_w = width-cch_text_x/*-cch_offset*/;
+	cc_text_w = width-cch_text_x-cch_offset;
 
 	//context buttons
 	int buttons_w = 0;
