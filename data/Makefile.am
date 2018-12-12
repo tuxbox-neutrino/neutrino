@@ -26,11 +26,15 @@ config_DATA = \
 	cables.xml \
 	encoding.conf \
 	epglanguages.conf \
-	myservices.xml \
 	providermap.xml \
 	satellites.xml \
 	settingsupdate.conf \
 	terrestrial.xml \
 	tobackup.conf
-install-data-hook:
-	$(INSTALL) -d $(DESTDIR)/$(CONFIGDIR)/zapit
+zapitdir = $(CONFIGDIR)/zapit
+
+zapit_DATA = \
+	myservices.xml
+
+#install-data-hook:
+#	$(INSTALL) -d $(DESTDIR)/$(CONFIGDIR)/zapit
