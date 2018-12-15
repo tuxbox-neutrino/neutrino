@@ -4815,10 +4815,6 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_pageup = tconfig.getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
 	g_settings.key_pagedown = tconfig.getInt32( "key_channelList_pagedown", CRCInput::RC_page_down );
 	g_settings.key_channelList_cancel = tconfig.getInt32( "key_channelList_cancel",  CRCInput::RC_home );
-	// backward-compatible check
-	if (g_settings.key_channelList_cancel == 174) { /* KEY_EXIT */
-		g_settings.key_channelList_cancel = 102;    /* KEY_HOME */
-	}
 	g_settings.key_channelList_sort = tconfig.getInt32( "key_channelList_sort",  CRCInput::RC_blue );
 	g_settings.key_channelList_addrecord = tconfig.getInt32( "key_channelList_addrecord",  CRCInput::RC_red );
 	g_settings.key_channelList_addremind = tconfig.getInt32( "key_channelList_addremind",  CRCInput::RC_yellow );
@@ -4898,6 +4894,13 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_next43mode = tconfig.getInt32("key_next43mode", CRCInput::RC_next);
 	g_settings.key_volumeup = tconfig.getInt32( "key_volumeup",  CRCInput::RC_plus );
 	g_settings.key_volumedown = tconfig.getInt32( "key_volumedown", CRCInput::RC_minus );
+	// backward-compatible check
+	if (g_settings.key_channelList_cancel == 174) { /* KEY_EXIT */
+		g_settings.key_channelList_cancel = 102;    /* KEY_HOME */
+	}
+	if (g_settings.key_zaphistory == 174) {
+		g_settings.key_zaphistory = 102;
+	}
 }
 
 void CNeutrinoApp::saveKeys(const char * fname)
