@@ -664,6 +664,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 
 		void setNextShortcut(int sc) { nextShortcut = sc; };
 		int getNextShortcut() { return nextShortcut; };
+		bool gotAction() { return !no_action; };
 };
 
 class CPINProtection
