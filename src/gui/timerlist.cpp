@@ -790,15 +790,15 @@ bool CTimerList::RemoteBoxChanExists(t_channel_id channel_id)
 	std::string errMsg = "";
 	Json::Value root;
 	bool ok = parseJsonFromString(r_url, &root, &errMsg);
-	if (!ok) {
+	if (!ok)
+	{
 		printf("Failed to parse JSON\n");
 		printf("%s\n", errMsg.c_str());
 	}
 
 	r_url = root.get("success","false").asString();
 	if (r_url == "false")
-		ShowMsg(LOCALE_REMOTEBOX_CHANNEL_NA, convertChannelId2String(channel_id),
-				CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 450, 30, false);
+		ShowMsg(LOCALE_REMOTEBOX_CHANNEL_NA, convertChannelId2String(channel_id), CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 450, 30, false);
 
 	return (r_url == "true");
 }
@@ -850,11 +850,14 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 		std::string errMsg = "";
 		Json::Value root;
 		bool ok = parseJsonFromString(r_url, &root, &errMsg);
-		if (!ok) {
+		if (!ok)
+		{
 			printf("Failed to parse JSON\n");
 			printf("%s\n", errMsg.c_str());
 			it->online = false;
-		} else
+			continue;
+		}
+		else
 			it->online = true;
 
 		Json::Value delays = root["data"]["timer"][0];
