@@ -2207,11 +2207,12 @@ recordingmenu.vcr vcr
 recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
-remotebox_add add
+remotebox_add Add
 remotebox_channel_na Channel not available on Remote-Box
-remotebox_del delete
+remotebox_del Delete
 remotebox_head Remote-Boxes
-remotebox_mod modify
+remotebox_mod Modify
+remotebox_onoff On/Off
 remotebox_pass Password
 remotebox_port Port
 remotebox_rbaddr Address

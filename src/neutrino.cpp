@@ -506,10 +506,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.timer_remotebox_ip.clear();
 	int timer_remotebox_itemcount = configfile.getInt32("timer_remotebox_ip_count", 0);
-	if (timer_remotebox_itemcount) {
-		for (int i = 0; i < timer_remotebox_itemcount; i++) {
+	if (timer_remotebox_itemcount)
+	{
+		for (int i = 0; i < timer_remotebox_itemcount; i++)
+		{
 			timer_remotebox_item timer_rb;
 			timer_rb.online = false;
+			timer_rb.enabled = configfile.getBool("timer_remotebox_enabled_" + to_string(i), true);
 			timer_rb.port = 0;
 			std::string k;
 			k = "timer_remotebox_ip_" + to_string(i);
@@ -524,6 +527,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			timer_rb.pass = configfile.getString(k, "");
 			k = "timer_remotebox_rbname_" + to_string(i);
 			timer_rb.rbname = configfile.getString(k, "");
+			timer_rb.enabled = configfile.getBool("timer_remotebox_enabled_" + to_string(i), true);
 			if (timer_rb.rbname.empty())
 				timer_rb.rbname = timer_rb.rbaddress;
 			g_settings.timer_remotebox_ip.push_back(timer_rb);
@@ -1326,7 +1330,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("sleeptimer_min", g_settings.sleeptimer_min);
 
 	int timer_remotebox_itemcount = 0;
-	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it) {
+	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
+	{
+		configfile.setBool("timer_remotebox_enabled_" + to_string(timer_remotebox_itemcount), it->enabled);
 		std::string k;
 		k = "timer_remotebox_ip_" + to_string(timer_remotebox_itemcount);
 		configfile.setString(k, it->rbaddress);

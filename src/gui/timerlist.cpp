@@ -360,6 +360,19 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 
+	if (actionKey == "onoff_ip")
+	{
+		bselected = remboxmenu->getSelected();
+		CMenuItem* item = remboxmenu->getItem(bselected);
+		CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
+		std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
+		std::advance(it, bselected-item_offset);
+		it->enabled = !it->enabled;
+		f->setInfoIconRight(it->enabled ? NEUTRINO_ICON_MARKER_DIALOG_OK : NEUTRINO_ICON_MARKER_DIALOG_OFF);
+		changed = true;
+		return menu_return::RETURN_REPAINT;
+	}
+
 	if (actionKey == "cha_ip")
 	{
 		bselected = remboxmenu->getSelected();
@@ -680,12 +693,15 @@ struct button_label TimerListButtons[] =
 // int to match the type in paintButtons
 int TimerListButtonsCount = sizeof(TimerListButtons)/sizeof(TimerListButtons[0]);
 
-#define RemoteBoxFooterButtonCount 3
-static const struct button_label RemoteBoxFooterButtons[RemoteBoxFooterButtonCount] = {
+static const struct button_label RemoteBoxButtons[] =
+{
 	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_REMOTEBOX_DEL },
 	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_REMOTEBOX_ADD },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_REMOTEBOX_ONOFF },
 	{ NEUTRINO_ICON_BUTTON_OKAY, LOCALE_REMOTEBOX_MOD }
 };
+// int to match the type in paintButtons
+int RemoteBoxButtonsCount = sizeof(RemoteBoxButtons)/sizeof(RemoteBoxButtons[0]);
 
 void CTimerList::updateEvents(void)
 {
@@ -722,12 +738,21 @@ void CTimerList::RemoteBoxSelect()
 {
 	int select = 0;
 
-	if (g_settings.timer_remotebox_ip.size() > 1) {
+	if (g_settings.timer_remotebox_ip.size() > 1)
+	{
 		CMenuWidget *m = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
 		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
+		// we don't show introitems, so we add a separator for a smoother view
+		m->addItem(GenericMenuSeparator);
+
+		CMenuForwarder* mf;
 		for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
-			m->addItem(new CMenuForwarder(it->rbname, it->online, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str()));
+		{
+			mf = new CMenuForwarder(it->rbname, it->online && it->enabled, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str());
+			mf->setInfoIconRight(it->enabled ? NEUTRINO_ICON_MARKER_DIALOG_OK : NEUTRINO_ICON_MARKER_DIALOG_OFF);
+			m->addItem(mf);
+		}
 
 		m->enableSaveScreen();
 		m->exec(NULL, "");
@@ -736,7 +761,9 @@ void CTimerList::RemoteBoxSelect()
 	}
 
 	std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
-	std::advance(it,select);
+	std::advance(it, select);
+	if (!it->enabled)
+		return;
 	if (askUserOnRemoteTimerConflict(timerlist[selected].announceTime, timerlist[selected].stopTime, (char*) it->rbname.c_str()))
 	{
 		strncpy(timerlist[selected].remotebox_name,it->rbname.c_str(),sizeof(timerlist[selected].remotebox_name));
@@ -808,6 +835,9 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 	std::string r_url;
 	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
 	{
+		if (!it->enabled)
+			continue;
+
 		r_url = "http://";
 		r_url += RemoteBoxConnectUrl(it->rbname);
 		r_url += "/control/timer?format=json";
@@ -1118,14 +1148,20 @@ bool CTimerList::RemoteBoxSetup()
 	remboxmenu = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER, 50);
 	remboxmenu->addKey(CRCInput::RC_red, this, "del_ip");
 	remboxmenu->addKey(CRCInput::RC_green, this, "add_ip");
+	remboxmenu->addKey(CRCInput::RC_yellow, this, "onoff_ip");
 
 	remboxmenu->addIntroItems();
 
 	item_offset = remboxmenu->getItemsCount();
+	CMenuForwarder* mf;
 	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
-		remboxmenu->addItem(new CMenuForwarder(it->rbname, true, NULL, this, "cha_ip"));
+	{
+		mf = new CMenuForwarder(it->rbname, true, NULL, this, "cha_ip");
+		mf->setInfoIconRight(it->enabled ? NEUTRINO_ICON_MARKER_DIALOG_OK : NEUTRINO_ICON_MARKER_DIALOG_OFF);
+		remboxmenu->addItem(mf);
+	}
 
-	remboxmenu->setFooter(RemoteBoxFooterButtons, RemoteBoxFooterButtonCount);
+	remboxmenu->setFooter(RemoteBoxButtons, RemoteBoxButtonsCount);
 
 	remboxmenu->enableSaveScreen();
 	remboxmenu->exec(NULL, "");
@@ -1138,10 +1174,10 @@ bool CTimerList::RemoteBoxSetup()
 			CMenuItem *item = remboxmenu->getItem(i);
 			CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
 			for (std::vector<timer_remotebox_item>::iterator it = old_timer_remotebox_ip.begin(); it != old_timer_remotebox_ip.end(); ++it)
+			{
 				if (it->rbname == f->getName())
-				{
 					g_settings.timer_remotebox_ip.push_back(*it);
-				}
+			}
 		}
 		changed = false;
 		ret = true;
