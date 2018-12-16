@@ -664,21 +664,6 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	CVFD::getInstance()->setMode(saved_displaymode);
 
 	return ret;
-	/*
-		if (ret > -1)
-		{
-			return menu_return::RETURN_REPAINT;
-		}
-		else if (ret == -1)
-		{
-			// -1 bedeutet nur REPAINT
-			return menu_return::RETURN_REPAINT;
-		}
-		else
-		{
-			// -2 bedeutet EXIT_ALL
-			return menu_return::RETURN_EXIT_ALL;
-		}*/
 }
 
 struct button_label TimerListButtons[] =
