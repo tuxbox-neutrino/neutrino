@@ -1206,6 +1206,14 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		//remove easymenu
 		configfile.deleteKey("easymenu");
 	}
+	if (g_settings.version_pseudo < "20181216000000")
+	{
+		// apply key changes; KEY_EXIT => KEY_HOME
+		if (g_settings.key_channelList_cancel == 174)
+			g_settings.key_channelList_cancel = 102;
+		if (g_settings.key_zaphistory == 174)
+			g_settings.key_zaphistory = 102;
+	}
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
 
