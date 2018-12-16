@@ -757,6 +757,9 @@ void CTimerList::RemoteBoxSelect()
 		m->enableSaveScreen();
 		m->exec(NULL, "");
 
+		if (!m->gotAction())
+			return;
+
 		delete selector;
 	}
 
