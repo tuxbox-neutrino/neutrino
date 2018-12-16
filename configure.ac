@@ -329,6 +329,7 @@ AC_SUBST(BLURAY_LIBS)
 AC_OUTPUT([
 Makefile
 data/Makefile
+data/config/Makefile
 data/fonts/Makefile
 data/icons/Makefile
 data/icons/buttons/Makefile
