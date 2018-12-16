@@ -2226,7 +2226,7 @@ void CChannelList::paintHead()
 	    (bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked))
 		header->setIcon(NEUTRINO_ICON_LOCK);
 	else
-		header->setIcon(NULL);
+		header->setIcon(edit_state ? NEUTRINO_ICON_EDIT : NULL);
 
 	std::string header_txt 		= !edit_state ? name : std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
 	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);

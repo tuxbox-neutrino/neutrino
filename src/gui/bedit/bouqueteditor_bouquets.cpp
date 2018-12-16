@@ -137,7 +137,7 @@ void CBEBouquetWidget::paintItems()
 
 void CBEBouquetWidget::paintHead()
 {
-	CBEGlobals::paintHead(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), NEUTRINO_ICON_SETTINGS);
+	CBEGlobals::paintHead(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), NEUTRINO_ICON_EDIT);
 }
 
 const struct button_label CBEBouquetWidgetButtons[] =

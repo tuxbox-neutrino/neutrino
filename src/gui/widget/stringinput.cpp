@@ -88,7 +88,7 @@ void CStringInput::init(const std::string &Name, std::string *Value, int Size, c
         hint_1 = Hint_1;
         hint_2 = Hint_2;
         validchars = Valid_Chars;
-        iconfile = Icon ? Icon : "";
+        iconfile = Icon ? Icon : NEUTRINO_ICON_EDIT;
 
         observ = Observ;
 

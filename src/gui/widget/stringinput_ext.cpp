@@ -327,7 +327,7 @@ void CExtendedInput::hide()
 
 void CExtendedInput::paint()
 {
-	CComponentsHeader header(x, y, width, hheight, g_Locale->getText(name));
+	CComponentsHeader header(x, y, width, hheight, g_Locale->getText(name), NEUTRINO_ICON_EDIT);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
