@@ -4,6 +4,7 @@ install_DATA = \
 	audio.png \
 	bookmarkmanager.png \
 	colors.png \
+	edit.png \
 	error.png \
 	features.png \
 	games.png \
