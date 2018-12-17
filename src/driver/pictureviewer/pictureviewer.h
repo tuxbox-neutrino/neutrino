@@ -26,6 +26,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <stdio.h>    /* printf       */
