@@ -529,10 +529,11 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height)
+bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height, bool lcd4l_mode)
 {
 	std::string fileType[] = { ".png", ".jpg", ".gif" };
 	std::vector<std::string> v_path;
+	std::vector<std::string> v_file;
 
 	// create eventname for eventlogos; Note: We don't process channellogos if any eventlogo was found.
 	std::string EventName = "";
@@ -560,6 +561,8 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 		//printf("GetLogoName(): EventName \"%s\"\n", EventName.c_str());
 
 		v_path.clear();
+		if (lcd4l_mode)
+			v_path.push_back(g_settings.lcd4l_logodir);
 		v_path.push_back(g_settings.logo_hdd_dir);
 		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
 			v_path.push_back(LOGODIR_VAR);
@@ -634,6 +637,21 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	{
 		v_path.clear();
 		std::string id_tmp_path;
+
+		if (lcd4l_mode)
+		{
+			v_file.clear();
+			v_file.push_back(ChannelName);
+			v_file.push_back(SpecialChannelName);
+			v_file.push_back(strChnId);
+			if (e2filename1[0] != '\0')
+				v_file.push_back(std::string(e2filename1));
+			if (e2filename2[0] != '\0')
+				v_file.push_back(std::string(e2filename2));
+
+			for (size_t f = 0; f < v_file.size(); f++)
+				v_path.push_back(g_settings.lcd4l_logodir + "/" + v_file[f] + fileType[i]);
+		}
 
 		//create filename with channel name (logo_hdd_dir)
 		id_tmp_path = g_settings.logo_hdd_dir + "/";
