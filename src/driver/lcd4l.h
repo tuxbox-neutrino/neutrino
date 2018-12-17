@@ -59,7 +59,6 @@ class CLCD4l
 
 		uint64_t	GetParseID();
 		bool		CompareParseID(uint64_t &i_ParseID);
-		bool		GetLogoName(uint64_t channel_id, std::string channel_name, std::string & logo);
 
 		std::string	hexStr(unsigned char data);
 		std::string	hexStrA2A(unsigned char data);

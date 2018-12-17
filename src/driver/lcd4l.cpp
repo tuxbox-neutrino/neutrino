@@ -51,6 +51,7 @@
 #include <zapit/capmt.h>
 #include <zapit/zapit.h>
 #include <gui/movieplayer.h>
+#include <gui/pictureviewer.h>
 #include <eitd/sectionsd.h>
 #include <video.h>
 
@@ -58,6 +59,7 @@
 
 extern CRemoteControl *g_RemoteControl;
 extern cVideo *videoDecoder;
+extern CPictureViewer *g_PicViewer;
 
 #define LCD_DATADIR		"/tmp/lcd/"
 
@@ -616,6 +618,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		std::string Service = "";
 		int ChannelNr = 0;
 		std::string Logo = LOGO_DUMMY;
+		int dummy;
 		int ModeLogo = 0;
 
 		int ModeStandby	= 0;
@@ -627,7 +630,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			else
 				Service = g_RemoteControl->getCurrentChannelName();
 
-			GetLogoName(parseID, Service, Logo);
+			g_PicViewer->GetLogoName(parseID, Service, Logo, &dummy, &dummy, true);
 
 			ChannelNr = CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber();
 		}
@@ -690,9 +693,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				case 3: /* play */
 					if (ModeTshift && CMoviePlayerGui::getInstance().p_movie_info) /* show channel-logo */
 					{
-						if (!GetLogoName(CMoviePlayerGui::getInstance().p_movie_info->channelId,
-								 CMoviePlayerGui::getInstance().p_movie_info->channelName,
-								 Logo))
+						if (!g_PicViewer->GetLogoName(CMoviePlayerGui::getInstance().p_movie_info->channelId,
+									      CMoviePlayerGui::getInstance().p_movie_info->channelName,
+									      Logo, &dummy, &dummy, true))
 							Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 					}
 					else /* show play-icon */
@@ -1089,47 +1092,4 @@ std::string CLCD4l::hexStrA2A(unsigned char data)
 
 	snprintf(hexstr, sizeof hexstr, "%02x", ret);
 	return std::string(hexstr);
-}
-
-bool CLCD4l::GetLogoName(uint64_t channel_id, std::string channel_name, std::string &logo)
-{
-	int h, i, j;
-	char str_channel_id[16];
-	char *upper_name, *lower_name, *p;
-
-	upper_name = strdup(channel_name.c_str());
-	for (p = upper_name; *p != '\0'; p++)
-		*p = (char) toupper(*p);
-
-	lower_name = strdup(channel_name.c_str());
-	for (p = lower_name; *p != '\0'; p++)
-		*p = (char) tolower(*p);
-
-	sprintf(str_channel_id, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
-	// the directorys to search in
-	std::string strLogoDir[4] = { g_settings.lcd4l_logodir, LOGODIR_VAR, LOGODIR, g_settings.logo_hdd_dir };
-	// first the channelname, then the upper channelname, then the lower channelname, then the channel-id
-	std::string strLogoName[4] = { channel_name, (std::string)upper_name, (std::string)lower_name, (std::string)str_channel_id };
-	// first png, then jpg, then gif
-	std::string strLogoExt[3] = { ".png", ".jpg", ".gif" };
-
-	//printf("[CLCD4l] %s: ID: %s, Name: %s (u: %s, l: %s)\n", __FUNCTION__, str_channel_id, channel_name.c_str(), upper_name, lower_name);
-
-	for (h = 0; h < 4; h++)
-	{
-		for (i = 0; i < 4; i++)
-		{
-			for (j = 0; j < 3; j++)
-			{
-				std::string tmp(strLogoDir[h] + "/" + strLogoName[i] + strLogoExt[j]);
-				if (access(tmp.c_str(), R_OK) != -1)
-				{
-					logo = tmp;
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
 }
