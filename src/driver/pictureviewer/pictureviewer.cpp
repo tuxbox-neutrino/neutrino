@@ -556,10 +556,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 				EventName = CurrentNext.current_name;
 		}
 
-		std::transform(EventName.begin(), EventName.end(), EventName.begin(), ::tolower);
-		EventName = str_replace(" ", "-", EventName);
-		//printf("GetLogoName(): EventName \"%s\"\n", EventName.c_str());
-
+		// add neccessary paths to v_path
 		v_path.clear();
 		if (lcd4l_mode)
 			v_path.push_back(g_settings.lcd4l_logodir);
@@ -568,6 +565,10 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 			v_path.push_back(LOGODIR_VAR);
 		if (g_settings.logo_hdd_dir != LOGODIR)
 			v_path.push_back(LOGODIR);
+
+		std::transform(EventName.begin(), EventName.end(), EventName.begin(), ::tolower);
+		EventName = str_replace(" ", "-", EventName);
+		//printf("GetLogoName(): EventName \"%s\"\n", EventName.c_str());
 
 		for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
 		{
@@ -589,18 +590,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 		}
 	}
 
-	//get channel id as string
-	char strChnId[16];
-	snprintf(strChnId, 16, "%llx", ChannelID & 0xFFFFFFFFFFFFULL);
-	strChnId[15] = '\0';
-
-	//create E2 filenames
-	char e2filename1[255];
-	e2filename1[0] = '\0';
-	char e2filename2[255];
-	e2filename2[0] = '\0';
-
-	//create special filename from channelname
+	// create special filename from channelname
 	std::string SpecialChannelName = ChannelName;
 	std::transform(SpecialChannelName.begin(), SpecialChannelName.end(), SpecialChannelName.begin(), ::tolower);
 	SpecialChannelName = str_replace(" ", "-", SpecialChannelName);
@@ -610,13 +600,24 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	SpecialChannelName = str_replace("+", "___plus___", SpecialChannelName);
 	SpecialChannelName = str_replace("&", "___and___", SpecialChannelName);
 
+	// create channel id as string
+	char strChnId[16];
+	snprintf(strChnId, 16, "%llx", ChannelID & 0xFFFFFFFFFFFFULL);
+	strChnId[15] = '\0';
+
+	// create E2 filenames
+	char e2filename1[255];
+	e2filename1[0] = '\0';
+	char e2filename2[255];
+	e2filename2[0] = '\0';
+
 	CZapitChannel * cc = NULL;
 	if (ChannelID && CNeutrinoApp::getInstance()->channelList)
 		cc = CNeutrinoApp::getInstance()->channelList->getChannel(ChannelID);
 
 	if (cc)
 	{
-		//create E2 filename1
+		// create E2 filename1
 		snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
 		         (u_int) cc->getServiceType(true),
 		         (u_int) ChannelID & 0xFFFF,
@@ -624,7 +625,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 		         (u_int) (ChannelID >> 16) & 0xFFFF,
 		         (u_int) cc->getSatellitePosition());
 
-		//create E2 filename2
+		// create E2 filename2
 		snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
 		         (u_int) 1,
 		         (u_int) ChannelID & 0xFFFF,
@@ -633,128 +634,41 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 		         (u_int) cc->getSatellitePosition());
 	}
 
+	// add neccessary file masks to v_file
+	if (!ChannelName.empty())
+		v_file.push_back(ChannelName);
+	if (!SpecialChannelName.empty())
+		v_file.push_back(SpecialChannelName);
+	if (strcmp(strChnId, "0") != 0)
+		v_file.push_back(strChnId);
+	if (strcmp(e2filename1, "") != 0)
+		v_file.push_back(std::string(e2filename1));
+	if (strcmp(e2filename2, "") != 0)
+		v_file.push_back(std::string(e2filename2));
+
 	for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
 	{
 		v_path.clear();
-		std::string id_tmp_path;
 
-		if (lcd4l_mode)
+		for (size_t f = 0; f < v_file.size(); f++)
 		{
-			v_file.clear();
-			v_file.push_back(ChannelName);
-			v_file.push_back(SpecialChannelName);
-			v_file.push_back(strChnId);
-			if (e2filename1[0] != '\0')
-				v_file.push_back(std::string(e2filename1));
-			if (e2filename2[0] != '\0')
-				v_file.push_back(std::string(e2filename2));
-
-			for (size_t f = 0; f < v_file.size(); f++)
+			// process g_settings.lcd4l_logodir
+			if (lcd4l_mode)
 				v_path.push_back(g_settings.lcd4l_logodir + "/" + v_file[f] + fileType[i]);
-		}
-
-		//create filename with channel name (logo_hdd_dir)
-		id_tmp_path = g_settings.logo_hdd_dir + "/";
-		id_tmp_path += ChannelName + fileType[i];
-		v_path.push_back(id_tmp_path);
-
-		//create filename with special channel name (logo_hdd_dir)
-		id_tmp_path = g_settings.logo_hdd_dir + "/";
-		id_tmp_path += SpecialChannelName + fileType[i];
-		v_path.push_back(id_tmp_path);
-
-		//create filename with id (logo_hdd_dir)
-		id_tmp_path = g_settings.logo_hdd_dir + "/";
-		id_tmp_path += strChnId + fileType[i];
-		v_path.push_back(id_tmp_path);
-
-		if (e2filename1[0] != '\0')
-		{
-			//create E2 filename1
-			id_tmp_path = g_settings.logo_hdd_dir + "/";
-			id_tmp_path += std::string(e2filename1) + fileType[i];
-			v_path.push_back(id_tmp_path);
-		}
-
-		if (e2filename2[0] != '\0')
-		{
-			//create E2 filename2
-			id_tmp_path = g_settings.logo_hdd_dir + "/";
-			id_tmp_path += std::string(e2filename2) + fileType[i];
-			v_path.push_back(id_tmp_path);
-		}
-
-		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
-		{
-			//create filename with channel name (LOGODIR_VAR)
-			id_tmp_path = LOGODIR_VAR "/";
-			id_tmp_path += ChannelName + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			//create filename with special channel name (LOGODIR_VAR)
-			id_tmp_path = LOGODIR_VAR "/";
-			id_tmp_path += SpecialChannelName + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			//create filename with id (LOGODIR_VAR)
-			id_tmp_path = LOGODIR_VAR "/";
-			id_tmp_path += strChnId + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			if (e2filename1[0] != '\0')
-			{
-				//create E2 filename1 (LOGODIR_VAR)
-				id_tmp_path = LOGODIR_VAR "/";
-				id_tmp_path += std::string(e2filename1) + fileType[i];
-				v_path.push_back(id_tmp_path);
-			}
-
-			if (e2filename2[0] != '\0')
-			{
-				//create E2 filename2 (LOGODIR_VAR)
-				id_tmp_path = LOGODIR_VAR "/";
-				id_tmp_path += std::string(e2filename2) + fileType[i];
-				v_path.push_back(id_tmp_path);
-			}
-		}
-
-		if (g_settings.logo_hdd_dir != LOGODIR)
-		{
-			//create filename with channel name (LOGODIR)
-			id_tmp_path = LOGODIR "/";
-			id_tmp_path += ChannelName + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			//create filename with special channel name (LOGODIR)
-			id_tmp_path = LOGODIR "/";
-			id_tmp_path += SpecialChannelName + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			//create filename with id (LOGODIR)
-			id_tmp_path = LOGODIR "/";
-			id_tmp_path += strChnId + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			if (e2filename1[0] != '\0')
-			{
-				//create E2 filename1 (LOGODIR)
-				id_tmp_path = LOGODIR "/";
-				id_tmp_path += std::string(e2filename1) + fileType[i];
-				v_path.push_back(id_tmp_path);
-			}
-
-			if (e2filename2[0] != '\0')
-			{
-				//create E2 filename2 (LOGODIR)
-				id_tmp_path = LOGODIR "/";
-				id_tmp_path += std::string(e2filename2) + fileType[i];
-				v_path.push_back(id_tmp_path);
-			}
+			// process g_settings.logo_hdd_dir
+			v_path.push_back(g_settings.logo_hdd_dir + "/" + v_file[f] + fileType[i]);
+			// process LOGODIR_VAR
+			if (g_settings.logo_hdd_dir != LOGODIR_VAR)
+				v_path.push_back(std::string(LOGODIR_VAR) + "/" + v_file[f] + fileType[i]);
+			// process LOGODIR
+			if (g_settings.logo_hdd_dir != LOGODIR)
+				v_path.push_back(std::string(LOGODIR) + "/" + v_file[f] + fileType[i]);
 		}
 
 		//check if file is available, name with real name is preferred, return true on success
 		for (size_t j = 0; j < v_path.size(); j++)
 		{
+			//printf("GetLogoName(): v_path[%d] \"%s\"\n", j, v_path[j].c_str());
 			if (access(v_path[j].c_str(), R_OK) != -1)
 			{
 				if (width && height)
