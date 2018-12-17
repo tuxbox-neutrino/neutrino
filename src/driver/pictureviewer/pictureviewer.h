@@ -67,7 +67,7 @@ class CPictureViewer
 	static double m_aspect_ratio_correction;
 	bool DisplayImage (const std::string & name, int posx, int posy, int width, int height, int transp=0 /*CFrameBuffer::TM_EMPTY*/);
 // 	bool DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height);
-	bool GetLogoName(const uint64_t& channel_id, const std::string& ChanName, std::string & name, int *width = NULL, int *height = NULL);
+	bool GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width = NULL, int *height = NULL);
 	fb_pixel_t * getImage (const std::string & name, int width, int height);
 	fb_pixel_t * getIcon (const std::string & name, int *width, int *height);
 	void getSize(const char *name, int* width, int *height);

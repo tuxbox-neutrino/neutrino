@@ -527,13 +527,13 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
+bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height)
 {
 	std::string fileType[] = { ".png", ".jpg", ".gif" };
 
 	//get channel id as string
 	char strChnId[16];
-	snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
+	snprintf(strChnId, 16, "%llx", ChannelID & 0xFFFFFFFFFFFFULL);
 	strChnId[15] = '\0';
 
 	//create E2 filenames
@@ -545,38 +545,38 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 	//create special filename from channelname
 	std::string SpecialChannelName = ChannelName;
 	std::transform(SpecialChannelName.begin(), SpecialChannelName.end(), SpecialChannelName.begin(), ::tolower);
-	SpecialChannelName = str_replace(" ","-",SpecialChannelName);
-	SpecialChannelName = str_replace("ä","a",SpecialChannelName);
-	SpecialChannelName = str_replace("ö","o",SpecialChannelName);
-	SpecialChannelName = str_replace("ü","u",SpecialChannelName);
-	SpecialChannelName = str_replace("+","___plus___",SpecialChannelName);
-	SpecialChannelName = str_replace("&","___and___",SpecialChannelName);
+	SpecialChannelName = str_replace(" ", "-", SpecialChannelName);
+	SpecialChannelName = str_replace("ä", "a", SpecialChannelName);
+	SpecialChannelName = str_replace("ö", "o", SpecialChannelName);
+	SpecialChannelName = str_replace("ü", "u", SpecialChannelName);
+	SpecialChannelName = str_replace("+", "___plus___", SpecialChannelName);
+	SpecialChannelName = str_replace("&", "___and___", SpecialChannelName);
 
 	CZapitChannel * cc = NULL;
-	if (channel_id)
-		if (CNeutrinoApp::getInstance()->channelList)
-			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+	if (ChannelID && CNeutrinoApp::getInstance()->channelList)
+		cc = CNeutrinoApp::getInstance()->channelList->getChannel(ChannelID);
 
 	if (cc)
 	{
 		//create E2 filename1
 		snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
 		         (u_int) cc->getServiceType(true),
-		         (u_int) channel_id & 0xFFFF,
-		         (u_int) (channel_id >> 32) & 0xFFFF,
-		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) ChannelID & 0xFFFF,
+		         (u_int) (ChannelID >> 32) & 0xFFFF,
+		         (u_int) (ChannelID >> 16) & 0xFFFF,
 		         (u_int) cc->getSatellitePosition());
 
 		//create E2 filename2
 		snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
 		         (u_int) 1,
-		         (u_int) channel_id & 0xFFFF,
-		         (u_int) (channel_id >> 32) & 0xFFFF,
-		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) ChannelID & 0xFFFF,
+		         (u_int) (ChannelID >> 32) & 0xFFFF,
+		         (u_int) (ChannelID >> 16) & 0xFFFF,
 		         (u_int) cc->getSatellitePosition());
 	}
 
-	for (size_t i = 0; i<(sizeof(fileType) / sizeof(fileType[0])); i++){
+	for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
+	{
 		std::vector<std::string> v_path;
 		std::string id_tmp_path;
 
@@ -611,7 +611,8 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 			v_path.push_back(id_tmp_path);
 		}
 
-		if(g_settings.logo_hdd_dir != LOGODIR_VAR){
+		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
+		{
 			//create filename with channel name (LOGODIR_VAR)
 			id_tmp_path = LOGODIR_VAR "/";
 			id_tmp_path += ChannelName + fileType[i];
@@ -643,7 +644,9 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 				v_path.push_back(id_tmp_path);
 			}
 		}
-		if(g_settings.logo_hdd_dir != LOGODIR){
+
+		if (g_settings.logo_hdd_dir != LOGODIR)
+		{
 			//create filename with channel name (LOGODIR)
 			id_tmp_path = LOGODIR "/";
 			id_tmp_path += ChannelName + fileType[i];
@@ -675,10 +678,13 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 				v_path.push_back(id_tmp_path);
 			}
 		}
+
 		//check if file is available, name with real name is preferred, return true on success
-		for (size_t j = 0; j < v_path.size(); j++){
-			if (access(v_path[j].c_str(), R_OK) != -1){
-				if(width && height)
+		for (size_t j = 0; j < v_path.size(); j++)
+		{
+			if (access(v_path[j].c_str(), R_OK) != -1)
+			{
+				if (width && height)
 					getSize(v_path[j].c_str(), width, height);
 				name = v_path[j];
 				return true;
