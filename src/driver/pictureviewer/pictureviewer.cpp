@@ -2,6 +2,8 @@
 #include <global.h>
 #include <neutrino.h>
 #include "pictureviewer.h"
+#include <gui/movieplayer.h>
+#include <eitd/sectionsd.h>
 #include "pv_config.h"
 #include <system/debug.h>
 #include <system/helpers.h>
@@ -530,6 +532,59 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height)
 {
 	std::string fileType[] = { ".png", ".jpg", ".gif" };
+	std::vector<std::string> v_path;
+
+	// create eventname for eventlogos; Note: We don't process channellogos if any eventlogo was found.
+	std::string EventName = "";
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	if (ChannelID || mode == NeutrinoModes::mode_ts)
+	{
+		// TODO: fix eventlogo in moviebrowser
+
+		if (mode == NeutrinoModes::mode_ts)
+		{
+			if (CMoviePlayerGui::getInstance().p_movie_info && !CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
+				EventName = CMoviePlayerGui::getInstance().p_movie_info->epgTitle;
+		}
+		else
+		{
+			CSectionsdClient::CurrentNextInfo CurrentNext;
+			CEitManager::getInstance()->getCurrentNextServiceKey(ChannelID, CurrentNext);
+
+			if (CSectionsdClient::epgflags::has_current && !CurrentNext.current_name.empty())
+				EventName = CurrentNext.current_name;
+		}
+
+		std::transform(EventName.begin(), EventName.end(), EventName.begin(), ::tolower);
+		EventName = str_replace(" ", "-", EventName);
+		//printf("GetLogoName(): EventName \"%s\"\n", EventName.c_str());
+
+		v_path.clear();
+		v_path.push_back(g_settings.logo_hdd_dir);
+		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
+			v_path.push_back(LOGODIR_VAR);
+		if (g_settings.logo_hdd_dir != LOGODIR)
+			v_path.push_back(LOGODIR);
+
+		for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
+		{
+			for (size_t j = 0; j < v_path.size(); j++)
+			{
+				for (size_t k = EventName.length(); k > 0; k--)
+				{
+					std::string EventLogo = v_path[j] + "/events/" + EventName.substr(0, k) + fileType[i];
+					//printf("GetLogoName(): EventLogo \"%s\"\n", EventLogo.c_str());
+					if (access(EventLogo.c_str(), R_OK) == 0)
+					{
+						if (width && height)
+							getSize(EventLogo.c_str(), width, height);
+						name = EventLogo;
+						return true;
+					}
+				}
+			}
+		}
+	}
 
 	//get channel id as string
 	char strChnId[16];
@@ -577,7 +632,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 
 	for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
 	{
-		std::vector<std::string> v_path;
+		v_path.clear();
 		std::string id_tmp_path;
 
 		//create filename with channel name (logo_hdd_dir)
