@@ -568,6 +568,15 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 
 		std::transform(EventName.begin(), EventName.end(), EventName.begin(), ::tolower);
 		EventName = str_replace(" ", "-", EventName);
+		EventName = str_replace(",", "-", EventName);
+		EventName = str_replace(";", "-", EventName);
+		EventName = str_replace(":", "-", EventName);
+		EventName = str_replace("+", "-", EventName);
+		EventName = str_replace("&", "-", EventName);
+		EventName = str_replace("ä", "ae", EventName);
+		EventName = str_replace("ö", "oe", EventName);
+		EventName = str_replace("ü", "ue", EventName);
+		EventName = str_replace("ß", "ss", EventName);
 		//printf("GetLogoName(): EventName \"%s\"\n", EventName.c_str());
 
 		for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
