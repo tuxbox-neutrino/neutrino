@@ -363,6 +363,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (actionKey == "onoff_ip")
 	{
 		bselected = remboxmenu->getSelected();
+		if (bselected < item_offset)
+			return menu_return::RETURN_NONE;
 		CMenuItem* item = remboxmenu->getItem(bselected);
 		CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
 		std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
