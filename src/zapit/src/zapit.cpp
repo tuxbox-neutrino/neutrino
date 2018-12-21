@@ -56,7 +56,7 @@
 
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
-#include <dmx.h>
+#include <hardware/dmx.h>
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
 #include <playback_cs.h>
