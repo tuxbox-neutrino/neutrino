@@ -3305,6 +3305,10 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 	else
 		host = "http://" + hh->HeaderList["Host"];
 
+	// get hostname
+	char hostname[HOST_NAME_MAX];
+	gethostname(hostname, HOST_NAME_MAX);
+
 	// build url
 	std::string url = host;
 	/* strip off optional custom port */
@@ -3334,6 +3338,7 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 					result += " tvg-logo=\"" + host + NeutrinoAPI->getLogoFile(channel->getChannelID()) + "\"";
 				else
 					result += " tvg-logo=\"\"";
+				result += " group-prefix=\"" + std::string(hostname) + "\"";
 				result += " group-title=\"" + bouq_name + "\",";
 				result += channel->getName() + "\n";
 				result += url + string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()) + "\n";

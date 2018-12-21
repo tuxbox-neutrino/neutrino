@@ -53,6 +53,7 @@
 #define TVG_INFO_NAME_MARKER    "tvg-name="
 #define TVG_INFO_LOGO_MARKER    "tvg-logo="
 #define TVG_INFO_SHIFT_MARKER   "tvg-shift="
+#define GROUP_PREFIX_MARKER     "group-prefix="
 #define GROUP_NAME_MARKER       "group-title="
 
 extern CBouquetManager *g_bouquetManager;
@@ -975,6 +976,7 @@ void CBouquetManager::loadWebchannels(int mode)
 				char cLine[1024];
 				std::string desc = "";
 				std::string title = "";
+				std::string prefix = "";
 				std::string group = "";
 				std::string epgid = "";
 				std::string alogo = "";
@@ -1001,6 +1003,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						int iColon = (int)strLine.find_first_of(':');
 						int iComma = (int)strLine.find_last_of(',');
 						title = "";
+						prefix = "";
 						group = "";
 						desc = "";
 						alogo = "";
@@ -1012,6 +1015,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							title = strLine.substr(iComma);
 							std::string strInfoLine = strLine.substr(iColon, --iComma - iColon);
 							desc = ReadMarkerValue(strInfoLine, TVG_INFO_NAME_MARKER);
+							prefix = ReadMarkerValue(strInfoLine, GROUP_PREFIX_MARKER);
 							group = ReadMarkerValue(strInfoLine, GROUP_NAME_MARKER);
 							epgid = ReadMarkerValue(strInfoLine, TVG_INFO_ID_MARKER);
 							alogo = ReadMarkerValue(strInfoLine, TVG_INFO_LOGO_MARKER);
@@ -1037,8 +1041,10 @@ void CBouquetManager::loadWebchannels(int mode)
 								CZapitBouquet* gbouquet = pbouquet;
 								if (!group.empty())
 								{
-									std::string bname = (mode == MODE_WEBTV) ? "[WebTV] " : "[WebRadio] ";
-									bname += group;
+									std::string bname = prefix;
+									if (bname.compare("") == 0)
+										bname = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
+									bname += ": " + group;
 									gbouquet = addBouquetIfNotExist(bname);
 									if (mode == MODE_WEBTV)
 										gbouquet->bWebtv = true;
