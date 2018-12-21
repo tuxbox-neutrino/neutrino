@@ -36,7 +36,7 @@
 
 #include <global.h>
 #include <driver/audioplay.h>
-#include <zapit/include/audio.h>
+#include <hardware/audio.h>
 #include <eitd/edvbstring.h> // UTF8
 #include "ffmpegdec.h"
 

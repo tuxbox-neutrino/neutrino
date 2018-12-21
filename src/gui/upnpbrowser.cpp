@@ -53,7 +53,7 @@
 #include <system/settings.h>
 #include <system/helpers.h>
 #include <zapit/zapit.h>
-#include <video.h>
+#include <hardware/video.h>
 
 extern cVideo * videoDecoder;
 extern CPictureViewer * g_PicViewer;

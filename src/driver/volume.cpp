@@ -32,9 +32,8 @@
 #include <gui/infoclock.h>
 #include <gui/keybind_setup.h>
 #include <system/debug.h>
-/* compat header from zapit/include */
-#include <audio.h>
-#include <video.h>
+#include <hardware/audio.h>
+#include <hardware/video.h>
 #include <system/settings.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>

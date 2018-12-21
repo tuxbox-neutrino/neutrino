@@ -110,10 +110,10 @@
 
 #include <system/ytcache.h>
 
-#include <audio.h>
+#include <hardware/audio.h>
 #include <ca_cs.h>
 #include <cs_api.h>
-#include <video.h>
+#include <hardware/video.h>
 #include <pwrmngr.h>
 
 #include <system/debug.h>

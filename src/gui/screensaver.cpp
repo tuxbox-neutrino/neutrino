@@ -44,7 +44,7 @@
 #include <zapit/zapit.h>
 #include <driver/pictureviewer/pictureviewer.h>
 
-#include <video.h>
+#include <hardware/video.h>
 extern cVideo * videoDecoder;
 
 

@@ -35,9 +35,9 @@
 #include <gui/movieplayer.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/frontend_c.h>
-#include <video.h>
-#include <audio.h>
-#include <dmx.h>
+#include <hardware/video.h>
+#include <hardware/audio.h>
+#include <hardware/dmx.h>
 #include <zapit/satconfig.h>
 #include <zapit/client/zapitclient.h>
 #include <zapit/zapit.h>

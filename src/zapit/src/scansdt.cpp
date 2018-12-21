@@ -30,7 +30,7 @@
 #include <zapit/types.h>
 #include <zapit/zapit.h>
 #include <zapit/scan.h>
-#include <dmx.h>
+#include <hardware/dmx.h>
 
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/ca_identifier_descriptor.h>

@@ -18,8 +18,8 @@
 #include "teletext.h"
 #include "tuxtxt.h"
 #include <driver/framebuffer.h>
-#include <dmx.h>
-#include <video.h>
+#include <hardware/dmx.h>
+#include <hardware/video.h>
 #include <sys/stat.h>
 #include <global.h>
 #include <system/set_threadname.h>

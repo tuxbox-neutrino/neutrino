@@ -25,7 +25,7 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 
-#include <dmx.h>
+#include <hardware/dmx.h>
 #include <zapit/client/zapittypes.h>
 #include <zapit/femanager.h>
 #include <set>

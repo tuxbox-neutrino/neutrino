@@ -24,7 +24,7 @@
 #define __zapit_scan_nit_h__
 
 #include <OpenThreads/Thread>
-#include <dmx.h>
+#include <hardware/dmx.h>
 #include <dvbsi++/network_information_section.h>
 #include <dvbsi++/satellite_delivery_system_descriptor.h>
 #include <dvbsi++/cable_delivery_system_descriptor.h>

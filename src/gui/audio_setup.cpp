@@ -44,7 +44,7 @@
 
 #include <driver/screen_max.h>
 
-#include <audio.h>
+#include <hardware/audio.h>
 #include <zapit/zapit.h>
 
 #include <system/debug.h>

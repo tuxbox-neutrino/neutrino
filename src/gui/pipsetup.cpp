@@ -12,7 +12,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/pipsetup.h>
-#include <video.h>
+#include <hardware/video.h>
 
 #define PERCENT 5
 #define XMOVE 10

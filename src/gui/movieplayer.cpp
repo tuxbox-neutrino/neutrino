@@ -69,7 +69,7 @@
 #include <sys/mount.h>
 #include <json/json.h>
 
-#include <video.h>
+#include <hardware/video.h>
 #include <libtuxtxt/teletext.h>
 #include <zapit/zapit.h>
 #include <system/set_threadname.h>

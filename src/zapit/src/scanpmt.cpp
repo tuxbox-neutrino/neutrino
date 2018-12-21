@@ -27,7 +27,7 @@
 #include <zapit/scanpmt.h>
 #include <zapit/scan.h>
 #include <eitd/edvbstring.h>
-#include <dmx.h>
+#include <hardware/dmx.h>
 
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/program_map_section.h>

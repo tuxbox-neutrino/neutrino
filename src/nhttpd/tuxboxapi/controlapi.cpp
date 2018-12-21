@@ -49,7 +49,7 @@ extern CPictureViewer *g_PicViewer;
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
-#include <video.h>
+#include <hardware/video.h>
 #include <zapit/femanager.h>
 
 extern cVideo * videoDecoder;

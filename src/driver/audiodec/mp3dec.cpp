@@ -53,7 +53,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <zapit/include/audio.h>
+#include <hardware/audio.h>
 #include "mp3dec.h"
 #include <driver/netfile.h>
 #include <driver/display.h>

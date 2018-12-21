@@ -65,9 +65,9 @@
 #include <gui/plugins.h>
 #include <daemonc/remotecontrol.h>
 #include <xmlinterface.h>
-#include <audio.h>
-#include <video.h>
-#include <dmx.h>
+#include <hardware/audio.h>
+#include <hardware/video.h>
+#include <hardware/dmx.h>
 #include <cs_api.h>
 #include <pwrmngr.h>
 #include <libdvbsub/dvbsub.h>

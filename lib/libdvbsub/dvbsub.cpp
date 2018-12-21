@@ -9,7 +9,7 @@
 
 #include <cerrno>
 
-#include <zapit/include/dmx.h>
+#include <hardware/dmx.h>
 
 #include "Debug.hpp"
 #include "PacketQueue.hpp"

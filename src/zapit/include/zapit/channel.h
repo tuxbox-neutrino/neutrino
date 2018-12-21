@@ -33,7 +33,7 @@
 
 /* zapit */
 #include "types.h"
-//#include <zapit/audio.h>
+//#include <hardware/audio.h>
 
 #define DEFAULT_CH_LOCKED   false
 #define DEFAULT_CH_UNAME    ""

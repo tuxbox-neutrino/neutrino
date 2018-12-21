@@ -45,7 +45,7 @@
 #include <system/debug.h>
 
 #include <cs_api.h>
-#include <video.h>
+#include <hardware/video.h>
 
 extern cVideo *videoDecoder;
 

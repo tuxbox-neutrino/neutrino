@@ -49,7 +49,7 @@
 
 #include <string.h>
 
-#include <dmx.h>
+#include <hardware/dmx.h>
 #include <zapit/capmt.h>
 #include <zapit/zapit.h>
 #include <zapit/pat.h>

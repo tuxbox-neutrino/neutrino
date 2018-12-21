@@ -55,7 +55,7 @@
 #include <poll.h>
 #include <vector>
 
-#include <video.h>
+#include <hardware/video.h>
 extern cVideo * videoDecoder;
 
 #include "plugins.h"

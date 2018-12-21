@@ -43,7 +43,7 @@
 #include <zapit/getservices.h>
 #include <eitd/sectionsd.h>
 
-#include <video.h>
+#include <hardware/video.h>
 #include <cs_api.h>
 #include <driver/screenshot.h>
 #include <system/set_threadname.h>

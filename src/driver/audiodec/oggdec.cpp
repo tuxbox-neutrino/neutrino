@@ -36,7 +36,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include <zapit/include/audio.h>
+#include <hardware/audio.h>
 
 #include "oggdec.h"
 

@@ -46,7 +46,7 @@
 #ifndef __RADIO_AUDIO_H
 #define __RADIO_AUDIO_H
 
-#include <dmx.h>
+#include <hardware/dmx.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 #include <sigc++/signal.h>

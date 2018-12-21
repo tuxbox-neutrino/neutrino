@@ -53,7 +53,7 @@
 
 #include <gui/widget/msgbox.h>
 
-#include <video.h>
+#include <hardware/video.h>
 
 extern cVideo * videoDecoder;
 extern Zapit_config zapitCfg;

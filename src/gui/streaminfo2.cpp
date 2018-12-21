@@ -55,9 +55,9 @@ extern "C" {
 #include <daemonc/remotecontrol.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
-#include <video.h>
-#include <audio.h>
-#include <dmx.h>
+#include <hardware/video.h>
+#include <hardware/audio.h>
+#include <hardware/dmx.h>
 #include <zapit/satconfig.h>
 #include <string>
 #include <system/helpers.h>

@@ -74,7 +74,7 @@
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
 #include <eitd/sectionsd.h>
-#include <video.h>
+#include <hardware/video.h>
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CBouquetList * bouquetList;       /* neutrino.cpp */

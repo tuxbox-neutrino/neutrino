@@ -57,7 +57,7 @@
 #include <system/debug.h>
 
 #include <cs_api.h>
-#include <video.h>
+#include <hardware/video.h>
 
 #ifdef BOXMODEL_CS_HD2
 #include <cnxtfb.h>

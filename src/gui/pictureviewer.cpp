@@ -75,7 +75,7 @@
 #include <unistd.h>
 
 #include <zapit/zapit.h>
-#include <video.h>
+#include <hardware/video.h>
 extern cVideo * videoDecoder;
 
 

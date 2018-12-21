@@ -29,7 +29,7 @@
 #include <gui/movieplayer.h>
 #include <gui/widget/msgbox.h>
 #include <zapit/zapit.h>
-#include <video.h>
+#include <hardware/video.h>
 #include <neutrino.h>
 
 #include "luainstance.h"

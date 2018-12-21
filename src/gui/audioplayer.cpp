@@ -80,7 +80,7 @@ extern CPictureViewer * g_PicViewer;
 #endif
 
 #include <zapit/zapit.h>
-#include <video.h>
+#include <hardware/video.h>
 extern cVideo * videoDecoder;
 
 #define AUDIOPLAYERGUI_SMSKEY_TIMEOUT 1000
