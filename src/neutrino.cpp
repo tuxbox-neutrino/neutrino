@@ -111,9 +111,9 @@
 #include <system/ytcache.h>
 
 #include <hardware/audio.h>
-#include <ca_cs.h>
-#include <cs_api.h>
+#include <hardware/ca.h>
 #include <hardware/video.h>
+#include <cs_api.h>
 #include <pwrmngr.h>
 
 #include <system/debug.h>

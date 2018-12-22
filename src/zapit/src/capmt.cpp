@@ -29,7 +29,7 @@
 #include <zapit/femanager.h>
 #include <zapit/debug.h>
 
-#include <ca_cs.h>
+#include <hardware/ca.h>
 
 #include <dvbsi++/program_map_section.h>
 #include <dvbsi++/ca_program_map_section.h>

@@ -11,7 +11,7 @@
 #include <eventserver.h>
 #include <connection/basicserver.h>
 #include <xmltree/xmlinterface.h>
-#include <ca_cs.h>
+#include <hardware/ca.h>
 
 #include "client/zapitclient.h"
 
