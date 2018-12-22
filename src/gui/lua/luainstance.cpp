@@ -36,12 +36,8 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <driver/fontrenderer.h>
 #include <neutrino.h>
-#if HAVE_COOL_HARDWARE
-#include <video_cs.h>
-#endif
-#if USE_STB_HAL
-#include <video_hal.h>
-#endif
+
+#include <hardware/video.h>
 
 #include "luainstance.h"
 #include "lua_cc_header.h"

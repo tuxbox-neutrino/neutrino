@@ -56,19 +56,17 @@
 
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
-#include <hardware/dmx.h>
+
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
 #include <playback_cs.h>
 #include <pwrmngr.h>
-#include <audio_cs.h>
-#include <video_cs.h>
 #include <ca_cs.h>
 #endif
-#if USE_STB_HAL
-#include <video_hal.h>
-#include <audio_hal.h>
-#endif
+
+#include <hardware/audio.h>
+#include <hardware/dmx.h>
+#include <hardware/video.h>
 
 #include <driver/abstime.h>
 #include <system/set_threadname.h>

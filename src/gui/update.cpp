@@ -79,7 +79,7 @@
 #include <cs_api.h>
 
 #if HAVE_ARM_HARDWARE
-#include <video_cs.h>
+#include <hardware/video.h>
 extern cVideo * videoDecoder;
 #endif
 
