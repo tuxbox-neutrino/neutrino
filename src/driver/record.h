@@ -32,12 +32,7 @@
 #include <neutrinoMessages.h>
 #include <driver/movieinfo.h>
 
-#if HAVE_COOL_HARDWARE
-#include <record_cs.h>
-#endif
-#if USE_STB_HAL
-#include <record_hal.h>
-#endif
+#include <hardware/record.h>
 
 #include <OpenThreads/Mutex>
 #include <OpenThreads/Thread>
