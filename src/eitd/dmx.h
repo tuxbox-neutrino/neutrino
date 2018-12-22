@@ -29,12 +29,8 @@
 #include <sys/types.h>
 #include <vector>
 #include <config.h>
-#if HAVE_COOL_HARDWARE
-#include <dmx_cs.h>
-#endif
-#if USE_STB_HAL
-#include <dmx_hal.h>
-#endif
+
+#include <hardware/dmx.h>
 
 #include <zapit/types.h>
 #include <set>

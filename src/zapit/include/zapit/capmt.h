@@ -28,7 +28,8 @@
 #include <OpenThreads/Mutex>
 #include <zapit/channel.h>
 #include <dvbsi++/ca_program_map_section.h>
-#include <dmx_cs.h>
+
+#include <hardware/dmx.h>
 
 #define DEMUX_DECODE_0 1
 #define DEMUX_DECODE_1 2

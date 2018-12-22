@@ -38,7 +38,7 @@
 #include <zapit/client/zapittools.h>
 #include <zapit/femanager.h>
 #include <zapit/capmt.h>
-#include <dmx_cs.h>
+#include <hardware/dmx.h>
 #include <OpenThreads/ScopedLock>
 
 static int fedebug = 0;
