@@ -658,7 +658,7 @@ void CTextBox::refreshText(void)
 		}
 	}
 	else{
-		if (m_bgpixbuf){
+		if (m_bgpixbuf && m_bg_painted){
 			if (allow_paint_bg){
 				//TRACE("[CTextBox] %s restore bg %d\r\n", __FUNCTION__, __LINE__);
 				frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
