@@ -131,7 +131,7 @@ class CComponentsTimer : public sigc::trackable
 		* @return
 		* 	void
 		*/
-		void setThreadName(const std::string& n) { name = n; };
+		void setThreadName(const std::string& n) { name = tn = n; }
 
 		/**Provides a signal handler to receive any function or methode.
 		* Use this in your class where ever you need time controled actions.
