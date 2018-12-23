@@ -227,6 +227,8 @@ void CComponentsFrmClock::initCCLockItems()
 	//summary of all segments (labels)
 	int w_segments = 0;
 
+	const bool force_repaint = cl_force_repaint;
+
 	/* modify available label items with current segment chars
 	 * we are using segments with only one char per segment,
 	 * these chars are predefined via format string
@@ -260,7 +262,7 @@ void CComponentsFrmClock::initCCLockItems()
 		//set size, text, color of current item
 		lbl->setDimensionsAll(x_tmp, y_tmp, w_tmp, h_tmp);
 		lbl->setColorAll(col_frame, col_body, col_shadow);
-		lbl->forceTextPaint(cl_force_repaint);
+		lbl->forceTextPaint(force_repaint);
 		lbl->setText(stmp, CTextBox::CENTER, cl_font, cl_col_text, cl_font_style);
 
 		//init background behavior of segment
