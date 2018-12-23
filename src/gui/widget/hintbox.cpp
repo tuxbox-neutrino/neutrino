@@ -131,6 +131,7 @@ CHintBox::CHintBox(	const char * const Caption,
 
 void CHintBox::init(const std::string& Text, const int& Width, const std::string& Picon, const int& header_buttons, const int& text_mode, const int& indent)
 {
+	cc_item_type.name = "wg.hintbox";
 	int _Width	= frameBuffer->scale2Res(Width);
 	timeout		= HINTBOX_DEFAULT_TIMEOUT;
 	w_indentation	= indent;
@@ -194,7 +195,8 @@ void CHintBox::enableTimeOutBar(bool enable)
 		timeout_pb->setValues(0, 100*timeout);
 		if (!timeout_pb_timer) {
 			timeout_pb_timer = new CComponentsTimer(1, true);
-			timeout_pb_timer->setThreadName("hb:timeoutbar");
+			const string tn = cc_item_type.name + ":timeout_bar:";
+			timeout_pb_timer->setThreadName(tn);
 		}
 		if (timeout_pb_timer->OnTimer.empty())
 			timeout_pb_timer->OnTimer.connect(sigc::mem_fun0(this, &CHintBox::showTimeOutBar));
@@ -439,16 +441,12 @@ int ShowHint(const char * const Caption, const neutrino_locale_t Text, const int
 
 CHint::CHint(const char * const Text, bool show_background) : CHintBox("" , Text)
 {
-	paint_bg = show_background;
-	ccw_show_header = false;
-	ccw_show_footer = false;
+	initHint(show_background);
 }
 
 CHint::CHint(const neutrino_locale_t Text, bool show_background) : CHintBox("" , g_Locale->getText(Text))
 {
-	paint_bg = show_background;
-	ccw_show_header = false;
-	ccw_show_footer = false;
+	initHint(show_background);
 }
 
 int ShowHintS(const char * const Text, int timeout, bool show_background)
