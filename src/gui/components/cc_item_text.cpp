@@ -397,6 +397,58 @@ void CComponentsText::setTextColor(const fb_pixel_t& color_text)
 	}
 }
 
+void CComponentsText::setTextFont(Font* font_text)
+{
+	ct_font = font_text;
+}
+
+void CComponentsText::setTextMode(const int mode)
+{
+	ct_text_mode = mode;
+	initCCText();
+}
+
+void CComponentsText::setTextBorderWidth(const int Hborder, const int Vborder)
+{
+	ct_text_Hborder = Hborder;
+	ct_text_Vborder = Vborder;
+}
+
+void CComponentsText::doPaintTextBoxBg(bool do_paintbox_bg)
+{
+	ct_paint_textbg = do_paintbox_bg;
+}
+
+string  CComponentsText::getText()
+{
+	return ct_text;
+}
+
+Font* CComponentsText::getFont()
+{
+	return ct_font;
+}
+
+void CComponentsText::forceTextPaint(bool force_text_paint)
+{
+	ct_force_text_paint = force_text_paint;
+}
+
+CTextBox* CComponentsText::getCTextBoxObject()
+{
+	return ct_textbox;
+}
+
+void CComponentsText::enableUTF8(bool enable)
+{
+	ct_utf8_encoded = enable;
+}
+
+void CComponentsText::disableUTF8(bool enable)
+{
+	enableUTF8(enable);
+}
+
 bool CComponentsText::clearSavedScreen()
 {
 	bool ret0 = CCDraw::clearSavedScreen();

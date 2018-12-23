@@ -139,7 +139,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///send options for text font (size and type), color and mode (allignment)
-		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
+		virtual void setTextFont(Font* font_text);
 		///set text color
 		virtual void setTextColor(const fb_pixel_t& color_text);
 		///set all basic framebuffer element colors at once
@@ -150,14 +150,14 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 						setTextColor(color_text);
 					};
 		///get text color
-		virtual inline fb_pixel_t getTextColor(){return ct_col_text;};
+		virtual fb_pixel_t getTextColor(){return ct_col_text;};
 		///set text alignment, also see textbox.h for possible alignment modes
-		virtual void setTextMode(const int mode){ct_text_mode = mode; initCCText();};
+		virtual void setTextMode(const int mode);
                 ///set text border width
-		virtual inline void setTextBorderWidth(const int Hborder, const int Vborder = 0){ct_text_Hborder = Hborder; ct_text_Vborder = Vborder;};
+		virtual void setTextBorderWidth(const int Hborder, const int Vborder = 0);
 
 		///send option to CTextBox object to paint background box behind text or not
-		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
+		virtual void doPaintTextBoxBg(bool do_paintbox_bg);
 
 		///initialize all required attributes for text and send to the CTextBox object
 		void initCCText();
@@ -175,10 +175,10 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		///get text directly from a textfile, path as string is required
 		static std::string getTextFromFile(const std::string& path_to_textfile);
 		///returns current text content of text/label object as std::string
-		virtual std::string getText(){return ct_text;};
+		virtual std::string getText();
 
 		///return current font
-		Font* getFont(){return ct_font;}
+		Font* getFont();
 
 		///set screen x-position, parameter as int
 		virtual void setXPos(const int& xpos);
@@ -193,9 +193,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		virtual void removeLineBreaks(std::string& str);
 
 		///force paint of text even if text was changed or not
-		virtual void forceTextPaint(bool force_text_paint = true){ct_force_text_paint = force_text_paint;};
+		virtual void forceTextPaint(bool force_text_paint = true);
 		///gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
-		virtual CTextBox* getCTextBoxObject() { return ct_textbox; };
+		virtual CTextBox* getCTextBoxObject();
 
 		///returns count of lines from a text box page
 		virtual int getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode);
@@ -217,8 +217,8 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 				ct_textbox->enableSaveScreen(cc_txt_save_screen);
 		}
 		///enable/disable utf8 encoding
-		void enableUTF8(bool enable = true){ct_utf8_encoded = enable;}
-		void disableUTF8(bool enable = false){enableUTF8(enable);}
+		void enableUTF8(bool enable = true);
+		void disableUTF8(bool enable = false);
 		/*!Clean up screen buffers from background layers.
 		 * Paint cache and gradient cache not touched.
 		 * The default basic methode CCDraw::clearSavedScreen() doesn't considering text bg screen, therefore
