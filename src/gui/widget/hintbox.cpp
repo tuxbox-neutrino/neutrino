@@ -198,8 +198,9 @@ void CHintBox::enableTimeOutBar(bool enable)
 			const string tn = cc_item_type.name + ":timeout_bar:";
 			timeout_pb_timer->setThreadName(tn);
 		}
-		if (timeout_pb_timer->OnTimer.empty())
-			timeout_pb_timer->OnTimer.connect(sigc::mem_fun0(this, &CHintBox::showTimeOutBar));
+		sl_tbar_on_timer.disconnect();
+		sl_tbar_on_timer = sigc::mem_fun0(this, &CHintBox::showTimeOutBar);
+		timeout_pb_timer->OnTimer.connect(sl_tbar_on_timer);
 		timeout_pb_timer->startTimer();
 	}
 }

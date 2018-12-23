@@ -62,6 +62,7 @@ class CHintBox : public CComponentsWindow
 		int h_hint_obj;
 		int w_indentation;
 		bool enable_txt_scroll;
+		sigc::slot0<void> sl_tbar_on_timer;
 
 		Font* hb_font;
 
