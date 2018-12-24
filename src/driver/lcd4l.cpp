@@ -951,6 +951,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	{
 		WriteFile(EVENT, Event, g_settings.lcd4l_convert);
 		m_Event = Event;
+
+		m_ParseID = 0; // reset channelid to get a possible eventlogo
 	}
 
 	if (m_Info1.compare(Info1))
