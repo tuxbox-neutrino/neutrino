@@ -650,6 +650,7 @@ struct SNeutrinoSettings
 	int channellist_sort_mode;
 	int channellist_numeric_adjust;
 	int channellist_show_channellogo;
+	int channellist_show_eventlogo;
 	int channellist_show_infobox;
 	int channellist_show_numbers;
 	int channellist_show_res_icon;

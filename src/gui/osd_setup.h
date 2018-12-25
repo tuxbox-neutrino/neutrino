@@ -55,6 +55,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		COnOffNotifier* colorInfoclockNotifier;
 		COnOffNotifier* screensaverNotifier;
 		COnOffNotifier* channellistNotifier;
+		COnOffNotifier* channellogoNotifier;
 		COnOffNotifier* infobarHddNotifier;
 		CGenericMenuActivate casystemActivate;
 		CGenericMenuActivate screensaverActivate;

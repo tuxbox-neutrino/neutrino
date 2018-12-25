@@ -818,6 +818,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
 	g_settings.channellist_numeric_adjust  = configfile.getInt32("channellist_numeric_adjust", 0);
 	g_settings.channellist_show_channellogo = configfile.getInt32("channellist_show_channellogo", 1);
+	g_settings.channellist_show_eventlogo = configfile.getInt32("channellist_show_eventlogo", 1);
 	g_settings.channellist_show_infobox = configfile.getInt32("channellist_show_infobox", 1);
 	g_settings.channellist_show_numbers = configfile.getInt32("channellist_show_numbers", 1);
 	g_settings.channellist_show_res_icon = configfile.getInt32("channellist_show_res_icon", 0);
@@ -1568,6 +1569,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_sort_mode", g_settings.channellist_sort_mode);
 	configfile.setInt32("channellist_numeric_adjust", g_settings.channellist_numeric_adjust);
 	configfile.setInt32("channellist_show_channellogo", g_settings.channellist_show_channellogo);
+	configfile.setInt32("channellist_show_eventlogo", g_settings.channellist_show_eventlogo);
 	configfile.setInt32("channellist_show_infobox", g_settings.channellist_show_infobox);
 	configfile.setInt32("channellist_show_numbers", g_settings.channellist_show_numbers);
 	configfile.setInt32("channellist_show_res_icon", g_settings.channellist_show_res_icon);

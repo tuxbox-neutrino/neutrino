@@ -68,6 +68,10 @@
 
 #include <hardware/video.h>
 
+// lcd4l-support
+#include "driver/lcd4l.h"
+extern CLCD4l *LCD4l;
+
 extern CRemoteControl * g_RemoteControl;
 
 extern const char * locale_real_names[];
@@ -82,6 +86,7 @@ COsdSetup::COsdSetup(int wizard_mode)
 	colorInfoclockNotifier = NULL;
 	screensaverNotifier = NULL;
 	channellistNotifier = NULL;
+	channellogoNotifier = NULL;
 	infobarHddNotifier = NULL;
 	osd_menu = NULL;
 	submenu_menus = NULL;
@@ -750,6 +755,7 @@ int COsdSetup::showOsdSetup()
 	delete colorInfoclockNotifier;
 	delete screensaverNotifier;
 	delete channellistNotifier;
+	delete channellogoNotifier;
 	delete infobarHddNotifier;
 	delete osd_menu;
 	return res;
@@ -1182,6 +1188,7 @@ void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
 {
 	menu_channellogos->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLOGOS);
 
+	channellogoNotifier = new COnOffNotifier();
 	CMenuOptionChooser * mc;
 	CMenuForwarder * mf;
 
@@ -1193,9 +1200,15 @@ void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
 	menu_channellogos->addItem(GenericMenuSeparatorLine);
 
 	// show channellogos
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, channellogoNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELLOGO);
 	menu_channellogos->addItem(mc);
+
+	// show eventlogos
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_EVENTLOGO, &g_settings.channellist_show_eventlogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.channellist_show_channellogo, this);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_EVENTLOGO);
+	menu_channellogos->addItem(mc);
+	channellogoNotifier->addItem(mc);
 }
 
 // infobar
@@ -1564,6 +1577,10 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_DIGITS)) {
 		CVolumeHelper::getInstance()->refresh();
 		return false;
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CHANNELLIST_SHOW_EVENTLOGO))
+	{
+		LCD4l->ResetParseID();
 	}
 	else if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_INFOCLOCK)) ||
 		 (ARE_LOCALES_EQUAL(OptionName, LOCALE_CLOCK_SIZE_HEIGHT)) ||

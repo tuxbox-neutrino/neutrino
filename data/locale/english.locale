@@ -289,6 +289,7 @@ channellist.sats Satellites
 channellist.show_channellogo Show channel logos
 channellist.show_channelnumber Show channel numbers
 channellist.show_empty_favs Show empty favorites bouquets
+channellist.show_eventlogo Show event logos
 channellist.show_infobox Show bottom infobox
 channellist.show_res_icon Signalize resolution
 channellist.since since
@@ -1087,6 +1088,7 @@ menu.hint_channellist_show_channellogo Enable/disable channel logos.
 menu.hint_channellist_show_channellogo Show channel logos in channellist, eventlist, EPG Plus, EPG-viewer and moviebrowser
 menu.hint_channellist_show_channelnumber Show channel number in channel list
 menu.hint_channellist_show_empty_favs Show or hide empty bouquets in favorites
+menu.hint_channellist_show_eventlogo Enable/disable event logos.
 menu.hint_channellist_show_infobox Show or hide bottom infobox of channellist
 menu.hint_channellist_show_res_icon Show or hide the icon to signalize resolution
 menu.hint_channellogos_setup Configure global channelogos options

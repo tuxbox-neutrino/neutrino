@@ -538,6 +538,8 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	// create eventname for eventlogos; Note: We don't process channellogos if any eventlogo was found.
 	std::string EventName = "";
 	int mode = CNeutrinoApp::getInstance()->getMode();
+	if (!g_settings.channellist_show_eventlogo)
+		enable_event_logo = false;
 	if (enable_event_logo && (ChannelID || mode == NeutrinoModes::mode_ts))
 	{
 		// TODO: fix eventlogo in moviebrowser
