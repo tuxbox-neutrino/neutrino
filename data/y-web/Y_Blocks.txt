@@ -991,8 +991,8 @@ start-block~rc_ax_hd51
 <area shape="rect" coords="25,539,54,559" href="javascript:rcsim('KEY_REWIND')" />
 <area shape="rect" coords="117,542,142,559" href="javascript:rcsim('KEY_FORWARD')" />
 <area shape="rect" coords="24,565,57,584" href="javascript:rcsim('KEY_STOP')" />
-<area shape="rect" coords="115,566,142,584" href="javascript:rcsim('KEY_PLAY')" />
-<area shape="rect" coords="68,566,101,585" href="javascript:rcsim('KEY_PAUSE')" />
+<area shape="rect" coords="115,566,142,584" href="javascript:rcsim('KEY_PLAYPAUSE')" />
+<!-- <area shape="rect" coords="68,566,101,585" href="javascript:rcsim('KEY_PAUSE')" /> -->
 <area shape="poly" coords="58,321,86,312,113,324,110,324,96,338,66,337,67,337,58,324,58,323,59,323,60,322" href="javascript:rcsim('KEY_UP')" />
 <area shape="poly" coords="107,344,122,333,129,362,117,383,105,376,108,346" href="javascript:rcsim('KEY_RIGHT')" />
 <area shape="poly" coords="70,378,100,384,111,396,75,404,56,389,68,377" href="javascript:rcsim('KEY_DOWN')" />
@@ -1046,13 +1046,13 @@ start-block~rc_mutant_hd51
 <area shape="rect" coords="65,390,102,408" href="javascript:rcsim('KEY_BOOKMARKS')" />
 <area shape="rect" coords="18,500,41,516" href="javascript:rcsim('KEY_RECORD')" />
 <area shape="rect" coords="54,500,75,516" href="javascript:rcsim('KEY_STOP')" />
-<area shape="rect" coords="90,500,112,516" href="javascript:rcsim('KEY_PLAY')" />
+<area shape="rect" coords="90,500,112,516" href="javascript:rcsim('KEY_PLAYPAUSE')" />
 <area shape="rect" coords="124,500,148,516" href="javascript:rcsim('KEY_PROGRAM')" />
 <area shape="rect" coords="18,528,41,543" href="javascript:rcsim('KEY_PREVIOUS')" />
 <area shape="rect" coords="54,528,75,543" href="javascript:rcsim('KEY_REWIND')" />
 <area shape="rect" coords="90,528,112,543" href="javascript:rcsim('KEY_FORWARD')" />
 <area shape="rect" coords="124,528,148,543" href="javascript:rcsim('KEY_NEXT')" />
-<area shape="rect" coords="124,554,148,570" href="javascript:rcsim('KEY_PAUSE')" />
+<!-- <area shape="rect" coords="124,554,148,570" href="javascript:rcsim('KEY_PAUSE')" /> -->
 </map>
 end-block~rc_mutant_hd51
 
