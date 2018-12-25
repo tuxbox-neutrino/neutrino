@@ -30,7 +30,7 @@
 #include <zapit/satconfig.h>
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
-#include <dmx.h>
+#include <hardware/dmx.h>
 #include <math.h>
 #include <eitd/edvbstring.h>
 
