@@ -47,6 +47,8 @@ class CLCD4l
 		int	CreateFile(const char *file, std::string content = "", bool convert = false);
 		int	RemoveFile(const char *file);
 
+		void	ResetParseID() { m_ParseID = 0; }
+
 	private:
 		pthread_t	thrLCD4l;
 		static void*	LCD4lProc(void *arg);
