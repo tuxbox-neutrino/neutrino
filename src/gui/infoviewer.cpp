@@ -2146,7 +2146,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	int start_x = ChanNameX;
 	int chan_w = BoxEndX - (start_x + 2*OFFSET_INNER_MID) - time_width - OFFSET_INNER_MID;
 
-	bool logo_available = g_PicViewer->GetLogoName(logo_channel_id, ChannelName, strAbsIconPath, &logo_w, &logo_h);
+	bool logo_available = g_PicViewer->GetLogoName(logo_channel_id, ChannelName, strAbsIconPath, &logo_w, &logo_h, false, true);
 
 	//fprintf(stderr, "%s: logo_available: %d file: %s\n", __FUNCTION__, logo_available, strAbsIconPath.c_str());
 

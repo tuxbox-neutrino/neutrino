@@ -529,7 +529,7 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height, bool lcd4l_mode)
+bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height, bool lcd4l_mode, bool enable_event_logo)
 {
 	std::string fileType[] = { ".png", ".jpg", ".gif" };
 	std::vector<std::string> v_path;
@@ -538,7 +538,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	// create eventname for eventlogos; Note: We don't process channellogos if any eventlogo was found.
 	std::string EventName = "";
 	int mode = CNeutrinoApp::getInstance()->getMode();
-	if (ChannelID || mode == NeutrinoModes::mode_ts)
+	if (enable_event_logo && (ChannelID || mode == NeutrinoModes::mode_ts))
 	{
 		// TODO: fix eventlogo in moviebrowser
 

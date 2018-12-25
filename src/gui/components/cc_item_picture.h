@@ -200,7 +200,10 @@ class CComponentsChannelLogo : public CComponentsPicture
 		uint64_t channel_id;
 		///channel name
 		std::string channel_name;
-		
+
+		///mode of event logo
+		bool enable_event_logo;
+
 		///alternate image file, if no channel logo is available
 		std::string alt_pic_name;
 		
@@ -250,7 +253,11 @@ class CComponentsChannelLogo : public CComponentsPicture
 		void setAltLogo(const std::string& picture_name);
 		///set an alternate logo if no logo is available, NOTE: value of has_logo will set to true
 		void setAltLogo(const char* picture_name);
-		
+
+		///enable/disable eventlogo
+		void enableEventLogo(bool enable = true){enable_event_logo = enable;}
+		void disableEventLogo(){enableEventLogo(false);}
+
 		///returns true, if any logo is available, also if an alternate logo was setted
 		bool hasLogo(){return has_logo;};
 		

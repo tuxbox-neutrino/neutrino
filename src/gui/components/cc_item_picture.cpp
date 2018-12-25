@@ -407,6 +407,7 @@ void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& 
 	alt_pic_name = "";
 	setChannel(channelId, channelName);
 	do_scale = allow_scale;
+	enable_event_logo = false;
 }
 void CComponentsChannelLogo::setAltLogo(const std::string& picture_name)
 {
@@ -444,7 +445,7 @@ void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::st
 
 	int dummy;
 
-	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, image, &dummy, &dummy);
+	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, image, &dummy, &dummy, false, enable_event_logo);
 
 	if (!has_logo)//no logo was found, use altrenate icon or logo
 		image = alt_pic_name;
