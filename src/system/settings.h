@@ -785,7 +785,7 @@ struct SNeutrinoSettings
 		LCD_SHOW_VOLUME        ,
 		LCD_AUTODIMM           ,
 		LCD_DEEPSTANDBY_BRIGHTNESS,
-#if HAVE_TRIPLEDRAGON || USE_STB_HAL
+#if USE_STB_HAL
 		LCD_EPGMODE            ,
 #endif
 		LCD_SETTING_COUNT
