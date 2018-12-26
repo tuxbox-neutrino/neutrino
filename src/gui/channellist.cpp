@@ -86,6 +86,11 @@
 
 #include <eitd/sectionsd.h>
 
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+extern CLCD4l *LCD4l;
+#endif
+
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 extern CBouquetList   * AllFavBouquetList;
@@ -928,6 +933,10 @@ int CChannelList::show()
 		cancelMoveChannel();
 	if (edit_state)
 		editMode(false);
+
+#ifdef ENABLE_LCD4LINUX
+	LCD4l->RemoveFile("/tmp/lcd/menu");
+#endif
 
 	if(!dont_hide){
 		if (new_zap_mode && (g_settings.channellist_new_zap_mode != new_zap_mode))
@@ -2184,6 +2193,11 @@ void CChannelList::updateVfd()
 		CVFD::getInstance()->showMenuText(0, nameAndDescription, -1, true); // UTF-8
 	} else
 		CVFD::getInstance()->showMenuText(0, chan->getName().c_str(), -1, true); // UTF-8
+
+#ifdef ENABLE_LCD4LINUX
+	if (g_settings.lcd4l_support)
+		LCD4l->CreateFile("/tmp/lcd/menu", chan->getName().c_str(), g_settings.lcd4l_convert);
+#endif
 }
 
 void CChannelList::paint()

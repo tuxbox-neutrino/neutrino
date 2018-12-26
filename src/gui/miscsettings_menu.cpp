@@ -37,6 +37,9 @@
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
 #include <gui/keybind_setup.h>
+#ifdef ENABLE_LCD4LINUX
+#include <gui/lcd4l_setup.h>
+#endif
 #include <gui/plugins.h>
 #include <gui/sleeptimer.h>
 #include <gui/zapit_setup.h>
@@ -300,8 +303,15 @@ int CMiscMenue::showMiscSettingsMenu()
 	mf->setHint("", LOCALE_MENU_HINT_MISC_ZAPIT);
 	misc_menue.addItem(mf);
 
+#ifdef ENABLE_LCD4LINUX
+	// LCD4Linux Setup
+	CLCD4lSetup lcd4lSetup;
+	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, ((access("/usr/bin/lcd4linux", F_OK) == 0) || (access("/var/bin/lcd4linux", F_OK) == 0)), NULL, &lcd4lSetup, NULL, CRCInput::RC_4);
+	misc_menue.addItem(mf);
+#endif
+
 	// onlineservices
-	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ONLINESERVICES, true, NULL, this, "onlineservices", CRCInput::RC_4);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ONLINESERVICES, true, NULL, this, "onlineservices", CRCInput::RC_5);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_ONLINESERVICES);
 	misc_menue.addItem(mf);
 
@@ -309,7 +319,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	//CPU
 	CMenuWidget misc_menue_cpu("CPU", NEUTRINO_ICON_SETTINGS, width);
 	showMiscSettingsMenuCPUFreq(&misc_menue_cpu);
-	misc_menue.addItem( new CMenuForwarder("CPU", true, NULL, &misc_menue_cpu, NULL, CRCInput::RC_5));
+	misc_menue.addItem( new CMenuForwarder("CPU", true, NULL, &misc_menue_cpu, NULL, CRCInput::RC_6));
 #endif /*CPU_FREQ*/
 
 	int res = misc_menue.exec(NULL, "");

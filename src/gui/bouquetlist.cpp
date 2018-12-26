@@ -56,6 +56,11 @@
 #include <mymenu.h>
 #include <zapit/getservices.h>
 
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+extern CLCD4l *LCD4l;
+#endif
+
 extern CBouquetManager *g_bouquetManager;
 
 CBouquetList::CBouquetList(const char * const Name)
@@ -589,6 +594,10 @@ int CBouquetList::show(bool bShowChannelList)
 	}
 	hide();
 
+#ifdef ENABLE_LCD4LINUX
+	LCD4l->RemoveFile("/tmp/lcd/menu");
+#endif
+
 	fader.StopFade();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -646,6 +655,10 @@ void CBouquetList::paintItem(int pos)
 	{
 		if(npos < (int) Bouquets.size())
 			CVFD::getInstance()->showMenuText(0, lname, -1, true);
+#ifdef ENABLE_LCD4LINUX
+		if(g_settings.lcd4l_support)
+			LCD4l->CreateFile("/tmp/lcd/menu", lname, g_settings.lcd4l_convert);
+#endif
 	}
 	else
 	{

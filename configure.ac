@@ -150,6 +150,14 @@ if test "$BOXTYPE" = "coolstream" ||
 	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi
 
+AC_ARG_ENABLE(lcd4linux,
+	AS_HELP_STRING([--enable-lcd4linux], [enable Lcd4Linux support]),
+	,[enable_lcd4linux=no])
+AM_CONDITIONAL(ENABLE_LCD4LINUX, test "$enable_lcd4linux" = "yes")
+if test "$enable_lcd4linux" = "yes"; then
+	AC_DEFINE(ENABLE_LCD4LINUX, 1, [include Lcd4Linux support])
+fi
+
 AC_ARG_ENABLE(keyboard-no-rc,
 	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control @<:@default=no@:>@]),
 	AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL, 1, [enable keyboard control, disable rc control]))

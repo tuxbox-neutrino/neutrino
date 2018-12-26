@@ -47,6 +47,11 @@ libneutrino_driver_a_SOURCES = \
 	streamts.cpp \
 	volume.cpp
 
+if ENABLE_LCD4LINUX
+libneutrino_driver_a_SOURCES += \
+	lcd4l.cpp
+endif
+
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_hdx.cpp

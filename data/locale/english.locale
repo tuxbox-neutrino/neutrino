@@ -922,6 +922,23 @@ keychoosermenu.setnone No key
 languagesetup.head Language and timezone
 languagesetup.osd OSD language
 languagesetup.select OSD language
+lcd4l_brightness Brightness
+lcd4l_brightness_standby Brightness in standby
+lcd4l_clock_a Analog clock in Standby-Mode
+lcd4l_convert Convert umlauts
+lcd4l_display_type Display Type
+lcd4l_logodir Channellogo-Directory
+lcd4l_skin Display-Style
+lcd4l_skin_0 Standard
+lcd4l_skin_1 User 1
+lcd4l_skin_2 User 2
+lcd4l_skin_3 User 3
+lcd4l_skin_4 User 4
+lcd4l_skin_radio Activate Radio-Style
+lcd4l_support LCD4Linux-Support
+lcd4l_support_auto automatic
+lcd4l_support_off off
+lcd4l_support_on on
 lcd_info_line Show in infoline
 lcd_info_line_channel Channelname
 lcd_info_line_clock Clock
@@ -1224,6 +1241,15 @@ menu.hint_language OSD language, timezone\nPrefered audio and subtitles language
 menu.hint_last_radio Start box on selected channel\nif last mode is Radio
 menu.hint_last_tv Start box on selected channel\nif last mode is TV
 menu.hint_last_use Start box on last used channel
+menu.hint_lcd4l_brightness Adjusts the brightness of external display in normal mode
+menu.hint_lcd4l_brightness_standby Adjusts the brightness of external display in standby mode
+menu.hint_lcd4l_clock_a Shows an analog clock instead of a digital clock on display at standby
+menu.hint_lcd4l_convert Convert umlauts for the built-in LCD4Linux font
+menu.hint_lcd4l_display_type Choose type of external display
+menu.hint_lcd4l_logodir Logo directory.\nFallback to default on invalid entry.
+menu.hint_lcd4l_skin Switch between modes
+menu.hint_lcd4l_skin_radio Switch the mode, when Radio-Mode is activated
+menu.hint_lcd4l_support Activate/deactivate LCD4Linux\nSupported displays: Pearl DPF, Samsung DPF, VU+SOLO4K, PNG
 menu.hint_leds_blink Blinking LEDs in deep-standby
 menu.hint_leds_deepstandby LEDs state in deep-standby mode
 menu.hint_leds_record LEDs state when box recording

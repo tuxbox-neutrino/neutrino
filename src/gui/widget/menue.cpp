@@ -47,6 +47,11 @@
 
 #include <cctype>
 
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+extern CLCD4l *LCD4l;
+#endif
+
 /* the following generic menu items are integrated into multiple menus at the same time */
 CMenuSeparator CGenericMenuSeparator(0, NONEXISTANT_LOCALE, true);
 CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE, NONEXISTANT_LOCALE, true);
@@ -88,6 +93,10 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	height = 0;
 	actObserv	= NULL;
 	parent_widget	= NULL;
+
+#ifdef ENABLE_LCD4LINUX
+	lcd4l_text	= "";
+#endif
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -234,9 +243,23 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			char str[len];
 			snprintf(str, len, "%s %s", left_text, right_text);
 			CVFD::getInstance()->showMenuText(0, str, -1, true);
+#ifdef ENABLE_LCD4LINUX
+			if(g_settings.lcd4l_support)
+				lcd4l_text = str;
+#endif
 		} 
 		else
+		{
 			CVFD::getInstance()->showMenuText(0, left_text, -1, true);
+#ifdef ENABLE_LCD4LINUX
+			if (g_settings.lcd4l_support)
+				lcd4l_text = left_text;
+#endif
+		}
+#ifdef ENABLE_LCD4LINUX
+		if (g_settings.lcd4l_support)
+			LCD4l->CreateFile("/tmp/lcd/menu", lcd4l_text, g_settings.lcd4l_convert);
+#endif
 	}
 	
 	//left text
@@ -985,6 +1008,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			case (CRCInput::RC_right):
 			case (CRCInput::RC_ok):
 				if (hasItem() && selected > -1 && (int)items.size() > selected) {
+#ifdef ENABLE_LCD4LINUX
+					LCD4l->RemoveFile("/tmp/lcd/menu");
+#endif
+
 					//exec this item...
 					CMenuItem* item = items[selected];
 					if (msg == CRCInput::RC_left && g_settings.menu_left_exit &&
@@ -997,6 +1024,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					item->msg = msg;
 					fader.StopFade();
 					int rv = item->exec( this );
+
+#ifdef ENABLE_LCD4LINUX
+					if (g_settings.lcd4l_support)
+						LCD4l->CreateFile("/tmp/lcd/menu", item->lcd4l_text, g_settings.lcd4l_convert);
+#endif
+
 					switch ( rv ) {
 						case menu_return::RETURN_EXIT_ALL:
 							retval = menu_return::RETURN_EXIT_ALL;
@@ -1080,6 +1113,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	if(!parent)
 		if(oldLcdMode != CVFD::getInstance()->getMode())
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+
+#ifdef ENABLE_LCD4LINUX
+	LCD4l->RemoveFile("/tmp/lcd/menu");
+#endif
 
 	for (unsigned int count = 0; count < items.size(); count++) 
 	{

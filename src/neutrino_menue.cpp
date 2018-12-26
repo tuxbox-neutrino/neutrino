@@ -48,6 +48,9 @@
 #include "gui/imageinfo.h"
 #include "gui/info_menue.h"
 #include "gui/keybind_setup.h"
+#ifdef ENABLE_LCD4LINUX
+#include "gui/lcd4l_setup.h"
+#endif
 #include "gui/mediaplayer.h"
 #include "gui/mediaplayer_setup.h"
 #include "gui/miscsettings_menu.h"

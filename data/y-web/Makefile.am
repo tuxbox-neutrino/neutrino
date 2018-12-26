@@ -9,6 +9,7 @@ install_DATA =	channels.js \
 		index.html \
 		prototype.js \
 		robots.txt \
+		lcd4linux.html \
 		Y_About.yhtm \
 		Y_Baselib.js \
 		Y_blank.htm \
