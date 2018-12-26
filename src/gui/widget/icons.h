@@ -168,6 +168,7 @@
 #define NEUTRINO_ICON_HINT_AUDIO	"hint_audio"
 #define NEUTRINO_ICON_HINT_PROTECTION	"hint_protection"
 #define NEUTRINO_ICON_HINT_NETWORK	"hint_network"
+#define NEUTRINO_ICON_HINT_LCD4LINUX	"hint_lcd4linux"
 #define NEUTRINO_ICON_HINT_RECORDING	"hint_recording"
 #define NEUTRINO_ICON_HINT_LANGUAGE	"hint_language"
 #define NEUTRINO_ICON_HINT_OSD		"hint_osd"

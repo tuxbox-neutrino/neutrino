@@ -76,6 +76,9 @@
 #include <gui/widget/icons.h>
 #include <gui/adzap.h>
 #include <gui/network_setup.h>
+#ifdef ENABLE_LCD4LINUX
+#include <gui/lcd4l_setup.h>
+#endif
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
 #include <gui/webtv_setup.h>
@@ -487,6 +490,15 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_NETWORK, LOCALE_MENU_HINT_NETWORK);
 			break;
 		}
+#ifdef ENABLE_LCD4LINUX
+		case SNeutrinoSettings::ITEM_LCD4LINUX:
+		{
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, ((access("/usr/bin/lcd4linux", F_OK) == 0) || (access("/var/bin/lcd4linux", F_OK) == 0)), NULL, CLCD4lSetup::getInstance(), NULL, key, icon);
+			menu_item->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SUPPORT);
+			break;
+		}
+#endif
 		case SNeutrinoSettings::ITEM_SWUPDATE:
 		{
 			keyhelper.get(&key,&icon);

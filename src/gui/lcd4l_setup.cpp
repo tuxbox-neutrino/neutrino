@@ -94,6 +94,16 @@ CLCD4lSetup::~CLCD4lSetup()
 {
 }
 
+CLCD4lSetup* CLCD4lSetup::getInstance()
+{
+	static CLCD4lSetup* me = NULL;
+
+	if(!me)
+		me = new CLCD4lSetup();
+
+	return me;
+}
+
 int CLCD4lSetup::exec(CMenuTarget* parent, const std::string &actionkey)
 {
 	printf("CLCD4lSetup::exec: actionkey %s\n", actionkey.c_str());
