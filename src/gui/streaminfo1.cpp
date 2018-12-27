@@ -638,7 +638,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf (buf,sizeof(buf), "25fps");
 			break;
 		case 3:
-			snprintf (buf,sizeof(buf), "29,976fps");
+			snprintf (buf,sizeof(buf), "29,97fps");
 			break;
 		case 4:
 			snprintf (buf,sizeof(buf), "30fps");
@@ -647,7 +647,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf (buf,sizeof(buf), "50fps");
 			break;
 		case 6:
-			snprintf (buf,sizeof(buf), "50,94fps");
+			snprintf (buf,sizeof(buf), "59,94fps");
 			break;
 		case 7:
 			snprintf (buf,sizeof(buf), "60fps");

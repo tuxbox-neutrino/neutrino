@@ -972,7 +972,7 @@ bool CInfoViewer::showLivestreamInfo()
 					tmp2 = "25fps";
 					break;
 				case 3:
-					tmp2 = "29,976fps";
+					tmp2 = "29,97fps";
 					break;
 				case 4:
 					tmp2 = "30fps";
@@ -981,7 +981,7 @@ bool CInfoViewer::showLivestreamInfo()
 					tmp2 = "50fps";
 					break;
 				case 6:
-					tmp2 = "50,94fps";
+					tmp2 = "59,94fps";
 					break;
 				case 7:
 					tmp2 = "60fps";
