@@ -334,26 +334,25 @@ void CImageInfo::InitInfoData()
 	if (!pretty_name.info_text.empty())
 		v_info.push_back(pretty_name);
 
+	//kernel
 	struct utsname uts_info;
-	if (uname(&uts_info) == 0) {
-		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
-		v_info.push_back(kernel);
-	}
+	if (uname(&uts_info) == 0)
+		v_info.push_back({LOCALE_IMAGEINFO_KERNEL,	uts_info.release});
 
-	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
-	v_info.push_back(date);
+	v_info.push_back({LOCALE_IMAGEINFO_DATE,	builddate});
 
-	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")};
-	v_info.push_back(creator);
+	//creator
+	v_info.push_back({LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")});
 
-	image_info_t gui	= {LOCALE_IMAGEINFO_GUI, config.getString("gui", PACKAGE_NAME)};
-	v_info.push_back(gui);
+	//gui name
+	v_info.push_back({LOCALE_IMAGEINFO_GUI, config.getString("gui", PACKAGE_NAME)});
 
 #ifdef VCS
-	image_info_t vcs	= {LOCALE_IMAGEINFO_VCS,	VCS};
-	v_info.push_back(vcs);
+	//vcs
+	v_info.push_back({LOCALE_IMAGEINFO_VCS,	VCS});
 #endif
 
+	//internal api versions
 	string s_api;
 #ifdef ENABLE_LUA
 	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
@@ -369,15 +368,14 @@ void CImageInfo::InitInfoData()
 	s_api	+= YHTTPD_NAME;
 	s_api	+= + " ";
 	s_api	+= YHTTPD_VERSION;
-	image_info_t api	= {LOCALE_IMAGEINFO_API,	s_api};
-	v_info.push_back(api);
+	v_info.push_back({LOCALE_IMAGEINFO_API,	s_api});
 
-	image_info_t www	= {LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage", "n/a")};
-	v_info.push_back(www);
-	image_info_t doc	= {LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs", "http://wiki.neutrino-hd.de")};
-	v_info.push_back(doc);
-	image_info_t forum	= {LOCALE_IMAGEINFO_FORUM,	config.getString("forum", "http://forum.tuxbox.org")};
-	v_info.push_back(forum);
+	//www
+	v_info.push_back({LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage", "n/a")});
+	//doc
+	v_info.push_back({LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs", "http://wiki.neutrino-hd.de")});
+	//support
+	v_info.push_back( {LOCALE_IMAGEINFO_FORUM,	config.getString("forum", "http://forum.tuxbox.org")});
 }
 
 
