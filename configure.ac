@@ -1,8 +1,19 @@
-AC_INIT(Tuxbox-Neutrino,3.8.0)
+# explicit defines for separate revision handling
+define(ver_major, 3)
+define(ver_minor, 8)
+define(ver_micro, 0)
+define(neutrino_rel_cycle, ver_major.ver_minor)
+
+AC_INIT(Tuxbox-Neutrino,ver_major.ver_minor.ver_micro)
 AM_INIT_AUTOMAKE([nostdinc foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
-AC_DEFINE(RELEASE_CYCLE, "2.5", [Release cycle information; used in update code])
+AC_DEFINE(RELEASE_CYCLE, "2.5", [Release cycle information; used in update code; only relevant for flash image releases ])
+
+AC_DEFINE(PACKAGE_VERSION_MAJOR, ver_major, [Major version number])
+AC_DEFINE(PACKAGE_VERSION_MINOR, ver_minor, [Minor version number])
+AC_DEFINE(PACKAGE_VERSION_MICRO, ver_micro, [Micro version number])
+AC_DEFINE(PACKAGE_VERSION_NEUTRINO_REL_CYCLE, neutrino_rel_cycle, [Neutrino release cycle])
 
 TUXBOX_APPS
 TUXBOX_APPS_DIRECTORY
@@ -254,6 +265,7 @@ AC_ARG_WITH(stb-hal-includes,
 	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
 	[STB_HAL_INC="$withval"],
 	[STB_HAL_INC=""])
+AC_CHECK_HEADER([$STB_HAL_INC/libstb-hal-config.h], [AC_DEFINE(HAVE_CONFIG_HAL_H, 1 , [availability of libstb-hal-config.h as external header from libstb_hal, usable e.g. for package informations])])
 
 AC_ARG_WITH(stb-hal-build,
 	AS_HELP_STRING([--with-stb-hal-build=PATH], [path where libstb-hal is built [[NONE]]]),
