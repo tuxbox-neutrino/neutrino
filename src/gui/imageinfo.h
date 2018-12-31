@@ -37,7 +37,7 @@
 
 typedef struct image_info_t
 {
-	neutrino_locale_t caption;
+	std::string caption;
 	std::string info_text;
 	
 } image_info_struct_t;

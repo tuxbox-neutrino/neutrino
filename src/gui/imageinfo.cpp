@@ -25,6 +25,10 @@
 #include <config.h>
 #endif
 
+#if HAVE_CONFIG_HAL_H
+  #include <version_hal.h>
+#endif
+
 #include <gui/imageinfo.h>
 
 #include <global.h>
@@ -50,6 +54,7 @@
 
 #define VERSION_FILE "/.version"
 #define RELEASE_FILE "/etc/os-release"
+
 
 using namespace std;
 
@@ -282,7 +287,7 @@ void CImageInfo::InitInfoData()
 {
 	v_info.clear();
 
-	image_info_t pretty_name = {LOCALE_IMAGEINFO_OS,""};
+	image_info_t pretty_name = {g_Locale->getText(LOCALE_IMAGEINFO_OS),""};
 	if (file_exists(RELEASE_FILE)){
 		config.loadConfig(RELEASE_FILE);
 		string tmpstr = config.getString("PRETTY_NAME", "");
@@ -322,9 +327,9 @@ void CImageInfo::InitInfoData()
 		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s], internal release cycle [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str(), RELEASE_CYCLE);
 #endif
 
-	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", PACKAGE_NAME)};
+	image_info_t imagename 	= {g_Locale->getText(LOCALE_IMAGEINFO_IMAGE),	config.getString("imagename", PACKAGE_NAME)};
 	if (!version_string.empty()){
-		image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
+		image_info_t version	= {g_Locale->getText(LOCALE_IMAGEINFO_VERSION),	version_string};
 		imagename.info_text += " ";
 		imagename.info_text += version_string;
 		v_info.push_back(imagename);
@@ -337,19 +342,26 @@ void CImageInfo::InitInfoData()
 	//kernel
 	struct utsname uts_info;
 	if (uname(&uts_info) == 0)
-		v_info.push_back({LOCALE_IMAGEINFO_KERNEL,	uts_info.release});
+		v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_KERNEL),	uts_info.release});
 
-	v_info.push_back({LOCALE_IMAGEINFO_DATE,	builddate});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DATE),	builddate});
 
 	//creator
-	v_info.push_back({LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_CREATOR),	config.getString("creator", "n/a")});
 
-	//gui name
-	v_info.push_back({LOCALE_IMAGEINFO_GUI, config.getString("gui", PACKAGE_NAME)});
+	//gui
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_GUI), config.getString("gui", PACKAGE_STRING)});
 
 #ifdef VCS
-	//vcs
-	v_info.push_back({LOCALE_IMAGEINFO_VCS,	VCS});
+	//gui vcs
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	VCS});
+#endif
+
+#if HAVE_CONFIG_HAL_H
+	//libstb-hal version
+	v_info.push_back({"libstb_hal:", getPackageString()});
+	//libstb-hal git status
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	getPackageVersionGit()});
 #endif
 
 	//internal api versions
@@ -368,14 +380,14 @@ void CImageInfo::InitInfoData()
 	s_api	+= YHTTPD_NAME;
 	s_api	+= + " ";
 	s_api	+= YHTTPD_VERSION;
-	v_info.push_back({LOCALE_IMAGEINFO_API,	s_api});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_API),	s_api});
 
 	//www
-	v_info.push_back({LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage", "n/a")});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", "n/a")});
 	//doc
-	v_info.push_back({LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs", "http://wiki.neutrino-hd.de")});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), config.getString("docs", "http://wiki.neutrino-hd.de")});
 	//support
-	v_info.push_back( {LOCALE_IMAGEINFO_FORUM,	config.getString("forum", "http://forum.tuxbox.org")});
+	v_info.push_back( {g_Locale->getText(LOCALE_IMAGEINFO_FORUM),	config.getString("forum", "http://forum.tuxbox.org")});
 }
 
 
@@ -398,7 +410,7 @@ void CImageInfo::InitInfos()
 	//create label and text items
 	y_tmp = 0;
 	for (size_t i=0; i<v_info.size(); i++) {
-		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
+		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, v_info[i].caption, v_info[i].info_text);
 		item->setLabelWidthPercent(15);
 
 		if (!item_font){
@@ -414,7 +426,7 @@ void CImageInfo::InitInfos()
 			cc_info->addCCItem(item);
 
 		//add an offset before homepage and license and at the end
-		if (v_info[i].caption == LOCALE_IMAGEINFO_CREATOR || v_info[i].caption == LOCALE_IMAGEINFO_FORUM){
+		if (v_info[i].caption == g_Locale->getText(LOCALE_IMAGEINFO_CREATOR) || v_info[i].caption == g_Locale->getText(LOCALE_IMAGEINFO_FORUM)){
 			CComponentsShapeSquare *spacer = new CComponentsShapeSquare(1, y_tmp+=item_offset, 1, item_offset);
 			//spacer ist not visible!
 			spacer->allowPaint(false);
