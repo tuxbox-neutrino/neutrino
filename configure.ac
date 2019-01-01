@@ -1,6 +1,6 @@
 # explicit defines for separate revision handling
 define(ver_major, 3)
-define(ver_minor, 8)
+define(ver_minor, 9)
 define(ver_micro, 0)
 define(neutrino_rel_cycle, ver_major.ver_minor)
 
