@@ -306,7 +306,7 @@ int CMiscMenue::showMiscSettingsMenu()
 #ifdef ENABLE_LCD4LINUX
 	// LCD4Linux Setup
 	CLCD4lSetup lcd4lSetup;
-	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, ((access("/usr/bin/lcd4linux", F_OK) == 0) || (access("/var/bin/lcd4linux", F_OK) == 0)), NULL, &lcd4lSetup, NULL, CRCInput::RC_4);
+	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, !find_executable("lcd4linux").empty(), NULL, &lcd4lSetup, NULL, CRCInput::RC_4);
 	misc_menue.addItem(mf);
 #endif
 

@@ -113,6 +113,7 @@ static void lcd4linux(bool run)
 {
 	const char *buf = "lcd4linux";
 	const char *conf = "/etc/lcd4linux.conf";
+	std::string lcd4linux = find_executable(buf);
 
 	chmod(conf,0x600);
 	chown(conf,0,0);
@@ -121,11 +122,11 @@ static void lcd4linux(bool run)
 	{
 		if (g_settings.lcd4l_dpf_type == 3)
 		{
-			if (my_system(3, buf, "-o", PNGFILE) != 0)
-				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, buf, PNGFILE);
+			if (my_system(3, lcd4linux.c_str(), "-o", PNGFILE) != 0)
+				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4linux.c_str(), PNGFILE);
 		} else {
-			if (my_system(1, buf) != 0)
-				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
+			if (my_system(1, lcd4linux.c_str()) != 0)
+				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, lcd4linux.c_str());
 		}
 		sleep(2);
 	}
