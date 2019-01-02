@@ -265,7 +265,6 @@ AC_ARG_WITH(stb-hal-includes,
 	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
 	[STB_HAL_INC="$withval"],
 	[STB_HAL_INC=""])
-AC_CHECK_HEADER([$STB_HAL_INC/libstb-hal-config.h], [AC_DEFINE(HAVE_CONFIG_HAL_H, 1 , [availability of libstb-hal-config.h as external header from libstb_hal, usable e.g. for package informations])])
 
 AC_ARG_WITH(stb-hal-build,
 	AS_HELP_STRING([--with-stb-hal-build=PATH], [path where libstb-hal is built [[NONE]]]),
