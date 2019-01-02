@@ -4,7 +4,7 @@
 	Copyright (C) 2012 'defans'
 	Homepage: http://www.bluepeercrew.us/
 
-	Copyright (C) 2012-2016 'vanhofen'
+	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
 	Modded    (C) 2016 'TangoCash'
@@ -148,6 +148,7 @@ int CLCD4lSetup::show()
 
 	int temp_lcd4l_dpf_type = g_settings.lcd4l_dpf_type;
 	int temp_lcd4l_skin = g_settings.lcd4l_skin;
+	int temp_lcd4l_brightness = g_settings.lcd4l_brightness;
 
 	// lcd4l setup
 	CMenuWidget* lcd4lSetup = new CMenuWidget(LOCALE_LCD4L_SUPPORT, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_LCD4L_SETUP);
@@ -174,16 +175,11 @@ int CLCD4lSetup::show()
 	mc->setHint("", LOCALE_MENU_HINT_LCD4L_SKIN_RADIO);
 	lcd4lSetup->addItem(mc);
 
-	int max_brightness = 7;
-#if defined BOXMODEL_VUSOLO4K
-	max_brightness = 10;
-#endif
-
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&g_settings.lcd4l_brightness, true, 1, max_brightness, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&temp_lcd4l_brightness, true, 1, LCD4l->GetMaxBrightness(), this);
 	nc->setHint("", LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
 	lcd4lSetup->addItem(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, max_brightness, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, LCD4l->GetMaxBrightness(), this);
 	nc->setHint("", LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
 	lcd4lSetup->addItem(nc);
 
@@ -219,6 +215,12 @@ int CLCD4lSetup::show()
 	if (g_settings.lcd4l_skin != temp_lcd4l_skin)
 	{
 		g_settings.lcd4l_skin = temp_lcd4l_skin;
+		LCD4l->InitLCD4l();
+	}
+
+	if (g_settings.lcd4l_brightness != temp_lcd4l_brightness)
+	{
+		g_settings.lcd4l_brightness = temp_lcd4l_brightness;
 		LCD4l->InitLCD4l();
 	}
 
