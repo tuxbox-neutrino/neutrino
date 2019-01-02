@@ -25,8 +25,8 @@
 #include <config.h>
 #endif
 
-#if HAVE_CONFIG_HAL_H
-  #include <version_hal.h>
+#if USE_STB_HAL
+#include <version_hal.h>
 #endif
 
 #include <gui/imageinfo.h>
@@ -357,11 +357,13 @@ void CImageInfo::InitInfoData()
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	VCS});
 #endif
 
-#if HAVE_CONFIG_HAL_H
+#if USE_STB_HAL
+	hal_libversion_t ver;
+	hal_get_lib_version(&ver);
 	//libstb-hal version
-	v_info.push_back({"libstb_hal:", getPackageString()});
+	v_info.push_back({"libstb-hal:", ver.vVersion});
 	//libstb-hal git status
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	getPackageVersionGit()});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS), ver.vGitDescribe});
 #endif
 
 	//internal api versions
