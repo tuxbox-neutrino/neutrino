@@ -38,6 +38,14 @@ class CLCD4l
 		CLCD4l();
 		~CLCD4l();
 
+		// Displays
+		enum
+		{
+			PEARL		= 0,
+			SAMSUNG 	= 1,
+			VUSOLO4K	= 2
+		};
+
 		// Functions
 		void	InitLCD4l();
 		void	StartLCD4l();
@@ -46,6 +54,8 @@ class CLCD4l
 
 		int	CreateFile(const char *file, std::string content = "", bool convert = false);
 		int	RemoveFile(const char *file);
+
+		int	GetMaxBrightness();
 
 		void	ResetParseID() { m_ParseID = 0; }
 
