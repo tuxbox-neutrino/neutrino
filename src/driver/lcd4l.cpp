@@ -1025,6 +1025,26 @@ bool CLCD4l::WriteFile(const char *file, std::string content, bool convert)
 		strReplace(content, "Ä", "\xc4\0");
 		strReplace(content, "Ö", "\xd6\0");
 		strReplace(content, "Ü", "\xdc\0");
+
+		strReplace(content, "Ą", "\x41\0");
+		strReplace(content, "ą", "\x61\0");
+		strReplace(content, "Ć", "\x43\0");
+		strReplace(content, "ć", "\x63\0");
+		strReplace(content, "Ę", "\x45\0");
+		strReplace(content, "ę", "\x65\0");
+		strReplace(content, "Ł", "\x4c\0");
+		strReplace(content, "ł", "\x6c\0");
+		strReplace(content, "Ń", "\x4e\0");
+		strReplace(content, "ń", "\x6e\0");
+		strReplace(content, "Ó", "\x4f\0");
+		strReplace(content, "ó", "\x6f\0");
+		strReplace(content, "Ś", "\x53\0");
+		strReplace(content, "ś", "\x73\0");
+		strReplace(content, "Ź", "\x5a\0");
+		strReplace(content, "ź", "\x7a\0");
+		strReplace(content, "Ź", "\x5a\0");
+		strReplace(content, "ż", "\x7a\0");
+
 		if (g_settings.lcd4l_dpf_type == 0) strReplace(content, "ß", "\xe2\0");
 		strReplace(content, "é", "e");
 	}
