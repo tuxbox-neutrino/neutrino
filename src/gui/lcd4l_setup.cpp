@@ -205,24 +205,24 @@ int CLCD4lSetup::show()
 		delete lcd4lSetup;
 
 	// the things to do on exit
-
+	bool need_init = false;
 	if (g_settings.lcd4l_dpf_type != temp_lcd4l_dpf_type)
 	{
 		g_settings.lcd4l_dpf_type = temp_lcd4l_dpf_type;
-		LCD4l->InitLCD4l();
+		need_init = true;
 	}
-
 	if (g_settings.lcd4l_skin != temp_lcd4l_skin)
 	{
 		g_settings.lcd4l_skin = temp_lcd4l_skin;
-		LCD4l->InitLCD4l();
+		need_init = true;
 	}
-
 	if (g_settings.lcd4l_brightness != temp_lcd4l_brightness)
 	{
 		g_settings.lcd4l_brightness = temp_lcd4l_brightness;
-		LCD4l->InitLCD4l();
+		need_init =  true;
 	}
+	if (need_init)
+		LCD4l->InitLCD4l();
 
 	return res;
 }
