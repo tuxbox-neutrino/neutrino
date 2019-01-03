@@ -560,9 +560,11 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 
 		// add neccessary paths to v_path
 		v_path.clear();
+#ifdef ENABLE_LCD4LINUX
 		if (lcd4l_mode)
 			v_path.push_back(g_settings.lcd4l_logodir);
 		v_path.push_back(g_settings.logo_hdd_dir);
+#endif
 		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
 			v_path.push_back(LOGODIR_VAR);
 		if (g_settings.logo_hdd_dir != LOGODIR)
@@ -663,9 +665,11 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 
 		for (size_t f = 0; f < v_file.size(); f++)
 		{
+#ifdef ENABLE_LCD4LINUX
 			// process g_settings.lcd4l_logodir
 			if (lcd4l_mode)
 				v_path.push_back(g_settings.lcd4l_logodir + "/" + v_file[f] + fileType[i]);
+#endif
 			// process g_settings.logo_hdd_dir
 			v_path.push_back(g_settings.logo_hdd_dir + "/" + v_file[f] + fileType[i]);
 			// process LOGODIR_VAR
