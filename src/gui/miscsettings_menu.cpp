@@ -282,18 +282,21 @@ int CMiscMenue::showMiscSettingsMenu()
 
 	//cec settings
 	CCECSetup cecsetup;
-	if (g_info.hw_caps->can_cec) {
+	if (g_info.hw_caps->can_cec)
+	{
 		mf = new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, &cecsetup, NULL, CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_MISC_CEC);
 		misc_menue.addItem(mf);
 	}
 
-	if (!g_info.hw_caps->can_shutdown) {
+	if (!g_info.hw_caps->can_shutdown)
+	{
 		/* we don't have the energy menu, but put the sleeptimer directly here */
-		mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, NULL, new CSleepTimerWidget(true));
+		mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, NULL, new CSleepTimerWidget(true), NULL, CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_INACT_TIMER);
 		misc_menue.addItem(mf);
 	}
+
 	//channellist
 	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, this, "channellist", CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_MISC_CHANNELLIST);
