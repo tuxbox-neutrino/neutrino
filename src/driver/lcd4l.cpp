@@ -120,7 +120,7 @@ static void lcd4linux(bool run)
 
 	if (run == true)
 	{
-		if (g_settings.lcd4l_dpf_type == 3)
+		if (g_settings.lcd4l_dpf_type == CLCD4l::PNG)
 		{
 			if (my_system(3, lcd4linux.c_str(), "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4linux.c_str(), PNGFILE);
@@ -1045,7 +1045,7 @@ bool CLCD4l::WriteFile(const char *file, std::string content, bool convert)
 		strReplace(content, "Ź", "\x5a\0");
 		strReplace(content, "ż", "\x7a\0");
 
-		if (g_settings.lcd4l_dpf_type == 0) strReplace(content, "ß", "\xe2\0");
+		if (g_settings.lcd4l_dpf_type == PEARL) strReplace(content, "ß", "\xe2\0");
 		strReplace(content, "é", "e");
 	}
 

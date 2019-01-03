@@ -43,7 +43,8 @@ class CLCD4l
 		{
 			PEARL		= 0,
 			SAMSUNG 	= 1,
-			VUSOLO4K	= 2
+			VUSOLO4K	= 2,
+			PNG			= 3
 		};
 
 		// Functions

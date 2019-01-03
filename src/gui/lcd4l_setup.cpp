@@ -66,12 +66,12 @@ const CMenuOptionChooser::keyval LCD4L_SUPPORT_OPTIONS[] =
 
 const CMenuOptionChooser::keyval_ext LCD4L_DPF_TYPE_OPTIONS[] =
 {
-	{ 0, NONEXISTANT_LOCALE, "Pearl"},
-	{ 1, NONEXISTANT_LOCALE, "Samsung"},
+	{ CLCD4l::PEARL,	NONEXISTANT_LOCALE, "Pearl"},
+	{ CLCD4l::SAMSUNG,	NONEXISTANT_LOCALE, "Samsung"},
 #if defined BOXMODEL_VUSOLO4K
-	{ 2, NONEXISTANT_LOCALE, "VUSolo4K"},
+	{ CLCD4l::VUSOLO4K,	NONEXISTANT_LOCALE, "VUSolo4K"},
 #endif
-	{ 3, NONEXISTANT_LOCALE, "PNG"}
+	{ CLCD4l::PNG,		NONEXISTANT_LOCALE, "PNG"}
 };
 #define LCD4L_DPF_TYPE_OPTION_COUNT (sizeof(LCD4L_DPF_TYPE_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 
