@@ -298,6 +298,12 @@ TUXBOX_APPS_DIRECTORY_ONE(iconsdir, ICONSDIR, datadir, /share, /tuxbox/neutrino/
 TUXBOX_APPS_DIRECTORY_ONE(iconsdir_var, ICONSDIR_VAR, localstatedir, /var, /tuxbox/icons,
 	[--with-iconsdir_var=PATH], [where to find icons in /var])
 
+TUXBOX_APPS_DIRECTORY_ONE(lcd4liconsdir, LCD4L_ICONSDIR, datadir, /share, /tuxbox/neutrino/lcd/icons,
+	[--with-lcd4liconsdir=PATH], [where to find lcd4linux icons])
+
+TUXBOX_APPS_DIRECTORY_ONE(lcd4liconsdir_var, LCD4L_ICONSDIR_VAR, localstatedir, /var, /tuxbox/lcd/icons,
+	[--with-lcd4liconsdir_var=PATH], [where to find lcd4linux icons in /var])
+
 TUXBOX_APPS_DIRECTORY_ONE(private_httpddir, PRIVATE_HTTPDDIR, datadir, /share, /tuxbox/neutrino/httpd,
 	[--with-private_httpddir=PATH], [where to find private httpd files])
 
@@ -333,6 +339,8 @@ AC_SUBST(THEMESDIR)
 AC_SUBST(THEMESDIR_VAR)
 AC_SUBST(ICONSDIR)
 AC_SUBST(ICONSDIR_VAR)
+AC_SUBST(LCD4L_ICONSDIR)
+AC_SUBST(LCD4L_ICONSDIR_VAR)
 AC_SUBST(PRIVATE_HTTPDDIR)
 AC_SUBST(PUBLIC_HTTPDDIR)
 AC_SUBST(HOSTED_HTTPDDIR)

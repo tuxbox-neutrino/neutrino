@@ -122,6 +122,8 @@ install-data-hook:
 			-e 's|%(WEBRADIODIR_VAR)|$(WEBRADIODIR_VAR)|g' \
 			-e 's|%(LOGODIR)|$(LOGODIR)|g' \
 			-e 's|%(LOGODIR_VAR)|$(LOGODIR_VAR)|g' \
+			-e 's|%(LCD4L_ICONSDIR)|$(LCD4L_ICONSDIR)|g' \
+			-e 's|%(LCD4L_ICONSDIR_VAR)|$(LCD4L_ICONSDIR_VAR)|g' \
 			-e 's|%(PRIVATE_HTTPDDIR)|$(PRIVATE_HTTPDDIR)|g' \
 			-e 's|%(PUBLIC_HTTPDDIR)|$(PUBLIC_HTTPDDIR)|g' \
 			-e 's|%(HOSTED_HTTPDDIR)|$(HOSTED_HTTPDDIR)|g' \

@@ -472,6 +472,8 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			else if (ycmd_name.compare("WEBTVDIR_VAR"))	yresult = WEBTVDIR_VAR;
 			else if (ycmd_name.compare("LOGODIR"))		yresult = LOGODIR;
 			else if (ycmd_name.compare("LOGODIR_VAR"))	yresult = LOGODIR_VAR;
+			else if (ycmd_name.compare("LCD4L_ICONSDIR"))		yresult = LCD4L_ICONSDIR;
+			else if (ycmd_name.compare("LCD4L_ICONSDIR_VAR"))	yresult = LCD4L_ICONSDIR_VAR;
 			else if (ycmd_name.compare("PRIVATE_HTTPDDIR"))	yresult = PRIVATE_HTTPDDIR;
 			else if (ycmd_name.compare("PUBLIC_HTTPDDIR"))	yresult = PUBLIC_HTTPDDIR;
 			else if (ycmd_name.compare("HOSTED_HTTPDDIR"))	yresult = HOSTED_HTTPDDIR;
