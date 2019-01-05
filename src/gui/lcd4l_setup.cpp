@@ -155,45 +155,45 @@ int CLCD4lSetup::show()
 	lcd4lSetup->addIntroItems();
 
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_SUPPORT, &g_settings.lcd4l_support, LCD4L_SUPPORT_OPTIONS, LCD4L_SUPPORT_OPTION_COUNT, true, this, CRCInput::RC_red);
-	mc->setHint("", LOCALE_MENU_HINT_LCD4L_SUPPORT);
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SUPPORT);
 	lcd4lSetup->addItem(mc);
 	lcd4lSetup->addItem(GenericMenuSeparatorLine);
 
 	mf = new CMenuForwarder(LOCALE_LCD4L_LOGODIR, true, g_settings.lcd4l_logodir, this, "lcd4l_logodir", CRCInput::convertDigitToKey(shortcut++));
-	mf->setHint("", LOCALE_MENU_HINT_LCD4L_LOGODIR);
+	mf->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_LOGODIR);
 	lcd4lSetup->addItem(mf);
 
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_DISPLAY_TYPE, &temp_lcd4l_dpf_type, LCD4L_DPF_TYPE_OPTIONS, LCD4L_DPF_TYPE_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_LCD4L_DISPLAY_TYPE);
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_DISPLAY_TYPE);
 	lcd4lSetup->addItem(mc);
 
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN, &temp_lcd4l_skin, LCD4L_SKIN_OPTIONS, LCD4L_SKIN_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_LCD4L_SKIN);
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN);
 	lcd4lSetup->addItem(mc);
 
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN_RADIO, &g_settings.lcd4l_skin_radio, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_LCD4L_SKIN_RADIO);
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN_RADIO);
 	lcd4lSetup->addItem(mc);
 
 	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&temp_lcd4l_brightness, true, 1, LCD4l->GetMaxBrightness(), this);
-	nc->setHint("", LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
+	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
 	lcd4lSetup->addItem(nc);
 
 	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, LCD4l->GetMaxBrightness(), this);
-	nc->setHint("", LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
+	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
 	lcd4lSetup->addItem(nc);
 
 	const char *flag_lcd4l_clock_a = FLAGDIR "/.lcd-clock_a";
 	int fake_lcd4l_clock_a = file_exists(flag_lcd4l_clock_a);
 	CTouchFileNotifier * lcd_clock_a = new CTouchFileNotifier(flag_lcd4l_clock_a);
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_CLOCK_A, &fake_lcd4l_clock_a, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, ((file_exists(DATADIR "/lcd/icons/clock/analog")) || (file_exists("/var/tuxbox/lcd/icons/clock/analog"))), lcd_clock_a, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_LCD4L_CLOCK_A);
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_CLOCK_A);
 	lcd4lSetup->addItem(mc);
 
 	lcd4lSetup->addItem(GenericMenuSeparator);
 
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_CONVERT, &g_settings.lcd4l_convert, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_LCD4L_CONVERT);
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_CONVERT);
 	lcd4lSetup->addItem(mc);
 
 	int res = lcd4lSetup->exec(NULL, "");
