@@ -41,10 +41,12 @@ class CLCD4l
 		// Displays
 		enum
 		{
-			PEARL		= 0,
-			SAMSUNG 	= 1,
-			VUSOLO4K	= 2,
-			PNG			= 3
+			PEARL320x240	= 0,
+			SAMSUNG800x480	= 1,
+			SAMSUNG800x600	= 2,
+			SAMSUNG1024x600	= 3,
+			VUSOLO4K480x320	= 4,
+			PNG				= 5
 		};
 
 		// Functions

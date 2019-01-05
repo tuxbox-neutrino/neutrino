@@ -229,11 +229,13 @@ int CLCD4l::GetMaxBrightness()
 
 	switch (g_settings.lcd4l_display_type)
 	{
-		case SAMSUNG:
-		case VUSOLO4K:
+		case SAMSUNG800x480:
+		case SAMSUNG800x600:
+		case SAMSUNG1024x600:
+		case VUSOLO4K480x320:
 			max_brightness = 10;
 			break;
-		case PEARL:
+		case PEARL320x240:
 		default:
 			max_brightness = 7;
 			break;
@@ -765,18 +767,27 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		std::string DisplayType;
 		switch (g_settings.lcd4l_display_type) {
-			case 3:
+			case PNG:
 				DisplayType = "PNG_";
 				break;
 #if defined BOXMODEL_VUSOLO4K
-			case 2:
+			case VUSOLO4K480x320:
 				DisplayType = "VUSolo4K_";
 				break;
 #endif
-			case 1:
+			case SAMSUNG800x480:
+				//DisplayType = "Samsung800x480_";
 				DisplayType = "Samsung_";
 				break;
-			case 0:
+			case SAMSUNG800x600:
+				//DisplayType = "Samsung800x600_";
+				DisplayType = "Samsung_";
+				break;
+			case SAMSUNG1024x600:
+				//DisplayType = "Samsung1024x600_";
+				DisplayType = "Samsung_";
+				break;
+			case PEARL320x240:
 			default:
 				DisplayType = "Pearl_";
 				break;
@@ -1024,6 +1035,8 @@ bool CLCD4l::WriteFile(const char *file, std::string content, bool convert)
 		strReplace(content, "Ä", "\xc4\0");
 		strReplace(content, "Ö", "\xd6\0");
 		strReplace(content, "Ü", "\xdc\0");
+		if (g_settings.lcd4l_display_type == PEARL320x240)
+			strReplace(content, "ß", "\xe2\0");
 
 		strReplace(content, "Ą", "\x41\0");
 		strReplace(content, "ą", "\x61\0");
@@ -1044,7 +1057,6 @@ bool CLCD4l::WriteFile(const char *file, std::string content, bool convert)
 		strReplace(content, "Ź", "\x5a\0");
 		strReplace(content, "ż", "\x7a\0");
 
-		if (g_settings.lcd4l_display_type == PEARL) strReplace(content, "ß", "\xe2\0");
 		strReplace(content, "é", "e");
 	}
 
