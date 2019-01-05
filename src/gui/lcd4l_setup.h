@@ -36,12 +36,14 @@
 class CLCD4lSetup : public CMenuTarget, CChangeObserver
 {
 	private:
-		CMenuOptionNumberChooser *nc;
-		CMenuOptionChooser *mc;
-		CMenuForwarder * mf;
+		bool lcd4l_display_type_changed;
+		int temp_lcd4l_display_type;
+		int temp_lcd4l_skin;
+		int temp_lcd4l_brightness;
 
 		int width;
 		int show();
+		int showTypeSetup();
 
 	public:
 		static CLCD4lSetup* getInstance();

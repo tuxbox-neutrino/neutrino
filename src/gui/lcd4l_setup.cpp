@@ -90,6 +90,8 @@ const CMenuOptionChooser::keyval LCD4L_SKIN_OPTIONS[] =
 CLCD4lSetup::CLCD4lSetup()
 {
 	width = 40;
+
+	lcd4l_display_type_changed = false;
 }
 
 CLCD4lSetup::~CLCD4lSetup()
@@ -119,6 +121,10 @@ int CLCD4lSetup::exec(CMenuTarget* parent, const std::string &actionkey)
 		chooserDir(g_settings.lcd4l_logodir, false, action_str);
 		return menu_return::RETURN_REPAINT;
 	}
+	else if (actionkey == "typeSetup")
+	{
+		return showTypeSetup();
+	}
 
 	res = show();
 
@@ -140,6 +146,11 @@ bool CLCD4lSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data
 		if (g_settings.lcd4l_support)
 			LCD4l->StartLCD4l();
 	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LCD4L_DISPLAY_TYPE))
+	{
+		g_settings.lcd4l_display_type = temp_lcd4l_display_type;
+		lcd4l_display_type_changed = true;
+	}
 
 	return false;
 }
@@ -148,42 +159,38 @@ int CLCD4lSetup::show()
 {
 	int shortcut = 1;
 
-	int temp_lcd4l_display_type = g_settings.lcd4l_display_type;
-	int temp_lcd4l_skin = g_settings.lcd4l_skin;
-	int temp_lcd4l_brightness = g_settings.lcd4l_brightness;
+	temp_lcd4l_display_type = g_settings.lcd4l_display_type;
+	temp_lcd4l_skin = g_settings.lcd4l_skin;
+	temp_lcd4l_brightness = g_settings.lcd4l_brightness;
+
+	CMenuOptionChooser *mc;
+	CMenuForwarder *mf;
 
 	// lcd4l setup
-	CMenuWidget* lcd4lSetup = new CMenuWidget(LOCALE_LCD4L_SUPPORT, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_LCD4L_SETUP);
-	lcd4lSetup->addIntroItems();
+	CMenuWidget *lcd4lSetup = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_LCD4L_SETUP);
+	lcd4lSetup->addIntroItems(LOCALE_LCD4L_SUPPORT);
 
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_SUPPORT, &g_settings.lcd4l_support, LCD4L_SUPPORT_OPTIONS, LCD4L_SUPPORT_OPTION_COUNT, true, this, CRCInput::RC_red);
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SUPPORT);
 	lcd4lSetup->addItem(mc);
+
+	lcd4lSetup->addItem(GenericMenuSeparatorLine);
+
+	mc = new CMenuOptionChooser(LOCALE_LCD4L_DISPLAY_TYPE, &temp_lcd4l_display_type, LCD4L_DISPLAY_TYPE_OPTIONS, LCD4L_DISPLAY_TYPE_OPTION_COUNT, true, this, CRCInput::RC_green);
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_DISPLAY_TYPE);
+	lcd4lSetup->addItem(mc);
+
+	mf = new CMenuForwarder(LOCALE_LCD4L_DISPLAY_TYPE_SETUP, true, NULL, this, "typeSetup", CRCInput::RC_yellow);
+	mf->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_DISPLAY_TYPE_SETUP);
+	lcd4lSetup->addItem(mf);
+
 	lcd4lSetup->addItem(GenericMenuSeparatorLine);
 
 	mf = new CMenuForwarder(LOCALE_LCD4L_LOGODIR, true, g_settings.lcd4l_logodir, this, "lcd4l_logodir", CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_LOGODIR);
 	lcd4lSetup->addItem(mf);
 
-	mc = new CMenuOptionChooser(LOCALE_LCD4L_DISPLAY_TYPE, &temp_lcd4l_display_type, LCD4L_DISPLAY_TYPE_OPTIONS, LCD4L_DISPLAY_TYPE_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_DISPLAY_TYPE);
-	lcd4lSetup->addItem(mc);
-
-	mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN, &temp_lcd4l_skin, LCD4L_SKIN_OPTIONS, LCD4L_SKIN_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN);
-	lcd4lSetup->addItem(mc);
-
-	mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN_RADIO, &g_settings.lcd4l_skin_radio, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN_RADIO);
-	lcd4lSetup->addItem(mc);
-
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&temp_lcd4l_brightness, true, 1, LCD4l->GetMaxBrightness(), this);
-	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
-	lcd4lSetup->addItem(nc);
-
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, LCD4l->GetMaxBrightness(), this);
-	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
-	lcd4lSetup->addItem(nc);
+	lcd4lSetup->addItem(GenericMenuSeparator);
 
 	const char *flag_lcd4l_clock_a = FLAGDIR "/.lcd-clock_a";
 	int fake_lcd4l_clock_a = file_exists(flag_lcd4l_clock_a);
@@ -210,9 +217,10 @@ int CLCD4lSetup::show()
 
 	bool initlcd4l = false;
 
-	if (g_settings.lcd4l_display_type != temp_lcd4l_display_type)
+	if ((g_settings.lcd4l_display_type != temp_lcd4l_display_type) || lcd4l_display_type_changed)
 	{
 		g_settings.lcd4l_display_type = temp_lcd4l_display_type;
+		lcd4l_display_type_changed = false;
 		initlcd4l = true;
 	}
 
@@ -232,4 +240,42 @@ int CLCD4lSetup::show()
 		LCD4l->InitLCD4l();
 
 	return res;
+}
+
+int CLCD4lSetup::showTypeSetup()
+{
+	if (temp_lcd4l_display_type == CLCD4l::PEARL320x240)
+	{
+		// fix brightness values for Pearl DPF
+		if (temp_lcd4l_brightness > 7)
+			temp_lcd4l_brightness = 7;
+		if (g_settings.lcd4l_brightness_standby > 7)
+			g_settings.lcd4l_brightness_standby = 7;
+	}
+
+	int shortcut = 1;
+
+	CMenuOptionChooser *mc;
+	CMenuOptionNumberChooser *nc;
+
+	CMenuWidget *typeSetup = new CMenuWidget(LOCALE_LCD4L_DISPLAY_TYPE_SETUP, NEUTRINO_ICON_SETTINGS, width);
+	typeSetup->addIntroItems(); //FIXME: show lcd4l display type
+
+	mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN, &temp_lcd4l_skin, LCD4L_SKIN_OPTIONS, LCD4L_SKIN_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN);
+	typeSetup->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN_RADIO, &g_settings.lcd4l_skin_radio, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN_RADIO);
+	typeSetup->addItem(mc);
+
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&temp_lcd4l_brightness, true, 1, LCD4l->GetMaxBrightness(), this);
+	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
+	typeSetup->addItem(nc);
+
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, LCD4l->GetMaxBrightness(), this);
+	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
+	typeSetup->addItem(nc);
+
+	return typeSetup->exec(NULL, "");
 }

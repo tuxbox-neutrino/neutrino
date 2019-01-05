@@ -927,7 +927,8 @@ lcd4l_brightness Brightness
 lcd4l_brightness_standby Brightness in standby
 lcd4l_clock_a Analog clock in Standby-Mode
 lcd4l_convert Convert umlauts
-lcd4l_display_type Display Type
+lcd4l_display_type Display type
+lcd4l_display_type_setup Display type setup
 lcd4l_logodir Channellogo-Directory
 lcd4l_skin Display-Style
 lcd4l_skin_0 Standard
@@ -1250,10 +1251,11 @@ menu.hint_lcd4l_brightness_standby Adjusts the brightness of external display in
 menu.hint_lcd4l_clock_a Shows an analog clock instead of a digital clock on display at standby
 menu.hint_lcd4l_convert Convert umlauts for the built-in LCD4Linux font
 menu.hint_lcd4l_display_type Choose type of external display
+menu.hint_lcd4l_display_type_setup Settings for the type of external display
 menu.hint_lcd4l_logodir Logo directory.\nFallback to default on invalid entry.
-menu.hint_lcd4l_skin Switch between modes
-menu.hint_lcd4l_skin_radio Switch the mode, when Radio-Mode is activated
-menu.hint_lcd4l_support Activate/deactivate LCD4Linux\nSupported displays: Pearl DPF, Samsung DPF, VU+SOLO4K, PNG
+menu.hint_lcd4l_skin Switch between styles\nDefault, User defined, etc.
+menu.hint_lcd4l_skin_radio Switch style when Radio-Mode is activated
+menu.hint_lcd4l_support Activate/deactivate LCD4Linux\nSupported displays: Pearl DPF, Samsung SPF, VU+SOLO4K, PNG
 menu.hint_leds_blink Blinking LEDs in deep-standby
 menu.hint_leds_deepstandby LEDs state in deep-standby mode
 menu.hint_leds_record LEDs state when box recording
