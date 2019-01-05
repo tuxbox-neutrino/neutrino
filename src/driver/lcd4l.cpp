@@ -119,7 +119,7 @@ static void lcd4linux(bool run)
 
 	if (run == true)
 	{
-		if (g_settings.lcd4l_dpf_type == CLCD4l::PNG)
+		if (g_settings.lcd4l_display_type == CLCD4l::PNG)
 		{
 			if (my_system(3, lcd4linux.c_str(), "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4linux.c_str(), PNGFILE);
@@ -227,7 +227,7 @@ int CLCD4l::GetMaxBrightness()
 {
 	int max_brightness;
 
-	switch (g_settings.lcd4l_dpf_type)
+	switch (g_settings.lcd4l_display_type)
 	{
 		case SAMSUNG:
 		case VUSOLO4K:
@@ -763,41 +763,41 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		std::string Layout;
 
-		std::string DPF_Type;
-		switch (g_settings.lcd4l_dpf_type) {
+		std::string DisplayType;
+		switch (g_settings.lcd4l_display_type) {
 			case 3:
-				DPF_Type = "PNG_";
+				DisplayType = "PNG_";
 				break;
 #if defined BOXMODEL_VUSOLO4K
 			case 2:
-				DPF_Type = "VUSolo4K_";
+				DisplayType = "VUSolo4K_";
 				break;
 #endif
 			case 1:
-				DPF_Type = "Samsung_";
+				DisplayType = "Samsung_";
 				break;
 			case 0:
 			default:
-				DPF_Type = "Pearl_";
+				DisplayType = "Pearl_";
 				break;
 		}
 
 		switch (g_settings.lcd4l_skin)
 		{
 			case 4:
-				Layout = DPF_Type + "user04";
+				Layout = DisplayType + "user04";
 				break;
 			case 3:
-				Layout = DPF_Type + "user03";
+				Layout = DisplayType + "user03";
 				break;
 			case 2:
-				Layout = DPF_Type + "user02";
+				Layout = DisplayType + "user02";
 				break;
 			case 1:
-				Layout = DPF_Type + "user01";
+				Layout = DisplayType + "user01";
 				break;
 			default:
-				Layout = DPF_Type + "standard";
+				Layout = DisplayType + "standard";
 		}
 
 		if (ModeStandby)
@@ -1044,7 +1044,7 @@ bool CLCD4l::WriteFile(const char *file, std::string content, bool convert)
 		strReplace(content, "Ź", "\x5a\0");
 		strReplace(content, "ż", "\x7a\0");
 
-		if (g_settings.lcd4l_dpf_type == PEARL) strReplace(content, "ß", "\xe2\0");
+		if (g_settings.lcd4l_display_type == PEARL) strReplace(content, "ß", "\xe2\0");
 		strReplace(content, "é", "e");
 	}
 

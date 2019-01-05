@@ -770,7 +770,7 @@ struct SNeutrinoSettings
 	std::string lcd4l_logodir;
 	int lcd4l_brightness;
 	int lcd4l_brightness_standby;
-	int lcd4l_dpf_type;
+	int lcd4l_display_type;
 	int lcd4l_skin;
 	int lcd4l_skin_radio;
 	int lcd4l_convert;

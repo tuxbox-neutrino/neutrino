@@ -64,7 +64,7 @@ const CMenuOptionChooser::keyval LCD4L_SUPPORT_OPTIONS[] =
 };
 #define LCD4L_SUPPORT_OPTION_COUNT (sizeof(LCD4L_SUPPORT_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
-const CMenuOptionChooser::keyval_ext LCD4L_DPF_TYPE_OPTIONS[] =
+const CMenuOptionChooser::keyval_ext LCD4L_DISPLAY_TYPE_OPTIONS[] =
 {
 	{ CLCD4l::PEARL,	NONEXISTANT_LOCALE, "Pearl"},
 	{ CLCD4l::SAMSUNG,	NONEXISTANT_LOCALE, "Samsung"},
@@ -73,7 +73,7 @@ const CMenuOptionChooser::keyval_ext LCD4L_DPF_TYPE_OPTIONS[] =
 #endif
 	{ CLCD4l::PNG,		NONEXISTANT_LOCALE, "PNG"}
 };
-#define LCD4L_DPF_TYPE_OPTION_COUNT (sizeof(LCD4L_DPF_TYPE_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
+#define LCD4L_DISPLAY_TYPE_OPTION_COUNT (sizeof(LCD4L_DISPLAY_TYPE_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 
 const CMenuOptionChooser::keyval LCD4L_SKIN_OPTIONS[] =
 {
@@ -146,7 +146,7 @@ int CLCD4lSetup::show()
 {
 	int shortcut = 1;
 
-	int temp_lcd4l_dpf_type = g_settings.lcd4l_dpf_type;
+	int temp_lcd4l_display_type = g_settings.lcd4l_display_type;
 	int temp_lcd4l_skin = g_settings.lcd4l_skin;
 	int temp_lcd4l_brightness = g_settings.lcd4l_brightness;
 
@@ -163,7 +163,7 @@ int CLCD4lSetup::show()
 	mf->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_LOGODIR);
 	lcd4lSetup->addItem(mf);
 
-	mc = new CMenuOptionChooser(LOCALE_LCD4L_DISPLAY_TYPE, &temp_lcd4l_dpf_type, LCD4L_DPF_TYPE_OPTIONS, LCD4L_DPF_TYPE_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mc = new CMenuOptionChooser(LOCALE_LCD4L_DISPLAY_TYPE, &temp_lcd4l_display_type, LCD4L_DISPLAY_TYPE_OPTIONS, LCD4L_DISPLAY_TYPE_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_DISPLAY_TYPE);
 	lcd4lSetup->addItem(mc);
 
@@ -205,23 +205,28 @@ int CLCD4lSetup::show()
 		delete lcd4lSetup;
 
 	// the things to do on exit
-	bool need_init = false;
-	if (g_settings.lcd4l_dpf_type != temp_lcd4l_dpf_type)
+
+	bool initlcd4l = false;
+
+	if (g_settings.lcd4l_display_type != temp_lcd4l_display_type)
 	{
-		g_settings.lcd4l_dpf_type = temp_lcd4l_dpf_type;
-		need_init = true;
+		g_settings.lcd4l_display_type = temp_lcd4l_display_type;
+		initlcd4l = true;
 	}
+
 	if (g_settings.lcd4l_skin != temp_lcd4l_skin)
 	{
 		g_settings.lcd4l_skin = temp_lcd4l_skin;
-		need_init = true;
+		initlcd4l = true;
 	}
+
 	if (g_settings.lcd4l_brightness != temp_lcd4l_brightness)
 	{
 		g_settings.lcd4l_brightness = temp_lcd4l_brightness;
-		need_init =  true;
+		initlcd4l =  true;
 	}
-	if (need_init)
+
+	if (initlcd4l)
 		LCD4l->InitLCD4l();
 
 	return res;
