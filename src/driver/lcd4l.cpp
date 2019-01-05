@@ -776,16 +776,13 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				break;
 #endif
 			case SAMSUNG800x480:
-				//DisplayType = "Samsung800x480_";
-				DisplayType = "Samsung_";
+				DisplayType = "Samsung800x480_";
 				break;
 			case SAMSUNG800x600:
-				//DisplayType = "Samsung800x600_";
-				DisplayType = "Samsung_";
+				DisplayType = "Samsung800x600_";
 				break;
 			case SAMSUNG1024x600:
-				//DisplayType = "Samsung1024x600_";
-				DisplayType = "Samsung_";
+				DisplayType = "Samsung1024x600_";
 				break;
 			case PEARL320x240:
 			default:
