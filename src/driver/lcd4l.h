@@ -46,7 +46,9 @@ class CLCD4l
 			SAMSUNG800x600	= 2,
 			SAMSUNG1024x600	= 3,
 			VUSOLO4K480x320	= 4,
-			PNG		= 5
+			PNG800x480	= 5,
+			PNG800x600	= 6,
+			PNG1024x600	= 7
 		};
 
 		// Functions

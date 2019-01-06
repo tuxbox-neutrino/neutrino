@@ -113,13 +113,26 @@ static void lcd4linux(bool run)
 	const char *buf = "lcd4linux";
 	const char *conf = "/etc/lcd4linux.conf";
 	std::string lcd4linux = find_executable(buf);
+	bool isPNG;
 
 	chmod(conf,0x600);
 	chown(conf,0,0);
 
 	if (run == true)
 	{
-		if (g_settings.lcd4l_display_type == CLCD4l::PNG)
+		switch (g_settings.lcd4l_display_type)
+		{
+			case CLCD4l::PNG800x480:
+			case CLCD4l::PNG800x600:
+			case CLCD4l::PNG1024x600:
+				isPNG = true;
+				break;
+			default:
+				isPNG = false;
+				break;
+		}
+
+		if (isPNG)
 		{
 			if (my_system(3, lcd4linux.c_str(), "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4linux.c_str(), PNGFILE);
@@ -233,7 +246,9 @@ int CLCD4l::GetMaxBrightness()
 		case SAMSUNG800x600:
 		case SAMSUNG1024x600:
 		case VUSOLO4K480x320:
-		case PNG:
+		case PNG800x480:
+		case PNG800x600:
+		case PNG1024x600:
 			max_brightness = 10;
 			break;
 		case PEARL320x240:
@@ -765,58 +780,68 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		/* --- */
 
 		std::string Layout;
-
 		std::string DisplayType;
-		switch (g_settings.lcd4l_display_type) {
-			case PNG:
-				DisplayType = "PNG_";
+		std::string eol = "\n";
+
+		switch (g_settings.lcd4l_display_type)
+		{
+			case PNG800x480:
+				DisplayType = "PNG" + eol + "800x480" + eol;
+				break;
+			case PNG800x600:
+				DisplayType = "PNG" + eol + "800x600" + eol;
+				break;
+			case PNG1024x600:
+				DisplayType = "PNG" + eol + "1024x600" + eol;
 				break;
 #if defined BOXMODEL_VUSOLO4K
 			case VUSOLO4K480x320:
-				DisplayType = "VUSolo4K_";
+				DisplayType = "VUSolo4K" + eol + "480x320" + eol;
 				break;
 #endif
 			case SAMSUNG800x480:
-				DisplayType = "Samsung800x480_";
+				DisplayType = "Samsung" + eol + "800x480" + eol;
 				break;
 			case SAMSUNG800x600:
-				DisplayType = "Samsung800x600_";
+				DisplayType = "Samsung" + eol + "800x600" + eol;
 				break;
 			case SAMSUNG1024x600:
-				DisplayType = "Samsung1024x600_";
+				DisplayType = "Samsung" + eol + "1024x600" + eol;
 				break;
 			case PEARL320x240:
 			default:
-				DisplayType = "Pearl_";
+				DisplayType = "Pearl" + eol + "320x240" + eol;
 				break;
 		}
 
 		switch (g_settings.lcd4l_skin)
 		{
 			case 4:
-				Layout = DisplayType + "user04";
+				Layout = DisplayType + "user04" + eol;
 				break;
 			case 3:
-				Layout = DisplayType + "user03";
+				Layout = DisplayType + "user03" + eol;
 				break;
 			case 2:
-				Layout = DisplayType + "user02";
+				Layout = DisplayType + "user02" + eol;
 				break;
 			case 1:
-				Layout = DisplayType + "user01";
+				Layout = DisplayType + "user01" + eol;
 				break;
 			default:
-				Layout = DisplayType + "standard";
+				Layout = DisplayType + "standard" + eol;
 		}
 
 		if (ModeStandby)
 		{
-			Layout += "_standby";
+			Layout += "standby";
 		}
 		else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio))
 		{
-			Layout += "_radio";
+			Layout += "radio";
 		}
+		else
+			Layout += "normal";
 
 		if (m_Layout.compare(Layout))
 		{
