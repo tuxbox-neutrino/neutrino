@@ -49,7 +49,7 @@ class CLCD4lSetup : public CMenuTarget, CChangeObserver
 		static CLCD4lSetup* getInstance();
 		CLCD4lSetup();
 		~CLCD4lSetup();
-		int exec(CMenuTarget* parent, const std::string &actionkey);
+		int exec(CMenuTarget *parent, const std::string &actionkey);
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
 

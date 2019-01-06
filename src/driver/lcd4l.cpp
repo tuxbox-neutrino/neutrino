@@ -4,10 +4,10 @@
 	Copyright (C) 2012 'defans'
 	Homepage: http://www.bluepeercrew.us/
 
-	Copyright (C) 2012-2016 'vanhofen'
+	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Modded    (C) 2016 'TangoCash'
+	Copyright (C) 2016-2018  'TangoCash'
 
 	License: GPL
 
@@ -96,7 +96,7 @@ extern CPictureViewer *g_PicViewer;
 #define START			LCD_DATADIR "start"
 #define END			LCD_DATADIR "end"
 
-#define LCD_FONT			LCD_DATADIR "font"
+#define LCD_FONT		LCD_DATADIR "font"
 #define FGCOLOR			LCD_DATADIR "fgcolor"
 #define BGCOLOR			LCD_DATADIR "bgcolor"
 
@@ -233,6 +233,7 @@ int CLCD4l::GetMaxBrightness()
 		case SAMSUNG800x600:
 		case SAMSUNG1024x600:
 		case VUSOLO4K480x320:
+		case PNG:
 			max_brightness = 10;
 			break;
 		case PEARL320x240:

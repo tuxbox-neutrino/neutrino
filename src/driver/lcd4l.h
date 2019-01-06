@@ -4,10 +4,10 @@
 	Copyright (C) 2012 'defans'
 	Homepage: http://www.bluepeercrew.us/
 
-	Copyright (C) 2012-2016 'vanhofen'
+	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Modded    (C) 2016 'TangoCash'
+	Copyright (C) 2016-2018 'TangoCash'
 
 	License: GPL
 
@@ -46,7 +46,7 @@ class CLCD4l
 			SAMSUNG800x600	= 2,
 			SAMSUNG1024x600	= 3,
 			VUSOLO4K480x320	= 4,
-			PNG				= 5
+			PNG		= 5
 		};
 
 		// Functions
