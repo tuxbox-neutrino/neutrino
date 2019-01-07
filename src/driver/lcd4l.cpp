@@ -68,7 +68,6 @@ extern CPictureViewer *g_PicViewer;
 #define LOGO_DUMMY		ICONSDIR "/blank.png"
 
 #define BRIGHTNESS		LCD_DATADIR "brightness"
-#define BRIGHTNESS_STANDBY	LCD_DATADIR "brightness_standby"
 #define RESOLUTION		LCD_DATADIR "resolution"
 #define ASPECTRATIO		LCD_DATADIR "aspectratio"
 #define VIDEOTEXT		LCD_DATADIR "videotext"
@@ -267,7 +266,6 @@ void CLCD4l::Init()
 	m_ParseID	= 0;
 
 	m_Brightness	= -1;
-	m_Brightness_standby = -1;
 	m_Resolution	= "n/a";
 	m_AspectRatio	= "n/a";
 	m_Videotext	= -1;
@@ -443,13 +441,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	{
 		WriteFile(BRIGHTNESS, to_string(Brightness));
 		m_Brightness = Brightness;
-	}
-
-	int Brightness_standby = g_settings.lcd4l_brightness_standby;
-	if (m_Brightness_standby != Brightness_standby)
-	{
-		WriteFile(BRIGHTNESS_STANDBY, to_string(Brightness_standby));
-		m_Brightness_standby = Brightness_standby;
 	}
 
 	/* ----------------------------------------------------------------- */
@@ -845,6 +836,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (m_Layout.compare(Layout))
 		{
+			if (!ModeStandby)
+				WriteFile(BRIGHTNESS, to_string(g_settings.lcd4l_brightness));
+			else
+				WriteFile(BRIGHTNESS, to_string(g_settings.lcd4l_brightness_standby));
+
 			WriteFile(LAYOUT, Layout);
 			m_Layout = Layout;
 			if (!firstRun)
