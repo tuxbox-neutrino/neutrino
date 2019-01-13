@@ -38,6 +38,7 @@
 #include <signal.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/mman.h>
 #include <memory.h>
 #include <math.h>
@@ -50,6 +51,7 @@
 #include <gui/osd_helpers.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
+#include <zapit/settings.h>
 #include <global.h>
 #include <hardware/video.h>
 #include <cs_api.h>
@@ -1546,15 +1548,24 @@ void CFrameBuffer::Clear()
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
 
-bool CFrameBuffer::showFrame(const std::string & filename)
+bool CFrameBuffer::showFrame(const std::string & filename, bool fallback)
 {
 	std::string picture = getIconPath(filename, "");
-	if (access(picture.c_str(), F_OK) == 0){
-		videoDecoder->ShowPicture(picture.c_str());
-		return true;
+	if (access(picture.c_str(), F_OK) == 0)
+	{
+		if (videoDecoder->ShowPicture(picture.c_str()))
+			return true;
+		else
+		{
+			if (fallback) {
+				return g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
+			}
+			else
+				dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback is disabled, paint of image was stopped: %s\n", __func__, __LINE__, picture.c_str());
+		}
 	}
 	else
-		printf("[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
 
 	return false;
 }
