@@ -38,7 +38,6 @@
 #include <signal.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <errno.h>
 #include <sys/mman.h>
 #include <memory.h>
 #include <math.h>
@@ -51,7 +50,6 @@
 #include <gui/osd_helpers.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
-#include <zapit/settings.h>
 #include <global.h>
 #include <hardware/video.h>
 #include <cs_api.h>
