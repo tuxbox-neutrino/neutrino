@@ -425,8 +425,6 @@ eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
 extra.add_to_bouquet dem Bouquet zufügen
-extra.auto_delete Automatisches Löschen
-extra.auto_timeshift Automatische Aufnahme
 extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt ...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet.\n
@@ -495,8 +493,10 @@ extra.sms_channel SMS-Modus bei Kanalsuche
 extra.sms_movie SMS-Modus bei Filmsuche
 extra.south Süden
 extra.start_tostandby Standby nach Boxstart
-extra.temp_timeshift Temporäres Timeshift
+extra.timeshift_auto Automatische Aufnahme
+extra.timeshift_delete Automatisches Löschen
 extra.timeshift_pause Pausierte Aufnahme
+extra.timeshift_temp Temporäres Timeshift
 extra.tp_bandwidth Bandbreite
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz

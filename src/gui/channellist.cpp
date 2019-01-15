@@ -1223,7 +1223,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 	}
 	if(new_zap_mode != 2 /* not active */) {
 		/* remove recordModeActive from infobar */
-		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus)
+		if(g_settings.timeshift_auto && !CNeutrinoApp::getInstance()->recordingstatus)
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
 
 		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );

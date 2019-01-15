@@ -652,9 +652,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.last_webradio_dir = configfile.getString( "last_webradio_dir", WEBRADIODIR_VAR);
 	g_settings.last_webtv_dir = configfile.getString( "last_webtv_dir", WEBTVDIR_VAR);
 
-	g_settings.temp_timeshift = configfile.getInt32( "temp_timeshift", 0 );
-	g_settings.auto_timeshift = configfile.getInt32( "auto_timeshift", 0 );
-	g_settings.auto_delete = configfile.getInt32( "auto_delete", 1 );
+	g_settings.timeshift_temp = configfile.getInt32( "timeshift_temp", 1 );
+	g_settings.timeshift_auto = configfile.getInt32( "timeshift_auto", 0 );
+	g_settings.timeshift_delete = configfile.getInt32( "timeshift_delete", 1 );
 
 	std::string timeshiftDir;
 	if(g_settings.timeshiftdir.empty()) {
@@ -672,7 +672,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir.c_str());
 
 	// remove old timeshift recordings
-	if (g_settings.auto_delete)
+	if (g_settings.timeshift_delete)
 	{
 		/*
 		   Why only remove old timeshift recordings
@@ -1213,6 +1213,23 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		if (g_settings.key_zaphistory == 174)
 			g_settings.key_zaphistory = 102;
 	}
+	if (g_settings.version_pseudo < "20190106000000")
+	{
+		// move lcd4linux user skin from value 4 to value 100
+		if (g_settings.lcd4l_skin == 4)
+			g_settings.lcd4l_skin = 100;
+	}
+	if (g_settings.version_pseudo < "20190115220100")
+	{
+		// rename timeshift keys
+		g_settings.timeshift_auto = configfile.getInt32("auto_timeshift", 0);
+		configfile.deleteKey("auto_timeshift");
+		g_settings.timeshift_temp = configfile.getInt32("temp_timeshift", 1);
+		configfile.deleteKey("temp_timeshift");
+		g_settings.timeshift_delete = configfile.getInt32("auto_delete", 1);
+		configfile.deleteKey("auto_delete");
+	}
+
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
 
@@ -1233,8 +1250,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//theme/color options
 	CThemes::getInstance()->setTheme(configfile);
 	configfile.setString( "theme_name", g_settings.theme_name );
+	
+//internet radio
+	configfile.setInt32("inetradio_autostart" , g_settings.inetradio_autostart);
 
-#ifdef ENABLE_LCD4LINUX
+#ifdef ENABLE_LCD4LINUX	
 	configfile.setInt32("lcd4l_support" , g_settings.lcd4l_support);
 	configfile.setString("lcd4l_logodir" , g_settings.lcd4l_logodir);
 	configfile.setInt32("lcd4l_display_type" , g_settings.lcd4l_display_type);
@@ -1244,8 +1264,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("lcd4l_brightness_standby", g_settings.lcd4l_brightness_standby);
 	configfile.setInt32("lcd4l_convert" , g_settings.lcd4l_convert);
 #endif
-	//internet radio
-	configfile.setInt32("inetradio_autostart" , g_settings.inetradio_autostart);
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );
@@ -1536,11 +1554,13 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	saveKeys();
 
 	configfile.setInt32( "timeshift_pause", g_settings.timeshift_pause );
-	configfile.setInt32( "temp_timeshift", g_settings.temp_timeshift );
-	configfile.setInt32( "auto_timeshift", g_settings.auto_timeshift );
-	configfile.setInt32( "auto_delete", g_settings.auto_delete );
+	configfile.setInt32( "timeshift_temp", g_settings.timeshift_temp );
+	configfile.setInt32( "timeshift_auto", g_settings.timeshift_auto );
+	configfile.setInt32( "timeshift_delete", g_settings.timeshift_delete );
+
 	configfile.setInt32( "record_hours", g_settings.record_hours );
 	configfile.setInt32( "timeshift_hours", g_settings.timeshift_hours );
+
 	//printf("set: key_unlock =============== %d\n", g_settings.key_unlock);
 	configfile.setInt32( "screenshot_count", g_settings.screenshot_count );
 	configfile.setInt32( "screenshot_format", g_settings.screenshot_format );

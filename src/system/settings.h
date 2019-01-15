@@ -516,6 +516,13 @@ struct SNeutrinoSettings
 	std::string recording_filename_template;
 	int recording_already_found_check;
 
+	// timeshift
+	int timeshift_pause;
+	int timeshift_auto;
+	int timeshift_temp;
+	int timeshift_delete;
+	int timeshift_hours;
+
 	int filesystem_is_utf8;
 	// default plugin for ts-movieplayer (red button)
 	std::string movieplayer_plugin;
@@ -553,12 +560,7 @@ struct SNeutrinoSettings
 	int key_power_off;
 	int key_standby_off_add;
 	int menu_left_exit;
-	int timeshift_pause;
-	int auto_timeshift;
-	int temp_timeshift;
-	int auto_delete;
 	int record_hours;
-	int timeshift_hours;
 	int key_record;
 	int key_help;
 	int key_next43mode;
