@@ -88,6 +88,14 @@ class CMoviePlayerGui : public CMenuTarget
 
 	enum repeat_mode_enum { REPEAT_OFF = 0, REPEAT_TRACK = 1, REPEAT_ALL = 2 };
 
+	enum tshift_mode
+	{
+		TSHIFT_MODE_OFF = 0,
+		TSHIFT_MODE_ON = 1,
+		TSHIFT_MODE_PAUSE = 2,
+		TSHIFT_MODE_REWIND = 3
+	};
+
  private:
 	typedef struct livestream_info_t
 	{
@@ -249,7 +257,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int GetDuration() { return duration; }
 	int getState() { return playstate; }
 	void UpdatePosition();
-	int timeshift;
+	tshift_mode timeshift;
 	void deleteTimeshift() { timeshift_deletion = true; }
 	int file_prozent;
 	cPlayback *getPlayback() { return playback; }

@@ -52,11 +52,6 @@ extern "C" {
 #define RECORD_MAX_COUNT 8
 #endif
 
-#define TSHIFT_MODE_OFF		0
-#define TSHIFT_MODE_ON		1
-#define TSHIFT_MODE_PAUSE	2
-#define TSHIFT_MODE_REWIND	3
-
 class CFrontend;
 class CZapitChannel;
 
