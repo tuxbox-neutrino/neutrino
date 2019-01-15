@@ -3030,7 +3030,7 @@ void CNeutrinoApp::RealRun()
 				if(g_RemoteControl->is_video_started) {
 					t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 					if(CRecordManager::getInstance()->RecordingStatus(live_channel_id))
-						CMoviePlayerGui::getInstance().exec(NULL, "rtimeshift");
+						CMoviePlayerGui::getInstance().exec(NULL, "timeshift_rewind");
 				}
 			}
 			else if( msg == CRCInput::RC_stop) {

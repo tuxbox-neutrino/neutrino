@@ -1358,7 +1358,7 @@ void CRecordManager::StartTimeshift()
 {
 	if(g_RemoteControl->is_video_started)
 	{
-		std::string tmode = "ptimeshift"; // already recording, pause
+		std::string tmode = "timeshift_pause"; // already recording, pause
 		bool res = true;
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 // 		bool tstarted = false;
