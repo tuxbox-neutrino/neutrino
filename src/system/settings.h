@@ -500,6 +500,10 @@ struct SNeutrinoSettings
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
+#if HAVE_ARM_HARDWARE
+	int recording_bufsize;
+	int recording_bufsize_dmx;
+#endif
 	int recording_stream_vtxt_pid;
 	int recording_stream_subtitle_pids;
 	int recording_stream_pmt_pid;

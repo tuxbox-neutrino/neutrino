@@ -479,6 +479,8 @@ extra.lodirection LoDirection
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
 extra.north North
+extra.record_bufsize Write buffer size
+extra.record_bufsize_dmx DMX buffer size
 extra.record_time Maximal recording duration
 extra.record_time_ts Maximal timeshift duration
 extra.rotor_swap Swap rotor east/west
@@ -2170,6 +2172,10 @@ rclock.title Lock remote control
 rclock.unlockmsg Remote control unlocked
 recording.already_found %s\nwas already found. Nevertheless start record?
 recording.already_found_check Check recordings
+recording.end Set record end
+recording.end_text Stop this record at the end of current show?
+recording.failed Recording failed!
+recording.fill_text Record medium is filled up to %d%%. Nevertheless start record?
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait ...
 recording.startstop_msg Message when recording is start/stop

@@ -479,6 +479,8 @@ extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
+extra.record_bufsize Schreib-Puffer-Größe
+extra.record_bufsize_dmx DMX-Puffer-Größe
 extra.record_time Maximale Aufnahmedauer
 extra.record_time_ts Maximale Timeshiftdauer
 extra.rotor_swap Rotor dreht Ost/West
@@ -2170,6 +2172,10 @@ rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert
 recording.already_found %s\nwurde bereits gefunden. Trotzdem aufnehmen?
 recording.already_found_check Prüfe Aufnahmen
+recording.end Aufnahmeende festlegen
+recording.end_text Soll die Aufnahme zum Ende der aktuellen Sendung stoppen?
+recording.failed Aufzeichnung ist fehlgeschlagen!
+recording.fill_text Das Aufnahmemedium ist zu %d%% gefüllt. Trotzdem aufnehmen?
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten ...
 recording.startstop_msg Meldung bei Aufnahme Start/Ende
