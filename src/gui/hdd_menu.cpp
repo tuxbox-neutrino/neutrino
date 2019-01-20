@@ -1377,7 +1377,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	const char hdidle[] = "/sbin/hd-idle";
 	bool have_hdidle = !access(hdidle, X_OK);
 
-	if (have_hdidle) {
+	if (have_hdidle && g_settings.hdd_sleep > 0) {
 		system("kill $(pidof hd-idle)");
 		int sleep_seconds = g_settings.hdd_sleep;
 		switch (sleep_seconds) {
