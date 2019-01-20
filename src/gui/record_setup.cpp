@@ -249,11 +249,15 @@ int CRecordSetup::showRecordSetup()
 
 #if HAVE_ARM_HARDWARE
 	CMenuOptionNumberChooser *ch;
+
 	ch = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_BUFSIZE, &g_settings.recording_bufsize, true, 1, 25, NULL);
 	ch->setNumberFormat("%d MB");
+	//TODO: ch->setHint("", LOCALE_MENU_HINT_RECORD_BUFSIZE);
 	recordingSettings->addItem(ch);
+
 	ch = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_BUFSIZE_DMX, &g_settings.recording_bufsize_dmx, true, 1, 25, NULL);
 	ch->setNumberFormat("%d MB");
+	//TODO: ch->setHint("", LOCALE_MENU_HINT_RECORD_BUFSIZE_DMX);
 	recordingSettings->addItem(ch);
 #endif
 
