@@ -56,6 +56,7 @@ class CLCD4l
 		void	StartLCD4l();
 		void	StopLCD4l();
 		void	SwitchLCD4l();
+		void	ForceRun() { wait4lcd = false; }
 
 		int	CreateFile(const char *file, std::string content = "", bool convert = false);
 		int	RemoveFile(const char *file);
@@ -69,6 +70,7 @@ class CLCD4l
 		static void*	LCD4lProc(void *arg);
 
 		struct tm	*tm_struct;
+		bool		wait4lcd;
 
 		// Functions
 		void		Init();
@@ -81,6 +83,9 @@ class CLCD4l
 		std::string	hexStrA2A(unsigned char data);
 		void		strReplace(std::string &orig, const std::string &fstr, const std::string &rstr);
 		bool		WriteFile(const char *file, std::string content = "", bool convert = false);
+
+		void		SetWaitStatus(bool wait) { wait4lcd = wait; }
+		bool		GetWaitStatus() { return wait4lcd; }
 
 		// Variables
 		uint64_t	m_ParseID;

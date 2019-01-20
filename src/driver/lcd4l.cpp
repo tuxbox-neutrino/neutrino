@@ -296,6 +296,8 @@ void CLCD4l::Init()
 
 	if (!access(LCD_DATADIR, F_OK) == 0)
 		mkdir(LCD_DATADIR, 0755);
+
+	wait4lcd = true;
 }
 
 void* CLCD4l::LCD4lProc(void* arg)
@@ -320,9 +322,13 @@ void* CLCD4l::LCD4lProc(void* arg)
 		{
 			if (g_settings.lcd4l_support == 1) // automatic
 			{
-				//printf("[CLCD4l] %s: waiting for lcd4linux\n", __FUNCTION__);
-				sleep(10);
-				continue;
+				if (PLCD4l->GetWaitStatus()) {
+					//printf("[CLCD4l] %s: waiting for lcd4linux\n", __FUNCTION__);
+					sleep(10);
+					continue;
+				}
+				else
+					PLCD4l->SetWaitStatus(true);
 			}
 		}
 

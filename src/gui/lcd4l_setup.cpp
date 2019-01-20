@@ -242,6 +242,9 @@ int CLCD4lSetup::show()
 	if (initlcd4l)
 		LCD4l->InitLCD4l();
 
+	if (g_settings.lcd4l_support == 1 ) // automatic
+		LCD4l->ForceRun();
+
 	return res;
 }
 
