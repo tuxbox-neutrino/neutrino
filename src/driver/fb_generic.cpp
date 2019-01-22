@@ -1549,6 +1549,14 @@ void CFrameBuffer::Clear()
 bool CFrameBuffer::showFrame(const std::string & filename, bool fallback)
 {
 	std::string picture = getIconPath(filename, "");
+#if HAVE_COOL_HARDWARE
+	(void)fallback;
+	if (access(picture.c_str(), F_OK) == 0)
+	{
+		videoDecoder->ShowPicture(picture.c_str());
+		return true;
+	}
+#else
 	if (access(picture.c_str(), F_OK) == 0)
 	{
 		if (videoDecoder->ShowPicture(picture.c_str()))
@@ -1562,6 +1570,7 @@ bool CFrameBuffer::showFrame(const std::string & filename, bool fallback)
 				dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback is disabled, paint of image was stopped: %s\n", __func__, __LINE__, picture.c_str());
 		}
 	}
+#endif
 	else
 		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
 
