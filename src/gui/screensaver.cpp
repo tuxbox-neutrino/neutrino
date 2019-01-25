@@ -301,8 +301,11 @@ void CScreenSaver::paint()
 		}
 
 		dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
+#if HAVE_COOL_HARDWARE
+		paintImage(v_bg_files.at(index), 0, 0, m_frameBuffer->getScreenWidth(true), m_frameBuffer->getScreenHeight(true));
+#else
 		m_frameBuffer->showFrame(v_bg_files.at(index), true);
-
+#endif
 		if (!g_settings.screensaver_random)
 			index++;
 		else
@@ -318,7 +321,11 @@ void CScreenSaver::paint()
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 			scr_clock->disableSaveBg();
 			scr_clock->doPaintBg(false);
+#if HAVE_COOL_HARDWARE
+			paintImage("blackscreen.jpg", 0, 0, m_frameBuffer->getScreenWidth(true), m_frameBuffer->getScreenHeight(true));
+#else
 			m_frameBuffer->showFrame("blackscreen.jpg", true);
+#endif
 		}
 
 		scr_clock->setTextColor(clr.i_color);
