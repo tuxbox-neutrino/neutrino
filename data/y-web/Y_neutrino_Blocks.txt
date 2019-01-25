@@ -84,20 +84,20 @@ start-block~neutrino_form-data_record
 			</tr>
 			<tr>
 				<td>{=L:set.rec.timeshift.auto_record=}</td>
-				<td><input type="text" name="auto_timeshift" size="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;auto_timeshift~cache=}" /></td>
+				<td><input type="text" name="timeshift_auto" size="5" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;timeshift_auto~cache=}" /></td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.timeshift.auto_delete=}</td>
 				<td>
-					<input class="audio" type="radio" name="auto_delete" value="0"/>{=L:off=}&nbsp;
-					<input class="audio" type="radio" name="auto_delete" value="1"/>{=L:on=}
+					<input class="audio" type="radio" name="timeshift_delete" value="0"/>{=L:off=}&nbsp;
+					<input class="audio" type="radio" name="timeshift_delete" value="1"/>{=L:on=}
 				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.timeshift.tmp_timeshift=}</td>
 				<td>
-					<input class="audio" type="radio" name="temp_timeshift" value="0"/>{=L:off=}&nbsp;
-					<input class="audio" type="radio" name="temp_timeshift" value="1"/>{=L:on=}
+					<input class="audio" type="radio" name="timeshift_temp" value="0"/>{=L:off=}&nbsp;
+					<input class="audio" type="radio" name="timeshift_temp" value="1"/>{=L:on=}
 				</td>
 			</tr>
 			<tr><td colspan="2" class="y_form_header">{=L:set.rec.timer_settings=}</td></tr>
@@ -162,8 +162,8 @@ function form_init()
 	obj_set_radio_value('recording_epg_for_end', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_epg_for_end;false=}");
 	obj_set_radio_value('recording_save_in_channeldir', "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_save_in_channeldir;false=}");
 	obj_set_radio_value('timeshift_pause', "{=ini-get:%(CONFIGDIR)/neutrino.conf;timeshift_pause;0=}");
-	obj_set_radio_value('auto_delete', "{=ini-get:%(CONFIGDIR)/neutrino.conf;auto_delete;true=}");
-	obj_set_radio_value('temp_timeshift', "{=ini-get:%(CONFIGDIR)/neutrino.conf;temp_timeshift;0=}");
+	obj_set_radio_value('timeshift_delete', "{=ini-get:%(CONFIGDIR)/neutrino.conf;timeshift_delete;true=}");
+	obj_set_radio_value('timeshift_temp', "{=ini-get:%(CONFIGDIR)/neutrino.conf;timeshift_temp;0=}");
 
 	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;recording_audio_pids_default;true=}";
 	val = parseInt(val);
@@ -204,9 +204,9 @@ start-block~neutrino_record_save_settings
 {=ini-set:%(CONFIGDIR)/neutrino.conf;timeshiftdir;{=timeshiftdir=}~cache=}
 {=ini-set:%(CONFIGDIR)/neutrino.conf;record_hours;{=record_hours=}~cache=}
 {=ini-set:%(CONFIGDIR)/neutrino.conf;timeshift_pause;{=timeshift_pause=}~cache=}
-{=ini-set:%(CONFIGDIR)/neutrino.conf;auto_timeshift;{=auto_timeshift=}~cache=}
-{=ini-set:%(CONFIGDIR)/neutrino.conf;auto_delete;{=auto_delete=}~cache=}
-{=ini-set:%(CONFIGDIR)/neutrino.conf;temp_timeshift;{=temp_timeshift=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;timeshift_auto;{=timeshift_auto=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;timeshift_delete;{=timeshift_delete=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;timeshift_temp;{=timeshift_temp=}~cache=}
 {=ini-set:%(CONFIGDIR)/neutrino.conf;recording_audio_pids_default;{=recording_audio_pids_default=}~save=}
 {=ini-set:%(CONFIGDIR)/timerd.conf;EXTRA_TIME_START;{=EXTRA_TIME_START=}~open=}
 {=ini-set:%(CONFIGDIR)/timerd.conf;EXTRA_TIME_END;{=EXTRA_TIME_END=}~cache=}
