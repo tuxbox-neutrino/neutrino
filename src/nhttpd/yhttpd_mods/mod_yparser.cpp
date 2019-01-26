@@ -452,6 +452,8 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 		else if (ycmd_type == "define-get") {
 			     if (ycmd_name.compare("CONFIGDIR"))	yresult = CONFIGDIR;
 			else if (ycmd_name.compare("DATADIR"))		yresult = DATADIR;
+			else if (ycmd_name.compare("CONTROLDIR"))	yresult = CONTROLDIR;
+			else if (ycmd_name.compare("CONTROLDIR_VAR"))	yresult = CONTROLDIR_VAR;
 			else if (ycmd_name.compare("FONTDIR"))		yresult = FONTDIR;
 			else if (ycmd_name.compare("FONTDIR_VAR"))	yresult = FONTDIR_VAR;
 			else if (ycmd_name.compare("LIBDIR"))		yresult = LIBDIR;
