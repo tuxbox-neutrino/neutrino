@@ -18,6 +18,8 @@ install_DATA = \
 # 	recording.timer \
 # 	recording.start \
 # 	recording.end \
+# 	scan.start \
+# 	scan.stop \
 # 	standby.on \
 # 	standby.off
 #
@@ -36,5 +38,7 @@ install_DATA = \
 # 	chmod 0755 $(DESTDIR)$(CONTROLDIR)/recording.timer
 # 	chmod 0755 $(DESTDIR)$(CONTROLDIR)/recording.start
 # 	chmod 0755 $(DESTDIR)$(CONTROLDIR)/recording.end
+# 	chmod 0755 $(DESTDIR)$(CONTROLDIR)/scan.start
+# 	chmod 0755 $(DESTDIR)$(CONTROLDIR)/scan.stop
 # 	chmod 0755 $(DESTDIR)$(CONTROLDIR)/standby.on
 # 	chmod 0755 $(DESTDIR)$(CONTROLDIR)/standby.off
