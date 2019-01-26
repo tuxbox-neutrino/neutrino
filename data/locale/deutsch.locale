@@ -1938,9 +1938,9 @@ movieplayer.help_additional Weitere benutzerdefinierte Tastenbelegungen sind unt
 movieplayer.help_button_1 1 Minute zurück
 movieplayer.help_button_2 Zum Filmanfang springen
 movieplayer.help_button_3 1 Minute vor
-movieplayer.help_button_4 3 Minuten zurück
+movieplayer.help_button_4 5 Minuten zurück
 movieplayer.help_button_5 Zur Filmmitte springen
-movieplayer.help_button_6 3 Minuten vor
+movieplayer.help_button_6 5 Minuten vor
 movieplayer.help_button_7 10 Minuten zurück
 movieplayer.help_button_8 Zum Filmende springen
 movieplayer.help_button_9 10 Minuten vor
