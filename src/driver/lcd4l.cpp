@@ -111,7 +111,7 @@ static void lcd4linux(bool run)
 {
 	const char *buf = "lcd4linux";
 	const char *conf = "/etc/lcd4linux.conf";
-	std::string lcd4linux = find_executable(buf);
+	std::string lcd4l_bin = find_executable(buf);
 	bool isPNG;
 
 	chmod(conf,0x600);
@@ -133,11 +133,11 @@ static void lcd4linux(bool run)
 
 		if (isPNG)
 		{
-			if (my_system(3, lcd4linux.c_str(), "-o", PNGFILE) != 0)
-				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4linux.c_str(), PNGFILE);
+			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
+				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4l_bin.c_str(), PNGFILE);
 		} else {
-			if (my_system(1, lcd4linux.c_str()) != 0)
-				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, lcd4linux.c_str());
+			if (my_system(1, lcd4l_bin.c_str()) != 0)
+				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, lcd4l_bin.c_str());
 		}
 		sleep(2);
 	}
