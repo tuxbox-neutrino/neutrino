@@ -39,8 +39,6 @@
 #define NEUTRINO_ENTER_INACTIVITY_SCRIPT	CONFIGDIR "/inactivity.on"
 #define NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.on"
 #define NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.off"
-#define MOVIEPLAYER_START_SCRIPT        CONFIGDIR "/movieplayer.start"
-#define MOVIEPLAYER_END_SCRIPT          CONFIGDIR "/movieplayer.end"
 #define NEUTRINO_ENTER_FLASH_SCRIPT	CONFIGDIR "/flash.start"
 #define NEUTRINO_APP_START_SCRIPT	CONFIGDIR "/neutrino.start"
 

@@ -91,6 +91,9 @@
 #define LCD_MODE CVFD::MODE_MOVIE
 #endif
 
+#define MOVIEPLAYER_START_SCRIPT        CONFIGDIR "/movieplayer.start"
+#define MOVIEPLAYER_END_SCRIPT          CONFIGDIR "/movieplayer.end"
+
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 
