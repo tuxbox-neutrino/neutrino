@@ -90,8 +90,8 @@ extern cVideo * videoDecoder;
 
 // check if files to be added are already in the playlist
 #define AUDIOPLAYER_CHECK_FOR_DUPLICATES
-#define AUDIOPLAYER_START_SCRIPT CONTROLDIR "/audioplayer.start"
-#define AUDIOPLAYER_END_SCRIPT CONTROLDIR "/audioplayer.end"
+#define AUDIOPLAYER_START_SCRIPT "audioplayer.start"
+#define AUDIOPLAYER_END_SCRIPT "audioplayer.end"
 #define DEFAULT_RADIOSTATIONS_XMLFILE CONFIGDIR "/radio-stations.xml"
 #define DEFAULT_RADIOFAVORITES_XMLFILE CONFIGDIR "/radio-favorites.xml"
 
@@ -316,9 +316,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	printf("[audioplayer.cpp] wakeup_hdd(%s)\n", g_settings.network_nfs_audioplayerdir.c_str());
 	wakeup_hdd(g_settings.network_nfs_audioplayerdir.c_str()/*,true*/);
 
-	puts("[audioplayer.cpp] executing " AUDIOPLAYER_START_SCRIPT ".");
-	if (my_system(AUDIOPLAYER_START_SCRIPT) != 0)
-		perror(AUDIOPLAYER_START_SCRIPT " failed");
+	exec_controlscript(AUDIOPLAYER_START_SCRIPT);
 
 	int res = show();
 
@@ -328,9 +326,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_frameBuffer->useBackground(usedBackground);
 	m_frameBuffer->paintBackground();
 
-	puts("[audioplayer.cpp] executing " AUDIOPLAYER_END_SCRIPT ".");
-	if (my_system(AUDIOPLAYER_END_SCRIPT) != 0)
-		perror(AUDIOPLAYER_END_SCRIPT " failed");
+	exec_controlscript(AUDIOPLAYER_END_SCRIPT);
 
 	//g_Zapit->unlockPlayBack();
 	CZapit::getInstance()->EnablePlayback(true);

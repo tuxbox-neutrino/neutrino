@@ -125,9 +125,7 @@ void SHTDCNT::shutdown_counter()
 		} else if(sleeptimer_active && !CNeutrinoApp::getInstance ()->recordingstatus) {
 			sleeptimer_active = false;
 
-			puts("[SHTDCNT] executing " NEUTRINO_ENTER_INACTIVITY_SCRIPT ".");
-			if (my_system(NEUTRINO_ENTER_INACTIVITY_SCRIPT) != 0)
-				perror(NEUTRINO_ENTER_INACTIVITY_SCRIPT " failed");
+			exec_controlscript(NEUTRINO_ENTER_INACTIVITY_SCRIPT);
 
 			printf("[SHTDCNT] sleep-timer send NeutrinoMessages::SLEEPTIMER\n");
 			g_RCInput->postMsg(NeutrinoMessages::SLEEPTIMER, 1);

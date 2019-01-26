@@ -82,8 +82,8 @@ extern cVideo * videoDecoder;
 
 
 
-#define PICTUREVIEWER_START_SCRIPT CONTROLDIR "/pictureviewer.start"
-#define PICTUREVIEWER_END_SCRIPT CONTROLDIR "/pictureviewer.end"
+#define PICTUREVIEWER_START_SCRIPT "pictureviewer.start"
+#define PICTUREVIEWER_END_SCRIPT "pictureviewer.end"
 
 //------------------------------------------------------------------------
 bool comparePictureByDate (const CPicture& a, const CPicture& b)
@@ -194,9 +194,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (parent)
 		parent->hide();
 
-	puts("[pictureviewer.cpp] executing " PICTUREVIEWER_START_SCRIPT ".");
-	if (my_system(PICTUREVIEWER_START_SCRIPT) != 0)
-		perror(PICTUREVIEWER_START_SCRIPT " failed");
+	exec_controlscript(PICTUREVIEWER_START_SCRIPT);
 
 	// remember last mode
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
@@ -227,9 +225,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 		CZapit::getInstance()->EnablePlayback(true);
 	}
 
-	puts("[pictureviewer.cpp] executing " PICTUREVIEWER_END_SCRIPT ".");
-	if (my_system(PICTUREVIEWER_END_SCRIPT) != 0)
-		perror(PICTUREVIEWER_END_SCRIPT " failed");
+	exec_controlscript(PICTUREVIEWER_END_SCRIPT);
 
 	// Restore previous background
 	if (usedBackground) {

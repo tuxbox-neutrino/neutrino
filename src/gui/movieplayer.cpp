@@ -91,8 +91,8 @@
 #define LCD_MODE CVFD::MODE_MOVIE
 #endif
 
-#define MOVIEPLAYER_START_SCRIPT CONTROLDIR "/movieplayer.start"
-#define MOVIEPLAYER_END_SCRIPT CONTROLDIR "/movieplayer.end"
+#define MOVIEPLAYER_START_SCRIPT "movieplayer.start"
+#define MOVIEPLAYER_END_SCRIPT "movieplayer.end"
 
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
@@ -389,11 +389,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		}
 	}
 
-	if (!access(MOVIEPLAYER_START_SCRIPT, X_OK)) {
-		puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
-		if (my_system(MOVIEPLAYER_START_SCRIPT) != 0)
-			perror(MOVIEPLAYER_START_SCRIPT " failed");
-	}
+	exec_controlscript(MOVIEPLAYER_START_SCRIPT);
 
 	Cleanup();
 	ClearFlags();
@@ -481,11 +477,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	bookmarkmanager->flush();
 
-	if (!access(MOVIEPLAYER_END_SCRIPT, X_OK)) {
-		puts("[movieplayer.cpp] executing " MOVIEPLAYER_END_SCRIPT ".");
-		if (my_system(MOVIEPLAYER_END_SCRIPT) != 0)
-			perror(MOVIEPLAYER_END_SCRIPT " failed");
-	}
+	exec_controlscript(MOVIEPLAYER_END_SCRIPT);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
