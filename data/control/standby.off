@@ -1,0 +1,4 @@
+#!/bin/sh
+
+service tuxcald start
+service tuxmaild start

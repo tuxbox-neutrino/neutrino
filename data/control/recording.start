@@ -1,0 +1,4 @@
+#!/bin/sh
+
+service tuxcald stop
+service tuxmaild stop

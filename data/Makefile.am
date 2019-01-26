@@ -1,5 +1,6 @@
 SUBDIRS = \
 	config \
+	control \
 	fonts \
 	icons \
 	inetradio \
@@ -7,7 +8,6 @@ SUBDIRS = \
 	iso-codes \
 	license \
 	locale \
-	neutrino-scripts \
 	pictures \
 	policy \
 	scripts \
