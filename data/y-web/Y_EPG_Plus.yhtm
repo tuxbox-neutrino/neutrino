@@ -67,7 +67,7 @@ function epg_imdb(){
 </div>
 <script type="text/javascript">
 //<![CDATA[
-	epg_plus_init("{=ini-get:%(CONFIGDIR)/nhttpd.conf;Tuxbox.DisplayLogos=}");
+	epg_plus_init("{=ini-get:%(CONFIGDIR)/nhttpd.conf;Tuxbox.DisplayLogos;true=}");
 //]]>
 </script>
 
