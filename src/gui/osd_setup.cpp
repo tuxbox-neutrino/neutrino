@@ -1425,11 +1425,6 @@ void COsdSetup::showOsdVolumeSetup(CMenuWidget *menu_volume)
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_SHOW_MUTE_ICON, &g_settings.show_mute_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SHOW_MUTE_ICON);
 	menu_volume->addItem(mc);
-
-	// volume_external
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_EXTERNAL_VOLUME, &g_settings.volume_external, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_EXTERNAL_VOLUME);
-	menu_volume->addItem(mc);
 }
 
 //info clock
