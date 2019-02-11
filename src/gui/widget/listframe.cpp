@@ -270,9 +270,9 @@ void CListFrame::initFramesRel(void)
 	if(m_nMode & SCROLL)
 	{
 		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLLBAR_WIDTH;
-		m_cFrameScrollRel.iY		= m_cFrameTitleRel.iHeight;
+		m_cFrameScrollRel.iY		= m_cFrameTitleRel.iHeight + m_cFrameHeaderListRel.iHeight;
 		m_cFrameScrollRel.iWidth	= SCROLLBAR_WIDTH;
-		m_cFrameScrollRel.iHeight	= m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight - m_nBgRadius;
+		m_cFrameScrollRel.iHeight	= m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight - m_cFrameHeaderListRel.iHeight - m_nBgRadius;
 	}
 	else
 	{
@@ -286,7 +286,7 @@ void CListFrame::initFramesRel(void)
 
 	if(m_nMode & HEADER_LINE)
 	{
-		m_cFrameHeaderListRel.iWidth	= m_cFrame.iWidth - m_cFrameScrollRel.iWidth;
+		m_cFrameHeaderListRel.iWidth	= m_cFrame.iWidth;
 	}
 
 	m_nLinesPerPage = (m_cFrameListRel.iHeight - (2*OFFSET_INNER_MID)) / m_nFontListHeight;
@@ -377,7 +377,7 @@ void CListFrame::refreshScroll(void)
 	if (1)
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight, COL_MENUCONTENT_PLUS_0,
+				m_cFrameScrollRel.iWidth, m_cFrameHeaderListRel.iHeight, COL_MENUCONTENT_PLUS_0,
 				m_nBgRadius, CORNER_BOTTOM_RIGHT);
 	}
 
