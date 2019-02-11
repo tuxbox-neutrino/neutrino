@@ -478,7 +478,7 @@ void CListFrame::refreshHeaderList(void)
 
 	int width;
 	int x = m_cFrameHeaderListRel.iX + OFFSET_INNER_MID;
-	int y = m_cFrameHeaderListRel.iY + m_nFontHeaderListHeight + 2;
+	int y = m_cFrameHeaderListRel.iY + m_nFontHeaderListHeight;
 	int net_width = m_cFrameHeaderListRel.iWidth - OFFSET_INNER_SMALL * (m_pLines->rows - 1);
 	bool loop = true;
 	for(int row = 0; row < m_pLines->rows && loop == true; row++)
