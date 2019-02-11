@@ -1222,9 +1222,11 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	}
 	if (g_settings.version_pseudo < "20190106000000")
 	{
+#ifdef ENABLE_LCD4LINUX
 		// move lcd4linux user skin from value 4 to value 100
 		if (g_settings.lcd4l_skin == 4)
 			g_settings.lcd4l_skin = 100;
+#endif
 	}
 	if (g_settings.version_pseudo < "20190115220100")
 	{
