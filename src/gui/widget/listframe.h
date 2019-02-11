@@ -166,7 +166,7 @@ inline  int     getLines(void)				{return(m_nNrOfLines);};
 inline  int     getPages(void)				{return(m_nNrOfPages);};
 inline  void    showSelection(bool show)	{m_showSelection = show;refreshLine(m_nSelectedLine);};
 inline	void	movePosition(int x, int y){m_cFrame.iX = x; m_cFrame.iY = y;};
-
+inline	int		getLineHeight()				{return m_nFontListHeight;}
 
 		/* Variables */
 	typedef enum mode_
