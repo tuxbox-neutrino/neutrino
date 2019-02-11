@@ -385,6 +385,9 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "progressbar_passive_red", t.progressbar_passive_red );
 	configfile.setInt32( "progressbar_passive_green", t.progressbar_passive_green );
 	configfile.setInt32( "progressbar_passive_blue", t.progressbar_passive_blue );
+
+	// corners
+	configfile.setInt32( "rounded_corners", t.rounded_corners);
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -497,6 +500,9 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.progressbar_passive_red = configfile.getInt32( "progressbar_passive_red", 60 );
 	t.progressbar_passive_green = configfile.getInt32( "progressbar_passive_green", 60 );
 	t.progressbar_passive_blue = configfile.getInt32( "progressbar_passive_blue", 60 );
+
+	// corners
+	t.rounded_corners = configfile.getInt32( "rounded_corners", 1);
 
 	if (g_settings.theme_name.empty())
 		applyDefaultTheme();

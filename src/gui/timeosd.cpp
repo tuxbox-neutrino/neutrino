@@ -67,7 +67,7 @@ void CTimeOSD::Init()
 	setClockFont(CInfoClock::getInstance()->getClockFont());
 
 	// set corner radius depending on clock height
-	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
+	corner_rad = (g_settings.theme.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
 
 	CComponentsFrmClock::initCCLockItems();
 	CVolumeHelper::getInstance()->refresh(cl_font);

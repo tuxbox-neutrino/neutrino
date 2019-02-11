@@ -79,7 +79,7 @@ void CInfoClock::initCCLockItems()
 	initClockFont(0, height);
 
 	// set corner radius depending on clock height
-	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
+	corner_rad = (g_settings.theme.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
 
 	CVolumeHelper::getInstance()->refresh(cl_font);
 	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);

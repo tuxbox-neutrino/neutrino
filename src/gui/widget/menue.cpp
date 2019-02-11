@@ -1349,7 +1349,7 @@ void CMenuWidget::initSelectable()
 void CMenuWidget::paint()
 {
 	if (header){
-		if ((bool)header->getCornerRadius() != (bool)g_settings.rounded_corners) //ensure reset if corner mode was changed
+		if ((bool)header->getCornerRadius() != (bool)g_settings.theme.rounded_corners) //ensure reset if corner mode was changed
 			ResetModules();
 	}
 

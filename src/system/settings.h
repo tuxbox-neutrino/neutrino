@@ -169,6 +169,8 @@ struct SNeutrinoTheme
 	unsigned char progressbar_passive_red;
 	unsigned char progressbar_passive_green;
 	unsigned char progressbar_passive_blue;
+
+	int rounded_corners;
 };
 
 struct timer_remotebox_item
@@ -276,7 +278,6 @@ struct SNeutrinoSettings
 	int show_empty_favorites;
 	int avsync;
 	int clockrec;
-	int rounded_corners;
 	int ci_standby_reset;
 	int ci_clock;
 	int ci_ignore_messages;
@@ -1014,11 +1015,11 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 #define CORNER_RADIUS_MIN	CFrameBuffer::getInstance()->scale2Res(3)
 #define CORNER_RADIUS_NONE	0
 
-#define RADIUS_LARGE	(g_settings.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
-#define RADIUS_MID	(g_settings.rounded_corners ? CORNER_RADIUS_MID   : CORNER_RADIUS_NONE)
-#define RADIUS_SMALL	(g_settings.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
-#define RADIUS_MIN	(g_settings.rounded_corners ? CORNER_RADIUS_MIN   : CORNER_RADIUS_NONE)
-#define RADIUS_NONE	0
+#define RADIUS_LARGE	(g_settings.theme.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
+#define RADIUS_MID		(g_settings.theme.rounded_corners ? CORNER_RADIUS_MID   : CORNER_RADIUS_NONE)
+#define RADIUS_SMALL	(g_settings.theme.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
+#define RADIUS_MIN		(g_settings.theme.rounded_corners ? CORNER_RADIUS_MIN   : CORNER_RADIUS_NONE)
+#define RADIUS_NONE		0
 
 // offsets
 #define OFFSET_SHADOW		CFrameBuffer::getInstance()->scale2Res(6)
