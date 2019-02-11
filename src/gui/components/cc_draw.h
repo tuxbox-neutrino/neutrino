@@ -281,6 +281,15 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		void allowPaint(bool allow);
 		///returns visibility mode
 		bool paintAllowed();
+		/**Overrides internal firstpaint and is_painted modes to provoke full repaint of item.
+		 * This should help to paint items if they already painted and have existing instances and repaint is required but the internal
+		 * performance protection would prevent this.
+		 *
+		 * @Note	add this method before paint() is called, because firstpaint and is_painted modes
+		 * 			will be reset after callt paint() method
+		 * @see		allowPaint(), isPainted(), firstpaint, is_painted
+		*/
+		void forceRePaint(){firstPaint = true; is_painted = false;};
 
 		///set color gradient on/off, returns true if gradient mode was changed
 		bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/, const int& direction = 1 /*CFrameBuffer::gradientVertical*/);
