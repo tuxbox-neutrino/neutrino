@@ -1950,7 +1950,7 @@ printf("[neutrino] CScanSetup::%s: logical numbers %d\n", __FUNCTION__, scansett
 		if (fe_config.force_mode == 1)
 			fe_config.powered = 0;
 		tsp->setActive(fe_config.force_mode != 1);
-		ret = menu_return::RETURN_EXIT_REPAINT;
+		ret = true;
 	}
 	return ret;
 }
