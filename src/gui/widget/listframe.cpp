@@ -359,7 +359,7 @@ void CListFrame::refreshTitle(void)
 
 	m_pcFontTitle->RenderString(m_cFrameTitleRel.iX + OFFSET_INNER_MID + m_cFrame.iX,
 			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight + m_cFrame.iY,
-			m_cFrameTitleRel.iWidth - (OFFSET_INNER_MID << 1),
+			m_cFrameTitleRel.iWidth - 2*OFFSET_INNER_MID,
 			m_textTitle.c_str(), TITLE_FONT_COLOR);
 }
 
