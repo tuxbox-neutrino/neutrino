@@ -272,7 +272,7 @@ void CListFrame::initFramesRel(void)
 		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLLBAR_WIDTH;
 		m_cFrameScrollRel.iY		= m_cFrameTitleRel.iHeight + m_cFrameHeaderListRel.iHeight;
 		m_cFrameScrollRel.iWidth	= SCROLLBAR_WIDTH;
-		m_cFrameScrollRel.iHeight	= m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight - m_cFrameHeaderListRel.iHeight - m_nBgRadius;
+		m_cFrameScrollRel.iHeight	= m_cFrameListRel.iHeight - m_nBgRadius;
 	}
 	else
 	{
