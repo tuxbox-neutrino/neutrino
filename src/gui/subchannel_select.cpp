@@ -67,7 +67,7 @@ int CSubChannelSelectMenu::getNVODMenu(CMenuWidget* menu)
 
 	for ( CSubServiceListSorted::iterator e=g_RemoteControl->subChannels.begin(); e!=g_RemoteControl->subChannels.end(); ++e)
 	{
-		sprintf(nvod_id, "%d", count);
+		snprintf(nvod_id, sizeof(nvod_id), "%d", count);
 
 		t_channel_id subid = e->getChannelID();
 		bool enabled = CRecordManager::getInstance()->SameTransponder(subid);
@@ -79,27 +79,27 @@ int CSubChannelSelectMenu::getNVODMenu(CMenuWidget* menu)
 			struct  tm *tmZeit;
 
 			tmZeit= localtime(&e->startzeit);
-			sprintf(nvod_time_a, "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
+			snprintf(nvod_time_a, sizeof(nvod_time_a), "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
 
 			time_t endtime = e->startzeit+ e->dauer;
 			tmZeit= localtime(&endtime);
-			sprintf(nvod_time_e, "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
+			snprintf(nvod_time_e, sizeof(nvod_time_e), "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
 
 			time_t jetzt=time(NULL);
 			if (e->startzeit > jetzt) 
 			{
 				int mins=(e->startzeit- jetzt)/ 60;
-				sprintf(nvod_time_x, g_Locale->getText(LOCALE_NVOD_STARTING), mins);
+				snprintf(nvod_time_x, sizeof(nvod_time_x), g_Locale->getText(LOCALE_NVOD_STARTING), mins);
 			}
 			else if ( (e->startzeit<= jetzt) && (jetzt < endtime) ) 
 			{
 				int proz=(jetzt- e->startzeit)*100/ e->dauer;
-				sprintf(nvod_time_x, g_Locale->getText(LOCALE_NVOD_PERCENTAGE), proz);
+				snprintf(nvod_time_x, sizeof(nvod_time_x), g_Locale->getText(LOCALE_NVOD_PERCENTAGE), proz);
 			}
 			else
 				nvod_time_x[0]= 0;
 
-			sprintf(nvod_s, "%s - %s %s", nvod_time_a, nvod_time_e, nvod_time_x);
+			snprintf(nvod_s, sizeof(nvod_s), "%s - %s %s", nvod_time_a, nvod_time_e, nvod_time_x);
 			menu->addItem(new CMenuForwarder(nvod_s, enabled, NULL, &NVODChanger, nvod_id), (count == g_RemoteControl->selected_subchannel));
 		} 
 		else 
