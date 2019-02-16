@@ -480,6 +480,7 @@ void CListFrame::refreshHeaderList(void)
 	int x = m_cFrameHeaderListRel.iX + OFFSET_INNER_MID;
 	int y = m_cFrameHeaderListRel.iY + m_nFontHeaderListHeight + OFFSET_INNER_MIN;
 	int net_width = m_cFrameHeaderListRel.iWidth - OFFSET_INNER_SMALL * (m_pLines->rows - 1);
+	net_width -= m_cFrameScrollRel.iWidth;
 	bool loop = true;
 	for(int row = 0; row < m_pLines->rows && loop == true; row++)
 	{
