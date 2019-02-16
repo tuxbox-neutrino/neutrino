@@ -336,7 +336,7 @@ void CListFrame::onNewLineArray(void)
 		m_nCurrentLine = 0;
 		m_nSelectedLine = 0;
 		m_nLinesPerPage = 1;
-		m_nNrOfPages = 0;
+		m_nNrOfPages = 1;
 	}
 
 //	TRACE_1(" m_nNrOfPages:     %d\r\n",m_nNrOfPages);
