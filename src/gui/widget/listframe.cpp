@@ -289,7 +289,7 @@ void CListFrame::initFramesRel(void)
 		m_cFrameHeaderListRel.iWidth	= m_cFrame.iWidth;
 	}
 
-	m_nLinesPerPage = (m_cFrameListRel.iHeight - (2*OFFSET_INNER_MID)) / m_nFontListHeight;
+	m_nLinesPerPage = m_cFrameListRel.iHeight / m_nFontListHeight;
 }
 
 void CListFrame::onNewLineArray(void)
