@@ -377,7 +377,7 @@ void CListFrame::refreshScroll(void)
 	if (1)
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameHeaderListRel.iHeight, COL_MENUCONTENT_PLUS_0,
+				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, COL_MENUCONTENT_PLUS_0,
 				m_nBgRadius, CORNER_BOTTOM_RIGHT);
 	}
 
