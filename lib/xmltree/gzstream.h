@@ -169,8 +169,8 @@ public:
     ~gzstreambase() {
         buf.close();
     }
-    void open( const char* name, int open_mode) {
-        if ( ! buf.open( name, open_mode))
+    void open( const char* name, int _open_mode) {
+        if ( ! buf.open( name, _open_mode))
             clear( rdstate() | std::ios::badbit);
     }
     
@@ -192,11 +192,11 @@ public:
 class igzstream : public gzstreambase, public std::istream {
 public:
     igzstream() : std::istream( &buf) {} 
-    igzstream( const char* name, int open_mode = std::ios::in)
-        : gzstreambase( name, open_mode), std::istream( &buf) {}  
+    igzstream( const char* name, int _open_mode = std::ios::in)
+        : gzstreambase( name, _open_mode), std::istream( &buf) {}
     gzstreambuf* rdbuf() { return gzstreambase::rdbuf(); }
-    void open( const char* name, int open_mode = std::ios::in) {
-        gzstreambase::open( name, open_mode);
+    void open( const char* name, int _open_mode = std::ios::in) {
+        gzstreambase::open( name, _open_mode);
     }
 };
 
@@ -206,8 +206,8 @@ public:
     ogzstream( const char* name, int mode = std::ios::out)
         : gzstreambase( name, mode), std::ostream( &buf) {}  
     gzstreambuf* rdbuf() { return gzstreambase::rdbuf(); }
-    void open( const char* name, int open_mode = std::ios::out) {
-        gzstreambase::open( name, open_mode);
+    void open( const char* name, int _open_mode = std::ios::out) {
+        gzstreambase::open( name, _open_mode);
     }
 };
 
