@@ -311,7 +311,7 @@ void CListFrame::onNewLineArray(void)
 		{
 			reSizeMainFrameHeight(m_nNrOfLines * m_nFontListHeight);
 		}
-		m_nLinesPerPage = (m_cFrameListRel.iHeight - (2*OFFSET_INNER_MID)) / m_nFontListHeight;
+		m_nLinesPerPage = m_cFrameListRel.iHeight / m_nFontListHeight;
 
 		if(m_nLinesPerPage <= 0)
 			m_nLinesPerPage = 1;
