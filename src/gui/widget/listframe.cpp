@@ -238,8 +238,8 @@ void CListFrame::initFramesRel(void)
 	{
 		m_cFrameTitleRel.iX		= 0;
 		m_cFrameTitleRel.iY		= 0;
-		m_cFrameTitleRel.iHeight	= m_nFontTitleHeight +2 ;
-		m_cFrameTitleRel.iWidth		= m_cFrame.iWidth ;
+		m_cFrameTitleRel.iHeight	= m_nFontTitleHeight + 2*OFFSET_INNER_MIN;
+		m_cFrameTitleRel.iWidth		= m_cFrame.iWidth;
 	}
 	else
 	{
@@ -358,7 +358,7 @@ void CListFrame::refreshTitle(void)
 			m_nBgRadius, CORNER_TOP);
 
 	m_pcFontTitle->RenderString(m_cFrameTitleRel.iX + OFFSET_INNER_MID + m_cFrame.iX,
-			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight + m_cFrame.iY,
+			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight - OFFSET_INNER_MIN + m_cFrame.iY,
 			m_cFrameTitleRel.iWidth - 2*OFFSET_INNER_MID,
 			m_textTitle.c_str(), TITLE_FONT_COLOR);
 }
