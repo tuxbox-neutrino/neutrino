@@ -1627,7 +1627,7 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 		int theight = m_pcBrowser->getTitleHeight();
 
 		int xpos  = m_cBoxFrameBrowserList.iX - DETAILSLINE_WIDTH;
-		int ypos1 = m_cBoxFrameBrowserList.iY + hheight + theight + OFFSET_INNER_MID + pos*fheight + (fheight/2);
+		int ypos1 = m_cBoxFrameBrowserList.iY + hheight + theight + pos*fheight + (fheight/2);
 		int ypos2 = m_cBoxFrameInfo1.iY + (m_cBoxFrameInfo1.iHeight/2);
 
 		if (m_detailsLine == NULL)
