@@ -181,22 +181,22 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 		}
 		void StopRun()
 		{
-			xprintf("%s::StopRun: to lock\n", name.c_str());
+			debug(DEBUG_ERROR, "%s::StopRun: to lock", name.c_str());
 			lock();
 			running = false;
 			real_pauseCounter = 1;
-			xprintf("%s::StopRun: to closefd\n", name.c_str());
+			debug(DEBUG_ERROR, "%s::StopRun: to closefd", name.c_str());
 			DMX::closefd();
-			xprintf("%s::StopRun: to unlock\n", name.c_str());
+			debug(DEBUG_ERROR, "%s::StopRun: to unlock", name.c_str());
 			unlock();
 		}
 		bool Stop()
 		{
-			xprintf("%s::Stop: to broadcast\n", name.c_str());
+			debug(DEBUG_ERROR, "%s::Stop: to broadcast", name.c_str());
 			pthread_cond_broadcast(&change_cond);
-			xprintf("%s::Stop: to join\n", name.c_str());
+			debug(DEBUG_ERROR, "%s::Stop: to join", name.c_str());
 			int ret = (OpenThreads::Thread::join() == 0);
-			xprintf("%s::Stop: to close\n", name.c_str());
+			debug(DEBUG_ERROR, "%s::Stop: to close", name.c_str());
 			DMX::close();
 			return ret;
 		}

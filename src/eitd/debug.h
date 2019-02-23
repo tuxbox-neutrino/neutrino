@@ -32,18 +32,38 @@
 #include <stdlib.h>
 #include <string>
 
-extern bool sections_debug;
+extern int sections_debug;
 
-#define dprintf(fmt, args...) do { if (sections_debug) { printdate_ms(stdout); printf(fmt, ## args); fflush(stdout); }} while (0)
-#define dputs(str)            do { if (sections_debug) { printdate_ms(stdout); puts(str);            fflush(stdout); }} while (0)
-#define xprintf(fmt, args...) do { printdate_ms(stderr); fprintf(stderr, fmt, ## args); } while (0)
+enum
+{
+	DEBUG_ERROR	, // 0
+	DEBUG_NORMAL, // 1
+	DEBUG_INFO	, // 2
+	DEBUG_DEBUG	, // 3
+
+	DEBUG_MODES	  // 4 count of available modes
+};
 
 /* dont add \n when using this */
-#define xcprintf(fmt, args...) do {			\
-	fprintf(stderr, "%c[%d;%d;%dm", 0x1B, 1, 31, 40);\
-	printdate_ms(stderr);				\
-	fprintf(stderr, fmt, ## args);			\
-	fprintf(stderr, "%c[%dm\n", 0x1B, 0);		\
+#define debug(debuglevel, fmt, args...) do { \
+	if (sections_debug >= debuglevel) { \
+		FILE *fs = (debuglevel == DEBUG_ERROR ? stderr : stdout); \
+		printdate_ms(fs); \
+		fprintf(fs, "[sectionsd] " fmt "\n", ## args); \
+		fflush(fs); \
+	}\
+} while (0)
+
+/* dont add \n when using this */
+#define debug_colored(debuglevel, fmt, args...) do { \
+	if (sections_debug >= debuglevel) { \
+		FILE *fs = (debuglevel == DEBUG_ERROR ? stderr : stdout); \
+		fprintf(fs, "%c[%d;%d;%dm", 0x1B, 1, 31, 40);\
+		printdate_ms(fs); \
+		fprintf(fs, "[sectionsd] " fmt, ## args); \
+		fprintf(fs, "%c[%dm\n", 0x1B, 0); \
+		fflush(fs); \
+	}\
 }  while (0)
 
 void printdate_ms(FILE* f);

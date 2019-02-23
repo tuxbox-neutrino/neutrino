@@ -2037,7 +2037,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 
 		twochar = TransponderUseTwoCharMapping.find(tsidonid) != TransponderUseTwoCharMapping.end();
 	}
-//printf("table %d tsidonid %04x twochar %d : %20s\n", table, tsidonid, twochar, data);
+//debug(DEBUG_NORMAL, "table %d tsidonid %04x twochar %d : %20s", table, tsidonid, twochar, data);
 	switch(data[0])
 	{
 	case 1 ... 11:
@@ -2071,7 +2071,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 	case 0x13:
 		++i;
 #ifdef BOXMODEL_CS_HD2
-                //printf("GB-2312-1980 enc.\n");
+                //debug(DEBUG_NORMAL, "GB-2312-1980 enc.");
 		gb2312 = true;
 #endif
 		break;
@@ -2097,14 +2097,14 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 		++i;
 		break;
 	}
-//printf("convertDVBUTF8: table %d new table %d\n", table, newtable);
+//debug(DEBUG_NORMAL, "convertDVBUTF8: table %d new table %d", table, newtable);
 	if(!table)
 		table = newtable;
 	if(table == 64 && (newtable !=0 )){//for ISO6937
 		table = newtable;
 	}
 
-//dprintf("recode:::: tsidonid %X table %d two-char %d len %d\n", tsidonid, table, twochar, len);
+//debug(DEBUG_INFO, "recode:::: tsidonid %X table %d two-char %d len %d", tsidonid, table, twochar, len);
 	unsigned char res[2048];
 	memset(res,0,sizeof(res));
 	while (i < len)
@@ -2113,7 +2113,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 
 		if ( i+1 < len && twochar && (code=doVideoTexSuppl(data[i], data[i+1])) ) {
 			i+=2;
-//dprintf("recode:::: doVideoTexSuppl code %lX\n", code);
+//debug(DEBUG_INFO, "recode:::: doVideoTexSuppl code %lX", code);
 		}
 
 #ifdef BOXMODEL_CS_HD2

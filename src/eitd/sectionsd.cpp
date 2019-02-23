@@ -213,7 +213,7 @@ inline void unlockEvents(void)
 	if (lockstart) {
 		int64_t tmp = time_monotonic_ms() - lockstart;
 		if (tmp > 50)
-			xprintf("locked ms %" PRId64 "\n", tmp);
+			debug(DEBUG_ERROR, "locked ms %" PRId64, tmp);
 		lockstart = 0;
 	}
 #endif
@@ -278,22 +278,22 @@ static bool deleteEvent(const event_id_t uniqueKey)
 	if (!(epg_filter_except_current_next && (evt.table_id == 0x4e || evt.table_id == 0x4f)) &&
 			(evt.table_id != 0xFF)) {
 		if (!epg_filter_is_whitelist && EPG_filtered) {
-			//dprintf("addEvent: blacklist and filter did match\n");
+			//debug(DEBUG_INFO, "addEvent: blacklist and filter did match");
 			return;
 		}
 		if (epg_filter_is_whitelist && !EPG_filtered) {
-			//dprintf("addEvent: whitelist and filter did not match\n");
+			//debug(DEBUG_INFO, "addEvent: whitelist and filter did not match");
 			return;
 		}
 	}
 
 	if (cn) { // current-next => fill current or next event...
-//xprintf("addEvent: current %012" PRIx64 " event %012" PRIx64 " messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), messaging_got_CN);
+//debug(DEBUG_ERROR, "addEvent: current %012" PRIx64 " event %012" PRIx64 " messaging_got_CN %d", messaging_current_servicekey, evt.get_channel_id(), messaging_got_CN);
 		readLockMessaging();
 		// only if it is the current channel... and if we don't have them already.
 		if (evt.get_channel_id() == messaging_current_servicekey && 
 				(messaging_got_CN != 0x03)) { 
-xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_channel_id(), evt.runningStatus(), evt.runningStatus() > 2 ? "curr" : "next", messaging_got_CN);
+debug(DEBUG_ERROR, "addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d", evt.get_channel_id(), evt.runningStatus(), evt.runningStatus() > 2 ? "curr" : "next", messaging_got_CN);
 
 			unlockMessaging();
 			writeLockEvents();
@@ -305,20 +305,20 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 					writeLockMessaging();
 					messaging_got_CN |= 0x01;
 					if (myNextEvent && (*myNextEvent).uniqueKey() == evt.uniqueKey()) {
-						dprintf("addevent-cn: removing next-event\n");
+						debug(DEBUG_INFO, "addevent-cn: removing next-event");
 						/* next got "promoted" to current => trigger re-read */
 						delete myNextEvent;
 						myNextEvent = NULL;
 						messaging_got_CN &= 0x01;
 					}
 					unlockMessaging();
-					dprintf("addevent-cn: added running (%d) event 0x%04x '%s'\n",
+					debug(DEBUG_INFO, "addevent-cn: added running (%d) event 0x%04x '%s'",
 						evt.runningStatus(), evt.eventID, evt.getName().c_str());
 				} else {
 					writeLockMessaging();
 					messaging_got_CN |= 0x01;
 					unlockMessaging();
-					dprintf("addevent-cn: not add runn. (%d) event 0x%04x '%s'\n",
+					debug(DEBUG_INFO, "addevent-cn: not add runn. (%d) event 0x%04x '%s'",
 						evt.runningStatus(), evt.eventID, evt.getName().c_str());
 				}
 			} else {
@@ -329,10 +329,10 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 					writeLockMessaging();
 					messaging_got_CN |= 0x02;
 					unlockMessaging();
-					dprintf("addevent-cn: added next    (%d) event 0x%04x '%s'\n",
+					debug(DEBUG_INFO, "addevent-cn: added next    (%d) event 0x%04x '%s'",
 						evt.runningStatus(), evt.eventID, evt.getName().c_str());
 				} else {
-					dprintf("addevent-cn: not added next(%d) event 0x%04x '%s'\n",
+					debug(DEBUG_INFO, "addevent-cn: not added next(%d) event 0x%04x '%s'",
 						evt.runningStatus(), evt.eventID, evt.getName().c_str());
 					writeLockMessaging();
 					messaging_got_CN |= 0x02;
@@ -351,13 +351,13 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 	{
 		/* if the new event has a lower (== more recent) table ID, replace the old one */
 		already_exists = false;
-		dprintf("replacing event %012" PRIx64 ":%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
+		debug(DEBUG_INFO, "replacing event %012" PRIx64 ":%02x with %04x:%02x '%.40s'", si->second->uniqueKey(),
 			si->second->table_id, evt.eventID, evt.table_id, evt.getName().c_str());
 	}
 	else if (already_exists && ( (evt.table_id == 0x51 || evt.table_id == 0x50 || evt.table_id == 0x4e) && evt.table_id == si->second->table_id && evt.version != si->second->version ))
 	{
 		//replace event if new version
-		dprintf("replacing event version old 0x%02x new 0x%02x'\n", si->second->version, evt.version );
+		debug(DEBUG_INFO, "replacing event version old 0x%02x new 0x%02x'", si->second->version, evt.version );
 		already_exists = false;
 	}
 
@@ -399,7 +399,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 
 		if (!eptr)
 		{
-			printf("[sectionsd::addEvent] new SIevent failed.\n");
+			debug(DEBUG_NORMAL, "[sectionsd::addEvent] new SIevent failed.");
 			unlockEvents();
 			return;
 		}
@@ -461,7 +461,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 					if ((*x)->table_id < e->table_id)
 					{
 						/* don't add the higher table_id */
-						dprintf("%s: don't replace 0x%012" PRIx64 ".%02x with 0x%012" PRIx64 ".%02x\n",
+						debug(DEBUG_INFO, "%s: don't replace 0x%012" PRIx64 ".%02x with 0x%012" PRIx64 ".%02x",
 							__func__, x_key, (*x)->table_id, e_key, e->table_id);
 						unlockEvents();
 						delete eptr;
@@ -475,7 +475,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 					    (*x)->times.begin()->startzeit == start_time)
 						continue;
 					/* here we have an overlapping event */
-					dprintf("%s: delete 0x%012" PRIx64 ".%02x time = 0x%012" PRIx64 ".%02x\n", __func__,
+					debug(DEBUG_INFO, "%s: delete 0x%012" PRIx64 ".%02x time = 0x%012" PRIx64 ".%02x", __func__,
 						x_key, (*x)->table_id, e_key, e->table_id);
 					to_delete.push_back(x_key);
 				}
@@ -506,11 +506,11 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 				if ((*lastEvent)->times.begin()->startzeit + (long)(*lastEvent)->times.begin()->dauer >= now - oldEventsAre)
 					back = true;
 			} else
-				printf("[sectionsd] addevent: times.size != 1, please report\n");
+				debug(DEBUG_NORMAL, "addevent: times.size != 1, please report");
 #endif
 			if (back)
 			{
-				// fprintf(stderr, "<");
+				// debug(DEBUG_ERROR, "<");
 				lastEvent = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
 				--lastEvent;
 
@@ -523,7 +523,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 				unlockMessaging();
 			}
 			event_id_t uniqueKey = (*lastEvent)->uniqueKey();
-			// else fprintf(stderr, ">");
+			// else debug(DEBUG_ERROR, ">");
 			deleteEvent(uniqueKey);
 		}
 		// Pruefen ob es ein Meta-Event ist
@@ -557,7 +557,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 				}
 			}
 		}
-//		printf("Adding: %04x\n", (int) e->uniqueKey());
+//		debug(DEBUG_NORMAL, "Adding: %04x", (int) e->uniqueKey());
 
 		// normales Event
 		mySIeventsOrderUniqueKey.insert(std::make_pair(e->uniqueKey(), e));
@@ -578,7 +578,7 @@ static void addNVODevent(const SIevent &evt)
 
 	if (!eptr)
 	{
-		printf("[sectionsd::addNVODevent] new SIevent failed.\n");
+		debug(DEBUG_NORMAL, "[sectionsd::addNVODevent] new SIevent failed.");
 		return;
 	}
 
@@ -654,7 +654,7 @@ static void removeOldEvents(const long seconds)
 	unlockEvents();
 
 	readLockEvents();
-	xprintf("[sectionsd] Removed %d old events (%d left), zap detected %d.\n", (int)(total_events - mySIeventsOrderUniqueKey.size()), (int)mySIeventsOrderUniqueKey.size(), messaging_zap_detected);
+	debug(DEBUG_ERROR, "Removed %d old events (%d left), zap detected %d.", (int)(total_events - mySIeventsOrderUniqueKey.size()), (int)mySIeventsOrderUniqueKey.size(), messaging_zap_detected);
 	unlockEvents();
 	return;
 }
@@ -695,7 +695,7 @@ static const SIevent& findActualSIeventForServiceUniqueKey(const t_channel_id se
 
 					if (t->startzeit <= (long)(azeit + plusminus))
 					{
-						//printf("azeit %d, startzeit+t->dauer %d \n", azeit, (long)(t->startzeit+t->dauer) );
+						//debug(DEBUG_NORMAL, "azeit %d, startzeit+t->dauer %d ", azeit, (long)(t->startzeit+t->dauer) );
 
 						if (flag != 0)
 							*flag |= CSectionsdClient::epgflags::has_current; // aktuelles event da...
@@ -866,7 +866,7 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 
 	int pause = *(int *)data;
 
-	xprintf("Request of %s scanning (now %s).\n", pause ? "stop" : "continue", scanning ? "scanning" : "idle");
+	debug(DEBUG_ERROR, "Request of %s scanning (now %s).", pause ? "stop" : "continue", scanning ? "scanning" : "idle");
 
 	if (scanning && pause)
 	{
@@ -930,7 +930,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	sectionsd::commandSetServiceChanged * cmd = (sectionsd::commandSetServiceChanged *)data;
 	t_channel_id uniqueServiceKey = cmd->channel_id;
 
-	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE " demux #%d\n", uniqueServiceKey, cmd->dnum);
+	debug(DEBUG_ERROR, "commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE " demux #%d", uniqueServiceKey, cmd->dnum);
 	/* assume live demux always 0, other means background scan */
 	if (cmd->dnum) {
 		/* dont wakeup EIT, if we have max events allready */
@@ -951,10 +951,10 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 		current_channel_id = uniqueServiceKey;
 
 		dvb_time_update = !checkNoDVBTimelist(uniqueServiceKey);
-		dprintf("[sectionsd] commandserviceChanged: DVB time update is %s\n", dvb_time_update ? "allowed" : "blocked!");
+		debug(DEBUG_INFO, "commandserviceChanged: DVB time update is %s", dvb_time_update ? "allowed" : "blocked!");
 
 		channel_is_blacklisted = checkBlacklist(uniqueServiceKey);
-		dprintf("[sectionsd] commandserviceChanged: service is %s\n", channel_is_blacklisted ? "filtered!" : "not filtered");
+		debug(DEBUG_INFO, "commandserviceChanged: service is %s", channel_is_blacklisted ? "filtered!" : "not filtered");
 
 		writeLockEvents();
 		delete myCurrentEvent;
@@ -988,20 +988,20 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 		}
 	}
 	else
-		dprintf("[sectionsd] commandserviceChanged: no change...\n");
+		debug(DEBUG_INFO, "commandserviceChanged: no change...");
 
-	dprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
+	debug(DEBUG_INFO, "commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE, uniqueServiceKey);
 }
 
 static void commandserviceStopped(int connfd, char * /* data */, const unsigned /* dataLength */)
 {
-	xprintf("[sectionsd] commandserviceStopped\n");
+	debug(DEBUG_ERROR, "commandserviceStopped");
 	current_channel_id = 0;
 	sendEmptyResponse(connfd, NULL, 0);
 	threadEIT.stop();
 	threadCN.stop();
 	threadCN.stopUpdate();
-	xprintf("[sectionsd] commandserviceStopped done\n");
+	debug(DEBUG_ERROR, "commandserviceStopped done");
 }
 
 static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigned /*dataLength*/)
@@ -1015,12 +1015,12 @@ static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigne
 		writeNbytes(connfd, (const char *)&scanning, responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
 	}
 	else
-		dputs("[sectionsd] Fehler/Timeout bei write");
+		debug(DEBUG_INFO, "Fehler/Timeout bei write");
 }
 
 static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const unsigned /*dataLength*/)
 {
-	dputs("Request of status information");
+	debug(DEBUG_INFO, "Request of status information");
 
 	readLockEvents();
 
@@ -1070,7 +1070,7 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), max_events, oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		);
-	printf("%s\n", stati);
+	debug(DEBUG_NORMAL, "%s", stati);
 	comp_malloc_stats(NULL);
 	return ;
 }
@@ -1081,7 +1081,7 @@ static void commandGetIsTimeSet(int connfd, char* /*data*/, const unsigned /*dat
 
 	rmsg.IsTimeSet = timeset;
 
-	dprintf("Request of Time-Is-Set %d\n", rmsg.IsTimeSet);
+	debug(DEBUG_INFO, "Request of Time-Is-Set %d", rmsg.IsTimeSet);
 
 	struct sectionsd::msgResponseHeader responseHeader;
 
@@ -1092,7 +1092,7 @@ static void commandGetIsTimeSet(int connfd, char* /*data*/, const unsigned /*dat
 		writeNbytes(connfd, (const char *)&rmsg, responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
 	}
 	else
-		dputs("[sectionsd] Fehler/Timeout bei write");
+		debug(DEBUG_INFO, "Fehler/Timeout bei write");
 }
 
 
@@ -1137,17 +1137,17 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 		time_wakeup = true;
 	}
 	if (ntprefresh != pmsg->network_ntprefresh) {
-		dprintf("new network_ntprefresh = %d\n", pmsg->network_ntprefresh);
+		debug(DEBUG_INFO, "new network_ntprefresh = %d", pmsg->network_ntprefresh);
 		time_wakeup = true;
 	}
 	if (ntpenable ^ (pmsg->network_ntpenable == 1))	{
-		dprintf("new network_ntpenable = %d\n", pmsg->network_ntpenable);
+		debug(DEBUG_INFO, "new network_ntpenable = %d", pmsg->network_ntpenable);
 		time_wakeup = true;
 	}
 
 	if (time_wakeup) {
 		ntpserver = (std::string)&data[sizeof(struct sectionsd::commandSetConfig)];
-		dprintf("new network_ntpserver = %s\n", ntpserver.c_str());
+		debug(DEBUG_INFO, "new network_ntpserver = %s", ntpserver.c_str());
 		ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
 		ntprefresh = pmsg->network_ntprefresh;
 		ntpenable = (pmsg->network_ntpenable == 1);
@@ -1172,7 +1172,7 @@ static void deleteSIexceptEPG()
 
 static void FreeMemory()
 {
-	xprintf("[sectionsd] free memory...\n");
+	debug(DEBUG_ERROR, "free memory...");
 	deleteSIexceptEPG();
 
 	writeLockEvents();
@@ -1201,7 +1201,7 @@ static void FreeMemory()
 	unlockEvents();
 
 	comp_malloc_stats(NULL);
-	xprintf("[sectionsd] free memory done\n");
+	debug(DEBUG_ERROR, "free memory done");
 	//wakeupAll(); //FIXME should we re-start eit here ?
 }
 
@@ -1303,7 +1303,7 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 
 bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 {
-	dprintf("Connection from UDS\n");
+	debug(DEBUG_INFO, "Connection from UDS");
 
 	struct sectionsd::msgRequestHeader header;
 
@@ -1314,15 +1314,15 @@ bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 	if (readbytes == true)
 	{
-		dprintf("version: %hhd, cmd: %hhd, numbytes: %d\n", header.version, header.command, readbytes);
+		debug(DEBUG_INFO, "version: %hhd, cmd: %hhd, numbytes: %d", header.version, header.command, readbytes);
 
 		if (header.command < sectionsd::numberOfCommands)
 		{
-			dprintf("data length: %hd\n", header.dataLength);
+			debug(DEBUG_INFO, "data length: %hd", header.dataLength);
 			char *data = new char[header.dataLength + 1];
 
 			if (!data)
-				fprintf(stderr, "low on memory!\n");
+				debug(DEBUG_ERROR, "low on memory!");
 			else
 			{
 				bool rc = true;
@@ -1332,9 +1332,9 @@ bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 				if (rc == true)
 				{
-					dprintf("%s\n", connectionCommands[header.command].sCmd.c_str());
+					debug(DEBUG_INFO, "%s", connectionCommands[header.command].sCmd.c_str());
 					if (connectionCommands[header.command].cmd == sendEmptyResponse)
-						printf("sectionsd_parse_command: UNUSED cmd used: %d (%s)\n", header.command, connectionCommands[header.command].sCmd.c_str());
+						debug(DEBUG_NORMAL, "sectionsd_parse_command: UNUSED cmd used: %d (%s)", header.command, connectionCommands[header.command].sCmd.c_str());
 					connectionCommands[header.command].cmd(connfd, data, header.dataLength);
 				}
 
@@ -1342,7 +1342,7 @@ bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			}
 		}
 		else
-			dputs("Unknown format or version of request!");
+			debug(DEBUG_INFO, "Unknown format or version of request!");
 	}
 
 	return true;
@@ -1353,7 +1353,7 @@ static void dump_sched_info(std::string label)
 	int policy;
 	struct sched_param parm;
 	int rc = pthread_getschedparam(pthread_self(), &policy, &parm);
-	printf("%s: getschedparam %d policy %d prio %d\n", label.c_str(), rc, policy, parm.sched_priority);
+	debug(DEBUG_NORMAL, "%s: getschedparam %d policy %d prio %d", label.c_str(), rc, policy, parm.sched_priority);
 }
 
 //---------------------------------------------------------------------
@@ -1378,7 +1378,7 @@ void CTimeThread::sendTimeEvent(bool ntp, time_t tim)
 	time_t actTime = time(NULL);
 	if (!ntp) {
 		struct tm *tmTime = localtime(&actTime);
-		xprintf("%s: current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(),
+		debug(DEBUG_ERROR, "%s: current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(),
 				tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
 		actTime = tim;
 	}
@@ -1415,7 +1415,7 @@ bool CTimeThread::setSystemTime(time_t tim, bool force)
 	timediff = int64_t(tim * 1000000 - (tv.tv_usec + tv.tv_sec * 1000000));
 	localtime_r(&tv.tv_sec, &t);
 
-	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s",
+	debug(DEBUG_ERROR, "%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s",
 		name.c_str(), timediff,
 		t.tm_mday, t.tm_mon+1, t.tm_year+1900, t.tm_hour, t.tm_min, t.tm_sec, ctime(&tim));
 #if 0
@@ -1430,15 +1430,15 @@ bool CTimeThread::setSystemTime(time_t tim, bool force)
 		tv.tv_sec = time_t(timediff / 1000000LL);
 		tv.tv_usec = suseconds_t(timediff % 1000000LL);
 		if (adjtime(&tv, &oldd))
-			xprintf("adjtime(%d, %d) failed: %m\n", (int)tv.tv_sec, (int)tv.tv_usec);
+			debug(DEBUG_ERROR, "adjtime(%d, %d) failed: %m", (int)tv.tv_sec, (int)tv.tv_usec);
 		else {
-			xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
+			debug(DEBUG_ERROR, "difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)",
 				(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
 			timediff = 0;
 			return true;
 		}
 	} else if (timeset && ! force) {
-		xprintf("difference is > 120s, try again and set 'force=true'\n");
+		debug(DEBUG_ERROR, "difference is > 120s, try again and set 'force=true'");
 		return false;
 	}
 	/* still fall through if adjtime() failed */
@@ -1463,7 +1463,7 @@ void CTimeThread::run()
 {
 	time_t dvb_time = 0;
 	bool retry = false; /* if time seems fishy, set to true and try again */
-	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
+	debug(DEBUG_ERROR, "%s::run:: starting, pid %d (%lu)", name.c_str(), getpid(), pthread_self());
 	const std::string tn = ("sd:" + name).c_str();
 	set_threadname(tn.c_str());
 	addFilters();
@@ -1472,7 +1472,7 @@ void CTimeThread::run()
 	while(running) {
 		if(sendToSleepNow) {
 #ifdef DEBUG_TIME_THREAD
-			xprintf("%s: going to sleep %d seconds, running %d scanning %d\n",
+			debug(DEBUG_ERROR, "%s: going to sleep %d seconds, running %d scanning %d",
 					name.c_str(), sleep_time, running, scanning);
 #endif
 			do {
@@ -1483,7 +1483,7 @@ void CTimeThread::run()
 				Sleep();
 #else
 				int rs = Sleep();
-				xprintf("%s: wakeup, running %d scanning %d channel %" PRIx64 " reason %d\n",
+				debug(DEBUG_ERROR, "%s: wakeup, running %d scanning %d channel %" PRIx64 " reason %d",
 						name.c_str(), running, scanning, current_service, rs);
 #endif
 			} while (running && !scanning);
@@ -1505,7 +1505,7 @@ void CTimeThread::run()
 			else
 				change(0);
 
-			xprintf("%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)\n",
+			debug(DEBUG_ERROR, "%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)",
 				name.c_str(), current_service, isOpen());
 			int rc = 0;
 #if HAVE_COOL_HARDWARE
@@ -1534,7 +1534,7 @@ void CTimeThread::run()
 				}
 			} while (running && rc == 0 && (time_monotonic_ms() < (int64_t)timeoutInMSeconds + start));
 #endif
-			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
+			debug(DEBUG_ERROR, "%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d",
 				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
 			if (rc > 3) {
 				SIsectionTIME st(static_buf);
@@ -1551,7 +1551,7 @@ void CTimeThread::run()
 			if(dvb_time) {
 				bool ret = setSystemTime(dvb_time, retry);
 				if (! ret) {
-					xprintf("%s: time looks wrong, trying again\n", name.c_str());
+					debug(DEBUG_ERROR, "%s: time looks wrong, trying again", name.c_str());
 					sendToSleepNow = false;
 					retry = true;
 					continue;
@@ -1564,19 +1564,19 @@ void CTimeThread::run()
 			/* in case of wrong TDT date, dont send time is set, 1325376000 - 01.01.2012 */
 			if(time_ntp || (dvb_time > (time_t) 1325376000)) {
 				sendTimeEvent(time_ntp, dvb_time);
-				xprintf("%s: Time set via %s, going to sleep for %d seconds.\n", name.c_str(),
+				debug(DEBUG_ERROR, "%s: Time set via %s, going to sleep for %d seconds.", name.c_str(),
 						time_ntp ? "NTP" : first_time ? "DVB (TDT)" : "DVB (TOT)", sleep_time);
 			}
 			first_time = false;
 		} else {
-			xprintf("%s: Time set FAILED (enabled: ntp %d dvb %d)\n", name.c_str(), ntpenable, dvb_time_update);
+			debug(DEBUG_ERROR, "%s: Time set FAILED (enabled: ntp %d dvb %d)", name.c_str(), ntpenable, dvb_time_update);
 			if(!timeset && first_time)
 				sleep_time = 1;
 		}
 		sendToSleepNow = true;
 	}
 	delete[] static_buf;
-	printf("[sectionsd] timeThread stopped\n");
+	debug(DEBUG_NORMAL, "timeThread stopped");
 }
 
 /********************************************************************************/
@@ -1594,7 +1594,7 @@ int CSectionThread::Sleep()
 		TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
 		abs_wait.tv_sec += sleep_time;
 	}
-	dprintf("%s: going to sleep for %d seconds...\n", name.c_str(), sleep_time);
+	debug(DEBUG_INFO, "%s: going to sleep for %d seconds...", name.c_str(), sleep_time);
 	pthread_mutex_lock(&start_stop_mutex);
 
 	beforeWait();
@@ -1612,10 +1612,10 @@ int CSectionThread::Sleep()
 /* common thread main function */
 void CSectionThread::run()
 {
-	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
+	debug(DEBUG_ERROR, "%s::run:: starting, pid %d (%lu)", name.c_str(), getpid(), pthread_self());
 	const std::string tn = ("sd:" + name).c_str();
 	set_threadname(tn.c_str());
-	if (sections_debug)
+	if (sections_debug >= DEBUG_DEBUG)
 		dump_sched_info(name);
 
 	addFilters();
@@ -1624,7 +1624,7 @@ void CSectionThread::run()
 	if (wait_for_time) {
 		threadTIME.waitForTimeset();
 		time_t now = time(NULL);
-		xprintf("%s::run:: time set: %s", name.c_str(), ctime(&now));
+		debug(DEBUG_ERROR, "%s::run:: time set: %s", name.c_str(), ctime(&now));
 	}
 	real_pauseCounter = 0;
 
@@ -1633,7 +1633,7 @@ void CSectionThread::run()
 	while (running) {
 		if (shouldSleep()) {
 #ifdef DEBUG_SECTION_THREADS
-			xprintf("%s: going to sleep %d seconds, running %d scanning %d blacklisted %d events %d\n",
+			debug(DEBUG_ERROR, "%s: going to sleep %d seconds, running %d scanning %d blacklisted %d events %d",
 					name.c_str(), sleep_time, running, scanning, channel_is_blacklisted, event_count);
 #endif
 			event_count = 0;
@@ -1644,7 +1644,7 @@ void CSectionThread::run()
 				real_pause();
 				rs = Sleep();
 #ifdef DEBUG_SECTION_THREADS
-				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n",
+				debug(DEBUG_ERROR, "%s: wakeup, running %d scanning %d blacklisted %d reason %d",
 						name.c_str(), running, scanning, channel_is_blacklisted, rs);
 #endif
 			} while (checkSleep());
@@ -1667,7 +1667,7 @@ void CSectionThread::run()
 
 		if (timeoutsDMX < 0 || timeoutsDMX >= skipTimeouts) {
 #ifdef DEBUG_SECTION_THREADS
-			xprintf("%s: skipping to next filter %d from %d (timeouts %d)\n",
+			debug(DEBUG_ERROR, "%s: skipping to next filter %d from %d (timeouts %d)",
 				name.c_str(), filter_index+1, (int)filters.size(), timeoutsDMX);
 #endif
 			if (timeoutsDMX == -3)
@@ -1679,7 +1679,7 @@ void CSectionThread::run()
 		}
 		if (zeit > lastChanged + skipTime) {
 #ifdef DEBUG_SECTION_THREADS
-			xprintf("%s: skipping to next filter %d from %d (seconds %d)\n", 
+			debug(DEBUG_ERROR, "%s: skipping to next filter %d from %d (seconds %d)", 
 				name.c_str(), filter_index+1, (int)filters.size(), (int)(zeit - lastChanged));
 #endif
 			need_change = true;
@@ -1693,7 +1693,7 @@ void CSectionThread::run()
 	} // while running
 	delete[] static_buf;
 	cleanup();
-	printf("[sectionsd] %s stopped\n", name.c_str());
+	debug(DEBUG_NORMAL, "%s stopped", name.c_str());
 }
 
 /********************************************************************************/
@@ -1706,7 +1706,7 @@ bool CEventsThread::addEvents()
 	if (!eit.is_parsed())
 		return false;
 
-	dprintf("[%s] adding %d events (begin)\n", name.c_str(), (int)eit.events().size());
+	debug(DEBUG_INFO, "[%s] adding %d events (begin)", name.c_str(), (int)eit.events().size());
 	time_t zeit = time(NULL);
 
 	for (SIevents::const_iterator e = eit.events().begin(); e != eit.events().end(); ++e) {
@@ -1718,7 +1718,7 @@ bool CEventsThread::addEvents()
 				char x_startTime[10];
 				struct tm *x_tmStartTime = localtime(&e->times.begin()->startzeit);
 				strftime(x_startTime, sizeof(x_startTime)-1, "%H:%M", x_tmStartTime );
-				printf("####[%s - #%d] - startzeit: %s, dauer: %d, channel_id: 0x%llX\n", __FUNCTION__, __LINE__, x_startTime, e->times.begin()->dauer, e->get_channel_id());
+				debug(DEBUG_NORMAL, "####[%s - #%d] - startzeit: %s, dauer: %d, channel_id: 0x%llX", __FUNCTION__, __LINE__, x_startTime, e->times.begin()->dauer, e->get_channel_id());
 			}
 #endif
 			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
@@ -1762,14 +1762,14 @@ bool CCNThread::shouldSleep()
 	 * or a bug in our logic, but without this, I'm sometimes missing CN events
 	 * and / or the eit_version and thus the update filter will stop working */
 	if (++eit_retry < 2) {
-		xprintf("%s::%s first retry (%d) -> restart demux\n", name.c_str(), __func__, eit_retry);
+		debug(DEBUG_ERROR, "%s::%s first retry (%d) -> restart demux", name.c_str(), __func__, eit_retry);
 		change(0); /* this also resets lastChanged */
 	}
 	/* ugly, this has been checked before. But timeoutsDMX can be < 0 for multiple reasons,
 	 * and only skipTime should send CNThread finally to sleep if eit_version is not found */
 	time_t since = time_monotonic() - lastChanged;
 	if (since > skipTime) {
-		xprintf("%s::%s timed out after %lds -> going to sleep\n", name.c_str(), __func__, since);
+		debug(DEBUG_ERROR, "%s::%s timed out after %lds -> going to sleep", name.c_str(), __func__, since);
 		return true;
 	}
 	/* retry */
@@ -1877,7 +1877,7 @@ void CCNThread::addFilters()
 
 void CCNThread::beforeWait()
 {
-	xprintf("%s: eit update filter, ch 0x%012" PRIx64 ", current ver 0x%02x  got events %d (%s)\n",
+	debug(DEBUG_ERROR, "%s: eit update filter, ch 0x%012" PRIx64 ", current ver 0x%02x  got events %d (%s)",
 			name.c_str(), messaging_current_servicekey, eit_version, messaging_have_CN,
 			updating ? "active" : "not active");
 
@@ -1912,7 +1912,7 @@ void CCNThread::beforeWait()
 
 void CCNThread::stopUpdate()
 {
-	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
+	debug(DEBUG_ERROR, "%s: stop eit update filter (%s)", name.c_str(), updating ? "active" : "not active");
 	update_mutex.lock();
 	if (updating) {
 		updating = false;
@@ -1950,10 +1950,10 @@ void CCNThread::processSection()
 		unlockMessaging();
 
 #ifdef DEBUG_CN_THREAD
-		xprintf("%s: have CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x\n",
+		debug(DEBUG_ERROR, "%s: have CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x",
 				name.c_str(), timeoutsDMX, messaging_have_CN, messaging_got_CN);
 #endif
-		dprintf("[cnThread] got current_next (0x%x) - sending event!\n", messaging_have_CN);
+		debug(DEBUG_INFO, "[cnThread] got current_next (0x%x) - sending event!", messaging_have_CN);
 		sendCNEvent();
 		lastChanged = time_monotonic();
 	}
@@ -1977,7 +1977,7 @@ bool CCNThread::checkUpdate()
 
 	if (ret > 0) {
 		LongSection section(buf);
-		xprintf("%s: eit update filter: ### new version 0x%02x ###, Activate thread\n",
+		debug(DEBUG_ERROR, "%s: eit update filter: ### new version 0x%02x ###, Activate thread",
 				name.c_str(), section.getVersionNumber());
 
 		writeLockMessaging();
@@ -2038,7 +2038,7 @@ static bool addService(const SIservice &s, const int is_actual)
 
 		if (!sp)
 		{
-			printf("[sectionsd::addService] new SIservice failed.\n");
+			debug(DEBUG_NORMAL, "[sectionsd::addService] new SIservice failed.");
 			return false;
 		}
 
@@ -2129,7 +2129,7 @@ bool CSdtThread::addServices()
 /* helper function for the housekeeping-thread */
 static void print_meminfo(void)
 {
-	if (!sections_debug)
+	if (!(sections_debug >= DEBUG_DEBUG))
 		return;
 
 	comp_malloc_stats(NULL);
@@ -2144,13 +2144,13 @@ static void *houseKeepingThread(void *)
 	int count = 0, scount = 0, ecount = 0;
 	set_threadname("sd:housekeeping");
 
-	dprintf("housekeeping-thread started.\n");
+	debug(DEBUG_INFO, "housekeeping-thread started.");
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 
 	while (!sectionsd_stop)
 	{
 		if (count == META_HOUSEKEEPING_COUNT) {
-			dprintf("meta housekeeping - deleting all transponders, services, bouquets.\n");
+			debug(DEBUG_INFO, "meta housekeeping - deleting all transponders, services, bouquets.");
 			deleteSIexceptEPG();
 			count = 0;
 		}
@@ -2171,7 +2171,7 @@ static void *houseKeepingThread(void *)
 		}
 		scount = 0;
 
-		dprintf("housekeeping.\n");
+		debug(DEBUG_INFO, "housekeeping.");
 
 		removeOldEvents(oldEventsAre); // alte Events
 
@@ -2197,7 +2197,7 @@ static void *houseKeepingThread(void *)
 				pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 				static std::string d = epg_dir + "/";
 
-				printf("[%s]: %s\n",__func__,d.c_str());
+				debug(DEBUG_NORMAL, "[%s]: %s",__func__,d.c_str());
 
 				if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)d.c_str() ))
 					{
@@ -2209,18 +2209,18 @@ static void *houseKeepingThread(void *)
 		}
 
 		readLockEvents();
-		dprintf("Number of sptr events (event-ID): %u\n", (unsigned)mySIeventsOrderUniqueKey.size());
-		dprintf("Number of sptr events (service-id, start time, event-id): %u\n", (unsigned)mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.size());
-		dprintf("Number of sptr events (end time, service-id, event-id): %u\n", (unsigned)mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.size());
-		dprintf("Number of sptr nvod events (event-ID): %u\n", (unsigned)mySIeventsNVODorderUniqueKey.size());
-		dprintf("Number of cached meta-services: %u\n", (unsigned)mySIeventUniqueKeysMetaOrderServiceUniqueKey.size());
+		debug(DEBUG_INFO, "Number of sptr events (event-ID): %u", (unsigned)mySIeventsOrderUniqueKey.size());
+		debug(DEBUG_INFO, "Number of sptr events (service-id, start time, event-id): %u", (unsigned)mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.size());
+		debug(DEBUG_INFO, "Number of sptr events (end time, service-id, event-id): %u", (unsigned)mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.size());
+		debug(DEBUG_INFO, "Number of sptr nvod events (event-ID): %u", (unsigned)mySIeventsNVODorderUniqueKey.size());
+		debug(DEBUG_INFO, "Number of cached meta-services: %u", (unsigned)mySIeventUniqueKeysMetaOrderServiceUniqueKey.size());
 		unlockEvents();
 
 		print_meminfo();
 
 		count++;
 	} // for endlos
-	dprintf("housekeeping-thread ended.\n");
+	debug(DEBUG_INFO, "housekeeping-thread ended.");
 
 	pthread_exit(NULL);
 }
@@ -2248,7 +2248,7 @@ CEitManager * CEitManager::getInstance()
 
 bool CEitManager::Start()
 {
-	xprintf("[sectionsd] start\n");
+	debug(DEBUG_ERROR, "start");
 	if(running)
 		return false;
 
@@ -2271,19 +2271,19 @@ bool CEitManager::Start()
 			ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
 		}
 		else{
-			printf("[sectionsd] NTP Error: time sync not possible, ntpdate/ntpd not found\n");
+			debug(DEBUG_NORMAL, "NTP Error: time sync not possible, ntpdate/ntpd not found");
 			ntpenable = false;
 		}
 	}
 
-	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
+	debug(DEBUG_NORMAL, "Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
-	printf("[sectionsd] NTP: %s, command %s\n", ntpenable ? "enabled" : "disabled", ntp_system_cmd.c_str());
+	debug(DEBUG_NORMAL, "NTP: %s, command %s", ntpenable ? "enabled" : "disabled", ntp_system_cmd.c_str());
 
 	xml_epg_filter = readEPGFilter();
 
 	if (!sectionsd_server.prepare(SECTIONSD_UDS_NAME)) {
-		fprintf(stderr, "[sectionsd] failed to prepare basic server\n");
+		debug(DEBUG_ERROR, "failed to prepare basic server");
 		return false;
 	}
 
@@ -2307,21 +2307,21 @@ void CEitManager::run()
 	pthread_t /*threadTOT,*/ threadHouseKeeping;
 	int rc;
 
-	xprintf("[sectionsd] starting\n");
+	debug(DEBUG_ERROR, "starting");
 	set_threadname("sd:eitmanager");
-printf("SIevent size: %d\n", (int)sizeof(SIevent));
+debug(DEBUG_NORMAL, "SIevent size: %d", (int)sizeof(SIevent));
 
 	/* "export NO_SLOW_ADDEVENT=true" to disable this */
 	slow_addevent = (getenv("NO_SLOW_ADDEVENT") == NULL);
 	if (slow_addevent)
-		printf("====> USING SLOW ADDEVENT. export 'NO_SLOW_ADDEVENT=1' to avoid <===\n");
+		debug(DEBUG_NORMAL, "====> USING SLOW ADDEVENT. export 'NO_SLOW_ADDEVENT=1' to avoid <===");
 
 	/* for debugging / benchmarking, "export STARTUP_WAIT=true" to wait with startup for
 	 * the EPG loading to finish
 	 * this wil fail badly if no EPG saving / loading is configured! */
 	reader_ready = (getenv("STARTUP_WAIT") == NULL);
 	if (!reader_ready)
-		printf("====> sectionsd waiting with startup until saved EPG is read <===\n");
+		debug(DEBUG_NORMAL, "====> sectionsd waiting with startup until saved EPG is read <===");
 
 	SIlanguage::loadLanguages();
 
@@ -2349,11 +2349,11 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 	rc = pthread_create(&threadHouseKeeping, 0, houseKeepingThread, 0);
 
 	if (rc) {
-		fprintf(stderr, "[sectionsd] failed to create housekeeping-thread (rc=%d)\n", rc);
+		debug(DEBUG_ERROR, "failed to create housekeeping-thread (rc=%d)", rc);
 		return;
 	}
 
-	if (sections_debug)
+	if (sections_debug >= DEBUG_DEBUG)
 		dump_sched_info("main");
 
 	while (running && sectionsd_server.run(sectionsd_parse_command, sectionsd::ACTVERSION, true)) {
@@ -2370,7 +2370,7 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 		usleep(20000);
 	}
 
-	printf("[sectionsd] stopping...\n");
+	debug(DEBUG_NORMAL, "stopping...");
 
 	threadEIT.StopRun();
 	threadCN.StopRun();
@@ -2385,53 +2385,53 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 	threadFSEIT.StopRun();
 #endif
 
-	xprintf("broadcasting...\n");
+	debug(DEBUG_ERROR, "broadcasting...");
 
 	threadTIME.setTimeSet();
 
-	xprintf("pausing...\n");
+	debug(DEBUG_ERROR, "pausing...");
 
 	/* sometimes, pthread_cancel seems to not work, maybe it is a bad idea to mix
 	 * plain pthread and OpenThreads? */
 	sectionsd_stop = 1;
 	pthread_cancel(threadHouseKeeping);
-	xprintf("join Housekeeping\n");
+	debug(DEBUG_ERROR, "join Housekeeping");
 	pthread_join(threadHouseKeeping, NULL);
 
-	xprintf("join TOT\n");
+	debug(DEBUG_ERROR, "join TOT");
 	threadTIME.Stop();
 
-	xprintf("join EIT\n");
+	debug(DEBUG_ERROR, "join EIT");
 	threadEIT.Stop();
 
-	xprintf("join CN\n");
+	debug(DEBUG_ERROR, "join CN");
 	threadCN.Stop();
 #ifdef ENABLE_VIASATEPG
-	xprintf("join VSEIT\n");
+	debug(DEBUG_ERROR, "join VSEIT");
 	threadVSEIT.Stop();
 #endif
 
 #ifdef ENABLE_SDT
-	xprintf("join SDT\n");
+	debug(DEBUG_ERROR, "join SDT");
 	threadSDT.Stop();
 #endif
 #ifdef ENABLE_FREESATEPG
-	xprintf("join FSEIT\n");
+	debug(DEBUG_ERROR, "join FSEIT");
 	threadFSEIT.Stop();
 #endif
 #ifdef EXIT_CLEANUP
-	xprintf("[sectionsd] cleanup...\n");
+	debug(DEBUG_ERROR, "cleanup...");
 	delete myNextEvent;
 	delete myCurrentEvent;
 	FreeMemory();
 #endif
-	xprintf("[sectionsd] stopped\n");
+	debug(DEBUG_ERROR, "stopped");
 }
 
 /* was: commandAllEventsChannelID sendAllEvents */
 void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search, std::string search_text,bool all_chann, int genre,int fsk)
 {
-	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
+	debug(DEBUG_INFO, "sendAllEvents for " PRINTF_CHANNEL_ID_TYPE, serviceUniqueKey);
 	if(!eList.empty() && search == 0)//skip on search mode
 		eList.clear();
 
@@ -2544,7 +2544,7 @@ void CEitManager::checkCurrentNextEvent(void)
 /* was: commandCurrentNextInfoChannelID */
 void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next )
 {
-	dprintf("[sectionsd] Request of current/next information for " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
+	debug(DEBUG_INFO, "Request of current/next information for " PRINTF_CHANNEL_ID_TYPE, uniqueServiceKey);
 
 	SIevent currentEvt;
 	SIevent nextEvt;
@@ -2561,7 +2561,7 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 	if (uniqueServiceKey == messaging_current_servicekey) {
 		/* ...check for myCurrentEvent and myNextEvent */
 		if (!myCurrentEvent) {
-			dprintf("!myCurrentEvent ");
+			debug(DEBUG_INFO, "!myCurrentEvent ");
 			//change = true;
 			flag |= CSectionsdClient::epgflags::not_broadcast;
 		} else {
@@ -2570,12 +2570,12 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 			flag |= CSectionsdClient::epgflags::has_anything;
 		}
 		if (!myNextEvent) {
-			dprintf("!myNextEvent ");
+			debug(DEBUG_INFO, "!myNextEvent ");
 			//change = true;
 		} else {
 			nextEvt = *myNextEvent;
 			if (flag & CSectionsdClient::epgflags::not_broadcast) {
-				dprintf("CSectionsdClient::epgflags::has_no_current\n");
+				debug(DEBUG_INFO, "CSectionsdClient::epgflags::has_no_current");
 				flag = CSectionsdClient::epgflags::has_no_current;
 			}
 			flag |= CSectionsdClient::epgflags::has_next; // aktuelles event da...
@@ -2583,13 +2583,13 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 		}
 	}
 
-	//dprintf("flag: 0x%x, has_current: 0x%x has_next: 0x%x\n", flag, CSectionsdClient::epgflags::has_current, CSectionsdClient::epgflags::has_next);
+	//debug(DEBUG_INFO, "flag: 0x%x, has_current: 0x%x has_next: 0x%x", flag, CSectionsdClient::epgflags::has_current, CSectionsdClient::epgflags::has_next);
 	/* if another than the currently running program is requested, then flag will still be 0
 	   if either the current or the next event is not found, this condition will be true, too.
 	   */
 	if ((flag & (CSectionsdClient::epgflags::has_current|CSectionsdClient::epgflags::has_next)) !=
 			(CSectionsdClient::epgflags::has_current|CSectionsdClient::epgflags::has_next)) {
-		//dprintf("commandCurrentNextInfoChannelID: current or next missing!\n");
+		//debug(DEBUG_INFO, "commandCurrentNextInfoChannelID: current or next missing!");
 		SItime zeitEvt1(0, 0);
 		if (!(flag & CSectionsdClient::epgflags::has_current)) {
 			currentEvt = findActualSIeventForServiceUniqueKey(uniqueServiceKey, zeitEvt1, 0, &flag2);
@@ -2601,7 +2601,7 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 
 		if (currentEvt.getName().empty() && flag2 != 0)
 		{
-			dprintf("commandCurrentNextInfoChannelID change1\n");
+			debug(DEBUG_INFO, "commandCurrentNextInfoChannelID change1");
 			//change = true;
 		}
 
@@ -2610,10 +2610,10 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 			flag &= (CSectionsdClient::epgflags::has_no_current|CSectionsdClient::epgflags::not_broadcast)^(unsigned)-1;
 			flag |= CSectionsdClient::epgflags::has_current;
 			flag |= CSectionsdClient::epgflags::has_anything;
-			dprintf("[sectionsd] current EPG found. service_id: %x, flag: 0x%x\n",currentEvt.service_id, flag);
+			debug(DEBUG_INFO, "current EPG found. service_id: %x, flag: 0x%x",currentEvt.service_id, flag);
 
 			if (!(flag & CSectionsdClient::epgflags::has_next)) {
-				dprintf("*nextEvt not from cur/next V1!\n");
+				debug(DEBUG_INFO, "*nextEvt not from cur/next V1!");
 				nextEvt = findNextSIevent(currentEvt.uniqueKey(), zeitEvt2);
 			}
 		}
@@ -2623,7 +2623,7 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 			{
 				flag |= CSectionsdClient::epgflags::has_anything;
 				if (!(flag & CSectionsdClient::epgflags::has_next)) {
-					dprintf("*nextEvt not from cur/next V2!\n");
+					debug(DEBUG_INFO, "*nextEvt not from cur/next V2!");
 					nextEvt = findNextSIeventForServiceUniqueKey(uniqueServiceKey, zeitEvt2);
 				}
 
@@ -2656,12 +2656,12 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 		if (nextEvt.service_id != 0)
 		{
 			flag &= CSectionsdClient::epgflags::not_broadcast^(unsigned)-1;
-			dprintf("[sectionsd] next EPG found. service_id: %x, flag: 0x%x\n",nextEvt.service_id, flag);
+			debug(DEBUG_INFO, "next EPG found. service_id: %x, flag: 0x%x",nextEvt.service_id, flag);
 			flag |= CSectionsdClient::epgflags::has_next;
 		}
 		else if (flag != 0)
 		{
-			dprintf("commandCurrentNextInfoChannelID change2 flag: 0x%02x\n", flag);
+			debug(DEBUG_INFO, "commandCurrentNextInfoChannelID change2 flag: 0x%02x", flag);
 			//change = true;
 		}
 	}
@@ -2672,7 +2672,7 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 		for (unsigned int i = 0; i < currentEvt.linkage_descs.size(); i++)
 			if (currentEvt.linkage_descs[i].linkageType == 0xB0)
 			{
-				fprintf(stderr,"[sectionsd] linkage in current EPG found.\n");
+				debug(DEBUG_ERROR, "linkage in current EPG found.");
 				flag |= CSectionsdClient::epgflags::current_has_linkagedescriptors;
 				break;
 			}
@@ -2681,7 +2681,7 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 
 	time_t now;
 
-	dprintf("currentEvt: '%s' (%04x) nextEvt: '%s' (%04x) flag: 0x%02x\n",
+	debug(DEBUG_INFO, "currentEvt: '%s' (%04x) nextEvt: '%s' (%04x) flag: 0x%02x",
 			currentEvt.getName().c_str(), currentEvt.eventID,
 			nextEvt.getName().c_str(), nextEvt.eventID, flag);
 
@@ -2739,7 +2739,7 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 bool CEitManager::getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 {
 	bool ret = false;
-	dprintf("Request of current EPG for 0x%" PRIx64 "\n", epgID);
+	debug(DEBUG_INFO, "Request of current EPG for 0x%" PRIx64, epgID);
 
 	readLockEvents();
 
@@ -2747,13 +2747,13 @@ bool CEitManager::getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 
 	if (e.service_id != 0)
 	{	// Event found
-		dputs("EPG found.");
+		debug(DEBUG_INFO, "EPG found.");
 		epgdata->title = e.getName();
 		epgdata->info1 = e.getText();
 		epgdata->info2 = e.getExtendedText();
 		ret = true;
 	} else
-		dputs("EPG not found!");
+		debug(DEBUG_INFO, "EPG not found!");
 
 	unlockEvents();
 	return ret;
@@ -2764,7 +2764,7 @@ bool CEitManager::getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata)
 {
 	bool ret = false;
-	dprintf("Request of actual EPG for 0x%" PRIx64 " 0x%lx\n", epgID, startzeit);
+	debug(DEBUG_INFO, "Request of actual EPG for 0x%" PRIx64 " 0x%lx", epgID, startzeit);
 
 	const SIevent& evt = findSIeventForEventUniqueKey(epgID);
 
@@ -2780,14 +2780,14 @@ bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGD
 				break;
 
 		if (t == evt.times.end()) {
-			dputs("EPG not found!");
+			debug(DEBUG_INFO, "EPG not found!");
 		} else {
-			dputs("EPG found.");
+			debug(DEBUG_INFO, "EPG found.");
 			epgdata->eventID = evt.uniqueKey();
 			epgdata->title = evt.getName();
 			epgdata->info1 = evt.getText();
 			epgdata->info2 = evt.getExtendedText();
-			/* FIXME printf("itemDescription: %s\n", evt.itemDescription.c_str()); */
+			/* FIXME debug(DEBUG_NORMAL, "itemDescription: %s", evt.itemDescription.c_str()); */
 #ifdef FULL_CONTENT_CLASSIFICATION
 			evt.classifications.get(epgdata->contentClassification, epgdata->userClassification);
 #else
@@ -2803,7 +2803,7 @@ bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGD
 			ret = true;
 		}
 	} else {
-		dputs("EPG not found!");
+		debug(DEBUG_INFO, "EPG not found!");
 	}
 	unlockEvents();
 	return ret;
@@ -2815,7 +2815,7 @@ bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData
 	SIevent evt;
 	SItime zeit(0, 0);
 
-	dprintf("[commandActualEPGchannelID] Request of current EPG for " PRINTF_CHANNEL_ID_TYPE "\n", channel_id);
+	debug(DEBUG_INFO, "[commandActualEPGchannelID] Request of current EPG for " PRINTF_CHANNEL_ID_TYPE, channel_id);
 
 	t_channel_id uniqueServiceKey = channel_id & 0xFFFFFFFFFFFFULL;
 	checkCurrentNextEvent();
@@ -2842,18 +2842,18 @@ bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData
 
 	if (evt.service_id == 0)
 	{
-		dprintf("[commandActualEPGchannelID] evt.service_id == 0 ==> no myCurrentEvent!\n");
+		debug(DEBUG_INFO, "[commandActualEPGchannelID] evt.service_id == 0 ==> no myCurrentEvent!");
 		evt = findActualSIeventForServiceUniqueKey(uniqueServiceKey, zeit);
 	}
 
 	if (evt.service_id != 0)
 	{
-		dprintf("EPG found.\n");
+		debug(DEBUG_INFO, "EPG found.");
 		epgdata->eventID = evt.uniqueKey();
 		epgdata->title = evt.getName();
 		epgdata->info1 = evt.getText();
 		epgdata->info2 = evt.getExtendedText();
-		/* FIXME printf("itemDescription: %s\n", evt.itemDescription.c_str());*/
+		/* FIXME debug(DEBUG_NORMAL, "itemDescription: %s", evt.itemDescription.c_str());*/
 #ifdef FULL_CONTENT_CLASSIFICATION
 		evt.classifications.get(epgdata->contentClassification, epgdata->userClassification);
 #else
@@ -2869,7 +2869,7 @@ bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData
 
 		ret = true;
 	} else
-		dprintf("EPG not found!\n");
+		debug(DEBUG_INFO, "EPG not found!");
 
 	unlockEvents();
 	return ret;
@@ -2945,7 +2945,7 @@ void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidl
 bool CEitManager::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags)
 {
 	bool ret = false;
-	dprintf("Request of ComponentTags for 0x%" PRIx64 "\n", uniqueKey);
+	debug(DEBUG_INFO, "Request of ComponentTags for 0x%" PRIx64, uniqueKey);
 
 	tags.clear();
 
@@ -2975,7 +2975,7 @@ bool CEitManager::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSection
 bool CEitManager::getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors)
 {
 	bool ret = false;
-	dprintf("Request of LinkageDescriptors for 0x%" PRIx64 "\n", uniqueKey);
+	debug(DEBUG_INFO, "Request of LinkageDescriptors for 0x%" PRIx64, uniqueKey);
 
 	descriptors.clear();
 	readLockEvents();
@@ -3006,7 +3006,7 @@ bool CEitManager::getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSe
 bool CEitManager::getNVODTimesServiceKey(const t_channel_id channel_id, CSectionsdClient::NVODTimesList& nvod_list)
 {
 	bool ret = false;
-	dprintf("Request of NVOD times for " PRINTF_CHANNEL_ID_TYPE "\n", channel_id);
+	debug(DEBUG_INFO, "Request of NVOD times for " PRINTF_CHANNEL_ID_TYPE, channel_id);
 
 	t_channel_id uniqueServiceKey = channel_id & 0xFFFFFFFFFFFFULL;
 	nvod_list.clear();
@@ -3017,7 +3017,7 @@ bool CEitManager::getNVODTimesServiceKey(const t_channel_id channel_id, CSection
 	MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(uniqueServiceKey);
 	if (si != mySIservicesNVODorderUniqueKey.end())
 	{
-		dprintf("NVODServices: %u\n", (unsigned)si->second->nvods.size());
+		debug(DEBUG_INFO, "NVODServices: %u", (unsigned)si->second->nvods.size());
 
 		if (!si->second->nvods.empty()) {
 			for (SInvodReferences::iterator ni = si->second->nvods.begin(); ni != si->second->nvods.end(); ++ni) {

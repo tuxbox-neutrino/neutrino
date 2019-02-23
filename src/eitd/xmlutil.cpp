@@ -135,7 +135,7 @@ void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_serv
 {
 	if (!checkEPGFilter(onid, tsid, sid))
 	{
-		dprintf("Add EPGFilter for onid=\"%04x\" tsid=\"%04x\" service_id=\"%04x\"\n", onid, tsid, sid);
+		debug(DEBUG_INFO, "Add EPGFilter for onid=\"%04x\" tsid=\"%04x\" service_id=\"%04x\"", onid, tsid, sid);
 		EPGFilter *node = new EPGFilter;
 		node->onid = onid;
 		node->tsid = tsid;
@@ -167,7 +167,7 @@ static void addBlacklist(t_original_network_id onid, t_transport_stream_id tsid,
 				);
 	if (!checkBlacklist(channel_id))
 	{
-		xprintf("Add Channel Blacklist for channel 0x%012" PRIx64 ", mask 0x%012" PRIx64 "\n", channel_id, mask);
+		debug(DEBUG_ERROR, "Add Channel Blacklist for channel 0x%012" PRIx64 ", mask 0x%012" PRIx64, channel_id, mask);
 		ChannelBlacklist *node = new ChannelBlacklist;
 		node->chan = channel_id;
 		node->mask = mask;
@@ -186,7 +186,7 @@ static void addNoDVBTimelist(t_original_network_id onid, t_transport_stream_id t
 				);
 	if (!checkNoDVBTimelist(channel_id))
 	{
-		xprintf("Add channel 0x%012" PRIx64 ", mask 0x%012" PRIx64 " to NoDVBTimelist\n", channel_id, mask);
+		debug(DEBUG_ERROR, "Add channel 0x%012" PRIx64 ", mask 0x%012" PRIx64 " to NoDVBTimelist", channel_id, mask);
 		ChannelNoDVBTimelist *node = new ChannelNoDVBTimelist;
 		node->chan = channel_id;
 		node->mask = mask;
@@ -205,7 +205,7 @@ bool readEPGFilter(void)
 
 	if (filter_parser != NULL)
 	{
-		dprintf("Reading EPGFilters\n");
+		debug(DEBUG_INFO, "Reading EPGFilters");
 
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
 		if (xmlGetNumericAttribute(filter, "is_whitelist", 10) == 1)
@@ -241,7 +241,7 @@ void readDVBTimeFilter(void)
 
 	if (filter_parser != NULL)
 	{
-		dprintf("Reading DVBTimeFilters\n");
+		debug(DEBUG_INFO, "Reading DVBTimeFilters");
 
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
 		filter = xmlChildrenNode(filter);
@@ -300,7 +300,7 @@ bool readEventsFromFile(std::string &epgname, int &ev_count)
 	t_service_id sid = 0;
 
 	if (!(event_parser = parseXmlFile(epgname.c_str()))) {
-		dprintf("unable to open %s for reading\n", epgname.c_str());
+		debug(DEBUG_INFO, "unable to open %s for reading", epgname.c_str());
 		return false;
 	}
 	service = xmlDocGetRootElement(event_parser);
@@ -460,7 +460,7 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 
 	if (!(event_parser = parseXmlFile(epgname.c_str())))
 	{
-		printf("unable to open %s for reading\n", epgname.c_str());
+		debug(DEBUG_NORMAL, "unable to open %s for reading", epgname.c_str());
 		return false;
 	}
 
@@ -491,7 +491,7 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 
 		if (epgid != 0)
 		{
-			//printf("\e[1;34m%s - %d - %s 0x%012" PRIx64 "(%ld) (%ld)\e[0m\n",__func__, __LINE__,chan, epgid, start_time, duration);
+			//debug(DEBUG_NORMAL, "\e[1;34m%s - %d - %s 0x%012" PRIx64 "(%ld) (%ld)\e[0m",__func__, __LINE__,chan, epgid, start_time, duration);
 			onid = GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(epgid);
 			tsid = GET_TRANSPORT_STREAM_ID_FROM_CHANNEL_ID(epgid);
 			sid  = GET_SERVICE_ID_FROM_CHANNEL_ID(epgid);
@@ -524,7 +524,7 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 					e.appendExtendedText(std::string(ZapitTools::UTF8_to_Latin1("deu")), std::string(description));
 				node = xmlNextNode(node);
 			}
-			dprintf("XML DEBUG: %s channel 0x%012" PRIx64 "\n", chan, epgid);
+			debug(DEBUG_INFO, "XML DEBUG: %s channel 0x%012" PRIx64, chan, epgid);
 
 			addEvent(e, 0);
 
@@ -575,7 +575,7 @@ bool readEventsFromDir(std::string &epgdir, int &ev_count)
 {
 	struct dirent **namelist;
 	int n = scandir(epgdir.c_str(), &namelist, my_filter, NULL);
-	printf("[sectionsd] Reading Information from directory %s, file count %d\n", epgdir.c_str(), n);
+	debug(DEBUG_NORMAL, "Reading Information from directory %s, file count %d", epgdir.c_str(), n);
 	if (n <= 0)
 		return false;
 
@@ -609,13 +609,12 @@ void *insertEventsfromFile(void * data)
 
 	if (index_parser == NULL) {
 		readEventsFromDir(epg_dir, ev_count);
-		printf("[sectionsd] Reading Information finished after %" PRId64 " milliseconds (%d events)\n",
+		debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events)",
 				time_monotonic_ms()-now, ev_count);
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
-	printdate_ms(stdout);
-	printf("[sectionsd] Reading Information from file %s:\n", indexname.c_str());
+	debug(DEBUG_NORMAL, "Reading Information from file: %s", indexname.c_str());
 
 	eventfile = xmlDocGetRootElement(index_parser);
 	eventfile = xmlChildrenNode(eventfile);
@@ -632,8 +631,7 @@ void *insertEventsfromFile(void * data)
 	}
 
 	xmlFreeDoc(index_parser);
-	printdate_ms(stdout);
-	printf("[sectionsd] Reading Information finished after %" PRId64 " milliseconds (%d events)\n",
+	debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events)",
 			time_monotonic_ms()-now, ev_count);
 
 	reader_ready = true;
@@ -671,8 +669,7 @@ void *insertEventsfromXMLTV(void * data)
 		pthread_exit(NULL);
 	}
 
-	printdate_ms(stdout);
-	printf("[sectionsd] Reading Information finished after %" PRId64 " milliseconds (%d events)\n",
+	debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events)",
 	       time_monotonic_ms()-now, ev_count);
 
 	reader_ready = true;
@@ -735,11 +732,11 @@ void writeEventsToFile(const char *epgdir)
 	tmpname  = (std::string)epgdir + "/index.tmp";
 
 	if (!(indexfile = fopen(tmpname.c_str(), "w"))) {
-		printf("[sectionsd] unable to open %s for writing\n", tmpname.c_str());
+		debug(DEBUG_NORMAL, "unable to open %s for writing", tmpname.c_str());
 		return;
 	}
 
-	printf("[sectionsd] Writing Information to file: %s\n", tmpname.c_str());
+	debug(DEBUG_NORMAL, "Writing Information to file: %s", tmpname.c_str());
 
 	write_index_xml_header(indexfile);
 
@@ -777,6 +774,6 @@ _done:
 	rename(tmpname.c_str(), filename.c_str());
 
 	// sync();
-	printf("[sectionsd] Writing Information finished\n");
+	debug(DEBUG_NORMAL, "Writing Information finished");
 	return ;
 }

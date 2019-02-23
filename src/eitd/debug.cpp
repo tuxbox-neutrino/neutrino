@@ -26,14 +26,14 @@
 #include <sys/time.h>
 #include "debug.h"
 
-bool sections_debug;
+int sections_debug = DEBUG_NORMAL;
 
 void printdate_ms(FILE *f) {
 	timeval now;
 	gettimeofday(&now, NULL);
 	struct tm *tm = localtime(&now.tv_sec);
 	/* use strftime for that? */
-	fprintf(f, "%02d:%02d:%02d.%03ld ", tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec/1000);
+	fprintf(f, "%04d-%02d-%02d %02d:%02d:%02d.%03ld ", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec/1000);
 }
 
 static int64_t last_profile_call;

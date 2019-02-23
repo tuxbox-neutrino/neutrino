@@ -177,15 +177,15 @@ void SIsectionTIME::parse(uint8_t *buf)
 		char *ct = ctime(&dvbtime);
 		/* ctime() appends a useless \n... */
 		ct[strlen(ct) - 1] = 0;
-		/* ...and xcprintf adds another \n... */
-		xcprintf("SIsectionTIME::parse: TDT time: %s", ct);
+		/* ...and debug_colored adds another \n... */
+		debug_colored(DEBUG_ERROR, "SIsectionTIME::parse: TDT time: %s", ct);
 		parsed = true;
 	} else {
 		TimeOffsetSection tot(buf);
 		dvbtime = parseDVBtime(tot.getUtcTimeMjd(), tot.getUtcTimeBcd());
 		char *ct = ctime(&dvbtime);
 		ct[strlen(ct) - 1] = 0;
-		xcprintf("SIsectionTIME::parse: TOT time: %s", ct);
+		debug_colored(DEBUG_ERROR, "SIsectionTIME::parse: TOT time: %s", ct);
 		const DescriptorList &dlist = *tot.getDescriptors();
 		for (DescriptorConstIterator dit = dlist.begin(); dit != dlist.end(); ++dit) {
 			uint8_t dtype = (*dit)->getTag();
@@ -199,13 +199,13 @@ void SIsectionTIME::parse(uint8_t *buf)
 				for (LocalTimeOffsetConstIterator it = oflist->begin(); it != oflist->end(); ++it) {
 					const LocalTimeOffset * of = (LocalTimeOffset *) *it;
 					time_t change_time = parseDVBtime(of->getTimeOfChangeMjd(), of->getTimeOfChangeBcd(), false);
-					xprintf("TOT: cc=%s reg_id=%d pol=%d offs=%04x new=%04x when=%s",
+					debug(DEBUG_ERROR, "TOT: cc=%s reg_id=%d pol=%d offs=%04x new=%04x when=%s",
 							of->getCountryCode().c_str(), of->getCountryRegionId(), of->getLocalTimeOffsetPolarity(),
 							of->getLocalTimeOffset(), of->getNextTimeOffset(), ctime(&change_time));
 				}
 #endif
 			} else {
-				xprintf("SIsectionTIME::parse: unhandled descriptor %02x\n", dtype);
+				debug(DEBUG_ERROR, "SIsectionTIME::parse: unhandled descriptor %02x", dtype);
 			}
 		}
 	}
