@@ -77,6 +77,7 @@ cTmdb::cTmdb(std::string epgtitle)
 
 cTmdb::~cTmdb()
 {
+	remove(TMDB_COVER);
 	curl_easy_cleanup(curl_handle);
 }
 
