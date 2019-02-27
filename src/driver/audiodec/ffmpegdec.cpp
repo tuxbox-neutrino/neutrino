@@ -52,7 +52,9 @@ extern "C" {
 #define av_frame_free	avcodec_free_frame
 #endif
 
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57, 8, 0 ))
+#if (LIBAVCODEC_VERSION_MAJOR > 55)
+#define	av_free_packet av_packet_unref
+#else
 #define av_packet_unref	av_free_packet
 #endif
 
@@ -85,8 +87,10 @@ CFfmpegDec::CFfmpegDec(void)
 	buffer_size = 0x1000;
 	buffer = NULL;
 	avc = NULL;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 	avcodec_register_all();
 	av_register_all();
+#endif
 }
 
 CFfmpegDec::~CFfmpegDec(void)

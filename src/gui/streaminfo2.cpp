@@ -307,9 +307,10 @@ void CStreamInfo2::probeStreams()
 #ifdef ENABLE_FFMPEG_LOGGING
 		av_log_set_callback(log_callback);
 #endif
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 		avcodec_register_all();
 		av_register_all();
-
+#endif
 		AVIOContext *avioc = NULL;
 		int buffer_size = 188 * 128;
 		unsigned char *buffer = (unsigned char *) av_malloc(buffer_size);
