@@ -405,7 +405,11 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 					fprintf(stderr,"%s: PCM write error (%s).\n", ProgName, strerror(errno));
 					Status=WRITE_ERR;
 				}
+#if (LIBAVUTIL_VERSION_MAJOR < 54)
 				pts = av_frame_get_best_effort_timestamp(frame);
+#else
+				pts = frame->best_effort_timestamp;
+#endif
 				if (!start_pts)
 					start_pts = pts;
 			}
