@@ -2190,8 +2190,13 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	AVIOInterruptCB int_cb = { Interrupt, this };
 	ifcx->interrupt_callback = int_cb;
 
+#if (LIBAVFORMAT_VERSION_MAJOR < 58)
 	snprintf(ifcx->filename, sizeof(ifcx->filename), "%s", channel->getUrl().c_str());
 	av_dump_format(ifcx, 0, ifcx->filename, 0);
+#else
+	snprintf(ifcx->url, channel->getUrl().size() + 1, "%s", channel->getUrl().c_str());
+	av_dump_format(ifcx, 0, ifcx->url, 0);
+#endif
 
 	std::string tsfile = std::string(filename) + ".ts";
 	AVOutputFormat *ofmt = av_guess_format(NULL, tsfile.c_str(), NULL);
@@ -2209,7 +2214,11 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	}
 
 	av_dict_copy(&ofcx->metadata, ifcx->metadata, 0);
+#if (LIBAVFORMAT_VERSION_MAJOR < 58)
 	snprintf(ofcx->filename, sizeof(ofcx->filename), "%s", tsfile.c_str());
+#else
+	snprintf(ofcx->url, tsfile.size() + 1, "%s", tsfile.c_str());
+#endif
 
 	stream_index = -1;
 	int stid = 0x200;
@@ -2232,7 +2241,11 @@ bool CStreamRec::Open(CZapitChannel * channel)
 			stream_index = i;
 	}
 	av_log_set_level(AV_LOG_VERBOSE);
+#if (LIBAVFORMAT_VERSION_MAJOR < 58)
 	av_dump_format(ofcx, 0, ofcx->filename, 1);
+#else
+	av_dump_format(ofcx, 0, ofcx->url, 1);
+#endif
 	av_log_set_level(AV_LOG_WARNING);
 #if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
 	bsfc = av_bitstream_filter_init("h264_mp4toannexb");
