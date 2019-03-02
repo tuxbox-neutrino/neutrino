@@ -577,13 +577,13 @@ void readln(int fd, char *buf)
 
 int parse_response(URL *url, void * /*opt*/, CSTATE *state)
 {
-	char header[2048], /*str[255]*/ str[2048]; // combined with 2nd local str from id3 part
+	char header[2049], /*str[255]*/ str[2049]; // combined with 2nd local str from id3 part
 	char *ptr, chr=0, lastchr=0;
 	int hlen = 0, response;
 	int meta_interval = 0, rval;
 	int fd = url->fd;
 
-	memset(header, 0, 2048);
+	memset(header, 0, 2049);
 	ptr = header;
 
 	/* extract the http header from the stream */
@@ -1745,7 +1745,7 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 		else
 		{
 			//SKIP()
-			for(int i = 0;(ptr && i < bufsize && !isalnum(*ptr)); ++ptr,i++){};
+			for(int i = 0;(ptr && i < bufsize && *ptr && !isalnum(*ptr)); ++ptr,i++){};
 
 			strncpy(state->title, ptr,bufsize);
 			ptr = strchr(state->title, ';');
