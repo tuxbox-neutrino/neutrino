@@ -36,6 +36,7 @@
 #include <system/settings.h>
 
 #include <gui/imdb.h>
+#include <gui/tmdb.h>
 #include <driver/movieinfo.h>
 #include "widget/menue.h"
 #include "widget/navibar.h"
@@ -53,6 +54,7 @@ class CEpgData
 		CChannelEventList	followlist;
 		CEPGData		epgData;
 		CIMDB			*imdb;
+		cTmdb			*tmdb;
 
 		CComponentsHeader	*header;
 		CNaviBar 		*Bottombox;

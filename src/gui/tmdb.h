@@ -20,10 +20,10 @@
 #ifndef __TMDB__
 #define __TMDB__
 
-#include <curl/curl.h>
-#include <curl/easy.h>
-
 #include <string>
+#include "system/helpers.h"
+
+#define TMDB_COVER "/tmp/tmdb.jpg"
 
 typedef struct {
 	std::string epgtitle;
@@ -47,20 +47,16 @@ typedef struct {
 class cTmdb
 {
 	private:
-		CURL *curl_handle;
 		tmdbinfo minfo;
 
-		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
-		std::string encodeUrl(std::string txt);
-		std::string decodeUrl(std::string url);
 		std::string key; // tmdb api key
-		bool getUrl(std::string &url, std::string &answer, CURL *_curl_handle = NULL);
-		bool DownloadUrl(std::string url, std::string file, CURL *_curl_handle = NULL);
 		bool GetMovieDetails(std::string lang);
 
 	public:
-		cTmdb(std::string epgtitle);
+		cTmdb();
 		~cTmdb();
+		static cTmdb* getInstance();
+		void        setTitle(std::string epgtitle);
 		std::string CreateEPGText();
 
 		std::string getTitle()				{ return minfo.epgtitle;}
@@ -69,11 +65,13 @@ class cTmdb
 		std::string getDescription()			{ return minfo.overview;}
 		std::string getVote()				{ return minfo.vote_average;}
 		std::string getCast()				{ return minfo.cast;}
+		std::string getCover()              { return TMDB_COVER;}
 		bool        hasCover()				{ return !minfo.poster_path.empty();}
-		bool        getBigCover(std::string cover)	{ return DownloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, cover);}
-		bool        getSmallCover(std::string cover)	{ return DownloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, cover);}
+		bool        getBigCover(std::string cover)	{ return downloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, cover);}
+		bool        getSmallCover(std::string cover)	{ return downloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, cover);}
 		int         getResults()			{ return minfo.result;}
 		int         getStars()				{ return (int) (atof(minfo.vote_average.c_str())+0.5);}
+		void        cleanup();
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015 TangoCash
+	Copyright (C) 2015,2018 TangoCash
 
 	License: GPLv2
 
@@ -34,7 +34,6 @@
 #include <string>
 
 #include "system/settings.h"
-#include "system/helpers.h"
 #include <system/helpers-json.h>
 #include "system/set_threadname.h"
 #include "gui/widget/hintbox.h"
@@ -46,23 +45,32 @@
 
 #include "tmdb.h"
 
-#if LIBCURL_VERSION_NUM < 0x071507
-#include <curl/types.h>
-#endif
-
-#define URL_TIMEOUT 60
-#define TMDB_COVER "/tmp/tmdb.jpg"
-
-cTmdb::cTmdb(std::string epgtitle)
+cTmdb* cTmdb::getInstance()
 {
-	minfo.epgtitle = epgtitle;
-	curl_handle = curl_easy_init();
+	static cTmdb* tmdb = NULL;
+	if(!tmdb)
+		tmdb = new cTmdb();
+	return tmdb;
+}
 
+cTmdb::cTmdb()
+{
 #ifdef TMDB_API_KEY
 	key = TMDB_API_KEY;
 #else
 	key = g_settings.tmdb_api_key;
 #endif
+}
+
+cTmdb::~cTmdb()
+{
+    cleanup();
+}
+
+void cTmdb::setTitle(std::string epgtitle)
+{
+    memset(&minfo, 0, sizeof(minfo));
+   	minfo.epgtitle = epgtitle;
 
 	CHintBox hintbox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_TMDB_READ_DATA));
 	hintbox.paint();
@@ -73,121 +81,6 @@ cTmdb::cTmdb(std::string epgtitle)
 		GetMovieDetails("en");
 
 	hintbox.hide();
-}
-
-cTmdb::~cTmdb()
-{
-	curl_easy_cleanup(curl_handle);
-}
-
-size_t cTmdb::CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
-{
-	if (size * nmemb > 0) {
-		std::string* pStr = (std::string*) data;
-		pStr->append((char*) ptr, nmemb);
-	}
-	return size*nmemb;
-}
-
-std::string cTmdb::decodeUrl(std::string url)
-{
-	char * str = curl_easy_unescape(curl_handle, url.c_str(), 0, NULL);
-	if (str)
-		url = str;
-	curl_free(str);
-	return url;
-}
-
-std::string cTmdb::encodeUrl(std::string txt)
-{
-	char * str = curl_easy_escape(curl_handle, txt.c_str(), txt.length());
-	if (str)
-		txt = str;
-	curl_free(str);
-	return txt;
-}
-
-bool cTmdb::getUrl(std::string &url, std::string &answer, CURL *_curl_handle)
-{
-	printf("[TMDB]: %s\n",__func__);
-	if (!_curl_handle)
-		_curl_handle = curl_handle;
-
-	curl_easy_setopt(_curl_handle, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(_curl_handle, CURLOPT_WRITEFUNCTION, &cTmdb::CurlWriteToString);
-	curl_easy_setopt(_curl_handle, CURLOPT_FILE, (void *)&answer);
-	curl_easy_setopt(_curl_handle, CURLOPT_FAILONERROR, 1);
-	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
-	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
-	curl_easy_setopt(_curl_handle, CURLOPT_SSL_VERIFYPEER, false);
-
-	if (!g_settings.softupdate_proxyserver.empty()) {
-		curl_easy_setopt(_curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if (!g_settings.softupdate_proxyusername.empty()) {
-			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
-			curl_easy_setopt(_curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
-		}
-	}
-
-	char cerror[CURL_ERROR_SIZE] = {0};
-	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
-
-	printf("try to get [%s] ...\n", url.c_str());
-	CURLcode httpres = curl_easy_perform(_curl_handle);
-
-	printf("http: res %d size %d\n", httpres, (int)answer.size());
-
-	if (httpres != 0 || answer.empty()) {
-		printf("error: %s\n", cerror);
-		return false;
-	}
-	return true;
-}
-
-bool cTmdb::DownloadUrl(std::string url, std::string file, CURL *_curl_handle)
-{
-	if (!_curl_handle)
-		_curl_handle = curl_handle;
-
-	FILE * fp = fopen(file.c_str(), "wb");
-	if (fp == NULL) {
-		perror(file.c_str());
-		return false;
-	}
-	curl_easy_setopt(_curl_handle, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(_curl_handle, CURLOPT_WRITEFUNCTION, NULL);
-	curl_easy_setopt(_curl_handle, CURLOPT_FILE, fp);
-	curl_easy_setopt(_curl_handle, CURLOPT_FAILONERROR, 1);
-	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
-	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
-	curl_easy_setopt(_curl_handle, CURLOPT_SSL_VERIFYPEER, false);
-
-	if (!g_settings.softupdate_proxyserver.empty()) {
-		curl_easy_setopt(_curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if (!g_settings.softupdate_proxyusername.empty()) {
-			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
-			curl_easy_setopt(_curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
-		}
-	}
-
-	char cerror[CURL_ERROR_SIZE] = {0};
-	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
-
-	printf("try to get [%s] ...\n", url.c_str());
-	CURLcode httpres = curl_easy_perform(_curl_handle);
-
-	double dsize;
-	curl_easy_getinfo(_curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
-	fclose(fp);
-
-	printf("http: res %d size %g.\n", httpres, dsize);
-
-	if (httpres != 0) {
-		printf("curl error: %s\n", cerror);
-		unlink(file.c_str());
-		return false;
-	}
-	return true;
 }
 
 bool cTmdb::GetMovieDetails(std::string lang)
@@ -291,4 +184,10 @@ std::string cTmdb::CreateEPGText()
 	if (!minfo.cast.empty())
 		epgtext += (std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS)+":\n"+ minfo.cast+"\n";
 	return epgtext;
+}
+
+void cTmdb::cleanup()
+{
+	if (access(TMDB_COVER, F_OK) == 0)
+		unlink(TMDB_COVER);
 }

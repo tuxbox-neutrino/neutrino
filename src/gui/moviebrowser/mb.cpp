@@ -2068,7 +2068,8 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					extension = "." + extension;
 					str_replace(extension, ".jpg", cover_file);
 					printf("TMDB: %s : %s\n",m_movieSelectionHandler->file.Name.c_str(),cover_file.c_str());
-					cTmdb* tmdb = new cTmdb(m_movieSelectionHandler->epgTitle);
+					cTmdb* tmdb = cTmdb::getInstance();
+					tmdb->setTitle(m_movieSelectionHandler->epgTitle);
 					if ((tmdb->getResults() > 0) && (tmdb->hasCover())) {
 						if (!cover_file.empty())
 							if (tmdb->getSmallCover(cover_file))
