@@ -828,6 +828,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_show_infobox = configfile.getInt32("channellist_show_infobox", 1);
 	g_settings.channellist_show_numbers = configfile.getInt32("channellist_show_numbers", 1);
 	g_settings.channellist_show_res_icon = configfile.getInt32("channellist_show_res_icon", 0);
+	g_settings.channellist_primetime = configfile.getInt32("channellist_primetime", 1);
 
 	//screen configuration
 	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", 0) : osd_resolution_tmp;
@@ -1604,6 +1605,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_show_infobox", g_settings.channellist_show_infobox);
 	configfile.setInt32("channellist_show_numbers", g_settings.channellist_show_numbers);
 	configfile.setInt32("channellist_show_res_icon", g_settings.channellist_show_res_icon);
+	configfile.setInt32("channellist_primetime", g_settings.channellist_primetime);
 
 	//screen configuration
 	configfile.setInt32("osd_resolution"     , COsdHelpers::getInstance()->g_settings_osd_resolution_save);

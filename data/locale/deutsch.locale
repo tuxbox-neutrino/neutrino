@@ -279,6 +279,7 @@ channellist.new_zap_mode_allow erlauben
 channellist.new_zap_mode_off aus
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(Menü-Taste -> Service)
 channellist.numeric_adjust Bei numerischem Zap Kanalliste nachführen
+channellist.primetime Primetime
 channellist.provs Anbieter
 channellist.recordable_channels Aufnehmbare Sender
 channellist.recording_not_possible Aufnahme nicht möglich!
@@ -1086,6 +1087,7 @@ menu.hint_channellist_fonts Ändern Sie die Schriftgrößen in der Kanalliste
 menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfenster angezeigt werden sollen
 menu.hint_channellist_mode Wählen Sie die Start-Kanalliste im TV-Modus
 menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
+menu.hint_channellist_primetime Was läuft zur Hauptzeit
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Senderlogos aktivieren/deaktivieren.
 menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.

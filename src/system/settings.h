@@ -660,6 +660,7 @@ struct SNeutrinoSettings
 	int channellist_show_infobox;
 	int channellist_show_numbers;
 	int channellist_show_res_icon;
+	int channellist_primetime;
 	int repeat_blocker;
 	int repeat_genericblocker;
 #define LONGKEYPRESS_OFF 499
