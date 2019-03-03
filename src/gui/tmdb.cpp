@@ -146,6 +146,7 @@ bool cTmdb::GetMovieDetails(std::string lang)
 			}
 
 			elements = root["credits"]["cast"];
+			minfo.cast.clear();
 			for (unsigned int i= 0; i<elements.size() && i<10;i++) {
 				minfo.cast +=  "  "+elements[i].get("character","").asString()+" ("+elements[i].get("name","").asString() + ")\n";
 				//printf("test: %s (%s)\n",elements[i].get("character","").asString().c_str(),elements[i].get("name","").asString().c_str());
