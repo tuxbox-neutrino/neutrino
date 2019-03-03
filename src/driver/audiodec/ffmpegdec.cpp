@@ -192,7 +192,11 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 		char buf[200]; av_strerror(r, buf, sizeof(buf));
 		fprintf(stderr, "%d %s %d: %s\n", __LINE__, __func__,r,buf);
 		if (avioc)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
+			av_free(avc->pb);
+#else
 			avio_context_free(&avioc);
+#endif
 		if (avc) {
 			avformat_close_input(&avc);
 			avformat_free_context(avc);
@@ -207,7 +211,11 @@ void CFfmpegDec::DeInit(void)
 {
 	if (avc) {
 		if (avc->pb)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
+			av_free(avc->pb);
+#else
 			avio_context_free(&avc->pb);
+#endif
 		avformat_close_input(&avc);
 		avformat_free_context(avc);
 		avc = NULL;
