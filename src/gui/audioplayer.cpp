@@ -1344,6 +1344,9 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *urltag, c
 				element = xmlNextNode(element);
 				g_RCInput->getMsg(&msg, &data, 0);
 
+				if( ( msg>= CRCInput::RC_WithData ) && ( msg< CRCInput::RC_WithData+ 0x10000000 ) )
+					delete[] (unsigned char*) data;
+
 			}
 			progress.hide();
 		}
@@ -1602,6 +1605,9 @@ bool CAudioPlayerGui::openSCbrowser(void)
 			//printf("processPlaylistUrl(%s, %s)\n", files->Url.c_str(), files->Name.c_str());
 			processPlaylistUrl(files->Url.c_str(), files->Name.c_str(), NULL, files->Time);
 			g_RCInput->getMsg(&msg, &data, 0);
+
+			if( ( msg>= CRCInput::RC_WithData ) && ( msg< CRCInput::RC_WithData+ 0x10000000 ) )
+					delete[] (unsigned char*) data;
 		}
 		if (m_select_title_by_name)
 			buildSearchTree();
