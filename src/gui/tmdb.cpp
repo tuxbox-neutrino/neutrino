@@ -69,8 +69,7 @@ cTmdb::~cTmdb()
 
 void cTmdb::setTitle(std::string epgtitle)
 {
-    memset(&minfo, 0, sizeof(minfo));
-   	minfo.epgtitle = epgtitle;
+	minfo.epgtitle = epgtitle;
 
 	CHintBox hintbox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_TMDB_READ_DATA));
 	hintbox.paint();
