@@ -192,7 +192,7 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 		char buf[200]; av_strerror(r, buf, sizeof(buf));
 		fprintf(stderr, "%d %s %d: %s\n", __LINE__, __func__,r,buf);
 		if (avioc)
-			av_freep(avioc);
+			avio_context_free(&avioc);
 		if (avc) {
 			avformat_close_input(&avc);
 			avformat_free_context(avc);
@@ -206,15 +206,12 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 void CFfmpegDec::DeInit(void)
 {
 	if (avc) {
+		if (avc->pb)
+			avio_context_free(&avc->pb);
 		avformat_close_input(&avc);
-#if 0
-		av_freep(&avc->pb);
-#endif
 		avformat_free_context(avc);
 		avc = NULL;
 	}
-//	if (buffer)
-//		av_freep(&buffer);
 	in = NULL;
 }
 
