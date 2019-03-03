@@ -1383,6 +1383,8 @@ void CEpgData::hide()
 	// imdb
 	imdb_active = false;
 	imdb->cleanup();
+
+	remove("/tmp/tmdb.jpg");
 }
 
 void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear )
