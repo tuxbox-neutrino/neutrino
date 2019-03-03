@@ -59,6 +59,8 @@
 #include <eitd/sectionsd.h>
 #include <timerdclient/timerdclient.h>
 
+#define TMDB_COVER "/tmp/tmdb.jpg"
+
 extern CPictureViewer * g_PicViewer;
 
 #define ICON_LARGE_WIDTH 26
@@ -1384,7 +1386,7 @@ void CEpgData::hide()
 	imdb_active = false;
 	imdb->cleanup();
 
-	remove("/tmp/tmdb.jpg");
+	remove(TMDB_COVER);
 }
 
 void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear )
