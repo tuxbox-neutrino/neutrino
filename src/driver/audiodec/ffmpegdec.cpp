@@ -124,12 +124,12 @@ static int64_t seek_packet(void *opaque, int64_t offset, int whence)
 
 bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 {
-        title = "";
-        artist = "";
-        date = "";
-        album = "";
-        genre = "";
-        type_info = "";
+	title = "";
+	artist = "";
+	date = "";
+	album = "";
+	genre = "";
+	type_info = "";
 	total_time = 0;
 	bitrate = 0;
 
@@ -192,8 +192,8 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 		char buf[200]; av_strerror(r, buf, sizeof(buf));
 		fprintf(stderr, "%d %s %d: %s\n", __LINE__, __func__,r,buf);
 		if (avioc)
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
-			av_free(avc->pb);
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
+			av_free(avioc);
 #else
 			avio_context_free(&avioc);
 #endif
@@ -211,7 +211,7 @@ void CFfmpegDec::DeInit(void)
 {
 	if (avc) {
 		if (avc->pb)
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
 			av_free(avc->pb);
 #else
 			avio_context_free(&avc->pb);

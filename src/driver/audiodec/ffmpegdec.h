@@ -61,12 +61,12 @@ private:
 	void DeInit(void);
 	void GetMeta(AVDictionary * metadata);
 
-        std::string title;
-        std::string artist;
-        std::string date;
-        std::string album;
-        std::string genre;
-        std::string type_info;
+	std::string title;
+	std::string artist;
+	std::string date;
+	std::string album;
+	std::string genre;
+	std::string type_info;
 	time_t total_time;
 	int bitrate;
 	int samplerate;
