@@ -58,6 +58,13 @@ enum {
 };
 
 enum {
+	DISPLAY_MODE_NOW = 0,
+	DISPLAY_MODE_NEXT,
+	DISPLAY_MODE_PRIME,
+	DISPLAY_MODE_MAX
+};
+
+enum {
 	CHANLIST_CANCEL = -1,
 	CHANLIST_CANCEL_ALL = -2,
 	CHANLIST_CHANGE_MODE = -3,
@@ -129,9 +136,8 @@ private:
 	CEPGData		epgData;
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet
-	bool displayNext;
-	bool displayList;
-	bool primetime;
+	int displayMode;
+	bool descMode;
 	bool minitv_is_active;
 
 	bool headerNew;

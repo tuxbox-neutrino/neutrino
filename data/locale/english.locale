@@ -244,11 +244,13 @@ buildinfo.creator Creator
 buildinfo.kernel Kernel version
 buildinfo.menu Build information
 cablesetup.provider cable provider
-channellist.additional Additional Informations
-channellist.additional_off Off
-channellist.additional_on On
-channellist.additional_on_minitv On (with MiniTV)
-channellist.current_tp Current Transponder
+channellist.additional Additional informations
+channellist.additional_desc Description
+channellist.additional_list Event list
+channellist.additional_off off
+channellist.additional_on on
+channellist.additional_on_minitv on (with MiniTV)
+channellist.current_tp Current transponder
 channellist.edit Edit
 channellist.epgtext_align_left Left
 channellist.epgtext_align_right Right

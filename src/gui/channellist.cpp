@@ -175,12 +175,12 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		return;
 
 	CChannelEventList events;
-	if (displayNext) {
+	if (displayMode == DISPLAY_MODE_NEXT || displayMode == DISPLAY_MODE_PRIME) {
 		time_t atime = time(NULL);
-		if (g_settings.channellist_primetime && primetime)
+		if (displayMode == DISPLAY_MODE_PRIME)
 		{
 			struct tm * timeinfo;
-			timeinfo = localtime (&atime);
+			timeinfo = localtime(&atime);
 			timeinfo->tm_hour = 20;
 			timeinfo->tm_min = 0;
 			atime = mktime(timeinfo);
@@ -478,9 +478,8 @@ int CChannelList::doChannelMenu(void)
 
 int CChannelList::exec()
 {
-	displayNext = 0; // always start with current events
-	displayList = 1; // always start with event list
-	primetime  = 0;
+	displayMode = DISPLAY_MODE_NOW; // always start with current events
+	descMode = false; // always start with event list
 	int nNewChannel = show();
 	if ( nNewChannel > -1 && nNewChannel < (int) (*chanlist).size()) {
 		if(this->historyMode && (*chanlist)[nNewChannel]) {
@@ -620,7 +619,7 @@ int CChannelList::show()
 	new_zap_mode = g_settings.channellist_new_zap_mode;
 
 	calcSize();
-	displayNext = false;
+	displayMode = DISPLAY_MODE_NOW;
 
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
@@ -760,7 +759,7 @@ int CChannelList::show()
 		else if (!empty && (msg == CRCInput::RC_up || (int)msg == g_settings.key_pageup ||
 				    msg == CRCInput::RC_down || (int)msg == g_settings.key_pagedown))
 		{
-			displayList = 1;
+			//descMode = false;
 			int new_selected = UpDownKey((*chanlist), msg, listmaxshow, selected);
 			if (new_selected >= 0)
 				actzap = updateSelection(new_selected);
@@ -866,24 +865,9 @@ int CChannelList::show()
 				if (move_state != beMoving)
 					renameChannel();
 			} else {
-				if (g_settings.channellist_additional && !displayNext)
-					displayList = !displayList;
-				if (displayList)
-					displayNext = !displayNext;
-#if 0
-				if (g_settings.channellist_additional)
-					displayList = !displayList;
-				else
-				{
-					if (primetime && displayNext)
-						primetime = 0;
-					else
-					{
-						primetime = 0;
-						displayNext = !displayNext;
-					}
-				}
-#endif
+				displayMode++;
+				if (displayMode == DISPLAY_MODE_MAX)
+					displayMode = DISPLAY_MODE_NOW;
 
 				paint();
 			}
@@ -903,15 +887,9 @@ int CChannelList::show()
 					oldselected = selected;
 					paint();
 				} else {
-					if (g_settings.channellist_primetime)
+					if (g_settings.channellist_additional)
 					{
-						if (displayNext && !primetime)
-							primetime = 1;
-						else
-						{
-							primetime = 1;
-							displayNext = !displayNext;
-						}
+						descMode = !descMode;
 						paint();
 					}
 				}
@@ -941,7 +919,10 @@ int CChannelList::show()
 		else if (!empty && ((msg == CRCInput::RC_info) || (msg == CRCInput::RC_help))) {
 			hide();
 			CChannelEvent *p_event=NULL;
-			if (displayNext)
+			// TODO: fix primetime
+			if (displayMode == DISPLAY_MODE_NOW)
+				p_event = &((*chanlist)[selected]->currentEvent);
+			else
 				p_event = &((*chanlist)[selected]->nextEvent);
 
 			if(p_event && p_event->eventID)
@@ -1629,10 +1610,10 @@ void CChannelList::paintDetails(int index)
 	bool colored_event_N = (g_settings.theme.colored_events_channellist == 2);
 
 	CChannelEvent *p_event = NULL;
-	if (displayNext)
-		p_event = &(*chanlist)[index]->nextEvent;
-	else
+	if (displayMode == DISPLAY_MODE_NOW)
 		p_event = &(*chanlist)[index]->currentEvent;
+	else
+		p_event = &(*chanlist)[index]->nextEvent;
 
 	if (/* !IS_WEBCHAN((*chanlist)[index]->getChannelID()) && */ p_event && !p_event->description.empty()) {
 		char cNoch[50] = {0}; // UTF-8
@@ -1640,14 +1621,17 @@ void CChannelList::paintDetails(int index)
 
 		struct		tm *pStartZeit = localtime(&p_event->startTime);
 		unsigned	seit = (time(NULL) - p_event->startTime + 30) / 60;
-		snprintf(cSeit, sizeof(cSeit), "%s %02d:%02d",(displayNext) ? g_Locale->getText(LOCALE_CHANNELLIST_START):g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
-		if (displayNext) {
-			snprintf(cNoch, sizeof(cNoch), "(%d %s)", p_event->duration / 60, unit_short_minute);
-		} else {
+		snprintf(cSeit, sizeof(cSeit), "%s %02d:%02d",(displayMode == DISPLAY_MODE_NOW) ? g_Locale->getText(LOCALE_CHANNELLIST_SINCE) : g_Locale->getText(LOCALE_CHANNELLIST_START), pStartZeit->tm_hour, pStartZeit->tm_min);
+		if (displayMode == DISPLAY_MODE_NOW)
+		{
 			int noch = (p_event->startTime + p_event->duration - time(NULL)) / 60;
-			if ((noch< 0) || (noch>=10000))
-				noch= 0;
+			if ((noch < 0) || (noch >= 10000))
+				noch = 0;
 			snprintf(cNoch, sizeof(cNoch), "(%u / %d %s)", seit, noch, unit_short_minute);
+		}
+		else
+		{
+			snprintf(cNoch, sizeof(cNoch), "(%d %s)", p_event->duration / 60, unit_short_minute);
 		}
 		int seit_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cSeit);
 		int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cNoch);
@@ -1719,7 +1703,7 @@ void CChannelList::paintDetails(int index)
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ OFFSET_INNER_MID, ypos_a + 2*fheight +fdescrheight, full_width - 3*OFFSET_INNER_MID, desc.c_str(), COL_MENUCONTENTDARK_TEXT);
 	}
-	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
+	else if (displayMode == DISPLAY_MODE_NOW && g_settings.channellist_foot == 1) { // next Event
 
 		CSectionsdClient::CurrentNextInfo CurrentNext;
 		CEitManager::getInstance()->getCurrentNextServiceKey((*chanlist)[index]->getEpgID(), CurrentNext);
@@ -1769,10 +1753,10 @@ void CChannelList::paintAdditionals(int index)
 {
 	if (g_settings.channellist_additional)
 	{
-		if (displayList)
-			paint_events(index);
-		else
+		if (descMode)
 			showdescription(selected);
+		else
+			paint_events(index);
 	}
 }
 
@@ -1859,30 +1843,25 @@ void CChannelList::paintButtonBar(bool is_current)
 				}
 			} else
 			{
-				if (g_settings.channellist_primetime)
+				if (g_settings.channellist_additional)
 				{
-					if (displayNext && primetime)
-						Button[bcnt].locale = LOCALE_INFOVIEWER_NOW;
+					if (descMode)
+						Button[bcnt].locale = LOCALE_CHANNELLIST_ADDITIONAL_LIST;
 					else
-						Button[bcnt].locale = LOCALE_CHANNELLIST_PRIMETIME;
+						Button[bcnt].locale = LOCALE_CHANNELLIST_ADDITIONAL_DESC;
 				}
 				else
 					continue;
 			}
 		}
 		if (i == 3) {
-			//manage now/next button
-			if (g_settings.channellist_additional) {
-				if (displayList)
-					Button[bcnt].locale = LOCALE_FONTSIZE_CHANNELLIST_DESCR;
-				else
-					Button[bcnt].locale = LOCALE_FONTMENU_EVENTLIST;
-			} else {
-				if (displayNext && !primetime)
-					Button[bcnt].locale = LOCALE_INFOVIEWER_NOW;
-				else
-					Button[bcnt].locale = LOCALE_INFOVIEWER_NEXT;
-			}
+			//manage now/next/prime button
+			if (displayMode == DISPLAY_MODE_NOW)
+				Button[bcnt].locale = LOCALE_INFOVIEWER_NEXT;
+			else if (displayMode == DISPLAY_MODE_NEXT)
+				Button[bcnt].locale = LOCALE_CHANNELLIST_PRIMETIME;
+			else if (displayMode == DISPLAY_MODE_PRIME)
+				Button[bcnt].locale = LOCALE_INFOVIEWER_NOW;
 		}
 		if (i == 4) {
 			//manage record button
@@ -1890,14 +1869,20 @@ void CChannelList::paintButtonBar(bool is_current)
 				continue;
 			if (IS_WEBCHAN(channel_id))
 				continue;
-			if (!displayNext){
-				if (do_record){
+			if (displayMode == DISPLAY_MODE_NOW)
+			{
+				if (do_record)
+				{
 					Button[bcnt].locale = LOCALE_MAINMENU_RECORDING_STOP;
 					Button[bcnt].button = NEUTRINO_ICON_BUTTON_STOP;
-				} else if (is_current) {
+				}
+				else if (is_current)
+				{
 					Button[bcnt].locale = LOCALE_MAINMENU_RECORDING;
 					Button[bcnt].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE;
-				} else {
+				}
+				else
+				{
 					Button[bcnt].locale = NONEXISTANT_LOCALE;
 					Button[bcnt].button = NEUTRINO_ICON_BUTTON_RECORD_INACTIVE;
 				}
@@ -1951,7 +1936,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 	int i_radius	= RADIUS_NONE;
 
 	fb_pixel_t color;
-	fb_pixel_t ecolor; // we need one more color for displayNext
+	fb_pixel_t ecolor; // we need one more color for DISPLAY_MODE_NEXT
 	fb_pixel_t bgcolor;
 
 	getItemColors(color, bgcolor, i_selected, i_marked);
@@ -1968,7 +1953,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		paintbuttons = true;
 	}
 
-	if (displayNext)
+#if 0
+	if (displayMode != DISPLAY_MODE_NOW)
 	{
 		/*
 		   I think it's unnecessary to change colors in this case.
@@ -1979,6 +1965,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		else
 			ecolor = COL_MENUCONTENTINACTIVE_TEXT;
 	}
+#endif
 
 	if (!is_available)
 		color = COL_MENUCONTENTINACTIVE_TEXT;
@@ -2002,10 +1989,10 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		snprintf(tmp, sizeof(tmp), "%d", this->historyMode ? pos : chan->number);
 
 		CChannelEvent *p_event=NULL;
-		if (displayNext)
-			p_event = &chan->nextEvent;
-		else
+		if (displayMode == DISPLAY_MODE_NOW)
 			p_event = &chan->currentEvent;
+		else
+			p_event = &chan->nextEvent;
 
 		//record check
 		rec_mode = CRecordManager::getInstance()->GetRecordMode((*chanlist)[curr]->getChannelID());
@@ -2169,14 +2156,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 			if (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF)
 			{
-				if(displayNext)
-				{
-					struct tm *pStartZeit = localtime(&p_event->startTime);
-
-					snprintf(tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
-					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + fheight, width - numwidth - SCROLLBAR_WIDTH - prg_offset - 2*OFFSET_INNER_MID, tmp, ecolor, fheight);
-				}
-				else
+				if (displayMode == DISPLAY_MODE_NOW)
 				{
 					time_t jetzt=time(NULL);
 					int runningPercent = 0;
@@ -2188,6 +2168,13 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 					pb.setValues(runningPercent, pb_width);
 					pb.paint();
+				}
+				else
+				{
+					struct tm *pStartZeit = localtime(&p_event->startTime);
+
+					snprintf(tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
+					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + fheight, width - numwidth - SCROLLBAR_WIDTH - prg_offset - 2*OFFSET_INNER_MID, tmp, ecolor, fheight);
 				}
 			}
 
@@ -2207,10 +2194,13 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		{
 			if (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF)
 			{
-				pb.setValues(0, pb_width);
-				pb.paint();
+				if (displayMode == DISPLAY_MODE_NOW)
+				{
+					pb.setValues(0, pb_width);
+					pb.paint();
+				}
 			}
-			//name
+			// name
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, ch_name_len, nameAndDescription, color);
 		}
 		if (!firstpaint && curr == selected)
@@ -2226,10 +2216,10 @@ void CChannelList::updateVfd()
 
 	CZapitChannel* chan = (*chanlist)[selected];
 	CChannelEvent *p_event=NULL;
-	if (displayNext)
-		p_event = &chan->nextEvent;
-	else
+	if (displayMode == DISPLAY_MODE_NOW)
 		p_event = &chan->currentEvent;
+	else
+		p_event = &chan->nextEvent;
 
 	if (!(chan->currentEvent.description.empty())) {
 		char nameAndDescription[255];
@@ -2601,8 +2591,10 @@ void CChannelList::showdescription(int index)
 	std::string strEpisode = "";	// Episode title in case info1 gets stripped
 	ffheight = g_Font[eventFont]->getHeight();
 	CZapitChannel* chan = (*chanlist)[index];
-	CChannelEvent *p_event = &chan->currentEvent;
-	if (displayNext && primetime)
+	CChannelEvent *p_event=NULL;
+	if (displayMode == DISPLAY_MODE_NOW)
+		p_event = &chan->currentEvent;
+	else
 		p_event = &chan->nextEvent;
 	epgData.info1.clear();
 	epgData.info2.clear();
@@ -2725,7 +2717,7 @@ void CChannelList::editMode(bool enable)
 	if (!bouquet || !bouquet->zapitBouquet)
 		return;
 
-	displayNext = false;
+	displayMode = DISPLAY_MODE_NOW;
 	edit_state = enable;
 	printf("STATE: %s\n", edit_state ? "EDIT" : "SHOW");
 	bool tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;

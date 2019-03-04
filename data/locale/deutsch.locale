@@ -245,6 +245,8 @@ buildinfo.kernel Kernel Version
 buildinfo.menu Build Informationen
 cablesetup.provider Kabelanbieter
 channellist.additional Zusatzinformationen
+channellist.additional_desc Beschreibung
+channellist.additional_list Event-Liste
 channellist.additional_off aus
 channellist.additional_on ein
 channellist.additional_on_minitv ein (mit MiniTV)
