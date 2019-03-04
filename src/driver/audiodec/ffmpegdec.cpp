@@ -73,16 +73,13 @@ static OpenThreads::Mutex mutex;
 
 static int cover_count = 0;
 
-#if 0
-static void log_callback(void *, int, const char *format, va_list ap)
+static void __attribute__ ((unused)) log_callback(void *, int, const char *format, va_list ap)
 {
 	vfprintf(stderr, format, ap);
 }
-#endif
 
 CFfmpegDec::CFfmpegDec(void)
 {
-	//av_log_set_callback(log_callback);
 	meta_data_valid = false;
 	buffer_size = 0x1000;
 	buffer = NULL;
@@ -134,7 +131,12 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 	bitrate = 0;
 
 #ifdef FFDEC_DEBUG
+	av_log_set_flags(AV_LOG_SKIP_REPEATED);
 	av_log_set_level(AV_LOG_DEBUG);
+	av_log_set_callback(log_callback);
+#else
+	av_log_set_flags(AV_LOG_SKIP_REPEATED);
+	av_log_set_level(AV_LOG_INFO);
 #endif
 
 	AVIOContext *avioc = NULL;
