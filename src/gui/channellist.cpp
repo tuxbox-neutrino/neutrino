@@ -2639,7 +2639,7 @@ void CChannelList::showdescription(int index)
 
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 	for (int i = 1; (i < (int)epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
-		g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK_TEXT);
+		g_Font[eventFont]->RenderString(x+ width + OFFSET_INNER_MID, y+ theight+ pig_height + i*ffheight, infozone_width - 2*OFFSET_INNER_MID, epgText[i-1].first, COL_MENUCONTENTDARK_TEXT);
 }
 
 void CChannelList::addTextToArray(const std::string & text, int screening) // UTF-8
