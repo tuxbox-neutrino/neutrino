@@ -181,7 +181,7 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		{
 			struct tm * timeinfo;
 			timeinfo = localtime(&atime);
-			if (timeinfo->tm_hour >=20 && timeinfo->tm_min >= 30)
+			if ((timeinfo->tm_hour > 20) || (timeinfo->tm_hour == 20 && timeinfo->tm_min >= 30))
 				timeinfo->tm_mday += 1;
 			timeinfo->tm_hour = 19;
 			timeinfo->tm_min = 59;
