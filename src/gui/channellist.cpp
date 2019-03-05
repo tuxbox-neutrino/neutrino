@@ -2333,11 +2333,6 @@ void CChannelList::paintBody()
 	frameBuffer->paintBoxRel(x, y+theight, width, height-footerHeight-theight, COL_MENUCONTENT_PLUS_0);
 	if (g_settings.channellist_additional)
 	{
-#if 0
-		// disable displayNext
-		if (!g_settings.channellist_primetime)
-			displayNext = false;
-#endif
 		// paint background for right box
 		frameBuffer->paintBoxRel(x+width,y+theight+pig_height,infozone_width,infozone_height,COL_MENUCONTENT_PLUS_0);
 	}

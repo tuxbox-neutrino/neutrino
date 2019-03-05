@@ -1089,7 +1089,6 @@ menu.hint_channellist_fonts Change channel list font sizes
 menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_mode Use the selected channel list mode on startup if last mode is TV
 menu.hint_channellist_mode_radio Use the selected channel list mode on startup if last mode is Radio
-menu.hint_channellist_primetime Show what's on primetime
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channellist_show_channellogo Enable/disable channel logos.
 menu.hint_channellist_show_channelnumber Show channel number in channel list

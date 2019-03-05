@@ -1116,7 +1116,6 @@ const char * locale_real_names[] =
 	"menu.hint_channellist_foot",
 	"menu.hint_channellist_mode",
 	"menu.hint_channellist_mode_radio",
-	"menu.hint_channellist_primetime",
 	"menu.hint_channellist_setup",
 	"menu.hint_channellist_show_channellogo",
 	"menu.hint_channellist_show_channelnumber",
