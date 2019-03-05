@@ -871,6 +871,13 @@ int CChannelList::show()
 				if (displayMode == DISPLAY_MODE_MAX)
 					displayMode = DISPLAY_MODE_NOW;
 
+				if (g_settings.channellist_additional)
+				{
+					// show event description in primetime mode
+					if (displayMode == DISPLAY_MODE_PRIME)
+						descMode = true;
+				}
+
 				paint();
 			}
 		}
