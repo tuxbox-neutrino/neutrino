@@ -2123,8 +2123,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		}
 
 		int l=0;
-		if (this->historyMode)
-			l = snprintf(nameAndDescription, sizeof(nameAndDescription), ": %d %s", chan->number, chan->getName().c_str());
+		if (this->historyMode && g_settings.channellist_show_numbers)
+			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%d: %s", chan->number, chan->getName().c_str());
 		else
 			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
 
