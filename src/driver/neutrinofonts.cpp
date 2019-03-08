@@ -48,6 +48,19 @@ extern font_sizes_groups_struct font_sizes_groups[];
 extern font_sizes_struct neutrino_font[];
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 
+font_sizes_struct fixed_font[SNeutrinoSettings::FONT_TYPE_FIXED_COUNT] =
+{
+	{NONEXISTANT_LOCALE, 30, CNeutrinoFonts::FONT_STYLE_BOLD,    1},
+	{NONEXISTANT_LOCALE, 30, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
+	{NONEXISTANT_LOCALE, 30, CNeutrinoFonts::FONT_STYLE_ITALIC,  1},
+	{NONEXISTANT_LOCALE, 20, CNeutrinoFonts::FONT_STYLE_BOLD,    1},
+	{NONEXISTANT_LOCALE, 20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
+	{NONEXISTANT_LOCALE, 20, CNeutrinoFonts::FONT_STYLE_ITALIC,  1},
+	{NONEXISTANT_LOCALE, 16, CNeutrinoFonts::FONT_STYLE_BOLD,    1},
+	{NONEXISTANT_LOCALE, 16, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
+	{NONEXISTANT_LOCALE, 16, CNeutrinoFonts::FONT_STYLE_ITALIC,  1},
+};
+
 const font_sizes_struct signal_font = {NONEXISTANT_LOCALE, 14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
 const font_sizes_struct shell_font = {NONEXISTANT_LOCALE, 18, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
 
@@ -64,6 +77,8 @@ CNeutrinoFonts::CNeutrinoFonts()
 
 	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++)
 		g_Font[i] = NULL;
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_FIXED_COUNT; i++)
+		g_FixedFont[i] = NULL;
 
 	g_SignalFont = NULL;
 	g_ShellFont = NULL;
@@ -180,15 +195,32 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 
 		g_fontRenderer->AddFont(fontDescr.filename.c_str(), true);  // make italics
 		fontStyle[2] = "Italic";
+
+		if (g_fixedFontRenderer != NULL)
+			delete g_fixedFontRenderer;
+		g_fixedFontRenderer = new FBFontRenderClass();
+
+		g_fixedFontRenderer->AddFont(fontDescr.filename.c_str());
+		g_fixedFontRenderer->AddFont(fontDescr.filename.c_str(), true); // make italics
 	}
 
 	int fontSize;
-	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++) {
-		if (g_Font[i]) delete g_Font[i];
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++)
+	{
+		if (g_Font[i])
+			delete g_Font[i];
 		fontSize = CFrameBuffer::getInstance()->scale2Res(CNeutrinoApp::getInstance()->getConfigFile()->getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize)) + neutrino_font[i].size_offset * fontDescr.size_offset;
 		g_Font[i] = g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[neutrino_font[i].style].c_str(), fontSize);
 	}
-	if (g_SignalFont) delete g_SignalFont;
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_FIXED_COUNT; i++)
+	{
+		if (g_FixedFont[i])
+			delete g_FixedFont[i];
+		fontSize = CFrameBuffer::getInstance()->scale2Res(fixed_font[i].defaultsize) + fixed_font[i].size_offset * fontDescr.size_offset;
+		g_FixedFont[i] = g_fixedFontRenderer->getFont(fontDescr.name.c_str(), fontStyle[fixed_font[i].style].c_str(), fontSize);
+	}
+	if (g_SignalFont)
+		delete g_SignalFont;
 	fontSize = CFrameBuffer::getInstance()->scale2Res(signal_font.defaultsize) + signal_font.size_offset * fontDescr.size_offset;
 	g_SignalFont = g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[signal_font.style].c_str(), fontSize);
 }

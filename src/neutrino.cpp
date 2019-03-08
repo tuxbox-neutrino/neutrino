@@ -4703,6 +4703,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete g_Sectionsd;
 			delete g_RemoteControl;
 			delete g_fontRenderer;
+			delete g_fixedFontRenderer;
 			delete g_dynFontRenderer;
 			delete g_shellFontRenderer;
 
@@ -5250,6 +5251,7 @@ void CNeutrinoApp::Cleanup()
 
 	printf("cleanup 11\n");fflush(stdout);
 	delete g_fontRenderer; g_fontRenderer = NULL;
+	delete g_fixedFontRenderer; g_fixedFontRenderer = NULL;
 	delete g_dynFontRenderer; g_dynFontRenderer = NULL;
 	delete g_shellFontRenderer; g_shellFontRenderer = NULL;
 	printf("cleanup 12\n");fflush(stdout);
@@ -5291,20 +5293,25 @@ void CNeutrinoApp::Cleanup()
 	delete RADIOsatList; RADIOsatList = NULL;
 
 	printf("cleanup 1\n");fflush(stdout);
-	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++) {
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++)
+	{
 		delete g_Font[i];
 		g_Font[i] = NULL;
 	}
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_FIXED_COUNT; i++)
+	{
+		delete g_FixedFont[i];
+		g_FixedFont[i] = NULL;
+	}
+	delete g_SignalFont; g_SignalFont = NULL;
+	delete g_ShellFont; g_ShellFont = NULL;
+	printf("cleanup 2\n");fflush(stdout);
 	for(unsigned int i=0; i<g_settings.usermenu.size();++i){
 		delete g_settings.usermenu[i];
 		g_settings.usermenu[i] = NULL;
 	}
-	printf("cleanup 2\n");fflush(stdout);
-	delete g_SignalFont; g_SignalFont = NULL;
-	delete g_ShellFont; g_ShellFont = NULL;
 	printf("cleanup 3\n");fflush(stdout);
 	configfile.clear();
-
 	printf("cleanup 4\n");fflush(stdout);
 	delete CZapit::getInstance();
 	printf("cleanup 5\n");fflush(stdout);
