@@ -783,7 +783,7 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 	if (access(name.c_str(), R_OK) == -1)
 		return NULL;
 
-	int x, y, load_ret, bpp = 0;
+	int x = 0, y = 0, load_ret = 0, bpp = 0;
 	CFormathandler *fh = NULL;
 	unsigned char * buffer = NULL;
 	fb_pixel_t * ret = NULL;
@@ -795,6 +795,10 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		mode_str = "getIcon";
 
   	fh = fh_getsize(name.c_str(), &x, &y, INT_MAX, INT_MAX);
+	if (x < 1 || y < 1){
+		return NULL;
+	}
+
 	size_t bufsize = x * y * 4;
 	if (!checkfreemem(bufsize))
 		return NULL;

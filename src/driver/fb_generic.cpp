@@ -816,14 +816,14 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const int y,
 			     const int h, const unsigned char offset, bool paint, bool paintBg, const fb_pixel_t colBg)
 {
+	if (!getActive())
+		return false;
+
 	struct rawHeader header;
-	int	 width, height;
+	int	 width = 0, height = 0;
 	fb_pixel_t * data;
 	struct rawIcon tmpIcon;
 	std::map<std::string, rawIcon>::iterator it;
-
-	if (!getActive())
-		return false;
 
 	int  yy = y;
 	bool freeicondata = false;
@@ -836,6 +836,9 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
+		if (width < 1 || height < 1){
+			return false;
+		}
 
 		if(data) { //TODO: intercepting of possible full icon cache, that could cause strange behavior while painting of uncached icons
 			int dsize = width*height*sizeof(fb_pixel_t);
