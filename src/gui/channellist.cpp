@@ -873,9 +873,8 @@ int CChannelList::show()
 
 				if (g_settings.channellist_additional)
 				{
-					// show event description in primetime mode
-					if (displayMode == DISPLAY_MODE_PRIME)
-						descMode = true;
+					// show event description per default in primetime mode only
+					descMode = (displayMode == DISPLAY_MODE_PRIME) ? true : false;
 				}
 
 				paint();
