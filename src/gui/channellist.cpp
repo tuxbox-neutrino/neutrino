@@ -2271,11 +2271,22 @@ void CChannelList::paintHead()
 	else
 		header->setIcon(edit_state ? NEUTRINO_ICON_EDIT : NULL);
 
-	std::string header_txt 		= !edit_state ? name : std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
-	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);
-	header->setColorBody(COL_MENUHEAD_PLUS_0);
+	std::string header_txt;
+	if (edit_state)
+	{
+		header_txt = std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
+	}
+	else
+	{
+		header_txt = name;
+		if (displayMode == DISPLAY_MODE_NEXT)
+			header_txt += " - " + std::string(g_Locale->getText(LOCALE_INFOVIEWER_NEXT));
+		else if (displayMode == DISPLAY_MODE_PRIME)
+			header_txt += " - " + std::string(g_Locale->getText(LOCALE_CHANNELLIST_PRIMETIME));
+	}
 
-	header->setCaption(header_txt, DEFAULT_TITLE_ALIGN, header_txt_col);
+	header->setColorBody(COL_MENUHEAD_PLUS_0);
+	header->setCaption(header_txt, DEFAULT_TITLE_ALIGN, edit_state ? COL_RED : COL_MENUHEAD_TEXT);
 
 	if (timeset) {
 		if(!edit_state){
