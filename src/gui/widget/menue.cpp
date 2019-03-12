@@ -2242,6 +2242,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 	else if(observ) {
 		wantsRepaint = observ->changeNotify(name, (void *)(optionValuePtr ? optionValuePtr->c_str() : ""));
 	}
+	OnAfterChangeOption();
 	if (wantsRepaint)
 		ret = menu_return::RETURN_REPAINT;
 
