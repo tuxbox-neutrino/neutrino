@@ -1549,36 +1549,67 @@ void CFrameBuffer::Clear()
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
 
-bool CFrameBuffer::showFrame(const std::string & filename, bool fallback)
+bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 {
 	std::string picture = getIconPath(filename, "");
-#if HAVE_COOL_HARDWARE
-	(void)fallback;
+	bool ret = false;
+
 	if (access(picture.c_str(), F_OK) == 0)
 	{
+#if HAVE_COOL_HARDWARE //FIXME: inside libcs no return value available
 		videoDecoder->ShowPicture(picture.c_str());
-		return true;
-	}
+		res = true;
 #else
-	if (access(picture.c_str(), F_OK) == 0)
-	{
 		if (videoDecoder->ShowPicture(picture.c_str()))
-			return true;
+			ret = true;
+#endif
+	}
+	else
+	{
+		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+		picture = "";
+	}
+
+	if (!ret)
+	{
+		if (fallback_mode)
+		{
+			if ((fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE) && !picture.empty())
+				ret = g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
+			else
+				ret = false;
+
+			if (!ret && (fallback_mode & SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN))
+			{
+				paintBoxRel(0, 0, getScreenWidth(true), getScreenHeight(true), COL_BLACK, 0);
+				ret = true;
+			}
+
+			if (fallback_mode & SHOW_FRAME_FALLBACK_MODE_CALLBACK)
+			{
+				if (!OnFallbackShowFrame.empty())
+				{
+					OnFallbackShowFrame();
+					OnFallbackShowFrame.clear();
+					ret = true;
+				}
+				else
+				{
+					dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback mode SHOW_FRAME_FALLBACK_MODE_CALLBACK is enabled but empty, callback ignored...\n", __func__, __LINE__);
+					ret = false;
+				}
+			}
+		}
 		else
 		{
-			if (fallback) {
-				return g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
-			}
-			else
-				dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback is disabled, paint of image was stopped: %s\n", __func__, __LINE__, picture.c_str());
+			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback mode is disabled, ignore black screen, image paint and callback actions: %s\n", __func__, __LINE__, picture.c_str());
+			ret = false;
 		}
 	}
-#endif
-	else
-		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
 
-	return false;
+	return ret;
 }
+
 
 void CFrameBuffer::stopFrame()
 {

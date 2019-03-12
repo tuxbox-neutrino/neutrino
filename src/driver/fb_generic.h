@@ -266,7 +266,15 @@ class CFrameBuffer : public sigc::trackable
 		void RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp);
 
 		void Clear();
-		bool showFrame(const std::string & filename, bool fallback = false);
+
+		enum
+			{
+				SHOW_FRAME_FALLBACK_MODE_OFF		= 0,
+				SHOW_FRAME_FALLBACK_MODE_IMAGE		= 1,
+				SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN	= 2,
+				SHOW_FRAME_FALLBACK_MODE_CALLBACK	= 4
+			};
+		bool showFrame(const std::string & filename, int fallback_mode = SHOW_FRAME_FALLBACK_MODE_OFF);
 		void stopFrame();
 		bool loadBackgroundPic(const std::string & filename, bool show = true);
 		bool Lock(void);
@@ -339,6 +347,7 @@ class CFrameBuffer : public sigc::trackable
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
 		void blit(void) {}
 		sigc::signal<void> OnAfterSetPallette;
+		sigc::signal<void> OnFallbackShowFrame;
 		const char *fb_name;
 };
 
