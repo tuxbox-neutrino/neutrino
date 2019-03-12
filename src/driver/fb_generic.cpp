@@ -1558,7 +1558,7 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	{
 #if HAVE_COOL_HARDWARE //FIXME: inside libcs no return value available
 		videoDecoder->ShowPicture(picture.c_str());
-		res = true;
+		ret = true;
 #else
 		if (videoDecoder->ShowPicture(picture.c_str()))
 			ret = true;
