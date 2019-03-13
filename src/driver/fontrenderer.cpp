@@ -423,7 +423,7 @@ static std::string fribidi_shape_char(const char * text)
 		if (fribidi_log2vis(logical, rtl_len, &fribidi_chartype, visual, NULL, NULL, NULL))
 		{
 			// removes bidirectional marks
-			fribidi_remove_bidi_marks(visual, rtl_len, NULL, NULL, NULL);
+			FriBidiStrIndex __attribute__ ((unused)) idx = fribidi_remove_bidi_marks(visual, rtl_len, NULL, NULL, NULL);
 
 			rtl_text = (char *)alloca(sizeof(char)*(rtl_len * 4 + 1));
 			fribidi_unicode_to_charset(fribidi_charset, visual, rtl_len, rtl_text);
