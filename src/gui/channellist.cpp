@@ -1783,22 +1783,23 @@ void CChannelList::showChannelLogo()
 		header->setChannelLogo(0, std::string());
 }
 
-#define NUM_LIST_BUTTONS_SORT 9
-struct button_label SChannelListButtons_SMode[NUM_LIST_BUTTONS_SORT] =
+struct button_label SChannelListButtons_SMode[] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED,             LOCALE_MISCSETTINGS_EPG_HEAD},
 	{ NEUTRINO_ICON_BUTTON_GREEN,           LOCALE_CHANNELLIST_FOOT_SORT_ALPHA},
 	{ NEUTRINO_ICON_BUTTON_YELLOW,          LOCALE_BOUQUETLIST_HEAD},
 	{ NEUTRINO_ICON_BUTTON_BLUE,            LOCALE_INFOVIEWER_NEXT},
 	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE},
+#ifdef ENABLE_PIP
 	{ NEUTRINO_ICON_BUTTON_PLAY,            LOCALE_EXTRA_KEY_PIP_CLOSE},
+#endif
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL,      NONEXISTANT_LOCALE},
 	{ NEUTRINO_ICON_BUTTON_MENU_SMALL,      NONEXISTANT_LOCALE},
 	{ NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, NONEXISTANT_LOCALE}
 };
+int NUM_LIST_BUTTONS_SORT = sizeof(SChannelListButtons_SMode)/sizeof(SChannelListButtons_SMode[0]);
 
-#define NUM_LIST_BUTTONS_EDIT 6
-const struct button_label SChannelListButtons_Edit[NUM_LIST_BUTTONS_EDIT] =
+const struct button_label SChannelListButtons_Edit[] =
 {
         { NEUTRINO_ICON_BUTTON_RED   , LOCALE_BOUQUETEDITOR_DELETE     },
         { NEUTRINO_ICON_BUTTON_GREEN , LOCALE_BOUQUETEDITOR_ADD        },
@@ -1807,6 +1808,7 @@ const struct button_label SChannelListButtons_Edit[NUM_LIST_BUTTONS_EDIT] =
         { NEUTRINO_ICON_BUTTON_FORWARD  , LOCALE_BOUQUETEDITOR_MOVE_TO },
         { NEUTRINO_ICON_BUTTON_STOP  , LOCALE_BOUQUETEDITOR_LOCK       }
 };
+int NUM_LIST_BUTTONS_EDIT = sizeof(SChannelListButtons_Edit)/sizeof(SChannelListButtons_Edit[0]);
 
 void CChannelList::paintButtonBar(bool is_current)
 {
