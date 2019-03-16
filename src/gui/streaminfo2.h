@@ -65,6 +65,7 @@ class CStreamInfo2 : public CMenuTarget
 		int sigBox_h;
 		int sigBox_pos;
 		int sig_text_y;
+		int sig_text_w;
 		int sig_text_ber_x;
 		int sig_text_sig_x;
 		int sig_text_snr_x;
@@ -119,7 +120,8 @@ class CStreamInfo2 : public CMenuTarget
 		void paint_signal_fe_box(int x, int y, int w, int h);
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
 		int y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
-		void SignalRenderStr (unsigned int value, int x, int y);
+		void SignalRenderHead(std::string head, int x, int y, fb_pixel_t color);
+		void SignalRenderStr(unsigned int value, int x, int y);
 		CSignalBox *signalbox;
 
 		void showSNR ();
