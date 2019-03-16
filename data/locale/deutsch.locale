@@ -2416,7 +2416,7 @@ streaminfo.audiotype Audiotyp
 streaminfo.audiotype_unknown unbekannt
 streaminfo.average_bitrate Durchschnitt
 streaminfo.bitrate Bitrate
-streaminfo.casystems Cryptsysteme
+streaminfo.casystems CA ID(s)
 streaminfo.framerate Bildrate
 streaminfo.framerate_unknown unbekannt
 streaminfo.head Technische Informationen

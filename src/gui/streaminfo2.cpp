@@ -1114,7 +1114,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	if (!mp)
 	{
 		// onid
-		r.key = "ONid: ";
+		r.key = "ONID: ";
 		i = channel->getOriginalNetworkId();
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
@@ -1122,7 +1122,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		v.push_back(r);
 
 		// tsid
-		r.key = "TSid: ";
+		r.key = "TSID: ";
 		i = channel->getTransportStreamId();
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
@@ -1130,7 +1130,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		v.push_back(r);
 
 		// sid
-		r.key = "Sid: ";
+		r.key = "SID: ";
 		i = channel->getServiceId();
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
@@ -1138,7 +1138,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		v.push_back(r);
 
 		// pmtpid
-		r.key = "PMTpid: ";
+		r.key = "PMT PID: ";
 		i = channel->getPmtPid();
 		pmt_version = channel->getPmtVersion();
 		snprintf(buf, sizeof(buf), "0x%04X (%i) [0x%02X]", i, i, pmt_version);
@@ -1149,7 +1149,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		//vtxtpid
 		if (g_RemoteControl->current_PIDs.PIDs.vtxtpid)
 		{
-			r.key = "VTXTpid: ";
+			r.key = "VT PID: ";
 			i = g_RemoteControl->current_PIDs.PIDs.vtxtpid;
 			snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 			r.val = buf;
@@ -1161,7 +1161,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	// video pid
 	if (g_RemoteControl->current_PIDs.PIDs.vpid)
 	{
-		r.key = "Vpid: ";
+		r.key = "Video PID: ";
 		i = g_RemoteControl->current_PIDs.PIDs.vpid;
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
@@ -1174,7 +1174,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	{
 		for (unsigned int li = 0; li < g_RemoteControl->current_PIDs.APIDs.size(); li++)
 		{
-			r.key = li ? "" : "Apid(s): ";
+			r.key = li ? "" : "Audio PID(s): ";
 			i = g_RemoteControl->current_PIDs.APIDs[li].pid;
 			std::string strpid = to_string(i);
 			std::string details(" ");
@@ -1324,10 +1324,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 		{
 			if (cryptsystems)
 			{
-				ypos += iheight;
+				ypos += sheight;
 				std::string casys_locale(g_Locale->getText(LOCALE_STREAMINFO_CASYSTEMS));
 				casys_locale += ":";
-				g_FixedFont[font_info]->RenderString(xpos , ypos, box_width, casys_locale, COL_MENUCONTENT_TEXT);
+				g_FixedFont[font_small]->RenderString(xpos, ypos, box_width, casys_locale, COL_MENUCONTENT_TEXT);
 				cryptsystems = false;
 			}
 			ypos += sheight;
