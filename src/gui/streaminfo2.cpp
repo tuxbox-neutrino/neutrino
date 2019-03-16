@@ -950,22 +950,11 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.key = g_Locale->getText(LOCALE_SCANTS_FREQDATA);
 		r.val = t.description();
 		v.push_back(r);
-
-		// empty line
-		r.key = r.val = "";
-		v.push_back(r);
-
-		// video pid
-		if (g_RemoteControl->current_PIDs.PIDs.vpid)
-		{
-			r.key = "Vpid: ";
-			i = g_RemoteControl->current_PIDs.PIDs.vpid;
-			snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
-			r.val = buf;
-			v.push_back(r);
-		}
-
 	}
+
+	// empty line
+	r.key = r.val = "";
+	v.push_back(r);
 
 	if (channel)
 	{
@@ -1004,13 +993,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			tmp_fps = (*it)["fps"];
 		}
 	}
-
-	// osd resolution
-	r.key = g_Locale->getText(LOCALE_STREAMINFO_OSD_RESOLUTION);
-	r.key += ": ";
-	snprintf(buf, sizeof(buf), "%dx%d", frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
-	r.val = buf;
-	v.push_back(r);
 
 	// aspect ratio
 	r.key = g_Locale->getText(LOCALE_STREAMINFO_ARATIO);
@@ -1100,64 +1082,37 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 				v.push_back(r);
 			}
 		}
-
-		// empty line
-		r.key = r.val = "";
-		v.push_back(r);
-
-		// channellogo
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
-		{
-			r.key = "Logo";
-			r.key += ": ";
-			snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
-			r.val = buf;
-			r.f   = g_FixedFont[font_small];
-			v.push_back(r);
-		}
 	}
-	else
+
+	// empty line
+	r.key = r.val = "";
+	v.push_back(r);
+
+	// osd resolution
+	r.key = g_Locale->getText(LOCALE_STREAMINFO_OSD_RESOLUTION);
+	r.key += ": ";
+	snprintf(buf, sizeof(buf), "%dx%d", frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	r.val = buf;
+	r.f   = g_FixedFont[font_small];
+	v.push_back(r);
+
+	// channellogo
+	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
 	{
-		// audio pids
-		if (!g_RemoteControl->current_PIDs.APIDs.empty())
-		{
-			for (unsigned int li = 0; li < g_RemoteControl->current_PIDs.APIDs.size(); li++)
-			{
-				r.key = li ? "" : "Apid(s): ";
-				i = g_RemoteControl->current_PIDs.APIDs[li].pid;
-				std::string strpid = to_string(i);
-				std::string details(" ");
-				for (std::vector<std::map<std::string, std::string> >::iterator it = streamdata.begin(); it != streamdata.end(); ++it)
-				{
-					if ((*it)["pid"] == strpid)
-					{
-						details = (*it)["language"];
-						if (details != " ")
-							details += ", ";
-						details += (*it)["codec"];
-						break;
-					}
-				}
-				if (details == " ")
-					details.clear();
-				snprintf(buf, sizeof(buf), "0x%04X (%i)%s", i, i, details.c_str());
-				r.val = buf;
-				r.col = (li == g_RemoteControl->current_PIDs.PIDs.selected_apid) ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
-				v.push_back(r);
-			}
-		}
-
-		// empty line
-		r.key = r.val = "";
-		v.push_back(r);
-
-		// channellogo
 		r.key = "Logo";
 		r.key += ": ";
 		snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 		r.val = buf;
-		r.f   = g_FixedFont[font_small];
 		v.push_back(r);
+	}
+
+	// empty line
+	r.key = r.val = "";
+	r.f   = g_FixedFont[font_info];
+	v.push_back(r);
+
+	if (!mp)
+	{
 		// onid
 		r.key = "ONid: ";
 		i = channel->getOriginalNetworkId();
@@ -1166,17 +1121,17 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.f   = g_FixedFont[font_small];
 		v.push_back(r);
 
-		// sid
-		r.key = "Sid: ";
-		i = channel->getServiceId();
+		// tsid
+		r.key = "TSid: ";
+		i = channel->getTransportStreamId();
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
 		r.f   = g_FixedFont[font_small];
 		v.push_back(r);
 
-		// tsid
-		r.key = "TSid: ";
-		i = channel->getTransportStreamId();
+		// sid
+		r.key = "Sid: ";
+		i = channel->getServiceId();
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
 		r.f   = g_FixedFont[font_small];
@@ -1202,10 +1157,51 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			v.push_back(r);
 		}
 	}
+
+	// video pid
+	if (g_RemoteControl->current_PIDs.PIDs.vpid)
+	{
+		r.key = "Vpid: ";
+		i = g_RemoteControl->current_PIDs.PIDs.vpid;
+		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
+		r.val = buf;
+		r.f   = g_FixedFont[font_small];
+		v.push_back(r);
+	}
+
+	// audio pid(s)
+	if (!g_RemoteControl->current_PIDs.APIDs.empty())
+	{
+		for (unsigned int li = 0; li < g_RemoteControl->current_PIDs.APIDs.size(); li++)
+		{
+			r.key = li ? "" : "Apid(s): ";
+			i = g_RemoteControl->current_PIDs.APIDs[li].pid;
+			std::string strpid = to_string(i);
+			std::string details(" ");
+			for (std::vector<std::map<std::string, std::string> >::iterator it = streamdata.begin(); it != streamdata.end(); ++it)
+			{
+				if ((*it)["pid"] == strpid)
+				{
+					details = (*it)["language"];
+					if (details != " ")
+						details += ", ";
+					details += (*it)["codec"];
+					break;
+				}
+			}
+			if (details == " ")
+				details.clear();
+			snprintf(buf, sizeof(buf), "0x%04X (%i)%s", i, i, details.c_str());
+			r.val = buf;
+			r.col = (li == g_RemoteControl->current_PIDs.PIDs.selected_apid) ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
+			r.f   = g_FixedFont[font_small];
+			v.push_back(r);
+		}
+	}
+
 	spaceoffset = 0;
 	for (std::vector<row>::iterator it = v.begin(); it != v.end(); ++it)
 		spaceoffset = std::max(spaceoffset, it->f->getRenderWidth(it->key));
-
 	spaceoffset = std::max(spaceoffset, g_FixedFont[font_info]->getRenderWidth(std::string(g_Locale->getText(LOCALE_STREAMINFO_BITRATE)) + ": "));
 
 	for (std::vector<row>::iterator it = v.begin(); it != v.end(); ++it)
@@ -1221,6 +1217,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	if (box_h == 0)
 		box_h = ypos - ypos1;
 	yypos = ypos;
+
 	if (!mp)
 		paintCASystem(xpos, ypos);
 }
