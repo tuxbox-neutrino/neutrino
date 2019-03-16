@@ -870,7 +870,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 				r.val += " << ";
 				r.val += channel->getRealname().c_str();
 			}
-
 			v.push_back(r);
 
 			// url
@@ -908,6 +907,11 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.key = g_Locale->getText(LOCALE_TIMERLIST_CHANNEL);
 		r.key += ": ";
 		r.val = channel->getName().c_str();
+		if (channel->getName() != channel->getRealname())
+		{
+			r.val += " << ";
+			r.val += channel->getRealname().c_str();
+		}
 		v.push_back(r);
 
 		// provider
