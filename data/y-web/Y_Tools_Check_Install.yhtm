@@ -40,7 +40,7 @@ function sLog_addRow(_body, state, action_text, state_text){
 }
 /*check*/
 function wiki_url(_page){
-	return "<a href=\"http://wiki.dbox2-tuning.net/"+_page+"\" target='_blank'><b>[Help]<\/b><\/a>"
+	return "<a href=\"https://wiki.tuxbox-neutrino.org/wiki/"+_page+"\" target='_blank'><b>[Help]<\/b><\/a>"
 }
 function do_check(){
 	sLog_init();
@@ -62,18 +62,18 @@ function do_check(){
 	=}
 	{=if-equal:{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=}~80~~
 		sLog_addRow(sLog_body, "yellow",
-		"WebServer: not set to Standard-Port. Actual: {=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=} "+wiki_url("Neutrino:yWeb#Webserver"), "notice");
+		"WebServer: not set to Standard-Port. Actual: {=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=} "+wiki_url("Neutrino:yWeb:Settings#WebServer"), "notice");
 	=}
 	/*settings*/
 	{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=}~~
 		sLog_addRow(sLog_body, "yellow",
 		"Settings: Management IP(1) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=} ! Your IP is {=func:get_request_data client_addr=}. "
-		+wiki_url("Help-Settings-yWeb"), "notice");
+		+wiki_url("Neutrino:yWeb:Settings#yWeb"), "notice");
 	=}
 	{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~~
 		sLog_addRow(sLog_body, "yellow",
 		"Settings: Management IP(2) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=} ! Your IP is {=func:get_request_data client_addr=}. "
-		+wiki_url("Neutrino:yWeb#yWeb"), "notice");
+		+wiki_url("Neutrino:yWeb:Settings#yWeb"), "notice");
 	=}
 
 	/*programs*/

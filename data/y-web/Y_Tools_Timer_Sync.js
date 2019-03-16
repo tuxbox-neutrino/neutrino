@@ -1,6 +1,6 @@
 function wiki_url(_page)
 {
-	return "<a href=\"http://wiki.dbox2-tuning.net/"+_page+"\"' target=\"_blank\"><b>[Help]<\/b><\/a>";
+	return "<a href=\"https://wiki.tuxbox-neutrino.org/wiki/"+_page+"\"' target=\"_blank\"><b>[Help]<\/b><\/a>";
 }
 /*timer_list*/
 var timer_body;
@@ -185,19 +185,19 @@ function do_get_tvinfo()
 			if(res.search("SSL certificate verify ok")!=-1)
 				sLog_addRow(sLog_body, "green", "TVinfo: SSL certificate verify", "ok");
 			else
-				sLog_addRow(sLog_body, "red", "TVinfo: SSL certificate verify "+wiki_url("Neutrino:yWeb#Timer_Sync"), "failed");
+				sLog_addRow(sLog_body, "red", "TVinfo: SSL certificate verify "+wiki_url("Neutrino:yWeb:Live_Timer#Timer_Sync"), "failed");
 
 			if(res.search("left intact")!=-1)
 			{
 				sLog_addRow(sLog_body, "green", "TVinfo: connecting ", "ok");
 			}
 			else
-				sLog_addRow(sLog_body, "red", "TVinfo: connecting. "+wiki_url("Neutrino:yWeb#Timer_Sync"), "failed");
+				sLog_addRow(sLog_body, "red", "TVinfo: connecting. "+wiki_url("Neutrino:yWeb:Live_Timer#Timer_Sync"), "failed");
 		}
 		else
-			sLog_addRow(sLog_body, "red", "TVinfo: no password given. "+wiki_url("Neutrino:yWeb#Timer_Sync"), "failed");
+			sLog_addRow(sLog_body, "red", "TVinfo: no password given. "+wiki_url("Neutrino:yWeb:Live_Timer#Timer_Sync"), "failed");
 	else
-		sLog_addRow(sLog_body, "red", "TVinfo: no username given. "+wiki_url("Neutrino:yWeb#Timer_Sync"), "failed");
+		sLog_addRow(sLog_body, "red", "TVinfo: no username given. "+wiki_url("Neutrino:yWeb:Live_Timer#Timer_Sync"), "failed");
 
 }
 function do_get_klack()
@@ -208,7 +208,7 @@ function do_get_klack()
 	if(res.search(/Connecting/)!=-1)
 		sLog_addRow(sLog_body, "green", "Klack: connecting: "+res, "ok");
 	else
-		sLog_addRow(sLog_body, "red", "Klack: connecting. "+wiki_url("Neutrino:yWeb#Timer_Sync"), "failed");
+		sLog_addRow(sLog_body, "red", "Klack: connecting. "+wiki_url("Neutrino:yWeb:Live_Timer#Timer_Sync"), "failed");
 }
 function do_clear_all()
 {

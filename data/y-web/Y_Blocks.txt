@@ -251,7 +251,7 @@ end-block~snip_show_wait
 #<img src="/images/help.gif" align="bottom" />
 start-block~wiki_help
 <!--
-<a href="http://www.yjogol.com/{=var-get:help_url=}" target="_blank" title="get help from www.yjogol.com">?</a>
+<a href="https://wiki.tuxbox-neutrino.org/wiki/{=var-get:help_url=}" target="_blank" title="get help from https://wiki.tuxbox-neutrino.org">?</a>
 -->
 end-block~wiki_help
 
@@ -356,7 +356,7 @@ function do_submit()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-StartWizard=}{=var-set:menu={=L:start.head=}Start Wizard=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=NeutrinoHD:Inbetriebnahme#Inbetriebnahme=}{=var-set:menu={=L:start.head=}Start Wizard=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" width="100%">
