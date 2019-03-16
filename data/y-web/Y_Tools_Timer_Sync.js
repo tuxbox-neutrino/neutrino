@@ -173,13 +173,23 @@ function do_get_tvinfo()
 		if(_password != "")
 		{
 			var res = loadSyncURL(_url);
-			if(res.search(/Connecting/)!=-1)
+
+			if(res.search("Could not resolve host")!=-1) {
+				sLog_addRow(sLog_body, "red", "TVinfo: Could not resolve host", "error");
+				return;
+			}
+
+			if(res.search("error setting certificate")!=-1)
+				sLog_addRow(sLog_body, "red", "TVinfo: error setting certificate verify locations", "error");
+
+			if(res.search("SSL certificate verify ok")!=-1)
+				sLog_addRow(sLog_body, "green", "TVinfo: SSL certificate verify", "ok");
+			else
+				sLog_addRow(sLog_body, "red", "TVinfo: SSL certificate verify "+wiki_url("Neutrino:yWeb#Timer_Sync"), "failed");
+
+			if(res.search("left intact")!=-1)
 			{
-				sLog_addRow(sLog_body, "green", "TVinfo: connecting "+res, "ok");
-				if(res.search(/empty/)!=-1)
-					sLog_addRow(sLog_body, "red", "TVinfo: Username and/or Password wrong. "+wiki_url("Neutrino:yWeb#Timer_Sync"), "failed");
-				else
-					sLog_addRow(sLog_body, "green", "TVinfo: Username / Password ok", "ok");
+				sLog_addRow(sLog_body, "green", "TVinfo: connecting ", "ok");
 			}
 			else
 				sLog_addRow(sLog_body, "red", "TVinfo: connecting. "+wiki_url("Neutrino:yWeb#Timer_Sync"), "failed");
