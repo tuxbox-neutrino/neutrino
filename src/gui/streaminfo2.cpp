@@ -824,7 +824,10 @@ struct row {
 	std::string val;
 	Font *f;
 	int col;
-	row(): f(g_FixedFont[SNeutrinoSettings::FONT_TYPE_FIXED_20_BOLD])
+
+	row():
+		f(g_FixedFont[SNeutrinoSettings::FONT_TYPE_FIXED_20_BOLD]),
+		col(COL_MENUCONTENT_TEXT)
 	{
 	}
 };
@@ -860,14 +863,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			r.key = g_Locale->getText (LOCALE_TIMERLIST_CHANNEL);
 			r.key += ": ";
 			r.val = channel->getName().c_str();
-			r.col = COL_MENUCONTENT_TEXT;
 			v.push_back(r);
 
 			// url
 			r.key = "URL";
 			r.key += ": ";
 			r.val = channel->getUrl();
-			r.col = COL_MENUCONTENT_TEXT;
 			v.push_back(r);
 
 			// provider
@@ -879,7 +880,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 				r.key = g_Locale->getText (LOCALE_CHANNELLIST_PROVS);
 				r.key += ": ";
 				r.val = prov_name.c_str();
-				r.col = COL_MENUCONTENT_TEXT;
 				v.push_back(r);
 			}
 		}
@@ -889,7 +889,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			r.key = g_Locale->getText (LOCALE_MOVIEBROWSER_INFO_FILE);
 			r.key += ": ";
 			r.val = mp->GetFile();
-			r.col = COL_MENUCONTENT_TEXT;
 			v.push_back(r);
 		}
 
@@ -901,7 +900,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.key = g_Locale->getText (LOCALE_TIMERLIST_CHANNEL);
 		r.key += ": ";
 		r.val = channel->getName().c_str();
-		r.col = COL_MENUCONTENT_TEXT;
 		v.push_back(r);
 
 		// provider
@@ -914,7 +912,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			r.key = g_Locale->getText (LOCALE_CHANNELLIST_PROVS);
 			r.key += ": ";
 			r.val = prov_name.c_str();
-			r.col = COL_MENUCONTENT_TEXT;
 			v.push_back(r);
 		}
 
@@ -932,7 +929,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 		r.key += ": ";
 		r.val = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition()).c_str();
-		r.col = COL_MENUCONTENT_TEXT;
 		v.push_back(r);
 
 		// ts frequency
@@ -941,7 +937,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			scaling = 15000;
 		r.key = g_Locale->getText (LOCALE_SCANTS_FREQDATA);
 		r.val = t.description();
-		r.col = COL_MENUCONTENT_TEXT;
 		v.push_back(r);
 
 		// empty line
@@ -955,7 +950,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			i = g_RemoteControl->current_PIDs.PIDs.vpid;
 			snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 			r.val = buf;
-			r.col = COL_MENUCONTENT_TEXT;
 			v.push_back(r);
 		}
 
@@ -983,7 +977,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	r.key += ": ";
 	snprintf (buf, sizeof(buf), "%dx%d", xres, yres);
 	r.val = buf;
-	r.col = COL_MENUCONTENT_TEXT;
 	v.push_back(r);
 
 	std::string tmp_fps = "";
@@ -1005,7 +998,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	r.key += ": ";
 	snprintf(buf, sizeof(buf), "%dx%d", frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 	r.val = buf;
-	r.col = COL_MENUCONTENT_TEXT;
 	v.push_back(r);
 
 	// aspect ratio
@@ -1022,7 +1014,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		const char *arr[] = { "N/A", "4:3", "14:9", "16:9", "20:9" };
 		r.val = arr[aspectRatio];
 	}
-	r.col = COL_MENUCONTENT_TEXT;
 	v.push_back(r);
 
 	// video framerate
@@ -1041,7 +1032,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		const char *arr[] = { "23.976fps", "24fps", "25fps", "29,97fps", "30fps", "50fps", "59,94fps", "60fps" };
 		r.val = arr[framerate];
 	}
-	r.col = COL_MENUCONTENT_TEXT;
 	v.push_back(r);
 
 	// place for average bitrate
@@ -1065,7 +1055,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 				r.key = (*it)["codec_type"];
 				r.key += ": ";
 				r.val = details.c_str();
-				r.col = COL_MENUCONTENT_TEXT;
 				v.push_back(r);
 			}
 		}
@@ -1078,7 +1067,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	if (!mp && !g_RemoteControl->current_PIDs.APIDs.empty())
 		desc = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].desc;
 	r.val = mp ? mp->getAPIDDesc(mp->getAPID()).c_str() : desc.c_str();
-	r.col = COL_MENUCONTENT_TEXT;
 	v.push_back(r);
 
 	if (mp)
@@ -1097,7 +1085,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 				r.key = (*it)["codec_type"];
 				r.key += ": ";
 				r.val = details.c_str();
-				r.col = COL_MENUCONTENT_TEXT;
 				v.push_back(r);
 			}
 		}
@@ -1113,7 +1100,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			r.key += ": ";
 			snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 			r.val = buf;
-			r.col = COL_MENUCONTENT_TEXT;
 			r.f   = g_FixedFont[font_small];
 			v.push_back(r);
 		}
@@ -1158,7 +1144,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.key += ": ";
 		snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 		r.val = buf;
-		r.col = COL_MENUCONTENT_TEXT;
 		r.f   = g_FixedFont[font_small];
 		v.push_back(r);
 		// onid
@@ -1166,7 +1151,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		i = channel->getOriginalNetworkId();
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
-		r.col = COL_MENUCONTENT_TEXT;
 		r.f   = g_FixedFont[font_small];
 		v.push_back(r);
 
@@ -1175,7 +1159,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		i = channel->getServiceId();
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
-		r.col = COL_MENUCONTENT_TEXT;
 		r.f   = g_FixedFont[font_small];
 		v.push_back(r);
 
@@ -1184,7 +1167,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		i = channel->getTransportStreamId();
 		snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 		r.val = buf;
-		r.col = COL_MENUCONTENT_TEXT;
 		r.f   = g_FixedFont[font_small];
 		v.push_back(r);
 
@@ -1194,7 +1176,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		pmt_version = channel->getPmtVersion();
 		snprintf(buf, sizeof(buf), "0x%04X (%i) [0x%02X]", i, i, pmt_version);
 		r.val = buf;
-		r.col = COL_MENUCONTENT_TEXT;
 		r.f   = g_FixedFont[font_small];
 		v.push_back(r);
 
@@ -1205,7 +1186,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			i = g_RemoteControl->current_PIDs.PIDs.vtxtpid;
 			snprintf(buf, sizeof(buf), "0x%04X (%i)", i, i);
 			r.val = buf;
-			r.col = COL_MENUCONTENT_TEXT;
 			r.f   = g_FixedFont[font_small];
 			v.push_back(r);
 		}
