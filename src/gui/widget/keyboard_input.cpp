@@ -124,52 +124,6 @@ const char* CInputString::c_str()
 	return getValue().c_str();
 }
 
-CKeyboardInput::CKeyboardInput(const neutrino_locale_t Name, std::string* Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
-{
-	title = g_Locale->getText(Name);
-	valueString = Value;
-	inputSize = Size;
-
-	iconfile = Icon ? Icon : NEUTRINO_ICON_EDIT;
-
-	observ = Observ;
-	hint_1 = Hint_1;
-	hint_2 = Hint_2;
-	hintText_1 = "";
-	hintText_2 = "";
-	inputString = NULL;
-	layout = NULL;
-	selected = 0;
-	caps = 0;
-	srow = scol = 0;
-	focus = FOCUS_STRING;
-	force_saveScreen = false;
-	pixBuf = NULL;
-}
-
-CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
-{
-	title = Name;
-	valueString = Value;
-	inputSize = Size;
-
-	iconfile = Icon ? Icon : NEUTRINO_ICON_EDIT;
-
-	observ = Observ;
-	hint_1 = Hint_1;
-	hint_2 = Hint_2;
-	hintText_1 = "";
-	hintText_2 = "";
-	inputString = NULL;
-	layout = NULL;
-	selected = 0;
-	caps = 0;
-	srow = scol = 0;
-	focus = FOCUS_STRING;
-	force_saveScreen = false;
-	pixBuf = NULL;
-}
-
 CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int Size, CChangeObserver* Observ, const char * const Icon, std::string HintText_1, std::string HintText_2)
 {
 	title = Name;
@@ -179,8 +133,6 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	iconfile = Icon ? Icon : NEUTRINO_ICON_EDIT;
 
 	observ = Observ;
-	hint_1 = NONEXISTANT_LOCALE;
-	hint_2 = NONEXISTANT_LOCALE;
 	hintText_1 = HintText_1;
 	hintText_2 = HintText_2;
 	inputString = NULL;
@@ -192,6 +144,26 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	force_saveScreen = false;
 	pixBuf = NULL;
 }
+
+CKeyboardInput::CKeyboardInput(const neutrino_locale_t Name, std::string* Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
+				:CKeyboardInput(Name == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Name),
+						Value,
+						Size,
+						Observ,
+						Icon,
+						Hint_1 == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Hint_1),
+						Hint_2 == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Hint_2)){}
+
+CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
+				:CKeyboardInput(Name,
+						Value,
+						Size,
+						Observ,
+						Icon,
+						Hint_1 == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Hint_1),
+						Hint_2 == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Hint_2)){}
+
+
 
 CKeyboardInput::~CKeyboardInput()
 {
@@ -240,26 +212,21 @@ void CKeyboardInput::init()
 
 	bheight = input_h + (key_h+KEY_BORDER)*KEY_ROWS + 3*offset;
 
-	bool has_hint_1 = ((hint_1 != NONEXISTANT_LOCALE) || !hintText_1.empty());
-	bool has_hint_2 = ((hint_2 != NONEXISTANT_LOCALE) || !hintText_2.empty());
-	if ((has_hint_1) || (has_hint_2))
+	if (!hintText_1.empty())
 	{
-		if (has_hint_1)
-		{
-			const char *_hint_1 = (hint_1 != NONEXISTANT_LOCALE ? g_Locale->getText(hint_1) : hintText_1.c_str());
-			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(_hint_1);
-			width = std::max(width, tmp_w + 2*offset);
-			bheight += iheight;
-		}
-		if (has_hint_2)
-		{
-			const char *_hint_2 = (hint_2 != NONEXISTANT_LOCALE ? g_Locale->getText(hint_2) : hintText_2.c_str());
-			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(_hint_2);
-			width = std::max(width, tmp_w + 2*offset);
-			bheight += iheight;
-		}
-		bheight += offset;
+		const char *_hint_1 = hintText_1.c_str();
+		tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(_hint_1);
+		width = std::max(width, tmp_w + 2*offset);
+		bheight += iheight;
 	}
+	if (!hintText_2.empty())
+	{
+		const char *_hint_2 = hintText_2.c_str();
+		tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(_hint_2);
+		width = std::max(width, tmp_w + 2*offset);
+		bheight += iheight;
+	}
+	bheight += offset;
 
 	height = hheight+ bheight + fheight;
 
@@ -651,24 +618,19 @@ void CKeyboardInput::paint()
 
 	key_y = y+ hheight+ offset+ input_h+ offset;
 
-	bool has_hint_1 = ((hint_1 != NONEXISTANT_LOCALE) || !hintText_1.empty());
-	bool has_hint_2 = ((hint_2 != NONEXISTANT_LOCALE) || !hintText_2.empty());
-	if ((has_hint_1) || (has_hint_2))
+	if (!hintText_1.empty())
 	{
-		if (has_hint_1)
-		{
-			key_y += iheight;
-			const char *_hint_1 = (hint_1 != NONEXISTANT_LOCALE ? g_Locale->getText(hint_1) : hintText_1.c_str());
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, key_y, width- 2*offset, _hint_1, COL_MENUCONTENT_TEXT);
-		}
-		if (has_hint_2)
-		{
-			key_y += iheight;
-			const char *_hint_2 = (hint_2 != NONEXISTANT_LOCALE ? g_Locale->getText(hint_2) : hintText_2.c_str());
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, key_y, width- 2*offset, _hint_2, COL_MENUCONTENT_TEXT);
-		}
-		key_y += offset;
+		key_y += iheight;
+		const char *_hint_1 = hintText_1.c_str();
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, key_y, width- 2*offset, _hint_1, COL_MENUCONTENT_TEXT);
 	}
+	if (!hintText_2.empty())
+	{
+		key_y += iheight;
+		const char *_hint_2 = hintText_2.c_str();
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, key_y, width- 2*offset, _hint_2, COL_MENUCONTENT_TEXT);
+	}
+	key_y += offset;
 
 	for (int count = 0; count < inputSize; count++)
 		paintChar(count);
