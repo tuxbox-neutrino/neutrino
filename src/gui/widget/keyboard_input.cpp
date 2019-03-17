@@ -578,8 +578,13 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 	delete inputString;
 	inputString = NULL;
 
-	if ((observ) && (msg == CRCInput::RC_red))
-		observ->changeNotify(title, (void *) valueString->c_str());
+	if (msg == CRCInput::RC_red)
+	{
+		if (observ)
+			observ->changeNotify(title, (void *) valueString->c_str());
+		if (msg == CRCInput::RC_red)
+			OnAfterSave();
+	}
 
 	return res;
 }
