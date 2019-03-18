@@ -503,7 +503,7 @@ class CMenuOptionStringChooser : public CMenuItem
 				std::string* pOptionValue,
 				CChangeObserver * const Observ,
 				bool Pulldown );
-
+		bool 		hold_last_item;
 	public:
 		CMenuOptionStringChooser(const neutrino_locale_t Name, std::string* OptionValue, bool Active = false,
 					 CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = RC_NOKEY,
@@ -529,6 +529,7 @@ class CMenuOptionStringChooser : public CMenuItem
 		}
 		std::string getOptionValue() { return *optionValuePtr; }
 		sigc::signal<void> OnAfterChangeOption;
+		void rememberLastItem(bool remember = true) {hold_last_item = remember;}
 };
 
 class CMenuGlobal
