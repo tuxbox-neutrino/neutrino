@@ -68,9 +68,17 @@ class CWeather
 		{
 			return to_string((int)(act_temp + 0.5)) + "°C";
 		};
+		std::string getForecastTemp(int i = 0)
+		{
+			return to_string((int)(v_forecast[i].max_temp + 0.5)) + "°C";
+		};
 		std::string getActIcon()
 		{
 			return ICONSDIR"/weather/" + act_wicon;
+		};
+		std::string getForecastIcon(int i = 0)
+		{
+			return ICONSDIR"/weather/" + v_forecast[i].wicon;
 		};
 };
 

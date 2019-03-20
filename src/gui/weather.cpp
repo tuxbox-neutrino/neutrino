@@ -124,8 +124,8 @@ bool CWeather::GetWeatherDetails()
 
 	if (found > 0)
 	{
-		act_temp = DataValues["currently"].get("temperature", "").asFloat();
 		timezone = DataValues["timezone"].asString();
+		act_temp = DataValues["currently"].get("temperature", "").asFloat();
 		act_wicon = DataValues["currently"].get("icon", "").asString();
 		if (act_wicon.empty())
 			act_wicon = "unknown.png";
