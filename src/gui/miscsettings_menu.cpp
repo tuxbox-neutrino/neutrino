@@ -35,6 +35,7 @@
 #include <system/debug.h>
 #include <gui/miscsettings_menu.h>
 #include <gui/weather.h>
+#include <gui/weather_locations.h>
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
 #include <gui/keybind_setup.h>
@@ -174,8 +175,6 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	return showMiscSettingsMenu();
 }
-
-#include <gui/weather_locations.h>
 
 #if 0 //not used
 #define MISCSETTINGS_FB_DESTINATION_OPTION_COUNT 3
@@ -611,19 +610,19 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	weather_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_ENABLED);
 	ms_oservices->addItem(weather_onoff);
 
-	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, NULL, this, "select_location");
-	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
-	ms_oservices->addItem(mf_wl);
-
 #if ENABLE_WEATHER_KEY_MANAGE
 	changeNotify(LOCALE_WEATHER_API_KEY, NULL);
 	CKeyboardInput weather_api_key_input(LOCALE_WEATHER_API_KEY, &g_settings.weather_api_key, 32, this);
 	CMenuForwarder *mf_we = new CMenuForwarder(LOCALE_WEATHER_API_KEY, true, weather_api_key_short, &weather_api_key_input);
 	mf_we->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_API_KEY);
 	ms_oservices->addItem(mf_we);
+#endif
+
+	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, g_settings.weather_city, this, "select_location");
+	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
+	ms_oservices->addItem(mf_wl);
 
 	ms_oservices->addItem(GenericMenuSeparator);
-#endif
 
 	// tmdb
 	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_tmdb_api_key());
@@ -636,9 +635,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuForwarder *mf_tm = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
 	mf_tm->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
 	ms_oservices->addItem(mf_tm);
+#endif
 
 	ms_oservices->addItem(GenericMenuSeparator);
-#endif
 
 	// omdb
 	omdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_omdb_api_key());
@@ -651,9 +650,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuForwarder *mf_om = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
 	//mf_om ->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
 	ms_oservices->addItem(mf_om);
+#endif
 
 	ms_oservices->addItem(GenericMenuSeparator);
-#endif
 
 	// youtube
 	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_youtube_dev_id());
@@ -666,9 +665,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuForwarder *mf_yt = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
 	mf_yt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
 	ms_oservices->addItem(mf_yt);
+#endif
 
 	ms_oservices->addItem(GenericMenuSeparator);
-#endif
 
 	//shoutcast
 	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_shoutcast_dev_id());

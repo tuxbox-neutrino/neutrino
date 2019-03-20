@@ -2628,9 +2628,9 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
-weather.api_key Dark Sky API key
+weather.api_key Weather API key (Dark Sky)
 weather.enabled Weather support
-weather.location Weather Location
+weather.location Weather location
 webradio.head WebRadio
 webradio.xml WebRadio files
 webradio.xml.auto Auto-load WebRadio files

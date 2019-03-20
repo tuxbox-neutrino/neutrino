@@ -2628,7 +2628,7 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
-weather.api_key Dark Sky API Schlüssel
+weather.api_key Wetter API Schlüssel (Dark Sky)
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort
 webradio.head WebRadio
