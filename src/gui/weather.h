@@ -60,7 +60,7 @@ public:
 	static CWeather* getInstance();
 	CWeather();
 	~CWeather();
-	bool checkUpdate();
+	bool checkUpdate(bool forceUpdate = false);
 	void setCoords(std::string new_coords, std::string new_city = "Unknown");
 	void show(int x = 50, int y = 50);
 	void hide();

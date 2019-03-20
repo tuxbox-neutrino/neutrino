@@ -104,8 +104,8 @@ extern CPictureViewer *g_PicViewer;
 #define FCOLOR2			LCD_DATADIR "fcolor2"
 #define PBCOLOR			LCD_DATADIR "pbcolor"
 
-#define WEATHER_TEMP	LCD_DATADIR "weather_temp"
-#define WEATHER_ICON	LCD_DATADIR "weather_icon"
+#define WEATHER_TEMP		LCD_DATADIR "weather_temp"
+#define WEATHER_ICON		LCD_DATADIR "weather_icon"
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
 #define PIDFILE			"/tmp/lcd4linux.pid"
@@ -298,8 +298,8 @@ void CLCD4l::Init()
 	m_Start		= "00:00";
 	m_End		= "00:00";
 
-	m_wtemp     = "";
-	m_wicon     = "";
+	m_wtemp		= "";
+	m_wicon		= "";
 
 	if (!access(LCD_DATADIR, F_OK) == 0)
 		mkdir(LCD_DATADIR, 0755);
@@ -1053,7 +1053,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		strcpy(m_Duration, Duration);
 	}
 
-	if (g_settings.weather_enabled && CWeather::getInstance()->checkUpdate())
+	if (g_settings.weather_enabled && CWeather::getInstance()->checkUpdate(firstRun))
 	{
 		std::string wtemp = CWeather::getInstance()->getActTemp();
 		std::string wicon = CWeather::getInstance()->getActIcon();
