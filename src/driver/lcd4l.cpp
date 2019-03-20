@@ -104,6 +104,7 @@ extern CPictureViewer *g_PicViewer;
 #define FCOLOR2			LCD_DATADIR "fcolor2"
 #define PBCOLOR			LCD_DATADIR "pbcolor"
 
+#define WEATHER_CITY		LCD_DATADIR "weather_city"
 #define WEATHER_TEMP		LCD_DATADIR "weather_temp"
 #define WEATHER_ICON		LCD_DATADIR "weather_icon"
 
@@ -298,6 +299,7 @@ void CLCD4l::Init()
 	m_Start		= "00:00";
 	m_End		= "00:00";
 
+	m_wcity		= "";
 	m_wtemp		= "";
 	m_wicon		= "";
 
@@ -1055,6 +1057,13 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (g_settings.weather_enabled && CWeather::getInstance()->checkUpdate(firstRun))
 	{
+		std::string wcity = CWeather::getInstance()->getCity();
+		if (m_wcity.compare(wcity))
+		{
+			WriteFile(WEATHER_CITY, wcity);
+			m_wcity = wcity;
+		}
+
 		int forecast = 1; // days for forecast
 
 		std::string wtemp = CWeather::getInstance()->getActTemp();
@@ -1075,7 +1084,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			m_wicon = wicon;
 		}
 	}
-
 }
 
 /* ----------------------------------------------------------------- */

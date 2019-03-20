@@ -128,6 +128,7 @@ class CLCD4l
 		std::string	m_fcolor2;
 		std::string	m_pbcolor;
 
+		std::string	m_wcity;
 		std::string	m_wtemp;
 		std::string	m_wicon;
 };
