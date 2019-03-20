@@ -66,11 +66,11 @@ class CWeather
 		void hide();
 		std::string getActTemp()
 		{
-			return to_string((int)(act_temp + 0.5)) + "°C";
+			return to_string((int)(act_temp + 0.5));
 		};
 		std::string getForecastTemp(int i = 0)
 		{
-			return to_string((int)(v_forecast[i].max_temp + 0.5)) + "°C";
+			return to_string((int)(v_forecast[i].max_temp + 0.5));
 		};
 		std::string getActIcon()
 		{
