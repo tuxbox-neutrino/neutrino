@@ -64,6 +64,10 @@ class CWeather
 		void setCoords(std::string new_coords, std::string new_city = "Unknown");
 		void show(int x = 50, int y = 50);
 		void hide();
+		std::string getCity()
+		{
+			return city;
+		};
 		std::string getActTemp()
 		{
 			return to_string((int)(act_temp + 0.5));
