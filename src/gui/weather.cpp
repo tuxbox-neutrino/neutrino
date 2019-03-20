@@ -40,7 +40,7 @@
 
 #include "weather.h"
 
-#define MINUTES 15*60
+#define UPDATE_CYCLE 15 // minutes
 
 CWeather* CWeather::getInstance()
 {
@@ -81,7 +81,7 @@ void CWeather::setCoords(std::string new_coords, std::string new_city)
 bool CWeather::checkUpdate(bool forceUpdate)
 {
 	time_t current_time = time(NULL);
-	if (forceUpdate || (difftime(current_time,last_time) > MINUTES))
+	if (forceUpdate || (difftime(current_time, last_time) > (UPDATE_CYCLE * 60)))
 		return GetWeatherDetails();
 	else
 		return false;
