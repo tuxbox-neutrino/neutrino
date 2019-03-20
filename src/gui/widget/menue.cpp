@@ -780,6 +780,8 @@ void CMenuWidget::insertItem(const uint& item_id, CMenuItem* menuItem)
 
 void CMenuWidget::removeItem(const uint& item_id)
 {
+	delete items.at(item_id);
+	items.at(item_id) = NULL;
 	items.erase(items.begin()+item_id);
 	if ((unsigned int) selected >= items.size())
 		selected = items.size() - 1;
