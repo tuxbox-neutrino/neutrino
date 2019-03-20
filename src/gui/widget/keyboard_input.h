@@ -106,27 +106,27 @@ class CKeyboardInput : public CMenuTarget,  public sigc::trackable
 
 		void keyDigiPressed(const neutrino_msg_t key);
 
-		virtual void init();
+		void init();
 
-		virtual void paint();
-		virtual int  paintFooter(bool show = true);
-		virtual void paintChar(int pos, std::string &c);
-		virtual void paintChar(int pos);
-		virtual void paintKeyboard();
-		virtual void paintKey(int row, int column);
+		void paint();
+		int  paintFooter(bool show = true);
+		void paintChar(int pos, std::string &c);
+		void paintChar(int pos);
+		void paintKeyboard();
+		void paintKey(int row, int column);
 
-		virtual void NormalKeyPressed();
-		virtual void clearString();
-		virtual void switchCaps();
-		virtual void keyUpPressed();
-		virtual void keyDownPressed();
-		virtual void keyLeftPressed();
-		virtual void keyRightPressed();
-		virtual void insertChar();
-		virtual void deleteChar();
-		virtual void keyBackspacePressed();
-		virtual void switchLayout();
-		virtual void setLayout();
+		void NormalKeyPressed();
+		void clearString();
+		void switchCaps();
+		void keyUpPressed();
+		void keyDownPressed();
+		void keyLeftPressed();
+		void keyRightPressed();
+		void insertChar();
+		void deleteChar();
+		void keyBackspacePressed();
+		void switchLayout();
+		void setLayout();
 
 	public:
 		CKeyboardInput(const neutrino_locale_t Name, std::string* Value, int Size = 0, CChangeObserver* Observ = NULL, const char * const Icon = NULL, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE);
