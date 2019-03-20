@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Copyright (C) 2016-2018 'TangoCash'
+	Copyright (C) 2016-2019 'TangoCash'
 
 	License: GPL
 
@@ -127,6 +127,9 @@ class CLCD4l
 		std::string	m_fcolor1;
 		std::string	m_fcolor2;
 		std::string	m_pbcolor;
+
+		std::string m_wtemp;
+		std::string m_wicon;
 };
 
 #endif

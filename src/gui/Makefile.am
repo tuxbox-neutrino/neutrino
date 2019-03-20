@@ -108,6 +108,7 @@ libneutrino_gui_a_SOURCES = \
 	vfd_setup.cpp \
 	videosettings.cpp \
 	volumebar.cpp \
+	weather.cpp \
 	webtv_setup.cpp \
 	xmltv_setup.cpp \
 	zapit_setup.cpp

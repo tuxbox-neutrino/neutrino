@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Copyright (C) 2016-2018  'TangoCash'
+	Copyright (C) 2016-2019 'TangoCash'
 
 	License: GPL
 
@@ -54,6 +54,7 @@
 #include <gui/pictureviewer.h>
 #include <eitd/sectionsd.h>
 #include <hardware/video.h>
+#include <gui/weather.h>
 
 #include "lcd4l.h"
 
@@ -102,6 +103,9 @@ extern CPictureViewer *g_PicViewer;
 #define FCOLOR1			LCD_DATADIR "fcolor1"
 #define FCOLOR2			LCD_DATADIR "fcolor2"
 #define PBCOLOR			LCD_DATADIR "pbcolor"
+
+#define WEATHER_TEMP	LCD_DATADIR "weather_temp"
+#define WEATHER_ICON	LCD_DATADIR "weather_icon"
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
 #define PIDFILE			"/tmp/lcd4linux.pid"
@@ -293,6 +297,9 @@ void CLCD4l::Init()
 		m_Duration[i] = ' ';
 	m_Start		= "00:00";
 	m_End		= "00:00";
+
+	m_wtemp     = "";
+	m_wicon     = "";
 
 	if (!access(LCD_DATADIR, F_OK) == 0)
 		mkdir(LCD_DATADIR, 0755);
@@ -1045,6 +1052,23 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		WriteFile(DURATION, (std::string)Duration);
 		strcpy(m_Duration, Duration);
 	}
+
+	if (g_settings.weather_enabled && CWeather::getInstance()->checkUpdate())
+	{
+		std::string wtemp = CWeather::getInstance()->getActTemp();
+		std::string wicon = CWeather::getInstance()->getActIcon();
+		if (m_wtemp.compare(wtemp))
+		{
+			WriteFile(WEATHER_TEMP, wtemp);
+			m_wtemp = wtemp;
+		}
+		if (m_wicon.compare(wicon))
+		{
+			WriteFile(WEATHER_ICON, wicon);
+			m_wicon = wicon;
+		}
+	}
+
 }
 
 /* ----------------------------------------------------------------- */

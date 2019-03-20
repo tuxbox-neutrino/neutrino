@@ -159,6 +159,7 @@ class CApiKey
 		}
 		static int check_shoutcast_dev_id() { return CApiKey::check_api_key(g_settings.shoutcast_dev_id, "XXXXXXXXXXXXXXXX"); }
 		static int check_youtube_dev_id() { return CApiKey::check_api_key(g_settings.youtube_dev_id, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
+		static int check_weather_api_key() { return CApiKey::check_api_key(g_settings.weather_api_key, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
 		static int check_tmdb_api_key() { return CApiKey::check_api_key(g_settings.tmdb_api_key, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); }
 		static int check_omdb_api_key() { return CApiKey::check_api_key(g_settings.omdb_api_key, "XXXXXXXX"); }
 };

@@ -346,6 +346,7 @@ data/icons/status/channel/Makefile
 data/icons/status/markers/Makefile
 data/icons/status/various/Makefile
 data/icons/various/Makefile
+data/icons/weather/Makefile
 data/inetradio/Makefile
 data/initial/Makefile
 data/iso-codes/Makefile

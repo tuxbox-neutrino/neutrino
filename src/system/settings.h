@@ -857,6 +857,10 @@ struct SNeutrinoSettings
 	int movieplayer_display_playtime;
 
 	//online services
+	std::string weather_api_key;
+	int weather_enabled;
+	std::string weather_location;
+	std::string weather_city;
 	std::string youtube_dev_id;
 	int youtube_enabled;
 	std::string tmdb_api_key;

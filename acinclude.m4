@@ -24,6 +24,22 @@ if test "$DEBUG" = "yes"; then
 	AC_DEFINE(DEBUG, 1, [enable debugging code])
 fi
 
+# weather
+AC_ARG_WITH(weather-dev-key,
+	AS_HELP_STRING([--with-weather-dev-key=KEY], [API dev key to get data from weather data base, required for additional weather informations]),
+	[WEATHER_DEV_KEY="$withval"],
+	[WEATHER_DEV_KEY=""])
+AC_DEFINE_UNQUOTED([WEATHER_DEV_KEY], ["$WEATHER_DEV_KEY"], [API dev key to get data from weather data base, required for additional weather informations])
+
+AC_ARG_ENABLE([weather-key-manage],
+	AS_HELP_STRING([--enable-weather-key-manage], [Enable manage weather api dev key via gui for additional weather informations @<:@default=yes@:>@]),
+	[enable_weather_key_manage="$enableval"],
+	[enable_weather_key_manage="yes"])
+
+if test "$enable_weather_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [Enable manage weather api dev key via gui for additional weather informations])
+fi
+# weather end
 
 # tmdb
 AC_ARG_WITH(tmdb-dev-key,

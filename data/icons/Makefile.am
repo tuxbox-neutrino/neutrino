@@ -8,7 +8,8 @@ SUBDIRS = \
 	radar \
 	slider \
 	status \
-	various
+	various \
+	weather
 
 install-data-hook:
 	$(INSTALL) -d $(DESTDIR)/$(ICONSDIR)/logo

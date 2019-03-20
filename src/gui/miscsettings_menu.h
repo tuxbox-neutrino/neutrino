@@ -47,6 +47,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CMenuOptionChooser * epg_read;
 		CMenuOptionChooser * epg_read_frequently;
 		CMenuOptionChooser * epg_scan;
+		CMenuOptionChooser * weather_onoff;
 		CMenuOptionChooser * tmdb_onoff;
 		CMenuOptionChooser * omdb_onoff;
 		CMenuOptionChooser * youtube_onoff;
@@ -59,6 +60,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		std::string epg_old_events;
 		std::string epg_max_events;
 
+		std::string weather_api_key_short;
 		std::string tmdb_api_key_short;
 		std::string omdb_api_key_short;
 		std::string youtube_dev_id_short;
@@ -71,6 +73,8 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		int showMiscSettingsMenuEnergy();
 		int showMiscSettingsMenuChanlist();
 		int showMiscSettingsMenuOnlineServices();
+		int showMiscSettingsSelectWeatherLocation();
+		int showMiscSettingsMenuPlugins();
 #ifdef CPU_FREQ
 		void showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu);
 #endif /*CPU_FREQ*/

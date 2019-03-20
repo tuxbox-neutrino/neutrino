@@ -1287,7 +1287,7 @@ menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Auss
 menu.hint_misc_epg Diverse EPG-Einstellungen und Speicherverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, Startverzeichnisoptionen
 menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
-menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie YouTube, SHOUTCast und TMDb
+menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie Wetter, YouTube, SHOUTCast und TMDb
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
 menu.hint_moviebrowser_fonts Ändern Sie die Schriftgrößen im Moviebrowser (Meine Aufnahmen)
@@ -1573,6 +1573,9 @@ menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
+menu.hint_weather_api_key Geben Sie den Dark Sky API Schlüssel ein. Eine leere Eingabe schaltet die Wetter-Unterstützung aus
+menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (darksky.net) ein bzw. aus
+menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_webradio_xml_auto Lädt automatisch alle WebRadio-Dateien aus %s/ und %s/
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
@@ -2625,6 +2628,9 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
+weather.api_key Dark Sky API Schlüssel
+weather.enabled Wetter-Unterstützung
+weather.location Wetter-Standort
 webradio.head WebRadio
 webradio.xml WebRadio-Dateien
 webradio.xml.auto WebRadio-Dateien automatisch laden
