@@ -1055,13 +1055,20 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (g_settings.weather_enabled && CWeather::getInstance()->checkUpdate(firstRun))
 	{
+		int forecast = 1; // days for forecast
+
 		std::string wtemp = CWeather::getInstance()->getActTemp();
-		std::string wicon = CWeather::getInstance()->getActIcon();
+		for (int i = 0; i < 1 + forecast; i++)
+			wtemp += "\n" + CWeather::getInstance()->getForecastTemp(i);
 		if (m_wtemp.compare(wtemp))
 		{
 			WriteFile(WEATHER_TEMP, wtemp);
 			m_wtemp = wtemp;
 		}
+
+		std::string wicon = CWeather::getInstance()->getActIcon();
+		for (int i = 0; i < 1 + forecast; i++)
+			wicon += "\n" + CWeather::getInstance()->getForecastIcon(i);
 		if (m_wicon.compare(wicon))
 		{
 			WriteFile(WEATHER_ICON, wicon);
