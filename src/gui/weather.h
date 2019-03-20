@@ -44,34 +44,34 @@ typedef struct
 
 class CWeather
 {
-private:
-	std::string coords;
-	std::string city;
-	std::string timezone;
-	std::string act_wicon;
-	float act_temp;
-	std::vector<forecast_data> v_forecast;
-	CComponentsForm *form;
-	std::string key;
-	bool GetWeatherDetails();
-	time_t last_time;
+	private:
+		std::string coords;
+		std::string city;
+		std::string timezone;
+		std::string act_wicon;
+		float act_temp;
+		std::vector<forecast_data> v_forecast;
+		CComponentsForm *form;
+		std::string key;
+		bool GetWeatherDetails();
+		time_t last_time;
 
-public:
-	static CWeather* getInstance();
-	CWeather();
-	~CWeather();
-	bool checkUpdate(bool forceUpdate = false);
-	void setCoords(std::string new_coords, std::string new_city = "Unknown");
-	void show(int x = 50, int y = 50);
-	void hide();
-	std::string getActTemp()
-	{
-		return to_string((int)(act_temp+0.5))+"°C";
-	};
-	std::string getActIcon()
-	{
-		return ICONSDIR"/weather/"+act_wicon;
-	};
+	public:
+		static CWeather *getInstance();
+		CWeather();
+		~CWeather();
+		bool checkUpdate(bool forceUpdate = false);
+		void setCoords(std::string new_coords, std::string new_city = "Unknown");
+		void show(int x = 50, int y = 50);
+		void hide();
+		std::string getActTemp()
+		{
+			return to_string((int)(act_temp + 0.5)) + "°C";
+		};
+		std::string getActIcon()
+		{
+			return ICONSDIR"/weather/" + act_wicon;
+		};
 };
 
 #endif

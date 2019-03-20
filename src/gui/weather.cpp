@@ -42,10 +42,10 @@
 
 #define UPDATE_CYCLE 15 // minutes
 
-CWeather* CWeather::getInstance()
+CWeather *CWeather::getInstance()
 {
-	static CWeather* weather = NULL;
-	if(!weather)
+	static CWeather *weather = NULL;
+	if (!weather)
 		weather = new CWeather();
 	return weather;
 }
@@ -89,14 +89,14 @@ bool CWeather::checkUpdate(bool forceUpdate)
 
 bool CWeather::GetWeatherDetails()
 {
-	printf("[CWeather]: %s\n",__func__);
+	printf("[CWeather]: %s\n", __func__);
 
 	last_time = time(NULL);
 
 	if (!g_settings.weather_enabled)
 		return false;
 
-	std::string data = "https://api.darksky.net/forecast/"+key+"/"+coords+"?units=si&lang=de&exclude=minutely,hourly,flags,alerts";
+	std::string data = "https://api.darksky.net/forecast/" + key + "/" + coords + "?units=si&lang=de&exclude=minutely,hourly,flags,alerts";
 	std::string answer;
 	double found = 0;
 
@@ -118,38 +118,38 @@ bool CWeather::GetWeatherDetails()
 		return false;
 	}
 
-	found = DataValues["currently"].get("time",0).asDouble();
+	found = DataValues["currently"].get("time", 0).asDouble();
 
-	printf("[CWeather]: results found: %lf\n",found);
+	printf("[CWeather]: results found: %lf\n", found);
 
 	if (found > 0)
 	{
-		act_temp = DataValues["currently"].get("temperature","").asFloat();
+		act_temp = DataValues["currently"].get("temperature", "").asFloat();
 		timezone = DataValues["timezone"].asString();
-		act_wicon = DataValues["currently"].get("icon","").asString();
+		act_wicon = DataValues["currently"].get("icon", "").asString();
 		if (act_wicon.empty())
 			act_wicon = "unknown.png";
 		else
-			act_wicon = act_wicon+".png";
+			act_wicon = act_wicon + ".png";
 		printf("[CWeather]: temp in %s (%s): %.1f - %s\n", city.c_str(), timezone.c_str(), act_temp, act_wicon.c_str());
 
 		forecast_data weatherinfo;
 		Json::Value elements = DataValues["daily"]["data"];
-		for (unsigned int i = 0; i<elements.size(); i++)
+		for (unsigned int i = 0; i < elements.size(); i++)
 		{
-			weatherinfo.timestamp = elements[i].get("time",0).asDouble();
-			weatherinfo.wicon = elements[i].get("icon","").asString();
+			weatherinfo.timestamp = elements[i].get("time", 0).asDouble();
+			weatherinfo.wicon = elements[i].get("icon", "").asString();
 			if (weatherinfo.wicon.empty())
 				weatherinfo.wicon = "unknown.png";
 			else
-				weatherinfo.wicon = weatherinfo.wicon+".png";
-			weatherinfo.min_temp = elements[i].get("temperatureMin","").asFloat();
-			weatherinfo.max_temp = elements[i].get("temperatureMax","").asFloat();
+				weatherinfo.wicon = weatherinfo.wicon + ".png";
+			weatherinfo.min_temp = elements[i].get("temperatureMin", "").asFloat();
+			weatherinfo.max_temp = elements[i].get("temperatureMax", "").asFloat();
 
-			struct tm * timeinfo;
+			struct tm *timeinfo;
 			timeinfo = localtime(&weatherinfo.timestamp);
 
-			printf("[CWeather]: temp %d.%d.%d: min %.1f - max %.1f -> %s\n", timeinfo->tm_mday, timeinfo->tm_mon, timeinfo->tm_year+1900, weatherinfo.min_temp,weatherinfo.max_temp,weatherinfo.wicon.c_str());
+			printf("[CWeather]: temp %d.%d.%d: min %.1f - max %.1f -> %s\n", timeinfo->tm_mday, timeinfo->tm_mon, timeinfo->tm_year + 1900, weatherinfo.min_temp, weatherinfo.max_temp, weatherinfo.wicon.c_str());
 			v_forecast.push_back(weatherinfo);
 		}
 		return true;
@@ -164,19 +164,19 @@ void CWeather::show(int x, int y)
 	if (form == NULL)
 		form = new CComponentsForm();
 
-	if (!g_settings.weather_enabled || coords.empty() )
+	if (!g_settings.weather_enabled || coords.empty())
 		return;
 
 	CComponentsPicture *ptmp = new CComponentsPicture(RADIUS_MID, RADIUS_MID, getActIcon());
 	ptmp->setColorBody(form->getColorBody());
 	form->addCCItem(ptmp);
 
-	CComponentsText *temp = new CComponentsText(ptmp->getWidth()+2*RADIUS_MID, ptmp->getHeight()/2 + RADIUS_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/2, 0, 0, getActTemp(), CTextBox::AUTO_WIDTH,g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
+	CComponentsText *temp = new CComponentsText(ptmp->getWidth() + 2*RADIUS_MID, ptmp->getHeight()/2 + RADIUS_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/2, 0, 0, getActTemp(), CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 	temp->doPaintBg(false);
 	temp->setTextColor(COL_INFOBAR_TEXT);
 	form->addCCItem(temp);
 
-	form->setDimensionsAll(x, y, ptmp->getWidth()+temp->getWidth()+2*RADIUS_MID, ptmp->getHeight()+2*RADIUS_MID);
+	form->setDimensionsAll(x, y, ptmp->getWidth() + temp->getWidth() + 2*RADIUS_MID, ptmp->getHeight() + 2*RADIUS_MID);
 	form->enableShadow();
 	form->paint();
 }
