@@ -152,7 +152,7 @@ bool CWeather::GetWeatherDetails()
 			struct tm *timeinfo;
 			timeinfo = localtime(&daily_data.timestamp);
 
-			printf("[CWeather]: temp %d.%d.%d: min %.1f - max %.1f -> %s\n", timeinfo->tm_mday, timeinfo->tm_mon, timeinfo->tm_year + 1900, daily_data.temperatureMin, daily_data.temperatureMax, daily_data.icon.c_str());
+			printf("[CWeather]: temp %d.%d.%d: min %.1f - max %.1f -> %s\n", timeinfo->tm_mday, timeinfo->tm_mon + 1, timeinfo->tm_year + 1900, daily_data.temperatureMin, daily_data.temperatureMax, daily_data.icon.c_str());
 			v_forecast.push_back(daily_data);
 		}
 		return true;
