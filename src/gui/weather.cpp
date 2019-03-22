@@ -52,14 +52,13 @@ CWeather *CWeather::getInstance()
 
 CWeather::CWeather()
 {
-	act_temp = 0;
-	act_wicon = "unknown.png";
 	key = g_settings.weather_api_key;
-	form = NULL;
 	v_forecast.clear();
 	last_time = 0;
 	coords = "";
 	city = "";
+
+	form = NULL;
 }
 
 CWeather::~CWeather()
@@ -129,32 +128,32 @@ bool CWeather::GetWeatherDetails()
 	if (found > 0)
 	{
 		timezone = DataValues["timezone"].asString();
-		act_temp = DataValues["currently"].get("temperature", "").asFloat();
-		act_wicon = DataValues["currently"].get("icon", "").asString();
-		if (act_wicon.empty())
-			act_wicon = "unknown.png";
+		current.temperature = DataValues["currently"].get("temperature", "").asFloat();
+		current.icon = DataValues["currently"].get("icon", "").asString();
+		if (current.icon.empty())
+			current.icon = "unknown.png";
 		else
-			act_wicon = act_wicon + ".png";
-		printf("[CWeather]: temp in %s (%s): %.1f - %s\n", city.c_str(), timezone.c_str(), act_temp, act_wicon.c_str());
+			current.icon = current.icon + ".png";
+		printf("[CWeather]: temp in %s (%s): %.1f - %s\n", city.c_str(), timezone.c_str(), current.temperature, current.icon.c_str());
 
-		forecast_data weatherinfo;
+		forecast_data daily_data;
 		Json::Value elements = DataValues["daily"]["data"];
 		for (unsigned int i = 0; i < elements.size(); i++)
 		{
-			weatherinfo.timestamp = elements[i].get("time", 0).asDouble();
-			weatherinfo.wicon = elements[i].get("icon", "").asString();
-			if (weatherinfo.wicon.empty())
-				weatherinfo.wicon = "unknown.png";
+			daily_data.timestamp = elements[i].get("time", 0).asDouble();
+			daily_data.icon = elements[i].get("icon", "").asString();
+			if (daily_data.icon.empty())
+				daily_data.icon = "unknown.png";
 			else
-				weatherinfo.wicon = weatherinfo.wicon + ".png";
-			weatherinfo.min_temp = elements[i].get("temperatureMin", "").asFloat();
-			weatherinfo.max_temp = elements[i].get("temperatureMax", "").asFloat();
+				daily_data.icon = daily_data.icon + ".png";
+			daily_data.temperatureMin = elements[i].get("temperatureMin", "").asFloat();
+			daily_data.temperatureMax = elements[i].get("temperatureMax", "").asFloat();
 
 			struct tm *timeinfo;
-			timeinfo = localtime(&weatherinfo.timestamp);
+			timeinfo = localtime(&daily_data.timestamp);
 
-			printf("[CWeather]: temp %d.%d.%d: min %.1f - max %.1f -> %s\n", timeinfo->tm_mday, timeinfo->tm_mon, timeinfo->tm_year + 1900, weatherinfo.min_temp, weatherinfo.max_temp, weatherinfo.wicon.c_str());
-			v_forecast.push_back(weatherinfo);
+			printf("[CWeather]: temp %d.%d.%d: min %.1f - max %.1f -> %s\n", timeinfo->tm_mday, timeinfo->tm_mon, timeinfo->tm_year + 1900, daily_data.temperatureMin, daily_data.temperatureMax, daily_data.icon.c_str());
+			v_forecast.push_back(daily_data);
 		}
 		return true;
 	}
@@ -171,11 +170,11 @@ void CWeather::show(int x, int y)
 	if (!g_settings.weather_enabled || coords.empty())
 		return;
 
-	CComponentsPicture *ptmp = new CComponentsPicture(RADIUS_MID, RADIUS_MID, getActIcon());
+	CComponentsPicture *ptmp = new CComponentsPicture(RADIUS_MID, RADIUS_MID, getCurrentIcon());
 	ptmp->setColorBody(form->getColorBody());
 	form->addCCItem(ptmp);
 
-	CComponentsText *temp = new CComponentsText(ptmp->getWidth() + 2*RADIUS_MID, ptmp->getHeight()/2 + RADIUS_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/2, 0, 0, getActTemp() + "°C", CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
+	CComponentsText *temp = new CComponentsText(ptmp->getWidth() + 2*RADIUS_MID, ptmp->getHeight()/2 + RADIUS_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/2, 0, 0, getCurrentTemperature() + "°C", CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 	temp->doPaintBg(false);
 	temp->setTextColor(COL_INFOBAR_TEXT);
 	form->addCCItem(temp);

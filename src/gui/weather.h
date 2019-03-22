@@ -34,12 +34,23 @@
 
 #include <gui/components/cc.h>
 
+struct current_data
+{
+	std::string icon;
+	float temperature;
+
+	current_data():
+		icon(""),
+		temperature(0)
+	{}
+};
+
 typedef struct
 {
-	std::string wicon;
-	float min_temp;
-	float max_temp;
 	time_t timestamp;
+	std::string icon;
+	float temperatureMin;
+	float temperatureMax;
 } forecast_data;
 
 class CWeather
@@ -48,8 +59,7 @@ class CWeather
 		std::string coords;
 		std::string city;
 		std::string timezone;
-		std::string act_wicon;
-		float act_temp;
+		current_data current;
 		std::vector<forecast_data> v_forecast;
 		CComponentsForm *form;
 		std::string key;
@@ -62,28 +72,30 @@ class CWeather
 		~CWeather();
 		bool checkUpdate(bool forceUpdate = false);
 		void setCoords(std::string new_coords, std::string new_city = "Unknown");
-		void show(int x = 50, int y = 50);
-		void hide();
+
 		std::string getCity()
 		{
 			return city;
 		};
-		std::string getActTemp()
+		std::string getCurrentTemperature()
 		{
-			return to_string((int)(act_temp + 0.5));
+			return to_string((int)(current.temperature + 0.5));
 		};
-		std::string getForecastTemp(int i = 0)
+		std::string getCurrentIcon()
 		{
-			return to_string((int)(v_forecast[i].max_temp + 0.5));
+			return ICONSDIR"/weather/" + current.icon;
 		};
-		std::string getActIcon()
+		std::string getForecastTemperatureMax(int i = 0)
 		{
-			return ICONSDIR"/weather/" + act_wicon;
+			return to_string((int)(v_forecast[i].temperatureMax + 0.5));
 		};
 		std::string getForecastIcon(int i = 0)
 		{
-			return ICONSDIR"/weather/" + v_forecast[i].wicon;
+			return ICONSDIR"/weather/" + v_forecast[i].icon;
 		};
+
+		void show(int x = 50, int y = 50);
+		void hide();
 };
 
 #endif
