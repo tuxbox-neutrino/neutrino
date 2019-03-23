@@ -128,7 +128,10 @@ bool CWeather::GetWeatherDetails()
 	if (found > 0)
 	{
 		timezone = DataValues["timezone"].asString();
+		current.timestamp = DataValues["currently"].get("time", 0).asDouble();
 		current.temperature = DataValues["currently"].get("temperature", "").asFloat();
+		current.windSpeed = DataValues["currently"].get("windSpeed", 0).asFloat();
+		current.windBearing = DataValues["currently"].get("windBearing", 0).asDouble();
 		current.icon = DataValues["currently"].get("icon", "").asString();
 		if (current.icon.empty())
 			current.icon = "unknown.png";
@@ -148,6 +151,8 @@ bool CWeather::GetWeatherDetails()
 				daily_data.icon = daily_data.icon + ".png";
 			daily_data.temperatureMin = elements[i].get("temperatureMin", "").asFloat();
 			daily_data.temperatureMax = elements[i].get("temperatureMax", "").asFloat();
+			daily_data.windSpeed = elements[i].get("windSpeed", 0).asFloat();
+			daily_data.windBearing = elements[i].get("windBearing", 0).asDouble();
 
 			struct tm *timeinfo;
 			timeinfo = localtime(&daily_data.timestamp);

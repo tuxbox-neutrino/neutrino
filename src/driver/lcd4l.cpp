@@ -105,7 +105,9 @@ extern CPictureViewer *g_PicViewer;
 #define PBCOLOR			LCD_DATADIR "pbcolor"
 
 #define WEATHER_CITY		LCD_DATADIR "weather_city"
+#define WEATHER_TIMESTAMP	LCD_DATADIR "weather_timestamp"
 #define WEATHER_TEMP		LCD_DATADIR "weather_temp"
+#define WEATHER_WIND		LCD_DATADIR "weather_wind"
 #define WEATHER_ICON		LCD_DATADIR "weather_icon"
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
@@ -300,7 +302,9 @@ void CLCD4l::Init()
 	m_End		= "00:00";
 
 	m_wcity		= "";
+	m_wtimestamp	= "";
 	m_wtemp		= "";
+	m_wwind		= "";
 	m_wicon		= "";
 
 	if (!access(LCD_DATADIR, F_OK) == 0)
@@ -1064,15 +1068,38 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			m_wcity = wcity;
 		}
 
-		int forecast = 1; // days for forecast
+		std::string wtimestamp = to_string((int)CWeather::getInstance()->getCurrentTimestamp());
+		if (m_wtimestamp.compare(wtimestamp))
+		{
+			WriteFile(WEATHER_TIMESTAMP, wtimestamp);
+			m_wtimestamp = wtimestamp;
+		}
+
+		int forecast = 5; // days for forecast
 
 		std::string wtemp = CWeather::getInstance()->getCurrentTemperature();
 		for (int i = 0; i < 1 + forecast; i++)
-			wtemp += "\n" + CWeather::getInstance()->getForecastTemperatureMax(i);
+		{
+			wtemp += "\n" + CWeather::getInstance()->getForecastTemperatureMin(i);
+			wtemp += "|" + CWeather::getInstance()->getForecastTemperatureMax(i);
+		}
 		if (m_wtemp.compare(wtemp))
 		{
 			WriteFile(WEATHER_TEMP, wtemp);
 			m_wtemp = wtemp;
+		}
+
+		std::string wwind = CWeather::getInstance()->getCurrentWindSpeed();
+		wwind += "|" + CWeather::getInstance()->getCurrentWindBearing();
+		for (int i = 0; i < 1 + forecast; i++)
+		{
+			wwind += "\n" + CWeather::getInstance()->getForecastWindSpeed(i);
+			wwind += "|" + CWeather::getInstance()->getForecastWindBearing(i);
+		}
+		if (m_wwind.compare(wwind))
+		{
+			WriteFile(WEATHER_WIND, wwind);
+			m_wwind = wwind;
 		}
 
 		std::string wicon = CWeather::getInstance()->getCurrentIcon();

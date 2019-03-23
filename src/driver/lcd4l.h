@@ -129,7 +129,9 @@ class CLCD4l
 		std::string	m_pbcolor;
 
 		std::string	m_wcity;
+		std::string	m_wtimestamp;
 		std::string	m_wtemp;
+		std::string	m_wwind;
 		std::string	m_wicon;
 };
 

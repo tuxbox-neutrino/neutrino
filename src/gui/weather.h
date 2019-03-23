@@ -36,12 +36,18 @@
 
 struct current_data
 {
+	time_t timestamp;
 	std::string icon;
 	float temperature;
+	float windSpeed;
+	int windBearing;
 
 	current_data():
+		timestamp(0),
 		icon(""),
-		temperature(0)
+		temperature(0),
+		windSpeed(0),
+		windBearing(0)
 	{}
 };
 
@@ -51,6 +57,8 @@ typedef struct
 	std::string icon;
 	float temperatureMin;
 	float temperatureMax;
+	float windSpeed;
+	int windBearing;
 } forecast_data;
 
 class CWeather
@@ -77,17 +85,47 @@ class CWeather
 		{
 			return city;
 		};
+#if 0
+		std::string getCurrentTimestamp()
+		{
+			return to_string((int)(current.timestamp));
+		};
+#endif
+		time_t getCurrentTimestamp()
+		{
+			return current.timestamp;
+		};
 		std::string getCurrentTemperature()
 		{
 			return to_string((int)(current.temperature + 0.5));
+		};
+		std::string getCurrentWindSpeed()
+		{
+			return to_string(current.windSpeed);
+		};
+		std::string getCurrentWindBearing()
+		{
+			return to_string(current.windBearing);
 		};
 		std::string getCurrentIcon()
 		{
 			return ICONSDIR"/weather/" + current.icon;
 		};
+		std::string getForecastTemperatureMin(int i = 0)
+		{
+			return to_string((int)(v_forecast[i].temperatureMin + 0.5));
+		};
 		std::string getForecastTemperatureMax(int i = 0)
 		{
 			return to_string((int)(v_forecast[i].temperatureMax + 0.5));
+		};
+		std::string getForecastWindSpeed(int i = 0)
+		{
+			return to_string(v_forecast[i].windSpeed);
+		};
+		std::string getForecastWindBearing(int i = 0)
+		{
+			return to_string(v_forecast[i].windBearing);
 		};
 		std::string getForecastIcon(int i = 0)
 		{
