@@ -42,9 +42,10 @@
 
 #define UPDATE_CYCLE 15 // minutes
 
+CWeather *weather = NULL;
+
 CWeather *CWeather::getInstance()
 {
-	static CWeather *weather = NULL;
 	if (!weather)
 		weather = new CWeather();
 	return weather;
@@ -73,7 +74,7 @@ void CWeather::setCoords(std::string new_coords, std::string new_city)
 	{
 		coords = new_coords;
 		city = new_city;
-		GetWeatherDetails();
+		checkUpdate(true);
 	}
 }
 
@@ -130,8 +131,10 @@ bool CWeather::GetWeatherDetails()
 		timezone = DataValues["timezone"].asString();
 		current.timestamp = DataValues["currently"].get("time", 0).asDouble();
 		current.temperature = DataValues["currently"].get("temperature", "").asFloat();
-		current.windSpeed = DataValues["currently"].get("windSpeed", 0).asFloat();
-		current.windBearing = DataValues["currently"].get("windBearing", 0).asDouble();
+		current.pressure = DataValues["currently"].get("pressure", "").asFloat();
+		current.humidity = DataValues["currently"].get("humidity", "").asFloat();
+		current.windSpeed = DataValues["currently"].get("windSpeed", "").asFloat();
+		current.windBearing = DataValues["currently"].get("windBearing", "").asDouble();
 		current.icon = DataValues["currently"].get("icon", "").asString();
 		if (current.icon.empty())
 			current.icon = "unknown.png";
@@ -144,6 +147,7 @@ bool CWeather::GetWeatherDetails()
 		for (unsigned int i = 0; i < elements.size(); i++)
 		{
 			daily_data.timestamp = elements[i].get("time", 0).asDouble();
+			daily_data.weekday = (int)(localtime(&daily_data.timestamp)->tm_wday);
 			daily_data.icon = elements[i].get("icon", "").asString();
 			if (daily_data.icon.empty())
 				daily_data.icon = "unknown.png";
@@ -151,6 +155,8 @@ bool CWeather::GetWeatherDetails()
 				daily_data.icon = daily_data.icon + ".png";
 			daily_data.temperatureMin = elements[i].get("temperatureMin", "").asFloat();
 			daily_data.temperatureMax = elements[i].get("temperatureMax", "").asFloat();
+			daily_data.sunriseTime = elements[i].get("sunriseTime", 0).asDouble();
+			daily_data.sunsetTime = elements[i].get("sunsetTime", 0).asDouble();
 			daily_data.windSpeed = elements[i].get("windSpeed", 0).asFloat();
 			daily_data.windBearing = elements[i].get("windBearing", 0).asDouble();
 

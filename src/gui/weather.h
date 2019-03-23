@@ -39,13 +39,17 @@ struct current_data
 	time_t timestamp;
 	std::string icon;
 	float temperature;
+	float humidity;
+	float pressure;
 	float windSpeed;
 	int windBearing;
 
 	current_data():
 		timestamp(0),
-		icon(""),
+		icon("unknown.png"),
 		temperature(0),
+		humidity(0),
+		pressure(0),
 		windSpeed(0),
 		windBearing(0)
 	{}
@@ -54,9 +58,12 @@ struct current_data
 typedef struct
 {
 	time_t timestamp;
+	int weekday; // 0=Sunday, 1=Monday, ...
 	std::string icon;
 	float temperatureMin;
 	float temperatureMax;
+	time_t sunriseTime;
+	time_t sunsetTime;
 	float windSpeed;
 	int windBearing;
 } forecast_data;
@@ -81,10 +88,13 @@ class CWeather
 		bool checkUpdate(bool forceUpdate = false);
 		void setCoords(std::string new_coords, std::string new_city = "Unknown");
 
+		// globals
 		std::string getCity()
 		{
 			return city;
 		};
+
+		// current conditions
 #if 0
 		std::string getCurrentTimestamp()
 		{
@@ -99,6 +109,14 @@ class CWeather
 		{
 			return to_string((int)(current.temperature + 0.5));
 		};
+		std::string getCurrentHumidity()
+		{
+			return to_string((int)(current.humidity * 100.0));
+		};
+		std::string getCurrentPressure()
+		{
+			return to_string(current.pressure);
+		};
 		std::string getCurrentWindSpeed()
 		{
 			return to_string(current.windSpeed);
@@ -111,24 +129,46 @@ class CWeather
 		{
 			return ICONSDIR"/weather/" + current.icon;
 		};
+
+		// forecast conditions
+		int getForecastSize()
+		{
+			return (int)v_forecast.size();
+		};
+		int getForecastWeekday(int i = 0)
+		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
+			return v_forecast[i].weekday;
+		};
 		std::string getForecastTemperatureMin(int i = 0)
 		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
 			return to_string((int)(v_forecast[i].temperatureMin + 0.5));
 		};
 		std::string getForecastTemperatureMax(int i = 0)
 		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
 			return to_string((int)(v_forecast[i].temperatureMax + 0.5));
 		};
 		std::string getForecastWindSpeed(int i = 0)
 		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
 			return to_string(v_forecast[i].windSpeed);
 		};
 		std::string getForecastWindBearing(int i = 0)
 		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
 			return to_string(v_forecast[i].windBearing);
 		};
 		std::string getForecastIcon(int i = 0)
 		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
 			return ICONSDIR"/weather/" + v_forecast[i].icon;
 		};
 
