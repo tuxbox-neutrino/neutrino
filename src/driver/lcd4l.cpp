@@ -1078,7 +1078,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		int forecast = CWeather::getInstance()->getForecastSize();
 
 		std::string wtemp = CWeather::getInstance()->getCurrentTemperature();
-		for (int i = 1; i < forecast; i++) // 0 is current day
+		for (int i = 0; i < forecast; i++) // 0 is current day
 		{
 			wtemp += "\n" + CWeather::getInstance()->getForecastTemperatureMin(i);
 			wtemp += "|" + CWeather::getInstance()->getForecastTemperatureMax(i);
@@ -1091,7 +1091,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		std::string wwind = CWeather::getInstance()->getCurrentWindSpeed();
 		wwind += "|" + CWeather::getInstance()->getCurrentWindBearing();
-		for (int i = 1; i < forecast; i++) // 0 is current day
+		for (int i = 0; i < forecast; i++) // 0 is current day
 		{
 			wwind += "\n" + CWeather::getInstance()->getForecastWindSpeed(i);
 			wwind += "|" + CWeather::getInstance()->getForecastWindBearing(i);
