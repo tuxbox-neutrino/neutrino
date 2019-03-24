@@ -100,13 +100,16 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (fileBrowser.exec(CONFIGDIR) == true) {
 			CNeutrinoApp::getInstance()->loadKeys(fileBrowser.getSelectedFile()->Name.c_str());
 			printf("[neutrino keybind_setup] new keys: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+			for (int i = 0; i < KEYBINDS_COUNT; i++){
+				keychooser[i]->reinitName();
+			}
 		}
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "savekeys") {
 		CFileBrowser fileBrowser;
 		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/media") == true) {
+		if (fileBrowser.exec(CONFIGDIR) == true) {
 			std::string fname = "keys.conf";
 			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname);
 			sms->exec(NULL, "");

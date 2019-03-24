@@ -39,7 +39,7 @@ class CKeyChooser : public CMenuWidget
 	public:
 		CKeyChooser(unsigned int * const Key, const neutrino_locale_t title, const std::string & Icon = "");
 		~CKeyChooser();
-
+		void reinitName();
 		void paint();
 		const std::string & getKeyName(){return keyName;};
 };

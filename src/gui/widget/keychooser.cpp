@@ -52,6 +52,11 @@ void CKeyChooser::paint()
 	CMenuWidget::paint();
 }
 
+void CKeyChooser::reinitName()
+{
+	keyName = CRCInput::getKeyName(*key);
+}
+
 int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 {
 	neutrino_msg_t      msg;
