@@ -4933,189 +4933,202 @@ int main(int argc, char **argv)
 void CNeutrinoApp::loadKeys(const char * fname)
 {
 	bool res;
-	CConfigFile & tconfig = configfile;
+	CConfigFile  *tconfig = NULL;
 
 	if(fname) {
-		CConfigFile newconfig(',', true);
-
-		res = newconfig.loadConfig(fname);
-		if(!res) return;
-		tconfig = newconfig;
+		tconfig = new CConfigFile(',');
+		res = tconfig->loadConfig(fname);
+		if(!res)
+			return;
+	}
+	else{
+		tconfig = &configfile;
 	}
 
 	//rc-key configuration
-	g_settings.key_tvradio_mode = tconfig.getInt32( "key_tvradio_mode", (unsigned int)CRCInput::RC_nokey );
-	g_settings.key_power_off = tconfig.getInt32( "key_power_off", CRCInput::RC_standby );
-	g_settings.key_standby_off_add = tconfig.getInt32( "key_standby_off_add", CRCInput::RC_ok );
+	g_settings.key_tvradio_mode = tconfig->getInt32( "key_tvradio_mode", (unsigned int)CRCInput::RC_nokey );
+	g_settings.key_power_off = tconfig->getInt32( "key_power_off", CRCInput::RC_standby );
+	g_settings.key_standby_off_add = tconfig->getInt32( "key_standby_off_add", CRCInput::RC_ok );
 
-	g_settings.key_pageup = tconfig.getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
-	g_settings.key_pagedown = tconfig.getInt32( "key_channelList_pagedown", CRCInput::RC_page_down );
-	g_settings.key_channelList_cancel = tconfig.getInt32( "key_channelList_cancel",  CRCInput::RC_home );
-	g_settings.key_channelList_sort = tconfig.getInt32( "key_channelList_sort",  CRCInput::RC_blue );
-	g_settings.key_channelList_addrecord = tconfig.getInt32( "key_channelList_addrecord",  CRCInput::RC_red );
-	g_settings.key_channelList_addremind = tconfig.getInt32( "key_channelList_addremind",  CRCInput::RC_yellow );
+	g_settings.key_pageup = tconfig->getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
+	g_settings.key_pagedown = tconfig->getInt32( "key_channelList_pagedown", CRCInput::RC_page_down );
+	g_settings.key_channelList_cancel = tconfig->getInt32( "key_channelList_cancel",  CRCInput::RC_home );
+	g_settings.key_channelList_sort = tconfig->getInt32( "key_channelList_sort",  CRCInput::RC_blue );
+	g_settings.key_channelList_addrecord = tconfig->getInt32( "key_channelList_addrecord",  CRCInput::RC_red );
+	g_settings.key_channelList_addremind = tconfig->getInt32( "key_channelList_addremind",  CRCInput::RC_yellow );
 
-	g_settings.key_list_start = tconfig.getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
-	g_settings.key_list_end = tconfig.getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
+	g_settings.key_list_start = tconfig->getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
+	g_settings.key_list_end = tconfig->getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
 #if HAVE_ARM_HARDWARE
-	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_nokey ); // FIXME
+	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_nokey ); // FIXME
 #else
-	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_pause );
+	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_pause );
 #endif
-	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
-	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", (unsigned int)CRCInput::RC_nokey );
+	g_settings.key_unlock = tconfig->getInt32( "key_unlock", CRCInput::RC_setup );
+	g_settings.key_screenshot = tconfig->getInt32( "key_screenshot", (unsigned int)CRCInput::RC_nokey );
 #ifdef ENABLE_PIP
-	g_settings.key_pip_close = tconfig.getInt32( "key_pip_close", CRCInput::RC_help );
-	g_settings.key_pip_setup = tconfig.getInt32( "key_pip_setup", CRCInput::RC_pos );
-	g_settings.key_pip_swap = tconfig.getInt32( "key_pip_swap", CRCInput::RC_recall );
+	g_settings.key_pip_close = tconfig->getInt32( "key_pip_close", CRCInput::RC_help );
+	g_settings.key_pip_setup = tconfig->getInt32( "key_pip_setup", CRCInput::RC_pos );
+	g_settings.key_pip_swap = tconfig->getInt32( "key_pip_swap", CRCInput::RC_recall );
 #endif
-	g_settings.key_current_transponder = tconfig.getInt32( "key_current_transponder", CRCInput::RC_games );
+	g_settings.key_current_transponder = tconfig->getInt32( "key_current_transponder", CRCInput::RC_games );
 
-	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
-	g_settings.key_quickzap_down = tconfig.getInt32( "key_quickzap_down",  CRCInput::RC_down );
-	g_settings.key_subchannel_up = tconfig.getInt32( "key_subchannel_up",  CRCInput::RC_right );
-	g_settings.key_subchannel_down = tconfig.getInt32( "key_subchannel_down",  CRCInput::RC_left );
-	g_settings.key_zaphistory = tconfig.getInt32( "key_zaphistory",  CRCInput::RC_home );
-	g_settings.key_lastchannel = tconfig.getInt32( "key_lastchannel",  CRCInput::RC_0 );
+	g_settings.key_quickzap_up = tconfig->getInt32( "key_quickzap_up",  CRCInput::RC_up );
+	g_settings.key_quickzap_down = tconfig->getInt32( "key_quickzap_down",  CRCInput::RC_down );
+	g_settings.key_subchannel_up = tconfig->getInt32( "key_subchannel_up",  CRCInput::RC_right );
+	g_settings.key_subchannel_down = tconfig->getInt32( "key_subchannel_down",  CRCInput::RC_left );
+	g_settings.key_zaphistory = tconfig->getInt32( "key_zaphistory",  CRCInput::RC_home );
+	g_settings.key_lastchannel = tconfig->getInt32( "key_lastchannel",  CRCInput::RC_0 );
 
-	g_settings.key_bouquet_up = tconfig.getInt32( "key_bouquet_up",  CRCInput::RC_right);
-	g_settings.key_bouquet_down = tconfig.getInt32( "key_bouquet_down",  CRCInput::RC_left);
+	g_settings.key_bouquet_up = tconfig->getInt32( "key_bouquet_up",  CRCInput::RC_right);
+	g_settings.key_bouquet_down = tconfig->getInt32( "key_bouquet_down",  CRCInput::RC_left);
 
-	g_settings.mbkey_copy_onefile = tconfig.getInt32( "mbkey.copy_onefile", CRCInput::RC_radio );
-	g_settings.mbkey_copy_several = tconfig.getInt32( "mbkey.copy_several", CRCInput::RC_text );
-	g_settings.mbkey_cut = tconfig.getInt32( "mbkey.cut", CRCInput::RC_audio );
-	g_settings.mbkey_truncate = tconfig.getInt32( "mbkey.truncate", CRCInput::RC_games );
-	g_settings.mbkey_cover = tconfig.getInt32( "mbkey.cover", CRCInput::RC_favorites );
+	g_settings.mbkey_copy_onefile = tconfig->getInt32( "mbkey.copy_onefile", CRCInput::RC_radio );
+	g_settings.mbkey_copy_several = tconfig->getInt32( "mbkey.copy_several", CRCInput::RC_text );
+	g_settings.mbkey_cut = tconfig->getInt32( "mbkey.cut", CRCInput::RC_audio );
+	g_settings.mbkey_truncate = tconfig->getInt32( "mbkey.truncate", CRCInput::RC_games );
+	g_settings.mbkey_cover = tconfig->getInt32( "mbkey.cover", CRCInput::RC_favorites );
 
-	g_settings.mpkey_rewind = tconfig.getInt32( "mpkey.rewind", CRCInput::RC_rewind );
-	g_settings.mpkey_forward = tconfig.getInt32( "mpkey.forward", CRCInput::RC_forward );
-	g_settings.mpkey_stop = tconfig.getInt32( "mpkey.stop", CRCInput::RC_stop );
+	g_settings.mpkey_rewind = tconfig->getInt32( "mpkey.rewind", CRCInput::RC_rewind );
+	g_settings.mpkey_forward = tconfig->getInt32( "mpkey.forward", CRCInput::RC_forward );
+	g_settings.mpkey_stop = tconfig->getInt32( "mpkey.stop", CRCInput::RC_stop );
 #if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_BRE2ZE4K
-	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_playpause );
-	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_playpause );
+	g_settings.mpkey_play = tconfig->getInt32( "mpkey.play", CRCInput::RC_playpause );
+	g_settings.mpkey_pause = tconfig->getInt32( "mpkey.pause", CRCInput::RC_playpause );
 #elif BOXMODEL_VUSOLO4K
-	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_play );
-	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_playpause );
+	g_settings.mpkey_play = tconfig->getInt32( "mpkey.play", CRCInput::RC_play );
+	g_settings.mpkey_pause = tconfig->getInt32( "mpkey.pause", CRCInput::RC_playpause );
 #else
-	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_play );
-	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_pause );
+	g_settings.mpkey_play = tconfig->getInt32( "mpkey.play", CRCInput::RC_play );
+	g_settings.mpkey_pause = tconfig->getInt32( "mpkey.pause", CRCInput::RC_pause );
 #endif
-	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
-	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_timeshift );
-	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_yellow );
-	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", (unsigned int)CRCInput::RC_nokey );
-	g_settings.mpkey_subtitle = tconfig.getInt32( "mpkey.subtitle", CRCInput::RC_sub );
+	g_settings.mpkey_audio = tconfig->getInt32( "mpkey.audio", CRCInput::RC_green );
+	g_settings.mpkey_time = tconfig->getInt32( "mpkey.time", CRCInput::RC_timeshift );
+	g_settings.mpkey_bookmark = tconfig->getInt32( "mpkey.bookmark", CRCInput::RC_yellow );
+	g_settings.mpkey_plugin = tconfig->getInt32( "mpkey.plugin", (unsigned int)CRCInput::RC_nokey );
+	g_settings.mpkey_subtitle = tconfig->getInt32( "mpkey.subtitle", CRCInput::RC_sub );
 
-	g_settings.mpkey_goto = tconfig.getInt32( "mpkey.goto", CRCInput::RC_nokey );
-	g_settings.mpkey_next_repeat_mode = tconfig.getInt32( "mpkey.next_repeat_mode", CRCInput::RC_nokey);
+	g_settings.mpkey_goto = tconfig->getInt32( "mpkey.goto", CRCInput::RC_nokey );
+	g_settings.mpkey_next_repeat_mode = tconfig->getInt32( "mpkey.next_repeat_mode", CRCInput::RC_nokey);
 
-	g_settings.key_format_mode_active = tconfig.getInt32( "key_format_mode_active", 1 );
-	g_settings.key_pic_mode_active = tconfig.getInt32( "key_pic_mode_active", 1 );
-	g_settings.key_pic_size_active = tconfig.getInt32( "key_pic_size_active", 1 );
+	g_settings.key_format_mode_active = tconfig->getInt32( "key_format_mode_active", 1 );
+	g_settings.key_pic_mode_active = tconfig->getInt32( "key_pic_mode_active", 1 );
+	g_settings.key_pic_size_active = tconfig->getInt32( "key_pic_size_active", 1 );
 
 	/* options */
-	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
-	g_settings.repeat_blocker = tconfig.getInt32("repeat_blocker", 450);
-	g_settings.repeat_genericblocker = tconfig.getInt32("repeat_genericblocker", 100);
-	g_settings.longkeypress_duration = tconfig.getInt32("longkeypress_duration", LONGKEYPRESS_OFF);
+	g_settings.menu_left_exit = tconfig->getInt32( "menu_left_exit", 0 );
+	g_settings.repeat_blocker = tconfig->getInt32("repeat_blocker", 450);
+	g_settings.repeat_genericblocker = tconfig->getInt32("repeat_genericblocker", 100);
+	g_settings.longkeypress_duration = tconfig->getInt32("longkeypress_duration", LONGKEYPRESS_OFF);
 
-	g_settings.bouquetlist_mode = tconfig.getInt32( "bouquetlist_mode", 0 );
-	g_settings.sms_channel = tconfig.getInt32( "sms_channel", 0 );
-	g_settings.sms_movie = tconfig.getInt32( "sms_movie", 1 );
-	g_settings.mode_left_right_key_tv = tconfig.getInt32( "mode_left_right_key_tv",  SNeutrinoSettings::ZAP);
+	g_settings.bouquetlist_mode = tconfig->getInt32( "bouquetlist_mode", 0 );
+	g_settings.sms_channel = tconfig->getInt32( "sms_channel", 0 );
+	g_settings.sms_movie = tconfig->getInt32( "sms_movie", 1 );
+	g_settings.mode_left_right_key_tv = tconfig->getInt32( "mode_left_right_key_tv",  SNeutrinoSettings::ZAP);
 
-	g_settings.key_help = tconfig.getInt32( "key_help", CRCInput::RC_help );
-	g_settings.key_record = tconfig.getInt32( "key_record", CRCInput::RC_record );
-	g_settings.key_switchformat = tconfig.getInt32("key_switchformat", CRCInput::RC_prev);
-	g_settings.key_next43mode = tconfig.getInt32("key_next43mode", CRCInput::RC_next);
-	g_settings.key_volumeup = tconfig.getInt32( "key_volumeup",  CRCInput::RC_plus );
-	g_settings.key_volumedown = tconfig.getInt32( "key_volumedown", CRCInput::RC_minus );
+	g_settings.key_help = tconfig->getInt32( "key_help", CRCInput::RC_help );
+	g_settings.key_record = tconfig->getInt32( "key_record", CRCInput::RC_record );
+	g_settings.key_switchformat = tconfig->getInt32("key_switchformat", CRCInput::RC_prev);
+	g_settings.key_next43mode = tconfig->getInt32("key_next43mode", CRCInput::RC_next);
+	g_settings.key_volumeup = tconfig->getInt32( "key_volumeup",  CRCInput::RC_plus );
+	g_settings.key_volumedown = tconfig->getInt32( "key_volumedown", CRCInput::RC_minus );
+
+	if(fname){
+		delete tconfig;
+		tconfig = NULL;
+	}
 }
 
 void CNeutrinoApp::saveKeys(const char * fname)
 {
-	CConfigFile & tconfig = configfile;
+	CConfigFile *tconfig = NULL;
+
 	if(fname) {
-		CConfigFile newconfig(',', true);
-		tconfig = newconfig;
+		tconfig = new CConfigFile(',');
+	}else {
+		tconfig = &configfile;
 	}
+
 	//rc-key configuration
-	tconfig.setInt32( "key_tvradio_mode", g_settings.key_tvradio_mode );
-	tconfig.setInt32( "key_power_off", g_settings.key_power_off );
-	tconfig.setInt32( "key_standby_off_add", g_settings.key_standby_off_add );
+	tconfig->setInt32( "key_tvradio_mode", g_settings.key_tvradio_mode );
+	tconfig->setInt32( "key_power_off", g_settings.key_power_off );
+	tconfig->setInt32( "key_standby_off_add", g_settings.key_standby_off_add );
 
-	tconfig.setInt32( "key_channelList_pageup", g_settings.key_pageup );
-	tconfig.setInt32( "key_channelList_pagedown", g_settings.key_pagedown );
-	tconfig.setInt32( "key_channelList_cancel", g_settings.key_channelList_cancel );
-	tconfig.setInt32( "key_channelList_sort", g_settings.key_channelList_sort );
-	tconfig.setInt32( "key_channelList_addrecord", g_settings.key_channelList_addrecord );
-	tconfig.setInt32( "key_channelList_addremind", g_settings.key_channelList_addremind );
+	tconfig->setInt32( "key_channelList_pageup", g_settings.key_pageup );
+	tconfig->setInt32( "key_channelList_pagedown", g_settings.key_pagedown );
+	tconfig->setInt32( "key_channelList_cancel", g_settings.key_channelList_cancel );
+	tconfig->setInt32( "key_channelList_sort", g_settings.key_channelList_sort );
+	tconfig->setInt32( "key_channelList_addrecord", g_settings.key_channelList_addrecord );
+	tconfig->setInt32( "key_channelList_addremind", g_settings.key_channelList_addremind );
 
-	tconfig.setInt32( "key_list_start", g_settings.key_list_start );
-	tconfig.setInt32( "key_list_end", g_settings.key_list_end );
-	tconfig.setInt32( "key_timeshift", g_settings.key_timeshift );
-	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
-	tconfig.setInt32( "key_screenshot", g_settings.key_screenshot );
+	tconfig->setInt32( "key_list_start", g_settings.key_list_start );
+	tconfig->setInt32( "key_list_end", g_settings.key_list_end );
+	tconfig->setInt32( "key_timeshift", g_settings.key_timeshift );
+	tconfig->setInt32( "key_unlock", g_settings.key_unlock );
+	tconfig->setInt32( "key_screenshot", g_settings.key_screenshot );
 #ifdef ENABLE_PIP
-	tconfig.setInt32( "key_pip_close", g_settings.key_pip_close );
-	tconfig.setInt32( "key_pip_setup", g_settings.key_pip_setup );
-	tconfig.setInt32( "key_pip_swap", g_settings.key_pip_swap );
+	tconfig->setInt32( "key_pip_close", g_settings.key_pip_close );
+	tconfig->setInt32( "key_pip_setup", g_settings.key_pip_setup );
+	tconfig->setInt32( "key_pip_swap", g_settings.key_pip_swap );
 #endif
-	tconfig.setInt32( "key_current_transponder", g_settings.key_current_transponder );
+	tconfig->setInt32( "key_current_transponder", g_settings.key_current_transponder );
 
-	tconfig.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
-	tconfig.setInt32( "key_quickzap_down", g_settings.key_quickzap_down );
-	tconfig.setInt32( "key_subchannel_up", g_settings.key_subchannel_up );
-	tconfig.setInt32( "key_subchannel_down", g_settings.key_subchannel_down );
-	tconfig.setInt32( "key_zaphistory", g_settings.key_zaphistory );
-	tconfig.setInt32( "key_lastchannel", g_settings.key_lastchannel );
+	tconfig->setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
+	tconfig->setInt32( "key_quickzap_down", g_settings.key_quickzap_down );
+	tconfig->setInt32( "key_subchannel_up", g_settings.key_subchannel_up );
+	tconfig->setInt32( "key_subchannel_down", g_settings.key_subchannel_down );
+	tconfig->setInt32( "key_zaphistory", g_settings.key_zaphistory );
+	tconfig->setInt32( "key_lastchannel", g_settings.key_lastchannel );
 
-	tconfig.setInt32( "key_bouquet_up", g_settings.key_bouquet_up );
-	tconfig.setInt32( "key_bouquet_down", g_settings.key_bouquet_down );
+	tconfig->setInt32( "key_bouquet_up", g_settings.key_bouquet_up );
+	tconfig->setInt32( "key_bouquet_down", g_settings.key_bouquet_down );
 
-	tconfig.setInt32( "mbkey.copy_onefile", g_settings.mbkey_copy_onefile );
-	tconfig.setInt32( "mbkey.copy_several", g_settings.mbkey_copy_several );
-	tconfig.setInt32( "mbkey.cut", g_settings.mbkey_cut );
-	tconfig.setInt32( "mbkey.truncate", g_settings.mbkey_truncate );
-	tconfig.setInt32( "mbkey.cover", g_settings.mbkey_cover );
+	tconfig->setInt32( "mbkey.copy_onefile", g_settings.mbkey_copy_onefile );
+	tconfig->setInt32( "mbkey.copy_several", g_settings.mbkey_copy_several );
+	tconfig->setInt32( "mbkey.cut", g_settings.mbkey_cut );
+	tconfig->setInt32( "mbkey.truncate", g_settings.mbkey_truncate );
+	tconfig->setInt32( "mbkey.cover", g_settings.mbkey_cover );
 
-	tconfig.setInt32( "mpkey.rewind", g_settings.mpkey_rewind );
-	tconfig.setInt32( "mpkey.forward", g_settings.mpkey_forward );
-	tconfig.setInt32( "mpkey.pause", g_settings.mpkey_pause );
-	tconfig.setInt32( "mpkey.stop", g_settings.mpkey_stop );
-	tconfig.setInt32( "mpkey.play", g_settings.mpkey_play );
-	tconfig.setInt32( "mpkey.audio", g_settings.mpkey_audio );
-	tconfig.setInt32( "mpkey.time", g_settings.mpkey_time );
-	tconfig.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
-	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
-	tconfig.setInt32( "mpkey.subtitle", g_settings.mpkey_subtitle );
+	tconfig->setInt32( "mpkey.rewind", g_settings.mpkey_rewind );
+	tconfig->setInt32( "mpkey.forward", g_settings.mpkey_forward );
+	tconfig->setInt32( "mpkey.pause", g_settings.mpkey_pause );
+	tconfig->setInt32( "mpkey.stop", g_settings.mpkey_stop );
+	tconfig->setInt32( "mpkey.play", g_settings.mpkey_play );
+	tconfig->setInt32( "mpkey.audio", g_settings.mpkey_audio );
+	tconfig->setInt32( "mpkey.time", g_settings.mpkey_time );
+	tconfig->setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
+	tconfig->setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
+	tconfig->setInt32( "mpkey.subtitle", g_settings.mpkey_subtitle );
 
-	tconfig.setInt32( "mpkey.goto", g_settings.mpkey_goto );
-	tconfig.setInt32( "mpkey.next_repeat_mode", g_settings.mpkey_next_repeat_mode );
+	tconfig->setInt32( "mpkey.goto", g_settings.mpkey_goto );
+	tconfig->setInt32( "mpkey.next_repeat_mode", g_settings.mpkey_next_repeat_mode );
 
-	tconfig.setInt32( "key_format_mode_active", g_settings.key_format_mode_active );
-	tconfig.setInt32( "key_pic_mode_active", g_settings.key_pic_mode_active );
-	tconfig.setInt32( "key_pic_size_active", g_settings.key_pic_size_active );
+	tconfig->setInt32( "key_format_mode_active", g_settings.key_format_mode_active );
+	tconfig->setInt32( "key_pic_mode_active", g_settings.key_pic_mode_active );
+	tconfig->setInt32( "key_pic_size_active", g_settings.key_pic_size_active );
 
-	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
-	tconfig.setInt32( "repeat_blocker", g_settings.repeat_blocker );
-	tconfig.setInt32( "repeat_genericblocker", g_settings.repeat_genericblocker );
-	tconfig.setInt32( "longkeypress_duration", g_settings.longkeypress_duration );
+	tconfig->setInt32( "menu_left_exit", g_settings.menu_left_exit );
+	tconfig->setInt32( "repeat_blocker", g_settings.repeat_blocker );
+	tconfig->setInt32( "repeat_genericblocker", g_settings.repeat_genericblocker );
+	tconfig->setInt32( "longkeypress_duration", g_settings.longkeypress_duration );
 
-	tconfig.setInt32( "bouquetlist_mode", g_settings.bouquetlist_mode );
-	tconfig.setInt32( "sms_channel", g_settings.sms_channel );
-	tconfig.setInt32( "sms_movie", g_settings.sms_movie );
-	tconfig.setInt32( "mode_left_right_key_tv", g_settings.mode_left_right_key_tv );
+	tconfig->setInt32( "bouquetlist_mode", g_settings.bouquetlist_mode );
+	tconfig->setInt32( "sms_channel", g_settings.sms_channel );
+	tconfig->setInt32( "sms_movie", g_settings.sms_movie );
+	tconfig->setInt32( "mode_left_right_key_tv", g_settings.mode_left_right_key_tv );
 
-	tconfig.setInt32( "key_help", g_settings.key_help );
-	tconfig.setInt32( "key_record", g_settings.key_record );
-	tconfig.setInt32( "key_switchformat", g_settings.key_switchformat );
-	tconfig.setInt32( "key_next43mode", g_settings.key_next43mode );
-	tconfig.setInt32( "key_volumeup", g_settings.key_volumeup );
-	tconfig.setInt32( "key_volumedown", g_settings.key_volumedown );
+	tconfig->setInt32( "key_help", g_settings.key_help );
+	tconfig->setInt32( "key_record", g_settings.key_record );
+	tconfig->setInt32( "key_switchformat", g_settings.key_switchformat );
+	tconfig->setInt32( "key_next43mode", g_settings.key_next43mode );
+	tconfig->setInt32( "key_volumeup", g_settings.key_volumeup );
+	tconfig->setInt32( "key_volumedown", g_settings.key_volumedown );
 
-	if(fname)
-		tconfig.saveConfig(fname);
+	if(fname){
+		tconfig->saveConfig(fname);
+		delete tconfig;
+		tconfig = NULL;
+	}
 }
 
 void CNeutrinoApp::StopSubtitles()
