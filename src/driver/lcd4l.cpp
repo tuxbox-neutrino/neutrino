@@ -1103,7 +1103,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 
 		std::string wicon = CWeather::getInstance()->getCurrentIcon();
-		for (int i = 0; i < 1 + forecast; i++)
+		for (int i = 0; i < forecast; i++)
 			wicon += "\n" + CWeather::getInstance()->getForecastIcon(i);
 		if (m_wicon.compare(wicon))
 		{
