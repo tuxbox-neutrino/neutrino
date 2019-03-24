@@ -97,24 +97,28 @@ bool CWeather::GetWeatherDetails()
 		return false;
 
 	std::string data = "https://api.darksky.net/forecast/" + key + "/" + coords + "?units=si&lang=de&exclude=minutely,hourly,flags,alerts";
-	std::string answer;
+	JSONCPP_STRING answer;
+	JSONCPP_STRING formattedErrors;
+
 	double found = 0;
 
 	v_forecast.clear();
 
+	Json::CharReaderBuilder builder;
+	Json::CharReader * reader = builder.newCharReader();
 	Json::Value DataValues;
-	Json::Reader DataReader;
-	bool parsedSuccess = false;
 
-	answer = "";
+	answer.clear();
 	if (!getUrl(data, answer))
 		return false;
 
-	parsedSuccess = DataReader.parse(answer, DataValues, false);
+	bool parsedSuccess = reader->parse(answer.c_str(), answer.c_str() + answer.size(), &DataValues, &formattedErrors);
+	delete reader;
+
 	if (!parsedSuccess)
 	{
 		printf("Failed to parse JSON\n");
-		printf("%s\n", DataReader.getFormattedErrorMessages().c_str());
+		printf("%s\n", formattedErrors.c_str());
 		return false;
 	}
 
