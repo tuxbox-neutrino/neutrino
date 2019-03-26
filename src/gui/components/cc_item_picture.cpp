@@ -322,15 +322,20 @@ void CComponentsPicture::paintPicture()
 				is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width-2*fr_thickness, height-2*fr_thickness);
 			else
 				is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
-			frameBuffer->SetTransparentDefault();
-			if (enable_cache && do_scale){
-				dprintf(DEBUG_DEBUG, "\033[31m[CComponentsPicture] %s - %d: create cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
-				dxc = width-2*fr_thickness;
-				dyc = height-2*fr_thickness;
-				image_cache = getScreen(x_pic, y_pic, dxc, dyc);
+
+			if (is_image_painted){
+				frameBuffer->SetTransparentDefault();
+				if (enable_cache && do_scale){
+					dprintf(DEBUG_DEBUG, "\033[32m[CComponentsPicture] %s - %d: create cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
+					dxc = width-2*fr_thickness;
+					dyc = height-2*fr_thickness;
+					image_cache = getScreen(x_pic, y_pic, dxc, dyc);
+				}
 			}
+			else
+				dprintf(DEBUG_NORMAL, "\033[31m[CComponentsPicture] %s - %d: error: paint of image failed: %s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 		}else{
-			dprintf(DEBUG_DEBUG, "\033[36m[CComponentsPicture] %s - %d: paint cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
+			dprintf(DEBUG_DEBUG, "\033[32m[CComponentsPicture] %s - %d: paint cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 			frameBuffer->RestoreScreen(x_pic, y_pic, dxc, dyc, image_cache);
 		}
 	}
