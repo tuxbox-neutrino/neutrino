@@ -165,7 +165,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	int globalProgressBegin = 0;
 
 	if(g_settings.epg_save)
-		CNeutrinoApp::getInstance()->saveEpg(true);
+		CNeutrinoApp::getInstance()->saveEpg(NeutrinoModes::mode_off);
 
 	if(statusViewer)
 		statusViewer->showLocalStatus(0);
