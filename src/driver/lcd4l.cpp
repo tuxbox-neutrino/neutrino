@@ -1068,14 +1068,18 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			m_wcity = wcity;
 		}
 
+		int forecast = CWeather::getInstance()->getForecastSize();
+
 		std::string wtimestamp = to_string((int)CWeather::getInstance()->getCurrentTimestamp());
+		for (int i = 0; i < forecast; i++) // 0 is current day
+		{
+			wtimestamp += "\n" + CWeather::getInstance()->getForecastWeekday(i);
+		}
 		if (m_wtimestamp.compare(wtimestamp))
 		{
 			WriteFile(WEATHER_TIMESTAMP, wtimestamp);
 			m_wtimestamp = wtimestamp;
 		}
-
-		int forecast = CWeather::getInstance()->getForecastSize();
 
 		std::string wtemp = CWeather::getInstance()->getCurrentTemperature();
 		for (int i = 0; i < forecast; i++) // 0 is current day
