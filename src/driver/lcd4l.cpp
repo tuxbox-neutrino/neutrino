@@ -1073,7 +1073,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		std::string wtimestamp = to_string((int)CWeather::getInstance()->getCurrentTimestamp());
 		for (int i = 0; i < forecast; i++) // 0 is current day
 		{
-			wtimestamp += "\n" + CWeather::getInstance()->getForecastWeekday(i);
+			wtimestamp += "\n" + to_string(CWeather::getInstance()->getForecastWeekday(i));
 		}
 		if (m_wtimestamp.compare(wtimestamp))
 		{
