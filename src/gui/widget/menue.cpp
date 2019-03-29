@@ -1491,12 +1491,12 @@ void CMenuWidget::paintItems()
 }
 
 /*adds the typical menu intro with optional subhead, separator, back or cancel button and separatorline to menu*/
-void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_t section_text, int buttontype, bool brief_hint)
+void CMenuWidget::addIntroItems(const std::string& s_subhead_text, neutrino_locale_t section_text, int buttontype, bool brief_hint)
 {
 	brief_hints = brief_hint;
 
-	if (subhead_text != NONEXISTANT_LOCALE)
-		addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, subhead_text));
+	if (!s_subhead_text.empty())
+		addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, s_subhead_text));
 
 	addItem(GenericMenuSeparator);
 	
@@ -1517,6 +1517,12 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 		addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, section_text));
 	else if (buttontype != BTN_TYPE_NO)
 		addItem(GenericMenuSeparatorLine);
+}
+
+void CMenuWidget::addIntroItems(neutrino_locale_t l_subhead_text, neutrino_locale_t section_text, int buttontype, bool brief_hint)
+{
+	std::string str = l_subhead_text == NONEXISTANT_LOCALE ? "" : g_Locale->getText(l_subhead_text);
+	addIntroItems(str, section_text, buttontype, brief_hint);
 }
 
 void CMenuWidget::saveScreen()
