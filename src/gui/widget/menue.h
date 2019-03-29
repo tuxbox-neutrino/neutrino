@@ -284,6 +284,7 @@ class CMenuForwarder : public CMenuItem
 	neutrino_locale_t getTextLocale() const {return name;}
 	CMenuTarget* getTarget() const {return jumpTarget;}
 	const char *getActionKey(){return actionKey.c_str();}
+	void setActionKey(const std::string& ActionKey){actionKey = ActionKey;}
 
 	int exec(CMenuTarget* parent);
 	void setOption(const std::string &Option);
