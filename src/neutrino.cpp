@@ -4230,12 +4230,9 @@ void CNeutrinoApp::saveEpg(int _mode)
 					return;
 			}
 		}
-		CVFD::getInstance()->Clear();
-		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-		CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_EPG_SAVING));
 
 		CVFD::getInstance()->Clear();
-		//NI CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_EPG_SAVING));
 
 		printf("[neutrino] Saving EPG to %s...\n", g_settings.epg_dir.c_str());
