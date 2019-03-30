@@ -1261,7 +1261,7 @@ menu.hint_lcd4l_logodir Verzeichnis für Senderlogos\nBei ungültigem Eintrag Fa
 menu.hint_lcd4l_skin Auswahl der verfügbaren Darstellungsarten\nStandard, Benutzerdefiniert, etc.
 menu.hint_lcd4l_skin_radio Wechselt die Darstellungsart, wenn der Radio-Modus aktiviert wird
 menu.hint_lcd4l_support LCD4Linux aktivieren/deaktivieren\nUnterstützte Displays: Pearl DPF, Samsung DPF, VU+SOLO4K, PNG
-menu.hint_lcd4l_weather Zeigt im Standby-Betrieb die entsprechenden Daten des ersten Favoriteneintrags von tuxwetter auf dem Display an
+menu.hint_lcd4l_weather Zeigt im Standby-Betrieb Wetterdaten auf dem Display an
 menu.hint_leds_blink Die Power-LEDs blinken, wenn sich der Receiver im Deep-Standby befindet und ein Timer aktiv ist
 menu.hint_leds_deepstandby Definiert den Status der Power-LEDs im Deep-Standby
 menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Aufnahme aktiv ist

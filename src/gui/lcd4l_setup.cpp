@@ -198,7 +198,7 @@ int CLCD4lSetup::show()
 	const char *flag_lcd4l_weather = FLAGDIR "/.lcd-weather";
 	int fake_lcd4l_weather = file_exists(flag_lcd4l_weather);
 	CTouchFileNotifier *lcd_weather = new CTouchFileNotifier(flag_lcd4l_weather);
-	mc = new CMenuOptionChooser(LOCALE_LCD4L_WEATHER, &fake_lcd4l_weather, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, lcd_weather, CRCInput::convertDigitToKey(shortcut++));
+	mc = new CMenuOptionChooser(LOCALE_LCD4L_WEATHER, &fake_lcd4l_weather, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.weather_enabled, lcd_weather, CRCInput::convertDigitToKey(shortcut++));
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_WEATHER);
 	lcd4lSetup->addItem(mc);
 
