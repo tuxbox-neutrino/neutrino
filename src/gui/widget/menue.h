@@ -608,6 +608,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		void saveScreen();
 		void restoreScreen();
 		void setMenuPos(const int& menu_width);
+		void initHeader();
 
 	public:
 		CMenuWidget();
