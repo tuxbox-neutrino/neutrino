@@ -31,7 +31,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <gui/widget/menue.h>
+#include "menue.h"
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
