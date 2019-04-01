@@ -97,6 +97,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	need_init	= true;
 	initCCItem();
 	initParent(parent);
+	if (!pic_name.empty() && pic_name == "muted")
+		paintInit(false);
 }
 
 void CComponentsPicture::clearCache()
