@@ -38,7 +38,7 @@ using namespace std;
 CComponentsFooter::CComponentsFooter(CComponentsForm* parent):CCButtonSelect()
 {
 	//CComponentsFooter
-	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0);
+	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0, CC_HEADER_SIZE_LARGE);
 }
 
 CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -47,10 +47,11 @@ CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const 
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow ):CCButtonSelect()
+					fb_pixel_t color_shadow,
+					int sizeMode):CCButtonSelect()
 {
 	//CComponentsFooter
-	initVarFooter(x_pos, y_pos, w, h, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
+	initVarFooter(x_pos, y_pos, w, h, buttons, parent, shadow_mode, color_frame, color_body, color_shadow, sizeMode);
 }
 
 void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -59,7 +60,8 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow )
+					fb_pixel_t color_shadow,
+					int sizeMode)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_FOOTER;
 	cc_item_type.name 	= "cc_footer";
@@ -70,15 +72,16 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	//init footer width
 	width =	width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
 
-	//init default fonts
-	initDefaultFonts();
+	cch_font		= NULL;
+	cch_size_mode		= sizeMode;
+
+	//init font and height
+	initSizeMode();
+	if (h)
+		setHeight(h);
 
 	//init default button text font
 	ccf_btn_font	= g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
-
-	//init footer height
-	initCaptionFont();
-	height = height_old		= max(h, cch_font->getHeight());
 
 	shadow		= shadow_mode;
 	ccf_enable_button_shadow 	= false ;

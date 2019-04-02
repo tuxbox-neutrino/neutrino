@@ -49,7 +49,25 @@ using namespace std;
 CComponentsHeader::CComponentsHeader(CComponentsForm* parent)
 {
 	//CComponentsHeader
-	initVarHeader(1, 1, 0, 0, "", "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
+	initVarHeader(1, 1, 0, 0, "", "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, CC_HEADER_SIZE_LARGE);
+}
+
+CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					int sizeMode,
+					neutrino_locale_t caption_locale,
+					CComponentsForm* parent
+				)
+{
+	initVarHeader(x_pos, y_pos, w, h, g_Locale->getText(caption_locale), "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, sizeMode);
+}
+
+CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					int sizeMode,
+					const std::string& caption,
+					CComponentsForm* parent
+				)
+{
+	initVarHeader(x_pos, y_pos, w, h, caption, "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, sizeMode);
 }
 
 CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -60,9 +78,11 @@ CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const 
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					fb_pixel_t color_shadow,
+					int sizeMode
+				)
 {
-	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
+	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow, sizeMode);
 }
 
 CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -73,9 +93,11 @@ CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const 
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					fb_pixel_t color_shadow,
+					int sizeMode
+				)
 {
-	initVarHeader(x_pos, y_pos, w, h, g_Locale->getText(caption_locale), icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
+	initVarHeader(x_pos, y_pos, w, h, g_Locale->getText(caption_locale), icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow, sizeMode);
 };
 
 void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -86,7 +108,9 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					fb_pixel_t color_shadow,
+					int sizeMode
+				)
 {
 	cc_item_type.id		= CC_ITEMTYPE_FRM_HEADER;
 	cc_item_type.name 	= "cc_header";
@@ -97,11 +121,15 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 
 	//init header width
 	width 	= width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
-	height 	= height_old = h;
 
 	cch_font		= NULL;
-	initDefaultFonts();
-	cch_size_mode		= CC_HEADER_SIZE_LARGE;
+	cch_size_mode		= sizeMode;
+
+	//init font and height
+	initSizeMode();
+	if (h)
+		setHeight(h);
+
 	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CComponentsHeader::resetFont));
 
 	shadow		= shadow_mode;
@@ -197,16 +225,16 @@ void CComponentsHeader::initDefaultFonts()
 
 void CComponentsHeader::initCaptionFont()
 {
-	if (cch_font == NULL){
-		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? l_font : s_font);
-		//select matching height
-		if (cch_size_mode == CC_HEADER_SIZE_LARGE)
-			height	= std::max(height, l_font->getHeight());
-		else
-			height	= std::min(height, s_font->getHeight());
-	}
-	else
-		height = std::max(height, cch_font->getHeight());
+	initDefaultFonts();
+	if (!cch_font)
+		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE ? l_font : s_font);
+}
+
+void CComponentsHeader::initSizeMode()
+{
+	initCaptionFont();
+	int h_new = cch_font->getHeight();
+	setHeight(h_new);
 }
 
 void CComponentsHeader::setIcon(const char* icon_name)

@@ -50,7 +50,9 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow );
+					fb_pixel_t color_shadow,
+					int sizeMode
+			);
 
 		///show button with background, default false
 		bool ccf_enable_button_bg;
@@ -77,7 +79,8 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUFOOT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+					int sizeMode = CC_HEADER_SIZE_LARGE);
 
 		///add button labels with string label type as content, count as size_t, chain_width as int, label width as int
 		void setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
