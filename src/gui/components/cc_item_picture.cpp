@@ -97,7 +97,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	need_init	= true;
 	initCCItem();
 	initParent(parent);
-	if (!pic_name.empty() && pic_name == "muted")
+	if (!pic_name.empty() && pic_name == NEUTRINO_ICON_MUTED)
 		paintInit(false);
 }
 
