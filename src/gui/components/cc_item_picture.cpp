@@ -412,9 +412,10 @@ void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& 
 	channel_name = "";
 	channel_id = 0;
 	alt_pic_name = "";
+	enable_event_logo = false;
+	has_logo = false;
 	setChannel(channelId, channelName);
 	do_scale = allow_scale;
-	enable_event_logo = false;
 }
 void CComponentsChannelLogo::setAltLogo(const std::string& picture_name)
 {
