@@ -1394,11 +1394,13 @@ void CMenuWidget::paint()
 
 void CMenuWidget::initHeader()
 {
+	int dx = width + scrollbar_width;
 	if (!header){
-		header = new CComponentsHeader(x, y, width + scrollbar_width, 0, getName(), iconfile);
+		header = new CComponentsHeader(x, y, dx, 0, getName(), iconfile);
 		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setOffset(OFFSET_INNER_MID);
 	}
+	header->setWidth(dx);
 	header->setCaption(getName());
 	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
 	header->setCaptionColor(COL_MENUHEAD_TEXT);
