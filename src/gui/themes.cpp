@@ -293,6 +293,11 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 	configfile.setInt32( "menu_Head_gradient" , t.menu_Head_gradient);
 	configfile.setInt32( "menu_Head_gradient_direction" , t.menu_Head_gradient_direction);
+
+	configfile.setInt32( "menu_SubHead_gradient" , t.menu_SubHead_gradient);
+	configfile.setInt32( "menu_SubHead_gradient_direction" , t.menu_SubHead_gradient_direction);
+
+
 	configfile.setInt32( "menu_Separator_gradient_enable" , t.menu_Separator_gradient_enable);
 
 	configfile.setInt32( "menu_Content_alpha", t.menu_Content_alpha );
@@ -401,8 +406,12 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.menu_Head_Text_green = configfile.getInt32( "menu_Head_Text_green", 0x46 );
 	t.menu_Head_Text_blue = configfile.getInt32( "menu_Head_Text_blue", 0x00 );
 
-	t.menu_Head_gradient = configfile.getInt32("menu_Head_gradient", CC_COLGRAD_OFF); /* no bling */
+	t.menu_Head_gradient = configfile.getInt32("menu_Head_gradient", CC_COLGRAD_OFF);
 	t.menu_Head_gradient_direction = configfile.getInt32( "menu_Head_gradient_direction", CFrameBuffer::gradientVertical);
+
+	t.menu_SubHead_gradient = configfile.getInt32("menu_SubHead_gradient", CC_COLGRAD_OFF);
+	t.menu_SubHead_gradient_direction = configfile.getInt32( "menu_SubHead_gradient_direction", CFrameBuffer::gradientVertical);
+
 	t.menu_Separator_gradient_enable = configfile.getInt32( "menu_Separator_gradient_enable", 0);
 
 	t.menu_Content_alpha = configfile.getInt32( "menu_Content_alpha", 0x14 );

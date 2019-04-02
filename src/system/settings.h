@@ -68,6 +68,10 @@ struct SNeutrinoTheme
 
 	int menu_Head_gradient;
 	int menu_Head_gradient_direction;
+
+	int menu_SubHead_gradient;
+	int menu_SubHead_gradient_direction;
+
 	int menu_Separator_gradient_enable;
 
 	unsigned char menu_Content_alpha;
