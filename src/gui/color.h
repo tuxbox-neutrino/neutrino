@@ -171,4 +171,13 @@ void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv);
 
 void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected = false, bool marked = false, bool toggle_background = false, bool toggle_enlighten = false);
 
+
+typedef struct {
+	uint8_t min;
+	uint8_t max;
+} col_range_t;
+
+fb_pixel_t getRandomColor(col_range_t range_r = {1,255}, col_range_t range_g = {1,255}, col_range_t range_b = {1,255}, uint8_t Alpha = 0);
+
+
 #endif

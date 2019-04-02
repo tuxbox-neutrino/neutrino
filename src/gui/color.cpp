@@ -36,6 +36,7 @@
 #include <gui/color.h>
 #include <stdio.h>
 #include <math.h>
+#include <system/debug.h>
 
 #include <driver/framebuffer.h>
 
@@ -257,4 +258,32 @@ void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected, bool marked, boo
 	// default
 	t = toggle_background ? (toggle_enlighten ? COL_MENUCONTENT_TEXT   : COL_MENUCONTENTDARK_TEXT)   : COL_MENUCONTENT_TEXT;
 	b = toggle_background ? (toggle_enlighten ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENTDARK_PLUS_0) : COL_MENUCONTENT_PLUS_0;
+}
+
+fb_pixel_t getRandomColor(col_range_t range_r, col_range_t range_g, col_range_t range_b, uint8_t Alpha)
+{
+	if (!range_r.min || !range_g.min || !range_b.min)
+	{
+		dprintf(DEBUG_NORMAL, "\033[31m[color.cpp] [Error:]\033[0m %s: color range min value < 1 in argument, allowed values are 1-255 [r: min%u/max%u] [g: min%u/max%u] [b: min%u/max%u]\n",__func__, range_r.min, range_r.max, range_g.min, range_g.max, range_b.min, range_b.max);
+		return 0;
+	}
+
+	uint32_t seed[3];
+	uint8_t r, g, b, a;
+
+	srand(range_r.min);
+	r = rand_r(&seed[0]) % range_r.max;
+
+	srand(range_g.min);
+	g = rand_r(&seed[1]) % range_g.max;
+
+	srand(range_b.min);
+	b = rand_r(&seed[2]) % range_b.max;
+
+	a = Alpha;
+
+	int color = convertSetupColor2RGB(r, g, b);
+	int alpha = a ? (convertSetupAlpha2Alpha(a)) : 0xFF;
+
+	return (((alpha << 24) & 0xFF000000) | color);
 }
