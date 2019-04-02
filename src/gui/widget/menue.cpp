@@ -1417,7 +1417,7 @@ void CMenuWidget::initHeader()
 	header->setCaption(getName());
 	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
 	header->setCaptionColor(COL_MENUHEAD_TEXT);
-	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0);
+	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 	header->enableGradientBgCleanUp(savescreen);
 
 	if (!subhead_text.empty())
@@ -1439,8 +1439,10 @@ void CMenuWidget::initSubHeader()
 	}
 	sub_header->setWidth(header->getWidth());
 	sub_header->setCaption(subhead_text);
-	sub_header->setColorAll(COL_FRAME_PLUS_0, g_settings.theme.menu_Head_gradient ? COL_MENUCONTENT_PLUS_0 : COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
+	sub_header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
 	sub_header->setCaptionColor(COL_MENUHEAD_TEXT);
+	sub_header->enableColBodyGradient(g_settings.theme.menu_SubHead_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_SubHead_gradient_direction);
+	sub_header->enableGradientBgCleanUp(savescreen);
 }
 
 void CMenuWidget::setMenuPos(const int& menu_width)
