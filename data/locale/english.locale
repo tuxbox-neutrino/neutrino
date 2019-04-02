@@ -351,6 +351,7 @@ colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
 colormenusetup.menufoot Footer
 colormenusetup.menuhead Header
+colormenusetup.menusubtitle_bar Menu subtitle
 colorsetup.save Save
 colorstatusbar.text Infobar
 colorthememenu.head Select theme
