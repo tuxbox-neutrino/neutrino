@@ -727,6 +727,8 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		   Neutrino is clearing framebuffer, so ofgwrite's gui is cleared too.
 		*/
 
+		dprintf(DEBUG_NORMAL, "[update] %s done\n", ofgwrite_tgz);
+
 		if (restart == CMsgBox::mbrYes)
 			CNeutrinoApp::getInstance()->exec(NULL, "reboot");
 #endif
