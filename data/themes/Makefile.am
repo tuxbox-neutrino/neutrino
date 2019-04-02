@@ -18,5 +18,6 @@ install_DATA = \
 	Neutrino-3.0.theme \
 	Olive.theme \
 	Olive-3.0.theme \
+	Origin.theme \
 	Red.theme \
 	VirginMedia.theme
