@@ -2476,13 +2476,24 @@ int CMenuSeparator::paint(bool selected)
 	height = getHeight();
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 
+	if ((type & SUB_HEAD))
+	{
+		item_color = COL_MENUHEAD_TEXT;
+		item_bgcolor = g_settings.theme.menu_Head_gradient ? COL_MENUCONTENT_PLUS_0 : COL_MENUHEAD_PLUS_0;
+	}
+	else
+	{
+		item_color = COL_MENUCONTENTINACTIVE_TEXT;
+		item_bgcolor = COL_MENUCONTENT_PLUS_0;
+	}
+
 	frameBuffer->paintBoxRel(x, y, dx, height, item_bgcolor);
 	if ((type & LINE))
 	{
 		int grad = g_settings.theme.menu_Separator_gradient_enable ? CC_COLGRAD_COL_DARK_LIGHT_DARK : CC_COLGRAD_OFF;
 		paintBoxRel(x+OFFSET_INNER_MID, y+(height>>1), dx-2*OFFSET_INNER_MID, 1, COL_MENUCONTENT_PLUS_1, 0, CORNER_NONE, grad, COL_MENUCONTENT_PLUS_0, CFrameBuffer::gradientHorizontal, CColorGradient::light);
 	}
-	if ((type & STRING))
+	if ((type & STRING) | (type & SUB_HEAD))
 	{
 		const char * l_name = getName();
 	
@@ -2494,7 +2505,7 @@ int CMenuSeparator::paint(bool selected)
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				name_start_x = x + (2*OFFSET_INNER_MID + iconwidth);
+				name_start_x = x + (!(type & SUB_HEAD) ? name_start_x : 2*OFFSET_INNER_MID + iconwidth);
 			else if (type & ALIGN_RIGHT)
 				name_start_x = x + dx - stringwidth - 2*OFFSET_INNER_MID;
 			else /* ALIGN_CENTER */
@@ -2505,6 +2516,7 @@ int CMenuSeparator::paint(bool selected)
 			paintItemCaption(selected);
 		}
 	}
+
 	return y+ height;
 }
 

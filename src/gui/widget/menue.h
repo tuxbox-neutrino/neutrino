@@ -230,7 +230,7 @@ class CMenuSeparator : public CMenuItem
 			ALIGN_CENTER	= 4,
 			ALIGN_LEFT	= 8,
 			ALIGN_RIGHT	= 16,
-			SUB_HEAD	= 0 //32 deprecated and invalid, only here for compatibility //TODO: remove global
+			SUB_HEAD	= 32 // description "SUB_HEAD" seems is misleading
 		};
 
 
