@@ -200,8 +200,7 @@ int CVfdSetup::showBrightnessSetup()
 
 	CMenuWidget *mn_widget = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD,width, MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS);
 
-	mn_widget->addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, LOCALE_LCDMENU_LCDCONTROLER));
-	mn_widget->addItem(GenericMenuSeparator);
+	mn_widget->addIntroItems(LOCALE_LCDMENU_LCDCONTROLER);
 
 	mf = new CMenuForwarder(LOCALE_MENU_BACK, true);
 	mf->setItemButton(!g_settings.menu_left_exit ? NEUTRINO_ICON_BUTTON_HOME : NEUTRINO_ICON_BUTTON_LEFT);
