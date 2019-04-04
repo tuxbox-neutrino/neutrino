@@ -123,12 +123,12 @@ void CAudioMute::enableMuteIcon(bool enable)
 	frameBuffer->fbNoCheck(true);
 	if (enable) {
 		frameBuffer->doPaintMuteIcon(true);
-		do_paint_mute_icon = true;
-		if (neutrino->isMuted())
+		if (!do_paint_mute_icon && neutrino->isMuted())
 			this->paint();
+		do_paint_mute_icon = true;
 	}
 	else {
-		if (!neutrino->isMuted())
+		if (do_paint_mute_icon && !neutrino->isMuted())
 			this->kill();
 		frameBuffer->doPaintMuteIcon(false);
 		do_paint_mute_icon = false;
