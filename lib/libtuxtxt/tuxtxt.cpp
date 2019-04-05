@@ -6173,5 +6173,9 @@ int GetRCCode()
 		RCCode = msg;
 		return 1;
 	}
+
+	if( ( msg>= CRCInput::RC_WithData ) && ( msg< CRCInput::RC_WithData+ 0x10000000 ) )
+		delete[] (unsigned char*) data;
+
 	return 0;
 }
