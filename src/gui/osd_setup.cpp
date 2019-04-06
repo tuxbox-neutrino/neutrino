@@ -707,7 +707,6 @@ int COsdSetup::showOsdSetup()
 			(g_settings.video_Mode != VIDEO_STD_AUTO));
 	CMenuOptionChooser * osd_res = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_RESOLUTION, &g_settings.osd_resolution, kext, resCount, enable, this);
 	osd_res->OnAfterChangeOption.connect(sigc::mem_fun(frameBuffer->getInstance(), &CFrameBuffer::clearIconCache));
-	osd_res->OnAfterChangeOption.connect(sigc::mem_fun(osd_menu, &CMenuWidget::ResetModules));
 	osd_res->setHint("", LOCALE_MENU_HINT_OSD_RESOLUTION);
 	osd_menu->addItem(osd_res);
 #endif

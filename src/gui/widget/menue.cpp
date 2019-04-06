@@ -38,7 +38,7 @@
 #include <gui/pluginlist.h>
 #include <gui/widget/stringinput.h>
 #include <gui/infoclock.h>
-
+#include <gui/osd_helpers.h>
 
 #include <driver/fade.h>
 #include <driver/display.h>
@@ -704,6 +704,8 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 		if(min_width > (int) frameBuffer->getScreenWidth())
 			min_width = frameBuffer->getScreenWidth();
 	}
+
+	COsdHelpers::getInstance()->OnAfterChangeResolution.connect(sigc::mem_fun(this, &CMenuWidget::ResetModules));
 }
 
 void CMenuWidget::move(int xoff, int yoff)
