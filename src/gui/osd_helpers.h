@@ -2,12 +2,14 @@
 #ifndef __osd_helpers__
 #define __osd_helpers__
 
+#include <sigc++/signal.h>
+
 enum {
 	OSDMODE_720  = 0,
 	OSDMODE_1080 = 1
 };
 
-class COsdHelpers
+class COsdHelpers : public sigc::trackable
 {
 	private:
 
@@ -23,6 +25,7 @@ class COsdHelpers
 		int  getVideoSystem();
 		uint32_t getOsdResolution();
 		int setVideoSystem(int newSystem, bool remember = true);
+		sigc::signal<void> OnAfterChangeResolution;
 };
 
 

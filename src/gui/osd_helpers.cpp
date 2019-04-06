@@ -123,6 +123,7 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 			CNeutrinoApp::getInstance()->StartSubtitles();
 		}
 	}
+	OnAfterChangeResolution();
 }
 #else
 void COsdHelpers::changeOsdResolution(uint32_t, bool, bool)
