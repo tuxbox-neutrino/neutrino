@@ -1582,6 +1582,10 @@ void copy_info(CSectionsdClient::CurrentNextInfo *_info, CSectionsdClient::Curre
 	_oldinfo->next_uniqueKey = _info->next_uniqueKey;
 	_oldinfo->next_name = _info->next_name;
 	_oldinfo->flags = _info->flags;
+	_oldinfo->current_zeit.startzeit = _info->current_zeit.startzeit;
+	_oldinfo->current_zeit.dauer = _info->current_zeit.dauer;
+	_oldinfo->next_zeit.startzeit = _info->next_zeit.startzeit;
+	_oldinfo->next_zeit.dauer = _info->next_zeit.dauer;
 }
 
 void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
