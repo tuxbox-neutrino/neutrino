@@ -440,7 +440,7 @@ bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int 
 			return false;
 		}
 		if (fbdata.dx == 0 || fbdata.dy == 0) {
-			dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! dx and/or dy = 0, tx = %d,  y = %d, dx = %d,  dy = %d\n item: %s [type: %d]\n",
+			dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! dx and/or dy = 0, tx = %d,  y = %d, dx = %d,  dy = %d item: %s [type: %d]\n",
 				func, line,
 				fbdata.x, fbdata.y,
 				fbdata.dx, fbdata.dy,
