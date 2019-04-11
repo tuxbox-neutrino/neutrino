@@ -531,6 +531,10 @@ void CComponentsForm::paintCCItems()
 		if (!this->cc_allow_paint)
 			cc_item->allowPaint(false);
 
+		//restore background
+		if (v_cc_items[i]->isPainted())
+			v_cc_items[i]->hide();
+
 		//finally paint current item, but only required contents of page
 		if (cc_item->getPageNumber() == cur_page)
 			cc_item->paint(cc_item->SaveBg());
