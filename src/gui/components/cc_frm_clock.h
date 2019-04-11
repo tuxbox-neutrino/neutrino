@@ -84,7 +84,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		///initialize clock contents  
 		void initCCLockItems();
 		///initialize timestring, called in initCCLockItems()
-		virtual void initTimeString();
+		void initTimeString();
 
 		///start ticking clock, returns true on success, if false causes log output
 		bool startClock();
