@@ -191,7 +191,7 @@ class CTextBox : public sigc::trackable
 		void    setTextBorderWidth(int Hborder, int Vborder);
 		void	setTextFont(Font* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
-		void	setTextRenderModeFullBG(bool mode);
+		void	setTextRenderModeFullBG(const bool& mode);
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
 		void 	setWindowMaxDimensions(const int width, const int height);

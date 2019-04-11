@@ -707,7 +707,8 @@ void CTextBox::refreshText(void)
 		//calculate xpos
 		if ((m_nMode & CENTER) || (m_nMode & RIGHT))
 		{
-			x_center = m_cFrameTextRel.iWidth - m_cFrameTextRel.iX - 2*text_Hborder_width - m_pcFontText->getRenderWidth(m_cLineArray[i], m_utf8_encoded);
+			std::string tmpline = !m_cLineArray.empty() ? m_cLineArray[i] : "";
+			x_center = m_cFrameTextRel.iWidth - m_cFrameTextRel.iX - 2*text_Hborder_width - m_pcFontText->getRenderWidth(tmpline, m_utf8_encoded);
 			if (m_nMode & CENTER)
 				x_center /= 2;
 			if (m_nMode & SCROLL)
@@ -947,7 +948,7 @@ void CTextBox::disableBackgroundPaint()
 	enableBackgroundPaint(false);
 }
 
-void CTextBox::setTextRenderModeFullBG(bool mode)
+void CTextBox::setTextRenderModeFullBG(const bool& mode)
 {
 	m_renderMode = (mode) ? 2 /*Font::FULLBG*/ : 0;
 }
