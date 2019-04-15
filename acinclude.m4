@@ -161,9 +161,6 @@ if test "$TARGET" = "native"; then
 	if test "$prefix" = "NONE"; then
 		prefix=/usr/local
 	fi
-	if test "$exec_prefix" = "NONE"; then
-		exec_prefix=$prefix
-	fi
 	targetprefix=$prefix
 	TARGET_PREFIX=$prefix
 	AC_DEFINE_UNQUOTED(TARGET_PREFIX, "$TARGET_PREFIX", [The targets prefix])
@@ -189,6 +186,10 @@ elif test "$TARGET" = "cdk"; then
 else
 	AC_MSG_RESULT(none)
 	AC_MSG_ERROR([invalid target $TARGET, choose on from native,cdk]);
+fi
+
+if test "$exec_prefix" = "NONE"; then
+	exec_prefix=$prefix
 fi
 
 AC_CANONICAL_BUILD
