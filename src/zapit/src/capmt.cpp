@@ -326,13 +326,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 				cam->makeCaPmt(channel, false, list, caids);
 				int len;
 				unsigned char * buffer = channel->getRawPmt(len);
-				if(!filter_channels || !channel->bUseCI) {
-					//no CI needed
-					ca_map_t no_camap = std::set<int>();
-					cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, false /*channel->scrambled*/, no_camap /*channel->camap*/, mode, start);
-				} else {
-					cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
-				}
+				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
 			} else {
 				cam->sendCaPmt(channel->getChannelID(), NULL, 0, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
 			}
