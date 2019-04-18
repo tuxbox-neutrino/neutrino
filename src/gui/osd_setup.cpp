@@ -1615,8 +1615,12 @@ void COsdSetup::resetRadioText()
 		if (g_Radiotext == NULL)
 			g_Radiotext = new CRadioText;
 		if (g_Radiotext && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio)){
-			printf("\033[32m[COsdSetup] %s - %d: %d\033[0m\n", __func__, __LINE__, g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
-			g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
+			unsigned int pid = 0;
+			if(!g_RemoteControl->current_PIDs.APIDs.empty())
+				pid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid;
+
+			g_Radiotext->setPid(pid);
+			printf("\033[32m[COsdSetup] %s - %d: %d\033[0m\n", __func__, __LINE__, pid);
 		}
 	} else {
 		if (g_Radiotext)
