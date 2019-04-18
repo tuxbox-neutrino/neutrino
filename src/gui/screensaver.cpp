@@ -165,7 +165,9 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 	{
 		while(PScreenSaver)
 		{
-			PScreenSaver->ReadDir();
+			if (g_settings.screensaver_mode == SCR_MODE_IMAGE)
+				PScreenSaver->ReadDir();
+
 			PScreenSaver->paint();
 			int t = g_settings.screensaver_timeout;
 			while (t--)
