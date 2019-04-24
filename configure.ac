@@ -23,7 +23,7 @@ TUXBOX_BOXTYPE
 AC_PROG_CC
 AC_PROG_CXX
 AC_DISABLE_STATIC
-AM_PROG_LIBTOOL
+LT_INIT
 
 # Add build information to local_build_config.h.tmp
 # -------------------------------------------------
@@ -325,7 +325,7 @@ AC_SUBST(LUA_CFLAGS)
 AC_SUBST(LUA_LIBS)
 AC_SUBST(BLURAY_LIBS)
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 data/Makefile
 data/config/Makefile
@@ -421,3 +421,5 @@ src/zapit/Makefile
 src/zapit/lib/Makefile
 src/zapit/src/Makefile
 ])
+
+AC_OUTPUT
