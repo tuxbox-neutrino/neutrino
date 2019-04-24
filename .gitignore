@@ -1,50 +1,82 @@
-### mostly autoconf crap
+### http://www.gnu.org/software/automake
 Makefile
-autom4te.cache
-*.in
-aclocal.m4
-compile
-config.*
-configure
-depcomp
-install-sh
-*.pc
-libtool
-ltmain.sh
-missing
-stamp-h1
-README
-COPYING
-INSTALL
+Makefile.in
 
-### objects and libs
+### http://www.gnu.org/software/autoconf
+autom4te.cache
+/autoscan.log
+/autoscan-*.log
+/aclocal.m4
+/compile
+/config.guess
+/config.h.in
+/config.log
+/config.status
+/config.sub
+/configure
+/configure.scan
+/depcomp
+/install-sh
+/missing
+/stamp-h*
+
+### https://www.gnu.org/software/libtool/
+/libtool
+/ltmain.sh
+
+### http://www.gnu.org/software/m4/
+m4/libtool.m4
+m4/ltoptions.m4
+m4/ltsugar.m4
+m4/ltversion.m4
+m4/lt~obsolete.m4
+
+### compiled objects and libs
 .libs
-.deps
+*.lo
 *.o
 *.so
-*.lo
-*.a
+*.lai
 *.la
-.*.swp
+*.a
 
-### editor crap
+### dependency files
+.deps
+*.Plo
+*.Po
+
+### diff and patch files
+*.patch
+*.diff
 *.orig
 *.rej
+
+### system generated stuff
+# dolphin
+.directory
+# kate
+*-swp
+.*.swp
+
+### generally excluded files
 *~
+*.pc
+git-*
+go_*
 
 ### binaries that fall out of the build
 lib/sectionsdclient/sectionsdcontrol
-src/neutrino
-src/nhttpd/web/*.js.gz
-src/zapit/src/pzapit
-src/zapit/src/udpstreampes
 src/drivertool
 src/dt
-src/rcsim.h
-src/rcsim
-src/gui/version.h
-src/nhttpd/nhttpd.conf
 src/mdev_helper
+src/neutrino
+src/rcsim
+src/zapit/src/pzapit
+src/zapit/src/udpstreampes
+
+### header files that fall out of the build
+src/rcsim.h
+src/gui/version.h
 local_build_config.h
 
 ### system generated stuff
@@ -52,3 +84,6 @@ local_build_config.h
 .directory
 # kate
 *-swp
+
+### other files that fall out of the build
+src/nhttpd/nhttpd.conf
