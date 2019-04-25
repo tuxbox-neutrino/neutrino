@@ -1032,6 +1032,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.adzap_zapBackPeriod = configfile.getInt32("adzap_zapBackPeriod", 180);
 	g_settings.adzap_writeData = configfile.getInt32("adzap_writeData", 0);
+	g_settings.adzap_zapOnActivation = configfile.getInt32("adzap_zapOnActivation", 0);
 
 	// USERMENU -> in system/settings.h
 	//-------------------------------------------
@@ -1750,6 +1751,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("uselastchannel", g_settings.uselastchannel);
 	configfile.setInt32("adzap_zapBackPeriod", g_settings.adzap_zapBackPeriod);
 	configfile.setInt32("adzap_writeData", g_settings.adzap_writeData);
+	configfile.setInt32("adzap_zapOnActivation", g_settings.adzap_zapOnActivation);
 	//epg search
 	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
 	if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
