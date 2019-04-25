@@ -818,7 +818,7 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		
 		// detecting timer conflict and set start position of event text depending of possible painted icon
 		bool conflict = HasTimerConflicts(evtlist[currpos].startTime, evtlist[currpos].duration, &item_event_ID);
-		//printf ("etype %d , conflicts %d -> %s, conflict event_ID %d -> current event_ID %d\n", etype, conflict, evtlist[currpos].description.c_str(), item_event_ID, evtlist[currpos].eventID);
+		//printf("etype %d , conflicts %d -> %s, conflict event_ID %lld -> current event_ID %lld\n", etype, conflict, evtlist[currpos].description.c_str(), item_event_ID, evtlist[currpos].eventID);
 		
 		int i2w = 0, i2h = 0;
 		if (conflict && item_event_ID != evtlist[currpos].eventID)
