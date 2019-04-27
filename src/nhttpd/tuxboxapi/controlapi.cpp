@@ -2720,7 +2720,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 			timer_item += hh->outObject("audio", audio, true);
 
 			timer_item += hh->outPair("recording_dir", timer->recordingDir, true);
-			timer_item += hh->outPair("epg_id", string_printf("%d", (int)timer->epgID), false);
+			timer_item += hh->outPair("epg_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->epgID), false);
 		}
 		break;
 
