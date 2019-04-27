@@ -706,7 +706,7 @@ CTimerd::CTimerEventTypes CEventList::isScheduled(t_channel_id channel_id, CChan
 {
 	CTimerd::TimerList::iterator timer = timerlist.begin();
 	for(; timer != timerlist.end(); ++timer) {
-		if(timer->channel_id == channel_id && (timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_RECORD || CTimerd::TIMER_REMOTEBOX)) {
+		if(timer->channel_id == channel_id && (timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX)) {
 			if(timer->epgID == event->eventID) {
 				if(timer->epg_starttime == event->startTime) {
 					bool isTimeShiftTimer = false;
