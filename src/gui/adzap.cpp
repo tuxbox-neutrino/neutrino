@@ -321,9 +321,9 @@ void CAdZapMenu::ShowMenu()
 	#define ADZAP_ZAP_OPTION_COUNT 3
 	const CMenuOptionChooser::keyval ADZAP_ZAP_OPTIONS[ADZAP_ZAP_OPTION_COUNT] =
 	{
-		{ SNeutrinoSettings::ADZAP_ZAP_OFF,LOCALE_ADZAP_ZAP_OFF},
-		{ SNeutrinoSettings::ADZAP_ZAP_TO_LAST,LOCALE_ADZAP_ZAP_TO_LAST_CHANNEL},
-		{ SNeutrinoSettings::ADZAP_ZAP_TO_START,LOCALE_ADZAP_ZAP_TO_START_CHANNEL},
+		{ SNeutrinoSettings::ADZAP_ZAP_OFF, LOCALE_ADZAP_ZAP_OFF },
+		{ SNeutrinoSettings::ADZAP_ZAP_TO_LAST, LOCALE_ADZAP_ZAP_TO_LAST_CHANNEL },
+		{ SNeutrinoSettings::ADZAP_ZAP_TO_START, LOCALE_ADZAP_ZAP_TO_START_CHANNEL },
 	};
 
 	bool show_monitor = monitorLifeTime.tv_sec;
