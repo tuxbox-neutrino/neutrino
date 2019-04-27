@@ -264,7 +264,7 @@ bool CTimerdClient::checkDouble(CTimerd::CTimerEventTypes evType, void* data, ti
 				CTimerd::EventInfo *ei=static_cast<CTimerd::EventInfo*>(data);
 				if( ei->channel_id == it->channel_id )
 				{
-					if(( ei->epgID != 0 && ei->epgID != it->epgID ) || ( ei->epg_starttime != 0 && it->epg_starttime != ei->epg_starttime) )
+					if(( ei->epg_id != 0 && ei->epg_id != it->epg_id ) || ( ei->epg_starttime != 0 && it->epg_starttime != ei->epg_starttime) )
 					{
 						return false;//not double
 					}
@@ -276,7 +276,7 @@ bool CTimerdClient::checkDouble(CTimerd::CTimerEventTypes evType, void* data, ti
 				CTimerd::RecordingInfo *ri=static_cast<CTimerd::RecordingInfo*>(data);
 				if(ri->channel_id == it->channel_id && ri->apids == it->apids && !strncmp(ri->recordingDir, it->recordingDir, RECORD_DIR_MAXLEN-1) )
 				{
-					if( ( ri->epgID != 0 && ri->epgID != it->epgID ) || ( ri->epg_starttime != 0 && it->epg_starttime != ri->epg_starttime) )
+					if( ( ri->epg_id != 0 && ri->epg_id != it->epg_id ) || ( ri->epg_starttime != 0 && it->epg_starttime != ri->epg_starttime) )
 					{
 						return false;//not double
 					}
@@ -330,7 +330,7 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		tei.apids = ei->apids;
 		tei.channel_id = ei->channel_id;
 		tei.epg_starttime	= ei->epg_starttime;
-		tei.epgID = ei->epgID;
+		tei.epg_id = ei->epg_id;
 		tei.recordingSafety = ei->recordingSafety;
 		length = sizeof( CTimerd::TransferEventInfo);
 		data = &tei;
@@ -341,7 +341,7 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		tri.apids = ri->apids;
 		tri.channel_id = ri->channel_id;
 		tri.epg_starttime	= ri->epg_starttime;
-		tri.epgID = ri->epgID;
+		tri.epg_id = ri->epg_id;
 		tri.recordingSafety = ri->recordingSafety;
 		tri.autoAdjustToEPG = ri->autoAdjustToEPG;
 		strncpy(tri.recordingDir, ri->recordingDir, RECORD_DIR_MAXLEN-1);

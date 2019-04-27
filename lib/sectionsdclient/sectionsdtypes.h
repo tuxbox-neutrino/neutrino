@@ -26,8 +26,8 @@
 
 #include <zapit/client/zapittypes.h>  /* t_channel_id, t_service_id, t_original_network_id, t_transport_stream_id; */
 
-typedef uint64_t event_id_t;
-#define CREATE_EVENT_ID(channel_id,event_nr) ((((event_id_t)channel_id) << 16) | event_nr)
+typedef uint64_t t_event_id;
+#define CREATE_EVENT_ID(channel_id,event_nr) ((((t_event_id)channel_id) << 16) | event_nr)
 #define GET_CHANNEL_ID_FROM_EVENT_ID(event_id) ((t_channel_id)((event_id) >> 16))
 
 #endif /* __sectionsdtypes_h__ */

@@ -90,9 +90,9 @@ struct OrderFirstEndTimeServiceIDEventUniqueKey
 typedef std::set<SIeventPtr, OrderServiceUniqueKeyFirstStartTimeEventUniqueKey > MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;
 typedef std::set<SIeventPtr, OrderFirstEndTimeServiceIDEventUniqueKey > MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey;
 
-typedef std::map<event_id_t, SIeventPtr, std::less<event_id_t> > MySIeventsOrderUniqueKey;
+typedef std::map<t_event_id, SIeventPtr, std::less<t_event_id> > MySIeventsOrderUniqueKey;
 
-typedef std::map<t_channel_id, event_id_t, std::less<t_channel_id> > MySIeventUniqueKeysMetaOrderServiceUniqueKey;
+typedef std::map<t_channel_id, t_event_id, std::less<t_channel_id> > MySIeventUniqueKeysMetaOrderServiceUniqueKey;
 
 typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesOrderUniqueKey;
 typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesNVODorderUniqueKey;

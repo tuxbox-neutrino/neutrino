@@ -76,7 +76,7 @@ class CRecordInstance
 		typedef std::list<APIDDesc> APIDList;
 
 		t_channel_id	channel_id;
-		event_id_t	epgid;
+		t_event_id	epg_id;
 		std::string	epgTitle;
 		std::string	epgInfo1;
 		unsigned char	apidmode;

@@ -120,7 +120,7 @@ extern "C" {
 CRecordInstance::CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift, bool stream_vtxt_pid, bool stream_pmt_pid, bool stream_subtitle_pids )
 {
 	channel_id = eventinfo->channel_id;
-	epgid = eventinfo->epgID;
+	epg_id = eventinfo->epg_id;
 	epgTitle = eventinfo->epgTitle;
 	epg_time = eventinfo->epg_starttime;
 	apidmode = eventinfo->apids;
@@ -478,9 +478,9 @@ void CRecordInstance::ProcessAPIDnames()
 		}
 	}
 
-	if(has_unresolved_ctags && (epgid != 0)) {
+	if(has_unresolved_ctags && (epg_id != 0)) {
 		CSectionsdClient::ComponentTagList tags;
-		if(CEitManager::getInstance()->getComponentTagsUniqueKey(epgid, tags)) {
+		if(CEitManager::getInstance()->getComponentTagsUniqueKey(epg_id, tags)) {
 			for(unsigned int i=0; i< tags.size(); i++) {
 				for(unsigned int j=0; j< allpids.APIDs.size(); j++) {
 					if(allpids.APIDs[j].component_tag == tags[i].componentTag) {
@@ -545,7 +545,7 @@ record_error_msg_t CRecordInstance::Record()
 				}
 			}
 		}
-		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, record_end, epgid, epg_time, apidmode);
+		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, record_end, epg_id, epg_time, apidmode);
 		printf("%s: channel %" PRIx64 " -> timer eventID %d\n", __func__, channel_id, recording_id);
 	}
 	return ret;
@@ -642,10 +642,10 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		recMovieInfo->channelName = tmpstring;
 
 	tmpstring = "not available";
-	if (epgid != 0) {
+	if (epg_id != 0) {
 		CEPGData epgdata;
-		bool epg_ok = CEitManager::getInstance()->getEPGid(epgid, epg_time, &epgdata);
-		if(!epg_ok){//if old epgid removed check currurrent epgid
+		bool epg_ok = CEitManager::getInstance()->getEPGid(epg_id, epg_time, &epgdata);
+		if(!epg_ok){//if old epg_id removed check current epg_id
 			epg_ok = CEitManager::getInstance()->getActualEPGServiceKey(channel->getEpgID(), &epgdata );
 
 			if(epg_ok && !epgTitle.empty()){
@@ -671,7 +671,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
 
 			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",recMovieInfo->parentalLockAge,recMovieInfo->genreMajor,recMovieInfo->length);
-		} else if (!epgTitle.empty()) {//if old epgid removed
+		} else if (!epgTitle.empty()) {//if old epg_id removed
 			tmpstring = epgTitle;
 		}
 	} else if (!epgTitle.empty()) {
@@ -681,7 +681,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	recMovieInfo->channelId		= channel->getChannelID();
 	recMovieInfo->epgInfo1		= info1;
 	recMovieInfo->epgInfo2		= info2;
-	recMovieInfo->epgId		= epgid;
+	recMovieInfo->epgId		= epg_id;
 	recMovieInfo->mode		= g_Zapit->getMode();
 	recMovieInfo->VideoPid		= allpids.PIDs.vpid;
 	recMovieInfo->VideoType		= channel->type;
@@ -814,7 +814,7 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 		StringReplace(FilenameTemplate,"%C","no_channel");
 
 	CShortEPGData epgdata;
-	if(CEitManager::getInstance()->getEPGidShort(epgid, &epgdata)) {
+	if(CEitManager::getInstance()->getEPGidShort(epg_id, &epgdata)) {
 		if (!(epgdata.title.empty())) {
 			snprintf(buf, sizeof(buf),"%s", epgdata.title.c_str());
 			ZapitTools::replace_char(buf);
@@ -1014,13 +1014,13 @@ bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, boo
 	eventinfo.eventID = 0;
 	eventinfo.channel_id = channel_id;
 	if (CEitManager::getInstance()->getActualEPGServiceKey(channel->getEpgID(), &epgData )) {
-		eventinfo.epgID = epgData.eventID;
+		eventinfo.epg_id = epgData.eventID;
 		eventinfo.epg_starttime = epgData.epg_times.startzeit;
 		strncpy(eventinfo.epgTitle, epgData.title.c_str(), EPG_TITLE_MAXLEN-1);
 		eventinfo.epgTitle[EPG_TITLE_MAXLEN-1]=0;
 	}
 	else {
-		eventinfo.epgID = 0;
+		eventinfo.epg_id = 0;
 		eventinfo.epg_starttime = 0;
 		strcpy(eventinfo.epgTitle, "");
 	}
@@ -1039,7 +1039,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	bool direct_record = timeshift || strlen(eventinfo->recordingDir) == 0;
 
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
-	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
+	       eventinfo->channel_id, eventinfo->epg_id, eventinfo->apids);
 
 	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF /* || IS_WEBCHAN(eventinfo->channel_id) */)
 		return false;
@@ -2124,7 +2124,7 @@ record_error_msg_t CStreamRec::Record()
 				}
 			}
 		}
-		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, record_end, epgid, epg_time, apidmode);
+		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, record_end, epg_id, epg_time, apidmode);
 		printf("%s: channel %" PRIx64 " -> timer eventID %d\n", __func__, channel_id, recording_id);
 	}
 	hintBox.hide();

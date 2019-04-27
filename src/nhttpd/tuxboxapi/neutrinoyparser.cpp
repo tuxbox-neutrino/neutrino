@@ -970,10 +970,10 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 					}
 					sAddData += ')';
 				}
-				if(timer->epgID!=0)
+				if(timer->epg_id!=0)
 				{
 					CEPGData epgdata;
-					if (CEitManager::getInstance()->getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
+					if (CEitManager::getInstance()->getEPGid(timer->epg_id, timer->epg_starttime, &epgdata))
 						sAddData+="<br/>" + epgdata.title;
 					else
 						sAddData+=std::string("<br/>")+timer->epgTitle;

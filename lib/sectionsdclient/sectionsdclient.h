@@ -44,7 +44,7 @@ class CChannelEvent
 {
  public:
 	t_channel_id       get_channel_id(void) const { return GET_CHANNEL_ID_FROM_EVENT_ID(eventID); }
-	event_id_t         eventID;
+	t_event_id         eventID;
 	std::string        description;
 	std::string        text;
 	time_t             startTime;
@@ -139,11 +139,11 @@ class CSectionsdClient : private CBasicClient
 
 	struct responseGetCurrentNextInfoChannelID
 	{
-		event_id_t                      current_uniqueKey;
+		t_event_id                      current_uniqueKey;
 		CSectionsdClient::sectionsdTime current_zeit;
 		std::string                     current_name;
 		char                            current_fsk;
-		event_id_t                      next_uniqueKey;
+		t_event_id                      next_uniqueKey;
 		CSectionsdClient::sectionsdTime next_zeit;
 		std::string                     next_name;
 		unsigned                        flags;
@@ -176,16 +176,16 @@ class CSectionsdClient : private CBasicClient
 	} epg_config;
 
 #if 0
-	bool getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
-	bool getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
+	bool getComponentTagsUniqueKey(const t_event_id uniqueKey, CSectionsdClient::ComponentTagList& tags);
+	bool getLinkageDescriptorsUniqueKey(const t_event_id uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
 	bool getNVODTimesServiceKey(const t_channel_id channel_id, CSectionsdClient::NVODTimesList& nvod_list);
 	bool getCurrentNextServiceKey(const t_channel_id channel_id, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next);
 	CChannelEventList getChannelEvents(const bool tv_mode = true, t_channel_id* = NULL, int size = 0);
 	CChannelEventList getEventsServiceKey(const t_channel_id channel_id);
 	bool getEventsServiceKeySearchAdd(CChannelEventList& evtlist,const t_channel_id channel_id,char m_search_typ,std::string& m_search_text);
-	bool getEPGid(const event_id_t eventid, const time_t starttime, CEPGData * epgdata);
+	bool getEPGid(const t_event_id eventid, const time_t starttime, CEPGData * epgdata);
 	bool getActualEPGServiceKey(const t_channel_id channel_id, CEPGData * epgdata);
-	bool getEPGidShort(const event_id_t eventid, CShortEPGData * epgdata);
+	bool getEPGidShort(const t_event_id eventid, CShortEPGData * epgdata);
 	void setPrivatePid(const unsigned short pid);
 #endif
 

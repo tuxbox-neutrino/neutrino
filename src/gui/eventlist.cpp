@@ -153,13 +153,13 @@ void CEventList::UpdateTimerList(void)
 // Function: HasTimerConflicts
 // search for timer conflicts for given time 
 // return: true if found any conflict, you can watch with parameter epg_ID
-bool CEventList::HasTimerConflicts(time_t starttime, time_t duration, event_id_t *epg_ID)
+bool CEventList::HasTimerConflicts(time_t starttime, time_t duration, t_event_id *epg_ID)
 {	
 	for(uint i= 0; i < timerlist.size(); i++)
 	{			
 		if(timerlist[i].stopTime > starttime-timerPre && timerlist[i].alarmTime < starttime+duration+timerPost)
 		{
-			*epg_ID = timerlist[i].epgID;
+			*epg_ID = timerlist[i].epg_id;
 			return true;
 		}
 	}
@@ -707,7 +707,7 @@ CTimerd::CTimerEventTypes CEventList::isScheduled(t_channel_id channel_id, CChan
 	CTimerd::TimerList::iterator timer = timerlist.begin();
 	for(; timer != timerlist.end(); ++timer) {
 		if(timer->channel_id == channel_id && (timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX)) {
-			if(timer->epgID == event->eventID) {
+			if(timer->epg_id == event->eventID) {
 				if(timer->epg_starttime == event->startTime) {
 					bool isTimeShiftTimer = false;
 					if( timer->eventType == CTimerd::TIMER_RECORD){

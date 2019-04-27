@@ -542,7 +542,7 @@ class SIevent
 			return CREATE_CHANNEL_ID(service_id, original_network_id, transport_stream_id);
 		}
 
-		event_id_t uniqueKey(void) const {
+		t_event_id uniqueKey(void) const {
 			return CREATE_EVENT_ID(get_channel_id(), eventID);
 		}
 		int runningStatus(void) const {

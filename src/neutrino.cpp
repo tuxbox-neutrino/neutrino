@@ -5235,10 +5235,10 @@ void CNeutrinoApp::getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::s
 		zAddData = g_Locale->getText(LOCALE_TIMERLIST_PROGRAM_UNKNOWN);
 	}
 
-	if(eventinfo->epgID!=0) {
+	if(eventinfo->epg_id!=0) {
 		CEPGData epgdata;
 		zAddData += " :\n";
-		if (CEitManager::getInstance()->getEPGid(eventinfo->epgID, eventinfo->epg_starttime, &epgdata)) {
+		if (CEitManager::getInstance()->getEPGid(eventinfo->epg_id, eventinfo->epg_starttime, &epgdata)) {
 			zAddData += epgdata.title;
 		}
 		else if(strlen(eventinfo->epgTitle)!=0) {

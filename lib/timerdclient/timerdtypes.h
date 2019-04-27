@@ -83,7 +83,7 @@ class CTimerd
 
 		struct EventInfo
 		{
-			event_id_t    epgID;
+			t_event_id    epg_id;
 			time_t        epg_starttime;
 			t_channel_id  channel_id;
 			unsigned char apids;
@@ -93,7 +93,7 @@ class CTimerd
 
 		struct TransferEventInfo
 		{
-			event_id_t    epgID;
+			t_event_id    epg_id;
 			time_t        epg_starttime;
 			t_channel_id  channel_id;
 			unsigned char apids;
@@ -116,7 +116,7 @@ class CTimerd
 					{
 						apids = e.apids;
 						channel_id = e.channel_id;
-						epgID = e.epgID;
+						epg_id = e.epg_id;
 						epg_starttime = e.epg_starttime;
 						recordingSafety = e.recordingSafety;
 						autoAdjustToEPG = e.autoAdjustToEPG;
@@ -125,7 +125,7 @@ class CTimerd
 					{
 						apids = e.apids;
 						channel_id = e.channel_id;
-						epgID = e.epgID;
+						epg_id = e.epg_id;
 						epg_starttime = e.epg_starttime;
 						recordingSafety = e.recordingSafety;
 						autoAdjustToEPG = e.autoAdjustToEPG;
@@ -154,7 +154,7 @@ class CTimerd
 			time_t            announceTime;
 			time_t            stopTime;
 			t_channel_id      channel_id;                       //only filled if applicable
-			event_id_t        epgID;                            //only filled if applicable
+			t_event_id        epg_id;                           //only filled if applicable
 			time_t            epg_starttime;                    //only filled if applicable
 			unsigned char     apids;                            //only filled if applicable
 			bool              standby_on;                       //only filled if applicable

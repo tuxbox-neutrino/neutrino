@@ -50,7 +50,7 @@ class CFollowScreenings : public CMenuTarget
 		time_t starttime;
 		time_t stoptime;
 		std::string title;
-		uint64_t epgID;
+		uint64_t epg_id;
 		unsigned char apids;
 		bool safety;
 		std::string recDir;
@@ -69,7 +69,7 @@ class CFollowScreenings : public CMenuTarget
 			this->channel_id = Channel_id;
 			this->starttime = Starttime;
 			this->stoptime = Stoptime;
-			this->epgID = EpgID;
+			this->epg_id = EpgID;
 			this->recDir = RecDir;
 			this->evtlist = Evtlist;
 			this->title = Title;

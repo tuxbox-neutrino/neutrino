@@ -94,7 +94,7 @@ class CInfoViewer
 	int header_height;
 	bool newfreq ;
 	static const short bar_width = 72;
-	static event_id_t last_curr_id, last_next_id;
+	static t_event_id last_curr_id, last_next_id;
 	uint64_t timeoutEnd;
 	void setInfobarTimeout(int timeout_ext = 0);
 

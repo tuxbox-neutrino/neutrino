@@ -2662,9 +2662,9 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 
 		// epg title
 		std::string title = timer->epgTitle;
-		if(timer->epgID!=0) {
+		if(timer->epg_id!=0) {
 			CEPGData epgdata;
-			if (CEitManager::getInstance()->getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
+			if (CEitManager::getInstance()->getEPGid(timer->epg_id, timer->epg_starttime, &epgdata))
 				title = epgdata.title;
 		}
 
@@ -2720,7 +2720,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 			timer_item += hh->outObject("audio", audio, true);
 
 			timer_item += hh->outPair("recording_dir", timer->recordingDir, true);
-			timer_item += hh->outPair("epg_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->epgID), false);
+			timer_item += hh->outPair("epg_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->epg_id), false);
 		}
 		break;
 
@@ -2983,7 +2983,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 
 	CTimerd::RecordingInfo recinfo;
 	CTimerd::EventInfo eventinfo;
-	eventinfo.epgID = 0;
+	eventinfo.epg_id = 0;
 	eventinfo.epg_starttime = 0;
 	eventinfo.apids = TIMERD_APIDS_CONF;
 	eventinfo.recordingSafety = (hh->ParamList["rs"] == "1") || (hh->ParamList["rs"] == "on");

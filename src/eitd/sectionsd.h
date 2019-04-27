@@ -58,12 +58,12 @@ class CEitManager : public OpenThreads::Thread, public OpenThreads::Mutex
 
 		void getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "", bool all_chann=false, int genre=0xFF,int fsk=0);
 		void getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
-		bool getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
-		bool getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
+		bool getEPGidShort(t_event_id epg_id, CShortEPGData * epgdata);
+		bool getEPGid(const t_event_id epg_id, const time_t startzeit, CEPGData * epgdata);
 		bool getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 		void getChannelEvents(CChannelEventList &eList, t_channel_id *chidlist = NULL, int clen = 0);
-		bool getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
-		bool getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
+		bool getComponentTagsUniqueKey(const t_event_id uniqueKey, CSectionsdClient::ComponentTagList& tags);
+		bool getLinkageDescriptorsUniqueKey(const t_event_id uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
 		bool getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSectionsdClient::NVODTimesList& nvod_list);
 		void setLanguages(const std::vector<std::string>& newLanguages);
 		void addChannelFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid);

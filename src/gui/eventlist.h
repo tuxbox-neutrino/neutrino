@@ -72,7 +72,7 @@ class CEventList : public CListHelpers
 	t_bouquet_id    m_search_bouquet_id;
 	bool m_showChannel;
 	int oldIndex;
-	event_id_t oldEventID;
+	t_event_id oldEventID;
 
 	bool findEvents(t_channel_id channel_id, std::string channelname);
 
@@ -99,7 +99,7 @@ class CEventList : public CListHelpers
 	std::string	infozone_text;
 	bool		infozone_background;
 	int      	sort_mode;
-	event_id_t 	item_event_ID;
+	t_event_id 	item_event_ID;
 	CComponentsText	*infozone;
 	CComponentsHeader *header;
 	CProgressBar 	*pb;
@@ -119,7 +119,7 @@ class CEventList : public CListHelpers
 	int timerPre;
 	int timerPost;
 	void UpdateTimerList(void);
-	bool HasTimerConflicts(time_t starttime, time_t duration, event_id_t * epg_ID);
+	bool HasTimerConflicts(time_t starttime, time_t duration, t_event_id * epg_ID);
 	bool showfollow;
 	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
 	

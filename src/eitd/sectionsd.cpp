@@ -238,7 +238,7 @@ static MySIservicesOrderUniqueKey mySIservicesOrderUniqueKey;
 static MySIservicesNVODorderUniqueKey mySIservicesNVODorderUniqueKey;
 
 /* needs write lock held! */
-static bool deleteEvent(const event_id_t uniqueKey)
+static bool deleteEvent(const t_event_id uniqueKey)
 {
 	bool ret = false;
 	// writeLockEvents();
@@ -417,9 +417,9 @@ debug(DEBUG_ERROR, "addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d", evt.
 		 */
 		if (slow_addevent)
 		{
-			std::vector<event_id_t> to_delete;
+			std::vector<t_event_id> to_delete;
 			unsigned short eventID = e->eventID;
-			event_id_t e_key = e->uniqueKey();
+			t_event_id e_key = e->uniqueKey();
 			t_channel_id e_chid = e->get_channel_id();
 			time_t start_time = e->times.begin()->startzeit;
 			time_t end_time = e->times.begin()->startzeit + (long)e->times.begin()->dauer;
@@ -439,7 +439,7 @@ debug(DEBUG_ERROR, "addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d", evt.
 					break;
 				else
 				{
-					event_id_t x_key = (*x)->uniqueKey();
+					t_event_id x_key = (*x)->uniqueKey();
 					if (x_key == e_key)
 					{
 						/* the present event has a higher table_id than the new one
@@ -522,7 +522,7 @@ debug(DEBUG_ERROR, "addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d", evt.
 				}
 				unlockMessaging();
 			}
-			event_id_t uniqueKey = (*lastEvent)->uniqueKey();
+			t_event_id uniqueKey = (*lastEvent)->uniqueKey();
 			// else debug(DEBUG_ERROR, ">");
 			deleteEvent(uniqueKey);
 		}
@@ -625,7 +625,7 @@ static void addNVODevent(const SIevent &evt)
 
 static void removeOldEvents(const long seconds)
 {
-	std::vector<event_id_t> to_delete;
+	std::vector<t_event_id> to_delete;
 
 	// Alte events loeschen
 	time_t zeit = time(NULL);
@@ -649,7 +649,7 @@ static void removeOldEvents(const long seconds)
 			to_delete.push_back((*e)->uniqueKey());
 		++e;
 	}
-	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); ++i)
+	for (std::vector<t_event_id>::iterator i = to_delete.begin(); i != to_delete.end(); ++i)
 		deleteEvent(*i);
 	unlockEvents();
 
@@ -662,7 +662,7 @@ static void removeOldEvents(const long seconds)
 //------------------------------------------------------------
 // misc. functions
 //------------------------------------------------------------
-static const SIevent& findSIeventForEventUniqueKey(const event_id_t eventUniqueKey)
+static const SIevent& findSIeventForEventUniqueKey(const t_event_id eventUniqueKey)
 {
 	// Event (eventid) suchen
 	MySIeventsOrderUniqueKey::iterator e = mySIeventsOrderUniqueKey.find(eventUniqueKey);
@@ -730,7 +730,7 @@ static const SIevent& findNextSIeventForServiceUniqueKey(const t_channel_id serv
 }
 
 // Finds the next event based on unique key and start time
-static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
+static const SIevent &findNextSIevent(const t_event_id uniqueKey, SItime &zeit)
 {
 	MySIeventsOrderUniqueKey::iterator eFirst = mySIeventsOrderUniqueKey.find(uniqueKey);
 
@@ -2735,15 +2735,15 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 	unlockEvents();
 }
 
-/* commandEPGepgIDshort */
-bool CEitManager::getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
+/* commandEPGepg_idshort */
+bool CEitManager::getEPGidShort(t_event_id epg_id, CShortEPGData * epgdata)
 {
 	bool ret = false;
-	debug(DEBUG_INFO, "Request of current EPG for 0x%" PRIx64, epgID);
+	debug(DEBUG_INFO, "Request of current EPG for 0x%" PRIx64, epg_id);
 
 	readLockEvents();
 
-	const SIevent& e = findSIeventForEventUniqueKey(epgID);
+	const SIevent& e = findSIeventForEventUniqueKey(epg_id);
 
 	if (e.service_id != 0)
 	{	// Event found
@@ -2759,14 +2759,14 @@ bool CEitManager::getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 	return ret;
 }
 
-/*was getEPGid commandEPGepgID(int connfd, char *data, const unsigned dataLength) */
+/*was getEPGid commandEPGepg_id(int connfd, char *data, const unsigned dataLength) */
 /* TODO item / itemDescription */
-bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata)
+bool CEitManager::getEPGid(const t_event_id epg_id, const time_t startzeit, CEPGData * epgdata)
 {
 	bool ret = false;
-	debug(DEBUG_INFO, "Request of actual EPG for 0x%" PRIx64 " 0x%lx", epgID, startzeit);
+	debug(DEBUG_INFO, "Request of actual EPG for 0x%" PRIx64 " 0x%lx", epg_id, startzeit);
 
-	const SIevent& evt = findSIeventForEventUniqueKey(epgID);
+	const SIevent& evt = findSIeventForEventUniqueKey(epg_id);
 
 	epgdata->itemDescriptions.clear();
 	epgdata->items.clear();
@@ -2942,7 +2942,7 @@ void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidl
 }
 
 /*was static void commandComponentTagsUniqueKey(int connfd, char *data, const unsigned dataLength) */
-bool CEitManager::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags)
+bool CEitManager::getComponentTagsUniqueKey(const t_event_id uniqueKey, CSectionsdClient::ComponentTagList& tags)
 {
 	bool ret = false;
 	debug(DEBUG_INFO, "Request of ComponentTags for 0x%" PRIx64, uniqueKey);
@@ -2972,7 +2972,7 @@ bool CEitManager::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSection
 }
 
 /* was static void commandLinkageDescriptorsUniqueKey(int connfd, char *data, const unsigned dataLength) */
-bool CEitManager::getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors)
+bool CEitManager::getLinkageDescriptorsUniqueKey(const t_event_id uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors)
 {
 	bool ret = false;
 	debug(DEBUG_INFO, "Request of LinkageDescriptors for 0x%" PRIx64, uniqueKey);
