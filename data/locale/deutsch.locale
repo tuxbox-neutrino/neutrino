@@ -117,7 +117,7 @@ adzap.minutes Minuten
 adzap.monitor Ein (dauerhaft)
 adzap.switchback Zurückschalten nach
 adzap.writedata Schreibe Status-Daten
-adzap.zap Zap bei der Timer-Aktivierung
+adzap.zap Zap bei Timer-Aktivierung
 adzap.zap_off aus
 adzap.zap_to_last_channel auf letzten Kanal
 adzap.zap_to_start_channel auf Start-Kanal
