@@ -147,7 +147,7 @@ const char * locale_real_names[] =
 	"adzap.zap",
 	"adzap.zap_off",
 	"adzap.zap_to_last_channel",
-	"adzap.zap_to_strat_channel",
+	"adzap.zap_to_start_channel",
 	"apidselector.head",
 	"audio.srs_algo",
 	"audio.srs_algo_heavy",

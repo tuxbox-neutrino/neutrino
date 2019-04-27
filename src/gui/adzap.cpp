@@ -323,7 +323,7 @@ void CAdZapMenu::ShowMenu()
 	{
 		{ SNeutrinoSettings::ADZAP_ZAP_OFF,LOCALE_ADZAP_ZAP_OFF},
 		{ SNeutrinoSettings::ADZAP_ZAP_TO_LAST,LOCALE_ADZAP_ZAP_TO_LAST_CHANNEL},
-		{ SNeutrinoSettings::ADZAP_ZAP_TO_STRAT,LOCALE_ADZAP_ZAP_TO_STRAT_CHANNEL},
+		{ SNeutrinoSettings::ADZAP_ZAP_TO_START,LOCALE_ADZAP_ZAP_TO_START_CHANNEL},
 	};
 
 	bool show_monitor = monitorLifeTime.tv_sec;
