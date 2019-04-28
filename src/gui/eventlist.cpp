@@ -721,10 +721,6 @@ CTimerd::CTimerEventTypes CEventList::isScheduled(t_channel_id channel_id, CChan
 					return timer->eventType;
 				}
 			}
-			if (timer->eventType == CTimerd::TIMER_REMOTEBOX && timer->alarmTime + timer->rem_pre == event->startTime) {
-				printf("alarmTime: %ld + rem_pre %d = startTime %ld ?\n",timer->alarmTime, timer->rem_pre, event->startTime);
-				return timer->eventType;
-			}
 		}
 	}
 	return (CTimerd::CTimerEventTypes) 0;

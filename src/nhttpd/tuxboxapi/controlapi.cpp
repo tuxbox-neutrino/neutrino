@@ -2636,6 +2636,13 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 			timer_item += hh->outArray("stop", stop, true);
 		}
 
+		// epg_starttime
+		std::string start = "";
+		struct tm *startTime = localtime(&(timer->epg_starttime));
+		start += hh->outArrayItem("normal", _SendTime(hh, startTime, (int)timer->epg_starttime), false);
+
+		timer_item += hh->outArray("start", start, true);
+
 		// repeat
 		std::string repeat = "";
 
@@ -2984,7 +2991,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 	CTimerd::RecordingInfo recinfo;
 	CTimerd::EventInfo eventinfo;
 	eventinfo.epg_id = 0;
-	eventinfo.epg_starttime = 0;
+	eventinfo.epg_starttime = atoi(hh->ParamList["start"].c_str());
 	eventinfo.apids = TIMERD_APIDS_CONF;
 	eventinfo.recordingSafety = (hh->ParamList["rs"] == "1") || (hh->ParamList["rs"] == "on");
 	eventinfo.autoAdjustToEPG = (hh->ParamList["aj"] == "1") || (hh->ParamList["aj"] == "on");

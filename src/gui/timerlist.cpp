@@ -439,6 +439,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 			r_url += "/control/timer?action=new&update=1";
 			r_url += "&alarm=" + to_string((int)timerlist[selected].alarmTime);
 			r_url += "&stop=" + to_string((int)timerlist[selected].stopTime);
+			r_url += "&start=" + to_string((int)timerlist[selected].epg_starttime);
 			r_url += "&announce=" + to_string((int)timerlist[selected].announceTime);
 			r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 			r_url += "&aj=on";
@@ -468,6 +469,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "/control/timer?action=new";
 		r_url += "&alarm=" + to_string((int)timerlist[selected].alarmTime + pre);
 		r_url += "&stop=" + to_string((int)timerlist[selected].stopTime - post);
+		r_url += "&start=" + to_string((int)timerlist[selected].epg_starttime);
 		r_url += "&announce=" + to_string((int)timerlist[selected].announceTime + pre);
 		r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 		r_url += "&aj=on";
@@ -539,6 +541,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "/control/timer?action=new&update=1";
 		r_url += "&alarm=" + to_string((int)timerlist[selected].alarmTime);
 		r_url += "&stop=" + to_string((int)timerlist[selected].stopTime);
+		r_url += "&start=" + to_string((int)timerlist[selected].epg_starttime);
 		r_url += "&announce=" + to_string((int)timerlist[selected].announceTime);
 		r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 		r_url += "&aj=on";
@@ -878,6 +881,7 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 				rtimer.alarmTime = (time_t) atoll(remotetimers[i]["alarm"][0].get("digits","").asString().c_str());
 				rtimer.announceTime = (time_t) atoll(remotetimers[i]["announce"][0].get("digits","").asString().c_str());
 				rtimer.stopTime = (time_t) atoll(remotetimers[i]["stop"][0].get("digits","").asString().c_str());
+				rtimer.epg_starttime = (time_t) atoll(remotetimers[i]["start"][0].get("digits","").asString().c_str());
 				sscanf(remotetimers[i].get("epg_id","").asString().c_str(), SCANF_CHANNEL_ID_TYPE, &rtimer.epg_id);
 				sscanf(remotetimers[i].get("channel_id","").asString().c_str(),	SCANF_CHANNEL_ID_TYPE, &rtimer.channel_id);
 				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),sizeof(rtimer.epgTitle));
