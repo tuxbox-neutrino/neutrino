@@ -607,8 +607,9 @@ void CTextBox::refreshText(void)
 		if (has_changed)
 			clearScreenBuffer();
 
-		if(m_bgpixbuf && (m_old_cText != m_cText))
-			frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
+		if(m_bgpixbuf)
+			if (m_old_cText != m_cText)
+				frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
 
 		if (m_bgpixbuf){
 			frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
