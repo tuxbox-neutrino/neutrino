@@ -108,14 +108,16 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 								break; // show conflicts only once
 						}
 					}
-
+#if 0 //ch is unused
+				CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(channel_id);
+#endif
 				if (g_Timerd->addRecordTimerEvent(channel_id, e->startTime, e->startTime + e->duration, e->eventID,
 								  e->startTime, e->startTime - (ANNOUNCETIME + 120 ), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, true) == -1) {
 					//FIXME -- no error handling, but this shouldn't happen ...
 				} else {
 					if (!forwarders.empty() && (followlist.size() > 1 || g_settings.timer_followscreenings == FOLLOWSCREENINGS_ALWAYS))
-						forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_REC;
-					else if (g_settings.timer_followscreenings != FOLLOWSCREENINGS_ALWAYS) //NI
+						forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_MARKER_RECORD;
+					else if (notify && g_settings.timer_followscreenings != FOLLOWSCREENINGS_ALWAYS)
 						ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG,
 							CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 					return menu_return::RETURN_REPAINT;
