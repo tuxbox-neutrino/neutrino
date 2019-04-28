@@ -1115,7 +1115,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							CFollowScreenings m(channel_id,
 								epgData.epg_times.startzeit,
 								epgData.epg_times.startzeit + epgData.epg_times.dauer,
-								epgData.title, epgData.eventID, TIMERD_APIDS_CONF, true, recDir, &evtlist);
+								epgData.title, epgData.eventID, TIMERD_APIDS_CONF, true, recDir, &evtlist, true);
 							m.exec(NULL, "");
 							timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 						}
