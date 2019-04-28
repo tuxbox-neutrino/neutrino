@@ -469,6 +469,11 @@ void Font::paintFontPixel(fb_pixel_t *td, uint8_t src)
 
 void Font::RenderString(int x, int y, const int width, const char *text, const fb_pixel_t color, const int boxheight, const unsigned int flags, fb_pixel_t *buffer, int _stride)
 {
+	if (!text){
+		dprintf(DEBUG_DEBUG,"\033[33m[Font] [%s - %d] ERROR! parameter text = [%p]\033[0m\n", __func__, __LINE__, text);
+		return;
+	}
+
 	bool render_to_fb = (buffer == NULL);
 	if (render_to_fb && !frameBuffer->getActive())
 		return;
