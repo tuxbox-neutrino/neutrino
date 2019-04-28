@@ -1045,7 +1045,7 @@ menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
 menu.hint_adzap Der Werbezapper schaltet nach der eingestellten Zeit wieder auf den ursprünglichen Kanal zurück
 menu.hint_adzap_active Der Werbezapper ist aktiv. Mit einem erneuten Aufruf wird er deaktiviert.
 menu.hint_adzap_writedata Schreibe Daten über den Status des Werbezappers nach /tmp/adzap.data
-menu.hint_adzap_zap Umschalten bei der Timer-Aktivierung auf den zuletzt gesehenen Kanal oder auf den Start-Kanal
+menu.hint_adzap_zap Umschalten bei Timer-Aktivierung auf zuletzt gesehenen Kanal oder auf Start-Kanal
 menu.hint_aplay Audioplayer
 menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen usw.
