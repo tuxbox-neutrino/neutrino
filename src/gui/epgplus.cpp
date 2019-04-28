@@ -1528,7 +1528,7 @@ int EpgPlus::MenuTargetAddRecordTimer::exec(CMenuTarget * /*parent*/, const std:
 			CFollowScreenings m(this->epgPlus->selectedChannelEntry->channel->channel_id,
 				(*It)->channelEvent.startTime,
 				(*It)->channelEvent.startTime + (*It)->channelEvent.duration,
-				(*It)->channelEvent.description, (*It)->channelEvent.eventID, TIMERD_APIDS_CONF, true, "", &evtlist);
+				(*It)->channelEvent.description, (*It)->channelEvent.eventID, TIMERD_APIDS_CONF, true, "", &evtlist, true);
 			m.exec(NULL, "");
 		}
 		else
