@@ -62,5 +62,6 @@ class CAdZapMenu: public CMenuTarget, CChangeObserver
 		int exec(CMenuTarget * parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t, void * data);
 		bool isActive() { return (armed || monitor); };
+		void Zap_On_Activation(t_channel_id channel_id);
 };
 #endif // __adzap__
