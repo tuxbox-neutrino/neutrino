@@ -68,7 +68,7 @@ class CFollowScreenings : public CMenuTarget
 		};
 
                 CFollowScreenings(const t_channel_id Channel_id, time_t Starttime, time_t Stoptime, const std::string &Title, uint64_t EpgID=0,
-			unsigned char Apids=TIMERD_APIDS_STD, bool Safety=false, std::string RecDir="", CChannelEventList *Evtlist=NULL, bool Notify = false) : CMenuTarget () {
+			unsigned char Apids=TIMERD_APIDS_STD, bool Safety=false, std::string RecDir="", CChannelEventList *Evtlist=NULL, bool Notify = true) : CMenuTarget () {
 			this->channel_id = Channel_id;
 			this->starttime = Starttime;
 			this->stoptime = Stoptime;

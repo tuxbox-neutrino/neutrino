@@ -529,7 +529,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					CFollowScreenings m(used_id,
 						evtlist[selected].startTime,
 						evtlist[selected].startTime + evtlist[selected].duration,
-						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist);
+						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist, false);
 					m.exec(NULL, "");
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 				}
