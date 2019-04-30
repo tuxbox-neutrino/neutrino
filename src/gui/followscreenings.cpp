@@ -101,7 +101,7 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 #endif
 							return menu_return::RETURN_REPAINT;
 						}
-						if (!SAME_TRANSPONDER(channel_id, i->channel_id)) {
+						if (!SAME_TRANSPONDER(channel_id, i->channel_id) || CZapit::getInstance()->getUseChannelFilter()) {
 							if (!askUserOnTimerConflict(start, stop, channel_id))
 								return menu_return::RETURN_REPAINT;
 							else
