@@ -319,15 +319,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if(oldmask == newmask) {
 		INFO("\033[33m (oldmask == newmask)\033[0m");
 		if (mode) {
-			if(start) {
-				CaIdVector caids;
-				cCA::GetInstance()->GetCAIDS(caids);
-				uint8_t list = CCam::CAPMT_ONLY;
-				cam->makeCaPmt(channel, false, list, caids);
-				int len;
-				unsigned char * buffer = channel->getRawPmt(len);
-				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
-			} else {
+			if(!start) {
 				cam->sendCaPmt(channel->getChannelID(), NULL, 0, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
 			}
 		}
@@ -435,15 +427,23 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		}
 		//list = CCam::CAPMT_MORE;
 #if ! HAVE_COOL_HARDWARE
-		if((oldmask != newmask) || force_update) {
-			if(useCI) {
+		if((oldmask != newmask) || force_update || (oldmask == newmask && mode && start))
+		{
+			//temp debug output
+			if((oldmask != newmask) || force_update)
 				INFO("\033[33m (oldmask != newmask) || force_update)\033[0m");
+			else
+				INFO("\033[33m (oldmask == newmask && mode && start)\033[0m");
+
+			if(useCI)
+			{
 				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, 0, true);
-			} else {
-				INFO("\033[33m (oldmask != newmask) || force_update) - no CI needed\033[0m");
+			}
+			else
+			{
+				INFO("\033[33m no CI needed\033[0m");
 				//no CI needed
-				ca_map_t no_camap = std::set<int>();
-				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, false /*channel->scrambled*/, no_camap /*channel->camap*/, mode, start);
+				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, false /*channel->scrambled*/, channel->camap, mode, start);
 			}
 		}
 #endif
