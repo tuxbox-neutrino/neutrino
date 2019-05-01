@@ -31,3 +31,9 @@ install-data-hook:
 		mv $(neutrino_ttf) neutrino.ttf; \
 		mv $(tuxtxt_ttf) tuxtxt.ttf; \
 		ln -sf tuxtxt.ttf shell.ttf
+
+uninstall-hook:
+	cd $(DESTDIR)$(FONTDIR); \
+		rm -f neutrino.ttf; \
+		rm -f tuxtxt.ttf; \
+		rm -f shell.ttf
