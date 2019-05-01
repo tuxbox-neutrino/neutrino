@@ -1,3 +1,10 @@
 installdir = $(CONFIGDIR)/initial
 
-install_DATA = bouquets.xml services.xml ubouquets.xml frontend.conf
+
+
+
+install_DATA = \
+	frontend.conf \
+	bouquets.xml \
+	services.xml \
+	ubouquets.xml
