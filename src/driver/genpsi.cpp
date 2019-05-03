@@ -102,6 +102,10 @@ CGenPsi::CGenPsi()
 	memset(dvbsubpid, 0, sizeof(dvbsubpid));
 	neac3 = 0;
 	memset(eac3_pid, 0, sizeof(eac3_pid));
+	naac = 0;
+	memset(aac_pid, 0, sizeof(aac_pid));
+	naacp = 0;
+	memset(aacp_pid, 0, sizeof(aacp_pid));
 }
 
 uint32_t CGenPsi::calc_crc32psi(uint8_t *dst, const uint8_t *src, uint32_t len)
