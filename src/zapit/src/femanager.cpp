@@ -249,7 +249,7 @@ bool CFEManager::loadSettings()
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
 		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", 0);
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
-		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
+		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", 0);
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
 		fe_config.rotor_swap		= getConfigValue(fe, "rotor_swap", 0);

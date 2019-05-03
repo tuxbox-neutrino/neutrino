@@ -1697,7 +1697,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 		WARN("ooops. t > 1024? (%d)", t);
 		return 0;
 	}
-	if (pin >= 0 && pin < 0x100) {
+	if (pin > 0 && pin < 0x100) {
 		cmd.msg[2] = 0x5c;
 		cmd.msg[5] = config.uni_pin;
 		cmd.msg_len = 6;
@@ -1708,7 +1708,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 	if (!slave && info.type == FE_QPSK) {
 		cmd.msg[3] = (config.uni_scr << 5);		/* adress */
 		if (bank < 2) { /* bank = 0/1 => tune, bank = 2 => standby */
-			cmd.msg[3] |= (t >> 8)		|	/* highest 3 bits of t */
+			cmd.msg[3] |= (t >> 8)		|	/* highest 2 bits of t */
 				(bank << 4)		|	/* input 0/1 */
 				(horizontal << 3)	|	/* horizontal == 0x08 */
 				(high_band) << 2;		/* high_band  == 0x04 */
@@ -1725,20 +1725,27 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 uint32_t CFrontend::sendEN50607TuningCommand(const uint32_t frequency, const int high_band, const int horizontal, const int bank)
 {
 	uint32_t bpf = config.uni_qrg;
+	int pin = config.uni_pin;
 	struct dvb_diseqc_master_cmd cmd = { {0x70, 0x00, 0x00, 0x00, 0x00, 0x00}, 4 };
+
+	if (pin > 0 && pin < 0x100) {
+		cmd.msg[0] = 0x71;
+		cmd.msg[4] = config.uni_pin;
+		cmd.msg_len = 5;
+	}
 
 	unsigned int t = frequency / 1000 - 100;
 	if (t < 0x800 && config.uni_scr >= 0 && config.uni_scr < 32)
 	{
 		uint32_t ret = bpf * 1000;
-		INFO("[unicable-JESS] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, config.uni_scr, bank, ret);
+		INFO("[unicable-JESS] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d pin=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, config.uni_scr, bank, pin, ret);
 		if (!slave && info.type == FE_QPSK)
 		{
 			cmd.msg[1] = ((config.uni_scr & 0x1F) << 3)	|	/* user band adress ( 0 to 31) */
 			/* max. possible tuning word = 0x7FF */
 				((t >> 8) & 0x07);				/* highest 3 bits of t (MSB) */
 			cmd.msg[2] = t & 0xFF;					/* tuning word (LSB) */
-			cmd.msg[3] = (0 << 4)				|	/* no uncommited switch */
+			cmd.msg[3] = (0 << 4)				|	/* no commited switch */
 			/* I really don't know if the combines of option and position bits are right here,
 			because I can'test it, assuming here 4 sat positions */
 				((bank & 0x03) << 2)			|	/* input 0/1/2/3 */
@@ -1747,7 +1754,7 @@ uint32_t CFrontend::sendEN50607TuningCommand(const uint32_t frequency, const int
 			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
 			usleep(20 * 1000);					/* en50494 says: >4ms and < 22 ms */
 			sendDiseqcCommand(&cmd, 80);				/* en50494 says: >2ms and < 60 ms */
-			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
+			fop(ioctl, FE_SET_VOLTAGE, unicable_lowvolt);
 		}
 		return ret;
 	}

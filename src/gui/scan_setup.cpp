@@ -1105,9 +1105,13 @@ int CScanSetup::showUnicableSetup()
 	frontend_config_t &fe_config = fe->getConfig();
 	int unicable_scr = fe_config.uni_scr;
 	int unicable_qrg = fe_config.uni_qrg;
+	int unicable_pin = fe_config.uni_pin;
 
 	CMenuOptionNumberChooser *uniscr = new CMenuOptionNumberChooser(LOCALE_UNICABLE_SCR, &unicable_scr, true, 0, dmode == DISEQC_UNICABLE ? 7 : 31);
 	CIntInput		 *uniqrg = new CIntInput(LOCALE_UNICABLE_QRG, &unicable_qrg, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CMenuOptionNumberChooser *unipin = new CMenuOptionNumberChooser(LOCALE_UNICABLE_PIN, &unicable_pin, true, 0, 255, NULL, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
+	unipin->setNumericInput(true);
+	unipin->setHint("", LOCALE_UNICABLE_PIN_HINT);
 
 	CMenuWidget *uni_setup = new CMenuWidget(LOCALE_SATSETUP_UNI_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	uni_setup->addIntroItems();
@@ -1115,12 +1119,14 @@ int CScanSetup::showUnicableSetup()
 	uni_setup->addItem(uniscr);
 	CMenuForwarder *mf = new CMenuDForwarder(LOCALE_UNICABLE_QRG, true, uniqrg->getValue(), uniqrg);
 	uni_setup->addItem(mf);
+	uni_setup->addItem(unipin);
 	res = uni_setup->exec(NULL, "");
 	delete uni_setup;
 	if (res) {
 		fe_config.uni_scr = unicable_scr;
 		fe_config.uni_qrg = unicable_qrg;
-		printf("%s: scr: %d qrg: %d\n", __func__, unicable_scr, unicable_qrg);
+		fe_config.uni_pin = unicable_pin;
+		printf("%s: scr: %d qrg: %d pin: %d\n", __func__, unicable_scr, unicable_qrg, unicable_pin);
 	}
 	return res;
 }
