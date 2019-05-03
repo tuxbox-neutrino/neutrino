@@ -144,6 +144,9 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #if HAVE_ARM_HARDWARE
 		frameBuffer = new CFbAccelARM();
 #endif
+#if HAVE_MIPS_HARDWARE
+		frameBuffer = new CFbAccelMIPS();
+#endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();
 		printf("[neutrino] %s Instance created\n", frameBuffer->fb_name);

@@ -223,7 +223,7 @@ class CRCInput
 			RC_tv		= KEY_TV,
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
-#if BOXMODEL_VUSOLO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO
 			RC_info		= 0xFFFE,
 			RC_epg		= KEY_INFO,
 #else

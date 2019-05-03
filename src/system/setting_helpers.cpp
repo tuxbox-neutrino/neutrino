@@ -310,7 +310,7 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 		g_Zapit->setAudioMode(g_settings.audio_AnalogMode);
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_ANALOG_OUT)) {
 		audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_AC3)) {
 		audioDecoder->SetHdmiDD(g_settings.ac3_pass ? true : false);
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_DTS)) {

@@ -145,7 +145,7 @@ TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
 TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
-if test "$BOXTYPE" = "armbox"; then
+if test "$BOXTYPE" = "armbox" -o "$BOXTYPE" = "mipsbox"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(SWSCALE,libswscale)
 fi
 
@@ -155,6 +155,7 @@ fi
 
 if test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "armbox" ||
+   test "$BOXTYPE" = "mipsbox" ||
    test "$BOXTYPE" = "generic" ||
    test "$BOXTYPE" = "tripledragon" ||
    test "$BOXTYPE" = "spark"; then

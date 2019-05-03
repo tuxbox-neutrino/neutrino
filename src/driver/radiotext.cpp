@@ -737,7 +737,7 @@ void CRadioText::run()
 	uint current_pid = 0;
 
 	printf("CRadioText::run: ###################### Starting thread ######################\n");
-#if HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int buflen = 0;
 	unsigned char *buf = NULL;
 	audioDemux = new cDemux(0); // live demux
@@ -768,7 +768,7 @@ void CRadioText::run()
 		}
 		mutex.unlock();
 		if (pid) {
-#if HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			int n;
 			unsigned char tmp[6];
 
@@ -811,7 +811,7 @@ void CRadioText::run()
 			}
 		}
 	}
-#if HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (buf)
 		free(buf);
 #endif

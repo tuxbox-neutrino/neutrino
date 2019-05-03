@@ -213,7 +213,7 @@ void CHDDMenuHandler::getBlkIds()
 
 		hdd_s hdd;
 		hdd.devname = std::string(buff + 5);
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		if (strncmp(hdd.devname.c_str(), "mmcblk", 6) == 0)
 			continue;
 #endif

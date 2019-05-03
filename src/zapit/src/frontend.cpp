@@ -310,7 +310,7 @@ void CFrontend::getFEInfo(void)
 	printf("[fe%d/%d] frontend fd %d type %d\n", adapter, fenumber, fd, info.type);
 	bool legacy = true;
 
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	std::ifstream in;
 	if (adapter == 0)
 		in.open("/proc/bus/nim_sockets");
@@ -333,7 +333,7 @@ void CFrontend::getFEInfo(void)
 		}
 	in.close();
 	}
-#endif // HAVE_ARM_HARDWARE
+#endif // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 
 	deliverySystemMask = UNKNOWN_DS;
 	forcedSystemMask = UNKNOWN_DS;

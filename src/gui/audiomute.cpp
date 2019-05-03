@@ -64,7 +64,7 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 	CVFD::getInstance()->setMuted(newValue);
 	neutrino->setCurrentMuted(newValue);
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (g_settings.hdmi_cec_volume)
 		hdmi_cec::getInstance()->toggle_mute();
 	else

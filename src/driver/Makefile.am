@@ -93,6 +93,11 @@ libneutrino_driver_a_SOURCES += \
 	fb_accel_arm.cpp \
 	simple_display.cpp
 endif
+if BOXTYPE_MIPSBOX
+libneutrino_driver_a_SOURCES += \
+	fb_accel_mips.cpp \
+	simple_display.cpp
+endif
 if USE_STB_HAL
 AM_CPPFLAGS += \
 	@DIRECTFB_CFLAGS@
