@@ -148,6 +148,7 @@ void CEventList::UpdateTimerList(void)
 	CTimerList *Timerlist = new CTimerList;
 	Timerlist->RemoteBoxTimerList(timerlist);
 	sort(timerlist.begin(), timerlist.end());
+	delete Timerlist;
 }
 
 // Function: HasTimerConflicts
