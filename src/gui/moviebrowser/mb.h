@@ -169,10 +169,10 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		CComponentsChannelLogo *m_channelLogo;
 		CComponentsPicture *m_movieCover;
 
-		LF_LINES m_browserListLines;
-		LF_LINES m_recordListLines;
-		LF_LINES m_playListLines;
-		LF_LINES m_FilterLines;
+		lf_line_types_t m_browserListLines;
+		lf_line_types_t m_recordListLines;
+		lf_line_types_t m_playListLines;
+		lf_line_types_t m_FilterLines;
 
 		std::vector<MI_MOVIE_INFO> m_vMovieInfo;
 		std::vector<MI_MOVIE_INFO*> m_vHandleBrowserList;

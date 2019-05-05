@@ -68,7 +68,8 @@ typedef enum
 	MB_INFO_RATING			= 20,
 	MB_INFO_SPACER			= 21,
 	MB_INFO_RECORDTIME 		= 22,
-	MB_INFO_MAX_NUMBER		= 23 	// MUST be allways the last item in the list
+	MB_INFO_PERCENT_ELAPSED 	= 23,
+	MB_INFO_MAX_NUMBER		= 24 	// MUST be allways the last item in the list
 }MB_INFO_ITEM;
 
 typedef enum
