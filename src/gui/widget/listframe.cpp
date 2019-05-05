@@ -57,6 +57,7 @@
 #include <gui/components/cc.h>
 #include <gui/widget/icons.h>
 #include <driver/fontrenderer.h>
+#include <driver/neutrinofonts.h>
 
 #define MAX_WINDOW_WIDTH  (frameBuffer ? frameBuffer->getScreenWidth() - 40:0)
 #define MAX_WINDOW_HEIGHT (frameBuffer ? frameBuffer->getScreenHeight() - 40:0)
@@ -78,7 +79,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CListFrame::CListFrame(	LF_LINES* lines, Font* font_text, const int pmode,
+CListFrame::CListFrame(	lf_line_types_t* lines, Font* font_text, const int pmode,
 		const CBox* position, const char* textTitle, Font* font_title)
 {
 	//TRACE("[CListFrame] new\r\n");
@@ -127,7 +128,7 @@ CListFrame::CListFrame(	LF_LINES* lines, Font* font_text, const int pmode,
 	onNewLineArray();
 }
 
-CListFrame::CListFrame(	LF_LINES* lines)
+CListFrame::CListFrame(	lf_line_types_t* lines)
 {
 	//TRACE("[CListFrame] new\r\n");
 	initVar();
@@ -158,8 +159,13 @@ CListFrame::CListFrame()
 
 CListFrame::~CListFrame()
 {
+	if (m_pLines){
+		for(int row = 0; row < m_pLines->rows; row++)
+			cleanupRow(m_pLines, row);
+	}
+
 	//TRACE("[CListFrame] del\r\n");
-	hide();
+	hide(); //TODO: remove hide here
 }
 
 void CListFrame::initVar(void)
@@ -177,7 +183,7 @@ void CListFrame::initVar(void)
 	m_nFontHeaderListHeight = m_pcFontHeaderList->getHeight();
 
 	m_pcFontTitle = FONT_TITLE;
-	m_textTitle = "MovieBrowser";
+	m_textTitle = "ListFrame";
 	m_nFontTitleHeight = m_pcFontTitle->getHeight();
 
 	m_nNrOfPages = 1;
@@ -298,7 +304,7 @@ void CListFrame::onNewLineArray(void)
 	int maxTextWidth = 0;
 
 	maxTextWidth = 300; // TODO
-	m_nNrOfLines = m_pLines->lineArray[0].size();
+	m_nNrOfLines = m_pLines->lineArray[0].v_text.size();
 	if(m_nNrOfLines > 0 )
 	{
 		/* check if we have to recalculate the window frame size, due to auto width and auto height */
@@ -460,11 +466,60 @@ void CListFrame::refreshLine(int line)
 				m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - OFFSET_INNER_MID);
 		if (row > 0)
 			xDiff = 0;
-		m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
-				width-xDiff, m_pLines->lineArray[row][line].c_str(),
-				color);
+
+		if (!m_pLines->lineArray[row].v_text[line].empty())
+			paintRowText(m_pLines->lineArray[row].v_text[line], m_pcFontList, x+m_cFrame.iX+xDiff, y+m_cFrame.iY, width-xDiff, m_nFontListHeight, color);
+
+		if (m_pLines->lineArray[row].v_ccItem[line] != NULL)
+		{
+			CComponentsItem *item = (m_pLines->lineArray[row].v_ccItem[line]);
+			int h_item = item->getHeight();
+			item->setDimensionsAll(x+m_cFrame.iX+xDiff, y+m_cFrame.iY - m_nFontListHeight/2 - h_item/2, width-xDiff, h_item);
+			item->setColorBody(bgcolor);
+			item->setCorner(0);
+			item->forceRePaint();
+			item->paint(false);
+		}
+
 		x += width + OFFSET_INNER_SMALL;
 	}
+}
+
+void CListFrame::paintRowText(const std::string& text, Font* font, const int& x_pos, const int& y_pos, const int& dx, const int& dy, const fb_pixel_t& col)
+{
+	Font *tmp_font = font;
+	int y_tmp = y_pos;
+
+	if (dx < tmp_font->getRenderWidth(text))
+	{
+		int w_row = dx-OFFSET_INNER_MID;
+		int h_row = dy-OFFSET_INNER_MIN;
+
+		tmp_font = *CNeutrinoFonts::getInstance()->getDynFont(w_row, h_row, text);
+		y_tmp -= (font->getHeight() - tmp_font->getHeight()) >>1 ;
+	}
+	tmp_font->RenderString(x_pos, y_tmp, dx, text.c_str(), col);
+}
+
+void CListFrame::addLine2Row(lf_line_types_t* lines, const int& row_num, const std::string& text, CComponentsItem* cc_Item)
+{
+	lines->lineArray[row_num].v_text.push_back(text);
+	lines->lineArray[row_num].v_ccItem.push_back(cc_Item);
+}
+
+void CListFrame::cleanupRow(lf_line_types_t* lines, const int& row_num)
+{
+	lines->lineArray[row_num].v_text.clear();
+	for(size_t i = 0; i < lines->lineArray[row_num].v_ccItem.size(); i++)
+	{
+		if(lines->lineArray[row_num].v_ccItem[i])
+		{
+			//TRACE("[CListFrame]->cleanupRow: item = %p getItemName() = %s getItemType() = %d\r\n", lines->lineArray[row_num].v_ccItem[i], lines->lineArray[row_num].v_ccItem[i]->getItemName().c_str(), lines->lineArray[row_num].v_ccItem[i]->getItemType());
+			delete lines->lineArray[row_num].v_ccItem[i];
+			lines->lineArray[row_num].v_ccItem[i] = NULL;
+		}
+	}
+	lines->lineArray[row_num].v_ccItem.clear();
 }
 
 void CListFrame::refreshHeaderList(void)
@@ -491,9 +546,9 @@ void CListFrame::refreshHeaderList(void)
 			//TRACE("   normalize width to %d , x:%d \r\n",width,x);
 			loop = false;
 		}
-		m_pcFontHeaderList->RenderString(x+m_cFrame.iX, y+m_cFrame.iY,
-				width, m_pLines->lineHeader[row].c_str(),
-				HEADER_LIST_FONT_COLOR);
+
+		paintRowText(m_pLines->lineHeader[row], m_pcFontHeaderList, x+m_cFrame.iX, y+m_cFrame.iY, width, m_nFontHeaderListHeight, HEADER_LIST_FONT_COLOR);
+
 		x += width + OFFSET_INNER_SMALL;
 	}
 }
@@ -561,7 +616,7 @@ void CListFrame::refresh(void)
 	refreshList();
 }
 
-bool CListFrame::setLines(LF_LINES* lines)
+bool CListFrame::setLines(lf_line_types_t* lines)
 {
 	if(lines == NULL)
 		return(false);
