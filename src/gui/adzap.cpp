@@ -261,7 +261,7 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 			armed = true;
 		alerted = false;
 		Update();
-		if (CNeutrinoApp::getInstance()->channelList && g_settings.adzap_zapOnActivation != SNeutrinoSettings::ADZAP_ZAP_OFF)
+		if (g_settings.adzap_zapOnActivation != SNeutrinoSettings::ADZAP_ZAP_OFF && CNeutrinoApp::getInstance()->channelList)
 			Zap_On_Activation(CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
 
 		return res;
@@ -283,6 +283,8 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 			monitorLifeTime.tv_sec = getMonitorLifeTime();
 		printf("CAdZapMenu::%s: monitorLifeTime.tv_sec: %d\n", __func__, (uint) monitorLifeTime.tv_sec);
 		Update();
+		if (g_settings.adzap_zapOnActivation != SNeutrinoSettings::ADZAP_ZAP_OFF && CNeutrinoApp::getInstance()->channelList)
+			Zap_On_Activation(CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
 		return res;
 	}
 	if (actionKey == "adzap")
