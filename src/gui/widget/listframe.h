@@ -116,6 +116,7 @@ class CListFrame
 		int m_nSelectedLine;
 
 		int m_nBgRadius;
+		int* m_cutRowText;
 
 		bool m_showSelection;
 		
@@ -180,6 +181,7 @@ inline  int     getPages(void)				{return(m_nNrOfPages);};
 inline  void    showSelection(bool show)	{m_showSelection = show;refreshLine(m_nSelectedLine);};
 inline	void	movePosition(int x, int y){m_cFrame.iX = x; m_cFrame.iY = y;};
 inline	int		getLineHeight()				{return m_nFontListHeight;}
+inline	void	cutRowText(int *catRowText)	{m_cutRowText = catRowText;}
 
 		/* Variables */
 	typedef enum mode_

@@ -175,6 +175,7 @@ void CListFrame::initVar(void)
 	m_nMode = SCROLL;
 
 	m_showSelection = true;
+	m_cutRowText = NULL;
 
 	m_pcFontList  =  FONT_LIST ;
 	m_nFontListHeight = m_pcFontList->getHeight();
@@ -505,7 +506,10 @@ void CListFrame::paintRowText(const std::string& text, Font* font, const int& x_
 		int w_row = dx-OFFSET_INNER_MID;
 		int h_row = dy-OFFSET_INNER_MIN;
 
-		tmp_font = *CNeutrinoFonts::getInstance()->getDynFont(w_row, h_row, text);
+		if (m_cutRowText)
+			if (!*m_cutRowText)
+				tmp_font = *CNeutrinoFonts::getInstance()->getDynFont(w_row, h_row, text);
+
 		y_tmp -= (font->getHeight() - tmp_font->getHeight()) >>1 ;
 	}
 	tmp_font->RenderString(x_pos, y_tmp, dx, text.c_str(), col);
