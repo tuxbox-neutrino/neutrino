@@ -54,6 +54,7 @@ CInfoClock* CInfoClock::getInstance()
 void CInfoClock::initCCLockItems()
 {
 	paint_bg = g_settings.infoClockBackground;
+	cc_item_type.name 	= "info_clock";
 
 	//use current theme colors
 	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
