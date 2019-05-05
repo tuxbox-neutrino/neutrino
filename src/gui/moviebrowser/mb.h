@@ -97,6 +97,7 @@ typedef struct
 	MB_INFO_ITEM browserRowItem[MB_MAX_ROWS];
 	int browserRowWidth[MB_MAX_ROWS];
 	int browserAdditional;
+	int browserCutLongRowText;
 
 	// to be added to config later
 	int lastPlayMaxItems;

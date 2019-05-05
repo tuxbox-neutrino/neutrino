@@ -464,6 +464,7 @@ void CMovieBrowser::initGlobalSettings(void)
 
 	/***** Browser List **************/
 	m_settings.browserFrameHeight = 65; /* percent */
+	m_settings.browserCutLongRowText = 1;
 
 	m_settings.browserRowNr = 7;
 	m_settings.browserRowItem[0] = MB_INFO_TITLE;
@@ -650,6 +651,7 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	}
 	/* these variables are used for the listframes */
 	settings->browserFrameHeight = configfile.getInt32("mb_browserFrameHeight", 50);
+	settings->browserCutLongRowText = configfile.getInt32("mb_browserCutLongRowText", 1);
 	settings->browserRowNr = configfile.getInt32("mb_browserRowNr", 0);
 	for (int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
@@ -717,6 +719,8 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	}
 	/* these variables are used for the listframes */
 	configfile.setInt32("mb_browserFrameHeight", settings->browserFrameHeight);
+	configfile.setInt32("mb_browserCutLongRowText", settings->browserCutLongRowText);
+
 	configfile.setInt32("mb_browserRowNr",settings->browserRowNr);
 	for (int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
@@ -1799,6 +1803,7 @@ void CMovieBrowser::refreshLastPlayList(void) //P2
 		m_playListLines.marked.push_back(m_vHandlePlayList[handle]->marked);
 	}
 	m_pcLastPlay->setLines(&m_playListLines);
+	m_pcLastPlay->cutRowText(&m_settings.browserCutLongRowText);
 
 	m_currentPlaySelection = m_pcLastPlay->getSelectedLine();
 	// update selected movie if browser is in the focus
@@ -1857,6 +1862,7 @@ void CMovieBrowser::refreshLastRecordList(void) //P2
 	}
 
 	m_pcLastRecord->setLines(&m_recordListLines);
+	m_pcLastRecord->cutRowText(&m_settings.browserCutLongRowText);
 
 	m_currentRecordSelection = m_pcLastRecord->getSelectedLine();
 	// update selected movie if browser is in the focus
@@ -1952,6 +1958,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 		m_browserListLines.marked.push_back(m_vHandleBrowserList[handle]->marked);
 	}
 	m_pcBrowser->setLines(&m_browserListLines);
+	m_pcBrowser->cutRowText(&m_settings.browserCutLongRowText);
 
 	m_currentBrowserSelection = m_pcBrowser->getSelectedLine();
 	// update selected movie if browser is in the focus
@@ -3558,6 +3565,7 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,  true, recMaxUserIntInput.getValue(), &recMaxUserIntInput));
 	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,     true, browserFrameUserIntInput.getValue(), &browserFrameUserIntInput));
 	optionsMenuBrowser.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_ADDITIONAL, (int*)(&m_settings.browserAdditional), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
+	optionsMenuBrowser.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_CUT_LONG_ROWTEXT, (int*)(&m_settings.browserCutLongRowText), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
 	optionsMenuBrowser.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_BROWSER_ROW_HEAD));
 	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,     true, browserRowNrIntInput.getValue(), &browserRowNrIntInput));
 	optionsMenuBrowser.addItem(GenericMenuSeparator);
