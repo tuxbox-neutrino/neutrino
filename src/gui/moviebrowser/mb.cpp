@@ -3460,7 +3460,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	movieInfoMenu.addItem(GenericMenuSeparatorLine);
 	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PATH,           false, dirItNr));
 	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_RECORDDATE,     false, recUserDateInput.getValue()));
-	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE,   false, (movie_info->dateOfLastPlay == 0) ? neverplayed : dateUserDateInput.getValue()));
+	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE,   false, (movie_info->dateOfLastPlay == 0 || movie_info->bookmarks.lastPlayStop/60 == 0) ? neverplayed : dateUserDateInput.getValue()));
 	std::string last_stop = to_string(movie_info->bookmarks.lastPlayStop/60) + "/" + to_string(movie_info->length);
 	last_stop += " min";
 	movieInfoMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_ELAPSED,        false, last_stop));
