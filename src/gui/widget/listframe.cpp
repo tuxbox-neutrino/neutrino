@@ -356,9 +356,9 @@ void CListFrame::onNewLineArray(void)
 
 void CListFrame::refreshTitle(void)
 {
-	//TRACE("[CListFrame]->refreshHeaderList \r\n");
+	//TRACE("[CListFrame]->refreshTitle \r\n");
 	if( frameBuffer == NULL) return;
-
+#if 0
 	frameBuffer->paintBoxRel(m_cFrameTitleRel.iX+m_cFrame.iX, m_cFrameTitleRel.iY+m_cFrame.iY,
 			m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR,
 			m_nBgRadius, CORNER_TOP);
@@ -367,6 +367,16 @@ void CListFrame::refreshTitle(void)
 			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight - OFFSET_INNER_MIN + m_cFrame.iY,
 			m_cFrameTitleRel.iWidth - 2*OFFSET_INNER_MID,
 			m_textTitle.c_str(), TITLE_FONT_COLOR);
+#endif
+	CComponentsText title (NULL, m_cFrameTitleRel.iX + m_cFrame.iX, m_cFrameTitleRel.iY+m_cFrame.iY, m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight);
+	title.setText(m_textTitle, CTextBox::CENTER, m_pcFontTitle, TITLE_FONT_COLOR);
+
+	int grad_mode = CC_COLGRAD_OFF;
+	if (g_settings.theme.menu_Head_gradient == CC_COLGRAD_COL_B_2_COL_A || g_settings.theme.menu_Head_gradient == CC_COLGRAD_LIGHT_2_DARK)
+		grad_mode = CC_COLGRAD_DARK_2_LIGHT;
+	title.enableColBodyGradient(grad_mode, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+
+	title.paint(false);
 }
 
 void CListFrame::refreshScroll(void)
