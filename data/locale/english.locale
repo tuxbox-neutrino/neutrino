@@ -1860,6 +1860,7 @@ moviebrowser.menu_copy_onefile Copy movie
 moviebrowser.menu_copy_several Copy and split movie
 moviebrowser.menu_cut Cut movie
 moviebrowser.menu_cut_head Copy, cut and truncate
+moviebrowser.menu_data_request Online database request
 moviebrowser.menu_directories_head Directories de/activate
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Movie info and settings

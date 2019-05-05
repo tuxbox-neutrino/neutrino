@@ -1860,6 +1860,7 @@ moviebrowser.menu_copy_onefile Film kopieren
 moviebrowser.menu_copy_several Film kopieren und teilen
 moviebrowser.menu_cut Film schneiden
 moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
+moviebrowser.menu_data_request Online-Datenbank abfragen
 moviebrowser.menu_directories_head Verzeichnisse de/aktivieren
 moviebrowser.menu_main_bookmarks Markierungen
 moviebrowser.menu_main_head Film-Info und Einstellungen
