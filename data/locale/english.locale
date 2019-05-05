@@ -1822,6 +1822,7 @@ moviebrowser.hint_truncate Truncating all data beyond the end-bookmark
 moviebrowser.imdb_data Get IMDb data
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
+moviebrowser.info_elapsed Last Play Stop
 moviebrowser.info_file File
 moviebrowser.info_filename Filename
 moviebrowser.info_genre_major Genre
@@ -1884,6 +1885,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Book
 moviebrowser.short_channel Channel
 moviebrowser.short_country Country
+moviebrowser.short_elapsed seen
 moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre

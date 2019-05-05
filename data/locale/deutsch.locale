@@ -1822,6 +1822,7 @@ moviebrowser.hint_truncate Entfernt den Filmteil hinter der Filmende-Markierung
 moviebrowser.imdb_data Lade IMDb-Daten
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
+moviebrowser.info_elapsed Letzer Wiedergabe Stop
 moviebrowser.info_file Datei
 moviebrowser.info_filename Dateiname
 moviebrowser.info_genre_major Genre
@@ -1884,6 +1885,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Mark.
 moviebrowser.short_channel Kanal
 moviebrowser.short_country Land
+moviebrowser.short_elapsed gesehen
 moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
