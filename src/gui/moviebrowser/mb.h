@@ -102,7 +102,7 @@ typedef struct
 	// to be added to config later
 	int lastPlayMaxItems;
 	int lastPlayRowNr;
-	MB_INFO_ITEM lastPlayRow[3];
+	MB_INFO_ITEM lastPlayRow[4];
 	int lastPlayRowWidth[3];
 
 	int lastRecordMaxItems;
