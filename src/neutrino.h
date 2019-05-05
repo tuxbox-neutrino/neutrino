@@ -228,7 +228,7 @@ public:
 	void stopPlayBack(bool lock = false);
 	bool adjustToChannelID(const t_channel_id channel_id);
 	//signal/event handler before restart of neutrino gui
-	sigc::signal<bool> OnBeforeRestart;
+	sigc::signal<void> OnBeforeRestart;
 	sigc::signal<void> OnShutDown;
 	sigc::signal<void> OnAfterSetupFonts;
 	void channelRezap();

@@ -125,7 +125,7 @@ void CComponentsTimer::initThread()
 			dprintf(DEBUG_DEBUG,"\033[33m[CComponentsTimer] [%s - %d] started thread ID:%ld \033[0m\n", __func__, __LINE__, pthread_self());
 
 		if (res == 0)
-			CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl_stop_timer);
+			CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sigc::retype_return<void>(sl_stop_timer));
 	}
 }
 

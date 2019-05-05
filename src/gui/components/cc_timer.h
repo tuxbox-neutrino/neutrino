@@ -30,6 +30,7 @@
 #endif
 
 #include <sigc++/signal.h>
+#include <sigc++/adaptors/retype_return.h>
 #include <OpenThreads/ScopedLock>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
