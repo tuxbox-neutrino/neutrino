@@ -131,6 +131,7 @@ std::string to_string(long);
 std::string to_string(unsigned long);
 std::string to_string(long long);
 std::string to_string(unsigned long long);
+std::string to_string(char);
 #else
 /* hack... */
 #define to_string(x) std::to_string(x)
