@@ -97,7 +97,7 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 //printf("\n>>>>>[%s:%d] New res: %dx%dx%d\n \n", __func__, __LINE__, resW, resH, bpp);
 			g_settings.osd_resolution = modeNew;
 			if (InfoClock)
-				InfoClock->enableInfoClock(false);
+				InfoClock->disableInfoClock();
 			frameBuffer->Clear();
 			if (resetOsd) {
 				CNeutrinoApp::getInstance()->setScreenSettings();
@@ -111,7 +111,7 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 					CNeutrinoApp::getInstance()->channelList->ResetModules();
 			}
 			if (InfoClock)
-				InfoClock->enableInfoClock(true);
+				InfoClock->enableInfoClock();
 		}
 		if (g_InfoViewer) {
 			g_InfoViewer->ResetModules();
