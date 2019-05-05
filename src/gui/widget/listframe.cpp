@@ -369,13 +369,9 @@ void CListFrame::refreshTitle(void)
 			m_cFrameTitleRel.iWidth - 2*OFFSET_INNER_MID,
 			m_textTitle.c_str(), TITLE_FONT_COLOR);
 #endif
-	CComponentsText title (NULL, m_cFrameTitleRel.iX + m_cFrame.iX, m_cFrameTitleRel.iY+m_cFrame.iY, m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight);
-	title.setText(m_textTitle, CTextBox::CENTER, m_pcFontTitle, TITLE_FONT_COLOR);
-
-	int grad_mode = CC_COLGRAD_OFF;
-	if (g_settings.theme.menu_Head_gradient == CC_COLGRAD_COL_B_2_COL_A || g_settings.theme.menu_Head_gradient == CC_COLGRAD_LIGHT_2_DARK)
-		grad_mode = CC_COLGRAD_DARK_2_LIGHT;
-	title.enableColBodyGradient(grad_mode, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+	CComponentsText title (NULL, m_cFrameTitleRel.iX + m_cFrame.iX, m_cFrameTitleRel.iY+m_cFrame.iY, m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight,
+			m_textTitle, CTextBox::CENTER, m_pcFontTitle, CComponentsText::FONT_STYLE_REGULAR, CC_SHADOW_OFF, TITLE_FONT_COLOR, COL_FRAME_PLUS_0, TITLE_BACKGROUND_COLOR);
+	title.enableColBodyGradient(g_settings.theme.menu_SubHead_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_SubHead_gradient_direction);
 
 	title.paint(false);
 }
