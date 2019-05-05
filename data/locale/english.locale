@@ -1759,6 +1759,7 @@ moviebrowser.book_type Jump (<0: backward, >0: forward):
 moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward Jump over
 moviebrowser.browser_additional Additional informations
+moviebrowser.browser_cut_long_rowtext Cut long row text
 moviebrowser.browser_frame_high Browser height [%]
 moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
