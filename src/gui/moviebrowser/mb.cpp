@@ -171,7 +171,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 	LOCALE_MOVIEBROWSER_SHORT_RATING,
 	LOCALE_MOVIEBROWSER_SHORT_SPACER,
 	LOCALE_MOVIEBROWSER_SHORT_RECORDTIME,
-	NONEXISTANT_LOCALE,
+	LOCALE_MOVIEBROWSER_SHORT_ELAPSED,
 	NONEXISTANT_LOCALE
 };
 
@@ -1881,7 +1881,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 	{
 		m_pcBrowser->cleanupRow(&m_browserListLines, row);
 		m_browserListLines.rowWidth[row] = m_settings.browserRowWidth[row];
-		m_browserListLines.lineHeader[row] = m_localizedItemName[m_settings.browserRowItem[row]] == NONEXISTANT_LOCALE ? "" :  g_Locale->getText(m_localizedItemName[m_settings.browserRowItem[row]]);
+		m_browserListLines.lineHeader[row] = g_Locale->getText(m_localizedItemName[m_settings.browserRowItem[row]]);
 	}
 	m_browserListLines.Icon.clear();
 	m_browserListLines.marked.clear();
