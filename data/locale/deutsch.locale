@@ -1820,7 +1820,6 @@ moviebrowser.hint_movieend Filmende in 5 Sekunden\n'0' zum Weitersehen
 moviebrowser.hint_newbook_backward Neue Wiederholung gestartet.\n'%s' bestimmt die Endposition, '0' bricht ab.
 moviebrowser.hint_newbook_forward Neuer Werbesprung gestartet.\n'%s' bestimmt die Endposition, '0' bricht ab.
 moviebrowser.hint_truncate Entfernt den Filmteil hinter der Filmende-Markierung
-moviebrowser.imdb_data Lade IMDb-Daten
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
 moviebrowser.info_elapsed Letzer Wiedergabe Stop

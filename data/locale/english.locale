@@ -1820,7 +1820,6 @@ moviebrowser.hint_movieend Film end in 5 seconds\n'0' to cancel
 moviebrowser.hint_newbook_backward New jump back started\n'%s' to define endposition, '0' to cancel
 moviebrowser.hint_newbook_forward New jump forward started\n'%s' to define endposition, '0' to cancel
 moviebrowser.hint_truncate Truncating all data beyond the end-bookmark
-moviebrowser.imdb_data Get IMDb data
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_elapsed Last Play Stop

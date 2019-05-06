@@ -782,7 +782,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			size_t pos;
 			std::string element;
 
-			CHintBox hintBox(LOCALE_MOVIEBROWSER_HEAD, g_Locale->getText(LOCALE_MOVIEBROWSER_IMDB_DATA));
+			CHintBox hintBox(LOCALE_MOVIEBROWSER_HEAD, LOCALE_MOVIEBROWSER_MENU_DATA_REQUEST);
 			hintBox.paint();
 
 			std::string title = m_movieSelectionHandler->epgTitle;

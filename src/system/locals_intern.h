@@ -1847,7 +1847,6 @@ const char * locale_real_names[] =
 	"moviebrowser.hint_newbook_backward",
 	"moviebrowser.hint_newbook_forward",
 	"moviebrowser.hint_truncate",
-	"moviebrowser.imdb_data",
 	"moviebrowser.info_audio",
 	"moviebrowser.info_channel",
 	"moviebrowser.info_elapsed",
