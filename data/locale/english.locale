@@ -1886,7 +1886,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Book
 moviebrowser.short_channel Channel
 moviebrowser.short_country Country
-moviebrowser.short_elapsed seen
+moviebrowser.short_elapsed 
 moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
