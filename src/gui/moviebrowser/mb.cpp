@@ -1945,6 +1945,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 				else
 				{
 					seen = new CComponentsPicture(0, 0, 0, m_pcBrowser->getLineHeight(), NEUTRINO_ICON_MARKER_DIALOG_OK);
+					seen->doPaintBg(false);
 					m_pcBrowser->addLine2Row(&m_browserListLines, row, string_item, seen);
 				}
 			}
