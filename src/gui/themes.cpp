@@ -511,7 +511,7 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.progressbar_passive_blue = configfile.getInt32( "progressbar_passive_blue", 60 );
 
 	// corners
-	t.rounded_corners = configfile.getInt32( "rounded_corners", 1);
+	t.rounded_corners = configfile.getInt32( "rounded_corners", 0);
 
 	if (g_settings.theme_name.empty())
 		applyDefaultTheme();
