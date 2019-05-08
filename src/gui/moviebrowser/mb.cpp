@@ -428,6 +428,18 @@ void CMovieBrowser::init(void)
 	imdb = CIMDB::getInstance();
 }
 
+void CMovieBrowser::initGlobalStorageSettings(void)
+{
+	m_settings.store.storageDirMovieUsed = true;
+	m_settings.store.storageDirRecUsed = true;
+
+	for (int i = 0; i < MB_MAX_DIRS; i++)
+	{
+		m_settings.store.storageDir[i] = "";
+		m_settings.store.storageDirUsed[i] = 0;
+	}
+}
+
 void CMovieBrowser::initGlobalSettings(void)
 {
 	//TRACE("[mb]->initGlobalSettings\n");
@@ -450,17 +462,11 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.parentalLockAge = MI_PARENTAL_OVER18;
 	m_settings.parentalLock = MB_PARENTAL_LOCK_OFF;
 
-	m_settings.storageDirMovieUsed = true;
-	m_settings.storageDirRecUsed = true;
-
 	m_settings.reload = true;
 	m_settings.remount = false;
 
-	for (int i = 0; i < MB_MAX_DIRS; i++)
-	{
-		m_settings.storageDir[i] = "";
-		m_settings.storageDirUsed[i] = 0;
-	}
+	// storage
+	initGlobalStorageSettings();
 
 	/***** Browser List **************/
 	m_settings.browserFrameHeight = 65; /* percent */
@@ -638,16 +644,16 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->parentalLockAge = (MI_PARENTAL_LOCKAGE)configfile.getInt32("mb_parentalLockAge", MI_PARENTAL_OVER18);
 	settings->parentalLock = (MB_PARENTAL_LOCK)configfile.getInt32("mb_parentalLock", MB_PARENTAL_LOCK_ACTIVE);
 
-	settings->storageDirRecUsed = (bool)configfile.getInt32("mb_storageDir_rec", true);
-	settings->storageDirMovieUsed = (bool)configfile.getInt32("mb_storageDir_movie", true);
+	settings->store.storageDirRecUsed = (bool)configfile.getInt32("mb_storageDir_rec", true);
+	settings->store.storageDirMovieUsed = (bool)configfile.getInt32("mb_storageDir_movie", true);
 
 	settings->reload = (bool)configfile.getInt32("mb_reload", true);
 	settings->remount = (bool)configfile.getInt32("mb_remount", false);
 
 	for (int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		settings->storageDir[i] = configfile.getString("mb_dir_" + to_string(i), "");
-		settings->storageDirUsed[i] = configfile.getInt32("mb_dir_used" + to_string(i), false);
+		settings->store.storageDir[i] = configfile.getString("mb_dir_" + to_string(i), "");
+		settings->store.storageDirUsed[i] = configfile.getInt32("mb_dir_used" + to_string(i), false);
 	}
 	/* these variables are used for the listframes */
 	settings->browserFrameHeight = configfile.getInt32("mb_browserFrameHeight", 50);
@@ -703,8 +709,8 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setString("mb_filter_optionString", settings->filter.optionString);
 	configfile.setInt32("mb_filter_optionVar", settings->filter.optionVar);
 
-	configfile.setInt32("mb_storageDir_rec", settings->storageDirRecUsed);
-	configfile.setInt32("mb_storageDir_movie", settings->storageDirMovieUsed);
+	configfile.setInt32("mb_storageDir_rec", settings->store.storageDirRecUsed);
+	configfile.setInt32("mb_storageDir_movie", settings->store.storageDirMovieUsed);
 
 	configfile.setInt32("mb_parentalLockAge", settings->parentalLockAge);
 	configfile.setInt32("mb_parentalLock", settings->parentalLock);
@@ -714,8 +720,8 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 
 	for (int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		configfile.setString("mb_dir_" + to_string(i), settings->storageDir[i]);
-		configfile.setInt32("mb_dir_used" + to_string(i), settings->storageDirUsed[i]); // do not save this so far
+		configfile.setString("mb_dir_" + to_string(i), settings->store.storageDir[i]);
+		configfile.setInt32("mb_dir_used" + to_string(i), settings->store.storageDirUsed[i]); // do not save this so far
 	}
 	/* these variables are used for the listframes */
 	configfile.setInt32("mb_browserFrameHeight", settings->browserFrameHeight);
@@ -2899,20 +2905,20 @@ void CMovieBrowser::updateDir(void)
 	if (g_settings.network_nfs_moviedir[0] != 0)
 	{
 		std::string name = g_settings.network_nfs_moviedir;
-		addDir(name,&m_settings.storageDirMovieUsed);
+		addDir(name,&m_settings.store.storageDirMovieUsed);
 	}
 #endif
 	// check if there is a record dir and if we should use it
 	if (!g_settings.network_nfs_recordingdir.empty())
 	{
-		addDir(g_settings.network_nfs_recordingdir, &m_settings.storageDirRecUsed);
+		addDir(g_settings.network_nfs_recordingdir, &m_settings.store.storageDirRecUsed);
 		cHddStat::getInstance()->statOnce();
 	}
 
 	for (int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		if (!m_settings.storageDir[i].empty())
-			addDir(m_settings.storageDir[i],&m_settings.storageDirUsed[i]);
+		if (!m_settings.store.storageDir[i].empty())
+			addDir(m_settings.store.storageDir[i],&m_settings.store.storageDirUsed[i]);
 	}
 }
 
@@ -3531,21 +3537,21 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	/**  optionsVerzeichnisse  **************************************************/
 	CMenuWidget optionsMenuDir(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 	optionsMenuDir.addIntroItems(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD);
-	optionsMenuDir.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_REC_DIR,       (int*)(&m_settings.storageDirRecUsed), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
+	optionsMenuDir.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_REC_DIR,       (int*)(&m_settings.store.storageDirRecUsed), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
 	optionsMenuDir.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR, false, g_settings.network_nfs_recordingdir));
 
-	optionsMenuDir.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_MOVIE_DIR,     (int*)(&m_settings.storageDirMovieUsed), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
+	optionsMenuDir.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_MOVIE_DIR,     (int*)(&m_settings.store.storageDirMovieUsed), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
 	optionsMenuDir.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR, false, g_settings.network_nfs_moviedir));
 	optionsMenuDir.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_DIRECTORIES_ADDITIONAL));
 
 	COnOffNotifier* notifier[MB_MAX_DIRS];
 	for (i = 0; i < MB_MAX_DIRS ; i++)
 	{
-		CFileChooser *dirInput =  new CFileChooser(&m_settings.storageDir[i]);
-		CMenuForwarder *forwarder = new CMenuDForwarder(LOCALE_MOVIEBROWSER_DIR,        m_settings.storageDirUsed[i], m_settings.storageDir[i],      dirInput);
+		CFileChooser *dirInput =  new CFileChooser(&m_settings.store.storageDir[i]);
+		CMenuForwarder *forwarder = new CMenuDForwarder(LOCALE_MOVIEBROWSER_DIR,        m_settings.store.storageDirUsed[i], m_settings.store.storageDir[i],      dirInput);
 		notifier[i] =  new COnOffNotifier();
 		notifier[i]->addItem(forwarder);
-		CMenuOptionChooser *chooser =   new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_DIR, &m_settings.storageDirUsed[i], MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true,notifier[i]);
+		CMenuOptionChooser *chooser =   new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_DIR, &m_settings.store.storageDirUsed[i], MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true,notifier[i]);
 		optionsMenuDir.addItem(chooser);
 		optionsMenuDir.addItem(forwarder);
 		if (i != (MB_MAX_DIRS - 1))

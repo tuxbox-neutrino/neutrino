@@ -69,7 +69,16 @@
 
 #define MB_MAX_ROWS LF_MAX_ROWS
 #define MB_MAX_DIRS NETWORK_NFS_NR_OF_ENTRIES
+
 /* MB_SETTINGS to be stored in g_settings anytime ....*/
+struct MBStorageSettings
+{
+	std::string storageDir[MB_MAX_DIRS];
+	int storageDirUsed[MB_MAX_DIRS];
+	int storageDirRecUsed;
+	int storageDirMovieUsed;
+};
+
 typedef struct
 {
 	// moviebrowser
@@ -79,10 +88,7 @@ typedef struct
 	MI_PARENTAL_LOCKAGE parentalLockAge ;//MI_PARENTAL_LOCKAGE
 	MB_PARENTAL_LOCK parentalLock;//MB_PARENTAL_LOCK
 
-	std::string storageDir[MB_MAX_DIRS];
-	int storageDirUsed[MB_MAX_DIRS];
-	int storageDirRecUsed;
-	int storageDirMovieUsed;
+	MBStorageSettings store;
 
 	int reload;
 	int remount;
@@ -123,6 +129,7 @@ typedef struct
 	std::string ytthumbnaildir;
 	std::list<std::string> ytsearch_history;
 } MB_SETTINGS;
+
 
 class CMovieBrowser;
 
@@ -282,6 +289,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		///// MovieBrowser init ///////////////
 		void init(void); //P1
 		void initGlobalSettings(void); //P1
+		void initGlobalStorageSettings(void);
 		void initFrames(void);
 		void initRows(void);
 		void reinit(void); //P1
