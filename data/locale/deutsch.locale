@@ -1861,6 +1861,7 @@ moviebrowser.menu_cut Film schneiden
 moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
 moviebrowser.menu_data_request Online-Datenbank abfragen
 moviebrowser.menu_directories_head Verzeichnisse de/aktivieren
+moviebrowser.menu_edit bearbeiten
 moviebrowser.menu_main_bookmarks Markierungen
 moviebrowser.menu_main_head Film-Info und Einstellungen
 moviebrowser.menu_nfs_head NFS Einstellung

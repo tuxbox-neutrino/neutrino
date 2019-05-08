@@ -1861,6 +1861,7 @@ moviebrowser.menu_cut Cut movie
 moviebrowser.menu_cut_head Copy, cut and truncate
 moviebrowser.menu_data_request Online database request
 moviebrowser.menu_directories_head Directories de/activate
+moviebrowser.menu_edit edit
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Movie info and settings
 moviebrowser.menu_nfs_head NFS settings

@@ -1888,6 +1888,7 @@ const char * locale_real_names[] =
 	"moviebrowser.menu_cut_head",
 	"moviebrowser.menu_data_request",
 	"moviebrowser.menu_directories_head",
+	"moviebrowser.menu_edit",
 	"moviebrowser.menu_main_bookmarks",
 	"moviebrowser.menu_main_head",
 	"moviebrowser.menu_nfs_head",
