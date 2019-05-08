@@ -1875,6 +1875,7 @@ moviebrowser.menu_save Save changes
 moviebrowser.menu_save_all Start update of movie info files
 moviebrowser.menu_settings Settings
 moviebrowser.menu_truncate Truncate movie
+moviebrowser.message_keep_storage_settings Do You want to keep storage settings for used and enabled directories?
 moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
 moviebrowser.remount_at_start Remount at start

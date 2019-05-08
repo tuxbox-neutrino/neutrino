@@ -600,9 +600,21 @@ void CMovieBrowser::initRows(void)
 
 void CMovieBrowser::defaultSettings(MB_SETTINGS* /*settings*/)
 {
+	MBStorageSettings tmp_store;
+	bool keep = false;
+
+	if (ShowMsg(LOCALE_MOVIEBROWSER_LOAD_DEFAULT, LOCALE_MOVIEBROWSER_MESSAGE_KEEP_STORAGE_SETTINGS, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_QUESTION) == CMsgBox::mbrYes)
+	{
+		tmp_store = m_settings.store;
+		keep = true;
+	}
+
 	unlink(MOVIEBROWSER_SETTINGS_FILE);
 	configfile.clear();
 	initGlobalSettings();
+
+	if (keep)
+		m_settings.store = tmp_store;
 }
 
 bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)

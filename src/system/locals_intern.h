@@ -1902,6 +1902,7 @@ const char * locale_real_names[] =
 	"moviebrowser.menu_save_all",
 	"moviebrowser.menu_settings",
 	"moviebrowser.menu_truncate",
+	"moviebrowser.message_keep_storage_settings",
 	"moviebrowser.option_browser",
 	"moviebrowser.reload_at_start",
 	"moviebrowser.remount_at_start",
