@@ -1141,6 +1141,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 							case CZapitClient::EVT_PMT_CHANGED:
 								*msg          = NeutrinoMessages::EVT_PMT_CHANGED;
 								*data = (neutrino_msg_data_t) p;
+								dont_delete_p = true;
 								break;
 							case CZapitClient::EVT_TUNE_COMPLETE:
 								*msg          = NeutrinoMessages::EVT_TUNE_COMPLETE;

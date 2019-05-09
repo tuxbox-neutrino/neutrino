@@ -3762,6 +3762,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if( msg == NeutrinoMessages::EVT_PMT_CHANGED) {
 		t_channel_id channel_id = *(t_channel_id*) data;
 		CRecordManager::getInstance()->Update(channel_id);
+		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
 
