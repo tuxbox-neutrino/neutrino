@@ -138,7 +138,7 @@ class CServiceScan : public OpenThreads::Thread
 		void AddServiceType(t_channel_id channel_id, uint8_t service_type);
 
 		bool Scanning() { return running; };
-		void Abort() { abort_scan = 1; };
+		void Abort() { abort_scan = true; };
 		bool Aborted() { return abort_scan; };
 
 		bool SetFrontend(t_satellite_position satellitePosition);

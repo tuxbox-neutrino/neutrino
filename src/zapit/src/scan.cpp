@@ -60,6 +60,7 @@ CServiceScan::CServiceScan()
 {
 	started = false;
 	running = false;
+	abort_scan = false;
 
 	cable_nid = 0;
 	fst_version = 0;
@@ -120,7 +121,7 @@ void CServiceScan::run()
 			fst_version = 0;
 			ScanTransponder();
 			break;
-#if 0
+#if ENABLE_FASTSCAN
 		case SCAN_FAST:
 			ScanFast();
 			break;
