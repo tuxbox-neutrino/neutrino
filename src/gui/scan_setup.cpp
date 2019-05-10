@@ -617,7 +617,7 @@ int CScanSetup::showScanMenu()
 		//fast scan
 		CMenuWidget * fastScanMenu = new CMenuWidget(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_FAST_SCAN);
 		addScanMenuFastScan(fastScanMenu);
-		mf = new CMenuDForwarder(LOCALE_SATSETUP_FASTSCAN_HEAD, true, NULL, fastScanMenu, "", CRCInput::RC_blue);
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_FASTSCAN_HEAD, true, NULL, fastScanMenu, "", CRCInput::RC_0);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FAST);
 		settings->addItem(mf);
 #endif
