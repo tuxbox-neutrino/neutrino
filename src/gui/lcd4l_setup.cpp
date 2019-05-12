@@ -222,6 +222,8 @@ int CLCD4lSetup::show()
 		delete lcd_clock_a;
 	if (lcd4lSetup)
 		delete lcd4lSetup;
+	if(lcd_weather)
+		delete lcd_weather;
 
 	// the things to do on exit
 
