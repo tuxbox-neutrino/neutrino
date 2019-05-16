@@ -2217,7 +2217,7 @@ bool CStreamRec::Open(CZapitChannel * channel)
 #if (LIBAVFORMAT_VERSION_MAJOR < 58)
 	snprintf(ofcx->filename, sizeof(ofcx->filename), "%s", tsfile.c_str());
 #else
-	snprintf(ofcx->url, tsfile.size() + 1, "%s", tsfile.c_str());
+	ofcx->url = av_strdup(!tsfile.empty() ? tsfile.c_str() : "");
 #endif
 
 	stream_index = -1;
