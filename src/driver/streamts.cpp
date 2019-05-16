@@ -858,7 +858,7 @@ bool CStreamStream::Open()
 	snprintf(ifcx->filename, sizeof(ifcx->filename), "%s", channel->getUrl().c_str());
 	av_dump_format(ifcx, 0, ifcx->filename, 0);
 #else
-	snprintf(ifcx->url, channel->getUrl().size() + 1, "%s", channel->getUrl().c_str());
+	ifcx->url = av_strdup(!channel->getUrl().empty() ? channel->getUrl().c_str() : "");
 	av_dump_format(ifcx, 0, ifcx->url, 0);
 #endif
 
