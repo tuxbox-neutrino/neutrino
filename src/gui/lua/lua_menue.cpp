@@ -433,7 +433,7 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 					const char *val = lua_tostring(L, -2);
 					kext[j].key = atoi(key);
 					kext[j].value = NONEXISTANT_LOCALE;
-					kext[j].valname = strdup(val);
+					kext[j].valname = strdup(val?val:"ERROR");
 					D->tofree.push_back((void *)kext[j].valname);
 					if (!strcmp(value.c_str(), kext[j].valname))
 						b->int_val = kext[j].key;
