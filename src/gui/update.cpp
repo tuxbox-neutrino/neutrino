@@ -635,6 +635,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	else if (fileType == 'Z') // flashing image with ofgwrite
 	{
+		bool flashing = false;
 		showGlobalStatus(100);
 
 		// create settings package
@@ -655,15 +656,42 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		// get active partition
 		char c[2] = {0};
 		FILE *f;
-		f = fopen("/sys/firmware/devicetree/base/chosen/kerneldev", "r");
+		char line[1024];
+		char *pch;
+		// first check for hd51 new layout
+		f = fopen("/sys/firmware/devicetree/base/chosen/bootargs", "r");
 		if (f)
 		{
-			if (fseek(f, -2, SEEK_END) == 0)
+			if (fgets (line , sizeof(line), f) != NULL)
 			{
-				c[0] = fgetc(f);
-				dprintf(DEBUG_NORMAL, "[update] Current partition: %s\n", c);
+				pch = strtok(line, " =");
+				while (pch != NULL)
+				{
+					if (strncmp("linuxrootfs", pch, 11) == 0)
+					{
+						strncpy(c, pch + 11, 1);
+						c[1] = '\0';
+						dprintf(DEBUG_NORMAL, "[update] Current partition: %s\n", c);
+						break;
+					}
+					pch = strtok(NULL, " =");
+				}
 			}
 			fclose(f);
+		}
+		// if no new layout
+		if (!atoi(c))
+		{
+			f = fopen("/sys/firmware/devicetree/base/chosen/kerneldev", "r");
+			if (f)
+			{
+				if (fseek(f, -2, SEEK_END) == 0)
+				{
+					c[0] = fgetc(f);
+					dprintf(DEBUG_NORMAL, "[update] Current partition: %s\n", c);
+				}
+				fclose(f);
+			}
 		}
 
 		// select partition
@@ -695,6 +723,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		std::string ofgwrite_options("");
 		if (selected > 0 && strcmp(c, to_string(selected).c_str()))
 		{
+			flashing = true;
 			// align ofgwrite options
 			ofgwrite_options = "-m" + to_string(selected);
 			dprintf(DEBUG_NORMAL, "[update] ofgwrite_options: %s\n", ofgwrite_options.c_str());
@@ -713,15 +742,19 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 				fh.copyFile(startup_new.c_str(), "/boot/STARTUP");
 #endif
 			}
+		} else if (selected > 0 && strcmp(c, to_string(selected).c_str()) == 0) {
+			flashing = true;
+			ofgwrite_options = "-m" + to_string(selected);
 		}
-
-		ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_START_OFGWRITE);
+		if (flashing)
+			ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_START_OFGWRITE);
 		hide();
 
 		const char ofgwrite_tgz[] = "/bin/ofgwrite_tgz";
 		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s %s\n", ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 #ifndef DRYRUN
-		my_system(4, ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
+		if (flashing)
+			my_system(4, ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 
 		/*
 		   TODO: fix osd-flickering
