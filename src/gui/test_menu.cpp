@@ -437,25 +437,23 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (sq == NULL)
 			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
 
-		if (sq->paintBlink(500000, true)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking square is running ...", 700, 6);
-		}
-		if (sq->cancelBlink()){
+		sq->paintBlink(50, true);
+			sleep(10);
+
+		if (sq->cancelBlink())
 			ShowHint("Testmenu: Blink","Testmenu: Blinking square stopped ...", 700, 2);
-		}
 
 		return res;
 	}
 	else if (actionKey == "blink_image"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/btn_play.png");
+			pic = new CComponentsPicture (50, 50, 50, 50, ICONSDIR "/btn_pause.png");
 
-		if (pic->paintBlink(500000, true)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
-		}
-		if (pic->cancelBlink()){
+		pic->paintBlink(50, true);
+			sleep(10);
+
+		if (pic->cancelBlink())
 			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
-		}
 
 		return res;
 	}
@@ -530,7 +528,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			ptmp->kill();
 		}
 
-		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(500000, true)){
+		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(50, true)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image ...", 700, 10);
 		}
 		if (form->getCCItem(0)->cancelBlink()){
@@ -557,11 +555,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "blinking_text"){
 		if (txt == NULL){
 			txt = new CComponentsText();
-			txt->setDimensionsAll(100, 100, 250, 100);
+			txt->setDimensionsAll(50, 50, 250, 100);
 			txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
 		}
 
-		if (txt->paintBlink(500000, true)){
+		if (txt->paintBlink(50, true)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking text is running ...", 700, 10);
 		}
 		if (txt->cancelBlink()){
@@ -592,7 +590,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			text_ext->setFrameThickness(2);
 		}
 
-		if (text_ext->paintBlink(500000, true)){
+		if (text_ext->paintBlink(50, true)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text is running ...", 700, 10);
 		}
 		if (text_ext->cancelBlink()){
@@ -739,7 +737,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CComponentsPicture* img = static_cast<CComponentsPicture*>(iconform->getCCItem(2));
 		img->kill();
 
-		if (img->paintBlink(500000, true)){
+		if (img->paintBlink(50, true)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
 		}
 		if (img->cancelBlink(true)){
