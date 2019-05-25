@@ -45,6 +45,7 @@
 #include <driver/screen_max.h>
 
 #include <algorithm>
+#include <cmath>
 //#include <cstdlib>
 #include "mb.h"
 #include "mb_functions.h"
@@ -1955,16 +1956,20 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 				 * NOTE: Get threshold offset from record safety settings to trigger the "seen" tag.
 				 * Better solutions are welcome!
 				*/
-				int pre = 0,post = 0;
+				int pre = 0, post = 0;
+				float trigger_offset = 0;
 				g_Timerd->getRecordingSafety(pre,post);
-				g_settings.record_safety_time_before = pre/60;
-				g_settings.record_safety_time_after = post/60;
-				int trigger_offset = (g_settings.record_safety_time_before + g_settings.record_safety_time_after) * m_vHandleBrowserList[handle]->length / 100;
+
+				if (post < 120)
+					post = 120;
+
+				if (m_vHandleBrowserList[handle]->length * 60 > post)
+					trigger_offset = round((float)post * 100.0 / (m_vHandleBrowserList[handle]->length * 60.0));
 
 				int elapsed_percent = atoi(string_item);
 				string_item.clear(); // reset not needed
 
-				if (elapsed_percent < 100-trigger_offset)
+				if ((float)elapsed_percent < 100.0-trigger_offset)
 				{
 					if (elapsed_percent > 0)
 					{
