@@ -1,4 +1,16 @@
 #!/bin/sh
 
-service tuxcald start
-service tuxmaild start
+# wakeup Tuxmail
+if [ -e /var/etc/.tuxmaild ]; then
+	kill -10 `pidof tuxmaild`
+fi
+
+# wakeup TuxCal
+if [ -e /tmp/tuxcald.pid ]; then
+	kill -usr1 $(cat /tmp/tuxcald.pid);
+fi
+
+sync
+sync
+
+exit 0

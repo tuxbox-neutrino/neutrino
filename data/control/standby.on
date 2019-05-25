@@ -1,4 +1,13 @@
 #!/bin/sh
 
-service tuxcald stop
-service tuxmaild stop
+# TuxMail pause
+if [ -e /var/etc/.tuxmaild ]; then
+	kill -12 `pidof tuxmaild`
+fi
+
+# TuxCal pause
+if [ -e /var/etc/.tuxcald ]; then
+	kill -usr2 $(cat /tmp/tuxcald.pid)
+fi
+
+exit 0
