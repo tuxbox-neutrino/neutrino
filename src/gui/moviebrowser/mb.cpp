@@ -4005,7 +4005,9 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			*item_string = "";
 			if (movie_info.bookmarks.lastPlayStop > 0 && movie_info.length > 0)
 			{
-				int pos = movie_info.bookmarks.lastPlayStop/60 * 100 / movie_info.length;
+				int pos = movie_info.bookmarks.lastPlayStop * 100 / (movie_info.length * 60);
+				if (pos > 100)
+					pos = 100;
 				*item_string = to_string(pos);
 			}
 			break;
