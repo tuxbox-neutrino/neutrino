@@ -340,7 +340,7 @@ colormenu.background Hintergrundfarbe
 colormenu.clock_textcolor Ziffernfarbe
 colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
-colormenu.font_ttx Teletext Schriftart
+colormenu.font_ttx Videotext Schriftart
 colormenu.menucolors Themes
 colormenu.osd_preset Monitor Auswahl
 colormenu.osd_resolution OSD-Auflösung
@@ -433,7 +433,7 @@ eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
 extra.add_to_bouquet dem Bouquet zufügen
-extra.cache_txt Teletext zwischenspeichern
+extra.cache_txt Videotext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt ...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet.\n
 extra.dboxinfo Box-Info
@@ -1083,7 +1083,7 @@ menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
 menu.hint_buildinfo Informationen über Compiler, Compilerflags, Kernel
-menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kanalwechsel
+menu.hint_cache_txt Startet das Zwischenspeichern des Videotextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
@@ -1153,7 +1153,7 @@ menu.hint_fileplay_video Abspielen verschiedener Video-Dateien
 menu.hint_filesystem_is_utf8 Kodierung für Unicode-Zeichen im Filebrowser
 menu.hint_font_gui Wählen Sie die Schriftart für die Menüs
 menu.hint_font_scaling Legen Sie die vertikale und horizontale Skalierung der Menüschrift fest
-menu.hint_font_ttx Wählen Sie die Schriftart für den Teletext
+menu.hint_font_ttx Wählen Sie die Schriftart für den Videotext
 menu.hint_fonts Konfigurieren Sie die Schriftart und die Schriftgrößen für die Menüs
 menu.hint_foot_back Ändern Sie die Fußleisten-Hintergrundfarbe
 menu.hint_foot_textcolor Ändern Sie die Fußleisten-Textfarbe
@@ -1294,7 +1294,7 @@ menu.hint_misc_channellist Erweiterte Einstellungen für die Kanallisten und Zap
 menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Ausschalten, setzen bzw. ändern des Inaktivitätstimers
 menu.hint_misc_epg Diverse EPG-Einstellungen und Speicherverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, Startverzeichnisoptionen
-menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
+menu.hint_misc_general Standby-, Videotext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
 menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie Wetter, YouTube, SHOUTCast und TMDb
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
@@ -1391,9 +1391,9 @@ menu.hint_record_apids Konfigurieren Sie die Tonspuren für die Aufnahme
 menu.hint_record_apply Hiermit werden die Aufnahmeoptionen übernommen
 menu.hint_record_auto_cover Automatisch ein Film-Vorschaubild beim Abspielen erzeugen
 menu.hint_record_chandir Diese Option speichert Aufnahmen mit dem Namen des Kanals in ein eigenes Verzeichnis
-menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
+menu.hint_record_data Daten-Spuren (Videotext, Untertitel) für die Aufnahme
 menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
-menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
+menu.hint_record_data_vtxt Videotext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
 menu.hint_record_end Wählen Sie zwischen maximaler Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
 menu.hint_record_filename_template Vorlagemuster für den Dateinamen bearbeiten
@@ -2236,7 +2236,7 @@ recordingmenu.slow_warn Warnung bei langsamen Aufnahmemedien
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
 recordingmenu.vcr Videorekorder
-recordingmenu.vtxt_pid Teletext aufnehmen
+recordingmenu.vtxt_pid Videotext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
 remotebox_add Hinzufügen
@@ -2578,7 +2578,7 @@ usermenu.item_bar ---- Trennung ----
 usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none (frei)
 usermenu.item_plugin_types Plugin-Typen
-usermenu.item_vtxt Teletext
+usermenu.item_vtxt Videotext
 usermenu.items Menüpunkte
 usermenu.key Taste
 usermenu.key_select Taste zuweisen
