@@ -158,7 +158,7 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_ha
 	printf("try to get [%s] ...\n", url.c_str());
 	CURLcode httpres = curl_easy_perform(_curl_handle);
 
-	printf("http: res %d size %d\n", httpres, (int)answer.size());
+	printf("https: res %d size %d\n", httpres, (int)answer.size());
 
 	if (httpres != 0 || answer.empty()) {
 		printf("error: %s\n", cerror);
@@ -203,7 +203,7 @@ bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl
 	curl_easy_getinfo(_curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
 	fclose(fp);
 
-	printf("http: res %d size %g.\n", httpres, dsize);
+	printf("https: res %d size %g.\n", httpres, dsize);
 
 	if (httpres != 0) {
 		printf("curl error: %s\n", cerror);
@@ -587,7 +587,7 @@ bool cYTFeedParser::ParseVideoInfo(cYTVideoInfo &vinfo, CURL *_curl_handle)
 	estr.push_back("&el=detailpage");
 
 	for (unsigned i = 0; i < estr.size(); i++) {
-		std::string vurl = "http://www.youtube.com/get_video_info?video_id=";
+		std::string vurl = "https://www.youtube.com/get_video_info?video_id=";
 		vurl += vinfo.id;
 		vurl += estr[i];
 		vurl += "&ps=default&eurl=&gl=US&hl=en";
