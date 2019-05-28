@@ -78,6 +78,7 @@ class CFile
 			FILE_VOB,
 			FILE_WAV,
 			FILE_XML,
+			FILE_ZIP_PACKAGE,
 			STREAM_AUDIO,
 			STREAM_PICTURE
 		};

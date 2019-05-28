@@ -84,7 +84,8 @@ static const file_ext_s file_ext[] =
 	{ "url",	CFile::STREAM_AUDIO	},
 	{ "vob",	CFile::FILE_VOB		},
 	{ "wav",	CFile::FILE_WAV		},
-	{ "xml",	CFile::FILE_XML		}
+	{ "xml",	CFile::FILE_XML		},
+	{ "zip",	CFile::FILE_ZIP_PACKAGE	}
 };
 
 int mycasecmp(const void * a, const void * b)
