@@ -370,7 +370,8 @@ void CListFrame::refreshTitle(void)
 			m_textTitle.c_str(), TITLE_FONT_COLOR);
 #endif
 	CComponentsText title (NULL, m_cFrameTitleRel.iX + m_cFrame.iX, m_cFrameTitleRel.iY+m_cFrame.iY, m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight,
-			m_textTitle, CTextBox::CENTER, m_pcFontTitle, CComponentsText::FONT_STYLE_REGULAR, CC_SHADOW_OFF, TITLE_FONT_COLOR, COL_FRAME_PLUS_0, TITLE_BACKGROUND_COLOR);
+			m_textTitle, CTextBox::AUTO_WIDTH, m_pcFontTitle, CComponentsText::FONT_STYLE_REGULAR, CC_SHADOW_OFF, TITLE_FONT_COLOR, COL_FRAME_PLUS_0, TITLE_BACKGROUND_COLOR);
+	title.setTextBorderWidth(OFFSET_INNER_MID, OFFSET_INNER_NONE);
 	title.enableColBodyGradient(g_settings.theme.menu_SubHead_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_SubHead_gradient_direction);
 
 	title.paint(false);
