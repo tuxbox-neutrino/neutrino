@@ -4276,6 +4276,7 @@ class CYTHistory : public CMenuTarget
 	private:
 		int width;
 		int selected;
+		bool allexit;
 		std::string *search;
 		MB_SETTINGS *settings;
 	public:
@@ -4289,6 +4290,7 @@ CYTHistory::CYTHistory(MB_SETTINGS &_settings, std::string &_search)
 	selected = -1;
 	settings = &_settings;
 	search = &_search;
+	allexit = false;
 }
 
 int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -4308,7 +4310,12 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 		m->exec(NULL, "");
 		m->hide();
 		delete m;
-		return menu_return::RETURN_REPAINT;
+		if(!allexit) {
+			return menu_return::RETURN_REPAINT;
+		}else {
+			allexit = false;
+			return menu_return::RETURN_EXIT_ALL;
+		}
 	}
 	if (actionKey == "clearYThistory") {
 		settings->ytsearch_history.clear();
@@ -4316,6 +4323,7 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_EXIT;
 	}
 	*search = actionKey;
+	allexit = true;
 	g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_blue, 0);
 	return menu_return::RETURN_EXIT;
 }
@@ -4401,7 +4409,7 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 	yt_menue->addKey(CRCInput::RC_spkr, ytcache_selector, "rc_spkr");
 	refreshYTMenu();
 
-	mainMenu.exec(NULL, "");
+	int ret = mainMenu.exec(NULL, "");
 
 	ytparser.SetConcurrentDownloads(m_settings.ytconcconn);
 	ytparser.SetThumbnailDir(m_settings.ytthumbnaildir);
@@ -4420,6 +4428,12 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 	if (calledExternally)
 		return true;
 
+	bool no_reload = false;
+	if (ret == menu_return::RETURN_EXIT_ALL && !search.empty() && !m_settings.ytsearch.empty() && search != m_settings.ytsearch){
+		select = cYTFeedParser::SEARCH;
+		no_reload = true;
+	}
+
 	printf("MovieBrowser::showYTMenu(): selected: %d\n", select);
 	if (select >= 0) {
 		newmode = select;
@@ -4434,7 +4448,7 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 		else if (select == cYTFeedParser::SEARCH) {
 			printf("search for: %s\n", search.c_str());
 			if (!search.empty()) {
-				reload = true;
+				reload = !no_reload;// default true
 				m_settings.ytsearch = search;
 				m_settings.ytmode = newmode;
 				m_settings.ytsearch_history.push_front(search);
