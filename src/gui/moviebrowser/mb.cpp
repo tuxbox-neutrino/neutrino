@@ -2028,6 +2028,8 @@ void CMovieBrowser::refreshTitle(void)
 
 	if (!m_header){
 		m_header = new CComponentsHeader(x, y, w, h, title.c_str(), icon, CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT | CComponentsHeader::CC_BTN_HELP);
+	}else{
+		m_header->setCaption(title.c_str());
 	}
 	m_header->paint(CC_SAVE_SCREEN_NO);
 	newHeader = m_header->isPainted();
