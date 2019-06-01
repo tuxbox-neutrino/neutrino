@@ -4108,7 +4108,7 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 	for (unsigned i = 0; i < ylist.size(); i++) {
 		MI_MOVIE_INFO movieInfo;
 		movieInfo.channelName = ylist[i].author;
-		movieInfo.epgTitle = ylist[i].title;
+		movieInfo.epgTitle = htmlEntityDecode(ylist[i].title);
 		movieInfo.epgInfo1 = ylist[i].category;
 		movieInfo.epgInfo2 = ylist[i].description;
 		movieInfo.length = ylist[i].duration/60 ;
