@@ -4401,6 +4401,8 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 
 	CFileChooser fc(&m_settings.ytthumbnaildir);
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_CACHE_DIR, true, m_settings.ytthumbnaildir, &fc));
+	CFileChooser fcdl(&g_settings.downloadcache_dir);
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_DL_DIR, true, g_settings.downloadcache_dir, &fcdl));
 
 	yt_menue = &mainMenu;
 	yt_menue_end = yt_menue->getItemsCount();

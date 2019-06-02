@@ -1926,6 +1926,7 @@ moviebrowser.yt_cancel_transfer Cancel download?
 moviebrowser.yt_clear Clear
 moviebrowser.yt_completed Completed downloads
 moviebrowser.yt_concurrent_connections Concurrent connections
+moviebrowser.yt_dl_dir YouTube download directory
 moviebrowser.yt_error Failed to load YouTube feed
 moviebrowser.yt_failed Failed downloads
 moviebrowser.yt_history Search history

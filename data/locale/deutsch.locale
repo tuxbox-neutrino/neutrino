@@ -1926,6 +1926,7 @@ moviebrowser.yt_cancel_transfer Download abbrechen?
 moviebrowser.yt_clear Liste leeren
 moviebrowser.yt_completed Vollständige Downloads
 moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
+moviebrowser.yt_dl_dir Youtube download Verzeichnis
 moviebrowser.yt_error Fehler beim Laden des YouTube-Feeds
 moviebrowser.yt_failed Fehlgeschlagene Downloads
 moviebrowser.yt_history Frühere Suchen
