@@ -3656,6 +3656,9 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 		{
 			if (!m_movieSelectionHandler->epgTitle.empty())
 				title = m_movieSelectionHandler->epgTitle;
+			const size_t max_size = 32;
+			if (title.size() > max_size)
+				title = title.substr (0, max_size) + " ...";
 		}
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD,     (m_movieSelectionHandler != NULL), title, this, "show_movie_info_menu",    CRCInput::RC_red));
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_CUT_HEAD, (m_movieSelectionHandler != NULL), NULL , this, "show_movie_cut_menu",     CRCInput::RC_green));
