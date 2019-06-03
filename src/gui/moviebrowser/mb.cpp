@@ -4327,7 +4327,6 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	*search = actionKey;
 	allexit = true;
-	g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_blue, 0);
 	return menu_return::RETURN_EXIT;
 }
 
@@ -4433,10 +4432,8 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 	if (calledExternally)
 		return true;
 
-	bool no_reload = false;
 	if (ret == menu_return::RETURN_EXIT_ALL && !search.empty() && !m_settings.ytsearch.empty() && search != m_settings.ytsearch){
 		select = cYTFeedParser::SEARCH;
-		no_reload = true;
 	}
 
 	printf("MovieBrowser::showYTMenu(): selected: %d\n", select);
@@ -4453,7 +4450,7 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 		else if (select == cYTFeedParser::SEARCH) {
 			printf("search for: %s\n", search.c_str());
 			if (!search.empty()) {
-				reload = !no_reload;// default true
+				reload = true;
 				m_settings.ytsearch = search;
 				m_settings.ytmode = newmode;
 				m_settings.ytsearch_history.push_front(search);
