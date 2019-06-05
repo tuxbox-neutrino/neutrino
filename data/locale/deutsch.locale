@@ -1761,6 +1761,7 @@ moviebrowser.book_type_forward Überspringen
 moviebrowser.browser_additional Zusätzliche Informationen
 moviebrowser.browser_cut_long_rowtext Text in Spalten abschneiden
 moviebrowser.browser_frame_high Anzeigehöhe oberes Fenster [%]
+moviebrowser.browser_frame_high_additional Anzeigehöhe oberes Fenster mit Zusatzinfos [%]
 moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
