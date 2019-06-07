@@ -176,12 +176,12 @@ void *CLuaServer::luaserver_thread(void *arg) {
 	pthread_t wdthr;
 	pthread_create (&wdthr, NULL, luaclient_watchdog, (void *) lsd);
 
-	CLuaInstance lua;
-	lsd->lua = &lua;
+	CLuaInstance *lua = new CLuaInstance();
+	lsd->lua = *&lua;
 	std::string result_code;
 	std::string result_string;
 	std::string error_string;
-	lua.runScript(lsd->script.c_str(), &lsd->argv, &result_code, &result_string, &error_string);
+	lua->runScript(lsd->script.c_str(), &lsd->argv, &result_code, &result_string, &error_string);
 	pthread_cancel(wdthr);
 	pthread_join(wdthr, NULL);
 	if (!lsd->died) {
@@ -202,7 +202,9 @@ void *CLuaServer::luaserver_thread(void *arg) {
 		rp += error_string_len;
 		CBasicServer::send_data(lsd->fd, result, size);
 	}
+	delete lua;
 	delete lsd;
+
 	Lock();
 	if (instance) {
 		instance->count--;
