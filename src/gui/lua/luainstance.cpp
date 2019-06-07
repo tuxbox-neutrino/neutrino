@@ -535,6 +535,13 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		} else if (videoDecoder->getBlank())
 			CLuaInstVideo::getInstance()->channelRezap(lua);
 	}
+	else
+	{
+		if (CLuaInstVideo::getInstance() && CMoviePlayerGui::getInstance().getBlockedFromPlugin()){
+			CMoviePlayerGui::getInstance().setBlockedFromPlugin(false);
+			CMoviePlayerGui::getInstance().restoreNeutrino();
+		}
+	}
 }
 
 // Example: runScript(fileName, "Arg1", "Arg2", "Arg3", ..., NULL);
