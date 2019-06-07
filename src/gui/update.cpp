@@ -740,18 +740,18 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_START_OFGWRITE);
 		hide();
 
-		const char ofgwrite_caller[] = "/usr/bin/ofgwrite_caller";
-		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s %s\n", ofgwrite_caller, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
+		std::string ofgwrite_caller = find_executable("ofgwrite_caller");
+		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s %s\n", ofgwrite_caller.c_str(), g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 #ifndef DRYRUN
 		if (flashing)
-			my_system(4, ofgwrite_caller, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
+			my_system(4, ofgwrite_caller.c_str(), g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 
 		/*
 		   TODO: fix osd-flickering
 		   Neutrino is clearing framebuffer, so ofgwrite's gui is cleared too.
 		*/
 
-		dprintf(DEBUG_NORMAL, "[update] %s done\n", ofgwrite_caller);
+		dprintf(DEBUG_NORMAL, "[update] %s done\n", ofgwrite_caller.c_str());
 
 		if (restart == CMsgBox::mbrYes)
 			CNeutrinoApp::getInstance()->exec(NULL, "reboot");
