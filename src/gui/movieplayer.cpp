@@ -807,8 +807,8 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 		hintbox->paint();
 	}
 	while (caller->showStartingHint) {
-		neutrino_msg_t msg;
-		neutrino_msg_data_t data;
+		neutrino_msg_t msg = 0;
+		neutrino_msg_data_t data = 0;
 		g_RCInput->getMsg(&msg, &data, 1);
 		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
 			caller->playback->RequestAbort();
@@ -1553,8 +1553,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			first_start = false;
 		}
 
-		neutrino_msg_t msg;
-		neutrino_msg_data_t data;
+		neutrino_msg_t msg = 0;
+		neutrino_msg_data_t data = 0;
 		g_RCInput->getMsg(&msg, &data, 10);	// 1 secs..
 
 		// handle CRCInput::RC_playpause key
