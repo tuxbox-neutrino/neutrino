@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 	int res = -1;
 	const char *fun = NULL;
 	char *resp = NULL;
-	char result[size];
+	char *result = NULL;
 
         if (!client.Send(data, size)) {
 		fun = "Send failed";
@@ -86,7 +86,10 @@ int main(int argc, char** argv)
 		fun = "Recv (1) failed";
 		goto fail;
 	}
-        if (!client.Recv(result, size)) {
+		if(size)
+			result = (char*) malloc(size);
+
+        if (result && !client.Recv(result, size)) {
 		fun = "Recv (2) failed";
 		goto fail;
 	}
@@ -102,8 +105,12 @@ int main(int argc, char** argv)
 	resp += strlen(resp) + 1;
 	if (resp < result + size)
 		fprintf(stderr, "%s", resp);
+	if(result)
+		free(result);
 	exit(res);
 fail:
+	if(result)
+		free(result);
 	if (fun)
 		fprintf(stderr, "luaclient: %s.\n", fun);
 	exit(-1);
