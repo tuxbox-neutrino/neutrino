@@ -348,8 +348,8 @@ bool cYTFeedParser::parseFeedJSON(std::string &answer)
 		parseFeedDetailsJSON(&vinfo);
 
 #ifdef DEBUG_PARSER
-		printf("prevPageToken: %s\n", prevPageToken.c_str());
-		printf("nextPageToken: %s\n", nextPageToken.c_str());
+		printf("prevPageToken: %s\n", prev.c_str());
+		printf("nextPageToken: %s\n", next.c_str());
 		printf("vinfo.id: %s\n", vinfo.id.c_str());
 		printf("vinfo.description: %s\n", vinfo.description.c_str());
 		printf("vinfo.published: %s\n", vinfo.published.c_str());
