@@ -463,7 +463,7 @@ bool cYTFeedParser::decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo)
 #endif
 			cYTVideoUrl yurl;
 			yurl.url = smap["url"];
-			std::size_t lsig = 0;
+			std::size_t sig = std::string::npos;
 			std::string::size_type ptr = smap["url"].find("signature=");
 			if (ptr != std::string::npos)
 			{
@@ -473,11 +473,11 @@ bool cYTFeedParser::decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo)
 				if((ptr = smap["url"].find("&")) != std::string::npos)
 					yurl.sig = smap["url"].substr(0,ptr);
 			}else{
-				lsig = smap["url"].find("lsig=");
+				sig = smap["url"].find("&sig=");
 			}
 
 			int id = atoi(smap["itag"].c_str());
-			if (supportedFormat(id) && !yurl.url.empty() && (!yurl.sig.empty() || lsig)) {
+			if (supportedFormat(id) && !yurl.url.empty() && (!yurl.sig.empty() || (sig != std::string::npos))) {
 				yurl.quality = smap["quality"];
 				yurl.type = smap["type"];
 				vinfo.formats.insert(yt_urlmap_pair_t(id, yurl));
