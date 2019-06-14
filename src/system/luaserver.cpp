@@ -235,16 +235,26 @@ bool CLuaServer::luaserver_parse_command(CBasicMessage::Header &rmsg __attribute
 	std::string luascript;
 	if (data[0] == '/')
 		luascript = data;
-	else {
-		luascript = LUAPLUGINDIR "/";
-		luascript += data;
-		luascript += ".lua";
+	const char * path[2] = { LUAPLUGINDIR_VAR, LUAPLUGINDIR };
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		std::string filename = path[i];
+		filename += "/";
+		filename += data;
+		filename += ".lua";
+		if (access(filename, R_OK) == 0)
+		{
+			luascript = filename;
+			break;
+		}
 	}
-	if (access(luascript, R_OK)) {
-		fprintf(stderr, "%s %s %d: %s not found\n", __file__, __func__, __LINE__, luascript.c_str());
+	if (access(luascript, R_OK) != 0)
+	{
+		fprintf(stderr, "%s %s %d: %s not found\n", __file__, __func__, __LINE__, data);
 		const char *result_code = "-1";
 		const char *result_string = "";
-		std::string error_string = luascript + " not found\n";
+		std::string error_string = data;
+		error_string += " not found\n";
 		size_t result_code_len = strlen(result_code) + 1;
 		size_t result_string_len = strlen(result_string) + 1;
 		size_t error_string_len = error_string.size() + 1;
