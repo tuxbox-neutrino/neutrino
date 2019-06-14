@@ -301,6 +301,9 @@ TUXBOX_APPS_DIRECTORY_ONE(plugindir_mnt, PLUGINDIR_MNT, mntdir, /mnt, /plugins,
 TUXBOX_APPS_DIRECTORY_ONE(luaplugindir, LUAPLUGINDIR, datadir, /share, /tuxbox/neutrino/luaplugins,
 	[--with-luaplugindir=PATH], [where to find Lua plugins])
 
+TUXBOX_APPS_DIRECTORY_ONE(luaplugindir_var, LUAPLUGINDIR_VAR, localstatedir, /var, /tuxbox/luaplugins,
+	[--with-luaplugindir_var=PATH], [where to find Lua plugins in /var])
+
 TUXBOX_APPS_DIRECTORY_ONE(webradiodir, WEBRADIODIR, datadir, /share, /tuxbox/neutrino/webradio,
 	[--with-webradiodir=PATH], [where to find webradio content])
 
@@ -371,6 +374,7 @@ AC_SUBST(PLUGINDIR)
 AC_SUBST(PLUGINDIR_VAR)
 AC_SUBST(PLUGINDIR_MNT)
 AC_SUBST(LUAPLUGINDIR)
+AC_SUBST(LUAPLUGINDIR_VAR)
 AC_SUBST(WEBRADIODIR)
 AC_SUBST(WEBRADIODIR_VAR)
 AC_SUBST(WEBTVDIR)

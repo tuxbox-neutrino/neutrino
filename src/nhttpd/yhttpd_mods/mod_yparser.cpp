@@ -471,6 +471,7 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			else if (ycmd_name.compare("PLUGINDIR_VAR"))	yresult = PLUGINDIR_VAR;
 			else if (ycmd_name.compare("PLUGINDIR_MNT"))	yresult = PLUGINDIR_MNT;
 			else if (ycmd_name.compare("LUAPLUGINDIR"))	yresult = LUAPLUGINDIR;
+			else if (ycmd_name.compare("LUAPLUGINDIR_VAR"))	yresult = LUAPLUGINDIR_VAR;
 			else if (ycmd_name.compare("THEMESDIR"))	yresult = THEMESDIR;
 			else if (ycmd_name.compare("THEMESDIR_VAR"))	yresult = THEMESDIR_VAR;
 			else if (ycmd_name.compare("WEBRADIODIR"))	yresult = WEBRADIODIR;
