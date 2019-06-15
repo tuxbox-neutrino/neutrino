@@ -147,7 +147,7 @@ std::vector<CUPnPDevice> CUPnPSocket::Discover(std::string service)
 					{
 						devices.push_back(CUPnPDevice(line));
 					}
-					catch (std::runtime_error error)
+					catch (std::runtime_error& error)
 					{
 						std::cout << "error " << error.what() << "\n";
 					}
