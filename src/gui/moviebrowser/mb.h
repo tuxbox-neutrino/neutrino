@@ -58,6 +58,7 @@
 #include <driver/fb_window.h>
 #include <system/ytparser.h>
 #include <gui/widget/progresswindow.h>
+#include <gui/widget/stringinput_ext.h>
 #include <gui/imdb.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
@@ -346,7 +347,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 
 		///// Menu ////////////////////////////////////
 		bool showMenu(bool calledExternally = false);
-		void initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info);
+		void initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info, CIntInput* BookStartIntInput, CIntInput* BookLastIntInput, CIntInput* BookEndIntInput);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int showMovieCutMenu(); // P2
 		int  showStartPosSelectionMenu(void); // P2

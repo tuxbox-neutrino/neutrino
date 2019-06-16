@@ -58,7 +58,6 @@
 #include <gui/components/cc.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
-#include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -3390,18 +3389,14 @@ void CMovieBrowser::showHelp(void)
 	help.exec();
 }
 
-void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info)
+void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info, CIntInput* BookStartIntInput, CIntInput* BookLastIntInput, CIntInput* BookEndIntInput)
 {
-	CIntInput bookStartIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.start,        5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
-	CIntInput bookLastIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,  (int *)&movie_info->bookmarks.lastPlayStop, 5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
-	CIntInput bookEndIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,   (int *)&movie_info->bookmarks.end,          5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
-
 	BookmarkMenu->addIntroItems(LOCALE_MOVIEBROWSER_BOOK_HEAD);
 	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_CLEAR_ALL, true, NULL, this, "book_clear_all", CRCInput::RC_red));
 	BookmarkMenu->addItem(GenericMenuSeparatorLine);
-	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART,    true, bookStartIntInput.getValue(), &bookStartIntInput));
-	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIEEND,      true, bookEndIntInput.getValue(),   &bookEndIntInput));
-	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, bookLastIntInput.getValue(),  &bookLastIntInput));
+	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART,    true, BookStartIntInput->getValue(), BookStartIntInput));
+	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIEEND,      true, BookEndIntInput->getValue(),   BookEndIntInput));
+	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, BookLastIntInput->getValue(),  BookLastIntInput));
 	BookmarkMenu->addItem(GenericMenuSeparatorLine);
 
 	for (int li =0 ; li < MI_MOVIE_BOOK_USER_MAX && li < MAX_NUMBER_OF_BOOKMARK_ITEMS; li++)
@@ -3426,9 +3421,12 @@ void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* m
 #define MAX_STRING 30
 int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 {
-	// int bookmark menu
+	// init bookmark menu
 	CMenuWidget bookmarkMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-	initBookMarkMenu(&bookmarkMenu, movie_info);
+	CIntInput bookStartIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.start,        5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
+	CIntInput bookLastIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,  (int *)&movie_info->bookmarks.lastPlayStop, 5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
+	CIntInput bookEndIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,   (int *)&movie_info->bookmarks.end,          5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
+	initBookMarkMenu(&bookmarkMenu, movie_info, &bookStartIntInput, &bookLastIntInput, &bookEndIntInput);
 
 	/********************************************************************/
 	/**  serie******************************************************/
