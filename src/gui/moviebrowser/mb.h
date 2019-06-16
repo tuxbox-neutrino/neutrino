@@ -346,6 +346,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 
 		///// Menu ////////////////////////////////////
 		bool showMenu(bool calledExternally = false);
+		void initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int showMovieCutMenu(); // P2
 		int  showStartPosSelectionMenu(void); // P2

@@ -3390,28 +3390,19 @@ void CMovieBrowser::showHelp(void)
 	help.exec();
 }
 
-#define MAX_STRING 30
-int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
+void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info)
 {
-	/********************************************************************/
-	/**  MovieInfo menu ******************************************************/
-
-	/********************************************************************/
-	/**  bookmark ******************************************************/
-
 	CIntInput bookStartIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.start,        5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
 	CIntInput bookLastIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,  (int *)&movie_info->bookmarks.lastPlayStop, 5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
 	CIntInput bookEndIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,   (int *)&movie_info->bookmarks.end,          5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
 
-	CMenuWidget bookmarkMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-
-	bookmarkMenu.addIntroItems(LOCALE_MOVIEBROWSER_BOOK_HEAD);
-	bookmarkMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_CLEAR_ALL, true, NULL, this, "book_clear_all", CRCInput::RC_red));
-	bookmarkMenu.addItem(GenericMenuSeparatorLine);
-	bookmarkMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART,    true, bookStartIntInput.getValue(), &bookStartIntInput));
-	bookmarkMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIEEND,      true, bookEndIntInput.getValue(),   &bookEndIntInput));
-	bookmarkMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, bookLastIntInput.getValue(),  &bookLastIntInput));
-	bookmarkMenu.addItem(GenericMenuSeparatorLine);
+	BookmarkMenu->addIntroItems(LOCALE_MOVIEBROWSER_BOOK_HEAD);
+	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_CLEAR_ALL, true, NULL, this, "book_clear_all", CRCInput::RC_red));
+	BookmarkMenu->addItem(GenericMenuSeparatorLine);
+	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART,    true, bookStartIntInput.getValue(), &bookStartIntInput));
+	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIEEND,      true, bookEndIntInput.getValue(),   &bookEndIntInput));
+	BookmarkMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, bookLastIntInput.getValue(),  &bookLastIntInput));
+	BookmarkMenu->addItem(GenericMenuSeparatorLine);
 
 	for (int li =0 ; li < MI_MOVIE_BOOK_USER_MAX && li < MAX_NUMBER_OF_BOOKMARK_ITEMS; li++)
 	{
@@ -3428,8 +3419,16 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 		pBookItemMenu->addItem(new CMenuDForwarder(LOCALE_MOVIEBROWSER_BOOK_POSITION, true,  pBookPosIntInput->getValue(),  pBookPosIntInput));
 		pBookItemMenu->addItem(new CMenuDForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE,     true,  pBookTypeIntInput->getValue(), pBookTypeIntInput));
 
-		bookmarkMenu.addItem(new CMenuDForwarder("", true, pBookNameInput->getValue(), pBookItemMenu));
+		BookmarkMenu->addItem(new CMenuDForwarder("", true, pBookNameInput->getValue(), pBookItemMenu));
 	}
+}
+
+#define MAX_STRING 30
+int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
+{
+	// int bookmark menu
+	CMenuWidget bookmarkMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
+	initBookMarkMenu(&bookmarkMenu, movie_info);
 
 	/********************************************************************/
 	/**  serie******************************************************/
