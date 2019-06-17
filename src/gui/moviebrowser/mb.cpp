@@ -3419,6 +3419,18 @@ void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* m
 }
 
 #define MAX_STRING 30
+void CMovieBrowser::initSeriesMenu(CMenuWidget *SeriesMenu, MI_MOVIE_INFO* movie_info)
+{
+	SeriesMenu->addIntroItems(LOCALE_MOVIEBROWSER_SERIE_HEAD);
+
+	CKeyboardInput *serieUserInput = new CKeyboardInput(LOCALE_MOVIEBROWSER_EDIT_SERIE, &movie_info->serieName, MAX_STRING); //TODO: hints
+	SeriesMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SERIE_NAME, true, movie_info->serieName, serieUserInput));
+
+	SeriesMenu->addItem(GenericMenuSeparatorLine);
+	for (unsigned int li = 0; li < m_vHandleSerienames.size(); li++)
+		SeriesMenu->addItem(new CMenuSelector(m_vHandleSerienames[li]->serieName.c_str(), true, movie_info->serieName));
+}
+
 int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 {
 	// init bookmark menu
@@ -3428,16 +3440,9 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	CIntInput bookEndIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,   (int *)&movie_info->bookmarks.end,          5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
 	initBookMarkMenu(&bookmarkMenu, movie_info, &bookStartIntInput, &bookLastIntInput, &bookEndIntInput);
 
-	/********************************************************************/
-	/**  serie******************************************************/
-	CKeyboardInput serieUserInput(LOCALE_MOVIEBROWSER_EDIT_SERIE, &movie_info->serieName, 20);
-
+	// init series menu
 	CMenuWidget serieMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-	serieMenu.addIntroItems(LOCALE_MOVIEBROWSER_SERIE_HEAD);
-	serieMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SERIE_NAME, true, movie_info->serieName,&serieUserInput));
-	serieMenu.addItem(GenericMenuSeparatorLine);
-	for (unsigned int li = 0; li < m_vHandleSerienames.size(); li++)
-		serieMenu.addItem(new CMenuSelector(m_vHandleSerienames[li]->serieName.c_str(), true, movie_info->serieName));
+	initSeriesMenu(&serieMenu, movie_info);
 
 	/********************************************************************/
 	/**  update movie info  ******************************************************/
