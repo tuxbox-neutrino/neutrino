@@ -46,7 +46,7 @@ static void device_up(std::string dev)
 
 	memset(&ifr, 0, sizeof ifr);
 
-	strncpy(ifr.ifr_name, dev.c_str(), IFNAMSIZ);
+	strncpy(ifr.ifr_name, dev.c_str(), IFNAMSIZ-1);
 	if (ioctl(sockfd, SIOCGIFFLAGS, &ifr) < 0)
 		perror("SIOCGIFFLAGS");
 

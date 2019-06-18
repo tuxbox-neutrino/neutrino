@@ -675,7 +675,7 @@ iw_get_basic_config(int			skfd,
     return(-1);
   else
     {
-      strncpy(info->name, wrq.u.name, IFNAMSIZ);
+      strncpy(info->name, wrq.u.name, IFNAMSIZ-1);
       info->name[IFNAMSIZ] = '\0';
     }
 
@@ -755,7 +755,7 @@ iw_set_basic_config(int			skfd,
    */
   if(info->has_mode)
     {
-      strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
+      strncpy(wrq.ifr_name, ifname, IFNAMSIZ-1);
       wrq.u.mode = info->mode;
 
       if(iw_get_ext(skfd, ifname, SIOCSIWMODE, &wrq) < 0)
@@ -1272,7 +1272,7 @@ iw_get_stats(int		skfd,
       wrq.u.data.pointer = (caddr_t) stats;
       wrq.u.data.length = sizeof(struct iw_statistics);
       wrq.u.data.flags = 1;		/* Clear updated flag */
-      strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
+      strncpy(wrq.ifr_name, ifname, IFNAMSIZ-1);
       if(iw_get_ext(skfd, ifname, SIOCGIWSTATS, &wrq) < 0)
 	return(-1);
 
@@ -1936,7 +1936,7 @@ iw_check_mac_addr_type(int		skfd,
   struct ifreq		ifr;
 
   /* Get the type of hardware address */
-  strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+  strncpy(ifr.ifr_name, ifname, IFNAMSIZ-1);
   if((ioctl(skfd, SIOCGIFHWADDR, &ifr) < 0) ||
      ((ifr.ifr_hwaddr.sa_family != ARPHRD_ETHER)
       && (ifr.ifr_hwaddr.sa_family != ARPHRD_IEEE80211)))
@@ -1970,7 +1970,7 @@ iw_check_if_addr_type(int		skfd,
   struct ifreq		ifr;
 
   /* Get the type of interface address */
-  strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+  strncpy(ifr.ifr_name, ifname, IFNAMSIZ-1);
   if((ioctl(skfd, SIOCGIFADDR, &ifr) < 0) ||
      (ifr.ifr_addr.sa_family !=  AF_INET))
     {
@@ -2258,7 +2258,7 @@ iw_in_addr(int		skfd,
       arp_query.arp_flags = 0;
       /* The following restrict the search to the interface only */
       /* For old kernels which complain, just comment it... */
-      strncpy(arp_query.arp_dev, ifname, IFNAMSIZ);
+      strncpy(arp_query.arp_dev, ifname, IFNAMSIZ-1);
       if((ioctl(skfd, SIOCGARP, &arp_query) < 0) ||
 	 !(arp_query.arp_flags & ATF_COM))
 	{
