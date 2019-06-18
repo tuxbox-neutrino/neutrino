@@ -272,12 +272,35 @@ int mkdirhier(const char *pathname, mode_t mode)
 }
 # endif
 
+/* This function is a replacement which makes sure that a \0 is always added,
+   cuz standard strncpy does not terminate the string if the source is exactly
+   as long or longer as the specified size. This can raise security issues.
+   num should be the real size of char array (do not subtract -1)
+*/
+void safe_strncpy(char *dest, const char *src, size_t num)
+{
+	if(!src)
+	{
+		dest[0] = '\0';
+		return;
+	}
+
+	uint32_t l, size = strlen(src);
+	if(size > num - 1)
+		l = num - 1;
+	else
+	l = size;
+
+	memcpy(dest, src, l);
+	dest[l] = '\0';
+}
+
 int safe_mkdir(const char * path)
 {
 	struct statfs s;
 	size_t l = strlen(path);
-	char d[l + 3];
-	strncpy(d, path, l);
+	char d[l];
+	safe_strncpy(d, path, l);
 
 	// skip trailing slashes
 	while (l > 0 && d[l - 1] == '/')
@@ -609,7 +632,7 @@ const char *cstr_replace(const char *search, const char *replace, const char *te
 		tmp = strncpy(tmp, replace, len_replace) + len_replace;
 		text += len_front + len_search; // move to next "end of search"
 	}
-	strncpy(tmp, text, strlen(text));
+	safe_strncpy(tmp, text, strlen(text));
 	return result;
 }
 

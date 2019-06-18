@@ -44,6 +44,7 @@ int my_system(int argc, const char *arg, ...); /* argc is number of arguments in
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
 int run_pty(pid_t &pid, const char *cmdstring);
 
+void safe_strncpy(char *dest, const char *src, size_t num);
 int safe_mkdir(const char * path);
 inline int safe_mkdir(std::string path) { return safe_mkdir(path.c_str()); }
 //int mkdirhier(const char *pathname, mode_t mode = 0755);
