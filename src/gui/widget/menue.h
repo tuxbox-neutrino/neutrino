@@ -555,6 +555,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		CComponentsHeader 	*header, *sub_header;
 		CComponentsFooter 	*footer;
 		std::string		subhead_text;
+		int			w_pos_mode;
 		unsigned int saveScreen_width ;
 		unsigned int saveScreen_height;
 		unsigned int saveScreen_y;
@@ -664,7 +665,9 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 			MENU_POS_TOP_LEFT	,
 			MENU_POS_TOP_RIGHT	,
 			MENU_POS_BOTTOM_LEFT	,
-			MENU_POS_BOTTOM_RIGHT
+			MENU_POS_BOTTOM_RIGHT	,
+
+			MENU_POS_PRESET
 		};
 		void addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string &action);
 		void setFooter(const struct button_label *_fbutton_label, const int _fbutton_count, bool repaint = false);
@@ -672,6 +675,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		void setNextShortcut(int sc) { nextShortcut = sc; };
 		int getNextShortcut() { return nextShortcut; };
 		bool gotAction() { return !no_action; };
+		void setMenuPosMode(int pos_mode){w_pos_mode = pos_mode;}
 };
 
 class CPINProtection
