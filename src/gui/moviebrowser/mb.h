@@ -57,6 +57,7 @@
 #include <driver/file.h>
 #include <driver/fb_window.h>
 #include <system/ytparser.h>
+#include <system/setting_helpers.h>
 #include <gui/widget/progresswindow.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/imdb.h>
@@ -351,6 +352,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		void initSeriesMenu(CMenuWidget *SeriesMenu, MI_MOVIE_INFO* movie_info);
 		void initUpdateMovieInfoMenu(CMenuWidget *MovieInfoMenuUpdate);
 		void initParentalMenu(CMenuWidget *ParentalMenu);
+		void initOptionsDirMenu(CMenuWidget *OptionsMenuDir, std::vector<COnOffNotifier*>& v_notifiers);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int showMovieCutMenu(); // P2
 		int  showStartPosSelectionMenu(void); // P2

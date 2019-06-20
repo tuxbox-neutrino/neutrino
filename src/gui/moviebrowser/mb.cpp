@@ -3590,47 +3590,49 @@ void CMovieBrowser::initParentalMenu(CMenuWidget *ParentalMenu)
 	ParentalMenu->addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_MENU_PARENTAL_LOCK_RATE_HEAD, (int*)(&m_settings.parentalLockAge), MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS, MESSAGEBOX_PARENTAL_LOCKAGE_OPTION_COUNT, true));
 }
 
+void CMovieBrowser::initOptionsDirMenu(CMenuWidget *OptionsMenuDir, std::vector<COnOffNotifier*>& v_notifiers)
+{
+	OptionsMenuDir->addIntroItems(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD);
+	OptionsMenuDir->addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_REC_DIR,       (int*)(&m_settings.store.storageDirRecUsed), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
+	OptionsMenuDir->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR, false, g_settings.network_nfs_recordingdir));
+
+	OptionsMenuDir->addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_MOVIE_DIR,     (int*)(&m_settings.store.storageDirMovieUsed), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
+	OptionsMenuDir->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR, false, g_settings.network_nfs_moviedir));
+	OptionsMenuDir->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_DIRECTORIES_ADDITIONAL));
+
+	for (int i = 0; i < MB_MAX_DIRS ; i++)
+	{
+		CFileChooser *dirInput =  new CFileChooser(&m_settings.store.storageDir[i]);
+		CMenuForwarder *forwarder = new CMenuDForwarder(LOCALE_MOVIEBROWSER_DIR,        m_settings.store.storageDirUsed[i], m_settings.store.storageDir[i],      dirInput);
+
+		v_notifiers.push_back(new COnOffNotifier());
+		v_notifiers[i]->addItem(forwarder);
+		CMenuOptionChooser *chooser =   new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_DIR, &m_settings.store.storageDirUsed[i], MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, v_notifiers[i]);
+		OptionsMenuDir->addItem(chooser);
+
+		OptionsMenuDir->addItem(forwarder);
+
+		if (i != (MB_MAX_DIRS - 1))
+			OptionsMenuDir->addItem(GenericMenuSeparator);
+	}
+}
+
 bool CMovieBrowser::showMenu(bool calledExternally)
 {
 	/* first clear screen */
 	framebuffer->paintBackground();
 
-	int i;
-	/********************************************************************/
-	/**  directory menu ******************************************************/
+	//  directory menu
 	CDirMenu dirMenu(&m_dir);
-
-	/********************************************************************/
-	/**  options menu **************************************************/
 
 	// init parental lock menu
 	CMenuWidget parentalMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 	initParentalMenu(&parentalMenu);
 
-	/********************************************************************/
-	/**  optionsVerzeichnisse  **************************************************/
+	// init options menu for directories
 	CMenuWidget optionsMenuDir(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-	optionsMenuDir.addIntroItems(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD);
-	optionsMenuDir.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_REC_DIR,       (int*)(&m_settings.store.storageDirRecUsed), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
-	optionsMenuDir.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR, false, g_settings.network_nfs_recordingdir));
-
-	optionsMenuDir.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_MOVIE_DIR,     (int*)(&m_settings.store.storageDirMovieUsed), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
-	optionsMenuDir.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR, false, g_settings.network_nfs_moviedir));
-	optionsMenuDir.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_DIRECTORIES_ADDITIONAL));
-
-	COnOffNotifier* notifier[MB_MAX_DIRS];
-	for (i = 0; i < MB_MAX_DIRS ; i++)
-	{
-		CFileChooser *dirInput =  new CFileChooser(&m_settings.store.storageDir[i]);
-		CMenuForwarder *forwarder = new CMenuDForwarder(LOCALE_MOVIEBROWSER_DIR,        m_settings.store.storageDirUsed[i], m_settings.store.storageDir[i],      dirInput);
-		notifier[i] =  new COnOffNotifier();
-		notifier[i]->addItem(forwarder);
-		CMenuOptionChooser *chooser =   new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_DIR, &m_settings.store.storageDirUsed[i], MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true,notifier[i]);
-		optionsMenuDir.addItem(chooser);
-		optionsMenuDir.addItem(forwarder);
-		if (i != (MB_MAX_DIRS - 1))
-			optionsMenuDir.addItem(GenericMenuSeparator);
-	}
+	std::vector<COnOffNotifier*> notifiers;
+	initOptionsDirMenu(&optionsMenuDir, notifiers);
 
 	/********************************************************************/
 	/**  optionsMenuBrowser  **************************************************/
@@ -3666,7 +3668,7 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	optionsMenuBrowser.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_BROWSER_ROW_HEAD));
 	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,     true, browserRowNrIntInput.getValue(), &browserRowNrIntInput));
 	optionsMenuBrowser.addItem(GenericMenuSeparator);
-	for (i = 0; i < MB_MAX_ROWS; i++)
+	for (int i = 0; i < MB_MAX_ROWS; i++)
 	{
 		CIntInput* browserRowWidthIntInput = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_WIDTH,(int *)&m_settings.browserRowWidth[i], 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 		optionsMenuBrowser.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_ROW_ITEM, (int*)(&m_settings.browserRowItem[i]), MESSAGEBOX_BROWSER_ROW_ITEM, MESSAGEBOX_BROWSER_ROW_ITEM_COUNT, true, NULL, CRCInput::convertDigitToKey(i+1), NULL, true, true));
@@ -3742,7 +3744,7 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 		m_settings.browserRowNr = MB_MAX_ROWS;
 	if (m_settings.browserRowNr < 1)
 		m_settings.browserRowNr = 1;
-	for (i = 0; i < m_settings.browserRowNr; i++)
+	for (int i = 0; i < m_settings.browserRowNr; i++)
 	{
 		if (m_settings.browserRowWidth[i] > 100)
 			m_settings.browserRowWidth[i] = 100;
@@ -3780,8 +3782,8 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	} else
 		saveSettings(&m_settings);
 
-	for (i = 0; i < MB_MAX_DIRS; i++)
-		delete notifier[i];
+	for (size_t i = 0; i < notifiers.size(); i++)
+		delete notifiers[i];
 
 	delete nfs;
 
