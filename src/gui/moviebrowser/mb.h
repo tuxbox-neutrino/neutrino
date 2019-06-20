@@ -350,6 +350,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		void initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info, CIntInput* BookStartIntInput, CIntInput* BookLastIntInput, CIntInput* BookEndIntInput);
 		void initSeriesMenu(CMenuWidget *SeriesMenu, MI_MOVIE_INFO* movie_info);
 		void initUpdateMovieInfoMenu(CMenuWidget *MovieInfoMenuUpdate);
+		void initParentalMenu(CMenuWidget *ParentalMenu);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int showMovieCutMenu(); // P2
 		int  showStartPosSelectionMenu(void); // P2

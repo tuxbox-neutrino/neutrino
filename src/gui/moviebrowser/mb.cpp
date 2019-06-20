@@ -3583,6 +3583,13 @@ void CMovieBrowser::changeBrowserHeight(CMenuForwarder* fw1, CMenuForwarder* fw2
 	fw2->paint();
 }
 
+void CMovieBrowser::initParentalMenu(CMenuWidget *ParentalMenu)
+{
+	ParentalMenu->addIntroItems(LOCALE_MOVIEBROWSER_MENU_PARENTAL_LOCK_HEAD);
+	ParentalMenu->addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_MENU_PARENTAL_LOCK_ACTIVATED, (int*)(&m_parentalLock), MESSAGEBOX_PARENTAL_LOCK_OPTIONS, MESSAGEBOX_PARENTAL_LOCK_OPTIONS_COUNT, true));
+	ParentalMenu->addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_MENU_PARENTAL_LOCK_RATE_HEAD, (int*)(&m_settings.parentalLockAge), MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS, MESSAGEBOX_PARENTAL_LOCKAGE_OPTION_COUNT, true));
+}
+
 bool CMovieBrowser::showMenu(bool calledExternally)
 {
 	/* first clear screen */
@@ -3596,13 +3603,9 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	/********************************************************************/
 	/**  options menu **************************************************/
 
-	/********************************************************************/
-	/**  parental lock **************************************************/
+	// init parental lock menu
 	CMenuWidget parentalMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-	parentalMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_PARENTAL_LOCK_HEAD);
-	parentalMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_MENU_PARENTAL_LOCK_ACTIVATED, (int*)(&m_parentalLock), MESSAGEBOX_PARENTAL_LOCK_OPTIONS, MESSAGEBOX_PARENTAL_LOCK_OPTIONS_COUNT, true));
-	parentalMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_MENU_PARENTAL_LOCK_RATE_HEAD, (int*)(&m_settings.parentalLockAge), MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS, MESSAGEBOX_PARENTAL_LOCKAGE_OPTION_COUNT, true));
-
+	initParentalMenu(&parentalMenu);
 
 	/********************************************************************/
 	/**  optionsVerzeichnisse  **************************************************/
