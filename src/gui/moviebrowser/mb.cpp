@@ -3617,6 +3617,46 @@ void CMovieBrowser::initOptionsDirMenu(CMenuWidget *OptionsMenuDir, std::vector<
 	}
 }
 
+void CMovieBrowser::initOptionsBrowserMenu(CMenuWidget *OptionsMenuBrowser)
+{
+	CIntInput* playMaxUserIntInput = new CIntInput(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,      (int *)&m_settings.lastPlayMaxItems,    3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CIntInput* recMaxUserIntInput = new CIntInput(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,     (int *)&m_settings.lastRecordMaxItems,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+
+	CIntInput* browserFrameUserIntInputAdd = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeightAdditional,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CIntInput* browserFrameUserIntInputGen = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeightGeneral,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+
+	CIntInput* browserRowNrIntInput = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,          (int *)&m_settings.browserRowNr,        1, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+
+	OptionsMenuBrowser->addIntroItems(LOCALE_MOVIEBROWSER_OPTION_BROWSER);
+	OptionsMenuBrowser->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,    true, playMaxUserIntInput->getValue(),  playMaxUserIntInput));
+	OptionsMenuBrowser->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,  true, recMaxUserIntInput->getValue(), recMaxUserIntInput));
+	OptionsMenuBrowser->addItem(GenericMenuSeparatorLine);
+
+	CMenuForwarder* fw1 = new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,     !m_settings.browserAdditional, browserFrameUserIntInputGen->getValue(), browserFrameUserIntInputGen);
+	CMenuForwarder* fw2 = new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH_ADDITIONAL,     m_settings.browserAdditional, browserFrameUserIntInputAdd->getValue(), browserFrameUserIntInputAdd);
+
+	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_ADDITIONAL, (int*)(&m_settings.browserAdditional), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+	oj->OnAfterChangeOption.connect(sigc::bind(sigc::mem_fun(*this, &CMovieBrowser::changeBrowserHeight), fw1, fw2));
+
+	OptionsMenuBrowser->addItem(oj);
+	OptionsMenuBrowser->addItem(fw1);
+	OptionsMenuBrowser->addItem(fw2);
+
+	OptionsMenuBrowser->addItem(GenericMenuSeparatorLine);
+	OptionsMenuBrowser->addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_CUT_LONG_ROWTEXT, (int*)(&m_settings.browserCutLongRowText), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
+	OptionsMenuBrowser->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_BROWSER_ROW_HEAD));
+	OptionsMenuBrowser->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,     true, browserRowNrIntInput->getValue(), browserRowNrIntInput));
+	OptionsMenuBrowser->addItem(GenericMenuSeparator);
+	for (int i = 0; i < MB_MAX_ROWS; i++)
+	{
+		CIntInput* browserRowWidthIntInput = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_WIDTH,(int *)&m_settings.browserRowWidth[i], 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+		OptionsMenuBrowser->addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_ROW_ITEM, (int*)(&m_settings.browserRowItem[i]), MESSAGEBOX_BROWSER_ROW_ITEM, MESSAGEBOX_BROWSER_ROW_ITEM_COUNT, true, NULL, CRCInput::convertDigitToKey(i+1), NULL, true, true));
+		OptionsMenuBrowser->addItem(new CMenuDForwarder(LOCALE_MOVIEBROWSER_BROWSER_ROW_WIDTH,    true, browserRowWidthIntInput->getValue(),      browserRowWidthIntInput));
+		if (i < MB_MAX_ROWS-1)
+			OptionsMenuBrowser->addItem(GenericMenuSeparator);
+	}
+}
+
 bool CMovieBrowser::showMenu(bool calledExternally)
 {
 	/* first clear screen */
@@ -3634,48 +3674,12 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	std::vector<COnOffNotifier*> notifiers;
 	initOptionsDirMenu(&optionsMenuDir, notifiers);
 
-	/********************************************************************/
-	/**  optionsMenuBrowser  **************************************************/
-	int oldRowNr = m_settings.browserRowNr;
-	int oldFrameHeight = m_settings.browserFrameHeight;
-	int oldAdditional = m_settings.browserAdditional;
-	CIntInput playMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,      (int *)&m_settings.lastPlayMaxItems,    3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-	CIntInput recMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,     (int *)&m_settings.lastRecordMaxItems,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-
-	CIntInput* browserFrameUserIntInputAdd = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeightAdditional,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-	CIntInput* browserFrameUserIntInputGen = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeightGeneral,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-
-	CIntInput browserRowNrIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,          (int *)&m_settings.browserRowNr,        1, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-
+	// init options menu for browser
+	int oldRowNr 		= m_settings.browserRowNr;
+	int oldFrameHeight 	= m_settings.browserFrameHeight;
+	int oldAdditional 	= m_settings.browserAdditional;
 	CMenuWidget optionsMenuBrowser(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-	optionsMenuBrowser.addIntroItems(LOCALE_MOVIEBROWSER_OPTION_BROWSER);
-	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,    true, playMaxUserIntInput.getValue(),   &playMaxUserIntInput));
-	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,  true, recMaxUserIntInput.getValue(), &recMaxUserIntInput));
-	optionsMenuBrowser.addItem(GenericMenuSeparatorLine);
-
-	CMenuForwarder* fw1 = new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,     !m_settings.browserAdditional, browserFrameUserIntInputGen->getValue(), browserFrameUserIntInputGen);
-	CMenuForwarder* fw2 = new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH_ADDITIONAL,     m_settings.browserAdditional, browserFrameUserIntInputAdd->getValue(), browserFrameUserIntInputAdd);
-
-	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_ADDITIONAL, (int*)(&m_settings.browserAdditional), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
-	oj->OnAfterChangeOption.connect(sigc::bind(sigc::mem_fun(*this, &CMovieBrowser::changeBrowserHeight), fw1, fw2));
-
-	optionsMenuBrowser.addItem(oj);
-	optionsMenuBrowser.addItem(fw1);
-	optionsMenuBrowser.addItem(fw2);
-
-	optionsMenuBrowser.addItem(GenericMenuSeparatorLine);
-	optionsMenuBrowser.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_CUT_LONG_ROWTEXT, (int*)(&m_settings.browserCutLongRowText), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
-	optionsMenuBrowser.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_BROWSER_ROW_HEAD));
-	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,     true, browserRowNrIntInput.getValue(), &browserRowNrIntInput));
-	optionsMenuBrowser.addItem(GenericMenuSeparator);
-	for (int i = 0; i < MB_MAX_ROWS; i++)
-	{
-		CIntInput* browserRowWidthIntInput = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_WIDTH,(int *)&m_settings.browserRowWidth[i], 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-		optionsMenuBrowser.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_ROW_ITEM, (int*)(&m_settings.browserRowItem[i]), MESSAGEBOX_BROWSER_ROW_ITEM, MESSAGEBOX_BROWSER_ROW_ITEM_COUNT, true, NULL, CRCInput::convertDigitToKey(i+1), NULL, true, true));
-		optionsMenuBrowser.addItem(new CMenuDForwarder(LOCALE_MOVIEBROWSER_BROWSER_ROW_WIDTH,    true, browserRowWidthIntInput->getValue(),      browserRowWidthIntInput));
-		if (i < MB_MAX_ROWS-1)
-			optionsMenuBrowser.addItem(GenericMenuSeparator);
-	}
+	initOptionsBrowserMenu(&optionsMenuBrowser);
 
 	/********************************************************************/
 	/**  options  **************************************************/
