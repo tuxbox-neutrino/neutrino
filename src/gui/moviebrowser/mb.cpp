@@ -58,7 +58,6 @@
 #include <gui/components/cc.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
-#include <gui/widget/keyboard_input.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <gui/nfs.h>
@@ -3419,12 +3418,11 @@ void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* m
 }
 
 #define MAX_STRING 30
-void CMovieBrowser::initSeriesMenu(CMenuWidget *SeriesMenu, MI_MOVIE_INFO* movie_info)
+void CMovieBrowser::initSeriesMenu(CMenuWidget *SeriesMenu, MI_MOVIE_INFO* movie_info, CKeyboardInput *SerieUserInput)
 {
 	SeriesMenu->addIntroItems(LOCALE_MOVIEBROWSER_SERIE_HEAD);
 
-	CKeyboardInput *serieUserInput = new CKeyboardInput(LOCALE_MOVIEBROWSER_EDIT_SERIE, &movie_info->serieName, MAX_STRING); //TODO: hints
-	SeriesMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SERIE_NAME, true, movie_info->serieName, serieUserInput));
+	SeriesMenu->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SERIE_NAME, true, movie_info->serieName, SerieUserInput));
 
 	SeriesMenu->addItem(GenericMenuSeparatorLine);
 	for (unsigned int li = 0; li < m_vHandleSerienames.size(); li++)
@@ -3470,7 +3468,8 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 
 	// init series menu
 	CMenuWidget serieMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-	initSeriesMenu(&serieMenu, movie_info);
+	CKeyboardInput serieUserInput(LOCALE_MOVIEBROWSER_EDIT_SERIE, &movie_info->serieName, MAX_STRING); //TODO: hints
+	initSeriesMenu(&serieMenu, movie_info, &serieUserInput);
 
 	// init update movie info menu
 	CMenuWidget movieInfoMenuUpdate(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);

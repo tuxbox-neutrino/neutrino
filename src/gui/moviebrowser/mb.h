@@ -60,6 +60,7 @@
 #include <system/setting_helpers.h>
 #include <gui/widget/progresswindow.h>
 #include <gui/widget/stringinput_ext.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/imdb.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
@@ -349,7 +350,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		///// Menu ////////////////////////////////////
 		bool showMenu(bool calledExternally = false);
 		void initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info, CIntInput* BookStartIntInput, CIntInput* BookLastIntInput, CIntInput* BookEndIntInput);
-		void initSeriesMenu(CMenuWidget *SeriesMenu, MI_MOVIE_INFO* movie_info);
+		void initSeriesMenu(CMenuWidget *SeriesMenu, MI_MOVIE_INFO* movie_info, CKeyboardInput *SerieUserInput);
 		void initUpdateMovieInfoMenu(CMenuWidget *MovieInfoMenuUpdate);
 		void initParentalMenu(CMenuWidget *ParentalMenu);
 		void initOptionsDirMenu(CMenuWidget *OptionsMenuDir, std::vector<COnOffNotifier*>& v_notifiers);
