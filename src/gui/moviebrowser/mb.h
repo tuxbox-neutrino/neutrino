@@ -353,7 +353,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		void initUpdateMovieInfoMenu(CMenuWidget *MovieInfoMenuUpdate);
 		void initParentalMenu(CMenuWidget *ParentalMenu);
 		void initOptionsDirMenu(CMenuWidget *OptionsMenuDir, std::vector<COnOffNotifier*>& v_notifiers);
-		void initOptionsBrowserMenu(CMenuWidget *OptionsMenuBrowser);
+		void initOptionsBrowserMenu(CMenuWidget *OptionsMenuBrowser, CIntInput* PlayMaxUserIntInput, CIntInput* RecMaxUserIntInput, CIntInput* BrowserFrameUserIntInputAdd, CIntInput* BrowserFrameUserIntInputGen, CIntInput* BrowserRowNrIntInput);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int showMovieCutMenu(); // P2
 		int  showStartPosSelectionMenu(void); // P2
