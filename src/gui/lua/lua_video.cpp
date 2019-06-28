@@ -82,10 +82,6 @@ void CLuaInstVideo::LuaVideoRegister(lua_State *L)
 
 int CLuaInstVideo::VideoNew(lua_State *L)
 {
-	if(CMoviePlayerGui::getInstance().Playing()){
-		fprintf(stderr, "[CLuaInstVideo::%s:%d] movieplayer is blocked by other file\n", __func__, __LINE__);
-		return 0;
-	}
 	CLuaVideo **udata = (CLuaVideo **) lua_newuserdata(L, sizeof(CLuaVideo *));
 	*udata = new CLuaVideo();
 	luaL_getmetatable(L, LUA_VIDEO_CLASSNAME);
