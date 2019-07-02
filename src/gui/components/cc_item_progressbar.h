@@ -53,6 +53,71 @@
 #include "cc_item.h"
 #include <string>
 
+class CProgressBarCache;
+static std::vector<CProgressBarCache *> pbCache;
+
+class CProgressBarCache
+{
+	public:
+		void pbcPaint(int x, int y, int pbc_active_width, int pbc_passive_width) const;
+		static void pbcClear();
+		static CProgressBarCache *pbcLookup(	int dy,
+							int dx,
+							int active_col,
+							int passive_col,
+							int design,
+							bool enable_invert,
+							bool enable_gradient,
+							int R,
+							int G,
+							int Y);
+	private:
+		// keys to lookup:
+		int pbc_height, pbc_width;
+		int pbc_active_col, pbc_passive_col;
+		int pbc_design;
+		bool pbc_invert, pbc_gradient;
+		int pbc_red, pbc_green, pbc_yellow;
+		int yoff;
+
+		fb_pixel_t *pbc_active, *pbc_passive;
+ ;
+
+		static inline unsigned int make16color(__u32 rgb){return 0xFF000000 | rgb;};
+
+		void pbcPaintBoxRel(int x, int y, int dx, int dy, fb_pixel_t *pixbuf, fb_pixel_t col) const;
+		void pbcApplyGradient(fb_pixel_t *pixbuf);
+		void pbcCreateBitmaps();
+
+		CProgressBarCache(	int dy,
+					int dx,
+					int active_col,
+					int passive_col,
+					int design,
+					bool enable_invert,
+					bool enable_gradient,
+					int R,
+					int G,
+					int Y)
+						: pbc_height(dy),
+						pbc_width(dx),
+						pbc_active_col(active_col),
+						pbc_passive_col(passive_col),
+						pbc_design(design),
+						pbc_invert(enable_invert),
+						pbc_gradient(enable_gradient),
+						pbc_red(R),
+						pbc_green(G),
+						pbc_yellow(Y),
+						yoff(0)
+		{
+			if (pbCache.size() > 10)
+				pbcClear();
+			pbcCreateBitmaps();
+		}
+
+};
+
 class CProgressBar : public CComponentsItem
 {
 	private:
