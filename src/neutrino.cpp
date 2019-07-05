@@ -1069,7 +1069,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 				}
 				continue;
 			}
-			SNeutrinoSettings::usermenu_t *u = new SNeutrinoSettings::usermenu_t;
+			SNeutrinoSettings::usermenu_t *u = new SNeutrinoSettings::usermenu_t; //FIXME: possible leak
 			u->key = uk;
 
 			std::string txt1("usermenu_tv_");
