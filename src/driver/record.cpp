@@ -2178,7 +2178,12 @@ bool CStreamRec::Open(CZapitChannel * channel)
 		printf("%s: Cannot find stream info [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
 		return false;
 	}
-	if (!strstr(ifcx->iformat->name, "applehttp") &&
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58,27,102)
+	const char *hls = "applehttp";
+#else
+	const char *hls = "hls";
+#endif
+	if (!strstr(ifcx->iformat->name, hls) &&
 		!strstr(ifcx->iformat->name, "mpegts") &&
 		!strstr(ifcx->iformat->name, "matroska") &&
 		!strstr(ifcx->iformat->name, "avi") &&
