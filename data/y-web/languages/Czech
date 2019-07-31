@@ -204,6 +204,7 @@ epg.si.pcrpid=Program Clock Reference PID
 epg.si.apid=Zvukový PID
 epg.si.vtxtpid=TeleText PID
 epg.si.crypt=Kodovací systém
+epg.si.url=Url
 
 ======= Nastavení
 set.reload_neutrino=Restart Neutrina

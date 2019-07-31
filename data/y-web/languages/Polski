@@ -206,6 +206,7 @@ epg.si.pcrpid=Program zegara odniesienia PID
 epg.si.apid=audio PID
 epg.si.vtxtpid=Telegazeta PID
 epg.si.crypt=system kodowania
+epg.si.url=Url
 
 # ========= Ustawienia
 set.reload_neutrino=Restart Neutrino

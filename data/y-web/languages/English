@@ -226,6 +226,7 @@ epg.si.pcrpid=Program Clock Reference PID
 epg.si.apid=Audio PID
 epg.si.vtxtpid=Teletext PID
 epg.si.crypt=Crypt systems
+epg.si.url=Url
 
 ========Settings
 set.reload_neutrino=reload Neutrino

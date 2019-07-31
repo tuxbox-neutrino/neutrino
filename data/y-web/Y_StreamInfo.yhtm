@@ -25,6 +25,11 @@
 <div class="y_head">{=L:epg.si.streaminfo=} ({=ServiceName=})</div>
 <div class="y_work_box">
 	<table cellspacing="2" cellpadding="3" class="tableborder" width="300px">
+		<tr>
+			<td class="set"><b>{=L:epg.si.url=}:</b></td>
+			<td>&nbsp;</td>
+			<td class="set"> <div align="left">{=Url=}</div></td>
+		</tr>
 		<tr> 
 			<td class="set"><b>{=L:epg.si.resolution=}:</b></td>
 			<td width="30">&nbsp;</td>
