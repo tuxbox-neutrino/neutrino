@@ -986,6 +986,7 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 				}
 			}
 			if (haveurl) {
+				info.name = htmlEntityDecode(info.name);
 				streamList.push_back(info);
 			}
 			haveurl = false;
@@ -1013,6 +1014,7 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 			}
 		}
 		if (haveurl) {
+			info.name = htmlEntityDecode(info.name);
 			streamList.push_back(info);
 		}
 	}
