@@ -1000,6 +1000,10 @@ bool CInfoViewer::showLivestreamInfo()
 			// try to get meta data
 			std::string artist = "";
 			std::string title = "";
+			std::string icy_br;
+			std::string icy_genre;
+			std::string icy_name;
+			std::string icy_description;
 			std::vector<std::string> keys, values;
 			cPlayback *playback = CMoviePlayerGui::getInstance().getPlayback();
 			if (playback)
@@ -1020,6 +1024,35 @@ bool CInfoViewer::showLivestreamInfo()
 						title = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
 						continue;
 					}
+					if (!strcasecmp("StreamTitle", key.c_str()))
+					{
+						artist = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						continue;
+					}
+					if (!strcasecmp("icy-name", key.c_str()))
+					{
+						icy_name = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						continue;
+					}
+					if (!strcasecmp("icy-genre", key.c_str()))
+					{
+						icy_genre = " (";
+						icy_genre += isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						icy_genre += ") ";
+						continue;
+					}
+					if (!strcasecmp("icy-br", key.c_str()))
+					{
+						icy_br = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						icy_br += "  kb/s";
+						continue;
+					}
+					if (!strcasecmp("icy-description", key.c_str()))
+					{
+						icy_description = "  -   ";
+						icy_description += isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						continue;
+					}
 				}
 			}
 			if (!artist.empty())
@@ -1032,6 +1065,18 @@ bool CInfoViewer::showLivestreamInfo()
 					livestreamInfo1 += " - ";
 				livestreamInfo1 += title;
 			}
+			if(livestreamInfo2.empty())
+			{
+				if(!icy_name.empty())
+					livestreamInfo2 = icy_name;
+				if(!icy_genre.empty())
+					livestreamInfo2 += icy_genre;
+				if(!icy_br.empty())
+					livestreamInfo2 += icy_br;
+				if(!icy_description.empty() && livestreamInfo2.empty())
+					livestreamInfo2 += icy_description;
+			}
+
 		}
 
 		if (livestreamInfo1 != _livestreamInfo1 || livestreamInfo2 != _livestreamInfo2)
@@ -1055,8 +1100,8 @@ void CInfoViewer::loop(bool show_dot)
 	setInfobarTimeout();
 
 	int res = messages_return::none;
-	neutrino_msg_t msg;
-	neutrino_msg_data_t data;
+	neutrino_msg_t msg = 0;
+	neutrino_msg_data_t data = 0;
 
 	if (isVolscale)
 		CVolume::getInstance()->showVolscale();
@@ -1285,8 +1330,8 @@ void CInfoViewer::showSubchan ()
 			uint64_t timeoutEnd_tmp = CRCInput::calcTimeoutEnd(2);
 			int res = messages_return::none;
 
-			neutrino_msg_t msg;
-			neutrino_msg_data_t data;
+			neutrino_msg_t msg = 0;
+			neutrino_msg_data_t data = 0;
 
 			while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
 				g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd_tmp);
