@@ -27,6 +27,7 @@
 
 #include <global.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <gui/widget/msgbox.h>
 #include <neutrino.h>
 
@@ -62,14 +63,15 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
 
-	std::string name, text, icon = std::string(NEUTRINO_ICON_INFO);
+	std::string name, text, icon = std::string(NEUTRINO_ICON_INFO), txtMode = "";
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "text", text);
 	tableLookup(L, "icon", icon);
-	lua_Integer timeout = -1, width = MSGBOX_MIN_WIDTH, return_default_on_timeout = 0, show_buttons = 0, default_button = 0;
+	lua_Integer timeout = -1, width = MSGBOX_MIN_WIDTH, return_default_on_timeout = 0, show_buttons = 0, default_button = 0, text_mode = 0;
 	tableLookup(L, "timeout", timeout);
 	tableLookup(L, "width", width);
 	tableLookup(L, "return_default_on_timeout", return_default_on_timeout);
+	tableLookup(L, "text_mode", txtMode);
 
 	std::string tmp;
 	if (tableLookup(L, "align", tmp)) {
@@ -127,7 +129,31 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 			}
 	}
 
-	int res = ShowMsg(name, text, (CMsgBox::msg_result_t) default_button, (CMsgBox::button_define_t) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
+	if (!txtMode.empty()) {
+		table_key txt_align[] = {
+			{ "ALIGN_AUTO_WIDTH",		CTextBox::AUTO_WIDTH },
+			{ "ALIGN_AUTO_HIGH",		CTextBox::AUTO_HIGH },
+			{ "ALIGN_SCROLL",		CTextBox::SCROLL },
+			{ "ALIGN_CENTER",		CTextBox::CENTER },
+			{ "ALIGN_RIGHT",		CTextBox::RIGHT },
+			{ "ALIGN_TOP",			CTextBox::TOP },
+			{ "ALIGN_BOTTOM",		CTextBox::BOTTOM },
+			{ "ALIGN_NO_AUTO_LINEBREAK",	CTextBox::NO_AUTO_LINEBREAK },
+			{ "DECODE_HTML",		0 },
+			{ NULL,				0 }
+		};
+		for (int i = 0; txt_align[i].name; i++) {
+			if (txtMode.find(txt_align[i].name) != std::string::npos){
+				text_mode |= txt_align[i].code;
+			}
+		}
+		if (txtMode.find("DECODE_HTML") != std::string::npos)
+			htmlEntityDecode(text);
+	}
+	else
+		text_mode = DEFAULT_MSGBOX_TEXT_MODE;
+
+	int res = ShowMsg(name, text, (CMsgBox::msg_result_t) default_button, (CMsgBox::button_define_t) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout, text_mode);
 
 	tmp = "cancel";
 	for (int i = 0; mbr[i].name; i++)
