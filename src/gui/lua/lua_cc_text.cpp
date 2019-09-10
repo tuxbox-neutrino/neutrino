@@ -95,7 +95,9 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	tableLookup(L, "dx",        dx);
 	tableLookup(L, "dy",        dy);
 	tableLookup(L, "text",      text);
-	tableLookup(L, "mode",      tmpMode);
+	//to prevent possible ambiguity of text mode, use 'text_mode' instead 'mode' in api
+	tableLookup(L, "text_mode", tmpMode);
+	tableLookup(L, "mode",      tmpMode); //NOTE: parameter 'mode' deprecated, but still available for downward compatibility
 	tableLookup(L, "font_text", font_text);
 	if (font_text >= SNeutrinoSettings::FONT_TYPE_COUNT || font_text < 0)
 		font_text = SNeutrinoSettings::FONT_TYPE_MENU;
