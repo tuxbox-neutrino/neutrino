@@ -424,31 +424,30 @@ void CCDraw::clearFbData()
 
 bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int line)
 {
+	if (fbdata.x < 0 || fbdata.y < 0 || fbdata.dx == 0 || fbdata.dy == 0) {
+		dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! Position < 0 or dx and/or dy = 0, x = %d,  y = %d, dx = %d,  dy = %d item: %s [type: %d]\n",
+			func, line,
+			fbdata.x, fbdata.y,
+			fbdata.dx, fbdata.dy,
+			cc_item_type.name.c_str(),
+			cc_item_type.id
+		);
+		return false;
+	}
 	int32_t rows = fbdata.dx / (int32_t)frameBuffer->getScreenWidth(true) - 1 + fbdata.y;
 	int32_t rest = fbdata.dx % (int32_t)frameBuffer->getScreenWidth(true);
-        int32_t end  = rows * (int32_t)frameBuffer->getScreenWidth(true) + rest;
-	if (	(fbdata.x < 0 || fbdata.y < 0) ||
-		(end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true)) 
-	   ) {
-		dprintf(DEBUG_NORMAL, "[CCDraw] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n item: %s [type: %d]\n",
+	int32_t end  = rows * (int32_t)frameBuffer->getScreenWidth(true) + rest;
+	if (end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true)) 
+	{
+		dprintf(DEBUG_NORMAL, "[CCDraw] ERROR! Position > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n item: %s [type: %d]\n",
 				func, line,
 				fbdata.x, fbdata.y,
 				fbdata.dx, fbdata.dy,
 				cc_item_type.name.c_str(),
 				cc_item_type.id
 		);
-			return false;
-		}
-		if (fbdata.dx == 0 || fbdata.dy == 0) {
-			dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! dx and/or dy = 0, tx = %d,  y = %d, dx = %d,  dy = %d item: %s [type: %d]\n",
-				func, line,
-				fbdata.x, fbdata.y,
-				fbdata.dx, fbdata.dy,
-				cc_item_type.name.c_str(),
-				cc_item_type.id
-			);
-			return false;
-		}
+		return false;
+	}
 	return true;
 }
 
