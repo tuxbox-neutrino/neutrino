@@ -520,12 +520,13 @@ int CRCInput::checkTimers()
 				else
 					_newtimer.times_out = e->times_out + e->interval;
 
-		            	timers.erase(e);
+				timers.erase(e);
 				for ( e= timers.begin(); e!= timers.end(); ++e )
 					if ( e->times_out> _newtimer.times_out )
 						break;
 
-				timers.insert(e, _newtimer);
+				if(e != timers.end())
+					timers.insert(e, _newtimer);
 			}
 			else
 				timers.erase(e);
