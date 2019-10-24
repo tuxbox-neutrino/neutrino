@@ -44,6 +44,7 @@ function do_init(){
 		case "10":	// mutant hd51
 		case "11":	// wwio bre2ze4k
 		case "12":	// vu solo4k
+		case "13":	// zgemma h7
 			sel=(sel*1+val*1);
 			break;
 		default:
@@ -135,6 +136,7 @@ select {
 						<option value="10">Mutant | HD51</option>
 						<option value="11">WWIO | Bre2ze 4K</option>
 						<option value="12">VU+ | Solo 4K</option>
+						<option value="13">Zgemma | H7</option>
 					</select>
 				</td>
 			</tr>
