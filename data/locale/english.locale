@@ -803,6 +803,45 @@ fsk.from_7 from 7
 fsk.to_12 to 12
 fsk.to_16 to 16
 fsk.to_7 to 7
+glcd.brightness Brightness
+glcd.brightness_standby Brightness in standby
+glcd.color.black Black
+glcd.color.blue Blue
+glcd.color.cyan Blue-Green
+glcd.color.green Green
+glcd.color.magenta Magenta
+glcd.color.red Red
+glcd.color.white White
+glcd.color.yellow Yellow
+glcd.color.orange Orange
+glcd.color.light_gray Light Gray
+glcd.color.gray Gray
+glcd.color.dark_gray Dark Gray
+glcd.color.dark_red Dark Red
+glcd.color.dark_green Dark Green
+glcd.color.dark_blue Dark Blue
+glcd.color.purple Purple
+glcd.color.mint Mint
+glcd.color.golden Golden
+glcd.enable GraphLCD enabled
+glcd.font Font
+glcd.head GraphLCD-Support
+glcd.mirror_osd Show OSD menu on GraphLCD
+glcd.mirror_video Show running video on GraphLCD
+glcd.restart Rescan
+glcd.scroll_speed Scrolling Speed
+glcd.select.bar Progress bar color
+glcd.select.bg Background color
+glcd.select.fg Foreground color
+glcd.show_logo Show channel logo
+glcd.size_bar Progress bar height
+glcd.size_channel Channel height
+glcd.size_epg EPG height
+glcd.size_logo Logo height
+glcd.size_time Time height
+glcd.size_time_standby Time height in standby
+glcd.time_in_standby Display time in standby
+glcd.volume Volume
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.

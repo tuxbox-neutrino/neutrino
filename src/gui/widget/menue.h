@@ -208,6 +208,10 @@ class CMenuItem : public  CComponentsSignals
 		void setParentWidget(CMenuWidget* parent){parent_widget = parent;}
 		void setInfoIconRight(const char * const IconName_Info_right);
 		const char* getInfoIconRight(){return iconName_Info_right;}
+
+#ifdef ENABLE_GRAPHLCD
+		std::string graphlcd_text;
+#endif
 #ifdef ENABLE_LCD4LINUX
 		std::string lcd4l_text;
 #endif

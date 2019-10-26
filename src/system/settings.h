@@ -790,6 +790,27 @@ struct SNeutrinoSettings
 	int infoClockSeconds;
 	int infoClockBackground;
 
+#ifdef ENABLE_GRAPHLCD
+	// graphlcd
+	int glcd_enable;
+	uint32_t glcd_color_fg;
+	uint32_t glcd_color_bg;
+	uint32_t glcd_color_bar;
+	std::string glcd_font;
+	int glcd_percent_channel;
+	int glcd_percent_epg;
+	int glcd_percent_bar;
+	int glcd_percent_time;
+	int glcd_percent_time_standby;
+	int glcd_percent_logo;
+	int glcd_mirror_osd;
+	int glcd_mirror_video;
+	int glcd_time_in_standby;
+	int glcd_show_logo;
+	int glcd_brightness;
+	int glcd_brightness_standby;
+	int glcd_scroll_speed;
+#endif
 #ifdef ENABLE_LCD4LINUX
 	// lcd4linux
 	int lcd4l_support;
@@ -801,7 +822,6 @@ struct SNeutrinoSettings
 	int lcd4l_skin_radio;
 	int lcd4l_convert;
 #endif
-
 	// lcdd
 	enum LCD_SETTINGS {
 		LCD_BRIGHTNESS         = 0,

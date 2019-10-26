@@ -49,6 +49,11 @@
 #define writesize oobsize
 #endif
 
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+extern CLCD4l *LCD4l;
+#endif
+
 CFlashTool::CFlashTool()
 {
 	statusViewer = NULL;

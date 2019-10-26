@@ -629,6 +629,18 @@ case "$BOXMODEL" in
 		AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
 	;;
 esac
+
+# BOXMODELs that needs GraphLCD support
+case "$BOXMODEL" in
+	vusolo4k|vuduo4k|vuultimo4k|vuuno4kse)
+		AC_DEFINE(ENABLE_GRAPHLCD, 1, [include GraphLCD support])
+		enable_graphlcd=yes
+	;;
+	*)
+		enable_graphlcd=no
+	;;
+esac
+AM_CONDITIONAL(ENABLE_GRAPHLCD, test "$enable_graphlcd" = "yes")
 ])
 
 dnl backward compatiblity

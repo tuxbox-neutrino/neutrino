@@ -803,6 +803,45 @@ fsk.from_7 ab 7
 fsk.to_12 bis 12
 fsk.to_16 bis 16
 fsk.to_7 bis 7
+glcd.brightness Helligkeit
+glcd.brightness_standby Helligkeit in Standby
+glcd.color.black Schwarz
+glcd.color.blue Blau
+glcd.color.cyan Blaugrün
+glcd.color.green Grün
+glcd.color.magenta Magenta
+glcd.color.red Rot
+glcd.color.white Weiss
+glcd.color.yellow Gelb
+glcd.color.orange Orange
+glcd.color.light_gray Hellgrau
+glcd.color.gray Grau
+glcd.color.dark_gray Dunkelgrau
+glcd.color.dark_red Dunkelrot
+glcd.color.dark_green Dunkelgrün
+glcd.color.dark_blue Dunkelblau
+glcd.color.purple Purple
+glcd.color.mint Mint
+glcd.color.golden Golden
+glcd.enable GraphLCD aktiv
+glcd.font Schrift
+glcd.head GraphLCD-Unterstützung
+glcd.mirror_osd OSD-Menü auf GraphLCD anzeigen
+glcd.mirror_video Videobild auf GraphLCD anzeigen
+glcd.restart Neu erkennen
+glcd.scroll_speed Scroll-Geschwindigkeit
+glcd.select.bar Fortschrittsbalken-Farbe
+glcd.select.bg Hintergrund-Farbe
+glcd.select.fg Vordergrund-Farbe
+glcd.show_logo Sender-Logo anzeigen
+glcd.size_bar Fortschrittsbalken-Größe
+glcd.size_channel Sender-Größe
+glcd.size_epg EPG-Größe
+glcd.size_logo Logo-Größe
+glcd.size_time Uhrzeit-Größe
+glcd.size_time_standby Uhrzeit-Größe in Standby
+glcd.time_in_standby Zeitanzeige in Standby
+glcd.volume Lautstärke
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.

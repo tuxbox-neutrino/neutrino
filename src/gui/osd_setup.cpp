@@ -64,6 +64,7 @@
 #include <zapit/femanager.h>
 #include <system/debug.h>
 #include <system/helpers.h>
+#include <system/setting_helpers.h>
 #include "cs_api.h"
 
 #include <hardware/video.h>

@@ -206,7 +206,7 @@ public:
 	void MarkChannelsInit(void) { channels_init = true; };
 	void quickZap(int msg);
 	void numericZap(int msg);
-	void StopSubtitles();
+	void StopSubtitles(bool enable_glcd_mirroring = true);
 	void StartSubtitles(bool show = true);
 	bool StartPip(const t_channel_id channel_id);
 	void SelectSubtitles();

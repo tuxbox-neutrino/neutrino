@@ -8,3 +8,6 @@
 #if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE || HAVE_GENERIC_HARDWARE  || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include <driver/simple_display.h>
 #endif
+#ifdef ENABLE_GRAPHLCD
+#include <driver/nglcd.h>
+#endif

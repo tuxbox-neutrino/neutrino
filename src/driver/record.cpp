@@ -49,7 +49,7 @@
 #include <system/fsmounter.h>
 #include <system/helpers.h>
 
-
+#include <driver/display.h>
 #include <driver/record.h>
 #include <driver/radiotext.h>
 #include <driver/streamts.h>
@@ -1089,6 +1089,9 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 				if(eventinfo->channel_id == live_channel_id)
 					recordingstatus = 1;
 #endif
+#ifdef ENABLE_GRAPHLCD
+				nGLCD::Update();
+#endif
 			} else {
 				delete inst;
 			}
@@ -1290,6 +1293,9 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 	if(inst != NULL && recinfo->eventID == inst->GetRecordingId()) {
 		StopInstance(inst, false);
 		ret = true;
+#ifdef ENABLE_GRAPHLCD
+		nGLCD::Update();
+#endif
 	} else {
 		for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
 			if((*it)->eventID == recinfo->eventID) {

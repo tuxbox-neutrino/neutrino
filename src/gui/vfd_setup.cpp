@@ -33,6 +33,9 @@
 #include <config.h>
 #endif
 
+#ifdef ENABLE_GRAPHLCD
+#include <gui/glcdsetup.h>
+#endif
 
 #include "vfd_setup.h"
 
@@ -186,6 +189,13 @@ int CVfdSetup::showSetup()
 		oj->setHint("", LOCALE_MENU_HINT_VFD_NOTIFY_RCLOCK);
 		vfds->addItem(oj);
 	}
+
+#ifdef ENABLE_GRAPHLCD
+	GLCD_Menu glcdMenu;
+
+	vfds->addItem(GenericMenuSeparatorLine);
+	vfds->addItem(new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, &glcdMenu, NULL, CRCInput::RC_blue));
+#endif
 
 	int res = vfds->exec(NULL, "");
 
