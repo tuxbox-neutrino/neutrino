@@ -1750,6 +1750,8 @@ int CRCInput::translate(int code)
 			return RC_favorites;
 		case KEY_FASTFORWARD:
 			return RC_forward;
+		case 0xb0: // vuplus timer key
+			return RC_timer;
 #endif
 #ifdef HAVE_AZBOX_HARDWARE
 		case KEY_HOME:
