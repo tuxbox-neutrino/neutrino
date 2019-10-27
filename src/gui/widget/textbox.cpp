@@ -875,7 +875,7 @@ bool CTextBox::clearScreenBuffer()
 	return false;
 }
 
-bool CTextBox::enableSaveScreen(bool mode)
+bool CTextBox::enableSaveScreen(const bool& mode)
 {
 	if (m_SaveScreen == mode)
 		return false;
@@ -939,7 +939,7 @@ int CTextBox::getMaxLineWidth(const std::string& text, Font* font)
 	return len;
 }
 
-void CTextBox::enableBackgroundPaint(bool mode)
+void CTextBox::enableBackgroundPaint(const bool& mode)
 {
 	m_nPaintBackground = mode;
 }

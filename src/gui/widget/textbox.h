@@ -181,10 +181,10 @@ class CTextBox : public sigc::trackable
 		void    refresh(void);
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);
-		void    enableBackgroundPaint(bool mode = true);
+		void    enableBackgroundPaint(const bool& mode = true);
 		void    disableBackgroundPaint();
 		//enable screen saving behind chars, is required for transparent text paint, returns true if mode was changed
-		bool    enableSaveScreen(bool mode = true);
+		bool    enableSaveScreen(const bool& mode = true);
 		bool	setText(const std::string* newText, int max_width = 0, bool force_repaint = true);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};
