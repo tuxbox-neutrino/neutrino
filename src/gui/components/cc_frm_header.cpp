@@ -707,7 +707,7 @@ void CComponentsHeader::initCCItems()
 	initLogo();
 }
 
-void CComponentsHeader::paint(bool do_save_bg)
+void CComponentsHeader::paint(const bool &do_save_bg)
 {
 	//prepare items
 	initCCItems();

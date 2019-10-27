@@ -381,7 +381,7 @@ void CComponentsFooter::paintButtons(const int& x_pos,
 				     const int& label_width,
 				     const int& context_buttons,
 				     Font* font,
-				     bool do_save_bg)
+				     const bool &do_save_bg)
 {
 	this->setDimensionsAll(x_pos, y_pos, w, h);
 	this->setButtonFont(font);

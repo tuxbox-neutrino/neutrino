@@ -229,7 +229,7 @@ void CComponentsExtTextForm::setLabelWidthPercent(const uint8_t& percent_val)
 	initCCTextItems();
 }
 
-void CComponentsExtTextForm::paint(bool do_save_bg)
+void CComponentsExtTextForm::paint(const bool &do_save_bg)
 {
 	//prepare items before paint
 	initCCTextItems();

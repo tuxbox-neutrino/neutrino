@@ -65,7 +65,7 @@ class CComponentsPIP : public CComponentsItem
 		void setPicture(const std::string& image){pic_name = image;};
 
 		///show tv box
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 		///remove tv box from screen
 		void hide();
 };

@@ -150,7 +150,7 @@ class CProgressBar : public CComponentsItem
 		void initDimensions();
 
 		///paints graph
-		void paintProgress(bool do_save_bg = CC_SAVE_SCREEN_NO);
+		void paintProgress(const bool &do_save_bg = CC_SAVE_SCREEN_NO);
 
 	public:
 		///parameters:
@@ -198,7 +198,7 @@ class CProgressBar : public CComponentsItem
 
 		///force update on next paint
 		void reset() { pb_last_width = -1; }
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_NO);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_NO);
 
 		enum pb_color_t {
 			PB_OFF = -2,	/* -2 */

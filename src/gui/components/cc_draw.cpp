@@ -498,7 +498,7 @@ void CCDraw::enablePaintCache(bool enable)
 }
 
 //paint framebuffer layers
-void CCDraw::paintFbItems(bool do_save_bg)
+void CCDraw::paintFbItems(const bool &do_save_bg)
 {
 	//Pick up signal if filled and execute slots.
 	OnBeforePaintLayers();

@@ -65,7 +65,7 @@ void CComponentsItem::initParent(CComponentsForm* parent)
 // init container properties in cc-items for shadow, background and frame.
 // This member must be called first in all paint() members before paint other items into the container.
 // If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
-void CComponentsItem::paintInit(bool do_save_bg)
+void CComponentsItem::paintInit(const bool &do_save_bg)
 {
 	if (hasChanges()){
 		clearFbData();

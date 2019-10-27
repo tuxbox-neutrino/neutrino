@@ -159,7 +159,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		void setClockInterval(const int& seconds){cl_interval = seconds;}
 
 		///show clock on screen
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 		///hide clock on screen
 		void hide(){Stop(); CComponentsForm::hide();}
 		///does the same like kill() from base class, but stopping clock before kill

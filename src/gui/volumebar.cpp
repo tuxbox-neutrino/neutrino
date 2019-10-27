@@ -247,7 +247,7 @@ void CVolumeBar::paintVolScale()
 	vb_pb->paint(CC_SAVE_SCREEN_NO);
 }
 
-void CVolumeBar::paint(bool do_save_bg)
+void CVolumeBar::paint(const bool &do_save_bg)
 {
 	//prepare items
 	initVolumeBarItems();

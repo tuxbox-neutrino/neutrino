@@ -57,7 +57,7 @@ class CComponentsShapeCircle : public CComponentsItem
 		inline int getDiam() const {return d;};
 
 		///paint item
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 class CComponentsShapeSquare : public CComponentsItem
@@ -70,7 +70,7 @@ class CComponentsShapeSquare : public CComponentsItem
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 

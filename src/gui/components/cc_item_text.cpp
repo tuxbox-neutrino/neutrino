@@ -278,7 +278,7 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 	return setText(txt, mode, font_text, color_text, style);
 }
 
-void CComponentsText::paintText(bool do_save_bg)
+void CComponentsText::paintText(const bool &do_save_bg)
 {
 	if (cc_parent){
 		if(!cc_parent->OnAfterPaintBg.empty())
@@ -300,7 +300,7 @@ void CComponentsText::paintText(bool do_save_bg)
 	ct_text_sent = false;
 }
 
-void CComponentsText::paint(bool do_save_bg)
+void CComponentsText::paint(const bool &do_save_bg)
 {
 	OnBeforePaint();
 	paintText(do_save_bg);

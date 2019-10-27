@@ -146,7 +146,7 @@ class CSignalBar : public CComponentsForm, public CCTextScreen
 		virtual int getScaleWidth(){ return sb_scale_width;};
 
 		///paint this items
-		virtual void paint(bool do_save_bg);
+		virtual void paint(const bool &do_save_bg);
 
 		//returns the current signal value
 		uint16_t getValue(void) { return sb_signal; }
@@ -329,7 +329,7 @@ class CSignalBox : public CComponentsForm, public CCTextScreen
 		fb_pixel_t getPassiveColor(){return sbx_passive_color;};
 
 		///paint items
-		void paint(bool do_save_bg);
+		void paint(const bool &do_save_bg);
 
 		///return current signal value
 		uint16_t getSignalValue(void) { return sbar->getValue();}

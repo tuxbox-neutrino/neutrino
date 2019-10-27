@@ -74,7 +74,7 @@ public:
 			const char* Icon = NEUTRINO_ICON_INFO);
 
 	///show = paint, for compatibility
-	void show(bool do_save_bg = true){ paint(do_save_bg) ;}
+	void show(const bool &do_save_bg = true){ paint(do_save_bg) ;}
 
 
 	/**Adds an item with pre defined text

@@ -173,7 +173,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		void Refresh(){initCCBtnItems();};
 
 		///paint button object
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		/**
 		* Assigns a single event msg value to button object

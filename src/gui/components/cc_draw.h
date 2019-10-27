@@ -156,7 +156,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///rendering of framebuffer elements at once,
 		///elements are contained in v_fbdata, presumes added frambuffer elements with paintInit(),
 		///parameter do_save_bg=true, saves background of element to pixel buffer, this can be restore with hide()
-		void paintFbItems(bool do_save_bg = true);
+		void paintFbItems(const bool &do_save_bg = true);
 
 	public:
 		///basic component class constructor.
@@ -306,7 +306,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		int getColBodyGradientMode(){return cc_body_gradient_enable;}
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
-		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
+		virtual void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES) = 0;
 		///paint item, same like paint(CC_SAVE_SCREEN_NO) but without any argument
 		void paint0(){paint(CC_SAVE_SCREEN_NO);}
 		///paint item, same like paint(CC_SAVE_SCREEN_YES) but without any argument

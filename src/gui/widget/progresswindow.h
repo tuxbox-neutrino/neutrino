@@ -285,7 +285,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* @param[in]	do_save_bg
 		* 	@li 	optional: expects type bool, sets background save mode
 		*/
-		void paint(bool do_save_bg = true);
+		void paint(const bool &do_save_bg = true);
 };
 
 class CProgressSignals : public sigc::trackable

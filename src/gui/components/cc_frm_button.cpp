@@ -288,7 +288,7 @@ void CComponentsButton::initCCBtnItems()
 }
 
 
-void CComponentsButton::paint(bool do_save_bg)
+void CComponentsButton::paint(const bool &do_save_bg)
 {
 	//prepare items before paint
 	initCCBtnItems();

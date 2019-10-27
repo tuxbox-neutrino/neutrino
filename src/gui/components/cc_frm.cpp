@@ -341,7 +341,7 @@ void CComponentsForm::exchangeCCItem(CComponentsItem* item_a, CComponentsItem* i
 	exchangeCCItem(getCCItemId(item_a), getCCItemId(item_b));
 }
 
-void CComponentsForm::paintForm(bool do_save_bg)
+void CComponentsForm::paintForm(const bool &do_save_bg)
 {
 	//paint body
 	if (!is_painted || force_paint_bg || shadow_force)
@@ -351,7 +351,7 @@ void CComponentsForm::paintForm(bool do_save_bg)
 	paintCCItems();
 }
 
-void CComponentsForm::paint(bool do_save_bg)
+void CComponentsForm::paint(const bool &do_save_bg)
 {
 	if(is_painted)
 		OnBeforeRePaint();
@@ -368,7 +368,7 @@ bool CComponentsForm::isPageChanged()
 	return false;
 }
 
-void CComponentsForm::paintPage(const uint8_t& page_number, bool do_save_bg)
+void CComponentsForm::paintPage(const uint8_t& page_number, const bool &do_save_bg)
 {
 	cur_page = page_number;
 	paint(do_save_bg);
@@ -724,3 +724,4 @@ int CComponentsForm::getUsedDX()
 
 	return x_res;
 }
+

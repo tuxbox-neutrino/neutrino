@@ -385,7 +385,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		* @param[in]	do_save_bg
 		* 	@li 	optional: expects type bool, default = CC_SAVE_SCREEN_NO (false), sets background save mode
 		*/
-		void paintCurPage(bool do_save_bg = CC_SAVE_SCREEN_NO);
+		void paintCurPage(const bool &do_save_bg = CC_SAVE_SCREEN_NO);
 
 		/**
 		* Paints defined page of body, parameter number 0...n
@@ -394,7 +394,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		* @param[in]	do_save_bg
 		* 	@li 	optional: expects type bool, default = CC_SAVE_SCREEN_NO (false), sets background save mode
 		*/
-		void paintPage(const uint8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		void paintPage(const uint8_t& page_number, const bool &do_save_bg = CC_SAVE_SCREEN_NO);
 
 		/**
 		* enable/disable page scroll
@@ -420,7 +420,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		* @param[in]	do_save_bg
 		* 	@li 	optional: expects type bool, sets background save mode
 		*/
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		/**
 		* Adds an additional exec key to current collection, default exit keys are CRCInput::RC_home and CRCInput::RC_setup

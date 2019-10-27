@@ -77,7 +77,7 @@ CComponentsPIP::~CComponentsPIP()
 //  	videoDecoder->Pig(-1, -1, -1, -1);
 }
 
-void CComponentsPIP::paint(bool do_save_bg)
+void CComponentsPIP::paint(const bool &do_save_bg)
 {
 	//NOTE: real values are reqiured, if we paint not bound items or an own render methodes
 	int pig_x = (cc_parent ? cc_xr : x) + fr_thickness;

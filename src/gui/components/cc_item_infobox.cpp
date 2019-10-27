@@ -138,7 +138,7 @@ void CComponentsInfoBox::paintPicture()
 	pic->paint(CC_SAVE_SCREEN_NO);	
 }
 
-void CComponentsInfoBox::paint(bool do_save_bg)
+void CComponentsInfoBox::paint(const bool &do_save_bg)
 {
 	paintInit(do_save_bg);
 	paintPicture();

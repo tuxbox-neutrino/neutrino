@@ -381,7 +381,7 @@ bool CComponentsFrmClock::Stop()
 	return false;
 }
 
-void CComponentsFrmClock::paint(bool do_save_bg)
+void CComponentsFrmClock::paint(const bool &do_save_bg)
 {
 	//prepare items before paint
 	initCCLockItems();

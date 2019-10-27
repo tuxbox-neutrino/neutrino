@@ -152,7 +152,7 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 		Font* getFont(){return ccx_font;}
 
 		///paint this item/form
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 #endif

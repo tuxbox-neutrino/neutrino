@@ -343,7 +343,7 @@ void CComponentsPicture::paintPicture()
 	}
 }
 
-void CComponentsPicture::paint(bool do_save_bg)
+void CComponentsPicture::paint(const bool &do_save_bg)
 {
 	if (pic_name.empty())
 		return;

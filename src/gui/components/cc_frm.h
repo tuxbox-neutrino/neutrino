@@ -36,7 +36,7 @@ class CComponentsForm : public CComponentsItem
 {
 	protected:
 		std::vector<CComponentsItem*>	v_cc_items;
-		void paintForm(bool do_save_bg);
+		void paintForm(const bool &do_save_bg);
 		///generates next possible index for an item, see also cc_item_index, getIndex(), setIndex()
 		int genIndex();
 
@@ -77,7 +77,7 @@ class CComponentsForm : public CComponentsItem
 		virtual ~CComponentsForm();
 
 		///paints current form on screen, for paint a page use paintPage()
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///same like CComponentsItem::kill(), but erases all embedded items inside of parent at once, this = parent
 		///NOTE: Items always have parent bindings to "this" and use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
@@ -170,7 +170,7 @@ class CComponentsForm : public CComponentsItem
 		///get current page
 		uint8_t getCurrentPage(){return cur_page;};
 		///paint defined page number 0...n
-		void paintPage(const uint8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		void paintPage(const uint8_t& page_number, const bool &do_save_bg = CC_SAVE_SCREEN_NO);
 		///enum page scroll modes
 		enum
 		{

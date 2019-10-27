@@ -211,7 +211,7 @@ int CProgressWindow::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	return menu_return::RETURN_REPAINT;
 }
 
-void CProgressWindow::paint(bool do_save_bg)
+void CProgressWindow::paint(const bool &do_save_bg)
 {
 	fitItems();
 	CComponentsWindow::paint(do_save_bg);

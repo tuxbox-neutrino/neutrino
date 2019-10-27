@@ -162,7 +162,7 @@ class CNaviBar : public CComponentsFrmChain
 		* @param[in]	do_save_bg
 		* 	@li 	optional: expects type bool, default = CC_SAVE_SCREEN_YES.
 		*/
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 #endif

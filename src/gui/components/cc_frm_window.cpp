@@ -432,7 +432,7 @@ void CComponentsWindow::enablePageScroll(const int& mode)
 	ccw_body->enablePageScroll(mode);
 }
 
-void CComponentsWindow::paintCurPage(bool do_save_bg)
+void CComponentsWindow::paintCurPage(const bool &do_save_bg)
 {
 	if (is_painted) //ensure that we have painted already the parent form before paint body 
 		ccw_body->paint(do_save_bg);
@@ -440,13 +440,13 @@ void CComponentsWindow::paintCurPage(bool do_save_bg)
 		paint(do_save_bg);
 }
 
-void CComponentsWindow::paintPage(const uint8_t& page_number, bool do_save_bg)
+void CComponentsWindow::paintPage(const uint8_t& page_number, const bool &do_save_bg)
 {
 	CComponentsWindow::setCurrentPage(page_number);
 	CComponentsWindow::paintCurPage(do_save_bg);
 }
 
-void CComponentsWindow::paint(bool do_save_bg)
+void CComponentsWindow::paint(const bool &do_save_bg)
 {
 	//prepare items before paint
 	initCCWItems();

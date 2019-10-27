@@ -179,7 +179,7 @@ class CComponentsPicture : public CComponentsItem
 		void SetTransparent(int t){ image_transparent = t; }
 
 		///paint item
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 		///hide item, see also CComponents::hide();
 		void hide();
 

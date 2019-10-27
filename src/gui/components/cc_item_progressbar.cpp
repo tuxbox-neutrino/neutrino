@@ -371,7 +371,7 @@ void CProgressBarCache::pbcApplyGradient(fb_pixel_t *b)
 	}
 }
 
-void CProgressBar::paintProgress(bool do_save_bg)
+void CProgressBar::paintProgress(const bool &do_save_bg)
 {
 	if (*pb_design == PB_OFF) {
 		paintInit(false);
@@ -416,7 +416,7 @@ void CProgressBar::paintProgress(bool do_save_bg)
 }
 
 
-void CProgressBar::paint(bool do_save_bg)
+void CProgressBar::paint(const bool &do_save_bg)
 {
   	paintProgress(do_save_bg);
 }

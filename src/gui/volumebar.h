@@ -89,7 +89,7 @@ class CVolumeBar : public CComponentsForm
 // 		~CVolumeBar(); inherited from CComponentsForm
 
 		void repaintVolScale();
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 

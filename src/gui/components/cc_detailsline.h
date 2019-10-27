@@ -77,7 +77,7 @@ class CComponentsDetailsLine : public CComponents
 		void setLineWidth(const int& w){dl_w = w;}
 
 		///paint all to screen
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 #endif

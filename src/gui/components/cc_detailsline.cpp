@@ -88,7 +88,7 @@ CComponentsDetailsLine::~CComponentsDetailsLine()
 
 
 //paint details line with current parameters
-void CComponentsDetailsLine::paint(bool do_save_bg)
+void CComponentsDetailsLine::paint(const bool &do_save_bg)
 {
 	hide();
 	if (hasChanges())

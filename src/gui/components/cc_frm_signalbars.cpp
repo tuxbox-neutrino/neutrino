@@ -233,7 +233,7 @@ void CSignalBar::paintScale()
 	}
 }
 
-void CSignalBar::paint(bool do_save_bg)
+void CSignalBar::paint(const bool &do_save_bg)
 {
 	//initialize before and paint frame and body
 	if (!is_painted){
@@ -353,7 +353,7 @@ void CSignalBox::paintScale()
 	snrbar->paint/*Scale*/(false);
 }
 
-void CSignalBox::paint(bool do_save_bg)
+void CSignalBox::paint(const bool &do_save_bg)
 {
 	//paint frame and body
 	if (!is_painted)

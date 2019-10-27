@@ -143,7 +143,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 					const int& label_width = 0,
 					const int& context_buttons = 0,
 					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT],
-					bool do_save_bg = CC_SAVE_SCREEN_NO
+					const bool &do_save_bg = CC_SAVE_SCREEN_NO
 				);
 
 		enum

@@ -328,7 +328,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		void disableClock();
 
 		///paint header
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///hides item, arg: no_restore see hideCCItem()
 		void hide(){disableClock(); CComponentsForm::hide();}

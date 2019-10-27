@@ -115,7 +115,7 @@ void CNaviBar::initCCItems()
 }
 
 
-void CNaviBar::paint(bool do_save_bg)
+void CNaviBar::paint(const bool &do_save_bg)
 {
 	hideCCItems();
 	nb_lText->hide();

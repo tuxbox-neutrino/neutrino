@@ -157,7 +157,7 @@ void CComponentsSlider::setSliderIcon(const std::string &icon_name)
 	initCCSlSlider();
 }
 
-// void CComponentsSlider::paint(bool do_save_bg)
+// void CComponentsSlider::paint(const bool &do_save_bg)
 // {
 // 	//prepare items before paint
 // 	initCCSlItems();

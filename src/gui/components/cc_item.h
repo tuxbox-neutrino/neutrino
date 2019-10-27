@@ -59,7 +59,7 @@ class CComponentsItem : public CComponents
 		///If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 		///arg do_save_bg=false avoids using of unnecessary pixel memory, eg. if no hide with restore is provided. This is mostly the case  whenever
 		///an item will be hide or overpainted with other methods, or it's embedded  (bound)  in a parent form.
-		void paintInit(bool do_save_bg);
+		void paintInit(const bool &do_save_bg);
 
 		///add "this" current item to parent
 		void initParent(CComponentsForm* parent);
