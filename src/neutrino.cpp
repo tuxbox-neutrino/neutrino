@@ -823,6 +823,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1); //default no minitv
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 0);
 	g_settings.eventlist_epgplus = configfile.getInt32("eventlist_epgplus", 1);
+	g_settings.channellist_displaymode = DISPLAY_MODE_NOW;
+	g_settings.channellist_descmode = false;
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_foot = configfile.getInt32("channellist_foot", 1); //default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 0);
@@ -3189,7 +3191,6 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 	InfoClock->enableInfoClock(false);//TODO: use callback in channel list class
 	StopSubtitles();
 
-//_show:
 	int nNewChannel = -1;
 	int old_b = bouquetList->getActiveBouquetNumber();
 	t_channel_id old_id = 0;
@@ -3199,7 +3200,10 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 	int old_mode = GetChannelMode();
 	printf("CNeutrinoApp::showChannelList: bouquetList %p size %d old_b %d\n", bouquetList, (int)bouquetList->Bouquets.size(), old_b);fflush(stdout);
 
-	//_show:
+	// reset display mode and description mode of channellist
+	g_settings.channellist_displaymode = DISPLAY_MODE_NOW;
+	g_settings.channellist_descmode = false;
+
 	if(msg == CRCInput::RC_ok)
 	{
 		if( !bouquetList->Bouquets.empty() && bouquetList->Bouquets[old_b]->channelList->getSize() > 0)
@@ -3476,6 +3480,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	if( msg == CRCInput::RC_ok || msg == (neutrino_msg_t) g_settings.key_zaphistory || msg == (neutrino_msg_t) g_settings.key_current_transponder
 			|| (!g_InfoViewer->getSwitchMode() && CNeutrinoApp::getInstance()->listModeKey(msg))) {
 		if( (mode == NeutrinoModes::mode_tv) || (mode == NeutrinoModes::mode_radio) || (mode == NeutrinoModes::mode_ts) || (mode == NeutrinoModes::mode_webtv) || (mode == NeutrinoModes::mode_webradio)) {
+			// reset displaymode and descmode of channellist
+			g_settings.channellist_displaymode = DISPLAY_MODE_NOW;
+			g_settings.channellist_descmode = false;
+
 			showChannelList(msg);
 			return messages_return::handled;
 		}

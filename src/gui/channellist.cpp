@@ -137,6 +137,9 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	channelsChanged = false;
 	liveBouquet = false;
 
+	displayMode = DISPLAY_MODE_NOW; // always start with current events
+	descMode = false; // always start with event list
+
 	paint_events_index = -2;
 	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
 	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
@@ -480,8 +483,9 @@ int CChannelList::doChannelMenu(void)
 
 int CChannelList::exec()
 {
-	displayMode = DISPLAY_MODE_NOW; // always start with current events
-	descMode = false; // always start with event list
+	displayMode = g_settings.channellist_displaymode;
+	descMode = g_settings.channellist_descmode;
+
 	int nNewChannel = show();
 	if ( nNewChannel > -1 && nNewChannel < (int) (*chanlist).size()) {
 		if(this->historyMode && (*chanlist)[nNewChannel]) {
@@ -621,7 +625,9 @@ int CChannelList::show()
 	new_zap_mode = g_settings.channellist_new_zap_mode;
 
 	calcSize();
-	displayMode = DISPLAY_MODE_NOW;
+
+	displayMode = g_settings.channellist_displaymode;
+	descMode = g_settings.channellist_descmode;
 
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
@@ -871,10 +877,13 @@ int CChannelList::show()
 				if (displayMode == DISPLAY_MODE_MAX)
 					displayMode = DISPLAY_MODE_NOW;
 
+				g_settings.channellist_displaymode = displayMode;
+
 				if (g_settings.channellist_additional)
 				{
 					// show event description per default in primetime mode only
 					descMode = (displayMode == DISPLAY_MODE_PRIME) ? true : false;
+					g_settings.channellist_descmode = descMode;
 				}
 
 				paint();
@@ -898,6 +907,7 @@ int CChannelList::show()
 					if (g_settings.channellist_additional)
 					{
 						descMode = !descMode;
+						g_settings.channellist_descmode = descMode;
 						paint();
 					}
 				}
@@ -2731,7 +2741,13 @@ void CChannelList::editMode(bool enable)
 	if (!bouquet || !bouquet->zapitBouquet)
 		return;
 
+	// reset displaymode
+	g_settings.channellist_displaymode = DISPLAY_MODE_NOW;
 	displayMode = DISPLAY_MODE_NOW;
+	// reset descmode
+	g_settings.channellist_descmode = false;
+	descMode = false;
+
 	edit_state = enable;
 	printf("STATE: %s\n", edit_state ? "EDIT" : "SHOW");
 	bool tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;

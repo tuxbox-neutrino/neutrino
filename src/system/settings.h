@@ -654,6 +654,8 @@ struct SNeutrinoSettings
 		CHANNELLIST_ADDITIONAL_MODE_MINITV	= 2
 	};
 	int channellist_additional;
+	int channellist_displaymode;
+	bool channellist_descmode;
 	int channellist_epgtext_align_right;
 	int channellist_foot;
 	int channellist_new_zap_mode;
