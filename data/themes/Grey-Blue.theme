@@ -48,5 +48,6 @@ menu_Head_green=0
 menu_Head_red=0
 menu_Hint_gradient=0
 menu_Head_gradient=0
+message_frame_enable=1
 infobar_gradient_top=0
 infobar_gradient_bottom=0

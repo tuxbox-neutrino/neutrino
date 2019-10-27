@@ -1596,6 +1596,8 @@ menu.hint_ytplay Play selected YouTube feeds
 menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next
+message.frame_enable Message and hint box frames
+message.frame_enable_hint Enable frames around message and hint boxes.
 messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?

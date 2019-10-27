@@ -34,6 +34,7 @@
 
 #include "msgbox.h"
 #include <system/debug.h>
+#include <system/settings.h>
 
 #define MAX_WINDOW_WIDTH  (g_settings.screen_EndX - g_settings.screen_StartX )
 #define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - 40)
@@ -104,7 +105,7 @@ void CMsgBox::init(	const int& Height,
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	fr_thickness	= frame_width;
+	fr_thickness	= g_settings.theme.message_frame_enable ? frame_width : 0;
 
 	//enable footer and add its height
 	showFooter(true);

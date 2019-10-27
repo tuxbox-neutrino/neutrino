@@ -393,6 +393,9 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 	// corners
 	configfile.setInt32( "rounded_corners", t.rounded_corners);
+
+	// message frames
+	configfile.setInt32( "message_frame_enable", t.message_frame_enable);
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -512,6 +515,9 @@ void CThemes::getTheme(CConfigFile &configfile)
 
 	// corners
 	t.rounded_corners = configfile.getInt32( "rounded_corners", 0);
+
+	// message frames
+	t.message_frame_enable = configfile.getInt32( "message_frame_enable", 0);
 
 	if (g_settings.theme_name.empty())
 		applyDefaultTheme();

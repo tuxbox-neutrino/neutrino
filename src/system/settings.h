@@ -175,6 +175,7 @@ struct SNeutrinoTheme
 	unsigned char progressbar_passive_blue;
 
 	int rounded_corners;
+	int message_frame_enable;
 };
 
 struct timer_remotebox_item

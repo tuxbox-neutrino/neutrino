@@ -8,6 +8,7 @@ colored_events_channellist=2
 colored_events_green=70
 colored_events_infobar=2
 colored_events_red=95
+message_frame_enable=1
 infobar_Text_alpha=0
 infobar_Text_blue=100
 infobar_Text_green=100

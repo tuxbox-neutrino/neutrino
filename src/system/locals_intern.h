@@ -1623,6 +1623,8 @@ const char * locale_real_names[] =
 	"menu.hint_ytplay_setup",
 	"menu.hint_zap_cycle",
 	"menu.next",
+	"message.frame_enable",
+	"message.frame_enable_hint",
 	"messagebox.back",
 	"messagebox.cancel",
 	"messagebox.discard",

@@ -37,6 +37,7 @@
 #include <gui/components/cc_timer.h>
 #include <driver/fontrenderer.h>
 #include <system/debug.h>
+#include <system/settings.h>
 
 #define MSG_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT]
 
@@ -164,7 +165,7 @@ void CHintBox::init(	const std::string& Text,
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	fr_thickness	= frame_width;
+	fr_thickness	= g_settings.theme.message_frame_enable ? frame_width : 0;
 
 	hb_font		= MSG_FONT;
 

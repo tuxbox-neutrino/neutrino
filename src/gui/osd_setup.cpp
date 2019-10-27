@@ -1012,6 +1012,11 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT_SEPARATOR_ENABLE);
 	menu_colors->addItem(oj);
 
+	// message frame
+	oj = new CMenuOptionChooser(LOCALE_MESSAGE_FRAME_ENABLE, &g_settings.theme.message_frame_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oj->setHint("", LOCALE_MESSAGE_FRAME_ENABLE_HINT);
+	menu_colors->addItem(oj);
+
 	// round corners
 	oj = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.theme.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
 	oj->OnAfterChangeOption.connect(sigc::mem_fun(menu_colors, &CMenuWidget::hide));
