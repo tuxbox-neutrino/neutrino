@@ -42,6 +42,7 @@
 #include <neutrino_menue.h>
 #include <mymenu.h>
 
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
@@ -744,7 +745,11 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s %s\n", ofgwrite_caller.c_str(), g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 #ifndef DRYRUN
 		if (flashing)
+		{
+			CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+			CVFD::getInstance()->showMenuText(0, "ofgwrite Flashing Tool", -1, true);
 			my_system(4, ofgwrite_caller.c_str(), g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
+		}
 
 		/*
 		   TODO: fix osd-flickering
