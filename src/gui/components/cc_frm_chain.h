@@ -74,7 +74,8 @@ class CComponentsFrmChain : public CComponentsForm
 					fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t& color_body = COL_MENUHEAD_PLUS_0,
 					fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
-// 		~CComponentsFrmChain(); //inherited from CComponentsForm
+
+		virtual ~CComponentsFrmChain(){};
 
 		///defines mode for arrangement direction of items, see also chn_direction
 		virtual void setDirection(int direction);

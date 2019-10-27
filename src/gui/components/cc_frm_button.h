@@ -132,6 +132,8 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
+		virtual ~CComponentsButton(){};
+
 		///set text color
 		void setButtonTextColor(fb_pixel_t caption_color){cc_btn_text_col = caption_color;};
 

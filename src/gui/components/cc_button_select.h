@@ -37,6 +37,7 @@ class CCButtonSelect
 
 	public:
 		CCButtonSelect();
+		virtual ~CCButtonSelect(){};
 
 		///returns selected button object, return value as pointer to object, NULL means nothing is selected
 		CComponentsButton* getSelectedButtonObject();

@@ -341,6 +341,8 @@ class CHint : public CHintBox
 		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
 		*/
 		CHint(const neutrino_locale_t Text, bool show_background = true);
+
+		virtual ~CHint(){};
 };
 
 /**

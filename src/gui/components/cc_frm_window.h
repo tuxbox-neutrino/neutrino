@@ -204,6 +204,8 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
+		virtual ~CComponentsWindow(){};
+
 		/**
 		* Add an item to body object, also usable is addCCItem() to add items to the window object
 		* @param[in]	cc_Item

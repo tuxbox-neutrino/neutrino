@@ -226,7 +226,7 @@ class CMsgBox : public CHintBox
 			const msg_result_t& Default_result = mbrNone,
 			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
-// 		~CMsgBox(); //inherited
+		virtual ~CMsgBox(){};
 		/**
 		* exec caller
 		* @return	int
