@@ -4990,8 +4990,10 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig->getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig->getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if BOXMODEL_HD51 || BOXMODEL_HD60
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_nokey ); // FIXME
+#elif BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUZERO4K || BOXMODEL_VUDUO
+	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_playpause );
 #else
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_pause );
 #endif
