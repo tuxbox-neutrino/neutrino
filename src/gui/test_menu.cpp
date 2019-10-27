@@ -51,6 +51,7 @@
 #include <xmlinterface.h>
 
 #include <gui/widget/msgbox.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/widget/progresswindow.h>
 #include <gui/widget/termwindow.h>
 #include <gui/scan.h>
@@ -1151,20 +1152,17 @@ int CTestMenu::showTestMenu()
 	w_test.addItem(new CMenuForwarder(w_msg->getName(), true, NULL, w_msg));
 	showMsgTests(w_msg);
 
+	//separator types
+	CMenuWidget * w_types = new CMenuWidget("Menu Separators", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HINT_MSG_TESTS);
+	w_test.addItem(new CMenuForwarder(w_types->getName(), true, NULL, w_types));
+	showSeparatorTypes(w_types);
+
+	std::string input_txt;
+	CKeyboardInput input("Text input",  &input_txt, 30, NULL, NULL, "Test");
+	w_test.addItem(new CMenuForwarder("Text input", true, NULL, &input));
+
 	//restart gui
 	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));
-
-	w_test.addItem(GenericMenuSeparatorLine);
-
-	w_test.addItem(new CMenuSeparator(CMenuSeparator::STRING, "String Separator"));
-	w_test.addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "String Line Separator"));
-
-	w_test.addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD, "Sub Title"));
-
-	w_test.addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD | CMenuSeparator::ALIGN_LEFT, "Sub Title L"));
-	w_test.addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD | CMenuSeparator::ALIGN_RIGHT, "Sub Title R"));
-
-
 
 	//footer buttons
 	static const struct button_label footerButtons[2] = {
@@ -1288,4 +1286,16 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Error/Info"));
 	widget->addItem(new CMenuForwarder("Error Message!", true, NULL, this, "msgbox_error"));
 	widget->addItem(new CMenuForwarder("Info Message!", true, NULL, this, "msgbox_info"));
+}
+
+void CTestMenu::showSeparatorTypes(CMenuWidget *widget)
+{
+	widget->addIntroItems();
+	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING, "String Separator"));
+	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "String Line Separator"));
+
+	widget->addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD, "Sub Title"));
+
+	widget->addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD | CMenuSeparator::ALIGN_LEFT, "Sub Title L"));
+	widget->addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD | CMenuSeparator::ALIGN_RIGHT, "Sub Title R"));
 }
