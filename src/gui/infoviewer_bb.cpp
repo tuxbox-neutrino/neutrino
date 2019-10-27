@@ -733,10 +733,10 @@ void CInfoViewerBB::paint_ca_icon(int caid, const char *icon, int &icon_space_of
 	int px = 0;
 	static std::map<int, std::pair<int,const char*> > icon_map;
 
-	const int icon_space = OFFSET_INNER_SMALL, icon_number = 11;
+	const int icon_space = OFFSET_INNER_SMALL, icon_number = 13;
 
-	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0};
-	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0};
+	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 	static bool init_flag = false;
 
@@ -750,12 +750,14 @@ void CInfoViewerBB::paint_ca_icon(int caid, const char *icon, int &icon_space_of
 		icon_map[0x2600] = std::make_pair(index++,"biss");
 		icon_map[0x4A00] = std::make_pair(index++,"d");
 		icon_map[0x0600] = std::make_pair(index++,"ird");
+		icon_map[0x1700] = std::make_pair(index++,"bc");
 		icon_map[0x0100] = std::make_pair(index++,"seca");
 		icon_map[0x0500] = std::make_pair(index++,"via");
 		icon_map[0x1800] = std::make_pair(index++,"nagra");
 		icon_map[0x0B00] = std::make_pair(index++,"conax");
 		icon_map[0x0D00] = std::make_pair(index++,"cw");
-		icon_map[0x0900] = std::make_pair(index  ,"nds");
+		icon_map[0x0900] = std::make_pair(index++,"nds");
+		icon_map[0x5600] = std::make_pair(index  ,"vmx");
 
 		for (it=icon_map.begin(); it!=icon_map.end(); ++it) {
 			snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, icon);
@@ -804,8 +806,8 @@ void CInfoViewerBB::paint_ca_icons(int notfirst)
 		return;
 	}
 
-	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600, 0x4a00, 0x2600, 0x1000, 0x0E00 };
-//	const char *green = "green"; // unused
+	int caids[] = { 0x5600, 0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x1700, 0x600, 0x4a00, 0x2600, 0x1000, 0x0E00};
+// 	const char *green = "green"; // unused
 	const char *white = "white";
 	const char *yellow = "yellow";
 	int icon_space_offset = 0;

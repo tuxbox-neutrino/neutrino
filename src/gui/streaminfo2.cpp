@@ -1222,7 +1222,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		paintCASystem(xpos, ypos);
 }
 
-#define NUM_CAIDS 12
+#define NUM_CAIDS 13
 void CStreamInfo2::paintCASystem(int xpos, int ypos)
 {
 	int ypos1 = ypos;
@@ -1230,7 +1230,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 	if (box_h2 > 0)
 		frameBuffer->paintBoxRel(0, ypos, box_width, box_h2, COL_MENUCONTENT_PLUS_0);
 
-	std::string casys[NUM_CAIDS] = {"Irdeto:", "Betacrypt:", "Seca:", "Viaccess:", "Nagra:", "Conax: ", "Cryptoworks:", "Videoguard:", "Biss:", "DreCrypt:", "PowerVU:", "Tandberg:"};
+	std::string casys[NUM_CAIDS] = {"Irdeto:", "Betacrypt:", "Seca:", "Viaccess:", "Nagra:", "Conax: ", "Cryptoworks:", "Videoguard:", "Biss:", "DreCrypt:", "PowerVU:", "Tandberg:","Verimatrix:"};
 	bool caids[NUM_CAIDS];
 	char tmp[100];
 
@@ -1298,6 +1298,9 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				break;
 			case 0x10:
 				idx = 11;
+				break;
+			case 0x56:
+				idx = 12;
 				break;
 			default:
 				break;
