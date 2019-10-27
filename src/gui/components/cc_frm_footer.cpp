@@ -87,6 +87,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	ccf_enable_button_shadow 	= false ;
 	ccf_button_shadow_width  	= shadow ? OFFSET_SHADOW/2 : 0;
 	ccf_button_shadow_force_paint 	= false;
+	ccf_button_container_y		= -1; //centered as default
 	col_frame = col_frame_old	= color_frame;
 	col_body = col_body_old		= color_body;
 	col_shadow = col_shadow_old	= color_shadow;
@@ -176,7 +177,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	int h_container = ccf_btn_font->getHeight() > height+dist ? height-dist : ccf_btn_font->getHeight()+dist;
 	h_container -= cc_parent ? (cc_parent->getFrameThickness()/2 - shadow_w) : 0; // if footer is embedded then consider possible frame around parent object (e.g. window)
 	int x_container = width/2 - w_container/2; //FIXME: only centered position, other items will be overpainted
-	int y_container = height/2 - h_container/2;
+	int y_container = ccf_button_container_y < 0 ? height/2 - h_container/2 : ccf_button_container_y;
 
 	if (cch_icon_obj)
 		 x_container = cch_offset+cch_icon_obj->getWidth()+cch_offset;
@@ -200,7 +201,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	*/
 	int x_btn = 0;
 	int h_btn = btn_container->getHeight()- 2*fr_thickness - ccf_button_shadow_width;
-	int y_btn = btn_container->getHeight()/2 - h_btn/2;
+	int y_btn = ccf_button_container_y < 0 ? btn_container->getHeight()/2 - h_btn/2 : ccf_button_container_y;
 
 	/*
 	 * Init button label objects

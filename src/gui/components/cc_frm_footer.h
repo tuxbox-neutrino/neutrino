@@ -64,6 +64,8 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		bool ccf_button_shadow_force_paint;
 		///enable/disable button frame in icon color, predefined for red, green, yellow and blue, default disabled
 		bool btn_auto_frame_col;
+		///extra button container y pos, overwrites internal default y centered position if value > 0
+		int ccf_button_container_y;
 
 		///property: set font for label caption, see also setButtonFont()
 		Font* ccf_btn_font;
@@ -162,6 +164,8 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		void disbaleButtonShadow(){enableButtonShadow(CC_SHADOW_OFF);}
 		///get button label object with defined item id
 		CComponentsButton* getButtonLabel(const uint& item_id);
+		/// allows to allign buttons on the top of footer, default parameter is true
+		void ButtonsOnTop(const bool& enable = true) { ccf_button_container_y = enable ? 0 : -1;}
 };
 
 
