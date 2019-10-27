@@ -146,7 +146,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		fb_pixel_t cc_body_gradient_2nd_col, cc_body_gradient_2nd_col_old;
 
 		///check current fbdtata position and dimensions, parameter fbdata is an element of v_fbdata, returns false on error
-		bool CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int line);
+		bool CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int& line);
 
 		///sub: get gradient data evaluted with current parameters
 		gradientData_t* getGradientData();
@@ -257,20 +257,20 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		int getShadowWidth(){return shadow_w;}
 
 		///paint caching for body and shadow, see also cc_paint_cache NOTE: has no effect if paint_bg = false
-		void enablePaintCache(bool enable = true);
+		void enablePaintCache(const bool &enable = true);
 		///disable paint caching for body and shadow
 		void disablePaintCache(){enablePaintCache(false);}
 
 		///returns paint mode, true=item was painted
 		bool isPainted();
 		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form, returns true, if mode has changed, also cleans screnn buffer
-		bool doPaintBg(bool do_paint);
+		bool doPaintBg(const bool &do_paint);
 		///allows paint frame around body, default true , NOTE: ignored if frame width = 0
-		void enableFrame(bool enable = true, const int& frame_width = -1){cc_enable_frame = enable; setFrameThickness(frame_width == -1 ? fr_thickness : frame_width);}
+		void enableFrame(const bool &enable = true, const int& frame_width = -1){cc_enable_frame = enable; setFrameThickness(frame_width == -1 ? fr_thickness : frame_width);}
 		///disallow paint frame around body
 		void disableFrame(){enableFrame(false);}
 		///enable/disable background buffering, default action = enable, see also cc_save_bg
-		void enableSaveBg(bool save_bg = true);
+		void enableSaveBg(const bool &save_bg = true);
 		///disable background buffering, does the same like enableSaveBg(false), NOTE: cleans existant pixbuffer content!
 		void disableSaveBg(){enableSaveBg(false);}
 		///returns background buffering mode. Mode is assigned with paint() or enableSaveBg()/disableSaveBg())

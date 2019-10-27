@@ -422,7 +422,7 @@ void CCDraw::clearFbData()
 	v_fbdata.clear();
 }
 
-bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int line)
+bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int& line)
 {
 	if (fbdata.x < 0 || fbdata.y < 0 || fbdata.dx == 0 || fbdata.dy == 0) {
 		dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! Position < 0 or dx and/or dy = 0, x = %d,  y = %d, dx = %d,  dy = %d item: %s [type: %d]\n",
@@ -483,14 +483,14 @@ cc_screen_data_t CCDraw::getScreenData(const int& ax, const int& ay, const int& 
 	return res;
 }
 
-void CCDraw::enableSaveBg(bool save_bg)
+void CCDraw::enableSaveBg(const bool &save_bg)
 {
 	if (!cc_save_bg || (cc_save_bg != save_bg))
 		clearSavedScreen();
 	cc_save_bg = save_bg;
 }
 
-void CCDraw::enablePaintCache(bool enable)
+void CCDraw::enablePaintCache(const bool &enable)
 {
 	if (!cc_paint_cache || (cc_paint_cache != enable))
 		clearPaintCache();
@@ -801,7 +801,7 @@ void CCDraw::killShadow(const fb_pixel_t& bg_color, const int& corner_radius)
 	kill(bg_color, corner_radius, CC_FBDATA_TYPE_SHADOW_BOX);
 }
 
-bool CCDraw::doPaintBg(bool do_paint)
+bool CCDraw::doPaintBg(const bool &do_paint)
 {
 	if (paint_bg == do_paint)
 		return false;
