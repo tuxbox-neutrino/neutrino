@@ -67,6 +67,7 @@ class CComponentsItem : public CComponents
 
 	public:
 		CComponentsItem(CComponentsForm *parent = NULL);
+		virtual ~CComponentsItem(){};
 
 		///sets pointer to the form object in which this item is embedded.
 		void setParent(CComponentsForm *parent){cc_parent = parent;};
