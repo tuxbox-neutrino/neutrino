@@ -233,14 +233,14 @@ bool CComponentsItem::isAdded()
 
 void CComponentsItem::setXPos(const int& xpos)
 {
-	CCDraw::setXPos(xpos);
+	x = xpos;
 	if (cc_parent)
 		cc_xr = cc_parent->getRealXPos() + x;
 }
 
 void CComponentsItem::setYPos(const int& ypos)
 {
-	CCDraw::setYPos(ypos);
+	y = ypos;
 	if (cc_parent)
 		cc_yr = cc_parent->getRealYPos() + y;
 }

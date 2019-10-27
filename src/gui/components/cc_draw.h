@@ -176,18 +176,18 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		void clearFbData();
 
 		///set screen x-position, parameter as int
-		virtual void setXPos(const int& xpos);
+		void setXPos(const int& xpos);
 		///set screen y-position, parameter as int
-		virtual void setYPos(const int& ypos);
+		void setYPos(const int& ypos);
 		///set x and y position at once
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to set the real screen position, look at setRealPos()
-		virtual void setPos(const int& xpos, const int& ypos);
+		void setPos(const int& xpos, const int& ypos);
 
 		///set height of component on screen
-		virtual void setHeight(const int& h);
+		void setHeight(const int& h);
 		///set width of component on screen
-		virtual void setWidth(const int& w);
+		void setWidth(const int& w);
 		///set all positions and dimensions of component at once
 		void setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h);
 
