@@ -212,7 +212,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///set frame thickness
 		void setFrameThickness(const int& thickness);
 		///return of frame thickness
-		int getFrameThickness(){return fr_thickness;}
+		int getFrameThickness() const {return fr_thickness;}
 		///set frame color
 		void setColorFrame(fb_pixel_t color){col_frame = color;}
 
