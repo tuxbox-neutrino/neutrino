@@ -42,7 +42,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 {
 	protected:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
-		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
+		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy) const;
 		///returns screen data as screen_data_t
 		cc_screen_data_t getScreenData(const int& ax, const int& ay, const int& dx, const int& dy);
 		cc_screen_data_t cc_scrdata;
@@ -219,11 +219,11 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		void set2ndColor(fb_pixel_t col_2nd){cc_body_gradient_2nd_col = col_2nd;}
 
 		///get frame color
-		fb_pixel_t getColorFrame(){return col_frame;}
+		fb_pixel_t getColorFrame() const {return col_frame;}
 		///get body color
-		fb_pixel_t getColorBody(){return col_body;}
+		fb_pixel_t getColorBody() const {return col_body;}
 		///get shadow color
-		fb_pixel_t getColorShadow(){return col_shadow;}
+		fb_pixel_t getColorShadow() const {return col_shadow;}
 
 		///set body color
 		void setColorBody(fb_pixel_t color){col_body = color;}
@@ -240,9 +240,9 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///set corner radius and type
 		virtual void setCorner(const int& radius, const int& type = CORNER_ALL);
 		///get corner types
-		int getCornerType(){return corner_type;};
+		int getCornerType() const {return corner_type;};
 		///get corner radius
-		int getCornerRadius(){return corner_rad;};
+		int getCornerRadius() const {return corner_rad;};
 
 		///switch shadow on/off
 		void setShadowWidth(const int& shadow_width){if (shadow_w != shadow_width) shadow_w = shadow_width;}
@@ -303,7 +303,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 							cc_body_gradient_saturation=s;
 							enableColBodyGradient(mode, sec_color, direction);}
 		///gets current color gradient mode
-		int getColBodyGradientMode(){return cc_body_gradient_enable;}
+		int getColBodyGradientMode() const {return cc_body_gradient_enable;}
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES) = 0;

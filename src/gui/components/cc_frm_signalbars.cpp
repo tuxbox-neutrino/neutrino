@@ -345,6 +345,8 @@ void CSignalBox::paintScale()
 {
 	initSignalItems();
 
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 	//repaint items
 	sbar->Refresh();
 	sbar->paint/*Scale*/(false);

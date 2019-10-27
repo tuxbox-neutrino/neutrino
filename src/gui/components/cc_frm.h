@@ -29,7 +29,7 @@
 #include "config.h"
 #include "cc_base.h"
 #include "cc_item.h"
-
+#include <mutex>
 #define DEFAULT_SEL_FRAME_WIDTH 1
 
 class CComponentsForm : public CComponentsItem
@@ -42,6 +42,7 @@ class CComponentsForm : public CComponentsItem
 
 		///scrollbar object
 		CComponentsScrollBar *sb;
+		std::mutex cc_frm_mutex;
 
 		int append_x_offset;
 		int append_y_offset;
@@ -115,7 +116,7 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	int, in case of not found item returns -1
 		*/
-		int getCCItemId(CComponentsItem* cc_Item);
+		int getCCItemId(CComponentsItem* cc_Item) const;
 
 		/**Function to get current item from item collection.
 		* @param[in]  cc_item_id
@@ -123,7 +124,7 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	CComponentsItem*, in case of not found item returns NULL
 		*/
-		CComponentsItem* getCCItem(const uint& cc_item_id);
+		CComponentsItem* getCCItem(const uint& cc_item_id) const;
 
 		/**Function to get previous item from item collection.
 		* @param[in]  current_cc_item
@@ -131,7 +132,7 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	CComponentsItem*, in case of not found item returns NULL
 		*/
-		CComponentsItem* getPrevCCItem(CComponentsItem* current_cc_item);
+		CComponentsItem* getPrevCCItem(CComponentsItem* current_cc_item) const;
 
 		/**Function to get next item from item collection.
 		* @param[in]  current_cc_item
@@ -139,20 +140,20 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	CComponentsItem*, in case of not found item returns NULL
 		*/
-		CComponentsItem* getNextCCItem(CComponentsItem* current_cc_item);
+		CComponentsItem* getNextCCItem(CComponentsItem* current_cc_item) const;
 
 		void paintCCItems();
 
 		///clean up and deallocate existant items from v_cc_items at once
 		void clear();
 		///return true, if no items available
-		bool empty(){return v_cc_items.empty();};
+		bool empty() const {return v_cc_items.empty();}
 		///return size (count) of available items
-		size_t size(){return v_cc_items.size();};
+		size_t size() const {return v_cc_items.size();}
 		///return reference to first item
-		CComponentsItem* front(){return v_cc_items.front();};
+		CComponentsItem* front() const {return v_cc_items.front();}
 		///return reference to last item
-		CComponentsItem* back(){return v_cc_items.back();};
+		CComponentsItem* back() const {return v_cc_items.back();}
 
 		///sets alignment offset between items
 		void setAppendOffset(const int &x_offset, const int& y_offset){append_x_offset = x_offset; append_y_offset = y_offset;};
@@ -168,7 +169,7 @@ class CComponentsForm : public CComponentsItem
 		///sets current page
 		void setCurrentPage(const uint8_t& current_page){cur_page = current_page;};
 		///get current page
-		uint8_t getCurrentPage(){return cur_page;};
+		uint8_t getCurrentPage() const {return cur_page;}
 		///paint defined page number 0...n
 		void paintPage(const uint8_t& page_number, const bool &do_save_bg = CC_SAVE_SCREEN_NO);
 		///enum page scroll modes
@@ -184,34 +185,34 @@ class CComponentsForm : public CComponentsItem
 		///set width of scrollbar
 		void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
 		///returns id of selected item, return value as int, returns -1: if is nothing selected
-		int getSelectedItem();
+		int getSelectedItem() const;
 
 		/**Function to get consumed  space of items inside form in y direction.
 		* @return
 		*	int, used lines
 		*/
-		int getUsedDY();
+		int getUsedDY() const;
 
 		/**Function to get consumed  space of items inside form in x direction.
 		* @return
 		*	int, used lines
 		*/
-		int getUsedDX();
+		int getUsedDX() const;
 
 		/**Function to get free usable space of items inside form in y direction.
 		* @return
 		*	int, free lines
 		*/
-		int getFreeDY(){return height - getUsedDY();}
+		int getFreeDY() const {return height - getUsedDY();}
 
 		/**Function to get free usable space of items inside form in x direction.
 		* @return
 		*	int, free lines
 		*/
-		int getFreeDX(){return width - getUsedDX();}
+		int getFreeDX() const {return width - getUsedDX();}
 
 		///returns pointer to selected item, return value as CComponentsItem*, returns NULL: if is nothing selected
-		CComponentsItem* getSelectedItemObject();
+		CComponentsItem* getSelectedItemObject() const;
 		///select a definied item, parameter1 as size_t
 		void setSelectedItem(	int item_id,
 						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,

@@ -36,6 +36,7 @@
 #include <fstream>
 #include <errno.h>
 #include <system/debug.h>
+#include <mutex>
 
 using namespace std;
 
@@ -156,55 +157,58 @@ void CComponentsText::initCCText()
 		ct_textbox = new CTextBox();
 
 	//set text properties
-	ct_textbox->setTextFont(ct_font);
-	ct_textbox->setTextMode(ct_text_mode);
-	ct_textbox->setTextColor(ct_col_text);
-	ct_textbox->enableUTF8(ct_utf8_encoded);
+	if (ct_textbox){
+		bool enable_bg_paint 	= !cc_txt_save_screen &&  ct_paint_textbg;
+		bool enable_save_screen =  cc_txt_save_screen && !ct_paint_textbg;
+		ct_textbox->setTextFont(ct_font);
+		ct_textbox->setTextMode(ct_text_mode);
+		ct_textbox->setTextColor(ct_col_text);
+		ct_textbox->enableUTF8(ct_utf8_encoded);
+		ct_textbox->setWindowPos(&ct_box);
+		ct_textbox->setWindowMaxDimensions(ct_box.iWidth, ct_box.iHeight);
+		ct_textbox->setWindowMinDimensions(ct_box.iWidth, ct_box.iHeight);
+		ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
+		ct_textbox->enableBackgroundPaint(enable_bg_paint);
+		ct_textbox->setBackGroundColor(col_body);
+		ct_textbox->setBackGroundRadius(0/*(corner_type ? corner_rad-fr_thickness : 0), corner_type*/);
+		ct_textbox->enableSaveScreen(enable_save_screen);
 
-	//set text box properties
-	ct_textbox->setWindowPos(&ct_box);
-	ct_textbox->setWindowMaxDimensions(ct_box.iWidth, ct_box.iHeight);
-	ct_textbox->setWindowMinDimensions(ct_box.iWidth, ct_box.iHeight);
-	ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
-	bool enable_bg_paint = ct_paint_textbg && !cc_txt_save_screen;
-	ct_textbox->enableBackgroundPaint(enable_bg_paint);
-	ct_textbox->setBackGroundColor(col_body);
-	ct_textbox->setBackGroundRadius(0/*(corner_type ? corner_rad-fr_thickness : 0), corner_type*/);
-	bool enable_save_screen = cc_txt_save_screen && !ct_paint_textbg;
-	ct_textbox->enableSaveScreen(enable_save_screen);
+		//ensure clean font rendering on transparency background
+		ct_textbox->setTextRenderModeFullBG(!paint_bg);
 
-	//observe behavior of parent form if available
-	bool force_text_paint = ct_force_text_paint;
-#if 0 //FIXME.,
-	if (cc_parent){
-		//if any embedded text item was hided because of hided parent form,
-		//we must ensure repaint of text, otherwise text item is not visible
-		if (cc_parent->isPainted())
-			force_text_paint = true;
-	}
+		//observe behavior of parent form if available
+		bool force_text_paint = ct_force_text_paint;
+#if 0 //FIXME
+		if (cc_parent){
+			//if any embedded text item was hided because of hided parent form,
+			//we must ensure repaint of text, otherwise text item is not visible
+			if (cc_parent->isPainted())
+				force_text_paint = true;
+		}
 #endif
-	//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
-	//this is managed by CTextBox object itself
-	if (cc_allow_paint)
-		ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
+		//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
+		//this is managed by CTextBox object itself
+		if (cc_allow_paint)
+			ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
 
-	//set current text status, needed by textChanged()
-	if (ct_text_sent){
-		ct_old_text 	= ct_text;
-		ct_old_col_text = ct_col_text;
+		//set current text status, needed by textChanged()
+		if (ct_text_sent){
+			ct_old_text 	= ct_text;
+			ct_old_col_text = ct_col_text;
+		}
 	}
-
-	//ensure clean font rendering on transparency background
-	ct_textbox->setTextRenderModeFullBG(!paint_bg);
 
 // 	dprintf(DEBUG_NORMAL, "[CComponentsText]   [%s - %d] ct_text = %s, x = %d , x_old = %d , y = %d , y_old = %d , \nct_box.iWidth = %d , ct_box.iHeight = %d , width = %d , height = %d, corner_rad = %d\n", __func__, __LINE__, ct_text.c_str(), x, x_old, y, y_old, ct_box.iWidth, ct_box.iHeight, width, height, corner_rad);
 }
 
 void CComponentsText::clearCCText()
 {
-	if (ct_textbox)
+	std::mutex mutex;
+	std::lock_guard<std::mutex> g(mutex);
+	if (ct_textbox){
 		delete ct_textbox;
-	ct_textbox = NULL;
+		ct_textbox = NULL;
+	}
 }
 
 bool CComponentsText::setText(const std::string& stext, const int mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
@@ -271,10 +275,10 @@ string CComponentsText::getTextFromFile(const string& path_to_textfile)
 bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	string txt = getTextFromFile(path_to_textfile);
-	
+
 	if (txt.empty())
 		return false;
-	
+
 	return setText(txt, mode, font_text, color_text, style);
 }
 
@@ -293,7 +297,10 @@ void CComponentsText::paintText(const bool &do_save_bg)
 		paintInit(do_save_bg);
 
 	if (ct_text_sent && cc_allow_paint){
-		ct_textbox->paint();
+
+		if (ct_textbox)
+			ct_textbox->paint();
+
 		is_painted = true;
 	}
 

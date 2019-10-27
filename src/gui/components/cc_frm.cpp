@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <system/debug.h>
+#include <stdexcept>
 
 using namespace std;
 
@@ -182,14 +183,16 @@ void CComponentsForm::execExit(neutrino_msg_t& msg, neutrino_msg_data_t& data, i
 
 void CComponentsForm::clear()
 {
- 	if (v_cc_items.empty())
+	if (v_cc_items.empty())
 		return;
 
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 	for(size_t i=0; i<v_cc_items.size(); i++) {
-		if (v_cc_items[i]){
-			dprintf(DEBUG_DEBUG, "[CComponentsForm]\t[%s-%d] delete form cc-item %d of %d address = %p \033[33m\t type = [%d] [%s]\033[0m\n", __func__, __LINE__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i], v_cc_items[i]->getItemType(), v_cc_items[i]->getItemName().c_str());
-			delete v_cc_items[i];
-			v_cc_items[i] = NULL;
+		if (v_cc_items.at(i)){
+			dprintf(DEBUG_DEBUG, "[CComponentsForm]\t[%s-%d] delete form cc-item %d of %d address = %p \033[33m\t type = [%d] [%s]\033[0m\n", __func__, __LINE__, (int)i+1, (int)v_cc_items.size(), v_cc_items.at(i), v_cc_items.at(i)->getItemType(), v_cc_items.at(i)->getItemName().c_str());
+			delete v_cc_items.at(i);
+			v_cc_items.at(i) = NULL;
 		}
 	}
 	v_cc_items.clear();
@@ -199,6 +202,7 @@ void CComponentsForm::clear()
 int CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
+		std::lock_guard<std::mutex> g(cc_frm_mutex);
 		dprintf(DEBUG_DEBUG, "[CComponentsForm]\t[%s-%d] try to add cc_Item \033[33m\t type = [%d] [%s]\033[0m to form [%s -> current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_Item->getItemName().c_str(), getItemName().c_str(), cc_item_index);
 
 		cc_Item->setParent(this);
@@ -226,11 +230,11 @@ int CComponentsForm::addCCItem(const std::vector<CComponentsItem*> &cc_Items)
 	return size();
 }
 
-int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
+int CComponentsForm::getCCItemId(CComponentsItem* cc_Item) const
 {
 	if (cc_Item){
 		for (size_t i= 0; i< v_cc_items.size(); i++)
-			if (v_cc_items[i] == cc_Item)
+			if (v_cc_items.at(i) == cc_Item)
 				return i;
 	}
 	return -1;
@@ -246,7 +250,7 @@ int CComponentsForm::genIndex()
 	return ret;
 }
 
-CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
+CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id) const
 {
 	if (cc_item_id >= size()){
 		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: inside container type = [%d] [%s] parameter cc_item_id = %u, out of range (size = %zx)...\n", __func__, __LINE__, cc_item_type.id, cc_item_type.name.c_str(), cc_item_id, size());
@@ -258,12 +262,12 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 	return NULL;
 }
 
-CComponentsItem* CComponentsForm::getPrevCCItem(CComponentsItem* current_cc_item)
+CComponentsItem* CComponentsForm::getPrevCCItem(CComponentsItem* current_cc_item) const
 {
 	return getCCItem(getCCItemId(current_cc_item) - 1);
 }
 
-CComponentsItem* CComponentsForm::getNextCCItem(CComponentsItem* current_cc_item)
+CComponentsItem* CComponentsForm::getNextCCItem(CComponentsItem* current_cc_item) const
 {
 	return getCCItem(getCCItemId(current_cc_item) + 1);
 }
@@ -271,6 +275,8 @@ CComponentsItem* CComponentsForm::getNextCCItem(CComponentsItem* current_cc_item
 void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item)
 {
 	if (!v_cc_items.empty()){
+		
+		std::lock_guard<std::mutex> g(cc_frm_mutex);
 		CComponentsItem* old_Item = v_cc_items.at(cc_item_id);
 		if (old_Item){
 			CComponentsForm * old_parent = old_Item->getParent();
@@ -302,6 +308,8 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 		addCCItem(cc_Item);
 		dprintf(DEBUG_NORMAL, "[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __func__);
 	}else{
+		
+		std::lock_guard<std::mutex> g(cc_frm_mutex);
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
 		cc_Item->setParent(this);
 		//assign item index
@@ -313,6 +321,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 void CComponentsForm::removeCCItem(const uint& cc_item_id)
 {
 	if (!v_cc_items.empty()){
+		std::lock_guard<std::mutex> g(cc_frm_mutex);
 		if (v_cc_items.at(cc_item_id)) {
 			delete v_cc_items.at(cc_item_id);
 			v_cc_items.at(cc_item_id) = NULL;
@@ -343,9 +352,14 @@ void CComponentsForm::exchangeCCItem(CComponentsItem* item_a, CComponentsItem* i
 
 void CComponentsForm::paintForm(const bool &do_save_bg)
 {
+	std::mutex paint_mutex;
+	std::lock_guard<std::mutex> g(paint_mutex);
 	//paint body
-	if (!is_painted || force_paint_bg || shadow_force)
+	if (!is_painted || force_paint_bg || shadow_force){
+		if (is_painted)
+			clearScreenBuffer(); //ensure clean screen buffers to avoid possible crash if layers were already was painted and any screen was saved before
 		paintInit(do_save_bg);
+	}
 
 	//paint
 	paintCCItems();
@@ -362,8 +376,11 @@ void CComponentsForm::paint(const bool &do_save_bg)
 bool CComponentsForm::isPageChanged()
 {
 	for(size_t i=0; i<v_cc_items.size(); i++){
-		if (v_cc_items[i]->getPageNumber() != cur_page)
-			return true;
+		if (v_cc_items.at(i)) {
+			if (v_cc_items.at(i)->getPageNumber() != cur_page){
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -376,8 +393,6 @@ void CComponentsForm::paintPage(const uint8_t& page_number, const bool &do_save_
 
 void CComponentsForm::paintCCItems()
 {
-	size_t items_count 	= v_cc_items.size();
-
 	//using of real x/y values to paint items if this text object is bound in a parent form
 	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = 0;
 	int w_parent_frame = 0;
@@ -419,146 +434,175 @@ void CComponentsForm::paintCCItems()
 		this->killCCItems(col_body, true);
 	}
 
-	for(size_t i=0; i<items_count; i++){
-		//assign item object
-		CComponentsItem *cc_item = v_cc_items[i];
-
-		dprintf(DEBUG_DEBUG, "[CComponentsForm] %s: page_count = %u, item_page = %u, cur_page = %u\n", __func__, getPageCount(), cc_item->getPageNumber(), this->cur_page);
-
-		//get current position of item
-		int xpos = cc_item->getXPos();
-		int ypos = cc_item->getYPos();
-
-		//get current dimension of item
-		int w_item = cc_item->getWidth() - (xpos <= fr_thickness ? fr_thickness : 0);
-		int h_item = cc_item->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
-		/* this happens for example with opkg manager's "package info" screen on a SD framebuffer (704x576)
-		 * later CC_CENTERED auto_y calculation is wrong then */
-		if (cc_item->getHeight() > height) {
-			cc_item->setHeight(height);
-			// TODO: the fr_thickness is probably wrong for ypos < 0 (CC_CENTERED / CC_APPEND)
-			h_item = cc_item->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
-		}
-
-		//check item for corrupt position, skip current item if found problems
-		if (ypos > height || xpos > this_w){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m WARNING: item position is out of form size:\ndefinied x=%d, defined this_w=%d \ndefinied y=%d, defined height=%d \n",
-				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), xpos, this_w, ypos, height);
-			if (this->cc_item_type.id != CC_ITEMTYPE_FRM_CHAIN)
+	try{
+		for(size_t i=0; i<v_cc_items.size(); i++){
+			if (!v_cc_items.at(i))
 				continue;
+
+			dprintf(DEBUG_DEBUG, "[CComponentsForm] %s: page_count = %u, item_page = %u, cur_page = %u\n", __func__, getPageCount(), v_cc_items.at(i)->getPageNumber(), this->cur_page);
+
+			//get current position of item
+			int xpos = v_cc_items.at(i)->getXPos();
+			int ypos = v_cc_items.at(i)->getYPos();
+
+			//get current dimension of item
+			int w_item = v_cc_items.at(i)->getWidth() - (xpos <= fr_thickness ? fr_thickness : 0);
+			int h_item = v_cc_items.at(i)->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
+			/* this happens for example with opkg manager's "package info" screen on a SD framebuffer (704x576)
+			 * later CC_CENTERED auto_y calculation is wrong then */
+			if (v_cc_items.at(i)->getHeight() > height) {
+				v_cc_items.at(i)->setHeight(height);
+				// TODO: the fr_thickness is probably wrong for ypos < 0 (CC_CENTERED / CC_APPEND)
+				h_item = v_cc_items.at(i)->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
+			}
+
+			//check item for corrupt position, skip current item if found problems
+			if (ypos > height || xpos > this_w){
+				dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m WARNING: item position is out of form size:\ndefinied x=%d, defined this_w=%d \ndefinied y=%d, defined height=%d \n",
+					__func__, cc_item_index, v_cc_items.at(i)->getIndex(), v_cc_items.at(i)->getItemType(), v_cc_items.at(i)->getItemName().c_str(), xpos, this_w, ypos, height);
+				if (this->cc_item_type.id != CC_ITEMTYPE_FRM_CHAIN)
+					continue;
+			}
+
+			//move item x-position, if we have a frame on parent, TODO: other constellations not considered at the moment
+			w_parent_frame = xpos <= fr_thickness ? fr_thickness : w_parent_frame;
+
+			//set required x-position to item:
+			//append vertical
+			if (xpos == CC_APPEND){
+				auto_x += append_x_offset;
+				v_cc_items.at(i)->setRealXPos(auto_x + xpos + w_parent_frame);
+				auto_x += w_item;
+			}
+			//positionize vertical centered
+			else if (xpos == CC_CENTERED){
+				auto_x =  this_w/2 - w_item/2;
+				v_cc_items.at(i)->setRealXPos(this_x + auto_x + w_parent_frame);
+			}
+			else{
+				v_cc_items.at(i)->setRealXPos(this_x + xpos + w_parent_frame);
+				auto_x = (v_cc_items.at(i)->getRealXPos() + w_item);
+			}
+
+			//move item y-position, if we have a frame on parent, TODO: other constellations not considered at the moment
+			w_parent_frame = ypos <= fr_thickness ? fr_thickness : w_parent_frame;
+
+			//set required y-position to item
+			//append hor
+			if (ypos == CC_APPEND){
+				auto_y += append_y_offset;
+				// FIXME: ypos is probably wrong here, because it is -1
+				v_cc_items.at(i)->setRealYPos(auto_y + ypos + w_parent_frame);
+				auto_y += h_item;
+			}
+			//positionize hor centered
+			else if (ypos == CC_CENTERED){
+				auto_y =  height/2 - h_item/2;
+				v_cc_items.at(i)->setRealYPos(this_y + auto_y + w_parent_frame);
+			}
+			else{
+				v_cc_items.at(i)->setRealYPos(this_y + ypos + w_parent_frame);
+				auto_y = (v_cc_items.at(i)->getRealYPos() + h_item);
+			}
+
+			//reduce corner radius, if we have a frame around parent item, ensure matching corners inside of embedded item, this avoids ugly unpainted spaces between frame and item border
+			//TODO: other constellations not considered at the moment
+			if (w_parent_frame)
+				v_cc_items.at(i)->setCorner(max(0, v_cc_items.at(i)->getCornerRadius()- w_parent_frame), v_cc_items.at(i)->getCornerType());
+
+			//These steps check whether the element can be painted into the container.
+			//Is it too wide or too high, it will be shortened and displayed in the log.
+			//This should be avoid!
+			//checkwidth and adapt if required
+			int right_frm = (cc_parent ? cc_xr : x) + this_w/* - 2*fr_thickness*/;
+			int right_item = v_cc_items.at(i)->getRealXPos() + w_item;
+			int w_diff = max(0, right_item - right_frm);
+			int new_w =  w_item - w_diff;
+			//avoid of width error due to odd values (1 line only)
+			right_item -= (new_w%2);
+			w_item -= (new_w%2);
+			if (right_item > right_frm){
+				dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m this_w is too large, definied width=%d, possible width=%d \n",
+					__func__, cc_item_index, v_cc_items.at(i)->getIndex(), v_cc_items.at(i)->getItemType(), v_cc_items.at(i)->getItemName().c_str(), w_item, new_w);
+				v_cc_items.at(i)->setWidth(new_w);
+			}
+
+			//check height and adapt if required
+			int bottom_frm = (cc_parent ? cc_yr : y) + height/* - 2*fr_thickness*/;
+			int bottom_item = v_cc_items.at(i)->getRealYPos() + h_item;
+			int h_diff = max(0, bottom_item - bottom_frm);
+			int new_h = h_item - h_diff;
+			//avoid of height error due to odd values (1 line only)
+			bottom_item -= (new_h%2);
+			h_item -= (new_h%2);
+			if (bottom_item > bottom_frm){
+				dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m height is too large, definied height=%d, possible height=%d \n",
+					__func__, cc_item_index, v_cc_items.at(i)->getIndex(), v_cc_items.at(i)->getItemType(), v_cc_items.at(i)->getItemName().c_str(), h_item, new_h);
+				v_cc_items.at(i)->setHeight(new_h);
+			}
+
+			//get current visibility mode from item, me must hold it and restore after paint
+			const bool item_visible = v_cc_items.at(i)->paintAllowed();
+			//set visibility mode
+			if (!cc_allow_paint)
+				v_cc_items.at(i)->allowPaint(false);
+
+			//restore background
+			if (v_cc_items.at(i)->isPainted())
+				v_cc_items.at(i)->hide();
+
+			//finally paint current item, but only required contents of page
+			if (v_cc_items.at(i)->getPageNumber() == cur_page)
+				v_cc_items.at(i)->paint(v_cc_items.at(i)->SaveBg());
+
+			//restore defined old visibility mode of item after paint
+			if (v_cc_items.at(i))
+				v_cc_items.at(i)->allowPaint(item_visible);
 		}
-
-		//move item x-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-		w_parent_frame = xpos <= fr_thickness ? fr_thickness : w_parent_frame;
-
-		//set required x-position to item:
-		//append vertical
-		if (xpos == CC_APPEND){
-			auto_x += append_x_offset;
-			cc_item->setRealXPos(auto_x + xpos + w_parent_frame);
-			auto_x += w_item;
-		}
-		//positionize vertical centered
-		else if (xpos == CC_CENTERED){
-			auto_x =  this_w/2 - w_item/2;
-			cc_item->setRealXPos(this_x + auto_x + w_parent_frame);
-		}
-		else{
-			cc_item->setRealXPos(this_x + xpos + w_parent_frame);
-			auto_x = (cc_item->getRealXPos() + w_item);
-		}
-
-		//move item y-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-		w_parent_frame = ypos <= fr_thickness ? fr_thickness : w_parent_frame;
-
-		//set required y-position to item
-		//append hor
-		if (ypos == CC_APPEND){
-			auto_y += append_y_offset;
-			// FIXME: ypos is probably wrong here, because it is -1
-			cc_item->setRealYPos(auto_y + ypos + w_parent_frame);
-			auto_y += h_item;
-		}
-		//positionize hor centered
-		else if (ypos == CC_CENTERED){
-			auto_y =  height/2 - h_item/2;
-			cc_item->setRealYPos(this_y + auto_y + w_parent_frame);
-		}
-		else{
-			cc_item->setRealYPos(this_y + ypos + w_parent_frame);
-			auto_y = (cc_item->getRealYPos() + h_item);
-		}
-
-		//reduce corner radius, if we have a frame around parent item, ensure matching corners inside of embedded item, this avoids ugly unpainted spaces between frame and item border
-		//TODO: other constellations not considered at the moment
-		if (w_parent_frame)
-			cc_item->setCorner(max(0, cc_item->getCornerRadius()- w_parent_frame), cc_item->getCornerType());
-
-		//These steps check whether the element can be painted into the container.
-		//Is it too wide or too high, it will be shortened and displayed in the log.
-		//This should be avoid!
-		//checkwidth and adapt if required
-		int right_frm = (cc_parent ? cc_xr : x) + this_w/* - 2*fr_thickness*/;
-		int right_item = cc_item->getRealXPos() + w_item;
-		int w_diff = right_item - right_frm;
-		int new_w = w_item - w_diff;
-		//avoid of width error due to odd values (1 line only)
-		right_item -= (new_w%2);
-		w_item -= (new_w%2);
-		if (right_item > right_frm){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m this_w is too large, definied width=%d, possible width=%d \n",
-				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), w_item, new_w);
-			cc_item->setWidth(new_w);
-		}
-
-		//check height and adapt if required
-		int bottom_frm = (cc_parent ? cc_yr : y) + height/* - 2*fr_thickness*/;
-		int bottom_item = cc_item->getRealYPos() + h_item;
-		int h_diff = bottom_item - bottom_frm;
-		int new_h = h_item - h_diff;
-		//avoid of height error due to odd values (1 line only)
-		bottom_item -= (new_h%2);
-		h_item -= (new_h%2);
-		if (bottom_item > bottom_frm){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m height is too large, definied height=%d, possible height=%d \n",
-			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), h_item, new_h);
-			cc_item->setHeight(new_h);
-		}
-
-		//get current visibility mode from item, me must hold it and restore after paint
-		bool item_visible = cc_item->paintAllowed();
-		//set visibility mode
-		if (!this->cc_allow_paint)
-			cc_item->allowPaint(false);
-
-		//restore background
-		if (v_cc_items[i]->isPainted())
-			v_cc_items[i]->hide();
-
-		//finally paint current item, but only required contents of page
-		if (cc_item->getPageNumber() == cur_page)
-			cc_item->paint(cc_item->SaveBg());
-
-		//restore defined old visibility mode of item after paint
-		cc_item->allowPaint(item_visible);
+	}
+	catch (const out_of_range& err0)
+	{
+		dprintf(DEBUG_NORMAL, "\033[31m[CComponentsForm]\[%s - %d], Error in item %s: Out of Range error: %s\033[0m\n", __func__, __LINE__, getItemName().c_str(), err0.what());
+		return;
+	}
+	catch (const std::runtime_error& err1)
+	{
+		dprintf(DEBUG_NORMAL, "\033[31m[CComponentsForm]\[%s - %d], runtime error in item %s: %s\033[0m\n", __func__, __LINE__, getItemName().c_str(), err1.what());
+		return;
+	}
+	catch (...)
+	{
+		dprintf(DEBUG_NORMAL, "\033[31m[CComponentsForm]\[%s - %d], unknown error in item %s: FIXME!\033[0m\n", __func__, __LINE__, getItemName().c_str());
+		return;
 	}
 }
 
 //erase or paint over rendered objects
 void CComponentsForm::killCCItems(const fb_pixel_t& bg_color, bool ignore_parent)
 {
-	for(size_t i=0; i<v_cc_items.size(); i++)
-		v_cc_items[i]->kill(bg_color, ignore_parent);
+	
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+	for(size_t i=0; i<v_cc_items.size(); i++){
+		if (v_cc_items.at(i))
+			v_cc_items.at(i)->kill(bg_color, ignore_parent);
+	}
 }
 
 void CComponentsForm::hideCCItems()
 {
-	for(size_t i=0; i<v_cc_items.size(); i++)
-		v_cc_items[i]->hide();
+	
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+	for(size_t i=0; i<v_cc_items.size(); i++){
+		if (v_cc_items.at(i))
+			v_cc_items.at(i)->hide();
+	}
 }
 
 void CComponentsForm::setPageCount(const uint8_t& pageCount)
 {
+	
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 	uint8_t new_val = pageCount;
 	if (new_val <  page_count)
 		dprintf(DEBUG_NORMAL, "[CComponentsForm] %s:  current count (= %u) of pages higher than page_count (= %u) will be set, smaller value is ignored!\n", __func__, page_count, new_val) ;
@@ -569,8 +613,10 @@ uint8_t CComponentsForm::getPageCount()
 {
 	uint8_t num = 0;
 	for(size_t i=0; i<v_cc_items.size(); i++){
-		uint8_t item_num = v_cc_items[i]->getPageNumber();
-		num = max(item_num, num);
+		if (v_cc_items.at(i)){
+			uint8_t item_num = v_cc_items.at(i)->getPageNumber();
+			num = max(item_num, num);
+		}
 	}
 
 	//convert type, possible -Wconversion warnings!
@@ -582,6 +628,8 @@ uint8_t CComponentsForm::getPageCount()
 
 void CComponentsForm::setSelectedItem(int item_id, const fb_pixel_t& sel_frame_col, const fb_pixel_t& frame_col, const fb_pixel_t& sel_body_col, const fb_pixel_t& body_col, const int& frame_w, const int& sel_frame_w)
 {
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 	size_t count = v_cc_items.size();
 	int id = item_id;
 
@@ -603,8 +651,10 @@ void CComponentsForm::setSelectedItem(int item_id, const fb_pixel_t& sel_frame_c
 			id = 0;
 	}
 
-	for (size_t i= 0; i< count; i++)
-		v_cc_items[i]->setSelected(i == (size_t)id, sel_frame_col, frame_col, sel_body_col, body_col, frame_w, sel_frame_w);
+	for (size_t i= 0; i< count; i++){
+		if (v_cc_items.at(i))
+			v_cc_items.at(i)->setSelected(i == (size_t)id, sel_frame_col, frame_col, sel_body_col, body_col, frame_w, sel_frame_w);
+	}
 
 	OnSelect();
 }
@@ -619,7 +669,7 @@ void CComponentsForm::setSelectedItem(CComponentsItem* cc_item, const fb_pixel_t
 	setSelectedItem(id, sel_frame_col, frame_col, sel_body_col, body_col, frame_w, sel_frame_w);
 }
 
-int CComponentsForm::getSelectedItem()
+int CComponentsForm::getSelectedItem() const
 {
 	for (size_t i= 0; i< size(); i++)
 		if (getCCItem(i)->isSelected())
@@ -627,7 +677,7 @@ int CComponentsForm::getSelectedItem()
 	return -1;
 }
 
-CComponentsItem* CComponentsForm::getSelectedItemObject()
+CComponentsItem* CComponentsForm::getSelectedItemObject() const
 {
 	int sel = getSelectedItem();
 	CComponentsItem* ret = NULL;
@@ -665,20 +715,27 @@ void CComponentsForm::ScrollPage(int direction, bool do_paint)
 
 bool CComponentsForm::clearSavedScreen()
 {
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+
+	bool ret = false;
 	if (CCDraw::clearSavedScreen()){
 		for(size_t i=0; i<v_cc_items.size(); i++)
-			v_cc_items[i]->clearSavedScreen();
-		return true;
+			if (v_cc_items.at(i))
+				v_cc_items.at(i)->clearSavedScreen();
+		ret = true;
 	}
 
-	return false;
+	return ret;
 }
 
 bool CComponentsForm::clearPaintCache()
 {
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 	if (CCDraw::clearPaintCache()){
 		for(size_t i=0; i<v_cc_items.size(); i++)
-			v_cc_items[i]->clearPaintCache();
+			if (v_cc_items.at(i))
+				v_cc_items.at(i)->clearPaintCache();
 		return true;
 	}
 
@@ -688,9 +745,12 @@ bool CComponentsForm::clearPaintCache()
 //clean old gradient buffer
 bool CComponentsForm::clearFbGradientData()
 {
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 	if (CCDraw::clearFbGradientData()){
 		for(size_t i=0; i<v_cc_items.size(); i++)
-			v_cc_items[i]->clearFbGradientData();
+			if (v_cc_items.at(i))
+				v_cc_items.at(i)->clearFbGradientData();
 		return true;
 	}
 
@@ -699,28 +759,33 @@ bool CComponentsForm::clearFbGradientData()
 
 bool CComponentsForm::enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color, const int& direction)
 {
+	std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 	if (CCDraw::enableColBodyGradient(enable_mode, sec_color, direction)){
 		for (size_t i= 0; i< v_cc_items.size(); i++)
-			v_cc_items[i]->clearScreenBuffer();
+			if (v_cc_items.at(i))
+				v_cc_items.at(i)->clearScreenBuffer();
 		return true;
 	}
 	return false;
 }
 
-int CComponentsForm::getUsedDY()
+int CComponentsForm::getUsedDY() const
 {
 	int y_res = 0;
 	for (size_t i= 0; i< v_cc_items.size(); i++)
-		y_res  = max(v_cc_items[i]->getYPos() + v_cc_items[i]->getHeight(), y_res);
+		if (v_cc_items.at(i))
+			y_res  = max(v_cc_items.at(i)->getYPos() + v_cc_items.at(i)->getHeight(), y_res);
 
 	return y_res;
 }
 
-int CComponentsForm::getUsedDX()
+int CComponentsForm::getUsedDX() const
 {
 	int x_res = 0;
 	for (size_t i= 0; i< v_cc_items.size(); i++)
-		x_res  = max(v_cc_items[i]->getXPos() + v_cc_items[i]->getWidth(), x_res);
+		if (v_cc_items.at(i))
+			x_res  = max(v_cc_items.at(i)->getXPos() + v_cc_items.at(i)->getWidth(), x_res);
 
 	return x_res;
 }

@@ -454,7 +454,7 @@ bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int&
 
 
 //screen area save
-fb_pixel_t* CCDraw::getScreen(int ax, int ay, int dx, int dy)
+fb_pixel_t* CCDraw::getScreen(int ax, int ay, int dx, int dy) const
 {
 	fb_pixel_t* pixbuf = NULL;
 
