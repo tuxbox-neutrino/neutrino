@@ -66,10 +66,14 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CGenericMenuActivate msettings;
 
 		CMenuOptionChooser * linkfe;
+#if BOXMODEL_VUULTIMO4K
+		std::string modestr[24];
+#else
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K
 		std::string modestr[16];
 #else
 		std::string modestr[4];
+#endif
 #endif
 
 		/* variables for selected frontend */

@@ -112,6 +112,10 @@ if BOXMODEL_VUDUO4K
 install_DATA += rc_vu_solo4k.png
 endif
 
+if BOXMODEL_VUULTIMO4K
+install_DATA += rc_vu_solo4k.png
+endif
+
 if BOXMODEL_VUZERO4K
 install_DATA += rc_vu_solo4k.png
 endif
