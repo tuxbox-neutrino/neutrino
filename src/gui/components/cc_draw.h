@@ -194,15 +194,15 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///return screen x-position of component
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to get the real screen position, use getRealXPos(), to find in CComponentsItem sub classes
-		int getXPos();
+		int getXPos() const;
 		///return screen y-position of component
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to get the real screen position, use getRealYPos(), to find in CComponentsItem sub classes
-		int getYPos();
+		int getYPos() const;
 		///return height of component
-		int getHeight();
+		int getHeight() const;
 		///return width of component
-		int getWidth();
+		int getWidth() const;
 
 		///return/set (pass through) width and height of component
 		void getSize(int* w, int* h){*w=width; *h=height;}
@@ -274,11 +274,11 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///disable background buffering, does the same like enableSaveBg(false), NOTE: cleans existant pixbuffer content!
 		void disableSaveBg(){enableSaveBg(false);}
 		///returns background buffering mode. Mode is assigned with paint() or enableSaveBg()/disableSaveBg())
-		bool SaveBg(){return cc_save_bg;}
+		bool SaveBg() const {return cc_save_bg;}
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
-		void allowPaint(bool allow);
+		void allowPaint(const bool& allow);
 		///returns visibility mode
 		bool paintAllowed();
 		/**Overrides internal firstpaint and is_painted modes to provoke full repaint of item.

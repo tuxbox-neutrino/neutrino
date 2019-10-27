@@ -440,11 +440,11 @@ bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int&
 	if (end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true)) 
 	{
 		dprintf(DEBUG_NORMAL, "[CCDraw] ERROR! Position > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n item: %s [type: %d]\n",
-				func, line,
-				fbdata.x, fbdata.y,
-				fbdata.dx, fbdata.dy,
-				cc_item_type.name.c_str(),
-				cc_item_type.id
+			func, line,
+	  fbdata.x, fbdata.y,
+	  fbdata.dx, fbdata.dy,
+	  cc_item_type.name.c_str(),
+			cc_item_type.id
 		);
 		return false;
 	}
@@ -842,29 +842,31 @@ bool CCDraw::paintBlink(CComponentsTimer* Timer)
 
 bool CCDraw::paintBlink(const int& interval, bool is_nano)
 {
-	if (cc_draw_timer == NULL)
+	if (cc_draw_timer == NULL){
 		cc_draw_timer = new CComponentsTimer(interval, is_nano);
-	cc_draw_timer->setThreadName(__func__);
+		cc_draw_timer->setThreadName(__func__);
+	}
 
 	return paintBlink(cc_draw_timer);
 }
 
 bool CCDraw::cancelBlink(bool keep_on_screen)
 {
-	bool res = false;
-
 	if (cc_draw_timer){
-		res = cc_draw_timer->stopTimer();
-		delete cc_draw_timer; cc_draw_timer = NULL;
+		cc_draw_timer->stopTimer();
+		delete cc_draw_timer;
+		cc_draw_timer = NULL;
 	}
 
 	if(keep_on_screen)
 		paint1();
 	else
 		hide();
-		
 
-	return res;
+	if (!cc_draw_timer)
+		return true;
+
+	return false;
 }
 
 bool CCDraw::setBodyBGImage(const std::string& image_path)
@@ -885,22 +887,22 @@ bool CCDraw::setBodyBGImageName(const std::string& image_name)
 	return  setBodyBGImage(frameBuffer->getIconPath(image_name));
 }
 
-int  CCDraw::getXPos()
+int  CCDraw::getXPos() const
 {
 	return x;
 }
 
-int  CCDraw::getYPos()
+int  CCDraw::getYPos() const
 {
 	return y;
 }
 
-int  CCDraw::getHeight()
+int  CCDraw::getHeight() const
 {
 	return height;
 }
 
-int  CCDraw::getWidth()
+int  CCDraw::getWidth() const
 {
 	return width;
 }
@@ -915,7 +917,7 @@ void CCDraw::setPos(const int& xpos, const int& ypos)
 	setXPos(xpos); setYPos(ypos);
 }
 
-void CCDraw::allowPaint(bool allow)
+void CCDraw::allowPaint(const bool& allow)
 {
 	if (allow != cc_allow_paint)
 		cc_allow_paint = allow;
