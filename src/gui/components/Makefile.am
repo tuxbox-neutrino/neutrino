@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
+AM_CPPFLAGS = -fno-rtti -fexceptions -D__STDC_FORMAT_MACROS
 
 AM_CPPFLAGS += \
 	-I$(top_builddir) \
