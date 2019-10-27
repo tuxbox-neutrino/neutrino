@@ -105,7 +105,7 @@ void CMsgBox::init(	const int& Height,
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	fr_thickness	= g_settings.theme.message_frame_enable ? frame_width : 0;
+	fr_thickness	= g_settings.theme.message_frame_enable || col_frame != HINTBOX_DEFAULT_FRAME_COLOR ? frame_width : 0;
 
 	//enable footer and add its height
 	showFooter(true);
@@ -119,6 +119,7 @@ void CMsgBox::init(	const int& Height,
 	int h_current = height;
 	h_current += ccw_footer->getHeight();
 	height = max(max(MSGBOX_MIN_HEIGHT, Height), h_current);
+	ccw_footer->ButtonsOnTop(true);
 
 	//ensure matching height for screen
 	height = min(MAX_WINDOW_HEIGHT, height);
