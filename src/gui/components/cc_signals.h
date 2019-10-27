@@ -95,6 +95,8 @@ class CComponentsSignals : public sigc::trackable
 {
 	public:
 		CComponentsSignals(){};
+		virtual ~CComponentsSignals(){};
+
 		sigc::signal<void> OnError;
 
 		///signal on enter CComponentsForm::exec()
