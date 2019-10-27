@@ -54,6 +54,10 @@
 
 #include <driver/neutrino_msg_t.h>
 
+#ifndef KEY_NONEXISTING
+#define KEY_NONEXISTING  0x0
+#endif
+
 #ifndef KEY_OK
 #define KEY_OK           0x160
 #endif
@@ -225,7 +229,7 @@ class CRCInput
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUZERO4K || BOXMODEL_VUDUO
-			RC_info		= 0xFFFE,
+			RC_info		= KEY_NONEXISTING,
 			RC_epg		= KEY_INFO,
 #else
 			RC_info		= KEY_INFO,

@@ -9,6 +9,10 @@
 cat << EOF
 // rcsim.h - automatically created from driver/rcinput.h
 
+#ifndef KEY_NONEXISTING
+#define KEY_NONEXISTING 0x0
+#endif
+
 #ifndef KEY_GAMES
 #define KEY_GAMES	0x1a1   /* Media Select Games */
 #endif
