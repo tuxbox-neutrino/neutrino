@@ -66,7 +66,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CGenericMenuActivate msettings;
 
 		CMenuOptionChooser * linkfe;
-#if BOXMODEL_VUSOLO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K
 		std::string modestr[16];
 #else
 		std::string modestr[4];

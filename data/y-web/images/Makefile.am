@@ -108,6 +108,18 @@ if BOXMODEL_H7
 install_DATA += rc_zgemma_h7.png
 endif
 
+if BOXMODEL_VUDUO4K
+install_DATA += rc_vu_solo4k.png
+endif
+
+if BOXMODEL_VUZERO4K
+install_DATA += rc_vu_solo4k.png
+endif
+
+if BOXMODEL_VUDUO
+install_DATA += rc_vu_solo4k.png
+endif
+
 # file manager
 install_DATA +=	chmod.png \
 		copy.gif \
