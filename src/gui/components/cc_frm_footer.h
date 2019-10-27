@@ -90,7 +90,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		void setButtonLabels(const std::vector<button_label_cc> &v_content, const int& chain_width, const int& label_width);
 
 		///enable/disable button frame in icon color, predefined for red, green, yellow and blue
-		inline void enableButtonFrameColor(bool enable = true){btn_auto_frame_col = enable;}
+		void enableButtonFrameColor(bool enable = true){btn_auto_frame_col = enable;}
 
 		///add button labels with old label type, count as size_t, chain_width as int, label width as int
 		///NOTE: for compatibility with older button handler find in gui/widget/buttons.h, if possible, don't use this
