@@ -31,6 +31,7 @@
 
 #define CCW_PERCENT - //placeholder for negative sign '-', used for discret dimensions parameters
 
+
 //! Sub class of CComponentsForm. Shows a window with prepared items.
 /*!
 CComponentsWindow provides prepared items like header, footer and a container for
@@ -113,10 +114,12 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 					const std::string& caption,
 					const std::string& iconname,
 					CComponentsForm *parent,
-					int shadow_mode,
-					fb_pixel_t color_frame,
-					fb_pixel_t color_body,
-					fb_pixel_t color_shadow);
+					const int& shadow_mode,
+					const fb_pixel_t& color_frame,
+					const fb_pixel_t& color_body,
+					const fb_pixel_t& color_shadow,
+					const int& frame_width
+			);
 		///initialize width and height
 		void initWindowSize();
 		///initialize position
@@ -124,6 +127,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 
 		///returns true, if current page is changed, see also: setCurrentPage()
 		bool isPageChanged();
+
 
 	public:
 		enum
@@ -171,6 +175,8 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		* 	@li 	optional: expects type fb_pixel_t, defines color color, default = COL_MENUCONTENT_PLUS_0
 		* @param[in]	color_shadow
 		* 	@li 	optional: expects type fb_pixel_t, defines shadow color, default = COL_SHADOW_PLUS_0
+		* @param[in]	frame_width
+		* 	@li 	optional: expects type int, defines frame width around, default = 0
 		*
 		* @note		Discret dimensions parameters: values < 0 to -100 will be interpreted as percent values related to screen.
 		* 		For better readability please use placeholder 'CCW_PERCENT' as negative sign '-' \n
@@ -185,9 +191,10 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 					const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
+					const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+					const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+					const int& frame_width = 0);
 
 		/**
 		* advanced constructor for CComponentsWindow, provides parameters for the most required properties
@@ -200,9 +207,10 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 					const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
+					const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+					const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+					const int& frame_width = 0);
 
 		virtual ~CComponentsWindow(){};
 
@@ -415,7 +423,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		/**
 		* Reinit position and dimensions and reinitialize mostly elemenatary properties
 		*/
-		void Refresh(){initCCWItems();};
+		void Refresh(){initCCWItems();}
 
 		/**
 		* Paint window
@@ -458,9 +466,10 @@ class CComponentsWindowMax : public CComponentsWindow
 		CComponentsWindowMax(	const std::string& caption, const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
+					const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+					const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+					const int& frame_width = 0);
 
 		/**
 		* Simple constructor for CComponentsWindow, this shows only a centered window based up current screen settings
@@ -472,9 +481,10 @@ class CComponentsWindowMax : public CComponentsWindow
 		CComponentsWindowMax(	neutrino_locale_t locale_caption, const std::string& iconname = "",
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
+					const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+					const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+					const int& frame_width = 0);
 };
 
 #endif

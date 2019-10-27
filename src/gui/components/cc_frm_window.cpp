@@ -59,7 +59,7 @@ using namespace std;
 //sub class CComponentsWindow inherit from CComponentsForm
 CComponentsWindow::CComponentsWindow(CComponentsForm *parent)
 {
-	init(0, 0, 800, 600, "", "", parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
+	init(0, 0, 800, 600, "", "", parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0, 0);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -67,12 +67,13 @@ CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const 
 					const string& iconname,
 					CComponentsForm *parent,
 					int shadow_mode,
-					fb_pixel_t color_frame,
-					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					const fb_pixel_t& color_frame,
+					const fb_pixel_t& color_body,
+					const fb_pixel_t& color_shadow,
+					const int& frame_width)
 {
 	string s_caption = locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "";
-	init(x_pos, y_pos, w, h, s_caption, iconname, parent, shadow_mode, color_frame, color_body, color_shadow);
+	init(x_pos, y_pos, w, h, s_caption, iconname, parent, shadow_mode, color_frame, color_body, color_shadow, frame_width);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -80,22 +81,24 @@ CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const 
 					const string& iconname,
 					CComponentsForm *parent,
 					int shadow_mode,
-					fb_pixel_t color_frame,
-					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					const fb_pixel_t& color_frame,
+					const fb_pixel_t& color_body,
+					const fb_pixel_t& color_shadow,
+					const int& frame_width)
 {
-	init(x_pos, y_pos, w, h, caption, iconname, parent, shadow_mode, color_frame, color_body, color_shadow);
+	init(x_pos, y_pos, w, h, caption, iconname, parent, shadow_mode, color_frame, color_body, color_shadow, frame_width);
 }
 
 CComponentsWindowMax::CComponentsWindowMax(	const string& caption,
 						const string& iconname,
 						CComponentsForm *parent,
 						int shadow_mode,
-						fb_pixel_t color_frame,
-						fb_pixel_t color_body,
-						fb_pixel_t color_shadow)
+						const fb_pixel_t& color_frame,
+						const fb_pixel_t& color_body,
+						const fb_pixel_t& color_shadow,
+						const int& frame_width)
 						:CComponentsWindow(0, 0, 0, 0, caption,
-						iconname, parent, shadow_mode, color_frame, color_body, color_shadow)
+						iconname, parent, shadow_mode, color_frame, color_body, color_shadow, frame_width)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW_MAX;
 	cc_item_type.name 	= "cc_window_max";
@@ -105,12 +108,13 @@ CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 						const string& iconname,
 						CComponentsForm *parent,
 						int shadow_mode,
-						fb_pixel_t color_frame,
-						fb_pixel_t color_body,
-						fb_pixel_t color_shadow)
+						const fb_pixel_t& color_frame,
+						const fb_pixel_t& color_body,
+						const fb_pixel_t& color_shadow,
+						const int& frame_width)
 						:CComponentsWindow(0, 0, 0, 0,
 						locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "",
-						iconname, parent, shadow_mode, color_frame, color_body, color_shadow)
+						iconname, parent, shadow_mode, color_frame, color_body, color_shadow, frame_width)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW_MAX;
 	cc_item_type.name 	= "cc_window_max_localized";
@@ -120,10 +124,11 @@ void CComponentsWindow::init(	const int& x_pos, const int& y_pos, const int& w, 
 					const string& caption,
 					const string& iconname,
 					CComponentsForm *parent,
-					int shadow_mode,
-					fb_pixel_t color_frame,
-					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					const int& shadow_mode,
+					const fb_pixel_t& color_frame,
+					const fb_pixel_t& color_body,
+					const fb_pixel_t& color_shadow,
+					const int& frame_width)
 {
 	//CComponentsForm
 	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW;
@@ -135,6 +140,7 @@ void CComponentsWindow::init(	const int& x_pos, const int& y_pos, const int& w, 
 	y = y_pos;
 	width = w;
 	height = h;
+	fr_thickness = fr_thickness_old = frame_width;
 	ccw_h_footer = 0; //auto
 	initWindowSize();
 	initWindowPos();
@@ -215,12 +221,13 @@ void CComponentsWindow::initHeader()
 	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
 		ccw_head->setWidth(width-2*fr_thickness);
-		ccw_head->setPos(fr_thickness, fr_thickness);
+		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode, ccw_col_head_text);
 		ccw_head->setContextButton(ccw_buttons);
 		ccw_head->setCorner(corner_rad, CORNER_TOP);
 		ccw_head->setColorBody(ccw_col_head);
+		ccw_h_footer = ccw_head->getHeight();
 	}
 }
 
@@ -233,9 +240,8 @@ void CComponentsWindow::initFooter()
 	if (ccw_footer){
 		if (ccw_h_footer)
 			ccw_footer->setHeight(ccw_h_footer);
-		ccw_footer->setPos(cc_xr + fr_thickness, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
-		ccw_footer->setWidth(width/*-2*fr_thickness*/);
-		ccw_footer->enableShadow(false/*shadow*/);
+		ccw_footer->setPos(0, cc_yr + height - ccw_footer->getHeight()- 2*fr_thickness);
+		ccw_footer->setWidth(width-2*fr_thickness);
 		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
 		ccw_footer->setButtonFont(ccw_button_font);
 		ccw_footer->setColorBody(ccw_col_footer);
@@ -305,7 +311,7 @@ void CComponentsWindow::initBody()
 			w_l_sidebar = ccw_left_sidebar->getWidth();
 		if (ccw_right_sidebar)
 			w_r_sidebar = ccw_right_sidebar->getWidth();
-		int h_body = height - h_header - h_footer - fr_thickness;
+		int h_body = height - h_header - h_footer - 2*fr_thickness;
 		int x_body = w_l_sidebar;
 		int w_body = width-2*fr_thickness - w_l_sidebar - w_r_sidebar;
 
