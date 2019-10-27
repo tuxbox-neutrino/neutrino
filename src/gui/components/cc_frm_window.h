@@ -109,7 +109,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		///initialze all window objects at once
 		void initCCWItems();
 		///initialize all attributes
-		void initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+		void init(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
 					const std::string& iconname,
 					CComponentsForm *parent,

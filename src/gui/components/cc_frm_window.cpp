@@ -59,7 +59,7 @@ using namespace std;
 //sub class CComponentsWindow inherit from CComponentsForm
 CComponentsWindow::CComponentsWindow(CComponentsForm *parent)
 {
-	initVarWindow(0, 0, 800, 600, "", "", parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
+	init(0, 0, 800, 600, "", "", parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -72,7 +72,7 @@ CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const 
 					fb_pixel_t color_shadow)
 {
 	string s_caption = locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "";
-	initVarWindow(x_pos, y_pos, w, h, s_caption, iconname, parent, shadow_mode, color_frame, color_body, color_shadow);
+	init(x_pos, y_pos, w, h, s_caption, iconname, parent, shadow_mode, color_frame, color_body, color_shadow);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -84,7 +84,7 @@ CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const 
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	initVarWindow(x_pos, y_pos, w, h, caption, iconname, parent, shadow_mode, color_frame, color_body, color_shadow);
+	init(x_pos, y_pos, w, h, caption, iconname, parent, shadow_mode, color_frame, color_body, color_shadow);
 }
 
 CComponentsWindowMax::CComponentsWindowMax(	const string& caption,
@@ -116,7 +116,7 @@ CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 	cc_item_type.name 	= "cc_window_max_localized";
 }
 
-void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+void CComponentsWindow::init(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
 					const string& iconname,
 					CComponentsForm *parent,
