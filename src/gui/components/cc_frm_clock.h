@@ -45,13 +45,14 @@ class CComponentsTimer;
 class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 {
 	private:
-		CComponentsTimer *cl_timer;
 		void ShowTime();
 #if 0
 		bool may_blit;
 #endif
 
 	protected:
+		CComponentsTimer *cl_timer;
+
 		///slot for timer event, reserved for ShowTime()
 		sigc::slot0<void> cl_sl_show;
 
