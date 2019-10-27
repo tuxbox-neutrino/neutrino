@@ -51,7 +51,11 @@ CMsgBox::CMsgBox(	const char* Text,
 			const int& Height,
 			const int& ShowButtons,
 			const msg_result_t& Default_result,
-			const int& Text_mode) : CHintBox(	Title,
+			const int& Text_mode,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width) : CHintBox(	Title,
 								Text,
 								Width,
 								Icon,
@@ -59,7 +63,7 @@ CMsgBox::CMsgBox(	const char* Text,
 								0,
 								Text_mode)
 {
-	init(Height, ShowButtons, Default_result);
+	init(Height, ShowButtons, Default_result, color_frame, color_body, color_shadow, frame_width);
 }
 
 CMsgBox::CMsgBox(	const char* Text,
@@ -70,7 +74,11 @@ CMsgBox::CMsgBox(	const char* Text,
 			const int& Height,
 			const int& ShowButtons,
 			const msg_result_t& Default_result,
-			const int& Text_mode) : CHintBox(	locale_Title,
+			const int& Text_mode,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width) : CHintBox(	locale_Title,
 								Text,
 								Width,
 								Icon,
@@ -78,18 +86,32 @@ CMsgBox::CMsgBox(	const char* Text,
 								0,
 								Text_mode)
 {
-	init(Height, ShowButtons, Default_result);
+	init(Height, ShowButtons, Default_result, color_frame, color_body, color_shadow, frame_width);
 }
 
-void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t& Default_result)
+void CMsgBox::init(	const int& Height,
+			const int& ShowButtons,
+			const msg_result_t& Default_result,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width)
 {
 	cc_item_type.name = "msgbox";
+
 	initTimeOut();
+
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	fr_thickness	= frame_width;
 
 	//enable footer and add its height
 	showFooter(true);
+#if 0
 	ccw_h_footer = ccw_footer->getHeight()+OFFSET_INNER_MID;
 	ccw_footer->setHeight(ccw_h_footer);
+#endif
 	btn_enable_bg = true;
 	ccw_col_footer = ccw_body->getColorBody();
 	ccw_footer->doPaintBg(false);
@@ -421,15 +443,15 @@ int ShowMsg2UTF(	const char * const Title,
 			MSGBOX_MIN_HEIGHT,
 			ShowButtons,
 			Default,
-			Text_mode);
-
-	if (color_frame != HINTBOX_DEFAULT_FRAME_COLOR){
-		msgBox.setFrameThickness(OFFSET_INNER_SMALL);
-		msgBox.setColorFrame(color_frame);
-	}
+			Text_mode,
+			color_frame,
+			COL_MENUCONTENT_PLUS_0,
+			COL_SHADOW_PLUS_0
+		       );
 
 	msgBox.enableDefaultResultOnTimeOut(returnDefaultOnTimeout);
 	msgBox.setTimeOut(Timeout);
+
 	msgBox.paint();
 	msgBox.exec();
 	int  res = msgBox.getResult();

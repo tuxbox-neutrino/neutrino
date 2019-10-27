@@ -96,7 +96,13 @@ class CMsgBox : public CHintBox
 		};
 
 	private:
-		void init(const int& Height = -1, const int& ShowButtons = -1, const msg_result_t& Default_result = mbrNone);
+		void init(	const int& Height,
+				const int& ShowButtons,
+				const msg_result_t& Default_result,
+				const fb_pixel_t& color_frame,
+				const fb_pixel_t& color_body,
+				const fb_pixel_t& color_shadow,
+				const int& frame_width);
 		void refreshFoot(void);
 		int		mb_show_button;
 
@@ -160,6 +166,14 @@ class CMsgBox : public CHintBox
 		* 		NO_AUTO_LINEBREAK
 		* 		AUTO_LINEBREAK_NO_BREAKCHARS
 		* 		NOTE: default parameter to find in macro DEFAULT_MSGBOX_TEXT_MODE
+		* @param[in]	color_frame
+		* 	@li 	optional: expects type fb_pixel_t, defines frame color, default = HINTBOX_DEFAULT_FRAME_COLOR
+		* @param[in]	color_body
+		* 	@li 	optional: expects type fb_pixel_t, defines color color, default = COL_MENUCONTENT_PLUS_0
+		* @param[in]	color_shadow
+		* 	@li 	optional: expects type fb_pixel_t, defines shadow color, default = COL_SHADOW_PLUS_0
+		* @param[in]	frame_width
+		* 	@li 	optional: expects type int, defines frame width around, default = 0
 		*
 		* 	@see	class CHintBox()
 		*/
@@ -171,7 +185,12 @@ class CMsgBox : public CHintBox
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
 			const msg_result_t& Default_result = mbrNone,
-			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
+			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+			const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+			const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+			const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH
+			);
 
 		/**CMsgBox Constructor
 		* @param[in]	Text
@@ -213,7 +232,14 @@ class CMsgBox : public CHintBox
 		* 		NO_AUTO_LINEBREAK
 		* 		AUTO_LINEBREAK_NO_BREAKCHARS
 		* 		NOTE: default parameter to find in macro DEFAULT_MSGBOX_TEXT_MODE
-		*
+		* @param[in]	color_frame
+		* 	@li 	optional: expects type fb_pixel_t, defines frame color, default = HINTBOX_DEFAULT_FRAME_COLOR
+		* @param[in]	color_body
+		* 	@li 	optional: expects type fb_pixel_t, defines color color, default = COL_MENUCONTENT_PLUS_0
+		* @param[in]	color_shadow
+		* 	@li 	optional: expects type fb_pixel_t, defines shadow color, default = COL_SHADOW_PLUS_0
+		* @param[in]	frame_width
+		* 	@li 	optional: expects type int, defines frame width around, default = 0
 		* 	@see	class CHintBox()
 		*/
 		CMsgBox(const char* Text,
@@ -224,7 +250,12 @@ class CMsgBox : public CHintBox
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
 			const msg_result_t& Default_result = mbrNone,
-			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
+			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+			const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+			const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+			const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH
+		);
 
 		virtual ~CMsgBox(){};
 		/**

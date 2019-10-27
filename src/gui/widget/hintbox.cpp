@@ -67,14 +67,18 @@ CHintBox::CHintBox(	const neutrino_locale_t Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent): CComponentsWindow(	0, 0, Width,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width): CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
 									NULL,
 									CC_SHADOW_ON)
 {
-	init(Text, Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
+	init(Text, Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent, color_frame, color_body, color_shadow, frame_width);
 }
 
 CHintBox::CHintBox(	const char * const Caption,
@@ -84,14 +88,18 @@ CHintBox::CHintBox(	const char * const Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, Width,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
 									NULL,
 									CC_SHADOW_ON)
 {
-	init(string(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
+	init(string(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent, color_frame, color_body, color_shadow, frame_width);
 }
 
 CHintBox::CHintBox(	const neutrino_locale_t  Caption,
@@ -101,14 +109,18 @@ CHintBox::CHintBox(	const neutrino_locale_t  Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, Width,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
 									NULL,
 									CC_SHADOW_ON)
 {
-	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
+	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent, color_frame, color_body, color_shadow, frame_width);
 }
 
 CHintBox::CHintBox(	const char * const Caption,
@@ -118,23 +130,41 @@ CHintBox::CHintBox(	const char * const Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, Width,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
 									NULL,
 									CC_SHADOW_ON)
 {
-	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
+	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent, color_frame, color_body, color_shadow, frame_width);
 }
 
 
-void CHintBox::init(const std::string& Text, const int& Width, const std::string& Picon, const int& header_buttons, const int& text_mode, const int& indent)
+void CHintBox::init(	const std::string& Text,
+			const int& Width,
+			const std::string& Picon,
+			const int& header_buttons,
+			const int& text_mode,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width)
 {
 	cc_item_type.name = "wg.hintbox";
 	int _Width	= frameBuffer->scale2Res(Width);
 	timeout		= HINTBOX_DEFAULT_TIMEOUT;
 	w_indentation	= indent;
+
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	fr_thickness	= frame_width;
 
 	hb_font		= MSG_FONT;
 
