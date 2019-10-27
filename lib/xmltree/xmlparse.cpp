@@ -2732,6 +2732,7 @@ static int poolGrow(STRING_POOL *pool)
 		tem->next=pool->blocks;
 
 		pool->blocks=tem;
+		if (!pool->start) return 0; //FIXME: hack: pool->start seems to be a null pointer in some constellations, memmove don't like such for parameter 2
 
 		memmove(tem->s, pool->start, (pool->ptr-pool->start)*sizeof(XML_Char));
 
