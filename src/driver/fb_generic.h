@@ -329,8 +329,8 @@ class CFrameBuffer : public sigc::trackable
 		v_fbarea_t v_fbarea;
 		bool do_paint_mute_icon;
 
-		bool _checkFbArea(int _x, int _y, int _dx, int _dy, bool prev);
-		int checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area);
+		bool _checkFbArea(const int& _x, const int& _y, const int& _dx, const int& _dy, const bool& prev);
+		int checkFbAreaElement(const int& _x, const int& _y, const int& _dx, const int& _dy, const fb_area_t *area);
 
 	public:
 		enum {
@@ -341,7 +341,7 @@ class CFrameBuffer : public sigc::trackable
 			FB_PAINTAREA_MAX
 		};
 
-		inline bool checkFbArea(int _x, int _y, int _dx, int _dy, bool prev) { return (fbAreaActiv && !fb_no_check) ? _checkFbArea(_x, _y, _dx, _dy, prev) : true; }
+		inline bool checkFbArea(const int& _x, const int& _y, const int& _dx, const int& _dy, const bool& prev) { return (fbAreaActiv && !fb_no_check) ? _checkFbArea(_x, _y, _dx, _dy, prev) : true; }
 		void setFbArea(int element, int _x=0, int _y=0, int _dx=0, int _dy=0);
 		void fbNoCheck(bool noCheck) { fb_no_check = noCheck; }
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }

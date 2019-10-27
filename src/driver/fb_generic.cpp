@@ -1929,7 +1929,7 @@ void CFrameBuffer::setFbArea(int element, int _x, int _y, int _dx, int _dy)
 	}
 }
 
-int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area)
+int CFrameBuffer::checkFbAreaElement(const int& _x, const int& _y, const int& _dx, const int& _dy, const fb_area_t *area)
 {
 	if (fb_no_check)
 		return FB_PAINTAREA_MATCH_NO;
@@ -1945,7 +1945,7 @@ int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t
 	return FB_PAINTAREA_MATCH_OK;
 }
 
-bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
+bool CFrameBuffer::_checkFbArea(const int& _x, const int& _y, const int& _dx, const int& _dy, const bool& prev)
 {
 	if (v_fbarea.empty())
 		return true;
