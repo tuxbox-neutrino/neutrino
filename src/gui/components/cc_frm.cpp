@@ -253,8 +253,8 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 		return NULL;
 	}
 
-	if (v_cc_items[cc_item_id])
-		return v_cc_items[cc_item_id];
+	if (v_cc_items.at(cc_item_id))
+		return v_cc_items.at(cc_item_id);
 	return NULL;
 }
 
@@ -271,14 +271,14 @@ CComponentsItem* CComponentsForm::getNextCCItem(CComponentsItem* current_cc_item
 void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item)
 {
 	if (!v_cc_items.empty()){
-		CComponentsItem* old_Item = v_cc_items[cc_item_id];
+		CComponentsItem* old_Item = v_cc_items.at(cc_item_id);
 		if (old_Item){
 			CComponentsForm * old_parent = old_Item->getParent();
 			new_cc_Item->setParent(old_parent);
 			new_cc_Item->setIndex(old_parent->getIndex());
 			delete old_Item;
 			old_Item = NULL;
-			v_cc_items[cc_item_id] = new_cc_Item;
+			v_cc_items.at(cc_item_id) = new_cc_Item;
 		}
 	}
 	else
@@ -313,9 +313,9 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 void CComponentsForm::removeCCItem(const uint& cc_item_id)
 {
 	if (!v_cc_items.empty()){
-		if (v_cc_items[cc_item_id]) {
-			delete v_cc_items[cc_item_id];
-			v_cc_items[cc_item_id] = NULL;
+		if (v_cc_items.at(cc_item_id)) {
+			delete v_cc_items.at(cc_item_id);
+			v_cc_items.at(cc_item_id) = NULL;
 			v_cc_items.erase(v_cc_items.begin()+cc_item_id);
 			dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s removing cc_Item [id=%u]...\n", __func__, cc_item_id);
 		}
@@ -333,7 +333,7 @@ void CComponentsForm::removeCCItem(CComponentsItem* cc_Item)
 void CComponentsForm::exchangeCCItem(const uint& cc_item_id_a, const uint& cc_item_id_b)
 {
 	if (!v_cc_items.empty())
-		swap(v_cc_items[cc_item_id_a], v_cc_items[cc_item_id_b]);
+		swap(v_cc_items.at(cc_item_id_a), v_cc_items.at(cc_item_id_b));
 }
 
 void CComponentsForm::exchangeCCItem(CComponentsItem* item_a, CComponentsItem* item_b)
