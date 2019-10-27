@@ -66,8 +66,8 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	cc_item_type.id 	= CC_ITEMTYPE_FOOTER;
 	cc_item_type.name 	= "cc_footer";
 
-	x	= x_old = x_pos;
-	y	= y_old = y_pos;
+	x = cc_xr = cc_xr_old = x_old	= x_pos;
+	y = cc_yr = cc_yr_old = y_old	= y_pos;
 
 	//init footer width
 	width =	width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
@@ -174,12 +174,15 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	*/
 	int dist = height/2-cch_offset;
 	int h_container = ccf_btn_font->getHeight() > height+dist ? height-dist : ccf_btn_font->getHeight()+dist;
+	h_container -= cc_parent ? (cc_parent->getFrameThickness()/2 - shadow_w) : 0; // if footer is embedded then consider possible frame around parent object (e.g. window)
 	int x_container = width/2 - w_container/2; //FIXME: only centered position, other items will be overpainted
 	int y_container = height/2 - h_container/2;
+
 	if (cch_icon_obj)
 		 x_container = cch_offset+cch_icon_obj->getWidth()+cch_offset;
 	if (btn_container == NULL){
 		btn_container = new CComponentsFrmChain(x_container, y_container, w_container, h_container, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
+		btn_container->setItemName(cc_parent ? cc_parent->getItemName() + ":" + getItemName() + ":btn_container" : "");
 		btn_container->setAppendOffset(0, 0);
 		//btn_container->setCorner(this->corner_rad, this->corner_type);
 		btn_container->doPaintBg(false);
@@ -310,6 +313,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 	}
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 	delete[] buttons;
+	buttons = NULL;
 }
 
 void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content, const int& chain_width, const int& label_width)
@@ -329,6 +333,7 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content
 
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 	delete[] buttons;
+	buttons = NULL;
 }
 
 void CComponentsFooter::setButtonLabel(	const char *button_icon,
