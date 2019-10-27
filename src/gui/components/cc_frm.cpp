@@ -222,7 +222,7 @@ int CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 int CComponentsForm::addCCItem(const std::vector<CComponentsItem*> &cc_Items)
 {
 	for (size_t i= 0; i< cc_Items.size(); i++)
-		addCCItem(cc_Items[i]);
+		addCCItem(cc_Items.at(i));
 	return size();
 }
 
