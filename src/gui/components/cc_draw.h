@@ -97,7 +97,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		bool shadow_force;
 
 		///returns true if internal property was changed
-		virtual bool hasChanges();
+		bool hasChanges();
 		///apply current position changes and returns true if internal values were changed
 		bool applyPosChanges();
 		///apply current dimension changes and returns true if internal values were changed
