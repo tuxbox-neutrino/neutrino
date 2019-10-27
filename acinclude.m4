@@ -600,13 +600,11 @@ elif test "$BOXMODEL" = "raspi"; then
 fi
 
 # BOXMODELs that allows to change osd resolution
-boxmodels=hd2 hd51 hd60 bre2ze4k vusolo4k vuduo4k vuultimo4k vuuno4k vuuno4kse vuzero4k vuduo
-
-for boxmodel in $boxmodels; do
-	if test "$BOXMODEL" = "$boxmodel"; then
+case "$BOXMODEL" in
+	hd2|hd51|hd60|bre2ze4k|vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo)
 		AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
-	fi
-done
+	;;
+esac
 ])
 
 dnl backward compatiblity
