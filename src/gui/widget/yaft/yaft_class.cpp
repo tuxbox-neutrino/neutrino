@@ -211,5 +211,6 @@ exec_failed:
 	sigaction(SIGCHLD, &oldact, NULL);
 init_failed:
 	delete term;
+	term = NULL;
 	return exitcode;
 }

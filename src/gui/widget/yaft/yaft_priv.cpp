@@ -97,8 +97,8 @@ YaFT_p::YaFT_p(bool Paint)
 YaFT_p::~YaFT_p()
 {
 	/* delete NULL is fine */
-	delete font;
-	delete fr;
+	delete font; font = NULL;
+	delete fr; fr = NULL;
 }
 
 bool YaFT_p::init()
@@ -130,8 +130,8 @@ bool YaFT_p::init()
 		shell_ttf = ttx_font_file;
 	if (paint) {
 		for (int i = 0; i < 2; i++) {
-			delete font;
-			delete fr;
+			delete font; font = NULL;
+			delete fr; fr = NULL;
 			fr = new FBFontRenderClass(scalex, scaley);
 			fontstyle = fr->AddFont(shell_ttf.c_str());
 			font = fr->getFont(fr->getFamily(shell_ttf.c_str()).c_str(), fontstyle, height / LINES);

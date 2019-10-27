@@ -463,8 +463,10 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 
 	std::string oldval = *valueString;
 
-	if (pixBuf)
+	if (pixBuf) {
 		delete[] pixBuf;
+		pixBuf = NULL;
+	}
 	if (!parent || force_saveScreen) {
 		pixBuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
 		if (pixBuf)

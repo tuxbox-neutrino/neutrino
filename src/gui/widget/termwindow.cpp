@@ -66,6 +66,7 @@ fprintf(stderr, "%s:%d %s\n", __func__, __LINE__, argv[0]);
 		if (res)
 			*res = ret;
 		delete y;
+		y = NULL;
 fprintf(stderr, "%s:%d\n", __func__, __LINE__);
 		showResult();
 	}
