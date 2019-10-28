@@ -12,6 +12,7 @@
 typedef enum
 {
 	HW_DISPLAY_NONE,
+	HW_DISPLAY_LED_ONLY,
 	HW_DISPLAY_LED_NUM,	/* simple 7 segment LED display */
 	HW_DISPLAY_LINE_TEXT,	/* 1 line text display */
 	HW_DISPLAY_GFX

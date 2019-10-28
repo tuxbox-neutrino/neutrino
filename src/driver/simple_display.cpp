@@ -153,7 +153,7 @@ CLCD* CLCD::getInstance()
 
 void CLCD::wake_up()
 {
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
 	{
 		if (atoi(g_settings.lcd_setting_dim_time.c_str()) > 0)
 		{
@@ -212,7 +212,7 @@ void CLCD::init(const char *, const char *, const char *, const char *, const ch
 
 void CLCD::setlcdparameter(void)
 {
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
 	{
 		last_toggle_state_power = g_settings.lcd_setting[SNeutrinoSettings::LCD_POWER];
 
@@ -535,7 +535,7 @@ void CLCD::setBrightness(int dimm)
 
 	struct aotom_ioctl_data d;
 
-    if (dimm < 0 || dimm > 7)
+	if (dimm < 0 || dimm > 7)
 		return;
 
 	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
@@ -550,12 +550,12 @@ void CLCD::setBrightness(int dimm)
 
 		close(fd);
 	}
-#elif HAVE_ARM_HARDWARE
+#elif HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	std::string value = to_string(255/15*dimm);
-	proc_put("/proc/stb/lcd/oled_brightness", value.c_str(), value.length());
-#elif HAVE_MIPS_HARDWARE
-	std::string value = to_string(255/15*dimm);
-	proc_put("/proc/stb/fp/oled_brightness", value.c_str(), value.length());
+	if (access("/proc/stb/lcd/oled_brightness", F_OK) == 0)
+		proc_put("/proc/stb/lcd/oled_brightness", value.c_str(), value.length());
+	else if (access("/proc/stb/fp/oled_brightness", F_OK) == 0)
+		proc_put("/proc/stb/fp/oled_brightness", value.c_str(), value.length());
 #else
 	(void)dimm; // avoid compiler warning
 #endif
@@ -563,8 +563,9 @@ void CLCD::setBrightness(int dimm)
 
 int CLCD::getBrightness()
 {
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
-		if(g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS] > 15)
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
+	{
+		if (g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS] > 15)
 			g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS] = 15;
 		return g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS];
 	} else
@@ -573,7 +574,8 @@ int CLCD::getBrightness()
 
 void CLCD::setBrightnessStandby(int bright)
 {
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
+	{
 		g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS] = bright;
 		setlcdparameter();
 	}
@@ -581,11 +583,13 @@ void CLCD::setBrightnessStandby(int bright)
 
 int CLCD::getBrightnessStandby()
 {
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
-		if(g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS] > 15)
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
+	{
+		if (g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS] > 15)
 			g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS] = 15;
 		return g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS];
-	} else
+	}
+	else
 		return 0;
 }
 
@@ -614,7 +618,7 @@ void CLCD::setPower(int)
 
 int CLCD::getPower()
 {
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
 		return g_settings.lcd_setting[SNeutrinoSettings::LCD_POWER];
 	else
 		return 0;
@@ -628,7 +632,7 @@ void CLCD::togglePower(void)
 	else
 		showTime(true);
 
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
 	{
 		last_toggle_state_power = 1 - last_toggle_state_power;
 
@@ -911,4 +915,3 @@ void CLCD::ShowText(const char * str, bool update_timestamp)
 void CLCD::setEPGTitle(const std::string)
 {
 }
-
