@@ -63,7 +63,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		char cl_timestr[32];
 
 		///handle paint clock within thread and is not similar to cc_allow_paint
-		bool paintClock;
+		bool cl_blocked;
 
 		///object: font render object
 		Font *cl_font;
@@ -151,7 +151,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		///same like Stop() but for usage as simple call without return value
 		void block(){Stop();}
 		///return true on blocked status, blocked means clock can be initalized but would be not paint, to unblock use unblock()
-		bool isBlocked(void) {return !paintClock;}
+		bool isBlocked(void) {return cl_blocked;}
 
 		///returns true, if clock is running
 		bool isRun() const {return cl_timer ? cl_timer->isRun() : false;}

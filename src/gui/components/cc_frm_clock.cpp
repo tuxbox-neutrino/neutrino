@@ -94,7 +94,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	//set default running clock properties
 	cl_interval	= interval_seconds;
 	cl_timer 	= NULL;
-	paintClock	= false;
+	cl_blocked	= true;
 #if 0
 	may_blit		= true;
 #endif
@@ -312,7 +312,7 @@ void CComponentsFrmClock::initCCLockItems()
 //this member is provided for slot with timer event "OnTimer"
 void CComponentsFrmClock::ShowTime()
 {
-	if (paintClock) {
+	if (!cl_blocked) {
 		//paint segements, but wihtout saved backgrounds
 		paint(CC_SAVE_SCREEN_NO);
 	}
@@ -365,7 +365,7 @@ bool CComponentsFrmClock::stopClock()
 bool CComponentsFrmClock::Start()
 {
 	if (startClock()) {
-		paintClock = true;
+		cl_blocked = !cc_allow_paint;
 		return true;
 	}
 	return false;
@@ -374,7 +374,7 @@ bool CComponentsFrmClock::Start()
 bool CComponentsFrmClock::Stop()
 {
 	if (stopClock()){
-		paintClock = false;
+		cl_blocked = true;
 		return true;
 	}
 
