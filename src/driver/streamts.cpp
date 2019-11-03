@@ -811,8 +811,8 @@ bool CStreamStream::Open()
 	if (url.empty())
 		return false;
 
-	std::string pretty_name, livestreamInfo1, livestreamInfo2, headers;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers)) {
+	std::string pretty_name, livestreamInfo1, livestreamInfo2, headers, dumb;
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers,dumb)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}
