@@ -57,6 +57,12 @@ int CZapitSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	return showMenu();
 }
 
+void CZapitSetup::changeStartChannel(CMenuForwarder* zapit1, CMenuForwarder* zapit2)
+{
+	zapit1->paint();
+	zapit2->paint();
+}
+
 int CZapitSetup::showMenu()
 {
 	//menue init
@@ -67,12 +73,13 @@ int CZapitSetup::showMenu()
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscZapitNotifier, CRCInput::RC_red);
 	mc->setHint("", LOCALE_MENU_HINT_LAST_USE);
 
-	CSelectChannelWidget select;
+	CSelectChannelWidget select1;
+	CSelectChannelWidget select2;
 
-	CMenuForwarder 	*zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green);
+	CMenuForwarder 	*zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select1, "tv", CRCInput::RC_green);
 	zapit1->setHint("", LOCALE_MENU_HINT_LAST_TV);
 
-	CMenuForwarder 	*zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow);
+	CMenuForwarder 	*zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select2, "radio", CRCInput::RC_yellow);
 	zapit2->setHint("", LOCALE_MENU_HINT_LAST_RADIO);
 
 	#define CHANNEL_LIST_MODE_OPTION_COUNT 5
@@ -85,8 +92,11 @@ int CZapitSetup::showMenu()
 	};
 
 	CMenuOptionChooser *channel_mode = new CMenuOptionChooser(LOCALE_ZAPITSETUP_CHANNELMODE, &g_settings.channel_mode_initial, CHANNEL_LIST_MODE_OPTIONS, CHANNEL_LIST_MODE_OPTION_COUNT, true, NULL, CRCInput::RC_1);
+	channel_mode->OnAfterChangeOption.connect(sigc::bind(sigc::mem_fun(*this, &CZapitSetup::changeStartChannel), zapit1, zapit2));
 	channel_mode->setHint("", LOCALE_MENU_HINT_CHANNELLIST_MODE);
+
 	CMenuOptionChooser *channel_mode_radio = new CMenuOptionChooser(LOCALE_ZAPITSETUP_CHANNELMODE_RADIO, &g_settings.channel_mode_initial_radio, CHANNEL_LIST_MODE_OPTIONS, CHANNEL_LIST_MODE_OPTION_COUNT, true, NULL, CRCInput::RC_2);
+	channel_mode_radio->OnAfterChangeOption.connect(sigc::bind(sigc::mem_fun(*this, &CZapitSetup::changeStartChannel), zapit1, zapit2));
 	channel_mode_radio->setHint("", LOCALE_MENU_HINT_CHANNELLIST_MODE_RADIO);
 
 	miscZapitNotifier->addItem(zapit1);

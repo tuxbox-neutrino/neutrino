@@ -38,6 +38,7 @@ private:
 	int width;
 
 	int showMenu();
+	void changeStartChannel(CMenuForwarder* zapit1, CMenuForwarder* zapit2);
 
 public:
 	CZapitSetup();
