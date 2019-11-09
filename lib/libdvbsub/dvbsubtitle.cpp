@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * Original author: Marco Schlüßler <marco@lordzodiac.de>
+ * Original author: Marco SchlÃ¼ÃŸler <marco@lordzodiac.de>
  * With some input from the "subtitle plugin" by Pekka Virtanen <pekka.virtanen@sci.fi>
  *
  * $Id: dvbsubtitle.cpp,v 1.1 2009/02/23 19:46:44 rhabarber1848 Exp $
