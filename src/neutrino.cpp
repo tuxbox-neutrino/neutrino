@@ -2267,6 +2267,7 @@ void CNeutrinoApp::SetupFrameBuffer()
 
 void CNeutrinoApp::SetupFonts(int fmode)
 {
+	OnBeforeSetupFonts();
 	if (neutrinoFonts == NULL)
 		neutrinoFonts = CNeutrinoFonts::getInstance();
 
