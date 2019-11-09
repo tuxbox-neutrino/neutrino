@@ -258,7 +258,7 @@ unsigned int CFrameBuffer::getStride() const
 	return stride;
 }
 
-unsigned int CFrameBuffer::getScreenWidth(bool real)
+unsigned int CFrameBuffer::getScreenWidth(const bool& real) const
 {
 	if(real)
 		return xRes;
@@ -266,7 +266,7 @@ unsigned int CFrameBuffer::getScreenWidth(bool real)
 		return g_settings.screen_EndX - g_settings.screen_StartX;
 }
 
-unsigned int CFrameBuffer::getScreenHeight(bool real)
+unsigned int CFrameBuffer::getScreenHeight(const bool& real) const
 {
 	if(real)
 		return yRes;
@@ -1528,10 +1528,16 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 
 }
 
-void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
+void CFrameBuffer::RestoreScreen(const int& x, const int& y, const int& dx, const int& dy, fb_pixel_t * const memp)
 {
 	if (!getActive())
 		return;
+
+	if (dx > xRes || dy > yRes)
+	{
+		dprintf(DEBUG_NORMAL, "\033[31m[CFrameBuffer]\[%s - %d], dimension error dx [%d]  dy [%d] \033[0m\n", __func__, __LINE__, dx, dy);
+		return;
+	}
 
 	checkFbArea(x, y, dx, dy, true);
 	fb_pixel_t * fbpos = getFrameBufferPointer() + x + swidth * y;
@@ -1832,7 +1838,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	}
 }
 
-void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
+void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, const uint32_t& width, const uint32_t& height, const uint32_t& xoff, const uint32_t& yoff)
 {
 	if(width <1 || height <1 || !boxBuf )
 		return;
