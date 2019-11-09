@@ -616,7 +616,7 @@ void CComponentsHeader::initCaption()
 		cch_cl_obj->refresh();
 
 		//get width of clock object
-		int clock_w = cch_cl_enable ? cch_cl_obj->getWidth() : 0;
+		int clock_w = cch_cl_enable ? cch_cl_obj->getWidth() + cch_offset : 0;
 
 		//set x position of clock
 		cch_cl_obj->setXPos(width - buttons_w - clock_w);
