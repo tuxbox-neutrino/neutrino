@@ -104,7 +104,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	initParent(parent);
 
 	//init slot for running clock
-	cl_sl_show = sigc::mem_fun0(*this, &CComponentsFrmClock::ShowTime);
+	cl_sl_show = sigc::mem_fun(*this, &CComponentsFrmClock::ShowTime);
 
 	//run clock already if required
 	if (activ)
