@@ -707,6 +707,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	}
 
 	COsdHelpers::getInstance()->OnAfterChangeResolution.connect(sigc::mem_fun(this, &CMenuWidget::ResetModules));
+	CNeutrinoApp::getInstance()->OnBeforeSetupFonts.connect(sigc::mem_fun(this, &CMenuWidget::ResetModules));
 }
 
 void CMenuWidget::move(int xoff, int yoff)
