@@ -26,6 +26,7 @@ class COsdHelpers : public sigc::trackable
 		uint32_t getOsdResolution();
 		int setVideoSystem(int newSystem, bool remember = true);
 		sigc::signal<void> OnAfterChangeResolution;
+		sigc::signal<void> OnBeforeChangeResolution;
 };
 
 
