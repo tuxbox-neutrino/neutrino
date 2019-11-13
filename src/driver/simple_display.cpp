@@ -120,9 +120,12 @@ static void replace_umlauts(std::string &s)
 CLCD::CLCD()
 {
 	/* do not show menu in neutrino...,at Line Display true, because there is th GLCD Menu */
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
 	{
-		has_lcd = true;
+		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+			has_lcd = true;
+		else
+			has_lcd = false;
 		mode = MODE_TVRADIO;
 		switch_name_time_cnt = 0;
 		timeout_cnt = 0;
@@ -174,16 +177,21 @@ void CLCD::wake_up()
 void* CLCD::TimeThread(void *)
 {
 	set_threadname("n:boxdisplay"); /* to not confuse with TV display */
-	while (CLCD::getInstance()->thread_running) {
+	while (CLCD::getInstance()->thread_running)
+	{
 		sleep(1);
-		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
+		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
+		{
 			struct stat buf;
-			if (stat("/tmp/vfd.locked", &buf) == -1) {
+			if (stat("/tmp/vfd.locked", &buf) == -1)
+			{
 				CLCD::getInstance()->showTime();
 				CLCD::getInstance()->count_down();
-			} else
+			}
+			else
 				CLCD::getInstance()->wake_up();
-		} else
+		}
+		else
 			CLCD::getInstance()->showTime();
 #if 0
 		/* hack, just if we missed the blit() somewhere
@@ -507,7 +515,8 @@ void CLCD::setMode(const MODES m, const char * const title)
 		showTime();
 	}
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	wake_up();
+	if (m != MODE_SHUTDOWN && m != MODE_STANDBY)
+		wake_up();
 #endif
 }
 
@@ -662,10 +671,12 @@ void CLCD::pause()
 
 void CLCD::Lock()
 {
+	creat("/tmp/vfd.locked", 0);
 }
 
 void CLCD::Unlock()
 {
+	unlink("/tmp/vfd.locked");
 }
 
 #if HAVE_SPARK_HARDWARE
