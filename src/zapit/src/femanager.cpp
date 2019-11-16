@@ -243,7 +243,10 @@ bool CFEManager::loadSettings()
 		frontend_config_t & fe_config = fe->getConfig();
 		INFO("load config for fe%d", fe->fenumber);
 
-		fe_config.diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
+		if (fe->hasSat())
+			fe_config.diseqcType	= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
+		else
+			fe_config.diseqcType	= NO_DISEQC;
 		fe_config.diseqcRepeats		= getConfigValue(fe, "diseqcRepeats", 0);
 		fe_config.motorRotationSpeed	= getConfigValue(fe, "motorRotationSpeed", 18);
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
