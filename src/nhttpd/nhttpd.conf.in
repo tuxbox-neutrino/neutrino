@@ -1,6 +1,6 @@
 Language.directory=languages
 Language.selected=English
-Tuxbox.LogosURL=@TARGET_ICONSDIR@/logo
+Tuxbox.LogosURL=@TARGET_PUBLIC_HTTPDDIR@/logo
 WebsiteMain.directory=@TARGET_PRIVATE_HTTPDDIR@
 WebsiteMain.override_directory=@TARGET_PUBLIC_HTTPDDIR@
 WebsiteMain.port=80

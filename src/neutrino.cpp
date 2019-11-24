@@ -91,6 +91,7 @@
 #include "gui/start_wizard.h"
 #include "gui/update_ext.h"
 #include "gui/update.h"
+//#include "gui/update_check.h"
 #include "gui/videosettings.h"
 #include "gui/audio_select.h"
 #include "gui/weather.h"
@@ -159,7 +160,7 @@ CTimeOSD	*FileTimeOSD;
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
-CLCD4l		*LCD4l;
+CLCD4l *LCD4l = NULL;
 #endif
 
 int allow_flash = 1;
@@ -447,6 +448,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if VIDEOMENU_VIDEOMODE_OPTION_COUNT > 3
 	g_settings.enabled_video_modes[3] = 1; // 720p 50Hz
 	g_settings.enabled_video_modes[4] = 1; // 1080i 50Hz
+
 #endif
 
 	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
@@ -559,7 +561,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.volume_pos = configfile.getInt32("volume_pos", CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER);
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
 	g_settings.volume_size = configfile.getInt32("volume_size", 26 );
-
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
 	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", true);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , true );
@@ -2837,6 +2838,22 @@ TIMER_START();
 	CZapit::getInstance()->SetScanSDT(g_settings.enable_sdt);
 	cSysLoad::getInstance();
 	cHddStat::getInstance();
+
+#if 0 //create userdirs
+	CFileHelpers::createDir(CONTROLDIR_VAR);
+	CFileHelpers::createDir(FONTDIR_VAR);
+	CFileHelpers::createDir(ICONSDIR_VAR);
+	CFileHelpers::createDir(LOGODIR_VAR);
+	CFileHelpers::createDir(LOGODIR_VAR "/events");
+	CFileHelpers::createDir(LOCALEDIR_VAR);
+	CFileHelpers::createDir(THEMESDIR_VAR);
+	CFileHelpers::createDir(PLUGINDIR_VAR);
+	CFileHelpers::createDir(LUAPLUGINDIR_VAR);
+	CFileHelpers::createDir(WEBRADIODIR_VAR);
+	CFileHelpers::createDir(WEBTVDIR_VAR);
+	CFileHelpers::createDir(PUBLIC_HTTPDDIR);
+	CFileHelpers::createDir(PUBLIC_HTTPDDIR "/logo");
+#endif
 	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 
 TIMER_STOP("################################## after all ##################################");
@@ -2902,6 +2919,7 @@ void CNeutrinoApp::showMainMenu()
 {
 	StopSubtitles();
 	InfoClock->enableInfoClock(false);
+
 	int old_ttx = g_settings.cacheTXT;
 	int old_epg = g_settings.epg_scan;
 	int old_mode = g_settings.epg_scan_mode;
@@ -2909,6 +2927,7 @@ void CNeutrinoApp::showMainMenu()
 	mainMenu->exec(NULL, "");
 	CVFD::getInstance()->UpdateIcons();
 	InfoClock->enableInfoClock(true);
+
 	StartSubtitles();
 	saveSetup(NEUTRINO_SETTINGS_FILE);
 
@@ -3002,10 +3021,12 @@ void CNeutrinoApp::RealRun()
 		if( ( mode == NeutrinoModes::mode_tv ) || ( mode == NeutrinoModes::mode_radio ) || ( mode == NeutrinoModes::mode_webtv ) || ( mode == NeutrinoModes::mode_webradio ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
 				InfoClock->enableInfoClock(false);
+
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EpgData->show(live_channel_id);
 				InfoClock->enableInfoClock(true);
+
 				StartSubtitles();
 			}
 			/* the only hardcoded key to check before key bindings */
@@ -3155,10 +3176,12 @@ void CNeutrinoApp::RealRun()
 			}
 			else if( msg == CRCInput::RC_epg ) {
 				InfoClock->enableInfoClock(false);
+
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
 				InfoClock->enableInfoClock(true);
+
 				StartSubtitles();
 			}
 			else if (CRCInput::isNumeric(msg)) {
@@ -3261,6 +3284,7 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 
 	neutrino_msg_t msg = _msg;
 	InfoClock->enableInfoClock(false);//TODO: use callback in channel list class
+
 	StopSubtitles();
 
 	int nNewChannel = -1;
@@ -3661,7 +3685,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{
 		g_volume->setVolume(msg);
-
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_spkr ) {
@@ -3677,12 +3700,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == CRCInput::RC_mute_on ) {
 		g_audioMute->AudioMute(true, true);
-
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_off ) {
 		g_audioMute->AudioMute(false, true);
-
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_analog_on ) {
