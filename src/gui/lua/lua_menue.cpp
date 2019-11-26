@@ -75,6 +75,7 @@ void CLuaInstMenu::MenuRegister(lua_State *L)
 		{ "hide",      CLuaInstMenu::MenuHide },
 		{ "setActive", CLuaInstMenu::MenuSetActive },
 		{ "setName",   CLuaInstMenu::MenuSetName },
+		{ "setSelected",   CLuaInstMenu::MenuSetSelected },
 		{ "__gc",      CLuaInstMenu::MenuDelete },
 		{ NULL, NULL }
 	};
@@ -575,5 +576,17 @@ int CLuaInstMenu::MenuDelete(lua_State *L)
 	}
 
 	delete D;
+	return 0;
+}
+
+int CLuaInstMenu::MenuSetSelected(lua_State *L)
+{
+	CLuaMenu *D = MenuCheck(L, 1);
+	if (!D) return 0;
+	lua_assert(lua_istable(L, 2));
+
+	lua_Integer preselected;	tableLookup(L, "preselected", preselected);
+
+	D->m->setSelected(preselected);
 	return 0;
 }

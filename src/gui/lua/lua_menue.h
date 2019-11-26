@@ -127,6 +127,7 @@ class CLuaInstMenu
 		static int MenuSetActive(lua_State *L);
 		static int MenuSetName(lua_State *L);
 		static int MenuDelete(lua_State *L);
+		static int MenuSetSelected(lua_State *L);
 };
 
 #endif //_LUAMENUE_H
