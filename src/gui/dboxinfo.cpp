@@ -70,7 +70,7 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	header = NULL;
 	fontWidth = fm->getWidth();
 	sizeWidth = 6 * fm->getMaxDigitWidth()
-		    + fm->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL)); ;//9999.99 MiB
+		    + fm->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL)); //9999.99 MiB
 	percWidth = 3 * fm->getMaxDigitWidth()
 		    + fm->getRenderWidth("%"); //100%
 	nameWidth = fontWidth * 17;
@@ -136,7 +136,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 			res = menu_return::RETURN_EXIT_ALL;
 			doLoop = false;
 		}
-		else if (msg == CRCInput::RC_info) {
+		else if (msg == CRCInput::RC_info || msg == CRCInput::RC_help) {
 			upmode = !upmode;
 			paint();
 		}
@@ -476,7 +476,7 @@ void CDBoxInfoWidget::paint()
 		}
 	}
 
-	ypos = std::max(ypos, ypos_mem);	
+	ypos = std::max(ypos, ypos_mem);
 	ypos += mheight/2;
 
 	int headOffset=0;
