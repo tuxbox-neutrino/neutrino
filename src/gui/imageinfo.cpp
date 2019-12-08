@@ -347,7 +347,9 @@ void CImageInfo::InitInfoData()
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DATE),	builddate});
 
 	//creator
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_CREATOR),	config.getString("creator", "n/a")});
+	string creator = config.getString("creator", "");
+	if (!creator.empty())
+		v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_CREATOR), creator});
 
 	//gui
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_GUI), config.getString("gui", PACKAGE_STRING)});
@@ -385,7 +387,7 @@ void CImageInfo::InitInfoData()
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_API),	s_api});
 
 	//www
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", "n/a")});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", PACKAGE_URL)});
 	//doc
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), config.getString("docs", "http://wiki.neutrino-hd.de")});
 	//support
