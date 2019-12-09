@@ -3019,6 +3019,22 @@ void CNeutrinoApp::RealRun()
 		}
 
 		if( ( mode == NeutrinoModes::mode_tv ) || ( mode == NeutrinoModes::mode_radio ) || ( mode == NeutrinoModes::mode_webtv ) || ( mode == NeutrinoModes::mode_webradio ) ) {
+#if 0
+			if (blank_screen) {
+				if (!videoDecoder->getBlank()) {
+					INFO("blank_screen auto off");
+					blank_screen = false;
+				}
+				else if (msg <= CRCInput::RC_MaxRC) {
+					INFO("blank_screen manual off");
+					blank_screen = false;
+					videoDecoder->setBlank(blank_screen);
+					//eat key - just leave blank screen
+					g_RCInput->clearRCMsg();
+					continue;
+				}
+			}
+#endif
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
 				InfoClock->enableInfoClock(false);
 
@@ -3148,14 +3164,14 @@ void CNeutrinoApp::RealRun()
 					if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
 						tvMode();
 					else if (!g_InfoViewer->is_visible)
-						g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
+						g_RCInput->postMsg(CRCInput::RC_info, 0);
 				}
 				else if (msg == CRCInput::RC_radio)
 				{
 					if (mode == NeutrinoModes::mode_tv || mode == NeutrinoModes::mode_webtv)
 						radioMode();
 					else if (!g_InfoViewer->is_visible)
-						g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
+						g_RCInput->postMsg(CRCInput::RC_info, 0);
 				}
 				else
 #endif

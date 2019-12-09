@@ -568,6 +568,7 @@ int COPKGManager::showMenu()
 
 	menu_offset = menu->getItemsCount();
 
+	menu->addKey(CRCInput::RC_help, this, "rc_info");
 	menu->addKey(CRCInput::RC_info, this, "rc_info");
 	menu->addKey(CRCInput::RC_blue, this, "rc_blue");
 	menu->addKey(CRCInput::RC_yellow, this, "rc_yellow");

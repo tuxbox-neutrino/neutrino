@@ -288,7 +288,11 @@ int CNetworkSetup::showNetworkSetup()
 	mf->setHint("", LOCALE_MENU_HINT_NET_TEST);
 	networkSettings->addItem(mf); //test
 
+#if BOXMODEL_VUPLUS
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_SHOW, true, NULL, this, "networkshow", CRCInput::RC_help);
+#else
 	mf = new CMenuForwarder(LOCALE_NETWORKMENU_SHOW, true, NULL, this, "networkshow", CRCInput::RC_info);
+#endif
 	mf->setHint("", LOCALE_MENU_HINT_NET_SHOW);
 	networkSettings->addItem(mf);	//show settings
 

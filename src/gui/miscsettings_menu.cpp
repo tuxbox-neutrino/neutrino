@@ -441,6 +441,7 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 {
 	ms_epg->addIntroItems(LOCALE_MISCSETTINGS_EPG_HEAD);
+	ms_epg->addKey(CRCInput::RC_help, this, "info");
 	ms_epg->addKey(CRCInput::RC_info, this, "info");
 
 	epg_save = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
