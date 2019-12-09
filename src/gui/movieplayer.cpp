@@ -1984,6 +1984,12 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			callInfoViewer();
 			update_lcd = true;
 			clearSubtitle();
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		} else if (msg == CRCInput::RC_tv || msg == CRCInput::RC_radio) {
+			callInfoViewer();
+			update_lcd = true;
+			clearSubtitle();
+#endif
 		} else if (timeshift != TSHIFT_MODE_OFF && (msg == CRCInput::RC_text || msg == CRCInput::RC_epg || msg == NeutrinoMessages::SHOW_EPG)) {
 			bool restore = FileTimeOSD->IsVisible();
 			FileTimeOSD->kill();
