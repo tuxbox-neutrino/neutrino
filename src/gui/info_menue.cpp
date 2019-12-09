@@ -75,6 +75,9 @@ int CInfoMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 int CInfoMenu::showMenu()
 {
 	CMenuWidget *info = new CMenuWidget(LOCALE_MESSAGEBOX_INFO, NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_INFOMENUE);
+	info->addKey(CRCInput::RC_0, this, "cs_get_info");
+	info->addKey(CRCInput::RC_help, this, "imageinfo");
+	info->addKey(CRCInput::RC_info, this, "imageinfo");
 
 	CImageInfo imageinfo;
 	CDBoxInfoWidget boxinfo;
