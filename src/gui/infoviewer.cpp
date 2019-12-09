@@ -1131,6 +1131,11 @@ void CInfoViewer::loop(bool show_dot)
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			g_RCInput->postMsg(NeutrinoMessages::SHOW_EPG, 0);
 			res = messages_return::cancel_info;
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		} else if (msg == CRCInput::RC_tv || msg == CRCInput::RC_radio) {
+			g_RCInput->postMsg(NeutrinoMessages::SHOW_EPG, 0);
+			res = messages_return::cancel_info;
+#endif
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
 			if(fader.FadeDone())
 				res = messages_return::cancel_info;

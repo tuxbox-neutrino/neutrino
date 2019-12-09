@@ -3142,16 +3142,20 @@ void CNeutrinoApp::RealRun()
 				StartSubtitles();
 			}
 			else if (((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && (g_settings.key_tvradio_mode == (int)CRCInput::RC_nokey)) {
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 				if (msg == CRCInput::RC_tv)
 				{
 					if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
 						tvMode();
+					else if (!g_InfoViewer->is_visible)
+						g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
 				}
 				else if (msg == CRCInput::RC_radio)
 				{
 					if (mode == NeutrinoModes::mode_tv || mode == NeutrinoModes::mode_webtv)
 						radioMode();
+					else if (!g_InfoViewer->is_visible)
+						g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
 				}
 				else
 #endif
