@@ -492,6 +492,12 @@ void CMenuItem::setIconName()
 		case CRCInput::RC_info:
 			iconName = NEUTRINO_ICON_BUTTON_INFO_SMALL;
 			break;
+		case CRCInput::RC_epg:
+			iconName = NEUTRINO_ICON_BUTTON_EPG;
+			break;
+		case CRCInput::RC_pause:
+			iconName = NEUTRINO_ICON_BUTTON_PAUSE;
+			break;
 		case CRCInput::RC_stop:
 			iconName = NEUTRINO_ICON_BUTTON_STOP;
 			break;
