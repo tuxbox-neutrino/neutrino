@@ -3051,6 +3051,10 @@ void CNeutrinoApp::RealRun()
 					showMainMenu();
 				}
 			}
+			else if (msg == (neutrino_msg_t) g_settings.key_favorites)
+			{
+				showChannelList(msg);
+			}
 			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
 			{
 				quickZap(msg);
@@ -3329,13 +3333,13 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 	} else if(msg == CRCInput::RC_sat) {
 		SetChannelMode(LIST_MODE_SAT);
 		nNewChannel = bouquetList->exec(true);
-	} else if(msg == CRCInput::RC_favorites) {
-		SetChannelMode(LIST_MODE_FAV);
+	} else if(msg == CRCInput::RC_www) {
+		SetChannelMode(LIST_MODE_WEB);
 		if (bouquetList->Bouquets.empty())
 			SetChannelMode(LIST_MODE_PROV);
 		nNewChannel = bouquetList->exec(true);
-	} else if(msg == CRCInput::RC_www) {
-		SetChannelMode(LIST_MODE_WEB);
+	} else if(msg == (neutrino_msg_t) g_settings.key_favorites) {
+		SetChannelMode(LIST_MODE_FAV);
 		if (bouquetList->Bouquets.empty())
 			SetChannelMode(LIST_MODE_PROV);
 		nNewChannel = bouquetList->exec(true);
@@ -3472,10 +3476,13 @@ bool CNeutrinoApp::listModeKey(const neutrino_msg_t msg)
 {
 	if (
 		   msg == CRCInput::RC_sat
-		|| msg == CRCInput::RC_favorites
 		|| msg == CRCInput::RC_www
+		|| msg == (neutrino_msg_t) g_settings.key_favorites
 	)
+	{
+		printf("CNeutrinoApp::listModeKey: true\n");
 		return true;
+	}
 	return false;
 }
 
@@ -5118,6 +5125,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_power_off = tconfig->getInt32( "key_power_off", CRCInput::RC_standby );
 	g_settings.key_standby_off_add = tconfig->getInt32( "key_standby_off_add", CRCInput::RC_ok );
 
+	g_settings.key_favorites = tconfig->getInt32( "key_favorites", CRCInput::RC_favorites );
 	g_settings.key_pageup = tconfig->getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
 	g_settings.key_pagedown = tconfig->getInt32( "key_channelList_pagedown", CRCInput::RC_page_down );
 	g_settings.key_channelList_cancel = tconfig->getInt32( "key_channelList_cancel",  CRCInput::RC_home );
@@ -5231,6 +5239,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig->setInt32( "key_channelList_addrecord", g_settings.key_channelList_addrecord );
 	tconfig->setInt32( "key_channelList_addremind", g_settings.key_channelList_addremind );
 
+	tconfig->setInt32( "key_favorites", g_settings.key_favorites );
 	tconfig->setInt32( "key_list_start", g_settings.key_list_start );
 	tconfig->setInt32( "key_list_end", g_settings.key_list_end );
 	tconfig->setInt32( "key_timeshift", g_settings.key_timeshift );

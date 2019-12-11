@@ -165,6 +165,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_KEYBINDINGMENU_TVRADIOMODE,   	&g_settings.key_tvradio_mode,		LOCALE_MENU_HINT_KEY_TVRADIOMODE },
 	{LOCALE_KEYBINDINGMENU_POWEROFF,      	&g_settings.key_power_off,		LOCALE_MENU_HINT_KEY_POWEROFF },
 	{LOCALE_KEYBINDINGMENU_STANDBYOFF_ADD,	&g_settings.key_standby_off_add,	LOCALE_MENU_HINT_KEY_STANDBYOFF_ADD },
+	{LOCALE_KEYBINDINGMENU_FAVORITES,	&g_settings.key_favorites, 		LOCALE_MENU_HINT_KEY_FAVORITES },
 	{LOCALE_KEYBINDINGMENU_PAGEUP, 		&g_settings.key_pageup,			LOCALE_MENU_HINT_KEY_PAGEUP },
 	{LOCALE_KEYBINDINGMENU_PAGEDOWN, 	&g_settings.key_pagedown, 		LOCALE_MENU_HINT_KEY_PAGEDOWN },
 	{LOCALE_KEYBINDINGMENU_VOLUMEUP, 	&g_settings.key_volumeup,		LOCALE_MENU_HINT_KEY_VOLUMEUP },
@@ -428,6 +429,10 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 
 	bindSettings->addItem(new CMenuSeparator());
 
+	// favorites
+	mf = new CMenuForwarder(key_settings[NKEY_FAVORITES].keydescription, true, keychooser[NKEY_FAVORITES]->getKeyName(), keychooser[NKEY_FAVORITES]);
+	mf->setHint("", key_settings[NKEY_FAVORITES].hint);
+	bindSettings->addItem(mf);
 	// timeshift
 	mf = new CMenuForwarder(key_settings[NKEY_TIMESHIFT].keydescription, true, keychooser[NKEY_TIMESHIFT]->getKeyName(), keychooser[NKEY_TIMESHIFT]);
 	mf->setHint("", key_settings[NKEY_TIMESHIFT].hint);
@@ -436,8 +441,8 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf = new CMenuForwarder(key_settings[NKEY_UNLOCK].keydescription, true, keychooser[NKEY_UNLOCK]->getKeyName(), keychooser[NKEY_UNLOCK]);
 	mf->setHint("", key_settings[NKEY_UNLOCK].hint);
 	bindSettings->addItem(mf);
-	// screenshot
 #ifdef SCREENSHOT
+	// screenshot
 	mf = new CMenuForwarder(key_settings[NKEY_SCREENSHOT].keydescription, true, keychooser[NKEY_SCREENSHOT]->getKeyName(), keychooser[NKEY_SCREENSHOT]);
 	mf->setHint("", key_settings[NKEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);

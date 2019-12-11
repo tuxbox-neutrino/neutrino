@@ -454,8 +454,8 @@ int CAudioPlayerGui::show()
 			if (m_state != CAudioPlayerGui::STOP)
 				stop();
 		}
-		//add RC_favorites for internetradio
-		else if ((msg == CRCInput::RC_favorites) && (m_inetmode))
+		//add key_favorites for internetradio
+		else if ((msg == (neutrino_msg_t) g_settings.key_favorites) && (m_inetmode))
 		{
 			if (m_key_level == 0)
 			{

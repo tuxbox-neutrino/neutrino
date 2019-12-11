@@ -939,6 +939,7 @@ keybindingmenu.channeldown channel down
 keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
 keybindingmenu.edit Edit keybindings
+keybindingmenu.favorites Favorites
 keybindingmenu.head Keybindings
 keybindingmenu.lastchannel Quick zap
 keybindingmenu.longkeypress_duration Long key-press
@@ -1257,6 +1258,7 @@ menu.hint_key_cancel Assign button to close GUI window
 menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
 menu.hint_key_channellist Configure keybingdings for channel list
 menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
+menu.hint_key_favorites Assign button to show favorites
 menu.hint_key_format_mode_active Disable/enable key for the video format conversion
 menu.hint_key_hardware Change remote control type
 menu.hint_key_history Assign button to show channel\nchannel switch history

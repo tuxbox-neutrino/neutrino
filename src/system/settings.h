@@ -557,6 +557,7 @@ struct SNeutrinoSettings
 	int key_channelList_addrecord;
 	int key_channelList_addremind;
 
+	int key_favorites;
 	int key_quickzap_up;
 	int key_quickzap_down;
 	int key_bouquet_up;
