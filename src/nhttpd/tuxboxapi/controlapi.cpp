@@ -895,13 +895,15 @@ unsigned int revert_translate(unsigned int code)
 		case RC_page_down:
 			return KEY_CHANNELDOWN;
 #ifdef HAVE_ARM_HARDWARE
+#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
+		case RC_favorites:
+			return KEY_VIDEO;
+#endif
 		case RC_mode:
 			return KEY_SWITCHVIDEOMODE;
 		case RC_play:
 		case RC_pause:
 			return KEY_PLAYPAUSE;
-		case RC_favorites:
-			return KEY_VIDEO;
 		case RC_forward:
 			return KEY_FASTFORWARD;
 #endif
