@@ -1743,11 +1743,13 @@ int CRCInput::translate(int code)
 			return RC_page_up;
 		case KEY_CHANNELDOWN:
 			return RC_page_down;
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARERE
-		case KEY_SWITCHVIDEOMODE:
-			return RC_mode;
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
 		case KEY_VIDEO:
 			return RC_favorites;
+#endif
+		case KEY_SWITCHVIDEOMODE:
+			return RC_mode;
 		case KEY_FASTFORWARD:
 			return RC_forward;
 		case 0xb0: // vuplus timer key

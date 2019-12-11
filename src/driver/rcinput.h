@@ -228,13 +228,8 @@ class CRCInput
 			RC_tv		= KEY_TV,
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
-#if BOXMODEL_VUPLUS
-			RC_info		= KEY_NONEXISTING,
-			RC_epg		= KEY_INFO,
-#else
 			RC_info		= KEY_INFO,
 			RC_epg		= KEY_EPG,
-#endif
 			RC_recall	= KEY_LAST,
 			RC_favorites	= KEY_FAVORITES,
 			RC_sat		= KEY_SAT,
