@@ -474,22 +474,22 @@ extra.fec_7_8 7/8
 extra.fec_8_9 8/9
 extra.fec_9_10 9/10
 extra.fec_auto Auto
-extra.key_current_transponder Current Transponder Key
+extra.key_current_transponder Current transponder
 extra.key_format_mode Video format
-extra.key_help Help key
-extra.key_list_end end
-extra.key_list_start home
+extra.key_help Help
+extra.key_list_end End
+extra.key_list_start Home
 extra.key_next43mode Next aspect ratio
 extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
-extra.key_record Record key
-extra.key_screenshot Screenshot key
+extra.key_record Record
+extra.key_screenshot Screenshot
 extra.key_switchformat Next resolution
 extra.key_timeshift Timeshift
-extra.key_unlock Unlock key
+extra.key_unlock Unlock
 extra.ladirection LaDirection
 extra.latitude Latitude
 extra.loadconfig Load settings

@@ -474,9 +474,9 @@ extra.fec_7_8 7/8
 extra.fec_8_9 8/9
 extra.fec_9_10 9/10
 extra.fec_auto Auto
-extra.key_current_transponder Aktuelle Transponder Taste
+extra.key_current_transponder Aktueller Transponder
 extra.key_format_mode Videoformat
-extra.key_help Hilfe-Taste
+extra.key_help Hilfe
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
 extra.key_next43mode Nächstes Seitenformat
@@ -485,11 +485,11 @@ extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
-extra.key_record Aufnahme-Taste
-extra.key_screenshot Screenshot Taste
+extra.key_record Aufnahme
+extra.key_screenshot Screenshot
 extra.key_switchformat Nächste Auflösung
 extra.key_timeshift Timeshift
-extra.key_unlock Entsperrtaste
+extra.key_unlock Entsperren
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
 extra.loadconfig Einstellungen laden
