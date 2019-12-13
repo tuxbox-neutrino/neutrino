@@ -1955,7 +1955,8 @@ printf("[neutrino] CScanSetup::%s: logical numbers %d\n", __FUNCTION__, scansett
 			fe->forceDelSys(fe_config.force_mode);
 		if (fe_config.force_mode == 1)
 			fe_config.powered = 0;
-		tsp->setActive(fe_config.force_mode != 1);
+		if (tsp)
+			tsp->setActive(fe_config.force_mode != 1);
 		ret = true;
 	}
 	return ret;
