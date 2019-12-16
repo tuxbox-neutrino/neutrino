@@ -93,7 +93,7 @@ bool CPmt::Parse(CZapitChannel * const channel)
 
 	ProgramMapSection pmt(buffer);
 
-	DBG("pcr pid: old 0x%x new 0x%x\n", channel->getPcrPid(), pmt.getPcrPid());
+	DBG("[pmt] pcr pid: old 0x%x new 0x%x\n", channel->getPcrPid(), pmt.getPcrPid());
 
 	channel->resetPids();
 
@@ -182,14 +182,14 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 				TeletextDescriptor *td = (TeletextDescriptor*)d;
 				const VbiTeletextList *vbilist = td->getVbiTeletexts();
 				VbiTeletextConstIterator it;
-				DBG("teletext pid %04x\n", esinfo->getPid());
+				DBG("[pmt] teletext pid %04x\n", esinfo->getPid());
 				for (it = vbilist->begin(); it != vbilist->end(); ++it) {
 					VbiTeletext * vbi = *it;
 
 					std::string lang = vbi->getIso639LanguageCode();
 					uint8_t page = vbi->getTeletextPageNumber();
 					uint8_t magazine = vbi->getTeletextMagazineNumber();
-					DBG("teletext type %d mag %d page %d lang [%s]\n",
+					DBG("[pmt] teletext type %d mag %d page %d lang [%s]\n",
 							vbi->getTeletextType(), magazine, page, lang.c_str());
 					if (vbi->getTeletextType() == 0x01)
 						channel->setTeletextLang(lang);
@@ -320,7 +320,7 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 			snprintf(str, DESC_MAX_LEN, "Unknown");
 			description = str;
 		}
-		DBG("apid %04x stream %02x type %d [%s]\n", esinfo->getPid(), stream_type,
+		DBG("[pmt] apid %04x stream %02x type %d [%s]\n", esinfo->getPid(), stream_type,
 				(int) audio_type, description.c_str());
 		if(CServiceScan::getInstance()->Scanning()) {
 			if(channel->getPreAudioPid() == 0)
@@ -416,7 +416,7 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 
 int pmt_stop_update_filter(int * fd)
 {
-	DBG("\n");
+	DBG("[pmt] stop update filter\n");
 #if HAVE_TRIPLEDRAGON
 	if (pmtDemux)
 		delete pmtDemux;

@@ -146,7 +146,7 @@ class CFEManager
 		bool		haveFreeFrontend();
 		void		linkFrontends(bool init = true);
 		void		copySettings(CFrontend * fe);
-		int		getDemux(transponder_id_t id);
+		int		getDemux(transponder_id_t id, int feNum);
 		bool		lockDemux(int i, transponder_id_t id);
 		void		unlockDemux(int i);
 		bool		haveFreeDemux();

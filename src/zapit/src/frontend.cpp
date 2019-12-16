@@ -66,7 +66,7 @@ extern int zapit_debug;
 // DVB-S/S2 specific
 #define PILOTS		7
 #define ROLLOFF		8
-#define MIS			9
+#define MIS		9
 // DVB-T specific
 #define BANDWIDTH	4
 #define CODE_RATE_HP	6
@@ -394,8 +394,7 @@ void CFrontend::getFEInfo(void)
 		switch (info.type) {
 		case FE_QPSK:
 			deliverySystemMask |= DVB_S;
-			if (info.caps & FE_CAN_2G_MODULATION || get_hwcaps()->force_tuner_2G)
-				deliverySystemMask |= DVB_S2;
+			deliverySystemMask |= DVB_S2;
 			break;
 		case FE_OFDM:
 			deliverySystemMask |= DVB_T;
@@ -1018,7 +1017,7 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		}
 		break;
 	default:
-		INFO("unknown delsys %d!", delsys);
+		INFO("[frontend] unknown delsys %d!", delsys);
 		sys = "UNKNOWN";
 		mod = "UNKNOWN";
 		break;
@@ -1055,12 +1054,14 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 	case FEC_9_10:
 		fec = "9/10";
 		break;
+#if _HAVE_DVB57
 	case FEC_2_5:
 		fec = "2/5";
 		break;
 	case FEC_NONE:
 		fec = "0";
 		break;
+#endif
 	default:
 		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
 		/* fall through */
@@ -1194,6 +1195,7 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	case BANDWIDTH_6_MHZ:
 		bandwidth_hz  = 6000000;
 		break;
+#if _HAVE_DVB57
 	case BANDWIDTH_5_MHZ:
 		bandwidth_hz  = 5000000;
 		break;
@@ -1203,6 +1205,7 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	case BANDWIDTH_10_MHZ:
 		bandwidth_hz  = 10000000;
 		break;
+#endif
 	case BANDWIDTH_AUTO:
 		bandwidth_hz  = 0;
 	}
@@ -1273,12 +1276,14 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case FEC_9_10:
 		fec = FEC_9_10;
 		break;
+#if _HAVE_DVB57
 	case FEC_2_5:
 		fec = FEC_2_5;
 		break;
 	case FEC_NONE:
 		fec = FEC_NONE;
 		break;
+#endif
 	default:
 		INFO("[fe%d/%d] DEMOD: unknown FEC: %d\n", adapter, fenumber, fec_inner);
 		/* fall through */
@@ -1361,10 +1366,10 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		cmdseq.props[HIERARCHY].u.data		= feparams->hierarchy;
 		cmdseq.props[DELIVERY_SYSTEM].u.data	= getFEDeliverySystem(feparams->delsys);
 		cmdseq.props[BANDWIDTH].u.data		= getFEBandwidth(feparams->bandwidth);
-		cmdseq.props[PLP_ID].u.data			= feparams->plp_id;
+		cmdseq.props[PLP_ID].u.data		= feparams->plp_id;
 		break;
 	default:
-		INFO("unknown frontend type, exiting");
+		INFO("[frontend] unknown frontend type, exiting");
 		return false;
 	}
 
@@ -1476,7 +1481,7 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 		return;
 
 	if (zapit_debug) printf("[fe%d/%d] voltage %s\n", adapter, fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
-	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2) {
+	if ((config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2) && voltage != SEC_VOLTAGE_OFF) {
 		/* see my comment in secSetTone... */
 		currentVoltage = voltage; /* need to know polarization for unicable */
 		fop(ioctl, FE_SET_VOLTAGE, unicable_lowvolt); /* voltage must not be 18V */
@@ -1731,7 +1736,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 		}
 		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
 		usleep(20 * 1000);		/* en50494 says: >4ms and < 22 ms */
-		sendDiseqcCommand(&cmd, 120);				/* en50494 says: >2ms and < 60 ms -- it seems we must add the lengthe of telegramm itself (~65ms)*/
+		sendDiseqcCommand(&cmd, 120);	/* en50494 says: >2ms and < 60 ms -- it seems we must add the lengthe of telegramm itself (~65ms)*/
 		fop(ioctl, FE_SET_VOLTAGE, unicable_lowvolt);
 	}
 	return ret;
@@ -1951,6 +1956,14 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 
 			delay = 100;	// delay for 1.0 after 1.1 command
 			cmd.msg[2] = 0x39;	/* port group = uncommited switches */
+			/* new code */
+			sat_no &= 0x0F;
+			cmd.msg[3] = 0xF0 | sat_no;
+			sendDiseqcCommand(&cmd, delay);
+			cmd.msg[2] = 0x38;	/* port group = commited switches */
+			cmd.msg[3] = 0xF0 | ((pol & 1) ? 0 : 2) | (high_band ? 1 : 0);
+			sendDiseqcCommand(&cmd, delay);
+#if 0			/* old code */
 #if 1
 			/* for 16 inputs */
 			cmd.msg[3] = 0xF0 | ((sat_no / 4) & 0x03);
@@ -1967,9 +1980,10 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 			cmd.msg[3] &= 0xCF;
 			sendDiseqcCommand(&cmd, 100);	/* send the command to setup second uncommited switch and wait 100 ms !!! */
 #endif
+#endif
 		}
 
-		if (config.diseqcType >= DISEQC_1_0) {	/* DISEQC 1.0 */
+		if (config.diseqcType == DISEQC_1_0) {	/* DISEQC 1.0 */
 			usleep(delay * 1000);
 			//cmd.msg[0] |= 0x01;	/* repeated transmission */
 			cmd.msg[2] = 0x38;	/* port group = commited switches */

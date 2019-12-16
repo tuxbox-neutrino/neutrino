@@ -265,7 +265,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 		}
 
 #ifdef DEBUG_SDT
-		printf("SDT: tid %02x onid %02x\n", sdt->getTransportStreamId(), sdt->getOriginalNetworkId());
+		printf("[SDT] tid %02x onid %02x\n", sdt->getTransportStreamId(), sdt->getOriginalNetworkId());
 #endif
 		const ServiceDescriptionList &slist = *sdt->getDescriptions();
 		for (ServiceDescriptionConstIterator sit = slist.begin(); sit != slist.end(); ++sit) {
@@ -303,7 +303,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 				default:
 					{
 #ifdef DEBUG_SDT_UNUSED
-						printf("SDT: sid %x descriptor %02x: ", service->getServiceId(), d->getTag());
+						printf("[SDT] sid %x descriptor %02x: ", service->getServiceId(), d->getTag());
 						uint8_t len = 2+d->getLength();
 						uint8_t buf[len];
 						d->writeToBuffer(buf);
@@ -373,7 +373,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	std::string serviceName = SID ? "" : stringDVBUTF8(sd->getServiceName(), 0, tsidonid);
 
 #ifdef DEBUG_SDT_SERVICE
-	printf("SDT: sid %04x type %x provider [%s] service [%s] scrambled %d\n", service_id, sd->getServiceType(),
+	printf("[SDT] sid %04x type %x provider [%s] service [%s] scrambled %d\n", service_id, sd->getServiceType(),
 			providerName.c_str(), serviceName.c_str(), free_ca);
 #endif
 	if(!current && free_ca && CServiceScan::getInstance()->isFtaOnly())
@@ -412,7 +412,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 				channel->scrambled = false;
 #ifdef DEBUG_SDT_SERVICE
 			if(free_ca != channel->scrambled)
-				printf("SDT: service update: [%s] free_ca %d scrambled %d\n",
+				printf("[SDT] service update: [%s] free_ca %d scrambled %d\n",
 						serviceName.c_str(), free_ca, channel->scrambled);
 #endif
 		}
@@ -468,7 +468,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 			pmt.Parse(channel);
 #ifdef DEBUG_SDT_SERVICE
 			if(free_ca != channel->scrambled)
-				printf("SDT: provider [%s] service [%s] free_ca %d scrambled %d camap.size %d\n", providerName.c_str(),
+				printf("[SDT] provider [%s] service [%s] free_ca %d scrambled %d camap.size %d\n", providerName.c_str(),
 						serviceName.c_str(), free_ca, channel->scrambled, channel->camap.size());
 #endif
 		}

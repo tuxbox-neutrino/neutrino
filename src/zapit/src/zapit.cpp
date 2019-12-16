@@ -184,6 +184,7 @@ void CZapit::SaveSettings(bool write)
 		configfile.setInt32("writeChannelsNames", config.writeChannelsNames);
 		configfile.setBool("makeRemainingChannelsBouquet", config.makeRemainingChannelsBouquet);
 		configfile.setInt32("feTimeout", config.feTimeout);
+		configfile.setInt32("feRetries", config.feRetries);
 
 		configfile.setInt32("rezapTimeout", config.rezapTimeout);
 		configfile.setBool("scanPids", config.scanPids);
@@ -195,6 +196,7 @@ void CZapit::SaveSettings(bool write)
 #endif
 
 		/* FIXME FE global */
+		configfile.setInt32("noSameFE", config.noSameFE);
 		char tempd[12];
 		sprintf(tempd, "%3.6f", config.gotoXXLatitude);
 		configfile.setString("gotoXXLatitude", tempd);
@@ -301,7 +303,7 @@ void CZapit::ClearVolumeMap()
 	unlink(VOLUME_CONFIG_FILE);
 	if (current_channel) {
 		CZapitAudioChannel *currentAudioChannel = current_channel->getAudioChannel();
-		if (currentAudioChannel && currentAudioChannel->audioChannelType == CZapitAudioChannel::AC3) {
+		if (currentAudioChannel && (currentAudioChannel->audioChannelType == CZapitAudioChannel::AC3 || currentAudioChannel->audioChannelType == CZapitAudioChannel::EAC3)) {
 			SetVolumePercent(volume_percent_ac3);
 			return;
 		}
@@ -335,6 +337,8 @@ void CZapit::LoadSettings()
 	config.rezapTimeout			= configfile.getInt32("rezapTimeout", 1);
 
 	config.feTimeout			= configfile.getInt32("feTimeout", 40);
+	config.feRetries			= configfile.getInt32("feRetries", 1);
+	config.noSameFE				= configfile.getInt32("noSameFE", 0);
 	config.highVoltage			= configfile.getBool("highVoltage", 0);
 
 	config.gotoXXLatitude 			= strtod(configfile.getString("gotoXXLatitude", "0.0").c_str(), NULL);
@@ -582,8 +586,8 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	SaveSettings(false);
 	srand(time(NULL));
 
-	/* retry tuning twice when using unicable, TODO: EN50494 sect.8 specifies 4 retries... */
-	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
+	/* retry tuning, at least twice when using unicable, TODO: EN50494 sect.8 specifies 4 retries... */
+	int retry = std::max(config.feRetries, (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2);
  again:
 	if(!TuneChannel(live_fe, newchannel, transponder_change)) {
 		if (retry < 1) {
@@ -751,8 +755,8 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 {
 	CZapitChannel* newchannel;
 	bool transponder_change;
-	/* retry tuning twice when using unicable */
-	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
+	/* retry tuning, at least twice when using unicable */
+	int retry = std::max(config.feRetries, (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2);
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
@@ -892,7 +896,8 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 		if ((channel_id == live_channel_id) && current_channel) {
 			for (int  i = 0; i < current_channel->getAudioChannelCount(); i++) {
 				if (pid == current_channel->getAudioPid(i)) {
-					percent = current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3 ?
+					percent = (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3
+						|| current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) ?
 						volume_percent_ac3 : volume_percent_pcm;
 					break;
 				}
@@ -923,7 +928,8 @@ int CZapit::SetVolumePercent(int percent)
 
 	if (volume_percent != percent) {
 		volume_percent = percent;
-		SetVolume(current_volume);
+		if (!audioDecoder->getMuteStatus())
+			SetVolume(current_volume);
 	}
 	return ret;
 }
@@ -968,10 +974,10 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 	}
 
 	/* FIXME: bigger percent for AC3 only, what about AAC etc ? */
-	int newpercent = GetPidVolume(0, 0, audioChannelType == CZapitAudioChannel::AC3);
+	int newpercent = GetPidVolume(0, 0, audioChannelType == CZapitAudioChannel::AC3 || audioChannelType == CZapitAudioChannel::EAC3);
 	SetVolumePercent(newpercent);
 
-	DBG("starting %s audio\n", audioStr);
+	DBG("[zapit] starting %s audio\n", audioStr);
 }
 
 bool CZapit::ChangeAudioPid(uint8_t index)
@@ -1764,30 +1770,19 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
 	{
-#ifdef CHECK_MERGE
 		CZapitMessages::commandBoolean msgBool;
 		CBasicServer::receive_data(connfd, &msgBool, sizeof(msgBool));
 		StopPlayBack(msgBool.truefalse, false);
-#endif
-#if 0
-		/* hack. if standby true, dont blank video */
-		standby = true;
-		StopPlayBack(true);
-		standby = false;
 		playbackStopForced = true;
 		lock_channel_id = live_channel_id;
-#endif
-		lockPlayBack();
+		//lockPlayBack();
 		SendCmdReady(connfd);
 		break;
 	}
 	case CZapitMessages::CMD_SB_UNLOCK_PLAYBACK:
 	{
-#ifdef CHECK_MERGE
 		CZapitMessages::commandBoolean msgBool;
 		CBasicServer::receive_data(connfd, &msgBool, sizeof(msgBool));
-#endif
-#if 0
 		playbackStopForced = false;
 		if (lock_channel_id == live_channel_id) {
 			StartPlayBack(current_channel);
@@ -1799,8 +1794,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 				SendEvent(CZapitClient::EVT_ZAP_FAILED, &lock_channel_id, sizeof(lock_channel_id));
 			lock_channel_id = 0;
 		}
-#endif
-		unlockPlayBack();
+		//unlockPlayBack();
 		SendCmdReady(connfd);
 		break;
 	}

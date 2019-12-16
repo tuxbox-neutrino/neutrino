@@ -67,6 +67,8 @@ typedef struct Zapit_config {
         int useGotoXX;
         /* FE common */
         int feTimeout;
+        int feRetries;
+        int noSameFE;
         int gotoXXLaDirection;
         int gotoXXLoDirection;
         double gotoXXLatitude;
@@ -106,6 +108,7 @@ class CZapit : public OpenThreads::Thread
 		};
 
 		OpenThreads::ReentrantMutex	mutex;
+		OpenThreads::Mutex zapit_mutex;
 		bool started;
 		bool event_mode;
 		bool firstzap;

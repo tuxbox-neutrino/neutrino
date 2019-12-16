@@ -157,6 +157,7 @@ class CFrontend
 		bool				isMultistream;
 		//fe_delivery_system_t deliverySystems[MAX_DELSYS];
 		//uint32_t numDeliverySystems;
+		t_channel_id		channel_id;
 
 		bool				buildProperties(const FrontendParameters*, struct dtv_properties &);
 
@@ -246,6 +247,9 @@ class CFrontend
 		void				gotoXX(t_satellite_position pos);
 		bool				tuneChannel(CZapitChannel *channel, bool nvod);
 		bool				retuneChannel(void);
+
+		t_channel_id			getChannelID(void) { return channel_id; }
+		void				setChannelID(t_channel_id ID) { channel_id = ID; }
 
 		fe_code_rate_t 			getCFEC ();
 		transponder_id_t		getTsidOnid() { return currentTransponder.getTransponderId(); }

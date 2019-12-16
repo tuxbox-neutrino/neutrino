@@ -297,7 +297,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->sendMessage(NULL, 0, false);
 		/* clean up channel_map with stopped record/stream/pip services NOT live-tv */
 		it = channel_map.find(channel_id);
-		if(it != channel_map.end() && newmask != 0 && it->second != cam)
+		if(it != channel_map.end() && newmask != 0)
 		{
 			delete it->second;
 			channel_map.erase(channel_id);
@@ -312,14 +312,31 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			INFO("\033[33m socket only\033[0m");
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
+			// CI
+			CaIdVector caids;
+			cCA::GetInstance()->GetCAIDS(caids);
+			uint8_t list = CCam::CAPMT_ONLY;
+			cam->makeCaPmt(channel, false, list, caids);
+			int len;
+			unsigned char * buffer = channel->getRawPmt(len);
+			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
 		}
 	}
+
 #if ! HAVE_COOL_HARDWARE
 	// CI
 	if(oldmask == newmask) {
 		INFO("\033[33m (oldmask == newmask)\033[0m");
 		if (mode) {
-			if(!start) {
+			if(start) {
+				CaIdVector caids;
+				cCA::GetInstance()->GetCAIDS(caids);
+				uint8_t list = CCam::CAPMT_ONLY;
+				cam->makeCaPmt(channel, false, list, caids);
+				int len;
+				unsigned char * buffer = channel->getRawPmt(len);
+				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
+			} else {
 				cam->sendCaPmt(channel->getChannelID(), NULL, 0, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
 			}
 		}
@@ -330,6 +347,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		}
 	}
 #endif
+
 	if(newmask == 0) {
 		INFO("\033[33m (newmask == 0)\033[0m");
 		/* FIXME: back to live channel from playback dont parse pmt and call setCaPmt
@@ -341,15 +359,13 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		// hack for rezaping to the recording channel
 		CZapitChannel * chan = CServiceManager::getInstance()->GetCurrentChannel();
 
-		//if commig from movieplayer, disable hack
+		//if coming from movieplayer, disable hack
 		if(!mp && ( (!mode || (mode && !chan->scrambled)) && (!start && rmode)) ){
 			INFO("\033[33m HACK: disabling TS\033[0m");
 			cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
 		}
 #endif
 #else
-		mp = false;
-
 		/* don't use StopCam() here: ci-cam needs the real mode stop */
 		cam->sendCaPmt(channel->getChannelID(), NULL, 0, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
 		cam->sendMessage(NULL, 0, false);
@@ -358,11 +374,10 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #endif
 	}
 
-#if ! HAVE_COOL_HARDWARE
 	// CI
+#if ! HAVE_COOL_HARDWARE
 	if (mode && !start) {
 #endif
-
 		CaIdVector caids;
 		cCA::GetInstance()->GetCAIDS(caids);
 		//uint8_t list = CCam::CAPMT_FIRST;
@@ -400,6 +415,8 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			++it;
 			if(!channel)
 				continue;
+			if(!channel->scrambled)
+				continue;
 
 #if 0
 			if (it == channel_map.end())
@@ -411,7 +428,12 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			unsigned char * buffer = channel->getRawPmt(len);
 #if HAVE_COOL_HARDWARE
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_SMARTCARD);
+#else
+			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, 0, true);
 #endif
+
+			/* out commented: causes a double send of capmt, the second without needed parameters */
+#if HAVE_COOL_HARDWARE
 			if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
 				INFO("CI: configured tuner %d do not match %d, skip [%s]", tunerno, cam->getSource(), channel->getName().c_str());
 			} else if (filter_channels && !channel->bUseCI) {
@@ -419,12 +441,9 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			} else if(channel->scrambled) {
 				useCI = true;
 				INFO("CI: use CI for [%s]", channel->getName().c_str());
-#if HAVE_COOL_HARDWARE
 				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
-#endif
 			}
 			//list = CCam::CAPMT_MORE;
-#if ! HAVE_COOL_HARDWARE
 			if((oldmask != newmask) || force_update || (oldmask == newmask && mode && start))
 			{
 				//temp debug output
