@@ -361,93 +361,94 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #if ! HAVE_COOL_HARDWARE
 	// CI
 	if (mode && !start) {
-		INFO("\033[33m (mode && !start) do we really need this?\033[0m");
-	}
 #endif
 
-	CaIdVector caids;
-	cCA::GetInstance()->GetCAIDS(caids);
-	//uint8_t list = CCam::CAPMT_FIRST;
-	uint8_t list = CCam::CAPMT_ONLY;
-	if (channel_map.size() > 1)
-		list = CCam::CAPMT_ADD;
+		CaIdVector caids;
+		cCA::GetInstance()->GetCAIDS(caids);
+		//uint8_t list = CCam::CAPMT_FIRST;
+		uint8_t list = CCam::CAPMT_ONLY;
+		if (channel_map.size() > 1)
+			list = CCam::CAPMT_ADD;
 
 #ifdef BOXMODEL_CS_HD2
-	int ci_use_count = 0;
-	for (it = channel_map.begin(); it != channel_map.end(); ++it)
-	{
-		cam = it->second;
-		channel = CServiceManager::getInstance()->FindChannel(it->first);
+		int ci_use_count = 0;
+		for (it = channel_map.begin(); it != channel_map.end(); ++it)
+		{
+			cam = it->second;
+			channel = CServiceManager::getInstance()->FindChannel(it->first);
 
-		if (tunerno >= 0 && tunerno == cDemux::GetSource(cam->getSource())) {
-			cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
-			ci_use_count++;
-			break;
-		} else if (filter_channels) {
-			if (channel && channel->bUseCI)
+			if (tunerno >= 0 && tunerno == cDemux::GetSource(cam->getSource())) {
+				cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
 				ci_use_count++;
-		} else
-			ci_use_count++;
-	}
-	if (ci_use_count == 0) {
-		INFO("CI: not used, disabling TS");
-		cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
-	}
+				break;
+			} else if (filter_channels) {
+				if (channel && channel->bUseCI)
+					ci_use_count++;
+			} else
+				ci_use_count++;
+		}
+		if (ci_use_count == 0) {
+			INFO("CI: not used, disabling TS");
+			cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
+		}
 #endif
 
-	for (it = channel_map.begin(); it != channel_map.end(); /*++it*/)
-	{
-		cam = it->second;
-		channel = CServiceManager::getInstance()->FindChannel(it->first);
-		++it;
-		if(!channel)
-			continue;
+		for (it = channel_map.begin(); it != channel_map.end(); /*++it*/)
+		{
+			cam = it->second;
+			channel = CServiceManager::getInstance()->FindChannel(it->first);
+			++it;
+			if(!channel)
+				continue;
 
 #if 0
-		if (it == channel_map.end())
-			list |= CCam::CAPMT_LAST; // FIRST->ONLY or MORE->LAST
+			if (it == channel_map.end())
+				list |= CCam::CAPMT_LAST; // FIRST->ONLY or MORE->LAST
 #endif
 
-		cam->makeCaPmt(channel, false, list, caids);
-		int len;
-		unsigned char * buffer = channel->getRawPmt(len);
+			cam->makeCaPmt(channel, false, list, caids);
+			int len;
+			unsigned char * buffer = channel->getRawPmt(len);
 #if HAVE_COOL_HARDWARE
-		cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_SMARTCARD);
+			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_SMARTCARD);
 #endif
-		if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
-			INFO("CI: configured tuner %d do not match %d, skip [%s]", tunerno, cam->getSource(), channel->getName().c_str());
-		} else if (filter_channels && !channel->bUseCI) {
-			INFO("CI: filter enabled, CI not used for [%s]", channel->getName().c_str());
-		} else if(channel->scrambled) {
-			useCI = true;
-			INFO("CI: use CI for [%s]", channel->getName().c_str());
+			if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
+				INFO("CI: configured tuner %d do not match %d, skip [%s]", tunerno, cam->getSource(), channel->getName().c_str());
+			} else if (filter_channels && !channel->bUseCI) {
+				INFO("CI: filter enabled, CI not used for [%s]", channel->getName().c_str());
+			} else if(channel->scrambled) {
+				useCI = true;
+				INFO("CI: use CI for [%s]", channel->getName().c_str());
 #if HAVE_COOL_HARDWARE
-			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
+				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
 #endif
-		}
-		//list = CCam::CAPMT_MORE;
+			}
+			//list = CCam::CAPMT_MORE;
 #if ! HAVE_COOL_HARDWARE
-		if((oldmask != newmask) || force_update || (oldmask == newmask && mode && start))
-		{
-			//temp debug output
-			if((oldmask != newmask) || force_update)
-				INFO("\033[33m (oldmask != newmask) || force_update)\033[0m");
-			else
-				INFO("\033[33m (oldmask == newmask && mode && start)\033[0m");
+			if((oldmask != newmask) || force_update || (oldmask == newmask && mode && start))
+			{
+				//temp debug output
+				if((oldmask != newmask) || force_update)
+					INFO("\033[33m (oldmask != newmask) || force_update)\033[0m");
+				else
+					INFO("\033[33m (oldmask == newmask && mode && start)\033[0m");
 
-			if(useCI)
-			{
-				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, 0, true);
+				if(useCI)
+				{
+					cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, 0, true);
+				}
+				else
+				{
+					INFO("\033[33m no CI needed\033[0m");
+					//no CI needed
+					cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, false /*channel->scrambled*/, channel->camap, mode, start);
+				}
 			}
-			else
-			{
-				INFO("\033[33m no CI needed\033[0m");
-				//no CI needed
-				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, false /*channel->scrambled*/, channel->camap, mode, start);
-			}
-		}
 #endif
+		}
+#if ! HAVE_COOL_HARDWARE
 	}
+#endif
 
 	return true;
 }
