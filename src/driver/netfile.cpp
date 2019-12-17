@@ -379,7 +379,10 @@ int request_file(URL *url)
 				dprintf(stderr, "> %s", str);
 				send(url->fd, str, strlen(str), 0);
 
-				snprintf(str, sizeof(str)-1, "Host: %s:%d\r\n", url->host, url->port);
+				if(url->port != 80)
+					snprintf(str, sizeof(str)-1, "Host: %s:%d\r\n", url->host, url->port);
+				else
+					snprintf(str, sizeof(str)-1, "Host: %s\r\n", url->host);
 				dprintf(stderr, "> %s", str);
 				send(url->fd, str, strlen(str), 0);
 
@@ -1824,7 +1827,7 @@ void ShoutCAST_MetaFilter(STREAM_FILTER *arg)
 	if(filterdata->stored < filterdata->len)
 	{
 		int bsize = (filterdata->len + 1) - filterdata->stored;
-		printf("filterdata->len %i bsize %i len %i\n",filterdata->len,bsize,len);
+		dprintf(stderr, "filterdata->len %i bsize %i len %i\n",filterdata->len,bsize,len);
 			/*check overload size*/
 			if(bsize > len){
 				dprintf(stderr, "[%s] : error ---> bsize %i > len %i\n",__func__,bsize, len);
