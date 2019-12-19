@@ -661,6 +661,87 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		// get active partition
 		char c[2] = {0};
 		FILE *f;
+#if BOXMODEL_VUPLUS4K
+		f = fopen("/proc/cmdline", "r");
+		if (f) {
+#if BOXMODEL_VUUNO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUSOLO4K || BOXMODEL_VUULTIMO4K
+			char buf[256] = "";
+			while(fgets(buf, sizeof(buf), f) != NULL) {
+				if (strstr(buf, "mmcblk0p5") != NULL) {
+					c[0] = '1';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p7") != NULL) {
+					c[0] = '2';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p9") != NULL) {
+					c[0] = '3';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p11") != NULL) {
+					c[0] = '4';
+					c[1] = '\0';
+					break;
+				}
+			}
+#elif BOXMODEL_VUZERO4K
+			char buf[256] = "";
+			while(fgets(buf, sizeof(buf), f) != NULL) {
+				if (strstr(buf, "mmcblk0p8") != NULL) {
+					c[0] = '1';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p10") != NULL) {
+					c[0] = '2';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p12") != NULL) {
+					c[0] = '3';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p14") != NULL) {
+					c[0] = '4';
+					c[1] = '\0';
+					break;
+				}
+			}
+#elif BOXMODEL_VUDUO4K
+			char buf[256] = "";
+			while(fgets(buf, sizeof(buf), f) != NULL) {
+				if (strstr(buf, "mmcblk0p10") != NULL) {
+					c[0] = '1';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p12") != NULL) {
+					c[0] = '2';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p14") != NULL) {
+					c[0] = '3';
+					c[1] = '\0';
+					break;
+				}
+				if (strstr(buf, "mmcblk0p16") != NULL) {
+					c[0] = '4';
+					c[1] = '\0';
+					break;
+				}
+			}
+#else
+			printf("VU+ not found.\n");
+#endif
+			fclose(f);
+		}
+#else
 		char line[1024];
 		char *pch;
 		// first check for hd51 new layout
@@ -698,6 +779,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 				fclose(f);
 			}
 		}
+#endif
 
 		// select partition
 		int selected = 0;
@@ -711,9 +793,18 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		{
 			bool active = !strcmp(c, to_string(i).c_str());
 			std::string m_title = "Partition " + to_string(i);
+#if BOXMODEL_VUPLUS4K
+			// own partition blocked, because fix needed for flashing own partition
+			if (!active) {
+				mf = new CMenuForwarder(m_title, true, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(i));
+				mf->iconName_Info_right = active ? NEUTRINO_ICON_MARKER_DIALOG_OK : NULL;
+				m.addItem(mf, active);
+			}
+#else
 			mf = new CMenuForwarder(m_title, true, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(i));
 			mf->iconName_Info_right = active ? NEUTRINO_ICON_MARKER_DIALOG_OK : NULL;
 			m.addItem(mf, active);
+#endif
 		}
 
 		m.enableSaveScreen(true);
