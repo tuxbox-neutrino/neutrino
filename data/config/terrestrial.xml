@@ -24,63 +24,234 @@
 		"0"-NONE "1"-1 "2"-2 "3"-4 "4"-AUTO 	-->
 
 <locations>
-	<terrestrial name="auto-Default" flags="5">
-		<transponder frequency="177500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="184500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="191500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="198500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="205500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="212500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="219500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="226500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="474000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="482000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="490000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="498000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="506000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	<terrestrial name="DVB-T/T2-Auto" flags="5">
+		<transponder frequency="177500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 05 -->
+		<transponder frequency="184500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 06 -->
+		<transponder frequency="191500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 07 -->
+		<transponder frequency="198500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 08 -->
+		<transponder frequency="205500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 09 -->
+		<transponder frequency="212500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 10 -->
+		<transponder frequency="219500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 11 -->
+		<transponder frequency="226500" bandwidth="1" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 12 -->
+		<transponder frequency="474000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 21 -->
+		<transponder frequency="482000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 22 -->
+		<transponder frequency="490000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 23 -->
+		<transponder frequency="498000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 24 -->
+		<transponder frequency="506000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 25 -->
+		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 26 -->
+		<transponder frequency="522000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 27 -->
+		<transponder frequency="530000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 28 -->
+		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 29 -->
+		<transponder frequency="546000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 30 -->
+		<transponder frequency="554000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 31 -->
+		<transponder frequency="562000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 32 -->
+		<transponder frequency="570000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 33 -->
+		<transponder frequency="578000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 34 -->
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 35 -->
+		<transponder frequency="594000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 36 -->
+		<transponder frequency="602000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 37 -->
+		<transponder frequency="610000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 38 -->
+		<transponder frequency="618000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 39 -->
+		<transponder frequency="626000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 40 -->
+		<transponder frequency="634000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 41 -->
+		<transponder frequency="642000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 42 -->
+		<transponder frequency="650000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 43 -->
+		<transponder frequency="658000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 44 -->
+		<transponder frequency="666000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 45 -->
+		<transponder frequency="674000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 46 -->
+		<transponder frequency="682000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 47 -->
+		<transponder frequency="690000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 48 -->
+		<transponder frequency="698000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 49 -->
+		<transponder frequency="706000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 50 -->
+		<transponder frequency="714000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 51 -->
+		<transponder frequency="722000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 52 -->
+		<transponder frequency="730000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 53 -->
+		<transponder frequency="738000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 54 -->
+		<transponder frequency="746000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 55 -->
+		<transponder frequency="754000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 56 -->
+		<transponder frequency="762000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 57 -->
+		<transponder frequency="770000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 58 -->
+		<transponder frequency="778000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 59 -->
+		<transponder frequency="786000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 60 -->
+		<transponder frequency="794000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 61 -->
+		<transponder frequency="802000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 62 -->
+		<transponder frequency="810000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 63 -->
+		<transponder frequency="818000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 64 -->
+		<transponder frequency="826000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 65 -->
+		<transponder frequency="834000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 66 -->
+		<transponder frequency="842000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 67 -->
+		<transponder frequency="850000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 68 -->
+		<transponder frequency="858000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 69 -->
+	</terrestrial>
+	<terrestrial name="Berlin/Brandenburg (DVB-T2)" flags="5">
+		<transponder frequency="490000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 23 RBB1 Cottbus -->
+		<transponder frequency="506000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 25 RBB1 Berlin Frankfurt/Oder -->
+		<transponder frequency="522000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 27 freenet TV 1 Berlin -->
+		<transponder frequency="554000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 31 freenet TV 2 Berlin -->
+		<transponder frequency="570000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 33 ZDF Berlin Frankfurt/Oder -->
+		<transponder frequency="594000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 36 ZDF Cottbus -->
+		<transponder frequency="626000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 40 RBB2 Berlin Frankfurt/Oder -->
+		<transponder frequency="642000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 42 freenet TV 3 Berlin -->
+		<transponder frequency="658000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 44 RBB2 Cottbus -->
+		<transponder frequency="682000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 47 -->
+	</terrestrial>
+	<terrestrial name="Braunschweig (Broitzem+Kraftwerk) (DVB-T2)" flags="5">
+		<transponder frequency="474000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 21 freenet TV 2 -->
+		<transponder frequency="490000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 23 ARD -->
+		<transponder frequency="594000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 36 ZDF -->
+		<transponder frequency="626000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 40 ARD/Dritte -->
+		<transponder frequency="658000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 44 freenet TV 1 -->
+		<transponder frequency="682000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 47 freenet TV 3 -->
+	</terrestrial>
+	<terrestrial name="Bremen-Walle/Bremerhaven (DVB-T2)" flags="5">
+		<transponder frequency="482000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 22 freenet TV 3 -->
+		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 29 ARD/NDR -->
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 35 ZDF -->
+		<transponder frequency="642000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 42 freenet TV 1 -->
+		<transponder frequency="674000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 46 RB -->
+		<transponder frequency="690000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 48 freenet TV 2 -->
+		<transponder frequency="746000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 55 NDR/NDS -->
+	</terrestrial>
+	<terrestrial name="Duesseldorf/Ruhrgebiet (DVB-T2)" flags="5">
 		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="522000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="530000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="546000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="554000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="562000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="570000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="578000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="594000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="602000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="610000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="618000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="626000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="634000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="642000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 		<transponder frequency="650000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="658000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="666000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="674000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="682000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="690000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 		<transponder frequency="698000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="706000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="714000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="722000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="730000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="738000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 		<transponder frequency="746000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="754000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="762000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="770000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="778000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="786000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="794000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="802000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="810000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 		<transponder frequency="818000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 		<transponder frequency="826000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 		<transponder frequency="834000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="842000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="850000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="858000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Essen (DVB-T2)" flags="5">
+		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="690000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="722000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="746000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="762000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Gera (Roschuetz) (DVB-T2)" flags="5">
+		<transponder frequency="506000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 25 ARD -->
+		<transponder frequency="522000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 27 ARD/Dritte -->
+		<transponder frequency="482000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 22 ZDF -->
+		<transponder frequency="650000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 43 freenet TV 1 -->
+		<transponder frequency="530000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 28 freenet TV 2 -->
+		<transponder frequency="682000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 47 freenet TV 3 -->
+	</terrestrial>
+	<terrestrial name="Halle (Stadt) (DVB-T2)" flags="5">
+		<transponder frequency="498000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 24 ARD -->
+		<transponder frequency="610000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 38 ARD/Dritte -->
+		<transponder frequency="482000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 22 ZDF -->
+		<transponder frequency="650000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 43 freenet TV 1 -->
+		<transponder frequency="530000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 28 freenet TV 2 -->
+		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 26 freenet TV 3 -->
+	</terrestrial>
+	<terrestrial name="Hamburg/Luebeck (DVB-T2)" flags="5">
+		<transponder frequency="626000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="570000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="490000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="530000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="546000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="602000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="634000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="666000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="738000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Hanau (DVB-T2)" flags="5">
+		<transponder frequency="522000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="546000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="786000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Hannover/Braunschweig (DVB-T2)" flags="5">
+		<transponder frequency="474000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 21 freenet TV 2 -->
+		<transponder frequency="490000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 23 ARD/NDR -->
+		<transponder frequency="594000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 36 ZDF -->
+		<transponder frequency="626000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 40 NDR/NDS -->
+		<transponder frequency="658000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 44 freenet TV 1 -->
+		<transponder frequency="682000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 47 freenet TV 3 -->
+	</terrestrial>
+	<terrestrial name="Heidelberg/BadenBaden/Donnersberg/Pforzheim (DVB-T2)" flags="5">
+		<transponder frequency="474000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="698000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="786000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Kiel (DVB-T2)" flags="5">
+		<transponder frequency="474000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="594000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="618000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="666000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="682000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="762000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Koeln/Bonn (DVB-T2)" flags="5">
+		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="650000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="698000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="826000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="834000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Landshut, Passau, Pfarrkirchen (DVB-T2)" flags="5">
+		<transponder frequency="530000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 28 ARD -->
+		<transponder frequency="626000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 40 ARD/Dritte -->
+		<transponder frequency="674000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 46 ZDF -->
+	</terrestrial>
+	<terrestrial name="Leipzig (DVB-T2)" flags="5">
+		<transponder frequency="482000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="498000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="530000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="554000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="650000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Muenchen/Suedbayern (DVB-T2)" flags="5">
+		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 26 freenet TV 2 -->
+		<transponder frequency="546000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 30 ARD/Dritte -->
+		<transponder frequency="554000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 31 ARD -->
+		<transponder frequency="578000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 34 ZDF -->
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 35 freenet TV 1 -->
+		<transponder frequency="690000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 48 freenet TV 3 -->
+	</terrestrial>
+	<terrestrial name="Muenster/NRW (DVB-T2)" flags="5">
+		<transponder frequency="498000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 24 freenet TV 1 -->
+		<transponder frequency="562000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 32 ARD -->
+		<transponder frequency="578000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 34 ARD/Dritte -->
+		<transponder frequency="618000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 39 freenet TV 3 -->
+		<transponder frequency="666000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 45 ZDF -->
+		<transponder frequency="754000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 56 freenet TV 2 -->
+	</terrestrial>
+	<terrestrial name="Nuernberg (Fernmeldeturm) (DVB-T2)" flags="5">
+		<transponder frequency="498000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 24 freenet TV 2 -->
+		<transponder frequency="506000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 25 freenet TV 3 -->
+		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 29 ARD/Dritte -->
+		<transponder frequency="578000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 34 ZDF -->
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 35 freenet TV 1 -->
+		<transponder frequency="642000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 42 ARD -->
+	</terrestrial>
+	<terrestrial name="Rhein-Main (DVB-T2)" flags="5">
+		<transponder frequency="482000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="578000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="602000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="618000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="738000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="778000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Stuttgart-Frauenkopf (DVB-T2)" flags="5">
+		<transponder frequency="474000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="498000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="522000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="666000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="674000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="698000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+	</terrestrial>
+	<terrestrial name="Untersberg bei Salzburg (DVB-T2)" flags="5">
+		<transponder frequency="546000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 30 ARD/Dritte -->
+		<transponder frequency="554000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 31 ARD -->
+		<transponder frequency="578000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 34 ZDF -->
 	</terrestrial>
 </locations>
