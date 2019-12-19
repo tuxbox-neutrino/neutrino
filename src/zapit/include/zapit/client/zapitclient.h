@@ -43,7 +43,7 @@ class CZapitClient:public CBasicClient
  public:
 	enum events
 		{
-			FIRST_EVENT_MARKER,           // <- no actual event, needed by pzapit
+			FIRST_EVENT_MARKER, // <- no actual event, needed by pzapit
 			EVT_ZAP_COMPLETE = FIRST_EVENT_MARKER,
 			EVT_ZAP_COMPLETE_IS_NVOD,
 			EVT_ZAP_FAILED,
@@ -56,12 +56,12 @@ class CZapitClient:public CBasicClient
 			EVT_SCAN_FAILED,
 			EVT_SCAN_NUM_TRANSPONDERS,
 			EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS,
- 			EVT_SCAN_REPORT_FREQUENCYP,
- 			EVT_SCAN_SERVICENAME,
- 			EVT_SCAN_FOUND_A_CHAN,
- 			EVT_SCAN_FOUND_TV_CHAN,
- 			EVT_SCAN_FOUND_RADIO_CHAN,
- 			EVT_SCAN_FOUND_DATA_CHAN,
+			EVT_SCAN_REPORT_FREQUENCYP,
+			EVT_SCAN_SERVICENAME,
+			EVT_SCAN_FOUND_A_CHAN,
+			EVT_SCAN_FOUND_TV_CHAN,
+			EVT_SCAN_FOUND_RADIO_CHAN,
+			EVT_SCAN_FOUND_DATA_CHAN,
 			EVT_SCAN_SATELLITE,
 			EVT_SCAN_NUM_CHANNELS,
 			EVT_SCAN_PROVIDER,
@@ -76,7 +76,7 @@ class CZapitClient:public CBasicClient
 			EVT_TUNE_COMPLETE,
 			EVT_BACK_ZAP_COMPLETE,
 			EVT_WEBTV_ZAP_COMPLETE,
-			LAST_EVENT_MARKER             // <- no actual event, needed by pzapit
+			LAST_EVENT_MARKER // <- no actual event, needed by pzapit
 		};
 
 	enum zapStatus
@@ -95,13 +95,13 @@ class CZapitClient:public CBasicClient
 			BM_CREATESATELLITEBOUQUET
 		};
 
-  	enum scanType
-  		{
-  			ST_TVRADIO,
-  			ST_TV,
-  			ST_RADIO,
-  			ST_ALL
-  		};
+	enum scanType
+		{
+			ST_TVRADIO,
+			ST_TV,
+			ST_RADIO,
+			ST_ALL
+		};
 
 	typedef enum channelsMode_
 		{
