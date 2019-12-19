@@ -792,19 +792,16 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		for (int i = 1; i < 4+1; i++)
 		{
 			bool active = !strcmp(c, to_string(i).c_str());
+			bool enable = true;
 			std::string m_title = "Partition " + to_string(i);
 #if BOXMODEL_VUPLUS4K
 			// own partition blocked, because fix needed for flashing own partition
-			if (!active) {
-				mf = new CMenuForwarder(m_title, true, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(i));
-				mf->iconName_Info_right = active ? NEUTRINO_ICON_MARKER_DIALOG_OK : NULL;
-				m.addItem(mf, active);
-			}
-#else
-			mf = new CMenuForwarder(m_title, true, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(i));
+			if (active)
+				enable = false;
+#endif
+			mf = new CMenuForwarder(m_title, enable, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(i));
 			mf->iconName_Info_right = active ? NEUTRINO_ICON_MARKER_DIALOG_OK : NULL;
 			m.addItem(mf, active);
-#endif
 		}
 
 		m.enableSaveScreen(true);
