@@ -319,7 +319,11 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			cam->makeCaPmt(channel, false, list, caids);
 			int len;
 			unsigned char * buffer = channel->getRawPmt(len);
+#if HAVE_COOL_HARDWARE
+			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
+#else
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
+#endif
 		}
 	}
 
@@ -432,8 +436,6 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, 0, true);
 #endif
 
-			/* out commented: causes a double send of capmt, the second without needed parameters */
-#if HAVE_COOL_HARDWARE
 			if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
 				INFO("CI: configured tuner %d do not match %d, skip [%s]", tunerno, cam->getSource(), channel->getName().c_str());
 			} else if (filter_channels && !channel->bUseCI) {
@@ -441,8 +443,8 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			} else if(channel->scrambled) {
 				useCI = true;
 				INFO("CI: use CI for [%s]", channel->getName().c_str());
-				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
-			}
+			} else
+				INFO("CI: no CI needed for [%s]", channel->getName().c_str());
 			//list = CCam::CAPMT_MORE;
 			if((oldmask != newmask) || force_update || (oldmask == newmask && mode && start))
 			{
@@ -454,16 +456,19 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 				if(useCI)
 				{
+#if HAVE_COOL_HARDWARE
+					cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
+#else
 					cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, 0, true);
+#endif
 				}
+#if ! HAVE_COOL_HARDWARE
 				else
 				{
-					INFO("\033[33m no CI needed\033[0m");
-					//no CI needed
 					cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, false /*channel->scrambled*/, channel->camap, mode, start);
 				}
-			}
 #endif
+			}
 		}
 #if ! HAVE_COOL_HARDWARE
 	}
