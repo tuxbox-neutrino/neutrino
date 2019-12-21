@@ -1794,4 +1794,122 @@ bool isDigitWord(std::string str)
 	return true;
 }
 
-//
+int getActivePartition()
+{
+	int c = -1;
+
+#if BOXMODEL_VUPLUS4K
+	FILE *f;
+	f = fopen("/proc/cmdline", "r");
+	if (f)
+	{
+		char buf[256] = "";
+		while(fgets(buf, sizeof(buf), f) != NULL)
+		{
+#if BOXMODEL_VUUNO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUSOLO4K || BOXMODEL_VUULTIMO4K
+			if (strstr(buf, "mmcblk0p5") != NULL)
+			{
+				c = 1;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p7") != NULL)
+			{
+				c = 2;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p9") != NULL)
+			{
+				c = 3;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p11") != NULL)
+			{
+				c = 4;
+				break;
+			}
+#elif BOXMODEL_VUZERO4K
+			if (strstr(buf, "mmcblk0p8") != NULL)
+			{
+				c = 1;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p10") != NULL)
+			{
+				c = 2;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p12") != NULL)
+			{
+				c = 3;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p14") != NULL)
+			{
+				c = 4;
+				break;
+			}
+#elif BOXMODEL_VUDUO4K
+			if (strstr(buf, "mmcblk0p10") != NULL)
+			{
+				c = 1;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p12") != NULL)
+			{
+				c = 2;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p14") != NULL)
+			{
+				c = 3;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p16") != NULL)
+			{
+				c = 4;
+				break;
+			}
+#endif
+		}
+		fclose(f);
+	}
+#elif BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
+	FILE *f;
+	// first check for subdirboot layout
+	f = fopen("/sys/firmware/devicetree/base/chosen/bootargs", "r");
+	if (f)
+	{
+		char line[1024];
+		char *p;
+		if (fgets(line, sizeof(line), f) != NULL)
+		{
+			p = strtok(line, " =");
+			while (p != NULL)
+			{
+				if (strncmp("linuxrootfs", p, 11) == 0)
+				{
+					c = atoi(p + 11);
+					break;
+				}
+				p = strtok(NULL, " =");
+			}
+		}
+		fclose(f);
+	}
+	// then check for classic layout
+	if (c < 0)
+	{
+		f = fopen("/sys/firmware/devicetree/base/chosen/kerneldev", "r");
+		if (f)
+		{
+			if (fseek(f, -2, SEEK_END) == 0)
+			{
+				c = (int)fgetc(f);
+			}
+			fclose(f);
+		}
+	}
+#endif
+
+	return c;
+}

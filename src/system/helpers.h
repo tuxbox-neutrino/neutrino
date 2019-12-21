@@ -188,5 +188,6 @@ bool downloadUrl(std::string url, std::string file, const std::string userAgent 
 
 bool isDigitWord(std::string str);
 
-//
+int getActivePartition();
+
 #endif
