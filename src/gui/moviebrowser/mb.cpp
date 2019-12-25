@@ -3899,6 +3899,16 @@ bool CMovieBrowser::isFiltered(MI_MOVIE_INFO& movie_info)
 	return (result);
 }
 
+std::string CMovieBrowser::replaceInGUI(std::string text)
+{
+	std::string t(text);
+
+	t = str_replace("\u000a", ", ", t);
+	t = str_replace("\u000d", ", ", t);
+
+	return t;
+}
+
 bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM item, std::string* item_string)
 {
 	#define MAX_STR_TMP 100
@@ -3933,7 +3943,7 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			*item_string = movie_info.serieName;
 			break;
 		case MB_INFO_INFO1:				// = 4,
-			*item_string = movie_info.epgInfo1;
+			*item_string = replaceInGUI(movie_info.epgInfo1);
 			break;
 		case MB_INFO_MAJOR_GENRE: 			// = 5,
 			snprintf(str_tmp, sizeof(str_tmp),"%2d",movie_info.genreMajor);

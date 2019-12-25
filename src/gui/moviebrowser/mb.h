@@ -373,6 +373,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		void showHelp(void);
 		bool isFiltered(MI_MOVIE_INFO& movie_info);
 		bool isParentalLock(MI_MOVIE_INFO& movie_info);
+		std::string replaceInGUI(std::string text);
 		bool getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM item, std::string* item_string);
 		void updateMovieSelection(void);
 		void updateInfoSelection(void);
