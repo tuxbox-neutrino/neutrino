@@ -46,6 +46,7 @@
 #include <hardware/video.h>
 #include <cs_api.h>
 #include <driver/screenshot.h>
+#include <system/helpers.h>
 #include <system/set_threadname.h>
 
 extern "C" {
@@ -59,25 +60,80 @@ CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 {
 	format = fmt;
 	filename = fname;
-	pixel_data = NULL;
-	fd = NULL;
 	xres = 0;
 	yres = 0;
+	get_video = g_settings.screenshot_video;
+	get_osd = g_settings.screenshot_mode;
+	scale_to_video = g_settings.screenshot_scale;
+#if SCREENSHOT_INTERNAL
+	pixel_data = NULL;
+	fd = NULL;
 	extra_osd = false;
 	scs_thread = 0;
 	pthread_mutex_init(&thread_mutex, NULL);
 	pthread_mutex_init(&getData_mutex, NULL);
-	get_video = g_settings.screenshot_video;
-	get_osd = g_settings.screenshot_mode;
-	scale_to_video = g_settings.screenshot_scale;
+#endif // SCREENSHOT_INTERNAL
 }
 
 CScreenShot::~CScreenShot()
 {
+#if SCREENSHOT_INTERNAL
 	pthread_mutex_destroy(&thread_mutex);
 	pthread_mutex_destroy(&getData_mutex);
+#endif // SCREENSHOT_INTERNAL
 //	printf("[CScreenShot::%s:%d] thread: %p\n", __func__, __LINE__, this);
 }
+
+#if SCREENSHOT_EXTERNAL
+bool CScreenShot::Start()
+{
+	std::string cmd = find_executable("grab");
+
+	if (cmd.empty())
+		return false;
+
+	cmd += " ";
+
+	if (get_osd && !get_video)
+		cmd += "-o ";
+	else if (!get_osd && get_video)
+		cmd += "-v ";
+
+	switch (format)
+	{
+		case FORMAT_PNG:
+			cmd += "-p ";
+			break;
+		default:
+			/* fall through */
+		case FORMAT_JPG:
+			cmd += "-j 100 ";
+			break;
+		case FORMAT_BMP:
+			break;
+	}
+
+	if (!scale_to_video)
+		cmd += "-d ";
+
+	if (xres)
+		cmd += "-w " + to_string(xres) + " ";
+
+	cmd += "'";
+	cmd += filename;
+	cmd += "'";
+
+	printf("[CScreenShot::%s:%d] Running %s\n", __func__, __LINE__, cmd.c_str());
+	system(cmd.c_str());
+
+	return (access(filename.c_str(), F_OK) == 0);
+}
+
+bool CScreenShot::StartSync()
+{
+	return Start();
+}
+#else // SCREENSHOT_INTERNAL
 
 #ifdef BOXMODEL_CS_HD2
 
@@ -467,6 +523,8 @@ bool CScreenShot::SaveBmp()
 	return true;
 
 }
+
+#endif // SCREENSHOT_INTERNAL
 
 /*
  * create filename member from channel name and its current EPG data,
