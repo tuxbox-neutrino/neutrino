@@ -2137,14 +2137,14 @@ void CInfoViewer::killTitle()
 			sigbox->kill();
 #endif
 
-		header->kill();
-
 		if (clock)
 		{
 			clock->kill();
 			delete clock;
 			clock = NULL;
 		}
+
+		header->kill();
 
 		body->kill();
 
