@@ -2159,15 +2159,10 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	if(screenshot){
 		screenshot->EnableOSD(enableOSD);
 		screenshot->EnableVideo(enableVideo);
-#if 0
-	screenshot->Start();
-	hh->SendOk(); // FIXME what if screenshot->Start() failed?
-#else
 		if (screenshot->StartSync())
 			hh->SendOk();
 		else
 			hh->SendError();
-#endif
 		delete screenshot;
 	}
 }
