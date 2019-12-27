@@ -1461,6 +1461,16 @@ void CTimeThread::addFilters()
 
 void CTimeThread::run()
 {
+#if HAVE_GENERIC_HARDWARE
+	if (getuid()){
+		debug(DEBUG_NORMAL, "Set Neutrino time from system (PC). You are not root.");
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		sendTimeEvent(0, tv.tv_sec);
+		return;
+	}
+#endif
+
 	time_t dvb_time = 0;
 	bool retry = false; /* if time seems fishy, set to true and try again */
 	debug(DEBUG_ERROR, "%s::run:: starting, pid %d (%lu)", name.c_str(), getpid(), pthread_self());
