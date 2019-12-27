@@ -53,6 +53,7 @@ libldap-
 libndr-
 libnl-
 libnss-
+libqt
 libsal2-
 libsmb$
 libstb-
@@ -82,6 +83,7 @@ samba-
 -samba4
 shadow-
 shared-mime-info-
+-src
 -staticdev$
 systemd-
 tzdata-
