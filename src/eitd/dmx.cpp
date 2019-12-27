@@ -506,7 +506,7 @@ int DMX::immediate_start(void)
 	}
 
 	/* setfilter() only if this is no dummy filter... */
-	if (filters[filter_index].filter && filters[filter_index].mask)
+	if (!filters.empty() && filters[filter_index].filter && filters[filter_index].mask)
 	{
 		unsigned char filter[DMX_FILTER_SIZE];
 		unsigned char mask[DMX_FILTER_SIZE];
