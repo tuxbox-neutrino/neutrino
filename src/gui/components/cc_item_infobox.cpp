@@ -178,4 +178,6 @@ void CComponentsInfoBox::paint(const bool &do_save_bg)
 	//paint, but set visibility mode
 	cctext->allowPaint(cc_allow_paint);
 	cctext->paint(CC_SAVE_SCREEN_NO);
+
+	OnAfterPaintInfo();
 }
