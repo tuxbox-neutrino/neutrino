@@ -14,6 +14,8 @@
 #include <cstdio>	/* sscanf */
 #include <cstring>
 
+#include <system/helpers.h>
+
 #include "proc_tools.h"
 
 int proc_put(const char *path, const char *value, const int len)
@@ -32,6 +34,41 @@ int proc_put(const char *path, const char *value, const int len)
 int proc_put(const char *path, const char *value)
 {
 	return proc_put(path, value, strlen(value));
+}
+
+int proc_put(const char *path, std::string value)
+{
+	return proc_put(path, value.c_str());
+}
+
+int proc_put(const char *path, int value)
+{
+	return proc_put(path, to_string(value).c_str());
+}
+
+int proc_put(const char *path, unsigned int value)
+{
+	return proc_put(path, to_string(value).c_str());
+}
+
+int proc_put(const char *path, long value)
+{
+	return proc_put(path, to_string(value).c_str());
+}
+
+int proc_put(const char *path, unsigned long value)
+{
+	return proc_put(path, to_string(value).c_str());
+}
+
+int proc_put(const char *path, long long value)
+{
+	return proc_put(path, to_string(value).c_str());
+}
+
+int proc_put(const char *path, unsigned long long value)
+{
+	return proc_put(path, to_string(value).c_str());
 }
 
 int proc_put(const char *path, bool state)
