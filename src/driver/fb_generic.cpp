@@ -1533,7 +1533,7 @@ void CFrameBuffer::RestoreScreen(const int& x, const int& y, const int& dx, cons
 	if (!getActive())
 		return;
 
-	if (dx > xRes || dy > yRes)
+	if (dx > (int)xRes || dy > (int)yRes)
 	{
 		dprintf(DEBUG_NORMAL, "\033[31m[CFrameBuffer]\[%s - %d], dimension error dx [%d]  dy [%d] \033[0m\n", __func__, __LINE__, dx, dy);
 		return;
