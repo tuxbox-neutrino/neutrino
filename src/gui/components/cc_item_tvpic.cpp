@@ -52,7 +52,7 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);
 	screen_h = frameBuffer->getScreenHeight(true);
-	pic_name = frameBuffer->getIconPath("logo", "jpg");
+	pic_name = frameBuffer->getIconPath("start", "jpg");
 
 	//CComponents
 	x 		= x_pos;
