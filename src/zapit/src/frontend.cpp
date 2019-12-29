@@ -1664,6 +1664,9 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 {
 	sat_iterator_t sit = satellites.find(satellitePosition);
 
+	if (sit == satellites.end()){
+		return;
+	}
 	/* unicable uses diseqc parameter for input selection */
 	config.uni_lnb = sit->second.diseqc;
 
