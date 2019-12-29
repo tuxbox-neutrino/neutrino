@@ -664,6 +664,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 5);
 #endif
+	g_settings.glcd_selected_config = configfile.getInt32("glcd_selected_config", 0);
 #endif
 
 	//personalize
@@ -1546,6 +1547,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("glcd_brightness", g_settings.glcd_brightness);
 	configfile.setInt32("glcd_brightness_standby", g_settings.glcd_brightness_standby);
 	configfile.setInt32("glcd_scroll_speed", g_settings.glcd_scroll_speed);
+	configfile.setInt32("glcd_selected_config", g_settings.glcd_selected_config);
 #endif
 
 	//personalize

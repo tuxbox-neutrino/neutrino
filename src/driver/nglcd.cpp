@@ -562,7 +562,11 @@ void nGLCD::Run(void)
 			break;
 
 		int warmUp = 10;
-		lcd = GLCD::CreateDriver(GLCD::Config.driverConfigs[0].id, &GLCD::Config.driverConfigs[0]);
+
+		if ((g_settings.glcd_selected_config < 0) || (g_settings.glcd_selected_config > GetConfigSize() - 1))
+			g_settings.glcd_selected_config = 0;
+
+		lcd = GLCD::CreateDriver(GLCD::Config.driverConfigs[g_settings.glcd_selected_config].id, &GLCD::Config.driverConfigs[g_settings.glcd_selected_config]);
 		if (!lcd) {
 #ifdef GLCD_DEBUG
 			fprintf(stderr, "CreateDriver failed.\n");
@@ -959,3 +963,14 @@ int nGLCD::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t /* data */)
 	return messages_return::unhandled;
 }
 
+int nGLCD::GetConfigSize()
+{
+	return (int) GLCD::Config.driverConfigs.size();
+}
+
+std::string nGLCD::GetConfigName(int driver)
+{
+	if ((driver < 0) || (driver > GetConfigSize() - 1))
+		driver = 0;
+	return GLCD::Config.driverConfigs[driver].name;
+}

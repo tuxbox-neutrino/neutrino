@@ -130,6 +130,8 @@ class nGLCD
 		static void Exit();
 		static void Blit();
 		static void SetBrightness(unsigned int b);
+		int GetConfigSize();
+		std::string GetConfigName(int);
 		void UpdateBrightness();
 		int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 };

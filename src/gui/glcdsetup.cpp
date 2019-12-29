@@ -32,6 +32,7 @@
 #include <daemonc/remotecontrol.h>
 #include <driver/nglcd.h>
 #include <driver/screen_max.h>
+#include <system/helpers.h>
 #include "glcdsetup.h"
 #include <mymenu.h>
 
@@ -121,6 +122,13 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 	nGLCD *nglcd = nGLCD::getInstance();
 	if(actionKey == "rescan") {
 		nglcd->Rescan();
+		return res;
+	}
+	if(actionKey == "select_driver") {
+		if(parent)
+			parent->hide();
+		GLCD_Menu_Select_Driver();
+		nglcd->Exit();
 		return res;
 	}
 	if(actionKey == "select_font") {
@@ -220,6 +228,9 @@ void GLCD_Menu::GLCD_Menu_Settings()
 
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ENABLE, &g_settings.glcd_enable,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
+
+	m.addItem(new CMenuForwarder(LOCALE_GLCD_DISPLAY,	(nGLCD::getInstance()->GetConfigSize() > 1),
+								nGLCD::getInstance()->GetConfigName(g_settings.glcd_selected_config).c_str(), this, "select_driver"));
 	int shortcut = 1;
 	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SELECT_FG, &color_fg,
@@ -270,4 +281,35 @@ void GLCD_Menu::GLCD_Menu_Settings()
 	selected = m.getSelected();
 	nGLCD::getInstance()->StandbyMode(false);
 	m.hide();
+}
+
+void GLCD_Menu::GLCD_Menu_Select_Driver()
+{
+	int select = 0;
+
+	if (nGLCD::getInstance()->GetConfigSize() > 1)
+	{
+		CMenuWidget *m = new CMenuWidget(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS);
+		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+
+		// we don't show introitems, so we add a separator for a smoother view
+		m->addItem(GenericMenuSeparator);
+
+		CMenuForwarder* mf;
+		for (int i = 0; i != nGLCD::getInstance()->GetConfigSize() - 1; i++)
+		{
+			mf = new CMenuForwarder(nGLCD::getInstance()->GetConfigName(i), true, NULL, selector,to_string(i).c_str());
+			m->addItem(mf);
+		}
+
+		m->enableSaveScreen();
+		m->exec(NULL, "");
+
+		if (!m->gotAction())
+			return;
+
+		delete selector;
+		m->hide();
+	}
+	g_settings.glcd_selected_config = select;
 }

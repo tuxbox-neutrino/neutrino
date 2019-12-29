@@ -823,6 +823,7 @@ glcd.color.dark_blue Dark Blue
 glcd.color.purple Purple
 glcd.color.mint Mint
 glcd.color.golden Golden
+glcd.display Display type
 glcd.enable GraphLCD enabled
 glcd.font Font
 glcd.head GraphLCD-Support

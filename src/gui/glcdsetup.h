@@ -36,6 +36,7 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 		int width;
 		int selected;
 		static int color2index(uint32_t color);
+		void GLCD_Menu_Select_Driver();
 	public:
 		static uint32_t index2color(int i);
 		GLCD_Menu();

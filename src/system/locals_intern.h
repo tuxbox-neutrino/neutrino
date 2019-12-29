@@ -850,6 +850,7 @@ const char * locale_real_names[] =
 	"glcd.color.purple",
 	"glcd.color.mint",
 	"glcd.color.golden",
+	"glcd.display",
 	"glcd.enable",
 	"glcd.font",
 	"glcd.head",
