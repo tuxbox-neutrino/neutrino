@@ -578,7 +578,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 		return "";
 
 	neutrino_locale_t loc = NONEXISTANT_LOCALE;
-	static const char *text = NULL;
+	const char *text = NULL;
 	int mode = CNeutrinoApp::getInstance()->getMode();
 
 	std::vector<std::string> items = ::split(g_settings.usermenu[button]->items, ',');
