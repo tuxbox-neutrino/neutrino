@@ -53,8 +53,9 @@
 #include <ctype.h>
 
 #define VERSION_FILE "/.version"
-#define RELEASE_FILE "/etc/os-release"
 
+#define OS_RELEASE_FILE "/etc/os-release"
+#define OE_IMAGE_VERSION_FILE "/etc/image-version"
 
 using namespace std;
 
@@ -288,10 +289,17 @@ void CImageInfo::InitInfoData()
 	v_info.clear();
 
 	image_info_t pretty_name = {g_Locale->getText(LOCALE_IMAGEINFO_OS),""};
-	if (file_exists(RELEASE_FILE)){
-		config.loadConfig(RELEASE_FILE);
+	if (file_exists(OS_RELEASE_FILE)){
+		config.loadConfig(OS_RELEASE_FILE);
 		string tmpstr = config.getString("PRETTY_NAME", "");
 		pretty_name.info_text = str_replace("\"", "", tmpstr);
+		config.clear();
+	}
+
+	string oe_image_version = "";
+	if (file_exists(OE_IMAGE_VERSION_FILE)){
+		config.loadConfig(OE_IMAGE_VERSION_FILE);
+		oe_image_version = config.getString("imageversion", "");
 		config.clear();
 	}
 
@@ -317,12 +325,15 @@ void CImageInfo::InitInfoData()
 	}
 	if (is_version_code && version_string.size() == 16){
 		static CFlashVersionInfo versionInfo(version_string.c_str());
-		version_string = versionInfo.getReleaseCycle();
-		version_string += " ";
-		version_string += versionInfo.getType();
-		version_string += " (";
-		version_string += versionInfo.getDate();
-		version_string += ")";
+		if (oe_image_version.empty()){
+			version_string = versionInfo.getReleaseCycle();
+			version_string += " ";
+			version_string += versionInfo.getType();
+			version_string += " (";
+			version_string += versionInfo.getDate();
+			version_string += ")";
+		}else
+			version_string = oe_image_version;
 	}else
 		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s], internal release cycle [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str(), RELEASE_CYCLE);
 #endif
