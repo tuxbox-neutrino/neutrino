@@ -63,7 +63,7 @@ extern int zapit_debug;
 #define SYMBOL_RATE	4
 #define DELIVERY_SYSTEM 5
 #define INNER_FEC	6
-// DVB-S/S2 specific
+// DVB-S/S2/S2X specific
 #define PILOTS		7
 #define ROLLOFF		8
 #define MIS		9
@@ -177,15 +177,15 @@ static const struct dtv_property dvbt2_cmdargs[] = {
 			timer_start);			\
 	if(tmin > timer_msec) tmin = timer_msec;	\
 	if(tmax < timer_msec) tmax = timer_msec;	\
-	printf("[fe%d/%d] %s: %u msec (min %u max %u)\n",	\
-		 adapter, fenumber, label, timer_msec, tmin, tmax);
+	printf("[fe%d/%d] %s: %u msec (min %u max %u)\n", \
+		adapter, fenumber, label, timer_msec, tmin, tmax);
 
 #define SETCMD(c, d) {					\
 	prop[cmdseq.num].cmd = (c);			\
 	prop[cmdseq.num].u.data = (d);			\
 	if (cmdseq.num++ > DTV_IOCTL_MAX_MSGS) {	\
-		printf("ERROR: too many tuning commands on frontend %d/%d", adapter, fenumber);\
-		return;				\
+		printf("ERROR: too many tuning commands on frontend %d/%d", adapter, fenumber); \
+		return;					\
 	}						\
 }
 
@@ -201,7 +201,25 @@ typedef enum dvb_fec {
 	f3_5,
 	f4_5,
 	f9_10,
-	fNone = 15
+	fNone = 15,
+	f13_45,
+	f9_20,
+	f11_20,
+	f23_36,
+	f25_36,
+	f13_18,
+	f26_45,
+	f28_45,
+	f7_9,
+	f77_90,
+	f32_45,
+	f11_15,
+	f1_2_L,
+	f8_15_L,
+	f3_5_L,
+	f2_3_L,
+	f5_9_L,
+	f26_45_L
 } dvb_fec_t;
 
 static fe_sec_voltage_t unicable_lowvolt = SEC_VOLTAGE_13;
@@ -273,6 +291,7 @@ bool CFrontend::Open(bool init)
 	if (adapter == -1) {
 		deliverySystemMask |= DVB_S;
 		deliverySystemMask |= DVB_S2;
+		deliverySystemMask |= DVB_S2X;
 		info.type = FE_QPSK;
 		strcpy(info.name, "dummyfe");
 		return false;
@@ -285,9 +304,7 @@ bool CFrontend::Open(bool init)
 			mutex.unlock();
 			return false;
 		}
-
 		getFEInfo();
-
 	}
 
 	currentTransponder.setTransponderId(0);
@@ -351,7 +368,7 @@ void CFrontend::getFEInfo(void)
 	if (ret == 0) {
 		for (uint32_t i = 0; i < prop[0].u.buffer.len; i++) {
 			if (i >= MAX_DELSYS) {
-				printf("ERROR: too many delivery systems on frontend %d/%d", adapter, fenumber);
+				printf("ERROR: too many delivery systems on frontend %d/%d\n", adapter, fenumber);
 				break;
 			}
 
@@ -375,11 +392,15 @@ void CFrontend::getFEInfo(void)
 				deliverySystemMask |= DVB_S2;
 				isMultistream = info.caps & FE_CAN_MULTISTREAM;
 				break;
+			case SYS_DVBS2X:
+				deliverySystemMask |= DVB_S2X;
+				isMultistream = info.caps & FE_CAN_MULTISTREAM;
+				break;
 			case SYS_DTMB:
 				deliverySystemMask |= DTMB;
 				break;
 			default:
-				printf("ERROR: too many delivery systems on frontend %d/%d", adapter, fenumber);
+				printf("ERROR: delivery system unknown on frontend %d/%d (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				continue;
 			}
 
@@ -395,6 +416,7 @@ void CFrontend::getFEInfo(void)
 		case FE_QPSK:
 			deliverySystemMask |= DVB_S;
 			deliverySystemMask |= DVB_S2;
+			deliverySystemMask |= DVB_S2X;
 			break;
 		case FE_OFDM:
 			deliverySystemMask |= DVB_T;
@@ -554,9 +576,63 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 		case f9_10:
 			fec = FEC_9_10;
 			break;
+		case f13_45:
+			fec = FEC_13_45;
+			break;
+		case f9_20:
+			fec = FEC_9_20;
+			break;
+		case f11_20:
+			fec = FEC_11_20;
+			break;
+		case f23_36:
+			fec = FEC_23_36;
+			break;
+		case f25_36:
+			fec = FEC_25_36;
+			break;
+		case f13_18:
+			fec = FEC_13_18;
+			break;
+		case f26_45:
+			fec = FEC_26_45;
+			break;
+		case f28_45:
+			fec = FEC_28_45;
+			break;
+		case f7_9:
+			fec = FEC_7_9;
+			break;
+		case f77_90:
+			fec = FEC_77_90;
+			break;
+		case f32_45:
+			fec = FEC_32_45;
+			break;
+		case f11_15:
+			fec = FEC_11_15;
+			break;
+		case f1_2_L:
+			fec = FEC_1_2_L;
+			break;
+		case f8_15_L:
+			fec = FEC_8_15_L;
+			break;
+		case f3_5_L:
+			fec = FEC_3_5_L;
+			break;
+		case f2_3_L:
+			fec = FEC_2_3_L;
+			break;
+		case f5_9_L:
+			fec = FEC_5_9_L;
+			break;
+		case f26_45_L:
+			fec = FEC_26_45_L;
+			break;
 		default:
 			if (zapit_debug)
-				printf("no valid fec for DVB-S2 set.. !!\n");
+				printf("No valid fec for DVB-S2/DVB-S2X set!\n");
 			/* fall through */
 		case fAuto:
 			fec = FEC_AUTO;
@@ -733,7 +809,7 @@ fe_status_t CFrontend::getStatus(void) const
 	return (fe_status_t) (event.status & FE_HAS_LOCK);
 }
 
-#if 0 
+#if 0
 //never used
 FrontendParameters CFrontend::getFrontend(void) const
 {
@@ -766,7 +842,7 @@ uint16_t CFrontend::getSignalNoiseRatio(void) const
 	return snr;
 }
 
-#if 0 
+#if 0
 //never used
 uint32_t CFrontend::getUncorrectedBlocks(void) const
 {
@@ -929,6 +1005,62 @@ void CFrontend::getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsy
 	case FEC_S2_8PSK_9_10:
 		fec = FEC_9_10;
 		break;
+#if 0 // TODO
+	case FEC_13_45:
+		fec = FEC_13_45;
+		break;
+	case FEC_9_20:
+		fec = FEC_9_20;
+		break;
+	case FEC_11_20:
+		fec = FEC_11_20;
+		break;
+	case FEC_23_36:
+		fec = FEC_23_36;
+		break;
+	case FEC_25_36:
+		fec = FEC_25_36;
+		break;
+	case FEC_13_18:
+		fec = FEC_13_18;
+		break;
+	case FEC_26_45:
+		fec = FEC_26_45;
+		break;
+	case FEC_28_45:
+		fec = FEC_28_45;
+		break;
+	case FEC_7_9:
+		fec = FEC_7_9;
+		break;
+	case FEC_77_90:
+		fec = FEC_77_90;
+		break;
+	case FEC_32_45:
+		fec = FEC_32_45;
+		break;
+	case FEC_11_15:
+		fec = FEC_11_15;
+		break;
+	case FEC_1_2_L:
+		fec = FEC_1_2_L;
+		break;
+	case FEC_8_15_L:
+		fec = FEC_8_15_L;
+		break;
+	case FEC_3_5_L:
+		fec = FEC_3_5_L;
+		break;
+	case FEC_2_3_L:
+		fec = FEC_2_3_L;
+		break;
+	case FEC_5_9_L:
+		fec = FEC_5_9_L;
+		break;
+	case FEC_26_45_L:
+		fec = FEC_26_45_L;
+		break;
+#endif
 	default:
 		printf("[frontend] getXMLDelsysFEC: unknown FEC: %d !!!\n", xmlfec);
 		/* fall through */
@@ -956,7 +1088,30 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 			mod = "8PSK";
 			break;
 		default:
-			printf("[frontend] unknown modulation %d!\n", m);
+			printf("[frontend] unknown DVB-S2 modulation %d!\n", m);
+			mod = "UNKNOWN";
+		}
+		break;
+	case DVB_S2X:
+		sys = "DVB-S2X";
+		switch (m) {
+		case QPSK:
+			mod = "QPSK";
+			break;
+		case PSK_8:
+			mod = "8PSK";
+			break;
+		case APSK_8:
+			mod = "8APSK";
+			break;
+		case APSK_16:
+			mod = "16APSK";
+			break;
+		case APSK_32:
+			mod = "32APSK";
+			break;
+		default:
+			printf("[frontend] unknown DVB-S2X modulation %d!\n", m);
 			mod = "UNKNOWN";
 		}
 		break;
@@ -1062,6 +1217,60 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		fec = "0";
 		break;
 #endif
+	case FEC_13_45:
+		fec = "13/45";
+		break;
+	case FEC_9_20:
+		fec = "9/20";
+		break;
+	case FEC_11_20:
+		fec = "11/20";
+		break;
+	case FEC_23_36:
+		fec = "23/36";
+		break;
+	case FEC_25_36:
+		fec = "25/36";
+		break;
+	case FEC_13_18:
+		fec = "13/18";
+		break;
+	case FEC_26_45:
+		fec = "26/45";
+		break;
+	case FEC_28_45:
+		fec = "28/45";
+		break;
+	case FEC_7_9:
+		fec = "7/9";
+		break;
+	case FEC_77_90:
+		fec = "77/90";
+		break;
+	case FEC_32_45:
+		fec = "32/45";
+		break;
+	case FEC_11_15:
+		fec = "11/15";
+		break;
+	case FEC_1_2_L:
+		fec = "1/2L";
+		break;
+	case FEC_8_15_L:
+		fec = "8/15L";
+		break;
+	case FEC_3_5_L:
+		fec = "3/5L";
+		break;
+	case FEC_2_3_L:
+		fec = "2/3L";
+		break;
+	case FEC_5_9_L:
+		fec = "5/9L";
+		break;
+	case FEC_26_45_L:
+		fec = "26/45L";
+		break;
 	default:
 		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
 		/* fall through */
@@ -1081,6 +1290,9 @@ fe_delivery_system_t CFrontend::getFEDeliverySystem(delivery_system_t Delsys)
 		break;
 	case DVB_S2:
 		delsys = SYS_DVBS2;
+		break;
+	case DVB_S2X:
+		delsys = SYS_DVBS2X;
 		break;
 	case DVB_T:
 		delsys = SYS_DVBT;
@@ -1170,6 +1382,9 @@ uint32_t CFrontend::getXMLDeliverySystem(delivery_system_t delsys)
 		break;
 	case ISDBT:
 		delnr = 11;
+		break;
+	case DVB_S2X:
+		delnr = 12;
 		break;
 	default:
 		printf("%s: unknown delivery system (%d)\n", __FUNCTION__, delsys);
@@ -1284,6 +1499,60 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		fec = FEC_NONE;
 		break;
 #endif
+	case FEC_13_45:
+		fec = FEC_13_45;
+		break;
+	case FEC_9_20:
+		fec = FEC_9_20;
+		break;
+	case FEC_11_20:
+		fec = FEC_11_20;
+		break;
+	case FEC_23_36:
+		fec = FEC_23_36;
+		break;
+	case FEC_25_36:
+		fec = FEC_25_36;
+		break;
+	case FEC_13_18:
+		fec = FEC_13_18;
+		break;
+	case FEC_26_45:
+		fec = FEC_26_45;
+		break;
+	case FEC_28_45:
+		fec = FEC_28_45;
+		break;
+	case FEC_7_9:
+		fec = FEC_7_9;
+		break;
+	case FEC_77_90:
+		fec = FEC_77_90;
+		break;
+	case FEC_32_45:
+		fec = FEC_32_45;
+		break;
+	case FEC_11_15:
+		fec = FEC_11_15;
+		break;
+	case FEC_1_2_L:
+		fec = FEC_1_2_L;
+		break;
+	case FEC_8_15_L:
+		fec = FEC_8_15_L;
+		break;
+	case FEC_3_5_L:
+		fec = FEC_3_5_L;
+		break;
+	case FEC_2_3_L:
+		fec = FEC_2_3_L;
+		break;
+	case FEC_5_9_L:
+		fec = FEC_5_9_L;
+		break;
+	case FEC_26_45_L:
+		fec = FEC_26_45_L;
+		break;
 	default:
 		INFO("[fe%d/%d] DEMOD: unknown FEC: %d\n", adapter, fenumber, fec_inner);
 		/* fall through */
@@ -1311,8 +1580,9 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	switch (feparams->delsys) {
 	case DVB_S:
 	case DVB_S2:
-		if (feparams->delsys == DVB_S2) {
-			nrOfProps	= FE_DVBS2_PROPS;
+	case DVB_S2X:
+		if (feparams->delsys == DVB_S2 || feparams->delsys == DVB_S2X) {
+			nrOfProps			= FE_DVBS2_PROPS;
 			memcpy(cmdseq.props, dvbs2_cmdargs, sizeof(dvbs2_cmdargs));
 
 			cmdseq.props[MODULATION].u.data	= feparams->modulation;
@@ -1386,7 +1656,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 							currentVoltage == SEC_VOLTAGE_18,
 							config.uni_lnb);
 
-	cmdseq.num	+= nrOfProps;
+	cmdseq.num += nrOfProps;
 
 	return true;
 }
@@ -1833,6 +2103,7 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 	switch (feparams.delsys) {
 	case DVB_S:
 	case DVB_S2:
+	case DVB_S2X:
 		if (freq < lnbSwitch) {
 			high_band = false;
 			freq_offset = lnbOffsetLow;

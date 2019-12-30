@@ -474,6 +474,24 @@ extra.fec_7_8 7/8
 extra.fec_8_9 8/9
 extra.fec_9_10 9/10
 extra.fec_auto Auto
+extra.fec_13_45 13/45
+extra.fec_9_20 9/20
+extra.fec_11_20 11/20
+extra.fec_23_36 23/36
+extra.fec_25_36 25/36
+extra.fec_13_18 13/18
+extra.fec_26_45 26/45
+extra.fec_28_45 28/45
+extra.fec_7_9 7/9
+extra.fec_77_90 77/90
+extra.fec_32_45 32/45
+extra.fec_11_15 11/15
+extra.fec_1_2_L 1/2L
+extra.fec_8_15_L 8/15L
+extra.fec_3_5_L 3/5L
+extra.fec_2_3_L 2/3L
+extra.fec_5_9_L 5/9L
+extra.fec_26_45_L 26/45L
 extra.key_current_transponder Aktueller Transponder
 extra.key_format_mode Videoformat
 extra.key_help Hilfe
@@ -535,6 +553,7 @@ extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
+extra.tp_delsys_dvbs2x DVB-S2X
 extra.tp_delsys_dvbt DVB-T
 extra.tp_delsys_dvbt2 DVB-T2
 extra.tp_delsys_isdbc ISDB-C
@@ -564,13 +583,16 @@ extra.tp_hierarchy_none None
 extra.tp_mod Modulation
 extra.tp_mod_128 QAM/128
 extra.tp_mod_16 QAM/16
+extra.tp_mod_16a 16APSK
 extra.tp_mod_256 QAM/256
 extra.tp_mod_32 QAM/32
+extra.tp_mod_32a 32APSK
 extra.tp_mod_4 QPSK
 extra.tp_mod_4_nr QAM/4-NR
 extra.tp_mod_64 QAM/64
 extra.tp_mod_8 8PSK
-extra.tp_mod_auto QAM/AUTO
+extra.tp_mod_8a 8APSK
+extra.tp_mod_auto AUTO
 extra.tp_pilot Pilot
 extra.tp_pilot_auto Auto (HW)
 extra.tp_pilot_auto_sw Auto (SW)

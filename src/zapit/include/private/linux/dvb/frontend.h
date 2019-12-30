@@ -164,12 +164,30 @@ typedef enum fe_code_rate {
 	FEC_AUTO,
 	FEC_3_5,
 	FEC_9_10,
-	FEC_2_5
+	FEC_2_5,
+	FEC_13_45=13,
+	FEC_9_20=14,
+	FEC_11_20=15,
+	FEC_23_36=16,
+	FEC_25_36=17,
+	FEC_13_18=18,
+	FEC_26_45=19,
+	FEC_28_45=20,
+	FEC_7_9=21,
+	FEC_77_90=22,
+	FEC_32_45=23,
+	FEC_11_15=24,
+	FEC_1_2_L=25,
+	FEC_8_15_L=26,
+	FEC_3_5_L=27,
+	FEC_2_3_L=28,
+	FEC_5_9_L=29,
+	FEC_26_45_L=30
 } fe_code_rate_t;
 
 
 typedef enum fe_modulation {
-	QPSK,
+	QPSK,		// mod=1
 	QAM_16,
 	QAM_32,
 	QAM_64,
@@ -178,11 +196,12 @@ typedef enum fe_modulation {
 	QAM_AUTO,
 	VSB_8,
 	VSB_16,
-	PSK_8,
-	APSK_16,
-	APSK_32,
+	PSK_8,		// mod=2 ==> S2(X)
+	APSK_16,	// mod=4 ==> S2(X)   16APSK
+	APSK_32,	// mod=5 ==> S2(X)   32APSK ==> ?? 64APSK, 128APSK, 256APSK (mod= 6,7,8)
 	DQPSK,
-	QAM_4_NR
+	QAM_4_NR,
+	APSK_8		// mod=3 ==> S2(X)    8APSK
 } fe_modulation_t;
 
 typedef enum fe_transmit_mode {
@@ -409,7 +428,8 @@ typedef enum fe_delivery_system {
 	SYS_DAB,
 	SYS_DVBT2,
 	SYS_TURBO,
-	SYS_DVBC_ANNEX_C
+	SYS_DVBC_ANNEX_C,
+	SYS_DVBS2X = 21
 } fe_delivery_system_t;
 
 /* backward compatibility */

@@ -715,6 +715,15 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 			case 2: // 8PSK
 				feparams.modulation = PSK_8;
 				break;
+			case 3: // 8APSK
+				feparams.modulation = APSK_8;
+				break;
+			case 4: // 16APSK
+				feparams.modulation = APSK_16;
+				break;
+			case 5: // 32APSK
+				feparams.modulation = APSK_32;
+				break;
 			default:
 				feparams.modulation = QAM_AUTO;
 				fprintf(stderr, "[getservices] %s: unknown modulation %d!\n", __func__, modulation);
