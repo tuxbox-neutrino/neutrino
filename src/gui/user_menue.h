@@ -71,7 +71,8 @@ class CUserMenu : public CChangeObserver
 	private:		
 		int width;
 		bool changeNotify(const neutrino_locale_t OptionName, void *);
-				
+		static std::string tmp;
+
 	public:
 		CUserMenu();
 		~CUserMenu();
