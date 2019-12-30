@@ -515,21 +515,27 @@ void CFEManager::Open(int _fe)
 
 void CFEManager::Close()
 {
-	if(have_locked)
+	if (have_locked)
 		return;
 
-	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+	for (fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		if(!fe->Locked())
 			fe->Close();
+		else
+			if (unlockFrontend(fe, true))
+				fe->Close();
 	}
 }
 
 void CFEManager::Close(int _fe)
 {
 	CFrontend * fe = getFE(_fe);
-	if(!fe->Locked())
+	if (!fe->Locked())
 		fe->Close();
+	else
+		if (unlockFrontend(fe, true))
+			fe->Close();
 }
 
 CFrontend * CFEManager::getFE(int index)
