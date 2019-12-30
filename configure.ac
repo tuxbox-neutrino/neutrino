@@ -299,7 +299,6 @@ if test "$BOXTYPE" = "coolstream"; then
 		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
 	fi
 
-	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/src/zapit/include/private'
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
 fi
 
