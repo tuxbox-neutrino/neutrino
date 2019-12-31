@@ -795,7 +795,7 @@ bool CTimerList::RemoteBoxChanExists(t_channel_id channel_id)
 
 bool CTimerList::LocalBoxChanExists(t_channel_id channel_id)
 {
-	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(channel_id);
 	if (channel)
 		return true;
 	else
@@ -884,6 +884,9 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 				rtimer.epg_starttime = (time_t) atoll(remotetimers[i]["start"][0].get("digits","").asString().c_str());
 				sscanf(remotetimers[i].get("epg_id","").asString().c_str(), SCANF_CHANNEL_ID_TYPE, &rtimer.epg_id);
 				sscanf(remotetimers[i].get("channel_id","").asString().c_str(),	SCANF_CHANNEL_ID_TYPE, &rtimer.channel_id);
+				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(rtimer.channel_id);
+				if(channel)
+					rtimer.channel_id = channel->getChannelID();
 				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),sizeof(rtimer.epgTitle));
 				rtimer.epgTitle[sizeof(rtimer.epgTitle) - 1] = 0;
 				if (remotetimers[i]["audio"].get("apids_conf","").asString() == "true")

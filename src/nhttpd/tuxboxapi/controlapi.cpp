@@ -1510,7 +1510,7 @@ void CControlAPI::GetChannelCGI(CyhookHandler *hh)
 	if (channel_id != 0)
 	{
 		NeutrinoAPI->GetChannelEvents();
-		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(channel_id);
 		if (channel)
 		{
 			result = _GetBouquetWriteItem(hh, channel, -1, -1);
@@ -3008,6 +3008,10 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		&eventinfo.channel_id);
 	else
 		eventinfo.channel_id = NeutrinoAPI->ChannelNameToChannelId(hh->ParamList["channel_name"]);
+
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(eventinfo.channel_id);
+	if(channel)
+		eventinfo.channel_id = channel->getChannelID();
 
 	std::string _rec_dir = hh->ParamList["rec_dir"];
 	void *data=NULL;
