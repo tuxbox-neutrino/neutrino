@@ -5327,6 +5327,8 @@ void CNeutrinoApp::StopSubtitles(bool enable_glcd_mirroring)
 #ifdef ENABLE_GRAPHLCD
 	if (enable_glcd_mirroring)
 		nGLCD::MirrorOSD(g_settings.glcd_mirror_osd);
+#else
+	(void) enable_glcd_mirroring; // avoid compiler warning
 #endif
 	if (mode == NeutrinoModes::mode_webtv)
 		CMoviePlayerGui::getInstance(true).clearSubtitle(true);
