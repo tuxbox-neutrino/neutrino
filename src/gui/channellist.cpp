@@ -2430,6 +2430,9 @@ bool CChannelList::SameTP(CZapitChannel * channel)
 				return false; // No other CI channel
 		}
 #endif
+		if(channel->bUseCI && CRecordManager::getInstance()->getUseCI())
+			return false;
+
 		iscurrent = CFEManager::getInstance()->canTune(channel);
 	}
 	return iscurrent;
