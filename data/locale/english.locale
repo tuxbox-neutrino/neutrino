@@ -309,6 +309,7 @@ ci.ignore_msg Ignore CA messages
 ci.init_failed CAM init failed
 ci.init_ok CAM init complete
 ci.inserted CAM inserted in slot
+ci.rec_zapto Zap when recording needs CAM
 ci.removed CAM removed from slot
 ci.reset Reset
 ci.reset_standby Reset after standby

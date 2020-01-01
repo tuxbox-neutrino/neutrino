@@ -336,6 +336,7 @@ const char * locale_real_names[] =
 	"ci.init_failed",
 	"ci.init_ok",
 	"ci.inserted",
+	"ci.rec_zapto",
 	"ci.removed",
 	"ci.reset",
 	"ci.reset_standby",
