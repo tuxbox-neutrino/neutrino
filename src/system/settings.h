@@ -289,6 +289,7 @@ struct SNeutrinoSettings
 	int ci_save_pincode;
 	int ci_tuner;
 	int ci_rec_zapto;
+	int ci_mode;
 	std::string ci_pincode;
 	int radiotext_enable;
 	int webradio_xml_auto;

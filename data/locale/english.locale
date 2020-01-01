@@ -309,6 +309,9 @@ ci.ignore_msg Ignore CA messages
 ci.init_failed CAM init failed
 ci.init_ok CAM init complete
 ci.inserted CAM inserted in slot
+ci.mode Usable CI channel while recording
+ci.mode_0 all channels
+ci.mode_1 same transponder
 ci.rec_zapto Zap when recording needs CAM
 ci.removed CAM removed from slot
 ci.reset Reset
@@ -1109,6 +1112,7 @@ menu.hint_channellist_show_res_icon Show or hide the icon to signalize resolutio
 menu.hint_channellogos_setup Configure global channelogos options
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
+menu.hint_ci_mode Allow switching to these channels while CI recording
 menu.hint_clock_background Show clock with theme's background color
 menu.hint_clock_mode Switch clock on or off
 menu.hint_clock_seconds Show time format with seconds
