@@ -247,6 +247,10 @@ buildinfo.compiler_flags Compiler Flags
 buildinfo.creator Ersteller
 buildinfo.kernel Kernel Version
 buildinfo.menu Build Informationen
+ca_init Aktives CA-System
+ca_init_0 Conax-Karte
+ca_init_1 CI-Modul
+ca_init_2 Conax-Karte und CI-Modul
 cablesetup.provider Kabelanbieter
 channellist.additional Zusatzinformationen
 channellist.additional_desc Beschreibung
@@ -312,6 +316,7 @@ ci.inserted CAM im Slot
 ci.mode CI Kanäle während einer Aufnahme
 ci.mode_0 alle Kanäle
 ci.mode_1 gleicher Transponder
+ci.mode_2 keine CI Kanäle
 ci.rec_zapto Umschalten bei Aufnahmen mit CAM
 ci.removed CAM entfernt -> Slot
 ci.reset Reset
@@ -1089,6 +1094,7 @@ menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
 menu.hint_buildinfo Informationen über Compiler, Compilerflags, Kernel
+menu.hint_ca_init Konfiguration der CA-Systemhardware, CA-Modul und Kartenschächte
 menu.hint_cache_txt Startet das Zwischenspeichern des Videotextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby

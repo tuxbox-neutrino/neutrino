@@ -247,6 +247,10 @@ buildinfo.compiler_flags Compiler flags
 buildinfo.creator Creator
 buildinfo.kernel Kernel version
 buildinfo.menu Build information
+ca_init active CA-System
+ca_init_0 Conax-Card
+ca_init_1 CI module
+ca_init_2 Conax-Card and CI module
 cablesetup.provider cable provider
 channellist.additional Additional informations
 channellist.additional_desc Description
@@ -312,6 +316,7 @@ ci.inserted CAM inserted in slot
 ci.mode Usable CI channel while recording
 ci.mode_0 all channels
 ci.mode_1 same transponder
+ci.mode_2 no other CI channel
 ci.rec_zapto Zap when recording needs CAM
 ci.removed CAM removed from slot
 ci.reset Reset
@@ -1089,6 +1094,7 @@ menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
 menu.hint_buildinfo Information about compilers, compiler flags, kernel
+menu.hint_ca_init Configuration of CA-system hardware, CA-module and card slots
 menu.hint_cache_txt Start teletext caching after channel switch
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
