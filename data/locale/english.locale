@@ -302,6 +302,8 @@ channellist.show_res_icon Signalize resolution
 channellist.since since
 channellist.start starts
 ci.clock CI clock (Mhz)
+ci.clock_high high
+ci.clock_normal normal
 ci.empty No CAM in slot
 ci.ignore_msg Ignore CA messages
 ci.init_failed CAM init failed
