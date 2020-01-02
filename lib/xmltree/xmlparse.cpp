@@ -2732,9 +2732,8 @@ static int poolGrow(STRING_POOL *pool)
 		tem->next=pool->blocks;
 
 		pool->blocks=tem;
-		if (!pool->start) return 0; //FIXME: hack: pool->start seems to be a null pointer in some constellations, memmove don't like such for parameter 2
 
-		memmove(tem->s, pool->start, (pool->ptr-pool->start)*sizeof(XML_Char));
+		memmove(tem->s, pool->start, (pool->ptr-pool->start)*sizeof(XML_Char)); //FIXME: pool->start seems to be a null pointer in some constellations, eg. with disabled pugixml, memmove don't like NULL-pointer for parameter 2
 
 		pool->ptr=tem->s+(pool->ptr-pool->start);
 		pool->start=tem->s;
