@@ -197,8 +197,14 @@ bool CScreenSaver::ReadDir()
 		{
 			struct dirent **coverlist;
 			int n = scandir(COVERDIR_TMP, &coverlist, 0, alphasort);
-			if (n > 2) // we always have the "." and ".." entrys
+			if (n > 2){ // we always have the "." and ".." entrys
 				show_audiocover = true;
+				for (int i = 0; i < n; i++)
+				{
+					free(coverlist[i]);
+				}
+				free(coverlist);
+			}
 		}
 	}
 
