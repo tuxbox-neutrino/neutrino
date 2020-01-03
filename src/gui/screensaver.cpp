@@ -199,6 +199,9 @@ bool CScreenSaver::ReadDir()
 			int n = scandir(COVERDIR_TMP, &coverlist, 0, alphasort);
 			if (n > 2){ // we always have the "." and ".." entrys
 				show_audiocover = true;
+			}
+			if(n > -1)
+			{
 				for (int i = 0; i < n; i++)
 				{
 					free(coverlist[i]);
