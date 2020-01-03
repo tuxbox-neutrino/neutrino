@@ -550,7 +550,9 @@ void CThemes::move_userDir()
 				const char *target = ((std::string)THEMESDIR_VAR + "/" + file).c_str();
 				printf("[neutrino theme] moving %s to %s\n", dest, target);
 				rename(dest, target);
+				free(themelist[count]);
 			}
+			free(themelist);
 		}
 		printf("[neutrino theme] removing %s\n", USERDIR);
 		remove(USERDIR);
