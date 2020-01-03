@@ -854,7 +854,7 @@ enum XML_Error XML_Parser::doContent(int startTagLevel, const ENCODING *enc, con
 				if (result) return result;
 			};
 
-			// fall through */
+			// fall through
 
 		case XML_TOK_EMPTY_ELEMENT_NO_ATTS:
 			if (startElementHandler || endElementHandler)
@@ -2691,7 +2691,8 @@ static int poolGrow(STRING_POOL *pool)
 			pool->blocks=pool->freeBlocks;
 			pool->freeBlocks=tem;
 
-			memmove(pool->blocks->s, pool->start, (pool->end-pool->start)*sizeof(XML_Char));
+			if (pool->start)
+				memmove(pool->blocks->s, pool->start, (pool->end-pool->start)*sizeof(XML_Char));
 
 			pool->ptr=pool->blocks->s+(pool->ptr-pool->start);
 			pool->start=pool->blocks->s;
@@ -2733,7 +2734,8 @@ static int poolGrow(STRING_POOL *pool)
 
 		pool->blocks=tem;
 
-		memmove(tem->s, pool->start, (pool->ptr-pool->start)*sizeof(XML_Char)); //FIXME: pool->start seems to be a null pointer in some constellations, eg. with disabled pugixml, memmove don't like NULL-pointer for parameter 2
+		if (pool->start)
+			memmove(tem->s, pool->start, (pool->ptr-pool->start)*sizeof(XML_Char));
 
 		pool->ptr=tem->s+(pool->ptr-pool->start);
 		pool->start=tem->s;
