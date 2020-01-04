@@ -2918,10 +2918,11 @@ void CAudioPlayerGui::cleanupCovers()
 			while (n--)
 			{
 				const char *coverfile = coverlist[n]->d_name;
-				if (strcmp(coverfile, ".") == 0 || strcmp(coverfile, "..") == 0)
-					continue;
-				printf("[audioplayer] removing cover %s/%s\n", COVERDIR_TMP, coverfile);
-				unlink(((std::string)COVERDIR_TMP + "/" + coverfile).c_str());
+				if (strcmp(coverfile, ".") != 0 && strcmp(coverfile, "..") != 0)
+				{
+					printf("[audioplayer] removing cover %s/%s\n", COVERDIR_TMP, coverfile);
+					unlink(((std::string)COVERDIR_TMP + "/" + coverfile).c_str());
+				}
 				free(coverlist[n]);
 			}
 			free(coverlist);
