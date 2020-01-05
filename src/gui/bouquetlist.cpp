@@ -723,7 +723,7 @@ void CBouquetList::paintHead()
 void CBouquetList::paint()
 {
 	//ensure stop info clock before paint this window
-	CInfoClock::getInstance()->disableInfoClock();
+	CInfoClock::getInstance()->block();
 	liststart = (selected/listmaxshow)*listmaxshow;
 	int lastnum =  liststart + listmaxshow;
 
