@@ -79,8 +79,8 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 
 CComponentsInfoBox::~CComponentsInfoBox()
 {
-	delete pic;
-	delete cctext;
+	delete pic; pic = NULL;
+	delete cctext; cctext = NULL;
 }
 
 void CComponentsInfoBox::setPicture(const std::string& picture_name, const int& dx, const int& dy)
