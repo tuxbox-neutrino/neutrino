@@ -84,6 +84,8 @@ CFfmpegDec::CFfmpegDec(void)
 	buffer_size = 0x1000;
 	buffer = NULL;
 	avc = NULL;
+	c = NULL;//codec
+	avioc = NULL;
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 	avcodec_register_all();
 	av_register_all();
@@ -139,7 +141,6 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 	av_log_set_level(AV_LOG_INFO);
 #endif
 
-	AVIOContext *avioc = NULL;
 	in = _in;
 	is_stream = fseek((FILE *)in, 0, SEEK_SET);
 	buffer = (unsigned char *) av_malloc(buffer_size);
@@ -193,17 +194,7 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 	if (r) {
 		char buf[200]; av_strerror(r, buf, sizeof(buf));
 		fprintf(stderr, "%d %s %d: %s\n", __LINE__, __func__,r,buf);
-		if (avioc)
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
-			av_free(avioc);
-#else
-			avio_context_free(&avioc);
-#endif
-		if (avc) {
-			avformat_close_input(&avc);
-			avformat_free_context(avc);
-			avc = NULL;
-		}
+		DeInit();
 		return false;
 	}
 	return true;
@@ -211,13 +202,26 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 
 void CFfmpegDec::DeInit(void)
 {
-	if (avc) {
-		if (avc->pb)
+	if(c)
+	{
 #if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
-			av_free(avc->pb);
+		avcodec_close(c);
 #else
-			avio_context_free(&avc->pb);
+		avcodec_free_context(&c);
 #endif
+		c = NULL;
+	}
+	if (avioc)
+	{
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
+		av_free(avioc);
+#else
+		av_freep(&avioc->buffer);
+		avio_context_free(&avioc);
+#endif
+	}
+	if(avc)
+	{
 		avformat_close_input(&avc);
 		avformat_free_context(avc);
 		avc = NULL;
@@ -237,14 +241,14 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		return Status;
 	}
 #if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
-	AVCodecContext *c = avc->streams[best_stream]->codec;
+	c = avc->streams[best_stream]->codec;
 #else
-	AVCodecContext *c = avcodec_alloc_context3(codec);
-        if(avcodec_parameters_to_context(c,avc->streams[best_stream]->codecpar) < 0){
+	c = avcodec_alloc_context3(codec);
+	if(avcodec_parameters_to_context(c,avc->streams[best_stream]->codecpar) < 0){
 		DeInit();
 		Status=DATA_ERR;
 		return Status;
-        }
+	}
 #endif
 	mutex.lock();
 	int r = avcodec_open2(c, codec, NULL);
@@ -433,8 +437,6 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 	av_free(outbuf);
 	av_packet_unref(&rpacket);
 	av_frame_free(&frame);
-	avcodec_close(c);
-	//av_free(avcc);
 
 	DeInit();
 	if (_meta_data->cover_temporary && !_meta_data->cover.empty()) {

@@ -55,6 +55,8 @@ private:
 	unsigned char *buffer;
 	AVFormatContext *avc;
 	AVCodec *codec;
+	AVCodecContext *c;
+	AVIOContext *avioc;
 	int best_stream;
 	void *in;
 	bool Init(void *_in, const CFile::FileType ft);
