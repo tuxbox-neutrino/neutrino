@@ -515,11 +515,15 @@ void CComponentsHeader::enableClock(bool enable, const char* format, const char*
 {
 	cch_cl_enable	= enable;
 	cch_cl_format 	= format;
+
 	if (cch_cl_obj && cch_cl_enable)
 		cch_cl_obj->clear();
+
 	if (sec_format_str)
 		cch_cl_sec_format = sec_format_str;
+
 	cch_cl_enable_run 	= run;
+
 	if (!cch_cl_enable){
 		if (cch_cl_obj){
 			cch_cl_enable_run = false;
@@ -527,6 +531,7 @@ void CComponentsHeader::enableClock(bool enable, const char* format, const char*
 			cch_cl_obj = NULL;
 		}
 	}
+
 	initCCItems();
 }
 
