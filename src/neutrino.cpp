@@ -2997,7 +2997,6 @@ void CNeutrinoApp::RealRun()
 			{
 				if (CScreenSaver::getInstance()->canStart() && !CScreenSaver::getInstance()->isActive())
 				{
-					CInfoClock::getInstance()->block();
 					CScreenSaver::getInstance()->Start();
 				}
 			}
