@@ -31,6 +31,7 @@
 #include "cc_text_screen.h"
 #include <gui/widget/textbox.h>
 #include <string>
+#include <mutex>
 
 //! Sub class of CComponentsItem. Shows a text box.
 /*!
@@ -75,6 +76,8 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		bool ct_force_text_paint;
 		///helper: convert int to string
 		static std::string iToString(int int_val); //helper to convert int to string
+
+		std::mutex ct_mutex;
 
 		///initialize all required attributes
 		void initVarText(	const int x_pos, const int y_pos, const int w, const int h,

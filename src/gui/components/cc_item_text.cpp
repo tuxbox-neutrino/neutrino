@@ -36,7 +36,6 @@
 #include <fstream>
 #include <errno.h>
 #include <system/debug.h>
-#include <mutex>
 
 using namespace std;
 
@@ -140,6 +139,8 @@ void CComponentsText::initCBox()
 
 void CComponentsText::initCCText()
 {
+	std::lock_guard<std::mutex> g(ct_mutex);
+
 	//set default font, if is no font definied
 	if (ct_font == NULL)
 		ct_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
