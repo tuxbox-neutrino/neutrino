@@ -436,6 +436,8 @@ void CComponentsForm::paintCCItems()
 
 	try{
 		for(size_t i=0; i<v_cc_items.size(); i++){
+			std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 			if (!v_cc_items.at(i))
 				continue;
 
