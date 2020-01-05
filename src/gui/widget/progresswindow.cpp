@@ -40,39 +40,37 @@ using namespace std;
 CProgressWindow::CProgressWindow(CComponentsForm *parent,
 				 const int &dx,
 				 const int &dy,
-				 signal<void, size_t, size_t, string> *statusSignal,
 				 signal<void, size_t, size_t, string> *localSignal,
 				 signal<void, size_t, size_t, string> *globalSignal)
 				: CComponentsWindow(0, 0, dx, dy, string(), NEUTRINO_ICON_INFO, parent, CC_SHADOW_ON)
 {
-	Init(statusSignal, localSignal, globalSignal);
+	Init(NULL, localSignal, globalSignal, NULL);
 }
 
 CProgressWindow::CProgressWindow(const neutrino_locale_t title,
 				 const int &dx,
 				 const int &dy,
-				 signal<void, size_t, size_t, string> *statusSignal,
 				 signal<void, size_t, size_t, string> *localSignal,
 				 signal<void, size_t, size_t, string> *globalSignal)
 				: CComponentsWindow(0, 0, dx, dy, g_Locale->getText(title), NEUTRINO_ICON_INFO, NULL, CC_SHADOW_ON)
 {
-	Init(statusSignal, localSignal, globalSignal);
+	Init(NULL, localSignal, globalSignal, NULL);
 }
 
 CProgressWindow::CProgressWindow(const std::string &title,
 				 const int &dx,
 				 const int &dy,
-				 signal<void, size_t, size_t, string> *statusSignal,
 				 signal<void, size_t, size_t, string> *localSignal,
 				 signal<void, size_t, size_t, string> *globalSignal)
 				: CComponentsWindow(0, 0, dx, dy, title, NEUTRINO_ICON_INFO, NULL, CC_SHADOW_ON)
 {
-	Init(statusSignal, localSignal, globalSignal);
+	Init(NULL, localSignal, globalSignal, NULL);
 }
 
 void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 				signal<void, size_t, size_t, string> *localSignal,
-				signal<void, size_t, size_t, string> *globalSignal)
+				signal<void, size_t, size_t, string> *globalSignal,
+				signal<void, size_t> *globalSet)
 {
 	if (statusSignal)
 		*statusSignal->connect(mem_fun(*this, &CProgressWindow::showStatus));
@@ -82,6 +80,13 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 		*globalSignal->connect(mem_fun(*this, &CProgressWindow::showGlobalStatus));
 
 	global_progress = local_progress = 0;
+
+	if (globalSet)
+		*globalSet->connect(mem_fun(*this, &CProgressWindow::setGlobalMax));
+	else
+		global_max = 0;
+
+	internal_max = 0;
 
 	showFooter(false);
 
@@ -133,7 +138,7 @@ CProgressBar* CProgressWindow::getProgressItem()
 void CProgressWindow::initStatus(const unsigned int prog, const unsigned int max, const string &statusText, CProgressBar *pBar)
 {
 	pBar->allowPaint(true);
-	pBar->setValues(prog, (int)max);
+	pBar->setValues(prog/* + (prog % 2)*/, (int)/*max + (*/max/* % 2)*/);
 	if (!statusText.empty() && (cur_statusText != statusText)){
 		showStatusMessageUTF(statusText);
 		cur_statusText = statusText;
@@ -145,6 +150,13 @@ void CProgressWindow::initStatus(const unsigned int prog, const unsigned int max
 void CProgressWindow::showStatus(const unsigned int prog, const unsigned int max, const string &statusText)
 {
 	showLocalStatus(prog, max, statusText);
+
+	if(global_max > 1){
+		global_progress ++;
+		internal_max = std::max((int)max, (int)internal_max);
+		internal_max -= (max != internal_max) ? internal_max/max : 0;
+		initStatus(global_progress, global_max*internal_max, statusText, global_bar);
+	}
 }
 
 void CProgressWindow::showGlobalStatus(const unsigned int prog, const unsigned int max, const string &statusText)

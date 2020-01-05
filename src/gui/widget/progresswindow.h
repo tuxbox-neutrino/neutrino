@@ -41,177 +41,56 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		unsigned int local_progress;
 		std::string cur_statusText;
 		int h_height;
-		void Init(	sigc::signal<void, size_t, size_t, std::string> *statusSignal,
-				sigc::signal<void,size_t, size_t, std::string> *localSignal,
-				sigc::signal<void, size_t, size_t, std::string> *globalSignal);
 
 		CProgressBar* getProgressItem();
 		void initStatus(const unsigned int prog, const unsigned int max, const std::string &statusText, CProgressBar *pBar);
 		void fitItems();
 
+	protected:
+		size_t global_max, internal_max;
+
+		void Init(	sigc::signal<void, size_t, size_t, std::string> *statusSignal,
+				sigc::signal<void, size_t, size_t, std::string> *localSignal,
+				sigc::signal<void, size_t, size_t, std::string> *globalSignal,
+				sigc::signal<void, size_t> *globalSet);
+
 	public:
 		/**CProgressWindow Constructor
 		* @param[in]	parent
-		* 	@li 	optional: expects type CComponentsForm * as possible parent object, default = NULL
+		* 	@li 	optional: expects type CComponentsForm * as parent object, default = NULL
 		* @param[in]	dx
 		* 	@li 	optional: expects type const &int, width of window, default = 0, auto size with declared default values
 		* @param[in]	dy
-		* 	@li 	optional: expects type const &int, height of window, default = 0, auto size with declared default values
-		* @param[in]	status_Signal
-		* 	@li 	optional: expects type sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
-		* 		current changing values.
 		* @param[in]	localSignal
-		* 	@li 	optional: expects type sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
+		* 	@li 	optional: expects pointer of to sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
 		* 		current changing local values.
 		* @param[in]	globalSignal
-		* 	@li 	optional: expects type sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
+		* 	@li 	optional: expects pointer of to sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
 		* 		current changing global values.
-		*
-		* @example
-		* 		void CFooClass::DoCount{
-		* 			//Usage with classic init inside method:
-		*
-		* 			//Create a CProgressWindow object
-		* 			CProgressWindow progress;
-		*
-		* 			//set possible properties, eg. like here we dont't need a header
-		* 			status.showHeader(false);
-		*
-		* 			//paint window
-		* 			status.paint();
-		*
-		* 			//set possible properties, like current status text
-		* 			status.showStatusMessageUTF("test progress");
-		*
-		* 			//set current progress, call functions, methods or use a while, next loop or what ever
-		* 			status.showStatus(25)
-		*
-		* 			//finally remove window from screen
-		* 			status.hide();
-		* 		}
-		*
-		* 		//That's it. Until now these steps are a classical way inside neutrino, but you can use proress window with signals too.
-		* 		//Working with signals have the advantage that the implementation could be more compactly, because
-		* 		//complex constructions within the classes are usually unnecessary,
-		* 		//beacuse of the signals can be installed where they directly catching the required values. See next example:
-		*
-		* 		class CFooClass
-		* 		{
-		* 			//Usage with signals:
-		* 			//declare a signal eg. in header file
-		* 			private:
-		* 				//other members...
-		* 				sigc::signal<void, size_t, size_t, std::string> OnProgress;
-		* 				void DoCount();
-		* 				//other members...
-		* 			public:
-		* 				//other members...
-		* 				void DoAnything();
-		* 				//other members...
-		* 		};
-		*
-		* 		//add the OnProgress signal into a counter methode
-		* 		void CFooClass::DoCount{
-		* 			size_t max = 10
-		* 			for (size_t i = 0; i < max; i++){
-		* 				OnProgress(i, max, "Test");
-		* 			}
-		* 		}
-		*
-		* 		void CFooClass::DoAnything{
-		* 			//inside of methode which calls the progress define a CProgressWindow object and the counter method:
-		* 			//...any code
-		* 			CProgressWindow progress(NULL, 500, 150, &OnProgress);
-		* 			//paint window
-		* 			progress.paint(); // paint()
-		*
-		* 			//...
-		*
-		* 			DoCount();
-		*
-		* 			//...
-		*
-		* 			//finally remove window from screen
-		* 			progress.hide();
-		* 		}
-		*
-		* 		//Another and a recommended way to implement signals is to inherit prepared signals with
-		* 		//class CProgressSignals. This class contains prepared signals for implemantation and disconnetion of slots
-		* 		//is performed automatically.
-		* 		//See next example:
-		* 		class CFooClass : public CProgressSignals
-		* 		{
-		* 			private:
-		* 				//other members...
-		* 				void DoCount();
-		* 				//other members...
-		* 			public:
-		* 				//other members...
-		* 				void DoAnything();
-		* 				//other members...
-		* 		};
-		*
-		* 		//add the OnGlobalProgress and OnLocalProgress signals into a counter methode
-		* 		void CFooClass::DoCount();{
-		* 			size_t max = 10;
-		* 			for (size_t i = 0; i < max; i++){
-		* 				OnGlobalProgress(i, max, "Test"); //visualize global progress
-		* 				for (size_t j = 0; j < max; j++){
-		* 					OnLocalProgress(ij, max, "Test"); // visualize local progress
-		* 				}
-		* 			}
-		* 		}
-		*
-		* 		void CFooClass::DoAnything{
-		* 			//inside of methode which calls the progress define a CProgressWindow object and the counter method:
-		* 			//...any code
-		* 			CProgressWindow progress(NULL, 500, 150, NULL, &OnLocalProgress, &OnGlobalProgress);
-		* 			progress.paint(); // paint window
-		*
-		* 			//...
-		*
-		* 			void DoCount();
-		*
-		* 			//...
-		*
-		* 			//finally remove window from screen
-		* 			progress.hide();
-		* 		}
-		*
-		* @note
-		* 		Don't use status_Signal at same time with localSignal and globalSignal. \n
-		* 		In This case please set prameter 'status_Signal' = NULL
 		*/
 		CProgressWindow(CComponentsForm *parent = NULL,
 				const int &dx = PW_MIN_WIDTH,
 				const int &dy = PW_MIN_HEIGHT,
-				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
 				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
 
-		/**CProgressWindow Constructor
-		* @param[in]	title
-		* 	@li 	expects type neutrino_locale_t as window title
-		*
-		* @see		For other arguments and examples, see related constructor(s)
+		/**CProgressWindowA Constructor
+		* @see		For common arguments and examples, see related constructor(s)\n
+		* 		For general parameters see basic class CProgressWindow!
 		*/
 		CProgressWindow(const neutrino_locale_t title,
 				const int &dx = PW_MIN_WIDTH,
 				const int &dy = PW_MIN_HEIGHT,
-				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
 				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
 
 		/**CProgressWindow Constructor
-		* @param[in]	title
-		* 	@li 	expects type std::string as window title
-		*
-		* @see		For other arguments and examples, see related constructor(s)
+		* @see		For common arguments and examples, see related constructor(s)\n
+		* 		For general parameters see basic class CProgressWindow!
 		*/
 		CProgressWindow(const std::string &title,
 				const int &dx = PW_MIN_WIDTH,
 				const int &dy = PW_MIN_HEIGHT,
-				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
 				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
 				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
 
@@ -243,17 +122,6 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		virtual int exec( CMenuTarget* parent, const std::string & actionKey );
 
 		/**
-		* Sets current progress value and show progress in window.
-		* @param[in]	prog
-		* 	@li 	expects type unsigned int, describes current progress value
-		* @param[in]	max
-		* 	@li 	optional: expects type unsigned int, describes maximal progress value, default = 100
-		* @param[in]	statusText
-		* 	@li 	optional: expects type std::string, describes current status text, default = empty
-		*/
-		void showStatus(const unsigned int prog, const unsigned int max = 100, const std::string &statusText = std::string());
-
-		/**
 		* Sets current local progressbar value and show progress in window.
 		* @note		For other arguments take a look to related method showStatus()
 		* @see		showStatus()
@@ -274,6 +142,28 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		unsigned int getGlobalStatus(void);
 
 		/**
+		* Sets current progress value and shows a single progress bar inside window as default, but allows
+		* to show a global bar too. If you want to show a global bar, the global max value must be predefined with setGlobalMax() method.
+		* A defined global max value causes a gentle display of global progress. This assumes, the numbering fits to the scaned progress.
+		* @param[in]	prog
+		* 	@li 	expects type unsigned int, describes current progress value
+		* @param[in]	max
+		* 	@li 	optional: expects type unsigned int, describes maximal progress value, default = 100
+		* @param[in]	statusText
+		* 	@li 	optional: expects type std::string, describes current status text, default = empty
+		*
+		* @see		setGlobalMax(), CProgressSignals::OnSetGlobalMax()
+		*/
+		void showStatus(const unsigned int prog, const unsigned int max = 100, const std::string &statusText = std::string());
+
+		/**
+		* Sets current maximal value for global progress in window.
+		* @param[in]	global_Max
+		* 	@li 	expects type size_t
+		*/
+		void setGlobalMax(const size_t& global_Max){global_max = global_Max;}
+
+		/**
 		* Sets current progress value and show progress in window.
 		* @param[in]	text
 		* 	@li 	expects type std::string, describes current status text
@@ -286,6 +176,44 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* 	@li 	optional: expects type bool, sets background save mode
 		*/
 		void paint(const bool &do_save_bg = true);
+};
+
+class CProgressWindowA : public CProgressWindow
+{
+	public:
+		/**CProgressWindowA Constructor
+		* @see		For common arguments and examples, see related constructor(s)\n
+		* 		For general parameters see basic class CProgressWindow!
+		*
+		* @param[in]	status_Signal
+		* 	@li 	optional: expects pointer of type sigc::signal<void, size_t, size_t, std::string>, defines an optional signal container for
+		* 		current changing values.
+		* @param[in]	globalSet
+		* 	@li 	optional: expects pointer of type sigc::signal<void, size_t>, defines an optional signal container for global values.
+		*/
+		CProgressWindowA(const neutrino_locale_t title,
+				const int &dx = PW_MIN_WIDTH,
+				const int &dy = PW_MIN_HEIGHT,
+				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+				sigc::signal<void, size_t> *globalSet = NULL)
+					: CProgressWindow(title, dx, dy, NULL, NULL)
+					{
+						Init(status_Signal, NULL, NULL, globalSet);
+					};
+
+		/**CProgressWindowA Constructor
+		* @see		For common arguments and examples, see related constructor(s)!
+		* 		For general parameters see basic class CProgressWindow!
+		*/
+		CProgressWindowA(const std::string &title,
+				const int &dx = PW_MIN_WIDTH,
+				const int &dy = PW_MIN_HEIGHT,
+				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+				sigc::signal<void, size_t> *globalSet = NULL)
+					: CProgressWindow(title, dx, dy, NULL, NULL)
+					{
+						Init(status_Signal, NULL, NULL, globalSet);
+					};
 };
 
 class CProgressSignals : public sigc::trackable
@@ -307,6 +235,183 @@ class CProgressSignals : public sigc::trackable
 		* @see Take a look into examples to find in progressbar.h
 		*/
 		sigc::signal<void, size_t, size_t, std::string> OnProgress, OnLocalProgress, OnGlobalProgress;
+		sigc::signal<void, size_t> OnSetGlobalMax;
 };
 
 #endif
+
+/**CProgressWindow usage with classic method:\n
+* This is the general used method to implement progress bar windows.
+* @example	Progresswindow
+*
+* 		void CFooClass::DoCount
+* 		{
+* 			// Create a CProgressWindow object
+* 			CProgressWindow progress;
+*
+* 			// set possible properties, eg. like here we dont't need a header
+* 			status.showHeader(false);
+*
+* 			// paint window
+* 			status.paint();
+*
+* 			// set possible properties, like current status text
+* 			status.showStatusMessageUTF("test progress");
+*
+* 			// set current progress, call functions, methods or use a while, next loop or what ever
+* 			status.showStatus(25)
+*
+* 			// finally remove window from screen
+* 			status.hide();
+* 		}
+*
+* 		// ...That's it. Until now these steps are a classical way inside neutrino, but you can use progress window with signals too.
+* 		// Working with signals have the advantage that the implementation could be more compactly, because
+* 		// complex constructions within the classes are usually unnecessary,
+* 		// beacuse of the signals can be installed where they directly catching the required values. See next examples:
+*
+* @see
+* 		* Progresswindow:Signals:1\n
+* 		* Progresswindow:Signals:2\n
+* 		* Progresswindow:Adaptive
+*/
+
+/**CProgressWindow usage with signals
+* @example	Progresswindow:Signals:1
+*
+* 		class CFooClass
+* 		{
+* 			//declare a signal eg. in header file
+* 			private:
+* 				// other members...
+* 				sigc::signal<void, size_t, size_t, std::string> OnProgress;
+* 				void DoCount();
+* 				// other members...
+* 			public:
+* 				// other members...
+* 				void DoAnything();
+* 				// other members...
+* 		};
+*
+* 		// add the 'OnProgress' signal into a counter methode
+* 		void CFooClass::DoCount{
+* 			size_t max = 10
+* 			for (size_t i = 0; i < max; i++){
+* 				OnProgress(i, max, "Test");
+* 			}
+* 		}
+*
+* 		void CFooClass::DoAnything{
+* 			// inside of methode which calls the progress define a CProgressWindow object and the counter method:
+* 			// ...any code
+* 			CProgressWindow progress(NULL, 500, 150, &OnProgress);
+* 			// paint window
+* 			progress.paint(); // paint()
+*
+* 			// ...
+*
+* 			DoCount();
+*
+* 			// ...
+*
+* 			// finally remove window from screen
+* 			progress.hide();
+* 		}
+*/
+
+/**CProgressWindow usage with inherited signals
+* @example	Progresswindow:Signals:2
+*
+* 		// Another and a recommended way to implement signals is to inherit prepared signals with
+* 		// 'class CProgressSignals'. This class contains prepared signals for implemantation and disconnetion of slots
+* 		// is performed automatically.
+* 		// See next example:
+* 		class CFooClass : public CProgressSignals
+* 		{
+* 			private:
+* 				// other members...
+* 				void DoCount();
+* 				// other members...
+* 			public:
+* 				// other members...
+* 				void DoAnything();
+* 				// other members...
+* 		};
+*
+* 		// add the 'OnGlobalProgress' and 'OnLocalProgress' signals into a counter methode
+* 		void CFooClass::DoCount();{
+* 			size_t max = 10;
+* 			for (size_t i = 0; i < max; i++){
+* 				OnGlobalProgress(i, max, "Test"); //visualize global progress
+* 				for (size_t j = 0; j < max; j++){
+* 					OnLocalProgress(ij, max, "Test"); // visualize local progress
+* 				}
+* 			}
+* 		}
+*
+* 		void CFooClass::DoAnything{
+* 			// inside of methode which calls the progress define a CProgressWindow object and the counter method:
+* 			// ...any code
+* 			CProgressWindow progress(NULL, 500, 150, NULL, &OnLocalProgress, &OnGlobalProgress);
+*  			// paint window
+* 			progress.paint();
+*
+* 			// ...
+*
+* 			void DoCount();
+*
+* 			// ...
+*
+* 			// finally remove window from screen
+* 			progress.hide();
+* 		}
+*/
+
+/**CProgressWindow usage with adaptive global progress
+* @example	Progresswindow:Adaptive
+*
+* 		// Use this for local progress views with adaptive global status.
+* 		// This allows an adjusted global progress with more 'smoother' progress view. Here the global progress
+* 		// is calculated inside the progressbar object itself. This requires a call for the local progress and
+* 		// an assignment of global maximum value.
+* 		// Note: Global progressbar is only visible if global value > 1!
+*
+* 		class CFooClass
+* 		{
+* 			private:
+* 				// other members...
+* 				// If You want to use signals, declare signals or inherit 'class CProgressSignals' (e.g: 'class CFooClass : public CProgressSignals')
+* 				sigc::signal<void, size_t, size_t, std::string> OnProgress;
+* 				sigc::signal<void, size_t> OnSetGlobalMax;
+* 				// other members...
+* 			public:
+* 				// other members...
+* 				void DoCount();
+* 				// other members...
+* 		};
+*
+* 		void CFooClass::DoCount()
+* 		{
+* 			size_t max = 10
+* 			CProgressWindowA pw("Test", CCW_PERCENT 50, CCW_PERCENT 20, NULL, NULL);
+* 			pw.paint();
+*
+* 			// Set the maximal global value:
+* 			// Here global value is set directly with 'setGlobalMax()' inside 'DoCount()', but for scanning for global
+* 			// values it's also possible to use the 'OnSetGlobalMax()' signal
+* 			// outside of counter methode in any other method.
+* 			// An example for usage of OnSetGlobalMax() is to find in 'gui/moviebrowser/mp.cpp'
+*			// To see the visual difference to general progress take a look into test menu and try out Test 4 and 5.
+* 			// Note: Without assigned global max value, no global bar is visible, means: Only local progress is showed!
+* 			pw.setGlobalMax(max);
+*
+* 			for(size_t i = 1; i <= max; i++){
+* 				for(size_t j = 1; j<= 8; j++){
+* 					pw.showStatus(j, 8, to_string(j));
+* 					sleep(1);
+* 				}
+* 			}
+* 			sleep(1);
+* 			pw.hide();
+* 		}
+*/

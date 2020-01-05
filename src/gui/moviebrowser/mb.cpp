@@ -2965,7 +2965,6 @@ void CMovieBrowser::updateDir(void)
 void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 {
 	//TRACE("[mb]->loadAllTsFileNamesFromStorage \n");
-	size_t i,size;
 
 	m_movieSelectionHandler = NULL;
 	m_dirNames.clear();
@@ -2973,16 +2972,26 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 
 	updateDir();
 
+	size_t i, size;
 	size = m_dir.size();
-	for (i=0; i < size;i++)
+
+	size_t used_dirs = 0;
+	for (i = 0; i < size;i++)
 	{
-		if (*m_dir[i].used == true){
-			OnGlobalProgress(i, size, m_dir[i].name);
+		if (*m_dir[i].used)
+			used_dirs ++;
+	}
+	OnSetGlobalMax(used_dirs);
+
+	for (i = 0; i < size; i++)
+	{
+		if (*m_dir[i].used)
+		{
 			loadTsFileNamesFromDir(m_dir[i].name);
 		}
 	}
 
-	TRACE("[mb] Dir%d, Files:%d\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size());
+	TRACE("[mb] Dir %d, Files: %d, size  %u, used_dirs %u\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size(), size, used_dirs);
 }
 
 bool CMovieBrowser::gotMovie(const char *rec_title)
@@ -3100,7 +3109,7 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 				result |= addFile(flist[i], dirItNr);
 			}
 			if (result)
-				OnLocalProgress(i, count, dirname );
+				OnProgress(i, count, dirname );
 		}
 		//result = true;
 	}
@@ -3342,7 +3351,11 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 	struct timeval t1, t2;
 	gettimeofday(&t1, NULL);
 
-	CProgressWindow loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES, CCW_PERCENT 50, CCW_PERCENT 10, NULL, show_mode == MB_SHOW_YT ? &ytparser.OnProgress : &OnLocalProgress, &OnGlobalProgress);
+	CProgressWindowA loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES,
+				CCW_PERCENT 50,
+				CCW_PERCENT 10,
+				show_mode == MB_SHOW_YT ? &ytparser.OnProgress : &OnProgress,
+				show_mode == MB_SHOW_YT ? NULL : &OnSetGlobalMax);
 	loadBox.enableShadow();
 	loadBox.paint();
 
