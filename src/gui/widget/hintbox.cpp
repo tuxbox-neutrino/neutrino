@@ -8,7 +8,7 @@
 	Copyright (C) 2008-2009, 2011, 2013 Stefan Seyfried
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2016 Thilo Graf 'dbt'
+	Copyright (C) 2014-2019 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -211,19 +211,21 @@ void CHintBox::enableTimeOutBar(bool enable)
 			delete timeout_pb_timer; timeout_pb_timer = NULL;
 		}
 		if(timeout_pb){
+			timeout_pb->setValues(100, 100);
+			timeout_pb->paint0();
 			delete timeout_pb; timeout_pb = NULL;
 		}
 		return;
 	}
 
 	if(timeout_pb){
-		timeout_pb->paint0();
 		timeout_pb->setValues(timeout_pb->getValue()+1, 10*timeout);
+		timeout_pb->paint0();
 	}else{
 		timeout_pb = new CProgressBar();
 		timeout_pb->setType(CProgressBar::PB_TIMESCALE);
 		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
-		timeout_pb->setValues(0, timeout);
+		timeout_pb->setValues(timeout/10, timeout);
 		if (!timeout_pb_timer) {
 			timeout_pb_timer = new CComponentsTimer(100);
 			const string tn = cc_item_type.name + ":timeout_bar:";
