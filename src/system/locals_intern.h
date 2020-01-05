@@ -844,6 +844,8 @@ const char * locale_real_names[] =
 	"fontsize.moviebrowser_info",
 	"fontsize.moviebrowser_list",
 	"fontsize.subtitles",
+	"fontsize.window_radiotext_desc0",
+	"fontsize.window_radiotext_desc1",
 	"fsk.all",
 	"fsk.from_12",
 	"fsk.from_16",

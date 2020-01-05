@@ -817,6 +817,8 @@ fontsize.moviebrowser_head Überschriften
 fontsize.moviebrowser_info Info-Fenster
 fontsize.moviebrowser_list Listen-Einträge
 fontsize.subtitles Text Untertitel
+fontsize.window_radiotext_desc0 Radiotext Infos
+fontsize.window_radiotext_desc1 Radiotext Zusatzinfo
 fsk.all aus
 fsk.from_12 ab 12
 fsk.from_16 ab 16
