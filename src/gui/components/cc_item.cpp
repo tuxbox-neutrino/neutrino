@@ -300,7 +300,7 @@ void CComponentsItem::setSelected(bool selected, const fb_pixel_t& sel_frame_col
 	col_frame = cc_item_selected ? sel_frame_col : frame_col;
 }
 
-uint8_t CComponentsItem::getPageNumber()
+uint8_t CComponentsItem::getPageNumber() const
 {
 	return cc_page_number;
 }

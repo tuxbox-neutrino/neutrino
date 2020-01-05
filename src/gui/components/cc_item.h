@@ -72,11 +72,11 @@ class CComponentsItem : public CComponents
 		///sets pointer to the form object in which this item is embedded.
 		void setParent(CComponentsForm *parent){cc_parent = parent;};
 		///returns pointer to the form object in which this item is embedded.
-		CComponentsForm* getParent(){return cc_parent;};
+		CComponentsForm* getParent() const {return cc_parent;};
 		///property: returns true if item is added to a form
 		bool isAdded();
 		///indicates wether item has focus
-		bool hasFocus(){return cc_has_focus;}
+		bool hasFocus() const {return cc_has_focus;}
 		///set or unset focus of item, stand alone items without parent have always set focus to true, inside of a parent form object, always the last added item has focus
 		void setFocus(bool focus);
 
@@ -121,7 +121,7 @@ class CComponentsItem : public CComponents
 		bool isEnabled(){return cc_item_enabled;};
 
 		///get current index of item, see also attribut cc_item_index
-		int getIndex(){return cc_item_index;};
+		int getIndex() const {return cc_item_index;};
 		///set an index to item, see also attribut cc_item_index.
 		///To generate an index, use genIndex()
 		void setIndex(const int& index){cc_item_index = index;};
@@ -129,7 +129,7 @@ class CComponentsItem : public CComponents
 		///sets page location of current item, parameter as uint8_t, see: cc_page_number
 		void setPageNumber(const uint8_t& on_page_number){cc_page_number = on_page_number;};
 		///returns current number of page location of current item, see: cc_page_number
-		uint8_t getPageNumber();
+		uint8_t getPageNumber() const;
 
 		///set screen x-position, parameter as int
 		void setXPos(const int& xpos);
@@ -150,9 +150,9 @@ class CComponentsItem : public CComponents
 		///sets real x and y position on screen at once. Use this, if item is added to a parent form
 		void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;}
 		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
-		int getRealXPos(){return cc_parent ? cc_xr : x;}
+		int getRealXPos() const {return cc_parent ? cc_xr : x;}
 		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
-		int getRealYPos(){return cc_parent ? cc_yr : y;}
+		int getRealYPos() const {return cc_parent ? cc_yr : y;}
 
 		///do center item on screen or within a parent form, parameter along_mode assigns direction of centering
 		void setCenterPos(int along_mode = CC_ALONG_X | CC_ALONG_Y);
