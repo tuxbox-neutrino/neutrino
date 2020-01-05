@@ -279,6 +279,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			//w_btn_tmp = w_btn;
 			for (i = 0; i < c_btns; i++){
 				w_btn_tmp -= c_btns;
+				w_btn_tmp = max(0, w_btn_tmp);
 				btn_container->getCCItem(i)->setWidth(w_btn_tmp); // value = 0 forces recalculation, refresh is required
 				static_cast<CComponentsButton*>(btn_container->getCCItem(i))->Refresh();
 				w_used_tmp -= max(0, btn_container->getCCItem(i)->getWidth());
