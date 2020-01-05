@@ -224,7 +224,7 @@ void CComponentsFrmClock::initCCLockItems()
 	int y_tmp = y;
 
 	const bool force_repaint = cl_force_repaint;
-// 	dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock][%s - %d], clock width     width  %d  \033[0m\n", __func__, __LINE__, width);
+
 	/* modify available label items with current segment chars
 	 * we are using segments with only one char per segment,
 	 * these chars are predefined via format string
@@ -290,15 +290,12 @@ void CComponentsFrmClock::initCCLockItems()
 		cl_width += lbl->getWidth();//w_tmp;
 		h_text_min = max(lbl->getHeight(), height);
 		height = max(lbl->getHeight(), height);
-// 		dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock][%s - %d], clock width     width  %d   cl_width = %d\033[0m\n", __func__, __LINE__, width,  cl_width);
 	}
 
 	//set required width for clock (this)
-	int w_std = width;
 	if (cl_width > width){
 		width = cl_width;
 	}
-// 	dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock][%s - %d], clock width     width  %d   w_std %d cl_width = %d\033[0m\n", __func__, __LINE__, width, w_std, cl_width);
 
 	//use first item as reference and set x and y position to the 1st segement item with definied alignment
 	//ensure unsigned position values
