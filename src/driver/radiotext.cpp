@@ -58,7 +58,7 @@
 #include <pthread.h>
 #include <ctype.h>
 #include <config.h>
-
+#include <system/debug.h>
 #include <global.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
@@ -67,6 +67,7 @@
 
 #include "radiotext.h"
 #include "radiotools.h"
+#include <gui/radiotext_window.h>
 
 rtp_classes rtp_content;
 
@@ -384,19 +385,28 @@ fprintf(stderr, "MEC=0x%02x DSN=0x%02x PSN=0x%02x MEL=%02d STATUS=0x%02x MFL=%02
 			char *temp;
 			asprintf(&temp, "%s", RT_Text[RT_Index]);
 		if (++rtp_content.rt_Index >= 2*MAX_RTPC)
-		    rtp_content.rt_Index = 0;
+			rtp_content.rt_Index = 0;
 		asprintf(&rtp_content.radiotext[rtp_content.rt_Index], "%s", rtrim(temp));
 		free(temp);
 		if (S_Verbose >= 1)
-		    printf("Radiotext[%d]: %s\n", RT_Index, RT_Text[RT_Index]);
-		RT_Index +=1; if (RT_Index >= S_RtOsdRows) RT_Index = 0;
+			printf("Radiotext[%d]: %s\n", RT_Index, RT_Text[RT_Index]);
+			RT_Index +=1; if (RT_Index >= S_RtOsdRows) RT_Index = 0;
 		}
 		RTP_TToggle = 0x03;		// Bit 0/1 = Title/Artist
 		RT_MsgShow = true;
 		S_RtOsd = 1;
 		RT_Info = (RT_Info > 0) ? RT_Info : 1;
 		RadioStatusMsg();
-		OnAfterDecodeLine();
+
+		if (!OnAfterDecodeLine.empty()) {
+			if (!OnAfterDecodeLine.blocked()){
+				dprintf(DEBUG_DEBUG, "\033[36m[CRadioText] %s - %d: signal OnAfterDecodeLine contains %d slot(s)\033[0m\n", __func__, __LINE__, (int)OnAfterDecodeLine.size());
+				OnAfterDecodeLine();
+			}
+			else{
+				dprintf(DEBUG_DEBUG, "\033[31m[CRadioText] %s - %d: signal OnAfterDecodeLine blocked\033[0m\n", __func__, __LINE__);
+			}
+		}
 	}
 
 	else if (RTP_TToggle > 0 && mtext[5] == 0x46 && S_RtFunc >= 2) {	// RTplus tags V2.0, only if RT
@@ -670,6 +680,10 @@ CRadioText::~CRadioText(void)
 	radiotext_stop();
 	cond.broadcast();
 	OpenThreads::Thread::join();
+	if (g_RadiotextWin){
+		delete g_RadiotextWin;
+		g_RadiotextWin = NULL;
+	}
 	printf("CRadioText::~CRadioText done\n");
 }
 
@@ -722,6 +736,10 @@ void CRadioText::radiotext_stop(void)
 void CRadioText::setPid(uint inPid)
 {
 	printf("CRadioText::setPid: ###################### old pid 0x%x new pid 0x%x ######################\n", pid, inPid);
+	if (!g_RadiotextWin){
+		g_RadiotextWin = new CRadioTextGUI();
+		g_RadiotextWin->allowPaint(false);
+	}
 	if (pid != inPid) {
 		mutex.lock();
 		pid = inPid;

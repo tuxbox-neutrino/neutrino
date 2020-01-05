@@ -54,6 +54,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
 #include <gui/widget/stringinput.h>
+#include <gui/radiotext_window.h>
 
 #include <driver/screen_max.h>
 #include <driver/neutrinofonts.h>
@@ -177,7 +178,9 @@ const SNeutrinoSettings::FONT_TYPES other_font_sizes[] =
 	SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL,
 	SNeutrinoSettings::FONT_TYPE_SUBTITLES,
 	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM,
-	SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT
+	SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT,
+	SNeutrinoSettings::FONT_TYPE_WINDOW_RADIOTEXT_TITLE,
+	SNeutrinoSettings::FONT_TYPE_WINDOW_RADIOTEXT_DESC
 };
 size_t other_font_items = sizeof(other_font_sizes)/sizeof(other_font_sizes[0]);
 
@@ -234,7 +237,9 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_SUBTITLES          ,  25, CNeutrinoFonts::FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_MESSAGE_TEXT       ,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_BUTTON_TEXT        ,  14, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
-	{LOCALE_FONTSIZE_GENERAL_WINDOW_TEXT,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1}
+	{LOCALE_FONTSIZE_GENERAL_WINDOW_TEXT,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_WINDOW_RADIOTEXT_DESC0, 22, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_WINDOW_RADIOTEXT_DESC1 , 17, CNeutrinoFonts::FONT_STYLE_REGULAR, 1}
 };
 
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -1617,10 +1622,20 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 
 void COsdSetup::resetRadioText()
 {
+	if (getenv("SIMULATE_FE")){
+		dprintf(DEBUG_NORMAL, "\033[33m[COsdSetup][%s - %d] SIMULATE_FE is set, no radiotext function availavble \033[0m\n", __func__, __LINE__);
+		return;
+	}
+
 	if (g_settings.radiotext_enable) {
 		if (g_Radiotext == NULL)
 			g_Radiotext = new CRadioText;
+
 		if (g_Radiotext && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio)){
+			if (g_RadiotextWin){
+				delete g_RadiotextWin;
+				g_RadiotextWin = NULL;
+			}
 			unsigned int pid = 0;
 			if(!g_RemoteControl->current_PIDs.APIDs.empty())
 				pid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid;

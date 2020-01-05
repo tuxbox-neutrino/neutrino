@@ -95,6 +95,8 @@ class CVideoSettings;
 NEUTRINO_CPP CVideoSettings	*g_videoSettings;
 class CRadioText;
 NEUTRINO_CPP CRadioText		*g_Radiotext;
+class CRadioTextGUI;
+NEUTRINO_CPP CRadioTextGUI	*g_RadiotextWin;
 
 #ifndef DISABLE_GUI_MOUNT
 #define ENABLE_GUI_MOUNT
