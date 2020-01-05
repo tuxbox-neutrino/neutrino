@@ -161,7 +161,7 @@ bool CRadioTextGUI::GetData()
 			{
 				if (lines || g_Radiotext->RT_PTY != 0)
 				{
-					snprintf(stext[0], sizeof(stext[0]),g_Radiotext->RT_PTY == 0 ? "%s %s%s" : "%s (%s)%s", tr("Radiotext"), g_Radiotext->RT_PTY == 0 ? g_Radiotext->RDS_PTYN : g_Radiotext->ptynr2string(g_Radiotext->RT_PTY), ":");
+					snprintf(stext[0], sizeof(stext[0]),g_Radiotext->RT_PTY == 0 ? "%s %s" : "%s (%s)", tr("Radiotext"), g_Radiotext->RT_PTY == 0 ? g_Radiotext->RDS_PTYN : g_Radiotext->ptynr2string(g_Radiotext->RT_PTY));
 					if (!isDubLine(v_lines_title, stext[0]))
 						addLine(v_lines_title, stext[0]);
 				}
