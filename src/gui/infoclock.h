@@ -38,11 +38,11 @@ class CInfoClock : public CComponentsFrmClock
 		void		initCCLockItems();
 	public:
 		CInfoClock();
-	// 	~CInfoClock(); // inherited from CComponentsFrmClock
+		virtual ~CInfoClock(){}; // inherited from CComponentsFrmClock
 		static		CInfoClock* getInstance();
 
 		bool 		StartInfoClock();
-		bool 		StopInfoClock();
+		bool 		StopInfoClock(bool exit_thread = false);
 		bool		enableInfoClock(bool enable = true);
 		bool		disableInfoClock() {return enableInfoClock(false);}
 		void		ClearDisplay();

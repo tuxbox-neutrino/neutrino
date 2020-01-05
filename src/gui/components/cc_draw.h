@@ -328,8 +328,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		 *
 		 * @return bool			returns true if effect is successful started
 		 *
-		 * @param[in] interval		optional, interval time as int, default =  1
-		 * @param[in] is_nano		optional, time mode as bool, default = false means as seconds, true means nano seconds.
+		 * @param[in] interval		optional, interval time as int64_t in miliseconds, default = 1000 (1 sec)
 		 *
 		 * @see				take a look into test menu class for examples.
 		 * 				cancelBlink()
@@ -340,7 +339,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		 * 				and it's possible you must remove from screen before e.g.:
 		 * 					item->kill();
 		*/
-		bool paintBlink(const int& interval = 1, bool is_nano = false);
+		bool paintBlink(const int64_t& interval = 1000);
 
 		/**Cancel blink effect
 		 *

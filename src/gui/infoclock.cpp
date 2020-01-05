@@ -90,8 +90,8 @@ void CInfoClock::ClearDisplay()
 {
 	bool run = isRun();
 	this->kill();
-	clearSavedScreen();
-	initCCLockItems();
+	if (clearSavedScreen())
+		initCCLockItems();
 	//provokes full repaint for next activation, otherwise clock segments only repaints on changed content
 	clear();
 	if (run)
@@ -104,9 +104,12 @@ bool CInfoClock::StartInfoClock()
 	return Start();
 }
 
-bool CInfoClock::StopInfoClock()
+bool CInfoClock::StopInfoClock(bool exit_thread)
 {
 	bool ret = Stop();
+	if (exit_thread)
+		if (cl_timer)
+			cl_timer->cancelTimerThread();
 	kill();
 	clear();
 
@@ -115,6 +118,8 @@ bool CInfoClock::StopInfoClock()
 
 bool CInfoClock::enableInfoClock(bool enable)
 {
+	std::lock_guard<std::mutex> g(cl_mutex);
+
 	bool ret = false;
 	if (g_settings.mode_clock) {
 		if (enable) {

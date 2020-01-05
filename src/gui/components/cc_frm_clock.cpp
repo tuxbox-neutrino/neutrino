@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Generic GUI-related component.
-	Copyright (C) 2013-2015 Thilo Graf 'dbt'
+	Copyright (C) 2013-2019 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -47,7 +47,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 						const char* prformat_str,
 						const char* secformat_str,
 						bool activ,
-						const int& interval_seconds,
+						const int64_t& interval_seconds,
 						CComponentsForm* parent,
 						int shadow_mode,
 						fb_pixel_t color_frame,
@@ -86,15 +86,14 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 
 	//init general clock dimensions
 	height 	= height_old= cl_font->getHeight();
-	width 	= width_old = cl_font->getRenderWidth(cl_format_str);
+	width 	= width_old =  0;//cl_font->getRenderWidth(cl_format_str);
 
 	//set default text background behavior
 	cc_txt_save_screen = false;
 
 	//set default running clock properties
-	cl_interval	= interval_seconds;
+	cl_interval	= interval_seconds * 1000;
 	cl_timer 	= NULL;
-	cl_blocked	= true;
 #if 0
 	may_blit		= true;
 #endif
@@ -216,7 +215,7 @@ void CComponentsFrmClock::initCCLockItems()
 		minSepWidth = max(cl_font->getRenderWidth(sep[i]), minSepWidth);
 
 	//get minimal required dimensions for segements from current format string
-	int w_text_min = max(cl_font->getRenderWidth(s_time), width);
+	cl_width = 0; //summary of all segments (labels)
 	int h_text_min = max(cl_font->getHeight(), height);
 
 	//init some temporary variables
@@ -224,18 +223,19 @@ void CComponentsFrmClock::initCCLockItems()
 	int h_tmp = h_text_min;
 	int y_tmp = y;
 
-	//summary of all segments (labels)
-	int w_segments = 0;
-
 	const bool force_repaint = cl_force_repaint;
-
+// 	dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock][%s - %d], clock width     width  %d  \033[0m\n", __func__, __LINE__, width);
 	/* modify available label items with current segment chars
 	 * we are using segments with only one char per segment,
 	 * these chars are predefined via format string
 	*/
 	for (size_t i = 0; i < v_cc_items.size(); i++)
 	{
+		std::lock_guard<std::mutex> g(cc_frm_mutex);
+
 		//v_cc_items are only available as CComponent-items here, so we must cast them before
+		if (!v_cc_items[i])
+			continue;
 		CComponentsLabel *lbl = static_cast <CComponentsLabel*> (v_cc_items[i]);
 
 		//add rounded corners only to 1st and last segment
@@ -261,6 +261,7 @@ void CComponentsFrmClock::initCCLockItems()
 
 		//set size, text, color of current item
 		lbl->setDimensionsAll(x_tmp, y_tmp, w_tmp, h_tmp);
+		lbl->setFrameThickness(0);
 		lbl->setColorAll(col_frame, col_body, col_shadow);
 		lbl->forceTextPaint(force_repaint);
 		lbl->setText(stmp, CTextBox::CENTER, cl_font, cl_col_text, cl_font_style);
@@ -278,33 +279,43 @@ void CComponentsFrmClock::initCCLockItems()
 			ctb->setFontUseDigitHeight();
 
 		//ensure paint of text and label bg on changed text or painted form background
-		bool force_txt_and_bg = (lbl->textChanged() || this->paint_bg);
+		bool force_txt_and_bg = (lbl->textChanged() || paint_bg);
 		lbl->forceTextPaint(force_txt_and_bg);
 #endif
 		//set xpos and width of item (segment)
 		lbl->setWidth(w_tmp);
-		x_tmp += w_tmp;
+		x_tmp += lbl->getWidth();//w_tmp;
 
 		//sum required width for clock (this)
-		w_segments += w_tmp;
+		cl_width += lbl->getWidth();//w_tmp;
 		h_text_min = max(lbl->getHeight(), height);
 		height = max(lbl->getHeight(), height);
+// 		dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock][%s - %d], clock width     width  %d   cl_width = %d\033[0m\n", __func__, __LINE__, width,  cl_width);
 	}
 
 	//set required width for clock (this)
-	width = max(w_text_min, w_segments);
+	int w_std = width;
+	if (cl_width > width){
+		width = cl_width;
+	}
+// 	dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock][%s - %d], clock width     width  %d   w_std %d cl_width = %d\033[0m\n", __func__, __LINE__, width, w_std, cl_width);
 
 	//use first item as reference and set x and y position to the 1st segement item with definied alignment
-	int x_lbl = width/2-w_segments/2;
-	v_cc_items[0]->setXPos(x_lbl);
+	//ensure unsigned position values
+	int x_lbl = max(0, width/2-cl_width/2);
+	int y_lbl = max(0, height/2-h_text_min/2);
 
-	int y_lbl = height/2-h_text_min/2;
-	v_cc_items[0]->setYPos(y_lbl);
+	if (v_cc_items.front())
+		v_cc_items.front()->setPos(x_lbl, y_lbl);
 
 	//set all evaluated position values to all other segement items
 	for (size_t i = 1; i < v_cc_items.size(); i++){
-		x_lbl += v_cc_items[i-1]->getWidth();
-		v_cc_items[i]->setPos(x_lbl, y_lbl);
+		if (v_cc_items.at(i)){
+			if (v_cc_items.at(i-1)){
+				x_lbl += v_cc_items.at(i-1)->getWidth();
+				v_cc_items.at(i)->setPos(x_lbl, y_lbl);
+			}
+		}
 	}
 }
 
@@ -312,60 +323,57 @@ void CComponentsFrmClock::initCCLockItems()
 //this member is provided for slot with timer event "OnTimer"
 void CComponentsFrmClock::ShowTime()
 {
-	if (!cl_blocked) {
-		//paint segements, but wihtout saved backgrounds
-		paint(CC_SAVE_SCREEN_NO);
-	}
+	//paint segements, but wihtout saved backgrounds
+	this->CComponentsFrmClock::paint(CC_SAVE_SCREEN_NO);
 }
 
 //start up ticking clock controled by timer with signal/slot, return true on succses
 bool CComponentsFrmClock::startClock()
 {
-	if (cl_interval <= 0){
-		dprintf(DEBUG_NORMAL, "[CComponentsFrmClock]    [%s]  clock is set to active, but interval is initialized with value %d ...\n", __func__, cl_interval);
-		return false;
+	if (stopClock()){
+		if (cl_interval <= 0){
+			dprintf(DEBUG_NORMAL, "[CComponentsFrmClock]    [%s]  clock is set to active, but interval is initialized with value %l ...\n", __func__, cl_interval);
+			return false;
+		}
+
+		if (!cl_timer){
+			cl_timer = new CComponentsTimer(0);
+			cl_timer->setThreadName(getItemName());
+			cl_timer->OnTimer.connect(cl_sl_show);
+			force_paint_bg = true;
+			cl_timer->setTimerInterval(cl_interval);
+			cl_timer->startTimer();
+		}
 	}
 
-	if (cl_timer == NULL)
-		cl_timer = new CComponentsTimer(0);
-
-	cl_timer->setThreadName(getItemName());
-
-	if (cl_timer->OnTimer.empty()){
-		dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
-		cl_timer->OnTimer.connect(cl_sl_show);
-		force_paint_bg = true;
-	}
-
-	cl_timer->setTimerInterval(cl_interval);
-
-	if (cl_timer->startTimer())
-		return true;
-	
-	return  false;
+	return isRun();
 }
 
 //stop ticking clock and internal timer, return true on succses
 bool CComponentsFrmClock::stopClock()
 {
-	if (cl_timer){
-		if (cl_timer->stopTimer()){
-			dprintf(DEBUG_INFO, "[CComponentsFrmClock]    [%s]  stopping clock...\n", __func__);
-			clear();
-			delete cl_timer;
-			cl_timer = NULL;
-			return true;
-		}
-		else
-			dprintf(DEBUG_NORMAL, "[CComponentsFrmClock]    [%s]  stopping timer failed...\n", __func__);
+	if (!cl_timer){
+		return true;
+	}else{
+		delete cl_timer;
+		cl_timer = NULL;
+		clear();
+		cc_allow_paint = true;
+		return true;
 	}
-	return false;
+
+	return isRun();
 }
 
 bool CComponentsFrmClock::Start()
 {
 	if (startClock()) {
-		cl_blocked = !cc_allow_paint;
+		if (cl_timer){
+			if (!cc_allow_paint)
+				cl_timer->OnTimer.block();
+			else
+				cl_timer->OnTimer.unblock();
+		}
 		return true;
 	}
 	return false;
@@ -373,10 +381,8 @@ bool CComponentsFrmClock::Start()
 
 bool CComponentsFrmClock::Stop()
 {
-	if (stopClock()){
-		cl_blocked = true;
+	if (stopClock())
 		return true;
-	}
 
 	return false;
 }
@@ -391,7 +397,6 @@ void CComponentsFrmClock::paint(const bool &do_save_bg)
 
 	//paint form contents
 	CComponentsForm::paint(do_save_bg);
-
 }
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)
@@ -420,6 +425,9 @@ void CComponentsFrmClock::enableTboxSaveScreen(bool mode)
 {
 	if (cc_txt_save_screen == mode || v_cc_items.empty())
 		return;
+
+	std::lock_guard<std::mutex> g(cl_mutex);
+
 	cc_txt_save_screen = mode;
 	for (size_t i = 0; i < v_cc_items.size(); i++){
 		CComponentsLabel *seg = static_cast <CComponentsLabel*>(v_cc_items[i]);
@@ -429,6 +437,8 @@ void CComponentsFrmClock::enableTboxSaveScreen(bool mode)
 
 void CComponentsFrmClock::setHeight(const int& h)
 {
+	std::lock_guard<std::mutex> g(cl_mutex);
+
 	if (h == height)
 		return;
 
@@ -443,16 +453,29 @@ void CComponentsFrmClock::setHeight(const int& h)
 
 void CComponentsFrmClock::setWidth(const int& w)
 {
+	std::lock_guard<std::mutex> g(cl_mutex);
+
 	if (w == width)
 		return;
-
+	else
+		CComponentsItem::setWidth(w);
+#if 0
 	int f_width = cl_font->getRenderWidth(cl_format_str);
 	if (w != f_width){
 		dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock]\t[%s - %d], font width is different than current width [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, w, f_width);
 		CComponentsItem::setWidth(f_width);
 	}else
 		CComponentsItem::setWidth(w);
+#endif
 	initCCLockItems();
+}
+
+int CComponentsFrmClock::getWidth() const
+{
+	if (width > cl_width)
+		return width;
+
+	return cl_width;
 }
 
 bool CComponentsFrmClock::enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color)

@@ -438,7 +438,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (sq == NULL)
 			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
 
-		sq->paintBlink(50, true);
+		sq->paintBlink(500);
 			sleep(10);
 
 		if (sq->cancelBlink())
@@ -450,7 +450,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (pic == NULL)
 			pic = new CComponentsPicture (50, 50, 50, 50, ICONSDIR "/btn_pause.png");
 
-		pic->paintBlink(50, true);
+		pic->paintBlink(500);
 			sleep(10);
 
 		if (pic->cancelBlink())
@@ -529,7 +529,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			ptmp->kill();
 		}
 
-		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(50, true)){
+		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image ...", 700, 10);
 		}
 		if (form->getCCItem(0)->cancelBlink()){
@@ -560,7 +560,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
 		}
 
-		if (txt->paintBlink(50, true)){
+		if (txt->paintBlink(50)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking text is running ...", 700, 10);
 		}
 		if (txt->cancelBlink()){
@@ -591,7 +591,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			text_ext->setFrameThickness(2);
 		}
 
-		if (text_ext->paintBlink(50, true)){
+		if (text_ext->paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text is running ...", 700, 10);
 		}
 		if (text_ext->cancelBlink()){
@@ -738,7 +738,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CComponentsPicture* img = static_cast<CComponentsPicture*>(iconform->getCCItem(2));
 		img->kill();
 
-		if (img->paintBlink(50, true)){
+		if (img->paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
 		}
 		if (img->cancelBlink(true)){

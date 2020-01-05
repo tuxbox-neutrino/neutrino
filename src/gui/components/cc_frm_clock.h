@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2015, Thilo Graf 'dbt'
+	Copyright (C) 2012-2019, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -36,6 +36,7 @@
 #include "cc_frm.h"
 #include "cc_text_screen.h"
 #include "cc_timer.h"
+
 //! Sub class of CComponents. Show clock with digits on screen. 
 /*!
 Usable as simple fixed display or as ticking clock.
@@ -49,21 +50,16 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 #if 0
 		bool may_blit;
 #endif
-
 	protected:
 		CComponentsTimer *cl_timer;
 
-		///slot for timer event, reserved for ShowTime()
-		sigc::slot0<void> cl_sl_show;
+		std::mutex cl_mutex;
 
 		///refresh interval in seconds
-		int cl_interval;
+		int64_t cl_interval;
 
 		///raw time chars
 		char cl_timestr[32];
-
-		///handle paint clock within thread and is not similar to cc_allow_paint
-		bool cl_blocked;
 
 		///object: font render object
 		Font *cl_font;
@@ -82,10 +78,12 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		///secondary time format for blink
 		std::string cl_blink_str;
 
+		int cl_width;
+
 		///initialize clock contents  
 		void initCCLockItems();
 		///initialize timestring, called in initCCLockItems()
-		virtual void initTimeString();
+		void initTimeString();
 
 		///start ticking clock, returns true on success, if false causes log output
 		bool startClock();
@@ -103,7 +101,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 					const char* format_str = "%H:%M",
 					const char* secformat_str = NULL,
 					bool activ=false,
-					const int& interval_seconds = 1,
+					const int64_t& interval_seconds = 1,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
@@ -128,6 +126,9 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		///return pointer of font object
 		Font* getClockFont();
 
+		///return pointer of timer object
+		CComponentsTimer* getTimer(){return cl_timer;}
+
 		///set text color
 		void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;}
 
@@ -135,6 +136,8 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		void setHeight(const int& h);
 		///set width of clock on screen
 		void setWidth(const int& w);
+		
+		int getWidth() const;
 
 		///use string expession: "%H:%M" = 12:22, "%H:%M:%S" = 12:22:12
 		///set current time format string, 1st parameter set the default format, 2nd parameter sets an alternatively format for use as blink effect
@@ -145,18 +148,18 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		///start and paint ticking clock
 		bool Start();
 		///same like Start() but for usage as simple call without return value
-		void unblock(){Start();}
+		void unblock(){if (cl_timer) cl_timer->OnTimer.unblock();}
 		///stop ticking clock, but don't hide, use kill() or hide() to remove from screen
 		bool Stop();
 		///same like Stop() but for usage as simple call without return value
-		void block(){Stop();}
+		void block(){if (cl_timer) cl_timer->OnTimer.block();}
 		///return true on blocked status, blocked means clock can be initalized but would be not paint, to unblock use unblock()
-		bool isBlocked(void) {return cl_blocked;}
+		bool isBlocked(void) const {return cl_timer ? cl_timer->OnTimer.blocked() : true;}
 
 		///returns true, if clock is running
 		bool isRun() const {return cl_timer ? cl_timer->isRun() : false;}
 		///set refresh interval in seconds, default value=1 (=1 sec)
-		void setClockInterval(const int& seconds){cl_interval = seconds;}
+		void setClockInterval(const int64_t& seconds){cl_interval = seconds*1000;}
 
 		///show clock on screen
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
@@ -187,6 +190,9 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 
 		///set color gradient on/off, returns true if gradient mode was changed
 		bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/);
+
+		///slot for timer event, reserved for ShowTime()
+		sigc::slot0<void> cl_sl_show;
 #if 0
 		///enable/disable automatic blitting
 		void setBlit(bool _may_blit = true) { may_blit = _may_blit; }

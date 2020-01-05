@@ -841,11 +841,12 @@ bool CCDraw::paintBlink(CComponentsTimer* Timer)
 	return false;
 }
 
-bool CCDraw::paintBlink(const int& interval, bool is_nano)
+bool CCDraw::paintBlink(const int64_t& interval)
 {
 	if (cc_draw_timer == NULL){
-		cc_draw_timer = new CComponentsTimer(interval, is_nano);
+		cc_draw_timer = new CComponentsTimer(interval);
 		cc_draw_timer->setThreadName(__func__);
+		cc_draw_timer->startTimer();
 	}
 
 	return paintBlink(cc_draw_timer);
