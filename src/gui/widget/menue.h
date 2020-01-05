@@ -314,7 +314,7 @@ class CMenuDForwarder : public CMenuForwarder
 			const char * const IconName = NULL, const char * const IconName_Info_right = NULL)
 			: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right) { };
 
-	~CMenuDForwarder() { delete jumpTarget; }
+	~CMenuDForwarder() { delete jumpTarget;  jumpTarget = NULL;}
 };
 
 class CAbstractMenuOptionChooser : public CMenuItem

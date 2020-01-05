@@ -1352,7 +1352,8 @@ void CMenuWidget::calcSize()
 	CMenuItem *separator = new CMenuSeparator();
 	height += separator->getHeight();
 	delete separator;
-	
+	separator = NULL;
+
 	//scrollbar width
 	scrollbar_width=0;
 	if (total_pages > 1)
@@ -1617,6 +1618,7 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
+	background = NULL;
 	int hint_h = 0;
 	if (hint_height)
 		hint_h = OFFSET_INTER + hint_height + OFFSET_SHADOW;
@@ -2141,8 +2143,8 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 			*optionValue = options[select].key;
 			optionValname = (char *) options[select].valname;
 		}
-		delete menu;
-		delete selector;
+		delete menu; menu = NULL;
+		delete selector; selector = NULL;
 	} else {
 		for(unsigned int count = 0; count < number_of_options; count++) {
 			if (options[count].key == (*optionValue)) {
@@ -2314,8 +2316,8 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 		ret = menu_return::RETURN_REPAINT;
 		if(select >= 0 && optionValuePtr)
 			*optionValuePtr = options[select];
-		delete menu;
-		delete selector;
+		delete menu; menu = NULL;
+		delete selector; selector = NULL;
 	} else {
 		//select next value
 		for(unsigned int count = 0; count < options.size(); count++) {
@@ -2567,7 +2569,7 @@ bool CPINProtection::check()
 		cPIN = "";
 		CPINInput* PINInput = new CPINInput(title, &cPIN, 4, hint);
 		PINInput->exec( getParent(), "");
-		delete PINInput;
+		delete PINInput; PINInput = NULL;
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
 	} while ((cPIN != *validPIN) && !cPIN.empty());
 	return (cPIN == *validPIN);
@@ -2586,7 +2588,7 @@ bool CZapProtection::check()
 		CPLPINInput* PINInput = new CPLPINInput(title, &cPIN, 4, hint, fsk);
 
 		res = PINInput->exec(getParent(), "");
-		delete PINInput;
+		delete PINInput; PINInput = NULL;
 		cPIN[4] = 0;
 
 		hint = LOCALE_PINPROTECTION_WRONGCODE;

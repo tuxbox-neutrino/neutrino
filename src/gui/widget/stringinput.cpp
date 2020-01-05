@@ -394,6 +394,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	if (pixBuf)
 		delete[] pixBuf;
+	pixBuf = NULL;
 	if (!parent || force_saveScreen) {
 		pixBuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
 		if (pixBuf)
@@ -916,6 +917,7 @@ int CPLPINInput::exec( CMenuTarget* parent, const std::string & )
 	{
 		frameBuffer->RestoreScreen(x - borderwidth, y- borderwidth, width+ 2* borderwidth, height+ 2* borderwidth, pixbuf);
 		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
+		pixBuf = NULL;
 	}
 
 	return ( res );

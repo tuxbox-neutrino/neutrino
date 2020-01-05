@@ -145,6 +145,7 @@ void CExtendedInput::saveScreen()
 		return;
 
 	delete[] background;
+	background = NULL;
 
 	background = new fb_pixel_t [width * height];
 	if(background)
