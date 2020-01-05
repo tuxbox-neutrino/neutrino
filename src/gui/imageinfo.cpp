@@ -374,7 +374,7 @@ void CImageInfo::InitInfoData()
 	hal_libversion_t ver;
 	hal_get_lib_version(&ver);
 	//libstb-hal version
-	v_info.push_back({"libstb-hal:", ver.vVersion});
+	v_info.push_back({"libstb-hal:", ver.vStr});
 	//libstb-hal git status
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS), ver.vGitDescribe});
 #endif
