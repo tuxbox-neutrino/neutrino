@@ -35,7 +35,6 @@ typedef std::pair<int,int> sidpmt_map_pair_t;
 class CPat
 {
 	private:
-		cDemux * dmx;
 		int dmxnum;
 		t_transport_stream_id ts_id;
 		bool parsed;
