@@ -26,6 +26,7 @@ install_DATA = \
 	personalize.png \
 	pictureviewer.png \
 	question.png \
+	radiotext.png \
 	recording.png \
 	settings.png \
 	shell.png \

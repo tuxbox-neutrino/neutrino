@@ -353,8 +353,10 @@ void CRadioTextGUI::paint(const bool &do_save_bg)
 #endif
 
 	if (!v_lines_title.empty())
+	{
 		setWindowCaption(v_lines_title.back());
-
+		setWindowIcon(NEUTRINO_ICON_RADIOTEXT);
+	}
 
 	if (cc_allow_paint)
 		CInfoClock::getInstance()->block();

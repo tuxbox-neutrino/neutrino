@@ -105,6 +105,7 @@
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
 #define NEUTRINO_ICON_PICTUREVIEWER	"pictureviewer"
 #define NEUTRINO_ICON_QUESTION		"question"
+#define NEUTRINO_ICON_RADIOTEXT		"radiotext"
 #define NEUTRINO_ICON_RECORDING		"recording"
 #define NEUTRINO_ICON_SETTINGS		"settings"
 #define NEUTRINO_ICON_SHELL		"shell"
