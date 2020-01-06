@@ -329,7 +329,7 @@ bool CComponentsFrmClock::startClock()
 {
 	if (stopClock()){
 		if (cl_interval <= 0){
-			dprintf(DEBUG_NORMAL, "[CComponentsFrmClock]    [%s]  clock is set to active, but interval is initialized with value %l ...\n", __func__, cl_interval);
+			dprintf(DEBUG_NORMAL, "[CComponentsFrmClock]    [%s]  clock is set to active, but interval is initialized with value %lu ...\n", __func__, cl_interval);
 			return false;
 		}
 
