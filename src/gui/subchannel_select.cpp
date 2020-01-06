@@ -75,7 +75,7 @@ int CSubChannelSelectMenu::getNVODMenu(CMenuWidget* menu)
 		if ( !g_RemoteControl->are_subchannels ) 
 		{
 			char nvod_time_a[50], nvod_time_e[50], nvod_time_x[50];
-			char nvod_s[100];
+			char nvod_s[152];
 			struct  tm *tmZeit;
 
 			tmZeit= localtime(&e->startzeit);
