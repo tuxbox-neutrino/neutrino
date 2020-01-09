@@ -2993,7 +2993,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 		}
 	}
 
-	TRACE("[mb] Dir %d, Files: %d, size %zu, used_dirs %zu\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size(), size, used_dirs);
+	TRACE("[mb] Dir %d, Files: %d, size %" PRIx64 ", used_dirs %" PRIx64 "\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size(), size, used_dirs);
 }
 
 bool CMovieBrowser::gotMovie(const char *rec_title)
