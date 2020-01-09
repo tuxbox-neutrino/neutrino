@@ -56,7 +56,7 @@ void CEventServer::unRegisterEvent2(const unsigned int eventID, const unsigned i
 void CEventServer::unRegisterEvent(const int fd)
 {
 	commandUnRegisterEvent msg;
-	read(fd, &msg, sizeof(msg));
+	ssize_t ignored __attribute__((unused)) = read(fd, &msg, sizeof(msg));
 	unRegisterEvent2(msg.eventID, msg.clientID);
 }
 
@@ -103,13 +103,13 @@ bool CEventServer::sendEvent2Client(const unsigned int eventID, const initiators
 	head.initiatorID = initiatorID;
 	head.dataSize = eventbodysize;
 	/*int written = */
-	write(sock_fd, &head, sizeof(head));
+	ssize_t ignored __attribute__((unused)) = write(sock_fd, &head, sizeof(head));
 //	printf ("[eventserver]: sent 0x%x - following eventbody= %d\n", written, eventbodysize );
 
 	if(eventbodysize!=0)
 	{
 		/*written = */
-		write(sock_fd, eventbody, eventbodysize);
+		ignored = write(sock_fd, eventbody, eventbodysize);
 //		printf ("[eventserver]: eventbody sent 0x%x - peventbody= %x eventbody= %x\n", written, (unsigned)eventbody, *(unsigned*)eventbody );
 	}
 	close(sock_fd);
