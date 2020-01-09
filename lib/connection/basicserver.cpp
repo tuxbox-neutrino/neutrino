@@ -130,9 +130,9 @@ bool CBasicServer::parse(bool (parse_command)(CBasicMessage::Header &rmsg, int c
 	CBasicMessage::Header rmsg;
 	conn_fd = accept(sock_fd, (struct sockaddr*) &servaddr, (socklen_t*) &clilen);
 	memset(&rmsg, 0, sizeof(rmsg));
-	read(conn_fd, &rmsg, sizeof(rmsg));
+	ssize_t r = read(conn_fd, &rmsg, sizeof(rmsg));
 
-	if (rmsg.version == version)
+	if (r && rmsg.version == version)
 		parse_another_command = parse_command(rmsg, conn_fd);
 	else
 		printf("[%s] Command ignored: cmd %x version %d received - server cmd version is %d\n", name.c_str(), rmsg.cmd, rmsg.version, version);
