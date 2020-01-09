@@ -819,8 +819,8 @@ int CServiceManager::LoadMotorPositions(void)
 	/* this is only read and never written, so it only serves for
 	 * upgrading from old pre-multituner capable neutrino */
 	if ((fd = fopen(SATCONFIG, "r"))) {
-		fgets(buffer, 255, fd);
-		while(!feof(fd)) {
+		char *fg = fgets(buffer, 255, fd);
+		while(fg && !feof(fd)) {
 			sscanf(buffer, "%d %d %d %d %d %d %d %d %d %d %d", &spos, &mpos, &diseqc, &com, &uncom, &offL, &offH, &sw, &inuse, &usals, &input);
 
 			int configured = 0;
@@ -842,7 +842,7 @@ int CServiceManager::LoadMotorPositions(void)
 				sit->second.position = satellitePosition;
 				sit->second.configured = configured;
 			}
-			fgets(buffer, 255, fd);
+			fg = fgets(buffer, 255, fd);
 		}
 		fclose(fd);
 	}
@@ -1278,12 +1278,12 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 	if(!fd1) {
 		fprintf(fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
 	} else {
-		fgets(buffer, 255, fd1);
-		while(!feof(fd1) && !strstr(buffer, satfound ? footer : "</zapit>")) {
+		char *fg = fgets(buffer, 255, fd1);
+		while(fg && !feof(fd1) && !strstr(buffer, satfound ? footer : "</zapit>")) {
 			if(!satfound && !strcmp(buffer, satstr))
 				satfound = 1;
 			fputs(buffer, fd);
-			fgets(buffer, 255, fd1);
+			fg = fgets(buffer, 255, fd1);
 		}
 	}
 	for (channel_map_iterator_t cI = curchans.begin(); cI != curchans.end(); ++cI) {
@@ -1314,10 +1314,10 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 	} else if(satfound)
 		fprintf(fd, "\t%s\n", footer);
 	if(fd1) {
-		fgets(buffer, 255, fd1);
-		while(!feof(fd1)) {
+		char *fg = fgets(buffer, 255, fd1);
+		while(fg && !feof(fd1)) {
 			fputs(buffer, fd);
-			fgets(buffer, 255, fd1);
+			fg = fgets(buffer, 255, fd1);
 		}
 		if(!satfound) fprintf(fd, "</zapit>\n");
 		fclose(fd1);

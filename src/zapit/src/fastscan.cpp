@@ -323,7 +323,7 @@ bool CServiceScan::ReadFst(unsigned short pid, unsigned short operator_id, bool 
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 
-	memset(secdone, 0, 255);
+	memset(secdone, 0, sizeof(secdone));
 	memset(filter, 0x00, DMX_FILTER_SIZE);
 	memset(mask, 0x00, DMX_FILTER_SIZE);
 

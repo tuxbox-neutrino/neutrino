@@ -402,7 +402,7 @@ void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsTo
 		{
 			buffer[30] = (char) 0x00;
 			strncpy(buffer, response.name, sizeof(buffer)-1);
-			strncpy(response.name, ZapitTools::UTF8_to_Latin1(buffer).c_str(), sizeof(buffer)-1);
+			snprintf(response.name,sizeof(buffer)-1,"%s",ZapitTools::UTF8_to_Latin1(buffer).c_str());
 		}
 		bouquets.push_back(response);
 	}
@@ -430,10 +430,10 @@ bool CZapitClient::receive_channel_list(BouquetChannelList& channels, const bool
 			response.nr++;
 			if (!utf_encoded)
 			{
-                                char buffer[CHANNEL_NAME_SIZE + 1];
-                                buffer[CHANNEL_NAME_SIZE] = (char) 0x00;
-                                strncpy(buffer, response.name, CHANNEL_NAME_SIZE-1);
-                                strncpy(response.name, ZapitTools::UTF8_to_Latin1(buffer).c_str(), CHANNEL_NAME_SIZE-1);
+				char buffer[CHANNEL_NAME_SIZE + 1];
+				buffer[CHANNEL_NAME_SIZE] = (char) 0x00;
+				strncpy(buffer, response.name, CHANNEL_NAME_SIZE);
+				snprintf(response.name,CHANNEL_NAME_SIZE,"%s",ZapitTools::UTF8_to_Latin1(buffer).c_str());
 			}
 			channels.push_back(response);
 		}

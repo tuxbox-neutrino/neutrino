@@ -241,7 +241,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
 
 	/* FIXME until proper demux management */
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_COOL_HARDWARE && ! HAVE_GENERIC_HARDWARE
 	CFrontend *frontend = CFEManager::getInstance()->getFrontend(channel);
 #endif
 	switch(mode) {
