@@ -554,16 +554,17 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 			CSectionsdClient::CurrentNextInfo CurrentNext;
 			CEitManager::getInstance()->getCurrentNextServiceKey(ChannelID, CurrentNext);
 
-			if (CSectionsdClient::epgflags::has_current && !CurrentNext.current_name.empty())
+			if (CurrentNext.flags & CSectionsdClient::epgflags::has_current && !CurrentNext.current_name.empty())
 				EventName = CurrentNext.current_name;
 		}
 
 		// add neccessary paths to v_path
 		v_path.clear();
+		if (lcd4l_mode){
 #ifdef ENABLE_LCD4LINUX
-		if (lcd4l_mode)
 			v_path.push_back(g_settings.lcd4l_logodir);
 #endif
+		}
 		v_path.push_back(g_settings.logo_hdd_dir);
 		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
 			v_path.push_back(LOGODIR_VAR);
