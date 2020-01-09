@@ -298,16 +298,17 @@ void YaFT_p::status_report(struct parm_t *parm)
 {
 	int i, num;
 	char buf[BUFSIZE];
+	ssize_t ignored __attribute__((unused));
 
 	for (i = 0; i < parm->argc; i++) {
 		num = dec2num(parm->argv[i]);
 		if (num == 5) {         /* terminal response: ready */
-			write(fd, "\033[0n", 4);
+			ignored = write(fd, "\033[0n", 4);
 		} else if (num == 6) {  /* cursor position report */
 			snprintf(buf, BUFSIZE, "\033[%d;%dR", cursor.y + 1, cursor.x + 1);
-			write(fd, buf, strlen(buf));
+			ignored = write(fd, buf, strlen(buf));
 		} else if (num == 15) { /* terminal response: printer not connected */
-			write(fd, "\033[?13n", 6);
+			ignored = write(fd, "\033[?13n", 6);
 		}
 	}
 }
@@ -316,7 +317,7 @@ void YaFT_p::device_attribute(struct parm_t *parm)
 {
 	if (parm->argc > 0 && dec2num(parm->argv[0]))
 		return; /* compatibility with linux console */
-	write(fd, "\033[?6c", 5); /* "I am a VT102" */
+	ssize_t ignored __attribute__((unused)) = write(fd, "\033[?6c", 5); /* "I am a VT102" */
 }
 
 void YaFT_p::set_mode(struct parm_t *parm)

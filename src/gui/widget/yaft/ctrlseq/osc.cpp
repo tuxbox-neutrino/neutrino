@@ -177,7 +177,7 @@ void YaFT_p::set_palette(struct parm_t *pt)
 
 		snprintf(buf, BUFSIZE, "\033]4;%d;rgb:%.2X/%.2X/%.2X\033\\",
 			index, rgb[0], rgb[1], rgb[2]);
-		write(fd, buf, strlen(buf));
+		ssize_t ignored __attribute__((unused)) = write(fd, buf, strlen(buf));
 	}
 }
 

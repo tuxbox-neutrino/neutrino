@@ -96,7 +96,7 @@ void YaFT_p::reverse_nl(void)
 
 void YaFT_p::identify(void)
 {
-	write(fd, "\033[?6c", 5); /* "I am a VT102" */
+	ssize_t ignored __attribute__((unused)) = write(fd, "\033[?6c", 5); /* "I am a VT102" */
 }
 
 void YaFT_p::enter_csi(void)
