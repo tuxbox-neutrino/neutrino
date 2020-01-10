@@ -33,7 +33,7 @@
 #include <config.h>
 #endif
 
-#include <gui/opkg_manager.h>
+#include "opkg_manager.h"
 #include <gui/widget/termwindow.h>
 /* hack, so we don't have to change all code below */
 #define CShellWindow CTermWindow
@@ -463,9 +463,9 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 
 	size_t i = 0;
 	CProgressWindow status;
-	status.showHeader(false);
 
 	if (show_progress){
+		status.showHeader(false);
 		status.paint();
 		status.showStatusMessageUTF(g_Locale->getText(LOCALE_OPKG_UPDATE_READING_LISTS));
 		status.showStatus(25); /* after do_update, we have actually done the hardest work already */
