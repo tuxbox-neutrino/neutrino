@@ -682,7 +682,7 @@ void CBouquetList::paintItem(int pos)
 	}
 
 	if (npos < (int) Bouquets.size()) {
-		char num[10];
+		char num[12];
 		snprintf(num, sizeof(num), "%d", npos + 1);
 		int iw = 0, ih = 0;
 		if ((g_settings.epg_scan == CEpgScan::SCAN_SEL) &&
