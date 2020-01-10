@@ -51,18 +51,19 @@ class CComponentsTimer : public sigc::trackable
 		///refresh interval in seconds
 		int64_t tm_interval;
 
-		///init function to start/stop timer in own thread
-		void initThread();
-		void stopThread();
-
 		///runs shared timer action provided inside OnTimer() signal
 		static void threadCallback(CComponentsTimer *tm);
 
 		sigc::slot<void> sl_cleanup_timer;
 
-		///name for the thread
-		std::string tm_thread_name;
 		std::string tn;
+
+	protected: ///name for thread
+		std::string tm_thread_name;
+
+		///init function to start/stop timer in own thread
+		void initThread();
+		void stopThread();
 
 	public:
 		/**Constructor for timer class
