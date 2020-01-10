@@ -1675,14 +1675,14 @@ void CAudioPlayerGui::paintItem(int pos)
 		std::string tmp = sNr;
 		getFileInfoToDisplay(tmp, m_playlist[currpos]);
 
-		char dura[9] = {0};
+		char dura[14] = {0};
 		if (m_inetmode)
 		{
 			if (m_playlist[currpos].MetaData.total_time != 0)
-				snprintf(dura, 8, "%ldk", m_playlist[currpos].MetaData.total_time);
+				snprintf(dura, sizeof(dura), "%ldk", m_playlist[currpos].MetaData.total_time);
 		}
 		else
-			snprintf(dura, 8, "%ld:%02ld", m_playlist[currpos].MetaData.total_time / 60, m_playlist[currpos].MetaData.total_time % 60);
+			snprintf(dura, sizeof(dura), "%ld:%02ld", m_playlist[currpos].MetaData.total_time / 60, m_playlist[currpos].MetaData.total_time % 60);
 
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(dura);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + OFFSET_INNER_MID, ypos + m_item_height, m_width - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - w, tmp, color, m_item_height);
@@ -2322,10 +2322,10 @@ void CAudioPlayerGui::updateTimes(const bool force)
 		}
 		if (!m_screensaver)
 		{
-			char total_time[11];
-			snprintf(total_time, 10, " / %ld:%02ld", m_time_total / 60, m_time_total % 60);
-			char played_time[8];
-			snprintf(played_time, 7, "%ld:%02ld", m_time_played / 60, m_time_played % 60);
+			char total_time[17];
+			snprintf(total_time, sizeof(total_time), " / %ld:%02ld", m_time_total / 60, m_time_total % 60);
+			char played_time[14];
+			snprintf(played_time, sizeof(played_time), "%ld:%02ld", m_time_played / 60, m_time_played % 60);
 
 			int w_total_time = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(total_time);
 			int w_faked_time = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("000:00");
