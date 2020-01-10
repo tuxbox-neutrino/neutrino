@@ -342,19 +342,23 @@ int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t 
 #endif
 		if (in_menu)
 			msgret = messages_return::cancel_all;
-	} else if ((MsgId == CA_MESSAGE_MSG_INIT_OK) || (MsgId == CA_MESSAGE_MSG_INIT_FAILED)) {
+	} else if(MsgId == CA_MESSAGE_MSG_INIT_OK) {
 		char name[255] = "Unknown";
-
 		if (ca)
 			ca->ModuleName(SlotType, curslot, name);
 
-		if(MsgId == CA_MESSAGE_MSG_INIT_OK) {
-			snprintf(str, sizeof(str) + sizeof(name), "%s %d: %s", g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_OK : LOCALE_SC_INIT_OK), (int)curslot+1, name);
-			CCamManager::getInstance()->Start(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::PLAY, true);
-		}
+		snprintf(str, sizeof(str), "%s %d: %s",
+				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_OK : LOCALE_SC_INIT_OK), (int)curslot+1, name);
+		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
+		CCamManager::getInstance()->Start(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::PLAY, true);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str, 450, 3);
+	} else if(MsgId == CA_MESSAGE_MSG_INIT_FAILED) {
+		char name[255] = "Unknown";
+		if (ca)
+			ca->ModuleName(SlotType, curslot, name);
 
-		if(MsgId == CA_MESSAGE_MSG_INIT_FAILED)
-			snprintf(str, sizeof(str) + sizeof(name), "%s %d: %s",	g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_FAILED : LOCALE_SC_INIT_FAILED), (int)curslot+1, name);
+		snprintf(str, sizeof(str), "%s %d: %s",
+				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_FAILED : LOCALE_SC_INIT_FAILED), (int)curslot+1, name);
 
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
 		ShowHint(LOCALE_MESSAGEBOX_INFO, str, 450, 3);
