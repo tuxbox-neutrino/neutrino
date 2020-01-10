@@ -2637,7 +2637,7 @@ TIMER_START();
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 	ZapStart_arg.ci_clock = g_settings.ci_clock;
-	ZapStart_arg.volume = g_settings.current_volume;
+	ZapStart_arg.volume = g_settings.hdmi_cec_volume ? 85 : g_settings.current_volume;
 	ZapStart_arg.webtv_xml = &g_settings.webtv_xml;
 	ZapStart_arg.webradio_xml = &g_settings.webradio_xml;
 
