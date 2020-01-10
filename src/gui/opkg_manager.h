@@ -49,6 +49,7 @@ class COPKGManager : public CMenuTarget
 		void loadConfig();
 		struct pkg;
 		void init();
+		bool silent; // Controls some screen messages, eg, avoids unintended or disturbing messages on update checks at background.
 		//config
 		std::string config_src[OPKG_MAX_FEEDS];
 		std::vector<std::string> config_dest;
