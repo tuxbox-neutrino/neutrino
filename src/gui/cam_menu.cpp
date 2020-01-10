@@ -279,7 +279,7 @@ void CCAMMenuHandler::hideHintBox(void)
 
 int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t data, int &msgret, bool from_menu)
 {
-	char str[255];
+	char str[269];
 	char cnt[5];
 	int i;
 	MMI_MENU_LIST_INFO Menu;
