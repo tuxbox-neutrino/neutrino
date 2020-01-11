@@ -2220,7 +2220,6 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	snprintf(ifcx->filename, sizeof(ifcx->filename), "%s", channel->getUrl().c_str());
 	av_dump_format(ifcx, 0, ifcx->filename, 0);
 #else
-	ifcx->url = av_strdup(!channel->getUrl().empty() ? channel->getUrl().c_str() : "");
 	av_dump_format(ifcx, 0, ifcx->url, 0);
 #endif
 
@@ -2333,7 +2332,6 @@ void CStreamRec::run()
 			}
 			if(ret != AVERROR_EOF){
 				av_packet_unref(&pkt);
-				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
 				pkt = newpkt;
 			}
 #endif
