@@ -381,7 +381,7 @@ void CZapitClient::zaptoNvodSubService(const int num)
 /* bouquets are numbered starting at 0 */
 void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsToo, const bool utf_encoded, channelsMode mode)
 {
-	char buffer[30 + 1];
+	char buffer[30];
 
 	CZapitMessages::commandGetBouquets msg;
 	VALGRIND_PARANOIA;
@@ -400,9 +400,8 @@ void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsTo
 
 		if (!utf_encoded)
 		{
-			buffer[30] = (char) 0x00;
-			strncpy(buffer, response.name, sizeof(buffer)-1);
-			snprintf(response.name,sizeof(buffer)-1,"%s",ZapitTools::UTF8_to_Latin1(buffer).c_str());
+			strncpy(buffer, response.name, sizeof(buffer));
+			snprintf(response.name,sizeof(buffer),"%s",ZapitTools::UTF8_to_Latin1(buffer).c_str());
 		}
 		bouquets.push_back(response);
 	}

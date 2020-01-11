@@ -132,7 +132,7 @@ bool CBasicServer::parse(bool (parse_command)(CBasicMessage::Header &rmsg, int c
 	memset(&rmsg, 0, sizeof(rmsg));
 	ssize_t r = read(conn_fd, &rmsg, sizeof(rmsg));
 
-	if (r && rmsg.version == version)
+	if (r == sizeof(rmsg) && rmsg.version == version)
 		parse_another_command = parse_command(rmsg, conn_fd);
 	else
 		printf("[%s] Command ignored: cmd %x version %d received - server cmd version is %d\n", name.c_str(), rmsg.cmd, rmsg.version, version);
