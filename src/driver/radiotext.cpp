@@ -384,13 +384,15 @@ fprintf(stderr, "MEC=0x%02x DSN=0x%02x PSN=0x%02x MEL=%02d STATUS=0x%02x MFL=%02
 			// +Memory
 			char *temp;
 			asprintf(&temp, "%s", RT_Text[RT_Index]);
-		if (++rtp_content.rt_Index >= 2*MAX_RTPC)
-			rtp_content.rt_Index = 0;
-		asprintf(&rtp_content.radiotext[rtp_content.rt_Index], "%s", rtrim(temp));
-		free(temp);
-		if (S_Verbose >= 1)
-			printf("Radiotext[%d]: %s\n", RT_Index, RT_Text[RT_Index]);
-			RT_Index +=1; if (RT_Index >= S_RtOsdRows) RT_Index = 0;
+			if (++rtp_content.rt_Index >= 2*MAX_RTPC)
+				rtp_content.rt_Index = 0;
+			asprintf(&rtp_content.radiotext[rtp_content.rt_Index], "%s", rtrim(temp));
+			free(temp);
+			if (S_Verbose >= 1)
+				printf("Radiotext[%d]: %s\n", RT_Index, RT_Text[RT_Index]);
+			RT_Index +=1;
+			if (RT_Index >= S_RtOsdRows)
+				RT_Index = 0;
 		}
 		RTP_TToggle = 0x03;		// Bit 0/1 = Title/Artist
 		RT_MsgShow = true;
