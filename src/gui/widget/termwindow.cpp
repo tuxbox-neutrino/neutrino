@@ -121,8 +121,8 @@ void CTermWindow::showResult()
 
 			} while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
 		}
+		frameBuffer->Clear();
 	}
-	frameBuffer->Clear();
 }
 
 #if 0
