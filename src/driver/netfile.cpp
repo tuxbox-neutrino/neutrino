@@ -426,8 +426,12 @@ int request_file(URL *url)
 				send(url->fd, str, strlen(str), 0);
 
 				if( (meta_int = parse_response(url, &id3, &tmp)) < 0)
-					return meta_int;
-
+				{
+					if(meta_int == -301 || meta_int == -302)
+						return meta_int;
+					else
+						return -1;
+				}
 				if(meta_int)
 				{
 					if (slot < 0) {
@@ -500,7 +504,12 @@ int request_file(URL *url)
 			send(url->fd, str, strlen(str), 0);
 
 			if( (meta_int = parse_response(url, &id3, &tmp)) < 0)
-				return meta_int;
+			{
+				if(meta_int == -301 || meta_int == -302)
+					return meta_int;
+				else
+					return -1;
+			}
 
 			if(meta_int)
 			{
@@ -658,19 +667,28 @@ int parse_response(URL *url, void * /*opt*/, CSTATE *state)
 	if(rval >= 0)
 		return rval;
 
+	/* no content length indication from the server ? Then treat it as stream */
+	getHeaderVal("icy-metaint:", meta_interval);
+	if(meta_interval < 0)
+		meta_interval = 0;
+	if (state != NULL)
+		state->meta_interval = meta_interval;
 	/* yet another hack: this is only implemented to be able to fetch */
 	/* the playlists from shoutcast */
 	if(strstr(header, "Transfer-Encoding: chunked"))
 	{
 		readln(fd, str);
 		sscanf(str, "%x", &rval);
+		if (state != NULL)
+		{
+			int chunksize = rval;
+			if(chunksize < 0)
+				chunksize = 0;
+			state->chunksize = chunksize;
+			recv(fd, str, 1, 0);
+		}
 		return rval;
 	}
-
-	/* no content length indication from the server ? Then treat it as stream */
-	getHeaderVal("icy-metaint:", meta_interval);
-	if(meta_interval < 0)
-		meta_interval = 0;
 
 	if (state != NULL) {
 		getHeaderStr("icy-genre:", state->genre);
@@ -1601,12 +1619,55 @@ int pop(FILE *fd, char *buf, long len)
 
 	return rval;
 }
+static int http_read_stream_all(FILE *fd, char *buf, int size)
+{
+	int pos = 0;
+	while (pos < size) {
+		int len = read(fileno(fd), buf + pos, size - pos);
+		if (len == 0)
+			return len;
+		pos += len;
+	}
+	return pos;
+}
+
+static bool getChunkSizeLine(FILE *fd,char *line,int size)
+{
+	char c = 0;
+	int pos = 0,rn = 0,rnc = 4;
+	while(read(fileno(fd), &c, 1)!=0)
+	{
+		if(pos >= size)
+			break;
+		if(c == '\n' || c == '\r')
+		{
+			rn++;
+			if(rn == rnc)
+				break;
+			continue;
+		}
+		if(isxdigit(c)){
+			line[pos++] = c;
+			if(!rn)
+				rnc = 2;
+		}
+		else
+		{
+			break;
+		}
+	}
+	if(c == '\n' || rn == 2)
+	{
+		line[pos++] = 0;
+		return true;
+	}
+
+	return false;
+}
 
 void CacheFillThread(void *c)
 {
-	char *buf;
 	STREAM_CACHE *scache = (STREAM_CACHE*)c;
-	int rval, datalen;
 
 	if(scache->closed)
 		return;
@@ -1614,13 +1675,24 @@ void CacheFillThread(void *c)
 	set_threadname("netfile:cache");
 	dprintf(stderr, "CacheFillThread: thread started, using stream %p\n", scache->fd);
 
-	buf = (char*)malloc(CACHEBTRANS);
+	int meta_interval = CACHEBTRANS;
+	if(scache->filter_arg && scache->filter_arg->state && scache->filter_arg->state->meta_interval)
+		meta_interval = scache->filter_arg->state->meta_interval;
 
+	char *buf = (char*)malloc(meta_interval);
 	if(!buf)
 	{
 		dprintf(stderr, "CacheFillThread: fatal error ! Could not allocate memory. Terminating.\n");
 		exit(-1);
 	}
+	int chunkSize = 0;
+	if(scache->filter_arg && scache->filter_arg->state && scache->filter_arg->state->chunksize)
+		chunkSize = scache->filter_arg->state->chunksize;
+
+	int rest = 0;
+	int rval = 0;
+	int datalen = 0;
+	bool chunked = chunkSize ? true : false;
 
 	/* endless loop; read a block of data from the stream */
 	/* and push it into the cache */
@@ -1629,7 +1701,7 @@ void CacheFillThread(void *c)
 		struct pollfd pfd;
 
 		/* has a f_close() call in an other thread already closed the cache ? */
-		datalen = CACHEBTRANS;
+		datalen = meta_interval;
 
 		pfd.fd = fileno(scache->fd);
 		pfd.events = POLLIN | POLLPRI;
@@ -1638,18 +1710,39 @@ void CacheFillThread(void *c)
 		int ret = poll(&pfd, 1, 1000);
 
 		if (ret > 0 && (pfd.revents & POLLIN) == POLLIN) {
-#if 0 //FIXME: fread blocks i/o on dead connection
-			rval = fread(buf, 1, datalen, scache->fd);
-			if ((rval == 0) && feof(scache->fd))
-				break; /* exit cache fill thread if eof and nothing to push */
-#else
-			rval = read(fileno(scache->fd), buf, datalen);
+			if(chunked)
+			{
+				if(chunkSize <= 0)
+				{
+					chunkSize = 0;
+					char line[32];
+					if(getChunkSizeLine(scache->fd,line,sizeof(line)))
+						chunkSize = strtol(line, NULL, 16);
+
+					if(!chunkSize)
+					{
+						dprintf(stderr, "CacheFillThread: chunkSize 0\n");
+						break;
+					}
+				}
+				datalen = meta_interval;
+				if(chunkSize && chunkSize < datalen)
+				{
+					datalen = chunkSize ;
+				}
+				if(rest)
+				{
+					datalen = rest;
+					rest = 0;
+				}
+			}
+
+			rval = http_read_stream_all(scache->fd, buf, datalen);
 			if (rval == 0)
 				break; /* exit cache fill thread if eof and nothing to push */
-#endif
 			/* if there is a filter function set up for this stream, then */
 			/* we need to call it with the propper arguments */
-			if(scache->filter)
+			if(!chunked && scache->filter)
 			{
 				scache->filter_arg->buf = buf;
 				scache->filter_arg->len = &rval;
@@ -1659,6 +1752,36 @@ void CacheFillThread(void *c)
 
 			if( push(scache->fd, buf, rval) < 0)
 				break;
+
+			if(chunked)
+				chunkSize -= rval;
+
+			if(enable_metadata && chunked)
+			{
+				if(chunkSize <= 0)
+				{
+					rest = meta_interval - rval;
+				}
+				if(chunkSize > 0)
+				{
+					rval = http_read_stream_all(scache->fd, buf, 1);
+					chunkSize -= rval;
+					if(rval)
+					{
+						char ch = buf[0];
+						if(ch > 0)
+						{
+							int len = (ch * 16);
+							memset(buf,0, meta_interval);
+							rval = http_read_stream_all(scache->fd, buf,len );
+							chunkSize -= rval;
+							ShoutCAST_ParseMetaData(buf, scache->filter_arg->state);
+							if(scache->filter_arg->state->cb)
+								scache->filter_arg->state->cb(scache->filter_arg->state);
+						}
+					}
+				}
+			}
 		}
 	}
 	while(!scache->closed);
