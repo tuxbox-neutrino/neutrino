@@ -118,7 +118,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	CZapitClient::commandSetScanSatelliteList sat;
 
 	sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satName);
-	strncpy(sat.satName, scansettings.satName.c_str(), sizeof(sat.satName));
+	strncpy(sat.satName, scansettings.satName.c_str(), sizeof(sat.satName)-1);
 	satList.push_back(sat);
 
 	satellite_map_t & satmap = frontend->getSatellites();
