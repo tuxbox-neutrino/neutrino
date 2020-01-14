@@ -102,7 +102,7 @@ void	netGetIP(std::string &dev, std::string &ip, std::string &mask, std::string 
 
 
 	memset(&req,0,sizeof(req));
-	strncpy(req.ifr_name, dev.c_str(), sizeof(req.ifr_name));
+	strncpy(req.ifr_name, dev.c_str(), sizeof(req.ifr_name)-1);
 	saddr = (struct sockaddr_in *) &req.ifr_addr;
 	addr= (unsigned char*) &saddr->sin_addr.s_addr;
 
@@ -290,7 +290,7 @@ void netGetMacAddr(std::string &ifname, unsigned char *mac)
 		return;
 
 	ifr.ifr_addr.sa_family = AF_INET;
-	strncpy(ifr.ifr_name, ifname.c_str(), sizeof(ifr.ifr_name));
+	strncpy(ifr.ifr_name, ifname.c_str(), sizeof(ifr.ifr_name)-1);
 
 	if(ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
 		return;
