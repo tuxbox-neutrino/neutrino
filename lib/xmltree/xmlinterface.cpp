@@ -311,8 +311,8 @@ xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 
 		size_t read_size = gzread(xmlgz_file,buffer,gzsize);
 
-		char utf8[3];
-		strncpy(utf8,(char *)buffer,3);
+		char utf8[4];
+		strncpy(utf8,(char *)buffer,sizeof(utf8)-1);
 		if ((utf8[0] == 0xef) && (utf8[1] == 0xbb) && (utf8[2] == 0xbf))
 			enc = pugi::encoding_utf8;
 
