@@ -1775,7 +1775,6 @@ void CacheFillThread(void *c)
 							char icybuf[icybufsize];
 							memset(icybuf,0, icybufsize);
 							int len = (ch * 16);
-							fprintf(stderr,"##### len %i meta_interval %i chunkSize %i\n",len,meta_interval,chunkSize);
 							rval = http_read_stream_all(scache->fd, icybuf,len );
 							chunkSize -= rval;
 							ShoutCAST_ParseMetaData(icybuf, scache->filter_arg->state);
