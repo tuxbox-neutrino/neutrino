@@ -274,7 +274,7 @@ bool CScreenSaver::ReadDir()
 		//printf("%d\n",curr_lenght);
 		if(curr_lenght > 4)
 		{
-			strncpy(curr_ext,(*dirpointer).d_name+(curr_lenght-4),sizeof(curr_lenght)-1);
+			strncpy(curr_ext,(*dirpointer).d_name+(curr_lenght-4),sizeof(curr_ext)-1);
 
 			//printf("%s\n",curr_ext);
 			if (strcasecmp(".jpg",curr_ext) && strcasecmp(".png",curr_ext))
