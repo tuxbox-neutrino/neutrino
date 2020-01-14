@@ -1866,7 +1866,7 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 int CMenuOptionNumberChooser::paint(bool selected)
 {
 	const char * l_option;
-	char option_value[40];
+	char option_value[41];
 
 	for (size_t i = 0; i < localized.size(); i++)
 	{
@@ -1874,7 +1874,7 @@ int CMenuOptionNumberChooser::paint(bool selected)
 		{
 			if (numberFormatFunction) {
 				std::string s = numberFormatFunction(*optionValue + display_offset);
-				strncpy(option_value, s.c_str(), sizeof(option_value));
+				strncpy(option_value, s.c_str(), sizeof(option_value)-1);
 			} else
 				sprintf(option_value, numberFormat.c_str(), *optionValue + display_offset);
 			l_option = option_value;
