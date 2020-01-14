@@ -166,8 +166,8 @@ CLCD4l *LCD4l = NULL;
 
 int allow_flash = 1;
 Zapit_config zapitCfg;
-char zapit_lat[20]="#";
-char zapit_long[20]="#";
+char zapit_lat[21]="#";
+char zapit_long[21]="#";
 bool autoshift = false;
 uint32_t scrambled_timer;
 uint32_t fst_timer;
