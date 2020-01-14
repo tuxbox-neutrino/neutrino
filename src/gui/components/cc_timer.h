@@ -75,7 +75,7 @@ class CComponentsTimer : public sigc::trackable
 		*/
 		CComponentsTimer(const int64_t& interval = 1000);
 
-		~CComponentsTimer();
+		virtual ~CComponentsTimer();
 
 		/**Acivate timer
 		* @see
