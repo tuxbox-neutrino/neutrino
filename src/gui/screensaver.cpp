@@ -255,7 +255,7 @@ bool CScreenSaver::ReadDir()
 	char *dir_name = (char *) d.c_str();
 	struct dirent *dirpointer;
 	DIR *dir;
-	char curr_ext[5];
+	char curr_ext[6];
 	bool ret = false;
 
 	v_bg_files.clear();
@@ -274,7 +274,7 @@ bool CScreenSaver::ReadDir()
 		//printf("%d\n",curr_lenght);
 		if(curr_lenght > 4)
 		{
-			strncpy(curr_ext,(*dirpointer).d_name+(curr_lenght-4),5);
+			strncpy(curr_ext,(*dirpointer).d_name+(curr_lenght-4),sizeof(curr_lenght)-1);
 
 			//printf("%s\n",curr_ext);
 			if (strcasecmp(".jpg",curr_ext) && strcasecmp(".png",curr_ext))
