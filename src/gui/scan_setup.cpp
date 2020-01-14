@@ -65,8 +65,8 @@
 
 //extern std::map<transponder_id_t, transponder> select_transponders;
 extern Zapit_config zapitCfg;
-extern char zapit_lat[20];
-extern char zapit_long[20];
+extern char zapit_lat[21];
+extern char zapit_long[21];
 
 //static int all_usals = 1;
 //sat_iterator_t sit;
@@ -866,8 +866,8 @@ int CScanSetup::showScanMenuFrontendSetup()
 
 	int res = setupMenu->exec(NULL, "");
 
-	strncpy(zapit_lat, zapit_lat_str.c_str(), sizeof(zapit_lat));
-	strncpy(zapit_long, zapit_long_str.c_str(), sizeof(zapit_long));
+	strncpy(zapit_lat, zapit_lat_str.c_str(), sizeof(zapit_lat)-1);
+	strncpy(zapit_long, zapit_long_str.c_str(), sizeof(zapit_long)-1);
 
 	delete setupMenu;
 	if (fe_restart) {
