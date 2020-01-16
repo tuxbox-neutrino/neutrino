@@ -100,10 +100,26 @@ class CComponentsForm : public CComponentsItem
 		int addCCItem(const std::vector<CComponentsItem*> &cc_items);
 		void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
 
-		///removes item object from container and deallocates instance
+		/**Function to remove item from item collection and deallocates instance.
+		 * @param[in]  cc_item_id
+		 * 	@li item id as unsigned int
+		*/
 		void removeCCItem(const uint& cc_item_id);
-		///removes item object from container and deallocates instance
+
+		/**Function to remove item from item collection and deallocates instance.
+		 * @param[in]  cc_Item
+		 * 	@li CComponentsItem*
+		 */
 		void removeCCItem(CComponentsItem* cc_Item);
+
+		/**Function to remove item from item collection and deallocates instance.
+		 * @param[in]  item_name
+		 * 	@li std::string
+		 * NOTE: Requires that unique names are assigned!
+		 * @see
+		 * 	getItemName()
+		 */
+		void removeCCItem(const std::string &item_name);
 
 		void replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item);
 		void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
@@ -117,6 +133,18 @@ class CComponentsForm : public CComponentsItem
 		*	int, in case of not found item returns -1
 		*/
 		int getCCItemId(CComponentsItem* cc_Item) const;
+
+		/**Function to get current item id from passed item name.
+		 * @param[in]  item_name
+		 * 	@li std::string
+		 * @return
+		 *	int, in case of not found item returns -1
+		 * NOTE: Requires that unique names are assigned!
+		 * @see
+		 * 	setItemName()
+		 * 	getItemName()
+		 */
+		int getCCItemId(const std::string &item_name) const;
 
 		/**Function to get current item from item collection.
 		* @param[in]  cc_item_id

@@ -240,6 +240,16 @@ int CComponentsForm::getCCItemId(CComponentsItem* cc_Item) const
 	return -1;
 }
 
+int CComponentsForm::getCCItemId(const std::string &item_name) const
+{
+	if (!item_name.empty()){
+		for (size_t i= 0; i< v_cc_items.size(); i++)
+			if (v_cc_items.at(i)->getItemName() == item_name)
+				return i;
+	}
+	return -1;
+}
+
 int CComponentsForm::genIndex()
 {
 	int count = v_cc_items.size();
@@ -336,6 +346,12 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 void CComponentsForm::removeCCItem(CComponentsItem* cc_Item)
 {
 	uint id = getCCItemId(cc_Item);	
+	removeCCItem(id);
+}
+
+void CComponentsForm::removeCCItem(const std::string &item_name)
+{
+	uint id = getCCItemId(item_name);
 	removeCCItem(id);
 }
 
