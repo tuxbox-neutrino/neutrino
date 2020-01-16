@@ -40,6 +40,10 @@
 // constructor
 CAudioMetaData::CAudioMetaData()
 {
+#ifndef ENABLE_FFMPEGDEC
+	layer = MAD_LAYER_III;
+	mode =  MAD_MODE_STEREO;
+#endif
 	cover_temporary = false;
 	clear();
 }
