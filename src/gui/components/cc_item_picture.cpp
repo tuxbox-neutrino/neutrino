@@ -70,7 +70,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 {
 	//CComponents, CComponentsItem
 	cc_item_type.id 	= CC_ITEMTYPE_PICTURE;
-	cc_item_type.name 	= "cc_image_box";
+	cc_item_type.name 	= image_name.empty() ? "cc_image_box" : image_name;
 
 	//CComponents
 	x =	x_old	= x_pos;
