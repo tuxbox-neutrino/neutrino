@@ -536,10 +536,10 @@ bool CSdt::AddToBouquet(std::string &providerName, CZapitChannel *channel)
 	case ST_NVOD_TIME_SHIFTED_SERVICE:
 		{
 			char pname[100];
-			if SAT_POSITION_CABLE(satellitePosition)
+			if (SAT_POSITION_CABLE(satellitePosition))
 				snprintf(pname, 100, "[C%03d.%d] %s",
 						abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
-			else if SAT_POSITION_TERR(satellitePosition)
+			else if (SAT_POSITION_TERR(satellitePosition))
 				snprintf(pname, 100, "[T%03d.%d] %s",
 						abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
 			else
