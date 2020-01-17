@@ -739,7 +739,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
 		if (FD_ISSET(fd_keyb, &rfds))
 		{
-			uint32_t trkey;
+			uint32_t trkey = 0;
 			char key = 0;
 			read(fd_keyb, &key, sizeof(key));
 

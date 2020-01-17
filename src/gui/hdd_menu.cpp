@@ -746,6 +746,7 @@ bool CHDDMenuHandler::scanDevices()
 			hdd.mounted = false;
 			hdd.fmt = "";
 			hdd.desc = hdd.devname;
+			hdd.cmf = NULL;
 			hdd_list.push_back(hdd);
 		}
 

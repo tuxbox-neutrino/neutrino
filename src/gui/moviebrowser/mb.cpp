@@ -604,6 +604,8 @@ void CMovieBrowser::initRows(void)
 void CMovieBrowser::defaultSettings(MB_SETTINGS* /*settings*/)
 {
 	MBStorageSettings tmp_store;
+	tmp_store.storageDirRecUsed = 0;
+	tmp_store.storageDirMovieUsed = 0;
 	bool keep = false;
 
 	if (ShowMsg(LOCALE_MOVIEBROWSER_LOAD_DEFAULT, LOCALE_MOVIEBROWSER_MESSAGE_KEEP_STORAGE_SETTINGS, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_QUESTION) == CMsgBox::mbrYes)
@@ -2991,7 +2993,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 		}
 	}
 
-	TRACE("[mb] Dir %d, Files: %d, size %u, used_dirs %u\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size(), size, used_dirs);
+	TRACE("[mb] Dir %d, Files: %d, size %zu, used_dirs %zu\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size(), size, used_dirs);
 }
 
 bool CMovieBrowser::gotMovie(const char *rec_title)

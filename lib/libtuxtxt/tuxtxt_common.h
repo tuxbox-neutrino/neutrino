@@ -593,9 +593,9 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 	tstPageinfo *pageinfo_thread;
 
 	set_threadname("tuxtxt:cache");
-	printf("TuxTxt running thread...(%04x)\n",tuxtxt_cache.vtxtpid);
+	int err = nice(3);
+	printf("TuxTxt running thread...(%04x)%s\n",tuxtxt_cache.vtxtpid,err!=0?" nice error":"");
 	tuxtxt_cache.receiving = 1;
-	nice(3);
 	while (!stop_cache)
 	{
 		/* check stopsignal */
