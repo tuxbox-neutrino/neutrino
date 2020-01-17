@@ -112,8 +112,6 @@ typedef struct
 	int	state;			/* CONNECTING, BUFFERING, RUNNING */
 	int	bitrate;
 	int	buffered;			/* "waterlevel" in the cache; 0 ... 65535 */
-	int	chunksize;
-	int	meta_interval;
 	char 	station_url[1024];	/*station url */
 	char	station[1024];		/* station name */
 	char	genre[4096];		/* station genre */
