@@ -45,6 +45,7 @@ CComponentsTimer::CComponentsTimer(const int64_t& interval)
 	tm_thread_name		= string();
 	tm_interval 		= interval;
 	tm_enable 		= false;
+	tm_ticks		= 0;
 	sl_cleanup_timer	= sigc::mem_fun(*this, &CComponentsTimer::stopThread);
 	CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl_cleanup_timer);
 	CNeutrinoApp::getInstance()->OnShutDown.connect(sl_cleanup_timer);
@@ -78,6 +79,7 @@ void CComponentsTimer::threadCallback(CComponentsTimer *tm)
 	int64_t i = 0;
 
 	TIMER_START();
+	tm->tm_ticks = 0;
 	while(tm->tm_enable) //exit loop handled in destructor
 	{
 		if (tm->tm_interval > 0)
@@ -96,6 +98,7 @@ void CComponentsTimer::threadCallback(CComponentsTimer *tm)
 					i++;
 				}
 			}
+			tm->tm_ticks ++;
 		}
 	}
 	dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] loop/callback finished\033[0m\n ", tm->tm_thread, tm->tn.c_str(), __func__, __LINE__);
@@ -124,7 +127,7 @@ void CComponentsTimer::stopThread()
 		delete tm_thread;
 		tm_thread = NULL;
 		tn.clear();
-		dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] thread object terminated\033[0m\n", tm_thread, tn.c_str(), __func__, __LINE__);
+		dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] thread object terminated after %lu ticks\033[0m\n", tm_thread, tn.c_str(), __func__, __LINE__, tm_ticks);
 	}
 }
 
