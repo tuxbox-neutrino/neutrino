@@ -1632,7 +1632,7 @@ static bool getChunkSizeLine(STREAM_CACHE *scache,char *line,int size)
 	char c = 0;
 	int pos = 0,rn = 0,rnc = 4;
 	int len = 0;
-	while(len = read(fileno(scache->fd), &c, 1) != 0)
+	while((len = read(fileno(scache->fd), &c, 1)) != 0)
 	{
 		if(pos >= size)
 			break;
