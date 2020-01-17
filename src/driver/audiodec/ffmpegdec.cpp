@@ -152,12 +152,11 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /* ft */)
 		return false;
 	}
 
-	if (is_stream)
+	if (is_stream){
 		avc->probesize = 128 * 1024;
-
-	av_opt_set_int(avc, "analyzeduration", 1000000, 0);
-
-	avioc = avio_alloc_context (buffer, buffer_size, 0, this, read_packet, NULL, seek_packet);
+		av_opt_set_int(avc, "analyzeduration", 1000000, 0);
+	}
+	avioc = avio_alloc_context (buffer, buffer_size, 0, this, read_packet, NULL, !is_stream ? seek_packet:NULL);
 	if (!avioc) {
 		av_freep(&buffer);
 		avformat_free_context(avc);
