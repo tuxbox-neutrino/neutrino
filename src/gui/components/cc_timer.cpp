@@ -62,11 +62,11 @@ void CComponentsTimer::threadCallback(CComponentsTimer *tm)
 	if (!tm)
 		return;
 
-	if (tm->OnTimer.empty())
-		dprintf(DEBUG_NORMAL," \033[36m[CComponentsTimer] [%s - %d] Signal OnTimer is empty, no callback defined \033[0m\n", __func__, __LINE__);
-
 	tm->tn = "cc.timer:" + tm->tm_thread_name;
 	set_threadname(tm->tn.c_str());
+
+	if (tm->OnTimer.empty())
+		dprintf(DEBUG_NORMAL," \033[36m[CComponentsTimer] [%s - %d] Signal OnTimer for %s is empty, no callback defined \033[0m\n", __func__, __LINE__, tm->tn.c_str());
 
 	dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] loop start \033[0m\n", tm->tm_thread, tm->tn.c_str(), __func__, __LINE__);
 
