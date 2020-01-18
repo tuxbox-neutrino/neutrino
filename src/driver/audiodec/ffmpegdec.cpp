@@ -112,7 +112,10 @@ int64_t CFfmpegDec::Seek(int64_t offset, int whence)
 	if (whence == AVSEEK_SIZE)
 		return (int64_t) -1;
 
-	fseek((FILE *) in, (long) offset, whence);
+	int ret = fseek((FILE *) in, (long) offset, whence);
+	if(ret < 0) {
+		return -1;
+	}
 	return (int64_t) ftell((FILE *) in);
 }
 
@@ -151,15 +154,10 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 		av_freep(&buffer);
 		return false;
 	}
-	bool use_seek = true;
-	if (is_stream){
-		avc->probesize = 128 * 1024;
-		av_opt_set_int(avc, "analyzeduration", 1000000, 0);
-		if(ft == CFile::FILE_OGG)
-			use_seek = false;
-	}
+	avc->probesize = 128 * 1024;
+	av_opt_set_int(avc, "analyzeduration", 1000000, 0);
 
-	avioc = avio_alloc_context (buffer, buffer_size, 0, this, read_packet, NULL, use_seek ? seek_packet:NULL);
+	avioc = avio_alloc_context (buffer, buffer_size, 0, this, read_packet, NULL, seek_packet);
 	if (!avioc) {
 		av_freep(&buffer);
 		avformat_free_context(avc);
