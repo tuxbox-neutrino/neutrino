@@ -284,14 +284,18 @@ struct SNeutrinoSettings
 	int avsync;
 	int clockrec;
 	int ci_standby_reset;
-	int ci_clock;
-	int ci_ignore_messages;
-	int ci_save_pincode;
+	int ci_clock;		// TODO: for each slot
+#if BOXMODEL_VUPLUS
+	int ci_delay;
+	int ci_rpr;		// TODO: for each slot
+#endif
+	int ci_ignore_messages;	// TODO: for each slot
+	int ci_save_pincode;	// TODO: for each slot
 	int ci_check_live;
 	int ci_tuner;
 	int ci_rec_zapto;
 	int ci_mode;
-	std::string ci_pincode;
+	std::string ci_pincode;	// TODO: for each slot
 	int radiotext_enable;
 	int webradio_xml_auto;
 	int webtv_xml_auto;
@@ -339,12 +343,12 @@ struct SNeutrinoSettings
 	std::string network_ntpserver;
 	std::string network_ntprefresh;
 	int network_ntpenable;
+	//int network_ntpatboot;
 	std::string ifname;
 
 	std::list<std::string> webtv_xml;
 	std::list<std::string> webradio_xml;
 	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
-
 
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h
@@ -520,6 +524,7 @@ struct SNeutrinoSettings
 	int recording_save_in_channeldir;
 	int recording_zap_on_announce;
 	int recording_slow_warning;
+	//int recording_fill_warning;
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
 	std::vector<timer_remotebox_item> timer_remotebox_ip;
@@ -921,6 +926,10 @@ struct SNeutrinoSettings
 	int	hdd_fs;
 	enum { HDD_STATFS_OFF = 0, HDD_STATFS_ALWAYS, HDD_STATFS_RECORDING };
 	int	hdd_statfs_mode;
+	//int	hdd_format_on_mount_failed;
+	//int	hdd_wakeup;
+	//int	hdd_wakeup_msg;
+	//int	hdd_allow_set_recdir;
 	int	zap_cycle;
 	int	sms_channel;
 	int	sms_movie;

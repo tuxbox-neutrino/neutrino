@@ -322,6 +322,7 @@ ci.rec_zapto Zap when recording needs CAM
 ci.removed CAM removed from slot
 ci.reset Reset
 ci.reset_standby Reset after standby
+ci.rpr Relevant PIDs routing
 ci.save_pincode Save pincode
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready

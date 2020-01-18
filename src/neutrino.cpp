@@ -449,7 +449,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if VIDEOMENU_VIDEOMODE_OPTION_COUNT > 3
 	g_settings.enabled_video_modes[3] = 1; // 720p 50Hz
 	g_settings.enabled_video_modes[4] = 1; // 1080i 50Hz
-
+	g_settings.enabled_video_modes[9] = 1; // 720p 60Hz
 #endif
 
 	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
@@ -457,27 +457,31 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.enabled_auto_modes[i] = configfile.getInt32(cfg_key, 1);
 	}
 
+#ifdef CPU_FREQ
 	g_settings.cpufreq = configfile.getInt32("cpufreq", 0);
 	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
-
-	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	g_settings.ci_clock = configfile.getInt32("ci_clock", 6);
 #else
-	g_settings.ci_clock = configfile.getInt32("ci_clock", 9);
-#endif
-	g_settings.ci_ignore_messages = configfile.getInt32("ci_ignore_messages", 0);
-	g_settings.ci_save_pincode = configfile.getInt32("ci_save_pincode", 0);
-	g_settings.ci_check_live = configfile.getInt32("ci_check_live", 0);
-	g_settings.ci_pincode = configfile.getString("ci_pincode", "");
-	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
-	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0);
-	g_settings.ci_mode = configfile.getInt32("ci_mode", 0);
-
-#ifndef CPU_FREQ
 	g_settings.cpufreq = 0;
 	g_settings.standby_cpufreq = 50;
 #endif
+
+	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	g_settings.ci_clock = configfile.getInt32("ci_clock", 6);	// TODO: for each slot
+#else
+	g_settings.ci_clock = configfile.getInt32("ci_clock", 9);	// TODO: for each slot
+#endif
+#if BOXMODEL_VUPLUS
+	g_settings.ci_delay = configfile.getInt32("ci_delay", 256);
+	g_settings.ci_rpr = configfile.getInt32("ci_rpr", 0);	// TODO: for each slot
+#endif
+	g_settings.ci_ignore_messages = configfile.getInt32("ci_ignore_messages", 0);	// TODO: for each slot
+	g_settings.ci_save_pincode = configfile.getInt32("ci_save_pincode", 0);		// TODO: for each slot
+	g_settings.ci_check_live = configfile.getInt32("ci_check_live", 0);
+	g_settings.ci_pincode = configfile.getString("ci_pincode", "");			// TODO: for each slot
+	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
+	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0); //NI
+	g_settings.ci_mode = configfile.getInt32("ci_mode", 0); //NI
 
 	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 0);
 	g_settings.make_webtv_list = configfile.getInt32("make_webtv_list", 1);
@@ -506,6 +510,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
 	g_settings.hdd_noise = configfile.getInt32( "hdd_noise", 254);
 	g_settings.hdd_statfs_mode = configfile.getInt32( "hdd_statfs_mode", SNeutrinoSettings::HDD_STATFS_RECORDING);
+	//g_settings.hdd_format_on_mount_failed = configfile.getInt32( "hdd_format_on_mount_failed", 0);
+	//g_settings.hdd_wakeup = configfile.getInt32( "hdd_wakeup", 1);
+	//g_settings.hdd_wakeup_msg = configfile.getInt32( "hdd_wakeup_msg", 1);
+	//g_settings.hdd_allow_set_recdir = configfile.getInt32( "hdd_allow_set_recdir", 1);
 
 	g_settings.shutdown_real = false;
 	if (g_info.hw_caps->can_shutdown)
@@ -1329,7 +1337,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	
 //internet radio
 	configfile.setInt32("inetradio_autostart" , g_settings.inetradio_autostart);
-
 #ifdef ENABLE_LCD4LINUX	
 	configfile.setInt32("lcd4l_support" , g_settings.lcd4l_support);
 	configfile.setString("lcd4l_logodir" , g_settings.lcd4l_logodir);
@@ -1392,11 +1399,15 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "standby_cpufreq", g_settings.standby_cpufreq);
 
 	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
-	configfile.setInt32("ci_clock", g_settings.ci_clock);
-	configfile.setInt32("ci_ignore_messages", g_settings.ci_ignore_messages);
-	configfile.setInt32("ci_save_pincode", g_settings.ci_save_pincode);
+	configfile.setInt32("ci_clock", g_settings.ci_clock);	// TODO: for each slot
+#if BOXMODEL_VUPLUS
+	configfile.setInt32("ci_delay", g_settings.ci_delay);	// TODO: for each slot
+	configfile.setInt32("ci_rpr", g_settings.ci_rpr);	// TODO: for each slot
+#endif
+	configfile.setInt32("ci_ignore_messages", g_settings.ci_ignore_messages);	// TODO: for each slot
+	configfile.setInt32("ci_save_pincode", g_settings.ci_save_pincode);		// TODO: for each slot
 	configfile.setInt32("ci_check_live", g_settings.ci_check_live);
-	configfile.setString("ci_pincode", g_settings.ci_pincode);
+	configfile.setString("ci_pincode", g_settings.ci_pincode);			// TODO: for each slot
 	configfile.setInt32("ci_tuner", g_settings.ci_tuner);
 	configfile.setInt32("ci_rec_zapto", g_settings.ci_rec_zapto);
 	configfile.setInt32("ci_mode", g_settings.ci_mode);
@@ -1522,6 +1533,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString( "network_ntpserver", g_settings.network_ntpserver);
 	configfile.setString( "network_ntprefresh", g_settings.network_ntprefresh);
 	configfile.setBool( "network_ntpenable", g_settings.network_ntpenable);
+	//configfile.setBool( "network_ntpatboot", g_settings.network_ntpatboot);
 
 	configfile.setString("ifname", g_settings.ifname);
 
@@ -1632,6 +1644,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	int webtv_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it) {
 		std::string k = "webtv_xml_" + to_string(webtv_count);
+		if (webtvsetup.webtv_xml_autodir((*it)))
+			continue;
 		configfile.setString(k, *it);
 		webtv_count++;
 	}
@@ -2612,7 +2626,13 @@ TIMER_START();
 	snprintf(start_text, sizeof(start_text), g_Locale->getText(LOCALE_NEUTRINO_STARTING), PACKAGE_NAME, PACKAGE_VERSION );
 	start_text[99] = '\0';
 	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, start_text);
-	hintBox->paint();
+
+	// show startlogo
+	bool startlogo = false;
+	if (!show_startwizard)
+		startlogo = true;
+	else
+		hintBox->paint();
 
 	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
@@ -2638,7 +2658,11 @@ TIMER_START();
 	ZapStart_arg.startchannelradio_id = g_settings.startchannelradio_id;
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
-	ZapStart_arg.ci_clock = g_settings.ci_clock;
+	ZapStart_arg.ci_clock = g_settings.ci_clock;	// TODO: for each slot
+#if BOXMODEL_VUPLUS
+	ZapStart_arg.ci_delay = g_settings.ci_delay;	// TODO: for each slot
+	ZapStart_arg.ci_rpr = g_settings.ci_rpr;	// TODO: for each slot
+#endif
 	ZapStart_arg.volume = g_settings.hdmi_cec_volume ? 85 : g_settings.current_volume;
 	ZapStart_arg.webtv_xml = &g_settings.webtv_xml;
 	ZapStart_arg.webradio_xml = &g_settings.webradio_xml;
@@ -2672,7 +2696,7 @@ TIMER_START();
 	g_videoSettings->setVideoSettings();
 
 	// show start logo
-	bool startlogo = frameBuffer->showFrame("start.jpg");
+	startlogo = frameBuffer->showFrame("start.jpg");
 
 	g_RCInput = new CRCInput();
 

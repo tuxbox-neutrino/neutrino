@@ -38,13 +38,17 @@ typedef std::pair<volume_map_iterator_t,volume_map_iterator_t> volume_map_range_
 /* complete zapit start thread-parameters in a struct */
 typedef struct ZAPIT_start_arg
 {
-        t_channel_id startchanneltv_id;
-        t_channel_id startchannelradio_id;
-        int uselastchannel;
-        int video_mode;
-        uint32_t osd_resolution;
+	t_channel_id startchanneltv_id;
+	t_channel_id startchannelradio_id;
+	int uselastchannel;
+	int video_mode;
+	uint32_t osd_resolution;
 	int volume;
-        int ci_clock;
+	int ci_clock;	// TODO: for each slot
+#if BOXMODEL_VUPLUS
+	int ci_delay;
+	int ci_rpr;	// TODO: for each slot
+#endif
 	std::list<std::string> *webtv_xml;
 	std::list<std::string> *webradio_xml;
 } Z_start_arg;
@@ -55,28 +59,28 @@ enum {
 };
 
 typedef struct Zapit_config {
-        int writeChannelsNames;
-        int makeRemainingChannelsBouquet;
-        int saveLastChannel;
-        int rezapTimeout;
-        int fastZap;
-        int sortNames;
-        int scanPids;
-        int scanSDT;
-        int cam_ci;
-        int useGotoXX;
-        /* FE common */
-        int feTimeout;
-        int feRetries;
-        int noSameFE;
-        int gotoXXLaDirection;
-        int gotoXXLoDirection;
-        double gotoXXLatitude;
-        double gotoXXLongitude;
-        int repeatUsals;
-        /* FE specific */
-        int highVoltage;
-        int motorRotationSpeed;
+	int writeChannelsNames;
+	int makeRemainingChannelsBouquet;
+	int saveLastChannel;
+	int rezapTimeout;
+	int fastZap;
+	int sortNames;
+	int scanPids;
+	int scanSDT;
+	int cam_ci;
+	int useGotoXX;
+	/* FE common */
+	int feTimeout;
+	int feRetries;
+	int noSameFE;
+	int gotoXXLaDirection;
+	int gotoXXLoDirection;
+	double gotoXXLatitude;
+	double gotoXXLongitude;
+	int repeatUsals;
+	/* FE specific */
+	int highVoltage;
+	int motorRotationSpeed;
 } t_zapit_config;
 
 
