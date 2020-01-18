@@ -559,6 +559,18 @@ elif test "$BOXTYPE" = "mipsbox"; then
 	AC_DEFINE(HAVE_MIPS_HARDWARE, 1, [building for an mipsbox])
 fi
 
+# BOXTYPEs that use libstb-hal
+case "$BOXTYPE" in
+	coolstream)
+		libstb_hal=no
+	;;
+	*)
+		AC_DEFINE(HAVE_LIBSTB_HAL, 1, [use libstb-hal])
+		libstb_hal=yes
+	;;
+esac
+AM_CONDITIONAL(HAVE_LIBSTB_HAL, test "$libstb_hal" = "yes")
+
 # TODO: do we need more defines?
 if test "$BOXMODEL" = "generic"; then
 	AC_DEFINE(BOXMODEL_GENERIC, 1, [generic pc])
