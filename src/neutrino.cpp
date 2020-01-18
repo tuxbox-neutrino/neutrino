@@ -2855,7 +2855,9 @@ TIMER_START();
 	delete hintBox;
 
 	cCA::GetInstance()->Ready(true);
+#if HAVE_LIBSTB_HAL
 	cCA::GetInstance()->setCheckLiveSlot(g_settings.ci_check_live);
+#endif
 	//InitZapper();
 
 	SHTDCNT::getInstance()->init();
