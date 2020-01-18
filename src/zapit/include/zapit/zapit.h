@@ -44,10 +44,10 @@ typedef struct ZAPIT_start_arg
 	int video_mode;
 	uint32_t osd_resolution;
 	int volume;
-	int ci_clock;	// TODO: for each slot
+	int ci_clock[4];
 #if BOXMODEL_VUPLUS
 	int ci_delay;
-	int ci_rpr;	// TODO: for each slot
+	int ci_rpr[4];
 #endif
 	std::list<std::string> *webtv_xml;
 	std::list<std::string> *webradio_xml;

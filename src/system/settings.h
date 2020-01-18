@@ -284,10 +284,10 @@ struct SNeutrinoSettings
 	int avsync;
 	int clockrec;
 	int ci_standby_reset;
-	int ci_clock;		// TODO: for each slot
+	int ci_clock[4];
 #if BOXMODEL_VUPLUS
 	int ci_delay;
-	int ci_rpr;		// TODO: for each slot
+	int ci_rpr[4];
 #endif
 	int ci_ignore_messages;	// TODO: for each slot
 	int ci_save_pincode;	// TODO: for each slot
