@@ -163,7 +163,6 @@ int CCAMMenuHandler::doMainMenu()
 #endif
 		cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	}
-	cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 #if HAVE_LIBSTB_HAL
 	cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_CHECK_LIVE_SLOT, &g_settings.ci_check_live, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 #endif
@@ -224,6 +223,7 @@ if (i == 0) { // only for slot 0 valid - fix later
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_RPR, &g_settings.ci_rpr[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 #endif
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_IGNORE_MSG, &g_settings.ci_ignore_messages[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 }
 		} else {
 			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_CI_EMPTY), i);
@@ -491,16 +491,16 @@ int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t 
 
 		std::string ENQAnswer;
 
-		if (/* !from_menu && */ g_settings.ci_save_pincode && pMmiEnquiry->blind != 0 && (int) g_settings.ci_pincode.length() == pMmiEnquiry->answerlen) {
+		if (/* !from_menu && */ g_settings.ci_save_pincode[curslot] && pMmiEnquiry->blind != 0 && (int) g_settings.ci_pincode[curslot].length() == pMmiEnquiry->answerlen) {
 			static int acount = 0;
 			static time_t last_ask = 0;
 
-			ENQAnswer = g_settings.ci_pincode;
+			ENQAnswer = g_settings.ci_pincode[curslot];
 			printf("CCAMMenuHandler::handleCamMsg: using saved answer [%s] (#%d, time diff %d)\n", ENQAnswer.c_str(), acount, (int) (time_monotonic() - last_ask));
 			if ((time_monotonic() - last_ask) < 10) {
 				acount++;
 				if (acount > 4)
-					g_settings.ci_pincode.clear();
+					g_settings.ci_pincode[curslot].clear();
 			} else {
 				last_ask = time_monotonic();
 				acount = 0;
@@ -509,7 +509,7 @@ int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t 
 			CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enquiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str(), &ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
 			Inquiry->exec(NULL, "");
 			delete Inquiry;
-			g_settings.ci_pincode = ENQAnswer;
+			g_settings.ci_pincode[curslot] = ENQAnswer;
 		}
 
 		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", ENQAnswer.c_str());
@@ -642,7 +642,7 @@ bool CCAMMenuHandler::changeNotify(const neutrino_locale_t OptionName, void * Da
 		int enabled = *(int *) Data;
 		if (!enabled) {
 			printf("CCAMMenuHandler::changeNotify: clear saved pincode\n");
-			g_settings.ci_pincode.clear();
+			g_settings.ci_pincode[CISlot].clear();
 		}
 	}
 #if HAVE_LIBSTB_HAL

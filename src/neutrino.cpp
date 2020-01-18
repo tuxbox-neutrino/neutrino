@@ -489,10 +489,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_ignore_messages_%d", i);
 		g_settings.ci_ignore_messages[i] = configfile.getInt32(cfg_key, 0);
+		sprintf(cfg_key, "ci_save_pincode_%d", i);
+		g_settings.ci_save_pincode[i] = configfile.getInt32(cfg_key, 0);
+		sprintf(cfg_key, "ci_pincode_%d", i);
+		g_settings.ci_pincode[i] = configfile.getString(cfg_key, "");
 	}
-	g_settings.ci_save_pincode = configfile.getInt32("ci_save_pincode", 0);		// TODO: for each slot
 	g_settings.ci_check_live = configfile.getInt32("ci_check_live", 0);
-	g_settings.ci_pincode = configfile.getString("ci_pincode", "");			// TODO: for each slot
 	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
 	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0); //NI
 	g_settings.ci_mode = configfile.getInt32("ci_mode", 0); //NI
@@ -1428,10 +1430,13 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_ignore_messages_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_ignore_messages[i]);
+		sprintf(cfg_key, "ci_save_pincode_%d", i);
+		configfile.setInt32(cfg_key, g_settings.ci_save_pincode[i]);
+		sprintf(cfg_key, "ci_pincode_%d", i);
+		configfile.setString(cfg_key, g_settings.ci_pincode[i]);
 	}
-	configfile.setInt32("ci_save_pincode", g_settings.ci_save_pincode);		// TODO: for each slot
+
 	configfile.setInt32("ci_check_live", g_settings.ci_check_live);
-	configfile.setString("ci_pincode", g_settings.ci_pincode);			// TODO: for each slot
 	configfile.setInt32("ci_tuner", g_settings.ci_tuner);
 	configfile.setInt32("ci_rec_zapto", g_settings.ci_rec_zapto);
 	configfile.setInt32("ci_mode", g_settings.ci_mode);
