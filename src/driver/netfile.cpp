@@ -196,7 +196,7 @@ STATIC STREAM_TYPE stream_type[CACHEENTMAX];
 static int  ConnectToServer(char *hostname, int port);
 static int  parse_response(URL *url, void *, CSTATE*);
 static int  request_file(URL *url);
-static void readln(int, char *);
+//static void readln(int, char *);
 static int  getCacheSlot(FILE *fd);
 static int  push(FILE *fd, char *buf, long len);
 static int  pop(FILE *fd, char *buf, long len);
@@ -582,12 +582,14 @@ int request_file(URL *url)
     b[i] = 0; \
   } }
 
+/*
 void readln(int fd, char *buf)
 {
 	for(recv(fd, buf, 1, 0); (buf && isalnum(*buf)); recv(fd, ++buf, 1, 0)){};
 	if(buf)
 		*buf = 0;
 }
+*/
 
 int parse_response(URL *url, void * /*opt*/, CSTATE *state)
 {
