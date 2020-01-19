@@ -154,6 +154,14 @@ class CComponentsForm : public CComponentsItem
 		*/
 		CComponentsItem* getCCItem(const uint& cc_item_id) const;
 
+		/**Function to get current item from item collection by name.
+		 * @param[in]  item_name
+		 * 	@li std::string
+		 * @return
+		 *	CComponentsItem*, in case of not found item returns NULL
+		 */
+		CComponentsItem* getCCItem(const std::string &item_name) const;
+
 		/**Function to get previous item from item collection.
 		* @param[in]  current_cc_item
 		* 	@li CComponentsItem*

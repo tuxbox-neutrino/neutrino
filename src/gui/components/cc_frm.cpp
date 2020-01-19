@@ -276,6 +276,12 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id) const
 	return NULL;
 }
 
+CComponentsItem* CComponentsForm::getCCItem(const std::string &item_name) const
+{
+	uint32_t id = getCCItemId(item_name);
+	return getCCItem(id);
+}
+
 CComponentsItem* CComponentsForm::getPrevCCItem(CComponentsItem* current_cc_item) const
 {
 	return getCCItem(getCCItemId(current_cc_item) - 1);
