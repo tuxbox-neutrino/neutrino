@@ -468,12 +468,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	for (int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_clock_%d", i);
 		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 6);
 	}
 #else
-	for (int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_clock_%d", i);
 		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 9);
 	}
@@ -481,7 +481,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 #if BOXMODEL_VUPLUS
 	g_settings.ci_delay = configfile.getInt32("ci_delay", 256);
-	for (int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_rpr_%d", i);
 		g_settings.ci_rpr[i] = configfile.getInt32(cfg_key, 9);
 	}
@@ -1410,14 +1410,14 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "standby_cpufreq", g_settings.standby_cpufreq);
 
 	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
-	for (int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_clock_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_clock[i]);
 	}
 
 #if BOXMODEL_VUPLUS
 	configfile.setInt32("ci_delay", g_settings.ci_delay);
-	for (int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_rpr_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_rpr[i]);
 	}
