@@ -124,7 +124,7 @@ static int64_t seek_packet(void *opaque, int64_t offset, int whence)
 	return ((CFfmpegDec *) opaque)->Seek(offset, whence);
 }
 
-bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
+bool CFfmpegDec::Init(void *_in, const CFile::FileType /*ft*/)
 {
 	title = "";
 	artist = "";
