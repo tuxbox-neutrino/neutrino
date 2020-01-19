@@ -627,22 +627,28 @@ bool CCAMMenuHandler::changeNotify(const neutrino_locale_t OptionName, void * Da
 		return true;
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CI_RPR)) {
-		printf("CCAMMenuHandler::changeNotify: ci_rpr[%d] %d\n", CISlot, g_settings.ci_rpr[CISlot]);
-		ca->SetCIRelevantPidsRouting(g_settings.ci_rpr[CISlot]);
+		for (unsigned int i = 0; i < ca->GetNumberCISlots(); i++) {
+			printf("CCAMMenuHandler::changeNotify: ci_rpr[%d] %d\n", i, g_settings.ci_rpr[i]);
+			ca->SetCIRelevantPidsRouting(g_settings.ci_rpr[i], i);
+		}
 		return true;
 	}
 	else
 #endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CI_CLOCK)) {
-		printf("CCAMMenuHandler::changeNotify: ci_clock[%d] %d\n", CISlot, g_settings.ci_clock[CISlot]);
-		ca->SetTSClock(g_settings.ci_clock[CISlot] * 1000000);
+		for (unsigned int i = 0; i < ca->GetNumberCISlots(); i++) {
+			printf("CCAMMenuHandler::changeNotify: ci_clock[%d] %d\n", i, g_settings.ci_clock[i]);
+			ca->SetTSClock(g_settings.ci_clock[i] * 1000000, i);
+		}
 		return true;
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CI_SAVE_PINCODE)) {
 		int enabled = *(int *) Data;
 		if (!enabled) {
-			printf("CCAMMenuHandler::changeNotify: clear saved pincode\n");
-			g_settings.ci_pincode[CISlot].clear();
+			for (unsigned int i = 0; i < ca->GetNumberCISlots(); i++) {
+				printf("CCAMMenuHandler::changeNotify: clear saved pincode[%d]\n", i);
+				g_settings.ci_pincode[i].clear();
+			}
 		}
 	}
 #if HAVE_LIBSTB_HAL
