@@ -486,7 +486,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.ci_rpr[i] = configfile.getInt32(cfg_key, 9);
 	}
 #endif
-	for (int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_ignore_messages_%d", i);
 		g_settings.ci_ignore_messages[i] = configfile.getInt32(cfg_key, 0);
 	}
@@ -1425,7 +1425,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		configfile.setInt32(cfg_key, g_settings.ci_rpr[i]);
 	}
 #endif
-	for (int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	for (uint32_t i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_ignore_messages_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_ignore_messages[i]);
 	}
