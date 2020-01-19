@@ -630,7 +630,7 @@ bool CCAMMenuHandler::changeNotify(const neutrino_locale_t OptionName, void * Da
 	else
 #endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CI_CLOCK)) {
-		printf("CCAMMenuHandler::changeNotify: ci_clock[%s] %d\n", CISlot, g_settings.ci_clock[CISlot]);
+		printf("CCAMMenuHandler::changeNotify: ci_clock[%d] %d\n", CISlot, g_settings.ci_clock[CISlot]);
 		ca->SetTSClock(g_settings.ci_clock[CISlot] * 1000000);
 		return true;
 	}
