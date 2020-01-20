@@ -749,16 +749,18 @@ bool CTimerManager::shutdown()
 	{
 		CTimerEvent *event = pos->second;
 		dprintf("shutdown: timer type %d state %d announceTime: %ld\n", event->eventType, event->eventState, event->announceTime);
+		bool standby_on_timer = (event->eventType == CTimerd::TIMER_STANDBY && static_cast<CTimerEvent_Standby*>(event)->standby_on);// wakeup without CEC-on from depstanby
+
 		if((event->eventType == CTimerd::TIMER_RECORD ||
-			 event->eventType == CTimerd::TIMER_ZAPTO ) &&
+			 event->eventType == CTimerd::TIMER_ZAPTO || standby_on_timer ) &&
 			event->eventState < CTimerd::TIMERSTATE_ISRUNNING)
 		{
-			// Wir wachen nur für Records und Zaptos wieder auf
+			// Wir wachen nur für Records und Zaptos und Stanby-ON wieder auf
 			if(event->announceTime < nextAnnounceTime || nextAnnounceTime==0)
 			{
 				nextAnnounceTime=event->announceTime;
 				dprintf("shutdown: nextAnnounceTime %ld\n", nextAnnounceTime);
-				if ( event->eventType == CTimerd::TIMER_RECORD )
+				if ( event->eventType == CTimerd::TIMER_RECORD || standby_on_timer )
 					timer_is_rec = true;
 				else
 					timer_is_rec = false;
