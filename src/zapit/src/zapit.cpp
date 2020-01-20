@@ -2579,24 +2579,29 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	}
 
 	/* CA_INIT_CI or CA_INIT_SC or CA_INIT_BOTH */
-	switch(config.cam_ci){
-	  case 2:
-		ca->SetInitMask(CA_INIT_BOTH);
-	    break;
-	  case 1:
-		ca->SetInitMask(CA_INIT_CI);
-	    break;
-	  case 0:
-		ca->SetInitMask(CA_INIT_SC);
-	    break;
-	  default:
-		ca->SetInitMask(CA_INIT_BOTH);
-	  break;
+	switch(config.cam_ci)
+	{
+		case 2:
+			ca->SetInitMask(CA_INIT_BOTH);
+			break;
+		case 1:
+			ca->SetInitMask(CA_INIT_CI);
+			break;
+		case 0:
+			ca->SetInitMask(CA_INIT_SC);
+			break;
+		default:
+			ca->SetInitMask(CA_INIT_BOTH);
+			break;
 	}
 
 	// set ci clock to ZapStart_arg->ci_clock
 	for (uint32_t i = 0; i < ca->GetNumberCISlots(); i++) {
+#if HAVE_LIBSTB_HAL
+		ca->SetTSClock(ZapStart_arg->ci_clock[i] * 1000000, i);
+#else
 		ca->SetTSClock(ZapStart_arg->ci_clock[i] * 1000000);
+#endif
 	}
 
 #if BOXMODEL_VUPLUS

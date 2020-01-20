@@ -638,7 +638,11 @@ bool CCAMMenuHandler::changeNotify(const neutrino_locale_t OptionName, void * Da
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CI_CLOCK)) {
 		for (unsigned int i = 0; i < ca->GetNumberCISlots(); i++) {
 			printf("CCAMMenuHandler::changeNotify: ci_clock[%d] %d\n", i, g_settings.ci_clock[i]);
+#if HAVE_LIBSTB_HAL
 			ca->SetTSClock(g_settings.ci_clock[i] * 1000000, i);
+#else
+			ca->SetTSClock(g_settings.ci_clock[i] * 1000000);
+#endif
 		}
 		return true;
 	}
