@@ -78,9 +78,9 @@ class CComponentsFrmChain : public CComponentsForm
 		virtual ~CComponentsFrmChain(){};
 
 		///defines mode for arrangement direction of items, see also chn_direction
-		virtual void setDirection(int direction);
+		void setDirection(int direction);
 		///gets the mode of arrangment direction
-		virtual int getDirection(){return chn_direction;}
+		int getDirection(){return chn_direction;}
 
 		/**Members to set border offsets
 		* @param[in] 	offset
