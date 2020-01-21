@@ -190,6 +190,7 @@ void CHintBox::init(	const std::string& Text,
 	y_hint_obj 	= CC_CENTERED;
 
 	//initialize timeout bar and its timer
+	enable_timeout_bar = false;
 	timeout_pb 	= NULL;
 	timeout_pb_timer= NULL;
 
@@ -206,7 +207,7 @@ CHintBox::~CHintBox()
 
 void CHintBox::enableTimeOutBar(bool enable)
 {
-	if(!enable){
+	if(!enable_timeout_bar){
 		if(timeout_pb_timer){
 			delete timeout_pb_timer; timeout_pb_timer = NULL;
 		}
@@ -217,24 +218,28 @@ void CHintBox::enableTimeOutBar(bool enable)
 		}
 		return;
 	}
+	else
 
-	if(timeout_pb){
-		timeout_pb->setValues(timeout_pb->getValue()+1, 10*timeout);
-		timeout_pb->paint0();
-	}else{
-		timeout_pb = new CProgressBar();
-		timeout_pb->setType(CProgressBar::PB_TIMESCALE);
-		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
-		timeout_pb->setValues(timeout/10, timeout);
-		if (!timeout_pb_timer) {
-			timeout_pb_timer = new CComponentsTimer(100);
-			const string tn = cc_item_type.name + ":timeout_bar:";
-			timeout_pb_timer->setThreadName(tn);
+	if (enable_timeout_bar && enable)
+	{
+		if(timeout_pb){
+			timeout_pb->setValues(timeout_pb->getValue()+1, 10*timeout);
+			timeout_pb->paint0();
+		}else{
+			timeout_pb = new CProgressBar();
+			timeout_pb->setType(CProgressBar::PB_TIMESCALE);
+			timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
+			timeout_pb->setValues(timeout/10, timeout);
+			if (!timeout_pb_timer) {
+				timeout_pb_timer = new CComponentsTimer(100);
+				const string tn = cc_item_type.name + ":timeout_bar:";
+				timeout_pb_timer->setThreadName(tn);
+			}
+			sl_tbar_on_timer.disconnect();
+			sl_tbar_on_timer = sigc::mem_fun0(this, &CHintBox::showTimeOutBar);
+			timeout_pb_timer->OnTimer.connect(sl_tbar_on_timer);
+			timeout_pb_timer->startTimer();
 		}
-		sl_tbar_on_timer.disconnect();
-		sl_tbar_on_timer = sigc::mem_fun0(this, &CHintBox::showTimeOutBar);
-		timeout_pb_timer->OnTimer.connect(sl_tbar_on_timer);
-		timeout_pb_timer->startTimer();
 	}
 }
 

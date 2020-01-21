@@ -64,6 +64,7 @@ class CHintBox : public CComponentsWindow
 		int w_indentation;
 		bool enable_txt_scroll;
 		sigc::slot0<void> sl_tbar_on_timer;
+		bool enable_timeout_bar;
 
 		Font* hb_font;
 
@@ -208,8 +209,9 @@ class CHintBox : public CComponentsWindow
 		* Timeout is enabled with parameter1 = DEFAULT_TIMEOUT (-1) or any other value > 0
 		* To disable timeout use NO_TIMEOUT (0)
 		* @param[in]	Timeout as int as seconds
+		* @param[in]	enable_Timeout_Bar as bool, default = true
 		*/
-		virtual void setTimeOut(const int& Timeout){timeout = Timeout;}
+		virtual void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar = true){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
 
 		/**
 		* enable/disable visualized timeout as progressbar under titlebar
