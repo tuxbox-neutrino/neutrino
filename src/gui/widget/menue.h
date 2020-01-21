@@ -380,7 +380,7 @@ private:
 	int exec(CMenuTarget* parent);
 	int isMenueOptionChooser(void) const{return 1;}
 	int getWidth(void);
-	void setNumberFormat(std::string format) { numberFormat = format; }
+	void setNumberFormat(const std::string &format) { numberFormat = format; }
 	void setNumberFormat(std::string (*fun)(int)) { numberFormatFunction = fun; }
 	void setNumericInput(bool _numeric_input) { numeric_input = _numeric_input; }
 	void setLocalizedValue(int special_value, neutrino_locale_t special_value_name)
@@ -690,11 +690,9 @@ class CPINProtection
 		virtual CMenuTarget* getParent() = 0;
 		neutrino_locale_t title, hint;
 	public:
-		CPINProtection(std::string &validpin)
+		CPINProtection(std::string &validpin): title( LOCALE_PINPROTECTION_HEAD),hint(NONEXISTANT_LOCALE)
 		{ 
 			validPIN = &validpin;
-			hint = NONEXISTANT_LOCALE;
-			title = LOCALE_PINPROTECTION_HEAD;
 		};
 		virtual ~CPINProtection(){}
 		virtual void setTitle(neutrino_locale_t Title){title = Title;};

@@ -78,7 +78,7 @@ class CScreenShot
 #endif // SCREENSHOT_INTERNAL
 
 	public:
-		CScreenShot(const std::string fname = "", screenshot_format_t fmt = CScreenShot::FORMAT_JPG);
+		CScreenShot(const std::string &fname = "", screenshot_format_t fmt = CScreenShot::FORMAT_JPG);
 		~CScreenShot();
 
 		void MakeFileName(const t_channel_id channel_id);

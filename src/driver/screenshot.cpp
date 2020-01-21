@@ -56,7 +56,7 @@ extern "C" {
 extern cVideo *videoDecoder;
 
 /* constructor, defaults is empty fname and CScreenShot::FORMAT_JPG format */
-CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
+CScreenShot::CScreenShot(const std::string &fname, screenshot_format_t fmt)
 {
 	format = fmt;
 	filename = fname;
