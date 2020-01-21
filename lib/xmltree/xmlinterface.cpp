@@ -280,14 +280,23 @@ xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 	}
 	pugi::xml_document* tree_parser = new pugi::xml_document();
 
-
 	if (zipped)
 	{
         int fd = open(filename, O_RDONLY);
+		if(fd == -1)
+		{
+			delete tree_parser;
+			return NULL;
+		}
 
 		uint32_t gzsize = 0;
 		lseek(fd, -4, SEEK_END);
-		read(fd, &gzsize, 4);
+		int res = read(fd, &gzsize, 4);
+		if(res <= 0)
+		{
+			delete tree_parser;
+			return NULL;
+		}
 		lseek(fd, 0, SEEK_SET);
 
 		gzFile xmlgz_file = gzdopen(fd,"rb");
@@ -319,6 +328,7 @@ xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 		if (read_size != gzsize)
 		{
 			gzclose(xmlgz_file);
+			free(buffer);
 			delete tree_parser;
 			return NULL;
 		}
@@ -329,6 +339,7 @@ xmlDocPtr parseXmlFile(const char * filename, bool,const char* encoding)
 		if (result.status != 0 /*pugi::xml_parse_status::status_ok*/)
 			{
 				printf("Error: Loading %s (%d)\n", filename, result.status);
+				free( buffer);
 				delete tree_parser;
 				return NULL;
 			}
