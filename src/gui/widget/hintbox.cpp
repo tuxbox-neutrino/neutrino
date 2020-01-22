@@ -202,6 +202,7 @@ void CHintBox::init(	const std::string& Text,
 
 CHintBox::~CHintBox()
 {
+	enable_timeout_bar = false;
 	disableTimeOutBar();
 }
 
