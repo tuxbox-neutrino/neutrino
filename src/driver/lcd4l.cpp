@@ -904,29 +904,32 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				Info2 = shortEpgData.info2;
 			}
 
-			if ((CurrentNext.current_zeit.dauer > 0) && (CurrentNext.current_zeit.dauer < 86400))
+			time_t cur_duration = CurrentNext.current_zeit.dauer;
+			time_t cur_start_time = CurrentNext.current_zeit.startzeit;
+			if ((cur_duration > 0) && (cur_duration < 86400))
 			{
-				Progress = 100 * (time(NULL) - CurrentNext.current_zeit.startzeit) / CurrentNext.current_zeit.dauer;
+				Progress = 100 * (time(NULL) - cur_start_time) / cur_duration;
 
-				int total = CurrentNext.current_zeit.dauer / 60;
-				int done = (abs(time(NULL) - CurrentNext.current_zeit.startzeit) + 30) / 60;
+				int total = cur_duration / 60;
+				int done = (abs(time(NULL) - cur_start_time) + 30) / 60;
 				int todo = total - done;
-				if ((time(NULL) < CurrentNext.current_zeit.startzeit) && todo >= 0)
+				if ((time(NULL) < cur_start_time) && todo >= 0)
 				{
 					done = 0;
-					todo = CurrentNext.current_zeit.dauer / 60;
+					todo = cur_duration / 60;
 				}
 				snprintf(Duration, sizeof(Duration), "%d/%d", done, total);
 			}
 
-			tm_struct = localtime(&CurrentNext.current_zeit.startzeit);
+			tm_struct = localtime(&cur_start_time);
 			snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
 
 		if (CSectionsdClient::epgflags::has_next)
 		{
 			Event += "\n"+ CurrentNext.next_name;
-			tm_struct = localtime(&CurrentNext.next_zeit.startzeit);
+			time_t next_start_time = CurrentNext.next_zeit.startzeit;
+			tm_struct = localtime(&next_start_time);
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
 	}
