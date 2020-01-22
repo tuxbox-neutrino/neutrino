@@ -1731,7 +1731,8 @@ void CChannelList::paintDetails(int index)
 		if (!CurrentNext.next_name.empty()) {
 			char buf[128] = {0};
 			char cFrom[50] = {0}; // UTF-8
-			struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
+			time_t next_start_time = CurrentNext.next_zeit.startzeit;
+			struct tm *pStartZeit = localtime (&next_start_time);
 			snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
 			snprintf(buf, sizeof(buf), "%s", CurrentNext.next_name.c_str());
 			int from_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cFrom);
