@@ -907,8 +907,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	if (!mp_info){
 		std::string fromto = epg_start + " - " + epg_end;
-
-		GetPrevNextEPGData(epgData.eventID, &epgData.epg_times.startzeit);
+		time_t epg_start_time = epgData.epg_times.startzeit;
+		GetPrevNextEPGData(epgData.eventID, &epg_start_time);
 
 		Bottombox->enableArrows(prev_id && !call_fromfollowlist, next_id && !call_fromfollowlist);
 		Bottombox->setText(fromto, epg_date);
@@ -1055,6 +1055,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					if (g_Timerd->isTimerdAvailable())
 					{
 						bool doRecord = true;
+						time_t epg_start_time = epgData.epg_times.startzeit;
 						recDir = g_settings.network_nfs_recordingdir;
 						if (g_settings.recording_choose_direct_rec_dir == 2) {
 							CFileBrowser b;
@@ -1069,7 +1070,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
 							}
 							bigFonts = g_settings.bigFonts;
-							show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+							show(channel_id,epgData.eventID,&epg_start_time,false);
 							showPos=0;
 						}
 						else if (g_settings.recording_choose_direct_rec_dir == 1)
@@ -1085,7 +1086,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 									g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
 								}
 								bigFonts = g_settings.bigFonts;
-								show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+								show(channel_id,epgData.eventID,&epg_start_time,false);
 								showPos=0;
 								timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 							} else
@@ -1420,7 +1421,8 @@ void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* st
 			reformatExtendedEvents("Presenter", g_Locale->getText(LOCALE_EPGEXTENDED_PRESENTER), false, epgData);
 		}
 
-		struct tm *pStartZeit = localtime(&(epgData.epg_times).startzeit);
+		time_t epg_start_time = epgData.epg_times.startzeit;
+		struct tm *pStartZeit = localtime(&epg_start_time);
 		tmp_curent_zeit = (epgData.epg_times).startzeit;
 		char temp[20]={0};
 		strftime( temp, sizeof(temp),"%d.%m.%Y", pStartZeit);
