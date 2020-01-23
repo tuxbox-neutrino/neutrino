@@ -149,7 +149,7 @@ void CComponentsWindow::init(	const int& x_pos, const int& y_pos, const int& w, 
 	ccw_icon_name	= iconname;
 
 	dprintf(DEBUG_DEBUG, "[CComponentsWindow]   [%s - %d] icon name = %s\n", __func__, __LINE__, ccw_icon_name.c_str());
-	paint_bg	= false;
+	paint_bg	= true;
 	shadow		= shadow_mode;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -316,7 +316,7 @@ void CComponentsWindow::initBody()
 		int w_body = width-2*fr_thickness - w_l_sidebar - w_r_sidebar;
 
 		ccw_body->setDimensionsAll(x_body, h_header, w_body, h_body);
-		ccw_body->doPaintBg(true);
+		ccw_body->doPaintBg(paint_bg);
 		ccw_body->setColorBody(col_body);
 
 		//handle corner behavior
