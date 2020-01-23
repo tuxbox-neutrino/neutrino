@@ -1530,7 +1530,7 @@ void CInfoViewer::sendNoEpg(const t_channel_id for_channel_id)
 	if (!zap_mode/* & IV_MODE_DEFAULT*/) {
 		char *p = new char[sizeof(t_channel_id)];
 		memcpy(p, &for_channel_id, sizeof(t_channel_id));
-		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);
+		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (neutrino_msg_data_t) p, false);
 	}
 }
 
@@ -1580,7 +1580,7 @@ void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::Cu
 		}
 		else
 			msg = NeutrinoMessages::EVT_NOEPG_YET;
-		g_RCInput->postMsg(msg, (const neutrino_msg_data_t)p, false); // data is pointer to allocated memory
+		g_RCInput->postMsg(msg, (neutrino_msg_data_t)p, false); // data is pointer to allocated memory
 		copy_info(&info,&oldinfo);
 	}
 }
