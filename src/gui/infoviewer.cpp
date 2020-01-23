@@ -1857,6 +1857,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	}
 
 	time_t jetzt = time (NULL);
+	time_t cur_start_time = info_CurrentNext.current_zeit.startzeit;
 
 	const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 
@@ -1878,7 +1879,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 				snprintf(runningRest, sizeof(runningRest), "%d +%d %s", info_CurrentNext.current_zeit.dauer / 60, -rest, unit_short_minute);
 		}
 
-		struct tm *pStartZeit = localtime (&info_CurrentNext.current_zeit.startzeit);
+		struct tm *pStartZeit = localtime (&cur_start_time);
 		snprintf (runningStart, sizeof(runningStart), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
 	} else
 		last_curr_id = 0;
@@ -1886,7 +1887,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_next) {
 		unsigned dauer = info_CurrentNext.next_zeit.dauer / 60;
 		snprintf (nextDuration, sizeof(nextDuration), "%d %s", dauer, unit_short_minute);
-		struct tm *pStartZeit = localtime (&info_CurrentNext.next_zeit.startzeit);
+		struct tm *pStartZeit = localtime (&cur_start_time);
 		snprintf (nextStart, sizeof(nextStart), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
 	} else
 		last_next_id = 0;
