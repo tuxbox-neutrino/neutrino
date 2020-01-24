@@ -127,7 +127,7 @@ void CComponentsTimer::stopThread()
 		delete tm_thread;
 		tm_thread = NULL;
 		tn.clear();
-		dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] thread object terminated after %lu ticks\033[0m\n", tm_thread, tn.c_str(), __func__, __LINE__, tm_ticks);
+		dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] thread object terminated after %llu ticks\033[0m\n", tm_thread, tn.c_str(), __func__, __LINE__, tm_ticks);
 	}
 }
 
