@@ -215,6 +215,7 @@ void CHintBox::enableTimeOutBar(bool enable)
 		if(timeout_pb){
 			timeout_pb->setValues(100, 100);
 			timeout_pb->paint0();
+			timeout_pb->kill();
 			delete timeout_pb; timeout_pb = NULL;
 		}
 		return;
