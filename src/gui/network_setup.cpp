@@ -796,14 +796,14 @@ int CNetworkSetup::showWlanList()
 	CMenuWidget wlist(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width);
 	wlist.addIntroItems(LOCALE_NETWORKMENU_SSID_SCAN); //intros
 
-	char cnt[5];
+	char cnt[10];
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	std::string option[networks.size()];
 	for (unsigned i = 0; i < networks.size(); ++i) {
 		sprintf(cnt, "%d", i);
-		
+
 		option[i] = networks[i].qual;
 		option[i] += ", ";
 		option[i] += networks[i].channel;
