@@ -469,7 +469,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 {
 	if (!meta_data_valid)
 	{
-		if (!Init(_in, (const CFile::FileType) m->type))
+		if (!Init(_in, (CFile::FileType) m->type))
 			return false;
 
 		mutex.lock();
