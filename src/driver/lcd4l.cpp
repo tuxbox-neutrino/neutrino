@@ -1222,7 +1222,7 @@ void CLCD4l::strReplace(std::string &orig, const std::string &fstr, const std::s
 
 std::string CLCD4l::hexStr(unsigned char data)
 {
-	char hexstr[3];
+	char hexstr[4];
 	snprintf(hexstr, sizeof hexstr, "%02x", (int)data * 255 / 100);
 	return std::string(hexstr);
 }

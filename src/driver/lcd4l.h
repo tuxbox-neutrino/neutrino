@@ -117,7 +117,7 @@ class CLCD4l
 		std::string	m_Info1;
 		std::string	m_Info2;
 		int		m_Progress;
-		char		m_Duration[15];
+		char		m_Duration[24];
 		std::string	m_Start;
 		std::string	m_End;
 
