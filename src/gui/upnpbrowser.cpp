@@ -80,8 +80,8 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	image = NULL;
 
 	sigc::slot0<void> reinit = sigc::mem_fun(this, &CUpnpBrowserGui::Init);
-	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(reinit);
-	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(reinit);
+	sigFonts = CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(reinit);
+	sigPall = CFrameBuffer::getInstance()->OnAfterSetPallette.connect(reinit);
 }
 
 void CUpnpBrowserGui::Init()
@@ -161,12 +161,16 @@ void CUpnpBrowserGui::Init()
 
 CUpnpBrowserGui::~CUpnpBrowserGui()
 {
+	sigFonts.disconnect();
+	sigPall.disconnect();
+
 	delete m_socket;
 	if (dline){
 		delete dline; dline = NULL;
 	}
-	if (image)
+	if (image){
 		delete image, image = NULL;
+	}
 }
 
 int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
