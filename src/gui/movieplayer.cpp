@@ -2860,7 +2860,7 @@ void CMoviePlayerGui::selectSubtitle()
 	APIDSelector.addItem(sc);
 	APIDSelector.addItem(GenericMenuSeparatorLine);
 
-	char cnt[5];
+	char cnt[6];
 	unsigned int count;
 	for (count = 0; count < numsubs; count++) {
 		bool enabled = sub_supported[count] && (currentspid != spids[count]);
