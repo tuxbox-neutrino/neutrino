@@ -169,7 +169,7 @@ CUpnpBrowserGui::~CUpnpBrowserGui()
 		delete dline; dline = NULL;
 	}
 	if (image){
-		delete image, image = NULL;
+		delete image; image = NULL;
 	}
 }
 
