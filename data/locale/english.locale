@@ -1658,6 +1658,7 @@ menu.hint_video_pip Picture in picture size and position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_video_sdosd Enable/disable OSD display on SD output (scart, cinch)
+menu.hint_video_zappingmode Select black screen or still picture while zapping
 menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
@@ -2729,7 +2730,7 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
-videomenu.zappingmode Zap mode
+videomenu.zappingmode Zapping mode
 videomenu.zappingmode_mute Black screen
 videomenu.zappingmode_hold Hold screen
 weather.api_key Weather API key (Dark Sky)

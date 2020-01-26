@@ -1658,6 +1658,7 @@ menu.hint_video_pip Bild in Bild Größe und Position
 menu.hint_video_saturation Ändert die Farbsättigung
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
 menu.hint_video_sdosd Aktivieren/Deaktivieren der OSD Anzeige am Analogausgang (Scart, Cinch)
+menu.hint_video_zappingmode Wählen Sie, ob ein schwarzes Bild oder ein Standbild beim Umschalten gezeigt werden soll
 menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
@@ -2729,7 +2730,7 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
-videomenu.zappingmode Umschaltmodus
+videomenu.zappingmode Umschaltverhalten
 videomenu.zappingmode_mute Schwarzes Bild
 videomenu.zappingmode_hold Standbild
 weather.api_key Wetter API Schlüssel (Dark Sky)
