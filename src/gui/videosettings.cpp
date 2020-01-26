@@ -222,7 +222,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ -1,                NONEXISTANT_LOCALE, "720p 60Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080i 60Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "Auto"         }
+	{ -1,                NONEXISTANT_LOCALE, "Auto"		}
 };
 #elif HAVE_COOL_HARDWARE
 /* numbers corresponding to video.cpp from zapit */
@@ -250,7 +250,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ VIDEO_STD_1080P2397, NONEXISTANT_LOCALE, "1080p 23.97Hz"},
 	{ VIDEO_STD_1080P2997, NONEXISTANT_LOCALE, "1080p 29.97Hz"},
 #endif
-	{ VIDEO_STD_AUTO,    NONEXISTANT_LOCALE, "Auto"         }
+	{ VIDEO_STD_AUTO,    NONEXISTANT_LOCALE, "Auto"		}
 };
 #elif HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
@@ -267,7 +267,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ VIDEO_STD_720P60,  NONEXISTANT_LOCALE, "720p 60Hz"	},
 	{ VIDEO_STD_1080I60, NONEXISTANT_LOCALE, "1080i 60Hz"	},
 	{ VIDEO_STD_1080P50, NONEXISTANT_LOCALE, "1080p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "Auto"         }
+	{ -1,                NONEXISTANT_LOCALE, "Auto"		}
 };
 #elif HAVE_ARM_HARDWARE
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
@@ -288,7 +288,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ VIDEO_STD_2160P25, NONEXISTANT_LOCALE, "2160p 25Hz"	},
 	{ VIDEO_STD_2160P30, NONEXISTANT_LOCALE, "2160p 30Hz"	},
 	{ VIDEO_STD_2160P50, NONEXISTANT_LOCALE, "2160p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "Auto"         }
+	{ -1,                NONEXISTANT_LOCALE, "Auto"		}
 };
 #else
 
@@ -307,7 +307,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ -1,                NONEXISTANT_LOCALE, "720p 60Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080i 60Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "Auto"         }
+	{ -1,                NONEXISTANT_LOCALE, "Auto"		}
 };
 #endif
 
@@ -326,6 +326,17 @@ const CMenuOptionChooser::keyval VIDEOMENU_DBDR_OPTIONS[VIDEOMENU_DBDR_OPTION_CO
 	{ 1, LOCALE_VIDEOMENU_DBDR_DEBLOCK },
 	{ 2, LOCALE_VIDEOMENU_DBDR_BOTH }
 };
+
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#define VIDEOMENU_ZAPPINGMODE_OPTION_COUNT 4
+CMenuOptionChooser::keyval VIDEOMENU_ZAPPINGMODE_OPTIONS[VIDEOMENU_ZAPPINGMODE_OPTION_COUNT] =
+{
+	{ 0, LOCALE_VIDEOMENU_ZAPPINGMODE_MUTE },
+	{ 1, LOCALE_VIDEOMENU_ZAPPINGMODE_HOLD },
+	{ 2, LOCALE_VIDEOMENU_ZAPPINGMODE_MUTETILLLOCK },
+	{ 3, LOCALE_VIDEOMENU_ZAPPINGMODE_HOLDTILLLOCK }
+};
+#endif
 
 int CVideoSettings::showVideoSetup()
 {
@@ -478,6 +489,12 @@ int CVideoSettings::showVideoSetup()
 	pipsetup->setHint("", LOCALE_MENU_HINT_VIDEO_PIP);
 	videosetup->addItem(pipsetup);
 #endif
+
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	CMenuOptionChooser * zm = new CMenuOptionChooser(LOCALE_VIDEOMENU_ZAPPINGMODE, &g_settings.zappingmode, VIDEOMENU_ZAPPINGMODE_OPTIONS, VIDEOMENU_ZAPPINGMODE_OPTION_COUNT, true, this);
+	videosetup->addItem(zm);
+#endif
+
 	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
 	delete videosetup;
@@ -625,6 +642,12 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HUE))
 	{
 		videoDecoder->SetControl(VIDEO_CONTROL_HUE, val);
+	}
+#endif
+
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_ZAPPINGMODE)) {
+		videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);
 	}
 #endif
 	return false;

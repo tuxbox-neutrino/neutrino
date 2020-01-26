@@ -222,6 +222,9 @@ struct SNeutrinoSettings
 	int record_safety_time_before;
 	int record_safety_time_after;
 	int zapto_pre_time;
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	int zappingmode;
+#endif
 	int infobar_sat_display;
 	int infobar_show_channeldesc;
 	int infobar_subchan_disp_pos;
