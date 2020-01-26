@@ -348,16 +348,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	else
 	{
-#if 0
-		/* try to detect bad / broken config file */
-		if (!configfile.getInt32("screen_EndX_crt_0", 0) ||
-				!configfile.getInt32("screen_EndY_crt_0", 0) ||
-				!configfile.getInt32("screen_EndX_lcd_0", 0) ||
-				!configfile.getInt32("screen_EndY_lcd_0", 0)) {
-			printf("[neutrino] config file %s is broken, using defaults\n", fname);
-			configfile.clear();
-		} else
-#endif
 			migrateConfig(fname);
 	}
 
@@ -5741,6 +5731,13 @@ static struct __key_rename key_rename[] = {
 	{ "screen_EndX_lcd",	"screen_EndX_lcd_0" },
 	{ "screen_EndY_lcd",	"screen_EndY_lcd_0" },
 	{ "timing.infobar_movieplayer",	"timing.infobar_media_video" },
+	{ "ci_clock", "ci_clock_0" },
+	{ "ci_save_pincode", "ci_save_pincode_0" },
+	{ "ci_pincode", "ci_pincode_0" },
+	{ "ci_ignore_messages", "ci_ignore_messages_0" },
+#if BOXMODEL_VUPLUS_ALL
+	{ "ci_rpr", "ci_rpr_0" },
+#endif
 	{ NULL, NULL }
 };
 
