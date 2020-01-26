@@ -2732,8 +2732,6 @@ videomenu.videomode Videosystem
 videomenu.zappingmode Umschaltmodus
 videomenu.zappingmode_mute Schwarzes Bild
 videomenu.zappingmode_hold Standbild
-videomenu.zappingmode_mutetilllock Schwarzes Bild bis lock
-videomenu.zappingmode_holdtilllock Standbild bis lock
 weather.api_key Wetter API Schlüssel (Dark Sky)
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort

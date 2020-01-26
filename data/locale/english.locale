@@ -2732,8 +2732,6 @@ videomenu.videomode Digital video mode
 videomenu.zappingmode Zap mode
 videomenu.zappingmode_mute Black screen
 videomenu.zappingmode_hold Hold screen
-videomenu.zappingmode_mutetilllock Black screen until locked
-videomenu.zappingmode_holdtilllock Hold screen until locked
 weather.api_key Weather API key (Dark Sky)
 weather.enabled Weather support
 weather.location Weather location
