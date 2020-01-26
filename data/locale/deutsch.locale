@@ -2730,9 +2730,9 @@ videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
 videomenu.zappingmode Umschaltmodus
-videomenu.zappingmode_mute schwarzes Bild
+videomenu.zappingmode_mute Schwarzes Bild
 videomenu.zappingmode_hold Standbild
-videomenu.zappingmode_mutetilllock schwarzes Bild bis lock
+videomenu.zappingmode_mutetilllock Schwarzes Bild bis lock
 videomenu.zappingmode_holdtilllock Standbild bis lock
 weather.api_key Wetter API Schlüssel (Dark Sky)
 weather.enabled Wetter-Unterstützung
