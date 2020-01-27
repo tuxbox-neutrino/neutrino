@@ -892,7 +892,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		CSectionsdClient::CurrentNextInfo CurrentNext;
 		CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, CurrentNext);
 
-		if (CSectionsdClient::epgflags::has_current)
+		if (CurrentNext.flags & CSectionsdClient::epgflags::has_current)
 		{
 			if (!CurrentNext.current_name.empty())
 				Event = CurrentNext.current_name;
@@ -925,7 +925,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
 
-		if (CSectionsdClient::epgflags::has_next)
+		if (CurrentNext.flags & CSectionsdClient::epgflags::has_next)
 		{
 			Event += "\n"+ CurrentNext.next_name;
 			time_t next_start_time = CurrentNext.next_zeit.startzeit;
