@@ -778,7 +778,12 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 		return false;
 	}
 
-	read(lfd, &header, sizeof(struct rawHeader));
+	ssize_t r = read(lfd, &header, sizeof(struct rawHeader));
+	if(r <= 0)
+	{
+		close(fd);
+		return false;
+	}
 
 	width  = (header.width_hi  << 8) | header.width_lo;
 	height = (header.height_hi << 8) | header.height_lo;
@@ -794,7 +799,11 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	fb_pixel_t *d = getFrameBufferPointer() + x + swidth * y;
 	fb_pixel_t * d2;
 	for (int count=0; count<height; count ++ ) {
-		read(lfd, &pixbuf[0], width );
+		r = read(lfd, &pixbuf[0], width );
+		if(r <= 0){
+			close(fd);
+			return false;
+		}
 		unsigned char *pixpos = &pixbuf[0];
 		d2 = d;
 		for (int count2=0; count2<width; count2 ++ ) {
@@ -892,7 +901,11 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 
 		unsigned char pixbuf[768];
 		for (int count = 0; count < height; count ++ ) {
-			read(lfd, &pixbuf[0], width >> 1 );
+			s = read(lfd, &pixbuf[0], width >> 1 );
+			if(s <= 0)
+			{
+				break;
+			}
 			unsigned char *pixpos = &pixbuf[0];
 			for (int count2 = 0; count2 < width >> 1; count2 ++ ) {
 				unsigned char compressed = *pixpos;
