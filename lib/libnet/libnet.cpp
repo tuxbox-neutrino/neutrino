@@ -172,8 +172,8 @@ void netGetDefaultRoute( std::string &ip )
 	fp = fopen("/proc/net/route","r");
 	if (fp == NULL)
 		return;
-	fgets(zeile,sizeof(zeile),fp); /* skip header */
-	while(fgets(zeile,sizeof(zeile),fp))
+	char *fg = fgets(zeile,sizeof(zeile),fp); /* skip header */
+	while(fg && (fg = fgets(zeile,sizeof(zeile),fp)))
 	{
 		destination = 1; /* in case sscanf fails */
 		sscanf(zeile,"%8s %x %x", interface, &destination, &gw);
@@ -218,13 +218,18 @@ void netGetHostname( std::string &host )
 
 void	netSetHostname( std::string &host )
 {
-	FILE * fp;
-
-	sethostname(host.c_str(), host.length());
-	fp = fopen("/etc/hostname", "w");
-	if(fp != NULL) {
-		fprintf(fp, "%s\n", host.c_str());
-		fclose(fp);
+	if (sethostname(host.c_str(), host.length()) < 0)
+	{
+		fprintf(stderr, "error set %s\n", host.c_str());
+	}
+	else
+	{
+		FILE * fp = fopen("/etc/hostname", "w");
+		if(fp != NULL)
+		{
+			fprintf(fp, "%s\n", host.c_str());
+			fclose(fp);
+		}
 	}
 }
 
