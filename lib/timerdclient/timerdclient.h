@@ -120,7 +120,7 @@ class CTimerdClient:private CBasicClient
 			eventInfo.apids = apids;
 			eventInfo.recordingSafety = safety;
 			eventInfo.autoAdjustToEPG = autoAdjust;
-			strncpy(eventInfo.recordingDir, recDir.c_str(), RECORD_DIR_MAXLEN);
+			strncpy(eventInfo.recordingDir, recDir.c_str(), RECORD_DIR_MAXLEN-1);
 			return addTimerEvent(CTimerd::TIMER_RECORD, &eventInfo, announcetime, alarmtime, stoptime, evrepeat, repeatcount,forceAdd);
 		};
 
