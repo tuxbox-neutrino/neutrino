@@ -589,7 +589,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 				recinfo.autoAdjustToEPG = false; // FIXME -- add GUI option?
 
 				timerNew.announceTime-= 120; // 2 more mins for rec timer
-				strncpy(recinfo.recordingDir,timerNew.recordingDir,sizeof(recinfo.recordingDir)-1);
+				strncpy(recinfo.recordingDir,timerNew.recordingDir,sizeof(recinfo.recordingDir));
 				data = &recinfo;
 			}
 			else
@@ -759,7 +759,7 @@ void CTimerList::RemoteBoxSelect()
 		return;
 	if (askUserOnRemoteTimerConflict(timerlist[selected].announceTime, timerlist[selected].stopTime, (char*) it->rbname.c_str()))
 	{
-		strncpy(timerlist[selected].remotebox_name,it->rbname.c_str(),sizeof(timerlist[selected].remotebox_name));
+		strncpy(timerlist[selected].remotebox_name,it->rbname.c_str(),sizeof(timerlist[selected].remotebox_name)-1);
 		timerlist[selected].remotebox_name[sizeof(timerlist[selected].remotebox_name) - 1] = 0;
 	}
 }
@@ -887,7 +887,7 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(rtimer.channel_id);
 				if(channel)
 					rtimer.channel_id = channel->getChannelID();
-				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),sizeof(rtimer.epgTitle));
+				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),sizeof(rtimer.epgTitle)-1);
 				rtimer.epgTitle[sizeof(rtimer.epgTitle) - 1] = 0;
 				if (remotetimers[i]["audio"].get("apids_conf","").asString() == "true")
 					rtimer.apids = TIMERD_APIDS_CONF;
@@ -1671,7 +1671,7 @@ int CTimerList::modifyTimer()
 		if (!strlen(timer->recordingDir))
 			strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timer->recordingDir)-1);
 		timer_recordingDir = timer->recordingDir;
-		strncpy(t_old.recordingDir, timer->recordingDir, sizeof(t_old.recordingDir)-1);
+		strncpy(t_old.recordingDir, timer->recordingDir, sizeof(t_old.recordingDir));
 
 		bool recDirEnabled = (g_settings.recording_type == RECORDING_FILE); // obsolete?
 		CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer_recordingDir, this, "rec_dir1", CRCInput::RC_green);
