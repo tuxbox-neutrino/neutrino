@@ -129,12 +129,12 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					else if(event->eventType == CTimerd::TIMER_REMIND)
 					{
 						memset(resp.message, 0, sizeof(resp.message));
-						strncpy(resp.message, static_cast<CTimerEvent_Remind*>(event)->message, sizeof(resp.message)-1);
+						strncpy(resp.message, static_cast<CTimerEvent_Remind*>(event)->message, sizeof(resp.message));
 					}
 					else if (event->eventType == CTimerd::TIMER_EXEC_PLUGIN)
 					{
 						memset(resp.pluginName, 0, sizeof(resp.pluginName));
-						strncpy(resp.pluginName, static_cast<CTimerEvent_ExecPlugin*>(event)->name, sizeof(resp.message)-1);
+						strncpy(resp.pluginName, static_cast<CTimerEvent_ExecPlugin*>(event)->name, sizeof(resp.pluginName));
 					}
 				}
 			}
