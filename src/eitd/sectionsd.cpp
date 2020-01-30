@@ -1445,12 +1445,11 @@ bool CTimeThread::setSystemTime(time_t tim, bool force)
 
 	tv.tv_sec = tim;
 	tv.tv_usec = 0;
-	errno=0;
 	if (settimeofday(&tv, NULL) == 0)
 		return true;
 
 	perror("[sectionsd] settimeofday");
-	return errno==EPERM;
+	return true;
 }
 
 void CTimeThread::addFilters()
@@ -1816,7 +1815,7 @@ CEitThread::CEitThread()
 {
 }
 
-CEitThread::CEitThread(std::string tname, unsigned short pid)
+CEitThread::CEitThread(const std::string &tname, unsigned short pid)
 	: CEventsThread(tname, pid)
 {
 }
@@ -1855,7 +1854,7 @@ void CEitThread::beforeSleep()
 				sizeof(messaging_current_servicekey));
 	}
 	if(notify_complete)
-		system(CONFIGDIR "/epgdone.sh");
+		int ignored __attribute__((unused)) = system(CONFIGDIR "/epgdone.sh");
 }
 
 /********************************************************************************/

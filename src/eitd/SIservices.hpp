@@ -40,11 +40,11 @@ public:
 	t_original_network_id original_network_id;
 	t_transport_stream_id transport_stream_id;
 
-	SInvodReference(const t_transport_stream_id new_transport_stream_id, const t_original_network_id new_original_network_id, const t_service_id new_service_id)
+	SInvodReference(const t_transport_stream_id new_transport_stream_id, const t_original_network_id new_original_network_id, const t_service_id new_service_id):
+					service_id(new_service_id),
+					original_network_id(new_original_network_id),
+					transport_stream_id(new_transport_stream_id)
 		{
-			service_id          = new_service_id;
-			original_network_id = new_original_network_id;
-			transport_stream_id = new_transport_stream_id;
 		}
 
 	bool operator < (const SInvodReference& ref) const
@@ -106,11 +106,11 @@ public:
 	std::string providerName; // Name aus dem Service-Descriptor
 #endif
 
-	SIservice(const t_service_id _service_id, const t_original_network_id _original_network_id, const t_transport_stream_id _transport_stream_id)
+	SIservice(const t_service_id _service_id, const t_original_network_id _original_network_id, const t_transport_stream_id _transport_stream_id):
+		service_id(_service_id),
+		original_network_id(_original_network_id),
+		transport_stream_id(_transport_stream_id)
 	{
-		service_id          = _service_id;
-		original_network_id = _original_network_id;
-		transport_stream_id = _transport_stream_id;
 		serviceTyp=0;
 		memset(&flags, 0, sizeof(flags));
 		is_actual = 0;

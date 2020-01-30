@@ -65,7 +65,7 @@ typedef SIservice * SIservicePtr;
 
 struct OrderServiceUniqueKeyFirstStartTimeEventUniqueKey
 {
-	bool operator()(const SIeventPtr &p1, const SIeventPtr &p2)
+	bool operator()(const SIeventPtr &p1, const SIeventPtr &p2) const
 	{
 		return
 			(p1->get_channel_id() == p2->get_channel_id()) ?
@@ -77,7 +77,7 @@ struct OrderServiceUniqueKeyFirstStartTimeEventUniqueKey
 
 struct OrderFirstEndTimeServiceIDEventUniqueKey
 {
-	bool operator()(const SIeventPtr &p1, const SIeventPtr &p2)
+	bool operator()(const SIeventPtr &p1, const SIeventPtr &p2) const
 	{
 		return
 			p1->times.begin()->startzeit + (long)p1->times.begin()->dauer == p2->times.begin()->startzeit + (long)p2->times.begin()->dauer ?
@@ -149,7 +149,7 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 		/* main thread function */
 		void run();
 	public:
-		CSectionThread(std::string tname, unsigned short pid)
+		CSectionThread(const std::string &tname, unsigned short pid)
 		{
 			name = tname;
 			pID = pid;
@@ -214,7 +214,7 @@ class CEventsThread : public CSectionThread
 		/* EIT-specific */
 		bool addEvents();
 	public:
-		CEventsThread(std::string tname, unsigned short pid = 0x12)
+		CEventsThread(const std::string &tname, unsigned short pid = 0x12)
 			: CSectionThread(tname, pid)
 		{
 		};
@@ -228,7 +228,7 @@ class CEitThread : public CEventsThread
 		void beforeSleep();
 	public:
 		CEitThread();
-		CEitThread(std::string tname, unsigned short pid = 0x12);
+		CEitThread(const std::string &tname, unsigned short pid = 0x12);
 };
 
 class CFreeSatThread : public CEventsThread

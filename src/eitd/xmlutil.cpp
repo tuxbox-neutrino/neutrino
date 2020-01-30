@@ -649,7 +649,8 @@ void *insertEventsfromXMLTV(void * data)
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
-	std::string url = (char *) data;
+	static std::string url = "";
+	url = (std::string)(char *) data;
 	std::string tmp_name = randomFile(getFileExt(url), "/tmp", 8);
 
 	int64_t now = time_monotonic_ms();

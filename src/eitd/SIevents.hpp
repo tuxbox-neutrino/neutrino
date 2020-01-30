@@ -107,18 +107,20 @@ public:
 	t_original_network_id originalNetworkId;
 	t_service_id          serviceId;
 
-	SIlinkage(void) {
+	SIlinkage(void):
+		transportStreamId(0),
+		originalNetworkId(0),
+		serviceId(0)
+	{
 		linkageType = 0;
-		transportStreamId = 0;
-		originalNetworkId = 0;
-		serviceId = 0;
 	}
 
-	SIlinkage(const struct descr_linkage_header *link) {
+	SIlinkage(const struct descr_linkage_header *link):
+		transportStreamId((link->transport_stream_id_hi << 8) | link->transport_stream_id_lo),
+		originalNetworkId((link->original_network_id_hi << 8) | link->original_network_id_lo),
+		serviceId((link->service_id_hi << 8) | link->service_id_lo)
+	{
 		linkageType = link->linkage_type;
-		transportStreamId = (link->transport_stream_id_hi << 8) | link->transport_stream_id_lo;
-		originalNetworkId = (link->original_network_id_hi << 8) | link->original_network_id_lo;
-		serviceId = (link->service_id_hi << 8) | link->service_id_lo;
 		if (link->descriptor_length > sizeof(struct descr_linkage_header) - 2)
 			name = convertDVBUTF8(((const char *)link)+sizeof(struct descr_linkage_header), link->descriptor_length-(sizeof(struct descr_linkage_header)-2), 0, 0);
 	}
@@ -296,8 +298,9 @@ class SItime {
 		time_t startzeit;  // lokale Zeit, 0 -> time shifted (cinedoms)
 		unsigned dauer; // in Sekunden, 0 -> time shifted (cinedoms)
 
-		SItime(time_t s, unsigned d) {
-			startzeit=s;
+		SItime(time_t s, unsigned d):
+			startzeit(s)
+		{
 			dauer=d; // in Sekunden, 0 -> time shifted (cinedoms)
 		}
 
@@ -502,10 +505,11 @@ class SIevent
 		SIeventClassifications classifications;
 
 		SIevent(const t_original_network_id, const t_transport_stream_id, const t_service_id, const unsigned short);
-		SIevent(void) {
-			service_id = 0;
-			original_network_id = 0;
-			transport_stream_id = 0;
+		SIevent(void):
+			service_id(0),
+			original_network_id(0),
+			transport_stream_id(0)
+		{
 			eventID    = 0;
 			//vps = 0;
 			table_id = 0xFF; /* 0xFF means "not set" */
