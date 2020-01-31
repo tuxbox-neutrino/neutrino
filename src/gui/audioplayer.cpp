@@ -785,6 +785,8 @@ int CAudioPlayerGui::show()
 				}
 			}
 		}
+#if 0
+		// FIXME; this seems totally broken
 		else if (msg == CRCInput::RC_info && !m_playlist.empty())
 		{
 			pictureviewer = true;
@@ -802,6 +804,7 @@ int CAudioPlayerGui::show()
 			paintLCD();
 			update = true;
 		}
+#endif
 		else if (msg == CRCInput::RC_help)
 		{
 			if (m_key_level == 2)
@@ -1720,12 +1723,22 @@ void CAudioPlayerGui::paintFoot()
 	if (CScreenSaver::getInstance()->isActive())
 		return;
 
-	const struct button_label SecondLineButtons[3] =
+#if 0
+	int c = 3;
+	const struct button_label SecondLineButtons[c] =
 	{
 		{ NEUTRINO_ICON_BUTTON_OKAY,	LOCALE_AUDIOPLAYER_PLAY		},
 		{ NEUTRINO_ICON_BUTTON_HELP,	LOCALE_AUDIOPLAYER_KEYLEVEL	},
 		{ NEUTRINO_ICON_BUTTON_INFO,	LOCALE_PICTUREVIEWER_HEAD	}
 	};
+#else
+	int c = 2;
+	const struct button_label SecondLineButtons[c] =
+	{
+		{ NEUTRINO_ICON_BUTTON_OKAY,	LOCALE_AUDIOPLAYER_PLAY		},
+		{ NEUTRINO_ICON_BUTTON_HELP,	LOCALE_AUDIOPLAYER_KEYLEVEL	}
+	};
+#endif
 
 	int radius = RADIUS_LARGE;
 	int button_y = m_y + m_height - OFFSET_SHADOW - m_info_height - OFFSET_INTER - OFFSET_SHADOW - 2*m_button_height;
@@ -1744,7 +1757,7 @@ void CAudioPlayerGui::paintFoot()
 	m_frameBuffer->paintBoxRel(m_x, button_y, m_width, 2*m_button_height, COL_MENUFOOT_PLUS_0, radius, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
 
 	if (!m_playlist.empty())
-		::paintButtons(button_x, button_y + m_button_height, button_width, 3, SecondLineButtons, button_width, m_button_height);
+		::paintButtons(button_x, button_y + m_button_height, button_width, c, SecondLineButtons, button_width, m_button_height);
 
 	if (m_key_level == 0)
 	{
