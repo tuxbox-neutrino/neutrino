@@ -1675,7 +1675,7 @@ void CAudioPlayerGui::paintItem(int pos)
 	if (currpos < m_playlist.size())
 	{
 		char sNr[20];
-		sprintf(sNr, "%2d : ", currpos + 1);
+		sprintf(sNr, (currpos + 1) < 10 ? "%02d: " : "%d: ", currpos + 1);
 		std::string tmp = sNr;
 		getFileInfoToDisplay(tmp, m_playlist[currpos]);
 
