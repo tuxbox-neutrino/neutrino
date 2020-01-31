@@ -180,7 +180,7 @@ magic_t known_magic[] =
 
 static int	meta_interval; /*chunked mode */
 static bool	chunked; /*chunked mode */
-char err_txt[2048];			/* human readable error message */
+char err_txt[32818];			/* human readable error message */
 char redirect_url[2048];		/* new url if we've been redirected (HTTP 301/302) */
 static int debug = 0;			/* print debugging output or not */
 static char logfile[256];		/* redirect errors from stderr */
@@ -344,7 +344,7 @@ int ConnectToServer(char *hostname, int port)
 
 int request_file(URL *url)
 {
-	char str[256], *ptr;
+	char str[4119], *ptr;
 	int slot;
 	ID3 id3;
 	memset(&id3, 0, sizeof(ID3));

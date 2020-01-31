@@ -85,7 +85,7 @@ extern int		f_seek(FILE *, long, int);
 extern int		f_status(FILE *, void (*)(void*));
 extern const char	*f_type(FILE*, const char*);
 
-extern char err_txt[2048];
+extern char err_txt[32818];
 
 #define CACHESIZE	cache_size
 #define CACHEENTMAX	20	/* at most 20 caches are available */
@@ -95,7 +95,7 @@ typedef struct
 {
 	int	access_mode;	/* access mode; FILE or HTTP */
 	int	proto_version;	/* 0= 1.0; 1 = 1.1; 2 = shoutcast */
-	char	url[2048];		/* universal resource locator */	
+	char	url[2127];		/* universal resource locator */
 	char	host[2048];
 	int	port;
 	char	file[2048];
