@@ -287,9 +287,6 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 		m_x = DETAILSLINE_WIDTH;
 	m_y = getScreenStartY(m_height);
 
-	m_idletime = time(NULL);
-	m_screensaver = false;
-
 	m_cover.clear();
 	m_stationlogo = false;
 
@@ -351,6 +348,7 @@ int CAudioPlayerGui::show()
 	m_frameBuffer->paintBackground();
 	CInfoClock::getInstance()->block();
 	CScreenSaver::getInstance()->OnAfterStop.connect(sigc::mem_fun(CInfoClock::getInstance(), &CInfoClock::block));
+	CScreenSaver::getInstance()->resetIdleTime();
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 	paintLCD();
 
@@ -372,6 +370,9 @@ int CAudioPlayerGui::show()
 
 	while (loop)
 	{
+		if (msg <= CRCInput::RC_MaxRC)
+			CScreenSaver::getInstance()->resetIdleTime();
+
 		updateMetaData();
 		updateTimes();
 
@@ -419,17 +420,17 @@ int CAudioPlayerGui::show()
 
 		if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER)
 		{
-			int delay = time(NULL) - m_idletime;
-			int screensaver_delay = g_settings.screensaver_delay;
-			if (screensaver_delay != 0 && delay > screensaver_delay*60 && !m_screensaver)
-				screensaver(true);
-		}
-		else
-		{
-			m_idletime = time(NULL);
-			if (m_screensaver)
+			if (CScreenSaver::getInstance()->canStart() && !CScreenSaver::getInstance()->isActive())
 			{
-				screensaver(false);
+				CScreenSaver::getInstance()->Start();
+			}
+		}
+		else if (!CScreenSaver::getInstance()->ignoredMsg(msg))
+		{
+			if (CScreenSaver::getInstance()->isActive())
+			{
+				printf("[audioplayer.cpp] CScreenSaver stop; msg: %lX\n", msg);
+				CScreenSaver::getInstance()->Stop();
 
 				m_frameBuffer->stopFrame();
 				m_frameBuffer->showFrame("mp3.jpg");
@@ -794,7 +795,7 @@ int CAudioPlayerGui::show()
 			picture->exec(this, "audio");
 			delete picture;
 			pictureviewer = false;
-			screensaver(false);
+			CScreenSaver::getInstance()->resetIdleTime();
 			videoDecoder->setBlank(true);
 			m_frameBuffer->showFrame("mp3.jpg");
 			CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
@@ -1544,7 +1545,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 
 		result = true;
 	}
-	m_idletime = time(NULL);
+	CScreenSaver::getInstance()->resetIdleTime();
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 	paintLCD();
 	// if playlist is turned off -> start playing immediately
@@ -1619,7 +1620,7 @@ bool CAudioPlayerGui::openSCbrowser(void)
 #endif
 		result = true;
 	}
-	m_idletime = time(NULL);
+	CScreenSaver::getInstance()->resetIdleTime();
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 	paintLCD();
 	// if playlist is turned off -> start playing immediately
@@ -1697,7 +1698,7 @@ void CAudioPlayerGui::paintItem(int pos)
 
 void CAudioPlayerGui::paintHead()
 {
-	if (!m_show_playlist || m_screensaver)
+	if (!m_show_playlist || CScreenSaver::getInstance()->isActive())
 		return;
 
 	CComponentsHeader header(m_x, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER, m_width, m_header_height, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_AUDIO);
@@ -1716,7 +1717,7 @@ void CAudioPlayerGui::paintHead()
 
 void CAudioPlayerGui::paintFoot()
 {
-	if (m_screensaver)
+	if (CScreenSaver::getInstance()->isActive())
 		return;
 
 	const struct button_label SecondLineButtons[3] =
@@ -1855,7 +1856,7 @@ void CAudioPlayerGui::paintCover()
 
 void CAudioPlayerGui::paintTitleBox()
 {
-	if (m_screensaver)
+	if (CScreenSaver::getInstance()->isActive())
 		return;
 
 	if (m_state == CAudioPlayerGui::STOP && m_show_playlist)
@@ -2149,31 +2150,31 @@ void CAudioPlayerGui::play(unsigned int pos)
 	if (m_selected - m_liststart >= m_listmaxshow && g_settings.audioplayer_follow)
 	{
 		m_liststart = m_selected;
-		if (!m_screensaver && !pictureviewer)
+		if (!CScreenSaver::getInstance()->isActive() && !pictureviewer)
 			paint();
 	}
 	else if (m_liststart < m_selected && g_settings.audioplayer_follow)
 	{
 		m_liststart = m_selected - m_listmaxshow + 1;
-		if (!m_screensaver && !pictureviewer)
+		if (!CScreenSaver::getInstance()->isActive() && !pictureviewer)
 			paint();
 	}
 	else
 	{
 		if (old_current >= m_liststart && old_current - m_liststart < m_listmaxshow)
 		{
-			if (!m_screensaver && !pictureviewer)
+			if (!CScreenSaver::getInstance()->isActive() && !pictureviewer)
 				paintItem(old_current - m_liststart);
 		}
 		if (pos >= m_liststart && pos - m_liststart < m_listmaxshow)
 		{
-			if (!m_screensaver && !pictureviewer)
+			if (!CScreenSaver::getInstance()->isActive() && !pictureviewer)
 				paintItem(pos - m_liststart);
 		}
 		if (g_settings.audioplayer_follow)
 		{
 			if (old_selected >= m_liststart && old_selected - m_liststart < m_listmaxshow)
-				if (!m_screensaver && !pictureviewer)
+				if (!CScreenSaver::getInstance()->isActive() && !pictureviewer)
 					paintItem(old_selected - m_liststart);
 		}
 	}
@@ -2186,7 +2187,7 @@ void CAudioPlayerGui::play(unsigned int pos)
 	m_state = CAudioPlayerGui::PLAY;
 	m_curr_audiofile = m_playlist[m_current];
 
-	if (m_screensaver && g_settings.audioplayer_cover_as_screensaver)
+	if (CScreenSaver::getInstance()->isActive() && g_settings.audioplayer_cover_as_screensaver)
 		CScreenSaver::getInstance()->forceRefresh();
 
 	// Play
@@ -2246,13 +2247,13 @@ void CAudioPlayerGui::updateMetaData()
 			info << " / " << meta.samplerate/1000 << "." << (meta.samplerate/100)%10 <<"kHz";
 
 		m_metainfo = meta.type_info + info.str();
-		updateMeta = !m_screensaver;
+		updateMeta = !CScreenSaver::getInstance()->isActive();
 
 		if (!meta.artist.empty() && meta.artist != m_curr_audiofile.MetaData.artist)
 		{
 			m_curr_audiofile.MetaData.artist = meta.artist;
 
-			if (!m_screensaver)
+			if (!CScreenSaver::getInstance()->isActive())
 				updateScreen = true;
 			updateLcd = true;
 		}
@@ -2261,7 +2262,7 @@ void CAudioPlayerGui::updateMetaData()
 		{
 			m_curr_audiofile.MetaData.title = meta.title;
 
-			if (!m_screensaver)
+			if (!CScreenSaver::getInstance()->isActive())
 				updateScreen = true;
 			updateLcd = true;
 		}
@@ -2272,7 +2273,7 @@ void CAudioPlayerGui::updateMetaData()
 			updateLcd = true;
 		}
 
-		if (!m_screensaver)
+		if (!CScreenSaver::getInstance()->isActive())
 			paintCover();
 	}
 	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
@@ -2320,7 +2321,7 @@ void CAudioPlayerGui::updateTimes(const bool force)
 			m_time_played = CAudioPlayer::getInstance()->getTimePlayed();
 			updatePlayed = true;
 		}
-		if (!m_screensaver)
+		if (!CScreenSaver::getInstance()->isActive())
 		{
 			char total_time[17];
 			snprintf(total_time, sizeof(total_time), " / %ld:%02ld", m_time_total / 60, m_time_total % 60);
@@ -2394,20 +2395,6 @@ void CAudioPlayerGui::paintLCD()
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_REV);
 			CVFD::getInstance()->showAudioTrack(m_curr_audiofile.MetaData.artist, m_curr_audiofile.MetaData.title, m_curr_audiofile.MetaData.album);
 			break;
-	}
-}
-void CAudioPlayerGui::screensaver(bool on)
-{
-	if (on)
-	{
-		m_screensaver = true;
-		CScreenSaver::getInstance()->Start();
-	}
-	else
-	{
-		CScreenSaver::getInstance()->Stop();
-		m_screensaver = false;
-		m_idletime = time(NULL);
 	}
 }
 

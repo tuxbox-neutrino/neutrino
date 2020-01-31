@@ -128,8 +128,6 @@ class CAudioPlayerGui : public CMenuTarget
 		int		m_title_w;
 
 		int		m_LastMode;
-		int		m_idletime;
-		bool		m_screensaver;
 		bool		m_inetmode;
 		CComponentsDetailsLine *m_detailsline;
 		CComponentsInfoBox *m_infobox;
@@ -158,7 +156,6 @@ class CAudioPlayerGui : public CMenuTarget
 		void updateMetaData();
 		void updateTimes(const bool force = false);
 		void showMetaData();
-		void screensaver(bool on);
 		bool getNumericInput(neutrino_msg_t& msg, int& val);
 
 		void addToPlaylist(CAudiofileExt &file);
