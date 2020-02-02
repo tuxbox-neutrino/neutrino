@@ -327,9 +327,6 @@ void CPictureViewer::Zoom (float factor)
 		return;
 	}
 
-	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
-	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
-
 	if (m_CurrentPic_X < (m_endx - m_startx))
 		m_CurrentPic_XPos = (m_endx - m_startx - m_CurrentPic_X) / 2 + m_startx;
 	else
@@ -338,11 +335,11 @@ void CPictureViewer::Zoom (float factor)
 		m_CurrentPic_YPos = (m_endy - m_starty - m_CurrentPic_Y) / 2 + m_starty;
 	else
 		m_CurrentPic_YPos = m_starty;
-	if ((m_endx - m_startx) > xs)
+	if (m_CurrentPic_X > (m_endx - m_startx))
 		m_CurrentPic_XPan = (m_CurrentPic_X - (m_endx - m_startx)) / 2;
 	else
 		m_CurrentPic_XPan = 0;
-	if ((m_endy - m_starty) > ys)
+	if (m_CurrentPic_Y > (m_endy - m_starty))
 		m_CurrentPic_YPan = (m_CurrentPic_Y - (m_endy - m_starty)) / 2;
 	else
 		m_CurrentPic_YPan = 0;
