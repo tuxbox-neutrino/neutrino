@@ -1887,12 +1887,9 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
 	if(x_pan > x_size - (int)xRes) x_pan = 0;
 	if(y_pan > y_size - (int)yRes) y_pan = 0;
 
-#if 0
 	/* correct offset */
-	/* this break move zoomed pic with pictureviewer */
 	if(x_offs + x_size > (int)xRes) x_offs = 0;
 	if(y_offs + y_size > (int)yRes) y_offs = 0;
-#endif
 
 	/* blit buffer 2 fb */
 	fbbuff = convertRGB2FB(rgbbuff, x_size, y_size, transp);
