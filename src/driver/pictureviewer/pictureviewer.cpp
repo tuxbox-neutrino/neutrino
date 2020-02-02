@@ -321,9 +321,14 @@ void CPictureViewer::Zoom (float factor)
 
 	if (m_CurrentPic_Buffer == oldBuf) {
 		// resize failed
+		m_CurrentPic_X = oldx;
+		m_CurrentPic_Y = oldy;
 		hideBusy ();
 		return;
 	}
+
+	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
+	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
 
 	if (m_CurrentPic_X < (m_endx - m_startx))
 		m_CurrentPic_XPos = (m_endx - m_startx - m_CurrentPic_X) / 2 + m_startx;
@@ -333,11 +338,11 @@ void CPictureViewer::Zoom (float factor)
 		m_CurrentPic_YPos = (m_endy - m_starty - m_CurrentPic_Y) / 2 + m_starty;
 	else
 		m_CurrentPic_YPos = m_starty;
-	if (m_CurrentPic_X > (m_endx - m_startx))
+	if ((m_endx - m_startx) > xs)
 		m_CurrentPic_XPan = (m_CurrentPic_X - (m_endx - m_startx)) / 2;
 	else
 		m_CurrentPic_XPan = 0;
-	if (m_CurrentPic_Y > (m_endy - m_starty))
+	if ((m_endy - m_starty) > ys)
 		m_CurrentPic_YPan = (m_CurrentPic_Y - (m_endy - m_starty)) / 2;
 	else
 		m_CurrentPic_YPan = 0;
