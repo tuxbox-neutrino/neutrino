@@ -878,7 +878,11 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 	unsigned char * cr;
 	if(dst == NULL)
 	{
-		size_t bufsize = dx * dy * ((alpha) ? 4 : 3);
+		int ai = ((alpha) ? 4 : 3);
+		if (dy <= 1 || dx <= 1 || (dx *ai > INT_MAX / dy))
+			return orgin;
+
+		size_t bufsize = dx * dy * ai;
 		if (!checkfreemem(bufsize)){
 			return orgin;
 		}
