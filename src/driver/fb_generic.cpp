@@ -1794,8 +1794,8 @@ void CFrameBuffer::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, u
 void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
 	uint32_t xc, yc;
-	xc = (width > xRes) ? xRes : width;
-	yc = (height > yRes) ? yRes : height;
+	xc = (width > xRes) ? xRes + xp : width;
+	yc = (height > yRes) ? yRes + yp: height;
 
 	if (xp >= xc || yp >= yc) {
 		printf(LOGTAG "%s: invalid parameters, xc: %u <= xp: %u or yc: %u <= yp: %u\n", __func__, xc, xp, yc, yp);
@@ -1887,9 +1887,12 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
 	if(x_pan > x_size - (int)xRes) x_pan = 0;
 	if(y_pan > y_size - (int)yRes) y_pan = 0;
 
+#if 0
 	/* correct offset */
+	/* this break move zoomed pic with pictureviewer */
 	if(x_offs + x_size > (int)xRes) x_offs = 0;
 	if(y_offs + y_size > (int)yRes) y_offs = 0;
+#endif
 
 	/* blit buffer 2 fb */
 	fbbuff = convertRGB2FB(rgbbuff, x_size, y_size, transp);
