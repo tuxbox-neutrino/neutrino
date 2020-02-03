@@ -444,7 +444,8 @@ int CHintBox::getMaxWidth(const string& Text, const string& Title, Font *font, c
 	int res = max(HINTBOX_MIN_WIDTH, max(minWidth+2*w_indentation, min(CTextBox::getMaxLineWidth(Text, font)+2*w_indentation, (int)frameBuffer->getScreenWidth())));
 	if (ccw_show_header){
 		initHeader();
-		return max(res, ccw_head->getCaptionFont()->getRenderWidth(Title) + 2*w_indentation);
+		int max_title_width = max(res, ccw_head->getCaptionFont()->getRenderWidth(Title) + 2*w_indentation);
+		return min(max_title_width, (int)frameBuffer->getScreenWidth());
 	}
 
 	return res;
