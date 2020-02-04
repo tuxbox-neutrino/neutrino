@@ -617,7 +617,7 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 						*  Paint of background image is prefered, next steps will be ignored!
 						*/
 						if (!cc_body_image.empty()){
-							if (g_PicViewer->DisplayImage(cc_body_image, v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy)){
+							if (g_PicViewer->DisplayImage(cc_body_image, v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, CFrameBuffer::TM_NONE)){
 								// catch screen and store into paint cache
 								v_fbdata.at(i).pixbuf = getScreen(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy);
 								v_fbdata.at(i).is_painted = true;
