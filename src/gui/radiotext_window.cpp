@@ -327,7 +327,7 @@ void CRadioTextGUI::paint(const bool &do_save_bg)
 	hide();
 	clearSavedScreen();
 
-	if (!g_Radiotext)
+	if (!g_Radiotext || CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_radio)
 		return;
 
 	if (!g_Radiotext->haveRadiotext())
