@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Copyright (C) 2013, M. Liebmann 'micha-bbg'
-	Copyright (C) 2013-2017, Thilo Graf 'dbt'
+	Copyright (C) 2013-2017, 2020, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -29,8 +29,8 @@
 
 #include <string>
 #include <driver/neutrinofonts.h>
-#include <gui/buildinfo.h>
-#include <gui/widget/msgbox.h>
+#include "gui/buildinfo.h"
+#include "gui/widget/msgbox.h"
 #include <system/helpers.h>
 
 #include <local_build_config.h>
@@ -40,7 +40,7 @@ using namespace std;
 CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, CCW_PERCENT 85, CCW_PERCENT 85, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
 {
 	initVarBuildInfo();
-	setBodyBGImage(DATADIR "/neutrino/icons/start.jpg");
+// 	setBodyBGImage(DATADIR "/neutrino/icons/start.jpg");
 	if (show)
 		exec(NULL, "");
 	else
@@ -94,6 +94,12 @@ int CBuildInfo::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
+		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_page_up)) {
+			Scroll(false);
+		}
+		else if ((msg == CRCInput::RC_down) || (msg == CRCInput::RC_page_down)) {
+			Scroll(true);
+		}
 		else if (msg <= CRCInput::RC_MaxRC){
 			break;
 		}
@@ -109,6 +115,18 @@ int CBuildInfo::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	hide();
 
 	return res;
+}
+
+void CBuildInfo::Scroll(bool scrollDown)
+{
+	CTextBox* ctb = static_cast<CComponentsExtTextForm*>(ccw_body->getCCItem(3))->getTextObject()->getCTextBoxObject();
+	ctb->enableBackgroundPaint(true); //FIXME: behavior of CTextBox scroll is broken with disabled background paint
+	if (ctb) {
+		if (scrollDown)
+			ctb->scrollPageDown(1);
+		else
+			ctb->scrollPageUp(1);
+	}
 }
 
 void CBuildInfo::setFontType(Font* font_text)
@@ -128,6 +146,15 @@ bool CBuildInfo::GetData()
 	v_info.push_back(compiler);
 #endif
 
+#ifdef USED_BUILD
+	build_info_t build = {BI_TYPE_ID_USED_BUILD , LOCALE_BUILDINFO_COMPILED_ON, USED_BUILD};
+	v_info.push_back(build);
+#endif
+
+	CComponentsText utext;
+	build_info_t kernel = {BI_TYPE_ID_USED_KERNEL, LOCALE_BUILDINFO_KERNEL, utext.getTextFromFile("/proc/version")};
+	v_info.push_back(kernel);
+
 #ifdef USED_CXXFLAGS
 	string cxxflags = USED_CXXFLAGS;
 	cxxflags = trim(cxxflags);
@@ -140,15 +167,6 @@ bool CBuildInfo::GetData()
 	build_info_t flags = {BI_TYPE_ID_USED_CXXFLAGS, LOCALE_BUILDINFO_COMPILER_FLAGS, cxxflags};
 	v_info.push_back(flags);
 #endif
-
-#ifdef USED_BUILD
-	build_info_t build = {BI_TYPE_ID_USED_BUILD , LOCALE_BUILDINFO_COMPILED_ON, USED_BUILD};
-	v_info.push_back(build);
-#endif
-
-	CComponentsText utext;
-	build_info_t kernel = {BI_TYPE_ID_USED_KERNEL, LOCALE_BUILDINFO_KERNEL, utext.getTextFromFile("/proc/version")};
-	v_info.push_back(kernel);
 
 #if 0
 	CConfigFile data ('\t');
@@ -176,15 +194,21 @@ void CBuildInfo::InitInfoItems()
 
 	//define size and position
 	int x_info = OFFSET_INNER_MID;
-	int h_info = ccw_body->getHeight()/v_info.size(); //default height
+	int h_info = 0; //default height
 	int w_info = width-2*x_info;
+	int y_info = OFFSET_INNER_MID;
 
 	//init info texts
 	for(size_t i=0; i<v_info.size(); i++){
-		CComponentsExtTextForm *info = new CComponentsExtTextForm(OFFSET_INNER_MID, CC_APPEND, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text, NULL, ccw_body);
+		h_info = v_info[i].type_id != BI_TYPE_ID_USED_CXXFLAGS ? font->getHeight() * 2 + OFFSET_INNER_MID : ccw_body->getHeight() - y_info;
+		CComponentsExtTextForm *info = new CComponentsExtTextForm(OFFSET_INNER_MID, y_info, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text, NULL, ccw_body);
 		info->setLabelAndTextFont(font);
-		info->setTextModes(CTextBox::TOP , CTextBox::AUTO_HIGH | CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS);
+		if (v_info[i].type_id == BI_TYPE_ID_USED_CXXFLAGS)
+			info->setTextModes(CTextBox::TOP , CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL);
+		else
+			info->setTextModes(CTextBox::TOP , CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS);
 		info->doPaintBg(false);
+		y_info += h_info;
 	}
 }
 
