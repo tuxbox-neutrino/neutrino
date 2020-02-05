@@ -347,7 +347,7 @@ void CScreenSaver::paint()
 
 		dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
 
-		m_frameBuffer->showFrame(v_bg_files.at(index), CFrameBuffer::SHOW_FRAME_FALLBACK_MODE_IMAGE);
+		m_frameBuffer->showFrame(v_bg_files.at(index), CFrameBuffer::SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED);
 
 		handleRadioText(g_settings.screensaver_mode_text);
 
@@ -386,6 +386,7 @@ void CScreenSaver::paint()
 #endif
 		m_frameBuffer->showFrame("blackscreen.jpg", CFrameBuffer::SHOW_FRAME_FALLBACK_MODE_CALLBACK | CFrameBuffer::SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN);
 #endif
+
 		handleRadioText(g_settings.screensaver_mode_text);
 
 		if (scr_clock)
@@ -445,12 +446,9 @@ void CScreenSaver::handleRadioText(bool enable_paint)
 	if (!g_RadiotextWin)
 		return;
 
-	if (g_RadiotextWin->isPainted() || g_settings.screensaver_mode == SCR_MODE_IMAGE)
-	{
-		g_RadiotextWin->hide();
-		g_RadiotextWin->clearSavedScreen();
-	}
-	else
+	g_RadiotextWin->clearSavedScreen();
+
+	if (g_settings.screensaver_mode != SCR_MODE_IMAGE)
 		g_RadiotextWin->kill(/*COL_BLACK*/); //ensure black paintBackground before repaint
 
 	//check position and size, use only possible available screen size
@@ -471,6 +469,8 @@ void CScreenSaver::handleRadioText(bool enable_paint)
 		if (scr_clock)
 			scr_clock->cl_sl_show.unblock();
 	}
+
+	m_frameBuffer->OnFallbackShowFrame.connect(sigc::mem_fun(g_RadiotextWin, &CRadioTextGUI::hide));
 }
 
 void CScreenSaver::hideRadioText()
