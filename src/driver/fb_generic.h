@@ -271,8 +271,9 @@ class CFrameBuffer : public sigc::trackable
 			{
 				SHOW_FRAME_FALLBACK_MODE_OFF		= 0,
 				SHOW_FRAME_FALLBACK_MODE_IMAGE		= 1,
-				SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN	= 2,
-				SHOW_FRAME_FALLBACK_MODE_CALLBACK	= 4
+				SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED	= 2,
+				SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN	= 4,
+				SHOW_FRAME_FALLBACK_MODE_CALLBACK	= 8
 			};
 		bool showFrame(const std::string & filename, int fallback_mode = SHOW_FRAME_FALLBACK_MODE_OFF);
 		void stopFrame();

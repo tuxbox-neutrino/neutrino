@@ -1576,7 +1576,7 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	std::string picture = getIconPath(filename, "");
 	bool ret = false;
 
-	if (access(picture.c_str(), F_OK) == 0)
+	if (access(picture.c_str(), F_OK) == 0 && !(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
 	{
 		if (videoDecoder)
 		{
@@ -1593,16 +1593,28 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	}
 	else
 	{
-		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
-		picture = "";
+		if (!(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
+		{
+			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+			picture = "";
+		}
 	}
 
 	if (!ret)
 	{
 		if (fallback_mode)
 		{
-			if ((fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE) && !picture.empty())
-				ret = g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
+			if (fallback_mode & (SHOW_FRAME_FALLBACK_MODE_IMAGE | SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED) && !picture.empty())
+			{
+				if (fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED)
+				{
+					SetTransparent(TM_NONE);
+					ret = g_PicViewer->ShowImage(picture.c_str(), false);
+					SetTransparentDefault();
+				}
+				else
+					ret = g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
+			}
 			else
 				ret = false;
 
