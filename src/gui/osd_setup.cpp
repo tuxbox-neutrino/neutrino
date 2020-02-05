@@ -43,6 +43,7 @@
 #include "osd_helpers.h"
 #include "themes.h"
 #include "screensetup.h"
+#include "screensaver.h"
 #include "osdlang_setup.h"
 #include "filebrowser.h"
 #include "osd_progressbar_setup.h"
@@ -1531,11 +1532,11 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SCREENSAVER_DELAY)) {
 		screensaverActivate.Activate(g_settings.screensaver_delay != 0);
-		screensaverOptActivate.Activate(g_settings.screensaver_delay != 0 && g_settings.screensaver_mode == 0);
+		screensaverOptActivate.Activate(g_settings.screensaver_delay != 0 && g_settings.screensaver_mode == CScreenSaver::SCR_MODE_IMAGE);
 		return false;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SCREENSAVER_MODE)) {
-		screensaverOptActivate.Activate(g_settings.screensaver_mode == 0);
+		screensaverOptActivate.Activate(g_settings.screensaver_mode == CScreenSaver::SCR_MODE_IMAGE);
 		return false;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_PRESET)) {
@@ -1746,13 +1747,14 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 }
 #endif
 
-#define SCREENSAVER_MODE_OPTION_COUNT 3
-const CMenuOptionChooser::keyval SCREENSAVER_MODE_OPTIONS[SCREENSAVER_MODE_OPTION_COUNT] =
+const CMenuOptionChooser::keyval SCREENSAVER_MODE_OPTIONS[] =
 {
 	{ 0, LOCALE_SCREENSAVER_MODE_IMAGE },
 	{ 1, LOCALE_SCREENSAVER_MODE_CLOCK },
 	{ 2, LOCALE_SCREENSAVER_MODE_CLOCK_COLOR }
 };
+size_t screensaver_mode_options_size = sizeof(SCREENSAVER_MODE_OPTIONS)/sizeof(SCREENSAVER_MODE_OPTIONS[0]);
+
 
 void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
 {
@@ -1768,7 +1770,7 @@ void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
 	menu_screensaver->addItem(nc);
 
 	// screensaver mode
-	CMenuOptionChooser* oc = new CMenuOptionChooser(LOCALE_SCREENSAVER_MODE, &g_settings.screensaver_mode, SCREENSAVER_MODE_OPTIONS, SCREENSAVER_MODE_OPTION_COUNT, (g_settings.screensaver_delay != 0), this);
+	CMenuOptionChooser* oc = new CMenuOptionChooser(LOCALE_SCREENSAVER_MODE, &g_settings.screensaver_mode, SCREENSAVER_MODE_OPTIONS, screensaver_mode_options_size, (g_settings.screensaver_delay != 0), this);
 	oc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_MODE);
 	menu_screensaver->addItem(oc);
 	screensaverActivate.Add(oc);
@@ -1791,6 +1793,12 @@ void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
 	oc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_RANDOM);
 	menu_screensaver->addItem(oc);
 	screensaverOptActivate.Add(oc);
+
+	// screensaver text mode
+	oc = new CMenuOptionChooser(LOCALE_SCREENSAVER_ENABLE_TEXT_INFO, &g_settings.screensaver_mode_text, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, (g_settings.screensaver_delay != 0), this);
+	oc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_ENABLE_TEXT_INFO);
+	menu_screensaver->addItem(oc);
+	screensaverActivate.Add(oc);
 }
 
 void COsdSetup::paintWindowSize(int w, int h)

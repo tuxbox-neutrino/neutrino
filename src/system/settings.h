@@ -311,6 +311,7 @@ struct SNeutrinoSettings
 	int screensaver_timeout;
 	int screensaver_random;
 	int screensaver_mode;
+	int screensaver_mode_text;
 
 	//vcr
 	int vcr_AutoSwitch;
