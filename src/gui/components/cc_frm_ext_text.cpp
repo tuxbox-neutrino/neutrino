@@ -31,7 +31,6 @@
 #include <driver/fontrenderer.h>
 
 
-#define DEF_HEIGHT CFrameBuffer::getInstance()->scale2Res(27)
 #define DEF_WIDTH CFrameBuffer::getInstance()->scale2Res(300)
 #define DEF_LABEL_WIDTH_PERCENT 30
 
@@ -41,7 +40,6 @@ CComponentsExtTextForm::CComponentsExtTextForm(CComponentsForm* parent)
 {
 	Font* t_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 	initVarExtTextForm(0, 0, DEF_WIDTH, t_font->getHeight(), "", "", t_font, parent, CC_SHADOW_OFF, COL_MENUCONTENTINACTIVE_TEXT, COL_MENUCONTENT_TEXT, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
-	initCCTextItems();
 }
 
 CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -54,7 +52,6 @@ CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_p
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	initVarExtTextForm(x_pos, y_pos, w, h, label_text, text, font_text, parent, shadow_mode, label_color, text_color, color_frame, color_body, color_shadow);
-	initCCTextItems();
 }
 
 CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -67,7 +64,6 @@ CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_p
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	initVarExtTextForm(x_pos, y_pos, w, h, (string)g_Locale->getText(l_text), text, font_text, parent, shadow_mode, label_color, text_color, color_frame, color_body, color_shadow);
-	initCCTextItems();
 }
 
 
@@ -91,9 +87,11 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	ccx_label_width = DEF_LABEL_WIDTH_PERCENT * width/100;
 	ccx_text_width	= width-ccx_label_width;
 
-	height = h;
-	if (height == 0)
-		height = DEF_HEIGHT;
+	ccx_font 	= font_text;
+	if (ccx_font == NULL)
+		ccx_font =  g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+
+	height = max(h, ccx_font->getHeight());
 
 	y_text = 0;
 
@@ -108,15 +106,11 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	ccx_label_obj	= NULL;
 	ccx_text_obj	= NULL;
 	corner_type	= 0;
-	ccx_font 	= font_text;
-	if (ccx_font == NULL){
-		int dx = 0, dy 	= height;
-		ccx_font =  *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy));
-	}
+
 	ccx_label_align = ccx_text_align = CTextBox::NO_AUTO_LINEBREAK;
 
 	initParent(parent);
-
+	initCCTextItems();
 }
 
 void CComponentsExtTextForm::initLabel()
@@ -130,7 +124,6 @@ void CComponentsExtTextForm::initLabel()
 	//set label properties
 	if (ccx_label_obj){
 		//assign general properties
-		y_text = height/2 - height-2*fr_thickness;
 		ccx_label_obj->setDimensionsAll(0, y_text, ccx_label_width-2*fr_thickness, height-2*fr_thickness);
 		ccx_label_obj->setColorBody(col_body);
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
@@ -155,7 +148,6 @@ void CComponentsExtTextForm::initText()
 
 	if (ccx_text_obj){
 		//assign general properties
-		y_text = height/2 - height-2*fr_thickness;
 		ccx_text_obj->setDimensionsAll(ccx_label_obj->getWidth(), y_text, ccx_text_width-2*fr_thickness, height-2*fr_thickness);
 		ccx_text_obj->setColorBody(col_body);
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
