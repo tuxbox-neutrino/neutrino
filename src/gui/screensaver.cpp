@@ -363,7 +363,7 @@ void CScreenSaver::paint()
 	{
 		if (!scr_clock)
 		{
-			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M", "%H %M", false, 1, NULL, CC_SHADOW_OFF, COL_BLACK, COL_BLACK);
+			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", "%H:%M %S", false, 1, NULL, CC_SHADOW_OFF, COL_BLACK, COL_BLACK);
 			scr_clock->setItemName("scr_clock");
 			scr_clock->setCornerType(CORNER_NONE);
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
