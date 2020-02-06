@@ -3286,6 +3286,13 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 			autoshot_done = true;
 			return;
 		}
+		std::string::size_type lastpos = fname.find_last_of('/');
+		int len = fname.length() + 30 - lastpos + g_settings.screenshot_dir.length() ;
+		if( len > NAME_MAX && !pretty_name.empty() && pretty_name.length() <= NAME_MAX)
+			fname = "/" +  pretty_name;
+		else if( len > NAME_MAX && !info_1.empty() && info_1.length() <= NAME_MAX)
+			fname = "/" + info_1;
+
 		cover = false;
 		autoshot = false;
 		forcover = false;
