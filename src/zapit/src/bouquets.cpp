@@ -1120,8 +1120,14 @@ void CBouquetManager::loadWebchannels(int mode)
 						if (line[len - 1] == '\r')
 							line[len - 1 ] = 0;
 
-						if (strncmp(line, "#SERVICE 4097:0:1:0:0:0:0:0:0:0:", 32) == 0)
-							url = line + 32;
+						if ((strncmp(line, "#SERVICE 4097:", 14) == 0) || (strncmp(line, "#SERVICE 5002:", 14) == 0))
+						{
+							char *url2;
+							u_int service;
+							u_int i1,i2,i3,i4,satpos;
+							sscanf (line,"#SERVICE %X:0:%X:%X:%X:%X:%X:0:0:0:%m[^\n]s",&service,&i1,&i2,&i3,&i4,&satpos,&url2);
+							url = url2;
+						}
 						else if (strncmp(line, "#DESCRIPTION", 12) == 0)
 						{
 							int offs = line[12] == ':' ? 14 : 13;
