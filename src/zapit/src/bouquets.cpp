@@ -1137,6 +1137,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								continue;
 							}
 							url = url2;
+							free(url2);
 						}
 						else if (strncmp(line, "#DESCRIPTION", 12) == 0)
 						{
