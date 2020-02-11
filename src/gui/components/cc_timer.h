@@ -50,7 +50,7 @@ class CComponentsTimer : public sigc::trackable
 
 		///refresh interval in seconds
 		int64_t tm_interval;
-		int64_t tm_ticks;
+		uint64_t tm_ticks;
 
 		///runs shared timer action provided inside OnTimer() signal
 		static void threadCallback(CComponentsTimer *tm);
