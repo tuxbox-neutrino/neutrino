@@ -469,7 +469,16 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.ci_delay = configfile.getInt32("ci_delay", 256);
 #endif
 	// ci-settings for each slot
-	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	unsigned int ci_slots = cCA::GetInstance()->GetNumberCISlots();
+	if (strcmp(g_info.hw_caps->boxvendor, "Coolstream") == 0)
+	{
+		/*
+		   CST hardware isn't initialized here,
+		   so we assume one ci-slot (two for HD1 BSE).
+		*/
+		ci_slots = (strcmp(g_info.hw_caps->boxname, "HD1") == 0) ? 2 : 1;
+	}
+	for (unsigned int i = 0; i < ci_slots; i++) {
 		sprintf(cfg_key, "ci_ignore_messages_%d", i);
 		g_settings.ci_ignore_messages[i] = configfile.getInt32(cfg_key, 0);
 		sprintf(cfg_key, "ci_save_pincode_%d", i);
