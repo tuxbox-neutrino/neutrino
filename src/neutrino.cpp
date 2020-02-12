@@ -466,7 +466,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0);
 	g_settings.ci_mode = configfile.getInt32("ci_mode", 0);
 #if BOXMODEL_VUPLUS
-	g_settings.ci_delay = configfile.getInt32("ci_delay", 256);
+	g_settings.ci_delay = configfile.getInt32("ci_delay", 128);
 #endif
 	// ci-settings for each slot
 	unsigned int ci_slots = cCA::GetInstance()->GetNumberCISlots();
