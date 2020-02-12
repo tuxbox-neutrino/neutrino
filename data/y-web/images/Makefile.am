@@ -108,6 +108,10 @@ if BOXMODEL_H7
 install_DATA += rc_zgemma_h7.png
 endif
 
+if BOXMODEL_OSMIOPLUS4K
+install_DATA += rc_osmio4k.png
+endif
+
 if BOXMODEL_VUDUO4K
 install_DATA += rc_vuplus.png
 endif
