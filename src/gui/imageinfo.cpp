@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Implementation of component classes
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2020, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -29,7 +29,7 @@
 #include <version_hal.h>
 #endif
 
-#include <gui/imageinfo.h>
+#include "imageinfo.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -77,7 +77,7 @@ void CImageInfo::Init(void)
 	btn_red		= NULL;
 	btn_green	= NULL;
 	item_offset	= OFFSET_INNER_MID;
-	item_font 	= NULL;
+	item_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL];
 	item_height 	= 0;
 	y_tmp 		= 0;
 	license_txt	= "";
@@ -425,14 +425,12 @@ void CImageInfo::InitInfos()
 	//create label and text items
 	y_tmp = 0;
 	for (size_t i=0; i<v_info.size(); i++) {
-		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, v_info[i].caption, v_info[i].info_text);
+		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, v_info[i].caption, v_info[i].info_text, item_font);
 		item->setLabelWidthPercent(15);
 
-		if (!item_font){
-			item_font = item->getFont();
-			//calculate initial height for info form
-			item_height = item_font->getHeight();
-		}
+		//calculate initial height for info form
+		item_height = item_font->getHeight();
+
 		item->setHeight(item_height);
 		cc_info->setHeight(v_info.size()*item_height);
 
