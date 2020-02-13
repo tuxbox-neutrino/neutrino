@@ -208,10 +208,12 @@ CHintBox::~CHintBox()
 
 void CHintBox::enableTimeOutBar(bool enable)
 {
-	if(!enable_timeout_bar){
+	if (!enable_timeout_bar || !enable)
+	{
 		if(timeout_pb_timer){
 			delete timeout_pb_timer; timeout_pb_timer = NULL;
 		}
+
 		if(timeout_pb){
 			timeout_pb->setValues(100, 100);
 			timeout_pb->paint0();
@@ -220,7 +222,6 @@ void CHintBox::enableTimeOutBar(bool enable)
 		}
 		return;
 	}
-	else
 
 	if (enable_timeout_bar && enable)
 	{
@@ -228,8 +229,10 @@ void CHintBox::enableTimeOutBar(bool enable)
 			timeout_pb->setValues(timeout_pb->getValue()+1, 10*timeout);
 			timeout_pb->paint0();
 		}else{
-			timeout_pb = new CProgressBar();
-			timeout_pb->setType(CProgressBar::PB_TIMESCALE);
+			if (!timeout_pb){
+				timeout_pb = new CProgressBar();
+				timeout_pb->setType(CProgressBar::PB_TIMESCALE);
+			}
 			timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
 			timeout_pb->setValues(timeout/10, timeout);
 			if (!timeout_pb_timer) {
@@ -255,8 +258,7 @@ int CHintBox::exec()
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
-	if (timeout > 0)
-		enableTimeOutBar();
+	enableTimeOutBar(timeout > 0);
 
 	while ( ! ( res & ( messages_return::cancel_info | messages_return::cancel_all ) ) )
 	{
