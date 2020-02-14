@@ -3247,12 +3247,12 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
 	{
-		g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
-
 		// FIXME: Maybe there's a nicer solution
-		for (int m = CZapitClient::MODE_TV; m < CZapitClient::MODE_ALL; m++)
+		for (int m = 0; m < 2; m++)
 		{
-			if (m == CZapitClient::MODE_RADIO)
+			if (m == 0)
+				g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
+			else
 				g_bouquetManager->Bouquets[i]->getRadioChannels(chanlist);
 
 		if(!chanlist.empty() && !g_bouquetManager->Bouquets[i]->bHidden && g_bouquetManager->Bouquets[i]->bUser)
