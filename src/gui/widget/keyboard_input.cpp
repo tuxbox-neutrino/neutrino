@@ -422,7 +422,7 @@ void CKeyboardInput::keyDigiPressed(const neutrino_msg_t key)
 	if (focus == FOCUS_KEY)
 		paintKey(old_srow, old_col);
 
-	focus = FOCUS_KEY;
+	//focus = FOCUS_KEY;
 	paintKey(srow, scol);
 	NormalKeyPressed();
 }
