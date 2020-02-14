@@ -3232,7 +3232,6 @@ void CControlAPI::updateBouquetCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 {
-	int mode = NeutrinoAPI->Zapit->getMode();
 	hh->ParamList["format"] = "xml";
 	hh->outStart();
 
@@ -3248,10 +3247,14 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
 	{
-		if (mode == CZapitClient::MODE_RADIO)
-			g_bouquetManager->Bouquets[i]->getRadioChannels(chanlist);
-		else
-			g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
+		// FIXME: Maybe there's a nicer solution
+		for (int m = 0; m < 2; m++)
+		{
+			if (m == 0)
+				g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
+			else
+				g_bouquetManager->Bouquets[i]->getRadioChannels(chanlist);
+
 		if(!chanlist.empty() && !g_bouquetManager->Bouquets[i]->bHidden && g_bouquetManager->Bouquets[i]->bUser)
 		{
 			for(int j = 0; j < (int) chanlist.size(); j++)
@@ -3295,6 +3298,8 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 				}
 			}
 		}
+
+		} // for m-loop
 	}
 
 
@@ -3310,7 +3315,9 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 	hh->outStart();
 	std::string result = "";
 
-	int mode = NeutrinoAPI->Zapit->getMode();
+	int mode = CZapitClient::MODE_TV;
+	if (hh->ParamList["mode"] == "radio")
+		mode = CZapitClient::MODE_RADIO;
 
 	std::string host = "";
 	if (!hh->ParamList["host"].empty())

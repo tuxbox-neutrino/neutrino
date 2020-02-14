@@ -469,7 +469,6 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 
 	while ((programme = xmlGetNextOccurence(programme,"programme")))
 	{
-
 		const char *chan = xmlGetAttribute(programme, "channel");
 		const char *start = xmlGetAttribute(programme, "start");
 		const char *stop  = xmlGetAttribute(programme, "stop");

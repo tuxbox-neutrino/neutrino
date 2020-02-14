@@ -141,7 +141,9 @@ int CWebTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		std::string tpl = "http://xxx.xxx.xxx.xxx/control/xmltv.m3u";
 		if (webradio)
-			tpl.clear(); // no template for webradio yet
+			tpl += "?mode=radio";
+		else
+			tpl += "?mode=tv";
 		std::string entry = tpl;
 
 		CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBTV_XML_ENTER, &entry, 50);
@@ -165,6 +167,10 @@ int CWebTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		const char *action_str = "ScriptPath";
 		chooserDir(g_settings.livestreamScriptPath, false, action_str);
 		return res;
+	}
+	if (actionKey == "webtv_menu")
+	{
+		webradio = false;
 	}
 	if (actionKey == "webradio_menu")
 	{
