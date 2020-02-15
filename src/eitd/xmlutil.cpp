@@ -542,6 +542,12 @@ t_channel_id getepgid(std::string epg_name)
 
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
 
+	// FIXME: Maybe there's a nicer solution
+	for (int m = 0; m < 2; m++)
+	{
+		if (m == 1)
+			cit = g_bouquetManager->radioChannelsBegin();
+
 	for (; !(cit.EndOfChannels()); cit++)
 	{
 		std::string tvg_id = (*cit)->getScriptName();
@@ -559,6 +565,9 @@ t_channel_id getepgid(std::string epg_name)
 		else
 			continue;
 	}
+
+	} // for m-loop
+
 	return 0;
 }
 
