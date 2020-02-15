@@ -231,13 +231,14 @@ void CHintBox::enableTimeOutBar(bool enable)
 		}else{
 			if (!timeout_pb){
 				timeout_pb = new CProgressBar();
+				timeout_pb->setItemName("timeout_bar");
 				timeout_pb->setType(CProgressBar::PB_TIMESCALE);
 			}
 			timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
 			timeout_pb->setValues(timeout/10, timeout);
 			if (!timeout_pb_timer) {
 				timeout_pb_timer = new CComponentsTimer(100);
-				const string tn = cc_item_type.name + ":timeout_bar:";
+				const string tn = cc_item_type.name + ":" + timeout_pb->getItemName() + ":";
 				timeout_pb_timer->setThreadName(tn);
 			}
 			sl_tbar_on_timer.disconnect();
