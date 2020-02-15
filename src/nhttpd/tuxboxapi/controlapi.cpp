@@ -3358,6 +3358,8 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 					result += " tvg-logo=\"" + host + NeutrinoAPI->getLogoFile(channel->getChannelID()) + "\"";
 				else
 					result += " tvg-logo=\"\"";
+				if (mode == CZapitClient::MODE_RADIO)
+					result += " radio=\"true\"";
 				result += " group-prefix=\"" + std::string(hostname) + "\"";
 				result += " group-title=\"" + bouq_name + "\",";
 				result += channel->getName() + "\n";
