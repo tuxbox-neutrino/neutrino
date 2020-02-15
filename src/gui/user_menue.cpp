@@ -196,7 +196,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 	bool _mode_ts    = CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts;
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
-				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+				(CZapit::getInstance()->GetCurrentChannel() && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
 	bool timeshift = CMoviePlayerGui::getInstance().timeshift;
 	bool adzap_active = CAdZapMenu::getInstance()->isActive();
