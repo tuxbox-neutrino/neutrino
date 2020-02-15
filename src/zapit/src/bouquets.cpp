@@ -1001,7 +1001,7 @@ void CBouquetManager::loadWebchannels(int mode)
 					if (strLine.find(M3U_INFO_MARKER) != std::string::npos)
 					{
 						int iColon = (int)strLine.find_first_of(':');
-						int iComma = (int)strLine.find_last_of(',');
+						int iComma = (int)strLine.find_first_of(',');
 						title = "";
 						prefix = "";
 						group = "";
