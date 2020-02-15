@@ -29,7 +29,7 @@
 CCTypes::CCTypes()
 {
 	cc_item_type.id		= CC_ITEMTYPE_GENERIC;
-	cc_item_type.name	= "cc_generic_type";
+	cc_item_type.name	= "";
 }
 
 
