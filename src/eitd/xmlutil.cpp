@@ -543,9 +543,9 @@ t_channel_id getepgid(std::string epg_name)
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
 
 	// FIXME: Maybe there's a nicer solution
-	for (int m = 0; m < 2; m++)
+	for (int m = CZapitClient::MODE_TV; m < CZapitClient::MODE_ALL; m++)
 	{
-		if (m == 1)
+		if (m == CZapitClient::MODE_RADIO)
 			cit = g_bouquetManager->radioChannelsBegin();
 
 	for (; !(cit.EndOfChannels()); cit++)
