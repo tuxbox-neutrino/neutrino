@@ -542,31 +542,29 @@ t_channel_id getepgid(std::string epg_name)
 
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
 
-	// FIXME: Maybe there's a nicer solution
 	for (int m = CZapitClient::MODE_TV; m < CZapitClient::MODE_ALL; m++)
 	{
 		if (m == CZapitClient::MODE_RADIO)
 			cit = g_bouquetManager->radioChannelsBegin();
 
-	for (; !(cit.EndOfChannels()); cit++)
-	{
-		std::string tvg_id = (*cit)->getScriptName();
-
-		if (tvg_id.empty())
-			continue;
-
-		std::size_t found = tvg_id.find("#"+epg_name);
-  		if (found != std::string::npos)
+		for (; !(cit.EndOfChannels()); cit++)
 		{
-			tvg_id = tvg_id.substr(tvg_id.find_first_of("="));
-			sscanf(tvg_id.c_str(), "=%" SCNx64, &epgid);
-			return epgid;
-		}
-		else
-			continue;
-	}
+			std::string tvg_id = (*cit)->getScriptName();
 
-	} // for m-loop
+			if (tvg_id.empty())
+				continue;
+
+			std::size_t found = tvg_id.find("#"+epg_name);
+			if (found != std::string::npos)
+			{
+				tvg_id = tvg_id.substr(tvg_id.find_first_of("="));
+				sscanf(tvg_id.c_str(), "=%" SCNx64, &epgid);
+				return epgid;
+			}
+			else
+				continue;
+		}
+	}
 
 	return 0;
 }
