@@ -230,7 +230,7 @@ void CHDDMenuHandler::getBlkIds()
 std::string CHDDMenuHandler::getDefaultPart(std::string dev)
 {
 	std::string part = "1";
-	if (dev == "mmcblk0")
+	if (strncmp(dev.c_str(), "mmcblk", 6) == 0)
 		part = "p1";
 	return part;
 }
