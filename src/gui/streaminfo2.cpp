@@ -183,11 +183,13 @@ void CStreamInfo2::analyzeStream(AVFormatContext *avfc, unsigned int idx)
 	size_t pos = m["codec"].find_first_of(":");
 	if (pos != std::string::npos)
 		m["codec"] = m["codec"].erase(0, pos + 2);
+
 #if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
-	m["codec_type"] = av_get_media_type_string(st->codecpar->codec_type);
+	std::string codecType = av_get_media_type_string(st->codecpar->codec_type) ? av_get_media_type_string(st->codecpar->codec_type):"unknown";
 #else
-	m["codec_type"] = av_get_media_type_string(st->codec->codec_type);
+	std::string codecType = av_get_media_type_string(st->codec->codec_type) ? av_get_media_type_string(st->codec->codec_type):"unknown";
 #endif
+	m["codec_type"] = codecType;
 	m["codec_type"][0] ^= 'a' ^ 'A';
 
 	m["pid"] = to_string(st->id);
