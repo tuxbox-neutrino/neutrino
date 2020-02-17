@@ -32,6 +32,7 @@
 #include <eitd/sectionsd.h>
 #include <configfile.h>
 #include <system/configure_network.h>
+#include <system/helpers.h>
 #include <cs_api.h>
 #include <gui/plugins.h>//for relodplugins
 #include <neutrino.h>
@@ -3353,9 +3354,10 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 				{
 					CZapitChannel *channel = chanlist[j];
 					std::string bouq_name = g_bouquetManager->Bouquets[i]->bName;
+					std::string chan_name = channel->getName();
 					std::string chan_id_short = string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 					result += "#EXTINF:-1 tvg-id=\"" + chan_id_short + "\"";
-					result += " tvg-name=\"" + channel->getName() + "\"";
+					result += " tvg-name=\"" + str_replace(",", ".", chan_name) + "\"";
 					if (!NeutrinoAPI->getLogoFile(channel->getChannelID()).empty())
 						result += " tvg-logo=\"" + host + NeutrinoAPI->getLogoFile(channel->getChannelID()) + "\"";
 					else
