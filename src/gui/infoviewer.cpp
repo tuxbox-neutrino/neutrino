@@ -550,6 +550,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 				 const int duration, const int curr_pos,
 				 const int repeat_mode, const int _zap_mode)
 {
+	CInfoClock::getInstance()->disableInfoClock();
+
 	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
 	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
 	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
