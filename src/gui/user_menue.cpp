@@ -82,6 +82,7 @@
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
 #include <gui/webtv_setup.h>
+#include <gui/miscsettings_menu.h>
 
 #include <driver/radiotext.h>
 #include <driver/record.h>
@@ -247,6 +248,11 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_EPG_MISC:
 		{
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_READ_NOW, g_settings.epg_read, NULL, new CMiscMenue(), "epg_read_now_usermenu", key, icon);
+			menu_item->setHint("", LOCALE_MENU_HINT_EPG_READ_NOW);
+			menu->addItem(menu_item, false);
+
 			dummy = g_Sectionsd->getIsScanningActive();
 			keyhelper.get(&key,&icon);
 			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this , key, icon );
