@@ -1877,7 +1877,7 @@ int getActivePartition()
 		}
 		fclose(f);
 	}
-#elif BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIOPLUS4K
+#elif BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4KPLUS
 	FILE *f;
 	// first check for subdirboot layout
 	f = fopen("/sys/firmware/devicetree/base/chosen/bootargs", "r");
