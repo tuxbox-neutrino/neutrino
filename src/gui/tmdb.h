@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015 TangoCash
+	Copyright (C) 2015-2020 TangoCash
 
 	License: GPLv2
 
@@ -22,6 +22,7 @@
 
 #include <string>
 #include "system/helpers.h"
+#include <system/helpers-json.h>
 
 #define TMDB_COVER "/tmp/tmdb.jpg"
 
@@ -50,7 +51,8 @@ class cTmdb
 		tmdbinfo minfo;
 
 		std::string key; // tmdb api key
-		bool GetMovieDetails(std::string lang);
+		bool GetMovieDetails(std::string lang, bool second = false);
+		void selectResult(Json::Value elements, int results, int &used_result);
 
 	public:
 		cTmdb();

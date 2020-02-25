@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015,2018 TangoCash
+	Copyright (C) 2015-2020 TangoCash
 
 	License: GPLv2
 
@@ -33,15 +33,15 @@
 #include <set>
 #include <string>
 
+#include <neutrino.h>
+
 #include "system/settings.h"
-#include <system/helpers-json.h>
 #include "system/set_threadname.h"
 #include "gui/widget/hintbox.h"
 
 #include <driver/screen_max.h>
 
 #include <global.h>
-#include <json/json.h>
 
 #include "tmdb.h"
 
@@ -77,12 +77,12 @@ void cTmdb::setTitle(std::string epgtitle)
 	std::string lang = Lang2ISO639_1(g_settings.language);
 	GetMovieDetails(lang);
 	if ((minfo.result < 1 || minfo.overview.empty()) && lang != "en")
-		GetMovieDetails("en");
+		GetMovieDetails("en", true);
 
 	hintbox.hide();
 }
 
-bool cTmdb::GetMovieDetails(std::string lang)
+bool cTmdb::GetMovieDetails(std::string lang, bool second)
 {
 	printf("[TMDB]: %s\n",__func__);
 	std::string url	= "http://api.themoviedb.org/3/search/multi?api_key="+key+"&language="+lang+"&query=" + encodeUrl(minfo.epgtitle);
@@ -105,8 +105,15 @@ bool cTmdb::GetMovieDetails(std::string lang)
 
 	if (minfo.result > 0) {
 		Json::Value elements = root["results"];
-		minfo.id = elements[0].get("id",-1).asInt();
-		minfo.media_type = elements[0].get("media_type","").asString();
+		int use_result = 0;
+
+		if ((minfo.result > 1) && (!second))
+			selectResult(elements, minfo.result, use_result);
+
+		if (!second) {
+			minfo.id = elements[use_result].get("id",-1).asInt();
+			minfo.media_type = elements[use_result].get("media_type","").asString();
+		}
 		if (minfo.id > -1) {
 			url = "http://api.themoviedb.org/3/"+minfo.media_type+"/"+to_string(minfo.id)+"?api_key="+key+"&language="+lang+"&append_to_response=credits";
 			answer.clear();
@@ -190,4 +197,33 @@ void cTmdb::cleanup()
 {
 	if (access(TMDB_COVER, F_OK) == 0)
 		unlink(TMDB_COVER);
+}
+
+void cTmdb::selectResult(Json::Value elements, int results, int &use_result)
+{
+	int select = 0;
+
+	CMenuWidget *m = new CMenuWidget(LOCALE_TMDB_READ_DATA, NEUTRINO_ICON_SETTINGS);
+	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+
+	// we don't show introitems, so we add a separator for a smoother view
+	m->addItem(GenericMenuSeparator);
+	CMenuForwarder* mf;
+	int counter = std::min(results, 10);
+	for (int i = 0; i != counter; i++)
+	{
+		if (elements[i].get("media_type","").asString() == "movie")
+			mf = new CMenuForwarder(elements[i].get("title","").asString(), true, NULL, selector, to_string(i).c_str());
+		else
+			mf = new CMenuForwarder(elements[i].get("name","").asString(), true, NULL, selector, to_string(i).c_str());
+		m->addItem(mf);
+	}
+
+	m->enableSaveScreen();
+	m->exec(NULL, "");
+	if (!m->gotAction())
+		return;
+	delete selector;
+	m->hide();
+	use_result = select;
 }
