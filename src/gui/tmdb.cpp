@@ -247,6 +247,6 @@ void cTmdb::selectResult(Json::Value elements, int results, int &use_result)
 	if (!m->gotAction())
 		return;
 	delete selector;
-	m->hide();
+	delete m;
 	use_result = select;
 }
