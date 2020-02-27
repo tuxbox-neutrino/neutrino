@@ -42,7 +42,9 @@
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
 #include <system/helpers.h>
+#ifdef VCS
 #include "version.h"
+#endif
 #include <gui/buildinfo.h>
 #define LICENSEDIR DATADIR "/neutrino/license/"
 #define POLICY_DIR DATADIR "/neutrino/policy/"
