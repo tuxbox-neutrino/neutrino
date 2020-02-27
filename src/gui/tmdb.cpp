@@ -37,7 +37,6 @@
 
 #include "system/settings.h"
 #include "system/set_threadname.h"
-#include "gui/widget/hintbox.h"
 
 #include <driver/screen_max.h>
 
@@ -60,6 +59,7 @@ cTmdb::cTmdb()
 #else
 	key = g_settings.tmdb_api_key;
 #endif
+	hintbox = NULL;
 }
 
 cTmdb::~cTmdb()
@@ -71,15 +71,19 @@ void cTmdb::setTitle(std::string epgtitle)
 {
 	minfo.epgtitle = epgtitle;
 
-	CHintBox hintbox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_TMDB_READ_DATA));
-	hintbox.paint();
+	hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_TMDB_READ_DATA));
+	hintbox->paint();
 
 	std::string lang = Lang2ISO639_1(g_settings.language);
 	GetMovieDetails(lang);
 	if ((minfo.result < 1 || minfo.overview.empty()) && lang != "en")
 		GetMovieDetails("en", true);
 
-	hintbox.hide();
+	if(hintbox){
+		hintbox->hide();
+		delete hintbox;
+		hintbox = NULL;
+	}
 }
 
 bool cTmdb::GetData(std::string url, Json::Value *root)
@@ -118,8 +122,9 @@ bool cTmdb::GetMovieDetails(std::string lang, bool second)
 			url	= urlapi + "search/multi?api_key="+key+"&language="+lang+"&query=" + encodeUrl(title);
 			if(!(GetData(url, &root)))
 				return false;
+
+			minfo.result = root.get("total_results",0).asInt();
 		}
-		minfo.result = root.get("total_results",0).asInt();
 	}
 	printf("[TMDB]: results: %d\n",minfo.result);
 
@@ -213,6 +218,12 @@ void cTmdb::cleanup()
 
 void cTmdb::selectResult(Json::Value elements, int results, int &use_result)
 {
+	if(hintbox){
+		hintbox->hide();
+		delete hintbox;
+		hintbox = NULL;
+	}
+
 	int select = 0;
 
 	CMenuWidget *m = new CMenuWidget(LOCALE_TMDB_READ_DATA, NEUTRINO_ICON_SETTINGS);
