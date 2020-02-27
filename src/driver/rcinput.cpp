@@ -1429,6 +1429,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 						if ((now_pressed > last_keypress + repeat_block_generic) ||
 								/* accept all keys after time discontinuity: */
 								(now_pressed < last_keypress))
+							rc_last_repeat_key = trkey;
 #endif
 						{
 							last_keypress = now_pressed;
