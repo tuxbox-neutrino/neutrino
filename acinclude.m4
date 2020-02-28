@@ -460,7 +460,7 @@ AC_ARG_WITH(boxtype,
 AC_ARG_WITH(boxmodel,
 	AS_HELP_STRING([--with-boxmodel], [valid for generic: generic, raspi])
 AS_HELP_STRING([], [valid for coolstream: hd1, hd2])
-AS_HELP_STRING([], [valid for armbox: hd51, hd60, bre2ze4k, h7, vusolo4k, vuduo4k, vuultimo4k, vuuno4k, vuuno4kse, vuzero4k, osmio4kplus])
+AS_HELP_STRING([], [valid for armbox: hd51, hd60, bre2ze4k, h7, vusolo4k, vuduo4k, vuultimo4k, vuuno4k, vuuno4kse, vuzero4k, osmio4k, osmio4kplus])
 AS_HELP_STRING([], [valid for mipsbox: vuduo]),
 	[case "${withval}" in
 		generic|raspi)
@@ -489,7 +489,7 @@ AS_HELP_STRING([], [valid for mipsbox: vuduo]),
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
 		;;
-		hd51|hd60|bre2ze4k|h7|vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|osmio4kplus)
+		hd51|hd60|bre2ze4k|h7|vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|osmio4k|osmio4kplus)
 			if test "$BOXTYPE" = "armbox"; then
 				BOXMODEL="$withval"
 			else
@@ -636,7 +636,7 @@ AM_CONDITIONAL(BOXMODEL_VUPLUS4K, test "$vuplus4k" = "true")
 
 # BOXMODELs that allows to change osd resolution
 case "$BOXMODEL" in
-	hd2|hd51|hd60|bre2ze4k|h7|vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo|osmio4kplus)
+	hd2|hd51|hd60|bre2ze4k|h7|vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo|osmio4k|osmio4kplus)
 		AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
 	;;
 esac
