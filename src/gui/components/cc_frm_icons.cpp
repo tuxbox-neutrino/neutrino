@@ -57,8 +57,8 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 	cc_item_type.id 	= CC_ITEMTYPE_FRM_ICONFORM;
 	cc_item_type.name 	= "cc_icon_container";
 
-	x 		= x_pos;
-	y 		= y_pos;
+	x = cc_xr	= x_pos;
+	y = cc_yr	= y_pos;
 	width 		= w;
 	height 		= h;
 	v_icons		= v_icon_names;
