@@ -56,12 +56,14 @@ class CComponentsFrmChain : public CComponentsForm
 					fb_pixel_t& color_body,
 					fb_pixel_t& color_shadow);
 
-		int chn_l_offset, chn_r_offset;
-		int chn_t_offset, chn_b_offset;
+
 
 	protected:
 		///property: mode for arrangement direction of items, see also setDirection(), getDirection()
 		int chn_direction;
+
+		int chn_l_offset, chn_r_offset;
+		int chn_t_offset, chn_b_offset;
 
 		void initChainItems();
 
