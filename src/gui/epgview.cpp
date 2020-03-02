@@ -26,9 +26,11 @@
 #endif
 
 #include <algorithm>
-#include <gui/adzap.h>
-#include <gui/epgview.h>
-#include <gui/eventlist.h>
+#include <unistd.h>
+#include "adzap.h"
+#include "epgview.h"
+#include "eventlist.h"
+#include "rate_banner.h"
 
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
@@ -36,7 +38,7 @@
 #include <gui/widget/msgbox.h>
 #include <gui/widget/mountchooser.h>
 
-#include <gui/timerlist.h>
+#include "timerlist.h"
 #include <zapit/zapit.h>
 #include <system/helpers.h>
 
@@ -300,10 +302,10 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 
 		int max_stars = 10;
 		if (imdb_active && imdb_stars) //TODO: unify imdb and tmdb
-			stars = imdb_stars / max_stars; // recalculate stars value for starbar
+			stars = imdb_stars / max_stars; // FIXME: recalculate stars value for starbar, native values with decimal places like float are required
 
 		//create and paint ranking banner
-		CEPGRateBanner rate_bar(sx+OFFSET_INNER_MID+cover_offset, y+OFFSET_INNER_MID, (size_t)stars, (size_t)max_stars, provider_logo);
+		CRateBanner rate_bar(sx+OFFSET_INNER_MID+cover_offset, y+OFFSET_INNER_MID, stars, max_stars, provider_logo);
 		rate_bar.paint();
 
 		if (imdb_active) //TODO: unify imdb and tmdb
