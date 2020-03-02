@@ -40,29 +40,31 @@
 #include <driver/screen_max.h>
 #include <driver/display.h>
 #include <system/debug.h>
-#include <gui/color_custom.h>
+
 #include <system/helpers.h>
 #include <cs_api.h>
 
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
 #include <arpa/inet.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 #include <xmlinterface.h>
 
-#include <gui/widget/msgbox.h>
-#include <gui/widget/keyboard_input.h>
-#include <gui/widget/progresswindow.h>
-#include <gui/widget/termwindow.h>
-#include <gui/scan.h>
-#include <gui/scan_setup.h>
-#include <zapit/zapit.h>
-#include <zapit/scan.h>
-#include <zapit/femanager.h>
+#include "buildinfo.h"
+#include "color_custom.h"
+#include "components/cc_timer.h"
+#include "rate_banner.h"
+#include "scan.h"
+#include "scan_setup.h"
+#include "widget/buttons.h"
+#include "widget/keyboard_input.h"
+#include "widget/msgbox.h"
+#include "widget/progresswindow.h"
+#include "widget/termwindow.h"
 #include <driver/record.h>
-#include <gui/buildinfo.h>
-#include <gui/widget/buttons.h>
-#include <gui/components/cc_timer.h>
+#include <zapit/femanager.h>
+#include <zapit/scan.h>
+#include <zapit/zapit.h>
 
 #if HAVE_COOL_HARDWARE
 extern int cs_test_card(int unit, char * str);
@@ -1045,6 +1047,13 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
+	else if (actionKey == "rate_banner"){
+		CRateBanner banner(50, 50, 5.5, 10, NEUTRINO_ICON_TMDB);
+		banner.paint();
+		sleep(6);
+		banner.hide();
+		return res;
+	}
 	else if (actionKey == "show_records"){
 		showRecords();
 		return res;
@@ -1152,7 +1161,7 @@ int CTestMenu::showTestMenu()
 	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HARDWARE);
 	w_test.addItem(new CMenuForwarder(w_hw->getName(), true, NULL, w_hw));
 	showHWTests(w_hw);
-	
+
 	//buttons
 	w_test.addItem(new CMenuForwarder("Buttons", true, NULL, this, "buttons"));
 	
@@ -1179,6 +1188,9 @@ int CTestMenu::showTestMenu()
 	std::string input_txt;
 	CKeyboardInput input("Text input",  &input_txt, 30, NULL, NULL, "Test");
 	w_test.addItem(new CMenuForwarder("Text input", true, NULL, &input));
+
+	//rate banner
+	w_test.addItem(new CMenuForwarder("Rate banner", true, NULL, this, "rate_banner"));
 
 	//restart gui
 	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));

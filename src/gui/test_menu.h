@@ -29,9 +29,9 @@
 #ifndef __TEST_MENU__
 #define __TEST_MENU__
 
-#include <gui/widget/menue.h>
-#include <gui/widget/icons.h>
-#include <gui/components/cc.h>
+#include "gui/widget/menue.h"
+#include "gui/widget/icons.h"
+#include "gui/components/cc.h"
 
 //#define TEST_MENU
 
