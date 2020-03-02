@@ -45,7 +45,7 @@
 #ifdef VCS
 #include "version.h"
 #endif
-#include <gui/buildinfo.h>
+#include "buildinfo.h"
 #define LICENSEDIR DATADIR "/neutrino/license/"
 #define POLICY_DIR DATADIR "/neutrino/policy/"
 #ifdef ENABLE_LUA
@@ -307,11 +307,14 @@ void CImageInfo::InitInfoData()
 
 	config.loadConfig(VERSION_FILE);
 
+	string builddate = "";
 #ifdef BUILT_DATE
-	const char * builddate = BUILT_DATE;
+	builddate = BUILT_DATE;
 #else
-	const char * builddate = config.getString("builddate", "n/a").c_str();
+	builddate = config.getString("builddate", "").c_str();
 #endif
+	if (builddate.empty())
+		builddate = PACKAGE_VERSION_DATE;
 
 	string version_string = config.getString("version", "");
 
@@ -365,18 +368,20 @@ void CImageInfo::InitInfoData()
 		v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_CREATOR), creator});
 
 	//gui
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_GUI), config.getString("gui", PACKAGE_STRING)});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_GUI), config.getString("gui", PACKAGE_NAME)});
 
 #ifdef VCS
 	//gui vcs
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	VCS});
+#else
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	PACKAGE_VERSION_GIT});
 #endif
 
 #if USE_STB_HAL
 	hal_libversion_t ver;
 	hal_get_lib_version(&ver);
 	//libstb-hal version
-	v_info.push_back({"libstb-hal:", ver.vStr});
+	v_info.push_back({"libstb-hal:", ver.vName});
 	//libstb-hal git status
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS), ver.vGitDescribe});
 #endif
