@@ -55,6 +55,7 @@
 #include <daemonc/remotecontrol.h>
 
 #include <system/debug.h>
+#include <system/helpers.cpp>
 
 #include <cs_api.h>
 #include <hardware/video.h>
@@ -488,12 +489,11 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(pipsetup);
 #endif
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	CMenuOptionChooser * zm = new CMenuOptionChooser(LOCALE_VIDEOMENU_ZAPPINGMODE, &g_settings.zappingmode, VIDEOMENU_ZAPPINGMODE_OPTIONS, VIDEOMENU_ZAPPINGMODE_OPTION_COUNT, true, this);
-	zm->setHint("", LOCALE_MENU_HINT_VIDEO_ZAPPINGMODE);
-	videosetup->addItem(zm);
-#endif
-
+	if (file_exists("/proc/stb/video/zapmode")) {
+		CMenuOptionChooser * zm = new CMenuOptionChooser(LOCALE_VIDEOMENU_ZAPPINGMODE, &g_settings.zappingmode, VIDEOMENU_ZAPPINGMODE_OPTIONS, VIDEOMENU_ZAPPINGMODE_OPTION_COUNT, true, this);
+		zm->setHint("", LOCALE_MENU_HINT_VIDEO_ZAPPINGMODE);
+		videosetup->addItem(zm);
+	}
 	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
 	delete videosetup;
