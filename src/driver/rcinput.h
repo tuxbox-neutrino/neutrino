@@ -237,6 +237,7 @@ class CRCInput
 			RC_record	= KEY_RECORD,
 			RC_play		= KEY_PLAY,
 			RC_pause	= KEY_PAUSE,
+			RC_pvr		= KEY_PVR,
 			RC_forward	= KEY_FORWARD,
 			RC_rewind	= KEY_REWIND,
 			RC_stop		= KEY_STOP,

@@ -3305,7 +3305,7 @@ void CNeutrinoApp::RealRun()
 				as.exec(NULL, "-1");
 				StartSubtitles();
 			}
-			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
+			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play || msg == CRCInput::RC_playpause || msg == CRCInput::RC_pvr)
 			{
 				//open moviebrowser via media player menu object
 				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
