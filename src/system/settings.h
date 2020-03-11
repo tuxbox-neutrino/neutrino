@@ -46,13 +46,7 @@
 #include <string>
 #include <list>
 
-#ifdef BOXMODEL_CS_HD2
-#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
-#elif HAVE_ARM_HARDWARE
-#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 18
-#else
-#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
-#endif
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 20
 
 struct SNeutrinoTheme
 {
