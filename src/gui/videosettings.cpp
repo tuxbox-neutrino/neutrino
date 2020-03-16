@@ -721,9 +721,10 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 void CVideoSettings::next43Mode(void)
 {
 	printf("[neutrino VideoSettings] %s setting 43Mode -> ", __FUNCTION__);
-#if HAVE_ARM_HARDWARE
-	/* HD51 has non standard order */
+#if BOXMODEL_HD51 || BOXMODEL_H7 || BOXMODEL_BRE2ZE4K || BOXMODEL_HD60
 	static const char *m[] = { "letterbox", "panscan", "bestfit", "nonlinear", "(unset)" };
+#elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+	static const char *m[] = { "letterbox", "panscan", "scale", "(unset)", "(unset)" };
 #else
 	static const char *m[] = { "panscan", "letterbox", "bestfit", "nonlinear", "(unset)" };
 #endif
