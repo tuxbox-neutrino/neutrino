@@ -355,7 +355,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ -1,                NONEXISTANT_LOCALE, "Auto"         }
 };
 #else
-/* generic PC -> 4 different resolutions, 480, 576, 720 and 1080 lines */
+/* generic PC -> 5 different resolutions, 480, 576, 720 and 1080 lines */
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
 	{ VIDEO_STD_NTSC,    NONEXISTANT_LOCALE, "NTSC"		},
@@ -364,7 +364,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ -1,                NONEXISTANT_LOCALE, "480p"		},
 	{ -1,                NONEXISTANT_LOCALE, "576p"		},
 	{ VIDEO_STD_720P50,  NONEXISTANT_LOCALE, "720p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "720p 60Hz"	},
+	{ VIDEO_STD_720P60,  NONEXISTANT_LOCALE, "720p 60Hz"	},
 	{ VIDEO_STD_1080I50, NONEXISTANT_LOCALE, "1080i 50Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080i 60Hz"   },
 	{ -1,                NONEXISTANT_LOCALE, "1080p 23.97Hz"},

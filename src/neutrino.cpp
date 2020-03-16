@@ -437,9 +437,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.enabled_video_modes[i] = configfile.getInt32(cfg_key, 0);
 	}
 #if VIDEOMENU_VIDEOMODE_OPTION_COUNT > 3
-	g_settings.enabled_video_modes[3] = 1; // 720p 50Hz
-	g_settings.enabled_video_modes[4] = 1; // 1080i 50Hz
-	g_settings.enabled_video_modes[9] = 1; // 720p 60Hz
+	g_settings.enabled_video_modes[5] = 1; // 720p 50Hz
+	g_settings.enabled_video_modes[6] = 1; // 720p 60Hz
+	g_settings.enabled_video_modes[7] = 1; // 1080i 50Hz
 #endif
 
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
