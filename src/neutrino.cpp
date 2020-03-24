@@ -3924,7 +3924,26 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if(g_settings.ci_rec_zapto){
 			CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
 			if (ch && ch->bUseCI && (eventinfo->channel_id != live_channel_id))
+			{
 				zapTo(eventinfo->channel_id);
+
+				CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_CI_TRY_DECODE);
+				hintBox.paint();
+
+				int t = time_monotonic();
+				while (videoDecoder->getBlank())
+				{
+					usleep(100);
+					if (time_monotonic() - t > 15)
+					{
+						// can't decode channel within 15 seconds
+						break;
+					}
+				}
+				g_RCInput->clearRCMsg();
+
+				hintBox.hide();
+			}
 		}
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
 			CRecordManager::getInstance()->Record(eventinfo);

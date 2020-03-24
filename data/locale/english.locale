@@ -326,6 +326,7 @@ ci.rpr Relevant PIDs routing
 ci.save_pincode Save pincode
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
+ci.try_decode Try to decode CI channel
 ci.tuner Use CI only with tuner:
 ci.use Enable CI
 ci.waiting Waiting for CI answer

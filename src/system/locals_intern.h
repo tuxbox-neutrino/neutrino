@@ -353,6 +353,7 @@ const char * locale_real_names[] =
 	"ci.save_pincode",
 	"ci.settings",
 	"ci.timeout",
+	"ci.try_decode",
 	"ci.tuner",
 	"ci.use",
 	"ci.waiting",

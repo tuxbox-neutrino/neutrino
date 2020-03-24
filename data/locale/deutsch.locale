@@ -326,6 +326,7 @@ ci.rpr Relevant PIDs Routing
 ci.save_pincode Jugendschutz-PIN speichern
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
+ci.try_decode Versuche CI-Kanal zu entschlüsseln
 ci.tuner Nutze CI nur mit Tuner:
 ci.use Erlaube CI
 ci.waiting Warte auf CAM-Antwort
