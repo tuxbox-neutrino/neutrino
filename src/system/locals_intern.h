@@ -625,7 +625,6 @@ const char * locale_real_names[] =
 	"extra.tp_mod_auto",
 	"extra.tp_pilot",
 	"extra.tp_pilot_auto",
-	"extra.tp_pilot_auto_sw",
 	"extra.tp_plc",
 	"extra.tp_pli",
 	"extra.tp_plm",

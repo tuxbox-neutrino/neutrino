@@ -105,8 +105,7 @@ typedef enum {
 typedef enum {
 	ZPILOT_ON,
 	ZPILOT_OFF,
-	ZPILOT_AUTO,
-	ZPILOT_AUTO_SW
+	ZPILOT_AUTO
 } zapit_pilot_t;
 
 typedef enum {
