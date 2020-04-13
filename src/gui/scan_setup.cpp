@@ -601,7 +601,7 @@ int CScanSetup::showScanMenu()
 	//sat/provider selector
 #if 0
 	if(CFEManager::getInstance()->haveSat() || CFEManager::getInstance()->getFrontendCount() > 1) {
-		mf = new CMenuForwarder(LOCALE_SATSETUP_FE_SETUP, allow_start, NULL, this, "setup_frontend", CRCInput::convertDigitToKey(shortcut++));
+		mf = new CMenuForwarder(LOCALE_SATSETUP_FE_TUNER, allow_start, NULL, this, "setup_frontend", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FESETUP);
 		settings->addItem(mf);
 	}
@@ -795,7 +795,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 		snprintf(tmp, sizeof(tmp), "config_frontend%d", i);
 
 		char name[255];
-		snprintf(name, sizeof(name), "%s %d: %s [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
+		snprintf(name, sizeof(name), "%s %d: %s [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), i+1,
 				  fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
 				: fe->hasSat()   ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
 				: fe->hasTerr()  ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
@@ -935,7 +935,7 @@ int CScanSetup::showFrontendSetup(int number)
 	dmode = fe_config.diseqcType;
 
 	char name[255];
-	snprintf(name, sizeof(name), "%s %d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, tuner_desc[number], fe->getName());
+	snprintf(name, sizeof(name), "%s %d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), number+1, tuner_desc[number], fe->getName());
 
 	CMenuWidget * setupMenu = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	setupMenu->setSelected(feselected);
