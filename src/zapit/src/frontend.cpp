@@ -343,7 +343,7 @@ void CFrontend::getFEInfo(void)
 			if ((line.find("Name:") != std::string::npos) && found)
 			{
 				//printf("NIM SOCKET: %s\n",line.substr(line.find_first_of(":")+2).c_str());
-#if BOXMODEL_VUPLUS_ALL
+#if BOXMODEL_VUPLUS
 				sprintf(info.name,"%s", line.substr(line.find_first_of(":") + 9).c_str());
 #else
 				std::string tmp = info.name;
