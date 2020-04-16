@@ -225,6 +225,7 @@ class CFbAccelARM
 		int scale2Res(int size);
 		bool fullHdAvailable();
 		void setOsdResolutions();
+		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
 };
 
 class CFbAccelMIPS
