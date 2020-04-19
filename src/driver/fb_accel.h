@@ -225,7 +225,7 @@ class CFbAccelARM
 		int scale2Res(int size);
 		bool fullHdAvailable();
 		void setOsdResolutions();
-#if BOXMODEL_HD51
+#if BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7
 		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
 #endif
 };

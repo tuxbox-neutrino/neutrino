@@ -56,7 +56,7 @@ static bool supportblendingflags = true;
 static int fb_fd = -1;
 static int exec_list(void);
 
-#if BOXMODEL_HD51
+#if BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7
 static bool accumulateoperations = false;
 
 bool bcm_accel_has_alphablending()
@@ -390,7 +390,7 @@ bool CFbAccelARM::fullHdAvailable()
 	return false;
 }
 
-#if BOXMODEL_HD51
+#if BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7
 void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
 {
 	if(dx <1 || dy <1 )
