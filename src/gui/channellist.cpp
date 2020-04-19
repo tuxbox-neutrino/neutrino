@@ -2459,7 +2459,7 @@ void CChannelList::paintPig(int _x, int _y, int w, int h)
 	if (cc_minitv == NULL){
 		cc_minitv = new CComponentsPIP (0, 0);
 		cc_minitv->setPicture(NEUTRINO_ICON_AUDIOPLAY);
-		cc_minitv->setFrameThickness(OFFSET_INNER_SMALL);
+		cc_minitv->setFrameThickness(OFFSET_INNER_MID);
 	}
 	//set changeable minitv properties
 	cc_minitv->setDimensionsAll(_x, _y, w, h);
