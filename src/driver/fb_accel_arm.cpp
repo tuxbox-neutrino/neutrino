@@ -49,13 +49,16 @@
 static unsigned int displaylist[1024];
 static int ptr;
 static bool supportblendingflags = true;
-static bool accumulateoperations = false;
 
 #define P(x, y) do { displaylist[ptr++] = x; displaylist[ptr++] = y; } while (0)
 #define C(x) P(x, 0)
 
 static int fb_fd = -1;
 static int exec_list(void);
+
+#if BOXMODEL_HD51
+static bool accumulateoperations = false;
+
 bool bcm_accel_has_alphablending()
 {
 	return supportblendingflags;
@@ -85,6 +88,7 @@ int bcm_accel_sync()
 	}
 	return retval;
 }
+
 #if 0
 void bcm_accel_blit(
 		int src_addr, int src_width, int src_height, int src_stride, int src_format,
@@ -156,7 +160,7 @@ void bcm_accel_blit(
 
 	if (!accumulateoperations) exec_list();
 }
-#endif
+#endif //if 0
 
 void bcm_accel_fill(
 		int dst_addr, int dst_width, int dst_height, int dst_stride,
@@ -220,6 +224,7 @@ void bcm_accel_fill(
 
 	if (!accumulateoperations) exec_list();
 }
+#endif
 
 static int exec_list(void)
 {
@@ -385,6 +390,7 @@ bool CFbAccelARM::fullHdAvailable()
 	return false;
 }
 
+#if BOXMODEL_HD51
 void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
 {
 	if(dx <1 || dy <1 )
@@ -394,3 +400,4 @@ void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy
 	mark(x, y, x+dx, y+dy);
 	blit();
 }
+#endif
