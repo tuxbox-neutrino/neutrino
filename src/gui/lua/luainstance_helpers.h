@@ -33,7 +33,7 @@
 #define LUA_HEADER_CLASSNAME  "header"
 #define LUA_FILEHELPER_CLASSNAME  "filehelpers"
 
-#define LUA_WIKI "https://wiki.neutrino-hd.de/wiki"
+#define LUA_WIKI "https://wiki.tuxbox-neutrino.org/wiki"
 //#define LUA_WIKI "https://wiki.slknet.de/wiki"
 
 /* the magic color that tells us we are using one of the palette colors */
