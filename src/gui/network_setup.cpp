@@ -705,8 +705,8 @@ void CNetworkSetup::testNetworkSettings()
 	std::string defaultsite = "www.google.de";
 
 	//set wiki-URL and wiki-IP
-	std::string wiki_URL = "wiki.neutrino-hd.de";
-	std::string wiki_IP = "89.31.143.1";
+	std::string wiki_URL = "wiki.tuxbox-neutrino.org";
+	std::string wiki_IP = "81.7.17.245";
 
 	//get www-domain testsite from /.version
 	CConfigFile config('\t');
