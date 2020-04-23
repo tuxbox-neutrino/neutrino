@@ -407,7 +407,7 @@ void CImageInfo::InitInfoData()
 	//www
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", PACKAGE_URL)});
 	//doc
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), config.getString("docs", "http://wiki.neutrino-hd.de")});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), config.getString("docs", "http://wiki.tuxbox-neutrino.org")});
 	//support
 	v_info.push_back( {g_Locale->getText(LOCALE_IMAGEINFO_FORUM),	config.getString("forum", "http://forum.tuxbox.org")});
 }
