@@ -2229,6 +2229,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 
 			delay = 100;	// delay for 1.0 after 1.1 command
 			cmd.msg[2] = 0x39;	/* port group = uncommited switches */
+#if 0
 			/* new code */
 			sat_no &= 0x0F;
 			cmd.msg[3] = 0xF0 | sat_no;
@@ -2236,8 +2237,9 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 			cmd.msg[2] = 0x38;	/* port group = commited switches */
 			cmd.msg[3] = 0xF0 | ((pol & 1) ? 0 : 2) | (high_band ? 1 : 0);
 			sendDiseqcCommand(&cmd, delay);
-#if 0			/* old code */
+#endif
 #if 1
+			/* old code */
 			/* for 16 inputs */
 			cmd.msg[3] = 0xF0 | ((sat_no / 4) & 0x03);
 			//send the command to setup second uncommited switch and
@@ -2252,7 +2254,6 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 			sendDiseqcCommand(&cmd, 100);	/* send the command to setup first uncommited switch and wait 100 ms !!! */
 			cmd.msg[3] &= 0xCF;
 			sendDiseqcCommand(&cmd, 100);	/* send the command to setup second uncommited switch and wait 100 ms !!! */
-#endif
 #endif
 		}
 
