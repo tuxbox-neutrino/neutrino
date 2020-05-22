@@ -1951,7 +1951,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2)
 		return;
 
-	if (config.diseqcType != DISEQC_ADVANCED) {
+	if ((config.diseqcType != DISEQC_1_1) && (config.diseqcType != DISEQC_ADVANCED)) {
 		setDiseqc(sit->second.diseqc, polarization, frequency);
 		return;
 	}
