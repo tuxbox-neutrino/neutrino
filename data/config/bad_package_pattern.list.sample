@@ -9,6 +9,7 @@ alsa-server
 avahi
 base-passwd-
 bash-
+bluez5-
 bsd
 busybox-
 catchsegv
