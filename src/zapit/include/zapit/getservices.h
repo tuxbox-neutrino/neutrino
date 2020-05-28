@@ -93,7 +93,6 @@ class CServiceManager
 		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization, delivery_system_t delsys);
 		void FindTransponder(xmlNodePtr search);
 		void ParseSatTransponders(delivery_system_t delsys, xmlNodePtr search, t_satellite_position satellitePosition);
-		int LoadMotorPositions(void);
 
 		bool LoadScanXml(delivery_system_t delsys);
 
@@ -113,7 +112,6 @@ class CServiceManager
 		bool InitSatPosition(t_satellite_position position, const char * name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
 		bool LoadServices(bool only_current);
 		void SaveServices(bool tocopy, bool if_changed = false, bool no_deleted = false);
-		void SaveMotorPositions();
 		bool SaveCurrentServices(transponder_id_t tpid);
 		bool CopyCurrentServices(transponder_id_t tpid);
 

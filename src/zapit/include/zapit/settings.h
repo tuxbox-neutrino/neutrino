@@ -32,8 +32,6 @@
 #endif
 
 #define ZAPITCONFIGFILE      CONFIGDIR "/zapit/zapit.conf"
-#define MOTORCONFIGFILE CONFIGDIR "/zapit/motor.conf"
-#define SATCONFIG CONFIGDIR "/zapit/sat.conf"
 #define SERVICES_XML    CONFIGDIR "/zapit/services.xml"
 #define SERVICES_TMP    "/tmp/services.tmp"
 #define BOUQUETS_XML    CONFIGDIR "/zapit/bouquets.xml"
@@ -48,13 +46,6 @@
 #define CABLES_XML      CONFIGDIR "/cables.xml"
 #define SATELLITES_XML  CONFIGDIR "/satellites.xml" 
 #define TERRESTRIAL_XML CONFIGDIR "/terrestrial.xml"
-
-#if HAVE_TRIPLEDRAGON == 0
-#define AUDIO_DEVICE          "/dev/dvb/adapter0/audio0"
-#define DEMUX_DEVICE          "/dev/dvb/adapter0/demux0"
-#define FRONTEND_DEVICE       "/dev/dvb/adapter0/frontend0"
-#define VIDEO_DEVICE          "/dev/dvb/adapter0/video0"
-#endif
 
 #define CAMD_UDS_NAME  "/tmp/camd.socket"
 

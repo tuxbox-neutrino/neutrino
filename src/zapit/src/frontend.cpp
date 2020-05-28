@@ -252,7 +252,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	config.uni_scr		= 0;		/* the unicable SCR address 0-7 */
 	config.uni_freq		= 0;		/* the unicable frequency in MHz */
 	config.uni_lnb		= 0;		/* for two-position switches */
-	config.uni_pin		= -1;		/* for MDU setups */
+	config.uni_pin		= 0;		/* for MDU setups */
 	config.highVoltage	= false;
 	config.motorRotationSpeed = 0;		//in 0.1 degrees per second
 

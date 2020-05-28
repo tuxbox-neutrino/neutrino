@@ -806,82 +806,13 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 	}
 }
 
-int CServiceManager::LoadMotorPositions(void)
-{
-	FILE *fd = NULL;
-	char buffer[256] = "";
-	t_satellite_position satellitePosition;
-	int spos = 0, mpos = 0, diseqc = 0, uncom = 0, com = 0, usals = 0, inuse, input = 0;
-	int offH = 10600, offL = 9750, sw = 11700;
-
-	printf("[getservices] loading motor positions...\n");
-
-	/* this is only read and never written, so it only serves for
-	 * upgrading from old pre-multituner capable neutrino */
-	if ((fd = fopen(SATCONFIG, "r"))) {
-		char *fg = fgets(buffer, 255, fd);
-		while(fg && !feof(fd)) {
-			sscanf(buffer, "%d %d %d %d %d %d %d %d %d %d %d", &spos, &mpos, &diseqc, &com, &uncom, &offL, &offH, &sw, &inuse, &usals, &input);
-
-			int configured = 0;
-			if (diseqc != -1 || com != -1 || uncom != -1 || usals != 0 || mpos != 0)
-				configured = 1;
-			satellitePosition = spos;
-			sat_iterator_t sit = satellitePositions.find(satellitePosition);
-			if(sit != satellitePositions.end()) {
-				sit->second.diseqc = diseqc;
-				sit->second.commited = com;
-				sit->second.uncommited = uncom;
-				sit->second.motor_position = mpos;
-				sit->second.lnbOffsetLow = offL;
-				sit->second.lnbOffsetHigh = offH;
-				sit->second.lnbSwitch = sw;
-				sit->second.use_in_scan = inuse;
-				sit->second.use_usals = usals;
-				sit->second.input = input;
-				sit->second.position = satellitePosition;
-				sit->second.configured = configured;
-			}
-			fg = fgets(buffer, 255, fd);
-		}
-		fclose(fd);
-	}
-	else
-		printf("[getservices] %s not found.\n", SATCONFIG);
-
-	return 0;
-}
-#if 0 
-//never used
-void CServiceManager::SaveMotorPositions()
-{
-	FILE * fd;
-	sat_iterator_t sit;
-	printf("[getservices] saving motor positions...\n");
-
-	fd = fopen(SATCONFIG, "w");
-	if(fd == NULL) {
-		printf("[zapit] cannot open %s\n", SATCONFIG);
-		return;
-	}
-	fprintf(fd, "# sat position, stored rotor, diseqc, commited, uncommited, low, high, switch, use in full scan, use usals, input\n");
-	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit) {
-		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position,
-				sit->second.diseqc, sit->second.commited, sit->second.uncommited, sit->second.lnbOffsetLow,
-				sit->second.lnbOffsetHigh, sit->second.lnbSwitch, sit->second.use_in_scan, sit->second.use_usals, sit->second.input);
-	}
-	fdatasync(fileno(fd));
-	fclose(fd);
-}
-#endif
-
 bool CServiceManager::InitSatPosition(t_satellite_position position, const char * name, bool force, delivery_system_t delsys, uint16_t nid)
 {
 	if(force || (satellitePositions.find(position) == satellitePositions.end())) {
 		satellitePositions[position].position = position;
-		satellitePositions[position].diseqc = -1;
-		satellitePositions[position].commited = -1;
-		satellitePositions[position].uncommited = -1;
+		satellitePositions[position].diseqc = 0;
+		satellitePositions[position].commited = 0;
+		satellitePositions[position].uncommited = 0;
 		satellitePositions[position].motor_position = 0;
 		satellitePositions[position].diseqc_order = 0;
 		satellitePositions[position].lnbOffsetLow = 9750;
