@@ -1632,6 +1632,7 @@ menu.hint_tmdb_enabled Enable or disable TMDb support (themoviedb.org)
 menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
+menu.hint_uni_setup Configuration of unicable frequency, user band and pin
 menu.hint_upnp Universal Plug and Play Browser
 menu.hint_vfd Frontpanel LEDs, VFD options
 menu.hint_vfd_brightness Working brightness 

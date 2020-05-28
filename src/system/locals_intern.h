@@ -1659,6 +1659,7 @@ const char * locale_real_names[] =
 	"menu.hint_tools",
 	"menu.hint_tvmode",
 	"menu.hint_tvradio_switch",
+	"menu.hint_uni_setup",
 	"menu.hint_upnp",
 	"menu.hint_vfd",
 	"menu.hint_vfd_brightness",
