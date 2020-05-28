@@ -1144,11 +1144,11 @@ int CScanSetup::showUnicableSetup()
 	CFrontend *fe = CFEManager::getInstance()->getFE(fenumber);
 	frontend_config_t &fe_config = fe->getConfig();
 	int unicable_scr = fe_config.uni_scr;
-	int unicable_qrg = fe_config.uni_qrg;
+	int unicable_freq = fe_config.uni_freq;
 	int unicable_pin = fe_config.uni_pin;
 
 	CMenuOptionNumberChooser *uniscr = new CMenuOptionNumberChooser(LOCALE_UNICABLE_SCR, &unicable_scr, true, 0, dmode == DISEQC_UNICABLE ? 7 : 31);
-	CIntInput		 *uniqrg = new CIntInput(LOCALE_UNICABLE_QRG, &unicable_qrg, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CIntInput		 *unifreq = new CIntInput(LOCALE_UNICABLE_FREQ, &unicable_freq, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	CMenuOptionNumberChooser *unipin = new CMenuOptionNumberChooser(LOCALE_UNICABLE_PIN, &unicable_pin, true, 0, 255, NULL, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 	unipin->setNumericInput(true);
 	unipin->setHint("", LOCALE_UNICABLE_PIN_HINT);
@@ -1157,16 +1157,16 @@ int CScanSetup::showUnicableSetup()
 	uni_setup->addIntroItems();
 
 	uni_setup->addItem(uniscr);
-	CMenuForwarder *mf = new CMenuDForwarder(LOCALE_UNICABLE_QRG, true, uniqrg->getValue(), uniqrg);
+	CMenuForwarder *mf = new CMenuDForwarder(LOCALE_UNICABLE_FREQ, true, unifreq->getValue(), unifreq);
 	uni_setup->addItem(mf);
 	uni_setup->addItem(unipin);
 	res = uni_setup->exec(NULL, "");
 	delete uni_setup;
 	if (res) {
 		fe_config.uni_scr = unicable_scr;
-		fe_config.uni_qrg = unicable_qrg;
+		fe_config.uni_freq = unicable_freq;
 		fe_config.uni_pin = unicable_pin;
-		printf("%s: scr: %d qrg: %d pin: %d\n", __func__, unicable_scr, unicable_qrg, unicable_pin);
+		printf("%s: scr: %d freq: %d pin: %d\n", __func__, unicable_scr, unicable_freq, unicable_pin);
 	}
 	return res;
 }

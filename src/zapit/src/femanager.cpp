@@ -253,7 +253,7 @@ bool CFEManager::loadSettings()
 		fe_config.motorRotationSpeed	= getConfigValue(fe, "motorRotationSpeed", 18);
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
 		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", 0);
-		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
+		fe_config.uni_freq		= getConfigValue(fe, "uni_freq", 0);
 		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", 0);
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
@@ -358,7 +358,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "motorRotationSpeed", fe_config.motorRotationSpeed);
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
-		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
+		setConfigValue(fe, "uni_freq", fe_config.uni_freq);
 		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "diseqc_order", fe_config.diseqc_order);
 		setConfigValue(fe, "use_usals", fe_config.use_usals);

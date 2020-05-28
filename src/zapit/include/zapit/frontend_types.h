@@ -145,7 +145,7 @@ typedef struct frontend_config {
 	int diseqcRepeats;
 	int diseqcType;
 	int uni_scr;
-	int uni_qrg;
+	int uni_freq;
 	int uni_lnb;
 	int uni_pin;
 	int motorRotationSpeed;

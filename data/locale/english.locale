@@ -2647,7 +2647,7 @@ tunersetup.terr Terrestrial (DVB-T/T2)
 unicable.lnb Unicable Input
 unicable.pin Unicable PIN
 unicable.pin_hint PIN (1 - 255) for user frequency\n0 means inactive / off
-unicable.qrg Unicable Frequency
+unicable.freq Unicable Frequency
 unicable.scr Unicable SCR
 unit.decimal .
 unit.long.years years
