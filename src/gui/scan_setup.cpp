@@ -1043,13 +1043,17 @@ int CScanSetup::showFrontendSetup(int number)
 			setDiseqcOptions(fenumber);
 
 		/* diseqc repeats */
-		ojDiseqcRepeats = new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQCREPEAT, (int *)&fe_config.diseqcRepeats, allow_moptions && (dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED), 0, 2, NULL);
+		/* >>>>> TODO  <<<<<   DiSEqC-Papers: 1.0 = 1 x, 1.1 = 2 x. advanced = ?? x -- oder manuell zuweisen :==> advanced modus mal sauber definieren.!! */
+		// int repeatCount =1;
+		// if (dmode > DISEQC_1_0)
+		//	repeatCount=2;
+		ojDiseqcRepeats = new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQCREPEAT, (int *)&fe_config.diseqcRepeats, (allow_moptions && ((dmode >= MINI_DISEQC) && (dmode <= DISEQC_ADVANCED))), 0, 2, NULL);
 		ojDiseqcRepeats->setHint("", LOCALE_MENU_HINT_SCAN_DISEQCREPEAT);
 		setupMenu->addItem(ojDiseqcRepeats);
 
 		/* diseqc cmd order select */
 		dorder = new CMenuOptionChooser(LOCALE_SATSETUP_DISEQC_ORDER, (int *)&fe_config.diseqc_order, DISEQC_ORDER_OPTIONS, DISEQC_ORDER_OPTION_COUNT,
-				allow_moptions && (dmode == DISEQC_ADVANCED),
+				(allow_moptions && ((dmode == DISEQC_1_1) || (dmode == DISEQC_ADVANCED))),
 				this, CRCInput::convertDigitToKey(shortcut++), "", true);
 		dorder->setHint("", LOCALE_MENU_HINT_SCAN_DISEQCORDER);
 		setupMenu->addItem(dorder);
@@ -1920,9 +1924,9 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		fe->setTsidOnid(0);
 
 		uniSetup->setActive(dmode == DISEQC_UNICABLE ? true : dmode == DISEQC_UNICABLE2);
-		bool enable = (dmode < DISEQC_ADVANCED) && (dmode != NO_DISEQC);
+		bool enable = (dmode > NO_DISEQC) && (dmode <= DISEQC_ADVANCED);
 		ojDiseqcRepeats->setActive(enable && !CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
-		dorder->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && dmode == DISEQC_ADVANCED);
+		dorder->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && ((dmode == DISEQC_1_1) || (dmode == DISEQC_ADVANCED)));
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE)) {
 		printf("[neutrino] CScanSetup::%s: fe%d mode %d master %d\n", __FUNCTION__, fenumber, femode, femaster);
@@ -1942,10 +1946,10 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			/* leave diseqc type enabled for TWIN in case user need different unicable setup */
 			dtype->setActive(femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
 			uniSetup->setActive(dmode == DISEQC_UNICABLE ? true : dmode == DISEQC_UNICABLE2 && femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
-			dorder->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && dmode == DISEQC_ADVANCED);
+			dorder->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && ((dmode == DISEQC_1_1) || (dmode == DISEQC_ADVANCED)));
 			fsatSelect->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
 			fsatSetup->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
-			bool enable = (dmode < DISEQC_ADVANCED) && (dmode != NO_DISEQC);
+			bool enable = (dmode > NO_DISEQC) && (dmode <= DISEQC_ADVANCED);
 			ojDiseqcRepeats->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && enable);
 
 			msettings.Activate(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
