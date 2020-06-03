@@ -810,9 +810,9 @@ bool CServiceManager::InitSatPosition(t_satellite_position position, const char 
 {
 	if(force || (satellitePositions.find(position) == satellitePositions.end())) {
 		satellitePositions[position].position = position;
-		satellitePositions[position].diseqc = 0;
-		satellitePositions[position].commited = 0;
-		satellitePositions[position].uncommited = 0;
+		satellitePositions[position].diseqc = -1;
+		satellitePositions[position].commited = -1;
+		satellitePositions[position].uncommited = -1;
 		satellitePositions[position].motor_position = 0;
 		satellitePositions[position].diseqc_order = 0;
 		satellitePositions[position].lnbOffsetLow = 9750;

@@ -316,9 +316,9 @@ bool CFEManager::loadSettings()
 			/* defaults, to replace CServiceManager::InitSatPosition/LoadMotorPositions
 			 * in the future */
 			satconfig.position = position;
-			satconfig.diseqc = 0;
-			satconfig.commited = 0;
-			satconfig.uncommited = 0;
+			satconfig.diseqc = -1;
+			satconfig.commited = -1;
+			satconfig.uncommited = -1;
 			satconfig.motor_position = 0;
 			satconfig.diseqc_order = 0;
 			satconfig.lnbOffsetLow = 9750;
