@@ -452,7 +452,7 @@ void CFbAccelARM::blit()
 void CFbAccelARM::_blit()
 {
 	if (ioctl(fd, FBIO_BLIT) < 0)
-		printf("FBIO_BLIT");
+		printf("FBIO_BLIT failed\n");
 }
 
 void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
