@@ -239,6 +239,16 @@ if test "$enable_arm_acc" = "yes"; then
 fi
 AM_CONDITIONAL(ENABLE_ARM_ACC, test "$enable_arm_acc" = "yes")
 
+AC_ARG_ENABLE(mips-acc,
+	AS_HELP_STRING([--enable-mips-acc], [enable mips hardware acceleration @<:@default=yes@:>@]]),
+	[enable_mips_acc="$enableval"],
+	[enable_mips_acc="yes"])
+
+if test "$enable_mips_acc" = "yes"; then
+	AC_DEFINE(ENABLE_MIPS_ACC, 1, [enable mips hardware acceleration])
+fi
+AM_CONDITIONAL(ENABLE_MIPS_ACC, test "$enable_mips_acc" = "yes")
+
 AC_ARG_ENABLE(extupdate,
 	AS_HELP_STRING([--enable-extupdate], [enable extended update routine @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_EXTUPDATE, 1, [enable extended update routine]))

@@ -213,9 +213,16 @@ class CFbAccelTD
 };
 
 class CFbAccelARM
-	: public CFbAccel
+	: public OpenThreads::Thread, public CFbAccel
 {
 	private:
+		void run(void);
+		void blit(void);
+		void _blit(void);
+		bool blit_thread;
+		bool blit_pending;
+		OpenThreads::Condition blit_cond;
+		OpenThreads::Mutex blit_mutex;
 		fb_pixel_t *backbuffer;
 	public:
 		CFbAccelARM();
@@ -226,16 +233,21 @@ class CFbAccelARM
 		bool fullHdAvailable();
 		void setOsdResolutions();
 #if ENABLE_ARM_ACC
-#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
 		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
-#endif
 #endif
 };
 
 class CFbAccelMIPS
-	: public CFbAccel
+	: public OpenThreads::Thread, public CFbAccel
 {
 	private:
+		void run(void);
+		void blit(void);
+		void _blit(void);
+		bool blit_thread;
+		bool blit_pending;
+		OpenThreads::Condition blit_cond;
+		OpenThreads::Mutex blit_mutex;
 		fb_pixel_t *backbuffer;
 	public:
 		CFbAccelMIPS();
@@ -245,6 +257,9 @@ class CFbAccelMIPS
 		int scale2Res(int size);
 		bool fullHdAvailable();
 		void setOsdResolutions();
+#if ENABLE_MIPS_ACC
+		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
+#endif
 };
 
 #endif
