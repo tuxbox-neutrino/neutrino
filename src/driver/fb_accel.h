@@ -213,9 +213,15 @@ class CFbAccelTD
 };
 
 class CFbAccelARM
+#if ENABLE_ARM_ACC
 	: public OpenThreads::Thread, public CFbAccel
+#else
+	: public CFbAccel
+#endif
+
 {
 	private:
+#if ENABLE_ARM_ACC
 		void run(void);
 		void blit(void);
 		void _blit(void);
@@ -223,6 +229,7 @@ class CFbAccelARM
 		bool blit_pending;
 		OpenThreads::Condition blit_cond;
 		OpenThreads::Mutex blit_mutex;
+#endif
 		fb_pixel_t *backbuffer;
 	public:
 		CFbAccelARM();
@@ -238,9 +245,14 @@ class CFbAccelARM
 };
 
 class CFbAccelMIPS
+#if ENABLE_MIPS_ACC
 	: public OpenThreads::Thread, public CFbAccel
+#else
+	: public CFbAccel
+#endif
 {
 	private:
+#if ENABLE_MIPS_ACC
 		void run(void);
 		void blit(void);
 		void _blit(void);
@@ -248,6 +260,7 @@ class CFbAccelMIPS
 		bool blit_pending;
 		OpenThreads::Condition blit_cond;
 		OpenThreads::Mutex blit_mutex;
+#endif
 		fb_pixel_t *backbuffer;
 	public:
 		CFbAccelMIPS();

@@ -39,13 +39,18 @@
 
 #include <stdlib.h>
 
+#if ENABLE_ARM_ACC
 #include <driver/abstime.h>
+#endif
+
 #include <system/set_threadname.h>
 #include <gui/color.h>
 
 #define LOGTAG "[fb_accel_arm] "
 
+#if ENABLE_ARM_ACC
 #define FBIO_BLIT   0x22
+#endif
 #define FBIO_ACCEL  0x23
 
 static unsigned int displaylist[1024];
@@ -58,6 +63,7 @@ static bool supportblendingflags = true;
 static int fb_fd = -1;
 static int exec_list(void);
 
+#if ENABLE_ARM_ACC
 static bool accumulateoperations = false;
 
 bool bcm_accel_has_alphablending()
@@ -223,6 +229,7 @@ void bcm_accel_fill(
 
 	if (!accumulateoperations) exec_list();
 }
+#endif
 
 static int exec_list(void)
 {
@@ -244,7 +251,9 @@ static int exec_list(void)
 
 CFbAccelARM::CFbAccelARM()
 {
+#if ENABLE_ARM_ACC
 	blit_thread = false;
+#endif
 	fb_name  = "armbox framebuffer";
 	fb_fd = open(FB_DEVICE, O_RDWR);
 	if (fb_fd < 0)
@@ -267,18 +276,21 @@ CFbAccelARM::CFbAccelARM()
 	/* hardware doesn't allow us to detect whether the opcode is working */
 	supportblendingflags = false;
 #endif
+#if ENABLE_ARM_ACC
 	OpenThreads::Thread::start();
+#endif
 }
 
 CFbAccelARM::~CFbAccelARM()
 {
+#if ENABLE_ARM_ACC
 	if (blit_thread)
 	{
 		blit_thread = false;
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
-
+#endif
 	if (fb_fd >= 0)
 	{
 		close(fb_fd);
@@ -397,6 +409,7 @@ bool CFbAccelARM::fullHdAvailable()
 	return false;
 }
 
+#if ENABLE_ARM_ACC
 #define BLIT_INTERVAL_MIN 40
 #define BLIT_INTERVAL_MAX 250
 void CFbAccelARM::run()
@@ -442,7 +455,6 @@ void CFbAccelARM::_blit()
 		printf("FBIO_BLIT");
 }
 
-#if ENABLE_ARM_ACC
 void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
 {
 	if(dx <1 || dy <1 )

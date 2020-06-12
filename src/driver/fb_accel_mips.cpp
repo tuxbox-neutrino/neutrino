@@ -39,13 +39,18 @@
 
 #include <stdlib.h>
 
+#if ENABLE_MIPS_ACC
 #include <driver/abstime.h>
+#endif
+
 #include <system/set_threadname.h>
 #include <gui/color.h>
 
 #define LOGTAG "[fb_accel_mips] "
 
+#if ENABLE_MIPS_ACC
 #define FBIO_BLIT   0x22
+#endif
 #define FBIO_ACCEL  0x23
 
 static unsigned int displaylist[1024];
@@ -58,6 +63,7 @@ static bool supportblendingflags = true;
 static int fb_fd = -1;
 static int exec_list(void);
 
+#if ENABLE_MIPS_ACC
 static bool accumulateoperations = false;
 
 bool bcm_accel_has_alphablending()
@@ -223,6 +229,7 @@ void bcm_accel_fill(
 
 	if (!accumulateoperations) exec_list();
 }
+#endif
 
 static int exec_list(void)
 {
@@ -244,7 +251,9 @@ static int exec_list(void)
 
 CFbAccelMIPS::CFbAccelMIPS()
 {
+#if ENABLE_MIPS_ACC
 	blit_thread = false;
+#endif
 	fb_name  = "mipsbox framebuffer";
 	fb_fd = open(FB_DEVICE, O_RDWR);
 	if (fb_fd < 0)
@@ -268,18 +277,21 @@ CFbAccelMIPS::CFbAccelMIPS()
 	/* hardware doesn't allow us to detect whether the opcode is working */
 	supportblendingflags = false;
 #endif
+#if ENABLE_MIPS_ACC
 	OpenThreads::Thread::start();
+#endif
 }
 
 CFbAccelMIPS::~CFbAccelMIPS()
 {
+#if ENABLE_MIPS_ACC
 	if (blit_thread)
 	{
 		blit_thread = false;
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
-
+#endif
 	if (fb_fd >= 0)
 	{
 		close(fb_fd);
@@ -398,6 +410,7 @@ bool CFbAccelMIPS::fullHdAvailable()
 	return false;
 }
 
+#if ENABLE_MIPS_ACC
 #define BLIT_INTERVAL_MIN 40
 #define BLIT_INTERVAL_MAX 250
 void CFbAccelMIPS::run()
@@ -443,7 +456,6 @@ void CFbAccelMIPS::_blit()
 		printf("FBIO_BLIT");
 }
 
-#if ENABLE_MIPS_ACC
 void CFbAccelMIPS::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
 {
 	if(dx <1 || dy <1 )
