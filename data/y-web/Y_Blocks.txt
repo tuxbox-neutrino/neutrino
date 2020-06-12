@@ -543,7 +543,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~VU+ UNO4KSE~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ ZERO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ DUO~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
-		{=if-equal:{=var-get:boxtype=}~ZGEMMA H7~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
+		{=if-equal:{=var-get:boxtype=}~AirDigital Zgemma H7C/S~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
 
 		{=comment:fallback~=}				{=include-block:Y_Blocks.txt;rc_cst_v1=}
 		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
