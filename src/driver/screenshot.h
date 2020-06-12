@@ -24,7 +24,7 @@
 #define __screenshot_h_
 
 #ifdef SCREENSHOT
-  #if BOXMODEL_VUPLUS
+  #if BOXMODEL_VUPLUS_ALL
     #define SCREENSHOT_EXTERNAL 1
   #else
     #define SCREENSHOT_INTERNAL 1

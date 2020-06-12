@@ -465,7 +465,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
 	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0);
 	g_settings.ci_mode = configfile.getInt32("ci_mode", 0);
-#if BOXMODEL_VUPLUS
+#if BOXMODEL_VUPLUS_ALL
 	g_settings.ci_delay = configfile.getInt32("ci_delay", 128);
 #endif
 	// ci-settings for each slot
@@ -491,7 +491,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 9);
 #endif
-#if BOXMODEL_VUPLUS
+#if BOXMODEL_VUPLUS_ALL
 		sprintf(cfg_key, "ci_rpr_%d", i);
 		g_settings.ci_rpr[i] = configfile.getInt32(cfg_key, 9);
 #endif
@@ -1424,7 +1424,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("ci_tuner", g_settings.ci_tuner);
 	configfile.setInt32("ci_rec_zapto", g_settings.ci_rec_zapto);
 	configfile.setInt32("ci_mode", g_settings.ci_mode);
-#if BOXMODEL_VUPLUS
+#if BOXMODEL_VUPLUS_ALL
 	configfile.setInt32("ci_delay", g_settings.ci_delay);
 #endif
 	// ci-settings for each slot
@@ -1437,7 +1437,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		configfile.setString(cfg_key, g_settings.ci_pincode[i]);
 		sprintf(cfg_key, "ci_clock_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_clock[i]);
-#if BOXMODEL_VUPLUS
+#if BOXMODEL_VUPLUS_ALL
 		sprintf(cfg_key, "ci_rpr_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_rpr[i]);
 #endif
@@ -2691,7 +2691,7 @@ TIMER_START();
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 	memcpy(ZapStart_arg.ci_clock, g_settings.ci_clock, sizeof(g_settings.ci_clock));
-#if BOXMODEL_VUPLUS
+#if BOXMODEL_VUPLUS_ALL
 	ZapStart_arg.ci_delay = g_settings.ci_delay;
 	memcpy(ZapStart_arg.ci_rpr, g_settings.ci_rpr, sizeof(g_settings.ci_rpr));
 #endif
@@ -5227,7 +5227,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_list_end = tconfig->getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
 #if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_nokey ); // FIXME
-#elif BOXMODEL_VUPLUS
+#elif BOXMODEL_VUPLUS_ALL
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_playpause );
 #elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_play );
@@ -5265,7 +5265,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 #if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
 	g_settings.mpkey_play = tconfig->getInt32( "mpkey.play", CRCInput::RC_playpause );
 	g_settings.mpkey_pause = tconfig->getInt32( "mpkey.pause", CRCInput::RC_playpause );
-#elif BOXMODEL_VUPLUS
+#elif BOXMODEL_VUPLUS_ALL
 	g_settings.mpkey_play = tconfig->getInt32( "mpkey.play", CRCInput::RC_play );
 	g_settings.mpkey_pause = tconfig->getInt32( "mpkey.pause", CRCInput::RC_playpause );
 #else

@@ -1802,7 +1802,7 @@ int getActivePartition()
 {
 	int c = -1;
 
-#if BOXMODEL_VUPLUS4K
+#if BOXMODEL_VUPLUS_ARM
 	FILE *f;
 	f = fopen("/proc/cmdline", "r");
 	if (f)

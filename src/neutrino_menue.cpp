@@ -387,9 +387,15 @@ void CNeutrinoApp::InitMenuService()
 
 	//1st section***************************************************************************************************
 
+	bool force_fesetup = false;
+#if BOXMODEL_VUPLUS_ALL
+	if (CFEManager::getInstance()->haveCable() || CFEManager::getInstance()->haveTerr())
+		force_fesetup = true;
+#endif
+
 	CMenuForwarder * mf;
 	// tuner setup
-	if(CFEManager::getInstance()->haveSat() || CFEManager::getInstance()->getFrontendCount() > 1) {
+	if (CFEManager::getInstance()->haveSat() || CFEManager::getInstance()->getFrontendCount() > 1 || force_fesetup) {
 		mf = new CMenuForwarder(LOCALE_SATSETUP_FE_SETUP, true, NULL, CScanSetup::getInstance(), "setup_frontend", CRCInput::RC_red);
 		mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SCAN_FESETUP);
 		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_TUNER]);

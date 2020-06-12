@@ -286,7 +286,7 @@ struct SNeutrinoSettings
 	int ci_tuner;
 	int ci_rec_zapto;
 	int ci_mode;
-#if BOXMODEL_VUPLUS
+#if BOXMODEL_VUPLUS_ALL
 	int ci_delay;
 #endif
 	// ci-settings for each slot
@@ -294,7 +294,7 @@ struct SNeutrinoSettings
 	int ci_save_pincode[4];
 	std::string ci_pincode[4];
 	int ci_clock[4];
-#if BOXMODEL_VUPLUS
+#if BOXMODEL_VUPLUS_ALL
 	int ci_rpr[4];
 #endif
 

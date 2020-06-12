@@ -613,26 +613,38 @@ fi
 # all vuplus BOXMODELs
 case "$BOXMODEL" in
 	vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo)
-		AC_DEFINE(BOXMODEL_VUPLUS, 1, [vuplus])
-		vuplus=true
+		AC_DEFINE(BOXMODEL_VUPLUS_ALL, 1, [vuplus_all])
+		vuplus_all=true
 	;;
 	*)
-		vuplus=false
+		vuplus_all=false
 	;;
 esac
-AM_CONDITIONAL(BOXMODEL_VUPLUS, test "$vuplus" = "true")
+AM_CONDITIONAL(BOXMODEL_VUPLUS_ALL, test "$vuplus_all" = "true")
 
-# all vuplus4k BOXMODELs
+# all vuplus arm BOXMODELs
 case "$BOXMODEL" in
 	vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k)
-		AC_DEFINE(BOXMODEL_VUPLUS4K, 1, [vuplus4k])
-		vuplus4k=true
+		AC_DEFINE(BOXMODEL_VUPLUS_ARM, 1, [vuplus_arm])
+		vuplus_arm=true
 	;;
 	*)
-		vuplus4k=false
+		vuplus_arm=false
 	;;
 esac
-AM_CONDITIONAL(BOXMODEL_VUPLUS4K, test "$vuplus4k" = "true")
+AM_CONDITIONAL(BOXMODEL_VUPLUS_ARM, test "$vuplus_arm" = "true")
+
+# all vuplus mips BOXMODELs
+case "$BOXMODEL" in
+	vuduo)
+		AC_DEFINE(BOXMODEL_VUPLUS_MIPS, 1, [vuplus_mips])
+		vuplus_mips=true
+	;;
+	*)
+		vuplus_mips=false
+	;;
+esac
+AM_CONDITIONAL(BOXMODEL_VUPLUS_MIPS, test "$vuplus_mips" = "true")
 
 # BOXMODELs that allows to change osd resolution
 case "$BOXMODEL" in
