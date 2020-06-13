@@ -662,7 +662,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", 1);
 	g_settings.glcd_color_fg = configfile.getInt32("glcd_color_fg", GLCD::cColor::White);
 	g_settings.glcd_color_bg = configfile.getInt32("glcd_color_bg", GLCD::cColor::Black);
-	g_settings.glcd_color_bar = configfile.getInt32("glcd_color_bar", GLCD::cColor::Blue);
+	g_settings.glcd_color_bar = configfile.getInt32("glcd_color_bar", GLCD::cColor::Gray);
 	g_settings.glcd_percent_channel = configfile.getInt32("glcd_percent_channel", 22);
 	g_settings.glcd_percent_epg = configfile.getInt32("glcd_percent_epg", 16);
 	g_settings.glcd_percent_bar = configfile.getInt32("glcd_percent_bar", 8);

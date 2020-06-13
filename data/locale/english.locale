@@ -832,24 +832,27 @@ fsk.to_16 to 16
 fsk.to_7 to 7
 glcd.brightness Brightness
 glcd.brightness_standby Brightness in standby
+glcd.color.amber Amber
 glcd.color.black Black
 glcd.color.blue Blue
-glcd.color.cyan Blue-Green
+glcd.color.bluegray Bluegray
+glcd.color.brown Brown
+glcd.color.cyan Cyan
+glcd.color.deeporange Deep Orange
+glcd.color.deeppurple Deep Purple
+glcd.color.gray Gray
 glcd.color.green Green
-glcd.color.magenta Magenta
+glcd.color.indigo Indigo
+glcd.color.lightblue Light Blau
+glcd.color.lightgreen Light Green
+glcd.color.lime Lime
+glcd.color.orange Orange
+glcd.color.pink Pink
+glcd.color.purple Purple
 glcd.color.red Red
+glcd.color.teal Teal
 glcd.color.white White
 glcd.color.yellow Yellow
-glcd.color.orange Orange
-glcd.color.light_gray Light Gray
-glcd.color.gray Gray
-glcd.color.dark_gray Dark Gray
-glcd.color.dark_red Dark Red
-glcd.color.dark_green Dark Green
-glcd.color.dark_blue Dark Blue
-glcd.color.purple Purple
-glcd.color.mint Mint
-glcd.color.golden Golden
 glcd.display Display type
 glcd.enable GraphLCD enabled
 glcd.font Font
