@@ -1214,7 +1214,7 @@ start-block~rc_zgemma_h7
 <area shape="rect" coords="77,156,119,182" alt="KEY_0" href="javascript:rcsim('KEY_0')" />
 <area shape="rect" coords="24,156,66,182" alt="KEY_PREVIOUS" href="javascript:rcsim('KEY_PREVIOUS')" />
 <area shape="rect" coords="130,156,172,182" alt="KEY_NEXT" href="javascript:rcsim('KEY_NEXT')" />
-<area shape="rect" coords="141,318,196,345" alt="KEY_EPG" href="javascript:rcsim('KEY_EPG')" />
+<area shape="rect" coords="141,318,169,345" alt="KEY_EPG" href="javascript:rcsim('KEY_EPG')" />
 <area shape="rect" coords="141,192,169,219" alt="KEY_INFO" href="javascript:rcsim('KEY_INFO')" />
 <!--<area shape="rect" coords="27,191,55,218" alt="KEY_BACK" href="javascript:rcsim('KEY_BACK')" />-->
 <area shape="rect" coords="67,394,28,355" alt="KEY_VOLUMEUP" href="javascript:rcsim('KEY_VOLUMEUP')" />
@@ -1228,7 +1228,7 @@ start-block~rc_zgemma_h7
 <area shape="rect" coords="81,293,114,322" alt="KEY_DOWN" href="javascript:rcsim('KEY_DOWN')" />
 <area shape="rect" coords="41,252,73,284" alt="KEY_LEFT" href="javascript:rcsim('KEY_LEFT')" />
 <area shape="rect" coords="123,253,153,284" alt="KEY_RIGHT" href="javascript:rcsim('KEY_RIGHT')" />
-<area shape="circle" coords="118,285,52" alt="KEY_OK" href="javascript:rcsim('KEY_OK')" />
+<area shape="circle" coords="97,269,52" alt="KEY_OK" href="javascript:rcsim('KEY_OK')" />
 <area shape="rect" coords="24,506,55,529" alt="KEY_RED" href="javascript:rcsim('KEY_RED')" />
 <area shape="rect" coords="62,506,93,529" alt="KEY_GREEN" href="javascript:rcsim('KEY_GREEN')" />
 <area shape="rect" coords="101,506,132,529" alt="KEY_YELLOW" href="javascript:rcsim('KEY_YELLOW')" />
