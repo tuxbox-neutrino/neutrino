@@ -460,7 +460,9 @@ void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy
 	if(dx <1 || dy <1 )
 		return;
 
-	bcm_accel_fill(fix.smem_start, screeninfo.xres, screeninfo.yres, stride,x, y, dx, dy,col);
+	// do not accelerate small areas
+	if (fix.smem_start != 0 && dx > 25 && dy > 25)
+		bcm_accel_fill(fix.smem_start, screeninfo.xres, screeninfo.yres, stride,x, y, dx, dy,col);
 
 	int line = 0;
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
@@ -474,6 +476,6 @@ void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy
 	}
 
 	mark(x, y, x+dx, y+dy);
-	blit();
+	//blit();
 }
 #endif
