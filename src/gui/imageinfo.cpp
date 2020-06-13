@@ -331,7 +331,7 @@ void CImageInfo::InitInfoData()
 	if (is_version_code && version_string.size() == 16){
 		static CFlashVersionInfo versionInfo(version_string.c_str());
 		if (oe_image_version.empty()){
-			version_string = versionInfo.getReleaseCycle();
+			version_string = versionInfo.getVersionString();
 			version_string += " ";
 			version_string += versionInfo.getType();
 			version_string += " (";

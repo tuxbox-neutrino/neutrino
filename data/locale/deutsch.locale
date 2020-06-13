@@ -712,7 +712,7 @@ flashupdate.menu_apply_settings Settingsübernahme erlauben
 flashupdate.mkfs_create_image Backup erstellen
 flashupdate.mkfs_preparing_files Dateien und Verzeichnisse vorbereiten
 flashupdate.mkfs_using_sumtool Benutze Sumtool
-flashupdate.msgbox Es wurde folgende neue Datei gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen und installieren?
+flashupdate.msgbox Es wurde folgendes Update gefunden:\n%s %s vom %s, %s\n\nWollen Sie diese Version jetzt herunterladen?
 flashupdate.mtdselector Partitions-Auswahl
 flashupdate.namemode1 Dateiname Settingsfile
 flashupdate.namemode1_default <Org.Name>+settings.img

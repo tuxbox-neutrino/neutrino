@@ -463,23 +463,21 @@ CFlashVersionInfo::CFlashVersionInfo(const std::string & _versionString)
 	snapshot = versionString[0];
 
 	// recover release cycle version
+	// will be compared with RELEASE_CYCLE, which is defined in configure.ac as "x.0"
 	releaseCycle[0] = versionString[1];
 	releaseCycle[1] = '.';
-/*
-	if (versionString[2] == '0')
-	{
-		releaseCycle[2] = versionString[3];
-		releaseCycle[3] = 0;
-	}
-	else
-*/
-	{
-		releaseCycle[2] = versionString[2];
-		releaseCycle[3] = versionString[3];
-		releaseCycle[4] = 0;
-	}
+	releaseCycle[2] = '0';
+	releaseCycle[3] = 0;
 
-	version = atoi(&releaseCycle[0]) * 100 + atoi(&releaseCycle[2]);
+	// human readable version
+	vstring[0] = versionString[1];
+	vstring[1] = '.';
+	vstring[2] = versionString[2];
+	vstring[3] = versionString[3];
+	vstring[4] = 0;
+
+	version = atoi(&versionString[1])*100 + atoi(&versionString[2])*10 + atoi(&versionString[3]);
+
 	// recover date
 	struct tm tt;
 	memset(&tt, 0, sizeof(tt));
@@ -559,6 +557,11 @@ const char *CFlashVersionInfo::getType(bool localized) const
 int CFlashVersionInfo::getVersion(void) const
 {
 	return version;
+}
+
+const char *CFlashVersionInfo::getVersionString(void) const
+{
+	return vstring;
 }
 
 //-----------------------------------------------------------------------------------------------------------------

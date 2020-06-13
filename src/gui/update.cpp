@@ -251,7 +251,7 @@ bool CFlashUpdate::selectHttpImage(void)
 
 	char currentleft[200];
 	char currentright[200];
-	snprintf(currentleft, 200, "%s %d - %s, %s", curInfo.getType(true), curInfo.getVersion(), curInfo.getDate(), curInfo.getTime());
+	snprintf(currentleft, 200, "%s %s - %s, %s", curInfo.getType(true), curInfo.getVersionString(), curInfo.getDate(), curInfo.getTime());
 	snprintf(currentright, 200, "%s %s", imagedescription.c_str(), imageversion.c_str());
 
 	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE, listWidth, MN_WIDGET_ID_IMAGESELECTOR);
@@ -313,7 +313,7 @@ bool CFlashUpdate::selectHttpImage(void)
 				fileTypes[i] = versionInfo.snapshot;
 				std::string description = versionInfo.getType(true);
 				description += " ";
-				description += versionInfo.getVersion();
+				description += versionInfo.getVersionString();
 				description += " - ";
 				description += versionInfo.getDate();
 				description += ", ";
@@ -428,7 +428,7 @@ bool CFlashUpdate::checkVersion4Update()
 		msg_body = LOCALE_FLASHUPDATE_MSGBOX;
 #ifdef SQUASHFS
 		versionInfo = new CFlashVersionInfo(newVersion);//Memory leak: versionInfo
-		sprintf(msg, g_Locale->getText(msg_body), versionInfo->getDate(), versionInfo->getTime(), versionInfo->getReleaseCycle(), versionInfo->getType(true));
+		sprintf(msg, g_Locale->getText(msg_body), versionInfo->getType(true), versionInfo->getVersionString(), versionInfo->getDate(), versionInfo->getTime());
 
 		if (gotImage)
 		{

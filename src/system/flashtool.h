@@ -79,7 +79,8 @@ class CFlashVersionInfo
 	
 	char date[11];
 	char time[6];
-	char releaseCycle[5];
+	char releaseCycle[4];
+	char vstring[5]; // human readable version
 	int  version;
 	time_t datetime;
 	
@@ -92,7 +93,8 @@ class CFlashVersionInfo
 	const char *getTime(void) const;
 	const char *getReleaseCycle(void) const;
 	const char *getType(bool localized = false) const;
-	int   getVersion(void) const;
+	int getVersion(void) const;
+	const char *getVersionString(void) const;
 	time_t getDateTime(void) const { return datetime; };
 };
 
