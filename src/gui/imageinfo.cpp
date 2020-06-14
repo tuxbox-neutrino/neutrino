@@ -340,7 +340,7 @@ void CImageInfo::InitInfoData()
 		}else
 			version_string = oe_image_version;
 	}else
-		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s], internal release cycle [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str(), RELEASE_CYCLE);
+		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str());
 #endif
 
 	image_info_t imagename 	= {g_Locale->getText(LOCALE_IMAGEINFO_IMAGE),	config.getString("imagename", PACKAGE_NAME)};
