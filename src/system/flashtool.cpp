@@ -463,7 +463,7 @@ CFlashVersionInfo::CFlashVersionInfo(const std::string & _versionString)
 	snapshot = versionString[0];
 
 	// recover release cycle version
-	// will be compared with RELEASE_CYCLE, which is defined in configure.ac as "x.0"
+	// will be compared with PACKAGE_RELEASE_CYCLE, which is defined in configure.ac as "x.0"
 	releaseCycle[0] = versionString[1];
 	releaseCycle[1] = '.';
 	releaseCycle[2] = '0';

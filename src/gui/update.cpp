@@ -432,7 +432,7 @@ bool CFlashUpdate::checkVersion4Update()
 
 		if (gotImage)
 		{
-			if ((strncmp(RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
+			if ((strncmp(PACKAGE_RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
 			    (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_WRONGBASE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes))
 			{
 				delete versionInfo;
