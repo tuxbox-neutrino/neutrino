@@ -140,7 +140,7 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 			parent->hide();
 		GLCD_Menu_Select_Driver();
 		nglcd->Exit();
-		return res;
+		return menu_return::RETURN_EXIT;
 	}
 	if(actionKey == "select_font") {
 		if(parent)
