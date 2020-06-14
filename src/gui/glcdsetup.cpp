@@ -246,10 +246,10 @@ void GLCD_Menu::GLCD_Menu_Settings()
 	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SELECT_FG, &color_fg,
 				GLCD_COLOR_OPTIONS, GLCD_COLOR_OPTION_COUNT, true, this,
-				CRCInput::convertDigitToKey(shortcut++)));
+				CRCInput::convertDigitToKey(shortcut++), NULL, true));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SELECT_BG, &color_bg,
 				GLCD_COLOR_OPTIONS, GLCD_COLOR_OPTION_COUNT, true, this,
-				CRCInput::convertDigitToKey(shortcut++)));
+				CRCInput::convertDigitToKey(shortcut++), NULL, true));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SELECT_BAR, &color_bar,
 				GLCD_COLOR_OPTIONS, GLCD_COLOR_OPTION_COUNT, true, this,
 				CRCInput::convertDigitToKey(shortcut++)));
