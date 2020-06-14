@@ -240,9 +240,9 @@ void nGLCD::Exec() {
 		if (percent_time_standby) {
 
 			std::string Time;
-			if (g_settings.glcd_time_in_standby == 3)
+			if (g_settings.glcd_time_in_standby == CLOCK_ANALOG)
 				LcdAnalogClock(bitmap->Width()/2, bitmap->Height()/2, 200);
-			else if (g_settings.glcd_time_in_standby == 2)
+			else if (g_settings.glcd_time_in_standby == CLOCK_DIGITAL_HMS)
 				Time = strftime("%H:%M:%S", tm);
 			else
 				Time = strftime("%H:%M", tm);
@@ -795,7 +795,7 @@ void nGLCD::Update() {
 
 void nGLCD::StandbyMode(bool b) {
 	if (nglcd) {
-		if (g_settings.glcd_time_in_standby) {
+		if (g_settings.glcd_time_in_standby != CLOCK_OFF) {
 			nglcd->doStandbyTime = b;
 			nglcd->doStandby = false;
 		} else {

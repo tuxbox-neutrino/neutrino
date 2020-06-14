@@ -114,6 +114,14 @@ class nGLCD
 		static void Lock();
 		static void Unlock();
 	public:
+		enum
+		{
+			CLOCK_OFF		= 0,
+			CLOCK_DIGITAL_HM	= 1,
+			CLOCK_DIGITAL_HMS	= 2,
+			CLOCK_ANALOG		= 3
+		};
+
 		nGLCD();
 		~nGLCD();
 		void DeInit();

@@ -859,6 +859,8 @@ const char * locale_real_names[] =
 	"fsk.to_7",
 	"glcd.brightness",
 	"glcd.brightness_standby",
+	"glcd.clock.analog",
+	"glcd.clock.digital_hm",
 	"glcd.color.amber",
 	"glcd.color.black",
 	"glcd.color.blue",

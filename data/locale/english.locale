@@ -832,6 +832,8 @@ fsk.to_16 to 16
 fsk.to_7 to 7
 glcd.brightness Brightness
 glcd.brightness_standby Brightness in standby
+glcd.clock.analog analog
+glcd.clock.digital_hm digital
 glcd.color.amber Amber
 glcd.color.black Black
 glcd.color.blue Blue
