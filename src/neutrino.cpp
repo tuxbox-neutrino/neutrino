@@ -1330,9 +1330,11 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	}
 	if (g_settings.version_pseudo < "20200615000000")
 	{
+#ifdef ENABLE_GRAPHLCD
 		// disable analog clock in standby mode
 		if (g_settings.glcd_time_in_standby > 1)
 			g_settings.glcd_time_in_standby = 1;
+#endif
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
