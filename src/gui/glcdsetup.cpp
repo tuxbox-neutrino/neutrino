@@ -219,13 +219,13 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 	return true;
 }
 
-#define ONOFFSEC_OPTION_COUNT 3
-static const CMenuOptionChooser::keyval ONOFFSEC_OPTIONS[ONOFFSEC_OPTION_COUNT] = {
+static const CMenuOptionChooser::keyval GLCD_CLOCK_OPTIONS[] = {
 	{ nGLCD::CLOCK_OFF,		LOCALE_OPTIONS_OFF },
 	{ nGLCD::CLOCK_DIGITAL_HM,	LOCALE_GLCD_CLOCK_DIGITAL_HM },
 //	{ nGLCD::CLOCK_DIGITAL_HMS,	LOCALE_GLCD_CLOCK_DIGITAL_HMS },
 	{ nGLCD::CLOCK_ANALOG,		LOCALE_GLCD_CLOCK_ANALOG }
 };
+#define GLCD_CLOCK_OPTIONS_COUNT (sizeof(GLCD_CLOCK_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 void GLCD_Menu::GLCD_Menu_Settings()
 {
@@ -272,7 +272,7 @@ void GLCD_Menu::GLCD_Menu_Settings()
 				&g_settings.glcd_brightness, true, 0, 100, this));
 	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_TIME_IN_STANDBY, &g_settings.glcd_time_in_standby,
-				ONOFFSEC_OPTIONS, ONOFFSEC_OPTION_COUNT, true, this,
+				GLCD_CLOCK_OPTIONS, GLCD_CLOCK_OPTIONS_COUNT, true, this,
 				CRCInput::convertDigitToKey(shortcut++)));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_TIME_STANDBY,
 				&g_settings.glcd_percent_time_standby, true, 0, 100, this));
