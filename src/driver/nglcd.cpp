@@ -36,6 +36,8 @@
 #include <eitd/sectionsd.h>
 #include <math.h>
 
+#define LCD_ICONSDIR "/share/lcd/icons/"
+
 static const char * kDefaultConfigFile = "/etc/graphlcd.conf";
 static nGLCD *nglcd = NULL;
 
@@ -150,22 +152,20 @@ void nGLCD::LcdAnalogClock(int posx,int posy,int dia)
 	hy_ = int((dia * 0.4 * sin(hAngleInRad)));
 #endif
 
-	std::string a_clock = "";
+	std::string clock_face = LCD_ICONSDIR "/clock/analog/dial.png";
 
-	a_clock = ICONSDIR "/a_clock.png";
-	if (access(a_clock.c_str(), F_OK) != 0)
-		a_clock = ICONSDIR "/a_clock.png";
-
-	int lcd_a_clock_width = 0, lcd_a_clock_height = 0;
-	g_PicViewer->getSize(a_clock.c_str(), &lcd_a_clock_width, &lcd_a_clock_height);
-	if (lcd_a_clock_width && lcd_a_clock_height)
+	int clock_face_width = 0, clock_face_height = 0;
+	g_PicViewer->getSize(clock_face.c_str(), &clock_face_width, &clock_face_height);
+	if (clock_face_width && clock_face_height)
 	{
-		showImage(a_clock, (uint32_t) lcd_a_clock_width, (uint32_t) lcd_a_clock_height,
+		showImage(clock_face, (uint32_t) clock_face_width, (uint32_t) clock_face_height,
 			0, 0, (uint32_t) nglcd->bitmap->Width(), (uint32_t) nglcd->bitmap->Height(), false, false);
 
 		lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
 		lcd->Refresh(true);
 	}
+
+	// TODO: Fix these ugly and buggy clock hands
 
 	// hour
 	bitmap->DrawLine(posx,posy-8,posx+hx_,posy+hy_, g_settings.glcd_color_fg);
