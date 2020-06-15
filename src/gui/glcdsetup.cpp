@@ -307,7 +307,7 @@ void GLCD_Menu::GLCD_Menu_Select_Driver()
 		m->addItem(GenericMenuSeparator);
 
 		CMenuForwarder* mf;
-		for (int i = 0; i != nGLCD::getInstance()->GetConfigSize() - 1; i++)
+		for (int i = 0; i < nGLCD::getInstance()->GetConfigSize(); i++)
 		{
 			mf = new CMenuForwarder(nGLCD::getInstance()->GetConfigName(i), true, NULL, selector,to_string(i).c_str());
 			m->addItem(mf);
