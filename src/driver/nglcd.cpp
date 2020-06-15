@@ -208,31 +208,25 @@ void nGLCD::Exec() {
 
 	bitmap->Clear(g_settings.glcd_color_bg);
 
-	if (Channel == "Neutrino") {
-		if (g_settings.glcd_show_logo) {
-			int start_width = 0, start_height = 0;
-			g_PicViewer->getSize(DATADIR "/neutrino/icons/start.jpg", &start_width, &start_height);
-			if (start_width && start_height) {
-				showImage(DATADIR "/neutrino/icons/start.jpg", (uint32_t) start_width, (uint32_t) start_height,
-					0, 0, (uint32_t) nglcd->bitmap->Width(), (uint32_t) nglcd->bitmap->Height(), false, true);
+	if (Channel.compare("Neutrino") == 0) {
+		int start_width = 0, start_height = 0;
+		g_PicViewer->getSize(DATADIR "/neutrino/icons/start.jpg", &start_width, &start_height);
+		if (start_width && start_height) {
+			showImage(DATADIR "/neutrino/icons/start.jpg", (uint32_t) start_width, (uint32_t) start_height,
+				0, 0, (uint32_t) nglcd->bitmap->Width(), (uint32_t) nglcd->bitmap->Height(), false, true);
 
-				GLCD::cFont font_tmp;
+			GLCD::cFont font_tmp;
+			int fw = font_epg.Width(Epg);
+			font_tmp.LoadFT2(g_settings.glcd_font, "UTF-8", fontsize_epg * (bitmap->Width() - 4) / fw);
+			fw = font_tmp.Width(Epg);
 
-				int fw = font_epg.Width(Epg);
-				font_tmp.LoadFT2(g_settings.glcd_font, "UTF-8", fontsize_epg * (bitmap->Width() - 4) / fw);
-				fw = font_tmp.Width(Epg);
+			bitmap->DrawText(std::max(2,(bitmap->Width() - 4 - fw)/2),
+				10 * bitmap->Height()/100, bitmap->Width() - 4, Epg,
+				&font_tmp, g_settings.glcd_color_fg, GLCD::cColor::Transparent);
 
-				bitmap->DrawText(std::max(2,(bitmap->Width() - 4 - fw)/2),
-					10 * bitmap->Height()/100, bitmap->Width() - 4, Epg,
-					&font_tmp, g_settings.glcd_color_fg, GLCD::cColor::Transparent);
-
-				lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
-				lcd->Refresh(true);
+			lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
+			lcd->Refresh(true);
 			}
-		} else {
-			nglcd->bitmap->Clear(g_settings.glcd_color_bg);
-			nglcd->lcd->Refresh(true);
-		}
 		return;
 	}
 
