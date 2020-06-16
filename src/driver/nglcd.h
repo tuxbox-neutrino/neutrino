@@ -60,6 +60,7 @@ class nGLCD
 		int percent_bar;
 		int percent_logo;
 		int percent_space;
+		int power_state;
 		GLCD::cBitmap * bitmap;
 		std::string Channel;
 		std::string Epg;
@@ -138,6 +139,7 @@ class nGLCD
 		static void Exit();
 		static void Blit();
 		static void SetBrightness(unsigned int b);
+		static void TogglePower();
 		int GetConfigSize();
 		std::string GetConfigName(int);
 		void UpdateBrightness();

@@ -77,6 +77,7 @@ nGLCD::nGLCD() {
 	percent_bar = 0;
 	percent_space = 0;
 	percent_logo = 0;
+	power_state = 1;
 	Scale = 0;
 	bitmap = NULL;
 	blitFlag = true;
@@ -939,6 +940,18 @@ void nGLCD::SetBrightness(unsigned int b)
 {
 	if (nglcd)
 		nglcd->SetBrightness(b);
+}
+
+void nGLCD::TogglePower()
+{
+	if (nglcd)
+	{
+		nglcd->power_state = 1 - nglcd->power_state;
+		if (nglcd->power_state)
+			nglcd->Resume();
+		else
+			nglcd->Suspend();
+	}
 }
 
 void nGLCD::Blit()
