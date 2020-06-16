@@ -3793,6 +3793,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if( mode == NeutrinoModes::mode_standby ) {
 			//switch lcd off/on
 			CVFD::getInstance()->togglePower();
+#ifdef ENABLE_GRAPHLCD
+			nGLCD::TogglePower();
+#endif
 		}
 		else {
 			//mute
