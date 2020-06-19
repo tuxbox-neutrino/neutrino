@@ -1,5 +1,12 @@
 {=global-var-set:boxtype=coolstream=}
 {=global-var-set:alpha=true=}
+
+{=global-var-set:graphlcd=false=}
+	{=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~	{=global-var-set:graphlcd=true=}~=}
+	{=if-equal:{=var-get:boxtype=}~VU+ DUO4K~	{=global-var-set:graphlcd=true=}~=}
+	{=if-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~	{=global-var-set:graphlcd=true=}~=}
+	{=if-equal:{=var-get:boxtype=}~VU+ UNO4KSE~	{=global-var-set:graphlcd=true=}~=}
+
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
