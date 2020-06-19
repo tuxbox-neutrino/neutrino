@@ -53,6 +53,7 @@
 #include <system/helpers.h>
 #include <system/hddstat.h>
 #include <daemonc/remotecontrol.h>
+#include <driver/display.h>
 #include <driver/radiotext.h>
 #include <driver/volume.h>
 #include <driver/fontrenderer.h>
@@ -491,6 +492,12 @@ void CInfoViewerBB::showIcon_SubT()
 		have_sub = true;
 
 	showBBIcons(CInfoViewerBB::ICON_SUBT, (have_sub) ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY);
+#ifdef ENABLE_GRAPHLCD
+	if (cc && cc->getSubtitleCount())
+		cGLCD::lockIcon(cGLCD::SUB);
+	else
+		cGLCD::unlockIcon(cGLCD::SUB);
+#endif
 }
 
 void CInfoViewerBB::showIcon_VTXT()
@@ -498,6 +505,12 @@ void CInfoViewerBB::showIcon_VTXT()
 	if (!is_visible)
 		return;
 	showBBIcons(CInfoViewerBB::ICON_VTXT, (g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0) ? NEUTRINO_ICON_VTXT : NEUTRINO_ICON_VTXT_GREY);
+#ifdef ENABLE_GRAPHLCD
+	if (g_RemoteControl->current_PIDs.PIDs.vtxtpid)
+		cGLCD::lockIcon(cGLCD::TXT);
+	else
+		cGLCD::unlockIcon(cGLCD::TXT);
+#endif
 }
 
 void CInfoViewerBB::showIcon_DD()
@@ -508,10 +521,17 @@ void CInfoViewerBB::showIcon_DD()
 	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) && 
 	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
 		dd_icon = NEUTRINO_ICON_DD;
-	else 
+	else
 		dd_icon = g_RemoteControl->has_ac3 ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
 
 	showBBIcons(CInfoViewerBB::ICON_DD, dd_icon);
+#ifdef ENABLE_GRAPHLCD
+	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) &&
+	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
+		cGLCD::lockIcon(cGLCD::DD);
+	else
+		cGLCD::unlockIcon(cGLCD::DD);
+#endif
 }
 
 void CInfoViewerBB::showIcon_RadioText(bool rt_available)

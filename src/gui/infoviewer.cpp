@@ -1474,12 +1474,20 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		showLcdPercentOver ();
 		eventname = info_CurrentNext.current_name;
 		CVFD::getInstance()->setEPGTitle(eventname);
+#ifdef ENABLE_GRAPHLCD
+		if (g_settings.glcd_enable)
+			cGLCD::lockChannel("", eventname, 0);
+#endif
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED) {
 		//chanready = 1;
 		showSNR ();
 		// show failure..!
 		CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
+#ifdef ENABLE_GRAPHLCD
+		if (g_settings.glcd_enable)
+			cGLCD::lockChannel("(" + g_RemoteControl->getCurrentChannelName () + ')', "", 0);
+#endif
 		printf ("zap failed!\n");
 		showFailure ();
 		CVFD::getInstance ()->showPercentOver (255);
@@ -1490,6 +1498,10 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		if ((*(t_channel_id *) data) == current_channel_id) {
 			// show failure..!
 			CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
+#ifdef ENABLE_GRAPHLCD
+			if (g_settings.glcd_enable)
+				cGLCD::lockChannel("(" + g_RemoteControl->getCurrentChannelName () + ')', "", 0);
+#endif
 			printf ("zap failed!\n");
 			showFailure ();
 			CVFD::getInstance ()->showPercentOver (255);

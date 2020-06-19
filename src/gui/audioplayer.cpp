@@ -313,6 +313,10 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	printf("[audioplayer.cpp] wakeup_hdd(%s)\n", g_settings.network_nfs_audioplayerdir.c_str());
 	wakeup_hdd(g_settings.network_nfs_audioplayerdir.c_str()/*,true*/);
 
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::MirrorOSD(false);
+#endif
+
 	exec_controlscript(AUDIOPLAYER_START_SCRIPT);
 
 	int res = show();
@@ -333,6 +337,15 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
 
 	CNeutrinoApp::getInstance()->StartSubtitles();
+
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::MirrorOSD(g_settings.glcd_mirror_osd);
+	cGLCD::unlockChannel();
+	cGLCD::unlockDuration();
+	cGLCD::unlockStart();
+	cGLCD::unlockEnd();
+	cGLCD::ShowLcdIcon(false);
+#endif
 
 	return res;
 }
@@ -2377,6 +2390,27 @@ void CAudioPlayerGui::updateTimes(const bool force)
 		}
 		if ((updatePlayed || updateTotal) && m_curr_audiofile.FileType != CFile::STREAM_AUDIO && m_time_total != 0)
 		{
+#ifdef ENABLE_GRAPHLCD
+			//glcd_duration = to_string(m_time_played / (60 * 1000)) + "/" + to_string(m_time_total / (60 * 1000));
+			glcd_duration = to_string(m_time_played/60) + ":" + to_string(m_time_played%60) + "/" + to_string(m_time_total/60) + ":" + to_string(m_time_total%60);
+
+			time_t sTime = time(NULL);
+			sTime -= m_time_played;
+			tm_struct = localtime(&sTime);
+			start = to_string(tm_struct->tm_hour/10) + to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
+
+			time_t eTime = time(NULL);
+			eTime += m_time_total - m_time_played;
+			tm_struct = localtime(&eTime);
+			end = to_string(tm_struct->tm_hour/10) + to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
+
+			glcd_position = 100 * m_time_played / m_time_total;
+
+			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			cGLCD::lockDuration(glcd_duration);
+			cGLCD::lockStart(start);
+			cGLCD::lockEnd(end);
+#endif
 			CVFD::getInstance()->showAudioProgress(uint8_t(100 * m_time_played / m_time_total));
 		}
 	}
@@ -2384,27 +2418,82 @@ void CAudioPlayerGui::updateTimes(const bool force)
 
 void CAudioPlayerGui::paintLCD()
 {
+#ifdef ENABLE_GRAPHLCD
+	const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
+	if ( !meta.artist.empty() )
+		epg = meta.artist;
+	if ( !meta.artist.empty() && !meta.title.empty() )
+		epg = " - ";
+	if ( !meta.title.empty() )
+		epg = meta.title;
+#endif
 	switch (m_state)
 	{
 		case CAudioPlayerGui::STOP:
+#ifdef ENABLE_GRAPHLCD
+			if (m_inetmode)
+				channel = g_Locale->getText(LOCALE_INETRADIO_NAME);
+			else
+				channel = g_Locale->getText(LOCALE_AUDIOPLAYER_NAME);
+
+			epg = g_Locale->getText(LOCALE_MPKEY_STOP);
+
+			cGLCD::ShowLcdIcon(false);
+			cGLCD::lockChannel(channel, epg, 0);
+			cGLCD::lockDuration("00/00");
+			cGLCD::lockStart("00:00");
+			cGLCD::lockEnd("00:00");
+#endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_STOP);
 			CVFD::getInstance()->showAudioProgress(0);
 			break;
 		case CAudioPlayerGui::PLAY:
+#ifdef ENABLE_GRAPHLCD
+			channel = "";
+			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			cGLCD::lockDuration(glcd_duration);
+			cGLCD::lockStart(start);
+			cGLCD::lockEnd(end);
+			cGLCD::ShowLcdIcon(true);
+#endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_PLAY);
 			CVFD::getInstance()->showAudioTrack(m_curr_audiofile.MetaData.artist, m_curr_audiofile.MetaData.title, m_curr_audiofile.MetaData.album);
 			if (m_curr_audiofile.FileType != CFile::STREAM_AUDIO && m_time_total != 0)
 				CVFD::getInstance()->showAudioProgress(uint8_t(100 * m_time_played / m_time_total));
 			break;
 		case CAudioPlayerGui::PAUSE:
+#ifdef ENABLE_GRAPHLCD
+			channel = "";
+			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			cGLCD::lockDuration(glcd_duration);
+			cGLCD::lockStart(start);
+			cGLCD::lockEnd(end);
+			cGLCD::ShowLcdIcon(true);
+#endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_PAUSE);
 			CVFD::getInstance()->showAudioTrack(m_curr_audiofile.MetaData.artist, m_curr_audiofile.MetaData.title, m_curr_audiofile.MetaData.album);
 			break;
 		case CAudioPlayerGui::FF:
+#ifdef ENABLE_GRAPHLCD
+			channel = "";
+			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			cGLCD::lockDuration(glcd_duration);
+			cGLCD::lockStart(start);
+			cGLCD::lockEnd(end);
+			cGLCD::ShowLcdIcon(true);
+#endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_FF);
 			CVFD::getInstance()->showAudioTrack(m_curr_audiofile.MetaData.artist, m_curr_audiofile.MetaData.title, m_curr_audiofile.MetaData.album);
 			break;
 		case CAudioPlayerGui::REV:
+#ifdef ENABLE_GRAPHLCD
+			channel = "";
+			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			cGLCD::lockDuration(glcd_duration);
+			cGLCD::lockStart(start);
+			cGLCD::lockEnd(end);
+			cGLCD::ShowLcdIcon(true);
+#endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_REV);
 			CVFD::getInstance()->showAudioTrack(m_curr_audiofile.MetaData.artist, m_curr_audiofile.MetaData.title, m_curr_audiofile.MetaData.album);
 			break;

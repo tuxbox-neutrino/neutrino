@@ -148,6 +148,19 @@ function get_data(){
 				<li>
 					<a target="work" title="{=L:bc.menue.remote_desc=}" href="Y_Tools_Rcsim.yhtm">{=L:bc.menue.remote=}</a>
 				</li>
+				{=if-not-equal:{=var-get:boxtype=}~VU+ SOLO4K~
+				{=if-not-equal:{=var-get:boxtype=}~VU+ DUO4K~
+				{=if-not-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~
+				{=if-not-equal:{=var-get:boxtype=}~VU+ UNO4K~
+				{=if-not-equal:{=var-get:boxtype=}~VU+ UNO4KSE~
+				<li>
+					<a target="work" title="{=L:bc.menue.glcd_screenshot_desc=}" href="Y_Tools_Glcd_Screenshot.yhtm">{=L:bc.menue.glcd_screenshot=}</a>
+				</li>
+				~=}
+				~=}
+				~=}
+				~=}
+				~=}
 				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li>
 					{=if-empty:{=var-get:lcshot=}~

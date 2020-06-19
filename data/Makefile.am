@@ -17,6 +17,12 @@ SUBDIRS = \
 	y-web \
 	zapit
 
+if ENABLE_GRAPHLCD
+SUBDIRS += \
+	othemes
+endif
+
 if BOXTYPE_TRIPLE
-SUBDIRS += lcd
+SUBDIRS += \
+	lcd
 endif

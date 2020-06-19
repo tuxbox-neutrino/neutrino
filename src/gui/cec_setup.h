@@ -46,7 +46,11 @@ class CCECSetup : public CMenuTarget, CChangeObserver
 	public:	
 		CCECSetup();
 		~CCECSetup();
+#if HAVE_SH4_HARDWARE
+		void setCECSettings(bool);
+#else
 		void setCECSettings();
+#endif
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void * data);
 };

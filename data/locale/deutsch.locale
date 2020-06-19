@@ -830,10 +830,24 @@ fsk.from_7 ab 7
 fsk.to_12 bis 12
 fsk.to_16 bis 16
 fsk.to_7 bis 7
+glcd.align_center zentriert
+glcd.align_channel Sender ausrichten
+glcd.align_duration Sendungsdauer ausrichten
+glcd.align_end Sendungsende ausrichten
+glcd.align_epg EPG ausrichten
+glcd.align_left links
+glcd.align_none keine
+glcd.align_right rechts
+glcd.align_start Sendungsstart ausrichten
+glcd.align_time Zeit ausrichten
+glcd.bar_width Fortschrittsbalken-Weite
+glcd.bar_x_position Fortschrittsbalken x-Position
+glcd.bar_y_position Fortschrittsbalken y-Position
 glcd.brightness Helligkeit
-glcd.brightness_standby Helligkeit in Standby
-glcd.clock.analog analog
-glcd.clock.digital_hm digital
+glcd.brightness_standby Helligkeit im Standby
+glcd.brightness_dim Dimmen
+glcd.brightness_dim_time Dimmen nach
+glcd.brightness_settings Helligkeits-Einstellungen
 glcd.color.amber Amber
 glcd.color.black Schwarz
 glcd.color.blue Blau
@@ -855,25 +869,62 @@ glcd.color.red Rot
 glcd.color.teal Teal
 glcd.color.white Weiß
 glcd.color.yellow Gelb
+glcd.channel_x_position Sender x-Position
+glcd.channel_y_position Sender y-Position
+glcd.digital_clock_y_position Digitaluhr y-Position
 glcd.display Display-Typ
+glcd.duration_x_position Sendungsdauer x-Position
+glcd.duration_y_position Sendungsdauer y-Position
 glcd.enable GraphLCD aktiv
+glcd.end_x_position Sendungsende x-Position
+glcd.end_y_position Sendungsende y-Position
+glcd.epg_x_position EPG x-Position
+glcd.epg_y_position EPG x-Position
 glcd.font Schrift
+glcd.font_autoresize Automatische SChriftgröße
 glcd.head GraphLCD-Unterstützung
+glcd.logo_x_position Senderlogo x-Position
+glcd.logo_y_position Senderlogo y-Position
 glcd.mirror_osd OSD-Menü auf GraphLCD anzeigen
 glcd.mirror_video Videobild auf GraphLCD anzeigen
+glcd.position_settings Positions-Einstellungen
 glcd.restart Neu erkennen
 glcd.scroll_speed Scroll-Geschwindigkeit
 glcd.select.bar Fortschrittsbalken-Farbe
 glcd.select.bg Hintergrund-Farbe
 glcd.select.fg Vordergrund-Farbe
-glcd.show_logo Sender-Logo anzeigen
+glcd.show_duration Sendungsdauer zeigen
+glcd.show_end Sendungsende zeigen
+glcd.show_logo Senderlogo anzeigen
+glcd.show_progressbar Fortschrittsbalken
+glcd.show_start Sendungsstart zeigen
+glcd.show_time Uhrzeit anzeigen
+glcd.show_weather Wetter anzeigen
+glcd.simple_clock_y_position Einfache Uhr y-Position
 glcd.size_bar Fortschrittsbalken-Größe
 glcd.size_channel Sender-Größe
+glcd.size_duration Sendungsdauer-Größe
+glcd.size_end Sendungsende-Größe
 glcd.size_epg EPG-Größe
-glcd.size_logo Logo-Größe
+glcd.size_logo Senderlogo-Größe
+glcd.size_simple_clock Einfache Uhr-Größe
+glcd.size_start Sendungsstart-Größe
 glcd.size_time Uhrzeit-Größe
-glcd.size_time_standby Uhrzeit-Größe in Standby
-glcd.time_in_standby Zeitanzeige in Standby
+glcd.size_time_standby Uhrzeit-Größe im Standby
+glcd.theme Thema
+glcd.theme_position_settings Positions-Einstellungen
+glcd.theme_settings Thema-Einstellungen
+glcd.standby_analog_clock Analoge Uhr
+glcd.standby_digital_clock Digitale Uhr
+glcd.standby_lcd_clock LCD-Uhr
+glcd.standby_led_clock LED-Uhr
+glcd.standby_settings Standby-Einstellungen
+glcd.standby_weather Wetter im Standby
+glcd.start_x_position Sendungsstart x-Position
+glcd.start_y_position Sendungsstart y-Position
+glcd.time_in_standby Zeitanzeige im Standby
+glcd.time_x_position Uhrzeit x-Position
+glcd.time_y_position Uhrzeit y-Position
 glcd.volume Lautstärke
 hdd_10min 10 min.
 hdd_1min 1 min.
@@ -1672,6 +1723,7 @@ menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder auss
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_weather_api_key Geben Sie den Dark Sky API Schlüssel ein. Eine leere Eingabe schaltet die Wetter-Unterstützung aus
+menu.hint_weather_country
 menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (darksky.net) ein bzw. aus
 menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
@@ -2744,6 +2796,9 @@ videomenu.zappingmode Umschaltverhalten
 videomenu.zappingmode_mute Schwarzes Bild
 videomenu.zappingmode_hold Standbild
 weather.api_key Wetter API Schlüssel (Dark Sky)
+weather.country Länderwahl
+weather.country_deutschland Deutschland
+weather.country_norway Norwegen
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort
 webradio.head WebRadio

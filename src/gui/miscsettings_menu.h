@@ -38,6 +38,10 @@
 class CMiscMenue : public CMenuTarget, CChangeObserver
 {
 	private:
+		enum {
+			DEUTSCHLAND = 0,
+			NORWAY = 1,
+		};
 		CFanControlNotifier *fanNotifier;
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
 		//COnOffNotifier* miscNotifier;

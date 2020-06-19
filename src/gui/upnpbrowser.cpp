@@ -184,6 +184,11 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	CNeutrinoApp::getInstance()->stopPlayBack(true);
 	m_frameBuffer->showFrame("mp3.jpg");
 
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::MirrorOSD(false);
+	cGLCD::lockChannel(g_Locale->getText(LOCALE_UPNPBROWSER_HEAD), "", 0);
+#endif
+
 	// tell neutrino we're in upnp mode
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , NeutrinoModes::mode_upnp);
 
@@ -206,6 +211,11 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	CZapit::getInstance()->EnablePlayback(true);
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , m_LastMode);
 	g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
+
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::MirrorOSD(g_settings.glcd_mirror_osd);
+	cGLCD::unlockChannel();
+#endif
 
 	return menu_return::RETURN_REPAINT;
 }

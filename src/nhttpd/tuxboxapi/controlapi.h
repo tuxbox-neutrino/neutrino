@@ -105,6 +105,7 @@ private:
 	void ReloadPluginsCGI(CyhookHandler *hh);
 	void ReloadChannelsCGI(CyhookHandler *hh);
 	void ScreenshotCGI(CyhookHandler *hh);
+	void GlcdScreenshotCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);
 	void StartPluginCGI(CyhookHandler *hh);
 	void LCDAction(CyhookHandler *hh);

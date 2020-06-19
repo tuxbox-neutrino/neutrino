@@ -31,6 +31,7 @@
 #include <gui/scan.h>
 #include <gui/scan_setup.h>
 
+#include <driver/display.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 #include <driver/record.h>
@@ -385,6 +386,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(CZapit::getInstance()->GetCurrentChannelID(), true); /* force re-zap */
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::unlockChannel();
+#endif
 	return menu_return::RETURN_REPAINT;
 }
 
@@ -409,6 +413,11 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			total = data;
 			snprintf(str, sizeof(buffer), "scan: %d/%d", done, total);
 			CVFD::getInstance()->showMenuText(0, str, -1, true);
+#ifdef ENABLE_GRAPHLCD
+			if (g_settings.glcd_enable)
+				cGLCD::lockChannel(g_Locale->getText(LOCALE_SCANTS_HEAD), str, 0);
+				//cGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), chan->getName().c_str(), 0);
+#endif
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS:
@@ -418,6 +427,10 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			paintLine(xpos2, ypos_transponder, (ypos_transponder > ypos_radar + 66) ? w : w_to_radar, buffer);
 			snprintf(str, sizeof(buffer), "scan %d/%d", done, total);
 			CVFD::getInstance()->showMenuText(0, str, -1, true);
+#ifdef ENABLE_GRAPHLCD
+			if (g_settings.glcd_enable)
+				cGLCD::lockChannel(g_Locale->getText(LOCALE_SCANTS_HEAD), str, 0);
+#endif
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCYP:

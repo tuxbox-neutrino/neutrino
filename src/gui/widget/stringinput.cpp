@@ -412,6 +412,9 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		if (*valueString != dispval)
 		{
 			CVFD::getInstance()->showMenuText(1,valueString->c_str() , selected+1);
+#ifdef ENABLE_GRAPHLCD
+			cGLCD::lockChannel(valueString->c_str(), "", 0);
+#endif
 			dispval = *valueString;
  		}
 
@@ -535,6 +538,9 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
         {
                 observ->changeNotify(name, (void *) valueString->c_str());
         }
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::unlockChannel();
+#endif
 	return res;
 }
 

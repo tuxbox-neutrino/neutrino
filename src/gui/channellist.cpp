@@ -969,7 +969,7 @@ int CChannelList::show()
 		editMode(false);
 
 #ifdef ENABLE_GRAPHLCD
-	nGLCD::unlockChannel();
+	cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
 	LCD4l->RemoveFile("/tmp/lcd/menu");
@@ -2253,7 +2253,7 @@ void CChannelList::updateVfd()
 
 #ifdef ENABLE_GRAPHLCD
 	if(g_settings.glcd_enable)
-		nGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), chan->getName().c_str(), 0);
+		cGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), chan->getName().c_str(), 0);
 #endif
 #ifdef ENABLE_LCD4LINUX
 	if (g_settings.lcd4l_support)

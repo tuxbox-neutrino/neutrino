@@ -1,0 +1,128 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<style type="text/css">
+/*<![CDATA[*/
+	.alink {
+	text-decoration: underline;
+	}
+/*]]>*/
+</style>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+function do_init()
+{
+	var val = "";
+	obj_set_radio_value('glcd_enable', "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_enable;1~open=}");
+	obj_set_radio_value('glcd_inverse', "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_inverse;0~cache=}");
+
+	val = "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_brightness_dim;5~cache=}";
+		document.f.glcd_brightness_dim.value = val;
+	val = "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_brightness_dim_time;15~cache=}";
+		document.f.glcd_.brightness_dim_time.value = val;
+	val = "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_brightness;7~cache=}";
+		document.f.glcd_brightness.value = val;
+	val = "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_brightness_standby;1~cache=}";
+		document.f.glcd_brightness_standby.value = val;
+}
+
+function setDefault()
+{
+	document.f.glcd_brightness_dim.value = 5;
+	document.f.glcd_brightness_dim_time.value = 15
+	document.f.glcd_brightness.value = 7;
+	document.f.glcd_brightness_standby.value = 1;
+}
+
+function do_submit()
+{
+		show_waitbox(true);
+		if (document.f.glcd_brightness_dim.value > 10)
+			document.f.glcd_brightness_dim.value = 10;
+		else if (document.f.glcd_brightness_dim.value < 0)
+			document.f.glcd_brightness_dim.value = 0;
+		if (document.f.glcd_brightness_dim_time.value > 60)
+			document.f.glcd_brightness_dim_time.value = 60;
+		else if (document.f.glcd_brightness_dim_time.value < 0)
+			document.f.glcd_brightness_dim_time.value = 0;
+		if (document.f.glcd_brightness.value > 10)
+			document.f.glcd_brightness.value = 10;
+		else if (document.f.glcd_brightness.value < 0)
+			document.f.glcd_brightness.value = 0;
+		if (document.f.glcd_brightness_standby.value > 10)
+			document.f.glcd_brightness_standby.value = 10;
+		else if (document.f.glcd_brightness_standby.value < 0)
+			document.f.glcd_brightness_standby.value = 0;
+		document.f.submit();
+}
+/*]]>*/
+</script>
+</head>
+<body onload="do_init()">
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Settings-LCD=}{=var-set:menu=GLCD Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" class="y_form" action="">
+		<table cellspacing="0" border="0" cellpadding="2" width="100%">
+			<tr>
+				<td colspan="2" class="y_form_header">GLCD</td>
+			</tr>
+			<tr>
+				<td title="glcd: off/on" width="35%">Power</td>
+				<td>
+					<input type="radio" name="glcd_enable" value="0" />AUS&nbsp;
+					<input type="radio" name="glcd_enable" value="1" />EIN
+				</td>
+			</tr>
+			<tr>
+				<td title="inverse glcd: off/on">Invertieren</td>
+				<td>
+					<input type="radio" name="glcd_inverse" value="0" />AUS&nbsp;
+					<input type="radio" name="glcd_inverse" value="1" />EIN
+				</td>
+			</tr>
+			<tr>
+				<td title="brightness after dimm-timeout">Helligkeit nach dimm-Timeout</td>
+				<td>
+					<input type="text" name="glcd_brightness_dim" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr>
+				<td  title="dimm-timeout">Dimm-Timeout</td>
+				<td>
+					<input type="text" name="glcd_brightness_dim_time" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr>
+				<td title="lcd brightness normal 0-255">normale Helligkeit</td>
+				<td>
+					<input type="text" name="glcd_brightness" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr> 
+				<td title="lcd brightness standby 0-255">Standby Helligkeit</td>
+				<td>
+					<input type="text" name="glcd_brightness_standby" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr> 
+				<td>&nbsp;</td>
+				<td><a href="javascript:setDefault()" class="alink">Voreinstellung benutzen</a></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="y_form_header">Anzeige-Modi</td>
+			</tr>
+		</table>
+		<br />
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;glcd_save_settings;nix" />
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>&nbsp;
+		<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">reload Neutrino</button>&nbsp;
+		<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">Hilfe</a>
+	</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

@@ -63,6 +63,12 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 	bool doInit = newValue != (int) neutrino->isMuted();
 
 	CVFD::getInstance()->setMuted(newValue);
+#ifdef ENABLE_GRAPHLCD
+	if (newValue)
+		cGLCD::lockIcon(cGLCD::MUTE);
+	else
+		cGLCD::unlockIcon(cGLCD::MUTE);
+#endif
 	neutrino->setCurrentMuted(newValue);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (g_settings.hdmi_cec_volume)

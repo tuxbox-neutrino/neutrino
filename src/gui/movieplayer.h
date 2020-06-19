@@ -115,6 +115,16 @@ class CMoviePlayerGui : public CMenuTarget
 	int            m_LastMode;
 	int            m_ThisMode;
 
+#ifdef ENABLE_GRAPHLCD
+	struct		tm *tm_struct;
+	int		glcd_position;
+	std::string	channel;
+	std::string	epg;
+	std::string	glcd_duration;
+	std::string	start;
+	std::string	end;
+#endif
+
 	std::string	file_name;
 	std::string	second_file_name;//separate audio file for ARM BOX
 	std::string	pretty_name;
@@ -123,6 +133,7 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string    	currentaudioname;
 	bool		playing;
 	bool		time_forced;
+	int FileTimeOSD_tmp;
 	CMoviePlayerGui::state playstate;
 	int keyPressed;
 	bool isLuaPlay;

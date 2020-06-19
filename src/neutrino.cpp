@@ -75,6 +75,9 @@
 #include "gui/favorites.h"
 #include "gui/filebrowser.h"
 #include "gui/followscreenings.h"
+#ifdef ENABLE_GRAPHLCD
+#include "gui/glcdthemes.h"
+#endif
 #include "gui/hdd_menu.h"
 #include "gui/infoviewer.h"
 #include "gui/mediaplayer.h"
@@ -334,7 +337,7 @@ std::string ttx_font_file = "";
 int CNeutrinoApp::loadSetup(const char * fname)
 {
 	char cfg_key[81];
-
+	char cfg_value[20]; //mode_icons_flag
 	int erg = 0;
 
 
@@ -348,7 +351,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	else
 	{
-			migrateConfig(fname);
+		migrateConfig(fname);
 	}
 
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
@@ -356,6 +359,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//theme/color options
 	g_settings.theme_name = configfile.getString("theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_NAME : "");
 	CThemes::getInstance()->getTheme(configfile);
+
+#ifdef ENABLE_GRAPHLCD
+	g_settings.glcd_theme_name = configfile.getString("glcd_theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_OLED_NAME : "");
+	CGLCDThemes::getInstance()->getTheme(configfile);
+#endif
+
+	// internet radio
+	g_settings.inetradio_autostart = configfile.getInt32("inetradio_autostart" , 0);
 
 #ifdef ENABLE_LCD4LINUX
 	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support" , 0);
@@ -367,8 +378,21 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.lcd4l_brightness_standby = configfile.getInt32("lcd4l_brightness_standby", 3);
 	g_settings.lcd4l_convert = configfile.getInt32("lcd4l_convert", 1);
 #endif
-	// internet radio
-	g_settings.inetradio_autostart = configfile.getInt32("inetradio_autostart" , 0);
+	g_settings.show_menu_hints_line = configfile.getBool("show_menu_hints_line", false);
+	g_settings.mode_icons = configfile.getInt32( "mode_icons", 0);
+	g_settings.mode_icons_background = configfile.getInt32( "mode_icons_background", 0);
+	g_settings.mode_icons_skin = configfile.getInt32( "mode_icons_skin", 0);
+	for(int i=0 ; i < MODE_ICONS_NR_OF_ENTRIES ; i++) {
+		sprintf(cfg_key, "mode_icons_flag%d", i);
+		if 	(i==0)	sprintf(cfg_value, "/tmp/tuxmail.new");
+		else if	(i==1)	sprintf(cfg_value, "/var/etc/.call");
+		else if	(i==2)	sprintf(cfg_value, "/var/etc/.srv");
+		else if	(i==3)	sprintf(cfg_value, "/var/etc/.card");
+		else if	(i==4)	sprintf(cfg_value, "/var/etc/.update");
+		else		strcpy(cfg_value, "");
+		g_settings.mode_icons_flag[i] = configfile.getString(cfg_key, cfg_value);
+	}
+
 
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
@@ -395,7 +419,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
-	g_settings.current_volume = configfile.getInt32("current_volume", 50);
+	g_settings.current_volume = configfile.getInt32("current_volume", 6);
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
 	g_settings.start_volume = configfile.getInt32("start_volume", -1);
 	if (g_settings.start_volume >= 0)
@@ -660,27 +684,17 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 #ifdef ENABLE_GRAPHLCD
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", 1);
-	g_settings.glcd_color_fg = configfile.getInt32("glcd_color_fg", GLCD::cColor::White);
-	g_settings.glcd_color_bg = configfile.getInt32("glcd_color_bg", GLCD::cColor::Black);
-	g_settings.glcd_color_bar = configfile.getInt32("glcd_color_bar", GLCD::cColor::Gray);
-	g_settings.glcd_percent_channel = configfile.getInt32("glcd_percent_channel", 22);
-	g_settings.glcd_percent_epg = configfile.getInt32("glcd_percent_epg", 16);
-	g_settings.glcd_percent_bar = configfile.getInt32("glcd_percent_bar", 8);
-	g_settings.glcd_percent_time = configfile.getInt32("glcd_percent_time", 35);
-	g_settings.glcd_percent_time_standby = configfile.getInt32("glcd_percent_time_standby", 50);
-	g_settings.glcd_percent_logo = configfile.getInt32("glcd_percent_logo", 50);
+
+	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
+	g_settings.glcd_standby_weather = configfile.getInt32("glcd_standby_weather", 1);
+
 	g_settings.glcd_mirror_osd = configfile.getInt32("glcd_mirror_osd", 0);
 	g_settings.glcd_mirror_video = configfile.getInt32("glcd_mirror_video", 0);
-	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
 	g_settings.glcd_show_logo = configfile.getInt32("glcd_show_logo", 1);
-	g_settings.glcd_font = configfile.getString("glcd_font", FONTDIR "/neutrino.ttf");
-#if BOXMODEL_VUUNO4KSE
-	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", 25);
-	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", 5);
-#else
-	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", 75);
-	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", 45);
-#endif
+	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", GLCD_DEFAULT_BRIGHTNESS);
+	g_settings.glcd_brightness_dim = configfile.getInt32("glcd_brightness_dim", GLCD_DEFAULT_BRIGHTNESS_DIM);
+	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", GLCD_DEFAULT_BRIGHTNESS_STANDBY);
+	g_settings.glcd_brightness_dim_time = configfile.getString("glcd_brightness_dim_time", GLCD_DEFAULT_BRIGHTNESS_DIM_TIME);
 #if BOXMODEL_VUUNO4KSE
 	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 1);
 #elif BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K
@@ -688,7 +702,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 	g_settings.glcd_scroll_speed = configfile.getInt32("glcd_scroll_speed", 5);
 #endif
-	g_settings.glcd_selected_config = configfile.getInt32("glcd_selected_config", 0);
+	//g_settings.glcd_selected_config = configfile.getInt32("glcd_selected_config", 0);
 #endif
 
 	//personalize
@@ -1035,6 +1049,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.weather_api_key = configfile.getString("weather_api_key", g_settings.weather_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.weather_api_key);
 #endif
 	g_settings.weather_enabled = configfile.getInt32("weather_enabled", 1);
+	g_settings.weather_country = configfile.getInt32("weather_country", 0);
 	g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
 
 	g_settings.weather_location = configfile.getString("weather_location", "52.52,13.40" );
@@ -1357,8 +1372,13 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//theme/color options
 	CThemes::getInstance()->setTheme(configfile);
 	configfile.setString( "theme_name", g_settings.theme_name );
-	
-//internet radio
+
+#ifdef ENABLE_GRAPHLCD
+	CGLCDThemes::getInstance()->setTheme(configfile);
+	configfile.setString( "glcd_theme_name", g_settings.glcd_theme_name );
+#endif
+
+	//internet radio
 	configfile.setInt32("inetradio_autostart" , g_settings.inetradio_autostart);
 #ifdef ENABLE_LCD4LINUX	
 	configfile.setInt32("lcd4l_support" , g_settings.lcd4l_support);
@@ -1370,6 +1390,15 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("lcd4l_brightness_standby", g_settings.lcd4l_brightness_standby);
 	configfile.setInt32("lcd4l_convert" , g_settings.lcd4l_convert);
 #endif
+	configfile.setBool("show_menu_hints_line" , g_settings.show_menu_hints_line);
+	configfile.setInt32("mode_icons", g_settings.mode_icons );
+	configfile.setInt32("mode_icons_background", g_settings.mode_icons_background);
+	configfile.setInt32("mode_icons_skin", g_settings.mode_icons_skin);
+	for(int i=0 ; i < MODE_ICONS_NR_OF_ENTRIES ; i++) {
+		sprintf(cfg_key, "mode_icons_flag%d", i);
+		configfile.setString(cfg_key, g_settings.mode_icons_flag[i]);
+	}
+
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );
@@ -1584,24 +1613,17 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 #ifdef ENABLE_GRAPHLCD
 	configfile.setInt32("glcd_enable", g_settings.glcd_enable);
-	configfile.setInt32("glcd_color_fg", g_settings.glcd_color_fg);
-	configfile.setInt32("glcd_color_bg", g_settings.glcd_color_bg);
-	configfile.setInt32("glcd_color_bar", g_settings.glcd_color_bar);
-	configfile.setInt32("glcd_percent_channel", g_settings.glcd_percent_channel);
-	configfile.setInt32("glcd_percent_epg", g_settings.glcd_percent_epg);
-	configfile.setInt32("glcd_percent_bar", g_settings.glcd_percent_bar);
-	configfile.setInt32("glcd_percent_time", g_settings.glcd_percent_time);
-	configfile.setInt32("glcd_percent_time_standby", g_settings.glcd_percent_time_standby);
-	configfile.setInt32("glcd_percent_logo", g_settings.glcd_percent_logo);
+	configfile.setInt32("glcd_time_in_standby", g_settings.glcd_time_in_standby);
+	configfile.setInt32("glcd_standby_weather", g_settings.glcd_standby_weather);
 	configfile.setInt32("glcd_mirror_osd", g_settings.glcd_mirror_osd);
 	configfile.setInt32("glcd_mirror_video", g_settings.glcd_mirror_video);
-	configfile.setInt32("glcd_time_in_standby", g_settings.glcd_time_in_standby);
 	configfile.setInt32("glcd_show_logo", g_settings.glcd_show_logo);
-	configfile.setString("glcd_font", g_settings.glcd_font);
 	configfile.setInt32("glcd_brightness", g_settings.glcd_brightness);
+	configfile.setInt32("glcd_brightness_dim", g_settings.glcd_brightness_dim);
 	configfile.setInt32("glcd_brightness_standby", g_settings.glcd_brightness_standby);
 	configfile.setInt32("glcd_scroll_speed", g_settings.glcd_scroll_speed);
-	configfile.setInt32("glcd_selected_config", g_settings.glcd_selected_config);
+	configfile.setString("glcd_brightness_dim_time", g_settings.glcd_brightness_dim_time);
+	//configfile.setInt32("glcd_selected_config", g_settings.glcd_selected_config);
 #endif
 
 	//personalize
@@ -1847,7 +1869,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString( "weather_api_key", g_settings.weather_api_key );
 #endif
 	configfile.setInt32( "weather_enabled", g_settings.weather_enabled );
-
+	configfile.setInt32( "weather_country", g_settings.weather_country );
 	configfile.setString( "weather_location", g_settings.weather_location );
 	configfile.setString( "weather_city", g_settings.weather_city );
 
@@ -2205,36 +2227,51 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 
 	switch(newmode) {
 		case LIST_MODE_FAV:
-			if (isRadioMode)
+			if (isRadioMode) {
+#ifdef ENABLE_GRAPHLCD
+				cGLCD::MirrorOSD(false);
+#endif
 				bouquetList = RADIOfavList;
-			else
+			} else
 				bouquetList = TVfavList;
 			break;
 		case LIST_MODE_SAT:
-			if (isRadioMode)
+			if (isRadioMode) {
+#ifdef ENABLE_GRAPHLCD
+				cGLCD::MirrorOSD(false);
+#endif
 				bouquetList = RADIOsatList;
-			else
+			} else
 				bouquetList = TVsatList;
 			break;
 		case LIST_MODE_WEB:
-			if (isRadioMode)
+			if (isRadioMode) {
+#ifdef ENABLE_GRAPHLCD
+				cGLCD::MirrorOSD(false);
+#endif
 				bouquetList = RADIOwebList;
-			else
+			} else
 				bouquetList = TVwebList;
 			break;
 		case LIST_MODE_ALL:
-			if (isRadioMode)
+			if (isRadioMode) {
+#ifdef ENABLE_GRAPHLCD
+				cGLCD::MirrorOSD(false);
+#endif
 				bouquetList = RADIOallList;
-			else
+			} else
 				bouquetList = TVallList;
 			break;
 		default:
 			newmode = LIST_MODE_PROV;
 			/* fall through */
 		case LIST_MODE_PROV:
-			if (isRadioMode)
+			if (isRadioMode) {
+#ifdef ENABLE_GRAPHLCD
+				cGLCD::MirrorOSD(false);
+#endif
 				bouquetList = RADIObouquetList;
-			else
+			} else
 				bouquetList = TVbouquetList;
 			break;
 	}
@@ -2681,7 +2718,7 @@ TIMER_START();
 	CVFD::getInstance()->setScrollMode(g_settings.lcd_scroll);
 
 #ifdef ENABLE_GRAPHLCD
-	nGLCD::getInstance();
+	cGLCD::getInstance();
 #endif
 
 	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE))
@@ -2862,6 +2899,13 @@ TIMER_START();
 	LCD4l = new CLCD4l();
 	if (g_settings.lcd4l_support)
 		LCD4l->StartLCD4l();
+#endif
+
+#ifdef ENABLE_GRAPHLCD
+	if (current_muted)
+		cGLCD::lockIcon(cGLCD::MUTE);
+	else
+		cGLCD::unlockIcon(cGLCD::MUTE);
 #endif
 
 	if (show_startwizard) {
@@ -3334,7 +3378,7 @@ void CNeutrinoApp::RealRun()
 				}
 #ifdef ENABLE_GRAPHLCD
 				if (msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) {
-					nGLCD::Update();
+					cGLCD::Update();
 				}
 #endif
 			}
@@ -3611,7 +3655,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 		CVFD::getInstance()->UpdateIcons();
 #ifdef ENABLE_GRAPHLCD
-		nGLCD::Update();
+		cGLCD::Update();
 #endif
 		g_RCInput->killTimer(scrambled_timer);
 		if (mode != NeutrinoModes::mode_webtv) {
@@ -3794,7 +3838,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			//switch lcd off/on
 			CVFD::getInstance()->togglePower();
 #ifdef ENABLE_GRAPHLCD
-			nGLCD::TogglePower();
+			if (g_settings.glcd_enable)
+				cGLCD::TogglePower();
 #endif
 		}
 		else {
@@ -4465,7 +4510,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 
 #ifdef ENABLE_GRAPHLCD
 	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
-		nGLCD::SetBrightness(0);
+		cGLCD::SetBrightness(0);
 #endif
 
 	Cleanup();
@@ -4632,7 +4677,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 	if( bOnOff ) {
 #ifdef ENABLE_GRAPHLCD
-		nGLCD::StandbyMode(true);
+		cGLCD::StandbyMode(true);
 #endif
 		CVFD::getInstance()->ShowText("Standby ...");
 		if( mode == NeutrinoModes::mode_scart ) {
@@ -4722,7 +4767,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_RCInput->killTimer(fst_timer);
 
 #ifdef ENABLE_GRAPHLCD
-		nGLCD::StandbyMode(false);
+		cGLCD::Resume();
+		cGLCD::StandbyMode(false);
 #endif
 
 		if(init_cec_setting){
@@ -5091,7 +5137,7 @@ void stop_daemons(bool stopall, bool for_flash)
 	tuxtxt_close();
 
 #ifdef ENABLE_GRAPHLCD
-	nGLCD::Exit();
+	cGLCD::Exit();
 #endif
 
 	if (g_Radiotext) {
@@ -5429,7 +5475,7 @@ void CNeutrinoApp::StopSubtitles(bool enable_glcd_mirroring)
 	}
 #ifdef ENABLE_GRAPHLCD
 	if (enable_glcd_mirroring)
-		nGLCD::MirrorOSD(g_settings.glcd_mirror_osd);
+		cGLCD::MirrorOSD(g_settings.glcd_mirror_osd);
 #else
 	(void) enable_glcd_mirroring; // avoid compiler warning
 #endif
@@ -5441,7 +5487,7 @@ void CNeutrinoApp::StartSubtitles(bool show)
 {
 	//printf("%s: %s\n", __FUNCTION__, show ? "Show" : "Not show");
 #ifdef ENABLE_GRAPHLCD
-	nGLCD::MirrorOSD(false);
+	cGLCD::MirrorOSD(false);
 #endif
 	if(!show)
 		return;

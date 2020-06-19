@@ -38,6 +38,7 @@ struct current_data
 {
 	time_t timestamp;
 	std::string icon;
+	std::string icon_only_name;
 	float temperature;
 	float humidity;
 	float pressure;
@@ -47,6 +48,7 @@ struct current_data
 	current_data():
 		timestamp(0),
 		icon("unknown.png"),
+		icon_only_name("unknown"),
 		temperature(0),
 		humidity(0),
 		pressure(0),
@@ -60,6 +62,7 @@ typedef struct
 	time_t timestamp;
 	int weekday; // 0=Sunday, 1=Monday, ...
 	std::string icon;
+	std::string icon_only_name;
 	float temperatureMin;
 	float temperatureMax;
 	time_t sunriseTime;
@@ -129,6 +132,10 @@ class CWeather
 		{
 			return ICONSDIR"/weather/" + current.icon;
 		};
+		std::string getCurrentIconOnlyName()
+		{
+			return current.icon_only_name;
+		};
 
 		// forecast conditions
 		int getForecastSize()
@@ -170,6 +177,12 @@ class CWeather
 			if (i > (int)v_forecast.size())
 				i = (int)v_forecast.size();
 			return ICONSDIR"/weather/" + v_forecast[i].icon;
+		};
+		std::string getForecastIconOnlyNane(int i = 0)
+		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
+			return v_forecast[i].icon_only_name;
 		};
 
 		void show(int x = 50, int y = 50);

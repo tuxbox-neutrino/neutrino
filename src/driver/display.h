@@ -9,5 +9,5 @@
 #include <driver/simple_display.h>
 #endif
 #ifdef ENABLE_GRAPHLCD
-#include <driver/nglcd.h>
+#include <driver/glcd.h>
 #endif

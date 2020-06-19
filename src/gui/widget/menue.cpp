@@ -270,7 +270,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 
 #ifdef ENABLE_GRAPHLCD
 		if (g_settings.glcd_enable)
-			nGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), graphlcd_text, 0);
+			cGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), graphlcd_text, 0);
 #endif
 #ifdef ENABLE_LCD4LINUX
 		if (g_settings.lcd4l_support)
@@ -1046,7 +1046,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			case (CRCInput::RC_ok):
 				if (hasItem() && selected > -1 && (int)items.size() > selected) {
 #ifdef ENABLE_GRAPHLCD
-					nGLCD::unlockChannel();
+					cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
 					LCD4l->RemoveFile("/tmp/lcd/menu");
@@ -1067,7 +1067,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 #ifdef ENABLE_GRAPHLCD
 					if (g_settings.glcd_enable)
-						nGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), item->graphlcd_text, 0);
+						cGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), item->graphlcd_text, 0);
 #endif
 #ifdef ENABLE_LCD4LINUX
 					if (g_settings.lcd4l_support)
@@ -1159,7 +1159,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 #ifdef ENABLE_GRAPHLCD
-	nGLCD::unlockChannel();
+	cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
 	LCD4l->RemoveFile("/tmp/lcd/menu");

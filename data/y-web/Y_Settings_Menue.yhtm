@@ -84,6 +84,21 @@ function init(){
 					{=var-set:m_link_text={=L:set.menue.pictureviewer=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
+				{=if-not-equal:{=var-get:boxtype=}~VU+ SOLO4K~
+				{=if-not-equal:{=var-get:boxtype=}~VU+ DUO4K~
+				{=if-not-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~
+				{=if-not-equal:{=var-get:boxtype=}~VU+ UNO4K~
+				{=if-not-equal:{=var-get:boxtype=}~VU+ UNO4KSE~
+                                <li>
+                                        {=var-set:m_link_href=Y_Settings_glcd.yhtm=}
+                                        {=var-set:m_link_text={=L:set.menue.glcd_display=}=}
+                                        {=include-block:Y_Blocks.txt;management_link=}
+                                </li>
+				~=}
+				~=}
+				~=}
+				~=}
+				~=}
 				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li>
 					{=var-set:m_link_href=Y_Settings_video_audio.yhtm=}

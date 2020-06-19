@@ -307,6 +307,16 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	CCamManager::getInstance()->Start(channel->getChannelID(), CCamManager::RECORD);
 
 	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
+#ifdef ENABLE_GRAPHLCD
+	if (CRecordManager::getInstance()->GetRecordMode() == CRecordManager::RECMODE_REC)
+		cGLCD::lockIcon(cGLCD::REC);
+	else if (CRecordManager::getInstance()->GetRecordMode() == CRecordManager::RECMODE_TSHIFT)
+		cGLCD::lockIcon(cGLCD::TS);
+	else if (CRecordManager::getInstance()->GetRecordMode() == CRecordManager::RECMODE_REC_TSHIFT) {
+		cGLCD::lockIcon(cGLCD::REC);
+		cGLCD::lockIcon(cGLCD::TS);
+	}
+#endif
 	WaitRecMsg(msg_start_time, 2);
 	hintBox.hide();
 	return RECORD_OK;
@@ -351,6 +361,9 @@ bool CRecordInstance::Stop(bool remove_event)
 		recording_id = 0;
 	}
 	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, false);
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::unlockIcon(cGLCD::REC);
+#endif
 	WaitRecMsg(end_time, 2);
 	hintBox.hide();
 	return true;
@@ -1090,7 +1103,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 					recordingstatus = 1;
 #endif
 #ifdef ENABLE_GRAPHLCD
-				nGLCD::Update();
+				cGLCD::Update();
 #endif
 			} else {
 				delete inst;
@@ -1294,7 +1307,7 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 		StopInstance(inst, false);
 		ret = true;
 #ifdef ENABLE_GRAPHLCD
-		nGLCD::Update();
+		cGLCD::Update();
 #endif
 	} else {
 		for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {

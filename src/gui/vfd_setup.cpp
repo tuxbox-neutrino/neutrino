@@ -192,8 +192,6 @@ int CVfdSetup::showSetup()
 
 #ifdef ENABLE_GRAPHLCD
 	GLCD_Menu glcdMenu;
-
-	vfds->addItem(GenericMenuSeparatorLine);
 	vfds->addItem(new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, &glcdMenu, NULL, CRCInput::RC_blue));
 #endif
 

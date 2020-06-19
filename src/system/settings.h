@@ -183,6 +183,108 @@ struct timer_remotebox_item
 		bool online;
 };
 
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#define GLCD_DEFAULT_BRIGHTNESS 7
+#define GLCD_DEFAULT_BRIGHTNESS_STANDBY 1
+#define GLCD_DEFAULT_BRIGHTNESS_DIM 3
+#define GLCD_DEFAULT_BRIGHTNESS_DIM_TIME "10"
+#else
+#define GLCD_DEFAULT_BRIGHTNESS 70
+#define GLCD_DEFAULT_BRIGHTNESS_STANDBY 10
+#define GLCD_DEFAULT_BRIGHTNESS_DIM 30
+#define GLCD_DEFAULT_BRIGHTNESS_DIM_TIME "30"
+#endif
+
+struct SNeutrinoGlcdTheme
+{
+	unsigned char glcd_color_fg_red;
+	unsigned char glcd_color_fg_green;
+	unsigned char glcd_color_fg_blue;
+	unsigned char glcd_color_bg_red;
+	unsigned char glcd_color_bg_green;
+	unsigned char glcd_color_bg_blue;
+	unsigned char glcd_color_bar_red;
+	unsigned char glcd_color_bar_green;
+	unsigned char glcd_color_bar_blue;
+
+	std::string glcd_font;
+	std::string glcd_background;
+
+	int glcd_show_progressbar;
+	int glcd_show_duration;
+	int glcd_show_start;
+	int glcd_show_end;
+	int glcd_show_time;
+	int glcd_show_weather;
+
+	int glcd_align_channel;
+	int glcd_align_epg;
+	int glcd_align_duration;
+	int glcd_align_start;
+	int glcd_align_end;
+	int glcd_align_time;
+
+	int glcd_percent_channel;
+	int glcd_channel_x_position;
+	int glcd_channel_y_position;
+
+	int glcd_percent_epg;
+	int glcd_epg_x_position;
+	int glcd_epg_y_position;
+
+	int glcd_percent_duration;
+	int glcd_duration_x_position;
+	int glcd_duration_y_position;
+
+	int glcd_percent_start;
+	int glcd_start_x_position;
+	int glcd_start_y_position;
+
+	int glcd_percent_end;
+	int glcd_end_x_position;
+	int glcd_end_y_position;
+
+	int glcd_percent_time;
+	int glcd_time_x_position;
+	int glcd_time_y_position;
+
+	int glcd_percent_bar;
+	int glcd_bar_x_position;
+	int glcd_bar_y_position;
+	int glcd_bar_width;
+
+	int glcd_percent_logo;
+	int glcd_logo_x_position;
+	int glcd_logo_y_position;
+
+	int glcd_percent_smalltext;
+	int glcd_smalltext_y_position;
+
+	int glcd_rec_icon_x_position;
+	int glcd_mute_icon_x_position;
+	int glcd_ts_icon_x_position;
+	int glcd_timer_icon_x_position;
+	int glcd_ecm_icon_x_position;
+	int glcd_dd_icon_x_position;
+	int glcd_txt_icon_x_position;
+	int glcd_cam_icon_x_position;
+
+	int glcd_standby_weather;
+	int glcd_digital_clock_y_position;
+	int glcd_size_simple_clock;
+	int glcd_simple_clock_y_position;
+
+	int glcd_weather_x_position_current;
+	int glcd_weather_x_position_next;
+	int glcd_weather_y_position;
+
+	int glcd_weather_x_position_current_standby;
+	int glcd_weather_x_position_next_standby;
+	int glcd_weather_y_position_standby;
+
+	int glcd_position_settings;
+};
+
 struct SNeutrinoSettings
 {
 	std::string version_pseudo;
@@ -481,6 +583,8 @@ struct SNeutrinoSettings
 	//theme/color options
 	SNeutrinoTheme theme;
 	std::string theme_name;
+	SNeutrinoGlcdTheme glcd_theme;
+	std::string glcd_theme_name;
 	bool osd_colorsettings_advanced_mode;
 
 	//network
@@ -805,22 +909,18 @@ struct SNeutrinoSettings
 #ifdef ENABLE_GRAPHLCD
 	// graphlcd
 	int glcd_enable;
-	uint32_t glcd_color_fg;
-	uint32_t glcd_color_bg;
-	uint32_t glcd_color_bar;
-	std::string glcd_font;
-	int glcd_percent_channel;
-	int glcd_percent_epg;
-	int glcd_percent_bar;
-	int glcd_percent_time;
-	int glcd_percent_time_standby;
-	int glcd_percent_logo;
+
+	int glcd_time_in_standby;
+	int glcd_standby_weather;
+
 	int glcd_mirror_osd;
 	int glcd_mirror_video;
-	int glcd_time_in_standby;
+
 	int glcd_show_logo;
 	int glcd_brightness;
 	int glcd_brightness_standby;
+	int glcd_brightness_dim;
+	std::string glcd_brightness_dim_time;
 	int glcd_scroll_speed;
 	int glcd_selected_config;
 #endif
@@ -899,6 +999,7 @@ struct SNeutrinoSettings
 	//online services
 	std::string weather_api_key;
 	int weather_enabled;
+	int weather_country;
 	std::string weather_location;
 	std::string weather_city;
 	std::string youtube_dev_id;
@@ -942,6 +1043,15 @@ struct SNeutrinoSettings
 
 	int font_scaling_x;
 	int font_scaling_y;
+
+	int		ca_init;
+	int		show_menu_hints_line;
+
+	#define MODE_ICONS_NR_OF_ENTRIES 8
+	int		mode_icons;
+	int		mode_icons_background;
+	int		mode_icons_skin;
+	std::string	mode_icons_flag[MODE_ICONS_NR_OF_ENTRIES];
 
 	int		livestreamResolution;
 	std::string	livestreamScriptPath;

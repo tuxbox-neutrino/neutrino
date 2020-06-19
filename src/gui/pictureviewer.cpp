@@ -166,6 +166,13 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	selected = 0;
 
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::MirrorOSD(false);
+	channel = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
+	epg = "";
+	cGLCD::lockChannel(channel, epg, 0);
+#endif
+
 	width = frameBuffer->getWindowWidth();
 	height = frameBuffer->getWindowHeight();
 
@@ -238,6 +245,11 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
 	if (m_LastMode == NeutrinoModes::mode_ts)
 		videoDecoder->setBlank(false);
+
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::MirrorOSD(g_settings.glcd_mirror_osd);
+	cGLCD::unlockChannel();
+#endif
 
 	// always exit all
 	return menu_return::RETURN_REPAINT;
@@ -583,6 +595,10 @@ int CPictureViewerGui::show()
 				CNFSSmallMenu nfsMenu;
 				nfsMenu.exec(this, "");
 				update=true;
+#ifdef ENABLE_GRAPHLCD
+				epg = "";
+				cGLCD::lockChannel(channel, epg, 0);
+#endif
 				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD));
 			}
 		}
@@ -796,6 +812,10 @@ void CPictureViewerGui::view(unsigned int index, bool unscaled)
 	m_unscaled = unscaled;
 	selected=index;
 
+#ifdef ENABLE_GRAPHLCD
+	epg = playlist[index].Name.c_str();
+	cGLCD::lockChannel(channel, epg, 0);
+#endif
 	CVFD::getInstance()->showMenuText(0, playlist[index].Name.c_str());
 	char timestring[19];
 	strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&playlist[index].Date));
@@ -846,6 +866,11 @@ void CPictureViewerGui::thrView()
 
 void CPictureViewerGui::endView()
 {
+#ifdef ENABLE_GRAPHLCD
+	epg = "";
+	cGLCD::lockChannel(channel, epg, 0);
+#endif
+
 	if (m_state != MENU)
 		m_state=MENU;
 
@@ -858,6 +883,10 @@ void CPictureViewerGui::endView()
 
 void CPictureViewerGui::deletePicFile(unsigned int index, bool mode)
 {
+#ifdef ENABLE_GRAPHLCD
+	epg = playlist[index].Name.c_str();
+	cGLCD::lockChannel(channel, epg, 0);
+#endif
 	CVFD::getInstance()->showMenuText(0, playlist[index].Name.c_str());
 	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, playlist[index].Filename, CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)==CMsgBox::mbrYes)
 	{

@@ -44,6 +44,8 @@
 #include "timermanager.h"
 #include <system/set_threadname.h>
 
+#include <driver/display.h>
+
 extern bool timeset;
 time_t timer_minutes;
 bool timer_is_rec;
@@ -93,6 +95,8 @@ void* CTimerManager::timerThread(void *arg)
 
 	CTimerManager *timerManager = (CTimerManager*) arg;
 
+	bool setTimerIcon = false;
+
 	int sleeptime=(timerd_debug)?10:20;
 	while(1)
 	{
@@ -126,6 +130,12 @@ void* CTimerManager::timerThread(void *arg)
 			CTimerEventMap::iterator pos = timerManager->events.begin();
 			for(;pos != timerManager->events.end();++pos)
 			{
+#ifdef ENABLE_GRAPHLCD
+				if (!setTimerIcon) {
+					cGLCD::lockIcon(cGLCD::TIMER);
+					setTimerIcon = true;
+				}
+#endif
 				event = pos->second;
 				dprintf("checking event: %03d\n",event->eventID);
 				if (timerd_debug)
@@ -149,6 +159,12 @@ void* CTimerManager::timerThread(void *arg)
 						if(event->stopTime == 0)					// if event needs no stop event
 							event->setState(CTimerd::TIMERSTATE_HASFINISHED);
 						timerManager->m_saveEvents = true;
+#ifdef ENABLE_GRAPHLCD
+						if (setTimerIcon) {
+							cGLCD::unlockIcon(cGLCD::TIMER);
+							setTimerIcon = false;
+						}
+#endif
 					}
 
 				if(event->stopTime > 0 && event->eventState == CTimerd::TIMERSTATE_ISRUNNING  )		// check if stopevent is wanted
@@ -223,6 +239,9 @@ CTimerEvent* CTimerManager::getNextEvent()
 //------------------------------------------------------------
 int CTimerManager::addEvent(CTimerEvent* evt, bool save)
 {
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::lockIcon(cGLCD::TIMER);
+#endif
 	pthread_mutex_lock(&tm_eventsMutex);
 	eventID++;						// increase unique event id
 	evt->eventID = eventID;

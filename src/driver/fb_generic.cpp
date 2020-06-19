@@ -54,6 +54,8 @@
 #include <hardware/video.h>
 #include <cs_api.h>
 
+#include <driver/display.h>
+
 extern cVideo * videoDecoder;
 
 extern CPictureViewer * g_PicViewer;
@@ -2019,4 +2021,11 @@ void CFrameBuffer::mark(int , int , int , int )
 uint32_t CFrameBuffer::getWidth4FB_HW_ACC(const uint32_t /*x*/, const uint32_t w, const bool /*max*/)
 {
 	return w;
+}
+
+void CFrameBuffer::blit()
+{
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::Blit();
+#endif
 }

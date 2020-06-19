@@ -86,6 +86,11 @@ class CPictureViewerGui : public CMenuTarget
 		CViewList			playlist;
 		std::string			Path;
 
+#ifdef ENABLE_GRAPHLCD
+		std::string		channel;
+		std::string		epg;
+#endif
+
 		int 			width;
 		int 			height;
 		int 			x;

@@ -138,11 +138,15 @@ bool CWeather::GetWeatherDetails()
 		current.humidity = DataValues["currently"].get("humidity", "").asFloat();
 		current.windSpeed = DataValues["currently"].get("windSpeed", "").asFloat();
 		current.windBearing = DataValues["currently"].get("windBearing", "").asDouble();
-		current.icon = DataValues["currently"].get("icon", "").asString();
+		current.icon = current.icon_only_name = DataValues["currently"].get("icon", "").asString();
 		if (current.icon.empty())
 			current.icon = "unknown.png";
 		else
 			current.icon = current.icon + ".png";
+
+		if (current.icon_only_name.empty())
+			current.icon_only_name = "unknown";
+
 		printf("[CWeather]: temp in %s (%s): %.1f - %s\n", city.c_str(), timezone.c_str(), current.temperature, current.icon.c_str());
 
 		forecast_data daily_data;
@@ -151,11 +155,15 @@ bool CWeather::GetWeatherDetails()
 		{
 			daily_data.timestamp = elements[i].get("time", 0).asDouble();
 			daily_data.weekday = (int)(localtime(&daily_data.timestamp)->tm_wday);
-			daily_data.icon = elements[i].get("icon", "").asString();
+			daily_data.icon = daily_data.icon_only_name = elements[i].get("icon", "").asString();
 			if (daily_data.icon.empty())
 				daily_data.icon = "unknown.png";
 			else
 				daily_data.icon = daily_data.icon + ".png";
+
+			if (daily_data.icon_only_name.empty())
+				daily_data.icon_only_name = "unknown";
+
 			daily_data.temperatureMin = elements[i].get("temperatureMin", "").asFloat();
 			daily_data.temperatureMax = elements[i].get("temperatureMax", "").asFloat();
 			daily_data.sunriseTime = elements[i].get("sunriseTime", 0).asDouble();

@@ -485,6 +485,9 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		{
 			changed = false;
 			CVFD::getInstance()->showMenuText(1, inputString->c_str() , selected+1);
+#ifdef ENABLE_GRAPHLCD
+			cGLCD::lockChannel(inputString->c_str(), "", 0);
+#endif
 		}
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 
@@ -587,6 +590,10 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		if (msg == CRCInput::RC_red)
 			OnAfterSave();
 	}
+
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::unlockChannel();
+#endif
 
 	return res;
 }

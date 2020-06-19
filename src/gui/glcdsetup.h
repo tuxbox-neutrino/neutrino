@@ -28,22 +28,26 @@
 #include <sys/types.h>
 #include <string.h>
 #include <system/setting_helpers.h>
-#include <driver/nglcd.h>
+#include <system/settings.h>
+#include <driver/glcd.h>
+#include <gui/widget/menue.h>
 
 class GLCD_Menu : public CMenuTarget, public CChangeObserver
 {
 	private:
 		int width;
 		int selected;
-		static int color2index(uint32_t color);
-		void GLCD_Menu_Select_Driver();
+		SNeutrinoGlcdTheme oldTheme;
 	public:
-		static uint32_t index2color(int i);
 		GLCD_Menu();
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t, void *);
 		void GLCD_Menu_Settings();
+		void GLCD_Standby_Settings();
+		void GLCD_Brightness_Settings();
+		void GLCD_Theme_Settings();
+		void GLCD_Theme_Position_Settings();
 };
 #endif // __glcdsetup_h__
 #endif // ENABLE_GRAPHLCD

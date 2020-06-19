@@ -122,7 +122,8 @@ endif
 
 if ENABLE_GRAPHLCD
 libneutrino_gui_a_SOURCES += \
-	glcdsetup.cpp
+	glcdsetup.cpp \
+	glcdthemes.cpp
 endif
 
 if BOXTYPE_COOL

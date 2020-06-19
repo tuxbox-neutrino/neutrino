@@ -196,6 +196,9 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		if (*valueString != dispval)
 		{
 			CVFD::getInstance()->showMenuText(1, valueString->c_str(), selectedChar+1);
+#ifdef ENABLE_GRAPHLCD
+			cGLCD::lockChannel(valueString->c_str(), "", 0);
+#endif
 			dispval = *valueString;
 		}
 
@@ -225,6 +228,9 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 				inputFields[oldSelectedChar]->paint(x+ offset, y+ hheight+ offset, false );
 				inputFields[selectedChar]->paint(x+ offset, y+ hheight+ offset, true );
 				CVFD::getInstance()->showMenuText(1, valueString->c_str(), selectedChar+1);
+#ifdef ENABLE_GRAPHLCD
+				cGLCD::lockChannel(valueString->c_str(), "", 0);
+#endif
 			}
 		} else if (msg==CRCInput::RC_right) {
 			bool found = false;
@@ -252,6 +258,9 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 				inputFields[oldSelectedChar]->paint(x+ offset, y+ hheight+ offset, false );
 				inputFields[selectedChar]->paint(x+ offset, y+ hheight+ offset, true );
 				CVFD::getInstance()->showMenuText(1, valueString->c_str(), selectedChar+1);
+#ifdef ENABLE_GRAPHLCD
+				cGLCD::lockChannel(valueString->c_str(), "", 0);
+#endif
 			}
 		}
 		else if ( (*CRCInput::getUnicodeValue(msg)) || (msg == CRCInput::RC_red) || (msg == CRCInput::RC_green) || (msg == CRCInput::RC_blue) || (msg == CRCInput::RC_yellow)
@@ -313,6 +322,10 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 
 	if ((observ) && (msg == CRCInput::RC_ok))
 		observ->changeNotify(name, (void *)valueString->c_str());
+
+#ifdef ENABLE_GRAPHLCD
+	cGLCD::unlockChannel();
+#endif
 
 	return res;
 }
