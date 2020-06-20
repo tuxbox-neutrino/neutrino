@@ -411,8 +411,8 @@ bool CFbAccelMIPS::fullHdAvailable()
 }
 
 #if ENABLE_MIPS_ACC
-#define BLIT_INTERVAL_MIN 40
-#define BLIT_INTERVAL_MAX 250
+#define BLIT_INTERVAL_MIN 10
+#define BLIT_INTERVAL_MAX 50
 void CFbAccelMIPS::run()
 {
 	printf(LOGTAG "run start\n");

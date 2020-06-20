@@ -410,8 +410,8 @@ bool CFbAccelARM::fullHdAvailable()
 }
 
 #if ENABLE_ARM_ACC
-#define BLIT_INTERVAL_MIN 40
-#define BLIT_INTERVAL_MAX 250
+#define BLIT_INTERVAL_MIN 10
+#define BLIT_INTERVAL_MAX 50
 void CFbAccelARM::run()
 {
 	printf(LOGTAG "run start\n");
