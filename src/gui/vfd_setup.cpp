@@ -119,6 +119,8 @@ int CVfdSetup::showSetup()
 	CMenuWidget *vfds = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP);
 	vfds->addIntroItems(LOCALE_LCDMENU_HEAD);
 
+	int initial_count = vfds->getItemsCount();
+
 	CMenuForwarder * mf;
 
 	//led menu
@@ -190,12 +192,21 @@ int CVfdSetup::showSetup()
 		vfds->addItem(oj);
 	}
 
+	CMenuItem* glcd_setup = NULL;
 #ifdef ENABLE_GRAPHLCD
 	GLCD_Menu glcdMenu;
-	vfds->addItem(new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, &glcdMenu, NULL, CRCInput::RC_blue));
+	glcd_setup = new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, &glcdMenu, NULL, CRCInput::RC_blue);
+	vfds->addItem(glcd_setup);
 #endif
 
-	int res = vfds->exec(NULL, "");
+	int res;
+	if (glcd_setup && (vfds->getItemsCount() == initial_count + 1))
+	{
+		// glcd-setup is the only item; execute directly
+		res = glcd_setup->exec(NULL);
+	}
+	else
+		res = vfds->exec(NULL, "");
 
 	delete vfds;
 	return res;
