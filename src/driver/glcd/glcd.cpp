@@ -575,21 +575,21 @@ void cGLCD::updateFonts()
 	if (!fonts_initialized || (fontsize_channel_new != fontsize_channel)) {
 		fontsize_channel = fontsize_channel_new;
 		if (!font_channel.LoadFT2(t.glcd_font, "UTF-8", fontsize_channel)) {
-			t.glcd_font = FONTDIR "/neutrino.ttf";
+			t.glcd_font = g_settings.font_file;
 			font_channel.LoadFT2(t.glcd_font, "UTF-8", fontsize_channel);
 		}
 	}
 	if (!fonts_initialized || (fontsize_epg_new != fontsize_epg)) {
 		fontsize_epg = fontsize_epg_new;
 		if (!font_epg.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg)) {
-			t.glcd_font = FONTDIR "/neutrino.ttf";
+			t.glcd_font = g_settings.font_file;
 			font_epg.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg);
 		}
 	}
 	if (!fonts_initialized || (fontsize_time_new != fontsize_time)) {
 		fontsize_time = fontsize_time_new;
 		if (!font_time.LoadFT2(t.glcd_font, "UTF-8", fontsize_time)) {
-			t.glcd_font = FONTDIR "/neutrino.ttf";
+			t.glcd_font = g_settings.font_file;
 			font_time.LoadFT2(t.glcd_font, "UTF-8", fontsize_time);
 		}
 	}
@@ -597,7 +597,7 @@ void cGLCD::updateFonts()
 	if (!fonts_initialized || (fontsize_duration_new != fontsize_duration)) {
 		fontsize_duration = fontsize_duration_new;
 		if (!font_duration.LoadFT2(t.glcd_font, "UTF-8", fontsize_duration)) {
-			t.glcd_font = FONTDIR "/neutrino.ttf";
+			t.glcd_font = g_settings.font_file;
 			font_duration.LoadFT2(t.glcd_font, "UTF-8", fontsize_duration);
 		}
 	}
@@ -605,7 +605,7 @@ void cGLCD::updateFonts()
 	if (!fonts_initialized || (fontsize_start_new != fontsize_start)) {
 		fontsize_start = fontsize_start_new;
 		if (!font_start.LoadFT2(t.glcd_font, "UTF-8", fontsize_start)) {
-			t.glcd_font = FONTDIR "/neutrino.ttf";
+			t.glcd_font = g_settings.font_file;
 			font_start.LoadFT2(t.glcd_font, "UTF-8", fontsize_start);
 		}
 	}
@@ -613,7 +613,7 @@ void cGLCD::updateFonts()
 	if (!fonts_initialized || (fontsize_end_new != fontsize_end)) {
 		fontsize_end = fontsize_end_new;
 		if (!font_end.LoadFT2(t.glcd_font, "UTF-8", fontsize_end)) {
-			t.glcd_font = FONTDIR "/neutrino.ttf";
+			t.glcd_font = g_settings.font_file;
 			font_end.LoadFT2(t.glcd_font, "UTF-8", fontsize_end);
 		}
 	}
@@ -621,7 +621,7 @@ void cGLCD::updateFonts()
 	if (!fonts_initialized || (fontsize_smalltext_new != fontsize_smalltext)) {
 		fontsize_smalltext = fontsize_smalltext_new;
 		if (!font_smalltext.LoadFT2(FONTDIR "/oled/terminator.ttf", "UTF-8", fontsize_smalltext)) {
-			t.glcd_font = FONTDIR "/neutrino.ttf";
+			t.glcd_font = g_settings.font_file;
 			font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext);
 		}
 	}
