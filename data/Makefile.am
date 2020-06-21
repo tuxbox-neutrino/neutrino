@@ -19,7 +19,7 @@ SUBDIRS = \
 
 if ENABLE_GRAPHLCD
 SUBDIRS += \
-	othemes
+	oled
 endif
 
 if BOXTYPE_TRIPLE

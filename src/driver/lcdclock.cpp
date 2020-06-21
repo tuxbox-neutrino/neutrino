@@ -1,5 +1,5 @@
 /*
-        simple clock  -   DBoxII-Project
+        lcd clock  -   DBoxII-Project
 
         Copyright (C) 2018 redblue
 
@@ -31,7 +31,7 @@
 
 static bool fonts_initialized = false;
 
-GLCD::cFont font_time_standby_second;
+GLCD::cFont lcd_font_time_standby;
 
 void InitLcdClock(void)
 {
@@ -47,9 +47,8 @@ void LcdClockUpdateFonts(void)
 	int fontsize_time_standby_new = percent_time_standby * cglcd->lcd->Height() / 100;
 	if (!fonts_initialized || (fontsize_time_standby_new != fontsize_time_standby)) {
 		fontsize_time_standby = fontsize_time_standby_new;
-		if (!font_time_standby_second.LoadFT2(/*t.glcd_font*/FONTDIR "/lcd.ttf", "UTF-8", fontsize_time_standby)) {
-			t.glcd_font = FONTDIR "/lcd.ttf";
-			font_time_standby_second.LoadFT2(t.glcd_font, "UTF-8", fontsize_time_standby);
+                if (!lcd_font_time_standby.LoadFT2(FONTDIR "/oled/lcd.ttf", "UTF-8", fontsize_time_standby)) {
+			lcd_font_time_standby.LoadFT2(FONTDIR "/neutrino.ttf", "UTF-8", fontsize_time_standby);
 		}
 	}
 	fonts_initialized = true;
@@ -57,18 +56,19 @@ void LcdClockUpdateFonts(void)
 
 void RenderLcdClock(std::string Time, int x, int y)
 {
+	(void) x;
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	LcdClockUpdateFonts();
-	cglcd->bitmap->DrawText(std::max(2,(cglcd->bitmap->Width() - 4 - font_time_standby_second.Width(Time))/2),
+	cglcd->bitmap->DrawText(std::max(2,(cglcd->bitmap->Width() - 4 - lcd_font_time_standby.Width(Time))/2),
 		y, cglcd->bitmap->Width() - 1, Time,
-		&font_time_standby_second, cglcd->ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent);
+		&lcd_font_time_standby, cglcd->ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent);
 }
 
 void ShowLcdClock(std::string Time)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-	int y = g_settings.glcd_standby_weather ? t.glcd_simple_clock_y_position : (cglcd->bitmap->Height() - font_time_standby_second.Height(Time)) / 2;
+	int y = g_settings.glcd_standby_weather ? t.glcd_simple_clock_y_position : (cglcd->bitmap->Height() - lcd_font_time_standby.Height(Time)) / 2;
 	RenderLcdClock(Time, 255, y);
 }

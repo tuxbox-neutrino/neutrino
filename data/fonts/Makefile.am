@@ -21,12 +21,6 @@ if BOXMODEL_CS_HD2
 install_DATA += UnDotum.ttf
 endif
 
-if ENABLE_GRAPHLCD
-install_DATA += \
-	led.ttf \
-	lcd.ttf
-endif
-
 install-data-hook:
 	cd $(DESTDIR)$(FONTDIR); \
 		mv $(neutrino_ttf) neutrino.ttf; \

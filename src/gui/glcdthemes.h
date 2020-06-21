@@ -48,7 +48,6 @@ class CGLCDThemes : public CMenuTarget, CColorSetupNotifier, public sigc::tracka
 		void saveFile(const char *themename);
 		void initThemesMenu(CMenuWidget &);
 		void rememberOldTheme(bool remember);
-		void move_userDir();
 		bool applyDefaultTheme();
 		///signal after select theme is completed
 		sigc::signal<void> OnAfterSelectTheme;

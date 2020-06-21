@@ -320,7 +320,7 @@ void cGLCD::Exec()
 	g_PicViewer->getSize(Logo.c_str(), &icon_start_width, &icon_start_height);
 
 	if (g_settings.glcd_show_logo && percent_logo &&
-		showImage(channel_id, Channel, 0, t.glcd_channel_x_position, t.glcd_channel_y_position, percent_logo * bitmap->Height()/100, true, false)) {
+		showImage(channel_id, Channel, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width() - 4, percent_logo * bitmap->Height()/100, true, false)) {
 		doScrollChannel = false;
 		scrollChannelSkip = 0;
 	} else if (percent_logo && icon_start_width && icon_start_height &&
@@ -634,8 +634,8 @@ void cGLCD::updateFonts()
 
 	if (!fonts_initialized || (fontsize_smalltext_new != fontsize_smalltext)) {
 		fontsize_smalltext = fontsize_smalltext_new;
-		if (!font_smalltext.LoadFT2(/*t.glcd_font*/FONTDIR "/lcd.ttf", "UTF-8", fontsize_smalltext)) {
-			t.glcd_font = FONTDIR "/lcd.ttf";
+		if (!font_smalltext.LoadFT2(FONTDIR "/oled/terminator.ttf", "UTF-8", fontsize_smalltext)) {
+			t.glcd_font = FONTDIR "/neutrino.ttf";
 			font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext);
 		}
 	}

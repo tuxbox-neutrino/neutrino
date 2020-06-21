@@ -839,7 +839,7 @@ glcd.align_left links
 glcd.align_none keine
 glcd.align_right rechts
 glcd.align_start Sendungsstart ausrichten
-glcd.align_time Zeit ausrichten
+glcd.align_time Uhrzeit ausrichten
 glcd.bar_width Fortschrittsbalken-Weite
 glcd.bar_x_position Fortschrittsbalken x-Position
 glcd.bar_y_position Fortschrittsbalken y-Position

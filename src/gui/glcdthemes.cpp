@@ -51,7 +51,6 @@
 
 #include "glcdthemes.h"
 
-#define USERDIR "/var" THEMESDIR
 #define FILE_SUFFIX ".otheme"
 
 static 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
@@ -93,10 +92,10 @@ int CGLCDThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
 			{
 				themeFile.erase(0, 3);
-				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile + FILE_SUFFIX).c_str());
+				readFile(((std::string)THEMESDIR_VAR + "/oled/" + themeFile + FILE_SUFFIX).c_str());
 			} 
 			else
-				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_SUFFIX).c_str());
+				readFile(((std::string)THEMESDIR + "/oled" + themeFile + FILE_SUFFIX).c_str());
 			g_settings.glcd_theme_name = themeFile;
 		}
 		OnAfterSelectTheme();
@@ -118,7 +117,7 @@ void CGLCDThemes::initThemesMenu(CMenuWidget &themes)
 {
 	struct dirent **themelist;
 	int n;
-	const char *pfade[] = {THEMESDIR, THEMESDIR_VAR};
+	const char *pfade[] = {THEMESDIR "/oled", THEMESDIR_VAR "/oled"};
 	bool hasCVSThemes, hasUserThemes;
 	hasCVSThemes = hasUserThemes = false;
 	std::string userThemeFile = "";
@@ -176,8 +175,6 @@ void CGLCDThemes::initThemesMenu(CMenuWidget &themes)
 
 int CGLCDThemes::Show()
 {
-	move_userDir();
-
 	std::string file_name = "";
 
 	CMenuWidget themes (LOCALE_COLORMENU_MENUCOLORS, NEUTRINO_ICON_SETTINGS, width);
@@ -197,22 +194,22 @@ int CGLCDThemes::Show()
 	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
 
-	if (!CFileHelpers::createDir(THEMESDIR_VAR)) {
-		printf("[neutrino glcd theme] error creating %s\n", THEMESDIR_VAR);
+	if (!CFileHelpers::createDir(THEMESDIR_VAR "/oled")) {
+		printf("[neutrino glcd theme] error creating %s\n", THEMESDIR_VAR "/oled");
 	}
 
-	if (access(THEMESDIR_VAR, F_OK) == 0 ) {
+	if (access(THEMESDIR_VAR "/oled", F_OK) == 0 ) {
 		themes.addItem(GenericMenuSeparatorLine);
 		themes.addItem(m1);
 	} else {
 		delete m1;
-		printf("[neutrino glcd theme] error accessing %s\n", THEMESDIR_VAR);
+		printf("[neutrino glcd theme] error accessing %s\n", THEMESDIR_VAR "/oled");
 	}
 
 	int res = themes.exec(NULL, "");
 
 	if (!file_name.empty()) {
-		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_SUFFIX).c_str());
+		saveFile(((std::string)THEMESDIR_VAR + "/oled/" + file_name + FILE_SUFFIX).c_str());
 	}
 
 	if (hasThemeChanged) {
@@ -265,7 +262,7 @@ void CGLCDThemes::saveFile(const char *themename)
 bool CGLCDThemes::applyDefaultTheme()
 {
 	g_settings.glcd_theme_name = DEFAULT_OLED_THEME;
-	std::string default_theme = THEMESDIR "/" + g_settings.glcd_theme_name + ".otheme";
+	std::string default_theme = THEMESDIR "/oled/" + g_settings.glcd_theme_name + ".otheme";
 	if(themefile.loadConfig(default_theme)){
 		getTheme(themefile);
 		return true;
@@ -426,42 +423,6 @@ void CGLCDThemes::getTheme(CConfigFile &configfile)
 
 	if (g_settings.glcd_theme_name.empty())
 		applyDefaultTheme();
-}
-
-void CGLCDThemes::move_userDir()
-{
-	if (access(USERDIR, F_OK) == 0)
-	{
-		if (!CFileHelpers::createDir(THEMESDIR_VAR))
-		{
-			printf("[neutrino glcd theme] error creating %s\n", THEMESDIR_VAR);
-			return;
-		}
-		struct dirent **themelist;
-		int n = scandir(USERDIR, &themelist, 0, alphasort);
-		if (n < 0)
-		{
-			perror("loading glcd themes: scandir");
-			return;
-		}
-		else
-		{
-			for (int count = 0; count < n; count++)
-			{
-				const char *file = themelist[count]->d_name;
-				if (strcmp(file, ".") == 0 || strcmp(file, "..") == 0)
-					continue;
-				const char *dest = ((std::string)USERDIR + "/" + file).c_str();
-				const char *target = ((std::string)THEMESDIR_VAR + "/" + file).c_str();
-				printf("[neutrino gcdl theme] moving %s to %s\n", dest, target);
-				rename(dest, target);
-				free(themelist[count]);
-			}
-			free(themelist);
-		}
-		printf("[neutrino gcld theme] removing %s\n", USERDIR);
-		remove(USERDIR);
-	}
 }
 
 void CGLCDThemes::markSelectedTheme(CMenuWidget *w)

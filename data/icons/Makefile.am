@@ -11,10 +11,5 @@ SUBDIRS = \
 	various \
 	weather
 
-if ENABLE_GRAPHLCD
-SUBDIRS += \
-	oled
-endif
-
 install-data-hook:
 	$(INSTALL) -d $(DESTDIR)/$(ICONSDIR)/logo

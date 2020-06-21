@@ -371,9 +371,6 @@ data/icons/headers/Makefile
 data/icons/hints/Makefile
 data/icons/locale/Makefile
 data/icons/movieplayer/Makefile
-data/icons/oled/Makefile
-data/icons/oled/clock/Makefile
-data/icons/oled/weather/Makefile
 data/icons/radar/Makefile
 data/icons/slider/Makefile
 data/icons/status/Makefile
@@ -391,7 +388,12 @@ data/lcd/clock/Makefile
 data/lcd/icons/Makefile
 data/license/Makefile
 data/locale/Makefile
-data/othemes/Makefile
+data/oled/Makefile
+data/oled/fonts/Makefile
+data/oled/icons/Makefile
+data/oled/icons/clock/Makefile
+data/oled/icons/weather/Makefile
+data/oled/themes/Makefile
 data/pictures/Makefile
 data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile

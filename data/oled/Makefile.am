@@ -1,0 +1,4 @@
+SUBDIRS = \
+	fonts \
+	icons \
+	themes

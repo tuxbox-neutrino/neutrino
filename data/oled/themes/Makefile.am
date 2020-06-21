@@ -1,4 +1,4 @@
-installdir = $(THEMESDIR)
+installdir = $(THEMESDIR)/oled
 
 install_DATA = \
 	advanced.otheme \
