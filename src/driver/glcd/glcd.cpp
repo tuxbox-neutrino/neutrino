@@ -226,7 +226,6 @@ void cGLCD::Exec()
 
 	if (doStandbyTime)
 	{
-		std::string Time;
 		if (g_settings.glcd_time_in_standby == CLOCK_ANALOG)
 		{
 			ShowAnalogClock(tm->tm_hour, tm->tm_min, tm->tm_sec, bitmap->Width()/2, bitmap->Height()/2);
@@ -237,8 +236,7 @@ void cGLCD::Exec()
 		}
 		else if (g_settings.glcd_time_in_standby > CLOCK_OFF)
 		{
-			Time = strftime("%H:%M", tm);
-			ShowSimpleClock(Time, g_settings.glcd_time_in_standby);
+			ShowSimpleClock(strftime("%H:%M", tm), g_settings.glcd_time_in_standby);
 		}
 		if (g_settings.glcd_standby_weather == 1 && g_settings.glcd_time_in_standby != 5)
 		{
@@ -832,7 +830,6 @@ void cGLCD::Run(void)
 					bitmap->Clear(GLCD::cColor::Black);
 					ts.tv_sec = 0; // don't wait
 					static CFrameBuffer* fb = CFrameBuffer::getInstance();
-					static int fb_width = fb->getScreenWidth(true);
 					static int fb_height = fb->getScreenHeight(true);
 					static uint32_t *fbp = fb->getFrameBufferPointer();
 					int lcd_width = bitmap->Width();
@@ -842,6 +839,7 @@ void cGLCD::Run(void)
 					if (!showImage(fbp, fb_stride, fb_height, 0, 0, lcd_width, lcd_height, false, true))
 					{
 #else
+					static int fb_width = fb->getScreenWidth(true);
 					if (!showImage(fbp, fb_width, fb_height, 0, 0, lcd_width, lcd_height, false, true))
 					{
 #endif
@@ -1099,7 +1097,7 @@ void cGLCD::Run(void)
 			{
 				lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
 				lcd->Refresh(false);
-				sleep(1);
+				sleep(4);
 				lcd->SetBrightness(0);
 			}
 			else
@@ -1499,8 +1497,6 @@ bool cGLCD::imageShow(const std::string & filename, uint32_t dx, uint32_t dy, ui
 
 bool cGLCD::drawText(int x, int y, int xmax, int text_width, const std::string & text, const GLCD::cFont * font, uint32_t color1, uint32_t color2, bool proportional, int skipPixels, int align)
 {
-	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-
 	int z = 0;
 
 	if (align == ALIGN_NONE)
@@ -1569,7 +1565,7 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 		if (output_bytes == 3) // swap bgr<->rgb
 		{
 			int y;
-			#pragma omp parallel for shared(output)
+			//#pragma omp parallel for shared(output)
 			for (y = 0; y < yres; y++)
 			{
 				int xres1 = y * xres * 3;
@@ -1585,7 +1581,7 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 		else // swap bgr<->rgb and eliminate alpha channel jpgs are always saved with 24bit without alpha channel
 		{
 			int y;
-			#pragma omp parallel for shared(output)
+			//#pragma omp parallel for shared(output)
 			for (y = 0; y < yres; y++)
 			{
 				unsigned char *scanline = output + (y * row_stride);
@@ -1636,7 +1632,7 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 		row_pointers=(png_bytep*)malloc(sizeof(png_bytep)*yres);
 
 		int y;
-		#pragma omp parallel for shared(output)
+		//#pragma omp parallel for shared(output)
 		for (y=0; y<yres; y++)
 			row_pointers[y]=output+(y*xres*output_bytes);
 
