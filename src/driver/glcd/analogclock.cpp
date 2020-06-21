@@ -28,7 +28,7 @@
 #include <neutrino.h>
 #include <math.h>
 #include <cstdio>
-#include <driver/analogclock.h>
+#include "analogclock.h"
 #include <system/helpers.h>
 
 enum files

@@ -132,7 +132,9 @@ neutrino_LDADD = \
 	-lz
 
 if ENABLE_GRAPHLCD
-neutrino_LDADD += -lglcddrivers -lglcdgraphics -lusb-1.0
+neutrino_LDADD += \
+	driver/glcd/libneutrino_driver_glcd.a \
+	-lglcddrivers -lglcdgraphics -lusb-1.0
 endif
 
 if ENABLE_GIFLIB

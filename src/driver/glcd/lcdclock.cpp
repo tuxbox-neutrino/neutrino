@@ -27,7 +27,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <cstdio>
-#include <driver/lcdclock.h>
+#include "lcdclock.h"
 
 static bool fonts_initialized = false;
 

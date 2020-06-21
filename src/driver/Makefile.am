@@ -2,6 +2,10 @@ AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 SUBDIRS = pictureviewer audiodec
 
+if ENABLE_GRAPHLCD
+SUBDIRS += glcd
+endif
+
 AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
@@ -50,17 +54,6 @@ libneutrino_driver_a_SOURCES = \
 if ENABLE_LCD4LINUX
 libneutrino_driver_a_SOURCES += \
 	lcd4l.cpp
-endif
-
-if ENABLE_GRAPHLCD
-libneutrino_driver_a_SOURCES += \
-	analogclock.cpp \
-	digitalclock.cpp \
-	lcdclock.cpp \
-	ledclock.cpp \
-	simpleclock.cpp \
-	weather.cpp \
-	glcd.cpp
 endif
 
 if BOXTYPE_COOL

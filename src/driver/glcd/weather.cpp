@@ -23,7 +23,7 @@
 
 #include <config.h>
 #include <cstdio>
-#include <driver/weather.h>
+#include "weather.h"
 #include <gui/weather.h>
 #include <system/helpers.h>
 

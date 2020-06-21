@@ -29,7 +29,7 @@
 #include <string.h>
 #include <system/setting_helpers.h>
 #include <system/settings.h>
-#include <driver/glcd.h>
+#include <driver/glcd/glcd.h>
 #include <gui/widget/menue.h>
 
 class GLCD_Menu : public CMenuTarget, public CChangeObserver

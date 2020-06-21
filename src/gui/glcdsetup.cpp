@@ -30,7 +30,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <daemonc/remotecontrol.h>
-#include <driver/glcd.h>
+#include <driver/glcd/glcd.h>
 #include <driver/screen_max.h>
 #include <system/helpers.h>
 #include "glcdsetup.h"

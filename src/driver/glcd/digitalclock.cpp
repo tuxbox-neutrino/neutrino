@@ -27,7 +27,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <cstdio>
-#include <driver/digitalclock.h>
+#include "digitalclock.h"
 #include <system/helpers.h>
 
 #include <driver/pictureviewer/pictureviewer.h>

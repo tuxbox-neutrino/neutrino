@@ -437,6 +437,7 @@ src/Makefile
 src/daemonc/Makefile
 src/driver/Makefile
 src/driver/audiodec/Makefile
+src/driver/glcd/Makefile
 src/driver/pictureviewer/Makefile
 src/eitd/Makefile
 src/gui/Makefile

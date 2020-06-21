@@ -35,10 +35,10 @@
 #include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <hardware_caps.h>
-#include <driver/glcd.h>
 #include <eitd/sectionsd.h>
 #include <math.h>
 
+#include "glcd.h"
 #include "analogclock.h"
 #include "digitalclock.h"
 #include "lcdclock.h"
