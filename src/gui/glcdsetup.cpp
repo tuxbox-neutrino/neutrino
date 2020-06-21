@@ -302,30 +302,29 @@ void GLCD_Menu::GLCD_Menu_Settings()
 	sigc::slot0<void> slot_repaint = sigc::mem_fun(m, &CMenuWidget::paint); //we want to repaint after changed Option
 
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ENABLE, &g_settings.glcd_enable,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	int shortcut = 1;
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_red));
 	m.addItem(GenericMenuSeparatorLine);
+
+	int shortcut = 1;
 	m.addItem(new CMenuForwarder(LOCALE_GLCD_THEME_SETTINGS, true, NULL, this, "theme_settings",
 				CRCInput::convertDigitToKey(shortcut++)));
-	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuForwarder(LOCALE_GLCD_BRIGHTNESS_SETTINGS, true, NULL, this, "brightness_settings",
 				CRCInput::convertDigitToKey(shortcut++)));
-	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuForwarder(LOCALE_GLCD_STANDBY_SETTINGS, true, NULL, this, "standby_settings",
 				CRCInput::convertDigitToKey(shortcut++)));
-	m.addItem(GenericMenuSeparatorLine);
-	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SCROLL_SPEED,
-				&g_settings.glcd_scroll_speed, true, 1, 63, this));
-	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_LOGO, &g_settings.glcd_show_logo,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this,
 				CRCInput::convertDigitToKey(shortcut++)));
+	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SCROLL_SPEED,
+				&g_settings.glcd_scroll_speed, true, 1, 63, this));
 	m.addItem(GenericMenuSeparatorLine);
+
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_MIRROR_OSD, &g_settings.glcd_mirror_osd,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_green));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_MIRROR_VIDEO, &g_settings.glcd_mirror_video,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_yellow));
 	m.addItem(GenericMenuSeparatorLine);
+
 	m.addItem(new CMenuForwarder(LOCALE_GLCD_RESTART, true, NULL, this, "rescan", CRCInput::RC_blue));
 
 	m.exec(NULL, "");
