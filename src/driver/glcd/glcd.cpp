@@ -199,26 +199,25 @@ void cGLCD::Exec()
 
 	bitmap->Clear(ColorConvert3to1(t.glcd_color_bg_red, t.glcd_color_bg_green, t.glcd_color_bg_blue));
 
-	if (Channel == "Neutrino")
+	if (Channel.compare("Neutrino") == 0)
 	{
-		if (g_settings.glcd_show_logo)
+		if (imageShow(DATADIR "/neutrino/icons/start.jpg", 0, 0, 0, 0, false, true, true, false, false))
 		{
-			if (imageShow(DATADIR "/neutrino/icons/start.jpg", 0, 0, 0, 0, false, true, true, false, false))
-			{
-				GLCD::cFont font_tmp;
+			GLCD::cFont font_tmp;
 
-				int fw = font_epg.Width(Epg);
-				font_tmp.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg * (bitmap->Width() - 4) / fw);
-				fw = font_tmp.Width(Epg);
+			int fw = font_epg.Width(Epg);
+			font_tmp.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg * (bitmap->Width() - 4) / fw);
+			fw = font_tmp.Width(Epg);
 
-				drawText(std::max(2,(bitmap->Width() - 4 - fw)/2),
-					10 * bitmap->Height()/100, bitmap->Width() - 4, fw, Epg,
-					&font_tmp, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, ALIGN_NONE);
+			drawText(std::max(2,(bitmap->Width() - 4 - fw)/2),
+				10 * bitmap->Height()/100, bitmap->Width() - 4, fw, Epg,
+				&font_tmp, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, ALIGN_NONE);
 
-				lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
-				lcd->Refresh(true);
-			}
-		} else {
+			lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
+			lcd->Refresh(true);
+		}
+		else
+		{
 			cglcd->bitmap->Clear(ColorConvert3to1(t.glcd_color_bg_red, t.glcd_color_bg_green, t.glcd_color_bg_blue));
 			cglcd->lcd->Refresh(true);
 		}
@@ -1086,7 +1085,7 @@ void cGLCD::Run(void)
 			}
 		}
 
-		if(!g_settings.glcd_enable || doSuspend || doStandby)
+		if (!g_settings.glcd_enable || doSuspend || doStandby)
 		{
 			// for restart, don't blacken screen
 			bitmap->Clear(GLCD::cColor::Black);
@@ -1094,18 +1093,17 @@ void cGLCD::Run(void)
 			lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
 			lcd->Refresh(false);
 		}
-		if(doExit)
+		if (doExit)
 		{
-			if (g_settings.glcd_show_logo)
+			if (imageShow(DATADIR "/neutrino/icons/shutdown.jpg", 0, 0, 0, 0, false, true, true, false, false))
 			{
-				if (imageShow(DATADIR "/neutrino/icons/shutdown.jpg", 0, 0, 0, 0, false, true, true, false, false))
-				{
-					lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
-					lcd->Refresh(false);
-					sleep(3);
-					lcd->SetBrightness(0);
-				}
-			} else {
+				lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
+				lcd->Refresh(false);
+				sleep(1);
+				lcd->SetBrightness(0);
+			}
+			else
+			{
 				bitmap->Clear(GLCD::cColor::Black);
 				lcd->SetBrightness(0);
 				lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
