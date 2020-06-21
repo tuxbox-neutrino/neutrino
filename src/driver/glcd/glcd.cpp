@@ -1097,7 +1097,7 @@ void cGLCD::Run(void)
 			{
 				lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
 				lcd->Refresh(false);
-				sleep(4);
+				sleep(1);
 				lcd->SetBrightness(0);
 			}
 			else
