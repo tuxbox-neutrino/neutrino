@@ -29,6 +29,6 @@
 #include "glcd.h"
 
 void InitSimpleClock();
-void SimpleClockUpdateFonts();
-void RenderSimpleClock(std::string Time, int x, int y);
-void ShowSimpleClock(std::string Time);
+void SimpleClockUpdateFonts(int mode);
+void RenderSimpleClock(std::string Time, int x, int y, int mode);
+void ShowSimpleClock(std::string Time, int mode = cGLCD::CLOCK_SIMPLE);

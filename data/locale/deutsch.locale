@@ -919,6 +919,7 @@ glcd.standby_digital_clock Digitale Uhr
 glcd.standby_lcd_clock LCD-Uhr
 glcd.standby_led_clock LED-Uhr
 glcd.standby_settings Standby-Einstellungen
+glcd.standby_simple_clock Einfache Uhr
 glcd.standby_weather Wetter im Standby
 glcd.start_x_position Sendungsstart x-Position
 glcd.start_y_position Sendungsstart y-Position

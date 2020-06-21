@@ -177,6 +177,14 @@ class cGLCD
 			SUB = 7,
 			CAM = 8,
 		};
+		enum {
+			CLOCK_OFF = 0,
+			CLOCK_SIMPLE = 1,
+			CLOCK_LED = 2,
+			CLOCK_LCD = 3,
+			CLOCK_DIGITAL = 4,
+			CLOCK_ANALOG = 5
+		};
 		GLCD::cDriver * lcd;
 		GLCD::cFont font_channel;
 		GLCD::cFont font_epg;

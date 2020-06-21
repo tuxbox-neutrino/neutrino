@@ -29,8 +29,6 @@
 #include <cstdio>
 #include "simpleclock.h"
 
-static bool fonts_initialized = false;
-
 GLCD::cFont font_time_standby;
 
 void InitSimpleClock(void)
@@ -38,37 +36,53 @@ void InitSimpleClock(void)
 	printf("[%s:%s] finish initialization\n", __file__, __func__);
 }
 
-void SimpleClockUpdateFonts(void)
+void SimpleClockUpdateFonts(int mode)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
+
+	std::string font = t.glcd_font;
+
+	switch (mode)
+	{
+		case cGLCD::CLOCK_LCD:
+			font = FONTDIR "/oled/lcd.ttf";
+			break;
+		case cGLCD::CLOCK_LED:
+			font = FONTDIR "/oled/led.ttf";
+			break;
+		case cGLCD::CLOCK_SIMPLE:
+		default:
+			font = t.glcd_font
+			;
+	}
+
 	int fontsize_time_standby = 0;
 	int percent_time_standby = std::min(t.glcd_size_simple_clock, 100);
 	int fontsize_time_standby_new = percent_time_standby * cglcd->lcd->Height() / 100;
-	if (!fonts_initialized || (fontsize_time_standby_new != fontsize_time_standby)) {
+	if (fontsize_time_standby_new != fontsize_time_standby) {
 		fontsize_time_standby = fontsize_time_standby_new;
-		if (!font_time_standby.LoadFT2(t.glcd_font, "UTF-8", fontsize_time_standby)) {
-			t.glcd_font = FONTDIR "/neutrino.ttf";
-			font_time_standby.LoadFT2(t.glcd_font, "UTF-8", fontsize_time_standby);
+		if (!font_time_standby.LoadFT2(font, "UTF-8", fontsize_time_standby)) {
+			font_time_standby.LoadFT2(g_settings.font_file, "UTF-8", fontsize_time_standby);
 		}
 	}
-	fonts_initialized = true;
 }
 
-void RenderSimpleClock(std::string Time, int x, int y)
+void RenderSimpleClock(std::string Time, int x, int y, int mode)
 {
+	(void) x;
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-	SimpleClockUpdateFonts();
+	SimpleClockUpdateFonts(mode);
 	cglcd->bitmap->DrawText(std::max(2,(cglcd->bitmap->Width() - 4 - font_time_standby.Width(Time))/2),
 		y, cglcd->bitmap->Width() - 1, Time,
 		&font_time_standby, cglcd->ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent);
 }
 
-void ShowSimpleClock(std::string Time)
+void ShowSimpleClock(std::string Time, int mode)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	int y = g_settings.glcd_standby_weather ? t.glcd_simple_clock_y_position : (cglcd->bitmap->Height() - font_time_standby.Height(Time)) / 2;
-	RenderSimpleClock(Time, 255, y);
+	RenderSimpleClock(Time, 255, y, mode);
 }

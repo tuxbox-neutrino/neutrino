@@ -946,6 +946,7 @@ const char * locale_real_names[] =
 	"glcd.standby_lcd_clock",
 	"glcd.standby_led_clock",
 	"glcd.standby_settings",
+	"glcd.standby_simple_clock",
 	"glcd.standby_weather",
 	"glcd.start_x_position",
 	"glcd.start_y_position",

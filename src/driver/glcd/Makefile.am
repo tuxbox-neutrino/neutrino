@@ -18,8 +18,6 @@ noinst_LIBRARIES = libneutrino_driver_glcd.a
 libneutrino_driver_glcd_a_SOURCES = \
 	analogclock.cpp \
 	digitalclock.cpp \
-	lcdclock.cpp \
-	ledclock.cpp \
 	simpleclock.cpp \
 	weather.cpp \
 	glcd.cpp

@@ -41,8 +41,6 @@
 #include "glcd.h"
 #include "analogclock.h"
 #include "digitalclock.h"
-#include "lcdclock.h"
-#include "ledclock.h"
 #include "simpleclock.h"
 #include "weather.h"
 
@@ -136,8 +134,6 @@ cGLCD::cGLCD()
 
 	InitAnalogClock();
 	InitDigitalClock();
-	InitLcdClock();
-	InitLedClock();
 	InitSimpleClock();
 	InitWeather();
 
@@ -232,28 +228,18 @@ void cGLCD::Exec()
 	if (doStandbyTime)
 	{
 		std::string Time;
-		if (g_settings.glcd_time_in_standby == 5)
+		if (g_settings.glcd_time_in_standby == CLOCK_ANALOG)
 		{
 			ShowAnalogClock(tm->tm_hour, tm->tm_min, tm->tm_sec, bitmap->Width()/2, bitmap->Height()/2);
 		}
-		else if (g_settings.glcd_time_in_standby == 4)
+		else if (g_settings.glcd_time_in_standby == CLOCK_DIGITAL)
 		{
 			ShowDigitalClock(tm->tm_hour, tm->tm_min);
 		}
-		else if (g_settings.glcd_time_in_standby == 3)
+		else if (g_settings.glcd_time_in_standby > CLOCK_OFF)
 		{
 			Time = strftime("%H:%M", tm);
-			ShowLcdClock(Time);
-		}
-		else if (g_settings.glcd_time_in_standby == 2)
-		{
-			Time = strftime("%H:%M", tm);
-			ShowLedClock(Time);
-		}
-		else
-		{
-			Time = strftime("%H:%M", tm);
-			ShowSimpleClock(Time);
+			ShowSimpleClock(Time, g_settings.glcd_time_in_standby);
 		}
 		if (g_settings.glcd_standby_weather == 1 && g_settings.glcd_time_in_standby != 5)
 		{
