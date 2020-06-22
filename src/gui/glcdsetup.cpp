@@ -161,7 +161,6 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 		cglcd->Rescan();
 		return res;
 	}
-#if 0
 	if(actionKey == "select_driver") {
 		if(parent)
 			parent->hide();
@@ -169,7 +168,6 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 		cglcd->Exit();
 		return menu_return::RETURN_EXIT;
 	}
-#endif
 	if(actionKey == "select_font") {
 		CFileBrowser fileBrowser;
 		CFileFilter fileFilter;
@@ -303,6 +301,8 @@ void GLCD_Menu::GLCD_Menu_Settings()
 
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ENABLE, &g_settings.glcd_enable,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_red));
+	m.addItem(new CMenuForwarder(LOCALE_GLCD_DISPLAY, (cGLCD::getInstance()->GetConfigSize() > 1),
+				cGLCD::getInstance()->GetConfigName(g_settings.glcd_selected_config).c_str(), this, "select_driver"));
 	m.addItem(GenericMenuSeparatorLine);
 
 	int shortcut = 1;
@@ -517,4 +517,35 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 	selected = m.getSelected();
 	cGLCD::getInstance()->StandbyMode(false);
 	m.hide();
+}
+
+void GLCD_Menu::GLCD_Menu_Select_Driver()
+{
+	int select = 0;
+
+	if (cGLCD::getInstance()->GetConfigSize() > 1)
+	{
+		CMenuWidget *m = new CMenuWidget(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS);
+		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+
+		// we don't show introitems, so we add a separator for a smoother view
+		m->addItem(GenericMenuSeparator);
+
+		CMenuForwarder* mf;
+		for (int i = 0; i < cGLCD::getInstance()->GetConfigSize(); i++)
+		{
+			mf = new CMenuForwarder(cGLCD::getInstance()->GetConfigName(i), true, NULL, selector,to_string(i).c_str());
+			m->addItem(mf);
+		}
+
+		m->enableSaveScreen();
+		m->exec(NULL, "");
+
+		if (!m->gotAction())
+			return;
+
+		delete selector;
+		m->hide();
+	}
+	g_settings.glcd_selected_config = select;
 }

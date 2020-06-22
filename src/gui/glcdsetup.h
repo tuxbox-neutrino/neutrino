@@ -38,6 +38,7 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 		int width;
 		int selected;
 		SNeutrinoGlcdTheme oldTheme;
+		void GLCD_Menu_Select_Driver();
 	public:
 		GLCD_Menu();
 		void hide();
