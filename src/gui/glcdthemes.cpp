@@ -185,6 +185,8 @@ int CGLCDThemes::Show()
 	
 	//set default theme
 	std::string default_theme = DEFAULT_OLED_THEME;
+	if (default_theme.empty())
+		default_theme = "default";
 	CMenuForwarder* fw = new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, default_theme.c_str(), this, "default_theme", CRCInput::RC_red);
 	themes.addItem(fw);
 	fw->setHint("", LOCALE_COLORTHEMEMENU_NEUTRINO_THEME_HINT);
@@ -262,6 +264,8 @@ void CGLCDThemes::saveFile(const char *themename)
 bool CGLCDThemes::applyDefaultTheme()
 {
 	g_settings.glcd_theme_name = DEFAULT_OLED_THEME;
+	if (g_settings.glcd_theme_name.empty())
+		g_settings.glcd_theme_name = "default";
 	std::string default_theme = THEMESDIR "/oled/" + g_settings.glcd_theme_name + ".otheme";
 	if(themefile.loadConfig(default_theme)){
 		getTheme(themefile);
@@ -352,15 +356,15 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 
 void CGLCDThemes::getTheme(CConfigFile &configfile)
 {
-	t.glcd_color_fg_red = configfile.getInt32("glcd_color_fg_red", 0x00);
-	t.glcd_color_fg_green = configfile.getInt32("glcd_color_fg_green", 0x00);
-	t.glcd_color_fg_blue = configfile.getInt32("glcd_color_fg_blue", 0x00);
+	t.glcd_color_fg_red = configfile.getInt32("glcd_color_fg_red", 0xff);
+	t.glcd_color_fg_green = configfile.getInt32("glcd_color_fg_green", 0xff);
+	t.glcd_color_fg_blue = configfile.getInt32("glcd_color_fg_blue", 0xff);
 	t.glcd_color_bg_red = configfile.getInt32("glcd_color_bg_red", 0x00);
 	t.glcd_color_bg_green = configfile.getInt32("glcd_color_bg_green", 0x00);
 	t.glcd_color_bg_blue = configfile.getInt32("glcd_color_bg_blue", 0x00);
-	t.glcd_color_bar_red = configfile.getInt32("glcd_color_bar_red", 0x00);
-	t.glcd_color_bar_green = configfile.getInt32("glcd_color_bar_green", 0x00);
-	t.glcd_color_bar_blue = configfile.getInt32("glcd_color_bar_blue", 0x00);
+	t.glcd_color_bar_red = configfile.getInt32("glcd_color_bar_red", 0x62);
+	t.glcd_color_bar_green = configfile.getInt32("glcd_color_bar_green", 0x62);
+	t.glcd_color_bar_blue = configfile.getInt32("glcd_color_bar_blue", 0x62);
 	t.glcd_font = configfile.getString("glcd_font", "");
 	t.glcd_background = configfile.getString("glcd_background", "");
 	t.glcd_show_progressbar = configfile.getBool("glcd_show_progressbar", false);

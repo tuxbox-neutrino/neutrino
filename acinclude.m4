@@ -151,7 +151,7 @@ AC_DEFINE_UNQUOTED([DEFAULT_THEME], ["$default_theme"], [Default theme for gui.]
 
 # default oled theme
 AC_ARG_WITH(default-oled-theme,
-	AS_HELP_STRING([--with-default-oled-theme=THEMENAME], [Default theme for oled. Default it is empty for internal fallback to default colors.]),
+	AS_HELP_STRING([--with-default-oled-theme=THEMENAME], [Default theme for oled. @<:@default is empty@:>@]),
 	[default_oled_theme="$withval"],
 	[default_oled_theme=""])
 AC_DEFINE_UNQUOTED([DEFAULT_OLED_THEME], ["$default_oled_theme"], [Default theme for oled.])
