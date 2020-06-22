@@ -398,7 +398,6 @@ void cGLCD::Exec()
 
 	if (percent_duration && t.glcd_show_duration)
 	{
-
 		Lock();
 		Duration = stagingDuration;
 		DurationWidth = font_duration.Width(Duration);
@@ -411,7 +410,6 @@ void cGLCD::Exec()
 
 	if (percent_start && t.glcd_show_start)
 	{
-
 		Lock();
 		Start = stagingStart;
 		StartWidth = font_start.Width(Start);
@@ -1065,7 +1063,7 @@ void cGLCD::Run(void)
 							todo = info_CurrentNext.current_zeit.dauer / 60;
 						}
 						snprintf(tmp_duration, sizeof(tmp_duration), "%d/%d", done, total);
-						Duration = tmp_duration;
+						Duration = stagingDuration = tmp_duration;
 					}
 					if (Scale > 100)
 						Scale = 100;
@@ -1074,7 +1072,7 @@ void cGLCD::Run(void)
 					char tmp_start[6] = {0};
 					tm = localtime(&info_CurrentNext.current_zeit.startzeit);
 					snprintf(tmp_start, sizeof(tmp_start), "%02d:%02d", tm->tm_hour, tm->tm_min);
-					Start = tmp_start;
+					Start = stagingStart = tmp_start;
 				}
 
 				if (CSectionsdClient::epgflags::has_next)
@@ -1082,7 +1080,7 @@ void cGLCD::Run(void)
 					char tmp_end[6] = {0};
 					tm = localtime(&info_CurrentNext.next_zeit.startzeit);
 					snprintf(tmp_end, sizeof(tmp_end), "%02d:%02d", tm->tm_hour, tm->tm_min);
-					End = tmp_end;
+					End = stagingEnd = tmp_end;
 				}
 			}
 		}
