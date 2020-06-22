@@ -28,10 +28,6 @@
 #pragma GCC diagnostic warning "-Wunused-parameter"
 #include "glcd.h"
 
-#define LCDDIR_VAR "/usr/share/tuxbox/neutrino/icons"
-
-#define LCD_NUMBER_OF_DIGITS 11
-
 void InitDigitalClock();
 void RenderTimeDigit(int _digit, int x, int y);
 void RenderDots(int x, int y);

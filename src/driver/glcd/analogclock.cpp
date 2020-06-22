@@ -38,28 +38,29 @@ enum files
 	ANALOG_MIN = 2
 };
 
-const char * const file_name[LCD_NUMBER_OF_FILES] =
+const char * const file_name[] =
 {
 	"analog_clock",
 	"analog_hour",
 	"analog_min"
 };
+#define LCD_NUMBER_OF_FILES (sizeof(file_name)/sizeof(file_name[0]))
 
-#define NUMBER_OF_PATHS 2
-const char * const file_path[NUMBER_OF_PATHS] =
+const char * const file_path[] =
 {
-	LCDDIR_VAR "/oled/clock/",
-	DATADIR "/oled/clock/"
+	ICONSDIR "/oled/clock/",
+	ICONSDIR_VAR "/oled/clock/"
 };
+#define NUMBER_OF_PATHS (sizeof(file_path)/sizeof(file_path[0]))
 
 static std::string file[LCD_NUMBER_OF_FILES] = {""};
 
 void InitAnalogClock(void)
 {
-	for (int i = 0; i < LCD_NUMBER_OF_FILES; i++)
+	for (unsigned int i = 0; i < LCD_NUMBER_OF_FILES; i++)
 	{
 		std::string tmp_file;
-		for (int j = 0; j < NUMBER_OF_PATHS; j++)
+		for (unsigned int j = 0; j < NUMBER_OF_PATHS; j++)
 		{
 			std::string file_jpg = file_path[j];
 			file_jpg += file_name[i];

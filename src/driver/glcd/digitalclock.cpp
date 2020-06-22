@@ -47,7 +47,7 @@ enum digits
 	TIME_DOTS = 10
 };
 
-const char * const digit_name[LCD_NUMBER_OF_DIGITS] =
+const char * const digit_name[] =
 {
 	"time_zero",
         "time_one",
@@ -61,22 +61,23 @@ const char * const digit_name[LCD_NUMBER_OF_DIGITS] =
 	"time_nine",
 	"time_dots"
 };
+#define LCD_NUMBER_OF_DIGITS (sizeof(digit_name)/sizeof(digit_name[0]))
 
-#define NUMBER_OF_PATHS 2
-const char * const digit_path[NUMBER_OF_PATHS] =
+const char * const digit_path[] =
 {
-        LCDDIR_VAR "/oled/clock/",
-        DATADIR "/oled/clock/"
+	ICONSDIR "/oled/clock/",
+	ICONSDIR_VAR "/oled/clock/"
 };
+#define NUMBER_OF_PATHS (sizeof(digit_path)/sizeof(digit_path[0]))
 
 static std::string digit[LCD_NUMBER_OF_DIGITS] = {""};
 
 void InitDigitalClock(void)
 {
-	for (int i = 0; i < LCD_NUMBER_OF_DIGITS; i++)
+	for (unsigned int i = 0; i < LCD_NUMBER_OF_DIGITS; i++)
 	{
 		std::string digit_file;
-		for (int j = 0; j < NUMBER_OF_PATHS; j++)
+		for (unsigned int j = 0; j < NUMBER_OF_PATHS; j++)
 		{
 			std::string file_jpg = digit_path[j];
 			file_jpg += digit_name[i];

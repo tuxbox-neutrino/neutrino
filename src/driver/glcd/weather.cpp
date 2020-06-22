@@ -42,7 +42,7 @@ enum weathers
 	//WEATHER_UNKNOWN = 10
 };
 
-const char * const weather_name[LCD_NUMBER_OF_WEATHERS] =
+const char * const weather_name[] =
 {
 	"clear-day",
         "clear-night",
@@ -56,13 +56,14 @@ const char * const weather_name[LCD_NUMBER_OF_WEATHERS] =
 	"wind",
 	//"unknown"
 };
+#define LCD_NUMBER_OF_WEATHERS (sizeof(weather_name)/sizeof(weather_name[0]))
 
-#define NUMBER_OF_PATHS 2
-const char * const weather_path[NUMBER_OF_PATHS] =
+const char * const weather_path[] =
 {
-        LCDDIR_VAR "/oled/weather/",
-        DATADIR "/oled/weather/"
+	ICONSDIR "/oled/weather/",
+	ICONSDIR_VAR "/oled/weather/"
 };
+#define NUMBER_OF_PATHS (sizeof(weather_path)/sizeof(weather_path[0]))
 
 static bool ForceUpdate = true;
 static bool fonts_initialized = false;
@@ -85,10 +86,10 @@ static std::string st_next_wicon = "";
 
 void InitWeather(void)
 {
-	for (int i = 0; i < LCD_NUMBER_OF_WEATHERS; i++)
+	for (unsigned int i = 0; i < LCD_NUMBER_OF_WEATHERS; i++)
 	{
 		std::string weather_file;
-		for (int j = 0; j < NUMBER_OF_PATHS; j++)
+		for (unsigned int j = 0; j < NUMBER_OF_PATHS; j++)
 		{
 			std::string file_jpg = weather_path[j];
 			file_jpg += weather_name[i];

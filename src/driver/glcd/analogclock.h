@@ -25,10 +25,6 @@
 
 #include "glcd.h"
 
-#define LCDDIR_VAR "/usr/share/tuxbox/neutrino/icons"
-
-#define LCD_NUMBER_OF_FILES 3
-
 void InitAnalogClock();
 void RenderClock(int x, int y);
 void RenderHands(int hour, int min, int sec, int posx, int posy, int hour_size, int min_size, int sec_size);

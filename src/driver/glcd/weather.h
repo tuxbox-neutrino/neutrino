@@ -28,10 +28,6 @@
 #pragma GCC diagnostic warning "-Wunused-parameter"
 #include "glcd.h"
 
-#define LCDDIR_VAR "/usr/share/tuxbox/neutrino/icons"
-
-#define LCD_NUMBER_OF_WEATHERS 10
-
 void InitWeather();
 void WeatherUpdateFonts();
 int WeatherNameToNumber(std::string name);
