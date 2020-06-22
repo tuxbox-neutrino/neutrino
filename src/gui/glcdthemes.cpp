@@ -95,7 +95,7 @@ int CGLCDThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 				readFile(((std::string)THEMESDIR_VAR + "/oled/" + themeFile + FILE_SUFFIX).c_str());
 			} 
 			else
-				readFile(((std::string)THEMESDIR + "/oled" + themeFile + FILE_SUFFIX).c_str());
+				readFile(((std::string)THEMESDIR + "/oled/" + themeFile + FILE_SUFFIX).c_str());
 			g_settings.glcd_theme_name = themeFile;
 		}
 		OnAfterSelectTheme();
