@@ -60,8 +60,8 @@ const char * const weather_name[] =
 
 const char * const weather_path[] =
 {
-	ICONSDIR "/oled/weather/",
-	ICONSDIR_VAR "/oled/weather/"
+	ICONSDIR_VAR "/oled/weather/",
+	ICONSDIR "/oled/weather/"
 };
 #define NUMBER_OF_PATHS (sizeof(weather_path)/sizeof(weather_path[0]))
 

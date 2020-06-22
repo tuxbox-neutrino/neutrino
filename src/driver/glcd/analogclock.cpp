@@ -48,8 +48,8 @@ const char * const file_name[] =
 
 const char * const file_path[] =
 {
-	ICONSDIR "/oled/clock/",
-	ICONSDIR_VAR "/oled/clock/"
+	ICONSDIR_VAR "/oled/clock/",
+	ICONSDIR "/oled/clock/"
 };
 #define NUMBER_OF_PATHS (sizeof(file_path)/sizeof(file_path[0]))
 

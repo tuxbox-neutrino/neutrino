@@ -65,8 +65,8 @@ const char * const digit_name[] =
 
 const char * const digit_path[] =
 {
-	ICONSDIR "/oled/clock/",
-	ICONSDIR_VAR "/oled/clock/"
+	ICONSDIR_VAR "/oled/clock/",
+	ICONSDIR "/oled/clock/"
 };
 #define NUMBER_OF_PATHS (sizeof(digit_path)/sizeof(digit_path[0]))
 
