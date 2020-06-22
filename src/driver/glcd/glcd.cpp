@@ -372,16 +372,15 @@ void cGLCD::Exec()
 
 	if (percent_bar && t.glcd_show_progressbar)
 	{
-		int tmp_pos = 0;
-		tmp_pos = t.glcd_bar_y_position;
-
-		int bar_top = 0;
-		int bar_bottom = 0;
-
-		bar_top = tmp_pos;
-		bar_bottom = tmp_pos + t.glcd_percent_bar;
-
-		showProgressBarBorder(t.glcd_bar_x_position, bar_top, t.glcd_bar_width, bar_bottom, Scale, GLCD::cColor::White, ColorConvert3to1(t.glcd_color_bar_red, t.glcd_color_bar_green, t.glcd_color_bar_blue));
+		showProgressBarBorder(
+			t.glcd_bar_x_position,
+			t.glcd_bar_y_position,
+			t.glcd_bar_width,
+			t.glcd_bar_y_position + t.glcd_percent_bar,
+			Scale,
+			GLCD::cColor::Gray,
+			ColorConvert3to1(t.glcd_color_bar_red, t.glcd_color_bar_green, t.glcd_color_bar_blue)
+		);
 	}
 
 	if (percent_time && t.glcd_show_time)
