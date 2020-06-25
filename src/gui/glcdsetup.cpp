@@ -437,19 +437,6 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	sigc::slot0<void> slot_repaint = sigc::mem_fun(m, &CMenuWidget::paint); //we want to repaint after changed Option
 
-	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_PROGRESSBAR, &t.glcd_show_progressbar,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_DURATION, &t.glcd_show_duration,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_START, &t.glcd_show_start,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_END, &t.glcd_show_end,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_TIME, &t.glcd_show_time,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_WEATHER, &t.glcd_show_weather,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_CHANNEL,
 				&t.glcd_percent_channel, true, 0, 100, this));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_CHANNEL, &t.glcd_align_channel,
@@ -458,6 +445,19 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 				&t.glcd_channel_x_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_CHANNEL_Y_POSITION,
 				&t.glcd_channel_y_position, true, 0, 500, this));
+
+	m.addItem(GenericMenuSeparatorLine);
+
+
+	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_LOGO,
+				&t.glcd_percent_logo, true, 0, 100, this));
+	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_LOGO_X_POSITION,
+				&t.glcd_logo_x_position, true, 0, 500, this));
+	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_LOGO_Y_POSITION,
+				&t.glcd_logo_y_position, true, 0, 500, this));
+
+	m.addItem(GenericMenuSeparatorLine);
+
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_EPG,
 				&t.glcd_percent_epg, true, 0, 100, this));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_EPG, &t.glcd_align_epg,
@@ -466,6 +466,11 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 				&t.glcd_epg_x_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_EPG_Y_POSITION,
 				&t.glcd_epg_y_position, true, 0, 500, this));
+
+	m.addItem(GenericMenuSeparatorLine);
+
+	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_DURATION, &t.glcd_show_duration,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_DURATION,
 				&t.glcd_percent_duration, true, 0, 100, this));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_DURATION, &t.glcd_align_duration,
@@ -474,6 +479,11 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 				&t.glcd_duration_x_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_DURATION_Y_POSITION,
 				&t.glcd_duration_y_position, true, 0, 500, this));
+
+	m.addItem(GenericMenuSeparatorLine);
+
+	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_START, &t.glcd_show_start,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_START,
 				&t.glcd_percent_start, true, 0, 100, this));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_START, &t.glcd_align_start,
@@ -482,6 +492,11 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 				&t.glcd_start_x_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_START_Y_POSITION,
 				&t.glcd_start_y_position, true, 0, 500, this));
+
+	m.addItem(GenericMenuSeparatorLine);
+
+	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_END, &t.glcd_show_end,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_END,
 				&t.glcd_percent_end, true, 0, 100, this));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_END, &t.glcd_align_end,
@@ -490,6 +505,11 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 				&t.glcd_end_x_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_END_Y_POSITION,
 				&t.glcd_end_y_position, true, 0, 500, this));
+
+	m.addItem(GenericMenuSeparatorLine);
+
+	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_TIME, &t.glcd_show_time,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_TIME,
 				&t.glcd_percent_time, true, 0, 100, this));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_TIME, &t.glcd_align_time,
@@ -498,6 +518,12 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 				&t.glcd_time_x_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_TIME_Y_POSITION,
 				&t.glcd_time_y_position, true, 0, 500, this));
+
+	m.addItem(GenericMenuSeparatorLine);
+
+
+	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_PROGRESSBAR, &t.glcd_show_progressbar,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_BAR,
 				&t.glcd_percent_bar, true, 0, 100, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BAR_X_POSITION,
@@ -506,12 +532,11 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 				&t.glcd_bar_y_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BAR_WIDTH,
 				&t.glcd_bar_width, true, 0, 500, this));
-	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_LOGO,
-				&t.glcd_percent_logo, true, 0, 100, this));
-	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_LOGO_X_POSITION,
-				&t.glcd_logo_x_position, true, 0, 500, this));
-	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_LOGO_Y_POSITION,
-				&t.glcd_logo_y_position, true, 0, 500, this));
+
+	m.addItem(GenericMenuSeparatorLine);
+
+	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_WEATHER, &t.glcd_show_weather,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 
 	m.exec(NULL, "");
 	selected = m.getSelected();
