@@ -223,6 +223,7 @@ class cGLCD
 		static void ShowLcdIcon(bool);
 		static void Resume();
 		static void Exit();
+		static void Respawn();
 		static void Blit();
 		static void SetBrightness(unsigned int b);
 		static void TogglePower();

@@ -1203,6 +1203,12 @@ void cGLCD::Exit()
 	}
 }
 
+void cGLCD::Respawn()
+{
+	Exit();
+	cGLCD::getInstance();
+}
+
 void cGLCD::Rescan()
 {
 	doRescan = true;
