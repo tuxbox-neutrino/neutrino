@@ -214,7 +214,6 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 	if (!Data)
 		return false;
 	cGLCD *cglcd = cGLCD::getInstance();
-	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	switch(OptionName) {
 	case LOCALE_GLCD_SELECT_FG:
 	case LOCALE_GLCD_SELECT_BG:
@@ -296,7 +295,6 @@ void GLCD_Menu::GLCD_Menu_Settings()
 	m.addIntroItems();
 	m.setSelected(selected);
 
-	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	sigc::slot0<void> slot_repaint = sigc::mem_fun(m, &CMenuWidget::paint); //we want to repaint after changed Option
 
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ENABLE, &g_settings.glcd_enable,
@@ -368,7 +366,6 @@ void GLCD_Menu::GLCD_Brightness_Settings()
 	m.addIntroItems();
 	m.setSelected(selected);
 
-	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	sigc::slot0<void> slot_repaint = sigc::mem_fun(m, &CMenuWidget::paint); //we want to repaint after changed Option
 
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BRIGHTNESS,
@@ -473,7 +470,7 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_DURATION,
 				&t.glcd_percent_duration, true, 0, 100, this));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_DURATION, &t.glcd_align_duration,
-				ONOFFPRI_OPTIONS, ONOFFPRI_OPTION_COUNT, true, this, NULL));
+				ONOFFPRI_OPTIONS, ONOFFPRI_OPTION_COUNT, true, NULL));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_DURATION_X_POSITION,
 				&t.glcd_duration_x_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_DURATION_Y_POSITION,
