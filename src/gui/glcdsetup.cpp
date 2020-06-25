@@ -155,51 +155,64 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 	int res = menu_return::RETURN_REPAINT;
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-	if(parent)
+
+	if (parent)
 		parent->hide();
-	if(actionKey == "rescan") {
+
+	if (actionKey == "rescan")
+	{
 		cglcd->Rescan();
 		return res;
 	}
-	if(actionKey == "select_driver") {
-		if(parent)
+	if (actionKey == "select_driver")
+	{
+		if (parent)
 			parent->hide();
-		GLCD_Menu_Select_Driver();
+		res = GLCD_Menu_Select_Driver();
 		cglcd->Exit();
-		return menu_return::RETURN_EXIT;
+		return menu_return::RETURN_EXIT; // FIXME
 	}
-	if(actionKey == "select_font") {
+	if (actionKey == "select_font")
+	{
 		CFileBrowser fileBrowser;
 		CFileFilter fileFilter;
 		fileFilter.addFilter("ttf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(FONTDIR) == true) {
+		if (fileBrowser.exec(FONTDIR) == true)
+		{
 			t.glcd_font = fileBrowser.getSelectedFile()->Name;
 			cglcd->Rescan();
 		}
 		return res;
-	} else if (actionKey == "theme_settings") {
-		GLCD_Theme_Settings();
-		return res;
-	} else if (actionKey == "brightness_default") {
+	}
+	else if (actionKey == "brightness_default")
+	{
 		g_settings.glcd_brightness = GLCD_DEFAULT_BRIGHTNESS;
 		g_settings.glcd_brightness_standby = GLCD_DEFAULT_BRIGHTNESS_STANDBY;
 		g_settings.glcd_brightness_dim = GLCD_DEFAULT_BRIGHTNESS_DIM;
 		g_settings.glcd_brightness_dim_time = GLCD_DEFAULT_BRIGHTNESS_DIM_TIME;
 		cglcd->UpdateBrightness();
 		return res;
-	} else if (actionKey == "brightness_settings") {
-		GLCD_Brightness_Settings();
-		return res;
-	} else if (actionKey == "standby_settings") {
-		GLCD_Standby_Settings();
-		return res;
-        } else if (actionKey == "position_settings") {
-		GLCD_Theme_Position_Settings();
-		return res;
-	} else {
-		GLCD_Menu_Settings();
-		return res;
+	}
+	else if (actionKey == "theme_settings")
+	{
+		return GLCD_Theme_Settings();
+	}
+	else if (actionKey == "brightness_settings")
+	{
+		return GLCD_Brightness_Settings();
+	}
+	else if (actionKey == "standby_settings")
+	{
+		return GLCD_Standby_Settings();
+        }
+	else if (actionKey == "position_settings")
+	{
+		return GLCD_Theme_Position_Settings();
+	}
+	else
+	{
+		return GLCD_Menu_Settings();
 	}
 
 	return res;
@@ -289,7 +302,7 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 	return true;
 }
 
-void GLCD_Menu::GLCD_Menu_Settings()
+int GLCD_Menu::GLCD_Menu_Settings()
 {
 	CMenuWidget m(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	m.addIntroItems();
@@ -325,13 +338,14 @@ void GLCD_Menu::GLCD_Menu_Settings()
 
 	m.addItem(new CMenuForwarder(LOCALE_GLCD_RESTART, true, NULL, this, "rescan", CRCInput::RC_blue));
 
-	m.exec(NULL, "");
+	int res = m.exec(NULL, "");
 	selected = m.getSelected();
 	cGLCD::getInstance()->StandbyMode(false);
 	m.hide();
+	return res;
 }
 
-void GLCD_Menu::GLCD_Standby_Settings()
+int GLCD_Menu::GLCD_Standby_Settings()
 {
 	CMenuWidget m(LOCALE_GLCD_STANDBY_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	m.addIntroItems();
@@ -354,13 +368,14 @@ void GLCD_Menu::GLCD_Standby_Settings()
 		m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIMPLE_CLOCK_Y_POSITION,
 					&t.glcd_simple_clock_y_position, true, 0, 500, this));
 	}
-	m.exec(NULL, "");
+	int res = m.exec(NULL, "");
 	selected = m.getSelected();
 	cGLCD::getInstance()->StandbyMode(false);
 	m.hide();
+	return res;
 }
 
-void GLCD_Menu::GLCD_Brightness_Settings()
+int GLCD_Menu::GLCD_Brightness_Settings()
 {
 	CMenuWidget m(LOCALE_GLCD_BRIGHTNESS_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	m.addIntroItems();
@@ -381,13 +396,14 @@ void GLCD_Menu::GLCD_Brightness_Settings()
 	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "brightness_default", CRCInput::RC_nokey));
 
-	m.exec(NULL, "");
+	int res = m.exec(NULL, "");
 	selected = m.getSelected();
 	cGLCD::getInstance()->StandbyMode(false);
 	m.hide();
+	return res;
 }
 
-void GLCD_Menu::GLCD_Theme_Settings()
+int GLCD_Menu::GLCD_Theme_Settings()
 {
 	CMenuWidget m(LOCALE_GLCD_THEME_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	m.addIntroItems();
@@ -419,13 +435,14 @@ void GLCD_Menu::GLCD_Theme_Settings()
 					CRCInput::convertDigitToKey(shortcut++)));
 
 	//delete colorSetupNotifier;
-	m.exec(NULL, "");
+	int res = m.exec(NULL, "");
 	selected = m.getSelected();
 	cGLCD::getInstance()->StandbyMode(false);
 	m.hide();
+	return res;
 }
 
-void GLCD_Menu::GLCD_Theme_Position_Settings()
+int GLCD_Menu::GLCD_Theme_Position_Settings()
 {
 	CMenuWidget m(LOCALE_GLCD_THEME_POSITION_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	m.addIntroItems();
@@ -534,15 +551,17 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_WEATHER, &t.glcd_show_weather,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 
-	m.exec(NULL, "");
+	int res = m.exec(NULL, "");
 	selected = m.getSelected();
 	cGLCD::getInstance()->StandbyMode(false);
 	m.hide();
+	return res;
 }
 
-void GLCD_Menu::GLCD_Menu_Select_Driver()
+int GLCD_Menu::GLCD_Menu_Select_Driver()
 {
 	int select = 0;
+	int res = menu_return::RETURN_NONE;
 
 	if (cGLCD::getInstance()->GetConfigSize() > 1)
 	{
@@ -560,13 +579,14 @@ void GLCD_Menu::GLCD_Menu_Select_Driver()
 		}
 
 		m->enableSaveScreen();
-		m->exec(NULL, "");
+		res = m->exec(NULL, "");
 
 		if (!m->gotAction())
-			return;
+			return res;
 
 		delete selector;
 		m->hide();
 	}
 	g_settings.glcd_selected_config = select;
+	return res;
 }

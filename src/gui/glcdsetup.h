@@ -38,17 +38,17 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 		int width;
 		int selected;
 		SNeutrinoGlcdTheme oldTheme;
-		void GLCD_Menu_Select_Driver();
+		int GLCD_Menu_Select_Driver();
 	public:
 		GLCD_Menu();
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t, void *);
-		void GLCD_Menu_Settings();
-		void GLCD_Standby_Settings();
-		void GLCD_Brightness_Settings();
-		void GLCD_Theme_Settings();
-		void GLCD_Theme_Position_Settings();
+		int GLCD_Menu_Settings();
+		int GLCD_Standby_Settings();
+		int GLCD_Brightness_Settings();
+		int GLCD_Theme_Settings();
+		int GLCD_Theme_Position_Settings();
 };
 #endif // __glcdsetup_h__
 #endif // ENABLE_GRAPHLCD
