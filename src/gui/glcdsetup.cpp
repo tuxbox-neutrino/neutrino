@@ -580,10 +580,6 @@ int GLCD_Menu::GLCD_Menu_Select_Driver()
 
 		m->enableSaveScreen();
 		res = m->exec(NULL, "");
-
-		if (!m->gotAction())
-			return res;
-
 		delete selector;
 		m->hide();
 	}
