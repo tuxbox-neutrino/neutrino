@@ -762,10 +762,10 @@ int CMiscMenue::showMiscSettingsSelectWeatherLocation()
 		m->enableSaveScreen();
 		res = m->exec(NULL, "");
 
+		delete selector;
+
 		if (!m->gotAction())
 			return res;
-
-		delete selector;
 	}
 	g_settings.weather_location = location[select].value;
 	g_settings.weather_city = std::string(location[select].key);
