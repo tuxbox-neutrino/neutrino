@@ -840,7 +840,7 @@ glcd.align_none keine
 glcd.align_right rechts
 glcd.align_start Sendungsstart ausrichten
 glcd.align_time Uhrzeit ausrichten
-glcd.bar_width Fortschrittsbalken-Weite
+glcd.bar_width Fortschrittsbalken Weite
 glcd.bar_x_position Fortschrittsbalken x-Position
 glcd.bar_y_position Fortschrittsbalken y-Position
 glcd.brightness Helligkeit
@@ -893,24 +893,24 @@ glcd.scroll_speed Scroll-Geschwindigkeit
 glcd.select.bar Fortschrittsbalken-Farbe
 glcd.select.bg Hintergrund-Farbe
 glcd.select.fg Vordergrund-Farbe
-glcd.show_duration Sendungsdauer zeigen
-glcd.show_end Sendungsende zeigen
+glcd.show_duration Sendungsdauer anzeigen
+glcd.show_end Sendungsende anzeigen
 glcd.show_logo Senderlogo anzeigen
-glcd.show_progressbar Fortschrittsbalken
-glcd.show_start Sendungsstart zeigen
+glcd.show_progressbar Fortschrittsbalken anzeigen
+glcd.show_start Sendungsstart anzeigen
 glcd.show_time Uhrzeit anzeigen
 glcd.show_weather Wetter anzeigen
 glcd.simple_clock_y_position Einfache Uhr y-Position
-glcd.size_bar Fortschrittsbalken-Größe
-glcd.size_channel Sender-Größe
-glcd.size_duration Sendungsdauer-Größe
-glcd.size_end Sendungsende-Größe
-glcd.size_epg EPG-Größe
-glcd.size_logo Senderlogo-Größe
-glcd.size_simple_clock Einfache Uhr-Größe
-glcd.size_start Sendungsstart-Größe
-glcd.size_time Uhrzeit-Größe
-glcd.size_time_standby Uhrzeit-Größe im Standby
+glcd.size_bar Fortschrittsbalken Höhe
+glcd.size_channel Sender Höhe
+glcd.size_duration Sendungsdauer Höhe
+glcd.size_end Sendungsende Höhe
+glcd.size_epg EPG Höhe
+glcd.size_logo Senderlogo Höhe
+glcd.size_simple_clock Einfache Uhr Höhe
+glcd.size_start Sendungsstart Höhe
+glcd.size_time Uhrzeit Höhe
+glcd.size_time_standby Uhrzeit Höhe im Standby
 glcd.theme Thema
 glcd.theme_position_settings Positions-Einstellungen
 glcd.theme_settings Thema-Einstellungen
