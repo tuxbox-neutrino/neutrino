@@ -525,12 +525,12 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_BAR,
 				&t.glcd_percent_bar, true, 0, 100, this));
+	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BAR_WIDTH,
+				&t.glcd_bar_width, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BAR_X_POSITION,
 				&t.glcd_bar_x_position, true, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BAR_Y_POSITION,
 				&t.glcd_bar_y_position, true, 0, 500, this));
-	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BAR_WIDTH,
-				&t.glcd_bar_width, true, 0, 500, this));
 
 	m.addItem(GenericMenuSeparatorLine);
 
