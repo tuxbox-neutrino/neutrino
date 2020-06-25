@@ -438,23 +438,22 @@ void GLCD_Menu::GLCD_Theme_Position_Settings()
 	sigc::slot0<void> slot_repaint = sigc::mem_fun(m, &CMenuWidget::paint); //we want to repaint after changed Option
 
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_CHANNEL,
-				&t.glcd_percent_channel, true, 0, 100, this));
+				&t.glcd_percent_channel, !g_settings.glcd_show_logo, 0, 100, this));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_CHANNEL, &t.glcd_align_channel,
-				ONOFFPRI_OPTIONS, ONOFFPRI_OPTION_COUNT, true, NULL));
+				ONOFFPRI_OPTIONS, ONOFFPRI_OPTION_COUNT, !g_settings.glcd_show_logo, NULL));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_CHANNEL_X_POSITION,
-				&t.glcd_channel_x_position, true, 0, 500, this));
+				&t.glcd_channel_x_position, !g_settings.glcd_show_logo, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_CHANNEL_Y_POSITION,
-				&t.glcd_channel_y_position, true, 0, 500, this));
+				&t.glcd_channel_y_position, !g_settings.glcd_show_logo, 0, 500, this));
 
 	m.addItem(GenericMenuSeparatorLine);
 
-
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_LOGO,
-				&t.glcd_percent_logo, true, 0, 100, this));
+				&t.glcd_percent_logo, g_settings.glcd_show_logo, 0, 100, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_LOGO_X_POSITION,
-				&t.glcd_logo_x_position, true, 0, 500, this));
+				&t.glcd_logo_x_position, g_settings.glcd_show_logo, 0, 500, this));
 	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_LOGO_Y_POSITION,
-				&t.glcd_logo_y_position, true, 0, 500, this));
+				&t.glcd_logo_y_position, g_settings.glcd_show_logo, 0, 500, this));
 
 	m.addItem(GenericMenuSeparatorLine);
 
