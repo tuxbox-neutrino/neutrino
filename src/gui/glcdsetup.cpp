@@ -368,18 +368,15 @@ int GLCD_Menu::GLCD_Standby_Settings()
 
 	int shortcut = 1;
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_TIME_IN_STANDBY, &g_settings.glcd_time_in_standby,
-				ONOFFSEC_OPTIONS, ONOFFSEC_OPTION_COUNT, true, this,
-				CRCInput::convertDigitToKey(shortcut++)));
+				ONOFFSEC_OPTIONS, ONOFFSEC_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++)));
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_STANDBY_WEATHER, &g_settings.glcd_standby_weather,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	if (t.glcd_position_settings) {
-		m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_DIGITAL_CLOCK_Y_POSITION,
-					&t.glcd_digital_clock_y_position, true, 0, 500, this));
-		m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_SIMPLE_CLOCK,
-					&t.glcd_size_simple_clock, true, 0, 100, this));
-		m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIMPLE_CLOCK_Y_POSITION,
-					&t.glcd_simple_clock_y_position, true, 0, 500, this));
-	}
+	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_DIGITAL_CLOCK_Y_POSITION,
+				&t.glcd_digital_clock_y_position, t.glcd_position_settings, 0, 500, this));
+	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_SIMPLE_CLOCK,
+				&t.glcd_size_simple_clock, t.glcd_position_settings, 0, 100, this));
+	m.addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIMPLE_CLOCK_Y_POSITION,
+				&t.glcd_simple_clock_y_position, t.glcd_position_settings, 0, 500, this));
 	int res = m.exec(NULL, "");
 	selected = m.getSelected();
 	cGLCD::getInstance()->StandbyMode(false);
@@ -417,6 +414,8 @@ int GLCD_Menu::GLCD_Brightness_Settings()
 
 int GLCD_Menu::GLCD_Theme_Settings()
 {
+	CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier();
+
 	CMenuWidget m(LOCALE_GLCD_THEME_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	m.addIntroItems();
 	m.setSelected(selected);
@@ -427,11 +426,9 @@ int GLCD_Menu::GLCD_Theme_Settings()
 
 	m.addItem(new CMenuForwarder(LOCALE_GLCD_THEME, true, NULL, CGLCDThemes::getInstance(), NULL, CRCInput::convertDigitToKey(shortcut++)));
 
-	m.addItem(new CMenuForwarder(LOCALE_GLCD_FONT, true, t.glcd_font, this, "select_font",
-				CRCInput::convertDigitToKey(shortcut++)));
+	m.addItem(new CMenuForwarder(LOCALE_GLCD_FONT, true, t.glcd_font, this, "select_font", CRCInput::convertDigitToKey(shortcut++)));
 
 	m.addItem(GenericMenuSeparatorLine);
-	CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier();
 
 	CColorChooser* fg = new CColorChooser(LOCALE_GLCD_SELECT_FG, &t.glcd_color_fg_red, &t.glcd_color_fg_green, &t.glcd_color_fg_blue, NULL, colorSetupNotifier);
 	m.addItem(new CMenuDForwarder(LOCALE_GLCD_SELECT_FG, true, NULL, fg));
@@ -442,9 +439,7 @@ int GLCD_Menu::GLCD_Theme_Settings()
 	CColorChooser* bar = new CColorChooser(LOCALE_GLCD_SELECT_BAR, &t.glcd_color_bar_red, &t.glcd_color_bar_green, &t.glcd_color_bar_blue, NULL, colorSetupNotifier);
 	m.addItem(new CMenuDForwarder(LOCALE_GLCD_SELECT_BAR, true, NULL, bar));
 
-	if (t.glcd_position_settings)
-		m.addItem(new CMenuForwarder(LOCALE_GLCD_POSITION_SETTINGS, true, NULL, this, "position_settings",
-					CRCInput::convertDigitToKey(shortcut++)));
+	m.addItem(new CMenuForwarder(LOCALE_GLCD_POSITION_SETTINGS, t.glcd_position_settings, NULL, this, "position_settings", CRCInput::convertDigitToKey(shortcut++)));
 
 	//delete colorSetupNotifier;
 	int res = m.exec(NULL, "");
