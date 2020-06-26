@@ -239,7 +239,7 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 		if (next_wtemp != "") {
 			next_wtemp += "°";
 			WeatherUpdateFonts();
-			cglcd->bitmap->DrawText(270, 240, cglcd->bitmap->Width() - 1, next_wtemp,
+			cglcd->bitmap->DrawText(250, 240, cglcd->bitmap->Width() - 1, next_wtemp,
 				&font_temperature, cglcd->ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent);
 		}
 	}
