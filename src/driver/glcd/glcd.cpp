@@ -238,7 +238,7 @@ void cGLCD::Exec()
 		{
 			ShowSimpleClock(strftime("%H:%M", tm), g_settings.glcd_time_in_standby);
 		}
-		if (g_settings.glcd_standby_weather == 1 && g_settings.glcd_time_in_standby != 5)
+		if (g_settings.glcd_standby_weather == 1 && g_settings.glcd_time_in_standby != CLOCK_ANALOG)
 		{
 			ShowWeather(true);
 		}

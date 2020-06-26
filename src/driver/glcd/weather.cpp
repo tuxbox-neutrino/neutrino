@@ -39,7 +39,7 @@ enum weathers
 	SLEET = 7,
 	SNOW = 8,
 	WIND = 9,
-	//WEATHER_UNKNOWN = 10
+	WEATHER_UNKNOWN = 10
 };
 
 const char * const weather_name[] =
@@ -54,7 +54,7 @@ const char * const weather_name[] =
 	"sleet",
 	"snow",
 	"wind",
-	//"unknown"
+	"unknown"
 };
 #define LCD_NUMBER_OF_WEATHERS (sizeof(weather_name)/sizeof(weather_name[0]))
 
@@ -142,15 +142,13 @@ found:
 void WeatherUpdateFonts(void)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
-	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	int fontsize_temperature = 0;
 	int percent_temperature = std::min(24, 100);
 	int fontsize_temperature_new = percent_temperature * cglcd->lcd->Height() / 100;
 	if (!fonts_initialized || (fontsize_temperature_new != fontsize_temperature)) {
 		fontsize_temperature = fontsize_temperature_new;
-		if (!font_temperature.LoadFT2(/*t.glcd_font*/FONTDIR "/pakenham.ttf", "UTF-8", fontsize_temperature)) {
-			t.glcd_font = FONTDIR "/pakenham.ttf";
-			font_temperature.LoadFT2(t.glcd_font, "UTF-8", fontsize_temperature);
+		if (!font_temperature.LoadFT2(FONTDIR "/pakenham.ttf", "UTF-8", fontsize_temperature)) {
+			font_temperature.LoadFT2(g_settings.font_file, "UTF-8", fontsize_temperature);
 		}
 	}
 	fonts_initialized = true;
@@ -158,25 +156,15 @@ void WeatherUpdateFonts(void)
 
 int WeatherNameToNumber(std::string name)
 {
-	std::map<std::string, int> weather_name
+	for (unsigned int i = 0; i < sizeof(weather_name); i++)
 	{
-		{ "clear-day", 0 },
-		{ "clear-night", 1 },
-		{ "cloudy", 2 },
-		{ "fog", 3 },
-		{ "partly-cloudy-day", 4 },
-		{ "partly-cloudy-night", 5 },
-		{ "rain", 6 },
-		{ "sleet", 7 },
-		{ "snow", 8 },
-		{ "wind", 9 },
-		//{ "unknown", 10 },
-	};
-
-	const auto iter = weather_name.find(name);
-
-	if (iter != weather_name.cend())
-		return iter->second;
+		if (name.compare(weather_name[i]) == 0)
+		{
+			return i;
+			break;
+		}
+	}
+	return WEATHER_UNKNOWN;
 }
 
 void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
@@ -209,8 +197,9 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 
 			next_wcity = st_next_wcity = CWeather::getInstance()->getCity();
 			next_wtimestamp = st_next_wtimestamp = to_string((int)CWeather::getInstance()->getForecastWeekday(forecast));
-			next_wtemp = st_next_wtemp = CWeather::getInstance()->getForecastTemperatureMin(forecast);
-			next_wtemp = st_next_wtemp += "|" + CWeather::getInstance()->getForecastTemperatureMax(forecast);
+			//next_wtemp = st_next_wtemp = CWeather::getInstance()->getForecastTemperatureMin(forecast);
+			//next_wtemp = st_next_wtemp += "|" + CWeather::getInstance()->getForecastTemperatureMax(forecast);
+			next_wtemp = st_next_wtemp = CWeather::getInstance()->getForecastTemperatureMax(forecast);
 			next_wwind = st_next_wwind = CWeather::getInstance()->getForecastWindBearing(forecast);
 			next_wicon = st_next_wicon = CWeather::getInstance()->getForecastIconOnlyNane(forecast);
 		}

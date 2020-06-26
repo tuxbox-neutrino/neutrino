@@ -12,4 +12,5 @@ install_DATA = \
 	sleet.png \
 	snow.png \
 	thunderstorm.png \
+	unknown.png \
 	wind.png
