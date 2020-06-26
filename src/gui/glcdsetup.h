@@ -36,7 +36,6 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 {
 	private:
 		int width;
-		int selected;
 		SNeutrinoGlcdTheme oldTheme;
 		int GLCD_Menu_Select_Driver();
 		CMenuForwarder *select_driver;
