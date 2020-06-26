@@ -148,6 +148,8 @@ GLCD_Menu::GLCD_Menu()
 {
 	width = 40;
 	selected = -1;
+
+	select_driver = NULL;
 }
 
 int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
@@ -164,15 +166,7 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 		cglcd->Rescan();
 		return res;
 	}
-	if (actionKey == "select_driver")
-	{
-		if (parent)
-			parent->hide();
-		res = GLCD_Menu_Select_Driver();
-		cglcd->Exit();
-		return menu_return::RETURN_EXIT; // FIXME
-	}
-	if (actionKey == "select_font")
+	else if (actionKey == "select_font")
 	{
 		CFileBrowser fileBrowser;
 		CFileFilter fileFilter;
@@ -193,6 +187,10 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_settings.glcd_brightness_dim_time = GLCD_DEFAULT_BRIGHTNESS_DIM_TIME;
 		cglcd->UpdateBrightness();
 		return res;
+	}
+	else if (actionKey == "select_driver")
+	{
+		return GLCD_Menu_Select_Driver();
 	}
 	else if (actionKey == "theme_settings")
 	{
@@ -312,8 +310,11 @@ int GLCD_Menu::GLCD_Menu_Settings()
 
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ENABLE, &g_settings.glcd_enable,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_red));
-	m.addItem(new CMenuForwarder(LOCALE_GLCD_DISPLAY, (cGLCD::getInstance()->GetConfigSize() > 1),
-				cGLCD::getInstance()->GetConfigName(g_settings.glcd_selected_config).c_str(), this, "select_driver"));
+
+	select_driver = new CMenuForwarder(LOCALE_GLCD_DISPLAY, (cGLCD::getInstance()->GetConfigSize() > 1),
+				cGLCD::getInstance()->GetConfigName(g_settings.glcd_selected_config).c_str(), this, "select_driver");
+	m.addItem(select_driver);
+
 	m.addItem(GenericMenuSeparatorLine);
 
 	int shortcut = 1;
@@ -574,15 +575,21 @@ int GLCD_Menu::GLCD_Menu_Select_Driver()
 		CMenuForwarder* mf;
 		for (int i = 0; i < cGLCD::getInstance()->GetConfigSize(); i++)
 		{
-			mf = new CMenuForwarder(cGLCD::getInstance()->GetConfigName(i), true, NULL, selector,to_string(i).c_str());
+			mf = new CMenuForwarder(cGLCD::getInstance()->GetConfigName(i), true, NULL, selector, to_string(i).c_str());
+			mf->setInfoIconRight(i == g_settings.glcd_selected_config ? NEUTRINO_ICON_MARKER_DIALOG_OK : NULL);
 			m->addItem(mf);
 		}
 
 		m->enableSaveScreen();
 		res = m->exec(NULL, "");
+
 		delete selector;
-		m->hide();
+
+		if (!m->gotAction() || g_settings.glcd_selected_config == select)
+			return res;
 	}
 	g_settings.glcd_selected_config = select;
-	return res;
+	select_driver->setOption(cGLCD::getInstance()->GetConfigName(g_settings.glcd_selected_config).c_str());
+	cGLCD::getInstance()->Respawn();
+	return menu_return::RETURN_REPAINT;
 }
