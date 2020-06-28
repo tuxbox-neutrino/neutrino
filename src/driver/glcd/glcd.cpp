@@ -838,7 +838,7 @@ void cGLCD::Run(void)
 					int lcd_height = bitmap->Height();
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
 					unsigned int fb_stride = fb->getStride()/4;
-					if (!showImage(fbp, fb_stride, fb_height, 0, 0, lcd_width, lcd_height, false, true))
+					if (!showImage(fbp, fb_stride, fb_height, 0, 0, lcd_width, lcd_height, false, false))
 					{
 #else
 					static int fb_width = fb->getScreenWidth(true);
