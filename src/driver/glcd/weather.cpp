@@ -143,11 +143,11 @@ void WeatherUpdateFonts(void)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
 	int fontsize_temperature = 0;
-	int percent_temperature = std::min(24, 100);
+	int percent_temperature = std::min(24, 100); // WTF?
 	int fontsize_temperature_new = percent_temperature * cglcd->lcd->Height() / 100;
 	if (!fonts_initialized || (fontsize_temperature_new != fontsize_temperature)) {
 		fontsize_temperature = fontsize_temperature_new;
-		if (!font_temperature.LoadFT2(FONTDIR "/pakenham.ttf", "UTF-8", fontsize_temperature)) {
+		if (!font_temperature.LoadFT2(FONTDIR "/oled/pakenham.ttf", "UTF-8", fontsize_temperature)) {
 			font_temperature.LoadFT2(g_settings.font_file, "UTF-8", fontsize_temperature);
 		}
 	}
