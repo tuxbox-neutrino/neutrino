@@ -88,6 +88,7 @@ cGLCD::cGLCD()
 	doRescan = false;
 	doStandby = false;
 	doStandbyTime = false;
+	doStandbyWeather = false;
 	doShowVolume = false;
 	doShowLcdIcon =  false;
 	doSuspend = false;
@@ -224,7 +225,7 @@ void cGLCD::Exec()
 		return;
 	}
 
-	if (doStandbyTime)
+	if (doStandbyTime || doStandbyWeather)
 	{
 		if (g_settings.glcd_time_in_standby == CLOCK_ANALOG)
 		{
@@ -823,7 +824,7 @@ void cGLCD::Run(void)
 
 		while ((!doSuspend && !doStandby) && !doExit && g_settings.glcd_enable)
 		{
-			if (doMirrorOSD && !doStandbyTime)
+			if (doMirrorOSD && !doStandbyTime && !doStandbyWeather)
 			{
 				if (blitFlag)
 				{
@@ -857,7 +858,7 @@ void cGLCD::Run(void)
 				continue;
 			}
 
-			if (g_settings.glcd_mirror_video && !doStandbyTime)
+			if (g_settings.glcd_mirror_video && !doStandbyTime && !doStandbyWeather)
 			{
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 				lcd->SetMirrorVideo(true);
@@ -1135,19 +1136,30 @@ void cGLCD::StandbyMode(bool b)
 {
 	if (cglcd)
 	{
-		if (g_settings.glcd_time_in_standby)
+		if (g_settings.glcd_time_in_standby || g_settings.glcd_standby_weather)
 		{
-			cglcd->doStandbyTime = b;
+			if (g_settings.glcd_time_in_standby)
+				cglcd->doStandbyTime = b;
+			else
+				cglcd->doStandbyTime = false;
+
+			if (g_settings.glcd_standby_weather)
+				cglcd->doStandbyWeather = b;
+			else
+				cglcd->doStandbyWeather = false;
+
 			cglcd->doStandby = false;
-		} else {
-			cglcd->doStandbyTime = false;
-			cglcd->doStandby = b;
 		}
+		else
+			cglcd->doStandby = b;
+
 		if (b)
 		{
 			cglcd->doScrollChannel = false;
 			cglcd->doScrollEpg = false;
-		} else {
+		}
+		else
+		{
 			cglcd->doScrollChannel = true;
 			cglcd->doScrollEpg = true;
 		}
@@ -1669,10 +1681,10 @@ void cGLCD::UpdateBrightness()
 
 	if (cglcd && cglcd->lcd)
 	{
-		if (timeouted && !cglcd->doStandbyTime)
+		if (timeouted && !cglcd->doStandbyTime && !cglcd->doStandbyWeather)
 			cglcd->lcd->SetBrightness((unsigned int) (dim_brightness));
 		else
-			cglcd->lcd->SetBrightness((unsigned int) (cglcd->doStandbyTime ? g_settings.glcd_brightness_standby : g_settings.glcd_brightness));
+			cglcd->lcd->SetBrightness((unsigned int) ((cglcd->doStandbyTime || cglcd->doStandbyWeather) ? g_settings.glcd_brightness_standby : g_settings.glcd_brightness));
 
 	}
 }

@@ -116,6 +116,7 @@ class cGLCD
 		bool doSuspend;
 		bool doStandby;
 		bool doStandbyTime;
+		bool doStandbyWeather;
 		bool doExit;
 		bool doScrollChannel;
 		bool doScrollEpg;
