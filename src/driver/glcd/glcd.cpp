@@ -1517,6 +1517,7 @@ bool cGLCD::imageShow(const std::string & filename, uint32_t dx, uint32_t dy, ui
 bool cGLCD::drawText(int x, int y, int xmax, int text_width, const std::string & text, const GLCD::cFont * font, uint32_t color1, uint32_t color2, bool proportional, int skipPixels, int align)
 {
 	int z = 0;
+	int offset = 10; // px
 
 	if (align == ALIGN_NONE)
 	{
@@ -1524,15 +1525,15 @@ bool cGLCD::drawText(int x, int y, int xmax, int text_width, const std::string &
 	}
 	else if (align == ALIGN_LEFT)
 	{
-		z = std::max(2, (bitmap->Width() - 4 - text_width) / 24);
+		z = offset;
 	}
 	else if (align == ALIGN_CENTER)
 	{
-		z = std::max(2, (bitmap->Width() - 4 - text_width) / 2);
+		z = std::max(offset, (bitmap->Width() - text_width) / 2);
 	}
 	else if (align == ALIGN_RIGHT)
 	{
-		z = std::max(2, (bitmap->Width() - 4 - text_width));
+		z = std::max(offset, (bitmap->Width() - text_width - offset));
 	}
 
 	return bitmap->DrawText(z, y, xmax, text, font, color1, color2, proportional, skipPixels);
