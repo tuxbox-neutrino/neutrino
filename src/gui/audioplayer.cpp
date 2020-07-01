@@ -2397,19 +2397,19 @@ void CAudioPlayerGui::updateTimes(const bool force)
 			time_t sTime = time(NULL);
 			sTime -= m_time_played;
 			tm_struct = localtime(&sTime);
-			start = to_string(tm_struct->tm_hour/10) + to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
+			glcd_start = to_string(tm_struct->tm_hour/10) + to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
 
 			time_t eTime = time(NULL);
 			eTime += m_time_total - m_time_played;
 			tm_struct = localtime(&eTime);
-			end = to_string(tm_struct->tm_hour/10) + to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
+			glcd_end = to_string(tm_struct->tm_hour/10) + to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
 
 			glcd_position = 100 * m_time_played / m_time_total;
 
-			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			cGLCD::lockChannel(glcd_channel, glcd_epg, uint8_t(glcd_position));
 			cGLCD::lockDuration(glcd_duration);
-			cGLCD::lockStart(start);
-			cGLCD::lockEnd(end);
+			cGLCD::lockStart(glcd_start);
+			cGLCD::lockEnd(glcd_end);
 #endif
 			CVFD::getInstance()->showAudioProgress(uint8_t(100 * m_time_played / m_time_total));
 		}
@@ -2421,25 +2421,25 @@ void CAudioPlayerGui::paintLCD()
 #ifdef ENABLE_GRAPHLCD
 	const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
 	if ( !meta.artist.empty() )
-		epg = meta.artist;
+		glcd_epg = meta.artist;
 	if ( !meta.artist.empty() && !meta.title.empty() )
-		epg = " - ";
+		glcd_epg = " - ";
 	if ( !meta.title.empty() )
-		epg = meta.title;
+		glcd_epg = meta.title;
 #endif
 	switch (m_state)
 	{
 		case CAudioPlayerGui::STOP:
 #ifdef ENABLE_GRAPHLCD
 			if (m_inetmode)
-				channel = g_Locale->getText(LOCALE_INETRADIO_NAME);
+				glcd_channel = g_Locale->getText(LOCALE_INETRADIO_NAME);
 			else
-				channel = g_Locale->getText(LOCALE_AUDIOPLAYER_NAME);
+				glcd_channel = g_Locale->getText(LOCALE_AUDIOPLAYER_NAME);
 
-			epg = g_Locale->getText(LOCALE_MPKEY_STOP);
+			glcd_epg = g_Locale->getText(LOCALE_MPKEY_STOP);
 
 			cGLCD::ShowLcdIcon(false);
-			cGLCD::lockChannel(channel, epg, 0);
+			cGLCD::lockChannel(glcd_channel, glcd_epg, 0);
 			cGLCD::lockDuration("00/00");
 			cGLCD::lockStart("00:00");
 			cGLCD::lockEnd("00:00");
@@ -2449,11 +2449,11 @@ void CAudioPlayerGui::paintLCD()
 			break;
 		case CAudioPlayerGui::PLAY:
 #ifdef ENABLE_GRAPHLCD
-			channel = "";
-			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			glcd_channel = "";
+			cGLCD::lockChannel(glcd_channel, glcd_epg, uint8_t(glcd_position));
 			cGLCD::lockDuration(glcd_duration);
-			cGLCD::lockStart(start);
-			cGLCD::lockEnd(end);
+			cGLCD::lockStart(glcd_start);
+			cGLCD::lockEnd(glcd_end);
 			cGLCD::ShowLcdIcon(true);
 #endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_PLAY);
@@ -2463,11 +2463,11 @@ void CAudioPlayerGui::paintLCD()
 			break;
 		case CAudioPlayerGui::PAUSE:
 #ifdef ENABLE_GRAPHLCD
-			channel = "";
-			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			glcd_channel = "";
+			cGLCD::lockChannel(glcd_channel, glcd_epg, uint8_t(glcd_position));
 			cGLCD::lockDuration(glcd_duration);
-			cGLCD::lockStart(start);
-			cGLCD::lockEnd(end);
+			cGLCD::lockStart(glcd_start);
+			cGLCD::lockEnd(glcd_end);
 			cGLCD::ShowLcdIcon(true);
 #endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_PAUSE);
@@ -2475,11 +2475,11 @@ void CAudioPlayerGui::paintLCD()
 			break;
 		case CAudioPlayerGui::FF:
 #ifdef ENABLE_GRAPHLCD
-			channel = "";
-			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			glcd_channel = "";
+			cGLCD::lockChannel(glcd_channel, glcd_epg, uint8_t(glcd_position));
 			cGLCD::lockDuration(glcd_duration);
-			cGLCD::lockStart(start);
-			cGLCD::lockEnd(end);
+			cGLCD::lockStart(glcd_start);
+			cGLCD::lockEnd(glcd_end);
 			cGLCD::ShowLcdIcon(true);
 #endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_FF);
@@ -2487,11 +2487,11 @@ void CAudioPlayerGui::paintLCD()
 			break;
 		case CAudioPlayerGui::REV:
 #ifdef ENABLE_GRAPHLCD
-			channel = "";
-			cGLCD::lockChannel(channel, epg, uint8_t(glcd_position));
+			glcd_channel = "";
+			cGLCD::lockChannel(glcd_channel, glcd_epg, uint8_t(glcd_position));
 			cGLCD::lockDuration(glcd_duration);
-			cGLCD::lockStart(start);
-			cGLCD::lockEnd(end);
+			cGLCD::lockStart(glcd_start);
+			cGLCD::lockEnd(glcd_end);
 			cGLCD::ShowLcdIcon(true);
 #endif
 			CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_REV);
