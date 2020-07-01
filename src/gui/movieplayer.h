@@ -118,11 +118,11 @@ class CMoviePlayerGui : public CMenuTarget
 #ifdef ENABLE_GRAPHLCD
 	struct		tm *tm_struct;
 	int		glcd_position;
-	std::string	channel;
-	std::string	epg;
+	std::string	glcd_channel;
+	std::string	glcd_epg;
 	std::string	glcd_duration;
-	std::string	start;
-	std::string	end;
+	std::string	glcd_start;
+	std::string	glcd_end;
 #endif
 
 	std::string	file_name;
