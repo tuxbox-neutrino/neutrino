@@ -209,12 +209,7 @@ class CMenuItem : public  CComponentsSignals
 		void setInfoIconRight(const char * const IconName_Info_right);
 		const char* getInfoIconRight(){return iconName_Info_right;}
 
-#ifdef ENABLE_GRAPHLCD
-		std::string graphlcd_text;
-#endif
-#ifdef ENABLE_LCD4LINUX
-		std::string lcd4l_text;
-#endif
+		std::string lcd_text;
 };
 
 class CMenuSeparator : public CMenuItem

@@ -94,12 +94,7 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	actObserv	= NULL;
 	parent_widget	= NULL;
 
-#ifdef ENABLE_GRAPHLCD
-	graphlcd_text	= "";
-#endif
-#ifdef ENABLE_LCD4LINUX
-	lcd4l_text	= "";
-#endif
+	lcd_text	= "";
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -246,35 +241,21 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			char str[len];
 			snprintf(str, len, "%s %s", left_text, right_text);
 			CVFD::getInstance()->showMenuText(0, str, -1, true);
-#ifdef ENABLE_GRAPHLCD
-			if (g_settings.glcd_enable)
-				graphlcd_text = str;
-#endif
-#ifdef ENABLE_LCD4LINUX
-			if(g_settings.lcd4l_support)
-				lcd4l_text = str;
-#endif
+			lcd_text = str;
 		} 
 		else
 		{
 			CVFD::getInstance()->showMenuText(0, left_text, -1, true);
-#ifdef ENABLE_GRAPHLCD
-			if (g_settings.glcd_enable)
-				graphlcd_text = left_text;
-#endif
-#ifdef ENABLE_LCD4LINUX
-			if (g_settings.lcd4l_support)
-				lcd4l_text = left_text;
-#endif
+			lcd_text = left_text;
 		}
 
 #ifdef ENABLE_GRAPHLCD
 		if (g_settings.glcd_enable)
-			cGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), graphlcd_text, 0);
+			cGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), lcd_text, 0);
 #endif
 #ifdef ENABLE_LCD4LINUX
 		if (g_settings.lcd4l_support)
-			LCD4l->CreateFile("/tmp/lcd/menu", lcd4l_text, g_settings.lcd4l_convert);
+			LCD4l->CreateFile("/tmp/lcd/menu", lcd_text, g_settings.lcd4l_convert);
 #endif
 	}
 	
@@ -1067,11 +1048,11 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 #ifdef ENABLE_GRAPHLCD
 					if (g_settings.glcd_enable)
-						cGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), item->graphlcd_text, 0);
+						cGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), item->lcd_text, 0);
 #endif
 #ifdef ENABLE_LCD4LINUX
 					if (g_settings.lcd4l_support)
-						LCD4l->CreateFile("/tmp/lcd/menu", item->lcd4l_text, g_settings.lcd4l_convert);
+						LCD4l->CreateFile("/tmp/lcd/menu", item->lcd_text, g_settings.lcd4l_convert);
 #endif
 
 					switch ( rv ) {
@@ -2552,7 +2533,10 @@ int CMenuSeparator::paint(bool selected)
 				name_start_x = x + (dx >> 1) - (stringwidth >> 1);
 			
 			frameBuffer->paintBoxRel(name_start_x-OFFSET_INNER_SMALL, y, stringwidth+2*OFFSET_INNER_SMALL, height, item_bgcolor);
-			
+#if 0
+			if ((type & LINE)) // use COL_MENUHEAD_TEXT for CMenuSeparators defined with LINE and STRING
+				item_color = COL_MENUHEAD_TEXT;
+#endif
 			paintItemCaption(selected);
 		}
 	}
@@ -2581,6 +2565,7 @@ bool CZapProtection::check()
 	hint = NONEXISTANT_LOCALE;
 	int res;
 	std::string cPIN;
+//	char systemstr[128];
 	do
 	{
 		cPIN = "";
@@ -2590,6 +2575,9 @@ bool CZapProtection::check()
 		res = PINInput->exec(getParent(), "");
 		delete PINInput; PINInput = NULL;
 		cPIN[4] = 0;
+//		strcpy(systemstr, CONFIGDIR "/pinentered.sh ");
+//		strcat(systemstr, cPIN.c_str());
+//		system(systemstr);
 
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
 	} while ( (cPIN != *validPIN) && !cPIN.empty() &&
