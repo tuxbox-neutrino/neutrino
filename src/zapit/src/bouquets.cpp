@@ -471,7 +471,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;
 					chan->bUseCI = newBouquet->bUseCI;
-					//remapinng epg_id
+					//remapping epg_id
 					t_channel_id new_epgid = reMapEpgID(chan->getChannelID());
 					if(new_epgid)
 						chan->setEPGid(new_epgid);
@@ -961,6 +961,16 @@ void CBouquetManager::loadWebchannels(int mode)
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
 							channel->flags = CZapitChannel::UPDATED;
+							//remapping epg_id
+							t_channel_id new_epgid = reMapEpgID(chid);
+							if(new_epgid)
+								channel->setEPGid(new_epgid);
+							std::string new_epgxml = reMapEpgXML(chid);
+							if(!new_epgxml.empty()) {
+								char buf[100];
+								snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+								channel->setScriptName("#" + new_epgxml + "=" + buf);
+							}
 							if (gbouquet)
 								gbouquet->addService(channel);
 						}
@@ -1062,7 +1072,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								}
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
-								//remapinng epg_id
+								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
 								if(new_epgid)
 									channel->setEPGid(new_epgid);
@@ -1172,6 +1182,16 @@ void CBouquetManager::loadWebchannels(int mode)
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), epg_id, NULL, mode);
 								CServiceManager::getInstance()->AddChannel(channel);
 								channel->flags = CZapitChannel::UPDATED;
+								//remapping epg_id
+								t_channel_id new_epgid = reMapEpgID(chid);
+								if(new_epgid)
+									channel->setEPGid(new_epgid);
+								std::string new_epgxml = reMapEpgXML(chid);
+								if(!new_epgxml.empty()) {
+									char buf[100];
+									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+									channel->setScriptName("#" + new_epgxml + "=" + buf);
+								}
 								if (gbouquet)
 									gbouquet->addService(channel);
 							}
