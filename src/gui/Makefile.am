@@ -1,5 +1,4 @@
-AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS
-#AM_CPPFLAGS = -fno-rtti
+AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 BUILT_SOURCES = version.h
 version.h:
 	@rm -f $@; \

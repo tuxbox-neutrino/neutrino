@@ -3,7 +3,7 @@ BUILT_SOURCES = rcsim.h
 rcsim.h: $(srcdir)/driver/rcinput.h $(srcdir)/create_rcsim_h.sh
 	pushd $(srcdir) && sh ./create_rcsim_h.sh > $@
 
-AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
+AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 
 SUBDIRS = zapit gui daemonc driver system eitd timerd nhttpd
 

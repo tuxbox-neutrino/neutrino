@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -fno-rtti -fno-exceptions
+AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_LIMIT_MACROS
 
 AM_CPPFLAGS = \
 	-I$(top_builddir) \

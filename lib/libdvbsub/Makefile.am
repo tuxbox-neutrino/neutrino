@@ -7,7 +7,7 @@ AM_CPPFLAGS = \
 	@SIGC_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
-AM_CPPFLAGS += -fno-rtti -fno-exceptions
+AM_CPPFLAGS += -fno-rtti -fno-exceptions -D__STDC_LIMIT_MACROS
 
 noinst_LIBRARIES = libdvbsub.a
 
