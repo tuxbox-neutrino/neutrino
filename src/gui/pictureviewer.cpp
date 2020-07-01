@@ -168,9 +168,9 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 #ifdef ENABLE_GRAPHLCD
 	cGLCD::MirrorOSD(false);
-	channel = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
-	epg = "";
-	cGLCD::lockChannel(channel, epg, 0);
+	glcd_channel = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
+	glcd_epg = "";
+	cGLCD::lockChannel(glcd_channel, glcd_epg, 0);
 #endif
 
 	width = frameBuffer->getWindowWidth();
@@ -596,8 +596,8 @@ int CPictureViewerGui::show()
 				nfsMenu.exec(this, "");
 				update=true;
 #ifdef ENABLE_GRAPHLCD
-				epg = "";
-				cGLCD::lockChannel(channel, epg, 0);
+				glcd_epg = "";
+				cGLCD::lockChannel(glcd_channel, glcd_epg, 0);
 #endif
 				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD));
 			}
@@ -813,8 +813,8 @@ void CPictureViewerGui::view(unsigned int index, bool unscaled)
 	selected=index;
 
 #ifdef ENABLE_GRAPHLCD
-	epg = playlist[index].Name.c_str();
-	cGLCD::lockChannel(channel, epg, 0);
+	glcd_epg = playlist[index].Name.c_str();
+	cGLCD::lockChannel(glcd_channel, glcd_epg, 0);
 #endif
 	CVFD::getInstance()->showMenuText(0, playlist[index].Name.c_str());
 	char timestring[19];
@@ -867,8 +867,8 @@ void CPictureViewerGui::thrView()
 void CPictureViewerGui::endView()
 {
 #ifdef ENABLE_GRAPHLCD
-	epg = "";
-	cGLCD::lockChannel(channel, epg, 0);
+	glcd_epg = "";
+	cGLCD::lockChannel(glcd_channel, glcd_epg, 0);
 #endif
 
 	if (m_state != MENU)
@@ -884,8 +884,8 @@ void CPictureViewerGui::endView()
 void CPictureViewerGui::deletePicFile(unsigned int index, bool mode)
 {
 #ifdef ENABLE_GRAPHLCD
-	epg = playlist[index].Name.c_str();
-	cGLCD::lockChannel(channel, epg, 0);
+	glcd_epg = playlist[index].Name.c_str();
+	cGLCD::lockChannel(glcd_channel, glcd_epg, 0);
 #endif
 	CVFD::getInstance()->showMenuText(0, playlist[index].Name.c_str());
 	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, playlist[index].Filename, CMsgBox::mbrNo, CMsgBox::mbYes|CMsgBox::mbNo)==CMsgBox::mbrYes)

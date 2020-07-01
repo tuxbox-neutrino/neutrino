@@ -87,8 +87,8 @@ class CPictureViewerGui : public CMenuTarget
 		std::string			Path;
 
 #ifdef ENABLE_GRAPHLCD
-		std::string		channel;
-		std::string		epg;
+		std::string		glcd_channel;
+		std::string		glcd_epg;
 #endif
 
 		int 			width;
