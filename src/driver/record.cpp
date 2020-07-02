@@ -307,16 +307,6 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	CCamManager::getInstance()->Start(channel->getChannelID(), CCamManager::RECORD);
 
 	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
-#ifdef ENABLE_GRAPHLCD
-	if (CRecordManager::getInstance()->GetRecordMode() == CRecordManager::RECMODE_REC)
-		cGLCD::lockIcon(cGLCD::REC);
-	else if (CRecordManager::getInstance()->GetRecordMode() == CRecordManager::RECMODE_TSHIFT)
-		cGLCD::lockIcon(cGLCD::TS);
-	else if (CRecordManager::getInstance()->GetRecordMode() == CRecordManager::RECMODE_REC_TSHIFT) {
-		cGLCD::lockIcon(cGLCD::REC);
-		cGLCD::lockIcon(cGLCD::TS);
-	}
-#endif
 	WaitRecMsg(msg_start_time, 2);
 	hintBox.hide();
 	return RECORD_OK;
