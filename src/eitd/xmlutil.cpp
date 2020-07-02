@@ -538,7 +538,8 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 
 t_channel_id getepgid(std::string epg_name)
 {
-	t_channel_id epgid;
+	t_channel_id epgid = 0;
+	bool match_found = false;
 
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
 
@@ -557,16 +558,24 @@ t_channel_id getepgid(std::string epg_name)
 			std::size_t found = tvg_id.find("#"+epg_name);
 			if (found != std::string::npos)
 			{
-				tvg_id = tvg_id.substr(tvg_id.find_first_of("="));
-				sscanf(tvg_id.c_str(), "=%" SCNx64, &epgid);
-				return epgid;
+				if (match_found)
+				{
+					if ((*cit)->getEpgID() == epgid) continue;
+					(*cit)->setEPGid(epgid);
+				}
+				else
+				{
+					tvg_id = tvg_id.substr(tvg_id.find_first_of("="));
+					sscanf(tvg_id.c_str(), "=%" SCNx64, &epgid);
+					match_found = true;
+				}
 			}
 			else
 				continue;
 		}
 	}
 
-	return 0;
+	return epgid;
 }
 
 static int my_filter(const struct dirent *entry)
