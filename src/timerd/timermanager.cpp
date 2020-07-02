@@ -95,7 +95,9 @@ void* CTimerManager::timerThread(void *arg)
 
 	CTimerManager *timerManager = (CTimerManager*) arg;
 
+#ifdef ENABLE_GRAPHLCD
 	bool setTimerIcon = false;
+#endif
 
 	int sleeptime=(timerd_debug)?10:20;
 	while(1)
