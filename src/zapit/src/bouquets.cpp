@@ -958,6 +958,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						if (title && url)
 						{
 							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
+							if (epg_id == 0) epg_id = chid;
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
 							channel->flags = CZapitChannel::UPDATED;
@@ -970,6 +971,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								char buf[100];
 								snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 								channel->setScriptName("#" + new_epgxml + "=" + buf);
+								channel->setEPGid(chid);
 							}
 							if (gbouquet)
 								gbouquet->addService(channel);
@@ -1179,7 +1181,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							if (!url.empty())
 							{
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
-								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), epg_id, NULL, mode);
+								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), chid, NULL, mode);
 								CServiceManager::getInstance()->AddChannel(channel);
 								channel->flags = CZapitChannel::UPDATED;
 								//remapping epg_id
