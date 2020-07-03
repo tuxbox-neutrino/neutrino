@@ -207,11 +207,11 @@ void cGLCD::Exec()
 			GLCD::cFont font_tmp;
 
 			int fw = font_epg.Width(Epg);
-			font_tmp.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg * (bitmap->Width() - 4) / fw);
+			font_tmp.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg * bitmap->Width() / fw);
 			fw = font_tmp.Width(Epg);
 
-			drawText(std::max(2,(bitmap->Width() - 4 - fw)/2),
-				10 * bitmap->Height()/100, bitmap->Width() - 4, fw, Epg,
+			drawText(std::max(2,(bitmap->Width() - fw)/2),
+				10 * bitmap->Height()/100, bitmap->Width(), fw, Epg,
 				&font_tmp, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, ALIGN_NONE);
 
 			lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
@@ -322,17 +322,17 @@ void cGLCD::Exec()
 	g_PicViewer->getSize(Logo.c_str(), &icon_start_width, &icon_start_height);
 
 	if (g_settings.glcd_show_logo && percent_logo &&
-		showImage(channel_id, Channel, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width() - 4, percent_logo * bitmap->Height()/100, true, false)) {
+		showImage(channel_id, Channel, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width(), percent_logo * bitmap->Height()/100, true, false)) {
 		doScrollChannel = false;
 		scrollChannelSkip = 0;
 	} else if (percent_logo && icon_start_width && icon_start_height &&
-		doShowLcdIcon && showImage(Logo, icon_start_width, icon_start_height, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width() - 4, percent_logo * bitmap->Height()/100, true, false)) {
+		doShowLcdIcon && showImage(Logo, icon_start_width, icon_start_height, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width(), percent_logo * bitmap->Height()/100, true, false)) {
 		doScrollChannel = false;
 		scrollChannelSkip = 0;
 	} else if (percent_channel) {
 		if (ChannelWidth) {
 			if (scrollChannelForward) {
-				if (ChannelWidth - scrollChannelSkip < bitmap->Width() - 4)
+				if (ChannelWidth - scrollChannelSkip < bitmap->Width())
 					scrollChannelForward = false;
 			} else if (scrollChannelSkip <= 0) {
 				scrollChannelSkip = 0;
@@ -340,7 +340,7 @@ void cGLCD::Exec()
 			}
 
 			drawText(t.glcd_channel_x_position + scrollChannelOffset,
-				t.glcd_channel_y_position, bitmap->Width() - 4, ChannelWidth, Channel,
+				t.glcd_channel_y_position, bitmap->Width(), ChannelWidth, Channel,
 				&font_channel, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, scrollChannelSkip, t.glcd_align_channel);
 
 			if (scrollChannelOffset > 0)
@@ -363,7 +363,7 @@ void cGLCD::Exec()
 		if (EpgWidth)
 		{
 			if (scrollEpgForward) {
-				if (EpgWidth - scrollEpgSkip < bitmap->Width() - 4)
+				if (EpgWidth - scrollEpgSkip < bitmap->Width())
 					scrollEpgForward = false;
 			} else if (scrollEpgSkip <= 0) {
 				scrollEpgSkip = 0;
@@ -371,7 +371,7 @@ void cGLCD::Exec()
 			}
 
 			drawText(t.glcd_epg_x_position + scrollEpgOffset,
-				t.glcd_epg_y_position, bitmap->Width() - 4, EpgWidth, Epg,
+				t.glcd_epg_y_position, bitmap->Width(), EpgWidth, Epg,
 				&font_epg, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, scrollEpgSkip, t.glcd_align_epg);
 
 			if (scrollEpgOffset > 0)
@@ -943,7 +943,7 @@ void cGLCD::Run(void)
 					{
 						Epg = g_Locale->getText(LOCALE_GLCD_VOLUME);
 						EpgWidth = font_epg.Width(Epg);
-						doScrollEpg = EpgWidth > bitmap->Width() - 4;
+						doScrollEpg = EpgWidth > bitmap->Width();
 						scrollEpgSkip = 0;
 						scrollEpgForward = true;
 						if (doScrollEpg) {
@@ -964,7 +964,7 @@ void cGLCD::Run(void)
 					{
 						Channel = g_Locale->getText(LOCALE_GLCD_VOLUME);
 						ChannelWidth = font_channel.Width(Channel);
-						doScrollChannel = ChannelWidth > bitmap->Width() - 4;
+						doScrollChannel = ChannelWidth > bitmap->Width();
 						scrollChannelSkip = 0;
 						scrollChannelForward = true;
 						if (doScrollChannel) {
@@ -988,7 +988,7 @@ void cGLCD::Run(void)
 				{
 					Epg = stagingEpg;
 					EpgWidth = font_epg.Width(Epg);
-					doScrollEpg = EpgWidth > bitmap->Width() - 4;
+					doScrollEpg = EpgWidth > bitmap->Width();
 					scrollEpgSkip = 0;
 					scrollEpgForward = true;
 					if (doScrollEpg)
@@ -1003,7 +1003,7 @@ void cGLCD::Run(void)
 				{
 					Channel = stagingChannel;
 					ChannelWidth = font_channel.Width(Channel);
-					doScrollChannel = ChannelWidth > bitmap->Width() - 4;
+					doScrollChannel = ChannelWidth > bitmap->Width();
 					scrollChannelSkip = 0;
 					scrollChannelForward = true;
 					if (doScrollChannel)
@@ -1034,7 +1034,7 @@ void cGLCD::Run(void)
 					EpgWidth = 0;
 					Scale = 0;
 					doScrollEpg = false;
-					doScrollChannel = ChannelWidth > bitmap->Width() - 4;
+					doScrollChannel = ChannelWidth > bitmap->Width();
 					scrollChannelForward = true;
 					scrollChannelSkip = 0;
 					if (doScrollChannel) {
@@ -1055,7 +1055,7 @@ void cGLCD::Run(void)
 				{
 					Epg = info_CurrentNext.current_name;
 					EpgWidth = font_epg.Width(Epg);
-					doScrollEpg = EpgWidth > bitmap->Width() - 4;
+					doScrollEpg = EpgWidth > bitmap->Width();
 					scrollEpgForward = true;
 					scrollEpgSkip = 0;
 					if (doScrollEpg)
