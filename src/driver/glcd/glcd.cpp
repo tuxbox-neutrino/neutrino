@@ -738,12 +738,24 @@ void* cGLCD::TimeThread(void *p)
 	while (((cGLCD *)p)->time_thread_started)
 	{
 		sleep(1);
-		if ((cglcd->locked_countdown == true || cglcd->channelLocked == true || cglcd->timeLocked == true ||
-		     cglcd->durationLocked == true || cglcd->startLocked == true || cglcd->endLocked == true ||
-		     cglcd->recLocked == true || cglcd->muteLocked == true || cglcd->tsLocked == true ||
-		     cglcd->ecmLocked == true || cglcd->timerLocked == true || cglcd->ddLocked == true ||
-		     cglcd->txtLocked == true || cglcd->camLocked == true ||
-		     cglcd->doShowVolume == true || cglcd->doMirrorOSD == true) && !cglcd->doExit)
+		if (!cglcd->doExit && (
+			   cglcd->locked_countdown == true
+			|| cglcd->channelLocked == true
+			|| cglcd->timeLocked == true
+			|| cglcd->durationLocked == true
+			|| cglcd->startLocked == true
+			|| cglcd->endLocked == true
+			|| cglcd->recLocked == true
+			|| cglcd->muteLocked == true
+			|| cglcd->tsLocked == true
+			|| cglcd->ecmLocked == true
+			|| cglcd->timerLocked == true
+			|| cglcd->ddLocked == true
+			|| cglcd->txtLocked == true
+			|| cglcd->camLocked == true
+			|| cglcd->doShowVolume == true
+			|| cglcd->doMirrorOSD == true
+		))
 		{
 			cGLCD::getInstance()->CountDown();
 		}
