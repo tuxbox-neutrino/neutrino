@@ -959,7 +959,7 @@ void cGLCD::Run(void)
 						scrollEpgSkip = 0;
 						scrollEpgForward = true;
 						if (doScrollEpg) {
-							scrollEpgOffset = bitmap->Width()/g_settings.glcd_scroll_speed;
+							scrollEpgOffset = bitmap->Width()/4;
 							EpgWidth += scrollEpgOffset;
 						}
 						else
@@ -980,7 +980,7 @@ void cGLCD::Run(void)
 						scrollChannelSkip = 0;
 						scrollChannelForward = true;
 						if (doScrollChannel) {
-							scrollChannelOffset = bitmap->Width()/g_settings.glcd_scroll_speed;
+							scrollChannelOffset = bitmap->Width()/4;
 							ChannelWidth += scrollChannelOffset;
 						}
 						else
@@ -1005,7 +1005,7 @@ void cGLCD::Run(void)
 					scrollEpgForward = true;
 					if (doScrollEpg)
 					{
-						scrollEpgOffset = bitmap->Width()/g_settings.glcd_scroll_speed;
+						scrollEpgOffset = bitmap->Width()/4;
 						EpgWidth += scrollEpgOffset;
 					}
 					else
@@ -1020,7 +1020,7 @@ void cGLCD::Run(void)
 					scrollChannelForward = true;
 					if (doScrollChannel)
 					{
-						scrollChannelOffset = bitmap->Width()/g_settings.glcd_scroll_speed;
+						scrollChannelOffset = bitmap->Width()/4;
 						ChannelWidth += scrollChannelOffset;
 					}
 					else
@@ -1050,7 +1050,7 @@ void cGLCD::Run(void)
 					scrollChannelForward = true;
 					scrollChannelSkip = 0;
 					if (doScrollChannel) {
-						scrollChannelOffset = bitmap->Width()/g_settings.glcd_scroll_speed;
+						scrollChannelOffset = bitmap->Width()/4;
 						ChannelWidth += scrollChannelOffset;
 					}
 					else
@@ -1072,7 +1072,7 @@ void cGLCD::Run(void)
 					scrollEpgSkip = 0;
 					if (doScrollEpg)
 					{
-						scrollEpgOffset = bitmap->Width()/g_settings.glcd_scroll_speed;
+						scrollEpgOffset = bitmap->Width()/4;
 						EpgWidth += scrollEpgOffset;
 					} else
 						scrollEpgOffset = 0;
