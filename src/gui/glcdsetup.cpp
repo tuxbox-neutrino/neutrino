@@ -149,6 +149,9 @@ GLCD_Menu::GLCD_Menu()
 	width = 40;
 
 	select_driver = NULL;
+	cdy = NULL;
+	csh = NULL;
+	csy = NULL;
 }
 
 int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
@@ -250,6 +253,11 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 		case LOCALE_GLCD_BRIGHTNESS_DIM_TIME:
 			cglcd->Update();
 			break;
+		case LOCALE_GLCD_TIME_IN_STANDBY:
+			cdy->setActive(g_settings.glcd_time_in_standby == cGLCD::CLOCK_DIGITAL);
+			csh->setActive(g_settings.glcd_time_in_standby == cGLCD::CLOCK_SIMPLE);
+			csy->setActive(g_settings.glcd_time_in_standby == cGLCD::CLOCK_SIMPLE);
+			break;
 		case LOCALE_GLCD_SHOW_PROGRESSBAR:
 		case LOCALE_GLCD_SHOW_DURATION:
 		case LOCALE_GLCD_SHOW_START:
@@ -282,7 +290,6 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 		case LOCALE_GLCD_SIZE_TIME:
 		case LOCALE_GLCD_TIME_X_POSITION:
 		case LOCALE_GLCD_TIME_Y_POSITION:
-		case LOCALE_GLCD_TIME_IN_STANDBY:
 		case LOCALE_GLCD_SCROLL_SPEED:
 		case LOCALE_GLCD_THEME_POSITION_SETTINGS:
 			break;
@@ -360,19 +367,29 @@ int GLCD_Menu::GLCD_Standby_Settings()
 	gss->addIntroItems();
 
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-	//sigc::slot0<void> slot_repaint = sigc::mem_fun(gss, &CMenuWidget::paint); //we want to repaint after changed Option
 
-	int shortcut = 1;
-	gss->addItem(new CMenuOptionChooser(LOCALE_GLCD_TIME_IN_STANDBY, &g_settings.glcd_time_in_standby,
-				ONOFFSEC_OPTIONS, ONOFFSEC_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++)));
-	gss->addItem(new CMenuOptionChooser(LOCALE_GLCD_STANDBY_WEATHER, &g_settings.glcd_standby_weather,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_DIGITAL_CLOCK_Y_POSITION,
-				&t.glcd_digital_clock_y_position, t.glcd_position_settings, 0, 500, this));
-	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_SIMPLE_CLOCK,
-				&t.glcd_size_simple_clock, t.glcd_position_settings, 0, 100, this));
-	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIMPLE_CLOCK_Y_POSITION,
-				&t.glcd_simple_clock_y_position, t.glcd_position_settings, 0, 500, this));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_GLCD_TIME_IN_STANDBY, &g_settings.glcd_time_in_standby, ONOFFSEC_OPTIONS, ONOFFSEC_OPTION_COUNT, true, this);
+	//mc->setHint("", LOCALE_TODO);
+	gss->addItem(mc);
+
+	cdy = new CMenuOptionNumberChooser(LOCALE_GLCD_DIGITAL_CLOCK_Y_POSITION, &t.glcd_digital_clock_y_position, (t.glcd_position_settings && g_settings.glcd_time_in_standby == cGLCD::CLOCK_DIGITAL), 0, 500, this);
+	//cdy->setHint("", LOCALE_TODO);
+	gss->addItem(cdy);
+
+	csh = new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_SIMPLE_CLOCK, &t.glcd_size_simple_clock, (t.glcd_position_settings && g_settings.glcd_time_in_standby == cGLCD::CLOCK_SIMPLE), 0, 100, this);
+	//csh->setHint("", LOCALE_TODO);
+	gss->addItem(csh);
+
+	csy = new CMenuOptionNumberChooser(LOCALE_GLCD_SIMPLE_CLOCK_Y_POSITION, &t.glcd_simple_clock_y_position, (t.glcd_position_settings && g_settings.glcd_time_in_standby == cGLCD::CLOCK_SIMPLE), 0, 500, this);
+	//csy->setHint("", LOCALE_TODO);
+	gss->addItem(csy);
+
+	gss->addItem(GenericMenuSeparatorLine);
+
+	mc = new CMenuOptionChooser(LOCALE_GLCD_STANDBY_WEATHER, &g_settings.glcd_standby_weather, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	//mc->setHint("", LOCALE_TODO);
+	gss->addItem(mc);
+
 	int res = gss->exec(NULL, "");
 	delete gss;
 	cGLCD::getInstance()->StandbyMode(false);
