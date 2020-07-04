@@ -174,7 +174,7 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (fileBrowser.exec(FONTDIR) == true)
 		{
 			t.glcd_font = fileBrowser.getSelectedFile()->Name;
-			cglcd->Rescan();
+			cglcd->ReInitFont();
 		}
 		return res;
 	}
