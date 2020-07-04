@@ -367,8 +367,9 @@ int GLCD_Menu::GLCD_Standby_Settings()
 	gss->addIntroItems();
 
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
+	CMenuOptionChooser *mc;
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_GLCD_TIME_IN_STANDBY, &g_settings.glcd_time_in_standby, ONOFFSEC_OPTIONS, ONOFFSEC_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_GLCD_TIME_IN_STANDBY, &g_settings.glcd_time_in_standby, ONOFFSEC_OPTIONS, ONOFFSEC_OPTION_COUNT, true, this);
 	//mc->setHint("", LOCALE_TODO);
 	gss->addItem(mc);
 
@@ -401,20 +402,33 @@ int GLCD_Menu::GLCD_Brightness_Settings()
 	CMenuWidget *gbs = new CMenuWidget(LOCALE_GLCD_BRIGHTNESS_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_BRIGHTNESS_SETTINGS);
 	gbs->addIntroItems();
 
-	//sigc::slot0<void> slot_repaint = sigc::mem_fun(gbs, &CMenuWidget::paint); //we want to repaint after changed Option
+	CMenuOptionNumberChooser *mn;
+	CMenuForwarder *mf;
 
-	gbs->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BRIGHTNESS,
-				&g_settings.glcd_brightness, true, 0, 10, this, CRCInput::RC_nokey, NULL, 0, 0, NONEXISTANT_LOCALE, true));
-	gbs->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BRIGHTNESS_STANDBY,
-				&g_settings.glcd_brightness_standby, true, 0, 10, this, CRCInput::RC_nokey, NULL, 0, 0, NONEXISTANT_LOCALE, true));
+	mn = new CMenuOptionNumberChooser(LOCALE_GLCD_BRIGHTNESS, &g_settings.glcd_brightness, true, 0, 10, this, CRCInput::RC_nokey, NULL, 0, 0, NONEXISTANT_LOCALE, true);
+	//mn->setHint("", LOCALE_TODO);
+	gbs->addItem(mn);
+
+	mn = new CMenuOptionNumberChooser(LOCALE_GLCD_BRIGHTNESS_STANDBY, &g_settings.glcd_brightness_standby, !g_settings.shutdown_real, 0, 10, this, CRCInput::RC_nokey, NULL, 0, 0, NONEXISTANT_LOCALE, true);
+	//mn->setHint("", LOCALE_TODO);
+	gbs->addItem(mn);
+
 	gbs->addItem(GenericMenuSeparatorLine);
-	gbs->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_BRIGHTNESS_DIM,
-				&g_settings.glcd_brightness_dim, true, 0, 10, this, CRCInput::RC_nokey, NULL, 0, 0, NONEXISTANT_LOCALE, true));
+
+	mn = new CMenuOptionNumberChooser(LOCALE_GLCD_BRIGHTNESS_DIM, &g_settings.glcd_brightness_dim, true, 0, 10, this, CRCInput::RC_nokey, NULL, 0, 0, NONEXISTANT_LOCALE, true);
+	//mn->setHint("", LOCALE_TODO);
+	gbs->addItem(mn);
+
 	CStringInput *dim_time = new CStringInput(LOCALE_GLCD_BRIGHTNESS_DIM_TIME, &g_settings.glcd_brightness_dim_time, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
-	gbs->addItem(new CMenuForwarder(LOCALE_GLCD_BRIGHTNESS_DIM_TIME, true, g_settings.glcd_brightness_dim_time, dim_time));
+	mf = new CMenuForwarder(LOCALE_GLCD_BRIGHTNESS_DIM_TIME, true, g_settings.glcd_brightness_dim_time, dim_time);
+	//mf->setHint("", LOCALE_TODO);
+	gbs->addItem(mf);
 
 	gbs->addItem(GenericMenuSeparatorLine);
-	gbs->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "brightness_default", CRCInput::RC_nokey));
+
+	mf = new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "brightness_default", CRCInput::RC_nokey);
+	//mf->setHint("", LOCALE_TODO);
+	gbs->addItem(mf);
 
 	int res = gbs->exec(NULL, "");
 	delete gbs;

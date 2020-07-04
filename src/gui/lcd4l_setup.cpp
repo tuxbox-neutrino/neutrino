@@ -287,7 +287,7 @@ int CLCD4lSetup::showTypeSetup()
 	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
 	typeSetup->addItem(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, LCD4l->GetMaxBrightness(), this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, !g_settings.shutdown_real, 1, LCD4l->GetMaxBrightness(), this);
 	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
 	typeSetup->addItem(nc);
 
