@@ -1,11 +1,13 @@
 {=global-var-set:boxtype=coolstream=}
 {=global-var-set:alpha=true=}
 
-{=global-var-set:graphlcd=false=}
-	{=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~	{=global-var-set:graphlcd=true=}~=}
-	{=if-equal:{=var-get:boxtype=}~VU+ DUO4K~	{=global-var-set:graphlcd=true=}~=}
-	{=if-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~	{=global-var-set:graphlcd=true=}~=}
-	{=if-equal:{=var-get:boxtype=}~VU+ UNO4KSE~	{=global-var-set:graphlcd=true=}~=}
+{=var-set:boxtype={=func:get_boxtype=}=}
+{=global-var-set:graphlcd={=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~true~
+	{=if-equal:{=var-get:boxtype=}~VU+ DUO4K~true~
+	{=if-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~true~
+	{=if-equal:{=var-get:boxtype=}~VU+ UNO4KSE~true~false
+	=}=}=}=}
+=}
 
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>

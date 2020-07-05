@@ -104,6 +104,8 @@ bc.menue.messages_desc=Nachricht an die Box senden
 bc.menue.messages=Nachrichten
 bc.menue.remote_desc=Fernbedienung
 bc.menue.remote=Fernbedienung
+bc.menue.glcd_screenshot_desc=GLCD Screenshot erstellen
+bc.menue.glcd_screenshot=GLCD Screenshot
 bc.menue.lcd_screenshot_desc=LCD Screenshot erstellen
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot nicht installiert in /bin oder /var/bin
@@ -119,6 +121,8 @@ bc.menue.webinf_slavebox=Webinterface der SlaveBox
 bc.menue.volumen_display=Lautst&auml;rke Anzeige
 
 bc.menue.signal=Signalst&auml;rke
+bc.menue.sig_display=Signalst&auml;rke
+bc.menue.snr_display=(Signal-)Rauschabstand
 
 ========= Boxcontrol
 bc.control.freemem=FreeMem
@@ -245,6 +249,7 @@ set.menue.recording=Aufnahme
 set.menue.audio_player=Audioplayer
 set.menue.movieplayer=Movieplayer
 set.menue.pictureviewer=Bildbetrachter
+set.menue.glcd_display=GLC-Display
 set.menue.lcd_display=LC-Display
 set.menue.key_settings=Tastenbelegung
 set.menue.boot_options=Bootoptionen
