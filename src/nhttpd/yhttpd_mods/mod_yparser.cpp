@@ -409,6 +409,8 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			if (ySplitString(ycmd_name, "~", if_left_value, if_right_value)) {
 				if (ySplitString(if_right_value, "~", if_right_value, if_then)) {
 					ySplitString(if_then, "~", if_then, if_else);
+					if_left_value = trim(if_left_value);
+					if_right_value = trim(if_right_value);
 					yresult = (if_left_value == if_right_value) ? if_then
 							: if_else;
 				}
@@ -418,6 +420,8 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			if (ySplitString(ycmd_name, "~", if_left_value, if_right_value)) {
 				if (ySplitString(if_right_value, "~", if_right_value, if_then)) {
 					ySplitString(if_then, "~", if_then, if_else);
+					if_left_value = trim(if_left_value);
+					if_right_value = trim(if_right_value);
 					yresult = (if_left_value != if_right_value) ? if_then
 							: if_else;
 				}
@@ -505,6 +509,7 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 		} else if (ycmd_type == "var-set") {
 			std::string varname, varvalue;
 			if (ySplitString(ycmd_name, "=", varname, varvalue))
+				varvalue = trim(varvalue);
 				ycgi_vars[varname] = varvalue;
 		} else if (ycmd_type == "global-var-get") {
 			pthread_mutex_lock(&yParser_mutex);
@@ -514,6 +519,7 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			std::string varname, varvalue;
 			if (ySplitString(ycmd_name, "=", varname, varvalue)) {
 				pthread_mutex_lock(&yParser_mutex);
+				varvalue = trim(varvalue);
 				ycgi_global_vars[varname] = varvalue;
 				pthread_mutex_unlock(&yParser_mutex);
 			}

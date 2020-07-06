@@ -101,12 +101,6 @@ bool ySplitString(std::string str, std::string delimiter, std::string& left,
 		left = str; //default if not found
 		right = "";
 	}
-	replace(left,  "\r\n", "");
-	replace(left,  "\n",   "");
-	replace(right, "\r\n", "");
-	replace(right, "\n",   "");
-	left = trim(left);
-	right = trim(right);
 	return (pos != std::string::npos);
 }
 //-------------------------------------------------------------------------
