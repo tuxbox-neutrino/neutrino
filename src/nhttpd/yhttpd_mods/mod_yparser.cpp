@@ -508,9 +508,10 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			yresult = ycgi_vars[ycmd_name];
 		} else if (ycmd_type == "var-set") {
 			std::string varname, varvalue;
-			if (ySplitString(ycmd_name, "=", varname, varvalue))
+			if (ySplitString(ycmd_name, "=", varname, varvalue)) {
 				varvalue = trim(varvalue);
 				ycgi_vars[varname] = varvalue;
+			}
 		} else if (ycmd_type == "global-var-get") {
 			pthread_mutex_lock(&yParser_mutex);
 			yresult = ycgi_global_vars[ycmd_name];
