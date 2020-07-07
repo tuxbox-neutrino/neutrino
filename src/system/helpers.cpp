@@ -429,7 +429,7 @@ bool exec_controlscript(std::string script)
 	dprintf(DEBUG_NORMAL, "executing %s\n", controlscript.c_str());
 	int ret = my_system(controlscript.c_str());
 	if (ret)
-		dprintf(DEBUG_NORMAL, "control script failed\n");
+		dprintf(DEBUG_NORMAL, "exec control script [%s] failed\n", controlscript.c_str());
 
 	return ret;
 }
