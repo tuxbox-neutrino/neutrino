@@ -34,7 +34,6 @@
 #include <driver/record.h>
 
 #include <fcntl.h>
-#include <sys/timeb.h>
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
@@ -358,20 +357,19 @@ void CVFD::showTime(bool force)
 	if (fd >= 0 && showclock) {
 		if (mode == MODE_STANDBY || ( g_settings.lcd_info_line && (MODE_TVRADIO == mode))) {
 			char timestr[21];
-			struct timeb tm;
-			struct tm * t;
+			time_t now = time(NULL);
+			struct tm t;
 			static int hour = 0, minute = 0;
 
-			ftime(&tm);
-			t = localtime(&tm.time);
-			if(force || ( switch_name_time_cnt == 0 && ((hour != t->tm_hour) || (minute != t->tm_min))) ) {
-				hour = t->tm_hour;
-				minute = t->tm_min;
+			localtime_r(&now, &t);
+			if(force || ( switch_name_time_cnt == 0 && ((hour != t.tm_hour) || (minute != t.tm_min))) ) {
+				hour = t.tm_hour;
+				minute = t.tm_min;
 				if (support_text) {
-					strftime(timestr, 20, "%H:%M", t);
+					strftime(timestr, 20, "%H:%M", &t);
 					ShowText(timestr);
 				} else if (support_numbers && has_led_segment) {
-					ShowNumber((t->tm_hour*100) + t->tm_min);
+					ShowNumber((t.tm_hour*100) + t.tm_min);
 #ifdef BOXMODEL_CS_HD2
 					ioctl(fd, IOC_FP_SET_COLON, 0x01);
 #endif
