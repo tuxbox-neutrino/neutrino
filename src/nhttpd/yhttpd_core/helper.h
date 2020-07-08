@@ -5,9 +5,6 @@
 
 #ifndef __yhttpd_helper_h__
 #define __yhttpd_helper_h__
-// c
-#include <ctime>
-#include <sys/timeb.h>
 // c++
 #include <string>
 #include <vector>

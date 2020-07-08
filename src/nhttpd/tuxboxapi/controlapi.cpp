@@ -632,19 +632,13 @@ void CControlAPI::RCCGI(CyhookHandler *hh)
 
 //-----------------------------------------------------------------------------
 // Get actual Date
-// security: strftime has buffer-overflow limit. ok!
 //-----------------------------------------------------------------------------
 void CControlAPI::GetDateCGI(CyhookHandler *hh)
 {
 	if (hh->ParamList.empty())
 	{
-		//paramlos
-		char *timestr = new char[50];
-		struct timeb tm;
-		ftime(&tm);
-		strftime(timestr, 20, "%d.%m.%Y\n", localtime(&tm.time) );
+		std::string timestr = getNowTimeStr("%d.%m.%Y\n");
 		hh->Write(timestr);
-		delete[] timestr;
 	}
 	else
 		hh->SendError();
@@ -652,23 +646,19 @@ void CControlAPI::GetDateCGI(CyhookHandler *hh)
 
 //-----------------------------------------------------------------------------
 // Get actual Time
-// security: strftime has buffer-overflow limit. ok!
 //-----------------------------------------------------------------------------
 void CControlAPI::GetTimeCGI(CyhookHandler *hh)
 {
-	time_t now = time(NULL);
-
 	if (hh->ParamList.empty())
 	{
-		//paramlos
-		char *timestr = new char[50];
-		struct tm *tm = localtime(&now);
-		strftime(timestr, 20, "%H:%M:%S\n", tm );
+		std::string timestr = getNowTimeStr("%H:%M:%S\n");
 		hh->Write(timestr);
-		delete[] timestr;
 	}
 	else if (hh->ParamList["1"].compare("rawtime") == 0)
+	{
+		time_t now = time(0);
 		hh->printf("%ld\n",now);
+	}
 	else
 		hh->SendError();
 }
