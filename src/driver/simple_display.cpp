@@ -421,11 +421,12 @@ void CLCD::showVolume(const char vol, const bool update)
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
 			SetIcons(SPARK_MUTE, 0);
 		sprintf(s, vol_fmt[type], volume);
-	}
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
-		sprintf(s,"%.*s", volume*g_info.hw_caps->display_xres/100, "================");
+		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+			sprintf(s,"%.*s", volume*g_info.hw_caps->display_xres/100, "================");
 #endif
+	}
+
 	ShowText(s);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	wake_up();
