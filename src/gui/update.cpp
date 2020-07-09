@@ -34,8 +34,8 @@
 #include <config.h>
 #endif
 
-#include <gui/update.h>
-#include <gui/update_ext.h>
+#include "update.h"
+#include "update_ext.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -341,7 +341,7 @@ bool CFlashUpdate::selectHttpImage(void)
 
 	if (urls.empty())
 	{
-		ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_FLASHUPDATE_GETINFOFILEERROR, CMsgBox::mbrOk, CMsgBox::mbOk);
+		DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR));
 		return false;
 	}
 	if (notify) {
@@ -548,7 +548,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	paint();
 
 	if(sysfs.size() < 8) {
-		ShowHint(LOCALE_MESSAGEBOX_ERROR, LOCALE_FLASHUPDATE_CANTOPENMTD);
+		DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD));
 		hide();
 		return menu_return::RETURN_REPAINT;
 	}
@@ -573,7 +573,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		if(!getUpdateImage(newVersion)) {
 			hide();
-			ShowHint(LOCALE_MESSAGEBOX_ERROR, LOCALE_FLASHUPDATE_GETUPDATEFILEERROR);
+			DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_GETUPDATEFILEERROR));
 			return menu_return::RETURN_REPAINT;
 		}
 		sprintf(fullname, "%s/%s", g_settings.update_dir.c_str(), fname);
@@ -589,7 +589,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MD5CHECK));
 	if((softupdate_mode==1) && !ft.check_md5(filename, file_md5)) {
 		hide();
-		ShowHint(LOCALE_MESSAGEBOX_ERROR, LOCALE_FLASHUPDATE_MD5SUMERROR);
+		DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_MD5SUMERROR));
 		return menu_return::RETURN_REPAINT;
 	}
 	if(softupdate_mode==1) { //internet-update
@@ -625,7 +625,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 		{
 			hide();
-			ShowHint(LOCALE_MESSAGEBOX_ERROR, ft.getErrorMessage().c_str());
+			DisplayErrorMessage(ft.getErrorMessage().c_str());
 			return menu_return::RETURN_REPAINT;
 		}
 
@@ -805,7 +805,7 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	std::string path = getPathName(backupFile);
 	if (!file_exists(path.c_str()))  {
 		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_DIRECTORY_NOT_EXIST), path.c_str());
-		ShowHint(LOCALE_MESSAGEBOX_ERROR, errMsg);
+		DisplayErrorMessage(errMsg);
 		return false;
 	}
 
@@ -816,7 +816,7 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	if (mtd == -1) { // check disk space for image creation
 		if (!get_fs_usage("/", btotal, bused, &bsize)) {
 			snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_VOLUME_ERROR), "root0");
-			ShowHint(LOCALE_MESSAGEBOX_ERROR, errMsg);
+			DisplayErrorMessage(errMsg);
 			return false;
 		}
 		backupRequiredSize = ((bused * bsize) / 1024ULL) * 2ULL; // twice disk space for summarized image
@@ -830,7 +830,7 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	btotal = 0; bused = 0; bsize = 0;
 	if (!get_fs_usage(path.c_str(), btotal, bused, &bsize)) {
 		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_VOLUME_ERROR), path.c_str());
-		ShowHint(LOCALE_MESSAGEBOX_ERROR, errMsg);
+		DisplayErrorMessage(errMsg);
 		return false;
 	}
 	uint64_t backupMaxSize = (btotal - bused) * (uint64_t)bsize;
@@ -841,7 +841,7 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 
 	if (backupMaxSize < backupRequiredSize) {
 		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_NO_AVAILABLE_SPACE), path.c_str(), to_string(backupMaxSize).c_str(), to_string(backupRequiredSize).c_str());
-		ShowHint(LOCALE_MESSAGEBOX_ERROR, errMsg);
+		DisplayErrorMessage(errMsg);
 		return false;
 	}
 
