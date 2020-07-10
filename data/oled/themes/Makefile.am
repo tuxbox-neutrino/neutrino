@@ -1,9 +1,13 @@
-installdir = $(THEMESDIR)/oled
-
-install_DATA = \
-	advanced.otheme \
-	default.otheme \
-	easy.otheme \
-	medium.otheme \
-	simple.otheme \
-	weather.otheme
+SUBDIRS =
+if BOXMODEL_VUUNO4KSE
+SUBDIRS += 400x240
+endif
+if BOXMODEL_VUSOLO4K
+SUBDIRS += 480x320
+endif
+if BOXMODEL_VUDUO4K
+SUBDIRS += 480x320
+endif
+if BOXMODEL_VUULTIMO4K
+SUBDIRS += 800x480
+endif

@@ -394,6 +394,9 @@ data/oled/icons/Makefile
 data/oled/icons/clock/Makefile
 data/oled/icons/weather/Makefile
 data/oled/themes/Makefile
+data/oled/themes/400x240/Makefile
+data/oled/themes/480x320/Makefile
+data/oled/themes/800x480/Makefile
 data/pictures/Makefile
 data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile

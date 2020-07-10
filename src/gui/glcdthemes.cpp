@@ -186,7 +186,7 @@ int CGLCDThemes::Show()
 	//set default theme
 	std::string default_theme = DEFAULT_OLED_THEME;
 	if (default_theme.empty())
-		default_theme = "default";
+		default_theme = "Default";
 	CMenuForwarder* fw = new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, default_theme.c_str(), this, "default_theme", CRCInput::RC_red);
 	themes.addItem(fw);
 	fw->setHint("", LOCALE_COLORTHEMEMENU_NEUTRINO_THEME_HINT);
@@ -265,7 +265,7 @@ bool CGLCDThemes::applyDefaultTheme()
 {
 	g_settings.glcd_theme_name = DEFAULT_OLED_THEME;
 	if (g_settings.glcd_theme_name.empty())
-		g_settings.glcd_theme_name = "default";
+		g_settings.glcd_theme_name = "Default";
 	std::string default_theme = THEMESDIR "/oled/" + g_settings.glcd_theme_name + ".otheme";
 	if(themefile.loadConfig(default_theme)){
 		getTheme(themefile);
