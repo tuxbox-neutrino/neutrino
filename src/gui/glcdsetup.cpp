@@ -291,7 +291,7 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 		case LOCALE_GLCD_TIME_X_POSITION:
 		case LOCALE_GLCD_TIME_Y_POSITION:
 		case LOCALE_GLCD_SCROLL_SPEED:
-		case LOCALE_GLCD_THEME_POSITION_SETTINGS:
+		case LOCALE_GLCD_POSITION_SETTINGS:
 			break;
 		default:
 			return false;
@@ -319,8 +319,8 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 
 int GLCD_Menu::GLCD_Menu_Settings()
 {
-	CMenuWidget *gms = new CMenuWidget(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_SETTINGS);
-	gms->addIntroItems();
+	CMenuWidget *gms = new CMenuWidget(LOCALE_MAINSETTINGS_LCD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_SETTINGS);
+	gms->addIntroItems(LOCALE_GLCD_HEAD);
 
 	//sigc::slot0<void> slot_repaint = sigc::mem_fun(gms, &CMenuWidget::paint); //we want to repaint after changed Option
 
@@ -360,8 +360,8 @@ int GLCD_Menu::GLCD_Menu_Settings()
 
 int GLCD_Menu::GLCD_Standby_Settings()
 {
-	CMenuWidget *gss = new CMenuWidget(LOCALE_GLCD_STANDBY_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_STANDBY_SETTINGS);
-	gss->addIntroItems();
+	CMenuWidget *gss = new CMenuWidget(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_STANDBY_SETTINGS);
+	gss->addIntroItems(LOCALE_GLCD_STANDBY_SETTINGS);
 
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	CMenuOptionChooser *mc;
@@ -396,8 +396,8 @@ int GLCD_Menu::GLCD_Standby_Settings()
 
 int GLCD_Menu::GLCD_Brightness_Settings()
 {
-	CMenuWidget *gbs = new CMenuWidget(LOCALE_GLCD_BRIGHTNESS_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_BRIGHTNESS_SETTINGS);
-	gbs->addIntroItems();
+	CMenuWidget *gbs = new CMenuWidget(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_BRIGHTNESS_SETTINGS);
+	gbs->addIntroItems(LOCALE_GLCD_BRIGHTNESS_SETTINGS);
 
 	CMenuOptionNumberChooser *mn;
 	CMenuForwarder *mf;
@@ -437,16 +437,19 @@ int GLCD_Menu::GLCD_Theme_Settings()
 {
 	CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier();
 
-	CMenuWidget *gts = new CMenuWidget(LOCALE_GLCD_THEME_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_THEME_SETTINGS);
-	gts->addIntroItems();
+	CMenuWidget *gts = new CMenuWidget(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_THEME_SETTINGS);
+	gts->addIntroItems(LOCALE_GLCD_THEME_SETTINGS);
 
-	int shortcut = 1;
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	//sigc::slot0<void> slot_repaint = sigc::mem_fun(gts, &CMenuWidget::paint); //we want to repaint after changed Option
 
-	gts->addItem(new CMenuForwarder(LOCALE_GLCD_THEME, true, NULL, CGLCDThemes::getInstance(), NULL, CRCInput::convertDigitToKey(shortcut++)));
+	gts->addItem(new CMenuForwarder(LOCALE_GLCD_THEME, true, NULL, CGLCDThemes::getInstance(), NULL, CRCInput::RC_red));
 
-	gts->addItem(new CMenuForwarder(LOCALE_GLCD_FONT, true, t.glcd_font, this, "select_font", CRCInput::convertDigitToKey(shortcut++)));
+	gts->addItem(GenericMenuSeparatorLine);
+
+	gts->addItem(new CMenuForwarder(LOCALE_GLCD_FONT, true, t.glcd_font, this, "select_font", CRCInput::RC_green));
+
+	gts->addItem(new CMenuForwarder(LOCALE_GLCD_POSITION_SETTINGS, t.glcd_position_settings, NULL, this, "position_settings", CRCInput::RC_yellow));
 
 	gts->addItem(GenericMenuSeparatorLine);
 
@@ -459,8 +462,6 @@ int GLCD_Menu::GLCD_Theme_Settings()
 	CColorChooser* bar = new CColorChooser(LOCALE_GLCD_SELECT_BAR, &t.glcd_color_bar_red, &t.glcd_color_bar_green, &t.glcd_color_bar_blue, NULL, colorSetupNotifier);
 	gts->addItem(new CMenuDForwarder(LOCALE_GLCD_SELECT_BAR, true, NULL, bar));
 
-	gts->addItem(new CMenuForwarder(LOCALE_GLCD_POSITION_SETTINGS, t.glcd_position_settings, NULL, this, "position_settings", CRCInput::convertDigitToKey(shortcut++)));
-
 	//delete colorSetupNotifier;
 	int res = gts->exec(NULL, "");
 	delete gts;
@@ -470,8 +471,8 @@ int GLCD_Menu::GLCD_Theme_Settings()
 
 int GLCD_Menu::GLCD_Theme_Position_Settings()
 {
-	CMenuWidget *gtps = new CMenuWidget(LOCALE_GLCD_THEME_POSITION_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_THEME_POSITION_SETTINGS);
-	gtps->addIntroItems();
+	CMenuWidget *gtps = new CMenuWidget(LOCALE_GLCD_THEME_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_THEME_POSITION_SETTINGS);
+	gtps->addIntroItems(LOCALE_GLCD_POSITION_SETTINGS);
 
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	//sigc::slot0<void> slot_repaint = sigc::mem_fun(gtps, &CMenuWidget::paint); //we want to repaint after changed Option
@@ -592,10 +593,8 @@ int GLCD_Menu::GLCD_Menu_Select_Driver()
 	if (cGLCD::getInstance()->GetConfigSize() > 1)
 	{
 		CMenuWidget *m = new CMenuWidget(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS);
+		m->addIntroItems(LOCALE_GLCD_DISPLAY);
 		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
-
-		// we don't show introitems, so we add a separator for a smoother view
-		m->addItem(GenericMenuSeparator);
 
 		CMenuForwarder* mf;
 		for (int i = 0; i < cGLCD::getInstance()->GetConfigSize(); i++)

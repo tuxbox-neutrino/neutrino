@@ -844,10 +844,10 @@ glcd.bar_width Fortschrittsbalken Weite
 glcd.bar_x_position Fortschrittsbalken x-Position
 glcd.bar_y_position Fortschrittsbalken y-Position
 glcd.brightness Helligkeit
-glcd.brightness_standby Helligkeit im Standby
+glcd.brightness_standby Helligkeit im Standby-Modus
 glcd.brightness_dim Dimmen
 glcd.brightness_dim_time Dimmen nach
-glcd.brightness_settings Helligkeits-Einstellungen
+glcd.brightness_settings Helligkeit
 glcd.color.amber Amber
 glcd.color.black Schwarz
 glcd.color.blue Blau
@@ -887,12 +887,12 @@ glcd.logo_x_position Senderlogo x-Position
 glcd.logo_y_position Senderlogo y-Position
 glcd.mirror_osd OSD-Menü auf GraphLCD anzeigen
 glcd.mirror_video Videobild auf GraphLCD anzeigen
-glcd.position_settings Positions-Einstellungen
+glcd.position_settings Positionen und Größen
 glcd.restart Neu erkennen
 glcd.scroll_speed Scroll-Geschwindigkeit
-glcd.select.bar Fortschrittsbalken-Farbe
-glcd.select.bg Hintergrund-Farbe
-glcd.select.fg Vordergrund-Farbe
+glcd.select.bar Fortschrittsbalkenfarbe
+glcd.select.bg Hintergrundfarbe
+glcd.select.fg Textfarbe
 glcd.show_duration Sendungsdauer anzeigen
 glcd.show_end Sendungsende anzeigen
 glcd.show_logo Senderlogo anzeigen
@@ -911,9 +911,8 @@ glcd.size_simple_clock Einfache Uhr Höhe
 glcd.size_start Sendungsstart Höhe
 glcd.size_time Uhrzeit Höhe
 glcd.size_time_standby Uhrzeit Höhe im Standby
-glcd.theme Thema
-glcd.theme_position_settings Positions-Einstellungen
-glcd.theme_settings Thema-Einstellungen
+glcd.theme Theme auswählen
+glcd.theme_settings Themes
 glcd.standby_analog_clock Analoge Uhr
 glcd.standby_digital_clock Digitale Uhr
 glcd.standby_lcd_clock LCD-Uhr
