@@ -321,7 +321,7 @@ void cGLCD::Exec()
 	int icon_start_width = 0, icon_start_height = 0;
 	g_PicViewer->getSize(Logo.c_str(), &icon_start_width, &icon_start_height);
 
-	if (g_settings.glcd_show_logo && percent_logo &&
+	if (t.glcd_show_logo && percent_logo &&
 		showImage(channel_id, Channel, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width(), percent_logo * bitmap->Height()/100, true, false)) {
 		doScrollChannel = false;
 		scrollChannelSkip = 0;

@@ -19,6 +19,7 @@ glcd_align_duration=0
 glcd_align_start=0
 glcd_align_end=0
 glcd_align_time=2
+glcd_show_logo=true
 glcd_show_progressbar=true
 glcd_show_duration=false
 glcd_show_start=false

@@ -258,13 +258,13 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 			csh->setActive(g_settings.glcd_time_in_standby == cGLCD::CLOCK_SIMPLE);
 			csy->setActive(g_settings.glcd_time_in_standby == cGLCD::CLOCK_SIMPLE);
 			break;
+		case LOCALE_GLCD_SHOW_LOGO:
 		case LOCALE_GLCD_SHOW_PROGRESSBAR:
 		case LOCALE_GLCD_SHOW_DURATION:
 		case LOCALE_GLCD_SHOW_START:
 		case LOCALE_GLCD_SHOW_END:
 		case LOCALE_GLCD_SHOW_TIME:
 		case LOCALE_GLCD_SHOW_WEATHER:
-		case LOCALE_GLCD_SHOW_LOGO:
 		case LOCALE_GLCD_SIZE_BAR:
 		case LOCALE_GLCD_BAR_X_POSITION:
 		case LOCALE_GLCD_BAR_Y_POSITION:
@@ -339,9 +339,6 @@ int GLCD_Menu::GLCD_Menu_Settings()
 	gms->addItem(new CMenuForwarder(LOCALE_GLCD_BRIGHTNESS_SETTINGS, true, NULL, this, "brightness_settings",
 				CRCInput::convertDigitToKey(shortcut++)));
 	gms->addItem(new CMenuForwarder(LOCALE_GLCD_STANDBY_SETTINGS, true, NULL, this, "standby_settings",
-				CRCInput::convertDigitToKey(shortcut++)));
-	gms->addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_LOGO, &g_settings.glcd_show_logo,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this,
 				CRCInput::convertDigitToKey(shortcut++)));
 	gms->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SCROLL_SPEED,
 				&g_settings.glcd_scroll_speed, true, 1, 63, this));
@@ -480,22 +477,24 @@ int GLCD_Menu::GLCD_Theme_Position_Settings()
 	//sigc::slot0<void> slot_repaint = sigc::mem_fun(gtps, &CMenuWidget::paint); //we want to repaint after changed Option
 
 	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_CHANNEL,
-				&t.glcd_percent_channel, !g_settings.glcd_show_logo, 0, 100, this));
+				&t.glcd_percent_channel, !t.glcd_show_logo, 0, 100, this));
 	gtps->addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_CHANNEL, &t.glcd_align_channel,
-				ONOFFPRI_OPTIONS, ONOFFPRI_OPTION_COUNT, !g_settings.glcd_show_logo, NULL));
+				ONOFFPRI_OPTIONS, ONOFFPRI_OPTION_COUNT, !t.glcd_show_logo, NULL));
 	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_CHANNEL_X_POSITION,
-				&t.glcd_channel_x_position, !g_settings.glcd_show_logo, 0, 500, this));
+				&t.glcd_channel_x_position, !t.glcd_show_logo, 0, 500, this));
 	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_CHANNEL_Y_POSITION,
-				&t.glcd_channel_y_position, !g_settings.glcd_show_logo, 0, 500, this));
+				&t.glcd_channel_y_position, !t.glcd_show_logo, 0, 500, this));
 
 	gtps->addItem(GenericMenuSeparatorLine);
 
+	gtps->addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_LOGO, &t.glcd_show_logo,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_LOGO,
-				&t.glcd_percent_logo, g_settings.glcd_show_logo, 0, 100, this));
+				&t.glcd_percent_logo, t.glcd_show_logo, 0, 100, this));
 	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_LOGO_X_POSITION,
-				&t.glcd_logo_x_position, g_settings.glcd_show_logo, 0, 500, this));
+				&t.glcd_logo_x_position, t.glcd_show_logo, 0, 500, this));
 	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_LOGO_Y_POSITION,
-				&t.glcd_logo_y_position, g_settings.glcd_show_logo, 0, 500, this));
+				&t.glcd_logo_y_position, t.glcd_show_logo, 0, 500, this));
 
 	gtps->addItem(GenericMenuSeparatorLine);
 

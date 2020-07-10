@@ -295,6 +295,7 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32("glcd_color_bar_blue", t.glcd_color_bar_blue);
 	configfile.setString("glcd_font", t.glcd_font);
 	configfile.setString("glcd_background", t.glcd_background);
+	configfile.setBool("glcd_show_logo", t.glcd_show_logo);
 	configfile.setBool("glcd_show_progressbar", t.glcd_show_progressbar);
 	configfile.setBool("glcd_show_duration", t.glcd_show_duration);
 	configfile.setBool("glcd_show_start", t.glcd_show_start);
@@ -367,6 +368,7 @@ void CGLCDThemes::getTheme(CConfigFile &configfile)
 	t.glcd_color_bar_blue = configfile.getInt32("glcd_color_bar_blue", 0x62);
 	t.glcd_font = configfile.getString("glcd_font", "");
 	t.glcd_background = configfile.getString("glcd_background", "");
+	t.glcd_show_logo = configfile.getBool("glcd_show_logo", true);
 	t.glcd_show_progressbar = configfile.getBool("glcd_show_progressbar", false);
 	t.glcd_show_duration = configfile.getBool("glcd_show_duration", false);
 	t.glcd_show_start = configfile.getBool("glcd_show_start", false);

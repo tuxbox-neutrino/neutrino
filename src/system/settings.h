@@ -210,6 +210,7 @@ struct SNeutrinoGlcdTheme
 	std::string glcd_font;
 	std::string glcd_background;
 
+	int glcd_show_logo;
 	int glcd_show_progressbar;
 	int glcd_show_duration;
 	int glcd_show_start;
@@ -916,7 +917,6 @@ struct SNeutrinoSettings
 	int glcd_mirror_osd;
 	int glcd_mirror_video;
 
-	int glcd_show_logo;
 	int glcd_brightness;
 	int glcd_brightness_standby;
 	int glcd_brightness_dim;
