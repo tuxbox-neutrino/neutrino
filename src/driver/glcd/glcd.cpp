@@ -209,9 +209,10 @@ void cGLCD::Exec()
 			int fw = font_epg.Width(Epg);
 			font_tmp.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg * bitmap->Width() / fw);
 			fw = font_tmp.Width(Epg);
+			int fh = font_tmp.Height(Epg);
 
 			drawText(std::max(2,(bitmap->Width() - fw)/2),
-				10 * bitmap->Height()/100, bitmap->Width(), fw, Epg,
+				std::max(2,(bitmap->Height() - fh)/2), bitmap->Width(), fw, Epg,
 				&font_tmp, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, ALIGN_NONE);
 
 			lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
