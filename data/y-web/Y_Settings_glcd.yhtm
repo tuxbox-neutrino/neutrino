@@ -13,16 +13,16 @@
 function do_init()
 {
 	var val = "";
-	obj_set_radio_value('glcd_enable', "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_enable;1~open=}");
-	obj_set_radio_value('glcd_inverse', "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_inverse;0~cache=}");
+	obj_set_radio_value('glcd_enable', "{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_enable;1~open=}");
+	obj_set_radio_value('glcd_inverse', "{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_inverse;0~cache=}");
 
-	val = "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_brightness_dim;5~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_brightness_dim;5~cache=}";
 		document.f.glcd_brightness_dim.value = val;
-	val = "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_brightness_dim_time;15~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_brightness_dim_time;15~cache=}";
 		document.f.glcd_.brightness_dim_time.value = val;
-	val = "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_brightness;7~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_brightness;7~cache=}";
 		document.f.glcd_brightness.value = val;
-	val = "{=ini-get:/etc/neutrino/config/neutrino.conf;glcd_brightness_standby;1~cache=}";
+	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_brightness_standby;1~cache=}";
 		document.f.glcd_brightness_standby.value = val;
 }
 
