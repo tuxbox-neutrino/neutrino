@@ -148,7 +148,7 @@ function get_data(){
 				<li>
 					<a target="work" title="{=L:bc.menue.remote_desc=}" href="Y_Tools_Rcsim.yhtm">{=L:bc.menue.remote=}</a>
 				</li>
-				{=if-equal:{=global-var-get:graphlcd=}~true~
+				{=if-equal:{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_enable;0=}~1~
 				<li>
 					<a target="work" title="{=L:bc.menue.glcd_screenshot_desc=}" href="Y_Tools_Glcd_Screenshot.yhtm">{=L:bc.menue.glcd_screenshot=}</a>
 				</li>

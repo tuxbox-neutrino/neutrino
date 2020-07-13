@@ -1,17 +1,5 @@
 {=global-var-set:boxtype=coolstream=}
 {=global-var-set:alpha=true=}
-
-{=var-set:boxtype={=func:get_boxtype=}=}
-{=global-var-set:graphlcd={=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~true~
-	{=if-equal:{=var-get:boxtype=}~VU+ DUO4K~true~
-	{=if-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~true~
-	{=if-equal:{=var-get:boxtype=}~VU+ UNO4KSE~true~false
-	=}=}=}=}
-=}
-
-{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_enable;none=}
-
-
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
