@@ -198,7 +198,7 @@ void cGLCD::Exec()
 	if (!lcd)
 		return;
 
-	bitmap->Clear(ColorConvert3to1(t.glcd_color_bg_red, t.glcd_color_bg_green, t.glcd_color_bg_blue));
+	bitmap->Clear(ColorConvert3to1(t.glcd_background_color_red, t.glcd_background_color_green, t.glcd_background_color_blue));
 
 	if (Channel.compare("Neutrino") == 0)
 	{
@@ -213,14 +213,14 @@ void cGLCD::Exec()
 
 			drawText(std::max(2,(bitmap->Width() - fw)/2),
 				std::max(2,(bitmap->Height() - fh)/2), bitmap->Width(), fw, Epg,
-				&font_tmp, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, ALIGN_NONE);
+				&font_tmp, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, 0, ALIGN_NONE);
 
 			lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
 			lcd->Refresh(true);
 		}
 		else
 		{
-			cglcd->bitmap->Clear(ColorConvert3to1(t.glcd_color_bg_red, t.glcd_color_bg_green, t.glcd_color_bg_blue));
+			cglcd->bitmap->Clear(ColorConvert3to1(t.glcd_background_color_red, t.glcd_background_color_green, t.glcd_background_color_blue));
 			cglcd->lcd->Refresh(true);
 		}
 		return;
@@ -249,10 +249,10 @@ void cGLCD::Exec()
 		return;
 	}
 
-	if (t.glcd_background != "")
-		imageShow(t.glcd_background, 0, 0, 0, 0, false, true, true, false, false);
+	if (t.glcd_background_image != "")
+		imageShow(t.glcd_background_image, 0, 0, 0, 0, false, true, true, false, false);
 
-	if (t.glcd_show_weather)
+	if (t.glcd_weather)
 		ShowWeather(false);
 
 	switch (CAudioPlayer::getInstance()->getState())
@@ -322,7 +322,7 @@ void cGLCD::Exec()
 	int icon_start_width = 0, icon_start_height = 0;
 	g_PicViewer->getSize(Logo.c_str(), &icon_start_width, &icon_start_height);
 
-	if (t.glcd_show_logo && percent_logo &&
+	if (t.glcd_logo && percent_logo &&
 		showImage(channel_id, Channel, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width(), percent_logo * bitmap->Height()/100, true, false)) {
 		doScrollChannel = false;
 		scrollChannelSkip = 0;
@@ -342,7 +342,7 @@ void cGLCD::Exec()
 
 			drawText(t.glcd_channel_x_position + scrollChannelOffset,
 				t.glcd_channel_y_position, bitmap->Width(), ChannelWidth, Channel,
-				&font_channel, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, scrollChannelSkip, t.glcd_align_channel);
+				&font_channel, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, scrollChannelSkip, t.glcd_channel_align);
 
 			if (scrollChannelOffset > 0)
 				scrollChannelOffset -= g_settings.glcd_scroll_speed;
@@ -373,7 +373,7 @@ void cGLCD::Exec()
 
 			drawText(t.glcd_epg_x_position + scrollEpgOffset,
 				t.glcd_epg_y_position, bitmap->Width(), EpgWidth, Epg,
-				&font_epg, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, scrollEpgSkip, t.glcd_align_epg);
+				&font_epg, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, scrollEpgSkip, t.glcd_epg_align);
 
 			if (scrollEpgOffset > 0)
 				scrollEpgOffset -= g_settings.glcd_scroll_speed;
@@ -390,20 +390,20 @@ void cGLCD::Exec()
 		}
 	}
 
-	if (percent_bar && t.glcd_show_progressbar)
+	if (percent_bar && t.glcd_progressbar)
 	{
 		showProgressBarBorder(
-			t.glcd_bar_x_position,
-			t.glcd_bar_y_position,
-			t.glcd_bar_width,
-			t.glcd_bar_y_position + t.glcd_percent_bar,
+			t.glcd_progressbar_x_position,
+			t.glcd_progressbar_y_position,
+			t.glcd_progressbar_width,
+			t.glcd_progressbar_y_position + t.glcd_progressbar_percent,
 			Scale,
 			GLCD::cColor::Gray,
-			ColorConvert3to1(t.glcd_color_bar_red, t.glcd_color_bar_green, t.glcd_color_bar_blue)
+			ColorConvert3to1(t.glcd_progressbar_color_red, t.glcd_progressbar_color_green, t.glcd_progressbar_color_blue)
 		);
 	}
 
-	if (percent_time && t.glcd_show_time)
+	if (percent_time && t.glcd_time)
 	{
 		Lock();
 		Time = strftime("%H:%M", tm);
@@ -412,10 +412,10 @@ void cGLCD::Exec()
 
 		drawText(t.glcd_time_x_position,
 			t.glcd_time_y_position, bitmap->Width() - 1, TimeWidth, Time,
-			&font_time, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, t.glcd_align_time);
+			&font_time, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, 0, t.glcd_time_align);
 	}
 
-	if (percent_duration && t.glcd_show_duration)
+	if (percent_duration && t.glcd_duration)
 	{
 		Lock();
 		Duration = stagingDuration;
@@ -424,10 +424,10 @@ void cGLCD::Exec()
 
 		drawText(t.glcd_duration_x_position,
 			t.glcd_duration_y_position, bitmap->Width() - 1, DurationWidth, Duration,
-			&font_duration, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, t.glcd_align_duration);
+			&font_duration, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, 0, t.glcd_duration_align);
 	}
 
-	if (percent_start && t.glcd_show_start)
+	if (percent_start && t.glcd_start)
 	{
 		Lock();
 		Start = stagingStart;
@@ -436,10 +436,10 @@ void cGLCD::Exec()
 
 		drawText(t.glcd_start_x_position,
 			t.glcd_start_y_position, bitmap->Width() - 1, StartWidth, Start,
-			&font_start, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, t.glcd_align_start);
+			&font_start, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, 0, t.glcd_start_align);
 	}
 
-	if (percent_end && t.glcd_show_end)
+	if (percent_end && t.glcd_end)
 	{
 		Lock();
 		End = stagingEnd;
@@ -448,7 +448,7 @@ void cGLCD::Exec()
 
 		drawText(t.glcd_end_x_position,
 			t.glcd_end_y_position, bitmap->Width() - 1, EndWidth, End,
-			&font_end, ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent, true, 0, t.glcd_align_end);
+			&font_end, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, 0, t.glcd_end_align);
 	}
 
 	if (percent_smalltext && !doStandby) {
@@ -467,93 +467,93 @@ void cGLCD::Exec()
 		}
 
 		if (recLocked) {
-			drawText(t.glcd_rec_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "rec", &font_smalltext, GLCD::cColor::Red,
 				GLCD::cColor::Transparent, true, 0, 0);
 		} else {
-			drawText(t.glcd_rec_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "rec", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
 
 		if (muteLocked) {
-			drawText(t.glcd_mute_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "mute", &font_smalltext, GLCD::cColor::Green,
 				GLCD::cColor::Transparent, true, 0, 0);
 		} else {
-			drawText(t.glcd_mute_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "mute", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
 
 		if (tsLocked) {
-			drawText(t.glcd_ts_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Red,
 				GLCD::cColor::Transparent, true, 0, 0);
 		} else {
-			drawText(t.glcd_ts_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
 
 		if (ecmLocked) {
-			drawText(t.glcd_ecm_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "ecm", &font_smalltext, GLCD::cColor::Green,
 				GLCD::cColor::Transparent, true, 0, 0);
 		} else {
-			drawText(t.glcd_ecm_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "ecm", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
 
 		if (timerLocked) {
-			drawText(t.glcd_timer_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Green,
 				GLCD::cColor::Transparent, true, 0, 0);
 		} else {
-			drawText(t.glcd_timer_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
 
 		if (ddLocked) {
-			drawText(t.glcd_dd_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "dd", &font_smalltext, GLCD::cColor::Green,
 				GLCD::cColor::Transparent, true, 0, 0);
 		} else {
-			drawText(t.glcd_dd_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "dd", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
 
 		if (ismediaplayer) {
 			if (subLocked) {
-				drawText(t.glcd_txt_icon_x_position, t.glcd_smalltext_y_position,
+				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, "sub", &font_smalltext, GLCD::cColor::Green,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
-				drawText(t.glcd_txt_icon_x_position, t.glcd_smalltext_y_position,
+				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, "sub", &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		} else {
 			if (txtLocked) {
-				drawText(t.glcd_txt_icon_x_position, t.glcd_smalltext_y_position,
+				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, "txt", &font_smalltext, GLCD::cColor::Green,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
-				drawText(t.glcd_txt_icon_x_position, t.glcd_smalltext_y_position,
+				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, "txt", &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
 
 		if (camLocked) {
-			drawText(t.glcd_cam_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "cam", &font_smalltext, GLCD::cColor::Green,
 				GLCD::cColor::Transparent, true, 0, 0);
 		} else {
-			drawText(t.glcd_cam_icon_x_position, t.glcd_smalltext_y_position,
+			drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "cam", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
@@ -567,15 +567,15 @@ void cGLCD::updateFonts()
 {
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 
-	percent_logo = std::min(t.glcd_percent_logo, 100);
-	percent_channel = std::min(t.glcd_percent_channel, 100);
-	percent_epg = std::min(t.glcd_percent_epg, 100);
-	percent_bar = std::min(t.glcd_percent_bar, 100);
-	percent_time = std::min(t.glcd_percent_time, 100);
-	percent_duration = std::min(t.glcd_percent_duration, 100);
-	percent_start = std::min(t.glcd_percent_start, 100);
-	percent_end = std::min(t.glcd_percent_end, 100);
-	percent_smalltext = std::min(t.glcd_percent_smalltext, 100);
+	percent_logo = std::min(t.glcd_logo_percent, 100);
+	percent_channel = std::min(t.glcd_channel_percent, 100);
+	percent_epg = std::min(t.glcd_epg_percent, 100);
+	percent_bar = std::min(t.glcd_progressbar_percent, 100);
+	percent_time = std::min(t.glcd_time_percent, 100);
+	percent_duration = std::min(t.glcd_duration_percent, 100);
+	percent_start = std::min(t.glcd_start_percent, 100);
+	percent_end = std::min(t.glcd_end_percent, 100);
+	percent_smalltext = std::min(t.glcd_icons_percent, 100);
 
 	// calculate height
 	int fontsize_channel_new = percent_channel * cglcd->lcd->Height() / 100;
@@ -846,7 +846,7 @@ void cGLCD::Run(void)
 		lcd->SetBrightness(0);
 
 		if (!bitmap)
-			bitmap = new GLCD::cBitmap(lcd->Width(), lcd->Height(), ColorConvert3to1(t.glcd_color_bg_red, t.glcd_color_bg_green, t.glcd_color_bg_blue));
+			bitmap = new GLCD::cBitmap(lcd->Width(), lcd->Height(), ColorConvert3to1(t.glcd_background_color_red, t.glcd_background_color_green, t.glcd_background_color_blue));
 
 		UpdateBrightness();
 		Update();

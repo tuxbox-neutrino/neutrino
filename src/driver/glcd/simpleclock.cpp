@@ -58,7 +58,7 @@ void SimpleClockUpdateFonts(int mode)
 	}
 
 	int fontsize_time_standby = 0;
-	int percent_time_standby = std::min(t.glcd_size_simple_clock, 100);
+	int percent_time_standby = std::min(t.glcd_standby_clock_simple_size, 100);
 	int fontsize_time_standby_new = percent_time_standby * cglcd->lcd->Height() / 100;
 	if (fontsize_time_standby_new != fontsize_time_standby) {
 		fontsize_time_standby = fontsize_time_standby_new;
@@ -76,13 +76,13 @@ void RenderSimpleClock(std::string Time, int x, int y, int mode)
 	SimpleClockUpdateFonts(mode);
 	cglcd->bitmap->DrawText(std::max(2,(cglcd->bitmap->Width() - 4 - font_time_standby.Width(Time))/2),
 		y, cglcd->bitmap->Width() - 1, Time,
-		&font_time_standby, cglcd->ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent);
+		&font_time_standby, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 }
 
 void ShowSimpleClock(std::string Time, int mode)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-	int y = g_settings.glcd_standby_weather ? t.glcd_simple_clock_y_position : (cglcd->bitmap->Height() - font_time_standby.Height(Time)) / 2;
+	int y = g_settings.glcd_standby_weather ? t.glcd_standby_clock_simple_y_position : (cglcd->bitmap->Height() - font_time_standby.Height(Time)) / 2;
 	RenderSimpleClock(Time, 255, y, mode);
 }

@@ -9,6 +9,9 @@
 	=}=}=}=}
 =}
 
+{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_enable;none=}
+
+
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/Y_Baselib.js"></script>

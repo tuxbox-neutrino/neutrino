@@ -149,7 +149,7 @@ void ShowDigitalClock(int hour, int minute)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-	int y = g_settings.glcd_standby_weather ? t.glcd_digital_clock_y_position : cglcd->bitmap->Height() / 2;
+	int y = g_settings.glcd_standby_weather ? t.glcd_standby_clock_digital_y_position : cglcd->bitmap->Height() / 2;
 
 	int a =  10;
 	int b = 117;

@@ -228,7 +228,7 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 			current_wtemp += "°";
 			WeatherUpdateFonts();
 			cglcd->bitmap->DrawText(170, 240, cglcd->bitmap->Width() - 1, current_wtemp,
-				&font_temperature, cglcd->ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent);
+				&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 		}
 		if (next_wicon != "") {
 			if (!standby)
@@ -240,7 +240,7 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 			next_wtemp += "°";
 			WeatherUpdateFonts();
 			cglcd->bitmap->DrawText(250, 240, cglcd->bitmap->Width() - 1, next_wtemp,
-				&font_temperature, cglcd->ColorConvert3to1(t.glcd_color_fg_red, t.glcd_color_fg_green, t.glcd_color_fg_blue), GLCD::cColor::Transparent);
+				&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 		}
 	}
 }
@@ -250,9 +250,9 @@ void ShowWeather(bool standby)
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 
 	if (!standby) {
-		RenderWeather(t.glcd_weather_x_position_current, t.glcd_weather_y_position, t.glcd_weather_x_position_next, t.glcd_weather_y_position, standby);
+		RenderWeather(t.glcd_weather_curr_x_position, t.glcd_weather_y_position, t.glcd_weather_next_x_position, t.glcd_weather_y_position, standby);
 	} else {
-		RenderWeather(t.glcd_weather_x_position_current_standby, t.glcd_weather_y_position_standby, t.glcd_weather_x_position_next_standby, t.glcd_weather_y_position_standby, standby);
+		RenderWeather(t.glcd_standby_weather_curr_x_position, t.glcd_standby_weather_y_position, t.glcd_standby_weather_next_x_position, t.glcd_standby_weather_y_position, standby);
 	}
 
 	if (ForceUpdate)
