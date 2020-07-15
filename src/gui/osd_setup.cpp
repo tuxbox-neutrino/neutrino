@@ -1247,7 +1247,7 @@ void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
 	menu_channellogos->addItem(mc);
 
 	// show eventlogos
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_EVENTLOGO, &g_settings.channellist_show_eventlogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.channellist_show_channellogo, this);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_EVENTLOGO, &g_settings.channellist_show_eventlogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.channellist_show_channellogo);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_EVENTLOGO);
 	menu_channellogos->addItem(mc);
 	channellogoNotifier->addItem(mc);
