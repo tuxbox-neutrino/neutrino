@@ -79,7 +79,7 @@
 #if 0
 #define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf"
 #else
-#define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf.borken"
+#define OPKG_CONFIG_FILE "/etc/opkg/base-feeds.conf"
 #endif
 
 /* script to call instead of "opkg upgrade"
