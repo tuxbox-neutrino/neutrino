@@ -958,7 +958,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						if (title && url)
 						{
 							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
-							if (epg_id == 0) epg_id = chid;
+							if ((epg_id == 0) && (script == NULL)) epg_id = chid;
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
 							channel->flags = CZapitChannel::UPDATED;
