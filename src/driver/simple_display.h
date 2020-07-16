@@ -136,6 +136,7 @@ class CLCD
 		CLCD();
 		std::string	menutitle;
 		std::string	servicename;
+		int servicenumber;
 		MODES		mode;
 		void setled(int red, int green);
 		static void	*TimeThread(void *);
@@ -164,7 +165,7 @@ class CLCD
 		MODES getMode() { return mode; };
 		void setHddUsage(int perc);
 
-		void showServicename(const std::string name, const bool clear_epg = false);
+		void showServicename(const std::string name, const int num, const bool clear_epg = false);
 		std::string getServicename(void) { return servicename; }
 		void setEPGTitle(const std::string title);
 		void setMovieInfo(const AUDIOMODES playmode, const std::string big, const std::string small, const bool centered = false);

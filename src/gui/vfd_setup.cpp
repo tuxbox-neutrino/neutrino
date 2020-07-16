@@ -110,7 +110,11 @@ const CMenuOptionChooser::keyval LEDMENU_OPTIONS[LEDMENU_OPTION_COUNT] =
 #define LCD_INFO_OPTION_COUNT 2
 const CMenuOptionChooser::keyval LCD_INFO_OPTIONS[LCD_INFO_OPTION_COUNT] =
 {
+#if BOXMODEL_H7 || BOXMODEL_BRE2ZE4K
+	{ 0, LOCALE_LCD_INFO_LINE_CHANNEL_NO },
+#else
 	{ 0, LOCALE_LCD_INFO_LINE_CHANNEL },
+#endif
 	{ 1, LOCALE_LCD_INFO_LINE_CLOCK }
 };
 
@@ -190,6 +194,15 @@ int CVfdSetup::showSetup()
 		oj = new CMenuOptionChooser(LOCALE_LCDMENU_NOTIFY_RCLOCK, &g_settings.lcd_notify_rclock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
 		oj->setHint("", LOCALE_MENU_HINT_VFD_NOTIFY_RCLOCK);
 		vfds->addItem(oj);
+	}
+
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM)
+	{
+		//LED NUM info line options
+		CMenuOptionChooser* led_num;
+		led_num = new CMenuOptionChooser(LOCALE_LCD_INFO_LINE, &g_settings.lcd_info_line, LCD_INFO_OPTIONS, LCD_INFO_OPTION_COUNT, vfd_enabled);
+		led_num->setHint("", LOCALE_MENU_HINT_VFD_INFOLINE);
+		vfds->addItem(led_num);
 	}
 
 	CMenuItem* glcd_setup = NULL;
