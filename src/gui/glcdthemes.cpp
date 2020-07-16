@@ -357,9 +357,9 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 
 void CGLCDThemes::getTheme(CConfigFile &configfile)
 {
-	t.glcd_foreground_color_red = configfile.getInt32("glcd_foreground_color_red", 0xff);
-	t.glcd_foreground_color_green = configfile.getInt32("glcd_foreground_color_green", 0xff);
-	t.glcd_foreground_color_blue = configfile.getInt32("glcd_foreground_color_blue", 0xff);
+	t.glcd_foreground_color_red = configfile.getInt32("glcd_foreground_color_red", 0x64);
+	t.glcd_foreground_color_green = configfile.getInt32("glcd_foreground_color_green", 0x64);
+	t.glcd_foreground_color_blue = configfile.getInt32("glcd_foreground_color_blue", 0x64);
 	t.glcd_background_color_red = configfile.getInt32("glcd_background_color_red", 0x00);
 	t.glcd_background_color_green = configfile.getInt32("glcd_background_color_green", 0x00);
 	t.glcd_background_color_blue = configfile.getInt32("glcd_background_color_blue", 0x00);
