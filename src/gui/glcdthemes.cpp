@@ -425,7 +425,7 @@ void CGLCDThemes::getTheme(CConfigFile &configfile)
 	t.glcd_standby_weather_curr_x_position = configfile.getInt32("glcd_standby_weather_curr_x_position", 0);
 	t.glcd_standby_weather_next_x_position = configfile.getInt32("glcd_standby_weather_next_x_position", 0);
 	t.glcd_standby_weather_y_position = configfile.getInt32("glcd_standby_weather_y_position", 0);
-	t.glcd_position_settings = configfile.getInt32("glcd_position_settings", 0);
+	t.glcd_position_settings = configfile.getInt32("glcd_position_settings", 1);
 
 	if (g_settings.glcd_theme_name.empty())
 		applyDefaultTheme();
