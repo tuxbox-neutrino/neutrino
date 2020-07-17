@@ -147,6 +147,7 @@ void COPKGManager::init()
 	v_bad_pattern = getBadPackagePatternList();
 	CFileHelpers::createDir(OPKG_TMP_DIR);
 	silent = false;
+	num_updates = 0;
 }
 
 COPKGManager::~COPKGManager()
@@ -459,7 +460,7 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 		return false;
 
 	silent = !show_progress;
-
+	num_updates = 0;
 	doUpdate();
 
 	bool ret = false;
@@ -495,9 +496,9 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update packages available for...%s\n", __func__, __LINE__, it->second.name.c_str());
 			if (!package_name.empty() && package_name == it->second.name){
 				ret = true;
-				break;
 			}else
 				ret = true;
+			num_updates++;
 		}
 		i++;
 	}
@@ -552,8 +553,11 @@ void COPKGManager::refreshMenu() {
 int COPKGManager::showMenu()
 {
 	installed = false;
-	if (checkUpdates())
-		DisplayInfoMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE));
+	if (checkUpdates()){
+		std::string update_msg = to_string(num_updates) + " ";
+		update_msg += g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE);
+		DisplayInfoMessage(update_msg.c_str());
+	}
 
 #if 0
 	getPkgData(OM_LIST);

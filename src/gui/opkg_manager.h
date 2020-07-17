@@ -163,6 +163,8 @@ class COPKGManager : public CMenuTarget
 			pkg(std::string &_name, std::string &_version, std::string &_desc)
 				: name(_name), version(_version), desc(_desc), installed(false), upgradable(false) { }
 		};
+
+		int num_updates;
 	public:
 		COPKGManager();
 		~COPKGManager();
