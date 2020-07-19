@@ -1036,6 +1036,7 @@ lcd4l_support_on on
 lcd4l_weather Weather in standby mode
 lcd_info_line Show in infoline
 lcd_info_line_channel Channelname
+lcd_info_line_channel_no Channelnumber
 lcd_info_line_clock Clock
 lcdcontroler.brightness Normal mode
 lcdcontroler.brightnessdeepstandby Deep-standby
@@ -1051,10 +1052,6 @@ lcdmenu.statusline Status line
 lcdmenu.statusline.both Volume and playtime
 lcdmenu.statusline.playtime Playtime
 lcdmenu.statusline.volume Volume
-lcd_num.info.line Show in infoline
-lcd_num.info.line_channel Channelname
-lcd_num.info.line_channel_no Channelnumber
-lcd_num.info.line_clock Clock
 ledcontroler.backlight Buttons backlight
 ledcontroler.backlight.tv TV mode
 ledcontroler.blink Blink in deep-standby, if timer set
