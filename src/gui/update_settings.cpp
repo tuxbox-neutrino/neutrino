@@ -43,7 +43,7 @@
 #include <gui/widget/icons.h>
 #include <driver/screen_max.h>
 #include <system/debug.h>
-
+#include <system/helpers.h>
 
 CUpdateSettings::CUpdateSettings()
 {
@@ -119,7 +119,10 @@ int CUpdateSettings::initMenu()
 	CMenuWidget w_upsettings(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE_SETTINGS);
 	w_upsettings.addIntroItems(LOCALE_FLASHUPDATE_SETTINGS);
 
-	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green);
+	CMenuForwarder * fw_url = NULL;
+	if (file_exists(g_settings.softupdate_url_file.c_str()))
+		fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green);
+
 //	fw_url->setHint("", LOCALE_MENU_HINT_XXX);
 	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red);
 //	fw_update_dir->setHint("", LOCALE_MENU_HINT_XXX);
@@ -147,7 +150,8 @@ int CUpdateSettings::initMenu()
 //	apply_settings->setHint("", LOCALE_MENU_HINT_XXX);
 
 	w_upsettings.addItem(fw_update_dir);
-	w_upsettings.addItem(fw_url);
+	if (fw_url)
+		w_upsettings.addItem(fw_url);
 #if ENABLE_EXTUPDATE
 	w_upsettings.addItem(name_backup);
 #ifndef BOXMODEL_CS_HD2
