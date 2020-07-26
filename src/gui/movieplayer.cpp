@@ -1989,9 +1989,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				callInfoViewer();
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
 #if HAVE_COOL_HARDWARE || HAVE_ARM_HARDWARE
-                        if (is_file_player)
-                                selectChapter();
-                        else
+                        if (is_file_player && selectChapter() == -1)
 #endif
                                 handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_bookmark, position);
                         update_lcd = true;
@@ -2899,10 +2897,10 @@ void CMoviePlayerGui::showHelp()
 	helpbox.hide();
 }
 
-void CMoviePlayerGui::selectChapter()
+int CMoviePlayerGui::selectChapter()
 {
 	if (!is_file_player)
-		return;
+		return 1;
 
 	std::vector<int> positions; std::vector<std::string> titles;
 	playback->GetChapters(positions, titles);
@@ -2912,7 +2910,7 @@ void CMoviePlayerGui::selectChapter()
 	playback->GetTitles(playlists, ptitles, current);
 
 	if (positions.empty() && playlists.empty())
-		return;
+		return -1;
 
 	CMenuWidget ChSelector(LOCALE_MOVIEBROWSER_MENU_MAIN_BOOKMARKS, NEUTRINO_ICON_AUDIO);
 	//ChSelector.addIntroItems();
@@ -2955,6 +2953,8 @@ void CMoviePlayerGui::selectChapter()
 		currentapid = 0;
 		playback->SetTitle(playlists[pselect]);
 	}
+
+	return 0;
 }
 
 std::string CMoviePlayerGui::getAPIDDesc(unsigned int i)

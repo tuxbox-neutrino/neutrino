@@ -234,7 +234,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void updateLcd(bool display_playtime = false);
 
 	bool convertSubtitle(std::string &text);
-	void selectChapter();
+	int selectChapter();
 	void selectAutoLang();
 	void parsePlaylist(CFile *file);
 	bool mountIso(CFile *file);
