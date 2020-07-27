@@ -83,9 +83,9 @@ static PSI_list
 	, { -1, LOCALE_VIDEOMENU_PSI_RESET, false, NULL, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-#define SLIDERWIDTH 200
-#define SLIDERHEIGHT 15
-#define LOCGAP 5
+#define SLIDERWIDTH CFrameBuffer::getInstance()->scale2Res(200)
+#define SLIDERHEIGHT CFrameBuffer::getInstance()->scale2Res(15)
+#define LOCGAP OFFSET_INNER_MID
 
 CPSISetup::CPSISetup (const neutrino_locale_t Name)
 {
@@ -120,13 +120,13 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 	locWidth = 0;
 	for (int i = 0; i < PSI_RESET; i++)
 	{
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (g_Locale->getText(psi_list[i].loc)) + 3;	// UTF-8
+		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (g_Locale->getText(psi_list[i].loc)) + OFFSET_INNER_SMALL;
 		if (w > locWidth)
 			locWidth = w;
 	}
 	locHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight ();
 	if (locHeight < SLIDERHEIGHT)
-		locHeight = SLIDERHEIGHT + 2;
+		locHeight = SLIDERHEIGHT + OFFSET_INNER_SMALL;
 
 	sliderOffset = (locHeight - SLIDERHEIGHT) >> 1;
 
@@ -158,7 +158,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 		psi_list[i].yLoc = psi_list[i].y + locHeight - 1;
 	}
 
-	psi_list[PSI_RESET].xLoc = x + 20;
+	psi_list[PSI_RESET].xLoc = x + OFFSET_INNER_MID;
 	psi_list[PSI_RESET].xBox = x;
 
 	for (int i = 0; i < PSI_RESET; i++)
@@ -284,8 +284,8 @@ void CPSISetup::paintSlider (int i)
 	else
 	{
 		int fh = f->getHeight();
-		f->RenderString (psi_list[i].x + 2 + fh + fh/8, psi_list[i].yLoc, dx - 2 - fh, g_Locale->getText(psi_list[i].loc), COL_MENUCONTENT_TEXT);
-		frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_RED, psi_list[i].x + 2, psi_list[i].yLoc - fh + fh/4, 0, (6 * fh)/8);
+		f->RenderString (psi_list[i].x + OFFSET_INNER_SMALL + fh + fh/8, psi_list[i].yLoc, dx - OFFSET_INNER_SMALL - fh, g_Locale->getText(psi_list[i].loc), COL_MENUCONTENT_TEXT);
+		frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_RED, psi_list[i].x + OFFSET_INNER_SMALL, psi_list[i].yLoc - fh + fh/4, 0, (6 * fh)/8);
 	}
 	needsBlit = true;
 }
