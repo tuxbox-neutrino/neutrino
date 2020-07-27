@@ -130,12 +130,12 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 
 	sliderOffset = (locHeight - SLIDERHEIGHT) >> 1;
 
-  //            [ SLIDERWIDTH ][5][locwidth    ]
-  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-  // [locHeight]                  [XXXXXXXXXXXX]
+	//            [ SLIDERWIDTH ][5][locwidth    ]
+	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+	// [locHeight]                  [XXXXXXXXXXXX]
 
 	dx = SLIDERWIDTH + LOCGAP + locWidth;
 	dy = PSI_SCALE_COUNT * locHeight + (PSI_SCALE_COUNT - 1) * 2;
@@ -273,7 +273,7 @@ void CPSISetup::paint ()
 void CPSISetup::paintSlider (int i)
 {
 	Font *f = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
-	fb_pixel_t fg_col[] = { COL_MENUCONTENT_TEXT, COL_MENUHEAD_TEXT };
+	fb_pixel_t fg_col[] = { COL_MENUCONTENTINACTIVE_TEXT, COL_MENUCONTENT_TEXT };
 
 	if (i < PSI_RESET)
 	{
@@ -284,7 +284,7 @@ void CPSISetup::paintSlider (int i)
 	else
 	{
 		int fh = f->getHeight();
-		f->RenderString (psi_list[i].x + 2 + fh + fh/8, psi_list[i].yLoc, dx - 2 - fh, g_Locale->getText(psi_list[i].loc), fg_col[psi_list[i].selected]);
+		f->RenderString (psi_list[i].x + 2 + fh + fh/8, psi_list[i].yLoc, dx - 2 - fh, g_Locale->getText(psi_list[i].loc), COL_MENUCONTENT_TEXT);
 		frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_RED, psi_list[i].x + 2, psi_list[i].yLoc - fh + fh/4, 0, (6 * fh)/8);
 	}
 	needsBlit = true;

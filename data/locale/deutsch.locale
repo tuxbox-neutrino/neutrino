@@ -1715,6 +1715,7 @@ menu.hint_video_mode Wählen Sie den Modus des Ausgangssignals für den HDMI-Ans
 menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbedienung ausgewählt werden können
 menu.hint_video_modes_auto Definiert, welche Videosysteme automatisch ausgewählt werden können
 menu.hint_video_pip Bild in Bild Größe und Position
+menu.hint_video_psi Menü zur Änderung von Farbe, Kontrast und mehr
 menu.hint_video_psi_step Setzt die Schrittweite für das On-Screen-Menü
 menu.hint_video_saturation Ändert die Farbsättigung
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
@@ -2784,12 +2785,12 @@ videomenu.panscan Pan & Scan
 videomenu.panscan2 14:9 Pan & Scan
 videomenu.pip PiP Setup
 videomenu.pip_error PiP Startfehler
-videomenu.psi Farbeinstellungen
+videomenu.psi Farbregler
 videomenu.psi.brightness Helligkeit
 videomenu.psi.contrast Kontrast
 videomenu.psi.reset Standard-Einstellungen
 videomenu.psi.saturation Sättigung
-videomenu.psi.step Videoregler-Schrittweite
+videomenu.psi.step Farbregler-Schrittweite
 videomenu.psi.tint Farbton
 videomenu.saturation Sättigung
 videomenu.scart Scart
