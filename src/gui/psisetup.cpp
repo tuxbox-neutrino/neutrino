@@ -118,7 +118,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 	neutrino_msg_data_t data;
 
 	locWidth = 0;
-	for (int i = 0; i < PSI_RESET; i++)
+	for (int i = 0; i < PSI_SCALE_COUNT; i++)
 	{
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (g_Locale->getText(psi_list[i].loc)) + OFFSET_INNER_SMALL;
 		if (w > locWidth)
@@ -157,9 +157,6 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 		psi_list[i].xLoc = psi_list[i].x + SLIDERWIDTH + LOCGAP + OFFSET_INNER_SMALL;
 		psi_list[i].yLoc = psi_list[i].y + locHeight - 1;
 	}
-
-	psi_list[PSI_RESET].xLoc = x + OFFSET_INNER_MID;
-	psi_list[PSI_RESET].xBox = x;
 
 	for (int i = 0; i < PSI_RESET; i++)
 		psi_list[i].scale->reset ();
@@ -284,8 +281,8 @@ void CPSISetup::paintSlider (int i)
 	else
 	{
 		int fh = f->getHeight();
-		f->RenderString (psi_list[i].x + OFFSET_INNER_SMALL + fh + fh/8, psi_list[i].yLoc, dx - OFFSET_INNER_SMALL - fh, g_Locale->getText(psi_list[i].loc), COL_MENUCONTENT_TEXT);
-		frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_RED, psi_list[i].x + OFFSET_INNER_SMALL, psi_list[i].yLoc - fh + fh/4, 0, (6 * fh)/8);
+		frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_RED, psi_list[i].x, psi_list[i].yLoc - fh + fh/4, 0, (6 * fh)/8);
+		f->RenderString (psi_list[i].xLoc, psi_list[i].yLoc, locWidth, g_Locale->getText(psi_list[i].loc), COL_MENUCONTENT_TEXT);
 	}
 	needsBlit = true;
 }

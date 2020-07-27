@@ -2734,7 +2734,7 @@ videomenu.pip_error PiP start failed
 videomenu.psi Color sliders
 videomenu.psi.brightness Brightness
 videomenu.psi.contrast Contrast
-videomenu.psi.reset Standard settings
+videomenu.psi.reset Default
 videomenu.psi.saturation Saturation
 videomenu.psi.step Color sliders step size
 videomenu.psi.tint Tint
