@@ -568,22 +568,22 @@ int CVideoSettings::showVideoSetup()
 #if HAVE_ARM_HARDWARE
 	videosetup->addItem(GenericMenuSeparatorLine);
 
-	CMenuForwarder *mf;
-	CMenuOptionNumberChooser *mc;
-
 	CPSISetup *psiSetup = CPSISetup::getInstance();
 
 #if 0
+	CMenuOptionNumberChooser *mc;
+
 	mc = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_PSI_STEP, (int *)&g_settings.psi_step, true, 1, 100, NULL);
 	mc->setHint("", LOCALE_MENU_HINT_VIDEO_PSI_STEP);
 	videosetup->addItem(mc);
+#endif
 
-	mf = new CMenuForwarder(LOCALE_VIDEOMENU_PSI, true, NULL, psiSetup, NULL);
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_VIDEOMENU_PSI, true, NULL, psiSetup, NULL);
 	mf->setHint("", LOCALE_MENU_HINT_VIDEO_PSI);
 	videosetup->addItem(mf);
 
+#if 0
 	videosetup->addItem(GenericMenuSeparator);
-#endif
 
 	mc = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_PSI_CONTRAST, (int *)&g_settings.psi_contrast, true, 0, 255, psiSetup);
 	mc->setHint("", LOCALE_MENU_HINT_VIDEO_CONTRAST);
@@ -600,6 +600,7 @@ int CVideoSettings::showVideoSetup()
 	mc = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_PSI_TINT, (int *)&g_settings.psi_tint, true, 0, 255, psiSetup);
 	mc->setHint("", LOCALE_MENU_HINT_VIDEO_TINT);
 	videosetup->addItem(mc);
+#endif
 #endif
 
 	int res = videosetup->exec(NULL, "");
