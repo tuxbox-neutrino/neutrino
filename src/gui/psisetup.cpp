@@ -154,7 +154,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 		psi_list[i].y = y + locHeight * i + i * 2;
 		psi_list[i].xBox = psi_list[i].x + SLIDERWIDTH + LOCGAP;
 		psi_list[i].yBox = psi_list[i].y;
-		psi_list[i].xLoc = psi_list[i].x + SLIDERWIDTH + LOCGAP + 2;
+		psi_list[i].xLoc = psi_list[i].x + SLIDERWIDTH + LOCGAP + OFFSET_INNER_SMALL;
 		psi_list[i].yLoc = psi_list[i].y + locHeight - 1;
 	}
 
@@ -193,7 +193,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 			direction = -1;
 			/* fall through */
 		case CRCInput::RC_down:
-			if (selected + direction > -1 && selected + direction < PSI_SCALE_COUNT)
+			if (selected + direction > -1 && selected + direction < (PSI_SCALE_COUNT - 1))
 			{
 				psi_list[selected].selected = false;
 				paintSlider (selected);
