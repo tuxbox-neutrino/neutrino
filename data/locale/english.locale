@@ -1662,9 +1662,11 @@ menu.hint_video_mode HDMI output video mode
 menu.hint_video_modes VF key will cycle between enabled modes 
 menu.hint_video_modes_auto Enable modes to auto-select based on content
 menu.hint_video_pip Picture in picture size and position
+menu.hint_video_psi_step Set the increment for the on-screen menu
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_video_sdosd Enable/disable OSD display on SD output (scart, cinch)
+menu.hint_video_tint Change picture tint
 menu.hint_video_zappingmode Select black screen or still picture while zapping
 menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
@@ -1687,6 +1689,7 @@ menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next
 message.frame_enable Message and hint box frames
 message.frame_enable_hint Enable frames around message and hint boxes.
+messagebox.accept Do you want to keep the changes?
 messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?
@@ -2727,6 +2730,13 @@ videomenu.panscan Pan & Scan
 videomenu.panscan2 14:9 Pan & Scan
 videomenu.pip PiP setup
 videomenu.pip_error PiP start failed
+videomenu.psi Color settings
+videomenu.psi.brightness Brightness
+videomenu.psi.contrast Contrast
+videomenu.psi.reset Standard settings
+videomenu.psi.saturation Saturation
+videomenu.psi.step Video slider step size
+videomenu.psi.tint Tint
 videomenu.saturation Saturation
 videomenu.scart Scart
 videomenu.screensetup Screen Setup

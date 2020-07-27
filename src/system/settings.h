@@ -294,6 +294,15 @@ struct SNeutrinoSettings
 	int analog_mode1;
 	int analog_mode2;
 	int video_43mode;
+
+#if HAVE_ARM_HARDWARE
+	int psi_contrast;
+	int psi_saturation;
+	int psi_brightness;
+	int psi_tint;
+	int psi_step;
+#endif
+
 #ifdef BOXMODEL_CS_HD2
 	int brightness;
 	int contrast;
