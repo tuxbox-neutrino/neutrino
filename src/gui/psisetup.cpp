@@ -190,7 +190,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 			direction = -1;
 			/* fall through */
 		case CRCInput::RC_down:
-			if (selected + direction > -1 && selected + direction < (PSI_SCALE_COUNT - 1))
+			if (selected + direction > -1 && selected + direction < PSI_RESET)
 			{
 				psi_list[selected].selected = false;
 				paintSlider (selected);
