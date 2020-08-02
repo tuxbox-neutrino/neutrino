@@ -1989,7 +1989,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				callInfoViewer();
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
 #if HAVE_COOL_HARDWARE || HAVE_ARM_HARDWARE
-                        if (is_file_player && selectChapter() == -1)
+                        if (selectChapter() != 0)
 #endif
                                 handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_bookmark, position);
                         update_lcd = true;
