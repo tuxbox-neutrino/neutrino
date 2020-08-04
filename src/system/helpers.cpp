@@ -326,7 +326,7 @@ int check_dir(const char * dir, bool allow_tmp)
 	int ret = -1;
 	struct statfs s;
 	if (::statfs(dir, &s) == 0) {
-		switch (s.f_type) {
+		switch ((long unsigned int)s.f_type) {
 			case 0x858458f6L: 	// ramfs
 			case 0x1021994L: 	// tmpfs
 				if(allow_tmp)
