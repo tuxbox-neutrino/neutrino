@@ -346,9 +346,11 @@ int CMiscMenue::showMiscSettingsMenu()
 	//CPU
 	if (g_info.hw_caps->can_cpufreq)
 	{
-		CMenuWidget misc_menue_cpu("CPU", NEUTRINO_ICON_SETTINGS, width);
+		CMenuWidget misc_menue_cpu(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 		showMiscSettingsMenuCPUFreq(&misc_menue_cpu);
-		misc_menue.addItem( new CMenuForwarder("CPU", true, NULL, &misc_menue_cpu, NULL, CRCInput::convertDigitToKey(shortcut++)));
+		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CPU, true, NULL, &misc_menue_cpu, NULL, CRCInput::convertDigitToKey(shortcut++));
+		mf->setHint("", LOCALE_MENU_HINT_MISC_CPUFREQ);
+		misc_menue.addItem(mf);
 	}
 
 	int res = misc_menue.exec(NULL, "");
@@ -775,7 +777,7 @@ int CMiscMenue::showMiscSettingsSelectWeatherLocation()
 //CPU
 void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 {
-	ms_cpu->addIntroItems();
+	ms_cpu->addIntroItems(LOCALE_MISCSETTINGS_CPU);
 
 	CCpuFreqNotifier * cpuNotifier = new CCpuFreqNotifier();
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_NORMAL, &g_settings.cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true, cpuNotifier));
