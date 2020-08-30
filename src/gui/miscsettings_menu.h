@@ -33,8 +33,6 @@
 
 #include <string>
 
-//#define CPU_FREQ
-
 class CMiscMenue : public CMenuTarget, CChangeObserver
 {
 	private:
@@ -79,9 +77,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		int showMiscSettingsMenuOnlineServices();
 		int showMiscSettingsSelectWeatherLocation();
 		int showMiscSettingsMenuPlugins();
-#ifdef CPU_FREQ
 		void showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu);
-#endif /*CPU_FREQ*/
 	public:
 		CMiscMenue();
 		~CMiscMenue();
