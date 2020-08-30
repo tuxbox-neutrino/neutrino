@@ -1430,6 +1430,7 @@ menu.hint_menus Wählen Sie die Anzeigeoptionen für die Menüs
 menu.hint_message_fonts Anpassen der Schrift in Meldungsfenstern
 menu.hint_misc_cec HDMI-CEC Optionen
 menu.hint_misc_channellist Erweiterte Einstellungen für die Kanallisten und Zapping-Einstellungen
+menu.hint_misc_cpufreq Legen Sie die Taktfrequenz der CPU fest
 menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Ausschalten, setzen bzw. ändern des Inaktivitätstimers
 menu.hint_misc_epg Diverse EPG-Einstellungen und Speicherverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, Startverzeichnisoptionen
@@ -1764,6 +1765,7 @@ miscsettings.colored_events_1 aktuelle
 miscsettings.colored_events_2 nächste
 miscsettings.colored_events_channellist In der Kanalliste
 miscsettings.colored_events_infobar In der Infobar
+miscsettings.cpu CPU
 miscsettings.energy Energieverbrauch
 miscsettings.epg_cache EPG-Cache (Tage)
 miscsettings.epg_cache_hint1 EPG-Daten im Voraus zwischenspeichern?

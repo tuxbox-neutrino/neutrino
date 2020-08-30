@@ -1377,6 +1377,7 @@ menu.hint_menus Configure menu options
 menu.hint_message_fonts Change message text font sizes
 menu.hint_misc_cec HDMI-CEC Options
 menu.hint_misc_channellist HD/New/Removed channel lists\nZap cycle
+menu.hint_misc_cpufreq Set the CPU frequency
 menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
 menu.hint_misc_epg Save/load EPG options, EPG cache options\nEPG save directory
 menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leave
@@ -1710,6 +1711,7 @@ miscsettings.colored_events_1 current
 miscsettings.colored_events_2 next
 miscsettings.colored_events_channellist In channellist
 miscsettings.colored_events_infobar In infobar
+miscsettings.cpu CPU
 miscsettings.energy Energy
 miscsettings.epg_cache EPG-Cache (Days)
 miscsettings.epg_cache_hint1 How long will EPG-Data in the future cached?
