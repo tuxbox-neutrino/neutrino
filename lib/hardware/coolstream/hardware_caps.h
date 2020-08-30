@@ -26,6 +26,7 @@ typedef struct hw_caps
 	int has_SCART;
 	int has_SCART_input;
 	int has_YUV_cinch;
+	int can_cpufreq;
 	int can_shutdown;
 	int can_cec;
 	int can_ar_14_9;	/* video drivers have 14:9 aspect ratio mode */

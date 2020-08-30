@@ -24,6 +24,7 @@ hw_caps_t *get_hwcaps(void) {
 	caps.has_SCART = (rev != 10);
 	caps.has_SCART_input = 0;
 	caps.has_YUV_cinch = 1;
+	caps.can_cpufreq = (rev < 9);
 	caps.can_shutdown = (rev > 7);
 	caps.can_cec = 1;
 	caps.display_type = HW_DISPLAY_LINE_TEXT;
