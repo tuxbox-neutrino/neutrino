@@ -397,7 +397,7 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 	mask[2] = 0xFF;
 	mask[4] = 0xFF;
 
-#if 0 //HAVE_COOL_HARDWARE
+#if 0 //HAVE_CST_HARDWARE
 	printf("[pmt] set update filter, sid 0x%x pid 0x%x version %x\n", channel->getServiceId(), channel->getPmtPid(), channel->getCaPmt()->version_number);
 	filter[3] = (((channel->getCaPmt()->version_number + 1) & 0x01) << 1) | 0x01;
 	mask[3] = (0x01 << 1) | 0x01;

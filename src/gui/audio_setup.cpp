@@ -93,7 +93,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT
 	{ 1, LOCALE_AUDIOMENU_MONOLEFT  },
 	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
 };
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #ifdef BOXMODEL_CS_HD2
 #define AUDIOMENU_SRS_OPTION_COUNT 3
 #else
@@ -191,7 +191,7 @@ int CAudioSetup::showAudioSetup()
 	//clock rec
 	//CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	/* only coolstream has SRS stuff, so only compile it there */
 	//SRS
 	//SRS algo
@@ -251,7 +251,7 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(st);
 	//audioSettings->addItem(as_clockrec);
 	//---------------------------------------------------------
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	/* only coolstream has SRS stuff, so only compile it there */
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	audioSettings->addItem(as_oj_srsonoff);

@@ -49,7 +49,7 @@
 #include "subchannel_select.h"
 #include "favorites.h"
 #include "audio_select.h"
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #include "streaminfo1.h"
 #else
 #include "streaminfo2.h"

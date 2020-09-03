@@ -66,7 +66,7 @@
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 extern int cs_test_card(int unit, char * str);
 #endif
 
@@ -205,7 +205,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	else if (actionKey == "card0")
 	{
 		char str[255];
@@ -1244,7 +1244,7 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	widget->addIntroItems();
 	widget->addItem(new CMenuForwarder("VFD", true, NULL, this, "vfd"));
 	widget->addItem(new CMenuForwarder("Network", true, NULL, this, "network"));
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	widget->addItem(new CMenuForwarder("Smartcard 1", true, NULL, this, "card0"));
 	widget->addItem(new CMenuForwarder("Smartcard 2", true, NULL, this, "card1"));
 #endif

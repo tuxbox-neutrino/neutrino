@@ -575,7 +575,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	snprintf(buf, sizeof(buf), "%dx%d", xres, yres);
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	//Video SYSTEM
 	ypos += iheight;
 	snprintf(buf, sizeof(buf), "%s:", g_Locale->getText (LOCALE_STREAMINFO_VIDEOSYSTEM));

@@ -2606,7 +2606,7 @@ void CNeutrinoApp::InitSectiondClient()
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
 }
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #include <cs_frontpanel.h>
 #endif
 
@@ -2614,7 +2614,7 @@ bool is_wakeup()
 {
 	bool wakeup = false;
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
 #define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
 #endif
@@ -2674,7 +2674,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 TIMER_START();
 	cs_api_init();
 	cs_register_messenger(CSSendMessage);
-#if defined(HAVE_COOL_HARDWARE) && defined(ENABLE_CHANGE_OSD_RESOLUTION)
+#if defined(HAVE_CST_HARDWARE) && defined(ENABLE_CHANGE_OSD_RESOLUTION)
 	cs_new_auto_videosystem();
 #endif
 
@@ -4448,7 +4448,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	printf("timer_minutes: %ld\n", timer_minutes);
 	int leds = 0;
 	int bright = 0;
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
 	{
 		leds = 0x40;

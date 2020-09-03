@@ -56,7 +56,7 @@
 #include "debug.h"
 
 #include <compatibility.h>
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 #include <poll.h>
 #endif
 //#define ENABLE_SDT //FIXME
@@ -1517,7 +1517,7 @@ void CTimeThread::run()
 			debug(DEBUG_ERROR, "%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)",
 				name.c_str(), current_service, isOpen());
 			int rc = 0;
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 			/* libcoolstream does not like the repeated read if the dmx is not yet running
 			 * (e.g. during neutrino start) and causes strange openthreads errors which in
 			 * turn cause complete malfunction of the dmx, so we cannot use the "speed up

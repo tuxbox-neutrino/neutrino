@@ -143,7 +143,7 @@ bool CCam::setCaPmt(bool update)
 	return sendMessage((char *)cabuf, calen, update);
 }
 
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type, unsigned char scrambled, casys_map_t camap, int mode, bool enable)
 {
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
@@ -241,12 +241,12 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
 
 	/* FIXME until proper demux management */
-#if ! HAVE_COOL_HARDWARE && ! HAVE_GENERIC_HARDWARE
+#if ! HAVE_CST_HARDWARE && ! HAVE_GENERIC_HARDWARE
 	CFrontend *frontend = CFEManager::getInstance()->getFrontend(channel);
 #endif
 	switch(mode) {
 		case PLAY:
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
 #else
@@ -289,7 +289,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update, rmode, mp);
 
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
 	/* all the modes: RECORD, STREAM, PIP except PLAY now stopping here !! */
 	if (mode && start == false && source != cDemux::GetSource(0)) {
@@ -320,7 +320,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			cam->makeCaPmt(channel, false, list, caids);
 			int len;
 			unsigned char * buffer = channel->getRawPmt(len);
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
 #else
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI, channel->scrambled, channel->camap, mode, start);
@@ -329,7 +329,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		}
 	}
 
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 	// CI
 	if(oldmask == newmask) {
 		INFO("\033[33m (oldmask == newmask)\033[0m");
@@ -361,7 +361,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		/* FIXME: back to live channel from playback dont parse pmt and call setCaPmt
 		 * (see CMD_SB_LOCK / UNLOCK PLAYBACK */
 		//channel->setRawPmt(NULL);//FIXME
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 		StopCam(channel_id, cam);
 #ifdef BOXMODEL_CS_HD2
 		// hack for rezaping to the recording channel
@@ -435,7 +435,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			cam->makeCaPmt(channel, false, list, caids);
 			int len;
 			unsigned char * buffer = channel->getRawPmt(len);
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 			cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_SMARTCARD);
 #endif
 			if (tunerno >= 0 && tunerno != cDemux::GetSource(cam->getSource())) {
@@ -445,12 +445,12 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			} else if(channel->scrambled) {
 				useCI = true;
 				INFO("CI: use CI for [%s]", channel->getName().c_str());
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 				cam->sendCaPmt(channel->getChannelID(), buffer, len, CA_SLOT_TYPE_CI);
 #endif
 			}
 			//list = CCam::CAPMT_MORE;
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 			if((oldmask != newmask) || force_update || (oldmask == newmask && mode && start))
 			{
 				//temp debug output

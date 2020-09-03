@@ -71,7 +71,7 @@ void CComponentsTimer::threadCallback(CComponentsTimer *tm)
 
 	dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] loop start \033[0m\n", tm->tm_thread, tm->tn.c_str(), __func__, __LINE__);
 
-#if HAVE_COOL_HARDWARE //time offset
+#if HAVE_CST_HARDWARE //time offset
 	const int64_t MAX_COUNT = tm->tm_interval  / 10;
 #else
 	const int64_t MAX_COUNT = tm->tm_interval;

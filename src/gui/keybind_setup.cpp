@@ -64,7 +64,7 @@
 #define RC_HW_SELECT true
 #else
 #define RC_HW_SELECT false
-#ifdef HAVE_COOL_HARDWARE
+#ifdef HAVE_CST_HARDWARE
 #warning header coolstream/cs_ir_generic.h not found
 #warning you probably have an old driver installation
 #warning you´ll be missing the remotecontrol selection feature!

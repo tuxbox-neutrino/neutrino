@@ -20,7 +20,7 @@
 #include <global.h>
 #include <neutrino.h>
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #include <driver/vfd.h>
 #endif
 

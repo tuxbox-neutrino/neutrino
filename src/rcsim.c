@@ -42,7 +42,7 @@
 
 #if defined(HAVE_DBOX_HARDWARE)
 #define EVENTDEV "/dev/input/event0"
-#elif defined (HAVE_COOL_HARDWARE)
+#elif defined (HAVE_CST_HARDWARE)
 #define EVENTDEV "/dev/input/input0"
 #else
 #endif

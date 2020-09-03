@@ -193,7 +193,7 @@ void CScreenSaver::ScreenSaverPrg(CScreenSaver *scr)
 			scr->paint();
 
 			int corr = 1;
-#if HAVE_COOL_HARDWARE //time offset
+#if HAVE_CST_HARDWARE //time offset
 			corr = 10;
 #endif
 			int t = 1000/corr * g_settings.screensaver_timeout; //sleep and exit handle
@@ -369,11 +369,11 @@ void CScreenSaver::paint()
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 			scr_clock->enableSaveBg();
 			scr_clock->doPaintBg(false);
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 			paintImage("blackscreen.jpg", 0, 0, m_frameBuffer->getScreenWidth(true), m_frameBuffer->getScreenHeight(true));
 #endif
 		}
-#if !HAVE_COOL_HARDWARE
+#if !HAVE_CST_HARDWARE
 #if 0 //example for callback
 		m_frameBuffer->OnFallbackShowFrame.connect(sigc::bind(sigc::mem_fun(CFrameBuffer::getInstance(),
 								&CFrameBuffer::paintBoxRel),

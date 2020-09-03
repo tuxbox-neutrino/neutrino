@@ -129,7 +129,7 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #if HAVE_SPARK_HARDWARE
 		frameBuffer = new CFbAccelSTi();
 #endif
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #ifdef BOXMODEL_CS_HD1
 		frameBuffer = new CFbAccelCSHD1();
 #endif
@@ -1582,7 +1582,7 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	{
 		if (videoDecoder)
 		{
-#if HAVE_COOL_HARDWARE //FIXME: inside libcs no return value available
+#if HAVE_CST_HARDWARE //FIXME: inside libcs no return value available
 			videoDecoder->ShowPicture(picture.c_str());
 			ret = true;
 #else

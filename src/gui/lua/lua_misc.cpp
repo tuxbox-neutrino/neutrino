@@ -281,7 +281,7 @@ int CLuaInstMisc::GetRevision(lua_State *L)
 	if (!D) return 0; */
 	unsigned int rev = 0;
 	std::string hw   = "";
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	hw = "Coolstream";
 #endif
 	rev = cs_get_revision();

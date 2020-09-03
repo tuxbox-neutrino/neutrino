@@ -589,7 +589,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	return ret;
 }
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 void CFanControlNotifier::setSpeed(unsigned int speed)
 {
 	printf("FAN Speed %d\n", speed);

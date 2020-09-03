@@ -561,7 +561,7 @@ elif test "$BOXTYPE" = "tripledragon"; then
 elif test "$BOXTYPE" = "spark"; then
 	AC_DEFINE(HAVE_SPARK_HARDWARE, 1, [building for a goldenmedia 990 or edision pingulux])
 elif test "$BOXTYPE" = "coolstream"; then
-	AC_DEFINE(HAVE_COOL_HARDWARE, 1, [building for a coolstream])
+	AC_DEFINE(HAVE_CST_HARDWARE, 1, [building for a coolstream])
 elif test "$BOXTYPE" = "armbox"; then
 	AC_DEFINE(HAVE_ARM_HARDWARE, 1, [building for an armbox])
 elif test "$BOXTYPE" = "mipsbox"; then

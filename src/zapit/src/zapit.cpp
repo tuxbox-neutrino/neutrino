@@ -55,7 +55,7 @@
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #include <record_cs.h>
 #include <playback_cs.h>
 #include <pwrmngr.h>
@@ -2294,7 +2294,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 #if ! HAVE_AZBOX_HARDWARE
 	/* start video */
 	if (video_pid) {
-	#if HAVE_COOL_HARDWARE
+	#if HAVE_CST_HARDWARE
 		videoDecoder->Start(0, pcr_pid, video_pid);
 		videoDemux->Start();
 	#else
@@ -2519,7 +2519,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	pipDecoder->SetDemux(pipDemux);
 #endif
 #else
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	/* work around broken drivers: when starting up with 720p50 image is pink on hd1 */
 	videoDecoder = new cVideo(VIDEO_STD_1080I50, videoDemux->getChannel(), videoDemux->getBuffer());
 	videoDecoder->SetVideoSystem(video_mode);
