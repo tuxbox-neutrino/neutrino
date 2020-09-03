@@ -76,7 +76,7 @@ class CVFD
 
 
 	private:
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		fp_display_caps_t		caps;
 #endif
 		MODES				mode;

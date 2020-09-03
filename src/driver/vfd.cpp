@@ -70,7 +70,7 @@ CVFD::CVFD()
 		has_led_segment = false;
 	}
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (fd >= 0) {
 		int ret = ioctl(fd, IOC_FP_GET_DISPLAY_CAPS, &caps);
 		if (ret < 0) {
@@ -370,7 +370,7 @@ void CVFD::showTime(bool force)
 					ShowText(timestr);
 				} else if (support_numbers && has_led_segment) {
 					ShowNumber((t.tm_hour*100) + t.tm_min);
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 					ioctl(fd, IOC_FP_SET_COLON, 0x01);
 #endif
 				}
@@ -568,7 +568,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 	if(fd < 0) return;
 
 	// Clear colon in display if it is still there
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (support_numbers && has_led_segment)
 		ioctl(fd, IOC_FP_SET_COLON, 0x00);
 #endif
@@ -823,7 +823,7 @@ void CVFD::ShowNumber(int number)
 	if (number < 0)
 		return;
 	
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	int ret = ioctl(fd, IOC_FP_SET_NUMBER, number);
 	if(ret < 0) {
 		support_numbers = false;

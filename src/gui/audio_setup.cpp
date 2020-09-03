@@ -94,7 +94,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT
 	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
 };
 #if HAVE_CST_HARDWARE
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 #define AUDIOMENU_SRS_OPTION_COUNT 3
 #else
 #define AUDIOMENU_SRS_OPTION_COUNT 2
@@ -103,7 +103,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_SRS_OPTIONS[AUDIOMENU_SRS_OPTION_COUN
 {
 	{ 0 , LOCALE_AUDIO_SRS_ALGO_LIGHT },
 	{ 1 , LOCALE_AUDIO_SRS_ALGO_NORMAL },
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	{ 2 , LOCALE_AUDIO_SRS_ALGO_HEAVY }
 #endif
 };
@@ -256,7 +256,7 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	audioSettings->addItem(as_oj_srsonoff);
 	audioSettings->addItem(as_oj_algo);
-#ifndef BOXMODEL_CS_HD2
+#ifndef BOXMODEL_CST_HD2
 	audioSettings->addItem(as_oj_noise);
 #endif
 	audioSettings->addItem(as_oj_volrev);
@@ -272,7 +272,7 @@ int CAudioSetup::showAudioSetup()
 	int res = audioSettings->exec(NULL, "");
 	selected = audioSettings->getSelected();
 	delete audioSettings;
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	delete as_oj_noise;
 #endif
 	CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);

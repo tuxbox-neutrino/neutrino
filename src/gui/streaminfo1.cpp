@@ -582,7 +582,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_MENUCONTENT_TEXT);
 	cs_vs_format_t vsfn;
 	videoDecoder->GetVideoSystemFormatName(&vsfn);
-#ifdef BOXMODEL_CS_HD1
+#ifdef BOXMODEL_CST_HD1
 	snprintf(buf, sizeof(buf), "HDMI: %s%s", vsfn.format,
 #else
 	snprintf(buf, sizeof(buf), "HDMI: %s, Scart/Cinch: %s%s", vsfn.formatHD, vsfn.formatSD,

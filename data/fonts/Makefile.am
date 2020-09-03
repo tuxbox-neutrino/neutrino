@@ -17,7 +17,7 @@ install_DATA = \
 	tuxtxt.otb
 
 
-if BOXMODEL_CS_HD2
+if BOXMODEL_CST_HD2
 install_DATA += UnDotum.ttf
 endif
 

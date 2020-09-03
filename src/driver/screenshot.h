@@ -72,7 +72,7 @@ class CScreenShot
 		void runThread();
 		static void cleanupThread(void *arg);
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		bool mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData);
 #endif
 #endif // SCREENSHOT_INTERNAL

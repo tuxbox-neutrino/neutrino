@@ -58,7 +58,7 @@ void COSDFader::StartFadeIn()
 	frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 
 	frameBuffer->setBlendLevel(fadeValue);
-#if HAVE_SPARK_HARDWARE || (HAVE_CST_HARDWARE && defined(BOXMODEL_CS_HD2))
+#if HAVE_SPARK_HARDWARE || (HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2))
 	usleep(60000);
 #endif
 	fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
@@ -86,7 +86,7 @@ void COSDFader::StopFade()
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
 		frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
-#if HAVE_SPARK_HARDWARE || (HAVE_CST_HARDWARE && defined(BOXMODEL_CS_HD2))
+#if HAVE_SPARK_HARDWARE || (HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2))
 		usleep(60000);
 #endif
 		fadeIn = fadeOut = false;
@@ -113,7 +113,7 @@ bool COSDFader::FadeDone()
 			g_RCInput->killTimer (fadeTimer);
 			fadeIn = false;
 			frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
-#if HAVE_SPARK_HARDWARE || (HAVE_CST_HARDWARE && defined(BOXMODEL_CS_HD2))
+#if HAVE_SPARK_HARDWARE || (HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2))
 			usleep(60000);
 #endif
 		} else

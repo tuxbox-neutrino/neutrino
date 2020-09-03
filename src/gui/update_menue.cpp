@@ -88,7 +88,10 @@ int CSoftwareUpdate::showSoftwareUpdate()
 		inetkey = CRCInput::convertDigitToKey(1);
 	}
 
+// 	bool allow_update = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
+
 	CFlashUpdate flash;
+	flash.enableNotify(false);
 	//online update
 	if (file_exists(g_settings.softupdate_url_file.c_str())) {
 		update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET, true, NULL, &flash, "inet", inetkey);
@@ -120,7 +123,7 @@ int CSoftwareUpdate::showSoftwareUpdate()
 
 	unsigned int nextShortcut = (unsigned int)softUpdate.getNextShortcut();
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
 	mf = new CMenuDForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(nextShortcut));

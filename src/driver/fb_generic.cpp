@@ -130,10 +130,10 @@ CFrameBuffer* CFrameBuffer::getInstance()
 		frameBuffer = new CFbAccelSTi();
 #endif
 #if HAVE_CST_HARDWARE
-#ifdef BOXMODEL_CS_HD1
+#ifdef BOXMODEL_CST_HD1
 		frameBuffer = new CFbAccelCSHD1();
 #endif
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		frameBuffer = new CFbAccelCSHD2();
 #endif
 #endif
@@ -542,7 +542,7 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 	int w_align;
 	int offs_align;
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (_dx%4 != 0) {
 		w_align = getWidth4FB_HW_ACC(x, _dx, true);
 		if (w_align < _dx)

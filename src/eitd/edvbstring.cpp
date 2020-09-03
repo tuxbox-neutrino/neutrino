@@ -198,7 +198,7 @@ static unsigned long iso6937[96]={
 	0x0138, 0x00E6, 0x0111, 0x00F0, 0x0127, 0x0131, 0x0133, 0x0140, 0x0142, 0x00F8, 0x0153, 0x00DF, 0x00FE, 0x0167, 0x014B, 0x00AD
 };
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 const unsigned short cGB2312UNI[] = {
 	// Start at 0xA100.so index have to be reduced. Maybe this can be optimized by removing the starts but for
 	// now just 'make it work' :).
@@ -2020,7 +2020,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 {
 	int newtable = 0;
 	bool twochar = false;
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	bool gb2312 = false;
 #endif
 	if (!len)
@@ -2070,7 +2070,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 		break;
 	case 0x13:
 		++i;
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
                 //debug(DEBUG_NORMAL, "GB-2312-1980 enc.");
 		gb2312 = true;
 #endif
@@ -2116,7 +2116,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 //debug(DEBUG_INFO, "recode:::: doVideoTexSuppl code %lX", code);
 		}
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		// GB2312 -> Unicode
 		if (gb2312 && !code) {
 			if (data[i] >= 0xA1) {

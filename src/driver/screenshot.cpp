@@ -135,7 +135,7 @@ bool CScreenShot::StartSync()
 }
 #else // SCREENSHOT_INTERNAL
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 
 bool CScreenShot::mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData)
 {
@@ -174,7 +174,7 @@ bool CScreenShot::mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData)
 /* try to get video frame data in ARGB format, restore GXA state */
 bool CScreenShot::GetData()
 {
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	/* Workaround for broken osd screenshot with new fb driver and 1280x720 resolution */
 	CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
 	fb_pixel_t* screenBuf = NULL;
@@ -198,12 +198,12 @@ bool CScreenShot::GetData()
 	bool res = false;
 	pthread_mutex_lock(&getData_mutex);
 
-#ifdef BOXMODEL_CS_HD1
+#ifdef BOXMODEL_CST_HD1
 	CFrameBuffer::getInstance()->setActive(false);
 #endif
 	if (videoDecoder->getBlank())
 		get_video = false;
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (extra_osd && !get_video) {
 		uint32_t memSize = xres * yres * sizeof(fb_pixel_t) * 2;
 		pixel_data = (uint8_t*)cs_malloc_uncached(memSize);
@@ -221,7 +221,7 @@ bool CScreenShot::GetData()
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
 
-#ifdef BOXMODEL_CS_HD1
+#ifdef BOXMODEL_CST_HD1
 	/* sort of hack. GXA used to transfer/convert live image to RGB,
 	 * so setup GXA back */
 	CFrameBuffer::getInstance()->setupGXA();
@@ -234,7 +234,7 @@ bool CScreenShot::GetData()
 		return false;
 	}
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (extra_osd && screenBuf) {
 		printf("[CScreenShot::%s:%d] Merge osd screen to screenshot...", __func__, __LINE__);
 		mergeOsdScreen(_xres, _yres, screenBuf);
@@ -395,7 +395,7 @@ bool CScreenShot::SavePng()
 	png_set_compression_level(png_ptr, Z_BEST_SPEED);
 
 	png_set_bgr(png_ptr);
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	png_set_invert_alpha(png_ptr);
 #endif
 	png_write_info(png_ptr, info_ptr);

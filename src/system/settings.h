@@ -303,7 +303,7 @@ struct SNeutrinoSettings
 	int psi_step;
 #endif
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	int brightness;
 	int contrast;
 	int saturation;
