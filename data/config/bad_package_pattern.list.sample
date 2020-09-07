@@ -1,6 +1,7 @@
 ^locale-base-
 ^perl-module-
 acl
+alsa-utils-
 attr
 attr-
 autoconf
