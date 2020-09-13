@@ -94,7 +94,7 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	mediaSetup->addItem(mf);
 
 	mf = new CMenuForwarder(LOCALE_WEBRADIO_HEAD, true, NULL, &wsetup, "webradio_menu", CRCInput::RC_green);
-	mf->setHint(NEUTRINO_ICON_HINT_WEBTV /*FIXME*/, LOCALE_MENU_HINT_WEBRADIO_SETUP);
+	mf->setHint(NEUTRINO_ICON_HINT_WEBRADIO, LOCALE_MENU_HINT_WEBRADIO_SETUP);
 	mediaSetup->addItem(mf);
 
 	CXMLTVSetup xmltvsetup;

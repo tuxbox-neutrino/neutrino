@@ -155,6 +155,7 @@
 #define NEUTRINO_ICON_HINT_INET_RADIO	"hint_inetradio"
 #define NEUTRINO_ICON_HINT_MOVIE	"hint_movie"
 #define NEUTRINO_ICON_HINT_PICVIEW	"hint_picview"
+#define NEUTRINO_ICON_HINT_WEBRADIO	"hint_webradio"
 #define NEUTRINO_ICON_HINT_WEBTV	"hint_webtv"
 #define NEUTRINO_ICON_HINT_XMLTV	"hint_xmltv"
 #define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
