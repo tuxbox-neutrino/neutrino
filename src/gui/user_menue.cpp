@@ -81,7 +81,8 @@
 #endif
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
-#include <gui/webtv_setup.h>
+//#include <gui/test_menu.h>
+#include <gui/webchannels_setup.h>
 #include <gui/miscsettings_menu.h>
 
 #include <driver/radiotext.h>

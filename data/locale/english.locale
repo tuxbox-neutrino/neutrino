@@ -2760,16 +2760,16 @@ videomenu.zappingmode_hold Hold screen
 weather.api_key Weather API key (Dark Sky)
 weather.enabled Weather support
 weather.location Weather location
+webchannels.xml.add Add
+webchannels.xml.del Remove
+webchannels.xml.enter Enter
+webchannels.xml.reload Reload
 webradio.head WebRadio
 webradio.xml WebRadio files
 webradio.xml.auto Auto-load WebRadio files
 webtv.head WebTV
 webtv.xml WebTV files
-webtv.xml.add Add
 webtv.xml.auto Auto-load WebTV files
-webtv.xml.del Remove
-webtv.xml.enter Enter
-webtv.xml.reload Reload
 window_size Window size in %
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?

@@ -34,14 +34,14 @@
 #include <gui/widget/keyboard_input.h>
 #include <zapit/zapit.h>
 #include <neutrino_menue.h>
-#include "webtv_setup.h"
+#include "webchannels_setup.h"
 
 
 #include <dirent.h>
 #include <mymenu.h>
 #include <system/helpers.h>
 
-CWebTVSetup::CWebTVSetup()
+CWebChannelsSetup::CWebChannelsSetup()
 {
 	webradio = false;
 	width = 75;
@@ -50,16 +50,16 @@ CWebTVSetup::CWebTVSetup()
 	changed = false;
 }
 
-#define CWebTVSetupFooterButtonCount 4
-static const struct button_label CWebTVSetupFooterButtons[CWebTVSetupFooterButtonCount] =
+static const struct button_label CWebChannelsSetupFooterButtons[] =
 {
-	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_WEBTV_XML_DEL },
-	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_WEBTV_XML_ADD },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_WEBTV_XML_ENTER },
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_WEBTV_XML_RELOAD }
+	{ NEUTRINO_ICON_BUTTON_RED,  LOCALE_WEBCHANNELS_XML_DEL },
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_WEBCHANNELS_XML_ADD },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_WEBCHANNELS_XML_ENTER },
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_WEBCHANNELS_XML_RELOAD }
 };
+#define CWebChannelsSetupFooterButtonCount (sizeof(CWebChannelsSetupFooterButtons)/sizeof(CWebChannelsSetupFooterButtons[0]))
 
-int CWebTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
+int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
@@ -85,7 +85,7 @@ int CWebTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		{
 			std::string entry = dirname;
 
-			CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBTV_XML_ENTER, &entry, 50);
+			CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 50);
 			e->exec(this, "");
 			delete e;
 
@@ -146,7 +146,7 @@ int CWebTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 			tpl += "?mode=tv";
 		std::string entry = tpl;
 
-		CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBTV_XML_ENTER, &entry, 52);
+		CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 52);
 		e->exec(this, "");
 		delete e;
 
@@ -185,7 +185,7 @@ int CWebTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 	return res;
 }
 
-int CWebTVSetup::Show()
+int CWebChannelsSetup::Show()
 {
 	item_offset = 0;
 	std::list<std::string> webchannels = (webradio ? g_settings.webradio_xml : g_settings.webtv_xml);
@@ -251,7 +251,7 @@ int CWebTVSetup::Show()
 			m->addItem(new CMenuForwarder(*it, true, NULL, this, "c"));
 	}
 
-	m->setFooter(CWebTVSetupFooterButtons, CWebTVSetupFooterButtonCount);
+	m->setFooter(CWebChannelsSetupFooterButtons, CWebChannelsSetupFooterButtonCount);
 
 	int res = m->exec(NULL, "");
 	m->hide();
@@ -287,8 +287,7 @@ int CWebTVSetup::Show()
 	return res;
 }
 
-
-bool CWebTVSetup::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
+bool CWebChannelsSetup::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
 {
 	int ret = menu_return::RETURN_NONE;
 
@@ -316,20 +315,20 @@ int filefilter(const struct dirent *entry)
 }
 
 // webradio wrapper for webchannels_auto()
-void CWebTVSetup::webradio_xml_auto()
+void CWebChannelsSetup::webradio_xml_auto()
 {
 	webradio = true;
 	webchannels_auto();
 }
 
 // webtv wrapper for webchannels_auto()
-void CWebTVSetup::webtv_xml_auto()
+void CWebChannelsSetup::webtv_xml_auto()
 {
 	webradio = false;
 	webchannels_auto();
 }
 
-void CWebTVSetup::webchannels_auto()
+void CWebChannelsSetup::webchannels_auto()
 {
 	std::list<std::string> webchannels;
 	const char *dirs[2];
@@ -371,7 +370,7 @@ void CWebTVSetup::webchannels_auto()
 
 					if (!found)
 					{
-						printf("[CWebTVSetup] loading: %s\n", webchannel_file);
+						printf("[CWebChannelsSetup] loading: %s\n", webchannel_file);
 						if (webradio)
 							g_settings.webradio_xml.push_back(webchannel_file);
 						else
@@ -379,7 +378,7 @@ void CWebTVSetup::webchannels_auto()
 					}
 					else
 					{
-						printf("[CWebTVSetup] skipping: %s\n", webchannel_file);
+						printf("[CWebChannelsSetup] skipping: %s\n", webchannel_file);
 					}
 				}
 				free(filelist[count]);
@@ -390,20 +389,20 @@ void CWebTVSetup::webchannels_auto()
 }
 
 // webradio wrapper for webchannels_autodir()
-bool CWebTVSetup::webradio_xml_autodir(std::string directory)
+bool CWebChannelsSetup::webradio_xml_autodir(std::string directory)
 {
 	webradio = true;
 	return webchannels_autodir(directory);
 }
 
 // webtv wrapper for webchannels_autodir()
-bool CWebTVSetup::webtv_xml_autodir(std::string directory)
+bool CWebChannelsSetup::webtv_xml_autodir(std::string directory)
 {
 	webradio = false;
 	return webchannels_autodir(directory);
 }
 
-bool CWebTVSetup::webchannels_autodir(std::string directory)
+bool CWebChannelsSetup::webchannels_autodir(std::string directory)
 {
 	if (webradio)
 	{

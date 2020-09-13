@@ -21,8 +21,8 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#ifndef __webtv_setup_h__
-#define __webtv_setup_h__
+#ifndef __webchannels_setup_h__
+#define __webchannels_setup_h__
 
 #include <sys/types.h>
 #include <string.h>
@@ -31,7 +31,7 @@
 #define WEBTV_XML	WEBTVDIR_VAR "/webtv_usr.xml"
 #define WEBRADIO_XML	WEBRADIODIR_VAR "/webradio_usr.xml"
 
-class CWebTVSetup : public CMenuTarget, CChangeObserver
+class CWebChannelsSetup : public CMenuTarget, CChangeObserver
 {
 	private:
 		bool webradio;
@@ -41,14 +41,16 @@ class CWebTVSetup : public CMenuTarget, CChangeObserver
 		bool changed;
 		CMenuWidget *m;
 	public:
-		CWebTVSetup();
+		CWebChannelsSetup();
 		int exec(CMenuTarget *parent, const std::string &actionKey);
 		int Show();
 		bool changeNotify(const neutrino_locale_t OptionName, void *data);
 
+		// webradio wrappers
 		void webradio_xml_auto();
 		bool webradio_xml_autodir(std::string directory);
 
+		// webtv wrappers
 		void webtv_xml_auto();
 		bool webtv_xml_autodir(std::string directory);
 
@@ -68,4 +70,4 @@ class CWebTVResolution : public CMenuTarget
 		int Show();
 };
 
-#endif
+#endif // __webchannels_setup_h__

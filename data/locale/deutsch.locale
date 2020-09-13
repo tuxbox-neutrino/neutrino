@@ -2817,16 +2817,16 @@ weather.country_deutschland Deutschland
 weather.country_norway Norwegen
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort
+webchannels.xml.add Hinzufügen
+webchannels.xml.del Entfernen
+webchannels.xml.enter Eintragen
+webchannels.xml.reload Neu laden
 webradio.head WebRadio
 webradio.xml WebRadio-Dateien
 webradio.xml.auto WebRadio-Dateien automatisch laden
 webtv.head WebTV
 webtv.xml WebTV-Dateien
-webtv.xml.add Hinzufügen
 webtv.xml.auto WebTV-Dateien automatisch laden
-webtv.xml.del Entfernen
-webtv.xml.enter Eintragen
-webtv.xml.reload Neu laden
 window_size Fenstergröße in %
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?

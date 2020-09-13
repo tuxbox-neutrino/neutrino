@@ -101,7 +101,7 @@
 #include "gui/videosettings.h"
 #include "gui/audio_select.h"
 #include "gui/weather.h"
-#include "gui/webtv_setup.h"
+#include "gui/webchannels_setup.h"
 
 #include "gui/widget/hintbox.h"
 #include "gui/widget/icons.h"
@@ -843,8 +843,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			g_settings.webtv_xml.push_back(webtv_xml);
 	}
 
-	CWebTVSetup webtvsetup;
-	webtvsetup.webtv_xml_auto();
+	CWebChannelsSetup webchannelssetup;
+	webchannelssetup.webtv_xml_auto();
 	g_settings.webradio_xml_auto = configfile.getInt32("webradio_xml_auto", 1);
 	g_settings.webradio_xml.clear();
 #ifndef BOXMODEL_CST_HD1
@@ -868,7 +868,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			g_settings.webradio_xml.push_back(webradio_xml);
 	}
 
-	webtvsetup.webradio_xml_auto();
+	webchannelssetup.webradio_xml_auto();
 #endif
 
 	g_settings.xmltv_xml.clear();
@@ -1713,12 +1713,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
 
-	CWebTVSetup webtvsetup;
+	CWebChannelsSetup webchannelssetup;
 	configfile.setInt32("webtv_xml_auto", g_settings.webtv_xml_auto);
 	int webtv_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it) {
 		std::string k = "webtv_xml_" + to_string(webtv_count);
-		if (webtvsetup.webtv_xml_autodir((*it)))
+		if (webchannelssetup.webtv_xml_autodir((*it)))
 			continue;
 		configfile.setString(k, *it);
 		webtv_count++;
@@ -1729,7 +1729,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	int webradio_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webradio_xml.begin(); it != g_settings.webradio_xml.end(); ++it) {
 		std::string k = "webradio_xml_" + to_string(webradio_count);
-		if (webtvsetup.webradio_xml_autodir((*it)))
+		if (webchannelssetup.webradio_xml_autodir((*it)))
 			continue;
 		configfile.setString(k, *it);
 		webradio_count++;

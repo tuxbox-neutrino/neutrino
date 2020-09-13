@@ -1232,7 +1232,7 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 	{
 		std::list<std::string> paths;
 		// try livestreamScript from user's livestreamScriptPath
-		// Note: livestreamScriptPath is disabled in webtv-setup; just here for compatibility
+		// Note: livestreamScriptPath is disabled in webchannels-setup; just here for compatibility
 		paths.push_back(g_settings.livestreamScriptPath);
 		// try livestreamScripts from webradio/webtv autoload directories
 		if (m_ThisMode == NeutrinoModes::mode_webradio)

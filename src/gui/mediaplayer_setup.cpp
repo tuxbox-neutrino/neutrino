@@ -45,7 +45,7 @@
 
 #include <gui/audioplayer_setup.h>
 #include <gui/pictureviewer_setup.h>
-#include <gui/webtv_setup.h>
+#include <gui/webchannels_setup.h>
 #include <gui/xmltv_setup.h>
 #include <gui/moviebrowser/mb.h>
 
@@ -88,7 +88,7 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 
 	CMenuForwarder *mf;
 
-	CWebTVSetup wsetup;
+	CWebChannelsSetup wsetup;
 	mf = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "webtv_menu", CRCInput::RC_red);
 	mf->setHint(NEUTRINO_ICON_HINT_WEBTV, LOCALE_MENU_HINT_WEBTV_SETUP);
 	mediaSetup->addItem(mf);
