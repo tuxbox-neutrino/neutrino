@@ -282,6 +282,7 @@ channellist.keep_numbers Dauerhafte Kanalnummern
 channellist.make_hdlist Erzeuge Bouquets mit HD- und UHD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
+channellist.make_webradiolist Erzeuge Bouquet mit WebRadio-Kanälen
 channellist.make_webtvlist Erzeuge Bouquet mit WebTV-Kanälen
 channellist.new_zap_mode Quickzap in Liste
 channellist.new_zap_mode_active aktiv
@@ -1418,6 +1419,7 @@ menu.hint_lua Plugins ausführen
 menu.hint_make_hdlist Bei aktiver Option werden Bouquets namens 'HD' und 'UHD' erzeugt, in denen alle HD- bzw. UHD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt
 menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens 'gelöschte Kanäle' erzeugt
+menu.hint_make_webradiolist Bei aktiver Option wird ein Bouquet namens 'WebRadio' erzeugt, in dem alle WebRadio-Sender zusammengefasst sind
 menu.hint_make_webtvlist Bei aktiver Option wird ein Bouquet namens 'WebTV' erzeugt, in dem alle WebTV-Sender zusammengefasst sind
 menu.hint_manage_settings Sichern, Wiederherstellen und Auslieferungszustand wiederherstellen
 menu.hint_mb Ihre Aufnahmen

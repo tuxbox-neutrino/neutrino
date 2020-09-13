@@ -282,6 +282,7 @@ channellist.keep_numbers Persistent channel numbers
 channellist.make_hdlist Create lists of HD and UHD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
+channellist.make_webradiolist Create list of WebRadio channels
 channellist.make_webtvlist Create list of WebTV channels
 channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active Active
@@ -1365,6 +1366,7 @@ menu.hint_lua Run Lua Plugins
 menu.hint_make_hdlist Auto-create HD and UHD channel lists based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
 menu.hint_make_removedlist Create list of recently removed channels
+menu.hint_make_webradiolist Auto-create WebRadio channel list based on\nchannel type and name
 menu.hint_make_webtvlist Auto-create WebTV channel list based on\nchannel type and name
 menu.hint_manage_settings Backup, restore, revert to defaults\nFactory box reset
 menu.hint_mb Your recordings

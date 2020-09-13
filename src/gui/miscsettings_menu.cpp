@@ -563,6 +563,7 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 
 	bool make_hd_list = g_settings.make_hd_list;
 	bool make_webtv_list = g_settings.make_webtv_list;
+	bool make_webradio_list = g_settings.make_webradio_list;
 	bool show_empty_favorites = g_settings.show_empty_favorites;
 
 	CMenuOptionChooser * mc;
@@ -570,8 +571,12 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 	mc->setHint("", LOCALE_MENU_HINT_MAKE_HDLIST);
 	ms_chanlist->addItem(mc);
 
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_WEBTVLIST ,  &g_settings.make_webtv_list            , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_WEBTVLIST ,  &g_settings.make_webtv_list         , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_MAKE_WEBTVLIST);
+	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_WEBRADIOLIST, &g_settings.make_webradio_list     , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_MAKE_WEBRADIOLIST);
 	ms_chanlist->addItem(mc);
 
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_NEWLIST,     &g_settings.make_new_list           , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
@@ -608,7 +613,12 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 
 	int res = ms_chanlist->exec(NULL, "");
 	delete ms_chanlist;
-	if (make_hd_list != g_settings.make_hd_list || make_webtv_list != g_settings.make_webtv_list || show_empty_favorites != g_settings.show_empty_favorites)
+	if (
+		   make_hd_list != g_settings.make_hd_list
+		|| make_webtv_list != g_settings.make_webtv_list
+		|| make_webradio_list != g_settings.make_webradio_list
+		|| show_empty_favorites != g_settings.show_empty_favorites
+	)
 		g_RCInput->postMsg(NeutrinoMessages::EVT_SERVICESCHANGED, 0);
 	return res;
 }
