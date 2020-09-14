@@ -428,6 +428,7 @@ int GLCD_Menu::GLCD_Brightness_Settings()
 	gbs->addItem(mf);
 
 	int res = gbs->exec(NULL, "");
+	delete dim_time;
 	delete gbs;
 	cGLCD::getInstance()->StandbyMode(false);
 	return res;
@@ -462,8 +463,9 @@ int GLCD_Menu::GLCD_Theme_Settings()
 	CColorChooser* bar = new CColorChooser(LOCALE_GLCD_SELECT_BAR, &t.glcd_progressbar_color_red, &t.glcd_progressbar_color_green, &t.glcd_progressbar_color_blue, NULL, colorSetupNotifier);
 	gts->addItem(new CMenuDForwarder(LOCALE_GLCD_SELECT_BAR, true, NULL, bar));
 
-	//delete colorSetupNotifier;
+
 	int res = gts->exec(NULL, "");
+	delete colorSetupNotifier;
 	delete gts;
 	cGLCD::getInstance()->StandbyMode(false);
 	return res;
