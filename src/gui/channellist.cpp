@@ -260,11 +260,13 @@ CZapitChannel* CChannelList::getChannel(int number)
 
 CZapitChannel* CChannelList::getChannel(t_channel_id channel_id)
 {
-	for (uint32_t i=0; i< (*chanlist).size(); i++) {
-		if ((*chanlist)[i]->getChannelID() == channel_id)
-			return (*chanlist)[i];
+	if(channel_id != -1 && !(*chanlist).empty()){
+		for (uint32_t i=0; i< (*chanlist).size(); i++) {
+			if ((*chanlist)[i]->getChannelID() == channel_id)
+				return (*chanlist)[i];
+		}
 	}
-	return(NULL);
+	return NULL;
 }
 
 int CChannelList::getKey(int id)
