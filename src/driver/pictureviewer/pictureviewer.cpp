@@ -618,6 +618,16 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	SpecialChannelName = str_replace("ü", "u", SpecialChannelName);
 	SpecialChannelName = str_replace("+", "___plus___", SpecialChannelName);
 	SpecialChannelName = str_replace("&", "___and___", SpecialChannelName);
+	//
+	SpecialChannelName = str_replace(",", "-", SpecialChannelName);
+	SpecialChannelName = str_replace(";", "-", SpecialChannelName);
+	SpecialChannelName = str_replace(":", "-", SpecialChannelName);
+	SpecialChannelName = str_replace("*", "-", SpecialChannelName);
+	SpecialChannelName = str_replace("'", "-", SpecialChannelName);
+	SpecialChannelName = str_replace("?", "-", SpecialChannelName);
+	SpecialChannelName = str_replace("|", "-", SpecialChannelName);
+	SpecialChannelName = str_replace("/", "-", SpecialChannelName);
+	SpecialChannelName = str_replace("\\", "-", SpecialChannelName);
 
 	// create channel id as string
 	char strChnId[16];
