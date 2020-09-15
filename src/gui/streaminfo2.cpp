@@ -1098,12 +1098,69 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	r.f   = g_FixedFont[font_small];
 	v.push_back(r);
 
-	// channellogo
 	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
 	{
-		r.key = "Logo";
+		// neutrino channellogo
+		r.key = "Neutrino Logo";
 		r.key += ": ";
 		snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
+		r.val = buf;
+		v.push_back(r);
+
+		// e2 channellogo
+		r.key = "E2 Logo";
+		r.key += ": ";
+		char e2filename1[255];
+		e2filename1[0] = '\0';
+		char e2filename2[255];
+		e2filename2[0] = '\0';
+
+		CZapitChannel * cc = NULL;
+		if (channel->getChannelID() & 0xFFFFFFFFFFFFULL)
+			if (CNeutrinoApp::getInstance()->channelList)
+				cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel->getChannelID());
+
+		if (cc)
+		{
+			//create E2 filename1
+			snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+			    (u_int) cc->getServiceType(true),
+			    (u_int) channel->getChannelID() & 0xFFFF,
+			    (u_int) (channel->getChannelID() >> 32) & 0xFFFF,
+			    (u_int) (channel->getChannelID() >> 16) & 0xFFFF,
+			    (u_int) cc->getSatellitePosition());
+
+			//create E2 filename2
+			snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+			    (u_int) 1,
+			    (u_int) channel->getChannelID() & 0xFFFF,
+			    (u_int) (channel->getChannelID() >> 32) & 0xFFFF,
+			    (u_int) (channel->getChannelID() >> 16) & 0xFFFF,
+			    (u_int) cc->getSatellitePosition());
+		}
+
+		if ((std::string) e2filename1 != (std::string) e2filename2)
+			snprintf(buf, sizeof(buf), "%s.png / %s.png", e2filename1, e2filename2);
+		else
+			snprintf(buf, sizeof(buf), "%s.png", e2filename1);
+		r.val = buf;
+		v.push_back(r);
+
+		// special channellogo
+		r.key = "Special Logo";
+		r.key += ": ";
+		std::string SpecialChannelName = channel->getName().c_str();
+		SpecialChannelName = str_replace(" ", "_", SpecialChannelName);
+		SpecialChannelName = str_replace(",", "-", SpecialChannelName);
+		SpecialChannelName = str_replace(";", "-", SpecialChannelName);
+		SpecialChannelName = str_replace(":", "-", SpecialChannelName);
+		SpecialChannelName = str_replace("*", "-", SpecialChannelName);
+		SpecialChannelName = str_replace("'", "-", SpecialChannelName);
+		SpecialChannelName = str_replace("?", "-", SpecialChannelName);
+		SpecialChannelName = str_replace("|", "-", SpecialChannelName);
+		SpecialChannelName = str_replace("/", "-", SpecialChannelName);
+		SpecialChannelName = str_replace("\\", "-", SpecialChannelName);
+		snprintf(buf, sizeof(buf), "%s.png", SpecialChannelName.c_str());
 		r.val = buf;
 		v.push_back(r);
 	}
