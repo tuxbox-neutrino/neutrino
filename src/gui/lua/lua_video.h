@@ -20,6 +20,10 @@
 #ifndef _LUAVIDEO_H
 #define _LUAVIDEO_H
 
+#if LUA_COMPAT_5_2
+void lua_rawsetp (lua_State *L, int i, const void *p);
+#endif
+
 class CLuaVideo
 {
 	public:

@@ -23,6 +23,31 @@
 
 #include <map>
 
+#if LUA_COMPAT_5_2
+
+#include <stdint.h>
+#include <math.h>
+
+typedef uint32_t lua_Unsigned;
+int lua_absindex (lua_State *L, int i);
+void lua_rawgetp (lua_State *L, int i, const void *p);
+void lua_rawsetp (lua_State *L, int i, const void *p);
+void lua_pushunsigned (lua_State *L, lua_Unsigned n);
+lua_Unsigned luaL_checkunsigned (lua_State *L, int i);
+#define lua_pushglobaltable(L) \
+	lua_pushvalue(L, LUA_GLOBALSINDEX)
+
+#define LUA_SUPUNSIGNED \
+	((lua_Number)(~(lua_Unsigned)0) + 1)
+
+#define lua_number2unsigned(i,n) \
+	((i) = (lua_Unsigned)(n))
+
+#define lua_unsigned2number(u) \
+	(((u) <= (lua_Unsigned)INT_MAX) ? (lua_Number)(int)(u) : (lua_Number)(u))
+
+#endif
+
 //#define LUA_DEBUG printf
 #define LUA_DEBUG(...)
 

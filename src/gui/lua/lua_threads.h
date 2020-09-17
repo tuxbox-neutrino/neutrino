@@ -31,10 +31,15 @@ extern "C"
 #include <lualib.h>
 }
 #include <pthread.h>
+#include <config.h>
 
 /* wrap strerror_r(). */
 #ifndef strerror_r
 #define strerror_r __strerror_r
+#endif
+
+#if LUA_COMPAT_5_2
+void lua_rawsetp (lua_State *L, int i, const void *p);
 #endif
 
 #define OS_THREAD_RETURN void *

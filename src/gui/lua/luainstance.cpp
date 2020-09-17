@@ -1245,4 +1245,41 @@ int CLuaInstance::scale2Res(lua_State *L)
 	return 1;
 }
 
+#if LUA_COMPAT_5_2
+
+void lua_pushunsigned (lua_State *L, lua_Unsigned n) {
+  lua_pushnumber(L, lua_unsigned2number(n));
+}
+
+
+lua_Unsigned luaL_checkunsigned (lua_State *L, int i) {
+  lua_Unsigned result;
+  lua_Number n = lua_tonumber(L, i);
+  if (n == 0 && !lua_isnumber(L, i))
+    luaL_checktype(L, i, LUA_TNUMBER);
+  lua_number2unsigned(result, n);
+  return result;
+}
+
+int lua_absindex (lua_State *L, int i) {
+  if (i < 0 && i > LUA_REGISTRYINDEX)
+    i += lua_gettop(L) + 1;
+  return i;
+}
+
+void lua_rawgetp (lua_State *L, int i, const void *p) {
+  int abs_i = lua_absindex(L, i);
+  lua_pushlightuserdata(L, (void*)p);
+  lua_rawget(L, abs_i);
+}
+
+void lua_rawsetp (lua_State *L, int i, const void *p) {
+  int abs_i = lua_absindex(L, i);
+  luaL_checkstack(L, 1, "not enough stack slots");
+  lua_pushlightuserdata(L, (void*)p);
+  lua_insert(L, -2);
+  lua_rawset(L, abs_i);
+}
+
+#endif
 /* --------------------------------------------------------------- */
