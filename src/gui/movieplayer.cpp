@@ -1670,7 +1670,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 {
 	bool first_start = true;
 	bool update_lcd = true;
-	neutrino_msg_t lastmsg = 0;
+//	neutrino_msg_t lastmsg = 0;
 #if HAVE_CST_HARDWARE
 	int eof = 0;
 	int eof2 = 0;
