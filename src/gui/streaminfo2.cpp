@@ -1107,9 +1107,15 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.val = buf;
 		v.push_back(r);
 
-		// e2 channellogo
-		r.key = "E2 Logo";
+		// special channellogo
+		r.key = "Special Logo";
 		r.key += ": ";
+		std::string SpecialChannelName = GetSpecialName(channel->getName());
+		snprintf(buf, sizeof(buf), "%s.png", SpecialChannelName.c_str());
+		r.val = buf;
+		v.push_back(r);
+
+		// e2 channellogo
 		char e2filename1[255];
 		e2filename1[0] = '\0';
 		char e2filename2[255];
@@ -1139,20 +1145,19 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			    (u_int) cc->getSatellitePosition());
 		}
 
-		if ((std::string) e2filename1 != (std::string) e2filename2)
-			snprintf(buf, sizeof(buf), "%s.png / %s.png", e2filename1, e2filename2);
-		else
-			snprintf(buf, sizeof(buf), "%s.png", e2filename1);
+		r.key = "E2 Logo 1";
+		r.key += ": ";
+		snprintf(buf, sizeof(buf), "%s.png", e2filename1);
 		r.val = buf;
 		v.push_back(r);
 
-		// special channellogo
-		r.key = "Special Logo";
-		r.key += ": ";
-		std::string SpecialChannelName = GetSpecialName(channel->getName());
-		snprintf(buf, sizeof(buf), "%s.png", SpecialChannelName.c_str());
-		r.val = buf;
-		v.push_back(r);
+		if ((std::string) e2filename1 != (std::string) e2filename2) {
+			r.key = "E2 Logo 2";
+			r.key += ": ";
+			snprintf(buf, sizeof(buf), "%s.png", e2filename2);
+			r.val = buf;
+			v.push_back(r);
+		}
 	}
 
 	// empty line
