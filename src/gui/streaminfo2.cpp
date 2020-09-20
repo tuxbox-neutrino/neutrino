@@ -1149,17 +1149,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		// special channellogo
 		r.key = "Special Logo";
 		r.key += ": ";
-		std::string SpecialChannelName = channel->getName().c_str();
-		SpecialChannelName = str_replace(" ", "_", SpecialChannelName);
-		SpecialChannelName = str_replace(",", "-", SpecialChannelName);
-		SpecialChannelName = str_replace(";", "-", SpecialChannelName);
-		SpecialChannelName = str_replace(":", "-", SpecialChannelName);
-		SpecialChannelName = str_replace("*", "-", SpecialChannelName);
-		SpecialChannelName = str_replace("'", "-", SpecialChannelName);
-		SpecialChannelName = str_replace("?", "-", SpecialChannelName);
-		SpecialChannelName = str_replace("|", "-", SpecialChannelName);
-		SpecialChannelName = str_replace("/", "-", SpecialChannelName);
-		SpecialChannelName = str_replace("\\", "-", SpecialChannelName);
+		std::string SpecialChannelName = GetSpecialName(channel->getName());
 		snprintf(buf, sizeof(buf), "%s.png", SpecialChannelName.c_str());
 		r.val = buf;
 		v.push_back(r);

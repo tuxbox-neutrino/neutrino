@@ -1917,3 +1917,35 @@ int getActivePartition()
 
 	return c;
 }
+
+// Why different name conventions ?
+// i put them all together here, and keep the simplest
+//name = str_replace(" ", "_", name);
+//name = str_replace("ä", "a", name);
+//name = str_replace("ö", "o", name);
+//name = str_replace("ü", "u", name);
+//name = str_replace("+", "___plus___", name);
+//name = str_replace("&", "___and___", name);
+std::string GetSpecialName(std::string name)
+{
+	std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+	name = str_replace(" ", "-", name);
+	name = str_replace("ä", "ae", name);
+	name = str_replace("ö", "oe", name);
+	name = str_replace("ü", "ue", name);
+	name = str_replace("ß", "ss", name);
+	name = str_replace("+", "-", name);
+	name = str_replace("&", "-", name);
+	name = str_replace("!", "-", name);
+	name = str_replace(",", "-", name);
+	name = str_replace(";", "-", name);
+	name = str_replace(":", "-", name);
+	name = str_replace("*", "-", name);
+	name = str_replace("'", "-", name);
+	name = str_replace("?", "-", name);
+	name = str_replace("|", "-", name);
+	name = str_replace("/", "-", name);
+	name = str_replace("\\", "-", name);
+
+	return name;
+}

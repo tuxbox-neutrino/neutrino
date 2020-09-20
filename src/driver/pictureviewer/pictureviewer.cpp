@@ -573,20 +573,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 		if (g_settings.logo_hdd_dir != LOGODIR)
 			v_path.push_back(LOGODIR);
 
-		std::transform(EventName.begin(), EventName.end(), EventName.begin(), ::tolower);
-		EventName = str_replace(" ", "-", EventName);
-		EventName = str_replace(",", "-", EventName);
-		EventName = str_replace(";", "-", EventName);
-		EventName = str_replace(":", "-", EventName);
-		EventName = str_replace("+", "-", EventName);
-		EventName = str_replace("'", "-", EventName);
-		EventName = str_replace("?", "-", EventName);
-		EventName = str_replace("!", "-", EventName);
-		EventName = str_replace("&", "-", EventName);
-		EventName = str_replace("ä", "ae", EventName);
-		EventName = str_replace("ö", "oe", EventName);
-		EventName = str_replace("ü", "ue", EventName);
-		EventName = str_replace("ß", "ss", EventName);
+		EventName = GetSpecialName(EventName);
 		//printf("GetLogoName(): EventName \"%s\"\n", EventName.c_str());
 
 		for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
@@ -610,24 +597,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	}
 
 	// create special filename from channelname
-	std::string SpecialChannelName = ChannelName;
-	std::transform(SpecialChannelName.begin(), SpecialChannelName.end(), SpecialChannelName.begin(), ::tolower);
-	SpecialChannelName = str_replace(" ", "-", SpecialChannelName);
-	SpecialChannelName = str_replace("ä", "a", SpecialChannelName);
-	SpecialChannelName = str_replace("ö", "o", SpecialChannelName);
-	SpecialChannelName = str_replace("ü", "u", SpecialChannelName);
-	SpecialChannelName = str_replace("+", "___plus___", SpecialChannelName);
-	SpecialChannelName = str_replace("&", "___and___", SpecialChannelName);
-	//
-	SpecialChannelName = str_replace(",", "-", SpecialChannelName);
-	SpecialChannelName = str_replace(";", "-", SpecialChannelName);
-	SpecialChannelName = str_replace(":", "-", SpecialChannelName);
-	SpecialChannelName = str_replace("*", "-", SpecialChannelName);
-	SpecialChannelName = str_replace("'", "-", SpecialChannelName);
-	SpecialChannelName = str_replace("?", "-", SpecialChannelName);
-	SpecialChannelName = str_replace("|", "-", SpecialChannelName);
-	SpecialChannelName = str_replace("/", "-", SpecialChannelName);
-	SpecialChannelName = str_replace("\\", "-", SpecialChannelName);
+	std::string SpecialChannelName = GetSpecialName(ChannelName);
 
 	// create channel id as string
 	char strChnId[16];
