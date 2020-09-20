@@ -2332,6 +2332,9 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 		return;
 	}
 
+	if(duration <= 0)
+		UpdatePosition();
+
 	std::vector<std::string> keys, values;
 	playback->GetMetadata(keys, values);
 	size_t count = keys.size();
@@ -2359,13 +2362,13 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 	if (!bgThread) {
 		if (p_movie_info)
 			cGLCD::lockChannel(p_movie_info->channelName, p_movie_info->epgTitle);
+		else
+			cGLCD::lockChannel(pretty_name, info_1);
 	}
 #endif
 	}
 
 	if (p_movie_info) {
-		if(duration <= 0)
-			UpdatePosition();
 
 		MI_MOVIE_INFO *mi;
 		mi = p_movie_info;
