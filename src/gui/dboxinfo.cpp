@@ -112,8 +112,18 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 	uint32_t updateTimer = g_RCInput->addTimer(5*1000*1000, false);
 
+	int curr_page = 0;
+	bool curr_page_refresh = false;
+
 	while (doLoop)
 	{
+
+		if (curr_page_refresh && curr_page > 0 && cc_fe && (cc_fe->cctext)) {
+			if (cc_fe->cctext->getCTextBoxObject())
+				cc_fe->cctext->getCTextBoxObject()->scrollPageDown(curr_page);
+		}
+		curr_page_refresh = true;
+
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
@@ -143,14 +153,22 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 		}
 		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_page_up)) {
 			if (cc_fe && (cc_fe->cctext)) {
-				if (cc_fe->cctext->getCTextBoxObject())
+				if (cc_fe->cctext->getCTextBoxObject()) {
 					cc_fe->cctext->getCTextBoxObject()->scrollPageUp(1);
+					if (curr_page > 0)
+						curr_page--;
+					curr_page_refresh = false;
+				}
 			}
 		}
 		else if ((msg == CRCInput::RC_down) || (msg == CRCInput::RC_page_down)) {
 			if (cc_fe && (cc_fe->cctext)) {
-				if (cc_fe->cctext->getCTextBoxObject())
+				if (cc_fe->cctext->getCTextBoxObject()) {
 					cc_fe->cctext->getCTextBoxObject()->scrollPageDown(1);
+					if (curr_page < cc_fe->cctext->getCTextBoxObject()->getPages() - 1)
+						curr_page++;
+					curr_page_refresh = false;
+				}
 			}
 		}
 		else if (msg == CRCInput::RC_info || msg == CRCInput::RC_help) {
