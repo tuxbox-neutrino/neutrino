@@ -491,7 +491,7 @@ void CDBoxInfoWidget::paint()
 	ypos += mheight;
 
 	std::string txt;
-	CComponentsExtTextForm *item = new CComponentsExtTextForm(x + 10, ypos, satWidth + 10, mheight, "", "");
+// 	CComponentsExtTextForm *item = new CComponentsExtTextForm(x + 10, ypos, satWidth + 10, mheight, "", "");
 //	item->setLabelWidthPercent(15);
 
 	int fecount = frontend_count;
