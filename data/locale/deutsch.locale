@@ -1730,7 +1730,7 @@ menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder auss
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_weather_api_key Geben Sie den Dark Sky API Schlüssel ein. Eine leere Eingabe schaltet die Wetter-Unterstützung aus
-menu.hint_weather_country
+menu.hint_weather_country Land auswählen
 menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (darksky.net) ein bzw. aus
 menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
