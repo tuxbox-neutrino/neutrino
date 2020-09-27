@@ -2759,6 +2759,9 @@ videomenu.zappingmode Zapping mode
 videomenu.zappingmode_mute Black screen
 videomenu.zappingmode_hold Hold screen
 weather.api_key Weather API key (Dark Sky)
+weather.country Country choice
+weather.country_deutschland Germany
+weather.country_norway Norway
 weather.enabled Weather support
 weather.location Weather location
 webchannels.xml.add Add
