@@ -37,6 +37,7 @@
 #include <gui/info_menue.h>
 #include <gui/imageinfo.h>
 #include <gui/dboxinfo.h>
+#include <gui/widget/msgbox.h>
 #if HAVE_CST_HARDWARE
 #include <gui/streaminfo1.h>
 #else
@@ -46,6 +47,7 @@
 #include <gui/buildinfo.h>
 #endif
 
+#include <cs_api.h>
 #include <driver/screen_max.h>
 #include "gui/cam_menu.h"
 
