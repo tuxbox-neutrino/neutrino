@@ -902,16 +902,6 @@ unsigned int revert_translate(unsigned int code)
 		case RC_forward:
 			return KEY_FASTFORWARD;
 #endif
-#ifdef HAVE_AZBOX_HARDWARE
-		case RC_favorites:
-			return KEY_HOME;
-		case RC_stop:
-			return KEY_TV;
-		case RC_record:
-			return KEY_RADIO;
-		case RC_pause:
-			return KEY_PLAY;
-#endif
 		default:
 			break;
 	}

@@ -46,11 +46,6 @@ static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
 
-#if HAVE_AZBOX_HARDWARE
-#define DISPLAY_DEV "/proc/vfd"
-#define LED_DEV "/proc/led"
-#endif
-
 #if HAVE_GENERIC_HARDWARE
 #define DISPLAY_DEV "/dev/null"
 static bool usb_icon = false;
@@ -83,16 +78,6 @@ static inline int dev_open()
 		fprintf(stderr, "[neutrino] simple_display: open " DISPLAY_DEV ": %m\n");
 	return fd;
 }
-
-#if HAVE_AZBOX_HARDWARE
-static inline int led_open()
-{
-	int fd = open(LED_DEV, O_RDWR);
-	if (fd < 0)
-		fprintf(stderr, "[neutrino] simple_display: open " LED_DEV ": %m\n");
-	return fd;
-}
-#endif
 
 static void replace_umlauts(std::string &s)
 {
@@ -291,29 +276,6 @@ void CLCD::setled(int red, int green)
 			fprintf(stderr, "[neutrino] CLCD::%s VFDSETLED: %m\n", __func__);
 	}
 	close(fd);
-}
-#elif HAVE_AZBOX_HARDWARE
-void CLCD::setled(int red, int green)
-{
-	static unsigned char col = '0'; /* need to remember the state. 1 == blue, 2 == red */
-	int leds[3] = { -1, green, red };
-	int i;
-	char s[3];
-	int fd = led_open();
-	if (fd < 0)
-		return;
-	for (i = 1; i <= 2; i++)
-	{
-		if (leds[i] == -1)	/* don't touch */
-			continue;
-		col &= ~(i);		/* clear the bit... */
-		if (leds[i])
-			col |= i;	/* ...and set it again */
-	}
-	sprintf(s, "%c\n", col);
-	write(fd, s, 3);
-	close(fd);
-	//printf("CLCD::%s(%d, %d): %c\n", __func__, red, green, col);
 }
 #else
 void CLCD::setled(int /*red*/, int /*green*/)

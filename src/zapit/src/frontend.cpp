@@ -826,7 +826,7 @@ uint32_t CFrontend::getBitErrorRate(void) const
 {
 	uint32_t ber = 0;
 	fop(ioctl, FE_READ_BER, &ber);
-	if (ber > 100000000)	/* azbox minime driver has useless values around 500.000.000 */
+	if (ber > 100000000) /* some drivers has useless values around 500.000.000 */
 		ber = 0;
 
 	return ber;

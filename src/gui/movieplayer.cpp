@@ -285,14 +285,6 @@ void CMoviePlayerGui::cutNeutrino()
 
 	g_Zapit->lockPlayBack();
 
-#ifdef HAVE_AZBOX_HARDWARE
-	/* we need sectionsd to get idle and zapit to release the demuxes
-	 * and decoders so that the external player can do its work
-	 * TODO: what about timeshift? */
-	g_Sectionsd->setServiceChanged(0, false);
-	g_Zapit->setStandby(true);
-#endif
-
 	m_ThisMode = NeutrinoModes::mode_unknown;
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
 	printf("%s: last mode %d\n", __func__, m_LastMode);fflush(stdout);
@@ -331,10 +323,6 @@ void CMoviePlayerGui::restoreNeutrino()
 #endif
 
 	playing = false;
-#ifdef HAVE_AZBOX_HARDWARE
-	g_Zapit->setStandby(false);
-	CZapit::getInstance()->SetVolume(CZapit::getInstance()->GetVolume());
-#endif
 
 	if (isUPNP)
 		return;
