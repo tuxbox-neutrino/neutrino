@@ -82,7 +82,7 @@ install_DATA =	accept.png \
 		x_red.png \
 		zap.png
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 install_DATA += rc_cst_v1.jpg \
 		rc_cst_v2.png \
 		rc_cst_v3.png \

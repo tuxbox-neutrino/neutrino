@@ -152,7 +152,7 @@ neutrino_LDADD += \
 	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a
 endif
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 neutrino_LDADD += \
 	$(top_builddir)/lib/hardware/coolstream/libhwcaps.a
 if ENABLE_LIBCOOLSTREAM_STATIC
@@ -211,7 +211,7 @@ neutrino_LDADD += \
 	-L/opt/vc/lib/ -lbcm_host -lvcos -lvchiq_arm -lpthread -lrt
 endif
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 bin_PROGRAMS += shutdown_helper
 shutdown_helper_SOURCES = shutdown_helper.c
 # if BOXMODEL_CS_HD2

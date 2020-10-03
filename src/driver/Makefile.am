@@ -56,7 +56,7 @@ libneutrino_driver_a_SOURCES += \
 	lcd4l.cpp
 endif
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_hdx.cpp
 if BOXMODEL_CST_HD2
