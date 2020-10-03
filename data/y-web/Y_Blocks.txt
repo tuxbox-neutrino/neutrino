@@ -538,6 +538,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~WWIO BRE2ZE 4K~	{=include-block:Y_Blocks.txt;rc_wwio_bre2ze4k=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ DUO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ DUO4KSE~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ UNO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ UNO4KSE~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
@@ -546,7 +547,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~AirDigital Zgemma H7C/S~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
 
 		{=comment:fallback~=}				{=include-block:Y_Blocks.txt;rc_cst_v1=}
-		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
+		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 	=}=}
 ~
 	{=if-equal:{=var-get:yfbtype=}~-2~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
@@ -569,10 +570,11 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~16~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
 	{=if-equal:{=var-get:yfbtype=}~17~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
 	{=if-equal:{=var-get:yfbtype=}~18~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~19~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
+	{=if-equal:{=var-get:yfbtype=}~19~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~20~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
 
 	{=comment:fallback~=}			{=include-block:Y_Blocks.txt;rc_cst_v1=}
-	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
+	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 =}
 end-block~remote
 
@@ -1143,7 +1145,7 @@ start-block~rc_wwio_bre2ze4k
 </map>
 end-block~rc_wwio_bre2ze4k
 
-# ------ Remote VU+ Solo 4K/Duo 4K/Ultimo 4K/Zero 4K/Uno 4K SE
+# ------ Remote VU+ Solo 4K, Duo 4K, Duo 4K SE, Ultimo 4K, Zero 4K, Uno 4K, Uno 4K SE
 start-block~rc_vuplus
 <img src="images/rc_vuplus.png" usemap="#rc"/>
 <map name="rc" id="rc">

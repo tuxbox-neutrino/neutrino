@@ -868,7 +868,7 @@ void cGLCD::Run(void)
 					static uint32_t *fbp = fb->getFrameBufferPointer();
 					int lcd_width = bitmap->Width();
 					int lcd_height = bitmap->Height();
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE ||BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
 					unsigned int fb_stride = fb->getStride()/4;
 					if (!showImage(fbp, fb_stride, fb_height, 0, 0, lcd_width, lcd_height, false, false))
 					{
@@ -892,7 +892,7 @@ void cGLCD::Run(void)
 
 			if (g_settings.glcd_mirror_video && !doStandbyTime && !doStandbyWeather)
 			{
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE ||BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
 				lcd->SetMirrorVideo(true);
 #else
 				char ws[10];
@@ -918,7 +918,7 @@ void cGLCD::Run(void)
 				continue;
 #endif
 			}
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE ||BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
 			else
 				lcd->SetMirrorVideo(false);
 #endif

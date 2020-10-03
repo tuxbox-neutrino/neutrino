@@ -69,7 +69,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 #if BOXMODEL_VUULTIMO4K
 		std::string modestr[24];
 #else
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 		std::string modestr[16];
 #else
 		std::string modestr[4];
