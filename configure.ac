@@ -113,10 +113,6 @@ TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 
 AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
-if test "$BOXTYPE" = "tripledragon"; then
-	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
-fi
-
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
 
@@ -170,7 +166,6 @@ if test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "armbox" ||
    test "$BOXTYPE" = "mipsbox" ||
    test "$BOXTYPE" = "generic" ||
-   test "$BOXTYPE" = "tripledragon" ||
    test "$BOXTYPE" = "spark"; then
 	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi
