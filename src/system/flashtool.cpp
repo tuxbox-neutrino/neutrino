@@ -44,11 +44,6 @@
 #include <neutrino.h>
 #include <driver/display.h>
 
-#if HAVE_TRIPLEDRAGON
-/* TD kernel 2.6.12 is too old and does not have writesize yet, use oobsize instead */
-#define writesize oobsize
-#endif
-
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
 extern CLCD4l *LCD4l;

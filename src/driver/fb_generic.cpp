@@ -140,9 +140,6 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #if HAVE_GENERIC_HARDWARE
 		frameBuffer = new CFbAccelGLFB();
 #endif
-#if HAVE_TRIPLEDRAGON
-		frameBuffer = new CFbAccelTD();
-#endif
 #if HAVE_ARM_HARDWARE
 		frameBuffer = new CFbAccelARM();
 #endif

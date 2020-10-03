@@ -80,11 +80,6 @@ void DMX::init()
 	current_service = 0;
 	first_skipped = 0;
 
-#if HAVE_TRIPLEDRAGON
-	/* hack, to keep the TD changes in one place. */
-	dmxBufferSizeInKB = 128;	/* 128kB is enough on TD */
-	dmx_num = 0;			/* always use demux 0 */
-#endif
 #ifdef DEBUG_MUTEX
 	pthread_mutexattr_t start_stop_mutex_attr;
 	pthread_mutexattr_init(&start_stop_mutex_attr);
@@ -121,13 +116,10 @@ void DMX::closefd(void)
 #endif
 	if (isOpen())
 	{
-#if HAVE_TRIPLEDRAGON
-		/* not sure why, but we lose CN events if we do delete / new :-( */
-		dmx->Stop();
-#else
-		delete dmx;
-		dmx = NULL;
-#endif
+		if (dmx) {
+			delete dmx;
+			dmx = NULL;
+		}
 	}
 }
 

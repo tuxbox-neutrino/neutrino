@@ -63,18 +63,7 @@ protected:
 	/* flag to check if there was section for that table, if yes, dont increase timeouts */
 	bool		seen_section;
 
-	inline bool isOpen(void) {
-#if HAVE_TRIPLEDRAGON
-		/* unfortunately, this is a bit complicated on TD :-( */
-		if (dmx == NULL)
-			return false;
-		if (dmx->getBuffer() != NULL) /* getBuffer() is a dummy to indicate that demux is running */
-			return true;
-		return false;
-#else
-		return (dmx != NULL);
-#endif
-	}
+	inline bool isOpen(void) { return (dmx != NULL); }
 
 	int immediate_start(void); /* mutex must be locked before and unlocked after this method */
 	int immediate_stop(void);  /* mutex must be locked before and unlocked after this method */

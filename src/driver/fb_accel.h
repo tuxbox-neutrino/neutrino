@@ -185,33 +185,6 @@ class CFbAccelGLFB
 		fb_pixel_t * getBackBufferPointer() const;
 };
 
-class CFbAccelTD
-	: public CFbAccel
-{
-	private:
-		fb_pixel_t lastcol;
-		void setColor(fb_pixel_t col);
-		fb_pixel_t *backbuffer;
-	public:
-		CFbAccelTD();
-		~CFbAccelTD();
-		void init(const char * const);
-		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
-		void paintPixel(int x, int y, const fb_pixel_t col);
-		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
-		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col) { paintLine(x, y, x + dx, y, col); };
-		void paintVLineRel(int x, int y, int dy, const fb_pixel_t col) { paintLine(x, y, x, y + dy, col); };
-		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
-#if 0
-		/* this is too slow, just use simple software implementation */
-		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
-#endif
-		void waitForIdle(const char *func = NULL);
-		fb_pixel_t * getBackBufferPointer() const;
-		void setBlendMode(uint8_t);
-		void setBlendLevel(int);
-};
-
 class CFbAccelARM
 #if ENABLE_ARM_ACC
 	: public OpenThreads::Thread, public CFbAccel

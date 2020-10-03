@@ -70,13 +70,6 @@ libneutrino_driver_a_SOURCES += \
 endif
 endif
 
-if BOXTYPE_TRIPLE
-libneutrino_driver_a_SOURCES += \
-	fb_accel_td.cpp \
-	newclock.cpp \
-	lcdd.cpp
-endif
-
 if BOXTYPE_SPARK
 libneutrino_driver_a_SOURCES += \
 	fb_accel_sti.cpp \

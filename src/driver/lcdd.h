@@ -119,13 +119,6 @@ typedef enum
 #include <pthread.h>
 #include <string>
 
-#ifdef HAVE_TRIPLEDRAGON
-#include <lcddisplay/fontrenderer.h>
-
-
-class CLCDPainter;
-class LcdFontRenderClass;
-#endif
 class CLCD
 {
 	public:
@@ -157,56 +150,6 @@ class CLCD
 
 
 	private:
-
-#ifdef HAVE_TRIPLEDRAGON
-		class FontsDef
-		{
-			public:
-				LcdFont *channelname;
-				LcdFont *time; 
-				LcdFont *menutitle;
-				LcdFont *menu;
-		};
-
-		CLCDDisplay			display;
-		LcdFontRenderClass		*fontRenderer;
-		FontsDef			fonts;
-
-#define LCD_NUMBER_OF_BACKGROUNDS 5
-		raw_display_t                   background[LCD_NUMBER_OF_BACKGROUNDS];
-
-		MODES				mode;
-		AUDIOMODES			movie_playmode;
-
-		std::string			servicename;
-		std::string			epg_title;
-		std::string			movie_big;
-		std::string			movie_small;
-		std::string			menutitle;
-		char				volume;
-		unsigned char			percentOver;
-		bool				muted;
-		bool				showclock;
-		bool				movie_centered;
-		bool				movie_is_ac3;
-		pthread_t			thrTime;
-		bool				thread_started;
-		int                             last_toggle_state_power;
-		int				clearClock;
-		unsigned int                    timeout_cnt;
-
-		void count_down();
-
-		CLCD();
-
-		static void* TimeThread(void*);
-		bool lcdInit(const char * fontfile1, const char * fontname1, 
-		             const char * fontfile2=NULL, const char * fontname2=NULL,
-		             const char * fontfile3=NULL, const char * fontname3=NULL);
-		void setlcdparameter(int dimm, int contrast, int power, int inverse, int bias);
-		void displayUpdate();
-		void showTextScreen(const std::string & big, const std::string & small, int showmode, bool perform_wakeup, bool centered = false);
-#else
 		CLCD();
 		std::string	menutitle;
 		std::string	servicename;
@@ -221,7 +164,6 @@ class CLCD
 		unsigned int	switch_name_time_cnt;
 		void		setlcdparameter(int dimm, int _power);
 		void		count_down();
-#endif
 
 	public:
 		bool has_lcd;

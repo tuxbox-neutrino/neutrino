@@ -243,8 +243,8 @@ static void* reader_thread(void * /*arg*/)
 	bool bad_startcode = false;
 	set_threadname("dvbsub:reader");
 
-        dmx = new cDemux(0);
-        dmx->Open(DMX_PES_CHANNEL, NULL, 64*1024);
+	dmx = new cDemux(0);
+	dmx->Open(DMX_PES_CHANNEL, NULL, 64*1024);
 
 	while (reader_running) {
 		if(dvbsub_stopped /*dvbsub_paused*/) {

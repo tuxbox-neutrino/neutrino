@@ -27,10 +27,6 @@ AM_CPPFLAGS = \
 	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
-if BOXTYPE_TRIPLE
-SUBDIRS += lcddisplay
-endif
-
 if USE_PUGIXML
 PUGIXML_LIBS = -lpugixml
 endif
@@ -193,15 +189,18 @@ neutrino_LDFLAGS = \
 	$(STB_HAL_LIB)
 endif
 
-if BOXTYPE_TRIPLE
-neutrino_LDADD += \
-	$(top_builddir)/src/lcddisplay/liblcddisplay.a
-endif
-
 neutrino_LDADD += \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@
+
+if BOXTYPE_SPARK
+neutrino_LDADD += -lass
+endif
+
+if BOXTYPE_MIPSBOX
+neutrino_LDADD += -lass
+endif
 
 if BOXTYPE_ARMBOX
 neutrino_LDADD += @SWSCALE_LIBS@

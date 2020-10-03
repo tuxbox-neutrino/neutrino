@@ -21,8 +21,3 @@ if ENABLE_GRAPHLCD
 SUBDIRS += \
 	oled
 endif
-
-if BOXTYPE_TRIPLE
-SUBDIRS += \
-	lcd
-endif

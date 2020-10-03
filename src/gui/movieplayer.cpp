@@ -180,11 +180,6 @@ void CMoviePlayerGui::Init(void)
 
 	// video files
 	filefilter_video.addFilter("ts");
-#if !HAVE_TRIPLEDRAGON
-	filefilter_video.addFilter("asf");
-	filefilter_video.addFilter("avi");
-	filefilter_video.addFilter("mkv");
-#endif
 	filefilter_video.addFilter("flv");
 	filefilter_video.addFilter("iso");
 	filefilter_video.addFilter("m2p");

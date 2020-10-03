@@ -211,31 +211,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS[VID
  * key value of -1 means the mode is not available
  * TODO: instead of #ifdef select at run time
  */
-#if HAVE_TRIPLEDRAGON
-CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
-{
-	{ VIDEO_STD_NTSC,    NONEXISTANT_LOCALE, "NTSC"		},
-	{ VIDEO_STD_PAL,     NONEXISTANT_LOCALE, "PAL"		},
-	{ VIDEO_STD_SECAM,   NONEXISTANT_LOCALE, "SECAM"	},
-	{ -1,                NONEXISTANT_LOCALE, "480p"		},
-	{ -1,                NONEXISTANT_LOCALE, "576p"		},
-	{ -1,                NONEXISTANT_LOCALE, "720p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "720p 60Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080i 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080i 60Hz"   },
-	{ -1,                NONEXISTANT_LOCALE, "1080p 23.97Hz"},
-	{ -1,                NONEXISTANT_LOCALE, "1080p 24Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080p 25Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080p 29.97Hz"},
-	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"   },
-	{ -1,                NONEXISTANT_LOCALE, "1080p 60Hz"   },
-	{ -1,                NONEXISTANT_LOCALE, "2160p 24Hz"   },
-	{ -1,                NONEXISTANT_LOCALE, "2160p 25Hz"   },
-	{ -1,                NONEXISTANT_LOCALE, "2160p 30Hz"   },
-	{ -1,                NONEXISTANT_LOCALE, "2160p 50Hz"   },
-	{ -1,                NONEXISTANT_LOCALE, "Auto"		}
-};
-#elif BOXMODEL_CST_HD1
+#if BOXMODEL_CST_HD1
 /* numbers corresponding to video.cpp from zapit */
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {

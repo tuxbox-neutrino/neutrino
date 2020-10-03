@@ -1217,39 +1217,6 @@ _remount:
 			snprintf(cmd, sizeof(cmd), "%s/plugins", dst.c_str());
 			safe_mkdir(cmd);
 			// sync();
-#if HAVE_TRIPLEDRAGON
-		/* on the tripledragon, we mount via fstab, so we need to add an
-		   fstab entry for dst */
-		FILE *g;
-		char *line = NULL;
-		unlink("/etc/fstab.new");
-		g = fopen("/etc/fstab.new", "w");
-		f = fopen("/etc/fstab", "r");
-		if (!g)
-			perror("open /etc/fstab.new");
-		else {
-			if (f) {
-				int ret;
-				while (true) {
-					size_t dummy;
-					ret = getline(&line, &dummy, f);
-					if (ret < 0)
-						break;
-					/* remove lines that start with the same disk we formatted
-					   devname is /dev/xda" */
-					if (strncmp(line, devname.c_str(), devname.length()) != 0)
-						fprintf(g, "%s", line);
-				}
-				free(line);
-				fclose(f);
-			}
-			/* now add our new entry */
-			fprintf(g, "%s %s auto defaults 0 0\n", partname.c_str(), dst.c_str());
-			fclose(g);
-			rename("/etc/fstab", "/etc/fstab.old");
-			rename("/etc/fstab.new", "/etc/fstab");
-		}
-#endif
 		}
 	}
 _return:

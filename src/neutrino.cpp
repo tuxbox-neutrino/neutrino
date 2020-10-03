@@ -400,13 +400,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
 	// video
-#if HAVE_TRIPLEDRAGON
-	int vid_Mode_default = VIDEO_STD_PAL;
-#else
 	int vid_Mode_default = VIDEO_STD_720P50;
 	if (getenv("NEUTRINO_DEFAULT_SCART") != NULL)
 		vid_Mode_default = VIDEO_STD_PAL;
-#endif
+
 	g_settings.video_Mode = configfile.getInt32("video_Mode", vid_Mode_default);
 #ifdef ANALOG_MODE
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_MODE(BOTH,SD,RGB)); // default RGB
@@ -4653,22 +4650,12 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 		frameBuffer->paintBackground();
 
 		//g_Controld->setScartMode( 1 );
-#if HAVE_TRIPLEDRAGON
-		/* would this hurt on Coolstream? */
-		videoDecoder->Stop(true);
-		videoDecoder->Standby(true);
-#endif
 		CVFD::getInstance()->setMode(CVFD::MODE_SCART);
 		lastMode = mode;
 		mode = NeutrinoModes::mode_scart;
 	} else {
 		// SCART AUS
 		//g_Controld->setScartMode( 0 );
-#if HAVE_TRIPLEDRAGON
-		/* could actually go into radioMode() and tvMode()? */
-		videoDecoder->Standby(false);
-		videoDecoder->Start();
-#endif
 		mode = NeutrinoModes::mode_unknown;
 		//re-set mode
 		if( lastMode == NeutrinoModes::mode_radio || lastMode == NeutrinoModes::mode_webradio) {

@@ -417,16 +417,10 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 int pmt_stop_update_filter(int * fd)
 {
 	DBG("[pmt] stop update filter\n");
-#if HAVE_TRIPLEDRAGON
-	if (pmtDemux)
-		delete pmtDemux;
-	/* apparently a close/reopen is needed on TD... */
-	pmtDemux = NULL;
-#else
+
 	if(pmtDemux)
 		pmtDemux->Stop();
-#endif
 
 	*fd = -1;
-        return 0;
+	return 0;
 }
